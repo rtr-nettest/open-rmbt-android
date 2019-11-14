@@ -1,0 +1,252 @@
+<?xml version="1.0" encoding="utf-8"?><!--
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~ http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/dialog_background"
+        android:padding="@dimen/margin_large">
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/labelTitle"
+            style="@style/RobotoBoldStyle.Medium"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:text="@string/location_dialog_label_title"
+            android:textColor="@color/text_black_transparency_60"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/editTextValue"
+            style="@style/RobotoRegularStyle.Medium"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/margin_large"
+            android:gravity="center"
+            android:text="@string/location_dialog_label_location_progress_message"
+            android:textColor="@color/text_black_transparency_60"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/labelTitle"
+            app:visibleOrGone="@{locationInfo == null}" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/labelPosition"
+            style="@style/RobotoMediumStyle.Small"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="@dimen/margin_medium"
+            android:gravity="end|center_vertical"
+            android:text="@string/location_dialog_label_position"
+            android:textColor="@color/text_gray_transparency_55"
+            app:layout_constraintBottom_toBottomOf="@+id/textPosition"
+            app:layout_constraintEnd_toStartOf="@+id/textPosition"
+            app:layout_constraintHorizontal_weight="3"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/textPosition"
+            app:visibleOrGone="@{locationInfo != null}" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/textPosition"
+            style="@style/RobotoRegularStyle.Medium"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/margin_medium"
+            android:layout_marginTop="@dimen/margin_large"
+            android:textColor="@color/text_black_transparency_60"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_weight="7"
+            app:layout_constraintStart_toEndOf="@+id/labelPosition"
+            app:layout_constraintTop_toBottomOf="@+id/editTextValue"
+            app:locationPosition="@{locationInfo}"
+            app:visibleOrGone="@{locationInfo != null}"
+            tools:text="N49° 11.543' E 18° 43.983" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/labelAccuracy"
+            style="@style/RobotoMediumStyle.Small"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="@dimen/margin_medium"
+            android:gravity="end|center_vertical"
+            android:text="@string/location_dialog_label_accuracy"
+            android:textColor="@color/text_gray_transparency_55"
+            app:layout_constraintBottom_toBottomOf="@+id/textAccuracy"
+            app:layout_constraintEnd_toStartOf="@+id/textAccuracy"
+            app:layout_constraintHorizontal_weight="3"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/textAccuracy"
+            app:visibleOrGone="@{locationInfo.hasAccuracy == true &amp;&amp; locationInfo.accuracy > 0}" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/textAccuracy"
+            style="@style/RobotoRegularStyle.Medium"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/margin_medium"
+            android:layout_marginTop="@dimen/margin_medium"
+            android:textColor="@color/text_black_transparency_60"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_weight="7"
+            app:layout_constraintStart_toEndOf="@+id/labelAccuracy"
+            app:layout_constraintTop_toBottomOf="@+id/textPosition"
+            app:locationAccuracy="@{locationInfo}"
+            app:visibleOrGone="@{locationInfo.hasAccuracy == true &amp;&amp; locationInfo.accuracy > 0}" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/labelAge"
+            style="@style/RobotoMediumStyle.Small"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="@dimen/margin_medium"
+            android:gravity="end|center_vertical"
+            android:text="@string/location_dialog_label_age"
+            android:textColor="@color/text_gray_transparency_55"
+            app:layout_constraintBottom_toBottomOf="@+id/textAge"
+            app:layout_constraintEnd_toStartOf="@+id/textAge"
+            app:layout_constraintHorizontal_weight="3"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/textAge"
+            app:visibleOrGone="@{locationInfo.age != null}" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/textAge"
+            style="@style/RobotoRegularStyle.Medium"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/margin_medium"
+            android:layout_marginTop="@dimen/margin_medium"
+            android:textColor="@color/text_black_transparency_60"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_weight="7"
+            app:layout_constraintStart_toEndOf="@+id/labelAge"
+            app:layout_constraintTop_toBottomOf="@+id/textAccuracy"
+            app:locationAge="@{locationInfo}"
+            app:visibleOrGone="@{locationInfo.age != null}"
+            tools:text="433 s" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/labelSource"
+            style="@style/RobotoMediumStyle.Small"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="@dimen/margin_medium"
+            android:gravity="end|center_vertical"
+            android:text="@string/location_dialog_label_source"
+            android:textColor="@color/text_gray_transparency_55"
+            app:layout_constraintBottom_toBottomOf="@+id/textSource"
+            app:layout_constraintEnd_toStartOf="@+id/textSource"
+            app:layout_constraintHorizontal_weight="3"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/textSource"
+            app:visibleOrGone="@{locationInfo.provider != null &amp;&amp; locationInfo.provider != LocationProvider.UNKNOWN }" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/textSource"
+            style="@style/RobotoRegularStyle.Medium"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/margin_medium"
+            android:layout_marginTop="@dimen/margin_medium"
+            android:textColor="@color/text_black_transparency_60"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_weight="7"
+            app:layout_constraintStart_toEndOf="@+id/labelSource"
+            app:layout_constraintTop_toBottomOf="@+id/textAge"
+            app:locationProvider="@{locationInfo.provider}"
+            app:visibleOrGone="@{locationInfo.provider != null &amp;&amp; locationInfo.provider != LocationProvider.UNKNOWN }"
+            tools:text="Network" />
+
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/labelAltitude"
+            style="@style/RobotoMediumStyle.Small"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="@dimen/margin_medium"
+            android:gravity="end|center_vertical"
+            android:text="@string/location_dialog_label_altitude"
+            android:textColor="@color/text_gray_transparency_55"
+            app:layout_constraintBottom_toBottomOf="@+id/textAltitude"
+            app:layout_constraintEnd_toStartOf="@+id/textAltitude"
+            app:layout_constraintHorizontal_weight="3"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/textAltitude"
+            app:visibleOrGone="@{locationInfo.hasAltitude}" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/textAltitude"
+            style="@style/RobotoRegularStyle.Medium"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/margin_medium"
+            android:layout_marginTop="@dimen/margin_medium"
+            android:textColor="@color/text_black_transparency_60"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_weight="7"
+            app:layout_constraintStart_toEndOf="@+id/labelAltitude"
+            app:layout_constraintTop_toBottomOf="@+id/textSource"
+            app:locationAltitude="@{locationInfo}"
+            app:visibleOrGone="@{locationInfo.hasAltitude}" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/labelSpeed"
+            style="@style/RobotoMediumStyle.Small"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="@dimen/margin_medium"
+            android:gravity="end|center_vertical"
+            android:text="@string/location_dialog_label_speed"
+            android:textColor="@color/text_gray_transparency_55"
+            app:layout_constraintBottom_toBottomOf="@+id/textSpeed"
+            app:layout_constraintEnd_toStartOf="@+id/textSpeed"
+            app:layout_constraintHorizontal_weight="3"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/textSpeed"
+            app:visibleOrGone="@{locationInfo.hasSpeed}" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/textSpeed"
+            style="@style/RobotoRegularStyle.Medium"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/margin_medium"
+            android:layout_marginTop="@dimen/margin_medium"
+            android:textColor="@color/text_black_transparency_60"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_weight="7"
+            app:layout_constraintStart_toEndOf="@+id/labelSpeed"
+            app:layout_constraintTop_toBottomOf="@+id/textAltitude"
+            app:locationSpeed="@{locationInfo}"
+            app:visibleOrGone="@{locationInfo.hasSpeed}" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <data>
+
+        <import type="at.specure.location.LocationInfo.LocationProvider" />
+
+        <variable
+            name="locationInfo"
+            type="at.specure.location.LocationInfo" />
+    </data>
+
+</layout>

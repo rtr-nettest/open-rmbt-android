@@ -1,0 +1,145 @@
+package at.rtr.rmbt.android.ui.view.curve
+
+import android.content.Context
+import android.graphics.Bitmap
+import android.graphics.Canvas
+import android.graphics.Color
+import android.graphics.Paint
+import android.graphics.Path
+import android.graphics.PorterDuff
+import android.graphics.PorterDuffXfermode
+import android.graphics.Rect
+import androidx.core.content.ContextCompat
+import at.rtr.rmbt.android.R
+import kotlin.math.cos
+import kotlin.math.sin
+
+class TopCurvePart(context: Context) : CurvePart() {
+
+    override var sectionStartAngle: Float = 135f
+
+    override lateinit var bitmap: Bitmap
+    override var currentCanvas: Canvas? = null
+
+    override var pathForText = Path()
+    override var sections = listOf(
+        CurveSection(16, context.getString(R.string.label_qos), true),
+        CurveSection(16, context.getString(R.string.label_upload), true),
+        CurveSection(16, context.getString(R.string.label_download), false),
+        CurveSection(8, context.getString(R.string.label_ping), false),
+        CurveSection(8, context.getString(R.string.label_init), false)
+    )
+
+    override var progressPaint = Paint().apply {
+        color = Color.WHITE
+        style = Paint.Style.STROKE
+        xfermode = PorterDuffXfermode(PorterDuff.Mode.SRC_ATOP)
+    }
+
+    private var dividerPaint = Paint().apply {
+        color = ContextCompat.getColor(context, R.color.measurement_text)
+        style = Paint.Style.FILL_AND_STROKE
+        xfermode = PorterDuffXfermode(PorterDuff.Mode.SRC)
+        isAntiAlias = true
+    }
+
+    override fun getCenterX() = viewSize.toFloat() / 3 + (largeRadius - smallRadius) / 2 + angleStep / 2
+    override fun getCenterY() = viewSize.toFloat() / 3
+
+    override fun getTopOffset() = (viewHeight.toFloat() - viewSize) / 2
+    override fun getLeftOffset() = (viewWidth - viewSize) / 2 + viewSize.toFloat() / 3
+
+    override fun drawSections(canvas: Canvas) {
+        dividerPaint.strokeWidth = 5f
+        // todo check drawing logic
+        val dividerAngle = 135.0 * Math.PI / 180f
+        canvas.drawLine(
+            (cX - (largeRadius - smallRadius) / 2 - angleStep / 2 + (smallRadius - 30) * cos(dividerAngle)).toFloat(),
+            (cY + (smallRadius - 30) * sin(dividerAngle)).toFloat(),
+            (cX - (largeRadius - smallRadius) / 2 + (largeRadius) * cos(dividerAngle)).toFloat(),
+            (cY + (largeRadius) * sin(dividerAngle)).toFloat(),
+            dividerPaint
+        )
+
+        var angle = sectionStartAngle - ANGLE_STEP_MULTIPLIER * angleStep
+        for (section in sections) {
+            section.startAngle = angle
+            for (i in 0 until section.count) {
+                canvas.drawArc(
+                    cX - smallRadius, cY - smallRadius, cX + smallRadius, cY + smallRadius,
+                    angle,
+                    angleStep,
+                    false,
+                    emptySquarePaint
+                )
+                canvas.drawArc(
+                    cX - mediumRadius, cY - mediumRadius, cX + mediumRadius, cY + mediumRadius,
+                    angle,
+                    angleStep,
+                    false,
+                    emptySquarePaint
+                )
+                canvas.drawArc(
+                    cX - largeRadius, cY - largeRadius, cX + largeRadius, cY + largeRadius,
+                    angle,
+                    angleStep,
+                    false,
+                    emptySquarePaint
+                )
+
+                section.endAngle = angle
+                section.length = (Math.PI * smallRadius * (section.startAngle - section.endAngle) / 180).toFloat()
+
+                angle -= ANGLE_STEP_MULTIPLIER * angleStep
+            }
+
+            angle -= angleStep
+        }
+        sectionEndAngle = angle + ANGLE_STEP_MULTIPLIER * angleStep
+    }
+
+    override fun drawText(canvas: Canvas) {
+        for (section in sections) {
+            pathForText.reset()
+            val bounds = Rect()
+            textPaint.getTextBounds(section.text, 0, section.text.length, bounds)
+
+            if (section.isUpside) {
+                pathForText.addArc(
+                    cX - smallRadius, cY - smallRadius, cX + smallRadius, cY + smallRadius,
+                    section.startAngle,
+                    section.endAngle - section.startAngle
+                )
+                canvas.drawTextOnPath(section.text, pathForText, section.length - bounds.width() - 5, -textPaint.textSize, textPaint)
+            } else {
+                pathForText.addArc(
+                    cX - smallRadius, cY - smallRadius, cX + smallRadius, cY + smallRadius,
+                    section.endAngle,
+                    section.startAngle - section.endAngle
+                )
+                canvas.drawTextOnPath(section.text, pathForText, 0f, textPaint.textSize * 2, textPaint)
+            }
+        }
+    }
+
+    override fun updateProgress(progress: Int) {
+        progressPaint.strokeWidth = 1.5f * (largeRadius - smallRadius)
+        val progressAngle = (sectionStartAngle - sectionEndAngle) / 100 * progress
+
+        currentCanvas?.let { currentCanvas ->
+            drawSections(currentCanvas)
+            drawText(currentCanvas)
+
+            currentCanvas.drawArc(
+                cX - largeRadius,
+                cY - largeRadius,
+                cX + largeRadius,
+                cY + largeRadius,
+                sectionEndAngle,
+                progressAngle,
+                false,
+                progressPaint
+            )
+        }
+    }
+}

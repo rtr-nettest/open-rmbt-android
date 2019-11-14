@@ -1,0 +1,350 @@
+/*
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package at.specure.info.strength
+
+import android.annotation.SuppressLint
+import android.os.Build
+import android.os.Handler
+import android.telephony.CellSignalStrengthCdma
+import android.telephony.CellSignalStrengthLte
+import android.telephony.CellSignalStrengthNr
+import android.telephony.CellSignalStrengthTdscdma
+import android.telephony.CellSignalStrengthWcdma
+import android.telephony.PhoneStateListener
+import android.telephony.SignalStrength
+import android.telephony.TelephonyManager
+import at.specure.info.TransportType
+import at.specure.info.cell.CellNetworkInfo
+import at.specure.info.network.ActiveNetworkWatcher
+import at.specure.info.network.MobileNetworkType
+import at.specure.info.network.NetworkInfo
+import at.specure.info.wifi.WifiInfoWatcher
+import at.specure.util.synchronizedForEach
+import timber.log.Timber
+import java.util.Collections
+
+private const val WIFI_UPDATE_DELAY = 2000L
+private const val WIFI_MESSAGE_ID = 1
+private const val WIFI_MIN_SIGNAL_VALUE = -100
+private const val WIFI_MAX_SIGNAL_VALUE = -30
+
+private const val CELLULAR_SIGNAL_MIN = -110
+private const val CELLULAR_SIGNAL_MAX = -50
+
+private const val LTE_RSRP_SIGNAL_MIN = -130
+private const val LTE_RSRP_SIGNAL_MAX = -70
+
+private const val WCDMA_RSRP_SIGNAL_MIN = -120
+private const val WCDMA_RSRP_SIGNAL_MAX = -24
+
+private const val NR_RSRP_SIGNAL_MIN = -140
+private const val NR_RSRP_SIGNAL_MAX = -44
+
+/**
+ * Basic implementation of [SignalStrengthInfo] that using [ActiveNetworkWatcher] and [WifiInfoWatcher] to detect network changes and handle
+ * signal strength changes of current network available on the mobile device
+ */
+class SignalStrengthWatcherImpl(
+    private val telephonyManager: TelephonyManager,
+    private val activeNetworkWatcher: ActiveNetworkWatcher,
+    private val wifiInfoWatcher: WifiInfoWatcher
+) :
+    SignalStrengthWatcher {
+
+    private val listeners = Collections.synchronizedSet(mutableSetOf<SignalStrengthWatcher.SignalStrengthListener>())
+
+    private var cellListenerRegistered = false
+    private var wifiListenerRegistered = false
+
+    private var signalStrengthInfo: SignalStrengthInfo? = null
+
+    override val lastSignalStrength: SignalStrengthInfo?
+        get() = signalStrengthInfo
+
+    private val strengthListener = object : PhoneStateListener() {
+
+        // discard signal strength from GT-I9100G (Galaxy S II) - passes wrong info
+        private val ignoredDevices = setOf("GT-I9100G", "HUAWEI P2-6011")
+
+        private val isDeviceIgnored: Boolean
+            get() = ignoredDevices.contains(Build.MODEL)
+
+        override fun onSignalStrengthsChanged(signalStrength: SignalStrength?) {
+            Timber.d("Signal Strength changed")
+
+            if (isDeviceIgnored) {
+                Timber.i("Signal Strength is ignored for current device")
+                return
+            }
+
+            val signal = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                signalStrengthQ(signalStrength)
+            } else {
+                signalStrengthOld(signalStrength)
+            }
+
+            if (signal?.value != null && signal.value != 0) {
+                signalStrengthInfo = signal
+                notifyInfoChanged()
+            }
+        }
+    }
+
+    @SuppressLint("NewApi")
+    private fun signalStrengthQ(signalStrength: SignalStrength?): SignalStrengthInfo? {
+        if (signalStrength == null) {
+            return null
+        }
+
+        var signal: Int? = null
+        var level: Int? = null
+        var lteRsrq: Int? = null
+        var minStrength = 0
+        var maxStrength = 0
+
+        signalStrength.cellSignalStrengths.forEach {
+
+            level = it.level
+            signal = it.dbm
+
+            when (it) {
+                is CellSignalStrengthLte -> {
+                    lteRsrq = it.rsrq
+                    minStrength = LTE_RSRP_SIGNAL_MIN
+                    maxStrength = LTE_RSRP_SIGNAL_MAX
+                }
+                is CellSignalStrengthNr -> {
+                    lteRsrq = it.csiRsrq
+                    minStrength = NR_RSRP_SIGNAL_MIN
+                    maxStrength = NR_RSRP_SIGNAL_MAX
+                }
+                is CellSignalStrengthTdscdma,
+                is CellSignalStrengthWcdma -> {
+                    minStrength = WCDMA_RSRP_SIGNAL_MIN
+                    maxStrength = WCDMA_RSRP_SIGNAL_MAX
+                }
+                is CellSignalStrengthCdma -> it.dbm
+                else -> {
+                    minStrength = CELLULAR_SIGNAL_MIN
+                    maxStrength = CELLULAR_SIGNAL_MAX
+                }
+            }
+        }
+
+        if (signal == null) {
+            return null
+        } else {
+            return SignalStrengthInfo(
+                transport = TransportType.CELLULAR,
+                value = signal,
+                rsrq = lteRsrq,
+                signalLevel = level ?: 0,
+                max = maxStrength,
+                min = minStrength
+            )
+        }
+    }
+
+    private fun signalStrengthOld(signalStrength: SignalStrength?): SignalStrengthInfo? {
+        val network = activeNetworkWatcher.currentNetworkInfo
+        var strength: Int? = null
+        var lteRsrp: Int? = null
+        var lteRsrq: Int? = null
+
+        if (network is CellNetworkInfo && signalStrength != null) {
+            val type = network.networkType
+            if (type == MobileNetworkType.CDMA) {
+                strength = signalStrength.cdmaDbm
+            } else if (type == MobileNetworkType.EVDO_0 || type == MobileNetworkType.EVDO_A || type == MobileNetworkType.EVDO_B) {
+                strength = signalStrength.evdoDbm
+            } else if (type == MobileNetworkType.LTE || type == MobileNetworkType.LTE_CA) {
+                try {
+                    lteRsrp = SignalStrength::class.java.getMethod("getLteRsrp").invoke(signalStrength) as Int
+                    lteRsrq = SignalStrength::class.java.getMethod("getLteRsrq").invoke(signalStrength) as Int
+
+                    if (lteRsrp == Integer.MAX_VALUE)
+                        lteRsrp = null
+                    if (lteRsrq == Integer.MAX_VALUE)
+                        lteRsrq = null
+                    if (lteRsrq != null && lteRsrq > 0)
+                        lteRsrq = -lteRsrq // fix invalid rsrq values for some devices (see #996)
+                } catch (t: Throwable) {
+                    Timber.e(t)
+                }
+            } else if (signalStrength.isGsm) {
+                try {
+                    val getGsmDbm = SignalStrength::class.java.getMethod("getGsmDbm")
+                    val result = getGsmDbm.invoke(signalStrength) as Int
+                    if (result != -1)
+                        strength = result
+                } catch (t: Throwable) {
+                    Timber.e(t)
+                }
+
+                if (strength == null) { // fallback if not implemented
+                    val dBm: Int?
+                    val gsmSignalStrength = signalStrength.gsmSignalStrength
+                    val asu = if (gsmSignalStrength == 99) -1 else gsmSignalStrength
+                    dBm = if (asu != -1) {
+                        -113 + 2 * asu
+                    } else {
+                        null
+                    }
+                    strength = dBm
+                }
+            }
+        }
+
+        val signalValue = lteRsrp ?: strength
+        val signalMin = if (lteRsrp == null) CELLULAR_SIGNAL_MIN else LTE_RSRP_SIGNAL_MIN
+        val signalMax = if (lteRsrp == null) CELLULAR_SIGNAL_MAX else LTE_RSRP_SIGNAL_MAX
+
+        return if (signalValue == null) {
+            null
+        } else {
+            SignalStrengthInfo(
+                transport = TransportType.CELLULAR,
+                value = signalValue,
+                rsrq = lteRsrq,
+                signalLevel = calculateCellSignalLevel(signalValue, signalMin, signalMax),
+                max = signalMax,
+                min = signalMin
+            )
+        }
+    }
+
+    private fun calculateCellSignalLevel(signal: Int?, min: Int, max: Int): Int {
+        val relativeSignal: Double = ((signal ?: 0) - min.toDouble()) / (max - min)
+        return when {
+            relativeSignal <= 0.0 -> 0
+            relativeSignal < 0.25 -> 1
+            relativeSignal < 0.5 -> 2
+            relativeSignal < 0.75 -> 3
+            else -> 4
+        }
+    }
+
+    private val activeNetworkListener = object : ActiveNetworkWatcher.NetworkChangeListener {
+
+        override fun onActiveNetworkChanged(info: NetworkInfo?) {
+            if (info == null) {
+                unregisterWifiCallbacks()
+                unregisterCellCallbacks()
+
+                Timber.i("Network changed to NULL")
+                signalStrengthInfo = null
+                notifyInfoChanged()
+
+                return
+            }
+
+            if (info.type == TransportType.CELLULAR) {
+                registerCellCallbacks()
+            }
+
+            if (info.type == TransportType.WIFI) {
+                registerWifiCallbacks()
+            }
+        }
+    }
+
+    private val wifiUpdateHandler = Handler {
+        handleWifiUpdate()
+        return@Handler true
+    }
+
+    private fun handleWifiUpdate() {
+        val wifiInfo = wifiInfoWatcher.activeWifiInfo
+        if (wifiInfo != null) {
+            signalStrengthInfo = SignalStrengthInfo(
+                transport = TransportType.WIFI,
+                value = wifiInfo.rssi,
+                rsrq = null,
+                signalLevel = wifiInfo.signalLevel,
+                max = WIFI_MAX_SIGNAL_VALUE,
+                min = WIFI_MIN_SIGNAL_VALUE
+            )
+        }
+        notifyInfoChanged()
+        scheduleWifiUpdate()
+    }
+
+    private fun scheduleWifiUpdate() {
+        wifiUpdateHandler.removeMessages(WIFI_MESSAGE_ID)
+        if (wifiListenerRegistered) {
+            wifiUpdateHandler.sendEmptyMessageDelayed(WIFI_MESSAGE_ID, WIFI_UPDATE_DELAY)
+        }
+    }
+
+    private fun notifyInfoChanged() {
+        listeners.synchronizedForEach { it.onSignalStrengthChanged(signalStrengthInfo) }
+    }
+
+    override fun addListener(listener: SignalStrengthWatcher.SignalStrengthListener) {
+        listeners.add(listener)
+        listener.onSignalStrengthChanged(lastSignalStrength)
+        if (listeners.size == 1) {
+            registerCallbacks()
+        }
+    }
+
+    override fun removeListener(listener: SignalStrengthWatcher.SignalStrengthListener) {
+        listeners.remove(listener)
+        if (listeners.isEmpty()) {
+            unregisterCallbacks()
+        }
+    }
+
+    private fun registerCallbacks() {
+        activeNetworkWatcher.addListener(activeNetworkListener)
+    }
+
+    private fun unregisterCallbacks() {
+        activeNetworkWatcher.removeListener(activeNetworkListener)
+        unregisterCellCallbacks()
+        unregisterWifiCallbacks()
+    }
+
+    private fun registerCellCallbacks() {
+        Timber.i("Network changed to CELLULAR")
+        if (!cellListenerRegistered) {
+            telephonyManager.listen(strengthListener, PhoneStateListener.LISTEN_SIGNAL_STRENGTHS)
+            cellListenerRegistered = true
+        }
+        unregisterWifiCallbacks()
+    }
+
+    private fun registerWifiCallbacks() {
+        Timber.i("Network changed to WIFI")
+        if (!wifiListenerRegistered) {
+            wifiListenerRegistered = true
+            handleWifiUpdate()
+        }
+        unregisterCellCallbacks()
+    }
+
+    private fun unregisterCellCallbacks() {
+        if (cellListenerRegistered) {
+            telephonyManager.listen(strengthListener, PhoneStateListener.LISTEN_NONE)
+            cellListenerRegistered = false
+        }
+    }
+
+    private fun unregisterWifiCallbacks() {
+        if (wifiListenerRegistered) {
+            wifiUpdateHandler.removeMessages(WIFI_MESSAGE_ID)
+            wifiListenerRegistered = false
+        }
+    }
+}

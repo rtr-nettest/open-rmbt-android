@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <import type="at.specure.measurement.MeasurementState" />
+        <variable
+            name="state"
+            type="at.rtr.rmbt.android.ui.viewstate.MeasurementViewState" />
+
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/measurement_bottom_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/background_measurement_bottom"
+        android:orientation="vertical"
+        android:paddingBottom="@dimen/padding_large">
+
+        <View
+            android:id="@+id/viewHeader"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/measurement_bottom_header_height"
+            android:background="@drawable/measurement_bottom_header_background"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <androidx.appcompat.widget.AppCompatImageView
+            android:id="@+id/imageViewSignalLevel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/margin_large"
+            tools:src="@drawable/ic_small_wifi_1"
+            app:measurementSignalLevel="@{state.signalStrengthInfo}"
+            app:layout_constraintBottom_toBottomOf="@+id/viewHeader"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/labelMeasurementBottomPing"
+            style="@style/RobotoRegularStyle.Small"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/margin_large"
+            android:layout_marginTop="@dimen/margin_small"
+            android:text="@string/measurement_ping"
+            android:textColor="@color/text_white_transparency_50"
+            app:layout_constraintEnd_toStartOf="@+id/labelMeasurementBottomDownload"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toEndOf="@+id/imageViewSignalLevel"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/labelMeasurementBottomDownload"
+            style="@style/RobotoRegularStyle.Small"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/margin_small"
+            android:text="@string/measurement_down"
+            android:textColor="@color/text_white_transparency_50"
+            app:layout_constraintEnd_toStartOf="@+id/labelMeasurementBottomUpload"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toEndOf="@+id/labelMeasurementBottomPing"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/labelMeasurementBottomUpload"
+            style="@style/RobotoRegularStyle.Small"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/margin_small"
+            android:text="@string/measurement_up"
+            android:textColor="@color/text_white_transparency_50"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toEndOf="@+id/labelMeasurementBottomDownload"
+            app:layout_constraintTop_toTopOf="parent" />
+
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/appCompatImageView1"
+            style="@style/RobotoMediumStyle.VerySmall"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            tools:drawableStart="@drawable/ic_small_ping_yellow"
+            android:drawablePadding="@dimen/padding_very_small"
+            app:layout_constraintStart_toStartOf="@+id/labelMeasurementBottomPing"
+            app:layout_constraintTop_toBottomOf="@+id/labelMeasurementBottomPing"
+            app:pingMs="@{state.pingMs}"
+            tools:text="14 ms"
+            tools:textColor="@android:color/white" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/textDownloadSpeed"
+            style="@style/RobotoMediumStyle.VerySmall"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            tools:drawableStart="@drawable/ic_small_download_green"
+            android:drawablePadding="@dimen/padding_very_small"
+            app:downloadSpeedBps="@{state.downloadSpeedBps}"
+            tools:text="24 Mbit/s"
+            tools:textColor="@android:color/white"
+            app:layout_constraintStart_toStartOf="@+id/labelMeasurementBottomDownload"
+            app:layout_constraintTop_toBottomOf="@+id/labelMeasurementBottomDownload" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/textUploadSpeed"
+            style="@style/RobotoMediumStyle.VerySmall"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            tools:drawableStart="@drawable/ic_small_upload_gray"
+            android:drawablePadding="@dimen/padding_very_small"
+            tools:text="24 Mbit/s"
+            app:uploadSpeedBps="@{state.uploadSpeedBps}"
+            tools:textColor="@android:color/white"
+            app:layout_constraintStart_toStartOf="@+id/labelMeasurementBottomUpload"
+            app:layout_constraintTop_toBottomOf="@+id/labelMeasurementBottomDownload" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/labelDownloadUpload"
+            style="@style/RobotoMediumStyle.Medium"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/margin_large"
+            android:paddingTop="@dimen/padding_medium"
+            android:paddingBottom="@dimen/padding_large"
+            tools:text="@string/measurement_download"
+            android:text="@{(state.measurementState == MeasurementState.IDLE | state.measurementState == MeasurementState.INIT | state.measurementState == MeasurementState.PING | state.measurementState == MeasurementState.DOWNLOAD) ? @string/measurement_download : @string/measurement_upload }"
+            android:textColor="@android:color/white"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/viewHeader" />
+
+        <at.rtr.rmbt.android.ui.view.SpeedLineChart
+            android:id="@+id/speedChartDownloadUpload"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/speed_chart_height"
+            app:speedBps="@{state.measurementState == MeasurementState.DOWNLOAD ? state.downloadSpeedBps : state.measurementState == MeasurementState.UPLOAD ? state.uploadSpeedBps : 0}"
+            app:reset="@{state.measurementState}"
+            app:grid_color="@color/chart_grid_line_color"
+            app:grid_row="4"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/labelDownloadUpload"
+            app:xlabel_color="@color/text_gray"
+            app:xlabel_text_size="@dimen/chart_label_text_size"
+            app:ylabel_color="@color/text_gray"
+            app:ylabel_text_size="@dimen/chart_label_text_size"
+            app:progress_line_color="@color/colorAccent"
+            app:progress_fill_color="@color/speed_chart_progress_fill_color"
+            />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</layout>

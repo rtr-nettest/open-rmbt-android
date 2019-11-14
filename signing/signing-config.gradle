@@ -1,0 +1,23 @@
+android {
+
+    signingConfigs {
+
+        debug {
+            def props = new Properties()
+            file("$project.rootDir/signing/debug.properties").withInputStream { props.load(it) }
+            keyAlias props['keyAlias']
+            keyPassword props['keyPassword']
+            storePassword props['storePassword']
+            storeFile file("$project.rootDir/signing/debug.keystore")
+        }
+
+        release {
+            def props = new Properties()
+            file("$project.rootDir/signing/release.properties").withInputStream { props.load(it) }
+            keyAlias props['keyAlias']
+            keyPassword props['keyPassword']
+            storePassword props['storePassword']
+            storeFile file("$project.rootDir/signing/release.keystore")
+        }
+    }
+}

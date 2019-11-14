@@ -1,0 +1,15 @@
+android {
+
+    defaultConfig {
+        manifestPlaceholders = [
+                fabricApiKey: ""
+        ]
+    }
+
+    flavorDimensions 'target'
+    productFlavors {
+        rtr {
+            dimension "target"
+        }
+    }
+}

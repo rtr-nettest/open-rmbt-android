@@ -1,0 +1,2 @@
+#!/usr/bin/env bash
+./gradlew :app:ktlint && ./gradlew :core:ktlint && ./gradlew :control_client:ktlint && ./gradlew :util:ktlint && ./gradlew :app:lintLocalDevDebug && ./gradlew :core:lint && ./gradlew :control_client:lint && ./gradlew :util:lint

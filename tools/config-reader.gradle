@@ -1,0 +1,40 @@
+import groovy.json.JsonSlurper
+
+def verbose = false
+
+android.applicationVariants.all { variant ->
+
+    def name = variant.getName()
+    def buildType
+    if (name.contains("Debug")) {
+        buildType = "Debug"
+    } else if (name.contains("Release")) {
+        buildType = "Release"
+    } else {
+        throw "An unknown build variant is using. Please add it in tools/config-reader.gradle file"
+    }
+
+    def flavorDimension = name - buildType
+
+    def jsonFile
+    if(isPrivate){
+        jsonFile = file("$project.rootDir/private/app/src/${flavorDimension}/config.json")
+    } else {
+        jsonFile = file("$project.rootDir/app/src/${flavorDimension}/config.json")
+    }
+
+    def parsedJson = new JsonSlurper().parseText(jsonFile.text)
+
+    if (verbose) {
+        println "-------------${flavorDimension}--------------"
+    }
+
+    def configClass = "at.rtr.rmbt.android.util.ConfigValue"
+
+    parsedJson.config.each {
+        if (verbose) {
+            println "${it.name} ${it.value} ${it.visible}"
+        }
+        buildConfigField("$configClass", it.name, "new ${configClass}(\"${it.name}\", \"${it.value}\", ${it.visible})")
+    }
+}

@@ -1,0 +1,289 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:bind="http://schemas.android.com/apk/res-auto">
+
+    <data>
+
+        <import type="android.view.View" />
+
+        <import type="at.rtr.rmbt.android.BuildConfig" />
+
+        <import type="at.rtr.rmbt.android.util.ConfigValue" />
+
+        <variable
+            name="state"
+            type="at.rtr.rmbt.android.ui.viewstate.SettingsViewState" />
+
+    </data>
+
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+
+            <include
+                android:id="@+id/labelGeneralSettings"
+                layout="@layout/item_setting_header"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                bind:title="@{@string/preferences_general_settings}" />
+
+
+            <include
+                android:id="@+id/switchNDT"
+                layout="@layout/item_setting_switch"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:visibility="@{BuildConfig.NDT_ENABLED.visible ? View.VISIBLE : View.GONE}"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/labelGeneralSettings"
+                bind:title="@{@string/preferences_ndt}"
+                bind:value="@{state.isNDTEnabled}" />
+
+            <include
+                android:id="@+id/switchSkipQosTests"
+                layout="@layout/item_setting_switch"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:visibility="@{BuildConfig.SKIP_QOS_TESTS.visible ? View.VISIBLE : View.GONE}"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/switchNDT"
+                bind:title="@{@string/preferences_skip_qos_tests}"
+                bind:value="@{state.skipQoSTests}" />
+
+            <include
+                android:id="@+id/switchLocations"
+                layout="@layout/item_setting_switch"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:visibility="@{BuildConfig.CAN_MANAGE_LOCATION_SETTINGS.visible ? View.VISIBLE : View.GONE}"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/switchSkipQosTests"
+                bind:title="@{@string/preferences_location}"
+                bind:value="@{state.canManageLocationSettings}" />
+
+
+            <include
+                android:id="@+id/labelAdvancedSettings"
+                layout="@layout/item_setting_header"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/switchLocations"
+                bind:title="@{@string/preferences_advanced_settings}" />
+
+
+            <include
+                android:id="@+id/switchLoopModeEnabled"
+                layout="@layout/item_setting_switch"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:visibility="@{BuildConfig.LOOP_MODE_ENABLED.visible ? View.VISIBLE : View.GONE}"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/labelAdvancedSettings"
+                bind:summary="@{@string/preferences_loop_mode_summary}"
+                bind:title="@{@string/preferences_loop_mode}"
+                bind:value="@{state.loopModeEnabled}" />
+
+
+            <include
+                android:id="@+id/loopModeWaitingTime"
+                layout="@layout/item_setting_edittext"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:visibility="@{state.loopModeEnabled ? View.VISIBLE : View.GONE}"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/switchLoopModeEnabled"
+                bind:title="@{@string/preferences_loop_mode_min_delay}"
+                bind:value="@{String.valueOf(state.loopModeWaitingTimeMin)}" />
+
+            <include
+                android:id="@+id/loopModeDistanceMeters"
+                layout="@layout/item_setting_edittext"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:visibility="@{state.loopModeEnabled ? View.VISIBLE : View.GONE}"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/loopModeWaitingTime"
+                bind:title="@{@string/preferences_loop_mode_max_movement}"
+                bind:value="@{String.valueOf(state.loopModeDistanceMeters)}" />
+
+            <include
+                android:id="@+id/switchExpertModeEnabled"
+                layout="@layout/item_setting_switch"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:visibility="@{BuildConfig.EXPERT_MODE_ENABLED.visible ? View.VISIBLE : View.GONE}"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/loopModeDistanceMeters"
+                bind:summary="@{@string/preferences_expert_mode_summary}"
+                bind:title="@{@string/preferences_expert_mode}"
+                bind:value="@{state.expertModeEnabled}" />
+
+            <include
+                android:id="@+id/switchExpertModeIPV4Only"
+                layout="@layout/item_setting_switch"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:visibility="@{state.expertModeEnabled ? View.VISIBLE : View.GONE}"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/switchExpertModeEnabled"
+                bind:summary="@{@string/preferences_ipv4_only_sum}"
+                bind:title="@{@string/preferences_ipv4_only}"
+                bind:value="@{state.expertModeUseIpV4Only}" />
+
+            <include
+                android:id="@+id/radioInfo"
+                layout="@layout/item_setting_info"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:visibility="@{state.expertModeEnabled ? View.VISIBLE : View.GONE}"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/switchExpertModeIPV4Only"
+                bind:summary="@{@string/preferences_radio_info_sum}"
+                bind:title="@{@string/preferences_radio_info}" />
+
+            <include
+                android:id="@+id/labelContact"
+                layout="@layout/item_setting_header"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/radioInfo"
+                bind:title="@{@string/preferences_contact}" />
+
+            <include
+                android:id="@+id/goToWebsite"
+                layout="@layout/item_setting_more_detail"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/labelContact"
+                bind:title="@{@string/preferences_go_to_website}" />
+
+            <include
+                android:id="@+id/contactUs"
+                layout="@layout/item_setting_more_detail"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/goToWebsite"
+                bind:title="@{@string/preferences_contact_us}" />
+
+            <include
+                android:id="@+id/labelAdditionalInformation"
+                layout="@layout/item_setting_header"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/contactUs"
+                bind:title="@{@string/preferences_additional_Information}" />
+
+            <include
+                android:id="@+id/clientUUID"
+                layout="@layout/item_setting_key_value"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/labelAdditionalInformation"
+                bind:title="@{@string/preferences_client_uuid}"
+                bind:value="@{state.clientUUID.value}" />
+
+            <include
+                android:id="@+id/numberOfTestsPerformed"
+                layout="@layout/item_setting_key_value"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/clientUUID"
+                bind:title="@{@string/preferences_test_cases}"
+                bind:value="@{`3`}" />
+
+            <include
+                android:id="@+id/labelAbout"
+                layout="@layout/item_setting_header"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/numberOfTestsPerformed"
+                bind:title="@{@string/preferences_about}" />
+
+            <include
+                android:id="@+id/sourceCode"
+                layout="@layout/item_setting_more_detail"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/labelAbout"
+                bind:title="@{@string/preferences_source_code}" />
+
+            <include
+                android:id="@+id/dataPrivacyAndTerms"
+                layout="@layout/item_setting_more_detail"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/sourceCode"
+                bind:title="@{@string/preferences_data_protection}" />
+
+            <include
+                android:id="@+id/version"
+                layout="@layout/item_setting_key_value"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/dataPrivacyAndTerms"
+                bind:title="@{@string/preferences_version}" />
+
+            <include
+                android:id="@+id/commitHash"
+                layout="@layout/item_setting_key_value"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/version"
+                bind:title="@{@string/preferences_commit_hash}" />
+
+            <androidx.appcompat.widget.AppCompatImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="@dimen/padding_very_extra_large"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/commitHash"
+                app:srcCompat="@drawable/ic_rtr" />
+
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.core.widget.NestedScrollView>
+</layout>

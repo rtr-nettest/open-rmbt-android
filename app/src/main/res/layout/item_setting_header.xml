@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <variable
+            name="title"
+            type="String" />
+
+
+    </data>
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@android:id/title"
+        style="@style/RobotoMediumStyle.Small"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:ellipsize="marquee"
+        android:gravity="center_vertical"
+        android:minHeight="?android:attr/listPreferredItemHeight"
+        android:padding="@dimen/padding_large"
+        android:singleLine="true"
+        android:text="@{title}"
+        android:textColor="@color/text_gray_transparency_55"
+        tools:text="Title" />
+
+</layout>

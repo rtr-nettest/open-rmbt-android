@@ -1,0 +1,132 @@
+<!--
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~ http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <string name="toolbar_title">RTR-Netztest</string>
+
+    <!-- Navigation menu titles -->
+    <string name="menu_button_title_page">Zuhause</string>
+    <string name="menu_button_history">Geschichte</string>
+    <string name="menu_button_statistics">Statistiken</string>
+    <string name="menu_button_map">Map</string>
+
+    <!-- Error dialog messages -->
+    <string name="error_unknown">" Learn to pronounce  Ein Fehler ist aufgetreten. Bitte versuchen Sie es später noch einmal"</string>
+    <string name="dialog_title_error">Error</string>
+
+    <!-- Home screen -->
+    <string name="home_signal">Signal</string>
+    <string name="home_frequency">Frequenz</string>
+    <string name="home_attention">Achtung</string>
+    <string name="home_no_internet_connection">Keine Internetverbindung!</string>
+    <string name="home_use_wifi_or_data_connection">Flugmodus ausschalten oder WLAN für\nDatenzugriff verwenden.</string>
+    <string name="home_signal_value">%1$d dBm</string>
+    <string name="home_start_test_info">Drücken Sie den Button, um den Test jetzt zu starten!</string>
+    <string name="home_wifi">WLAN</string>
+    <string name="public_ip_address">Öffentliche Adresse</string>
+    <string name="private_ip_address">Lokale Adresse</string>
+
+    <!-- Preference titles -->
+    <string name="options">Optionen</string>
+    <string name="preferences_general_settings">Allgemeine Einstellungen</string>
+    <string name="preferences_ndt">NDT</string>
+    <string name="preferences_skip_qos_tests">QoS-Tests überspringen</string>
+    <string name="preferences_location">Standort</string>
+    <string name="preferences_loop_mode">Wiederholungsmodus</string>
+    <string name="preferences_advanced_settings">Erweiterte Einstellungen</string>
+    <string name="preferences_loop_mode_summary">Neuer Test nach Wartezeit oder Zurücklegen der Distanz. Max. 2 Tage</string>
+    <string name="preferences_loop_mode_min_delay">Wartezeit (in Minuten)</string>
+    <string name="preferences_loop_mode_max_movement">Distanz (in Metern)</string>
+    <string name="preferences_expert_mode">Expertenmodus</string>
+    <string name="preferences_expert_mode_summary">Erweitere Einstellungen und Informationen</string>
+    <string name="preferences_ipv4_only">Nur IPv4</string>
+    <string name="preferences_ipv4_only_sum">Keine Verwendung von IPv6</string>
+    <string name="preferences_radio_info">Mobilfunkinformation</string>
+    <string name="preferences_radio_info_sum">Details der Mobilfunkkonfiguration</string>
+    <string name="preferences_contact">Kontakt</string>
+    <string name="preferences_go_to_website">Website besuchen</string>
+    <string name="preferences_contact_us">E-Mail schreiben</string>
+    <string name="preferences_additional_Information">Weitere Informationen</string>
+    <string name="preferences_client_uuid">Client UUID</string>
+    <string name="preferences_test_cases">Testfälle</string>
+    <string name="preferences_about">Über</string>
+    <string name="preferences_source_code">Source Code</string>
+    <string name="preferences_data_protection">Datenschutzerklärung</string>
+    <string name="preferences_version">Version</string>
+
+    <!-- Location Dialog -->
+    <string name="location_dialog_label_title">Standort</string>
+    <string name="location_dialog_label_position">Position</string>
+    <string name="location_dialog_label_accuracy">Genauigkeit</string>
+    <string name="location_dialog_label_age">Aktualität</string>
+    <string name="location_dialog_label_source">Quelle</string>
+    <string name="location_dialog_label_altitude">Höhe</string>
+    <string name="location_dialog_label_speed">Geschwindigkeit</string>
+    <string name="location_dialog_label_location_progress_message">Suche nach Ihrer Adresse läuft. Bitte warten…</string>
+    <string name="open_gps_setting_dialog_label_gps_not_enabled">Standort nicht verfügbar. Möchten Sie die Standorteinstellungen ändern?</string>
+    <string name="open_gps_setting_dialog_label_open_gps_setting">Einstellungen öffnen</string>
+    <string name="open_gps_setting_dialog_label_cancel">Abbrechen</string>
+    <string name="location_dialog_not_available">Nicht verfügbar</string>
+    <string name="location_dialog_age">%1$s s</string>
+    <string name="location_dialog_accuracy">%1$s m</string>
+    <string name="location_dialog_speed">%1$s km/h</string>
+    <string name="location_location_direction_n">N %1$s</string>
+    <string name="location_location_direction_e">E %1$s</string>
+    <string name="location_location_direction_s">S %1$s</string>
+    <string name="location_location_direction_w">W %1$s</string>
+    <string name="test_location_gps">GPS</string>
+    <string name="test_location_network">Netzwerk</string>
+    <string name="test_location_fused">Verschmolzen</string>
+    <string name="preferences_commit_hash">Commit Hash</string>
+
+    <string name="text_ip_address_not_available">Adresse nicht verfügbar</string>
+    <string name="open_location_permission_dialog_label_location_not_permitted">Standort nicht verfügbar. Zulassen, dass RTR-Netztest auf den Standort Ihres Geräts zugreifen?</string>
+    <string name="open_location_permission_dialog_label_open_permission_setting">Einstellungen öffnen</string>
+
+    <string name="input_setting_dialog_okay">Okay</string>
+    <string name="input_setting_dialog_cancel">Stornieren</string>
+    <string name="value_invalid">Ungültiger Wert</string>
+    <string name="loop_mode_max_delay_invalid" tools:ignore="PluralsCandidate">Ungülige maximale Wartezeit. Bitte wählen Sie einen Wert zwischen %1$d und %2$d.</string>
+    <string name="loop_mode_max_movement_invalid" tools:ignore="PluralsCandidate">Ungültige maximale Distanz. Bitte wählen Sie einen Wert zwischen %1$d und %2$d.</string>
+    <string name="about_client_uuid_copied">Die Client UUID wurde in die Zwischenablage kopiert.</string>
+    <string name="client_not_registered">Der Client ist nicht registriert. Versuchen Sie es später erneut.</string>
+
+    <!-- Measurement screen -->
+    <string name="measurement_ping_value">%1$d ms</string>
+    <string name="measurement_download_upload_speed">%1$s Mbit/s</string>
+    <string name="measurement_download">Herunterladen</string>
+    <string name="measurement_upload">Hochladen</string>
+    <string name="measurement_dash">-</string>
+    <string name="measurement_speed_chart_x_label_min">0s</string>
+    <string name="measurement_speed_chart_x_label_max">8s</string>
+    <string name="measurement_ping">Klingeln</string>
+    <string name="measurement_down">Down</string>
+    <string name="measurement_up">Up</string>
+
+    <string-array name="measurement_speed_chart_y_labels">
+        <item>1</item>
+        <item>10</item>
+        <item>100</item>
+        <item>1000</item>
+    </string-array>
+
+    <string name="label_qos">QoS</string>
+    <string name="label_upload">Upload</string>
+    <string name="label_download">Download</string>
+    <string name="label_ping">Ping</string>
+    <string name="label_init">Init</string>
+    <string name="label_signal_strength">Signal</string>
+    <string name="network_label">Netzwerk</string>
+
+</resources>

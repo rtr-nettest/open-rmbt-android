@@ -1,0 +1,16 @@
+dokka {
+    moduleName = "core"
+    outputFormat = 'html'
+    outputDirectory = "$project.rootDir/build_results/javadoc"
+
+    kotlinTasks {
+        defaultKotlinTasks() + [':core:compileDebugKotlin', project("core").compileDebugKotlin]
+    }
+
+    jdkVersion = 8
+
+    reportUndocumented = true
+
+    skipEmptyPackages = true
+    impliedPlatforms = ["JVM"]
+}

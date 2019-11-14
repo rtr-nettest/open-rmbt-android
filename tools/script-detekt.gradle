@@ -1,0 +1,17 @@
+apply plugin: 'io.gitlab.arturbosch.detekt'
+
+detekt {
+    config = files("${project.rootDir}/tools/rules-detekt.yml")
+    filters = ".*build.*,.*/resources/.*,.*/tmp/.*"
+    disableDefaultRuleSets = true
+    reports {
+        xml {
+            enabled = true
+            destination = file("${project.rootDir}/build_results/detekt.xml")
+        }
+        html {
+            enabled = true
+            destination = file("${project.rootDir}/build_results/detekt.html")
+        }
+    }
+}

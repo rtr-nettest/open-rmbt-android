@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="LineChart">
+        <attr name="grid_color" format="color" />
+        <attr name="ylabel_color" format="color" />
+        <attr name="xlabel_color" format="color" />
+        <attr name="ylabel_text_size" format="dimension" />
+        <attr name="xlabel_text_size" format="dimension" />
+        <attr name="grid_row" format="integer" />
+    </declare-styleable>
+
+    <declare-styleable name="SpeedLineChart">
+        <attr name="progress_line_color" format="color" />
+        <attr name="progress_fill_color" format="color" />
+    </declare-styleable>
+</resources>

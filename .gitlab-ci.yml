@@ -1,0 +1,102 @@
+variables:
+  GIT_SUBMODULE_STRATEGY: recursive
+  VERSION_LAST_INCREASE: 51
+  VERSION_MAJOR: 3
+  VERSION_MINOR: 0
+
+before_script:
+  - git remote set-url origin https://${CI_USER}:${CI_PUSH_TOKEN}@gitlab.kharkov.dbbest.com/android/nettest.git
+  - git config --global user.email '${CI_USER_EMAIL}'
+  - git config --global user.name '${CI_USER_NAME}'
+  - git submodule update --init --recursive
+  - echo $JAVA_HOME
+  - echo $ANDROID_HOME
+  - echo $PATH
+  - chmod +x ./gradlew
+
+stages:
+  - check
+  - distribution
+
+appLint:
+  stage: check
+  script:
+    - ./gradlew :app:ktlint
+    - ./gradlew :app:lintLocalDevDebug
+  only:
+    refs:
+      - /fix\/.*/
+      - /feature\/.*/
+      - /hotfix\/.*/
+      - /test\/.*/
+
+coreLint:
+  stage: check
+  script:
+    - ./gradlew :core:ktlint
+    - ./gradlew :core:lint
+  only:
+    refs:
+      - /fix\/.*/
+      - /feature\/.*/
+      - /hotfix\/.*/
+      - /test\/.*/
+
+controlClientLint:
+  stage: check
+  script:
+    - ./gradlew :control_client:ktlint
+    - ./gradlew :control_client:lint
+  only:
+    refs:
+      - /fix\/.*/
+      - /feature\/.*/
+      - /hotfix\/.*/
+      - /test\/.*/
+
+
+checkRTRBuild:
+  stage: check
+  script:
+    - rm -rf private
+    - ./gradlew clean
+    - ./gradlew assembleRtrDebug
+  only:
+    refs:
+      - /fix\/.*/
+      - /feature\/.*/
+      - /hotfix\/.*/
+      - /test\/.*/
+
+distributeLocalApp:
+  stage: distribution
+  script:
+    - VERSION_PATCH=$((CI_PIPELINE_IID-VERSION_LAST_INCREASE))
+    - VERSION_CODE=$(( (((VERSION_MAJOR*1000000)+(VERSION_MINOR*10000)+VERSION_PATCH))*10))
+    - VERSION_NAME="V$VERSION_MAJOR.$VERSION_MINOR.$VERSION_PATCH($CI_PIPELINE_IID)"
+    - RELEASE_NOTES="Created from commit $CI_PROJECT_URL/commit/$CI_COMMIT_SHA"
+    - BUILD_TIME=$(date +%s%3N)
+    - echo $VERSION_CODE
+    - echo $VERSION_NAME
+    - ./gradlew assembleLocalStageDebug -PbuildVersionCode=${VERSION_CODE} -PbuildVersionName=${VERSION_NAME} -PreleaseNotes="${RELEASE_NOTES}"
+    - ./gradlew crashlyticsUploadDistributionLocalStageDebug
+    - ./gradlew assembleLocalDemoRelease -PbuildVersionCode=${VERSION_CODE} -PbuildVersionName=${VERSION_NAME} -PreleaseNotes="${RELEASE_NOTES}"
+    - ./gradlew crashlyticsUploadDistributionLocalDemoRelease
+  only:
+    - develop
+  artifacts:
+    name: "local_$CI_COMMIT_REF_SLUG-$CI_COMMIT_SHORT_SHA"
+    paths:
+      - app/build/outputs
+
+generateDocumentation:
+  stage: distribution
+  script:
+    - ./gradlew dokka
+  only:
+    - develop
+  artifacts:
+    name: "docs_$CI_COMMIT_REF_SLUG-$CI_COMMIT_SHORT_SHA"
+    paths:
+      - build_results/javadoc
+    

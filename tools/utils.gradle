@@ -1,0 +1,21 @@
+buildscript {
+
+    ext.isPrivate = file("$project.rootDir/private/.gitignore").exists()
+
+    ext.applyPrivate = { filePath ->
+        if (isPrivate) {
+            apply from: "$project.rootDir/private/$filePath"
+        } else {
+            apply from: "$project.rootDir/$filePath"
+        }
+    }
+
+    ext.getGitHash = { ->
+        def stdout = new ByteArrayOutputStream()
+        exec {
+            commandLine 'git', 'rev-parse', '--short', 'HEAD'
+            standardOutput = stdout
+        }
+        return stdout.toString().trim()
+    }
+}
