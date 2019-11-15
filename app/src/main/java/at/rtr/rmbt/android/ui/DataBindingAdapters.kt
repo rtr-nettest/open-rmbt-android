@@ -228,6 +228,7 @@ fun waveEnabled(view: WaveView, enabled: Boolean) {
     view.waveEnabled = enabled
 }
 
+val THRESHOLD_PING = listOf(0, 10, 25, 75) // 0ms, 10ms, 25ms, 75ms
 /**
  * A binding adapter that is used for show ping value
  */
@@ -235,7 +236,23 @@ fun waveEnabled(view: WaveView, enabled: Boolean) {
 fun AppCompatTextView.setPing(pingMs: Long) {
 
     if (pingMs > 0) {
-        setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_small_ping_yellow, 0, 0, 0)
+
+        setCompoundDrawablesWithIntrinsicBounds(
+
+            when (pingMs) {
+            in THRESHOLD_PING[0]..THRESHOLD_PING[1] -> {
+                R.drawable.ic_small_ping_dark_green
+            }
+            in THRESHOLD_PING[1]..THRESHOLD_PING[2] -> {
+                R.drawable.ic_small_ping_light_green
+            }
+            in THRESHOLD_PING[2]..THRESHOLD_PING[3] -> {
+                R.drawable.ic_small_ping_yellow
+            }
+            else -> {
+                R.drawable.ic_small_ping_red
+            }
+        }, 0, 0, 0)
         text = context.getString(R.string.measurement_ping_value, pingMs)
         setTextColor(context.getColor(android.R.color.white))
     } else {
@@ -245,6 +262,7 @@ fun AppCompatTextView.setPing(pingMs: Long) {
     }
 }
 
+val THRESHOLD_DOWNLOAD = listOf(0L, 1000000L, 2000000L, 30000000L) // 0mb, 1mb, 2mb, 30mb
 /**
  * A binding adapter that is used for show download speed
  */
@@ -253,7 +271,23 @@ fun AppCompatTextView.setDownload(downloadSpeedBps: Long) {
 
     if (downloadSpeedBps > 0) {
         val downloadSpeedInMbps: Float = downloadSpeedBps / 1000000.0f
-        setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_small_download_green, 0, 0, 0)
+
+        setCompoundDrawablesWithIntrinsicBounds(
+
+            when (downloadSpeedBps) {
+                in THRESHOLD_DOWNLOAD[0]..THRESHOLD_DOWNLOAD[1] -> {
+                    R.drawable.ic_small_download_red
+                }
+                in THRESHOLD_DOWNLOAD[1]..THRESHOLD_DOWNLOAD[2] -> {
+                    R.drawable.ic_small_download_yellow
+                }
+                in THRESHOLD_DOWNLOAD[2]..THRESHOLD_DOWNLOAD[3] -> {
+                    R.drawable.ic_small_download_light_green
+                }
+                else -> {
+                    R.drawable.ic_small_download_dark_green
+                }
+            }, 0, 0, 0)
         text = context.getString(
             R.string.measurement_download_upload_speed,
             downloadSpeedInMbps.format()
@@ -266,6 +300,7 @@ fun AppCompatTextView.setDownload(downloadSpeedBps: Long) {
     }
 }
 
+val THRESHOLD_UPLOAD = listOf(0L, 500000L, 1000000L, 10000000L) // 0mb, 0.5mb, 1mb, 10mb
 /**
  * A binding adapter that is used for show upload speed
  */
@@ -274,7 +309,23 @@ fun AppCompatTextView.setUpload(uploadSpeedBps: Long) {
 
     if (uploadSpeedBps > 0) {
         val uploadSpeedInMbps: Float = uploadSpeedBps / 1000000.0f
-        setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_small_upload_green, 0, 0, 0)
+
+        setCompoundDrawablesWithIntrinsicBounds(
+
+            when (uploadSpeedBps) {
+                in THRESHOLD_UPLOAD[0]..THRESHOLD_UPLOAD[1] -> {
+                    R.drawable.ic_small_upload_red
+                }
+                in THRESHOLD_UPLOAD[1]..THRESHOLD_UPLOAD[2] -> {
+                    R.drawable.ic_small_upload_yellow
+                }
+                in THRESHOLD_UPLOAD[2]..THRESHOLD_UPLOAD[3] -> {
+                    R.drawable.ic_small_upload_light_green
+                }
+                else -> {
+                    R.drawable.ic_small_upload_dark_green
+                }
+            }, 0, 0, 0)
         text = context.getString(
             R.string.measurement_download_upload_speed,
             uploadSpeedInMbps.format()
