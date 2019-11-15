@@ -101,7 +101,7 @@
             style="@style/RobotoMediumStyle.VerySmall"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            tools:drawableStart="@drawable/ic_small_download_green"
+            tools:drawableStart="@drawable/ic_small_download_light_green"
             android:drawablePadding="@dimen/padding_very_small"
             app:downloadSpeedBps="@{state.downloadSpeedBps}"
             tools:text="24 Mbit/s"
