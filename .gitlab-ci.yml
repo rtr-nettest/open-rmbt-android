@@ -1,6 +1,6 @@
 variables:
   GIT_SUBMODULE_STRATEGY: recursive
-  VERSION_LAST_INCREASE: 51
+  VERSION_LAST_INCREASE: 0
   VERSION_MAJOR: 3
   VERSION_MINOR: 0
 
@@ -15,8 +15,19 @@ before_script:
   - chmod +x ./gradlew
 
 stages:
+  - init
   - check
   - distribution
+
+init:
+  stage: init
+  script:
+    - echo "${BUILD_NUMBER}"
+    - NEW_NUMBER=$((++BUILD_NUMBER))
+    - echo "next build number $NEW_NUMBER"
+    - 'curl --request PUT --header "PRIVATE-TOKEN: ${CI_PUSH_TOKEN}" "https://gitlab.kharkov.dbbest.com/api/v4/projects/${CI_PROJECT_ID}/variables/BUILD_NUMBER" --form "value=${NEW_NUMBER}"'
+  only:
+    - develop
 
 appLint:
   stage: check
@@ -70,10 +81,12 @@ checkRTRBuild:
 
 distributeLocalApp:
   stage: distribution
+  variables:
+    VERSION_NAME: ""
   script:
-    - VERSION_PATCH=$((CI_PIPELINE_IID-VERSION_LAST_INCREASE))
+    - VERSION_PATCH=$((BUILD_NUMBER-VERSION_LAST_INCREASE))
     - VERSION_CODE=$(( (((VERSION_MAJOR*1000000)+(VERSION_MINOR*10000)+VERSION_PATCH))*10))
-    - VERSION_NAME="V$VERSION_MAJOR.$VERSION_MINOR.$VERSION_PATCH($CI_PIPELINE_IID)"
+    - $VERSION_NAME="V$VERSION_MAJOR.$VERSION_MINOR.$VERSION_PATCH($CI_PIPELINE_IID)"
     - RELEASE_NOTES="Created from commit $CI_PROJECT_URL/commit/$CI_COMMIT_SHA"
     - BUILD_TIME=$(date +%s%3N)
     - echo $VERSION_CODE
@@ -85,7 +98,7 @@ distributeLocalApp:
   only:
     - develop
   artifacts:
-    name: "local_$CI_COMMIT_REF_SLUG-$CI_COMMIT_SHORT_SHA"
+    name: "local-$VERSION_NAME-$CI_COMMIT_REF_SLUG-$CI_COMMIT_SHORT_SHA"
     paths:
       - app/build/outputs
 

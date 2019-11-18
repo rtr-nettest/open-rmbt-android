@@ -1,9 +1,6 @@
-package at.specure.measurement
+package at.specure.test
 
-import at.specure.info.network.ActiveNetworkWatcher
-import at.specure.info.network.NetworkInfo
-import at.specure.info.strength.SignalStrengthInfo
-import at.specure.info.strength.SignalStrengthWatcher
+import at.specure.measurement.MeasurementState
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
@@ -11,10 +8,7 @@ import kotlinx.coroutines.delay
 import timber.log.Timber
 import kotlin.random.Random
 
-class MockedTestController(
-    private val signalStrengthWatcher: SignalStrengthWatcher,
-    private val activeNetworkWatcher: ActiveNetworkWatcher
-) : TestController, SignalStrengthWatcher.SignalStrengthListener, ActiveNetworkWatcher.NetworkChangeListener {
+class MockedTestController : TestController {
 
     private var job: Job? = null
     private var state: MeasurementState = MeasurementState.IDLE
@@ -22,29 +16,19 @@ class MockedTestController(
     private var pingMs = 0L
     private var downloadSpeedBps = 0L
     private var uploadSpeedBps = 0L
-    private var signalStrength: SignalStrengthInfo? = null
-    private var networkInfo: NetworkInfo? = null
 
     private val randomDelay: Long
         get() = Random.nextLong(10, 150)
 
-    override var stateListener: ((state: MeasurementState, progress: Int) -> (Unit))? = null
-    override var pingListener: ((pingMs: Long) -> (Unit))? = null
-    override var downloadSpeedListener: ((speedBps: Long) -> Unit)? = null
-    override var uploadSpeedListener: ((speedBps: Long) -> Unit)? = null
-    override var signalStrengthListener: ((signalStrengthInfo: SignalStrengthInfo?) -> (Unit))? = null
-    override var networkInfoListener: ((networkInfo: NetworkInfo?) -> (Unit))? = null
+    private var _listener: TestProgressListener? = null
 
-    override fun start() {
+    override fun start(listener: TestProgressListener) {
         if (job != null) {
             Timber.w("Runner is already started")
             return
         }
 
-        Timber.w(Thread.currentThread().name)
-
-        signalStrengthWatcher.addListener(this)
-        activeNetworkWatcher.addListener(this)
+        _listener = listener
 
         job = GlobalScope.async {
             setState(MeasurementState.IDLE, 0) // Some dummy state
@@ -97,36 +81,26 @@ class MockedTestController(
 
     private fun setPing(pingMs: Long) {
         this.pingMs = pingMs
-        pingListener?.invoke(pingMs)
+        _listener?.onPingChanged(pingMs)
     }
 
     private fun setDownloadSpeed(speedBps: Long) {
         downloadSpeedBps = speedBps
-        downloadSpeedListener?.invoke(speedBps)
+        _listener?.onDownloadSpeedChanged(speedBps)
     }
 
     private fun setUploadSpeed(speedBps: Long) {
         uploadSpeedBps = speedBps
-        uploadSpeedListener?.invoke(speedBps)
+        _listener?.onUploadSpeedChanged(speedBps)
     }
 
     private fun setState(state: MeasurementState, progress: Int) {
         this.state = state
         this.progress = progress
-        stateListener?.invoke(state, progress)
+        _listener?.onProgressChanged(state, progress)
     }
 
     private suspend fun wait() = delay(randomDelay)
-
-    override fun onSignalStrengthChanged(signalInfo: SignalStrengthInfo?) {
-        signalStrength = signalInfo
-        signalStrengthListener?.invoke(signalInfo)
-    }
-
-    override fun onActiveNetworkChanged(info: NetworkInfo?) {
-        networkInfo = info
-        networkInfoListener?.invoke(info)
-    }
 
     override fun stop() {
         if (job == null) {
@@ -134,7 +108,7 @@ class MockedTestController(
         }
         job?.cancel()
         job = null
-        signalStrengthWatcher.removeListener(this)
-        activeNetworkWatcher.removeListener(this)
+
+        _listener = null
     }
 }
