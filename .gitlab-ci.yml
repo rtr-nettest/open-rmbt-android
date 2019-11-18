@@ -13,6 +13,16 @@ before_script:
   - echo $ANDROID_HOME
   - echo $PATH
   - chmod +x ./gradlew
+  - export VERSION_PATCH=$((BUILD_NUMBER-VERSION_LAST_INCREASE))
+  - export VERSION_CODE=$(( (((VERSION_MAJOR*1000000)+(VERSION_MINOR*10000)+VERSION_PATCH))*10))
+  - export VERSION_NAME="V$VERSION_MAJOR.$VERSION_MINOR.$VERSION_PATCH($BUILD_NUMBER)"
+  - export RELEASE_NOTES="Created from commit $CI_PROJECT_URL/commit/$CI_COMMIT_SHA"
+  - export BUILD_TIME=$(date +%s%3N)
+  - echo "${VERSION_PATCH}"
+  - echo "${VERSION_CODE}"
+  - echo "${VERSION_NAME}"
+  - echo "${RELEASE_NOTES}"
+  - echo "${BUILD_TIME}"
 
 stages:
   - init
@@ -64,7 +74,6 @@ controlClientLint:
       - /feature\/.*/
       - /hotfix\/.*/
       - /test\/.*/
-
 
 checkRTRBuild:
   stage: check
