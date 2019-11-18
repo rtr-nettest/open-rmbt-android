@@ -387,10 +387,10 @@ fun AppCompatImageView.setSmallIcon(signalStrengthInfo: SignalStrengthInfo?) {
 /**
  * A binding adapter that is used for show download and upload speed
  */
-@BindingAdapter("speedBps")
-fun SpeedLineChart.setSpeed(speedBps: Long) {
+@BindingAdapter(value = ["speedBps", "measurementProgress"], requireAll = true)
+fun SpeedLineChart.setSpeed(speedBps: Long, measurementProgress: Int) {
     if (speedBps > 0)
-        addValue(speedBps)
+        addValue(speedBps, measurementProgress)
 }
 
 /**
