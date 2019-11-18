@@ -4,10 +4,13 @@ import android.content.Context
 import android.graphics.Canvas
 import android.graphics.Paint
 import android.graphics.Path
-import android.graphics.PointF
 import android.util.AttributeSet
 import at.rtr.rmbt.android.R
 import kotlin.math.log10
+import kotlin.math.pow
+import kotlin.math.sqrt
+import kotlin.math.min
+import kotlin.math.max
 
 class SpeedLineChart @JvmOverloads constructor(
     context: Context,
@@ -21,9 +24,11 @@ class SpeedLineChart @JvmOverloads constructor(
     private var paintFill: Paint = Paint(Paint.ANTI_ALIAS_FLAG)
 
     private val lineDataList: ArrayList<LineData> = ArrayList()
-    private var firstPoint: PointF? = null
 
     private var startTime: Long = -1
+
+    private var lX = 0f
+    private var lY = 0f
 
     init {
 
@@ -53,44 +58,57 @@ class SpeedLineChart @JvmOverloads constructor(
         canvas?.drawPath(pathFill, paintFill)
     }
 
-    fun addValue(value: Long) {
+    fun addValue(value: Long, measurementProgress: Int) {
 
-        val relTime: Long
-
-        if (startTime <= 0) {
-            startTime = System.nanoTime()
-            relTime = 0
-        } else {
-            relTime = (System.nanoTime() - startTime)
-        }
-        if (relTime >= GRAPH_MAX_NSECS) return
-
-        val time: Float = relTime.toFloat() / GRAPH_MAX_NSECS
-        addValue(toLog(value), time)
+        if (lineDataList.none { it.time == 1.0f })
+            addValue(toLog(value), measurementProgress / 100.0f)
     }
 
     private fun addValue(value: Float, time: Float) {
 
-        lineDataList.add(LineData(value, time))
-        val averageValue = getAverageValue(lineDataList)
+        if (lineDataList.isEmpty()) {
+            lineDataList.add(LineData(value, 0.0f))
+            lineDataList.add(LineData(value, time))
 
-        val x = getChartWidth() * time
-        val y = (getChartHeight() * (1 - averageValue)).toFloat()
-
-        if (firstPoint == null) {
-
+            val x = getChartWidth() * lineDataList[0].time
+            val y = getChartHeight() - (getChartHeight() * lineDataList[0].value)
             pathStroke.moveTo(x, y)
-            firstPoint = PointF(x, y)
+        } else {
+            lineDataList.add(LineData(value, time))
         }
+        if (lineDataList.size >= 3) {
+            val currentIndex = lineDataList.size - 2
+            // current point
+            val currentX = getChartWidth() * lineDataList.get(currentIndex).time
+            val currentY = getChartHeight() - (getChartHeight() * lineDataList.get(currentIndex).value)
 
-        pathStroke.lineTo(x, y)
+            // previous point
+            val previousX = getChartWidth() * lineDataList.get(currentIndex - 1).time
+            val previousY = getChartHeight() - (getChartHeight() * lineDataList.get(currentIndex - 1).value)
 
-        firstPoint?.x?.let {
+            // Next point
+            val nextX = getChartWidth() * lineDataList.get(if (currentIndex + 1 < lineDataList.size) currentIndex + 1 else currentIndex).time
+            val nextY = getChartHeight() - (getChartHeight() * lineDataList.get(if (currentIndex + 1 < lineDataList.size) currentIndex + 1 else currentIndex).value)
 
+            val d0 = sqrt((currentX - previousX).toDouble().pow(2.0) + (currentY - previousY).toDouble().pow(2.0)).toFloat() // distance between p and p0
+            val x1 = min(previousX + lX * d0, (previousX + currentX) / 2) // min is used to avoid going too much right
+            val y1 = previousY + lY * d0
+
+            val d1 = sqrt((nextX - previousX).toDouble().pow(2.0) + (nextY - previousY).toDouble().pow(2.0)).toFloat() // distance between next and previous (length of reference line)
+            lX = (nextX - previousX) / d1 * 0.3f // (lX,lY) is the slope of the reference line
+            lY = (nextY - previousY) / d1 * 0.3f
+
+            val x2 = max(currentX - lX * d0, (previousX + currentX) / 2) // max is used to avoid going too much left
+            val y2 = currentY - lY * d0
+
+            // add line
+            pathStroke.cubicTo(x1, y1, x2, y2, currentX, currentY)
+
+            // Fill path draw
             pathFill.rewind()
             pathFill.addPath(pathStroke)
-            pathFill.lineTo(x, getChartHeight())
-            pathFill.lineTo(it, getChartHeight())
+            pathFill.lineTo(currentX, getChartHeight())
+            pathFill.lineTo(getChartWidth() * lineDataList[0].time, getChartHeight())
         }
         invalidate()
     }
@@ -101,23 +119,9 @@ class SpeedLineChart @JvmOverloads constructor(
         pathStroke.rewind()
         pathFill.rewind()
         startTime = -1
-        firstPoint = null
+        lX = 0f
+        lY = 0f
         invalidate()
-    }
-
-    /**
-     * Return average value from last 3 values
-     */
-    private fun getAverageValue(lineData: List<LineData>): Double {
-
-        val startIndex = if (lineData.size >= 3) lineData.size - 3 else 0
-        val endIndex = lineData.size
-
-        var valueTotal = 0.0
-        for (index in startIndex until endIndex) {
-            valueTotal += lineData[index].value
-        }
-        return valueTotal / if (lineData.size >= 3) 3 else lineData.size
     }
 
     /**

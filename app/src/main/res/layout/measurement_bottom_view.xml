@@ -141,6 +141,7 @@
             android:layout_width="match_parent"
             android:layout_height="@dimen/speed_chart_height"
             app:speedBps="@{state.measurementState == MeasurementState.DOWNLOAD ? state.downloadSpeedBps : state.measurementState == MeasurementState.UPLOAD ? state.uploadSpeedBps : 0}"
+            app:measurementProgress="@{state.measurementProgress}"
             app:reset="@{state.measurementState}"
             app:grid_color="@color/chart_grid_line_color"
             app:grid_row="4"
