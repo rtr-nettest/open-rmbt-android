@@ -77,7 +77,7 @@ class StrengthSignalBar @JvmOverloads constructor(context: Context, attrs: Attri
         val viewWidth = MeasureSpec.getSize(min(widthMeasureSpec, heightMeasureSpec))
         textPaint.textSize = viewWidth * TEXT_SIZE_COEF
         super.onMeasure(
-            MeasureSpec.makeMeasureSpec(viewWidth / 6, MeasureSpec.AT_MOST),
+            MeasureSpec.makeMeasureSpec(viewWidth / 5, MeasureSpec.AT_MOST),
             MeasureSpec.makeMeasureSpec((SQUARE_MULTIPLIER * squareSize * (verticalCount + 1)).toInt(), MeasureSpec.AT_MOST)
         )
     }
@@ -179,7 +179,7 @@ class StrengthSignalBar @JvmOverloads constructor(context: Context, attrs: Attri
     }
 
     companion object {
-        private const val TEXT_SIZE_COEF = 0.02f
+        private const val TEXT_SIZE_COEF = 0.03f
         private const val SQUARE_MULTIPLIER = 1.75f
     }
 }

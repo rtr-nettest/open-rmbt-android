@@ -30,7 +30,13 @@ class MeasurementCurveLayout @JvmOverloads constructor(context: Context, attrs: 
 
         speedLayout = LayoutSpeedBinding.inflate(inflater)
         percentageLayout = LayoutPercentageBinding.inflate(inflater)
-        curveBinding.curveView.setSquareSizeCallback { curveBinding.layoutStrength.strength.squareSize = it }
+        curveBinding.curveView.setSquareSizeCallback {
+            curveBinding.layoutStrength.strength.squareSize = it
+            (curveBinding.curveView.layoutParams as LayoutParams).apply {
+                topMargin = (SIGNAL_BAR_OFFSET_MULTIPLIER * it).toInt()
+                requestLayout()
+            }
+        }
         curveBinding.curveView.setBottomCenterCallback { x, y ->
             bottomCenterX = x
             bottomCenterY = y - curveBinding.curveView.paddingTop
@@ -92,5 +98,6 @@ class MeasurementCurveLayout @JvmOverloads constructor(context: Context, attrs: 
     companion object {
         private const val LEFT_MARGIN_DIVIDER = 2
         private const val TOP_MARGIN_DIVIDER = 5
+        private const val SIGNAL_BAR_OFFSET_MULTIPLIER = 25
     }
 }
