@@ -33,7 +33,7 @@ class SettingsRepositoryImpl(
                 controlServerSettings.openDataPrefix = urls.openDataPrefixUrl
                 controlServerSettings.shareUrl = urls.shareUrl
                 controlServerSettings.statisticsUrl = urls.statisticsUrl
-                mapServerSettings.mapServerHost = urls.mapServerUrl
+                mapServerSettings.mapServerUrl = urls.mapServerUrl
             }
             val mapServer = settings.success.settings.first().mapServerSettings
             if (mapServer != null) {
