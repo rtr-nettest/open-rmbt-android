@@ -112,13 +112,14 @@ distributeLocalApp:
 generateDocumentation:
   stage: distribution
   script:
-    - ./gradlew dokka
+    - ./gradlew dokka dokkaMarkdown
   only:
     - develop
   artifacts:
     name: "docs-$VERSION_NAME-$CI_COMMIT_REF_SLUG-$CI_COMMIT_SHORT_SHA"
     paths:
       - build_results/javadoc
+      - build_results/markdown
 
 gitTag:
   stage: gitTag
