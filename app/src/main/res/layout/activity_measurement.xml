@@ -59,6 +59,16 @@
             app:layout_constraintTop_toBottomOf="@id/network_name"
             app:layout_constraintBottom_toTopOf="@id/measurement_bottom_view"/>
 
+        <ImageView
+            android:layout_width="wrap_content"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:src="@drawable/ic_cancel"
+            android:layout_marginEnd="@dimen/padding_large"
+            android:layout_marginTop="@dimen/padding_large"
+            android:layout_height="wrap_content"
+            android:id="@+id/buttonCancel"/>
+
         <Button
             android:id="@+id/buttonStart"
             android:layout_width="wrap_content"
@@ -75,7 +85,8 @@
             android:layout_height="wrap_content"
             android:text="Stop"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
+            android:layout_marginEnd="@dimen/padding_large"
+            app:layout_constraintEnd_toStartOf="@id/buttonCancel"
             tools:ignore="HardcodedText" />
 
         <include

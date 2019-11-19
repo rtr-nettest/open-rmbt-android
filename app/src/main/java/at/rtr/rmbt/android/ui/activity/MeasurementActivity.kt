@@ -6,10 +6,12 @@ import android.os.Bundle
 import at.rtr.rmbt.android.R
 import at.rtr.rmbt.android.databinding.ActivityMeasurementBinding
 import at.rtr.rmbt.android.di.viewModelLazy
+import at.rtr.rmbt.android.ui.dialog.CancelMeasurementCallback
+import at.rtr.rmbt.android.ui.dialog.CancelMeasurementDialog
 import at.rtr.rmbt.android.viewmodel.MeasurementViewModel
 import at.specure.measurement.MeasurementService
 
-class MeasurementActivity : BaseActivity() {
+class MeasurementActivity : BaseActivity(), CancelMeasurementCallback {
 
     private val viewModel: MeasurementViewModel by viewModelLazy()
     private lateinit var binding: ActivityMeasurementBinding
@@ -27,6 +29,8 @@ class MeasurementActivity : BaseActivity() {
         binding.buttonStop.setOnClickListener {
             viewModel.producer?.stopTests()
         }
+
+        binding.buttonCancel.setOnClickListener { onCrossIconClicked() }
     }
 
     override fun onStart() {
@@ -37,6 +41,20 @@ class MeasurementActivity : BaseActivity() {
     override fun onStop() {
         super.onStop()
         viewModel.detach(this)
+    }
+
+    override fun onBackPressed() {
+        super.onBackPressed()
+        onCrossIconClicked()
+    }
+
+    override fun onCancel() {
+        viewModel.cancelMeasurement()
+        finish()
+    }
+
+    private fun onCrossIconClicked() {
+        CancelMeasurementDialog.instance().show(this)
     }
 
     companion object {

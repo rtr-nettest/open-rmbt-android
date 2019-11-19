@@ -93,4 +93,11 @@ class MeasurementViewModel @Inject constructor() : BaseViewModel(), MeasurementC
     override fun onActiveNetworkChanged(networkInfo: NetworkInfo?) {
         state.networkInfo.set(networkInfo)
     }
+
+    fun cancelMeasurement() {
+        /* todo
+       1. save state from measurement and send to the backend.
+       2. If we reached the point where there are partial results, save them and submit them too.
+        */
+    }
 }
