@@ -10,10 +10,15 @@ import android.os.Build
 import android.os.IBinder
 import androidx.core.app.NotificationCompat
 import androidx.lifecycle.LifecycleService
+import androidx.lifecycle.Observer
 import at.rmbt.util.exception.HandledException
 import at.specure.di.CoreInjector
+import at.specure.info.network.ActiveNetworkLiveData
 import at.specure.info.network.NetworkInfo
 import at.specure.info.strength.SignalStrengthInfo
+import at.specure.info.strength.SignalStrengthLiveData
+import at.specure.test.TestController
+import at.specure.test.TestProgressListener
 import timber.log.Timber
 import javax.inject.Inject
 
@@ -21,6 +26,12 @@ class MeasurementService : LifecycleService() {
 
     @Inject
     lateinit var runner: TestController
+
+    @Inject
+    lateinit var signalStrengthLiveData: SignalStrengthLiveData
+
+    @Inject
+    lateinit var activeNetworkLiveData: ActiveNetworkLiveData
 
     private val producer: Producer by lazy { Producer() }
     private val clientAggregator: ClientAggregator by lazy { ClientAggregator() }
@@ -34,40 +45,43 @@ class MeasurementService : LifecycleService() {
     private var signalStrengthInfo: SignalStrengthInfo? = null
     private var networkInfo: NetworkInfo? = null
 
-    override fun onCreate() {
-        super.onCreate()
-        CoreInjector.inject(this)
+    private val testListener = object : TestProgressListener {
 
-        runner.stateListener = { state, progress ->
+        override fun onProgressChanged(state: MeasurementState, progress: Int) {
             measurementState = state
             measurementProgress = progress
             clientAggregator.onProgressChanged(state, progress)
         }
 
-        runner.pingListener = {
-            pingMs = it
-            clientAggregator.onPingChanged(it)
+        override fun onPingChanged(pingMs: Long) {
+            this@MeasurementService.pingMs = pingMs
+            clientAggregator.onPingChanged(pingMs)
         }
 
-        runner.downloadSpeedListener = {
-            downloadSpeedBps = it
-            clientAggregator.onDownloadSpeedChanged(it)
+        override fun onDownloadSpeedChanged(speedBps: Long) {
+            downloadSpeedBps = speedBps
+            clientAggregator.onDownloadSpeedChanged(speedBps)
         }
 
-        runner.uploadSpeedListener = {
-            uploadSpeedBps = it
-            clientAggregator.onUploadSpeedChanged(it)
+        override fun onUploadSpeedChanged(speedBps: Long) {
+            uploadSpeedBps = speedBps
+            clientAggregator.onUploadSpeedChanged(speedBps)
         }
+    }
 
-        runner.signalStrengthListener = {
+    override fun onCreate() {
+        super.onCreate()
+        CoreInjector.inject(this)
+
+        signalStrengthLiveData.observe(this, Observer {
             signalStrengthInfo = it
             clientAggregator.onSignalChanged(it)
-        }
+        })
 
-        runner.networkInfoListener = {
+        activeNetworkLiveData.observe(this, Observer {
             networkInfo = it
             clientAggregator.onActiveNetworkChanged(it)
-        }
+        })
     }
 
     override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
@@ -92,7 +106,8 @@ class MeasurementService : LifecycleService() {
 
     private fun startTests() {
         Timber.d("Start tests")
-        runner.start()
+        resetStates()
+        runner.start(testListener)
 
         startForeground(1, notification)
     }
@@ -102,6 +117,13 @@ class MeasurementService : LifecycleService() {
         runner.stop()
 
         stopForeground(true)
+    }
+
+    private fun resetStates() {
+        testListener.onProgressChanged(MeasurementState.IDLE, 0)
+        testListener.onPingChanged(0)
+        testListener.onDownloadSpeedChanged(0)
+        testListener.onUploadSpeedChanged(0)
     }
 
     private val notification: Notification

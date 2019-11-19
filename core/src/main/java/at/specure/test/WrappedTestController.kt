@@ -1,4 +1,4 @@
-package at.specure.measurement
+package at.specure.test
 
 import at.rtr.rmbt.client.RMBTClient
 import at.rtr.rmbt.client.TrafficServiceImpl
@@ -6,10 +6,7 @@ import at.rtr.rmbt.client.helper.IntermediateResult
 import at.rtr.rmbt.client.helper.TestStatus
 import at.rtr.rmbt.util.model.shared.exception.ErrorStatus
 import at.specure.data.ClientUUID
-import at.specure.info.network.ActiveNetworkWatcher
-import at.specure.info.network.NetworkInfo
-import at.specure.info.strength.SignalStrengthInfo
-import at.specure.info.strength.SignalStrengthWatcher
+import at.specure.measurement.MeasurementState
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
@@ -18,52 +15,32 @@ import org.json.JSONObject
 import timber.log.Timber
 import java.util.concurrent.TimeUnit
 
-class WrappedTestController(
-    private val signalStrengthWatcher: SignalStrengthWatcher,
-    private val activeNetworkWatcher: ActiveNetworkWatcher,
-    private val clientUUID: ClientUUID
-) : TestController, SignalStrengthWatcher.SignalStrengthListener,
-    ActiveNetworkWatcher.NetworkChangeListener {
+class WrappedTestController(private val clientUUID: ClientUUID) : TestController {
 
     private var job: Job? = null
-    private var state: MeasurementState = MeasurementState.IDLE
-    private var progress = 0
-    private var pingMs = 0L
-    private var downloadSpeedBps = 0L
-    private var uploadSpeedBps = 0L
-    private var signalStrength: SignalStrengthInfo? = null
-    private var networkInfo: NetworkInfo? = null
 
     private val result: IntermediateResult by lazy { IntermediateResult() }
 
-    override var stateListener: ((state: MeasurementState, progress: Int) -> Unit)? = null
-    override var pingListener: ((pingMs: Long) -> Unit)? = null
-    override var downloadSpeedListener: ((speedBps: Long) -> Unit)? = null
-    override var uploadSpeedListener: ((speedBps: Long) -> Unit)? = null
-    override var signalStrengthListener: ((signalStrengthInfo: SignalStrengthInfo?) -> Unit)? = null
-    override var networkInfoListener: ((networkInfo: NetworkInfo?) -> Unit)? = null
+    private var _listener: TestProgressListener? = null
 
-    override fun start() {
+    override fun start(listener: TestProgressListener) {
         Timber.d("Start---")
         if (job != null) {
             Timber.w("Runner is already started")
             return
         }
 
-        signalStrengthWatcher.addListener(this)
-        activeNetworkWatcher.addListener(this)
+        _listener = listener
 
         job = GlobalScope.async {
 
             setState(MeasurementState.IDLE, 0)
-            resetState()
 
             val uuid = clientUUID.value!!
             val controlServer = "dev.netztest.at"
             val port = 443
             val ssl = true
 
-//            val geoInfo = listOf("1572961354000", "37.421998333333335", "-122.08400000000002", "20.0", "0.0", "0.0", "0.0", "gps")
             val geoInfo = ArrayList<String>().apply {
                 add("1572961354000")
                 add("37.421998333333335")
@@ -147,12 +124,10 @@ class WrappedTestController(
         client.getIntermediateResult(result)
         setState(MeasurementState.DOWNLOAD, (result.progress * 100).toInt())
         val ping = TimeUnit.NANOSECONDS.toMillis(result.pingNano)
-        if (ping >= 0 && ping != pingMs) {
-            pingMs = ping
-            pingListener?.invoke(ping)
+        if (ping >= 0) {
+            _listener?.onPingChanged(ping)
         }
-        downloadSpeedBps = result.downBitPerSec
-        downloadSpeedListener?.invoke(downloadSpeedBps)
+        _listener?.onDownloadSpeedChanged(result.downBitPerSec)
     }
 
     private fun handleInitUp() {
@@ -162,8 +137,7 @@ class WrappedTestController(
     private fun handleUp(client: RMBTClient) {
         client.getIntermediateResult(result)
         setState(MeasurementState.UPLOAD, (result.progress * 100).toInt())
-        uploadSpeedBps = result.upBitPerSec
-        uploadSpeedListener?.invoke(uploadSpeedBps)
+        _listener?.onUploadSpeedChanged(result.upBitPerSec)
     }
 
     private fun handleSpeedTestEnd(client: RMBTClient) {
@@ -191,44 +165,21 @@ class WrappedTestController(
     }
 
     private fun setState(state: MeasurementState, progress: Int) {
-        this.state = state
-        this.progress = progress
-        stateListener?.invoke(state, progress)
+        _listener?.onProgressChanged(state, progress)
     }
 
     override fun stop() {
         if (job == null) {
             Timber.w("Runner is already stopped")
         } else {
-            signalStrengthWatcher.removeListener(this)
-            activeNetworkWatcher.removeListener(this)
-
             job?.cancel()
         }
         job = null
-    }
-
-    private fun resetState() {
-        pingMs = 0
-        pingListener?.invoke(0)
-        downloadSpeedBps = 0
-        downloadSpeedListener?.invoke(downloadSpeedBps)
-        uploadSpeedBps = 0
-        uploadSpeedListener?.invoke(uploadSpeedBps)
+        _listener = null
     }
 
     private fun TestStatus.isFinalState() = this == TestStatus.ABORTED ||
             this == TestStatus.END ||
             this == TestStatus.ERROR ||
             this == TestStatus.SPEEDTEST_END
-
-    override fun onSignalStrengthChanged(signalInfo: SignalStrengthInfo?) {
-        signalStrength = signalInfo
-        signalStrengthListener?.invoke(signalInfo)
-    }
-
-    override fun onActiveNetworkChanged(info: NetworkInfo?) {
-        networkInfo = info
-        networkInfoListener?.invoke(info)
-    }
 }

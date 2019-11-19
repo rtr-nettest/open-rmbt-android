@@ -35,11 +35,20 @@ import javax.inject.Singleton
 private const val KEY_MAP_SERVER_HOST = "MAP_SERVER_HOST"
 private const val KEY_MAP_SERVER_PORT = "MAP_SERVER_PORT"
 private const val KEY_MAP_SERVER_USE_SSL = "MAP_SERVER_USE_SSL"
+private const val KEY_MAP_SERVER_URL = "MAP_SERVER_URL"
 
 @Singleton
 class MapServerSettings @Inject constructor(context: Context) {
 
     private val preferences = context.getSharedPreferences("map_server_settings.pref", Context.MODE_PRIVATE)
+
+    /**
+     * if this is empty, you must build map server url from fields bellow
+     */
+    var mapServerUrl: String? = null
+        set(value) {
+            preferences.edit().putString(KEY_MAP_SERVER_URL, value).apply()
+        }
 
     var mapServerHost: String? = null
         set(value) {
@@ -70,6 +79,7 @@ class MapServerSettings @Inject constructor(context: Context) {
         }
 
     init {
+        mapServerUrl = preferences.getString(KEY_MAP_SERVER_URL, null)
         mapServerHost = preferences.getString(KEY_MAP_SERVER_HOST, null)
     }
 }

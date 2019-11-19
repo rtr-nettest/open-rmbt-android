@@ -78,7 +78,7 @@ open class LineChart @JvmOverloads constructor(
         typedArray.recycle()
 
         endPadding = yLabelPaint.calcTextWidth(DEFAULT_Y_LABEL_TEXT)
-        bottomPadding = xLabelPaint.calcTextHeight(xLabelMin)
+        bottomPadding = xLabelPaint.calcTextHeight(xLabelMin) + (xLabelPaint.calcTextHeight(xLabelMin) / 2)
     }
 
     /**

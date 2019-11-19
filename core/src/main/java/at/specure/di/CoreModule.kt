@@ -27,8 +27,8 @@ import at.specure.info.wifi.WifiInfoWatcher
 import at.specure.info.wifi.WifiInfoWatcherImpl
 import at.specure.location.LocationProviderStateWatcher
 import at.specure.location.LocationProviderStateWatcherImpl
-import at.specure.measurement.TestController
-import at.specure.measurement.WrappedTestController
+import at.specure.test.TestController
+import at.specure.test.WrappedTestController
 import at.specure.repository.SettingsRepository
 import at.specure.repository.SettingsRepositoryImpl
 import at.specure.util.permission.LocationAccess
@@ -123,9 +123,5 @@ class CoreModule {
 
     @Provides
     @Singleton
-    fun provideTestController(
-        activeNetworkWatcher: ActiveNetworkWatcher,
-        signalStrengthWatcher: SignalStrengthWatcher,
-        clientUUID: ClientUUID
-    ): TestController = WrappedTestController(signalStrengthWatcher, activeNetworkWatcher, clientUUID)
+    fun provideTestController(clientUUID: ClientUUID): TestController = WrappedTestController(clientUUID)
 }
