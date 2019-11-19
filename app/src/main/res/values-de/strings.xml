@@ -129,4 +129,8 @@
     <string name="label_signal_strength">Signal</string>
     <string name="network_label">Netzwerk</string>
 
+    <string name="title_cancel_measurement">Wollen Sie wirklich den laufenden Messung abbrechen?</string>
+    <string name="text_continue_measurement">Messung fortführen</string>
+    <string name="text_cancel_measurement">Ja</string>
+
 </resources>

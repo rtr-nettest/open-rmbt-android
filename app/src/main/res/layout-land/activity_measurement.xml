@@ -52,6 +52,16 @@
             app:layout_constraintEnd_toStartOf="@+id/measurement_bottom_view"
             tools:ignore="HardcodedText" />
 
+        <ImageView
+            android:layout_width="wrap_content"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:src="@drawable/ic_cancel"
+            android:layout_marginEnd="@dimen/padding_large"
+            android:layout_marginTop="@dimen/padding_large"
+            android:layout_height="wrap_content"
+            android:id="@+id/buttonCancel"/>
+
         <TextView
             android:id="@+id/network_name_label"
             android:layout_width="wrap_content"
