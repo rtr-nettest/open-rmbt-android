@@ -1,16 +1,28 @@
 dokka {
-    moduleName = "core"
     outputFormat = 'html'
     outputDirectory = "$project.rootDir/build_results/javadoc"
 
-    kotlinTasks {
-        defaultKotlinTasks() + [':core:compileDebugKotlin', project("core").compileDebugKotlin]
+    subProjects = ["core", "control_client", "util", "location"]
+
+    configuration {
+        moduleName = 'core'
+        skipEmptyPackages = true
+        platform = "JVM"
+        reportUndocumented = true
+
+        kotlinTasks {
+            defaultKotlinTasks() + [':core:compileDebugKotlin', project("core").compileDebugKotlin]
+            defaultKotlinTasks() + [':control_client:compileDebugKotlin', project("control_client").compileDebugKotlin]
+            defaultKotlinTasks() + [':util:compileDebugKotlin', project("util").compileDebugKotlin]
+            defaultKotlinTasks() + [':location:compileDebugKotlin', project("location").compileDebugKotlin]
+        }
+
+        jdkVersion = 8
+
+        sourceLink {
+            path = "./"
+            url = "https://github.com/rtr-nettest/open-rmbt-android"
+            lineSuffix = "#L"
+        }
     }
-
-    jdkVersion = 8
-
-    reportUndocumented = true
-
-    skipEmptyPackages = true
-    impliedPlatforms = ["JVM"]
 }
