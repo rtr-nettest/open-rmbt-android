@@ -28,6 +28,7 @@ stages:
   - init
   - check
   - distribution
+  - gitTag
 
 init:
   stage: init
@@ -97,8 +98,6 @@ distributeLocalApp:
     RELEASE_NOTES: "Created from commit $CI_PROJECT_URL/commit/$CI_COMMIT_SHA"
     BUILD_TIME: $(date +%s%3N)
   script:
-    - echo $VERSION_CODE
-    - echo $VERSION_NAME
     - ./gradlew assembleLocalStageDebug -PbuildVersionCode=${VERSION_CODE} -PbuildVersionName=${VERSION_NAME} -PreleaseNotes="${RELEASE_NOTES}"
     - ./gradlew crashlyticsUploadDistributionLocalStageDebug
     - ./gradlew assembleLocalDemoRelease -PbuildVersionCode=${VERSION_CODE} -PbuildVersionName=${VERSION_NAME} -PreleaseNotes="${RELEASE_NOTES}"
@@ -117,7 +116,14 @@ generateDocumentation:
   only:
     - develop
   artifacts:
-    name: "docs_$CI_COMMIT_REF_SLUG-$CI_COMMIT_SHORT_SHA"
+    name: "docs-$VERSION_NAME-$CI_COMMIT_REF_SLUG-$CI_COMMIT_SHORT_SHA"
     paths:
       - build_results/javadoc
-    
+
+gitTag:
+  stage: gitTag
+  script:
+    - git tag "${VERSION_NAME}"
+    - git push origin --tags
+  only:
+    - develop
