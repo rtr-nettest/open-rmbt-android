@@ -37,7 +37,7 @@ class ControlServerModule {
         createRetrofit(controlEndpointProvider).create(ControlServerApi::class.java)
 
     private fun createRetrofit(controlEndpointProvider: ControlEndpointProvider): Retrofit = Retrofit.Builder()
-        .baseUrl(controlEndpointProvider.host)
+        .baseUrl(controlEndpointProvider.host + "/")
         .addConverterFactory(GsonConverterFactory.create())
         .client(createOkHttpClient())
         .build()

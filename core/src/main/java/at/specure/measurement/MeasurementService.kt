@@ -12,17 +12,24 @@ import androidx.core.app.NotificationCompat
 import androidx.lifecycle.LifecycleService
 import androidx.lifecycle.Observer
 import at.rmbt.util.exception.HandledException
+import at.specure.config.Config
 import at.specure.di.CoreInjector
 import at.specure.info.network.ActiveNetworkLiveData
 import at.specure.info.network.NetworkInfo
 import at.specure.info.strength.SignalStrengthInfo
 import at.specure.info.strength.SignalStrengthLiveData
+import at.specure.location.LocationInfo
+import at.specure.location.LocationInfoLiveData
+import at.specure.test.DeviceInfo
 import at.specure.test.TestController
 import at.specure.test.TestProgressListener
 import timber.log.Timber
 import javax.inject.Inject
 
 class MeasurementService : LifecycleService() {
+
+    @Inject
+    lateinit var config: Config
 
     @Inject
     lateinit var runner: TestController
@@ -32,6 +39,9 @@ class MeasurementService : LifecycleService() {
 
     @Inject
     lateinit var activeNetworkLiveData: ActiveNetworkLiveData
+
+    @Inject
+    lateinit var locationInfoLiveData: LocationInfoLiveData
 
     private val producer: Producer by lazy { Producer() }
     private val clientAggregator: ClientAggregator by lazy { ClientAggregator() }
@@ -44,6 +54,7 @@ class MeasurementService : LifecycleService() {
 
     private var signalStrengthInfo: SignalStrengthInfo? = null
     private var networkInfo: NetworkInfo? = null
+    private var locationInfo: LocationInfo? = null
 
     private val testListener = object : TestProgressListener {
 
@@ -82,6 +93,10 @@ class MeasurementService : LifecycleService() {
             networkInfo = it
             clientAggregator.onActiveNetworkChanged(it)
         })
+
+        locationInfoLiveData.observe(this, Observer {
+            locationInfo = it
+        })
     }
 
     override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
@@ -106,8 +121,34 @@ class MeasurementService : LifecycleService() {
 
     private fun startTests() {
         Timber.d("Start tests")
-        resetStates()
-        runner.start(testListener)
+        if (!runner.isRunning) {
+            resetStates()
+        }
+
+        var location: DeviceInfo.Location? = null
+        locationInfo?.let {
+            location = DeviceInfo.Location(
+                lat = it.latitude,
+                long = it.longitude,
+                provider = it.provider.name,
+                speed = it.speed,
+                bearing = it.bearing,
+                time = it.elapsedRealtimeNanos,
+                age = it.age,
+                accuracy = it.accuracy,
+                mock_location = it.locationIsMocked,
+                altitude = it.altitude
+            )
+        }
+
+        val deviceInfo = DeviceInfo(
+            context = this,
+            ndt = config.NDTEnabled,
+            testCounter = config.testCounter,
+            location = location
+        )
+
+        runner.start(testListener, deviceInfo)
 
         startForeground(1, notification)
     }

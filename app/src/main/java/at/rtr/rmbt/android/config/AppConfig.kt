@@ -22,6 +22,8 @@ import javax.inject.Inject
 
 private const val FILENAME = "config.pref"
 
+private const val KEY_TEST_COUNTER = "KEY_TEST_COUNTER"
+
 class AppConfig @Inject constructor(context: Context) : Config {
 
     private val preferences = context.getSharedPreferences(FILENAME, Context.MODE_PRIVATE)
@@ -123,4 +125,10 @@ class AppConfig @Inject constructor(context: Context) : Config {
     override var controlServerRequestTestPath: String
         get() = getString(BuildConfig.CONTROL_SERVER_TEST_REQUEST_PATH)
         set(value) = setString(BuildConfig.CONTROL_SERVER_TEST_REQUEST_PATH, value)
+
+    override var testCounter: Int
+        get() = preferences.getInt(KEY_TEST_COUNTER, 0)
+        set(value) = preferences.edit()
+            .putInt(KEY_TEST_COUNTER, value)
+            .apply()
 }

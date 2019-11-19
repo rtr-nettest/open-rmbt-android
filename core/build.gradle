@@ -6,6 +6,7 @@ apply plugin: 'kotlin-kapt'
 
 apply from: "$project.rootDir/tools/script-lint.gradle"
 apply from: "$project.rootDir/tools/script-ktlint.gradle"
+apply from: "$project.rootDir/tools/utils.gradle"
 
 android {
 
@@ -19,6 +20,12 @@ android {
         versionName config.versionName
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+
+        buildConfigField "String", "GIT_VERSION_NAME", "\"${gitVersionName()}\""
+        buildConfigField "String", "GIT_BRANCH_NAME", "\"${gitBranchName()}\""
+        buildConfigField "String", "GIT_FULL_HASH", "\"${gitFullHash()}\""
+        buildConfigField "int", "GIT_VERSION_CODE", gitVersionCode()
+        buildConfigField "boolean", "GIT_IS_DIRTY", gitIsDirty()
     }
 
     buildTypes {
@@ -52,6 +59,8 @@ dependencies {
     implementation "com.google.dagger:dagger-android-support:$versions.dagger"
 
     implementation "com.jakewharton.timber:timber:$versions.timber"
+
+    implementation "com.google.code.gson:gson:$versions.gson"
 
     testImplementation "junit:junit:$versions.junit"
 
