@@ -18,4 +18,58 @@ buildscript {
         }
         return stdout.toString().trim()
     }
+
+    ext.gitVersionName = {
+        def stdout = new ByteArrayOutputStream()
+        exec {
+            commandLine 'git', 'describe', '--tags', '--always'
+            standardOutput = stdout
+        }
+        return stdout.toString().trim()
+    }
+
+    ext.gitBranchName = {
+        def stdoutBranch = new ByteArrayOutputStream()
+
+        exec {
+            commandLine 'git', 'symbolic-ref', '--short', 'HEAD'
+            standardOutput = stdoutBranch
+            // git symbolic-ref fails if HEAD is detached
+            ignoreExitValue true
+
+        }
+        return stdoutBranch.toString().trim()
+    }
+
+    ext.gitFullHash = {
+        def stdout = new ByteArrayOutputStream()
+        exec {
+            commandLine "git", "log", "--pretty=format:'%h'", "-n 1"
+            standardOutput = stdout
+        }
+        return stdout.toString().trim()
+    }
+
+    ext.gitVersionCode = {
+        def stdout = new ByteArrayOutputStream()
+        exec {
+            commandLine 'git', 'rev-list', 'HEAD', '--count'
+            standardOutput = stdout
+        }
+        return stdout.toString().trim()
+    }
+
+    ext.gitIsDirty = {
+        def stdout = new ByteArrayOutputStream()
+        exec {
+            // git list all "dirty" (untracked, modified) files
+            commandLine 'git', 'status', '--porcelain'
+            standardOutput = stdout
+        }
+        //if there are any files, git is "dirty"
+        if (stdout.toString().length() > 0)
+            return "true"
+        else
+            return "false"
+    }
 }

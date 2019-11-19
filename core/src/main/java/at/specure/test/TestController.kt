@@ -2,7 +2,9 @@ package at.specure.test
 
 interface TestController {
 
-    fun start(listener: TestProgressListener)
+    val isRunning: Boolean
+
+    fun start(listener: TestProgressListener, deviceInfo: DeviceInfo)
 
     fun stop()
 }
