@@ -14,20 +14,48 @@
 
 package at.rtr.rmbt.android.ui.activity
 
+import android.content.Context
+import android.content.Intent
 import android.os.Bundle
 import androidx.navigation.findNavController
 import androidx.navigation.ui.NavigationUI.setupWithNavController
 import at.rtr.rmbt.android.R
 import at.rtr.rmbt.android.databinding.ActivityHomeBinding
+import at.rtr.rmbt.android.di.viewModelLazy
+import at.rtr.rmbt.android.util.listen
+import at.rtr.rmbt.android.viewmodel.MeasurementViewModel
 
 class HomeActivity : BaseActivity() {
 
     private lateinit var binding: ActivityHomeBinding
+
+    private val viewModel: MeasurementViewModel by viewModelLazy()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = bindContentView(R.layout.activity_home)
         val navController = findNavController(R.id.navHostFragment)
         setupWithNavController(binding.navView, navController)
+
+        viewModel.isTestsRunningLiveData.listen(this) { isRunning ->
+            if (isRunning) {
+                MeasurementActivity.start(this)
+            }
+        }
+    }
+
+    override fun onStart() {
+        super.onStart()
+        viewModel.attach(this)
+    }
+
+    override fun onStop() {
+        super.onStop()
+        viewModel.detach(this)
+    }
+
+    companion object {
+
+        fun start(context: Context) = context.startActivity(Intent(context, HomeActivity::class.java))
     }
 }

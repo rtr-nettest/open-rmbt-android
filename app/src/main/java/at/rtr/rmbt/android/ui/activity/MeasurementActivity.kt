@@ -8,8 +8,8 @@ import at.rtr.rmbt.android.databinding.ActivityMeasurementBinding
 import at.rtr.rmbt.android.di.viewModelLazy
 import at.rtr.rmbt.android.ui.dialog.CancelMeasurementCallback
 import at.rtr.rmbt.android.ui.dialog.CancelMeasurementDialog
+import at.rtr.rmbt.android.util.listen
 import at.rtr.rmbt.android.viewmodel.MeasurementViewModel
-import at.specure.measurement.MeasurementService
 
 class MeasurementActivity : BaseActivity(), CancelMeasurementCallback {
 
@@ -21,16 +21,12 @@ class MeasurementActivity : BaseActivity(), CancelMeasurementCallback {
         binding = bindContentView(R.layout.activity_measurement)
         binding.state = viewModel.state
 
-        binding.buttonStart.setOnClickListener {
-            MeasurementService.startTests(this)
-            viewModel.producer?.startTests()
-        }
-
-        binding.buttonStop.setOnClickListener {
-            viewModel.producer?.stopTests()
-        }
-
         binding.buttonCancel.setOnClickListener { onCrossIconClicked() }
+
+        viewModel.measurementFinishLiveData.listen(this) {
+            finish()
+            ResultsActivity.start(this)
+        }
     }
 
     override fun onStart() {

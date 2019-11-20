@@ -107,6 +107,7 @@ class WrappedTestController(private val config: Config, private val clientUUID: 
 
                 if (currentStatus.isFinalState()) {
                     client?.shutdown()
+                    _listener?.onFinish()
                     stop()
                 } else {
                     delay(100)

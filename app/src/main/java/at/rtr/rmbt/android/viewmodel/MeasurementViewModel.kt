@@ -4,6 +4,8 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.ServiceConnection
 import android.os.IBinder
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import at.rmbt.util.exception.HandledException
 import at.rtr.rmbt.android.ui.viewstate.MeasurementViewState
 import at.specure.info.network.NetworkInfo
@@ -17,8 +19,18 @@ import javax.inject.Inject
 
 class MeasurementViewModel @Inject constructor() : BaseViewModel(), MeasurementClient {
 
+    private val _measurementFinishLiveData = MutableLiveData<Boolean>()
+    private val _isTestsRunningLiveData = MutableLiveData<Boolean>()
+
+    private var producer: MeasurementProducer? = null // TODO make field private
+
     val state = MeasurementViewState()
-    var producer: MeasurementProducer? = null
+
+    val measurementFinishLiveData: LiveData<Boolean>
+        get() = _measurementFinishLiveData
+
+    val isTestsRunningLiveData: LiveData<Boolean>
+        get() = _isTestsRunningLiveData
 
     private val serviceConnection = object : ServiceConnection {
 
@@ -31,6 +43,8 @@ class MeasurementViewModel @Inject constructor() : BaseViewModel(), MeasurementC
         override fun onServiceConnected(componentName: ComponentName?, binder: IBinder?) {
             producer = binder as MeasurementProducer?
             Timber.i("On service connected")
+
+            _isTestsRunningLiveData.postValue(producer?.isTestsRunning ?: false)
 
             producer?.let {
                 it.addClient(this@MeasurementViewModel)
@@ -67,11 +81,11 @@ class MeasurementViewModel @Inject constructor() : BaseViewModel(), MeasurementC
     }
 
     override fun onMeasurementFinish() {
-        TODO("not implemented") // To change body of created functions use File | Settings | File Templates.
+        _measurementFinishLiveData.postValue(true)
     }
 
     override fun onMeasurementError(error: HandledException) {
-        TODO("not implemented") // To change body of created functions use File | Settings | File Templates.
+        postError(error)
     }
 
     override fun onSignalChanged(signalStrengthInfo: SignalStrengthInfo?) {
@@ -95,9 +109,6 @@ class MeasurementViewModel @Inject constructor() : BaseViewModel(), MeasurementC
     }
 
     fun cancelMeasurement() {
-        /* todo
-       1. save state from measurement and send to the backend.
-       2. If we reached the point where there are partial results, save them and submit them too.
-        */
+        producer?.stopTests()
     }
 }

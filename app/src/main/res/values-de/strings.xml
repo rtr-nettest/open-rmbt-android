@@ -133,4 +133,6 @@
     <string name="text_continue_measurement">Messung fortführen</string>
     <string name="text_cancel_measurement">Ja</string>
 
+    <string name="notification_test_title">Open-RMBT</string>
+    <string name="notification_test_ticker">Open-RMBT läuft…</string>
 </resources>
