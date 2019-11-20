@@ -23,6 +23,7 @@ object Tables {
     const val PERMISSIONS_STATUS = "permission_status"
     const val PING = "ping"
     const val SIGNAL = "signal"
-    const val TEST_RESULT = "test"
+    const val TEST = "test"
     const val TEST_TRAFFIC_ITEM = "test_traffic_item"
+    const val TEST_GRAPH_ITEM = "test_graph_item"
 }

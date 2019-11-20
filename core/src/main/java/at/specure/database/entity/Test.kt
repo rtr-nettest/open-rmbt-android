@@ -2,12 +2,12 @@ package at.specure.database.entity
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import at.specure.database.Tables.TEST_RESULT
+import at.specure.database.Tables.TEST
 
-@Entity(tableName = TEST_RESULT)
+@Entity(tableName = TEST)
 data class Test(
     @PrimaryKey
-    val testUUID: String?,
+    val testUUID: String,
     val testToken: String?,
     val testPortRemote: String?,
     val testDownloadedBytes: Long?,
@@ -33,6 +33,7 @@ data class Test(
     val timeUploadOffsetNs: Long?,
     val testState: String?,
     val networkType: Int?,
+    val time: Long?,
     // wifi
     val wifiSupplicantState: String?,
     val wifiSupplicantDetailedState: String?,

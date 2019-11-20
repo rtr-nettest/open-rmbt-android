@@ -18,5 +18,5 @@ interface HistoryDao {
     suspend fun insert(history: History)
 
     @Query("DELETE FROM ${Tables.HISTORY}")
-    suspend fun deleteAll()
+    suspend fun deleteAll(): Int
 }
