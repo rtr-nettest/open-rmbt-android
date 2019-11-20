@@ -12,7 +12,7 @@
  * limitations under the License.
  */
 
-package at.rtr.rmbt.android.locationEnabled
+package at.rtr.rmbt.android.locationDisabled
 
 import androidx.appcompat.widget.AppCompatImageButton
 import androidx.test.espresso.Espresso
@@ -21,7 +21,7 @@ import androidx.test.espresso.assertion.ViewAssertions
 import androidx.test.espresso.matcher.ViewMatchers
 import androidx.test.filters.LargeTest
 import androidx.test.runner.AndroidJUnit4
-import at.rtr.rmbt.android.BaseTest
+import at.rtr.rmbt.android.BaseHomeActivityTest
 import at.rtr.rmbt.android.R
 import at.rtr.rmbt.android.ui.activity.HomeActivity
 import junit.framework.Assert
@@ -30,19 +30,19 @@ import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
 @LargeTest
-open class HomeScreenPortraitTest : BaseTest() {
+open class HomeScreenPortraitHomeActivityTest : BaseHomeActivityTest() {
 
     private lateinit var context: HomeActivity
 
     @Test
-    fun checkLocationIconGreen() {
+    fun checkLocationIconGray() {
         context = activityRule.activity
         val drawableIvLocationButton =
             context.findViewById<AppCompatImageButton>(R.id.btnLocation).drawable
-        val icLocationEnabled = context.getDrawable(R.drawable.ic_location)
+        val icLocationDisabled = context.getDrawable(R.drawable.ic_location_disable)
         Assert.assertTrue(
-            (drawableIvLocationButton.bytesEqualTo(icLocationEnabled) and drawableIvLocationButton.pixelsEqualTo(
-                icLocationEnabled
+            (drawableIvLocationButton.bytesEqualTo(icLocationDisabled) and drawableIvLocationButton.pixelsEqualTo(
+                icLocationDisabled
             ))
         )
     }
@@ -50,7 +50,6 @@ open class HomeScreenPortraitTest : BaseTest() {
     @Test
     fun checkLocationDialogIsDisplayed() {
         Espresso.onView(ViewMatchers.withId(R.id.btnLocation)).perform(click())
-        Espresso.onView(ViewMatchers.withText(R.string.location_dialog_label_title)).check(ViewAssertions.matches(ViewMatchers.isDisplayed()))
-        Espresso.onView(ViewMatchers.withText(R.string.location_dialog_label_position)).check(ViewAssertions.matches(ViewMatchers.isDisplayed()))
+        Espresso.onView(ViewMatchers.withId(R.id.buttonOpenGpsSetting)).check(ViewAssertions.matches(ViewMatchers.isDisplayed()))
     }
 }

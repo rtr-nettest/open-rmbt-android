@@ -23,7 +23,7 @@ import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
 @LargeTest
-class HomeScreenLandscapeTest : HomeScreenPortraitTest() {
+class HomeScreenLandscapeHomeActivityTest : HomeScreenPortraitHomeActivityTest() {
     @Before
     override fun setUp() {
         activityRule.activity.requestedOrientation =
