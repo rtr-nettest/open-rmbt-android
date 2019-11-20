@@ -1,6 +1,5 @@
 package at.specure.test
 
-import at.rmbt.util.exception.HandledException
 import at.specure.measurement.MeasurementState
 
 interface TestProgressListener {
@@ -15,5 +14,5 @@ interface TestProgressListener {
 
     fun onFinish()
 
-    fun onError(error: HandledException)
+    fun onError()
 }

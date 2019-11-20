@@ -1,6 +1,5 @@
 package at.specure.measurement
 
-import at.rmbt.util.exception.HandledException
 import at.specure.info.network.NetworkInfo
 import at.specure.info.strength.SignalStrengthInfo
 
@@ -10,7 +9,7 @@ interface MeasurementClient {
 
     fun onMeasurementFinish()
 
-    fun onMeasurementError(error: HandledException)
+    fun onMeasurementError()
 
     fun onSignalChanged(signalStrengthInfo: SignalStrengthInfo?)
 

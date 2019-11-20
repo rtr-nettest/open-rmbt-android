@@ -3,12 +3,13 @@ package at.specure.measurement
 import android.app.NotificationManager
 import android.content.Context
 import android.content.Intent
+import android.net.wifi.WifiManager
 import android.os.Binder
 import android.os.Build
 import android.os.IBinder
+import android.os.PowerManager
 import androidx.lifecycle.LifecycleService
 import androidx.lifecycle.Observer
-import at.rmbt.util.exception.HandledException
 import at.specure.config.Config
 import at.specure.di.CoreInjector
 import at.specure.di.NotificationProvider
@@ -22,6 +23,7 @@ import at.specure.test.DeviceInfo
 import at.specure.test.TestController
 import at.specure.test.TestProgressListener
 import timber.log.Timber
+import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
 class MeasurementService : LifecycleService() {
@@ -59,6 +61,9 @@ class MeasurementService : LifecycleService() {
 
     private val notificationManager: NotificationManager by lazy { getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager }
 
+    private lateinit var wakeLock: PowerManager.WakeLock
+    private lateinit var wifiLock: WifiManager.WifiLock
+
     private val testListener = object : TestProgressListener {
 
         override fun onProgressChanged(state: MeasurementState, progress: Int) {
@@ -87,17 +92,24 @@ class MeasurementService : LifecycleService() {
         override fun onFinish() {
             stopForeground(true)
             clientAggregator.onMeasurementFinish()
+            unlock()
         }
 
-        override fun onError(error: HandledException) {
+        override fun onError() {
             stopForeground(true)
-            clientAggregator.onMeasurementError(error)
+            clientAggregator.onMeasurementError()
+            unlock()
         }
     }
 
     override fun onCreate() {
         super.onCreate()
         CoreInjector.inject(this)
+
+        val wifiManager = applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager
+        wifiLock = wifiManager.createWifiLock(WifiManager.WIFI_MODE_FULL_HIGH_PERF, "$packageName:RMBTWifiLock")
+        val powerManager = applicationContext.getSystemService(Context.POWER_SERVICE) as PowerManager
+        wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "$packageName:RMBTWakeLock")
 
         signalStrengthLiveData.observe(this, Observer {
             signalStrengthInfo = it
@@ -117,9 +129,8 @@ class MeasurementService : LifecycleService() {
     override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
         attachToForeground()
         @Suppress("UNNECESSARY_SAFE_CALL") // intent may be null after service restarted by the system
-        when (intent?.action) {
-            ACTION_START_TESTS -> startTests()
-            ACTION_STOP_TESTS -> stopTests()
+        if (intent?.action == ACTION_START_TESTS) {
+            startTests()
         }
         return super.onStartCommand(intent, flags, startId)
     }
@@ -167,6 +178,7 @@ class MeasurementService : LifecycleService() {
         runner.start(testListener, deviceInfo)
 
         attachToForeground()
+        lock()
     }
 
     private fun attachToForeground() {
@@ -178,6 +190,7 @@ class MeasurementService : LifecycleService() {
         runner.stop()
 
         stopForeground(true)
+        unlock()
     }
 
     private fun resetStates() {
@@ -185,6 +198,33 @@ class MeasurementService : LifecycleService() {
         testListener.onPingChanged(0)
         testListener.onDownloadSpeedChanged(0)
         testListener.onUploadSpeedChanged(0)
+    }
+
+    private fun lock() {
+        try {
+            if (!wakeLock.isHeld) {
+                wakeLock.acquire(TimeUnit.MINUTES.toMillis(10))
+            }
+            if (!wifiLock.isHeld) {
+                wifiLock.acquire()
+            }
+            Timber.d("Wake locked")
+        } catch (ex: Exception) {
+            Timber.e(ex)
+        }
+    }
+
+    private fun unlock() {
+        try {
+            if (wakeLock.isHeld) {
+                wakeLock.release()
+            }
+            if (wifiLock.isHeld) {
+                wifiLock.release()
+            }
+        } catch (ex: Exception) {
+            Timber.e(ex)
+        }
     }
 
     private inner class Producer : Binder(), MeasurementProducer {
@@ -262,9 +302,9 @@ class MeasurementService : LifecycleService() {
             }
         }
 
-        override fun onMeasurementError(error: HandledException) {
+        override fun onMeasurementError() {
             clients.forEach {
-                it.onMeasurementError(error)
+                it.onMeasurementError()
             }
         }
 
@@ -304,21 +344,10 @@ class MeasurementService : LifecycleService() {
         private const val NOTIFICATION_ID = 1
 
         private const val ACTION_START_TESTS = "KEY_START_TESTS"
-        private const val ACTION_STOP_TESTS = "KEY_STOP_TESTS"
 
         fun startTests(context: Context) {
             val intent = intent(context)
             intent.action = ACTION_START_TESTS
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                context.startForegroundService(intent)
-            } else {
-                context.startService(intent)
-            }
-        }
-
-        fun stopTests(context: Context) {
-            val intent = intent(context)
-            intent.action = ACTION_STOP_TESTS
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 context.startForegroundService(intent)
             } else {

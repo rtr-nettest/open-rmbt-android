@@ -6,12 +6,11 @@ import android.os.Bundle
 import at.rtr.rmbt.android.R
 import at.rtr.rmbt.android.databinding.ActivityMeasurementBinding
 import at.rtr.rmbt.android.di.viewModelLazy
-import at.rtr.rmbt.android.ui.dialog.CancelMeasurementCallback
-import at.rtr.rmbt.android.ui.dialog.CancelMeasurementDialog
+import at.rtr.rmbt.android.ui.dialog.SimpleDialog
 import at.rtr.rmbt.android.util.listen
 import at.rtr.rmbt.android.viewmodel.MeasurementViewModel
 
-class MeasurementActivity : BaseActivity(), CancelMeasurementCallback {
+class MeasurementActivity : BaseActivity(), SimpleDialog.Callback {
 
     private val viewModel: MeasurementViewModel by viewModelLazy()
     private lateinit var binding: ActivityMeasurementBinding
@@ -27,6 +26,24 @@ class MeasurementActivity : BaseActivity(), CancelMeasurementCallback {
             finish()
             ResultsActivity.start(this)
         }
+
+        viewModel.measurementErrorLiveData.listen(this) {
+            SimpleDialog.Builder()
+                .messageText(R.string.test_dialog_error_text)
+                .positiveText(R.string.input_setting_dialog_okay)
+                .cancelable(false)
+                .show(supportFragmentManager, 0)
+        }
+    }
+
+    override fun onDialogPositiveClicked(code: Int) {
+        // finish activity for in both cases
+        viewModel.cancelMeasurement()
+        finish()
+    }
+
+    override fun onDialogNegativeClicked(code: Int) {
+        // Do nothing
     }
 
     override fun onStart() {
@@ -43,13 +60,13 @@ class MeasurementActivity : BaseActivity(), CancelMeasurementCallback {
         onCrossIconClicked()
     }
 
-    override fun onCancel() {
-        viewModel.cancelMeasurement()
-        finish()
-    }
-
     private fun onCrossIconClicked() {
-        CancelMeasurementDialog.instance().show(this)
+        SimpleDialog.Builder()
+            .messageText(R.string.title_cancel_measurement)
+            .positiveText(R.string.text_cancel_measurement)
+            .negativeText(R.string.text_continue_measurement)
+            .cancelable(false)
+            .show(supportFragmentManager, 0)
     }
 
     companion object {
