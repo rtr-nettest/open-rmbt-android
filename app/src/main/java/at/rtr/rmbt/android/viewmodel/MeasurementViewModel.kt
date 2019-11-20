@@ -6,7 +6,6 @@ import android.content.ServiceConnection
 import android.os.IBinder
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import at.rmbt.util.exception.HandledException
 import at.rtr.rmbt.android.ui.viewstate.MeasurementViewState
 import at.specure.info.network.NetworkInfo
 import at.specure.info.strength.SignalStrengthInfo
@@ -21,6 +20,7 @@ class MeasurementViewModel @Inject constructor() : BaseViewModel(), MeasurementC
 
     private val _measurementFinishLiveData = MutableLiveData<Boolean>()
     private val _isTestsRunningLiveData = MutableLiveData<Boolean>()
+    private val _measurementErrorLiveData = MutableLiveData<Boolean>()
 
     private var producer: MeasurementProducer? = null // TODO make field private
 
@@ -31,6 +31,9 @@ class MeasurementViewModel @Inject constructor() : BaseViewModel(), MeasurementC
 
     val isTestsRunningLiveData: LiveData<Boolean>
         get() = _isTestsRunningLiveData
+
+    val measurementErrorLiveData: LiveData<Boolean>
+        get() = _measurementErrorLiveData
 
     private val serviceConnection = object : ServiceConnection {
 
@@ -84,8 +87,8 @@ class MeasurementViewModel @Inject constructor() : BaseViewModel(), MeasurementC
         _measurementFinishLiveData.postValue(true)
     }
 
-    override fun onMeasurementError(error: HandledException) {
-        postError(error)
+    override fun onMeasurementError() {
+        _measurementErrorLiveData.postValue(true)
     }
 
     override fun onSignalChanged(signalStrengthInfo: SignalStrengthInfo?) {

@@ -15,6 +15,8 @@ open class FullscreenDialog : DialogFragment() {
 
     open val dimBackground = true
 
+    open val cancelable = true
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setStyle(STYLE_NORMAL, R.style.FullScreenDialogStyle)
@@ -22,8 +24,8 @@ open class FullscreenDialog : DialogFragment() {
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         val dialog = super.onCreateDialog(savedInstanceState)
-        dialog.setCanceledOnTouchOutside(true)
-        isCancelable = true
+        dialog.setCanceledOnTouchOutside(cancelable)
+        isCancelable = cancelable
         return dialog
     }
 
