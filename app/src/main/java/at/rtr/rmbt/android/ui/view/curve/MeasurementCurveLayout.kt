@@ -9,6 +9,7 @@ import at.rtr.rmbt.android.R
 import at.rtr.rmbt.android.databinding.LayoutMeasurementCurveBinding
 import at.rtr.rmbt.android.databinding.LayoutPercentageBinding
 import at.rtr.rmbt.android.databinding.LayoutSpeedBinding
+import at.specure.measurement.MeasurementState
 
 class MeasurementCurveLayout @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) :
     FrameLayout(context, attrs, defStyleAttr) {
@@ -22,6 +23,57 @@ class MeasurementCurveLayout @JvmOverloads constructor(context: Context, attrs: 
     private var topCenterY = 0
     private var bottomCenterX = 0
     private var bottomCenterY = 0
+
+    private var isQoSEnabled = false
+
+    /**
+     * Defines the current phase of measurement
+     */
+    private var phase: MeasurementState = MeasurementState.IDLE
+
+    /**
+     * Defines coefficients to calculation progress value for each phase of measurement when QoS is disabled
+     */
+    private var progressCoefficients = LinkedHashMap<MeasurementState, Float>().apply {
+        put(MeasurementState.INIT, 0.2f)
+        put(MeasurementState.PING, 0.2f)
+        put(MeasurementState.DOWNLOAD, 0.3f)
+        put(MeasurementState.UPLOAD, 0.3f)
+    }
+
+    /**
+     * Defines coefficients to calculation progress value for each phase of measurement when QoS is enabled
+     */
+    private var progressCoefficientsQoS = LinkedHashMap<MeasurementState, Float>().apply {
+        put(MeasurementState.INIT, 0.15f)
+        put(MeasurementState.PING, 0.15f)
+        put(MeasurementState.DOWNLOAD, 0.2f)
+        put(MeasurementState.UPLOAD, 0.25f)
+        put(MeasurementState.QOS, 0.25f)
+        // todo check QoS part
+    }
+
+    /**
+     * Defines offsets according to previous measurement phases when QoS is disabled
+     */
+    private var progressOffsets = LinkedHashMap<MeasurementState, Int>().apply {
+        put(MeasurementState.INIT, 0)
+        put(MeasurementState.PING, 20)
+        put(MeasurementState.DOWNLOAD, 40)
+        put(MeasurementState.UPLOAD, 70)
+    }
+
+    /**
+     * Defines offsets according to previous measurement phases when QoS is enabled
+     */
+    private var progressOffsetsQoS = LinkedHashMap<MeasurementState, Int>().apply {
+        put(MeasurementState.INIT, 0)
+        put(MeasurementState.PING, 15)
+        put(MeasurementState.DOWNLOAD, 29)
+        put(MeasurementState.UPLOAD, 50)
+        put(MeasurementState.QOS, 75)
+        // todo check QoS part
+    }
 
     override fun onFinishInflate() {
         super.onFinishInflate()
@@ -43,9 +95,13 @@ class MeasurementCurveLayout @JvmOverloads constructor(context: Context, attrs: 
         addView(percentageLayout.root, LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT))
     }
 
-    fun setTopProgress(progress: Int) {
-        if (topCenterX != 0 && topCenterY != 0 && progress != 0) {
-            curveBinding.curveView.setTopProgress(progress)
+    /**
+     * Update the top part UI according to progress changing
+     */
+    fun setTopProgress(currentProgress: Int) {
+        if (topCenterX != 0 && topCenterY != 0 && currentProgress != 0) {
+            val progress = prepareProgressValueByPhase(currentProgress)
+            curveBinding.curveView.setTopProgress(currentProgress)
             percentageLayout.percentage.text = progress.toString()
             percentageLayout.units.text = context.getString(R.string.measurement_progress_units)
             percentageLayout.percentage.requestLayout()
@@ -62,6 +118,19 @@ class MeasurementCurveLayout @JvmOverloads constructor(context: Context, attrs: 
         }
     }
 
+    /**
+     * Calculate value for label with percents
+     */
+    private fun prepareProgressValueByPhase(progress: Int): Int =
+        if (isQoSEnabled) {
+            (progressOffsetsQoS[phase] ?: 0) + ((progressCoefficientsQoS[phase] ?: 0f) * progress).toInt()
+        } else {
+            (progressOffsets[phase] ?: 0) + ((progressCoefficients[phase] ?: 0f) * progress).toInt()
+        }
+
+    /**
+     * Update the bottom part UI according to progress changing
+     */
     fun setBottomProgress(progress: Long) {
         curveBinding.curveView.setBottomProgress((progress * 1e-6).toInt())
         if (bottomCenterX != 0 && bottomCenterY != 0) {
@@ -79,6 +148,9 @@ class MeasurementCurveLayout @JvmOverloads constructor(context: Context, attrs: 
         }
     }
 
+    /**
+     * Update the signal strength bar UI according to progress changing
+     */
     fun setSignalStrength(signalLevel: Int, minValue: Int, maxValue: Int) {
         if (minValue != maxValue) {
             with(curveBinding.layoutStrength) {
@@ -87,6 +159,11 @@ class MeasurementCurveLayout @JvmOverloads constructor(context: Context, attrs: 
                 strengthValue.text = context.getString(R.string.strength_signal_value, signalLevel)
             }
         }
+    }
+
+    fun setMeasurementState(state: MeasurementState) {
+        phase = state
+        curveBinding.curveView.setMeasurementState(state)
     }
 
     companion object {

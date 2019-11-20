@@ -423,3 +423,8 @@ fun MeasurementCurveLayout.setPercents(percents: Int) {
 fun MeasurementCurveLayout.setSignal(signalLevel: Int, strengthMin: Int, strengthMax: Int) {
     setSignalStrength(signalLevel, strengthMin, strengthMax)
 }
+
+@BindingAdapter("measurementPhase")
+fun MeasurementCurveLayout.setMeasurementPhase(state: MeasurementState) {
+    setMeasurementState(state)
+}
