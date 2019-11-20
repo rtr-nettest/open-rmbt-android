@@ -17,22 +17,23 @@
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:background="@color/measurement_dark_gray"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:background="@color/measurement_dark_gray">
 
         <at.rtr.rmbt.android.ui.view.curve.MeasurementCurveLayout
             android:id="@+id/curve_layout"
             android:layout_width="0dp"
             android:layout_height="match_parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/measurement_bottom_view"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:measurementPhase="@{state.measurementState}"
             app:percentage="@{state.measurementProgress}"
             app:speed="@{state.downloadSpeedBps}"
             app:strength="@{state.signalStrengthInfo.value}"
-            app:strengthMin="@{state.signalStrengthInfo.min}"
             app:strengthMax="@{state.signalStrengthInfo.max}"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toStartOf="@id/measurement_bottom_view"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent"/>
+            app:strengthMin="@{state.signalStrengthInfo.min}" />
 
         <Button
             android:id="@+id/buttonStart"

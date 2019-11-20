@@ -11,6 +11,7 @@ import android.graphics.PorterDuffXfermode
 import android.graphics.Rect
 import androidx.core.content.ContextCompat
 import at.rtr.rmbt.android.R
+import at.specure.measurement.MeasurementState
 import kotlin.math.cos
 import kotlin.math.sin
 
@@ -23,11 +24,11 @@ class TopCurvePart(context: Context) : CurvePart() {
 
     override var pathForText = Path()
     override var sections = listOf(
-        CurveSection(16, context.getString(R.string.label_qos), true),
-        CurveSection(16, context.getString(R.string.label_upload), true),
-        CurveSection(16, context.getString(R.string.label_download), false),
-        CurveSection(8, context.getString(R.string.label_ping), false),
-        CurveSection(8, context.getString(R.string.label_init), false)
+        CurveSection(16, context.getString(R.string.label_qos), true, MeasurementState.QOS),
+        CurveSection(16, context.getString(R.string.label_upload), true, MeasurementState.UPLOAD),
+        CurveSection(16, context.getString(R.string.label_download), false, MeasurementState.DOWNLOAD),
+        CurveSection(8, context.getString(R.string.label_ping), false, MeasurementState.PING),
+        CurveSection(8, context.getString(R.string.label_init), false, MeasurementState.INIT)
     )
 
     override var progressPaint = Paint().apply {
@@ -36,12 +37,20 @@ class TopCurvePart(context: Context) : CurvePart() {
         xfermode = PorterDuffXfermode(PorterDuff.Mode.SRC_ATOP)
     }
 
+    override var phase: MeasurementState = MeasurementState.IDLE
+        set(value) {
+            field = value
+            previousProgress = 0
+        }
+
     private var dividerPaint = Paint().apply {
         color = ContextCompat.getColor(context, R.color.measurement_text)
         style = Paint.Style.FILL_AND_STROKE
         xfermode = PorterDuffXfermode(PorterDuff.Mode.SRC)
         isAntiAlias = true
     }
+
+    private var previousProgress = 0
 
     override fun getCenterX() = viewSize.toFloat() / 3 + (largeRadius - smallRadius) / 2 + angleStep / 2
     override fun getCenterY() = viewSize.toFloat() / 3
@@ -87,10 +96,10 @@ class TopCurvePart(context: Context) : CurvePart() {
                     emptySquarePaint
                 )
 
+                angle -= ANGLE_STEP_MULTIPLIER * angleStep
+
                 section.endAngle = angle
                 section.length = (Math.PI * smallRadius * (section.startAngle - section.endAngle) / 180).toFloat()
-
-                angle -= ANGLE_STEP_MULTIPLIER * angleStep
             }
 
             angle -= angleStep
@@ -123,8 +132,9 @@ class TopCurvePart(context: Context) : CurvePart() {
     }
 
     override fun updateProgress(progress: Int) {
-        progressPaint.strokeWidth = 1.5f * (largeRadius - smallRadius)
-        val progressAngle = (sectionStartAngle - sectionEndAngle) / 100 * progress
+        progressPaint.strokeWidth = 2.5f * (largeRadius - smallRadius)
+        val progressAngle = calculateProgressAngle(if (progress > previousProgress) progress else previousProgress)
+        previousProgress = progress
 
         currentCanvas?.let { currentCanvas ->
             drawSections(currentCanvas)
@@ -140,6 +150,36 @@ class TopCurvePart(context: Context) : CurvePart() {
                 false,
                 progressPaint
             )
+        }
+    }
+
+    /**
+     * Calculate the angle which should be drawn according to current phase and progress
+     */
+    private fun calculateProgressAngle(progress: Int): Float {
+        return when (phase) {
+            MeasurementState.IDLE -> 0f
+            MeasurementState.INIT -> {
+                val initSection = sections.find { it.state == MeasurementState.INIT }!!
+                (initSection.startAngle - initSection.endAngle) * progress.toFloat() / 100
+            }
+            MeasurementState.PING -> {
+                val pingSection = sections.find { it.state == MeasurementState.PING }!!
+                val initSection = sections.find { it.state == MeasurementState.INIT }!!
+                (pingSection.endAngle - initSection.endAngle) + (pingSection.startAngle - pingSection.endAngle) * progress.toFloat() / 100
+            }
+            MeasurementState.DOWNLOAD -> {
+                val downloadSection = sections.find { it.state == MeasurementState.DOWNLOAD }!!
+                val initSection = sections.find { it.state == MeasurementState.INIT }!!
+                (downloadSection.endAngle - initSection.endAngle) + (downloadSection.startAngle - downloadSection.endAngle) * progress.toFloat() / 100
+            }
+            MeasurementState.UPLOAD -> {
+                val uploadSection = sections.find { it.state == MeasurementState.UPLOAD }!!
+                val initSection = sections.find { it.state == MeasurementState.INIT }!!
+                (uploadSection.endAngle - initSection.endAngle) + (uploadSection.startAngle - uploadSection.endAngle) * progress.toFloat() / 100
+            }
+            // todo add QoS part
+            else -> (sectionStartAngle - sectionEndAngle) / 100 * progress
         }
     }
 }

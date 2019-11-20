@@ -7,6 +7,7 @@ import android.graphics.Paint
 import android.graphics.PorterDuff
 import android.util.AttributeSet
 import android.view.View
+import at.specure.measurement.MeasurementState
 
 class MeasurementCurveView @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) :
     View(context, attrs, defStyleAttr) {
@@ -73,5 +74,9 @@ class MeasurementCurveView @JvmOverloads constructor(context: Context, attrs: At
 
     fun setSquareSizeCallback(squareSizeCallback: (Float) -> Unit) {
         this.squareSizeCallback = squareSizeCallback
+    }
+
+    fun setMeasurementState(state: MeasurementState) {
+        topPart.phase = state
     }
 }

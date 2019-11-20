@@ -54,6 +54,7 @@
             app:strength="@{state.signalStrengthInfo.value}"
             app:strengthMin="@{state.signalStrengthInfo.min}"
             app:strengthMax="@{state.signalStrengthInfo.max}"
+            app:measurementPhase="@{state.measurementState}"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toBottomOf="@id/network_name"

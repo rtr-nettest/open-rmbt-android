@@ -9,6 +9,7 @@ import android.graphics.PorterDuff
 import android.graphics.PorterDuffXfermode
 import androidx.core.content.res.ResourcesCompat
 import at.rtr.rmbt.android.R
+import at.specure.measurement.MeasurementState
 import kotlin.math.min
 
 /**
@@ -73,6 +74,11 @@ abstract class CurvePart {
 
     abstract var pathForText: Path
     abstract var progressPaint: Paint
+
+    /**
+     * Defines the current [MeasurementState]
+     */
+    abstract var phase: MeasurementState
 
     /**
      * Defines the curve's sections

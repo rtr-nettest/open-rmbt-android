@@ -10,6 +10,7 @@ import android.graphics.PorterDuffXfermode
 import android.graphics.Rect
 import androidx.core.content.ContextCompat
 import at.rtr.rmbt.android.R
+import at.specure.measurement.MeasurementState
 
 class BottomCurvePart(context: Context) : CurvePart() {
 
@@ -23,6 +24,8 @@ class BottomCurvePart(context: Context) : CurvePart() {
         style = Paint.Style.STROKE
         xfermode = PorterDuffXfermode(PorterDuff.Mode.SRC_ATOP)
     }
+
+    override var phase: MeasurementState = MeasurementState.IDLE
 
     override lateinit var bitmap: Bitmap
 
