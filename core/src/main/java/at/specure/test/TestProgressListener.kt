@@ -1,5 +1,6 @@
 package at.specure.test
 
+import at.rmbt.util.exception.HandledException
 import at.specure.measurement.MeasurementState
 
 interface TestProgressListener {
@@ -11,4 +12,8 @@ interface TestProgressListener {
     fun onDownloadSpeedChanged(speedBps: Long)
 
     fun onUploadSpeedChanged(speedBps: Long)
+
+    fun onFinish()
+
+    fun onError(error: HandledException)
 }

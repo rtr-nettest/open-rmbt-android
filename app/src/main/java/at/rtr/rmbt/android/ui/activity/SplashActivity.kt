@@ -14,27 +14,25 @@
 
 package at.rtr.rmbt.android.ui.activity
 
-import android.content.Intent
-import android.os.Bundle
 import android.os.Handler
-import androidx.appcompat.app.AppCompatActivity
 
-class SplashActivity : AppCompatActivity() {
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        showHomeActivity()
+class SplashActivity : BaseActivity() {
+
+    private val startHomeRunnable = Runnable {
+        finish()
+        HomeActivity.start(this)
     }
 
-    /*
-        This is temporary function for wait 2 second,
-        and open "HomeActivity". This function will remove
-        when actual code implement.
-     */
-    private fun showHomeActivity() {
-        Handler().postDelayed({
-            finish()
-            startActivity(Intent(this, HomeActivity::class.java))
-        }, SPLASH_DISPLAY_TIME_MS)
+    private val delayedStartHandler = Handler()
+
+    override fun onStart() {
+        super.onStart()
+        delayedStartHandler.postDelayed(startHomeRunnable, SPLASH_DISPLAY_TIME_MS)
+    }
+
+    override fun onStop() {
+        super.onStop()
+        delayedStartHandler.removeCallbacks(startHomeRunnable)
     }
 
     companion object {

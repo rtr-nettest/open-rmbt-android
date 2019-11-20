@@ -25,6 +25,7 @@ import at.specure.info.ip.IpStatus
 import at.specure.location.LocationProviderState.DISABLED_APP
 import at.specure.location.LocationProviderState.DISABLED_DEVICE
 import at.specure.location.LocationProviderState.ENABLED
+import at.specure.measurement.MeasurementService
 
 class HomeFragment : BaseFragment() {
 
@@ -70,12 +71,7 @@ class HomeFragment : BaseFragment() {
         }
 
         binding.btnSetting.setOnClickListener {
-            startActivity(
-                Intent(
-                    activity,
-                    PreferenceActivity::class.java
-                )
-            )
+            startActivity(Intent(requireContext(), PreferenceActivity::class.java))
         }
         binding.tvInfo.setOnClickListener {
             homeViewModel.state.infoWindowStatus.set(InfoWindowStatus.GONE)
@@ -107,6 +103,7 @@ class HomeFragment : BaseFragment() {
         binding.ivSignalLevel.setOnClickListener {
             if (homeViewModel.isConnected.value == true) {
                 if (!homeViewModel.clientUUID.value.isNullOrEmpty()) {
+                    MeasurementService.startTests(requireContext())
                     MeasurementActivity.start(requireContext())
                 } else {
                     MessageDialog.instance(R.string.client_not_registered).show(activity)

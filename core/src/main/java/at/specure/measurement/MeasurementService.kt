@@ -1,19 +1,17 @@
 package at.specure.measurement
 
-import android.app.Notification
-import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
 import android.content.Intent
 import android.os.Binder
 import android.os.Build
 import android.os.IBinder
-import androidx.core.app.NotificationCompat
 import androidx.lifecycle.LifecycleService
 import androidx.lifecycle.Observer
 import at.rmbt.util.exception.HandledException
 import at.specure.config.Config
 import at.specure.di.CoreInjector
+import at.specure.di.NotificationProvider
 import at.specure.info.network.ActiveNetworkLiveData
 import at.specure.info.network.NetworkInfo
 import at.specure.info.strength.SignalStrengthInfo
@@ -43,6 +41,9 @@ class MeasurementService : LifecycleService() {
     @Inject
     lateinit var locationInfoLiveData: LocationInfoLiveData
 
+    @Inject
+    lateinit var notificationProvider: NotificationProvider
+
     private val producer: Producer by lazy { Producer() }
     private val clientAggregator: ClientAggregator by lazy { ClientAggregator() }
 
@@ -56,12 +57,16 @@ class MeasurementService : LifecycleService() {
     private var networkInfo: NetworkInfo? = null
     private var locationInfo: LocationInfo? = null
 
+    private val notificationManager: NotificationManager by lazy { getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager }
+
     private val testListener = object : TestProgressListener {
 
         override fun onProgressChanged(state: MeasurementState, progress: Int) {
             measurementState = state
             measurementProgress = progress
             clientAggregator.onProgressChanged(state, progress)
+
+            notificationManager.notify(NOTIFICATION_ID, notificationProvider.measurementServiceNotification(progress, state, config.skipQoSTests))
         }
 
         override fun onPingChanged(pingMs: Long) {
@@ -77,6 +82,16 @@ class MeasurementService : LifecycleService() {
         override fun onUploadSpeedChanged(speedBps: Long) {
             uploadSpeedBps = speedBps
             clientAggregator.onUploadSpeedChanged(speedBps)
+        }
+
+        override fun onFinish() {
+            stopForeground(true)
+            clientAggregator.onMeasurementFinish()
+        }
+
+        override fun onError(error: HandledException) {
+            stopForeground(true)
+            clientAggregator.onMeasurementError(error)
         }
     }
 
@@ -100,6 +115,7 @@ class MeasurementService : LifecycleService() {
     }
 
     override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
+        attachToForeground()
         @Suppress("UNNECESSARY_SAFE_CALL") // intent may be null after service restarted by the system
         when (intent?.action) {
             ACTION_START_TESTS -> startTests()
@@ -150,7 +166,11 @@ class MeasurementService : LifecycleService() {
 
         runner.start(testListener, deviceInfo)
 
-        startForeground(1, notification)
+        attachToForeground()
+    }
+
+    private fun attachToForeground() {
+        startForeground(NOTIFICATION_ID, notificationProvider.measurementServiceNotification(0, MeasurementState.INIT, true))
     }
 
     private fun stopTests() {
@@ -166,22 +186,6 @@ class MeasurementService : LifecycleService() {
         testListener.onDownloadSpeedChanged(0)
         testListener.onUploadSpeedChanged(0)
     }
-
-    private val notification: Notification
-        get() {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-                val notificationChannel = NotificationChannel("123", "Dummy channel", NotificationManager.IMPORTANCE_LOW)
-                notificationChannel.description = "Description"
-                notificationManager.createNotificationChannel(notificationChannel)
-            }
-            return NotificationCompat.Builder(this, "123")
-                .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
-                .setPriority(NotificationCompat.PRIORITY_LOW)
-                .setContentText("Foreground")
-                .setContentTitle("Measurement Service")
-                .build()
-        }
 
     private inner class Producer : Binder(), MeasurementProducer {
 
@@ -221,6 +225,9 @@ class MeasurementService : LifecycleService() {
 
         override val networkInfo: NetworkInfo?
             get() = this@MeasurementService.networkInfo
+
+        override val isTestsRunning: Boolean
+            get() = runner.isRunning
 
         override fun startTests() {
             this@MeasurementService.startTests()
@@ -294,12 +301,14 @@ class MeasurementService : LifecycleService() {
 
     companion object {
 
+        private const val NOTIFICATION_ID = 1
+
         private const val ACTION_START_TESTS = "KEY_START_TESTS"
         private const val ACTION_STOP_TESTS = "KEY_STOP_TESTS"
 
         fun startTests(context: Context) {
             val intent = intent(context)
-            intent.action = "!@3"
+            intent.action = ACTION_START_TESTS
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 context.startForegroundService(intent)
             } else {

@@ -43,6 +43,10 @@
             android:name=".ui.activity.MeasurementActivity"
             android:windowSoftInputMode="stateAlwaysHidden" />
 
+        <activity
+            android:name=".ui.activity.ResultsActivity"
+            android:windowSoftInputMode="stateAlwaysHidden" />
+
         <meta-data
             android:name="io.fabric.ApiKey"
             android:value="${fabricApiKey}" />
