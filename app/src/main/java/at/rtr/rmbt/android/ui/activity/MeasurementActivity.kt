@@ -44,7 +44,6 @@ class MeasurementActivity : BaseActivity(), CancelMeasurementCallback {
     }
 
     override fun onBackPressed() {
-        super.onBackPressed()
         onCrossIconClicked()
     }
 
