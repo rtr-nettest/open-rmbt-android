@@ -9,7 +9,7 @@ import at.specure.database.Tables.PING
 data class Ping(
     @PrimaryKey(autoGenerate = true)
     val id: Long,
-    @ForeignKey(entity = Test::class, parentColumns = ["testUUID"], childColumns = ["testUUID"], onDelete = ForeignKey.CASCADE)
+    @ForeignKey(entity = Test::class, parentColumns = ["UUID"], childColumns = ["testUUID"], onDelete = ForeignKey.CASCADE)
     val testUUID: String,
     val value: Long,
     val valueServer: Long,

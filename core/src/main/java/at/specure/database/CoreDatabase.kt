@@ -2,6 +2,7 @@ package at.specure.database
 
 import androidx.room.Database
 import androidx.room.RoomDatabase
+import androidx.room.TypeConverters
 import at.specure.database.dao.CapabilitesDao
 import at.specure.database.dao.CellInfoDao
 import at.specure.database.dao.CellLocationDao
@@ -25,16 +26,18 @@ import at.specure.database.entity.Signal
 import at.specure.database.entity.Test
 import at.specure.database.entity.TestTrafficItem
 
+
 @Database(
     entities = [Capabilities::class, CellInfo::class, CellLocation::class, GeoLocations::class, GraphItem::class, History::class, PermissionStatus::class, Ping::class, Signal::class, Test::class, TestTrafficItem::class],
     version = 1
 )
+@TypeConverters(TypeConverter::class)
 abstract class CoreDatabase : RoomDatabase() {
 
-    abstract fun capabilitiesDao() : CapabilitesDao
-    abstract fun cellInfoDao() : CellInfoDao
-    abstract fun cellLocationDao() : CellLocationDao
-    abstract fun geoLocationDao() : GeoLocationDao
+    abstract fun capabilitiesDao(): CapabilitesDao
+    abstract fun cellInfoDao(): CellInfoDao
+    abstract fun cellLocationDao(): CellLocationDao
+    abstract fun geoLocationDao(): GeoLocationDao
     abstract fun graphItemsDao(): GraphItemDao
     abstract fun historyDao(): HistoryDao
     abstract fun permissionStatusDao(): PermissionStatusDao

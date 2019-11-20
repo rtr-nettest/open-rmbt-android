@@ -1,6 +1,5 @@
 package at.specure.database.dao
 
-import androidx.lifecycle.MutableLiveData
 import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Insert
@@ -13,7 +12,7 @@ import at.specure.database.entity.Test
 interface TestDao {
 
     @Query("SELECT * from ${Tables.TEST} ORDER BY time DESC LIMIT 1")
-    fun getLatestTestResult(): MutableLiveData<Test>
+    fun getLatestTestResult(): Test?
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insert(test: Test)
@@ -21,6 +20,6 @@ interface TestDao {
     @Query("DELETE FROM ${Tables.TEST}")
     suspend fun deleteAll(): Int
 
-    @Delete()
+    @Delete
     suspend fun deleteTest(test: Test): Int
 }

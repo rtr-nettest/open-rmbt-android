@@ -1,6 +1,5 @@
 package at.specure.database.dao
 
-import androidx.lifecycle.MutableLiveData
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
@@ -12,7 +11,7 @@ import at.specure.database.entity.Signal
 interface SignalDao {
 
     @Query("SELECT * from ${Tables.SIGNAL} WHERE testUUID == :testUUID")
-    fun getSignalsForTest(testUUID: String): MutableLiveData<List<Signal>>
+    fun getSignalsForTest(testUUID: String): List<Signal>
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insert(signal: Signal)

@@ -1,6 +1,5 @@
 package at.specure.database.dao
 
-import androidx.lifecycle.MutableLiveData
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
@@ -12,8 +11,8 @@ import at.specure.database.entity.CellLocation
 interface CellLocationDao {
 
     @Query("SELECT * from ${Tables.CELL_LOCATION} WHERE testUUID == :testUUID")
-    fun getCellLocationsForTest(testUUID: String): MutableLiveData<List<CellLocation>>
+    fun getCellLocationsForTest(testUUID: String): List<CellLocation>
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
-    suspend fun insert(cellLocation: CellLocation)
+    suspend fun insert(cellLocation: CellLocation): Long
 }
