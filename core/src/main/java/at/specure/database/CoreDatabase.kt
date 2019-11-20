@@ -20,15 +20,35 @@ import at.specure.database.entity.CellLocation
 import at.specure.database.entity.GeoLocations
 import at.specure.database.entity.GraphItem
 import at.specure.database.entity.History
+import at.specure.database.entity.MobileTest
 import at.specure.database.entity.PermissionStatus
 import at.specure.database.entity.Ping
-import at.specure.database.entity.Signal
+import at.specure.database.entity.Signal2G3G
+import at.specure.database.entity.Signal4G
+import at.specure.database.entity.SignalWifi
 import at.specure.database.entity.Test
-import at.specure.database.entity.TestTrafficItem
+import at.specure.database.entity.TestTrafficDownload
+import at.specure.database.entity.TestTrafficUpload
+import at.specure.database.entity.WifiTest
 
 
 @Database(
-    entities = [Capabilities::class, CellInfo::class, CellLocation::class, GeoLocations::class, GraphItem::class, History::class, PermissionStatus::class, Ping::class, Signal::class, Test::class, TestTrafficItem::class],
+    entities = [Capabilities::class,
+        CellInfo::class,
+        CellLocation::class,
+        GeoLocations::class,
+        GraphItem::class,
+        History::class,
+        MobileTest::class,
+        PermissionStatus::class,
+        Ping::class,
+        SignalWifi::class,
+        Signal2G3G::class,
+        Signal4G::class,
+        Test::class,
+        TestTrafficDownload::class,
+        TestTrafficUpload::class,
+        WifiTest::class],
     version = 1
 )
 @TypeConverters(TypeConverter::class)

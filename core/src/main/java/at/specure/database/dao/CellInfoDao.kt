@@ -14,5 +14,5 @@ interface CellInfoDao {
     fun getCellInfosForTest(testUUID: String): List<CellInfo>
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
-    suspend fun insert(cellInfo: CellInfo)
+    fun insert(cellInfo: CellInfo)
 }

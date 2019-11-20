@@ -2,6 +2,7 @@ package at.specure.database
 
 import androidx.room.TypeConverter
 import at.specure.info.TransportType
+import at.specure.measurement.MeasurementState
 
 class TypeConverter {
 
@@ -11,6 +12,15 @@ class TypeConverter {
     @TypeConverter
     fun valueToTransportType(value: Int): TransportType {
         TransportType.values().forEach { if (value == it.value) return it }
-        throw IllegalArgumentException("Transport type not found $value")
+        throw IllegalArgumentException("Transport type $value not found")
+    }
+
+    @TypeConverter
+    fun measurementStateToValue(measurementState: MeasurementState): Int = measurementState.ordinal
+
+    @TypeConverter
+    fun valueToMeasurementState(value: Int): MeasurementState {
+        MeasurementState.values().forEach { if (value == it.ordinal) return it }
+        throw IllegalArgumentException("Measurement state $value not found")
     }
 }

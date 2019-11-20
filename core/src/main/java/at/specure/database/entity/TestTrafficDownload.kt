@@ -4,18 +4,16 @@ import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
 import at.specure.database.Columns.TEST_UUID_PARENT_COLUMN
-import at.specure.database.Tables
+import at.specure.database.Tables.TEST_TRAFFIC_DOWNLOAD_ITEM
 
-const val GRAPH_ITEM_TYPE_DOWNLOAD = 1
-const val GRAPH_ITEM_TYPE_UPLOAD = 2
+@Entity(tableName = TEST_TRAFFIC_DOWNLOAD_ITEM)
+open class TestTrafficDownload(
 
-@Entity(tableName = Tables.TEST_GRAPH_ITEM)
-data class GraphItem(
     @PrimaryKey(autoGenerate = true)
     val id: Long,
     @ForeignKey(entity = Test::class, parentColumns = [TEST_UUID_PARENT_COLUMN], childColumns = ["testUUID"], onDelete = ForeignKey.CASCADE)
     val testUUID: String,
-    val time: Float,
-    val value: Float,
-    val type: Int
+    val threadNumber: Int,
+    val time: Long,
+    val bytes: Long
 )

@@ -14,5 +14,5 @@ interface CapabilitesDao {
     fun getCapabilitiesForTest(testUUID: String): List<Capabilities>
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
-    suspend fun insert(capabilities: Capabilities)
+    fun insert(capabilities: Capabilities)
 }

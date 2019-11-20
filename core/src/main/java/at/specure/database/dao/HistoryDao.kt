@@ -14,8 +14,8 @@ interface HistoryDao {
     fun getHistoryItems(): List<History>
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
-    suspend fun insert(history: History)
+    fun insert(history: History)
 
     @Query("DELETE FROM ${Tables.HISTORY}")
-    suspend fun deleteAll(): Int
+    fun deleteAll(): Int
 }

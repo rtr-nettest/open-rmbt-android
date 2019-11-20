@@ -14,5 +14,5 @@ interface PermissionStatusDao {
     fun getPermissionStatusForTest(testUUID: String): List<PermissionStatus>
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
-    suspend fun insert(permissionStatus: PermissionStatus)
+    fun insert(permissionStatus: PermissionStatus)
 }

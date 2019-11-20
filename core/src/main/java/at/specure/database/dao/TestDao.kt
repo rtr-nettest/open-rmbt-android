@@ -6,7 +6,9 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import at.specure.database.Tables
+import at.specure.database.entity.MobileTest
 import at.specure.database.entity.Test
+import at.specure.database.entity.WifiTest
 
 @Dao
 interface TestDao {
@@ -15,11 +17,17 @@ interface TestDao {
     fun getLatestTestResult(): Test?
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
-    suspend fun insert(test: Test)
+    fun insert(test: Test)
+
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    fun insert(test: MobileTest)
+
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    fun insert(test: WifiTest)
 
     @Query("DELETE FROM ${Tables.TEST}")
-    suspend fun deleteAll(): Int
+    fun deleteAll(): Int
 
     @Delete
-    suspend fun deleteTest(test: Test): Int
+    fun deleteTest(test: Test): Int
 }

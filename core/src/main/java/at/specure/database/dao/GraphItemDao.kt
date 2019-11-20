@@ -19,8 +19,8 @@ interface GraphItemDao {
     fun getDownloadGraph(testUUID: String): List<GraphItem>
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
-    suspend fun insertItem(graphItem: GraphItem): Long
+    fun insertItem(graphItem: GraphItem): Long
 
     @Query("DELETE FROM ${Tables.TEST_GRAPH_ITEM}")
-    suspend fun deleteAll(): Int
+    fun deleteAll(): Int
 }

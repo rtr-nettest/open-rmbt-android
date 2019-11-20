@@ -14,5 +14,5 @@ interface PingDao {
     fun getPingsForTest(testUUID: String): List<Ping>
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
-    suspend fun insert(ping: Ping)
+    fun insert(ping: Ping)
 }

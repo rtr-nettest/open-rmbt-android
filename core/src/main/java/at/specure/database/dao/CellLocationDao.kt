@@ -14,5 +14,5 @@ interface CellLocationDao {
     fun getCellLocationsForTest(testUUID: String): List<CellLocation>
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
-    suspend fun insert(cellLocation: CellLocation): Long
+    fun insert(cellLocation: CellLocation): Long
 }
