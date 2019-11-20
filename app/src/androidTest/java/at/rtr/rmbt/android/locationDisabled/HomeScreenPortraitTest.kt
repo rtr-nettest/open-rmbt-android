@@ -35,7 +35,7 @@ open class HomeScreenPortraitTest : BaseTest() {
     private lateinit var context: HomeActivity
 
     @Test
-    fun checkLocationIconGreen() {
+    fun checkLocationIconGray() {
         context = activityRule.activity
         val drawableIvLocationButton =
             context.findViewById<AppCompatImageButton>(R.id.btnLocation).drawable
