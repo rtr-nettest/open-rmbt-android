@@ -113,6 +113,15 @@
     <string name="measurement_ping">Klingeln</string>
     <string name="measurement_down">Down</string>
     <string name="measurement_up">Up</string>
+    <string name="measurement_qos">Servicequalität (QoS)</string>
+    <string name="measurement_qos_web_site">Webseite</string>
+    <string name="measurement_qos_transparent_connection">Transparente Verbindung</string>
+    <string name="measurement_qos_dns">DNS</string>
+    <string name="measurement_qos_tcp_ports">TCP Ports</string>
+    <string name="measurement_qos_udp_ports">UDP Ports</string>
+    <string name="measurement_qos_unmodified_content">Unveränderter Inhalt</string>
+    <string name="measurement_qos_traceroute">Traceroute</string>
+    <string name="measurement_qos_voip">VoIP</string>
 
     <string-array name="measurement_speed_chart_y_labels">
         <item>1</item>
