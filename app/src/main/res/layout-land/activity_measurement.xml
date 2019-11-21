@@ -29,21 +29,21 @@
             app:layout_constraintTop_toTopOf="parent"
             app:measurementPhase="@{state.measurementState}"
             app:percentage="@{state.measurementProgress}"
-            app:speed="@{state.downloadSpeedBps}"
+            app:speed="@{state.measurementState == MeasurementState.UPLOAD ? state.uploadSpeedBps : state.downloadSpeedBps}"
             app:strength="@{state.signalStrengthInfo.value}"
             app:strengthMax="@{state.signalStrengthInfo.max}"
             app:strengthMin="@{state.signalStrengthInfo.min}" />
 
         <ImageView
+            android:id="@+id/buttonCancel"
             android:layout_width="wrap_content"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            android:src="@drawable/ic_cancel"
-            android:layout_marginEnd="@dimen/padding_large"
-            android:layout_marginTop="@dimen/padding_large"
-            android:contentDescription="@null"
             android:layout_height="wrap_content"
-            android:id="@+id/buttonCancel"/>
+            android:layout_marginTop="@dimen/padding_large"
+            android:layout_marginEnd="@dimen/padding_large"
+            android:contentDescription="@null"
+            android:src="@drawable/ic_cancel"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
             android:id="@+id/network_name_label"
@@ -52,7 +52,7 @@
             android:layout_marginStart="@dimen/padding_very_extra_large"
             android:layout_marginTop="@dimen/padding_medium"
             android:text="@string/network_label"
-            android:textColor="@color/text_dark_gray"
+            android:textColor="@color/text_white_transparency_40"
             android:textSize="@dimen/network_label_size"
             android:textStyle="bold"
             app:layout_constraintStart_toStartOf="@id/measurement_bottom_view"
