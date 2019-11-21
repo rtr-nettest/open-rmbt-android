@@ -2,6 +2,7 @@ package at.rtr.rmbt.android.ui.view.curve
 
 import android.content.Context
 import android.util.AttributeSet
+import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.FrameLayout
@@ -10,6 +11,7 @@ import at.rtr.rmbt.android.databinding.LayoutMeasurementCurveBinding
 import at.rtr.rmbt.android.databinding.LayoutPercentageBinding
 import at.rtr.rmbt.android.databinding.LayoutSpeedBinding
 import at.specure.measurement.MeasurementState
+import kotlin.math.roundToInt
 
 class MeasurementCurveLayout @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) :
     FrameLayout(context, attrs, defStyleAttr) {
@@ -30,6 +32,12 @@ class MeasurementCurveLayout @JvmOverloads constructor(context: Context, attrs: 
      * Defines the current phase of measurement
      */
     private var phase: MeasurementState = MeasurementState.IDLE
+        set(value) {
+            field = value
+            if (field != MeasurementState.IDLE && field != MeasurementState.FINISH) {
+                speedLayout.root.visibility = View.INVISIBLE
+            }
+        }
 
     /**
      * Defines coefficients to calculation progress value for each phase of measurement when QoS is disabled
@@ -82,7 +90,21 @@ class MeasurementCurveLayout @JvmOverloads constructor(context: Context, attrs: 
 
         speedLayout = LayoutSpeedBinding.inflate(inflater)
         percentageLayout = LayoutPercentageBinding.inflate(inflater)
-        curveBinding.curveView.setSquareSizeCallback { curveBinding.layoutStrength.strength.squareSize = it }
+        curveBinding.curveView.setSquareSizeCallback { squareSize, viewSize ->
+            curveBinding.layoutStrength.strength.squareSize = squareSize
+
+            // to prevent overlapping text size should be depent on curve circle size
+            speedLayout.value.setTextSize(TypedValue.COMPLEX_UNIT_PX, (viewSize / VALUE_SIZE_DIVIDER).toFloat())
+            speedLayout.units.setTextSize(TypedValue.COMPLEX_UNIT_PX, (viewSize / UNITS_SIZE_DIVIDER).toFloat())
+            speedLayout.value.requestLayout()
+            speedLayout.units.requestLayout()
+
+            // to prevent overlapping text size should be depent on curve circle size
+            percentageLayout.percentage.setTextSize(TypedValue.COMPLEX_UNIT_PX, (viewSize / VALUE_SIZE_DIVIDER).toFloat())
+            percentageLayout.units.setTextSize(TypedValue.COMPLEX_UNIT_PX, (viewSize / UNITS_SIZE_DIVIDER).toFloat())
+            percentageLayout.percentage.requestLayout()
+            percentageLayout.units.requestLayout()
+        }
         curveBinding.curveView.setBottomCenterCallback { x, y ->
             bottomCenterX = x
             bottomCenterY = y - curveBinding.curveView.paddingTop
@@ -132,11 +154,18 @@ class MeasurementCurveLayout @JvmOverloads constructor(context: Context, attrs: 
      * Update the bottom part UI according to progress changing
      */
     fun setBottomProgress(progress: Long) {
-        curveBinding.curveView.setBottomProgress((progress * 1e-6).toInt())
-        if (bottomCenterX != 0 && bottomCenterY != 0) {
-            speedLayout.value.text = ((progress * 1e-6).toInt()).toString()
+        if (phase == MeasurementState.DOWNLOAD || phase == MeasurementState.UPLOAD) {
+            speedLayout.icon.setImageResource(if (phase == MeasurementState.DOWNLOAD) R.drawable.ic_speed_download else R.drawable.ic_speed_upload)
+            val progressInKbit = (progress * 1e-3).toInt()
+            curveBinding.curveView.setBottomProgress(progressInKbit)
+            if (progressInKbit <= 1000) { // kbit/s
+                speedLayout.value.text = (progressInKbit).toString()
+                speedLayout.units.text = context.getString(R.string.speed_progress_units_kbit)
+            } else { // Mbit/s
+                speedLayout.value.text = ((progress * 1e-6).roundToInt()).toString()
+                speedLayout.units.text = context.getString(R.string.speed_progress_units_mbit)
+            }
             speedLayout.value.requestLayout()
-            speedLayout.units.text = context.getString(R.string.speed_progress_units) // todo calculate units while set progress
             with(speedLayout.root) {
                 (layoutParams as LayoutParams).apply {
                     leftMargin = bottomCenterX - speedLayout.value.measuredWidth / LEFT_MARGIN_DIVIDER
@@ -168,6 +197,9 @@ class MeasurementCurveLayout @JvmOverloads constructor(context: Context, attrs: 
 
     companion object {
         private const val LEFT_MARGIN_DIVIDER = 2
-        private const val TOP_MARGIN_DIVIDER = 5
+        private const val TOP_MARGIN_DIVIDER = 8
+
+        private const val VALUE_SIZE_DIVIDER = 10
+        private const val UNITS_SIZE_DIVIDER = 25
     }
 }
