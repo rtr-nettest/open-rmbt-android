@@ -7,5 +7,10 @@ import at.specure.database.Tables
 class Signal2G3G(
     val signalStrength: Int?,
     val timeNsLast: Long?,
-    val bitErrorRate: Int?, id: Long, testUUID: String, cellUuid: String, networkTypeId: String, timeNs: Long
+    val bitErrorRate: Int?,
+    id: Long,
+    testUUID: String,
+    cellUuid: String,
+    networkTypeId: String,
+    timeNs: Long
 ) : Signal(id, testUUID, cellUuid, networkTypeId, timeNs)

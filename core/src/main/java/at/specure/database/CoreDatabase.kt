@@ -31,7 +31,6 @@ import at.specure.database.entity.TestTrafficDownload
 import at.specure.database.entity.TestTrafficUpload
 import at.specure.database.entity.WifiTest
 
-
 @Database(
     entities = [Capabilities::class,
         CellInfo::class,

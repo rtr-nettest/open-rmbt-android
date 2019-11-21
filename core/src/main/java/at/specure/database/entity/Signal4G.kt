@@ -10,5 +10,9 @@ class Signal4G(
     val lteRssnr: Int?,
     val lteCqi: Int?,
     val timingAdvance: Int?,
-    id: Long, testUUID: String, cellUuid: String, networkTypeId: String, timeNs: Long
+    id: Long,
+    testUUID: String,
+    cellUuid: String,
+    networkTypeId: String,
+    timeNs: Long
 ) : Signal(id, testUUID, cellUuid, networkTypeId, timeNs)
