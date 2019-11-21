@@ -27,6 +27,7 @@ class MeasurementCurveLayout @JvmOverloads constructor(context: Context, attrs: 
     private var bottomCenterY = 0
 
     private var isQoSEnabled = false
+    private var curveCircleSize = 0
 
     /**
      * Defines the current phase of measurement
@@ -104,6 +105,12 @@ class MeasurementCurveLayout @JvmOverloads constructor(context: Context, attrs: 
             percentageLayout.units.setTextSize(TypedValue.COMPLEX_UNIT_PX, (viewSize / UNITS_SIZE_DIVIDER).toFloat())
             percentageLayout.percentage.requestLayout()
             percentageLayout.units.requestLayout()
+
+            curveCircleSize = viewSize
+            (curveBinding.curveView.layoutParams as LayoutParams).apply {
+                topMargin = viewSize / TOP_MARGIN_DIVIDER
+                requestLayout()
+            }
         }
         curveBinding.curveView.setBottomCenterCallback { x, y ->
             bottomCenterX = x
@@ -131,7 +138,7 @@ class MeasurementCurveLayout @JvmOverloads constructor(context: Context, attrs: 
                 with(percentageLayout.root) {
                     (layoutParams as LayoutParams).apply {
                         leftMargin = topCenterX - percentageLayout.percentage.measuredWidth / LEFT_MARGIN_DIVIDER
-                        topMargin = topCenterY - this@with.measuredHeight / TOP_MARGIN_DIVIDER
+                        topMargin = topCenterY - (this@with.measuredHeight - curveCircleSize / 2) / TOP_MARGIN_DIVIDER
                     }
                 }
                 requestLayout()
@@ -169,7 +176,7 @@ class MeasurementCurveLayout @JvmOverloads constructor(context: Context, attrs: 
             with(speedLayout.root) {
                 (layoutParams as LayoutParams).apply {
                     leftMargin = bottomCenterX - speedLayout.value.measuredWidth / LEFT_MARGIN_DIVIDER
-                    topMargin = bottomCenterY - this@with.measuredHeight / TOP_MARGIN_DIVIDER
+                    topMargin = bottomCenterY - (this@with.measuredHeight - curveCircleSize / 2) / TOP_MARGIN_DIVIDER
                 }
             }
             requestLayout()
