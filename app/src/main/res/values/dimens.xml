@@ -30,8 +30,6 @@
     <dimen name="padding_extra_large">24dp</dimen>
     <dimen name="padding_very_extra_large">32dp</dimen>
     <dimen name="dialog_corner_radius">8dp</dimen>
-    <dimen name="size_measurement_value_text">48sp</dimen>
-    <dimen name="size_measurement_unit_text">20sp</dimen>
 
     <dimen name="inset_very_small">2dp</dimen>
     <dimen name="inset_small">4dp</dimen>
@@ -42,10 +40,10 @@
     <dimen name="speed_chart_height">128dp</dimen>
     <dimen name="signal_bar_start_margin">32dp</dimen>
     <dimen name="signal_bar_top_margin">8dp</dimen>
-    <dimen name="signal_bar_value">14sp</dimen>
     <dimen name="signal_bar_scale_value">10sp</dimen>
+    <dimen name="signal_bar_value">16sp</dimen>
     <dimen name="signal_bar_label">12sp</dimen>
-    <dimen name="network_name_size">18sp</dimen>
+    <dimen name="network_name_size">20sp</dimen>
     <dimen name="network_label_size">14sp</dimen>
 
 </resources>

@@ -10,6 +10,8 @@ import android.graphics.PorterDuffXfermode
 import android.graphics.Rect
 import androidx.core.content.ContextCompat
 import at.rtr.rmbt.android.R
+import at.specure.measurement.MeasurementState
+import kotlin.math.roundToInt
 
 class BottomCurvePart(context: Context) : CurvePart() {
 
@@ -23,6 +25,8 @@ class BottomCurvePart(context: Context) : CurvePart() {
         style = Paint.Style.STROKE
         xfermode = PorterDuffXfermode(PorterDuff.Mode.SRC_ATOP)
     }
+
+    override var phase: MeasurementState = MeasurementState.IDLE
 
     override lateinit var bitmap: Bitmap
 
@@ -157,7 +161,7 @@ class BottomCurvePart(context: Context) : CurvePart() {
 
     override fun updateProgress(progress: Int) {
         progressPaint.strokeWidth = ANGLE_STEP_MULTIPLIER * (largeRadius - smallRadius)
-        val progressAngle = (sectionStartAngle - sectionEndAngle) / 100 * progress
+        val progressAngle = calculateProgressAngle(progress)
 
         currentCanvas?.let { currentCanvas ->
             drawSections(currentCanvas)
@@ -174,6 +178,33 @@ class BottomCurvePart(context: Context) : CurvePart() {
                 progressPaint
             )
         }
+    }
+
+    private fun calculateProgressAngle(currentProgress: Int): Float {
+        var angle = 0f
+        when {
+            currentProgress < 1e3 -> { // up to 1 mbit
+                val sectionAngle = sections[3].startAngle - sections[3].endAngle
+                val kbits = currentProgress - 100
+                angle = 0.1f * kbits * sectionAngle / 100
+            }
+            currentProgress < 1e4 -> { // up to 10 mbit
+                val sectionAngle = sections[2].startAngle - sections[2].endAngle
+                val mbits = (currentProgress / 1e3).roundToInt() - 1
+                angle = (sections[2].endAngle - sections[3].endAngle) + 10 * mbits * sectionAngle / 100
+            }
+            currentProgress < 1e5 -> { // up to 100 mbit
+                val sectionAngle = sections[1].startAngle - sections[1].endAngle
+                val mbits = (currentProgress / 1e3).roundToInt() - 10
+                angle = (sections[1].endAngle - sections[3].endAngle) + mbits * sectionAngle / 100
+            }
+            currentProgress < 1e6 -> { // up to 1000 mbit
+                val sectionAngle = sections[0].startAngle - sections[0].endAngle
+                val mbits = (currentProgress / 1e3).roundToInt()
+                angle = (sections[0].endAngle - sections[3].endAngle) + 0.1f * mbits * sectionAngle / 100
+            }
+        }
+        return angle
     }
 
     companion object {

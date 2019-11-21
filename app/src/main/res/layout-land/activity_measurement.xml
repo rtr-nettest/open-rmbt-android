@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:bind="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools">
+    xmlns:bind="http://schemas.android.com/apk/res-auto">
 
     <data>
 
@@ -17,50 +16,34 @@
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:background="@color/measurement_dark_gray"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:background="@color/measurement_dark_gray">
 
         <at.rtr.rmbt.android.ui.view.curve.MeasurementCurveLayout
             android:id="@+id/curve_layout"
             android:layout_width="0dp"
             android:layout_height="match_parent"
-            app:percentage="@{state.measurementProgress}"
-            app:speed="@{state.downloadSpeedBps}"
-            app:strength="@{state.signalStrengthInfo.value}"
-            app:strengthMin="@{state.signalStrengthInfo.min}"
-            app:strengthMax="@{state.signalStrengthInfo.max}"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toStartOf="@id/measurement_bottom_view"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent"/>
-
-        <Button
-            android:id="@+id/buttonStart"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Start"
-            app:layout_constraintBottom_toTopOf="@+id/buttonStop"
-            app:layout_constraintEnd_toStartOf="@+id/measurement_bottom_view"
-            tools:ignore="HardcodedText" />
-
-        <Button
-            android:id="@+id/buttonStop"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Stop"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@+id/measurement_bottom_view"
-            tools:ignore="HardcodedText" />
+            app:layout_constraintEnd_toStartOf="@id/measurement_bottom_view"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:measurementPhase="@{state.measurementState}"
+            app:percentage="@{state.measurementProgress}"
+            app:speed="@{state.measurementState == MeasurementState.UPLOAD ? state.uploadSpeedBps : state.downloadSpeedBps}"
+            app:strength="@{state.signalStrengthInfo.value}"
+            app:strengthMax="@{state.signalStrengthInfo.max}"
+            app:strengthMin="@{state.signalStrengthInfo.min}" />
 
         <ImageView
+            android:id="@+id/buttonCancel"
             android:layout_width="wrap_content"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            android:src="@drawable/ic_cancel"
-            android:layout_marginEnd="@dimen/padding_large"
-            android:layout_marginTop="@dimen/padding_large"
             android:layout_height="wrap_content"
-            android:id="@+id/buttonCancel"/>
+            android:layout_marginTop="@dimen/padding_large"
+            android:layout_marginEnd="@dimen/padding_large"
+            android:contentDescription="@null"
+            android:src="@drawable/ic_cancel"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
             android:id="@+id/network_name_label"
@@ -69,7 +52,7 @@
             android:layout_marginStart="@dimen/padding_very_extra_large"
             android:layout_marginTop="@dimen/padding_medium"
             android:text="@string/network_label"
-            android:textColor="@color/text_dark_gray"
+            android:textColor="@color/text_white_transparency_40"
             android:textSize="@dimen/network_label_size"
             android:textStyle="bold"
             app:layout_constraintStart_toStartOf="@id/measurement_bottom_view"

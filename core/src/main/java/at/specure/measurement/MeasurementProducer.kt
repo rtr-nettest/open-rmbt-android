@@ -23,6 +23,8 @@ interface MeasurementProducer {
 
     val networkInfo: NetworkInfo?
 
+    val isTestsRunning: Boolean
+
     fun startTests()
 
     fun stopTests()
