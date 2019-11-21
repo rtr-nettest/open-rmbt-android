@@ -30,4 +30,7 @@ interface TestDao {
 
     @Delete
     fun deleteTest(test: Test): Int
+
+    @Query("SELECT * from ${Tables.TEST} WHERE uuid == :uuid")
+    fun getTestResult(uuid: String): Test?
 }

@@ -1,9 +1,14 @@
 package at.specure.repository
 
-import androidx.lifecycle.MutableLiveData
 import at.specure.database.entity.Test
 
 interface TestRepository {
 
-    fun getTest(): MutableLiveData<Test>
+    fun getTest(uuid: String): Test?
+
+    fun getLatestTest(): Test?
+
+    fun saveTest(test: Test)
+
+    fun deleteTest(test: Test)
 }
