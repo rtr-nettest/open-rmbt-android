@@ -49,6 +49,6 @@ class QosMeasurementAdapter(val context: Context) : RecyclerView.Adapter<ViewHol
     }
 }
 
-class ViewHolder (view: View) : RecyclerView.ViewHolder(view) {
+class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
     val textQosTitle: TextView = view.findViewById(R.id.textQosTitle)
 }

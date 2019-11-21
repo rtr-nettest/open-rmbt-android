@@ -17,7 +17,12 @@
 package at.rtr.rmbt.android.ui.view
 
 import android.content.Context
-import android.graphics.*
+import android.graphics.Canvas
+import android.graphics.Paint
+import android.graphics.Bitmap
+import android.graphics.Color
+import android.graphics.PorterDuff
+import android.graphics.PorterDuffXfermode
 import android.util.AttributeSet
 import android.view.View
 import androidx.core.content.ContextCompat
@@ -62,9 +67,6 @@ class ProgressBar @JvmOverloads constructor(
 
     private var currentCanvas: Canvas? = null
     private var bitmap: Bitmap? = null
-
-
-
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
 
