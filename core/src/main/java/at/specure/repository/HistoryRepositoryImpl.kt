@@ -1,6 +1,5 @@
 package at.specure.repository
 
-import androidx.lifecycle.MutableLiveData
 import at.specure.database.dao.HistoryDao
 import at.specure.database.entity.History
 
@@ -12,7 +11,7 @@ class HistoryRepositoryImpl(private val historyDao: HistoryDao) : HistoryReposit
         }
     }
 
-    override fun getHistoryItems(): MutableLiveData<List<History>> {
+    override fun getHistoryItems(): List<History> {
         return historyDao.getHistoryItems()
     }
 }
