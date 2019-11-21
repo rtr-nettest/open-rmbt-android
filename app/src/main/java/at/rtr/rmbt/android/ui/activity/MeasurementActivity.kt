@@ -42,9 +42,6 @@ class MeasurementActivity : BaseActivity(), SimpleDialog.Callback {
         viewModel.measurementFinishLiveData.listen(this) {
             finish()
             ResultsActivity.start(this)
-        binding.buttonStart.setOnClickListener {
-            MeasurementService.startTests(this)
-            viewModel.producer?.startTests()
         }
 
         viewModel.measurementErrorLiveData.listen(this) {
@@ -54,6 +51,7 @@ class MeasurementActivity : BaseActivity(), SimpleDialog.Callback {
                 .cancelable(false)
                 .show(supportFragmentManager, 0)
         }
+
         binding.measurementBottomView.qosTestRecyclerView.apply {
             adapter = QosMeasurementAdapter(this@MeasurementActivity)
         }
