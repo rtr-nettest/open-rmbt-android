@@ -423,3 +423,24 @@ fun MeasurementCurveLayout.setPercents(percents: Int) {
 fun MeasurementCurveLayout.setSignal(signalLevel: Int, strengthMin: Int, strengthMax: Int) {
     setSignalStrength(signalLevel, strengthMin, strengthMax)
 }
+
+/**
+ * A binding adapter that is used for show label of measurement state
+ */
+@BindingAdapter("labelMeasurementState")
+fun AppCompatTextView.setLabelOfMeasurementState(measurementState: MeasurementState) {
+
+    when (measurementState) {
+        MeasurementState.IDLE, MeasurementState.INIT, MeasurementState.PING, MeasurementState.DOWNLOAD -> {
+            text = context.getString(R.string.measurement_download)
+        }
+        MeasurementState.UPLOAD -> {
+            text = context.getString(R.string.measurement_upload)
+        }
+        MeasurementState.QOS -> {
+            text = context.getString(R.string.measurement_qos)
+        }
+        else -> {
+        }
+    }
+}

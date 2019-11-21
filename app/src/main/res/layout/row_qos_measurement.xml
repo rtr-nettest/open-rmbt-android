@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:paddingStart="@dimen/margin_large"
+    android:paddingEnd="@dimen/margin_large"
+    android:paddingBottom="@dimen/margin_medium"
+    android:paddingTop="@dimen/margin_medium"
+    >
+
+    <androidx.appcompat.widget.AppCompatTextView
+        style="@style/RobotoRegularStyle.Small"
+        android:id="@+id/textQosTitle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        android:textColor="@android:color/white"
+        android:layout_toStartOf="@+id/progressBarQos"
+         />
+
+    <at.rtr.rmbt.android.ui.view.ProgressBar
+        android:id="@+id/progressBarQos"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_centerVertical="true" />
+</RelativeLayout>
