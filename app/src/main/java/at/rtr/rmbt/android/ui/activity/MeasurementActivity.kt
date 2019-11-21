@@ -22,11 +22,12 @@ import android.os.Bundle
 import at.rtr.rmbt.android.R
 import at.rtr.rmbt.android.databinding.ActivityMeasurementBinding
 import at.rtr.rmbt.android.di.viewModelLazy
+import at.rtr.rmbt.android.ui.dialog.SimpleDialog
+import at.rtr.rmbt.android.util.listen
 import at.rtr.rmbt.android.ui.adapter.QosMeasurementAdapter
 import at.rtr.rmbt.android.viewmodel.MeasurementViewModel
-import at.specure.measurement.MeasurementService
 
-class MeasurementActivity : BaseActivity() {
+class MeasurementActivity : BaseActivity(), SimpleDialog.Callback {
 
     private val viewModel: MeasurementViewModel by viewModelLazy()
     private lateinit var binding: ActivityMeasurementBinding
@@ -35,17 +36,37 @@ class MeasurementActivity : BaseActivity() {
         super.onCreate(savedInstanceState)
         binding = bindContentView(R.layout.activity_measurement)
         binding.state = viewModel.state
+
+        binding.buttonCancel.setOnClickListener { onCrossIconClicked() }
+
+        viewModel.measurementFinishLiveData.listen(this) {
+            finish()
+            ResultsActivity.start(this)
         binding.buttonStart.setOnClickListener {
             MeasurementService.startTests(this)
             viewModel.producer?.startTests()
         }
 
-        binding.buttonStop.setOnClickListener {
-            viewModel.producer?.stopTests()
+        viewModel.measurementErrorLiveData.listen(this) {
+            SimpleDialog.Builder()
+                .messageText(R.string.test_dialog_error_text)
+                .positiveText(R.string.input_setting_dialog_okay)
+                .cancelable(false)
+                .show(supportFragmentManager, 0)
         }
         binding.measurementBottomView.qosTestRecyclerView.apply {
             adapter = QosMeasurementAdapter(this@MeasurementActivity)
         }
+    }
+
+    override fun onDialogPositiveClicked(code: Int) {
+        // finish activity for in both cases
+        viewModel.cancelMeasurement()
+        finish()
+    }
+
+    override fun onDialogNegativeClicked(code: Int) {
+        // Do nothing
     }
 
     override fun onStart() {
@@ -56,6 +77,19 @@ class MeasurementActivity : BaseActivity() {
     override fun onStop() {
         super.onStop()
         viewModel.detach(this)
+    }
+
+    override fun onBackPressed() {
+        onCrossIconClicked()
+    }
+
+    private fun onCrossIconClicked() {
+        SimpleDialog.Builder()
+            .messageText(R.string.title_cancel_measurement)
+            .positiveText(R.string.text_cancel_measurement)
+            .negativeText(R.string.text_continue_measurement)
+            .cancelable(false)
+            .show(supportFragmentManager, 0)
     }
 
     companion object {

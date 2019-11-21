@@ -22,7 +22,10 @@ class MockedTestController : TestController {
 
     private var _listener: TestProgressListener? = null
 
-    override fun start(listener: TestProgressListener) {
+    override val isRunning: Boolean
+        get() = job != null
+
+    override fun start(listener: TestProgressListener, deviceInfo: DeviceInfo) {
         if (job != null) {
             Timber.w("Runner is already started")
             return

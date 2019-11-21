@@ -424,6 +424,11 @@ fun MeasurementCurveLayout.setSignal(signalLevel: Int, strengthMin: Int, strengt
     setSignalStrength(signalLevel, strengthMin, strengthMax)
 }
 
+@BindingAdapter("measurementPhase")
+fun MeasurementCurveLayout.setMeasurementPhase(state: MeasurementState) {
+    setMeasurementState(state)
+}
+
 /**
  * A binding adapter that is used for show label of measurement state
  */

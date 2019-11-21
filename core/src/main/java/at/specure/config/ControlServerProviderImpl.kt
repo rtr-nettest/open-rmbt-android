@@ -36,10 +36,10 @@ class ControlServerProviderImpl(private val config: Config) : ControlEndpointPro
         get() = protocol + config.controlServerCheckPublicIPv6Url
 
     override val checkSettingsUrl: String
-        get() = host + config.controlServerSettingsPath
+        get() = host + "/" + config.controlServerSettingsPath
 
     override val testRequestUrl: String
-        get() = host + config.controlServerRequestTestPath
+        get() = host + "/" + config.controlServerRequestTestPath
 
     override val port: Int
         get() = config.controlServerPort

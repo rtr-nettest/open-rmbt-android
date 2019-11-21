@@ -12,7 +12,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/label_signal_strength"
-            android:textColor="@color/text_dark_gray"
+            android:textColor="@color/text_white_transparency_40"
             android:textSize="@dimen/signal_bar_label"
             android:textStyle="bold" />
 

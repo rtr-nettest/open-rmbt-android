@@ -34,6 +34,7 @@ fun Context.copyToClipboard(text: String?) {
         clipboard.setPrimaryClip(clip)
     }
 }
+
 /**
  * Opens Current application system settings
  */
@@ -44,3 +45,8 @@ fun Context.openAppSettings() {
     intent.data = uri
     startActivity(intent)
 }
+
+/**
+ * Checks that runtime permission is allowed by user
+ */
+fun Context.hasPermission(permission: String) = ContextCompat.checkSelfPermission(this, permission) == PackageManager.PERMISSION_GRANTED

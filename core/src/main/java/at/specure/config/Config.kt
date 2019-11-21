@@ -103,4 +103,9 @@ interface Config {
      * end of the url for getting new test settings from the control server, example "ControlServer/testRequest"
      */
     var controlServerRequestTestPath: String
+
+    /**
+     * Counter of tests performed by user
+     */
+    var testCounter: Int
 }

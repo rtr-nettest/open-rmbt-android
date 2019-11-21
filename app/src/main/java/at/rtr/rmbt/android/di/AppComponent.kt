@@ -17,7 +17,7 @@ import javax.inject.Singleton
  * Main Application component that wires all application modules together
  */
 @Singleton
-@Component(modules = [ViewModelModule::class, SystemModule::class, LocationModule::class, DatabaseModule::class, CoreModule::class, ControlServerModule::class, ConfigModule::class])
+@Component(modules = [ViewModelModule::class, SystemModule::class, DependencyModule::class, DatabaseModule::class, CoreModule::class, ControlServerModule::class, ConfigModule::class])
 interface AppComponent : CoreComponent {
 
     fun viewModelFactory(): ViewModelFactory
