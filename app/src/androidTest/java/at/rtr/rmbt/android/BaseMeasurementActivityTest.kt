@@ -18,7 +18,7 @@ import androidx.test.rule.ActivityTestRule
 import at.rtr.rmbt.android.ui.activity.MeasurementActivity
 import org.junit.Rule
 
-open class BaseMeasurementActivityTest:BaseTest() {
+open class BaseMeasurementActivityTest : BaseTest() {
 
     @get:Rule
     open val activityRule = ActivityTestRule(MeasurementActivity::class.java)

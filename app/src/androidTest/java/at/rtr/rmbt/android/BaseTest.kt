@@ -12,7 +12,7 @@ import org.hamcrest.Description
 import org.hamcrest.Matcher
 import org.hamcrest.TypeSafeMatcher
 import java.io.ByteArrayOutputStream
-import java.util.*
+import java.util.Arrays
 
 open class BaseTest {
 

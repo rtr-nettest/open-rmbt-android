@@ -19,10 +19,14 @@ import androidx.test.rule.GrantPermissionRule
 import at.rtr.rmbt.android.ui.activity.HomeActivity
 import org.junit.Rule
 
-open class BaseHomeActivityTest:BaseTest() {
+open class BaseHomeActivityTest : BaseTest() {
 
-    @get:Rule var permissionRuleLocation: GrantPermissionRule = GrantPermissionRule.grant(android.Manifest.permission.ACCESS_FINE_LOCATION)
-    @get:Rule var permissionRulePhone: GrantPermissionRule = GrantPermissionRule.grant(android.Manifest.permission.READ_PHONE_STATE)
+    @get:Rule
+    var permissionRuleLocation: GrantPermissionRule =
+        GrantPermissionRule.grant(android.Manifest.permission.ACCESS_FINE_LOCATION)
+    @get:Rule
+    var permissionRulePhone: GrantPermissionRule =
+        GrantPermissionRule.grant(android.Manifest.permission.READ_PHONE_STATE)
 
     @get:Rule
     open val activityRule = ActivityTestRule(HomeActivity::class.java)
