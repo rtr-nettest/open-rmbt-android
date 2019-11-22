@@ -13,9 +13,9 @@ interface MeasurementClient {
 
     fun onSignalChanged(signalStrengthInfo: SignalStrengthInfo?)
 
-    fun onDownloadSpeedChanged(speedBps: Long)
+    fun onDownloadSpeedChanged(progress: Int, speedBps: Long)
 
-    fun onUploadSpeedChanged(speedBps: Long)
+    fun onUploadSpeedChanged(progress: Int, speedBps: Long)
 
     fun onPingChanged(pingMs: Long)
 

@@ -163,6 +163,8 @@ class LocationInfo {
         elapsedRealtimeNanos = location.elapsedRealtimeNanos
 
         time = location.time
+
+        location.time
     }
 
     /**

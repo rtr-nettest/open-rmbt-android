@@ -17,7 +17,7 @@ import org.json.JSONObject
 import timber.log.Timber
 import java.util.concurrent.TimeUnit
 
-class WrappedTestController(private val config: Config, private val clientUUID: ClientUUID) : TestController {
+class TestControllerImpl(private val config: Config, private val clientUUID: ClientUUID) : TestController {
 
     private var job: Job? = null
 
@@ -84,7 +84,8 @@ class WrappedTestController(private val config: Config, private val clientUUID: 
             )
 
             if (client == null || errorSet.isNotEmpty()) {
-                Timber.e("ERRORS CLIENT")
+                Timber.w("Client has errors")
+                _listener?.onError()
                 return@async
             }
 
@@ -123,7 +124,7 @@ class WrappedTestController(private val config: Config, private val clientUUID: 
                 }
 
                 if (currentStatus.isFinalState()) {
-                    client?.shutdown()
+                    client.shutdown()
                     if (currentStatus != TestStatus.ERROR) {
                         _listener?.onFinish()
                     }
@@ -158,7 +159,7 @@ class WrappedTestController(private val config: Config, private val clientUUID: 
             if (ping >= 0) {
                 _listener?.onPingChanged(ping)
             }
-            _listener?.onDownloadSpeedChanged(result.downBitPerSec)
+            _listener?.onDownloadSpeedChanged(progress, result.downBitPerSec)
             previousDownloadProgress = progress
         }
     }
@@ -172,7 +173,7 @@ class WrappedTestController(private val config: Config, private val clientUUID: 
         val progress = (result.progress * 100).toInt()
         if (progress != previousUploadProgress) {
             setState(MeasurementState.UPLOAD, (result.progress * 100).toInt())
-            _listener?.onUploadSpeedChanged(result.upBitPerSec)
+            _listener?.onUploadSpeedChanged(progress, result.upBitPerSec)
             previousUploadProgress = progress
         }
     }

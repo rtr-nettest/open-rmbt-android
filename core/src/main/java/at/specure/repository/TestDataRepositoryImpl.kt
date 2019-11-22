@@ -18,7 +18,7 @@ class TestDataRepositoryImpl(db: CoreDatabase) : TestDataRepository {
             speed = location.speed,
             altitude = location.altitude,
             time = location.time,
-            timeCorrectionNs = 0, // TODO time correction
+            timeCorrectionNs = location.elapsedRealtimeNanos,
             ageNanos = location.ageNanos,
             accuracy = location.accuracy,
             bearing = location.bearing,

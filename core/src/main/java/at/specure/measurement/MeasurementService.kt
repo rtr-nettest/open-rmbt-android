@@ -58,6 +58,7 @@ class MeasurementService : LifecycleService() {
     private var pingMs = 0L
     private var downloadSpeedBps = 0L
     private var uploadSpeedBps = 0L
+    private var hasErrors = false
 
     private var signalStrengthInfo: SignalStrengthInfo? = null
     private var networkInfo: NetworkInfo? = null
@@ -83,14 +84,14 @@ class MeasurementService : LifecycleService() {
             clientAggregator.onPingChanged(pingMs)
         }
 
-        override fun onDownloadSpeedChanged(speedBps: Long) {
+        override fun onDownloadSpeedChanged(progress: Int, speedBps: Long) {
             downloadSpeedBps = speedBps
-            clientAggregator.onDownloadSpeedChanged(speedBps)
+            clientAggregator.onDownloadSpeedChanged(progress, speedBps)
         }
 
-        override fun onUploadSpeedChanged(speedBps: Long) {
+        override fun onUploadSpeedChanged(progress: Int, speedBps: Long) {
             uploadSpeedBps = speedBps
-            clientAggregator.onUploadSpeedChanged(speedBps)
+            clientAggregator.onUploadSpeedChanged(progress, speedBps)
         }
 
         override fun onFinish() {
@@ -100,6 +101,7 @@ class MeasurementService : LifecycleService() {
         }
 
         override fun onError() {
+            hasErrors = true
             stopForeground(true)
             clientAggregator.onMeasurementError()
             unlock()
@@ -190,6 +192,7 @@ class MeasurementService : LifecycleService() {
             location = location
         )
 
+        hasErrors = false
         runner.start(testListener, deviceInfo)
 
         attachToForeground()
@@ -211,8 +214,8 @@ class MeasurementService : LifecycleService() {
     private fun resetStates() {
         testListener.onProgressChanged(MeasurementState.IDLE, 0)
         testListener.onPingChanged(0)
-        testListener.onDownloadSpeedChanged(0)
-        testListener.onUploadSpeedChanged(0)
+        testListener.onDownloadSpeedChanged(0, 0)
+        testListener.onUploadSpeedChanged(0, 0)
     }
 
     private fun lock() {
@@ -249,10 +252,13 @@ class MeasurementService : LifecycleService() {
                 clientAggregator.addClient(this)
                 onProgressChanged(measurementState, measurementProgress)
                 onPingChanged(pingMs)
-                onDownloadSpeedChanged(downloadSpeedBps)
-                onUploadSpeedChanged(uploadSpeedBps)
+                onDownloadSpeedChanged(measurementProgress, downloadSpeedBps)
+                onUploadSpeedChanged(measurementProgress, uploadSpeedBps)
                 onSignalChanged(signalStrengthInfo)
                 onActiveNetworkChanged(networkInfo)
+                if (hasErrors) {
+                    client.onMeasurementError()
+                }
             }
         }
 
@@ -329,15 +335,15 @@ class MeasurementService : LifecycleService() {
             }
         }
 
-        override fun onDownloadSpeedChanged(speedBps: Long) {
+        override fun onDownloadSpeedChanged(progress: Int, speedBps: Long) {
             clients.forEach {
-                it.onDownloadSpeedChanged(speedBps)
+                it.onDownloadSpeedChanged(progress, speedBps)
             }
         }
 
-        override fun onUploadSpeedChanged(speedBps: Long) {
+        override fun onUploadSpeedChanged(progress: Int, speedBps: Long) {
             clients.forEach {
-                it.onUploadSpeedChanged(speedBps)
+                it.onUploadSpeedChanged(progress, speedBps)
             }
         }
 

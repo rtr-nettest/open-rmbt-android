@@ -8,9 +8,9 @@ interface TestProgressListener {
 
     fun onPingChanged(pingMs: Long)
 
-    fun onDownloadSpeedChanged(speedBps: Long)
+    fun onDownloadSpeedChanged(progress: Int, speedBps: Long)
 
-    fun onUploadSpeedChanged(speedBps: Long)
+    fun onUploadSpeedChanged(progress: Int, speedBps: Long)
 
     fun onFinish()
 
