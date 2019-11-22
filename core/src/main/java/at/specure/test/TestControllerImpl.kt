@@ -17,13 +17,18 @@ import org.json.JSONObject
 import timber.log.Timber
 import java.util.concurrent.TimeUnit
 
-class WrappedTestController(private val config: Config, private val clientUUID: ClientUUID) : TestController {
+class TestControllerImpl(private val config: Config, private val clientUUID: ClientUUID) : TestController {
 
     private var job: Job? = null
 
     private val result: IntermediateResult by lazy { IntermediateResult() }
 
+    private var _testUUID: String? = null
+
     private var _listener: TestProgressListener? = null
+
+    override val testUUID: String?
+        get() = _testUUID
 
     override val isRunning: Boolean
         get() = job != null
@@ -78,19 +83,25 @@ class WrappedTestController(private val config: Config, private val clientUUID: 
                 errorSet
             )
 
-            if (errorSet.isNotEmpty()) {
-                Timber.e("ERRORS CLIENT")
+            if (client == null || errorSet.isNotEmpty()) {
+                Timber.w("Client has errors")
+                _listener?.onError()
                 return@async
             }
 
-            client?.trafficService = TrafficServiceImpl()
-            val connection = client?.controlConnection
+            client.trafficService = TrafficServiceImpl()
+            val connection = client.controlConnection
             Timber.i("Client UUID: ${connection?.clientUUID}")
+            Timber.i("Test UUID: ${connection.testUuid}")
             Timber.i("Server Name: ${connection?.serverName}")
             Timber.i("Loop Id: ${connection?.loopUuid}")
 
+            _testUUID = connection.testUuid
+            _listener?.onClientReady(_testUUID!!)
+
             GlobalScope.async {
-                client?.runTest()
+                @Suppress("BlockingMethodInNonBlockingContext")
+                client.runTest()
             }
 
             var currentStatus = TestStatus.WAIT
@@ -113,7 +124,7 @@ class WrappedTestController(private val config: Config, private val clientUUID: 
                 }
 
                 if (currentStatus.isFinalState()) {
-                    client?.shutdown()
+                    client.shutdown()
                     if (currentStatus != TestStatus.ERROR) {
                         _listener?.onFinish()
                     }
@@ -148,7 +159,7 @@ class WrappedTestController(private val config: Config, private val clientUUID: 
             if (ping >= 0) {
                 _listener?.onPingChanged(ping)
             }
-            _listener?.onDownloadSpeedChanged(result.downBitPerSec)
+            _listener?.onDownloadSpeedChanged(progress, result.downBitPerSec)
             previousDownloadProgress = progress
         }
     }
@@ -162,7 +173,7 @@ class WrappedTestController(private val config: Config, private val clientUUID: 
         val progress = (result.progress * 100).toInt()
         if (progress != previousUploadProgress) {
             setState(MeasurementState.UPLOAD, (result.progress * 100).toInt())
-            _listener?.onUploadSpeedChanged(result.upBitPerSec)
+            _listener?.onUploadSpeedChanged(progress, result.upBitPerSec)
             previousUploadProgress = progress
         }
     }

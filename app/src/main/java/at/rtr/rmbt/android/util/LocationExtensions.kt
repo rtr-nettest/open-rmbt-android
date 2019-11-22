@@ -1,8 +1,8 @@
 package at.rtr.rmbt.android.util
 
 import android.location.Location
-import android.os.SystemClock
 import at.specure.location.LocationInfo
+import java.util.concurrent.TimeUnit
 
 fun LocationInfo.formatAccuracy(): String? {
     return if (!hasAccuracy || accuracy < 0)
@@ -70,9 +70,8 @@ fun LocationInfo.formatBearing(): String? {
  * @return string containing age of event in s without unit, for values below 1s returns "< 1"
  */
 fun LocationInfo.formatAgeString(): String {
-    val age = SystemClock.elapsedRealtimeNanos() - elapsedRealtimeNanos
-    return if (age < 1000000000L)
+    return if (ageNanos < TimeUnit.SECONDS.toNanos(1))
         "< 1"
     else
-        String.format("%d", age / 1000000000L)
+        String.format("%d", TimeUnit.NANOSECONDS.toSeconds(ageNanos))
 }

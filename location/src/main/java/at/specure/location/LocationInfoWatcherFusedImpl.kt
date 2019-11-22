@@ -2,7 +2,6 @@ package at.specure.location
 
 import android.content.Context
 import android.location.Location
-import android.os.Handler
 import android.os.HandlerThread
 import at.specure.util.synchronizedForEach
 import com.google.android.gms.location.LocationCallback
@@ -15,18 +14,6 @@ import java.util.Collections
 class LocationInfoWatcherFusedImpl(context: Context) : LocationWatcher {
 
     private lateinit var handlerThread: HandlerThread
-
-    private lateinit var handler: Handler
-
-    var runnable = object : Runnable {
-        override fun run() {
-            lastKnownLocationInfo?.updateAge()
-            notifyInfoListeners(lastKnownLocationInfo)
-            if (locationInfoListeners.isNotEmpty()) {
-                handler.postDelayed(this, 1000)
-            }
-        }
-    }
     private val locationRequest = LocationRequest()
 
     private var lastKnownLocation: Location? = null
@@ -61,10 +48,6 @@ class LocationInfoWatcherFusedImpl(context: Context) : LocationWatcher {
         override fun onLocationResult(location: LocationResult?) {
             lastKnownLocation = location?.lastLocation
             notifyInfoListeners(lastKnownLocationInfo)
-            handler.removeCallbacks(runnable)
-            handler.postDelayed(
-                runnable, 1000
-            )
         }
     }
 
@@ -96,7 +79,6 @@ class LocationInfoWatcherFusedImpl(context: Context) : LocationWatcher {
         if (!handlerThread.isAlive) {
             handlerThread.start()
         }
-        handler = Handler(handlerThread.looper)
 
         val task = mFusedLocationProviderClient.requestLocationUpdates(
             locationRequest,

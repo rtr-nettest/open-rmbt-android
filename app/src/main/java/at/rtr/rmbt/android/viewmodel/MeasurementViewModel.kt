@@ -95,11 +95,11 @@ class MeasurementViewModel @Inject constructor() : BaseViewModel(), MeasurementC
         state.signalStrengthInfo.set(signalStrengthInfo)
     }
 
-    override fun onDownloadSpeedChanged(speedBps: Long) {
+    override fun onDownloadSpeedChanged(progress: Int, speedBps: Long) {
         state.downloadSpeedBps.set(speedBps)
     }
 
-    override fun onUploadSpeedChanged(speedBps: Long) {
+    override fun onUploadSpeedChanged(progress: Int, speedBps: Long) {
         state.uploadSpeedBps.set(speedBps)
     }
 

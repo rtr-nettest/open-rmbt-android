@@ -17,7 +17,7 @@ import at.specure.database.dao.TestTrafficItemDao
 import at.specure.database.entity.Capabilities
 import at.specure.database.entity.CellInfo
 import at.specure.database.entity.CellLocation
-import at.specure.database.entity.GeoLocations
+import at.specure.database.entity.GeoLocation
 import at.specure.database.entity.GraphItem
 import at.specure.database.entity.History
 import at.specure.database.entity.MobileTest
@@ -35,7 +35,7 @@ import at.specure.database.entity.WifiTest
     entities = [Capabilities::class,
         CellInfo::class,
         CellLocation::class,
-        GeoLocations::class,
+        GeoLocation::class,
         GraphItem::class,
         History::class,
         MobileTest::class,

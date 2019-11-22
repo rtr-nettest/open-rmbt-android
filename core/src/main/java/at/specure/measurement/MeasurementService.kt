@@ -19,6 +19,7 @@ import at.specure.info.strength.SignalStrengthInfo
 import at.specure.info.strength.SignalStrengthLiveData
 import at.specure.location.LocationInfo
 import at.specure.location.LocationInfoLiveData
+import at.specure.repository.TestDataRepository
 import at.specure.test.DeviceInfo
 import at.specure.test.TestController
 import at.specure.test.TestProgressListener
@@ -46,6 +47,9 @@ class MeasurementService : LifecycleService() {
     @Inject
     lateinit var notificationProvider: NotificationProvider
 
+    @Inject
+    lateinit var testDataRepository: TestDataRepository
+
     private val producer: Producer by lazy { Producer() }
     private val clientAggregator: ClientAggregator by lazy { ClientAggregator() }
 
@@ -54,6 +58,7 @@ class MeasurementService : LifecycleService() {
     private var pingMs = 0L
     private var downloadSpeedBps = 0L
     private var uploadSpeedBps = 0L
+    private var hasErrors = false
 
     private var signalStrengthInfo: SignalStrengthInfo? = null
     private var networkInfo: NetworkInfo? = null
@@ -79,14 +84,14 @@ class MeasurementService : LifecycleService() {
             clientAggregator.onPingChanged(pingMs)
         }
 
-        override fun onDownloadSpeedChanged(speedBps: Long) {
+        override fun onDownloadSpeedChanged(progress: Int, speedBps: Long) {
             downloadSpeedBps = speedBps
-            clientAggregator.onDownloadSpeedChanged(speedBps)
+            clientAggregator.onDownloadSpeedChanged(progress, speedBps)
         }
 
-        override fun onUploadSpeedChanged(speedBps: Long) {
+        override fun onUploadSpeedChanged(progress: Int, speedBps: Long) {
             uploadSpeedBps = speedBps
-            clientAggregator.onUploadSpeedChanged(speedBps)
+            clientAggregator.onUploadSpeedChanged(progress, speedBps)
         }
 
         override fun onFinish() {
@@ -96,9 +101,16 @@ class MeasurementService : LifecycleService() {
         }
 
         override fun onError() {
+            hasErrors = true
             stopForeground(true)
             clientAggregator.onMeasurementError()
             unlock()
+        }
+
+        override fun onClientReady(testUUID: String) {
+            locationInfo?.let {
+                testDataRepository.saveGeoLocation(testUUID, it)
+            }
         }
     }
 
@@ -121,8 +133,13 @@ class MeasurementService : LifecycleService() {
             clientAggregator.onActiveNetworkChanged(it)
         })
 
-        locationInfoLiveData.observe(this, Observer {
-            locationInfo = it
+        locationInfoLiveData.observe(this, Observer { info ->
+            locationInfo = info
+            if (runner.isRunning) {
+                runner.testUUID?.let { UUID ->
+                    testDataRepository.saveGeoLocation(UUID, info)
+                }
+            }
         })
     }
 
@@ -161,7 +178,7 @@ class MeasurementService : LifecycleService() {
                 speed = it.speed,
                 bearing = it.bearing,
                 time = it.elapsedRealtimeNanos,
-                age = it.age,
+                age = it.ageNanos,
                 accuracy = it.accuracy,
                 mock_location = it.locationIsMocked,
                 altitude = it.altitude
@@ -175,6 +192,7 @@ class MeasurementService : LifecycleService() {
             location = location
         )
 
+        hasErrors = false
         runner.start(testListener, deviceInfo)
 
         attachToForeground()
@@ -196,8 +214,8 @@ class MeasurementService : LifecycleService() {
     private fun resetStates() {
         testListener.onProgressChanged(MeasurementState.IDLE, 0)
         testListener.onPingChanged(0)
-        testListener.onDownloadSpeedChanged(0)
-        testListener.onUploadSpeedChanged(0)
+        testListener.onDownloadSpeedChanged(0, 0)
+        testListener.onUploadSpeedChanged(0, 0)
     }
 
     private fun lock() {
@@ -234,10 +252,13 @@ class MeasurementService : LifecycleService() {
                 clientAggregator.addClient(this)
                 onProgressChanged(measurementState, measurementProgress)
                 onPingChanged(pingMs)
-                onDownloadSpeedChanged(downloadSpeedBps)
-                onUploadSpeedChanged(uploadSpeedBps)
+                onDownloadSpeedChanged(measurementProgress, downloadSpeedBps)
+                onUploadSpeedChanged(measurementProgress, uploadSpeedBps)
                 onSignalChanged(signalStrengthInfo)
                 onActiveNetworkChanged(networkInfo)
+                if (hasErrors) {
+                    client.onMeasurementError()
+                }
             }
         }
 
@@ -314,15 +335,15 @@ class MeasurementService : LifecycleService() {
             }
         }
 
-        override fun onDownloadSpeedChanged(speedBps: Long) {
+        override fun onDownloadSpeedChanged(progress: Int, speedBps: Long) {
             clients.forEach {
-                it.onDownloadSpeedChanged(speedBps)
+                it.onDownloadSpeedChanged(progress, speedBps)
             }
         }
 
-        override fun onUploadSpeedChanged(speedBps: Long) {
+        override fun onUploadSpeedChanged(progress: Int, speedBps: Long) {
             clients.forEach {
-                it.onUploadSpeedChanged(speedBps)
+                it.onUploadSpeedChanged(progress, speedBps)
             }
         }
 
