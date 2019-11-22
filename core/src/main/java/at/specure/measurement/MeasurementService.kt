@@ -19,6 +19,7 @@ import at.specure.info.strength.SignalStrengthInfo
 import at.specure.info.strength.SignalStrengthLiveData
 import at.specure.location.LocationInfo
 import at.specure.location.LocationInfoLiveData
+import at.specure.repository.TestDataRepository
 import at.specure.test.DeviceInfo
 import at.specure.test.TestController
 import at.specure.test.TestProgressListener
@@ -45,6 +46,9 @@ class MeasurementService : LifecycleService() {
 
     @Inject
     lateinit var notificationProvider: NotificationProvider
+
+    @Inject
+    lateinit var testDataRepository: TestDataRepository
 
     private val producer: Producer by lazy { Producer() }
     private val clientAggregator: ClientAggregator by lazy { ClientAggregator() }
@@ -100,6 +104,12 @@ class MeasurementService : LifecycleService() {
             clientAggregator.onMeasurementError()
             unlock()
         }
+
+        override fun onClientReady(testUUID: String) {
+            locationInfo?.let {
+                testDataRepository.saveGeoLocation(testUUID, it)
+            }
+        }
     }
 
     override fun onCreate() {
@@ -121,8 +131,13 @@ class MeasurementService : LifecycleService() {
             clientAggregator.onActiveNetworkChanged(it)
         })
 
-        locationInfoLiveData.observe(this, Observer {
-            locationInfo = it
+        locationInfoLiveData.observe(this, Observer { info ->
+            locationInfo = info
+            if (runner.isRunning) {
+                runner.testUUID?.let { UUID ->
+                    testDataRepository.saveGeoLocation(UUID, info)
+                }
+            }
         })
     }
 
@@ -161,7 +176,7 @@ class MeasurementService : LifecycleService() {
                 speed = it.speed,
                 bearing = it.bearing,
                 time = it.elapsedRealtimeNanos,
-                age = it.age,
+                age = it.ageNanos,
                 accuracy = it.accuracy,
                 mock_location = it.locationIsMocked,
                 altitude = it.altitude

@@ -16,6 +16,7 @@ class MockedTestController : TestController {
     private var pingMs = 0L
     private var downloadSpeedBps = 0L
     private var uploadSpeedBps = 0L
+    private var _testUUID: String? = null
 
     private val randomDelay: Long
         get() = Random.nextLong(10, 150)
@@ -24,6 +25,9 @@ class MockedTestController : TestController {
 
     override val isRunning: Boolean
         get() = job != null
+
+    override val testUUID: String?
+        get() = _testUUID
 
     override fun start(listener: TestProgressListener, deviceInfo: DeviceInfo) {
         if (job != null) {
@@ -39,6 +43,7 @@ class MockedTestController : TestController {
             setUploadSpeed(0)
             setPing(0)
             wait()
+            _testUUID = Random.nextInt().toString()
 
             Timber.w(Thread.currentThread().name)
 

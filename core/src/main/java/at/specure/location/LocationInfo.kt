@@ -14,9 +14,121 @@ import at.specure.location.LocationInfo.LocationCardinalDirections.WEST
  */
 class LocationInfo {
 
-    constructor(location: Location) {
-        this.provider = LocationProvider.UNKNOWN
+    /**
+     * Raw string of location provider from android.location.Location object
+     */
+    val providerRaw: String?
 
+    /**
+     * Return the time of this fix, in elapsed real-time since system boot.
+     * This value can be reliably compared to SystemClock.elapsedRealtimeNanos(), to calculate the age of a fix and to compare Location fixes.
+     * This is reliable because elapsed real-time is guaranteed monotonic for each system boot and continues to increment even when the system
+     * is in deep sleep (unlike getTime().
+     */
+    val elapsedRealtimeNanos: Long
+
+    /**
+     * Direction of latitude ([NORTH], [SOUTH]) or null if it is not defined
+     */
+    val latitudeDirection: LocationCardinalDirections
+
+    /**
+     * Direction of latitude ([WEST], [EAST]) or null if it is not defined
+     */
+    val longitudeDirection: LocationCardinalDirections
+
+    /**
+     * Latitude in Human readable format XX°XX.XXX'
+     */
+    val latitude: Double
+
+    /**
+     * Longitude in Human readable format XX°XX.XXX'
+     */
+    val longitude: Double
+
+    /**
+     * true if location has speed valid
+     */
+    val hasSpeed: Boolean
+
+    /**
+     * Speed in km/h without unit, null if N/A
+     */
+    val speed: Float
+
+    /**
+     * Count of available satellites or 0 if N/A
+     */
+    val satellites: Int
+
+    /**
+     * true if location has accuracy valid
+     */
+    val hasAccuracy: Boolean
+
+    /**
+     * Accuracy in meters without unit or null if N/A
+     */
+    val accuracy: Float
+
+    /**
+     * Provider as [LocationProvider]
+     */
+    val provider: LocationProvider
+
+    /**
+     * true if location is from mocked provider, false otherwise
+     */
+    val locationIsMocked: Boolean
+
+    /**
+     * true if location has altitude valid
+     */
+    val hasAltitude: Boolean
+
+    /**
+     * Altitude in meters without unit or null if N/A
+     */
+    val altitude: Double
+
+    /**
+     * true if location has bearing valid
+     */
+    val hasBearing: Boolean
+
+    /**
+     * Get the bearing, in degrees.
+     * Bearing is the horizontal direction of travel of this device, and is not related to the device orientation. It is guaranteed to be in the range (0.0, 360.0] if the device has a bearing.
+     * If this location does not have a bearing then null is returned.
+     */
+    val bearing: Float
+
+    /**
+     * true if location has bearingAccuracy valid
+     */
+    val hasBearingAccuracy: Boolean
+
+    /**
+     * Get the estimated bearing accuracy of this location, in degrees.
+     * We define bearing accuracy at 68% confidence. Specifically, as 1-side of the 2-sided range on each side of the estimated bearing reported by getBearing(), within which there is a 68% probability of finding the true bearing.
+     * In the case where the underlying distribution is assumed Gaussian normal, this would be considered 1 standard deviation.
+     * For example, if getBearing() returns 60, and getBearingAccuracy() returns 10, then there is a 68% probability of the true bearing being between 50 and 70 degrees.
+     */
+    val bearingAccuracy: Float
+
+    /**
+     * Time duration since current location info was received in nanoseconds
+     */
+    val ageNanos: Long
+        get() = SystemClock.elapsedRealtimeNanos() - elapsedRealtimeNanos
+
+    /**
+     * Return the UTC time of this fix, in milliseconds since January 1, 1970.
+     */
+    val time: Long
+
+    constructor(location: Location) {
         latitudeDirection = assignLatitudeDirection(location.latitude)
         longitudeDirection = assignLongitudeDirection(location.longitude)
 
@@ -44,27 +156,33 @@ class LocationInfo {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             hasBearingAccuracy = location.hasBearingAccuracy()
             bearingAccuracy = location.bearingAccuracyDegrees
+        } else {
+            hasBearingAccuracy = false
+            bearingAccuracy = 0f
         }
         elapsedRealtimeNanos = location.elapsedRealtimeNanos
+
+        time = location.time
     }
 
     /**
-     * @param latitude in degrees
-     * @param longitude in degrees
-     * @param hasSpeed true if speed value is valid
-     * @param speed in m/s
-     * @param hasAccuracy true if accuracy is valid
-     * @param accuracy in meters, radius with 68% probability
-     * @param provider string representing provider ("gps, network, fused")
-     * @param isFromMockProvider true if values are mocked
-     * @param hasAltitude true if altitude is valid
-     * @param altitude in meters
-     * @param hasBearing true if bearing value is valid
-     * @param bearing in degrees (0.0 .. 360>, 0.0 is invalid value
-     * @param hasBearingAccuracy true if bearing accuracy is valid value
-     * @param bearingAccuracyDegrees one side of two-side degrees area which represents 68% probability that bearing is in that way
-     * @param elapsedRealtimeNanos time of location fix, in elapsed real-time since system boot
-     * @param extras expecting "satellites" in it or nothing
+     * [latitude] in degrees
+     * [longitude] in degrees
+     * [hasSpeed] true if speed value is valid
+     * [speed] in m/s
+     * [hasAccuracy] true if accuracy is valid
+     * [accuracy] in meters, radius with 68% probability
+     * [provider] string representing provider ("gps, network, fused")
+     * [isFromMockProvider] true if values are mocked
+     * [hasAltitude] true if altitude is valid
+     * [altitude] in meters
+     * [hasBearing] true if bearing value is valid
+     * [bearing] in degrees (0.0 .. 360>, 0.0 is invalid value
+     * [hasBearingAccuracy] true if bearing accuracy is valid value
+     * [bearingAccuracyDegrees] one side of two-side degrees area which represents 68% probability that bearing is in that way
+     * [elapsedRealtimeNanos] time of location fix, in elapsed real-time since system boot
+     * [satellitesCount] satellites count
+     * [time] UTC time for this fix
      */
     constructor(
         latitude: Double,
@@ -74,6 +192,7 @@ class LocationInfo {
         hasAccuracy: Boolean,
         accuracy: Float,
         provider: String,
+        providerRaw: String?,
         isFromMockProvider: Boolean,
         hasAltitude: Boolean,
         altitude: Double,
@@ -82,7 +201,8 @@ class LocationInfo {
         hasBearingAccuracy: Boolean,
         bearingAccuracyDegrees: Float,
         elapsedRealtimeNanos: Long,
-        extras: Bundle
+        satellitesCount: Int,
+        time: Long
     ) {
         this.latitudeDirection = assignLatitudeDirection(latitude)
         this.longitudeDirection = assignLongitudeDirection(longitude)
@@ -96,9 +216,10 @@ class LocationInfo {
         this.hasAccuracy = hasAccuracy
         this.accuracy = accuracy
 
-        this.satellites = formatSatellites(extras)
+        this.satellites = satellitesCount
 
         this.provider = formatProvider(provider)
+        this.providerRaw = providerRaw
         this.locationIsMocked = isFromMockProvider
 
         this.hasAltitude = hasAltitude
@@ -111,113 +232,9 @@ class LocationInfo {
         this.bearingAccuracy = bearingAccuracyDegrees
 
         this.elapsedRealtimeNanos = elapsedRealtimeNanos
+
+        this.time = time
     }
-
-    /**
-     * Raw string of location provider from android.location.Location object
-     */
-    var providerRaw: String? = ""
-
-    /**
-     * Return the time of this fix, in elapsed real-time since system boot.
-     * This value can be reliably compared to SystemClock.elapsedRealtimeNanos(), to calculate the age of a fix and to compare Location fixes.
-     * This is reliable because elapsed real-time is guaranteed monotonic for each system boot and continues to increment even when the system
-     * is in deep sleep (unlike getTime().
-     */
-    var elapsedRealtimeNanos: Long = SystemClock.elapsedRealtimeNanos()
-
-    /**
-     * Direction of latitude ([NORTH], [SOUTH]) or null if it is not defined
-     */
-    var latitudeDirection: LocationCardinalDirections? = null
-
-    /**
-     * Direction of latitude ([WEST], [EAST]) or null if it is not defined
-     */
-    var longitudeDirection: LocationCardinalDirections? = null
-
-    /**
-     * Latitude in Human readable format XX°XX.XXX'
-     */
-    var latitude: Double
-
-    /**
-     * Longitude in Human readable format XX°XX.XXX'
-     */
-    var longitude: Double
-
-    /**
-     * true if location has speed valid
-     */
-    var hasSpeed: Boolean = false
-
-    /**
-     * Speed in km/h without unit, null if N/A
-     */
-    var speed: Float
-
-    /**
-     * Count of available satellites or 0 if N/A
-     */
-    var satellites: Int = 0
-
-    /**
-     * true if location has accuracy valid
-     */
-    var hasAccuracy: Boolean = false
-
-    /**
-     * Accuracy in meters without unit or null if N/A
-     */
-    var accuracy: Float
-
-    /**
-     * Provider as [LocationProvider]
-     */
-    var provider: LocationProvider
-
-    /**
-     * true if location is from mocked provider, false otherwise
-     */
-    var locationIsMocked: Boolean = false
-
-    /**
-     * true if location has altitude valid
-     */
-    var hasAltitude: Boolean = false
-
-    /**
-     * Altitude in meters without unit or null if N/A
-     */
-    var altitude: Double
-
-    /**
-     * true if location has bearing valid
-     */
-    var hasBearing: Boolean = false
-
-    /**
-     * Get the bearing, in degrees.
-     * Bearing is the horizontal direction of travel of this device, and is not related to the device orientation. It is guaranteed to be in the range (0.0, 360.0] if the device has a bearing.
-     * If this location does not have a bearing then null is returned.
-     */
-    var bearing: Float = 0.0f
-
-    /**
-     * true if location has bearingAccuracy valid
-     */
-    var hasBearingAccuracy: Boolean = false
-
-    /**
-     * Get the estimated bearing accuracy of this location, in degrees.
-     * We define bearing accuracy at 68% confidence. Specifically, as 1-side of the 2-sided range on each side of the estimated bearing reported by getBearing(), within which there is a 68% probability of finding the true bearing.
-     * In the case where the underlying distribution is assumed Gaussian normal, this would be considered 1 standard deviation.
-     * For example, if getBearing() returns 60, and getBearingAccuracy() returns 10, then there is a 68% probability of the true bearing being between 50 and 70 degrees.
-     */
-    var bearingAccuracy: Float = 0.0f
-
-    val age: Long
-        get() = SystemClock.elapsedRealtimeNanos() - elapsedRealtimeNanos
 
     private fun formatProvider(provider: String): LocationProvider {
         return when (provider) {
@@ -247,7 +264,6 @@ class LocationInfo {
     }
 
     enum class LocationCardinalDirections {
-
         NORTH,
         SOUTH,
         EAST,
@@ -255,7 +271,6 @@ class LocationInfo {
     }
 
     enum class LocationProvider {
-
         UNKNOWN,
         NETWORK,
         GPS,

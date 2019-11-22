@@ -19,7 +19,7 @@ data class GeoLocation(
     val altitude: Double,
     val time: Long,
     val timeCorrectionNs: Long,
-    val age: Long,
+    val ageNanos: Long,
     val accuracy: Float,
     val bearing: Float,
     val isMocked: Boolean,

@@ -15,4 +15,6 @@ interface TestProgressListener {
     fun onFinish()
 
     fun onError()
+
+    fun onClientReady(testUUID: String)
 }

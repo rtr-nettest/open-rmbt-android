@@ -23,7 +23,12 @@ class WrappedTestController(private val config: Config, private val clientUUID: 
 
     private val result: IntermediateResult by lazy { IntermediateResult() }
 
+    private var _testUUID: String? = null
+
     private var _listener: TestProgressListener? = null
+
+    override val testUUID: String?
+        get() = _testUUID
 
     override val isRunning: Boolean
         get() = job != null
@@ -72,19 +77,24 @@ class WrappedTestController(private val config: Config, private val clientUUID: 
                 errorSet
             )
 
-            if (errorSet.isNotEmpty()) {
+            if (client == null || errorSet.isNotEmpty()) {
                 Timber.e("ERRORS CLIENT")
                 return@async
             }
 
-            client?.trafficService = TrafficServiceImpl()
-            val connection = client?.controlConnection
+            client.trafficService = TrafficServiceImpl()
+            val connection = client.controlConnection
             Timber.i("Client UUID: ${connection?.clientUUID}")
+            Timber.i("Test UUID: ${connection.testUuid}")
             Timber.i("Server Name: ${connection?.serverName}")
             Timber.i("Loop Id: ${connection?.loopUuid}")
 
+            _testUUID = connection.testUuid
+            _listener?.onClientReady(_testUUID!!)
+
             GlobalScope.async {
-                client?.runTest()
+                @Suppress("BlockingMethodInNonBlockingContext")
+                client.runTest()
             }
 
             var currentStatus = TestStatus.WAIT

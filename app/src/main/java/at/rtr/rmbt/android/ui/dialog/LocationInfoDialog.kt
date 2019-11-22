@@ -1,6 +1,7 @@
 package at.rtr.rmbt.android.ui.dialog
 
 import android.os.Bundle
+import android.os.Handler
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -12,6 +13,7 @@ import at.rtr.rmbt.android.util.listen
 import at.specure.location.LocationInfoLiveData
 import at.specure.location.LocationProviderState
 import at.specure.location.LocationProviderStateLiveData
+import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
 class LocationInfoDialog : FullscreenDialog() {
@@ -23,6 +25,17 @@ class LocationInfoDialog : FullscreenDialog() {
 
     @Inject
     lateinit var locationProviderStateLiveData: LocationProviderStateLiveData
+
+    private var locationAge = 0L
+
+    private val ageUpdateRunnable = Runnable {
+        locationAge += TimeUnit.MILLISECONDS.toNanos(1000)
+        val formatAge = TimeUnit.NANOSECONDS.toSeconds(locationAge).toString()
+        binding.textAge.text = requireContext().getString(R.string.location_dialog_age, formatAge)
+        scheduleUpdate()
+    }
+
+    private val updateHandler = Handler()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -38,6 +51,7 @@ class LocationInfoDialog : FullscreenDialog() {
         return binding.root
     }
 
+    @Suppress("SENSELESS_COMPARISON")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
@@ -47,7 +61,24 @@ class LocationInfoDialog : FullscreenDialog() {
 
         locationInfoLiveData.listen(this) {
             binding.locationInfo = it
+            if (locationAge == null) {
+                updateHandler.removeCallbacks(ageUpdateRunnable)
+                locationAge = 0
+            } else {
+                locationAge = it.ageNanos
+                scheduleUpdate()
+            }
         }
+    }
+
+    private fun scheduleUpdate() {
+        updateHandler.removeCallbacks(ageUpdateRunnable)
+        updateHandler.postDelayed(ageUpdateRunnable, 1000)
+    }
+
+    override fun onStop() {
+        super.onStop()
+        updateHandler.removeCallbacks(ageUpdateRunnable)
     }
 
     companion object {

@@ -2,7 +2,6 @@ package at.specure.repository
 
 import at.rmbt.util.io
 import at.specure.database.CoreDatabase
-import at.specure.database.dao.GeoLocationDao
 import at.specure.database.entity.GeoLocation
 import at.specure.location.LocationInfo
 
@@ -18,12 +17,14 @@ class TestDataRepositoryImpl(db: CoreDatabase) : TestDataRepository {
             provider = location.provider.name,
             speed = location.speed,
             altitude = location.altitude,
-            time = location.elapsedRealtimeNanos,
-            timeCorrectionNs = 0,
-            age = location.age,
+            time = location.time,
+            timeCorrectionNs = 0, // TODO time correction
+            ageNanos = location.ageNanos,
             accuracy = location.accuracy,
             bearing = location.bearing,
-            satellitesCount = location.satellites
+            satellitesCount = location.satellites,
+            isMocked = location.locationIsMocked
         )
+        geoLocationDao.insert(geoLocation)
     }
 }
