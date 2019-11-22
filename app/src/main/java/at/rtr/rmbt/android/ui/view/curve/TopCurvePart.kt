@@ -55,8 +55,8 @@ class TopCurvePart(context: Context) : CurvePart() {
     override fun getCenterX() = viewSize.toFloat() / 3 + (largeRadius - smallRadius) / 2 + angleStep / 2
     override fun getCenterY() = viewSize.toFloat() / 3
 
-    override fun getTopOffset() = (viewHeight.toFloat() - viewSize) / 2
-    override fun getLeftOffset() = (viewWidth - viewSize) / 2 + viewSize.toFloat() / 3
+    override fun getTopOffset() = viewHeight.toFloat() - viewSize
+    override fun getLeftOffset() = (viewWidth - viewSize) + viewSize.toFloat() / 3
 
     override fun drawSections(canvas: Canvas) {
         dividerPaint.strokeWidth = 5f
