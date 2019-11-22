@@ -33,6 +33,9 @@ class WrappedTestController(private val config: Config, private val clientUUID: 
     override val isRunning: Boolean
         get() = job != null
 
+    private var previousDownloadProgress = -1
+    private var previousUploadProgress = -1
+
     override fun start(listener: TestProgressListener, deviceInfo: DeviceInfo) {
         Timber.d("Start---")
         if (job != null) {
@@ -43,6 +46,9 @@ class WrappedTestController(private val config: Config, private val clientUUID: 
         _listener = listener
 
         job = GlobalScope.async {
+
+            previousDownloadProgress = -1
+            previousUploadProgress = -1
 
             setState(MeasurementState.IDLE, 0)
 
@@ -145,12 +151,16 @@ class WrappedTestController(private val config: Config, private val clientUUID: 
 
     private fun handleDown(client: RMBTClient) {
         client.getIntermediateResult(result)
-        setState(MeasurementState.DOWNLOAD, (result.progress * 100).toInt())
-        val ping = TimeUnit.NANOSECONDS.toMillis(result.pingNano)
-        if (ping >= 0) {
-            _listener?.onPingChanged(ping)
+        val progress = (result.progress * 100).toInt()
+        if (progress != previousDownloadProgress) {
+            setState(MeasurementState.DOWNLOAD, progress)
+            val ping = TimeUnit.NANOSECONDS.toMillis(result.pingNano)
+            if (ping >= 0) {
+                _listener?.onPingChanged(ping)
+            }
+            _listener?.onDownloadSpeedChanged(result.downBitPerSec)
+            previousDownloadProgress = progress
         }
-        _listener?.onDownloadSpeedChanged(result.downBitPerSec)
     }
 
     private fun handleInitUp() {
@@ -159,8 +169,12 @@ class WrappedTestController(private val config: Config, private val clientUUID: 
 
     private fun handleUp(client: RMBTClient) {
         client.getIntermediateResult(result)
-        setState(MeasurementState.UPLOAD, (result.progress * 100).toInt())
-        _listener?.onUploadSpeedChanged(result.upBitPerSec)
+        val progress = (result.progress * 100).toInt()
+        if (progress != previousUploadProgress) {
+            setState(MeasurementState.UPLOAD, (result.progress * 100).toInt())
+            _listener?.onUploadSpeedChanged(result.upBitPerSec)
+            previousUploadProgress = progress
+        }
     }
 
     private fun handleSpeedTestEnd(client: RMBTClient) {

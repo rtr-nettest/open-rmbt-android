@@ -38,7 +38,7 @@
     <dimen name="measurement_bottom_header_height">56dp</dimen>
     <dimen name="chart_label_text_size">11sp</dimen>
     <dimen name="speed_chart_height">128dp</dimen>
-    <dimen name="signal_bar_start_margin">32dp</dimen>
+    <dimen name="signal_bar_start_margin">16dp</dimen>
     <dimen name="signal_bar_top_margin">8dp</dimen>
     <dimen name="signal_bar_scale_value">10sp</dimen>
     <dimen name="signal_bar_value">16sp</dimen>

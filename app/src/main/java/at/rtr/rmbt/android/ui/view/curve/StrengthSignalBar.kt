@@ -77,7 +77,7 @@ class StrengthSignalBar @JvmOverloads constructor(context: Context, attrs: Attri
         val viewWidth = MeasureSpec.getSize(min(widthMeasureSpec, heightMeasureSpec))
         textPaint.textSize = resources.getDimension(R.dimen.signal_bar_scale_value)
         super.onMeasure(
-            MeasureSpec.makeMeasureSpec(viewWidth / 5, MeasureSpec.AT_MOST),
+            MeasureSpec.makeMeasureSpec(viewWidth, MeasureSpec.AT_MOST),
             MeasureSpec.makeMeasureSpec((SQUARE_MULTIPLIER * squareSize * (verticalCount + 1)).toInt(), MeasureSpec.AT_MOST)
         )
     }
