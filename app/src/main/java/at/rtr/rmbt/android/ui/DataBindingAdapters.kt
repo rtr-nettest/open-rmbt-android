@@ -275,13 +275,13 @@ fun AppCompatTextView.setDownload(downloadSpeedBps: Long) {
         setCompoundDrawablesWithIntrinsicBounds(
 
             when (downloadSpeedBps) {
-                in THRESHOLD_DOWNLOAD[0]..THRESHOLD_DOWNLOAD[1] -> {
+                in THRESHOLD_DOWNLOAD[0] until THRESHOLD_DOWNLOAD[1] -> {
                     R.drawable.ic_small_download_red
                 }
-                in THRESHOLD_DOWNLOAD[1]..THRESHOLD_DOWNLOAD[2] -> {
+                in THRESHOLD_DOWNLOAD[1] until THRESHOLD_DOWNLOAD[2] -> {
                     R.drawable.ic_small_download_yellow
                 }
-                in THRESHOLD_DOWNLOAD[2]..THRESHOLD_DOWNLOAD[3] -> {
+                in THRESHOLD_DOWNLOAD[2] until THRESHOLD_DOWNLOAD[3] -> {
                     R.drawable.ic_small_download_light_green
                 }
                 else -> {
@@ -313,13 +313,13 @@ fun AppCompatTextView.setUpload(uploadSpeedBps: Long) {
         setCompoundDrawablesWithIntrinsicBounds(
 
             when (uploadSpeedBps) {
-                in THRESHOLD_UPLOAD[0]..THRESHOLD_UPLOAD[1] -> {
+                in THRESHOLD_UPLOAD[0] until THRESHOLD_UPLOAD[1] -> {
                     R.drawable.ic_small_upload_red
                 }
-                in THRESHOLD_UPLOAD[1]..THRESHOLD_UPLOAD[2] -> {
+                in THRESHOLD_UPLOAD[1] until THRESHOLD_UPLOAD[2] -> {
                     R.drawable.ic_small_upload_yellow
                 }
-                in THRESHOLD_UPLOAD[2]..THRESHOLD_UPLOAD[3] -> {
+                in THRESHOLD_UPLOAD[2] until THRESHOLD_UPLOAD[3] -> {
                     R.drawable.ic_small_upload_light_green
                 }
                 else -> {

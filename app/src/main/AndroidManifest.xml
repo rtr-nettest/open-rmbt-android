@@ -42,6 +42,7 @@
 
         <activity
             android:name=".ui.activity.MeasurementActivity"
+            android:theme="@style/MeasurementTheme"
             android:windowSoftInputMode="stateAlwaysHidden" />
 
         <activity

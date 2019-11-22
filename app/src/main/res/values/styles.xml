@@ -41,6 +41,11 @@
         <item name="colorControlHighlight">@color/greenRipple</item>
     </style>
 
+    <style name="MeasurementTheme" parent="AppTheme">
+        <item name="android:windowBackground">@color/measurement_dark_gray</item>
+        <item name="android:statusBarColor">@color/measurement_dark_gray</item>
+    </style>
+
 
     <!--  Splash screen theme -->
 
