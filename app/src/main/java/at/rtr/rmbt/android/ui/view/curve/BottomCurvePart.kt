@@ -58,8 +58,8 @@ class BottomCurvePart(context: Context) : CurvePart() {
     override fun getCenterX() = viewSize.toFloat() / 3 - (largeRadius - smallRadius) / 2 - angleStep / 2
     override fun getCenterY() = viewSize.toFloat() / 3
 
-    override fun getTopOffset() = (viewHeight - viewSize) / 2 + viewSize.toFloat() / 3
-    override fun getLeftOffset() = (viewWidth.toFloat() - viewSize) / 2
+    override fun getTopOffset() = (viewHeight - viewSize) + viewSize.toFloat() / 3
+    override fun getLeftOffset() = viewWidth.toFloat() - viewSize
 
     override fun drawSections(canvas: Canvas) {
         var angle = sectionStartAngle - ANGLE_STEP_MULTIPLIER * angleStep
