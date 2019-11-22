@@ -45,10 +45,14 @@ class SimpleDialog : FullscreenDialog() {
 
         if (builder.positiveTextRes == 0) {
             binding.buttonPositive.visibility = View.GONE
+        } else {
+            binding.buttonPositive.setText(builder.positiveTextRes)
         }
 
         if (builder.negativeTextRes == 0) {
             binding.buttonNegative.visibility = View.GONE
+        } else {
+            binding.buttonNegative.setText(builder.negativeTextRes)
         }
 
         binding.buttonPositive.setOnClickListener {
