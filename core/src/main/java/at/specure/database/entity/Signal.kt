@@ -1,28 +1,15 @@
 package at.specure.database.entity
 
-import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
-import at.specure.database.Tables.SIGNAL
+import at.specure.database.Columns.TEST_UUID_PARENT_COLUMN
 
-@Entity(tableName = SIGNAL)
-data class Signal(
+abstract class Signal(
     @PrimaryKey(autoGenerate = true)
     val id: Long,
-    @ForeignKey(entity = Test::class, parentColumns = ["testUUID"], childColumns = ["testUUID"], onDelete = ForeignKey.CASCADE)
+    @ForeignKey(entity = Test::class, parentColumns = [TEST_UUID_PARENT_COLUMN], childColumns = ["testUUID"], onDelete = ForeignKey.CASCADE)
     val testUUID: String?,
-    val signal: Int?,
     val cellUuid: String?,
-    val wifiLinkSpeed: Int?,
     val networkTypeId: String?,
-    val timeNs: Long?,
-    // another fields for mobile2g/3g
-    val timeNsLast: Long?,
-    val bitErrorRate: Int?,
-    // another fields for 4G
-    val lteRsrp: Int?,
-    val lteRsrq: Int?,
-    val lteRssnr: Int?,
-    val lteCqi: Int?,
-    val timingAdvance: Int?
+    val timeNs: Long?
 )

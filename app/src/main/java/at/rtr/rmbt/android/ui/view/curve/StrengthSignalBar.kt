@@ -75,9 +75,9 @@ class StrengthSignalBar @JvmOverloads constructor(context: Context, attrs: Attri
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
         val viewWidth = MeasureSpec.getSize(min(widthMeasureSpec, heightMeasureSpec))
-        textPaint.textSize = viewWidth * TEXT_SIZE_COEF
+        textPaint.textSize = resources.getDimension(R.dimen.signal_bar_scale_value)
         super.onMeasure(
-            MeasureSpec.makeMeasureSpec(viewWidth / 6, MeasureSpec.AT_MOST),
+            MeasureSpec.makeMeasureSpec(viewWidth / 5, MeasureSpec.AT_MOST),
             MeasureSpec.makeMeasureSpec((SQUARE_MULTIPLIER * squareSize * (verticalCount + 1)).toInt(), MeasureSpec.AT_MOST)
         )
     }
@@ -179,7 +179,6 @@ class StrengthSignalBar @JvmOverloads constructor(context: Context, attrs: Attri
     }
 
     companion object {
-        private const val TEXT_SIZE_COEF = 0.02f
         private const val SQUARE_MULTIPLIER = 1.75f
     }
 }

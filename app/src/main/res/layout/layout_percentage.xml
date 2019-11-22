@@ -14,7 +14,6 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textColor="@android:color/white"
-            android:textSize="@dimen/size_measurement_value_text"
             android:textStyle="bold"
             tools:text="23" />
 
@@ -23,7 +22,6 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textColor="@android:color/white"
-            android:textSize="@dimen/size_measurement_unit_text"
             android:textStyle="bold" />
     </LinearLayout>
 </layout>

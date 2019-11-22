@@ -11,4 +11,8 @@ interface TestProgressListener {
     fun onDownloadSpeedChanged(speedBps: Long)
 
     fun onUploadSpeedChanged(speedBps: Long)
+
+    fun onFinish()
+
+    fun onError()
 }

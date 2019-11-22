@@ -117,6 +117,15 @@
     <string name="measurement_ping">Ping</string>
     <string name="measurement_down">Down</string>
     <string name="measurement_up">Up</string>
+    <string name="measurement_qos">Quality of Service (QoS)</string>
+    <string name="measurement_qos_web_site">Web site</string>
+    <string name="measurement_qos_transparent_connection">Transparent connection</string>
+    <string name="measurement_qos_dns">DNS</string>
+    <string name="measurement_qos_tcp_ports">TCP ports</string>
+    <string name="measurement_qos_udp_ports">UDP ports</string>
+    <string name="measurement_qos_unmodified_content">Unmodified content</string>
+    <string name="measurement_qos_traceroute">Traceroute</string>
+    <string name="measurement_qos_voip">VoIP</string>
 
     <string-array name="measurement_speed_chart_y_labels">
         <item>1</item>
@@ -141,8 +150,14 @@
     <string name="label_signal_strength">Signal</string>
     <string name="network_label">Network</string>
 
-    <string name="speed_progress_units" translatable="false">Mbit/s</string>
+    <string name="speed_progress_units_mbit" translatable="false">Mbit/s</string>
+    <string name="speed_progress_units_kbit" translatable="false">kbit/s</string>
     <string name="title_cancel_measurement">Do you really want to cancel the ongoing measurement?</string>
     <string name="text_continue_measurement">Continue measurement</string>
     <string name="text_cancel_measurement">Yes</string>
+
+    <string name="notification_test_title">Open-RMBT</string>
+    <string name="notification_test_ticker">Open-RMBT running…</string>
+
+    <string name="test_dialog_error_text">There has been an error during the test.</string>
 </resources>

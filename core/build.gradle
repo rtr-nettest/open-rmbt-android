@@ -50,7 +50,7 @@ dependencies {
     implementation "androidx.preference:preference-ktx:$versions.androidx_core"
 
     implementation "android.arch.persistence.room:runtime:$versions.room"
-    annotationProcessor "android.arch.persistence.room:compiler:$versions.room"
+    kapt "android.arch.persistence.room:compiler:$versions.room"
 
     kapt "com.google.dagger:dagger-compiler:$versions.dagger"
     kapt "com.google.dagger:dagger-android-processor:$versions.dagger"

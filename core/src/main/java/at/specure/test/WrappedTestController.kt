@@ -90,6 +90,7 @@ class WrappedTestController(private val config: Config, private val clientUUID: 
             var currentStatus = TestStatus.WAIT
             while (!currentStatus.isFinalState()) {
                 currentStatus = client.status
+                Timber.v(currentStatus.name)
                 when (currentStatus) {
                     TestStatus.WAIT -> handleWait()
                     TestStatus.INIT -> handleInit(client)
@@ -107,6 +108,9 @@ class WrappedTestController(private val config: Config, private val clientUUID: 
 
                 if (currentStatus.isFinalState()) {
                     client?.shutdown()
+                    if (currentStatus != TestStatus.ERROR) {
+                        _listener?.onFinish()
+                    }
                     stop()
                 } else {
                     delay(100)
@@ -162,7 +166,7 @@ class WrappedTestController(private val config: Config, private val clientUUID: 
     }
 
     private fun handleError(client: RMBTClient) {
-        Timber.e("${TestStatus.ERROR} handling not implemented")
+        _listener?.onError()
     }
 
     private fun handleAbort(client: RMBTClient) {
