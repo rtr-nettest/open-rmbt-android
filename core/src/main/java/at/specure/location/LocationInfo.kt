@@ -46,7 +46,6 @@ class LocationInfo {
             bearingAccuracy = location.bearingAccuracyDegrees
         }
         elapsedRealtimeNanos = location.elapsedRealtimeNanos
-        updateAge()
     }
 
     /**
@@ -112,7 +111,6 @@ class LocationInfo {
         this.bearingAccuracy = bearingAccuracyDegrees
 
         this.elapsedRealtimeNanos = elapsedRealtimeNanos
-        updateAge()
     }
 
     /**
@@ -159,9 +157,9 @@ class LocationInfo {
     var speed: Float
 
     /**
-     * Count of available satellites or null if N/A
+     * Count of available satellites or 0 if N/A
      */
-    var satellites: String? = null
+    var satellites: Int = 0
 
     /**
      * true if location has accuracy valid
@@ -218,7 +216,8 @@ class LocationInfo {
      */
     var bearingAccuracy: Float = 0.0f
 
-    var age: Long? = null
+    val age: Long
+        get() = SystemClock.elapsedRealtimeNanos() - elapsedRealtimeNanos
 
     private fun formatProvider(provider: String): LocationProvider {
         return when (provider) {
@@ -229,8 +228,8 @@ class LocationInfo {
         }
     }
 
-    private fun formatSatellites(extras: Bundle?): String? {
-        return extras?.getInt("satellites")?.toString()
+    private fun formatSatellites(extras: Bundle?): Int {
+        return extras?.getInt("satellites") ?: 0
     }
 
     private fun assignLatitudeDirection(latitude: Double): LocationCardinalDirections {
@@ -245,13 +244,6 @@ class LocationInfo {
             longitude >= 0 -> EAST
             else -> WEST
         }
-    }
-
-    /**
-     * Updates age according current time
-     */
-    fun updateAge() {
-        age = SystemClock.elapsedRealtimeNanos() - elapsedRealtimeNanos
     }
 
     enum class LocationCardinalDirections {
