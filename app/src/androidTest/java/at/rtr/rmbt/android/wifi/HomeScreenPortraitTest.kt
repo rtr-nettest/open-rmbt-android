@@ -35,7 +35,7 @@ import java.util.concurrent.TimeUnit
 
 @RunWith(AndroidJUnit4::class)
 @LargeTest
-open class HomeScreenPortraitHomeActivityTest : BaseHomeActivityTest() {
+open class HomeScreenPortraitTest : BaseHomeActivityTest() {
 
     private lateinit var context: HomeActivity
 

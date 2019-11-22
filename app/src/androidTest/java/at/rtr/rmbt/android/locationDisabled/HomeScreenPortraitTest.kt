@@ -30,7 +30,7 @@ import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
 @LargeTest
-open class HomeScreenPortraitHomeActivityTest : BaseHomeActivityTest() {
+open class HomeScreenPortraitTest : BaseHomeActivityTest() {
 
     private lateinit var context: HomeActivity
 

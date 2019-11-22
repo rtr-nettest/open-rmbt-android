@@ -12,26 +12,29 @@
  * limitations under the License.
  */
 
-package at.rtr.rmbt.android.mobileData
+package at.rtr.rmbt.android.wifi
 
 import androidx.test.espresso.Espresso
 import androidx.test.espresso.assertion.ViewAssertions
 import androidx.test.espresso.matcher.ViewMatchers
 import androidx.test.filters.LargeTest
+import androidx.test.rule.ActivityTestRule
 import androidx.test.runner.AndroidJUnit4
 import at.rtr.rmbt.android.BaseHomeActivityTest
+import at.rtr.rmbt.android.BaseMeasurementActivityTest
 import at.rtr.rmbt.android.R
-import at.rtr.rmbt.android.ui.activity.HomeActivity
+import at.rtr.rmbt.android.ui.activity.MeasurementActivity
 import junit.framework.Assert.assertTrue
 import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import java.util.concurrent.TimeUnit
 
 @RunWith(AndroidJUnit4::class)
 @LargeTest
-open class SignalStrengthPortraitHomeActivityTest : BaseHomeActivityTest() {
-    private lateinit var context: HomeActivity
+open class MeasurementScreenPortraitTest : BaseMeasurementActivityTest() {
+    private lateinit var context: MeasurementActivity
 
     @Before
     open fun setUp() {
@@ -44,9 +47,26 @@ open class SignalStrengthPortraitHomeActivityTest : BaseHomeActivityTest() {
     }
 
     @Test
-    fun checkSignalStrengthIsDisplayed() {
-        val signalStrength = "-100 dBm"
-        Espresso.onView(ViewMatchers.withId(R.id.tvSignal))
-            .check(ViewAssertions.matches(ViewMatchers.withText(signalStrength)))
+    fun checkSignalStrengthBarIsDisplayed() {
+        Espresso.onView(ViewMatchers.withId(R.id.strength))
+            .check(ViewAssertions.matches(ViewMatchers.isDisplayed()))
+    }
+
+    @Test
+    fun checkMeasurementBottomViewIsDisplayed() {
+        Espresso.onView(ViewMatchers.withId(R.id.measurement_bottom_view))
+            .check(ViewAssertions.matches(ViewMatchers.isDisplayed()))
+    }
+
+    @Test
+    fun checkMeasurementCurveLayoutIsDisplayed() {
+        Espresso.onView(ViewMatchers.withId(R.id.curve_layout))
+            .check(ViewAssertions.matches(ViewMatchers.isDisplayed()))
+    }
+
+    @Test
+    fun checkNetworkNameIsDisplayed() {
+        Espresso.onView(ViewMatchers.withId(R.id.network_name))
+            .check(ViewAssertions.matches(ViewMatchers.isDisplayed()))
     }
 }

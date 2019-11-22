@@ -12,11 +12,9 @@
  * limitations under the License.
  */
 
-package at.rtr.rmbt.android.locationEnabled
+package at.rtr.rmbt.android.noConnection
 
-import androidx.appcompat.widget.AppCompatImageButton
 import androidx.test.espresso.Espresso
-import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.assertion.ViewAssertions
 import androidx.test.espresso.matcher.ViewMatchers
 import androidx.test.filters.LargeTest
@@ -24,33 +22,31 @@ import androidx.test.runner.AndroidJUnit4
 import at.rtr.rmbt.android.BaseHomeActivityTest
 import at.rtr.rmbt.android.R
 import at.rtr.rmbt.android.ui.activity.HomeActivity
-import junit.framework.Assert
+import junit.framework.Assert.assertTrue
+import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
+import java.util.concurrent.TimeUnit
 
 @RunWith(AndroidJUnit4::class)
 @LargeTest
-open class HomeScreenPortraitHomeActivityTest : BaseHomeActivityTest() {
-
+open class SignalStrengthPortraitTest : BaseHomeActivityTest() {
     private lateinit var context: HomeActivity
 
-    @Test
-    fun checkLocationIconGreen() {
+    @Before
+    open fun setUp() {
         context = activityRule.activity
-        val drawableIvLocationButton =
-            context.findViewById<AppCompatImageButton>(R.id.btnLocation).drawable
-        val icLocationEnabled = context.getDrawable(R.drawable.ic_location)
-        Assert.assertTrue(
-            (drawableIvLocationButton.bytesEqualTo(icLocationEnabled) and drawableIvLocationButton.pixelsEqualTo(
-                icLocationEnabled
-            ))
-        )
+        while (isConnected(context)) {
+            TimeUnit.MILLISECONDS.sleep(500)
+        }
+        TimeUnit.SECONDS.sleep(2)
+        assertTrue("There is a connection available", !isConnected(context))
     }
 
     @Test
-    fun checkLocationDialogIsDisplayed() {
-        Espresso.onView(ViewMatchers.withId(R.id.btnLocation)).perform(click())
-        Espresso.onView(ViewMatchers.withText(R.string.location_dialog_label_title)).check(ViewAssertions.matches(ViewMatchers.isDisplayed()))
-        Espresso.onView(ViewMatchers.withText(R.string.location_dialog_label_position)).check(ViewAssertions.matches(ViewMatchers.isDisplayed()))
+    fun checkSignalStrengthIsNull() {
+        val signalStrength = "-"
+        Espresso.onView(ViewMatchers.withId(R.id.tvSignal))
+            .check(ViewAssertions.matches(ViewMatchers.withText(signalStrength)))
     }
 }

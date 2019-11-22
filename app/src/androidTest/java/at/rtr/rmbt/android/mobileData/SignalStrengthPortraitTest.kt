@@ -12,7 +12,7 @@
  * limitations under the License.
  */
 
-package at.rtr.rmbt.android.noConnection
+package at.rtr.rmbt.android.mobileData
 
 import androidx.test.espresso.Espresso
 import androidx.test.espresso.assertion.ViewAssertions
@@ -30,22 +30,22 @@ import java.util.concurrent.TimeUnit
 
 @RunWith(AndroidJUnit4::class)
 @LargeTest
-open class SignalStrengthPortraitHomeActivityTest : BaseHomeActivityTest() {
+open class SignalStrengthPortraitTest : BaseHomeActivityTest() {
     private lateinit var context: HomeActivity
 
     @Before
     open fun setUp() {
         context = activityRule.activity
-        while (isConnected(context)) {
+        while (!isConnected(context)) {
             TimeUnit.MILLISECONDS.sleep(500)
         }
         TimeUnit.SECONDS.sleep(2)
-        assertTrue("There is a connection available", !isConnected(context))
+        assertTrue("No internet connection available", isConnected(context))
     }
 
     @Test
-    fun checkSignalStrengthIsNull() {
-        val signalStrength = "-"
+    fun checkSignalStrengthIsDisplayed() {
+        val signalStrength = "-100 dBm"
         Espresso.onView(ViewMatchers.withId(R.id.tvSignal))
             .check(ViewAssertions.matches(ViewMatchers.withText(signalStrength)))
     }

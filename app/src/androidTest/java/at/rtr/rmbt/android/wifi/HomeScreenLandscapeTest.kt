@@ -12,17 +12,18 @@
  * limitations under the License.
  */
 
-package at.rtr.rmbt.android.locationEnabled
+package at.rtr.rmbt.android.wifi
 
 import android.content.pm.ActivityInfo
 import androidx.test.platform.app.InstrumentationRegistry
 import org.junit.Before
 
-class HomeScreenLandscapeHomeActivityTest : HomeScreenPortraitHomeActivityTest() {
+class HomeScreenLandscapeTest : HomeScreenPortraitTest() {
     @Before
-    fun setUp() {
+    override fun setUp() {
         activityRule.activity.requestedOrientation =
             ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE
         InstrumentationRegistry.getInstrumentation().waitForIdleSync()
+        super.setUp()
     }
 }

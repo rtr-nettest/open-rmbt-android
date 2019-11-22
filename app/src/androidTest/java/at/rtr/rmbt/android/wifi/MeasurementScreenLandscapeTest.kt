@@ -12,13 +12,13 @@
  * limitations under the License.
  */
 
-package at.rtr.rmbt.android.mobileData
+package at.rtr.rmbt.android.wifi
 
 import android.content.pm.ActivityInfo
 import androidx.test.platform.app.InstrumentationRegistry
 import org.junit.Before
 
-class HomeScreenLandscapeHomeActivityTest : HomeScreenPortraitHomeActivityTest() {
+class MeasurementScreenLandscapeTest : MeasurementScreenPortraitTest() {
     @Before
     override fun setUp() {
         activityRule.activity.requestedOrientation =
