@@ -27,7 +27,6 @@ class MeasurementCurveLayout @JvmOverloads constructor(context: Context, attrs: 
     private var bottomCenterY = 0
 
     private var isQoSEnabled = false
-    private var curveCircleSize = 0
 
     /**
      * Defines the current phase of measurement
@@ -105,21 +104,35 @@ class MeasurementCurveLayout @JvmOverloads constructor(context: Context, attrs: 
             percentageLayout.units.setTextSize(TypedValue.COMPLEX_UNIT_PX, (viewSize / UNITS_SIZE_DIVIDER).toFloat())
             percentageLayout.percentage.requestLayout()
             percentageLayout.units.requestLayout()
-
-            curveCircleSize = viewSize
-            (curveBinding.curveView.layoutParams as LayoutParams).apply {
-                topMargin = viewSize / TOP_MARGIN_DIVIDER
-                requestLayout()
-            }
         }
+
         curveBinding.curveView.setBottomCenterCallback { x, y ->
             bottomCenterX = x
-            bottomCenterY = y - curveBinding.curveView.paddingTop
+            bottomCenterY = y
+
+            // update bottom circle center Y coordinate with signal bar margin
+            curveBinding.layoutStrength.root.post {
+                (curveBinding.curveView.layoutParams as LayoutParams).apply {
+                    topMargin = curveBinding.layoutStrength.root.height / SIGNAL_BAR_OFFSET_DIVIDER
+                    bottomCenterY += 2 * topMargin / SIGNAL_BAR_OFFSET_DIVIDER
+                    requestLayout()
+                }
+            }
         }
         curveBinding.curveView.setTopCenterCallback { x, y ->
             topCenterX = x
-            topCenterY = y - curveBinding.curveView.paddingTop
+            topCenterY = y
+
+            // update top circle center Y coordinate with signal bar margin
+            curveBinding.layoutStrength.root.post {
+                (curveBinding.curveView.layoutParams as LayoutParams).apply {
+                    topMargin = curveBinding.layoutStrength.root.height / SIGNAL_BAR_OFFSET_DIVIDER
+                    topCenterY += 2 * topMargin / SIGNAL_BAR_OFFSET_DIVIDER
+                    requestLayout()
+                }
+            }
         }
+
         addView(speedLayout.root, LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT))
         addView(percentageLayout.root, LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT))
     }
@@ -137,8 +150,8 @@ class MeasurementCurveLayout @JvmOverloads constructor(context: Context, attrs: 
             percentageLayout.root.post {
                 with(percentageLayout.root) {
                     (layoutParams as LayoutParams).apply {
-                        leftMargin = topCenterX - percentageLayout.percentage.measuredWidth / LEFT_MARGIN_DIVIDER
-                        topMargin = topCenterY - (this@with.measuredHeight - curveCircleSize / 2) / TOP_MARGIN_DIVIDER
+                        leftMargin = topCenterX - percentageLayout.percentage.measuredWidth / (2 * LEFT_MARGIN_DIVIDER)
+                        topMargin = topCenterY - this@with.measuredHeight / TOP_MARGIN_DIVIDER
                     }
                 }
                 requestLayout()
@@ -176,10 +189,10 @@ class MeasurementCurveLayout @JvmOverloads constructor(context: Context, attrs: 
             with(speedLayout.root) {
                 (layoutParams as LayoutParams).apply {
                     leftMargin = bottomCenterX - speedLayout.value.measuredWidth / LEFT_MARGIN_DIVIDER
-                    topMargin = bottomCenterY - (this@with.measuredHeight - curveCircleSize / 2) / TOP_MARGIN_DIVIDER
+                    topMargin = bottomCenterY - this@with.measuredHeight / TOP_MARGIN_DIVIDER
                 }
+                requestLayout()
             }
-            requestLayout()
             speedLayout.root.visibility = View.VISIBLE
         }
     }
@@ -205,6 +218,7 @@ class MeasurementCurveLayout @JvmOverloads constructor(context: Context, attrs: 
     companion object {
         private const val LEFT_MARGIN_DIVIDER = 2
         private const val TOP_MARGIN_DIVIDER = 8
+        private const val SIGNAL_BAR_OFFSET_DIVIDER = 6
 
         private const val VALUE_SIZE_DIVIDER = 10
         private const val UNITS_SIZE_DIVIDER = 25

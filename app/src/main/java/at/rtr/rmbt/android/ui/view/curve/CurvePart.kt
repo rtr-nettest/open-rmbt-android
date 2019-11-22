@@ -170,7 +170,7 @@ abstract class CurvePart {
         private const val MAX_CURVE_PIECES_COUNT = 128
         private const val CURVE_ANGLE = 270f
 
-        const val ANGLE_STEP_MULTIPLIER = 2f
+        const val ANGLE_STEP_MULTIPLIER = 1.9f
 
         const val SCALE_SWEEP_ANGLE = 45f
         const val QUARTER_CIRCLE = 90f

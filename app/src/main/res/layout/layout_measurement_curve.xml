@@ -8,7 +8,9 @@
         <at.rtr.rmbt.android.ui.view.curve.MeasurementCurveView
             android:id="@+id/curveView"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/margin_medium"
+            android:layout_marginEnd="@dimen/margin_medium" />
 
         <include
             android:id="@+id/layout_strength"

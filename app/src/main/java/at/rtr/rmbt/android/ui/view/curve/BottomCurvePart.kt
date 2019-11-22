@@ -58,8 +58,8 @@ class BottomCurvePart(context: Context) : CurvePart() {
     override fun getCenterX() = viewSize.toFloat() / 3 - (largeRadius - smallRadius) / 2 - angleStep / 2
     override fun getCenterY() = viewSize.toFloat() / 3
 
-    override fun getTopOffset() = (viewHeight - viewSize) / 2 + viewSize.toFloat() / 3
-    override fun getLeftOffset() = (viewWidth.toFloat() - viewSize) / 2
+    override fun getTopOffset() = (viewHeight - viewSize) + viewSize.toFloat() / 3
+    override fun getLeftOffset() = viewWidth.toFloat() - viewSize
 
     override fun drawSections(canvas: Canvas) {
         var angle = sectionStartAngle - ANGLE_STEP_MULTIPLIER * angleStep
@@ -103,8 +103,8 @@ class BottomCurvePart(context: Context) : CurvePart() {
             pathForText.reset()
             val bounds = Rect()
             textPaint.getTextBounds(section.text, 0, section.text.length, bounds)
-            val scaleRadius = smallRadius * SCALE_RADIUS_COEF
-            val halfTextLength = (QUARTER_CIRCLE * bounds.width()) / (Math.PI.toFloat() * (scaleRadius - textPaint.textSize))
+            val scaleRadius = smallRadius - SCALE_RADIUS_COEF * (largeRadius - smallRadius)
+            val halfTextLength = (QUARTER_CIRCLE * bounds.width()).toInt() / (Math.PI * (scaleRadius - bounds.height())).toFloat()
 
             if (section.isUpside) {
                 pathForText.addArc(
@@ -119,7 +119,7 @@ class BottomCurvePart(context: Context) : CurvePart() {
                     section.startAngle - halfTextLength,
                     SCALE_SWEEP_ANGLE
                 )
-                canvas.drawTextOnPath(section.text, pathForText, 0f, textPaint.textSize * 1.25f, textPaint)
+                canvas.drawTextOnPath(section.text, pathForText, 0f, textPaint.textSize * SCALE_OFFSET_COEF, textPaint)
             }
         }
     }
@@ -128,8 +128,8 @@ class BottomCurvePart(context: Context) : CurvePart() {
      * Draw the scale lines
      */
     private fun drawScale(canvas: Canvas) {
-        val scaleRadius = smallRadius - SCALE_RADIUS_COEF * (largeRadius - smallRadius)
-        val scaleLargeRadius = smallRadius - (largeRadius - smallRadius)
+        val scaleRadius = smallRadius - SCALE_RADIUS_COEF * SCALE_OFFSET_COEF * (mediumRadius - smallRadius)
+        val scaleLargeRadius = smallRadius - SCALE_OFFSET_COEF * (mediumRadius - smallRadius)
 
         scalePaint.strokeWidth = scaleRadius / 16
         scaleLargePaint.strokeWidth = scaleRadius / 7
@@ -160,7 +160,7 @@ class BottomCurvePart(context: Context) : CurvePart() {
     }
 
     override fun updateProgress(progress: Int) {
-        progressPaint.strokeWidth = ANGLE_STEP_MULTIPLIER * (largeRadius - smallRadius)
+        progressPaint.strokeWidth = 2 * SCALE_OFFSET_COEF * (mediumRadius - smallRadius)
         val progressAngle = calculateProgressAngle(progress)
 
         currentCanvas?.let { currentCanvas ->
@@ -210,5 +210,6 @@ class BottomCurvePart(context: Context) : CurvePart() {
     companion object {
         private const val SMALL_SCALE_ANGLE = 1f
         private const val SCALE_RADIUS_COEF = 0.8f
+        private const val SCALE_OFFSET_COEF = 1.25f
     }
 }
