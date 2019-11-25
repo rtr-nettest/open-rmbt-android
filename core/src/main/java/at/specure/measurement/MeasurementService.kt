@@ -112,6 +112,18 @@ class MeasurementService : LifecycleService() {
                 testDataRepository.saveGeoLocation(testUUID, it)
             }
         }
+
+        override fun onThreadDownloadDataChanged(threadId: Int, timeNanos: Long, bytesTotal: Long) {
+            runner.testUUID?.let {
+                testDataRepository.saveTrafficDownload(it, threadId, timeNanos, bytesTotal)
+            }
+        }
+
+        override fun onThreadUploadDataChanged(threadId: Int, timeNanos: Long, bytesTotal: Long) {
+            runner.testUUID?.let {
+                testDataRepository.saveTrafficUpload(it, threadId, timeNanos, bytesTotal)
+            }
+        }
     }
 
     override fun onCreate() {

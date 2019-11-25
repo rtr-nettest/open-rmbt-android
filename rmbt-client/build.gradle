@@ -27,4 +27,5 @@ dependencies {
     implementation "net.sf.jopt-simple:jopt-simple:$versions.jopt_simple"
     implementation "dnsjava:dnsjava:$versions.dnsjava"
     implementation "com.google.code.gson:gson:$versions.gson"
+    implementation "com.jakewharton.timber:timber:$versions.timber"
 }
