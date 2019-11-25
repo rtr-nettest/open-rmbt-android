@@ -15,6 +15,6 @@ data class CellLocation(
     val primaryScramblingCode: Int?,
     val areaCode: Int?,
     val locationId: String?,
-    val time: Long?,
-    val timeNs: Long?
+    val timeMillis: Long?,
+    val timeNanos: Long?
 )
