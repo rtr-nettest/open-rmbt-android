@@ -124,6 +124,13 @@ class TestControllerImpl(private val config: Config, private val clientUUID: Cli
                 }
 
                 if (currentStatus.isFinalState()) {
+                    if (!config.skipQoSTests) {
+                        // TODO remove this
+                        repeat(100) {
+                            setState(MeasurementState.QOS, it)
+                            Thread.sleep(200)
+                        }
+                    }
                     client.commonCallback = null
                     client.shutdown()
                     if (currentStatus != TestStatus.ERROR) {
