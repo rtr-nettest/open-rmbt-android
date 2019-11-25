@@ -88,7 +88,7 @@ class TestControllerImpl(private val config: Config, private val clientUUID: Cli
                 _listener?.onError()
                 return@async
             }
-
+            client.commonCallback = listener
             client.trafficService = TrafficServiceImpl()
             val connection = client.controlConnection
             Timber.i("Client UUID: ${connection?.clientUUID}")
@@ -124,6 +124,7 @@ class TestControllerImpl(private val config: Config, private val clientUUID: Cli
                 }
 
                 if (currentStatus.isFinalState()) {
+                    client.commonCallback = null
                     client.shutdown()
                     if (currentStatus != TestStatus.ERROR) {
                         _listener?.onFinish()

@@ -6,12 +6,15 @@ import at.specure.database.entity.GRAPH_ITEM_TYPE_DOWNLOAD
 import at.specure.database.entity.GRAPH_ITEM_TYPE_UPLOAD
 import at.specure.database.entity.GeoLocation
 import at.specure.database.entity.GraphItem
+import at.specure.database.entity.TestTrafficDownload
+import at.specure.database.entity.TestTrafficUpload
 import at.specure.location.LocationInfo
 
 class TestDataRepositoryImpl(db: CoreDatabase) : TestDataRepository {
 
     private val geoLocationDao = db.geoLocationDao()
     private val graphItemDao = db.graphItemsDao()
+    private val testTrafficDao = db.testTrafficItemDao()
 
     override fun saveGeoLocation(testUUID: String, location: LocationInfo) = io {
         val geoLocation = GeoLocation(
@@ -48,5 +51,25 @@ class TestDataRepositoryImpl(db: CoreDatabase) : TestDataRepository {
 
     override fun getUploadGraphItems(testUUID: String): List<GraphItem> {
         return graphItemDao.getUploadGraph(testUUID)
+    }
+
+    override fun saveTrafficDownload(testUUID: String, threadId: Int, timeNanos: Long, bytes: Long) = io {
+        val item = TestTrafficDownload(
+            testUUID = testUUID,
+            threadNumber = threadId,
+            timeNanos = timeNanos,
+            bytes = bytes
+        )
+        testTrafficDao.insertDownloadItem(item)
+    }
+
+    override fun saveTrafficUpload(testUUID: String, threadId: Int, timeNanos: Long, bytes: Long) {
+        val item = TestTrafficUpload(
+            testUUID = testUUID,
+            threadNumber = threadId,
+            timeNanos = timeNanos,
+            bytes = bytes
+        )
+        testTrafficDao.insertUploadItem(item)
     }
 }

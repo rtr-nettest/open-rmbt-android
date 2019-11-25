@@ -1,8 +1,9 @@
 package at.specure.test
 
+import at.rtr.rmbt.client.RMBTClientCallback
 import at.specure.measurement.MeasurementState
 
-interface TestProgressListener {
+interface TestProgressListener : RMBTClientCallback {
 
     fun onProgressChanged(state: MeasurementState, progress: Int)
 

@@ -19,4 +19,7 @@ interface TestTrafficItemDao {
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     fun insertDownloadItem(testTrafficItem: TestTrafficDownload)
+
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    fun insertUploadItem(testTrafficItem: TestTrafficUpload)
 }

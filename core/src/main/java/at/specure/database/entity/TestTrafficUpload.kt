@@ -5,7 +5,7 @@ import at.specure.database.Tables.TEST_TRAFFIC_UPLOAD_ITEM
 
 @Entity(tableName = TEST_TRAFFIC_UPLOAD_ITEM)
 class TestTrafficUpload(
-    id: Long,
+    id: Long = 0,
     testUUID: String,
     threadNumber: Int,
     timeNanos: Long,
