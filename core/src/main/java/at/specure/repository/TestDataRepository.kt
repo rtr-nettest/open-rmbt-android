@@ -18,5 +18,4 @@ interface TestDataRepository {
     fun getDownloadGraphItems(testUUID: String): List<GraphItem>
 
     fun getUploadGraphItems(testUUID: String): List<GraphItem>
-
 }
