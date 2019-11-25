@@ -48,6 +48,10 @@ class CellInfoWatcherImpl(
 
     private var _activeNetwork: CellNetworkInfo? = null
     private var callbacksRegistered = false
+    private var _cellInfo: CellInfo? = null
+
+    override val cellInfo: CellInfo?
+        get() = _cellInfo
 
     init {
         locationAccess.addListener(this)
@@ -78,7 +82,8 @@ class CellInfoWatcherImpl(
                             telephonyManager.networkType
                         }
 
-                        _activeNetwork = CellNetworkInfo.from(registeredInfoList[index], it, MobileNetworkType.fromValue(networkType))
+                        _cellInfo = registeredInfoList[index]
+                        _activeNetwork = CellNetworkInfo.from(_cellInfo!!, it, MobileNetworkType.fromValue(networkType))
                     }
                     Timber.d("carrier name: ${it.carrierName}")
                     Timber.d("display name: ${it.displayName}")

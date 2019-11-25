@@ -13,6 +13,6 @@ class SignalStrengthInfoWiFi(
     /**
      * The current link speed in Mbps.
      */
-    val linkSpeed : Int
+    val linkSpeed: Int
 ) :
     SignalStrengthInfo(transport, value, rsrq, signalLevel, min, max)

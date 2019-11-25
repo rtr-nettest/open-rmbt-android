@@ -105,7 +105,7 @@ class TestDataRepositoryImpl(db: CoreDatabase) : TestDataRepository {
             }
             is SignalStrengthInfoWiFi -> {
                 wifiLinkSpeed = info.linkSpeed
-                networkTypeId = 99
+                networkTypeId = 99 // TODO constant from old app
             }
             is SignalStrengthInfoGsm -> {
                 timeNanos = System.nanoTime()
