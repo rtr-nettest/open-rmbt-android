@@ -14,6 +14,8 @@
 
 package at.specure.info.cell
 
+import android.telephony.CellInfo
+
 /**
  * Watcher that is responsible for tracking cellular connection info
  */
@@ -24,6 +26,8 @@ interface CellInfoWatcher {
      * NULL if there is no active cellular network
      */
     val activeNetwork: CellNetworkInfo?
+
+    val cellInfo: CellInfo?
 
     /**
      * Add listener to observe cell network changes

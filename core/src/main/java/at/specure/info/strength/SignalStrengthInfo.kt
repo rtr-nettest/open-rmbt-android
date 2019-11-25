@@ -19,7 +19,7 @@ import at.specure.info.TransportType
 /**
  * Class that contains data about signal strength
  */
-data class SignalStrengthInfo(
+open class SignalStrengthInfo(
 
     /**
      * Transport type of network

@@ -17,7 +17,7 @@ interface MeasurementProducer {
 
     val uploadSpeedBps: Long
 
-    val pingMs: Long
+    val pingNanos: Long
 
     val signalStrengthInfo: SignalStrengthInfo?
 
