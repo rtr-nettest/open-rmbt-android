@@ -17,6 +17,7 @@ package at.specure.info.network
 import android.net.wifi.SupplicantState
 import at.specure.info.TransportType
 import at.specure.info.band.WifiBand
+import java.util.UUID
 
 /**
  * Data object that contains information about WiFi network
@@ -84,7 +85,7 @@ open class WifiNetworkInfo(
      */
     val supplicantState: SupplicantState
 
-) : NetworkInfo(TransportType.WIFI) {
+) : NetworkInfo(TransportType.WIFI, UUID.nameUUIDFromBytes(ssid.toByteArray()).toString()) {
 
     override val name: String?
         get() = ssid

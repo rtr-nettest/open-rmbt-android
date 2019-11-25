@@ -1,6 +1,8 @@
 package at.specure.repository
 
 import at.specure.database.entity.GraphItem
+import at.specure.info.network.MobileNetworkType
+import at.specure.info.strength.SignalStrengthInfo
 import at.specure.location.LocationInfo
 
 interface TestDataRepository {
@@ -18,4 +20,6 @@ interface TestDataRepository {
     fun getDownloadGraphItems(testUUID: String): List<GraphItem>
 
     fun getUploadGraphItems(testUUID: String): List<GraphItem>
+
+    fun saveSignalStrength(testUUID: String, cellUUID: String, mobileNetworkType: MobileNetworkType?, info: SignalStrengthInfo)
 }

@@ -13,7 +13,10 @@ data class Signal(
     @ForeignKey(entity = Test::class, parentColumns = [TEST_UUID_PARENT_COLUMN], childColumns = ["testUUID"], onDelete = ForeignKey.CASCADE)
     val testUUID: String,
     val cellUuid: String,
-    val networkTypeId: String,
+    /**
+     * Value according to [at.specure.info.network.MobileNetworkType] or 99 if connected via Wi-Fi :/
+     */
+    val networkTypeId: Int,
     // wifi
     val signal: Int?,
     val wifiLinkSpeed: Int?,

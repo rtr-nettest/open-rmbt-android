@@ -27,6 +27,7 @@ import at.specure.util.permission.PhoneStateAccess
 import at.specure.util.synchronizedForEach
 import timber.log.Timber
 import java.util.Collections
+import java.util.UUID
 
 private const val INVALID_SUBSCRIPTION_ID = -1
 
@@ -95,7 +96,6 @@ class CellInfoWatcherImpl(
 
     override val activeNetwork: CellNetworkInfo?
         get() {
-            Timber.d("a")
             if (_activeNetwork == null) {
                 return connectivityManager.cellNetworkInfoCompat(telephonyManager.networkOperatorName)
             }
@@ -180,7 +180,8 @@ private fun ConnectivityManager.cellNetworkInfoCompat(operatorName: String?): Ce
         CellNetworkInfo(
             providerName = operatorName ?: "",
             band = null,
-            networkType = MobileNetworkType.fromValue(info.subtype)
+            networkType = MobileNetworkType.fromValue(info.subtype),
+            cellUUID = UUID.randomUUID().toString()
         )
     }
 }

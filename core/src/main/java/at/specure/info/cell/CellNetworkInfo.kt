@@ -25,6 +25,7 @@ import at.specure.info.TransportType
 import at.specure.info.band.CellBand
 import at.specure.info.network.MobileNetworkType
 import at.specure.info.network.NetworkInfo
+import java.util.UUID
 
 /**
  * Cellular Network information
@@ -44,9 +45,14 @@ class CellNetworkInfo(
     /**
      * Detailed Cellular Network type
      */
-    val networkType: MobileNetworkType
+    val networkType: MobileNetworkType,
+
+    /**
+     * Random generated cell UUID
+     */
+    cellUUID: String
 ) :
-    NetworkInfo(TransportType.CELLULAR) {
+    NetworkInfo(TransportType.CELLULAR, cellUUID) {
 
     override val name: String?
         get() = providerName
@@ -78,7 +84,8 @@ class CellNetworkInfo(
             return CellNetworkInfo(
                 providerName = providerName,
                 band = band,
-                networkType = networkType
+                networkType = networkType,
+                cellUUID = UUID.nameUUIDFromBytes((providerName + band.hashCode()).toByteArray()).toString()
             )
         }
 
@@ -92,7 +99,8 @@ class CellNetworkInfo(
             return CellNetworkInfo(
                 providerName = providerName,
                 band = band,
-                networkType = networkType
+                networkType = networkType,
+                cellUUID = UUID.nameUUIDFromBytes((providerName + band.hashCode()).toByteArray()).toString()
             )
         }
 
@@ -106,7 +114,8 @@ class CellNetworkInfo(
             return CellNetworkInfo(
                 providerName = providerName,
                 band = band,
-                networkType = networkType
+                networkType = networkType,
+                cellUUID = UUID.nameUUIDFromBytes((providerName + band.hashCode()).toByteArray()).toString()
             )
         }
 
@@ -114,7 +123,8 @@ class CellNetworkInfo(
             return CellNetworkInfo(
                 providerName = providerName,
                 band = null,
-                networkType = networkType
+                networkType = networkType,
+                cellUUID = UUID.nameUUIDFromBytes((providerName + info.hashCode()).toByteArray()).toString()
             )
         }
     }

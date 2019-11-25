@@ -15,7 +15,6 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.delay
 import org.json.JSONObject
 import timber.log.Timber
-import java.util.concurrent.TimeUnit
 
 class TestControllerImpl(private val config: Config, private val clientUUID: ClientUUID) : TestController {
 
@@ -163,9 +162,8 @@ class TestControllerImpl(private val config: Config, private val clientUUID: Cli
         val progress = (result.progress * 100).toInt()
         if (progress != previousDownloadProgress) {
             setState(MeasurementState.DOWNLOAD, progress)
-            val ping = TimeUnit.NANOSECONDS.toMillis(result.pingNano)
-            if (ping >= 0) {
-                _listener?.onPingChanged(ping)
+            if (result.pingNano >= 0) {
+                _listener?.onPingChanged(result.pingNano)
             }
             _listener?.onDownloadSpeedChanged(progress, result.downBitPerSec)
             previousDownloadProgress = progress

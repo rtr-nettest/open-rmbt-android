@@ -14,6 +14,7 @@ import at.specure.measurement.MeasurementProducer
 import at.specure.measurement.MeasurementService
 import at.specure.measurement.MeasurementState
 import timber.log.Timber
+import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
 class MeasurementViewModel @Inject constructor() : BaseViewModel(), MeasurementClient {
@@ -55,7 +56,7 @@ class MeasurementViewModel @Inject constructor() : BaseViewModel(), MeasurementC
                 with(state) {
                     measurementState.set(it.measurementState)
                     measurementProgress.set(it.measurementProgress)
-                    pingMs.set(it.pingMs)
+                    pingMs.set(TimeUnit.NANOSECONDS.toMillis(it.pingNanos))
                     downloadSpeedBps.set(it.downloadSpeedBps)
                     uploadSpeedBps.set(it.uploadSpeedBps)
                     signalStrengthInfo.set(it.signalStrengthInfo)
@@ -103,8 +104,8 @@ class MeasurementViewModel @Inject constructor() : BaseViewModel(), MeasurementC
         state.uploadSpeedBps.set(speedBps)
     }
 
-    override fun onPingChanged(pingMs: Long) {
-        state.pingMs.set(pingMs)
+    override fun onPingChanged(pingNanos: Long) {
+        state.pingMs.set(TimeUnit.NANOSECONDS.toMillis(pingNanos))
     }
 
     override fun onActiveNetworkChanged(networkInfo: NetworkInfo?) {
