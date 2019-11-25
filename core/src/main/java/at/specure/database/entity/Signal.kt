@@ -11,5 +11,5 @@ abstract class Signal(
     val testUUID: String?,
     val cellUuid: String?,
     val networkTypeId: String?,
-    val timeNs: Long?
+    val timeNanos: Long?
 )

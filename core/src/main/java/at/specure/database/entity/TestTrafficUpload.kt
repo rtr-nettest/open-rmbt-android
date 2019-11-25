@@ -8,6 +8,6 @@ class TestTrafficUpload(
     id: Long,
     testUUID: String,
     threadNumber: Int,
-    time: Long,
+    timeNanos: Long,
     bytes: Long
-) : TestTrafficDownload(id, testUUID, threadNumber, time, bytes)
+) : TestTrafficDownload(id, testUUID, threadNumber, timeNanos, bytes)

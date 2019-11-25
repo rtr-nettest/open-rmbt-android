@@ -12,10 +12,10 @@ import at.specure.database.entity.GraphItem
 @Dao
 interface GraphItemDao {
 
-    @Query("SELECT * from ${Tables.TEST_GRAPH_ITEM} WHERE testUUID == :testUUID AND type == $GRAPH_ITEM_TYPE_UPLOAD ORDER BY time asc")
+    @Query("SELECT * from ${Tables.TEST_GRAPH_ITEM} WHERE testUUID == :testUUID AND type == $GRAPH_ITEM_TYPE_UPLOAD ORDER BY progress asc")
     fun getUploadGraph(testUUID: String): List<GraphItem>
 
-    @Query("SELECT * from ${Tables.TEST_GRAPH_ITEM} WHERE testUUID == :testUUID AND type == $GRAPH_ITEM_TYPE_DOWNLOAD ORDER BY time asc")
+    @Query("SELECT * from ${Tables.TEST_GRAPH_ITEM} WHERE testUUID == :testUUID AND type == $GRAPH_ITEM_TYPE_DOWNLOAD ORDER BY progress asc")
     fun getDownloadGraph(testUUID: String): List<GraphItem>
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)

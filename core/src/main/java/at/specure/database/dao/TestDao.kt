@@ -13,7 +13,7 @@ import at.specure.database.entity.WifiTest
 @Dao
 interface TestDao {
 
-    @Query("SELECT * from ${Tables.TEST} ORDER BY time DESC LIMIT 1")
+    @Query("SELECT * from ${Tables.TEST} ORDER BY timeMillis DESC LIMIT 1")
     fun getLatestTestResult(): Test?
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)

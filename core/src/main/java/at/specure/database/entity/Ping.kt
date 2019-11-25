@@ -14,5 +14,5 @@ data class Ping(
     val testUUID: String,
     val value: Long,
     val valueServer: Long,
-    val testTimeNs: Long
+    val testTimeNanos: Long
 )

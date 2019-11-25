@@ -14,5 +14,5 @@ class Signal4G(
     testUUID: String,
     cellUuid: String,
     networkTypeId: String,
-    timeNs: Long
-) : Signal(id, testUUID, cellUuid, networkTypeId, timeNs)
+    timeNanos: Long
+) : Signal(id, testUUID, cellUuid, networkTypeId, timeNanos)

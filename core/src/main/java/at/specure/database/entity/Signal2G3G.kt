@@ -12,5 +12,5 @@ class Signal2G3G(
     testUUID: String,
     cellUuid: String,
     networkTypeId: String,
-    timeNs: Long
-) : Signal(id, testUUID, cellUuid, networkTypeId, timeNs)
+    timeNanos: Long
+) : Signal(id, testUUID, cellUuid, networkTypeId, timeNanos)

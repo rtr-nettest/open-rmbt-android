@@ -14,6 +14,6 @@ open class TestTrafficDownload(
     @ForeignKey(entity = Test::class, parentColumns = [TEST_UUID_PARENT_COLUMN], childColumns = ["testUUID"], onDelete = ForeignKey.CASCADE)
     val testUUID: String,
     val threadNumber: Int,
-    val time: Long,
+    val timeNanos: Long,
     val bytes: Long
 )
