@@ -180,11 +180,13 @@ class MeasurementService : LifecycleService() {
         }
     }
 
+    @Suppress("SENSELESS_COMPARISON") // intent may be null after service restarted by the system
     override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
-        attachToForeground()
-        @Suppress("UNNECESSARY_SAFE_CALL") // intent may be null after service restarted by the system
-        if (intent?.action == ACTION_START_TESTS) {
-            startTests()
+        if (intent != null) {
+            attachToForeground()
+            if (intent != null && intent.action == ACTION_START_TESTS) {
+                startTests()
+            }
         }
         return super.onStartCommand(intent, flags, startId)
     }
