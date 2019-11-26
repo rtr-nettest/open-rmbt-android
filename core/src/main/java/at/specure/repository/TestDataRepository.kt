@@ -23,7 +23,13 @@ interface TestDataRepository {
 
     fun getUploadGraphItems(testUUID: String): List<GraphItem>
 
-    fun saveSignalStrength(testUUID: String, cellUUID: String, mobileNetworkType: MobileNetworkType?, info: SignalStrengthInfo)
+    fun saveSignalStrength(
+        testUUID: String,
+        cellUUID: String,
+        mobileNetworkType: MobileNetworkType?,
+        info: SignalStrengthInfo,
+        testStartTimeNanos: Long
+    )
 
     fun saveActiveCellInfo(
         testUUID: String,

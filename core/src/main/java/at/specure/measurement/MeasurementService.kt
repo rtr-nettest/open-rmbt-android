@@ -170,7 +170,7 @@ class MeasurementService : LifecycleService() {
                 if (networkInfo != null && networkInfo is CellNetworkInfo) {
                     mobileNetworkType = (networkInfo as CellNetworkInfo).networkType
                 }
-                testDataRepository.saveSignalStrength(UUID, cellUUID, mobileNetworkType, signal)
+                testDataRepository.saveSignalStrength(UUID, cellUUID, mobileNetworkType, signal, runner.testStartTimeNanos)
             }
         }
     }

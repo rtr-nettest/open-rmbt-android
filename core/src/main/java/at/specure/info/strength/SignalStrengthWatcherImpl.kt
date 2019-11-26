@@ -113,16 +113,20 @@ class SignalStrengthWatcherImpl(
         }
         var signal: SignalStrengthInfo? = null
 
+        val transportType = TransportType.CELLULAR
+        val timestampNanos = System.nanoTime()
+
         signalStrength.cellSignalStrengths.forEach {
             when (it) {
                 is CellSignalStrengthLte -> {
                     signal = SignalStrengthInfoLte(
-                        transport = TransportType.CELLULAR,
+                        transport = transportType,
                         value = it.dbm,
                         rsrq = it.rsrq,
                         signalLevel = it.level,
                         min = LTE_RSRP_SIGNAL_MIN,
                         max = LTE_RSRP_SIGNAL_MAX,
+                        timestampNanos = timestampNanos,
                         cqi = it.cqi,
                         rsrp = it.rsrp,
                         rssi = it.rssi,
@@ -132,12 +136,13 @@ class SignalStrengthWatcherImpl(
                 }
                 is CellSignalStrengthNr -> {
                     signal = SignalStrengthInfoNr(
-                        transport = TransportType.CELLULAR,
+                        transport = transportType,
                         value = it.dbm,
                         rsrq = it.csiRsrq,
                         signalLevel = it.level,
                         min = NR_RSRP_SIGNAL_MIN,
                         max = NR_RSRP_SIGNAL_MAX,
+                        timestampNanos = timestampNanos,
                         csiRsrp = it.csiRsrp,
                         csiRsrq = it.csiRsrq,
                         csiSinr = it.csiSinr,
@@ -149,34 +154,37 @@ class SignalStrengthWatcherImpl(
                 is CellSignalStrengthTdscdma,
                 is CellSignalStrengthWcdma -> {
                     signal = SignalStrengthInfo(
-                        transport = TransportType.CELLULAR,
+                        transport = transportType,
                         value = it.dbm,
                         rsrq = null,
                         signalLevel = it.level,
                         min = WCDMA_RSRP_SIGNAL_MIN,
-                        max = WCDMA_RSRP_SIGNAL_MAX
+                        max = WCDMA_RSRP_SIGNAL_MAX,
+                        timestampNanos = timestampNanos
                     )
                 }
                 is CellSignalStrengthGsm -> {
                     signal = SignalStrengthInfoGsm(
-                        transport = TransportType.CELLULAR,
+                        transport = transportType,
                         value = it.dbm,
                         rsrq = null,
                         signalLevel = it.level,
                         min = CELLULAR_SIGNAL_MIN,
                         max = CELLULAR_SIGNAL_MAX,
+                        timestampNanos = timestampNanos,
                         bitErrorRate = it.bitErrorRate,
                         timingAdvance = it.timingAdvance
                     )
                 }
                 else -> {
                     signal = SignalStrengthInfo(
-                        transport = TransportType.CELLULAR,
+                        transport = transportType,
                         value = it.dbm,
                         rsrq = null,
                         signalLevel = it.level,
                         min = CELLULAR_SIGNAL_MIN,
-                        max = CELLULAR_SIGNAL_MAX
+                        max = CELLULAR_SIGNAL_MAX,
+                        timestampNanos = timestampNanos
                     )
                 }
             }
@@ -257,18 +265,22 @@ class SignalStrengthWatcherImpl(
             return null
         }
 
+        val transportType = TransportType.CELLULAR
+        val timestampNanos = System.nanoTime()
+
         when (cellInfo) {
             null -> {
                 signal = null
             }
             is CellInfoLte -> {
                 signal = SignalStrengthInfoLte(
-                    transport = TransportType.CELLULAR,
+                    transport = transportType,
                     value = signalValue,
                     rsrq = lteRsrq,
                     signalLevel = calculateCellSignalLevel(signalValue, signalMin, signalMax),
                     min = LTE_RSRP_SIGNAL_MIN,
                     max = LTE_RSRP_SIGNAL_MAX,
+                    timestampNanos = timestampNanos,
                     cqi = lteCqi ?: 0,
                     rsrp = lteRsrp ?: 0,
                     rssi = 0,
@@ -278,34 +290,37 @@ class SignalStrengthWatcherImpl(
             }
             is CellInfoWcdma -> {
                 signal = SignalStrengthInfo(
-                    transport = TransportType.CELLULAR,
+                    transport = transportType,
                     value = signalValue,
                     rsrq = null,
                     signalLevel = calculateCellSignalLevel(signalValue, signalMin, signalMax),
                     min = WCDMA_RSRP_SIGNAL_MIN,
-                    max = WCDMA_RSRP_SIGNAL_MAX
+                    max = WCDMA_RSRP_SIGNAL_MAX,
+                    timestampNanos = timestampNanos
                 )
             }
             is CellInfoGsm -> {
                 signal = SignalStrengthInfoGsm(
-                    transport = TransportType.CELLULAR,
+                    transport = transportType,
                     value = signalValue,
                     rsrq = null,
                     signalLevel = calculateCellSignalLevel(signalValue, signalMin, signalMax),
                     min = CELLULAR_SIGNAL_MIN,
                     max = CELLULAR_SIGNAL_MAX,
+                    timestampNanos = timestampNanos,
                     bitErrorRate = signalStrength?.gsmBitErrorRate ?: 0,
                     timingAdvance = 0
                 )
             }
             else -> {
                 SignalStrengthInfo(
-                    transport = TransportType.CELLULAR,
+                    transport = transportType,
                     value = signalValue,
                     rsrq = lteRsrq,
                     signalLevel = calculateCellSignalLevel(signalValue, signalMin, signalMax),
                     max = signalMax,
-                    min = signalMin
+                    min = signalMin,
+                    timestampNanos = timestampNanos
                 )
             }
         }
@@ -363,6 +378,7 @@ class SignalStrengthWatcherImpl(
                 signalLevel = wifiInfo.signalLevel,
                 max = WIFI_MAX_SIGNAL_VALUE,
                 min = WIFI_MIN_SIGNAL_VALUE,
+                timestampNanos = System.nanoTime(),
                 linkSpeed = wifiInfo.linkSpeed
             )
         }

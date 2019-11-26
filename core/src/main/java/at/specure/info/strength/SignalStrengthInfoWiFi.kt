@@ -9,10 +9,11 @@ class SignalStrengthInfoWiFi(
     signalLevel: Int,
     min: Int,
     max: Int,
+    timestampNanos: Long,
 
     /**
      * The current link speed in Mbps.
      */
     val linkSpeed: Int
 ) :
-    SignalStrengthInfo(transport, value, rsrq, signalLevel, min, max)
+    SignalStrengthInfo(transport, value, rsrq, signalLevel, min, max, timestampNanos)

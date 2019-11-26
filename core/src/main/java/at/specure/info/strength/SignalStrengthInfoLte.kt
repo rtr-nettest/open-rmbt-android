@@ -9,6 +9,7 @@ class SignalStrengthInfoLte(
     signalLevel: Int,
     min: Int,
     max: Int,
+    timestampNanos: Long,
 
     /**
      * Get channel quality indicator
@@ -54,4 +55,4 @@ class SignalStrengthInfoLte(
      */
     val timingAdvance: Int
 
-) : SignalStrengthInfo(transport, value, rsrq, signalLevel, min, max)
+) : SignalStrengthInfo(transport, value, rsrq, signalLevel, min, max, timestampNanos)

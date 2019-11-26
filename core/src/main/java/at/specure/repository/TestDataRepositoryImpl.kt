@@ -84,13 +84,18 @@ class TestDataRepositoryImpl(db: CoreDatabase) : TestDataRepository {
         testTrafficDao.insertUploadItem(item)
     }
 
-    override fun saveSignalStrength(testUUID: String, cellUUID: String, mobileNetworkType: MobileNetworkType?, info: SignalStrengthInfo) = io {
+    override fun saveSignalStrength(
+        testUUID: String,
+        cellUUID: String,
+        mobileNetworkType: MobileNetworkType?,
+        info: SignalStrengthInfo,
+        testStartTimeNanos: Long
+    ) = io {
         var networkTypeId: Int = mobileNetworkType?.intValue ?: 0
         val signal = info.value
         var wifiLinkSpeed: Int? = null
-        var timeNanos: Long? = System.nanoTime() // TODO: make difference with the start time of the test
-        var timeNanosLast: Long? =
-            System.nanoTime() // TODO: make difference with the start time of the test with time of the last update during the test
+        val timeNanos = info.timestampNanos
+        val timeNanosLast = if (timeNanos < testStartTimeNanos) 0 else timeNanos - testStartTimeNanos
         // 2G/3G
         var bitErrorRate: Int? = null
         // 4G
@@ -141,7 +146,7 @@ class TestDataRepositoryImpl(db: CoreDatabase) : TestDataRepository {
         cellUUID: String,
         mobileNetworkType: MobileNetworkType?,
         networkInfo: NetworkInfo?,
-        technology: CellTechnology?
+        cellTechnology: CellTechnology?
     ) {
         val cellInfo = CellInfo(
             testUUID = testUUID,
@@ -154,7 +159,7 @@ class TestDataRepositoryImpl(db: CoreDatabase) : TestDataRepository {
             mcc = null,
             mnc = null,
             primaryScramblingCode = null,
-            technology = technology?.displayName
+            technology = cellTechnology?.displayName
         )
         cellInfoDao.insert(cellInfo)
     }

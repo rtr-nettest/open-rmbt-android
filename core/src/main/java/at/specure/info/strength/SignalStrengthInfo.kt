@@ -49,5 +49,10 @@ open class SignalStrengthInfo(
     /**
      * Maximum signal value for current network type in dBm
      */
-    val max: Int
+    val max: Int,
+
+    /**
+     * Timestamp in nanoseconds when data was received
+     */
+    val timestampNanos: Long
 )
