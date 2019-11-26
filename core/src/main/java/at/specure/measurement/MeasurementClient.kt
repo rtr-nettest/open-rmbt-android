@@ -1,6 +1,5 @@
 package at.specure.measurement
 
-import at.rmbt.util.exception.HandledException
 import at.specure.info.network.NetworkInfo
 import at.specure.info.strength.SignalStrengthInfo
 
@@ -10,15 +9,17 @@ interface MeasurementClient {
 
     fun onMeasurementFinish()
 
-    fun onMeasurementError(error: HandledException)
+    fun onMeasurementError()
 
     fun onSignalChanged(signalStrengthInfo: SignalStrengthInfo?)
 
-    fun onDownloadSpeedChanged(speedBps: Long)
+    fun onDownloadSpeedChanged(progress: Int, speedBps: Long)
 
-    fun onUploadSpeedChanged(speedBps: Long)
+    fun onUploadSpeedChanged(progress: Int, speedBps: Long)
 
-    fun onPingChanged(pingMs: Long)
+    fun onPingChanged(pingNanos: Long)
 
     fun onActiveNetworkChanged(networkInfo: NetworkInfo?)
+
+    fun onClientReady(testUUID: String)
 }

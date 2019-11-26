@@ -4,6 +4,8 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <data>
+        <import type="at.specure.measurement.MeasurementState"/>
+
         <variable
             name="state"
             type="at.rtr.rmbt.android.ui.viewstate.MeasurementViewState" />
@@ -20,7 +22,6 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textColor="@android:color/white"
-            android:textSize="@dimen/size_measurement_value_text"
             android:textStyle="bold"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
@@ -31,7 +32,6 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
             android:textColor="@android:color/white"
-            android:textSize="@dimen/size_measurement_unit_text"
             android:textStyle="bold"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toEndOf="@id/value"
@@ -39,9 +39,8 @@
 
         <ImageView
             android:id="@+id/icon"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:src="@drawable/ic_small_download_gray"
+            android:layout_width="@dimen/padding_extra_large"
+            android:layout_height="@dimen/padding_extra_large"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toTopOf="@id/units"
             app:layout_constraintStart_toStartOf="@id/units" />

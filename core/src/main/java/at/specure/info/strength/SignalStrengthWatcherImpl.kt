@@ -16,7 +16,10 @@ package at.specure.info.strength
 import android.annotation.SuppressLint
 import android.os.Build
 import android.os.Handler
-import android.telephony.CellSignalStrengthCdma
+import android.telephony.CellInfoGsm
+import android.telephony.CellInfoLte
+import android.telephony.CellInfoWcdma
+import android.telephony.CellSignalStrengthGsm
 import android.telephony.CellSignalStrengthLte
 import android.telephony.CellSignalStrengthNr
 import android.telephony.CellSignalStrengthTdscdma
@@ -25,6 +28,7 @@ import android.telephony.PhoneStateListener
 import android.telephony.SignalStrength
 import android.telephony.TelephonyManager
 import at.specure.info.TransportType
+import at.specure.info.cell.CellInfoWatcher
 import at.specure.info.cell.CellNetworkInfo
 import at.specure.info.network.ActiveNetworkWatcher
 import at.specure.info.network.MobileNetworkType
@@ -58,7 +62,8 @@ private const val NR_RSRP_SIGNAL_MAX = -44
 class SignalStrengthWatcherImpl(
     private val telephonyManager: TelephonyManager,
     private val activeNetworkWatcher: ActiveNetworkWatcher,
-    private val wifiInfoWatcher: WifiInfoWatcher
+    private val wifiInfoWatcher: WifiInfoWatcher,
+    private val cellInfoWatcher: CellInfoWatcher
 ) :
     SignalStrengthWatcher {
 
@@ -106,61 +111,89 @@ class SignalStrengthWatcherImpl(
         if (signalStrength == null) {
             return null
         }
-
-        var signal: Int? = null
-        var level: Int? = null
-        var lteRsrq: Int? = null
-        var minStrength = 0
-        var maxStrength = 0
+        var signal: SignalStrengthInfo? = null
 
         signalStrength.cellSignalStrengths.forEach {
-
-            level = it.level
-            signal = it.dbm
-
             when (it) {
                 is CellSignalStrengthLte -> {
-                    lteRsrq = it.rsrq
-                    minStrength = LTE_RSRP_SIGNAL_MIN
-                    maxStrength = LTE_RSRP_SIGNAL_MAX
+                    signal = SignalStrengthInfoLte(
+                        transport = TransportType.CELLULAR,
+                        value = it.dbm,
+                        rsrq = it.rsrq,
+                        signalLevel = it.level,
+                        min = LTE_RSRP_SIGNAL_MIN,
+                        max = LTE_RSRP_SIGNAL_MAX,
+                        cqi = it.cqi,
+                        rsrp = it.rsrp,
+                        rssi = it.rssi,
+                        rssnr = it.rssnr,
+                        timingAdvance = it.timingAdvance
+                    )
                 }
                 is CellSignalStrengthNr -> {
-                    lteRsrq = it.csiRsrq
-                    minStrength = NR_RSRP_SIGNAL_MIN
-                    maxStrength = NR_RSRP_SIGNAL_MAX
+                    signal = SignalStrengthInfoNr(
+                        transport = TransportType.CELLULAR,
+                        value = it.dbm,
+                        rsrq = it.csiRsrq,
+                        signalLevel = it.level,
+                        min = NR_RSRP_SIGNAL_MIN,
+                        max = NR_RSRP_SIGNAL_MAX,
+                        csiRsrp = it.csiRsrp,
+                        csiRsrq = it.csiRsrq,
+                        csiSinr = it.csiSinr,
+                        ssRsrp = it.ssRsrp,
+                        ssRsrq = it.ssRsrq,
+                        ssSinr = it.ssSinr
+                    )
                 }
                 is CellSignalStrengthTdscdma,
                 is CellSignalStrengthWcdma -> {
-                    minStrength = WCDMA_RSRP_SIGNAL_MIN
-                    maxStrength = WCDMA_RSRP_SIGNAL_MAX
+                    signal = SignalStrengthInfo(
+                        transport = TransportType.CELLULAR,
+                        value = it.dbm,
+                        rsrq = null,
+                        signalLevel = it.level,
+                        min = WCDMA_RSRP_SIGNAL_MIN,
+                        max = WCDMA_RSRP_SIGNAL_MAX
+                    )
                 }
-                is CellSignalStrengthCdma -> it.dbm
+                is CellSignalStrengthGsm -> {
+                    signal = SignalStrengthInfoGsm(
+                        transport = TransportType.CELLULAR,
+                        value = it.dbm,
+                        rsrq = null,
+                        signalLevel = it.level,
+                        min = CELLULAR_SIGNAL_MIN,
+                        max = CELLULAR_SIGNAL_MAX,
+                        bitErrorRate = it.bitErrorRate,
+                        timingAdvance = it.timingAdvance
+                    )
+                }
                 else -> {
-                    minStrength = CELLULAR_SIGNAL_MIN
-                    maxStrength = CELLULAR_SIGNAL_MAX
+                    signal = SignalStrengthInfo(
+                        transport = TransportType.CELLULAR,
+                        value = it.dbm,
+                        rsrq = null,
+                        signalLevel = it.level,
+                        min = CELLULAR_SIGNAL_MIN,
+                        max = CELLULAR_SIGNAL_MAX
+                    )
                 }
             }
         }
 
-        if (signal == null) {
-            return null
-        } else {
-            return SignalStrengthInfo(
-                transport = TransportType.CELLULAR,
-                value = signal,
-                rsrq = lteRsrq,
-                signalLevel = level ?: 0,
-                max = maxStrength,
-                min = minStrength
-            )
-        }
+        return signal
     }
 
     private fun signalStrengthOld(signalStrength: SignalStrength?): SignalStrengthInfo? {
         val network = activeNetworkWatcher.currentNetworkInfo
+        val cellInfo = cellInfoWatcher.cellInfo
         var strength: Int? = null
         var lteRsrp: Int? = null
         var lteRsrq: Int? = null
+        var lteRssnr: Int? = null
+        var lteCqi: Int? = null
+        var errorRate: Int? = null
 
         if (network is CellNetworkInfo && signalStrength != null) {
             val type = network.networkType
@@ -172,6 +205,8 @@ class SignalStrengthWatcherImpl(
                 try {
                     lteRsrp = SignalStrength::class.java.getMethod("getLteRsrp").invoke(signalStrength) as Int
                     lteRsrq = SignalStrength::class.java.getMethod("getLteRsrq").invoke(signalStrength) as Int
+                    lteRssnr = SignalStrength::class.java.getMethod("getLteRssnr").invoke(signalStrength) as Int
+                    lteCqi = SignalStrength::class.java.getMethod("getLteCqi").invoke(signalStrength) as Int
 
                     if (lteRsrp == Integer.MAX_VALUE)
                         lteRsrp = null
@@ -179,6 +214,12 @@ class SignalStrengthWatcherImpl(
                         lteRsrq = null
                     if (lteRsrq != null && lteRsrq > 0)
                         lteRsrq = -lteRsrq // fix invalid rsrq values for some devices (see #996)
+                    if (lteRssnr == Integer.MAX_VALUE) {
+                        lteRssnr = null
+                    }
+                    if (lteCqi == Integer.MAX_VALUE) {
+                        lteCqi = null
+                    }
                 } catch (t: Throwable) {
                     Timber.e(t)
                 }
@@ -210,18 +251,66 @@ class SignalStrengthWatcherImpl(
         val signalMin = if (lteRsrp == null) CELLULAR_SIGNAL_MIN else LTE_RSRP_SIGNAL_MIN
         val signalMax = if (lteRsrp == null) CELLULAR_SIGNAL_MAX else LTE_RSRP_SIGNAL_MAX
 
-        return if (signalValue == null) {
-            null
-        } else {
-            SignalStrengthInfo(
-                transport = TransportType.CELLULAR,
-                value = signalValue,
-                rsrq = lteRsrq,
-                signalLevel = calculateCellSignalLevel(signalValue, signalMin, signalMax),
-                max = signalMax,
-                min = signalMin
-            )
+        var signal: SignalStrengthInfo? = null
+
+        if (signalValue == null) {
+            return null
         }
+
+        when (cellInfo) {
+            null -> {
+                signal = null
+            }
+            is CellInfoLte -> {
+                signal = SignalStrengthInfoLte(
+                    transport = TransportType.CELLULAR,
+                    value = signalValue,
+                    rsrq = lteRsrq,
+                    signalLevel = calculateCellSignalLevel(signalValue, signalMin, signalMax),
+                    min = LTE_RSRP_SIGNAL_MIN,
+                    max = LTE_RSRP_SIGNAL_MAX,
+                    cqi = lteCqi ?: 0,
+                    rsrp = lteRsrp ?: 0,
+                    rssi = 0,
+                    rssnr = lteRssnr ?: 0,
+                    timingAdvance = cellInfo.cellSignalStrength.timingAdvance
+                )
+            }
+            is CellInfoWcdma -> {
+                signal = SignalStrengthInfo(
+                    transport = TransportType.CELLULAR,
+                    value = signalValue,
+                    rsrq = null,
+                    signalLevel = calculateCellSignalLevel(signalValue, signalMin, signalMax),
+                    min = WCDMA_RSRP_SIGNAL_MIN,
+                    max = WCDMA_RSRP_SIGNAL_MAX
+                )
+            }
+            is CellInfoGsm -> {
+                signal = SignalStrengthInfoGsm(
+                    transport = TransportType.CELLULAR,
+                    value = signalValue,
+                    rsrq = null,
+                    signalLevel = calculateCellSignalLevel(signalValue, signalMin, signalMax),
+                    min = CELLULAR_SIGNAL_MIN,
+                    max = CELLULAR_SIGNAL_MAX,
+                    bitErrorRate = signalStrength?.gsmBitErrorRate ?: 0,
+                    timingAdvance = 0
+                )
+            }
+            else -> {
+                SignalStrengthInfo(
+                    transport = TransportType.CELLULAR,
+                    value = signalValue,
+                    rsrq = lteRsrq,
+                    signalLevel = calculateCellSignalLevel(signalValue, signalMin, signalMax),
+                    max = signalMax,
+                    min = signalMin
+                )
+            }
+        }
+
+        return signal
     }
 
     private fun calculateCellSignalLevel(signal: Int?, min: Int, max: Int): Int {
@@ -267,13 +356,14 @@ class SignalStrengthWatcherImpl(
     private fun handleWifiUpdate() {
         val wifiInfo = wifiInfoWatcher.activeWifiInfo
         if (wifiInfo != null) {
-            signalStrengthInfo = SignalStrengthInfo(
+            signalStrengthInfo = SignalStrengthInfoWiFi(
                 transport = TransportType.WIFI,
                 value = wifiInfo.rssi,
                 rsrq = null,
                 signalLevel = wifiInfo.signalLevel,
                 max = WIFI_MAX_SIGNAL_VALUE,
-                min = WIFI_MIN_SIGNAL_VALUE
+                min = WIFI_MIN_SIGNAL_VALUE,
+                linkSpeed = wifiInfo.linkSpeed
             )
         }
         notifyInfoChanged()

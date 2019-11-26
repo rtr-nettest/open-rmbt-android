@@ -1,28 +1,38 @@
 package at.specure.measurement
 
-import android.app.Notification
-import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
 import android.content.Intent
+import android.net.wifi.WifiManager
 import android.os.Binder
 import android.os.Build
 import android.os.IBinder
-import androidx.core.app.NotificationCompat
+import android.os.PowerManager
 import androidx.lifecycle.LifecycleService
 import androidx.lifecycle.Observer
-import at.rmbt.util.exception.HandledException
+import at.specure.config.Config
 import at.specure.di.CoreInjector
+import at.specure.di.NotificationProvider
+import at.specure.info.cell.CellNetworkInfo
 import at.specure.info.network.ActiveNetworkLiveData
+import at.specure.info.network.MobileNetworkType
 import at.specure.info.network.NetworkInfo
 import at.specure.info.strength.SignalStrengthInfo
 import at.specure.info.strength.SignalStrengthLiveData
+import at.specure.location.LocationInfo
+import at.specure.location.LocationInfoLiveData
+import at.specure.repository.TestDataRepository
+import at.specure.test.DeviceInfo
 import at.specure.test.TestController
 import at.specure.test.TestProgressListener
 import timber.log.Timber
+import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
 class MeasurementService : LifecycleService() {
+
+    @Inject
+    lateinit var config: Config
 
     @Inject
     lateinit var runner: TestController
@@ -33,17 +43,33 @@ class MeasurementService : LifecycleService() {
     @Inject
     lateinit var activeNetworkLiveData: ActiveNetworkLiveData
 
+    @Inject
+    lateinit var locationInfoLiveData: LocationInfoLiveData
+
+    @Inject
+    lateinit var notificationProvider: NotificationProvider
+
+    @Inject
+    lateinit var testDataRepository: TestDataRepository
+
     private val producer: Producer by lazy { Producer() }
     private val clientAggregator: ClientAggregator by lazy { ClientAggregator() }
 
     private var measurementState: MeasurementState = MeasurementState.IDLE
     private var measurementProgress = 0
-    private var pingMs = 0L
+    private var pingNanos = 0L
     private var downloadSpeedBps = 0L
     private var uploadSpeedBps = 0L
+    private var hasErrors = false
 
     private var signalStrengthInfo: SignalStrengthInfo? = null
     private var networkInfo: NetworkInfo? = null
+    private var locationInfo: LocationInfo? = null
+
+    private val notificationManager: NotificationManager by lazy { getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager }
+
+    private lateinit var wakeLock: PowerManager.WakeLock
+    private lateinit var wifiLock: WifiManager.WifiLock
 
     private val testListener = object : TestProgressListener {
 
@@ -51,21 +77,62 @@ class MeasurementService : LifecycleService() {
             measurementState = state
             measurementProgress = progress
             clientAggregator.onProgressChanged(state, progress)
+
+            notificationManager.notify(NOTIFICATION_ID, notificationProvider.measurementServiceNotification(progress, state, config.skipQoSTests))
         }
 
-        override fun onPingChanged(pingMs: Long) {
-            this@MeasurementService.pingMs = pingMs
-            clientAggregator.onPingChanged(pingMs)
+        override fun onPingChanged(pingNanos: Long) {
+            this@MeasurementService.pingNanos = pingNanos
+            clientAggregator.onPingChanged(pingNanos)
         }
 
-        override fun onDownloadSpeedChanged(speedBps: Long) {
+        override fun onDownloadSpeedChanged(progress: Int, speedBps: Long) {
             downloadSpeedBps = speedBps
-            clientAggregator.onDownloadSpeedChanged(speedBps)
+            clientAggregator.onDownloadSpeedChanged(progress, speedBps)
+            runner.testUUID?.let {
+                testDataRepository.saveDownloadGraphItem(it, progress, speedBps)
+            }
         }
 
-        override fun onUploadSpeedChanged(speedBps: Long) {
+        override fun onUploadSpeedChanged(progress: Int, speedBps: Long) {
             uploadSpeedBps = speedBps
-            clientAggregator.onUploadSpeedChanged(speedBps)
+            clientAggregator.onUploadSpeedChanged(progress, speedBps)
+            runner.testUUID?.let {
+                testDataRepository.saveUploadGraphItem(it, progress, speedBps)
+            }
+        }
+
+        override fun onFinish() {
+            stopForeground(true)
+            clientAggregator.onMeasurementFinish()
+            unlock()
+        }
+
+        override fun onError() {
+            hasErrors = true
+            stopForeground(true)
+            clientAggregator.onMeasurementError()
+            unlock()
+        }
+
+        override fun onClientReady(testUUID: String) {
+            locationInfo?.let {
+                testDataRepository.saveGeoLocation(testUUID, it)
+            }
+            saveSignalStrength()
+            clientAggregator.onClientReady(testUUID)
+        }
+
+        override fun onThreadDownloadDataChanged(threadId: Int, timeNanos: Long, bytesTotal: Long) {
+            runner.testUUID?.let {
+                testDataRepository.saveTrafficDownload(it, threadId, timeNanos, bytesTotal)
+            }
+        }
+
+        override fun onThreadUploadDataChanged(threadId: Int, timeNanos: Long, bytesTotal: Long) {
+            runner.testUUID?.let {
+                testDataRepository.saveTrafficUpload(it, threadId, timeNanos, bytesTotal)
+            }
         }
     }
 
@@ -73,22 +140,53 @@ class MeasurementService : LifecycleService() {
         super.onCreate()
         CoreInjector.inject(this)
 
+        val wifiManager = applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager
+        wifiLock = wifiManager.createWifiLock(WifiManager.WIFI_MODE_FULL_HIGH_PERF, "$packageName:RMBTWifiLock")
+        val powerManager = applicationContext.getSystemService(Context.POWER_SERVICE) as PowerManager
+        wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "$packageName:RMBTWakeLock")
+
         signalStrengthLiveData.observe(this, Observer {
             signalStrengthInfo = it
             clientAggregator.onSignalChanged(it)
+            saveSignalStrength()
         })
 
         activeNetworkLiveData.observe(this, Observer {
             networkInfo = it
             clientAggregator.onActiveNetworkChanged(it)
         })
+
+        locationInfoLiveData.observe(this, Observer { info ->
+            locationInfo = info
+            if (runner.isRunning) {
+                runner.testUUID?.let { UUID ->
+                    testDataRepository.saveGeoLocation(UUID, info)
+                }
+            }
+        })
     }
 
+    private fun saveSignalStrength() {
+        val signal = signalStrengthInfo
+        if (runner.isRunning && signal != null) {
+            runner.testUUID?.let { UUID ->
+                val cellUUID = networkInfo?.cellUUID ?: ""
+                var mobileNetworkType: MobileNetworkType? = null
+                if (networkInfo != null && networkInfo is CellNetworkInfo) {
+                    mobileNetworkType = (networkInfo as CellNetworkInfo).networkType
+                }
+                testDataRepository.saveSignalStrength(UUID, cellUUID, mobileNetworkType, signal)
+            }
+        }
+    }
+
+    @Suppress("SENSELESS_COMPARISON") // intent may be null after service restarted by the system
     override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
-        @Suppress("UNNECESSARY_SAFE_CALL") // intent may be null after service restarted by the system
-        when (intent?.action) {
-            ACTION_START_TESTS -> startTests()
-            ACTION_STOP_TESTS -> stopTests()
+        if (intent != null) {
+            attachToForeground()
+            if (intent != null && intent.action == ACTION_START_TESTS) {
+                startTests()
+            }
         }
         return super.onStartCommand(intent, flags, startId)
     }
@@ -106,10 +204,42 @@ class MeasurementService : LifecycleService() {
 
     private fun startTests() {
         Timber.d("Start tests")
-        resetStates()
-        runner.start(testListener)
+        if (!runner.isRunning) {
+            resetStates()
+        }
 
-        startForeground(1, notification)
+        var location: DeviceInfo.Location? = null
+        locationInfo?.let {
+            location = DeviceInfo.Location(
+                lat = it.latitude,
+                long = it.longitude,
+                provider = it.provider.name,
+                speed = it.speed,
+                bearing = it.bearing,
+                time = it.elapsedRealtimeNanos,
+                age = it.ageNanos,
+                accuracy = it.accuracy,
+                mock_location = it.locationIsMocked,
+                altitude = it.altitude
+            )
+        }
+
+        val deviceInfo = DeviceInfo(
+            context = this,
+            ndt = config.NDTEnabled,
+            testCounter = config.testCounter,
+            location = location
+        )
+
+        hasErrors = false
+        runner.start(testListener, deviceInfo)
+
+        attachToForeground()
+        lock()
+    }
+
+    private fun attachToForeground() {
+        startForeground(NOTIFICATION_ID, notificationProvider.measurementServiceNotification(0, MeasurementState.INIT, true))
     }
 
     private fun stopTests() {
@@ -117,30 +247,42 @@ class MeasurementService : LifecycleService() {
         runner.stop()
 
         stopForeground(true)
+        unlock()
     }
 
     private fun resetStates() {
         testListener.onProgressChanged(MeasurementState.IDLE, 0)
         testListener.onPingChanged(0)
-        testListener.onDownloadSpeedChanged(0)
-        testListener.onUploadSpeedChanged(0)
+        testListener.onDownloadSpeedChanged(0, 0)
+        testListener.onUploadSpeedChanged(0, 0)
     }
 
-    private val notification: Notification
-        get() {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-                val notificationChannel = NotificationChannel("123", "Dummy channel", NotificationManager.IMPORTANCE_LOW)
-                notificationChannel.description = "Description"
-                notificationManager.createNotificationChannel(notificationChannel)
+    private fun lock() {
+        try {
+            if (!wakeLock.isHeld) {
+                wakeLock.acquire(TimeUnit.MINUTES.toMillis(10))
             }
-            return NotificationCompat.Builder(this, "123")
-                .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
-                .setPriority(NotificationCompat.PRIORITY_LOW)
-                .setContentText("Foreground")
-                .setContentTitle("Measurement Service")
-                .build()
+            if (!wifiLock.isHeld) {
+                wifiLock.acquire()
+            }
+            Timber.d("Wake locked")
+        } catch (ex: Exception) {
+            Timber.e(ex)
         }
+    }
+
+    private fun unlock() {
+        try {
+            if (wakeLock.isHeld) {
+                wakeLock.release()
+            }
+            if (wifiLock.isHeld) {
+                wifiLock.release()
+            }
+        } catch (ex: Exception) {
+            Timber.e(ex)
+        }
+    }
 
     private inner class Producer : Binder(), MeasurementProducer {
 
@@ -148,11 +290,17 @@ class MeasurementService : LifecycleService() {
             with(client) {
                 clientAggregator.addClient(this)
                 onProgressChanged(measurementState, measurementProgress)
-                onPingChanged(pingMs)
-                onDownloadSpeedChanged(downloadSpeedBps)
-                onUploadSpeedChanged(uploadSpeedBps)
+                onPingChanged(pingNanos)
+                onDownloadSpeedChanged(measurementProgress, downloadSpeedBps)
+                onUploadSpeedChanged(measurementProgress, uploadSpeedBps)
                 onSignalChanged(signalStrengthInfo)
                 onActiveNetworkChanged(networkInfo)
+                runner.testUUID?.let {
+                    onClientReady(it)
+                }
+                if (hasErrors) {
+                    client.onMeasurementError()
+                }
             }
         }
 
@@ -172,14 +320,20 @@ class MeasurementService : LifecycleService() {
         override val uploadSpeedBps: Long
             get() = this@MeasurementService.uploadSpeedBps
 
-        override val pingMs: Long
-            get() = this@MeasurementService.pingMs
+        override val pingNanos: Long
+            get() = this@MeasurementService.pingNanos
 
         override val signalStrengthInfo: SignalStrengthInfo?
             get() = this@MeasurementService.signalStrengthInfo
 
         override val networkInfo: NetworkInfo?
             get() = this@MeasurementService.networkInfo
+
+        override val isTestsRunning: Boolean
+            get() = runner.isRunning
+
+        override val testUUID: String?
+            get() = runner.testUUID
 
         override fun startTests() {
             this@MeasurementService.startTests()
@@ -214,9 +368,9 @@ class MeasurementService : LifecycleService() {
             }
         }
 
-        override fun onMeasurementError(error: HandledException) {
+        override fun onMeasurementError() {
             clients.forEach {
-                it.onMeasurementError(error)
+                it.onMeasurementError()
             }
         }
 
@@ -226,21 +380,21 @@ class MeasurementService : LifecycleService() {
             }
         }
 
-        override fun onDownloadSpeedChanged(speedBps: Long) {
+        override fun onDownloadSpeedChanged(progress: Int, speedBps: Long) {
             clients.forEach {
-                it.onDownloadSpeedChanged(speedBps)
+                it.onDownloadSpeedChanged(progress, speedBps)
             }
         }
 
-        override fun onUploadSpeedChanged(speedBps: Long) {
+        override fun onUploadSpeedChanged(progress: Int, speedBps: Long) {
             clients.forEach {
-                it.onUploadSpeedChanged(speedBps)
+                it.onUploadSpeedChanged(progress, speedBps)
             }
         }
 
-        override fun onPingChanged(pingMs: Long) {
+        override fun onPingChanged(pingNanos: Long) {
             clients.forEach {
-                it.onPingChanged(pingMs)
+                it.onPingChanged(pingNanos)
             }
         }
 
@@ -249,26 +403,23 @@ class MeasurementService : LifecycleService() {
                 it.onActiveNetworkChanged(networkInfo)
             }
         }
+
+        override fun onClientReady(testUUID: String) {
+            clients.forEach {
+                it.onClientReady(testUUID)
+            }
+        }
     }
 
     companion object {
 
+        private const val NOTIFICATION_ID = 1
+
         private const val ACTION_START_TESTS = "KEY_START_TESTS"
-        private const val ACTION_STOP_TESTS = "KEY_STOP_TESTS"
 
         fun startTests(context: Context) {
             val intent = intent(context)
-            intent.action = "!@3"
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                context.startForegroundService(intent)
-            } else {
-                context.startService(intent)
-            }
-        }
-
-        fun stopTests(context: Context) {
-            val intent = intent(context)
-            intent.action = ACTION_STOP_TESTS
+            intent.action = ACTION_START_TESTS
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 context.startForegroundService(intent)
             } else {

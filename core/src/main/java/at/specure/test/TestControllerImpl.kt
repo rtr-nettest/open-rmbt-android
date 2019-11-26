@@ -5,25 +5,37 @@ import at.rtr.rmbt.client.TrafficServiceImpl
 import at.rtr.rmbt.client.helper.IntermediateResult
 import at.rtr.rmbt.client.helper.TestStatus
 import at.rtr.rmbt.util.model.shared.exception.ErrorStatus
+import at.specure.config.Config
 import at.specure.data.ClientUUID
 import at.specure.measurement.MeasurementState
+import com.google.gson.Gson
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
 import kotlinx.coroutines.delay
 import org.json.JSONObject
 import timber.log.Timber
-import java.util.concurrent.TimeUnit
 
-class WrappedTestController(private val clientUUID: ClientUUID) : TestController {
+class TestControllerImpl(private val config: Config, private val clientUUID: ClientUUID) : TestController {
 
     private var job: Job? = null
 
     private val result: IntermediateResult by lazy { IntermediateResult() }
 
+    private var _testUUID: String? = null
+
     private var _listener: TestProgressListener? = null
 
-    override fun start(listener: TestProgressListener) {
+    override val testUUID: String?
+        get() = _testUUID
+
+    override val isRunning: Boolean
+        get() = job != null
+
+    private var previousDownloadProgress = -1
+    private var previousUploadProgress = -1
+
+    override fun start(listener: TestProgressListener, deviceInfo: DeviceInfo) {
         Timber.d("Start---")
         if (job != null) {
             Timber.w("Runner is already started")
@@ -34,53 +46,67 @@ class WrappedTestController(private val clientUUID: ClientUUID) : TestController
 
         job = GlobalScope.async {
 
+            previousDownloadProgress = -1
+            previousUploadProgress = -1
+
             setState(MeasurementState.IDLE, 0)
 
-            val uuid = clientUUID.value!!
-            val controlServer = "dev.netztest.at"
-            val port = 443
-            val ssl = true
-
-            val geoInfo = ArrayList<String>().apply {
-                add("1572961354000")
-                add("37.421998333333335")
-                add("-122.08400000000002")
-                add("20.0")
-                add("0.0")
-                add("0.0")
-                add("0.0")
-                add("gps")
+            var geoInfo: ArrayList<String>? = null
+            deviceInfo.location?.let {
+                geoInfo = arrayListOf(
+                    it.time.toString(),
+                    it.lat.toString(),
+                    it.long.toString(),
+                    it.accuracy.toString(),
+                    it.altitude.toString(),
+                    it.bearing.toString(),
+                    it.speed.toString(),
+                    it.provider
+                )
             }
-
-            val type = "MOBILE"
-            val name = "RMBT"
-            val version = "3.6.6"
-
-            val info =
-                JSONObject("{\"plattform\":\"Android\",\"os_version\":\"8.0.0(5598391)\",\"api_level\":\"26\",\"device\":\"generic_x86\",\"model\":\"Android SDK built for x86\",\"product\":\"sdk_gphone_x86\",\"language\":\"en\",\"timezone\":\"Europe\\/Kiev\",\"softwareRevision\":\"master_2358f8f-dirty\",\"softwareVersionCode\":30606,\"softwareVersionName\":\"3.6.6\",\"type\":\"MOBILE\",\"location\":{\"lat\":37.421998333333335,\"long\":-122.08400000000002,\"provider\":\"gps\",\"speed\":0,\"bearing\":0,\"time\":1572961510000,\"age\":716,\"accuracy\":20,\"mock_location\":false},\"ndt\":true,\"testCounter\":10,\"android_permission_status\":[{\"permission\":\"android.permission.ACCESS_FINE_LOCATION\",\"status\":true},{\"permission\":\"android.permission.ACCESS_COARSE_LOCATION\",\"status\":true},{\"permission\":\"android.permission.ACCESS_BACKGROUND_LOCATION\",\"status\":false}]}")
 
             val errorSet = mutableSetOf<ErrorStatus>()
 
-            val client = RMBTClient.getInstance(controlServer, null, port, ssl, geoInfo, uuid, type, name, version, null, info, errorSet)
+            val client = RMBTClient.getInstance(
+                config.controlServerHost,
+                null,
+                config.controlServerPort,
+                config.controlServerUseSSL,
+                geoInfo,
+                clientUUID.value,
+                deviceInfo.clientType,
+                deviceInfo.clientName,
+                deviceInfo.softwareVersionName,
+                null,
+                JSONObject(Gson().toJson(deviceInfo)),
+                errorSet
+            )
 
-            if (errorSet.isNotEmpty()) {
-                Timber.e("ERRORS CLIENT")
+            if (client == null || errorSet.isNotEmpty()) {
+                Timber.w("Client has errors")
+                _listener?.onError()
                 return@async
             }
-
-            client?.trafficService = TrafficServiceImpl()
-            val connection = client?.controlConnection
+            client.commonCallback = listener
+            client.trafficService = TrafficServiceImpl()
+            val connection = client.controlConnection
             Timber.i("Client UUID: ${connection?.clientUUID}")
+            Timber.i("Test UUID: ${connection.testUuid}")
             Timber.i("Server Name: ${connection?.serverName}")
             Timber.i("Loop Id: ${connection?.loopUuid}")
 
+            _testUUID = connection.testUuid
+            _listener?.onClientReady(_testUUID!!)
+
             GlobalScope.async {
-                client?.runTest()
+                @Suppress("BlockingMethodInNonBlockingContext")
+                client.runTest()
             }
 
             var currentStatus = TestStatus.WAIT
             while (!currentStatus.isFinalState()) {
                 currentStatus = client.status
+                Timber.v(currentStatus.name)
                 when (currentStatus) {
                     TestStatus.WAIT -> handleWait()
                     TestStatus.INIT -> handleInit(client)
@@ -97,8 +123,20 @@ class WrappedTestController(private val clientUUID: ClientUUID) : TestController
                 }
 
                 if (currentStatus.isFinalState()) {
-                    client?.shutdown()
+                    if (!config.skipQoSTests) {
+                        // TODO remove this
+                        repeat(100) {
+                            setState(MeasurementState.QOS, it)
+                            Thread.sleep(200)
+                        }
+                    }
+                    client.commonCallback = null
+                    client.shutdown()
+                    if (currentStatus != TestStatus.ERROR) {
+                        _listener?.onFinish()
+                    }
                     stop()
+                    _testUUID = null
                 } else {
                     delay(100)
                 }
@@ -122,12 +160,15 @@ class WrappedTestController(private val clientUUID: ClientUUID) : TestController
 
     private fun handleDown(client: RMBTClient) {
         client.getIntermediateResult(result)
-        setState(MeasurementState.DOWNLOAD, (result.progress * 100).toInt())
-        val ping = TimeUnit.NANOSECONDS.toMillis(result.pingNano)
-        if (ping >= 0) {
-            _listener?.onPingChanged(ping)
+        val progress = (result.progress * 100).toInt()
+        if (progress != previousDownloadProgress) {
+            setState(MeasurementState.DOWNLOAD, progress)
+            if (result.pingNano >= 0) {
+                _listener?.onPingChanged(result.pingNano)
+            }
+            _listener?.onDownloadSpeedChanged(progress, result.downBitPerSec)
+            previousDownloadProgress = progress
         }
-        _listener?.onDownloadSpeedChanged(result.downBitPerSec)
     }
 
     private fun handleInitUp() {
@@ -136,8 +177,12 @@ class WrappedTestController(private val clientUUID: ClientUUID) : TestController
 
     private fun handleUp(client: RMBTClient) {
         client.getIntermediateResult(result)
-        setState(MeasurementState.UPLOAD, (result.progress * 100).toInt())
-        _listener?.onUploadSpeedChanged(result.upBitPerSec)
+        val progress = (result.progress * 100).toInt()
+        if (progress != previousUploadProgress) {
+            setState(MeasurementState.UPLOAD, (result.progress * 100).toInt())
+            _listener?.onUploadSpeedChanged(progress, result.upBitPerSec)
+            previousUploadProgress = progress
+        }
     }
 
     private fun handleSpeedTestEnd(client: RMBTClient) {
@@ -153,15 +198,18 @@ class WrappedTestController(private val clientUUID: ClientUUID) : TestController
     }
 
     private fun handleError(client: RMBTClient) {
-        Timber.e("${TestStatus.ERROR} handling not implemented")
+        _listener?.onError()
+        _testUUID = null
     }
 
     private fun handleAbort(client: RMBTClient) {
         Timber.e("${TestStatus.ABORTED} handling not implemented")
+        _testUUID = null
     }
 
     private fun handleEnd(client: RMBTClient) {
         setState(MeasurementState.FINISH, 0)
+        _testUUID = null
     }
 
     private fun setState(state: MeasurementState, progress: Int) {

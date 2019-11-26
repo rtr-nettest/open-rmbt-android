@@ -25,7 +25,7 @@ import androidx.test.espresso.matcher.ViewMatchers.isClickable
 import androidx.test.espresso.matcher.ViewMatchers.withText
 import androidx.test.filters.LargeTest
 import androidx.test.runner.AndroidJUnit4
-import at.rtr.rmbt.android.BaseTest
+import at.rtr.rmbt.android.BaseHomeActivityTest
 import at.rtr.rmbt.android.R
 import at.rtr.rmbt.android.ui.activity.HomeActivity
 import junit.framework.Assert.assertFalse
@@ -37,7 +37,7 @@ import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
 @LargeTest
-open class HomeScreenPortraitTest : BaseTest() {
+open class HomeScreenPortraitTest : BaseHomeActivityTest() {
 
     private lateinit var context: HomeActivity
     @Before

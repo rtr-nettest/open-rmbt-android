@@ -17,17 +17,16 @@
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:background="@color/measurement_dark_gray"
         android:layout_height="match_parent">
 
         <TextView
             android:id="@+id/network_name_label"
             android:layout_width="wrap_content"
             android:layout_height="0dp"
-            android:layout_marginStart="@dimen/padding_very_extra_large"
+            android:layout_marginStart="@dimen/padding_large"
             android:layout_marginTop="@dimen/padding_medium"
             android:text="@string/network_label"
-            android:textColor="@color/text_dark_gray"
+            android:textColor="@color/text_white_transparency_40"
             android:textSize="@dimen/network_label_size"
             android:textStyle="bold"
             app:layout_constraintStart_toStartOf="parent"
@@ -37,7 +36,7 @@
             android:id="@+id/network_name"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/padding_very_extra_large"
+            android:layout_marginStart="@dimen/padding_large"
             android:text="@{state.networkInfo.name}"
             android:textColor="@android:color/background_light"
             android:textSize="@dimen/network_name_size"
@@ -50,44 +49,40 @@
             android:layout_width="wrap_content"
             android:layout_height="0dp"
             app:percentage="@{state.measurementProgress}"
-            app:speed="@{state.downloadSpeedBps}"
+            app:speed="@{state.measurementState == MeasurementState.UPLOAD ? state.uploadSpeedBps : state.downloadSpeedBps}"
             app:strength="@{state.signalStrengthInfo.value}"
             app:strengthMin="@{state.signalStrengthInfo.min}"
             app:strengthMax="@{state.signalStrengthInfo.max}"
+            app:measurementPhase="@{state.measurementState}"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toBottomOf="@id/network_name"
-            app:layout_constraintBottom_toTopOf="@id/measurement_bottom_view"/>
+            app:layout_constraintBottom_toTopOf="@id/measurement_bottom_view">
 
-        <Button
-            android:id="@+id/buttonStart"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Start"
-            android:layout_marginEnd="@dimen/padding_large"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintEnd_toStartOf="@id/buttonStop"
-            tools:ignore="HardcodedText" />
 
-        <Button
-            android:id="@+id/buttonStop"
+        </at.rtr.rmbt.android.ui.view.curve.MeasurementCurveLayout>
+
+        <ImageView
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Stop"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            tools:ignore="HardcodedText" />
+            android:src="@drawable/ic_cancel"
+            android:layout_marginEnd="@dimen/padding_large"
+            android:contentDescription="@null"
+            android:layout_marginTop="@dimen/padding_large"
+            android:layout_height="wrap_content"
+            android:id="@+id/buttonCancel"/>
 
         <include
             android:id="@+id/measurement_bottom_view"
             layout="@layout/measurement_bottom_view"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            bind:state="@{state}"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent" />
-
+            app:layout_constraintHeight_percent="0.4"
+            app:layout_constraintStart_toStartOf="parent"
+            bind:state="@{state}" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 
 </layout>

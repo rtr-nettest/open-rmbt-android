@@ -17,6 +17,8 @@ package at.specure.di
 import android.content.Context
 import androidx.room.Room
 import at.specure.database.CoreDatabase
+import at.specure.repository.TestDataRepository
+import at.specure.repository.TestDataRepositoryImpl
 import dagger.Module
 import dagger.Provides
 import javax.inject.Singleton
@@ -34,4 +36,7 @@ class DatabaseModule {
         builder.fallbackToDestructiveMigration()
         return builder.build()
     }
+
+    @Provides
+    fun provideTestDataRepository(database: CoreDatabase): TestDataRepository = TestDataRepositoryImpl(database)
 }

@@ -1,15 +1,18 @@
 package at.rtr.rmbt.android.ui.view.curve
 
 import android.content.Context
-import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Paint
+import android.graphics.Rect
 import android.graphics.Path
+import android.graphics.Color
+import android.graphics.Bitmap
 import android.graphics.PorterDuff
 import android.graphics.PorterDuffXfermode
-import android.graphics.Rect
 import androidx.core.content.ContextCompat
 import at.rtr.rmbt.android.R
+import at.specure.measurement.MeasurementState
+import kotlin.math.roundToInt
 
 class BottomCurvePart(context: Context) : CurvePart() {
 
@@ -22,7 +25,10 @@ class BottomCurvePart(context: Context) : CurvePart() {
         color = ContextCompat.getColor(context, R.color.colorAccent)
         style = Paint.Style.STROKE
         xfermode = PorterDuffXfermode(PorterDuff.Mode.SRC_ATOP)
+        isAntiAlias = true
     }
+
+    override var phase: MeasurementState = MeasurementState.IDLE
 
     override lateinit var bitmap: Bitmap
 
@@ -54,8 +60,8 @@ class BottomCurvePart(context: Context) : CurvePart() {
     override fun getCenterX() = viewSize.toFloat() / 3 - (largeRadius - smallRadius) / 2 - angleStep / 2
     override fun getCenterY() = viewSize.toFloat() / 3
 
-    override fun getTopOffset() = (viewHeight - viewSize) / 2 + viewSize.toFloat() / 3
-    override fun getLeftOffset() = (viewWidth.toFloat() - viewSize) / 2
+    override fun getTopOffset() = (viewHeight - viewSize) + viewSize.toFloat() / 3
+    override fun getLeftOffset() = viewWidth.toFloat() - viewSize
 
     override fun drawSections(canvas: Canvas) {
         var angle = sectionStartAngle - ANGLE_STEP_MULTIPLIER * angleStep
@@ -99,8 +105,8 @@ class BottomCurvePart(context: Context) : CurvePart() {
             pathForText.reset()
             val bounds = Rect()
             textPaint.getTextBounds(section.text, 0, section.text.length, bounds)
-            val scaleRadius = smallRadius * SCALE_RADIUS_COEF
-            val halfTextLength = (QUARTER_CIRCLE * bounds.width()) / (Math.PI.toFloat() * (scaleRadius - textPaint.textSize))
+            val scaleRadius = smallRadius - SCALE_RADIUS_COEF * (largeRadius - smallRadius)
+            val halfTextLength = (QUARTER_CIRCLE * bounds.width()).toInt() / (Math.PI * (scaleRadius - bounds.height())).toFloat()
 
             if (section.isUpside) {
                 pathForText.addArc(
@@ -115,7 +121,7 @@ class BottomCurvePart(context: Context) : CurvePart() {
                     section.startAngle - halfTextLength,
                     SCALE_SWEEP_ANGLE
                 )
-                canvas.drawTextOnPath(section.text, pathForText, 0f, textPaint.textSize * 1.25f, textPaint)
+                canvas.drawTextOnPath(section.text, pathForText, 0f, textPaint.textSize * SCALE_OFFSET_COEF, textPaint)
             }
         }
     }
@@ -124,8 +130,8 @@ class BottomCurvePart(context: Context) : CurvePart() {
      * Draw the scale lines
      */
     private fun drawScale(canvas: Canvas) {
-        val scaleRadius = smallRadius - SCALE_RADIUS_COEF * (largeRadius - smallRadius)
-        val scaleLargeRadius = smallRadius - (largeRadius - smallRadius)
+        val scaleRadius = smallRadius - SCALE_RADIUS_COEF * SCALE_OFFSET_COEF * (mediumRadius - smallRadius)
+        val scaleLargeRadius = smallRadius - SCALE_OFFSET_COEF * (mediumRadius - smallRadius)
 
         scalePaint.strokeWidth = scaleRadius / 16
         scaleLargePaint.strokeWidth = scaleRadius / 7
@@ -156,10 +162,15 @@ class BottomCurvePart(context: Context) : CurvePart() {
     }
 
     override fun updateProgress(progress: Int) {
-        progressPaint.strokeWidth = ANGLE_STEP_MULTIPLIER * (largeRadius - smallRadius)
-        val progressAngle = (sectionStartAngle - sectionEndAngle) / 100 * progress
+        progressPaint.strokeWidth = 2 * SCALE_OFFSET_COEF * (mediumRadius - smallRadius)
+        val progressAngle = calculateProgressAngle(progress)
 
         currentCanvas?.let { currentCanvas ->
+
+            currentCanvas.drawColor(
+                Color.TRANSPARENT,
+                PorterDuff.Mode.CLEAR)
+
             drawSections(currentCanvas)
             drawText(currentCanvas)
 
@@ -176,8 +187,36 @@ class BottomCurvePart(context: Context) : CurvePart() {
         }
     }
 
+    private fun calculateProgressAngle(currentProgress: Int): Float {
+        var angle = 0f
+        when {
+            currentProgress < 1e3 -> { // up to 1 mbit
+                val sectionAngle = sections[3].startAngle - sections[3].endAngle
+                val kbits = currentProgress - 100
+                angle = 0.1f * kbits * sectionAngle / 100
+            }
+            currentProgress < 1e4 -> { // up to 10 mbit
+                val sectionAngle = sections[2].startAngle - sections[2].endAngle
+                val mbits = (currentProgress / 1e3).roundToInt() - 1
+                angle = (sections[2].endAngle - sections[3].endAngle) + 10 * mbits * sectionAngle / 100
+            }
+            currentProgress < 1e5 -> { // up to 100 mbit
+                val sectionAngle = sections[1].startAngle - sections[1].endAngle
+                val mbits = (currentProgress / 1e3).roundToInt() - 10
+                angle = (sections[1].endAngle - sections[3].endAngle) + mbits * sectionAngle / 100
+            }
+            currentProgress < 1e6 -> { // up to 1000 mbit
+                val sectionAngle = sections[0].startAngle - sections[0].endAngle
+                val mbits = (currentProgress / 1e3).roundToInt()
+                angle = (sections[0].endAngle - sections[3].endAngle) + 0.1f * mbits * sectionAngle / 100
+            }
+        }
+        return angle
+    }
+
     companion object {
         private const val SMALL_SCALE_ANGLE = 1f
         private const val SCALE_RADIUS_COEF = 0.8f
+        private const val SCALE_OFFSET_COEF = 1.25f
     }
 }

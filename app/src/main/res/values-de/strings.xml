@@ -95,6 +95,7 @@
     <string name="open_location_permission_dialog_label_open_permission_setting">Einstellungen öffnen</string>
 
     <string name="input_setting_dialog_okay">Okay</string>
+    <string name="input_setting_dialog_ok">OK</string>
     <string name="input_setting_dialog_cancel">Stornieren</string>
     <string name="value_invalid">Ungültiger Wert</string>
     <string name="loop_mode_max_delay_invalid" tools:ignore="PluralsCandidate">Ungülige maximale Wartezeit. Bitte wählen Sie einen Wert zwischen %1$d und %2$d.</string>
@@ -113,6 +114,15 @@
     <string name="measurement_ping">Klingeln</string>
     <string name="measurement_down">Down</string>
     <string name="measurement_up">Up</string>
+    <string name="measurement_qos">Servicequalität (QoS)</string>
+    <string name="measurement_qos_web_site">Webseite</string>
+    <string name="measurement_qos_transparent_connection">Transparente Verbindung</string>
+    <string name="measurement_qos_dns">DNS</string>
+    <string name="measurement_qos_tcp_ports">TCP Ports</string>
+    <string name="measurement_qos_udp_ports">UDP Ports</string>
+    <string name="measurement_qos_unmodified_content">Unveränderter Inhalt</string>
+    <string name="measurement_qos_traceroute">Traceroute</string>
+    <string name="measurement_qos_voip">VoIP</string>
 
     <string-array name="measurement_speed_chart_y_labels">
         <item>1</item>
@@ -129,4 +139,12 @@
     <string name="label_signal_strength">Signal</string>
     <string name="network_label">Netzwerk</string>
 
+    <string name="title_cancel_measurement">Wollen Sie wirklich den laufenden Messung abbrechen?</string>
+    <string name="text_continue_measurement">Messung fortführen</string>
+    <string name="text_cancel_measurement">Messung abbrechen</string>
+
+    <string name="notification_test_title">Open-RMBT</string>
+    <string name="notification_test_ticker">Open-RMBT läuft…</string>
+
+    <string name="test_dialog_error_text">Etwas ist schiefgegangen. Bitte versuchen Sie es später noch Mal.</string>
 </resources>

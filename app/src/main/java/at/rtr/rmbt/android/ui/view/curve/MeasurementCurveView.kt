@@ -7,6 +7,8 @@ import android.graphics.Paint
 import android.graphics.PorterDuff
 import android.util.AttributeSet
 import android.view.View
+import at.specure.measurement.MeasurementState
+import kotlin.math.min
 
 class MeasurementCurveView @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) :
     View(context, attrs, defStyleAttr) {
@@ -16,7 +18,7 @@ class MeasurementCurveView @JvmOverloads constructor(context: Context, attrs: At
         setWillNotDraw(false)
     }
 
-    private var squareSizeCallback: ((Float) -> Unit)? = null
+    private var squareSizeCallback: ((Float, Int) -> Unit)? = null
 
     private var bitmapOverlapPaint = Paint(Paint.FILTER_BITMAP_FLAG)
 
@@ -32,7 +34,7 @@ class MeasurementCurveView @JvmOverloads constructor(context: Context, attrs: At
         if (changed) {
             topPart.updateScreenSizeRelatedData(resources, viewWidth, viewHeight)
             bottomPart.updateScreenSizeRelatedData(resources, viewWidth, viewHeight)
-            squareSizeCallback?.invoke(topPart.angleStep)
+            squareSizeCallback?.invoke(topPart.angleStep, min(topPart.viewHeight, topPart.viewWidth))
         }
     }
 
@@ -71,7 +73,11 @@ class MeasurementCurveView @JvmOverloads constructor(context: Context, attrs: At
         bottomPart.centerKnownCallback = centerKnownCallback
     }
 
-    fun setSquareSizeCallback(squareSizeCallback: (Float) -> Unit) {
+    fun setSquareSizeCallback(squareSizeCallback: (Float, Int) -> Unit) {
         this.squareSizeCallback = squareSizeCallback
+    }
+
+    fun setMeasurementState(state: MeasurementState) {
+        topPart.phase = state
     }
 }
