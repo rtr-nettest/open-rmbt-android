@@ -186,7 +186,12 @@ private fun ConnectivityManager.cellNetworkInfoCompat(operatorName: String?): Ce
             providerName = operatorName ?: "",
             band = null,
             networkType = MobileNetworkType.fromValue(info.subtype),
-            cellUUID = UUID.randomUUID().toString()
+            cellUUID = UUID.randomUUID().toString(),
+            mnc = null,
+            mcc = null,
+            locationId = null,
+            areaCode = null,
+            scramblingCode = null
         )
     }
 }

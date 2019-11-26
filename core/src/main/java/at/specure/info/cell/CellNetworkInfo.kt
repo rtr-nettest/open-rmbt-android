@@ -54,7 +54,7 @@ class CellNetworkInfo(
 
     val mcc: Int?,
 
-    val locationId: Int,
+    val locationId: Int?,
 
     val areaCode: Int?,
 

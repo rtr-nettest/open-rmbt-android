@@ -44,7 +44,7 @@ import at.specure.database.entity.WifiTest
         TestTrafficDownload::class,
         TestTrafficUpload::class,
         WifiTest::class],
-    version = 3
+    version = 5
 )
 @TypeConverters(TypeConverter::class)
 abstract class CoreDatabase : RoomDatabase() {
