@@ -14,6 +14,7 @@ import at.specure.config.Config
 import at.specure.di.CoreInjector
 import at.specure.di.NotificationProvider
 import at.specure.info.cell.CellNetworkInfo
+import at.specure.info.cell.CellTechnology
 import at.specure.info.network.ActiveNetworkLiveData
 import at.specure.info.network.MobileNetworkType
 import at.specure.info.network.NetworkInfo
@@ -147,6 +148,7 @@ class MeasurementService : LifecycleService() {
         activeNetworkLiveData.observe(this, Observer {
             networkInfo = it
             clientAggregator.onActiveNetworkChanged(it)
+            saveCellInfo()
         })
 
         locationInfoLiveData.observe(this, Observer { info ->
@@ -169,6 +171,22 @@ class MeasurementService : LifecycleService() {
                     mobileNetworkType = (networkInfo as CellNetworkInfo).networkType
                 }
                 testDataRepository.saveSignalStrength(UUID, cellUUID, mobileNetworkType, signal)
+            }
+        }
+    }
+
+    private fun saveCellInfo() {
+        val cellInfo = networkInfo
+        if (runner.isRunning && cellInfo != null) {
+            runner.testUUID?.let { UUID ->
+                val cellUUID = networkInfo?.cellUUID ?: ""
+                var technology: CellTechnology? = null
+                var mobileNetworkType: MobileNetworkType? = null
+                if (networkInfo != null && networkInfo is CellNetworkInfo) {
+                    mobileNetworkType = (networkInfo as CellNetworkInfo).networkType
+                    technology = CellTechnology.fromMobileNetworkType(mobileNetworkType)
+                }
+                testDataRepository.saveActiveCellInfo(UUID, cellUUID, mobileNetworkType, networkInfo, technology)
             }
         }
     }

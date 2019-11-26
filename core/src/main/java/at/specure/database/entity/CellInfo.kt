@@ -9,7 +9,7 @@ import at.specure.database.Tables.CELL_INFO
 @Entity(tableName = CELL_INFO)
 data class CellInfo(
     @PrimaryKey(autoGenerate = true)
-    val id: Long,
+    val id: Long = 0,
     @ForeignKey(entity = Test::class, parentColumns = [TEST_UUID_PARENT_COLUMN], childColumns = ["testUUID"], onDelete = ForeignKey.CASCADE)
     val testUUID: String?,
     val active: Boolean?,

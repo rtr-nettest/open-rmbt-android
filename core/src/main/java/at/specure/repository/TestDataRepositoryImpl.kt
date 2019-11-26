@@ -2,6 +2,7 @@ package at.specure.repository
 
 import at.rmbt.util.io
 import at.specure.database.CoreDatabase
+import at.specure.database.entity.CellInfo
 import at.specure.database.entity.GRAPH_ITEM_TYPE_DOWNLOAD
 import at.specure.database.entity.GRAPH_ITEM_TYPE_UPLOAD
 import at.specure.database.entity.GeoLocation
@@ -9,7 +10,9 @@ import at.specure.database.entity.GraphItem
 import at.specure.database.entity.Signal
 import at.specure.database.entity.TestTrafficDownload
 import at.specure.database.entity.TestTrafficUpload
+import at.specure.info.cell.CellTechnology
 import at.specure.info.network.MobileNetworkType
+import at.specure.info.network.NetworkInfo
 import at.specure.info.strength.SignalStrengthInfo
 import at.specure.info.strength.SignalStrengthInfoGsm
 import at.specure.info.strength.SignalStrengthInfoLte
@@ -22,6 +25,7 @@ class TestDataRepositoryImpl(db: CoreDatabase) : TestDataRepository {
     private val graphItemDao = db.graphItemsDao()
     private val testTrafficDao = db.testTrafficItemDao()
     private val signalDao = db.signalDao()
+    private val cellInfoDao = db.cellInfoDao()
 
     override fun saveGeoLocation(testUUID: String, location: LocationInfo) = io {
         val geoLocation = GeoLocation(
@@ -84,9 +88,10 @@ class TestDataRepositoryImpl(db: CoreDatabase) : TestDataRepository {
         var networkTypeId: Int = mobileNetworkType?.intValue ?: 0
         val signal = info.value
         var wifiLinkSpeed: Int? = null
+        var timeNanos: Long? = System.nanoTime() // TODO: make difference with the start time of the test
+        var timeNanosLast: Long? =
+            System.nanoTime() // TODO: make difference with the start time of the test with time of the last update during the test
         // 2G/3G
-        var timeNanos: Long? = null
-        var timeNanosLast: Long? = null
         var bitErrorRate: Int? = null
         // 4G
         var lteRsrp: Int? = null
@@ -108,8 +113,6 @@ class TestDataRepositoryImpl(db: CoreDatabase) : TestDataRepository {
                 networkTypeId = 99 // TODO constant from old app
             }
             is SignalStrengthInfoGsm -> {
-                timeNanos = System.nanoTime()
-                timeNanosLast = System.nanoTime()
                 bitErrorRate = info.bitErrorRate
                 timingAdvance = info.timingAdvance
             }
@@ -131,5 +134,28 @@ class TestDataRepositoryImpl(db: CoreDatabase) : TestDataRepository {
             timingAdvance = timingAdvance
         )
         signalDao.insert(item)
+    }
+
+    override fun saveActiveCellInfo(
+        testUUID: String,
+        cellUUID: String,
+        mobileNetworkType: MobileNetworkType?,
+        networkInfo: NetworkInfo?,
+        technology: CellTechnology?
+    ) {
+        val cellInfo = CellInfo(
+            testUUID = testUUID,
+            uuid = cellUUID,
+            active = true,
+            registered = true,
+            areaCode = null,
+            channelNumber = null,
+            locationId = null,
+            mcc = null,
+            mnc = null,
+            primaryScramblingCode = null,
+            technology = technology?.displayName
+        )
+        cellInfoDao.insert(cellInfo)
     }
 }

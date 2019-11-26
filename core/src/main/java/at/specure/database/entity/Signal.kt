@@ -14,6 +14,14 @@ data class Signal(
     val testUUID: String,
     val cellUuid: String,
     /**
+     * difference between this update of the signal during the test and start time of the test
+     */
+    val timeNanos: Long?,
+    /**
+     * difference between last update of the signal during the test and start time of the test
+     */
+    val timeNanosLast: Long?,
+    /**
      * Value according to [at.specure.info.network.MobileNetworkType] or 99 if connected via Wi-Fi :/
      */
     val networkTypeId: Int,
@@ -21,8 +29,6 @@ data class Signal(
     val signal: Int?,
     val wifiLinkSpeed: Int?,
     // 2G/3G
-    val timeNanos: Long?,
-    val timeNanosLast: Long?,
     val bitErrorRate: Int?,
     // 4G
     val lteRsrp: Int?,
