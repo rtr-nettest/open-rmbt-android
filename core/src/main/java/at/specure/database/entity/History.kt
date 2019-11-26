@@ -11,7 +11,7 @@ data class History(
     val networkType: String?,
     val networkName: String?,
     val networkProviderName: String?,
-    val time: Long,
+    val timeMillis: Long,
     val timeString: String?,
     val timezone: String,
     val deviceName: String,

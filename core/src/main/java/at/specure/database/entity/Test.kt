@@ -56,11 +56,11 @@ data class Test(
     /**
      * Duration of the download phase in ns
      */
-    val downloadPhaseDurationNs: Long?,
+    val downloadPhaseDurationNanos: Long?,
     /**
      * Duration of the upload phase in ns
      */
-    val uploadPhaseDurationNs: Long?,
+    val uploadPhaseDurationNanos: Long?,
     /**
      * Number of threads used during the upload and download phase (there is only intended number of threads and no if the fallback to 1 thread was triggered)
      */
@@ -76,7 +76,7 @@ data class Test(
     /**
      * Shortest ping in ns
      */
-    val pingShortestNs: Long?,
+    val pingShortestNanos: Long?,
     /**
      * Total downloaded bytes on the interface
      */
@@ -104,11 +104,11 @@ data class Test(
     /**
      * Start time of the download phase
      */
-    val timeDownloadOffsetNs: Long?,
+    val timeDownloadOffsetNanos: Long?,
     /**
      * Start time of the upload phase
      */
-    val timeUploadOffsetNs: Long?,
+    val timeUploadOffsetNanos: Long?,
     /**
      * State of the test
      */
@@ -120,5 +120,5 @@ data class Test(
     /**
      * Timestamp of the test start
      */
-    val time: Long?
+    val timeMillis: Long?
 )

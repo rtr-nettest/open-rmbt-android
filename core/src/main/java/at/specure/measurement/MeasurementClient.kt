@@ -17,7 +17,7 @@ interface MeasurementClient {
 
     fun onUploadSpeedChanged(progress: Int, speedBps: Long)
 
-    fun onPingChanged(pingMs: Long)
+    fun onPingChanged(pingNanos: Long)
 
     fun onActiveNetworkChanged(networkInfo: NetworkInfo?)
 }

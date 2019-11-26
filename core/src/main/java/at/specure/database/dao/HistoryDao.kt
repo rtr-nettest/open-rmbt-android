@@ -10,7 +10,7 @@ import at.specure.database.entity.History
 @Dao
 interface HistoryDao {
 
-    @Query("SELECT * from ${Tables.HISTORY} ORDER BY time DESC")
+    @Query("SELECT * from ${Tables.HISTORY} ORDER BY timeMillis DESC")
     fun getHistoryItems(): List<History>
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)

@@ -18,7 +18,7 @@ data class GeoLocation(
     val speed: Float,
     val altitude: Double,
     val time: Long,
-    val timeCorrectionNs: Long,
+    val timeCorrectionNanos: Long,
     val ageNanos: Long,
     val accuracy: Float,
     val bearing: Float,

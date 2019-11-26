@@ -13,7 +13,9 @@ import androidx.lifecycle.Observer
 import at.specure.config.Config
 import at.specure.di.CoreInjector
 import at.specure.di.NotificationProvider
+import at.specure.info.cell.CellNetworkInfo
 import at.specure.info.network.ActiveNetworkLiveData
+import at.specure.info.network.MobileNetworkType
 import at.specure.info.network.NetworkInfo
 import at.specure.info.strength.SignalStrengthInfo
 import at.specure.info.strength.SignalStrengthLiveData
@@ -55,7 +57,7 @@ class MeasurementService : LifecycleService() {
 
     private var measurementState: MeasurementState = MeasurementState.IDLE
     private var measurementProgress = 0
-    private var pingMs = 0L
+    private var pingNanos = 0L
     private var downloadSpeedBps = 0L
     private var uploadSpeedBps = 0L
     private var hasErrors = false
@@ -79,9 +81,9 @@ class MeasurementService : LifecycleService() {
             notificationManager.notify(NOTIFICATION_ID, notificationProvider.measurementServiceNotification(progress, state, config.skipQoSTests))
         }
 
-        override fun onPingChanged(pingMs: Long) {
-            this@MeasurementService.pingMs = pingMs
-            clientAggregator.onPingChanged(pingMs)
+        override fun onPingChanged(pingNanos: Long) {
+            this@MeasurementService.pingNanos = pingNanos
+            clientAggregator.onPingChanged(pingNanos)
         }
 
         override fun onDownloadSpeedChanged(progress: Int, speedBps: Long) {
@@ -111,6 +113,7 @@ class MeasurementService : LifecycleService() {
             locationInfo?.let {
                 testDataRepository.saveGeoLocation(testUUID, it)
             }
+            saveSignalStrength()
         }
 
         override fun onThreadDownloadDataChanged(threadId: Int, timeNanos: Long, bytesTotal: Long) {
@@ -138,6 +141,7 @@ class MeasurementService : LifecycleService() {
         signalStrengthLiveData.observe(this, Observer {
             signalStrengthInfo = it
             clientAggregator.onSignalChanged(it)
+            saveSignalStrength()
         })
 
         activeNetworkLiveData.observe(this, Observer {
@@ -153,6 +157,20 @@ class MeasurementService : LifecycleService() {
                 }
             }
         })
+    }
+
+    private fun saveSignalStrength() {
+        val signal = signalStrengthInfo
+        if (runner.isRunning && signal != null) {
+            runner.testUUID?.let { UUID ->
+                val cellUUID = networkInfo?.cellUUID ?: ""
+                var mobileNetworkType: MobileNetworkType? = null
+                if (networkInfo != null && networkInfo is CellNetworkInfo) {
+                    mobileNetworkType = (networkInfo as CellNetworkInfo).networkType
+                }
+                testDataRepository.saveSignalStrength(UUID, cellUUID, mobileNetworkType, signal)
+            }
+        }
     }
 
     override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
@@ -263,7 +281,7 @@ class MeasurementService : LifecycleService() {
             with(client) {
                 clientAggregator.addClient(this)
                 onProgressChanged(measurementState, measurementProgress)
-                onPingChanged(pingMs)
+                onPingChanged(pingNanos)
                 onDownloadSpeedChanged(measurementProgress, downloadSpeedBps)
                 onUploadSpeedChanged(measurementProgress, uploadSpeedBps)
                 onSignalChanged(signalStrengthInfo)
@@ -290,8 +308,8 @@ class MeasurementService : LifecycleService() {
         override val uploadSpeedBps: Long
             get() = this@MeasurementService.uploadSpeedBps
 
-        override val pingMs: Long
-            get() = this@MeasurementService.pingMs
+        override val pingNanos: Long
+            get() = this@MeasurementService.pingNanos
 
         override val signalStrengthInfo: SignalStrengthInfo?
             get() = this@MeasurementService.signalStrengthInfo
@@ -359,9 +377,9 @@ class MeasurementService : LifecycleService() {
             }
         }
 
-        override fun onPingChanged(pingMs: Long) {
+        override fun onPingChanged(pingNanos: Long) {
             clients.forEach {
-                it.onPingChanged(pingMs)
+                it.onPingChanged(pingNanos)
             }
         }
 

@@ -7,7 +7,7 @@ interface TestProgressListener : RMBTClientCallback {
 
     fun onProgressChanged(state: MeasurementState, progress: Int)
 
-    fun onPingChanged(pingMs: Long)
+    fun onPingChanged(pingNanos: Long)
 
     fun onDownloadSpeedChanged(progress: Int, speedBps: Long)
 
