@@ -35,6 +35,7 @@ class TopCurvePart(context: Context) : CurvePart() {
         color = Color.WHITE
         style = Paint.Style.STROKE
         xfermode = PorterDuffXfermode(PorterDuff.Mode.SRC_ATOP)
+        isAntiAlias = true
     }
 
     override var phase: MeasurementState = MeasurementState.IDLE
@@ -137,6 +138,11 @@ class TopCurvePart(context: Context) : CurvePart() {
         previousProgress = progress
 
         currentCanvas?.let { currentCanvas ->
+
+            currentCanvas.drawColor(
+                Color.TRANSPARENT,
+                PorterDuff.Mode.CLEAR)
+
             drawSections(currentCanvas)
             drawText(currentCanvas)
 
