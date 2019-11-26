@@ -15,6 +15,9 @@
 package at.specure.info.cell
 
 import android.os.Build
+import android.telephony.CellIdentityGsm
+import android.telephony.CellIdentityLte
+import android.telephony.CellIdentityWcdma
 import android.telephony.CellInfo
 import android.telephony.CellInfoCdma
 import android.telephony.CellInfoGsm
@@ -46,6 +49,16 @@ class CellNetworkInfo(
      * Detailed Cellular Network type
      */
     val networkType: MobileNetworkType,
+
+    val mnc: Int?,
+
+    val mcc: Int?,
+
+    val locationId: Int,
+
+    val areaCode: Int?,
+
+    val scramblingCode: Int?,
 
     /**
      * Random generated cell UUID
@@ -80,11 +93,15 @@ class CellNetworkInfo(
             } else {
                 null
             }
-
             return CellNetworkInfo(
                 providerName = providerName,
                 band = band,
                 networkType = networkType,
+                mcc = info.cellIdentity.mccCompat(),
+                mnc = info.cellIdentity.mncCompat(),
+                locationId = info.cellIdentity.tac,
+                areaCode = info.cellIdentity.ci,
+                scramblingCode = info.cellIdentity.pci,
                 cellUUID = UUID.nameUUIDFromBytes((providerName + band.hashCode()).toByteArray()).toString()
             )
         }
@@ -100,6 +117,11 @@ class CellNetworkInfo(
                 providerName = providerName,
                 band = band,
                 networkType = networkType,
+                mcc = info.cellIdentity.mccCompat(),
+                mnc = info.cellIdentity.mncCompat(),
+                locationId = info.cellIdentity.lac,
+                areaCode = info.cellIdentity.cid,
+                scramblingCode = info.cellIdentity.psc,
                 cellUUID = UUID.nameUUIDFromBytes((providerName + band.hashCode()).toByteArray()).toString()
             )
         }
@@ -111,21 +133,84 @@ class CellNetworkInfo(
                 null
             }
 
+            val scramblingCode: Int? = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) info.cellIdentity.bsic else null
+
             return CellNetworkInfo(
                 providerName = providerName,
                 band = band,
                 networkType = networkType,
+                mcc = info.cellIdentity.mccCompat(),
+                mnc = info.cellIdentity.mncCompat(),
+                locationId = info.cellIdentity.lac,
+                areaCode = info.cellIdentity.cid,
+                scramblingCode = scramblingCode,
                 cellUUID = UUID.nameUUIDFromBytes((providerName + band.hashCode()).toByteArray()).toString()
             )
         }
 
         private fun fromCdma(info: CellInfoCdma, providerName: String, networkType: MobileNetworkType): CellNetworkInfo {
+
             return CellNetworkInfo(
                 providerName = providerName,
                 band = null,
                 networkType = networkType,
+                mcc = null,
+                mnc = null,
+                locationId = info.cellIdentity.basestationId,
+                areaCode = null,
+                scramblingCode = null,
                 cellUUID = UUID.nameUUIDFromBytes((providerName + info.hashCode()).toByteArray()).toString()
             )
+        }
+
+        private fun CellIdentityLte.mccCompat(): Int? =
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                mccString?.toInt().fixMncMcc()
+            } else {
+                mcc.fixMncMcc()
+            }
+
+        private fun CellIdentityLte.mncCompat(): Int? =
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                mncString?.toInt().fixMncMcc()
+            } else {
+                mnc.fixMncMcc()
+            }
+
+        private fun CellIdentityWcdma.mccCompat(): Int? =
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                mccString?.toInt().fixMncMcc()
+            } else {
+                mcc.fixMncMcc()
+            }
+
+        private fun CellIdentityWcdma.mncCompat(): Int? =
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                mncString?.toInt().fixMncMcc()
+            } else {
+                mnc.fixMncMcc()
+            }
+
+        private fun CellIdentityGsm.mccCompat(): Int? =
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                mccString?.toInt().fixMncMcc()
+            } else {
+                mcc.fixMncMcc()
+            }
+
+        private fun CellIdentityGsm.mncCompat(): Int? =
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                mncString?.toInt().fixMncMcc()
+            } else {
+                mnc.fixMncMcc()
+            }
+
+        private fun Int?.fixMncMcc(): Int? {
+            return if (this == null || this == Int.MIN_VALUE || this < 0) {
+                null
+            } else {
+                this
+            }
         }
     }
 }
