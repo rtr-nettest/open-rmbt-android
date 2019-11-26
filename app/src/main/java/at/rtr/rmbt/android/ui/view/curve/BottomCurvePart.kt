@@ -1,13 +1,14 @@
 package at.rtr.rmbt.android.ui.view.curve
 
 import android.content.Context
-import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Paint
+import android.graphics.Rect
 import android.graphics.Path
+import android.graphics.Color
+import android.graphics.Bitmap
 import android.graphics.PorterDuff
 import android.graphics.PorterDuffXfermode
-import android.graphics.Rect
 import androidx.core.content.ContextCompat
 import at.rtr.rmbt.android.R
 import at.specure.measurement.MeasurementState
@@ -24,6 +25,7 @@ class BottomCurvePart(context: Context) : CurvePart() {
         color = ContextCompat.getColor(context, R.color.colorAccent)
         style = Paint.Style.STROKE
         xfermode = PorterDuffXfermode(PorterDuff.Mode.SRC_ATOP)
+        isAntiAlias = true
     }
 
     override var phase: MeasurementState = MeasurementState.IDLE
@@ -164,6 +166,11 @@ class BottomCurvePart(context: Context) : CurvePart() {
         val progressAngle = calculateProgressAngle(progress)
 
         currentCanvas?.let { currentCanvas ->
+
+            currentCanvas.drawColor(
+                Color.TRANSPARENT,
+                PorterDuff.Mode.CLEAR)
+
             drawSections(currentCanvas)
             drawText(currentCanvas)
 

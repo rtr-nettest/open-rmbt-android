@@ -98,10 +98,12 @@ class MeasurementViewModel @Inject constructor() : BaseViewModel(), MeasurementC
 
     override fun onDownloadSpeedChanged(progress: Int, speedBps: Long) {
         state.downloadSpeedBps.set(speedBps)
+        state.measurementDownloadUploadProgress.set(progress)
     }
 
     override fun onUploadSpeedChanged(progress: Int, speedBps: Long) {
         state.uploadSpeedBps.set(speedBps)
+        state.measurementDownloadUploadProgress.set(progress)
     }
 
     override fun onPingChanged(pingNanos: Long) {
