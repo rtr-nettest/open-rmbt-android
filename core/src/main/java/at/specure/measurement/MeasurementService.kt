@@ -180,7 +180,6 @@ class MeasurementService : LifecycleService() {
         }
     }
 
-
     @Suppress("SENSELESS_COMPARISON") // intent may be null after service restarted by the system
     override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
         if (intent != null) {
