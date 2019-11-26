@@ -87,40 +87,50 @@
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/appCompatImageView1"
             style="@style/RobotoMediumStyle.VerySmall"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/margin_large"
             android:drawablePadding="@dimen/padding_very_small"
-            app:layout_constraintStart_toStartOf="@+id/labelMeasurementBottomPing"
+            app:layout_constraintEnd_toStartOf="@+id/textDownloadSpeed"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toEndOf="@+id/imageViewSignalLevel"
             app:layout_constraintTop_toBottomOf="@+id/labelMeasurementBottomPing"
             app:pingMs="@{state.pingMs}"
             tools:drawableStart="@drawable/ic_small_ping_yellow"
             tools:text="14 ms"
+            android:maxLines="2"
             tools:textColor="@android:color/white" />
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/textDownloadSpeed"
             style="@style/RobotoMediumStyle.VerySmall"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:drawablePadding="@dimen/padding_very_small"
             app:downloadSpeedBps="@{state.downloadSpeedBps}"
-            app:layout_constraintStart_toStartOf="@+id/labelMeasurementBottomDownload"
+            app:layout_constraintEnd_toStartOf="@+id/textUploadSpeed"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toEndOf="@+id/appCompatImageView1"
             app:layout_constraintTop_toBottomOf="@+id/labelMeasurementBottomDownload"
             tools:drawableStart="@drawable/ic_small_download_light_green"
-            tools:text="24 Mbit/s"
+            tools:text="24.12 Mbit/s"
+            android:maxLines="2"
             tools:textColor="@android:color/white" />
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/textUploadSpeed"
             style="@style/RobotoMediumStyle.VerySmall"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:drawablePadding="@dimen/padding_very_small"
-            app:layout_constraintStart_toStartOf="@+id/labelMeasurementBottomUpload"
-            app:layout_constraintTop_toBottomOf="@+id/labelMeasurementBottomDownload"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toEndOf="@+id/textDownloadSpeed"
+            app:layout_constraintTop_toBottomOf="@+id/labelMeasurementBottomUpload"
             app:uploadSpeedBps="@{state.uploadSpeedBps}"
             tools:drawableStart="@drawable/ic_small_upload_gray"
-            tools:text="24 Mbit/s"
+            tools:text="1000.0 Mbit/s"
+            android:maxLines="2"
             tools:textColor="@android:color/white" />
 
         <androidx.appcompat.widget.AppCompatTextView
@@ -151,6 +161,7 @@
             app:progress_fill_color="@color/speed_chart_progress_fill_color"
             app:progress_line_color="@color/colorAccent"
             app:reset="@{state.measurementState}"
+            app:visibleOrGone="@{state.measurementState == MeasurementState.IDLE | state.measurementState == MeasurementState.INIT | state.measurementState == MeasurementState.PING | state.measurementState == MeasurementState.DOWNLOAD | state.measurementState == MeasurementState.UPLOAD}"
             app:speedBps="@{state.measurementState == MeasurementState.DOWNLOAD ? state.downloadSpeedBps : state.measurementState == MeasurementState.UPLOAD ? state.uploadSpeedBps : 0}"
             app:xlabel_color="@color/text_gray"
             app:xlabel_text_size="@dimen/chart_label_text_size"
@@ -186,12 +197,12 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginEnd="@dimen/margin_medium"
-            tools:text="0/7"
             android:textColor="@color/text_white_transparency_50"
             app:layout_constraintBottom_toBottomOf="@+id/labelMeasurementState"
             app:layout_constraintEnd_toStartOf="@+id/progressQoS"
             app:layout_constraintTop_toTopOf="@+id/labelMeasurementState"
-            app:visibleOrGone="@{state.measurementState == MeasurementState.QOS}" />
+            app:visibleOrGone="@{state.measurementState == MeasurementState.QOS}"
+            android:text="0/7" tools:ignore="HardcodedText"/>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
