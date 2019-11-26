@@ -5,23 +5,34 @@ import android.content.Context
 import android.content.ServiceConnection
 import android.os.IBinder
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.MutableLiveData
 import at.rtr.rmbt.android.ui.viewstate.MeasurementViewState
+import at.specure.database.entity.GraphItem
 import at.specure.info.network.NetworkInfo
 import at.specure.info.strength.SignalStrengthInfo
 import at.specure.measurement.MeasurementClient
 import at.specure.measurement.MeasurementProducer
 import at.specure.measurement.MeasurementService
 import at.specure.measurement.MeasurementState
+import at.specure.repository.TestDataRepository
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import timber.log.Timber
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
-class MeasurementViewModel @Inject constructor() : BaseViewModel(), MeasurementClient {
+class MeasurementViewModel @Inject constructor(private val testDataRepository: TestDataRepository) : BaseViewModel(), MeasurementClient {
 
     private val _measurementFinishLiveData = MutableLiveData<Boolean>()
     private val _isTestsRunningLiveData = MutableLiveData<Boolean>()
     private val _measurementErrorLiveData = MutableLiveData<Boolean>()
+
+    private val _downloadGraphLiveData = MediatorLiveData<List<GraphItem>>()
+    private val _uploadGraphLiveData = MediatorLiveData<List<GraphItem>>()
+    private var downloadGraphSource: LiveData<List<GraphItem>>? = null
+    private var uploadGraphSource: LiveData<List<GraphItem>>? = null
 
     private var producer: MeasurementProducer? = null // TODO make field private
 
@@ -35,6 +46,12 @@ class MeasurementViewModel @Inject constructor() : BaseViewModel(), MeasurementC
 
     val measurementErrorLiveData: LiveData<Boolean>
         get() = _measurementErrorLiveData
+
+    val downloadGraphLiveData: LiveData<List<GraphItem>>
+        get() = _downloadGraphLiveData
+
+    val uploadGraphLiveData: LiveData<List<GraphItem>>
+        get() = _uploadGraphLiveData
 
     private val serviceConnection = object : ServiceConnection {
 
@@ -116,5 +133,25 @@ class MeasurementViewModel @Inject constructor() : BaseViewModel(), MeasurementC
 
     fun cancelMeasurement() {
         producer?.stopTests()
+    }
+
+    override fun onClientReady(testUUID: String) {
+        CoroutineScope(Dispatchers.Main.immediate).launch {
+            downloadGraphSource?.let {
+                _downloadGraphLiveData.removeSource(it)
+            }
+            downloadGraphSource = testDataRepository.getDownloadGraphItemsLiveData(testUUID)
+            _downloadGraphLiveData.addSource(downloadGraphSource!!) {
+                _downloadGraphLiveData.postValue(it)
+            }
+
+            uploadGraphSource?.let {
+                _uploadGraphLiveData.removeSource(it)
+            }
+            uploadGraphSource = testDataRepository.getUploadGraphItemsLiveData(testUUID)
+            _uploadGraphLiveData.addSource(uploadGraphSource!!) {
+                _uploadGraphLiveData.postValue(it)
+            }
+        }
     }
 }

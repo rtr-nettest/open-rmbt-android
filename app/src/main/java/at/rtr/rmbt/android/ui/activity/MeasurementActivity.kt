@@ -22,10 +22,11 @@ import android.os.Bundle
 import at.rtr.rmbt.android.R
 import at.rtr.rmbt.android.databinding.ActivityMeasurementBinding
 import at.rtr.rmbt.android.di.viewModelLazy
+import at.rtr.rmbt.android.ui.adapter.QosMeasurementAdapter
 import at.rtr.rmbt.android.ui.dialog.SimpleDialog
 import at.rtr.rmbt.android.util.listen
-import at.rtr.rmbt.android.ui.adapter.QosMeasurementAdapter
 import at.rtr.rmbt.android.viewmodel.MeasurementViewModel
+import timber.log.Timber
 
 class MeasurementActivity : BaseActivity(), SimpleDialog.Callback {
 
@@ -54,6 +55,22 @@ class MeasurementActivity : BaseActivity(), SimpleDialog.Callback {
 
         binding.measurementBottomView.qosTestRecyclerView.apply {
             adapter = QosMeasurementAdapter(this@MeasurementActivity)
+        }
+
+        viewModel.downloadGraphLiveData.listen(this) {
+            // TODO observe download graph items
+            Timber.d("-----------------")
+            it.forEach { item ->
+                Timber.v("DOWNLOAD: ${item.progress} ${item.value}")
+            }
+        }
+
+        viewModel.uploadGraphLiveData.listen(this) {
+            // TODO observe upload graph items
+            Timber.d("-----------------")
+            it.forEach { item ->
+                Timber.i("UPLOAD: ${item.progress} ${item.value}")
+            }
         }
     }
 

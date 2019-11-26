@@ -1,9 +1,8 @@
 package at.specure.repository
 
+import androidx.lifecycle.LiveData
 import at.rmbt.util.io
 import at.specure.database.CoreDatabase
-import at.specure.database.entity.GRAPH_ITEM_TYPE_DOWNLOAD
-import at.specure.database.entity.GRAPH_ITEM_TYPE_UPLOAD
 import at.specure.database.entity.GeoLocation
 import at.specure.database.entity.GraphItem
 import at.specure.database.entity.Signal
@@ -42,22 +41,22 @@ class TestDataRepositoryImpl(db: CoreDatabase) : TestDataRepository {
         geoLocationDao.insert(geoLocation)
     }
 
-    override fun saveDownloadGraphItem(testUUID: String, progress: Int, speedBps: Long) {
-        val graphItem = GraphItem(testUUID = testUUID, progress = progress, value = speedBps, type = GRAPH_ITEM_TYPE_DOWNLOAD)
+    override fun saveDownloadGraphItem(testUUID: String, progress: Int, speedBps: Long) = io {
+        val graphItem = GraphItem(testUUID = testUUID, progress = progress, value = speedBps, type = GraphItem.GRAPH_ITEM_TYPE_DOWNLOAD)
         graphItemDao.insertItem(graphItem)
     }
 
-    override fun saveUploadGraphItem(testUUID: String, progress: Int, speedBps: Long) {
-        val graphItem = GraphItem(testUUID = testUUID, progress = progress, value = speedBps, type = GRAPH_ITEM_TYPE_UPLOAD)
+    override fun saveUploadGraphItem(testUUID: String, progress: Int, speedBps: Long) = io {
+        val graphItem = GraphItem(testUUID = testUUID, progress = progress, value = speedBps, type = GraphItem.GRAPH_ITEM_TYPE_UPLOAD)
         graphItemDao.insertItem(graphItem)
     }
 
-    override fun getDownloadGraphItems(testUUID: String): List<GraphItem> {
-        return graphItemDao.getDownloadGraph(testUUID)
+    override fun getDownloadGraphItemsLiveData(testUUID: String): LiveData<List<GraphItem>> {
+        return graphItemDao.getDownloadGraphLiveData(testUUID)
     }
 
-    override fun getUploadGraphItems(testUUID: String): List<GraphItem> {
-        return graphItemDao.getUploadGraph(testUUID)
+    override fun getUploadGraphItemsLiveData(testUUID: String): LiveData<List<GraphItem>> {
+        return graphItemDao.getUploadGraphLiveData(testUUID)
     }
 
     override fun saveTrafficDownload(testUUID: String, threadId: Int, timeNanos: Long, bytes: Long) = io {
