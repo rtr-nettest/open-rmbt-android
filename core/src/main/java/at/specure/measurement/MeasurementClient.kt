@@ -20,4 +20,6 @@ interface MeasurementClient {
     fun onPingChanged(pingNanos: Long)
 
     fun onActiveNetworkChanged(networkInfo: NetworkInfo?)
+
+    fun onClientReady(testUUID: String)
 }

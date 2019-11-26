@@ -25,6 +25,8 @@ interface MeasurementProducer {
 
     val isTestsRunning: Boolean
 
+    val testUUID: String?
+
     fun startTests()
 
     fun stopTests()

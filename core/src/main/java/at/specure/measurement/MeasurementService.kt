@@ -89,11 +89,17 @@ class MeasurementService : LifecycleService() {
         override fun onDownloadSpeedChanged(progress: Int, speedBps: Long) {
             downloadSpeedBps = speedBps
             clientAggregator.onDownloadSpeedChanged(progress, speedBps)
+            runner.testUUID?.let {
+                testDataRepository.saveDownloadGraphItem(it, progress, speedBps)
+            }
         }
 
         override fun onUploadSpeedChanged(progress: Int, speedBps: Long) {
             uploadSpeedBps = speedBps
             clientAggregator.onUploadSpeedChanged(progress, speedBps)
+            runner.testUUID?.let {
+                testDataRepository.saveUploadGraphItem(it, progress, speedBps)
+            }
         }
 
         override fun onFinish() {
@@ -114,6 +120,7 @@ class MeasurementService : LifecycleService() {
                 testDataRepository.saveGeoLocation(testUUID, it)
             }
             saveSignalStrength()
+            clientAggregator.onClientReady(testUUID)
         }
 
         override fun onThreadDownloadDataChanged(threadId: Int, timeNanos: Long, bytesTotal: Long) {
@@ -286,6 +293,9 @@ class MeasurementService : LifecycleService() {
                 onUploadSpeedChanged(measurementProgress, uploadSpeedBps)
                 onSignalChanged(signalStrengthInfo)
                 onActiveNetworkChanged(networkInfo)
+                runner.testUUID?.let {
+                    onClientReady(it)
+                }
                 if (hasErrors) {
                     client.onMeasurementError()
                 }
@@ -319,6 +329,9 @@ class MeasurementService : LifecycleService() {
 
         override val isTestsRunning: Boolean
             get() = runner.isRunning
+
+        override val testUUID: String?
+            get() = runner.testUUID
 
         override fun startTests() {
             this@MeasurementService.startTests()
@@ -386,6 +399,12 @@ class MeasurementService : LifecycleService() {
         override fun onActiveNetworkChanged(networkInfo: NetworkInfo?) {
             clients.forEach {
                 it.onActiveNetworkChanged(networkInfo)
+            }
+        }
+
+        override fun onClientReady(testUUID: String) {
+            clients.forEach {
+                it.onClientReady(testUUID)
             }
         }
     }
