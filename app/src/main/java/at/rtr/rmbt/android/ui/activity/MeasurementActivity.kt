@@ -26,7 +26,6 @@ import at.rtr.rmbt.android.ui.adapter.QosMeasurementAdapter
 import at.rtr.rmbt.android.ui.dialog.SimpleDialog
 import at.rtr.rmbt.android.util.listen
 import at.rtr.rmbt.android.viewmodel.MeasurementViewModel
-import timber.log.Timber
 
 class MeasurementActivity : BaseActivity(), SimpleDialog.Callback {
 
@@ -58,19 +57,11 @@ class MeasurementActivity : BaseActivity(), SimpleDialog.Callback {
         }
 
         viewModel.downloadGraphLiveData.listen(this) {
-            // TODO observe download graph items
-            Timber.d("-----------------")
-            it.forEach { item ->
-                Timber.v("DOWNLOAD: ${item.progress} ${item.value}")
-            }
+            viewModel.state.downloadGraphItems.set(it)
         }
 
         viewModel.uploadGraphLiveData.listen(this) {
-            // TODO observe upload graph items
-            Timber.d("-----------------")
-            it.forEach { item ->
-                Timber.i("UPLOAD: ${item.progress} ${item.value}")
-            }
+            viewModel.state.uploadGraphItems.set(it)
         }
     }
 
