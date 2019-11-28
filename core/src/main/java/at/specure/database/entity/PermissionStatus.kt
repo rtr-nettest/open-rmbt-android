@@ -9,7 +9,7 @@ import at.specure.database.Tables.PERMISSIONS_STATUS
 @Entity(tableName = PERMISSIONS_STATUS)
 data class PermissionStatus(
     @PrimaryKey(autoGenerate = true)
-    val id: Long,
+    val id: Long = 0,
     @ForeignKey(entity = Test::class, parentColumns = [TEST_UUID_PARENT_COLUMN], childColumns = ["testUUID"], onDelete = ForeignKey.CASCADE)
     val testUUID: String?,
     val permissionName: String?,

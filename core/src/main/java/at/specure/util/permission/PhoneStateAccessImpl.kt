@@ -14,9 +14,10 @@
 
 package at.specure.util.permission
 
+import android.Manifest
 import android.content.Context
 import at.specure.util.isReadPhoneStatePermitted
-import java.util.Collections
+import java.util.*
 
 /**
  * Implementation of [PhoneStateAccess] that
@@ -27,6 +28,9 @@ class PhoneStateAccessImpl(private val context: Context) : PhoneStateAccess {
     private val listeners = Collections.synchronizedSet(mutableSetOf<PhoneStateAccess.PhoneStateAccessChangeListener>())
 
     override val requiredPermission = android.Manifest.permission.READ_PHONE_STATE
+
+    override val monitoredPermission: Array<String>
+        get() = arrayOf(Manifest.permission.READ_PHONE_STATE)
 
     override val isAllowed: Boolean
         get() = context.isReadPhoneStatePermitted()

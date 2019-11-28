@@ -71,8 +71,8 @@ class CoreModule {
 
     @Provides
     @Singleton
-    fun providePermissionsWatcher(locationAccess: LocationAccess, phoneStateAccess: PhoneStateAccess): PermissionsWatcher =
-        PermissionsWatcher(locationAccess, phoneStateAccess)
+    fun providePermissionsWatcher(context: Context, locationAccess: LocationAccess, phoneStateAccess: PhoneStateAccess): PermissionsWatcher =
+        PermissionsWatcher(context, locationAccess, phoneStateAccess)
 
     @Provides
     @Singleton

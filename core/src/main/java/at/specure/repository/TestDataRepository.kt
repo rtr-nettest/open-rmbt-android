@@ -23,4 +23,6 @@ interface TestDataRepository {
     fun getUploadGraphItemsLiveData(testUUID: String): LiveData<List<GraphItem>>
 
     fun saveSignalStrength(testUUID: String, cellUUID: String, mobileNetworkType: MobileNetworkType?, info: SignalStrengthInfo)
+
+    fun savePermissionStatus(testUUID: String, permission: String, granted: Boolean)
 }

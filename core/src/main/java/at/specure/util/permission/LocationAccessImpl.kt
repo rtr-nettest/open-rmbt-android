@@ -14,6 +14,7 @@
 
 package at.specure.util.permission
 
+import android.Manifest
 import android.content.Context
 import at.specure.util.isCoarseLocationPermitted
 import java.util.Collections
@@ -27,6 +28,13 @@ class LocationAccessImpl(private val context: Context) : LocationAccess {
     private val listeners = Collections.synchronizedSet(mutableSetOf<LocationAccess.LocationAccessChangeListener>())
 
     override val requiredPermission = android.Manifest.permission.ACCESS_FINE_LOCATION
+
+    override val monitoredPermission: Array<String>
+        get() = arrayOf(
+            Manifest.permission.ACCESS_FINE_LOCATION,
+            Manifest.permission.ACCESS_COARSE_LOCATION,
+            Manifest.permission.ACCESS_BACKGROUND_LOCATION
+        )
 
     override val isAllowed: Boolean
         get() = context.isCoarseLocationPermitted()
