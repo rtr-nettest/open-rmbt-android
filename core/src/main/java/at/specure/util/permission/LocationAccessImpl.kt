@@ -31,7 +31,6 @@ class LocationAccessImpl(private val context: Context) : LocationAccess {
 
     override val requiredPermission = Manifest.permission.ACCESS_FINE_LOCATION
 
-
     override val monitoredPermission: Array<String>
         @TargetApi(Build.VERSION_CODES.Q)
         get() = arrayOf(
