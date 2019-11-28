@@ -27,7 +27,7 @@ class LocationAccessImpl(private val context: Context) : LocationAccess {
 
     private val listeners = Collections.synchronizedSet(mutableSetOf<LocationAccess.LocationAccessChangeListener>())
 
-    override val requiredPermission = android.Manifest.permission.ACCESS_FINE_LOCATION
+    override val requiredPermission = Manifest.permission.ACCESS_FINE_LOCATION
 
     override val monitoredPermission: Array<String>
         get() = arrayOf(
