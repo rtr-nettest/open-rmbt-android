@@ -4,7 +4,8 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <data>
-        <import type="at.specure.measurement.MeasurementState"/>
+
+        <import type="at.specure.measurement.MeasurementState" />
 
         <variable
             name="state"
@@ -13,8 +14,8 @@
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="wrap_content"
-        android:visibility="invisible"
         android:layout_height="wrap_content"
+        android:visibility="invisible"
         tools:background="@color/text_dark_gray">
 
         <TextView
@@ -31,19 +32,20 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
+            android:text="@string/speed_progress_units"
             android:textColor="@android:color/white"
             android:textStyle="bold"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toEndOf="@id/value"
-            app:layout_constraintTop_toBottomOf="@id/icon"/>
+            app:layout_constraintTop_toBottomOf="@id/icon" />
 
         <ImageView
             android:id="@+id/icon"
             android:layout_width="@dimen/padding_extra_large"
             android:layout_height="@dimen/padding_extra_large"
-            app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toTopOf="@id/units"
-            app:layout_constraintStart_toStartOf="@id/units" />
+            app:layout_constraintStart_toStartOf="@id/units"
+            app:layout_constraintTop_toTopOf="parent" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
