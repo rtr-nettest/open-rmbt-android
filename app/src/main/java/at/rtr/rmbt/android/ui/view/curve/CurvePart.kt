@@ -56,6 +56,7 @@ abstract class CurvePart {
     var textPaint = Paint().apply {
         style = Paint.Style.FILL
         textSize = 40f
+        letterSpacing = 0.15f
         isAntiAlias = true
     }
 
@@ -171,6 +172,7 @@ abstract class CurvePart {
         private const val CURVE_ANGLE = 270f
 
         const val ANGLE_STEP_MULTIPLIER = 1.9f
+        const val TEXT_SIZE_MULTIPLIER = 0.8f
 
         const val SCALE_SWEEP_ANGLE = 45f
         const val QUARTER_CIRCLE = 90f
