@@ -6,6 +6,7 @@ import at.specure.database.CoreDatabase
 import at.specure.database.entity.Capabilities
 import at.specure.database.entity.GeoLocation
 import at.specure.database.entity.GraphItem
+import at.specure.database.entity.PermissionStatus
 import at.specure.database.entity.Signal
 import at.specure.database.entity.TestTrafficDownload
 import at.specure.database.entity.TestTrafficUpload
@@ -23,6 +24,7 @@ class TestDataRepositoryImpl(db: CoreDatabase) : TestDataRepository {
     private val testTrafficDao = db.testTrafficItemDao()
     private val signalDao = db.signalDao()
     private val capabilitiesDao = db.capabilitiesDao()
+    private val permissionStatusDao = db.permissionStatusDao()
 
     override fun saveGeoLocation(testUUID: String, location: LocationInfo) = io {
         val geoLocation = GeoLocation(
@@ -132,6 +134,11 @@ class TestDataRepositoryImpl(db: CoreDatabase) : TestDataRepository {
             timingAdvance = timingAdvance
         )
         signalDao.insert(item)
+    }
+
+    override fun savePermissionStatus(testUUID: String, permission: String, granted: Boolean) {
+        val permissionStatus = PermissionStatus(testUUID = testUUID, permissionName = permission, status = granted)
+        permissionStatusDao.insert(permissionStatus)
     }
 
     override fun getCapabilities(testUUID: String): Capabilities {

@@ -28,4 +28,6 @@ interface TestDataRepository {
     fun getCapabilities(testUUID: String): Capabilities
 
     fun saveCapabilities(testUUID: String, rmbtHttp: Boolean, qosSupportsInfo: Boolean, classificationCount: Int)
+
+    fun savePermissionStatus(testUUID: String, permission: String, granted: Boolean)
 }

@@ -20,6 +20,11 @@ package at.specure.util.permission
 interface PermissionAccess {
 
     /**
+     * Permission monitored from android.Manifest.permission.* to request
+     */
+    val monitoredPermission: Array<String>
+
+    /**
      * Permission from android.Manifest.permission.* to request
      */
     val requiredPermission: String
