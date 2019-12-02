@@ -185,8 +185,7 @@ fun AppCompatImageView.setTechnologyIcon(networkInfo: NetworkInfo?) {
                 setImageResource(R.drawable.ic_4g)
             }
             CellTechnology.CONNECTION_5G -> {
-                // TODO add 5G icon
-                throw IllegalArgumentException("5G icon not added")
+                setImageResource(R.drawable.ic_5g)
             }
         }
     } else {

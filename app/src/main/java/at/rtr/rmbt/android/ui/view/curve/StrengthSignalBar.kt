@@ -121,6 +121,7 @@ class StrengthSignalBar @JvmOverloads constructor(context: Context, attrs: Attri
                 val canvas = Canvas(this)
                 currentCanvas = canvas
                 drawBackground(canvas)
+                updateProgress()
             }
         }
     }
