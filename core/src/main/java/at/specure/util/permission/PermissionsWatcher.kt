@@ -15,8 +15,6 @@
 package at.specure.util.permission
 
 import android.content.Context
-import android.content.pm.PackageManager.PERMISSION_GRANTED
-import androidx.core.content.ContextCompat.checkSelfPermission
 
 /**
  * Class that aggregates all [PermissionAccess] and manages its states and changes
@@ -39,9 +37,5 @@ class PermissionsWatcher(val context: Context, vararg handlers: PermissionAccess
         _handlers.forEach {
             it.notifyPermissionsUpdated()
         }
-    }
-
-    fun checkPermission(permission: String): Boolean {
-        return checkSelfPermission(context, permission) == PERMISSION_GRANTED
     }
 }

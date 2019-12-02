@@ -25,6 +25,7 @@ import at.specure.repository.TestDataRepository
 import at.specure.test.DeviceInfo
 import at.specure.test.TestController
 import at.specure.test.TestProgressListener
+import at.specure.util.hasPermission
 import at.specure.util.permission.PermissionsWatcher
 import timber.log.Timber
 import java.util.concurrent.TimeUnit
@@ -189,7 +190,7 @@ class MeasurementService : LifecycleService() {
         val permissions = permissionsWatcher.allPermissions
         runner.testUUID?.let { UUID ->
             permissions.forEach { permission ->
-                val permissionGranted = permissionsWatcher.checkPermission(permission)
+                val permissionGranted = this.hasPermission(permission)
                 testDataRepository.savePermissionStatus(UUID, permission, permissionGranted)
             }
         }
