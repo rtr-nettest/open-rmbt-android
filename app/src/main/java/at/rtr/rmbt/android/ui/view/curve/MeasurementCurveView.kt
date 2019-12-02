@@ -34,7 +34,7 @@ class MeasurementCurveView @JvmOverloads constructor(context: Context, attrs: At
         if (changed) {
             topPart.updateScreenSizeRelatedData(resources, viewWidth, viewHeight)
             bottomPart.updateScreenSizeRelatedData(resources, viewWidth, viewHeight)
-            squareSizeCallback?.invoke(topPart.angleStep, min(topPart.viewHeight, topPart.viewWidth))
+            squareSizeCallback?.invoke(topPart.strokeWidth, min(topPart.viewHeight, topPart.viewWidth))
         }
     }
 
