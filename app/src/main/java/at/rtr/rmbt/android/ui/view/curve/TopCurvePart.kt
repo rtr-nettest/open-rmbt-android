@@ -44,6 +44,14 @@ class TopCurvePart(context: Context) : CurvePart() {
             previousProgress = 0
         }
 
+    private var progressInnerPaint = Paint().apply {
+        color = Color.WHITE
+        alpha = 90
+        style = Paint.Style.STROKE
+        xfermode = PorterDuffXfermode(PorterDuff.Mode.SRC_ATOP)
+        isAntiAlias = true
+    }
+
     private var dividerPaint = Paint().apply {
         color = ContextCompat.getColor(context, R.color.measurement_text)
         style = Paint.Style.FILL_AND_STROKE
@@ -117,7 +125,7 @@ class TopCurvePart(context: Context) : CurvePart() {
             if (section.isUpside) {
                 pathForText.addArc(
                     cX - smallRadius, cY - smallRadius, cX + smallRadius, cY + smallRadius,
-                    section.startAngle + angleStep * ANGLE_STEP_MULTIPLIER,
+                    section.startAngle + angleStep * TEXT_SIZE_MULTIPLIER * 3,
                     section.endAngle - section.startAngle - angleStep * ANGLE_STEP_MULTIPLIER
                 )
                 canvas.drawTextOnPath(
@@ -139,7 +147,8 @@ class TopCurvePart(context: Context) : CurvePart() {
     }
 
     override fun updateProgress(progress: Int) {
-        progressPaint.strokeWidth = 2.5f * (largeRadius - smallRadius)
+        progressInnerPaint.strokeWidth = 2.5f * (mediumRadius - smallRadius)
+        progressPaint.strokeWidth = 2.5f * (largeRadius - mediumRadius)
         val progressAngle = calculateProgressAngle(if (progress > previousProgress) progress else previousProgress)
         previousProgress = progress
 
@@ -152,6 +161,17 @@ class TopCurvePart(context: Context) : CurvePart() {
 
             drawSections(currentCanvas)
             drawText(currentCanvas)
+
+            currentCanvas.drawArc(
+                cX - smallRadius,
+                cY - smallRadius,
+                cX + smallRadius,
+                cY + smallRadius,
+                sectionEndAngle,
+                progressAngle,
+                false,
+                progressInnerPaint
+            )
 
             currentCanvas.drawArc(
                 cX - largeRadius,

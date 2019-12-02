@@ -11,6 +11,8 @@ import at.rtr.rmbt.android.databinding.LayoutMeasurementCurveBinding
 import at.rtr.rmbt.android.databinding.LayoutPercentageBinding
 import at.rtr.rmbt.android.databinding.LayoutSpeedBinding
 import at.specure.measurement.MeasurementState
+import java.math.BigDecimal
+import java.math.RoundingMode
 import kotlin.math.roundToInt
 
 class MeasurementCurveLayout @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) :
@@ -176,14 +178,22 @@ class MeasurementCurveLayout @JvmOverloads constructor(context: Context, attrs: 
     fun setBottomProgress(progress: Long) {
         if (phase == MeasurementState.DOWNLOAD || phase == MeasurementState.UPLOAD) {
             speedLayout.icon.setImageResource(if (phase == MeasurementState.DOWNLOAD) R.drawable.ic_speed_download else R.drawable.ic_speed_upload)
-            val progressInKbit = (progress * 1e-3).toInt()
-            curveBinding.curveView.setBottomProgress(progressInKbit)
-            if (progressInKbit <= 1000) { // kbit/s
-                speedLayout.value.text = (progressInKbit).toString()
-                speedLayout.units.text = context.getString(R.string.speed_progress_units_kbit)
-            } else { // Mbit/s
-                speedLayout.value.text = ((progress * 1e-6).roundToInt()).toString()
-                speedLayout.units.text = context.getString(R.string.speed_progress_units_mbit)
+            curveBinding.curveView.setBottomProgress((progress * 1e-3).toInt())
+            when {
+                progress >= 1e7 -> speedLayout.value.text = ((progress * 1e-6).roundToInt()).toString()
+                progress >= 1e6 -> speedLayout.value.text = (BigDecimal(progress * 1e-6).setScale(2, RoundingMode.HALF_EVEN)).toPlainString()
+                else -> { // up to 1 mbit
+                    var scale = 1
+                    var divider = 1
+                    var tmpProgress = progress
+                    while (tmpProgress > 100) {
+                        tmpProgress /= 10
+                        divider *= 10
+                        scale++
+                    }
+                    speedLayout.value.text =
+                        (BigDecimal(tmpProgress * divider * 1e-6).setScale(scale + 2, RoundingMode.HALF_EVEN)).stripTrailingZeros().toPlainString()
+                }
             }
             speedLayout.value.requestLayout()
             with(speedLayout.root) {
