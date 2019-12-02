@@ -31,8 +31,15 @@ class TopCurvePart(context: Context) : CurvePart() {
         CurveSection(8, context.getString(R.string.label_init), false, MeasurementState.INIT)
     )
 
-    override var progressPaint = Paint().apply {
+    override var progressOuterPaint = Paint().apply {
         color = Color.WHITE
+        style = Paint.Style.STROKE
+        xfermode = PorterDuffXfermode(PorterDuff.Mode.SRC_ATOP)
+        isAntiAlias = true
+    }
+
+    override var progressInnerPaint = Paint().apply {
+        color = ContextCompat.getColor(context, R.color.measurement_progress_inner)
         style = Paint.Style.STROKE
         xfermode = PorterDuffXfermode(PorterDuff.Mode.SRC_ATOP)
         isAntiAlias = true
@@ -43,14 +50,6 @@ class TopCurvePart(context: Context) : CurvePart() {
             field = value
             previousProgress = 0
         }
-
-    private var progressInnerPaint = Paint().apply {
-        color = Color.WHITE
-        alpha = 90
-        style = Paint.Style.STROKE
-        xfermode = PorterDuffXfermode(PorterDuff.Mode.SRC_ATOP)
-        isAntiAlias = true
-    }
 
     private var dividerPaint = Paint().apply {
         color = ContextCompat.getColor(context, R.color.measurement_text)
@@ -147,8 +146,8 @@ class TopCurvePart(context: Context) : CurvePart() {
     }
 
     override fun updateProgress(progress: Int) {
-        progressInnerPaint.strokeWidth = 2.5f * (mediumRadius - smallRadius)
-        progressPaint.strokeWidth = 2.5f * (largeRadius - mediumRadius)
+        progressInnerPaint.strokeWidth = (mediumRadius - smallRadius)
+        progressOuterPaint.strokeWidth = 3 * (largeRadius - mediumRadius)
         val progressAngle = calculateProgressAngle(if (progress > previousProgress) progress else previousProgress)
         previousProgress = progress
 
@@ -181,7 +180,7 @@ class TopCurvePart(context: Context) : CurvePart() {
                 sectionEndAngle,
                 progressAngle,
                 false,
-                progressPaint
+                progressOuterPaint
             )
         }
     }

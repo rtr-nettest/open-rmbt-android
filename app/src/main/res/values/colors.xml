@@ -66,4 +66,8 @@
     <color name="measurement_dark_gray">#222222</color>
     <color name="measurement_text">#848484</color>
     <color name="measurement_scale">#3a3a3a</color>
+    <color name="measurement_not_progressed">#7a7a7a</color>
+    <color name="measurement_progress_inner">#cccccc</color>
+    <color name="measurement_green">#52d301</color>
+    <color name="measurement_green_dark">#38a300</color>
 </resources>
