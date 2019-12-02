@@ -111,7 +111,7 @@ class BottomCurvePart(context: Context) : CurvePart() {
             if (section.isUpside) {
                 pathForText.addArc(
                     cX - scaleRadius, cY - scaleRadius, cX + scaleRadius, cY + scaleRadius,
-                    section.startAngle + halfTextLength,
+                    section.startAngle + (if (section.text.length > 1) halfTextLength else angleStep * ANGLE_STEP_MULTIPLIER),
                     -SCALE_SWEEP_ANGLE
                 )
                 canvas.drawTextOnPath(section.text, pathForText, 0f, -textPaint.textSize / 2, textPaint)

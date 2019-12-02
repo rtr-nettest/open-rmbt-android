@@ -117,17 +117,23 @@ class TopCurvePart(context: Context) : CurvePart() {
             if (section.isUpside) {
                 pathForText.addArc(
                     cX - smallRadius, cY - smallRadius, cX + smallRadius, cY + smallRadius,
-                    section.startAngle,
-                    section.endAngle - section.startAngle
+                    section.startAngle + angleStep * ANGLE_STEP_MULTIPLIER,
+                    section.endAngle - section.startAngle - angleStep * ANGLE_STEP_MULTIPLIER
                 )
-                canvas.drawTextOnPath(section.text, pathForText, section.length - bounds.width() - 5, -textPaint.textSize, textPaint)
+                canvas.drawTextOnPath(
+                    section.text,
+                    pathForText,
+                    section.length - bounds.width(),
+                    -textPaint.textSize * TEXT_SIZE_MULTIPLIER,
+                    textPaint
+                )
             } else {
                 pathForText.addArc(
                     cX - smallRadius, cY - smallRadius, cX + smallRadius, cY + smallRadius,
-                    section.endAngle,
-                    section.startAngle - section.endAngle
+                    section.endAngle + angleStep,
+                    section.length
                 )
-                canvas.drawTextOnPath(section.text, pathForText, 0f, textPaint.textSize * 2, textPaint)
+                canvas.drawTextOnPath(section.text, pathForText, 0f, textPaint.textSize * 2 * TEXT_SIZE_MULTIPLIER, textPaint)
             }
         }
     }
@@ -141,7 +147,8 @@ class TopCurvePart(context: Context) : CurvePart() {
 
             currentCanvas.drawColor(
                 Color.TRANSPARENT,
-                PorterDuff.Mode.CLEAR)
+                PorterDuff.Mode.CLEAR
+            )
 
             drawSections(currentCanvas)
             drawText(currentCanvas)
