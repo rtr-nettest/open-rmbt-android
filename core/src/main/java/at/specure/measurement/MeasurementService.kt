@@ -25,6 +25,8 @@ import at.specure.repository.TestDataRepository
 import at.specure.test.DeviceInfo
 import at.specure.test.TestController
 import at.specure.test.TestProgressListener
+import at.specure.util.hasPermission
+import at.specure.util.permission.PermissionsWatcher
 import timber.log.Timber
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
@@ -48,6 +50,9 @@ class MeasurementService : LifecycleService() {
 
     @Inject
     lateinit var notificationProvider: NotificationProvider
+
+    @Inject
+    lateinit var permissionsWatcher: PermissionsWatcher
 
     @Inject
     lateinit var testDataRepository: TestDataRepository
@@ -120,6 +125,7 @@ class MeasurementService : LifecycleService() {
                 testDataRepository.saveGeoLocation(testUUID, it)
             }
             saveSignalStrength()
+            savePermissionsStatus()
             clientAggregator.onClientReady(testUUID)
         }
 
@@ -176,6 +182,16 @@ class MeasurementService : LifecycleService() {
                     mobileNetworkType = (networkInfo as CellNetworkInfo).networkType
                 }
                 testDataRepository.saveSignalStrength(UUID, cellUUID, mobileNetworkType, signal)
+            }
+        }
+    }
+
+    private fun savePermissionsStatus() {
+        val permissions = permissionsWatcher.allPermissions
+        runner.testUUID?.let { UUID ->
+            permissions.forEach { permission ->
+                val permissionGranted = this.hasPermission(permission)
+                testDataRepository.savePermissionStatus(UUID, permission, permissionGranted)
             }
         }
     }
