@@ -3,7 +3,7 @@ package at.specure.database
 import androidx.room.Database
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
-import at.specure.database.dao.CapabilitesDao
+import at.specure.database.dao.CapabilitiesDao
 import at.specure.database.dao.CellInfoDao
 import at.specure.database.dao.CellLocationDao
 import at.specure.database.dao.GeoLocationDao
@@ -44,12 +44,12 @@ import at.specure.database.entity.WifiTest
         TestTrafficDownload::class,
         TestTrafficUpload::class,
         WifiTest::class],
-    version = 4
+    version = 5
 )
 @TypeConverters(TypeConverter::class)
 abstract class CoreDatabase : RoomDatabase() {
 
-    abstract fun capabilitiesDao(): CapabilitesDao
+    abstract fun capabilitiesDao(): CapabilitiesDao
     abstract fun cellInfoDao(): CellInfoDao
     abstract fun cellLocationDao(): CellLocationDao
     abstract fun geoLocationDao(): GeoLocationDao

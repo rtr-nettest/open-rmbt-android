@@ -8,10 +8,10 @@ import at.specure.database.Tables
 import at.specure.database.entity.Capabilities
 
 @Dao
-interface CapabilitesDao {
+interface CapabilitiesDao {
 
-    @Query("SELECT * from ${Tables.CAPABILITIES} WHERE testUUID == :testUUID")
-    fun getCapabilitiesForTest(testUUID: String): List<Capabilities>
+    @Query("SELECT * from ${Tables.CAPABILITIES} WHERE testUUID == :testUUID LIMIT 1")
+    fun getCapabilitiesForTest(testUUID: String): Capabilities
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     fun insert(capabilities: Capabilities)

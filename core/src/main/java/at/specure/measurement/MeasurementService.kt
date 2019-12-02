@@ -120,6 +120,7 @@ class MeasurementService : LifecycleService() {
                 testDataRepository.saveGeoLocation(testUUID, it)
             }
             saveSignalStrength()
+            saveCapabilities()
             clientAggregator.onClientReady(testUUID)
         }
 
@@ -164,6 +165,19 @@ class MeasurementService : LifecycleService() {
                 }
             }
         })
+    }
+
+    private fun saveCapabilities() {
+        if (runner.isRunning) {
+            runner.testUUID?.let { UUID ->
+                testDataRepository.saveCapabilities(
+                    UUID,
+                    config.capabilitiesRmbtHttp,
+                    config.capabilitiesQosSupportsInfo,
+                    config.capabilitiesClassificationCount
+                )
+            }
+        }
     }
 
     private fun saveSignalStrength() {
