@@ -47,6 +47,11 @@ abstract class CurvePart {
     var cX: Float = 0f
     var cY: Float = 0f
 
+    /**
+     * Defines the size of curve square
+     */
+    var strokeWidth: Float = 0f
+
     var emptySquarePaint = Paint().apply {
         style = Paint.Style.FILL_AND_STROKE
         xfermode = PorterDuffXfermode(PorterDuff.Mode.SRC)
@@ -74,7 +79,8 @@ abstract class CurvePart {
     abstract var bitmap: Bitmap
 
     abstract var pathForText: Path
-    abstract var progressPaint: Paint
+    abstract var progressOuterPaint: Paint
+    abstract var progressInnerPaint: Paint
 
     /**
      * Defines the current [MeasurementState]
@@ -133,7 +139,7 @@ abstract class CurvePart {
         angleStep = CURVE_ANGLE / MAX_CURVE_PIECES_COUNT
         mediumRadius = viewSize.toFloat() / MIDDLE_RADIUS_DIVIDER
 
-        val strokeWidth = angleStep * angleStep * resources.displayMetrics.density
+        strokeWidth = (Math.PI * mediumRadius * angleStep / 180).toFloat()
         emptySquarePaint.strokeWidth = strokeWidth
         textPaint.textSize = mediumRadius / TEXT_SIZE_DIVIDER
 
@@ -144,9 +150,8 @@ abstract class CurvePart {
         cY = getCenterY()
         centerKnownCallback?.invoke((cX + getLeftOffset()).toInt(), (cY + getTopOffset()).toInt())
 
-        val backgroundColor = ResourcesCompat.getColor(resources, R.color.measurement_text, null)
-        textPaint.color = backgroundColor
-        emptySquarePaint.color = backgroundColor
+        textPaint.color = ResourcesCompat.getColor(resources, R.color.measurement_text, null)
+        emptySquarePaint.color = ResourcesCompat.getColor(resources, R.color.measurement_not_progressed, null)
         createBitmap((viewSize * BITMAP_SIZE_MULTIPLIER).toInt())
     }
 

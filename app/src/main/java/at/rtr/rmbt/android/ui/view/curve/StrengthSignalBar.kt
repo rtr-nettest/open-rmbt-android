@@ -22,7 +22,7 @@ class StrengthSignalBar @JvmOverloads constructor(context: Context, attrs: Attri
     }
 
     private var emptySquarePaint = Paint().apply {
-        color = ContextCompat.getColor(context, R.color.measurement_text)
+        color = ContextCompat.getColor(context, R.color.measurement_not_progressed)
         style = Paint.Style.FILL_AND_STROKE
         xfermode = PorterDuffXfermode(PorterDuff.Mode.SRC)
         isAntiAlias = true
@@ -37,7 +37,13 @@ class StrengthSignalBar @JvmOverloads constructor(context: Context, attrs: Attri
     }
 
     private var progressPaint = Paint().apply {
-        color = ContextCompat.getColor(context, R.color.colorAccent)
+        color = ContextCompat.getColor(context, R.color.measurement_green)
+        style = Paint.Style.FILL
+        xfermode = PorterDuffXfermode(PorterDuff.Mode.SRC_ATOP)
+    }
+
+    private var progressInnerPaint = Paint().apply {
+        color = ContextCompat.getColor(context, R.color.measurement_green_dark)
         style = Paint.Style.FILL
         xfermode = PorterDuffXfermode(PorterDuff.Mode.SRC_ATOP)
     }
@@ -67,9 +73,11 @@ class StrengthSignalBar @JvmOverloads constructor(context: Context, attrs: Attri
     private var maxValue: Int = 0
     private var currentValue: Int = 0
 
+    private var topMargin = resources.getDimension(R.dimen.margin_medium)
+
     var squareSize: Float = 0f
         set(value) {
-            field = value * 2f * resources.displayMetrics.density
+            field = value
             requestLayout()
         }
 
@@ -78,14 +86,14 @@ class StrengthSignalBar @JvmOverloads constructor(context: Context, attrs: Attri
         textPaint.textSize = resources.getDimension(R.dimen.signal_bar_scale_value)
         super.onMeasure(
             MeasureSpec.makeMeasureSpec(viewWidth, MeasureSpec.AT_MOST),
-            MeasureSpec.makeMeasureSpec((SQUARE_MULTIPLIER * squareSize * (verticalCount + 1)).toInt(), MeasureSpec.AT_MOST)
+            MeasureSpec.makeMeasureSpec((SQUARE_MULTIPLIER * squareSize * (verticalCount + 1) + topMargin).toInt(), MeasureSpec.AT_MOST)
         )
     }
 
     override fun onLayout(changed: Boolean, left: Int, top: Int, right: Int, bottom: Int) {
         super.onLayout(changed, left, top, right, bottom)
 
-        if (changed) {
+        if (bottom != top && !changed) {
             createBitmap()
         }
     }
@@ -130,7 +138,7 @@ class StrengthSignalBar @JvmOverloads constructor(context: Context, attrs: Attri
      * Draw gray squares for the background
      */
     private fun drawBackground(canvas: Canvas) {
-        var y = squareSize
+        var y = squareSize + topMargin / 2
         for (i in 0 until verticalCount) {
             var x = squareSize
             for (j in 0 until horizontalCount) {
@@ -140,27 +148,27 @@ class StrengthSignalBar @JvmOverloads constructor(context: Context, attrs: Attri
             y += squareSize * SQUARE_MULTIPLIER
         }
 
-        val legendHeight = measuredHeight - 3 * squareSize
+        val legendHeight = measuredHeight - 2 * topMargin
         val count = values.count()
         for (pos in 0 until count) {
             if (pos == 0 || pos == count - 1) {
                 canvas.drawLine(
                     6.5f * squareSize,
-                    squareSize + pos * legendHeight / (count - 1),
+                    squareSize + pos * legendHeight / (count - 1) + topMargin / 2,
                     8.5f * squareSize,
-                    squareSize + pos * legendHeight / (count - 1),
+                    squareSize + pos * legendHeight / (count - 1) + topMargin / 2,
                     linePaint
                 )
             } else {
                 canvas.drawLine(
                     6.5f * squareSize,
-                    squareSize + pos * legendHeight / (count - 1),
+                    squareSize + pos * legendHeight / (count - 1) + topMargin / 2,
                     7.5f * squareSize,
-                    squareSize + pos * legendHeight / (count - 1),
+                    squareSize + pos * legendHeight / (count - 1) + topMargin / 2,
                     linePaint
                 )
             }
-            canvas.drawText(values[pos], 9.5f * squareSize, squareSize * SQUARE_MULTIPLIER + pos * legendHeight / (count - 1), textPaint)
+            canvas.drawText(values[pos], 9.5f * squareSize, 2 * squareSize + pos * legendHeight / (count - 1) + topMargin / 2, textPaint)
         }
     }
 
@@ -168,15 +176,14 @@ class StrengthSignalBar @JvmOverloads constructor(context: Context, attrs: Attri
      * Calculate the size of filled graph of part and draw it
      */
     private fun updateProgress() {
-        currentCanvas?.drawColor(Color.TRANSPARENT, PorterDuff.Mode.CLEAR)
-        currentCanvas?.let { drawBackground(it) }
-        currentCanvas?.drawRect(
-            0f,
-            (currentValue - maxValue).toFloat() / (minValue - maxValue) * measuredHeight,
-            6 * squareSize,
-            measuredHeight.toFloat(),
-            progressPaint
-        )
+        currentCanvas?.let {
+            it.drawColor(Color.TRANSPARENT, PorterDuff.Mode.CLEAR)
+            drawBackground(it)
+
+            val currentLevel = (currentValue - maxValue).toFloat() / (minValue - maxValue) * measuredHeight
+            it.drawRect(0f, currentLevel, 4 * squareSize, measuredHeight.toFloat(), progressPaint)
+            it.drawRect(4 * squareSize, currentLevel, 6 * squareSize, measuredHeight.toFloat(), progressInnerPaint)
+        }
     }
 
     companion object {

@@ -116,7 +116,7 @@ class MeasurementCurveLayout @JvmOverloads constructor(context: Context, attrs: 
             curveBinding.layoutStrength.root.post {
                 (curveBinding.curveView.layoutParams as LayoutParams).apply {
                     topMargin = curveBinding.layoutStrength.root.height / SIGNAL_BAR_OFFSET_DIVIDER
-                    bottomCenterY += 2 * topMargin / SIGNAL_BAR_OFFSET_DIVIDER
+                    bottomCenterY = y + topMargin / 3
                     requestLayout()
                 }
             }
@@ -129,7 +129,7 @@ class MeasurementCurveLayout @JvmOverloads constructor(context: Context, attrs: 
             curveBinding.layoutStrength.root.post {
                 (curveBinding.curveView.layoutParams as LayoutParams).apply {
                     topMargin = curveBinding.layoutStrength.root.height / SIGNAL_BAR_OFFSET_DIVIDER
-                    topCenterY += 2 * topMargin / SIGNAL_BAR_OFFSET_DIVIDER
+                    topCenterY = y + topMargin / 3
                     requestLayout()
                 }
             }
