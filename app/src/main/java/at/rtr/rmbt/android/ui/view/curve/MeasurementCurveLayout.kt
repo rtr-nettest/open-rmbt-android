@@ -181,7 +181,7 @@ class MeasurementCurveLayout @JvmOverloads constructor(context: Context, attrs: 
             curveBinding.curveView.setBottomProgress((progress * 1e-3).toInt())
             when {
                 progress >= 1e7 -> speedLayout.value.text = ((progress * 1e-6).roundToInt()).toString()
-                progress >= 1e6 -> speedLayout.value.text = (BigDecimal(progress * 1e-6).setScale(2, RoundingMode.HALF_EVEN)).toPlainString()
+                progress >= 1e6 -> speedLayout.value.text = (BigDecimal(progress * 1e-6).setScale(1, RoundingMode.HALF_EVEN)).toPlainString()
                 else -> { // up to 1 mbit
                     var scale = 1
                     var divider = 1
