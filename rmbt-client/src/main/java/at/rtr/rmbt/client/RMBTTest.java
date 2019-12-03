@@ -405,11 +405,10 @@ public class RMBTTest extends AbstractRMBTTest implements Callable<ThreadTestRes
                             if (ping.client < shortestPing)
                                 shortestPing = ping.client;
 
+                            client.onPingDataChanged(ping.client, ping.server, ping.timeNs);
                             testResult.pings.add(ping);
                         }
                     }
-
-                    client.onPingDataChanged(testResult.pings);
 
                     // median
                     Arrays.sort(pings);

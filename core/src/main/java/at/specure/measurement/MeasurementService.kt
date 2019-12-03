@@ -109,8 +109,8 @@ class MeasurementService : LifecycleService() {
             stateRecorder.onThreadUploadDataChanged(threadId, timeNanos, bytesTotal)
         }
 
-        override fun onPingDataChanged(pings: List<Ping>) {
-            stateRecorder.onPingValuesChanged(pings)
+        override fun onPingDataChanged(clientPing: Long, serverPing: Long, timeNs: Long) {
+            stateRecorder.onPingValuesChanged(clientPing, serverPing, timeNs)
         }
     }
 

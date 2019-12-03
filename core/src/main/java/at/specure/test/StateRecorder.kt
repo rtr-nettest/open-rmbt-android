@@ -3,7 +3,6 @@ package at.specure.test
 import android.content.Context
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.Observer
-import at.rtr.rmbt.client.Ping
 import at.specure.config.Config
 import at.specure.info.cell.CellInfoWatcher
 import at.specure.info.cell.CellNetworkInfo
@@ -189,9 +188,9 @@ class StateRecorder @Inject constructor(
         }
     }
 
-    fun onPingValuesChanged(pings: List<Ping>) {
+    fun onPingValuesChanged(clientPing: Long, serverPing: Long, timeNs: Long) {
         testUUID?.let {
-            repository.saveAllPingValues(it, pings)
+            repository.saveAllPingValues(it, clientPing, serverPing, timeNs)
         }
     }
 }

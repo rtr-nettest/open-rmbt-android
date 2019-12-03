@@ -25,7 +25,6 @@ import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -42,7 +41,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.function.Consumer;
 
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSocketFactory;
@@ -885,10 +883,10 @@ public class RMBTClient implements RMBTClientCallback {
     }
 
     @Override
-    public void onPingDataChanged(List<Ping> pings) {
-        Timber.v("ping: get %d values", pings.size());
+    public void onPingDataChanged(long clientPing, long serverPing, long timeNs) {
+        Timber.v("ping: %s", clientPing);
         if (commonCallback != null) {
-            commonCallback.onPingDataChanged(pings);
+            commonCallback.onPingDataChanged(clientPing, serverPing, timeNs);
         }
     }
 }

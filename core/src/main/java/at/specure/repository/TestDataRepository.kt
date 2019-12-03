@@ -1,7 +1,6 @@
 package at.specure.repository
 
 import androidx.lifecycle.LiveData
-import at.rtr.rmbt.client.Ping
 import at.specure.database.entity.CapabilitiesRecord
 import at.specure.database.entity.GraphItemRecord
 import at.specure.info.network.MobileNetworkType
@@ -44,5 +43,5 @@ interface TestDataRepository {
 
     fun saveCellLocation(testUUID: String, info: CellLocationInfo)
 
-    fun saveAllPingValues(testUUID: String, pings: List<Ping>)
+    fun saveAllPingValues(testUUID: String, clientPing: Long, serverPing: Long, timeNs: Long)
 }

@@ -2,7 +2,6 @@ package at.specure.repository
 
 import androidx.lifecycle.LiveData
 import at.rmbt.util.io
-import at.rtr.rmbt.client.Ping
 import at.specure.database.CoreDatabase
 import at.specure.database.entity.CapabilitiesRecord
 import at.specure.database.entity.CellInfoRecord
@@ -225,12 +224,8 @@ class TestDataRepositoryImpl(db: CoreDatabase) : TestDataRepository {
         cellLocationDao.insert(record)
     }
 
-    override fun saveAllPingValues(testUUID: String, pings: List<Ping>) {
-        val records = mutableListOf<PingRecord>()
-        pings.forEach { ping ->
-            val record = PingRecord(testUUID = testUUID, value = ping.client, valueServer = ping.server, testTimeNanos = ping.timeNs)
-            records.add(record)
-        }
-        pingDao.insert(records)
+    override fun saveAllPingValues(testUUID: String, clientPing: Long, serverPing: Long, timeNs: Long) {
+        val record = PingRecord(testUUID = testUUID, value = clientPing, valueServer = serverPing, testTimeNanos = timeNs)
+        pingDao.insert(record)
     }
 }

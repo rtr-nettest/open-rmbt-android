@@ -13,9 +13,6 @@ interface PingDao {
     @Query("SELECT * from ${Tables.PING} WHERE testUUID == :testUUID")
     fun getPingsForTest(testUUID: String): List<PingRecord>
 
-    @Insert(onConflict = OnConflictStrategy.IGNORE)
-    fun insert(ping: PingRecord)
-
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insert(ping: List<PingRecord>)
+    fun insert(ping: PingRecord)
 }
