@@ -1,16 +1,20 @@
 package at.specure.location.cell
 
+import android.content.Context
 import android.telephony.CellLocation
 import android.telephony.PhoneStateListener
 import android.telephony.TelephonyManager
 import android.telephony.gsm.GsmCellLocation
+import at.specure.util.hasPermission
 import java.util.Collections
 import javax.inject.Inject
 
-class CellLocationWatcherImpl @Inject constructor(private val telephonyManager: TelephonyManager) : CellLocationWatcher {
+class CellLocationWatcherImpl @Inject constructor(private val context: Context, private val telephonyManager: TelephonyManager) :
+    CellLocationWatcher {
 
     private val listeners = Collections.synchronizedSet(mutableSetOf<CellLocationWatcher.CellLocationChangeListener>())
     private var _latestLocation: CellLocationInfo? = null
+    private var isRegistered = false
 
     private val locationListener = object : PhoneStateListener() {
         override fun onCellLocationChanged(location: CellLocation?) {
@@ -39,10 +43,10 @@ class CellLocationWatcherImpl @Inject constructor(private val telephonyManager: 
         get() = _latestLocation
 
     override fun addListener(listener: CellLocationWatcher.CellLocationChangeListener) {
-        val wasEmpty = listeners.isEmpty()
+        val needToRegister = listeners.isEmpty() || !isRegistered
         listeners.add(listener)
         listener.onCellLocationChanged(_latestLocation)
-        if (wasEmpty) {
+        if (needToRegister && context.hasPermission(android.Manifest.permission.ACCESS_COARSE_LOCATION)) {
             telephonyManager.listen(locationListener, PhoneStateListener.LISTEN_CELL_LOCATION)
         }
     }

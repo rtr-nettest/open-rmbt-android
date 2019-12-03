@@ -27,19 +27,21 @@ class TypeConverter {
     }
 
     @TypeConverter
-    fun cellTechnologyToValue(cellTechnology: CellTechnology): Int = cellTechnology.ordinal
+    fun cellTechnologyToValue(cellTechnology: CellTechnology?): Int? = cellTechnology?.ordinal
 
     @TypeConverter
-    fun valueToCellTechnology(value: Int): CellTechnology {
+    fun valueToCellTechnology(value: Int?): CellTechnology? {
+        if (value == null) return null
         CellTechnology.values().forEach { if (value == it.ordinal) return it }
         throw IllegalArgumentException("CellTechnology value $value not found")
     }
 
     @TypeConverter
-    fun mobileNetworkTypeToValue(type: MobileNetworkType): Int = type.intValue
+    fun mobileNetworkTypeToValue(type: MobileNetworkType?): Int? = type?.intValue
 
     @TypeConverter
-    fun valueToMobileNetworkType(value: Int): MobileNetworkType {
+    fun valueToMobileNetworkType(value: Int?): MobileNetworkType? {
+        if (value == null) return null
         MobileNetworkType.values().forEach { if (value == it.intValue) return it }
         throw IllegalArgumentException("Mobile network type $value not found")
     }

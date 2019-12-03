@@ -130,5 +130,6 @@ class CoreModule {
 
     @Provides
     @Singleton
-    fun provideCellLocationWatcher(telephonyManager: TelephonyManager): CellLocationWatcher = CellLocationWatcherImpl(telephonyManager)
+    fun provideCellLocationWatcher(context: Context, telephonyManager: TelephonyManager): CellLocationWatcher =
+        CellLocationWatcherImpl(context, telephonyManager)
 }
