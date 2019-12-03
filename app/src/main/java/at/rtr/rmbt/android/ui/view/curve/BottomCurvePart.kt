@@ -3,6 +3,7 @@ package at.rtr.rmbt.android.ui.view.curve
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Canvas
+import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.Path
 import android.graphics.PorterDuff
@@ -20,10 +21,18 @@ class BottomCurvePart(context: Context) : CurvePart() {
 
     override var pathForText = Path()
 
-    override var progressPaint = Paint().apply {
-        color = ContextCompat.getColor(context, R.color.colorAccent)
+    override var progressOuterPaint = Paint().apply {
+        color = ContextCompat.getColor(context, R.color.measurement_green)
         style = Paint.Style.STROKE
         xfermode = PorterDuffXfermode(PorterDuff.Mode.SRC_ATOP)
+        isAntiAlias = true
+    }
+
+    override var progressInnerPaint = Paint().apply {
+        color = ContextCompat.getColor(context, R.color.measurement_green_dark)
+        style = Paint.Style.STROKE
+        xfermode = PorterDuffXfermode(PorterDuff.Mode.SRC_ATOP)
+        isAntiAlias = true
     }
 
     override var phase: MeasurementState = MeasurementState.IDLE
@@ -109,7 +118,7 @@ class BottomCurvePart(context: Context) : CurvePart() {
             if (section.isUpside) {
                 pathForText.addArc(
                     cX - scaleRadius, cY - scaleRadius, cX + scaleRadius, cY + scaleRadius,
-                    section.startAngle + halfTextLength,
+                    section.startAngle + (if (section.text.length > 1) halfTextLength else angleStep * ANGLE_STEP_MULTIPLIER),
                     -SCALE_SWEEP_ANGLE
                 )
                 canvas.drawTextOnPath(section.text, pathForText, 0f, -textPaint.textSize / 2, textPaint)
@@ -160,22 +169,40 @@ class BottomCurvePart(context: Context) : CurvePart() {
     }
 
     override fun updateProgress(progress: Int) {
-        progressPaint.strokeWidth = 2 * SCALE_OFFSET_COEF * (mediumRadius - smallRadius)
+        progressInnerPaint.strokeWidth = (mediumRadius - smallRadius)
+        progressOuterPaint.strokeWidth = 2.5f * (largeRadius - mediumRadius)
         val progressAngle = calculateProgressAngle(progress)
 
         currentCanvas?.let { currentCanvas ->
+
+            currentCanvas.drawColor(
+                Color.TRANSPARENT,
+                PorterDuff.Mode.CLEAR
+            )
+
             drawSections(currentCanvas)
             drawText(currentCanvas)
 
             currentCanvas.drawArc(
-                cX - mediumRadius,
-                cY - mediumRadius,
-                cX + mediumRadius,
-                cY + mediumRadius,
+                cX - largeRadius,
+                cY - largeRadius,
+                cX + largeRadius,
+                cY + largeRadius,
                 sectionEndAngle,
                 progressAngle,
                 false,
-                progressPaint
+                progressOuterPaint
+            )
+
+            currentCanvas.drawArc(
+                cX - smallRadius,
+                cY - smallRadius,
+                cX + smallRadius,
+                cY + smallRadius,
+                sectionEndAngle,
+                progressAngle,
+                false,
+                progressInnerPaint
             )
         }
     }
@@ -210,6 +237,6 @@ class BottomCurvePart(context: Context) : CurvePart() {
     companion object {
         private const val SMALL_SCALE_ANGLE = 1f
         private const val SCALE_RADIUS_COEF = 0.8f
-        private const val SCALE_OFFSET_COEF = 1.25f
+        private const val SCALE_OFFSET_COEF = 1.4f
     }
 }

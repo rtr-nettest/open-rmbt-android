@@ -13,6 +13,7 @@ import at.rtr.rmbt.android.ui.view.WaveView
 import at.rtr.rmbt.android.ui.view.curve.MeasurementCurveLayout
 import at.rtr.rmbt.android.util.InfoWindowStatus
 import at.rtr.rmbt.android.util.format
+import at.specure.database.entity.GraphItem
 import at.specure.info.TransportType
 import at.specure.info.cell.CellNetworkInfo
 import at.specure.info.cell.CellTechnology
@@ -184,8 +185,7 @@ fun AppCompatImageView.setTechnologyIcon(networkInfo: NetworkInfo?) {
                 setImageResource(R.drawable.ic_4g)
             }
             CellTechnology.CONNECTION_5G -> {
-                // TODO add 5G icon
-                throw IllegalArgumentException("5G icon not added")
+                setImageResource(R.drawable.ic_5g)
             }
         }
     } else {
@@ -385,12 +385,11 @@ fun AppCompatImageView.setSmallIcon(signalStrengthInfo: SignalStrengthInfo?) {
 }
 
 /**
- * A binding adapter that is used for show download and upload speed
+ * A binding adapter that is used for show download and upload data on graph
  */
-@BindingAdapter(value = ["speedBps", "measurementProgress"], requireAll = true)
-fun SpeedLineChart.setSpeed(speedBps: Long, measurementProgress: Int) {
-    if (speedBps > 0)
-        addValue(speedBps, measurementProgress)
+@BindingAdapter("graphItems")
+fun SpeedLineChart.setGraphItems(graphItems: List<GraphItem>?) {
+    addGraphItems(graphItems)
 }
 
 /**

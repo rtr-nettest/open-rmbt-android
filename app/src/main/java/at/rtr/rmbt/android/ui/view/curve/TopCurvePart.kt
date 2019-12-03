@@ -31,10 +31,18 @@ class TopCurvePart(context: Context) : CurvePart() {
         CurveSection(8, context.getString(R.string.label_init), false, MeasurementState.INIT)
     )
 
-    override var progressPaint = Paint().apply {
+    override var progressOuterPaint = Paint().apply {
         color = Color.WHITE
         style = Paint.Style.STROKE
         xfermode = PorterDuffXfermode(PorterDuff.Mode.SRC_ATOP)
+        isAntiAlias = true
+    }
+
+    override var progressInnerPaint = Paint().apply {
+        color = ContextCompat.getColor(context, R.color.measurement_progress_inner)
+        style = Paint.Style.STROKE
+        xfermode = PorterDuffXfermode(PorterDuff.Mode.SRC_ATOP)
+        isAntiAlias = true
     }
 
     override var phase: MeasurementState = MeasurementState.IDLE
@@ -116,29 +124,53 @@ class TopCurvePart(context: Context) : CurvePart() {
             if (section.isUpside) {
                 pathForText.addArc(
                     cX - smallRadius, cY - smallRadius, cX + smallRadius, cY + smallRadius,
-                    section.startAngle,
-                    section.endAngle - section.startAngle
+                    section.startAngle + angleStep * TEXT_SIZE_MULTIPLIER * 3,
+                    section.endAngle - section.startAngle - angleStep * ANGLE_STEP_MULTIPLIER
                 )
-                canvas.drawTextOnPath(section.text, pathForText, section.length - bounds.width() - 5, -textPaint.textSize, textPaint)
+                canvas.drawTextOnPath(
+                    section.text,
+                    pathForText,
+                    section.length - bounds.width(),
+                    -textPaint.textSize * TEXT_SIZE_MULTIPLIER,
+                    textPaint
+                )
             } else {
                 pathForText.addArc(
                     cX - smallRadius, cY - smallRadius, cX + smallRadius, cY + smallRadius,
-                    section.endAngle,
-                    section.startAngle - section.endAngle
+                    section.endAngle + angleStep,
+                    section.length
                 )
-                canvas.drawTextOnPath(section.text, pathForText, 0f, textPaint.textSize * 2, textPaint)
+                canvas.drawTextOnPath(section.text, pathForText, 0f, textPaint.textSize * 2 * TEXT_SIZE_MULTIPLIER, textPaint)
             }
         }
     }
 
     override fun updateProgress(progress: Int) {
-        progressPaint.strokeWidth = 2.5f * (largeRadius - smallRadius)
+        progressInnerPaint.strokeWidth = (mediumRadius - smallRadius)
+        progressOuterPaint.strokeWidth = 3 * (largeRadius - mediumRadius)
         val progressAngle = calculateProgressAngle(if (progress > previousProgress) progress else previousProgress)
         previousProgress = progress
 
         currentCanvas?.let { currentCanvas ->
+
+            currentCanvas.drawColor(
+                Color.TRANSPARENT,
+                PorterDuff.Mode.CLEAR
+            )
+
             drawSections(currentCanvas)
             drawText(currentCanvas)
+
+            currentCanvas.drawArc(
+                cX - smallRadius,
+                cY - smallRadius,
+                cX + smallRadius,
+                cY + smallRadius,
+                sectionEndAngle,
+                progressAngle,
+                false,
+                progressInnerPaint
+            )
 
             currentCanvas.drawArc(
                 cX - largeRadius,
@@ -148,7 +180,7 @@ class TopCurvePart(context: Context) : CurvePart() {
                 sectionEndAngle,
                 progressAngle,
                 false,
-                progressPaint
+                progressOuterPaint
             )
         }
     }

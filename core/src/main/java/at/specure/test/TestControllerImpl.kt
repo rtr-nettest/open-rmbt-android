@@ -142,6 +142,7 @@ class TestControllerImpl(private val config: Config, private val clientUUID: Cli
                         _listener?.onFinish()
                     }
                     stop()
+                    _testUUID = null
                 } else {
                     delay(100)
                 }
@@ -204,14 +205,17 @@ class TestControllerImpl(private val config: Config, private val clientUUID: Cli
 
     private fun handleError(client: RMBTClient) {
         _listener?.onError()
+        _testUUID = null
     }
 
     private fun handleAbort(client: RMBTClient) {
         Timber.e("${TestStatus.ABORTED} handling not implemented")
+        _testUUID = null
     }
 
     private fun handleEnd(client: RMBTClient) {
         setState(MeasurementState.FINISH, 0)
+        _testUUID = null
     }
 
     private fun setState(state: MeasurementState, progress: Int) {

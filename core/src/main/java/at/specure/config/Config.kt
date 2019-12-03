@@ -100,7 +100,7 @@ interface Config {
     var controlServerSettingsPath: String
 
     /**
-     * end of the url for getting new test settings from the control server, example "ControlServer/testRequest"
+     * End of the url for getting new test settings from the control server, example "ControlServer/testRequest"
      */
     var controlServerRequestTestPath: String
 
@@ -108,4 +108,19 @@ interface Config {
      * Counter of tests performed by user
      */
     var testCounter: Int
+
+    /**
+     * Client uses RMBTHttp if true, default should be false
+     */
+    var capabilitiesRmbtHttp: Boolean
+
+    /**
+     * if true the third state (=INFO) is supported, default should be false
+     */
+    var capabilitiesQosSupportsInfo: Boolean
+
+    /**
+     * number of intervals(classes) to classify measured values, default 4
+     */
+    var capabilitiesClassificationCount: Int
 }

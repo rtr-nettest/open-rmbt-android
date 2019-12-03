@@ -47,13 +47,21 @@ class MeasurementActivity : BaseActivity(), SimpleDialog.Callback {
         viewModel.measurementErrorLiveData.listen(this) {
             SimpleDialog.Builder()
                 .messageText(R.string.test_dialog_error_text)
-                .positiveText(R.string.input_setting_dialog_okay)
+                .positiveText(R.string.input_setting_dialog_ok)
                 .cancelable(false)
                 .show(supportFragmentManager, 0)
         }
 
         binding.measurementBottomView.qosTestRecyclerView.apply {
             adapter = QosMeasurementAdapter(this@MeasurementActivity)
+        }
+
+        viewModel.downloadGraphLiveData.listen(this) {
+            viewModel.state.downloadGraphItems.set(it)
+        }
+
+        viewModel.uploadGraphLiveData.listen(this) {
+            viewModel.state.uploadGraphItems.set(it)
         }
 
         viewModel.signalStrengthLiveData.listen(this) {

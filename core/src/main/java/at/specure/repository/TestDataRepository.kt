@@ -1,5 +1,7 @@
 package at.specure.repository
 
+import androidx.lifecycle.LiveData
+import at.specure.database.entity.Capabilities
 import at.specure.database.entity.GraphItem
 import at.specure.info.network.MobileNetworkType
 import at.specure.info.network.NetworkInfo
@@ -18,9 +20,9 @@ interface TestDataRepository {
 
     fun saveUploadGraphItem(testUUID: String, progress: Int, speedBps: Long)
 
-    fun getDownloadGraphItems(testUUID: String): List<GraphItem>
+    fun getDownloadGraphItemsLiveData(testUUID: String): LiveData<List<GraphItem>>
 
-    fun getUploadGraphItems(testUUID: String): List<GraphItem>
+    fun getUploadGraphItemsLiveData(testUUID: String): LiveData<List<GraphItem>>
 
     fun saveSignalStrength(
         testUUID: String,
@@ -31,4 +33,10 @@ interface TestDataRepository {
     )
 
     fun saveCellInfo(testUUID: String, infoList: List<NetworkInfo>)
+
+    fun getCapabilities(testUUID: String): Capabilities
+
+    fun saveCapabilities(testUUID: String, rmbtHttp: Boolean, qosSupportsInfo: Boolean, classificationCount: Int)
+
+    fun savePermissionStatus(testUUID: String, permission: String, granted: Boolean)
 }

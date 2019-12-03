@@ -26,13 +26,13 @@
 
         <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/buttonPositive"
+            android:background="@drawable/button_green_background"
             style="?android:attr/borderlessButtonStyle"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:background="@drawable/button_white_background"
             android:text="@string/text_cancel_measurement"
+            android:textColor="@android:color/white"
             android:textAllCaps="false"
-            android:textColor="@color/colorAccent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/textMessage" />

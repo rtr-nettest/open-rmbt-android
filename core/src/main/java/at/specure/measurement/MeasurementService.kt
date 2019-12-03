@@ -18,6 +18,8 @@ import at.specure.test.DeviceInfo
 import at.specure.test.StateRecorder
 import at.specure.test.TestController
 import at.specure.test.TestProgressListener
+import at.specure.util.hasPermission
+import at.specure.util.permission.PermissionsWatcher
 import timber.log.Timber
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
@@ -35,6 +37,9 @@ class MeasurementService : LifecycleService() {
 
     @Inject
     lateinit var notificationProvider: NotificationProvider
+
+    @Inject
+    lateinit var permissionsWatcher: PermissionsWatcher
 
     @Inject
     lateinit var testDataRepository: TestDataRepository
@@ -74,11 +79,17 @@ class MeasurementService : LifecycleService() {
         override fun onDownloadSpeedChanged(progress: Int, speedBps: Long) {
             downloadSpeedBps = speedBps
             clientAggregator.onDownloadSpeedChanged(progress, speedBps)
+            runner.testUUID?.let {
+                testDataRepository.saveDownloadGraphItem(it, progress, speedBps)
+            }
         }
 
         override fun onUploadSpeedChanged(progress: Int, speedBps: Long) {
             uploadSpeedBps = speedBps
             clientAggregator.onUploadSpeedChanged(progress, speedBps)
+            runner.testUUID?.let {
+                testDataRepository.saveUploadGraphItem(it, progress, speedBps)
+            }
         }
 
         override fun onFinish() {
@@ -98,6 +109,7 @@ class MeasurementService : LifecycleService() {
 
         override fun onClientReady(testUUID: String, testStartTimeNanos: Long) {
             stateRecorder.start(testUUID, testStartTimeNanos)
+            clientAggregator.onClientReady(testUUID)
         }
 
         override fun onThreadDownloadDataChanged(threadId: Int, timeNanos: Long, bytesTotal: Long) {
@@ -121,15 +133,38 @@ class MeasurementService : LifecycleService() {
         wifiLock = wifiManager.createWifiLock(WifiManager.WIFI_MODE_FULL_HIGH_PERF, "$packageName:RMBTWifiLock")
         val powerManager = applicationContext.getSystemService(Context.POWER_SERVICE) as PowerManager
         wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "$packageName:RMBTWakeLock")
-
-        stateRecorder.bind(this)
     }
 
+    private fun saveCapabilities() {
+        if (runner.isRunning) {
+            runner.testUUID?.let { UUID ->
+                testDataRepository.saveCapabilities(
+                    UUID,
+                    config.capabilitiesRmbtHttp,
+                    config.capabilitiesQosSupportsInfo,
+                    config.capabilitiesClassificationCount
+                )
+            }
+        }
+    }
+
+    private fun savePermissionsStatus() {
+        val permissions = permissionsWatcher.allPermissions
+        runner.testUUID?.let { UUID ->
+            permissions.forEach { permission ->
+                val permissionGranted = this.hasPermission(permission)
+                testDataRepository.savePermissionStatus(UUID, permission, permissionGranted)
+            }
+        }
+    }
+
+    @Suppress("SENSELESS_COMPARISON") // intent may be null after service restarted by the system
     override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
-        attachToForeground()
-        @Suppress("UNNECESSARY_SAFE_CALL") // intent may be null after service restarted by the system
-        if (intent?.action == ACTION_START_TESTS) {
-            startTests()
+        if (intent != null) {
+            attachToForeground()
+            if (intent != null && intent.action == ACTION_START_TESTS) {
+                startTests()
+            }
         }
         return super.onStartCommand(intent, flags, startId)
     }
@@ -238,6 +273,9 @@ class MeasurementService : LifecycleService() {
                 onDownloadSpeedChanged(measurementProgress, downloadSpeedBps)
                 onUploadSpeedChanged(measurementProgress, uploadSpeedBps)
                 onActiveNetworkChanged(networkInfo)
+                runner.testUUID?.let {
+                    onClientReady(it)
+                }
                 if (hasErrors) {
                     client.onMeasurementError()
                 }
@@ -265,6 +303,9 @@ class MeasurementService : LifecycleService() {
 
         override val isTestsRunning: Boolean
             get() = runner.isRunning
+
+        override val testUUID: String?
+            get() = runner.testUUID
 
         override fun startTests() {
             this@MeasurementService.startTests()
@@ -326,6 +367,12 @@ class MeasurementService : LifecycleService() {
         override fun onActiveNetworkChanged(networkInfo: NetworkInfo?) {
             clients.forEach {
                 it.onActiveNetworkChanged(networkInfo)
+            }
+        }
+
+        override fun onClientReady(testUUID: String) {
+            clients.forEach {
+                it.onClientReady(testUUID)
             }
         }
     }
