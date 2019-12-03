@@ -51,6 +51,9 @@ appLint:
       - /feature\/.*/
       - /hotfix\/.*/
       - /test\/.*/
+  except:
+    variables:
+      - $UI_TEST_RUN
 
 coreLint:
   stage: check
@@ -63,6 +66,9 @@ coreLint:
       - /feature\/.*/
       - /hotfix\/.*/
       - /test\/.*/
+  except:
+    variables:
+      - $UI_TEST_RUN
 
 controlClientLint:
   stage: check
@@ -75,6 +81,9 @@ controlClientLint:
       - /feature\/.*/
       - /hotfix\/.*/
       - /test\/.*/
+  except:
+    variables:
+      - $UI_TEST_RUN
 
 checkRTRBuild:
   stage: check
@@ -88,15 +97,28 @@ checkRTRBuild:
       - /feature\/.*/
       - /hotfix\/.*/
       - /test\/.*/
+  except:
+    variables:
+      - $UI_TEST_RUN
+
+uiTests:
+  stage: check
+  variables:
+    TEST_AVD_NAME: Pixel_2_API_26
+  script:
+    - export DISPLAY=:0
+    - chmod a+x ./run-ui-tests.sh
+    - ./run-ui-tests.sh $TEST_AVD_NAME
+  tags:
+    - RTR_UI_TESTS
+  only:
+    refs:
+      - feature/ui_test_transfer
+    variables:
+      - $UI_TEST_RUN
 
 distributeLocalApp:
   stage: distribution
-  variables:
-    VERSION_PATCH: $((BUILD_NUMBER-VERSION_LAST_INCREASE))
-    VERSION_CODE: $(((((VERSION_MAJOR*1000000)+(VERSION_MINOR*10000)+VERSION_PATCH))*10))
-    VERSION_NAME: "V$VERSION_MAJOR.$VERSION_MINOR.$VERSION_PATCH($BUILD_NUMBER)"
-    RELEASE_NOTES: "Created from commit $CI_PROJECT_URL/commit/$CI_COMMIT_SHA"
-    BUILD_TIME: $(date +%s%3N)
   script:
     - ./gradlew assembleLocalStageDebug -PbuildVersionCode=${VERSION_CODE} -PbuildVersionName=${VERSION_NAME} -PreleaseNotes="${RELEASE_NOTES}"
     - ./gradlew crashlyticsUploadDistributionLocalStageDebug

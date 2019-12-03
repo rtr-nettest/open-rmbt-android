@@ -15,6 +15,7 @@ android.applicationVariants.all { variant ->
     }
 
     def flavorDimension = name - buildType
+    println("flavorDimension: ${flavorDimension}")
 
     def jsonFile
     if(isPrivate){
