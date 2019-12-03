@@ -22,3 +22,6 @@ The source code is published under [Apache version 2.0 license](https://github.c
     7. **CONTROL_SERVER_USE_SSL** - indicates SSL should be used for server connection or not
     8. **CONTROL_SERVER_SETTINGS_PATH** - end of the url for getting settings from the control server, example "ControlServer/settings"
     9. **CONTROL_SERVER_TEST_REQUEST_PATH** - end of the url for getting basic measurement set up to start measurement, example "ControlServer/testRequest"
+    10. **CAPABILITIES_RMBT_HTTP** - client supports RMBT HTTP, example "false"
+    11. **CAPABILITIES_QOS_SUPPORTS_INFO** - if "true" the third state (=INFO) is supported, example "false"
+    12. **CAPABILITIES_CLASSIFICATION_COUNT** - number of intervals(classes) to classify measured values, example "4"

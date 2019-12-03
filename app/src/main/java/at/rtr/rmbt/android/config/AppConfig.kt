@@ -131,4 +131,16 @@ class AppConfig @Inject constructor(context: Context) : Config {
         set(value) = preferences.edit()
             .putInt(KEY_TEST_COUNTER, value)
             .apply()
+
+    override var capabilitiesRmbtHttp: Boolean
+        get() = getBoolean(BuildConfig.CAPABILITIES_RMBT_HTTP)
+        set(value) = setBoolean(BuildConfig.CAPABILITIES_RMBT_HTTP, value)
+
+    override var capabilitiesQosSupportsInfo: Boolean
+        get() = getBoolean(BuildConfig.CAPABILITIES_QOS_SUPPORTS_INFO)
+        set(value) = setBoolean(BuildConfig.CAPABILITIES_QOS_SUPPORTS_INFO, value)
+
+    override var capabilitiesClassificationCount: Int
+        get() = getInt(BuildConfig.CAPABILITIES_CLASSIFICATION_COUNT)
+        set(value) = setInt(BuildConfig.CAPABILITIES_CLASSIFICATION_COUNT, value)
 }

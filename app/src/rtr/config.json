@@ -84,6 +84,21 @@
             "name": "CONTROL_SERVER_TEST_REQUEST_PATH",
             "value": "",
             "visible": false
+        },
+        {
+            "name": "CAPABILITIES_RMBT_HTTP",
+            "value": "false",
+            "visible": false
+        },
+        {
+            "name": "CAPABILITIES_QOS_SUPPORTS_INFO",
+            "value": "false",
+            "visible": false
+        },
+        {
+            "name": "CAPABILITIES_CLASSIFICATION_COUNT",
+            "value": "4",
+            "visible": false
         }
     ]
 }

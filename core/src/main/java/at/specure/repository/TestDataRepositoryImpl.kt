@@ -3,6 +3,7 @@ package at.specure.repository
 import androidx.lifecycle.LiveData
 import at.rmbt.util.io
 import at.specure.database.CoreDatabase
+import at.specure.database.entity.Capabilities
 import at.specure.database.entity.GeoLocation
 import at.specure.database.entity.GraphItem
 import at.specure.database.entity.PermissionStatus
@@ -22,6 +23,7 @@ class TestDataRepositoryImpl(db: CoreDatabase) : TestDataRepository {
     private val graphItemDao = db.graphItemsDao()
     private val testTrafficDao = db.testTrafficItemDao()
     private val signalDao = db.signalDao()
+    private val capabilitiesDao = db.capabilitiesDao()
     private val permissionStatusDao = db.permissionStatusDao()
 
     override fun saveGeoLocation(testUUID: String, location: LocationInfo) = io {
@@ -137,5 +139,19 @@ class TestDataRepositoryImpl(db: CoreDatabase) : TestDataRepository {
     override fun savePermissionStatus(testUUID: String, permission: String, granted: Boolean) {
         val permissionStatus = PermissionStatus(testUUID = testUUID, permissionName = permission, status = granted)
         permissionStatusDao.insert(permissionStatus)
+    }
+
+    override fun getCapabilities(testUUID: String): Capabilities {
+        return capabilitiesDao.getCapabilitiesForTest(testUUID)
+    }
+
+    override fun saveCapabilities(testUUID: String, rmbtHttp: Boolean, qosSupportsInfo: Boolean, classificationCount: Int) {
+        val capabilities = Capabilities(
+            testUUID = testUUID,
+            rmbtHttpStatus = rmbtHttp,
+            qosSupportInfo = qosSupportsInfo,
+            classificationCount = classificationCount
+        )
+        capabilitiesDao.insert(capabilities)
     }
 }
