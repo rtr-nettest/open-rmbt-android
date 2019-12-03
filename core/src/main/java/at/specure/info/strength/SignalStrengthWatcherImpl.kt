@@ -86,8 +86,6 @@ class SignalStrengthWatcherImpl(
             get() = ignoredDevices.contains(Build.MODEL)
 
         override fun onSignalStrengthsChanged(signalStrength: SignalStrength?) {
-            Timber.d("Signal Strength changed")
-
             if (isDeviceIgnored) {
                 Timber.i("Signal Strength is ignored for current device")
                 return

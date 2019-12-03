@@ -8,8 +8,10 @@ import at.specure.database.Tables
 
 @Entity(tableName = Tables.CELL_LOCATION)
 data class CellLocationRecord(
+
     @PrimaryKey(autoGenerate = true)
-    val id: Long,
+    val id: Long = 0,
+
     @ForeignKey(
         entity = TestRecord::class,
         parentColumns = [Columns.TEST_UUID_PARENT_COLUMN],
@@ -17,9 +19,10 @@ data class CellLocationRecord(
         onDelete = ForeignKey.CASCADE
     )
     val testUUID: String,
-    val primaryScramblingCode: Int?,
-    val areaCode: Int?,
-    val locationId: String?,
-    val timeMillis: Long?,
-    val timeNanos: Long?
+
+    val scramblingCode: Int,
+    val areaCode: Int,
+    val locationId: Int,
+    val timestampMillis: Long,
+    val timestampNanos: Long
 )

@@ -3,13 +3,14 @@ package at.specure.repository
 import androidx.lifecycle.LiveData
 import at.rmbt.util.io
 import at.specure.database.CoreDatabase
-import at.specure.database.entity.CellInfoRecord
 import at.specure.database.entity.CapabilitiesRecord
+import at.specure.database.entity.CellInfoRecord
+import at.specure.database.entity.CellLocationRecord
+import at.specure.database.entity.DownloadTrafficRecord
 import at.specure.database.entity.GeoLocationRecord
 import at.specure.database.entity.GraphItemRecord
 import at.specure.database.entity.PermissionStatusRecord
 import at.specure.database.entity.SignalRecord
-import at.specure.database.entity.DownloadTrafficRecord
 import at.specure.database.entity.UploadTrafficRecord
 import at.specure.info.cell.CellNetworkInfo
 import at.specure.info.cell.CellTechnology
@@ -21,6 +22,7 @@ import at.specure.info.strength.SignalStrengthInfoGsm
 import at.specure.info.strength.SignalStrengthInfoLte
 import at.specure.info.strength.SignalStrengthInfoWiFi
 import at.specure.location.LocationInfo
+import at.specure.location.cell.CellLocationInfo
 
 class TestDataRepositoryImpl(db: CoreDatabase) : TestDataRepository {
 
@@ -31,6 +33,7 @@ class TestDataRepositoryImpl(db: CoreDatabase) : TestDataRepository {
     private val capabilitiesDao = db.capabilitiesDao()
     private val permissionStatusDao = db.permissionStatusDao()
     private val cellInfoDao = db.cellInfoDao()
+    private val cellLocationDao = db.cellLocationDao()
 
     override fun saveGeoLocation(testUUID: String, location: LocationInfo) = io {
         val geoLocation = GeoLocationRecord(
@@ -188,7 +191,7 @@ class TestDataRepositoryImpl(db: CoreDatabase) : TestDataRepository {
         primaryScramblingCode = scramblingCode
     )
 
-    override fun savePermissionStatus(testUUID: String, permission: String, granted: Boolean) {
+    override fun savePermissionStatus(testUUID: String, permission: String, granted: Boolean) = io {
         val permissionStatus = PermissionStatusRecord(testUUID = testUUID, permissionName = permission, status = granted)
         permissionStatusDao.insert(permissionStatus)
     }
@@ -197,7 +200,7 @@ class TestDataRepositoryImpl(db: CoreDatabase) : TestDataRepository {
         return capabilitiesDao.getCapabilitiesForTest(testUUID)
     }
 
-    override fun saveCapabilities(testUUID: String, rmbtHttp: Boolean, qosSupportsInfo: Boolean, classificationCount: Int) {
+    override fun saveCapabilities(testUUID: String, rmbtHttp: Boolean, qosSupportsInfo: Boolean, classificationCount: Int) = io {
         val capabilities = CapabilitiesRecord(
             testUUID = testUUID,
             rmbtHttpStatus = rmbtHttp,
@@ -205,5 +208,17 @@ class TestDataRepositoryImpl(db: CoreDatabase) : TestDataRepository {
             classificationCount = classificationCount
         )
         capabilitiesDao.insert(capabilities)
+    }
+
+    override fun saveCellLocation(testUUID: String, info: CellLocationInfo) = io {
+        val record = CellLocationRecord(
+            testUUID = testUUID,
+            scramblingCode = info.scramblingCode,
+            areaCode = info.areaCode,
+            locationId = info.locationId,
+            timestampNanos = info.timestampNanos,
+            timestampMillis = info.timestampMillis
+        )
+        cellLocationDao.insert(record)
     }
 }

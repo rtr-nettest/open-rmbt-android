@@ -7,6 +7,7 @@ import at.specure.info.network.MobileNetworkType
 import at.specure.info.network.NetworkInfo
 import at.specure.info.strength.SignalStrengthInfo
 import at.specure.location.LocationInfo
+import at.specure.location.cell.CellLocationInfo
 
 interface TestDataRepository {
 
@@ -39,4 +40,6 @@ interface TestDataRepository {
     fun saveCapabilities(testUUID: String, rmbtHttp: Boolean, qosSupportsInfo: Boolean, classificationCount: Int)
 
     fun savePermissionStatus(testUUID: String, permission: String, granted: Boolean)
+
+    fun saveCellLocation(testUUID: String, info: CellLocationInfo)
 }

@@ -17,6 +17,9 @@ import at.specure.info.strength.SignalStrengthWatcher
 import at.specure.location.LocationInfo
 import at.specure.location.LocationInfoLiveData
 import at.specure.location.LocationWatcher
+import at.specure.location.cell.CellLocationInfo
+import at.specure.location.cell.CellLocationLiveData
+import at.specure.location.cell.CellLocationWatcher
 import at.specure.repository.TestDataRepository
 import at.specure.util.hasPermission
 import at.specure.util.permission.PermissionsWatcher
@@ -33,7 +36,9 @@ class StateRecorder @Inject constructor(
     private val activeNetworkWatcher: ActiveNetworkWatcher,
     private val cellInfoWatcher: CellInfoWatcher,
     private val permissionsWatcher: PermissionsWatcher,
-    private val config: Config
+    private val config: Config,
+    private val cellLocationLiveData: CellLocationLiveData,
+    private val cellLocationWatcher: CellLocationWatcher
 ) {
 
     private var testUUID: String? = null
@@ -42,6 +47,7 @@ class StateRecorder @Inject constructor(
     private var _locationInfo: LocationInfo? = null
     private var signalStrengthInfo: SignalStrengthInfo? = null
     private var networkInfo: NetworkInfo? = null
+    private var cellLocation: CellLocationInfo? = null
 
     val locationInfo: LocationInfo?
         get() = _locationInfo
@@ -68,6 +74,12 @@ class StateRecorder @Inject constructor(
             networkInfo = it
             saveCellInfo()
         })
+
+        cellLocation = cellLocationWatcher.latestLocation
+        cellLocationLiveData.observe(lifecycle, Observer {
+            cellLocation = it
+            saveCellLocation()
+        })
     }
 
     fun start(testUUID: String, testStartTimeNanos: Long) {
@@ -78,6 +90,7 @@ class StateRecorder @Inject constructor(
         saveCellInfo()
         saveCapabilities()
         savePermissionsStatus()
+        saveCellLocation()
     }
 
     fun finish() {
@@ -140,6 +153,14 @@ class StateRecorder @Inject constructor(
                 val permissionGranted = context.hasPermission(permission)
                 repository.savePermissionStatus(it, permission, permissionGranted)
             }
+        }
+    }
+
+    private fun saveCellLocation() {
+        val uuid = testUUID
+        val location = cellLocation
+        if (uuid != null && location != null) {
+            repository.saveCellLocation(uuid, location)
         }
     }
 
