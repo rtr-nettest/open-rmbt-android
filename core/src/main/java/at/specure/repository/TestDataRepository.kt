@@ -1,11 +1,13 @@
 package at.specure.repository
 
 import androidx.lifecycle.LiveData
-import at.specure.database.entity.Capabilities
-import at.specure.database.entity.GraphItem
+import at.specure.database.entity.CapabilitiesRecord
+import at.specure.database.entity.GraphItemRecord
 import at.specure.info.network.MobileNetworkType
+import at.specure.info.network.NetworkInfo
 import at.specure.info.strength.SignalStrengthInfo
 import at.specure.location.LocationInfo
+import at.specure.location.cell.CellLocationInfo
 
 interface TestDataRepository {
 
@@ -19,15 +21,25 @@ interface TestDataRepository {
 
     fun saveUploadGraphItem(testUUID: String, progress: Int, speedBps: Long)
 
-    fun getDownloadGraphItemsLiveData(testUUID: String): LiveData<List<GraphItem>>
+    fun getDownloadGraphItemsLiveData(testUUID: String): LiveData<List<GraphItemRecord>>
 
-    fun getUploadGraphItemsLiveData(testUUID: String): LiveData<List<GraphItem>>
+    fun getUploadGraphItemsLiveData(testUUID: String): LiveData<List<GraphItemRecord>>
 
-    fun saveSignalStrength(testUUID: String, cellUUID: String, mobileNetworkType: MobileNetworkType?, info: SignalStrengthInfo)
+    fun saveSignalStrength(
+        testUUID: String,
+        cellUUID: String,
+        mobileNetworkType: MobileNetworkType?,
+        info: SignalStrengthInfo,
+        testStartTimeNanos: Long
+    )
 
-    fun getCapabilities(testUUID: String): Capabilities
+    fun saveCellInfo(testUUID: String, infoList: List<NetworkInfo>)
+
+    fun getCapabilities(testUUID: String): CapabilitiesRecord
 
     fun saveCapabilities(testUUID: String, rmbtHttp: Boolean, qosSupportsInfo: Boolean, classificationCount: Int)
 
     fun savePermissionStatus(testUUID: String, permission: String, granted: Boolean)
+
+    fun saveCellLocation(testUUID: String, info: CellLocationInfo)
 }

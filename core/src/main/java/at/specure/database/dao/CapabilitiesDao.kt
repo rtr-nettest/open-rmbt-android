@@ -5,14 +5,14 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import at.specure.database.Tables
-import at.specure.database.entity.Capabilities
+import at.specure.database.entity.CapabilitiesRecord
 
 @Dao
 interface CapabilitiesDao {
 
     @Query("SELECT * from ${Tables.CAPABILITIES} WHERE testUUID == :testUUID LIMIT 1")
-    fun getCapabilitiesForTest(testUUID: String): Capabilities
+    fun getCapabilitiesForTest(testUUID: String): CapabilitiesRecord
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
-    fun insert(capabilities: Capabilities)
+    fun insert(capabilities: CapabilitiesRecord)
 }

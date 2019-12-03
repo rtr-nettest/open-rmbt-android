@@ -63,6 +63,14 @@ class MeasurementActivity : BaseActivity(), SimpleDialog.Callback {
         viewModel.uploadGraphLiveData.listen(this) {
             viewModel.state.uploadGraphItems.set(it)
         }
+
+        viewModel.signalStrengthLiveData.listen(this) {
+            viewModel.state.signalStrengthInfo.set(it)
+        }
+
+        viewModel.activeNetworkLiveData.listen(this) {
+            viewModel.state.networkInfo.set(it)
+        }
     }
 
     override fun onDialogPositiveClicked(code: Int) {

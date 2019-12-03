@@ -6,6 +6,8 @@ interface TestController {
 
     val isRunning: Boolean
 
+    val testStartTimeNanos: Long
+
     fun start(listener: TestProgressListener, deviceInfo: DeviceInfo)
 
     fun stop()

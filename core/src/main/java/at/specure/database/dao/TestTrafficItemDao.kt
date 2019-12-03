@@ -5,21 +5,21 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import at.specure.database.Tables
-import at.specure.database.entity.TestTrafficDownload
-import at.specure.database.entity.TestTrafficUpload
+import at.specure.database.entity.DownloadTrafficRecord
+import at.specure.database.entity.UploadTrafficRecord
 
 @Dao
 interface TestTrafficItemDao {
 
-    @Query("SELECT * from ${Tables.TEST_TRAFFIC_UPLOAD_ITEM} WHERE testUUID == :testUUID")
-    fun getTestTrafficUploadItems(testUUID: String): List<TestTrafficUpload>
+    @Query("SELECT * from ${Tables.UPLOAD_TRAFFIC} WHERE testUUID == :testUUID")
+    fun getTestTrafficUploadItems(testUUID: String): List<UploadTrafficRecord>
 
-    @Query("SELECT * from ${Tables.TEST_TRAFFIC_DOWNLOAD_ITEM} WHERE testUUID == :testUUID")
-    fun getTestTrafficDownloadItems(testUUID: String): List<TestTrafficDownload>
-
-    @Insert(onConflict = OnConflictStrategy.IGNORE)
-    fun insertDownloadItem(testTrafficItem: TestTrafficDownload)
+    @Query("SELECT * from ${Tables.DOWNLOAD_TRAFFIC} WHERE testUUID == :testUUID")
+    fun getTestTrafficDownloadItems(testUUID: String): List<DownloadTrafficRecord>
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
-    fun insertUploadItem(testTrafficItem: TestTrafficUpload)
+    fun insertDownloadItem(testTrafficItem: DownloadTrafficRecord)
+
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    fun insertUploadItem(testTrafficItem: UploadTrafficRecord)
 }

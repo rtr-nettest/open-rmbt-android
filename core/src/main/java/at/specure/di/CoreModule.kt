@@ -27,6 +27,8 @@ import at.specure.info.wifi.WifiInfoWatcher
 import at.specure.info.wifi.WifiInfoWatcherImpl
 import at.specure.location.LocationProviderStateWatcher
 import at.specure.location.LocationProviderStateWatcherImpl
+import at.specure.location.cell.CellLocationWatcher
+import at.specure.location.cell.CellLocationWatcherImpl
 import at.specure.repository.SettingsRepository
 import at.specure.repository.SettingsRepositoryImpl
 import at.specure.test.TestController
@@ -125,4 +127,8 @@ class CoreModule {
     @Provides
     @Singleton
     fun provideTestController(config: Config, clientUUID: ClientUUID): TestController = TestControllerImpl(config, clientUUID)
+
+    @Provides
+    @Singleton
+    fun provideCellLocationWatcher(telephonyManager: TelephonyManager): CellLocationWatcher = CellLocationWatcherImpl(telephonyManager)
 }

@@ -29,6 +29,8 @@ interface CellInfoWatcher {
 
     val cellInfo: CellInfo?
 
+    val allCellInfo: List<CellNetworkInfo>
+
     /**
      * Add listener to observe cell network changes
      */

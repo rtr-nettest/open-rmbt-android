@@ -17,5 +17,5 @@ interface TestProgressListener : RMBTClientCallback {
 
     fun onError()
 
-    fun onClientReady(testUUID: String)
+    fun onClientReady(testUUID: String, testStartTimeNanos: Long)
 }

@@ -3,51 +3,57 @@ package at.specure.database.entity
 import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
-import at.specure.database.Columns.TEST_UUID_PARENT_COLUMN
+import at.specure.database.Columns
+import at.specure.database.Tables
 
-@Entity
-data class MobileTest(
+@Entity(tableName = Tables.TEST_TELEPHONY_RECORD)
+data class TestTelephonyRecord(
     @PrimaryKey
-    @ForeignKey(entity = Test::class, parentColumns = [TEST_UUID_PARENT_COLUMN], childColumns = ["testUUID"], onDelete = ForeignKey.CASCADE)
+    @ForeignKey(
+        entity = TestRecord::class,
+        parentColumns = [Columns.TEST_UUID_PARENT_COLUMN],
+        childColumns = ["testUUID"],
+        onDelete = ForeignKey.CASCADE
+    )
     val testUUID: String,
     /**
      *  operator name
      */
-    val telNetworkOperatorName: String?,
+    val networkOperatorName: String?,
     /**
      *  operator code (MMC-MNC)
      */
-    val telNetworkOperator: String?,
+    val networkOperator: String?,
     /**
      *  true if network is roaming
      */
-    val telNetworkIsRoaming: Boolean?,
+    val networkIsRoaming: Boolean?,
     /**
      *  Country code of the network
      */
-    val telNetworkCountry: String?,
+    val networkCountry: String?,
     /**
      *  SIM card issuer operator name
      */
-    val telNetworkSimOperatorName: String?,
+    val networkSimOperatorName: String?,
     /**
      *  SIM card issuer operator code (MMC-MNC)
      */
-    val telNetworkSimOperator: String?,
+    val networkSimOperator: String?,
     /**
      * country code of the SIM card issuer operator
      */
-    val telNetworkSimCountry: String?,
+    val networkSimCountry: String?,
     /**
      * phone type from TelephonyManager.getPhoneType()
      */
-    val telPhoneType: String?,
+    val phoneType: String?,
     /**
      * data state from TelephonyManager.getDataState(), if there is security exception please save "s.exception"
      */
-    val telDataState: String?,
+    val dataState: String?,
     /**
      * Access point name from NetworkInfo.getExtraInfo()
      */
-    val telApn: String?
+    val apn: String?
 )

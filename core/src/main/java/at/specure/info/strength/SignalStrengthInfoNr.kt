@@ -9,6 +9,7 @@ class SignalStrengthInfoNr(
     signalLevel: Int,
     min: Int,
     max: Int,
+    timestampNanos: Long,
 
     /**
      * Reference: 3GPP TS 38.215.
@@ -57,4 +58,4 @@ class SignalStrengthInfoNr(
      * unreported value.
      */
     val ssSinr: Int
-) : SignalStrengthInfo(transport, value, rsrq, signalLevel, min, max)
+) : SignalStrengthInfo(transport, value, rsrq, signalLevel, min, max, timestampNanos)

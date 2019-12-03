@@ -4,7 +4,7 @@ import android.os.Bundle
 import androidx.databinding.ObservableField
 import androidx.databinding.ObservableInt
 import androidx.databinding.ObservableLong
-import at.specure.database.entity.GraphItem
+import at.specure.database.entity.GraphItemRecord
 import at.specure.info.network.NetworkInfo
 import at.specure.info.strength.SignalStrengthInfo
 import at.specure.measurement.MeasurementState
@@ -26,8 +26,8 @@ class MeasurementViewState : ViewState {
     val pingMs = ObservableLong()
     val signalStrengthInfo = ObservableField<SignalStrengthInfo?>()
     val networkInfo = ObservableField<NetworkInfo?>()
-    val downloadGraphItems = ObservableField<List<GraphItem>>()
-    val uploadGraphItems = ObservableField<List<GraphItem>>()
+    val downloadGraphItems = ObservableField<List<GraphItemRecord>>()
+    val uploadGraphItems = ObservableField<List<GraphItemRecord>>()
 
     override fun onRestoreState(bundle: Bundle?) {
         bundle?.let {

@@ -13,7 +13,7 @@ import at.rtr.rmbt.android.ui.view.WaveView
 import at.rtr.rmbt.android.ui.view.curve.MeasurementCurveLayout
 import at.rtr.rmbt.android.util.InfoWindowStatus
 import at.rtr.rmbt.android.util.format
-import at.specure.database.entity.GraphItem
+import at.specure.database.entity.GraphItemRecord
 import at.specure.info.TransportType
 import at.specure.info.cell.CellNetworkInfo
 import at.specure.info.cell.CellTechnology
@@ -388,7 +388,7 @@ fun AppCompatImageView.setSmallIcon(signalStrengthInfo: SignalStrengthInfo?) {
  * A binding adapter that is used for show download and upload data on graph
  */
 @BindingAdapter("graphItems")
-fun SpeedLineChart.setGraphItems(graphItems: List<GraphItem>?) {
+fun SpeedLineChart.setGraphItems(graphItems: List<GraphItemRecord>?) {
     addGraphItems(graphItems)
 }
 
