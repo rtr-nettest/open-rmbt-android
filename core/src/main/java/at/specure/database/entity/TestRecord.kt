@@ -9,7 +9,7 @@ import at.specure.info.TransportType
 import at.specure.measurement.MeasurementState
 
 @Entity(tableName = TEST)
-data class Test(
+data class TestRecord(
 
     /**
      * uuid of the test obtained from control server from /testRequest

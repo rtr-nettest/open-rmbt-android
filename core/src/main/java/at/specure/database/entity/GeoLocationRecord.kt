@@ -10,7 +10,7 @@ import at.specure.database.Tables.GEO_LOCATION
 data class GeoLocation(
     @PrimaryKey(autoGenerate = true)
     val id: Long = 0,
-    @ForeignKey(entity = Test::class, parentColumns = [TEST_UUID_PARENT_COLUMN], childColumns = ["testUUID"], onDelete = ForeignKey.CASCADE)
+    @ForeignKey(entity = TestRecord::class, parentColumns = [TEST_UUID_PARENT_COLUMN], childColumns = ["testUUID"], onDelete = ForeignKey.CASCADE)
     val testUUID: String,
     val latitude: Double,
     val longitude: Double,

@@ -10,4 +10,4 @@ class TestTrafficUpload(
     threadNumber: Int,
     timeNanos: Long,
     bytes: Long
-) : TestTrafficDownload(id, testUUID, threadNumber, timeNanos, bytes)
+) : DownloadTrafficRecord(id, testUUID, threadNumber, timeNanos, bytes)
