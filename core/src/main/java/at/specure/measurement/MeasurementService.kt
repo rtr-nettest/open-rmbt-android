@@ -12,7 +12,6 @@ import androidx.lifecycle.LifecycleService
 import at.specure.config.Config
 import at.specure.di.CoreInjector
 import at.specure.di.NotificationProvider
-import at.specure.info.network.NetworkInfo
 import at.specure.repository.TestDataRepository
 import at.specure.test.DeviceInfo
 import at.specure.test.StateRecorder
@@ -49,8 +48,6 @@ class MeasurementService : LifecycleService() {
     private var uploadSpeedBps = 0L
     private var hasErrors = false
 
-    private var networkInfo: NetworkInfo? = null
-
     private val notificationManager: NotificationManager by lazy { getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager }
 
     private lateinit var wakeLock: PowerManager.WakeLock
@@ -73,18 +70,14 @@ class MeasurementService : LifecycleService() {
 
         override fun onDownloadSpeedChanged(progress: Int, speedBps: Long) {
             downloadSpeedBps = speedBps
+            stateRecorder.onDownloadSpeedChanged(progress, speedBps)
             clientAggregator.onDownloadSpeedChanged(progress, speedBps)
-            runner.testUUID?.let {
-                testDataRepository.saveDownloadGraphItem(it, progress, speedBps)
-            }
         }
 
         override fun onUploadSpeedChanged(progress: Int, speedBps: Long) {
             uploadSpeedBps = speedBps
+            stateRecorder.onUploadSpeedChanged(progress, speedBps)
             clientAggregator.onUploadSpeedChanged(progress, speedBps)
-            runner.testUUID?.let {
-                testDataRepository.saveUploadGraphItem(it, progress, speedBps)
-            }
         }
 
         override fun onFinish() {
@@ -108,15 +101,11 @@ class MeasurementService : LifecycleService() {
         }
 
         override fun onThreadDownloadDataChanged(threadId: Int, timeNanos: Long, bytesTotal: Long) {
-            runner.testUUID?.let {
-                testDataRepository.saveTrafficDownload(it, threadId, timeNanos, bytesTotal)
-            }
+            stateRecorder.onThreadDownloadDataChanged(threadId, timeNanos, bytesTotal)
         }
 
         override fun onThreadUploadDataChanged(threadId: Int, timeNanos: Long, bytesTotal: Long) {
-            runner.testUUID?.let {
-                testDataRepository.saveTrafficUpload(it, threadId, timeNanos, bytesTotal)
-            }
+            stateRecorder.onThreadUploadDataChanged(threadId, timeNanos, bytesTotal)
         }
     }
 
@@ -246,7 +235,6 @@ class MeasurementService : LifecycleService() {
                 onPingChanged(pingNanos)
                 onDownloadSpeedChanged(measurementProgress, downloadSpeedBps)
                 onUploadSpeedChanged(measurementProgress, uploadSpeedBps)
-                onActiveNetworkChanged(networkInfo)
                 runner.testUUID?.let {
                     onClientReady(it)
                 }
@@ -335,12 +323,6 @@ class MeasurementService : LifecycleService() {
         override fun onPingChanged(pingNanos: Long) {
             clients.forEach {
                 it.onPingChanged(pingNanos)
-            }
-        }
-
-        override fun onActiveNetworkChanged(networkInfo: NetworkInfo?) {
-            clients.forEach {
-                it.onActiveNetworkChanged(networkInfo)
             }
         }
 

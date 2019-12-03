@@ -89,7 +89,7 @@ class TestControllerImpl(private val config: Config, private val clientUUID: Cli
                 return@async
             }
 
-            client.commonCallback = listener
+            client.commonCallback = _listener
             client.trafficService = TrafficServiceImpl()
 
             val connection = client.controlConnection

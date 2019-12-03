@@ -10,7 +10,6 @@ import androidx.lifecycle.MutableLiveData
 import at.rtr.rmbt.android.ui.viewstate.MeasurementViewState
 import at.specure.database.entity.GraphItemRecord
 import at.specure.info.network.ActiveNetworkLiveData
-import at.specure.info.network.NetworkInfo
 import at.specure.info.strength.SignalStrengthLiveData
 import at.specure.measurement.MeasurementClient
 import at.specure.measurement.MeasurementProducer
@@ -124,10 +123,6 @@ class MeasurementViewModel @Inject constructor(
 
     override fun onPingChanged(pingNanos: Long) {
         state.pingMs.set(TimeUnit.NANOSECONDS.toMillis(pingNanos))
-    }
-
-    override fun onActiveNetworkChanged(networkInfo: NetworkInfo?) {
-        state.networkInfo.set(networkInfo)
     }
 
     fun cancelMeasurement() {

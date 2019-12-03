@@ -82,6 +82,7 @@ class StateRecorder @Inject constructor(
 
     fun finish() {
         // TODO finish
+        testUUID = null
     }
 
     private fun saveLocationInfo() {
@@ -139,6 +140,30 @@ class StateRecorder @Inject constructor(
                 val permissionGranted = context.hasPermission(permission)
                 repository.savePermissionStatus(it, permission, permissionGranted)
             }
+        }
+    }
+
+    fun onDownloadSpeedChanged(progress: Int, speedBps: Long) {
+        testUUID?.let {
+            repository.saveDownloadGraphItem(it, progress, speedBps)
+        }
+    }
+
+    fun onUploadSpeedChanged(progress: Int, speedBps: Long) {
+        testUUID?.let {
+            repository.saveUploadGraphItem(it, progress, speedBps)
+        }
+    }
+
+    fun onThreadDownloadDataChanged(threadId: Int, timeNanos: Long, bytesTotal: Long) {
+        testUUID?.let {
+            repository.saveTrafficDownload(it, threadId, timeNanos, bytesTotal)
+        }
+    }
+
+    fun onThreadUploadDataChanged(threadId: Int, timeNanos: Long, bytesTotal: Long) {
+        testUUID?.let {
+            repository.saveTrafficUpload(it, threadId, timeNanos, bytesTotal)
         }
     }
 }
