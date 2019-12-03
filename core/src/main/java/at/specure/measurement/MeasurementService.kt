@@ -9,7 +9,6 @@ import android.os.Build
 import android.os.IBinder
 import android.os.PowerManager
 import androidx.lifecycle.LifecycleService
-import at.rtr.rmbt.client.Ping
 import at.specure.config.Config
 import at.specure.di.CoreInjector
 import at.specure.di.NotificationProvider
