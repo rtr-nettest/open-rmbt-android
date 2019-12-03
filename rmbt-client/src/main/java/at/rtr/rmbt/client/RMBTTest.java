@@ -409,6 +409,8 @@ public class RMBTTest extends AbstractRMBTTest implements Callable<ThreadTestRes
                         }
                     }
 
+                    client.onPingDataChanged(testResult.pings);
+
                     // median
                     Arrays.sort(pings);
                     int middle = ((pings.length) / 2);

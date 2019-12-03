@@ -3,6 +3,7 @@ package at.specure.test
 import android.content.Context
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.Observer
+import at.rtr.rmbt.client.Ping
 import at.specure.config.Config
 import at.specure.info.cell.CellInfoWatcher
 import at.specure.info.cell.CellNetworkInfo
@@ -185,6 +186,12 @@ class StateRecorder @Inject constructor(
     fun onThreadUploadDataChanged(threadId: Int, timeNanos: Long, bytesTotal: Long) {
         testUUID?.let {
             repository.saveTrafficUpload(it, threadId, timeNanos, bytesTotal)
+        }
+    }
+
+    fun onPingValuesChanged(pings: List<Ping>) {
+        testUUID?.let {
+            repository.saveAllPingValues(it, pings)
         }
     }
 }

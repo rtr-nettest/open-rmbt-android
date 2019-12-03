@@ -2,6 +2,7 @@ package at.specure.repository
 
 import androidx.lifecycle.LiveData
 import at.rmbt.util.io
+import at.rtr.rmbt.client.Ping
 import at.specure.database.CoreDatabase
 import at.specure.database.entity.CapabilitiesRecord
 import at.specure.database.entity.CellInfoRecord
@@ -10,6 +11,7 @@ import at.specure.database.entity.DownloadTrafficRecord
 import at.specure.database.entity.GeoLocationRecord
 import at.specure.database.entity.GraphItemRecord
 import at.specure.database.entity.PermissionStatusRecord
+import at.specure.database.entity.PingRecord
 import at.specure.database.entity.SignalRecord
 import at.specure.database.entity.UploadTrafficRecord
 import at.specure.info.cell.CellNetworkInfo
@@ -34,6 +36,7 @@ class TestDataRepositoryImpl(db: CoreDatabase) : TestDataRepository {
     private val permissionStatusDao = db.permissionStatusDao()
     private val cellInfoDao = db.cellInfoDao()
     private val cellLocationDao = db.cellLocationDao()
+    private val pingDao = db.pingDao()
 
     override fun saveGeoLocation(testUUID: String, location: LocationInfo) = io {
         val geoLocation = GeoLocationRecord(
@@ -220,5 +223,14 @@ class TestDataRepositoryImpl(db: CoreDatabase) : TestDataRepository {
             timestampMillis = info.timestampMillis
         )
         cellLocationDao.insert(record)
+    }
+
+    override fun saveAllPingValues(testUUID: String, pings: List<Ping>) {
+        val records = mutableListOf<PingRecord>()
+        pings.forEach { ping ->
+            val record = PingRecord(testUUID = testUUID, value = ping.client, valueServer = ping.server, testTimeNanos = ping.timeNs)
+            records.add(record)
+        }
+        pingDao.insert(records)
     }
 }

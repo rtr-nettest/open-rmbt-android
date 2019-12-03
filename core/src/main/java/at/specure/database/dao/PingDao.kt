@@ -15,4 +15,7 @@ interface PingDao {
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     fun insert(ping: PingRecord)
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    fun insert(ping: List<PingRecord>)
 }
