@@ -5,9 +5,11 @@ import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
 import at.specure.database.Columns
 import at.specure.database.Tables
+import at.specure.info.TransportType
+import at.specure.info.network.MobileNetworkType
 
 @Entity(tableName = Tables.SIGNAL)
-data class Signal(
+data class SignalRecord(
     @PrimaryKey(autoGenerate = true)
     val id: Long = 0,
     @ForeignKey(
@@ -26,10 +28,11 @@ data class Signal(
      * difference between last update of the signal during the test and start time of the test
      */
     val timeNanosLast: Long?,
-    /**
-     * Value according to [at.specure.info.network.MobileNetworkType] or 99 if connected via Wi-Fi :/
-     */
-    val networkTypeId: Int,
+
+    val transportType: TransportType,
+
+    val mobileNetworkType: MobileNetworkType?,
+
     // wifi
     val signal: Int?,
     val wifiLinkSpeed: Int?,

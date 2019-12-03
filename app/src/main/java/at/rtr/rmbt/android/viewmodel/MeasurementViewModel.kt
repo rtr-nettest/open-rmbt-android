@@ -8,7 +8,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.MutableLiveData
 import at.rtr.rmbt.android.ui.viewstate.MeasurementViewState
-import at.specure.database.entity.GraphItem
+import at.specure.database.entity.GraphItemRecord
 import at.specure.info.network.ActiveNetworkLiveData
 import at.specure.info.network.NetworkInfo
 import at.specure.info.strength.SignalStrengthLiveData
@@ -34,10 +34,10 @@ class MeasurementViewModel @Inject constructor(
     private val _isTestsRunningLiveData = MutableLiveData<Boolean>()
     private val _measurementErrorLiveData = MutableLiveData<Boolean>()
 
-    private val _downloadGraphLiveData = MediatorLiveData<List<GraphItem>>()
-    private val _uploadGraphLiveData = MediatorLiveData<List<GraphItem>>()
-    private var downloadGraphSource: LiveData<List<GraphItem>>? = null
-    private var uploadGraphSource: LiveData<List<GraphItem>>? = null
+    private val _downloadGraphLiveData = MediatorLiveData<List<GraphItemRecord>>()
+    private val _uploadGraphLiveData = MediatorLiveData<List<GraphItemRecord>>()
+    private var downloadGraphSource: LiveData<List<GraphItemRecord>>? = null
+    private var uploadGraphSource: LiveData<List<GraphItemRecord>>? = null
 
     private var producer: MeasurementProducer? = null // TODO make field private
 
@@ -52,10 +52,10 @@ class MeasurementViewModel @Inject constructor(
     val measurementErrorLiveData: LiveData<Boolean>
         get() = _measurementErrorLiveData
 
-    val downloadGraphLiveData: LiveData<List<GraphItem>>
+    val downloadGraphLiveData: LiveData<List<GraphItemRecord>>
         get() = _downloadGraphLiveData
 
-    val uploadGraphLiveData: LiveData<List<GraphItem>>
+    val uploadGraphLiveData: LiveData<List<GraphItemRecord>>
         get() = _uploadGraphLiveData
 
     private val serviceConnection = object : ServiceConnection {

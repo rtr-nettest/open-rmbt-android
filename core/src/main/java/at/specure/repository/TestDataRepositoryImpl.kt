@@ -4,13 +4,13 @@ import androidx.lifecycle.LiveData
 import at.rmbt.util.io
 import at.specure.database.CoreDatabase
 import at.specure.database.entity.CellInfoRecord
-import at.specure.database.entity.Capabilities
-import at.specure.database.entity.GeoLocation
-import at.specure.database.entity.GraphItem
-import at.specure.database.entity.PermissionStatus
-import at.specure.database.entity.Signal
-import at.specure.database.entity.TestTrafficDownload
-import at.specure.database.entity.TestTrafficUpload
+import at.specure.database.entity.CapabilitiesRecord
+import at.specure.database.entity.GeoLocationRecord
+import at.specure.database.entity.GraphItemRecord
+import at.specure.database.entity.PermissionStatusRecord
+import at.specure.database.entity.SignalRecord
+import at.specure.database.entity.DownloadTrafficRecord
+import at.specure.database.entity.UploadTrafficRecord
 import at.specure.info.cell.CellNetworkInfo
 import at.specure.info.cell.CellTechnology
 import at.specure.info.network.MobileNetworkType
@@ -33,7 +33,7 @@ class TestDataRepositoryImpl(db: CoreDatabase) : TestDataRepository {
     private val cellInfoDao = db.cellInfoDao()
 
     override fun saveGeoLocation(testUUID: String, location: LocationInfo) = io {
-        val geoLocation = GeoLocation(
+        val geoLocation = GeoLocationRecord(
             testUUID = testUUID,
             latitude = location.latitude,
             longitude = location.longitude,
@@ -52,25 +52,25 @@ class TestDataRepositoryImpl(db: CoreDatabase) : TestDataRepository {
     }
 
     override fun saveDownloadGraphItem(testUUID: String, progress: Int, speedBps: Long) = io {
-        val graphItem = GraphItem(testUUID = testUUID, progress = progress, value = speedBps, type = GraphItem.GRAPH_ITEM_TYPE_DOWNLOAD)
+        val graphItem = GraphItemRecord(testUUID = testUUID, progress = progress, value = speedBps, type = GraphItemRecord.GRAPH_ITEM_TYPE_DOWNLOAD)
         graphItemDao.insertItem(graphItem)
     }
 
     override fun saveUploadGraphItem(testUUID: String, progress: Int, speedBps: Long) = io {
-        val graphItem = GraphItem(testUUID = testUUID, progress = progress, value = speedBps, type = GraphItem.GRAPH_ITEM_TYPE_UPLOAD)
+        val graphItem = GraphItemRecord(testUUID = testUUID, progress = progress, value = speedBps, type = GraphItemRecord.GRAPH_ITEM_TYPE_UPLOAD)
         graphItemDao.insertItem(graphItem)
     }
 
-    override fun getDownloadGraphItemsLiveData(testUUID: String): LiveData<List<GraphItem>> {
+    override fun getDownloadGraphItemsLiveData(testUUID: String): LiveData<List<GraphItemRecord>> {
         return graphItemDao.getDownloadGraphLiveData(testUUID)
     }
 
-    override fun getUploadGraphItemsLiveData(testUUID: String): LiveData<List<GraphItem>> {
+    override fun getUploadGraphItemsLiveData(testUUID: String): LiveData<List<GraphItemRecord>> {
         return graphItemDao.getUploadGraphLiveData(testUUID)
     }
 
     override fun saveTrafficDownload(testUUID: String, threadId: Int, timeNanos: Long, bytes: Long) = io {
-        val item = TestTrafficDownload(
+        val item = DownloadTrafficRecord(
             testUUID = testUUID,
             threadNumber = threadId,
             timeNanos = timeNanos,
@@ -80,7 +80,7 @@ class TestDataRepositoryImpl(db: CoreDatabase) : TestDataRepository {
     }
 
     override fun saveTrafficUpload(testUUID: String, threadId: Int, timeNanos: Long, bytes: Long) = io {
-        val item = TestTrafficUpload(
+        val item = UploadTrafficRecord(
             testUUID = testUUID,
             threadNumber = threadId,
             timeNanos = timeNanos,
@@ -96,7 +96,6 @@ class TestDataRepositoryImpl(db: CoreDatabase) : TestDataRepository {
         info: SignalStrengthInfo,
         testStartTimeNanos: Long
     ) = io {
-        var networkTypeId: Int = mobileNetworkType?.intValue ?: 0
         val signal = info.value
         var wifiLinkSpeed: Int? = null
         val timeNanos = info.timestampNanos
@@ -120,7 +119,6 @@ class TestDataRepositoryImpl(db: CoreDatabase) : TestDataRepository {
             }
             is SignalStrengthInfoWiFi -> {
                 wifiLinkSpeed = info.linkSpeed
-                networkTypeId = 99 // TODO constant from old app
             }
             is SignalStrengthInfoGsm -> {
                 bitErrorRate = info.bitErrorRate
@@ -128,10 +126,9 @@ class TestDataRepositoryImpl(db: CoreDatabase) : TestDataRepository {
             }
         }
 
-        val item = Signal(
+        val item = SignalRecord(
             testUUID = testUUID,
             cellUuid = cellUUID,
-            networkTypeId = networkTypeId,
             signal = signal,
             wifiLinkSpeed = wifiLinkSpeed,
             timeNanos = timeNanos,
@@ -141,7 +138,9 @@ class TestDataRepositoryImpl(db: CoreDatabase) : TestDataRepository {
             lteRsrq = lteRsrq,
             lteRssnr = lteRssnr,
             lteCqi = lteCqi,
-            timingAdvance = timingAdvance
+            timingAdvance = timingAdvance,
+            mobileNetworkType = mobileNetworkType,
+            transportType = info.transport
         )
         signalDao.insert(item)
     }
@@ -190,16 +189,16 @@ class TestDataRepositoryImpl(db: CoreDatabase) : TestDataRepository {
     )
 
     override fun savePermissionStatus(testUUID: String, permission: String, granted: Boolean) {
-        val permissionStatus = PermissionStatus(testUUID = testUUID, permissionName = permission, status = granted)
+        val permissionStatus = PermissionStatusRecord(testUUID = testUUID, permissionName = permission, status = granted)
         permissionStatusDao.insert(permissionStatus)
     }
 
-    override fun getCapabilities(testUUID: String): Capabilities {
+    override fun getCapabilities(testUUID: String): CapabilitiesRecord {
         return capabilitiesDao.getCapabilitiesForTest(testUUID)
     }
 
     override fun saveCapabilities(testUUID: String, rmbtHttp: Boolean, qosSupportsInfo: Boolean, classificationCount: Int) {
-        val capabilities = Capabilities(
+        val capabilities = CapabilitiesRecord(
             testUUID = testUUID,
             rmbtHttpStatus = rmbtHttp,
             qosSupportInfo = qosSupportsInfo,

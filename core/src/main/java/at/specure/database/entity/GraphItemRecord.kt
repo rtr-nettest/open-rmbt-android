@@ -7,7 +7,7 @@ import at.specure.database.Columns
 import at.specure.database.Tables
 
 @Entity(tableName = Tables.TEST_GRAPH_ITEM)
-data class GraphItem(
+data class GraphItemRecord(
     @PrimaryKey(autoGenerate = true)
     val id: Long = 0,
     @ForeignKey(

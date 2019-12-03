@@ -7,7 +7,7 @@ import at.specure.database.Columns
 import at.specure.database.Tables
 
 @Entity(tableName = Tables.CELL_LOCATION)
-data class CellLocation(
+data class CellLocationRecord(
     @PrimaryKey(autoGenerate = true)
     val id: Long,
     @ForeignKey(

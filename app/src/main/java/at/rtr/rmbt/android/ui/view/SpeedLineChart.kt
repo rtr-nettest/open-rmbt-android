@@ -7,7 +7,7 @@ import android.graphics.PointF
 import android.graphics.Canvas
 import android.util.AttributeSet
 import at.rtr.rmbt.android.R
-import at.specure.database.entity.GraphItem
+import at.specure.database.entity.GraphItemRecord
 import kotlin.math.log10
 import kotlin.math.pow
 import kotlin.math.sqrt
@@ -68,7 +68,7 @@ class SpeedLineChart @JvmOverloads constructor(
     /**
      * This function is use for calculate path
      */
-    fun addGraphItems(graphItems: List<GraphItem>?) {
+    fun addGraphItems(graphItems: List<GraphItemRecord>?) {
 
         pathStroke.rewind()
         pathFill.rewind()

@@ -1,7 +1,9 @@
 package at.specure.test
 
+import android.content.Context
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.Observer
+import at.specure.config.Config
 import at.specure.info.cell.CellInfoWatcher
 import at.specure.info.cell.CellNetworkInfo
 import at.specure.info.network.ActiveNetworkLiveData
@@ -16,9 +18,12 @@ import at.specure.location.LocationInfo
 import at.specure.location.LocationInfoLiveData
 import at.specure.location.LocationWatcher
 import at.specure.repository.TestDataRepository
+import at.specure.util.hasPermission
+import at.specure.util.permission.PermissionsWatcher
 import javax.inject.Inject
 
 class StateRecorder @Inject constructor(
+    private val context: Context,
     private val repository: TestDataRepository,
     private val locationInfoLiveData: LocationInfoLiveData,
     private val locationWatcher: LocationWatcher,
@@ -26,7 +31,9 @@ class StateRecorder @Inject constructor(
     private val signalStrengthWatcher: SignalStrengthWatcher,
     private val activeNetworkLiveData: ActiveNetworkLiveData,
     private val activeNetworkWatcher: ActiveNetworkWatcher,
-    private val cellInfoWatcher: CellInfoWatcher
+    private val cellInfoWatcher: CellInfoWatcher,
+    private val permissionsWatcher: PermissionsWatcher,
+    private val config: Config
 ) {
 
     private var testUUID: String? = null
@@ -69,6 +76,8 @@ class StateRecorder @Inject constructor(
         saveLocationInfo()
         saveSignalStrengthInfo()
         saveCellInfo()
+        saveCapabilities()
+        savePermissionsStatus()
     }
 
     fun finish() {
@@ -107,6 +116,29 @@ class StateRecorder @Inject constructor(
             }
 
             repository.saveCellInfo(uuid, infoList)
+        }
+    }
+
+    private fun saveCapabilities() {
+        val uuid = testUUID
+        uuid?.let {
+            repository.saveCapabilities(
+                it,
+                config.capabilitiesRmbtHttp,
+                config.capabilitiesQosSupportsInfo,
+                config.capabilitiesClassificationCount
+            )
+        }
+    }
+
+    private fun savePermissionsStatus() {
+        val permissions = permissionsWatcher.allPermissions
+        val uuid = testUUID
+        uuid?.let {
+            permissions.forEach { permission ->
+                val permissionGranted = context.hasPermission(permission)
+                repository.savePermissionStatus(it, permission, permissionGranted)
+            }
         }
     }
 }

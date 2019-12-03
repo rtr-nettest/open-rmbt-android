@@ -1,14 +1,14 @@
 package at.specure.repository
 
-import at.specure.database.entity.Test
+import at.specure.database.entity.TestRecord
 
 interface TestRepository {
 
-    fun getTest(uuid: String): Test?
+    fun getTest(uuid: String): TestRecord?
 
-    fun getLatestTest(): Test?
+    fun getLatestTest(): TestRecord?
 
-    fun saveTest(test: Test)
+    fun saveTest(test: TestRecord)
 
-    fun deleteTest(test: Test)
+    fun deleteTest(test: TestRecord)
 }

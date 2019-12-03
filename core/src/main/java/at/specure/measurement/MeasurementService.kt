@@ -18,8 +18,6 @@ import at.specure.test.DeviceInfo
 import at.specure.test.StateRecorder
 import at.specure.test.TestController
 import at.specure.test.TestProgressListener
-import at.specure.util.hasPermission
-import at.specure.util.permission.PermissionsWatcher
 import timber.log.Timber
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
@@ -37,9 +35,6 @@ class MeasurementService : LifecycleService() {
 
     @Inject
     lateinit var notificationProvider: NotificationProvider
-
-    @Inject
-    lateinit var permissionsWatcher: PermissionsWatcher
 
     @Inject
     lateinit var testDataRepository: TestDataRepository
@@ -129,33 +124,12 @@ class MeasurementService : LifecycleService() {
         super.onCreate()
         CoreInjector.inject(this)
 
+        stateRecorder.bind(this)
+
         val wifiManager = applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager
         wifiLock = wifiManager.createWifiLock(WifiManager.WIFI_MODE_FULL_HIGH_PERF, "$packageName:RMBTWifiLock")
         val powerManager = applicationContext.getSystemService(Context.POWER_SERVICE) as PowerManager
         wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "$packageName:RMBTWakeLock")
-    }
-
-    private fun saveCapabilities() {
-        if (runner.isRunning) {
-            runner.testUUID?.let { UUID ->
-                testDataRepository.saveCapabilities(
-                    UUID,
-                    config.capabilitiesRmbtHttp,
-                    config.capabilitiesQosSupportsInfo,
-                    config.capabilitiesClassificationCount
-                )
-            }
-        }
-    }
-
-    private fun savePermissionsStatus() {
-        val permissions = permissionsWatcher.allPermissions
-        runner.testUUID?.let { UUID ->
-            permissions.forEach { permission ->
-                val permissionGranted = this.hasPermission(permission)
-                testDataRepository.savePermissionStatus(UUID, permission, permissionGranted)
-            }
-        }
     }
 
     @Suppress("SENSELESS_COMPARISON") // intent may be null after service restarted by the system

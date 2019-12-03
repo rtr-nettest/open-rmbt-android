@@ -1,10 +1,10 @@
 package at.specure.database.entity
 
 import androidx.room.Entity
-import at.specure.database.Tables.TEST_TRAFFIC_UPLOAD_ITEM
+import at.specure.database.Tables.UPLOAD_TRAFFIC
 
-@Entity(tableName = TEST_TRAFFIC_UPLOAD_ITEM)
-class TestTrafficUpload(
+@Entity(tableName = UPLOAD_TRAFFIC)
+class UploadTrafficRecord(
     id: Long = 0,
     testUUID: String,
     threadNumber: Int,
