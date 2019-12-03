@@ -11,7 +11,7 @@ data class CellLocation(
     @PrimaryKey(autoGenerate = true)
     val id: Long,
     @ForeignKey(entity = Test::class, parentColumns = [TEST_UUID_PARENT_COLUMN], childColumns = ["testUUID"], onDelete = ForeignKey.CASCADE)
-    val testUUID: String?,
+    val testUUID: String,
     val primaryScramblingCode: Int?,
     val areaCode: Int?,
     val locationId: String?,

@@ -1,7 +1,6 @@
 package at.specure.measurement
 
 import at.specure.info.network.NetworkInfo
-import at.specure.info.strength.SignalStrengthInfo
 
 interface MeasurementClient {
 
@@ -10,8 +9,6 @@ interface MeasurementClient {
     fun onMeasurementFinish()
 
     fun onMeasurementError()
-
-    fun onSignalChanged(signalStrengthInfo: SignalStrengthInfo?)
 
     fun onDownloadSpeedChanged(progress: Int, speedBps: Long)
 

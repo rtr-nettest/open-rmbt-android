@@ -9,21 +9,13 @@ import android.os.Build
 import android.os.IBinder
 import android.os.PowerManager
 import androidx.lifecycle.LifecycleService
-import androidx.lifecycle.Observer
 import at.specure.config.Config
 import at.specure.di.CoreInjector
 import at.specure.di.NotificationProvider
-import at.specure.info.cell.CellNetworkInfo
-import at.specure.info.cell.CellTechnology
-import at.specure.info.network.ActiveNetworkLiveData
-import at.specure.info.network.MobileNetworkType
 import at.specure.info.network.NetworkInfo
-import at.specure.info.strength.SignalStrengthInfo
-import at.specure.info.strength.SignalStrengthLiveData
-import at.specure.location.LocationInfo
-import at.specure.location.LocationInfoLiveData
 import at.specure.repository.TestDataRepository
 import at.specure.test.DeviceInfo
+import at.specure.test.StateRecorder
 import at.specure.test.TestController
 import at.specure.test.TestProgressListener
 import timber.log.Timber
@@ -39,13 +31,7 @@ class MeasurementService : LifecycleService() {
     lateinit var runner: TestController
 
     @Inject
-    lateinit var signalStrengthLiveData: SignalStrengthLiveData
-
-    @Inject
-    lateinit var activeNetworkLiveData: ActiveNetworkLiveData
-
-    @Inject
-    lateinit var locationInfoLiveData: LocationInfoLiveData
+    lateinit var stateRecorder: StateRecorder
 
     @Inject
     lateinit var notificationProvider: NotificationProvider
@@ -63,9 +49,7 @@ class MeasurementService : LifecycleService() {
     private var uploadSpeedBps = 0L
     private var hasErrors = false
 
-    private var signalStrengthInfo: SignalStrengthInfo? = null
     private var networkInfo: NetworkInfo? = null
-    private var locationInfo: LocationInfo? = null
 
     private val notificationManager: NotificationManager by lazy { getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager }
 
@@ -100,6 +84,7 @@ class MeasurementService : LifecycleService() {
         override fun onFinish() {
             stopForeground(true)
             clientAggregator.onMeasurementFinish()
+            stateRecorder.finish()
             unlock()
         }
 
@@ -107,14 +92,12 @@ class MeasurementService : LifecycleService() {
             hasErrors = true
             stopForeground(true)
             clientAggregator.onMeasurementError()
+            stateRecorder.finish()
             unlock()
         }
 
-        override fun onClientReady(testUUID: String) {
-            locationInfo?.let {
-                testDataRepository.saveGeoLocation(testUUID, it)
-            }
-            saveSignalStrength()
+        override fun onClientReady(testUUID: String, testStartTimeNanos: Long) {
+            stateRecorder.start(testUUID, testStartTimeNanos)
         }
 
         override fun onThreadDownloadDataChanged(threadId: Int, timeNanos: Long, bytesTotal: Long) {
@@ -139,56 +122,7 @@ class MeasurementService : LifecycleService() {
         val powerManager = applicationContext.getSystemService(Context.POWER_SERVICE) as PowerManager
         wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "$packageName:RMBTWakeLock")
 
-        signalStrengthLiveData.observe(this, Observer {
-            signalStrengthInfo = it
-            clientAggregator.onSignalChanged(it)
-            saveSignalStrength()
-        })
-
-        activeNetworkLiveData.observe(this, Observer {
-            networkInfo = it
-            clientAggregator.onActiveNetworkChanged(it)
-            saveCellInfo()
-        })
-
-        locationInfoLiveData.observe(this, Observer { info ->
-            locationInfo = info
-            if (runner.isRunning) {
-                runner.testUUID?.let { UUID ->
-                    testDataRepository.saveGeoLocation(UUID, info)
-                }
-            }
-        })
-    }
-
-    private fun saveSignalStrength() {
-        val signal = signalStrengthInfo
-        if (runner.isRunning && signal != null) {
-            runner.testUUID?.let { UUID ->
-                val cellUUID = networkInfo?.cellUUID ?: ""
-                var mobileNetworkType: MobileNetworkType? = null
-                if (networkInfo != null && networkInfo is CellNetworkInfo) {
-                    mobileNetworkType = (networkInfo as CellNetworkInfo).networkType
-                }
-                testDataRepository.saveSignalStrength(UUID, cellUUID, mobileNetworkType, signal, runner.testStartTimeNanos)
-            }
-        }
-    }
-
-    private fun saveCellInfo() {
-        val cellInfo = networkInfo
-        if (runner.isRunning && cellInfo != null) {
-            runner.testUUID?.let { UUID ->
-                val cellUUID = networkInfo?.cellUUID ?: ""
-                var technology: CellTechnology? = null
-                var mobileNetworkType: MobileNetworkType? = null
-                if (networkInfo != null && networkInfo is CellNetworkInfo) {
-                    mobileNetworkType = (networkInfo as CellNetworkInfo).networkType
-                    technology = CellTechnology.fromMobileNetworkType(mobileNetworkType)
-                }
-                testDataRepository.saveActiveCellInfo(UUID, cellUUID, mobileNetworkType, networkInfo, technology)
-            }
-        }
+        stateRecorder.bind(this)
     }
 
     override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
@@ -218,7 +152,7 @@ class MeasurementService : LifecycleService() {
         }
 
         var location: DeviceInfo.Location? = null
-        locationInfo?.let {
+        stateRecorder.locationInfo?.let {
             location = DeviceInfo.Location(
                 lat = it.latitude,
                 long = it.longitude,
@@ -255,6 +189,7 @@ class MeasurementService : LifecycleService() {
         Timber.d("Stop tests")
         runner.stop()
 
+        stateRecorder.finish()
         stopForeground(true)
         unlock()
     }
@@ -302,7 +237,6 @@ class MeasurementService : LifecycleService() {
                 onPingChanged(pingNanos)
                 onDownloadSpeedChanged(measurementProgress, downloadSpeedBps)
                 onUploadSpeedChanged(measurementProgress, uploadSpeedBps)
-                onSignalChanged(signalStrengthInfo)
                 onActiveNetworkChanged(networkInfo)
                 if (hasErrors) {
                     client.onMeasurementError()
@@ -328,12 +262,6 @@ class MeasurementService : LifecycleService() {
 
         override val pingNanos: Long
             get() = this@MeasurementService.pingNanos
-
-        override val signalStrengthInfo: SignalStrengthInfo?
-            get() = this@MeasurementService.signalStrengthInfo
-
-        override val networkInfo: NetworkInfo?
-            get() = this@MeasurementService.networkInfo
 
         override val isTestsRunning: Boolean
             get() = runner.isRunning
@@ -374,12 +302,6 @@ class MeasurementService : LifecycleService() {
         override fun onMeasurementError() {
             clients.forEach {
                 it.onMeasurementError()
-            }
-        }
-
-        override fun onSignalChanged(signalStrengthInfo: SignalStrengthInfo?) {
-            clients.forEach {
-                it.onSignalChanged(signalStrengthInfo)
             }
         }
 

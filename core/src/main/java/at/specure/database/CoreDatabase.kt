@@ -15,7 +15,7 @@ import at.specure.database.dao.SignalDao
 import at.specure.database.dao.TestDao
 import at.specure.database.dao.TestTrafficItemDao
 import at.specure.database.entity.Capabilities
-import at.specure.database.entity.CellInfo
+import at.specure.database.entity.CellInfoRecord
 import at.specure.database.entity.CellLocation
 import at.specure.database.entity.GeoLocation
 import at.specure.database.entity.GraphItem
@@ -31,7 +31,7 @@ import at.specure.database.entity.WifiTest
 
 @Database(
     entities = [Capabilities::class,
-        CellInfo::class,
+        CellInfoRecord::class,
         CellLocation::class,
         GeoLocation::class,
         GraphItem::class,
@@ -44,7 +44,7 @@ import at.specure.database.entity.WifiTest
         TestTrafficDownload::class,
         TestTrafficUpload::class,
         WifiTest::class],
-    version = 5
+    version = 7
 )
 @TypeConverters(TypeConverter::class)
 abstract class CoreDatabase : RoomDatabase() {

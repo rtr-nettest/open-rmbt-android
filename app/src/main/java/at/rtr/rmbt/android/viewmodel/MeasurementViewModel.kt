@@ -7,8 +7,9 @@ import android.os.IBinder
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import at.rtr.rmbt.android.ui.viewstate.MeasurementViewState
+import at.specure.info.network.ActiveNetworkLiveData
 import at.specure.info.network.NetworkInfo
-import at.specure.info.strength.SignalStrengthInfo
+import at.specure.info.strength.SignalStrengthLiveData
 import at.specure.measurement.MeasurementClient
 import at.specure.measurement.MeasurementProducer
 import at.specure.measurement.MeasurementService
@@ -17,7 +18,11 @@ import timber.log.Timber
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
-class MeasurementViewModel @Inject constructor() : BaseViewModel(), MeasurementClient {
+class MeasurementViewModel @Inject constructor(
+    val signalStrengthLiveData: SignalStrengthLiveData,
+    val activeNetworkLiveData: ActiveNetworkLiveData
+) :
+    BaseViewModel(), MeasurementClient {
 
     private val _measurementFinishLiveData = MutableLiveData<Boolean>()
     private val _isTestsRunningLiveData = MutableLiveData<Boolean>()
@@ -59,8 +64,6 @@ class MeasurementViewModel @Inject constructor() : BaseViewModel(), MeasurementC
                     pingMs.set(TimeUnit.NANOSECONDS.toMillis(it.pingNanos))
                     downloadSpeedBps.set(it.downloadSpeedBps)
                     uploadSpeedBps.set(it.uploadSpeedBps)
-                    signalStrengthInfo.set(it.signalStrengthInfo)
-                    networkInfo.set(it.networkInfo)
                 }
             }
         }
@@ -90,10 +93,6 @@ class MeasurementViewModel @Inject constructor() : BaseViewModel(), MeasurementC
 
     override fun onMeasurementError() {
         _measurementErrorLiveData.postValue(true)
-    }
-
-    override fun onSignalChanged(signalStrengthInfo: SignalStrengthInfo?) {
-        state.signalStrengthInfo.set(signalStrengthInfo)
     }
 
     override fun onDownloadSpeedChanged(progress: Int, speedBps: Long) {

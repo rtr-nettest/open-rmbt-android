@@ -2,7 +2,7 @@ package at.specure.repository
 
 import at.rmbt.util.io
 import at.specure.database.CoreDatabase
-import at.specure.database.entity.CellInfo
+import at.specure.database.entity.CellInfoRecord
 import at.specure.database.entity.GRAPH_ITEM_TYPE_DOWNLOAD
 import at.specure.database.entity.GRAPH_ITEM_TYPE_UPLOAD
 import at.specure.database.entity.GeoLocation
@@ -10,9 +10,11 @@ import at.specure.database.entity.GraphItem
 import at.specure.database.entity.Signal
 import at.specure.database.entity.TestTrafficDownload
 import at.specure.database.entity.TestTrafficUpload
+import at.specure.info.cell.CellNetworkInfo
 import at.specure.info.cell.CellTechnology
 import at.specure.info.network.MobileNetworkType
 import at.specure.info.network.NetworkInfo
+import at.specure.info.network.WifiNetworkInfo
 import at.specure.info.strength.SignalStrengthInfo
 import at.specure.info.strength.SignalStrengthInfoGsm
 import at.specure.info.strength.SignalStrengthInfoLte
@@ -141,26 +143,46 @@ class TestDataRepositoryImpl(db: CoreDatabase) : TestDataRepository {
         signalDao.insert(item)
     }
 
-    override fun saveActiveCellInfo(
-        testUUID: String,
-        cellUUID: String,
-        mobileNetworkType: MobileNetworkType?,
-        networkInfo: NetworkInfo?,
-        cellTechnology: CellTechnology?
-    ) {
-        val cellInfo = CellInfo(
-            testUUID = testUUID,
-            uuid = cellUUID,
-            active = true,
-            registered = true,
-            areaCode = null,
-            channelNumber = null,
-            locationId = null,
-            mcc = null,
-            mnc = null,
-            primaryScramblingCode = null,
-            technology = cellTechnology?.displayName
-        )
-        cellInfoDao.insert(cellInfo)
+    override fun saveCellInfo(testUUID: String, infoList: List<NetworkInfo>) = io {
+        val cellInfo = mutableListOf<CellInfoRecord>()
+        infoList.forEach { info ->
+            val mapped = when (info) {
+                is WifiNetworkInfo -> info.toCellInfoRecord(testUUID)
+                is CellNetworkInfo -> info.toCellInfoRecord(testUUID)
+                else -> throw IllegalArgumentException("Don't know how to save ${info.javaClass.simpleName} info into db")
+            }
+            cellInfo.add(mapped)
+        }
+        cellInfoDao.clearInsert(testUUID, cellInfo)
     }
+
+    private fun WifiNetworkInfo.toCellInfoRecord(testUUID: String) = CellInfoRecord(
+        testUUID = testUUID,
+        uuid = cellUUID,
+        active = true,
+        cellTechnology = null,
+        transportType = type,
+        registered = true,
+        areaCode = null,
+        channelNumber = band.channelNumber,
+        locationId = null,
+        mcc = null,
+        mnc = null,
+        primaryScramblingCode = null
+    )
+
+    private fun CellNetworkInfo.toCellInfoRecord(testUUID: String) = CellInfoRecord(
+        testUUID = testUUID,
+        uuid = cellUUID,
+        active = isActive,
+        cellTechnology = CellTechnology.fromMobileNetworkType(networkType),
+        transportType = type,
+        registered = isRegistered,
+        areaCode = areaCode,
+        channelNumber = band?.channel,
+        locationId = locationId,
+        mcc = mcc,
+        mnc = mnc,
+        primaryScramblingCode = scramblingCode
+    )
 }

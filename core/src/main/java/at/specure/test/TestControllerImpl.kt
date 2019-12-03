@@ -102,7 +102,7 @@ class TestControllerImpl(private val config: Config, private val clientUUID: Cli
             _testStartTimeNanos = connection?.startTimeNs ?: 0
             _testUUID = connection.testUuid
 
-            _listener?.onClientReady(_testUUID!!)
+            _listener?.onClientReady(_testUUID!!, _testStartTimeNanos)
 
             GlobalScope.async {
                 @Suppress("BlockingMethodInNonBlockingContext")

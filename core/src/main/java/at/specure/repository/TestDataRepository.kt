@@ -1,7 +1,6 @@
 package at.specure.repository
 
 import at.specure.database.entity.GraphItem
-import at.specure.info.cell.CellTechnology
 import at.specure.info.network.MobileNetworkType
 import at.specure.info.network.NetworkInfo
 import at.specure.info.strength.SignalStrengthInfo
@@ -31,11 +30,5 @@ interface TestDataRepository {
         testStartTimeNanos: Long
     )
 
-    fun saveActiveCellInfo(
-        testUUID: String,
-        cellUUID: String,
-        mobileNetworkType: MobileNetworkType?,
-        networkInfo: NetworkInfo?,
-        cellTechnology: CellTechnology?
-    )
+    fun saveCellInfo(testUUID: String, infoList: List<NetworkInfo>)
 }
