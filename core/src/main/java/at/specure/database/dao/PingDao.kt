@@ -5,14 +5,14 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import at.specure.database.Tables
-import at.specure.database.entity.Ping
+import at.specure.database.entity.PingRecord
 
 @Dao
 interface PingDao {
 
     @Query("SELECT * from ${Tables.PING} WHERE testUUID == :testUUID")
-    fun getPingsForTest(testUUID: String): List<Ping>
+    fun getPingsForTest(testUUID: String): List<PingRecord>
 
-    @Insert(onConflict = OnConflictStrategy.IGNORE)
-    fun insert(ping: Ping)
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    fun insert(ping: PingRecord)
 }

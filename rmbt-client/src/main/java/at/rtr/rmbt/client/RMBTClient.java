@@ -881,4 +881,12 @@ public class RMBTClient implements RMBTClientCallback {
             commonCallback.onThreadUploadDataChanged(threadId, timeNanos, bytesTotal);
         }
     }
+
+    @Override
+    public void onPingDataChanged(long clientPing, long serverPing, long timeNs) {
+        Timber.v("ping: %s", clientPing);
+        if (commonCallback != null) {
+            commonCallback.onPingDataChanged(clientPing, serverPing, timeNs);
+        }
+    }
 }

@@ -19,18 +19,19 @@ import timber.log.Timber
 class TestControllerImpl(private val config: Config, private val clientUUID: ClientUUID) : TestController {
 
     private var job: Job? = null
-
     private val result: IntermediateResult by lazy { IntermediateResult() }
-
     private var _testUUID: String? = null
-
     private var _listener: TestProgressListener? = null
+    private var _testStartTimeNanos = 0L
 
     override val testUUID: String?
         get() = _testUUID
 
     override val isRunning: Boolean
         get() = job != null
+
+    override val testStartTimeNanos: Long
+        get() = _testStartTimeNanos
 
     private var previousDownloadProgress = -1
     private var previousUploadProgress = -1
@@ -87,16 +88,21 @@ class TestControllerImpl(private val config: Config, private val clientUUID: Cli
                 _listener?.onError()
                 return@async
             }
-            client.commonCallback = listener
+
+            client.commonCallback = _listener
             client.trafficService = TrafficServiceImpl()
+
             val connection = client.controlConnection
             Timber.i("Client UUID: ${connection?.clientUUID}")
             Timber.i("Test UUID: ${connection.testUuid}")
             Timber.i("Server Name: ${connection?.serverName}")
             Timber.i("Loop Id: ${connection?.loopUuid}")
+            Timber.i("Start Time Nanos: ${connection?.startTimeNs}")
 
+            _testStartTimeNanos = connection?.startTimeNs ?: 0
             _testUUID = connection.testUuid
-            _listener?.onClientReady(_testUUID!!)
+
+            _listener?.onClientReady(_testUUID!!, _testStartTimeNanos)
 
             GlobalScope.async {
                 @Suppress("BlockingMethodInNonBlockingContext")

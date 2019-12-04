@@ -3,7 +3,7 @@ package at.specure.database
 import androidx.room.Database
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
-import at.specure.database.dao.CapabilitesDao
+import at.specure.database.dao.CapabilitiesDao
 import at.specure.database.dao.CellInfoDao
 import at.specure.database.dao.CellLocationDao
 import at.specure.database.dao.GeoLocationDao
@@ -14,42 +14,42 @@ import at.specure.database.dao.PingDao
 import at.specure.database.dao.SignalDao
 import at.specure.database.dao.TestDao
 import at.specure.database.dao.TestTrafficItemDao
-import at.specure.database.entity.Capabilities
-import at.specure.database.entity.CellInfo
-import at.specure.database.entity.CellLocation
-import at.specure.database.entity.GeoLocation
-import at.specure.database.entity.GraphItem
+import at.specure.database.entity.CapabilitiesRecord
+import at.specure.database.entity.CellInfoRecord
+import at.specure.database.entity.CellLocationRecord
+import at.specure.database.entity.GeoLocationRecord
+import at.specure.database.entity.GraphItemRecord
 import at.specure.database.entity.History
-import at.specure.database.entity.MobileTest
-import at.specure.database.entity.PermissionStatus
-import at.specure.database.entity.Ping
-import at.specure.database.entity.Signal
-import at.specure.database.entity.Test
-import at.specure.database.entity.TestTrafficDownload
-import at.specure.database.entity.TestTrafficUpload
-import at.specure.database.entity.WifiTest
+import at.specure.database.entity.TestTelephonyRecord
+import at.specure.database.entity.PermissionStatusRecord
+import at.specure.database.entity.PingRecord
+import at.specure.database.entity.SignalRecord
+import at.specure.database.entity.TestRecord
+import at.specure.database.entity.DownloadTrafficRecord
+import at.specure.database.entity.UploadTrafficRecord
+import at.specure.database.entity.TestWlanRecord
 
 @Database(
-    entities = [Capabilities::class,
-        CellInfo::class,
-        CellLocation::class,
-        GeoLocation::class,
-        GraphItem::class,
+    entities = [CapabilitiesRecord::class,
+        CellInfoRecord::class,
+        CellLocationRecord::class,
+        GeoLocationRecord::class,
+        GraphItemRecord::class,
         History::class,
-        MobileTest::class,
-        PermissionStatus::class,
-        Ping::class,
-        Signal::class,
-        Test::class,
-        TestTrafficDownload::class,
-        TestTrafficUpload::class,
-        WifiTest::class],
-    version = 4
+        TestTelephonyRecord::class,
+        PermissionStatusRecord::class,
+        PingRecord::class,
+        SignalRecord::class,
+        TestRecord::class,
+        DownloadTrafficRecord::class,
+        UploadTrafficRecord::class,
+        TestWlanRecord::class],
+    version = 11
 )
 @TypeConverters(TypeConverter::class)
 abstract class CoreDatabase : RoomDatabase() {
 
-    abstract fun capabilitiesDao(): CapabilitesDao
+    abstract fun capabilitiesDao(): CapabilitiesDao
     abstract fun cellInfoDao(): CellInfoDao
     abstract fun cellLocationDao(): CellLocationDao
     abstract fun geoLocationDao(): GeoLocationDao
