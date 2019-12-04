@@ -50,7 +50,7 @@ class NotificationProviderImpl(private val context: Context) : NotificationProvi
         return NotificationCompat.Builder(context, measurementChannelId())
             .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
             .setPriority(NotificationCompat.PRIORITY_LOW)
-            .setSmallIcon(R.drawable.ic_small_wifi_4)
+            .setSmallIcon(R.drawable.ic_z)
             .setContentText(context.getString(textResource))
             .setContentIntent(intent)
             .setContentTitle(context.getString(R.string.notification_test_title))

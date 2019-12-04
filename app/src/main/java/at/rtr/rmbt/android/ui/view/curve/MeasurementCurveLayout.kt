@@ -10,6 +10,7 @@ import at.rtr.rmbt.android.R
 import at.rtr.rmbt.android.databinding.LayoutMeasurementCurveBinding
 import at.rtr.rmbt.android.databinding.LayoutPercentageBinding
 import at.rtr.rmbt.android.databinding.LayoutSpeedBinding
+import at.rtr.rmbt.android.util.format
 import at.specure.measurement.MeasurementState
 import java.math.BigDecimal
 import java.math.RoundingMode
@@ -179,7 +180,10 @@ class MeasurementCurveLayout @JvmOverloads constructor(context: Context, attrs: 
         if (phase == MeasurementState.DOWNLOAD || phase == MeasurementState.UPLOAD) {
             speedLayout.icon.setImageResource(if (phase == MeasurementState.DOWNLOAD) R.drawable.ic_speed_download else R.drawable.ic_speed_upload)
             curveBinding.curveView.setBottomProgress((progress * 1e-3).toInt())
-            when {
+            val progressInMbps: Float = progress / 1000000.0f
+            speedLayout.value.text = progressInMbps.format()
+
+            /*when {
                 progress >= 1e7 -> speedLayout.value.text = ((progress * 1e-6).roundToInt()).toString()
                 progress >= 1e6 -> speedLayout.value.text = (BigDecimal(progress * 1e-6).setScale(2, RoundingMode.HALF_EVEN)).toPlainString()
                 else -> { // up to 1 mbit
@@ -194,7 +198,7 @@ class MeasurementCurveLayout @JvmOverloads constructor(context: Context, attrs: 
                     speedLayout.value.text =
                         (BigDecimal(tmpProgress * divider * 1e-6).setScale(scale + 2, RoundingMode.HALF_EVEN)).stripTrailingZeros().toPlainString()
                 }
-            }
+            }*/
             speedLayout.value.requestLayout()
             with(speedLayout.root) {
                 (layoutParams as LayoutParams).apply {

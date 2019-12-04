@@ -12,7 +12,7 @@ class SettingsViewState constructor(
 ) : ViewState {
 
     val isNDTEnabled = ObservableField(appConfig.NDTEnabled)
-    val skipQoSTests = ObservableField(appConfig.skipQoSTests)
+    val qosMeasurement = ObservableField(!appConfig.skipQoSTests)
     val canManageLocationSettings = ObservableField(appConfig.canManageLocationSettings)
     val loopModeEnabled = ObservableField(appConfig.loopModeEnabled)
     val expertModeEnabled = ObservableField(appConfig.expertModeEnabled)
@@ -22,15 +22,16 @@ class SettingsViewState constructor(
 
     val isLocationEnabled = ObservableField<LocationProviderState>()
 
+
     init {
         isNDTEnabled.addOnPropertyChanged { value ->
             value.get()?.let {
                 appConfig.NDTEnabled = it
             }
         }
-        skipQoSTests.addOnPropertyChanged { value ->
+        qosMeasurement.addOnPropertyChanged { value ->
             value.get()?.let {
-                appConfig.skipQoSTests = it
+                appConfig.skipQoSTests = !it
             }
         }
         canManageLocationSettings.addOnPropertyChanged { value ->
