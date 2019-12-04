@@ -12,9 +12,6 @@ import at.rtr.rmbt.android.databinding.LayoutPercentageBinding
 import at.rtr.rmbt.android.databinding.LayoutSpeedBinding
 import at.rtr.rmbt.android.util.format
 import at.specure.measurement.MeasurementState
-import java.math.BigDecimal
-import java.math.RoundingMode
-import kotlin.math.roundToInt
 
 class MeasurementCurveLayout @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) :
     FrameLayout(context, attrs, defStyleAttr) {

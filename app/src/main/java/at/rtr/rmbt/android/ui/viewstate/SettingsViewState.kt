@@ -22,7 +22,6 @@ class SettingsViewState constructor(
 
     val isLocationEnabled = ObservableField<LocationProviderState>()
 
-
     init {
         isNDTEnabled.addOnPropertyChanged { value ->
             value.get()?.let {
