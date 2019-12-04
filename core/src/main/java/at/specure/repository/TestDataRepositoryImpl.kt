@@ -10,6 +10,7 @@ import at.specure.database.entity.DownloadTrafficRecord
 import at.specure.database.entity.GeoLocationRecord
 import at.specure.database.entity.GraphItemRecord
 import at.specure.database.entity.PermissionStatusRecord
+import at.specure.database.entity.PingRecord
 import at.specure.database.entity.SignalRecord
 import at.specure.database.entity.UploadTrafficRecord
 import at.specure.info.cell.CellNetworkInfo
@@ -34,6 +35,7 @@ class TestDataRepositoryImpl(db: CoreDatabase) : TestDataRepository {
     private val permissionStatusDao = db.permissionStatusDao()
     private val cellInfoDao = db.cellInfoDao()
     private val cellLocationDao = db.cellLocationDao()
+    private val pingDao = db.pingDao()
 
     override fun saveGeoLocation(testUUID: String, location: LocationInfo) = io {
         val geoLocation = GeoLocationRecord(
@@ -220,5 +222,10 @@ class TestDataRepositoryImpl(db: CoreDatabase) : TestDataRepository {
             timestampMillis = info.timestampMillis
         )
         cellLocationDao.insert(record)
+    }
+
+    override fun saveAllPingValues(testUUID: String, clientPing: Long, serverPing: Long, timeNs: Long) {
+        val record = PingRecord(testUUID = testUUID, value = clientPing, valueServer = serverPing, testTimeNanos = timeNs)
+        pingDao.insert(record)
     }
 }

@@ -42,4 +42,6 @@ interface TestDataRepository {
     fun savePermissionStatus(testUUID: String, permission: String, granted: Boolean)
 
     fun saveCellLocation(testUUID: String, info: CellLocationInfo)
+
+    fun saveAllPingValues(testUUID: String, clientPing: Long, serverPing: Long, timeNs: Long)
 }

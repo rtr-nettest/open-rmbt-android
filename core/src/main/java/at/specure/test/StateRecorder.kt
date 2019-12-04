@@ -187,4 +187,10 @@ class StateRecorder @Inject constructor(
             repository.saveTrafficUpload(it, threadId, timeNanos, bytesTotal)
         }
     }
+
+    fun onPingValuesChanged(clientPing: Long, serverPing: Long, timeNs: Long) {
+        testUUID?.let {
+            repository.saveAllPingValues(it, clientPing, serverPing, timeNs)
+        }
+    }
 }
