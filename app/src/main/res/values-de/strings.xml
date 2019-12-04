@@ -143,7 +143,7 @@
     <string name="text_continue_measurement">Messung fortführen</string>
     <string name="text_cancel_measurement">Messung abbrechen</string>
 
-    <string name="notification_test_title">Open-RMBT</string>
+    <string name="notification_test_title">RTR-NetTest läuft</string>
     <string name="notification_test_ticker">Open-RMBT läuft…</string>
 
     <string name="test_dialog_error_text">Etwas ist schiefgegangen. Bitte versuchen Sie es später noch Mal.</string>
