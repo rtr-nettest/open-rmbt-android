@@ -17,7 +17,7 @@ package at.rmbt.client.control
 import android.os.Build
 import androidx.annotation.Keep
 import com.google.gson.annotations.SerializedName
-import java.util.*
+import java.util.Locale
 import kotlin.collections.ArrayList
 
 @Keep
