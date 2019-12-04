@@ -452,7 +452,7 @@ fun AppCompatTextView.setLabelOfMeasurementState(measurementState: MeasurementSt
 }
 
 @BindingAdapter("bottomSheetState")
-fun ConstraintLayout.setBottomSheetState(state:Int) {
-    val behavior= BottomSheetBehavior.from(this)
+fun ConstraintLayout.setBottomSheetState(state: Int) {
+    val behavior = BottomSheetBehavior.from(this)
     behavior.state = state
 }
