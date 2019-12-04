@@ -9,19 +9,21 @@ import at.specure.measurement.MeasurementState
 class TypeConverter {
 
     @TypeConverter
-    fun transportTypeToValue(transportType: TransportType): Int = transportType.value
+    fun transportTypeToValue(transportType: TransportType?): Int? = transportType?.value
 
     @TypeConverter
-    fun valueToTransportType(value: Int): TransportType {
+    fun valueToTransportType(value: Int?): TransportType? {
+        if (value == null) return null
         TransportType.values().forEach { if (value == it.value) return it }
         throw IllegalArgumentException("Transport type $value not found")
     }
 
     @TypeConverter
-    fun measurementStateToValue(measurementState: MeasurementState): Int = measurementState.ordinal
+    fun measurementStateToValue(measurementState: MeasurementState?): Int? = measurementState?.ordinal
 
     @TypeConverter
-    fun valueToMeasurementState(value: Int): MeasurementState {
+    fun valueToMeasurementState(value: Int?): MeasurementState? {
+        if (value == null) return null
         MeasurementState.values().forEach { if (value == it.ordinal) return it }
         throw IllegalArgumentException("Measurement state $value not found")
     }
