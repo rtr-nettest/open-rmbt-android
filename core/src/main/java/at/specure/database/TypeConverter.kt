@@ -1,6 +1,7 @@
 package at.specure.database
 
 import androidx.room.TypeConverter
+import at.rtr.rmbt.client.helper.TestStatus
 import at.specure.info.TransportType
 import at.specure.info.cell.CellTechnology
 import at.specure.info.network.MobileNetworkType
@@ -46,5 +47,15 @@ class TypeConverter {
         if (value == null) return null
         MobileNetworkType.values().forEach { if (value == it.intValue) return it }
         throw IllegalArgumentException("Mobile network type $value not found")
+    }
+
+    @TypeConverter
+    fun testStatusToValue(status: TestStatus?): Int? = status?.ordinal
+
+    @TypeConverter
+    fun valueToTestStatus(value: Int?): TestStatus? {
+        if (value == null) return null
+        TestStatus.values().forEach { if (value == it.ordinal) return it }
+        throw IllegalArgumentException("Test status $value not found")
     }
 }

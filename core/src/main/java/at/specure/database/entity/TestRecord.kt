@@ -3,10 +3,10 @@ package at.specure.database.entity
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import at.rtr.rmbt.client.helper.TestStatus
 import at.specure.database.Columns
 import at.specure.database.Tables
 import at.specure.info.TransportType
-import at.specure.measurement.MeasurementState
 
 @Entity(tableName = Tables.TEST)
 data class TestRecord(
@@ -115,67 +115,61 @@ data class TestRecord(
      */
     var shortestPingNanos: Long = 0,
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     /**
      * Total downloaded bytes on the interface
+     * test_if_bytes_download
      */
-    val downloadedBytesOnInterface: Long? = null, // TODO
+    var downloadedBytesOnInterface: Long = 0,
 
     /**
      * Total uploaded bytes on the interface
+     * test_if_bytes_upload
      */
-    val uploadedBytesOnInterface: Long? = null, // TODO
+    var uploadedBytesOnInterface: Long = 0,
 
     /**
      * Total downloaded bytes on the interface during download phase
+     * testdl_if_bytes_download
      */
-    val downloadedBytesOnDownloadInterface: Long? = null, // TODO
+    var downloadedBytesOnDownloadInterface: Long = 0,
 
     /**
      * Total uploaded bytes on the interface during download phase
+     * testdl_if_bytes_upload
      */
-    val uploadedBytesOnDownloadInterface: Long? = null, // TODO
+    var uploadedBytesOnDownloadInterface: Long = 0,
 
     /**
      * Total downloaded bytes on the interface during upload phase
+     * testul_if_bytes_download
      */
-    val downloadedBytesOnUploadInterface: Long? = null, // TODO
+    var downloadedBytesOnUploadInterface: Long = 0,
 
     /**
      * Total uploaded bytes on the interface during upload phase
+     * testul_if_bytes_upload
      */
-    val uploadedBytesOnUploadInterfaceKb: Long? = null, // TODO
+    var uploadedBytesOnUploadInterfaceKb: Long = 0,
 
     /**
      * Start time of the download phase
+     * time_dl_ns
      */
-    val timeDownloadOffsetNanos: Long? = null, // TODO
+    var timeDownloadOffsetNanos: Long? = null,
 
     /**
      * Start time of the upload phase
+     * time_ul_ns
      */
-    val timeUploadOffsetNanos: Long? = null, // TODO
+    var timeUploadOffsetNanos: Long? = null,
 
     /**
      * State of the test
      */
-    val state: MeasurementState? = null, // TODO
+    var status: TestStatus? = null,
 
     /**
      * Type of the network
      */
-    val transportType: TransportType? = null // TODO
+    var transportType: TransportType? = null // TODO
 )

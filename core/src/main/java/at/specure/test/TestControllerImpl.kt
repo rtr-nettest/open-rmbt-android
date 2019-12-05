@@ -115,7 +115,7 @@ class TestControllerImpl(private val config: Config, private val clientUUID: Cli
                 currentStatus = client.status
                 Timber.v(currentStatus.name)
                 client.totalTestResult?.let {
-                    clientCallback.onResultUpdated(it)
+                    clientCallback.onResultUpdated(it, currentStatus)
                 }
 
                 when (currentStatus) {

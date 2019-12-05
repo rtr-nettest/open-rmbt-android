@@ -5,6 +5,8 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.Observer
 import at.rtr.rmbt.client.RMBTClientCallback
 import at.rtr.rmbt.client.TotalTestResult
+import at.rtr.rmbt.client.helper.TestStatus
+import at.rtr.rmbt.client.v2.task.service.TestMeasurement.TrafficDirection
 import at.specure.config.Config
 import at.specure.database.entity.TestRecord
 import at.specure.info.cell.CellInfoWatcher
@@ -216,7 +218,7 @@ class StateRecorder @Inject constructor(
         }
     }
 
-    override fun onResultUpdated(result: TotalTestResult) {
+    override fun onResultUpdated(result: TotalTestResult, status: TestStatus?) {
         testRecord?.apply {
             portRemote = result.port_remote
             bytesDownload = result.bytes_download
@@ -231,6 +233,25 @@ class StateRecorder @Inject constructor(
             downloadSpeedBps = floor(result.speed_download + 0.5).toLong()
             uploadSpeedBps = floor(result.speed_upload + 0.5).toLong()
             shortestPingNanos = result.ping_shortest
+            downloadedBytesOnInterface = result.getTotalTrafficMeasurement(TrafficDirection.RX)
+            uploadedBytesOnInterface = result.getTotalTrafficMeasurement(TrafficDirection.TX)
+            downloadedBytesOnDownloadInterface = result.getTrafficByTestPart(TestStatus.DOWN, TrafficDirection.RX)
+            uploadedBytesOnDownloadInterface = result.getTrafficByTestPart(TestStatus.DOWN, TrafficDirection.TX)
+            downloadedBytesOnUploadInterface = result.getTrafficByTestPart(TestStatus.UP, TrafficDirection.RX)
+            uploadedBytesOnUploadInterfaceKb = result.getTrafficByTestPart(TestStatus.UP, TrafficDirection.TX)
+
+            val dlMeasurement = result.getTestMeasurementByTestPart(TestStatus.DOWN)
+            dlMeasurement?.let {
+                timeDownloadOffsetNanos = it.timeStampStart - testStartTimeNanos
+            }
+
+            val ulMeasurement = result.getTestMeasurementByTestPart(TestStatus.UP)
+            ulMeasurement?.let {
+                timeUploadOffsetNanos = it.timeStampStart - testStartTimeNanos
+            }
+
+            this.status = status
+            transportType = networkInfo?.type
         }
 
         testRecord?.let {

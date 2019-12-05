@@ -908,7 +908,7 @@ public class RMBTClient implements RMBTClientCallback {
     }
 
     @Override
-    public void onResultUpdated(TotalTestResult result) {
+    public void onResultUpdated(TotalTestResult result, TestStatus status) {
         // leave empty
     }
 

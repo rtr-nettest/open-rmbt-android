@@ -137,5 +137,5 @@ class CoreModule {
         CellLocationWatcherImpl(context, telephonyManager)
 
     @Provides
-    fun provideTestRepository(coreDatabase: CoreDatabase) : TestRepository = TestRepositoryImpl(coreDatabase.testDao())
+    fun provideTestRepository(coreDatabase: CoreDatabase): TestRepository = TestRepositoryImpl(coreDatabase.testDao())
 }
