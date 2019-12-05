@@ -108,15 +108,15 @@ class TestControllerImpl(private val config: Config, private val clientUUID: Cli
             GlobalScope.async {
                 @Suppress("BlockingMethodInNonBlockingContext")
                 val result = client.runTest()
+                clientCallback.onTestCompleted(result)
             }
 
             var currentStatus = TestStatus.WAIT
             while (!currentStatus.isFinalState()) {
                 currentStatus = client.status
                 Timber.v(currentStatus.name)
-                client.totalTestResult?.let {
-                    clientCallback.onResultUpdated(it, currentStatus)
-                }
+
+                clientCallback.onTestStatusUpdate(currentStatus)
 
                 when (currentStatus) {
                     TestStatus.WAIT -> handleWait()

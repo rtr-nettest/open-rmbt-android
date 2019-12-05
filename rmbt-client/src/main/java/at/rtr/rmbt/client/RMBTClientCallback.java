@@ -10,5 +10,7 @@ public interface RMBTClientCallback {
 
     void onPingDataChanged(long clientPing, long serverPing, long timeNs);
 
-    void onResultUpdated(TotalTestResult result, TestStatus status);
+    void onTestCompleted(TotalTestResult result);
+
+    void onTestStatusUpdate(TestStatus status);
 }

@@ -23,8 +23,8 @@ class CellLocationWatcherImpl @Inject constructor(private val context: Context, 
                     CellLocationInfo(
                         timestampMillis = System.currentTimeMillis(),
                         timestampNanos = System.nanoTime(),
-                        locationId = location.cid,
-                        areaCode = location.lac,
+                        locationId = location.lac,
+                        areaCode = location.cid,
                         scramblingCode = location.psc
                     )
                 }

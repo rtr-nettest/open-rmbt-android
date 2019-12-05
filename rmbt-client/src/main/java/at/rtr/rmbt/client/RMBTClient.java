@@ -340,7 +340,7 @@ public class RMBTClient implements RMBTClientCallback {
         return sc;
     }
 
-    public TestResult runTest() throws InterruptedException {
+    public TotalTestResult runTest() throws InterruptedException {
         System.out.println("starting test...");
 
         long txBytes = 0;
@@ -900,11 +900,16 @@ public class RMBTClient implements RMBTClientCallback {
     }
 
     @Override
-    public void onResultUpdated(TotalTestResult result, TestStatus status) {
+    public void onTestCompleted(TotalTestResult result) {
         // leave empty
     }
 
     public TotalTestResult getTotalTestResult() {
         return result;
+    }
+
+    @Override
+    public void onTestStatusUpdate(TestStatus status) {
+        // leave empty
     }
 }
