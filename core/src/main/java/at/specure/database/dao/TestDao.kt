@@ -19,7 +19,7 @@ interface TestDao {
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     fun insert(test: TestRecord)
 
-    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insert(test: TestTelephonyRecord)
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
