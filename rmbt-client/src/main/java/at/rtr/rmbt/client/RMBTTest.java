@@ -190,6 +190,7 @@ public class RMBTTest extends AbstractRMBTTest implements Callable<ThreadTestRes
                 final long nsec = coarse.nsec[i % coarse.nsec.length];
                 final long bytes = coarse.bytes[i % coarse.bytes.length];
                 final SpeedItem item = new SpeedItem(upload, thread, nsec, bytes);
+                client.onSpeedDataChanged(thread, bytes, nsec, upload);
                 list.add(item);
                 lastNsec = nsec;
             }
@@ -198,6 +199,7 @@ public class RMBTTest extends AbstractRMBTTest implements Callable<ThreadTestRes
             if (nsec > lastNsec) {
                 final long bytes = getBytes();
                 final SpeedItem item = new SpeedItem(upload, thread, nsec, bytes);
+                client.onSpeedDataChanged(thread, bytes, nsec, upload);
                 list.add(item);
             }
         }
@@ -655,7 +657,6 @@ public class RMBTTest extends AbstractRMBTTest implements Callable<ThreadTestRes
                 result.addResult(totalRead, nsec);
                 curTransfer.set(totalRead);
                 curTime.set(nsec);
-                client.onThreadDownloadDataChanged(threadId, nsec, totalRead);
             }
         }
         while (read > 0 && lastByte != (byte) 0xff && System.nanoTime() <= timeLatestEnd);
@@ -806,8 +807,6 @@ public class RMBTTest extends AbstractRMBTTest implements Callable<ThreadTestRes
                             result.addResult(bytes, nsec);
                             curTransfer.set(bytes);
                             curTime.set(nsec);
-
-                            client.onThreadUploadDataChanged(threadId, nsec, bytes);
                         }
 
                         if (terminateRxAtAllEvents.get())

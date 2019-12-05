@@ -96,20 +96,7 @@ class MeasurementService : LifecycleService() {
         }
 
         override fun onClientReady(testUUID: String, testStartTimeNanos: Long) {
-            stateRecorder.start(testUUID, testStartTimeNanos)
             clientAggregator.onClientReady(testUUID)
-        }
-
-        override fun onThreadDownloadDataChanged(threadId: Int, timeNanos: Long, bytesTotal: Long) {
-            stateRecorder.onThreadDownloadDataChanged(threadId, timeNanos, bytesTotal)
-        }
-
-        override fun onThreadUploadDataChanged(threadId: Int, timeNanos: Long, bytesTotal: Long) {
-            stateRecorder.onThreadUploadDataChanged(threadId, timeNanos, bytesTotal)
-        }
-
-        override fun onPingDataChanged(clientPing: Long, serverPing: Long, timeNs: Long) {
-            stateRecorder.onPingValuesChanged(clientPing, serverPing, timeNs)
         }
     }
 
@@ -177,7 +164,7 @@ class MeasurementService : LifecycleService() {
         )
 
         hasErrors = false
-        runner.start(testListener, deviceInfo)
+        runner.start(deviceInfo, testListener, stateRecorder)
 
         attachToForeground()
         lock()

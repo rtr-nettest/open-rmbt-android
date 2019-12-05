@@ -6,7 +6,12 @@ import android.telephony.SubscriptionManager
 import android.telephony.TelephonyManager
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.Observer
+import at.rtr.rmbt.client.RMBTClientCallback
+import at.rtr.rmbt.client.TotalTestResult
+import at.rtr.rmbt.client.helper.TestStatus
+import at.rtr.rmbt.client.v2.task.service.TestMeasurement.TrafficDirection
 import at.specure.config.Config
+import at.specure.database.entity.TestRecord
 import at.specure.info.TransportType
 import at.specure.info.cell.CellInfoWatcher
 import at.specure.info.cell.CellNetworkInfo
@@ -26,14 +31,19 @@ import at.specure.location.cell.CellLocationInfo
 import at.specure.location.cell.CellLocationLiveData
 import at.specure.location.cell.CellLocationWatcher
 import at.specure.repository.TestDataRepository
+import at.specure.repository.TestRepository
 import at.specure.util.hasPermission
 import at.specure.util.isReadPhoneStatePermitted
 import at.specure.util.permission.PermissionsWatcher
+import timber.log.Timber
+import java.util.concurrent.TimeUnit
 import javax.inject.Inject
+import kotlin.math.floor
 
 class StateRecorder @Inject constructor(
     private val context: Context,
     private val repository: TestDataRepository,
+    private val testRepository: TestRepository,
     private val locationInfoLiveData: LocationInfoLiveData,
     private val locationWatcher: LocationWatcher,
     private val signalStrengthLiveData: SignalStrengthLiveData,
@@ -48,10 +58,10 @@ class StateRecorder @Inject constructor(
     private val telephonyManager: TelephonyManager,
     private val subscriptionManager: SubscriptionManager,
     private val wifiInfoWatcher: WifiInfoWatcher
-) {
-
+) : RMBTClientCallback {
     private var testUUID: String? = null
     private var testStartTimeNanos: Long = 0L
+    private var testRecord: TestRecord? = null
 
     private var _locationInfo: LocationInfo? = null
     private var signalStrengthInfo: SignalStrengthInfo? = null
@@ -93,9 +103,10 @@ class StateRecorder @Inject constructor(
         })
     }
 
-    fun start(testUUID: String, testStartTimeNanos: Long) {
+    override fun onClientReady(testUUID: String, loopUUID: String?, testToken: String, testStartTimeNanos: Long, threadNumber: Int) {
         this.testUUID = testUUID
         this.testStartTimeNanos = testStartTimeNanos
+        saveTestInitialTestData(testUUID, loopUUID, testToken, testStartTimeNanos, threadNumber)
         saveLocationInfo()
         saveSignalStrengthInfo()
         saveCellInfo()
@@ -109,6 +120,18 @@ class StateRecorder @Inject constructor(
     fun finish() {
         // TODO finish
         testUUID = null
+    }
+
+    private fun saveTestInitialTestData(testUUID: String, loopUUID: String?, testToken: String, testStartTimeNanos: Long, threadNumber: Int) {
+        Timber.d("testUUID $testUUID, loopUUId $loopUUID, testToken: $testToken, start: $testStartTimeNanos, threadNumber $threadNumber")
+        testRecord = TestRecord(
+            uuid = testUUID,
+            loopUUID = loopUUID,
+            token = testToken,
+            testStartTimeMillis = TimeUnit.NANOSECONDS.toMillis(testStartTimeNanos),
+            threadNumber = threadNumber
+        )
+        testRepository.saveTest(testRecord!!)
     }
 
     private fun saveLocationInfo() {
@@ -192,7 +215,7 @@ class StateRecorder @Inject constructor(
             if (context.isReadPhoneStatePermitted() && isDualByMobile) {
                 val info = subscriptionManager.activeSubscriptionInfoList.firstOrNull()
                 simCount = if (info != null) subscriptionManager.activeSubscriptionInfoCount else 2
-                info?.let { info ->
+                info?.let {
                     operatorName = info.carrierName.toString()
                     networkOperator = "${info.mcc}-${String.format("%02d", info.mnc)}"
                     networkCountry = info.countryIso
@@ -256,21 +279,56 @@ class StateRecorder @Inject constructor(
         }
     }
 
-    fun onThreadDownloadDataChanged(threadId: Int, timeNanos: Long, bytesTotal: Long) {
+    override fun onSpeedDataChanged(threadId: Int, bytes: Long, timestampNanos: Long, isUpload: Boolean) {
         testUUID?.let {
-            repository.saveTrafficDownload(it, threadId, timeNanos, bytesTotal)
+            repository.saveSpeedData(it, threadId, bytes, timestampNanos, isUpload)
         }
     }
 
-    fun onThreadUploadDataChanged(threadId: Int, timeNanos: Long, bytesTotal: Long) {
-        testUUID?.let {
-            repository.saveTrafficUpload(it, threadId, timeNanos, bytesTotal)
-        }
-    }
-
-    fun onPingValuesChanged(clientPing: Long, serverPing: Long, timeNs: Long) {
+    override fun onPingDataChanged(clientPing: Long, serverPing: Long, timeNs: Long) {
         testUUID?.let {
             repository.saveAllPingValues(it, clientPing, serverPing, timeNs)
+        }
+    }
+
+    override fun onResultUpdated(result: TotalTestResult, status: TestStatus?) {
+        testRecord?.apply {
+            portRemote = result.port_remote
+            bytesDownload = result.bytes_download
+            bytesUpload = result.bytes_upload
+            totalBytesDownload = result.totalDownBytes
+            totalBytesUpload = result.totalUpBytes
+            encryption = result.encryption
+            ipLocal = result.ip_local?.hostAddress
+            ipServer = result.ip_server?.hostAddress
+            downloadDurationNanos = result.nsec_download
+            uploadDurationNanos = result.nsec_upload
+            downloadSpeedBps = floor(result.speed_download + 0.5).toLong()
+            uploadSpeedBps = floor(result.speed_upload + 0.5).toLong()
+            shortestPingNanos = result.ping_shortest
+            downloadedBytesOnInterface = result.getTotalTrafficMeasurement(TrafficDirection.RX)
+            uploadedBytesOnInterface = result.getTotalTrafficMeasurement(TrafficDirection.TX)
+            downloadedBytesOnDownloadInterface = result.getTrafficByTestPart(TestStatus.DOWN, TrafficDirection.RX)
+            uploadedBytesOnDownloadInterface = result.getTrafficByTestPart(TestStatus.DOWN, TrafficDirection.TX)
+            downloadedBytesOnUploadInterface = result.getTrafficByTestPart(TestStatus.UP, TrafficDirection.RX)
+            uploadedBytesOnUploadInterfaceKb = result.getTrafficByTestPart(TestStatus.UP, TrafficDirection.TX)
+
+            val dlMeasurement = result.getTestMeasurementByTestPart(TestStatus.DOWN)
+            dlMeasurement?.let {
+                timeDownloadOffsetNanos = it.timeStampStart - testStartTimeNanos
+            }
+
+            val ulMeasurement = result.getTestMeasurementByTestPart(TestStatus.UP)
+            ulMeasurement?.let {
+                timeUploadOffsetNanos = it.timeStampStart - testStartTimeNanos
+            }
+
+            this.status = status
+            transportType = networkInfo?.type
+        }
+
+        testRecord?.let {
+            testRepository.update(it)
         }
     }
 }

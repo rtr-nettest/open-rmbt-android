@@ -7,15 +7,14 @@ import at.specure.database.CoreDatabase
 import at.specure.database.entity.CapabilitiesRecord
 import at.specure.database.entity.CellInfoRecord
 import at.specure.database.entity.CellLocationRecord
-import at.specure.database.entity.DownloadTrafficRecord
 import at.specure.database.entity.GeoLocationRecord
 import at.specure.database.entity.GraphItemRecord
 import at.specure.database.entity.PermissionStatusRecord
 import at.specure.database.entity.PingRecord
 import at.specure.database.entity.SignalRecord
+import at.specure.database.entity.SpeedRecord
 import at.specure.database.entity.TestTelephonyRecord
 import at.specure.database.entity.TestWlanRecord
-import at.specure.database.entity.UploadTrafficRecord
 import at.specure.info.cell.CellNetworkInfo
 import at.specure.info.cell.CellTechnology
 import at.specure.info.network.MobileNetworkType
@@ -32,7 +31,7 @@ class TestDataRepositoryImpl(db: CoreDatabase) : TestDataRepository {
 
     private val geoLocationDao = db.geoLocationDao()
     private val graphItemDao = db.graphItemsDao()
-    private val testTrafficDao = db.testTrafficItemDao()
+    private val speedDao = db.speedDao()
     private val signalDao = db.signalDao()
     private val capabilitiesDao = db.capabilitiesDao()
     private val permissionStatusDao = db.permissionStatusDao()
@@ -78,24 +77,15 @@ class TestDataRepositoryImpl(db: CoreDatabase) : TestDataRepository {
         return graphItemDao.getUploadGraphLiveData(testUUID)
     }
 
-    override fun saveTrafficDownload(testUUID: String, threadId: Int, timeNanos: Long, bytes: Long) = io {
-        val item = DownloadTrafficRecord(
+    override fun saveSpeedData(testUUID: String, threadId: Int, bytes: Long, timestampNanos: Long, isUpload: Boolean) = io {
+        val record = SpeedRecord(
             testUUID = testUUID,
-            threadNumber = threadId,
-            timeNanos = timeNanos,
-            bytes = bytes
+            threadId = threadId,
+            bytes = bytes,
+            timestampNanos = timestampNanos,
+            isUpload = isUpload
         )
-        testTrafficDao.insertDownloadItem(item)
-    }
-
-    override fun saveTrafficUpload(testUUID: String, threadId: Int, timeNanos: Long, bytes: Long) = io {
-        val item = UploadTrafficRecord(
-            testUUID = testUUID,
-            threadNumber = threadId,
-            timeNanos = timeNanos,
-            bytes = bytes
-        )
-        testTrafficDao.insertUploadItem(item)
+        speedDao.insert(record)
     }
 
     override fun saveSignalStrength(

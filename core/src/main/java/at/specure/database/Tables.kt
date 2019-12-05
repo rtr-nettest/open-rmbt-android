@@ -24,9 +24,8 @@ object Tables {
     const val PING = "ping"
     const val SIGNAL = "signal"
     const val TEST = "test"
-    const val UPLOAD_TRAFFIC = "upload_traffic"
-    const val DOWNLOAD_TRAFFIC = "download_traffic"
     const val TEST_GRAPH_ITEM = "test_graph_item"
     const val TEST_TELEPHONY_RECORD = "test_telephony"
     const val TEST_WLAN_RECORD = "test_wlan"
+    const val SPEED = "speed"
 }
