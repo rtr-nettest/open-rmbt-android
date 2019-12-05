@@ -65,6 +65,10 @@ class CellNetworkInfo(
 
     val isActive: Boolean,
 
+    val isRoaming: Boolean,
+
+    val apn: String?,
+
     /**
      * Random generated cell UUID
      */
@@ -77,7 +81,7 @@ class CellNetworkInfo(
 
     companion object {
 
-        fun from(info: CellInfo, subscriptionInfo: SubscriptionInfo?, isActive: Boolean): CellNetworkInfo {
+        fun from(info: CellInfo, subscriptionInfo: SubscriptionInfo?, isActive: Boolean, isRoaming: Boolean, apn: String?): CellNetworkInfo {
             val networkType: MobileNetworkType = when (info) {
                 is CellInfoLte -> MobileNetworkType.LTE
                 is CellInfoWcdma -> MobileNetworkType.HSPAP
@@ -85,24 +89,24 @@ class CellNetworkInfo(
                 is CellInfoGsm -> MobileNetworkType.GSM
                 else -> throw IllegalArgumentException("Unknown cell info cannot be extracted ${info::class.java.name}")
             }
-            return from(info, subscriptionInfo, networkType, isActive)
+            return from(info, subscriptionInfo, networkType, isActive, isRoaming, apn)
         }
 
         /**
          * Creates [CellNetworkInfo] from initial data objects
          */
-        fun from(info: CellInfo, subscriptionInfo: SubscriptionInfo?, networkType: MobileNetworkType, isActive: Boolean): CellNetworkInfo {
+        fun from(info: CellInfo, subscriptionInfo: SubscriptionInfo?, networkType: MobileNetworkType, isActive: Boolean, isRoaming: Boolean, apn: String?): CellNetworkInfo {
             val providerName = subscriptionInfo?.displayName?.toString() ?: ""
             return when (info) {
-                is CellInfoLte -> fromLte(info, providerName, networkType, isActive)
-                is CellInfoWcdma -> fromWcdma(info, providerName, networkType, isActive)
-                is CellInfoGsm -> fromGsm(info, providerName, networkType, isActive)
-                is CellInfoCdma -> fromCdma(info, providerName, networkType, isActive)
+                is CellInfoLte -> fromLte(info, providerName, networkType, isActive, isRoaming, apn)
+                is CellInfoWcdma -> fromWcdma(info, providerName, networkType, isActive, isRoaming, apn)
+                is CellInfoGsm -> fromGsm(info, providerName, networkType, isActive, isRoaming, apn)
+                is CellInfoCdma -> fromCdma(info, providerName, networkType, isActive, isRoaming, apn)
                 else -> throw IllegalArgumentException("Unknown cell info cannot be extracted ${info::class.java.name}")
             }
         }
 
-        private fun fromLte(info: CellInfoLte, providerName: String, networkType: MobileNetworkType, isActive: Boolean): CellNetworkInfo {
+        private fun fromLte(info: CellInfoLte, providerName: String, networkType: MobileNetworkType, isActive: Boolean, isRoaming: Boolean, apn: String?): CellNetworkInfo {
 
             val band: CellBand? = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                 CellBand.fromChannelNumber(info.cellIdentity.earfcn, CellChannelAttribution.EARFCN)
@@ -120,11 +124,13 @@ class CellNetworkInfo(
                 scramblingCode = info.cellIdentity.pci,
                 cellUUID = info.uuid(),
                 isRegistered = info.isRegistered,
-                isActive = isActive
+                isActive = isActive,
+                isRoaming = isRoaming,
+                apn = apn
             )
         }
 
-        private fun fromWcdma(info: CellInfoWcdma, providerName: String, networkType: MobileNetworkType, isActive: Boolean): CellNetworkInfo {
+        private fun fromWcdma(info: CellInfoWcdma, providerName: String, networkType: MobileNetworkType, isActive: Boolean, isRoaming: Boolean, apn: String?): CellNetworkInfo {
             val band: CellBand? = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                 CellBand.fromChannelNumber(info.cellIdentity.uarfcn, CellChannelAttribution.UARFCN)
             } else {
@@ -142,11 +148,13 @@ class CellNetworkInfo(
                 scramblingCode = info.cellIdentity.psc,
                 cellUUID = info.uuid(),
                 isActive = isActive,
-                isRegistered = info.isRegistered
+                isRegistered = info.isRegistered,
+                isRoaming = isRoaming,
+                apn = apn
             )
         }
 
-        private fun fromGsm(info: CellInfoGsm, providerName: String, networkType: MobileNetworkType, isActive: Boolean): CellNetworkInfo {
+        private fun fromGsm(info: CellInfoGsm, providerName: String, networkType: MobileNetworkType, isActive: Boolean, isRoaming: Boolean, apn: String?): CellNetworkInfo {
             val band: CellBand? = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                 CellBand.fromChannelNumber(info.cellIdentity.arfcn, CellChannelAttribution.ARFCN)
             } else {
@@ -166,11 +174,13 @@ class CellNetworkInfo(
                 scramblingCode = scramblingCode,
                 cellUUID = info.uuid(),
                 isActive = isActive,
-                isRegistered = info.isRegistered
+                isRegistered = info.isRegistered,
+                isRoaming = isRoaming,
+                apn = apn
             )
         }
 
-        private fun fromCdma(info: CellInfoCdma, providerName: String, networkType: MobileNetworkType, isActive: Boolean): CellNetworkInfo {
+        private fun fromCdma(info: CellInfoCdma, providerName: String, networkType: MobileNetworkType, isActive: Boolean, isRoaming: Boolean, apn: String?): CellNetworkInfo {
 
             return CellNetworkInfo(
                 providerName = providerName,
@@ -183,7 +193,9 @@ class CellNetworkInfo(
                 scramblingCode = null,
                 cellUUID = info.uuid(),
                 isActive = isActive,
-                isRegistered = info.isRegistered
+                isRegistered = info.isRegistered,
+                isRoaming = isRoaming,
+                apn = apn
             )
         }
     }
