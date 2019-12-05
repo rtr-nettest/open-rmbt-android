@@ -291,7 +291,7 @@ class StateRecorder @Inject constructor(
         }
     }
 
-    override fun onResultUpdated(result: TotalTestResult, status: TestStatus?) {
+    override fun onTestCompleted(result: TotalTestResult) {
         testRecord?.apply {
             portRemote = result.port_remote
             bytesDownload = result.bytes_download
@@ -323,12 +323,20 @@ class StateRecorder @Inject constructor(
                 timeUploadOffsetNanos = it.timeStampStart - testStartTimeNanos
             }
 
-            this.status = status
             transportType = networkInfo?.type
         }
 
         testRecord?.let {
             testRepository.update(it)
+        }
+        testUUID = null
+    }
+
+    override fun onTestStatusUpdate(status: TestStatus?) {
+        if (status != null) {
+            testRecord?.also {
+                it.status = status
+            }
         }
     }
 }
