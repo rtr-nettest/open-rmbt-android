@@ -95,7 +95,14 @@ class CellNetworkInfo(
         /**
          * Creates [CellNetworkInfo] from initial data objects
          */
-        fun from(info: CellInfo, subscriptionInfo: SubscriptionInfo?, networkType: MobileNetworkType, isActive: Boolean, isRoaming: Boolean, apn: String?): CellNetworkInfo {
+        fun from(
+            info: CellInfo,
+            subscriptionInfo: SubscriptionInfo?,
+            networkType: MobileNetworkType,
+            isActive: Boolean,
+            isRoaming: Boolean,
+            apn: String?
+        ): CellNetworkInfo {
             val providerName = subscriptionInfo?.displayName?.toString() ?: ""
             return when (info) {
                 is CellInfoLte -> fromLte(info, providerName, networkType, isActive, isRoaming, apn)
@@ -106,7 +113,14 @@ class CellNetworkInfo(
             }
         }
 
-        private fun fromLte(info: CellInfoLte, providerName: String, networkType: MobileNetworkType, isActive: Boolean, isRoaming: Boolean, apn: String?): CellNetworkInfo {
+        private fun fromLte(
+            info: CellInfoLte,
+            providerName: String,
+            networkType: MobileNetworkType,
+            isActive: Boolean,
+            isRoaming: Boolean,
+            apn: String?
+        ): CellNetworkInfo {
 
             val band: CellBand? = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                 CellBand.fromChannelNumber(info.cellIdentity.earfcn, CellChannelAttribution.EARFCN)
@@ -130,7 +144,14 @@ class CellNetworkInfo(
             )
         }
 
-        private fun fromWcdma(info: CellInfoWcdma, providerName: String, networkType: MobileNetworkType, isActive: Boolean, isRoaming: Boolean, apn: String?): CellNetworkInfo {
+        private fun fromWcdma(
+            info: CellInfoWcdma,
+            providerName: String,
+            networkType: MobileNetworkType,
+            isActive: Boolean,
+            isRoaming: Boolean,
+            apn: String?
+        ): CellNetworkInfo {
             val band: CellBand? = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                 CellBand.fromChannelNumber(info.cellIdentity.uarfcn, CellChannelAttribution.UARFCN)
             } else {
@@ -154,7 +175,14 @@ class CellNetworkInfo(
             )
         }
 
-        private fun fromGsm(info: CellInfoGsm, providerName: String, networkType: MobileNetworkType, isActive: Boolean, isRoaming: Boolean, apn: String?): CellNetworkInfo {
+        private fun fromGsm(
+            info: CellInfoGsm,
+            providerName: String,
+            networkType: MobileNetworkType,
+            isActive: Boolean,
+            isRoaming: Boolean,
+            apn: String?
+        ): CellNetworkInfo {
             val band: CellBand? = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                 CellBand.fromChannelNumber(info.cellIdentity.arfcn, CellChannelAttribution.ARFCN)
             } else {
@@ -180,7 +208,14 @@ class CellNetworkInfo(
             )
         }
 
-        private fun fromCdma(info: CellInfoCdma, providerName: String, networkType: MobileNetworkType, isActive: Boolean, isRoaming: Boolean, apn: String?): CellNetworkInfo {
+        private fun fromCdma(
+            info: CellInfoCdma,
+            providerName: String,
+            networkType: MobileNetworkType,
+            isActive: Boolean,
+            isRoaming: Boolean,
+            apn: String?
+        ): CellNetworkInfo {
 
             return CellNetworkInfo(
                 providerName = providerName,
@@ -210,6 +245,20 @@ fun CellInfo.uuid(): String {
         else -> throw IllegalArgumentException("Unknown cell info cannot be extracted ${javaClass.name}")
     }
 }
+
+fun SubscriptionInfo.mccCompat(): Int? =
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+        mccString?.toInt().fixMncMcc()
+    } else {
+        mcc.fixMncMcc()
+    }
+
+fun SubscriptionInfo.mncCompat(): Int? =
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+        mncString?.toInt().fixMncMcc()
+    } else {
+        mnc.fixMncMcc()
+    }
 
 private fun CellIdentityLte.uuid(): String {
     val id = buildString {

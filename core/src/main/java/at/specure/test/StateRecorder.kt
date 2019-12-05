@@ -15,6 +15,8 @@ import at.specure.database.entity.TestRecord
 import at.specure.info.TransportType
 import at.specure.info.cell.CellInfoWatcher
 import at.specure.info.cell.CellNetworkInfo
+import at.specure.info.cell.mccCompat
+import at.specure.info.cell.mncCompat
 import at.specure.info.network.ActiveNetworkLiveData
 import at.specure.info.network.ActiveNetworkWatcher
 import at.specure.info.network.MobileNetworkType
@@ -217,7 +219,7 @@ class StateRecorder @Inject constructor(
                 simCount = if (info != null) subscriptionManager.activeSubscriptionInfoCount else 2
                 info?.let {
                     operatorName = info.carrierName.toString()
-                    networkOperator = "${info.mcc}-${String.format("%02d", info.mnc)}"
+                    networkOperator = "${info.mccCompat()}-${String.format("%02d", info.mncCompat())}"
                     networkCountry = info.countryIso
                 }
             } else {

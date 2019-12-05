@@ -80,10 +80,15 @@ open class WifiNetworkInfo(
     val ssid: String,
 
     /**
-     * Return the detailed state of the supplicant's negotiation with an
+     * Return the state of the supplicant's negotiation with an
      * access point, in the form of a [android.net.wifi.SupplicantState] object.
      */
-    val supplicantState: SupplicantState
+    val supplicantState: SupplicantState,
+
+    /** Return the detailed state of the supplicant's negotiation with an
+     * access point, in the form of a [android.net.NetworkInfo.DetailedState] object.
+     */
+    val supplicantDetailedState: android.net.NetworkInfo.DetailedState
 
 ) : NetworkInfo(TransportType.WIFI, UUID.nameUUIDFromBytes(ssid.toByteArray()).toString()) {
 
