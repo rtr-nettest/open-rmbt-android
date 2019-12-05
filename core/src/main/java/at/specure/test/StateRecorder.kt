@@ -200,15 +200,9 @@ class StateRecorder @Inject constructor(
         }
     }
 
-    override fun onThreadDownloadDataChanged(threadId: Int, timeNanos: Long, bytesTotal: Long) {
+    override fun onSpeedDataChanged(threadId: Int, bytes: Long, timestampNanos: Long, isUpload: Boolean) {
         testUUID?.let {
-            repository.saveTrafficDownload(it, threadId, timeNanos, bytesTotal)
-        }
-    }
-
-    override fun onThreadUploadDataChanged(threadId: Int, timeNanos: Long, bytesTotal: Long) {
-        testUUID?.let {
-            repository.saveTrafficUpload(it, threadId, timeNanos, bytesTotal)
+            repository.saveSpeedData(it, threadId, bytes, timestampNanos, isUpload)
         }
     }
 

@@ -879,18 +879,10 @@ public class RMBTClient implements RMBTClientCallback {
     }
 
     @Override
-    public void onThreadDownloadDataChanged(int threadId, long timeNanos, long bytesTotal) {
-        Timber.v("download transfer id:  " + threadId + " time: " + timeNanos + " bytes: " + bytesTotal);
-        if (commonCallback != null) {
-            commonCallback.onThreadDownloadDataChanged(threadId, timeNanos, bytesTotal);
-        }
-    }
-
-    @Override
-    public void onThreadUploadDataChanged(int threadId, long timeNanos, long bytesTotal) {
-        Timber.v("upload transfer id:  " + threadId + " bytes: " + timeNanos + " total: " + bytesTotal);
-        if (commonCallback != null) {
-            commonCallback.onThreadUploadDataChanged(threadId, timeNanos, bytesTotal);
+    public void onSpeedDataChanged(int threadId, long bytes, long timestampNanos, boolean isUpload) {
+        Timber.v("speed upload: " + isUpload + " id:  " + threadId + " bytes: " + bytes + " timestampNs: " + timestampNanos);
+        if (commonCallback != null){
+            commonCallback.onSpeedDataChanged(threadId, bytes, timestampNanos, isUpload);
         }
     }
 

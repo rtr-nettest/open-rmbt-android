@@ -6,11 +6,12 @@ import androidx.room.PrimaryKey
 import at.specure.database.Columns
 import at.specure.database.Tables
 
-@Entity(tableName = Tables.DOWNLOAD_TRAFFIC)
-open class DownloadTrafficRecord(
+@Entity(tableName = Tables.SPEED)
+data class SpeedRecord(
 
     @PrimaryKey(autoGenerate = true)
     val id: Long = 0,
+
     @ForeignKey(
         entity = TestRecord::class,
         parentColumns = [Columns.TEST_UUID_PARENT_COLUMN],
@@ -18,7 +19,9 @@ open class DownloadTrafficRecord(
         onDelete = ForeignKey.CASCADE
     )
     val testUUID: String,
-    val threadNumber: Int,
-    val timeNanos: Long,
+
+    val isUpload: Boolean,
+    val threadId: Int,
+    val timestampNanos: Long,
     val bytes: Long
 )
