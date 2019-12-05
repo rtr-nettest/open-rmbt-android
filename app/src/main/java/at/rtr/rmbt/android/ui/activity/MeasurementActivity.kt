@@ -26,6 +26,9 @@ import at.rtr.rmbt.android.ui.adapter.QosMeasurementAdapter
 import at.rtr.rmbt.android.ui.dialog.SimpleDialog
 import at.rtr.rmbt.android.util.listen
 import at.rtr.rmbt.android.viewmodel.MeasurementViewModel
+import kotlinx.android.synthetic.main.activity_measurement.view.*
+import kotlinx.android.synthetic.main.activity_measurement.view.measurement_bottom_view
+import kotlinx.android.synthetic.main.measurement_bottom_view.view.*
 
 class MeasurementActivity : BaseActivity(), SimpleDialog.Callback {
 
@@ -52,7 +55,7 @@ class MeasurementActivity : BaseActivity(), SimpleDialog.Callback {
                 .show(supportFragmentManager, 0)
         }
 
-        binding.measurementBottomView.qosTestRecyclerView.apply {
+        binding.root.measurement_bottom_view.qosTestRecyclerView.apply {
             adapter = QosMeasurementAdapter(this@MeasurementActivity)
         }
 

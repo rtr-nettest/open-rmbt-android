@@ -1,6 +1,9 @@
 package at.specure.test
 
+import android.annotation.SuppressLint
 import android.content.Context
+import android.telephony.SubscriptionManager
+import android.telephony.TelephonyManager
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.Observer
 import at.rtr.rmbt.client.RMBTClientCallback
@@ -9,6 +12,7 @@ import at.rtr.rmbt.client.helper.TestStatus
 import at.rtr.rmbt.client.v2.task.service.TestMeasurement.TrafficDirection
 import at.specure.config.Config
 import at.specure.database.entity.TestRecord
+import at.specure.info.TransportType
 import at.specure.info.cell.CellInfoWatcher
 import at.specure.info.cell.CellNetworkInfo
 import at.specure.info.network.ActiveNetworkLiveData
@@ -19,6 +23,7 @@ import at.specure.info.network.WifiNetworkInfo
 import at.specure.info.strength.SignalStrengthInfo
 import at.specure.info.strength.SignalStrengthLiveData
 import at.specure.info.strength.SignalStrengthWatcher
+import at.specure.info.wifi.WifiInfoWatcher
 import at.specure.location.LocationInfo
 import at.specure.location.LocationInfoLiveData
 import at.specure.location.LocationWatcher
@@ -28,6 +33,7 @@ import at.specure.location.cell.CellLocationWatcher
 import at.specure.repository.TestDataRepository
 import at.specure.repository.TestRepository
 import at.specure.util.hasPermission
+import at.specure.util.isReadPhoneStatePermitted
 import at.specure.util.permission.PermissionsWatcher
 import timber.log.Timber
 import java.util.concurrent.TimeUnit
@@ -48,9 +54,11 @@ class StateRecorder @Inject constructor(
     private val permissionsWatcher: PermissionsWatcher,
     private val config: Config,
     private val cellLocationLiveData: CellLocationLiveData,
-    private val cellLocationWatcher: CellLocationWatcher
+    private val cellLocationWatcher: CellLocationWatcher,
+    private val telephonyManager: TelephonyManager,
+    private val subscriptionManager: SubscriptionManager,
+    private val wifiInfoWatcher: WifiInfoWatcher
 ) : RMBTClientCallback {
-
     private var testUUID: String? = null
     private var testStartTimeNanos: Long = 0L
     private var testRecord: TestRecord? = null
@@ -84,6 +92,8 @@ class StateRecorder @Inject constructor(
         activeNetworkLiveData.observe(lifecycle, Observer {
             networkInfo = it
             saveCellInfo()
+            saveTelephonyInfo()
+            saveWlanInfo()
         })
 
         cellLocation = cellLocationWatcher.latestLocation
@@ -103,6 +113,8 @@ class StateRecorder @Inject constructor(
         saveCapabilities()
         savePermissionsStatus()
         saveCellLocation()
+        saveTelephonyInfo()
+        saveWlanInfo()
     }
 
     fun finish() {
@@ -185,6 +197,73 @@ class StateRecorder @Inject constructor(
         val location = cellLocation
         if (uuid != null && location != null) {
             repository.saveCellLocation(uuid, location)
+        }
+    }
+
+    @SuppressLint("MissingPermission")
+    private fun saveTelephonyInfo() {
+        val type = activeNetworkWatcher.currentNetworkInfo?.type
+        val isDualSim = telephonyManager.phoneCount > 1
+        val isDualByMobile = type == TransportType.CELLULAR && isDualSim
+
+        testUUID?.let {
+            var operatorName: String? = null
+            var networkOperator: String? = null
+            var networkCountry: String? = null
+            val simCount: Int
+
+            if (context.isReadPhoneStatePermitted() && isDualByMobile) {
+                val info = subscriptionManager.activeSubscriptionInfoList.firstOrNull()
+                simCount = if (info != null) subscriptionManager.activeSubscriptionInfoCount else 2
+                info?.let {
+                    operatorName = info.carrierName.toString()
+                    networkOperator = "${info.mcc}-${String.format("%02d", info.mnc)}"
+                    networkCountry = info.countryIso
+                }
+            } else {
+                simCount = 1
+                operatorName = telephonyManager.networkOperatorName
+                networkOperator = telephonyManager.networkOperator
+                networkCountry = telephonyManager.networkCountryIso
+            }
+
+            val networkInfo = cellInfoWatcher.activeNetwork
+            val simCountry = telephonyManager.simCountryIso
+            val simOperatorName = try { // hack for Motorola Defy (#594)
+                telephonyManager.simOperatorName
+            } catch (ex: SecurityException) {
+                ex.printStackTrace()
+                "s.exception"
+            }
+            val phoneType = telephonyManager.phoneType.toString()
+            val dataState = try {
+                telephonyManager.dataState.toString()
+            } catch (ex: SecurityException) {
+                ex.printStackTrace()
+                "s.exception"
+            }
+
+            repository.saveTelephonyInfo(
+                it,
+                networkInfo,
+                operatorName,
+                networkOperator,
+                networkCountry,
+                simCountry,
+                simOperatorName,
+                phoneType,
+                dataState,
+                simCount
+            )
+        }
+    }
+
+    private fun saveWlanInfo() {
+        val wifiInfo = wifiInfoWatcher.activeWifiInfo
+        if (wifiInfo?.ssid != null && wifiInfo.bssid != null) {
+            testUUID?.let {
+                repository.saveWlanInfo(it, wifiInfo)
+            }
         }
     }
 

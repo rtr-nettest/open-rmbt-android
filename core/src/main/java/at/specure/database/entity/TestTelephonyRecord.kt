@@ -55,5 +55,15 @@ data class TestTelephonyRecord(
     /**
      * Access point name from NetworkInfo.getExtraInfo()
      */
-    val apn: String?
+    val apn: String?,
+
+    /**
+     * count of SIM cards
+     */
+    val simCount: Int,
+
+    /**
+     * phone has dual SIM
+     */
+    val hasDualSim: Boolean
 )

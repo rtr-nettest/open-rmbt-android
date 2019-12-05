@@ -1,5 +1,6 @@
 package at.specure.repository
 
+import android.net.wifi.WifiInfo
 import androidx.lifecycle.LiveData
 import at.rmbt.util.io
 import at.specure.database.CoreDatabase
@@ -12,6 +13,8 @@ import at.specure.database.entity.PermissionStatusRecord
 import at.specure.database.entity.PingRecord
 import at.specure.database.entity.SignalRecord
 import at.specure.database.entity.SpeedRecord
+import at.specure.database.entity.TestTelephonyRecord
+import at.specure.database.entity.TestWlanRecord
 import at.specure.info.cell.CellNetworkInfo
 import at.specure.info.cell.CellTechnology
 import at.specure.info.network.MobileNetworkType
@@ -35,6 +38,7 @@ class TestDataRepositoryImpl(db: CoreDatabase) : TestDataRepository {
     private val cellInfoDao = db.cellInfoDao()
     private val cellLocationDao = db.cellLocationDao()
     private val pingDao = db.pingDao()
+    private val testDao = db.testDao()
 
     override fun saveGeoLocation(testUUID: String, location: LocationInfo) = io {
         val geoLocation = GeoLocationRecord(
@@ -217,5 +221,48 @@ class TestDataRepositoryImpl(db: CoreDatabase) : TestDataRepository {
     override fun saveAllPingValues(testUUID: String, clientPing: Long, serverPing: Long, timeNs: Long) {
         val record = PingRecord(testUUID = testUUID, value = clientPing, valueServer = serverPing, testTimeNanos = timeNs)
         pingDao.insert(record)
+    }
+
+    override fun saveTelephonyInfo(
+        testUUID: String,
+        networkInfo: CellNetworkInfo?,
+        operatorName: String?,
+        networkOperator: String?,
+        networkCountry: String?,
+        simCountry: String?,
+        simOperatorName: String?,
+        phoneType: String?,
+        dataState: String?,
+        simCount: Int
+    ) = io {
+        val record = TestTelephonyRecord(
+            testUUID = testUUID,
+            networkOperatorName = operatorName,
+            networkOperator = networkOperator,
+            networkIsRoaming = networkInfo?.isRoaming,
+            networkCountry = networkCountry,
+            networkSimCountry = simCountry,
+            networkSimOperator = "${networkInfo?.mnc}-${networkInfo?.mcc}",
+            networkSimOperatorName = simOperatorName,
+            phoneType = phoneType,
+            dataState = dataState,
+            apn = networkInfo?.apn,
+            simCount = simCount,
+            hasDualSim = simCount > 1
+        )
+        testDao.insert(record)
+    }
+
+    override fun saveWlanInfo(testUUID: String, wifiInfo: WifiNetworkInfo?) = io {
+        val record = TestWlanRecord(
+            testUUID = testUUID,
+            supplicantState = wifiInfo?.supplicantState.toString(),
+            supplicantDetailedState = (WifiInfo.getDetailedStateOf(wifiInfo?.supplicantState)
+                ?: android.net.NetworkInfo.DetailedState.IDLE).toString(),
+            ssid = if (wifiInfo?.ssid.equals("<unknown ssid>")) null else wifiInfo?.ssid,
+            bssid = if (wifiInfo?.bssid.equals("02:00:00:00:00:00")) null else wifiInfo?.bssid,
+            networkId = wifiInfo?.networkId.toString()
+        )
+        testDao.insert(record)
     }
 }

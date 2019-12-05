@@ -87,14 +87,27 @@ class CellInfoWatcherImpl(
                         }
 
                         _cellInfo = registeredInfoList[index]
-                        _activeNetwork = CellNetworkInfo.from(_cellInfo!!, it, MobileNetworkType.fromValue(networkType), true)
+                        _activeNetwork = CellNetworkInfo.from(
+                            _cellInfo!!,
+                            it,
+                            MobileNetworkType.fromValue(networkType),
+                            true,
+                            connectivityManager.activeNetworkInfo?.isRoaming ?: false,
+                            connectivityManager.activeNetworkInfo?.extraInfo
+                        )
                     }
                 }
             }
 
             _allCellInfo.clear()
             cellInfo.forEach {
-                val info = CellNetworkInfo.from(it, null, _activeNetwork?.cellUUID == it.uuid())
+                val info = CellNetworkInfo.from(
+                    it,
+                    null,
+                    _activeNetwork?.cellUUID == it.uuid(),
+                    connectivityManager.activeNetworkInfo?.isRoaming ?: false,
+                    connectivityManager.activeNetworkInfo?.extraInfo
+                )
                 _allCellInfo.add(info)
                 Timber.v("cell: ${info.networkType.displayName} ${info.mnc} ${info.mcc} ${info.cellUUID}")
             }
@@ -197,7 +210,9 @@ private fun ConnectivityManager.cellNetworkInfoCompat(operatorName: String?): Ce
             areaCode = null,
             scramblingCode = null,
             isActive = true,
-            isRegistered = true
+            isRegistered = true,
+            isRoaming = info.isRoaming,
+            apn = info.extraInfo
         )
     }
 }
