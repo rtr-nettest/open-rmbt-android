@@ -5,6 +5,7 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.appcompat.widget.AppCompatImageView
 import androidx.appcompat.widget.AppCompatTextView
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.databinding.BindingAdapter
 import at.rmbt.client.control.IpProtocol
 import at.rtr.rmbt.android.R
@@ -23,6 +24,7 @@ import at.specure.info.network.NetworkInfo
 import at.specure.info.network.WifiNetworkInfo
 import at.specure.info.strength.SignalStrengthInfo
 import at.specure.measurement.MeasurementState
+import com.google.android.material.bottomsheet.BottomSheetBehavior
 
 @BindingAdapter("intText")
 fun intText(textView: TextView, value: Int) {
@@ -447,4 +449,10 @@ fun AppCompatTextView.setLabelOfMeasurementState(measurementState: MeasurementSt
         else -> {
         }
     }
+}
+
+@BindingAdapter("bottomSheetState")
+fun ConstraintLayout.setBottomSheetState(state: Int) {
+    val behavior = BottomSheetBehavior.from(this)
+    behavior.state = state
 }

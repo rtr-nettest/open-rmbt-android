@@ -17,14 +17,10 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/measurement_bottom_view"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:background="@drawable/background_measurement_bottom"
         android:orientation="vertical"
-        android:paddingBottom="@dimen/padding_medium"
-        app:behavior_peekHeight="@dimen/measurement_bottom_header_height"
-        app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior"
-        app:bottomSheetState="@{3}"
-        >
+        android:paddingBottom="@dimen/padding_medium">
 
         <View
             android:id="@+id/viewHeader"
@@ -95,7 +91,6 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/margin_large"
             android:drawablePadding="@dimen/padding_very_small"
-            android:maxLines="2"
             app:layout_constraintEnd_toStartOf="@+id/textDownloadSpeed"
             app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintStart_toEndOf="@+id/imageViewSignalLevel"
@@ -103,6 +98,7 @@
             app:pingMs="@{state.pingMs}"
             tools:drawableStart="@drawable/ic_small_ping_yellow"
             tools:text="14 ms"
+            android:maxLines="2"
             tools:textColor="@android:color/white" />
 
         <androidx.appcompat.widget.AppCompatTextView
@@ -111,7 +107,6 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:drawablePadding="@dimen/padding_very_small"
-            android:maxLines="2"
             app:downloadSpeedBps="@{state.downloadSpeedBps}"
             app:layout_constraintEnd_toStartOf="@+id/textUploadSpeed"
             app:layout_constraintHorizontal_bias="0.5"
@@ -119,6 +114,7 @@
             app:layout_constraintTop_toBottomOf="@+id/labelMeasurementBottomDownload"
             tools:drawableStart="@drawable/ic_small_download_light_green"
             tools:text="24.12 Mbit/s"
+            android:maxLines="2"
             tools:textColor="@android:color/white" />
 
         <androidx.appcompat.widget.AppCompatTextView
@@ -127,7 +123,6 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:drawablePadding="@dimen/padding_very_small"
-            android:maxLines="2"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintStart_toEndOf="@+id/textDownloadSpeed"
@@ -135,6 +130,7 @@
             app:uploadSpeedBps="@{state.uploadSpeedBps}"
             tools:drawableStart="@drawable/ic_small_upload_gray"
             tools:text="1000.0 Mbit/s"
+            android:maxLines="2"
             tools:textColor="@android:color/white" />
 
         <androidx.appcompat.widget.AppCompatTextView
@@ -156,7 +152,6 @@
             android:id="@+id/speedChartDownloadUpload"
             android:layout_width="match_parent"
             android:layout_height="@dimen/speed_chart_height"
-            app:graphItems="@{state.measurementState == MeasurementState.DOWNLOAD ? state.downloadGraphItems : state.measurementState == MeasurementState.UPLOAD ? state.uploadGraphItems : null}"
             app:grid_color="@color/chart_grid_line_color"
             app:grid_row="4"
             app:layout_constraintEnd_toEndOf="parent"
@@ -166,6 +161,7 @@
             app:progress_line_color="@color/colorAccent"
             app:reset="@{state.measurementState}"
             app:visibleOrGone="@{state.measurementState == MeasurementState.IDLE | state.measurementState == MeasurementState.INIT | state.measurementState == MeasurementState.PING | state.measurementState == MeasurementState.DOWNLOAD | state.measurementState == MeasurementState.UPLOAD}"
+            app:graphItems="@{state.measurementState == MeasurementState.DOWNLOAD ? state.downloadGraphItems : state.measurementState == MeasurementState.UPLOAD ? state.uploadGraphItems : null}"
             app:xlabel_color="@color/text_gray"
             app:xlabel_text_size="@dimen/chart_label_text_size"
             app:ylabel_color="@color/text_gray"
@@ -174,8 +170,9 @@
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/qosTestRecyclerView"
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
+            android:layout_height="0dp"
             app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/labelMeasurementState"
@@ -199,13 +196,12 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginEnd="@dimen/margin_medium"
-            android:text="0/7"
             android:textColor="@color/text_white_transparency_50"
             app:layout_constraintBottom_toBottomOf="@+id/labelMeasurementState"
             app:layout_constraintEnd_toStartOf="@+id/progressQoS"
             app:layout_constraintTop_toTopOf="@+id/labelMeasurementState"
             app:visibleOrGone="@{state.measurementState == MeasurementState.QOS}"
-            tools:ignore="HardcodedText" />
+            android:text="0/7" tools:ignore="HardcodedText"/>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
