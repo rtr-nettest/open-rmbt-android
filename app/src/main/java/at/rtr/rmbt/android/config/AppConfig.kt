@@ -50,7 +50,7 @@ class AppConfig @Inject constructor(context: Context, private val serverSettings
     }
 
     private fun getBoolean(configValue: ConfigValue, serverValue: Boolean? = false): Boolean {
-        return preferences.getBoolean(configValue.name, serverValue ?:  configValue.value.toBoolean())
+        return preferences.getBoolean(configValue.name, serverValue ?: configValue.value.toBoolean())
     }
 
     private fun setBoolean(configValue: ConfigValue, value: Boolean) {
