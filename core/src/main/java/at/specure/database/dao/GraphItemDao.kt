@@ -15,7 +15,7 @@ interface GraphItemDao {
     fun getUploadGraphLiveData(testUUID: String): LiveData<List<GraphItemRecord>>
 
     @Query("SELECT * from ${Tables.TEST_GRAPH_ITEM} WHERE testUUID == :testUUID AND type == ${GraphItemRecord.GRAPH_ITEM_TYPE_DOWNLOAD} ORDER BY progress asc")
-    fun getDownloadGraphLiveData(testUUID: String): LiveData<List<GraphItemRecord>>
+    fun getDownloadGraphLiveData(testUUID: String): List<GraphItemRecord>
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     fun insertItem(graphItem: GraphItemRecord): Long

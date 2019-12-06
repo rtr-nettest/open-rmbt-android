@@ -33,7 +33,8 @@ class MeasurementViewModel @Inject constructor(
     private val _isTestsRunningLiveData = MutableLiveData<Boolean>()
     private val _measurementErrorLiveData = MutableLiveData<Boolean>()
 
-    private val _downloadGraphLiveData = MediatorLiveData<List<GraphItemRecord>>()
+    private val _downloadGraphLiveData = MutableLiveData<List<GraphItemRecord>>()
+
     private val _uploadGraphLiveData = MediatorLiveData<List<GraphItemRecord>>()
     private var downloadGraphSource: LiveData<List<GraphItemRecord>>? = null
     private var uploadGraphSource: LiveData<List<GraphItemRecord>>? = null
@@ -41,6 +42,8 @@ class MeasurementViewModel @Inject constructor(
     private var producer: MeasurementProducer? = null // TODO make field private
 
     val state = MeasurementViewState()
+
+    var list:ArrayList<GraphItemRecord> = ArrayList()
 
     val measurementFinishLiveData: LiveData<Boolean>
         get() = _measurementFinishLiveData
@@ -114,6 +117,18 @@ class MeasurementViewModel @Inject constructor(
     override fun onDownloadSpeedChanged(progress: Int, speedBps: Long) {
         state.downloadSpeedBps.set(speedBps)
         state.measurementDownloadUploadProgress.set(progress)
+
+        if(state.measurementState.get() == MeasurementState.DOWNLOAD) {
+
+            list.add(GraphItemRecord(testUUID = "",progress = progress,value = speedBps,type = 1))
+
+            val newList = ArrayList(list.map { it.copy() })
+
+            //newList.addAll(list.get)
+            state.downloadGraphItems.set(newList)
+            //_downloadGraphLiveData.postValue(list)
+        }
+
     }
 
     override fun onUploadSpeedChanged(progress: Int, speedBps: Long) {
@@ -134,14 +149,10 @@ class MeasurementViewModel @Inject constructor(
     }
 
     override fun onClientReady(testUUID: String) {
+
+        //_downloadGraphLiveData.postValue(testDataRepository.getDownloadGraphItemsLiveData(testUUID))
         CoroutineScope(Dispatchers.Main.immediate).launch {
-            downloadGraphSource?.let {
-                _downloadGraphLiveData.removeSource(it)
-            }
-            downloadGraphSource = testDataRepository.getDownloadGraphItemsLiveData(testUUID)
-            _downloadGraphLiveData.addSource(downloadGraphSource!!) {
-                _downloadGraphLiveData.postValue(it)
-            }
+
 
             uploadGraphSource?.let {
                 _uploadGraphLiveData.removeSource(it)

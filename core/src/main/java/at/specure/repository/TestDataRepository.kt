@@ -21,7 +21,7 @@ interface TestDataRepository {
 
     fun saveUploadGraphItem(testUUID: String, progress: Int, speedBps: Long)
 
-    fun getDownloadGraphItemsLiveData(testUUID: String): LiveData<List<GraphItemRecord>>
+    fun getDownloadGraphItemsLiveData(testUUID: String): List<GraphItemRecord>
 
     fun getUploadGraphItemsLiveData(testUUID: String): LiveData<List<GraphItemRecord>>
 

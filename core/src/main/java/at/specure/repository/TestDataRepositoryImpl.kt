@@ -68,7 +68,7 @@ class TestDataRepositoryImpl(db: CoreDatabase) : TestDataRepository {
         graphItemDao.insertItem(graphItem)
     }
 
-    override fun getDownloadGraphItemsLiveData(testUUID: String): LiveData<List<GraphItemRecord>> {
+    override fun getDownloadGraphItemsLiveData(testUUID: String): List<GraphItemRecord> {
         return graphItemDao.getDownloadGraphLiveData(testUUID)
     }
 
