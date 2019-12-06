@@ -252,14 +252,14 @@ class TestDataRepositoryImpl(db: CoreDatabase) : TestDataRepository {
         testDao.insert(record)
     }
 
-    override fun saveWlanInfo(testUUID: String, wifiInfo: WifiNetworkInfo?) = io {
+    override fun saveWlanInfo(testUUID: String, wifiInfo: WifiNetworkInfo) = io {
         val record = TestWlanRecord(
             testUUID = testUUID,
-            supplicantState = wifiInfo?.supplicantState.toString(),
-            supplicantDetailedState = wifiInfo?.supplicantDetailedState.toString(),
-            ssid = wifiInfo?.ssid,
-            bssid = wifiInfo?.bssid,
-            networkId = wifiInfo?.networkId.toString()
+            supplicantState = wifiInfo.supplicantState.toString(),
+            supplicantDetailedState = wifiInfo.supplicantDetailedState.toString(),
+            ssid = wifiInfo.ssid,
+            bssid = wifiInfo.bssid,
+            networkId = wifiInfo.networkId.toString()
         )
         testDao.insert(record)
     }
