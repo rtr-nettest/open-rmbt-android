@@ -430,6 +430,11 @@ fun MeasurementCurveLayout.setMeasurementPhase(state: MeasurementState) {
     setMeasurementState(state)
 }
 
+@BindingAdapter("qosEnabled")
+fun MeasurementCurveLayout.setQosEnabled(enabled: Boolean) {
+    setQoSEnabled(enabled)
+}
+
 /**
  * A binding adapter that is used for show label of measurement state
  */

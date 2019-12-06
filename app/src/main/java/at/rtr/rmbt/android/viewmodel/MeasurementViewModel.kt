@@ -125,6 +125,10 @@ class MeasurementViewModel @Inject constructor(
         state.pingMs.set(TimeUnit.NANOSECONDS.toMillis(pingNanos))
     }
 
+    override fun isQoSEnabled(enabled: Boolean) {
+        state.qosEnabled.set(enabled)
+    }
+
     fun cancelMeasurement() {
         producer?.stopTests()
     }

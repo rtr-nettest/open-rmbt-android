@@ -226,6 +226,7 @@ class MeasurementService : LifecycleService() {
                 onPingChanged(pingNanos)
                 onDownloadSpeedChanged(measurementProgress, downloadSpeedBps)
                 onUploadSpeedChanged(measurementProgress, uploadSpeedBps)
+                isQoSEnabled(!config.skipQoSTests)
                 runner.testUUID?.let {
                     onClientReady(it)
                 }
@@ -320,6 +321,12 @@ class MeasurementService : LifecycleService() {
         override fun onClientReady(testUUID: String) {
             clients.forEach {
                 it.onClientReady(testUUID)
+            }
+        }
+
+        override fun isQoSEnabled(enabled: Boolean) {
+            clients.forEach {
+                it.isQoSEnabled(enabled)
             }
         }
     }

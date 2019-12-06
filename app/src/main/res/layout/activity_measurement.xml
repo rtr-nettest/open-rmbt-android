@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:bind="http://schemas.android.com/apk/res-auto"
-    >
+    xmlns:bind="http://schemas.android.com/apk/res-auto">
 
     <data>
 
@@ -52,30 +51,31 @@
                 android:id="@+id/curve_layout"
                 android:layout_width="wrap_content"
                 android:layout_height="0dp"
+                app:layout_constraintBottom_toTopOf="@id/guideline"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/network_name"
+                app:measurementPhase="@{state.measurementState}"
                 app:percentage="@{state.measurementProgress}"
+                app:qosEnabled="@{state.qosEnabled}"
                 app:speed="@{state.measurementState == MeasurementState.UPLOAD ? state.uploadSpeedBps : state.downloadSpeedBps}"
                 app:strength="@{state.signalStrengthInfo.value}"
-                app:strengthMin="@{state.signalStrengthInfo.min}"
                 app:strengthMax="@{state.signalStrengthInfo.max}"
-                app:measurementPhase="@{state.measurementState}"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/network_name"
-                app:layout_constraintBottom_toTopOf="@id/guideline">
+                app:strengthMin="@{state.signalStrengthInfo.min}">
 
 
             </at.rtr.rmbt.android.ui.view.curve.MeasurementCurveLayout>
 
             <ImageView
+                android:id="@+id/buttonCancel"
                 android:layout_width="wrap_content"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                android:src="@drawable/ic_cancel"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/padding_large"
                 android:layout_marginEnd="@dimen/padding_large"
                 android:contentDescription="@null"
-                android:layout_marginTop="@dimen/padding_large"
-                android:layout_height="wrap_content"
-                android:id="@+id/buttonCancel"/>
+                android:src="@drawable/ic_cancel"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
 
             <androidx.constraintlayout.widget.Guideline
                 android:id="@+id/guideline"

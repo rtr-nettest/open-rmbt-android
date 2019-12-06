@@ -56,9 +56,8 @@ class MeasurementCurveLayout @JvmOverloads constructor(context: Context, attrs: 
         put(MeasurementState.INIT, 0.15f)
         put(MeasurementState.PING, 0.15f)
         put(MeasurementState.DOWNLOAD, 0.2f)
-        put(MeasurementState.UPLOAD, 0.25f)
+        put(MeasurementState.UPLOAD, 0.24f)
         put(MeasurementState.QOS, 0.25f)
-        // todo check QoS part
     }
 
     /**
@@ -76,11 +75,10 @@ class MeasurementCurveLayout @JvmOverloads constructor(context: Context, attrs: 
      */
     private var progressOffsetsQoS = LinkedHashMap<MeasurementState, Int>().apply {
         put(MeasurementState.INIT, 0)
-        put(MeasurementState.PING, 15)
-        put(MeasurementState.DOWNLOAD, 29)
-        put(MeasurementState.UPLOAD, 50)
-        put(MeasurementState.QOS, 75)
-        // todo check QoS part
+        put(MeasurementState.PING, 16)
+        put(MeasurementState.DOWNLOAD, 30)
+        put(MeasurementState.UPLOAD, 51)
+        put(MeasurementState.QOS, 76)
     }
 
     override fun onFinishInflate() {
@@ -143,7 +141,7 @@ class MeasurementCurveLayout @JvmOverloads constructor(context: Context, attrs: 
     fun setTopProgress(currentProgress: Int) {
         if (topCenterX != 0 && topCenterY != 0 && currentProgress != 0) {
             val progress = prepareProgressValueByPhase(currentProgress)
-            curveBinding.curveView.setTopProgress(currentProgress)
+            curveBinding.curveView.setTopProgress(currentProgress, isQoSEnabled)
             percentageLayout.percentage.text = progress.toString()
             percentageLayout.units.text = context.getString(R.string.measurement_progress_units)
             percentageLayout.percentage.requestLayout()
@@ -176,7 +174,7 @@ class MeasurementCurveLayout @JvmOverloads constructor(context: Context, attrs: 
     fun setBottomProgress(progress: Long) {
         if (phase == MeasurementState.DOWNLOAD || phase == MeasurementState.UPLOAD) {
             speedLayout.icon.setImageResource(if (phase == MeasurementState.DOWNLOAD) R.drawable.ic_speed_download else R.drawable.ic_speed_upload)
-            curveBinding.curveView.setBottomProgress((progress * 1e-3).toInt())
+            curveBinding.curveView.setBottomProgress((progress * 1e-3).toInt(), isQoSEnabled)
             val progressInMbps: Float = progress / 1000000.0f
             speedLayout.value.text = progressInMbps.format()
 
@@ -224,6 +222,10 @@ class MeasurementCurveLayout @JvmOverloads constructor(context: Context, attrs: 
     fun setMeasurementState(state: MeasurementState) {
         phase = state
         curveBinding.curveView.setMeasurementState(state)
+    }
+
+    fun setQoSEnabled(enabled: Boolean) {
+        isQoSEnabled = enabled
     }
 
     companion object {
