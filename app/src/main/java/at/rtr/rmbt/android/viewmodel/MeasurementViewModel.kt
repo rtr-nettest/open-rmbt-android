@@ -5,7 +5,6 @@ import android.content.Context
 import android.content.ServiceConnection
 import android.os.IBinder
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.MutableLiveData
 import at.rtr.rmbt.android.ui.viewstate.MeasurementViewState
 import at.specure.database.entity.GraphItemRecord
@@ -33,7 +32,6 @@ class MeasurementViewModel @Inject constructor(
     private val _isTestsRunningLiveData = MutableLiveData<Boolean>()
     private val _measurementErrorLiveData = MutableLiveData<Boolean>()
 
-
     private var producer: MeasurementProducer? = null // TODO make field private
 
     val state = MeasurementViewState()
@@ -46,7 +44,6 @@ class MeasurementViewModel @Inject constructor(
 
     val measurementErrorLiveData: LiveData<Boolean>
         get() = _measurementErrorLiveData
-
 
     private val serviceConnection = object : ServiceConnection {
 
@@ -108,20 +105,18 @@ class MeasurementViewModel @Inject constructor(
         state.downloadSpeedBps.set(speedBps)
         state.measurementDownloadUploadProgress.set(progress)
 
-        if(state.measurementState.get() == MeasurementState.DOWNLOAD) {
-
-            state.downloadGraphItems.add(GraphItemRecord(testUUID = "",progress = progress,value = speedBps,type = 1))
+        if (state.measurementState.get() == MeasurementState.DOWNLOAD) {
+            state.downloadGraphItems.add(GraphItemRecord(testUUID = "", progress = progress, value = speedBps, type = GraphItemRecord.GRAPH_ITEM_TYPE_DOWNLOAD))
             Timber.d("speedTest onDownloadSpeedChanged progress $progress speed: $speedBps size: ${state.downloadGraphItems.size}")
         }
-
     }
 
     override fun onUploadSpeedChanged(progress: Int, speedBps: Long) {
         state.uploadSpeedBps.set(speedBps)
         state.measurementDownloadUploadProgress.set(progress)
 
-        if(state.measurementState.get() == MeasurementState.UPLOAD) {
-            state.uploadGraphItems.add(GraphItemRecord(testUUID = "",progress = progress,value = speedBps,type = 2))
+        if (state.measurementState.get() == MeasurementState.UPLOAD) {
+            state.uploadGraphItems.add(GraphItemRecord(testUUID = "", progress = progress, value = speedBps, type = GraphItemRecord.GRAPH_ITEM_TYPE_UPLOAD))
             Timber.d("speedTest onUploadSpeedChanged progress $progress speed: $speedBps size: ${state.uploadGraphItems.size}")
         }
     }
@@ -140,9 +135,8 @@ class MeasurementViewModel @Inject constructor(
 
     override fun onClientReady(testUUID: String) {
 
-        //_downloadGraphLiveData.postValue(testDataRepository.getDownloadGraphItemsLiveData(testUUID))
+        // _downloadGraphLiveData.postValue(testDataRepository.getDownloadGraphItemsLiveData(testUUID))
         CoroutineScope(Dispatchers.Main.immediate).launch {
-
 
             /*uploadGraphSource?.let {
                 _uploadGraphLiveData.removeSource(it)

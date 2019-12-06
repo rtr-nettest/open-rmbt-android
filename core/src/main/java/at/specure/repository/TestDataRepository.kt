@@ -1,6 +1,5 @@
 package at.specure.repository
 
-import androidx.lifecycle.LiveData
 import at.specure.database.entity.CapabilitiesRecord
 import at.specure.database.entity.GraphItemRecord
 import at.specure.info.cell.CellNetworkInfo

@@ -1,7 +1,11 @@
 package at.rtr.rmbt.android.ui.viewstate
 
 import android.os.Bundle
-import androidx.databinding.*
+import androidx.databinding.ObservableBoolean
+import androidx.databinding.ObservableField
+import androidx.databinding.ObservableInt
+import androidx.databinding.ObservableLong
+import androidx.databinding.ObservableArrayList
 import at.specure.database.entity.GraphItemRecord
 import at.specure.info.network.NetworkInfo
 import at.specure.info.strength.SignalStrengthInfo

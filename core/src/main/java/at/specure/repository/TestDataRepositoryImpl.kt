@@ -1,6 +1,5 @@
 package at.specure.repository
 
-import androidx.lifecycle.LiveData
 import at.rmbt.util.io
 import at.specure.database.CoreDatabase
 import at.specure.database.entity.CapabilitiesRecord
