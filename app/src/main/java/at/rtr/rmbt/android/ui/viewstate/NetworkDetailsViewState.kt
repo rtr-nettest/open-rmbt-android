@@ -95,7 +95,7 @@ class NetworkDetailsViewState : ViewState {
         bold("rssi: ").append(info.rssi).newLine()
         bold("signalLevel: ").append(info.signalLevel).newLine()
         bold("ssid: ").append(info.ssid).newLine()
-        bold("supplicantState: ").append(info.supplicantState.name).newLine()
+        bold("supplicantState: ").append(info.supplicantState).newLine()
     }
 
     private fun extractCellNetworkInfo(info: CellNetworkInfo): String = buildString {
