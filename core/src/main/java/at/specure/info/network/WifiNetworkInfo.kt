@@ -14,7 +14,6 @@
 
 package at.specure.info.network
 
-import android.net.wifi.SupplicantState
 import at.specure.info.TransportType
 import at.specure.info.band.WifiBand
 import java.util.UUID
