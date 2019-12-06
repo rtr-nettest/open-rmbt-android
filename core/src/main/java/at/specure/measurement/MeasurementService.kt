@@ -12,7 +12,7 @@ import androidx.lifecycle.LifecycleService
 import at.specure.config.Config
 import at.specure.di.CoreInjector
 import at.specure.di.NotificationProvider
-import at.specure.repository.TestDataRepository
+import at.specure.data.repository.TestDataRepository
 import at.specure.test.DeviceInfo
 import at.specure.test.StateRecorder
 import at.specure.test.TestController
