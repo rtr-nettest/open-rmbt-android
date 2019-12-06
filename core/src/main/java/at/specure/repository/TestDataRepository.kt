@@ -58,5 +58,5 @@ interface TestDataRepository {
         simCount: Int
     )
 
-    fun saveWlanInfo(testUUID: String, wifiInfo: WifiNetworkInfo?)
+    fun saveWlanInfo(testUUID: String, wifiInfo: WifiNetworkInfo)
 }

@@ -1,6 +1,5 @@
 package at.specure.repository
 
-import android.net.wifi.WifiInfo
 import androidx.lifecycle.LiveData
 import at.rmbt.util.io
 import at.specure.database.CoreDatabase
@@ -253,15 +252,14 @@ class TestDataRepositoryImpl(db: CoreDatabase) : TestDataRepository {
         testDao.insert(record)
     }
 
-    override fun saveWlanInfo(testUUID: String, wifiInfo: WifiNetworkInfo?) = io {
+    override fun saveWlanInfo(testUUID: String, wifiInfo: WifiNetworkInfo) = io {
         val record = TestWlanRecord(
             testUUID = testUUID,
-            supplicantState = wifiInfo?.supplicantState.toString(),
-            supplicantDetailedState = (WifiInfo.getDetailedStateOf(wifiInfo?.supplicantState)
-                ?: android.net.NetworkInfo.DetailedState.IDLE).toString(),
-            ssid = if (wifiInfo?.ssid.equals("<unknown ssid>")) null else wifiInfo?.ssid,
-            bssid = if (wifiInfo?.bssid.equals("02:00:00:00:00:00")) null else wifiInfo?.bssid,
-            networkId = wifiInfo?.networkId.toString()
+            supplicantState = wifiInfo.supplicantState.toString(),
+            supplicantDetailedState = wifiInfo.supplicantDetailedState.toString(),
+            ssid = wifiInfo.ssid,
+            bssid = wifiInfo.bssid,
+            networkId = wifiInfo.networkId.toString()
         )
         testDao.insert(record)
     }
