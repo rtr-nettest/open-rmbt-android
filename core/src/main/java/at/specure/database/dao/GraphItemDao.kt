@@ -12,7 +12,7 @@ import at.specure.database.entity.GraphItemRecord
 interface GraphItemDao {
 
     @Query("SELECT * from ${Tables.TEST_GRAPH_ITEM} WHERE testUUID == :testUUID AND type == ${GraphItemRecord.GRAPH_ITEM_TYPE_UPLOAD} ORDER BY progress asc")
-    fun getUploadGraphLiveData(testUUID: String): LiveData<List<GraphItemRecord>>
+    fun getUploadGraphLiveData(testUUID: String): List<GraphItemRecord>
 
     @Query("SELECT * from ${Tables.TEST_GRAPH_ITEM} WHERE testUUID == :testUUID AND type == ${GraphItemRecord.GRAPH_ITEM_TYPE_DOWNLOAD} ORDER BY progress asc")
     fun getDownloadGraphLiveData(testUUID: String): List<GraphItemRecord>

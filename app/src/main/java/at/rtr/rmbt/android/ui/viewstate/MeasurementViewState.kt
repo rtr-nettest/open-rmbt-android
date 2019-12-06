@@ -1,10 +1,7 @@
 package at.rtr.rmbt.android.ui.viewstate
 
 import android.os.Bundle
-import androidx.databinding.ObservableBoolean
-import androidx.databinding.ObservableField
-import androidx.databinding.ObservableInt
-import androidx.databinding.ObservableLong
+import androidx.databinding.*
 import at.specure.database.entity.GraphItemRecord
 import at.specure.info.network.NetworkInfo
 import at.specure.info.strength.SignalStrengthInfo
@@ -28,8 +25,8 @@ class MeasurementViewState : ViewState {
     val pingMs = ObservableLong()
     val signalStrengthInfo = ObservableField<SignalStrengthInfo?>()
     val networkInfo = ObservableField<NetworkInfo?>()
-    val downloadGraphItems = ObservableField<List<GraphItemRecord>>()
-    val uploadGraphItems = ObservableField<List<GraphItemRecord>>()
+    val downloadGraphItems = ObservableArrayList<GraphItemRecord>().apply { clear() }
+    val uploadGraphItems = ObservableArrayList<GraphItemRecord>().apply { clear() }
     val qosEnabled = ObservableBoolean()
 
     override fun onRestoreState(bundle: Bundle?) {

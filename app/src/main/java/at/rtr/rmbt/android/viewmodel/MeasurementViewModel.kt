@@ -33,17 +33,10 @@ class MeasurementViewModel @Inject constructor(
     private val _isTestsRunningLiveData = MutableLiveData<Boolean>()
     private val _measurementErrorLiveData = MutableLiveData<Boolean>()
 
-    private val _downloadGraphLiveData = MutableLiveData<List<GraphItemRecord>>()
-
-    private val _uploadGraphLiveData = MediatorLiveData<List<GraphItemRecord>>()
-    private var downloadGraphSource: LiveData<List<GraphItemRecord>>? = null
-    private var uploadGraphSource: LiveData<List<GraphItemRecord>>? = null
 
     private var producer: MeasurementProducer? = null // TODO make field private
 
     val state = MeasurementViewState()
-
-    var list:ArrayList<GraphItemRecord> = ArrayList()
 
     val measurementFinishLiveData: LiveData<Boolean>
         get() = _measurementFinishLiveData
@@ -54,11 +47,6 @@ class MeasurementViewModel @Inject constructor(
     val measurementErrorLiveData: LiveData<Boolean>
         get() = _measurementErrorLiveData
 
-    val downloadGraphLiveData: LiveData<List<GraphItemRecord>>
-        get() = _downloadGraphLiveData
-
-    val uploadGraphLiveData: LiveData<List<GraphItemRecord>>
-        get() = _uploadGraphLiveData
 
     private val serviceConnection = object : ServiceConnection {
 
@@ -97,6 +85,8 @@ class MeasurementViewModel @Inject constructor(
     }
 
     fun detach(context: Context) {
+        state.downloadGraphItems.clear()
+        state.uploadGraphItems.clear()
         producer?.removeClient(this)
         context.unbindService(serviceConnection)
     }
@@ -120,13 +110,8 @@ class MeasurementViewModel @Inject constructor(
 
         if(state.measurementState.get() == MeasurementState.DOWNLOAD) {
 
-            list.add(GraphItemRecord(testUUID = "",progress = progress,value = speedBps,type = 1))
-
-            val newList = ArrayList(list.map { it.copy() })
-
-            //newList.addAll(list.get)
-            state.downloadGraphItems.set(newList)
-            //_downloadGraphLiveData.postValue(list)
+            state.downloadGraphItems.add(GraphItemRecord(testUUID = "",progress = progress,value = speedBps,type = 1))
+            Timber.d("speedTest onDownloadSpeedChanged progress $progress speed: $speedBps size: ${state.downloadGraphItems.size}")
         }
 
     }
@@ -134,6 +119,11 @@ class MeasurementViewModel @Inject constructor(
     override fun onUploadSpeedChanged(progress: Int, speedBps: Long) {
         state.uploadSpeedBps.set(speedBps)
         state.measurementDownloadUploadProgress.set(progress)
+
+        if(state.measurementState.get() == MeasurementState.UPLOAD) {
+            state.uploadGraphItems.add(GraphItemRecord(testUUID = "",progress = progress,value = speedBps,type = 2))
+            Timber.d("speedTest onUploadSpeedChanged progress $progress speed: $speedBps size: ${state.uploadGraphItems.size}")
+        }
     }
 
     override fun onPingChanged(pingNanos: Long) {
@@ -154,13 +144,13 @@ class MeasurementViewModel @Inject constructor(
         CoroutineScope(Dispatchers.Main.immediate).launch {
 
 
-            uploadGraphSource?.let {
+            /*uploadGraphSource?.let {
                 _uploadGraphLiveData.removeSource(it)
             }
             uploadGraphSource = testDataRepository.getUploadGraphItemsLiveData(testUUID)
             _uploadGraphLiveData.addSource(uploadGraphSource!!) {
                 _uploadGraphLiveData.postValue(it)
-            }
+            }*/
         }
     }
 }
