@@ -126,6 +126,10 @@ class AppConfig @Inject constructor(context: Context) : Config {
         get() = getString(BuildConfig.CONTROL_SERVER_TEST_REQUEST_PATH)
         set(value) = setString(BuildConfig.CONTROL_SERVER_TEST_REQUEST_PATH, value)
 
+    override var controlServerSendResultPath: String
+        get() = getString(BuildConfig.CONTROL_SERVER_SEND_RESULT_PATH)
+        set(value) = setString(BuildConfig.CONTROL_SERVER_SEND_RESULT_PATH, value)
+
     override var testCounter: Int
         get() = preferences.getInt(KEY_TEST_COUNTER, 0)
         set(value) = preferences.edit()

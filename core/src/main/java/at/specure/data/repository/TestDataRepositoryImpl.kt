@@ -27,7 +27,7 @@ import at.specure.info.strength.SignalStrengthInfoWiFi
 import at.specure.location.LocationInfo
 import at.specure.location.cell.CellLocationInfo
 
-class TestDataRepositoryImpl(db: CoreDatabase) : TestDataRepository {
+class TestDataRepositoryImpl(db: CoreDatabase, private val resultsRepository: ResultsRepository) : TestDataRepository {
 
     private val geoLocationDao = db.geoLocationDao()
     private val graphItemDao = db.graphItemsDao()
@@ -160,7 +160,7 @@ class TestDataRepositoryImpl(db: CoreDatabase) : TestDataRepository {
     private fun WifiNetworkInfo.toCellInfoRecord(testUUID: String) = CellInfoRecord(
         testUUID = testUUID,
         uuid = cellUUID,
-        active = true,
+        isActive = true,
         cellTechnology = null,
         transportType = type,
         registered = true,
@@ -175,7 +175,7 @@ class TestDataRepositoryImpl(db: CoreDatabase) : TestDataRepository {
     private fun CellNetworkInfo.toCellInfoRecord(testUUID: String) = CellInfoRecord(
         testUUID = testUUID,
         uuid = cellUUID,
-        active = isActive,
+        isActive = isActive,
         cellTechnology = CellTechnology.fromMobileNetworkType(networkType),
         transportType = type,
         registered = isRegistered,
@@ -271,5 +271,8 @@ class TestDataRepositoryImpl(db: CoreDatabase) : TestDataRepository {
 
     override fun update(testRecord: TestRecord) = io {
         testDao.update(testRecord)
+
+        // TODO remove this later
+        resultsRepository.sendTestResults(testRecord.uuid)
     }
 }

@@ -16,7 +16,12 @@ package at.specure.di
 
 import android.content.Context
 import androidx.room.Room
+import at.rmbt.client.control.ControlServerClient
+import at.specure.config.Config
+import at.specure.data.ClientUUID
 import at.specure.data.CoreDatabase
+import at.specure.data.repository.ResultsRepository
+import at.specure.data.repository.ResultsRepositoryImpl
 import at.specure.data.repository.TestDataRepository
 import at.specure.data.repository.TestDataRepositoryImpl
 import dagger.Module
@@ -38,5 +43,17 @@ class DatabaseModule {
     }
 
     @Provides
-    fun provideTestDataRepository(database: CoreDatabase): TestDataRepository = TestDataRepositoryImpl(database)
+    fun provideTestDataRepository(database: CoreDatabase, resultsRepository: ResultsRepository): TestDataRepository =
+        TestDataRepositoryImpl(database, resultsRepository)
+
+
+    @Provides
+    fun provideResultsRepository(
+        context: Context,
+        config: Config,
+        database: CoreDatabase,
+        clientUUID: ClientUUID,
+        client: ControlServerClient
+    ): ResultsRepository =
+        ResultsRepositoryImpl(context, config, database, clientUUID, client)
 }

@@ -105,6 +105,11 @@ interface Config {
     var controlServerRequestTestPath: String
 
     /**
+     * End of the url for sending test results to the control server, example "ControlServer/result"
+     */
+    var controlServerSendResultPath: String
+
+    /**
      * Counter of tests performed by user
      */
     var testCounter: Int

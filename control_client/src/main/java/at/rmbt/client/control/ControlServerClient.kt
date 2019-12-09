@@ -59,4 +59,8 @@ class ControlServerClient @Inject constructor(private val endpointProvider: Cont
     fun getTestSettings(body: TestRequestRequestBody): Maybe<TestRequestResponse> {
         return api.testRequest(endpointProvider.testRequestUrl, body).exec()
     }
+
+    fun sendTestResults(body: TestResultBody) : Maybe<BaseResponse>{
+        return api.sendTestResult("", body).exec()
+    }
 }
