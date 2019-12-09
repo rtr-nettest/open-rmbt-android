@@ -94,7 +94,6 @@
     <string name="open_location_permission_dialog_label_location_not_permitted">Standort nicht verfügbar. Zulassen, dass RTR-Netztest auf den Standort Ihres Geräts zugreift?</string>
     <string name="open_location_permission_dialog_label_open_permission_setting">Einstellungen öffnen</string>
 
-    <!--<string name="input_setting_dialog_okay">Okay</string>-->
     <string name="input_setting_dialog_ok">OK</string>
     <string name="input_setting_dialog_cancel">Abbrechen</string>
     <string name="value_invalid">Ungültiger Wert</string>

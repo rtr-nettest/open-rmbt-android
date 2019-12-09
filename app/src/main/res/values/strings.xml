@@ -97,8 +97,6 @@
 
 
     <string name="text_ip_address_not_available">Address is not available</string>
-
-    <!--<string name="input_setting_dialog_okay">Okay</string>-->
     <string name="input_setting_dialog_ok">OK</string>
     <string name="input_setting_dialog_cancel">Cancel</string>
     <string name="value_invalid">Invalid value</string>
