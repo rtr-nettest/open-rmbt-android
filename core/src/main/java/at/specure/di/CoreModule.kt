@@ -29,8 +29,8 @@ import at.specure.location.LocationProviderStateWatcher
 import at.specure.location.LocationProviderStateWatcherImpl
 import at.specure.location.cell.CellLocationWatcher
 import at.specure.location.cell.CellLocationWatcherImpl
-import at.specure.repository.SettingsRepository
-import at.specure.repository.SettingsRepositoryImpl
+import at.specure.data.repository.SettingsRepository
+import at.specure.data.repository.SettingsRepositoryImpl
 import at.specure.test.TestController
 import at.specure.test.TestControllerImpl
 import at.specure.util.permission.LocationAccess

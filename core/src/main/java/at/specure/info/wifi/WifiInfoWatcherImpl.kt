@@ -15,6 +15,7 @@
 package at.specure.info.wifi
 
 import android.net.wifi.SupplicantState
+import android.net.wifi.WifiInfo
 import android.net.wifi.WifiManager
 import at.specure.info.band.WifiBand
 import at.specure.info.network.WifiNetworkInfo
@@ -35,7 +36,8 @@ class WifiInfoWatcherImpl(private val wifiManager: WifiManager) : WifiInfoWatche
 
             val address = try {
                 val ipAddress = info.ipAddress.toBigInteger().toByteArray()
-                InetAddress.getByAddress(ipAddress).hostAddress
+                val hostAddress = InetAddress.getByAddress(ipAddress).hostAddress
+                if (hostAddress != DUMMY_MAC_ADDRESS) hostAddress else null
             } catch (ex: UnknownHostException) {
                 null
             }
@@ -60,7 +62,8 @@ class WifiInfoWatcherImpl(private val wifiManager: WifiManager) : WifiInfoWatche
                 rssi = info.rssi,
                 signalLevel = WifiManager.calculateSignalLevel(info.rssi, 5),
                 ssid = ssid,
-                supplicantState = info.supplicantState
+                supplicantState = (info.supplicantState ?: SupplicantState.UNINITIALIZED).name,
+                supplicantDetailedState = (WifiInfo.getDetailedStateOf(info.supplicantState) ?: android.net.NetworkInfo.DetailedState.IDLE).name
             )
         }
 

@@ -14,7 +14,7 @@ import at.rtr.rmbt.android.ui.view.WaveView
 import at.rtr.rmbt.android.ui.view.curve.MeasurementCurveLayout
 import at.rtr.rmbt.android.util.InfoWindowStatus
 import at.rtr.rmbt.android.util.format
-import at.specure.database.entity.GraphItemRecord
+import at.specure.data.entity.GraphItemRecord
 import at.specure.info.TransportType
 import at.specure.info.cell.CellNetworkInfo
 import at.specure.info.cell.CellTechnology
@@ -428,6 +428,11 @@ fun MeasurementCurveLayout.setSignal(signalLevel: Int, strengthMin: Int, strengt
 @BindingAdapter("measurementPhase")
 fun MeasurementCurveLayout.setMeasurementPhase(state: MeasurementState) {
     setMeasurementState(state)
+}
+
+@BindingAdapter("qosEnabled")
+fun MeasurementCurveLayout.setQosEnabled(enabled: Boolean) {
+    setQoSEnabled(enabled)
 }
 
 /**

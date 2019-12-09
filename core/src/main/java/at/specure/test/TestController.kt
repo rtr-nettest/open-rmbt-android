@@ -1,5 +1,7 @@
 package at.specure.test
 
+import at.rtr.rmbt.client.RMBTClientCallback
+
 interface TestController {
 
     val testUUID: String?
@@ -8,7 +10,7 @@ interface TestController {
 
     val testStartTimeNanos: Long
 
-    fun start(listener: TestProgressListener, deviceInfo: DeviceInfo)
+    fun start(deviceInfo: DeviceInfo, listener: TestProgressListener, clientCallback: RMBTClientCallback)
 
     fun stop()
 }

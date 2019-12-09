@@ -29,6 +29,7 @@
             app:layout_constraintTop_toTopOf="parent"
             app:measurementPhase="@{state.measurementState}"
             app:percentage="@{state.measurementProgress}"
+            app:qosEnabled="@{state.qosEnabled}"
             app:speed="@{state.measurementState == MeasurementState.UPLOAD ? state.uploadSpeedBps : state.downloadSpeedBps}"
             app:strength="@{state.signalStrengthInfo.value}"
             app:strengthMax="@{state.signalStrengthInfo.max}"

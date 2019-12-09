@@ -8,14 +8,14 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.MutableLiveData
 import at.rtr.rmbt.android.ui.viewstate.MeasurementViewState
-import at.specure.database.entity.GraphItemRecord
+import at.specure.data.entity.GraphItemRecord
 import at.specure.info.network.ActiveNetworkLiveData
 import at.specure.info.strength.SignalStrengthLiveData
 import at.specure.measurement.MeasurementClient
 import at.specure.measurement.MeasurementProducer
 import at.specure.measurement.MeasurementService
 import at.specure.measurement.MeasurementState
-import at.specure.repository.TestDataRepository
+import at.specure.data.repository.TestDataRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -123,6 +123,10 @@ class MeasurementViewModel @Inject constructor(
 
     override fun onPingChanged(pingNanos: Long) {
         state.pingMs.set(TimeUnit.NANOSECONDS.toMillis(pingNanos))
+    }
+
+    override fun isQoSEnabled(enabled: Boolean) {
+        state.qosEnabled.set(enabled)
     }
 
     fun cancelMeasurement() {

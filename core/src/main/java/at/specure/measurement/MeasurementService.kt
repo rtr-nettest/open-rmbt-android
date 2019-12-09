@@ -12,7 +12,7 @@ import androidx.lifecycle.LifecycleService
 import at.specure.config.Config
 import at.specure.di.CoreInjector
 import at.specure.di.NotificationProvider
-import at.specure.repository.TestDataRepository
+import at.specure.data.repository.TestDataRepository
 import at.specure.test.DeviceInfo
 import at.specure.test.StateRecorder
 import at.specure.test.TestController
@@ -96,20 +96,7 @@ class MeasurementService : LifecycleService() {
         }
 
         override fun onClientReady(testUUID: String, testStartTimeNanos: Long) {
-            stateRecorder.start(testUUID, testStartTimeNanos)
             clientAggregator.onClientReady(testUUID)
-        }
-
-        override fun onThreadDownloadDataChanged(threadId: Int, timeNanos: Long, bytesTotal: Long) {
-            stateRecorder.onThreadDownloadDataChanged(threadId, timeNanos, bytesTotal)
-        }
-
-        override fun onThreadUploadDataChanged(threadId: Int, timeNanos: Long, bytesTotal: Long) {
-            stateRecorder.onThreadUploadDataChanged(threadId, timeNanos, bytesTotal)
-        }
-
-        override fun onPingDataChanged(clientPing: Long, serverPing: Long, timeNs: Long) {
-            stateRecorder.onPingValuesChanged(clientPing, serverPing, timeNs)
         }
     }
 
@@ -177,7 +164,7 @@ class MeasurementService : LifecycleService() {
         )
 
         hasErrors = false
-        runner.start(testListener, deviceInfo)
+        runner.start(deviceInfo, testListener, stateRecorder)
 
         attachToForeground()
         lock()
@@ -239,6 +226,7 @@ class MeasurementService : LifecycleService() {
                 onPingChanged(pingNanos)
                 onDownloadSpeedChanged(measurementProgress, downloadSpeedBps)
                 onUploadSpeedChanged(measurementProgress, uploadSpeedBps)
+                isQoSEnabled(!config.skipQoSTests)
                 runner.testUUID?.let {
                     onClientReady(it)
                 }
@@ -333,6 +321,12 @@ class MeasurementService : LifecycleService() {
         override fun onClientReady(testUUID: String) {
             clients.forEach {
                 it.onClientReady(testUUID)
+            }
+        }
+
+        override fun isQoSEnabled(enabled: Boolean) {
+            clients.forEach {
+                it.isQoSEnabled(enabled)
             }
         }
     }

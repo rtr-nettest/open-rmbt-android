@@ -1,6 +1,7 @@
 package at.specure.test
 
 import at.rtr.rmbt.client.RMBTClient
+import at.rtr.rmbt.client.RMBTClientCallback
 import at.rtr.rmbt.client.TrafficServiceImpl
 import at.rtr.rmbt.client.helper.IntermediateResult
 import at.rtr.rmbt.client.helper.TestStatus
@@ -36,7 +37,7 @@ class TestControllerImpl(private val config: Config, private val clientUUID: Cli
     private var previousDownloadProgress = -1
     private var previousUploadProgress = -1
 
-    override fun start(listener: TestProgressListener, deviceInfo: DeviceInfo) {
+    override fun start(deviceInfo: DeviceInfo, listener: TestProgressListener, clientCallback: RMBTClientCallback) {
         Timber.d("Start---")
         if (job != null) {
             Timber.w("Runner is already started")
@@ -89,7 +90,7 @@ class TestControllerImpl(private val config: Config, private val clientUUID: Cli
                 return@async
             }
 
-            client.commonCallback = _listener
+            client.commonCallback = clientCallback
             client.trafficService = TrafficServiceImpl()
 
             val connection = client.controlConnection
@@ -106,13 +107,17 @@ class TestControllerImpl(private val config: Config, private val clientUUID: Cli
 
             GlobalScope.async {
                 @Suppress("BlockingMethodInNonBlockingContext")
-                client.runTest()
+                val result = client.runTest()
+                clientCallback.onTestCompleted(result)
             }
 
             var currentStatus = TestStatus.WAIT
             while (!currentStatus.isFinalState()) {
                 currentStatus = client.status
                 Timber.v(currentStatus.name)
+
+                clientCallback.onTestStatusUpdate(currentStatus)
+
                 when (currentStatus) {
                     TestStatus.WAIT -> handleWait()
                     TestStatus.INIT -> handleInit(client)
@@ -133,7 +138,7 @@ class TestControllerImpl(private val config: Config, private val clientUUID: Cli
                         // TODO remove this
                         repeat(100) {
                             setState(MeasurementState.QOS, it)
-                            Thread.sleep(200)
+                            Thread.sleep(70)
                         }
                     }
                     client.commonCallback = null

@@ -55,13 +55,13 @@ class MeasurementCurveView @JvmOverloads constructor(context: Context, attrs: At
         }
     }
 
-    fun setTopProgress(progress: Int) {
-        topPart.updateProgress(progress)
+    fun setTopProgress(progress: Int, qosEnabled: Boolean) {
+        topPart.updateProgress(progress, qosEnabled)
         invalidate()
     }
 
-    fun setBottomProgress(progress: Int) {
-        bottomPart.updateProgress(progress)
+    fun setBottomProgress(progress: Int, qosEnabled: Boolean) {
+        bottomPart.updateProgress(progress, qosEnabled)
         invalidate()
     }
 

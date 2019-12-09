@@ -145,10 +145,10 @@ class TopCurvePart(context: Context) : CurvePart() {
         }
     }
 
-    override fun updateProgress(progress: Int) {
+    override fun updateProgress(progress: Int, qosEnabled: Boolean) {
         progressInnerPaint.strokeWidth = (mediumRadius - smallRadius)
         progressOuterPaint.strokeWidth = 3 * (largeRadius - mediumRadius)
-        val progressAngle = calculateProgressAngle(if (progress > previousProgress) progress else previousProgress)
+        val progressAngle = calculateProgressAngle(qosEnabled, if (progress > previousProgress) progress else previousProgress)
         previousProgress = progress
 
         currentCanvas?.let { currentCanvas ->
@@ -188,7 +188,7 @@ class TopCurvePart(context: Context) : CurvePart() {
     /**
      * Calculate the angle which should be drawn according to current phase and progress
      */
-    private fun calculateProgressAngle(progress: Int): Float {
+    private fun calculateProgressAngle(qosEnabled: Boolean, progress: Int): Float {
         return when (phase) {
             MeasurementState.IDLE -> 0f
             MeasurementState.INIT -> {
@@ -210,7 +210,16 @@ class TopCurvePart(context: Context) : CurvePart() {
                 val initSection = sections.find { it.state == MeasurementState.INIT }!!
                 (uploadSection.endAngle - initSection.endAngle) + (uploadSection.startAngle - uploadSection.endAngle) * progress.toFloat() / 100
             }
-            // todo add QoS part
+            MeasurementState.QOS ->
+                if (qosEnabled) {
+                    val qosSection = sections.find { it.state == MeasurementState.QOS }!!
+                    val initSection = sections.find { it.state == MeasurementState.INIT }!!
+                    (qosSection.endAngle - initSection.endAngle) + (qosSection.startAngle - qosSection.endAngle) * progress.toFloat() / 100
+                } else {
+                    val uploadSection = sections.find { it.state == MeasurementState.UPLOAD }!!
+                    val initSection = sections.find { it.state == MeasurementState.INIT }!!
+                    (uploadSection.endAngle - initSection.endAngle) + (uploadSection.startAngle - uploadSection.endAngle) * progress.toFloat() / 100
+                }
             else -> (sectionStartAngle - sectionEndAngle) / 100 * progress
         }
     }

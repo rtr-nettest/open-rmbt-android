@@ -340,12 +340,24 @@ public class RMBTClient implements RMBTClientCallback {
         return sc;
     }
 
-    public TestResult runTest() throws InterruptedException {
+    public TotalTestResult runTest() throws InterruptedException {
         System.out.println("starting test...");
 
         long txBytes = 0;
         long rxBytes = 0;
         final long timeStampStart = System.nanoTime();
+
+        try {
+            commonCallback.onClientReady(
+                    controlConnection.getTestUuid(),
+                    controlConnection.getLoopUuid(),
+                    controlConnection.getTestToken(),
+                    controlConnection.getStartTimeNs(),
+                    params.getNumThreads()
+            );
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
         if (testStatus.get() != TestStatus.ERROR && testThreadPool != null) {
 
@@ -867,18 +879,10 @@ public class RMBTClient implements RMBTClientCallback {
     }
 
     @Override
-    public void onThreadDownloadDataChanged(int threadId, long timeNanos, long bytesTotal) {
-        Timber.v("download transfer id:  " + threadId + " time: " + timeNanos + " bytes: " + bytesTotal);
-        if (commonCallback != null) {
-            commonCallback.onThreadDownloadDataChanged(threadId, timeNanos, bytesTotal);
-        }
-    }
-
-    @Override
-    public void onThreadUploadDataChanged(int threadId, long timeNanos, long bytesTotal) {
-        Timber.v("upload transfer id:  " + threadId + " bytes: " + timeNanos + " total: " + bytesTotal);
-        if (commonCallback != null) {
-            commonCallback.onThreadUploadDataChanged(threadId, timeNanos, bytesTotal);
+    public void onSpeedDataChanged(int threadId, long bytes, long timestampNanos, boolean isUpload) {
+        Timber.v("speed upload: " + isUpload + " id:  " + threadId + " bytes: " + bytes + " timestampNs: " + timestampNanos);
+        if (commonCallback != null){
+            commonCallback.onSpeedDataChanged(threadId, bytes, timestampNanos, isUpload);
         }
     }
 
@@ -888,5 +892,24 @@ public class RMBTClient implements RMBTClientCallback {
         if (commonCallback != null) {
             commonCallback.onPingDataChanged(clientPing, serverPing, timeNs);
         }
+    }
+
+    @Override
+    public void onClientReady(String testUUID, String loopUUID, String testToken, long testStartTimeNanos, int threadNumber) {
+        // leave empty
+    }
+
+    @Override
+    public void onTestCompleted(TotalTestResult result) {
+        // leave empty
+    }
+
+    public TotalTestResult getTotalTestResult() {
+        return result;
+    }
+
+    @Override
+    public void onTestStatusUpdate(TestStatus status) {
+        // leave empty
     }
 }
