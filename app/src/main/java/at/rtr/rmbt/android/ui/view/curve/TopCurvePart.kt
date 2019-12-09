@@ -145,32 +145,15 @@ class TopCurvePart(context: Context) : CurvePart() {
         }
     }
 
-    override fun updateProgress(progress: Int, qosEnabled: Boolean) {
+    override fun updateProgress(phase: MeasurementState, progress: Int, qosEnabled: Boolean) {
         progressInnerPaint.strokeWidth = (mediumRadius - smallRadius)
         progressOuterPaint.strokeWidth = 3 * (largeRadius - mediumRadius)
-        val progressAngle = calculateProgressAngle(qosEnabled, if (progress > previousProgress) progress else previousProgress)
+        val progressAngle = calculateProgressAngle(phase, qosEnabled, if (progress > previousProgress) progress else previousProgress)
         previousProgress = progress
 
         currentCanvas?.let { currentCanvas ->
-
-            currentCanvas.drawColor(
-                Color.TRANSPARENT,
-                PorterDuff.Mode.CLEAR
-            )
-
             drawSections(currentCanvas)
             drawText(currentCanvas)
-
-            currentCanvas.drawArc(
-                cX - smallRadius,
-                cY - smallRadius,
-                cX + smallRadius,
-                cY + smallRadius,
-                sectionEndAngle,
-                progressAngle,
-                false,
-                progressInnerPaint
-            )
 
             currentCanvas.drawArc(
                 cX - largeRadius,
@@ -182,15 +165,25 @@ class TopCurvePart(context: Context) : CurvePart() {
                 false,
                 progressOuterPaint
             )
+
+            currentCanvas.drawArc(
+                cX - smallRadius,
+                cY - smallRadius,
+                cX + smallRadius,
+                cY + smallRadius,
+                sectionEndAngle,
+                progressAngle,
+                false,
+                progressInnerPaint
+            )
         }
     }
 
     /**
      * Calculate the angle which should be drawn according to current phase and progress
      */
-    private fun calculateProgressAngle(qosEnabled: Boolean, progress: Int): Float {
+    private fun calculateProgressAngle(phase: MeasurementState, qosEnabled: Boolean, progress: Int): Float {
         return when (phase) {
-            MeasurementState.IDLE -> 0f
             MeasurementState.INIT -> {
                 val initSection = sections.find { it.state == MeasurementState.INIT }!!
                 (initSection.startAngle - initSection.endAngle) * progress.toFloat() / 100
@@ -220,7 +213,7 @@ class TopCurvePart(context: Context) : CurvePart() {
                     val initSection = sections.find { it.state == MeasurementState.INIT }!!
                     (uploadSection.endAngle - initSection.endAngle) + (uploadSection.startAngle - uploadSection.endAngle) * progress.toFloat() / 100
                 }
-            else -> (sectionStartAngle - sectionEndAngle) / 100 * progress
+            else -> 0f
         }
     }
 }

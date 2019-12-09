@@ -105,7 +105,7 @@ abstract class CurvePart {
     /**
      * Updating the curve part according to current progress
      */
-    abstract fun updateProgress(progress: Int, qosEnabled: Boolean)
+    abstract fun updateProgress(phase: MeasurementState, progress: Int, qosEnabled: Boolean)
 
     /**
      * Get the x coordinate of curve part
