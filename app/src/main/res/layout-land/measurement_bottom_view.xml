@@ -161,7 +161,6 @@
             app:progress_line_color="@color/colorAccent"
             app:reset="@{state.measurementState}"
             app:visibleOrGone="@{state.measurementState == MeasurementState.IDLE | state.measurementState == MeasurementState.INIT | state.measurementState == MeasurementState.PING | state.measurementState == MeasurementState.DOWNLOAD | state.measurementState == MeasurementState.UPLOAD}"
-            app:graphItems="@{state.measurementState == MeasurementState.DOWNLOAD ? state.downloadGraphItems : state.measurementState == MeasurementState.UPLOAD ? state.uploadGraphItems : null}"
             app:xlabel_color="@color/text_gray"
             app:xlabel_text_size="@dimen/chart_label_text_size"
             app:ylabel_color="@color/text_gray"
