@@ -1,6 +1,5 @@
 package at.specure.data.repository
 
-import androidx.lifecycle.LiveData
 import at.rmbt.util.io
 import at.specure.data.CoreDatabase
 import at.specure.data.entity.CapabilitiesRecord
@@ -69,12 +68,12 @@ class TestDataRepositoryImpl(db: CoreDatabase, private val resultsRepository: Re
         graphItemDao.insertItem(graphItem)
     }
 
-    override fun getDownloadGraphItemsLiveData(testUUID: String): LiveData<List<GraphItemRecord>> {
-        return graphItemDao.getDownloadGraphLiveData(testUUID)
+    override fun getDownloadGraphItemsLiveData(testUUID: String, loadDownloadGraphItems: (List<GraphItemRecord>) -> Unit) = io {
+        loadDownloadGraphItems.invoke(graphItemDao.getDownloadGraphLiveData(testUUID))
     }
 
-    override fun getUploadGraphItemsLiveData(testUUID: String): LiveData<List<GraphItemRecord>> {
-        return graphItemDao.getUploadGraphLiveData(testUUID)
+    override fun getUploadGraphItemsLiveData(testUUID: String, loadUploadGraphItems: (List<GraphItemRecord>) -> Unit) = io {
+        loadUploadGraphItems.invoke(graphItemDao.getUploadGraphLiveData(testUUID))
     }
 
     override fun saveSpeedData(testUUID: String, threadId: Int, bytes: Long, timestampNanos: Long, isUpload: Boolean) = io {

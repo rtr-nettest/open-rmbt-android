@@ -1,6 +1,5 @@
 package at.specure.data.repository
 
-import androidx.lifecycle.LiveData
 import at.specure.data.entity.CapabilitiesRecord
 import at.specure.data.entity.GraphItemRecord
 import at.specure.data.entity.TestRecord
@@ -22,9 +21,9 @@ interface TestDataRepository {
 
     fun saveUploadGraphItem(testUUID: String, progress: Int, speedBps: Long)
 
-    fun getDownloadGraphItemsLiveData(testUUID: String): LiveData<List<GraphItemRecord>>
+    fun getDownloadGraphItemsLiveData(testUUID: String, loadDownloadGraphItems: (List<GraphItemRecord>) -> Unit)
 
-    fun getUploadGraphItemsLiveData(testUUID: String): LiveData<List<GraphItemRecord>>
+    fun getUploadGraphItemsLiveData(testUUID: String, loadUploadGraphItems: (List<GraphItemRecord>) -> Unit)
 
     fun saveSignalStrength(
         testUUID: String,

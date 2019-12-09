@@ -156,7 +156,6 @@
             android:id="@+id/speedChartDownloadUpload"
             android:layout_width="match_parent"
             android:layout_height="@dimen/speed_chart_height"
-            app:graphItems="@{state.measurementState == MeasurementState.DOWNLOAD ? state.downloadGraphItems : state.measurementState == MeasurementState.UPLOAD ? state.uploadGraphItems : null}"
             app:grid_color="@color/chart_grid_line_color"
             app:grid_row="4"
             app:layout_constraintEnd_toEndOf="parent"

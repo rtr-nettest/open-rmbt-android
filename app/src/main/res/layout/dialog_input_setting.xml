@@ -67,7 +67,7 @@
             android:paddingTop="@dimen/padding_medium"
             android:paddingEnd="@dimen/padding_large"
             android:paddingBottom="@dimen/padding_medium"
-            android:text="@string/input_setting_dialog_okay"
+            android:text="@string/input_setting_dialog_ok"
             android:textColor="@color/colorAccent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/editTextValue"

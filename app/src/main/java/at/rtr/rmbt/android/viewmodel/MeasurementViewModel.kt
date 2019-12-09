@@ -5,9 +5,9 @@ import android.content.Context
 import android.content.ServiceConnection
 import android.os.IBinder
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.MutableLiveData
 import at.rtr.rmbt.android.ui.viewstate.MeasurementViewState
+import at.rtr.rmbt.android.util.plusAssign
 import at.specure.data.entity.GraphItemRecord
 import at.specure.info.network.ActiveNetworkLiveData
 import at.specure.info.strength.SignalStrengthLiveData
@@ -16,9 +16,6 @@ import at.specure.measurement.MeasurementProducer
 import at.specure.measurement.MeasurementService
 import at.specure.measurement.MeasurementState
 import at.specure.data.repository.TestDataRepository
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import timber.log.Timber
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
@@ -32,11 +29,8 @@ class MeasurementViewModel @Inject constructor(
     private val _measurementFinishLiveData = MutableLiveData<Boolean>()
     private val _isTestsRunningLiveData = MutableLiveData<Boolean>()
     private val _measurementErrorLiveData = MutableLiveData<Boolean>()
-
-    private val _downloadGraphLiveData = MediatorLiveData<List<GraphItemRecord>>()
-    private val _uploadGraphLiveData = MediatorLiveData<List<GraphItemRecord>>()
-    private var downloadGraphSource: LiveData<List<GraphItemRecord>>? = null
-    private var uploadGraphSource: LiveData<List<GraphItemRecord>>? = null
+    private val _downloadGraphLiveData = MutableLiveData<List<GraphItemRecord>>()
+    private val _uploadGraphLiveData = MutableLiveData<List<GraphItemRecord>>()
 
     private var producer: MeasurementProducer? = null // TODO make field private
 
@@ -51,10 +45,10 @@ class MeasurementViewModel @Inject constructor(
     val measurementErrorLiveData: LiveData<Boolean>
         get() = _measurementErrorLiveData
 
-    val downloadGraphLiveData: LiveData<List<GraphItemRecord>>
+    val downloadGraphSource: LiveData<List<GraphItemRecord>>
         get() = _downloadGraphLiveData
 
-    val uploadGraphLiveData: LiveData<List<GraphItemRecord>>
+    val uploadGraphSource: LiveData<List<GraphItemRecord>>
         get() = _uploadGraphLiveData
 
     private val serviceConnection = object : ServiceConnection {
@@ -114,11 +108,19 @@ class MeasurementViewModel @Inject constructor(
     override fun onDownloadSpeedChanged(progress: Int, speedBps: Long) {
         state.downloadSpeedBps.set(speedBps)
         state.measurementDownloadUploadProgress.set(progress)
+
+        if (state.measurementState.get() == MeasurementState.DOWNLOAD) {
+            _downloadGraphLiveData += GraphItemRecord(testUUID = "", progress = progress, value = speedBps, type = GraphItemRecord.GRAPH_ITEM_TYPE_DOWNLOAD)
+        }
     }
 
     override fun onUploadSpeedChanged(progress: Int, speedBps: Long) {
         state.uploadSpeedBps.set(speedBps)
         state.measurementDownloadUploadProgress.set(progress)
+
+        if (state.measurementState.get() == MeasurementState.UPLOAD) {
+            _uploadGraphLiveData += GraphItemRecord(testUUID = "", progress = progress, value = speedBps, type = GraphItemRecord.GRAPH_ITEM_TYPE_UPLOAD)
+        }
     }
 
     override fun onPingChanged(pingNanos: Long) {
@@ -134,22 +136,13 @@ class MeasurementViewModel @Inject constructor(
     }
 
     override fun onClientReady(testUUID: String) {
-        CoroutineScope(Dispatchers.Main.immediate).launch {
-            downloadGraphSource?.let {
-                _downloadGraphLiveData.removeSource(it)
-            }
-            downloadGraphSource = testDataRepository.getDownloadGraphItemsLiveData(testUUID)
-            _downloadGraphLiveData.addSource(downloadGraphSource!!) {
-                _downloadGraphLiveData.postValue(it)
-            }
 
-            uploadGraphSource?.let {
-                _uploadGraphLiveData.removeSource(it)
-            }
-            uploadGraphSource = testDataRepository.getUploadGraphItemsLiveData(testUUID)
-            _uploadGraphLiveData.addSource(uploadGraphSource!!) {
-                _uploadGraphLiveData.postValue(it)
-            }
+        testDataRepository.getDownloadGraphItemsLiveData(testUUID) {
+            _downloadGraphLiveData.postValue(it)
+        }
+
+        testDataRepository.getUploadGraphItemsLiveData(testUUID) {
+            _uploadGraphLiveData.postValue(it)
         }
     }
 }
