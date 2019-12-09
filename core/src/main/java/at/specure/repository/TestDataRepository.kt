@@ -20,9 +20,9 @@ interface TestDataRepository {
 
     fun saveUploadGraphItem(testUUID: String, progress: Int, speedBps: Long)
 
-    fun getDownloadGraphItemsLiveData(testUUID: String): List<GraphItemRecord>
+    fun getDownloadGraphItemsLiveData(testUUID: String, loadDownloadGraphItems: (List<GraphItemRecord>) -> Unit)
 
-    fun getUploadGraphItemsLiveData(testUUID: String): List<GraphItemRecord>
+    fun getUploadGraphItemsLiveData(testUUID: String, loadUploadGraphItems: (List<GraphItemRecord>) -> Unit)
 
     fun saveSignalStrength(
         testUUID: String,

@@ -67,12 +67,12 @@ class TestDataRepositoryImpl(db: CoreDatabase) : TestDataRepository {
         graphItemDao.insertItem(graphItem)
     }
 
-    override fun getDownloadGraphItemsLiveData(testUUID: String): List<GraphItemRecord> {
-        return graphItemDao.getDownloadGraphLiveData(testUUID)
+    override fun getDownloadGraphItemsLiveData(testUUID: String, loadDownloadGraphItems: (List<GraphItemRecord>) -> Unit) = io {
+        loadDownloadGraphItems.invoke(graphItemDao.getDownloadGraphLiveData(testUUID))
     }
 
-    override fun getUploadGraphItemsLiveData(testUUID: String): List<GraphItemRecord> {
-        return graphItemDao.getUploadGraphLiveData(testUUID)
+    override fun getUploadGraphItemsLiveData(testUUID: String, loadUploadGraphItems: (List<GraphItemRecord>) -> Unit) = io {
+        loadUploadGraphItems.invoke(graphItemDao.getUploadGraphLiveData(testUUID))
     }
 
     override fun saveSpeedData(testUUID: String, threadId: Int, bytes: Long, timestampNanos: Long, isUpload: Boolean) = io {

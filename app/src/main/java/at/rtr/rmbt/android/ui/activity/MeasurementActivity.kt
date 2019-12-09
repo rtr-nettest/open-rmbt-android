@@ -59,6 +59,14 @@ class MeasurementActivity : BaseActivity(), SimpleDialog.Callback {
             adapter = QosMeasurementAdapter(this@MeasurementActivity)
         }
 
+        viewModel.downloadGraphSource.listen(this) {
+            binding.root.measurement_bottom_view.speedChartDownloadUpload.addGraphItems(it)
+        }
+
+        viewModel.uploadGraphSource.listen(this) {
+            binding.root.measurement_bottom_view.speedChartDownloadUpload.addGraphItems(it)
+        }
+
         viewModel.signalStrengthLiveData.listen(this) {
             viewModel.state.signalStrengthInfo.set(it)
         }

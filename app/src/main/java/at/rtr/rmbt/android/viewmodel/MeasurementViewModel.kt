@@ -7,6 +7,7 @@ import android.os.IBinder
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import at.rtr.rmbt.android.ui.viewstate.MeasurementViewState
+import at.rtr.rmbt.android.util.plusAssign
 import at.specure.database.entity.GraphItemRecord
 import at.specure.info.network.ActiveNetworkLiveData
 import at.specure.info.strength.SignalStrengthLiveData
@@ -15,9 +16,6 @@ import at.specure.measurement.MeasurementProducer
 import at.specure.measurement.MeasurementService
 import at.specure.measurement.MeasurementState
 import at.specure.repository.TestDataRepository
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import timber.log.Timber
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
@@ -31,6 +29,8 @@ class MeasurementViewModel @Inject constructor(
     private val _measurementFinishLiveData = MutableLiveData<Boolean>()
     private val _isTestsRunningLiveData = MutableLiveData<Boolean>()
     private val _measurementErrorLiveData = MutableLiveData<Boolean>()
+    private val _downloadGraphLiveData = MutableLiveData<List<GraphItemRecord>>()
+    private val _uploadGraphLiveData = MutableLiveData<List<GraphItemRecord>>()
 
     private var producer: MeasurementProducer? = null // TODO make field private
 
@@ -44,6 +44,12 @@ class MeasurementViewModel @Inject constructor(
 
     val measurementErrorLiveData: LiveData<Boolean>
         get() = _measurementErrorLiveData
+
+    val downloadGraphSource: LiveData<List<GraphItemRecord>>
+        get() = _downloadGraphLiveData
+
+    val uploadGraphSource: LiveData<List<GraphItemRecord>>
+        get() = _uploadGraphLiveData
 
     private val serviceConnection = object : ServiceConnection {
 
@@ -82,8 +88,6 @@ class MeasurementViewModel @Inject constructor(
     }
 
     fun detach(context: Context) {
-        state.downloadGraphItems.clear()
-        state.uploadGraphItems.clear()
         producer?.removeClient(this)
         context.unbindService(serviceConnection)
     }
@@ -106,8 +110,7 @@ class MeasurementViewModel @Inject constructor(
         state.measurementDownloadUploadProgress.set(progress)
 
         if (state.measurementState.get() == MeasurementState.DOWNLOAD) {
-            state.downloadGraphItems.add(GraphItemRecord(testUUID = "", progress = progress, value = speedBps, type = GraphItemRecord.GRAPH_ITEM_TYPE_DOWNLOAD))
-            Timber.d("speedTest onDownloadSpeedChanged progress $progress speed: $speedBps size: ${state.downloadGraphItems.size}")
+            _downloadGraphLiveData += GraphItemRecord(testUUID = "", progress = progress, value = speedBps, type = GraphItemRecord.GRAPH_ITEM_TYPE_DOWNLOAD)
         }
     }
 
@@ -116,8 +119,7 @@ class MeasurementViewModel @Inject constructor(
         state.measurementDownloadUploadProgress.set(progress)
 
         if (state.measurementState.get() == MeasurementState.UPLOAD) {
-            state.uploadGraphItems.add(GraphItemRecord(testUUID = "", progress = progress, value = speedBps, type = GraphItemRecord.GRAPH_ITEM_TYPE_UPLOAD))
-            Timber.d("speedTest onUploadSpeedChanged progress $progress speed: $speedBps size: ${state.uploadGraphItems.size}")
+            _uploadGraphLiveData += GraphItemRecord(testUUID = "", progress = progress, value = speedBps, type = GraphItemRecord.GRAPH_ITEM_TYPE_UPLOAD)
         }
     }
 
@@ -135,16 +137,12 @@ class MeasurementViewModel @Inject constructor(
 
     override fun onClientReady(testUUID: String) {
 
-        // _downloadGraphLiveData.postValue(testDataRepository.getDownloadGraphItemsLiveData(testUUID))
-        CoroutineScope(Dispatchers.Main.immediate).launch {
+        testDataRepository.getDownloadGraphItemsLiveData(testUUID) {
+            _downloadGraphLiveData.postValue(it)
+        }
 
-            /*uploadGraphSource?.let {
-                _uploadGraphLiveData.removeSource(it)
-            }
-            uploadGraphSource = testDataRepository.getUploadGraphItemsLiveData(testUUID)
-            _uploadGraphLiveData.addSource(uploadGraphSource!!) {
-                _uploadGraphLiveData.postValue(it)
-            }*/
+        testDataRepository.getUploadGraphItemsLiveData(testUUID) {
+            _uploadGraphLiveData.postValue(it)
         }
     }
 }
