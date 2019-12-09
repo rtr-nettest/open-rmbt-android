@@ -168,7 +168,7 @@ class BottomCurvePart(context: Context) : CurvePart() {
         }
     }
 
-    override fun updateProgress(progress: Int, qosEnabled: Boolean) {
+    override fun updateProgress(phase: MeasurementState, progress: Int, qosEnabled: Boolean) {
         progressInnerPaint.strokeWidth = (mediumRadius - smallRadius)
         progressOuterPaint.strokeWidth = 2.5f * (largeRadius - mediumRadius)
         val progressAngle = calculateProgressAngle(progress)
