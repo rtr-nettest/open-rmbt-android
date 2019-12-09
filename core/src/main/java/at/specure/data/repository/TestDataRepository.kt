@@ -1,8 +1,5 @@
 package at.specure.data.repository
 
-import at.specure.database.entity.CapabilitiesRecord
-import at.specure.database.entity.GraphItemRecord
-import androidx.lifecycle.LiveData
 import at.specure.data.entity.CapabilitiesRecord
 import at.specure.data.entity.GraphItemRecord
 import at.specure.data.entity.TestRecord

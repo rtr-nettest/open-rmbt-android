@@ -5,7 +5,6 @@ import androidx.databinding.ObservableBoolean
 import androidx.databinding.ObservableField
 import androidx.databinding.ObservableInt
 import androidx.databinding.ObservableLong
-import at.specure.data.entity.GraphItemRecord
 import at.specure.info.network.NetworkInfo
 import at.specure.info.strength.SignalStrengthInfo
 import at.specure.measurement.MeasurementState
