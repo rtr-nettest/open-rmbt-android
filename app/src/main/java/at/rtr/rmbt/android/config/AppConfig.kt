@@ -18,18 +18,19 @@ import android.content.Context
 import at.rtr.rmbt.android.BuildConfig
 import at.rtr.rmbt.android.util.ConfigValue
 import at.specure.config.Config
+import at.specure.data.ControlServerSettings
 import javax.inject.Inject
 
 private const val FILENAME = "config.pref"
 
 private const val KEY_TEST_COUNTER = "KEY_TEST_COUNTER"
 
-class AppConfig @Inject constructor(context: Context) : Config {
+class AppConfig @Inject constructor(context: Context, private val serverSettings: ControlServerSettings) : Config {
 
     private val preferences = context.getSharedPreferences(FILENAME, Context.MODE_PRIVATE)
 
-    private fun getInt(configValue: ConfigValue): Int {
-        return preferences.getInt(configValue.name, configValue.value.toInt())
+    private fun getInt(configValue: ConfigValue, serverValue: Int? = 0): Int {
+        return preferences.getInt(configValue.name, serverValue ?: configValue.value.toInt())
     }
 
     private fun setInt(configValue: ConfigValue, value: Int) {
@@ -38,8 +39,8 @@ class AppConfig @Inject constructor(context: Context) : Config {
             .apply()
     }
 
-    private fun getString(configValue: ConfigValue): String {
-        return preferences.getString(configValue.name, configValue.value)!!
+    private fun getString(configValue: ConfigValue, serverValue: String? = null): String {
+        return preferences.getString(configValue.name, serverValue ?: configValue.value)!!
     }
 
     private fun setString(configValue: ConfigValue, value: String) {
@@ -48,8 +49,8 @@ class AppConfig @Inject constructor(context: Context) : Config {
             .apply()
     }
 
-    private fun getBoolean(configValue: ConfigValue): Boolean {
-        return preferences.getBoolean(configValue.name, configValue.value.toBoolean())
+    private fun getBoolean(configValue: ConfigValue, serverValue: Boolean? = false): Boolean {
+        return preferences.getBoolean(configValue.name, serverValue ?: configValue.value.toBoolean())
     }
 
     private fun setBoolean(configValue: ConfigValue, value: Boolean) {
@@ -103,19 +104,19 @@ class AppConfig @Inject constructor(context: Context) : Config {
         set(value) = setString(BuildConfig.CONTROL_SERVER_HOST, value)
 
     override var controlServerCheckPrivateIPv4Host: String
-        get() = getString(BuildConfig.CONTROL_SERVER_CHECK_PRIVATE_IPV4_HOST)
+        get() = getString(BuildConfig.CONTROL_SERVER_CHECK_PRIVATE_IPV4_HOST, serverSettings.controlServerV4Url)
         set(value) = setString(BuildConfig.CONTROL_SERVER_CHECK_PRIVATE_IPV4_HOST, value)
 
     override var controlServerCheckPrivateIPv6Host: String
-        get() = getString(BuildConfig.CONTROL_SERVER_CHECK_PRIVATE_IPV6_HOST)
+        get() = getString(BuildConfig.CONTROL_SERVER_CHECK_PRIVATE_IPV6_HOST, serverSettings.controlServerV6Url)
         set(value) = setString(BuildConfig.CONTROL_SERVER_CHECK_PRIVATE_IPV6_HOST, value)
 
     override var controlServerCheckPublicIPv4Url: String
-        get() = getString(BuildConfig.CONTROL_SERVER_CHECK_PUBLIC_IPV4_URL)
+        get() = getString(BuildConfig.CONTROL_SERVER_CHECK_PUBLIC_IPV4_URL, serverSettings.ipV4CheckUrl)
         set(value) = setString(BuildConfig.CONTROL_SERVER_CHECK_PUBLIC_IPV4_URL, value)
 
     override var controlServerCheckPublicIPv6Url: String
-        get() = getString(BuildConfig.CONTROL_SERVER_CHECK_PUBLIC_IPV6_URL)
+        get() = getString(BuildConfig.CONTROL_SERVER_CHECK_PUBLIC_IPV6_URL, serverSettings.ipV6CheckUrl)
         set(value) = setString(BuildConfig.CONTROL_SERVER_CHECK_PUBLIC_IPV6_URL, value)
 
     override var controlServerSettingsPath: String
