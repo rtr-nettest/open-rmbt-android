@@ -14,7 +14,6 @@ import at.specure.data.ControlServerSettings
 import at.specure.data.HistoryFilterOptions
 import at.specure.data.MapServerSettings
 import at.specure.data.TermsAndConditions
-import at.specure.database.CoreDatabase
 import at.specure.info.cell.CellInfoWatcher
 import at.specure.info.cell.CellInfoWatcherImpl
 import at.specure.info.connectivity.ConnectivityWatcher
@@ -30,10 +29,8 @@ import at.specure.location.LocationProviderStateWatcher
 import at.specure.location.LocationProviderStateWatcherImpl
 import at.specure.location.cell.CellLocationWatcher
 import at.specure.location.cell.CellLocationWatcherImpl
-import at.specure.repository.SettingsRepository
-import at.specure.repository.SettingsRepositoryImpl
-import at.specure.repository.TestRepository
-import at.specure.repository.TestRepositoryImpl
+import at.specure.data.repository.SettingsRepository
+import at.specure.data.repository.SettingsRepositoryImpl
 import at.specure.test.TestController
 import at.specure.test.TestControllerImpl
 import at.specure.util.permission.LocationAccess
@@ -135,7 +132,4 @@ class CoreModule {
     @Singleton
     fun provideCellLocationWatcher(context: Context, telephonyManager: TelephonyManager): CellLocationWatcher =
         CellLocationWatcherImpl(context, telephonyManager)
-
-    @Provides
-    fun provideTestRepository(coreDatabase: CoreDatabase): TestRepository = TestRepositoryImpl(coreDatabase.testDao())
 }

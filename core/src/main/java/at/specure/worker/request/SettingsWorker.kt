@@ -4,7 +4,7 @@ import android.content.Context
 import androidx.work.Worker
 import androidx.work.WorkerParameters
 import at.specure.di.CoreInjector
-import at.specure.repository.SettingsRepository
+import at.specure.data.repository.SettingsRepository
 import javax.inject.Inject
 
 class SettingsWorker(appContext: Context, workerParams: WorkerParameters) : Worker(appContext, workerParams) {
