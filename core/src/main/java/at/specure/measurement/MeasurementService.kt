@@ -8,7 +8,6 @@ import android.os.Binder
 import android.os.Build
 import android.os.IBinder
 import android.os.PowerManager
-import androidx.lifecycle.LifecycleService
 import at.specure.config.Config
 import at.specure.di.CoreInjector
 import at.specure.di.NotificationProvider
@@ -113,7 +112,7 @@ class MeasurementService : LifecycleService() {
     }
 
     @Suppress("SENSELESS_COMPARISON") // intent may be null after service restarted by the system
-    override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
+    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         if (intent != null) {
             attachToForeground()
             if (intent != null && intent.action == ACTION_START_TESTS) {
@@ -123,7 +122,7 @@ class MeasurementService : LifecycleService() {
         return super.onStartCommand(intent, flags, startId)
     }
 
-    override fun onBind(intent: Intent): IBinder? {
+    override fun onBind(intent: Intent?): IBinder? {
         super.onBind(intent)
         Timber.i("onBind")
         return producer
