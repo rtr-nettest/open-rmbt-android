@@ -11,7 +11,7 @@ import at.rtr.rmbt.client.TotalTestResult
 import at.rtr.rmbt.client.helper.TestStatus
 import at.rtr.rmbt.client.v2.task.service.TestMeasurement.TrafficDirection
 import at.specure.config.Config
-import at.specure.database.entity.TestRecord
+import at.specure.data.entity.TestRecord
 import at.specure.info.TransportType
 import at.specure.info.cell.CellInfoWatcher
 import at.specure.info.cell.CellNetworkInfo
@@ -32,8 +32,7 @@ import at.specure.location.LocationWatcher
 import at.specure.location.cell.CellLocationInfo
 import at.specure.location.cell.CellLocationLiveData
 import at.specure.location.cell.CellLocationWatcher
-import at.specure.repository.TestDataRepository
-import at.specure.repository.TestRepository
+import at.specure.data.repository.TestDataRepository
 import at.specure.util.hasPermission
 import at.specure.util.isReadPhoneStatePermitted
 import at.specure.util.permission.PermissionsWatcher
@@ -45,7 +44,6 @@ import kotlin.math.floor
 class StateRecorder @Inject constructor(
     private val context: Context,
     private val repository: TestDataRepository,
-    private val testRepository: TestRepository,
     private val locationInfoLiveData: LocationInfoLiveData,
     private val locationWatcher: LocationWatcher,
     private val signalStrengthLiveData: SignalStrengthLiveData,
@@ -133,7 +131,7 @@ class StateRecorder @Inject constructor(
             testStartTimeMillis = TimeUnit.NANOSECONDS.toMillis(testStartTimeNanos),
             threadNumber = threadNumber
         )
-        testRepository.saveTest(testRecord!!)
+        repository.saveTest(testRecord!!)
     }
 
     private fun saveLocationInfo() {
@@ -329,7 +327,7 @@ class StateRecorder @Inject constructor(
         }
 
         testRecord?.let {
-            testRepository.update(it)
+            repository.update(it)
         }
         testUUID = null
     }

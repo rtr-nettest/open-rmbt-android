@@ -5,10 +5,12 @@ import android.content.Context
 import android.content.ServiceConnection
 import android.os.IBinder
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.MutableLiveData
 import at.rtr.rmbt.android.ui.viewstate.MeasurementViewState
 import at.rtr.rmbt.android.util.plusAssign
 import at.specure.database.entity.GraphItemRecord
+import at.specure.data.entity.GraphItemRecord
 import at.specure.info.network.ActiveNetworkLiveData
 import at.specure.info.strength.SignalStrengthLiveData
 import at.specure.measurement.MeasurementClient
@@ -16,6 +18,10 @@ import at.specure.measurement.MeasurementProducer
 import at.specure.measurement.MeasurementService
 import at.specure.measurement.MeasurementState
 import at.specure.repository.TestDataRepository
+import at.specure.data.repository.TestDataRepository
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import timber.log.Timber
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject

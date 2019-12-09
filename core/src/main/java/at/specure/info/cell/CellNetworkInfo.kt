@@ -133,8 +133,8 @@ class CellNetworkInfo(
                 networkType = networkType,
                 mcc = info.cellIdentity.mccCompat(),
                 mnc = info.cellIdentity.mncCompat(),
-                locationId = info.cellIdentity.tac,
-                areaCode = info.cellIdentity.ci,
+                locationId = info.cellIdentity.ci,
+                areaCode = info.cellIdentity.tac,
                 scramblingCode = info.cellIdentity.pci,
                 cellUUID = info.uuid(),
                 isRegistered = info.isRegistered,
@@ -164,8 +164,8 @@ class CellNetworkInfo(
                 networkType = networkType,
                 mcc = info.cellIdentity.mccCompat(),
                 mnc = info.cellIdentity.mncCompat(),
-                locationId = info.cellIdentity.lac,
-                areaCode = info.cellIdentity.cid,
+                locationId = info.cellIdentity.cid,
+                areaCode = info.cellIdentity.lac,
                 scramblingCode = info.cellIdentity.psc,
                 cellUUID = info.uuid(),
                 isActive = isActive,
@@ -197,8 +197,8 @@ class CellNetworkInfo(
                 networkType = networkType,
                 mcc = info.cellIdentity.mccCompat(),
                 mnc = info.cellIdentity.mncCompat(),
-                locationId = info.cellIdentity.lac,
-                areaCode = info.cellIdentity.cid,
+                locationId = info.cellIdentity.cid,
+                areaCode = info.cellIdentity.lac,
                 scramblingCode = scramblingCode,
                 cellUUID = info.uuid(),
                 isActive = isActive,
@@ -223,8 +223,8 @@ class CellNetworkInfo(
                 networkType = networkType,
                 mcc = null,
                 mnc = null,
-                locationId = info.cellIdentity.basestationId,
-                areaCode = null,
+                locationId = null,
+                areaCode = info.cellIdentity.basestationId,
                 scramblingCode = null,
                 cellUUID = info.uuid(),
                 isActive = isActive,
@@ -337,7 +337,7 @@ private fun CellIdentityGsm.mncCompat(): Int? =
     }
 
 private fun Int?.fixMncMcc(): Int? {
-    return if (this == null || this == Int.MIN_VALUE || this < 0) {
+    return if (this == null || this == Int.MIN_VALUE || this == Int.MAX_VALUE || this < 0) {
         null
     } else {
         this

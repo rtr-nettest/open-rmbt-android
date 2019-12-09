@@ -16,15 +16,15 @@ package at.specure.di
 
 import android.content.Context
 import androidx.room.Room
-import at.specure.database.CoreDatabase
-import at.specure.repository.TestDataRepository
-import at.specure.repository.TestDataRepositoryImpl
+import at.specure.data.CoreDatabase
+import at.specure.data.repository.TestDataRepository
+import at.specure.data.repository.TestDataRepositoryImpl
 import dagger.Module
 import dagger.Provides
 import javax.inject.Singleton
 
 /**
- * Dagger databse module that provides database instance used by core library
+ * Dagger database module that provides database instance used by core library
  */
 @Module
 class DatabaseModule {
