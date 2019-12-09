@@ -26,6 +26,7 @@ import at.rtr.rmbt.android.ui.adapter.QosMeasurementAdapter
 import at.rtr.rmbt.android.ui.dialog.SimpleDialog
 import at.rtr.rmbt.android.util.listen
 import at.rtr.rmbt.android.viewmodel.MeasurementViewModel
+import at.specure.measurement.MeasurementState
 import kotlinx.android.synthetic.main.activity_measurement.view.*
 import kotlinx.android.synthetic.main.activity_measurement.view.measurement_bottom_view
 import kotlinx.android.synthetic.main.measurement_bottom_view.view.*
@@ -60,11 +61,15 @@ class MeasurementActivity : BaseActivity(), SimpleDialog.Callback {
         }
 
         viewModel.downloadGraphSource.listen(this) {
-            binding.root.measurement_bottom_view.speedChartDownloadUpload.addGraphItems(it)
+            if (viewModel.state.measurementState.get() == MeasurementState.DOWNLOAD) {
+                binding.root.measurement_bottom_view.speedChartDownloadUpload.addGraphItems(it)
+            }
         }
 
         viewModel.uploadGraphSource.listen(this) {
-            binding.root.measurement_bottom_view.speedChartDownloadUpload.addGraphItems(it)
+            if (viewModel.state.measurementState.get() == MeasurementState.UPLOAD) {
+                binding.root.measurement_bottom_view.speedChartDownloadUpload.addGraphItems(it)
+            }
         }
 
         viewModel.signalStrengthLiveData.listen(this) {

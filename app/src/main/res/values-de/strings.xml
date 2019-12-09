@@ -94,12 +94,12 @@
     <string name="open_location_permission_dialog_label_location_not_permitted">Standort nicht verfügbar. Zulassen, dass RTR-Netztest auf den Standort Ihres Geräts zugreift?</string>
     <string name="open_location_permission_dialog_label_open_permission_setting">Einstellungen öffnen</string>
 
-    <string name="input_setting_dialog_okay">Okay</string>
+    <!--<string name="input_setting_dialog_okay">Okay</string>-->
     <string name="input_setting_dialog_ok">OK</string>
     <string name="input_setting_dialog_cancel">Abbrechen</string>
     <string name="value_invalid">Ungültiger Wert</string>
-    <string name="loop_mode_max_delay_invalid" tools:ignore="PluralsCandidate">Ungülige maximale Wartezeit. Bitte wählen Sie einen Wert zwischen %1$d und %2$d.</string>
-    <string name="loop_mode_max_movement_invalid" tools:ignore="PluralsCandidate">Ungültige maximale Distanz. Bitte wählen Sie einen Wert zwischen %1$d und %2$d.</string>
+    <string name="loop_mode_max_delay_invalid" tools:ignore="PluralsCandidate">Bitte wählen Sie einen Wert zwischen %1$d und %2$d.</string>
+    <string name="loop_mode_max_movement_invalid" tools:ignore="PluralsCandidate">Bitte wählen Sie einen Wert zwischen %1$d und %2$d.</string>
     <string name="about_client_uuid_copied">Die Client UUID wurde in die Zwischenablage kopiert.</string>
     <string name="client_not_registered">Der Client ist nicht registriert. Versuchen Sie es später erneut.</string>
 
