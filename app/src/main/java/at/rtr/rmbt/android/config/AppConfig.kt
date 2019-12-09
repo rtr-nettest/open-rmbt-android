@@ -29,7 +29,7 @@ class AppConfig @Inject constructor(context: Context, private val serverSettings
 
     private val preferences = context.getSharedPreferences(FILENAME, Context.MODE_PRIVATE)
 
-    private fun getInt(configValue: ConfigValue, serverValue: Int? = 0): Int {
+    private fun getInt(configValue: ConfigValue, serverValue: Int? = null): Int {
         return preferences.getInt(configValue.name, serverValue ?: configValue.value.toInt())
     }
 
@@ -49,7 +49,7 @@ class AppConfig @Inject constructor(context: Context, private val serverSettings
             .apply()
     }
 
-    private fun getBoolean(configValue: ConfigValue, serverValue: Boolean? = false): Boolean {
+    private fun getBoolean(configValue: ConfigValue, serverValue: Boolean? = null): Boolean {
         return preferences.getBoolean(configValue.name, serverValue ?: configValue.value.toBoolean())
     }
 
