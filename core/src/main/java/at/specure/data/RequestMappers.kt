@@ -28,6 +28,7 @@ import at.specure.data.entity.TestRecord
 import at.specure.data.entity.TestTelephonyRecord
 import at.specure.data.entity.TestWlanRecord
 import at.specure.info.TransportType
+import at.specure.info.cell.CellTechnology
 import at.specure.info.network.MobileNetworkType
 import at.specure.info.strength.SignalStrengthInfo
 import at.specure.info.strength.SignalStrengthInfoGsm
@@ -54,8 +55,8 @@ fun DeviceInfo.toSettingsRequest(clientUUID: ClientUUID, config: Config, tac: Te
     versionCode = clientVersionCode.toString(),
     uuid = clientUUID.value ?: "",
     userServerSelectionEnabled = config.userServerSelectionEnabled,
-    tacVersion = tac.tacVersion ?: 0,
-    tacAccepted = tac.tacAccepted,
+    tacVersion = 6, // TODO replace with tac.tacVersion ?: 0,
+    tacAccepted = true, // TODO should be replaced with tac.tacAccepted,
     capabilities = config.toCapabilitiesBody()
 )
 
@@ -125,13 +126,12 @@ fun LocationInfo.toRequest() = TestLocationBody(
 
 fun TestRecord.toRequest(
     clientUUID: String,
-    uuid: String,
     deviceInfo: DeviceInfo,
     telephonyInfo: TestTelephonyRecord?,
     wlanInfo: TestWlanRecord?,
     locations: List<GeoLocationRecord>,
     capabilities: CapabilitiesRecord,
-    pings: List<PingRecord>,
+    pingList: List<PingRecord>,
     cellInfoList: List<CellInfoRecord>,
     signalList: List<SignalRecord>,
     speedInfoList: List<SpeedRecord>,
@@ -145,10 +145,10 @@ fun TestRecord.toRequest(
         locations.map { it.toRequest() }
     }
 
-    val _pings: List<PingBody>? = if (pings.isNullOrEmpty()) {
+    val pings: List<PingBody>? = if (pingList.isNullOrEmpty()) {
         null
     } else {
-        pings.map { it.toRequest() }
+        pingList.map { it.toRequest() }
     }
 
     val radioInfo: RadioInfoBody? = if (cellInfoList.isEmpty() && signalList.isEmpty()) {
@@ -190,9 +190,8 @@ fun TestRecord.toRequest(
     return TestResultBody(
         platform = deviceInfo.platform,
         clientUUID = clientUUID,
-        uuid = uuid,
         clientName = deviceInfo.clientName,
-        clientVersion = deviceInfo.clientVersionName,
+        clientVersion = deviceInfo.rmbtClientVersion,
         clientLanguage = deviceInfo.language,
         timeMillis = testTimeMillis,
         token = token,
@@ -224,16 +223,16 @@ fun TestRecord.toRequest(
         device = deviceInfo.device,
         model = deviceInfo.model,
         clientSoftwareVersion = deviceInfo.clientVersionName,
-        networkType = transportType?.toRequestIntValue(mobileNetworkType) ?: Int.MAX_VALUE,
+        networkType = (transportType?.toRequestIntValue(mobileNetworkType) ?: Int.MAX_VALUE).toString(),
         geoLocations = geoLocations,
         capabilities = capabilities.toRequest(),
-        pings = _pings,
+        pings = pings,
         radioInfo = radioInfo,
         speedDetail = speedDetail,
         cellLocations = cellLocations,
         permissionStatuses = permissionStatuses,
         telephonyNetworkOperator = telephonyInfo?.networkOperator,
-        telephonyNetworkIsRoaming = telephonyInfo?.networkIsRoaming,
+        telephonyNetworkIsRoaming = telephonyInfo?.networkIsRoaming?.toString(),
         telephonyNetworkCountry = telephonyInfo?.networkCountry,
         telephonyNetworkOperatorName = telephonyInfo?.networkOperatorName,
         telephonyNetworkSimOperatorName = telephonyInfo?.networkSimOperatorName,
@@ -288,7 +287,7 @@ fun CellInfoRecord.toRequest() = CellInfoBody(
     mnc = mnc,
     mcc = mcc,
     primaryScramblingCode = primaryScramblingCode,
-    technology = cellTechnology?.displayName,
+    technology = transportType.toTechnologyString(cellTechnology),
     registered = registered
 )
 
@@ -325,6 +324,22 @@ fun PermissionStatusRecord.toRequest() = PermissionStatusBody(
     permission = permissionName,
     status = status
 )
+
+fun TransportType.toTechnologyString(cellTechnology: CellTechnology?): String {
+    return when (this) {
+        TransportType.WIFI -> "WLAN"
+        TransportType.CELLULAR -> {
+            when (cellTechnology) {
+                CellTechnology.CONNECTION_2G -> "2G"
+                CellTechnology.CONNECTION_3G -> "3G"
+                CellTechnology.CONNECTION_4G -> "4G"
+                CellTechnology.CONNECTION_5G -> throw IllegalArgumentException("5G not supported to send to the server")
+                else -> throw java.lang.IllegalArgumentException("Incorrect cell technology value or null ${cellTechnology?.name.toString()}")
+            }
+        }
+        else -> throw IllegalArgumentException("Unsupported transport type ${this.name}")
+    }
+}
 
 fun TransportType.toRequestIntValue(mobileNetworkType: MobileNetworkType?): Int {
     return when (this) {

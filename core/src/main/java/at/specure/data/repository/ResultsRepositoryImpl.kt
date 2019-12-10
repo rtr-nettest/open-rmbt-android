@@ -28,13 +28,12 @@ class ResultsRepositoryImpl @Inject constructor(
 
         val body = testRecord.toRequest(
             clientUUID = clientUUID,
-            uuid = clientUUID,
             deviceInfo = deviceInfo,
             telephonyInfo = db.testDao().getTelehonyRecord(testUUID),
             wlanInfo = db.testDao().getWlanRecord(testUUID),
             locations = db.geoLocationDao().get(testUUID),
             capabilities = db.capabilitiesDao().get(testUUID),
-            pings = db.pingDao().get(testUUID),
+            pingList = db.pingDao().get(testUUID),
             cellInfoList = db.cellInfoDao().get(testUUID),
             signalList = db.signalDao().get(testUUID),
             speedInfoList = db.speedDao().get(testUUID),
