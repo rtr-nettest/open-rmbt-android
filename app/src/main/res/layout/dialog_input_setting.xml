@@ -56,42 +56,41 @@
             <requestFocus />
         </androidx.appcompat.widget.AppCompatEditText>
 
-        <androidx.appcompat.widget.AppCompatTextView
-            android:id="@+id/textViewOkay"
-            style="@style/RobotoBoldStyle.Small"
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/buttonOkay"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/margin_medium"
-            android:background="?android:attr/selectableItemBackground"
+            android:background="@drawable/button_green_background"
             android:paddingStart="@dimen/padding_large"
             android:paddingTop="@dimen/padding_medium"
             android:paddingEnd="@dimen/padding_large"
             android:paddingBottom="@dimen/padding_medium"
-            android:text="@string/input_setting_dialog_okay"
-            android:textColor="@color/colorAccent"
+            android:text="@string/input_setting_dialog_ok"
+            android:textColor="@android:color/white"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/editTextValue"
             app:textAllCaps="true"
-            tools:text="OK" />
+            tools:text="OK"
+            />
 
-        <androidx.appcompat.widget.AppCompatTextView
-            android:id="@+id/textViewCancel"
-            style="@style/RobotoBoldStyle.Small"
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/buttonCancel"
+            style="?android:attr/borderlessButtonStyle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/margin_medium"
-            android:background="?android:attr/selectableItemBackground"
+            android:background="@drawable/button_white_background"
             android:paddingStart="@dimen/padding_large"
             android:paddingTop="@dimen/padding_medium"
             android:paddingEnd="@dimen/padding_large"
             android:paddingBottom="@dimen/padding_medium"
             android:text="@string/input_setting_dialog_cancel"
             android:textColor="@color/colorAccent"
-            app:layout_constraintEnd_toStartOf="@+id/textViewOkay"
+            app:layout_constraintEnd_toStartOf="@+id/buttonOkay"
             app:layout_constraintTop_toBottomOf="@+id/editTextValue"
             app:textAllCaps="true"
             tools:text="CANCEL" />
-
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

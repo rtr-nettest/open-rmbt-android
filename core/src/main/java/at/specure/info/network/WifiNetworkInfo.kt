@@ -14,7 +14,6 @@
 
 package at.specure.info.network
 
-import android.net.wifi.SupplicantState
 import at.specure.info.TransportType
 import at.specure.info.band.WifiBand
 import java.util.UUID
@@ -80,10 +79,15 @@ open class WifiNetworkInfo(
     val ssid: String,
 
     /**
-     * Return the detailed state of the supplicant's negotiation with an
-     * access point, in the form of a [android.net.wifi.SupplicantState] object.
+     * Return the state of the supplicant's negotiation with an
+     * access point, in the form of a [android.net.wifi.SupplicantState] object represented as a String.
      */
-    val supplicantState: SupplicantState
+    val supplicantState: String,
+
+    /** Return the detailed state of the supplicant's negotiation with an
+     * access point, in the form of a [android.net.NetworkInfo.DetailedState] object represented as a String.
+     */
+    val supplicantDetailedState: String
 
 ) : NetworkInfo(TransportType.WIFI, UUID.nameUUIDFromBytes(ssid.toByteArray()).toString()) {
 

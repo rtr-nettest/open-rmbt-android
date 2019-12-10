@@ -55,6 +55,11 @@ interface ControlEndpointProvider {
     val testRequestUrl: String
 
     /**
+     * Url to send test results
+     */
+    val sendTestResultsUrl: String
+
+    /**
      * Port that should be used for control server client
      */
     val port: Int

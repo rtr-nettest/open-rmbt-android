@@ -17,13 +17,13 @@
 
     <!-- Navigation menu titles -->
     <string name="menu_button_title_page">Zuhause</string>
-    <string name="menu_button_history">Geschichte</string>
-    <string name="menu_button_statistics">Statistiken</string>
+    <string name="menu_button_history">Verlauf</string>
+    <string name="menu_button_statistics">Statistik</string>
     <string name="menu_button_map">Map</string>
 
     <!-- Error dialog messages -->
     <string name="error_unknown">" Learn to pronounce  Ein Fehler ist aufgetreten. Bitte versuchen Sie es später noch einmal"</string>
-    <string name="dialog_title_error">Error</string>
+    <string name="dialog_title_error">Fehler</string>
 
     <!-- Home screen -->
     <string name="home_signal">Signal</string>
@@ -41,7 +41,7 @@
     <string name="options">Optionen</string>
     <string name="preferences_general_settings">Allgemeine Einstellungen</string>
     <string name="preferences_ndt">NDT</string>
-    <string name="preferences_skip_qos_tests">QoS-Tests überspringen</string>
+    <string name="preferences_qos_measurement">QoS Messung</string>
     <string name="preferences_location">Standort</string>
     <string name="preferences_loop_mode">Wiederholungsmodus</string>
     <string name="preferences_advanced_settings">Erweiterte Einstellungen</string>
@@ -91,15 +91,14 @@
     <string name="preferences_commit_hash">Commit Hash</string>
 
     <string name="text_ip_address_not_available">Adresse nicht verfügbar</string>
-    <string name="open_location_permission_dialog_label_location_not_permitted">Standort nicht verfügbar. Zulassen, dass RTR-Netztest auf den Standort Ihres Geräts zugreifen?</string>
+    <string name="open_location_permission_dialog_label_location_not_permitted">Standort nicht verfügbar. Zulassen, dass RTR-Netztest auf den Standort Ihres Geräts zugreift?</string>
     <string name="open_location_permission_dialog_label_open_permission_setting">Einstellungen öffnen</string>
 
-    <string name="input_setting_dialog_okay">Okay</string>
     <string name="input_setting_dialog_ok">OK</string>
-    <string name="input_setting_dialog_cancel">Stornieren</string>
+    <string name="input_setting_dialog_cancel">Abbrechen</string>
     <string name="value_invalid">Ungültiger Wert</string>
-    <string name="loop_mode_max_delay_invalid" tools:ignore="PluralsCandidate">Ungülige maximale Wartezeit. Bitte wählen Sie einen Wert zwischen %1$d und %2$d.</string>
-    <string name="loop_mode_max_movement_invalid" tools:ignore="PluralsCandidate">Ungültige maximale Distanz. Bitte wählen Sie einen Wert zwischen %1$d und %2$d.</string>
+    <string name="loop_mode_max_delay_invalid" tools:ignore="PluralsCandidate">Bitte wählen Sie einen Wert zwischen %1$d und %2$d.</string>
+    <string name="loop_mode_max_movement_invalid" tools:ignore="PluralsCandidate">Bitte wählen Sie einen Wert zwischen %1$d und %2$d.</string>
     <string name="about_client_uuid_copied">Die Client UUID wurde in die Zwischenablage kopiert.</string>
     <string name="client_not_registered">Der Client ist nicht registriert. Versuchen Sie es später erneut.</string>
 
@@ -111,7 +110,7 @@
     <string name="measurement_dash">-</string>
     <string name="measurement_speed_chart_x_label_min">0s</string>
     <string name="measurement_speed_chart_x_label_max">8s</string>
-    <string name="measurement_ping">Klingeln</string>
+    <string name="measurement_ping">Ping</string>
     <string name="measurement_down">Down</string>
     <string name="measurement_up">Up</string>
     <string name="measurement_qos">Servicequalität (QoS)</string>
@@ -143,8 +142,9 @@
     <string name="text_continue_measurement">Messung fortführen</string>
     <string name="text_cancel_measurement">Messung abbrechen</string>
 
-    <string name="notification_test_title">Open-RMBT</string>
+    <string name="notification_test_title">RTR-NetTest läuft</string>
     <string name="notification_test_ticker">Open-RMBT läuft…</string>
 
     <string name="test_dialog_error_text">Etwas ist schiefgegangen. Bitte versuchen Sie es später noch Mal.</string>
 </resources>
+

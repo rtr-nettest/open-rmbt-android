@@ -31,8 +31,15 @@ class TopCurvePart(context: Context) : CurvePart() {
         CurveSection(8, context.getString(R.string.label_init), false, MeasurementState.INIT)
     )
 
-    override var progressPaint = Paint().apply {
+    override var progressOuterPaint = Paint().apply {
         color = Color.WHITE
+        style = Paint.Style.STROKE
+        xfermode = PorterDuffXfermode(PorterDuff.Mode.SRC_ATOP)
+        isAntiAlias = true
+    }
+
+    override var progressInnerPaint = Paint().apply {
+        color = ContextCompat.getColor(context, R.color.measurement_progress_inner)
         style = Paint.Style.STROKE
         xfermode = PorterDuffXfermode(PorterDuff.Mode.SRC_ATOP)
         isAntiAlias = true
@@ -117,32 +124,34 @@ class TopCurvePart(context: Context) : CurvePart() {
             if (section.isUpside) {
                 pathForText.addArc(
                     cX - smallRadius, cY - smallRadius, cX + smallRadius, cY + smallRadius,
-                    section.startAngle,
-                    section.endAngle - section.startAngle
+                    section.startAngle + angleStep * TEXT_SIZE_MULTIPLIER * 3,
+                    section.endAngle - section.startAngle - angleStep * ANGLE_STEP_MULTIPLIER
                 )
-                canvas.drawTextOnPath(section.text, pathForText, section.length - bounds.width() - 5, -textPaint.textSize, textPaint)
+                canvas.drawTextOnPath(
+                    section.text,
+                    pathForText,
+                    section.length - bounds.width(),
+                    -textPaint.textSize * TEXT_SIZE_MULTIPLIER,
+                    textPaint
+                )
             } else {
                 pathForText.addArc(
                     cX - smallRadius, cY - smallRadius, cX + smallRadius, cY + smallRadius,
-                    section.endAngle,
-                    section.startAngle - section.endAngle
+                    section.endAngle + angleStep,
+                    section.length
                 )
-                canvas.drawTextOnPath(section.text, pathForText, 0f, textPaint.textSize * 2, textPaint)
+                canvas.drawTextOnPath(section.text, pathForText, 0f, textPaint.textSize * 2 * TEXT_SIZE_MULTIPLIER, textPaint)
             }
         }
     }
 
-    override fun updateProgress(progress: Int) {
-        progressPaint.strokeWidth = 2.5f * (largeRadius - smallRadius)
-        val progressAngle = calculateProgressAngle(if (progress > previousProgress) progress else previousProgress)
+    override fun updateProgress(phase: MeasurementState, progress: Int, qosEnabled: Boolean) {
+        progressInnerPaint.strokeWidth = (mediumRadius - smallRadius)
+        progressOuterPaint.strokeWidth = 3 * (largeRadius - mediumRadius)
+        val progressAngle = calculateProgressAngle(phase, qosEnabled, if (progress > previousProgress) progress else previousProgress)
         previousProgress = progress
 
         currentCanvas?.let { currentCanvas ->
-
-            currentCanvas.drawColor(
-                Color.TRANSPARENT,
-                PorterDuff.Mode.CLEAR)
-
             drawSections(currentCanvas)
             drawText(currentCanvas)
 
@@ -154,7 +163,18 @@ class TopCurvePart(context: Context) : CurvePart() {
                 sectionEndAngle,
                 progressAngle,
                 false,
-                progressPaint
+                progressOuterPaint
+            )
+
+            currentCanvas.drawArc(
+                cX - smallRadius,
+                cY - smallRadius,
+                cX + smallRadius,
+                cY + smallRadius,
+                sectionEndAngle,
+                progressAngle,
+                false,
+                progressInnerPaint
             )
         }
     }
@@ -162,9 +182,8 @@ class TopCurvePart(context: Context) : CurvePart() {
     /**
      * Calculate the angle which should be drawn according to current phase and progress
      */
-    private fun calculateProgressAngle(progress: Int): Float {
+    private fun calculateProgressAngle(phase: MeasurementState, qosEnabled: Boolean, progress: Int): Float {
         return when (phase) {
-            MeasurementState.IDLE -> 0f
             MeasurementState.INIT -> {
                 val initSection = sections.find { it.state == MeasurementState.INIT }!!
                 (initSection.startAngle - initSection.endAngle) * progress.toFloat() / 100
@@ -184,8 +203,17 @@ class TopCurvePart(context: Context) : CurvePart() {
                 val initSection = sections.find { it.state == MeasurementState.INIT }!!
                 (uploadSection.endAngle - initSection.endAngle) + (uploadSection.startAngle - uploadSection.endAngle) * progress.toFloat() / 100
             }
-            // todo add QoS part
-            else -> (sectionStartAngle - sectionEndAngle) / 100 * progress
+            MeasurementState.QOS ->
+                if (qosEnabled) {
+                    val qosSection = sections.find { it.state == MeasurementState.QOS }!!
+                    val initSection = sections.find { it.state == MeasurementState.INIT }!!
+                    (qosSection.endAngle - initSection.endAngle) + (qosSection.startAngle - qosSection.endAngle) * progress.toFloat() / 100
+                } else {
+                    val uploadSection = sections.find { it.state == MeasurementState.UPLOAD }!!
+                    val initSection = sections.find { it.state == MeasurementState.INIT }!!
+                    (uploadSection.endAngle - initSection.endAngle) + (uploadSection.startAngle - uploadSection.endAngle) * progress.toFloat() / 100
+                }
+            else -> 0f
         }
     }
 }

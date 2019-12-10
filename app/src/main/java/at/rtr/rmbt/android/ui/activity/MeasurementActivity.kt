@@ -26,7 +26,10 @@ import at.rtr.rmbt.android.ui.adapter.QosMeasurementAdapter
 import at.rtr.rmbt.android.ui.dialog.SimpleDialog
 import at.rtr.rmbt.android.util.listen
 import at.rtr.rmbt.android.viewmodel.MeasurementViewModel
-import timber.log.Timber
+import at.specure.measurement.MeasurementState
+import kotlinx.android.synthetic.main.activity_measurement.view.*
+import kotlinx.android.synthetic.main.activity_measurement.view.measurement_bottom_view
+import kotlinx.android.synthetic.main.measurement_bottom_view.view.*
 
 class MeasurementActivity : BaseActivity(), SimpleDialog.Callback {
 
@@ -53,24 +56,28 @@ class MeasurementActivity : BaseActivity(), SimpleDialog.Callback {
                 .show(supportFragmentManager, 0)
         }
 
-        binding.measurementBottomView.qosTestRecyclerView.apply {
+        binding.root.measurement_bottom_view.qosTestRecyclerView.apply {
             adapter = QosMeasurementAdapter(this@MeasurementActivity)
         }
 
-        viewModel.downloadGraphLiveData.listen(this) {
-            // TODO observe download graph items
-            Timber.d("-----------------")
-            it.forEach { item ->
-                Timber.v("DOWNLOAD: ${item.progress} ${item.value}")
+        viewModel.downloadGraphSource.listen(this) {
+            if (viewModel.state.measurementState.get() == MeasurementState.DOWNLOAD) {
+                binding.root.measurement_bottom_view.speedChartDownloadUpload.addGraphItems(it)
             }
         }
 
-        viewModel.uploadGraphLiveData.listen(this) {
-            // TODO observe upload graph items
-            Timber.d("-----------------")
-            it.forEach { item ->
-                Timber.i("UPLOAD: ${item.progress} ${item.value}")
+        viewModel.uploadGraphSource.listen(this) {
+            if (viewModel.state.measurementState.get() == MeasurementState.UPLOAD) {
+                binding.root.measurement_bottom_view.speedChartDownloadUpload.addGraphItems(it)
             }
+        }
+
+        viewModel.signalStrengthLiveData.listen(this) {
+            viewModel.state.signalStrengthInfo.set(it)
+        }
+
+        viewModel.activeNetworkLiveData.listen(this) {
+            viewModel.state.networkInfo.set(it)
         }
     }
 

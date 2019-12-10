@@ -1,8 +1,5 @@
 package at.specure.measurement
 
-import at.specure.info.network.NetworkInfo
-import at.specure.info.strength.SignalStrengthInfo
-
 interface MeasurementProducer {
 
     fun addClient(client: MeasurementClient)
@@ -18,10 +15,6 @@ interface MeasurementProducer {
     val uploadSpeedBps: Long
 
     val pingNanos: Long
-
-    val signalStrengthInfo: SignalStrengthInfo?
-
-    val networkInfo: NetworkInfo?
 
     val isTestsRunning: Boolean
 

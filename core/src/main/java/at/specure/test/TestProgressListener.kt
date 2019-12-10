@@ -1,9 +1,8 @@
 package at.specure.test
 
-import at.rtr.rmbt.client.RMBTClientCallback
 import at.specure.measurement.MeasurementState
 
-interface TestProgressListener : RMBTClientCallback {
+interface TestProgressListener {
 
     fun onProgressChanged(state: MeasurementState, progress: Int)
 
@@ -17,5 +16,5 @@ interface TestProgressListener : RMBTClientCallback {
 
     fun onError()
 
-    fun onClientReady(testUUID: String)
+    fun onClientReady(testUUID: String, testStartTimeNanos: Long)
 }

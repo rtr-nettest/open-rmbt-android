@@ -9,6 +9,7 @@ class SignalStrengthInfoGsm(
     signalLevel: Int,
     min: Int,
     max: Int,
+    timestampNanos: Long,
 
     /**
      * Return the Bit Error Rate
@@ -27,4 +28,4 @@ class SignalStrengthInfoGsm(
      */
     val timingAdvance: Int
 
-) : SignalStrengthInfo(transport, value, rsrq, signalLevel, min, max)
+) : SignalStrengthInfo(transport, value, rsrq, signalLevel, min, max, timestampNanos)

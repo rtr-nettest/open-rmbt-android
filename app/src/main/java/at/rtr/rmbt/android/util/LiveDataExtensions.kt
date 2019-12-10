@@ -73,3 +73,9 @@ fun <T : Observable> T.addOnPropertyChanged(callback: (T) -> Unit) =
         override fun onPropertyChanged(observable: Observable?, i: Int) =
             callback(observable as T)
     }.also { addOnPropertyChangedCallback(it) }
+
+operator fun <T> MutableLiveData<List<T>>.plusAssign(item: T) {
+    val value = (this.value ?: arrayListOf()).toMutableList()
+    value.add(item)
+    postValue(value)
+}

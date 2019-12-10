@@ -14,6 +14,9 @@ import at.specure.data.ControlServerSettings
 import at.specure.data.HistoryFilterOptions
 import at.specure.data.MapServerSettings
 import at.specure.data.TermsAndConditions
+import at.specure.data.repository.IpCheckRepository
+import at.specure.data.repository.SettingsRepository
+import at.specure.data.repository.SettingsRepositoryImpl
 import at.specure.info.cell.CellInfoWatcher
 import at.specure.info.cell.CellInfoWatcherImpl
 import at.specure.info.connectivity.ConnectivityWatcher
@@ -27,8 +30,8 @@ import at.specure.info.wifi.WifiInfoWatcher
 import at.specure.info.wifi.WifiInfoWatcherImpl
 import at.specure.location.LocationProviderStateWatcher
 import at.specure.location.LocationProviderStateWatcherImpl
-import at.specure.repository.SettingsRepository
-import at.specure.repository.SettingsRepositoryImpl
+import at.specure.location.cell.CellLocationWatcher
+import at.specure.location.cell.CellLocationWatcherImpl
 import at.specure.test.TestController
 import at.specure.test.TestControllerImpl
 import at.specure.util.permission.LocationAccess
@@ -71,8 +74,8 @@ class CoreModule {
 
     @Provides
     @Singleton
-    fun providePermissionsWatcher(locationAccess: LocationAccess, phoneStateAccess: PhoneStateAccess): PermissionsWatcher =
-        PermissionsWatcher(locationAccess, phoneStateAccess)
+    fun providePermissionsWatcher(context: Context, locationAccess: LocationAccess, phoneStateAccess: PhoneStateAccess): PermissionsWatcher =
+        PermissionsWatcher(context, locationAccess, phoneStateAccess)
 
     @Provides
     @Singleton
@@ -100,8 +103,8 @@ class CoreModule {
 
     @Provides
     @Singleton
-    fun provideIpChangeWatcher(controlServerClient: ControlServerClient, connectivityWatcher: ConnectivityWatcher): IpChangeWatcher =
-        IpChangeWatcherImpl(controlServerClient, connectivityWatcher)
+    fun provideIpChangeWatcher(ipCheckRepository: IpCheckRepository, connectivityWatcher: ConnectivityWatcher): IpChangeWatcher =
+        IpChangeWatcherImpl(ipCheckRepository, connectivityWatcher)
 
     @Provides
     @Singleton
@@ -113,16 +116,32 @@ class CoreModule {
 
     @Provides
     fun provideSettingRepository(
+        context: Context,
         controlServerClient: ControlServerClient,
         clientUUID: ClientUUID,
         controlServerSettings: ControlServerSettings,
         mapServerSettings: MapServerSettings,
         termsAndConditions: TermsAndConditions,
-        historyFilterOptions: HistoryFilterOptions
+        historyFilterOptions: HistoryFilterOptions,
+        config: Config
     ): SettingsRepository =
-        SettingsRepositoryImpl(controlServerClient, clientUUID, controlServerSettings, mapServerSettings, termsAndConditions, historyFilterOptions)
+        SettingsRepositoryImpl(
+            context = context,
+            controlServerClient = controlServerClient,
+            clientUUID = clientUUID,
+            controlServerSettings = controlServerSettings,
+            mapServerSettings = mapServerSettings,
+            termsAndConditions = termsAndConditions,
+            historyFilterOptions = historyFilterOptions,
+            config = config
+        )
 
     @Provides
     @Singleton
     fun provideTestController(config: Config, clientUUID: ClientUUID): TestController = TestControllerImpl(config, clientUUID)
+
+    @Provides
+    @Singleton
+    fun provideCellLocationWatcher(context: Context, telephonyManager: TelephonyManager): CellLocationWatcher =
+        CellLocationWatcherImpl(context, telephonyManager)
 }

@@ -1,89 +1,124 @@
 {
-    "config": [
-        {
-            "name": "NDT_ENABLED",
-            "value": "true",
-            "visible": true
-        },
-        {
-            "name": "SKIP_QOS_TESTS",
-            "value": "false",
-            "visible": true
-        },
-        {
-            "name": "CAN_MANAGE_LOCATION_SETTINGS",
-            "value": "false",
-            "visible": true
-        },
-        {
-            "name": "LOOP_MODE_ENABLED",
-            "value": "false",
-            "visible": true
-        },
-        {
-            "name": "LOOP_MODE_WAITING_TIME_MIN",
-            "value": "10",
-            "visible": true
-        },
-        {
-            "name": "LOOP_MODE_DISTANCE_METERS",
-            "value": "250",
-            "visible": true
-        },
-        {
-            "name": "EXPERT_MODE_ENABLED",
-            "value": "false",
-            "visible": true
-        },
-        {
-            "name": "EXPERT_MODE_IPV4_ONLY",
-            "value": "false",
-            "visible": true
-        },
-        {
-            "name": "CONTROL_SERVER_HOST",
-            "value": "",
-            "visible": false
-        },
-        {
-            "name": "CONTROL_SERVER_CHECK_PRIVATE_IPV4_HOST",
-            "value": "",
-            "visible": false
-        },
-        {
-            "name": "CONTROL_SERVER_CHECK_PRIVATE_IPV6_HOST",
-            "value": "",
-            "visible": false
-        },
-        {
-            "name": "CONTROL_SERVER_CHECK_PUBLIC_IPV4_URL",
-            "value": "",
-            "visible": false
-        },
-        {
-            "name": "CONTROL_SERVER_CHECK_PUBLIC_IPV6_URL",
-            "value": "",
-            "visible": false
-        },
-        {
-            "name": "CONTROL_SERVER_PORT",
-            "value": "443",
-            "visible": false
-        },
-        {
-            "name": "CONTROL_SERVER_USE_SSL",
-            "value": "true",
-            "visible": false
-        },
-        {
-            "name": "CONTROL_SERVER_SETTINGS_PATH",
-            "value": "",
-            "visible": false
-        },
-        {
-            "name": "CONTROL_SERVER_TEST_REQUEST_PATH",
-            "value": "",
-            "visible": false
-        }
-    ]
+  "config": [
+    {
+      "name": "NDT_ENABLED",
+      "value": "true",
+      "visible": true
+    },
+    {
+      "name": "SKIP_QOS_TESTS",
+      "value": "false",
+      "visible": true
+    },
+    {
+      "name": "CAN_MANAGE_LOCATION_SETTINGS",
+      "value": "false",
+      "visible": true
+    },
+    {
+      "name": "LOOP_MODE_ENABLED",
+      "value": "false",
+      "visible": true
+    },
+    {
+      "name": "LOOP_MODE_WAITING_TIME_MIN",
+      "value": "10",
+      "visible": true
+    },
+    {
+      "name": "LOOP_MODE_DISTANCE_METERS",
+      "value": "250",
+      "visible": true
+    },
+    {
+      "name": "EXPERT_MODE_ENABLED",
+      "value": "false",
+      "visible": true
+    },
+    {
+      "name": "EXPERT_MODE_IPV4_ONLY",
+      "value": "false",
+      "visible": true
+    },
+    {
+      "name": "CONTROL_SERVER_HOST",
+      "value": "",
+      "visible": false
+    },
+    {
+      "name": "CONTROL_SERVER_CHECK_PRIVATE_IPV4_HOST",
+      "value": "",
+      "visible": false
+    },
+    {
+      "name": "CONTROL_SERVER_CHECK_PRIVATE_IPV6_HOST",
+      "value": "",
+      "visible": false
+    },
+    {
+      "name": "CONTROL_SERVER_CHECK_PUBLIC_IPV4_URL",
+      "value": "",
+      "visible": false
+    },
+    {
+      "name": "CONTROL_SERVER_CHECK_PUBLIC_IPV6_URL",
+      "value": "",
+      "visible": false
+    },
+    {
+      "name": "CONTROL_SERVER_PORT",
+      "value": "443",
+      "visible": false
+    },
+    {
+      "name": "CONTROL_SERVER_USE_SSL",
+      "value": "true",
+      "visible": false
+    },
+    {
+      "name": "CONTROL_SERVER_SETTINGS_PATH",
+      "value": "",
+      "visible": false
+    },
+    {
+      "name": "CONTROL_SERVER_TEST_REQUEST_PATH",
+      "value": "",
+      "visible": false
+    },
+    {
+      "name": "CONTROL_SERVER_SEND_RESULT_PATH",
+      "value": "",
+      "visible": false
+    },
+    {
+      "name": "CAPABILITIES_RMBT_HTTP",
+      "value": "false",
+      "visible": false
+    },
+    {
+      "name": "CAPABILITIES_QOS_SUPPORTS_INFO",
+      "value": "false",
+      "visible": false
+    },
+    {
+      "name": "CAPABILITIES_CLASSIFICATION_COUNT",
+      "value": "4",
+      "visible": false
+    },
+    {
+      "name": "USER_SERVER_SELECTION_ENABLED",
+      "value": "false",
+      "visible": false
+    },
+    {
+      "name": "DEVELOPER_MODE_IS_ENABLED",
+      "value": "false",
+      "visible": false
+    },
+    {
+      "name": "DEVELOPER_MODE_IS_AVAILABLE",
+      "value": "true",
+      "visible": false
+    }
+  ]
 }

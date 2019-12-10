@@ -28,21 +28,26 @@ class MeasurementCurveView @JvmOverloads constructor(context: Context, attrs: At
     private var viewWidth: Int = 0
     private var viewHeight: Int = 0
 
+    private var currentPhase: MeasurementState = MeasurementState.IDLE
+    private var currentTopProgress = 0
+    private var currentBottomProgress = 0
+    private var isQoSEnabled = false
+
     override fun onLayout(changed: Boolean, left: Int, top: Int, right: Int, bottom: Int) {
         super.onLayout(changed, left, top, right, bottom)
 
         if (changed) {
+            viewWidth = right - left
+            viewHeight = bottom - top
+
             topPart.updateScreenSizeRelatedData(resources, viewWidth, viewHeight)
             bottomPart.updateScreenSizeRelatedData(resources, viewWidth, viewHeight)
-            squareSizeCallback?.invoke(topPart.angleStep, min(topPart.viewHeight, topPart.viewWidth))
+            if (currentPhase != MeasurementState.IDLE) {
+                topPart.updateProgress(currentPhase, currentTopProgress, isQoSEnabled)
+                bottomPart.updateProgress(currentPhase, currentBottomProgress, isQoSEnabled)
+            }
+            squareSizeCallback?.invoke(topPart.strokeWidth, min(topPart.viewHeight, topPart.viewWidth))
         }
-    }
-
-    override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
-        super.onMeasure(widthMeasureSpec, heightMeasureSpec)
-
-        viewWidth = MeasureSpec.getSize(widthMeasureSpec)
-        viewHeight = MeasureSpec.getSize(heightMeasureSpec)
     }
 
     override fun onDraw(canvas: Canvas?) {
@@ -55,13 +60,19 @@ class MeasurementCurveView @JvmOverloads constructor(context: Context, attrs: At
         }
     }
 
-    fun setTopProgress(progress: Int) {
-        topPart.updateProgress(progress)
+    fun setTopProgress(phase: MeasurementState, progress: Int, qosEnabled: Boolean) {
+        currentPhase = phase
+        currentTopProgress = progress
+        isQoSEnabled = qosEnabled
+        topPart.updateProgress(phase, progress, qosEnabled)
         invalidate()
     }
 
-    fun setBottomProgress(progress: Int) {
-        bottomPart.updateProgress(progress)
+    fun setBottomProgress(phase: MeasurementState, progress: Int, qosEnabled: Boolean) {
+        currentPhase = phase
+        currentBottomProgress = progress
+        isQoSEnabled = qosEnabled
+        bottomPart.updateProgress(phase, progress, qosEnabled)
         invalidate()
     }
 

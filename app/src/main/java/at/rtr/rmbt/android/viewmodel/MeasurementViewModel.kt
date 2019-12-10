@@ -5,34 +5,32 @@ import android.content.Context
 import android.content.ServiceConnection
 import android.os.IBinder
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.MutableLiveData
 import at.rtr.rmbt.android.ui.viewstate.MeasurementViewState
-import at.specure.database.entity.GraphItem
-import at.specure.info.network.NetworkInfo
-import at.specure.info.strength.SignalStrengthInfo
+import at.rtr.rmbt.android.util.plusAssign
+import at.specure.data.entity.GraphItemRecord
+import at.specure.info.network.ActiveNetworkLiveData
+import at.specure.info.strength.SignalStrengthLiveData
 import at.specure.measurement.MeasurementClient
 import at.specure.measurement.MeasurementProducer
 import at.specure.measurement.MeasurementService
 import at.specure.measurement.MeasurementState
-import at.specure.repository.TestDataRepository
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
+import at.specure.data.repository.TestDataRepository
 import timber.log.Timber
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
-class MeasurementViewModel @Inject constructor(private val testDataRepository: TestDataRepository) : BaseViewModel(), MeasurementClient {
+class MeasurementViewModel @Inject constructor(
+    private val testDataRepository: TestDataRepository,
+    val signalStrengthLiveData: SignalStrengthLiveData,
+    val activeNetworkLiveData: ActiveNetworkLiveData
+) : BaseViewModel(), MeasurementClient {
 
     private val _measurementFinishLiveData = MutableLiveData<Boolean>()
     private val _isTestsRunningLiveData = MutableLiveData<Boolean>()
     private val _measurementErrorLiveData = MutableLiveData<Boolean>()
-
-    private val _downloadGraphLiveData = MediatorLiveData<List<GraphItem>>()
-    private val _uploadGraphLiveData = MediatorLiveData<List<GraphItem>>()
-    private var downloadGraphSource: LiveData<List<GraphItem>>? = null
-    private var uploadGraphSource: LiveData<List<GraphItem>>? = null
+    private val _downloadGraphLiveData = MutableLiveData<List<GraphItemRecord>>()
+    private val _uploadGraphLiveData = MutableLiveData<List<GraphItemRecord>>()
 
     private var producer: MeasurementProducer? = null // TODO make field private
 
@@ -47,10 +45,10 @@ class MeasurementViewModel @Inject constructor(private val testDataRepository: T
     val measurementErrorLiveData: LiveData<Boolean>
         get() = _measurementErrorLiveData
 
-    val downloadGraphLiveData: LiveData<List<GraphItem>>
+    val downloadGraphSource: LiveData<List<GraphItemRecord>>
         get() = _downloadGraphLiveData
 
-    val uploadGraphLiveData: LiveData<List<GraphItem>>
+    val uploadGraphSource: LiveData<List<GraphItemRecord>>
         get() = _uploadGraphLiveData
 
     private val serviceConnection = object : ServiceConnection {
@@ -76,8 +74,6 @@ class MeasurementViewModel @Inject constructor(private val testDataRepository: T
                     pingMs.set(TimeUnit.NANOSECONDS.toMillis(it.pingNanos))
                     downloadSpeedBps.set(it.downloadSpeedBps)
                     uploadSpeedBps.set(it.uploadSpeedBps)
-                    signalStrengthInfo.set(it.signalStrengthInfo)
-                    networkInfo.set(it.networkInfo)
                 }
             }
         }
@@ -109,26 +105,30 @@ class MeasurementViewModel @Inject constructor(private val testDataRepository: T
         _measurementErrorLiveData.postValue(true)
     }
 
-    override fun onSignalChanged(signalStrengthInfo: SignalStrengthInfo?) {
-        state.signalStrengthInfo.set(signalStrengthInfo)
-    }
-
     override fun onDownloadSpeedChanged(progress: Int, speedBps: Long) {
         state.downloadSpeedBps.set(speedBps)
         state.measurementDownloadUploadProgress.set(progress)
+
+        if (state.measurementState.get() == MeasurementState.DOWNLOAD) {
+            _downloadGraphLiveData += GraphItemRecord(testUUID = "", progress = progress, value = speedBps, type = GraphItemRecord.GRAPH_ITEM_TYPE_DOWNLOAD)
+        }
     }
 
     override fun onUploadSpeedChanged(progress: Int, speedBps: Long) {
         state.uploadSpeedBps.set(speedBps)
         state.measurementDownloadUploadProgress.set(progress)
+
+        if (state.measurementState.get() == MeasurementState.UPLOAD) {
+            _uploadGraphLiveData += GraphItemRecord(testUUID = "", progress = progress, value = speedBps, type = GraphItemRecord.GRAPH_ITEM_TYPE_UPLOAD)
+        }
     }
 
     override fun onPingChanged(pingNanos: Long) {
         state.pingMs.set(TimeUnit.NANOSECONDS.toMillis(pingNanos))
     }
 
-    override fun onActiveNetworkChanged(networkInfo: NetworkInfo?) {
-        state.networkInfo.set(networkInfo)
+    override fun isQoSEnabled(enabled: Boolean) {
+        state.qosEnabled.set(enabled)
     }
 
     fun cancelMeasurement() {
@@ -136,22 +136,13 @@ class MeasurementViewModel @Inject constructor(private val testDataRepository: T
     }
 
     override fun onClientReady(testUUID: String) {
-        CoroutineScope(Dispatchers.Main.immediate).launch {
-            downloadGraphSource?.let {
-                _downloadGraphLiveData.removeSource(it)
-            }
-            downloadGraphSource = testDataRepository.getDownloadGraphItemsLiveData(testUUID)
-            _downloadGraphLiveData.addSource(downloadGraphSource!!) {
-                _downloadGraphLiveData.postValue(it)
-            }
 
-            uploadGraphSource?.let {
-                _uploadGraphLiveData.removeSource(it)
-            }
-            uploadGraphSource = testDataRepository.getUploadGraphItemsLiveData(testUUID)
-            _uploadGraphLiveData.addSource(uploadGraphSource!!) {
-                _uploadGraphLiveData.postValue(it)
-            }
+        testDataRepository.getDownloadGraphItemsLiveData(testUUID) {
+            _downloadGraphLiveData.postValue(it)
+        }
+
+        testDataRepository.getUploadGraphItemsLiveData(testUUID) {
+            _uploadGraphLiveData.postValue(it)
         }
     }
 }

@@ -47,6 +47,11 @@ abstract class CurvePart {
     var cX: Float = 0f
     var cY: Float = 0f
 
+    /**
+     * Defines the size of curve square
+     */
+    var strokeWidth: Float = 0f
+
     var emptySquarePaint = Paint().apply {
         style = Paint.Style.FILL_AND_STROKE
         xfermode = PorterDuffXfermode(PorterDuff.Mode.SRC)
@@ -56,6 +61,7 @@ abstract class CurvePart {
     var textPaint = Paint().apply {
         style = Paint.Style.FILL
         textSize = 40f
+        letterSpacing = 0.15f
         isAntiAlias = true
     }
 
@@ -73,7 +79,8 @@ abstract class CurvePart {
     abstract var bitmap: Bitmap
 
     abstract var pathForText: Path
-    abstract var progressPaint: Paint
+    abstract var progressOuterPaint: Paint
+    abstract var progressInnerPaint: Paint
 
     /**
      * Defines the current [MeasurementState]
@@ -98,7 +105,7 @@ abstract class CurvePart {
     /**
      * Updating the curve part according to current progress
      */
-    abstract fun updateProgress(progress: Int)
+    abstract fun updateProgress(phase: MeasurementState, progress: Int, qosEnabled: Boolean)
 
     /**
      * Get the x coordinate of curve part
@@ -132,7 +139,7 @@ abstract class CurvePart {
         angleStep = CURVE_ANGLE / MAX_CURVE_PIECES_COUNT
         mediumRadius = viewSize.toFloat() / MIDDLE_RADIUS_DIVIDER
 
-        val strokeWidth = angleStep * angleStep * resources.displayMetrics.density
+        strokeWidth = (Math.PI * mediumRadius * angleStep / 180).toFloat()
         emptySquarePaint.strokeWidth = strokeWidth
         textPaint.textSize = mediumRadius / TEXT_SIZE_DIVIDER
 
@@ -143,9 +150,8 @@ abstract class CurvePart {
         cY = getCenterY()
         centerKnownCallback?.invoke((cX + getLeftOffset()).toInt(), (cY + getTopOffset()).toInt())
 
-        val backgroundColor = ResourcesCompat.getColor(resources, R.color.measurement_text, null)
-        textPaint.color = backgroundColor
-        emptySquarePaint.color = backgroundColor
+        textPaint.color = ResourcesCompat.getColor(resources, R.color.measurement_text, null)
+        emptySquarePaint.color = ResourcesCompat.getColor(resources, R.color.measurement_not_progressed, null)
         createBitmap((viewSize * BITMAP_SIZE_MULTIPLIER).toInt())
     }
 
@@ -171,6 +177,7 @@ abstract class CurvePart {
         private const val CURVE_ANGLE = 270f
 
         const val ANGLE_STEP_MULTIPLIER = 1.9f
+        const val TEXT_SIZE_MULTIPLIER = 0.8f
 
         const val SCALE_SWEEP_ANGLE = 45f
         const val QUARTER_CIRCLE = 90f

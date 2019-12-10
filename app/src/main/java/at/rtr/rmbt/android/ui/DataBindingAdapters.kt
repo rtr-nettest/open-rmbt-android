@@ -5,6 +5,7 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.appcompat.widget.AppCompatImageView
 import androidx.appcompat.widget.AppCompatTextView
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.databinding.BindingAdapter
 import at.rmbt.client.control.IpProtocol
 import at.rtr.rmbt.android.R
@@ -13,6 +14,7 @@ import at.rtr.rmbt.android.ui.view.WaveView
 import at.rtr.rmbt.android.ui.view.curve.MeasurementCurveLayout
 import at.rtr.rmbt.android.util.InfoWindowStatus
 import at.rtr.rmbt.android.util.format
+import at.specure.data.entity.GraphItemRecord
 import at.specure.info.TransportType
 import at.specure.info.cell.CellNetworkInfo
 import at.specure.info.cell.CellTechnology
@@ -22,6 +24,7 @@ import at.specure.info.network.NetworkInfo
 import at.specure.info.network.WifiNetworkInfo
 import at.specure.info.strength.SignalStrengthInfo
 import at.specure.measurement.MeasurementState
+import com.google.android.material.bottomsheet.BottomSheetBehavior
 
 @BindingAdapter("intText")
 fun intText(textView: TextView, value: Int) {
@@ -184,8 +187,7 @@ fun AppCompatImageView.setTechnologyIcon(networkInfo: NetworkInfo?) {
                 setImageResource(R.drawable.ic_4g)
             }
             CellTechnology.CONNECTION_5G -> {
-                // TODO add 5G icon
-                throw IllegalArgumentException("5G icon not added")
+                setImageResource(R.drawable.ic_5g)
             }
         }
     } else {
@@ -385,12 +387,11 @@ fun AppCompatImageView.setSmallIcon(signalStrengthInfo: SignalStrengthInfo?) {
 }
 
 /**
- * A binding adapter that is used for show download and upload speed
+ * A binding adapter that is used for show download and upload data on graph
  */
-@BindingAdapter(value = ["speedBps", "measurementProgress"], requireAll = true)
-fun SpeedLineChart.setSpeed(speedBps: Long, measurementProgress: Int) {
-    if (speedBps > 0)
-        addValue(speedBps, measurementProgress)
+@BindingAdapter("graphItems")
+fun SpeedLineChart.setGraphItems(graphItems: List<GraphItemRecord>?) {
+    addGraphItems(graphItems)
 }
 
 /**
@@ -429,6 +430,11 @@ fun MeasurementCurveLayout.setMeasurementPhase(state: MeasurementState) {
     setMeasurementState(state)
 }
 
+@BindingAdapter("qosEnabled")
+fun MeasurementCurveLayout.setQosEnabled(enabled: Boolean) {
+    setQoSEnabled(enabled)
+}
+
 /**
  * A binding adapter that is used for show label of measurement state
  */
@@ -448,4 +454,10 @@ fun AppCompatTextView.setLabelOfMeasurementState(measurementState: MeasurementSt
         else -> {
         }
     }
+}
+
+@BindingAdapter("bottomSheetState")
+fun ConstraintLayout.setBottomSheetState(state: Int) {
+    val behavior = BottomSheetBehavior.from(this)
+    behavior.state = state
 }

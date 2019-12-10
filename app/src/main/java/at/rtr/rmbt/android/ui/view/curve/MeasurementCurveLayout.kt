@@ -10,8 +10,8 @@ import at.rtr.rmbt.android.R
 import at.rtr.rmbt.android.databinding.LayoutMeasurementCurveBinding
 import at.rtr.rmbt.android.databinding.LayoutPercentageBinding
 import at.rtr.rmbt.android.databinding.LayoutSpeedBinding
+import at.rtr.rmbt.android.util.format
 import at.specure.measurement.MeasurementState
-import kotlin.math.roundToInt
 
 class MeasurementCurveLayout @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) :
     FrameLayout(context, attrs, defStyleAttr) {
@@ -56,9 +56,8 @@ class MeasurementCurveLayout @JvmOverloads constructor(context: Context, attrs: 
         put(MeasurementState.INIT, 0.15f)
         put(MeasurementState.PING, 0.15f)
         put(MeasurementState.DOWNLOAD, 0.2f)
-        put(MeasurementState.UPLOAD, 0.25f)
+        put(MeasurementState.UPLOAD, 0.24f)
         put(MeasurementState.QOS, 0.25f)
-        // todo check QoS part
     }
 
     /**
@@ -76,11 +75,10 @@ class MeasurementCurveLayout @JvmOverloads constructor(context: Context, attrs: 
      */
     private var progressOffsetsQoS = LinkedHashMap<MeasurementState, Int>().apply {
         put(MeasurementState.INIT, 0)
-        put(MeasurementState.PING, 15)
-        put(MeasurementState.DOWNLOAD, 29)
-        put(MeasurementState.UPLOAD, 50)
-        put(MeasurementState.QOS, 75)
-        // todo check QoS part
+        put(MeasurementState.PING, 16)
+        put(MeasurementState.DOWNLOAD, 30)
+        put(MeasurementState.UPLOAD, 51)
+        put(MeasurementState.QOS, 76)
     }
 
     override fun onFinishInflate() {
@@ -92,12 +90,24 @@ class MeasurementCurveLayout @JvmOverloads constructor(context: Context, attrs: 
         percentageLayout = LayoutPercentageBinding.inflate(inflater)
         curveBinding.curveView.setSquareSizeCallback { squareSize, viewSize ->
             curveBinding.layoutStrength.strength.squareSize = squareSize
+            (curveBinding.curveView.layoutParams as LayoutParams).apply {
+                topMargin = (squareSize * 10).toInt()
+                requestLayout()
+            }
 
             // to prevent overlapping text size should be depent on curve circle size
             speedLayout.value.setTextSize(TypedValue.COMPLEX_UNIT_PX, (viewSize / VALUE_SIZE_DIVIDER).toFloat())
             speedLayout.units.setTextSize(TypedValue.COMPLEX_UNIT_PX, (viewSize / UNITS_SIZE_DIVIDER).toFloat())
             speedLayout.value.requestLayout()
             speedLayout.units.requestLayout()
+
+            with(speedLayout.root) {
+                (layoutParams as LayoutParams).apply {
+                    leftMargin = (bottomCenterX * 0.875f).toInt()
+                    topMargin = bottomCenterY + this@with.measuredHeight / TOP_MARGIN_DIVIDER
+                }
+                requestLayout()
+            }
 
             // to prevent overlapping text size should be depent on curve circle size
             percentageLayout.percentage.setTextSize(TypedValue.COMPLEX_UNIT_PX, (viewSize / VALUE_SIZE_DIVIDER).toFloat())
@@ -109,28 +119,10 @@ class MeasurementCurveLayout @JvmOverloads constructor(context: Context, attrs: 
         curveBinding.curveView.setBottomCenterCallback { x, y ->
             bottomCenterX = x
             bottomCenterY = y
-
-            // update bottom circle center Y coordinate with signal bar margin
-            curveBinding.layoutStrength.root.post {
-                (curveBinding.curveView.layoutParams as LayoutParams).apply {
-                    topMargin = curveBinding.layoutStrength.root.height / SIGNAL_BAR_OFFSET_DIVIDER
-                    bottomCenterY += 2 * topMargin / SIGNAL_BAR_OFFSET_DIVIDER
-                    requestLayout()
-                }
-            }
         }
         curveBinding.curveView.setTopCenterCallback { x, y ->
             topCenterX = x
             topCenterY = y
-
-            // update top circle center Y coordinate with signal bar margin
-            curveBinding.layoutStrength.root.post {
-                (curveBinding.curveView.layoutParams as LayoutParams).apply {
-                    topMargin = curveBinding.layoutStrength.root.height / SIGNAL_BAR_OFFSET_DIVIDER
-                    topCenterY += 2 * topMargin / SIGNAL_BAR_OFFSET_DIVIDER
-                    requestLayout()
-                }
-            }
         }
 
         addView(speedLayout.root, LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT))
@@ -143,7 +135,7 @@ class MeasurementCurveLayout @JvmOverloads constructor(context: Context, attrs: 
     fun setTopProgress(currentProgress: Int) {
         if (topCenterX != 0 && topCenterY != 0 && currentProgress != 0) {
             val progress = prepareProgressValueByPhase(currentProgress)
-            curveBinding.curveView.setTopProgress(currentProgress)
+            curveBinding.curveView.setTopProgress(phase, currentProgress, isQoSEnabled)
             percentageLayout.percentage.text = progress.toString()
             percentageLayout.units.text = context.getString(R.string.measurement_progress_units)
             percentageLayout.percentage.requestLayout()
@@ -151,7 +143,7 @@ class MeasurementCurveLayout @JvmOverloads constructor(context: Context, attrs: 
                 with(percentageLayout.root) {
                     (layoutParams as LayoutParams).apply {
                         leftMargin = topCenterX - percentageLayout.percentage.measuredWidth / (2 * LEFT_MARGIN_DIVIDER)
-                        topMargin = topCenterY - this@with.measuredHeight / TOP_MARGIN_DIVIDER
+                        topMargin = topCenterY + this@with.measuredHeight / TOP_MARGIN_DIVIDER
                     }
                 }
                 requestLayout()
@@ -176,23 +168,26 @@ class MeasurementCurveLayout @JvmOverloads constructor(context: Context, attrs: 
     fun setBottomProgress(progress: Long) {
         if (phase == MeasurementState.DOWNLOAD || phase == MeasurementState.UPLOAD) {
             speedLayout.icon.setImageResource(if (phase == MeasurementState.DOWNLOAD) R.drawable.ic_speed_download else R.drawable.ic_speed_upload)
-            val progressInKbit = (progress * 1e-3).toInt()
-            curveBinding.curveView.setBottomProgress(progressInKbit)
-            if (progressInKbit <= 1000) { // kbit/s
-                speedLayout.value.text = (progressInKbit).toString()
-                speedLayout.units.text = context.getString(R.string.speed_progress_units_kbit)
-            } else { // Mbit/s
-                speedLayout.value.text = ((progress * 1e-6).roundToInt()).toString()
-                speedLayout.units.text = context.getString(R.string.speed_progress_units_mbit)
-            }
-            speedLayout.value.requestLayout()
-            with(speedLayout.root) {
-                (layoutParams as LayoutParams).apply {
-                    leftMargin = bottomCenterX - speedLayout.value.measuredWidth / LEFT_MARGIN_DIVIDER
-                    topMargin = bottomCenterY - this@with.measuredHeight / TOP_MARGIN_DIVIDER
+            curveBinding.curveView.setBottomProgress(phase, (progress * 1e-3).toInt(), isQoSEnabled)
+            val progressInMbps: Float = progress / 1000000.0f
+            speedLayout.value.text = progressInMbps.format()
+
+            /*when {
+                progress >= 1e7 -> speedLayout.value.text = ((progress * 1e-6).roundToInt()).toString()
+                progress >= 1e6 -> speedLayout.value.text = (BigDecimal(progress * 1e-6).setScale(1, RoundingMode.HALF_EVEN)).toPlainString()
+                else -> { // up to 1 mbit
+                    var scale = 1
+                    var divider = 1
+                    var tmpProgress = progress
+                    while (tmpProgress > 100) {
+                        tmpProgress /= 10
+                        divider *= 10
+                        scale++
+                    }
+                    speedLayout.value.text =
+                        (BigDecimal(tmpProgress * divider * 1e-6).setScale(scale + 2, RoundingMode.HALF_EVEN)).stripTrailingZeros().toPlainString()
                 }
-                requestLayout()
-            }
+            }*/
             speedLayout.root.visibility = View.VISIBLE
         }
     }
@@ -215,10 +210,13 @@ class MeasurementCurveLayout @JvmOverloads constructor(context: Context, attrs: 
         curveBinding.curveView.setMeasurementState(state)
     }
 
+    fun setQoSEnabled(enabled: Boolean) {
+        isQoSEnabled = enabled
+    }
+
     companion object {
         private const val LEFT_MARGIN_DIVIDER = 2
         private const val TOP_MARGIN_DIVIDER = 8
-        private const val SIGNAL_BAR_OFFSET_DIVIDER = 6
 
         private const val VALUE_SIZE_DIVIDER = 10
         private const val UNITS_SIZE_DIVIDER = 25

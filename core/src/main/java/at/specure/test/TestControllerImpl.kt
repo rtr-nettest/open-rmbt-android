@@ -1,6 +1,7 @@
 package at.specure.test
 
 import at.rtr.rmbt.client.RMBTClient
+import at.rtr.rmbt.client.RMBTClientCallback
 import at.rtr.rmbt.client.TrafficServiceImpl
 import at.rtr.rmbt.client.helper.IntermediateResult
 import at.rtr.rmbt.client.helper.TestStatus
@@ -19,12 +20,10 @@ import timber.log.Timber
 class TestControllerImpl(private val config: Config, private val clientUUID: ClientUUID) : TestController {
 
     private var job: Job? = null
-
     private val result: IntermediateResult by lazy { IntermediateResult() }
-
     private var _testUUID: String? = null
-
     private var _listener: TestProgressListener? = null
+    private var _testStartTimeNanos = 0L
 
     override val testUUID: String?
         get() = _testUUID
@@ -32,10 +31,13 @@ class TestControllerImpl(private val config: Config, private val clientUUID: Cli
     override val isRunning: Boolean
         get() = job != null
 
+    override val testStartTimeNanos: Long
+        get() = _testStartTimeNanos
+
     private var previousDownloadProgress = -1
     private var previousUploadProgress = -1
 
-    override fun start(listener: TestProgressListener, deviceInfo: DeviceInfo) {
+    override fun start(deviceInfo: DeviceInfo, listener: TestProgressListener, clientCallback: RMBTClientCallback) {
         Timber.d("Start---")
         if (job != null) {
             Timber.w("Runner is already started")
@@ -87,26 +89,35 @@ class TestControllerImpl(private val config: Config, private val clientUUID: Cli
                 _listener?.onError()
                 return@async
             }
-            client.commonCallback = listener
+
+            client.commonCallback = clientCallback
             client.trafficService = TrafficServiceImpl()
+
             val connection = client.controlConnection
             Timber.i("Client UUID: ${connection?.clientUUID}")
             Timber.i("Test UUID: ${connection.testUuid}")
             Timber.i("Server Name: ${connection?.serverName}")
             Timber.i("Loop Id: ${connection?.loopUuid}")
+            Timber.i("Start Time Nanos: ${connection?.startTimeNs}")
 
+            _testStartTimeNanos = connection?.startTimeNs ?: 0
             _testUUID = connection.testUuid
-            _listener?.onClientReady(_testUUID!!)
+
+            _listener?.onClientReady(_testUUID!!, _testStartTimeNanos)
 
             GlobalScope.async {
                 @Suppress("BlockingMethodInNonBlockingContext")
-                client.runTest()
+                val result = client.runTest()
+                clientCallback.onTestCompleted(result)
             }
 
             var currentStatus = TestStatus.WAIT
             while (!currentStatus.isFinalState()) {
                 currentStatus = client.status
                 Timber.v(currentStatus.name)
+
+                clientCallback.onTestStatusUpdate(currentStatus)
+
                 when (currentStatus) {
                     TestStatus.WAIT -> handleWait()
                     TestStatus.INIT -> handleInit(client)
@@ -127,7 +138,7 @@ class TestControllerImpl(private val config: Config, private val clientUUID: Cli
                         // TODO remove this
                         repeat(100) {
                             setState(MeasurementState.QOS, it)
-                            Thread.sleep(200)
+                            Thread.sleep(70)
                         }
                     }
                     client.commonCallback = null

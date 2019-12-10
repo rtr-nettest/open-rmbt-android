@@ -49,9 +49,13 @@ class CellInfoWatcherImpl(
     private var _activeNetwork: CellNetworkInfo? = null
     private var callbacksRegistered = false
     private var _cellInfo: CellInfo? = null
+    private var _allCellInfo = mutableListOf<CellNetworkInfo>()
 
     override val cellInfo: CellInfo?
         get() = _cellInfo
+
+    override val allCellInfo: List<CellNetworkInfo>
+        get() = _allCellInfo
 
     init {
         locationAccess.addListener(this)
@@ -83,16 +87,29 @@ class CellInfoWatcherImpl(
                         }
 
                         _cellInfo = registeredInfoList[index]
-                        _activeNetwork = CellNetworkInfo.from(_cellInfo!!, it, MobileNetworkType.fromValue(networkType))
+                        _activeNetwork = CellNetworkInfo.from(
+                            _cellInfo!!,
+                            it,
+                            MobileNetworkType.fromValue(networkType),
+                            true,
+                            connectivityManager.activeNetworkInfo?.isRoaming ?: false,
+                            connectivityManager.activeNetworkInfo?.extraInfo
+                        )
                     }
-                    Timber.d("carrier name: ${it.carrierName}")
-                    Timber.d("display name: ${it.displayName}")
-                    Timber.d("number: ${it.number}")
-                    Timber.d("sim slot: ${it.simSlotIndex}")
-                    Timber.d("subscription id: ${it.subscriptionId}")
-                    Timber.d("subscription iccId: ${it.iccId}")
-                    Timber.d("------------------")
                 }
+            }
+
+            _allCellInfo.clear()
+            cellInfo.forEach {
+                val info = CellNetworkInfo.from(
+                    it,
+                    null,
+                    _activeNetwork?.cellUUID == it.uuid(),
+                    connectivityManager.activeNetworkInfo?.isRoaming ?: false,
+                    connectivityManager.activeNetworkInfo?.extraInfo
+                )
+                _allCellInfo.add(info)
+                Timber.v("cell: ${info.networkType.displayName} ${info.mnc} ${info.mcc} ${info.cellUUID}")
             }
 
             notifyListeners()
@@ -145,13 +162,13 @@ class CellInfoWatcherImpl(
 
     override fun onLocationAccessChanged(isAllowed: Boolean) {
         if (listeners.isNotEmpty() && isAllowed && !callbacksRegistered) {
-            registerCallbacks() // TODO check this
+            registerCallbacks()
         }
     }
 
     override fun onPhoneStateAccessChanged(isAllowed: Boolean) {
         if (listeners.isNotEmpty() && isAllowed && !callbacksRegistered) {
-            registerCallbacks() // TODO check this
+            registerCallbacks()
         }
     }
 }
@@ -186,7 +203,16 @@ private fun ConnectivityManager.cellNetworkInfoCompat(operatorName: String?): Ce
             providerName = operatorName ?: "",
             band = null,
             networkType = MobileNetworkType.fromValue(info.subtype),
-            cellUUID = UUID.randomUUID().toString()
+            cellUUID = UUID.nameUUIDFromBytes(info.detailedState.name.toByteArray()).toString(),
+            mnc = null,
+            mcc = null,
+            locationId = null,
+            areaCode = null,
+            scramblingCode = null,
+            isActive = true,
+            isRegistered = true,
+            isRoaming = info.isRoaming,
+            apn = info.extraInfo
         )
     }
 }

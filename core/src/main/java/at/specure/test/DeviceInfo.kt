@@ -9,11 +9,14 @@ import com.google.gson.annotations.SerializedName
 import java.util.Locale
 import java.util.TimeZone
 
-class DeviceInfo(context: Context, val ndt: Boolean, val testCounter: Int, val location: Location?) {
+class DeviceInfo(context: Context, val location: Location? = null) {
 
-    val plattform = "Android"
+    @SerializedName("plattform")
+    val platform = "Android"
+
     @SerializedName("os_version")
     val osVersion = "${Build.VERSION.RELEASE}(${Build.VERSION.INCREMENTAL})"
+
     @SerializedName("api_level")
     val apiLevel = Build.VERSION.SDK_INT.toString()
     val device = Build.DEVICE
@@ -40,6 +43,12 @@ class DeviceInfo(context: Context, val ndt: Boolean, val testCounter: Int, val l
 
     @Expose
     val clientName = "RMBT"
+
+    val clientVersionName = BuildConfig.VERSION_NAME
+
+    val clientVersionCode = BuildConfig.VERSION_CODE
+
+    val rmbtClientVersion = "1.2.1"
 
     @SerializedName("android_permission_status")
     val permissionsStatus: Map<String, Boolean> = mutableMapOf<String, Boolean>().apply {
