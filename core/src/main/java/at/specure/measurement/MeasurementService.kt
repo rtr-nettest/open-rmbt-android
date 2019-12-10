@@ -157,8 +157,6 @@ class MeasurementService : LifecycleService() {
 
         val deviceInfo = DeviceInfo(
             context = this,
-            ndt = config.NDTEnabled,
-            testCounter = config.testCounter,
             location = location
         )
 

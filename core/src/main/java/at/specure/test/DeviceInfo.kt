@@ -9,7 +9,7 @@ import com.google.gson.annotations.SerializedName
 import java.util.Locale
 import java.util.TimeZone
 
-class DeviceInfo(context: Context, val ndt: Boolean, val testCounter: Int, val location: Location? = null) {
+class DeviceInfo(context: Context, val location: Location? = null) {
 
     @SerializedName("plattform")
     val platform = "Android"
@@ -44,7 +44,9 @@ class DeviceInfo(context: Context, val ndt: Boolean, val testCounter: Int, val l
     @Expose
     val clientName = "RMBT"
 
-    val clientVersion = BuildConfig.VERSION_NAME
+    val clientVersionName = BuildConfig.VERSION_NAME
+
+    val clientVersionCode = BuildConfig.VERSION_CODE
 
     @SerializedName("android_permission_status")
     val permissionsStatus: Map<String, Boolean> = mutableMapOf<String, Boolean>().apply {

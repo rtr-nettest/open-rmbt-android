@@ -1,24 +1,32 @@
 package at.specure.data.repository
 
+import android.content.Context
 import at.rmbt.client.control.ControlServerClient
-import at.rmbt.client.control.SettingsRequestBody
+import at.specure.config.Config
 import at.specure.data.ClientUUID
 import at.specure.data.ControlServerSettings
 import at.specure.data.HistoryFilterOptions
 import at.specure.data.MapServerSettings
 import at.specure.data.TermsAndConditions
+import at.specure.data.toSettingsRequest
+import at.specure.test.DeviceInfo
 
 class SettingsRepositoryImpl(
+    context: Context,
     private val controlServerClient: ControlServerClient,
     private val clientUUID: ClientUUID,
     private val controlServerSettings: ControlServerSettings,
     private val mapServerSettings: MapServerSettings,
     private val termsAndConditions: TermsAndConditions,
-    private val historyFilterOptions: HistoryFilterOptions
+    private val historyFilterOptions: HistoryFilterOptions,
+    private val config: Config
 ) : SettingsRepository {
 
+    private val deviceInfo = DeviceInfo(context)
+
     override fun refreshSettings(): Boolean {
-        val settings = controlServerClient.getSettings(SettingsRequestBody(uuid = clientUUID.value ?: ""))
+        val body = deviceInfo.toSettingsRequest(clientUUID, config, termsAndConditions)
+        val settings = controlServerClient.getSettings(body)
         if (settings.ok) {
             val uuid = settings.success.settings.first().uuid
             if (uuid != null && uuid.isNotBlank()) {

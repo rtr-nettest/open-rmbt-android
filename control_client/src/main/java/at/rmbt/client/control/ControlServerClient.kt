@@ -42,13 +42,11 @@ class ControlServerClient @Inject constructor(private val endpointProvider: Cont
         }
     }
 
-    fun getPublicIpV4Address(): Maybe<IpInfoResponse> {
-        val body = IpRequestBody(uuid = "c373f294-f332-4f1a-999e-a87a12523f4b\n")
+    fun getPublicIpV4Address(body: IpRequestBody): Maybe<IpInfoResponse> {
         return api.ipCheck(endpointProvider.checkPublicIPv4Url, body).exec()
     }
 
-    fun getPublicIpV6Address(): Maybe<IpInfoResponse> {
-        val body = IpRequestBody(uuid = "c373f294-f332-4f1a-999e-a87a12523f4b\n")
+    fun getPublicIpV6Address(body: IpRequestBody): Maybe<IpInfoResponse> {
         return api.ipCheck(endpointProvider.checkPublicIPv6Url, body).exec()
     }
 
@@ -60,7 +58,7 @@ class ControlServerClient @Inject constructor(private val endpointProvider: Cont
         return api.testRequest(endpointProvider.testRequestUrl, body).exec()
     }
 
-    fun sendTestResults(body: TestResultBody) : Maybe<BaseResponse>{
-        return api.sendTestResult("", body).exec()
+    fun sendTestResults(body: TestResultBody): Maybe<BaseResponse> {
+        return api.sendTestResult(endpointProvider.sendTestResultsUrl, body).exec()
     }
 }

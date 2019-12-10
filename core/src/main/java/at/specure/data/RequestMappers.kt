@@ -4,14 +4,18 @@ import at.rmbt.client.control.CapabilitiesBody
 import at.rmbt.client.control.CellInfoBody
 import at.rmbt.client.control.CellLocationBody
 import at.rmbt.client.control.ClassificationBody
+import at.rmbt.client.control.IpRequestBody
 import at.rmbt.client.control.PermissionStatusBody
 import at.rmbt.client.control.PingBody
 import at.rmbt.client.control.QoSBody
 import at.rmbt.client.control.RadioInfoBody
+import at.rmbt.client.control.SettingsRequestBody
 import at.rmbt.client.control.SignalBody
+import at.rmbt.client.control.SignalItemBody
 import at.rmbt.client.control.SpeedBody
 import at.rmbt.client.control.TestLocationBody
 import at.rmbt.client.control.TestResultBody
+import at.specure.config.Config
 import at.specure.data.entity.CapabilitiesRecord
 import at.specure.data.entity.CellInfoRecord
 import at.specure.data.entity.CellLocationRecord
@@ -25,7 +29,99 @@ import at.specure.data.entity.TestTelephonyRecord
 import at.specure.data.entity.TestWlanRecord
 import at.specure.info.TransportType
 import at.specure.info.network.MobileNetworkType
+import at.specure.info.strength.SignalStrengthInfo
+import at.specure.info.strength.SignalStrengthInfoGsm
+import at.specure.info.strength.SignalStrengthInfoLte
+import at.specure.info.strength.SignalStrengthInfoWiFi
+import at.specure.location.LocationInfo
 import at.specure.test.DeviceInfo
+
+fun DeviceInfo.toSettingsRequest(clientUUID: ClientUUID, config: Config, tac: TermsAndConditions) = SettingsRequestBody(
+    type = clientType,
+    name = clientName,
+    language = language,
+    platform = platform,
+    osVersion = osVersion,
+    apiLevel = apiLevel,
+    device = device,
+    model = model,
+    product = product,
+    timezone = timezone,
+    softwareVersionName = softwareVersionName,
+    softwareVersionCode = softwareVersionCode.toString(),
+    softwareRevision = softwareRevision,
+    versionName = clientVersionName,
+    versionCode = clientVersionCode.toString(),
+    uuid = clientUUID.value ?: "",
+    userServerSelectionEnabled = config.userServerSelectionEnabled,
+    tacVersion = tac.tacVersion ?: 0,
+    tacAccepted = tac.tacAccepted,
+    capabilities = config.toCapabilitiesBody()
+)
+
+fun DeviceInfo.toIpRequest(clientUUID: String?, location: LocationInfo?, signalStrengthInfo: SignalStrengthInfo?, capabilities: CapabilitiesBody) =
+    IpRequestBody(
+        platform = platform,
+        osVersion = osVersion,
+        apiLevel = apiLevel,
+        device = device,
+        model = model,
+        product = product,
+        language = language,
+        timezone = timezone,
+        softwareRevision = softwareRevision,
+        softwareVersionCode = softwareVersionCode.toString(),
+        softwareVersionName = softwareVersionName,
+        type = clientType,
+        location = location?.toRequest(),
+        lastSignalItem = signalStrengthInfo?.toRequest(),
+        capabilities = capabilities,
+        uuid = clientUUID
+    )
+
+fun Config.toCapabilitiesBody() = CapabilitiesBody(
+    classification = ClassificationBody(capabilitiesClassificationCount),
+    qos = QoSBody(capabilitiesQosSupportsInfo),
+    rmbtHttpStatus = capabilitiesRmbtHttp
+)
+
+fun SignalStrengthInfo.toRequest(): SignalItemBody? = when (this) {
+    is SignalStrengthInfoWiFi -> SignalItemBody(
+        time = timestampNanos,
+        networkTypeId = transport.toRequestIntValue(null),
+        wifiLinkSpeed = linkSpeed,
+        wifiRssi = value
+    )
+    is SignalStrengthInfoLte -> SignalItemBody(
+        time = timestampNanos,
+        networkTypeId = transport.toRequestIntValue(MobileNetworkType.LTE),
+        lteRsrp = rsrp,
+        lteRsrq = rsrq,
+        lteRssnr = rssnr,
+        lteCqi = cqi
+    )
+    is SignalStrengthInfoGsm -> SignalItemBody(
+        time = timestampNanos,
+        networkTypeId = transport.toRequestIntValue(MobileNetworkType.GSM),
+        gsmBitErrorRate = bitErrorRate
+    )
+    else -> null
+}
+
+fun LocationInfo.toRequest() = TestLocationBody(
+    latitude = latitude,
+    longitude = longitude,
+    provider = provider.name,
+    speed = speed,
+    altitude = altitude,
+    timeMillis = time,
+    timeNanos = elapsedRealtimeNanos,
+    age = ageNanos,
+    accuracy = accuracy,
+    mockLocation = locationIsMocked,
+    satellites = satellites,
+    bearing = bearing
+)
 
 fun TestRecord.toRequest(
     clientUUID: String,
@@ -96,7 +192,7 @@ fun TestRecord.toRequest(
         clientUUID = clientUUID,
         uuid = uuid,
         clientName = deviceInfo.clientName,
-        clientVersion = deviceInfo.clientVersion,
+        clientVersion = deviceInfo.clientVersionName,
         clientLanguage = deviceInfo.language,
         timeMillis = testTimeMillis,
         token = token,
@@ -127,7 +223,7 @@ fun TestRecord.toRequest(
         apiLevel = deviceInfo.apiLevel,
         device = deviceInfo.device,
         model = deviceInfo.model,
-        clientSoftwareVersion = deviceInfo.clientVersion,
+        clientSoftwareVersion = deviceInfo.clientVersionName,
         networkType = transportType?.toRequestIntValue(mobileNetworkType) ?: Int.MAX_VALUE,
         geoLocations = geoLocations,
         capabilities = capabilities.toRequest(),

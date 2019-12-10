@@ -14,10 +14,10 @@
 
 package at.rmbt.client.control
 
-import android.os.Build
 import androidx.annotation.Keep
 import com.google.gson.annotations.SerializedName
 
+// TODO Remove mocked values
 @Keep
 data class NewsRequestBody(
     val language: String = "en",
@@ -30,59 +30,62 @@ data class NewsRequestBody(
 
 @Keep
 data class SettingsRequestBody(
-    val type: String = "MOBILE",
-    val name: String = "RMBT",
-    val language: String = "en",
+    val type: String,
+    val name: String,
+    val language: String,
     @SerializedName("plattform")
-    val platform: String = "Android",
+    val platform: String,
     @SerializedName("os_version")
-    val osVersion: String = Build.VERSION.RELEASE + "(" + Build.VERSION.INCREMENTAL + ")",
+    val osVersion: String,
     @SerializedName("api_level")
-    val apiLevel: String = Build.VERSION.SDK_INT.toString(),
-    val device: String = android.os.Build.DEVICE,
-    val model: String = android.os.Build.MODEL,
-    val product: String = android.os.Build.PRODUCT,
-    val timezone: String = "Europe/Bratislava",
+    val apiLevel: String,
+    val device: String,
+    val model: String,
+    val product: String,
+    val timezone: String,
     @SerializedName("software_revision")
-    val softwareRevision: String = "master_64bc39c-dirty",
-    val softwareVersionCode: String = 30604.toString(),
-    val softwareVersionName: String = "3.6.4",
+    val softwareRevision: String,
+    val softwareVersionCode: String,
+    val softwareVersionName: String,
     @SerializedName("version_name")
-    val versionName: String = "3.6.4",
+    val versionName: String,
     @SerializedName("version_code")
-    val versionCode: String = 30604.toString(),
-    val uuid: String = "",
+    val versionCode: String,
+    val uuid: String,
     @SerializedName("user_server_selection")
-    val userServerSelectionEnabled: Boolean = false,
+    val userServerSelectionEnabled: Boolean,
     @SerializedName("terms_and_conditions_accepted_version")
-    var tacVersion: Int = 6,
+    var tacVersion: Int,
     @SerializedName("terms_and_conditions_accepted")
-    var tacAccepted: Boolean = true,
-    var capabilities: CapabilitiesBody = CapabilitiesBody()
+    var tacAccepted: Boolean,
+    var capabilities: CapabilitiesBody
 )
 
 @Keep
 data class IpRequestBody(
     @SerializedName("plattform")
-    val platform: String = "Android",
-    val os_version: String = "9(V10.0.13.0.PDHMIXM)",
-    val api_level: String = "28",
-    val device: String = "tissot_sprout",
-    val model: String = "Mi A1",
-    val product: String = "tissot",
-    val language: String = "en",
-    val timezone: String = "Europe/Kiev",
-    val softwareRevision: String = "master_ddbcfae-dirty",
-    val softwareVersionCode: String = 30604.toString(),
-    val softwareVersionName: String = "3.6.4",
-    val type: String = "MOBILE",
-    val location: LocationBody = LocationBody(),
+    val platform: String,
+    @SerializedName("os_version")
+    val osVersion: String,
+    @SerializedName("api_level")
+    val apiLevel: String,
+    val device: String,
+    val model: String,
+    val product: String,
+    val language: String,
+    val timezone: String,
+    val softwareRevision: String,
+    val softwareVersionCode: String,
+    val softwareVersionName: String,
+    val type: String,
+    val location: TestLocationBody?,
     @SerializedName("last_signal_item")
-    val lastSignalItem: LastSignalItem = LastSignalItem(),
-    val uuid: String = "e90d3585-f389-4555-addc-2dac438cebd9",
+    val lastSignalItem: SignalItemBody?,
+    val uuid: String?,
     val capabilities: CapabilitiesBody = CapabilitiesBody()
 )
 
+// TODO Remove mocked values
 @Keep
 data class TestRequestRequestBody(
     @SerializedName("plattform")
@@ -101,7 +104,7 @@ data class TestRequestRequestBody(
     val numberOfThreads: Int?,
     @SerializedName("protocol_version")
     val protocolVersion: String? = "ipv4",
-    val location: LocationBody? = LocationBody(),
+    val location: TestLocationBody? = null,
     val time: Long? = 1571664344999,
     val timezone: String = "Europe/Bratislava",
     val client: String = "RMBT",
@@ -441,23 +444,6 @@ data class LoopModeInfo(
 )
 
 @Keep
-data class LocationBody(
-    @SerializedName("lat")
-    val latitude: Double = 50.00329588,
-    @SerializedName("long")
-    val longitude: Double = 36.24086389,
-    val provider: String = "gps",
-    val speed: Int = 0,
-    val altitude: Double = 176.9620361328125,
-    val time: Long = 1570452268000,
-    val age: Long = 173134,
-    val accuracy: Double = 51.45600128173828,
-    @SerializedName("mock_location")
-    val mockLocation: Boolean = false,
-    val satellites: Int = 5
-)
-
-@Keep
 data class PingBody(
     /**
      * ping value in nanos on client side, used to get shortest ping
@@ -490,46 +476,56 @@ data class RadioInfoBody(
 
 @Keep
 data class CellInfoBody(
+
     /**
      * True if cell is active (connected one)
      */
     val active: Boolean,
+
     /**
      * Area code from mobile cells (Mobile cells only)
      */
     @SerializedName("area_code")
     val areaCode: Int?,
+
     /**
      * Generated uuid for the current cell
      */
     val uuid: String,
+
     /**
      * Channel number of the cell
      */
     @SerializedName("channel_number")
     val channelNumber: Int?,
+
     /**
      * Id of the location, mobile only
      */
     @SerializedName("location_id")
     val locationId: Int?,
+
     /**
      * Code of the country of the operator, mobile only
      */
     val mcc: Int?,
+
     /**
      * code of the operator, mobile only
      */
     val mnc: Int?,
+
     /**
      * scrambling code, mobile only
      */
     @SerializedName("primary_scrambling_code")
     val primaryScramblingCode: Int?,
+
     /**
      * 2G, 3G, 4G, 5G, WLAN
      */
     val technology: String?,
+
     /**
      * true if it is connected cell, same as active ???
      */
@@ -538,55 +534,66 @@ data class CellInfoBody(
 
 @Keep
 data class SignalBody(
+
     /**
      * Generated uuid of the cell
      */
     @SerializedName("cell_uuid")
     val cellUuid: String,
+
     /**
      * Server id for network type
      */
     @SerializedName("network_type_id")
     val networkTypeId: Int,
+
     /**
      * Only for non 4G signal types
      */
     val signal: Int?,
+
     /**
      * Error rate for non 4G and WIFI signal
      */
     @SerializedName("bit_error_rate")
     val bitErrorRate: Int?,
+
     /**
      * Declared wifi speed, only WIFI
      */
     @SerializedName("wifi_link_speed")
     val wifiLinkSpeed: Int?,
+
     /**
      * Only for 4G/LTE signal strength
      */
     @SerializedName("lte_rsrp")
     val lteRsrp: Int?,
+
     /**
      * Only for 4G/LTE signal quality
      */
     @SerializedName("lte_rsrq")
     val lteRsrq: Int?,
+
     /**
      * Only for 4G/LTE
      */
     @SerializedName("lte_rssnr")
     val lteRssnr: Int?,
+
     /**
      * timing advance
      */
     @SerializedName("timing_advance")
     val timingAdvance: Int?,
+
     /**
      * Relative time in nanos from the start of the test
      */
     @SerializedName("time_ns")
     val timeNanos: Long,
+
     /**
      * relative timestamp from the start of the test, but time of the last update of the cells (the last updated cells do not have this field filled)
      */
@@ -596,19 +603,23 @@ data class SignalBody(
 
 @Keep
 data class SpeedBody(
+
     /**
      * possible values ["upload", "download"]
      */
     val direction: String,
+
     /**
      * Thread number of the test which value came from
      */
     val thread: Int,
+
     /**
      * Time from the test start in nanos
      */
     @SerializedName("time")
     val timeNanos: Long,
+
     /**
      * Actually transferred bytes by the thread
      */
@@ -624,11 +635,13 @@ data class TestLocationBody(
     val provider: String,
     val speed: Float,
     val altitude: Double,
+
     /**
      * Timestamp of the information in millis
      */
     @SerializedName("tstamp")
     val timeMillis: Long,
+
     /**
      * Relative time from the start of the test
      */
@@ -644,23 +657,28 @@ data class TestLocationBody(
 
 @Keep
 data class CellLocationBody(
+
     /**
      * timestamp of the information
      */
     @SerializedName("time")
     val timeMillis: Long,
+
     /**
      * timestamp of the information
      */
     @SerializedName("time_ns")
     val timeNanos: Long,
+
     /**
      * id of the location
      */
     @SerializedName("location_id")
     val locationId: Int,
+
     @SerializedName("area_code")
     val areaCode: Int,
+
     /**
      * scrambling code, -1 if not available
      */
@@ -670,10 +688,12 @@ data class CellLocationBody(
 
 @Keep
 data class PermissionStatusBody(
+
     /**
      * Name of the permission
      */
     val permission: String,
+
     /**
      * true if the permission was granted
      */
@@ -681,14 +701,24 @@ data class PermissionStatusBody(
 )
 
 @Keep
-data class LastSignalItem(
+data class SignalItemBody(
     val time: Long = 1570452441549,
     @SerializedName("network_type_id")
-    val networkTypeId: Int = 99,
+    val networkTypeId: Int,
+    @SerializedName("gsm_bit_error_rate")
+    val gsmBitErrorRate: Int? = null,
+    @SerializedName("lte_rsrp")
+    val lteRsrp: Int? = null,
+    @SerializedName("lte_rsrq")
+    val lteRsrq: Int? = null,
+    @SerializedName("lte_rssnr")
+    val lteRssnr: Int? = null,
+    @SerializedName("lte_cqi")
+    val lteCqi: Int? = null,
     @SerializedName("wifi_link_speed")
-    val wifiLinkSpeed: Int = 72,
+    val wifiLinkSpeed: Int? = null,
     @SerializedName("wifi_rssi")
-    val wifiRssi: Int = -44
+    val wifiRssi: Int? = null
 )
 
 @Keep

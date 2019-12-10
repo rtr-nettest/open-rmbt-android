@@ -20,10 +20,14 @@ import at.rmbt.client.control.ControlServerClient
 import at.specure.config.Config
 import at.specure.data.ClientUUID
 import at.specure.data.CoreDatabase
+import at.specure.data.repository.IpCheckRepository
+import at.specure.data.repository.IpCheckRepositoryImpl
 import at.specure.data.repository.ResultsRepository
 import at.specure.data.repository.ResultsRepositoryImpl
 import at.specure.data.repository.TestDataRepository
 import at.specure.data.repository.TestDataRepositoryImpl
+import at.specure.info.strength.SignalStrengthWatcher
+import at.specure.location.LocationWatcher
 import dagger.Module
 import dagger.Provides
 import javax.inject.Singleton
@@ -46,14 +50,29 @@ class DatabaseModule {
     fun provideTestDataRepository(database: CoreDatabase, resultsRepository: ResultsRepository): TestDataRepository =
         TestDataRepositoryImpl(database, resultsRepository)
 
-
     @Provides
     fun provideResultsRepository(
         context: Context,
-        config: Config,
         database: CoreDatabase,
         clientUUID: ClientUUID,
         client: ControlServerClient
     ): ResultsRepository =
-        ResultsRepositoryImpl(context, config, database, clientUUID, client)
+        ResultsRepositoryImpl(context, database, clientUUID, client)
+
+    @Provides
+    fun provideIpCheckRepository(
+        context: Context,
+        config: Config,
+        clientUUID: ClientUUID,
+        locationWatcher: LocationWatcher,
+        signalStrengthWatcher: SignalStrengthWatcher,
+        client: ControlServerClient
+    ): IpCheckRepository = IpCheckRepositoryImpl(
+        context = context,
+        config = config,
+        clientUUID = clientUUID,
+        locationWatcher = locationWatcher,
+        signalStrengthWatcher = signalStrengthWatcher,
+        client = client
+    )
 }

@@ -104,6 +104,21 @@
       "name": "CAPABILITIES_CLASSIFICATION_COUNT",
       "value": "4",
       "visible": false
+    },
+    {
+      "name": "USER_SERVER_SELECTION_ENABLED",
+      "value": "false",
+      "visible": false
+    },
+    {
+      "name": "DEVELOPER_MODE_IS_ENABLED",
+      "value": "false",
+      "visible": false
+    },
+    {
+      "name": "DEVELOPER_MODE_IS_AVAILABLE",
+      "value": "true",
+      "visible": false
     }
   ]
 }

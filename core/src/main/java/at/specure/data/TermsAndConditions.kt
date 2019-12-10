@@ -20,34 +20,35 @@ import javax.inject.Inject
 private const val KEY_TAC_URL = "KEY_TAC_URL"
 private const val KEY_NDT_TERMS_URL = "KEY_NDT_TERMS_URL"
 private const val KEY_TAC_VERSION = "KEY_TAC_VERSION"
+private const val KEY_TAC_IS_ACCEPTED = "KEY_TAC_ACCEPTED"
 
 class TermsAndConditions @Inject constructor(context: Context) {
 
     private val preferences = context.getSharedPreferences("terms_and_conditions.pref", Context.MODE_PRIVATE)
 
-    var tacUrl: String? = null
+    var tacUrl: String?
+        get() = preferences.getString(KEY_TAC_URL, null)
         set(value) {
             preferences.edit().putString(KEY_TAC_URL, value).apply()
         }
 
-    var ndtTermsUrl: String? = null
+    var ndtTermsUrl: String?
+        get() = preferences.getString(KEY_NDT_TERMS_URL, null)
         set(value) {
             preferences.edit().putString(KEY_NDT_TERMS_URL, value).apply()
         }
 
-    var tacVersion: Long?
+    var tacVersion: Int?
         get() {
-            val value = preferences.getLong(KEY_TAC_VERSION, -1)
-            return if (value == -1L) null
+            val value = preferences.getInt(KEY_TAC_VERSION, -1)
+            return if (value == -1) null
             else value
         }
         set(value) {
-            preferences.edit().putLong(KEY_TAC_VERSION, value ?: -1).apply()
+            preferences.edit().putInt(KEY_TAC_VERSION, value ?: -1).apply()
         }
 
-    init {
-        tacUrl = preferences.getString(KEY_TAC_URL, null)
-        ndtTermsUrl = preferences.getString(KEY_NDT_TERMS_URL, null)
-        tacVersion = preferences.getLong(KEY_TAC_VERSION, -1)
-    }
+    var tacAccepted: Boolean
+        get() = preferences.getBoolean(KEY_TAC_IS_ACCEPTED, false)
+        set(value) = preferences.edit().putBoolean(KEY_TAC_IS_ACCEPTED, value).apply()
 }

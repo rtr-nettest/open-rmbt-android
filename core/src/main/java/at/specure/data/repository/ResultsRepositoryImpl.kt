@@ -3,7 +3,6 @@ package at.specure.data.repository
 import android.content.Context
 import at.rmbt.client.control.ControlServerClient
 import at.rmbt.util.exception.HandledException
-import at.specure.config.Config
 import at.specure.data.ClientUUID
 import at.specure.data.CoreDatabase
 import at.specure.data.toRequest
@@ -14,14 +13,13 @@ import javax.inject.Inject
 
 class ResultsRepositoryImpl @Inject constructor(
     context: Context,
-    config: Config,
     private val db: CoreDatabase,
     private val clientUUID: ClientUUID,
     private val client: ControlServerClient
 ) :
     ResultsRepository {
 
-    private val deviceInfo = DeviceInfo(context, config.NDTEnabled, config.testCounter)
+    private val deviceInfo = DeviceInfo(context)
 
     @Throws(HandledException::class)
     override fun sendTestResults(testUUID: String) {
@@ -45,6 +43,6 @@ class ResultsRepositoryImpl @Inject constructor(
         )
 
         val result = client.sendTestResults(body)
-        Timber.d("HAAPPPYHAA")
+        Timber.d("Test Data sent")
     }
 }
