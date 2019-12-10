@@ -45,7 +45,7 @@ class InputSettingDialog : FullscreenDialog() {
         binding.editTextValue.setText(arguments?.getString(KEY_DEFAULT_VALUE))
         binding.editTextValue.text?.length?.let { binding.editTextValue.setSelection(it) }
 
-        binding.textViewOkay.setOnClickListener {
+        binding.buttonOkay.setOnClickListener {
 
             val value: String = binding.editTextValue.text.toString()
             if (value.isNotEmpty()) {
@@ -65,7 +65,7 @@ class InputSettingDialog : FullscreenDialog() {
             dismiss()
         }
 
-        binding.textViewCancel.setOnClickListener {
+        binding.buttonCancel.setOnClickListener {
             dismiss()
         }
     }
