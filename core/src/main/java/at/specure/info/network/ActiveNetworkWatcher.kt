@@ -60,7 +60,15 @@ class ActiveNetworkWatcher(
                 null
             } else {
                 when (connectivityInfo.transportType) {
-                    TransportType.WIFI -> wifiInfoWatcher.activeWifiInfo
+                    TransportType.WIFI ->  {
+                        val info = wifiInfoWatcher.activeWifiInfo
+                        if (info?.ssid.isNullOrBlank()) {
+                            unregisterCallbacks()
+                            registerCallbacks()
+                            return
+                        }
+                        info
+                    }
                     TransportType.CELLULAR -> cellInfoWatcher.activeNetwork
                     else -> null
                 }

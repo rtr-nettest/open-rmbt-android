@@ -340,10 +340,10 @@ class SignalStrengthWatcherImpl(
     private val activeNetworkListener = object : ActiveNetworkWatcher.NetworkChangeListener {
 
         override fun onActiveNetworkChanged(info: NetworkInfo?) {
-            if (info == null) {
-                unregisterWifiCallbacks()
-                unregisterCellCallbacks()
+            unregisterWifiCallbacks()
+            unregisterCellCallbacks()
 
+            if (info == null) {
                 Timber.i("Network changed to NULL")
                 signalStrengthInfo = null
                 notifyInfoChanged()
