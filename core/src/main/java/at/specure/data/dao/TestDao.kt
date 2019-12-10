@@ -34,4 +34,10 @@ interface TestDao {
 
     @Query("SELECT * from ${Tables.TEST} WHERE uuid == :uuid")
     fun get(uuid: String): TestRecord?
+
+    @Query("SELECT * from ${Tables.TEST_TELEPHONY_RECORD} WHERE testUUID == :uuid")
+    fun getTelehonyRecord(uuid: String): TestTelephonyRecord?
+
+    @Query("SELECT * from ${Tables.TEST_WLAN_RECORD} WHERE testUUID == :uuid")
+    fun getWlanRecord(uuid: String): TestWlanRecord?
 }

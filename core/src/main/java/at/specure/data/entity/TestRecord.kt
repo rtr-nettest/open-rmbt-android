@@ -7,6 +7,7 @@ import at.rtr.rmbt.client.helper.TestStatus
 import at.specure.data.Columns
 import at.specure.data.Tables
 import at.specure.info.TransportType
+import at.specure.info.network.MobileNetworkType
 
 @Entity(tableName = Tables.TEST)
 data class TestRecord(
@@ -35,7 +36,7 @@ data class TestRecord(
      * Number of threads used during the upload and download phase (there is only intended number of threads and no if the fallback to 1 thread was triggered)
      * test_num_threads
      */
-    val threadNumber: Int,
+    val threadCount: Int,
 
     /**
      * Remote port of the measurement server to communicate through
@@ -47,25 +48,25 @@ data class TestRecord(
      * Bytes downloaded during download phase in total (Application layer)
      * test_bytes_download
      */
-    var bytesDownload: Long = 0,
+    var bytesDownloaded: Long = 0,
 
     /**
      * Bytes uploaded during upload phase in total (Application layer)
      * test_bytes_upload
      */
-    var bytesUpload: Long = 0,
+    var bytesUploaded: Long = 0,
 
     /**
      * Bytes downloaded during the whole test in total (Application layer)
      * test_total_bytes_download
      */
-    var totalBytesDownload: Long = 0,
+    var totalBytesDownloaded: Long = 0,
 
     /**
      * Bytes uploaded during the whole test in total (Application layer)
      * test_total_bytes_upload
      */
-    var totalBytesUpload: Long = 0,
+    var totalBytesUploaded: Long = 0,
 
     /**
      * Type of the encryption
@@ -77,13 +78,13 @@ data class TestRecord(
      * Public ip address of the client
      * test_ip_local
      */
-    var ipLocal: String? = null,
+    var clientPublicIp: String? = null,
 
     /**
      * Public ip address of the server
      * test_ip_server
      */
-    var ipServer: String? = null,
+    var serverPublicIp: String? = null,
 
     /**
      * Duration of the download phase in ns
@@ -101,13 +102,13 @@ data class TestRecord(
      * Download speed in Bps
      * test_speed_download
      */
-    var downloadSpeedBps: Long = 0,
+    var downloadSpeedKps: Long = 0,
 
     /**
      * Upload speed in Bps
      * test_speed_upload
      */
-    var uploadSpeedBps: Long = 0,
+    var uploadSpeedKps: Long = 0,
 
     /**
      * Shortest ping in ns
@@ -149,7 +150,7 @@ data class TestRecord(
      * Total uploaded bytes on the interface during upload phase
      * testul_if_bytes_upload
      */
-    var uploadedBytesOnUploadInterfaceKb: Long = 0,
+    var uploadedBytesOnUploadInterface: Long = 0,
 
     /**
      * Start time of the download phase
@@ -171,5 +172,15 @@ data class TestRecord(
     /**
      * Type of the network
      */
-    var transportType: TransportType? = null // TODO
+    var transportType: TransportType? = null,
+
+    /**
+     * Type of mobile network
+     */
+    var mobileNetworkType: MobileNetworkType? = null,
+
+    /**
+     * Time of test in milliseconds
+     */
+    var testTimeMillis: Long = 0
 )

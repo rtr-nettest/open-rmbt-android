@@ -12,6 +12,7 @@ import at.rtr.rmbt.client.helper.TestStatus
 import at.rtr.rmbt.client.v2.task.service.TestMeasurement.TrafficDirection
 import at.specure.config.Config
 import at.specure.data.entity.TestRecord
+import at.specure.data.repository.TestDataRepository
 import at.specure.info.TransportType
 import at.specure.info.cell.CellInfoWatcher
 import at.specure.info.cell.CellNetworkInfo
@@ -32,7 +33,6 @@ import at.specure.location.LocationWatcher
 import at.specure.location.cell.CellLocationInfo
 import at.specure.location.cell.CellLocationLiveData
 import at.specure.location.cell.CellLocationWatcher
-import at.specure.data.repository.TestDataRepository
 import at.specure.util.hasPermission
 import at.specure.util.isReadPhoneStatePermitted
 import at.specure.util.permission.PermissionsWatcher
@@ -129,7 +129,7 @@ class StateRecorder @Inject constructor(
             loopUUID = loopUUID,
             token = testToken,
             testStartTimeMillis = TimeUnit.NANOSECONDS.toMillis(testStartTimeNanos),
-            threadNumber = threadNumber
+            threadCount = threadNumber
         )
         repository.saveTest(testRecord!!)
     }
@@ -202,6 +202,11 @@ class StateRecorder @Inject constructor(
 
     @SuppressLint("MissingPermission")
     private fun saveTelephonyInfo() {
+        val info = networkInfo
+        if (info != null && info is CellNetworkInfo) {
+            testRecord?.mobileNetworkType = info.networkType
+        }
+
         val type = activeNetworkWatcher.currentNetworkInfo?.type
         val isDualSim = telephonyManager.phoneCount > 1
         val isDualByMobile = type == TransportType.CELLULAR && isDualSim
@@ -294,24 +299,24 @@ class StateRecorder @Inject constructor(
     override fun onTestCompleted(result: TotalTestResult) {
         testRecord?.apply {
             portRemote = result.port_remote
-            bytesDownload = result.bytes_download
-            bytesUpload = result.bytes_upload
-            totalBytesDownload = result.totalDownBytes
-            totalBytesUpload = result.totalUpBytes
+            bytesDownloaded = result.bytes_download
+            bytesUploaded = result.bytes_upload
+            totalBytesDownloaded = result.totalDownBytes
+            totalBytesUploaded = result.totalUpBytes
             encryption = result.encryption
-            ipLocal = result.ip_local?.hostAddress
-            ipServer = result.ip_server?.hostAddress
+            clientPublicIp = result.ip_local?.hostAddress
+            serverPublicIp = result.ip_server?.hostAddress
             downloadDurationNanos = result.nsec_download
             uploadDurationNanos = result.nsec_upload
-            downloadSpeedBps = floor(result.speed_download + 0.5).toLong()
-            uploadSpeedBps = floor(result.speed_upload + 0.5).toLong()
+            downloadSpeedKps = floor(result.speed_download + 0.5).toLong()
+            uploadSpeedKps = floor(result.speed_upload + 0.5).toLong()
             shortestPingNanos = result.ping_shortest
             downloadedBytesOnInterface = result.getTotalTrafficMeasurement(TrafficDirection.RX)
             uploadedBytesOnInterface = result.getTotalTrafficMeasurement(TrafficDirection.TX)
             downloadedBytesOnDownloadInterface = result.getTrafficByTestPart(TestStatus.DOWN, TrafficDirection.RX)
             uploadedBytesOnDownloadInterface = result.getTrafficByTestPart(TestStatus.DOWN, TrafficDirection.TX)
             downloadedBytesOnUploadInterface = result.getTrafficByTestPart(TestStatus.UP, TrafficDirection.RX)
-            uploadedBytesOnUploadInterfaceKb = result.getTrafficByTestPart(TestStatus.UP, TrafficDirection.TX)
+            uploadedBytesOnUploadInterface = result.getTrafficByTestPart(TestStatus.UP, TrafficDirection.TX)
 
             val dlMeasurement = result.getTestMeasurementByTestPart(TestStatus.DOWN)
             dlMeasurement?.let {
@@ -324,6 +329,7 @@ class StateRecorder @Inject constructor(
             }
 
             transportType = networkInfo?.type
+            testTimeMillis = System.currentTimeMillis()
         }
 
         testRecord?.let {

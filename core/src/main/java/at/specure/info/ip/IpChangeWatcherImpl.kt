@@ -14,11 +14,11 @@
 
 package at.specure.info.ip
 
-import at.rmbt.client.control.ControlServerClient
 import at.rmbt.client.control.IpInfoResponse
 import at.rmbt.client.control.IpProtocol
 import at.rmbt.util.Maybe
 import at.rmbt.util.io
+import at.specure.data.repository.IpCheckRepository
 import at.specure.info.connectivity.ConnectivityInfo
 import at.specure.info.connectivity.ConnectivityWatcher
 import at.specure.util.synchronizedForEach
@@ -35,7 +35,7 @@ import javax.inject.Inject
  * Basic implementation of [IpChangeWatcher] that uses [ConnectivityWatcher] to detect network changes
  */
 class IpChangeWatcherImpl @Inject constructor(
-    private val controlServerClient: ControlServerClient,
+    private val ipCheckRepository: IpCheckRepository,
     private val connectivityWatcher: ConnectivityWatcher
 ) : IpChangeWatcher, ConnectivityWatcher.ConnectivityChangeListener {
 
@@ -70,8 +70,8 @@ class IpChangeWatcherImpl @Inject constructor(
             var privateIp4: Maybe<IpInfoResponse>? = null
 
             coroutineScope {
-                launch { publicIp4 = controlServerClient.getPublicIpV4Address() }
-                launch { privateIp4 = controlServerClient.getPrivateIpV4Address() }
+                launch { publicIp4 = ipCheckRepository.getPublicIpV4Address() }
+                launch { privateIp4 = ipCheckRepository.getPrivateIpV4Address() }
             }
             val privateAddress: String? = if (privateIp4?.ok == true) privateIp4!!.success.ipAddress else null
             val publicAddress: String? = if (publicIp4?.ok == true) publicIp4!!.success.ipAddress else null
@@ -89,8 +89,8 @@ class IpChangeWatcherImpl @Inject constructor(
             var privateIp6: Maybe<IpInfoResponse>? = null
 
             coroutineScope {
-                launch { publicIp6 = controlServerClient.getPublicIpV6Address() }
-                launch { privateIp6 = controlServerClient.getPrivateIpV6Address() }
+                launch { publicIp6 = ipCheckRepository.getPublicIpV6Address() }
+                launch { privateIp6 = ipCheckRepository.getPrivateIpV6Address() }
             }
 
             val privateAddress: String? = if (publicIp6?.ok == true) publicIp6!!.success.ipAddress else null

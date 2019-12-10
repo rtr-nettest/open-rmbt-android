@@ -19,7 +19,7 @@ data class CellInfoRecord(
         onDelete = ForeignKey.CASCADE
     )
     val testUUID: String,
-    val active: Boolean,
+    val isActive: Boolean,
     val uuid: String,
     val channelNumber: Int?,
     val registered: Boolean,

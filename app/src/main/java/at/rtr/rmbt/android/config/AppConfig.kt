@@ -127,6 +127,10 @@ class AppConfig @Inject constructor(context: Context, private val serverSettings
         get() = getString(BuildConfig.CONTROL_SERVER_TEST_REQUEST_PATH)
         set(value) = setString(BuildConfig.CONTROL_SERVER_TEST_REQUEST_PATH, value)
 
+    override var controlServerSendResultPath: String
+        get() = getString(BuildConfig.CONTROL_SERVER_SEND_RESULT_PATH)
+        set(value) = setString(BuildConfig.CONTROL_SERVER_SEND_RESULT_PATH, value)
+
     override var testCounter: Int
         get() = preferences.getInt(KEY_TEST_COUNTER, 0)
         set(value) = preferences.edit()
@@ -144,4 +148,18 @@ class AppConfig @Inject constructor(context: Context, private val serverSettings
     override var capabilitiesClassificationCount: Int
         get() = getInt(BuildConfig.CAPABILITIES_CLASSIFICATION_COUNT)
         set(value) = setInt(BuildConfig.CAPABILITIES_CLASSIFICATION_COUNT, value)
+
+    override var userServerSelectionEnabled: Boolean
+        get() = getBoolean(BuildConfig.USER_SERVER_SELECTION_ENABLED)
+        set(value) = setBoolean(BuildConfig.USER_SERVER_SELECTION_ENABLED, value)
+
+    override var developerModeIsEnabled: Boolean
+        get() = getBoolean(BuildConfig.DEVELOPER_MODE_IS_ENABLED)
+        set(value) = setBoolean(BuildConfig.DEVELOPER_MODE_IS_ENABLED, value)
+
+    override var developerModeIsAvailable: Boolean
+        get() = getBoolean(BuildConfig.DEVELOPER_MODE_IS_AVAILABLE)
+        set(value) {
+            // this value cannot be changed
+        }
 }

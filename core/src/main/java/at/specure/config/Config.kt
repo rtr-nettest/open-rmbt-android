@@ -105,6 +105,11 @@ interface Config {
     var controlServerRequestTestPath: String
 
     /**
+     * End of the url for sending test results to the control server, example "ControlServer/result"
+     */
+    var controlServerSendResultPath: String
+
+    /**
      * Counter of tests performed by user
      */
     var testCounter: Int
@@ -123,4 +128,19 @@ interface Config {
      * number of intervals(classes) to classify measured values, default 4
      */
     var capabilitiesClassificationCount: Int
+
+    /**
+     * User is able to select servers
+     */
+    var userServerSelectionEnabled: Boolean
+
+    /**
+     * Is Developer Mode turned on
+     */
+    var developerModeIsEnabled: Boolean
+
+    /**
+     * Is Developer Mode is available to be turned on or not
+     */
+    var developerModeIsAvailable: Boolean
 }

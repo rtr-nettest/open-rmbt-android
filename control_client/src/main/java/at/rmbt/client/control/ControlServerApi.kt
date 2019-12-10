@@ -58,5 +58,5 @@ interface ControlServerApi {
      * Request to get basic measurement test settings
      */
     @POST
-    fun sendTestResult(@Url url: String, @Body body: SendTestResultsRequestBody): Call<BaseResponse>
+    fun sendTestResult(@Url url: String, @Body body: TestResultBody): Call<BaseResponse>
 }

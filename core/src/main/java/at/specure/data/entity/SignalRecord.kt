@@ -23,11 +23,11 @@ data class SignalRecord(
     /**
      * difference between this update of the signal during the test and start time of the test
      */
-    val timeNanos: Long?,
+    val timeNanos: Long,
     /**
      * difference between last update of the signal during the test and start time of the test
      */
-    val timeNanosLast: Long?,
+    val timeNanosLast: Long,
 
     val transportType: TransportType,
 
