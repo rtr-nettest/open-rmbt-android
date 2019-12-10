@@ -334,7 +334,7 @@ fun TransportType.toTechnologyString(cellTechnology: CellTechnology?): String {
                 CellTechnology.CONNECTION_3G -> "3G"
                 CellTechnology.CONNECTION_4G -> "4G"
                 CellTechnology.CONNECTION_5G -> throw IllegalArgumentException("5G not supported to send to the server")
-                else -> throw java.lang.IllegalArgumentException("Incorrect cell technology value or null ${cellTechnology?.name.toString()}")
+                else -> throw java.lang.IllegalArgumentException("Incorrect cell technology value or null ${cellTechnology?.name}")
             }
         }
         else -> throw IllegalArgumentException("Unsupported transport type ${this.name}")
