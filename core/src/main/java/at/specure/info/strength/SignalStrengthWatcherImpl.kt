@@ -34,6 +34,7 @@ import at.specure.info.network.ActiveNetworkWatcher
 import at.specure.info.network.MobileNetworkType
 import at.specure.info.network.NetworkInfo
 import at.specure.info.wifi.WifiInfoWatcher
+import at.specure.util.permission.LocationAccess
 import at.specure.util.synchronizedForEach
 import timber.log.Timber
 import java.util.Collections
@@ -63,9 +64,9 @@ class SignalStrengthWatcherImpl(
     private val telephonyManager: TelephonyManager,
     private val activeNetworkWatcher: ActiveNetworkWatcher,
     private val wifiInfoWatcher: WifiInfoWatcher,
-    private val cellInfoWatcher: CellInfoWatcher
-) :
-    SignalStrengthWatcher {
+    private val cellInfoWatcher: CellInfoWatcher,
+    private val locationAccess: LocationAccess
+) :    SignalStrengthWatcher, LocationAccess.LocationAccessChangeListener {
 
     private val listeners = Collections.synchronizedSet(mutableSetOf<SignalStrengthWatcher.SignalStrengthListener>())
 
@@ -76,6 +77,10 @@ class SignalStrengthWatcherImpl(
 
     override val lastSignalStrength: SignalStrengthInfo?
         get() = signalStrengthInfo
+
+    init {
+        locationAccess.addListener(this)
+    }
 
     private val strengthListener = object : PhoneStateListener() {
 
@@ -340,10 +345,10 @@ class SignalStrengthWatcherImpl(
     private val activeNetworkListener = object : ActiveNetworkWatcher.NetworkChangeListener {
 
         override fun onActiveNetworkChanged(info: NetworkInfo?) {
-            unregisterWifiCallbacks()
-            unregisterCellCallbacks()
-
             if (info == null) {
+                unregisterWifiCallbacks()
+                unregisterCellCallbacks()
+
                 Timber.i("Network changed to NULL")
                 signalStrengthInfo = null
                 notifyInfoChanged()
@@ -449,6 +454,13 @@ class SignalStrengthWatcherImpl(
         if (wifiListenerRegistered) {
             wifiUpdateHandler.removeMessages(WIFI_MESSAGE_ID)
             wifiListenerRegistered = false
+        }
+    }
+
+    override fun onLocationAccessChanged(isAllowed: Boolean) {
+        if (listeners.isNotEmpty() && isAllowed) {
+            unregisterCallbacks()
+            registerCallbacks()
         }
     }
 }
