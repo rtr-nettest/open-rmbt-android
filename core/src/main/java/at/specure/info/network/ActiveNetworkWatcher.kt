@@ -20,6 +20,7 @@ import at.specure.info.cell.CellNetworkInfo
 import at.specure.info.connectivity.ConnectivityInfo
 import at.specure.info.connectivity.ConnectivityWatcher
 import at.specure.info.wifi.WifiInfoWatcher
+import at.specure.util.permission.LocationAccess
 import at.specure.util.synchronizedForEach
 import java.util.Collections
 
@@ -30,8 +31,9 @@ import java.util.Collections
 class ActiveNetworkWatcher(
     private val connectivityWatcher: ConnectivityWatcher,
     private val wifiInfoWatcher: WifiInfoWatcher,
-    private val cellInfoWatcher: CellInfoWatcher
-) {
+    private val cellInfoWatcher: CellInfoWatcher,
+    private val locationAccess: LocationAccess
+) : LocationAccess.LocationAccessChangeListener {
 
     private val listeners = Collections.synchronizedSet(mutableSetOf<NetworkChangeListener>())
     private var isCallbacksRegistered = false
@@ -45,6 +47,10 @@ class ActiveNetworkWatcher(
                 it.onActiveNetworkChanged(value)
             }
         }
+
+    init {
+        locationAccess.addListener(this)
+    }
 
     /**
      * Returns active network information [NetworkInfo] if it is available
@@ -99,9 +105,11 @@ class ActiveNetworkWatcher(
     }
 
     private fun registerCallbacks() {
-        connectivityWatcher.addListener(connectivityCallback)
-        cellInfoWatcher.addListener(cellInfoCallback)
-        isCallbacksRegistered = true
+        if (!isCallbacksRegistered) {
+            connectivityWatcher.addListener(connectivityCallback)
+            cellInfoWatcher.addListener(cellInfoCallback)
+            isCallbacksRegistered = true
+        }
     }
 
     private fun unregisterCallbacks() {
@@ -122,5 +130,12 @@ class ActiveNetworkWatcher(
          * if no active network is available null will be returned
          */
         fun onActiveNetworkChanged(info: NetworkInfo?)
+    }
+
+    override fun onLocationAccessChanged(isAllowed: Boolean) {
+        if (listeners.isNotEmpty() && isAllowed) {
+            unregisterCallbacks()
+            registerCallbacks()
+        }
     }
 }

@@ -55,9 +55,10 @@ class CoreModule {
         telephonyManager: TelephonyManager,
         activeNetworkWatcher: ActiveNetworkWatcher,
         wifiInfoWatcher: WifiInfoWatcher,
-        cellInfoWatcher: CellInfoWatcher
+        cellInfoWatcher: CellInfoWatcher,
+        locationAccess: LocationAccess
     ): SignalStrengthWatcher =
-        SignalStrengthWatcherImpl(telephonyManager, activeNetworkWatcher, wifiInfoWatcher, cellInfoWatcher)
+        SignalStrengthWatcherImpl(telephonyManager, activeNetworkWatcher, wifiInfoWatcher, cellInfoWatcher, locationAccess)
 
     @Provides
     @Singleton
@@ -97,9 +98,10 @@ class CoreModule {
     fun provideActiveNetworkWatcher(
         connectivityWatcher: ConnectivityWatcher,
         wifiInfoWatcher: WifiInfoWatcher,
-        cellInfoWatcher: CellInfoWatcher
+        cellInfoWatcher: CellInfoWatcher,
+        locationAccess: LocationAccess
     ): ActiveNetworkWatcher =
-        ActiveNetworkWatcher(connectivityWatcher, wifiInfoWatcher, cellInfoWatcher)
+        ActiveNetworkWatcher(connectivityWatcher, wifiInfoWatcher, cellInfoWatcher, locationAccess)
 
     @Provides
     @Singleton
