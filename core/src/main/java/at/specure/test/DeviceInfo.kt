@@ -48,6 +48,8 @@ class DeviceInfo(context: Context, val location: Location? = null) {
 
     val clientVersionCode = BuildConfig.VERSION_CODE
 
+    val rmbtClientVersion = "1.2.1"
+
     @SerializedName("android_permission_status")
     val permissionsStatus: Map<String, Boolean> = mutableMapOf<String, Boolean>().apply {
         put(android.Manifest.permission.ACCESS_FINE_LOCATION, context.hasPermission(android.Manifest.permission.ACCESS_FINE_LOCATION))

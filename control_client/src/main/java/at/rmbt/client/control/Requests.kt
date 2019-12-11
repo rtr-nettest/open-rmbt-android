@@ -129,12 +129,8 @@ data class TestResultBody(
     /**
      * Client uuid
      */
+    @SerializedName("client_uuid")
     val clientUUID: String,
-
-    /**
-     * Client uuid (backward compatibility?)
-     */
-    val uuid: String,
 
     /**
      * Type of the client {"RMBT", "RMBTws", "HW-PROBE"}, for android devices it is "RMBT"
@@ -316,7 +312,7 @@ data class TestResultBody(
      * Server id for the network TODO:(shared/Helperfunctions line 156 - conversion from number to name)
      */
     @SerializedName("network_type")
-    val networkType: Int,
+    val networkType: String,
     val geoLocations: List<TestLocationBody>?,
     val capabilities: CapabilitiesBody,
     val pings: List<PingBody>?,
@@ -337,7 +333,7 @@ data class TestResultBody(
      * true if the network is roaming, mobile networks only
      */
     @SerializedName("telephony_network_is_roaming")
-    val telephonyNetworkIsRoaming: Boolean?,
+    val telephonyNetworkIsRoaming: String?,
 
     /**
      * country code for network, mobile networks only e.g. "en"
@@ -429,7 +425,7 @@ data class LoopModeInfo(
     val uid: Long?,
     @SerializedName("test_uuid")
     val testUUID: String?,
-    @SerializedName("test_uuid")
+    @SerializedName("client_uuid")
     val clientUUID: String?,
     @SerializedName("max_delay")
     val maxDelaySec: Int?,
@@ -458,7 +454,7 @@ data class PingBody(
     /**
      * Relative time from the start of the test in nanos
      */
-    @SerializedName("value_ns")
+    @SerializedName("time_ns")
     val timeNanos: Long
 )
 
