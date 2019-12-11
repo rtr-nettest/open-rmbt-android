@@ -33,7 +33,7 @@ class ActiveNetworkWatcher(
     private val wifiInfoWatcher: WifiInfoWatcher,
     private val cellInfoWatcher: CellInfoWatcher,
     private val locationAccess: LocationAccess
-    ):    LocationAccess.LocationAccessChangeListener {
+) : LocationAccess.LocationAccessChangeListener {
 
     private val listeners = Collections.synchronizedSet(mutableSetOf<NetworkChangeListener>())
     private var isCallbacksRegistered = false

@@ -66,7 +66,7 @@ class SignalStrengthWatcherImpl(
     private val wifiInfoWatcher: WifiInfoWatcher,
     private val cellInfoWatcher: CellInfoWatcher,
     private val locationAccess: LocationAccess
-) :    SignalStrengthWatcher, LocationAccess.LocationAccessChangeListener {
+) : SignalStrengthWatcher, LocationAccess.LocationAccessChangeListener {
 
     private val listeners = Collections.synchronizedSet(mutableSetOf<SignalStrengthWatcher.SignalStrengthListener>())
 
