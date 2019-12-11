@@ -28,6 +28,9 @@ class MeasurementCurveLayout @JvmOverloads constructor(context: Context, attrs: 
 
     private var isQoSEnabled = false
 
+    private var currentTopProgress = 0
+    private var currentBottomProgress = 0L
+
     /**
      * Defines the current phase of measurement
      */
@@ -119,10 +122,12 @@ class MeasurementCurveLayout @JvmOverloads constructor(context: Context, attrs: 
         curveBinding.curveView.setBottomCenterCallback { x, y ->
             bottomCenterX = x
             bottomCenterY = y
+            setBottomProgress(currentBottomProgress)
         }
         curveBinding.curveView.setTopCenterCallback { x, y ->
             topCenterX = x
             topCenterY = y
+            setTopProgress(currentTopProgress)
         }
 
         addView(speedLayout.root, LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT))
@@ -133,22 +138,26 @@ class MeasurementCurveLayout @JvmOverloads constructor(context: Context, attrs: 
      * Update the top part UI according to progress changing
      */
     fun setTopProgress(currentProgress: Int) {
-        if (topCenterX != 0 && topCenterY != 0 && currentProgress != 0) {
+        if (topCenterX != 0 && topCenterY != 0) {
+            currentTopProgress = currentProgress
             val progress = prepareProgressValueByPhase(currentProgress)
             curveBinding.curveView.setTopProgress(phase, currentProgress, isQoSEnabled)
-            percentageLayout.percentage.text = progress.toString()
-            percentageLayout.units.text = context.getString(R.string.measurement_progress_units)
-            percentageLayout.percentage.requestLayout()
-            percentageLayout.root.post {
-                with(percentageLayout.root) {
-                    (layoutParams as LayoutParams).apply {
-                        leftMargin = topCenterX - percentageLayout.percentage.measuredWidth / (2 * LEFT_MARGIN_DIVIDER)
-                        topMargin = topCenterY + this@with.measuredHeight / TOP_MARGIN_DIVIDER
+            if (progress != 0) {
+                percentageLayout.percentage.text = progress.toString()
+                percentageLayout.units.text = context.getString(R.string.measurement_progress_units)
+                percentageLayout.percentage.requestLayout()
+                percentageLayout.root.post {
+                    with(percentageLayout.root) {
+                        (layoutParams as LayoutParams).apply {
+                            leftMargin = topCenterX - percentageLayout.percentage.measuredWidth / (2 * LEFT_MARGIN_DIVIDER)
+                            topMargin = topCenterY + this@with.measuredHeight / TOP_MARGIN_DIVIDER
+                        }
                     }
+                    requestLayout()
+                    percentageLayout.root.visibility = View.VISIBLE
                 }
-                requestLayout()
-                percentageLayout.root.visibility = View.VISIBLE
             }
+
         }
     }
 
@@ -167,6 +176,7 @@ class MeasurementCurveLayout @JvmOverloads constructor(context: Context, attrs: 
      */
     fun setBottomProgress(progress: Long) {
         if (phase == MeasurementState.DOWNLOAD || phase == MeasurementState.UPLOAD) {
+            currentBottomProgress = progress
             speedLayout.icon.setImageResource(if (phase == MeasurementState.DOWNLOAD) R.drawable.ic_speed_download else R.drawable.ic_speed_upload)
             curveBinding.curveView.setBottomProgress(phase, (progress * 1e-3).toInt(), isQoSEnabled)
             val progressInMbps: Float = progress / 1000000.0f
