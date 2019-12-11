@@ -157,7 +157,6 @@ class MeasurementCurveLayout @JvmOverloads constructor(context: Context, attrs: 
                     percentageLayout.root.visibility = View.VISIBLE
                 }
             }
-
         }
     }
 
