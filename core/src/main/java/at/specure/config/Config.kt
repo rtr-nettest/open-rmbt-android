@@ -110,6 +110,11 @@ interface Config {
     var controlServerSendResultPath: String
 
     /**
+     * End of the url for receiving history items from the server
+     */
+    var controlServerHistoryPath: String
+
+    /**
      * Counter of tests performed by user
      */
     var testCounter: Int

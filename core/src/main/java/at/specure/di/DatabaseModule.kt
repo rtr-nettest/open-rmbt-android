@@ -20,6 +20,8 @@ import at.rmbt.client.control.ControlServerClient
 import at.specure.config.Config
 import at.specure.data.ClientUUID
 import at.specure.data.CoreDatabase
+import at.specure.data.repository.HistoryRepository
+import at.specure.data.repository.HistoryRepositoryImpl
 import at.specure.data.repository.IpCheckRepository
 import at.specure.data.repository.IpCheckRepositoryImpl
 import at.specure.data.repository.ResultsRepository
@@ -75,4 +77,8 @@ class DatabaseModule {
         signalStrengthWatcher = signalStrengthWatcher,
         client = client
     )
+
+    @Provides
+    fun provideHistoryRepository(database: CoreDatabase, controlServerClient: ControlServerClient): HistoryRepository =
+        HistoryRepositoryImpl(database.historyDao(), controlServerClient)
 }

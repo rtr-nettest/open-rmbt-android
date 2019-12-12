@@ -131,6 +131,10 @@ class AppConfig @Inject constructor(context: Context, private val serverSettings
         get() = getString(BuildConfig.CONTROL_SERVER_SEND_RESULT_PATH)
         set(value) = setString(BuildConfig.CONTROL_SERVER_SEND_RESULT_PATH, value)
 
+    override var controlServerHistoryPath: String // TODO move it to the config file
+        get() = "RMBTControlServer/history"
+        set(value) {}
+
     override var testCounter: Int
         get() = preferences.getInt(KEY_TEST_COUNTER, 0)
         set(value) = preferences.edit()

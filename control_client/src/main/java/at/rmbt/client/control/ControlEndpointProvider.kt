@@ -60,6 +60,11 @@ interface ControlEndpointProvider {
     val sendTestResultsUrl: String
 
     /**
+     * Url to get history records from server
+     */
+    val getHistoryUrl: String
+
+    /**
      * Port that should be used for control server client
      */
     val port: Int

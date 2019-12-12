@@ -44,6 +44,8 @@ class ControlServerProviderImpl(private val config: Config) : ControlEndpointPro
     override val sendTestResultsUrl: String
         get() = host + "/" + config.controlServerSendResultPath
 
+    override val getHistoryUrl: String
+        get() = host + "/" + config.controlServerHistoryPath
     override val port: Int
         get() = config.controlServerPort
 }

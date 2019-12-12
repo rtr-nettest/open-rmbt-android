@@ -16,6 +16,7 @@ package at.rmbt.client.control
 
 import retrofit2.Call
 import retrofit2.http.Body
+import retrofit2.http.GET
 import retrofit2.http.POST
 import retrofit2.http.Url
 
@@ -59,4 +60,7 @@ interface ControlServerApi {
      */
     @POST
     fun sendTestResult(@Url url: String, @Body body: TestResultBody): Call<BaseResponse>
+
+    @GET
+    fun getHistory(@Url url: String) : Call<BaseResponse>
 }

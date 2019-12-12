@@ -24,4 +24,10 @@ class HistoryFragment : BaseFragment() {
             historyViewModel.state.text.set(it)
         }
     }
+
+    override fun onStart() {
+        super.onStart()
+
+        historyViewModel.refreshHistory()
+    }
 }
