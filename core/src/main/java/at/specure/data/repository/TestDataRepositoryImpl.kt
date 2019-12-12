@@ -25,6 +25,7 @@ import at.specure.info.strength.SignalStrengthInfoLte
 import at.specure.info.strength.SignalStrengthInfoWiFi
 import at.specure.location.LocationInfo
 import at.specure.location.cell.CellLocationInfo
+import java.text.DecimalFormat
 
 class TestDataRepositoryImpl(db: CoreDatabase, private val resultsRepository: ResultsRepository) : TestDataRepository {
 
@@ -241,7 +242,7 @@ class TestDataRepositoryImpl(db: CoreDatabase, private val resultsRepository: Re
             networkIsRoaming = networkInfo?.isRoaming,
             networkCountry = networkCountry,
             networkSimCountry = simCountry,
-            networkSimOperator = "${networkInfo?.mnc}-${networkInfo?.mcc}",
+            networkSimOperator = "${networkInfo?.mcc}-${DecimalFormat("00").format(networkInfo?.mnc)}",
             networkSimOperatorName = simOperatorName,
             phoneType = phoneType,
             dataState = dataState,

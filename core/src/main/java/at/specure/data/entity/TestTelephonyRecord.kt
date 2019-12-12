@@ -43,7 +43,7 @@ data class TestTelephonyRecord(
     val networkSimOperatorName: String?,
 
     /**
-     *  SIM card issuer operator code (MMC-MNC)
+     *  SIM card issuer operator code (MCC-MNC)
      */
     val networkSimOperator: String?,
 
