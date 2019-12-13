@@ -96,6 +96,11 @@
       "visible": false
     },
     {
+      "name": "CONTROL_SERVER_HISTORY_ENDPOINT",
+      "value": "history",
+      "visible": false
+    },
+    {
       "name": "CAPABILITIES_RMBT_HTTP",
       "value": "false",
       "visible": false

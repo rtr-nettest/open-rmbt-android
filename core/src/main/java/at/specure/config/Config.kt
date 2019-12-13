@@ -95,22 +95,28 @@ interface Config {
     var controlServerCheckPublicIPv6Url: String
 
     /**
-     * End of the url for getting settings from the control server, example "ControlServer/settings"
+     * Route to the control server, example for value "RMBTControlServer",
+     * "myhost.com/RMBTControlServer/endpoint" will be used for requests to ControlServer
+     */
+    var controlServerRoute: String
+
+    /**
+     * End of the url for getting settings from the control server, example "settings"
      */
     var controlServerSettingsEndpoint: String
 
     /**
-     * End of the url for getting new test settings from the control server, example "ControlServer/testRequest"
+     * End of the url for getting new test settings from the control server, example "testRequest"
      */
     var controlServerRequestTestEndpoint: String
 
     /**
-     * End of the url for sending test results to the control server, example "ControlServer/result"
+     * End of the url for sending test results to the control server, example "result"
      */
     var controlServerSendResultEndpoint: String
 
     /**
-     * End of the url for receiving history items from the server
+     * End of the url for receiving history items from the server, example "history"
      */
     var controlServerHistoryEndpoint: String
 

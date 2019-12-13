@@ -17,6 +17,7 @@ package at.specure.di
 import android.content.Context
 import androidx.room.Room
 import at.rmbt.client.control.ControlServerClient
+import at.rmbt.client.control.IpClient
 import at.specure.config.Config
 import at.specure.data.ClientUUID
 import at.specure.data.CoreDatabase
@@ -68,7 +69,7 @@ class DatabaseModule {
         clientUUID: ClientUUID,
         locationWatcher: LocationWatcher,
         signalStrengthWatcher: SignalStrengthWatcher,
-        client: ControlServerClient
+        client: IpClient
     ): IpCheckRepository = IpCheckRepositoryImpl(
         context = context,
         config = config,

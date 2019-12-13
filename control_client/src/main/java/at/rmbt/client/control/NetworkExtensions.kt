@@ -22,7 +22,7 @@ import timber.log.Timber
 /**
  * Allows to execute call and unwraps data and errors from response
  */
-fun <T : BaseResponse> Call<T>.exec(): Maybe<T> {
+fun <T : BaseResponse> Call<T>.exec(silentError: Boolean = false): Maybe<T> {
     return try {
         val result = execute()
         if (result.isSuccessful) {
@@ -48,7 +48,11 @@ fun <T : BaseResponse> Call<T>.exec(): Maybe<T> {
             Maybe(HandledException("Server connection error ${result.code()}"))
         }
     } catch (t: Throwable) {
-        Timber.w(t)
+        if (silentError) {
+            Timber.w("Failed to perform request : ${t.message}")
+        } else {
+            Timber.w(t)
+        }
         Maybe(HandledException.from(t))
     }
 }

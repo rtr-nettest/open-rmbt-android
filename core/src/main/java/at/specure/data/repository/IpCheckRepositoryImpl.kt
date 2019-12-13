@@ -1,7 +1,7 @@
 package at.specure.data.repository
 
 import android.content.Context
-import at.rmbt.client.control.ControlServerClient
+import at.rmbt.client.control.IpClient
 import at.rmbt.client.control.IpInfoResponse
 import at.rmbt.client.control.IpRequestBody
 import at.rmbt.util.Maybe
@@ -20,7 +20,7 @@ class IpCheckRepositoryImpl(
     private val clientUUID: ClientUUID,
     private val locationWatcher: LocationWatcher,
     private val signalStrengthWatcher: SignalStrengthWatcher,
-    private val client: ControlServerClient
+    private val client: IpClient
 ) : IpCheckRepository {
 
     private val deviceInfo = DeviceInfo(context)

@@ -119,21 +119,25 @@ class AppConfig @Inject constructor(context: Context, private val serverSettings
         get() = getString(BuildConfig.CONTROL_SERVER_CHECK_PUBLIC_IPV6_URL, serverSettings.ipV6CheckUrl)
         set(value) = setString(BuildConfig.CONTROL_SERVER_CHECK_PUBLIC_IPV6_URL, value)
 
-    override var controlServerSettingsPath: String
-        get() = getString(BuildConfig.CONTROL_SERVER_SETTINGS_PATH)
-        set(value) = setString(BuildConfig.CONTROL_SERVER_SETTINGS_PATH, value)
+    override var controlServerRoute: String
+        get() = getString(BuildConfig.CONTROL_SERVER_ROUTE)
+        set(value) = setString(BuildConfig.CONTROL_SERVER_ROUTE, value)
 
-    override var controlServerRequestTestPath: String
-        get() = getString(BuildConfig.CONTROL_SERVER_TEST_REQUEST_PATH)
-        set(value) = setString(BuildConfig.CONTROL_SERVER_TEST_REQUEST_PATH, value)
+    override var controlServerSettingsEndpoint: String
+        get() = getString(BuildConfig.CONTROL_SERVER_SETTINGS_ENDPOINT)
+        set(value) = setString(BuildConfig.CONTROL_SERVER_SETTINGS_ENDPOINT, value)
 
-    override var controlServerSendResultPath: String
-        get() = getString(BuildConfig.CONTROL_SERVER_SEND_RESULT_PATH)
-        set(value) = setString(BuildConfig.CONTROL_SERVER_SEND_RESULT_PATH, value)
+    override var controlServerRequestTestEndpoint: String
+        get() = getString(BuildConfig.CONTROL_SERVER_TEST_REQUEST_ENDPOINT)
+        set(value) = setString(BuildConfig.CONTROL_SERVER_TEST_REQUEST_ENDPOINT, value)
 
-    override var controlServerHistoryPath: String // TODO move it to the config file
-        get() = "RMBTControlServer/history"
-        set(value) {}
+    override var controlServerSendResultEndpoint: String
+        get() = getString(BuildConfig.CONTROL_SERVER_SEND_RESULT_ENDPOINT)
+        set(value) = setString(BuildConfig.CONTROL_SERVER_SEND_RESULT_ENDPOINT, value)
+
+    override var controlServerHistoryEndpoint: String
+        get() = getString(BuildConfig.CONTROL_SERVER_HISTORY_ENDPOINT)
+        set(value) = setString(BuildConfig.CONTROL_SERVER_HISTORY_ENDPOINT, value)
 
     override var testCounter: Int
         get() = preferences.getInt(KEY_TEST_COUNTER, 0)
