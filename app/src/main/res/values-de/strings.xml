@@ -64,6 +64,17 @@
     <string name="preferences_source_code">Source Code</string>
     <string name="preferences_data_protection">Datenschutzerklärung</string>
     <string name="preferences_version">Version</string>
+    <string name="preferences_enter_code">Bitte geben Sie den Code ein</string>
+    <string name="preferences_developer_control_server">Control Server</string>
+    <string name="preferences_override_control_server">Control-Server überschreiben</string>
+    <string name="preferences_override_control_server_sum">Aktiviert die folgenden Einstellungen für den Control-Server</string>
+    <string name="preferences_override_control_server_host">Control Host</string>
+    <string name="preferences_override_control_server_port">Control Port</string>
+    <string name="preferences_override_control_server_ssl">Control-Server SSL</string>
+    <string name="preferences_override_control_server_ssl_sum">Verschlüsselte Verbindung zum Control-Server</string>
+    <string name="preferences_developer_options_disabled">Entwickleroptionen deaktiviert</string>
+    <string name="preferences_developer_options_available">Entwickleroptionen verfügbar</string>
+    <string name="preferences_developer_try_again">Versuchen Sie es nochmals!</string>
 
     <!-- Location Dialog -->
     <string name="location_dialog_label_title">Standort</string>

@@ -16,7 +16,7 @@
 
     </data>
 
-    <FrameLayout
+    <RelativeLayout
         android:id="@+id/frameLayoutRoot"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -28,24 +28,26 @@
             style="@style/RobotoRegularStyle.Medium"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
             android:ellipsize="marquee"
             android:singleLine="true"
             android:text="@{title}"
-            android:layout_gravity="start|center_vertical"
             android:textColor="@color/text_dark_gray"
             tools:text="Title" />
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@android:id/summary"
             style="@style/RobotoRegularStyle.Medium"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_toEndOf="@android:id/title"
             android:maxLines="2"
-            android:layout_gravity="end|center_vertical"
+            android:gravity="end"
             android:text="@{value}"
             android:textColor="@color/colorAccent"
             tools:text="10" />
 
-    </FrameLayout>
+    </RelativeLayout>
 
 </layout>
