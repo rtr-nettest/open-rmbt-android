@@ -184,3 +184,36 @@ data class HistoryFilterSettings(
     val devices: List<String>?,
     val networks: List<String>?
 )
+
+@Keep
+data class HistoryResponse(
+    val history: List<HistoryItemResponse>
+) : BaseResponse()
+
+@Keep
+data class HistoryItemResponse(
+    val model: String,
+    @SerializedName("network_type")
+    val networkType: String,
+    val ping: Int,
+    @SerializedName("ping_classification")
+    val pingClassification: Int,
+    @SerializedName("ping_shortest")
+    val pingShortest: Int,
+    @SerializedName("ping_shortest_classification")
+    val pingShortestClassification: Int,
+    @SerializedName("speed_download")
+    val speedDownload: Int,
+    @SerializedName("speed_download_classification")
+    val speedDownloadClassification: Int,
+    @SerializedName("speed_upload")
+    val speedUpload: Int,
+    @SerializedName("speed_upload_classification")
+    val speedUploadClassification: Int,
+    @SerializedName("test_uuid")
+    val testUUID: String,
+    val time: Long,
+    @SerializedName("time_string")
+    val timeString: String,
+    val timezone: String
+)

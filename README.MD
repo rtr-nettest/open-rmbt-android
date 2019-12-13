@@ -20,10 +20,11 @@ The source code is published under [Apache version 2.0 license](https://github.c
     5. **CONTROL_SERVER_CHECK_PUBLIC_IPV6_URL** - Link to check public IPv6 address, example "v6.myhost.com/ControlServer/V2/ip
     6. **CONTROL_SERVER_PORT** - control server port 443 by default
     7. **CONTROL_SERVER_USE_SSL** - indicates SSL should be used for server connection or not
-    8. **CONTROL_SERVER_SETTINGS_PATH** - end of the url for getting settings from the control server, example "ControlServer/settings"
-    9. **CONTROL_SERVER_TEST_REQUEST_PATH** - end of the url for getting basic measurement set up to start measurement, example "ControlServer/testRequest"
-    10. **CONTROL_SERVER_SEND_RESULT_PATH** - end of the url for sending test results to the control server, example "ControlServer/result"
+    8. **CONTROL_SERVER_ROUTE** - route to the control server, example for value "RMBTControlServer", "myhost.com/RMBTControlServer/endpoint" will be used for requests to ControlServer
+    9. **CONTROL_SERVER_SETTINGS_ENDPOINT** - endpoint name for getting settings from the control server, example "settings"
+    10. **CONTROL_SERVER_TEST_REQUEST_PATH** - endpoint name for getting basic measurement set up to start measurement, example "testRequest"
+    11. **CONTROL_SERVER_SEND_RESULT_PATH** - endpoint name for sending test results to the control server, example "result"
     12. **CAPABILITIES_RMBT_HTTP** - client supports RMBT HTTP, example "false"
-    12. **CAPABILITIES_QOS_SUPPORTS_INFO** - if "true" the third state (=INFO) is supported, example "false"
-    13. **CAPABILITIES_CLASSIFICATION_COUNT** - number of intervals(classes) to classify measured values, example "4"
-    14. **IS_CONTROL_SERVER_OVERRIDE_ENABLED** - Control server override enabled false by default
+    13. **CAPABILITIES_QOS_SUPPORTS_INFO** - if "true" the third state (=INFO) is supported, example "false"
+    14. **CAPABILITIES_CLASSIFICATION_COUNT** - number of intervals(classes) to classify measured values, example "4"
+    15. **IS_CONTROL_SERVER_OVERRIDE_ENABLED** - Control server override enabled false by default

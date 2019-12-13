@@ -21,8 +21,8 @@ data class CellLocationRecord(
     val testUUID: String,
 
     val scramblingCode: Int,
-    val areaCode: Int,
-    val locationId: Int,
+    val areaCode: Int?,
+    val locationId: Int?,
     val timestampMillis: Long,
     val timestampNanos: Long
 )

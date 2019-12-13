@@ -25,12 +25,6 @@ import retrofit2.http.Url
 interface ControlServerApi {
 
     /**
-     * Private IPv4 or IPv6 information check url
-     */
-    @POST
-    fun ipCheck(@Url url: String, @Body body: IpRequestBody): Call<IpInfoResponse>
-
-    /**
      * Request to get these information:
      *  - settings of servers (ports, urls)
      *  - settings of history filter
@@ -59,4 +53,7 @@ interface ControlServerApi {
      */
     @POST
     fun sendTestResult(@Url url: String, @Body body: TestResultBody): Call<BaseResponse>
+
+    @POST
+    fun getHistory(@Url url: String, @Body body: HistoryRequestBody): Call<HistoryResponse>
 }

@@ -5,6 +5,7 @@ import android.telephony.CellLocation
 import android.telephony.PhoneStateListener
 import android.telephony.TelephonyManager
 import android.telephony.gsm.GsmCellLocation
+import at.specure.info.cell.fixValue
 import at.specure.util.hasPermission
 import java.util.Collections
 import javax.inject.Inject
@@ -23,8 +24,8 @@ class CellLocationWatcherImpl @Inject constructor(private val context: Context, 
                     CellLocationInfo(
                         timestampMillis = System.currentTimeMillis(),
                         timestampNanos = System.nanoTime(),
-                        locationId = location.cid,
-                        areaCode = location.lac,
+                        locationId = location.cid.fixValue(),
+                        areaCode = location.lac.fixValue(),
                         scramblingCode = location.psc
                     )
                 }

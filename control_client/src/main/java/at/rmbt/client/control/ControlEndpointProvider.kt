@@ -25,24 +25,10 @@ interface ControlEndpointProvider {
     val host: String
 
     /**
-     * Url to the host for IPv4 test, example "v4.myhost.com"
+     * Route to the control server, example for value "RMBTControlServer",
+     * "myhost.com/RMBTControlServer/endpoint" will be used for requests to ControlServer
      */
-    val checkPrivateIPv4Host: String
-
-    /**
-     * Url to the host for IPv6 test, example "v6.myhost.com"
-     */
-    val checkPrivateIPv6Host: String
-
-    /**
-     * Link to check public IPv4 address, example "v4.myhost.com/ControlServer/V2/ip
-     */
-    val checkPublicIPv4Url: String
-
-    /**
-     * Link to check public IPv6 address, example "v6.myhost.com/ControlServer/V2/ip
-     */
-    val checkPublicIPv6Url: String
+    val route: String
 
     /**
      * Link suffix to check settings, example "ControlServer/V2/settings
@@ -58,6 +44,11 @@ interface ControlEndpointProvider {
      * Url to send test results
      */
     val sendTestResultsUrl: String
+
+    /**
+     * Url to get history records from server
+     */
+    val getHistoryUrl: String
 
     /**
      * Port that should be used for control server client

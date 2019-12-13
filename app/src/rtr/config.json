@@ -76,18 +76,28 @@
       "visible": false
     },
     {
-      "name": "CONTROL_SERVER_SETTINGS_PATH",
-      "value": "",
+      "name": "CONTROL_SERVER_ROUTE",
+      "value": "RMBTControlServer",
       "visible": false
     },
     {
-      "name": "CONTROL_SERVER_TEST_REQUEST_PATH",
-      "value": "",
+      "name": "CONTROL_SERVER_SETTINGS_ENDPOINT",
+      "value": "settings",
       "visible": false
     },
     {
-      "name": "CONTROL_SERVER_SEND_RESULT_PATH",
-      "value": "",
+      "name": "CONTROL_SERVER_TEST_REQUEST_ENDPOINT",
+      "value": "testRequest",
+      "visible": false
+    },
+    {
+      "name": "CONTROL_SERVER_SEND_RESULT_ENDPOINT",
+      "value": "result",
+      "visible": false
+    },
+    {
+      "name": "CONTROL_SERVER_HISTORY_ENDPOINT",
+      "value": "history",
       "visible": false
     },
     {
