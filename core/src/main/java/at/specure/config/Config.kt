@@ -143,4 +143,9 @@ interface Config {
      * Is Developer Mode is available to be turned on or not
      */
     var developerModeIsAvailable: Boolean
+
+    /**
+     * Is Override Control Server turned on
+     */
+    var controlServerOverrideEnabled: Boolean
 }
