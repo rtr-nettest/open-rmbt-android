@@ -36,6 +36,7 @@ import at.specure.info.strength.SignalStrengthInfoLte
 import at.specure.info.strength.SignalStrengthInfoWiFi
 import at.specure.location.LocationInfo
 import at.specure.test.DeviceInfo
+import java.util.UUID
 
 fun DeviceInfo.toSettingsRequest(clientUUID: ClientUUID, config: Config, tac: TermsAndConditions) = SettingsRequestBody(
     type = clientType,
@@ -157,13 +158,13 @@ fun TestRecord.toRequest(
         val cells: List<CellInfoBody>? = if (cellInfoList.isEmpty()) {
             null
         } else {
-            cellInfoList.map { it.toRequest() }
+            cellInfoList.map { it.toRequest(uuid) }
         }
 
         val signals: List<SignalBody>? = if (signalList.isEmpty()) {
             null
         } else {
-            signalList.map { it.toRequest() }
+            signalList.map { it.toRequest(uuid) }
         }
 
         RadioInfoBody(cells, signals)
@@ -278,10 +279,10 @@ fun CapabilitiesRecord.toRequest() = CapabilitiesBody(
     rmbtHttpStatus = rmbtHttpStatus
 )
 
-fun CellInfoRecord.toRequest() = CellInfoBody(
+fun CellInfoRecord.toRequest(testUUID: String) = CellInfoBody(
     active = isActive,
     areaCode = areaCode,
-    uuid = uuid,
+    uuid = randomizeUUID(testUUID),
     channelNumber = channelNumber,
     locationId = locationId,
     mnc = mnc,
@@ -291,8 +292,8 @@ fun CellInfoRecord.toRequest() = CellInfoBody(
     registered = registered
 )
 
-fun SignalRecord.toRequest() = SignalBody(
-    cellUuid = cellUuid,
+fun SignalRecord.toRequest(testUUID: String) = SignalBody(
+    cellUuid = randomizeUUID(testUUID),
     networkTypeId = transportType.toRequestIntValue(mobileNetworkType),
     signal = signal,
     bitErrorRate = bitErrorRate,
@@ -383,3 +384,7 @@ fun TransportType.toRequestValue(mobileNetworkType: MobileNetworkType?): String 
         else -> "UNKNOWN"
     }
 }
+
+private fun SignalRecord.randomizeUUID(testUUID: String) = UUID.nameUUIDFromBytes("$cellUuid$testUUID".toByteArray()).toString()
+
+private fun CellInfoRecord.randomizeUUID(testUUID: String) = UUID.nameUUIDFromBytes("$uuid$testUUID".toByteArray()).toString()
