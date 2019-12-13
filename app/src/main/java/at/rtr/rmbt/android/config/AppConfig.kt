@@ -170,4 +170,8 @@ class AppConfig @Inject constructor(context: Context, private val serverSettings
         set(value) {
             // this value cannot be changed
         }
+
+    override var controlServerOverrideEnabled: Boolean
+        get() = getBoolean(BuildConfig.IS_CONTROL_SERVER_OVERRIDE_ENABLED)
+        set(value) = setBoolean(BuildConfig.IS_CONTROL_SERVER_OVERRIDE_ENABLED, value)
 }

@@ -129,6 +129,11 @@
       "name": "DEVELOPER_MODE_IS_AVAILABLE",
       "value": "true",
       "visible": false
+    },
+    {
+      "name": "IS_CONTROL_SERVER_OVERRIDE_ENABLED",
+      "value": "false",
+      "visible": false
     }
   ]
 }

@@ -32,6 +32,11 @@ class InputSettingDialog : FullscreenDialog() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        arguments?.getBoolean(KEY_IS_CANCELABLE)?.let {
+            dialog?.setCanceledOnTouchOutside(it)
+            isCancelable = it
+        }
+
         arguments?.getInt(KEY_INPUT_TYPE)?.let {
             binding.editTextValue.inputType = it
 
@@ -61,7 +66,6 @@ class InputSettingDialog : FullscreenDialog() {
                     intent
                 )
             }
-
             dismiss()
         }
 
@@ -85,7 +89,8 @@ class InputSettingDialog : FullscreenDialog() {
         private const val KEY_DIALOG_TITLE: String = "key_dialog_title"
         private const val KEY_DEFAULT_VALUE: String = "key_default_value"
         private const val KEY_INPUT_TYPE: String = "key_input_type"
-        private const val MAX_VALUE_LENGTH = 5
+        private const val KEY_IS_CANCELABLE: String = "key_is_cancelable"
+        private const val MAX_VALUE_LENGTH = 8
         const val KEY_VALUE: String = "key_value"
 
         fun instance(
@@ -93,7 +98,8 @@ class InputSettingDialog : FullscreenDialog() {
             defaultValue: String,
             fragment: Fragment,
             requestCode: Int,
-            inputType: Int = InputType.TYPE_CLASS_NUMBER
+            inputType: Int = InputType.TYPE_CLASS_NUMBER,
+            isCancelable: Boolean = true
         ): FullscreenDialog {
 
             val inputSettingDialog = InputSettingDialog()
@@ -102,6 +108,7 @@ class InputSettingDialog : FullscreenDialog() {
                 putString(KEY_DIALOG_TITLE, title)
                 putString(KEY_DEFAULT_VALUE, defaultValue)
                 putInt(KEY_INPUT_TYPE, inputType)
+                putBoolean(KEY_IS_CANCELABLE, isCancelable)
             }
             return inputSettingDialog
         }
