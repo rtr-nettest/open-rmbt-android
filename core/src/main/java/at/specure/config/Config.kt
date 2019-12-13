@@ -97,22 +97,22 @@ interface Config {
     /**
      * End of the url for getting settings from the control server, example "ControlServer/settings"
      */
-    var controlServerSettingsPath: String
+    var controlServerSettingsEndpoint: String
 
     /**
      * End of the url for getting new test settings from the control server, example "ControlServer/testRequest"
      */
-    var controlServerRequestTestPath: String
+    var controlServerRequestTestEndpoint: String
 
     /**
      * End of the url for sending test results to the control server, example "ControlServer/result"
      */
-    var controlServerSendResultPath: String
+    var controlServerSendResultEndpoint: String
 
     /**
      * End of the url for receiving history items from the server
      */
-    var controlServerHistoryPath: String
+    var controlServerHistoryEndpoint: String
 
     /**
      * Counter of tests performed by user
