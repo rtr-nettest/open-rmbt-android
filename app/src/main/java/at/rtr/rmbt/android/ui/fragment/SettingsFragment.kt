@@ -4,6 +4,7 @@ import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.text.InputType
 import android.view.View
 import android.widget.Toast
 import at.rtr.rmbt.android.BuildConfig
@@ -82,6 +83,41 @@ class SettingsFragment : BaseFragment() {
             }
         }
 
+        binding.version.frameLayoutRootKeyValue.setOnClickListener {
+            settingsViewModel.onVersionClicked()
+        }
+
+        settingsViewModel.openCodeWindow.listen(this) {
+            if (it) {
+
+                InputSettingDialog.instance(
+                    getString(R.string.preferences_enter_code), "", this,
+                    KEY_REQUEST_CODE_ENTER_CODE, isCancelable = false
+                ).show(activity)
+            }
+        }
+
+        binding.developerControlServerHost.frameLayoutRoot.setOnClickListener {
+
+            InputSettingDialog.instance(
+                getString(R.string.preferences_override_control_server_host),
+                binding.developerControlServerHost.value.toString(), this,
+                KEY_DEVELOPER_CONTROL_SERVER_HOST_CODE,
+                inputType = InputType.TYPE_CLASS_TEXT
+            )
+                .show(activity)
+        }
+
+        binding.developerControlServerPort.frameLayoutRoot.setOnClickListener {
+
+            InputSettingDialog.instance(
+                getString(R.string.preferences_override_control_server_port),
+                binding.developerControlServerPort.value.toString(), this,
+                KEY_DEVELOPER_CONTROL_SERVER_PORT_CODE
+            )
+                .show(activity)
+        }
+
         binding.version.value = BuildConfig.VERSION_NAME
         binding.commitHash.value = BuildConfig.COMMIT_HASH
     }
@@ -132,6 +168,18 @@ class SettingsFragment : BaseFragment() {
                             }
                         }
                     }
+
+                    KEY_DEVELOPER_CONTROL_SERVER_HOST_CODE -> {
+                        settingsViewModel.state.controlServerHost.set(value)
+                    }
+
+                    KEY_DEVELOPER_CONTROL_SERVER_PORT_CODE -> {
+                        settingsViewModel.state.controlServerPort.set(value.toInt())
+                    }
+
+                    KEY_REQUEST_CODE_ENTER_CODE -> {
+                        Toast.makeText(activity, getString(settingsViewModel.isCodeValid(value)), Toast.LENGTH_LONG).show()
+                    }
                 }
             }
         }
@@ -140,6 +188,10 @@ class SettingsFragment : BaseFragment() {
     companion object {
         private const val KEY_REQUEST_CODE_LOOP_MODE_WAITING_TIME: Int = 1
         private const val KEY_REQUEST_CODE_LOOP_MODE_DISTANCE: Int = 2
+        private const val KEY_REQUEST_CODE_ENTER_CODE: Int = 3
+        private const val KEY_DEVELOPER_CONTROL_SERVER_HOST_CODE: Int = 4
+        private const val KEY_DEVELOPER_CONTROL_SERVER_PORT_CODE: Int = 5
+
         private const val MIN_LOOP_MODE_WAITING_TIME: Int = 15
         private const val MAX_LOOP_MODE_WAITING_TIME: Int = 1440
         private const val MIN_LOOP_MODE_DISTANCE: Int = 50

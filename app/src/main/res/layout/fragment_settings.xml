@@ -163,13 +163,74 @@
                 bind:title="@{@string/preferences_radio_info}" />
 
             <include
+                android:id="@+id/labelDeveloperControlServer"
+                layout="@layout/item_setting_header"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:visibility="@{state.developerModeIsEnabled ? View.VISIBLE : View.GONE}"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/radioInfo"
+                bind:title="@{@string/preferences_developer_control_server}" />
+
+            <include
+                android:id="@+id/switchDeveloperControlServerOverride"
+                layout="@layout/item_setting_switch"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:visibility="@{state.developerModeIsEnabled ? View.VISIBLE : View.GONE}"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/labelDeveloperControlServer"
+                bind:summary="@{@string/preferences_override_control_server_sum}"
+                bind:title="@{@string/preferences_override_control_server}"
+                bind:value="@{state.controlServerOverrideEnabled}" />
+
+            <include
+                android:id="@+id/developerControlServerHost"
+                layout="@layout/item_setting_edittext"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:visibility="@{state.developerModeIsEnabled ? View.VISIBLE : View.GONE}"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/switchDeveloperControlServerOverride"
+                bind:title="@{@string/preferences_override_control_server_host}"
+                bind:value="@{state.controlServerHost}" />
+
+            <include
+                android:id="@+id/developerControlServerPort"
+                layout="@layout/item_setting_edittext"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:visibility="@{state.developerModeIsEnabled ? View.VISIBLE : View.GONE}"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/developerControlServerHost"
+                bind:title="@{@string/preferences_override_control_server_port}"
+                bind:value="@{String.valueOf(state.controlServerPort)}" />
+
+            <include
+                android:id="@+id/switchDeveloperControlServerSSL"
+                layout="@layout/item_setting_switch"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:visibility="@{state.developerModeIsEnabled ? View.VISIBLE : View.GONE}"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/developerControlServerPort"
+                bind:summary="@{@string/preferences_override_control_server_ssl_sum}"
+                bind:title="@{@string/preferences_override_control_server_ssl}"
+                bind:value="@{state.controlServerUseSSL}" />
+
+            <include
                 android:id="@+id/labelContact"
                 layout="@layout/item_setting_header"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/radioInfo"
+                app:layout_constraintTop_toBottomOf="@+id/switchDeveloperControlServerSSL"
                 bind:title="@{@string/preferences_contact}" />
 
             <include

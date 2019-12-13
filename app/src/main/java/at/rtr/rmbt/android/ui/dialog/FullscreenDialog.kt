@@ -29,6 +29,10 @@ open class FullscreenDialog : DialogFragment() {
         return dialog
     }
 
+    fun setCanceledOnTouchOutside(cancelable: Boolean) {
+        dialog?.setCanceledOnTouchOutside(cancelable)
+    }
+
     override fun onStart() {
         super.onStart()
         val dialog = dialog
