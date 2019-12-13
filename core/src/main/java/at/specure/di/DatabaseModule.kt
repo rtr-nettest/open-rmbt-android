@@ -80,6 +80,11 @@ class DatabaseModule {
     )
 
     @Provides
-    fun provideHistoryRepository(database: CoreDatabase, controlServerClient: ControlServerClient): HistoryRepository =
-        HistoryRepositoryImpl(database.historyDao(), controlServerClient)
+    fun provideHistoryRepository(
+        database: CoreDatabase,
+        config: Config,
+        clientUUID: ClientUUID,
+        controlServerClient: ControlServerClient
+    ): HistoryRepository =
+        HistoryRepositoryImpl(database.historyDao(), config, clientUUID, controlServerClient)
 }

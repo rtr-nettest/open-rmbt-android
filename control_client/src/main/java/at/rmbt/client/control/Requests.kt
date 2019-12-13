@@ -670,10 +670,10 @@ data class CellLocationBody(
      * id of the location
      */
     @SerializedName("location_id")
-    val locationId: Int,
+    val locationId: Int?,
 
     @SerializedName("area_code")
-    val areaCode: Int,
+    val areaCode: Int?,
 
     /**
      * scrambling code, -1 if not available
@@ -732,4 +732,18 @@ data class ClassificationBody(val count: Int)
 data class QoSBody(
     @SerializedName("supports_info")
     val supportsInfo: Boolean
+)
+
+@Keep
+data class HistoryRequestBody(
+    @SerializedName("uuid")
+    val clientUUID: String,
+    @SerializedName("result_offset")
+    val offset: Int,
+    @SerializedName("result_limit")
+    val limit: Int,
+    val language: String,
+    val devices: List<String>?,
+    val networks: List<String>?,
+    val capabilities: CapabilitiesBody
 )

@@ -27,11 +27,15 @@ class SettingsRepositoryImpl(
     override fun refreshSettings(): Boolean {
         val body = deviceInfo.toSettingsRequest(clientUUID, config, termsAndConditions)
         val settings = controlServerClient.getSettings(body)
-        if (settings.ok) {
+        settings.onSuccess {
             val uuid = settings.success.settings.first().uuid
             if (uuid != null && uuid.isNotBlank()) {
                 clientUUID.value = uuid
             }
+
+            controlServerSettings.filterDevices = it.settings.first().history?.devices ?: listOf()
+            controlServerSettings.filterNetworkTypes = it.settings.first().history?.networks ?: listOf()
+
             val urls = settings.success.settings.first().urls
             if (urls != null) {
                 controlServerSettings.controlServerV4Url = urls.ipv4OnlyControlServerUrl
