@@ -2,7 +2,6 @@
 set -e
 set -x
 typeset err_code
-adb -e emu kill
 chmod a+x ./set_network_parameters.exp
 chmod a+x ./restartEmulator.sh
 emulator -avd $1 -no-audio -no-boot-anim -no-snapshot-load -no-snapshot-save &
