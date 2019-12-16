@@ -113,7 +113,7 @@ uiTests:
     - RTR_UI_TESTS
   only:
     refs:
-      - feature/ui_test_transfer
+      - develop
     variables:
       - $UI_TEST_RUN
 
