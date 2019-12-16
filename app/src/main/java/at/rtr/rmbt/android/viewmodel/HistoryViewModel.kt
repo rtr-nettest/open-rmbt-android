@@ -5,7 +5,6 @@ import androidx.lifecycle.MutableLiveData
 import androidx.paging.LivePagedListBuilder
 import androidx.paging.PagedList
 import at.rtr.rmbt.android.ui.viewstate.HistoryViewState
-import at.rtr.rmbt.android.util.liveDataOf
 import at.specure.data.entity.History
 import at.specure.data.repository.HistoryRepository
 import javax.inject.Inject

@@ -48,7 +48,6 @@ class HistoryRepositoryImpl(
 
         val response = client.getHistory(body)
 
-
         response.onSuccess {
             historyDao.insert(it.toModelList())
             Timber.i("history offset: $offset limit: $limit loaded: ${it.history.size}")
