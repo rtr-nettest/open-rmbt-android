@@ -575,6 +575,12 @@ data class SignalBody(
     /**
      * Only for 4G/LTE
      */
+    @SerializedName("lte_cqi")
+    val lteCqi: Int?,
+
+    /**
+     * Only for 4G/LTE
+     */
     @SerializedName("lte_rssnr")
     val lteRssnr: Int?,
 

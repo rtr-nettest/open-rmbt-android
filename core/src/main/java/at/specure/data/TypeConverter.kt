@@ -58,4 +58,16 @@ class TypeConverter {
         TestStatus.values().forEach { if (value == it.ordinal) return it }
         throw IllegalArgumentException("Test status $value not found")
     }
+
+    @TypeConverter
+    fun networkTypeCompatToValue(type: NetworkTypeCompat): String = type.stringValue
+
+    @TypeConverter
+    fun valueToNetworkTypeCompat(value: String): NetworkTypeCompat = NetworkTypeCompat.fromString(value)
+
+    @TypeConverter
+    fun classificationToValue(classification: Classification): Int = classification.intValue
+
+    @TypeConverter
+    fun valueToClassification(value: Int): Classification = Classification.fromValue(value)
 }

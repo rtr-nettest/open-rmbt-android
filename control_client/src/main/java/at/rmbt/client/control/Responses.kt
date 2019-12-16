@@ -203,11 +203,11 @@ data class HistoryItemResponse(
     @SerializedName("ping_shortest_classification")
     val pingShortestClassification: Int,
     @SerializedName("speed_download")
-    val speedDownload: Int,
+    val speedDownload: Double,
     @SerializedName("speed_download_classification")
     val speedDownloadClassification: Int,
     @SerializedName("speed_upload")
-    val speedUpload: Int,
+    val speedUpload: Double,
     @SerializedName("speed_upload_classification")
     val speedUploadClassification: Int,
     @SerializedName("test_uuid")
