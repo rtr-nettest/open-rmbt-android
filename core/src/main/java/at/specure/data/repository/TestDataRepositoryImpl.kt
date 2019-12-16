@@ -235,6 +235,11 @@ class TestDataRepositoryImpl(db: CoreDatabase, private val resultsRepository: Re
         dataState: String?,
         simCount: Int
     ) = io {
+        val networkSimOperator = when {
+            networkInfo?.mcc == null -> null
+            networkInfo.mnc == null -> null
+            else -> "${networkInfo.mcc}-${DecimalFormat("00").format(networkInfo.mnc)}"
+        }
         val record = TestTelephonyRecord(
             testUUID = testUUID,
             networkOperatorName = operatorName,
@@ -242,7 +247,7 @@ class TestDataRepositoryImpl(db: CoreDatabase, private val resultsRepository: Re
             networkIsRoaming = networkInfo?.isRoaming,
             networkCountry = networkCountry,
             networkSimCountry = simCountry,
-            networkSimOperator = "${networkInfo?.mcc}-${DecimalFormat("00").format(networkInfo?.mnc)}",
+            networkSimOperator = networkSimOperator,
             networkSimOperatorName = simOperatorName,
             phoneType = phoneType,
             dataState = dataState,
