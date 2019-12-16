@@ -1,12 +1,19 @@
 package at.specure.data.repository
 
-import androidx.lifecycle.LiveData
-import at.rmbt.util.Maybe
+import androidx.paging.DataSource
+import androidx.paging.PagedList
+import at.rmbt.util.exception.HandledException
 import at.specure.data.entity.History
 
 interface HistoryRepository {
 
-    fun getHistory(): LiveData<List<History>>
+    fun getHistorySource(): DataSource.Factory<Int, History>
 
-    fun refreshHistory(callback: (Maybe<Boolean>) -> Unit)
+    fun clearHistory()
+
+    fun boundaryCallback(
+        limit: Int,
+        onLoadingCallback: ((Boolean) -> Unit),
+        onErrorCallback: ((HandledException) -> Unit)
+    ): PagedList.BoundaryCallback<History>
 }

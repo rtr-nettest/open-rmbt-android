@@ -28,7 +28,6 @@ import at.specure.data.entity.TestRecord
 import at.specure.data.entity.TestTelephonyRecord
 import at.specure.data.entity.TestWlanRecord
 import at.specure.info.TransportType
-import at.specure.info.cell.CellTechnology
 import at.specure.info.network.MobileNetworkType
 import at.specure.info.strength.SignalStrengthInfo
 import at.specure.info.strength.SignalStrengthInfoGsm
@@ -156,19 +155,34 @@ fun TestRecord.toRequest(
     val radioInfo: RadioInfoBody? = if (cellInfoList.isEmpty() && signalList.isEmpty()) {
         null
     } else {
-        val cells: List<CellInfoBody>? = if (cellInfoList.isEmpty()) {
+        val cells: Map<String, CellInfoBody>? = if (cellInfoList.isEmpty()) {
             null
         } else {
-            cellInfoList.map { it.toRequest(uuid) }
+            val map = mutableMapOf<String, CellInfoBody>()
+            cellInfoList.forEach {
+                map[it.uuid] = it.toRequest()
+            }
+            if (map.isEmpty()) null else map
         }
 
         val signals: List<SignalBody>? = if (signalList.isEmpty()) {
             null
         } else {
-            signalList.map { it.toRequest(uuid) }
+            val list = mutableListOf<SignalBody>()
+            if (cells == null) {
+                null
+            } else {
+                signalList.forEach {
+                    val cell = cells[it.cellUuid]
+                    if (cell != null) {
+                        list.add(it.toRequest(cell.uuid))
+                    }
+                }
+                if (list.isEmpty()) null else list
+            }
         }
 
-        RadioInfoBody(cells, signals)
+        RadioInfoBody(cells?.entries?.map { it.value }, signals)
     }
 
     val speedDetail: List<SpeedBody>? = if (speedInfoList.isEmpty()) {
@@ -289,21 +303,21 @@ fun CapabilitiesRecord.toRequest() = CapabilitiesBody(
     rmbtHttpStatus = rmbtHttpStatus
 )
 
-fun CellInfoRecord.toRequest(testUUID: String) = CellInfoBody(
+fun CellInfoRecord.toRequest() = CellInfoBody(
     active = isActive,
     areaCode = areaCode,
-    uuid = randomizeUUID(testUUID),
+    uuid = UUID.randomUUID().toString(),
     channelNumber = channelNumber,
     locationId = locationId,
     mnc = mnc,
     mcc = mcc,
     primaryScramblingCode = primaryScramblingCode,
-    technology = transportType.toTechnologyString(cellTechnology),
+    technology = NetworkTypeCompat.fromType(transportType, cellTechnology).stringValue,
     registered = registered
 )
 
-fun SignalRecord.toRequest(testUUID: String) = SignalBody(
-    cellUuid = randomizeUUID(testUUID),
+fun SignalRecord.toRequest(cellUUID: String) = SignalBody(
+    cellUuid = cellUUID,
     networkTypeId = transportType.toRequestIntValue(mobileNetworkType),
     signal = signal,
     bitErrorRate = bitErrorRate,
@@ -311,6 +325,7 @@ fun SignalRecord.toRequest(testUUID: String) = SignalBody(
     lteRsrp = lteRsrp,
     lteRsrq = lteRsrq,
     lteRssnr = lteRssnr,
+    lteCqi = lteCqi,
     timingAdvance = timingAdvance,
     timeNanos = timeNanos,
     timeLastNanos = timeNanosLast
@@ -335,22 +350,6 @@ fun PermissionStatusRecord.toRequest() = PermissionStatusBody(
     permission = permissionName,
     status = status
 )
-
-fun TransportType.toTechnologyString(cellTechnology: CellTechnology?): String {
-    return when (this) {
-        TransportType.WIFI -> "WLAN"
-        TransportType.CELLULAR -> {
-            when (cellTechnology) {
-                CellTechnology.CONNECTION_2G -> "2G"
-                CellTechnology.CONNECTION_3G -> "3G"
-                CellTechnology.CONNECTION_4G -> "4G"
-                CellTechnology.CONNECTION_5G -> throw IllegalArgumentException("5G not supported to send to the server")
-                else -> throw java.lang.IllegalArgumentException("Incorrect cell technology value or null ${cellTechnology?.name}")
-            }
-        }
-        else -> throw IllegalArgumentException("Unsupported transport type ${this.name}")
-    }
-}
 
 fun TransportType.toRequestIntValue(mobileNetworkType: MobileNetworkType?): Int {
     return when (this) {
@@ -394,7 +393,3 @@ fun TransportType.toRequestValue(mobileNetworkType: MobileNetworkType?): String 
         else -> "UNKNOWN"
     }
 }
-
-private fun SignalRecord.randomizeUUID(testUUID: String) = UUID.nameUUIDFromBytes("$cellUuid$testUUID".toByteArray()).toString()
-
-private fun CellInfoRecord.randomizeUUID(testUUID: String) = UUID.nameUUIDFromBytes("$uuid$testUUID".toByteArray()).toString()

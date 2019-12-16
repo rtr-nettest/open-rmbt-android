@@ -1,6 +1,6 @@
 package at.specure.data.dao
 
-import androidx.lifecycle.LiveData
+import androidx.paging.DataSource
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
@@ -12,8 +12,11 @@ import at.specure.data.entity.History
 @Dao
 abstract class HistoryDao {
 
-    @Query("SELECT * from ${Tables.HISTORY} ORDER BY timeMillis DESC")
-    abstract fun get(): LiveData<List<History>>
+    @Query("SELECT * from ${Tables.HISTORY} ORDER BY time DESC")
+    abstract fun getHistorySource(): DataSource.Factory<Int, History>
+
+    @Query("SELECT COUNT(*) from ${Tables.HISTORY}")
+    abstract fun getItemsCount(): Int
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     abstract fun insert(history: List<History>)
