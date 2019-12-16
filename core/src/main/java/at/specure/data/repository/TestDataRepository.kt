@@ -33,7 +33,7 @@ interface TestDataRepository {
         testStartTimeNanos: Long
     )
 
-    fun saveCellInfo(testUUID: String, infoList: List<NetworkInfo>)
+    fun saveCellInfo(testUUID: String, infoList: List<NetworkInfo>, testStartTimeNanos: Long)
 
     fun getCapabilities(testUUID: String): CapabilitiesRecord
 

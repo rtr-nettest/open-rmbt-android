@@ -35,7 +35,6 @@ import at.specure.info.strength.SignalStrengthInfoLte
 import at.specure.info.strength.SignalStrengthInfoWiFi
 import at.specure.location.LocationInfo
 import at.specure.test.DeviceInfo
-import timber.log.Timber
 import java.util.UUID
 
 fun DeviceInfo.toSettingsRequest(clientUUID: ClientUUID, config: Config, tac: TermsAndConditions) = SettingsRequestBody(
@@ -113,7 +112,7 @@ fun SignalStrengthInfo.toRequest(): SignalItemBody? = when (this) {
 fun LocationInfo.toRequest() = TestLocationBody(
     latitude = latitude,
     longitude = longitude,
-    provider = provider.name,
+    provider = provider,
     speed = speed,
     altitude = altitude,
     timeMillis = time,
@@ -201,15 +200,6 @@ fun TestRecord.toRequest(
         null
     } else {
         permissions.map { it.toRequest() }
-    }
-
-    Timber.v("----------------")
-    radioInfo?.cells?.forEach {
-        Timber.d("GGG: isActive: ${it.active} ${it.uuid}")
-    }
-    Timber.d("GGG:")
-    radioInfo?.signals?.forEach {
-        Timber.i("GGG: ${it.cellUuid}")
     }
 
     return TestResultBody(

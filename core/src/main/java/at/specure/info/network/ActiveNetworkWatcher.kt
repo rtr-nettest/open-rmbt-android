@@ -32,7 +32,7 @@ class ActiveNetworkWatcher(
     private val connectivityWatcher: ConnectivityWatcher,
     private val wifiInfoWatcher: WifiInfoWatcher,
     private val cellInfoWatcher: CellInfoWatcher,
-    private val locationAccess: LocationAccess
+    locationAccess: LocationAccess
 ) : LocationAccess.LocationAccessChangeListener {
 
     private val listeners = Collections.synchronizedSet(mutableSetOf<NetworkChangeListener>())

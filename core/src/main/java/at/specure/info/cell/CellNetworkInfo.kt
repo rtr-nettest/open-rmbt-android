@@ -29,6 +29,7 @@ import at.specure.info.TransportType
 import at.specure.info.band.CellBand
 import at.specure.info.network.MobileNetworkType
 import at.specure.info.network.NetworkInfo
+import at.specure.info.strength.SignalStrengthInfo
 import java.util.UUID
 
 /**
@@ -68,6 +69,8 @@ class CellNetworkInfo(
     val isRoaming: Boolean,
 
     val apn: String?,
+
+    val signalStrength: SignalStrengthInfo?,
 
     /**
      * Random generated cell UUID
@@ -127,6 +130,7 @@ class CellNetworkInfo(
             } else {
                 null
             }
+
             return CellNetworkInfo(
                 providerName = providerName,
                 band = band,
@@ -140,7 +144,8 @@ class CellNetworkInfo(
                 isRegistered = info.isRegistered,
                 isActive = isActive,
                 isRoaming = isRoaming,
-                apn = apn
+                apn = apn,
+                signalStrength = SignalStrengthInfo.from(info.cellSignalStrength)
             )
         }
 
@@ -171,7 +176,8 @@ class CellNetworkInfo(
                 isActive = isActive,
                 isRegistered = info.isRegistered,
                 isRoaming = isRoaming,
-                apn = apn
+                apn = apn,
+                signalStrength = SignalStrengthInfo.from(info.cellSignalStrength)
             )
         }
 
@@ -204,7 +210,8 @@ class CellNetworkInfo(
                 isActive = isActive,
                 isRegistered = info.isRegistered,
                 isRoaming = isRoaming,
-                apn = apn
+                apn = apn,
+                signalStrength = SignalStrengthInfo.from(info.cellSignalStrength)
             )
         }
 
@@ -230,7 +237,8 @@ class CellNetworkInfo(
                 isActive = isActive,
                 isRegistered = info.isRegistered,
                 isRoaming = isRoaming,
-                apn = apn
+                apn = apn,
+                signalStrength = SignalStrengthInfo.from(info.cellSignalStrength)
             )
         }
     }

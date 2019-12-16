@@ -166,7 +166,7 @@ class StateRecorder @Inject constructor(
                 else -> throw IllegalArgumentException("Unknown cell info ${info.javaClass.simpleName}")
             }
 
-            repository.saveCellInfo(uuid, infoList)
+            repository.saveCellInfo(uuid, infoList, testStartTimeNanos)
         }
     }
 
@@ -219,27 +219,27 @@ class StateRecorder @Inject constructor(
             val simCount: Int
 
             if (context.isReadPhoneStatePermitted() && isDualByMobile) {
-                val info = subscriptionManager.activeSubscriptionInfoList.firstOrNull()
-                simCount = if (info != null) subscriptionManager.activeSubscriptionInfoCount else 2
-                info?.let {
-                    operatorName = info.carrierName.toString()
+                val subscription = subscriptionManager.activeSubscriptionInfoList.firstOrNull()
+                simCount = if (subscription != null) subscriptionManager.activeSubscriptionInfoCount else 2
+                subscription?.let {
+                    operatorName = subscription.carrierName.toString()
                     val networkSimOperator = when {
-                        info.mccCompat() == null -> null
-                        info.mncCompat() == null -> null
-                        else -> "${info.mccCompat()}-${DecimalFormat("00").format(info.mncCompat())}"
+                        subscription.mccCompat() == null -> null
+                        subscription.mncCompat() == null -> null
+                        else -> "${subscription.mccCompat()}-${DecimalFormat("00").format(subscription.mncCompat())}"
                     }
                     networkOperator = networkSimOperator
-                    networkCountry = info.countryIso
+                    networkCountry = subscription.countryIso
                 }
             } else {
                 simCount = 1
                 operatorName = telephonyManager.networkOperatorName
-                networkOperator = telephonyManager.networkOperator
+                networkOperator = telephonyManager.networkOperator.fixOperatorName()
                 networkCountry = telephonyManager.networkCountryIso
             }
 
             val networkInfo = cellInfoWatcher.activeNetwork
-            val simCountry = telephonyManager.simCountryIso
+            val simCountry = telephonyManager.simCountryIso.fixOperatorName()
             val simOperatorName = try { // hack for Motorola Defy (#594)
                 telephonyManager.simOperatorName
             } catch (ex: SecurityException) {
@@ -349,6 +349,16 @@ class StateRecorder @Inject constructor(
             testRecord?.also {
                 it.status = status
             }
+        }
+    }
+
+    private fun String?.fixOperatorName(): String? {
+        return if (this == null) {
+            null
+        } else if (length >= 5 && !contains("-")) {
+            "${substring(0, 3)}-${substring(3)}"
+        } else {
+            this
         }
     }
 }

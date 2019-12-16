@@ -5,7 +5,10 @@ import at.rmbt.client.control.ControlServerClient
 import at.rmbt.util.exception.HandledException
 import at.specure.data.ClientUUID
 import at.specure.data.CoreDatabase
+import at.specure.data.entity.TestTelephonyRecord
+import at.specure.data.entity.TestWlanRecord
 import at.specure.data.toRequest
+import at.specure.info.TransportType
 import at.specure.test.DeviceInfo
 import at.specure.util.exception.DataMissingException
 import timber.log.Timber
@@ -26,11 +29,23 @@ class ResultsRepositoryImpl @Inject constructor(
         val testRecord = db.testDao().get(testUUID) ?: throw DataMissingException("TestRecord not found uuid: $testUUID")
         val clientUUID = clientUUID.value ?: throw DataMissingException("ClientUUID is null")
 
+        val telephonyInfo: TestTelephonyRecord? = if (testRecord.transportType == TransportType.CELLULAR) {
+            db.testDao().getTelehonyRecord(testUUID)
+        } else {
+            null
+        }
+
+        val wlanInfo: TestWlanRecord? = if (testRecord.transportType == TransportType.WIFI) {
+            db.testDao().getWlanRecord(testUUID)
+        } else {
+            null
+        }
+
         val body = testRecord.toRequest(
             clientUUID = clientUUID,
             deviceInfo = deviceInfo,
-            telephonyInfo = db.testDao().getTelehonyRecord(testUUID),
-            wlanInfo = db.testDao().getWlanRecord(testUUID),
+            telephonyInfo = telephonyInfo,
+            wlanInfo = wlanInfo,
             locations = db.geoLocationDao().get(testUUID),
             capabilities = db.capabilitiesDao().get(testUUID),
             pingList = db.pingDao().get(testUUID),

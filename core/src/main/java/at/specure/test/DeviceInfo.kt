@@ -2,6 +2,7 @@ package at.specure.test
 
 import android.content.Context
 import android.os.Build
+import androidx.annotation.Keep
 import at.specure.core.BuildConfig
 import at.specure.util.hasPermission
 import com.google.gson.annotations.Expose
@@ -9,6 +10,7 @@ import com.google.gson.annotations.SerializedName
 import java.util.Locale
 import java.util.TimeZone
 
+@Keep
 class DeviceInfo(context: Context, val location: Location? = null) {
 
     @SerializedName("plattform")

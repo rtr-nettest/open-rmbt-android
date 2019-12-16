@@ -144,7 +144,7 @@ class MeasurementService : LifecycleService() {
             location = DeviceInfo.Location(
                 lat = it.latitude,
                 long = it.longitude,
-                provider = it.provider.name,
+                provider = it.provider,
                 speed = it.speed,
                 bearing = it.bearing,
                 time = it.elapsedRealtimeNanos,
