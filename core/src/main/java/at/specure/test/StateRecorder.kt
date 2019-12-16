@@ -37,6 +37,7 @@ import at.specure.util.hasPermission
 import at.specure.util.isReadPhoneStatePermitted
 import at.specure.util.permission.PermissionsWatcher
 import timber.log.Timber
+import java.text.DecimalFormat
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import kotlin.math.floor
@@ -222,7 +223,12 @@ class StateRecorder @Inject constructor(
                 simCount = if (info != null) subscriptionManager.activeSubscriptionInfoCount else 2
                 info?.let {
                     operatorName = info.carrierName.toString()
-                    networkOperator = "${info.mccCompat()}-${String.format("%02d", info.mncCompat())}"
+                    val networkSimOperator = when {
+                        info.mccCompat() == null -> null
+                        info.mncCompat() == null -> null
+                        else -> "${info.mccCompat()}-${DecimalFormat("00").format(info.mncCompat())}"
+                    }
+                    networkOperator = networkSimOperator
                     networkCountry = info.countryIso
                 }
             } else {
