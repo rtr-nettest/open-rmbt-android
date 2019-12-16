@@ -240,8 +240,6 @@
 
     <data>
 
-        <import type="at.specure.location.LocationInfo.LocationProvider" />
-
         <variable
             name="locationInfo"
             type="at.specure.location.LocationInfo" />

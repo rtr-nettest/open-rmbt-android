@@ -17,14 +17,14 @@ class SignalStrengthInfoLte(
      * @return the CQI if available or
      *         {@link android.telephony.CellInfo#UNAVAILABLE UNAVAILABLE} if unavailable.
      */
-    val cqi: Int,
+    val cqi: Int?,
 
     /**
      * Get reference signal received power in dBm
      *
      * @return the RSRP of the measured cell.
      */
-    val rsrp: Int,
+    val rsrp: Int?,
 
     /**
      * Get Received Signal Strength Indication (RSSI) in dBm
@@ -35,7 +35,7 @@ class SignalStrengthInfoLte(
      *
      * @return the RSSI if available or {@link CellInfo#UNAVAILABLE} if unavailable.
      */
-    val rssi: Int,
+    val rssi: Int?,
 
     /**
      * Get reference signal signal-to-noise ratio
@@ -43,7 +43,7 @@ class SignalStrengthInfoLte(
      * @return the RSSNR if available or
      *         {@link android.telephony.CellInfo#UNAVAILABLE UNAVAILABLE} if unavailable.
      */
-    val rssnr: Int,
+    val rssnr: Int?,
 
     /**
      * Get the timing advance value for LTE, as a value in range of 0..1282.

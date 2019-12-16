@@ -45,7 +45,7 @@ class TestDataRepositoryImpl(db: CoreDatabase, private val resultsRepository: Re
             testUUID = testUUID,
             latitude = location.latitude,
             longitude = location.longitude,
-            provider = location.provider.name,
+            provider = location.provider,
             speed = location.speed,
             altitude = location.altitude,
             time = location.time,
@@ -95,7 +95,17 @@ class TestDataRepositoryImpl(db: CoreDatabase, private val resultsRepository: Re
         info: SignalStrengthInfo,
         testStartTimeNanos: Long
     ) = io {
-        val signal = info.value
+        saveSignalStrengthDirectly(testUUID, cellUUID, mobileNetworkType, info, testStartTimeNanos)
+    }
+
+    private fun saveSignalStrengthDirectly(
+        testUUID: String,
+        cellUUID: String,
+        mobileNetworkType: MobileNetworkType?,
+        info: SignalStrengthInfo,
+        testStartTimeNanos: Long
+    ) {
+        var signal = info.value
         var wifiLinkSpeed: Int? = null
         val timeNanos = info.timestampNanos
         val timeNanosLast = if (timeNanos < testStartTimeNanos) 0 else timeNanos - testStartTimeNanos
@@ -110,6 +120,7 @@ class TestDataRepositoryImpl(db: CoreDatabase, private val resultsRepository: Re
 
         when (info) {
             is SignalStrengthInfoLte -> {
+                signal = null
                 lteRsrp = info.rsrp
                 lteRsrq = info.rsrq
                 lteRssnr = info.rssnr
@@ -144,12 +155,17 @@ class TestDataRepositoryImpl(db: CoreDatabase, private val resultsRepository: Re
         signalDao.insert(item)
     }
 
-    override fun saveCellInfo(testUUID: String, infoList: List<NetworkInfo>) = io {
+    override fun saveCellInfo(testUUID: String, infoList: List<NetworkInfo>, testStartTimeNanos: Long) = io {
         val cellInfo = mutableListOf<CellInfoRecord>()
         infoList.forEach { info ->
             val mapped = when (info) {
                 is WifiNetworkInfo -> info.toCellInfoRecord(testUUID)
-                is CellNetworkInfo -> info.toCellInfoRecord(testUUID)
+                is CellNetworkInfo -> {
+                    info.signalStrength?.let {
+                        saveSignalStrengthDirectly(testUUID, info.cellUUID, info.networkType, it, testStartTimeNanos)
+                    }
+                    info.toCellInfoRecord(testUUID)
+                }
                 else -> throw IllegalArgumentException("Don't know how to save ${info.javaClass.simpleName} info into db")
             }
             cellInfo.add(mapped)

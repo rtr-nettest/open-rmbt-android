@@ -166,7 +166,7 @@ class StateRecorder @Inject constructor(
                 else -> throw IllegalArgumentException("Unknown cell info ${info.javaClass.simpleName}")
             }
 
-            repository.saveCellInfo(uuid, infoList)
+            repository.saveCellInfo(uuid, infoList, testStartTimeNanos)
         }
     }
 

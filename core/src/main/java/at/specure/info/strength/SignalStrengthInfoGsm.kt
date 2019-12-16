@@ -17,7 +17,7 @@ class SignalStrengthInfoGsm(
      * @return the bit error rate (0-7, 99) as defined in TS 27.007 8.5 or
      *         {@link android.telephony.CellInfo#UNAVAILABLE UNAVAILABLE}.
      */
-    val bitErrorRate: Int,
+    val bitErrorRate: Int?,
 
     /**
      * Get the GSM timing advance between 0..219 symbols (normally 0..63).
@@ -26,6 +26,6 @@ class SignalStrengthInfoGsm(
      *
      * @return the current GSM timing advance, if available.
      */
-    val timingAdvance: Int
+    val timingAdvance: Int?
 
 ) : SignalStrengthInfo(transport, value, rsrq, signalLevel, min, max, timestampNanos)
