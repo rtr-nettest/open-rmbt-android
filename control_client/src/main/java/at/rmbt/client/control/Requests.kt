@@ -634,7 +634,7 @@ data class TestLocationBody(
     val latitude: Double,
     @SerializedName("geo_long")
     val longitude: Double,
-    val provider: String,
+    val provider: String?,
     val speed: Float,
     val altitude: Double,
 

@@ -73,9 +73,9 @@ class LocationInfo {
     val accuracy: Float
 
     /**
-     * Provider as [LocationProvider]
+     * Location provider name
      */
-    val provider: LocationProvider
+    val provider: String
 
     /**
      * true if location is from mocked provider, false otherwise
@@ -143,7 +143,7 @@ class LocationInfo {
 
         satellites = formatSatellites(location.extras)
 
-        provider = formatProvider(location.provider)
+        provider = location.provider
         providerRaw = location.provider
         locationIsMocked = location.isFromMockProvider
 
@@ -220,7 +220,7 @@ class LocationInfo {
 
         this.satellites = satellitesCount
 
-        this.provider = formatProvider(provider)
+        this.provider = provider
         this.providerRaw = providerRaw
         this.locationIsMocked = isFromMockProvider
 
@@ -236,15 +236,6 @@ class LocationInfo {
         this.elapsedRealtimeNanos = elapsedRealtimeNanos
 
         this.time = time
-    }
-
-    private fun formatProvider(provider: String): LocationProvider {
-        return when (provider) {
-            "fused" -> LocationProvider.FUSED
-            "gps" -> LocationProvider.GPS
-            "network" -> LocationProvider.NETWORK
-            else -> LocationProvider.UNKNOWN
-        }
     }
 
     private fun formatSatellites(extras: Bundle?): Int {
@@ -270,12 +261,5 @@ class LocationInfo {
         SOUTH,
         EAST,
         WEST
-    }
-
-    enum class LocationProvider {
-        UNKNOWN,
-        NETWORK,
-        GPS,
-        FUSED,
     }
 }
