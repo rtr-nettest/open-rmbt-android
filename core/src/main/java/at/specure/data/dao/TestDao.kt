@@ -40,4 +40,10 @@ interface TestDao {
 
     @Query("SELECT * from ${Tables.TEST_WLAN_RECORD} WHERE testUUID == :uuid")
     fun getWlanRecord(uuid: String): TestWlanRecord?
+
+    @Query("SELECT submissionRetryCount FROM ${Tables.TEST} WHERE uuid == :uuid")
+    fun getSubmissionsRetryCount(uuid: String): Int?
+
+    @Query("UPDATE ${Tables.TEST} SET submissionRetryCount = submissionRetryCount + 1 WHERE uuid == :uuid")
+    fun updateSubmissionsRetryCounter(uuid: String)
 }

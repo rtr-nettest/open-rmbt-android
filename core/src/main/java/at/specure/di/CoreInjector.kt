@@ -15,6 +15,7 @@
 package at.specure.di
 
 import at.specure.measurement.MeasurementService
+import at.specure.worker.request.SendDataWorker
 import at.specure.worker.request.SettingsWorker
 
 object CoreInjector : CoreComponent {
@@ -22,6 +23,8 @@ object CoreInjector : CoreComponent {
     lateinit var component: CoreComponent
 
     override fun inject(settingsWorker: SettingsWorker) = component.inject(settingsWorker)
+
+    override fun inject(sendDataWorker: SendDataWorker) = component.inject(sendDataWorker)
 
     override fun inject(service: MeasurementService) = component.inject(service)
 }

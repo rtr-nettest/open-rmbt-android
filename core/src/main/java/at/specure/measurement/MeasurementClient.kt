@@ -1,10 +1,10 @@
 package at.specure.measurement
 
+import at.rmbt.util.exception.HandledException
+
 interface MeasurementClient {
 
     fun onProgressChanged(state: MeasurementState, progress: Int)
-
-    fun onMeasurementFinish()
 
     fun onMeasurementError()
 
@@ -17,4 +17,8 @@ interface MeasurementClient {
     fun onClientReady(testUUID: String)
 
     fun isQoSEnabled(enabled: Boolean)
+
+    fun onSubmitted()
+
+    fun onSubmissionError(exception: HandledException)
 }

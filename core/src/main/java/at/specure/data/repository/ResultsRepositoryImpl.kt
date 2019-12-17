@@ -1,8 +1,10 @@
 package at.specure.data.repository
 
 import android.content.Context
+import at.rmbt.client.control.BaseResponse
 import at.rmbt.client.control.ControlServerClient
-import at.rmbt.util.exception.HandledException
+import at.rmbt.util.Maybe
+import at.rmbt.util.io
 import at.specure.data.ClientUUID
 import at.specure.data.CoreDatabase
 import at.specure.data.entity.TestTelephonyRecord
@@ -11,7 +13,6 @@ import at.specure.data.toRequest
 import at.specure.info.TransportType
 import at.specure.test.DeviceInfo
 import at.specure.util.exception.DataMissingException
-import timber.log.Timber
 import javax.inject.Inject
 
 class ResultsRepositoryImpl @Inject constructor(
@@ -19,21 +20,25 @@ class ResultsRepositoryImpl @Inject constructor(
     private val db: CoreDatabase,
     private val clientUUID: ClientUUID,
     private val client: ControlServerClient
-) :
-    ResultsRepository {
+) : ResultsRepository {
 
     private val deviceInfo = DeviceInfo(context)
 
-    @Throws(HandledException::class)
-    override fun sendTestResults(testUUID: String) {
-        val testRecord = db.testDao().get(testUUID) ?: throw DataMissingException("TestRecord not found uuid: $testUUID")
+    override fun sendTestResults(testUUID: String, callback: (Maybe<BaseResponse>) -> Unit) = io {
+        callback.invoke(sendTestResults(testUUID))
+    }
+
+    override fun sendTestResults(testUUID: String): Maybe<BaseResponse> {
+        val testDao = db.testDao()
+        val testRecord = testDao.get(testUUID) ?: throw DataMissingException("TestRecord not found uuid: $testUUID")
         val clientUUID = clientUUID.value ?: throw DataMissingException("ClientUUID is null")
 
-        val telephonyInfo: TestTelephonyRecord? = if (testRecord.transportType == TransportType.CELLULAR) {
-            db.testDao().getTelehonyRecord(testUUID)
-        } else {
-            null
-        }
+        val telephonyInfo: TestTelephonyRecord? =
+            if (testRecord.transportType == TransportType.CELLULAR) {
+                db.testDao().getTelehonyRecord(testUUID)
+            } else {
+                null
+            }
 
         val wlanInfo: TestWlanRecord? = if (testRecord.transportType == TransportType.WIFI) {
             db.testDao().getWlanRecord(testUUID)
@@ -56,7 +61,7 @@ class ResultsRepositoryImpl @Inject constructor(
             permissions = db.permissionStatusDao().get(testUUID)
         )
 
-        val result = client.sendTestResults(body)
-        Timber.d("Test Data sent")
+        testDao.updateSubmissionsRetryCounter(testUUID)
+        return client.sendTestResults(body)
     }
 }

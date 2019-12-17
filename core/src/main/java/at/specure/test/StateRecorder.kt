@@ -68,6 +68,7 @@ class StateRecorder @Inject constructor(
     private var signalStrengthInfo: SignalStrengthInfo? = null
     private var networkInfo: NetworkInfo? = null
     private var cellLocation: CellLocationInfo? = null
+    private var onReadyToSubmit: ((String) -> Unit)? = null
 
     val locationInfo: LocationInfo?
         get() = _locationInfo
@@ -121,6 +122,10 @@ class StateRecorder @Inject constructor(
     fun finish() {
         // TODO finish
         testUUID = null
+    }
+
+    fun setOnReadyToSubmitCallback(onReadyToSubmit: (String) -> Unit) {
+        this.onReadyToSubmit = onReadyToSubmit
     }
 
     private fun saveTestInitialTestData(testUUID: String, loopUUID: String?, testToken: String, testStartTimeNanos: Long, threadNumber: Int) {
@@ -339,7 +344,9 @@ class StateRecorder @Inject constructor(
         }
 
         testRecord?.let {
-            repository.update(it)
+            repository.update(it) {
+                onReadyToSubmit?.invoke(it.uuid)
+            }
         }
         testUUID = null
     }

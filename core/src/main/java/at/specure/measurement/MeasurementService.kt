@@ -8,14 +8,18 @@ import android.os.Binder
 import android.os.Build
 import android.os.IBinder
 import android.os.PowerManager
+import at.rmbt.util.exception.HandledException
+import at.rmbt.util.exception.NoConnectionException
 import at.specure.config.Config
+import at.specure.data.repository.ResultsRepository
+import at.specure.data.repository.TestDataRepository
 import at.specure.di.CoreInjector
 import at.specure.di.NotificationProvider
-import at.specure.data.repository.TestDataRepository
 import at.specure.test.DeviceInfo
 import at.specure.test.StateRecorder
 import at.specure.test.TestController
 import at.specure.test.TestProgressListener
+import at.specure.worker.WorkLauncher
 import timber.log.Timber
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
@@ -36,6 +40,9 @@ class MeasurementService : LifecycleService() {
 
     @Inject
     lateinit var testDataRepository: TestDataRepository
+
+    @Inject
+    lateinit var resultRepository: ResultsRepository
 
     private val producer: Producer by lazy { Producer() }
     private val clientAggregator: ClientAggregator by lazy { ClientAggregator() }
@@ -81,7 +88,6 @@ class MeasurementService : LifecycleService() {
 
         override fun onFinish() {
             stopForeground(true)
-            clientAggregator.onMeasurementFinish()
             stateRecorder.finish()
             unlock()
         }
@@ -96,6 +102,21 @@ class MeasurementService : LifecycleService() {
 
         override fun onClientReady(testUUID: String, testStartTimeNanos: Long) {
             clientAggregator.onClientReady(testUUID)
+            stateRecorder.setOnReadyToSubmitCallback {
+                resultRepository.sendTestResults(testUUID) {
+                    it.onSuccess {
+                        clientAggregator.onSubmitted()
+                    }
+
+                    it.onFailure { ex ->
+                        clientAggregator.onSubmissionError(ex)
+                        if (ex is NoConnectionException) {
+                            Timber.d("Delayed submission work created")
+                            WorkLauncher.enqueueDelayedDataSaveRequest(applicationContext, testUUID)
+                        }
+                    }
+                }
+            }
         }
     }
 
@@ -285,12 +306,6 @@ class MeasurementService : LifecycleService() {
             }
         }
 
-        override fun onMeasurementFinish() {
-            clients.forEach {
-                it.onMeasurementFinish()
-            }
-        }
-
         override fun onMeasurementError() {
             clients.forEach {
                 it.onMeasurementError()
@@ -324,6 +339,18 @@ class MeasurementService : LifecycleService() {
         override fun isQoSEnabled(enabled: Boolean) {
             clients.forEach {
                 it.isQoSEnabled(enabled)
+            }
+        }
+
+        override fun onSubmitted() {
+            clients.forEach {
+                it.onSubmitted()
+            }
+        }
+
+        override fun onSubmissionError(exception: HandledException) {
+            clients.forEach {
+                it.onSubmissionError(exception)
             }
         }
     }

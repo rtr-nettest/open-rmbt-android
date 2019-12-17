@@ -182,5 +182,11 @@ data class TestRecord(
     /**
      * Time of test in milliseconds
      */
-    var testTimeMillis: Long = 0
+    var testTimeMillis: Long = 0,
+
+    /**
+     * Count of unsuccessful submissions
+     */
+    var submissionRetryCount: Int = 0
+
 )
