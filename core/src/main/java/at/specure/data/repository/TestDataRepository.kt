@@ -62,5 +62,5 @@ interface TestDataRepository {
 
     fun saveTest(test: TestRecord)
 
-    fun update(testRecord: TestRecord)
+    fun update(testRecord: TestRecord, onUpdated: () -> Unit)
 }

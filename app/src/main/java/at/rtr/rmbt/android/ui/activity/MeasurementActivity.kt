@@ -27,7 +27,6 @@ import at.rtr.rmbt.android.ui.dialog.SimpleDialog
 import at.rtr.rmbt.android.util.listen
 import at.rtr.rmbt.android.viewmodel.MeasurementViewModel
 import at.specure.measurement.MeasurementState
-import kotlinx.android.synthetic.main.activity_measurement.view.*
 import kotlinx.android.synthetic.main.activity_measurement.view.measurement_bottom_view
 import kotlinx.android.synthetic.main.measurement_bottom_view.view.*
 
@@ -52,6 +51,14 @@ class MeasurementActivity : BaseActivity(), SimpleDialog.Callback {
             SimpleDialog.Builder()
                 .messageText(R.string.test_dialog_error_text)
                 .positiveText(R.string.input_setting_dialog_ok)
+                .cancelable(false)
+                .show(supportFragmentManager, 0)
+        }
+
+        viewModel.submissionErrorLiveData.listen(this) {
+            SimpleDialog.Builder()
+                .messageText(R.string.test_submission_error_text)
+                .positiveText(R.string.test_submission_error_accept)
                 .cancelable(false)
                 .show(supportFragmentManager, 0)
         }

@@ -6,16 +6,18 @@ import android.content.ServiceConnection
 import android.os.IBinder
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import at.rmbt.util.exception.HandledException
+import at.rmbt.util.exception.NoConnectionException
 import at.rtr.rmbt.android.ui.viewstate.MeasurementViewState
 import at.rtr.rmbt.android.util.plusAssign
 import at.specure.data.entity.GraphItemRecord
+import at.specure.data.repository.TestDataRepository
 import at.specure.info.network.ActiveNetworkLiveData
 import at.specure.info.strength.SignalStrengthLiveData
 import at.specure.measurement.MeasurementClient
 import at.specure.measurement.MeasurementProducer
 import at.specure.measurement.MeasurementService
 import at.specure.measurement.MeasurementState
-import at.specure.data.repository.TestDataRepository
 import timber.log.Timber
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
@@ -31,6 +33,7 @@ class MeasurementViewModel @Inject constructor(
     private val _measurementErrorLiveData = MutableLiveData<Boolean>()
     private val _downloadGraphLiveData = MutableLiveData<List<GraphItemRecord>>()
     private val _uploadGraphLiveData = MutableLiveData<List<GraphItemRecord>>()
+    private val _submissionErrorLiveData = MutableLiveData<Boolean>()
 
     private var producer: MeasurementProducer? = null // TODO make field private
 
@@ -50,6 +53,9 @@ class MeasurementViewModel @Inject constructor(
 
     val uploadGraphSource: LiveData<List<GraphItemRecord>>
         get() = _uploadGraphLiveData
+
+    val submissionErrorLiveData: LiveData<Boolean>
+        get() = _submissionErrorLiveData
 
     private val serviceConnection = object : ServiceConnection {
 
@@ -97,10 +103,6 @@ class MeasurementViewModel @Inject constructor(
         this.state.measurementProgress.set(progress)
     }
 
-    override fun onMeasurementFinish() {
-        _measurementFinishLiveData.postValue(true)
-    }
-
     override fun onMeasurementError() {
         _measurementErrorLiveData.postValue(true)
     }
@@ -110,7 +112,12 @@ class MeasurementViewModel @Inject constructor(
         state.measurementDownloadUploadProgress.set(progress)
 
         if (state.measurementState.get() == MeasurementState.DOWNLOAD) {
-            _downloadGraphLiveData += GraphItemRecord(testUUID = "", progress = progress, value = speedBps, type = GraphItemRecord.GRAPH_ITEM_TYPE_DOWNLOAD)
+            _downloadGraphLiveData += GraphItemRecord(
+                testUUID = "",
+                progress = progress,
+                value = speedBps,
+                type = GraphItemRecord.GRAPH_ITEM_TYPE_DOWNLOAD
+            )
         }
     }
 
@@ -119,7 +126,12 @@ class MeasurementViewModel @Inject constructor(
         state.measurementDownloadUploadProgress.set(progress)
 
         if (state.measurementState.get() == MeasurementState.UPLOAD) {
-            _uploadGraphLiveData += GraphItemRecord(testUUID = "", progress = progress, value = speedBps, type = GraphItemRecord.GRAPH_ITEM_TYPE_UPLOAD)
+            _uploadGraphLiveData += GraphItemRecord(
+                testUUID = "",
+                progress = progress,
+                value = speedBps,
+                type = GraphItemRecord.GRAPH_ITEM_TYPE_UPLOAD
+            )
         }
     }
 
@@ -129,6 +141,20 @@ class MeasurementViewModel @Inject constructor(
 
     override fun isQoSEnabled(enabled: Boolean) {
         state.qosEnabled.set(enabled)
+    }
+
+    override fun onSubmitted() {
+        Timber.d("Test Data sent")
+        _measurementFinishLiveData.postValue(true)
+    }
+
+    override fun onSubmissionError(exception: HandledException) {
+        Timber.d("Test Data submission failed")
+        if (exception is NoConnectionException) {
+            _submissionErrorLiveData.postValue(true)
+        } else {
+            _measurementErrorLiveData.postValue(true)
+        }
     }
 
     fun cancelMeasurement() {

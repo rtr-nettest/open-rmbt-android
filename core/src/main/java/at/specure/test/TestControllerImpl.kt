@@ -108,6 +108,12 @@ class TestControllerImpl(private val config: Config, private val clientUUID: Cli
             GlobalScope.async {
                 @Suppress("BlockingMethodInNonBlockingContext")
                 val result = client.runTest()
+                if (!config.skipQoSTests) { // needs to prevent calling onTestCompleted and finishing before unimplemented QoS phase
+                    // TODO remove this
+                    repeat(100) {
+                        Thread.sleep(100)
+                    }
+                }
                 clientCallback.onTestCompleted(result)
             }
 
