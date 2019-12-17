@@ -389,7 +389,7 @@ open class SignalStrengthInfo(
         }
 
         private fun Int?.fixRssnr(): Int? {
-            return if (this == null || (this > 300 || this < -200)) {
+            return if (this == null || (this > 300 || this < -200) || this == Int.MIN_VALUE || this == Int.MAX_VALUE) {
                 null
             } else
                 this
