@@ -881,7 +881,7 @@ public class RMBTClient implements RMBTClientCallback {
     @Override
     public void onSpeedDataChanged(int threadId, long bytes, long timestampNanos, boolean isUpload) {
         Timber.v("speed upload: " + isUpload + " id:  " + threadId + " bytes: " + bytes + " timestampNs: " + timestampNanos);
-        if (commonCallback != null){
+        if (commonCallback != null) {
             commonCallback.onSpeedDataChanged(threadId, bytes, timestampNanos, isUpload);
         }
     }
@@ -890,7 +890,8 @@ public class RMBTClient implements RMBTClientCallback {
     public void onPingDataChanged(long clientPing, long serverPing, long timeNs) {
         Timber.v("ping: %s", clientPing);
         if (commonCallback != null) {
-            commonCallback.onPingDataChanged(clientPing, serverPing, timeNs);
+            long startTime = controlConnection == null ? 0 : controlConnection.getStartTimeNs();
+            commonCallback.onPingDataChanged(clientPing, serverPing, timeNs - startTime);
         }
     }
 
