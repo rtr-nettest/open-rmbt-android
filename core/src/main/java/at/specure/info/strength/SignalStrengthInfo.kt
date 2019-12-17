@@ -431,6 +431,5 @@ open class SignalStrengthInfo(
             } else {
                 this
             }
-
     }
 }
