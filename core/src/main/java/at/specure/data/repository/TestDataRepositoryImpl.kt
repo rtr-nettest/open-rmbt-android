@@ -290,10 +290,8 @@ class TestDataRepositoryImpl(db: CoreDatabase, private val resultsRepository: Re
         testDao.insert(test)
     }
 
-    override fun update(testRecord: TestRecord) = io {
+    override fun update(testRecord: TestRecord, onUpdated: () -> Unit) = io {
         testDao.update(testRecord)
-
-        // TODO remove this later
-        resultsRepository.sendTestResults(testRecord.uuid)
+        onUpdated.invoke()
     }
 }

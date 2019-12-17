@@ -1,6 +1,7 @@
 package at.specure.di
 
 import at.specure.measurement.MeasurementService
+import at.specure.worker.request.SendDataWorker
 import at.specure.worker.request.SettingsWorker
 
 /**
@@ -9,6 +10,8 @@ import at.specure.worker.request.SettingsWorker
 interface CoreComponent {
 
     fun inject(settingsWorker: SettingsWorker)
+
+    fun inject(sendDataWorker: SendDataWorker)
 
     fun inject(service: MeasurementService)
 }
