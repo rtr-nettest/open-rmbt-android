@@ -33,6 +33,7 @@ import at.specure.info.network.MobileNetworkType
 import at.specure.info.network.NetworkInfo
 import at.specure.info.network.WifiNetworkInfo
 import timber.log.Timber
+import kotlin.math.abs
 
 /**
  * Class that contains data about signal strength
@@ -94,16 +95,16 @@ open class SignalStrengthInfo(
         fun from(signal: CellSignalStrengthLte): SignalStrengthInfoLte = SignalStrengthInfoLte(
             transport = TransportType.CELLULAR,
             value = signal.dbm,
-            rsrq = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) signal.rsrq else null,
+            rsrq = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) signal.rsrq.fixLteRsrq() else null,
             signalLevel = signal.level,
             min = LTE_RSRP_SIGNAL_MIN,
             max = LTE_RSRP_SIGNAL_MAX,
             timestampNanos = System.nanoTime(),
-            cqi = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) signal.cqi else null,
-            rsrp = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) signal.rsrp else null,
-            rssi = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) signal.rsrq else null,
+            cqi = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) signal.cqi.checkValueAvailable() else null,
+            rsrp = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) signal.rsrp.fixLteRsrp() else null,
+            rssi = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) signal.rssi.checkValueAvailable() else null,
             rssnr = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) signal.rssnr.fixRssnr() else null,
-            timingAdvance = signal.timingAdvance
+            timingAdvance = signal.timingAdvance.fixTimingAdvance()
         )
 
         fun from(signal: CellSignalStrengthWcdma) = SignalStrengthInfo(
@@ -124,8 +125,8 @@ open class SignalStrengthInfo(
             min = CELLULAR_SIGNAL_MIN,
             max = CELLULAR_SIGNAL_MAX,
             timestampNanos = System.nanoTime(),
-            bitErrorRate = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) signal.bitErrorRate else null,
-            timingAdvance = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) signal.timingAdvance else null
+            bitErrorRate = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) signal.bitErrorRate.checkValueAvailable() else null,
+            timingAdvance = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) signal.timingAdvance.fixTimingAdvance() else null
         )
 
         fun from(signal: CellSignalStrengthCdma) = SignalStrengthInfo(
@@ -168,75 +169,79 @@ open class SignalStrengthInfo(
             val timestampNanos = System.nanoTime()
 
             signalStrength.cellSignalStrengths.forEach {
-                when (it) {
-                    is CellSignalStrengthLte -> {
-                        signal = SignalStrengthInfoLte(
-                            transport = transportType,
-                            value = it.dbm,
-                            rsrq = it.rsrq,
-                            signalLevel = it.level,
-                            min = LTE_RSRP_SIGNAL_MIN,
-                            max = LTE_RSRP_SIGNAL_MAX,
-                            timestampNanos = timestampNanos,
-                            cqi = it.cqi,
-                            rsrp = it.rsrp,
-                            rssi = it.rssi,
-                            rssnr = it.rssnr.fixRssnr(),
-                            timingAdvance = it.timingAdvance
-                        )
-                    }
-                    is CellSignalStrengthNr -> {
-                        signal = SignalStrengthInfoNr(
-                            transport = transportType,
-                            value = it.dbm,
-                            rsrq = it.csiRsrq,
-                            signalLevel = it.level,
-                            min = NR_RSRP_SIGNAL_MIN,
-                            max = NR_RSRP_SIGNAL_MAX,
-                            timestampNanos = timestampNanos,
-                            csiRsrp = it.csiRsrp,
-                            csiRsrq = it.csiRsrq,
-                            csiSinr = it.csiSinr,
-                            ssRsrp = it.ssRsrp,
-                            ssRsrq = it.ssRsrq,
-                            ssSinr = it.ssSinr
-                        )
-                    }
-                    is CellSignalStrengthTdscdma,
-                    is CellSignalStrengthWcdma -> {
-                        signal = SignalStrengthInfo(
-                            transport = transportType,
-                            value = it.dbm,
-                            rsrq = null,
-                            signalLevel = it.level,
-                            min = WCDMA_RSRP_SIGNAL_MIN,
-                            max = WCDMA_RSRP_SIGNAL_MAX,
-                            timestampNanos = timestampNanos
-                        )
-                    }
-                    is CellSignalStrengthGsm -> {
-                        signal = SignalStrengthInfoGsm(
-                            transport = transportType,
-                            value = it.dbm,
-                            rsrq = null,
-                            signalLevel = it.level,
-                            min = CELLULAR_SIGNAL_MIN,
-                            max = CELLULAR_SIGNAL_MAX,
-                            timestampNanos = timestampNanos,
-                            bitErrorRate = it.bitErrorRate,
-                            timingAdvance = it.timingAdvance
-                        )
-                    }
-                    else -> {
-                        signal = SignalStrengthInfo(
-                            transport = transportType,
-                            value = it.dbm,
-                            rsrq = null,
-                            signalLevel = it.level,
-                            min = CELLULAR_SIGNAL_MIN,
-                            max = CELLULAR_SIGNAL_MAX,
-                            timestampNanos = timestampNanos
-                        )
+                if (it.dbm == Int.MAX_VALUE) {
+                    signal = null
+                } else {
+                    when (it) {
+                        is CellSignalStrengthLte -> {
+                            signal = SignalStrengthInfoLte(
+                                transport = transportType,
+                                value = it.dbm,
+                                rsrq = it.rsrq.fixLteRsrq(),
+                                signalLevel = it.level,
+                                min = LTE_RSRP_SIGNAL_MIN,
+                                max = LTE_RSRP_SIGNAL_MAX,
+                                timestampNanos = timestampNanos,
+                                cqi = it.cqi.checkValueAvailable(),
+                                rsrp = it.rsrp.fixLteRsrp(),
+                                rssi = it.rssi.checkValueAvailable(),
+                                rssnr = it.rssnr.fixRssnr(),
+                                timingAdvance = it.timingAdvance.fixTimingAdvance()
+                            )
+                        }
+                        is CellSignalStrengthNr -> {
+                            signal = SignalStrengthInfoNr(
+                                transport = transportType,
+                                value = it.dbm,
+                                rsrq = it.csiRsrq.checkValueAvailable(),
+                                signalLevel = it.level,
+                                min = NR_RSRP_SIGNAL_MIN,
+                                max = NR_RSRP_SIGNAL_MAX,
+                                timestampNanos = timestampNanos,
+                                csiRsrp = it.csiRsrp.checkValueAvailable(),
+                                csiRsrq = it.csiRsrq.checkValueAvailable(),
+                                csiSinr = it.csiSinr.checkValueAvailable(),
+                                ssRsrp = it.ssRsrp.checkValueAvailable(),
+                                ssRsrq = it.ssRsrq.checkValueAvailable(),
+                                ssSinr = it.ssSinr.checkValueAvailable()
+                            )
+                        }
+                        is CellSignalStrengthTdscdma,
+                        is CellSignalStrengthWcdma -> {
+                            signal = SignalStrengthInfo(
+                                transport = transportType,
+                                value = it.dbm,
+                                rsrq = null,
+                                signalLevel = it.level,
+                                min = WCDMA_RSRP_SIGNAL_MIN,
+                                max = WCDMA_RSRP_SIGNAL_MAX,
+                                timestampNanos = timestampNanos
+                            )
+                        }
+                        is CellSignalStrengthGsm -> {
+                            signal = SignalStrengthInfoGsm(
+                                transport = transportType,
+                                value = it.dbm,
+                                rsrq = null,
+                                signalLevel = it.level,
+                                min = CELLULAR_SIGNAL_MIN,
+                                max = CELLULAR_SIGNAL_MAX,
+                                timestampNanos = timestampNanos,
+                                bitErrorRate = it.bitErrorRate.checkValueAvailable(),
+                                timingAdvance = it.timingAdvance.fixTimingAdvance()
+                            )
+                        }
+                        else -> {
+                            signal = SignalStrengthInfo(
+                                transport = transportType,
+                                value = it.dbm,
+                                rsrq = null,
+                                signalLevel = it.level,
+                                min = CELLULAR_SIGNAL_MIN,
+                                max = CELLULAR_SIGNAL_MAX,
+                                timestampNanos = timestampNanos
+                            )
+                        }
                     }
                 }
             }
@@ -304,7 +309,7 @@ open class SignalStrengthInfo(
                 }
             }
 
-            val signalValue = lteRsrp ?: strength
+            val signalValue = lteRsrp.fixLteRsrp() ?: strength
             val signalMin = if (lteRsrp == null) CELLULAR_SIGNAL_MIN else LTE_RSRP_SIGNAL_MIN
             val signalMax = if (lteRsrp == null) CELLULAR_SIGNAL_MAX else LTE_RSRP_SIGNAL_MAX
 
@@ -325,16 +330,16 @@ open class SignalStrengthInfo(
                     signal = SignalStrengthInfoLte(
                         transport = transportType,
                         value = signalValue,
-                        rsrq = lteRsrq,
+                        rsrq = lteRsrq.fixLteRsrq(),
                         signalLevel = calculateCellSignalLevel(signalValue, signalMin, signalMax),
                         min = LTE_RSRP_SIGNAL_MIN,
                         max = LTE_RSRP_SIGNAL_MAX,
                         timestampNanos = timestampNanos,
-                        cqi = lteCqi ?: 0,
-                        rsrp = lteRsrp ?: 0,
-                        rssi = 0,
+                        cqi = lteCqi.checkValueAvailable(),
+                        rsrp = lteRsrp.fixLteRsrp(),
+                        rssi = null,
                         rssnr = lteRssnr.fixRssnr(),
-                        timingAdvance = cellInfo.cellSignalStrength.timingAdvance
+                        timingAdvance = cellInfo.cellSignalStrength.timingAdvance.checkValueAvailable()
                     )
                 }
                 is CellInfoWcdma -> {
@@ -357,15 +362,15 @@ open class SignalStrengthInfo(
                         min = CELLULAR_SIGNAL_MIN,
                         max = CELLULAR_SIGNAL_MAX,
                         timestampNanos = timestampNanos,
-                        bitErrorRate = signalStrength?.gsmBitErrorRate ?: 0,
-                        timingAdvance = 0
+                        bitErrorRate = signalStrength?.gsmBitErrorRate.checkValueAvailable(),
+                        timingAdvance = null
                     )
                 }
                 else -> {
                     SignalStrengthInfo(
                         transport = transportType,
                         value = signalValue,
-                        rsrq = lteRsrq,
+                        rsrq = lteRsrq.fixLteRsrq(),
                         signalLevel = calculateCellSignalLevel(signalValue, signalMin, signalMax),
                         max = signalMax,
                         min = signalMin,
@@ -388,11 +393,36 @@ open class SignalStrengthInfo(
             }
         }
 
-        private fun Int?.fixRssnr(): Int? {
-            return if (this == null || (this > 300 || this < -200) || this == Int.MIN_VALUE || this == Int.MAX_VALUE) {
+        private fun Int?.fixRssnr(): Int? =
+            if (this == null || this > 300 || this < -200 || this == Int.MIN_VALUE || this == Int.MAX_VALUE) {
                 null
-            } else
+            } else {
                 this
+            }
+
+        private fun Int?.checkValueAvailable(): Int? = if (this == null || this == Int.MIN_VALUE || this == Int.MAX_VALUE) {
+            null
+        } else {
+            this
         }
+
+        private fun Int?.fixTimingAdvance(): Int? = if (this == null || this == Int.MIN_VALUE || this == Int.MAX_VALUE || this > 2182) {
+            null
+        } else {
+            this
+        }
+
+        private fun Int?.fixLteRsrp(): Int? = if (this == null || this == Int.MIN_VALUE || this == Int.MAX_VALUE || this < -140 || this == -1) {
+            null
+        } else {
+            this
+        }
+
+        private fun Int?.fixLteRsrq(): Int? =
+            if (this == null || this == Int.MIN_VALUE || this == Int.MAX_VALUE || abs(this) > 19.5 || abs(this) < 3.0) {
+                null
+            } else {
+                this
+            }
     }
 }

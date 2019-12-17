@@ -173,7 +173,7 @@ fun TestRecord.toRequest(
             } else {
                 signalList.forEach {
                     val cell = cells[it.cellUuid]
-                    if (cell != null) {
+                    if (cell != null && it.signal != null) {
                         list.add(it.toRequest(cell.uuid))
                     }
                 }
@@ -309,17 +309,23 @@ fun CellInfoRecord.toRequest() = CellInfoBody(
 fun SignalRecord.toRequest(cellUUID: String) = SignalBody(
     cellUuid = cellUUID,
     networkTypeId = transportType.toRequestIntValue(mobileNetworkType),
-    signal = signal,
-    bitErrorRate = bitErrorRate,
-    wifiLinkSpeed = wifiLinkSpeed,
-    lteRsrp = lteRsrp,
-    lteRsrq = lteRsrq,
-    lteRssnr = lteRssnr,
-    lteCqi = lteCqi,
-    timingAdvance = timingAdvance,
+    signal = signal.checkSignalValue(),
+    bitErrorRate = bitErrorRate.checkSignalValue(),
+    wifiLinkSpeed = wifiLinkSpeed.checkSignalValue(),
+    lteRsrp = lteRsrp.checkSignalValue(),
+    lteRsrq = lteRsrq.checkSignalValue(),
+    lteRssnr = lteRssnr.checkSignalValue(),
+    lteCqi = lteCqi.checkSignalValue(),
+    timingAdvance = timingAdvance.checkSignalValue(),
     timeNanos = timeNanos,
     timeLastNanos = timeNanosLast
 )
+
+private fun Int?.checkSignalValue(): Int? = if (this == null || this == Int.MAX_VALUE || this == Int.MAX_VALUE) {
+    null
+} else {
+    this
+}
 
 fun SpeedRecord.toRequest() = SpeedBody(
     direction = if (isUpload) "upload" else "download",
@@ -348,38 +354,5 @@ fun TransportType.toRequestIntValue(mobileNetworkType: MobileNetworkType?): Int 
         TransportType.ETHERNET -> 106
         TransportType.WIFI -> 99
         else -> Int.MAX_VALUE
-    }
-}
-
-fun TransportType.toRequestValue(mobileNetworkType: MobileNetworkType?): String {
-    return when (toRequestIntValue(mobileNetworkType)) {
-        1 -> "2G (GSM)"
-        2 -> "2G (EDGE)"
-        3 -> "3G (UMTS)"
-        4 -> "2G (CDMA)"
-        5 -> "2G (EVDO_0)"
-        6 -> "2G (EVDO_A)"
-        7 -> "2G (1xRTT)"
-        8 -> "3G (HSDPA)"
-        9 -> "3G (HSUPA)"
-        10 -> "3G (HSPA)"
-        11 -> "2G (IDEN)"
-        12 -> "2G (EVDO_B)"
-        13 -> "4G (LTE)"
-        14 -> "2G (EHRPD)"
-        15 -> "3G (HSPA+)"
-        19 -> "4G (LTE CA)"
-        20 -> "5G (NR)"
-        97 -> "CLI"
-        98 -> "BROWSER"
-        99 -> "WLAN"
-        101 -> "2G/3G"
-        102 -> "3G/4G"
-        103 -> "2G/4G"
-        104 -> "2G/3G/4G"
-        105 -> "MOBILE"
-        106 -> "Ethernet"
-        107 -> "Bluetooth"
-        else -> "UNKNOWN"
     }
 }
