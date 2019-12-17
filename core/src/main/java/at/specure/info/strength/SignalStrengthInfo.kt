@@ -125,7 +125,7 @@ open class SignalStrengthInfo(
             min = CELLULAR_SIGNAL_MIN,
             max = CELLULAR_SIGNAL_MAX,
             timestampNanos = System.nanoTime(),
-            bitErrorRate = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) signal.bitErrorRate.checkValueAvailable() else null,
+            bitErrorRate = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) signal.bitErrorRate.fixErrorBitRate() else null,
             timingAdvance = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) signal.timingAdvance.fixTimingAdvance() else null
         )
 
@@ -227,7 +227,7 @@ open class SignalStrengthInfo(
                                 min = CELLULAR_SIGNAL_MIN,
                                 max = CELLULAR_SIGNAL_MAX,
                                 timestampNanos = timestampNanos,
-                                bitErrorRate = it.bitErrorRate.checkValueAvailable(),
+                                bitErrorRate = it.bitErrorRate.fixErrorBitRate(),
                                 timingAdvance = it.timingAdvance.fixTimingAdvance()
                             )
                         }
@@ -362,7 +362,7 @@ open class SignalStrengthInfo(
                         min = CELLULAR_SIGNAL_MIN,
                         max = CELLULAR_SIGNAL_MAX,
                         timestampNanos = timestampNanos,
-                        bitErrorRate = signalStrength?.gsmBitErrorRate.checkValueAvailable(),
+                        bitErrorRate = signalStrength?.gsmBitErrorRate.fixErrorBitRate(),
                         timingAdvance = null
                     )
                 }
@@ -424,5 +424,13 @@ open class SignalStrengthInfo(
             } else {
                 this
             }
+
+        private fun Int?.fixErrorBitRate(): Int? =
+            if (this == null || this == Int.MIN_VALUE || this >= 99) {
+                null
+            } else {
+                this
+            }
+
     }
 }
