@@ -51,9 +51,6 @@ appLint:
       - /feature\/.*/
       - /hotfix\/.*/
       - /test\/.*/
-  except:
-    variables:
-      - $UI_TEST_RUN
 
 coreLint:
   stage: check
@@ -66,9 +63,6 @@ coreLint:
       - /feature\/.*/
       - /hotfix\/.*/
       - /test\/.*/
-  except:
-    variables:
-      - $UI_TEST_RUN
 
 controlClientLint:
   stage: check
@@ -81,9 +75,6 @@ controlClientLint:
       - /feature\/.*/
       - /hotfix\/.*/
       - /test\/.*/
-  except:
-    variables:
-      - $UI_TEST_RUN
 
 checkRTRBuild:
   stage: check
@@ -97,9 +88,6 @@ checkRTRBuild:
       - /feature\/.*/
       - /hotfix\/.*/
       - /test\/.*/
-  except:
-    variables:
-      - $UI_TEST_RUN
 
 uiTests:
   stage: check
