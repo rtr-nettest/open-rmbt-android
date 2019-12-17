@@ -173,7 +173,7 @@ fun TestRecord.toRequest(
             } else {
                 signalList.forEach {
                     val cell = cells[it.cellUuid]
-                    if (cell != null && it.signal != null) {
+                    if (cell != null) {
                         list.add(it.toRequest(cell.uuid))
                     }
                 }
