@@ -14,7 +14,7 @@ class SignalStrengthInfoNr(
     /**
      * Reference: 3GPP TS 38.215.
      * Range: -140 dBm to -44 dBm.
-     * @return CSI reference signal received power
+     * @return CSI reference signal  received power
      */
     val csiRsrp: Int?,
 
