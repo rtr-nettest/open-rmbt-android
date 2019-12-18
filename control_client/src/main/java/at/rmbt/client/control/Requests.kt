@@ -417,7 +417,13 @@ data class TestResultBody(
      * BSSID of the wifi network
      */
     @SerializedName("wifi_bssid")
-    var wifiBssid: String?
+    var wifiBssid: String?,
+
+    /**
+     * Count of unsuccessful submissions
+     */
+    @SerializedName("test_submission_retry_count")
+    var submissionRetryCount: Int
 )
 
 @Keep

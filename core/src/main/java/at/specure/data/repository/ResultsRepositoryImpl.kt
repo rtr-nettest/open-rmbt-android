@@ -61,7 +61,6 @@ class ResultsRepositoryImpl @Inject constructor(
             permissions = db.permissionStatusDao().get(testUUID)
         )
 
-        testDao.updateSubmissionsRetryCounter(testUUID)
         return client.sendTestResults(body)
     }
 }

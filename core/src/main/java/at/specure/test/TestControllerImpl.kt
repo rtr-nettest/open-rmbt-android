@@ -17,6 +17,9 @@ import kotlinx.coroutines.delay
 import org.json.JSONObject
 import timber.log.Timber
 
+private const val KEY_TEST_COUNTER = "testCounter"
+private const val KEY_PREVIOUS_TEST_STATUS = "previousTestStatus"
+
 class TestControllerImpl(private val config: Config, private val clientUUID: ClientUUID) : TestController {
 
     private var job: Job? = null
@@ -68,6 +71,9 @@ class TestControllerImpl(private val config: Config, private val clientUUID: Cli
             }
 
             val errorSet = mutableSetOf<ErrorStatus>()
+            val additionalValues = JSONObject(Gson().toJson(deviceInfo))
+                .put(KEY_TEST_COUNTER, config.testCounter)
+                .put(KEY_PREVIOUS_TEST_STATUS, config.previousTestStatus)
 
             val client = RMBTClient.getInstance(
                 config.controlServerHost,
@@ -80,7 +86,7 @@ class TestControllerImpl(private val config: Config, private val clientUUID: Cli
                 deviceInfo.clientName,
                 deviceInfo.softwareVersionName,
                 null,
-                JSONObject(Gson().toJson(deviceInfo)),
+                additionalValues,
                 errorSet
             )
 
@@ -140,6 +146,16 @@ class TestControllerImpl(private val config: Config, private val clientUUID: Cli
                 }
 
                 if (currentStatus.isFinalState()) {
+                    // todo check correctness of counter's values after implementing QoS logic
+                    config.testCounter++
+                    config.previousTestStatus = if (currentStatus == TestStatus.ERROR) {
+                        var errorStatus = "ERROR"
+                        client.statusBeforeError?.let {
+                            errorStatus = "${errorStatus}_$it"
+                        }
+                        errorStatus
+                    } else currentStatus.name
+
                     if (!config.skipQoSTests) {
                         // TODO remove this
                         repeat(100) {
