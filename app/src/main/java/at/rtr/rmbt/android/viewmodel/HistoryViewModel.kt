@@ -13,10 +13,6 @@ private const val PAGE_SIZE = 25
 
 class HistoryViewModel @Inject constructor(private val repository: HistoryRepository) : BaseViewModel() {
 
-    private val _text = MutableLiveData<String>().apply {
-        value = "This is history Fragment"
-    }
-
     private val boundaryCallback = repository.boundaryCallback(
         limit = PAGE_SIZE,
         onLoadingCallback = { _isLoadingLiveData.postValue(it) },
@@ -24,8 +20,6 @@ class HistoryViewModel @Inject constructor(private val repository: HistoryReposi
     )
 
     private val _isLoadingLiveData = MutableLiveData<Boolean>()
-
-    val text: LiveData<String> = _text
 
     val isLoadingLiveData: LiveData<Boolean>
         get() = _isLoadingLiveData

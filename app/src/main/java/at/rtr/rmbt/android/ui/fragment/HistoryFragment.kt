@@ -2,12 +2,14 @@ package at.rtr.rmbt.android.ui.fragment
 
 import android.os.Bundle
 import android.view.View
-import android.widget.Toast
-import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.core.content.ContextCompat
+import androidx.recyclerview.widget.DividerItemDecoration
 import at.rtr.rmbt.android.R
 import at.rtr.rmbt.android.databinding.FragmentHistoryBinding
 import at.rtr.rmbt.android.di.viewModelLazy
 import at.rtr.rmbt.android.ui.adapter.HistoryAdapter
+import at.rtr.rmbt.android.util.ToolbarTheme
+import at.rtr.rmbt.android.util.changeStatusBarColor
 import at.rtr.rmbt.android.util.listen
 import at.rtr.rmbt.android.viewmodel.HistoryViewModel
 
@@ -23,11 +25,15 @@ class HistoryFragment : BaseFragment() {
         super.onViewCreated(view, savedInstanceState)
 
         binding.state = historyViewModel.state
-        binding.recyclerView.layoutManager = LinearLayoutManager(requireContext())
-        binding.recyclerView.adapter = adapter
+        binding.historyRecyclerView.adapter = adapter
 
-        historyViewModel.text.listen(this) {
-            historyViewModel.state.text.set(it)
+        binding.historyRecyclerView.apply {
+
+            val itemDecoration = DividerItemDecoration(context, DividerItemDecoration.VERTICAL)
+            ContextCompat.getDrawable(context, R.drawable.history_item_divider)?.let {
+                itemDecoration.setDrawable(it)
+            }
+            binding.historyRecyclerView.addItemDecoration(itemDecoration)
         }
 
         historyViewModel.historyLiveData.listen(this) {
@@ -35,9 +41,9 @@ class HistoryFragment : BaseFragment() {
         }
 
         historyViewModel.isLoadingLiveData.listen(this) {
-            if (it) {
-                Toast.makeText(requireContext(), "Loading", Toast.LENGTH_SHORT).show()
-            }
+        }
+        activity?.window?.let {
+            it.changeStatusBarColor(ToolbarTheme.WHITE)
         }
     }
 
