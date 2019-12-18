@@ -262,7 +262,8 @@ fun TestRecord.toRequest(
         wifiSupplicantStateDetail = wlanInfo?.supplicantDetailedState,
         wifiSsid = wlanInfo?.ssid,
         wifiNetworkId = wlanInfo?.networkId,
-        wifiBssid = wlanInfo?.bssid
+        wifiBssid = wlanInfo?.bssid,
+        submissionRetryCount = submissionRetryCount
     )
 }
 
