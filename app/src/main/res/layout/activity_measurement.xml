@@ -87,7 +87,7 @@
         </androidx.constraintlayout.widget.ConstraintLayout>
 
         <include
-            android:id="@+id/measurement_bottom_view"
+            android:id="@+id/measurementBottomView"
             layout="@layout/measurement_bottom_view"
             bind:state="@{state}" />
     </androidx.coordinatorlayout.widget.CoordinatorLayout>

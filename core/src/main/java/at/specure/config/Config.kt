@@ -159,4 +159,9 @@ interface Config {
      * Is Override Control Server turned on
      */
     var controlServerOverrideEnabled: Boolean
+
+    /**
+     * Is SSL connection should be used for QoS Tests
+     */
+    var qosSSL: Boolean
 }
