@@ -91,6 +91,9 @@ checkRTRBuild:
 
 uiTests:
   stage: check
+  interruptible: true
+  timeout: 15m
+  allow_failure: true
   variables:
     TEST_AVD_NAME: Pixel_2_API_26
   script:
@@ -107,6 +110,7 @@ uiTests:
 
 distributeLocalApp:
   stage: distribution
+  interruptible: true
   script:
     - ./gradlew assembleLocalStageDebug -PbuildVersionCode=${VERSION_CODE} -PbuildVersionName=${VERSION_NAME} -PreleaseNotes="${RELEASE_NOTES}"
     - ./gradlew crashlyticsUploadDistributionLocalStageDebug
@@ -121,6 +125,7 @@ distributeLocalApp:
 
 generateDocumentation:
   stage: distribution
+  interruptible: true
   script:
     - ./gradlew dokka dokkaMarkdown
   only:
@@ -133,6 +138,7 @@ generateDocumentation:
 
 gitTag:
   stage: gitTag
+  interruptible: true
   script:
     - git tag "${VERSION_NAME}"
     - git push origin --tags
