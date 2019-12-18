@@ -163,7 +163,7 @@ class MeasurementViewModel @Inject constructor(
     }
 
     fun cancelMeasurement() {
-        producer?.stopTests()
+        producer?.stopTests(true)
     }
 
     override fun onClientReady(testUUID: String) {

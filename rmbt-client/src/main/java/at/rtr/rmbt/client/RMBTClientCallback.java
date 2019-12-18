@@ -18,4 +18,6 @@ public interface RMBTClientCallback {
     void onQoSTestCompleted(@Nullable QoSResultCollector qosResult);
 
     void onTestStatusUpdate(TestStatus status);
+
+    void onError(Exception ex);
 }

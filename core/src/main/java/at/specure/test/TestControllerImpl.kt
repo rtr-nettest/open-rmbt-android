@@ -1,10 +1,10 @@
 package at.specure.test
 
 import android.annotation.TargetApi
-import android.os.Build
-import at.rtr.rmbt.client.QualityOfServiceTest
 import android.content.Context
 import android.net.ConnectivityManager
+import android.os.Build
+import at.rtr.rmbt.client.QualityOfServiceTest
 import at.rtr.rmbt.client.RMBTClient
 import at.rtr.rmbt.client.RMBTClientCallback
 import at.rtr.rmbt.client.TracerouteAndroidImpl
@@ -34,7 +34,12 @@ private const val KEY_PREVIOUS_TEST_STATUS = "previousTestStatus"
 private const val TEST_MAX_TIME = 3000
 private const val MAX_VALUE_UNFINISHED_TEST = 0.9f
 
-class TestControllerImpl(private val context: Context, private val config: Config, private val clientUUID: ClientUUID, private val connectivityManager: ConnectivityManager) : TestController {
+class TestControllerImpl(
+    private val context: Context,
+    private val config: Config,
+    private val clientUUID: ClientUUID,
+    private val connectivityManager: ConnectivityManager
+) : TestController {
 
     private var job: Job? = null
     private val result: IntermediateResult by lazy { IntermediateResult() }
@@ -53,6 +58,8 @@ class TestControllerImpl(private val context: Context, private val config: Confi
 
     private var previousDownloadProgress = -1
     private var previousUploadProgress = -1
+
+    private var rmbtClient: RMBTClient? = null
 
     override fun start(deviceInfo: DeviceInfo, listener: TestProgressListener, clientCallback: RMBTClientCallback) {
         Timber.d("Start---")
@@ -103,6 +110,7 @@ class TestControllerImpl(private val context: Context, private val config: Confi
                 additionalValues,
                 errorSet
             )
+            rmbtClient = client
 
             var qosTest: QualityOfServiceTest? = null
 
@@ -304,6 +312,7 @@ class TestControllerImpl(private val context: Context, private val config: Confi
 
     private fun handleError(client: RMBTClient) {
         _listener?.onError()
+        stop()
         _testUUID = null
     }
 
@@ -325,6 +334,8 @@ class TestControllerImpl(private val context: Context, private val config: Confi
         if (job == null) {
             Timber.w("Runner is already stopped")
         } else {
+            Timber.w("Job cancelled")
+            rmbtClient?.abortTest(false)
             job?.cancel()
         }
         job = null

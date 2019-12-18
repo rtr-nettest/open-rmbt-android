@@ -8,6 +8,7 @@ import android.os.Binder
 import android.os.Build
 import android.os.IBinder
 import android.os.PowerManager
+import at.rmbt.client.control.data.TestFinishReason
 import at.rmbt.util.exception.HandledException
 import at.rmbt.util.exception.NoConnectionException
 import at.rtr.rmbt.client.v2.task.result.QoSTestResultEnum
@@ -100,21 +101,26 @@ class MeasurementService : LifecycleService() {
         override fun onError() {
             hasErrors = true
             stopForeground(true)
-            clientAggregator.onMeasurementError()
+            stateRecorder.onUnsuccessTest(TestFinishReason.ERROR)
             stateRecorder.finish()
+            clientAggregator.onMeasurementError()
             unlock()
         }
 
         override fun onClientReady(testUUID: String, testStartTimeNanos: Long) {
             clientAggregator.onClientReady(testUUID)
-            stateRecorder.setOnReadyToSubmitCallback {
+            stateRecorder.setOnReadyToSubmitCallback { shouldShowResults ->
                 resultRepository.sendTestResults(testUUID) {
                     it.onSuccess {
-                        clientAggregator.onSubmitted()
+                        if (shouldShowResults) {
+                            clientAggregator.onSubmitted()
+                        }
                     }
 
                     it.onFailure { ex ->
-                        clientAggregator.onSubmissionError(ex)
+                        if (shouldShowResults) {
+                            clientAggregator.onSubmissionError(ex)
+                        }
                         if (ex is NoConnectionException) {
                             Timber.d("Delayed submission work created")
                             WorkLauncher.enqueueDelayedDataSaveRequest(applicationContext, testUUID)
@@ -204,10 +210,10 @@ class MeasurementService : LifecycleService() {
         startForeground(NOTIFICATION_ID, notificationProvider.measurementServiceNotification(0, MeasurementState.INIT, true))
     }
 
-    private fun stopTests() {
+    private fun stopTests(abortedByUser: Boolean) {
         Timber.d("Stop tests")
         runner.stop()
-
+        stateRecorder.onUnsuccessTest(if (abortedByUser) TestFinishReason.ABORTED else TestFinishReason.ERROR)
         stateRecorder.finish()
         stopForeground(true)
         unlock()
@@ -299,8 +305,8 @@ class MeasurementService : LifecycleService() {
             this@MeasurementService.startTests()
         }
 
-        override fun stopTests() {
-            this@MeasurementService.stopTests()
+        override fun stopTests(abortedByUser: Boolean) {
+            this@MeasurementService.stopTests(abortedByUser)
         }
     }
 

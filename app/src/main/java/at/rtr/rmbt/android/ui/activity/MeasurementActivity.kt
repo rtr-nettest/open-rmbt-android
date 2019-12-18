@@ -31,6 +31,9 @@ import kotlinx.android.synthetic.main.activity_measurement.view.measurementBotto
 import kotlinx.android.synthetic.main.measurement_bottom_view.view.qosTestRecyclerView
 import kotlinx.android.synthetic.main.measurement_bottom_view.view.speedChartDownloadUpload
 
+private const val CODE_CANCEL = 0
+private const val CODE_ERROR = 1
+
 class MeasurementActivity : BaseActivity(), SimpleDialog.Callback {
 
     private val viewModel: MeasurementViewModel by viewModelLazy()
@@ -54,7 +57,7 @@ class MeasurementActivity : BaseActivity(), SimpleDialog.Callback {
                 .messageText(R.string.test_dialog_error_text)
                 .positiveText(R.string.input_setting_dialog_ok)
                 .cancelable(false)
-                .show(supportFragmentManager, 0)
+                .show(supportFragmentManager, CODE_ERROR)
         }
 
         viewModel.submissionErrorLiveData.listen(this) {
@@ -62,7 +65,7 @@ class MeasurementActivity : BaseActivity(), SimpleDialog.Callback {
                 .messageText(R.string.test_submission_error_text)
                 .positiveText(R.string.test_submission_error_accept)
                 .cancelable(false)
-                .show(supportFragmentManager, 0)
+                .show(supportFragmentManager, CODE_ERROR)
         }
         binding.root.measurementBottomView.qosTestRecyclerView.apply {
             adapter = qosAdapter
@@ -94,8 +97,10 @@ class MeasurementActivity : BaseActivity(), SimpleDialog.Callback {
     }
 
     override fun onDialogPositiveClicked(code: Int) {
+        if (code == CODE_CANCEL) {
+            viewModel.cancelMeasurement()
+        }
         // finish activity for in both cases
-        viewModel.cancelMeasurement()
         finish()
     }
 
@@ -123,7 +128,7 @@ class MeasurementActivity : BaseActivity(), SimpleDialog.Callback {
             .positiveText(R.string.text_cancel_measurement)
             .negativeText(R.string.text_continue_measurement)
             .cancelable(false)
-            .show(supportFragmentManager, 0)
+            .show(supportFragmentManager, CODE_CANCEL)
     }
 
     companion object {

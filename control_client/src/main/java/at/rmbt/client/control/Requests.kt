@@ -423,7 +423,26 @@ data class TestResultBody(
      * Count of unsuccessful submissions
      */
     @SerializedName("test_submission_retry_count")
-    var submissionRetryCount: Int
+    var submissionRetryCount: Long,
+
+    /**
+     * Reason of the test finishing, provided as int value, example - "0" for Success
+     */
+    @SerializedName("test_status")
+    var testStatus: Int,
+
+    /**
+     * Phase was the last done by the client, provided like value from TestStatus except "ERROR" and "ABORT"
+     */
+    @SerializedName("last_client_status")
+    var lastClientStatus: String,
+
+    /**
+     * Stacktrace of IllegalNetworkChangeException exception grabbed from RMBTClient which was happened during the test.
+     * May be null if test was success or cancelled
+     */
+    @SerializedName("test_error_cause")
+    var testErrorCause: String? = null // todo add an catch IllegalNetworkChangeException
 )
 
 @Keep

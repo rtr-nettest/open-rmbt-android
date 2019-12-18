@@ -1,6 +1,7 @@
 package at.specure.data
 
 import androidx.room.TypeConverter
+import at.rmbt.client.control.data.TestFinishReason
 import at.rtr.rmbt.client.helper.TestStatus
 import at.specure.info.TransportType
 import at.specure.info.cell.CellTechnology
@@ -70,4 +71,13 @@ class TypeConverter {
 
     @TypeConverter
     fun valueToClassification(value: Int): Classification = Classification.fromValue(value)
+
+    @TypeConverter
+    fun finishReasonToInt(reason: TestFinishReason?): Int? = reason?.ordinal
+
+    @TypeConverter
+    fun intToFinishReason(value: Int?): TestFinishReason? {
+        if (value == null) return null
+        return TestFinishReason.values()[value]
+    }
 }
