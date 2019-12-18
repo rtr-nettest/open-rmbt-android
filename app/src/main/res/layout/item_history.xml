@@ -10,20 +10,62 @@
             type="at.specure.data.entity.History" />
     </data>
 
-    <androidx.constraintlayout.widget.ConstraintLayout
+    <androidx.appcompat.widget.LinearLayoutCompat
         android:layout_width="match_parent"
-        android:layout_height="50dp">
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="@dimen/padding_large"
+        >
 
-        <TextView
-            android:id="@+id/textName"
-            android:layout_width="wrap_content"
+        <androidx.appcompat.widget.AppCompatTextView
+
+            style="@style/RobotoRegularStyle.Small"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/margin_medium"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            tools:text="WLAN PING: 30 10/DEC/2019" />
+            android:layout_weight="3"
+            android:drawablePadding="@dimen/padding_small"
+            android:gravity="center_vertical"
+            android:textColor="@color/text_dark_gray"
+            app:networkType="@{item.networkType}"
+            app:time="@{item.time}"
+            tools:text="20.11.18, 12:00:45" />
 
-    </androidx.constraintlayout.widget.ConstraintLayout>
+        <androidx.appcompat.widget.AppCompatTextView
+            style="@style/RobotoRegularStyle.Small"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:drawablePadding="@dimen/padding_very_small"
+            android:textColor="@color/text_dark_gray"
+            app:speedDownload="@{item.speedDownload}"
+            app:speedDownloadClassification="@{item.speedDownloadClassification}"
+            tools:drawableStart="@drawable/ic_small_download_light_green"
+            tools:text="79" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            style="@style/RobotoRegularStyle.Small"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:drawablePadding="@dimen/padding_very_small"
+            android:textColor="@color/text_dark_gray"
+            app:speedUpload="@{item.speedUpload}"
+            app:speedUploadClassification="@{item.speedUploadClassification}"
+            tools:drawableStart="@drawable/ic_small_upload_light_green"
+            tools:text="12" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            style="@style/RobotoRegularStyle.Small"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:drawablePadding="@dimen/padding_very_small"
+            android:textColor="@color/text_dark_gray"
+            app:ping="@{item.ping}"
+            app:pingClassification="@{item.pingClassification}"
+            tools:drawableStart="@drawable/ic_small_ping_yellow"
+            tools:text="14" />
+
+    </androidx.appcompat.widget.LinearLayoutCompat>
 
 </layout>

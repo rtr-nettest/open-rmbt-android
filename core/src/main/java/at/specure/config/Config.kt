@@ -126,6 +126,11 @@ interface Config {
     var testCounter: Int
 
     /**
+     * Status of the previous measurement test for the user, example "ERROR"
+     */
+    var previousTestStatus: String?
+
+    /**
      * Client uses RMBTHttp if true, default should be false
      */
     var capabilitiesRmbtHttp: Boolean

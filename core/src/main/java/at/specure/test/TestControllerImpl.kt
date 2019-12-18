@@ -1,10 +1,10 @@
 package at.specure.test
 
 import android.annotation.TargetApi
-import android.content.Context
-import android.net.ConnectivityManager
 import android.os.Build
 import at.rtr.rmbt.client.QualityOfServiceTest
+import android.content.Context
+import android.net.ConnectivityManager
 import at.rtr.rmbt.client.RMBTClient
 import at.rtr.rmbt.client.RMBTClientCallback
 import at.rtr.rmbt.client.TracerouteAndroidImpl
@@ -28,15 +28,13 @@ import timber.log.Timber
 import java.net.InetAddress
 import java.util.concurrent.TimeUnit
 
+private const val KEY_TEST_COUNTER = "testCounter"
+private const val KEY_PREVIOUS_TEST_STATUS = "previousTestStatus"
+
 private const val TEST_MAX_TIME = 3000
 private const val MAX_VALUE_UNFINISHED_TEST = 0.9f
 
-class TestControllerImpl(
-    private val context: Context,
-    private val config: Config,
-    private val clientUUID: ClientUUID,
-    private val connectivityManager: ConnectivityManager
-) : TestController {
+class TestControllerImpl(private val context: Context, private val config: Config, private val clientUUID: ClientUUID, private val connectivityManager: ConnectivityManager) : TestController {
 
     private var job: Job? = null
     private val result: IntermediateResult by lazy { IntermediateResult() }
@@ -87,6 +85,9 @@ class TestControllerImpl(
             }
 
             val errorSet = mutableSetOf<ErrorStatus>()
+            val additionalValues = JSONObject(Gson().toJson(deviceInfo))
+                .put(KEY_TEST_COUNTER, config.testCounter)
+                .put(KEY_PREVIOUS_TEST_STATUS, config.previousTestStatus)
 
             val client = RMBTClient.getInstance(
                 config.controlServerHost,
@@ -99,7 +100,7 @@ class TestControllerImpl(
                 deviceInfo.clientName,
                 deviceInfo.softwareVersionName,
                 null,
-                JSONObject(Gson().toJson(deviceInfo)),
+                additionalValues,
                 errorSet
             )
 
@@ -179,6 +180,16 @@ class TestControllerImpl(
                 }
 
                 if (currentStatus.isFinalState(skipQoSTests)) {
+                    // todo check correctness of counter's values after implementing QoS logic
+                    config.testCounter++
+                    config.previousTestStatus = if (currentStatus == TestStatus.ERROR) {
+                        var errorStatus = "ERROR"
+                        client.statusBeforeError?.let {
+                            errorStatus = "${errorStatus}_$it"
+                        }
+                        errorStatus
+                    } else currentStatus.name
+
                     client.commonCallback = null
                     client.shutdown()
                     if (currentStatus != TestStatus.ERROR) {

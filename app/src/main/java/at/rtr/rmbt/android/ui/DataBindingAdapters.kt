@@ -14,6 +14,8 @@ import at.rtr.rmbt.android.ui.view.WaveView
 import at.rtr.rmbt.android.ui.view.curve.MeasurementCurveLayout
 import at.rtr.rmbt.android.util.InfoWindowStatus
 import at.rtr.rmbt.android.util.format
+import at.specure.data.Classification
+import at.specure.data.NetworkTypeCompat
 import at.specure.data.entity.GraphItemRecord
 import at.specure.info.TransportType
 import at.specure.info.cell.CellNetworkInfo
@@ -25,6 +27,7 @@ import at.specure.info.network.WifiNetworkInfo
 import at.specure.info.strength.SignalStrengthInfo
 import at.specure.measurement.MeasurementState
 import com.google.android.material.bottomsheet.BottomSheetBehavior
+import java.util.Calendar
 
 @BindingAdapter("intText")
 fun intText(textView: TextView, value: Int) {
@@ -460,4 +463,128 @@ fun AppCompatTextView.setLabelOfMeasurementState(measurementState: MeasurementSt
 fun ConstraintLayout.setBottomSheetState(state: Int) {
     val behavior = BottomSheetBehavior.from(this)
     behavior.state = state
+}
+
+/**
+ * A binding adapter that is used for show date and time in history list
+ */
+@BindingAdapter("networkType", "time", requireAll = true)
+fun AppCompatTextView.setTime(networkType: NetworkTypeCompat, time: Long) {
+
+    val calendar: Calendar = Calendar.getInstance()
+    calendar.timeInMillis = time
+    text = calendar.format("dd.MM.yy, hh:mm:ss")
+
+    setCompoundDrawablesWithIntrinsicBounds(
+
+        when (networkType) {
+            NetworkTypeCompat.TYPE_2G -> {
+                R.drawable.ic_history_2g
+            }
+            NetworkTypeCompat.TYPE_3G -> {
+                R.drawable.ic_history_3g
+            }
+            NetworkTypeCompat.TYPE_4G -> {
+                R.drawable.ic_history_4g
+            }
+            NetworkTypeCompat.TYPE_WLAN -> {
+                R.drawable.ic_history_wifi
+            }
+        }, 0, 0, 0)
+}
+
+/**
+ * A binding adapter that is used for show download speed with classification icon in history list
+ */
+@BindingAdapter("speedDownload", "speedDownloadClassification", requireAll = true)
+fun AppCompatTextView.setDownload(speedDownload: Double, speedDownloadClassification: Classification) {
+
+    text = if (speedDownload > 0) {
+        speedDownload.toFloat().format()
+    } else {
+        context.getString(R.string.measurement_dash)
+    }
+    setCompoundDrawablesWithIntrinsicBounds(
+
+        when (speedDownloadClassification) {
+            Classification.NONE -> {
+                R.drawable.ic_small_download_gray
+            }
+            Classification.BAD -> {
+                R.drawable.ic_small_download_red
+            }
+            Classification.NORMAL -> {
+                R.drawable.ic_small_download_yellow
+            }
+            Classification.GOOD -> {
+                R.drawable.ic_small_download_light_green
+            }
+            Classification.EXCELLENT -> {
+                R.drawable.ic_small_download_dark_green
+            }
+        }, 0, 0, 0)
+}
+
+/**
+ * A binding adapter that is used for show upload speed with classification icon in history list
+ */
+@BindingAdapter("speedUpload", "speedUploadClassification", requireAll = true)
+fun AppCompatTextView.setUpload(speedUpload: Double, speedUploadClassification: Classification) {
+
+    text = if (speedUpload > 0) {
+        speedUpload.toFloat().format()
+    } else {
+        context.getString(R.string.measurement_dash)
+    }
+    setCompoundDrawablesWithIntrinsicBounds(
+
+        when (speedUploadClassification) {
+            Classification.NONE -> {
+                R.drawable.ic_small_upload_gray
+            }
+            Classification.BAD -> {
+                R.drawable.ic_small_upload_red
+            }
+            Classification.NORMAL -> {
+                R.drawable.ic_small_upload_yellow
+            }
+            Classification.GOOD -> {
+                R.drawable.ic_small_upload_light_green
+            }
+            Classification.EXCELLENT -> {
+                R.drawable.ic_small_upload_dark_green
+            }
+        }, 0, 0, 0)
+}
+
+/**
+ * A binding adapter that is used for show download ping with classification icon in history list
+ */
+@BindingAdapter("ping", "pingClassification", requireAll = true)
+fun AppCompatTextView.setPing(ping: Int, pingClassification: Classification) {
+
+    text = if (ping > 0) {
+        ping.toString()
+    } else {
+        context.getString(R.string.measurement_dash)
+    }
+    setCompoundDrawablesWithIntrinsicBounds(
+
+        when (pingClassification) {
+            Classification.NONE -> {
+                R.drawable.ic_small_ping_gray
+            }
+            Classification.BAD -> {
+                R.drawable.ic_small_ping_red
+            }
+            Classification.NORMAL -> {
+                R.drawable.ic_small_ping_yellow
+            }
+            Classification.GOOD -> {
+                R.drawable.ic_small_ping_light_green
+            }
+            Classification.EXCELLENT -> {
+                R.drawable.ic_small_ping_dark_green
+            }
+        }, 0, 0, 0)
 }

@@ -24,6 +24,7 @@ import javax.inject.Inject
 private const val FILENAME = "config.pref"
 
 private const val KEY_TEST_COUNTER = "KEY_TEST_COUNTER"
+private const val KEY_PREVIOUS_TEST_STATUS = "PREVIOUS_TEST_STATUS"
 
 class AppConfig @Inject constructor(context: Context, private val serverSettings: ControlServerSettings) : Config {
 
@@ -143,6 +144,12 @@ class AppConfig @Inject constructor(context: Context, private val serverSettings
         get() = preferences.getInt(KEY_TEST_COUNTER, 0)
         set(value) = preferences.edit()
             .putInt(KEY_TEST_COUNTER, value)
+            .apply()
+
+    override var previousTestStatus: String? // can be null before first test
+        get() = preferences.getString(KEY_PREVIOUS_TEST_STATUS, null)
+        set(value) = preferences.edit()
+            .putString(KEY_PREVIOUS_TEST_STATUS, value)
             .apply()
 
     override var capabilitiesRmbtHttp: Boolean

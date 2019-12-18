@@ -17,7 +17,15 @@ package at.rtr.rmbt.android.util
 import android.content.Context
 import at.rmbt.util.exception.HandledException
 import at.rtr.rmbt.android.R
+import java.text.SimpleDateFormat
+import java.util.Calendar
+import java.util.Locale
 
 fun HandledException.getStringTitle(context: Context): String {
     return getTitle(context) ?: context.getString(R.string.dialog_title_error)
+}
+
+fun Calendar.format(pattern: String): String {
+    val simpleDateFormat = SimpleDateFormat(pattern, Locale.US)
+    return simpleDateFormat.format(this.time)
 }

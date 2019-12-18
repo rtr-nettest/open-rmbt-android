@@ -1,3 +1,18 @@
+/*
+ *
+ *  Licensed under the Apache License, Version 2.0 (the “License”);
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *  http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an “AS IS” BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ * /
+ */
 package at.rtr.rmbt.android.ui.adapter
 
 import android.view.ViewGroup
@@ -15,21 +30,7 @@ class HistoryAdapter : PagedListAdapter<History, HistoryAdapter.Holder>(DIFF_CAL
 
     override fun onBindViewHolder(holder: Holder, position: Int) {
         val item = getItem(position) ?: return
-        // TODO Remove next lines
-        with(item) {
-            holder.binding.textName.text = buildString {
-                append(position)
-                append(") ")
-                append(networkType.stringValue).append(" ")
-                append("Ping: ")
-                append(ping).append(" ")
-                append("D: ")
-                append(speedDownload).append(" ")
-                append("U: ")
-                append(speedUpload).append(" ")
-                append(timeString)
-            }
-        }
+        holder.binding.item = item
     }
 
     class Holder(val binding: ItemHistoryBinding) : RecyclerView.ViewHolder(binding.root)
