@@ -10,6 +10,7 @@ import at.rmbt.util.exception.HandledException
 import at.rmbt.util.exception.NoConnectionException
 import at.rtr.rmbt.android.ui.viewstate.MeasurementViewState
 import at.rtr.rmbt.android.util.plusAssign
+import at.rtr.rmbt.client.v2.task.result.QoSTestResultEnum
 import at.specure.data.entity.GraphItemRecord
 import at.specure.data.repository.TestDataRepository
 import at.specure.info.network.ActiveNetworkLiveData
@@ -34,8 +35,9 @@ class MeasurementViewModel @Inject constructor(
     private val _downloadGraphLiveData = MutableLiveData<List<GraphItemRecord>>()
     private val _uploadGraphLiveData = MutableLiveData<List<GraphItemRecord>>()
     private val _submissionErrorLiveData = MutableLiveData<Boolean>()
+    private val _qosProgressLiveData = MutableLiveData<Map<QoSTestResultEnum, Int>>()
 
-    private var producer: MeasurementProducer? = null // TODO make field private
+    private var producer: MeasurementProducer? = null
 
     val state = MeasurementViewState()
 
@@ -56,6 +58,9 @@ class MeasurementViewModel @Inject constructor(
 
     val submissionErrorLiveData: LiveData<Boolean>
         get() = _submissionErrorLiveData
+
+    val qosProgressLiveData: LiveData<Map<QoSTestResultEnum, Int>>
+        get() = _qosProgressLiveData
 
     private val serviceConnection = object : ServiceConnection {
 
@@ -170,5 +175,10 @@ class MeasurementViewModel @Inject constructor(
         testDataRepository.getUploadGraphItemsLiveData(testUUID) {
             _uploadGraphLiveData.postValue(it)
         }
+    }
+
+    override fun onQoSTestProgressUpdated(tasksPassed: Int, tasksTotal: Int, progressMap: Map<QoSTestResultEnum, Int>) {
+        state.setQoSTaskProgress(tasksPassed, tasksTotal)
+        _qosProgressLiveData.postValue(progressMap)
     }
 }

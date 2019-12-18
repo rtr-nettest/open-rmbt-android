@@ -9,6 +9,7 @@ import androidx.lifecycle.Observer
 import at.rtr.rmbt.client.RMBTClientCallback
 import at.rtr.rmbt.client.TotalTestResult
 import at.rtr.rmbt.client.helper.TestStatus
+import at.rtr.rmbt.client.v2.task.result.QoSResultCollector
 import at.rtr.rmbt.client.v2.task.service.TestMeasurement.TrafficDirection
 import at.specure.config.Config
 import at.specure.data.entity.TestRecord
@@ -307,7 +308,7 @@ class StateRecorder @Inject constructor(
         }
     }
 
-    override fun onTestCompleted(result: TotalTestResult) {
+    override fun onTestCompleted(result: TotalTestResult, waitQosResults: Boolean) {
         testRecord?.apply {
             portRemote = result.port_remote
             bytesDownloaded = result.bytes_download
@@ -345,10 +346,22 @@ class StateRecorder @Inject constructor(
 
         testRecord?.let {
             repository.update(it) {
-                onReadyToSubmit?.invoke(it.uuid)
+                if (!waitQosResults) {
+                    onReadyToSubmit?.invoke(it.uuid)
+                }
             }
         }
-        testUUID = null
+
+        if (!waitQosResults) {
+            testUUID = null
+        }
+    }
+
+    override fun onQoSTestCompleted(qosResult: QoSResultCollector?) {
+        // TODO save QoS results and send all data
+        testUUID?.let {
+            onReadyToSubmit?.invoke(it)
+        }
     }
 
     override fun onTestStatusUpdate(status: TestStatus?) {

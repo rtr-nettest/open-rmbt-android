@@ -23,8 +23,7 @@
         android:paddingBottom="@dimen/padding_medium"
         app:behavior_peekHeight="@dimen/measurement_bottom_header_height"
         app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior"
-        app:bottomSheetState="@{3}"
-        >
+        app:bottomSheetState="@{3}">
 
         <View
             android:id="@+id/viewHeader"
@@ -198,7 +197,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginEnd="@dimen/margin_medium"
-            android:text="0/7"
+            android:text="@{state.qosTaskProgress}"
             android:textColor="@color/text_white_transparency_50"
             app:layout_constraintBottom_toBottomOf="@+id/labelMeasurementState"
             app:layout_constraintEnd_toStartOf="@+id/progressQoS"

@@ -1,10 +1,19 @@
 package at.specure.test
 
+import android.annotation.TargetApi
+import android.os.Build
+import at.rtr.rmbt.client.QualityOfServiceTest
+import android.content.Context
+import android.net.ConnectivityManager
 import at.rtr.rmbt.client.RMBTClient
 import at.rtr.rmbt.client.RMBTClientCallback
+import at.rtr.rmbt.client.TracerouteAndroidImpl
 import at.rtr.rmbt.client.TrafficServiceImpl
+import at.rtr.rmbt.client.WebsiteTestServiceImpl
 import at.rtr.rmbt.client.helper.IntermediateResult
 import at.rtr.rmbt.client.helper.TestStatus
+import at.rtr.rmbt.client.v2.task.result.QoSTestResultEnum
+import at.rtr.rmbt.client.v2.task.service.TestSettings
 import at.rtr.rmbt.util.model.shared.exception.ErrorStatus
 import at.specure.config.Config
 import at.specure.data.ClientUUID
@@ -16,11 +25,16 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.delay
 import org.json.JSONObject
 import timber.log.Timber
+import java.net.InetAddress
+import java.util.concurrent.TimeUnit
 
 private const val KEY_TEST_COUNTER = "testCounter"
 private const val KEY_PREVIOUS_TEST_STATUS = "previousTestStatus"
 
-class TestControllerImpl(private val config: Config, private val clientUUID: ClientUUID) : TestController {
+private const val TEST_MAX_TIME = 3000
+private const val MAX_VALUE_UNFINISHED_TEST = 0.9f
+
+class TestControllerImpl(private val context: Context, private val config: Config, private val clientUUID: ClientUUID, private val connectivityManager: ConnectivityManager) : TestController {
 
     private var job: Job? = null
     private val result: IntermediateResult by lazy { IntermediateResult() }
@@ -90,6 +104,8 @@ class TestControllerImpl(private val config: Config, private val clientUUID: Cli
                 errorSet
             )
 
+            var qosTest: QualityOfServiceTest? = null
+
             if (client == null || errorSet.isNotEmpty()) {
                 Timber.w("Client has errors")
                 _listener?.onError()
@@ -111,20 +127,38 @@ class TestControllerImpl(private val config: Config, private val clientUUID: Cli
 
             _listener?.onClientReady(_testUUID!!, _testStartTimeNanos)
 
+            val skipQoSTests = config.skipQoSTests
+
             GlobalScope.async {
                 @Suppress("BlockingMethodInNonBlockingContext")
                 val result = client.runTest()
-                if (!config.skipQoSTests) { // needs to prevent calling onTestCompleted and finishing before unimplemented QoS phase
-                    // TODO remove this
-                    repeat(100) {
-                        Thread.sleep(100)
+                clientCallback.onTestCompleted(result, !skipQoSTests)
+                if (!skipQoSTests) { // needs to prevent calling onTestCompleted and finishing before unimplemented QoS phase
+                    val qosTestSettings = TestSettings()
+                    qosTestSettings.cacheFolder = context.cacheDir
+                    qosTestSettings.websiteTestService = WebsiteTestServiceImpl(context)
+                    qosTestSettings.tracerouteServiceClazz = TracerouteAndroidImpl::class.java
+                    qosTestSettings.trafficService = TrafficServiceImpl()
+                    qosTestSettings.startTimeNs = _testStartTimeNanos
+                    qosTestSettings.isUseSsl = config.qosSSL
+
+                    // get default dns servers
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                        qosTestSettings.defaultDnsResolvers = getDnsServers()
                     }
+
+                    qosTest = QualityOfServiceTest(client, qosTestSettings)
+                    client.status = TestStatus.QOS_TEST_RUNNING
+                    val qosResult = qosTest?.call()
+                    Timber.d("qos finished")
+                    client.status = TestStatus.QOS_END
+                    clientCallback.onQoSTestCompleted(qosResult)
                 }
-                clientCallback.onTestCompleted(result)
             }
 
             var currentStatus = TestStatus.WAIT
-            while (!currentStatus.isFinalState()) {
+
+            while (!currentStatus.isFinalState(skipQoSTests)) {
                 currentStatus = client.status
                 Timber.v(currentStatus.name)
 
@@ -137,15 +171,15 @@ class TestControllerImpl(private val config: Config, private val clientUUID: Cli
                     TestStatus.DOWN -> handleDown(client)
                     TestStatus.INIT_UP -> handleInitUp()
                     TestStatus.UP -> handleUp(client)
-                    TestStatus.SPEEDTEST_END -> handleSpeedTestEnd(client)
-                    TestStatus.QOS_TEST_RUNNING -> handleQoSRunning(client)
-                    TestStatus.QOS_END -> handleQoSEnd(client)
+                    TestStatus.SPEEDTEST_END -> handleSpeedTestEnd(skipQoSTests)
+                    TestStatus.QOS_TEST_RUNNING -> handleQoSRunning(qosTest)
+                    TestStatus.QOS_END -> handleQoSEnd()
                     TestStatus.ERROR -> handleError(client)
-                    TestStatus.END -> handleEnd(client)
+                    TestStatus.END -> handleEnd()
                     TestStatus.ABORTED -> handleAbort(client)
                 }
 
-                if (currentStatus.isFinalState()) {
+                if (currentStatus.isFinalState(skipQoSTests)) {
                     // todo check correctness of counter's values after implementing QoS logic
                     config.testCounter++
                     config.previousTestStatus = if (currentStatus == TestStatus.ERROR) {
@@ -156,13 +190,6 @@ class TestControllerImpl(private val config: Config, private val clientUUID: Cli
                         errorStatus
                     } else currentStatus.name
 
-                    if (!config.skipQoSTests) {
-                        // TODO remove this
-                        repeat(100) {
-                            setState(MeasurementState.QOS, it)
-                            Thread.sleep(70)
-                        }
-                    }
                     client.commonCallback = null
                     client.shutdown()
                     if (currentStatus != TestStatus.ERROR) {
@@ -218,16 +245,61 @@ class TestControllerImpl(private val config: Config, private val clientUUID: Cli
         }
     }
 
-    private fun handleSpeedTestEnd(client: RMBTClient) {
+    private fun handleSpeedTestEnd(skipQoSTest: Boolean) {
+        if (skipQoSTest) {
+            setState(MeasurementState.FINISH, 0)
+        }
+    }
+
+    private fun handleQoSRunning(qosTest: QualityOfServiceTest?) {
+        qosTest ?: return
+        Timber.i("${TestStatus.QOS_TEST_RUNNING} progress: ${qosTest.progress}/${qosTest.testSize}")
+        val progress = ((qosTest.progress.toDouble() / qosTest.testSize) * 100).toInt()
+        setState(MeasurementState.QOS, progress)
+
+        val counterMap = qosTest.testGroupCounterMap
+        val testMap = qosTest.testMap
+
+        val progressMap = mutableMapOf<QoSTestResultEnum, Int>()
+
+        counterMap.forEach { entry ->
+            val key = entry.key!!
+            val counter = entry.value!!
+
+            var testGroupProgress = 0f
+            val currentTimestamp = System.nanoTime()
+
+            val taskList = testMap[key]
+            if (taskList != null && counter.value < counter.target) {
+                taskList.forEach { task ->
+                    if (task.hasStarted()) {
+                        val runningMs = TimeUnit.NANOSECONDS.toMillis(task.getRelativeDurationNs(currentTimestamp))
+                        if (runningMs >= TEST_MAX_TIME * MAX_VALUE_UNFINISHED_TEST && !task.hasFinished()) {
+                            testGroupProgress += (1f / counter.target) * MAX_VALUE_UNFINISHED_TEST
+                        } else if (!task.hasFinished()) {
+                            testGroupProgress += (1f / counter.target) * (runningMs / TEST_MAX_TIME)
+                        }
+                    }
+                }
+
+                testGroupProgress += counter.value.toFloat() / counter.target
+                testGroupProgress *= 100f
+            } else if (counter.value == counter.target) {
+                testGroupProgress = 100f
+            } else {
+                Timber.w("Task $key not found!")
+            }
+
+            progressMap[key] = testGroupProgress.toInt()
+            Timber.i("$key : $testGroupProgress")
+        }
+
+        _listener?.onQoSTestProgressUpdate(qosTest.progress, qosTest.testSize, progressMap)
+    }
+
+    private fun handleQoSEnd() {
         setState(MeasurementState.FINISH, 0)
-    }
-
-    private fun handleQoSRunning(client: RMBTClient) {
-        Timber.e("${TestStatus.QOS_TEST_RUNNING} handling not implemented")
-    }
-
-    private fun handleQoSEnd(client: RMBTClient) {
-        Timber.e("${TestStatus.QOS_END} handling not implemented")
+        _testUUID = null
     }
 
     private fun handleError(client: RMBTClient) {
@@ -240,7 +312,7 @@ class TestControllerImpl(private val config: Config, private val clientUUID: Cli
         _testUUID = null
     }
 
-    private fun handleEnd(client: RMBTClient) {
+    private fun handleEnd() {
         setState(MeasurementState.FINISH, 0)
         _testUUID = null
     }
@@ -259,8 +331,25 @@ class TestControllerImpl(private val config: Config, private val clientUUID: Cli
         _listener = null
     }
 
-    private fun TestStatus.isFinalState() = this == TestStatus.ABORTED ||
+    private fun TestStatus.isFinalState(skipQoSTest: Boolean) = this == TestStatus.ABORTED ||
             this == TestStatus.END ||
             this == TestStatus.ERROR ||
-            this == TestStatus.SPEEDTEST_END
+            (this == TestStatus.SPEEDTEST_END && skipQoSTest) ||
+            this == TestStatus.QOS_END
+
+    @TargetApi(23)
+    private fun getDnsServers(): List<InetAddress>? {
+        val servers = mutableListOf<InetAddress>()
+        val networks = arrayOf(connectivityManager.activeNetwork)
+        for (i in networks.indices) {
+            val linkProperties = connectivityManager.getLinkProperties(networks[i])
+            if (linkProperties != null) {
+                servers.addAll(linkProperties.dnsServers)
+            }
+        }
+        servers.forEach {
+            Timber.d("DNS Server: ${it.hostName} (${it.hostAddress})")
+        }
+        return servers
+    }
 }

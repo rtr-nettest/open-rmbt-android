@@ -15,39 +15,47 @@
  */
 
 package at.rtr.rmbt.android.ui.adapter
-import android.content.Context
-import android.view.LayoutInflater
-import android.view.View
+
 import android.view.ViewGroup
-import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import at.rtr.rmbt.android.R
+import at.rtr.rmbt.android.databinding.ItemQosMeasurementBinding
+import at.rtr.rmbt.android.util.bindWith
+import at.rtr.rmbt.client.v2.task.result.QoSTestResultEnum
 
-class QosMeasurementAdapter(val context: Context) : RecyclerView.Adapter<ViewHolder>() {
+class QosMeasurementAdapter : RecyclerView.Adapter<ViewHolder>() {
 
-    private var items = listOf<String>(context.getString(R.string.measurement_qos_web_site),
-        context.getString(R.string.measurement_qos_transparent_connection),
-        context.getString(R.string.measurement_qos_dns),
-        context.getString(R.string.measurement_qos_tcp_ports),
-        context.getString(R.string.measurement_qos_udp_ports),
-        context.getString(R.string.measurement_qos_unmodified_content),
-        context.getString(R.string.measurement_qos_traceroute),
-        context.getString(R.string.measurement_qos_voip))
+    private val items = listOf(
+        Pair(QoSTestResultEnum.WEBSITE, R.string.measurement_qos_web_site),
+        Pair(QoSTestResultEnum.NON_TRANSPARENT_PROXY, R.string.measurement_qos_transparent_connection),
+        Pair(QoSTestResultEnum.DNS, R.string.measurement_qos_dns),
+        Pair(QoSTestResultEnum.TCP, R.string.measurement_qos_tcp_ports),
+        Pair(QoSTestResultEnum.UDP, R.string.measurement_qos_udp_ports),
+        Pair(QoSTestResultEnum.HTTP_PROXY, R.string.measurement_qos_unmodified_content),
+        Pair(QoSTestResultEnum.TRACEROUTE, R.string.measurement_qos_traceroute),
+        Pair(QoSTestResultEnum.VOIP, R.string.measurement_qos_voip)
+    )
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        return ViewHolder(LayoutInflater.from(context).inflate(R.layout.row_qos_measurement, parent, false))
-    }
+    private val _values = mutableMapOf<QoSTestResultEnum, Int>()
 
-    override fun getItemCount(): Int {
-        return items.size
-    }
+    var values: Map<QoSTestResultEnum, Int>
+        get() = _values
+        set(value) {
+            _values.clear()
+            _values.putAll(value)
+            notifyDataSetChanged()
+        }
+
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) = ViewHolder(parent.bindWith(R.layout.item_qos_measurement))
+
+    override fun getItemCount() = items.size
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-
-        holder.textQosTitle.text = items[position]
+        val pair = items[position]
+        val progress = _values[pair.first] ?: 0
+        holder.binding.textQosTitle.text = holder.binding.textQosTitle.context.getString(pair.second)
+        holder.binding.progressBarQos.progress = progress
     }
 }
 
-class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-    val textQosTitle: TextView = view.findViewById(R.id.textQosTitle)
-}
+class ViewHolder(val binding: ItemQosMeasurementBinding) : RecyclerView.ViewHolder(binding.root)

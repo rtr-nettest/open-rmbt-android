@@ -134,6 +134,11 @@
       "name": "IS_CONTROL_SERVER_OVERRIDE_ENABLED",
       "value": "false",
       "visible": false
+    },
+    {
+      "name": "QOS_SSL",
+      "value": "true",
+      "visible": false
     }
   ]
 }

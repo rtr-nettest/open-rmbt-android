@@ -16,6 +16,7 @@ private const val KEY_DOWNLOAD = "KEY_DOWNLOAD"
 private const val KEY_UPLOAD = "KEY_UPLOAD"
 private const val KEY_PING = "KEY_PING"
 private const val KEY_QOS_ENABLED = "KEY_QOS_ENABLED"
+private const val KEY_QOS_TASK_PROGRESS = "QOS_PROGRESS"
 
 class MeasurementViewState : ViewState {
 
@@ -28,6 +29,11 @@ class MeasurementViewState : ViewState {
     val signalStrengthInfo = ObservableField<SignalStrengthInfo?>()
     val networkInfo = ObservableField<NetworkInfo?>()
     val qosEnabled = ObservableBoolean()
+    val qosTaskProgress = ObservableField<String>()
+
+    fun setQoSTaskProgress(current: Int, total: Int) {
+        qosTaskProgress.set("$current/$total")
+    }
 
     override fun onRestoreState(bundle: Bundle?) {
         bundle?.let {
@@ -38,6 +44,7 @@ class MeasurementViewState : ViewState {
             uploadSpeedBps.set(bundle.getLong(KEY_UPLOAD, 0))
             pingMs.set(bundle.getLong(KEY_PING, 0))
             qosEnabled.set(bundle.getBoolean(KEY_QOS_ENABLED, false))
+            qosTaskProgress.set(bundle.getString(KEY_QOS_TASK_PROGRESS))
         }
     }
 
@@ -50,6 +57,7 @@ class MeasurementViewState : ViewState {
             putLong(KEY_UPLOAD, uploadSpeedBps.get())
             putLong(KEY_PING, pingMs.get())
             putBoolean(KEY_QOS_ENABLED, qosEnabled.get())
+            putString(KEY_QOS_TASK_PROGRESS, qosTaskProgress.get())
         }
     }
 }

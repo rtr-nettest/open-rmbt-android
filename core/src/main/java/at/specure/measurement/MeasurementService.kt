@@ -10,6 +10,7 @@ import android.os.IBinder
 import android.os.PowerManager
 import at.rmbt.util.exception.HandledException
 import at.rmbt.util.exception.NoConnectionException
+import at.rtr.rmbt.client.v2.task.result.QoSTestResultEnum
 import at.specure.config.Config
 import at.specure.data.repository.ResultsRepository
 import at.specure.data.repository.TestDataRepository
@@ -53,6 +54,10 @@ class MeasurementService : LifecycleService() {
     private var downloadSpeedBps = 0L
     private var uploadSpeedBps = 0L
     private var hasErrors = false
+
+    private var qosTasksPassed = 0
+    private var qosTasksTotal = 0
+    private var qosProgressMap: Map<QoSTestResultEnum, Int> = mapOf()
 
     private val notificationManager: NotificationManager by lazy { getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager }
 
@@ -117,6 +122,13 @@ class MeasurementService : LifecycleService() {
                     }
                 }
             }
+        }
+
+        override fun onQoSTestProgressUpdate(tasksPassed: Int, tasksTotal: Int, progressMap: Map<QoSTestResultEnum, Int>) {
+            clientAggregator.onQoSTestProgressUpdated(tasksPassed, tasksTotal, progressMap)
+            qosTasksPassed = tasksPassed
+            qosTasksTotal = tasksTotal
+            qosProgressMap = progressMap
         }
     }
 
@@ -251,6 +263,10 @@ class MeasurementService : LifecycleService() {
                 if (hasErrors) {
                     client.onMeasurementError()
                 }
+
+                if (qosProgressMap.isNotEmpty()) {
+                    onQoSTestProgressUpdated(qosTasksPassed, qosTasksTotal, qosProgressMap)
+                }
             }
         }
 
@@ -351,6 +367,12 @@ class MeasurementService : LifecycleService() {
         override fun onSubmissionError(exception: HandledException) {
             clients.forEach {
                 it.onSubmissionError(exception)
+            }
+        }
+
+        override fun onQoSTestProgressUpdated(tasksPassed: Int, tasksTotal: Int, progressMap: Map<QoSTestResultEnum, Int>) {
+            clients.forEach {
+                it.onQoSTestProgressUpdated(tasksPassed, tasksTotal, progressMap)
             }
         }
     }

@@ -27,13 +27,15 @@ import at.rtr.rmbt.android.ui.dialog.SimpleDialog
 import at.rtr.rmbt.android.util.listen
 import at.rtr.rmbt.android.viewmodel.MeasurementViewModel
 import at.specure.measurement.MeasurementState
-import kotlinx.android.synthetic.main.activity_measurement.view.measurement_bottom_view
-import kotlinx.android.synthetic.main.measurement_bottom_view.view.*
+import kotlinx.android.synthetic.main.activity_measurement.view.measurementBottomView
+import kotlinx.android.synthetic.main.measurement_bottom_view.view.qosTestRecyclerView
+import kotlinx.android.synthetic.main.measurement_bottom_view.view.speedChartDownloadUpload
 
 class MeasurementActivity : BaseActivity(), SimpleDialog.Callback {
 
     private val viewModel: MeasurementViewModel by viewModelLazy()
     private lateinit var binding: ActivityMeasurementBinding
+    private val qosAdapter = QosMeasurementAdapter()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -62,20 +64,19 @@ class MeasurementActivity : BaseActivity(), SimpleDialog.Callback {
                 .cancelable(false)
                 .show(supportFragmentManager, 0)
         }
-
-        binding.root.measurement_bottom_view.qosTestRecyclerView.apply {
-            adapter = QosMeasurementAdapter(this@MeasurementActivity)
+        binding.root.measurementBottomView.qosTestRecyclerView.apply {
+            adapter = qosAdapter
         }
 
         viewModel.downloadGraphSource.listen(this) {
             if (viewModel.state.measurementState.get() == MeasurementState.DOWNLOAD) {
-                binding.root.measurement_bottom_view.speedChartDownloadUpload.addGraphItems(it)
+                binding.root.measurementBottomView.speedChartDownloadUpload.addGraphItems(it)
             }
         }
 
         viewModel.uploadGraphSource.listen(this) {
             if (viewModel.state.measurementState.get() == MeasurementState.UPLOAD) {
-                binding.root.measurement_bottom_view.speedChartDownloadUpload.addGraphItems(it)
+                binding.root.measurementBottomView.speedChartDownloadUpload.addGraphItems(it)
             }
         }
 
@@ -85,6 +86,10 @@ class MeasurementActivity : BaseActivity(), SimpleDialog.Callback {
 
         viewModel.activeNetworkLiveData.listen(this) {
             viewModel.state.networkInfo.set(it)
+        }
+
+        viewModel.qosProgressLiveData.listen(this) {
+            qosAdapter.values = it
         }
     }
 

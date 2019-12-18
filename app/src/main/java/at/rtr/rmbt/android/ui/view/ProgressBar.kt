@@ -17,10 +17,10 @@
 package at.rtr.rmbt.android.ui.view
 
 import android.content.Context
-import android.graphics.Canvas
-import android.graphics.Paint
 import android.graphics.Bitmap
+import android.graphics.Canvas
 import android.graphics.Color
+import android.graphics.Paint
 import android.graphics.PorterDuff
 import android.graphics.PorterDuffXfermode
 import android.util.AttributeSet
@@ -38,6 +38,13 @@ class ProgressBar @JvmOverloads constructor(
     var squareSize: Float = 0f
         set(value) {
             field = value * 2f * resources.displayMetrics.density
+        }
+
+    var progress: Int = 0
+        set(value) {
+            field = value
+            updateProgress(value)
+            invalidate()
         }
 
     init {
@@ -123,14 +130,11 @@ class ProgressBar @JvmOverloads constructor(
      * Calculate the size of filled graph of part and draw it
      */
     private fun updateProgress(percentage: Int) {
-        currentCanvas?.drawColor(Color.TRANSPARENT, PorterDuff.Mode.CLEAR)
-        currentCanvas?.let { drawBackground(it) }
-        currentCanvas?.drawRect(
-            0f, 0f,
-            (measuredWidth * percentage / 100).toFloat(),
-            measuredHeight.toFloat(),
-            progressPaint
-        )
+        currentCanvas?.apply {
+            drawColor(Color.TRANSPARENT, PorterDuff.Mode.CLEAR)
+            drawBackground(this)
+            drawRect(0f, 0f, (measuredWidth * percentage / 100).toFloat(), measuredHeight.toFloat(), progressPaint)
+        }
     }
 
     companion object {

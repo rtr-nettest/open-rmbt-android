@@ -16,6 +16,8 @@
  ******************************************************************************/
 package at.rtr.rmbt.client;
 
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.json.JSONObject;
 
 import java.security.KeyManagementException;
@@ -901,7 +903,12 @@ public class RMBTClient implements RMBTClientCallback {
     }
 
     @Override
-    public void onTestCompleted(TotalTestResult result) {
+    public void onTestCompleted(@NotNull TotalTestResult result, boolean waitQoSResults) {
+        // leave empty
+    }
+
+    @Override
+    public void onQoSTestCompleted(@Nullable QoSResultCollector qosResult) {
         // leave empty
     }
 

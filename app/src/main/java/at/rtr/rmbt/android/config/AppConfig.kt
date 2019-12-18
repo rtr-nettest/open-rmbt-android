@@ -181,4 +181,8 @@ class AppConfig @Inject constructor(context: Context, private val serverSettings
     override var controlServerOverrideEnabled: Boolean
         get() = getBoolean(BuildConfig.IS_CONTROL_SERVER_OVERRIDE_ENABLED)
         set(value) = setBoolean(BuildConfig.IS_CONTROL_SERVER_OVERRIDE_ENABLED, value)
+
+    override var qosSSL: Boolean
+        get() = getBoolean(BuildConfig.QOS_SSL)
+        set(value) = setBoolean(BuildConfig.QOS_SSL, value)
 }

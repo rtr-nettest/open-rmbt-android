@@ -146,7 +146,8 @@ class CoreModule {
 
     @Provides
     @Singleton
-    fun provideTestController(config: Config, clientUUID: ClientUUID): TestController = TestControllerImpl(config, clientUUID)
+    fun provideTestController(context: Context, config: Config, clientUUID: ClientUUID, connectivityManager: ConnectivityManager): TestController =
+        TestControllerImpl(context, config, clientUUID, connectivityManager)
 
     @Provides
     @Singleton
