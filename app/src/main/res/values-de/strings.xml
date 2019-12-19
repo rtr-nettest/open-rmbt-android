@@ -164,5 +164,9 @@
     <string name="history_item_header_ping">Ping</string>
     <string name="history_item_header_ms">ms</string>
     <string name="history_no_data">Keine Daten verfügbar.</string>
+
+    <!-- Results -->
+    <string name="results_other_details">Weitere Details</string>
+
 </resources>
 

@@ -17,6 +17,7 @@ package at.rmbt.client.control
 import androidx.annotation.Keep
 import at.rmbt.client.control.data.ErrorStatus
 import com.google.gson.annotations.SerializedName
+import kotlin.collections.HashSet
 
 /**
  * Basic response class
@@ -95,6 +96,328 @@ data class TestRequestResponse(
     @SerializedName("error_flags")
     val errorFlags: HashSet<ErrorStatus>?
 ) : BaseResponse()
+
+@Keep
+data class ServerTestResultResponse(
+    @SerializedName("testresult")
+    val resultItem: List<ServerTestResultItem>
+) : BaseResponse()
+
+@Keep
+data class SpeedCurveBodyResponse(
+    // a lot of fields are not important for us, so we will parse only those one we need
+    @SerializedName("speed_curve")
+    val speedCurve: SpeedCurveResponse
+) : BaseResponse()
+
+@Keep
+data class SpeedCurveResponse(
+    @SerializedName("download")
+    val download: List<SpeedGraphItemResponse>,
+
+    @SerializedName("upload")
+    val upload: List<SpeedGraphItemResponse>,
+
+    @SerializedName("ping")
+    val ping: List<PingGraphItemResponse>,
+
+    @SerializedName("signal")
+    val signal: List<SignalGraphItemResponse>
+)
+
+@Keep
+data class SpeedGraphItemResponse(
+
+    /**
+     * Total bytes transferred until the timestamp
+     */
+    @SerializedName("bytes_total")
+    val bytes: Long,
+
+    /**
+     * Relative time in milliseconds form the start of the test
+     */
+    @SerializedName("time_elapsed")
+    val timeMillis: Long
+)
+
+@Keep
+data class PingGraphItemResponse(
+    // cell infos are not parsed (it is not relevant for the application)
+    /**
+     * Ping value in milliseconds
+     */
+    @SerializedName("ping_ms")
+    val durationMillis: Long,
+
+    /**
+     * Relative time in milliseconds form the start of the test
+     */
+    @SerializedName("time_elapsed")
+    val timeMillis: Long
+)
+
+@Keep
+data class SignalGraphItemResponse(
+
+    /**
+     * Type of the network, e.g. GSM, EDGE, UMTS, HSPA, LTE, LAN, WLAN…
+     */
+    @SerializedName("network_type")
+    val networkType: String,
+
+    /**
+     * Signal strength (RSSI) in dBm.
+     */
+    @SerializedName("signal_strength")
+    val signalStrength: Int?,
+
+    /**
+     * LTE signal strength in dBm.
+     */
+    @SerializedName("lte_rsrp")
+    val lteRsrp: Int?,
+
+    /**
+     * LTE signal quality in decibels.
+     */
+    @SerializedName("lte_rsrq")
+    val lteRsrq: Int?,
+
+    /**
+     * Technology category of the network, e.g. “3G”, “4G”, “5G”, “WLAN”.
+     */
+    @SerializedName("cat_technology")
+    val technologyCategory: String,
+
+    /**
+     * Timing advance value for LTE, as a value in range of 0..1282. Refer to 3GPP 36.213 Sec 4.2.3
+     */
+    @SerializedName("timing_advance")
+    val timingAdvance: Int?,
+
+    /**
+     * Relative time in milliseconds form the start of the test
+     */
+    @SerializedName("time_elapsed")
+    val timeMillis: Long
+)
+
+@Keep
+data class ServerTestResultItem(
+
+    /**
+     * open uuid of the client used for identify user in opendata
+     */
+    @SerializedName("open_uuid")
+    val clientOpenUUID: String,
+
+    /**
+     * open uuid of the test used for identify test in opendata and request opendata result details (necessary for graph values)
+     */
+    @SerializedName("open_test_uuid")
+    val testOpenUUID: String,
+
+    /**
+     * Subject of the share message used to share result via other app
+     */
+    @SerializedName("share_subject")
+    val shareSubject: String,
+
+    /**
+     * Formatted text of the share message used to share result via other app
+     */
+    @SerializedName("share_text")
+    val shareText: String,
+
+    /**
+     * Human readable format of the timezone e.g. "Europe/Bratislava"
+     */
+    @SerializedName("timezone")
+    val timezone: String,
+
+    /**
+     * Human readable format of geolocation (only coordinates formatted)
+     */
+    @SerializedName("location")
+    val locationText: String?,
+
+    /**
+     * longitude coordinate of geolocation
+     */
+    @SerializedName("geo_long")
+    val longitude: Double?,
+
+    /**
+     * latitude coordinate of geolocation
+     */
+    @SerializedName("geo_lat")
+    val latitude: Double?,
+
+    /**
+     * Time, when the test was performed in milliseconds
+     */
+    @SerializedName("time")
+    val timestamp: Long,
+
+    /**
+     * Formatted time, when the test was performed (ready to be displayed)
+     */
+    @SerializedName("time_string")
+    val timeText: String,
+
+    /**
+     * Object holding all basic measured values (ping, download, upload, signal)
+     */
+    @SerializedName("measurement_result")
+    val measurementItem: MeasurementItem,
+
+    /**
+     * Object holding all basic network information
+     */
+    @SerializedName("measurement_item")
+    val networkItem: NetworkItem,
+
+    /**
+     * Server type of the network
+     */
+    @SerializedName("network_type")
+    val networkType: Int,
+
+    /**
+     * List with all QoE classifications
+     */
+    @SerializedName("qoe_classification")
+    val qoeClassifications: List<QoEClassification>
+)
+
+@Keep
+data class QoEClassification(
+
+    /**
+     * Type of QoE that is classified by this attribute
+     *
+     * - streaming_audio_streaming
+     * - video_sd
+     * - video_hd
+     * - video_uhd
+     * - gaming
+     * - gaming_cloud
+     * - gaming_streaming
+     * - gaming_download
+     * - voip
+     * - video_telephony
+     * - video_conferencing
+     * - messaging
+     * - web
+     * - cloud
+     */
+    val category: String,
+
+    /**
+     * Classification value for assigning traffic-light-color
+     *  0 = not available (greyed out)
+     *  1 = red
+     *  2 = yellow
+     *  3 = green
+     *  4 = dark green
+     */
+    val classification: Int,
+
+    /**
+     * Quality of Experience value, [0.0, 1.0] whereas
+     * 0.0 = worst possible value
+     * 1.0 = best possible value
+     */
+    val quality: Float
+)
+
+/**
+ * Basic measurement result from server
+ */
+@Keep
+data class MeasurementItem(
+
+    /**
+     * Classification value for assigning traffic-light-color
+     *  0 = not available (greyed out)
+     *  1 = red
+     *  2 = yellow
+     *  3 = green
+     *  4 = dark green
+     */
+    @SerializedName("upload_classification")
+    val uploadClass: Int,
+
+    /**
+     * Upload speed in kbit per second
+     */
+    @SerializedName("upload_kbit")
+    val uploadSpeedKbs: Long,
+
+    /**
+     * Classification value for assigning traffic-light-color
+     *  0 = not available (greyed out)
+     *  1 = red
+     *  2 = yellow
+     *  3 = green
+     *  4 = dark green
+     */
+    @SerializedName("download_classification")
+    val downloadClass: Int,
+
+    /**
+     * Download speed in kbit per second
+     */
+    @SerializedName("download_kbit")
+    val downloadSpeedKbs: Long,
+
+    /**
+     * Signal value in dBm for 4G measurement connections
+     */
+    @SerializedName("lte_rsrp")
+    val lte_rsrp: Int?,
+
+    /**
+     * Signal value in dBm for WIFI, 3G, 2G measurement connections
+     */
+    @SerializedName("signal_strength")
+    val signalStrength: Int?,
+
+    /**
+     * Classification value for assigning traffic-light-color
+     *  0 = not available (greyed out)
+     *  1 = red
+     *  2 = yellow
+     *  3 = green
+     *  4 = dark green
+     */
+    @SerializedName("signal_classification")
+    val signalClass: Int,
+
+    /**
+     * Median ping (round-trip time) in milliseconds, measured on the server side. In previous versions (before June 3rd 2015) this was the minimum ping measured on the client side.
+     */
+    @SerializedName("ping_ms")
+    val pingMillis: Double,
+
+    /**
+     * Classification value for assigning traffic-light-color
+     *  0 = not available (greyed out)
+     *  1 = red
+     *  2 = yellow
+     *  3 = green
+     *  4 = dark green
+     */
+    @SerializedName("ping_classification")
+    val pingClass: Int
+)
+
+@Keep
+data class NetworkItem(
+    // TODO: prepare according to RTR spec
+    val lama: Boolean?
+)
 
 /**
  * Response of news used by [ControlServerApi.newsCheck]

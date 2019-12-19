@@ -51,7 +51,7 @@ class MeasurementActivity : BaseActivity(), SimpleDialog.Callback {
 
         viewModel.measurementFinishLiveData.listen(this) {
             finish()
-            ResultsActivity.start(this)
+            ResultsActivity.start(this, viewModel.testUUID)
         }
 
         viewModel.measurementErrorLiveData.listen(this) {

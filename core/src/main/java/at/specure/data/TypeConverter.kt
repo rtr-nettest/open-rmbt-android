@@ -7,6 +7,7 @@ import at.specure.info.TransportType
 import at.specure.info.cell.CellTechnology
 import at.specure.info.network.MobileNetworkType
 import at.specure.measurement.MeasurementState
+import at.specure.result.QoECategory
 
 class TypeConverter {
 
@@ -71,6 +72,12 @@ class TypeConverter {
 
     @TypeConverter
     fun valueToClassification(value: Int): Classification = Classification.fromValue(value)
+
+    @TypeConverter
+    fun qoeCategoryToValue(type: QoECategory): String = type.categoryName
+
+    @TypeConverter
+    fun valueToQoeCategory(value: String): QoECategory = QoECategory.fromString(value)
 
     @TypeConverter
     fun finishReasonToInt(reason: TestFinishReason?): Int? = reason?.ordinal

@@ -245,19 +245,20 @@ fun AppCompatTextView.setPing(pingMs: Long) {
         setCompoundDrawablesWithIntrinsicBounds(
 
             when (pingMs) {
-            in THRESHOLD_PING[0]..THRESHOLD_PING[1] -> {
-                R.drawable.ic_small_ping_dark_green
-            }
-            in THRESHOLD_PING[1]..THRESHOLD_PING[2] -> {
-                R.drawable.ic_small_ping_light_green
-            }
-            in THRESHOLD_PING[2]..THRESHOLD_PING[3] -> {
-                R.drawable.ic_small_ping_yellow
-            }
-            else -> {
-                R.drawable.ic_small_ping_red
-            }
-        }, 0, 0, 0)
+                in THRESHOLD_PING[0]..THRESHOLD_PING[1] -> {
+                    R.drawable.ic_small_ping_dark_green
+                }
+                in THRESHOLD_PING[1]..THRESHOLD_PING[2] -> {
+                    R.drawable.ic_small_ping_light_green
+                }
+                in THRESHOLD_PING[2]..THRESHOLD_PING[3] -> {
+                    R.drawable.ic_small_ping_yellow
+                }
+                else -> {
+                    R.drawable.ic_small_ping_red
+                }
+            }, 0, 0, 0
+        )
         text = context.getString(R.string.measurement_ping_value, pingMs)
         setTextColor(context.getColor(android.R.color.white))
     } else {
@@ -292,7 +293,8 @@ fun AppCompatTextView.setDownload(downloadSpeedBps: Long) {
                 else -> {
                     R.drawable.ic_small_download_dark_green
                 }
-            }, 0, 0, 0)
+            }, 0, 0, 0
+        )
         text = context.getString(
             R.string.measurement_download_upload_speed,
             downloadSpeedInMbps.format()
@@ -330,7 +332,8 @@ fun AppCompatTextView.setUpload(uploadSpeedBps: Long) {
                 else -> {
                     R.drawable.ic_small_upload_dark_green
                 }
-            }, 0, 0, 0)
+            }, 0, 0, 0
+        )
         text = context.getString(
             R.string.measurement_download_upload_speed,
             uploadSpeedInMbps.format()
@@ -490,7 +493,8 @@ fun AppCompatTextView.setTime(networkType: NetworkTypeCompat, time: Long) {
             NetworkTypeCompat.TYPE_WLAN -> {
                 R.drawable.ic_history_wifi
             }
-        }, 0, 0, 0)
+        }, 0, 0, 0
+    )
 }
 
 /**
@@ -504,25 +508,54 @@ fun AppCompatTextView.setDownload(speedDownload: Double, speedDownloadClassifica
     } else {
         context.getString(R.string.measurement_dash)
     }
-    setCompoundDrawablesWithIntrinsicBounds(
+    setCompoundDrawablesWithIntrinsicBounds(getSpeedDownloadClassification(speedDownloadClassification), 0, 0, 0)
+}
 
-        when (speedDownloadClassification) {
-            Classification.NONE -> {
-                R.drawable.ic_small_download_gray
-            }
-            Classification.BAD -> {
-                R.drawable.ic_small_download_red
-            }
-            Classification.NORMAL -> {
-                R.drawable.ic_small_download_yellow
-            }
-            Classification.GOOD -> {
-                R.drawable.ic_small_download_light_green
-            }
-            Classification.EXCELLENT -> {
-                R.drawable.ic_small_download_dark_green
-            }
-        }, 0, 0, 0)
+/**
+ * A binding adapter that is used for show download speed with classification icon in results
+ */
+@BindingAdapter("speedDownloadLong", "speedDownloadClassification", requireAll = true)
+fun AppCompatTextView.setDownload(speedDownload: Long, speedDownloadClassification: Classification) {
+
+    text = if (speedDownload > 0) {
+        (speedDownload / 1000).toFloat().format()
+    } else {
+        context.getString(R.string.measurement_dash)
+    }
+    setCompoundDrawablesWithIntrinsicBounds(getSpeedDownloadClassification(speedDownloadClassification), 0, 0, 0)
+}
+
+fun getSpeedDownloadClassification(speedDownloadClassification: Classification): Int {
+    return when (speedDownloadClassification) {
+        Classification.NONE -> {
+            R.drawable.ic_small_download_gray
+        }
+        Classification.BAD -> {
+            R.drawable.ic_small_download_red
+        }
+        Classification.NORMAL -> {
+            R.drawable.ic_small_download_yellow
+        }
+        Classification.GOOD -> {
+            R.drawable.ic_small_download_light_green
+        }
+        Classification.EXCELLENT -> {
+            R.drawable.ic_small_download_dark_green
+        }
+    }
+}
+
+/**
+ * A binding adapter that is used for show upload speed with classification icon in results
+ */
+@BindingAdapter("speedUploadLong", "speedUploadClassification", requireAll = true)
+fun AppCompatTextView.setUpload(speedUpload: Long, speedUploadClassification: Classification) {
+    text = if (speedUpload > 0) {
+        (speedUpload.toFloat() / 1000).format()
+    } else {
+        context.getString(R.string.measurement_dash)
+    }
+    setCompoundDrawablesWithIntrinsicBounds(getSpeedUploadClassificationIcon(speedUploadClassification), 0, 0, 0)
 }
 
 /**
@@ -536,25 +569,27 @@ fun AppCompatTextView.setUpload(speedUpload: Double, speedUploadClassification: 
     } else {
         context.getString(R.string.measurement_dash)
     }
-    setCompoundDrawablesWithIntrinsicBounds(
+    setCompoundDrawablesWithIntrinsicBounds(getSpeedUploadClassificationIcon(speedUploadClassification), 0, 0, 0)
+}
 
-        when (speedUploadClassification) {
-            Classification.NONE -> {
-                R.drawable.ic_small_upload_gray
-            }
-            Classification.BAD -> {
-                R.drawable.ic_small_upload_red
-            }
-            Classification.NORMAL -> {
-                R.drawable.ic_small_upload_yellow
-            }
-            Classification.GOOD -> {
-                R.drawable.ic_small_upload_light_green
-            }
-            Classification.EXCELLENT -> {
-                R.drawable.ic_small_upload_dark_green
-            }
-        }, 0, 0, 0)
+fun getSpeedUploadClassificationIcon(speedUploadClassification: Classification): Int {
+    return when (speedUploadClassification) {
+        Classification.NONE -> {
+            R.drawable.ic_small_upload_gray
+        }
+        Classification.BAD -> {
+            R.drawable.ic_small_upload_red
+        }
+        Classification.NORMAL -> {
+            R.drawable.ic_small_upload_yellow
+        }
+        Classification.GOOD -> {
+            R.drawable.ic_small_upload_light_green
+        }
+        Classification.EXCELLENT -> {
+            R.drawable.ic_small_upload_dark_green
+        }
+    }
 }
 
 /**
@@ -568,23 +603,68 @@ fun AppCompatTextView.setPing(ping: Int, pingClassification: Classification) {
     } else {
         context.getString(R.string.measurement_dash)
     }
+    setCompoundDrawablesWithIntrinsicBounds(getPingClassificationIcon(pingClassification), 0, 0, 0)
+}
+
+/**
+ * A binding adapter that is used for show download ping with classification icon in results
+ */
+@BindingAdapter("pingDouble", "pingClassification", requireAll = true)
+fun AppCompatTextView.setPing(ping: Double, pingClassification: Classification) {
+
+    text = if (ping > 0) {
+        ping.toInt().toString()
+    } else {
+        context.getString(R.string.measurement_dash)
+    }
+    setCompoundDrawablesWithIntrinsicBounds(getPingClassificationIcon(pingClassification), 0, 0, 0)
+}
+
+fun getPingClassificationIcon(pingClassification: Classification): Int {
+    return when (pingClassification) {
+        Classification.NONE -> {
+            R.drawable.ic_small_ping_gray
+        }
+        Classification.BAD -> {
+            R.drawable.ic_small_ping_red
+        }
+        Classification.NORMAL -> {
+            R.drawable.ic_small_ping_yellow
+        }
+        Classification.GOOD -> {
+            R.drawable.ic_small_ping_light_green
+        }
+        Classification.EXCELLENT -> {
+            R.drawable.ic_small_ping_dark_green
+        }
+    }
+}
+
+/**
+ * A binding adapter that is used for show signal strength with classification icon in result
+ */
+@BindingAdapter("signalStrength", "signalStrengthClassification", requireAll = true)
+fun AppCompatTextView.setSignalStrength(signalStrength: Int?, speedDownloadClassification: Classification) {
+
+    text = signalStrength?.toString() ?: context.getString(R.string.measurement_dash)
     setCompoundDrawablesWithIntrinsicBounds(
 
-        when (pingClassification) {
+        when (speedDownloadClassification) {
             Classification.NONE -> {
-                R.drawable.ic_small_ping_gray
+                R.drawable.ic_small_wifi_gray
             }
             Classification.BAD -> {
-                R.drawable.ic_small_ping_red
+                R.drawable.ic_small_wifi_red
             }
             Classification.NORMAL -> {
-                R.drawable.ic_small_ping_yellow
+                R.drawable.ic_small_wifi_yellow
             }
             Classification.GOOD -> {
-                R.drawable.ic_small_ping_light_green
+                R.drawable.ic_small_wifi_light_green
             }
             Classification.EXCELLENT -> {
-                R.drawable.ic_small_ping_dark_green
+                R.drawable.ic_small_wifi_dark_green
             }
-        }, 0, 0, 0)
+        }, 0, 0, 0
+    )
 }

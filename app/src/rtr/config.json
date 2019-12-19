@@ -101,6 +101,16 @@
       "visible": false
     },
     {
+      "name": "CONTROL_SERVER_GET_BASIC_RESULT_PATH",
+      "value": "testresult",
+      "visible": false
+    },
+    {
+      "name": "CONTROL_SERVER_GET_OPENDATA_RESULT_PATH",
+      "value": "opendata",
+      "visible": false
+    },
+    {
       "name": "CAPABILITIES_RMBT_HTTP",
       "value": "false",
       "visible": false
