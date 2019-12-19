@@ -25,15 +25,15 @@ class HistoryFragment : BaseFragment() {
         super.onViewCreated(view, savedInstanceState)
 
         binding.state = historyViewModel.state
-        binding.historyRecyclerView.adapter = adapter
+        binding.recyclerViewHistoryItems.adapter = adapter
 
-        binding.historyRecyclerView.apply {
+        binding.recyclerViewHistoryItems.apply {
 
             val itemDecoration = DividerItemDecoration(context, DividerItemDecoration.VERTICAL)
             ContextCompat.getDrawable(context, R.drawable.history_item_divider)?.let {
                 itemDecoration.setDrawable(it)
             }
-            binding.historyRecyclerView.addItemDecoration(itemDecoration)
+            binding.recyclerViewHistoryItems.addItemDecoration(itemDecoration)
         }
 
         historyViewModel.historyLiveData.listen(this) {
@@ -41,10 +41,18 @@ class HistoryFragment : BaseFragment() {
         }
 
         historyViewModel.isLoadingLiveData.listen(this) {
+            historyViewModel.state.isLoadingLiveData.set(it)
         }
-        activity?.window?.let {
-            it.changeStatusBarColor(ToolbarTheme.WHITE)
+
+        historyViewModel.isHistoryEmpty.listen(this) {
+            historyViewModel.state.isHistoryEmpty.set(it)
         }
+
+        binding.swipeRefreshLayoutHistoryItems.setOnRefreshListener {
+            historyViewModel.refreshHistory()
+            binding.swipeRefreshLayoutHistoryItems.isRefreshing = false
+        }
+        activity?.window?.changeStatusBarColor(ToolbarTheme.WHITE)
     }
 
     override fun onStart() {

@@ -163,5 +163,6 @@
     <string name="history_item_header_up">Up</string>
     <string name="history_item_header_ping">Ping</string>
     <string name="history_item_header_ms">ms</string>
+    <string name="history_no_data">Keine Daten verfügbar.</string>
 </resources>
 
