@@ -24,6 +24,7 @@
     <!-- Error dialog messages -->
     <string name="error_unknown">" Learn to pronounce  Ein Fehler ist aufgetreten. Bitte versuchen Sie es später noch einmal"</string>
     <string name="dialog_title_error">Fehler</string>
+    <string name="no_internet_connection_not_load_data">Keine Netzwerksverbindung: Einträge konnten nicht geladen werden.</string>
 
     <!-- Home screen -->
     <string name="home_signal">Signal</string>

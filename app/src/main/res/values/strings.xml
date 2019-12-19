@@ -24,6 +24,7 @@
     <!-- Error dialog messages -->
     <string name="dialog_title_error">Error</string>
     <string name="error_unknown">An error occurred. Please try again later</string>
+    <string name="no_internet_connection_not_load_data">No Internet connection. Could not load data.</string>
 
     <!-- Home screen -->
     <string name="home_signal">Signal</string>
@@ -175,6 +176,7 @@
     <string name="history_item_header_ping">Ping</string>
     <string name="history_item_header_ms">ms</string>
     <string name="history_no_data">No data available.</string>
+
 
     <!-- Results -->
     <string name="results_other_details">Other details</string>
