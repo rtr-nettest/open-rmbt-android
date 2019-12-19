@@ -3,6 +3,7 @@ package at.specure.data.entity
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import at.rmbt.client.control.data.TestFinishReason
 import at.rtr.rmbt.client.helper.TestStatus
 import at.specure.data.Columns
 import at.specure.data.Tables
@@ -187,6 +188,21 @@ data class TestRecord(
     /**
      * Count of unsuccessful submissions
      */
-    var submissionRetryCount: Int = 0
+    var submissionRetryCount: Int = 0,
 
+    /**
+     * Reason of test finished
+     */
+    var testFinishReason: TestFinishReason? = null,
+
+    /**
+     * Phase which was the last done by the client
+     */
+    var lastClientStatus: TestStatus? = null,
+
+    /**
+     * Stacktrace of IllegalNetworkChangeException exception grabbed from RMBTClient which was happened during the test.
+     * May be null if test was success or cancelled
+     */
+    var testErrorCause: String? = null // todo add an catch IllegalNetworkChangeException
 )

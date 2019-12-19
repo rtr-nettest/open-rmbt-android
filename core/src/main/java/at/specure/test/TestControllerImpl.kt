@@ -1,10 +1,8 @@
 package at.specure.test
 
-import android.annotation.TargetApi
-import android.os.Build
-import at.rtr.rmbt.client.QualityOfServiceTest
 import android.content.Context
 import android.net.ConnectivityManager
+import at.rtr.rmbt.client.QualityOfServiceTest
 import at.rtr.rmbt.client.RMBTClient
 import at.rtr.rmbt.client.RMBTClientCallback
 import at.rtr.rmbt.client.TracerouteAndroidImpl
@@ -34,9 +32,15 @@ private const val KEY_PREVIOUS_TEST_STATUS = "previousTestStatus"
 private const val TEST_MAX_TIME = 3000
 private const val MAX_VALUE_UNFINISHED_TEST = 0.9f
 
-class TestControllerImpl(private val context: Context, private val config: Config, private val clientUUID: ClientUUID, private val connectivityManager: ConnectivityManager) : TestController {
+class TestControllerImpl(
+    private val context: Context,
+    private val config: Config,
+    private val clientUUID: ClientUUID,
+    private val connectivityManager: ConnectivityManager
+) : TestController {
 
     private var job: Job? = null
+    private var clientJob: Job? = null
     private val result: IntermediateResult by lazy { IntermediateResult() }
     private var _testUUID: String? = null
     private var _listener: TestProgressListener? = null
@@ -46,13 +50,16 @@ class TestControllerImpl(private val context: Context, private val config: Confi
         get() = _testUUID
 
     override val isRunning: Boolean
-        get() = job != null
+        get() = job != null && qosTest != null
 
     override val testStartTimeNanos: Long
         get() = _testStartTimeNanos
 
     private var previousDownloadProgress = -1
     private var previousUploadProgress = -1
+
+    private var client: RMBTClient? = null
+    private var qosTest: QualityOfServiceTest? = null
 
     override fun start(deviceInfo: DeviceInfo, listener: TestProgressListener, clientCallback: RMBTClientCallback) {
         Timber.d("Start---")
@@ -89,7 +96,7 @@ class TestControllerImpl(private val context: Context, private val config: Confi
                 .put(KEY_TEST_COUNTER, config.testCounter)
                 .put(KEY_PREVIOUS_TEST_STATUS, config.previousTestStatus)
 
-            val client = RMBTClient.getInstance(
+            client = RMBTClient.getInstance(
                 config.controlServerHost,
                 null,
                 config.controlServerPort,
@@ -104,7 +111,7 @@ class TestControllerImpl(private val context: Context, private val config: Confi
                 errorSet
             )
 
-            var qosTest: QualityOfServiceTest? = null
+            val client = client
 
             if (client == null || errorSet.isNotEmpty()) {
                 Timber.w("Client has errors")
@@ -129,7 +136,7 @@ class TestControllerImpl(private val context: Context, private val config: Confi
 
             val skipQoSTests = config.skipQoSTests
 
-            GlobalScope.async {
+            clientJob = GlobalScope.async {
                 @Suppress("BlockingMethodInNonBlockingContext")
                 val result = client.runTest()
                 clientCallback.onTestCompleted(result, !skipQoSTests)
@@ -143,9 +150,7 @@ class TestControllerImpl(private val context: Context, private val config: Confi
                     qosTestSettings.isUseSsl = config.qosSSL
 
                     // get default dns servers
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                        qosTestSettings.defaultDnsResolvers = getDnsServers()
-                    }
+                    qosTestSettings.defaultDnsResolvers = getDnsServers()
 
                     qosTest = QualityOfServiceTest(client, qosTestSettings)
                     client.status = TestStatus.QOS_TEST_RUNNING
@@ -192,6 +197,11 @@ class TestControllerImpl(private val context: Context, private val config: Confi
 
                     client.commonCallback = null
                     client.shutdown()
+                    qosTest?.interrupt()
+
+                    this@TestControllerImpl.client = null
+                    qosTest = null
+
                     if (currentStatus != TestStatus.ERROR) {
                         _listener?.onFinish()
                     }
@@ -322,12 +332,23 @@ class TestControllerImpl(private val context: Context, private val config: Confi
     }
 
     override fun stop() {
+        client?.shutdown()
+        qosTest?.interrupt()
+
+        if (clientJob == null) {
+            Timber.w("client job is already stopped")
+        } else {
+            clientJob?.cancel()
+        }
+
         if (job == null) {
             Timber.w("Runner is already stopped")
         } else {
             job?.cancel()
         }
+
         job = null
+        clientJob = null
         _listener = null
     }
 
@@ -337,7 +358,6 @@ class TestControllerImpl(private val context: Context, private val config: Confi
             (this == TestStatus.SPEEDTEST_END && skipQoSTest) ||
             this == TestStatus.QOS_END
 
-    @TargetApi(23)
     private fun getDnsServers(): List<InetAddress>? {
         val servers = mutableListOf<InetAddress>()
         val networks = arrayOf(connectivityManager.activeNetwork)
