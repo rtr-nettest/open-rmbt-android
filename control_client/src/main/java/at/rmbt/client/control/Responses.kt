@@ -518,19 +518,19 @@ data class HistoryItemResponse(
     val model: String,
     @SerializedName("network_type")
     val networkType: String,
-    val ping: Int,
+    val ping: String,
     @SerializedName("ping_classification")
     val pingClassification: Int,
     @SerializedName("ping_shortest")
-    val pingShortest: Int,
+    val pingShortest: String,
     @SerializedName("ping_shortest_classification")
     val pingShortestClassification: Int,
     @SerializedName("speed_download")
-    val speedDownload: Double,
+    val speedDownload: String,
     @SerializedName("speed_download_classification")
     val speedDownloadClassification: Int,
     @SerializedName("speed_upload")
-    val speedUpload: Double,
+    val speedUpload: String,
     @SerializedName("speed_upload_classification")
     val speedUploadClassification: Int,
     @SerializedName("test_uuid")
