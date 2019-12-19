@@ -191,6 +191,11 @@ data class TestRecord(
     var submissionRetryCount: Int = 0,
 
     /**
+     * Indicates that result was submitted by the server
+     */
+    var isSubmitted: Boolean = false,
+
+    /**
      * Reason of test finished
      */
     var testFinishReason: TestFinishReason? = null,

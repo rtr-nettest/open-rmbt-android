@@ -34,6 +34,9 @@ class ControlServerProviderImpl(private val config: Config) : ControlEndpointPro
     override val sendTestResultsUrl: String
         get() = "$host$routePath/${config.controlServerSendResultEndpoint}"
 
+    override val sendQoSTestResultsUrl: String
+        get() = "$host$routePath/${config.controlServerSendQoSResultEndpoint}"
+
     override val getHistoryUrl: String
         get() = "$host$routePath/${config.controlServerHistoryEndpoint}"
 

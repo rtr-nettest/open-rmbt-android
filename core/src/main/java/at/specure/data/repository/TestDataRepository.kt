@@ -10,6 +10,7 @@ import at.specure.info.network.WifiNetworkInfo
 import at.specure.info.strength.SignalStrengthInfo
 import at.specure.location.LocationInfo
 import at.specure.location.cell.CellLocationInfo
+import org.json.JSONArray
 
 interface TestDataRepository {
 
@@ -63,4 +64,6 @@ interface TestDataRepository {
     fun saveTest(test: TestRecord)
 
     fun update(testRecord: TestRecord, onUpdated: () -> Unit)
+
+    fun saveQoSResults(testUUID: String, testToken: String, qosData: JSONArray, onUpdated: () -> Unit)
 }

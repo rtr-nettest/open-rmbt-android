@@ -1,7 +1,6 @@
 package at.specure.data.repository
 
 import android.content.Context
-import at.rmbt.client.control.BaseResponse
 import at.rmbt.client.control.ControlServerClient
 import at.rmbt.util.Maybe
 import at.rmbt.util.io
@@ -24,43 +23,70 @@ class ResultsRepositoryImpl @Inject constructor(
 
     private val deviceInfo = DeviceInfo(context)
 
-    override fun sendTestResults(testUUID: String, callback: (Maybe<BaseResponse>) -> Unit) = io {
+    override fun sendTestResults(testUUID: String, callback: (Maybe<Boolean>) -> Unit) = io {
         callback.invoke(sendTestResults(testUUID))
     }
 
-    override fun sendTestResults(testUUID: String): Maybe<BaseResponse> {
+    override fun sendTestResults(testUUID: String): Maybe<Boolean> {
         val testDao = db.testDao()
         val testRecord = testDao.get(testUUID) ?: throw DataMissingException("TestRecord not found uuid: $testUUID")
         val clientUUID = clientUUID.value ?: throw DataMissingException("ClientUUID is null")
 
-        val telephonyInfo: TestTelephonyRecord? =
-            if (testRecord.transportType == TransportType.CELLULAR) {
-                db.testDao().getTelehonyRecord(testUUID)
+        var finalResult: Maybe<Boolean> = Maybe(true)
+
+        if (!testRecord.isSubmitted) {
+
+            val telephonyInfo: TestTelephonyRecord? =
+                if (testRecord.transportType == TransportType.CELLULAR) {
+                    db.testDao().getTelephonyRecord(testUUID)
+                } else {
+                    null
+                }
+
+            val wlanInfo: TestWlanRecord? = if (testRecord.transportType == TransportType.WIFI) {
+                db.testDao().getWlanRecord(testUUID)
             } else {
                 null
             }
 
-        val wlanInfo: TestWlanRecord? = if (testRecord.transportType == TransportType.WIFI) {
-            db.testDao().getWlanRecord(testUUID)
-        } else {
-            null
+            val body = testRecord.toRequest(
+                clientUUID = clientUUID,
+                deviceInfo = deviceInfo,
+                telephonyInfo = telephonyInfo,
+                wlanInfo = wlanInfo,
+                locations = db.geoLocationDao().get(testUUID),
+                capabilities = db.capabilitiesDao().get(testUUID),
+                pingList = db.pingDao().get(testUUID),
+                cellInfoList = db.cellInfoDao().get(testUUID),
+                signalList = db.signalDao().get(testUUID),
+                speedInfoList = db.speedDao().get(testUUID),
+                cellLocationList = db.cellLocationDao().get(testUUID),
+                permissions = db.permissionStatusDao().get(testUUID)
+            )
+
+            val result = client.sendTestResults(body)
+
+            result.onSuccess {
+                db.testDao().updateTestIsSubmitted(testUUID)
+            }
+
+            finalResult = result.map { result.ok }
         }
 
-        val body = testRecord.toRequest(
-            clientUUID = clientUUID,
-            deviceInfo = deviceInfo,
-            telephonyInfo = telephonyInfo,
-            wlanInfo = wlanInfo,
-            locations = db.geoLocationDao().get(testUUID),
-            capabilities = db.capabilitiesDao().get(testUUID),
-            pingList = db.pingDao().get(testUUID),
-            cellInfoList = db.cellInfoDao().get(testUUID),
-            signalList = db.signalDao().get(testUUID),
-            speedInfoList = db.speedDao().get(testUUID),
-            cellLocationList = db.cellLocationDao().get(testUUID),
-            permissions = db.permissionStatusDao().get(testUUID)
-        )
+        if (finalResult.ok) {
+            val qosRecord = testDao.getQoSRecord(testUUID)
+            if (qosRecord != null) {
+                val body = qosRecord.toRequest(clientUUID, deviceInfo)
 
-        return client.sendTestResults(body)
+                val result = client.sendQoSTestResults(body)
+                result.onSuccess {
+                    db.testDao().updateQoSTestIsSubmitted(testUUID)
+                }
+
+                finalResult = result.map { result.ok }
+            }
+        }
+
+        return finalResult
     }
 }

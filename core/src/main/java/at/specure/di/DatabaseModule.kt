@@ -52,8 +52,8 @@ class DatabaseModule {
     }
 
     @Provides
-    fun provideTestDataRepository(database: CoreDatabase, resultsRepository: ResultsRepository): TestDataRepository =
-        TestDataRepositoryImpl(database, resultsRepository)
+    fun provideTestDataRepository(database: CoreDatabase): TestDataRepository =
+        TestDataRepositoryImpl(database)
 
     @Provides
     fun provideResultsRepository(

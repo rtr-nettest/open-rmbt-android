@@ -38,6 +38,7 @@ import at.specure.location.cell.CellLocationWatcher
 import at.specure.util.hasPermission
 import at.specure.util.isReadPhoneStatePermitted
 import at.specure.util.permission.PermissionsWatcher
+import org.json.JSONArray
 import timber.log.Timber
 import java.text.DecimalFormat
 import java.util.concurrent.TimeUnit
@@ -63,6 +64,7 @@ class StateRecorder @Inject constructor(
     private val wifiInfoWatcher: WifiInfoWatcher
 ) : RMBTClientCallback {
     private var testUUID: String? = null
+    private var testToken: String? = null
     private var testStartTimeNanos: Long = 0L
     private var testRecord: TestRecord? = null
 
@@ -110,6 +112,7 @@ class StateRecorder @Inject constructor(
 
     override fun onClientReady(testUUID: String, loopUUID: String?, testToken: String, testStartTimeNanos: Long, threadNumber: Int) {
         this.testUUID = testUUID
+        this.testToken = testToken
         this.testStartTimeNanos = testStartTimeNanos
         saveTestInitialTestData(testUUID, loopUUID, testToken, testStartTimeNanos, threadNumber)
         saveLocationInfo()
@@ -125,6 +128,7 @@ class StateRecorder @Inject constructor(
     fun finish() {
         // TODO finish
         testUUID = null
+        testToken = null
     }
 
     private fun saveTestInitialTestData(testUUID: String, loopUUID: String?, testToken: String, testStartTimeNanos: Long, threadNumber: Int) {
@@ -354,16 +358,17 @@ class StateRecorder @Inject constructor(
 
         if (!waitQosResults) {
             testUUID = null
+            testToken = null
         }
     }
 
     override fun onQoSTestCompleted(qosResult: QoSResultCollector?) {
-        // TODO save QoS results and send all data
-        testUUID?.let {
-            testRecord?.let {
-                repository.update(it) {
-                    onReadyToSubmit?.invoke(true)
-                }
+        val uuid = testUUID
+        val token = testToken
+        val data: JSONArray? = qosResult?.toJson()
+        if (uuid != null && token != null && qosResult != null && data != null) {
+            repository.saveQoSResults(uuid, token, data) {
+                onReadyToSubmit?.invoke(true)
             }
         }
     }
