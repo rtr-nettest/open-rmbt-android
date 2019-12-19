@@ -120,7 +120,7 @@ class MeasurementService : LifecycleService() {
         override fun onClientReady(testUUID: String, testStartTimeNanos: Long) {
             clientAggregator.onClientReady(testUUID)
             startNetwork = connectivityManager.activeNetworkInfo
-            stateRecorder.setOnReadyToSubmitCallback { shouldShowResults ->
+            stateRecorder.onReadyToSubmit = { shouldShowResults ->
                 resultRepository.sendTestResults(testUUID) {
                     it.onSuccess {
                         if (shouldShowResults) {
