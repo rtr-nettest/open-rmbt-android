@@ -1,6 +1,7 @@
 package at.rtr.rmbt.android.ui.viewstate
 
 import androidx.databinding.ObservableField
+import androidx.databinding.ObservableInt
 import at.rtr.rmbt.android.config.AppConfig
 import at.rtr.rmbt.android.util.addOnPropertyChanged
 import at.specure.data.ClientUUID
@@ -26,6 +27,7 @@ class SettingsViewState constructor(
     val controlServerPort = ObservableField(appConfig.controlServerPort)
     val controlServerUseSSL = ObservableField(appConfig.controlServerUseSSL)
     val isLocationEnabled = ObservableField<LocationProviderState>()
+    val numberOfTests = ObservableInt(appConfig.testCounter)
 
     init {
         isNDTEnabled.addOnPropertyChanged { value ->

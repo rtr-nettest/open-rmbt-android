@@ -22,6 +22,7 @@ import at.specure.data.entity.GraphItemRecord
 import at.specure.data.entity.History
 import at.specure.data.entity.PermissionStatusRecord
 import at.specure.data.entity.PingRecord
+import at.specure.data.entity.QoSResultRecord
 import at.specure.data.entity.SignalRecord
 import at.specure.data.entity.SpeedRecord
 import at.specure.data.entity.TestRecord
@@ -41,8 +42,9 @@ import at.specure.data.entity.TestWlanRecord
         SignalRecord::class,
         TestRecord::class,
         SpeedRecord::class,
-        TestWlanRecord::class],
-    version = 22
+        TestWlanRecord::class,
+        QoSResultRecord::class],
+    version = 24
 )
 @TypeConverters(TypeConverter::class)
 abstract class CoreDatabase : RoomDatabase() {

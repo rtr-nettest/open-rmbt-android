@@ -96,6 +96,11 @@
       "visible": false
     },
     {
+      "name": "CONTROL_SERVER_SEND_QOS_RESULT_ENDPOINT",
+      "value": "resultQoS",
+      "visible": false
+    },
+    {
       "name": "CONTROL_SERVER_HISTORY_ENDPOINT",
       "value": "history",
       "visible": false

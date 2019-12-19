@@ -16,6 +16,7 @@ package at.rmbt.client.control
 
 import androidx.annotation.Keep
 import com.google.gson.annotations.SerializedName
+import org.json.JSONArray
 
 // TODO Remove mocked values
 @Keep
@@ -758,4 +759,22 @@ data class HistoryRequestBody(
     val devices: List<String>?,
     val networks: List<String>?,
     val capabilities: CapabilitiesBody
+)
+
+@Keep
+data class QoSResultBody(
+    @SerializedName("client_uuid")
+    val clientUUID: String,
+    @SerializedName("client_name")
+    val clientName: String,
+    @SerializedName("client_version")
+    val clientVersion: String,
+    @SerializedName("client_language")
+    val clientLanguage: String,
+    @SerializedName("time")
+    val timeMillis: Long,
+    @SerializedName("test_token")
+    val testToken: String,
+    @SerializedName("qos_result")
+    val qosResult: JSONArray
 )

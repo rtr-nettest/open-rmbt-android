@@ -187,6 +187,11 @@ data class TestRecord(
     /**
      * Count of unsuccessful submissions
      */
-    var submissionRetryCount: Int = 0
+    var submissionRetryCount: Int = 0,
+
+    /**
+     * Indicates that result was submitted by the server
+     */
+    var isSubmitted: Boolean = false
 
 )

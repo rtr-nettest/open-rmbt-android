@@ -46,6 +46,11 @@ interface ControlEndpointProvider {
     val sendTestResultsUrl: String
 
     /**
+     * Url to send QoS test results
+     */
+    val sendQoSTestResultsUrl: String
+
+    /**
      * Url to get history records from server
      */
     val getHistoryUrl: String

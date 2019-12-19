@@ -23,8 +23,9 @@ The source code is published under [Apache version 2.0 license](https://github.c
     8. **CONTROL_SERVER_ROUTE** - route to the control server, example for value "RMBTControlServer", "myhost.com/RMBTControlServer/endpoint" will be used for requests to ControlServer
     9. **CONTROL_SERVER_SETTINGS_ENDPOINT** - endpoint name for getting settings from the control server, example "settings"
     10. **CONTROL_SERVER_TEST_REQUEST_PATH** - endpoint name for getting basic measurement set up to start measurement, example "testRequest"
-    11. **CONTROL_SERVER_SEND_RESULT_PATH** - endpoint name for sending test results to the control server, example "result"
-    12. **CAPABILITIES_RMBT_HTTP** - client supports RMBT HTTP, example "false"
-    13. **CAPABILITIES_QOS_SUPPORTS_INFO** - if "true" the third state (=INFO) is supported, example "false"
-    14. **CAPABILITIES_CLASSIFICATION_COUNT** - number of intervals(classes) to classify measured values, example "4"
-    15. **IS_CONTROL_SERVER_OVERRIDE_ENABLED** - Control server override enabled false by default
+    11. **CONTROL_SERVER_SEND_QOS_RESULT_ENDPOINT** - endpoint name for sending QoZ test results to the control server, example "result"
+    12. **CONTROL_SERVER_SEND_RESULT_PATH** - endpoint name for sending test results to the control server, example "result"
+    13. **CAPABILITIES_RMBT_HTTP** - client supports RMBT HTTP, example "false"
+    14. **CAPABILITIES_QOS_SUPPORTS_INFO** - if "true" the third state (=INFO) is supported, example "false"
+    15. **CAPABILITIES_CLASSIFICATION_COUNT** - number of intervals(classes) to classify measured values, example "4"
+    16. **IS_CONTROL_SERVER_OVERRIDE_ENABLED** - Control server override enabled false by default

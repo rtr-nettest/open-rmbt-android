@@ -136,6 +136,10 @@ class AppConfig @Inject constructor(context: Context, private val serverSettings
         get() = getString(BuildConfig.CONTROL_SERVER_SEND_RESULT_ENDPOINT)
         set(value) = setString(BuildConfig.CONTROL_SERVER_SEND_RESULT_ENDPOINT, value)
 
+    override var controlServerSendQoSResultEndpoint: String
+        get() = getString(BuildConfig.CONTROL_SERVER_SEND_QOS_RESULT_ENDPOINT)
+        set(value) = setString(BuildConfig.CONTROL_SERVER_SEND_QOS_RESULT_ENDPOINT, value)
+
     override var controlServerHistoryEndpoint: String
         get() = getString(BuildConfig.CONTROL_SERVER_HISTORY_ENDPOINT)
         set(value) = setString(BuildConfig.CONTROL_SERVER_HISTORY_ENDPOINT, value)

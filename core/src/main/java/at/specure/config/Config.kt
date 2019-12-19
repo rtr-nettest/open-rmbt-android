@@ -116,6 +116,11 @@ interface Config {
     var controlServerSendResultEndpoint: String
 
     /**
+     * End of the url for sending QoS test results to the control server, example "resultQoS"
+     */
+    var controlServerSendQoSResultEndpoint: String
+
+    /**
      * End of the url for receiving history items from the server, example "history"
      */
     var controlServerHistoryEndpoint: String

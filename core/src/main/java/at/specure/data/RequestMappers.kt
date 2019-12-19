@@ -8,6 +8,7 @@ import at.rmbt.client.control.IpRequestBody
 import at.rmbt.client.control.PermissionStatusBody
 import at.rmbt.client.control.PingBody
 import at.rmbt.client.control.QoSBody
+import at.rmbt.client.control.QoSResultBody
 import at.rmbt.client.control.RadioInfoBody
 import at.rmbt.client.control.SettingsRequestBody
 import at.rmbt.client.control.SignalBody
@@ -22,6 +23,7 @@ import at.specure.data.entity.CellLocationRecord
 import at.specure.data.entity.GeoLocationRecord
 import at.specure.data.entity.PermissionStatusRecord
 import at.specure.data.entity.PingRecord
+import at.specure.data.entity.QoSResultRecord
 import at.specure.data.entity.SignalRecord
 import at.specure.data.entity.SpeedRecord
 import at.specure.data.entity.TestRecord
@@ -357,3 +359,13 @@ fun TransportType.toRequestIntValue(mobileNetworkType: MobileNetworkType?): Int 
         else -> Int.MAX_VALUE
     }
 }
+
+fun QoSResultRecord.toRequest(clientUUID: String, deviceInfo: DeviceInfo) = QoSResultBody(
+    clientUUID = clientUUID,
+    clientName = deviceInfo.clientName,
+    clientVersion = deviceInfo.rmbtClientVersion,
+    clientLanguage = deviceInfo.language,
+    qosResult = results,
+    testToken = testToken,
+    timeMillis = timeMillis
+)

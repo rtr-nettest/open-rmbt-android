@@ -58,6 +58,6 @@ class HistoryFragment : BaseFragment() {
     override fun onStart() {
         super.onStart()
 
-        historyViewModel.refreshHistory()
+        historyViewModel.clearHistory()
     }
 }
