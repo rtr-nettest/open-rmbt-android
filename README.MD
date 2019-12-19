@@ -30,4 +30,4 @@ The source code is published under [Apache version 2.0 license](https://github.c
     15. **CAPABILITIES_RMBT_HTTP** - client supports RMBT HTTP, example "false"
     16. **CAPABILITIES_QOS_SUPPORTS_INFO** - if "true" the third state (=INFO) is supported, example "false"
     17. **CAPABILITIES_CLASSIFICATION_COUNT** - number of intervals(classes) to classify measured values, example "4"
-    178. **IS_CONTROL_SERVER_OVERRIDE_ENABLED** - Control server override enabled false by default
+    18. **IS_CONTROL_SERVER_OVERRIDE_ENABLED** - Control server override enabled false by default

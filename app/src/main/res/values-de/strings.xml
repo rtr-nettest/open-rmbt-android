@@ -168,6 +168,22 @@
 
     <!-- Results -->
     <string name="results_other_details">Weitere Details</string>
+    <string name="results_quality">Qualität</string>
+    <string name="results_qoe_audio_streaming">Audio Streaming</string>
+    <string name="results_qoe_cloud">Cloud</string>
+    <string name="results_qoe_gaming">Spiele</string>
+    <string name="results_qoe_gaming_cloud">Spiele Cloud</string>
+    <string name="results_qoe_gaming_download">Spiele Download</string>
+    <string name="results_qoe_gaming_streaming">Spiele Streaming</string>
+    <string name="results_qoe_messaging">Messaging</string>
+    <string name="results_qoe_video_conferencing">Videokonferenzen</string>
+    <string name="results_qoe_video_telephony">Videotelefonie</string>
+    <string name="results_qoe_videos_hd">Videos HD</string>
+    <string name="results_qoe_videos_sd">Videos SD</string>
+    <string name="results_qoe_videos_uhd">Videos UHD</string>
+    <string name="results_qoe_voip">VOIP</string>
+    <string name="results_qoe_web">Netz</string>
+    <string name="results_qoe_qos">Qualitätstest</string>
 
 </resources>
 

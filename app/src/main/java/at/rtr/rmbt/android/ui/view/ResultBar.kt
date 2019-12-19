@@ -41,6 +41,12 @@ class ResultBar @JvmOverloads constructor(
             field = value * 2f * resources.displayMetrics.density
         }
 
+    var progress: Int = 0
+        set(value) {
+            field = value
+            invalidate()
+        }
+
     init {
         setLayerType(LAYER_TYPE_HARDWARE, null)
         setWillNotDraw(false)
@@ -68,8 +74,8 @@ class ResultBar @JvmOverloads constructor(
     private var classColor = ContextCompat.getColor(context, R.color.classification_undefined)
 
     private var currentCanvas: Canvas? = null
-    private var backgroundCanvas: Canvas? = null
     private var bitmap: Bitmap? = null
+    private var classification: Classification = Classification.NONE
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
 
@@ -101,8 +107,16 @@ class ResultBar @JvmOverloads constructor(
                 bitmap = this
                 val canvas = Canvas(this)
                 currentCanvas = canvas
-                if (backgroundCanvas == null) {
-                    backgroundCanvas = drawBackground(canvas)
+                drawBackground(canvas)
+                currentCanvas?.apply {
+                    drawColor(Color.TRANSPARENT, PorterDuff.Mode.CLEAR)
+                    drawBackground(this)
+                    progressPaint = Paint().apply {
+                        color = classColor
+                        style = Paint.Style.FILL
+                        xfermode = PorterDuffXfermode(PorterDuff.Mode.SRC_ATOP)
+                    }
+                    drawRect(0f, 0f, (measuredWidth * progress / 100).toFloat(), measuredHeight.toFloat(), progressPaint)
                 }
             }
         }
@@ -111,7 +125,7 @@ class ResultBar @JvmOverloads constructor(
     /**
      * Draw gray squares for the background
      */
-    private fun drawBackground(canvas: Canvas): Canvas {
+    private fun drawBackground(canvas: Canvas) {
 
         var y = 0.0f
         for (i in 0 until verticalCount) {
@@ -122,13 +136,12 @@ class ResultBar @JvmOverloads constructor(
             }
             y += squareSize * SQUARE_MULTIPLIER
         }
-        return canvas
     }
 
     /**
      * Calculate the size of filled graph of part and draw it
      */
-    private fun updateClassification(percentage: Int, classification: Classification) {
+    fun updateClassification(percentage: Int, classification: Classification) {
         classColor = ContextCompat.getColor(
             context, when (classification) {
                 Classification.NONE -> R.color.classification_undefined
@@ -139,16 +152,7 @@ class ResultBar @JvmOverloads constructor(
                 else -> R.color.classification_undefined
             }
         )
-        currentCanvas?.apply {
-            drawColor(Color.TRANSPARENT, PorterDuff.Mode.CLEAR)
-            drawBackground(this)
-            drawRect(
-                0f, 0f,
-                (measuredWidth * percentage / 100).toFloat(),
-                measuredHeight.toFloat(),
-                progressPaint
-            )
-        }
+        progress = percentage
     }
 
     companion object {
