@@ -5,6 +5,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.paging.LivePagedListBuilder
 import androidx.paging.PagedList
 import at.rtr.rmbt.android.ui.viewstate.HistoryViewState
+import at.rtr.rmbt.android.util.map
 import at.specure.data.entity.History
 import at.specure.data.repository.HistoryRepository
 import javax.inject.Inject
@@ -34,6 +35,10 @@ class HistoryViewModel @Inject constructor(private val repository: HistoryReposi
         LivePagedListBuilder(source, config)
             .setBoundaryCallback(boundaryCallback)
             .build()
+    }
+
+    val isHistoryEmpty: LiveData<Boolean> = historyLiveData.map {
+        it.isEmpty()
     }
 
     init {
