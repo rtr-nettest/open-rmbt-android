@@ -19,6 +19,8 @@ package at.rtr.rmbt.android.ui.activity
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import androidx.core.content.ContextCompat
+import androidx.recyclerview.widget.DividerItemDecoration
 import at.rtr.rmbt.android.R
 import at.rtr.rmbt.android.databinding.ActivityMeasurementBinding
 import at.rtr.rmbt.android.di.viewModelLazy
@@ -65,6 +67,12 @@ class MeasurementActivity : BaseActivity(), SimpleDialog.Callback {
                 .show(supportFragmentManager, 0)
         }
         binding.root.measurementBottomView.qosTestRecyclerView.apply {
+
+            val itemDecoration = DividerItemDecoration(context, DividerItemDecoration.VERTICAL)
+            ContextCompat.getDrawable(context, R.drawable.qos_test_measurement_item_divider)?.let {
+                itemDecoration.setDrawable(it)
+            }
+            addItemDecoration(itemDecoration)
             adapter = qosAdapter
         }
 

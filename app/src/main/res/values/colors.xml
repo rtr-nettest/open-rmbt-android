@@ -41,6 +41,7 @@
 
     <!-- Horizontal line divider color -->
     <color name="horizontal_divider">#eeeeee</color>
+    <color name="horizontal_divider_white_10">#1AFFFFFF</color>
 
     <!-- Use in setting screen. Preference category title color -->
     <color name="text_gray_transparency_55">#8C5F6368</color>
