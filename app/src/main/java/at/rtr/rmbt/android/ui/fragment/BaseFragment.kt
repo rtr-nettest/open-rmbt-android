@@ -44,7 +44,7 @@ abstract class BaseFragment : Fragment() {
         viewModels.forEach { it.onSaveState(outState) }
     }
 
-    fun onHandledException(exception: HandledException) {
+    open fun onHandledException(exception: HandledException) {
         val context = requireContext()
         Dialogs.show(
             context = context,
