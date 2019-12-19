@@ -606,6 +606,11 @@ fun AppCompatTextView.setPing(ping: Int, pingClassification: Classification) {
     setCompoundDrawablesWithIntrinsicBounds(getPingClassificationIcon(pingClassification), 0, 0, 0)
 }
 
+@BindingAdapter("classificationIcon")
+fun AppCompatTextView.setClassification(classification: Classification) {
+    setCompoundDrawablesWithIntrinsicBounds(getPingClassificationIcon(classification), 0, 0, 0)
+}
+
 /**
  * A binding adapter that is used for show download ping with classification icon in results
  */
