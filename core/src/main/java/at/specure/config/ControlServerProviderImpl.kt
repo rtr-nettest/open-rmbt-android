@@ -43,6 +43,12 @@ class ControlServerProviderImpl(private val config: Config) : ControlEndpointPro
     override val route: String
         get() = config.controlServerRoute
 
+    override val getTestResultsBasicUrl: String
+        get() = "$host$routePath/${config.controlServerResultsBasicPath}"
+
+    override val getTestResultsOpenDataUrl: String
+        get() = "$host$routePath/${config.controlServerResultsOpenDataPath}"
+
     override val port: Int
         get() = config.controlServerPort
 }

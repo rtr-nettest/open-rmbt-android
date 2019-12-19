@@ -7,6 +7,7 @@ import at.rtr.rmbt.android.viewmodel.HomeViewModel
 import at.rtr.rmbt.android.viewmodel.MapViewModel
 import at.rtr.rmbt.android.viewmodel.MeasurementViewModel
 import at.rtr.rmbt.android.viewmodel.NetworkDetailsViewModel
+import at.rtr.rmbt.android.viewmodel.ResultViewModel
 import at.rtr.rmbt.android.viewmodel.SettingsViewModel
 import at.rtr.rmbt.android.viewmodel.StatisticsViewModel
 import dagger.Binds
@@ -57,4 +58,9 @@ interface ViewModelModule {
     @IntoMap
     @ViewModelKey(MeasurementViewModel::class)
     fun bindMeasurementViewModel(viewModel: MeasurementViewModel): ViewModel
+
+    @Binds
+    @IntoMap
+    @ViewModelKey(ResultViewModel::class)
+    fun bindTestResultsViewModel(viewModel: ResultViewModel): ViewModel
 }

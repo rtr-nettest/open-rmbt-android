@@ -62,12 +62,22 @@ class TestDataRepositoryImpl(db: CoreDatabase) : TestDataRepository {
     }
 
     override fun saveDownloadGraphItem(testUUID: String, progress: Int, speedBps: Long) = io {
-        val graphItem = GraphItemRecord(testUUID = testUUID, progress = progress, value = speedBps, type = GraphItemRecord.GRAPH_ITEM_TYPE_DOWNLOAD)
+        val graphItem = GraphItemRecord(
+            testUUID = testUUID,
+            progress = progress,
+            value = speedBps,
+            type = GraphItemRecord.GRAPH_ITEM_TYPE_DOWNLOAD
+        )
         graphItemDao.insertItem(graphItem)
     }
 
     override fun saveUploadGraphItem(testUUID: String, progress: Int, speedBps: Long) = io {
-        val graphItem = GraphItemRecord(testUUID = testUUID, progress = progress, value = speedBps, type = GraphItemRecord.GRAPH_ITEM_TYPE_UPLOAD)
+        val graphItem = GraphItemRecord(
+            testUUID = testUUID,
+            progress = progress,
+            value = speedBps,
+            type = GraphItemRecord.GRAPH_ITEM_TYPE_UPLOAD
+        )
         graphItemDao.insertItem(graphItem)
     }
 

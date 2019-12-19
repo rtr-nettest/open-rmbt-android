@@ -29,6 +29,8 @@ import at.specure.data.repository.ResultsRepository
 import at.specure.data.repository.ResultsRepositoryImpl
 import at.specure.data.repository.TestDataRepository
 import at.specure.data.repository.TestDataRepositoryImpl
+import at.specure.data.repository.TestResultsRepository
+import at.specure.data.repository.TestResultsRepositoryImpl
 import at.specure.info.strength.SignalStrengthWatcher
 import at.specure.location.LocationWatcher
 import dagger.Module
@@ -87,4 +89,12 @@ class DatabaseModule {
         controlServerClient: ControlServerClient
     ): HistoryRepository =
         HistoryRepositoryImpl(database.historyDao(), config, clientUUID, controlServerClient)
+
+    @Provides
+    fun provideTestResultRepository(
+        database: CoreDatabase,
+        clientUUID: ClientUUID,
+        controlServerClient: ControlServerClient
+    ): TestResultsRepository =
+        TestResultsRepositoryImpl(database, clientUUID, controlServerClient)
 }

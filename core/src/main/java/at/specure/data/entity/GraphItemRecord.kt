@@ -16,7 +16,7 @@ data class GraphItemRecord(
         childColumns = ["testUUID"],
         onDelete = ForeignKey.CASCADE
     )
-    val testUUID: String,
+    val testUUID: String?,
     val progress: Int,
     val value: Long,
     val type: Int

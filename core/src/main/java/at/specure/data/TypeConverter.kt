@@ -1,12 +1,14 @@
 package at.specure.data
 
 import androidx.room.TypeConverter
+import at.rmbt.client.control.data.TestFinishReason
 import at.rtr.rmbt.client.helper.TestStatus
 import at.specure.info.TransportType
 import at.specure.info.cell.CellTechnology
 import at.specure.info.network.MobileNetworkType
 import at.specure.measurement.MeasurementState
 import org.json.JSONArray
+import at.specure.result.QoECategory
 
 class TypeConverter {
 
@@ -77,4 +79,19 @@ class TypeConverter {
 
     @TypeConverter
     fun valueToJsonArray(value: String): JSONArray = JSONArray(value)
+
+    @TypeConverter
+    fun qoeCategoryToValue(type: QoECategory): String = type.categoryName
+
+    @TypeConverter
+    fun valueToQoeCategory(value: String): QoECategory = QoECategory.fromString(value)
+
+    @TypeConverter
+    fun finishReasonToInt(reason: TestFinishReason?): Int? = reason?.ordinal
+
+    @TypeConverter
+    fun intToFinishReason(value: Int?): TestFinishReason? {
+        if (value == null) return null
+        return TestFinishReason.values()[value]
+    }
 }

@@ -27,8 +27,9 @@ import android.util.AttributeSet
 import android.view.View
 import androidx.core.content.ContextCompat
 import at.rtr.rmbt.android.R
+import at.specure.data.Classification
 
-class ProgressBar @JvmOverloads constructor(
+class ResultBar @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,
     defStyleAttr: Int = 0
@@ -40,28 +41,21 @@ class ProgressBar @JvmOverloads constructor(
             field = value * 2f * resources.displayMetrics.density
         }
 
-    var progress: Int = 0
-        set(value) {
-            field = value
-            updateProgress(value)
-            invalidate()
-        }
-
     init {
         setLayerType(LAYER_TYPE_HARDWARE, null)
         setWillNotDraw(false)
-        squareSize = 270f / 160
+        squareSize = 270f / 128
     }
 
     private var emptySquarePaint = Paint().apply {
-        color = ContextCompat.getColor(context, R.color.measurement_not_progressed)
+        color = ContextCompat.getColor(context, R.color.classification_undefined)
         style = Paint.Style.FILL_AND_STROKE
         xfermode = PorterDuffXfermode(PorterDuff.Mode.SRC)
         isAntiAlias = true
     }
 
     private var progressPaint = Paint().apply {
-        color = ContextCompat.getColor(context, android.R.color.white)
+        color = classColor
         style = Paint.Style.FILL
         xfermode = PorterDuffXfermode(PorterDuff.Mode.SRC_ATOP)
     }
@@ -70,9 +64,11 @@ class ProgressBar @JvmOverloads constructor(
      * Defines count of squares in graph
      */
     private var verticalCount = 2
-    private var horizontalCount = 16
+    private var horizontalCount = 12
+    private var classColor = ContextCompat.getColor(context, R.color.classification_undefined)
 
     private var currentCanvas: Canvas? = null
+    private var backgroundCanvas: Canvas? = null
     private var bitmap: Bitmap? = null
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
@@ -105,7 +101,9 @@ class ProgressBar @JvmOverloads constructor(
                 bitmap = this
                 val canvas = Canvas(this)
                 currentCanvas = canvas
-                drawBackground(canvas)
+                if (backgroundCanvas == null) {
+                    backgroundCanvas = drawBackground(canvas)
+                }
             }
         }
     }
@@ -113,7 +111,7 @@ class ProgressBar @JvmOverloads constructor(
     /**
      * Draw gray squares for the background
      */
-    private fun drawBackground(canvas: Canvas) {
+    private fun drawBackground(canvas: Canvas): Canvas {
 
         var y = 0.0f
         for (i in 0 until verticalCount) {
@@ -124,16 +122,32 @@ class ProgressBar @JvmOverloads constructor(
             }
             y += squareSize * SQUARE_MULTIPLIER
         }
+        return canvas
     }
 
     /**
      * Calculate the size of filled graph of part and draw it
      */
-    private fun updateProgress(percentage: Int) {
+    private fun updateClassification(percentage: Int, classification: Classification) {
+        classColor = ContextCompat.getColor(
+            context, when (classification) {
+                Classification.NONE -> R.color.classification_undefined
+                Classification.BAD -> R.color.classification_red
+                Classification.NORMAL -> R.color.classification_yellow
+                Classification.GOOD -> R.color.classification_green
+                Classification.EXCELLENT -> R.color.classification_green_dark
+                else -> R.color.classification_undefined
+            }
+        )
         currentCanvas?.apply {
             drawColor(Color.TRANSPARENT, PorterDuff.Mode.CLEAR)
             drawBackground(this)
-            drawRect(0f, 0f, (measuredWidth * percentage / 100).toFloat(), measuredHeight.toFloat(), progressPaint)
+            drawRect(
+                0f, 0f,
+                (measuredWidth * percentage / 100).toFloat(),
+                measuredHeight.toFloat(),
+                progressPaint
+            )
         }
     }
 

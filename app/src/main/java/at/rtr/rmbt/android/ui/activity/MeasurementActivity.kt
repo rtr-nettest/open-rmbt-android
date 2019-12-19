@@ -19,6 +19,8 @@ package at.rtr.rmbt.android.ui.activity
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import androidx.core.content.ContextCompat
+import androidx.recyclerview.widget.DividerItemDecoration
 import at.rtr.rmbt.android.R
 import at.rtr.rmbt.android.databinding.ActivityMeasurementBinding
 import at.rtr.rmbt.android.di.viewModelLazy
@@ -30,6 +32,9 @@ import at.specure.measurement.MeasurementState
 import kotlinx.android.synthetic.main.activity_measurement.view.measurementBottomView
 import kotlinx.android.synthetic.main.measurement_bottom_view.view.qosTestRecyclerView
 import kotlinx.android.synthetic.main.measurement_bottom_view.view.speedChartDownloadUpload
+
+private const val CODE_CANCEL = 0
+private const val CODE_ERROR = 1
 
 class MeasurementActivity : BaseActivity(), SimpleDialog.Callback {
 
@@ -46,7 +51,7 @@ class MeasurementActivity : BaseActivity(), SimpleDialog.Callback {
 
         viewModel.measurementFinishLiveData.listen(this) {
             finish()
-            ResultsActivity.start(this)
+            ResultsActivity.start(this, viewModel.testUUID)
         }
 
         viewModel.measurementErrorLiveData.listen(this) {
@@ -54,7 +59,7 @@ class MeasurementActivity : BaseActivity(), SimpleDialog.Callback {
                 .messageText(R.string.test_dialog_error_text)
                 .positiveText(R.string.input_setting_dialog_ok)
                 .cancelable(false)
-                .show(supportFragmentManager, 0)
+                .show(supportFragmentManager, CODE_ERROR)
         }
 
         viewModel.submissionErrorLiveData.listen(this) {
@@ -62,9 +67,15 @@ class MeasurementActivity : BaseActivity(), SimpleDialog.Callback {
                 .messageText(R.string.test_submission_error_text)
                 .positiveText(R.string.test_submission_error_accept)
                 .cancelable(false)
-                .show(supportFragmentManager, 0)
+                .show(supportFragmentManager, CODE_ERROR)
         }
         binding.root.measurementBottomView.qosTestRecyclerView.apply {
+
+            val itemDecoration = DividerItemDecoration(context, DividerItemDecoration.VERTICAL)
+            ContextCompat.getDrawable(context, R.drawable.qos_test_measurement_item_divider)?.let {
+                itemDecoration.setDrawable(it)
+            }
+            addItemDecoration(itemDecoration)
             adapter = qosAdapter
         }
 
@@ -94,8 +105,10 @@ class MeasurementActivity : BaseActivity(), SimpleDialog.Callback {
     }
 
     override fun onDialogPositiveClicked(code: Int) {
+        if (code == CODE_CANCEL) {
+            viewModel.cancelMeasurement()
+        }
         // finish activity for in both cases
-        viewModel.cancelMeasurement()
         finish()
     }
 
@@ -123,7 +136,7 @@ class MeasurementActivity : BaseActivity(), SimpleDialog.Callback {
             .positiveText(R.string.text_cancel_measurement)
             .negativeText(R.string.text_continue_measurement)
             .cancelable(false)
-            .show(supportFragmentManager, 0)
+            .show(supportFragmentManager, CODE_CANCEL)
     }
 
     companion object {

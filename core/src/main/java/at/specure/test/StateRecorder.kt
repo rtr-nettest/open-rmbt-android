@@ -6,6 +6,7 @@ import android.telephony.SubscriptionManager
 import android.telephony.TelephonyManager
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.Observer
+import at.rmbt.client.control.data.TestFinishReason
 import at.rtr.rmbt.client.RMBTClientCallback
 import at.rtr.rmbt.client.TotalTestResult
 import at.rtr.rmbt.client.helper.TestStatus
@@ -71,7 +72,8 @@ class StateRecorder @Inject constructor(
     private var signalStrengthInfo: SignalStrengthInfo? = null
     private var networkInfo: NetworkInfo? = null
     private var cellLocation: CellLocationInfo? = null
-    private var onReadyToSubmit: ((String) -> Unit)? = null
+
+    var onReadyToSubmit: ((Boolean) -> Unit)? = null
 
     val locationInfo: LocationInfo?
         get() = _locationInfo
@@ -127,10 +129,6 @@ class StateRecorder @Inject constructor(
         // TODO finish
         testUUID = null
         testToken = null
-    }
-
-    fun setOnReadyToSubmitCallback(onReadyToSubmit: (String) -> Unit) {
-        this.onReadyToSubmit = onReadyToSubmit
     }
 
     private fun saveTestInitialTestData(testUUID: String, loopUUID: String?, testToken: String, testStartTimeNanos: Long, threadNumber: Int) {
@@ -346,12 +344,14 @@ class StateRecorder @Inject constructor(
 
             transportType = networkInfo?.type
             testTimeMillis = System.currentTimeMillis()
+
+            testFinishReason = TestFinishReason.SUCCESS
         }
 
         testRecord?.let {
             repository.update(it) {
                 if (!waitQosResults) {
-                    onReadyToSubmit?.invoke(it.uuid)
+                    onReadyToSubmit?.invoke(true)
                 }
             }
         }
@@ -368,17 +368,35 @@ class StateRecorder @Inject constructor(
         val data: JSONArray? = qosResult?.toJson()
         if (uuid != null && token != null && qosResult != null && data != null) {
             repository.saveQoSResults(uuid, token, data) {
-                onReadyToSubmit?.invoke(uuid)
+                onReadyToSubmit?.invoke(true)
             }
         }
     }
 
     override fun onTestStatusUpdate(status: TestStatus?) {
-        if (status != null) {
+        status?.let {
             testRecord?.also {
                 it.status = status
+
+                if (status != TestStatus.ERROR && status != TestStatus.ABORTED) {
+                    it.lastClientStatus = status
+                }
             }
         }
+    }
+
+    fun onUnsuccessTest(reason: TestFinishReason) {
+        testRecord?.also {
+            it.testFinishReason = reason
+
+            repository.update(it) {
+                onReadyToSubmit?.invoke(false)
+            }
+        }
+    }
+
+    fun setErrorCause(message: String) {
+        testRecord?.testErrorCause = message
     }
 
     private fun String?.fixOperatorName(): String? {

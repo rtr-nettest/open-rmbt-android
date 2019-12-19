@@ -41,6 +41,7 @@
 
     <!-- Horizontal line divider color -->
     <color name="horizontal_divider">#eeeeee</color>
+    <color name="horizontal_divider_white_10">#1AFFFFFF</color>
 
     <!-- Use in setting screen. Preference category title color -->
     <color name="text_gray_transparency_55">#8C5F6368</color>
@@ -70,4 +71,10 @@
     <color name="measurement_progress_inner">#cccccc</color>
     <color name="measurement_green">#52d301</color>
     <color name="measurement_green_dark">#38a300</color>
+
+    <color name="classification_green_dark">#007C0E</color>
+    <color name="classification_green">#59B200</color>
+    <color name="classification_yellow">#FFBA00</color>
+    <color name="classification_red">#F5001C</color>
+    <color name="classification_undefined">#F2F3F5</color>
 </resources>

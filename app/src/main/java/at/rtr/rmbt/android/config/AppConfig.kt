@@ -144,6 +144,14 @@ class AppConfig @Inject constructor(context: Context, private val serverSettings
         get() = getString(BuildConfig.CONTROL_SERVER_HISTORY_ENDPOINT)
         set(value) = setString(BuildConfig.CONTROL_SERVER_HISTORY_ENDPOINT, value)
 
+    override var controlServerResultsBasicPath: String
+        get() = getString(BuildConfig.CONTROL_SERVER_GET_BASIC_RESULT_PATH)
+        set(value) = setString(BuildConfig.CONTROL_SERVER_GET_BASIC_RESULT_PATH, value)
+
+    override var controlServerResultsOpenDataPath: String
+        get() = getString(BuildConfig.CONTROL_SERVER_GET_OPENDATA_RESULT_PATH)
+        set(value) = setString(BuildConfig.CONTROL_SERVER_GET_OPENDATA_RESULT_PATH, value)
+
     override var testCounter: Int
         get() = preferences.getInt(KEY_TEST_COUNTER, 0)
         set(value) = preferences.edit()
