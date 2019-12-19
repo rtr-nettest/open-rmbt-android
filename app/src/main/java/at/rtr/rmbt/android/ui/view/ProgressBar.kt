@@ -50,11 +50,11 @@ class ProgressBar @JvmOverloads constructor(
     init {
         setLayerType(LAYER_TYPE_HARDWARE, null)
         setWillNotDraw(false)
-        squareSize = 270f / 128
+        squareSize = 270f / 160
     }
 
     private var emptySquarePaint = Paint().apply {
-        color = ContextCompat.getColor(context, R.color.text_white_transparency_40)
+        color = ContextCompat.getColor(context, R.color.measurement_not_progressed)
         style = Paint.Style.FILL_AND_STROKE
         xfermode = PorterDuffXfermode(PorterDuff.Mode.SRC)
         isAntiAlias = true
