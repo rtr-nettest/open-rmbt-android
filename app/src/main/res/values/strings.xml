@@ -177,8 +177,22 @@
     <string name="history_item_header_ms">ms</string>
     <string name="history_no_data">No data available.</string>
 
-
     <!-- Results -->
     <string name="results_other_details">Other details</string>
-
+    <string name="results_qoe_videos_sd">Videos SD</string>
+    <string name="results_qoe_videos_hd">Videos HD</string>
+    <string name="results_qoe_videos_uhd">Videos UHD</string>
+    <string name="results_qoe_gaming">Gaming</string>
+    <string name="results_qoe_gaming_cloud">Gaming Cloud</string>
+    <string name="results_qoe_gaming_streaming">Gaming Streaming</string>
+    <string name="results_qoe_gaming_download">Gaming Download</string>
+    <string name="results_qoe_audio_streaming">Audio Streaming</string>
+    <string name="results_qoe_voip">VoIP</string>
+    <string name="results_qoe_video_telephony">Video Telephony</string>
+    <string name="results_qoe_video_conferencing">Video Conferencing</string>
+    <string name="results_qoe_messaging">Messaging</string>
+    <string name="results_qoe_web">Web</string>
+    <string name="results_qoe_cloud">Cloud</string>
+    <string name="results_qoe_qos">Quality tests</string>
+    <string name="results_quality">Quality</string>
 </resources>

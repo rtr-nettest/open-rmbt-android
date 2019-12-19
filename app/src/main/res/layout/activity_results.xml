@@ -39,7 +39,7 @@
 
             <TextView
                 android:id="@+id/testTime"
-                style="@style/TextAppearance.AppCompat.Headline"
+                style="@style/TextAppearance.AppCompat.Title"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@{state.testResult.timeText}"
@@ -88,12 +88,13 @@
 
                 <TextView
                     android:id="@+id/networkTypeText"
-                    style="@style/TextAppearance.AppCompat.Caption"
+                    style="@style/TextAppearance.AppCompat.Body1"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="@dimen/padding_large"
                     android:layout_marginTop="@dimen/padding_large"
                     android:textAllCaps="true"
+                    android:textColor="@color/text_black_transparency_40"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@+id/mapContainer"
                     tools:text="WLAN" />
@@ -114,67 +115,73 @@
                     android:id="@+id/networkTypeIcon"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="@dimen/padding_large"
                     android:layout_marginEnd="@dimen/padding_large"
                     android:contentDescription="@null"
-                    android:src="@drawable/ic_small_wifi_2"
+                    android:src="@drawable/ic_wifi_gray_2"
                     app:layout_constraintBottom_toBottomOf="@+id/networkNameText"
                     app:layout_constraintEnd_toEndOf="parent"
+
                     app:layout_constraintTop_toTopOf="@id/networkTypeText" />
 
                 <androidx.appcompat.widget.AppCompatTextView
                     android:id="@+id/labelResultBottomDownload"
-                    style="@style/RobotoRegularStyle.Small"
+                    style="@style/RobotoRegularStyle.VerySmall"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="@dimen/margin_large"
-                    android:layout_marginTop="@dimen/margin_small"
-                    android:text="@string/measurement_ping"
+                    android:layout_marginTop="@dimen/margin_large"
+                    android:text="@string/measurement_down"
                     android:textColor="@color/text_gray_transparency_60"
                     app:layout_constraintEnd_toStartOf="@+id/labelResultBottomUpload"
                     app:layout_constraintHorizontal_bias="0.5"
+                    app:layout_constraintHorizontal_weight="3"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@id/networkNameText" />
 
                 <androidx.appcompat.widget.AppCompatTextView
                     android:id="@+id/labelResultBottomUpload"
-                    style="@style/RobotoRegularStyle.Small"
+                    style="@style/RobotoRegularStyle.VerySmall"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="@dimen/margin_small"
-                    android:text="@string/measurement_down"
+                    android:text="@string/measurement_up"
                     android:textColor="@color/text_gray_transparency_60"
+                    app:layout_constraintBottom_toBottomOf="@+id/labelResultBottomDownload"
                     app:layout_constraintEnd_toStartOf="@+id/labelResultBottomPing"
                     app:layout_constraintHorizontal_bias="0.5"
+                    app:layout_constraintHorizontal_weight="3"
                     app:layout_constraintStart_toEndOf="@+id/labelResultBottomDownload"
-                    app:layout_constraintTop_toBottomOf="@id/networkNameText" />
+                    app:layout_constraintTop_toTopOf="@+id/labelResultBottomDownload" />
 
                 <androidx.appcompat.widget.AppCompatTextView
                     android:id="@+id/labelResultBottomPing"
-                    style="@style/RobotoRegularStyle.Small"
+                    style="@style/RobotoRegularStyle.VerySmall"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="@dimen/margin_small"
-                    android:text="@string/measurement_up"
+                    android:text="@string/measurement_ping"
                     android:textColor="@color/text_gray_transparency_60"
+                    app:layout_constraintBottom_toBottomOf="@+id/labelResultBottomUpload"
                     app:layout_constraintEnd_toStartOf="@+id/labelResultBottomSignal"
                     app:layout_constraintHorizontal_bias="0.5"
+                    app:layout_constraintHorizontal_weight="2"
                     app:layout_constraintStart_toEndOf="@+id/labelResultBottomUpload"
-                    app:layout_constraintTop_toBottomOf="@id/networkNameText" />
+                    app:layout_constraintTop_toBottomOf="@id/networkNameText"
+                    app:layout_constraintTop_toTopOf="@+id/labelResultBottomUpload" />
 
                 <androidx.appcompat.widget.AppCompatTextView
                     android:id="@+id/labelResultBottomSignal"
-                    style="@style/RobotoRegularStyle.Small"
+                    style="@style/RobotoRegularStyle.VerySmall"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="@dimen/margin_small"
                     android:layout_marginEnd="@dimen/margin_large"
                     android:text="@string/label_signal_strength"
                     android:textColor="@color/text_gray_transparency_60"
+                    app:layout_constraintBottom_toBottomOf="@+id/labelResultBottomPing"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintHorizontal_bias="0.5"
+                    app:layout_constraintHorizontal_weight="2"
                     app:layout_constraintStart_toEndOf="@+id/labelResultBottomPing"
-                    app:layout_constraintTop_toBottomOf="@id/networkNameText" />
+                    app:layout_constraintTop_toBottomOf="@id/networkNameText"
+                    app:layout_constraintTop_toTopOf="@+id/labelResultBottomPing" />
 
                 <androidx.appcompat.widget.AppCompatTextView
                     android:id="@+id/textDownloadSpeed"
@@ -184,12 +191,13 @@
                     android:layout_marginStart="@dimen/margin_large"
                     android:drawablePadding="@dimen/padding_very_small"
                     android:maxLines="2"
-                    app:speedDownload="@{state.testResult.downloadSpeedKbs}"
-                    app:speedDownloadClassification="@{state.testResult.downloadClass == null ? Classification.NONE : state.testResult.downloadClass}"
                     app:layout_constraintEnd_toStartOf="@+id/textUploadSpeed"
                     app:layout_constraintHorizontal_bias="0.5"
+                    app:layout_constraintHorizontal_weight="3"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@+id/labelResultBottomDownload"
+                    app:speedDownload="@{state.testResult.downloadSpeedKbs}"
+                    app:speedDownloadClassification="@{state.testResult.downloadClass == null ? Classification.NONE : state.testResult.downloadClass}"
                     tools:drawableStart="@drawable/ic_small_download_light_green"
                     tools:text="24.12 Mbit/s" />
 
@@ -202,6 +210,7 @@
                     android:maxLines="2"
                     app:layout_constraintEnd_toStartOf="@+id/textPing"
                     app:layout_constraintHorizontal_bias="0.5"
+                    app:layout_constraintHorizontal_weight="3"
                     app:layout_constraintStart_toEndOf="@+id/textDownloadSpeed"
                     app:layout_constraintTop_toBottomOf="@+id/labelResultBottomUpload"
                     app:speedUploadClassification="@{state.testResult.uploadClass == null ? Classification.NONE : state.testResult.uploadClass}"
@@ -218,6 +227,7 @@
                     android:maxLines="2"
                     app:layout_constraintEnd_toStartOf="@+id/textSignal"
                     app:layout_constraintHorizontal_bias="0.5"
+                    app:layout_constraintHorizontal_weight="2"
                     app:layout_constraintStart_toEndOf="@+id/textUploadSpeed"
                     app:layout_constraintTop_toBottomOf="@+id/labelResultBottomPing"
                     app:pingClassification="@{state.testResult.pingClass == null ? Classification.NONE : state.testResult.pingClass}"
@@ -230,11 +240,12 @@
                     style="@style/RobotoMediumStyle.VerySmall"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:drawablePadding="@dimen/padding_very_small"
                     android:layout_marginEnd="@dimen/margin_large"
+                    android:drawablePadding="@dimen/padding_very_small"
                     android:maxLines="2"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintHorizontal_bias="0.5"
+                    app:layout_constraintHorizontal_weight="2"
                     app:layout_constraintStart_toEndOf="@+id/textPing"
                     app:layout_constraintTop_toBottomOf="@+id/labelResultBottomSignal"
                     app:signalStrength="@{state.testResult.signalStrength}"
@@ -246,18 +257,19 @@
                     android:id="@+id/graphContainer"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:layout_marginBottom="@dimen/margin_large"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@+id/textDownloadSpeed" />
 
                 <androidx.appcompat.widget.AppCompatTextView
                     android:id="@+id/titleOtherDetails"
-                    style="@style/RobotoBoldStyle"
+                    style="@style/RobotoMediumStyle.Medium"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="@dimen/margin_large"
-                    android:drawablePadding="@dimen/padding_very_small"
-                    android:paddingBottom="@dimen/margin_large_"
+                    android:layout_height="?attr/actionBarSize"
+                    android:gravity="center_vertical"
+                    android:paddingStart="@dimen/margin_large"
+                    android:paddingEnd="@dimen/margin_large"
                     android:text="@string/results_other_details"
                     android:textColor="@color/text_gray_transparency_60"
                     app:layout_constraintStart_toStartOf="parent"
@@ -275,12 +287,12 @@
                         android:id="@+id/titleQuality"
                         style="@style/RobotoBoldStyle.Medium"
                         android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
+                        android:layout_height="?attr/actionBarSize"
                         android:layout_marginStart="@dimen/margin_large"
-                        android:drawablePadding="@dimen/padding_very_small"
+                        android:gravity="center_vertical"
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toTopOf="parent"
-                        tools:text="Quality" />
+                        android:text="@string/results_quality" />
 
                     <androidx.recyclerview.widget.RecyclerView
                         android:id="@+id/qoeResultsRecyclerView"
@@ -298,12 +310,12 @@
                     android:id="@+id/titleNetwork"
                     style="@style/RobotoBoldStyle.Medium"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                    android:layout_height="?attr/actionBarSize"
                     android:layout_marginStart="@dimen/margin_large"
-                    android:drawablePadding="@dimen/padding_very_small"
+                    android:gravity="center_vertical"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@+id/qualityContainer"
-                    tools:text="Quality" />
+                    android:text="@string/network_label" />
 
                 <androidx.appcompat.widget.AppCompatTextView
                     android:id="@+id/labelConnection"
@@ -311,7 +323,8 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="@dimen/margin_large"
-                    android:drawablePadding="@dimen/padding_very_small"
+                    android:paddingTop="@dimen/padding_small"
+                    android:paddingBottom="@dimen/padding_small"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@+id/titleNetwork"
                     tools:text="Connection" />

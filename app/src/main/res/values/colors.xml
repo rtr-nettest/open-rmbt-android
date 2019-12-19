@@ -49,6 +49,7 @@
     <color name="text_gray_transparency_60">#99424242</color>
     <!-- Use in IPInfoDialog, ip address value text color -->
     <color name="text_black_transparency_60">#99000000</color>
+    <color name="text_black_transparency_40">#66000000</color>
 
     <color name="wave_primary">@android:color/white</color>
     <color name="wave_secondary">#33FFFFFF</color>

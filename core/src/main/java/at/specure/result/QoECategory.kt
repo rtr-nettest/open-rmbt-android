@@ -15,7 +15,8 @@ enum class QoECategory(val categoryName: String) {
     QOE_VIDEO_CONFERENCING("video_conferencing"),
     QOE_MESSAGING("messaging"),
     QOE_WEB("web"),
-    QOE_CLOUD("cloud");
+    QOE_CLOUD("cloud"),
+    QOE_QOS("qos"); // artificial entity for QOS entry
 
     companion object {
         fun fromString(type: String): QoECategory {
