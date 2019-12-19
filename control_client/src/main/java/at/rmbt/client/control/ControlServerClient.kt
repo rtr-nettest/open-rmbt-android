@@ -34,4 +34,12 @@ class ControlServerClient @Inject constructor(private val endpointProvider: Cont
     fun getHistory(body: HistoryRequestBody): Maybe<HistoryResponse> {
         return api.getHistory(endpointProvider.getHistoryUrl, body).exec()
     }
+
+    fun getTestResult(body: ServerTestResultBody): Maybe<ServerTestResultResponse> {
+        return api.getTestResult(endpointProvider.getTestResultsBasicUrl, body).exec()
+    }
+
+    fun getDetailedTestResults(openTestUUID: String): Maybe<SpeedCurveBodyResponse> {
+        return api.getTestResultOpenDetails(endpointProvider.getTestResultsOpenDataUrl + "/" + openTestUUID).exec()
+    }
 }

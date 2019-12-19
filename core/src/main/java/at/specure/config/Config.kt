@@ -121,6 +121,16 @@ interface Config {
     var controlServerHistoryEndpoint: String
 
     /**
+     * End of the url for getting basic results from the control server, example "ControlServer/testresult"
+     */
+    var controlServerResultsBasicPath: String
+
+    /**
+     * End of the url for getting opendata results from the control server, example "ControlServer/opendatas"
+     */
+    var controlServerResultsOpenDataPath: String
+
+    /**
      * Counter of tests performed by user
      */
     var testCounter: Int

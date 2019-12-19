@@ -41,6 +41,9 @@ class MeasurementViewModel @Inject constructor(
 
     val state = MeasurementViewState()
 
+    lateinit var testUUID: String
+        private set
+
     val measurementFinishLiveData: LiveData<Boolean>
         get() = _measurementFinishLiveData
 
@@ -167,6 +170,8 @@ class MeasurementViewModel @Inject constructor(
     }
 
     override fun onClientReady(testUUID: String) {
+
+        this.testUUID = testUUID
 
         testDataRepository.getDownloadGraphItemsLiveData(testUUID) {
             _downloadGraphLiveData.postValue(it)

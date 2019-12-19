@@ -175,4 +175,8 @@
     <string name="history_item_header_ping">Ping</string>
     <string name="history_item_header_ms">ms</string>
     <string name="history_no_data">No data available.</string>
+
+    <!-- Results -->
+    <string name="results_other_details">Other details</string>
+
 </resources>
