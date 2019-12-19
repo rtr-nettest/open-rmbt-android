@@ -9,6 +9,7 @@ import at.specure.data.entity.GeoLocationRecord
 import at.specure.data.entity.GraphItemRecord
 import at.specure.data.entity.PermissionStatusRecord
 import at.specure.data.entity.PingRecord
+import at.specure.data.entity.QoSResultRecord
 import at.specure.data.entity.SignalRecord
 import at.specure.data.entity.SpeedRecord
 import at.specure.data.entity.TestRecord
@@ -25,9 +26,10 @@ import at.specure.info.strength.SignalStrengthInfoLte
 import at.specure.info.strength.SignalStrengthInfoWiFi
 import at.specure.location.LocationInfo
 import at.specure.location.cell.CellLocationInfo
+import org.json.JSONArray
 import java.text.DecimalFormat
 
-class TestDataRepositoryImpl(db: CoreDatabase, private val resultsRepository: ResultsRepository) : TestDataRepository {
+class TestDataRepositoryImpl(db: CoreDatabase) : TestDataRepository {
 
     private val geoLocationDao = db.geoLocationDao()
     private val graphItemDao = db.graphItemsDao()
@@ -302,6 +304,17 @@ class TestDataRepositoryImpl(db: CoreDatabase, private val resultsRepository: Re
 
     override fun update(testRecord: TestRecord, onUpdated: () -> Unit) = io {
         testDao.update(testRecord)
+        onUpdated.invoke()
+    }
+
+    override fun saveQoSResults(testUUID: String, testToken: String, qosData: JSONArray, onUpdated: () -> Unit) = io {
+        val record = QoSResultRecord(
+            uuid = testUUID,
+            testToken = testToken,
+            timeMillis = System.currentTimeMillis(),
+            results = qosData
+        )
+        testDao.insert(record)
         onUpdated.invoke()
     }
 }

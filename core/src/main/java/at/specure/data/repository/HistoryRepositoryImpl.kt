@@ -87,4 +87,11 @@ class HistoryRepositoryImpl(
             }
         }
     }
+
+    override fun refreshHistory(limit: Int, onLoadingCallback: (Boolean) -> Unit, onErrorCallback: (HandledException) -> Unit) = io {
+        onLoadingCallback.invoke(true)
+        historyDao.clear()
+        loadItems(0, limit).onFailure(onErrorCallback)
+        onLoadingCallback.invoke(false)
+    }
 }

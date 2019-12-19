@@ -7,6 +7,7 @@ import at.specure.info.TransportType
 import at.specure.info.cell.CellTechnology
 import at.specure.info.network.MobileNetworkType
 import at.specure.measurement.MeasurementState
+import org.json.JSONArray
 import at.specure.result.QoECategory
 
 class TypeConverter {
@@ -72,6 +73,12 @@ class TypeConverter {
 
     @TypeConverter
     fun valueToClassification(value: Int): Classification = Classification.fromValue(value)
+
+    @TypeConverter
+    fun jsonArrayToValue(jsonArray: JSONArray): String = jsonArray.toString()
+
+    @TypeConverter
+    fun valueToJsonArray(value: String): JSONArray = JSONArray(value)
 
     @TypeConverter
     fun qoeCategoryToValue(type: QoECategory): String = type.categoryName

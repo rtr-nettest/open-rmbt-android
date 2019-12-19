@@ -31,6 +31,10 @@ class ControlServerClient @Inject constructor(private val endpointProvider: Cont
         return api.sendTestResult(endpointProvider.sendTestResultsUrl, body).exec()
     }
 
+    fun sendQoSTestResults(body: QoSResultBody): Maybe<BaseResponse> {
+        return api.sendQoSTestResult(endpointProvider.sendQoSTestResultsUrl, body).exec()
+    }
+
     fun getHistory(body: HistoryRequestBody): Maybe<HistoryResponse> {
         return api.getHistory(endpointProvider.getHistoryUrl, body).exec()
     }

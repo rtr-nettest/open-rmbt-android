@@ -50,10 +50,16 @@ interface ControlServerApi {
     fun testRequest(@Url url: String, @Body body: TestRequestRequestBody): Call<TestRequestResponse>
 
     /**
-     * Request to get basic measurement test settings
+     * Request to send basic measurement test results
      */
     @POST
     fun sendTestResult(@Url url: String, @Body body: TestResultBody): Call<BaseResponse>
+
+    /**
+     * Request to send QoS test results
+     */
+    @POST
+    fun sendQoSTestResult(@Url url: String, @Body body: QoSResultBody): Call<BaseResponse>
 
     @POST
     fun getHistory(@Url url: String, @Body body: HistoryRequestBody): Call<HistoryResponse>

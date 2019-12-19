@@ -24,9 +24,10 @@ The source code is published under [Apache version 2.0 license](https://github.c
     9. **CONTROL_SERVER_SETTINGS_ENDPOINT** - endpoint name for getting settings from the control server, example "settings"
     10. **CONTROL_SERVER_TEST_REQUEST_PATH** - endpoint name for getting basic measurement set up to start measurement, example "testRequest"
     11. **CONTROL_SERVER_SEND_RESULT_PATH** - endpoint name for sending test results to the control server, example "result"
-    12. **CONTROL_SERVER_GET_BASIC_RESULT_PATH** - endpoint name for getting test results from the control server, example "testresult"
-    13. **CONTROL_SERVER_GET_OPENDATA_RESULT_PATH** - endpoint name for sending test results to the control server, example "result"
-    14. **CAPABILITIES_RMBT_HTTP** - client supports RMBT HTTP, example "false"
-    15. **CAPABILITIES_QOS_SUPPORTS_INFO** - if "true" the third state (=INFO) is supported, example "false"
-    16. **CAPABILITIES_CLASSIFICATION_COUNT** - number of intervals(classes) to classify measured values, example "4"
-    17. **IS_CONTROL_SERVER_OVERRIDE_ENABLED** - Control server override enabled false by default
+    12. **CONTROL_SERVER_SEND_QOS_RESULT_ENDPOINT** - endpoint name for sending QoS test results to the control server, example "result"
+    13. **CONTROL_SERVER_GET_BASIC_RESULT_PATH** - endpoint name for getting test results from the control server, example "testresult"
+    14. **CONTROL_SERVER_GET_OPENDATA_RESULT_PATH** - endpoint name for sending test results to the control server, example "result"
+    15. **CAPABILITIES_RMBT_HTTP** - client supports RMBT HTTP, example "false"
+    16. **CAPABILITIES_QOS_SUPPORTS_INFO** - if "true" the third state (=INFO) is supported, example "false"
+    17. **CAPABILITIES_CLASSIFICATION_COUNT** - number of intervals(classes) to classify measured values, example "4"
+    178. **IS_CONTROL_SERVER_OVERRIDE_ENABLED** - Control server override enabled false by default
