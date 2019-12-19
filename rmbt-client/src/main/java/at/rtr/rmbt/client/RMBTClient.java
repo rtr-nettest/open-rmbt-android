@@ -785,9 +785,6 @@ public class RMBTClient implements RMBTClientCallback {
     }
 
     void log(final Exception e) {
-        if (commonCallback != null) {
-            commonCallback.onError(e);
-        }
         if (outputToStdout)
             e.printStackTrace(System.out);
         if (outputCallback != null)
@@ -921,11 +918,6 @@ public class RMBTClient implements RMBTClientCallback {
 
     @Override
     public void onTestStatusUpdate(TestStatus status) {
-        // leave empty
-    }
-
-    @Override
-    public void onError(Exception ex) {
         // leave empty
     }
 }

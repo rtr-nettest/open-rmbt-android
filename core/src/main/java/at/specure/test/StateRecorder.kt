@@ -383,14 +383,6 @@ class StateRecorder @Inject constructor(
         }
     }
 
-    override fun onError(ex: Exception?) {
-        ex?.let {
-            testRecord?.apply {
-                testErrorCause = it.message
-            }
-        }
-    }
-
     fun onUnsuccessTest(reason: TestFinishReason) {
         testRecord?.also {
             it.testFinishReason = reason
@@ -399,6 +391,10 @@ class StateRecorder @Inject constructor(
                 onReadyToSubmit?.invoke(false)
             }
         }
+    }
+
+    fun setErrorCause(message: String) {
+        testRecord?.testErrorCause = message
     }
 
     private fun String?.fixOperatorName(): String? {

@@ -188,17 +188,17 @@ data class TestRecord(
     /**
      * Count of unsuccessful submissions
      */
-    var submissionRetryCount: Long = 0,
+    var submissionRetryCount: Int = 0,
 
     /**
      * Reason of test finished
      */
-    var testFinishReason: TestFinishReason = TestFinishReason.ERROR,
+    var testFinishReason: TestFinishReason? = null,
 
     /**
      * Phase which was the last done by the client
      */
-    var lastClientStatus: TestStatus = TestStatus.WAIT,
+    var lastClientStatus: TestStatus? = null,
 
     /**
      * Stacktrace of IllegalNetworkChangeException exception grabbed from RMBTClient which was happened during the test.

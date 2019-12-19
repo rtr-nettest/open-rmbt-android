@@ -3,6 +3,8 @@ package at.specure.measurement
 import android.app.NotificationManager
 import android.content.Context
 import android.content.Intent
+import android.net.ConnectivityManager
+import android.net.NetworkInfo
 import android.net.wifi.WifiManager
 import android.os.Binder
 import android.os.Build
@@ -46,6 +48,9 @@ class MeasurementService : LifecycleService() {
     @Inject
     lateinit var resultRepository: ResultsRepository
 
+    @Inject
+    lateinit var connectivityManager: ConnectivityManager
+
     private val producer: Producer by lazy { Producer() }
     private val clientAggregator: ClientAggregator by lazy { ClientAggregator() }
 
@@ -55,6 +60,7 @@ class MeasurementService : LifecycleService() {
     private var downloadSpeedBps = 0L
     private var uploadSpeedBps = 0L
     private var hasErrors = false
+    private var startNetwork: NetworkInfo? = null
 
     private var qosTasksPassed = 0
     private var qosTasksTotal = 0
@@ -101,14 +107,19 @@ class MeasurementService : LifecycleService() {
         override fun onError() {
             hasErrors = true
             stopForeground(true)
+            if (startNetwork?.isConnected == true) {
+                Timber.e("Network change!")
+                stateRecorder.setErrorCause("Illegal network change during the test")
+            }
             stateRecorder.onUnsuccessTest(TestFinishReason.ERROR)
-            stateRecorder.finish()
             clientAggregator.onMeasurementError()
+            stateRecorder.finish()
             unlock()
         }
 
         override fun onClientReady(testUUID: String, testStartTimeNanos: Long) {
             clientAggregator.onClientReady(testUUID)
+            startNetwork = connectivityManager.activeNetworkInfo
             stateRecorder.setOnReadyToSubmitCallback { shouldShowResults ->
                 resultRepository.sendTestResults(testUUID) {
                     it.onSuccess {
@@ -210,10 +221,10 @@ class MeasurementService : LifecycleService() {
         startForeground(NOTIFICATION_ID, notificationProvider.measurementServiceNotification(0, MeasurementState.INIT, true))
     }
 
-    private fun stopTests(abortedByUser: Boolean) {
+    private fun stopTests() {
         Timber.d("Stop tests")
         runner.stop()
-        stateRecorder.onUnsuccessTest(if (abortedByUser) TestFinishReason.ABORTED else TestFinishReason.ERROR)
+        stateRecorder.onUnsuccessTest(TestFinishReason.ABORTED)
         stateRecorder.finish()
         stopForeground(true)
         unlock()
@@ -305,8 +316,8 @@ class MeasurementService : LifecycleService() {
             this@MeasurementService.startTests()
         }
 
-        override fun stopTests(abortedByUser: Boolean) {
-            this@MeasurementService.stopTests(abortedByUser)
+        override fun stopTests() {
+            this@MeasurementService.stopTests()
         }
     }
 

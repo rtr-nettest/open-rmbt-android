@@ -264,8 +264,8 @@ fun TestRecord.toRequest(
         wifiNetworkId = wlanInfo?.networkId,
         wifiBssid = wlanInfo?.bssid,
         submissionRetryCount = submissionRetryCount,
-        testStatus = testFinishReason.ordinal,
-        lastClientStatus = lastClientStatus.name,
+        testStatus = testFinishReason?.ordinal,
+        lastClientStatus = lastClientStatus?.name,
         testErrorCause = testErrorCause
     )
 }

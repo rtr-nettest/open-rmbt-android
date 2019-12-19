@@ -22,5 +22,5 @@ interface MeasurementProducer {
 
     fun startTests()
 
-    fun stopTests(abortedByUser: Boolean)
+    fun stopTests()
 }
