@@ -85,6 +85,7 @@ dependencies {
     implementation "androidx.lifecycle:lifecycle-extensions:$versions.lifecycle_extensions"
     implementation "androidx.navigation:navigation-fragment-ktx:$versions.navigation_fragment"
     implementation "androidx.navigation:navigation-ui-ktx:$versions.navigation_fragment"
+    implementation "com.google.android.gms:play-services-maps:$versions.google_services"
 
     kapt "com.google.dagger:dagger-compiler:$versions.dagger"
     kapt "com.google.dagger:dagger-android-processor:$versions.dagger"
@@ -106,3 +107,4 @@ dependencies {
     androidTestImplementation "androidx.test.espresso:espresso-core:$versions.espresso_core"
     androidTestImplementation "androidx.test:rules:$versions.rules"
 }
+apply plugin: 'com.google.gms.google-services'
