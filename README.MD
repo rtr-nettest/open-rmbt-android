@@ -31,3 +31,4 @@ The source code is published under [Apache version 2.0 license](https://github.c
     16. **CAPABILITIES_QOS_SUPPORTS_INFO** - if "true" the third state (=INFO) is supported, example "false"
     17. **CAPABILITIES_CLASSIFICATION_COUNT** - number of intervals(classes) to classify measured values, example "4"
     178. **IS_CONTROL_SERVER_OVERRIDE_ENABLED** - Control server override enabled false by default
+4. Register your app in Firebase Console and put `google-services.json file` into root folder of project. Enable Google Maps SDK in Google Cloud console and put your API key into `googleMapsApiKey` in flavor-config.gradle file
