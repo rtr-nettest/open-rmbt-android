@@ -7,7 +7,6 @@ import android.os.IBinder
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import at.rmbt.util.exception.HandledException
-import at.rmbt.util.exception.NoConnectionException
 import at.rtr.rmbt.android.ui.viewstate.MeasurementViewState
 import at.rtr.rmbt.android.util.plusAssign
 import at.rtr.rmbt.client.v2.task.result.QoSTestResultEnum
@@ -34,7 +33,6 @@ class MeasurementViewModel @Inject constructor(
     private val _measurementErrorLiveData = MutableLiveData<Boolean>()
     private val _downloadGraphLiveData = MutableLiveData<List<GraphItemRecord>>()
     private val _uploadGraphLiveData = MutableLiveData<List<GraphItemRecord>>()
-    private val _submissionErrorLiveData = MutableLiveData<Boolean>()
     private val _qosProgressLiveData = MutableLiveData<Map<QoSTestResultEnum, Int>>()
 
     private var producer: MeasurementProducer? = null
@@ -58,9 +56,6 @@ class MeasurementViewModel @Inject constructor(
 
     val uploadGraphSource: LiveData<List<GraphItemRecord>>
         get() = _uploadGraphLiveData
-
-    val submissionErrorLiveData: LiveData<Boolean>
-        get() = _submissionErrorLiveData
 
     val qosProgressLiveData: LiveData<Map<QoSTestResultEnum, Int>>
         get() = _qosProgressLiveData
@@ -158,11 +153,7 @@ class MeasurementViewModel @Inject constructor(
 
     override fun onSubmissionError(exception: HandledException) {
         Timber.d("Test Data submission failed")
-        if (exception is NoConnectionException) {
-            _submissionErrorLiveData.postValue(true)
-        } else {
-            _measurementErrorLiveData.postValue(true)
-        }
+        _measurementFinishLiveData.postValue(false)
     }
 
     fun cancelMeasurement() {
