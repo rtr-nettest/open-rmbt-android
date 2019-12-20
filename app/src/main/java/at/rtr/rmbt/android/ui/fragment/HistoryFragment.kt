@@ -9,12 +9,14 @@ import at.rmbt.util.exception.NoConnectionException
 import at.rtr.rmbt.android.R
 import at.rtr.rmbt.android.databinding.FragmentHistoryBinding
 import at.rtr.rmbt.android.di.viewModelLazy
+import at.rtr.rmbt.android.ui.activity.ResultsActivity
 import at.rtr.rmbt.android.ui.adapter.HistoryAdapter
 import at.rtr.rmbt.android.ui.dialog.SimpleDialog
 import at.rtr.rmbt.android.util.ToolbarTheme
 import at.rtr.rmbt.android.util.changeStatusBarColor
 import at.rtr.rmbt.android.util.listen
 import at.rtr.rmbt.android.viewmodel.HistoryViewModel
+import at.specure.data.entity.History
 
 private const val CODE_ERROR = 1
 class HistoryFragment : BaseFragment() {
@@ -30,6 +32,12 @@ class HistoryFragment : BaseFragment() {
 
         binding.state = historyViewModel.state
         binding.recyclerViewHistoryItems.adapter = adapter
+
+        adapter.setActionCallback(object : ActionCallback {
+            override fun onClick(history: History) {
+                ResultsActivity.start(requireContext(), history.testUUID)
+            }
+        })
 
         binding.recyclerViewHistoryItems.apply {
 
@@ -56,6 +64,7 @@ class HistoryFragment : BaseFragment() {
             historyViewModel.refreshHistory()
             binding.swipeRefreshLayoutHistoryItems.isRefreshing = false
         }
+
         activity?.window?.changeStatusBarColor(ToolbarTheme.WHITE)
     }
 
@@ -87,4 +96,7 @@ class HistoryFragment : BaseFragment() {
             }
         }
     }
+}
+interface ActionCallback {
+    fun onClick(history: History)
 }
