@@ -26,6 +26,7 @@ class SendDataWorker(appContext: Context, workerParams: WorkerParameters) : Work
         Timber.d("Delayed submission start")
         val testUUID = inputData.getString(KEY_TEST_UUID) ?: throw DataMissingException("No testUUID passed")
 
+        repository.updateSubmissionsCounter(testUUID)
         val response = repository.sendTestResults(testUUID)
         with(response) {
             return if (ok) {

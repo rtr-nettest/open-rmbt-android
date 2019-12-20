@@ -89,4 +89,8 @@ class ResultsRepositoryImpl @Inject constructor(
 
         return finalResult
     }
+
+    override fun updateSubmissionsCounter(testUUID: String) {
+        db.testDao().updateSubmissionsRetryCounter(testUUID)
+    }
 }

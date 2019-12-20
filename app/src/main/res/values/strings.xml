@@ -166,8 +166,6 @@
     <string name="notification_test_ticker">Open-RMBT running…</string>
 
     <string name="test_dialog_error_text">Something went wrong. Please try again later.</string>
-    <string name="test_submission_error_text">The connection to the server could not be established. The results are saved and will be submitted later.</string>
-    <string name="test_submission_error_accept">Accept</string>
 
     <!-- History -->
     <string name="history_item_header_test">Test</string>

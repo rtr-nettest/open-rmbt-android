@@ -4,16 +4,18 @@ import android.app.NotificationManager
 import android.content.Context
 import android.content.Intent
 import android.net.ConnectivityManager
-import android.net.NetworkInfo
+import android.net.Network
 import android.net.wifi.WifiManager
 import android.os.Binder
 import android.os.Build
 import android.os.IBinder
 import android.os.PowerManager
+import android.util.Log
 import at.rmbt.client.control.data.TestFinishReason
 import at.rmbt.util.exception.HandledException
 import at.rmbt.util.exception.NoConnectionException
 import at.rtr.rmbt.client.v2.task.result.QoSTestResultEnum
+import at.rtr.rmbt.util.IllegalNetworkChangeException
 import at.specure.config.Config
 import at.specure.data.repository.ResultsRepository
 import at.specure.data.repository.TestDataRepository
@@ -60,7 +62,7 @@ class MeasurementService : LifecycleService() {
     private var downloadSpeedBps = 0L
     private var uploadSpeedBps = 0L
     private var hasErrors = false
-    private var startNetwork: NetworkInfo? = null
+    private var startNetwork: Network? = null
 
     private var qosTasksPassed = 0
     private var qosTasksTotal = 0
@@ -107,9 +109,13 @@ class MeasurementService : LifecycleService() {
         override fun onError() {
             hasErrors = true
             stopForeground(true)
-            if (startNetwork?.isConnected == true) {
+            if (startNetwork != connectivityManager.activeNetwork) {
                 Timber.e("Network change!")
-                stateRecorder.setErrorCause("Illegal network change during the test")
+                try {
+                    throw IllegalNetworkChangeException("Illegal network change during the test")
+                } catch (ex: Exception) {
+                    stateRecorder.setErrorCause(Log.getStackTraceString(ex))
+                }
             }
             stateRecorder.onUnsuccessTest(TestFinishReason.ERROR)
             clientAggregator.onMeasurementError()
@@ -119,7 +125,7 @@ class MeasurementService : LifecycleService() {
 
         override fun onClientReady(testUUID: String, testStartTimeNanos: Long) {
             clientAggregator.onClientReady(testUUID)
-            startNetwork = connectivityManager.activeNetworkInfo
+            startNetwork = connectivityManager.activeNetwork
             stateRecorder.onReadyToSubmit = { shouldShowResults ->
                 resultRepository.sendTestResults(testUUID) {
                     it.onSuccess {
@@ -224,6 +230,7 @@ class MeasurementService : LifecycleService() {
     private fun stopTests() {
         Timber.d("Stop tests")
         runner.stop()
+        config.previousTestStatus = "ABORTED" // cannot be handle in TestController
         stateRecorder.onUnsuccessTest(TestFinishReason.ABORTED)
         stateRecorder.finish()
         stopForeground(true)
