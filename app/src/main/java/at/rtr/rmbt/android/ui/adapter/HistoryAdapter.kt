@@ -38,10 +38,6 @@ class HistoryAdapter : PagedListAdapter<History, HistoryAdapter.Holder>(DIFF_CAL
         }
     }
 
-    fun setCallback(actionCallback: (History) -> Unit) {
-        this.actionCallback = actionCallback
-    }
-
     class Holder(val binding: ItemHistoryBinding) : RecyclerView.ViewHolder(binding.root)
 
     companion object {

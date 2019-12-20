@@ -16,7 +16,6 @@ import at.rtr.rmbt.android.util.ToolbarTheme
 import at.rtr.rmbt.android.util.changeStatusBarColor
 import at.rtr.rmbt.android.util.listen
 import at.rtr.rmbt.android.viewmodel.HistoryViewModel
-import at.specure.data.entity.History
 
 private const val CODE_ERROR = 1
 class HistoryFragment : BaseFragment() {
@@ -33,8 +32,8 @@ class HistoryFragment : BaseFragment() {
         binding.state = historyViewModel.state
         binding.recyclerViewHistoryItems.adapter = adapter
 
-        adapter.setCallback { history ->
-            ResultsActivity.start(requireContext(), history.testUUID)
+        adapter.actionCallback = {
+            ResultsActivity.start(requireContext(), it.testUUID)
         }
 
         binding.recyclerViewHistoryItems.apply {
@@ -94,7 +93,4 @@ class HistoryFragment : BaseFragment() {
             }
         }
     }
-}
-interface ActionCallback {
-    fun onClick(history: History)
 }
