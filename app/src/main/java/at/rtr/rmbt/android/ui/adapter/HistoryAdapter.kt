@@ -21,24 +21,25 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import at.rtr.rmbt.android.R
 import at.rtr.rmbt.android.databinding.ItemHistoryBinding
-import at.rtr.rmbt.android.ui.fragment.ActionCallback
 import at.rtr.rmbt.android.util.bindWith
 import at.specure.data.entity.History
 
 class HistoryAdapter : PagedListAdapter<History, HistoryAdapter.Holder>(DIFF_CALLBACK) {
 
-    private lateinit var actionCallback: ActionCallback
+    var actionCallback: ((History) -> Unit)? = null
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) = Holder(parent.bindWith(R.layout.item_history))
-
-    fun setActionCallback(actionCallback: ActionCallback) {
-        this.actionCallback = actionCallback
-    }
 
     override fun onBindViewHolder(holder: Holder, position: Int) {
         val item = getItem(position) ?: return
         holder.binding.item = item
-        holder.binding.actionListener = actionCallback
+        holder.binding.root.setOnClickListener {
+            actionCallback?.invoke(item)
+        }
+    }
+
+    fun setCallback(actionCallback: (History) -> Unit) {
+        this.actionCallback = actionCallback
     }
 
     class Holder(val binding: ItemHistoryBinding) : RecyclerView.ViewHolder(binding.root)

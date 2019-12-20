@@ -33,11 +33,9 @@ class HistoryFragment : BaseFragment() {
         binding.state = historyViewModel.state
         binding.recyclerViewHistoryItems.adapter = adapter
 
-        adapter.setActionCallback(object : ActionCallback {
-            override fun onClick(history: History) {
-                ResultsActivity.start(requireContext(), history.testUUID)
-            }
-        })
+        adapter.setCallback { history ->
+            ResultsActivity.start(requireContext(), history.testUUID)
+        }
 
         binding.recyclerViewHistoryItems.apply {
 

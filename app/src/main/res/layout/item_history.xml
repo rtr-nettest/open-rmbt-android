@@ -9,16 +9,12 @@
             name="item"
             type="at.specure.data.entity.History" />
 
-        <variable
-            name="actionListener"
-            type="at.rtr.rmbt.android.ui.fragment.ActionCallback"/>
     </data>
 
     <androidx.appcompat.widget.LinearLayoutCompat
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:onClick="@{()->actionListener.onClick(item)}"
         android:padding="@dimen/padding_large">
 
         <androidx.appcompat.widget.AppCompatTextView
