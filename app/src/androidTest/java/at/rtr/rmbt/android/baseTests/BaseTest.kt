@@ -12,7 +12,7 @@
  * limitations under the License.
  */
 
-package at.rtr.rmbt.android
+package at.rtr.rmbt.android.baseTests
 
 import android.content.Context
 import android.graphics.Bitmap

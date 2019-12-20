@@ -12,41 +12,47 @@
  * limitations under the License.
  */
 
-package at.rtr.rmbt.android.noConnection
+package at.rtr.rmbt.android.baseTests.wifi
 
 import androidx.test.espresso.Espresso
+import androidx.test.espresso.action.ViewActions
 import androidx.test.espresso.assertion.ViewAssertions
 import androidx.test.espresso.matcher.ViewMatchers
 import androidx.test.filters.LargeTest
 import androidx.test.runner.AndroidJUnit4
-import at.rtr.rmbt.android.baseTests.BaseHomeActivityTest
 import at.rtr.rmbt.android.R
-import at.rtr.rmbt.android.ui.activity.HomeActivity
-import junit.framework.Assert.assertTrue
+import at.rtr.rmbt.android.baseTests.BaseHomeActivityTest
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
-import java.util.concurrent.TimeUnit
 
 @RunWith(AndroidJUnit4::class)
 @LargeTest
-open class SignalStrengthPortraitTest : BaseHomeActivityTest() {
-    private lateinit var context: HomeActivity
+open class BaseHistoryTest : BaseHomeActivityTest() {
 
     @Before
     open fun setUp() {
-        context = activityRule.activity
-        while (isConnected(context)) {
-            TimeUnit.MILLISECONDS.sleep(500)
-        }
-        TimeUnit.SECONDS.sleep(2)
-        assertTrue("There is a connection available", !isConnected(context))
+        Espresso.onView(ViewMatchers.withId(R.id.navigation_history)).perform(ViewActions.click())
     }
 
     @Test
-    fun checkSignalStrengthIsNull() {
-        val signalStrength = "-"
-        Espresso.onView(ViewMatchers.withId(R.id.tvSignal))
-            .check(ViewAssertions.matches(ViewMatchers.withText(signalStrength)))
+    fun checkTitleIsDisplayed() {
+        Espresso.onView(ViewMatchers.withId(R.id.labelTitle)).check(
+            ViewAssertions.matches(ViewMatchers.isDisplayed())
+        )
+    }
+
+    @Test
+    fun checkSyncButtonIsDisplayed() {
+        Espresso.onView(ViewMatchers.withId(R.id.buttonSync)).check(
+            ViewAssertions.matches(ViewMatchers.isDisplayed())
+        )
+    }
+
+    @Test
+    fun checkFilterButtonIsDisplayed() {
+        Espresso.onView(ViewMatchers.withId(R.id.buttonMenu)).check(
+            ViewAssertions.matches(ViewMatchers.isDisplayed())
+        )
     }
 }

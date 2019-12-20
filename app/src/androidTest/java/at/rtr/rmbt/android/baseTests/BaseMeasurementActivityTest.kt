@@ -12,7 +12,7 @@
  * limitations under the License.
  */
 
-package at.rtr.rmbt.android
+package at.rtr.rmbt.android.baseTests
 
 import androidx.test.rule.ActivityTestRule
 import at.rtr.rmbt.android.ui.activity.MeasurementActivity

@@ -193,7 +193,7 @@ class TestControllerImpl(
                             errorStatus = "${errorStatus}_$it"
                         }
                         errorStatus
-                    } else currentStatus.name
+                    } else TestStatus.END.name
 
                     client.commonCallback = null
                     client.shutdown()

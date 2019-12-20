@@ -15,38 +15,23 @@
 package at.rtr.rmbt.android.wifi
 
 import androidx.test.espresso.Espresso
-import androidx.test.espresso.assertion.ViewAssertions
+import androidx.test.espresso.assertion.ViewAssertions.doesNotExist
 import androidx.test.espresso.matcher.ViewMatchers
 import androidx.test.filters.LargeTest
 import androidx.test.runner.AndroidJUnit4
-import at.rtr.rmbt.android.baseTests.BaseHomeActivityTest
 import at.rtr.rmbt.android.R
-import at.rtr.rmbt.android.ui.activity.HomeActivity
-import junit.framework.Assert.assertTrue
-import org.junit.Before
+import at.rtr.rmbt.android.baseTests.wifi.BaseHistoryTest
 import org.junit.Test
 import org.junit.runner.RunWith
-import java.util.concurrent.TimeUnit
 
 @RunWith(AndroidJUnit4::class)
 @LargeTest
-open class SignalStrengthPortraitTest : BaseHomeActivityTest() {
-    private lateinit var context: HomeActivity
-
-    @Before
-    open fun setUp() {
-        context = activityRule.activity
-        while (!isConnected(context)) {
-            TimeUnit.MILLISECONDS.sleep(500)
-        }
-        TimeUnit.SECONDS.sleep(2)
-        assertTrue("No internet connection available", isConnected(context))
-    }
+open class HistoryScreenPortraitTest : BaseHistoryTest() {
 
     @Test
-    fun checkSignalStrengthIsDisplayed() {
-        val signalStrength = "-50 dBm"
-        Espresso.onView(ViewMatchers.withId(R.id.tvSignal))
-            .check(ViewAssertions.matches(ViewMatchers.withText(signalStrength)))
+    fun checkNoInternetErrorIsNotDisplayed() {
+        Espresso.onView(ViewMatchers.withText(R.string.no_internet_connection_not_load_data)).check(
+            doesNotExist()
+        )
     }
 }

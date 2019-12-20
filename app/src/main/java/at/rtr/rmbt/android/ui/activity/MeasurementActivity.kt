@@ -51,7 +51,9 @@ class MeasurementActivity : BaseActivity(), SimpleDialog.Callback {
 
         viewModel.measurementFinishLiveData.listen(this) {
             finish()
-            ResultsActivity.start(this, viewModel.testUUID)
+            if (it) {
+                ResultsActivity.start(this, viewModel.testUUID)
+            }
         }
 
         viewModel.measurementErrorLiveData.listen(this) {
@@ -62,13 +64,6 @@ class MeasurementActivity : BaseActivity(), SimpleDialog.Callback {
                 .show(supportFragmentManager, CODE_ERROR)
         }
 
-        viewModel.submissionErrorLiveData.listen(this) {
-            SimpleDialog.Builder()
-                .messageText(R.string.test_submission_error_text)
-                .positiveText(R.string.test_submission_error_accept)
-                .cancelable(false)
-                .show(supportFragmentManager, CODE_ERROR)
-        }
         binding.root.measurementBottomView.qosTestRecyclerView.apply {
 
             val itemDecoration = DividerItemDecoration(context, DividerItemDecoration.VERTICAL)
