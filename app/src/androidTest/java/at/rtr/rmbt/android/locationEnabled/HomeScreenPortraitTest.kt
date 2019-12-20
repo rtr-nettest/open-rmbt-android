@@ -21,7 +21,7 @@ import androidx.test.espresso.assertion.ViewAssertions
 import androidx.test.espresso.matcher.ViewMatchers
 import androidx.test.filters.LargeTest
 import androidx.test.runner.AndroidJUnit4
-import at.rtr.rmbt.android.BaseHomeActivityTest
+import at.rtr.rmbt.android.baseTests.BaseHomeActivityTest
 import at.rtr.rmbt.android.R
 import at.rtr.rmbt.android.ui.activity.HomeActivity
 import junit.framework.Assert

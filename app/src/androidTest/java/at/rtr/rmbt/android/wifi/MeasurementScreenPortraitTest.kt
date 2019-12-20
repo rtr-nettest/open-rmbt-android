@@ -19,7 +19,7 @@ import androidx.test.espresso.assertion.ViewAssertions
 import androidx.test.espresso.matcher.ViewMatchers
 import androidx.test.filters.LargeTest
 import androidx.test.runner.AndroidJUnit4
-import at.rtr.rmbt.android.BaseMeasurementActivityTest
+import at.rtr.rmbt.android.baseTests.BaseMeasurementActivityTest
 import at.rtr.rmbt.android.R
 import at.rtr.rmbt.android.ui.activity.MeasurementActivity
 import junit.framework.Assert.assertTrue
