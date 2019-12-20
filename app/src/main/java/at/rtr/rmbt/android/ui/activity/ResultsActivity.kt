@@ -42,8 +42,6 @@ class ResultsActivity : BaseActivity(), OnMapReadyCallback {
         val testUUID = intent.getStringExtra(KEY_TEST_UUID)
         check(!testUUID.isNullOrEmpty()) { "TestUUID was not passed to result activity" }
 
-        binding.map.setOnClickListener { DetailedFullscreenMapActivity.start(this, testUUID) }
-
         viewModel.state.testUUID = testUUID
         viewModel.testServerResultLiveData.listen(this) {
             viewModel.state.testResult.set(it)
@@ -68,6 +66,7 @@ class ResultsActivity : BaseActivity(), OnMapReadyCallback {
 
                     googleMap?.addMarker(MarkerOptions().position(this).icon(bitmapDescriptorFromVector(icon)))
                     googleMap?.moveCamera(CameraUpdateFactory.newLatLngZoom(this, ZOOM_LEVEL))
+                    googleMap?.setOnMapClickListener { DetailedFullscreenMapActivity.start(this@ResultsActivity, testUUID) }
                 }
             }
         }
