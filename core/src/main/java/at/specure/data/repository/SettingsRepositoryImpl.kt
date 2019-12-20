@@ -38,10 +38,10 @@ class SettingsRepositoryImpl(
 
             val urls = settings.success.settings.first().urls
             if (urls != null) {
-                controlServerSettings.controlServerV4Url = urls.ipv4OnlyControlServerUrl
-                controlServerSettings.controlServerV6Url = urls.ipv6OnlyControlServerUrl
-                controlServerSettings.ipV4CheckUrl = urls.ipv4CheckUrl
-                controlServerSettings.ipV6CheckUrl = urls.ipv6CheckUrl
+                controlServerSettings.controlServerV4Url = urls.ipv4OnlyControlServerUrl.removeProtocol()
+                controlServerSettings.controlServerV6Url = urls.ipv6OnlyControlServerUrl.removeProtocol()
+                controlServerSettings.ipV4CheckUrl = urls.ipv4CheckUrl.removeProtocol()
+                controlServerSettings.ipV6CheckUrl = urls.ipv6CheckUrl.removeProtocol()
                 controlServerSettings.openDataPrefix = urls.openDataPrefixUrl
                 controlServerSettings.shareUrl = urls.shareUrl
                 controlServerSettings.statisticsUrl = urls.statisticsUrl
@@ -72,5 +72,10 @@ class SettingsRepositoryImpl(
             // todo: servers to DB
         }
         return settings.ok
+    }
+
+    private fun String?.removeProtocol(): String? {
+        this ?: return null
+        return this.removePrefix("http://").removePrefix("https://")
     }
 }
