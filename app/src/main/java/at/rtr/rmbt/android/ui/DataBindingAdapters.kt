@@ -9,6 +9,7 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.databinding.BindingAdapter
 import at.rmbt.client.control.IpProtocol
 import at.rtr.rmbt.android.R
+import at.rtr.rmbt.android.ui.view.ResultBar
 import at.rtr.rmbt.android.ui.view.SpeedLineChart
 import at.rtr.rmbt.android.ui.view.WaveView
 import at.rtr.rmbt.android.ui.view.curve.MeasurementCurveLayout
@@ -26,6 +27,7 @@ import at.specure.info.network.NetworkInfo
 import at.specure.info.network.WifiNetworkInfo
 import at.specure.info.strength.SignalStrengthInfo
 import at.specure.measurement.MeasurementState
+import at.specure.result.QoECategory
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import java.util.Calendar
 
@@ -518,7 +520,7 @@ fun AppCompatTextView.setDownload(speedDownload: Double, speedDownloadClassifica
 fun AppCompatTextView.setDownload(speedDownload: Long, speedDownloadClassification: Classification) {
 
     text = if (speedDownload > 0) {
-        (speedDownload / 1000).toFloat().format()
+        context.getString(R.string.measurement_download_upload_speed, ((speedDownload / 1000).toFloat().format()))
     } else {
         context.getString(R.string.measurement_dash)
     }
@@ -551,7 +553,7 @@ fun getSpeedDownloadClassification(speedDownloadClassification: Classification):
 @BindingAdapter("speedUploadLong", "speedUploadClassification", requireAll = true)
 fun AppCompatTextView.setUpload(speedUpload: Long, speedUploadClassification: Classification) {
     text = if (speedUpload > 0) {
-        (speedUpload.toFloat() / 1000).format()
+        context.getString(R.string.measurement_download_upload_speed, ((speedUpload.toFloat() / 1000).format()))
     } else {
         context.getString(R.string.measurement_dash)
     }
@@ -606,11 +608,6 @@ fun AppCompatTextView.setPing(ping: Int, pingClassification: Classification) {
     setCompoundDrawablesWithIntrinsicBounds(getPingClassificationIcon(pingClassification), 0, 0, 0)
 }
 
-@BindingAdapter("classificationIcon")
-fun AppCompatTextView.setClassification(classification: Classification) {
-    setCompoundDrawablesWithIntrinsicBounds(getPingClassificationIcon(classification), 0, 0, 0)
-}
-
 /**
  * A binding adapter that is used for show download ping with classification icon in results
  */
@@ -618,11 +615,16 @@ fun AppCompatTextView.setClassification(classification: Classification) {
 fun AppCompatTextView.setPing(ping: Double, pingClassification: Classification) {
 
     text = if (ping > 0) {
-        ping.toInt().toString()
+        context.getString(R.string.measurement_ping_value, ping.toInt())
     } else {
         context.getString(R.string.measurement_dash)
     }
     setCompoundDrawablesWithIntrinsicBounds(getPingClassificationIcon(pingClassification), 0, 0, 0)
+}
+
+@BindingAdapter("classificationIcon")
+fun AppCompatTextView.setClassification(classification: Classification) {
+    setCompoundDrawablesWithIntrinsicBounds(getPingClassificationIcon(classification), 0, 0, 0)
 }
 
 fun getPingClassificationIcon(pingClassification: Classification): Int {
@@ -651,7 +653,12 @@ fun getPingClassificationIcon(pingClassification: Classification): Int {
 @BindingAdapter("signalStrength", "signalStrengthClassification", requireAll = true)
 fun AppCompatTextView.setSignalStrength(signalStrength: Int?, speedDownloadClassification: Classification) {
 
-    text = signalStrength?.toString() ?: context.getString(R.string.measurement_dash)
+    text = if (signalStrength != null) {
+        context.getString(R.string.strength_signal_value, signalStrength)
+    } else {
+        context.getString(R.string.measurement_dash)
+    }
+
     setCompoundDrawablesWithIntrinsicBounds(
 
         when (speedDownloadClassification) {
@@ -672,4 +679,68 @@ fun AppCompatTextView.setSignalStrength(signalStrength: Int?, speedDownloadClass
             }
         }, 0, 0, 0
     )
+}
+
+/**
+ * A binding adapter that is used for show correct icon for qoe item in the results
+ */
+@BindingAdapter("qoeIcon")
+fun AppCompatImageView.setQoEIcon(qoECategory: QoECategory) {
+    setImageDrawable(
+        context.getDrawable(
+            when (qoECategory) {
+                QoECategory.QOE_UNKNOWN -> 0
+                QoECategory.QOE_AUDIO_STREAMING -> R.drawable.ic_qoe_music
+                QoECategory.QOE_VIDEO_SD -> R.drawable.ic_qoe_video
+                QoECategory.QOE_VIDEO_HD -> R.drawable.ic_qoe_video
+                QoECategory.QOE_VIDEO_UHD -> R.drawable.ic_qoe_video
+                QoECategory.QOE_GAMING -> R.drawable.ic_qoe_game
+                QoECategory.QOE_GAMING_CLOUD -> R.drawable.ic_qoe_game
+                QoECategory.QOE_GAMING_STREAMING -> R.drawable.ic_qoe_game
+                QoECategory.QOE_GAMING_DOWNLOAD -> R.drawable.ic_qoe_game
+                QoECategory.QOE_VOIP -> R.drawable.ic_qoe_voip
+                QoECategory.QOE_VIDEO_TELEPHONY -> R.drawable.ic_qoe_voip
+                QoECategory.QOE_VIDEO_CONFERENCING -> R.drawable.ic_qoe_voip
+                QoECategory.QOE_MESSAGING -> R.drawable.ic_qoe_image
+                QoECategory.QOE_WEB -> R.drawable.ic_qoe_image
+                QoECategory.QOE_CLOUD -> R.drawable.ic_qoe_image
+                QoECategory.QOE_QOS -> R.drawable.ic_qoe_qos
+            }
+        )
+    )
+}
+
+/**
+ * A binding adapter that is used for show name for qoe item in the results
+ */
+@BindingAdapter("qoeName")
+fun AppCompatTextView.setQoEName(qoECategory: QoECategory) {
+    text = context.getString(
+        when (qoECategory) {
+            QoECategory.QOE_UNKNOWN -> 0
+            QoECategory.QOE_AUDIO_STREAMING -> R.string.results_qoe_audio_streaming
+            QoECategory.QOE_VIDEO_SD -> R.string.results_qoe_videos_sd
+            QoECategory.QOE_VIDEO_HD -> R.string.results_qoe_videos_hd
+            QoECategory.QOE_VIDEO_UHD -> R.string.results_qoe_videos_uhd
+            QoECategory.QOE_GAMING -> R.string.results_qoe_gaming
+            QoECategory.QOE_GAMING_CLOUD -> R.string.results_qoe_gaming_cloud
+            QoECategory.QOE_GAMING_STREAMING -> R.string.results_qoe_gaming_streaming
+            QoECategory.QOE_GAMING_DOWNLOAD -> R.string.results_qoe_gaming_download
+            QoECategory.QOE_VOIP -> R.string.results_qoe_voip
+            QoECategory.QOE_VIDEO_TELEPHONY -> R.string.results_qoe_video_telephony
+            QoECategory.QOE_VIDEO_CONFERENCING -> R.string.results_qoe_video_conferencing
+            QoECategory.QOE_MESSAGING -> R.string.results_qoe_messaging
+            QoECategory.QOE_WEB -> R.string.results_qoe_web
+            QoECategory.QOE_CLOUD -> R.string.results_qoe_cloud
+            QoECategory.QOE_QOS -> R.string.results_qoe_qos
+        }
+    )
+}
+
+/**
+ * A binding adapter that is used for show correct value for qoe item in the results
+ */
+@BindingAdapter("qoePercent", "classification")
+fun ResultBar.setQoEValue(value: Double, classification: Classification) {
+    updateClassification((value * 100).toInt(), classification)
 }
