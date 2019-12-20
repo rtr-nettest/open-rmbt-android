@@ -12,6 +12,7 @@ import at.rtr.rmbt.android.databinding.LayoutPercentageBinding
 import at.rtr.rmbt.android.databinding.LayoutSpeedBinding
 import at.rtr.rmbt.android.util.format
 import at.specure.measurement.MeasurementState
+import kotlin.math.min
 
 class MeasurementCurveLayout @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) :
     FrameLayout(context, attrs, defStyleAttr) {
@@ -143,7 +144,7 @@ class MeasurementCurveLayout @JvmOverloads constructor(context: Context, attrs: 
             val progress = prepareProgressValueByPhase(currentProgress)
             curveBinding.curveView.setTopProgress(phase, currentProgress, isQoSEnabled)
             if (progress != 0) {
-                percentageLayout.percentage.text = progress.toString()
+                percentageLayout.percentage.text = min(progress, 100).toString()
                 percentageLayout.units.text = context.getString(R.string.measurement_progress_units)
                 percentageLayout.percentage.requestLayout()
                 percentageLayout.root.post {

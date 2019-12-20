@@ -76,15 +76,31 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
 
-                <FrameLayout
+                <androidx.cardview.widget.CardView
                     android:id="@+id/mapContainer"
-                    android:layout_width="match_parent"
+                    android:layout_width="0dp"
                     android:layout_height="200dp"
                     android:layout_margin="@dimen/padding_large"
-                    android:visibility="gone"
+                    app:cardCornerRadius="@dimen/padding_large"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:visibleOrGone="@{state.testResult.longitude != null &amp;&amp; state.testResult.latitude != null }">
+
+                    <com.google.android.gms.maps.MapView
+                        android:id="@+id/map"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent" />
+
+                    <ImageView
+                        android:id="@+id/fullscreen_fab"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="end"
+                        android:layout_margin="@dimen/padding_medium"
+                        android:background="@android:color/transparent"
+                        android:src="@drawable/ic_fullscreen_fab" />
+                </androidx.cardview.widget.CardView>
 
                 <TextView
                     android:id="@+id/networkTypeText"

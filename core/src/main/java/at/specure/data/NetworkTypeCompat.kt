@@ -2,6 +2,7 @@ package at.specure.data
 
 import at.specure.info.TransportType
 import at.specure.info.cell.CellTechnology
+import at.specure.info.network.MobileNetworkType
 
 enum class NetworkTypeCompat(val stringValue: String) {
 
@@ -11,6 +12,24 @@ enum class NetworkTypeCompat(val stringValue: String) {
     TYPE_WLAN("WLAN");
 
     companion object {
+
+        fun fromIntType(value: Int): NetworkTypeCompat {
+
+            var cellTechnology: CellTechnology? = null
+            val mobileNetworkType = MobileNetworkType.fromValue(value)
+            val transportType = if (mobileNetworkType == MobileNetworkType.UNKNOWN) {
+                if (value == TYPE_WIFI_VALUE) {
+                    TransportType.WIFI
+                } else {
+                    throw IllegalArgumentException("Unsupported type $value")
+                }
+            } else {
+                cellTechnology = CellTechnology.fromMobileNetworkType(mobileNetworkType)
+                TransportType.CELLULAR
+            }
+
+            return fromType(transportType, cellTechnology)
+        }
 
         fun fromString(value: String): NetworkTypeCompat {
             values().forEach {
@@ -34,5 +53,9 @@ enum class NetworkTypeCompat(val stringValue: String) {
                 else -> throw IllegalArgumentException("Unsupported transport type ${transportType.name}")
             }
         }
+
+        const val TYPE_BLUETOOTH_VALUE = 107
+        const val TYPE_ETHERNET_VALUE = 106
+        const val TYPE_WIFI_VALUE = 99
     }
 }

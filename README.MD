@@ -12,6 +12,7 @@ The source code is published under [Apache version 2.0 license](https://github.c
 	2. Update signing/debug.properties with credentials to your signing/debug.keystore key
 	3. Replace signing/release.keystore with your own one
 	4. Update signing/release.properties with credentials to your signing/release.keystore key
+	5. Register your app in Firebase Console and put `google-services.json file` into root/app folder of project. Enable Google Maps SDK in Google Cloud console and put your API key into `googleMapsApiKey` in flavor-config.gradle file
 3. Add/change endpoints information in file `app/src/rtr/config.json`
     1. **CONTROL_SERVER_HOST** - Control server host, example "myhost.com"
     2. **CONTROL_SERVER_CHECK_PRIVATE_IPV4_HOST** - Url to the host for IPv4 test, example "v4.myhost.com"

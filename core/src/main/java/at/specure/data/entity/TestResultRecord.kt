@@ -6,6 +6,7 @@ import androidx.room.Index
 import androidx.room.PrimaryKey
 import at.specure.data.Classification
 import at.specure.data.Columns
+import at.specure.data.NetworkTypeCompat
 import at.specure.data.Tables
 
 @Entity(tableName = Tables.TEST_RESULT, indices = [Index(value = [Columns.TEST_OPEN_UUID_PARENT_COLUMN], unique = true)])
@@ -72,7 +73,7 @@ data class TestResultRecord(
     /**
      * Server type of the network
      */
-    val networkType: Int,
+    val networkTypeRaw: Int,
 
     /**
      * Classification value for assigning traffic-light-color
@@ -112,7 +113,7 @@ data class TestResultRecord(
     /**
      * Classification value for assigning traffic-light-color
      */
-    val pingClass: Classification
+    val pingClass: Classification,
 
-    // TODO: add network item when they will be ready by RTR
+    val networkType: NetworkTypeCompat
 )

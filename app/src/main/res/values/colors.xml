@@ -78,4 +78,7 @@
     <color name="classification_yellow">#FFBA00</color>
     <color name="classification_red">#F5001C</color>
     <color name="classification_undefined">#F2F3F5</color>
+
+    <color name="map_circle_fill">#56AD00</color>
+    <color name="map_circle_stroke">#007C0E</color>
 </resources>
