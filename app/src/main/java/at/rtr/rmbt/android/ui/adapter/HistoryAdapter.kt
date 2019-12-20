@@ -26,11 +26,16 @@ import at.specure.data.entity.History
 
 class HistoryAdapter : PagedListAdapter<History, HistoryAdapter.Holder>(DIFF_CALLBACK) {
 
+    var actionCallback: ((History) -> Unit)? = null
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) = Holder(parent.bindWith(R.layout.item_history))
 
     override fun onBindViewHolder(holder: Holder, position: Int) {
         val item = getItem(position) ?: return
         holder.binding.item = item
+        holder.binding.root.setOnClickListener {
+            actionCallback?.invoke(item)
+        }
     }
 
     class Holder(val binding: ItemHistoryBinding) : RecyclerView.ViewHolder(binding.root)

@@ -8,6 +8,7 @@
         <variable
             name="item"
             type="at.specure.data.entity.History" />
+
     </data>
 
     <androidx.appcompat.widget.LinearLayoutCompat

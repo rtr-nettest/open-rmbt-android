@@ -9,6 +9,7 @@ import at.rmbt.util.exception.NoConnectionException
 import at.rtr.rmbt.android.R
 import at.rtr.rmbt.android.databinding.FragmentHistoryBinding
 import at.rtr.rmbt.android.di.viewModelLazy
+import at.rtr.rmbt.android.ui.activity.ResultsActivity
 import at.rtr.rmbt.android.ui.adapter.HistoryAdapter
 import at.rtr.rmbt.android.ui.dialog.SimpleDialog
 import at.rtr.rmbt.android.util.ToolbarTheme
@@ -30,6 +31,10 @@ class HistoryFragment : BaseFragment() {
 
         binding.state = historyViewModel.state
         binding.recyclerViewHistoryItems.adapter = adapter
+
+        adapter.actionCallback = {
+            ResultsActivity.start(requireContext(), it.testUUID)
+        }
 
         binding.recyclerViewHistoryItems.apply {
 
@@ -56,6 +61,7 @@ class HistoryFragment : BaseFragment() {
             historyViewModel.refreshHistory()
             binding.swipeRefreshLayoutHistoryItems.isRefreshing = false
         }
+
         activity?.window?.changeStatusBarColor(ToolbarTheme.WHITE)
     }
 

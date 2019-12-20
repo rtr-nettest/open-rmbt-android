@@ -47,7 +47,8 @@
 
         <activity
             android:name=".ui.activity.ResultsActivity"
-            android:windowSoftInputMode="stateAlwaysHidden" />
+            android:windowSoftInputMode="stateAlwaysHidden"
+            android:theme="@style/PreferenceTheme" />
 
         <activity android:name=".ui.activity.DetailedFullscreenMapActivity" />
 
