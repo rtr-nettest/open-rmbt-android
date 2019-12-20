@@ -37,7 +37,7 @@
             android:drawablePadding="@dimen/padding_very_small"
             android:text="@{item.speedDownload}"
             android:textColor="@color/text_dark_gray"
-            app:classificationIcon="@{item.speedDownloadClassification}"
+            app:speedDownloadClassification="@{item.speedDownloadClassification}"
             tools:drawableStart="@drawable/ic_small_download_light_green"
             tools:text="79" />
 
@@ -49,7 +49,7 @@
             android:drawablePadding="@dimen/padding_very_small"
             android:text="@{item.speedUpload}"
             android:textColor="@color/text_dark_gray"
-            app:classificationIcon="@{item.speedUploadClassification}"
+            app:speedUploadClassification="@{item.speedUploadClassification}"
             tools:drawableStart="@drawable/ic_small_upload_light_green"
             tools:text="12" />
 
@@ -61,7 +61,7 @@
             android:drawablePadding="@dimen/padding_very_small"
             android:text="@{item.ping}"
             android:textColor="@color/text_dark_gray"
-            app:classificationIcon="@{item.pingClassification}"
+            app:pingClassification="@{item.pingClassification}"
             tools:drawableStart="@drawable/ic_small_ping_yellow"
             tools:text="14" />
 
