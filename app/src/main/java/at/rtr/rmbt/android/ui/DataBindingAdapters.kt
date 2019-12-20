@@ -495,6 +495,7 @@ fun AppCompatTextView.setTime(networkType: NetworkTypeCompat, time: Long) {
             NetworkTypeCompat.TYPE_WLAN -> {
                 R.drawable.ic_history_wifi
             }
+            NetworkTypeCompat.TYPE_5G -> throw IllegalArgumentException("Need to add 5G image here for history")
         }, 0, 0, 0
     )
 }
@@ -502,29 +503,23 @@ fun AppCompatTextView.setTime(networkType: NetworkTypeCompat, time: Long) {
 /**
  * A binding adapter that is used for show download speed with classification icon in history list
  */
-@BindingAdapter("speedDownload", "speedDownloadClassification", requireAll = true)
-fun AppCompatTextView.setDownload(speedDownload: Double, speedDownloadClassification: Classification) {
-
-    text = if (speedDownload > 0) {
-        speedDownload.toFloat().format()
-    } else {
-        context.getString(R.string.measurement_dash)
-    }
+@BindingAdapter("speedDownloadClassification")
+fun AppCompatTextView.setDownload(speedDownloadClassification: Classification) {
     setCompoundDrawablesWithIntrinsicBounds(getSpeedDownloadClassification(speedDownloadClassification), 0, 0, 0)
 }
 
 /**
  * A binding adapter that is used for show download speed with classification icon in results
  */
-@BindingAdapter("speedDownloadLong", "speedDownloadClassification", requireAll = true)
-fun AppCompatTextView.setDownload(speedDownload: Long, speedDownloadClassification: Classification) {
+@BindingAdapter("speedDownloadResult", "speedDownloadClassificationResult", requireAll = true)
+fun AppCompatTextView.speedDownloadResult(speedDownloadResult: Long, speedDownloadClassificationResult: Classification) {
 
-    text = if (speedDownload > 0) {
-        context.getString(R.string.measurement_download_upload_speed, ((speedDownload / 1000).toFloat().format()))
+    text = if (speedDownloadResult > 0) {
+        context.getString(R.string.measurement_download_upload_speed, ((speedDownloadResult.toFloat() / 1000f).format()))
     } else {
         context.getString(R.string.measurement_dash)
     }
-    setCompoundDrawablesWithIntrinsicBounds(getSpeedDownloadClassification(speedDownloadClassification), 0, 0, 0)
+    setCompoundDrawablesWithIntrinsicBounds(getSpeedDownloadClassification(speedDownloadClassificationResult), 0, 0, 0)
 }
 
 fun getSpeedDownloadClassification(speedDownloadClassification: Classification): Int {
@@ -550,27 +545,21 @@ fun getSpeedDownloadClassification(speedDownloadClassification: Classification):
 /**
  * A binding adapter that is used for show upload speed with classification icon in results
  */
-@BindingAdapter("speedUploadLong", "speedUploadClassification", requireAll = true)
-fun AppCompatTextView.setUpload(speedUpload: Long, speedUploadClassification: Classification) {
-    text = if (speedUpload > 0) {
-        context.getString(R.string.measurement_download_upload_speed, ((speedUpload.toFloat() / 1000).format()))
+@BindingAdapter("speedUploadResult", "speedUploadClassificationResult", requireAll = true)
+fun AppCompatTextView.speedUploadResult(speedUploadResult: Long, speedUploadClassificationResult: Classification) {
+    text = if (speedUploadResult > 0) {
+        context.getString(R.string.measurement_download_upload_speed, ((speedUploadResult.toFloat() / 1000f).format()))
     } else {
         context.getString(R.string.measurement_dash)
     }
-    setCompoundDrawablesWithIntrinsicBounds(getSpeedUploadClassificationIcon(speedUploadClassification), 0, 0, 0)
+    setCompoundDrawablesWithIntrinsicBounds(getSpeedUploadClassificationIcon(speedUploadClassificationResult), 0, 0, 0)
 }
 
 /**
  * A binding adapter that is used for show upload speed with classification icon in history list
  */
-@BindingAdapter("speedUpload", "speedUploadClassification", requireAll = true)
-fun AppCompatTextView.setUpload(speedUpload: Double, speedUploadClassification: Classification) {
-
-    text = if (speedUpload > 0) {
-        speedUpload.toFloat().format()
-    } else {
-        context.getString(R.string.measurement_dash)
-    }
+@BindingAdapter("speedUploadClassification")
+fun AppCompatTextView.setUpload(speedUploadClassification: Classification) {
     setCompoundDrawablesWithIntrinsicBounds(getSpeedUploadClassificationIcon(speedUploadClassification), 0, 0, 0)
 }
 
@@ -597,34 +586,23 @@ fun getSpeedUploadClassificationIcon(speedUploadClassification: Classification):
 /**
  * A binding adapter that is used for show download ping with classification icon in history list
  */
-@BindingAdapter("ping", "pingClassification", requireAll = true)
-fun AppCompatTextView.setPing(ping: Int, pingClassification: Classification) {
-
-    text = if (ping > 0) {
-        ping.toString()
-    } else {
-        context.getString(R.string.measurement_dash)
-    }
+@BindingAdapter("pingClassification")
+fun AppCompatTextView.setPing(pingClassification: Classification) {
     setCompoundDrawablesWithIntrinsicBounds(getPingClassificationIcon(pingClassification), 0, 0, 0)
 }
 
 /**
  * A binding adapter that is used for show download ping with classification icon in results
  */
-@BindingAdapter("pingDouble", "pingClassification", requireAll = true)
-fun AppCompatTextView.setPing(ping: Double, pingClassification: Classification) {
+@BindingAdapter("pingResult", "pingClassificationResult", requireAll = true)
+fun AppCompatTextView.setPingResult(pingResult: Double, pingClassificationResult: Classification) {
 
-    text = if (ping > 0) {
-        context.getString(R.string.measurement_ping_value, ping.toInt())
+    text = if (pingResult > 0) {
+        context.getString(R.string.measurement_ping_value, pingResult.toInt())
     } else {
         context.getString(R.string.measurement_dash)
     }
-    setCompoundDrawablesWithIntrinsicBounds(getPingClassificationIcon(pingClassification), 0, 0, 0)
-}
-
-@BindingAdapter("classificationIcon")
-fun AppCompatTextView.setClassification(classification: Classification) {
-    setCompoundDrawablesWithIntrinsicBounds(getPingClassificationIcon(classification), 0, 0, 0)
+    setCompoundDrawablesWithIntrinsicBounds(getPingClassificationIcon(pingClassificationResult), 0, 0, 0)
 }
 
 fun getPingClassificationIcon(pingClassification: Classification): Int {
@@ -650,18 +628,18 @@ fun getPingClassificationIcon(pingClassification: Classification): Int {
 /**
  * A binding adapter that is used for show signal strength with classification icon in result
  */
-@BindingAdapter("signalStrength", "signalStrengthClassification", requireAll = true)
-fun AppCompatTextView.setSignalStrength(signalStrength: Int?, speedDownloadClassification: Classification) {
+@BindingAdapter("signalStrengthResult", "signalStrengthClassificationResult", requireAll = true)
+fun AppCompatTextView.setSignalStrength(signalStrengthResult: Int?, signalStrengthClassificationResult: Classification) {
 
-    text = if (signalStrength != null) {
-        context.getString(R.string.strength_signal_value, signalStrength)
+    text = if (signalStrengthResult != null) {
+        context.getString(R.string.strength_signal_value, signalStrengthResult)
     } else {
         context.getString(R.string.measurement_dash)
     }
 
     setCompoundDrawablesWithIntrinsicBounds(
 
-        when (speedDownloadClassification) {
+        when (signalStrengthClassificationResult) {
             Classification.NONE -> {
                 R.drawable.ic_small_wifi_gray
             }

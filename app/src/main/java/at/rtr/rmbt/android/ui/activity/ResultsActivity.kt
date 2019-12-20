@@ -42,8 +42,6 @@ class ResultsActivity : BaseActivity(), OnMapReadyCallback {
         val testUUID = intent.getStringExtra(KEY_TEST_UUID)
         check(!testUUID.isNullOrEmpty()) { "TestUUID was not passed to result activity" }
 
-        binding.map.setOnClickListener { DetailedFullscreenMapActivity.start(this, testUUID) }
-
         viewModel.state.testUUID = testUUID
         viewModel.testServerResultLiveData.listen(this) {
             viewModel.state.testResult.set(it)
@@ -64,10 +62,12 @@ class ResultsActivity : BaseActivity(), OnMapReadyCallback {
                         NetworkTypeCompat.TYPE_4G -> R.drawable.ic_marker_4g
                         NetworkTypeCompat.TYPE_3G -> R.drawable.ic_marker_3g
                         NetworkTypeCompat.TYPE_2G -> R.drawable.ic_marker_2g
+                        NetworkTypeCompat.TYPE_5G -> throw IllegalArgumentException("Need to add 5G marker image for the map")
                     }
 
                     googleMap?.addMarker(MarkerOptions().position(this).icon(bitmapDescriptorFromVector(icon)))
                     googleMap?.moveCamera(CameraUpdateFactory.newLatLngZoom(this, ZOOM_LEVEL))
+                    googleMap?.setOnMapClickListener { DetailedFullscreenMapActivity.start(this@ResultsActivity, testUUID) }
                 }
             }
         }

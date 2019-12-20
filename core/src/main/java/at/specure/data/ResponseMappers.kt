@@ -56,7 +56,7 @@ fun ServerTestResultItem.toModel(testUUID: String): TestResultRecord {
         timestamp = timestamp,
         timeText = timeText,
         timezone = timezone,
-        networkType = NetworkTypeCompat.fromIntType(networkType)
+        networkType = NetworkTypeCompat.fromResultIntType(networkType)
     )
 }
 

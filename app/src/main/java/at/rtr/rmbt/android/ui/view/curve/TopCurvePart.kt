@@ -213,6 +213,15 @@ class TopCurvePart(context: Context) : CurvePart() {
                     val initSection = sections.find { it.state == MeasurementState.INIT }!!
                     (uploadSection.endAngle - initSection.endAngle) + (uploadSection.startAngle - uploadSection.endAngle) * progress.toFloat() / 100
                 }
+            MeasurementState.FINISH -> if (qosEnabled) {
+                val qosSection = sections.find { it.state == MeasurementState.QOS }!!
+                val initSection = sections.find { it.state == MeasurementState.INIT }!!
+                (qosSection.startAngle - initSection.endAngle)
+            } else {
+                val uploadSection = sections.find { it.state == MeasurementState.UPLOAD }!!
+                val initSection = sections.find { it.state == MeasurementState.INIT }!!
+                (uploadSection.startAngle - initSection.endAngle)
+            }
             else -> 0f
         }
     }

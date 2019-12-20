@@ -155,8 +155,6 @@
     <string name="notification_test_ticker">Open-RMBT läuft…</string>
 
     <string name="test_dialog_error_text">Etwas ist schiefgegangen. Bitte versuchen Sie es später noch Mal.</string>
-    <string name="test_submission_error_text">Wir konnten keine Verbindung zum Server herstellen. Die Ergebnisse sind gespeichert und werden später wieder gesendet.</string>
-    <string name="test_submission_error_accept">Akzeptieren</string>
 
     <!-- History -->
     <string name="history_item_header_test">Test</string>
