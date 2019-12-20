@@ -212,8 +212,8 @@
                     app:layout_constraintHorizontal_weight="3"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@+id/labelResultBottomDownload"
-                    app:speedDownload="@{state.testResult.downloadSpeedKbs}"
-                    app:speedDownloadClassification="@{state.testResult.downloadClass == null ? Classification.NONE : state.testResult.downloadClass}"
+                    app:speedDownloadClassificationResult="@{state.testResult.downloadClass == null ? Classification.NONE : state.testResult.downloadClass}"
+                    app:speedDownloadResult="@{state.testResult.downloadSpeedKbs}"
                     tools:drawableStart="@drawable/ic_small_download_light_green"
                     tools:text="24.12 Mbit/s" />
 
@@ -229,8 +229,8 @@
                     app:layout_constraintHorizontal_weight="3"
                     app:layout_constraintStart_toEndOf="@+id/textDownloadSpeed"
                     app:layout_constraintTop_toBottomOf="@+id/labelResultBottomUpload"
-                    app:speedUploadClassification="@{state.testResult.uploadClass == null ? Classification.NONE : state.testResult.uploadClass}"
-                    app:speedUploadLong="@{state.testResult.uploadSpeedKbs}"
+                    app:speedUploadClassificationResult="@{state.testResult.uploadClass == null ? Classification.NONE : state.testResult.uploadClass}"
+                    app:speedUploadResult="@{state.testResult.uploadSpeedKbs}"
                     tools:drawableStart="@drawable/ic_small_upload_gray"
                     tools:text="135 Mbit/s" />
 
@@ -246,8 +246,8 @@
                     app:layout_constraintHorizontal_weight="2"
                     app:layout_constraintStart_toEndOf="@+id/textUploadSpeed"
                     app:layout_constraintTop_toBottomOf="@+id/labelResultBottomPing"
-                    app:pingClassification="@{state.testResult.pingClass == null ? Classification.NONE : state.testResult.pingClass}"
-                    app:pingDouble="@{state.testResult.pingMillis}"
+                    app:pingClassificationResult="@{state.testResult.pingClass == null ? Classification.NONE : state.testResult.pingClass}"
+                    app:pingResult="@{state.testResult.pingMillis}"
                     tools:drawableStart="@drawable/ic_small_ping_yellow"
                     tools:text="14 ms" />
 
@@ -264,8 +264,8 @@
                     app:layout_constraintHorizontal_weight="2"
                     app:layout_constraintStart_toEndOf="@+id/textPing"
                     app:layout_constraintTop_toBottomOf="@+id/labelResultBottomSignal"
-                    app:signalStrength="@{state.testResult.signalStrength}"
-                    app:signalStrengthClassification="@{state.testResult.signalClass == null ? Classification.NONE : state.testResult.signalClass}"
+                    app:signalStrengthClassificationResult="@{state.testResult.signalClass == null ? Classification.NONE : state.testResult.signalClass}"
+                    app:signalStrengthResult="@{state.testResult.signalStrength}"
                     tools:drawableStart="@drawable/ic_small_wifi_gray"
                     tools:text="-86 dBm" />
 
