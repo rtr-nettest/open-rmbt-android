@@ -11,6 +11,7 @@ import at.rtr.rmbt.android.databinding.ActivityResultsBinding
 import at.rtr.rmbt.android.di.viewModelLazy
 import at.rtr.rmbt.android.util.listen
 import at.rtr.rmbt.android.viewmodel.ResultViewModel
+import at.specure.data.NetworkTypeCompat
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
@@ -54,7 +55,15 @@ class ResultsActivity : BaseActivity(), OnMapReadyCallback {
                             .strokeWidth(STROKE_WIDTH)
                             .radius(CIRCLE_RADIUS)
                     )
-                    googleMap?.addMarker(MarkerOptions().position(this).icon(bitmapDescriptorFromVector(R.drawable.ic_marker_wifi))) // todo add network type logic, not received from server yet
+
+                    val icon = when(it.networkType){
+                        NetworkTypeCompat.TYPE_WLAN -> R.drawable.ic_marker_wifi
+                        NetworkTypeCompat.TYPE_4G -> R.drawable.ic_marker_4g
+                        NetworkTypeCompat.TYPE_3G -> R.drawable.ic_marker_3g
+                        NetworkTypeCompat.TYPE_2G -> R.drawable.ic_marker_2g
+                    }
+
+                    googleMap?.addMarker(MarkerOptions().position(this).icon(bitmapDescriptorFromVector(icon)))
                     googleMap?.moveCamera(CameraUpdateFactory.newLatLngZoom(this, ZOOM_LEVEL))
                 }
             }

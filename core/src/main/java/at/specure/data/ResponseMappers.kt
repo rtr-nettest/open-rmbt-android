@@ -33,7 +33,7 @@ fun ServerTestResultResponse.toModel(testUUID: String): TestResultRecord = resul
 
 fun ServerTestResultItem.toModel(testUUID: String): TestResultRecord {
 
-    var signal: Int? = measurementItem.lte_rsrp ?: measurementItem.signalStrength
+    val signal: Int? = measurementItem.lte_rsrp ?: measurementItem.signalStrength
 
     return TestResultRecord(
         clientOpenUUID = clientOpenUUID,
@@ -50,12 +50,13 @@ fun ServerTestResultItem.toModel(testUUID: String): TestResultRecord {
         locationText = locationText,
         latitude = latitude,
         longitude = longitude,
-        networkType = networkType,
+        networkTypeRaw = networkType,
         shareText = shareText,
         shareTitle = shareSubject,
         timestamp = timestamp,
         timeText = timeText,
-        timezone = timezone
+        timezone = timezone,
+        networkType = NetworkTypeCompat.fromIntType(networkType)
     )
 }
 
