@@ -495,6 +495,7 @@ fun AppCompatTextView.setTime(networkType: NetworkTypeCompat, time: Long) {
             NetworkTypeCompat.TYPE_WLAN -> {
                 R.drawable.ic_history_wifi
             }
+            NetworkTypeCompat.TYPE_5G -> throw IllegalArgumentException("Need to add 5G image here for history")
         }, 0, 0, 0
     )
 }
