@@ -1,5 +1,6 @@
 package at.specure.test
 
+import at.rtr.rmbt.client.v2.task.result.QoSTestResultEnum
 import at.specure.measurement.MeasurementState
 
 interface TestProgressListener {
@@ -17,4 +18,6 @@ interface TestProgressListener {
     fun onError()
 
     fun onClientReady(testUUID: String, testStartTimeNanos: Long)
+
+    fun onQoSTestProgressUpdate(tasksPassed: Int, tasksTotal: Int, progressMap: Map<QoSTestResultEnum, Int>)
 }

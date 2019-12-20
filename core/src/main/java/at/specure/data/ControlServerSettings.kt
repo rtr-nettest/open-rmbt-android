@@ -15,6 +15,7 @@
 package at.specure.data
 
 import android.content.Context
+import com.google.gson.Gson
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -27,55 +28,85 @@ private const val KEY_OPEN_DATA_PREFIX = "OPEN_DATA_PREFIX"
 private const val KEY_STATISTIC_URL = "STATISTIC_URL"
 private const val KEY_SHARE_URL = "SHARE_URL"
 private const val KEY_CONTROL_SERVER_VERSION = "KEY_CONTROL_SERVER_VERSION"
+private const val KEY_FILTER_NETWORK_TYPE = "FILTER_NETWORK_TYPE"
+private const val KEY_FILTER_DEVICES = "KEY_FILTER_DEVICES"
 
 @Singleton
 class ControlServerSettings @Inject constructor(context: Context) {
 
+    private val gson = Gson()
     private val preferences = context.getSharedPreferences("server_settings.pref", Context.MODE_PRIVATE)
 
     var controlServerUrl: String? = null
         set(value) {
+            field = value
             preferences.edit().putString(KEY_CONTROL_SERVER_URL, value).apply()
         }
 
     var controlServerV4Url: String? = null
         set(value) {
+            field = value
             preferences.edit().putString(KEY_CONTROL_V4_SERVER_URL, value).apply()
         }
 
     var controlServerV6Url: String? = null
         set(value) {
+            field = value
             preferences.edit().putString(KEY_CONTROL_V6_SERVER_URL, value).apply()
         }
 
     var ipV4CheckUrl: String? = null
         set(value) {
+            field = value
             preferences.edit().putString(KEY_CONTROL_IPV4_CHECK_URL, value).apply()
         }
 
     var ipV6CheckUrl: String? = null
         set(value) {
+            field = value
             preferences.edit().putString(KEY_CONTROL_IPV6_CHECK_URL, value).apply()
         }
 
     var openDataPrefix: String? = null
         set(value) {
+            field = value
             preferences.edit().putString(KEY_OPEN_DATA_PREFIX, value).apply()
         }
 
     var statisticsUrl: String? = null
         set(value) {
+            field = value
             preferences.edit().putString(KEY_STATISTIC_URL, value).apply()
         }
 
     var shareUrl: String? = null
         set(value) {
+            field = value
             preferences.edit().putString(KEY_SHARE_URL, value).apply()
         }
 
     var controlServerVersion: String? = null
         set(value) {
+            field = value
             preferences.edit().putString(KEY_CONTROL_SERVER_VERSION, value).apply()
+        }
+
+    var filterNetworkTypes: List<String>
+        set(value) {
+            preferences.edit().putStringSet(KEY_FILTER_NETWORK_TYPE, value.toSet()).apply()
+        }
+        get() {
+            val set = preferences.getStringSet(KEY_FILTER_NETWORK_TYPE, setOf()) ?: setOf()
+            return set.toList()
+        }
+
+    var filterDevices: List<String>
+        set(value) {
+            preferences.edit().putStringSet(KEY_FILTER_DEVICES, value.toSet()).apply()
+        }
+        get() {
+            val set = preferences.getStringSet(KEY_FILTER_DEVICES, setOf()) ?: setOf()
+            return set.toList()
         }
 
     init {

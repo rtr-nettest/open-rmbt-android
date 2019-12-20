@@ -76,18 +76,43 @@
       "visible": false
     },
     {
-      "name": "CONTROL_SERVER_SETTINGS_PATH",
-      "value": "",
+      "name": "CONTROL_SERVER_ROUTE",
+      "value": "RMBTControlServer",
       "visible": false
     },
     {
-      "name": "CONTROL_SERVER_TEST_REQUEST_PATH",
-      "value": "",
+      "name": "CONTROL_SERVER_SETTINGS_ENDPOINT",
+      "value": "settings",
       "visible": false
     },
     {
-      "name": "CONTROL_SERVER_SEND_RESULT_PATH",
-      "value": "",
+      "name": "CONTROL_SERVER_TEST_REQUEST_ENDPOINT",
+      "value": "testRequest",
+      "visible": false
+    },
+    {
+      "name": "CONTROL_SERVER_SEND_RESULT_ENDPOINT",
+      "value": "result",
+      "visible": false
+    },
+    {
+      "name": "CONTROL_SERVER_SEND_QOS_RESULT_ENDPOINT",
+      "value": "resultQoS",
+      "visible": false
+    },
+    {
+      "name": "CONTROL_SERVER_HISTORY_ENDPOINT",
+      "value": "history",
+      "visible": false
+    },
+    {
+      "name": "CONTROL_SERVER_GET_BASIC_RESULT_PATH",
+      "value": "testresult",
+      "visible": false
+    },
+    {
+      "name": "CONTROL_SERVER_GET_OPENDATA_RESULT_PATH",
+      "value": "opendata",
       "visible": false
     },
     {
@@ -117,6 +142,16 @@
     },
     {
       "name": "DEVELOPER_MODE_IS_AVAILABLE",
+      "value": "true",
+      "visible": false
+    },
+    {
+      "name": "IS_CONTROL_SERVER_OVERRIDE_ENABLED",
+      "value": "false",
+      "visible": false
+    },
+    {
+      "name": "QOS_SSL",
       "value": "true",
       "visible": false
     }

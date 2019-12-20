@@ -51,9 +51,6 @@ appLint:
       - /feature\/.*/
       - /hotfix\/.*/
       - /test\/.*/
-  except:
-    variables:
-      - $UI_TEST_RUN
 
 coreLint:
   stage: check
@@ -66,9 +63,6 @@ coreLint:
       - /feature\/.*/
       - /hotfix\/.*/
       - /test\/.*/
-  except:
-    variables:
-      - $UI_TEST_RUN
 
 controlClientLint:
   stage: check
@@ -81,9 +75,6 @@ controlClientLint:
       - /feature\/.*/
       - /hotfix\/.*/
       - /test\/.*/
-  except:
-    variables:
-      - $UI_TEST_RUN
 
 checkRTRBuild:
   stage: check
@@ -97,12 +88,12 @@ checkRTRBuild:
       - /feature\/.*/
       - /hotfix\/.*/
       - /test\/.*/
-  except:
-    variables:
-      - $UI_TEST_RUN
 
 uiTests:
   stage: check
+  interruptible: true
+  timeout: 15m
+  allow_failure: true
   variables:
     TEST_AVD_NAME: Pixel_2_API_26
   script:
@@ -113,12 +104,13 @@ uiTests:
     - RTR_UI_TESTS
   only:
     refs:
-      - feature/ui_test_transfer
+      - develop
     variables:
       - $UI_TEST_RUN
 
 distributeLocalApp:
   stage: distribution
+  interruptible: true
   script:
     - ./gradlew assembleLocalStageDebug -PbuildVersionCode=${VERSION_CODE} -PbuildVersionName=${VERSION_NAME} -PreleaseNotes="${RELEASE_NOTES}"
     - ./gradlew crashlyticsUploadDistributionLocalStageDebug
@@ -133,6 +125,7 @@ distributeLocalApp:
 
 generateDocumentation:
   stage: distribution
+  interruptible: true
   script:
     - ./gradlew dokka dokkaMarkdown
   only:
@@ -145,6 +138,7 @@ generateDocumentation:
 
 gitTag:
   stage: gitTag
+  interruptible: true
   script:
     - git tag "${VERSION_NAME}"
     - git push origin --tags

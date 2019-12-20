@@ -17,15 +17,20 @@ package at.specure.di
 import android.content.Context
 import androidx.room.Room
 import at.rmbt.client.control.ControlServerClient
+import at.rmbt.client.control.IpClient
 import at.specure.config.Config
 import at.specure.data.ClientUUID
 import at.specure.data.CoreDatabase
+import at.specure.data.repository.HistoryRepository
+import at.specure.data.repository.HistoryRepositoryImpl
 import at.specure.data.repository.IpCheckRepository
 import at.specure.data.repository.IpCheckRepositoryImpl
 import at.specure.data.repository.ResultsRepository
 import at.specure.data.repository.ResultsRepositoryImpl
 import at.specure.data.repository.TestDataRepository
 import at.specure.data.repository.TestDataRepositoryImpl
+import at.specure.data.repository.TestResultsRepository
+import at.specure.data.repository.TestResultsRepositoryImpl
 import at.specure.info.strength.SignalStrengthWatcher
 import at.specure.location.LocationWatcher
 import dagger.Module
@@ -47,8 +52,8 @@ class DatabaseModule {
     }
 
     @Provides
-    fun provideTestDataRepository(database: CoreDatabase, resultsRepository: ResultsRepository): TestDataRepository =
-        TestDataRepositoryImpl(database, resultsRepository)
+    fun provideTestDataRepository(database: CoreDatabase): TestDataRepository =
+        TestDataRepositoryImpl(database)
 
     @Provides
     fun provideResultsRepository(
@@ -66,7 +71,7 @@ class DatabaseModule {
         clientUUID: ClientUUID,
         locationWatcher: LocationWatcher,
         signalStrengthWatcher: SignalStrengthWatcher,
-        client: ControlServerClient
+        client: IpClient
     ): IpCheckRepository = IpCheckRepositoryImpl(
         context = context,
         config = config,
@@ -75,4 +80,21 @@ class DatabaseModule {
         signalStrengthWatcher = signalStrengthWatcher,
         client = client
     )
+
+    @Provides
+    fun provideHistoryRepository(
+        database: CoreDatabase,
+        config: Config,
+        clientUUID: ClientUUID,
+        controlServerClient: ControlServerClient
+    ): HistoryRepository =
+        HistoryRepositoryImpl(database.historyDao(), config, clientUUID, controlServerClient)
+
+    @Provides
+    fun provideTestResultRepository(
+        database: CoreDatabase,
+        clientUUID: ClientUUID,
+        controlServerClient: ControlServerClient
+    ): TestResultsRepository =
+        TestResultsRepositoryImpl(database, clientUUID, controlServerClient)
 }

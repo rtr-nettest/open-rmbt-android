@@ -95,24 +95,55 @@ interface Config {
     var controlServerCheckPublicIPv6Url: String
 
     /**
-     * End of the url for getting settings from the control server, example "ControlServer/settings"
+     * Route to the control server, example for value "RMBTControlServer",
+     * "myhost.com/RMBTControlServer/endpoint" will be used for requests to ControlServer
      */
-    var controlServerSettingsPath: String
+    var controlServerRoute: String
 
     /**
-     * End of the url for getting new test settings from the control server, example "ControlServer/testRequest"
+     * End of the url for getting settings from the control server, example "settings"
      */
-    var controlServerRequestTestPath: String
+    var controlServerSettingsEndpoint: String
 
     /**
-     * End of the url for sending test results to the control server, example "ControlServer/result"
+     * End of the url for getting new test settings from the control server, example "testRequest"
      */
-    var controlServerSendResultPath: String
+    var controlServerRequestTestEndpoint: String
+
+    /**
+     * End of the url for sending test results to the control server, example "result"
+     */
+    var controlServerSendResultEndpoint: String
+
+    /**
+     * End of the url for sending QoS test results to the control server, example "resultQoS"
+     */
+    var controlServerSendQoSResultEndpoint: String
+
+    /**
+     * End of the url for receiving history items from the server, example "history"
+     */
+    var controlServerHistoryEndpoint: String
+
+    /**
+     * End of the url for getting basic results from the control server, example "ControlServer/testresult"
+     */
+    var controlServerResultsBasicPath: String
+
+    /**
+     * End of the url for getting opendata results from the control server, example "ControlServer/opendatas"
+     */
+    var controlServerResultsOpenDataPath: String
 
     /**
      * Counter of tests performed by user
      */
     var testCounter: Int
+
+    /**
+     * Status of the previous measurement test for the user, example "ERROR"
+     */
+    var previousTestStatus: String?
 
     /**
      * Client uses RMBTHttp if true, default should be false
@@ -143,4 +174,14 @@ interface Config {
      * Is Developer Mode is available to be turned on or not
      */
     var developerModeIsAvailable: Boolean
+
+    /**
+     * Is Override Control Server turned on
+     */
+    var controlServerOverrideEnabled: Boolean
+
+    /**
+     * Is SSL connection should be used for QoS Tests
+     */
+    var qosSSL: Boolean
 }

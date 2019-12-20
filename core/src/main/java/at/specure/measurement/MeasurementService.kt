@@ -3,19 +3,27 @@ package at.specure.measurement
 import android.app.NotificationManager
 import android.content.Context
 import android.content.Intent
+import android.net.ConnectivityManager
+import android.net.NetworkInfo
 import android.net.wifi.WifiManager
 import android.os.Binder
 import android.os.Build
 import android.os.IBinder
 import android.os.PowerManager
+import at.rmbt.client.control.data.TestFinishReason
+import at.rmbt.util.exception.HandledException
+import at.rmbt.util.exception.NoConnectionException
+import at.rtr.rmbt.client.v2.task.result.QoSTestResultEnum
 import at.specure.config.Config
+import at.specure.data.repository.ResultsRepository
+import at.specure.data.repository.TestDataRepository
 import at.specure.di.CoreInjector
 import at.specure.di.NotificationProvider
-import at.specure.data.repository.TestDataRepository
 import at.specure.test.DeviceInfo
 import at.specure.test.StateRecorder
 import at.specure.test.TestController
 import at.specure.test.TestProgressListener
+import at.specure.worker.WorkLauncher
 import timber.log.Timber
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
@@ -37,6 +45,12 @@ class MeasurementService : LifecycleService() {
     @Inject
     lateinit var testDataRepository: TestDataRepository
 
+    @Inject
+    lateinit var resultRepository: ResultsRepository
+
+    @Inject
+    lateinit var connectivityManager: ConnectivityManager
+
     private val producer: Producer by lazy { Producer() }
     private val clientAggregator: ClientAggregator by lazy { ClientAggregator() }
 
@@ -46,6 +60,11 @@ class MeasurementService : LifecycleService() {
     private var downloadSpeedBps = 0L
     private var uploadSpeedBps = 0L
     private var hasErrors = false
+    private var startNetwork: NetworkInfo? = null
+
+    private var qosTasksPassed = 0
+    private var qosTasksTotal = 0
+    private var qosProgressMap: Map<QoSTestResultEnum, Int> = mapOf()
 
     private val notificationManager: NotificationManager by lazy { getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager }
 
@@ -81,7 +100,6 @@ class MeasurementService : LifecycleService() {
 
         override fun onFinish() {
             stopForeground(true)
-            clientAggregator.onMeasurementFinish()
             stateRecorder.finish()
             unlock()
         }
@@ -89,6 +107,11 @@ class MeasurementService : LifecycleService() {
         override fun onError() {
             hasErrors = true
             stopForeground(true)
+            if (startNetwork?.isConnected == true) {
+                Timber.e("Network change!")
+                stateRecorder.setErrorCause("Illegal network change during the test")
+            }
+            stateRecorder.onUnsuccessTest(TestFinishReason.ERROR)
             clientAggregator.onMeasurementError()
             stateRecorder.finish()
             unlock()
@@ -96,6 +119,33 @@ class MeasurementService : LifecycleService() {
 
         override fun onClientReady(testUUID: String, testStartTimeNanos: Long) {
             clientAggregator.onClientReady(testUUID)
+            startNetwork = connectivityManager.activeNetworkInfo
+            stateRecorder.onReadyToSubmit = { shouldShowResults ->
+                resultRepository.sendTestResults(testUUID) {
+                    it.onSuccess {
+                        if (shouldShowResults) {
+                            clientAggregator.onSubmitted()
+                        }
+                    }
+
+                    it.onFailure { ex ->
+                        if (shouldShowResults) {
+                            clientAggregator.onSubmissionError(ex)
+                        }
+                        if (ex is NoConnectionException) {
+                            Timber.d("Delayed submission work created")
+                            WorkLauncher.enqueueDelayedDataSaveRequest(applicationContext, testUUID)
+                        }
+                    }
+                }
+            }
+        }
+
+        override fun onQoSTestProgressUpdate(tasksPassed: Int, tasksTotal: Int, progressMap: Map<QoSTestResultEnum, Int>) {
+            clientAggregator.onQoSTestProgressUpdated(tasksPassed, tasksTotal, progressMap)
+            qosTasksPassed = tasksPassed
+            qosTasksTotal = tasksTotal
+            qosProgressMap = progressMap
         }
     }
 
@@ -144,7 +194,7 @@ class MeasurementService : LifecycleService() {
             location = DeviceInfo.Location(
                 lat = it.latitude,
                 long = it.longitude,
-                provider = it.provider.name,
+                provider = it.provider,
                 speed = it.speed,
                 bearing = it.bearing,
                 time = it.elapsedRealtimeNanos,
@@ -174,7 +224,7 @@ class MeasurementService : LifecycleService() {
     private fun stopTests() {
         Timber.d("Stop tests")
         runner.stop()
-
+        stateRecorder.onUnsuccessTest(TestFinishReason.ABORTED)
         stateRecorder.finish()
         stopForeground(true)
         unlock()
@@ -229,6 +279,10 @@ class MeasurementService : LifecycleService() {
                 }
                 if (hasErrors) {
                     client.onMeasurementError()
+                }
+
+                if (qosProgressMap.isNotEmpty()) {
+                    onQoSTestProgressUpdated(qosTasksPassed, qosTasksTotal, qosProgressMap)
                 }
             }
         }
@@ -285,12 +339,6 @@ class MeasurementService : LifecycleService() {
             }
         }
 
-        override fun onMeasurementFinish() {
-            clients.forEach {
-                it.onMeasurementFinish()
-            }
-        }
-
         override fun onMeasurementError() {
             clients.forEach {
                 it.onMeasurementError()
@@ -324,6 +372,24 @@ class MeasurementService : LifecycleService() {
         override fun isQoSEnabled(enabled: Boolean) {
             clients.forEach {
                 it.isQoSEnabled(enabled)
+            }
+        }
+
+        override fun onSubmitted() {
+            clients.forEach {
+                it.onSubmitted()
+            }
+        }
+
+        override fun onSubmissionError(exception: HandledException) {
+            clients.forEach {
+                it.onSubmissionError(exception)
+            }
+        }
+
+        override fun onQoSTestProgressUpdated(tasksPassed: Int, tasksTotal: Int, progressMap: Map<QoSTestResultEnum, Int>) {
+            clients.forEach {
+                it.onQoSTestProgressUpdated(tasksPassed, tasksTotal, progressMap)
             }
         }
     }

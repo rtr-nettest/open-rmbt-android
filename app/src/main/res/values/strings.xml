@@ -24,6 +24,7 @@
     <!-- Error dialog messages -->
     <string name="dialog_title_error">Error</string>
     <string name="error_unknown">An error occurred. Please try again later</string>
+    <string name="no_internet_connection_not_load_data">No Internet connection. Could not load data.</string>
 
     <!-- Home screen -->
     <string name="home_signal">Signal</string>
@@ -66,7 +67,17 @@
     <string name="preferences_data_protection">Data Privacy and terms of use</string>
     <string name="preferences_version">Version</string>
     <string name="preferences_commit_hash">Commit Hash</string>
-
+    <string name="preferences_enter_code">Please enter the code</string>
+    <string name="preferences_developer_control_server">Control server</string>
+    <string name="preferences_override_control_server">Override control server</string>
+    <string name="preferences_override_control_server_sum">Activate custom control server settings</string>
+    <string name="preferences_override_control_server_host">Control host</string>
+    <string name="preferences_override_control_server_port">Control port</string>
+    <string name="preferences_override_control_server_ssl">Control server SSL</string>
+    <string name="preferences_override_control_server_ssl_sum">Use encrypted connection to control server</string>
+    <string name="preferences_developer_options_disabled">Developer options disabled</string>
+    <string name="preferences_developer_options_available">Developer options available</string>
+    <string name="preferences_developer_try_again">Try again!</string>
 
     <!-- Location Dialog -->
     <string name="location_dialog_label_title">Location</string>
@@ -89,9 +100,6 @@
     <string name="location_location_direction_e">E %1$s</string>
     <string name="location_location_direction_s">S %1$s</string>
     <string name="location_location_direction_w">W %1$s</string>
-    <string name="test_location_gps">GPS</string>
-    <string name="test_location_network">Network</string>
-    <string name="test_location_fused">Fused</string>
     <string name="open_location_permission_dialog_label_location_not_permitted">RTR-Netztest is not allowed to use your location. Would you like to allow RTR-Netztest to use your location?</string>
     <string name="open_location_permission_dialog_label_open_permission_setting">Open application settings</string>
 
@@ -158,4 +166,33 @@
     <string name="notification_test_ticker">Open-RMBT running…</string>
 
     <string name="test_dialog_error_text">Something went wrong. Please try again later.</string>
+    <string name="test_submission_error_text">The connection to the server could not be established. The results are saved and will be submitted later.</string>
+    <string name="test_submission_error_accept">Accept</string>
+
+    <!-- History -->
+    <string name="history_item_header_test">Test</string>
+    <string name="history_item_header_down">Down</string>
+    <string name="history_item_header_up">Up</string>
+    <string name="history_item_header_ping">Ping</string>
+    <string name="history_item_header_ms">ms</string>
+    <string name="history_no_data">No data available.</string>
+
+    <!-- Results -->
+    <string name="results_other_details">Other details</string>
+    <string name="results_qoe_videos_sd">Videos SD</string>
+    <string name="results_qoe_videos_hd">Videos HD</string>
+    <string name="results_qoe_videos_uhd">Videos UHD</string>
+    <string name="results_qoe_gaming">Gaming</string>
+    <string name="results_qoe_gaming_cloud">Gaming Cloud</string>
+    <string name="results_qoe_gaming_streaming">Gaming Streaming</string>
+    <string name="results_qoe_gaming_download">Gaming Download</string>
+    <string name="results_qoe_audio_streaming">Audio Streaming</string>
+    <string name="results_qoe_voip">VoIP</string>
+    <string name="results_qoe_video_telephony">Video Telephony</string>
+    <string name="results_qoe_video_conferencing">Video Conferencing</string>
+    <string name="results_qoe_messaging">Messaging</string>
+    <string name="results_qoe_web">Web</string>
+    <string name="results_qoe_cloud">Cloud</string>
+    <string name="results_qoe_qos">Quality tests</string>
+    <string name="results_quality">Quality</string>
 </resources>

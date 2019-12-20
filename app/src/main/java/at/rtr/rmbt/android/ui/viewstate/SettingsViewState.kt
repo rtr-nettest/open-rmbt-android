@@ -1,6 +1,7 @@
 package at.rtr.rmbt.android.ui.viewstate
 
 import androidx.databinding.ObservableField
+import androidx.databinding.ObservableInt
 import at.rtr.rmbt.android.config.AppConfig
 import at.rtr.rmbt.android.util.addOnPropertyChanged
 import at.specure.data.ClientUUID
@@ -19,8 +20,14 @@ class SettingsViewState constructor(
     val expertModeUseIpV4Only = ObservableField(appConfig.expertModeUseIpV4Only)
     val loopModeWaitingTimeMin = ObservableField(appConfig.loopModeWaitingTimeMin)
     val loopModeDistanceMeters = ObservableField(appConfig.loopModeDistanceMeters)
-
+    val developerModeIsAvailable = appConfig.developerModeIsAvailable
+    val developerModeIsEnabled = ObservableField(appConfig.developerModeIsEnabled)
+    val controlServerOverrideEnabled = ObservableField(appConfig.controlServerOverrideEnabled)
+    val controlServerHost = ObservableField(appConfig.controlServerHost)
+    val controlServerPort = ObservableField(appConfig.controlServerPort)
+    val controlServerUseSSL = ObservableField(appConfig.controlServerUseSSL)
     val isLocationEnabled = ObservableField<LocationProviderState>()
+    val numberOfTests = ObservableInt(appConfig.testCounter)
 
     init {
         isNDTEnabled.addOnPropertyChanged { value ->
@@ -61,6 +68,31 @@ class SettingsViewState constructor(
         loopModeDistanceMeters.addOnPropertyChanged { value ->
             value.get()?.let {
                 appConfig.loopModeDistanceMeters = it
+            }
+        }
+        developerModeIsEnabled.addOnPropertyChanged { value ->
+            value.get()?.let {
+                appConfig.developerModeIsEnabled = it
+            }
+        }
+        controlServerHost.addOnPropertyChanged { value ->
+            value.get()?.let {
+                appConfig.controlServerHost = it
+            }
+        }
+        controlServerPort.addOnPropertyChanged { value ->
+            value.get()?.let {
+                appConfig.controlServerPort = it
+            }
+        }
+        controlServerUseSSL.addOnPropertyChanged { value ->
+            value.get()?.let {
+                appConfig.controlServerUseSSL = it
+            }
+        }
+        controlServerOverrideEnabled.addOnPropertyChanged { value ->
+            value.get()?.let {
+                appConfig.controlServerOverrideEnabled = it
             }
         }
     }

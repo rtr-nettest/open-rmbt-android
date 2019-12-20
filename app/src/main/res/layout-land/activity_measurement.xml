@@ -24,7 +24,7 @@
             android:layout_width="0dp"
             android:layout_height="match_parent"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@id/measurement_bottom_view"
+            app:layout_constraintEnd_toStartOf="@id/measurementBottomView"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:measurementPhase="@{state.measurementState}"
@@ -55,7 +55,7 @@
             android:textColor="@color/text_white_transparency_40"
             android:textSize="@dimen/network_label_size"
             android:textStyle="bold"
-            app:layout_constraintStart_toStartOf="@id/measurement_bottom_view"
+            app:layout_constraintStart_toStartOf="@id/measurementBottomView"
             app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
@@ -66,11 +66,11 @@
             android:textColor="@android:color/background_light"
             android:textSize="@dimen/network_name_size"
             android:textStyle="bold"
-            app:layout_constraintStart_toStartOf="@id/measurement_bottom_view"
+            app:layout_constraintStart_toStartOf="@id/measurementBottomView"
             app:layout_constraintTop_toBottomOf="@id/network_name_label" />
 
         <include
-            android:id="@+id/measurement_bottom_view"
+            android:id="@+id/measurementBottomView"
             layout="@layout/measurement_bottom_view"
             android:layout_width="0dp"
             android:layout_height="0dp"

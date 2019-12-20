@@ -49,9 +49,14 @@
             android:name=".ui.activity.ResultsActivity"
             android:windowSoftInputMode="stateAlwaysHidden" />
 
+        <activity android:name=".ui.activity.DetailedFullscreenMapActivity" />
+
         <meta-data
             android:name="io.fabric.ApiKey"
             android:value="${fabricApiKey}" />
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="${googleMapsApiKey}" />
 
     </application>
 

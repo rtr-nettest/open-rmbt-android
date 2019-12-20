@@ -24,6 +24,7 @@
     <!-- Error dialog messages -->
     <string name="error_unknown">" Learn to pronounce  Ein Fehler ist aufgetreten. Bitte versuchen Sie es später noch einmal"</string>
     <string name="dialog_title_error">Fehler</string>
+    <string name="no_internet_connection_not_load_data">Keine Netzwerksverbindung: Einträge konnten nicht geladen werden.</string>
 
     <!-- Home screen -->
     <string name="home_signal">Signal</string>
@@ -64,6 +65,17 @@
     <string name="preferences_source_code">Source Code</string>
     <string name="preferences_data_protection">Datenschutzerklärung</string>
     <string name="preferences_version">Version</string>
+    <string name="preferences_enter_code">Bitte geben Sie den Code ein</string>
+    <string name="preferences_developer_control_server">Control Server</string>
+    <string name="preferences_override_control_server">Control-Server überschreiben</string>
+    <string name="preferences_override_control_server_sum">Aktiviert die folgenden Einstellungen für den Control-Server</string>
+    <string name="preferences_override_control_server_host">Control Host</string>
+    <string name="preferences_override_control_server_port">Control Port</string>
+    <string name="preferences_override_control_server_ssl">Control-Server SSL</string>
+    <string name="preferences_override_control_server_ssl_sum">Verschlüsselte Verbindung zum Control-Server</string>
+    <string name="preferences_developer_options_disabled">Entwickleroptionen deaktiviert</string>
+    <string name="preferences_developer_options_available">Entwickleroptionen verfügbar</string>
+    <string name="preferences_developer_try_again">Versuchen Sie es nochmals!</string>
 
     <!-- Location Dialog -->
     <string name="location_dialog_label_title">Standort</string>
@@ -85,9 +97,6 @@
     <string name="location_location_direction_e">E %1$s</string>
     <string name="location_location_direction_s">S %1$s</string>
     <string name="location_location_direction_w">W %1$s</string>
-    <string name="test_location_gps">GPS</string>
-    <string name="test_location_network">Netzwerk</string>
-    <string name="test_location_fused">Verschmolzen</string>
     <string name="preferences_commit_hash">Commit Hash</string>
 
     <string name="text_ip_address_not_available">Adresse nicht verfügbar</string>
@@ -146,5 +155,35 @@
     <string name="notification_test_ticker">Open-RMBT läuft…</string>
 
     <string name="test_dialog_error_text">Etwas ist schiefgegangen. Bitte versuchen Sie es später noch Mal.</string>
+    <string name="test_submission_error_text">Wir konnten keine Verbindung zum Server herstellen. Die Ergebnisse sind gespeichert und werden später wieder gesendet.</string>
+    <string name="test_submission_error_accept">Akzeptieren</string>
+
+    <!-- History -->
+    <string name="history_item_header_test">Test</string>
+    <string name="history_item_header_down">Down</string>
+    <string name="history_item_header_up">Up</string>
+    <string name="history_item_header_ping">Ping</string>
+    <string name="history_item_header_ms">ms</string>
+    <string name="history_no_data">Keine Daten verfügbar.</string>
+
+    <!-- Results -->
+    <string name="results_other_details">Weitere Details</string>
+    <string name="results_quality">Qualität</string>
+    <string name="results_qoe_audio_streaming">Audio Streaming</string>
+    <string name="results_qoe_cloud">Cloud</string>
+    <string name="results_qoe_gaming">Spiele</string>
+    <string name="results_qoe_gaming_cloud">Spiele Cloud</string>
+    <string name="results_qoe_gaming_download">Spiele Download</string>
+    <string name="results_qoe_gaming_streaming">Spiele Streaming</string>
+    <string name="results_qoe_messaging">Messaging</string>
+    <string name="results_qoe_video_conferencing">Videokonferenzen</string>
+    <string name="results_qoe_video_telephony">Videotelefonie</string>
+    <string name="results_qoe_videos_hd">Videos HD</string>
+    <string name="results_qoe_videos_sd">Videos SD</string>
+    <string name="results_qoe_videos_uhd">Videos UHD</string>
+    <string name="results_qoe_voip">VOIP</string>
+    <string name="results_qoe_web">Netz</string>
+    <string name="results_qoe_qos">Qualitätstest</string>
+
 </resources>
 

@@ -29,6 +29,7 @@ import at.specure.info.TransportType
 import at.specure.info.band.CellBand
 import at.specure.info.network.MobileNetworkType
 import at.specure.info.network.NetworkInfo
+import at.specure.info.strength.SignalStrengthInfo
 import java.util.UUID
 
 /**
@@ -68,6 +69,8 @@ class CellNetworkInfo(
     val isRoaming: Boolean,
 
     val apn: String?,
+
+    val signalStrength: SignalStrengthInfo?,
 
     /**
      * Random generated cell UUID
@@ -127,20 +130,22 @@ class CellNetworkInfo(
             } else {
                 null
             }
+
             return CellNetworkInfo(
                 providerName = providerName,
                 band = band,
                 networkType = networkType,
                 mcc = info.cellIdentity.mccCompat(),
                 mnc = info.cellIdentity.mncCompat(),
-                locationId = info.cellIdentity.ci,
-                areaCode = info.cellIdentity.tac,
+                locationId = info.cellIdentity.ci.fixValue(),
+                areaCode = info.cellIdentity.tac.fixValue(),
                 scramblingCode = info.cellIdentity.pci,
                 cellUUID = info.uuid(),
                 isRegistered = info.isRegistered,
                 isActive = isActive,
                 isRoaming = isRoaming,
-                apn = apn
+                apn = apn,
+                signalStrength = SignalStrengthInfo.from(info.cellSignalStrength)
             )
         }
 
@@ -164,14 +169,15 @@ class CellNetworkInfo(
                 networkType = networkType,
                 mcc = info.cellIdentity.mccCompat(),
                 mnc = info.cellIdentity.mncCompat(),
-                locationId = info.cellIdentity.cid,
-                areaCode = info.cellIdentity.lac,
+                locationId = info.cellIdentity.cid.fixValue(),
+                areaCode = info.cellIdentity.lac.fixValue(),
                 scramblingCode = info.cellIdentity.psc,
                 cellUUID = info.uuid(),
                 isActive = isActive,
                 isRegistered = info.isRegistered,
                 isRoaming = isRoaming,
-                apn = apn
+                apn = apn,
+                signalStrength = SignalStrengthInfo.from(info.cellSignalStrength)
             )
         }
 
@@ -197,14 +203,15 @@ class CellNetworkInfo(
                 networkType = networkType,
                 mcc = info.cellIdentity.mccCompat(),
                 mnc = info.cellIdentity.mncCompat(),
-                locationId = info.cellIdentity.cid,
-                areaCode = info.cellIdentity.lac,
+                locationId = info.cellIdentity.cid.fixValue(),
+                areaCode = info.cellIdentity.lac.fixValue(),
                 scramblingCode = scramblingCode,
                 cellUUID = info.uuid(),
                 isActive = isActive,
                 isRegistered = info.isRegistered,
                 isRoaming = isRoaming,
-                apn = apn
+                apn = apn,
+                signalStrength = SignalStrengthInfo.from(info.cellSignalStrength)
             )
         }
 
@@ -224,13 +231,14 @@ class CellNetworkInfo(
                 mcc = null,
                 mnc = null,
                 locationId = null,
-                areaCode = info.cellIdentity.basestationId,
+                areaCode = info.cellIdentity.basestationId.fixValue(),
                 scramblingCode = null,
                 cellUUID = info.uuid(),
                 isActive = isActive,
                 isRegistered = info.isRegistered,
                 isRoaming = isRoaming,
-                apn = apn
+                apn = apn,
+                signalStrength = SignalStrengthInfo.from(info.cellSignalStrength)
             )
         }
     }
@@ -248,16 +256,16 @@ fun CellInfo.uuid(): String {
 
 fun SubscriptionInfo.mccCompat(): Int? =
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-        mccString?.toInt().fixMncMcc()
+        mccString?.toInt().fixValue()
     } else {
-        mcc.fixMncMcc()
+        mcc.fixValue()
     }
 
 fun SubscriptionInfo.mncCompat(): Int? =
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-        mncString?.toInt().fixMncMcc()
+        mncString?.toInt().fixValue()
     } else {
-        mnc.fixMncMcc()
+        mnc.fixValue()
     }
 
 private fun CellIdentityLte.uuid(): String {
@@ -296,47 +304,47 @@ private fun CellIdentityCdma.uuid(): String {
 
 private fun CellIdentityLte.mccCompat(): Int? =
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-        mccString?.toInt().fixMncMcc()
+        mccString?.toInt().fixValue()
     } else {
-        mcc.fixMncMcc()
+        mcc.fixValue()
     }
 
 private fun CellIdentityLte.mncCompat(): Int? =
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-        mncString?.toInt().fixMncMcc()
+        mncString?.toInt().fixValue()
     } else {
-        mnc.fixMncMcc()
+        mnc.fixValue()
     }
 
 private fun CellIdentityWcdma.mccCompat(): Int? =
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-        mccString?.toInt().fixMncMcc()
+        mccString?.toInt().fixValue()
     } else {
-        mcc.fixMncMcc()
+        mcc.fixValue()
     }
 
 private fun CellIdentityWcdma.mncCompat(): Int? =
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-        mncString?.toInt().fixMncMcc()
+        mncString?.toInt().fixValue()
     } else {
-        mnc.fixMncMcc()
+        mnc.fixValue()
     }
 
 private fun CellIdentityGsm.mccCompat(): Int? =
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-        mccString?.toInt().fixMncMcc()
+        mccString?.toInt().fixValue()
     } else {
-        mcc.fixMncMcc()
+        mcc.fixValue()
     }
 
 private fun CellIdentityGsm.mncCompat(): Int? =
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-        mncString?.toInt().fixMncMcc()
+        mncString?.toInt().fixValue()
     } else {
-        mnc.fixMncMcc()
+        mnc.fixValue()
     }
 
-private fun Int?.fixMncMcc(): Int? {
+fun Int?.fixValue(): Int? {
     return if (this == null || this == Int.MIN_VALUE || this == Int.MAX_VALUE || this < 0) {
         null
     } else {

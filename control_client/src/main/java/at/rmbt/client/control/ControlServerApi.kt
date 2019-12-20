@@ -16,6 +16,7 @@ package at.rmbt.client.control
 
 import retrofit2.Call
 import retrofit2.http.Body
+import retrofit2.http.GET
 import retrofit2.http.POST
 import retrofit2.http.Url
 
@@ -23,12 +24,6 @@ import retrofit2.http.Url
  * Api interface of Control Server
  */
 interface ControlServerApi {
-
-    /**
-     * Private IPv4 or IPv6 information check url
-     */
-    @POST
-    fun ipCheck(@Url url: String, @Body body: IpRequestBody): Call<IpInfoResponse>
 
     /**
      * Request to get these information:
@@ -55,8 +50,29 @@ interface ControlServerApi {
     fun testRequest(@Url url: String, @Body body: TestRequestRequestBody): Call<TestRequestResponse>
 
     /**
-     * Request to get basic measurement test settings
+     * Request to send basic measurement test results
      */
     @POST
     fun sendTestResult(@Url url: String, @Body body: TestResultBody): Call<BaseResponse>
+
+    /**
+     * Request to send QoS test results
+     */
+    @POST
+    fun sendQoSTestResult(@Url url: String, @Body body: QoSResultBody): Call<BaseResponse>
+
+    @POST
+    fun getHistory(@Url url: String, @Body body: HistoryRequestBody): Call<HistoryResponse>
+
+    /**
+     * Request to get basic measurement results
+     */
+    @POST
+    fun getTestResult(@Url url: String, @Body body: ServerTestResultBody): Call<ServerTestResultResponse>
+
+    /**
+     * Request to get detailed measurement results via opendata
+     */
+    @GET
+    fun getTestResultOpenDetails(@Url url: String): Call<SpeedCurveBodyResponse>
 }

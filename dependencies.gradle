@@ -37,6 +37,8 @@ buildscript {
                 gson                : '2.8.0',
                 dnsjava             : '2.1.8',
                 jopt_simple         : '5.0.4',
+                paging              : '2.1.0',
+                guava               : '28.1-android',
 
                 junit               : '4.12',
 

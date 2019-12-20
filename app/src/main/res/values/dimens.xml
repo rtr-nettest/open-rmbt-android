@@ -20,7 +20,6 @@
     <dimen name="margin_large">16dp</dimen>
     <dimen name="margin_large_">-16dp</dimen>
 
-
     <!--<dimen name="padding_very_small">2dp</dimen>
     <dimen name="padding_small">4dp</dimen>-->
     <dimen name="padding_very_small">2dp</dimen>
@@ -33,6 +32,7 @@
 
     <dimen name="inset_very_small">2dp</dimen>
     <dimen name="inset_small">4dp</dimen>
+    <dimen name="inset_large">16dp</dimen>
 
     <!-- Chart label text size -->
     <dimen name="measurement_bottom_header_height">56dp</dimen>
@@ -45,5 +45,8 @@
     <dimen name="signal_bar_label">12sp</dimen>
     <dimen name="network_name_size">20sp</dimen>
     <dimen name="network_label_size">14sp</dimen>
+
+    <!-- History -->
+    <dimen name="history_label_text_size">10sp</dimen>
 
 </resources>

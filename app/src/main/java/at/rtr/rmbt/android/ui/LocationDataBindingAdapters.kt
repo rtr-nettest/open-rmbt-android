@@ -81,21 +81,6 @@ fun AppCompatTextView.setLocationAge(locationInfo: LocationInfo?) {
  * A binding adapter that is used for show location position
  */
 @BindingAdapter("locationProvider")
-fun AppCompatTextView.setLocationProvider(locationProvider: LocationInfo.LocationProvider?) {
-
-    text = when (locationProvider) {
-
-        LocationInfo.LocationProvider.NETWORK -> {
-            context.getString(R.string.test_location_network)
-        }
-        LocationInfo.LocationProvider.GPS -> {
-            context.getString(R.string.test_location_gps)
-        }
-        LocationInfo.LocationProvider.FUSED -> {
-            context.getString(R.string.test_location_fused)
-        }
-        else -> {
-            context.getString(R.string.location_dialog_not_available)
-        }
-    }
+fun AppCompatTextView.setLocationProvider(locationProvider: String?) {
+    text = locationProvider ?: context.getString(R.string.location_dialog_not_available)
 }

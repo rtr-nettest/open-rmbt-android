@@ -11,9 +11,11 @@ import at.specure.data.dao.GraphItemDao
 import at.specure.data.dao.HistoryDao
 import at.specure.data.dao.PermissionStatusDao
 import at.specure.data.dao.PingDao
+import at.specure.data.dao.QoeInfoDao
 import at.specure.data.dao.SignalDao
 import at.specure.data.dao.SpeedDao
 import at.specure.data.dao.TestDao
+import at.specure.data.dao.TestResultDao
 import at.specure.data.entity.CapabilitiesRecord
 import at.specure.data.entity.CellInfoRecord
 import at.specure.data.entity.CellLocationRecord
@@ -22,9 +24,12 @@ import at.specure.data.entity.GraphItemRecord
 import at.specure.data.entity.History
 import at.specure.data.entity.PermissionStatusRecord
 import at.specure.data.entity.PingRecord
+import at.specure.data.entity.QoSResultRecord
+import at.specure.data.entity.QoeInfoRecord
 import at.specure.data.entity.SignalRecord
 import at.specure.data.entity.SpeedRecord
 import at.specure.data.entity.TestRecord
+import at.specure.data.entity.TestResultRecord
 import at.specure.data.entity.TestTelephonyRecord
 import at.specure.data.entity.TestWlanRecord
 
@@ -35,14 +40,17 @@ import at.specure.data.entity.TestWlanRecord
         GeoLocationRecord::class,
         GraphItemRecord::class,
         History::class,
-        TestTelephonyRecord::class,
         PermissionStatusRecord::class,
         PingRecord::class,
+        QoeInfoRecord::class,
         SignalRecord::class,
-        TestRecord::class,
+        TestTelephonyRecord::class,
         SpeedRecord::class,
-        TestWlanRecord::class],
-    version = 17
+        TestRecord::class,
+        TestResultRecord::class,
+        TestWlanRecord::class,
+        QoSResultRecord::class],
+    version = 29
 )
 @TypeConverters(TypeConverter::class)
 abstract class CoreDatabase : RoomDatabase() {
@@ -55,7 +63,9 @@ abstract class CoreDatabase : RoomDatabase() {
     abstract fun historyDao(): HistoryDao
     abstract fun permissionStatusDao(): PermissionStatusDao
     abstract fun pingDao(): PingDao
+    abstract fun qoeInfoDao(): QoeInfoDao
     abstract fun signalDao(): SignalDao
-    abstract fun testDao(): TestDao
     abstract fun speedDao(): SpeedDao
+    abstract fun testDao(): TestDao
+    abstract fun testResultDao(): TestResultDao
 }

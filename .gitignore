@@ -42,3 +42,6 @@ build_results
 
 # Fabric Properties
 app/fabric.properties
+
+# Google services
+app/google-services.json

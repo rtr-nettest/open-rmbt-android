@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <variable
+            name="item"
+            type="at.specure.data.entity.History" />
+    </data>
+
+    <androidx.appcompat.widget.LinearLayoutCompat
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="@dimen/padding_large">
+
+        <androidx.appcompat.widget.AppCompatTextView
+
+            style="@style/RobotoRegularStyle.Small"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="3"
+            android:drawablePadding="@dimen/padding_small"
+            android:gravity="center_vertical"
+            android:textColor="@color/text_dark_gray"
+            app:networkType="@{item.networkType}"
+            app:time="@{item.time}"
+            tools:text="20.11.18, 12:00:45" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            style="@style/RobotoRegularStyle.Small"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:drawablePadding="@dimen/padding_very_small"
+            android:text="@{item.speedDownload}"
+            android:textColor="@color/text_dark_gray"
+            app:classificationIcon="@{item.speedDownloadClassification}"
+            tools:drawableStart="@drawable/ic_small_download_light_green"
+            tools:text="79" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            style="@style/RobotoRegularStyle.Small"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:drawablePadding="@dimen/padding_very_small"
+            android:text="@{item.speedUpload}"
+            android:textColor="@color/text_dark_gray"
+            app:classificationIcon="@{item.speedUploadClassification}"
+            tools:drawableStart="@drawable/ic_small_upload_light_green"
+            tools:text="12" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            style="@style/RobotoRegularStyle.Small"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:drawablePadding="@dimen/padding_very_small"
+            android:text="@{item.ping}"
+            android:textColor="@color/text_dark_gray"
+            app:classificationIcon="@{item.pingClassification}"
+            tools:drawableStart="@drawable/ic_small_ping_yellow"
+            tools:text="14" />
+
+    </androidx.appcompat.widget.LinearLayoutCompat>
+
+</layout>

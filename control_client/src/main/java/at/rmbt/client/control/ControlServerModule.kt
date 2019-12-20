@@ -33,16 +33,23 @@ class ControlServerModule {
 
     @Provides
     @Singleton
-    fun provideControlServerApi(controlEndpointProvider: ControlEndpointProvider): ControlServerApi =
-        createRetrofit(controlEndpointProvider).create(ControlServerApi::class.java)
+    fun provideControlServerApi(retrofit: Retrofit): ControlServerApi =
+        retrofit.create(ControlServerApi::class.java)
 
-    private fun createRetrofit(controlEndpointProvider: ControlEndpointProvider): Retrofit = Retrofit.Builder()
+    @Provides
+    @Singleton
+    fun provideIpServerApi(retrofit: Retrofit): IpApi =
+        retrofit.create(IpApi::class.java)
+
+    @Provides
+    @Singleton
+    fun provideRetrofit(controlEndpointProvider: ControlEndpointProvider): Retrofit = Retrofit.Builder()
         .baseUrl(controlEndpointProvider.host + "/")
         .addConverterFactory(GsonConverterFactory.create())
         .client(createOkHttpClient())
         .build()
 
-    private fun createOkHttpClient(): OkHttpClient {
+    fun createOkHttpClient(): OkHttpClient {
         val builder = OkHttpClient.Builder()
             .connectTimeout(CONNECTION_TIMEOUT_SEC, TimeUnit.SECONDS)
             .readTimeout(READ_TIMEOUT_SEC, TimeUnit.SECONDS)

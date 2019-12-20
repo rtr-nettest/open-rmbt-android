@@ -8,6 +8,7 @@ import at.rmbt.client.control.IpRequestBody
 import at.rmbt.client.control.PermissionStatusBody
 import at.rmbt.client.control.PingBody
 import at.rmbt.client.control.QoSBody
+import at.rmbt.client.control.QoSResultBody
 import at.rmbt.client.control.RadioInfoBody
 import at.rmbt.client.control.SettingsRequestBody
 import at.rmbt.client.control.SignalBody
@@ -22,13 +23,13 @@ import at.specure.data.entity.CellLocationRecord
 import at.specure.data.entity.GeoLocationRecord
 import at.specure.data.entity.PermissionStatusRecord
 import at.specure.data.entity.PingRecord
+import at.specure.data.entity.QoSResultRecord
 import at.specure.data.entity.SignalRecord
 import at.specure.data.entity.SpeedRecord
 import at.specure.data.entity.TestRecord
 import at.specure.data.entity.TestTelephonyRecord
 import at.specure.data.entity.TestWlanRecord
 import at.specure.info.TransportType
-import at.specure.info.cell.CellTechnology
 import at.specure.info.network.MobileNetworkType
 import at.specure.info.strength.SignalStrengthInfo
 import at.specure.info.strength.SignalStrengthInfoGsm
@@ -36,6 +37,7 @@ import at.specure.info.strength.SignalStrengthInfoLte
 import at.specure.info.strength.SignalStrengthInfoWiFi
 import at.specure.location.LocationInfo
 import at.specure.test.DeviceInfo
+import java.util.UUID
 
 fun DeviceInfo.toSettingsRequest(clientUUID: ClientUUID, config: Config, tac: TermsAndConditions) = SettingsRequestBody(
     type = clientType,
@@ -112,7 +114,7 @@ fun SignalStrengthInfo.toRequest(): SignalItemBody? = when (this) {
 fun LocationInfo.toRequest() = TestLocationBody(
     latitude = latitude,
     longitude = longitude,
-    provider = provider.name,
+    provider = provider,
     speed = speed,
     altitude = altitude,
     timeMillis = time,
@@ -154,19 +156,34 @@ fun TestRecord.toRequest(
     val radioInfo: RadioInfoBody? = if (cellInfoList.isEmpty() && signalList.isEmpty()) {
         null
     } else {
-        val cells: List<CellInfoBody>? = if (cellInfoList.isEmpty()) {
+        val cells: Map<String, CellInfoBody>? = if (cellInfoList.isEmpty()) {
             null
         } else {
-            cellInfoList.map { it.toRequest() }
+            val map = mutableMapOf<String, CellInfoBody>()
+            cellInfoList.forEach {
+                map[it.uuid] = it.toRequest()
+            }
+            if (map.isEmpty()) null else map
         }
 
         val signals: List<SignalBody>? = if (signalList.isEmpty()) {
             null
         } else {
-            signalList.map { it.toRequest() }
+            val list = mutableListOf<SignalBody>()
+            if (cells == null) {
+                null
+            } else {
+                signalList.forEach {
+                    val cell = cells[it.cellUuid]
+                    if (cell != null) {
+                        list.add(it.toRequest(cell.uuid))
+                    }
+                }
+                if (list.isEmpty()) null else list
+            }
         }
 
-        RadioInfoBody(cells, signals)
+        RadioInfoBody(cells?.entries?.map { it.value }, signals)
     }
 
     val speedDetail: List<SpeedBody>? = if (speedInfoList.isEmpty()) {
@@ -247,7 +264,11 @@ fun TestRecord.toRequest(
         wifiSupplicantStateDetail = wlanInfo?.supplicantDetailedState,
         wifiSsid = wlanInfo?.ssid,
         wifiNetworkId = wlanInfo?.networkId,
-        wifiBssid = wlanInfo?.bssid
+        wifiBssid = wlanInfo?.bssid,
+        submissionRetryCount = submissionRetryCount,
+        testStatus = testFinishReason?.ordinal,
+        lastClientStatus = lastClientStatus?.name,
+        testErrorCause = testErrorCause
     )
 }
 
@@ -281,29 +302,36 @@ fun CapabilitiesRecord.toRequest() = CapabilitiesBody(
 fun CellInfoRecord.toRequest() = CellInfoBody(
     active = isActive,
     areaCode = areaCode,
-    uuid = uuid,
+    uuid = UUID.randomUUID().toString(),
     channelNumber = channelNumber,
     locationId = locationId,
     mnc = mnc,
     mcc = mcc,
     primaryScramblingCode = primaryScramblingCode,
-    technology = transportType.toTechnologyString(cellTechnology),
+    technology = NetworkTypeCompat.fromType(transportType, cellTechnology).stringValue,
     registered = registered
 )
 
-fun SignalRecord.toRequest() = SignalBody(
-    cellUuid = cellUuid,
+fun SignalRecord.toRequest(cellUUID: String) = SignalBody(
+    cellUuid = cellUUID,
     networkTypeId = transportType.toRequestIntValue(mobileNetworkType),
-    signal = signal,
-    bitErrorRate = bitErrorRate,
-    wifiLinkSpeed = wifiLinkSpeed,
-    lteRsrp = lteRsrp,
-    lteRsrq = lteRsrq,
-    lteRssnr = lteRssnr,
-    timingAdvance = timingAdvance,
+    signal = signal.checkSignalValue(),
+    bitErrorRate = bitErrorRate.checkSignalValue(),
+    wifiLinkSpeed = wifiLinkSpeed.checkSignalValue(),
+    lteRsrp = lteRsrp.checkSignalValue(),
+    lteRsrq = lteRsrq.checkSignalValue(),
+    lteRssnr = lteRssnr.checkSignalValue(),
+    lteCqi = lteCqi.checkSignalValue(),
+    timingAdvance = timingAdvance.checkSignalValue(),
     timeNanos = timeNanos,
     timeLastNanos = timeNanosLast
 )
+
+private fun Int?.checkSignalValue(): Int? = if (this == null || this == Int.MAX_VALUE || this == Int.MAX_VALUE) {
+    null
+} else {
+    this
+}
 
 fun SpeedRecord.toRequest() = SpeedBody(
     direction = if (isUpload) "upload" else "download",
@@ -325,61 +353,22 @@ fun PermissionStatusRecord.toRequest() = PermissionStatusBody(
     status = status
 )
 
-fun TransportType.toTechnologyString(cellTechnology: CellTechnology?): String {
-    return when (this) {
-        TransportType.WIFI -> "WLAN"
-        TransportType.CELLULAR -> {
-            when (cellTechnology) {
-                CellTechnology.CONNECTION_2G -> "2G"
-                CellTechnology.CONNECTION_3G -> "3G"
-                CellTechnology.CONNECTION_4G -> "4G"
-                CellTechnology.CONNECTION_5G -> throw IllegalArgumentException("5G not supported to send to the server")
-                else -> throw java.lang.IllegalArgumentException("Incorrect cell technology value or null ${cellTechnology?.name}")
-            }
-        }
-        else -> throw IllegalArgumentException("Unsupported transport type ${this.name}")
-    }
-}
-
 fun TransportType.toRequestIntValue(mobileNetworkType: MobileNetworkType?): Int {
     return when (this) {
         TransportType.CELLULAR -> mobileNetworkType?.intValue ?: Int.MAX_VALUE
-        TransportType.BLUETOOTH -> 107
-        TransportType.ETHERNET -> 106
-        TransportType.WIFI -> 99
+        TransportType.BLUETOOTH -> NetworkTypeCompat.TYPE_BLUETOOTH_VALUE
+        TransportType.ETHERNET -> NetworkTypeCompat.TYPE_ETHERNET_VALUE
+        TransportType.WIFI -> NetworkTypeCompat.TYPE_WIFI_VALUE
         else -> Int.MAX_VALUE
     }
 }
 
-fun TransportType.toRequestValue(mobileNetworkType: MobileNetworkType?): String {
-    return when (toRequestIntValue(mobileNetworkType)) {
-        1 -> "2G (GSM)"
-        2 -> "2G (EDGE)"
-        3 -> "3G (UMTS)"
-        4 -> "2G (CDMA)"
-        5 -> "2G (EVDO_0)"
-        6 -> "2G (EVDO_A)"
-        7 -> "2G (1xRTT)"
-        8 -> "3G (HSDPA)"
-        9 -> "3G (HSUPA)"
-        10 -> "3G (HSPA)"
-        11 -> "2G (IDEN)"
-        12 -> "2G (EVDO_B)"
-        13 -> "4G (LTE)"
-        14 -> "2G (EHRPD)"
-        15 -> "3G (HSPA+)"
-        19 -> "4G (LTE CA)"
-        20 -> "5G (NR)"
-        97 -> "CLI"
-        98 -> "BROWSER"
-        99 -> "WLAN"
-        101 -> "2G/3G"
-        102 -> "3G/4G"
-        103 -> "2G/4G"
-        104 -> "2G/3G/4G"
-        105 -> "MOBILE"
-        106 -> "Ethernet"
-        107 -> "Bluetooth"
-        else -> "UNKNOWN"
-    }
-}
+fun QoSResultRecord.toRequest(clientUUID: String, deviceInfo: DeviceInfo) = QoSResultBody(
+    clientUUID = clientUUID,
+    clientName = deviceInfo.clientName,
+    clientVersion = deviceInfo.rmbtClientVersion,
+    clientLanguage = deviceInfo.language,
+    qosResult = results,
+    testToken = testToken,
+    timeMillis = timeMillis
+)

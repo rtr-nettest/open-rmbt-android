@@ -9,11 +9,14 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.databinding.BindingAdapter
 import at.rmbt.client.control.IpProtocol
 import at.rtr.rmbt.android.R
+import at.rtr.rmbt.android.ui.view.ResultBar
 import at.rtr.rmbt.android.ui.view.SpeedLineChart
 import at.rtr.rmbt.android.ui.view.WaveView
 import at.rtr.rmbt.android.ui.view.curve.MeasurementCurveLayout
 import at.rtr.rmbt.android.util.InfoWindowStatus
 import at.rtr.rmbt.android.util.format
+import at.specure.data.Classification
+import at.specure.data.NetworkTypeCompat
 import at.specure.data.entity.GraphItemRecord
 import at.specure.info.TransportType
 import at.specure.info.cell.CellNetworkInfo
@@ -24,7 +27,9 @@ import at.specure.info.network.NetworkInfo
 import at.specure.info.network.WifiNetworkInfo
 import at.specure.info.strength.SignalStrengthInfo
 import at.specure.measurement.MeasurementState
+import at.specure.result.QoECategory
 import com.google.android.material.bottomsheet.BottomSheetBehavior
+import java.util.Calendar
 
 @BindingAdapter("intText")
 fun intText(textView: TextView, value: Int) {
@@ -242,19 +247,20 @@ fun AppCompatTextView.setPing(pingMs: Long) {
         setCompoundDrawablesWithIntrinsicBounds(
 
             when (pingMs) {
-            in THRESHOLD_PING[0]..THRESHOLD_PING[1] -> {
-                R.drawable.ic_small_ping_dark_green
-            }
-            in THRESHOLD_PING[1]..THRESHOLD_PING[2] -> {
-                R.drawable.ic_small_ping_light_green
-            }
-            in THRESHOLD_PING[2]..THRESHOLD_PING[3] -> {
-                R.drawable.ic_small_ping_yellow
-            }
-            else -> {
-                R.drawable.ic_small_ping_red
-            }
-        }, 0, 0, 0)
+                in THRESHOLD_PING[0]..THRESHOLD_PING[1] -> {
+                    R.drawable.ic_small_ping_dark_green
+                }
+                in THRESHOLD_PING[1]..THRESHOLD_PING[2] -> {
+                    R.drawable.ic_small_ping_light_green
+                }
+                in THRESHOLD_PING[2]..THRESHOLD_PING[3] -> {
+                    R.drawable.ic_small_ping_yellow
+                }
+                else -> {
+                    R.drawable.ic_small_ping_red
+                }
+            }, 0, 0, 0
+        )
         text = context.getString(R.string.measurement_ping_value, pingMs)
         setTextColor(context.getColor(android.R.color.white))
     } else {
@@ -289,7 +295,8 @@ fun AppCompatTextView.setDownload(downloadSpeedBps: Long) {
                 else -> {
                     R.drawable.ic_small_download_dark_green
                 }
-            }, 0, 0, 0)
+            }, 0, 0, 0
+        )
         text = context.getString(
             R.string.measurement_download_upload_speed,
             downloadSpeedInMbps.format()
@@ -327,7 +334,8 @@ fun AppCompatTextView.setUpload(uploadSpeedBps: Long) {
                 else -> {
                     R.drawable.ic_small_upload_dark_green
                 }
-            }, 0, 0, 0)
+            }, 0, 0, 0
+        )
         text = context.getString(
             R.string.measurement_download_upload_speed,
             uploadSpeedInMbps.format()
@@ -460,4 +468,279 @@ fun AppCompatTextView.setLabelOfMeasurementState(measurementState: MeasurementSt
 fun ConstraintLayout.setBottomSheetState(state: Int) {
     val behavior = BottomSheetBehavior.from(this)
     behavior.state = state
+}
+
+/**
+ * A binding adapter that is used for show date and time in history list
+ */
+@BindingAdapter("networkType", "time", requireAll = true)
+fun AppCompatTextView.setTime(networkType: NetworkTypeCompat, time: Long) {
+
+    val calendar: Calendar = Calendar.getInstance()
+    calendar.timeInMillis = time
+    text = calendar.format("dd.MM.yy, hh:mm:ss")
+
+    setCompoundDrawablesWithIntrinsicBounds(
+
+        when (networkType) {
+            NetworkTypeCompat.TYPE_2G -> {
+                R.drawable.ic_history_2g
+            }
+            NetworkTypeCompat.TYPE_3G -> {
+                R.drawable.ic_history_3g
+            }
+            NetworkTypeCompat.TYPE_4G -> {
+                R.drawable.ic_history_4g
+            }
+            NetworkTypeCompat.TYPE_WLAN -> {
+                R.drawable.ic_history_wifi
+            }
+        }, 0, 0, 0
+    )
+}
+
+/**
+ * A binding adapter that is used for show download speed with classification icon in history list
+ */
+@BindingAdapter("speedDownload", "speedDownloadClassification", requireAll = true)
+fun AppCompatTextView.setDownload(speedDownload: Double, speedDownloadClassification: Classification) {
+
+    text = if (speedDownload > 0) {
+        speedDownload.toFloat().format()
+    } else {
+        context.getString(R.string.measurement_dash)
+    }
+    setCompoundDrawablesWithIntrinsicBounds(getSpeedDownloadClassification(speedDownloadClassification), 0, 0, 0)
+}
+
+/**
+ * A binding adapter that is used for show download speed with classification icon in results
+ */
+@BindingAdapter("speedDownloadLong", "speedDownloadClassification", requireAll = true)
+fun AppCompatTextView.setDownload(speedDownload: Long, speedDownloadClassification: Classification) {
+
+    text = if (speedDownload > 0) {
+        context.getString(R.string.measurement_download_upload_speed, ((speedDownload / 1000).toFloat().format()))
+    } else {
+        context.getString(R.string.measurement_dash)
+    }
+    setCompoundDrawablesWithIntrinsicBounds(getSpeedDownloadClassification(speedDownloadClassification), 0, 0, 0)
+}
+
+fun getSpeedDownloadClassification(speedDownloadClassification: Classification): Int {
+    return when (speedDownloadClassification) {
+        Classification.NONE -> {
+            R.drawable.ic_small_download_gray
+        }
+        Classification.BAD -> {
+            R.drawable.ic_small_download_red
+        }
+        Classification.NORMAL -> {
+            R.drawable.ic_small_download_yellow
+        }
+        Classification.GOOD -> {
+            R.drawable.ic_small_download_light_green
+        }
+        Classification.EXCELLENT -> {
+            R.drawable.ic_small_download_dark_green
+        }
+    }
+}
+
+/**
+ * A binding adapter that is used for show upload speed with classification icon in results
+ */
+@BindingAdapter("speedUploadLong", "speedUploadClassification", requireAll = true)
+fun AppCompatTextView.setUpload(speedUpload: Long, speedUploadClassification: Classification) {
+    text = if (speedUpload > 0) {
+        context.getString(R.string.measurement_download_upload_speed, ((speedUpload.toFloat() / 1000).format()))
+    } else {
+        context.getString(R.string.measurement_dash)
+    }
+    setCompoundDrawablesWithIntrinsicBounds(getSpeedUploadClassificationIcon(speedUploadClassification), 0, 0, 0)
+}
+
+/**
+ * A binding adapter that is used for show upload speed with classification icon in history list
+ */
+@BindingAdapter("speedUpload", "speedUploadClassification", requireAll = true)
+fun AppCompatTextView.setUpload(speedUpload: Double, speedUploadClassification: Classification) {
+
+    text = if (speedUpload > 0) {
+        speedUpload.toFloat().format()
+    } else {
+        context.getString(R.string.measurement_dash)
+    }
+    setCompoundDrawablesWithIntrinsicBounds(getSpeedUploadClassificationIcon(speedUploadClassification), 0, 0, 0)
+}
+
+fun getSpeedUploadClassificationIcon(speedUploadClassification: Classification): Int {
+    return when (speedUploadClassification) {
+        Classification.NONE -> {
+            R.drawable.ic_small_upload_gray
+        }
+        Classification.BAD -> {
+            R.drawable.ic_small_upload_red
+        }
+        Classification.NORMAL -> {
+            R.drawable.ic_small_upload_yellow
+        }
+        Classification.GOOD -> {
+            R.drawable.ic_small_upload_light_green
+        }
+        Classification.EXCELLENT -> {
+            R.drawable.ic_small_upload_dark_green
+        }
+    }
+}
+
+/**
+ * A binding adapter that is used for show download ping with classification icon in history list
+ */
+@BindingAdapter("ping", "pingClassification", requireAll = true)
+fun AppCompatTextView.setPing(ping: Int, pingClassification: Classification) {
+
+    text = if (ping > 0) {
+        ping.toString()
+    } else {
+        context.getString(R.string.measurement_dash)
+    }
+    setCompoundDrawablesWithIntrinsicBounds(getPingClassificationIcon(pingClassification), 0, 0, 0)
+}
+
+/**
+ * A binding adapter that is used for show download ping with classification icon in results
+ */
+@BindingAdapter("pingDouble", "pingClassification", requireAll = true)
+fun AppCompatTextView.setPing(ping: Double, pingClassification: Classification) {
+
+    text = if (ping > 0) {
+        context.getString(R.string.measurement_ping_value, ping.toInt())
+    } else {
+        context.getString(R.string.measurement_dash)
+    }
+    setCompoundDrawablesWithIntrinsicBounds(getPingClassificationIcon(pingClassification), 0, 0, 0)
+}
+
+@BindingAdapter("classificationIcon")
+fun AppCompatTextView.setClassification(classification: Classification) {
+    setCompoundDrawablesWithIntrinsicBounds(getPingClassificationIcon(classification), 0, 0, 0)
+}
+
+fun getPingClassificationIcon(pingClassification: Classification): Int {
+    return when (pingClassification) {
+        Classification.NONE -> {
+            R.drawable.ic_small_ping_gray
+        }
+        Classification.BAD -> {
+            R.drawable.ic_small_ping_red
+        }
+        Classification.NORMAL -> {
+            R.drawable.ic_small_ping_yellow
+        }
+        Classification.GOOD -> {
+            R.drawable.ic_small_ping_light_green
+        }
+        Classification.EXCELLENT -> {
+            R.drawable.ic_small_ping_dark_green
+        }
+    }
+}
+
+/**
+ * A binding adapter that is used for show signal strength with classification icon in result
+ */
+@BindingAdapter("signalStrength", "signalStrengthClassification", requireAll = true)
+fun AppCompatTextView.setSignalStrength(signalStrength: Int?, speedDownloadClassification: Classification) {
+
+    text = if (signalStrength != null) {
+        context.getString(R.string.strength_signal_value, signalStrength)
+    } else {
+        context.getString(R.string.measurement_dash)
+    }
+
+    setCompoundDrawablesWithIntrinsicBounds(
+
+        when (speedDownloadClassification) {
+            Classification.NONE -> {
+                R.drawable.ic_small_wifi_gray
+            }
+            Classification.BAD -> {
+                R.drawable.ic_small_wifi_red
+            }
+            Classification.NORMAL -> {
+                R.drawable.ic_small_wifi_yellow
+            }
+            Classification.GOOD -> {
+                R.drawable.ic_small_wifi_light_green
+            }
+            Classification.EXCELLENT -> {
+                R.drawable.ic_small_wifi_dark_green
+            }
+        }, 0, 0, 0
+    )
+}
+
+/**
+ * A binding adapter that is used for show correct icon for qoe item in the results
+ */
+@BindingAdapter("qoeIcon")
+fun AppCompatImageView.setQoEIcon(qoECategory: QoECategory) {
+    setImageDrawable(
+        context.getDrawable(
+            when (qoECategory) {
+                QoECategory.QOE_UNKNOWN -> 0
+                QoECategory.QOE_AUDIO_STREAMING -> R.drawable.ic_qoe_music
+                QoECategory.QOE_VIDEO_SD -> R.drawable.ic_qoe_video
+                QoECategory.QOE_VIDEO_HD -> R.drawable.ic_qoe_video
+                QoECategory.QOE_VIDEO_UHD -> R.drawable.ic_qoe_video
+                QoECategory.QOE_GAMING -> R.drawable.ic_qoe_game
+                QoECategory.QOE_GAMING_CLOUD -> R.drawable.ic_qoe_game
+                QoECategory.QOE_GAMING_STREAMING -> R.drawable.ic_qoe_game
+                QoECategory.QOE_GAMING_DOWNLOAD -> R.drawable.ic_qoe_game
+                QoECategory.QOE_VOIP -> R.drawable.ic_qoe_voip
+                QoECategory.QOE_VIDEO_TELEPHONY -> R.drawable.ic_qoe_voip
+                QoECategory.QOE_VIDEO_CONFERENCING -> R.drawable.ic_qoe_voip
+                QoECategory.QOE_MESSAGING -> R.drawable.ic_qoe_image
+                QoECategory.QOE_WEB -> R.drawable.ic_qoe_image
+                QoECategory.QOE_CLOUD -> R.drawable.ic_qoe_image
+                QoECategory.QOE_QOS -> R.drawable.ic_qoe_qos
+            }
+        )
+    )
+}
+
+/**
+ * A binding adapter that is used for show name for qoe item in the results
+ */
+@BindingAdapter("qoeName")
+fun AppCompatTextView.setQoEName(qoECategory: QoECategory) {
+    text = context.getString(
+        when (qoECategory) {
+            QoECategory.QOE_UNKNOWN -> 0
+            QoECategory.QOE_AUDIO_STREAMING -> R.string.results_qoe_audio_streaming
+            QoECategory.QOE_VIDEO_SD -> R.string.results_qoe_videos_sd
+            QoECategory.QOE_VIDEO_HD -> R.string.results_qoe_videos_hd
+            QoECategory.QOE_VIDEO_UHD -> R.string.results_qoe_videos_uhd
+            QoECategory.QOE_GAMING -> R.string.results_qoe_gaming
+            QoECategory.QOE_GAMING_CLOUD -> R.string.results_qoe_gaming_cloud
+            QoECategory.QOE_GAMING_STREAMING -> R.string.results_qoe_gaming_streaming
+            QoECategory.QOE_GAMING_DOWNLOAD -> R.string.results_qoe_gaming_download
+            QoECategory.QOE_VOIP -> R.string.results_qoe_voip
+            QoECategory.QOE_VIDEO_TELEPHONY -> R.string.results_qoe_video_telephony
+            QoECategory.QOE_VIDEO_CONFERENCING -> R.string.results_qoe_video_conferencing
+            QoECategory.QOE_MESSAGING -> R.string.results_qoe_messaging
+            QoECategory.QOE_WEB -> R.string.results_qoe_web
+            QoECategory.QOE_CLOUD -> R.string.results_qoe_cloud
+            QoECategory.QOE_QOS -> R.string.results_qoe_qos
+        }
+    )
+}
+
+/**
+ * A binding adapter that is used for show correct value for qoe item in the results
+ */
+@BindingAdapter("qoePercent", "classification")
+fun ResultBar.setQoEValue(value: Double, classification: Classification) {
+    updateClassification((value * 100).toInt(), classification)
 }

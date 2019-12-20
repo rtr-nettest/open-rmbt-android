@@ -24,6 +24,7 @@ import javax.inject.Inject
 private const val FILENAME = "config.pref"
 
 private const val KEY_TEST_COUNTER = "KEY_TEST_COUNTER"
+private const val KEY_PREVIOUS_TEST_STATUS = "PREVIOUS_TEST_STATUS"
 
 class AppConfig @Inject constructor(context: Context, private val serverSettings: ControlServerSettings) : Config {
 
@@ -119,22 +120,48 @@ class AppConfig @Inject constructor(context: Context, private val serverSettings
         get() = getString(BuildConfig.CONTROL_SERVER_CHECK_PUBLIC_IPV6_URL, serverSettings.ipV6CheckUrl)
         set(value) = setString(BuildConfig.CONTROL_SERVER_CHECK_PUBLIC_IPV6_URL, value)
 
-    override var controlServerSettingsPath: String
-        get() = getString(BuildConfig.CONTROL_SERVER_SETTINGS_PATH)
-        set(value) = setString(BuildConfig.CONTROL_SERVER_SETTINGS_PATH, value)
+    override var controlServerRoute: String
+        get() = getString(BuildConfig.CONTROL_SERVER_ROUTE)
+        set(value) = setString(BuildConfig.CONTROL_SERVER_ROUTE, value)
 
-    override var controlServerRequestTestPath: String
-        get() = getString(BuildConfig.CONTROL_SERVER_TEST_REQUEST_PATH)
-        set(value) = setString(BuildConfig.CONTROL_SERVER_TEST_REQUEST_PATH, value)
+    override var controlServerSettingsEndpoint: String
+        get() = getString(BuildConfig.CONTROL_SERVER_SETTINGS_ENDPOINT)
+        set(value) = setString(BuildConfig.CONTROL_SERVER_SETTINGS_ENDPOINT, value)
 
-    override var controlServerSendResultPath: String
-        get() = getString(BuildConfig.CONTROL_SERVER_SEND_RESULT_PATH)
-        set(value) = setString(BuildConfig.CONTROL_SERVER_SEND_RESULT_PATH, value)
+    override var controlServerRequestTestEndpoint: String
+        get() = getString(BuildConfig.CONTROL_SERVER_TEST_REQUEST_ENDPOINT)
+        set(value) = setString(BuildConfig.CONTROL_SERVER_TEST_REQUEST_ENDPOINT, value)
+
+    override var controlServerSendResultEndpoint: String
+        get() = getString(BuildConfig.CONTROL_SERVER_SEND_RESULT_ENDPOINT)
+        set(value) = setString(BuildConfig.CONTROL_SERVER_SEND_RESULT_ENDPOINT, value)
+
+    override var controlServerSendQoSResultEndpoint: String
+        get() = getString(BuildConfig.CONTROL_SERVER_SEND_QOS_RESULT_ENDPOINT)
+        set(value) = setString(BuildConfig.CONTROL_SERVER_SEND_QOS_RESULT_ENDPOINT, value)
+
+    override var controlServerHistoryEndpoint: String
+        get() = getString(BuildConfig.CONTROL_SERVER_HISTORY_ENDPOINT)
+        set(value) = setString(BuildConfig.CONTROL_SERVER_HISTORY_ENDPOINT, value)
+
+    override var controlServerResultsBasicPath: String
+        get() = getString(BuildConfig.CONTROL_SERVER_GET_BASIC_RESULT_PATH)
+        set(value) = setString(BuildConfig.CONTROL_SERVER_GET_BASIC_RESULT_PATH, value)
+
+    override var controlServerResultsOpenDataPath: String
+        get() = getString(BuildConfig.CONTROL_SERVER_GET_OPENDATA_RESULT_PATH)
+        set(value) = setString(BuildConfig.CONTROL_SERVER_GET_OPENDATA_RESULT_PATH, value)
 
     override var testCounter: Int
         get() = preferences.getInt(KEY_TEST_COUNTER, 0)
         set(value) = preferences.edit()
             .putInt(KEY_TEST_COUNTER, value)
+            .apply()
+
+    override var previousTestStatus: String? // can be null before first test
+        get() = preferences.getString(KEY_PREVIOUS_TEST_STATUS, null)
+        set(value) = preferences.edit()
+            .putString(KEY_PREVIOUS_TEST_STATUS, value)
             .apply()
 
     override var capabilitiesRmbtHttp: Boolean
@@ -162,4 +189,12 @@ class AppConfig @Inject constructor(context: Context, private val serverSettings
         set(value) {
             // this value cannot be changed
         }
+
+    override var controlServerOverrideEnabled: Boolean
+        get() = getBoolean(BuildConfig.IS_CONTROL_SERVER_OVERRIDE_ENABLED)
+        set(value) = setBoolean(BuildConfig.IS_CONTROL_SERVER_OVERRIDE_ENABLED, value)
+
+    override var qosSSL: Boolean
+        get() = getBoolean(BuildConfig.QOS_SSL)
+        set(value) = setBoolean(BuildConfig.QOS_SSL, value)
 }

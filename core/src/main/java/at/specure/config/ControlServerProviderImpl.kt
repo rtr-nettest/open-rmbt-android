@@ -20,29 +20,34 @@ class ControlServerProviderImpl(private val config: Config) : ControlEndpointPro
 
     private val protocol = if (config.controlServerUseSSL) "https://" else "http://"
 
+    private val routePath = if (route.isEmpty()) "" else "/$route"
+
     override val host: String
         get() = protocol + config.controlServerHost
 
-    override val checkPrivateIPv4Host: String
-        get() = config.controlServerCheckPrivateIPv4Host
-
-    override val checkPrivateIPv6Host: String
-        get() = config.controlServerCheckPrivateIPv6Host
-
-    override val checkPublicIPv4Url: String
-        get() = protocol + config.controlServerCheckPublicIPv4Url
-
-    override val checkPublicIPv6Url: String
-        get() = protocol + config.controlServerCheckPublicIPv6Url
-
     override val checkSettingsUrl: String
-        get() = host + "/" + config.controlServerSettingsPath
+        get() = "$host$routePath/${config.controlServerSettingsEndpoint}"
 
     override val testRequestUrl: String
-        get() = host + "/" + config.controlServerRequestTestPath
+        get() = "$host$routePath/${config.controlServerRequestTestEndpoint}"
 
     override val sendTestResultsUrl: String
-        get() = host + "/" + config.controlServerSendResultPath
+        get() = "$host$routePath/${config.controlServerSendResultEndpoint}"
+
+    override val sendQoSTestResultsUrl: String
+        get() = "$host$routePath/${config.controlServerSendQoSResultEndpoint}"
+
+    override val getHistoryUrl: String
+        get() = "$host$routePath/${config.controlServerHistoryEndpoint}"
+
+    override val route: String
+        get() = config.controlServerRoute
+
+    override val getTestResultsBasicUrl: String
+        get() = "$host$routePath/${config.controlServerResultsBasicPath}"
+
+    override val getTestResultsOpenDataUrl: String
+        get() = "$host$routePath/${config.controlServerResultsOpenDataPath}"
 
     override val port: Int
         get() = config.controlServerPort

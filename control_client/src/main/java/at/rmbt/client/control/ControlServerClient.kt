@@ -15,40 +15,9 @@
 package at.rmbt.client.control
 
 import at.rmbt.util.Maybe
-import at.rmbt.util.exception.HandledException
-import timber.log.Timber
-import java.net.InetSocketAddress
-import java.net.Socket
 import javax.inject.Inject
 
-private const val SOCKET_TIME_OUT_MS = 5000
-
 class ControlServerClient @Inject constructor(private val endpointProvider: ControlEndpointProvider, private val api: ControlServerApi) {
-
-    fun getPrivateIpV4Address() = getPrivateIpAddress(InetSocketAddress(endpointProvider.checkPrivateIPv4Host, endpointProvider.port), IpProtocol.V4)
-
-    fun getPrivateIpV6Address() = getPrivateIpAddress(InetSocketAddress(endpointProvider.checkPrivateIPv6Host, endpointProvider.port), IpProtocol.V6)
-
-    private fun getPrivateIpAddress(address: InetSocketAddress, protocol: IpProtocol): Maybe<IpInfoResponse> {
-        return try {
-            val socket = Socket()
-            socket.connect(address, SOCKET_TIME_OUT_MS)
-            val privateIp = socket.localAddress
-            socket.close()
-            Maybe(IpInfoResponse(protocol.intValue, privateIp.hostAddress))
-        } catch (ex: Exception) {
-            Timber.w(ex)
-            Maybe(HandledException.from(ex))
-        }
-    }
-
-    fun getPublicIpV4Address(body: IpRequestBody): Maybe<IpInfoResponse> {
-        return api.ipCheck(endpointProvider.checkPublicIPv4Url, body).exec()
-    }
-
-    fun getPublicIpV6Address(body: IpRequestBody): Maybe<IpInfoResponse> {
-        return api.ipCheck(endpointProvider.checkPublicIPv6Url, body).exec()
-    }
 
     fun getSettings(body: SettingsRequestBody): Maybe<SettingsResponse> {
         return api.settingsCheck(endpointProvider.checkSettingsUrl, body).exec()
@@ -60,5 +29,21 @@ class ControlServerClient @Inject constructor(private val endpointProvider: Cont
 
     fun sendTestResults(body: TestResultBody): Maybe<BaseResponse> {
         return api.sendTestResult(endpointProvider.sendTestResultsUrl, body).exec()
+    }
+
+    fun sendQoSTestResults(body: QoSResultBody): Maybe<BaseResponse> {
+        return api.sendQoSTestResult(endpointProvider.sendQoSTestResultsUrl, body).exec()
+    }
+
+    fun getHistory(body: HistoryRequestBody): Maybe<HistoryResponse> {
+        return api.getHistory(endpointProvider.getHistoryUrl, body).exec()
+    }
+
+    fun getTestResult(body: ServerTestResultBody): Maybe<ServerTestResultResponse> {
+        return api.getTestResult(endpointProvider.getTestResultsBasicUrl, body).exec()
+    }
+
+    fun getDetailedTestResults(openTestUUID: String): Maybe<SpeedCurveBodyResponse> {
+        return api.getTestResultOpenDetails(endpointProvider.getTestResultsOpenDataUrl + "/" + openTestUUID).exec()
     }
 }

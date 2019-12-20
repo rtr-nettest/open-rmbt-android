@@ -7,8 +7,10 @@ import android.telephony.SubscriptionManager
 import android.telephony.TelephonyManager
 import at.rmbt.client.control.ControlEndpointProvider
 import at.rmbt.client.control.ControlServerClient
+import at.rmbt.client.control.IpEndpointProvider
 import at.specure.config.Config
 import at.specure.config.ControlServerProviderImpl
+import at.specure.config.IpEndpointProviderImpl
 import at.specure.data.ClientUUID
 import at.specure.data.ControlServerSettings
 import at.specure.data.HistoryFilterOptions
@@ -55,9 +57,10 @@ class CoreModule {
         telephonyManager: TelephonyManager,
         activeNetworkWatcher: ActiveNetworkWatcher,
         wifiInfoWatcher: WifiInfoWatcher,
-        cellInfoWatcher: CellInfoWatcher
+        cellInfoWatcher: CellInfoWatcher,
+        locationAccess: LocationAccess
     ): SignalStrengthWatcher =
-        SignalStrengthWatcherImpl(telephonyManager, activeNetworkWatcher, wifiInfoWatcher, cellInfoWatcher)
+        SignalStrengthWatcherImpl(telephonyManager, activeNetworkWatcher, wifiInfoWatcher, cellInfoWatcher, locationAccess)
 
     @Provides
     @Singleton
@@ -97,9 +100,10 @@ class CoreModule {
     fun provideActiveNetworkWatcher(
         connectivityWatcher: ConnectivityWatcher,
         wifiInfoWatcher: WifiInfoWatcher,
-        cellInfoWatcher: CellInfoWatcher
+        cellInfoWatcher: CellInfoWatcher,
+        locationAccess: LocationAccess
     ): ActiveNetworkWatcher =
-        ActiveNetworkWatcher(connectivityWatcher, wifiInfoWatcher, cellInfoWatcher)
+        ActiveNetworkWatcher(connectivityWatcher, wifiInfoWatcher, cellInfoWatcher, locationAccess)
 
     @Provides
     @Singleton
@@ -113,6 +117,10 @@ class CoreModule {
     @Provides
     @Singleton
     fun provideControlEndpointProvider(config: Config): ControlEndpointProvider = ControlServerProviderImpl(config)
+
+    @Provides
+    @Singleton
+    fun provideIpEndpointProvider(config: Config): IpEndpointProvider = IpEndpointProviderImpl(config)
 
     @Provides
     fun provideSettingRepository(
@@ -138,7 +146,8 @@ class CoreModule {
 
     @Provides
     @Singleton
-    fun provideTestController(config: Config, clientUUID: ClientUUID): TestController = TestControllerImpl(config, clientUUID)
+    fun provideTestController(context: Context, config: Config, clientUUID: ClientUUID, connectivityManager: ConnectivityManager): TestController =
+        TestControllerImpl(context, config, clientUUID, connectivityManager)
 
     @Provides
     @Singleton

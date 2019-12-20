@@ -6,9 +6,11 @@ import android.telephony.SubscriptionManager
 import android.telephony.TelephonyManager
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.Observer
+import at.rmbt.client.control.data.TestFinishReason
 import at.rtr.rmbt.client.RMBTClientCallback
 import at.rtr.rmbt.client.TotalTestResult
 import at.rtr.rmbt.client.helper.TestStatus
+import at.rtr.rmbt.client.v2.task.result.QoSResultCollector
 import at.rtr.rmbt.client.v2.task.service.TestMeasurement.TrafficDirection
 import at.specure.config.Config
 import at.specure.data.entity.TestRecord
@@ -36,7 +38,9 @@ import at.specure.location.cell.CellLocationWatcher
 import at.specure.util.hasPermission
 import at.specure.util.isReadPhoneStatePermitted
 import at.specure.util.permission.PermissionsWatcher
+import org.json.JSONArray
 import timber.log.Timber
+import java.text.DecimalFormat
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import kotlin.math.floor
@@ -60,6 +64,7 @@ class StateRecorder @Inject constructor(
     private val wifiInfoWatcher: WifiInfoWatcher
 ) : RMBTClientCallback {
     private var testUUID: String? = null
+    private var testToken: String? = null
     private var testStartTimeNanos: Long = 0L
     private var testRecord: TestRecord? = null
 
@@ -67,6 +72,8 @@ class StateRecorder @Inject constructor(
     private var signalStrengthInfo: SignalStrengthInfo? = null
     private var networkInfo: NetworkInfo? = null
     private var cellLocation: CellLocationInfo? = null
+
+    var onReadyToSubmit: ((Boolean) -> Unit)? = null
 
     val locationInfo: LocationInfo?
         get() = _locationInfo
@@ -105,6 +112,7 @@ class StateRecorder @Inject constructor(
 
     override fun onClientReady(testUUID: String, loopUUID: String?, testToken: String, testStartTimeNanos: Long, threadNumber: Int) {
         this.testUUID = testUUID
+        this.testToken = testToken
         this.testStartTimeNanos = testStartTimeNanos
         saveTestInitialTestData(testUUID, loopUUID, testToken, testStartTimeNanos, threadNumber)
         saveLocationInfo()
@@ -120,6 +128,7 @@ class StateRecorder @Inject constructor(
     fun finish() {
         // TODO finish
         testUUID = null
+        testToken = null
     }
 
     private fun saveTestInitialTestData(testUUID: String, loopUUID: String?, testToken: String, testStartTimeNanos: Long, threadNumber: Int) {
@@ -165,7 +174,7 @@ class StateRecorder @Inject constructor(
                 else -> throw IllegalArgumentException("Unknown cell info ${info.javaClass.simpleName}")
             }
 
-            repository.saveCellInfo(uuid, infoList)
+            repository.saveCellInfo(uuid, infoList, testStartTimeNanos)
         }
     }
 
@@ -218,22 +227,27 @@ class StateRecorder @Inject constructor(
             val simCount: Int
 
             if (context.isReadPhoneStatePermitted() && isDualByMobile) {
-                val info = subscriptionManager.activeSubscriptionInfoList.firstOrNull()
-                simCount = if (info != null) subscriptionManager.activeSubscriptionInfoCount else 2
-                info?.let {
-                    operatorName = info.carrierName.toString()
-                    networkOperator = "${info.mccCompat()}-${String.format("%02d", info.mncCompat())}"
-                    networkCountry = info.countryIso
+                val subscription = subscriptionManager.activeSubscriptionInfoList.firstOrNull()
+                simCount = if (subscription != null) subscriptionManager.activeSubscriptionInfoCount else 2
+                subscription?.let {
+                    operatorName = subscription.carrierName.toString()
+                    val networkSimOperator = when {
+                        subscription.mccCompat() == null -> null
+                        subscription.mncCompat() == null -> null
+                        else -> "${subscription.mccCompat()}-${DecimalFormat("00").format(subscription.mncCompat())}"
+                    }
+                    networkOperator = networkSimOperator
+                    networkCountry = subscription.countryIso
                 }
             } else {
                 simCount = 1
                 operatorName = telephonyManager.networkOperatorName
-                networkOperator = telephonyManager.networkOperator
+                networkOperator = telephonyManager.networkOperator.fixOperatorName()
                 networkCountry = telephonyManager.networkCountryIso
             }
 
             val networkInfo = cellInfoWatcher.activeNetwork
-            val simCountry = telephonyManager.simCountryIso
+            val simCountry = telephonyManager.simCountryIso.fixOperatorName()
             val simOperatorName = try { // hack for Motorola Defy (#594)
                 telephonyManager.simOperatorName
             } catch (ex: SecurityException) {
@@ -296,7 +310,7 @@ class StateRecorder @Inject constructor(
         }
     }
 
-    override fun onTestCompleted(result: TotalTestResult) {
+    override fun onTestCompleted(result: TotalTestResult, waitQosResults: Boolean) {
         testRecord?.apply {
             portRemote = result.port_remote
             bytesDownloaded = result.bytes_download
@@ -330,19 +344,68 @@ class StateRecorder @Inject constructor(
 
             transportType = networkInfo?.type
             testTimeMillis = System.currentTimeMillis()
+
+            testFinishReason = TestFinishReason.SUCCESS
         }
 
         testRecord?.let {
-            repository.update(it)
+            repository.update(it) {
+                if (!waitQosResults) {
+                    onReadyToSubmit?.invoke(true)
+                }
+            }
         }
-        testUUID = null
+
+        if (!waitQosResults) {
+            testUUID = null
+            testToken = null
+        }
+    }
+
+    override fun onQoSTestCompleted(qosResult: QoSResultCollector?) {
+        val uuid = testUUID
+        val token = testToken
+        val data: JSONArray? = qosResult?.toJson()
+        if (uuid != null && token != null && qosResult != null && data != null) {
+            repository.saveQoSResults(uuid, token, data) {
+                onReadyToSubmit?.invoke(true)
+            }
+        }
     }
 
     override fun onTestStatusUpdate(status: TestStatus?) {
-        if (status != null) {
+        status?.let {
             testRecord?.also {
                 it.status = status
+
+                if (status != TestStatus.ERROR && status != TestStatus.ABORTED) {
+                    it.lastClientStatus = status
+                }
             }
+        }
+    }
+
+    fun onUnsuccessTest(reason: TestFinishReason) {
+        testRecord?.also {
+            it.testFinishReason = reason
+
+            repository.update(it) {
+                onReadyToSubmit?.invoke(false)
+            }
+        }
+    }
+
+    fun setErrorCause(message: String) {
+        testRecord?.testErrorCause = message
+    }
+
+    private fun String?.fixOperatorName(): String? {
+        return if (this == null) {
+            null
+        } else if (length >= 5 && !contains("-")) {
+            "${substring(0, 3)}-${substring(3)}"
+        } else {
+            this
         }
     }
 }

@@ -17,10 +17,10 @@
 package at.rtr.rmbt.android.ui.view
 
 import android.content.Context
-import android.graphics.Canvas
-import android.graphics.Paint
 import android.graphics.Bitmap
+import android.graphics.Canvas
 import android.graphics.Color
+import android.graphics.Paint
 import android.graphics.PorterDuff
 import android.graphics.PorterDuffXfermode
 import android.util.AttributeSet
@@ -40,14 +40,21 @@ class ProgressBar @JvmOverloads constructor(
             field = value * 2f * resources.displayMetrics.density
         }
 
+    var progress: Int = 0
+        set(value) {
+            field = value
+            updateProgress(value)
+            invalidate()
+        }
+
     init {
         setLayerType(LAYER_TYPE_HARDWARE, null)
         setWillNotDraw(false)
-        squareSize = 270f / 128
+        squareSize = 270f / 160
     }
 
     private var emptySquarePaint = Paint().apply {
-        color = ContextCompat.getColor(context, R.color.text_white_transparency_40)
+        color = ContextCompat.getColor(context, R.color.measurement_not_progressed)
         style = Paint.Style.FILL_AND_STROKE
         xfermode = PorterDuffXfermode(PorterDuff.Mode.SRC)
         isAntiAlias = true
@@ -123,14 +130,11 @@ class ProgressBar @JvmOverloads constructor(
      * Calculate the size of filled graph of part and draw it
      */
     private fun updateProgress(percentage: Int) {
-        currentCanvas?.drawColor(Color.TRANSPARENT, PorterDuff.Mode.CLEAR)
-        currentCanvas?.let { drawBackground(it) }
-        currentCanvas?.drawRect(
-            0f, 0f,
-            (measuredWidth * percentage / 100).toFloat(),
-            measuredHeight.toFloat(),
-            progressPaint
-        )
+        currentCanvas?.apply {
+            drawColor(Color.TRANSPARENT, PorterDuff.Mode.CLEAR)
+            drawBackground(this)
+            drawRect(0f, 0f, (measuredWidth * percentage / 100).toFloat(), measuredHeight.toFloat(), progressPaint)
+        }
     }
 
     companion object {

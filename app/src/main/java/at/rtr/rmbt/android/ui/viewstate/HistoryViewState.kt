@@ -1,19 +1,23 @@
 package at.rtr.rmbt.android.ui.viewstate
 
 import android.os.Bundle
-import androidx.databinding.ObservableField
+import androidx.databinding.ObservableBoolean
 
-private const val KEY_TEXT = "KEY_TEXT"
-
+private const val KEY_IS_LOADING_LIVEDATA = "KEY_IS_LOADING_LIVEDATA"
 class HistoryViewState : ViewState {
 
-    val text = ObservableField<String?>()
+    val isLoadingLiveData = ObservableBoolean()
+    val isHistoryEmpty = ObservableBoolean()
 
     override fun onRestoreState(bundle: Bundle?) {
-        text.set(bundle?.getString(KEY_TEXT))
+        bundle?.let {
+            isLoadingLiveData.set(bundle.getBoolean(KEY_IS_LOADING_LIVEDATA, false))
+        }
     }
 
     override fun onSaveState(bundle: Bundle?) {
-        bundle?.putString(KEY_TEXT, text.get())
+        bundle?.apply {
+            putBoolean(KEY_IS_LOADING_LIVEDATA, isLoadingLiveData.get())
+        }
     }
 }

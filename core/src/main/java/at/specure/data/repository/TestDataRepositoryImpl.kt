@@ -9,6 +9,7 @@ import at.specure.data.entity.GeoLocationRecord
 import at.specure.data.entity.GraphItemRecord
 import at.specure.data.entity.PermissionStatusRecord
 import at.specure.data.entity.PingRecord
+import at.specure.data.entity.QoSResultRecord
 import at.specure.data.entity.SignalRecord
 import at.specure.data.entity.SpeedRecord
 import at.specure.data.entity.TestRecord
@@ -25,8 +26,10 @@ import at.specure.info.strength.SignalStrengthInfoLte
 import at.specure.info.strength.SignalStrengthInfoWiFi
 import at.specure.location.LocationInfo
 import at.specure.location.cell.CellLocationInfo
+import org.json.JSONArray
+import java.text.DecimalFormat
 
-class TestDataRepositoryImpl(db: CoreDatabase, private val resultsRepository: ResultsRepository) : TestDataRepository {
+class TestDataRepositoryImpl(db: CoreDatabase) : TestDataRepository {
 
     private val geoLocationDao = db.geoLocationDao()
     private val graphItemDao = db.graphItemsDao()
@@ -44,7 +47,7 @@ class TestDataRepositoryImpl(db: CoreDatabase, private val resultsRepository: Re
             testUUID = testUUID,
             latitude = location.latitude,
             longitude = location.longitude,
-            provider = location.provider.name,
+            provider = location.provider,
             speed = location.speed,
             altitude = location.altitude,
             time = location.time,
@@ -59,12 +62,22 @@ class TestDataRepositoryImpl(db: CoreDatabase, private val resultsRepository: Re
     }
 
     override fun saveDownloadGraphItem(testUUID: String, progress: Int, speedBps: Long) = io {
-        val graphItem = GraphItemRecord(testUUID = testUUID, progress = progress, value = speedBps, type = GraphItemRecord.GRAPH_ITEM_TYPE_DOWNLOAD)
+        val graphItem = GraphItemRecord(
+            testUUID = testUUID,
+            progress = progress,
+            value = speedBps,
+            type = GraphItemRecord.GRAPH_ITEM_TYPE_DOWNLOAD
+        )
         graphItemDao.insertItem(graphItem)
     }
 
     override fun saveUploadGraphItem(testUUID: String, progress: Int, speedBps: Long) = io {
-        val graphItem = GraphItemRecord(testUUID = testUUID, progress = progress, value = speedBps, type = GraphItemRecord.GRAPH_ITEM_TYPE_UPLOAD)
+        val graphItem = GraphItemRecord(
+            testUUID = testUUID,
+            progress = progress,
+            value = speedBps,
+            type = GraphItemRecord.GRAPH_ITEM_TYPE_UPLOAD
+        )
         graphItemDao.insertItem(graphItem)
     }
 
@@ -94,7 +107,17 @@ class TestDataRepositoryImpl(db: CoreDatabase, private val resultsRepository: Re
         info: SignalStrengthInfo,
         testStartTimeNanos: Long
     ) = io {
-        val signal = info.value
+        saveSignalStrengthDirectly(testUUID, cellUUID, mobileNetworkType, info, testStartTimeNanos)
+    }
+
+    private fun saveSignalStrengthDirectly(
+        testUUID: String,
+        cellUUID: String,
+        mobileNetworkType: MobileNetworkType?,
+        info: SignalStrengthInfo,
+        testStartTimeNanos: Long
+    ) {
+        var signal = info.value
         var wifiLinkSpeed: Int? = null
         val timeNanos = info.timestampNanos
         val timeNanosLast = if (timeNanos < testStartTimeNanos) 0 else timeNanos - testStartTimeNanos
@@ -109,6 +132,7 @@ class TestDataRepositoryImpl(db: CoreDatabase, private val resultsRepository: Re
 
         when (info) {
             is SignalStrengthInfoLte -> {
+                signal = null
                 lteRsrp = info.rsrp
                 lteRsrq = info.rsrq
                 lteRssnr = info.rssnr
@@ -143,12 +167,17 @@ class TestDataRepositoryImpl(db: CoreDatabase, private val resultsRepository: Re
         signalDao.insert(item)
     }
 
-    override fun saveCellInfo(testUUID: String, infoList: List<NetworkInfo>) = io {
+    override fun saveCellInfo(testUUID: String, infoList: List<NetworkInfo>, testStartTimeNanos: Long) = io {
         val cellInfo = mutableListOf<CellInfoRecord>()
         infoList.forEach { info ->
             val mapped = when (info) {
                 is WifiNetworkInfo -> info.toCellInfoRecord(testUUID)
-                is CellNetworkInfo -> info.toCellInfoRecord(testUUID)
+                is CellNetworkInfo -> {
+                    info.signalStrength?.let {
+                        saveSignalStrengthDirectly(testUUID, info.cellUUID, info.networkType, it, testStartTimeNanos)
+                    }
+                    info.toCellInfoRecord(testUUID)
+                }
                 else -> throw IllegalArgumentException("Don't know how to save ${info.javaClass.simpleName} info into db")
             }
             cellInfo.add(mapped)
@@ -234,6 +263,11 @@ class TestDataRepositoryImpl(db: CoreDatabase, private val resultsRepository: Re
         dataState: String?,
         simCount: Int
     ) = io {
+        val networkSimOperator = when {
+            networkInfo?.mcc == null -> null
+            networkInfo.mnc == null -> null
+            else -> "${networkInfo.mcc}-${DecimalFormat("00").format(networkInfo.mnc)}"
+        }
         val record = TestTelephonyRecord(
             testUUID = testUUID,
             networkOperatorName = operatorName,
@@ -241,7 +275,7 @@ class TestDataRepositoryImpl(db: CoreDatabase, private val resultsRepository: Re
             networkIsRoaming = networkInfo?.isRoaming,
             networkCountry = networkCountry,
             networkSimCountry = simCountry,
-            networkSimOperator = "${networkInfo?.mnc}-${networkInfo?.mcc}",
+            networkSimOperator = networkSimOperator,
             networkSimOperatorName = simOperatorName,
             phoneType = phoneType,
             dataState = dataState,
@@ -268,10 +302,19 @@ class TestDataRepositoryImpl(db: CoreDatabase, private val resultsRepository: Re
         testDao.insert(test)
     }
 
-    override fun update(testRecord: TestRecord) = io {
+    override fun update(testRecord: TestRecord, onUpdated: () -> Unit) = io {
         testDao.update(testRecord)
+        onUpdated.invoke()
+    }
 
-        // TODO remove this later
-        resultsRepository.sendTestResults(testRecord.uuid)
+    override fun saveQoSResults(testUUID: String, testToken: String, qosData: JSONArray, onUpdated: () -> Unit) = io {
+        val record = QoSResultRecord(
+            uuid = testUUID,
+            testToken = testToken,
+            timeMillis = System.currentTimeMillis(),
+            results = qosData
+        )
+        testDao.insert(record)
+        onUpdated.invoke()
     }
 }

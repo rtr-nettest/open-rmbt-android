@@ -212,7 +212,8 @@ private fun ConnectivityManager.cellNetworkInfoCompat(operatorName: String?): Ce
             isActive = true,
             isRegistered = true,
             isRoaming = info.isRoaming,
-            apn = info.extraInfo
+            apn = info.extraInfo,
+            signalStrength = null
         )
     }
 }
