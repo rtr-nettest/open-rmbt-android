@@ -47,9 +47,6 @@ open class ResultScreenPortraitTest : BaseHomeActivityTest() {
         while ((if (getCurrentActivity() != null) getCurrentActivity()?.localClassName else "noActivity") != resultsActivityLocalClassName) {
             TimeUnit.SECONDS.sleep(1)
         }
-        /*while (getCurrentActivity()!!.localClassName != resultsActivityLocalClassName) {
-            TimeUnit.SECONDS.sleep(1)
-        }*/
     }
 
     @Test
