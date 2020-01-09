@@ -5,13 +5,16 @@ import at.rmbt.client.control.BaseResponse
 import at.rmbt.client.control.CapabilitiesBody
 import at.rmbt.client.control.ControlServerClient
 import at.rmbt.client.control.ServerTestResultBody
+import at.rmbt.client.control.TestResultDetailBody
 import at.rmbt.util.Maybe
 import at.rmbt.util.io
 import at.specure.data.ClientUUID
 import at.specure.data.CoreDatabase
 import at.specure.data.entity.QoeInfoRecord
+import at.specure.data.entity.TestResultDetailsRecord
 import at.specure.data.entity.TestResultRecord
 import at.specure.data.toModel
+import at.specure.data.toModelList
 import at.specure.data.toQoeModel
 import timber.log.Timber
 import java.util.Locale
@@ -24,6 +27,7 @@ class TestResultsRepositoryImpl(
 
     private val qoeInfoDao = db.qoeInfoDao()
     private val testResultDao = db.testResultDao()
+    private val testResultDetailsDao = db.testResultDetailsDao()
 
     override fun getQoEItems(testOpenUUID: String): LiveData<List<QoeInfoRecord>> {
         return qoeInfoDao.get(testOpenUUID)
@@ -31,6 +35,22 @@ class TestResultsRepositoryImpl(
 
     override fun getServerTestResult(testUUID: String): LiveData<TestResultRecord?> {
         return testResultDao.get(testUUID)
+    }
+
+    override fun getTestDetailsResult(testUUID: String): LiveData<List<TestResultDetailsRecord>>  = testResultDetailsDao.get(testUUID)
+
+    override fun loadTestDetailsResult(testUUID: String) = io {
+        val clientUUID = clientUUID.value
+        if (clientUUID == null) {
+            Timber.w("Unable to load data; client uuid is null")
+            return@io
+        }
+
+        val body = TestResultDetailBody(testUUID, clientUUID, Locale.getDefault().language)
+        val result = client.getTestResultDetail(body)
+        result.onSuccess {
+            testResultDetailsDao.insert(it.toModelList(testUUID))
+        }
     }
 
     fun loadOpenDataTestResults(openTestUUID: String): Maybe<BaseResponse> {
@@ -41,11 +61,10 @@ class TestResultsRepositoryImpl(
         return detailedTestResults
     }
 
-    override fun loadTestResults(testUUID: String, callBack: (Maybe<Boolean>) -> Unit) = io {
+    override fun loadTestResults(testUUID: String) = io {
         val clientUUID = clientUUID.value
         if (clientUUID == null) {
             Timber.w("Unable to update history client uuid is null")
-            callBack.invoke(Maybe(false))
             return@io
         }
 
@@ -66,6 +85,5 @@ class TestResultsRepositoryImpl(
             qoeInfoDao.insert(qoeRecords)
             getServerTestResult(testUUID)
         }
-        callBack.invoke(response.map { response.ok })
     }
 }

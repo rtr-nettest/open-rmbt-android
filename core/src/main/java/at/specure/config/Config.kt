@@ -136,6 +136,11 @@ interface Config {
     var controlServerResultsOpenDataPath: String
 
     /**
+     * End of the url for getting test result details from the control server, example "ControlServer/testresultdetail"
+     */
+    var controlServerTestResultDetailsEndpoint: String
+
+    /**
      * Counter of tests performed by user
      */
     var testCounter: Int

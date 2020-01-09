@@ -17,7 +17,6 @@ package at.rmbt.client.control
 import androidx.annotation.Keep
 import at.rmbt.client.control.data.ErrorStatus
 import com.google.gson.annotations.SerializedName
-import kotlin.collections.HashSet
 
 /**
  * Basic response class
@@ -540,3 +539,21 @@ data class HistoryItemResponse(
     val timeString: String,
     val timezone: String
 )
+
+@Keep
+data class TestResultDetailItem(
+    @SerializedName("open_test_uuid")
+    val openTestUUID: String?,
+    @SerializedName("open_uuid")
+    val openUuid: String?,
+    val time: Long?,
+    val timezone: String?,
+    val title: String,
+    val value: String
+)
+
+@Keep
+data class TestResultDetailResponse(
+    @SerializedName("testresultdetail")
+    val details: List<TestResultDetailItem>
+) : BaseResponse()
