@@ -16,5 +16,4 @@ interface TestResultDetailsDao {
 
     @Query("SELECT * from ${Tables.TEST_RESULT_DETAILS} WHERE testUUID == :uuid")
     fun get(uuid: String): LiveData<List<TestResultDetailsRecord>>
-
 }

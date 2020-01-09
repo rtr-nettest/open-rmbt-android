@@ -37,7 +37,7 @@ class TestResultsRepositoryImpl(
         return testResultDao.get(testUUID)
     }
 
-    override fun getTestDetailsResult(testUUID: String): LiveData<List<TestResultDetailsRecord>>  = testResultDetailsDao.get(testUUID)
+    override fun getTestDetailsResult(testUUID: String): LiveData<List<TestResultDetailsRecord>> = testResultDetailsDao.get(testUUID)
 
     override fun loadTestDetailsResult(testUUID: String) = io {
         val clientUUID = clientUUID.value
