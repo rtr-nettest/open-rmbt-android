@@ -20,6 +20,7 @@ import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
 import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.filters.LargeTest
+import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.runner.AndroidJUnit4
 import at.rtr.rmbt.android.R
 import at.rtr.rmbt.android.baseTests.BaseHomeActivityTest
@@ -44,9 +45,14 @@ open class ResultScreenPortraitTest : BaseHomeActivityTest() {
         assertTrue("No internet connection available", isConnected(context))
         onView(withId(R.id.ivSignalLevel)).perform(click())
         val resultsActivityLocalClassName = ResultsActivity::class.java.toString().split(" ")[1]
-        while ((if (getCurrentActivity() != null) getCurrentActivity()?.localClassName else "noActivity") != resultsActivityLocalClassName) {
+        val timeoutSeconds = 180
+        var timeCounter = 0
+        while (((if (getCurrentActivity() != null) getCurrentActivity()?.localClassName else "noActivity") != resultsActivityLocalClassName) and (timeCounter < timeoutSeconds)) {
             TimeUnit.SECONDS.sleep(1)
+            timeCounter++
         }
+        assertTrue("Timeout for measurement", timeCounter < timeoutSeconds)
+        InstrumentationRegistry.getInstrumentation().waitForIdleSync()
     }
 
     @Test
