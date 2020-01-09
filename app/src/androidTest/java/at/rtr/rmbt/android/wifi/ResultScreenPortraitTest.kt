@@ -32,7 +32,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import java.util.concurrent.TimeUnit
 
-
 @RunWith(AndroidJUnit4::class)
 @LargeTest
 open class ResultScreenPortraitTest : BaseHomeActivityTest() {
