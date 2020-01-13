@@ -66,7 +66,7 @@ class ResultsActivity : BaseActivity(), OnMapReadyCallback {
                         NetworkTypeCompat.TYPE_5G -> throw IllegalArgumentException("Need to add 5G marker image for the map")
                     }
 
-                    googleMap?.addMarker(MarkerOptions().position(this).icon(bitmapDescriptorFromVector(icon)))
+                    googleMap?.addMarker(MarkerOptions().position(this).anchor(ANCHOR_U, ANCHOR_V).icon(bitmapDescriptorFromVector(icon)))
                     googleMap?.moveCamera(CameraUpdateFactory.newLatLngZoom(this, ZOOM_LEVEL))
                     googleMap?.setOnMapClickListener { DetailedFullscreenMapActivity.start(this@ResultsActivity, testUUID) }
                 }
@@ -78,18 +78,6 @@ class ResultsActivity : BaseActivity(), OnMapReadyCallback {
             // todo: display result details
         }
 
-        viewModel.loadTestResults()
-    }
-
-    override fun onMapReady(map: GoogleMap?) {
-        googleMap = map
-        map?.let {
-            with(map.uiSettings) {
-                isScrollGesturesEnabled = false
-                isZoomGesturesEnabled = false
-                isRotateGesturesEnabled = false
-            }
-        }
         viewModel.qoeResultLiveData.listen(this) {
             viewModel.state.qoeRecords.set(it)
             adapter.submitList(it)
@@ -104,6 +92,19 @@ class ResultsActivity : BaseActivity(), OnMapReadyCallback {
         }
         binding.buttonBack.setOnClickListener {
             super.onBackPressed()
+        }
+
+        viewModel.loadTestResults()
+    }
+
+    override fun onMapReady(map: GoogleMap?) {
+        googleMap = map
+        map?.let {
+            with(map.uiSettings) {
+                isScrollGesturesEnabled = false
+                isZoomGesturesEnabled = false
+                isRotateGesturesEnabled = false
+            }
         }
     }
 
@@ -141,6 +142,8 @@ class ResultsActivity : BaseActivity(), OnMapReadyCallback {
         private const val ZOOM_LEVEL = 15f
         private const val CIRCLE_RADIUS = 13.0
         private const val STROKE_WIDTH = 7f
+        private const val ANCHOR_U = 0.5f
+        private const val ANCHOR_V = 0.865f
 
         private const val KEY_TEST_UUID = "KEY_TEST_UUID"
 
