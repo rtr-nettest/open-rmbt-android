@@ -25,7 +25,7 @@ import at.rtr.rmbt.client.v2.task.result.QoSTestResultEnum
 
 class QosMeasurementAdapter : RecyclerView.Adapter<ViewHolder>() {
 
-    private val items = listOf(
+    private val initialItems = listOf(
         Pair(QoSTestResultEnum.WEBSITE, R.string.measurement_qos_web_site),
         Pair(QoSTestResultEnum.NON_TRANSPARENT_PROXY, R.string.measurement_qos_transparent_connection),
         Pair(QoSTestResultEnum.DNS, R.string.measurement_qos_dns),
@@ -37,12 +37,25 @@ class QosMeasurementAdapter : RecyclerView.Adapter<ViewHolder>() {
     )
 
     private val _values = mutableMapOf<QoSTestResultEnum, Int>()
+    private val items = mutableListOf<Pair<QoSTestResultEnum, Int>>()
 
     var values: Map<QoSTestResultEnum, Int>
         get() = _values
         set(value) {
             _values.clear()
-            _values.putAll(value)
+
+            value.forEach { entry ->
+                if (entry.value < 100) {
+                    _values[entry.key] = entry.value
+                }
+            }
+
+            items.clear()
+            initialItems.forEach {
+                if (_values.containsKey(it.first)) {
+                    items.add(it)
+                }
+            }
             notifyDataSetChanged()
         }
 
