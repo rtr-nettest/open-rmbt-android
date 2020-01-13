@@ -15,6 +15,7 @@
 package at.specure.info.network
 
 import android.telephony.TelephonyManager
+import at.specure.data.ServerNetworkType
 import timber.log.Timber
 
 /**
@@ -135,8 +136,17 @@ enum class MobileNetworkType(val intValue: Int, val displayName: String) {
                     return value
                 }
             }
-            Timber.w("Mobile network type $intValue not found in known types list")
-            return UNKNOWN
+
+            return when (intValue) {
+                ServerNetworkType.TYPE_2G_3G.intValue -> HSPA
+                ServerNetworkType.TYPE_2G_3G_4G.intValue -> LTE
+                ServerNetworkType.TYPE_2G_4G.intValue -> LTE
+                ServerNetworkType.TYPE_3G_4G.intValue -> LTE
+                else -> {
+                    Timber.w("Mobile network type $intValue not found in known types list")
+                    UNKNOWN
+                }
+            }
         }
     }
 }
