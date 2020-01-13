@@ -172,6 +172,7 @@
             android:id="@+id/qosTestRecyclerView"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:maxHeight="@dimen/qos_list_max_height"
             app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
