@@ -22,6 +22,7 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.CircleOptions
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
+import timber.log.Timber
 
 class ResultsActivity : BaseActivity(), OnMapReadyCallback {
 
@@ -71,6 +72,13 @@ class ResultsActivity : BaseActivity(), OnMapReadyCallback {
                 }
             }
         }
+
+        viewModel.testResultDetailsLiveData.listen(this) {
+            Timber.d("found ${it.size} rows of details")
+            // todo: display result details
+        }
+
+        viewModel.loadTestResults()
     }
 
     override fun onMapReady(map: GoogleMap?) {
@@ -102,7 +110,6 @@ class ResultsActivity : BaseActivity(), OnMapReadyCallback {
     override fun onStart() {
         super.onStart()
         binding.map.onStart()
-        viewModel.loadTestResults()
     }
 
     override fun onResume() {

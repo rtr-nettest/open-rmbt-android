@@ -31,4 +31,5 @@ object Tables {
     const val TEST_WLAN_RECORD = "test_wlan"
     const val SPEED = "speed"
     const val QOS_RESULT = "qos_result"
+    const val TEST_RESULT_DETAILS = "test_result_details"
 }
