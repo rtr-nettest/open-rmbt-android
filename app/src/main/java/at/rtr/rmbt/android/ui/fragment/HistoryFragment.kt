@@ -92,11 +92,6 @@ class HistoryFragment : BaseFragment() {
 
     override fun onStart() {
         super.onStart()
-
-        historyViewModel.historyLiveData.value?.let {
-            if (it.isEmpty()) {
-                historyViewModel.clearHistory()
-            }
-        }
+        historyViewModel.clearHistory()
     }
 }
