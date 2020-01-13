@@ -18,11 +18,13 @@ import at.rtr.rmbt.android.util.listen
 import at.rtr.rmbt.android.viewmodel.HistoryViewModel
 
 private const val CODE_ERROR = 1
+
 class HistoryFragment : BaseFragment() {
 
     private val historyViewModel: HistoryViewModel by viewModelLazy()
     private val binding: FragmentHistoryBinding by bindingLazy()
     private val adapter: HistoryAdapter by lazy { HistoryAdapter() }
+    private var hadItemsBefore = false
 
     override val layoutResId = R.layout.fragment_history
 
@@ -46,15 +48,16 @@ class HistoryFragment : BaseFragment() {
         }
 
         historyViewModel.historyLiveData.listen(this) {
+            if (!hadItemsBefore) {
+                hadItemsBefore = it.isNotEmpty()
+                historyViewModel.state.isHistoryEmpty.set(it.isEmpty())
+            }
+
             adapter.submitList(it)
         }
 
         historyViewModel.isLoadingLiveData.listen(this) {
             historyViewModel.state.isLoadingLiveData.set(it)
-        }
-
-        historyViewModel.isHistoryEmpty.listen(this) {
-            historyViewModel.state.isHistoryEmpty.set(it)
         }
 
         binding.swipeRefreshLayoutHistoryItems.setOnRefreshListener {
@@ -66,6 +69,8 @@ class HistoryFragment : BaseFragment() {
     }
 
     override fun onHandledException(exception: HandledException) {
+        hadItemsBefore = false
+        historyViewModel.state.isHistoryEmpty.set(true)
 
         val messageTextResId = when (exception) {
             is NoConnectionException -> {
@@ -84,6 +89,7 @@ class HistoryFragment : BaseFragment() {
                 .show(it, CODE_ERROR)
         }
     }
+
     override fun onStart() {
         super.onStart()
 
