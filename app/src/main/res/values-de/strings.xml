@@ -182,6 +182,9 @@
     <string name="results_qoe_voip">VOIP</string>
     <string name="results_qoe_web">Netz</string>
     <string name="results_qoe_qos">Qualitätstest</string>
+    <string name="results_network_type">Zugang</string>
+    <string name="results_network_provider">Betreiber</string>
+    <string name="results_network_ssid">WLAN SSID</string>
 
 </resources>
 

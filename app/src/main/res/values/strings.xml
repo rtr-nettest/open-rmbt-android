@@ -193,4 +193,7 @@
     <string name="results_qoe_cloud">Cloud</string>
     <string name="results_qoe_qos">Quality tests</string>
     <string name="results_quality">Quality</string>
+    <string name="results_network_type">Type</string>
+    <string name="results_network_provider">Provider</string>
+    <string name="results_network_ssid">WLAN SSID</string>
 </resources>

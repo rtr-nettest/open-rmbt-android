@@ -113,6 +113,7 @@
                     android:textColor="@color/text_black_transparency_40"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@+id/mapContainer"
+                    app:text="@{state.testResult.networkTypeText}"
                     tools:text="WLAN" />
 
                 <TextView
@@ -125,6 +126,7 @@
                     android:textAllCaps="true"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@+id/networkTypeText"
+                    app:text="@{state.testResult.networkName}"
                     tools:text="Wififinka" />
 
                 <androidx.appcompat.widget.AppCompatImageView
@@ -335,7 +337,7 @@
 
                 <androidx.appcompat.widget.AppCompatTextView
                     android:id="@+id/labelConnection"
-                    style="@style/RobotoBoldStyle.Medium"
+                    style="@style/RobotoRegularStyle.Small"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="@dimen/margin_large"
@@ -343,11 +345,12 @@
                     android:paddingBottom="@dimen/padding_small"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@+id/titleNetwork"
+                    android:text="@string/results_network_type"
                     tools:text="Connection" />
 
                 <androidx.appcompat.widget.AppCompatTextView
                     android:id="@+id/textConnection"
-                    style="@style/RobotoBoldStyle.Medium"
+                    style="@style/RobotoRegularStyle.Small"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginEnd="@dimen/margin_large"
@@ -355,22 +358,25 @@
                     app:layout_constraintBottom_toBottomOf="@+id/labelConnection"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintTop_toTopOf="@+id/labelConnection"
+                    app:text="@{state.testResult.networkTypeText}"
                     tools:text="WLAN" />
 
                 <androidx.appcompat.widget.AppCompatTextView
                     android:id="@+id/labelProvider"
-                    style="@style/RobotoBoldStyle.Medium"
+                    style="@style/RobotoRegularStyle.Small"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="@dimen/margin_large"
                     android:drawablePadding="@dimen/padding_very_small"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@+id/labelConnection"
+                    android:text="@string/results_network_provider"
+                    app:visibleOrGone="@{state.testResult.networkProviderName != null}"
                     tools:text="Provider" />
 
                 <androidx.appcompat.widget.AppCompatTextView
                     android:id="@+id/textProvider"
-                    style="@style/RobotoBoldStyle.Medium"
+                    style="@style/RobotoRegularStyle.Small"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginEnd="@dimen/margin_large"
@@ -378,22 +384,26 @@
                     app:layout_constraintBottom_toBottomOf="@+id/labelProvider"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintTop_toTopOf="@+id/labelProvider"
+                    app:text="@{state.testResult.networkProviderName}"
+                    app:visibleOrGone="@{state.testResult.networkProviderName != null}"
                     tools:text="SANET SK" />
 
                 <androidx.appcompat.widget.AppCompatTextView
                     android:id="@+id/labelNetworkName"
-                    style="@style/RobotoBoldStyle.Medium"
+                    style="@style/RobotoRegularStyle.Small"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="@dimen/margin_large"
                     android:drawablePadding="@dimen/padding_very_small"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@+id/labelProvider"
+                    android:text="@string/results_network_ssid"
+                    app:visibleOrGone="@{state.testResult.networkName != null}"
                     tools:text="WLAN SSID" />
 
                 <androidx.appcompat.widget.AppCompatTextView
                     android:id="@+id/textNetworkName"
-                    style="@style/RobotoBoldStyle.Medium"
+                    style="@style/RobotoRegularStyle.Small"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginEnd="@dimen/margin_large"
@@ -401,6 +411,8 @@
                     app:layout_constraintBottom_toBottomOf="@+id/labelNetworkName"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintTop_toTopOf="@+id/labelNetworkName"
+                    app:text="@{state.testResult.networkName}"
+                    app:visibleOrGone="@{state.testResult.networkName != null}"
                     tools:text="WIFIFINKA" />
 
                 <androidx.constraintlayout.widget.ConstraintLayout
