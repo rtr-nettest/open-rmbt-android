@@ -274,7 +274,7 @@ data class ServerTestResultItem(
     /**
      * Object holding all basic network information
      */
-    @SerializedName("measurement_item")
+    @SerializedName("network_info")
     val networkItem: NetworkItem,
 
     /**
@@ -414,8 +414,15 @@ data class MeasurementItem(
 
 @Keep
 data class NetworkItem(
-    // TODO: prepare according to RTR spec
-    val lama: Boolean?
+
+    @SerializedName("network_type_label")
+    val networkTypeString: String,
+
+    @SerializedName("wifi_ssid")
+    val wifiNetworkSSID: String?,
+
+    @SerializedName("provider_name")
+    val providerName: String?
 )
 
 /**

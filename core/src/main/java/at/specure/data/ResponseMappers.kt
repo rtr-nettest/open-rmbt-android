@@ -59,6 +59,9 @@ fun ServerTestResultItem.toModel(testUUID: String): TestResultRecord {
         timestamp = timestamp,
         timeText = timeText,
         timezone = timezone,
+        networkName = networkItem.wifiNetworkSSID,
+        networkProviderName = networkItem.providerName,
+        networkTypeText = networkItem.networkTypeString,
         networkType = NetworkTypeCompat.fromResultIntType(networkType)
     )
 }

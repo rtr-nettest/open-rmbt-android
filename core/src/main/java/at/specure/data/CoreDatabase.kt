@@ -71,5 +71,4 @@ abstract class CoreDatabase : RoomDatabase() {
     abstract fun speedDao(): SpeedDao
     abstract fun testDao(): TestDao
     abstract fun testResultDao(): TestResultDao
-    abstract fun testResultDetailsDao(): TestResultDetailsDao
 }
