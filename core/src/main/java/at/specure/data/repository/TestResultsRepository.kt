@@ -1,8 +1,8 @@
 package at.specure.data.repository
 
 import androidx.lifecycle.LiveData
-import at.rmbt.util.Maybe
 import at.specure.data.entity.QoeInfoRecord
+import at.specure.data.entity.TestResultDetailsRecord
 import at.specure.data.entity.TestResultRecord
 
 interface TestResultsRepository {
@@ -11,5 +11,9 @@ interface TestResultsRepository {
 
     fun getServerTestResult(testUUID: String): LiveData<TestResultRecord?>
 
-    fun loadTestResults(testUUID: String, callBack: (Maybe<Boolean>) -> Unit)
+    fun loadTestResults(testUUID: String)
+
+    fun loadTestDetailsResult(testUUID: String)
+
+    fun getTestDetailsResult(testUUID: String): LiveData<List<TestResultDetailsRecord>>
 }

@@ -16,6 +16,7 @@ import at.specure.data.dao.SignalDao
 import at.specure.data.dao.SpeedDao
 import at.specure.data.dao.TestDao
 import at.specure.data.dao.TestResultDao
+import at.specure.data.dao.TestResultDetailsDao
 import at.specure.data.entity.CapabilitiesRecord
 import at.specure.data.entity.CellInfoRecord
 import at.specure.data.entity.CellLocationRecord
@@ -29,6 +30,7 @@ import at.specure.data.entity.QoeInfoRecord
 import at.specure.data.entity.SignalRecord
 import at.specure.data.entity.SpeedRecord
 import at.specure.data.entity.TestRecord
+import at.specure.data.entity.TestResultDetailsRecord
 import at.specure.data.entity.TestResultRecord
 import at.specure.data.entity.TestTelephonyRecord
 import at.specure.data.entity.TestWlanRecord
@@ -49,8 +51,9 @@ import at.specure.data.entity.TestWlanRecord
         TestRecord::class,
         TestResultRecord::class,
         TestWlanRecord::class,
-        QoSResultRecord::class],
-    version = 29
+        QoSResultRecord::class,
+        TestResultDetailsRecord::class],
+    version = 31
 )
 @TypeConverters(TypeConverter::class)
 abstract class CoreDatabase : RoomDatabase() {
@@ -68,4 +71,5 @@ abstract class CoreDatabase : RoomDatabase() {
     abstract fun speedDao(): SpeedDao
     abstract fun testDao(): TestDao
     abstract fun testResultDao(): TestResultDao
+    abstract fun testResultDetailsDao(): TestResultDetailsDao
 }

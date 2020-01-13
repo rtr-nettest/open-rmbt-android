@@ -17,4 +17,8 @@ package at.specure.data
 object Columns {
     const val TEST_UUID_PARENT_COLUMN = "uuid"
     const val TEST_OPEN_UUID_PARENT_COLUMN = "testOpenUUID"
+
+    const val TEST_DETAILS_TEST_UUID = "testUUID"
+    const val TEST_DETAILS_TITLE = "title"
+    const val TEST_DETAILS_VALUE = "value"
 }

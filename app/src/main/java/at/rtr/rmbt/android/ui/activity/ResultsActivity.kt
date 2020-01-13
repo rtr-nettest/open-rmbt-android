@@ -22,6 +22,7 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.CircleOptions
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
+import timber.log.Timber
 
 class ResultsActivity : BaseActivity(), OnMapReadyCallback {
 
@@ -70,6 +71,11 @@ class ResultsActivity : BaseActivity(), OnMapReadyCallback {
                     googleMap?.setOnMapClickListener { DetailedFullscreenMapActivity.start(this@ResultsActivity, testUUID) }
                 }
             }
+        }
+
+        viewModel.testResultDetailsLiveData.listen(this) {
+            Timber.d("found ${it.size} rows of details")
+            // todo: display result details
         }
 
         viewModel.qoeResultLiveData.listen(this) {

@@ -116,6 +116,11 @@
       "visible": false
     },
     {
+      "name": "CONTROL_SERVER_TEST_RESULT_DETAILS_ENDPOINT",
+      "value": "/testresultdetail",
+      "visible": false
+    },
+    {
       "name": "CAPABILITIES_RMBT_HTTP",
       "value": "false",
       "visible": false

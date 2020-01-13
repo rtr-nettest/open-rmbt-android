@@ -5,8 +5,11 @@ import at.rmbt.client.control.HistoryResponse
 import at.rmbt.client.control.QoEClassification
 import at.rmbt.client.control.ServerTestResultItem
 import at.rmbt.client.control.ServerTestResultResponse
+import at.rmbt.client.control.TestResultDetailItem
+import at.rmbt.client.control.TestResultDetailResponse
 import at.specure.data.entity.History
 import at.specure.data.entity.QoeInfoRecord
+import at.specure.data.entity.TestResultDetailsRecord
 import at.specure.data.entity.TestResultRecord
 import at.specure.result.QoECategory
 
@@ -56,6 +59,9 @@ fun ServerTestResultItem.toModel(testUUID: String): TestResultRecord {
         timestamp = timestamp,
         timeText = timeText,
         timezone = timezone,
+        networkName = networkItem.wifiNetworkSSID,
+        networkProviderName = networkItem.providerName,
+        networkTypeText = networkItem.networkTypeString,
         networkType = NetworkTypeCompat.fromResultIntType(networkType)
     )
 }
@@ -76,3 +82,8 @@ fun QoEClassification.toModel(testUUID: String): QoeInfoRecord {
         percentage = quality
     )
 }
+
+fun TestResultDetailResponse.toModelList(testUUID: String): List<TestResultDetailsRecord> = details.map { it.toModel(testUUID) }
+
+fun TestResultDetailItem.toModel(testUUID: String): TestResultDetailsRecord =
+    TestResultDetailsRecord(testUUID, openTestUUID, openUuid, time, timezone, title, value)
