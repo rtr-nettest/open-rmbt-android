@@ -147,7 +147,7 @@ data class PingGraphItemResponse(
      * Ping value in milliseconds
      */
     @SerializedName("ping_ms")
-    val durationMillis: Long,
+    val durationMillis: Double,
 
     /**
      * Relative time in milliseconds form the start of the test

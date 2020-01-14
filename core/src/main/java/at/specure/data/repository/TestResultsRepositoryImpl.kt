@@ -11,6 +11,7 @@ import at.rmbt.util.io
 import at.specure.data.ClientUUID
 import at.specure.data.CoreDatabase
 import at.specure.data.entity.QoeInfoRecord
+import at.specure.data.entity.TestResultGraphItemRecord
 import at.specure.data.entity.TestResultDetailsRecord
 import at.specure.data.entity.TestResultRecord
 import at.specure.data.toModel
@@ -28,6 +29,7 @@ class TestResultsRepositoryImpl(
     private val qoeInfoDao = db.qoeInfoDao()
     private val testResultDao = db.testResultDao()
     private val testResultDetailsDao = db.testResultDetailsDao()
+    private val testResultGraphItemDao = db.testResultGraphItemDao()
 
     override fun getQoEItems(testOpenUUID: String): LiveData<List<QoeInfoRecord>> {
         return qoeInfoDao.get(testOpenUUID)
@@ -35,6 +37,22 @@ class TestResultsRepositoryImpl(
 
     override fun getServerTestResult(testUUID: String): LiveData<TestResultRecord?> {
         return testResultDao.get(testUUID)
+    }
+
+    override fun getServerTestResultDownloadGraphItems(openTestUUID: String): LiveData<List<TestResultGraphItemRecord>?> {
+        return testResultGraphItemDao.getDownloadGraphLiveData(openTestUUID)
+    }
+
+    override fun getServerTestResultUploadGraphItems(openTestUUID: String): LiveData<List<TestResultGraphItemRecord>?> {
+        return testResultGraphItemDao.getUploadGraphLiveData(openTestUUID)
+    }
+
+    override fun getServerTestResultPingGraphItems(openTestUUID: String): LiveData<List<TestResultGraphItemRecord>?> {
+        return testResultGraphItemDao.getPingGraphLiveData(openTestUUID)
+    }
+
+    override fun getServerTestResultSignalGraphItems(openTestUUID: String): LiveData<List<TestResultGraphItemRecord>?> {
+        return testResultGraphItemDao.getSignalGraphLiveData(openTestUUID)
     }
 
     override fun getTestDetailsResult(testUUID: String): LiveData<List<TestResultDetailsRecord>> = testResultDetailsDao.get(testUUID)
@@ -55,8 +73,24 @@ class TestResultsRepositoryImpl(
 
     fun loadOpenDataTestResults(openTestUUID: String): Maybe<BaseResponse> {
         val detailedTestResults = client.getDetailedTestResults(openTestUUID)
-        detailedTestResults.onSuccess {
-            // TODO: save graphs
+        detailedTestResults.onSuccess { response ->
+            testResultGraphItemDao.clearInsertItems(response.speedCurve.download.map {
+                it.toModel(
+                    openTestUUID,
+                    TestResultGraphItemRecord.RESULT_GRAPH_ITEM_TYPE_DOWNLOAD
+                )
+            })
+
+            testResultGraphItemDao.clearInsertItems(response.speedCurve.upload.map {
+                it.toModel(
+                    openTestUUID,
+                    TestResultGraphItemRecord.RESULT_GRAPH_ITEM_TYPE_UPLOAD
+                )
+            })
+
+            testResultGraphItemDao.clearInsertItems(response.speedCurve.ping.map { it.toModel(openTestUUID) })
+
+            testResultGraphItemDao.clearInsertItems(response.speedCurve.signal.map { it.toModel(openTestUUID) })
         }
         return detailedTestResults
     }
@@ -82,8 +116,9 @@ class TestResultsRepositoryImpl(
             val qoeRecords = it.toQoeModel(testUUID)
 
             testResultDao.insert(testResult)
-            qoeInfoDao.insert(qoeRecords)
+            qoeInfoDao.clearInsert(qoeRecords)
             getServerTestResult(testUUID)
+            loadOpenDataTestResults(testResult.testOpenUUID)
         }
     }
 }

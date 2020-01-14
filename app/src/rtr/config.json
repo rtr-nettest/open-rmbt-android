@@ -112,7 +112,7 @@
     },
     {
       "name": "CONTROL_SERVER_GET_OPENDATA_RESULT_PATH",
-      "value": "opendata",
+      "value": "opentests",
       "visible": false
     },
     {

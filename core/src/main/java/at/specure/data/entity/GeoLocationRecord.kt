@@ -17,8 +17,14 @@ data class GeoLocationRecord(
     val provider: String,
     val speed: Float,
     val altitude: Double,
-    val time: Long,
-    val timeCorrectionNanos: Long,
+    /**
+     * time from [android.location.Location] object, timestamp of acquired position
+     */
+    val timestampMillis: Long,
+    /**
+     * relative time from the start of the test in nanoseconds
+     */
+    val timeRelativeNanos: Long,
     val ageNanos: Long,
     val accuracy: Float,
     val bearing: Float,
