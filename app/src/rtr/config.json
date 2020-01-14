@@ -117,7 +117,7 @@
     },
     {
       "name": "CONTROL_SERVER_TEST_RESULT_DETAILS_ENDPOINT",
-      "value": "/testresultdetail",
+      "value": "testresultdetail",
       "visible": false
     },
     {
