@@ -7,6 +7,8 @@
 
         <import type="at.specure.data.Classification" />
 
+        <import type="at.specure.data.NetworkTypeCompat" />
+
         <variable
             name="state"
             type="at.rtr.rmbt.android.ui.viewstate.ResultViewState" />
@@ -37,12 +39,13 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 
-            <TextView
+            <androidx.appcompat.widget.AppCompatTextView
                 android:id="@+id/testTime"
                 style="@style/TextAppearance.AppCompat.Title"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@{state.testResult.timeText}"
+                app:resultTime="@{state.testResult.timestamp}"
+                app:resultTimezone="@{state.testResult.timezone}"
                 android:textAllCaps="true"
                 app:layout_constraintBottom_toBottomOf="@+id/buttonBack"
                 app:layout_constraintEnd_toEndOf="@+id/buttonSync"
@@ -98,6 +101,7 @@
                         android:layout_margin="@dimen/padding_large"
                         app:cardCornerRadius="@dimen/padding_large"
                         app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintDimensionRatio="H,3:1"
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toTopOf="parent"
                         app:visibleOrGone="@{state.testResult.longitude != null &amp;&amp; state.testResult.latitude != null }">
@@ -152,7 +156,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginEnd="@dimen/padding_large"
                         android:contentDescription="@null"
-                        android:src="@drawable/ic_wifi_gray_2"
+                        android:src="@{state.testResult.networkType == NetworkTypeCompat.TYPE_WLAN ? @drawable/ic_wifi_gray_2 : @drawable/ic_mobile_2_gray}"
                         app:layout_constraintBottom_toBottomOf="@+id/networkNameText"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintTop_toTopOf="@id/networkTypeText" />
