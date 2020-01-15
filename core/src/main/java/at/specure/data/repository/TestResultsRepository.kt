@@ -5,6 +5,7 @@ import at.specure.data.entity.QoeInfoRecord
 import at.specure.data.entity.TestResultDetailsRecord
 import at.specure.data.entity.TestResultGraphItemRecord
 import at.specure.data.entity.TestResultRecord
+import kotlinx.coroutines.flow.Flow
 
 interface TestResultsRepository {
 
@@ -12,9 +13,9 @@ interface TestResultsRepository {
 
     fun getServerTestResult(testUUID: String): LiveData<TestResultRecord?>
 
-    fun loadTestResults(testUUID: String)
+    fun loadTestResults(testUUID: String): Flow<Boolean>
 
-    fun loadTestDetailsResult(testUUID: String)
+    fun loadTestDetailsResult(testUUID: String): Flow<Boolean>
 
     fun getTestDetailsResult(testUUID: String): LiveData<List<TestResultDetailsRecord>>
 

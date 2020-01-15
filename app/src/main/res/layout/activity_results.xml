@@ -14,7 +14,7 @@
             type="at.rtr.rmbt.android.ui.viewstate.ResultViewState" />
     </data>
 
-    <androidx.constraintlayout.widget.ConstraintLayout
+    <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
@@ -67,242 +67,266 @@
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
-        <androidx.core.widget.NestedScrollView
+        <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+            android:id="@+id/swipeRefreshLayout"
             android:layout_width="match_parent"
-            android:layout_height="0dp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/titleBar">
+            android:layout_height="match_parent"
+            android:layout_marginTop="?attr/actionBarSize">
 
-            <androidx.constraintlayout.widget.ConstraintLayout
+            <androidx.core.widget.NestedScrollView
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
-
-                <androidx.cardview.widget.CardView
-                    android:id="@+id/mapContainer"
-                    android:layout_width="0dp"
-                    android:layout_height="0dp"
-                    app:layout_constraintDimensionRatio="H,3:1"
-                    android:layout_margin="@dimen/padding_large"
-                    app:cardCornerRadius="@dimen/padding_large"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:visibleOrGone="@{state.testResult.longitude != null &amp;&amp; state.testResult.latitude != null }">
-
-                    <com.google.android.gms.maps.MapView
-                        android:id="@+id/map"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent" />
-
-                    <ImageView
-                        android:id="@+id/fullscreen_fab"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="end"
-                        android:layout_margin="@dimen/padding_medium"
-                        android:background="@android:color/transparent"
-                        android:src="@drawable/ic_fullscreen_fab" />
-                </androidx.cardview.widget.CardView>
-
-                <TextView
-                    android:id="@+id/networkTypeText"
-                    style="@style/TextAppearance.AppCompat.Body1"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="@dimen/padding_large"
-                    android:layout_marginTop="@dimen/padding_large"
-                    android:textAllCaps="true"
-                    android:textColor="@color/text_black_transparency_40"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/mapContainer"
-                    app:text="@{state.testResult.networkTypeText}"
-                    tools:text="WLAN" />
-
-                <TextView
-                    android:id="@+id/networkNameText"
-                    style="@style/TextAppearance.AppCompat.Title"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="@dimen/padding_large"
-                    android:layout_marginTop="@dimen/padding_small"
-                    android:textAllCaps="true"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/networkTypeText"
-                    app:text="@{state.testResult.networkName == null ? state.testResult.networkProviderName : state.testResult.networkName}"
-                    tools:text="Wififinka" />
-
-                <androidx.appcompat.widget.AppCompatImageView
-                    android:id="@+id/networkTypeIcon"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginEnd="@dimen/padding_large"
-                    android:contentDescription="@null"
-                    android:src="@{state.testResult.networkType == NetworkTypeCompat.TYPE_WLAN ? @drawable/ic_wifi_gray_2 : @drawable/ic_mobile_2_gray}"
-                    app:layout_constraintBottom_toBottomOf="@+id/networkNameText"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintTop_toTopOf="@id/networkTypeText" />
-
-                <androidx.appcompat.widget.AppCompatTextView
-                    android:id="@+id/labelResultBottomDownload"
-                    style="@style/RobotoRegularStyle.VerySmall"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="@dimen/margin_large"
-                    android:layout_marginTop="@dimen/margin_large"
-                    android:text="@string/measurement_down"
-                    android:textColor="@color/text_gray_transparency_60"
-                    app:layout_constraintEnd_toStartOf="@+id/labelResultBottomUpload"
-                    app:layout_constraintHorizontal_bias="0.5"
-                    app:layout_constraintHorizontal_weight="3"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@id/networkNameText" />
-
-                <androidx.appcompat.widget.AppCompatTextView
-                    android:id="@+id/labelResultBottomUpload"
-                    style="@style/RobotoRegularStyle.VerySmall"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:text="@string/measurement_up"
-                    android:textColor="@color/text_gray_transparency_60"
-                    app:layout_constraintBottom_toBottomOf="@+id/labelResultBottomDownload"
-                    app:layout_constraintEnd_toStartOf="@+id/labelResultBottomPing"
-                    app:layout_constraintHorizontal_bias="0.5"
-                    app:layout_constraintHorizontal_weight="3"
-                    app:layout_constraintStart_toEndOf="@+id/labelResultBottomDownload"
-                    app:layout_constraintTop_toTopOf="@+id/labelResultBottomDownload" />
-
-                <androidx.appcompat.widget.AppCompatTextView
-                    android:id="@+id/labelResultBottomPing"
-                    style="@style/RobotoRegularStyle.VerySmall"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:text="@string/measurement_ping"
-                    android:textColor="@color/text_gray_transparency_60"
-                    app:layout_constraintBottom_toBottomOf="@+id/labelResultBottomUpload"
-                    app:layout_constraintEnd_toStartOf="@+id/labelResultBottomSignal"
-                    app:layout_constraintHorizontal_bias="0.5"
-                    app:layout_constraintHorizontal_weight="2"
-                    app:layout_constraintStart_toEndOf="@+id/labelResultBottomUpload"
-                    app:layout_constraintTop_toBottomOf="@id/networkNameText"
-                    app:layout_constraintTop_toTopOf="@+id/labelResultBottomUpload" />
-
-                <androidx.appcompat.widget.AppCompatTextView
-                    android:id="@+id/labelResultBottomSignal"
-                    style="@style/RobotoRegularStyle.VerySmall"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginEnd="@dimen/margin_large"
-                    android:text="@string/label_signal_strength"
-                    android:textColor="@color/text_gray_transparency_60"
-                    app:layout_constraintBottom_toBottomOf="@+id/labelResultBottomPing"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintHorizontal_bias="0.5"
-                    app:layout_constraintHorizontal_weight="2"
-                    app:layout_constraintStart_toEndOf="@+id/labelResultBottomPing"
-                    app:layout_constraintTop_toBottomOf="@id/networkNameText"
-                    app:layout_constraintTop_toTopOf="@+id/labelResultBottomPing" />
-
-                <androidx.appcompat.widget.AppCompatTextView
-                    android:id="@+id/textDownloadSpeed"
-                    style="@style/RobotoMediumStyle.VerySmall"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="@dimen/margin_large"
-                    android:drawablePadding="@dimen/padding_very_small"
-                    android:maxLines="2"
-                    app:layout_constraintEnd_toStartOf="@+id/textUploadSpeed"
-                    app:layout_constraintHorizontal_bias="0.5"
-                    app:layout_constraintHorizontal_weight="3"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/labelResultBottomDownload"
-                    app:speedDownloadClassificationResult="@{state.testResult.downloadClass == null ? Classification.NONE : state.testResult.downloadClass}"
-                    app:speedDownloadResult="@{state.testResult.downloadSpeedKbs}"
-                    tools:drawableStart="@drawable/ic_small_download_light_green"
-                    tools:text="24.12 Mbit/s" />
-
-                <androidx.appcompat.widget.AppCompatTextView
-                    android:id="@+id/textUploadSpeed"
-                    style="@style/RobotoMediumStyle.VerySmall"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:drawablePadding="@dimen/padding_very_small"
-                    android:maxLines="2"
-                    app:layout_constraintEnd_toStartOf="@+id/textPing"
-                    app:layout_constraintHorizontal_bias="0.5"
-                    app:layout_constraintHorizontal_weight="3"
-                    app:layout_constraintStart_toEndOf="@+id/textDownloadSpeed"
-                    app:layout_constraintTop_toBottomOf="@+id/labelResultBottomUpload"
-                    app:speedUploadClassificationResult="@{state.testResult.uploadClass == null ? Classification.NONE : state.testResult.uploadClass}"
-                    app:speedUploadResult="@{state.testResult.uploadSpeedKbs}"
-                    tools:drawableStart="@drawable/ic_small_upload_gray"
-                    tools:text="135 Mbit/s" />
-
-                <androidx.appcompat.widget.AppCompatTextView
-                    android:id="@+id/textPing"
-                    style="@style/RobotoMediumStyle.VerySmall"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:drawablePadding="@dimen/padding_very_small"
-                    android:maxLines="2"
-                    app:layout_constraintEnd_toStartOf="@+id/textSignal"
-                    app:layout_constraintHorizontal_bias="0.5"
-                    app:layout_constraintHorizontal_weight="2"
-                    app:layout_constraintStart_toEndOf="@+id/textUploadSpeed"
-                    app:layout_constraintTop_toBottomOf="@+id/labelResultBottomPing"
-                    app:pingClassificationResult="@{state.testResult.pingClass == null ? Classification.NONE : state.testResult.pingClass}"
-                    app:pingResult="@{state.testResult.pingMillis}"
-                    tools:drawableStart="@drawable/ic_small_ping_yellow"
-                    tools:text="14 ms" />
-
-                <androidx.appcompat.widget.AppCompatTextView
-                    android:id="@+id/textSignal"
-                    style="@style/RobotoMediumStyle.VerySmall"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginEnd="@dimen/margin_large"
-                    android:drawablePadding="@dimen/padding_very_small"
-                    android:maxLines="2"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintHorizontal_bias="0.5"
-                    app:layout_constraintHorizontal_weight="2"
-                    app:layout_constraintStart_toEndOf="@+id/textPing"
-                    app:layout_constraintTop_toBottomOf="@+id/labelResultBottomSignal"
-                    app:signalStrengthClassificationResult="@{state.testResult.signalClass == null ? Classification.NONE : state.testResult.signalClass}"
-                    app:signalStrengthResult="@{state.testResult.signalStrength}"
-                    tools:drawableStart="@drawable/ic_small_wifi_gray"
-                    tools:text="-86 dBm" />
-
-                <FrameLayout
-                    android:id="@+id/graphContainer"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="@dimen/margin_large"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/textDownloadSpeed" />
-
-                <androidx.appcompat.widget.AppCompatTextView
-                    android:id="@+id/titleOtherDetails"
-                    style="@style/RobotoMediumStyle.Medium"
-                    android:layout_width="wrap_content"
-                    android:layout_height="?attr/actionBarSize"
-                    android:gravity="center_vertical"
-                    android:paddingStart="@dimen/margin_large"
-                    android:paddingEnd="@dimen/margin_large"
-                    android:text="@string/results_other_details"
-                    android:textColor="@color/text_gray_transparency_60"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/graphContainer" />
+                android:layout_height="match_parent">
 
                 <androidx.constraintlayout.widget.ConstraintLayout
-                    android:id="@+id/qualityContainer"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/titleOtherDetails">
+                    android:layout_height="wrap_content">
+
+                    <TextView
+                        android:id="@+id/textFailedToLoad"
+                        style="@style/TextAppearance.AppCompat.Body1"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_horizontal"
+                        android:text="@string/text_failed_to_load_results"
+                        android:visibility="gone"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+                    <androidx.cardview.widget.CardView
+                        android:id="@+id/mapContainer"
+                        android:layout_width="0dp"
+                        android:layout_height="200dp"
+                        android:layout_margin="@dimen/padding_large"
+                        app:cardCornerRadius="@dimen/padding_large"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintDimensionRatio="H,3:1"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:visibleOrGone="@{state.testResult.longitude != null &amp;&amp; state.testResult.latitude != null }">
+
+                        <com.google.android.gms.maps.MapView
+                            android:id="@+id/map"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent" />
+
+                        <ImageView
+                            android:id="@+id/fullscreen_fab"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="end"
+                            android:layout_margin="@dimen/padding_medium"
+                            android:background="@android:color/transparent"
+                            android:contentDescription="@null"
+                            android:src="@drawable/ic_fullscreen_fab" />
+                    </androidx.cardview.widget.CardView>
+
+                    <TextView
+                        android:id="@+id/networkTypeText"
+                        style="@style/TextAppearance.AppCompat.Body1"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="@dimen/padding_large"
+                        android:layout_marginTop="@dimen/padding_large"
+                        android:textAllCaps="true"
+                        android:textColor="@color/text_black_transparency_40"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@+id/mapContainer"
+                        app:text="@{state.testResult.networkTypeText}"
+                        tools:text="WLAN" />
+
+                    <TextView
+                        android:id="@+id/networkNameText"
+                        style="@style/TextAppearance.AppCompat.Title"
+                        visibleOrGone="@{state.testResult.networkName != null || state.testResult.networkProviderName != null}"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="@dimen/padding_large"
+                        android:layout_marginTop="@dimen/padding_small"
+                        android:textAllCaps="true"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@+id/networkTypeText"
+                        app:text="@{state.testResult.networkName == null ? state.testResult.networkProviderName : state.testResult.networkName}"
+                        tools:text="Wififinka" />
+
+                    <androidx.appcompat.widget.AppCompatImageView
+                        android:id="@+id/networkTypeIcon"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginEnd="@dimen/padding_large"
+                        android:contentDescription="@null"
+                        android:src="@{state.testResult.networkType == NetworkTypeCompat.TYPE_WLAN ? @drawable/ic_wifi_gray_2 : @drawable/ic_mobile_2_gray}"
+                        app:layout_constraintBottom_toBottomOf="@+id/networkNameText"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintTop_toTopOf="@id/networkTypeText" />
+
+                    <androidx.constraintlayout.widget.Group
+                        android:id="@+id/networkTypeGroup"
+                        visibleOrGone="@{state.testResult != null}"
+                        android:layout_width="0dp"
+                        android:layout_height="0dp"
+                        app:constraint_referenced_ids="networkTypeText,networkNameText,networkTypeIcon" />
+
+                    <androidx.appcompat.widget.AppCompatTextView
+                        android:id="@+id/labelResultBottomDownload"
+                        style="@style/RobotoRegularStyle.VerySmall"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="@dimen/margin_large"
+                        android:layout_marginTop="@dimen/margin_large"
+                        android:text="@string/measurement_down"
+                        android:textColor="@color/text_gray_transparency_60"
+                        app:layout_constraintEnd_toStartOf="@+id/labelResultBottomUpload"
+                        app:layout_constraintHorizontal_bias="0.5"
+                        app:layout_constraintHorizontal_weight="3"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@id/networkNameText" />
+
+                    <androidx.appcompat.widget.AppCompatTextView
+                        android:id="@+id/labelResultBottomUpload"
+                        style="@style/RobotoRegularStyle.VerySmall"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:text="@string/measurement_up"
+                        android:textColor="@color/text_gray_transparency_60"
+                        app:layout_constraintBottom_toBottomOf="@+id/labelResultBottomDownload"
+                        app:layout_constraintEnd_toStartOf="@+id/labelResultBottomPing"
+                        app:layout_constraintHorizontal_bias="0.5"
+                        app:layout_constraintHorizontal_weight="3"
+                        app:layout_constraintStart_toEndOf="@+id/labelResultBottomDownload"
+                        app:layout_constraintTop_toTopOf="@+id/labelResultBottomDownload" />
+
+                    <androidx.appcompat.widget.AppCompatTextView
+                        android:id="@+id/labelResultBottomPing"
+                        style="@style/RobotoRegularStyle.VerySmall"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:text="@string/measurement_ping"
+                        android:textColor="@color/text_gray_transparency_60"
+                        app:layout_constraintBottom_toBottomOf="@+id/labelResultBottomUpload"
+                        app:layout_constraintEnd_toStartOf="@+id/labelResultBottomSignal"
+                        app:layout_constraintHorizontal_bias="0.5"
+                        app:layout_constraintHorizontal_weight="2"
+                        app:layout_constraintStart_toEndOf="@+id/labelResultBottomUpload"
+                        app:layout_constraintTop_toBottomOf="@id/networkNameText"
+                        app:layout_constraintTop_toTopOf="@+id/labelResultBottomUpload" />
+
+                    <androidx.appcompat.widget.AppCompatTextView
+                        android:id="@+id/labelResultBottomSignal"
+                        style="@style/RobotoRegularStyle.VerySmall"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginEnd="@dimen/margin_large"
+                        android:text="@string/label_signal_strength"
+                        android:textColor="@color/text_gray_transparency_60"
+                        app:layout_constraintBottom_toBottomOf="@+id/labelResultBottomPing"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintHorizontal_bias="0.5"
+                        app:layout_constraintHorizontal_weight="2"
+                        app:layout_constraintStart_toEndOf="@+id/labelResultBottomPing"
+                        app:layout_constraintTop_toBottomOf="@id/networkNameText"
+                        app:layout_constraintTop_toTopOf="@+id/labelResultBottomPing" />
+
+                    <androidx.appcompat.widget.AppCompatTextView
+                        android:id="@+id/textDownloadSpeed"
+                        style="@style/RobotoMediumStyle.VerySmall"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="@dimen/margin_large"
+                        android:drawablePadding="@dimen/padding_very_small"
+                        android:maxLines="2"
+                        app:layout_constraintEnd_toStartOf="@+id/textUploadSpeed"
+                        app:layout_constraintHorizontal_bias="0.5"
+                        app:layout_constraintHorizontal_weight="3"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@+id/labelResultBottomDownload"
+                        app:speedDownloadClassificationResult="@{state.testResult.downloadClass == null ? Classification.NONE : state.testResult.downloadClass}"
+                        app:speedDownloadResult="@{state.testResult.downloadSpeedKbs}"
+                        tools:drawableStart="@drawable/ic_small_download_light_green"
+                        tools:text="24.12 Mbit/s" />
+
+                    <androidx.appcompat.widget.AppCompatTextView
+                        android:id="@+id/textUploadSpeed"
+                        style="@style/RobotoMediumStyle.VerySmall"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:drawablePadding="@dimen/padding_very_small"
+                        android:maxLines="2"
+                        app:layout_constraintEnd_toStartOf="@+id/textPing"
+                        app:layout_constraintHorizontal_bias="0.5"
+                        app:layout_constraintHorizontal_weight="3"
+                        app:layout_constraintStart_toEndOf="@+id/textDownloadSpeed"
+                        app:layout_constraintTop_toBottomOf="@+id/labelResultBottomUpload"
+                        app:speedUploadClassificationResult="@{state.testResult.uploadClass == null ? Classification.NONE : state.testResult.uploadClass}"
+                        app:speedUploadResult="@{state.testResult.uploadSpeedKbs}"
+                        tools:drawableStart="@drawable/ic_small_upload_gray"
+                        tools:text="135 Mbit/s" />
+
+                    <androidx.appcompat.widget.AppCompatTextView
+                        android:id="@+id/textPing"
+                        style="@style/RobotoMediumStyle.VerySmall"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:drawablePadding="@dimen/padding_very_small"
+                        android:maxLines="2"
+                        app:layout_constraintEnd_toStartOf="@+id/textSignal"
+                        app:layout_constraintHorizontal_bias="0.5"
+                        app:layout_constraintHorizontal_weight="2"
+                        app:layout_constraintStart_toEndOf="@+id/textUploadSpeed"
+                        app:layout_constraintTop_toBottomOf="@+id/labelResultBottomPing"
+                        app:pingClassificationResult="@{state.testResult.pingClass == null ? Classification.NONE : state.testResult.pingClass}"
+                        app:pingResult="@{state.testResult.pingMillis}"
+                        tools:drawableStart="@drawable/ic_small_ping_yellow"
+                        tools:text="14 ms" />
+
+                    <androidx.appcompat.widget.AppCompatTextView
+                        android:id="@+id/textSignal"
+                        style="@style/RobotoMediumStyle.VerySmall"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginEnd="@dimen/margin_large"
+                        android:drawablePadding="@dimen/padding_very_small"
+                        android:maxLines="2"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintHorizontal_bias="0.5"
+                        app:layout_constraintHorizontal_weight="2"
+                        app:layout_constraintStart_toEndOf="@+id/textPing"
+                        app:layout_constraintTop_toBottomOf="@+id/labelResultBottomSignal"
+                        app:signalStrengthClassificationResult="@{state.testResult.signalClass == null ? Classification.NONE : state.testResult.signalClass}"
+                        app:signalStrengthResult="@{state.testResult.signalStrength}"
+                        tools:drawableStart="@drawable/ic_small_wifi_gray"
+                        tools:text="-86 dBm" />
+
+                    <androidx.constraintlayout.widget.Group
+                        android:id="@+id/resultsGroup"
+                        android:layout_width="0dp"
+                        android:layout_height="0dp"
+                        app:constraint_referenced_ids="labelResultBottomDownload,labelResultBottomUpload,labelResultBottomPing,labelResultBottomSignal,textDownloadSpeed,textUploadSpeed,textPing,textSignal"
+                        app:visibleOrGone="@{state.testResult != null}" />
+
+                    <FrameLayout
+                        android:id="@+id/graphContainer"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="@dimen/margin_large"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@+id/textDownloadSpeed" />
+
+                    <androidx.appcompat.widget.AppCompatTextView
+                        android:id="@+id/titleOtherDetails"
+                        style="@style/RobotoMediumStyle.Medium"
+                        android:layout_width="wrap_content"
+                        android:layout_height="?attr/actionBarSize"
+                        android:gravity="center_vertical"
+                        android:paddingStart="@dimen/margin_large"
+                        android:paddingEnd="@dimen/margin_large"
+                        android:text="@string/results_other_details"
+                        android:textColor="@color/text_gray_transparency_60"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@+id/graphContainer"
+                        app:visibleOrGone="@{state.testResult != null}" />
 
                     <androidx.appcompat.widget.AppCompatTextView
                         android:id="@+id/titleQuality"
@@ -311,9 +335,10 @@
                         android:layout_height="?attr/actionBarSize"
                         android:layout_marginStart="@dimen/margin_large"
                         android:gravity="center_vertical"
+                        android:text="@string/results_quality"
                         app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toTopOf="parent"
-                        android:text="@string/results_quality" />
+                        app:layout_constraintTop_toBottomOf="@+id/titleOtherDetails"
+                        app:visibleOrGone="@{state.testResult != null}" />
 
                     <androidx.recyclerview.widget.RecyclerView
                         android:id="@+id/qoeResultsRecyclerView"
@@ -325,116 +350,110 @@
                         app:layout_constraintTop_toBottomOf="@+id/titleQuality"
                         tools:listitem="@layout/item_qoe" />
 
-                </androidx.constraintlayout.widget.ConstraintLayout>
+                    <androidx.appcompat.widget.AppCompatTextView
+                        android:id="@+id/titleNetwork"
+                        style="@style/RobotoBoldStyle.Medium"
+                        android:layout_width="wrap_content"
+                        android:layout_height="?attr/actionBarSize"
+                        android:layout_marginStart="@dimen/margin_large"
+                        android:gravity="center_vertical"
+                        android:text="@string/network_label"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@+id/qoeResultsRecyclerView"
+                        app:visibleOrGone="@{state.testResult != null}" />
 
-                <androidx.appcompat.widget.AppCompatTextView
-                    android:id="@+id/titleNetwork"
-                    style="@style/RobotoBoldStyle.Medium"
-                    android:layout_width="wrap_content"
-                    android:layout_height="?attr/actionBarSize"
-                    android:layout_marginStart="@dimen/margin_large"
-                    android:gravity="center_vertical"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/qualityContainer"
-                    android:text="@string/network_label" />
+                    <androidx.appcompat.widget.AppCompatTextView
+                        android:id="@+id/labelConnection"
+                        style="@style/RobotoRegularStyle.Small"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="@dimen/margin_large"
+                        android:paddingTop="@dimen/padding_small"
+                        android:paddingBottom="@dimen/padding_small"
+                        android:text="@string/results_network_type"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@+id/titleNetwork"
+                        app:visibleOrGone="@{state.testResult != null &amp;&amp; state.testResult.networkTypeText != null}"
+                        tools:text="Connection" />
 
-                <androidx.appcompat.widget.AppCompatTextView
-                    android:id="@+id/labelConnection"
-                    style="@style/RobotoRegularStyle.Small"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="@dimen/margin_large"
-                    android:paddingTop="@dimen/padding_small"
-                    android:paddingBottom="@dimen/padding_small"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/titleNetwork"
-                    android:text="@string/results_network_type"
-                    tools:text="Connection" />
+                    <androidx.appcompat.widget.AppCompatTextView
+                        android:id="@+id/textConnection"
+                        style="@style/RobotoRegularStyle.Small"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginEnd="@dimen/margin_large"
+                        android:drawablePadding="@dimen/padding_very_small"
+                        app:layout_constraintBottom_toBottomOf="@+id/labelConnection"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintTop_toTopOf="@+id/labelConnection"
+                        app:text="@{state.testResult.networkTypeText}"
+                        app:visibleOrGone="@{state.testResult != null &amp;&amp; state.testResult.networkTypeText != null}"
+                        tools:text="WLAN" />
 
-                <androidx.appcompat.widget.AppCompatTextView
-                    android:id="@+id/textConnection"
-                    style="@style/RobotoRegularStyle.Small"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginEnd="@dimen/margin_large"
-                    android:drawablePadding="@dimen/padding_very_small"
-                    app:layout_constraintBottom_toBottomOf="@+id/labelConnection"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintTop_toTopOf="@+id/labelConnection"
-                    app:text="@{state.testResult.networkTypeText}"
-                    tools:text="WLAN" />
+                    <androidx.appcompat.widget.AppCompatTextView
+                        android:id="@+id/labelProvider"
+                        style="@style/RobotoRegularStyle.Small"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="@dimen/margin_large"
+                        android:drawablePadding="@dimen/padding_very_small"
+                        android:text="@string/results_network_provider"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@+id/labelConnection"
+                        app:visibleOrGone="@{state.testResult != null &amp;&amp; state.testResult.networkProviderName != null}"
+                        tools:text="Provider" />
 
-                <androidx.appcompat.widget.AppCompatTextView
-                    android:id="@+id/labelProvider"
-                    style="@style/RobotoRegularStyle.Small"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="@dimen/margin_large"
-                    android:drawablePadding="@dimen/padding_very_small"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/labelConnection"
-                    android:text="@string/results_network_provider"
-                    app:visibleOrGone="@{state.testResult.networkProviderName != null}"
-                    tools:text="Provider" />
+                    <androidx.appcompat.widget.AppCompatTextView
+                        android:id="@+id/textProvider"
+                        style="@style/RobotoRegularStyle.Small"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginEnd="@dimen/margin_large"
+                        android:drawablePadding="@dimen/padding_very_small"
+                        app:layout_constraintBottom_toBottomOf="@+id/labelProvider"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintTop_toTopOf="@+id/labelProvider"
+                        app:text="@{state.testResult.networkProviderName}"
+                        app:visibleOrGone="@{state.testResult != null &amp;&amp; state.testResult.networkProviderName != null}"
+                        tools:text="SANET SK" />
 
-                <androidx.appcompat.widget.AppCompatTextView
-                    android:id="@+id/textProvider"
-                    style="@style/RobotoRegularStyle.Small"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginEnd="@dimen/margin_large"
-                    android:drawablePadding="@dimen/padding_very_small"
-                    app:layout_constraintBottom_toBottomOf="@+id/labelProvider"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintTop_toTopOf="@+id/labelProvider"
-                    app:text="@{state.testResult.networkProviderName}"
-                    app:visibleOrGone="@{state.testResult.networkProviderName != null}"
-                    tools:text="SANET SK" />
+                    <androidx.appcompat.widget.AppCompatTextView
+                        android:id="@+id/labelNetworkName"
+                        style="@style/RobotoRegularStyle.Small"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="@dimen/margin_large"
+                        android:drawablePadding="@dimen/padding_very_small"
+                        android:text="@string/results_network_ssid"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@+id/labelProvider"
+                        app:visibleOrGone="@{state.testResult != null &amp;&amp; state.testResult.networkName != null}"
+                        tools:text="WLAN SSID" />
 
-                <androidx.appcompat.widget.AppCompatTextView
-                    android:id="@+id/labelNetworkName"
-                    style="@style/RobotoRegularStyle.Small"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="@dimen/margin_large"
-                    android:drawablePadding="@dimen/padding_very_small"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/labelProvider"
-                    android:text="@string/results_network_ssid"
-                    app:visibleOrGone="@{state.testResult.networkName != null}"
-                    tools:text="WLAN SSID" />
-
-                <androidx.appcompat.widget.AppCompatTextView
-                    android:id="@+id/textNetworkName"
-                    style="@style/RobotoRegularStyle.Small"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginEnd="@dimen/margin_large"
-                    android:drawablePadding="@dimen/padding_very_small"
-                    app:layout_constraintBottom_toBottomOf="@+id/labelNetworkName"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintTop_toTopOf="@+id/labelNetworkName"
-                    app:text="@{state.testResult.networkName}"
-                    app:visibleOrGone="@{state.testResult.networkName != null}"
-                    tools:text="WIFIFINKA" />
-
-                <androidx.constraintlayout.widget.ConstraintLayout
-                    android:id="@+id/qosContainer"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/labelNetworkName">
+                    <androidx.appcompat.widget.AppCompatTextView
+                        android:id="@+id/textNetworkName"
+                        style="@style/RobotoRegularStyle.Small"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginEnd="@dimen/margin_large"
+                        android:drawablePadding="@dimen/padding_very_small"
+                        app:layout_constraintBottom_toBottomOf="@+id/labelNetworkName"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintTop_toTopOf="@+id/labelNetworkName"
+                        app:text="@{state.testResult.networkName}"
+                        app:visibleOrGone="@{state.testResult != null &amp;&amp; state.testResult.networkName != null}"
+                        tools:text="WIFIFINKA" />
 
                     <androidx.appcompat.widget.AppCompatTextView
                         android:id="@+id/titleQos"
                         style="@style/RobotoBoldStyle.Medium"
+                        visibleOrGone="@{state.testResult != null}"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="@dimen/margin_large"
                         android:drawablePadding="@dimen/padding_very_small"
                         app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintTop_toBottomOf="@+id/labelNetworkName"
                         tools:text="QoS" />
 
                     <androidx.recyclerview.widget.RecyclerView
@@ -448,9 +467,8 @@
                         tools:listitem="@layout/item_qoe" />
 
                 </androidx.constraintlayout.widget.ConstraintLayout>
-
-            </androidx.constraintlayout.widget.ConstraintLayout>
-        </androidx.core.widget.NestedScrollView>
-    </androidx.constraintlayout.widget.ConstraintLayout>
+            </androidx.core.widget.NestedScrollView>
+        </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+    </FrameLayout>
 
 </layout>

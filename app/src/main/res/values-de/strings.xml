@@ -185,6 +185,6 @@
     <string name="results_network_type">Zugang</string>
     <string name="results_network_provider">Betreiber</string>
     <string name="results_network_ssid">WLAN SSID</string>
-
+    <string name="text_failed_to_load_results">Daten konnten nicht geladen werden.\nZum Aktualisieren bitte nach unten ziehen.</string>
 </resources>
 

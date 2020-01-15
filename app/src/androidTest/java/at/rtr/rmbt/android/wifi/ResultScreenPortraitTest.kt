@@ -57,7 +57,7 @@ open class ResultScreenPortraitTest : BaseHomeActivityTest() {
     @Test
     fun checkDetailedResultsScreenElementsAreDisplayed() {
         onView(withId(R.id.titleOtherDetails)).check(matches(isDisplayed()))
-        onView(withId(R.id.qualityContainer)).check(matches(isDisplayed()))
+        onView(withId(R.id.qoeResultsRecyclerView)).check(matches(isDisplayed()))
         onView(withId(R.id.buttonBack)).check(matches(isDisplayed()))
         onView(withId(R.id.testTime)).check(matches(isDisplayed()))
         onView(withId(R.id.networkTypeIcon)).check(matches(isDisplayed()))

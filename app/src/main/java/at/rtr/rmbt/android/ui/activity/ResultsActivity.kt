@@ -5,6 +5,7 @@ import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.os.Bundle
+import android.view.View
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.DividerItemDecoration
 import at.rtr.rmbt.android.R
@@ -94,7 +95,25 @@ class ResultsActivity : BaseActivity(), OnMapReadyCallback {
             super.onBackPressed()
         }
 
+        binding.swipeRefreshLayout.setOnRefreshListener {
+            refreshResults()
+        }
+
+        viewModel.loadingLiveData.listen(this) {
+            binding.swipeRefreshLayout.isRefreshing = false
+            if (viewModel.state.testResult.get() == null) {
+                binding.textFailedToLoad.visibility = if (it) View.GONE else View.VISIBLE
+            } else {
+                binding.textFailedToLoad.visibility = View.GONE
+            }
+        }
+
+        refreshResults()
+    }
+
+    private fun refreshResults() {
         viewModel.loadTestResults()
+        binding.swipeRefreshLayout.isRefreshing = true
     }
 
     override fun onMapReady(map: GoogleMap?) {
