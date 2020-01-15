@@ -112,29 +112,33 @@ class MeasurementViewModel @Inject constructor(
 
     override fun onDownloadSpeedChanged(progress: Int, speedBps: Long) {
         state.downloadSpeedBps.set(speedBps)
-        state.measurementDownloadUploadProgress.set(progress)
+        if (progress > -1) {
+            state.measurementDownloadUploadProgress.set(progress)
 
-        if (state.measurementState.get() == MeasurementState.DOWNLOAD) {
-            _downloadGraphLiveData += GraphItemRecord(
-                testUUID = "",
-                progress = progress,
-                value = speedBps,
-                type = GraphItemRecord.GRAPH_ITEM_TYPE_DOWNLOAD
-            )
+            if (state.measurementState.get() == MeasurementState.DOWNLOAD) {
+                _downloadGraphLiveData += GraphItemRecord(
+                    testUUID = "",
+                    progress = progress,
+                    value = speedBps,
+                    type = GraphItemRecord.GRAPH_ITEM_TYPE_DOWNLOAD
+                )
+            }
         }
     }
 
     override fun onUploadSpeedChanged(progress: Int, speedBps: Long) {
         state.uploadSpeedBps.set(speedBps)
-        state.measurementDownloadUploadProgress.set(progress)
+        if (progress > -1) {
+            state.measurementDownloadUploadProgress.set(progress)
 
-        if (state.measurementState.get() == MeasurementState.UPLOAD) {
-            _uploadGraphLiveData += GraphItemRecord(
-                testUUID = "",
-                progress = progress,
-                value = speedBps,
-                type = GraphItemRecord.GRAPH_ITEM_TYPE_UPLOAD
-            )
+            if (state.measurementState.get() == MeasurementState.UPLOAD) {
+                _uploadGraphLiveData += GraphItemRecord(
+                    testUUID = "",
+                    progress = progress,
+                    value = speedBps,
+                    type = GraphItemRecord.GRAPH_ITEM_TYPE_UPLOAD
+                )
+            }
         }
     }
 
