@@ -7,16 +7,18 @@ import at.rmbt.client.control.ControlServerClient
 import at.rmbt.client.control.ServerTestResultBody
 import at.rmbt.client.control.TestResultDetailBody
 import at.rmbt.util.Maybe
-import at.rmbt.util.io
 import at.specure.data.ClientUUID
 import at.specure.data.CoreDatabase
 import at.specure.data.entity.QoeInfoRecord
-import at.specure.data.entity.TestResultGraphItemRecord
 import at.specure.data.entity.TestResultDetailsRecord
+import at.specure.data.entity.TestResultGraphItemRecord
 import at.specure.data.entity.TestResultRecord
 import at.specure.data.toModel
 import at.specure.data.toModelList
 import at.specure.data.toQoeModel
+import at.specure.util.exception.DataMissingException
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
 import timber.log.Timber
 import java.util.Locale
 
@@ -57,21 +59,24 @@ class TestResultsRepositoryImpl(
 
     override fun getTestDetailsResult(testUUID: String): LiveData<List<TestResultDetailsRecord>> = testResultDetailsDao.get(testUUID)
 
-    override fun loadTestDetailsResult(testUUID: String) = io {
+    override fun loadTestDetailsResult(testUUID: String) = flow {
         val clientUUID = clientUUID.value
         if (clientUUID == null) {
             Timber.w("Unable to load data; client uuid is null")
-            return@io
-        }
+            throw DataMissingException("ClientUUID is null")
+        } else {
+            val body = TestResultDetailBody(testUUID, clientUUID, Locale.getDefault().language)
+            val result = client.getTestResultDetail(body)
+            result.onSuccess {
+                testResultDetailsDao.insert(it.toModelList(testUUID))
+                emit(result.ok)
+            }
 
-        val body = TestResultDetailBody(testUUID, clientUUID, Locale.getDefault().language)
-        val result = client.getTestResultDetail(body)
-        result.onSuccess {
-            testResultDetailsDao.insert(it.toModelList(testUUID))
+            result.onFailure { throw it }
         }
     }
 
-    fun loadOpenDataTestResults(openTestUUID: String): Maybe<BaseResponse> {
+    private fun loadOpenDataTestResults(openTestUUID: String): Maybe<BaseResponse> {
         val detailedTestResults = client.getDetailedTestResults(openTestUUID)
         detailedTestResults.onSuccess { response ->
             testResultGraphItemDao.clearInsertItems(response.speedCurve.download.map {
@@ -95,30 +100,33 @@ class TestResultsRepositoryImpl(
         return detailedTestResults
     }
 
-    override fun loadTestResults(testUUID: String) = io {
+    override fun loadTestResults(testUUID: String): Flow<Boolean> = flow {
         val clientUUID = clientUUID.value
         if (clientUUID == null) {
             Timber.w("Unable to update history client uuid is null")
-            return@io
-        }
-
-        val response = client.getTestResult(
-            ServerTestResultBody(
-                testUUID = testUUID,
-                clientUUID = clientUUID,
-                language = Locale.getDefault().language,
-                capabilities = CapabilitiesBody()
+            throw DataMissingException("ClientUUID is null")
+        } else {
+            val response = client.getTestResult(
+                ServerTestResultBody(
+                    testUUID = testUUID,
+                    clientUUID = clientUUID,
+                    language = Locale.getDefault().language,
+                    capabilities = CapabilitiesBody()
+                )
             )
-        )
 
-        response.onSuccess {
-            val testResult = it.toModel(testUUID)
-            val qoeRecords = it.toQoeModel(testUUID)
+            response.onSuccess {
+                val testResult = it.toModel(testUUID)
+                val qoeRecords = it.toQoeModel(testUUID)
 
-            testResultDao.insert(testResult)
-            qoeInfoDao.clearInsert(qoeRecords)
-            getServerTestResult(testUUID)
-            loadOpenDataTestResults(testResult.testOpenUUID)
+                testResultDao.insert(testResult)
+                qoeInfoDao.clearInsert(qoeRecords)
+                getServerTestResult(testUUID)
+                loadOpenDataTestResults(testResult.testOpenUUID)
+                emit(true)
+            }
+
+            response.onFailure { throw it }
         }
     }
 }

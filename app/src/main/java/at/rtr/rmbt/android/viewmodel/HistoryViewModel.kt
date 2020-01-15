@@ -40,8 +40,6 @@ class HistoryViewModel @Inject constructor(private val repository: HistoryReposi
         addStateSaveHandler(state)
     }
 
-    fun clearHistory() = repository.clearHistory()
-
     fun refreshHistory() = repository.refreshHistory(
         limit = PAGE_SIZE,
         onLoadingCallback = { _isLoadingLiveData.postValue(it) },

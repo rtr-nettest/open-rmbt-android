@@ -24,7 +24,6 @@ class HistoryFragment : BaseFragment() {
     private val historyViewModel: HistoryViewModel by viewModelLazy()
     private val binding: FragmentHistoryBinding by bindingLazy()
     private val adapter: HistoryAdapter by lazy { HistoryAdapter() }
-    private var hadItemsBefore = false
 
     override val layoutResId = R.layout.fragment_history
 
@@ -48,10 +47,7 @@ class HistoryFragment : BaseFragment() {
         }
 
         historyViewModel.historyLiveData.listen(this) {
-            if (!hadItemsBefore) {
-                hadItemsBefore = it.isNotEmpty()
-                historyViewModel.state.isHistoryEmpty.set(it.isEmpty())
-            }
+            historyViewModel.state.isHistoryEmpty.set(it.isEmpty())
 
             adapter.submitList(it)
         }
@@ -61,17 +57,20 @@ class HistoryFragment : BaseFragment() {
         }
 
         binding.swipeRefreshLayoutHistoryItems.setOnRefreshListener {
-            historyViewModel.refreshHistory()
-            binding.swipeRefreshLayoutHistoryItems.isRefreshing = false
+            refreshHistory()
         }
 
         activity?.window?.changeStatusBarColor(ToolbarTheme.WHITE)
+
+        refreshHistory()
+    }
+
+    private fun refreshHistory() {
+        historyViewModel.refreshHistory()
+        binding.swipeRefreshLayoutHistoryItems.isRefreshing = false
     }
 
     override fun onHandledException(exception: HandledException) {
-        hadItemsBefore = false
-        historyViewModel.state.isHistoryEmpty.set(true)
-
         val messageTextResId = when (exception) {
             is NoConnectionException -> {
                 R.string.no_internet_connection_not_load_data
@@ -88,10 +87,5 @@ class HistoryFragment : BaseFragment() {
                 .cancelable(true)
                 .show(it, CODE_ERROR)
         }
-    }
-
-    override fun onStart() {
-        super.onStart()
-        historyViewModel.clearHistory()
     }
 }

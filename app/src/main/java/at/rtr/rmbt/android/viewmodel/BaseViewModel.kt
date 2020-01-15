@@ -4,14 +4,21 @@ import android.os.Bundle
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import at.rmbt.util.Maybe
 import at.rmbt.util.exception.HandledException
 import at.rtr.rmbt.android.ui.viewstate.ViewState
+import kotlinx.coroutines.CoroutineExceptionHandler
+import kotlinx.coroutines.CoroutineScope
 
-open class BaseViewModel : ViewModel() {
+open class BaseViewModel : ViewModel(), CoroutineScope {
 
     private val viewStates = mutableSetOf<ViewState>()
     private val _errorLiveData = MutableLiveData<HandledException>()
+
+    init {
+        viewModelScope
+    }
 
     val errorLiveData: LiveData<HandledException>
         get() = _errorLiveData
@@ -49,4 +56,14 @@ open class BaseViewModel : ViewModel() {
     open fun onSaveState(bundle: Bundle?) {
         viewStates.forEach { it.onSaveState(bundle) }
     }
+
+    private val coroutineExceptionHandler = CoroutineExceptionHandler { _, e ->
+        if (e is HandledException) {
+            postError(e)
+        } else {
+            throw e
+        }
+    }
+
+    final override val coroutineContext = viewModelScope.coroutineContext + coroutineExceptionHandler
 }
