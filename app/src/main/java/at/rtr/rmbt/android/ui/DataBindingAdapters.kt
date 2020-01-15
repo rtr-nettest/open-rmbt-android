@@ -30,6 +30,7 @@ import at.specure.measurement.MeasurementState
 import at.specure.result.QoECategory
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import java.util.Calendar
+import java.util.TimeZone
 
 @BindingAdapter("intText")
 fun intText(textView: TextView, value: Int) {
@@ -498,6 +499,19 @@ fun AppCompatTextView.setTime(networkType: NetworkTypeCompat, time: Long) {
             NetworkTypeCompat.TYPE_5G -> throw IllegalArgumentException("Need to add 5G image here for history")
         }, 0, 0, 0
     )
+}
+
+/**
+ * A binding adapter that is used for show date and time in result details
+ */
+@BindingAdapter("resultTime", "resultTimezone", requireAll = true)
+fun AppCompatTextView.setResultTime(resultTime: Long?, resultTimezone: String?) {
+    if (resultTime != null && resultTimezone != null) {
+        val calendar: Calendar = Calendar.getInstance()
+        calendar.timeInMillis = resultTime
+        calendar.timeZone = TimeZone.getTimeZone(resultTimezone)
+        text = calendar.format("dd.MM.yy, HH:mm:ss")
+    }
 }
 
 /**
