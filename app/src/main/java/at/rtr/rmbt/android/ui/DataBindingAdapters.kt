@@ -474,12 +474,13 @@ fun ConstraintLayout.setBottomSheetState(state: Int) {
 /**
  * A binding adapter that is used for show date and time in history list
  */
-@BindingAdapter("networkType", "time", requireAll = true)
-fun AppCompatTextView.setTime(networkType: NetworkTypeCompat, time: Long) {
+@BindingAdapter("networkType", "historyTime", "historyTimezone", requireAll = true)
+fun AppCompatTextView.setHistoryTime(networkType: NetworkTypeCompat, historyTime: Long, historyTimezone: String) {
 
     val calendar: Calendar = Calendar.getInstance()
-    calendar.timeInMillis = time
-    text = calendar.format("dd.MM.yy, hh:mm:ss")
+    calendar.timeInMillis = historyTime
+    calendar.timeZone = TimeZone.getTimeZone(historyTimezone)
+    text = calendar.format("dd.MM.yy, HH:mm:ss")
 
     setCompoundDrawablesWithIntrinsicBounds(
 
