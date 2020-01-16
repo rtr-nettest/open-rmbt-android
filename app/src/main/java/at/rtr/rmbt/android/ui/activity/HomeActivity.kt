@@ -17,11 +17,14 @@ package at.rtr.rmbt.android.ui.activity
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.view.WindowManager
 import androidx.navigation.findNavController
-import androidx.navigation.ui.NavigationUI.setupWithNavController
+import androidx.navigation.plusAssign
+import androidx.navigation.ui.setupWithNavController
 import at.rtr.rmbt.android.R
 import at.rtr.rmbt.android.databinding.ActivityHomeBinding
 import at.rtr.rmbt.android.di.viewModelLazy
+import at.rtr.rmbt.android.util.KeepStateNavigator
 import at.rtr.rmbt.android.util.listen
 import at.rtr.rmbt.android.viewmodel.MeasurementViewModel
 
@@ -34,8 +37,19 @@ class HomeActivity : BaseActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = bindContentView(R.layout.activity_home)
+
+        window.setFlags(
+            WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS,
+            WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS
+        )
+
         val navController = findNavController(R.id.navHostFragment)
-        setupWithNavController(binding.navView, navController)
+        val navHostFragment = supportFragmentManager.findFragmentById(R.id.navHostFragment)!!
+        val navigator = KeepStateNavigator(this, navHostFragment.childFragmentManager, R.id.navHostFragment)
+        navController.navigatorProvider += navigator
+        navController.setGraph(R.navigation.mobile_navigation)
+
+        binding.navView.setupWithNavController(navController)
 
         viewModel.isTestsRunningLiveData.listen(this) { isRunning ->
             if (isRunning) {

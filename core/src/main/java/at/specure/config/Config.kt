@@ -189,4 +189,20 @@ interface Config {
      * Is SSL connection should be used for QoS Tests
      */
     var qosSSL: Boolean
+
+    /**
+     * Route to the map server, example for value "RMBTMapServer",
+     * "myhost.com/RMBTMapServer/endpoint" will be used for requests to MapServer
+     */
+    var mapServerRoute: String
+
+    /**
+     * End of url to obtain markers, example "MapServer/V2/tiles/markers"
+     */
+    var mapMarkersEndpoint: String
+
+    /**
+     * End of url to obtain tiles for map screen, example "RMBTMapServer/tiles/{type}/{zoom}/{x}/{y}.png?map_options=all/download&statistical_method=0.5&period=180
+     */
+    var mapTilesEndpoint: String
 }

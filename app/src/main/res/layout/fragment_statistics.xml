@@ -13,6 +13,12 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
+        <View
+            android:id="@+id/status_bar_stub"
+            android:layout_width="match_parent"
+            app:layout_constraintTop_toTopOf="parent"
+            android:layout_height="@dimen/size_height_status_bar"/>
+
         <TextView
             android:id="@+id/textStatistics"
             android:layout_width="match_parent"
@@ -25,6 +31,6 @@
             android:textSize="20sp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toBottomOf="@id/status_bar_stub" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

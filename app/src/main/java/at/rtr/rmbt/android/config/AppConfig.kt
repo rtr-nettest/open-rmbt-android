@@ -201,4 +201,16 @@ class AppConfig @Inject constructor(context: Context, private val serverSettings
     override var qosSSL: Boolean
         get() = getBoolean(BuildConfig.QOS_SSL)
         set(value) = setBoolean(BuildConfig.QOS_SSL, value)
+
+    override var mapServerRoute: String
+        get() = getString(BuildConfig.MAP_SERVER_ROUTE)
+        set(value) = setString(BuildConfig.MAP_SERVER_ROUTE, value)
+
+    override var mapMarkersEndpoint: String
+        get() = getString(BuildConfig.MAP_MARKERS_ENDPOINT)
+        set(value) = setString(BuildConfig.MAP_MARKERS_ENDPOINT, value)
+
+    override var mapTilesEndpoint: String
+        get() = getString(BuildConfig.MAP_TILES_ENDPOINT)
+        set(value) = setString(BuildConfig.MAP_TILES_ENDPOINT, value)
 }

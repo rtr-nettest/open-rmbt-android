@@ -2,6 +2,8 @@ package at.specure.data
 
 import at.rmbt.client.control.HistoryItemResponse
 import at.rmbt.client.control.HistoryResponse
+import at.rmbt.client.control.MarkerMeasurementsResponse
+import at.rmbt.client.control.MarkersResponse
 import at.rmbt.client.control.PingGraphItemResponse
 import at.rmbt.client.control.QoEClassification
 import at.rmbt.client.control.ServerTestResultItem
@@ -11,9 +13,10 @@ import at.rmbt.client.control.SpeedGraphItemResponse
 import at.rmbt.client.control.TestResultDetailItem
 import at.rmbt.client.control.TestResultDetailResponse
 import at.specure.data.entity.History
+import at.specure.data.entity.MarkerMeasurementRecord
 import at.specure.data.entity.QoeInfoRecord
-import at.specure.data.entity.TestResultGraphItemRecord
 import at.specure.data.entity.TestResultDetailsRecord
+import at.specure.data.entity.TestResultGraphItemRecord
 import at.specure.data.entity.TestResultRecord
 import at.specure.result.QoECategory
 
@@ -118,3 +121,25 @@ fun TestResultDetailResponse.toModelList(testUUID: String): List<TestResultDetai
 
 fun TestResultDetailItem.toModel(testUUID: String): TestResultDetailsRecord =
     TestResultDetailsRecord(testUUID, openTestUUID, openUuid, time, timezone, title, value)
+
+fun MarkersResponse.toModelList(): List<MarkerMeasurementRecord> = measurements.map { it.toModel() }
+
+fun MarkerMeasurementsResponse.toModel(): MarkerMeasurementRecord =
+    MarkerMeasurementRecord(
+        longitude,
+        latitude,
+        Classification.values()[measurementResult.uploadClassification],
+        measurementResult.uploadKbit,
+        Classification.values()[measurementResult.downloadClassification],
+        measurementResult.downloadKbit,
+        Classification.values()[measurementResult.signalClassification],
+        measurementResult.signalStrength,
+        Classification.values()[measurementResult.pingClassification],
+        measurementResult.pingMs,
+        networkInfo.networkTypeLabel,
+        networkInfo.providerName,
+        networkInfo.wifiSSID,
+        openTestUUID,
+        time,
+        timeString
+    )

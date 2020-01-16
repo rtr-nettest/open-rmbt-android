@@ -29,8 +29,10 @@ import at.specure.info.strength.SignalStrengthInfo
 import at.specure.measurement.MeasurementState
 import at.specure.result.QoECategory
 import com.google.android.material.bottomsheet.BottomSheetBehavior
+import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.TimeZone
+import java.util.Locale
 
 @BindingAdapter("intText")
 fun intText(textView: TextView, value: Int) {
@@ -736,4 +738,57 @@ fun AppCompatTextView.setQoEName(qoECategory: QoECategory) {
 @BindingAdapter("qoePercent", "classification")
 fun ResultBar.setQoEValue(value: Double, classification: Classification) {
     updateClassification((value * 100).toInt(), classification)
+}
+
+@BindingAdapter("networkType")
+fun ImageView.setNetworkType(networkType: String) {
+    setImageResource(
+        when (NetworkTypeCompat.fromString(networkType)) {
+            NetworkTypeCompat.TYPE_2G -> {
+                R.drawable.ic_history_2g
+            }
+            NetworkTypeCompat.TYPE_3G -> {
+                R.drawable.ic_history_3g
+            }
+            NetworkTypeCompat.TYPE_4G -> {
+                R.drawable.ic_history_4g
+            }
+            NetworkTypeCompat.TYPE_WLAN -> {
+                R.drawable.ic_history_wifi
+            }
+            NetworkTypeCompat.TYPE_5G -> throw IllegalArgumentException("Need to add 5G image here for history")
+        }
+    )
+}
+
+@BindingAdapter("timeString")
+fun AppCompatTextView.setTimeAs24h(time: String) {
+    SimpleDateFormat("MMM dd, yyyy hh:mm:ss a", Locale.US).parse(time)?.let { text = SimpleDateFormat("dd.MM.yyyy, HH:mm:ss", Locale.US).format(it) }
+}
+
+@BindingAdapter("signalStrengthMap", "signalStrengthClassificationMap", requireAll = true)
+fun AppCompatTextView.setSignalStrengthMap(signalStrengthResult: Int?, signalStrengthClassificationResult: Classification) {
+
+    text = signalStrengthResult?.toString() ?: context.getString(R.string.measurement_dash)
+
+    setCompoundDrawablesWithIntrinsicBounds(
+
+        when (signalStrengthClassificationResult) {
+            Classification.NONE -> {
+                R.drawable.ic_small_wifi_gray
+            }
+            Classification.BAD -> {
+                R.drawable.ic_small_wifi_red
+            }
+            Classification.NORMAL -> {
+                R.drawable.ic_small_wifi_yellow
+            }
+            Classification.GOOD -> {
+                R.drawable.ic_small_wifi_light_green
+            }
+            Classification.EXCELLENT -> {
+                R.drawable.ic_small_wifi_dark_green
+            }
+        }, 0, 0, 0
+    )
 }

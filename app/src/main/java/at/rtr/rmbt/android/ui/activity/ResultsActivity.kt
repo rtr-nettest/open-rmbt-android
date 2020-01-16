@@ -2,8 +2,6 @@ package at.rtr.rmbt.android.ui.activity
 
 import android.content.Context
 import android.content.Intent
-import android.graphics.Bitmap
-import android.graphics.Canvas
 import android.os.Bundle
 import android.view.View
 import androidx.core.content.ContextCompat
@@ -12,14 +10,13 @@ import at.rtr.rmbt.android.R
 import at.rtr.rmbt.android.databinding.ActivityResultsBinding
 import at.rtr.rmbt.android.di.viewModelLazy
 import at.rtr.rmbt.android.ui.adapter.ResultQoEAdapter
+import at.rtr.rmbt.android.util.iconFromVector
 import at.rtr.rmbt.android.util.listen
 import at.rtr.rmbt.android.viewmodel.ResultViewModel
 import at.specure.data.NetworkTypeCompat
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
-import com.google.android.gms.maps.model.BitmapDescriptor
-import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.CircleOptions
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
@@ -45,11 +42,11 @@ class ResultsActivity : BaseActivity(), OnMapReadyCallback {
         check(!testUUID.isNullOrEmpty()) { "TestUUID was not passed to result activity" }
 
         viewModel.state.testUUID = testUUID
-        viewModel.testServerResultLiveData.listen(this) {
-            viewModel.state.testResult.set(it)
+        viewModel.testServerResultLiveData.listen(this) { result ->
+            viewModel.state.testResult.set(result)
 
-            if (it?.latitude != null && it.longitude != null) {
-                with(LatLng(it.latitude!!, it.longitude!!)) {
+            if (result?.latitude != null && result.longitude != null) {
+                with(LatLng(result.latitude!!, result.longitude!!)) {
                     googleMap?.addCircle(
                         CircleOptions()
                             .center(this)
@@ -59,7 +56,7 @@ class ResultsActivity : BaseActivity(), OnMapReadyCallback {
                             .radius(CIRCLE_RADIUS)
                     )
 
-                    val icon = when (it.networkType) {
+                    val icon = when (result.networkType) {
                         NetworkTypeCompat.TYPE_WLAN -> R.drawable.ic_marker_wifi
                         NetworkTypeCompat.TYPE_4G -> R.drawable.ic_marker_4g
                         NetworkTypeCompat.TYPE_3G -> R.drawable.ic_marker_3g
@@ -67,9 +64,17 @@ class ResultsActivity : BaseActivity(), OnMapReadyCallback {
                         NetworkTypeCompat.TYPE_5G -> throw IllegalArgumentException("Need to add 5G marker image for the map")
                     }
 
-                    googleMap?.addMarker(MarkerOptions().position(this).anchor(ANCHOR_U, ANCHOR_V).icon(bitmapDescriptorFromVector(icon)))
+                    googleMap?.addMarker(MarkerOptions().position(this).anchor(ANCHOR_U, ANCHOR_V).iconFromVector(this@ResultsActivity, icon))
                     googleMap?.moveCamera(CameraUpdateFactory.newLatLngZoom(this, ZOOM_LEVEL))
-                    googleMap?.setOnMapClickListener { DetailedFullscreenMapActivity.start(this@ResultsActivity, testUUID) }
+                    googleMap?.setOnMapClickListener {
+                        DetailedFullscreenMapActivity.start(
+                            this@ResultsActivity,
+                            latitude,
+                            longitude,
+                            result.networkType
+                        )
+                    }
+                    googleMap?.setOnMarkerClickListener { true }
                 }
             }
         }
@@ -149,15 +154,6 @@ class ResultsActivity : BaseActivity(), OnMapReadyCallback {
     override fun onPause() {
         binding.map.onPause()
         super.onPause()
-    }
-
-    private fun bitmapDescriptorFromVector(vectorResId: Int): BitmapDescriptor? {
-        return ContextCompat.getDrawable(this, vectorResId)?.run {
-            setBounds(0, 0, intrinsicWidth, intrinsicHeight)
-            val bitmap = Bitmap.createBitmap(intrinsicWidth, intrinsicHeight, Bitmap.Config.ARGB_8888)
-            draw(Canvas(bitmap))
-            BitmapDescriptorFactory.fromBitmap(bitmap)
-        }
     }
 
     companion object {
