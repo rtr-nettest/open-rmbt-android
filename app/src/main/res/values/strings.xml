@@ -193,4 +193,6 @@
     <string name="results_qoe_cloud">Cloud</string>
     <string name="results_qoe_qos">Quality tests</string>
     <string name="results_quality">Quality</string>
+    <string name="signal_strength_min_max" translatable="false">%d s</string>
+    <string name="label_dbm" translatable="false">-dBm</string>
 </resources>
