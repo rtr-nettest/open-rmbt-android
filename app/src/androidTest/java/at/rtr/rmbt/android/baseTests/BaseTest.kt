@@ -14,6 +14,7 @@
 
 package at.rtr.rmbt.android.baseTests
 
+import android.app.Activity
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Canvas
@@ -22,6 +23,8 @@ import android.graphics.drawable.Drawable
 import android.net.ConnectivityManager
 import android.view.View
 import android.view.ViewGroup
+import androidx.test.espresso.Espresso
+import androidx.test.espresso.matcher.ViewMatchers
 import org.hamcrest.Description
 import org.hamcrest.Matcher
 import org.hamcrest.TypeSafeMatcher
@@ -35,6 +38,20 @@ open class BaseTest {
             context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
         val activeNetworkInfo = connectivityManager.activeNetworkInfo
         return activeNetworkInfo != null && activeNetworkInfo.isConnected
+    }
+
+    protected fun getCurrentActivity(): Activity? {
+        val activity = arrayOfNulls<Activity>(1)
+        Espresso.onView(ViewMatchers.isRoot()).check { view, _ ->
+            var checkedView = view
+            while (checkedView is ViewGroup && checkedView.childCount > 0) {
+                checkedView = checkedView.getChildAt(0)
+                if (checkedView.context is Activity) {
+                    activity[0] = checkedView.context as Activity
+                }
+            }
+        }
+        return activity[0]
     }
 
     protected fun nthChildOf(parentMatcher: Matcher<View>, childPosition: Int): Matcher<View> {

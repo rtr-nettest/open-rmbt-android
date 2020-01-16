@@ -5,6 +5,7 @@ import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.os.Bundle
+import android.view.View
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.DividerItemDecoration
 import at.rtr.rmbt.android.R
@@ -22,6 +23,7 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.CircleOptions
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
+import timber.log.Timber
 
 class ResultsActivity : BaseActivity(), OnMapReadyCallback {
 
@@ -65,23 +67,18 @@ class ResultsActivity : BaseActivity(), OnMapReadyCallback {
                         NetworkTypeCompat.TYPE_5G -> throw IllegalArgumentException("Need to add 5G marker image for the map")
                     }
 
-                    googleMap?.addMarker(MarkerOptions().position(this).icon(bitmapDescriptorFromVector(icon)))
+                    googleMap?.addMarker(MarkerOptions().position(this).anchor(ANCHOR_U, ANCHOR_V).icon(bitmapDescriptorFromVector(icon)))
                     googleMap?.moveCamera(CameraUpdateFactory.newLatLngZoom(this, ZOOM_LEVEL))
                     googleMap?.setOnMapClickListener { DetailedFullscreenMapActivity.start(this@ResultsActivity, testUUID) }
                 }
             }
         }
-    }
 
-    override fun onMapReady(map: GoogleMap?) {
-        googleMap = map
-        map?.let {
-            with(map.uiSettings) {
-                isScrollGesturesEnabled = false
-                isZoomGesturesEnabled = false
-                isRotateGesturesEnabled = false
-            }
+        viewModel.testResultDetailsLiveData.listen(this) {
+            Timber.d("found ${it.size} rows of details")
+            // todo: display result details
         }
+
         viewModel.qoeResultLiveData.listen(this) {
             viewModel.state.qoeRecords.set(it)
             adapter.submitList(it)
@@ -97,12 +94,42 @@ class ResultsActivity : BaseActivity(), OnMapReadyCallback {
         binding.buttonBack.setOnClickListener {
             super.onBackPressed()
         }
+
+        binding.swipeRefreshLayout.setOnRefreshListener {
+            refreshResults()
+        }
+
+        viewModel.loadingLiveData.listen(this) {
+            binding.swipeRefreshLayout.isRefreshing = false
+            if (viewModel.state.testResult.get() == null) {
+                binding.textFailedToLoad.visibility = if (it) View.GONE else View.VISIBLE
+            } else {
+                binding.textFailedToLoad.visibility = View.GONE
+            }
+        }
+
+        refreshResults()
+    }
+
+    private fun refreshResults() {
+        viewModel.loadTestResults()
+        binding.swipeRefreshLayout.isRefreshing = true
+    }
+
+    override fun onMapReady(map: GoogleMap?) {
+        googleMap = map
+        map?.let {
+            with(map.uiSettings) {
+                isScrollGesturesEnabled = false
+                isZoomGesturesEnabled = false
+                isRotateGesturesEnabled = false
+            }
+        }
     }
 
     override fun onStart() {
         super.onStart()
         binding.map.onStart()
-        viewModel.loadTestResults()
     }
 
     override fun onResume() {
@@ -134,6 +161,8 @@ class ResultsActivity : BaseActivity(), OnMapReadyCallback {
         private const val ZOOM_LEVEL = 15f
         private const val CIRCLE_RADIUS = 13.0
         private const val STROKE_WIDTH = 7f
+        private const val ANCHOR_U = 0.5f
+        private const val ANCHOR_V = 0.865f
 
         private const val KEY_TEST_UUID = "KEY_TEST_UUID"
 

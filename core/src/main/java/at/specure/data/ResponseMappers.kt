@@ -2,11 +2,18 @@ package at.specure.data
 
 import at.rmbt.client.control.HistoryItemResponse
 import at.rmbt.client.control.HistoryResponse
+import at.rmbt.client.control.PingGraphItemResponse
 import at.rmbt.client.control.QoEClassification
 import at.rmbt.client.control.ServerTestResultItem
 import at.rmbt.client.control.ServerTestResultResponse
+import at.rmbt.client.control.SignalGraphItemResponse
+import at.rmbt.client.control.SpeedGraphItemResponse
+import at.rmbt.client.control.TestResultDetailItem
+import at.rmbt.client.control.TestResultDetailResponse
 import at.specure.data.entity.History
 import at.specure.data.entity.QoeInfoRecord
+import at.specure.data.entity.TestResultGraphItemRecord
+import at.specure.data.entity.TestResultDetailsRecord
 import at.specure.data.entity.TestResultRecord
 import at.specure.result.QoECategory
 
@@ -56,6 +63,9 @@ fun ServerTestResultItem.toModel(testUUID: String): TestResultRecord {
         timestamp = timestamp,
         timeText = timeText,
         timezone = timezone,
+        networkName = networkItem.wifiNetworkSSID,
+        networkProviderName = networkItem.providerName,
+        networkTypeText = networkItem.networkTypeString,
         networkType = NetworkTypeCompat.fromResultIntType(networkType)
     )
 }
@@ -76,3 +86,35 @@ fun QoEClassification.toModel(testUUID: String): QoeInfoRecord {
         percentage = quality
     )
 }
+
+fun SignalGraphItemResponse.toModel(openTestUUID: String): TestResultGraphItemRecord {
+    return TestResultGraphItemRecord(
+        testOpenUUID = openTestUUID,
+        time = timeMillis,
+        value = signalStrength?.toLong() ?: lteRsrp?.toLong() ?: 0,
+        type = TestResultGraphItemRecord.RESULT_GRAPH_ITEM_TYPE_PING
+    )
+}
+
+fun PingGraphItemResponse.toModel(openTestUUID: String): TestResultGraphItemRecord {
+    return TestResultGraphItemRecord(
+        testOpenUUID = openTestUUID,
+        time = timeMillis,
+        value = durationMillis.toLong(),
+        type = TestResultGraphItemRecord.RESULT_GRAPH_ITEM_TYPE_PING
+    )
+}
+
+fun SpeedGraphItemResponse.toModel(openTestUUID: String, type: Int): TestResultGraphItemRecord {
+    return TestResultGraphItemRecord(
+        testOpenUUID = openTestUUID,
+        time = timeMillis,
+        value = bytes,
+        type = type
+    )
+}
+
+fun TestResultDetailResponse.toModelList(testUUID: String): List<TestResultDetailsRecord> = details.map { it.toModel(testUUID) }
+
+fun TestResultDetailItem.toModel(testUUID: String): TestResultDetailsRecord =
+    TestResultDetailsRecord(testUUID, openTestUUID, openUuid, time, timezone, title, value)

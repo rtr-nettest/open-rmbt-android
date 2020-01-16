@@ -288,13 +288,17 @@ class StateRecorder @Inject constructor(
 
     fun onDownloadSpeedChanged(progress: Int, speedBps: Long) {
         testUUID?.let {
-            repository.saveDownloadGraphItem(it, progress, speedBps)
+            if (progress > -1) {
+                repository.saveDownloadGraphItem(it, progress, speedBps)
+            }
         }
     }
 
     fun onUploadSpeedChanged(progress: Int, speedBps: Long) {
         testUUID?.let {
-            repository.saveUploadGraphItem(it, progress, speedBps)
+            if (progress > -1) {
+                repository.saveUploadGraphItem(it, progress, speedBps)
+            }
         }
     }
 

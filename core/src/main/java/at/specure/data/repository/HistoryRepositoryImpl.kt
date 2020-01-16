@@ -25,10 +25,6 @@ class HistoryRepositoryImpl(
 
     override fun getHistorySource(): DataSource.Factory<Int, History> = historyDao.getHistorySource()
 
-    override fun clearHistory() = io {
-        historyDao.clear()
-    }
-
     private fun loadItems(offset: Int, limit: Int): Maybe<Boolean> {
         val clientUUID = clientUUID.value
         if (clientUUID == null) {
@@ -49,6 +45,9 @@ class HistoryRepositoryImpl(
         val response = client.getHistory(body)
 
         response.onSuccess {
+            if (offset == 0) {
+                historyDao.clear()
+            }
             historyDao.insert(it.toModelList())
             Timber.i("history offset: $offset limit: $limit loaded: ${it.history.size}")
         }
@@ -90,7 +89,6 @@ class HistoryRepositoryImpl(
 
     override fun refreshHistory(limit: Int, onLoadingCallback: (Boolean) -> Unit, onErrorCallback: (HandledException) -> Unit) = io {
         onLoadingCallback.invoke(true)
-        historyDao.clear()
         loadItems(0, limit).onFailure(onErrorCallback)
         onLoadingCallback.invoke(false)
     }

@@ -112,7 +112,12 @@
     },
     {
       "name": "CONTROL_SERVER_GET_OPENDATA_RESULT_PATH",
-      "value": "opendata",
+      "value": "opentests",
+      "visible": false
+    },
+    {
+      "name": "CONTROL_SERVER_TEST_RESULT_DETAILS_ENDPOINT",
+      "value": "testresultdetail",
       "visible": false
     },
     {

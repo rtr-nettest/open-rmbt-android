@@ -76,6 +76,21 @@ data class TestResultRecord(
     val networkTypeRaw: Int,
 
     /**
+     * Server type of the network (human readable format)
+     */
+    val networkTypeText: String,
+
+    /**
+     * Provider name
+     */
+    val networkProviderName: String?,
+
+    /**
+     * Network name (ssid)
+     */
+    val networkName: String?,
+
+    /**
      * Classification value for assigning traffic-light-color
      */
     val uploadClass: Classification,

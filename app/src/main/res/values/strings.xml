@@ -195,4 +195,8 @@
     <string name="results_quality">Quality</string>
     <string name="signal_strength_min_max" translatable="false">%d s</string>
     <string name="label_dbm" translatable="false">-dBm</string>
+    <string name="results_network_type">Type</string>
+    <string name="results_network_provider">Provider</string>
+    <string name="results_network_ssid">WLAN SSID</string>
+    <string name="text_failed_to_load_results">Failed to load data.\nPlease pull down to refresh.</string>
 </resources>

@@ -17,7 +17,6 @@ package at.rmbt.client.control
 import androidx.annotation.Keep
 import at.rmbt.client.control.data.ErrorStatus
 import com.google.gson.annotations.SerializedName
-import kotlin.collections.HashSet
 
 /**
  * Basic response class
@@ -148,7 +147,7 @@ data class PingGraphItemResponse(
      * Ping value in milliseconds
      */
     @SerializedName("ping_ms")
-    val durationMillis: Long,
+    val durationMillis: Double,
 
     /**
      * Relative time in milliseconds form the start of the test
@@ -275,7 +274,7 @@ data class ServerTestResultItem(
     /**
      * Object holding all basic network information
      */
-    @SerializedName("measurement_item")
+    @SerializedName("network_info")
     val networkItem: NetworkItem,
 
     /**
@@ -415,8 +414,15 @@ data class MeasurementItem(
 
 @Keep
 data class NetworkItem(
-    // TODO: prepare according to RTR spec
-    val lama: Boolean?
+
+    @SerializedName("network_type_label")
+    val networkTypeString: String,
+
+    @SerializedName("wifi_ssid")
+    val wifiNetworkSSID: String?,
+
+    @SerializedName("provider_name")
+    val providerName: String?
 )
 
 /**
@@ -540,3 +546,21 @@ data class HistoryItemResponse(
     val timeString: String,
     val timezone: String
 )
+
+@Keep
+data class TestResultDetailItem(
+    @SerializedName("open_test_uuid")
+    val openTestUUID: String?,
+    @SerializedName("open_uuid")
+    val openUuid: String?,
+    val time: Long?,
+    val timezone: String?,
+    val title: String,
+    val value: String
+)
+
+@Keep
+data class TestResultDetailResponse(
+    @SerializedName("testresultdetail")
+    val details: List<TestResultDetailItem>
+) : BaseResponse()
