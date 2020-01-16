@@ -49,5 +49,6 @@
 
     <!-- History -->
     <dimen name="history_label_text_size">10sp</dimen>
+    <dimen name="toolbar_button_size">48dp</dimen>
 
 </resources>

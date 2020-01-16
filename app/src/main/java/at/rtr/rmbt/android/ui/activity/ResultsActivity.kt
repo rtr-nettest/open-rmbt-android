@@ -94,6 +94,14 @@ class ResultsActivity : BaseActivity(), OnMapReadyCallback {
         binding.buttonBack.setOnClickListener {
             super.onBackPressed()
         }
+        binding.buttonShare.setOnClickListener {
+            val shareIntent = Intent()
+            shareIntent.action = Intent.ACTION_SEND
+            shareIntent.putExtra(Intent.EXTRA_TEXT, viewModel.state.testResult.get()?.shareText)
+            shareIntent.putExtra(Intent.EXTRA_SUBJECT, viewModel.state.testResult.get()?.shareTitle)
+            shareIntent.type = "text/plain"
+            startActivity(Intent.createChooser(shareIntent, null))
+        }
 
         binding.swipeRefreshLayout.setOnRefreshListener {
             refreshResults()
@@ -118,13 +126,9 @@ class ResultsActivity : BaseActivity(), OnMapReadyCallback {
 
     override fun onMapReady(map: GoogleMap?) {
         googleMap = map
-        map?.let {
-            with(map.uiSettings) {
-                isScrollGesturesEnabled = false
-                isZoomGesturesEnabled = false
-                isRotateGesturesEnabled = false
-            }
-        }
+        googleMap?.uiSettings?.isScrollGesturesEnabled = false
+        googleMap?.uiSettings?.isZoomGesturesEnabled = false
+        googleMap?.uiSettings?.isRotateGesturesEnabled = false
     }
 
     override fun onStart() {

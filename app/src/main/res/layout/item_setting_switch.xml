@@ -58,6 +58,7 @@
             android:id="@+id/switchButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:minHeight="@dimen/toolbar_button_size"
             android:layout_alignParentEnd="true"
             android:layout_centerVertical="true"
             android:thumb="@drawable/thumb_selector"

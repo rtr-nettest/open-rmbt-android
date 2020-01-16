@@ -23,20 +23,21 @@
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
             android:background="@android:color/white"
+            android:elevation="2dp"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHeight_percent="0.35"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent">
 
             <ImageView
                 android:id="@+id/buttonBack"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="@dimen/padding_large"
-                android:layout_marginTop="@dimen/padding_large"
+                android:layout_width="@dimen/toolbar_button_size"
+                android:layout_height="@dimen/toolbar_button_size"
+                android:layout_marginStart="@dimen/margin_small"
                 android:contentDescription="@null"
+                android:scaleType="center"
                 android:src="@drawable/ic_back"
                 app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 
             <androidx.appcompat.widget.AppCompatTextView
@@ -47,23 +48,24 @@
                 app:resultTime="@{state.testResult.timestamp}"
                 app:resultTimezone="@{state.testResult.timezone}"
                 android:textAllCaps="true"
-                app:layout_constraintBottom_toBottomOf="@+id/buttonBack"
-                app:layout_constraintEnd_toEndOf="@+id/buttonSync"
+                app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintHorizontal_bias="0.5"
                 app:layout_constraintStart_toStartOf="@+id/buttonBack"
-                app:layout_constraintTop_toTopOf="@+id/buttonBack"
+                app:layout_constraintEnd_toEndOf="@+id/buttonShare"
+                app:layout_constraintTop_toTopOf="parent"
                 tools:text="20.11.18, 12:00:45" />
 
             <ImageView
-                android:id="@+id/buttonSync"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/padding_large"
-                android:layout_marginEnd="@dimen/padding_large"
+                android:id="@+id/buttonShare"
+                android:layout_width="@dimen/toolbar_button_size"
+                android:layout_height="@dimen/toolbar_button_size"
+                android:layout_marginEnd="@dimen/margin_small"
+                android:scaleType="center"
                 android:contentDescription="@null"
                 android:src="@drawable/ic_share"
-                app:layout_constraintBottom_toBottomOf="@+id/buttonBack"
-                app:layout_constraintEnd_toEndOf="parent" />
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -97,7 +99,7 @@
                     <androidx.cardview.widget.CardView
                         android:id="@+id/mapContainer"
                         android:layout_width="0dp"
-                        android:layout_height="200dp"
+                        android:layout_height="0dp"
                         android:layout_margin="@dimen/padding_large"
                         app:cardCornerRadius="@dimen/padding_large"
                         app:layout_constraintEnd_toEndOf="parent"
