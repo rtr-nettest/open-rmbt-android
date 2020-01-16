@@ -185,6 +185,15 @@
     <string name="results_network_type">Zugang</string>
     <string name="results_network_provider">Betreiber</string>
     <string name="results_network_ssid">WLAN SSID</string>
+
+    <!-- Map -->
+    <string name="map_layer_communities">PLZ</string>
+    <string name="map_layer_points">Punkte</string>
+    <string name="map_layer_automatic">Automatisch</string>
+    <string name="map_label_overlay_type">Kartendetails</string>
+    <string name="map_label_map_appearance">Kartenansicht</string>
+    <string name="title_marker_item_details">Mehr details anzeigen</string>
+
     <string name="text_failed_to_load_results">Daten konnten nicht geladen werden.\nZum Aktualisieren bitte nach unten ziehen.</string>
 </resources>
 

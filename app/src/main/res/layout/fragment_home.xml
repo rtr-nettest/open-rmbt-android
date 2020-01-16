@@ -34,6 +34,12 @@
         android:background="@{state.isConnected ? @drawable/bg_splash : @drawable/bg_gray}"
         tools:background="@drawable/bg_splash">
 
+        <View
+            android:id="@+id/status_bar_stub"
+            android:layout_width="match_parent"
+            app:layout_constraintTop_toTopOf="parent"
+            android:layout_height="@dimen/size_height_status_bar"/>
+
         <androidx.appcompat.widget.AppCompatImageButton
             android:id="@+id/btnLoop"
             style="@style/NavigationButtonStyle"
@@ -41,7 +47,7 @@
             android:layout_height="wrap_content"
             android:src="@drawable/ic_loop_mode_off"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toBottomOf="@id/status_bar_stub" />
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/tvTitle"
@@ -53,7 +59,7 @@
             app:layout_constraintBottom_toBottomOf="@+id/btnLoop"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toBottomOf="@id/status_bar_stub" />
 
         <androidx.appcompat.widget.AppCompatImageButton
             android:id="@+id/btnSetting"
@@ -62,7 +68,7 @@
             android:layout_height="wrap_content"
             android:src="@{state.isConnected ? @drawable/ic_settings : @drawable/ic_settings_gray}"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/status_bar_stub"
             tools:src="@drawable/ic_settings" />
 
         <View

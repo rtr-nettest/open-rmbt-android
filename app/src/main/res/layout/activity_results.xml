@@ -36,8 +36,8 @@
                 android:contentDescription="@null"
                 android:scaleType="center"
                 android:src="@drawable/ic_back"
-                app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 
             <androidx.appcompat.widget.AppCompatTextView
@@ -45,14 +45,14 @@
                 style="@style/TextAppearance.AppCompat.Title"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                app:resultTime="@{state.testResult.timestamp}"
-                app:resultTimezone="@{state.testResult.timezone}"
                 android:textAllCaps="true"
                 app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="@+id/buttonShare"
                 app:layout_constraintHorizontal_bias="0.5"
                 app:layout_constraintStart_toStartOf="@+id/buttonBack"
-                app:layout_constraintEnd_toEndOf="@+id/buttonShare"
                 app:layout_constraintTop_toTopOf="parent"
+                app:resultTime="@{state.testResult.timestamp}"
+                app:resultTimezone="@{state.testResult.timezone}"
                 tools:text="20.11.18, 12:00:45" />
 
             <ImageView
@@ -60,8 +60,8 @@
                 android:layout_width="@dimen/toolbar_button_size"
                 android:layout_height="@dimen/toolbar_button_size"
                 android:layout_marginEnd="@dimen/margin_small"
-                android:scaleType="center"
                 android:contentDescription="@null"
+                android:scaleType="center"
                 android:src="@drawable/ic_share"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -102,8 +102,8 @@
                         android:layout_height="0dp"
                         android:layout_margin="@dimen/padding_large"
                         app:cardCornerRadius="@dimen/padding_large"
-                        app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintDimensionRatio="H,3:1"
+                        app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toTopOf="parent"
                         app:visibleOrGone="@{state.testResult.longitude != null &amp;&amp; state.testResult.latitude != null }">
@@ -113,15 +113,18 @@
                             android:layout_width="match_parent"
                             android:layout_height="match_parent" />
 
-                        <ImageView
+                        <com.google.android.material.floatingactionbutton.FloatingActionButton
                             android:id="@+id/fullscreen_fab"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_gravity="end"
-                            android:layout_margin="@dimen/padding_medium"
-                            android:background="@android:color/transparent"
+                            android:layout_gravity="end|top"
+                            android:layout_marginTop="@dimen/padding_medium"
+                            android:layout_marginEnd="@dimen/padding_medium"
+                            android:backgroundTint="@android:color/white"
                             android:contentDescription="@null"
-                            android:src="@drawable/ic_fullscreen_fab" />
+                            android:src="@drawable/ic_map_fullscreen"
+                            app:borderWidth="0dp"
+                            app:fabSize="mini" />
                     </androidx.cardview.widget.CardView>
 
                     <TextView

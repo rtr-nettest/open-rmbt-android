@@ -19,6 +19,13 @@
         android:layout_height="match_parent"
         android:background="@color/measurement_dark_gray">
 
+        <View
+            android:id="@+id/status_bar_stub"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/size_height_status_bar"
+            app:layout_constraintTop_toTopOf="parent" />
+
+
         <at.rtr.rmbt.android.ui.view.curve.MeasurementCurveLayout
             android:id="@+id/curve_layout"
             android:layout_width="0dp"
@@ -26,7 +33,7 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@id/measurementBottomView"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/status_bar_stub"
             app:measurementPhase="@{state.measurementState}"
             app:percentage="@{state.measurementProgress}"
             app:qosEnabled="@{state.qosEnabled}"
@@ -45,7 +52,7 @@
             android:scaleType="center"
             android:src="@drawable/ic_cancel"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toBottomOf="@id/status_bar_stub" />
 
         <TextView
             android:id="@+id/network_name_label"
@@ -57,7 +64,7 @@
             android:textSize="@dimen/network_label_size"
             android:textStyle="bold"
             app:layout_constraintStart_toStartOf="@id/measurementBottomView"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toBottomOf="@id/status_bar_stub" />
 
         <TextView
             android:id="@+id/network_name"

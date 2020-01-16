@@ -196,5 +196,17 @@
     <string name="results_network_type">Type</string>
     <string name="results_network_provider">Provider</string>
     <string name="results_network_ssid">WLAN SSID</string>
+
+    <!-- Map -->
+    <string name="map_layer_communities">Communities</string>
+    <string name="map_layer_points">Points</string>
+    <string name="map_layer_automatic">Automatic</string>
+    <string name="map_label_overlay_type">Overlay type</string>
+    <string name="map_style_hybrid" translatable="false">Hybrid</string>
+    <string name="map_style_satellite" translatable="false">Satellite</string>
+    <string name="map_style_standard" translatable="false">Standard</string>
+    <string name="map_label_map_appearance">Map appearance</string>
+    <string name="title_marker_item_details">Show more details</string>
+
     <string name="text_failed_to_load_results">Failed to load data.\nPlease pull down to refresh.</string>
 </resources>

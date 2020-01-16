@@ -54,4 +54,13 @@ class ControlServerProviderImpl(private val config: Config) : ControlEndpointPro
 
     override val port: Int
         get() = config.controlServerPort
+
+    override val mapRoute: String
+        get() = config.mapServerRoute
+
+    override val getMapMarkersUrl: String
+        get() = "$host/$mapRoute/${config.mapMarkersEndpoint}"
+
+    override val getMapTilesUrl: String
+        get() = "$host/$mapRoute/${config.mapTilesEndpoint}"
 }

@@ -74,4 +74,20 @@ interface ControlEndpointProvider {
      * Port that should be used for control server client
      */
     val port: Int
+
+    /**
+     * Route to the map server, example for value "RMBTMapServer",
+     * "myhost.com/RMBTMapServer/endpoint" will be used for requests to MapServer
+     */
+    val mapRoute: String
+
+    /**
+     * Link suffix to obtain markers, example "MapServer/V2/tiles/markers"
+     */
+    val getMapMarkersUrl: String
+
+    /**
+     * Link suffix to obtain tiles for map screen, example "RMBTMapServer/tiles/{type}/{zoom}/{x}/{y}.png?map_options=all/download&statistical_method=0.5&period=180
+     */
+    val getMapTilesUrl: String
 }

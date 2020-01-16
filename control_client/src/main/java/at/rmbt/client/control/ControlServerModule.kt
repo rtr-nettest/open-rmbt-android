@@ -43,6 +43,10 @@ class ControlServerModule {
 
     @Provides
     @Singleton
+    fun provideMapServerApi(retrofit: Retrofit): MapServerApi = retrofit.create(MapServerApi::class.java)
+
+    @Provides
+    @Singleton
     fun provideRetrofit(controlEndpointProvider: ControlEndpointProvider): Retrofit = Retrofit.Builder()
         .baseUrl(controlEndpointProvider.host + "/")
         .addConverterFactory(GsonConverterFactory.create())

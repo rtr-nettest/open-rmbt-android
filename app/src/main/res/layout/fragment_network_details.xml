@@ -22,6 +22,12 @@
             android:paddingTop="@dimen/margin_large"
             android:paddingEnd="@dimen/margin_large">
 
+            <View
+                android:id="@+id/status_bar_stub"
+                android:layout_width="match_parent"
+                app:layout_constraintTop_toTopOf="parent"
+                android:layout_height="@dimen/size_height_status_bar"/>
+
             <TextView
                 android:id="@+id/labelConnectivityInfo"
                 style="@style/RobotoMediumStyle"
@@ -30,7 +36,7 @@
                 android:text="Connectivity Info:"
                 android:textSize="20sp"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/status_bar_stub"
                 tools:ignore="HardcodedText" />
 
             <TextView
