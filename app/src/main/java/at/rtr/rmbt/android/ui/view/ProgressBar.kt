@@ -42,9 +42,12 @@ class ProgressBar @JvmOverloads constructor(
 
     var progress: Int = 0
         set(value) {
+            val oldProgress = field
             field = value
-            updateProgress(value)
-            invalidate()
+            if (oldProgress != value) {
+                updateProgress(progress)
+                invalidate()
+            }
         }
 
     init {
@@ -76,13 +79,11 @@ class ProgressBar @JvmOverloads constructor(
     private var bitmap: Bitmap? = null
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
-
         val width = SQUARE_MULTIPLIER * squareSize * (horizontalCount - 1) + squareSize
         val height = SQUARE_MULTIPLIER * squareSize * (verticalCount - 1) + squareSize
         super.onMeasure(
             MeasureSpec.makeMeasureSpec(width.toInt(), MeasureSpec.AT_MOST),
             MeasureSpec.makeMeasureSpec(height.toInt(), MeasureSpec.AT_MOST)
-
         )
     }
 
@@ -91,6 +92,7 @@ class ProgressBar @JvmOverloads constructor(
 
         if (changed) {
             createBitmap()
+            updateProgress(progress)
         }
     }
 

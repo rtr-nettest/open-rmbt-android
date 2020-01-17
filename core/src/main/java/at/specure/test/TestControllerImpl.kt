@@ -66,7 +66,6 @@ class TestControllerImpl(
     private var finalUploadValuePosted = false
 
     override fun start(deviceInfo: DeviceInfo, listener: TestProgressListener, clientCallback: RMBTClientCallback) {
-        Timber.d("Start---")
         if (job != null) {
             Timber.w("Runner is already started")
             return
@@ -150,10 +149,6 @@ class TestControllerImpl(
                     val speed = floor(client.totalTestResult.speed_upload + 0.5).toLong() * 1000
                     _listener?.onUploadSpeedChanged(-1, speed)
                     finalUploadValuePosted = true
-                }
-
-                if (result.ping_shortest > 0) {
-                    _listener?.onPingChanged(result.ping_shortest)
                 }
 
                 clientCallback.onTestCompleted(result, !skipQoSTests)
