@@ -216,6 +216,10 @@ class MeasurementService : LifecycleService() {
             location = location
         )
 
+        qosTasksPassed = 0
+        qosTasksTotal = 0
+        qosProgressMap = mapOf()
+
         hasErrors = false
         runner.start(deviceInfo, testListener, stateRecorder)
 
