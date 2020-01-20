@@ -30,7 +30,7 @@ class MapMarkerDetailsAdapter(private val callback: MarkerDetailsCallback) : Rec
     }
 
     override fun getItemViewType(position: Int): Int {
-        if (itemCount <= 1) return TYPE_REGULAR
+        if (itemCount <= 1) return TYPE_FIRST
         return when (position) {
             0 -> TYPE_FIRST
             itemCount - 1 -> TYPE_LAST
