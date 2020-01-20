@@ -27,9 +27,12 @@ class ResultChartFragment : BaseFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        arguments?.let {
-            viewModel.state.openTestUUID = it.getString(KEY_OPEN_TEST_UUID, "")
-            viewModel.state.chartType = ResultChartType.fromValue(it.getInt(KEY_POSITION))
+        val openTestUUID = arguments?.getString(KEY_OPEN_TEST_UUID)
+        if (openTestUUID == null) {
+            throw IllegalArgumentException("Please pass open test UUID")
+        } else {
+            viewModel.state.openTestUUID = openTestUUID
+            viewModel.state.chartType = ResultChartType.fromValue(arguments?.getInt(KEY_CHART_TYPE))
         }
 
         progressLoadItems = binding.progressLoadItems
@@ -90,18 +93,16 @@ class ResultChartFragment : BaseFragment() {
                     (graphView as PingChart).addGraphItems(viewModel.state.graphItems)
                 }
             }
-            ResultChartType.UNKNOWN -> {
-            }
         }
     }
     companion object {
 
-        private const val KEY_POSITION: String = "KEY_POSITION"
+        private const val KEY_CHART_TYPE: String = "KEY_CHART_TYPE"
         private const val KEY_OPEN_TEST_UUID: String = "KEY_OPEN_TEST_UUID"
-        fun newInstance(position: Int, openTestUUID: String): ResultChartFragment {
+        fun newInstance(chartType: Int, openTestUUID: String): ResultChartFragment {
 
             val args = Bundle()
-            args.putInt(KEY_POSITION, position)
+            args.putInt(KEY_CHART_TYPE, chartType)
             args.putString(KEY_OPEN_TEST_UUID, openTestUUID)
 
             val fragment = ResultChartFragment()
@@ -113,7 +114,6 @@ class ResultChartFragment : BaseFragment() {
 
 enum class ResultChartType(val typeValue: Int) {
 
-    UNKNOWN(-1),
     DOWNLOAD(0),
     UPLOAD(1),
     PING(2);
@@ -121,12 +121,12 @@ enum class ResultChartType(val typeValue: Int) {
     companion object {
 
         fun fromValue(typeValue: Int?): ResultChartType {
-            for (value in values()) {
-                if (value.typeValue == typeValue) {
-                    return value
+            values().forEach {
+                if (it.typeValue == typeValue) {
+                    return it
                 }
             }
-            return UNKNOWN
+            throw IllegalArgumentException("Unknown chart type value $typeValue")
         }
     }
 }

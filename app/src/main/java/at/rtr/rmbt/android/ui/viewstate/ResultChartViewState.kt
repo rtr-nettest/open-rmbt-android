@@ -10,7 +10,7 @@ private const val KEY_CHART_TYPE = "KEY_CHART_TYPE"
 class ResultChartViewState : ViewState {
 
     var graphItems: List<TestResultGraphItemRecord>? = null
-    var chartType: ResultChartType = ResultChartType.UNKNOWN
+    lateinit var chartType: ResultChartType
     lateinit var openTestUUID: String
 
     override fun onRestoreState(bundle: Bundle?) {

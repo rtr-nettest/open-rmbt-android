@@ -134,35 +134,6 @@ class ResultsActivity : BaseActivity(), OnMapReadyCallback {
         refreshResults()
     }
 
-    /*private fun loadGraphItems(openTestUUID: String) {
-
-        viewModel.loadGraphItems(openTestUUID)
-
-        viewModel.downloadGraphItemsLiveData?.listen(this) {
-            it?.let { items ->
-                resultChartFragmentPagerAdapter.getFragment(0)?.let {
-                    (it as ResultChartFragment).setGraphItems(items)
-                }
-            }
-        }
-
-        viewModel.uploadGraphItemsLiveData?.listen(this) {
-            it?.let { items ->
-                resultChartFragmentPagerAdapter.getFragment(1)?.let {
-                    (it as ResultChartFragment).setGraphItems(items)
-                }
-            }
-        }
-
-        viewModel.pingGraphItemsLiveData?.listen(this) {
-            it?.let { items ->
-                resultChartFragmentPagerAdapter.getFragment(2)?.let {
-                    (it as ResultChartFragment).setGraphItems(items)
-                }
-            }
-        }
-    }*/
-
     private fun refreshResults() {
         viewModel.loadTestResults()
         binding.swipeRefreshLayout.isRefreshing = true
