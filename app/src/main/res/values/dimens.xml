@@ -50,4 +50,7 @@
     <!-- History -->
     <dimen name="history_label_text_size">10sp</dimen>
 
+    <!-- Result screen -->
+    <dimen name="result_view_pager_height">160dp</dimen>
+
 </resources>

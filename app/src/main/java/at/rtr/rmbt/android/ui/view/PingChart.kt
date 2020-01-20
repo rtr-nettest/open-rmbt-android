@@ -8,6 +8,7 @@ import android.graphics.Canvas
 import android.util.AttributeSet
 import at.rtr.rmbt.android.R
 import at.specure.data.entity.GraphItemRecord
+import at.specure.data.entity.TestResultGraphItemRecord
 import timber.log.Timber
 import kotlin.math.*
 
@@ -19,7 +20,7 @@ class PingChart @JvmOverloads constructor(
 
     private var paintFill: Paint = Paint(Paint.ANTI_ALIAS_FLAG)
     private var maxValue: Int? = 0
-    private var graphItems: List<GraphItemRecord>? = null
+    private var graphItems: List<TestResultGraphItemRecord>? = null
 
     init {
 
@@ -65,13 +66,16 @@ class PingChart @JvmOverloads constructor(
     /**
      * This function is use for calculate path
      */
-    fun addGraphItems(graphItems: List<GraphItemRecord>) {
-        this.graphItems = graphItems
-        setYLabels(getYLabels(graphItems))
+    fun addGraphItems(graphItems: List<TestResultGraphItemRecord>?) {
+
+        graphItems?.let {
+            this.graphItems = it
+            setYLabels(getYLabels(it))
+        }
         invalidate()
     }
 
-    private fun getYLabels(graphItems: List<GraphItemRecord>):Array<Int> {
+    private fun getYLabels(graphItems: List<TestResultGraphItemRecord>):Array<Int> {
 
         val gap = graphItems.let {
             it.maxBy { it.value }?.let { item ->

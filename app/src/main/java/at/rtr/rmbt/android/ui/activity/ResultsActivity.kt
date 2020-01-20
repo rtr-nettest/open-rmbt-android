@@ -7,30 +7,31 @@ import android.graphics.Canvas
 import android.os.Bundle
 import android.view.View
 import androidx.core.content.ContextCompat
+import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.DividerItemDecoration
 import at.rtr.rmbt.android.R
 import at.rtr.rmbt.android.databinding.ActivityResultsBinding
 import at.rtr.rmbt.android.di.viewModelLazy
+import at.rtr.rmbt.android.ui.adapter.ResultChartFragmentPagerAdapter
 import at.rtr.rmbt.android.ui.adapter.ResultQoEAdapter
+import at.rtr.rmbt.android.ui.fragment.ResultChartFragment
 import at.rtr.rmbt.android.util.listen
 import at.rtr.rmbt.android.viewmodel.ResultViewModel
 import at.specure.data.NetworkTypeCompat
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
-import com.google.android.gms.maps.model.BitmapDescriptor
-import com.google.android.gms.maps.model.BitmapDescriptorFactory
-import com.google.android.gms.maps.model.CircleOptions
-import com.google.android.gms.maps.model.LatLng
-import com.google.android.gms.maps.model.MarkerOptions
+import com.google.android.gms.maps.model.*
 import timber.log.Timber
+
 
 class ResultsActivity : BaseActivity(), OnMapReadyCallback {
 
     private val viewModel: ResultViewModel by viewModelLazy()
     private lateinit var binding: ActivityResultsBinding
     private val adapter: ResultQoEAdapter by lazy { ResultQoEAdapter() }
-
+    //private val resultChartAdapter: ResultChartAdapter by lazy { ResultChartAdapter() }
+    private val resultChartFragmentPagerAdapter: ResultChartFragmentPagerAdapter by lazy { ResultChartFragmentPagerAdapter(supportFragmentManager) }
     private var googleMap: GoogleMap? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -44,9 +45,16 @@ class ResultsActivity : BaseActivity(), OnMapReadyCallback {
         val testUUID = intent.getStringExtra(KEY_TEST_UUID)
         check(!testUUID.isNullOrEmpty()) { "TestUUID was not passed to result activity" }
 
+        binding.viewPagerCharts.offscreenPageLimit = 3;
+        binding.viewPagerCharts.adapter = resultChartFragmentPagerAdapter
+
+        binding.tabLayoutCharts.setupWithViewPager(binding.viewPagerCharts,true)
+
         viewModel.state.testUUID = testUUID
         viewModel.testServerResultLiveData.listen(this) {
             viewModel.state.testResult.set(it)
+
+            it?.testOpenUUID?.let { it1 ->loadGraphItems(it1) }
 
             if (it?.latitude != null && it.longitude != null) {
                 with(LatLng(it.latitude!!, it.longitude!!)) {
@@ -72,12 +80,20 @@ class ResultsActivity : BaseActivity(), OnMapReadyCallback {
                     googleMap?.setOnMapClickListener { DetailedFullscreenMapActivity.start(this@ResultsActivity, testUUID) }
                 }
             }
+
+
+
         }
 
         viewModel.testResultDetailsLiveData.listen(this) {
             Timber.d("found ${it.size} rows of details")
             // todo: display result details
         }
+
+
+
+
+
 
         viewModel.qoeResultLiveData.listen(this) {
             viewModel.state.qoeRecords.set(it)
@@ -111,6 +127,34 @@ class ResultsActivity : BaseActivity(), OnMapReadyCallback {
         refreshResults()
     }
 
+    private fun loadGraphItems(openTestUUID: String) {
+
+        viewModel.loadGraphItems(openTestUUID)
+
+        viewModel.downloadGraphItemsLiveData?.listen(this) {
+            it?.let { items ->
+                resultChartFragmentPagerAdapter.getFragment(0)?.let {
+                    (it as ResultChartFragment).setGraphItems(items)
+                }
+            }
+        }
+
+        viewModel.uploadGraphItemsLiveData?.listen(this) {
+            it?.let { items ->
+                resultChartFragmentPagerAdapter.getFragment(1)?.let {
+                    (it as ResultChartFragment).setGraphItems(items)
+                }
+            }
+        }
+
+        viewModel.pingGraphItemsLiveData?.listen(this) {
+            it?.let { items ->
+                resultChartFragmentPagerAdapter.getFragment(2)?.let {
+                    (it as ResultChartFragment).setGraphItems(items)
+                }
+            }
+        }
+    }
     private fun refreshResults() {
         viewModel.loadTestResults()
         binding.swipeRefreshLayout.isRefreshing = true
