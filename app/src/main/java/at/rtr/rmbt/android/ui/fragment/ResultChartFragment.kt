@@ -15,23 +15,17 @@ import at.rtr.rmbt.android.ui.view.SpeedLineChart
 import at.specure.data.entity.TestResultGraphItemRecord
 import kotlinx.android.synthetic.main.fragment_result_chart.view.*
 
-
 class ResultChartFragment : Fragment() {
 
-
     private lateinit var fragmentBinding: ViewDataBinding
-
     private lateinit var graphView: View
     private lateinit var progressLoadItems: ContentLoadingProgressBar
     private var items: List<TestResultGraphItemRecord>? = null
 
-
-
-
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
 
         fragmentBinding = DataBindingUtil.inflate(inflater, R.layout.fragment_result_chart, container, false)
-        return  fragmentBinding.root
+        return fragmentBinding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -39,7 +33,7 @@ class ResultChartFragment : Fragment() {
 
         progressLoadItems = fragmentBinding.root.progressLoadItems
 
-        graphView = when(arguments?.getInt(KEY_POSITION)) {
+        graphView = when (arguments?.getInt(KEY_POSITION)) {
             0 -> {
                 fragmentBinding.root.textChartType.text = getString(R.string.label_download)
                 layoutInflater.inflate(R.layout.layout_speed_chart, null)
@@ -58,11 +52,10 @@ class ResultChartFragment : Fragment() {
             ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT
         )
         params.addRule(RelativeLayout.BELOW, fragmentBinding.root.textChartType.id)
-        fragmentBinding.root.relativeLayoutRoot.addView(graphView, params);
+        fragmentBinding.root.relativeLayoutRoot.addView(graphView, params)
 
         graphView.visibility = View.INVISIBLE
         progressLoadItems.visibility = View.VISIBLE
-
     }
 
     override fun onResume() {
@@ -80,14 +73,14 @@ class ResultChartFragment : Fragment() {
         graphView.visibility = View.VISIBLE
         progressLoadItems.visibility = View.GONE
 
-        when(arguments?.getInt(KEY_POSITION)) {
-            0,1 -> {
-                if( graphView is SpeedLineChart) {
+        when (arguments?.getInt(KEY_POSITION)) {
+            0, 1 -> {
+                if (graphView is SpeedLineChart) {
                     (graphView as SpeedLineChart).addResultGraphItems(items)
                 }
             }
             else -> {
-                if( graphView is PingChart) {
+                if (graphView is PingChart) {
                     (graphView as PingChart).addGraphItems(items)
                 }
             }
@@ -106,5 +99,4 @@ class ResultChartFragment : Fragment() {
             return fragment
         }
     }
-
 }

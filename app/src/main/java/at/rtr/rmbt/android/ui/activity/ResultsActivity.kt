@@ -9,7 +9,9 @@ import androidx.recyclerview.widget.DividerItemDecoration
 import at.rtr.rmbt.android.R
 import at.rtr.rmbt.android.databinding.ActivityResultsBinding
 import at.rtr.rmbt.android.di.viewModelLazy
+import at.rtr.rmbt.android.ui.adapter.ResultChartFragmentPagerAdapter
 import at.rtr.rmbt.android.ui.adapter.ResultQoEAdapter
+import at.rtr.rmbt.android.ui.fragment.ResultChartFragment
 import at.rtr.rmbt.android.util.iconFromVector
 import at.rtr.rmbt.android.util.listen
 import at.rtr.rmbt.android.viewmodel.ResultViewModel
@@ -27,6 +29,7 @@ class ResultsActivity : BaseActivity(), OnMapReadyCallback {
     private val viewModel: ResultViewModel by viewModelLazy()
     private lateinit var binding: ActivityResultsBinding
     private val adapter: ResultQoEAdapter by lazy { ResultQoEAdapter() }
+    private val resultChartFragmentPagerAdapter: ResultChartFragmentPagerAdapter by lazy { ResultChartFragmentPagerAdapter(supportFragmentManager) }
 
     private var googleMap: GoogleMap? = null
 
@@ -41,9 +44,16 @@ class ResultsActivity : BaseActivity(), OnMapReadyCallback {
         val testUUID = intent.getStringExtra(KEY_TEST_UUID)
         check(!testUUID.isNullOrEmpty()) { "TestUUID was not passed to result activity" }
 
+        binding.viewPagerCharts.offscreenPageLimit = 3
+        binding.viewPagerCharts.adapter = resultChartFragmentPagerAdapter
+
+        binding.tabLayoutCharts.setupWithViewPager(binding.viewPagerCharts, true)
+
         viewModel.state.testUUID = testUUID
         viewModel.testServerResultLiveData.listen(this) { result ->
             viewModel.state.testResult.set(result)
+
+            result?.testOpenUUID?.let { it1 -> loadGraphItems(it1) }
 
             if (result?.latitude != null && result.longitude != null) {
                 with(LatLng(result.latitude!!, result.longitude!!)) {
@@ -122,6 +132,35 @@ class ResultsActivity : BaseActivity(), OnMapReadyCallback {
         }
 
         refreshResults()
+    }
+
+    private fun loadGraphItems(openTestUUID: String) {
+
+        viewModel.loadGraphItems(openTestUUID)
+
+        viewModel.downloadGraphItemsLiveData?.listen(this) {
+            it?.let { items ->
+                resultChartFragmentPagerAdapter.getFragment(0)?.let {
+                    (it as ResultChartFragment).setGraphItems(items)
+                }
+            }
+        }
+
+        viewModel.uploadGraphItemsLiveData?.listen(this) {
+            it?.let { items ->
+                resultChartFragmentPagerAdapter.getFragment(1)?.let {
+                    (it as ResultChartFragment).setGraphItems(items)
+                }
+            }
+        }
+
+        viewModel.pingGraphItemsLiveData?.listen(this) {
+            it?.let { items ->
+                resultChartFragmentPagerAdapter.getFragment(2)?.let {
+                    (it as ResultChartFragment).setGraphItems(items)
+                }
+            }
+        }
     }
 
     private fun refreshResults() {

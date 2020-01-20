@@ -26,13 +26,11 @@ class ResultViewModel @Inject constructor(
     val testServerResultLiveData: LiveData<TestResultRecord?>
         get() = testResultsRepository.getServerTestResult(state.testUUID)
 
-
     val qoeResultLiveData: LiveData<List<QoeInfoRecord>>
         get() = testResultsRepository.getQoEItems(state.testUUID)
 
     val testResultDetailsLiveData: LiveData<List<TestResultDetailsRecord>>
         get() = testResultsRepository.getTestDetailsResult(state.testUUID)
-
 
     var downloadGraphItemsLiveData: LiveData<List<TestResultGraphItemRecord>?>? = null
     var uploadGraphItemsLiveData: LiveData<List<TestResultGraphItemRecord>?>? = null

@@ -67,7 +67,6 @@ class SpeedLineChart @JvmOverloads constructor(
         }
     }
 
-
     fun addGraphItems(graphItems: List<GraphItemRecord>?) {
 
         pathStroke.rewind()
@@ -96,15 +95,14 @@ class SpeedLineChart @JvmOverloads constructor(
         pathStroke.rewind()
         pathFill.rewind()
 
-
         graphItems?.let { items ->
 
             val points: ArrayList<PointF> = ArrayList()
 
             val maxValue = items.maxBy { it.time }?.time
-            if(maxValue != null) {
+            if (maxValue != null) {
 
-                if(((items[0].time / maxValue.toFloat())*100.0f) > 0) {
+                if (((items[0].time / maxValue.toFloat())*100.0f) > 0) {
                     points.add(PointF(0.0f, getChartHeight() - (getChartHeight() * toLog(graphItems[0].value * 8000 / graphItems[0].time))))
                 }
 

@@ -11,7 +11,6 @@ import androidx.core.content.res.ResourcesCompat
 import at.rtr.rmbt.android.R
 import at.rtr.rmbt.android.util.calcTextHeight
 import at.rtr.rmbt.android.util.calcTextWidth
-import timber.log.Timber
 
 open class PingChartView @JvmOverloads constructor(
     context: Context,
@@ -31,11 +30,9 @@ open class PingChartView @JvmOverloads constructor(
     private var yLabels: Array<Int>? = null
     private var numberOfRows: Int = DEFAULT_NUMBER_OF_ROWS_IN_GRID
 
-
     init {
 
         val typedArray = context.obtainStyledAttributes(attrs, R.styleable.LineChart)
-
 
         gridPaint = Paint()
         gridPaint.color = typedArray.getColor(R.styleable.LineChart_grid_color, context.getColor(R.color.chart_grid_line_color))
@@ -89,7 +86,6 @@ open class PingChartView @JvmOverloads constructor(
         invalidate()
     }
 
-
     override fun onDraw(canvas: Canvas?) {
 
         val endX = width - endPadding
@@ -117,11 +113,11 @@ open class PingChartView @JvmOverloads constructor(
                     0 -> {
                         (endY - rowHeight * index)
                     }
-                    it.size-1 -> {
-                        (endY - rowHeight * index)+ (textHeight)
+                    it.size - 1 -> {
+                        (endY - rowHeight * index) + (textHeight)
                     }
                     else -> {
-                        (endY - rowHeight * index) + (textHeight/2)
+                        (endY - rowHeight * index) + (textHeight / 2)
                     }
                 }
                 canvas?.drawText(context.getString(R.string.measurement_ping_value, it[index]), endX + endPadding / 8,
