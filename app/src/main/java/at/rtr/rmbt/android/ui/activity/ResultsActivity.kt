@@ -11,7 +11,6 @@ import at.rtr.rmbt.android.databinding.ActivityResultsBinding
 import at.rtr.rmbt.android.di.viewModelLazy
 import at.rtr.rmbt.android.ui.adapter.ResultChartFragmentPagerAdapter
 import at.rtr.rmbt.android.ui.adapter.ResultQoEAdapter
-import at.rtr.rmbt.android.ui.fragment.ResultChartFragment
 import at.rtr.rmbt.android.util.iconFromVector
 import at.rtr.rmbt.android.util.listen
 import at.rtr.rmbt.android.viewmodel.ResultViewModel
@@ -29,7 +28,7 @@ class ResultsActivity : BaseActivity(), OnMapReadyCallback {
     private val viewModel: ResultViewModel by viewModelLazy()
     private lateinit var binding: ActivityResultsBinding
     private val adapter: ResultQoEAdapter by lazy { ResultQoEAdapter() }
-    private val resultChartFragmentPagerAdapter: ResultChartFragmentPagerAdapter by lazy { ResultChartFragmentPagerAdapter(supportFragmentManager) }
+    private lateinit var resultChartFragmentPagerAdapter: ResultChartFragmentPagerAdapter
 
     private var googleMap: GoogleMap? = null
 
@@ -45,15 +44,16 @@ class ResultsActivity : BaseActivity(), OnMapReadyCallback {
         check(!testUUID.isNullOrEmpty()) { "TestUUID was not passed to result activity" }
 
         binding.viewPagerCharts.offscreenPageLimit = 3
-        binding.viewPagerCharts.adapter = resultChartFragmentPagerAdapter
-
         binding.tabLayoutCharts.setupWithViewPager(binding.viewPagerCharts, true)
 
         viewModel.state.testUUID = testUUID
         viewModel.testServerResultLiveData.listen(this) { result ->
             viewModel.state.testResult.set(result)
 
-            result?.testOpenUUID?.let { it1 -> loadGraphItems(it1) }
+            result?.testOpenUUID?.let {
+                resultChartFragmentPagerAdapter = ResultChartFragmentPagerAdapter(supportFragmentManager, it)
+                binding.viewPagerCharts.adapter = resultChartFragmentPagerAdapter
+            }
 
             if (result?.latitude != null && result.longitude != null) {
                 with(LatLng(result.latitude!!, result.longitude!!)) {
@@ -134,7 +134,7 @@ class ResultsActivity : BaseActivity(), OnMapReadyCallback {
         refreshResults()
     }
 
-    private fun loadGraphItems(openTestUUID: String) {
+    /*private fun loadGraphItems(openTestUUID: String) {
 
         viewModel.loadGraphItems(openTestUUID)
 
@@ -161,7 +161,7 @@ class ResultsActivity : BaseActivity(), OnMapReadyCallback {
                 }
             }
         }
-    }
+    }*/
 
     private fun refreshResults() {
         viewModel.loadTestResults()

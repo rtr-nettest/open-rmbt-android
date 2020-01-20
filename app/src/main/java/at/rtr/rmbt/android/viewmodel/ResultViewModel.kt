@@ -6,7 +6,6 @@ import at.rmbt.util.exception.HandledException
 import at.rtr.rmbt.android.ui.viewstate.ResultViewState
 import at.specure.data.entity.QoeInfoRecord
 import at.specure.data.entity.TestResultDetailsRecord
-import at.specure.data.entity.TestResultGraphItemRecord
 import at.specure.data.entity.TestResultRecord
 import at.specure.data.repository.TestResultsRepository
 import kotlinx.coroutines.Dispatchers
@@ -31,11 +30,6 @@ class ResultViewModel @Inject constructor(
 
     val testResultDetailsLiveData: LiveData<List<TestResultDetailsRecord>>
         get() = testResultsRepository.getTestDetailsResult(state.testUUID)
-
-    var downloadGraphItemsLiveData: LiveData<List<TestResultGraphItemRecord>?>? = null
-    var uploadGraphItemsLiveData: LiveData<List<TestResultGraphItemRecord>?>? = null
-    var pingGraphItemsLiveData: LiveData<List<TestResultGraphItemRecord>?>? = null
-    var signalGraphItemsLiveData: LiveData<List<TestResultGraphItemRecord>?>? = null
 
     val loadingLiveData: LiveData<Boolean>
         get() = _loadingLiveData
@@ -62,12 +56,5 @@ class ResultViewModel @Inject constructor(
             .collect {
                 _loadingLiveData.postValue(it)
             }
-    }
-
-    fun loadGraphItems(openTestUUID: String) {
-        downloadGraphItemsLiveData = testResultsRepository.getServerTestResultDownloadGraphItems(openTestUUID)
-        uploadGraphItemsLiveData = testResultsRepository.getServerTestResultUploadGraphItems(openTestUUID)
-        pingGraphItemsLiveData = testResultsRepository.getServerTestResultPingGraphItems(openTestUUID)
-        signalGraphItemsLiveData = testResultsRepository.getServerTestResultSignalGraphItems(openTestUUID)
     }
 }
