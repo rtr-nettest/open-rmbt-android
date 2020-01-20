@@ -5,6 +5,7 @@ import androidx.databinding.ObservableField
 import androidx.lifecycle.MutableLiveData
 import at.rmbt.client.control.data.MapPresentationType
 import at.rmbt.client.control.data.MapStyleType
+import at.rtr.rmbt.android.ui.fragment.START_ZOOM_LEVEL
 import com.google.android.gms.maps.model.LatLng
 
 private const val KEY_TYPE = "KEY_TYPE"
@@ -22,7 +23,7 @@ class MapViewState : ViewState {
     val type = ObservableField<MapPresentationType>(MapPresentationType.POINTS)
     val style = ObservableField<MapStyleType>(MapStyleType.STANDARD)
 
-    var zoom: Float? = null
+    var zoom: Float = START_ZOOM_LEVEL
 
     override fun onRestoreState(bundle: Bundle?) {
         bundle?.getInt(KEY_TYPE)?.let { type.set(MapPresentationType.values()[it]) }
@@ -36,6 +37,6 @@ class MapViewState : ViewState {
         bundle?.putInt(KEY_STYLE, style.get()?.ordinal ?: 0)
         coordinatesLiveData.value?.latitude?.let { bundle?.putDouble(KEY_LATITUDE, it) }
         coordinatesLiveData.value?.longitude?.let { bundle?.putDouble(KEY_LONGITUDE, it) }
-        zoom?.let { bundle?.putFloat(KEY_ZOOM, it) }
+        bundle?.putFloat(KEY_ZOOM, zoom)
     }
 }

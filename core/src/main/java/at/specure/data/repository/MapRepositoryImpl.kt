@@ -61,10 +61,12 @@ class MapRepositoryImpl @Inject constructor(private val client: MapServerClient,
     }
 
     override fun getMarkers(latitude: Double?, longitude: Double?, zoom: Int): LiveData<List<MarkerMeasurementRecord>> =
-        db.mapDao().get(latitude, longitude,distanceThresholdsByZoom[zoom])
+        db.mapDao().get(latitude, longitude, distanceThresholdsByZoom[zoom])
 
     override fun loadTiles(x: Int, y: Int, zoom: Int, type: MapPresentationType): ByteArray? = runBlocking(Dispatchers.IO) {
-        val result = client.loadTiles(x, y, zoom, type, hashMapOf("map_options" to "mobile/download", "statistical_method" to "0.5", "period" to "180"))
+        val result =
+            client.loadTiles(x, y, zoom, type, hashMapOf("map_options" to "mobile/download", "statistical_method" to "0.5", "period" to "180"))
+        // todo: update with implementing filters
         if (result.isSuccessful) {
             with(result.body()) {
                 this?.let {

@@ -2,7 +2,7 @@ package at.rtr.rmbt.android.ui.fragment
 
 import android.os.Bundle
 import android.view.View
-import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.annotation.DrawableRes
 import androidx.recyclerview.widget.LinearSnapHelper
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.SnapHelper
@@ -34,10 +34,9 @@ import com.google.android.gms.maps.model.TileOverlayOptions
 import timber.log.Timber
 import kotlin.math.abs
 
+const val START_ZOOM_LEVEL = 12f
+
 private const val CODE_LAYERS_DIALOG = 1
-
-private const val START_ZOOM_LEVEL = 12f
-
 private const val ANCHOR_U = 0.5f
 private const val ANCHOR_V = 0.865f
 
@@ -52,7 +51,6 @@ class MapFragment : BaseFragment(), OnMapReadyCallback, MapMarkerDetailsAdapter.
     private var currentOverlay: TileOverlay? = null
     private var currentLocation: LatLng? = null
     private var currentMarker: Marker? = null
-    private var zoom: Float = START_ZOOM_LEVEL
     private var visiblePosition: Int? = null
     private var snapHelper: SnapHelper? = null
 
@@ -80,16 +78,7 @@ class MapFragment : BaseFragment(), OnMapReadyCallback, MapMarkerDetailsAdapter.
             override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
                 super.onScrolled(recyclerView, dx, dy)
                 if (abs(dx) > 0) {
-                    snapHelper?.findSnapView(recyclerView.layoutManager)?.let { view ->
-                        recyclerView.layoutManager?.getPosition(view)?.let {
-                            if (it >= 0) {
-                                if (visiblePosition != it) {
-                                    visiblePosition = it
-                                    drawMarker(adapter.getItem(it))
-                                }
-                            }
-                        }
-                    }
+                    drawCurrentMarker()
                 }
             }
         })
@@ -134,9 +123,7 @@ class MapFragment : BaseFragment(), OnMapReadyCallback, MapMarkerDetailsAdapter.
             }
         }
 
-        mapViewModel.locationInfoLiveData.listen(this) {
-            googleMap?.moveCamera(CameraUpdateFactory.newLatLngZoom(LatLng(it.latitude, it.longitude), START_ZOOM_LEVEL))
-        }
+        checkLocationAndSetCurrent()
     }
 
     override fun onStart() {
@@ -184,26 +171,21 @@ class MapFragment : BaseFragment(), OnMapReadyCallback, MapMarkerDetailsAdapter.
                     NetworkTypeCompat.TYPE_2G -> R.drawable.ic_marker_2g
                     NetworkTypeCompat.TYPE_5G -> throw IllegalArgumentException("Need to add 5G marker image for the map")
                 }
-
-                currentLocation?.let { latlng ->
-                    if (currentMarker == null) {
-                        currentMarker = googleMap?.addMarker(
-                            MarkerOptions().position(latlng).anchor(ANCHOR_U, ANCHOR_V).iconFromVector(requireContext(), icon)
-                        )
-                    } else {
-                        currentMarker?.iconFromVector(requireContext(), icon)
-                    }
-                }
+                addMarkerWithIcon(icon)
             }
         } else { // empty pin to prevent crash
-            currentLocation?.let { latlng ->
-                if (currentMarker == null) {
-                    currentMarker = googleMap?.addMarker(
-                        MarkerOptions().position(latlng).anchor(ANCHOR_U, ANCHOR_V).iconFromVector(requireContext(), R.drawable.ic_marker_empty)
-                    )
-                } else {
-                    currentMarker?.iconFromVector(requireContext(), R.drawable.ic_marker_empty)
-                }
+            addMarkerWithIcon(R.drawable.ic_marker_empty)
+        }
+    }
+
+    private fun addMarkerWithIcon(@DrawableRes icon: Int) {
+        currentLocation?.let { latlng ->
+            if (currentMarker == null) {
+                currentMarker = googleMap?.addMarker(
+                    MarkerOptions().position(latlng).anchor(ANCHOR_U, ANCHOR_V).iconFromVector(requireContext(), icon)
+                )
+            } else {
+                currentMarker?.iconFromVector(requireContext(), icon)
             }
         }
     }
@@ -239,12 +221,40 @@ class MapFragment : BaseFragment(), OnMapReadyCallback, MapMarkerDetailsAdapter.
         googleMap?.setOnMarkerClickListener { true }
 
         googleMap?.setOnCameraChangeListener {
-            if (it.zoom != zoom) {
-                zoom = it.zoom
+            if (it.zoom != mapViewModel.state.zoom) {
                 currentOverlay?.remove()
                 currentOverlay = googleMap?.addTileOverlay(TileOverlayOptions().tileProvider(mapViewModel.provider))
             }
             mapViewModel.state.zoom = it.zoom
+        }
+    }
+
+    private fun checkLocationAndSetCurrent() {
+        if (mapViewModel.state.coordinatesLiveData.value == null) {
+            mapViewModel.locationInfoLiveData.singleResult(this) {
+                with(LatLng(it.latitude, it.longitude)) {
+                    mapViewModel.state.coordinatesLiveData.postValue(this)
+                    googleMap?.moveCamera(CameraUpdateFactory.newLatLngZoom(this, mapViewModel.state.zoom))
+                }
+            }
+        } else {
+            googleMap?.moveCamera(CameraUpdateFactory.newLatLngZoom(mapViewModel.state.coordinatesLiveData.value, mapViewModel.state.zoom))
+            visiblePosition = RecyclerView.NO_POSITION
+            currentMarker = null
+            drawCurrentMarker()
+        }
+    }
+
+    private fun drawCurrentMarker() {
+        snapHelper?.findSnapView(binding.markerItems.layoutManager)?.let { view ->
+            binding.markerItems.layoutManager?.getPosition(view)?.let {
+                if (it >= 0) {
+                    if (visiblePosition != it) {
+                        visiblePosition = it
+                        drawMarker(adapter.getItem(it))
+                    }
+                }
+            }
         }
     }
 

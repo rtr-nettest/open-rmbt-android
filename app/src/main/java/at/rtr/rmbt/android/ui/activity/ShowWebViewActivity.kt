@@ -39,4 +39,3 @@ class ShowWebViewActivity : BaseActivity() {
         fun start(context: Context, url: String) = context.startActivity(Intent(context, ShowWebViewActivity::class.java).putExtra(KEY_URL, url))
     }
 }
-
