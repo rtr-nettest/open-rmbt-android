@@ -33,4 +33,5 @@ object Tables {
     const val SPEED = "speed"
     const val QOS_RESULT = "qos_result"
     const val TEST_RESULT_DETAILS = "test_result_details"
+    const val MAP_MARKER_MEASUREMENTS = "map_markers"
 }

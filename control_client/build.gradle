@@ -52,5 +52,7 @@ dependencies {
     debugImplementation "com.facebook.stetho:stetho-okhttp3:$versions.stetho"
     debugImplementation "com.squareup.okhttp3:logging-interceptor:$versions.logging_interceptor"
 
+    implementation "com.google.android.gms:play-services-maps:$versions.google_services"
+
     testImplementation "junit:junit:$versions.junit"
 }

@@ -159,6 +159,21 @@
       "name": "QOS_SSL",
       "value": "true",
       "visible": false
+    },
+    {
+      "name": "MAP_SERVER_ROUTE",
+      "value": "RMBTMapServer",
+      "visible": false
+    },
+    {
+      "name": "MAP_TILES_ENDPOINT",
+      "value": "tiles/%s/%d/%d/%d.png",
+      "visible": false
+    },
+    {
+      "name": "MAP_MARKERS_ENDPOINT",
+      "value": "tiles/markers",
+      "visible": false
     }
   ]
 }

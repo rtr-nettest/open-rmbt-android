@@ -7,6 +7,7 @@ import android.view.ViewGroup
 import android.view.WindowManager
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.FragmentActivity
+import androidx.fragment.app.FragmentManager
 import at.rtr.rmbt.android.R
 
 open class FullscreenDialog : DialogFragment() {
@@ -52,6 +53,18 @@ open class FullscreenDialog : DialogFragment() {
         val supportFragmentManager = activity?.supportFragmentManager
         supportFragmentManager?.beginTransaction()?.let {
             val prev = supportFragmentManager.findFragmentByTag("dialog")
+            if (prev != null) {
+                it.remove(prev)
+            }
+            it.addToBackStack(null)
+            show(it, "dialog")
+            dialog?.show()
+        }
+    }
+
+    fun show(fragmentManager: FragmentManager?) {
+        fragmentManager?.beginTransaction()?.let {
+            val prev = fragmentManager.findFragmentByTag("dialog")
             if (prev != null) {
                 it.remove(prev)
             }

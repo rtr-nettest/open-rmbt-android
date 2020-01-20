@@ -18,6 +18,7 @@ import android.content.Context
 import androidx.room.Room
 import at.rmbt.client.control.ControlServerClient
 import at.rmbt.client.control.IpClient
+import at.rmbt.client.control.MapServerClient
 import at.specure.config.Config
 import at.specure.data.ClientUUID
 import at.specure.data.CoreDatabase
@@ -25,6 +26,8 @@ import at.specure.data.repository.HistoryRepository
 import at.specure.data.repository.HistoryRepositoryImpl
 import at.specure.data.repository.IpCheckRepository
 import at.specure.data.repository.IpCheckRepositoryImpl
+import at.specure.data.repository.MapRepository
+import at.specure.data.repository.MapRepositoryImpl
 import at.specure.data.repository.ResultsRepository
 import at.specure.data.repository.ResultsRepositoryImpl
 import at.specure.data.repository.TestDataRepository
@@ -97,4 +100,7 @@ class DatabaseModule {
         controlServerClient: ControlServerClient
     ): TestResultsRepository =
         TestResultsRepositoryImpl(database, clientUUID, controlServerClient)
+
+    @Provides
+    fun provideMapRepository(client: MapServerClient, database: CoreDatabase): MapRepository = MapRepositoryImpl(client, database)
 }

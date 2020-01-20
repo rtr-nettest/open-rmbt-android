@@ -23,19 +23,20 @@
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
             android:background="@android:color/white"
+            android:elevation="2dp"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHeight_percent="0.35"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent">
 
             <ImageView
                 android:id="@+id/buttonBack"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="@dimen/padding_large"
-                android:layout_marginTop="@dimen/padding_large"
+                android:layout_width="@dimen/toolbar_button_size"
+                android:layout_height="@dimen/toolbar_button_size"
+                android:layout_marginStart="@dimen/margin_small"
                 android:contentDescription="@null"
+                android:scaleType="center"
                 android:src="@drawable/ic_back"
+                app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 
@@ -45,25 +46,26 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textAllCaps="true"
-                app:layout_constraintBottom_toBottomOf="@+id/buttonBack"
-                app:layout_constraintEnd_toEndOf="@+id/buttonSync"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="@+id/buttonShare"
                 app:layout_constraintHorizontal_bias="0.5"
                 app:layout_constraintStart_toStartOf="@+id/buttonBack"
-                app:layout_constraintTop_toTopOf="@+id/buttonBack"
+                app:layout_constraintTop_toTopOf="parent"
                 app:resultTime="@{state.testResult.timestamp}"
                 app:resultTimezone="@{state.testResult.timezone}"
                 tools:text="20.11.18, 12:00:45" />
 
             <ImageView
-                android:id="@+id/buttonSync"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/padding_large"
-                android:layout_marginEnd="@dimen/padding_large"
+                android:id="@+id/buttonShare"
+                android:layout_width="@dimen/toolbar_button_size"
+                android:layout_height="@dimen/toolbar_button_size"
+                android:layout_marginEnd="@dimen/margin_small"
                 android:contentDescription="@null"
+                android:scaleType="center"
                 android:src="@drawable/ic_share"
-                app:layout_constraintBottom_toBottomOf="@+id/buttonBack"
-                app:layout_constraintEnd_toEndOf="parent" />
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -97,7 +99,7 @@
                     <androidx.cardview.widget.CardView
                         android:id="@+id/mapContainer"
                         android:layout_width="0dp"
-                        android:layout_height="200dp"
+                        android:layout_height="0dp"
                         android:layout_margin="@dimen/padding_large"
                         app:cardCornerRadius="@dimen/padding_large"
                         app:layout_constraintDimensionRatio="H,3:1"
@@ -111,15 +113,18 @@
                             android:layout_width="match_parent"
                             android:layout_height="match_parent" />
 
-                        <ImageView
+                        <com.google.android.material.floatingactionbutton.FloatingActionButton
                             android:id="@+id/fullscreen_fab"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_gravity="end"
-                            android:layout_margin="@dimen/padding_medium"
-                            android:background="@android:color/transparent"
+                            android:layout_gravity="end|top"
+                            android:layout_marginTop="@dimen/padding_medium"
+                            android:layout_marginEnd="@dimen/padding_medium"
+                            android:backgroundTint="@android:color/white"
                             android:contentDescription="@null"
-                            android:src="@drawable/ic_fullscreen_fab" />
+                            android:src="@drawable/ic_map_fullscreen"
+                            app:borderWidth="0dp"
+                            app:fabSize="mini" />
                     </androidx.cardview.widget.CardView>
 
                     <TextView
@@ -305,30 +310,14 @@
                         app:constraint_referenced_ids="labelResultBottomDownload,labelResultBottomUpload,labelResultBottomPing,labelResultBottomSignal,textDownloadSpeed,textUploadSpeed,textPing,textSignal"
                         app:visibleOrGone="@{state.testResult != null}" />
 
-                    <LinearLayout
+                    <FrameLayout
                         android:id="@+id/graphContainer"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:orientation="vertical"
+                        android:layout_marginBottom="@dimen/margin_large"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toBottomOf="@+id/textDownloadSpeed">
-
-                        <androidx.viewpager.widget.ViewPager
-                            android:id="@+id/viewPagerCharts"
-                            android:layout_width="match_parent"
-                            android:layout_height="@dimen/result_view_pager_height" />
-
-                        <com.google.android.material.tabs.TabLayout
-                            android:id="@+id/tabLayoutCharts"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            app:tabBackground="@drawable/tab_selector"
-                            app:tabGravity="center"
-                            app:tabIndicatorGravity="bottom"
-                            app:tabIndicatorHeight="0dp" />
-
-                    </LinearLayout>
+                        app:layout_constraintTop_toBottomOf="@+id/textDownloadSpeed" />
 
                     <androidx.appcompat.widget.AppCompatTextView
                         android:id="@+id/titleOtherDetails"

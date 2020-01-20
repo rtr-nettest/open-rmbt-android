@@ -19,18 +19,15 @@ package at.rtr.rmbt.android.ui.activity
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import androidx.core.content.ContextCompat
-import androidx.recyclerview.widget.DividerItemDecoration
 import at.rtr.rmbt.android.R
 import at.rtr.rmbt.android.databinding.ActivityMeasurementBinding
 import at.rtr.rmbt.android.di.viewModelLazy
-import at.rtr.rmbt.android.ui.adapter.QosMeasurementAdapter
 import at.rtr.rmbt.android.ui.dialog.SimpleDialog
 import at.rtr.rmbt.android.util.listen
 import at.rtr.rmbt.android.viewmodel.MeasurementViewModel
 import at.specure.measurement.MeasurementState
 import kotlinx.android.synthetic.main.activity_measurement.view.measurementBottomView
-import kotlinx.android.synthetic.main.measurement_bottom_view.view.qosTestRecyclerView
+import kotlinx.android.synthetic.main.measurement_bottom_view.view.qosProgressContainer
 import kotlinx.android.synthetic.main.measurement_bottom_view.view.speedChartDownloadUpload
 
 private const val CODE_CANCEL = 0
@@ -40,7 +37,6 @@ class MeasurementActivity : BaseActivity(), SimpleDialog.Callback {
 
     private val viewModel: MeasurementViewModel by viewModelLazy()
     private lateinit var binding: ActivityMeasurementBinding
-    private val qosAdapter = QosMeasurementAdapter()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -64,16 +60,6 @@ class MeasurementActivity : BaseActivity(), SimpleDialog.Callback {
                 .show(supportFragmentManager, CODE_ERROR)
         }
 
-        binding.root.measurementBottomView.qosTestRecyclerView.apply {
-
-            val itemDecoration = DividerItemDecoration(context, DividerItemDecoration.VERTICAL)
-            ContextCompat.getDrawable(context, R.drawable.qos_test_measurement_item_divider)?.let {
-                itemDecoration.setDrawable(it)
-            }
-            addItemDecoration(itemDecoration)
-            adapter = qosAdapter
-        }
-
         viewModel.downloadGraphSource.listen(this) {
             if (viewModel.state.measurementState.get() == MeasurementState.DOWNLOAD) {
                 binding.root.measurementBottomView.speedChartDownloadUpload.addGraphItems(it)
@@ -95,7 +81,7 @@ class MeasurementActivity : BaseActivity(), SimpleDialog.Callback {
         }
 
         viewModel.qosProgressLiveData.listen(this) {
-            qosAdapter.values = it
+            binding.root.measurementBottomView.qosProgressContainer.update(it)
         }
     }
 
