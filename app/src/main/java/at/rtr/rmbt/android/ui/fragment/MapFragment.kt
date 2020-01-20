@@ -31,7 +31,6 @@ import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
 import com.google.android.gms.maps.model.TileOverlay
 import com.google.android.gms.maps.model.TileOverlayOptions
-import timber.log.Timber
 import kotlin.math.abs
 
 const val START_ZOOM_LEVEL = 12f
@@ -97,6 +96,7 @@ class MapFragment : BaseFragment(), OnMapReadyCallback, MapMarkerDetailsAdapter.
 
     override fun onMapReady(map: GoogleMap?) {
         googleMap = map
+        checkLocationAndSetCurrent()
         updateMapStyle()
         setTiles()
         map?.let {
@@ -122,8 +122,6 @@ class MapFragment : BaseFragment(), OnMapReadyCallback, MapMarkerDetailsAdapter.
                 onCloseMarkerDetails()
             }
         }
-
-        checkLocationAndSetCurrent()
     }
 
     override fun onStart() {
@@ -213,7 +211,6 @@ class MapFragment : BaseFragment(), OnMapReadyCallback, MapMarkerDetailsAdapter.
         currentOverlay = googleMap?.addTileOverlay(TileOverlayOptions().tileProvider(mapViewModel.provider))
         googleMap?.setOnMapClickListener { latlng ->
             onCloseMarkerDetails()
-            Timber.e("${latlng.latitude}   ${latlng.longitude}    ${googleMap!!.cameraPosition.zoom.toInt()} ")
             if (isMarkersAvailable()) {
                 mapViewModel.loadMarkers(latlng.latitude, latlng.longitude, googleMap!!.cameraPosition.zoom.toInt())
             }
@@ -230,18 +227,20 @@ class MapFragment : BaseFragment(), OnMapReadyCallback, MapMarkerDetailsAdapter.
     }
 
     private fun checkLocationAndSetCurrent() {
-        if (mapViewModel.state.coordinatesLiveData.value == null) {
-            mapViewModel.locationInfoLiveData.singleResult(this) {
-                with(LatLng(it.latitude, it.longitude)) {
-                    mapViewModel.state.coordinatesLiveData.postValue(this)
-                    googleMap?.moveCamera(CameraUpdateFactory.newLatLngZoom(this, mapViewModel.state.zoom))
+        mapViewModel.locationInfoLiveData.singleResult(this) {
+            if (it.latitude != 0.0 && it.longitude != 0.0) {
+                if (mapViewModel.state.coordinatesLiveData.value == null) {
+                    with(LatLng(it.latitude, it.longitude)) {
+                        mapViewModel.state.coordinatesLiveData.postValue(this)
+                        googleMap?.moveCamera(CameraUpdateFactory.newLatLngZoom(this, mapViewModel.state.zoom))
+                    }
+                } else {
+                    googleMap?.moveCamera(CameraUpdateFactory.newLatLngZoom(mapViewModel.state.coordinatesLiveData.value, mapViewModel.state.zoom))
+                    visiblePosition = RecyclerView.NO_POSITION
+                    currentMarker = null
+                    drawCurrentMarker()
                 }
             }
-        } else {
-            googleMap?.moveCamera(CameraUpdateFactory.newLatLngZoom(mapViewModel.state.coordinatesLiveData.value, mapViewModel.state.zoom))
-            visiblePosition = RecyclerView.NO_POSITION
-            currentMarker = null
-            drawCurrentMarker()
         }
     }
 
