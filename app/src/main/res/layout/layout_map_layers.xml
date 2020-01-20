@@ -166,6 +166,18 @@
 
         </LinearLayout>
 
+        <View
+            android:id="@+id/provider_divider"
+            android:layout_width="0dp"
+            android:layout_height="@dimen/size_divider_height"
+            android:background="@color/horizontal_divider"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:layout_marginTop="@dimen/padding_medium"
+            android:layout_marginStart="@dimen/padding_large"
+            android:layout_marginEnd="@dimen/padding_large"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/styles" />
+
         <TextView
             android:id="@+id/label_type"
             style="@style/RobotoMediumStyle.Medium"

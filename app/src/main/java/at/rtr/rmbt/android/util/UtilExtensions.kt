@@ -20,7 +20,9 @@ import android.graphics.Canvas
 import androidx.core.content.ContextCompat
 import at.rmbt.util.exception.HandledException
 import at.rtr.rmbt.android.R
+import com.google.android.gms.maps.model.BitmapDescriptor
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
+import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
 import java.text.SimpleDateFormat
 import java.util.Calendar
@@ -37,6 +39,15 @@ fun Calendar.format(pattern: String): String {
 
 fun MarkerOptions.iconFromVector(context: Context, vectorResId: Int): MarkerOptions {
     return this.icon(ContextCompat.getDrawable(context, vectorResId)?.run {
+        setBounds(0, 0, intrinsicWidth, intrinsicHeight)
+        val bitmap = Bitmap.createBitmap(intrinsicWidth, intrinsicHeight, Bitmap.Config.ARGB_8888)
+        draw(Canvas(bitmap))
+        BitmapDescriptorFactory.fromBitmap(bitmap)
+    })
+}
+
+fun Marker.iconFromVector(context: Context, vectorResId: Int) {
+    return setIcon(ContextCompat.getDrawable(context, vectorResId)?.run {
         setBounds(0, 0, intrinsicWidth, intrinsicHeight)
         val bitmap = Bitmap.createBitmap(intrinsicWidth, intrinsicHeight, Bitmap.Config.ARGB_8888)
         draw(Canvas(bitmap))

@@ -53,6 +53,8 @@
         <activity android:name=".ui.activity.DetailedFullscreenMapActivity"
             android:theme="@style/FullMapTheme"/>
 
+        <activity android:name=".ui.activity.ShowWebViewActivity" />
+
         <meta-data
             android:name="io.fabric.ApiKey"
             android:value="${fabricApiKey}" />
