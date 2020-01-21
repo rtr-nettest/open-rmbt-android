@@ -16,6 +16,7 @@ package at.rmbt.client.control
 
 import androidx.annotation.Keep
 import at.rmbt.client.control.data.ErrorStatus
+import com.google.gson.JsonObject
 import com.google.gson.annotations.SerializedName
 
 /**
@@ -564,3 +565,157 @@ data class TestResultDetailResponse(
     @SerializedName("testresultdetail")
     val details: List<TestResultDetailItem>
 ) : BaseResponse()
+
+@Keep
+data class QosTestResultDetailResponse(
+
+    /**
+     * Results with technical details
+     */
+    @SerializedName("testresultdetail")
+    val qosResultDetails: List<QosTestResult>,
+
+    /**
+     * Described results to be human readable with localized description
+     */
+    @SerializedName("testresultdetail_desc")
+    val qosResultDetailsDesc: List<QosTestDescription>,
+
+    /**
+     * Localized description of each test category
+     */
+    @SerializedName("testresultdetail_testdesc")
+    val qosResultDetailsTestDesc: List<QosTestCategoryDescription>,
+
+    /**
+     * Times of the qos results evaluation
+     */
+    @SerializedName("eval_times")
+    val evaluationTimes: EvalTimes
+) : BaseResponse()
+
+@Keep
+data class QosTestResult(
+
+    /**
+     * UID of test for which is this description, this is used to use across all qos details
+     */
+    @SerializedName("uid")
+    val qosTestUid: Long,
+
+    /**
+     * ???
+     */
+    @SerializedName("nn_test_uid")
+    val qosNnTestUid: Long,
+
+    /**
+     * ???
+     */
+    @SerializedName("qos_test_uid")
+    val qosTestUidConf: Long,
+
+    /**
+     * ???
+     */
+    @SerializedName("test_uid")
+    val testUid: Long,
+
+    /**
+     * Array with info about which keys are delivering result information in @test_result_key_map
+     */
+    @SerializedName("test_result_keys")
+    val testResultKeys: List<String>,
+
+    @SerializedName("test_result_key_map")
+    val testResultMap: List<String>,
+
+    @SerializedName("test_summary")
+    val testSummary: List<String>,
+
+    @SerializedName("success_count")
+    val successCount: Int,
+
+    @SerializedName("failure_count")
+    val failureCount: Int,
+
+    @SerializedName("test_type")
+    val testType: String,
+
+    @SerializedName("test_desc")
+    val testDescription: String,
+
+    @SerializedName("result")
+    val result: JsonObject
+)
+
+@Keep
+data class QosTestDescription(
+
+    /**
+     * UIDs of tests for which is this description
+     */
+    @SerializedName("uid")
+    val qosTestUids: List<Long>,
+
+    /**
+     * Test category
+     */
+    @SerializedName("test")
+    val testCategory: String,
+
+    /**
+     * Key to be evaluated in the @qosResultDetails
+     */
+    @SerializedName("key")
+    val keyResult: String,
+
+    /**
+     * Status associated with the test
+     */
+    @SerializedName("status")
+    val resultStatus: String,
+
+    /**
+     * Localized description associated with the test
+     */
+    @SerializedName("desc")
+    val resultDescription: String
+)
+
+@Keep
+data class QosTestCategoryDescription(
+
+    /**
+     * type constant of the qos test category
+     */
+    @SerializedName("test_type")
+    val testType: String,
+
+    /**
+     * Localized name of the qos test type category
+     */
+    @SerializedName("name")
+    val nameLocalized: String,
+
+    /**
+     * Localized description and explanation of the test
+     */
+    @SerializedName("desc")
+    val descLocalized: String
+)
+
+@Keep
+data class EvalTimes(
+    /**
+     * time to evaluate results on the server side in millis without loading results
+     */
+    @SerializedName("eval")
+    val evalTimeMillis: String?,
+
+    /**
+     * time to evaluate results on the server side in millis with loading results from DB
+     */
+    @SerializedName("full")
+    val evalTimeWithLoadMillis: String?
+)
