@@ -26,9 +26,10 @@
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
         <item name="android:windowBackground">@color/colorPrimary</item>
         <item name="colorControlHighlight">@color/greenRipple</item>
-        <item name="android:windowDrawsSystemBarBackgrounds" tools:targetApi="21">true</item>
+        <item name="android:windowDrawsSystemBarBackgrounds">true</item>
     </style>
 
     <style name="PreferenceTheme" parent="Theme.AppCompat.Light.NoActionBar">
@@ -45,7 +46,6 @@
         <item name="android:windowBackground">@color/measurement_dark_gray</item>
         <item name="android:statusBarColor">@color/measurement_dark_gray</item>
     </style>
-
 
     <!--  Splash screen theme -->
 

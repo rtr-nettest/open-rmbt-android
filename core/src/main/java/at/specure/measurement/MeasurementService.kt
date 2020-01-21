@@ -21,6 +21,8 @@ import at.specure.data.repository.ResultsRepository
 import at.specure.data.repository.TestDataRepository
 import at.specure.di.CoreInjector
 import at.specure.di.NotificationProvider
+import at.specure.location.LocationProviderState
+import at.specure.location.LocationProviderStateLiveData
 import at.specure.test.DeviceInfo
 import at.specure.test.StateRecorder
 import at.specure.test.TestController
@@ -52,6 +54,9 @@ class MeasurementService : LifecycleService() {
 
     @Inject
     lateinit var connectivityManager: ConnectivityManager
+
+    @Inject
+    lateinit var locationStateLiveData: LocationProviderStateLiveData
 
     private val producer: Producer by lazy { Producer() }
     private val clientAggregator: ClientAggregator by lazy { ClientAggregator() }
@@ -196,19 +201,22 @@ class MeasurementService : LifecycleService() {
         }
 
         var location: DeviceInfo.Location? = null
-        stateRecorder.locationInfo?.let {
-            location = DeviceInfo.Location(
-                lat = it.latitude,
-                long = it.longitude,
-                provider = it.provider,
-                speed = it.speed,
-                bearing = it.bearing,
-                time = it.elapsedRealtimeNanos,
-                age = it.ageNanos,
-                accuracy = it.accuracy,
-                mock_location = it.locationIsMocked,
-                altitude = it.altitude
-            )
+
+        if (locationStateLiveData.value == LocationProviderState.ENABLED) {
+            stateRecorder.locationInfo?.let {
+                location = DeviceInfo.Location(
+                    lat = it.latitude,
+                    long = it.longitude,
+                    provider = it.provider,
+                    speed = it.speed,
+                    bearing = it.bearing,
+                    time = it.elapsedRealtimeNanos,
+                    age = it.ageNanos,
+                    accuracy = it.accuracy,
+                    mock_location = it.locationIsMocked,
+                    altitude = it.altitude
+                )
+            }
         }
 
         val deviceInfo = DeviceInfo(
@@ -216,7 +224,12 @@ class MeasurementService : LifecycleService() {
             location = location
         )
 
+        qosTasksPassed = 0
+        qosTasksTotal = 0
+        qosProgressMap = mapOf()
+
         hasErrors = false
+        stateRecorder.updateLocationInfo()
         runner.start(deviceInfo, testListener, stateRecorder)
 
         attachToForeground()

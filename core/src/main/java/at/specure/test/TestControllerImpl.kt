@@ -25,6 +25,7 @@ import org.json.JSONObject
 import timber.log.Timber
 import java.net.InetAddress
 import java.util.concurrent.TimeUnit
+import kotlin.math.floor
 
 private const val KEY_TEST_COUNTER = "testCounter"
 private const val KEY_PREVIOUS_TEST_STATUS = "previousTestStatus"
@@ -61,8 +62,10 @@ class TestControllerImpl(
     private var client: RMBTClient? = null
     private var qosTest: QualityOfServiceTest? = null
 
+    private var finalDownloadValuePosted = false
+    private var finalUploadValuePosted = false
+
     override fun start(deviceInfo: DeviceInfo, listener: TestProgressListener, clientCallback: RMBTClientCallback) {
-        Timber.d("Start---")
         if (job != null) {
             Timber.w("Runner is already started")
             return
@@ -74,6 +77,8 @@ class TestControllerImpl(
 
             previousDownloadProgress = -1
             previousUploadProgress = -1
+            finalDownloadValuePosted = false
+            finalUploadValuePosted = false
 
             setState(MeasurementState.IDLE, 0)
 
@@ -139,6 +144,13 @@ class TestControllerImpl(
             clientJob = GlobalScope.async {
                 @Suppress("BlockingMethodInNonBlockingContext")
                 val result = client.runTest()
+
+                if (!finalUploadValuePosted) {
+                    val speed = floor(client.totalTestResult.speed_upload + 0.5).toLong() * 1000
+                    _listener?.onUploadSpeedChanged(-1, speed)
+                    finalUploadValuePosted = true
+                }
+
                 clientCallback.onTestCompleted(result, !skipQoSTests)
                 if (!skipQoSTests) { // needs to prevent calling onTestCompleted and finishing before unimplemented QoS phase
                     val qosTestSettings = TestSettings()
@@ -233,7 +245,7 @@ class TestControllerImpl(
         val progress = (result.progress * 100).toInt()
         if (progress != previousDownloadProgress) {
             setState(MeasurementState.DOWNLOAD, progress)
-            if (result.pingNano >= 0) {
+            if (result.pingNano > 0) {
                 _listener?.onPingChanged(result.pingNano)
             }
             _listener?.onDownloadSpeedChanged(progress, result.downBitPerSec)
@@ -250,8 +262,16 @@ class TestControllerImpl(
         val progress = (result.progress * 100).toInt()
         if (progress != previousUploadProgress) {
             setState(MeasurementState.UPLOAD, (result.progress * 100).toInt())
+            if (result.pingNano > 0) {
+                _listener?.onPingChanged(result.pingNano)
+            }
             _listener?.onUploadSpeedChanged(progress, result.upBitPerSec)
             previousUploadProgress = progress
+        }
+
+        if (!finalDownloadValuePosted) {
+            _listener?.onDownloadSpeedChanged(-1, result.downBitPerSec)
+            finalDownloadValuePosted = true
         }
     }
 

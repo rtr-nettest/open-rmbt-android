@@ -50,7 +50,13 @@
             android:windowSoftInputMode="stateAlwaysHidden"
             android:theme="@style/PreferenceTheme" />
 
-        <activity android:name=".ui.activity.DetailedFullscreenMapActivity" />
+        <activity android:name=".ui.activity.DetailedFullscreenMapActivity"/>
+
+        <activity android:name=".ui.activity.ShowWebViewActivity" />
+
+        <activity
+            android:name="at.rtr.rmbt.android.ui.activity.TestResultDetailActivity"
+            android:theme="@style/PreferenceTheme" />
 
         <meta-data
             android:name="io.fabric.ApiKey"

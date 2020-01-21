@@ -31,6 +31,8 @@ import at.specure.info.strength.SignalStrengthWatcher
 import at.specure.info.wifi.WifiInfoWatcher
 import at.specure.location.LocationInfo
 import at.specure.location.LocationInfoLiveData
+import at.specure.location.LocationProviderState
+import at.specure.location.LocationProviderStateLiveData
 import at.specure.location.LocationWatcher
 import at.specure.location.cell.CellLocationInfo
 import at.specure.location.cell.CellLocationLiveData
@@ -61,7 +63,8 @@ class StateRecorder @Inject constructor(
     private val cellLocationWatcher: CellLocationWatcher,
     private val telephonyManager: TelephonyManager,
     private val subscriptionManager: SubscriptionManager,
-    private val wifiInfoWatcher: WifiInfoWatcher
+    private val wifiInfoWatcher: WifiInfoWatcher,
+    val locationStateLiveData: LocationProviderStateLiveData
 ) : RMBTClientCallback {
     private var testUUID: String? = null
     private var testToken: String? = null
@@ -78,15 +81,24 @@ class StateRecorder @Inject constructor(
     val locationInfo: LocationInfo?
         get() = _locationInfo
 
+    fun updateLocationInfo() {
+        if (locationStateLiveData.value == LocationProviderState.ENABLED) {
+            _locationInfo = locationWatcher.getLatestLocationInfo()
+        }
+    }
+
     /**
      * Associate current state collector object with service lifecycle
      */
     fun bind(lifecycle: LifecycleOwner) {
 
-        _locationInfo = locationWatcher.getLatestLocationInfo()
+        updateLocationInfo()
+
         locationInfoLiveData.observe(lifecycle, Observer { info ->
-            _locationInfo = info
-            saveLocationInfo()
+            if (locationStateLiveData.value == LocationProviderState.ENABLED) {
+                _locationInfo = info
+                saveLocationInfo()
+            }
         })
 
         signalStrengthInfo = signalStrengthWatcher.lastSignalStrength
@@ -288,13 +300,17 @@ class StateRecorder @Inject constructor(
 
     fun onDownloadSpeedChanged(progress: Int, speedBps: Long) {
         testUUID?.let {
-            repository.saveDownloadGraphItem(it, progress, speedBps)
+            if (progress > -1) {
+                repository.saveDownloadGraphItem(it, progress, speedBps)
+            }
         }
     }
 
     fun onUploadSpeedChanged(progress: Int, speedBps: Long) {
         testUUID?.let {
-            repository.saveUploadGraphItem(it, progress, speedBps)
+            if (progress > -1) {
+                repository.saveUploadGraphItem(it, progress, speedBps)
+            }
         }
     }
 

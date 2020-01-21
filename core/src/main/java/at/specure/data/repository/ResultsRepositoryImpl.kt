@@ -81,9 +81,12 @@ class ResultsRepositoryImpl @Inject constructor(
                 val result = client.sendQoSTestResults(body)
                 result.onSuccess {
                     db.testDao().updateQoSTestIsSubmitted(testUUID)
+                    db.historyDao().clear()
                 }
 
                 finalResult = result.map { result.ok }
+            } else {
+                db.historyDao().clear()
             }
         }
 

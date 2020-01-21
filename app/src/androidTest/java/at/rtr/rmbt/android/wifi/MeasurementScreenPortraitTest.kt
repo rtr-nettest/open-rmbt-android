@@ -51,7 +51,7 @@ open class MeasurementScreenPortraitTest : BaseMeasurementActivityTest() {
 
     @Test
     fun checkMeasurementBottomViewIsDisplayed() {
-        Espresso.onView(ViewMatchers.withId(R.id.measurement_bottom_view))
+        Espresso.onView(ViewMatchers.withId(R.id.measurementBottomView))
             .check(ViewAssertions.matches(ViewMatchers.isDisplayed()))
     }
 

@@ -37,6 +37,8 @@ import at.specure.info.strength.SignalStrengthInfoLte
 import at.specure.info.strength.SignalStrengthInfoWiFi
 import at.specure.location.LocationInfo
 import at.specure.test.DeviceInfo
+import com.google.gson.JsonArray
+import com.google.gson.JsonParser
 import java.util.UUID
 
 fun DeviceInfo.toSettingsRequest(clientUUID: ClientUUID, config: Config, tac: TermsAndConditions) = SettingsRequestBody(
@@ -278,8 +280,8 @@ fun GeoLocationRecord.toRequest() = TestLocationBody(
     provider = provider,
     speed = speed,
     altitude = altitude,
-    timeMillis = time,
-    timeNanos = timeCorrectionNanos,
+    timeMillis = timestampMillis,
+    timeNanos = timeRelativeNanos,
     age = ageNanos,
     accuracy = accuracy,
     bearing = bearing,
@@ -363,12 +365,18 @@ fun TransportType.toRequestIntValue(mobileNetworkType: MobileNetworkType?): Int 
     }
 }
 
-fun QoSResultRecord.toRequest(clientUUID: String, deviceInfo: DeviceInfo) = QoSResultBody(
-    clientUUID = clientUUID,
-    clientName = deviceInfo.clientName,
-    clientVersion = deviceInfo.rmbtClientVersion,
-    clientLanguage = deviceInfo.language,
-    qosResult = results,
-    testToken = testToken,
-    timeMillis = timeMillis
-)
+fun QoSResultRecord.toRequest(clientUUID: String, deviceInfo: DeviceInfo): QoSResultBody {
+
+    val parser = JsonParser()
+    val qosResult = parser.parse(results.toString()) as JsonArray
+
+    return QoSResultBody(
+        clientUUID = clientUUID,
+        clientName = deviceInfo.clientName,
+        clientVersion = deviceInfo.rmbtClientVersion,
+        clientLanguage = deviceInfo.language,
+        qosResult = qosResult,
+        testToken = testToken,
+        timeMillis = timeMillis
+    )
+}

@@ -18,6 +18,7 @@ import at.rtr.rmbt.android.util.listen
 import at.rtr.rmbt.android.viewmodel.HistoryViewModel
 
 private const val CODE_ERROR = 1
+
 class HistoryFragment : BaseFragment() {
 
     private val historyViewModel: HistoryViewModel by viewModelLazy()
@@ -46,6 +47,8 @@ class HistoryFragment : BaseFragment() {
         }
 
         historyViewModel.historyLiveData.listen(this) {
+            historyViewModel.state.isHistoryEmpty.set(it.isEmpty())
+
             adapter.submitList(it)
         }
 
@@ -53,20 +56,21 @@ class HistoryFragment : BaseFragment() {
             historyViewModel.state.isLoadingLiveData.set(it)
         }
 
-        historyViewModel.isHistoryEmpty.listen(this) {
-            historyViewModel.state.isHistoryEmpty.set(it)
-        }
-
         binding.swipeRefreshLayoutHistoryItems.setOnRefreshListener {
-            historyViewModel.refreshHistory()
-            binding.swipeRefreshLayoutHistoryItems.isRefreshing = false
+            refreshHistory()
         }
 
         activity?.window?.changeStatusBarColor(ToolbarTheme.WHITE)
+
+        refreshHistory()
+    }
+
+    private fun refreshHistory() {
+        historyViewModel.refreshHistory()
+        binding.swipeRefreshLayoutHistoryItems.isRefreshing = false
     }
 
     override fun onHandledException(exception: HandledException) {
-
         val messageTextResId = when (exception) {
             is NoConnectionException -> {
                 R.string.no_internet_connection_not_load_data
@@ -82,15 +86,6 @@ class HistoryFragment : BaseFragment() {
                 .positiveText(R.string.input_setting_dialog_ok)
                 .cancelable(true)
                 .show(it, CODE_ERROR)
-        }
-    }
-    override fun onStart() {
-        super.onStart()
-
-        historyViewModel.historyLiveData.value?.let {
-            if (it.isEmpty()) {
-                historyViewModel.clearHistory()
-            }
         }
     }
 }

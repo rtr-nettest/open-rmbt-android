@@ -27,8 +27,11 @@ object Tables {
     const val TEST = "test"
     const val TEST_GRAPH_ITEM = "test_graph_item"
     const val TEST_RESULT = "test_result"
+    const val TEST_RESULT_GRAPH_ITEM = "test_result_graph_item"
     const val TEST_TELEPHONY_RECORD = "test_telephony"
     const val TEST_WLAN_RECORD = "test_wlan"
     const val SPEED = "speed"
     const val QOS_RESULT = "qos_result"
+    const val TEST_RESULT_DETAILS = "test_result_details"
+    const val MAP_MARKER_MEASUREMENTS = "map_markers"
 }

@@ -152,6 +152,14 @@ class AppConfig @Inject constructor(context: Context, private val serverSettings
         get() = getString(BuildConfig.CONTROL_SERVER_GET_OPENDATA_RESULT_PATH)
         set(value) = setString(BuildConfig.CONTROL_SERVER_GET_OPENDATA_RESULT_PATH, value)
 
+    override var controlServerTestResultDetailsEndpoint: String
+        get() = getString(BuildConfig.CONTROL_SERVER_TEST_RESULT_DETAILS_ENDPOINT)
+        set(value) = setString(BuildConfig.CONTROL_SERVER_TEST_RESULT_DETAILS_ENDPOINT, value)
+
+    override var controlServerQosTestResultDetailsEndpoint: String
+        get() = getString(BuildConfig.CONTROL_SERVER_GET_QOS_TEST_RESULT_ENDPOINT)
+        set(value) = setString(BuildConfig.CONTROL_SERVER_GET_QOS_TEST_RESULT_ENDPOINT, value)
+
     override var testCounter: Int
         get() = preferences.getInt(KEY_TEST_COUNTER, 0)
         set(value) = preferences.edit()
@@ -197,4 +205,16 @@ class AppConfig @Inject constructor(context: Context, private val serverSettings
     override var qosSSL: Boolean
         get() = getBoolean(BuildConfig.QOS_SSL)
         set(value) = setBoolean(BuildConfig.QOS_SSL, value)
+
+    override var mapServerRoute: String
+        get() = getString(BuildConfig.MAP_SERVER_ROUTE)
+        set(value) = setString(BuildConfig.MAP_SERVER_ROUTE, value)
+
+    override var mapMarkersEndpoint: String
+        get() = getString(BuildConfig.MAP_MARKERS_ENDPOINT)
+        set(value) = setString(BuildConfig.MAP_MARKERS_ENDPOINT, value)
+
+    override var mapTilesEndpoint: String
+        get() = getString(BuildConfig.MAP_TILES_ENDPOINT)
+        set(value) = setString(BuildConfig.MAP_TILES_ENDPOINT, value)
 }

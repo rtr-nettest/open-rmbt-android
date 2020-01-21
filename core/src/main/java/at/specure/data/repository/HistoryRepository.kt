@@ -9,8 +9,6 @@ interface HistoryRepository {
 
     fun getHistorySource(): DataSource.Factory<Int, History>
 
-    fun clearHistory()
-
     fun boundaryCallback(
         limit: Int,
         onLoadingCallback: ((Boolean) -> Unit),

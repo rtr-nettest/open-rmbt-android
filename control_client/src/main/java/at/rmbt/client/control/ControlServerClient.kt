@@ -46,4 +46,12 @@ class ControlServerClient @Inject constructor(private val endpointProvider: Cont
     fun getDetailedTestResults(openTestUUID: String): Maybe<SpeedCurveBodyResponse> {
         return api.getTestResultOpenDetails(endpointProvider.getTestResultsOpenDataUrl + "/" + openTestUUID).exec()
     }
+
+    fun getTestResultDetail(body: TestResultDetailBody): Maybe<TestResultDetailResponse> {
+        return api.getTestResultDetail(endpointProvider.getTestResultsDetailsUrl, body).exec()
+    }
+
+    fun getQosTestResultDetail(body: QosTestResultDetailBody): Maybe<QosTestResultDetailResponse> {
+        return api.getQosTestResultDetail(endpointProvider.getQosResultDetailsUrl, body).exec()
+    }
 }

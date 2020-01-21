@@ -21,8 +21,8 @@
         android:background="@drawable/background_measurement_bottom"
         android:paddingBottom="@dimen/padding_medium"
         app:behavior_peekHeight="@dimen/measurement_bottom_header_height"
-        app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior"
-        app:bottomSheetState="@{3}">
+        app:bottomSheetState="@{3}"
+        app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior">
 
         <View
             android:id="@+id/viewHeader"
@@ -168,15 +168,21 @@
             app:ylabel_color="@color/text_gray"
             app:ylabel_text_size="@dimen/chart_label_text_size" />
 
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/qosTestRecyclerView"
+        <ScrollView
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+            android:layout_height="@dimen/qos_list_max_height"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/labelMeasurementState"
-            app:visibleOrGone="@{state.measurementState == MeasurementState.QOS}" />
+            app:visibleOrGone="@{state.measurementState == MeasurementState.QOS}">
+
+            <at.rtr.rmbt.android.ui.view.QoSProgressContainer
+                android:id="@+id/qosProgressContainer"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+        </ScrollView>
 
         <androidx.core.widget.ContentLoadingProgressBar
             android:id="@+id/progressQoS"

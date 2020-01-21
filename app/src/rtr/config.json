@@ -112,7 +112,17 @@
     },
     {
       "name": "CONTROL_SERVER_GET_OPENDATA_RESULT_PATH",
-      "value": "opendata",
+      "value": "opentests",
+      "visible": false
+    },
+    {
+      "name": "CONTROL_SERVER_TEST_RESULT_DETAILS_ENDPOINT",
+      "value": "testresultdetail",
+      "visible": false
+    },
+    {
+      "name": "CONTROL_SERVER_GET_QOS_TEST_RESULT_ENDPOINT",
+      "value": "qosTestResult?api=2",
       "visible": false
     },
     {
@@ -153,6 +163,21 @@
     {
       "name": "QOS_SSL",
       "value": "true",
+      "visible": false
+    },
+    {
+      "name": "MAP_SERVER_ROUTE",
+      "value": "RMBTMapServer",
+      "visible": false
+    },
+    {
+      "name": "MAP_TILES_ENDPOINT",
+      "value": "tiles/%s/%d/%d/%d.png",
+      "visible": false
+    },
+    {
+      "name": "MAP_MARKERS_ENDPOINT",
+      "value": "tiles/markers",
       "visible": false
     }
   ]

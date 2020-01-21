@@ -16,6 +16,10 @@ enum class NetworkTypeCompat(val stringValue: String) {
 
         fun fromResultIntType(value: Int): NetworkTypeCompat {
 
+            if (value == Int.MAX_VALUE) {
+                TYPE_2G
+            }
+
             var cellTechnology: CellTechnology? = null
             val mobileNetworkType = MobileNetworkType.fromValue(value)
             val transportType = if (mobileNetworkType == MobileNetworkType.UNKNOWN) {
@@ -92,12 +96,12 @@ enum class ServerNetworkType(
     TYPE_CLI(97, "CLI", null, null, null),
     TYPE_BROWSER(98, "BROWSER", null, null, null),
     TYPE_WLAN(99, "WLAN", NetworkTypeCompat.TYPE_WLAN, TransportType.WIFI, null),
-    TYPE_2G_3G(101, "2G/3G", NetworkTypeCompat.TYPE_2G, TransportType.CELLULAR, null),
-    TYPE_3G_4G(102, "3G/4G", NetworkTypeCompat.TYPE_3G, TransportType.CELLULAR, null),
-    TYPE_2G_4G(103, "2G/4G", NetworkTypeCompat.TYPE_2G, TransportType.CELLULAR, null),
-    TYPE_2G_3G_4G(104, "2G/3G/4G", NetworkTypeCompat.TYPE_3G, TransportType.CELLULAR, null),
-    TYPE_MOBILE(105, "MOBILE", NetworkTypeCompat.TYPE_3G, TransportType.CELLULAR, null),
+    TYPE_2G_3G(101, "2G/3G", NetworkTypeCompat.TYPE_3G, TransportType.CELLULAR, MobileNetworkType.HSUPA),
+    TYPE_3G_4G(102, "3G/4G", NetworkTypeCompat.TYPE_3G, TransportType.CELLULAR, MobileNetworkType.HSUPA),
+    TYPE_2G_4G(103, "2G/4G", NetworkTypeCompat.TYPE_4G, TransportType.CELLULAR, MobileNetworkType.EVDO_A),
+    TYPE_2G_3G_4G(104, "2G/3G/4G", NetworkTypeCompat.TYPE_4G, TransportType.CELLULAR, MobileNetworkType.LTE),
+    TYPE_MOBILE(105, "MOBILE", NetworkTypeCompat.TYPE_3G, TransportType.CELLULAR, MobileNetworkType.HSUPA),
     TYPE_ETHERNET(106, "Ethernet", null, TransportType.ETHERNET, null),
     TYPE_BLUETOOTH(107, "Bluetooth", null, TransportType.BLUETOOTH, null),
-    UNKNOWN_BLUETOOTH(-1, "UNKNOWN", null, null, null),
+    UNKNOWN(-1, "UNKNOWN", null, null, null),
 }

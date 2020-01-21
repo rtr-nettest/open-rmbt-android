@@ -27,7 +27,8 @@
             android:gravity="center_vertical"
             android:textColor="@color/text_dark_gray"
             app:networkType="@{item.networkType}"
-            app:time="@{item.time}"
+            app:historyTime="@{item.time}"
+            app:historyTimezone="@{item.timezone}"
             tools:text="20.11.18, 12:00:45" />
 
         <androidx.appcompat.widget.AppCompatTextView
