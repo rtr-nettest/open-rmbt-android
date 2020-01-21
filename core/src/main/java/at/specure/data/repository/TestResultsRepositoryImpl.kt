@@ -124,7 +124,7 @@ class TestResultsRepositoryImpl(
                 qoeInfoDao.clearInsert(qoeRecords)
                 getServerTestResult(testUUID)
                 loadOpenDataTestResults(testResult.testOpenUUID)
-                loadQosTestResults(clientUUID, testUUID)
+                loadQosTestResults(testUUID, clientUUID)
                 emit(true)
             }
 
