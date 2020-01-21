@@ -37,7 +37,7 @@
                 android:textColor="@color/text_dark_gray"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                app:timeString="@{item.timeString}"
+                app:timeString="@{item.time}"
                 tools:text="20.11.18, 12:00:45" />
 
             <View
