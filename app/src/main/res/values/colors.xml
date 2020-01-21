@@ -57,6 +57,7 @@
     <!-- Chart colors -->
     <color name="chart_labels_color">#8CFFFFFF</color>
     <color name="chart_grid_line_color">#3D3D3D</color>
+    <color name="result_chart_grid_line_color">#EDEEEF</color>
     <!--<color name="chart_progress_shadow_color">#4D78Ed03</color>-->
 
     <!-- Measurement screen -->
@@ -81,4 +82,6 @@
 
     <color name="map_circle_fill">#56AD00</color>
     <color name="map_circle_stroke">#007C0E</color>
+
+    <color name="ping_bar_color">#4D78Ed03</color>
 </resources>
