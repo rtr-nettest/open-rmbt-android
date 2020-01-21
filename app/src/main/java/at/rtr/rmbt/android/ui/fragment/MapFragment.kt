@@ -2,29 +2,42 @@ package at.rtr.rmbt.android.ui.fragment
 
 import android.os.Bundle
 import android.view.View
+import androidx.annotation.DrawableRes
 import androidx.recyclerview.widget.LinearSnapHelper
+import androidx.recyclerview.widget.RecyclerView
+import androidx.recyclerview.widget.SnapHelper
 import at.rmbt.client.control.data.MapPresentationType
 import at.rmbt.client.control.data.MapStyleType
 import at.rtr.rmbt.android.R
 import at.rtr.rmbt.android.databinding.FragmentMapBinding
 import at.rtr.rmbt.android.di.viewModelLazy
+import at.rtr.rmbt.android.ui.activity.ShowWebViewActivity
 import at.rtr.rmbt.android.ui.adapter.MapMarkerDetailsAdapter
-import at.rtr.rmbt.android.ui.adapter.MarkerDetailsItemDecoration
 import at.rtr.rmbt.android.ui.dialog.MapLayersDialog
 import at.rtr.rmbt.android.util.ToolbarTheme
 import at.rtr.rmbt.android.util.changeStatusBarColor
+import at.rtr.rmbt.android.util.iconFromVector
 import at.rtr.rmbt.android.util.listen
+import at.rtr.rmbt.android.util.singleResult
 import at.rtr.rmbt.android.viewmodel.MapViewModel
+import at.specure.data.NetworkTypeCompat
+import at.specure.data.ServerNetworkType
+import at.specure.data.entity.MarkerMeasurementRecord
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.Marker
+import com.google.android.gms.maps.model.MarkerOptions
 import com.google.android.gms.maps.model.TileOverlay
 import com.google.android.gms.maps.model.TileOverlayOptions
+import kotlin.math.abs
+
+const val START_ZOOM_LEVEL = 12f
 
 private const val CODE_LAYERS_DIALOG = 1
-
-private const val START_ZOOM_LEVEL = 12f
+private const val ANCHOR_U = 0.5f
+private const val ANCHOR_V = 0.865f
 
 class MapFragment : BaseFragment(), OnMapReadyCallback, MapMarkerDetailsAdapter.MarkerDetailsCallback, MapLayersDialog.Callback {
 
@@ -35,6 +48,10 @@ class MapFragment : BaseFragment(), OnMapReadyCallback, MapMarkerDetailsAdapter.
 
     private var googleMap: GoogleMap? = null
     private var currentOverlay: TileOverlay? = null
+    private var currentLocation: LatLng? = null
+    private var currentMarker: Marker? = null
+    private var visiblePosition: Int? = null
+    private var snapHelper: SnapHelper? = null
 
     private var adapter: MapMarkerDetailsAdapter = MapMarkerDetailsAdapter(this)
 
@@ -52,11 +69,18 @@ class MapFragment : BaseFragment(), OnMapReadyCallback, MapMarkerDetailsAdapter.
                 .show(fragmentManager)
         }
 
-        LinearSnapHelper().attachToRecyclerView(binding.markerItems)
+        snapHelper = LinearSnapHelper().apply { attachToRecyclerView(binding.markerItems) }
         binding.markerItems.adapter = adapter
-        binding.markerItems.addItemDecoration(MarkerDetailsItemDecoration(requireContext()))
+        binding.markerItems.itemAnimator?.changeDuration = 0
 
-        updateMapStyle()
+        binding.markerItems.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                super.onScrolled(recyclerView, dx, dy)
+                if (abs(dx) > 0) {
+                    drawCurrentMarker()
+                }
+            }
+        })
     }
 
     override fun onStyleSelected(style: MapStyleType) {
@@ -72,33 +96,31 @@ class MapFragment : BaseFragment(), OnMapReadyCallback, MapMarkerDetailsAdapter.
 
     override fun onMapReady(map: GoogleMap?) {
         googleMap = map
+        checkLocationAndSetCurrent()
+        updateMapStyle()
+        setTiles()
         map?.let {
             with(map.uiSettings) {
                 isRotateGesturesEnabled = false
             }
         }
 
-        currentOverlay = googleMap?.addTileOverlay(TileOverlayOptions().tileProvider(mapViewModel.provider))
-        googleMap?.setOnMapClickListener { latlng ->
-            mapViewModel.state.coordinatesLiveData.postValue(latlng)
-            mapViewModel.markersLiveData.listen(this) {
-//                                adapter.submitList(it)
-//                // todo display items
-//                if (it.isNotEmpty()) {
-//                    googleMap?.moveCamera(CameraUpdateFactory.newLatLng(latlng))
-//                    binding.markerItems.visibility = View.VISIBLE
-//                    binding.fabFilters.hide()
-//                    binding.fabLocation.hide()
-//                } else {
-//                    onCloseMarkerDetails()
-//                }
-//                Timber.e("${it.size} items")
+        mapViewModel.markersLiveData.listen(this) {
+            adapter.items = it as MutableList<MarkerMeasurementRecord>
+            if (it.isNotEmpty()) {
+                val latlng = LatLng(it.first().latitude, it.first().longitude)
+                if (currentLocation != latlng) {
+                    currentLocation = latlng
+                    googleMap?.animateCamera(CameraUpdateFactory.newLatLng(latlng))
+                }
+                binding.markerItems.visibility = View.VISIBLE
+                binding.fabFilters.hide()
+                binding.fabLocation.hide()
+                visiblePosition = 0
+                drawMarker(it.first())
+            } else {
+                onCloseMarkerDetails()
             }
-            mapViewModel.loadMarkers(googleMap!!.cameraPosition.zoom.toInt())
-        }
-
-        mapViewModel.locationInfoLiveData.listen(this) {
-            googleMap?.moveCamera(CameraUpdateFactory.newLatLngZoom(LatLng(it.latitude, it.longitude), START_ZOOM_LEVEL))
         }
     }
 
@@ -122,6 +144,50 @@ class MapFragment : BaseFragment(), OnMapReadyCallback, MapMarkerDetailsAdapter.
         super.onPause()
     }
 
+    override fun onCloseMarkerDetails() {
+        binding.markerItems.visibility = View.GONE
+        binding.fabFilters.show()
+        binding.fabLocation.show()
+        currentMarker?.remove()
+        currentMarker = null
+    }
+
+    override fun onMoreDetailsClicked(openTestUUID: String) {
+        // example of link: https://dev.netztest.at/en/Opentest?O2582896c-1ec4-4826-bc4c-d8297d8ff490#noMMenu
+        mapViewModel.prepareDetailsLink(openTestUUID).singleResult(this) {
+            ShowWebViewActivity.start(requireContext(), it)
+        }
+    }
+
+    private fun drawMarker(record: MarkerMeasurementRecord) {
+        if (record.networkTypeLabel != ServerNetworkType.UNKNOWN_BLUETOOTH.stringValue) {
+            record.networkTypeLabel?.let {
+                val icon = when (NetworkTypeCompat.fromString(it)) {
+                    NetworkTypeCompat.TYPE_WLAN -> R.drawable.ic_marker_wifi
+                    NetworkTypeCompat.TYPE_4G -> R.drawable.ic_marker_4g
+                    NetworkTypeCompat.TYPE_3G -> R.drawable.ic_marker_3g
+                    NetworkTypeCompat.TYPE_2G -> R.drawable.ic_marker_2g
+                    NetworkTypeCompat.TYPE_5G -> throw IllegalArgumentException("Need to add 5G marker image for the map")
+                }
+                addMarkerWithIcon(icon)
+            }
+        } else { // empty pin to prevent crash
+            addMarkerWithIcon(R.drawable.ic_marker_empty)
+        }
+    }
+
+    private fun addMarkerWithIcon(@DrawableRes icon: Int) {
+        currentLocation?.let { latlng ->
+            if (currentMarker == null) {
+                currentMarker = googleMap?.addMarker(
+                    MarkerOptions().position(latlng).anchor(ANCHOR_U, ANCHOR_V).iconFromVector(requireContext(), icon)
+                )
+            } else {
+                currentMarker?.iconFromVector(requireContext(), icon)
+            }
+        }
+    }
+
     private fun updateMapStyle() {
         with(mapViewModel.state.style.get()) {
             googleMap?.mapType = when (this) {
@@ -141,13 +207,58 @@ class MapFragment : BaseFragment(), OnMapReadyCallback, MapMarkerDetailsAdapter.
         }
     }
 
-    override fun onCloseMarkerDetails() {
-        binding.markerItems.visibility = View.GONE
-        binding.fabFilters.show()
-        binding.fabLocation.show()
+    private fun setTiles() {
+        currentOverlay = googleMap?.addTileOverlay(TileOverlayOptions().tileProvider(mapViewModel.provider))
+        googleMap?.setOnMapClickListener { latlng ->
+            onCloseMarkerDetails()
+            if (isMarkersAvailable()) {
+                mapViewModel.loadMarkers(latlng.latitude, latlng.longitude, googleMap!!.cameraPosition.zoom.toInt())
+            }
+        }
+        googleMap?.setOnMarkerClickListener { true }
+
+        googleMap?.setOnCameraChangeListener {
+            if (it.zoom != mapViewModel.state.zoom) {
+                currentOverlay?.remove()
+                currentOverlay = googleMap?.addTileOverlay(TileOverlayOptions().tileProvider(mapViewModel.provider))
+            }
+            mapViewModel.state.zoom = it.zoom
+        }
     }
 
-    override fun onMoreDetailsClicked() {
-//        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    private fun checkLocationAndSetCurrent() {
+        mapViewModel.locationInfoLiveData.singleResult(this) {
+            if (it.latitude != 0.0 && it.longitude != 0.0) {
+                if (mapViewModel.state.coordinatesLiveData.value == null) {
+                    with(LatLng(it.latitude, it.longitude)) {
+                        mapViewModel.state.coordinatesLiveData.postValue(this)
+                        googleMap?.moveCamera(CameraUpdateFactory.newLatLngZoom(this, mapViewModel.state.zoom))
+                    }
+                } else {
+                    googleMap?.moveCamera(CameraUpdateFactory.newLatLngZoom(mapViewModel.state.coordinatesLiveData.value, mapViewModel.state.zoom))
+                    visiblePosition = RecyclerView.NO_POSITION
+                    currentMarker = null
+                    drawCurrentMarker()
+                }
+            }
+        }
     }
+
+    private fun drawCurrentMarker() {
+        snapHelper?.findSnapView(binding.markerItems.layoutManager)?.let { view ->
+            binding.markerItems.layoutManager?.getPosition(view)?.let {
+                if (it >= 0) {
+                    if (visiblePosition != it) {
+                        visiblePosition = it
+                        drawMarker(adapter.getItem(it))
+                    }
+                }
+            }
+        }
+    }
+
+    private fun isMarkersAvailable(): Boolean =
+        mapViewModel.state.type.get() == MapPresentationType.POINTS ||
+                (mapViewModel.state.type.get() == MapPresentationType.AUTOMATIC && googleMap?.cameraPosition != null &&
+                        googleMap?.cameraPosition!!.zoom >= 10)
 }

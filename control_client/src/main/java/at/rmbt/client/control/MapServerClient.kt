@@ -1,6 +1,7 @@
 package at.rmbt.client.control
 
 import android.net.Uri
+import androidx.lifecycle.MutableLiveData
 import at.rmbt.client.control.data.MapPresentationType
 import at.rmbt.util.Maybe
 import okhttp3.ResponseBody
@@ -21,4 +22,7 @@ class MapServerClient @Inject constructor(private val endpointProvider: ControlE
         }
         return api.loadTiles(uriBuilder.build().toString()).execute()
     }
+
+    fun prepareDetailsLink(openUUID: String) =
+        MutableLiveData<String>().apply { postValue(String.format(endpointProvider.mapMarkerShowDetailsUrl, openUUID)) }
 }

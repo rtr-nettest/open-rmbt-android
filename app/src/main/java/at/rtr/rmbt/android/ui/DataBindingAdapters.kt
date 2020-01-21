@@ -17,6 +17,7 @@ import at.rtr.rmbt.android.util.InfoWindowStatus
 import at.rtr.rmbt.android.util.format
 import at.specure.data.Classification
 import at.specure.data.NetworkTypeCompat
+import at.specure.data.ServerNetworkType
 import at.specure.data.entity.GraphItemRecord
 import at.specure.info.TransportType
 import at.specure.info.cell.CellNetworkInfo
@@ -742,23 +743,25 @@ fun ResultBar.setQoEValue(value: Double, classification: Classification) {
 
 @BindingAdapter("networkType")
 fun ImageView.setNetworkType(networkType: String) {
-    setImageResource(
-        when (NetworkTypeCompat.fromString(networkType)) {
-            NetworkTypeCompat.TYPE_2G -> {
-                R.drawable.ic_history_2g
+    if (networkType != ServerNetworkType.UNKNOWN_BLUETOOTH.stringValue) {
+        setImageResource(
+            when (NetworkTypeCompat.fromString(networkType)) {
+                NetworkTypeCompat.TYPE_2G -> {
+                    R.drawable.ic_history_2g
+                }
+                NetworkTypeCompat.TYPE_3G -> {
+                    R.drawable.ic_history_3g
+                }
+                NetworkTypeCompat.TYPE_4G -> {
+                    R.drawable.ic_history_4g
+                }
+                NetworkTypeCompat.TYPE_WLAN -> {
+                    R.drawable.ic_history_wifi
+                }
+                NetworkTypeCompat.TYPE_5G -> throw IllegalArgumentException("Need to add 5G image here for history")
             }
-            NetworkTypeCompat.TYPE_3G -> {
-                R.drawable.ic_history_3g
-            }
-            NetworkTypeCompat.TYPE_4G -> {
-                R.drawable.ic_history_4g
-            }
-            NetworkTypeCompat.TYPE_WLAN -> {
-                R.drawable.ic_history_wifi
-            }
-            NetworkTypeCompat.TYPE_5G -> throw IllegalArgumentException("Need to add 5G image here for history")
-        }
-    )
+        )
+    }
 }
 
 @BindingAdapter("timeString")
