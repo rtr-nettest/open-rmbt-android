@@ -310,14 +310,30 @@
                         app:constraint_referenced_ids="labelResultBottomDownload,labelResultBottomUpload,labelResultBottomPing,labelResultBottomSignal,textDownloadSpeed,textUploadSpeed,textPing,textSignal"
                         app:visibleOrGone="@{state.testResult != null}" />
 
-                    <FrameLayout
+                    <LinearLayout
                         android:id="@+id/graphContainer"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginBottom="@dimen/margin_large"
+                        android:orientation="vertical"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toBottomOf="@+id/textDownloadSpeed" />
+                        app:layout_constraintTop_toBottomOf="@+id/textDownloadSpeed">
+
+                        <androidx.viewpager.widget.ViewPager
+                            android:id="@+id/viewPagerCharts"
+                            android:layout_width="match_parent"
+                            android:layout_height="@dimen/result_view_pager_height" />
+
+                        <com.google.android.material.tabs.TabLayout
+                            android:id="@+id/tabLayoutCharts"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            app:tabBackground="@drawable/tab_selector"
+                            app:tabGravity="center"
+                            app:tabIndicatorGravity="bottom"
+                            app:tabIndicatorHeight="0dp" />
+
+                    </LinearLayout>
 
                     <androidx.appcompat.widget.AppCompatTextView
                         android:id="@+id/titleOtherDetails"

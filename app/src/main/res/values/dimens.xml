@@ -53,4 +53,7 @@
     <dimen name="size_height_status_bar">24dp</dimen>
     <dimen name="size_divider_height">1dp</dimen>
 
+    <!-- Result screen -->
+    <dimen name="result_view_pager_height">160dp</dimen>
+
 </resources>

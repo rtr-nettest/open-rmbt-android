@@ -8,6 +8,8 @@ import android.graphics.Canvas
 import android.util.AttributeSet
 import at.rtr.rmbt.android.R
 import at.specure.data.entity.GraphItemRecord
+import at.specure.data.entity.TestResultGraphItemRecord
+import timber.log.Timber
 import kotlin.math.log10
 import kotlin.math.pow
 import kotlin.math.sqrt
@@ -27,6 +29,8 @@ class SpeedLineChart @JvmOverloads constructor(
 
     private var circlePoint: PointF? = null
     private var startTime: Long = -1
+
+    private var chartPoints: ArrayList<PointF> = ArrayList()
 
     init {
 
@@ -58,66 +62,108 @@ class SpeedLineChart @JvmOverloads constructor(
 
     override fun onDraw(canvas: Canvas?) {
         super.onDraw(canvas)
+
+        if (pathStroke.isEmpty && chartPoints.isNotEmpty()) {
+            calculatePath()
+        }
         canvas?.drawPath(pathStroke, paintStroke)
         canvas?.drawPath(pathFill, paintFill)
         circlePoint?.let {
-            canvas?.drawCircle(it.x - STROKE_WIDTH / 2.0f, it.y, STROKE_WIDTH / 2, paintStroke)
+            canvas?.drawCircle(getChartWidth() * it.x - STROKE_WIDTH / 2.0f, getChartHeight() - (getChartHeight() * it.y), STROKE_WIDTH / 2, paintStroke)
         }
     }
 
-    /**
-     * This function is use for calculate path
-     */
     fun addGraphItems(graphItems: List<GraphItemRecord>?) {
 
         pathStroke.rewind()
         pathFill.rewind()
         if (graphItems != null && graphItems.isNotEmpty()) {
 
-            val points: ArrayList<PointF> = ArrayList()
+            chartPoints = ArrayList()
+
             if (graphItems[0].progress > 0) {
-                points.add(PointF(0.0f, getChartHeight() - (getChartHeight() * toLog(graphItems[0].value))))
+                chartPoints.add(PointF(0.0f, toLog(graphItems[0].value)))
             }
             for (index in 0 until graphItems.size) {
 
-                val x = getChartWidth() * graphItems[index].progress / 100.0f
-                val y = getChartHeight() - (getChartHeight() * toLog(graphItems[index].value))
-                points.add(PointF(x, y))
+                val x = graphItems[index].progress / 100.0f
+                val y = toLog(graphItems[index].value)
+
+                Timber.d("speedtest speed ${graphItems[index].value}")
+                chartPoints.add(PointF(x, y))
             }
-
-            circlePoint = points[points.size - 1]
-            var lX = 0f
-            var lY = 0f
-            pathStroke.moveTo(points[0].x, points[0].y)
-            for (index in 1 until points.size) {
-                val currentPoint = points[index]
-                val previousPoint = points[index - 1]
-                // Distance between currentPoint and previousPoint
-                val firstDistance = sqrt((currentPoint.x - previousPoint.x).toDouble().pow(2.0) + (currentPoint.y - previousPoint.y).toDouble().pow(2.0)).toFloat()
-
-                // Minimum is used to avoid going too much right
-                val firstX = min(previousPoint.x + lX * firstDistance, (previousPoint.x + currentPoint.x) / 2)
-                val firstY = previousPoint.y + lY * firstDistance
-
-                val nextPoint = points[if (index + 1 < points.size) index + 1 else index]
-                // Distance between nextPoint and previousPoint (length of reference line)
-                val secondDistance = sqrt((nextPoint.x - previousPoint.x).toDouble().pow(2.0) + (nextPoint.y - previousPoint.y).toDouble().pow(2.0)).toFloat()
-                // (lX,lY) is the slope of the reference line
-                lX = (nextPoint.x - previousPoint.x) / secondDistance * 0.3f
-                lY = (nextPoint.y - previousPoint.y) / secondDistance * 0.3f
-
-                // Maximum is used to avoid going too much left
-                val secondX = max(currentPoint.x - lX * firstDistance, (previousPoint.x + currentPoint.x) / 2)
-                val secondY = currentPoint.y - lY * firstDistance
-
-                pathStroke.cubicTo(firstX, firstY, secondX, secondY, currentPoint.x, currentPoint.y)
-            }
-
-            pathFill.addPath(pathStroke)
-            pathFill.lineTo(points[points.size - 1].x, getChartHeight())
-            pathFill.lineTo(points[0].x, getChartHeight())
         }
         invalidate()
+    }
+
+    fun addResultGraphItems(graphItems: List<TestResultGraphItemRecord>?) {
+
+        pathStroke.rewind()
+        pathFill.rewind()
+
+        graphItems?.let { items ->
+
+            chartPoints = ArrayList()
+
+            val maxValue = items.maxBy { it.time }?.time
+            if (maxValue != null) {
+
+                if (((items[0].time / maxValue.toFloat())*100.0f) > 0) {
+                    chartPoints.add(PointF(0.0f, toLog(graphItems[0].value * 8000 / graphItems[0].time)))
+                }
+
+                for (index in items.indices) {
+                    val x = items[index].time / maxValue.toFloat()
+                    val y = toLog(graphItems[index].value * 8000 / graphItems[index].time)
+                    chartPoints.add(PointF(x, y))
+                    Timber.d("itemsdisplaytest x $x y $y width ${getChartWidth()} height ${getChartHeight()}")
+                }
+            }
+        }
+        invalidate()
+    }
+
+    /**
+     * This function is use for calculate path
+     */
+
+    private fun calculatePath() {
+        circlePoint = chartPoints[chartPoints.size - 1]
+        var lX = 0f
+        var lY = 0f
+        pathStroke.moveTo(getChartWidth() * chartPoints[0].x, getChartHeight() - (getChartHeight() * chartPoints[0].y))
+        for (index in 1 until chartPoints.size) {
+            val currentPointX = getChartWidth() * chartPoints[index].x
+            val currentPointY = getChartHeight() - (getChartHeight() * chartPoints[index].y)
+            val previousPointX = getChartWidth() * chartPoints[index - 1].x
+            val previousPointY = getChartHeight() - (getChartHeight() * chartPoints[index - 1].y)
+
+            // Distance between currentPoint and previousPoint
+            val firstDistance = sqrt((currentPointX - previousPointX).toDouble().pow(2.0) + (currentPointY - previousPointY).toDouble().pow(2.0)).toFloat()
+
+            // Minimum is used to avoid going too much right
+            val firstX = min(previousPointX + lX * firstDistance, (previousPointX + currentPointX) / 2)
+            val firstY = previousPointY + lY * firstDistance
+
+            val nextPointX = getChartWidth() * chartPoints[if (index + 1 < chartPoints.size) index + 1 else index].x
+            val nextPointY = getChartHeight() - (getChartHeight() * chartPoints[if (index + 1 < chartPoints.size) index + 1 else index].y)
+
+            // Distance between nextPoint and previousPoint (length of reference line)
+            val secondDistance = sqrt((nextPointX - previousPointX).toDouble().pow(2.0) + (nextPointY - previousPointY).toDouble().pow(2.0)).toFloat()
+            // (lX,lY) is the slope of the reference line
+            lX = (nextPointX - previousPointX) / secondDistance * 0.3f
+            lY = (nextPointY - previousPointY) / secondDistance * 0.3f
+
+            // Maximum is used to avoid going too much left
+            val secondX = max(currentPointX - lX * firstDistance, (previousPointX + currentPointX) / 2)
+            val secondY = currentPointY - lY * firstDistance
+
+            pathStroke.cubicTo(firstX, firstY, secondX, secondY, currentPointX, currentPointY)
+        }
+
+        pathFill.addPath(pathStroke)
+        pathFill.lineTo(getChartWidth() * chartPoints[chartPoints.size - 1].x, getChartHeight())
+        pathFill.lineTo(getChartWidth() * chartPoints[0].x, getChartHeight())
     }
 
     fun reset() {
@@ -145,6 +191,4 @@ class SpeedLineChart @JvmOverloads constructor(
         private const val GRAPH_MAX_NSECS: Long = 8000000000L
         private const val STROKE_WIDTH: Float = 3.0f
     }
-
-    data class LineData(val value: Float, val time: Float)
 }

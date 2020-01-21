@@ -9,6 +9,7 @@ import androidx.recyclerview.widget.DividerItemDecoration
 import at.rtr.rmbt.android.R
 import at.rtr.rmbt.android.databinding.ActivityResultsBinding
 import at.rtr.rmbt.android.di.viewModelLazy
+import at.rtr.rmbt.android.ui.adapter.ResultChartFragmentPagerAdapter
 import at.rtr.rmbt.android.ui.adapter.ResultQoEAdapter
 import at.rtr.rmbt.android.util.iconFromVector
 import at.rtr.rmbt.android.util.listen
@@ -27,6 +28,7 @@ class ResultsActivity : BaseActivity(), OnMapReadyCallback {
     private val viewModel: ResultViewModel by viewModelLazy()
     private lateinit var binding: ActivityResultsBinding
     private val adapter: ResultQoEAdapter by lazy { ResultQoEAdapter() }
+    private lateinit var resultChartFragmentPagerAdapter: ResultChartFragmentPagerAdapter
 
     private var googleMap: GoogleMap? = null
 
@@ -41,9 +43,17 @@ class ResultsActivity : BaseActivity(), OnMapReadyCallback {
         val testUUID = intent.getStringExtra(KEY_TEST_UUID)
         check(!testUUID.isNullOrEmpty()) { "TestUUID was not passed to result activity" }
 
+        binding.viewPagerCharts.offscreenPageLimit = 3
+        binding.tabLayoutCharts.setupWithViewPager(binding.viewPagerCharts, true)
+
         viewModel.state.testUUID = testUUID
         viewModel.testServerResultLiveData.listen(this) { result ->
             viewModel.state.testResult.set(result)
+
+            result?.testOpenUUID?.let {
+                resultChartFragmentPagerAdapter = ResultChartFragmentPagerAdapter(supportFragmentManager, it)
+                binding.viewPagerCharts.adapter = resultChartFragmentPagerAdapter
+            }
 
             if (result?.latitude != null && result.longitude != null) {
                 with(LatLng(result.latitude!!, result.longitude!!)) {
