@@ -160,7 +160,7 @@ class MapFragment : BaseFragment(), OnMapReadyCallback, MapMarkerDetailsAdapter.
     }
 
     private fun drawMarker(record: MarkerMeasurementRecord) {
-        if (record.networkTypeLabel != ServerNetworkType.UNKNOWN_BLUETOOTH.stringValue) {
+        if (record.networkTypeLabel != ServerNetworkType.UNKNOWN.stringValue) {
             record.networkTypeLabel?.let {
                 val icon = when (NetworkTypeCompat.fromString(it)) {
                     NetworkTypeCompat.TYPE_WLAN -> R.drawable.ic_marker_wifi
