@@ -26,6 +26,15 @@ class LocationProviderStateLiveData @Inject constructor(
      */
     private var appEnabled: Boolean = locationAccess.isAllowed
 
+    init {
+        value = when {
+            deviceEnabled && appEnabled -> ENABLED
+            !appEnabled -> DISABLED_APP
+            !deviceEnabled -> DISABLED_DEVICE
+            else -> null
+        }
+    }
+
     override fun onActive() {
         super.onActive()
         locationState.addListener(this)

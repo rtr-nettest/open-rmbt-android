@@ -523,7 +523,7 @@ data class HistoryResponse(
 data class HistoryItemResponse(
     val model: String,
     @SerializedName("network_type")
-    val networkType: String,
+    val networkType: String?,
     val ping: String,
     @SerializedName("ping_classification")
     val pingClassification: Int,
