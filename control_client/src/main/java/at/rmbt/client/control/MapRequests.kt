@@ -50,9 +50,9 @@ data class RMBThttp(
 @Keep
 data class Coordinates(
     @SerializedName("lat")
-    val latitude: Double,
+    val latitude: Double?,
     @SerializedName("lon")
-    val longitude: Double,
+    val longitude: Double?,
     @SerializedName("z")
     val zoom: Int,
     /**

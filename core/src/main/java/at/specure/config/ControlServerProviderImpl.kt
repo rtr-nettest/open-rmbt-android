@@ -66,4 +66,7 @@ class ControlServerProviderImpl(private val config: Config) : ControlEndpointPro
 
     override val getMapTilesUrl: String
         get() = "$host/$mapRoute/${config.mapTilesEndpoint}"
+
+    override val mapMarkerShowDetailsUrl: String
+        get() = "$host/en/Opentest?%s#noMMenu"
 }
