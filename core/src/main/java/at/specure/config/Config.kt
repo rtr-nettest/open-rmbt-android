@@ -141,6 +141,11 @@ interface Config {
     var controlServerTestResultDetailsEndpoint: String
 
     /**
+     * End of the url for getting qos test result details from the control server, example "ControlServer/qostestresult"
+     */
+    var controlServerQosTestResultDetailsEndpoint: String
+
+    /**
      * Counter of tests performed by user
      */
     var testCounter: Int
