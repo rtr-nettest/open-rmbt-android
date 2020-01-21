@@ -63,13 +63,13 @@ class SpeedLineChart @JvmOverloads constructor(
     override fun onDraw(canvas: Canvas?) {
         super.onDraw(canvas)
 
-        if(pathStroke.isEmpty && chartPoints.isNotEmpty()){
+        if (pathStroke.isEmpty && chartPoints.isNotEmpty()) {
             calculatePath()
         }
         canvas?.drawPath(pathStroke, paintStroke)
         canvas?.drawPath(pathFill, paintFill)
         circlePoint?.let {
-            canvas?.drawCircle(getChartWidth() * it.x - STROKE_WIDTH / 2.0f, getChartHeight() - (getChartHeight() *  it.y), STROKE_WIDTH / 2, paintStroke)
+            canvas?.drawCircle(getChartWidth() * it.x - STROKE_WIDTH / 2.0f, getChartHeight() - (getChartHeight() * it.y), STROKE_WIDTH / 2, paintStroke)
         }
     }
 
@@ -82,7 +82,7 @@ class SpeedLineChart @JvmOverloads constructor(
             chartPoints = ArrayList()
 
             if (graphItems[0].progress > 0) {
-                chartPoints.add(PointF(0.0f,toLog(graphItems[0].value)))
+                chartPoints.add(PointF(0.0f, toLog(graphItems[0].value)))
             }
             for (index in 0 until graphItems.size) {
 
@@ -123,7 +123,6 @@ class SpeedLineChart @JvmOverloads constructor(
         invalidate()
     }
 
-
     /**
      * This function is use for calculate path
      */
@@ -132,12 +131,12 @@ class SpeedLineChart @JvmOverloads constructor(
         circlePoint = chartPoints[chartPoints.size - 1]
         var lX = 0f
         var lY = 0f
-        pathStroke.moveTo( getChartWidth() * chartPoints[0].x, getChartHeight() - (getChartHeight() *  chartPoints[0].y))
+        pathStroke.moveTo(getChartWidth() * chartPoints[0].x, getChartHeight() - (getChartHeight() * chartPoints[0].y))
         for (index in 1 until chartPoints.size) {
             val currentPointX = getChartWidth() * chartPoints[index].x
-            val currentPointY = getChartHeight() - (getChartHeight() *  chartPoints[index].y)
+            val currentPointY = getChartHeight() - (getChartHeight() * chartPoints[index].y)
             val previousPointX = getChartWidth() * chartPoints[index - 1].x
-            val previousPointY = getChartHeight() - (getChartHeight() *  chartPoints[index - 1].y)
+            val previousPointY = getChartHeight() - (getChartHeight() * chartPoints[index - 1].y)
 
             // Distance between currentPoint and previousPoint
             val firstDistance = sqrt((currentPointX - previousPointX).toDouble().pow(2.0) + (currentPointY - previousPointY).toDouble().pow(2.0)).toFloat()
@@ -147,7 +146,7 @@ class SpeedLineChart @JvmOverloads constructor(
             val firstY = previousPointY + lY * firstDistance
 
             val nextPointX = getChartWidth() * chartPoints[if (index + 1 < chartPoints.size) index + 1 else index].x
-            val nextPointY = getChartHeight() - (getChartHeight() *  chartPoints[if (index + 1 < chartPoints.size) index + 1 else index].y)
+            val nextPointY = getChartHeight() - (getChartHeight() * chartPoints[if (index + 1 < chartPoints.size) index + 1 else index].y)
 
             // Distance between nextPoint and previousPoint (length of reference line)
             val secondDistance = sqrt((nextPointX - previousPointX).toDouble().pow(2.0) + (nextPointY - previousPointY).toDouble().pow(2.0)).toFloat()
@@ -192,5 +191,4 @@ class SpeedLineChart @JvmOverloads constructor(
         private const val GRAPH_MAX_NSECS: Long = 8000000000L
         private const val STROKE_WIDTH: Float = 3.0f
     }
-
 }
