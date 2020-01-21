@@ -68,7 +68,6 @@ class ResultChartFragment : BaseFragment() {
     }
     private fun loadGraphItems() {
         if (viewModel.state.graphItems.isNullOrEmpty()) {
-
             viewModel.loadGraphItems().listen(this) {
                 viewModel.state.graphItems = it
                 showGraphItems()
@@ -81,7 +80,6 @@ class ResultChartFragment : BaseFragment() {
     private fun showGraphItems() {
         graphView.visibility = View.VISIBLE
         progressLoadItems.visibility = View.GONE
-
         when (viewModel.state.chartType) {
             ResultChartType.DOWNLOAD, ResultChartType.UPLOAD -> {
                 if (graphView is SpeedLineChart) {
