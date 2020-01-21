@@ -18,6 +18,7 @@ import androidx.annotation.Keep
 import at.rmbt.client.control.data.ErrorStatus
 import com.google.gson.JsonObject
 import com.google.gson.annotations.SerializedName
+import java.math.BigDecimal
 
 /**
  * Basic response class
@@ -399,7 +400,7 @@ data class MeasurementItem(
      * Median ping (round-trip time) in milliseconds, measured on the server side. In previous versions (before June 3rd 2015) this was the minimum ping measured on the client side.
      */
     @SerializedName("ping_ms")
-    val pingMillis: Double,
+    val pingMillis: BigDecimal,
 
     /**
      * Classification value for assigning traffic-light-color
