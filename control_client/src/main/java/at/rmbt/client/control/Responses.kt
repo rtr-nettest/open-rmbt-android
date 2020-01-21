@@ -625,19 +625,19 @@ data class QosTestResult(
      * Array with info about which keys are delivering result information in @test_result_key_map
      */
     @SerializedName("test_result_keys")
-    val testResultKeys: Array<String>,
+    val testResultKeys: List<String>,
 
     @SerializedName("test_result_key_map")
-    val testResultMap: Array<String>,
+    val testResultMap: List<String>,
 
     @SerializedName("test_summary")
-    val testSummary: Array<String>,
+    val testSummary: List<String>,
 
     @SerializedName("success_count")
-    val successCount: Integer,
+    val successCount: Int,
 
     @SerializedName("failure_count")
-    val failureCount: Integer,
+    val failureCount: Int,
 
     @SerializedName("test_type")
     val testType: String,
@@ -656,7 +656,7 @@ data class QosTestDescription(
      * UIDs of tests for which is this description
      */
     @SerializedName("uid")
-    val qosTestUids: Array<Long>,
+    val qosTestUids: List<Long>,
 
     /**
      * Test category
