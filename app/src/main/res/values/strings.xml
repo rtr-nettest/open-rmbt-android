@@ -196,6 +196,7 @@
     <string name="results_network_type">Type</string>
     <string name="results_network_provider">Provider</string>
     <string name="results_network_ssid">WLAN SSID</string>
+    <string name="result_test_details">Test details</string>
 
     <!-- Map -->
     <string name="map_layer_communities">Communities</string>

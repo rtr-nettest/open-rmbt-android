@@ -2,8 +2,8 @@ package at.rtr.rmbt.android.di
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import at.rtr.rmbt.android.viewmodel.HomeViewModel
 import at.rtr.rmbt.android.viewmodel.HistoryViewModel
+import at.rtr.rmbt.android.viewmodel.HomeViewModel
 import at.rtr.rmbt.android.viewmodel.MapViewModel
 import at.rtr.rmbt.android.viewmodel.StatisticsViewModel
 import at.rtr.rmbt.android.viewmodel.NetworkDetailsViewModel
@@ -11,6 +11,7 @@ import at.rtr.rmbt.android.viewmodel.SettingsViewModel
 import at.rtr.rmbt.android.viewmodel.MeasurementViewModel
 import at.rtr.rmbt.android.viewmodel.ResultViewModel
 import at.rtr.rmbt.android.viewmodel.ResultChartViewModel
+import at.rtr.rmbt.android.viewmodel.TestResultDetailViewModel
 import dagger.Binds
 import dagger.Module
 import dagger.multibindings.IntoMap
@@ -69,4 +70,9 @@ interface ViewModelModule {
     @IntoMap
     @ViewModelKey(ResultChartViewModel::class)
     fun bindResultChartViewModel(viewModel: ResultChartViewModel): ViewModel
+
+    @Binds
+    @IntoMap
+    @ViewModelKey(TestResultDetailViewModel::class)
+    fun bindTestResultDetailViewModel(viewModel: TestResultDetailViewModel): ViewModel
 }

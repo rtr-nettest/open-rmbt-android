@@ -185,6 +185,7 @@
     <string name="results_network_type">Zugang</string>
     <string name="results_network_provider">Betreiber</string>
     <string name="results_network_ssid">WLAN SSID</string>
+    <string name="result_test_details">Test details</string>
 
     <!-- Map -->
     <string name="map_layer_communities">PLZ</string>

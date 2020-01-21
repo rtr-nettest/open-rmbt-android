@@ -487,6 +487,18 @@
                         app:layout_constraintTop_toBottomOf="@+id/titleQos"
                         tools:listitem="@layout/item_qoe" />
 
+                    <androidx.appcompat.widget.AppCompatTextView
+                        android:id="@+id/labelTestResultDetail"
+                        style="@style/RobotoBoldStyle.Medium"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/result_test_details"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        android:padding="@dimen/padding_large"
+                        android:drawableEnd="@drawable/ic_right"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@+id/qosResultsRecyclerView" />
+
                 </androidx.constraintlayout.widget.ConstraintLayout>
             </androidx.core.widget.NestedScrollView>
         </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
