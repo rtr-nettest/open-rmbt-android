@@ -15,8 +15,8 @@
 package at.rmbt.client.control
 
 import androidx.annotation.Keep
+import com.google.gson.JsonArray
 import com.google.gson.annotations.SerializedName
-import org.json.JSONArray
 
 // TODO Remove mocked values
 @Keep
@@ -821,7 +821,7 @@ data class QoSResultBody(
     @SerializedName("test_token")
     val testToken: String,
     @SerializedName("qos_result")
-    val qosResult: JSONArray
+    val qosResult: JsonArray
 )
 
 @Keep
