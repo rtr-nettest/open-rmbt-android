@@ -19,6 +19,7 @@ import at.specure.data.entity.TestResultDetailsRecord
 import at.specure.data.entity.TestResultGraphItemRecord
 import at.specure.data.entity.TestResultRecord
 import at.specure.result.QoECategory
+import java.math.RoundingMode
 
 fun HistoryResponse.toModelList(): List<History> = history.map { it.toModel() }
 
@@ -54,7 +55,7 @@ fun ServerTestResultItem.toModel(testUUID: String): TestResultRecord {
         uploadClass = Classification.fromValue(measurementItem.uploadClass),
         uploadSpeedKbs = measurementItem.uploadSpeedKbs,
         pingClass = Classification.fromValue(measurementItem.pingClass),
-        pingMillis = measurementItem.pingMillis,
+        pingMillis = measurementItem.pingMillis.setScale(0, RoundingMode.HALF_EVEN).toDouble(),
         signalClass = Classification.fromValue(measurementItem.signalClass),
         signalStrength = signal,
         locationText = locationText,

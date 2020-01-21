@@ -34,6 +34,7 @@ import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.TimeZone
 import java.util.Locale
+import java.util.Date
 
 @BindingAdapter("intText")
 fun intText(textView: TextView, value: Int) {
@@ -765,8 +766,8 @@ fun ImageView.setNetworkType(networkType: String) {
 }
 
 @BindingAdapter("timeString")
-fun AppCompatTextView.setTimeAs24h(time: String) {
-    SimpleDateFormat("MMM dd, yyyy hh:mm:ss a", Locale.US).parse(time)?.let { text = SimpleDateFormat("dd.MM.yyyy, HH:mm:ss", Locale.US).format(it) }
+fun AppCompatTextView.setTimeAs24h(time: Long) {
+    text = SimpleDateFormat("MMM dd, yyyy hh:mm:ss a", Locale.getDefault()).format(Date(time))
 }
 
 @BindingAdapter("signalStrengthMap", "signalStrengthClassificationMap", requireAll = true)

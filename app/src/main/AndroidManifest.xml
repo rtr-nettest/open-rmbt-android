@@ -50,8 +50,7 @@
             android:windowSoftInputMode="stateAlwaysHidden"
             android:theme="@style/PreferenceTheme" />
 
-        <activity android:name=".ui.activity.DetailedFullscreenMapActivity"
-            android:theme="@style/FullMapTheme"/>
+        <activity android:name=".ui.activity.DetailedFullscreenMapActivity"/>
 
         <activity android:name=".ui.activity.ShowWebViewActivity" />
 

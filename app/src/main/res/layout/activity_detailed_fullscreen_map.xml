@@ -17,7 +17,6 @@
             android:id="@+id/map"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:fitsSystemWindows="true"
             tools:context="at.rtr.rmbt.android.ui.activity.DetailedFullscreenMapActivity" />
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
