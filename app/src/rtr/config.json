@@ -121,7 +121,7 @@
       "visible": false
     },
     {
-      "name": "CONTROL_SERVER_QOS_TEST_RESULT_ENDPOINT",
+      "name": "CONTROL_SERVER_GET_QOS_TEST_RESULT_ENDPOINT",
       "value": "qosTestResult?api=2",
       "visible": false
     },

@@ -71,6 +71,11 @@ interface ControlEndpointProvider {
     val getTestResultsDetailsUrl: String
 
     /**
+     *  Url to get QoS result details
+     */
+    val getQosResultDetailsUrl: String
+
+    /**
      * Port that should be used for control server client
      */
     val port: Int

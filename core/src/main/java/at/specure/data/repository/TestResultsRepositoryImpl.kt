@@ -4,6 +4,7 @@ import androidx.lifecycle.LiveData
 import at.rmbt.client.control.BaseResponse
 import at.rmbt.client.control.CapabilitiesBody
 import at.rmbt.client.control.ControlServerClient
+import at.rmbt.client.control.QosTestResultDetailBody
 import at.rmbt.client.control.ServerTestResultBody
 import at.rmbt.client.control.TestResultDetailBody
 import at.rmbt.util.Maybe
@@ -123,10 +124,26 @@ class TestResultsRepositoryImpl(
                 qoeInfoDao.clearInsert(qoeRecords)
                 getServerTestResult(testUUID)
                 loadOpenDataTestResults(testResult.testOpenUUID)
+                loadQosTestResults(clientUUID, testUUID)
                 emit(true)
             }
 
             response.onFailure { throw it }
         }
+    }
+
+    private fun loadQosTestResults(testUUID: String, clientUUID: String): Maybe<BaseResponse> {
+        val qosTestResults = client.getQosTestResultDetail(
+            QosTestResultDetailBody(
+                testUUID = testUUID,
+                clientUUID = clientUUID,
+                language = Locale.getDefault().language
+            )
+        )
+        qosTestResults.onSuccess { response ->
+            response.qosResultDetailsDesc.first().resultDescription
+            // todo: save results to DB
+        }
+        return qosTestResults
     }
 }

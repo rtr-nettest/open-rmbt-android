@@ -50,4 +50,8 @@ class ControlServerClient @Inject constructor(private val endpointProvider: Cont
     fun getTestResultDetail(body: TestResultDetailBody): Maybe<TestResultDetailResponse> {
         return api.getTestResultDetail(endpointProvider.getTestResultsDetailsUrl, body).exec()
     }
+
+    fun getQosTestResultDetail(body: QosTestResultDetailBody): Maybe<QosTestResultDetailResponse> {
+        return api.getQosTestResultDetail(endpointProvider.getQosResultDetailsUrl, body).exec()
+    }
 }
