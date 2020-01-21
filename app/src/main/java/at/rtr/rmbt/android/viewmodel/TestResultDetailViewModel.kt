@@ -8,7 +8,7 @@ import javax.inject.Inject
 
 class TestResultDetailViewModel @Inject constructor(
     private val testResultsRepository: TestResultsRepository
-): BaseViewModel() {
+) : BaseViewModel() {
 
     val state = TestResultDetailViewState()
 

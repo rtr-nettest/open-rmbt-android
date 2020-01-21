@@ -19,9 +19,7 @@ import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.widget.Toolbar
 import at.rtr.rmbt.android.R
-import at.rtr.rmbt.android.databinding.ActivityPreferenceBinding
 import at.rtr.rmbt.android.databinding.ActivityTestResultDetailBinding
-import at.rtr.rmbt.android.ui.fragment.SettingsFragment
 import at.rtr.rmbt.android.ui.fragment.TestResultDetailFragment
 
 class TestResultDetailActivity : BaseActivity() {
@@ -37,23 +35,19 @@ class TestResultDetailActivity : BaseActivity() {
         if (testUUID == null) {
             throw IllegalArgumentException("Please pass test UUID")
         } else {
-            //viewModel.state.openTestUUID = openTestUUID
-            //viewModel.state.chartType = ResultChartType.fromValue(arguments?.getInt(KEY_CHART_TYPE))
-
             if (savedInstanceState == null) {
                 supportFragmentManager.beginTransaction()
                     .replace(R.id.fragment_content, TestResultDetailFragment.newInstance(testUUID))
                     .commitNow()
             }
         }
-
     }
     private fun setupToolbar() {
         val toolbar: Toolbar = binding.toolbar
         setSupportActionBar(toolbar)
         supportActionBar?.setDisplayShowTitleEnabled(false)
-        toolbar.setNavigationIcon(R.drawable.ic_close)
-        binding.tvToolbarTitle.text = "Details"
+        toolbar.setNavigationIcon(R.drawable.ic_back)
+        binding.tvToolbarTitle.text = getString(R.string.result_test_details)
         toolbar.setNavigationOnClickListener {
             finish()
         }

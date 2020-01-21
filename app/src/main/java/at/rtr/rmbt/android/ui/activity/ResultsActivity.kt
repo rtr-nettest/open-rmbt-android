@@ -131,8 +131,8 @@ class ResultsActivity : BaseActivity(), OnMapReadyCallback {
             }
         }
 
-        binding.labelTestResultDetail.setOnClickListener{
-            TestResultDetailActivity.start(this,viewModel.state.testUUID)
+        binding.labelTestResultDetail.setOnClickListener {
+            TestResultDetailActivity.start(this, viewModel.state.testUUID)
         }
 
         refreshResults()

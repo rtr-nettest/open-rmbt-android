@@ -33,30 +33,14 @@ class TestResultDetailAdapter : RecyclerView.Adapter<TestResultDetailAdapter.Hol
     private var _items = mutableListOf<TestResultDetailsRecord>()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): Holder {
-        val binding: ItemTestResultDetailBinding = parent.bindWith(R.layout.item_test_result_detail)
-
-        /*if (viewType == TYPE_FIRST) {
-            (binding.root.layoutParams as? ViewGroup.MarginLayoutParams)?.marginStart = (parent.measuredWidth * (1 - WIDTH_COEF) / 2).toInt()
-        }
-        if (viewType == TYPE_LAST) {
-            (binding.root.layoutParams as? ViewGroup.MarginLayoutParams)?.marginEnd = (parent.measuredWidth * (1 - WIDTH_COEF) / 2).toInt()
-        }*/
-        return Holder(binding)
+        return Holder(parent.bindWith(R.layout.item_test_result_detail))
     }
 
-
-
     override fun onBindViewHolder(holder: Holder, position: Int) {
-
-        holder.binding.textTitle.text = _items[position].title
-        holder.binding.textValue.text = _items[position].value
+        holder.binding.item = _items[position]
     }
 
     override fun getItemCount() = _items.size
 
     class Holder(val binding: ItemTestResultDetailBinding) : RecyclerView.ViewHolder(binding.root)
-
-
-
-
 }

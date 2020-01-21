@@ -11,7 +11,6 @@ import at.rtr.rmbt.android.ui.adapter.TestResultDetailAdapter
 import at.rtr.rmbt.android.util.listen
 import at.rtr.rmbt.android.viewmodel.TestResultDetailViewModel
 import at.specure.data.entity.TestResultDetailsRecord
-import timber.log.Timber
 
 class TestResultDetailFragment : BaseFragment() {
 
@@ -23,7 +22,6 @@ class TestResultDetailFragment : BaseFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        //binding.state = testResultDetailViewModel.state
         binding.recyclerViewTestResultDetail.adapter = adapter
 
         binding.recyclerViewTestResultDetail.apply {
@@ -36,22 +34,18 @@ class TestResultDetailFragment : BaseFragment() {
         }
 
         val testUUID = arguments?.getString(KEY_TEST_UUID)
-        Timber.d("TestResultDetailFragment testUUID $testUUID")
         if (testUUID == null) {
             throw IllegalArgumentException("Please pass test UUID")
         } else {
-            //viewModel.state.openTestUUID = openTestUUID
-            //viewModel.state.chartType = ResultChartType.fromValue(arguments?.getInt(KEY_CHART_TYPE))
             testResultDetailViewModel.state.testUUID = testUUID
             testResultDetailViewModel.testResultDetailsLiveData.listen(this) {
-                Timber.d("TestResultDetailFragment found ${it.size} rows of details")
+                it.sortedByDescending { title ->
+                    title.title
+                }
                 adapter.items = it as MutableList<TestResultDetailsRecord>
             }
         }
-
     }
-
-
 
     companion object {
 

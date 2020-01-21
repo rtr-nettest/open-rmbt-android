@@ -743,7 +743,7 @@ fun ResultBar.setQoEValue(value: Double, classification: Classification) {
 
 @BindingAdapter("networkType")
 fun ImageView.setNetworkType(networkType: String) {
-    if (networkType != ServerNetworkType.UNKNOWN_BLUETOOTH.stringValue) {
+    if (networkType != ServerNetworkType.UNKNOWN.stringValue) {
         setImageResource(
             when (NetworkTypeCompat.fromString(networkType)) {
                 NetworkTypeCompat.TYPE_2G -> {
