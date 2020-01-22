@@ -112,7 +112,7 @@
     <string name="client_not_registered">Der Client ist nicht registriert. Versuchen Sie es später erneut.</string>
 
     <!-- Measurement screen -->
-    <string name="measurement_ping_value">%1$d ms</string>
+    <string name="measurement_ping_value">%1$s ms</string>
     <string name="measurement_download_upload_speed">%1$s Mbit/s</string>
     <string name="measurement_download">Herunterladen</string>
     <string name="measurement_upload">Hochladen</string>
