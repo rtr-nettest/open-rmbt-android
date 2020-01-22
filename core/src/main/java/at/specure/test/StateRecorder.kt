@@ -158,7 +158,7 @@ class StateRecorder @Inject constructor(
     private fun saveLocationInfo() {
         val uuid = testUUID
         val location = locationInfo
-        if (uuid != null && location != null) {
+        if (uuid != null && location != null && locationStateLiveData.value == LocationProviderState.ENABLED) {
             repository.saveGeoLocation(uuid, location)
         }
     }
