@@ -8,6 +8,7 @@ import at.rmbt.client.control.QosTestResultDetailBody
 import at.rmbt.client.control.ServerTestResultBody
 import at.rmbt.client.control.TestResultDetailBody
 import at.rmbt.util.Maybe
+import at.specure.data.Classification
 import at.specure.data.ClientUUID
 import at.specure.data.CoreDatabase
 import at.specure.data.entity.QoeInfoRecord
@@ -17,6 +18,7 @@ import at.specure.data.entity.TestResultRecord
 import at.specure.data.toModel
 import at.specure.data.toModelList
 import at.specure.data.toQoeModel
+import at.specure.result.QoECategory
 import at.specure.util.exception.DataMissingException
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
@@ -141,9 +143,36 @@ class TestResultsRepositoryImpl(
             )
         )
         qosTestResults.onSuccess { response ->
-            response.qosResultDetailsDesc.first().resultDescription
-            // todo: save results to DB
+            var failureCount = 0
+            var successCount = 0
+            response.qosResultDetails.forEach { result ->
+                if (result.failureCount > 0) {
+                    failureCount++
+                } else {
+                    successCount++
+                }
+            }
+            val percentage: Float = (successCount.toFloat() / (successCount + failureCount).toFloat())
+            qoeInfoDao.clearQoSInsert(
+                QoeInfoRecord(
+                    testUUID = testUUID,
+                    category = QoECategory.QOE_QOS,
+                    percentage = percentage,
+                    info = "${(percentage * 100).toInt()}% ($successCount/${successCount + failureCount})",
+                    classification = getQosClassification(percentage * 100f),
+                    priority = 1
+                )
+            )
         }
         return qosTestResults
+    }
+
+    private fun getQosClassification(percentage: Float): Classification {
+        return when {
+            percentage.toInt() >= 100 -> Classification.EXCELLENT
+            percentage > 95f -> Classification.GOOD
+            percentage > 50f -> Classification.NORMAL
+            else -> Classification.BAD
+        }
     }
 }

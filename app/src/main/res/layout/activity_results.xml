@@ -144,7 +144,7 @@
                     <TextView
                         android:id="@+id/networkNameText"
                         style="@style/TextAppearance.AppCompat.Title"
-                        visibleOrGone="@{state.testResult.networkName != null || state.testResult.networkProviderName != null}"
+                        visibleOrGone="@{(state.testResult.networkName != null &amp;&amp; !state.testResult.networkName.isEmpty()) || (state.testResult.networkProviderName != null &amp;&amp; !state.testResult.networkProviderName.isEmpty())}"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="@dimen/padding_large"
@@ -448,7 +448,7 @@
                         android:text="@string/results_network_ssid"
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toBottomOf="@+id/labelProvider"
-                        app:visibleOrGone="@{state.testResult != null &amp;&amp; state.testResult.networkName != null}"
+                        app:visibleOrGone="@{state.testResult != null &amp;&amp; state.testResult.networkName != null &amp;&amp; !state.testResult.networkName.isEmpty()}"
                         tools:text="WLAN SSID" />
 
                     <androidx.appcompat.widget.AppCompatTextView
@@ -462,7 +462,7 @@
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintTop_toTopOf="@+id/labelNetworkName"
                         app:text="@{state.testResult.networkName}"
-                        app:visibleOrGone="@{state.testResult != null &amp;&amp; state.testResult.networkName != null}"
+                        app:visibleOrGone="@{state.testResult != null &amp;&amp; state.testResult.networkName != null &amp;&amp; !state.testResult.networkName.isEmpty()}"
                         tools:text="WIFIFINKA" />
 
                     <androidx.appcompat.widget.AppCompatTextView

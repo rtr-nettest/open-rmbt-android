@@ -87,7 +87,9 @@ fun QoEClassification.toModel(testUUID: String): QoeInfoRecord {
         testUUID = testUUID,
         category = QoECategory.fromString(category),
         classification = Classification.fromValue(classification),
-        percentage = quality
+        percentage = quality,
+        info = null,
+        priority = 0
     )
 }
 

@@ -629,10 +629,10 @@ data class QosTestResult(
     val testResultKeys: List<String>,
 
     @SerializedName("test_result_key_map")
-    val testResultMap: List<String>,
+    val testResultMap: JsonObject,
 
     @SerializedName("test_summary")
-    val testSummary: List<String>,
+    val testSummary: String,
 
     @SerializedName("success_count")
     val successCount: Int,

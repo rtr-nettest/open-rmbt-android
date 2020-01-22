@@ -41,5 +41,15 @@ data class QoeInfoRecord(
     /**
      * Percentage in decimal number in [0.0, 1.0] interval
      */
-    val percentage: Float
+    val percentage: Float,
+
+    /**
+     * Additional info for items to display
+     */
+    val info: String?,
+
+    /**
+     * Display priority (higher number, higher position in the list) (1 - for qos item, 0 - for others)
+     */
+    val priority: Int
 )
