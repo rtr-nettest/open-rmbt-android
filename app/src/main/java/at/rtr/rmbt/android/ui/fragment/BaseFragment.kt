@@ -8,9 +8,11 @@ import androidx.databinding.DataBindingUtil
 import androidx.databinding.ViewDataBinding
 import androidx.fragment.app.Fragment
 import at.rmbt.util.exception.HandledException
-import at.rtr.rmbt.android.ui.dialog.Dialogs
-import at.rtr.rmbt.android.util.getStringTitle
+import at.rtr.rmbt.android.R
+import at.rtr.rmbt.android.ui.dialog.SimpleDialog
 import at.rtr.rmbt.android.viewmodel.BaseViewModel
+
+private const val DIALOG_DEFAULT_OK = -1
 
 abstract class BaseFragment : Fragment() {
 
@@ -35,22 +37,17 @@ abstract class BaseFragment : Fragment() {
         }
     }
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-    }
-
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
         viewModels.forEach { it.onSaveState(outState) }
     }
 
     open fun onHandledException(exception: HandledException) {
-        val context = requireContext()
-        Dialogs.show(
-            context = context,
-            title = exception.getStringTitle(context),
-            message = exception.getText(context)
-        )
+        SimpleDialog.Builder()
+            .messageText(exception.getText(requireContext()))
+            .positiveText(R.string.text_cancel_measurement)
+            .cancelable(false)
+            .show(requireFragmentManager(), DIALOG_DEFAULT_OK)
     }
 
     /**
