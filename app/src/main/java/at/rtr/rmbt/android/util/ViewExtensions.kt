@@ -77,6 +77,11 @@ fun Paint.calcTextHeight(demoText: String): Float {
 fun Float.format(): String = DecimalFormat("@@").format(this)
 
 /**
+ * This function is used for format value up-to 2 decimal
+ */
+fun Long.format(): String = DecimalFormat("@@").format(this)
+
+/**
  * Inflates and creates binding for a new view with [layoutId] view is attached to current [ViewGroup]
  */
 fun <T : ViewDataBinding> ViewGroup.bindWith(@LayoutRes layoutId: Int): T {

@@ -266,7 +266,7 @@ fun AppCompatTextView.setPing(pingMs: Long) {
                 }
             }, 0, 0, 0
         )
-        text = context.getString(R.string.measurement_ping_value, pingMs)
+        text = context.getString(R.string.measurement_ping_value, pingMs.format())
         setTextColor(context.getColor(android.R.color.white))
     } else {
         setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_small_ping_gray, 0, 0, 0)
@@ -615,9 +615,8 @@ fun AppCompatTextView.setPing(pingClassification: Classification) {
  */
 @BindingAdapter("pingResult", "pingClassificationResult", requireAll = true)
 fun AppCompatTextView.setPingResult(pingResult: Double, pingClassificationResult: Classification) {
-
     text = if (pingResult > 0) {
-        context.getString(R.string.measurement_ping_value, pingResult.toInt())
+        context.getString(R.string.measurement_ping_value, pingResult.toLong().format())
     } else {
         context.getString(R.string.measurement_dash)
     }
