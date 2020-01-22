@@ -39,6 +39,20 @@
             tools:src="@drawable/ic_qoe_game"
             tools:text="Gaming" />
 
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/qoeInfo"
+            style="@style/TextAppearance.AppCompat.Body1"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/margin_medium"
+            android:text='@{item.info == null ? "" : item.info}'
+            android:textColor="@color/text_gray_transparency_55"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/qoeName"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:src="@drawable/ic_qoe_game"
+            tools:text="Gaming" />
+
         <at.rtr.rmbt.android.ui.view.ResultBar
             android:id="@+id/qoeClassification"
             android:layout_width="wrap_content"
