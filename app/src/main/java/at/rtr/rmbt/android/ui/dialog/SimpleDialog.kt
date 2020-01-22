@@ -8,6 +8,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
+import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.FragmentManager
 import at.rtr.rmbt.android.R
 import at.rtr.rmbt.android.databinding.DialogSimpleBinding
@@ -65,7 +66,11 @@ class SimpleDialog : FullscreenDialog() {
             dismissAllowingStateLoss()
         }
 
-        binding.textMessage.setText(builder.messageTextRes)
+        if (builder.messageText == null) {
+            binding.textMessage.setText(builder.messageTextRes)
+        } else {
+            binding.textMessage.text = builder.messageText
+        }
     }
 
     interface Callback {
@@ -77,6 +82,7 @@ class SimpleDialog : FullscreenDialog() {
 
     class Builder constructor() : Parcelable {
 
+        var messageText: String? = null
         var messageTextRes = 0
         var positiveTextRes = 0
         var negativeTextRes = 0
@@ -84,6 +90,7 @@ class SimpleDialog : FullscreenDialog() {
         var code = 0
 
         constructor(parcel: Parcel) : this() {
+            messageText = parcel.readString()
             messageTextRes = parcel.readInt()
             positiveTextRes = parcel.readInt()
             negativeTextRes = parcel.readInt()
@@ -92,6 +99,7 @@ class SimpleDialog : FullscreenDialog() {
         }
 
         override fun writeToParcel(dest: Parcel?, flags: Int) {
+            dest?.writeString(messageText)
             dest?.writeInt(messageTextRes)
             dest?.writeInt(positiveTextRes)
             dest?.writeInt(negativeTextRes)
@@ -116,18 +124,31 @@ class SimpleDialog : FullscreenDialog() {
             return this
         }
 
+        fun messageText(messageText: String): Builder {
+            this.messageText = messageText
+            return this
+        }
+
         fun cancelable(cancelable: Boolean): Builder {
             this.cancelable = cancelable
             return this
         }
 
         fun show(manager: FragmentManager, code: Int) {
+            val tag = SimpleDialog::class.java.simpleName
+
+            manager.findFragmentByTag(tag)?.let {
+                if (it is DialogFragment) {
+                    it.dismissAllowingStateLoss()
+                }
+            }
+
             this.code = code
             val dialog = SimpleDialog()
             val args = Bundle()
             args.putParcelable(KEY_BUILDER, this)
             dialog.arguments = args
-            dialog.show(manager, SimpleDialog::class.java.simpleName)
+            dialog.show(manager, tag)
         }
 
         companion object CREATOR : Parcelable.Creator<Builder> {

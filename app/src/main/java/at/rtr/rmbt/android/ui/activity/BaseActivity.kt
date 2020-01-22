@@ -6,9 +6,11 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import androidx.databinding.ViewDataBinding
 import at.rmbt.util.exception.HandledException
-import at.rtr.rmbt.android.ui.dialog.Dialogs
-import at.rtr.rmbt.android.util.getStringTitle
+import at.rtr.rmbt.android.R
+import at.rtr.rmbt.android.ui.dialog.SimpleDialog
 import at.rtr.rmbt.android.viewmodel.BaseViewModel
+
+private const val DIALOG_DEFAULT_OK = -1
 
 abstract class BaseActivity : AppCompatActivity() {
 
@@ -31,11 +33,11 @@ abstract class BaseActivity : AppCompatActivity() {
         DataBindingUtil.setContentView(this, layoutRes)
 
     open fun onHandledException(exception: HandledException) {
-        Dialogs.show(
-            context = this,
-            title = exception.getStringTitle(this),
-            message = exception.getText(this)
-        )
+        SimpleDialog.Builder()
+            .messageText(exception.getText(this))
+            .positiveText(R.string.text_cancel_measurement)
+            .cancelable(false)
+            .show(supportFragmentManager, DIALOG_DEFAULT_OK)
     }
 
     /**
