@@ -766,7 +766,7 @@ fun ImageView.setNetworkType(networkType: String) {
 
 @BindingAdapter("timeString")
 fun AppCompatTextView.setTimeAs24h(time: Long) {
-    text = SimpleDateFormat("MMM dd, yyyy hh:mm:ss a", Locale.getDefault()).format(Date(time))
+    text = SimpleDateFormat("dd.MM.yy, HH:mm:ss", Locale.US).format(Date(time))
 }
 
 @BindingAdapter("signalStrengthMap", "signalStrengthClassificationMap", requireAll = true)

@@ -31,6 +31,12 @@
         android:background="@{state.isConnected ? @drawable/bg_splash : @drawable/bg_gray}"
         tools:background="@drawable/bg_splash">
 
+        <View
+            android:id="@+id/status_bar_stub"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/size_height_status_bar"
+            app:layout_constraintTop_toTopOf="parent" />
+
         <androidx.appcompat.widget.AppCompatImageButton
             android:id="@+id/btnLoop"
             style="@style/NavigationButtonStyle"
@@ -38,7 +44,7 @@
             android:layout_height="wrap_content"
             android:src="@drawable/ic_loop_mode_off"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toBottomOf="@id/status_bar_stub" />
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/tvTitle"
@@ -50,7 +56,7 @@
             app:layout_constraintBottom_toBottomOf="@+id/btnLoop"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toBottomOf="@id/status_bar_stub" />
 
         <androidx.appcompat.widget.AppCompatImageButton
             android:id="@+id/btnSetting"
@@ -60,7 +66,7 @@
             android:layout_gravity="end"
             android:src="@{state.isConnected ? @drawable/ic_settings : @drawable/ic_settings_gray}"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/status_bar_stub"
             tools:src="@drawable/ic_settings" />
 
         <View
@@ -99,13 +105,13 @@
             android:id="@+id/viewCircleShape"
             android:layout_width="0dp"
             android:layout_height="0dp"
-            tools:background="@android:color/holo_blue_bright"
             app:layout_constraintBottom_toBottomOf="@+id/ivIsConnectedCircle"
             app:layout_constraintDimensionRatio="1:1"
             app:layout_constraintEnd_toEndOf="@+id/ivIsConnectedCircle"
             app:layout_constraintHeight_percent="0.23"
             app:layout_constraintStart_toStartOf="@+id/ivIsConnectedCircle"
-            app:layout_constraintTop_toTopOf="@+id/ivIsConnectedCircle" />
+            app:layout_constraintTop_toTopOf="@+id/ivIsConnectedCircle"
+            tools:background="@android:color/holo_blue_bright" />
 
         <androidx.appcompat.widget.AppCompatImageView
             android:id="@+id/ivIsConnectedCircle"
@@ -135,8 +141,8 @@
             android:id="@+id/ivTechnology"
             android:layout_width="0dp"
             android:layout_height="0dp"
-            app:layout_constraintHeight_percent="0.05"
             app:layout_constraintEnd_toEndOf="@+id/viewCircleShape"
+            app:layout_constraintHeight_percent="0.05"
             app:layout_constraintStart_toStartOf="@+id/viewCircleShape"
             app:layout_constraintTop_toTopOf="@+id/viewCircleShape"
             app:technology="@{state.activeNetworkInfo}"
