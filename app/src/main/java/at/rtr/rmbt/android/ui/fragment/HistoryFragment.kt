@@ -31,6 +31,7 @@ class HistoryFragment : BaseFragment() {
         super.onViewCreated(view, savedInstanceState)
 
         binding.state = historyViewModel.state
+        updateTransparentStatusBarHeight(binding.statusBarStub)
         binding.recyclerViewHistoryItems.adapter = adapter
 
         adapter.actionCallback = {
