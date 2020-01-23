@@ -863,3 +863,22 @@ data class QosTestResultDetailBody(
      */
     val language: String
 )
+
+@Keep
+data class GetSyncCodeBody(
+
+    @SerializedName("uuid")
+    val clientUUID: String,
+    val language: String
+)
+
+@Keep
+data class SyncDevicesBody(
+
+    @SerializedName("uuid")
+    val clientUUID: String,
+    val language: String,
+
+    @SerializedName("sync_code")
+    val syncCode: String
+)

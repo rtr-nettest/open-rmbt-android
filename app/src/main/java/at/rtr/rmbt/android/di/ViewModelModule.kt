@@ -11,6 +11,7 @@ import at.rtr.rmbt.android.viewmodel.SettingsViewModel
 import at.rtr.rmbt.android.viewmodel.MeasurementViewModel
 import at.rtr.rmbt.android.viewmodel.ResultViewModel
 import at.rtr.rmbt.android.viewmodel.ResultChartViewModel
+import at.rtr.rmbt.android.viewmodel.SyncDevicesViewModel
 import at.rtr.rmbt.android.viewmodel.TestResultDetailViewModel
 import dagger.Binds
 import dagger.Module
@@ -75,4 +76,9 @@ interface ViewModelModule {
     @IntoMap
     @ViewModelKey(TestResultDetailViewModel::class)
     fun bindTestResultDetailViewModel(viewModel: TestResultDetailViewModel): ViewModel
+
+    @Binds
+    @IntoMap
+    @ViewModelKey(SyncDevicesViewModel::class)
+    fun bindSyncDevicesViewModel(viewModel: SyncDevicesViewModel): ViewModel
 }

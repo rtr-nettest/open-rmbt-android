@@ -12,6 +12,7 @@ import at.rtr.rmbt.android.di.viewModelLazy
 import at.rtr.rmbt.android.ui.activity.ResultsActivity
 import at.rtr.rmbt.android.ui.adapter.HistoryAdapter
 import at.rtr.rmbt.android.ui.dialog.SimpleDialog
+import at.rtr.rmbt.android.ui.dialog.SyncDevicesDialog
 import at.rtr.rmbt.android.util.ToolbarTheme
 import at.rtr.rmbt.android.util.changeStatusBarColor
 import at.rtr.rmbt.android.util.listen
@@ -59,6 +60,10 @@ class HistoryFragment : BaseFragment() {
 
         binding.swipeRefreshLayoutHistoryItems.setOnRefreshListener {
             refreshHistory()
+        }
+
+        binding.buttonSync.setOnClickListener {
+            SyncDevicesDialog.show(requireFragmentManager())
         }
 
         activity?.window?.changeStatusBarColor(ToolbarTheme.WHITE)

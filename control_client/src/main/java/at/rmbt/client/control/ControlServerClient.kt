@@ -54,4 +54,12 @@ class ControlServerClient @Inject constructor(private val endpointProvider: Cont
     fun getQosTestResultDetail(body: QosTestResultDetailBody): Maybe<QosTestResultDetailResponse> {
         return api.getQosTestResultDetail(endpointProvider.getQosResultDetailsUrl, body).exec()
     }
+
+    fun getDeviceSyncCode(body: GetSyncCodeBody): Maybe<SyncResponse> {
+        return api.getSyncCode(endpointProvider.getSyncCodeUrl, body).exec()
+    }
+
+    fun syncDevices(body: SyncDevicesBody): Maybe<SyncResponse> {
+        return api.syncDevices(endpointProvider.syncDevicesUrl, body).exec()
+    }
 }

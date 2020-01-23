@@ -5,6 +5,7 @@ import at.rmbt.client.control.ControlServerModule
 import at.rtr.rmbt.android.config.ConfigModule
 import at.rtr.rmbt.android.ui.dialog.IpInfoDialog
 import at.rtr.rmbt.android.ui.dialog.LocationInfoDialog
+import at.rtr.rmbt.android.ui.dialog.SyncDevicesDialog
 import at.specure.di.CoreComponent
 import at.specure.di.CoreModule
 import at.specure.di.DatabaseModule
@@ -25,6 +26,8 @@ interface AppComponent : CoreComponent {
     fun inject(dialog: IpInfoDialog)
 
     fun inject(dialog: LocationInfoDialog)
+
+    fun inject(dialog: SyncDevicesDialog)
 
     @Component.Builder
     abstract class Builder {

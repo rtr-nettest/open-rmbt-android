@@ -100,4 +100,14 @@ interface ControlEndpointProvider {
      * Url pattern for marker details data, should be opened via WebView. Example of link: https://controlServer/en/Opentest?O2582896c-1ec4-4826-bc4c-d8297d8ff490#noMMenu
      */
     val mapMarkerShowDetailsUrl: String
+
+    /**
+     * Endpoint to get sync code for current device
+     */
+    val getSyncCodeUrl: String
+
+    /**
+     * Endpoint to sync two devices
+     */
+    val syncDevicesUrl: String
 }
