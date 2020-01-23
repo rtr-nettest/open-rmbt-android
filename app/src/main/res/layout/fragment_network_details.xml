@@ -18,6 +18,7 @@
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:background="@drawable/bg_white"
             android:paddingStart="@dimen/margin_large"
             android:paddingTop="@dimen/margin_large"
             android:paddingEnd="@dimen/margin_large">
@@ -25,8 +26,8 @@
             <View
                 android:id="@+id/status_bar_stub"
                 android:layout_width="match_parent"
-                app:layout_constraintTop_toTopOf="parent"
-                android:layout_height="@dimen/size_height_status_bar"/>
+                android:layout_height="@dimen/size_height_status_bar"
+                app:layout_constraintTop_toTopOf="parent" />
 
             <TextView
                 android:id="@+id/labelConnectivityInfo"

@@ -2,7 +2,6 @@ package at.rtr.rmbt.android.ui.fragment
 
 import android.os.Bundle
 import android.view.View
-import android.view.WindowManager
 import androidx.annotation.DrawableRes
 import androidx.recyclerview.widget.LinearSnapHelper
 import androidx.recyclerview.widget.RecyclerView
@@ -60,8 +59,6 @@ class MapFragment : BaseFragment(), OnMapReadyCallback, MapMarkerDetailsAdapter.
         super.onViewCreated(view, savedInstanceState)
         binding.state = mapViewModel.state
 
-        activity?.window?.addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS)
-
         binding.map.onCreate(savedInstanceState)
         binding.map.getMapAsync(this)
 
@@ -82,11 +79,6 @@ class MapFragment : BaseFragment(), OnMapReadyCallback, MapMarkerDetailsAdapter.
                 }
             }
         })
-    }
-
-    override fun onDestroyView() {
-        super.onDestroyView()
-        activity?.window?.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS)
     }
 
     override fun onStyleSelected(style: MapStyleType) {
@@ -233,20 +225,18 @@ class MapFragment : BaseFragment(), OnMapReadyCallback, MapMarkerDetailsAdapter.
     }
 
     private fun checkLocationAndSetCurrent() {
-        mapViewModel.locationInfoLiveData.singleResult(this) {
-            if (it.latitude != 0.0 && it.longitude != 0.0) {
-                if (mapViewModel.state.coordinatesLiveData.value == null) {
-                    with(LatLng(it.latitude, it.longitude)) {
-                        mapViewModel.state.coordinatesLiveData.postValue(this)
-                        googleMap?.moveCamera(CameraUpdateFactory.newLatLngZoom(this, mapViewModel.state.zoom))
-                    }
-                } else {
-                    googleMap?.moveCamera(CameraUpdateFactory.newLatLngZoom(mapViewModel.state.coordinatesLiveData.value, mapViewModel.state.zoom))
-                    visiblePosition = RecyclerView.NO_POSITION
-                    currentMarker = null
-                    drawCurrentMarker()
+        if (mapViewModel.state.coordinatesLiveData.value == null) {
+            mapViewModel.locationInfoLiveData.value?.let {
+                with(LatLng(it.latitude, it.longitude)) {
+                    mapViewModel.state.coordinatesLiveData.postValue(this)
+                    googleMap?.moveCamera(CameraUpdateFactory.newLatLngZoom(this, mapViewModel.state.zoom))
                 }
             }
+        } else {
+            googleMap?.moveCamera(CameraUpdateFactory.newLatLngZoom(mapViewModel.state.coordinatesLiveData.value, mapViewModel.state.zoom))
+            visiblePosition = RecyclerView.NO_POSITION
+            currentMarker = null
+            drawCurrentMarker()
         }
     }
 

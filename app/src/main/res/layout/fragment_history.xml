@@ -12,7 +12,14 @@
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:background="@drawable/bg_white">
+
+        <View
+            android:id="@+id/status_bar_stub"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/size_height_status_bar"
+            app:layout_constraintTop_toTopOf="parent" />
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/labelTitle"
@@ -24,7 +31,7 @@
             android:textColor="@color/text_dark_gray"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"/>
+            app:layout_constraintTop_toBottomOf="@id/status_bar_stub" />
 
         <androidx.appcompat.widget.AppCompatImageButton
             android:id="@+id/buttonMenu"
