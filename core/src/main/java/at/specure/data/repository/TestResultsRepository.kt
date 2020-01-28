@@ -2,9 +2,12 @@ package at.specure.data.repository
 
 import androidx.lifecycle.LiveData
 import at.specure.data.entity.QoeInfoRecord
+import at.specure.data.entity.QosCategoryRecord
+import at.specure.data.entity.QosTestItemRecord
 import at.specure.data.entity.TestResultDetailsRecord
 import at.specure.data.entity.TestResultGraphItemRecord
 import at.specure.data.entity.TestResultRecord
+import at.specure.result.QoSCategory
 import kotlinx.coroutines.flow.Flow
 
 interface TestResultsRepository {
@@ -26,4 +29,8 @@ interface TestResultsRepository {
     fun getServerTestResultPingGraphItems(openTestUUID: String): LiveData<List<TestResultGraphItemRecord>?>
 
     fun getServerTestResultSignalGraphItems(openTestUUID: String): LiveData<List<TestResultGraphItemRecord>?>
+
+    fun getQosTestCategoriesResult(testUUID: String): LiveData<List<QosCategoryRecord>>
+
+    fun getQosItemsResult(testUUID: String, category: QoSCategory): LiveData<List<QosTestItemRecord>>
 }

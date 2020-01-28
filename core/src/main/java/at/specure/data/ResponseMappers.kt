@@ -6,6 +6,9 @@ import at.rmbt.client.control.MarkerMeasurementsResponse
 import at.rmbt.client.control.MarkersResponse
 import at.rmbt.client.control.PingGraphItemResponse
 import at.rmbt.client.control.QoEClassification
+import at.rmbt.client.control.QosTestCategoryDescription
+import at.rmbt.client.control.QosTestResult
+import at.rmbt.client.control.QosTestResultDetailResponse
 import at.rmbt.client.control.ServerTestResultItem
 import at.rmbt.client.control.ServerTestResultResponse
 import at.rmbt.client.control.SignalGraphItemResponse
@@ -15,11 +18,15 @@ import at.rmbt.client.control.TestResultDetailResponse
 import at.specure.data.entity.History
 import at.specure.data.entity.MarkerMeasurementRecord
 import at.specure.data.entity.QoeInfoRecord
+import at.specure.data.entity.QosCategoryRecord
+import at.specure.data.entity.QosTestItemRecord
 import at.specure.data.entity.TestResultDetailsRecord
 import at.specure.data.entity.TestResultGraphItemRecord
 import at.specure.data.entity.TestResultRecord
 import at.specure.result.QoECategory
+import at.specure.result.QoSCategory
 import java.math.RoundingMode
+import java.util.EnumMap
 
 fun HistoryResponse.toModelList(): List<History> = history.map { it.toModel() }
 
@@ -146,3 +153,80 @@ fun MarkerMeasurementsResponse.toModel(): MarkerMeasurementRecord =
         time,
         timeString
     )
+
+fun QosTestResultDetailResponse.toModels(testUUID: String, language: String): Pair<List<QosCategoryRecord>, List<QosTestItemRecord>> {
+
+    val categories = mutableListOf<QosCategoryRecord>()
+    val results = mutableListOf<QosTestItemRecord>()
+
+    var qosResultDescMap: Map<QoSCategory, List<QosTestResult>> = EnumMap(QoSCategory::class.java)
+    this.qosResultDetails.forEach { result ->
+        val qoSCategory = QoSCategory.fromString(result.testType)
+        var alreadySavedQosTest: MutableList<QosTestResult>? = qosResultDescMap[qoSCategory]?.toMutableList()
+        if (alreadySavedQosTest == null) {
+            alreadySavedQosTest = mutableListOf(result)
+        } else {
+            alreadySavedQosTest.add(result)
+        }
+        qosResultDescMap = qosResultDescMap.plus(Pair(qoSCategory, alreadySavedQosTest))
+    }
+
+    var categoryDescMap: Map<QoSCategory, QosTestCategoryDescription> = EnumMap(QoSCategory::class.java)
+    this.qosResultDetailsTestDesc.forEach { category ->
+        val qoSCategory = QoSCategory.fromString(category.testType)
+        categoryDescMap = categoryDescMap.plus(Pair(qoSCategory, category))
+    }
+
+    categoryDescMap.keys.forEach { key ->
+
+        val qosTestCategoryDescription = categoryDescMap[key]
+        val resultList = qosResultDescMap[key]
+
+        var successCount = 0
+        var failureCount = 0
+        var success: Boolean
+
+        var qosTestOrderNumber = 1
+
+        resultList?.forEach { result ->
+            success = if (result.failureCount > 0) {
+                failureCount++
+                false
+            } else {
+                successCount++
+                true
+            }
+
+            results.add(
+                QosTestItemRecord(
+                    testUUID = testUUID,
+                    qosTestId = result.qosTestUid,
+                    language = language,
+                    category = key,
+                    success = success,
+                    testDescription = result.testDescription,
+                    testNumber = qosTestOrderNumber,
+                    durationNanos = result.result.get("duration_ns").asLong,
+                    startTimeNanos = result.result.get("start_time_ns").asLong,
+                    resultDetails = result.result
+                )
+            )
+            qosTestOrderNumber++
+        }
+
+        if (failureCount != successCount && qosTestCategoryDescription != null) {
+            categories.add(
+                QosCategoryRecord(
+                    testUUID = testUUID,
+                    category = key,
+                    language = language,
+                    categoryDescription = qosTestCategoryDescription.descLocalized,
+                    categoryName = qosTestCategoryDescription.nameLocalized,
+                    failedCount = failureCount,
+                    successCount = successCount
+                )
+            )
+        }
+    }
+    return Pair(categories, results)
+}
