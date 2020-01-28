@@ -16,6 +16,9 @@ import at.specure.data.ControlServerSettings
 import at.specure.data.HistoryFilterOptions
 import at.specure.data.MapServerSettings
 import at.specure.data.TermsAndConditions
+import at.specure.data.repository.DeviceSyncRepository
+import at.specure.data.repository.DeviceSyncRepositoryImpl
+import at.specure.data.repository.HistoryRepository
 import at.specure.data.repository.IpCheckRepository
 import at.specure.data.repository.SettingsRepository
 import at.specure.data.repository.SettingsRepositoryImpl
@@ -153,4 +156,13 @@ class CoreModule {
     @Singleton
     fun provideCellLocationWatcher(context: Context, telephonyManager: TelephonyManager): CellLocationWatcher =
         CellLocationWatcherImpl(context, telephonyManager)
+
+    @Provides
+    fun provideDeviceSyncRepository(
+        context: Context,
+        controlServerClient: ControlServerClient,
+        clientUUID: ClientUUID,
+        historyRepository: HistoryRepository,
+        settingsRepository: SettingsRepository
+    ): DeviceSyncRepository = DeviceSyncRepositoryImpl(context, controlServerClient, clientUUID, historyRepository, settingsRepository)
 }

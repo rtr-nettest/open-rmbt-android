@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <androidx.core.widget.ContentLoadingProgressBar
+        android:id="@+id/progressBar"
+        style="?android:attr/progressBarStyle"
+        android:theme="@style/TextInputTheme"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+
+</layout>

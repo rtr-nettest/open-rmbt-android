@@ -39,7 +39,7 @@ abstract class BaseActivity : AppCompatActivity() {
     open fun onHandledException(exception: HandledException) {
         SimpleDialog.Builder()
             .messageText(exception.getText(this))
-            .positiveText(R.string.text_cancel_measurement)
+            .positiveText(R.string.button_close)
             .cancelable(false)
             .show(supportFragmentManager, DIALOG_DEFAULT_OK)
     }

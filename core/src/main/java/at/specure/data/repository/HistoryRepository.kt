@@ -16,4 +16,6 @@ interface HistoryRepository {
     ): PagedList.BoundaryCallback<History>
 
     fun refreshHistory(limit: Int, onLoadingCallback: (Boolean) -> Unit, onErrorCallback: (HandledException) -> Unit)
+
+    fun clearHistory()
 }

@@ -179,6 +179,21 @@
       "name": "MAP_MARKERS_ENDPOINT",
       "value": "tiles/markers",
       "visible": false
+    },
+    {
+      "name": "MAP_MARKER_SHOW_DETAILS_ROUTE",
+      "value": "en/Opentest?%s#noMMenu",
+      "visible": false
+    },
+    {
+      "name": "GET_SYNC_CODE_ROUTE",
+      "value": "sync",
+      "visible": false
+    },
+    {
+      "name": "SYNC_DEVICES_ROUTE",
+      "value": "sync",
+      "visible": false
     }
   ]
 }

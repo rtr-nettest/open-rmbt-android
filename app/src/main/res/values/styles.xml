@@ -135,4 +135,8 @@
         <item name="colorControlHighlight">@color/greenRipple</item>
     </style>
 
+    <style name="TextInputTheme" parent="AppTheme">
+        <item name="colorPrimary">@android:color/holo_green_dark</item>
+    </style>
+
 </resources>

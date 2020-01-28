@@ -45,9 +45,9 @@ abstract class BaseFragment : Fragment() {
     open fun onHandledException(exception: HandledException) {
         SimpleDialog.Builder()
             .messageText(exception.getText(requireContext()))
-            .positiveText(R.string.text_cancel_measurement)
+            .positiveText(R.string.button_close)
             .cancelable(false)
-            .show(requireFragmentManager(), DIALOG_DEFAULT_OK)
+            .show(parentFragmentManager, DIALOG_DEFAULT_OK)
     }
 
     /**

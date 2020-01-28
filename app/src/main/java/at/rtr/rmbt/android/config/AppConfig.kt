@@ -217,4 +217,16 @@ class AppConfig @Inject constructor(context: Context, private val serverSettings
     override var mapTilesEndpoint: String
         get() = getString(BuildConfig.MAP_TILES_ENDPOINT)
         set(value) = setString(BuildConfig.MAP_TILES_ENDPOINT, value)
+
+    override var mapMarkerShowDetailsRoute: String
+        get() = getString(BuildConfig.MAP_MARKER_SHOW_DETAILS_ROUTE)
+        set(value) = setString(BuildConfig.MAP_MARKER_SHOW_DETAILS_ROUTE, value)
+
+    override var getSyncCodeRoute: String
+        get() = getString(BuildConfig.GET_SYNC_CODE_ROUTE)
+        set(value) = setString(BuildConfig.GET_SYNC_CODE_ROUTE, value)
+
+    override var syncDevicesRoute: String
+        get() = getString(BuildConfig.SYNC_DEVICES_ROUTE)
+        set(value) = setString(BuildConfig.SYNC_DEVICES_ROUTE, value)
 }

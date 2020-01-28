@@ -210,4 +210,19 @@ interface Config {
      * End of url to obtain tiles for map screen, example "RMBTMapServer/tiles/{type}/{zoom}/{x}/{y}.png?map_options=all/download&statistical_method=0.5&period=180
      */
     var mapTilesEndpoint: String
+
+    /**
+     * Link suffix to obtain tiles for map screen, example "RMBTMapServer/tiles/{type}/{zoom}/{x}/{y}.png?map_options=all/download&statistical_method=0.5&period=180
+     */
+    var mapMarkerShowDetailsRoute: String
+
+    /**
+     * Endpoint to get sync code for current device
+     */
+    var getSyncCodeRoute: String
+
+    /**
+     * Endpoint to sync two devices
+     */
+    var syncDevicesRoute: String
 }

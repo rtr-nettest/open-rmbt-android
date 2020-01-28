@@ -720,3 +720,49 @@ data class EvalTimes(
     @SerializedName("full")
     val evalTimeWithLoadMillis: String?
 )
+
+@Keep
+class GetSyncCodeResponse(
+    /**
+     * List of sync codes??
+     */
+    val sync: List<GetSyncCodeResponseItem>
+) : BaseResponse()
+
+@Keep
+class DeviceSyncResponse(
+    /**
+     * List of sync codes??
+     */
+    val sync: List<SyncDeviceResponseItem>
+) : BaseResponse()
+
+@Keep
+class GetSyncCodeResponseItem(
+
+    /**
+     * Sync code to sync devices
+     */
+    @SerializedName("sync_code")
+    val syncCode: String,
+
+    val success: Boolean
+)
+
+@Keep
+class SyncDeviceResponseItem(
+
+    /**
+     * Message title to show
+     */
+    @SerializedName("msg_title")
+    val messageTitle: String,
+
+    /**
+     * Message text to show
+     */
+    @SerializedName("msg_text")
+    val messageText: String,
+
+    val success: Boolean
+)

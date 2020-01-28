@@ -68,5 +68,11 @@ class ControlServerProviderImpl(private val config: Config) : ControlEndpointPro
         get() = "$host/$mapRoute/${config.mapTilesEndpoint}"
 
     override val mapMarkerShowDetailsUrl: String
-        get() = "$host/en/Opentest?%s#noMMenu"
+        get() = "$host/${config.mapMarkerShowDetailsRoute}"
+
+    override val getSyncCodeUrl: String
+        get() = "$host$routePath/${config.getSyncCodeRoute}"
+
+    override val syncDevicesUrl: String
+        get() = "$host$routePath/${config.syncDevicesRoute}"
 }
