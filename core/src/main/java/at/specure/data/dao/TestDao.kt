@@ -6,6 +6,7 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Update
+import at.rtr.rmbt.client.helper.TestStatus
 import at.specure.data.Tables
 import at.specure.data.entity.QoSResultRecord
 import at.specure.data.entity.TestRecord
@@ -59,4 +60,7 @@ interface TestDao {
 
     @Query("UPDATE ${Tables.QOS_RESULT} SET isSubmitted = 1 WHERE uuid == :uuid")
     fun updateQoSTestIsSubmitted(uuid: String)
+
+    @Query("UPDATE ${Tables.TEST} SET lastQoSStatus=:status WHERE uuid == :uuid")
+    fun updateQoSTestStatus(uuid: String, status: TestStatus?)
 }

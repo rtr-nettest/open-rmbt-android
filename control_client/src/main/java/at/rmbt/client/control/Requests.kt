@@ -465,6 +465,12 @@ data class TestResultBody(
     var lastClientStatus: String?,
 
     /**
+     * Phase was the last done by the QoS test, provided like value from TestStatus except "ERROR" and "ABORT"
+     */
+    @SerializedName("last_qos_status")
+    var lastQoSStatus: String?,
+
+    /**
      * Stacktrace of IllegalNetworkChangeException exception grabbed from RMBTClient which was happened during the test.
      * May be null if test was success or cancelled
      */
