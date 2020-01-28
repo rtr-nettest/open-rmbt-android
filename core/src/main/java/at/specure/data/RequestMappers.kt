@@ -274,7 +274,8 @@ fun TestRecord.toRequest(
         submissionRetryCount = submissionRetryCount,
         testStatus = testFinishReason?.ordinal,
         lastClientStatus = lastClientStatus?.name,
-        testErrorCause = testErrorCause
+        testErrorCause = testErrorCause,
+        lastQoSStatus = lastQoSStatus?.name
     )
 }
 

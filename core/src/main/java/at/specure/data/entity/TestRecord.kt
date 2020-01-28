@@ -206,6 +206,11 @@ data class TestRecord(
     var lastClientStatus: TestStatus? = null,
 
     /**
+     * Phase which was the last done by the qos test
+     */
+    var lastQoSStatus: TestStatus? = null,
+
+    /**
      * Stacktrace of IllegalNetworkChangeException exception grabbed from RMBTClient which was happened during the test.
      * May be null if test was success or cancelled
      */

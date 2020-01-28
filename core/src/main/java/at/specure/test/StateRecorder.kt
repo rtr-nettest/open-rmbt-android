@@ -75,6 +75,7 @@ class StateRecorder @Inject constructor(
     private var signalStrengthInfo: SignalStrengthInfo? = null
     private var networkInfo: NetworkInfo? = null
     private var cellLocation: CellLocationInfo? = null
+    private var qosRunning = false
 
     var onReadyToSubmit: ((Boolean) -> Unit)? = null
 
@@ -126,6 +127,7 @@ class StateRecorder @Inject constructor(
         this.testUUID = testUUID
         this.testToken = testToken
         this.testStartTimeNanos = testStartTimeNanos
+        qosRunning = false
         saveTestInitialTestData(testUUID, loopUUID, testToken, testStartTimeNanos, threadNumber)
         saveLocationInfo()
         saveSignalStrengthInfo()
@@ -138,9 +140,9 @@ class StateRecorder @Inject constructor(
     }
 
     fun finish() {
-        // TODO finish
         testUUID = null
         testToken = null
+        qosRunning = false
     }
 
     private fun saveTestInitialTestData(testUUID: String, loopUUID: String?, testToken: String, testStartTimeNanos: Long, threadNumber: Int) {
@@ -375,6 +377,8 @@ class StateRecorder @Inject constructor(
         if (!waitQosResults) {
             testUUID = null
             testToken = null
+        } else {
+            qosRunning = true
         }
     }
 
@@ -383,19 +387,30 @@ class StateRecorder @Inject constructor(
         val token = testToken
         val data: JSONArray? = qosResult?.toJson()
         if (uuid != null && token != null && qosResult != null && data != null) {
+            repository.updateQoSTestStatus(uuid, TestStatus.QOS_END)
+            Timber.d("QOSLOG: ${TestStatus.QOS_END}")
             repository.saveQoSResults(uuid, token, data) {
                 onReadyToSubmit?.invoke(true)
             }
         }
+        testUUID = null
+        qosRunning = false
     }
 
     override fun onTestStatusUpdate(status: TestStatus?) {
         status?.let {
-            testRecord?.also {
-                it.status = status
+            if (qosRunning) {
+                testUUID?.let {
+                    repository.updateQoSTestStatus(it, status)
+                    Timber.d("QOSLOG: $status")
+                }
+            } else {
+                testRecord?.also {
+                    it.status = status
 
-                if (status != TestStatus.ERROR && status != TestStatus.ABORTED) {
-                    it.lastClientStatus = status
+                    if (status != TestStatus.ERROR && status != TestStatus.ABORTED) {
+                        it.lastClientStatus = status
+                    }
                 }
             }
         }

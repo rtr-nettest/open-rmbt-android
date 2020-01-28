@@ -1,6 +1,7 @@
 package at.specure.data.repository
 
 import at.rmbt.util.io
+import at.rtr.rmbt.client.helper.TestStatus
 import at.specure.data.CoreDatabase
 import at.specure.data.entity.CapabilitiesRecord
 import at.specure.data.entity.CellInfoRecord
@@ -316,5 +317,9 @@ class TestDataRepositoryImpl(db: CoreDatabase) : TestDataRepository {
         )
         testDao.insert(record)
         onUpdated.invoke()
+    }
+
+    override fun updateQoSTestStatus(testUUID: String, status: TestStatus?) = io {
+        testDao.updateQoSTestStatus(testUUID, status)
     }
 }

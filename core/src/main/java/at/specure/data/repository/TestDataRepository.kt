@@ -1,5 +1,6 @@
 package at.specure.data.repository
 
+import at.rtr.rmbt.client.helper.TestStatus
 import at.specure.data.entity.CapabilitiesRecord
 import at.specure.data.entity.GraphItemRecord
 import at.specure.data.entity.TestRecord
@@ -66,4 +67,6 @@ interface TestDataRepository {
     fun update(testRecord: TestRecord, onUpdated: () -> Unit)
 
     fun saveQoSResults(testUUID: String, testToken: String, qosData: JSONArray, onUpdated: () -> Unit)
+
+    fun updateQoSTestStatus(testUUID: String, status: TestStatus?)
 }
