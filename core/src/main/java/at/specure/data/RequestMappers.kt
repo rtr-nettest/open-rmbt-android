@@ -155,7 +155,7 @@ fun TestRecord.toRequest(
         pingList.map { it.toRequest() }
     }
 
-    val radioInfo: RadioInfoBody? = if (cellInfoList.isEmpty() && signalList.isEmpty()) {
+    var radioInfo: RadioInfoBody? = if (cellInfoList.isEmpty() && signalList.isEmpty()) {
         null
     } else {
         val cells: Map<String, CellInfoBody>? = if (cellInfoList.isEmpty()) {
@@ -186,6 +186,10 @@ fun TestRecord.toRequest(
         }
 
         RadioInfoBody(cells?.entries?.map { it.value }, signals)
+    }
+
+    if (radioInfo?.cells.isNullOrEmpty() && radioInfo?.signals.isNullOrEmpty()) {
+        radioInfo = null
     }
 
     val speedDetail: List<SpeedBody>? = if (speedInfoList.isEmpty()) {
