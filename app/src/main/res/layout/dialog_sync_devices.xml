@@ -13,9 +13,12 @@
   -->
 
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
 
     <data>
+
+        <import type="at.rtr.rmbt.android.ui.viewstate.SyncDeviceViewState.VisibilityState" />
 
         <variable
             name="state"
@@ -28,48 +31,148 @@
         android:background="@drawable/dialog_background"
         android:padding="@dimen/padding_large">
 
-
-        <androidx.appcompat.widget.AppCompatTextView
-            android:id="@+id/editTextValue"
-            style="@style/RobotoRegularStyle.Medium"
-            android:layout_width="0dp"
+        <androidx.appcompat.widget.AppCompatImageView
+            android:id="@+id/imageSync"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:gravity="center"
-            android:paddingStart="@dimen/padding_small"
-            android:paddingTop="@dimen/padding_medium"
-            android:paddingEnd="@dimen/padding_small"
-            android:paddingBottom="@dimen/padding_large"
-            android:text="@{state.currentDeviceSyncCode}"
-            android:textColor="@color/text_black_transparency_60"
+            android:layout_marginTop="@dimen/margin_24"
+            android:src="@drawable/ic_sync"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
-        <androidx.appcompat.widget.AppCompatButton
-            android:id="@+id/buttonOpenGpsSetting"
-            android:layout_width="0dp"
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/titleSync"
+            style="@style/RobotoMediumStyle.Large"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:background="@drawable/button_green_background"
-            android:text="@string/open_gps_setting_dialog_label_open_gps_setting"
-            android:textAllCaps="false"
-            android:textColor="@android:color/white"
+            android:layout_marginTop="@dimen/margin_32"
+            android:text="@{state.syncedTitle == null ? @string/title_sync : state.syncedTitle}"
+            android:textColor="@color/text_black_transparency_60"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/editTextValue" />
+            app:layout_constraintTop_toBottomOf="@+id/imageSync"
+            tools:text="@string/title_sync" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/labelSync"
+            style="@style/RobotoRegularStyle.Medium"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/margin_medium"
+            android:gravity="center"
+            android:paddingStart="@dimen/padding_small"
+            android:paddingTop="@dimen/padding_medium"
+            android:paddingEnd="@dimen/padding_small"
+            android:text="@{state.syncedText != null ? state.syncedText : state.visibilityState == VisibilityState.DESCRIPTION ? @string/text_sync_info : (state.visibilityState == VisibilityState.ENTER_CODE ? @string/text_sync_enter_code_desc : @string/text_sync_code_received)}"
+            android:textColor="@color/text_black_transparency_60"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/titleSync"
+            tools:text="@string/text_sync_info" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/textSyncCode"
+            style="@style/RobotoMediumStyle.ExtraLarge"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/margin_24"
+            android:paddingTop="@dimen/padding_medium"
+            android:text="@{state.currentDeviceSyncCode}"
+            android:textColor="@color/text_black_transparency_60"
+            android:visibility="gone"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/labelSync"
+            app:visibleOrGone="@{state.visibilityState == VisibilityState.SHOW_CODE}"
+            tools:text="a1b2c3d4e5"
+            tools:visibility="visible" />
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/inputCode"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/margin_52"
+            android:layout_marginTop="@dimen/margin_24"
+            android:layout_marginEnd="@dimen/margin_52"
+            android:gravity="center"
+            android:theme="@style/TextInputTheme"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/labelSync"
+            app:visibleOrGone="@{state.visibilityState == VisibilityState.ENTER_CODE}">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/editCode"
+                style="@style/RobotoMediumStyle.ExtraLarge"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:hint="@string/hint_sync_code"
+                android:maxLength="12"
+                android:maxLines="1"
+                android:singleLine="true"
+                android:text="@={state.otherDeviceSyncCode}"
+                android:textColor="@color/text_black_transparency_60"
+                android:textColorHint="@color/text_black_transparency_20"
+                android:theme="@style/TextInputTheme" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <androidx.constraintlayout.widget.Barrier
+            android:id="@+id/barrier"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:barrierDirection="bottom"
+            app:constraint_referenced_ids="inputCode,textSyncCode" />
 
         <androidx.appcompat.widget.AppCompatButton
-            android:id="@+id/buttonCancel"
+            android:id="@+id/buttonRequestCode"
             style="?android:attr/borderlessButtonStyle"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/margin_large"
+            android:background="@drawable/button_green_background"
+            android:text="@string/button_sync_request_code"
+            android:textColor="@android:color/white"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/barrier"
+            app:visibleOrGone="@{state.visibilityState == VisibilityState.DESCRIPTION}" />
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/buttonEnterCode"
+            style="?android:attr/borderlessButtonStyle"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/margin_small"
+            android:layout_marginBottom="@dimen/margin_medium"
             android:background="@drawable/button_white_background"
             android:elevation="0dp"
-            android:text="@string/open_gps_setting_dialog_label_cancel"
-            android:textAllCaps="false"
+            android:text="@string/button_sync_enter_code"
             android:textColor="@color/colorAccent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/buttonOpenGpsSetting" />
+            app:layout_constraintTop_toBottomOf="@+id/buttonRequestCode"
+            app:visibleOrGone="@{state.visibilityState == VisibilityState.DESCRIPTION || state.visibilityState == VisibilityState.ENTER_CODE}" />
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/buttonClose"
+            style="?android:attr/borderlessButtonStyle"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/margin_24"
+            android:layout_marginBottom="@dimen/margin_medium"
+            android:background="@drawable/button_white_background"
+            android:elevation="0dp"
+            android:text="@string/button_close"
+            android:textColor="@color/colorAccent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/barrier"
+            app:visibleOrGone="@{state.visibilityState == VisibilityState.SHOW_CODE || state.visibilityState == VisibilityState.SYNC_SUCCESS}"
+            tools:visibility="gone" />
 
 
     </androidx.constraintlayout.widget.ConstraintLayout>

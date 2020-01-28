@@ -13,12 +13,12 @@ import at.specure.config.ControlServerProviderImpl
 import at.specure.config.IpEndpointProviderImpl
 import at.specure.data.ClientUUID
 import at.specure.data.ControlServerSettings
-import at.specure.data.CoreDatabase
 import at.specure.data.HistoryFilterOptions
 import at.specure.data.MapServerSettings
 import at.specure.data.TermsAndConditions
 import at.specure.data.repository.DeviceSyncRepository
 import at.specure.data.repository.DeviceSyncRepositoryImpl
+import at.specure.data.repository.HistoryRepository
 import at.specure.data.repository.IpCheckRepository
 import at.specure.data.repository.SettingsRepository
 import at.specure.data.repository.SettingsRepositoryImpl
@@ -160,8 +160,9 @@ class CoreModule {
     @Provides
     fun provideDeviceSyncRepository(
         context: Context,
-        coreDatabase: CoreDatabase,
         controlServerClient: ControlServerClient,
-        clientUUID: ClientUUID
-    ): DeviceSyncRepository = DeviceSyncRepositoryImpl(context, coreDatabase, controlServerClient, clientUUID)
+        clientUUID: ClientUUID,
+        historyRepository: HistoryRepository,
+        settingsRepository: SettingsRepository
+    ): DeviceSyncRepository = DeviceSyncRepositoryImpl(context, controlServerClient, clientUUID, historyRepository, settingsRepository)
 }

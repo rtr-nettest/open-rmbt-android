@@ -18,6 +18,6 @@ interface DeviceSyncRepository {
     data class SyncDeviceResult(
         val dialogTitle: String,
         val dialogText: String,
-        val syncCode: String
+        val success: Boolean
     )
 }

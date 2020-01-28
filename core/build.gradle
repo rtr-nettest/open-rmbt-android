@@ -48,6 +48,7 @@ dependencies {
     implementation "androidx.appcompat:appcompat:$versions.appcompat"
     implementation "androidx.work:work-runtime-ktx:$versions.work_manager"
     api "androidx.paging:paging-runtime-ktx:$versions.paging"
+    implementation "androidx.lifecycle:lifecycle-service:$versions.lifecycle_service"
 
     implementation "android.arch.persistence.room:runtime:$versions.room"
     kapt "android.arch.persistence.room:compiler:$versions.room"

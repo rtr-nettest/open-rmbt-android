@@ -71,8 +71,8 @@ class ControlServerProviderImpl(private val config: Config) : ControlEndpointPro
         get() = "$host/${config.mapMarkerShowDetailsRoute}"
 
     override val getSyncCodeUrl: String
-        get() = "$host/${config.getSyncCodeRoute}"
+        get() = "$host$routePath/${config.getSyncCodeRoute}"
 
     override val syncDevicesUrl: String
-        get() = "$host/${config.syncDevicesRoute}"
+        get() = "$host$routePath/${config.syncDevicesRoute}"
 }

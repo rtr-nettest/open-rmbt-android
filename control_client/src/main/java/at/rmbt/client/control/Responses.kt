@@ -722,21 +722,35 @@ data class EvalTimes(
 )
 
 @Keep
-class SyncResponse(
+class GetSyncCodeResponse(
     /**
      * List of sync codes??
      */
-    val sync: List<SyncResponseItem>
+    val sync: List<GetSyncCodeResponseItem>
 ) : BaseResponse()
 
 @Keep
-class SyncResponseItem(
+class DeviceSyncResponse(
+    /**
+     * List of sync codes??
+     */
+    val sync: List<SyncDeviceResponseItem>
+) : BaseResponse()
+
+@Keep
+class GetSyncCodeResponseItem(
 
     /**
      * Sync code to sync devices
      */
     @SerializedName("sync_code")
     val syncCode: String,
+
+    val success: Boolean
+)
+
+@Keep
+class SyncDeviceResponseItem(
 
     /**
      * Message title to show

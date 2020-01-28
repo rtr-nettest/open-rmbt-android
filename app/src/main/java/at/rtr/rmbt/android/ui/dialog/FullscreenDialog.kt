@@ -8,13 +8,16 @@ import android.view.WindowManager
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.FragmentManager
+import androidx.lifecycle.lifecycleScope
 import at.rtr.rmbt.android.R
+import kotlinx.coroutines.CoroutineScope
+import kotlin.coroutines.CoroutineContext
 
-open class FullscreenDialog : DialogFragment() {
+open class FullscreenDialog : DialogFragment(), CoroutineScope {
 
     open val gravity = Gravity.CENTER_HORIZONTAL or Gravity.TOP
 
-    open val dimBackground = true
+    open val dimBackground = false
 
     open val cancelable = true
 
@@ -73,4 +76,7 @@ open class FullscreenDialog : DialogFragment() {
             dialog?.show()
         }
     }
+
+    override val coroutineContext: CoroutineContext
+        get() = lifecycleScope.coroutineContext
 }

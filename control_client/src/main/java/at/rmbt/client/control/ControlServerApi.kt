@@ -92,11 +92,11 @@ interface ControlServerApi {
      * Request to get sync code for current device
      */
     @POST
-    fun getSyncCode(@Url url: String, @Body body: GetSyncCodeBody): Call<SyncResponse>
+    fun getSyncCode(@Url url: String, @Body body: GetSyncCodeBody): Call<GetSyncCodeResponse>
 
     /**
      * Request to sync two devices
      */
     @POST
-    fun syncDevices(@Url url: String, @Body body: SyncDevicesBody): Call<SyncResponse>
+    fun syncDevices(@Url url: String, @Body body: SyncDevicesBody): Call<DeviceSyncResponse>
 }

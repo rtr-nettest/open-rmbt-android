@@ -196,5 +196,16 @@
     <string name="title_marker_item_details">Mehr details anzeigen</string>
 
     <string name="text_failed_to_load_results">Daten konnten nicht geladen werden.\nZum Aktualisieren bitte nach unten ziehen.</string>
+
+    <string name="title_sync">Synchronisieren</string>
+    <string name="text_sync_info">Es besteht die Möglichkeit die Messergebnisse von anderen Endgeräten zusammenzuführen. Dazu müssen Sie einen bereits erhaltenen Synchronisations-Code eingeben oder einen neuen anfordern.</string>
+    <string name="button_sync_request_code">Code anfordern</string>
+    <string name="button_sync_enter_code">Code eingeben</string>
+    <string name="text_sync_code_received">Bitte geben Sie den unten angezeigten Code auf Ihrem anderen Gerät ein, um diese zu synchronisieren.</string>
+    <string name="text_sync_enter_code_desc">Geben Sie hier bitte den Code ein, den Sie auf Ihrem anderen Gerät angefordert haben.</string>
+    <string name="button_close">Schließen</string>
+    <string name="toast_sync_code_copied_to_clipboard">Kopiert</string>
+    <string name="hint_sync_code">Code</string>
+    <string name="error_sync_code_short">Der Code muss aus 12 Zeichen bestehen</string>
 </resources>
 

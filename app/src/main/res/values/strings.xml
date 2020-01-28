@@ -210,4 +210,15 @@
     <string name="title_marker_item_details">Show more details</string>
 
     <string name="text_failed_to_load_results">Failed to load data.\nPlease pull down to refresh.</string>
+
+    <string name="title_sync">Synchronization</string>
+    <string name="text_sync_info">You have the possibility to join the results from two different devices. To do so, you have to enter an already requested synchronisation code or request a new one.</string>
+    <string name="button_sync_request_code">Request Code</string>
+    <string name="button_sync_enter_code">Enter Code</string>
+    <string name="text_sync_code_received">Please enter the code shown below on your other device to synchronise them.</string>
+    <string name="text_sync_enter_code_desc">Please enter the code you received on your other device.</string>
+    <string name="button_close">Close</string>
+    <string name="toast_sync_code_copied_to_clipboard">Copied</string>
+    <string name="hint_sync_code">Code</string>
+    <string name="error_sync_code_short">The code length must be 12</string>
 </resources>

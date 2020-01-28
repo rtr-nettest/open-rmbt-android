@@ -63,7 +63,7 @@ class HistoryFragment : BaseFragment() {
         }
 
         binding.buttonSync.setOnClickListener {
-            SyncDevicesDialog.show(requireFragmentManager())
+            SyncDevicesDialog.show(parentFragmentManager)
         }
 
         activity?.window?.changeStatusBarColor(ToolbarTheme.WHITE)

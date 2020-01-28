@@ -55,5 +55,8 @@
 
     <!-- Result screen -->
     <dimen name="result_view_pager_height">160dp</dimen>
+    <dimen name="margin_24">24dp</dimen>
+    <dimen name="margin_32">32dp</dimen>
+    <dimen name="margin_52">52dp</dimen>
 
 </resources>

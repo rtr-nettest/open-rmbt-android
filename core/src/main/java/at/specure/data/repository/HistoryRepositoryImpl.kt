@@ -92,4 +92,8 @@ class HistoryRepositoryImpl(
         loadItems(0, limit).onFailure(onErrorCallback)
         onLoadingCallback.invoke(false)
     }
+
+    override fun clearHistory() {
+        historyDao.clear()
+    }
 }
