@@ -12,13 +12,17 @@ import at.specure.data.Classification
 import at.specure.data.ClientUUID
 import at.specure.data.CoreDatabase
 import at.specure.data.entity.QoeInfoRecord
+import at.specure.data.entity.QosCategoryRecord
+import at.specure.data.entity.QosTestItemRecord
 import at.specure.data.entity.TestResultDetailsRecord
 import at.specure.data.entity.TestResultGraphItemRecord
 import at.specure.data.entity.TestResultRecord
 import at.specure.data.toModel
 import at.specure.data.toModelList
+import at.specure.data.toModels
 import at.specure.data.toQoeModel
 import at.specure.result.QoECategory
+import at.specure.result.QoSCategory
 import at.specure.util.exception.DataMissingException
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
@@ -32,6 +36,8 @@ class TestResultsRepositoryImpl(
 ) : TestResultsRepository {
 
     private val qoeInfoDao = db.qoeInfoDao()
+    private val qosCategoryDao = db.qosCategoryDao()
+    private val qosTestItemDao = db.qosTestItemDao()
     private val testResultDao = db.testResultDao()
     private val testResultDetailsDao = db.testResultDetailsDao()
     private val testResultGraphItemDao = db.testResultGraphItemDao()
@@ -61,6 +67,14 @@ class TestResultsRepositoryImpl(
     }
 
     override fun getTestDetailsResult(testUUID: String): LiveData<List<TestResultDetailsRecord>> = testResultDetailsDao.get(testUUID)
+
+    override fun getQosTestCategoriesResult(testUUID: String): LiveData<List<QosCategoryRecord>> {
+        return qosCategoryDao.get(testUUID)
+    }
+
+    override fun getQosItemsResult(testUUID: String, category: QoSCategory): LiveData<List<QosTestItemRecord>> {
+        return qosTestItemDao.get(testUUID, category)
+    }
 
     override fun loadTestDetailsResult(testUUID: String) = flow {
         val clientUUID = clientUUID.value
@@ -152,6 +166,13 @@ class TestResultsRepositoryImpl(
                     successCount++
                 }
             }
+
+            val qosModelPair = response.toModels(testUUID, Locale.getDefault().language)
+            qosModelPair.first.forEach {
+                qosCategoryDao.clearQoSInsert(it)
+            }
+            qosTestItemDao.clearQosItemsInsert(qosModelPair.second)
+
             val percentage: Float = (successCount.toFloat() / (successCount + failureCount).toFloat())
             qoeInfoDao.clearQoSInsert(
                 QoeInfoRecord(

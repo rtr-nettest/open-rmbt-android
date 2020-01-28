@@ -19,15 +19,15 @@ class ResultChartViewModel @Inject constructor(
 
     fun loadGraphItems(): LiveData<List<TestResultGraphItemRecord>?> {
 
-        when (state.chartType) {
+        return when (state.chartType) {
             ResultChartType.DOWNLOAD -> {
-                return testResultsRepository.getServerTestResultDownloadGraphItems(state.openTestUUID)
+                testResultsRepository.getServerTestResultDownloadGraphItems(state.openTestUUID)
             }
             ResultChartType.UPLOAD -> {
-                return testResultsRepository.getServerTestResultUploadGraphItems(state.openTestUUID)
+                testResultsRepository.getServerTestResultUploadGraphItems(state.openTestUUID)
             }
             else -> {
-                return testResultsRepository.getServerTestResultPingGraphItems(state.openTestUUID)
+                testResultsRepository.getServerTestResultPingGraphItems(state.openTestUUID)
             }
         }
     }

@@ -9,6 +9,9 @@ import at.specure.info.network.MobileNetworkType
 import at.specure.measurement.MeasurementState
 import org.json.JSONArray
 import at.specure.result.QoECategory
+import at.specure.result.QoSCategory
+import com.google.gson.JsonObject
+import com.google.gson.JsonParser
 
 class TypeConverter {
 
@@ -75,6 +78,12 @@ class TypeConverter {
     fun valueToClassification(value: Int): Classification = Classification.fromValue(value)
 
     @TypeConverter
+    fun jsonObjectToValue(jsonObject: JsonObject): String = jsonObject.toString()
+
+    @TypeConverter
+    fun valueToJsonObject(value: String): JsonObject = JsonParser().parse(value).asJsonObject
+
+    @TypeConverter
     fun jsonArrayToValue(jsonArray: JSONArray): String = jsonArray.toString()
 
     @TypeConverter
@@ -94,4 +103,10 @@ class TypeConverter {
         if (value == null) return null
         return TestFinishReason.values()[value]
     }
+
+    @TypeConverter
+    fun qosCategoryToValue(type: QoSCategory): String = type.categoryName
+
+    @TypeConverter
+    fun valueToQosCategory(value: String): QoSCategory = QoSCategory.fromString(value)
 }

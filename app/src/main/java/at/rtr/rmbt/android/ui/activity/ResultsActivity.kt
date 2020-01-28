@@ -88,7 +88,6 @@ class ResultsActivity : BaseActivity(), OnMapReadyCallback {
                 }
             }
         }
-
         viewModel.testResultDetailsLiveData.listen(this) {
             Timber.d("found ${it.size} rows of details")
             // todo: display result details
