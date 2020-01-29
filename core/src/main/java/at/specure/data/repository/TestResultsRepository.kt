@@ -3,6 +3,7 @@ package at.specure.data.repository
 import androidx.lifecycle.LiveData
 import at.specure.data.entity.QoeInfoRecord
 import at.specure.data.entity.QosCategoryRecord
+import at.specure.data.entity.QosTestGoalRecord
 import at.specure.data.entity.QosTestItemRecord
 import at.specure.data.entity.TestResultDetailsRecord
 import at.specure.data.entity.TestResultGraphItemRecord
@@ -33,4 +34,6 @@ interface TestResultsRepository {
     fun getQosTestCategoriesResult(testUUID: String): LiveData<List<QosCategoryRecord>>
 
     fun getQosItemsResult(testUUID: String, category: QoSCategory): LiveData<List<QosTestItemRecord>>
+
+    fun getQosGoalsResult(testUUID: String, testItemId: Long): LiveData<List<QosTestGoalRecord>>
 }

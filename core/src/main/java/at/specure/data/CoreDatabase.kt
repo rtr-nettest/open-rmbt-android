@@ -14,6 +14,7 @@ import at.specure.data.dao.PermissionStatusDao
 import at.specure.data.dao.PingDao
 import at.specure.data.dao.QoeInfoDao
 import at.specure.data.dao.QosCategoryDao
+import at.specure.data.dao.QosTestGoalDao
 import at.specure.data.dao.QosTestItemDao
 import at.specure.data.dao.SignalDao
 import at.specure.data.dao.SpeedDao
@@ -33,6 +34,7 @@ import at.specure.data.entity.PingRecord
 import at.specure.data.entity.QoSResultRecord
 import at.specure.data.entity.QoeInfoRecord
 import at.specure.data.entity.QosCategoryRecord
+import at.specure.data.entity.QosTestGoalRecord
 import at.specure.data.entity.QosTestItemRecord
 import at.specure.data.entity.SignalRecord
 import at.specure.data.entity.SpeedRecord
@@ -54,6 +56,7 @@ import at.specure.data.entity.TestWlanRecord
         PingRecord::class,
         QoeInfoRecord::class,
         QosCategoryRecord::class,
+        QosTestGoalRecord::class,
         QosTestItemRecord::class,
         QoSResultRecord::class,
         SignalRecord::class,
@@ -65,7 +68,7 @@ import at.specure.data.entity.TestWlanRecord
         TestWlanRecord::class,
         TestResultDetailsRecord::class,
         MarkerMeasurementRecord::class],
-    version = 46
+    version = 47
 )
 @TypeConverters(TypeConverter::class)
 abstract class CoreDatabase : RoomDatabase() {
@@ -80,6 +83,7 @@ abstract class CoreDatabase : RoomDatabase() {
     abstract fun pingDao(): PingDao
     abstract fun qoeInfoDao(): QoeInfoDao
     abstract fun qosCategoryDao(): QosCategoryDao
+    abstract fun qosTestGoalDao(): QosTestGoalDao
     abstract fun qosTestItemDao(): QosTestItemDao
     abstract fun signalDao(): SignalDao
     abstract fun speedDao(): SpeedDao

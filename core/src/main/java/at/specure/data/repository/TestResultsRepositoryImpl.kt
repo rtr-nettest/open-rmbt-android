@@ -13,6 +13,7 @@ import at.specure.data.ClientUUID
 import at.specure.data.CoreDatabase
 import at.specure.data.entity.QoeInfoRecord
 import at.specure.data.entity.QosCategoryRecord
+import at.specure.data.entity.QosTestGoalRecord
 import at.specure.data.entity.QosTestItemRecord
 import at.specure.data.entity.TestResultDetailsRecord
 import at.specure.data.entity.TestResultGraphItemRecord
@@ -37,6 +38,7 @@ class TestResultsRepositoryImpl(
 
     private val qoeInfoDao = db.qoeInfoDao()
     private val qosCategoryDao = db.qosCategoryDao()
+    private val qosTestGoalDao = db.qosTestGoalDao()
     private val qosTestItemDao = db.qosTestItemDao()
     private val testResultDao = db.testResultDao()
     private val testResultDetailsDao = db.testResultDetailsDao()
@@ -74,6 +76,10 @@ class TestResultsRepositoryImpl(
 
     override fun getQosItemsResult(testUUID: String, category: QoSCategory): LiveData<List<QosTestItemRecord>> {
         return qosTestItemDao.get(testUUID, category)
+    }
+
+    override fun getQosGoalsResult(testUUID: String, testItemId: Long): LiveData<List<QosTestGoalRecord>> {
+        return qosTestGoalDao.get(testUUID, testItemId)
     }
 
     override fun loadTestDetailsResult(testUUID: String) = flow {
@@ -172,6 +178,7 @@ class TestResultsRepositoryImpl(
                 qosCategoryDao.clearQoSInsert(it)
             }
             qosTestItemDao.clearQosItemsInsert(qosModelPair.second)
+            qosTestGoalDao.clearQosGoalsInsert(qosModelPair.third)
 
             val percentage: Float = (successCount.toFloat() / (successCount + failureCount).toFloat())
             qoeInfoDao.clearQoSInsert(
