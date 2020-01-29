@@ -12,25 +12,16 @@ import at.specure.data.entity.TestResultGraphItemRecord
 @Dao
 abstract class TestResultGraphItemDao {
 
-    @Query("SELECT * from ${Tables.TEST_RESULT_GRAPH_ITEM} WHERE testOpenUUID == :testUUID AND type == ${TestResultGraphItemRecord.RESULT_GRAPH_ITEM_TYPE_UPLOAD} ORDER BY time ASC")
-    abstract fun getUploadGraphLiveData(testUUID: String): LiveData<List<TestResultGraphItemRecord>?>
+    @Query("SELECT * from ${Tables.TEST_RESULT_GRAPH_ITEM} WHERE testOpenUUID == :testUUID AND type == :typeValue ORDER BY time ASC")
+    abstract fun getGraphDataLiveData(testUUID: String, typeValue: Int): LiveData<List<TestResultGraphItemRecord>>
 
-    @Query("SELECT * from ${Tables.TEST_RESULT_GRAPH_ITEM} WHERE testOpenUUID == :testUUID AND type == ${TestResultGraphItemRecord.RESULT_GRAPH_ITEM_TYPE_DOWNLOAD} ORDER BY time ASC")
-    abstract fun getDownloadGraphLiveData(testUUID: String): LiveData<List<TestResultGraphItemRecord>?>
-
-    @Query("SELECT * from ${Tables.TEST_RESULT_GRAPH_ITEM} WHERE testOpenUUID == :testUUID AND type == ${TestResultGraphItemRecord.RESULT_GRAPH_ITEM_TYPE_PING} ORDER BY time ASC")
-    abstract fun getPingGraphLiveData(testUUID: String): LiveData<List<TestResultGraphItemRecord>?>
-
-    @Query("SELECT * from ${Tables.TEST_RESULT_GRAPH_ITEM} WHERE testOpenUUID == :testUUID AND type == ${TestResultGraphItemRecord.RESULT_GRAPH_ITEM_TYPE_SIGNAL} ORDER BY time ASC")
-    abstract fun getSignalGraphLiveData(testUUID: String): LiveData<List<TestResultGraphItemRecord>?>
-
-    @Query("DELETE FROM ${Tables.TEST_RESULT_GRAPH_ITEM} WHERE (testOpenUUID == :testOpenUUID AND type == :type)")
-    abstract fun removeGraphItem(testOpenUUID: String, type: Int)
+    @Query("DELETE FROM ${Tables.TEST_RESULT_GRAPH_ITEM} WHERE (testOpenUUID == :testOpenUUID AND type == :typeValue)")
+    abstract fun removeGraphItem(testOpenUUID: String, typeValue: Int)
 
     @Transaction
     open fun clearInsertItems(graphItems: List<TestResultGraphItemRecord>) {
         if (!graphItems.isNullOrEmpty()) {
-            removeGraphItem(graphItems.first().testOpenUUID, graphItems.first().type)
+            removeGraphItem(graphItems.first().testOpenUUID, graphItems.first().type.typeValue)
             insertItem(graphItems)
         }
     }

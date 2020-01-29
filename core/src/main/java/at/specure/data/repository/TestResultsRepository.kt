@@ -23,13 +23,7 @@ interface TestResultsRepository {
 
     fun getTestDetailsResult(testUUID: String): LiveData<List<TestResultDetailsRecord>>
 
-    fun getServerTestResultDownloadGraphItems(openTestUUID: String): LiveData<List<TestResultGraphItemRecord>?>
-
-    fun getServerTestResultUploadGraphItems(openTestUUID: String): LiveData<List<TestResultGraphItemRecord>?>
-
-    fun getServerTestResultPingGraphItems(openTestUUID: String): LiveData<List<TestResultGraphItemRecord>?>
-
-    fun getServerTestResultSignalGraphItems(openTestUUID: String): LiveData<List<TestResultGraphItemRecord>?>
+    fun getGraphDataLiveData(openTestUUID: String, type: TestResultGraphItemRecord.Type): LiveData<List<TestResultGraphItemRecord>>
 
     fun getQosTestCategoriesResult(testUUID: String): LiveData<List<QosCategoryRecord>>
 

@@ -78,20 +78,20 @@ open class SignalStrengthInfo(
 ) {
 
     companion object {
-        private const val WIFI_MIN_SIGNAL_VALUE = -100
-        private const val WIFI_MAX_SIGNAL_VALUE = -30
+        const val WIFI_MIN_SIGNAL_VALUE = -100
+        const val WIFI_MAX_SIGNAL_VALUE = -30
 
-        private const val CELLULAR_SIGNAL_MIN = -110
-        private const val CELLULAR_SIGNAL_MAX = -50
+        const val CELLULAR_SIGNAL_MIN = -110
+        const val CELLULAR_SIGNAL_MAX = -50
 
-        private const val LTE_RSRP_SIGNAL_MIN = -130
-        private const val LTE_RSRP_SIGNAL_MAX = -70
+        const val LTE_RSRP_SIGNAL_MIN = -130
+        const val LTE_RSRP_SIGNAL_MAX = -70
 
-        private const val WCDMA_RSRP_SIGNAL_MIN = -120
-        private const val WCDMA_RSRP_SIGNAL_MAX = -24
+        const val WCDMA_RSRP_SIGNAL_MIN = -120
+        const val WCDMA_RSRP_SIGNAL_MAX = -24
 
-        private const val NR_RSRP_SIGNAL_MIN = -140
-        private const val NR_RSRP_SIGNAL_MAX = -44
+        const val NR_RSRP_SIGNAL_MIN = -140
+        const val NR_RSRP_SIGNAL_MAX = -44
 
         fun from(signal: CellSignalStrengthLte): SignalStrengthInfoLte = SignalStrengthInfoLte(
             transport = TransportType.CELLULAR,

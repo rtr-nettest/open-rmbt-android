@@ -33,12 +33,26 @@ data class TestResultGraphItemRecord(
     /**
      * type of the graph value
      */
-    val type: Int
+    val type: Type
 ) {
-    companion object {
-        const val RESULT_GRAPH_ITEM_TYPE_DOWNLOAD = 1
-        const val RESULT_GRAPH_ITEM_TYPE_UPLOAD = 2
-        const val RESULT_GRAPH_ITEM_TYPE_PING = 3
-        const val RESULT_GRAPH_ITEM_TYPE_SIGNAL = 4
+
+    enum class Type(val typeValue: Int) {
+        DOWNLOAD(0),
+        UPLOAD(1),
+        PING(2),
+        SIGNAL(3);
+
+        companion object {
+
+            fun fromValue(value: Int): Type {
+                for (type in values()) {
+                    if (type.typeValue == value) {
+                        return type
+                    }
+                }
+
+                throw IllegalArgumentException("Type not found for value $value")
+            }
+        }
     }
 }

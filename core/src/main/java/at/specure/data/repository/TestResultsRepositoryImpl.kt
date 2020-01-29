@@ -52,21 +52,8 @@ class TestResultsRepositoryImpl(
         return testResultDao.get(testUUID)
     }
 
-    override fun getServerTestResultDownloadGraphItems(openTestUUID: String): LiveData<List<TestResultGraphItemRecord>?> {
-        return testResultGraphItemDao.getDownloadGraphLiveData(openTestUUID)
-    }
-
-    override fun getServerTestResultUploadGraphItems(openTestUUID: String): LiveData<List<TestResultGraphItemRecord>?> {
-        return testResultGraphItemDao.getUploadGraphLiveData(openTestUUID)
-    }
-
-    override fun getServerTestResultPingGraphItems(openTestUUID: String): LiveData<List<TestResultGraphItemRecord>?> {
-        return testResultGraphItemDao.getPingGraphLiveData(openTestUUID)
-    }
-
-    override fun getServerTestResultSignalGraphItems(openTestUUID: String): LiveData<List<TestResultGraphItemRecord>?> {
-        return testResultGraphItemDao.getSignalGraphLiveData(openTestUUID)
-    }
+    override fun getGraphDataLiveData(openTestUUID: String, type: TestResultGraphItemRecord.Type): LiveData<List<TestResultGraphItemRecord>> =
+        testResultGraphItemDao.getGraphDataLiveData(openTestUUID, type.typeValue)
 
     override fun getTestDetailsResult(testUUID: String): LiveData<List<TestResultDetailsRecord>> = testResultDetailsDao.get(testUUID)
 
@@ -105,14 +92,14 @@ class TestResultsRepositoryImpl(
             testResultGraphItemDao.clearInsertItems(response.speedCurve.download.map {
                 it.toModel(
                     openTestUUID,
-                    TestResultGraphItemRecord.RESULT_GRAPH_ITEM_TYPE_DOWNLOAD
+                    TestResultGraphItemRecord.Type.DOWNLOAD
                 )
             })
 
             testResultGraphItemDao.clearInsertItems(response.speedCurve.upload.map {
                 it.toModel(
                     openTestUUID,
-                    TestResultGraphItemRecord.RESULT_GRAPH_ITEM_TYPE_UPLOAD
+                    TestResultGraphItemRecord.Type.UPLOAD
                 )
             })
 

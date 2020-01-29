@@ -5,7 +5,9 @@ import android.graphics.Canvas
 import android.graphics.Paint
 import android.util.AttributeSet
 import at.rtr.rmbt.android.R
+import at.specure.data.NetworkTypeCompat
 import at.specure.data.entity.TestResultGraphItemRecord
+import kotlin.math.abs
 import kotlin.math.ceil
 
 class PingChart @JvmOverloads constructor(
@@ -41,7 +43,7 @@ class PingChart @JvmOverloads constructor(
                 val padding = barWidth / 4.0f
                 for (index in items.indices) {
 
-                    val left = padding + (barWidth*index)
+                    val left = padding + (barWidth * index)
                     val right = left + (barWidth / 2)
                     val top = getChartHeight() * (1.0f - (items[index].value.toFloat() / it.toFloat()))
                     val bottom = getChartHeight()
@@ -50,6 +52,31 @@ class PingChart @JvmOverloads constructor(
                 }
             }
         }
+    }
+
+    /**
+     * This function is use for calculate path
+     */
+    fun addGraphItems(graphItems: List<TestResultGraphItemRecord>?, networkType: NetworkTypeCompat) {
+        if (graphItems == null) {
+            addGraphItems(null)
+        } else {
+            val items = graphItems.map {
+                TestResultGraphItemRecord(
+                    id = it.id,
+                    time = it.time,
+                    value = calculateLevel(it.value, networkType),
+                    type = it.type,
+                    testOpenUUID = it.testOpenUUID
+                )
+            }
+            addGraphItems(items)
+        }
+    }
+
+    private fun calculateLevel(value: Long, networkType: NetworkTypeCompat): Long {
+        val percentage = ((value - networkType.minSignalValue) * 100) / (networkType.maxSignalValue - networkType.minSignalValue)
+        return abs(percentage)
     }
 
     /**
@@ -75,6 +102,7 @@ class PingChart @JvmOverloads constructor(
         maxValue = gapList.maxBy { it }
         return gapList
     }
+
     fun reset() {
         invalidate()
     }
