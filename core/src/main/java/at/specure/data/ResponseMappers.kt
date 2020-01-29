@@ -19,6 +19,7 @@ import at.specure.data.entity.History
 import at.specure.data.entity.MarkerMeasurementRecord
 import at.specure.data.entity.QoeInfoRecord
 import at.specure.data.entity.QosCategoryRecord
+import at.specure.data.entity.QosTestGoalRecord
 import at.specure.data.entity.QosTestItemRecord
 import at.specure.data.entity.TestResultDetailsRecord
 import at.specure.data.entity.TestResultGraphItemRecord
@@ -154,10 +155,31 @@ fun MarkerMeasurementsResponse.toModel(): MarkerMeasurementRecord =
         timeString
     )
 
-fun QosTestResultDetailResponse.toModels(testUUID: String, language: String): Pair<List<QosCategoryRecord>, List<QosTestItemRecord>> {
+fun QosTestResultDetailResponse.toModels(
+    testUUID: String,
+    language: String
+): Triple<List<QosCategoryRecord>, List<QosTestItemRecord>, List<QosTestGoalRecord>> {
 
     val categories = mutableListOf<QosCategoryRecord>()
     val results = mutableListOf<QosTestItemRecord>()
+    val goals = mutableListOf<QosTestGoalRecord>()
+
+    this.qosResultDetailsDesc.forEach { qosGoal ->
+        val qoSCategory = QoSCategory.fromString(qosGoal.testCategory)
+        val success = qosGoal.resultStatus.equals("ok", true)
+        qosGoal.qosTestUids.forEach { qosTestId ->
+            goals.add(
+                QosTestGoalRecord(
+                    testUUID = testUUID,
+                    qosTestId = qosTestId,
+                    language = language,
+                    category = qoSCategory,
+                    success = success,
+                    description = qosGoal.resultDescription
+                )
+            )
+        }
+    }
 
     var qosResultDescMap: Map<QoSCategory, List<QosTestResult>> = EnumMap(QoSCategory::class.java)
     this.qosResultDetails.forEach { result ->
@@ -207,8 +229,7 @@ fun QosTestResultDetailResponse.toModels(testUUID: String, language: String): Pa
                     testDescription = result.testDescription,
                     testNumber = qosTestOrderNumber,
                     durationNanos = result.result.get("duration_ns").asLong,
-                    startTimeNanos = result.result.get("start_time_ns").asLong,
-                    resultDetails = result.result
+                    startTimeNanos = result.result.get("start_time_ns").asLong
                 )
             )
             qosTestOrderNumber++
@@ -228,5 +249,5 @@ fun QosTestResultDetailResponse.toModels(testUUID: String, language: String): Pa
             )
         }
     }
-    return Pair(categories, results)
+    return Triple(categories, results, goals)
 }

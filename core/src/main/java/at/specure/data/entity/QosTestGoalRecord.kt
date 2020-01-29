@@ -7,8 +7,8 @@ import at.specure.data.Columns
 import at.specure.data.Tables
 import at.specure.result.QoSCategory
 
-@Entity(tableName = Tables.QOS_TEST_RESULT_ITEM)
-data class QosTestItemRecord(
+@Entity(tableName = Tables.QOS_TEST_GOAL)
+data class QosTestGoalRecord(
 
     /**
      * id for internal purpose of the local DB
@@ -30,6 +30,12 @@ data class QosTestItemRecord(
     /**
      * Id of the qos test
      */
+    @ForeignKey(
+        entity = QosTestItemRecord::class,
+        parentColumns = [Columns.QOS_TEST_UID],
+        childColumns = ["qosTestId"],
+        onDelete = ForeignKey.CASCADE
+    )
     val qosTestId: Long,
 
     /**
@@ -38,14 +44,9 @@ data class QosTestItemRecord(
     val category: QoSCategory,
 
     /**
-     * Test number inside the one test category
-     */
-    val testNumber: Int,
-
-    /**
      * Localized test summary text
      */
-    val testDescription: String,
+    val description: String,
 
     /**
      * Language code of test description localization
@@ -55,15 +56,5 @@ data class QosTestItemRecord(
     /**
      * Is test successful?
      */
-    val success: Boolean,
-
-    /**
-     * duration in nanoseconds
-     */
-    val durationNanos: Long,
-
-    /**
-     * start time nanoseconds, relative to start of the test
-     */
-    val startTimeNanos: Long
+    val success: Boolean
 )
