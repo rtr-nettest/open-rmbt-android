@@ -106,7 +106,7 @@ fun SignalGraphItemResponse.toModel(openTestUUID: String): TestResultGraphItemRe
         testOpenUUID = openTestUUID,
         time = timeMillis,
         value = signalStrength?.toLong() ?: lteRsrp?.toLong() ?: 0,
-        type = TestResultGraphItemRecord.RESULT_GRAPH_ITEM_TYPE_PING
+        type = TestResultGraphItemRecord.Type.SIGNAL
     )
 }
 
@@ -115,11 +115,11 @@ fun PingGraphItemResponse.toModel(openTestUUID: String): TestResultGraphItemReco
         testOpenUUID = openTestUUID,
         time = timeMillis,
         value = durationMillis.toLong(),
-        type = TestResultGraphItemRecord.RESULT_GRAPH_ITEM_TYPE_PING
+        type = TestResultGraphItemRecord.Type.PING
     )
 }
 
-fun SpeedGraphItemResponse.toModel(openTestUUID: String, type: Int): TestResultGraphItemRecord {
+fun SpeedGraphItemResponse.toModel(openTestUUID: String, type: TestResultGraphItemRecord.Type): TestResultGraphItemRecord {
     return TestResultGraphItemRecord(
         testOpenUUID = openTestUUID,
         time = timeMillis,

@@ -1,5 +1,6 @@
 package at.specure.data.repository
 
+import android.os.SystemClock
 import at.rmbt.util.io
 import at.rtr.rmbt.client.helper.TestStatus
 import at.specure.data.CoreDatabase
@@ -120,8 +121,6 @@ class TestDataRepositoryImpl(db: CoreDatabase) : TestDataRepository {
     ) {
         var signal = info.value
         var wifiLinkSpeed: Int? = null
-        val timeNanos = info.timestampNanos
-        val timeNanosLast = if (timeNanos < testStartTimeNanos) 0 else timeNanos - testStartTimeNanos
         // 2G/3G
         var bitErrorRate: Int? = null
         // 4G
@@ -148,6 +147,10 @@ class TestDataRepositoryImpl(db: CoreDatabase) : TestDataRepository {
                 timingAdvance = info.timingAdvance
             }
         }
+
+        val startTimestampNsSinceBoot = testStartTimeNanos + (SystemClock.elapsedRealtimeNanos() - System.nanoTime())
+        val timeNanos = info.timestampNanos - startTimestampNsSinceBoot
+        val timeNanosLast = if (info.timestampNanos < startTimestampNsSinceBoot) info.timestampNanos - startTimestampNsSinceBoot else null
 
         val item = SignalRecord(
             testUUID = testUUID,

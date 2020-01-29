@@ -12,6 +12,8 @@ import at.rtr.rmbt.android.ui.view.PingChart
 import at.rtr.rmbt.android.ui.view.SpeedLineChart
 import at.rtr.rmbt.android.util.listen
 import at.rtr.rmbt.android.viewmodel.ResultChartViewModel
+import at.specure.data.NetworkTypeCompat
+import at.specure.data.entity.TestResultGraphItemRecord
 
 class ResultChartFragment : BaseFragment() {
 
@@ -27,27 +29,29 @@ class ResultChartFragment : BaseFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val openTestUUID = arguments?.getString(KEY_OPEN_TEST_UUID)
-        if (openTestUUID == null) {
-            throw IllegalArgumentException("Please pass open test UUID")
-        } else {
-            viewModel.state.openTestUUID = openTestUUID
-            viewModel.state.chartType = ResultChartType.fromValue(arguments?.getInt(KEY_CHART_TYPE))
-        }
+        viewModel.state.openTestUUID = arguments?.getString(KEY_OPEN_TEST_UUID) ?: throw IllegalArgumentException("Please pass open test UUID")
+        val typeValue = arguments?.getInt(KEY_CHART_TYPE) ?: throw IllegalArgumentException("Graph type not passed")
+        viewModel.state.chartType = TestResultGraphItemRecord.Type.fromValue(typeValue)
+        val networkType = arguments?.getInt(KEY_NETWORK_TYPE) ?: throw IllegalArgumentException("Network type not passed")
+        viewModel.state.networkType = NetworkTypeCompat.values()[networkType]
 
         progressLoadItems = binding.progressLoadItems
 
         graphView = when (viewModel.state.chartType) {
-            ResultChartType.DOWNLOAD -> {
+            TestResultGraphItemRecord.Type.DOWNLOAD -> {
                 binding.textChartType.text = getString(R.string.label_download)
                 layoutInflater.inflate(R.layout.layout_speed_chart, null)
             }
-            ResultChartType.UPLOAD -> {
+            TestResultGraphItemRecord.Type.UPLOAD -> {
                 binding.textChartType.text = getString(R.string.label_upload)
                 layoutInflater.inflate(R.layout.layout_speed_chart, null)
             }
-            else -> {
+            TestResultGraphItemRecord.Type.PING -> {
                 binding.textChartType.text = getString(R.string.label_ping)
+                layoutInflater.inflate(R.layout.layout_ping_chart, null)
+            }
+            TestResultGraphItemRecord.Type.SIGNAL -> {
+                binding.textChartType.text = getString(R.string.label_signal_strength)
                 layoutInflater.inflate(R.layout.layout_ping_chart, null)
             }
         }
@@ -66,9 +70,10 @@ class ResultChartFragment : BaseFragment() {
         super.onResume()
         loadGraphItems()
     }
+
     private fun loadGraphItems() {
         if (viewModel.state.graphItems.isNullOrEmpty()) {
-            viewModel.loadGraphItems().listen(this) {
+            viewModel.graphData.listen(this) {
                 viewModel.state.graphItems = it
                 showGraphItems()
             }
@@ -81,50 +86,40 @@ class ResultChartFragment : BaseFragment() {
         graphView.visibility = View.VISIBLE
         progressLoadItems.visibility = View.GONE
         when (viewModel.state.chartType) {
-            ResultChartType.DOWNLOAD, ResultChartType.UPLOAD -> {
+            TestResultGraphItemRecord.Type.DOWNLOAD, TestResultGraphItemRecord.Type.UPLOAD -> {
                 if (graphView is SpeedLineChart) {
                     (graphView as SpeedLineChart).addResultGraphItems(viewModel.state.graphItems)
                 }
             }
-            ResultChartType.PING -> {
+            TestResultGraphItemRecord.Type.SIGNAL -> {
+                if (graphView is PingChart) {
+                    (graphView as PingChart).addGraphItems(viewModel.state.graphItems, viewModel.state.networkType)
+                }
+            }
+            TestResultGraphItemRecord.Type.PING -> {
                 if (graphView is PingChart) {
                     (graphView as PingChart).addGraphItems(viewModel.state.graphItems)
                 }
             }
         }
     }
+
     companion object {
 
         private const val KEY_CHART_TYPE: String = "KEY_CHART_TYPE"
         private const val KEY_OPEN_TEST_UUID: String = "KEY_OPEN_TEST_UUID"
-        fun newInstance(chartType: Int, openTestUUID: String): ResultChartFragment {
+        private const val KEY_NETWORK_TYPE = "KEY_NETWORK_TYPE"
+
+        fun newInstance(chartType: TestResultGraphItemRecord.Type, openTestUUID: String, networkType: NetworkTypeCompat): ResultChartFragment {
 
             val args = Bundle()
-            args.putInt(KEY_CHART_TYPE, chartType)
+            args.putInt(KEY_CHART_TYPE, chartType.typeValue)
             args.putString(KEY_OPEN_TEST_UUID, openTestUUID)
+            args.putInt(KEY_NETWORK_TYPE, networkType.ordinal)
 
             val fragment = ResultChartFragment()
             fragment.arguments = args
             return fragment
-        }
-    }
-}
-
-enum class ResultChartType(val typeValue: Int) {
-
-    DOWNLOAD(0),
-    UPLOAD(1),
-    PING(2);
-
-    companion object {
-
-        fun fromValue(typeValue: Int?): ResultChartType {
-            values().forEach {
-                if (it.typeValue == typeValue) {
-                    return it
-                }
-            }
-            throw IllegalArgumentException("Unknown chart type value $typeValue")
         }
     }
 }

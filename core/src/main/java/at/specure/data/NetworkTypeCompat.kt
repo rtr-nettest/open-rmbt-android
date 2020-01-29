@@ -3,14 +3,15 @@ package at.specure.data
 import at.specure.info.TransportType
 import at.specure.info.cell.CellTechnology
 import at.specure.info.network.MobileNetworkType
+import at.specure.info.strength.SignalStrengthInfo
 
-enum class NetworkTypeCompat(val stringValue: String) {
+enum class NetworkTypeCompat(val stringValue: String, val minSignalValue: Int, val maxSignalValue: Int) {
 
-    TYPE_2G("2G"),
-    TYPE_3G("3G"),
-    TYPE_4G("4G"),
-    TYPE_5G("5G"),
-    TYPE_WLAN("WLAN");
+    TYPE_2G("2G", SignalStrengthInfo.CELLULAR_SIGNAL_MIN, SignalStrengthInfo.CELLULAR_SIGNAL_MAX),
+    TYPE_3G("3G", SignalStrengthInfo.WCDMA_RSRP_SIGNAL_MIN, SignalStrengthInfo.WCDMA_RSRP_SIGNAL_MAX),
+    TYPE_4G("4G", SignalStrengthInfo.LTE_RSRP_SIGNAL_MIN, SignalStrengthInfo.LTE_RSRP_SIGNAL_MAX),
+    TYPE_5G("5G", SignalStrengthInfo.NR_RSRP_SIGNAL_MIN, SignalStrengthInfo.NR_RSRP_SIGNAL_MAX),
+    TYPE_WLAN("WLAN", SignalStrengthInfo.WIFI_MIN_SIGNAL_VALUE, SignalStrengthInfo.WIFI_MAX_SIGNAL_VALUE);
 
     companion object {
 

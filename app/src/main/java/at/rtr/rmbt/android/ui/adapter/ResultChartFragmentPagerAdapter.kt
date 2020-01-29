@@ -5,30 +5,37 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentPagerAdapter
 import at.rtr.rmbt.android.ui.fragment.ResultChartFragment
+import at.specure.data.NetworkTypeCompat
+import at.specure.data.entity.TestResultGraphItemRecord
 
-class ResultChartFragmentPagerAdapter(fragmentManager: FragmentManager, openTestUUID: String) :
+class ResultChartFragmentPagerAdapter(
+    fragmentManager: FragmentManager,
+    private val openTestUUID: String,
+    private val networkTypeCompat: NetworkTypeCompat
+) :
     FragmentPagerAdapter(fragmentManager, BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT) {
 
-    private val fragments = mutableMapOf<Int, Fragment>()
-    private val NUM_ITEMS = 3
-    private val openTestUUID: String = openTestUUID
+    private val fragments = mutableMapOf<TestResultGraphItemRecord.Type, Fragment>()
 
     override fun getItem(position: Int): Fragment {
-        val fragment: Fragment = ResultChartFragment.newInstance(position, openTestUUID)
-        fragments[position] = fragment
-        return fragment
+        val type = TestResultGraphItemRecord.Type.values()[position]
+
+        return if (fragments.contains(type)) {
+            fragments[type]!!
+        } else {
+            val fragment: Fragment = ResultChartFragment.newInstance(type, openTestUUID, networkTypeCompat)
+            fragments[type] = fragment
+            fragment
+        }
     }
 
     override fun getCount(): Int {
-        return NUM_ITEMS
+        return TestResultGraphItemRecord.Type.values().size
     }
 
-    override fun destroyItem(container: ViewGroup, position: Int, `object`: Any) {
-        super.destroyItem(container, position, `object`)
-        fragments.remove(position)
-    }
-
-    fun getFragment(position: Int): Fragment? {
-        return fragments[position]
+    override fun destroyItem(container: ViewGroup, position: Int, obj: Any) {
+        super.destroyItem(container, position, obj)
+        val type = TestResultGraphItemRecord.Type.values()[position]
+        fragments.remove(type)
     }
 }
