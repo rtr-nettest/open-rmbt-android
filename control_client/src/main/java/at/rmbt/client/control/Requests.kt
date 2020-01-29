@@ -658,7 +658,7 @@ data class SignalBody(
      * relative timestamp from the start of the test, but time of the last update of the cells (the last updated cells do not have this field filled)
      */
     @SerializedName("time_ns_last")
-    val timeLastNanos: Long
+    val timeLastNanos: Long?
 )
 
 @Keep

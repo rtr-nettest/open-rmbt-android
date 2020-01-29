@@ -16,6 +16,7 @@ package at.specure.info.strength
 
 import android.annotation.SuppressLint
 import android.os.Build
+import android.os.SystemClock
 import android.telephony.CellInfo
 import android.telephony.CellInfoGsm
 import android.telephony.CellInfoLte
@@ -99,7 +100,7 @@ open class SignalStrengthInfo(
             signalLevel = signal.level,
             min = LTE_RSRP_SIGNAL_MIN,
             max = LTE_RSRP_SIGNAL_MAX,
-            timestampNanos = System.nanoTime(),
+            timestampNanos = SystemClock.elapsedRealtimeNanos(),
             cqi = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) signal.cqi.checkValueAvailable() else null,
             rsrp = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) signal.rsrp.fixLteRsrp() else null,
             rssi = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) signal.rssi.checkValueAvailable() else null,
@@ -114,7 +115,7 @@ open class SignalStrengthInfo(
             signalLevel = signal.level,
             min = WCDMA_RSRP_SIGNAL_MIN,
             max = WCDMA_RSRP_SIGNAL_MAX,
-            timestampNanos = System.nanoTime()
+            timestampNanos = SystemClock.elapsedRealtimeNanos()
         )
 
         fun from(signal: CellSignalStrengthGsm) = SignalStrengthInfoGsm(
@@ -124,7 +125,7 @@ open class SignalStrengthInfo(
             signalLevel = signal.level,
             min = CELLULAR_SIGNAL_MIN,
             max = CELLULAR_SIGNAL_MAX,
-            timestampNanos = System.nanoTime(),
+            timestampNanos = SystemClock.elapsedRealtimeNanos(),
             bitErrorRate = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) signal.bitErrorRate.fixErrorBitRate() else null,
             timingAdvance = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) signal.timingAdvance.fixTimingAdvance() else null
         )
@@ -136,7 +137,7 @@ open class SignalStrengthInfo(
             signalLevel = signal.level,
             min = WCDMA_RSRP_SIGNAL_MIN,
             max = WCDMA_RSRP_SIGNAL_MAX,
-            timestampNanos = System.nanoTime()
+            timestampNanos = SystemClock.elapsedRealtimeNanos()
         )
 
         fun from(info: WifiNetworkInfo) = SignalStrengthInfoWiFi(
@@ -146,7 +147,7 @@ open class SignalStrengthInfo(
             signalLevel = info.signalLevel,
             max = WIFI_MAX_SIGNAL_VALUE,
             min = WIFI_MIN_SIGNAL_VALUE,
-            timestampNanos = System.nanoTime(),
+            timestampNanos = SystemClock.elapsedRealtimeNanos(),
             linkSpeed = info.linkSpeed
         )
 
@@ -166,7 +167,7 @@ open class SignalStrengthInfo(
             var signal: SignalStrengthInfo? = null
 
             val transportType = TransportType.CELLULAR
-            val timestampNanos = System.nanoTime()
+            val timestampNanos = SystemClock.elapsedRealtimeNanos()
 
             signalStrength.cellSignalStrengths.forEach {
                 if (it.dbm == Int.MAX_VALUE) {
@@ -320,7 +321,7 @@ open class SignalStrengthInfo(
             }
 
             val transportType = TransportType.CELLULAR
-            val timestampNanos = System.nanoTime()
+            val timestampNanos = SystemClock.elapsedRealtimeNanos()
 
             when (cellInfo) {
                 null -> {
