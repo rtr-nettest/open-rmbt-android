@@ -226,6 +226,7 @@ fun QosTestResultDetailResponse.toModels(
                     language = language,
                     category = key,
                     success = success,
+                    testSummary = result.testSummary,
                     testDescription = result.testDescription,
                     testNumber = qosTestOrderNumber,
                     durationNanos = result.result.get("duration_ns").asLong,

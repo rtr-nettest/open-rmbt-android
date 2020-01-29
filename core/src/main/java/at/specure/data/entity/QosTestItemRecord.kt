@@ -45,6 +45,11 @@ data class QosTestItemRecord(
     /**
      * Localized test summary text
      */
+    val testSummary: String,
+
+    /**
+     * Localized test description text
+     */
     val testDescription: String,
 
     /**
