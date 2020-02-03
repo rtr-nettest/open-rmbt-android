@@ -3,6 +3,7 @@ package at.rtr.rmbt.android.ui.fragment
 import android.annotation.SuppressLint
 import android.graphics.Bitmap
 import android.os.Bundle
+import android.view.KeyEvent
 import android.view.View
 import android.webkit.WebViewClient
 import android.webkit.WebView
@@ -38,6 +39,16 @@ class StatisticsFragment : BaseFragment() {
             settings.builtInZoomControls = true
             settings.javaScriptEnabled = true
             webViewClient = MyWebViewClient(statisticsViewModel)
+
+            setOnKeyListener(View.OnKeyListener { _, keyCode, event ->
+                if (keyCode == KeyEvent.KEYCODE_BACK &&
+                    event.action == KeyEvent.ACTION_UP &&
+                    canGoBack()) {
+                    goBack()
+                    return@OnKeyListener true
+                }
+                false
+            })
         }
     }
 

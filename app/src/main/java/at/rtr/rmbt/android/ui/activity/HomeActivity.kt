@@ -17,7 +17,7 @@ package at.rtr.rmbt.android.ui.activity
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import androidx.navigation.findNavController
+import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.plusAssign
 import androidx.navigation.ui.setupWithNavController
 import at.rtr.rmbt.android.R
@@ -39,8 +39,8 @@ class HomeActivity : BaseActivity() {
 
         setTransparentStatusBar()
 
-        val navController = findNavController(R.id.navHostFragment)
-        val navHostFragment = supportFragmentManager.findFragmentById(R.id.navHostFragment)!!
+        val navHostFragment = supportFragmentManager.findFragmentById(R.id.navHostFragment) as NavHostFragment
+        val navController = navHostFragment.navController
         val navigator = KeepStateNavigator(this, navHostFragment.childFragmentManager, R.id.navHostFragment)
         navController.navigatorProvider += navigator
         navController.setGraph(R.navigation.mobile_navigation)

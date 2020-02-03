@@ -197,6 +197,10 @@
     <string name="results_network_provider">Provider</string>
     <string name="results_network_ssid">WLAN SSID</string>
     <string name="result_test_details">Test details</string>
+    <string name="qos_result_success_count" translatable="false">%1$d / %2$d</string>
+    <string name="qos_test_number" translatable="false"># %1$d</string>
+    <string name="label_information">Information</string>
+    <string name="label_tests">Tests</string>
 
     <!-- Map -->
     <string name="map_layer_communities">Communities</string>
