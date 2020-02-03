@@ -215,5 +215,8 @@
     <string name="text_filter_confirm">übernehmen</string>
     <string name="title_filters_type">Kartentyp</string>
     <string name="title_filters_subtype">Einstellugen</string>
+
+    <string name="about_email_sending">E-Mail senden…</string>
+    <string name="about_email_subject">Supportanfrage</string>
 </resources>
 

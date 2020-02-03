@@ -3,6 +3,7 @@ package at.rtr.rmbt.android.ui.fragment
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.text.InputType
 import android.view.View
@@ -120,6 +121,22 @@ class SettingsFragment : BaseFragment() {
 
         binding.version.value = BuildConfig.VERSION_NAME
         binding.commitHash.value = BuildConfig.COMMIT_HASH
+        binding.sourceCode.title.setOnClickListener {
+            startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(settingsViewModel.state.githubRepositoryUrl.get())))
+        }
+        binding.goToWebsite.title.setOnClickListener {
+            startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(settingsViewModel.state.webPageUrl.get())))
+        }
+        binding.contactUs.title.setOnClickListener {
+            val emailIntent = Intent(Intent.ACTION_SEND)
+            emailIntent.type = "plain/text"
+            emailIntent.putExtra(Intent.EXTRA_EMAIL, arrayOf("<![CDATA[${settingsViewModel.state.emailAddress.get()}]]>"))
+            emailIntent.putExtra(
+                Intent.EXTRA_SUBJECT,
+                "${getString(R.string.about_email_subject)}  ${getString(R.string.app_name)}  ${BuildConfig.VERSION_NAME}"
+            )
+            startActivity(Intent.createChooser(emailIntent, getString(R.string.about_email_sending)))
+        }
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {

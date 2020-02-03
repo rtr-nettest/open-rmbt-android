@@ -180,6 +180,18 @@ class AppConfig @Inject constructor(context: Context, private val serverSettings
         get() = getString(BuildConfig.CAPTIVE_PORTAL_WALLED_GARDEN_URL)
         set(value) = setString(BuildConfig.CAPTIVE_PORTAL_WALLED_GARDEN_URL, value)
 
+    override var aboutWebPageUrl: String
+        get() = getString(BuildConfig.WEBSITE_URL)
+        set(value) = setString(BuildConfig.WEBSITE_URL, value)
+
+    override var aboutEmailAddress: String
+        get() = getString(BuildConfig.EMAIL_ADDRESS)
+        set(value) = setString(BuildConfig.EMAIL_ADDRESS, value)
+
+    override var aboutGithubRepositoryUrl: String
+        get() = getString(BuildConfig.SOURCE_CODE_URL)
+        set(value) = setString(BuildConfig.SOURCE_CODE_URL, value)
+
     override var capabilitiesQosSupportsInfo: Boolean
         get() = getBoolean(BuildConfig.CAPABILITIES_QOS_SUPPORTS_INFO)
         set(value) = setBoolean(BuildConfig.CAPABILITIES_QOS_SUPPORTS_INFO, value)

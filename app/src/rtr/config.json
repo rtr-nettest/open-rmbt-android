@@ -131,6 +131,21 @@
       "visible": false
     },
     {
+      "name": "SOURCE_CODE_URL",
+      "value": "https://github.com/rtr-nettest",
+      "visible": false
+    },
+    {
+      "name": "WEBSITE_URL",
+      "value": "https://www.netztest.at",
+      "visible": false
+    },
+    {
+      "name": "EMAIL_ADDRESS",
+      "value": "OpenRMBT Support <netztest@rtr.at>",
+      "visible": false
+    },
+    {
       "name": "CAPABILITIES_RMBT_HTTP",
       "value": "false",
       "visible": false
