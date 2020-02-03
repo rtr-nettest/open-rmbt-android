@@ -231,4 +231,7 @@
     <string name="text_filter_confirm">Accept</string>
     <string name="title_filters_type">Map type</string>
     <string name="title_filters_subtype">Type options</string>
+
+    <string name="about_email_subject">Support request</string>
+    <string name="about_email_sending">Sending email…</string>
 </resources>

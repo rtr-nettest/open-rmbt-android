@@ -151,6 +151,21 @@ interface Config {
     var captivePortalWalledGardenUrl: String
 
     /**
+     * WebPage address to be redirected user after click on the contact item in settings
+     */
+    var aboutWebPageUrl: String
+
+    /**
+     * Email address to write on from contact item in settings
+     */
+    var aboutEmailAddress: String
+
+    /**
+     * Url to public github repository with app code
+     */
+    var aboutGithubRepositoryUrl: String
+
+    /**
      * Counter of tests performed by user
      */
     var testCounter: Int

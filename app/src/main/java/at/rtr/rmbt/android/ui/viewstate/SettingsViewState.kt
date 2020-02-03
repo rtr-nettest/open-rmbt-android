@@ -28,6 +28,9 @@ class SettingsViewState constructor(
     val controlServerUseSSL = ObservableField(appConfig.controlServerUseSSL)
     val isLocationEnabled = ObservableField<LocationProviderState>()
     val numberOfTests = ObservableInt(appConfig.testCounter)
+    val emailAddress = ObservableField(appConfig.aboutEmailAddress)
+    val githubRepositoryUrl = ObservableField(appConfig.aboutGithubRepositoryUrl)
+    val webPageUrl = ObservableField(appConfig.aboutWebPageUrl)
 
     init {
         isNDTEnabled.addOnPropertyChanged { value ->
