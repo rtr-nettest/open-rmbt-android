@@ -10,6 +10,7 @@ import androidx.core.view.ViewCompat
 import androidx.databinding.DataBindingUtil
 import androidx.databinding.ViewDataBinding
 import at.rmbt.util.exception.HandledException
+import at.rmbt.util.exception.NoConnectionException
 import at.rtr.rmbt.android.R
 import at.rtr.rmbt.android.ui.dialog.SimpleDialog
 import at.rtr.rmbt.android.viewmodel.BaseViewModel
@@ -20,7 +21,7 @@ abstract class BaseActivity : AppCompatActivity() {
 
     private val viewModels = mutableListOf<BaseViewModel>()
 
-    override fun onRestoreInstanceState(savedInstanceState: Bundle?) {
+    override fun onRestoreInstanceState(savedInstanceState: Bundle) {
         super.onRestoreInstanceState(savedInstanceState)
         viewModels.forEach { it.onRestoreState(savedInstanceState) }
     }
@@ -37,9 +38,15 @@ abstract class BaseActivity : AppCompatActivity() {
         DataBindingUtil.setContentView(this, layoutRes)
 
     open fun onHandledException(exception: HandledException) {
+        val message = if (exception is NoConnectionException) {
+            getString(R.string.error_no_connection)
+        } else {
+            exception.getText(this)
+        }
+
         SimpleDialog.Builder()
-            .messageText(exception.getText(this))
-            .positiveText(R.string.button_close)
+            .messageText(message)
+            .positiveText(android.R.string.ok)
             .cancelable(false)
             .show(supportFragmentManager, DIALOG_DEFAULT_OK)
     }

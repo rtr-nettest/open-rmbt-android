@@ -225,4 +225,5 @@
     <string name="toast_sync_code_copied_to_clipboard">Copied</string>
     <string name="hint_sync_code">Code</string>
     <string name="error_sync_code_short">The code length must be 12</string>
+    <string name="error_no_connection">No Internet connection. Could not load data.</string>
 </resources>

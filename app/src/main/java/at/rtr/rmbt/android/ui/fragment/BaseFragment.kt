@@ -8,6 +8,7 @@ import androidx.databinding.DataBindingUtil
 import androidx.databinding.ViewDataBinding
 import androidx.fragment.app.Fragment
 import at.rmbt.util.exception.HandledException
+import at.rmbt.util.exception.NoConnectionException
 import at.rtr.rmbt.android.R
 import at.rtr.rmbt.android.ui.dialog.SimpleDialog
 import at.rtr.rmbt.android.viewmodel.BaseViewModel
@@ -43,9 +44,15 @@ abstract class BaseFragment : Fragment() {
     }
 
     open fun onHandledException(exception: HandledException) {
+        val message = if (exception is NoConnectionException) {
+            getString(R.string.error_no_connection)
+        } else {
+            exception.getText(requireContext())
+        }
+
         SimpleDialog.Builder()
-            .messageText(exception.getText(requireContext()))
-            .positiveText(R.string.button_close)
+            .messageText(message)
+            .positiveText(android.R.string.ok)
             .cancelable(false)
             .show(parentFragmentManager, DIALOG_DEFAULT_OK)
     }
