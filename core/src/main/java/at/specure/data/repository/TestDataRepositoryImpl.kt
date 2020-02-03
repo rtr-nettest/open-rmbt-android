@@ -323,6 +323,6 @@ class TestDataRepositoryImpl(db: CoreDatabase) : TestDataRepository {
     }
 
     override fun updateQoSTestStatus(testUUID: String, status: TestStatus?) = io {
-        testDao.updateQoSTestStatus(testUUID, status)
+        testDao.updateQoSTestStatus(testUUID, status?.ordinal)
     }
 }

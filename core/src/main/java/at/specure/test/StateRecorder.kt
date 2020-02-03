@@ -154,6 +154,9 @@ class StateRecorder @Inject constructor(
             testStartTimeMillis = TimeUnit.NANOSECONDS.toMillis(testStartTimeNanos),
             threadCount = threadNumber
         )
+        if (!config.skipQoSTests) {
+            testRecord?.lastQoSStatus = TestStatus.WAIT
+        }
         repository.saveTest(testRecord!!)
     }
 
@@ -387,6 +390,7 @@ class StateRecorder @Inject constructor(
         val token = testToken
         val data: JSONArray? = qosResult?.toJson()
         if (uuid != null && token != null && qosResult != null && data != null) {
+            testRecord?.lastQoSStatus = TestStatus.QOS_END
             repository.updateQoSTestStatus(uuid, TestStatus.QOS_END)
             Timber.d("QOSLOG: ${TestStatus.QOS_END}")
             repository.saveQoSResults(uuid, token, data) {
@@ -401,6 +405,7 @@ class StateRecorder @Inject constructor(
         status?.let {
             if (qosRunning) {
                 testUUID?.let {
+                    testRecord?.lastQoSStatus = status
                     repository.updateQoSTestStatus(it, status)
                     Timber.d("QOSLOG: $status")
                 }
