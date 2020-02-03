@@ -75,4 +75,7 @@ class ControlServerProviderImpl(private val config: Config) : ControlEndpointPro
 
     override val syncDevicesUrl: String
         get() = "$host$routePath/${config.syncDevicesRoute}"
+
+    override val mapFilterInfoUrl: String
+        get() = "$host/$mapRoute/${config.mapFilterInfoEndpoint}"
 }

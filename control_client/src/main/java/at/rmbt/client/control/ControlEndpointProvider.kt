@@ -110,4 +110,9 @@ interface ControlEndpointProvider {
      * Endpoint to sync two devices
      */
     val syncDevicesUrl: String
+
+    /**
+     * Link suffix to obtain map filters data, example "RMBTMapServer/tiles/info
+     */
+    val mapFilterInfoUrl: String
 }

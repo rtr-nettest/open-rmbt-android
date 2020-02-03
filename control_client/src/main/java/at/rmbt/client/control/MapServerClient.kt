@@ -25,4 +25,6 @@ class MapServerClient @Inject constructor(private val endpointProvider: ControlE
 
     fun prepareDetailsLink(openUUID: String) =
         MutableLiveData<String>().apply { postValue(String.format(endpointProvider.mapMarkerShowDetailsUrl, openUUID)) }
+
+    fun obtainMapFiltersInfo(body: FilterLanguageRequestBody): Maybe<MapFilterResponse> = api.getFilters(endpointProvider.mapFilterInfoUrl, body).exec()
 }

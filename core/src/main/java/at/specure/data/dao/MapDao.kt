@@ -14,6 +14,9 @@ interface MapDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insert(items: List<MarkerMeasurementRecord>)
 
-    @Query("SELECT * FROM ${Tables.MAP_MARKER_MEASUREMENTS} WHERE abs(latitude - :latitude) < :distanceThreshold AND abs(longitude - :longitude) < 2 * :distanceThreshold")
-    fun get(latitude: Double?, longitude: Double?, distanceThreshold: Double?): LiveData<List<MarkerMeasurementRecord>>
+    @Query("DELETE FROM ${Tables.MAP_MARKER_MEASUREMENTS}")
+    fun clear()
+
+    @Query("SELECT * FROM ${Tables.MAP_MARKER_MEASUREMENTS}")
+    fun get(): LiveData<List<MarkerMeasurementRecord>>
 }

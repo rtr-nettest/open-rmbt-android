@@ -226,4 +226,9 @@
     <string name="hint_sync_code">Code</string>
     <string name="error_sync_code_short">The code length must be 12</string>
     <string name="error_no_connection">No Internet connection. Could not load data.</string>
+
+    <string name="label_map_filters">Map filters</string>
+    <string name="text_filter_confirm">Accept</string>
+    <string name="title_filters_type">Map type</string>
+    <string name="title_filters_subtype">Type options</string>
 </resources>

@@ -13,6 +13,7 @@ import at.rtr.rmbt.android.databinding.FragmentMapBinding
 import at.rtr.rmbt.android.di.viewModelLazy
 import at.rtr.rmbt.android.ui.activity.ShowWebViewActivity
 import at.rtr.rmbt.android.ui.adapter.MapMarkerDetailsAdapter
+import at.rtr.rmbt.android.ui.dialog.MapFiltersDialog
 import at.rtr.rmbt.android.ui.dialog.MapLayersDialog
 import at.rtr.rmbt.android.util.ToolbarTheme
 import at.rtr.rmbt.android.util.changeStatusBarColor
@@ -36,10 +37,12 @@ import kotlin.math.abs
 const val START_ZOOM_LEVEL = 12f
 
 private const val CODE_LAYERS_DIALOG = 1
+private const val CODE_FILTERS_DIALOG = 2
 private const val ANCHOR_U = 0.5f
 private const val ANCHOR_V = 0.865f
 
-class MapFragment : BaseFragment(), OnMapReadyCallback, MapMarkerDetailsAdapter.MarkerDetailsCallback, MapLayersDialog.Callback {
+class MapFragment : BaseFragment(), OnMapReadyCallback, MapMarkerDetailsAdapter.MarkerDetailsCallback, MapLayersDialog.Callback,
+    MapFiltersDialog.Callback {
 
     private val mapViewModel: MapViewModel by viewModelLazy()
     private val binding: FragmentMapBinding by bindingLazy()
@@ -61,11 +64,23 @@ class MapFragment : BaseFragment(), OnMapReadyCallback, MapMarkerDetailsAdapter.
         updateTransparentStatusBarHeight(binding.statusBarStub)
 
         binding.map.onCreate(savedInstanceState)
-        binding.map.getMapAsync(this)
+        mapViewModel.providerLiveData.listen(this) {
+            binding.map.getMapAsync(this)
+        }
 
         binding.fabLayers.setOnClickListener {
             MapLayersDialog.instance(this, CODE_LAYERS_DIALOG, mapViewModel.state.style.get()!!.ordinal, mapViewModel.state.type.get()!!.ordinal)
                 .show(fragmentManager)
+        }
+
+        binding.fabFilters.setOnClickListener {
+            MapFiltersDialog.instance(this, CODE_FILTERS_DIALOG).show(fragmentManager)
+        }
+
+        binding.fabLocation.setOnClickListener {
+            mapViewModel.locationInfoLiveData.value?.let {
+                googleMap?.animateCamera(CameraUpdateFactory.newLatLng(LatLng(it.latitude, it.longitude)))
+            }
         }
 
         snapHelper = LinearSnapHelper().apply { attachToRecyclerView(binding.markerItems) }
@@ -90,7 +105,7 @@ class MapFragment : BaseFragment(), OnMapReadyCallback, MapMarkerDetailsAdapter.
     override fun onTypeSelected(type: MapPresentationType) {
         currentOverlay?.remove()
         mapViewModel.state.type.set(type)
-        currentOverlay = googleMap?.addTileOverlay(TileOverlayOptions().tileProvider(mapViewModel.provider))
+        currentOverlay = googleMap?.addTileOverlay(TileOverlayOptions().tileProvider(mapViewModel.providerLiveData.value))
     }
 
     override fun onMapReady(map: GoogleMap?) {
@@ -158,6 +173,11 @@ class MapFragment : BaseFragment(), OnMapReadyCallback, MapMarkerDetailsAdapter.
         }
     }
 
+    override fun onFiltersUpdated() {
+        currentOverlay?.remove()
+        currentOverlay = googleMap?.addTileOverlay(TileOverlayOptions().tileProvider(mapViewModel.providerLiveData.value))
+    }
+
     private fun drawMarker(record: MarkerMeasurementRecord) {
         if (record.networkTypeLabel != ServerNetworkType.UNKNOWN.stringValue) {
             record.networkTypeLabel?.let {
@@ -207,8 +227,11 @@ class MapFragment : BaseFragment(), OnMapReadyCallback, MapMarkerDetailsAdapter.
     }
 
     private fun setTiles() {
-        currentOverlay = googleMap?.addTileOverlay(TileOverlayOptions().tileProvider(mapViewModel.provider))
+        currentOverlay = googleMap?.addTileOverlay(TileOverlayOptions().tileProvider(mapViewModel.providerLiveData.value))
         googleMap?.setOnMapClickListener { latlng ->
+            mapViewModel.state.locationChanged.set(true)
+            mapViewModel.locationInfoLiveData.removeObservers(this)
+            mapViewModel.state.cameraPositionLiveData.postValue(latlng)
             onCloseMarkerDetails()
             if (isMarkersAvailable()) {
                 mapViewModel.loadMarkers(latlng.latitude, latlng.longitude, googleMap!!.cameraPosition.zoom.toInt())
@@ -217,24 +240,29 @@ class MapFragment : BaseFragment(), OnMapReadyCallback, MapMarkerDetailsAdapter.
         googleMap?.setOnMarkerClickListener { true }
 
         googleMap?.setOnCameraChangeListener {
+            mapViewModel.state.locationChanged.set(true)
+            mapViewModel.locationInfoLiveData.removeObservers(this)
+            mapViewModel.state.cameraPositionLiveData.postValue(it.target)
             if (it.zoom != mapViewModel.state.zoom) {
                 currentOverlay?.remove()
-                currentOverlay = googleMap?.addTileOverlay(TileOverlayOptions().tileProvider(mapViewModel.provider))
+                currentOverlay = googleMap?.addTileOverlay(TileOverlayOptions().tileProvider(mapViewModel.providerLiveData.value))
             }
             mapViewModel.state.zoom = it.zoom
         }
     }
 
     private fun checkLocationAndSetCurrent() {
-        if (mapViewModel.state.coordinatesLiveData.value == null) {
-            mapViewModel.locationInfoLiveData.value?.let {
+        if (!mapViewModel.state.locationChanged.get()) {
+            mapViewModel.locationInfoLiveData.listen(this) {
                 with(LatLng(it.latitude, it.longitude)) {
+                    mapViewModel.state.cameraPositionLiveData.postValue(this)
                     mapViewModel.state.coordinatesLiveData.postValue(this)
                     googleMap?.moveCamera(CameraUpdateFactory.newLatLngZoom(this, mapViewModel.state.zoom))
+                    mapViewModel.locationInfoLiveData.removeObservers(this@MapFragment)
                 }
             }
         } else {
-            googleMap?.moveCamera(CameraUpdateFactory.newLatLngZoom(mapViewModel.state.coordinatesLiveData.value, mapViewModel.state.zoom))
+            googleMap?.moveCamera(CameraUpdateFactory.newLatLngZoom(mapViewModel.state.cameraPositionLiveData.value, mapViewModel.state.zoom))
             visiblePosition = RecyclerView.NO_POSITION
             currentMarker = null
             drawCurrentMarker()

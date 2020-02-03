@@ -230,4 +230,9 @@ interface Config {
      * Endpoint to sync two devices
      */
     var syncDevicesRoute: String
+
+    /**
+     * End of url to obtain map filters data, example "RMBTMapServer/tiles/info
+     */
+    var mapFilterInfoEndpoint: String
 }

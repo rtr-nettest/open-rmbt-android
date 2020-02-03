@@ -199,6 +199,11 @@
       "name": "SYNC_DEVICES_ROUTE",
       "value": "sync",
       "visible": false
+    },
+    {
+      "name": "MAP_FILTERS_ENDPOINT",
+      "value": "tiles/info",
+      "visible": false
     }
   ]
 }

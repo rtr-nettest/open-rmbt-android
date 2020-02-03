@@ -36,6 +36,8 @@ import at.specure.data.repository.TestResultsRepository
 import at.specure.data.repository.TestResultsRepositoryImpl
 import at.specure.info.strength.SignalStrengthWatcher
 import at.specure.location.LocationWatcher
+import at.specure.util.ActiveFilter
+import at.specure.util.FilterValuesStorage
 import dagger.Module
 import dagger.Provides
 import javax.inject.Singleton
@@ -102,5 +104,11 @@ class DatabaseModule {
         TestResultsRepositoryImpl(database, clientUUID, controlServerClient)
 
     @Provides
-    fun provideMapRepository(client: MapServerClient, database: CoreDatabase): MapRepository = MapRepositoryImpl(client, database)
+    fun provideMapRepository(
+        client: MapServerClient,
+        database: CoreDatabase,
+        filterValuesStorage: FilterValuesStorage,
+        activeFilter: ActiveFilter
+    ): MapRepository =
+        MapRepositoryImpl(client, database, filterValuesStorage, activeFilter)
 }

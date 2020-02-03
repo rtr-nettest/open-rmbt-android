@@ -2,6 +2,9 @@ package at.specure.data
 
 import at.rmbt.client.control.HistoryItemResponse
 import at.rmbt.client.control.HistoryResponse
+import at.rmbt.client.control.MapFilterObjectResponse
+import at.rmbt.client.control.MapFiltersResponse
+import at.rmbt.client.control.MapTypeOptionsResponse
 import at.rmbt.client.control.MarkerMeasurementsResponse
 import at.rmbt.client.control.MarkersResponse
 import at.rmbt.client.control.PingGraphItemResponse
@@ -15,6 +18,7 @@ import at.rmbt.client.control.SignalGraphItemResponse
 import at.rmbt.client.control.SpeedGraphItemResponse
 import at.rmbt.client.control.TestResultDetailItem
 import at.rmbt.client.control.TestResultDetailResponse
+import at.rmbt.client.control.data.MapFilterType
 import at.specure.data.entity.History
 import at.specure.data.entity.MarkerMeasurementRecord
 import at.specure.data.entity.QoeInfoRecord
@@ -251,4 +255,31 @@ fun QosTestResultDetailResponse.toModels(
         }
     }
     return Triple(categories, results, goals)
+}
+
+inline fun <reified T> MapFiltersResponse.toMap(): Map<MapFilterType, List<T>> {
+    val result = hashMapOf<MapFilterType, List<T>>()
+    all.find { it.options.all { it is T } }?.let { result.put(MapFilterType.ALL, it.options as List<T>) }
+    mobile.find { it.options.all { it is T } }?.let { result.put(MapFilterType.MOBILE, it.options as List<T>) }
+    wifi.find { it.options.all { it is T } }?.let { result.put(MapFilterType.WLAN, it.options as List<T>) }
+    browser.find { it.options.all { it is T } }?.let { result.put(MapFilterType.BROWSER, it.options as List<T>) }
+    return result
+}
+
+inline fun <reified T> MapFiltersResponse.getTypeTitle(): String {
+    all.find { it.options.all { it is T } }?.let { return it.title }
+    mobile.find { it.options.all { it is T } }?.let { return it.title }
+    wifi.find { it.options.all { it is T } }?.let { return it.title }
+    browser.find { it.options.all { it is T } }?.let { return it.title }
+    return ""
+}
+
+fun MapFilterObjectResponse.toSubtypesMap(types: MutableMap<String, MapFilterType>): Map<MapFilterType, List<MapTypeOptionsResponse>> {
+    val result = hashMapOf<MapFilterType, List<MapTypeOptionsResponse>>()
+
+    mapTypes.forEach {
+        result[types.getValue(it.title)] = it.options
+    }
+
+    return result
 }
