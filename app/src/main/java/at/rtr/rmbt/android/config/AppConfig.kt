@@ -176,6 +176,10 @@ class AppConfig @Inject constructor(context: Context, private val serverSettings
         get() = getBoolean(BuildConfig.CAPABILITIES_RMBT_HTTP)
         set(value) = setBoolean(BuildConfig.CAPABILITIES_RMBT_HTTP, value)
 
+    override var captivePortalWalledGardenUrl: String
+        get() = getString(BuildConfig.CAPTIVE_PORTAL_WALLED_GARDEN_URL)
+        set(value) = setString(BuildConfig.CAPTIVE_PORTAL_WALLED_GARDEN_URL, value)
+
     override var capabilitiesQosSupportsInfo: Boolean
         get() = getBoolean(BuildConfig.CAPABILITIES_QOS_SUPPORTS_INFO)
         set(value) = setBoolean(BuildConfig.CAPABILITIES_QOS_SUPPORTS_INFO, value)

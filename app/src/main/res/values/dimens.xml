@@ -59,4 +59,7 @@
     <dimen name="margin_32">32dp</dimen>
     <dimen name="margin_52">52dp</dimen>
 
+    <!-- Home -->
+    <dimen name="home_extra_button_size">56dp</dimen>
+
 </resources>

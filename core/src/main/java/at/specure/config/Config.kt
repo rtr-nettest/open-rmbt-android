@@ -146,6 +146,11 @@ interface Config {
     var controlServerQosTestResultDetailsEndpoint: String
 
     /**
+     * Url for checking captive portal
+     */
+    var captivePortalWalledGardenUrl: String
+
+    /**
      * Counter of tests performed by user
      */
     var testCounter: Int

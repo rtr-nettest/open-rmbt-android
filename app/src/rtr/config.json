@@ -126,6 +126,11 @@
       "visible": false
     },
     {
+      "name": "CAPTIVE_PORTAL_WALLED_GARDEN_URL",
+      "value": "http://webtest.nettest.at/generate_204",
+      "visible": false
+    },
+    {
       "name": "CAPABILITIES_RMBT_HTTP",
       "value": "false",
       "visible": false

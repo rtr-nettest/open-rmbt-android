@@ -26,6 +26,7 @@ import at.specure.info.cell.CellInfoWatcher
 import at.specure.info.cell.CellInfoWatcherImpl
 import at.specure.info.connectivity.ConnectivityWatcher
 import at.specure.info.connectivity.ConnectivityWatcherImpl
+import at.specure.info.ip.CaptivePortal
 import at.specure.info.ip.IpChangeWatcher
 import at.specure.info.ip.IpChangeWatcherImpl
 import at.specure.info.network.ActiveNetworkWatcher
@@ -110,8 +111,12 @@ class CoreModule {
 
     @Provides
     @Singleton
-    fun provideIpChangeWatcher(ipCheckRepository: IpCheckRepository, connectivityWatcher: ConnectivityWatcher): IpChangeWatcher =
-        IpChangeWatcherImpl(ipCheckRepository, connectivityWatcher)
+    fun provideIpChangeWatcher(
+        ipCheckRepository: IpCheckRepository,
+        connectivityWatcher: ConnectivityWatcher,
+        captivePortal: CaptivePortal
+    ): IpChangeWatcher =
+        IpChangeWatcherImpl(ipCheckRepository, connectivityWatcher, captivePortal)
 
     @Provides
     @Singleton
@@ -124,6 +129,10 @@ class CoreModule {
     @Provides
     @Singleton
     fun provideIpEndpointProvider(config: Config): IpEndpointProvider = IpEndpointProviderImpl(config)
+
+    @Provides
+    @Singleton
+    fun provideCaptivePortal(ipEndpointProvider: IpEndpointProvider): CaptivePortal = CaptivePortal(ipEndpointProvider)
 
     @Provides
     fun provideSettingRepository(

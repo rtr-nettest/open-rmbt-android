@@ -29,7 +29,8 @@ The source code is published under [Apache version 2.0 license](https://github.c
     13. **CONTROL_SERVER_GET_BASIC_RESULT_PATH** - endpoint name for getting test results from the control server, example "testresult"
     14. **CONTROL_SERVER_GET_OPENDATA_RESULT_PATH** - endpoint name for getting open test results from the control server, example "opentests/[test_open_uuid]"
     15. **CONTROL_SERVER_GET_QOS_TEST_RESULT_ENDPOINT** - endpoint name for getting qos test results from the control server, example "qostestresult"
-    16. **CAPABILITIES_RMBT_HTTP** - client supports RMBT HTTP, example "false"
-    17. **CAPABILITIES_QOS_SUPPORTS_INFO** - if "true" the third state (=INFO) is supported, example "false"
-    18. **CAPABILITIES_CLASSIFICATION_COUNT** - number of intervals(classes) to classify measured values, example "4"
-    19. **IS_CONTROL_SERVER_OVERRIDE_ENABLED** - Control server override enabled false by default
+    16. **CAPTIVE_PORTAL_WALLED_GARDEN_URL** - url for checking captive portal presence
+    17. **CAPABILITIES_RMBT_HTTP** - client supports RMBT HTTP, example "false"
+    18. **CAPABILITIES_QOS_SUPPORTS_INFO** - if "true" the third state (=INFO) is supported, example "false"
+    19. **CAPABILITIES_CLASSIFICATION_COUNT** - number of intervals(classes) to classify measured values, example "4"
+    20. **IS_CONTROL_SERVER_OVERRIDE_ENABLED** - Control server override enabled false by default
