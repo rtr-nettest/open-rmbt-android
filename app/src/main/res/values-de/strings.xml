@@ -210,5 +210,10 @@
     <string name="hint_sync_code">Code</string>
     <string name="error_sync_code_short">Der Code muss aus 12 Zeichen bestehen</string>
     <string name="error_no_connection">Keine Netzwerksverbindung: Einträge konnten nicht geladen werden.</string>
+
+    <string name="label_map_filters">Einstellugen</string>
+    <string name="text_filter_confirm">übernehmen</string>
+    <string name="title_filters_type">Kartentyp</string>
+    <string name="title_filters_subtype">Einstellugen</string>
 </resources>
 

@@ -14,6 +14,7 @@
 
 package at.rmbt.client.control
 
+import com.google.gson.GsonBuilder
 import dagger.Module
 import dagger.Provides
 import okhttp3.OkHttpClient
@@ -49,7 +50,14 @@ class ControlServerModule {
     @Singleton
     fun provideRetrofit(controlEndpointProvider: ControlEndpointProvider): Retrofit = Retrofit.Builder()
         .baseUrl(controlEndpointProvider.host + "/")
-        .addConverterFactory(GsonConverterFactory.create())
+        .addConverterFactory(
+            GsonConverterFactory.create(
+                GsonBuilder().registerTypeAdapter(
+                    FilterBaseOptionResponse::class.java,
+                    FilterBaseOptionDeserializer()
+                ).create()
+            )
+        )
         .client(createOkHttpClient())
         .build()
 

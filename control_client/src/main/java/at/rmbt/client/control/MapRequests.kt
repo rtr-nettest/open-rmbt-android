@@ -85,3 +85,11 @@ data class Filter(
      */
     val technology: String? = null
 )
+
+@Keep
+data class FilterLanguageRequestBody(
+    /**
+     * 2 character language code
+     */
+    val language: String
+)

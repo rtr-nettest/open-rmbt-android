@@ -1,7 +1,9 @@
 package at.rmbt.client.control
 
+import android.os.Parcelable
 import androidx.annotation.Keep
 import com.google.gson.annotations.SerializedName
+import kotlinx.android.parcel.Parcelize
 
 @Keep
 data class MarkersResponse(val measurements: List<MarkerMeasurementsResponse>) : BaseResponse()
@@ -65,3 +67,56 @@ data class TestResultNetworkInfoItem(
     @SerializedName("wifi_ssid")
     val wifiSSID: String
 )
+
+@Keep
+data class MapFilterResponse(@SerializedName("mapfilter") val filter: MapFilterObjectResponse) : BaseResponse()
+
+@Keep
+data class MapFilterObjectResponse(val mapFilters: MapFiltersResponse, val mapTypes: List<MapTypeResponse>)
+
+@Keep
+data class MapTypeResponse(val options: List<MapTypeOptionsResponse>, val title: String)
+
+@Keep
+@Parcelize
+data class MapTypeOptionsResponse(
+    @SerializedName("map_options")
+    val mapOptions: String,
+    val summary: String,
+    val title: String
+) : Parcelable
+
+@Keep
+data class MapFiltersResponse(
+    val all: List<TypeOptionsResponse>,
+    val browser: List<TypeOptionsResponse>,
+    val mobile: List<TypeOptionsResponse>,
+    val wifi: List<TypeOptionsResponse>
+)
+
+@Keep
+@Parcelize
+data class FilterTechnologyOptionResponse(val technology: String) : FilterBaseOptionResponse()
+
+@Keep
+@Parcelize
+data class FilterStatisticOptionResponse(@SerializedName("statistical_method") val statisticalMethod: Double) : FilterBaseOptionResponse()
+
+@Keep
+@Parcelize
+data class FilterPeriodOptionResponse(val period: Int) : FilterBaseOptionResponse()
+
+@Keep
+@Parcelize
+data class FilterProviderOptionResponse(val provider: String) : FilterBaseOptionResponse()
+
+@Keep
+@Parcelize
+data class FilterOperatorOptionResponse(val operator: String) : FilterBaseOptionResponse()
+
+@Keep
+@Parcelize
+open class FilterBaseOptionResponse(val default: Boolean = false, val summary: String = "", val title: String = "") : Parcelable
+
+@Keep
+data class TypeOptionsResponse(val options: List<FilterBaseOptionResponse>, val title: String)

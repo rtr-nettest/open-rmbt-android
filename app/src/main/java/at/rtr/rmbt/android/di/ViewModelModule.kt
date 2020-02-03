@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import at.rtr.rmbt.android.viewmodel.HistoryViewModel
 import at.rtr.rmbt.android.viewmodel.HomeViewModel
+import at.rtr.rmbt.android.viewmodel.MapFiltersViewModel
 import at.rtr.rmbt.android.viewmodel.MapViewModel
 import at.rtr.rmbt.android.viewmodel.StatisticsViewModel
 import at.rtr.rmbt.android.viewmodel.NetworkDetailsViewModel
@@ -87,4 +88,9 @@ interface ViewModelModule {
     @IntoMap
     @ViewModelKey(QosTestsSummaryViewModel::class)
     fun bindQosTestsSummaryViewModel(viewModel: QosTestsSummaryViewModel): ViewModel
+
+    @Binds
+    @IntoMap
+    @ViewModelKey(MapFiltersViewModel::class)
+    fun bindMapFiltersViewModel(viewModel: MapFiltersViewModel): ViewModel
 }

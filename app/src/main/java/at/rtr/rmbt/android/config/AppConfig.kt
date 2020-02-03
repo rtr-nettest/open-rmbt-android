@@ -233,4 +233,8 @@ class AppConfig @Inject constructor(context: Context, private val serverSettings
     override var syncDevicesRoute: String
         get() = getString(BuildConfig.SYNC_DEVICES_ROUTE)
         set(value) = setString(BuildConfig.SYNC_DEVICES_ROUTE, value)
+
+    override var mapFilterInfoEndpoint: String
+        get() = getString(BuildConfig.MAP_FILTERS_ENDPOINT)
+        set(value) = setString(BuildConfig.MAP_FILTERS_ENDPOINT, value)
 }
