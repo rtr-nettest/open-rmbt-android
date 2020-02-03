@@ -21,6 +21,10 @@
         <import type="at.specure.location.LocationProviderState" />
 
         <variable
+            name="captiveState"
+            type="at.specure.info.ip.CaptivePortal.CaptivePortalStatus" />
+
+        <variable
             name="state"
             type="at.rtr.rmbt.android.ui.viewstate.HomeViewState" />
     </data>
@@ -136,6 +140,20 @@
             app:layout_constraintStart_toStartOf="@+id/viewCircleShape"
             app:layout_constraintTop_toTopOf="@+id/viewCircleShape"
             app:signalLevel="@{state.signalStrength}" />
+
+        <androidx.appcompat.widget.AppCompatImageView
+            android:id="@+id/ivIsCaptivePortal"
+            android:layout_width="@dimen/home_extra_button_size"
+            android:layout_height="@dimen/home_extra_button_size"
+            android:layout_marginTop="@dimen/padding_large"
+            android:src="@drawable/ic_captive_portal"
+            app:layout_constraintBottom_toBottomOf="@+id/viewCircleShape"
+            app:layout_constraintEnd_toEndOf="@+id/viewCircleShape"
+            app:layout_constraintHorizontal_bias="0.88"
+            app:layout_constraintStart_toEndOf="@+id/ivIsConnectedCircle"
+            app:layout_constraintTop_toBottomOf="@+id/ivIsConnectedCircle"
+            app:layout_constraintVertical_bias="0.75"
+            app:visibleOrGone="@{state.ipV4Info.captivePortalStatus == captiveState.FOUND || state.ipV6Info.captivePortalStatus == captiveState.FOUND}" />
 
         <androidx.appcompat.widget.AppCompatImageView
             android:id="@+id/ivTechnology"

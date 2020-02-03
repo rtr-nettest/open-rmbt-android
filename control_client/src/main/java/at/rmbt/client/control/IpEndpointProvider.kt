@@ -29,4 +29,9 @@ interface IpEndpointProvider {
      * Link to check public IPv6 address, example "v6.myhost.com/ControlServer/V2/ip
      */
     val checkPublicIPv6Url: String
+
+    /**
+     * Url for checking captive portal through walled garden
+     */
+    val captivePortalWalledGardenUrl: String
 }

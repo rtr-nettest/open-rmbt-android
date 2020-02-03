@@ -38,5 +38,10 @@ data class IpInfo(
     /**
      * Ip status regarding to values from [IpStatus]
      */
-    val ipStatus: IpStatus
+    val ipStatus: IpStatus,
+
+    /**
+     * Captive portal status [CaptivePortal.CaptivePortalStatus]
+     */
+    val captivePortalStatus: CaptivePortal.CaptivePortalStatus
 )
