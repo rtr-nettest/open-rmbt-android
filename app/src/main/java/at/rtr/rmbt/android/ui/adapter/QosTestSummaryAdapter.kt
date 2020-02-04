@@ -26,7 +26,7 @@ import at.specure.data.entity.QosTestItemRecord
 
 class QosTestSummaryAdapter : ListAdapter<QosTestItemRecord, QosTestSummaryAdapter.Holder>(DIFF_CALLBACK) {
 
-    var actionCallback: ((QosTestItemRecord) -> Unit)? = null
+    var actionCallback: ((Int) -> Unit)? = null
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): Holder {
         return Holder(parent.bindWith(R.layout.item_qos_test_summary))
@@ -36,7 +36,7 @@ class QosTestSummaryAdapter : ListAdapter<QosTestItemRecord, QosTestSummaryAdapt
         val item = getItem(position) ?: return
         holder.binding.item = item
         holder.binding.root.setOnClickListener {
-            actionCallback?.invoke(item)
+            actionCallback?.invoke(position)
         }
     }
 
