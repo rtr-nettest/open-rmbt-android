@@ -15,6 +15,8 @@ import at.rtr.rmbt.android.viewmodel.ResultChartViewModel
 import at.rtr.rmbt.android.viewmodel.SyncDevicesViewModel
 import at.rtr.rmbt.android.viewmodel.TestResultDetailViewModel
 import at.rtr.rmbt.android.viewmodel.QosTestsSummaryViewModel
+import at.rtr.rmbt.android.viewmodel.QosTestDetailViewModel
+import at.rtr.rmbt.android.viewmodel.QosTestDetailPagerViewModel
 import dagger.Binds
 import dagger.Module
 import dagger.multibindings.IntoMap
@@ -88,6 +90,16 @@ interface ViewModelModule {
     @IntoMap
     @ViewModelKey(QosTestsSummaryViewModel::class)
     fun bindQosTestsSummaryViewModel(viewModel: QosTestsSummaryViewModel): ViewModel
+
+    @Binds
+    @IntoMap
+    @ViewModelKey(QosTestDetailViewModel::class)
+    fun bindQosTestDetailViewModel(viewModel: QosTestDetailViewModel): ViewModel
+
+    @Binds
+    @IntoMap
+    @ViewModelKey(QosTestDetailPagerViewModel::class)
+    fun bindQosTestDetailPagerViewModel(viewModel: QosTestDetailPagerViewModel): ViewModel
 
     @Binds
     @IntoMap

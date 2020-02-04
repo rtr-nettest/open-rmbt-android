@@ -188,6 +188,10 @@
     <string name="result_test_details">Test details</string>
     <string name="label_information">Informationen</string>
     <string name="label_tests">Tests</string>
+    <string name="label_succeeded">ERFOLGREICH</string>
+    <string name="label_failed">GESCHEITERT</string>
+    <string name="label_description">BESCHREIBUNG</string>
+    <string name="label_detail">DETAIL</string>
 
     <!-- Map -->
     <string name="map_layer_communities">PLZ</string>

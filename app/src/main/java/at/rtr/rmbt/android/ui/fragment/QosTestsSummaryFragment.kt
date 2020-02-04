@@ -2,8 +2,6 @@ package at.rtr.rmbt.android.ui.fragment
 
 import android.os.Bundle
 import android.view.View
-import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.widget.Toolbar
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.DividerItemDecoration
 import at.rtr.rmbt.android.R
@@ -51,24 +49,15 @@ class QosTestsSummaryFragment : BaseFragment() {
         }
 
         qosTestSummaryAdapter.actionCallback = {
-        }
 
-        setupToolbar(arguments?.getString(KEY_CATEGORY_NAME))
-    }
-
-    private fun setupToolbar(toolbarTitle: String?) {
-
-        requireActivity().apply {
-            val toolbar: Toolbar = binding.toolbar
-            (this as AppCompatActivity).setSupportActionBar(toolbar)
-            this.supportActionBar?.setDisplayShowTitleEnabled(false)
-            toolbar.setNavigationIcon(R.drawable.ic_back)
-            binding.tvToolbarTitle.text = toolbarTitle
-            toolbar.setNavigationOnClickListener {
-                this.onBackPressed()
-            }
+            val fragment = QosTestDetailPagerFragment.newInstance(qosTestsSummaryViewModel.state.testUUID, qosTestsSummaryViewModel.state.category)
+            requireActivity().supportFragmentManager.beginTransaction()
+                .addToBackStack(fragment.javaClass.name)
+                .replace(R.id.fragment_content, fragment)
+                .commit()
         }
     }
+
     companion object {
 
         private const val KEY_TEST_UUID: String = "KEY_TEST_UUID"

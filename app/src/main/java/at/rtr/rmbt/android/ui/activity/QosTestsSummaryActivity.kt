@@ -17,6 +17,7 @@ package at.rtr.rmbt.android.ui.activity
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import androidx.appcompat.widget.Toolbar
 import at.rtr.rmbt.android.R
 import at.rtr.rmbt.android.databinding.ActivityQosTestsSummaryBinding
 import at.rtr.rmbt.android.ui.fragment.QosTestsSummaryFragment
@@ -44,8 +45,20 @@ class QosTestsSummaryActivity : BaseActivity() {
                 .replace(R.id.fragment_content, QosTestsSummaryFragment.newInstance(testUUID, categoryDescription, category, categoryName))
                 .commitNow()
         }
+
+        setupToolbar(categoryName)
     }
 
+    private fun setupToolbar(toolbarTitle: String?) {
+        val toolbar: Toolbar = binding.toolbar
+        setSupportActionBar(toolbar)
+        supportActionBar?.setDisplayShowTitleEnabled(false)
+        toolbar.setNavigationIcon(R.drawable.ic_back)
+        binding.tvToolbarTitle.text = toolbarTitle
+        toolbar.setNavigationOnClickListener {
+            onBackPressed()
+        }
+    }
     companion object {
 
         private const val KEY_TEST_UUID: String = "KEY_TEST_UUID"
