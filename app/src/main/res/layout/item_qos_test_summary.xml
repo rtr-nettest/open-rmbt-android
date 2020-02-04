@@ -18,15 +18,12 @@
         android:orientation="horizontal"
         android:padding="@dimen/padding_large">
 
-        <androidx.appcompat.widget.AppCompatTextView
-            android:id="@+id/textTestNumber"
-            style="@style/RobotoRegularStyle.VerySmall"
+        <androidx.appcompat.widget.AppCompatImageView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
-            android:text="@{String.format(@string/qos_test_number, item.testNumber)}"
-            android:textColor="@color/text_gray_transparency_60"
-            tools:text="#1" />
+            android:src="@{item.success ? @drawable/ic_qos_test_success : @drawable/ic_qos_test_fail}" />
+
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/textTestSummary"
@@ -38,7 +35,7 @@
             android:drawableEnd="@drawable/ic_right"
             android:drawablePadding="@dimen/padding_medium"
             android:gravity="center_vertical"
-            android:text="@{item.testSummary}"
+            android:text='@{String.format("%s %s", String.format(@string/qos_test_number, item.testNumber), item.testSummary)}'
             android:textColor="@color/text_dark_gray"
             tools:text="Test Summary" />
     </androidx.appcompat.widget.LinearLayoutCompat>

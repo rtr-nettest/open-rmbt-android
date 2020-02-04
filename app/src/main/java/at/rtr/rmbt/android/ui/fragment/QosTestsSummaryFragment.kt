@@ -50,7 +50,7 @@ class QosTestsSummaryFragment : BaseFragment() {
 
         qosTestSummaryAdapter.actionCallback = {
 
-            val fragment = QosTestDetailPagerFragment.newInstance(qosTestsSummaryViewModel.state.testUUID, qosTestsSummaryViewModel.state.category)
+            val fragment = QosTestDetailPagerFragment.newInstance(qosTestsSummaryViewModel.state.testUUID, qosTestsSummaryViewModel.state.category, it)
             requireActivity().supportFragmentManager.beginTransaction()
                 .addToBackStack(fragment.javaClass.name)
                 .replace(R.id.fragment_content, fragment)

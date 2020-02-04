@@ -4,7 +4,7 @@ import android.content.Context
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
-import androidx.fragment.app.FragmentPagerAdapter
+import androidx.fragment.app.FragmentStatePagerAdapter
 import at.rtr.rmbt.android.R
 import at.rtr.rmbt.android.ui.fragment.QosTestDetailFragment
 import at.specure.data.entity.QosTestItemRecord
@@ -14,7 +14,7 @@ class QosTestDetailPagerAdapter(
     fragmentManager: FragmentManager,
     private val qosTestItems: List<QosTestItemRecord>
 ) :
-    FragmentPagerAdapter(fragmentManager, BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT) {
+    FragmentStatePagerAdapter(fragmentManager, BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT) {
 
     private val fragments = mutableMapOf<Long, Fragment>()
 
