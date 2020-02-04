@@ -201,6 +201,10 @@
     <string name="qos_test_number" translatable="false"># %1$d</string>
     <string name="label_information">Information</string>
     <string name="label_tests">Tests</string>
+    <string name="label_succeeded">SUCCEEDED</string>
+    <string name="label_failed">FAILED</string>
+    <string name="label_description">DESCRIPTION</string>
+    <string name="label_detail">DETAIL</string>
 
     <!-- Map -->
     <string name="map_layer_communities">Communities</string>
