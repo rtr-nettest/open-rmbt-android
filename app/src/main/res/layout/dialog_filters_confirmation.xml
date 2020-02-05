@@ -5,16 +5,8 @@
     <data>
 
         <variable
-            name="mapStyle"
-            type="at.rmbt.client.control.data.MapStyleType" />
-
-        <variable
-            name="mapType"
-            type="at.rmbt.client.control.data.MapPresentationType" />
-
-        <import type="at.rmbt.client.control.data.MapStyleType" />
-
-        <import type="at.rmbt.client.control.data.MapPresentationType" />
+            name="buttonText"
+            type="String" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -63,7 +55,7 @@
             android:layout_marginTop="@dimen/padding_large"
             android:layout_marginEnd="@dimen/padding_large"
             android:background="@drawable/button_green_background"
-            android:text="@string/text_filter_confirm"
+            android:text="@{buttonText}"
             android:textColor="@android:color/white"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"

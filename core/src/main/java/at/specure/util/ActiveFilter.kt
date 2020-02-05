@@ -32,25 +32,25 @@ class ActiveFilter @Inject constructor(context: Context, private val valuesStora
         get() = valuesStorage.findSubtype(preferences.getString(KEY_SUBTYPE, "Download"), type)
         set(value) = preferences.edit().putString(KEY_SUBTYPE, value.title).apply()
 
-    var statistical: FilterStatisticOptionResponse?
+    var statistical: FilterStatisticOptionResponse
         get() = valuesStorage.findStatistical(preferences.getString(KEY_STATISTICAL, valuesStorage.findStatisticalDefault(type)), type)
-        set(value) = preferences.edit().putString(KEY_STATISTICAL, value?.title).apply()
+        set(value) = preferences.edit().putString(KEY_STATISTICAL, value.title).apply()
 
-    var timeRange: FilterPeriodOptionResponse?
+    var timeRange: FilterPeriodOptionResponse
         get() = valuesStorage.findPeriod(preferences.getString(KEY_TIME_RANGE, valuesStorage.findPeriodDefault(type)), type)
-        set(value) = preferences.edit().putString(KEY_TIME_RANGE, value?.title).apply()
+        set(value) = preferences.edit().putString(KEY_TIME_RANGE, value.title).apply()
 
-    var provider: FilterProviderOptionResponse?
+    var provider: FilterProviderOptionResponse
         get() = valuesStorage.findProvider(preferences.getString(KEY_PROVIDER, valuesStorage.findProviderDefault(type)), type)
-        set(value) = preferences.edit().putString(KEY_PROVIDER, value?.title).apply()
+        set(value) = preferences.edit().putString(KEY_PROVIDER, value.title).apply()
 
-    var operator: FilterOperatorOptionResponse?
+    var operator: FilterOperatorOptionResponse
         get() = valuesStorage.findOperator(preferences.getString(KEY_OPERATOR, valuesStorage.findOperatorDefault(type)), type)
         set(value) {
-            preferences.edit().putString(KEY_OPERATOR, value?.title).apply()
+            preferences.edit().putString(KEY_OPERATOR, value.title).apply()
         }
 
-    var technology: FilterTechnologyOptionResponse?
+    var technology: FilterTechnologyOptionResponse
         get() = valuesStorage.findTechnology(preferences.getString(KEY_TECHNOLOGY, valuesStorage.findTechnologyDefault(type)), type)
-        set(value) = preferences.edit().putString(KEY_TECHNOLOGY, value?.title).apply()
+        set(value) = preferences.edit().putString(KEY_TECHNOLOGY, value.title).apply()
 }

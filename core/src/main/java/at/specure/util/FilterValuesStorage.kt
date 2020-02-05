@@ -64,31 +64,32 @@ class FilterValuesStorage @Inject constructor() {
 
     fun findType(value: MapFilterType) = types.filterValues { it == value }.keys.first()
 
-    fun findSubtype(value: String?, type: MapFilterType) = subTypes.getValue(type).first { it.title == value }
+    fun findSubtype(value: String?, type: MapFilterType) =
+        subTypes.getValue(type).firstOrNull { it.title == value } ?: subTypes.getValue(type).first()
 
-    fun findStatistical(value: String?, type: MapFilterType) = findOption(value, type, statistics) as? FilterStatisticOptionResponse
+    fun findStatistical(value: String?, type: MapFilterType) = findOption(value, type, statistics) as FilterStatisticOptionResponse
 
-    fun findPeriod(value: String?, type: MapFilterType) = findOption(value, type, period) as? FilterPeriodOptionResponse
+    fun findPeriod(value: String?, type: MapFilterType) = findOption(value, type, period) as FilterPeriodOptionResponse
 
-    fun findTechnology(value: String?, type: MapFilterType) = findOption(value, type, technology) as? FilterTechnologyOptionResponse
+    fun findTechnology(value: String?, type: MapFilterType) = findOption(value, type, technology) as FilterTechnologyOptionResponse
 
-    fun findProvider(value: String?, type: MapFilterType) = findOption(value, type, provider) as? FilterProviderOptionResponse
+    fun findProvider(value: String?, type: MapFilterType) = findOption(value, type, provider) as FilterProviderOptionResponse
 
-    fun findOperator(value: String?, type: MapFilterType) =
-        findOption(value, type, operator) as? FilterOperatorOptionResponse
+    fun findOperator(value: String?, type: MapFilterType) = findOption(value, type, operator) as FilterOperatorOptionResponse
 
-    fun findStatisticalDefault(type: MapFilterType) = findDefaultOption(type, statistics)?.title
+    fun findStatisticalDefault(type: MapFilterType) = findDefaultOption(type, statistics).title
 
-    fun findPeriodDefault(type: MapFilterType) = findDefaultOption(type, period)?.title
+    fun findPeriodDefault(type: MapFilterType) = findDefaultOption(type, period).title
 
-    fun findTechnologyDefault(type: MapFilterType) = findDefaultOption(type, technology)?.title
+    fun findTechnologyDefault(type: MapFilterType) = findDefaultOption(type, technology).title
 
-    fun findProviderDefault(type: MapFilterType) = findDefaultOption(type, provider)?.title
+    fun findProviderDefault(type: MapFilterType) = findDefaultOption(type, provider).title
 
-    fun findOperatorDefault(type: MapFilterType) = findDefaultOption(type, operator)?.title
+    fun findOperatorDefault(type: MapFilterType) = findDefaultOption(type, operator).title
 
     private fun findOption(value: String?, type: MapFilterType, data: Map<MapFilterType, List<FilterBaseOptionResponse>>) =
-        data[type]?.find { it.title == value }
+        data.getValue(type).find { it.title == value } ?: findDefaultOption(type, data)
 
-    private fun findDefaultOption(type: MapFilterType, data: Map<MapFilterType, List<FilterBaseOptionResponse>>) = data[type]?.first { it.default }
+    private fun findDefaultOption(type: MapFilterType, data: Map<MapFilterType, List<FilterBaseOptionResponse>>) =
+        data.getValue(type).first { it.default }
 }

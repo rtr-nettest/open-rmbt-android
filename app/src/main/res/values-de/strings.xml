@@ -222,6 +222,7 @@
 
     <string name="label_map_filters">Einstellugen</string>
     <string name="text_filter_confirm">übernehmen</string>
+    <string name="text_filter_continue">Fortsetzen</string>
     <string name="title_filters_type">Kartentyp</string>
     <string name="title_filters_subtype">Einstellugen</string>
 
