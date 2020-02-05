@@ -8,6 +8,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
+import android.view.inputmethod.EditorInfo
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import at.rtr.rmbt.android.R
@@ -42,27 +43,40 @@ class MapSearchDialog : FullscreenDialog() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
-        binding.buttonSearch.setOnClickListener {
-
-            val value: String = binding.editTextValue.text.toString()
-            if (value.isNotEmpty()) {
-                binding.buttonSearch.visibility = View.INVISIBLE
-                binding.progressbar.visibility = View.VISIBLE
-
-                searchJob = coroutineScope.launch {
-                    loadResults(value) {
-                        callback?.onAddressResult(it)
-                        binding.buttonSearch.visibility = View.VISIBLE
-                        binding.progressbar.visibility = View.GONE
-                        dismiss()
-                    }
+        binding.editTextValue.setOnEditorActionListener { v, actionId, event ->
+            return@setOnEditorActionListener when (actionId) {
+                EditorInfo.IME_ACTION_SEARCH -> {
+                    startSearch()
+                    true
                 }
+                else -> false
             }
         }
 
+        binding.buttonSearch.setOnClickListener {
+            startSearch()
+        }
+
         binding.buttonCancel.setOnClickListener {
+            searchJob?.cancel()
             dismiss()
+        }
+    }
+
+    private fun startSearch() {
+        val value: String = binding.editTextValue.text.toString()
+        if (value.isNotEmpty()) {
+            binding.buttonSearch.visibility = View.INVISIBLE
+            binding.progressbar.visibility = View.VISIBLE
+            searchJob?.cancel()
+            searchJob = coroutineScope.launch {
+                loadResults(value) {
+                    callback?.onAddressResult(it)
+                    binding.buttonSearch.visibility = View.VISIBLE
+                    binding.progressbar.visibility = View.GONE
+                    dismiss()
+                }
+            }
         }
     }
 

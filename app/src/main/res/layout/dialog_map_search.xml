@@ -61,9 +61,12 @@
             android:layout_marginTop="@dimen/margin_medium"
             android:layout_marginEnd="@dimen/margin_small"
             android:textColor="@color/text_black_transparency_60"
+            android:imeOptions="actionSearch"
             app:backgroundTint="@color/colorAccent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
+            android:inputType="text"
+            android:maxLines="1"
             app:layout_constraintTop_toBottomOf="@+id/labelMessage">
 
             <requestFocus />
