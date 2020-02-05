@@ -67,7 +67,7 @@ class MapSearchDialog : FullscreenDialog() {
     }
 
     private fun loadResults(value: String, found: (Address?) -> Unit) {
-        val geocoder = Geocoder(activity)
+        val geocoder = Geocoder(requireContext())
         val addressList: List<Address>?
         try {
             addressList = geocoder.getFromLocationName(value, 1)

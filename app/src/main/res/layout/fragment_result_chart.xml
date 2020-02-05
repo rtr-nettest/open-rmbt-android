@@ -7,9 +7,7 @@
         android:id="@+id/relativeLayoutRoot"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:minHeight="@dimen/speed_chart_height"
-        >
-
+        android:minHeight="@dimen/speed_chart_height">
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/textChartType"

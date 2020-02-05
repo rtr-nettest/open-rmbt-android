@@ -227,5 +227,7 @@
 
     <string name="about_email_sending">E-Mail senden…</string>
     <string name="about_email_subject">Supportanfrage</string>
+
+    <string name="graph_signal_value">%1$s dBm</string>
 </resources>
 
