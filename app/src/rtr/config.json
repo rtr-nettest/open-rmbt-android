@@ -142,7 +142,7 @@
     },
     {
       "name": "EMAIL_ADDRESS",
-      "value": "OpenRMBT Support <netztest@rtr.at>",
+      "value": "RTR-Netztest Support <netztest@rtr.at>",
       "visible": false
     },
     {

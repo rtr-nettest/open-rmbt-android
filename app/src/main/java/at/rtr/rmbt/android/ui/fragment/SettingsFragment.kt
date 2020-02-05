@@ -130,11 +130,12 @@ class SettingsFragment : BaseFragment() {
         binding.contactUs.title.setOnClickListener {
             val emailIntent = Intent(Intent.ACTION_SEND)
             emailIntent.type = "plain/text"
-            emailIntent.putExtra(Intent.EXTRA_EMAIL, arrayOf("<![CDATA[${settingsViewModel.state.emailAddress.get()}]]>"))
+            emailIntent.putExtra(Intent.EXTRA_EMAIL, arrayOf(settingsViewModel.state.emailAddress.get()))
             emailIntent.putExtra(
                 Intent.EXTRA_SUBJECT,
                 "${getString(R.string.about_email_subject)}  ${getString(R.string.app_name)}  ${BuildConfig.VERSION_NAME}"
             )
+            emailIntent.putExtra(Intent.EXTRA_TEXT, "") // to navigate cursor directly to the message body
             startActivity(Intent.createChooser(emailIntent, getString(R.string.about_email_sending)))
         }
     }
