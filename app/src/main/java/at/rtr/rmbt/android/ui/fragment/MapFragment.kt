@@ -1,7 +1,10 @@
 package at.rtr.rmbt.android.ui.fragment
 
+import android.location.Address
+import android.location.Geocoder
 import android.os.Bundle
 import android.view.View
+import android.widget.Toast
 import androidx.annotation.DrawableRes
 import androidx.recyclerview.widget.LinearSnapHelper
 import androidx.recyclerview.widget.RecyclerView
@@ -15,6 +18,7 @@ import at.rtr.rmbt.android.ui.activity.ShowWebViewActivity
 import at.rtr.rmbt.android.ui.adapter.MapMarkerDetailsAdapter
 import at.rtr.rmbt.android.ui.dialog.MapFiltersDialog
 import at.rtr.rmbt.android.ui.dialog.MapLayersDialog
+import at.rtr.rmbt.android.ui.dialog.MapSearchDialog
 import at.rtr.rmbt.android.util.ToolbarTheme
 import at.rtr.rmbt.android.util.changeStatusBarColor
 import at.rtr.rmbt.android.util.iconFromVector
@@ -38,11 +42,12 @@ const val START_ZOOM_LEVEL = 12f
 
 private const val CODE_LAYERS_DIALOG = 1
 private const val CODE_FILTERS_DIALOG = 2
+private const val CODE_SEARCH_DIALOG = 3
 private const val ANCHOR_U = 0.5f
 private const val ANCHOR_V = 0.865f
 
 class MapFragment : BaseFragment(), OnMapReadyCallback, MapMarkerDetailsAdapter.MarkerDetailsCallback, MapLayersDialog.Callback,
-    MapFiltersDialog.Callback {
+    MapFiltersDialog.Callback, MapSearchDialog.Callback {
 
     private val mapViewModel: MapViewModel by viewModelLazy()
     private val binding: FragmentMapBinding by bindingLazy()
@@ -95,6 +100,9 @@ class MapFragment : BaseFragment(), OnMapReadyCallback, MapMarkerDetailsAdapter.
                 }
             }
         })
+        binding.fabSearch.setOnClickListener {
+            showSearchDialog()
+        }
     }
 
     override fun onStyleSelected(style: MapStyleType) {
@@ -106,6 +114,18 @@ class MapFragment : BaseFragment(), OnMapReadyCallback, MapMarkerDetailsAdapter.
         currentOverlay?.remove()
         mapViewModel.state.type.set(type)
         currentOverlay = googleMap?.addTileOverlay(TileOverlayOptions().tileProvider(mapViewModel.providerLiveData.value))
+    }
+
+    override fun onAddressResult(address: Address?) {
+        if (address != null) {
+            googleMap?.moveCamera(
+                CameraUpdateFactory.newLatLng(
+                    LatLng(address.latitude, address.longitude)
+                )
+            )
+        } else {
+            Toast.makeText(activity, R.string.map_search_location_dialog_not_found, Toast.LENGTH_SHORT).show()
+        }
     }
 
     override fun onMapReady(map: GoogleMap?) {
@@ -286,4 +306,12 @@ class MapFragment : BaseFragment(), OnMapReadyCallback, MapMarkerDetailsAdapter.
         mapViewModel.state.type.get() == MapPresentationType.POINTS ||
                 (mapViewModel.state.type.get() == MapPresentationType.AUTOMATIC && googleMap?.cameraPosition != null &&
                         googleMap?.cameraPosition!!.zoom >= 10)
+
+    private fun showSearchDialog() {
+        if (!Geocoder.isPresent()) {
+            Toast.makeText(activity, R.string.map_search_location_not_supported, Toast.LENGTH_SHORT).show()
+            return
+        }
+        MapSearchDialog.instance(this, CODE_SEARCH_DIALOG).show(fragmentManager)
+    }
 }
