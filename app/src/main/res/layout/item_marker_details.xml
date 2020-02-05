@@ -318,7 +318,16 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:visibility="@{item.wifiSSID != null ? View.VISIBLE : View.INVISIBLE}"
-                app:constraint_referenced_ids="labelNetworkName,textNetworkName,provider_divider" />
+                app:constraint_referenced_ids="labelNetworkName,textNetworkName,wlan_divider" />
+
+            <View
+                android:id="@+id/wlan_divider"
+                android:layout_width="0dp"
+                android:layout_height="@dimen/size_divider_height"
+                android:background="@color/horizontal_divider"
+                app:layout_constraintEnd_toEndOf="@id/textProvider"
+                app:layout_constraintStart_toStartOf="@id/labelProvider"
+                app:layout_constraintTop_toBottomOf="@id/labelNetworkName" />
 
             <TextView
                 android:id="@+id/moreDetails"

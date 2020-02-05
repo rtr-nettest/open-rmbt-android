@@ -52,14 +52,14 @@ class MapRepositoryImpl @Inject constructor(
     override fun loadMarkers(latitude: Double?, longitude: Double?, zoom: Int, loaded: (Boolean) -> Unit) = io {
         val coordinates = Coordinates(latitude, longitude, zoom)
 
-        val operator = if (active.operator?.operator.isNullOrBlank()) null else active.operator?.operator
-        val technology = if (active.technology?.technology.isNullOrBlank()) null else active.technology?.technology
-        val provider = if (active.provider?.provider.isNullOrBlank()) null else active.provider?.provider
+        val operator = if (active.type != MapFilterType.MOBILE || active.operator.operator.isBlank()) null else active.operator.operator
+        val technology = if (active.type != MapFilterType.MOBILE || active.technology.technology.isBlank()) null else active.technology.technology
+        val provider = if (active.type == MapFilterType.MOBILE || active.provider.provider.isBlank()) null else active.provider.provider
 
         val body = MarkersRequestBody(
             language = Locale.getDefault().language,
             coordinates = coordinates,
-            filter = Filter(operator, active.timeRange?.period.toString(), provider, active.statistical?.statisticalMethod.toString(), technology),
+            filter = Filter(operator, active.timeRange.period.toString(), provider, active.statistical.statisticalMethod.toString(), technology),
             options = MapOptions(active.subtype.mapOptions)
         )
         val result = client.getMarkers(body)
@@ -173,7 +173,7 @@ class MapRepositoryImpl @Inject constructor(
 
     private fun prepareFilters(): Map<String, String> {
         val filters = hashMapOf<String, String>()
-        active.subtype?.mapOptions?.let { filters.put("map_options", it) }
+        filters["map_options"] = active.subtype.mapOptions
         filters["statistical_method"] = active.statistical?.statisticalMethod.toString()
         filters["period"] = active.timeRange?.period.toString()
         if (active.type == MapFilterType.MOBILE) {

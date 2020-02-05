@@ -238,6 +238,7 @@
 
     <string name="label_map_filters">Map filters</string>
     <string name="text_filter_confirm">Accept</string>
+    <string name="text_filter_continue">Continue</string>
     <string name="title_filters_type">Map type</string>
     <string name="title_filters_subtype">Type options</string>
 

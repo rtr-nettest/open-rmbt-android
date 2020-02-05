@@ -17,7 +17,7 @@ class MapFiltersConfirmationDialog : FullscreenDialog() {
 
     override val gravity: Int = Gravity.BOTTOM
 
-    override val cancelable: Boolean = false
+    override val cancelable: Boolean = true
 
     override val dimBackground: Boolean = false
 
@@ -43,6 +43,8 @@ class MapFiltersConfirmationDialog : FullscreenDialog() {
         arguments?.getStringArrayList(ARG_DATA)?.let { adapter.items = it }
         arguments?.getInt(ARG_POSITION)?.let { adapter.selected = it }
         val title = arguments?.getString(ARG_TITLE)
+        binding.buttonText =
+            getString(if (targetRequestCode == MapFiltersDialog.CODE_TYPE) R.string.text_filter_continue else R.string.text_filter_confirm)
 
         binding.label.text = title
         binding.items.adapter = adapter

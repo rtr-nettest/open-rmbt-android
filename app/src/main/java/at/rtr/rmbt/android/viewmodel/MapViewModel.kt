@@ -8,12 +8,13 @@ import at.rtr.rmbt.android.ui.viewstate.MapViewState
 import at.specure.data.entity.MarkerMeasurementRecord
 import at.specure.data.repository.MapRepository
 import at.specure.location.LocationInfoLiveData
+import at.specure.util.permission.LocationAccess
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.Tile
 import com.google.android.gms.maps.model.TileProvider
 import javax.inject.Inject
 
-class MapViewModel @Inject constructor(private val repository: MapRepository, val locationInfoLiveData: LocationInfoLiveData) : BaseViewModel() {
+class MapViewModel @Inject constructor(private val repository: MapRepository, val locationInfoLiveData: LocationInfoLiveData, val locationAccess: LocationAccess) : BaseViewModel() {
 
     val state = MapViewState()
 

@@ -82,12 +82,6 @@ class MapFragment : BaseFragment(), OnMapReadyCallback, MapMarkerDetailsAdapter.
             MapFiltersDialog.instance(this, CODE_FILTERS_DIALOG).show(fragmentManager)
         }
 
-        binding.fabLocation.setOnClickListener {
-            mapViewModel.locationInfoLiveData.value?.let {
-                googleMap?.animateCamera(CameraUpdateFactory.newLatLng(LatLng(it.latitude, it.longitude)))
-            }
-        }
-
         snapHelper = LinearSnapHelper().apply { attachToRecyclerView(binding.markerItems) }
         binding.markerItems.adapter = adapter
         binding.markerItems.itemAnimator?.changeDuration = 0
@@ -138,6 +132,7 @@ class MapFragment : BaseFragment(), OnMapReadyCallback, MapMarkerDetailsAdapter.
                 isRotateGesturesEnabled = false
             }
         }
+        updateLocationPermissionRelatedUi()
 
         mapViewModel.markersLiveData.listen(this) {
             adapter.items = it as MutableList<MarkerMeasurementRecord>
@@ -166,6 +161,7 @@ class MapFragment : BaseFragment(), OnMapReadyCallback, MapMarkerDetailsAdapter.
     override fun onResume() {
         super.onResume()
         binding.map.onResume()
+        updateLocationPermissionRelatedUi()
     }
 
     override fun onStop() {
@@ -199,7 +195,7 @@ class MapFragment : BaseFragment(), OnMapReadyCallback, MapMarkerDetailsAdapter.
     }
 
     private fun drawMarker(record: MarkerMeasurementRecord) {
-        if (record.networkTypeLabel != ServerNetworkType.UNKNOWN.stringValue) {
+        if (record.networkTypeLabel != ServerNetworkType.UNKNOWN.stringValue && record.networkTypeLabel != ServerNetworkType.TYPE_BROWSER.stringValue) {
             record.networkTypeLabel?.let {
                 val icon = when (NetworkTypeCompat.fromString(it)) {
                     NetworkTypeCompat.TYPE_WLAN -> R.drawable.ic_marker_wifi
@@ -286,6 +282,19 @@ class MapFragment : BaseFragment(), OnMapReadyCallback, MapMarkerDetailsAdapter.
             visiblePosition = RecyclerView.NO_POSITION
             currentMarker = null
             drawCurrentMarker()
+        }
+    }
+
+    private fun updateLocationPermissionRelatedUi() {
+        if (mapViewModel.locationAccess.isAllowed) {
+            googleMap?.isMyLocationEnabled = true
+
+            binding.fabLocation.setOnClickListener {
+                mapViewModel.locationInfoLiveData.listen(this) {
+                    mapViewModel.locationInfoLiveData.removeObservers(this)
+                    googleMap?.animateCamera(CameraUpdateFactory.newLatLng(LatLng(it.latitude, it.longitude)))
+                }
+            }
         }
     }
 
