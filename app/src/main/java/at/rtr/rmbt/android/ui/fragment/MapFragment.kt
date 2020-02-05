@@ -113,8 +113,8 @@ class MapFragment : BaseFragment(), OnMapReadyCallback, MapMarkerDetailsAdapter.
     override fun onAddressResult(address: Address?) {
         if (address != null) {
             googleMap?.moveCamera(
-                CameraUpdateFactory.newLatLng(
-                    LatLng(address.latitude, address.longitude)
+                CameraUpdateFactory.newLatLngZoom(
+                    LatLng(address.latitude, address.longitude), 8f
                 )
             )
         } else {
