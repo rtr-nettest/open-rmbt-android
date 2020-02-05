@@ -8,8 +8,7 @@ import androidx.core.widget.ContentLoadingProgressBar
 import at.rtr.rmbt.android.R
 import at.rtr.rmbt.android.databinding.FragmentResultChartBinding
 import at.rtr.rmbt.android.di.viewModelLazy
-import at.rtr.rmbt.android.ui.view.PingChart
-import at.rtr.rmbt.android.ui.view.SpeedLineChart
+import at.rtr.rmbt.android.ui.view.ResultChart
 import at.rtr.rmbt.android.util.listen
 import at.rtr.rmbt.android.viewmodel.ResultChartViewModel
 import at.specure.data.NetworkTypeCompat
@@ -52,7 +51,7 @@ class ResultChartFragment : BaseFragment() {
             }
             TestResultGraphItemRecord.Type.SIGNAL -> {
                 binding.textChartType.text = getString(R.string.label_signal_strength)
-                layoutInflater.inflate(R.layout.layout_ping_chart, null)
+                layoutInflater.inflate(R.layout.layout_signal_chart, null)
             }
         }
 
@@ -85,22 +84,9 @@ class ResultChartFragment : BaseFragment() {
     private fun showGraphItems() {
         graphView.visibility = View.VISIBLE
         progressLoadItems.visibility = View.GONE
-        when (viewModel.state.chartType) {
-            TestResultGraphItemRecord.Type.DOWNLOAD, TestResultGraphItemRecord.Type.UPLOAD -> {
-                if (graphView is SpeedLineChart) {
-                    (graphView as SpeedLineChart).addResultGraphItems(viewModel.state.graphItems)
-                }
-            }
-            TestResultGraphItemRecord.Type.SIGNAL -> {
-                if (graphView is PingChart) {
-                    (graphView as PingChart).addGraphItems(viewModel.state.graphItems, viewModel.state.networkType)
-                }
-            }
-            TestResultGraphItemRecord.Type.PING -> {
-                if (graphView is PingChart) {
-                    (graphView as PingChart).addGraphItems(viewModel.state.graphItems)
-                }
-            }
+
+        with(graphView as ResultChart) {
+            addResultGraphItems(viewModel.state.graphItems, viewModel.state.networkType)
         }
     }
 

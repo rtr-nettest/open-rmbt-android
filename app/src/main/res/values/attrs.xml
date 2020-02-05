@@ -14,7 +14,15 @@
         <attr name="progress_fill_color" format="color" />
     </declare-styleable>
 
-    <declare-styleable name="PingChart">
+    <declare-styleable name="BarChart">
         <attr name="bar_color" format="color" />
+    </declare-styleable>
+
+    <declare-styleable name="PingChart" parent="BarChart">
+        <attr name="bar_color" />
+    </declare-styleable>
+
+    <declare-styleable name="SignalBarChartView" parent="BarChart">
+        <attr name="bar_color" />
     </declare-styleable>
 </resources>

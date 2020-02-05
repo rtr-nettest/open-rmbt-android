@@ -7,9 +7,10 @@ import android.util.AttributeSet
 import at.rtr.rmbt.android.R
 import at.specure.data.NetworkTypeCompat
 import at.specure.data.entity.TestResultGraphItemRecord
+import kotlin.math.abs
 import kotlin.math.ceil
 
-class PingChart @JvmOverloads constructor(
+class SignalBarChartView @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null
 ) : PingChartView(context, attrs), ResultChart {
@@ -18,12 +19,18 @@ class PingChart @JvmOverloads constructor(
     private var maxValue: Int? = 0
     private var graphItems: List<TestResultGraphItemRecord>? = null
 
+    override val paddingStringStub: String
+        get() = "-100 dBmm"
+
+    override val chartValueResource: Int
+        get() = R.string.graph_signal_value
+
     init {
 
-        val typedArray = context.obtainStyledAttributes(attrs, R.styleable.PingChart)
+        val typedArray = context.obtainStyledAttributes(attrs, R.styleable.SignalBarChartView)
 
         paintFill.color = typedArray.getColor(
-            R.styleable.PingChart_bar_color,
+            R.styleable.SignalBarChartView_bar_color,
             context.getColor(R.color.ping_bar_color)
         )
         paintFill.style = Paint.Style.FILL
@@ -57,22 +64,34 @@ class PingChart @JvmOverloads constructor(
      * This function is use for calculate path
      */
     override fun addResultGraphItems(graphItems: List<TestResultGraphItemRecord>?, networkType: NetworkTypeCompat) {
-        graphItems?.let {
-            this.graphItems = it
-            setYLabels(getYLabels(it))
+        if (!graphItems.isNullOrEmpty()) {
+            val items = graphItems.map {
+                TestResultGraphItemRecord(
+                    id = it.id,
+                    time = it.time,
+                    value = abs(it.value),
+                    type = it.type,
+                    testOpenUUID = it.testOpenUUID
+                )
+            }
+
+            this.graphItems = items
+
+            setYLabels(getYLabels(graphItems))
         }
+
         invalidate()
     }
 
     private fun getYLabels(graphItems: List<TestResultGraphItemRecord>): Array<Int> {
 
-        val gap = graphItems.let {
-            it.maxBy { it.value }?.let { item ->
+        val gap = graphItems.let { list ->
+            list.maxBy { it.value }?.let { item ->
                 (ceil(item.value * 5 / 100.0) * 5).toInt()
             }
         }
         val gapList = Array(5) { i -> if (gap != null) (i * gap) else 0 }
-        maxValue = gapList.maxBy { it }
+        maxValue = abs(gapList.maxBy { abs(it) } ?: 0)
         return gapList
     }
 

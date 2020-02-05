@@ -1,10 +1,10 @@
 package at.rtr.rmbt.android.ui.view
 
 import android.content.Context
+import android.graphics.Canvas
 import android.graphics.DashPathEffect
 import android.graphics.Paint
 import android.graphics.Path
-import android.graphics.Canvas
 import android.util.AttributeSet
 import android.view.View
 import androidx.core.content.res.ResourcesCompat
@@ -29,6 +29,12 @@ open class PingChartView @JvmOverloads constructor(
 
     private var yLabels: Array<Int>? = null
     private var numberOfRows: Int = DEFAULT_NUMBER_OF_ROWS_IN_GRID
+
+    open val paddingStringStub: String
+        get() = "1000 ms"
+
+    open val chartValueResource: Int
+        get() = R.string.measurement_ping_value
 
     init {
 
@@ -62,9 +68,13 @@ open class PingChartView @JvmOverloads constructor(
             typedArray.getInteger(R.styleable.LineChart_grid_row, DEFAULT_NUMBER_OF_ROWS_IN_GRID)
 
         typedArray.recycle()
+    }
 
-        endPadding = yLabelPaint.calcTextWidth(DEFAULT_Y_LABEL_TEXT)
-        textHeight = yLabelPaint.calcTextHeight(DEFAULT_Y_LABEL_TEXT)
+    override fun onAttachedToWindow() {
+        super.onAttachedToWindow()
+
+        endPadding = yLabelPaint.calcTextWidth(paddingStringStub)
+        textHeight = yLabelPaint.calcTextHeight(paddingStringStub)
     }
 
     /**
@@ -120,8 +130,10 @@ open class PingChartView @JvmOverloads constructor(
                         (endY - rowHeight * index) + (textHeight / 2)
                     }
                 }
-                canvas?.drawText(context.getString(R.string.measurement_ping_value, it[index]), endX + endPadding / 8,
-                    positionY, yLabelPaint)
+                canvas?.drawText(
+                    context.getString(chartValueResource, it[index]), endX + endPadding / 8,
+                    positionY, yLabelPaint
+                )
             }
         }
     }
@@ -129,6 +141,5 @@ open class PingChartView @JvmOverloads constructor(
     companion object {
 
         private const val DEFAULT_NUMBER_OF_ROWS_IN_GRID: Int = 4
-        private const val DEFAULT_Y_LABEL_TEXT: String = "1000 ms"
     }
 }
