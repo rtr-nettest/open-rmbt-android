@@ -77,7 +77,7 @@ class SignalBarChartView @JvmOverloads constructor(
 
             this.graphItems = items
 
-            setYLabels(getYLabels(graphItems))
+            setYLabels(getYLabels(items))
         }
 
         invalidate()
@@ -91,7 +91,7 @@ class SignalBarChartView @JvmOverloads constructor(
             }
         }
         val gapList = Array(5) { i -> if (gap != null) (i * gap) else 0 }
-        maxValue = abs(gapList.maxBy { abs(it) } ?: 0)
+        maxValue = gapList.maxBy { it } ?: 0
         return gapList
     }
 
