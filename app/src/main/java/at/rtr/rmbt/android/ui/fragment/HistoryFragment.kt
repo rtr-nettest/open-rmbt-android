@@ -15,9 +15,7 @@ import at.rtr.rmbt.android.util.changeStatusBarColor
 import at.rtr.rmbt.android.util.listen
 import at.rtr.rmbt.android.viewmodel.HistoryViewModel
 
-private const val CODE_ERROR = 1
-
-class HistoryFragment : BaseFragment() {
+class HistoryFragment : BaseFragment(), SyncDevicesDialog.Callback {
 
     private val historyViewModel: HistoryViewModel by viewModelLazy()
     private val binding: FragmentHistoryBinding by bindingLazy()
@@ -60,7 +58,7 @@ class HistoryFragment : BaseFragment() {
         }
 
         binding.buttonSync.setOnClickListener {
-            SyncDevicesDialog.show(parentFragmentManager)
+            SyncDevicesDialog.show(childFragmentManager)
         }
 
         activity?.window?.changeStatusBarColor(ToolbarTheme.WHITE)
@@ -71,5 +69,9 @@ class HistoryFragment : BaseFragment() {
     private fun refreshHistory() {
         historyViewModel.refreshHistory()
         binding.swipeRefreshLayoutHistoryItems.isRefreshing = false
+    }
+
+    override fun onDevicesSynced() {
+        refreshHistory()
     }
 }
