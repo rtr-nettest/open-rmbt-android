@@ -40,6 +40,13 @@ class SyncDevicesDialog : FullscreenDialog() {
 
     private var progressDialog: ProgressDialogFragment? = null
 
+    private val callback: Callback?
+        get() = when {
+            parentFragment is Callback -> parentFragment as Callback
+            activity is Callback -> activity as Callback
+            else -> null
+        }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         Injector.inject(this)
@@ -109,6 +116,7 @@ class SyncDevicesDialog : FullscreenDialog() {
                     syncedTitle.set(it.dialogTitle)
                     syncedText.set(it.dialogText)
                 }
+                callback?.onDevicesSynced()
             } else {
                 binding.inputCode.error = it.dialogText
             }
@@ -156,5 +164,10 @@ class SyncDevicesDialog : FullscreenDialog() {
                 SyncDevicesDialog().show(fragmentManager, tag)
             }
         }
+    }
+
+    interface Callback {
+
+        fun onDevicesSynced()
     }
 }
