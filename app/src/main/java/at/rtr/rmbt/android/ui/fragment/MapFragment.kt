@@ -38,7 +38,6 @@ import com.google.android.gms.maps.model.MarkerOptions
 import com.google.android.gms.maps.model.TileOverlay
 import com.google.android.gms.maps.model.TileOverlayOptions
 import kotlin.math.abs
-import kotlin.math.min
 
 const val START_ZOOM_LEVEL = 12f
 
