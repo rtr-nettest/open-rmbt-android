@@ -50,12 +50,23 @@ class MapFiltersConfirmationDialog : FullscreenDialog() {
         binding.items.adapter = adapter
         binding.accept.setOnClickListener {
             adapter.items[adapter.selected]?.let { it1 -> callback?.onOptionSelected(targetRequestCode, it1) }
+            dismiss()
         }
 
         binding.items.post {
             binding.items.layoutParams.height = min((binding.root.measuredHeight * 0.6f).toInt(), binding.items.measuredHeight)
             binding.root.requestLayout()
         }
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        outState.putInt(ARG_POSITION, adapter.selected)
+    }
+
+    override fun onViewStateRestored(savedInstanceState: Bundle?) {
+        super.onViewStateRestored(savedInstanceState)
+        savedInstanceState?.getInt(ARG_POSITION)?.let { adapter.selected = it }
     }
 
     companion object {

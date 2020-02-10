@@ -24,18 +24,12 @@ class MapFiltersDialog : FullscreenDialog(), MapFiltersConfirmationDialog.Callba
     private lateinit var viewModel: MapFiltersViewModel
     private lateinit var binding: DialogFiltersBinding
 
-    init {
-        retainInstance = true
-    }
-
     private val callback: Callback?
         get() = when {
             targetFragment is Callback -> targetFragment as Callback
             activity is Callback -> activity as Callback
             else -> null
         }
-
-    private var dialog: FullscreenDialog? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -60,83 +54,78 @@ class MapFiltersDialog : FullscreenDialog(), MapFiltersConfirmationDialog.Callba
 
         binding.type.setOnClickListener {
             viewModel.typesLiveData.listen(this) {
-                dialog = MapFiltersConfirmationDialog.instance(
+                viewModel.typesLiveData.removeObservers(this)
+                MapFiltersConfirmationDialog.instance(
                     this,
                     CODE_TYPE,
                     getString(R.string.title_filters_type),
                     it as ArrayList<String>,
                     it.indexOf(it.find { it == viewModel.state.type.get() })
-                )
-                dialog?.show(fragmentManager)
+                ).show(parentFragmentManager)
             }
         }
 
         binding.statistic.setOnClickListener {
             viewModel.statisticsLiveData.value?.let {
-                dialog = MapFiltersConfirmationDialog.instance(
+                MapFiltersConfirmationDialog.instance(
                     this,
                     CODE_STATISTICS,
                     it.first,
                     it.second.map { it.title } as ArrayList<String>,
                     it.second.indexOf(it.second.find { it == viewModel.state.statistical.get() })
-                )
-                dialog?.show(fragmentManager)
+                ).show(parentFragmentManager)
             }
         }
 
         binding.period.setOnClickListener {
             viewModel.periodLiveData.value?.let {
-                dialog = MapFiltersConfirmationDialog.instance(
+                MapFiltersConfirmationDialog.instance(
                     this,
                     CODE_PERIOD,
                     it.first,
                     it.second.map { it.title } as ArrayList<String>,
                     it.second.indexOf(it.second.find { it == viewModel.state.timeRange.get() })
-                )
-                dialog?.show(fragmentManager)
+                ).show(parentFragmentManager)
             }
         }
 
         binding.operator.setOnClickListener {
             viewModel.operatorLiveData.value?.let {
                 if (it.second.isNotEmpty()) {
-                    dialog = MapFiltersConfirmationDialog.instance(
+                    MapFiltersConfirmationDialog.instance(
                         this,
                         CODE_OPERATOR,
                         it.first,
                         it.second.map { it.title } as ArrayList<String>,
                         it.second.indexOf(it.second.find { it == viewModel.state.operator.get() })
-                    )
+                    ).show(parentFragmentManager)
                 }
             }
-            dialog?.show(fragmentManager)
         }
 
         binding.provider.setOnClickListener {
             viewModel.providerLiveData.value?.let {
                 if (it.second.isNotEmpty()) {
-                    dialog = MapFiltersConfirmationDialog.instance(
+                    MapFiltersConfirmationDialog.instance(
                         this,
                         CODE_PROVIDER,
                         it.first,
                         it.second.map { it.title } as ArrayList<String>,
                         it.second.indexOf(it.second.find { it == viewModel.state.provider.get() })
-                    )
+                    ).show(parentFragmentManager)
                 }
             }
-            dialog?.show(fragmentManager)
         }
 
         binding.technology.setOnClickListener {
             viewModel.technologyData.value?.let {
-                dialog = MapFiltersConfirmationDialog.instance(
+                MapFiltersConfirmationDialog.instance(
                     this,
                     CODE_TECHNOLOGY,
                     it.first,
                     it.second.map { it.title } as ArrayList<String>,
                     it.second.indexOf(it.second.find { it == viewModel.state.technology.get() })
-                )
-                dialog?.show(fragmentManager)
+                ).show(parentFragmentManager)
             }
         }
 
@@ -148,21 +137,27 @@ class MapFiltersDialog : FullscreenDialog(), MapFiltersConfirmationDialog.Callba
         viewModel.onSaveState(outState)
     }
 
+    override fun onViewStateRestored(savedInstanceState: Bundle?) {
+        super.onViewStateRestored(savedInstanceState)
+        viewModel.onRestoreState(savedInstanceState)
+    }
+
     override fun onOptionSelected(code: Int, value: String) {
         when (code) {
             CODE_TYPE -> {
-                viewModel.subtypesLiveData.listen(this) {
-                    viewModel.subtypesLiveData.removeObservers(this)
-                    dialog = MapFiltersConfirmationDialog.instance(
-                        this,
-                        CODE_SUBTYPE,
-                        getString(R.string.title_filters_subtype),
-                        it.second.map { it.title } as ArrayList<String>,
-                        it.second.indexOf(it.second.find { it.title == viewModel.state.subtype.get()?.title } ?: 0)
-                    )
-                    dialog?.show(fragmentManager)
-                }
                 viewModel.markTypeAsSelected(value)
+                viewModel.subtypesLiveData.listen(this) {
+                    if (it.first == value) {
+                        viewModel.subtypesLiveData.removeObservers(this)
+                        MapFiltersConfirmationDialog.instance(
+                            this,
+                            CODE_SUBTYPE,
+                            getString(R.string.title_filters_subtype),
+                            it.second.map { it.title } as ArrayList<String>,
+                            it.second.indexOf(it.second.find { it.title == viewModel.state.subtype.get()?.title } ?: 0)
+                        ).show(parentFragmentManager)
+                    }
+                }
             }
             CODE_SUBTYPE -> viewModel.markSubtypeAsSelected(value)
             CODE_STATISTICS -> viewModel.markStatisticsAsSelected(value)
@@ -174,8 +169,6 @@ class MapFiltersDialog : FullscreenDialog(), MapFiltersConfirmationDialog.Callba
         if (code != CODE_TYPE) {
             callback?.onFiltersUpdated()
         }
-        dialog?.dismiss()
-        dialog = null
     }
 
     override fun onDismiss(dialog: DialogInterface) {
