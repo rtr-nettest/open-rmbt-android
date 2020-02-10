@@ -28,6 +28,7 @@ import at.rtr.rmbt.android.viewmodel.MapViewModel
 import at.specure.data.NetworkTypeCompat
 import at.specure.data.ServerNetworkType
 import at.specure.data.entity.MarkerMeasurementRecord
+import at.specure.location.LocationProviderState
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
@@ -37,6 +38,7 @@ import com.google.android.gms.maps.model.MarkerOptions
 import com.google.android.gms.maps.model.TileOverlay
 import com.google.android.gms.maps.model.TileOverlayOptions
 import kotlin.math.abs
+import kotlin.math.min
 
 const val START_ZOOM_LEVEL = 12f
 
@@ -130,6 +132,7 @@ class MapFragment : BaseFragment(), OnMapReadyCallback, MapMarkerDetailsAdapter.
         map?.let {
             with(map.uiSettings) {
                 isRotateGesturesEnabled = false
+                isMyLocationButtonEnabled = false
             }
         }
         updateLocationPermissionRelatedUi()
@@ -286,13 +289,15 @@ class MapFragment : BaseFragment(), OnMapReadyCallback, MapMarkerDetailsAdapter.
     }
 
     private fun updateLocationPermissionRelatedUi() {
-        if (mapViewModel.locationAccess.isAllowed) {
-            googleMap?.isMyLocationEnabled = true
+        mapViewModel.locationProviderStateLiveData.listen(this) {
+            googleMap?.isMyLocationEnabled = it == LocationProviderState.ENABLED
 
-            binding.fabLocation.setOnClickListener {
-                mapViewModel.locationInfoLiveData.listen(this) {
-                    mapViewModel.locationInfoLiveData.removeObservers(this)
-                    googleMap?.animateCamera(CameraUpdateFactory.newLatLng(LatLng(it.latitude, it.longitude)))
+            binding.fabLocation.setOnClickListener { view ->
+                if (it == LocationProviderState.ENABLED) {
+                    mapViewModel.locationInfoLiveData.listen(this) {
+                        mapViewModel.locationInfoLiveData.removeObservers(this)
+                        googleMap?.animateCamera(CameraUpdateFactory.newLatLng(LatLng(it.latitude, it.longitude)))
+                    }
                 }
             }
         }

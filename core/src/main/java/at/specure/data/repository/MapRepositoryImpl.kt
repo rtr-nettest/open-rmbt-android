@@ -136,9 +136,9 @@ class MapRepositoryImpl @Inject constructor(
         (storage.findType(value) ?: MapFilterType.MOBILE).let {
             active.type = it
 
-            storage.apply {
+            storage.run {
                 findStatisticalList(it)?.let { statisticalLiveData.postValue(titleStatistics to it) }
-                findSubtypesList(it)?.let { subtypesLiveData.postValue(titleSubtype to it) }
+                findSubtypesList(it)?.let { subtypesLiveData.postValue(value to it) }
                 findPeriodsList(it)?.let { periodLiveData.postValue(titlePeriod to it) }
                 findOperatorList(it)?.let { operatorLiveData.postValue(titleOperator to it) }
                 findProviderList(it)?.let { providerLiveData.postValue(titleProvider to it) }
