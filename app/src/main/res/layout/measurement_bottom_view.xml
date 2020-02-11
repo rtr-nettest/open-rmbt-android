@@ -24,14 +24,73 @@
         app:bottomSheetState="@{3}"
         app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior">
 
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/loop_measurement_total_progress"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/loop_mode_header_height"
+            android:background="@drawable/background_measurement_bottom"
+            app:behavior_peekHeight="@dimen/loop_mode_header_height"
+            app:layout_constraintTop_toTopOf="@+id/measurement_bottom_view">
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/loop_measurement_title"
+                style="@style/RobotoMediumStyle.Medium"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/margin_large"
+                android:paddingTop="@dimen/padding_medium"
+                android:paddingBottom="@dimen/padding_medium"
+                android:text="@string/preferences_loop_mode"
+                android:textColor="@android:color/white"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/loop_measurement_test_progress_value"
+                style="@style/RobotoRegularStyle.Small"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/margin_large"
+                android:layout_marginTop="@dimen/margin_small"
+                android:layout_marginEnd="@dimen/margin_large"
+                android:layout_marginBottom="@dimen/margin_small"
+                android:textColor="@color/text_white_transparency_50"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="@+id/progress_loop"
+                app:layout_constraintHorizontal_bias="0.5"
+                app:layout_constraintTop_toTopOf="parent"
+                tools:text="1/5" />
+
+            <androidx.core.widget.ContentLoadingProgressBar
+                android:id="@+id/progress_loop"
+                style="?android:attr/progressBarStyleSmall"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="@dimen/margin_large"
+                android:indeterminateTint="@android:color/white"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@color/text_gray_transparency_60"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
         <View
             android:id="@+id/viewHeader"
             android:layout_width="match_parent"
             android:layout_height="@dimen/measurement_bottom_header_height"
+            android:layout_marginTop="@dimen/margin_small"
             android:background="@drawable/measurement_bottom_header_background"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toBottomOf="@id/loop_measurement_total_progress" />
 
         <androidx.appcompat.widget.AppCompatImageView
             android:id="@+id/imageViewSignalLevel"
@@ -40,7 +99,7 @@
             android:layout_marginStart="@dimen/margin_large"
             app:layout_constraintBottom_toBottomOf="@+id/viewHeader"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/loop_measurement_total_progress"
             app:measurementSignalLevel="@{state.signalStrengthInfo}"
             tools:src="@drawable/ic_small_wifi_1" />
 
@@ -57,7 +116,7 @@
             app:layout_constraintEnd_toStartOf="@+id/labelMeasurementBottomDownload"
             app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintStart_toEndOf="@+id/imageViewSignalLevel"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toBottomOf="@id/loop_measurement_total_progress" />
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/labelMeasurementBottomDownload"
@@ -70,7 +129,7 @@
             app:layout_constraintEnd_toStartOf="@+id/labelMeasurementBottomUpload"
             app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintStart_toEndOf="@+id/labelMeasurementBottomPing"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toBottomOf="@id/loop_measurement_total_progress" />
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/labelMeasurementBottomUpload"
@@ -83,7 +142,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintStart_toEndOf="@+id/labelMeasurementBottomDownload"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toBottomOf="@id/loop_measurement_total_progress" />
 
 
         <androidx.appcompat.widget.AppCompatTextView
