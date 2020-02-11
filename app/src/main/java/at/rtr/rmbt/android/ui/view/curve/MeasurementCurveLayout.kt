@@ -199,6 +199,9 @@ class MeasurementCurveLayout @JvmOverloads constructor(context: Context, attrs: 
                 }
             }*/
             speedLayout.root.visibility = View.VISIBLE
+        } else {
+            currentBottomProgress = 0
+            curveBinding.curveView.setBottomProgress(phase, 0, isQoSEnabled)
         }
     }
 
