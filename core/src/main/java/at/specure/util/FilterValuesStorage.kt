@@ -88,8 +88,8 @@ class FilterValuesStorage @Inject constructor() {
     fun findOperatorDefault(type: MapFilterType) = findDefaultOption(type, operator).title
 
     private fun findOption(value: String?, type: MapFilterType, data: Map<MapFilterType, List<FilterBaseOptionResponse>>) =
-        data.getValue(type).find { it.title == value } ?: findDefaultOption(type, data)
+        data[type]?.find { it.title == value } ?: findDefaultOption(type, data)
 
     private fun findDefaultOption(type: MapFilterType, data: Map<MapFilterType, List<FilterBaseOptionResponse>>) =
-        data.getValue(type).first { it.default }
+        (data[type] ?: data.values.first()).first { it.default }
 }
