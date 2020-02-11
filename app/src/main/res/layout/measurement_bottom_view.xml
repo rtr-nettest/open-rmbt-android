@@ -103,7 +103,6 @@
             app:measurementSignalLevel="@{state.signalStrengthInfo}"
             tools:src="@drawable/ic_small_wifi_1" />
 
-
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/labelMeasurementBottomPing"
             style="@style/RobotoRegularStyle.Small"
@@ -143,7 +142,6 @@
             app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintStart_toEndOf="@+id/labelMeasurementBottomDownload"
             app:layout_constraintTop_toBottomOf="@id/loop_measurement_total_progress" />
-
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/appCompatImageView1"
