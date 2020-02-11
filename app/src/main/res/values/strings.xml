@@ -246,4 +246,11 @@
     <string name="about_email_sending">Sending email…</string>
 
     <string name="graph_signal_value">-%1$s dBm</string>
+
+    <string name="loop_mode_next_test">Next test</string>
+    <string name="loop_mode_minutes">Minutes</string>
+    <string name="loop_mode_meters">Meters</string>
+    <string name="loop_mode_no_gps">No GPS</string>
+    <string name="or">or</string>
+
 </resources>

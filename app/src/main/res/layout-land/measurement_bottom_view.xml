@@ -28,6 +28,7 @@
             android:layout_height="@dimen/loop_mode_header_height"
             android:background="@drawable/background_measurement_bottom"
             app:behavior_peekHeight="@dimen/loop_mode_header_height"
+            android:visibility="gone"
             app:layout_constraintTop_toTopOf="@+id/measurement_bottom_view">
 
             <androidx.appcompat.widget.AppCompatTextView
@@ -189,6 +190,162 @@
             tools:text="1000.0 Mbit/s"
             tools:textColor="@android:color/white" />
 
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/loop_measurement_next_test"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/background_measurement_bottom"
+            android:paddingStart="@dimen/padding_large"
+            android:paddingEnd="@dimen/padding_large"
+            android:visibility="gone"
+            app:behavior_peekHeight="@dimen/loop_mode_header_height"
+            app:layout_constraintTop_toBottomOf="@+id/viewHeader">
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/loop_measurement_next_test_label"
+                style="@style/RobotoMediumStyle.Medium"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:paddingTop="@dimen/padding_medium"
+                android:paddingBottom="@dimen/padding_medium"
+                android:text="@string/loop_mode_next_test"
+                android:textColor="@android:color/white"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/loop_measurement_next_test_minutes_label"
+                style="@style/RobotoMediumStyle.Small"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:minHeight="@dimen/loop_mode_header_height"
+                android:paddingTop="@dimen/padding_medium"
+                android:paddingBottom="@dimen/padding_medium"
+                android:text="@string/loop_mode_minutes"
+                android:textColor="@android:color/white"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/loop_measurement_next_test_label" />
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/loop_measurement_next_test_minutes_value"
+                style="@style/RobotoRegularStyle.Small"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingStart="@dimen/padding_large"
+                android:paddingEnd="@dimen/padding_large"
+                android:textAllCaps="true"
+                android:textColor="@color/text_white_transparency_50"
+                app:layout_constraintBottom_toBottomOf="@+id/loop_measurement_next_test_minutes_label"
+                app:layout_constraintEnd_toStartOf="@+id/loop_measurement_next_test_minutes_progress"
+                app:layout_constraintTop_toTopOf="@+id/loop_measurement_next_test_minutes_label"
+                tools:text="7:34" />
+
+            <at.rtr.rmbt.android.ui.view.ProgressBar
+                android:id="@+id/loop_measurement_next_test_minutes_progress"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingStart="@dimen/padding_large"
+                android:paddingEnd="@dimen/padding_large"
+                app:layout_constraintBottom_toBottomOf="@+id/loop_measurement_next_test_minutes_label"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="@+id/loop_measurement_next_test_minutes_label" />
+
+            <View
+                android:id="@+id/next_test_separator_start"
+                android:layout_width="0dp"
+                android:layout_height="1dp"
+                android:background="@color/text_gray_transparency_60"
+                app:layout_constraintBottom_toTopOf="@+id/loop_measurement_next_test_distance_label"
+                app:layout_constraintEnd_toStartOf="@+id/loop_measurement_next_test_or_label"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/loop_measurement_next_test_minutes_label" />
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/loop_measurement_next_test_or_label"
+                style="@style/RobotoRegularStyle.Small"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingStart="@dimen/padding_large"
+                android:paddingEnd="@dimen/padding_large"
+                android:text="@string/or"
+                android:textAllCaps="true"
+                android:textColor="@color/text_white_transparency_50"
+                app:layout_constraintBottom_toTopOf="@+id/loop_measurement_next_test_distance_label"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/loop_measurement_next_test_minutes_label" />
+
+            <View
+                android:id="@+id/next_test_separator_end"
+                android:layout_width="0dp"
+                android:layout_height="1dp"
+                android:background="@color/text_gray_transparency_60"
+                app:layout_constraintBottom_toTopOf="@+id/loop_measurement_next_test_distance_label"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@+id/loop_measurement_next_test_or_label"
+                app:layout_constraintTop_toBottomOf="@+id/loop_measurement_next_test_minutes_label" />
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/loop_measurement_next_test_distance_label"
+                style="@style/RobotoMediumStyle.Small"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:minHeight="@dimen/loop_mode_header_height"
+                android:paddingTop="@dimen/padding_medium"
+                android:paddingBottom="@dimen/padding_medium"
+                android:text="@string/loop_mode_meters"
+                android:textColor="@android:color/white"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/loop_measurement_next_test_minutes_label" />
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/loop_measurement_next_test_meters_value"
+                style="@style/RobotoRegularStyle.Small"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingStart="@dimen/padding_large"
+                android:paddingEnd="@dimen/padding_large"
+                android:textAllCaps="true"
+                android:textColor="@color/text_white_transparency_50"
+                app:layout_constraintBottom_toBottomOf="@+id/loop_measurement_next_test_distance_label"
+                app:layout_constraintEnd_toStartOf="@+id/loop_measurement_next_test_meters_progress"
+                app:layout_constraintTop_toTopOf="@+id/loop_measurement_next_test_distance_label"
+                tools:text="153" />
+
+            <at.rtr.rmbt.android.ui.view.ProgressBar
+                android:id="@+id/loop_measurement_next_test_meters_progress"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:layout_constraintBottom_toBottomOf="@+id/loop_measurement_next_test_distance_label"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="@+id/loop_measurement_next_test_distance_label" />
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/loop_measurement_no_gps"
+                android:layout_width="wrap_content"
+                android:layout_height="0dp"
+                android:drawableStart="@drawable/ic_no_gps"
+                android:drawablePadding="@dimen/padding_medium"
+                android:gravity="center"
+                android:text="@string/loop_mode_no_gps"
+                android:textColor="@android:color/white"
+                app:layout_constraintBottom_toBottomOf="@+id/loop_measurement_next_test_distance_label"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="@+id/loop_measurement_next_test_distance_label" />
+
+            <View
+                android:layout_width="0dp"
+                android:layout_height="1dp"
+                android:background="@color/text_gray_transparency_60"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/labelMeasurementState"
             style="@style/RobotoMediumStyle.Medium"
@@ -202,6 +359,7 @@
             app:layout_constraintEnd_toStartOf="@+id/textQosProgress"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/viewHeader"
+            tools:visibility="gone"
             tools:text="@string/measurement_download" />
 
         <at.rtr.rmbt.android.ui.view.SpeedLineChart
@@ -220,7 +378,8 @@
             app:xlabel_color="@color/text_gray"
             app:xlabel_text_size="@dimen/chart_label_text_size"
             app:ylabel_color="@color/text_gray"
-            app:ylabel_text_size="@dimen/chart_label_text_size" />
+            app:ylabel_text_size="@dimen/chart_label_text_size"
+            tools:visibility="gone" />
 
         <ScrollView
             android:layout_width="0dp"
@@ -229,7 +388,8 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/labelMeasurementState"
-            app:visibleOrGone="@{state.measurementState == MeasurementState.QOS}">
+            app:visibleOrGone="@{state.measurementState == MeasurementState.QOS}"
+            tools:visibility="gone">
 
             <at.rtr.rmbt.android.ui.view.QoSProgressContainer
                 android:id="@+id/qosProgressContainer"
@@ -249,6 +409,7 @@
             app:layout_constraintBottom_toBottomOf="@+id/labelMeasurementState"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="@+id/labelMeasurementState"
+            tools:visibility="gone"
             app:visibleOrGone="@{state.measurementState == MeasurementState.QOS}" />
 
         <androidx.appcompat.widget.AppCompatTextView
