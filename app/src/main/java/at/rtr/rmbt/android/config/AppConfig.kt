@@ -84,6 +84,10 @@ class AppConfig @Inject constructor(context: Context, private val serverSettings
         get() = getInt(BuildConfig.LOOP_MODE_DISTANCE_METERS)
         set(value) = setInt(BuildConfig.LOOP_MODE_DISTANCE_METERS, value)
 
+    override var loopModeNumberOfTests: Int
+        get() = getInt(BuildConfig.LOOP_MODE_NUMBER_OF_TESTS)
+        set(value) = setInt(BuildConfig.LOOP_MODE_NUMBER_OF_TESTS, value)
+
     override var expertModeEnabled: Boolean
         get() = getBoolean(BuildConfig.EXPERT_MODE_ENABLED)
         set(value) = setBoolean(BuildConfig.EXPERT_MODE_ENABLED, value)

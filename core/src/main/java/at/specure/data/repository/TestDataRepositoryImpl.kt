@@ -9,6 +9,7 @@ import at.specure.data.entity.CellInfoRecord
 import at.specure.data.entity.CellLocationRecord
 import at.specure.data.entity.GeoLocationRecord
 import at.specure.data.entity.GraphItemRecord
+import at.specure.data.entity.LoopModeRecord
 import at.specure.data.entity.PermissionStatusRecord
 import at.specure.data.entity.PingRecord
 import at.specure.data.entity.QoSResultRecord
@@ -324,5 +325,13 @@ class TestDataRepositoryImpl(db: CoreDatabase) : TestDataRepository {
 
     override fun updateQoSTestStatus(testUUID: String, status: TestStatus?) = io {
         testDao.updateQoSTestStatus(testUUID, status?.ordinal)
+    }
+
+    override fun saveLoopMode(loopModeRecord: LoopModeRecord) = io {
+        testDao.saveLoopModeRecord(loopModeRecord)
+    }
+
+    override fun updateLoopMode(loopModeRecord: LoopModeRecord) = io {
+        testDao.updateLoopModeRecord(loopModeRecord)
     }
 }

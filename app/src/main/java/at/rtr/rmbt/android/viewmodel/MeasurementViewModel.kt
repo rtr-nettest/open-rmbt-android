@@ -160,8 +160,16 @@ class MeasurementViewModel @Inject constructor(
         _measurementFinishLiveData.postValue(false)
     }
 
+    override fun onLoopCountDownTimer(timePassedMillis: Long, timeTotalMillis: Long) {
+        // TODO handle countdown timer
+    }
+
     fun cancelMeasurement() {
         producer?.stopTests()
+    }
+
+    override fun onMeasurementCancelled() {
+        _measurementFinishLiveData.postValue(false)
     }
 
     override fun onClientReady(testUUID: String) {

@@ -162,8 +162,7 @@
     <string name="text_continue_measurement">Continue measurement</string>
     <string name="text_cancel_measurement">Cancel measurement</string>
 
-    <string name="notification_test_title">RTR-NetTest is running</string>
-    <string name="notification_test_ticker">Open-RMBT running…</string>
+    <string name="notification_test_title">Open-RMBT is running</string>
 
     <string name="test_dialog_error_text">Something went wrong. Please try again later.</string>
 
@@ -246,6 +245,21 @@
     <string name="about_email_sending">Sending email…</string>
 
     <string name="graph_signal_value">-%1$s dBm</string>
+
+    <string name="notification_loop_mode_title_active">Loop Mode is active</string>
+    <string name="notification_loop_mode_title_running">Loop Mode is running (%1$d/%2$d)</string>
+
+    <string name="title_loop_mode">Loop mode</string>
+    <string name="title_loop_count">Choose the number of tests</string>
+    <string name="text_loop_start">Start tests</string>
+    <string name="text_loop_mode">New test after waiting or covering the distance. Max. 2 days</string>
+    <string name="text_button_decline">Decline</string>
+    <string name="text_button_accept">Accept</string>
+    <string name="text_loop_instruction_1">The loop mode allows the automatic repetition of RTR-NetTest.\n\nThe first test will start immediately after the loop mode has been initiated. Further tests will be started after the waiting time (default 30 minutes) has elapsed. These values can be changed under “Settings”. Tests will be performed until the configured number of tests (default 10 tests) has been reached. The loop mode is automatically terminated after 2 days. The loop mode can be stopped at any time.\nIt needs to be explicitly pointed out that due to the loop mode it cannot be excluded that the tester is identified.</string>
+    <string name="text_loop_instruction_2">In the case of high demand or a high number of tests in a specific area, loop mode tests may be rejected by the test system in order to avoid overload. It should be noted that the loop mode is intended (only) for usage within the EU and EFTA states.\n\nPlease note that the loop modus consumes a huge amount of data. With high-speed connections 10 tests can consume 1GB or more. Therefore it is highly recommended to run the loop mode only with a true flat rate tariff where additional traffic des not generate additional costs.\nThe loop mode also consumes a lot of battery power. Between the loop tests, the loop mode keeps GPS and the display active, thus the battery is drained much faster than in standbymode. In addition, tests also consume power. Therefore the loop mode should be used only if an extended power supply is available.</string>
+    <string name="title_loop_instruction_1">Activation and Privacy</string>
+    <string name="title_loop_instruction_2">Usage</string>
+
 
     <string name="text_filter_devices">Devices</string>
     <string name="text_filter_networks">Networks</string>
