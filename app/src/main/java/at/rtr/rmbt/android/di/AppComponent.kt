@@ -3,6 +3,7 @@ package at.rtr.rmbt.android.di
 import android.content.Context
 import at.rmbt.client.control.ControlServerModule
 import at.rtr.rmbt.android.config.ConfigModule
+import at.rtr.rmbt.android.ui.dialog.HistoryFiltersDialog
 import at.rtr.rmbt.android.ui.dialog.IpInfoDialog
 import at.rtr.rmbt.android.ui.dialog.LocationInfoDialog
 import at.rtr.rmbt.android.ui.dialog.SyncDevicesDialog
@@ -28,6 +29,8 @@ interface AppComponent : CoreComponent {
     fun inject(dialog: LocationInfoDialog)
 
     fun inject(dialog: SyncDevicesDialog)
+
+    fun inject(dialog: HistoryFiltersDialog)
 
     @Component.Builder
     abstract class Builder {

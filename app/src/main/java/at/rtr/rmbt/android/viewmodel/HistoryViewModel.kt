@@ -36,6 +36,8 @@ class HistoryViewModel @Inject constructor(private val repository: HistoryReposi
             .build()
     }
 
+    val activeFiltersLiveData = repository.appliedFiltersLiveData
+
     init {
         addStateSaveHandler(state)
     }
@@ -45,4 +47,9 @@ class HistoryViewModel @Inject constructor(private val repository: HistoryReposi
         onLoadingCallback = { _isLoadingLiveData.postValue(it) },
         onErrorCallback = { postError(it) }
     )
+
+    fun removeFromFilters(value: String) {
+        repository.removeFromFilters(value)
+        refreshHistory()
+    }
 }
