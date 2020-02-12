@@ -219,6 +219,11 @@
       "name": "MAP_FILTERS_ENDPOINT",
       "value": "tiles/info",
       "visible": false
+    },
+    {
+      "name": "DATA_PRIVACY_AND_TERMS_URL",
+      "value": "https://www.rtr.at/en/tk/netztestterms",
+      "visible": true
     }
   ]
 }

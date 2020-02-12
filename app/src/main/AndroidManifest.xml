@@ -62,6 +62,10 @@
             android:name="at.rtr.rmbt.android.ui.activity.QosTestsSummaryActivity"
             android:theme="@style/PreferenceTheme" />
 
+        <activity
+            android:name="at.rtr.rmbt.android.ui.activity.DataPrivacyAndTermsOfUseActivity"
+            android:theme="@style/PreferenceTheme" />
+
         <meta-data
             android:name="io.fabric.ApiKey"
             android:value="${fabricApiKey}" />

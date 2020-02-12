@@ -249,4 +249,8 @@ class AppConfig @Inject constructor(context: Context, private val serverSettings
     override var mapFilterInfoEndpoint: String
         get() = getString(BuildConfig.MAP_FILTERS_ENDPOINT)
         set(value) = setString(BuildConfig.MAP_FILTERS_ENDPOINT, value)
+
+    override var dataPrivacyAndTermsUrl: String
+        get() = getString(BuildConfig.DATA_PRIVACY_AND_TERMS_URL)
+        set(value) = setString(BuildConfig.DATA_PRIVACY_AND_TERMS_URL, value)
 }

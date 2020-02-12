@@ -250,4 +250,9 @@ interface Config {
      * End of url to obtain map filters data, example "RMBTMapServer/tiles/info
      */
     var mapFilterInfoEndpoint: String
+
+    /**
+     * url of data privacy and terms of use
+     */
+    var dataPrivacyAndTermsUrl: String
 }
