@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <variable
+            name="state"
+            type="at.rtr.rmbt.android.ui.viewstate.HistoryFiltersViewState" />
+
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/bg_map_action_sheet"
+        android:paddingBottom="@dimen/padding_extra_large">
+
+        <TextView
+            android:id="@+id/label"
+            style="@style/RobotoMediumStyle.Medium"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="@dimen/margin_large"
+            android:text="@string/label_filter_options"
+            android:textColor="@color/navigation_gray"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <ImageView
+            android:id="@+id/icon_close"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="@dimen/padding_large"
+            android:src="@drawable/ic_map_dialog_close"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <ImageView
+            android:id="@+id/icon_devices"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/padding_large"
+            android:src="@drawable/ic_filter_devices"
+            app:layout_constraintBottom_toBottomOf="@id/devices"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@id/devices" />
+
+        <TextView
+            android:id="@+id/label_devices"
+            style="@style/RobotoRegularStyle.Medium"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/padding_large"
+            android:text="@string/text_filter_devices"
+            android:textColor="@color/navigation_gray"
+            app:layout_constraintBottom_toBottomOf="@id/devices"
+            app:layout_constraintStart_toEndOf="@id/icon_devices"
+            app:layout_constraintTop_toTopOf="@id/devices" />
+
+        <TextView
+            android:id="@+id/text_devices"
+            style="@style/RobotoRegularStyle.VerySmall"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="@dimen/padding_large"
+            android:alpha="0.56"
+            android:text="@{state.devices}"
+            android:textColor="@color/navigation_gray"
+            app:layout_constraintBottom_toBottomOf="@id/devices"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@id/devices"
+            tools:text="IPhone 10" />
+
+        <View
+            android:id="@+id/devices_divider"
+            android:layout_width="0dp"
+            android:layout_height="@dimen/size_divider_height"
+            android:layout_marginStart="@dimen/padding_large"
+            android:layout_marginEnd="@dimen/padding_large"
+            android:background="@color/horizontal_divider"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/devices" />
+
+        <ImageView
+            android:id="@+id/icon_networks"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/padding_large"
+            android:src="@drawable/ic_filter_networks"
+            app:layout_constraintBottom_toBottomOf="@id/networks"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@id/networks" />
+
+        <TextView
+            android:id="@+id/label_networks"
+            style="@style/RobotoRegularStyle.Medium"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/padding_large"
+            android:text="@string/text_filter_networks"
+            android:textColor="@color/navigation_gray"
+            app:layout_constraintBottom_toBottomOf="@id/networks"
+            app:layout_constraintStart_toEndOf="@id/icon_networks"
+            app:layout_constraintTop_toTopOf="@id/networks" />
+
+        <TextView
+            android:id="@+id/text_networks"
+            style="@style/RobotoRegularStyle.VerySmall"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="@dimen/padding_large"
+            android:alpha="0.56"
+            android:text="@{state.networks}"
+            android:textColor="@color/navigation_gray"
+            app:layout_constraintBottom_toBottomOf="@id/networks"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@id/networks"
+            tools:text="2G" />
+
+        <View
+            android:id="@+id/networks_divider"
+            android:layout_width="0dp"
+            android:layout_height="@dimen/size_divider_height"
+            android:layout_marginStart="@dimen/padding_large"
+            android:layout_marginEnd="@dimen/padding_large"
+            android:background="@color/horizontal_divider"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/networks" />
+
+        <View
+            android:id="@+id/devices"
+            android:layout_width="0dp"
+            android:layout_height="?attr/listPreferredItemHeight"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/label" />
+
+        <View
+            android:id="@+id/networks"
+            android:layout_width="0dp"
+            android:layout_height="?attr/listPreferredItemHeight"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/devices" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</layout>

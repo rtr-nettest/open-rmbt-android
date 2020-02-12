@@ -2,6 +2,7 @@ package at.rtr.rmbt.android.di
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import at.rtr.rmbt.android.viewmodel.HistoryFiltersViewModel
 import at.rtr.rmbt.android.viewmodel.HistoryViewModel
 import at.rtr.rmbt.android.viewmodel.HomeViewModel
 import at.rtr.rmbt.android.viewmodel.MapFiltersViewModel
@@ -105,4 +106,9 @@ interface ViewModelModule {
     @IntoMap
     @ViewModelKey(MapFiltersViewModel::class)
     fun bindMapFiltersViewModel(viewModel: MapFiltersViewModel): ViewModel
+
+    @Binds
+    @IntoMap
+    @ViewModelKey(HistoryFiltersViewModel::class)
+    fun bindHistoryFiltersViewModel(viewModel: HistoryFiltersViewModel): ViewModel
 }

@@ -230,5 +230,10 @@
     <string name="about_email_subject">Supportanfrage</string>
 
     <string name="graph_signal_value">-%1$s dBm</string>
+
+    <string name="text_filter_devices">Gerät</string>
+    <string name="text_filter_networks">Zugang</string>
+    <string name="label_filter_options">Einstellugen</string>
+    <string name="label_filter">Filter</string>
 </resources>
 

@@ -22,6 +22,7 @@ import at.rmbt.client.control.MapServerClient
 import at.specure.config.Config
 import at.specure.data.ClientUUID
 import at.specure.data.CoreDatabase
+import at.specure.data.HistoryFilterOptions
 import at.specure.data.repository.HistoryRepository
 import at.specure.data.repository.HistoryRepositoryImpl
 import at.specure.data.repository.IpCheckRepository
@@ -30,6 +31,7 @@ import at.specure.data.repository.MapRepository
 import at.specure.data.repository.MapRepositoryImpl
 import at.specure.data.repository.ResultsRepository
 import at.specure.data.repository.ResultsRepositoryImpl
+import at.specure.data.repository.SettingsRepository
 import at.specure.data.repository.TestDataRepository
 import at.specure.data.repository.TestDataRepositoryImpl
 import at.specure.data.repository.TestResultsRepository
@@ -91,9 +93,11 @@ class DatabaseModule {
         database: CoreDatabase,
         config: Config,
         clientUUID: ClientUUID,
-        controlServerClient: ControlServerClient
+        controlServerClient: ControlServerClient,
+        settingsRepository: SettingsRepository,
+        filterOptions: HistoryFilterOptions
     ): HistoryRepository =
-        HistoryRepositoryImpl(database.historyDao(), config, clientUUID, controlServerClient)
+        HistoryRepositoryImpl(database.historyDao(), config, clientUUID, controlServerClient, settingsRepository, filterOptions)
 
     @Provides
     fun provideTestResultRepository(

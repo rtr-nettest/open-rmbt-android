@@ -1,5 +1,6 @@
 package at.rtr.rmbt.android.di
 
+import at.rtr.rmbt.android.ui.dialog.HistoryFiltersDialog
 import at.rtr.rmbt.android.ui.dialog.IpInfoDialog
 import at.rtr.rmbt.android.ui.dialog.LocationInfoDialog
 import at.rtr.rmbt.android.ui.dialog.SyncDevicesDialog
@@ -27,4 +28,6 @@ object Injector : AppComponent {
     override fun inject(service: MeasurementService) = component.inject(service)
 
     override fun inject(dialog: SyncDevicesDialog) = component.inject(dialog)
+
+    override fun inject(dialog: HistoryFiltersDialog) = component.inject(dialog)
 }

@@ -72,6 +72,43 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/labelTitle" />
 
+        <TextView
+            android:id="@+id/filter_label"
+            style="@style/RobotoMediumStyle.Medium"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/margin_large"
+            android:layout_marginTop="@dimen/margin_medium"
+            android:text="@string/label_filter"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/viewDivider"
+            app:visibleOrGone="@{!state.isActiveFiltersEmpty}" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/active_filters"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/margin_medium"
+            android:orientation="horizontal"
+            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/filter_label"
+            app:visibleOrGone="@{!state.isActiveFiltersEmpty}" />
+
+        <View
+            android:id="@+id/filterDivider"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginStart="@dimen/margin_large"
+            android:layout_marginTop="@dimen/margin_medium"
+            android:layout_marginEnd="@dimen/margin_large"
+            android:background="@color/horizontal_divider"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/active_filters"
+            app:visibleOrGone="@{!state.isActiveFiltersEmpty}" />
+
         <include
             android:id="@+id/view_history_header"
             layout="@layout/item_history_header"
@@ -80,8 +117,8 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/viewDivider"
-            app:visibleOrGone="@{!state.isHistoryEmpty}" />
+            app:layout_constraintTop_toBottomOf="@+id/filterDivider"
+            app:visibleOrGone="@{!state.isActiveFiltersEmpty}" />
 
         <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
             android:id="@+id/swipeRefreshLayoutHistoryItems"
