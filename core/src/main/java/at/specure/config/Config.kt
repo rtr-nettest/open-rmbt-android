@@ -50,6 +50,11 @@ interface Config {
     var loopModeDistanceMeters: Int
 
     /**
+     * The number of measurements in the loop
+     */
+    var loopModeNumberOfTests: Int
+
+    /**
      * Shows an expert menu to the user if enabled in settings screen
      */
     var expertModeEnabled: Boolean

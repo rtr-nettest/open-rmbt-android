@@ -37,4 +37,5 @@ object Tables {
     const val QOS_TEST_RESULT_ITEM = "qos_result_item"
     const val TEST_RESULT_DETAILS = "test_result_details"
     const val MAP_MARKER_MEASUREMENTS = "map_markers"
+    const val LOOP_MODE = "loop_mode"
 }

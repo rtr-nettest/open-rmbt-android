@@ -61,5 +61,6 @@
 
     <!-- Home -->
     <dimen name="home_extra_button_size">56dp</dimen>
+    <dimen name="size_text_loop_count">64sp</dimen>
 
 </resources>

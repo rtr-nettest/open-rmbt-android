@@ -41,14 +41,18 @@
             android:layout_height="@dimen/size_height_status_bar"
             app:layout_constraintTop_toTopOf="parent" />
 
-        <androidx.appcompat.widget.AppCompatImageButton
+        <androidx.appcompat.widget.SwitchCompat
             android:id="@+id/btnLoop"
             style="@style/NavigationButtonStyle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:src="@drawable/ic_loop_mode_off"
+            android:layout_marginStart="@dimen/margin_medium"
+            android:button="@drawable/selector_loop_mode"
+            android:checked="@{state.isLoopModeActive}"
+            android:thumb="@null"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/status_bar_stub" />
+            app:layout_constraintTop_toBottomOf="@id/status_bar_stub"
+            tools:checked="true" />
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/tvTitle"
@@ -61,6 +65,20 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/status_bar_stub" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/loop_mode_title"
+            style="@style/RobotoMediumStyle.Medium"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingBottom="@dimen/margin_medium"
+            android:text="@string/title_loop_mode"
+            android:textColor="@{state.isConnected ? @android:color/white : @color/text_dark_gray}"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/tvTitle"
+            app:visibleOrGone="@{state.isLoopModeActive}"
+            tools:visibility="gone" />
 
         <androidx.appcompat.widget.AppCompatImageButton
             android:id="@+id/btnSetting"
@@ -80,7 +98,7 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/waveView"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/btnLoop"
+            app:layout_constraintTop_toBottomOf="@+id/loop_mode_title"
             tools:background="@android:color/holo_green_light" />
 
         <at.rtr.rmbt.android.ui.view.WaveView
@@ -90,7 +108,7 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/rightView"
             app:layout_constraintStart_toEndOf="@+id/leftView"
-            app:layout_constraintTop_toBottomOf="@+id/btnLoop"
+            app:layout_constraintTop_toBottomOf="@+id/loop_mode_title"
             app:layout_constraintWidth_percent="0.05"
             app:waveEnabled="@{state.isConnected()}"
             tools:background="@color/text_black_transparency_60" />
@@ -103,7 +121,7 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@+id/waveView"
-            app:layout_constraintTop_toBottomOf="@+id/btnLoop" />
+            app:layout_constraintTop_toBottomOf="@+id/loop_mode_title" />
 
         <View
             android:id="@+id/viewCircleShape"
@@ -140,6 +158,23 @@
             app:layout_constraintStart_toStartOf="@+id/viewCircleShape"
             app:layout_constraintTop_toTopOf="@+id/viewCircleShape"
             app:signalLevel="@{state.signalStrength}" />
+
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/icon_loop_mode"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:backgroundTint="@android:color/white"
+            android:src="@drawable/ic_label_loop"
+            app:borderWidth="0dp"
+            app:fabSize="mini"
+            app:layout_constraintBottom_toBottomOf="@id/ivIsConnectedCircle"
+            app:layout_constraintEnd_toEndOf="@+id/ivIsConnectedCircle"
+            app:layout_constraintHorizontal_bias="0.69"
+            app:layout_constraintStart_toStartOf="@id/ivIsConnectedCircle"
+            app:layout_constraintTop_toTopOf="@+id/ivIsConnectedCircle"
+            app:layout_constraintVertical_bias="0.16"
+            app:maxImageSize="36dp"
+            app:visibleOrGone="@{state.isLoopModeActive}" />
 
         <androidx.appcompat.widget.AppCompatImageView
             android:id="@+id/ivIsCaptivePortal"

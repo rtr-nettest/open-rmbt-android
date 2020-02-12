@@ -31,6 +31,11 @@
       "visible": true
     },
     {
+      "name": "LOOP_MODE_NUMBER_OF_TESTS",
+      "value": "10",
+      "visible": true
+    },
+    {
       "name": "EXPERT_MODE_ENABLED",
       "value": "false",
       "visible": true
