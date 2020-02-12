@@ -12,6 +12,7 @@ import at.rtr.rmbt.android.BuildConfig
 import at.rtr.rmbt.android.R
 import at.rtr.rmbt.android.databinding.FragmentSettingsBinding
 import at.rtr.rmbt.android.di.viewModelLazy
+import at.rtr.rmbt.android.ui.activity.DataPrivacyAndTermsOfUseActivity
 import at.rtr.rmbt.android.ui.dialog.Dialogs
 import at.rtr.rmbt.android.ui.dialog.InputSettingDialog
 import at.rtr.rmbt.android.ui.dialog.OpenGpsSettingDialog
@@ -137,6 +138,14 @@ class SettingsFragment : BaseFragment() {
             )
             emailIntent.putExtra(Intent.EXTRA_TEXT, "") // to navigate cursor directly to the message body
             startActivity(Intent.createChooser(emailIntent, getString(R.string.about_email_sending)))
+        }
+
+        binding.dataPrivacyAndTerms.root.setOnClickListener {
+            settingsViewModel.state.dataPrivacyAndTermsUrl.get()?.let { url ->
+                DataPrivacyAndTermsOfUseActivity.start(requireContext(),
+                    url
+                )
+            }
         }
     }
 
