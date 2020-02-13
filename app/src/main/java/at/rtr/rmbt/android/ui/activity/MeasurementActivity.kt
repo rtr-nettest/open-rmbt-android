@@ -28,7 +28,6 @@ import at.rtr.rmbt.android.util.listen
 import at.rtr.rmbt.android.viewmodel.MeasurementViewModel
 import at.specure.measurement.MeasurementState
 import kotlinx.android.synthetic.main.activity_measurement.view.measurementBottomView
-import kotlinx.android.synthetic.main.measurement_bottom_view.view.loop_measurement_test_progress_value
 import kotlinx.android.synthetic.main.measurement_bottom_view.view.qosProgressContainer
 import kotlinx.android.synthetic.main.measurement_bottom_view.view.speedChartDownloadUpload
 
@@ -89,7 +88,7 @@ class MeasurementActivity : BaseActivity(), SimpleDialog.Callback {
         viewModel.loopUuidLiveData.listen(this) {
             if (it != null) {
                 viewModel.loopProgressLiveData.observe(this@MeasurementActivity) { loopRecord ->
-                    binding.root.loop_measurement_test_progress_value.text = "${loopRecord?.testsPerformed}/${viewModel.config.loopModeNumberOfTests}"
+                    loopRecord?.testsPerformed?.let { it1 -> viewModel.state.setLoopProgress(it1, viewModel.config.loopModeNumberOfTests) }
                 }
             }
         }
