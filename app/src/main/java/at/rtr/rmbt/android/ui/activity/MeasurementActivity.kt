@@ -19,6 +19,7 @@ package at.rtr.rmbt.android.ui.activity
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import androidx.lifecycle.observe
 import at.rtr.rmbt.android.R
 import at.rtr.rmbt.android.databinding.ActivityMeasurementBinding
 import at.rtr.rmbt.android.di.viewModelLazy
@@ -27,6 +28,7 @@ import at.rtr.rmbt.android.util.listen
 import at.rtr.rmbt.android.viewmodel.MeasurementViewModel
 import at.specure.measurement.MeasurementState
 import kotlinx.android.synthetic.main.activity_measurement.view.measurementBottomView
+import kotlinx.android.synthetic.main.measurement_bottom_view.view.loop_measurement_test_progress_value
 import kotlinx.android.synthetic.main.measurement_bottom_view.view.qosProgressContainer
 import kotlinx.android.synthetic.main.measurement_bottom_view.view.speedChartDownloadUpload
 
@@ -82,6 +84,14 @@ class MeasurementActivity : BaseActivity(), SimpleDialog.Callback {
 
         viewModel.qosProgressLiveData.listen(this) {
             binding.root.measurementBottomView.qosProgressContainer.update(it)
+        }
+
+        viewModel.loopUuidLiveData.listen(this) {
+            if (it != null) {
+                viewModel.loopProgressLiveData.observe(this@MeasurementActivity) { loopRecord ->
+                    binding.root.loop_measurement_test_progress_value.text = "${loopRecord?.testsPerformed}/${viewModel.config.loopModeNumberOfTests}"
+                }
+            }
         }
     }
 

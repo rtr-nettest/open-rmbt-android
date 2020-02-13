@@ -1,5 +1,6 @@
 package at.specure.data.dao
 
+import androidx.lifecycle.LiveData
 import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Insert
@@ -69,4 +70,7 @@ interface TestDao {
 
     @Update
     fun updateLoopModeRecord(loopModeRecord: LoopModeRecord)
+
+    @Query("SELECT * FROM ${Tables.LOOP_MODE} WHERE uuid == :uuid")
+    fun getLoopModeRecord(uuid: String): LiveData<LoopModeRecord?>
 }

@@ -1,5 +1,6 @@
 package at.specure.data.repository
 
+import androidx.lifecycle.LiveData
 import at.rtr.rmbt.client.helper.TestStatus
 import at.specure.data.entity.CapabilitiesRecord
 import at.specure.data.entity.GraphItemRecord
@@ -74,4 +75,6 @@ interface TestDataRepository {
     fun saveLoopMode(loopModeRecord: LoopModeRecord)
 
     fun updateLoopMode(loopModeRecord: LoopModeRecord)
+
+    fun getLoopMode(loopUUID: String): LiveData<LoopModeRecord?>
 }

@@ -29,7 +29,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:background="@android:color/white"
-            android:visibility="gone"
+            visibleOrGone="@{state.isLoopModeActive()}"
             app:constraint_referenced_ids="loop_measurement_title,loop_measurement_test_progress_value,progress_loop,loop_header_bottom_line" />
 
         <androidx.appcompat.widget.AppCompatTextView
@@ -59,6 +59,7 @@
             app:layout_constraintBottom_toBottomOf="@+id/loop_measurement_title"
             app:layout_constraintEnd_toStartOf="@+id/progress_loop"
             app:layout_constraintTop_toTopOf="@+id/loop_measurement_title"
+            app:text="@{state.loopProgress}"
             tools:text="1/5" />
 
         <androidx.core.widget.ContentLoadingProgressBar
