@@ -30,6 +30,7 @@ import at.specure.measurement.MeasurementState
 import kotlinx.android.synthetic.main.activity_measurement.view.measurementBottomView
 import kotlinx.android.synthetic.main.measurement_bottom_view.view.qosProgressContainer
 import kotlinx.android.synthetic.main.measurement_bottom_view.view.speedChartDownloadUpload
+import timber.log.Timber
 
 private const val CODE_CANCEL = 0
 private const val CODE_ERROR = 1
@@ -88,7 +89,13 @@ class MeasurementActivity : BaseActivity(), SimpleDialog.Callback {
         viewModel.loopUuidLiveData.listen(this) {
             if (it != null) {
                 viewModel.loopProgressLiveData.observe(this@MeasurementActivity) { loopRecord ->
+                    Timber.d(
+                        "TestPerformed: ${loopRecord?.testsPerformed} \n" +
+                                "loop mode status: ${loopRecord?.status} \n" +
+                                "viewModel: ${viewModel.state.measurementState.get()}"
+                    )
                     loopRecord?.testsPerformed?.let { it1 -> viewModel.state.setLoopProgress(it1, viewModel.config.loopModeNumberOfTests) }
+                    loopRecord?.status?.let { it1 -> viewModel.state.setLoopState(it1) }
                 }
             }
         }

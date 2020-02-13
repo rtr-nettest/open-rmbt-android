@@ -192,6 +192,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:visibility="gone"
+            app:visibleOrGone="@{state.isLoopModeActive &amp;&amp; state.loopState == LoopModeState.IDLE}"
             app:constraint_referenced_ids="loop_measurement_next_test_label,loop_measurement_next_test_minutes_label,loop_measurement_next_test_minutes_value,loop_measurement_next_test_minutes_progress,loop_measurement_next_test_distance_label,loop_measurement_next_test_meters_progress,loop_measurement_next_test_meters_value,loop_measurement_no_gps,loop_measurement_next_test_or_label,next_test_separator_start,next_test_separator_end,loop_measurement_next_bottom_line" />
 
         <androidx.appcompat.widget.AppCompatTextView
@@ -366,6 +367,7 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/viewHeader"
             tools:text="@string/measurement_download"
+            app:visibleOrGone="@{(state.isLoopModeActive &amp;&amp; state.loopState != LoopModeState.IDLE) || !state.isLoopModeActive}"
             tools:visibility="gone" />
 
         <at.rtr.rmbt.android.ui.view.SpeedLineChart

@@ -6,6 +6,7 @@ import androidx.databinding.ObservableField
 import androidx.databinding.ObservableInt
 import androidx.databinding.ObservableLong
 import at.rtr.rmbt.android.config.AppConfig
+import at.specure.data.entity.LoopModeState
 import at.specure.info.network.NetworkInfo
 import at.specure.info.strength.SignalStrengthInfo
 import at.specure.measurement.MeasurementState
@@ -19,6 +20,7 @@ private const val KEY_PING = "KEY_PING"
 private const val KEY_QOS_ENABLED = "KEY_QOS_ENABLED"
 private const val KEY_QOS_TASK_PROGRESS = "QOS_PROGRESS"
 private const val KEY_LOOP_PROGRESS = "KEY_LOOP_PROGRESS"
+private const val KEY_LOOP_STATE = "KEY_LOOP_STATE"
 
 class MeasurementViewState(private val config: AppConfig) : ViewState {
 
@@ -34,6 +36,7 @@ class MeasurementViewState(private val config: AppConfig) : ViewState {
     val qosTaskProgress = ObservableField<String>()
     val loopProgress = ObservableField<String>()
     val loopUUID = ObservableField<String>()
+    val loopState = ObservableField<LoopModeState>().apply { set(LoopModeState.IDLE) }
     val isLoopModeActive = ObservableBoolean(config.loopModeEnabled)
 
     fun setQoSTaskProgress(current: Int, total: Int) {
@@ -42,6 +45,10 @@ class MeasurementViewState(private val config: AppConfig) : ViewState {
 
     fun setLoopProgress(current: Int, total: Int) {
         loopProgress.set("$current/$total")
+    }
+
+    fun setLoopState(loopState: LoopModeState) {
+        this.loopState.set(loopState)
     }
 
     override fun onRestoreState(bundle: Bundle?) {
@@ -55,6 +62,7 @@ class MeasurementViewState(private val config: AppConfig) : ViewState {
             qosEnabled.set(bundle.getBoolean(KEY_QOS_ENABLED, false))
             qosTaskProgress.set(bundle.getString(KEY_QOS_TASK_PROGRESS))
             loopProgress.set(bundle.getString(KEY_LOOP_PROGRESS))
+            loopState.set(bundle.getSerializable(KEY_LOOP_STATE) as LoopModeState)
         }
     }
 
@@ -69,6 +77,7 @@ class MeasurementViewState(private val config: AppConfig) : ViewState {
             putBoolean(KEY_QOS_ENABLED, qosEnabled.get())
             putString(KEY_QOS_TASK_PROGRESS, qosTaskProgress.get())
             putString(KEY_LOOP_PROGRESS, loopProgress.get())
+            putSerializable(KEY_LOOP_STATE, loopState.get())
         }
     }
 }
