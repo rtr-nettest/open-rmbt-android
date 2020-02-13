@@ -3,6 +3,7 @@ package at.specure.data
 import androidx.room.TypeConverter
 import at.rmbt.client.control.data.TestFinishReason
 import at.rtr.rmbt.client.helper.TestStatus
+import at.specure.data.entity.LoopModeState
 import at.specure.data.entity.TestResultGraphItemRecord
 import at.specure.info.TransportType
 import at.specure.info.cell.CellTechnology
@@ -116,4 +117,10 @@ class TypeConverter {
 
     @TypeConverter
     fun valueToGraphType(value: Int): TestResultGraphItemRecord.Type = TestResultGraphItemRecord.Type.fromValue(value)
+
+    @TypeConverter
+    fun valueToLoopModeState(value: Int): LoopModeState = LoopModeState.fromValue(value)
+
+    @TypeConverter
+    fun loopModeStateToValue(state: LoopModeState): Int = state.valueInt
 }

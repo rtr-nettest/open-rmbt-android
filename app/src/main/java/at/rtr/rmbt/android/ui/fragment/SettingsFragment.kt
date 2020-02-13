@@ -1,17 +1,21 @@
 package at.rtr.rmbt.android.ui.fragment
 
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.text.InputType
+import android.view.MotionEvent
 import android.view.View
 import android.widget.Toast
 import at.rtr.rmbt.android.BuildConfig
 import at.rtr.rmbt.android.R
 import at.rtr.rmbt.android.databinding.FragmentSettingsBinding
 import at.rtr.rmbt.android.di.viewModelLazy
+import at.rtr.rmbt.android.ui.activity.LoopInstructionsActivity
+import at.rtr.rmbt.android.ui.activity.DataPrivacyAndTermsOfUseActivity
 import at.rtr.rmbt.android.ui.dialog.Dialogs
 import at.rtr.rmbt.android.ui.dialog.InputSettingDialog
 import at.rtr.rmbt.android.ui.dialog.OpenGpsSettingDialog
@@ -23,13 +27,14 @@ import at.specure.util.copyToClipboard
 import at.specure.util.openAppSettings
 import timber.log.Timber
 
-class SettingsFragment : BaseFragment() {
+class SettingsFragment : BaseFragment(), InputSettingDialog.Callback {
 
     private val settingsViewModel: SettingsViewModel by viewModelLazy()
     private val binding: FragmentSettingsBinding by bindingLazy()
 
     override val layoutResId = R.layout.fragment_settings
 
+    @SuppressLint("ClickableViewAccessibility")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         binding.state = settingsViewModel.state
@@ -53,6 +58,17 @@ class SettingsFragment : BaseFragment() {
                 KEY_REQUEST_CODE_LOOP_MODE_DISTANCE
             )
                 .show(activity)
+        }
+
+        binding.switchLoopModeEnabled.switchButton.setOnTouchListener { v, event ->
+            if (event.action == MotionEvent.ACTION_DOWN) {
+                if (!binding.switchLoopModeEnabled.switchButton.isChecked) {
+                    LoopInstructionsActivity.start(this, CODE_LOOP_INSTRUCTIONS)
+                } else {
+                    settingsViewModel.state.loopModeEnabled.set(false)
+                }
+            }
+            !binding.switchLoopModeEnabled.switchButton.isChecked
         }
 
         binding.clientUUID.frameLayoutRootKeyValue.setOnClickListener {
@@ -138,55 +154,58 @@ class SettingsFragment : BaseFragment() {
             emailIntent.putExtra(Intent.EXTRA_TEXT, "") // to navigate cursor directly to the message body
             startActivity(Intent.createChooser(emailIntent, getString(R.string.about_email_sending)))
         }
+
+        binding.dataPrivacyAndTerms.root.setOnClickListener {
+            settingsViewModel.state.dataPrivacyAndTermsUrl.get()?.let { url ->
+                DataPrivacyAndTermsOfUseActivity.start(requireContext(),
+                    url
+                )
+            }
+        }
+    }
+
+    override fun onSelected(value: String, requestCode: Int) {
+        when (requestCode) {
+            KEY_REQUEST_CODE_LOOP_MODE_WAITING_TIME -> {
+                if (!settingsViewModel.isLoopModeWaitingTimeValid(value.toInt(), MIN_LOOP_MODE_WAITING_TIME, MAX_LOOP_MODE_WAITING_TIME)) {
+                    activity?.let { it1 ->
+                        Dialogs.show(
+                            it1,
+                            getString(R.string.value_invalid),
+                            String.format(getString(R.string.loop_mode_max_delay_invalid), MIN_LOOP_MODE_WAITING_TIME, MAX_LOOP_MODE_WAITING_TIME)
+                        )
+                    }
+                }
+            }
+            KEY_REQUEST_CODE_LOOP_MODE_DISTANCE -> {
+                if (!settingsViewModel.isLoopModeDistanceMetersValid(value.toInt(), MIN_LOOP_MODE_DISTANCE, MAX_LOOP_MODE_DISTANCE)) {
+                    activity?.let { it1 ->
+                        Dialogs.show(
+                            it1, getString(R.string.value_invalid),
+                            String.format(getString(R.string.loop_mode_max_movement_invalid), MIN_LOOP_MODE_DISTANCE, MAX_LOOP_MODE_DISTANCE)
+                        )
+                    }
+                }
+            }
+        }
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
+
+        if (requestCode == CODE_LOOP_INSTRUCTIONS) {
+            if (resultCode == Activity.RESULT_OK) {
+                settingsViewModel.state.loopModeEnabled.set(true)
+            } else {
+                settingsViewModel.state.loopModeEnabled.set(false)
+            }
+        }
 
         if (resultCode == Activity.RESULT_OK) {
 
             val value: String? = data?.extras?.getString(InputSettingDialog.KEY_VALUE)
             value?.let {
                 when (requestCode) {
-                    KEY_REQUEST_CODE_LOOP_MODE_WAITING_TIME -> {
-
-                        if (!settingsViewModel.isLoopModeWaitingTimeValid(
-                                value.toInt(),
-                                MIN_LOOP_MODE_WAITING_TIME, MAX_LOOP_MODE_WAITING_TIME
-                            )
-                        ) {
-
-                            activity?.let { it1 ->
-                                Dialogs.show(
-                                    it1, getString(R.string.value_invalid),
-                                    String.format(
-                                        getString(R.string.loop_mode_max_delay_invalid),
-                                        MIN_LOOP_MODE_WAITING_TIME, MAX_LOOP_MODE_WAITING_TIME
-                                    )
-                                )
-                            }
-                        }
-                    }
-                    KEY_REQUEST_CODE_LOOP_MODE_DISTANCE -> {
-
-                        if (!settingsViewModel.isLoopModeDistanceMetersValid(
-                                value.toInt(),
-                                MIN_LOOP_MODE_DISTANCE, MAX_LOOP_MODE_DISTANCE
-                            )
-                        ) {
-
-                            activity?.let { it1 ->
-                                Dialogs.show(
-                                    it1, getString(R.string.value_invalid),
-                                    String.format(
-                                        getString(R.string.loop_mode_max_movement_invalid),
-                                        MIN_LOOP_MODE_DISTANCE, MAX_LOOP_MODE_DISTANCE
-                                    )
-                                )
-                            }
-                        }
-                    }
-
                     KEY_DEVELOPER_CONTROL_SERVER_HOST_CODE -> {
                         settingsViewModel.state.controlServerHost.set(value)
                     }
@@ -214,6 +233,8 @@ class SettingsFragment : BaseFragment() {
         private const val MAX_LOOP_MODE_WAITING_TIME: Int = 1440
         private const val MIN_LOOP_MODE_DISTANCE: Int = 50
         private const val MAX_LOOP_MODE_DISTANCE: Int = 10000
+
+        private const val CODE_LOOP_INSTRUCTIONS = 13
 
         fun newInstance() = SettingsFragment()
     }

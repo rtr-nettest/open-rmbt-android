@@ -37,3 +37,4 @@ The source code is published under [Apache version 2.0 license](https://github.c
     21. **CAPABILITIES_QOS_SUPPORTS_INFO** - if "true" the third state (=INFO) is supported, example "false"
     22. **CAPABILITIES_CLASSIFICATION_COUNT** - number of intervals(classes) to classify measured values, example "4"
     23. **IS_CONTROL_SERVER_OVERRIDE_ENABLED** - Control server override enabled false by default
+    24. **DATA_PRIVACY_AND_TERMS_URL** - url of data privacy and terms of use

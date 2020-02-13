@@ -84,6 +84,10 @@ class AppConfig @Inject constructor(context: Context, private val serverSettings
         get() = getInt(BuildConfig.LOOP_MODE_DISTANCE_METERS)
         set(value) = setInt(BuildConfig.LOOP_MODE_DISTANCE_METERS, value)
 
+    override var loopModeNumberOfTests: Int
+        get() = getInt(BuildConfig.LOOP_MODE_NUMBER_OF_TESTS)
+        set(value) = setInt(BuildConfig.LOOP_MODE_NUMBER_OF_TESTS, value)
+
     override var expertModeEnabled: Boolean
         get() = getBoolean(BuildConfig.EXPERT_MODE_ENABLED)
         set(value) = setBoolean(BuildConfig.EXPERT_MODE_ENABLED, value)
@@ -249,4 +253,8 @@ class AppConfig @Inject constructor(context: Context, private val serverSettings
     override var mapFilterInfoEndpoint: String
         get() = getString(BuildConfig.MAP_FILTERS_ENDPOINT)
         set(value) = setString(BuildConfig.MAP_FILTERS_ENDPOINT, value)
+
+    override var dataPrivacyAndTermsUrl: String
+        get() = getString(BuildConfig.DATA_PRIVACY_AND_TERMS_URL)
+        set(value) = setString(BuildConfig.DATA_PRIVACY_AND_TERMS_URL, value)
 }

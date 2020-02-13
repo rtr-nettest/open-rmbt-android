@@ -8,18 +8,23 @@ import at.rtr.rmbt.android.R
 import at.rtr.rmbt.android.databinding.FragmentHistoryBinding
 import at.rtr.rmbt.android.di.viewModelLazy
 import at.rtr.rmbt.android.ui.activity.ResultsActivity
+import at.rtr.rmbt.android.ui.adapter.FilterLabelAdapter
 import at.rtr.rmbt.android.ui.adapter.HistoryAdapter
+import at.rtr.rmbt.android.ui.dialog.HistoryFiltersDialog
 import at.rtr.rmbt.android.ui.dialog.SyncDevicesDialog
 import at.rtr.rmbt.android.util.ToolbarTheme
 import at.rtr.rmbt.android.util.changeStatusBarColor
 import at.rtr.rmbt.android.util.listen
 import at.rtr.rmbt.android.viewmodel.HistoryViewModel
 
-class HistoryFragment : BaseFragment(), SyncDevicesDialog.Callback {
+private const val CODE_FILTERS = 13
+
+class HistoryFragment : BaseFragment(), SyncDevicesDialog.Callback, HistoryFiltersDialog.Callback {
 
     private val historyViewModel: HistoryViewModel by viewModelLazy()
     private val binding: FragmentHistoryBinding by bindingLazy()
     private val adapter: HistoryAdapter by lazy { HistoryAdapter() }
+    private lateinit var labelAdapter: FilterLabelAdapter
 
     override val layoutResId = R.layout.fragment_history
 
@@ -61,7 +66,21 @@ class HistoryFragment : BaseFragment(), SyncDevicesDialog.Callback {
             SyncDevicesDialog.show(childFragmentManager)
         }
 
+        binding.buttonMenu.setOnClickListener {
+            if (adapter.itemCount > 0) {
+                HistoryFiltersDialog.instance(this, CODE_FILTERS).show(parentFragmentManager)
+            }
+        }
+
+        labelAdapter = FilterLabelAdapter { historyViewModel.removeFromFilters(it) }
+        binding.activeFilters.adapter = labelAdapter
+
         activity?.window?.changeStatusBarColor(ToolbarTheme.WHITE)
+
+        historyViewModel.activeFiltersLiveData.listen(this) { data ->
+            data?.let { labelAdapter.items = it }
+            historyViewModel.state.isActiveFiltersEmpty.set(data.isNullOrEmpty())
+        }
 
         refreshHistory()
     }
@@ -69,6 +88,10 @@ class HistoryFragment : BaseFragment(), SyncDevicesDialog.Callback {
     private fun refreshHistory() {
         historyViewModel.refreshHistory()
         binding.swipeRefreshLayoutHistoryItems.isRefreshing = false
+    }
+
+    override fun onFiltersUpdated() {
+        refreshHistory()
     }
 
     override fun onDevicesSynced() {

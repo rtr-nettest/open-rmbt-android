@@ -50,6 +50,11 @@ interface Config {
     var loopModeDistanceMeters: Int
 
     /**
+     * The number of measurements in the loop
+     */
+    var loopModeNumberOfTests: Int
+
+    /**
      * Shows an expert menu to the user if enabled in settings screen
      */
     var expertModeEnabled: Boolean
@@ -250,4 +255,9 @@ interface Config {
      * End of url to obtain map filters data, example "RMBTMapServer/tiles/info
      */
     var mapFilterInfoEndpoint: String
+
+    /**
+     * url of data privacy and terms of use
+     */
+    var dataPrivacyAndTermsUrl: String
 }

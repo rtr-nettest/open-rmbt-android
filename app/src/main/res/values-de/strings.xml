@@ -151,8 +151,7 @@
     <string name="text_continue_measurement">Messung fortführen</string>
     <string name="text_cancel_measurement">Messung abbrechen</string>
 
-    <string name="notification_test_title">RTR-NetTest läuft</string>
-    <string name="notification_test_ticker">Open-RMBT läuft…</string>
+    <string name="notification_test_title">Open-RMBT läuft</string>
 
     <string name="test_dialog_error_text">Etwas ist schiefgegangen. Bitte versuchen Sie es später noch Mal.</string>
 
@@ -230,6 +229,25 @@
     <string name="about_email_subject">Supportanfrage</string>
 
     <string name="graph_signal_value">-%1$s dBm</string>
+
+    <string name="notification_loop_mode_title_active">Der Wiederholungsmodus ist aktiv</string>
+    <string name="notification_loop_mode_title_running">Der Wiederholungsmodus ist läuft (%1$d/%2$d)</string>
+
+    <string name="title_loop_mode">Wiederholungsmodus</string>
+    <string name="title_loop_count">Wählen Sie die Anzahl der Tests</string>
+    <string name="text_loop_start">Tests Starten</string>
+    <string name="text_loop_mode">Neuer Test nach Wartezeit oder Zurücklegen der Distanz. Max. 2 Tage</string>
+    <string name="text_button_decline">Abrechen</string>
+    <string name="text_button_accept">Akzeptieren</string>
+    <string name="text_loop_instruction_1"> Der Wiederholungsmodus erlaubt es, den RTR-Netztest automatisiert wiederholt auszuführen.\n\nDer erste Test wird unmittelbar nach dem Start des Wiederholungsmodus gestartet. Weitere Tests werden gestartet, sobald die Wartezeit (Voreinstellung 30 Minuten) abgelaufen ist. Diese Werte können unter „Einstellungen“ verändert werden. Tests werden durchgeführt, bis die eingestellte Testanzahl (Voreinstellung 10 Tests) erreicht ist. Der Wiederholungsmodus wird nach 2 Tagen automatisch beendet. Die Tests können jederzeit gestoppt werden.\n\nEs wird ausdrücklich darauf hingewiesen, dass aufgrund des Wiederholungsmodus ein Rückschluss auf die testende Person nicht ausgeschlossen ist.</string>
+    <string name="text_loop_instruction_2">Im Fall hoher Nachfrage oder einer hohen Anzahl an Tests in einem konkreten Gebiet kann der Wiederholungsmodus durch das Testsystem abgelehnt werden, um Überlast zu vermeiden. Es wird darauf hingewiesen, dass der Widerholungsmodus (nur) zur Nutzung innerhalb der EU- und EFTA-Staaten gedacht ist.\n\nEs ist zu beachten, dass der Wiederholungsmodus eine große Menge an Daten verbraucht. Mit schnellen Verbindungen können 10 Tests 1 GB oder mehr an Daten verbrauchen. Deshalb wird dringend empfohlen, den Wiederholungsmodus nur mit echten Flatrate Tarifen, bei denen zusätzliches Datenvolumen keine zusätzlichen Kosten verursacht, zu verwenden.\n\nDie Batterie wird durch den Wiederholungsmodus schnell entleert. In den Pausen zwischen den Tests bleiben GPS und die Anzeige aktiv, deshalb wird die Energie viel schneller verbraucht als im Ruhemodus. Dazu kommt, dass auch die Tests Energie benötigen. Daher sollte der Wiederholungsmodus nur dann genutzt werden, wenn eine externe Stromversorgung zur Verfügung steht.</string>
+    <string name="title_loop_instruction_1">Wiederholungmodus: Aktivierung</string>
+    <string name="title_loop_instruction_2">Nutzung</string>
+
+    <string name="text_filter_devices">Gerät</string>
+    <string name="text_filter_networks">Zugang</string>
+    <string name="label_filter_options">Einstellugen</string>
+    <string name="label_filter">Filter</string>
 
     <string name="loop_mode_next_test">Nächster Test</string>
     <string name="loop_mode_minutes">Minuten</string>

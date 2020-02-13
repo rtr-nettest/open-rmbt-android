@@ -1,7 +1,5 @@
 package at.rtr.rmbt.android.ui.dialog
 
-import android.app.Activity
-import android.content.Intent
 import android.os.Bundle
 import android.text.InputFilter
 import android.text.InputType
@@ -15,10 +13,21 @@ import androidx.fragment.app.Fragment
 import at.rtr.rmbt.android.R
 import at.rtr.rmbt.android.databinding.DialogInputSettingBinding
 import at.rtr.rmbt.android.util.args
+import at.rtr.rmbt.android.util.onTextChanged
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.launch
 
 class InputSettingDialog : FullscreenDialog() {
 
     private lateinit var binding: DialogInputSettingBinding
+    private var requestCode: Int = -1
+
+    private val callback: Callback?
+        get() = when {
+            targetFragment is Callback -> targetFragment as Callback
+            activity is Callback -> activity as Callback
+            else -> null
+        }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -46,26 +55,20 @@ class InputSettingDialog : FullscreenDialog() {
             }
         }
 
+        arguments?.getInt(KEY_CODE)?.let { requestCode = it }
+
         binding.labelTitle.text = arguments?.getString(KEY_DIALOG_TITLE)
         binding.editTextValue.setText(arguments?.getString(KEY_DEFAULT_VALUE))
         binding.editTextValue.text?.length?.let { binding.editTextValue.setSelection(it) }
 
-        binding.buttonOkay.setOnClickListener {
-
-            val value: String = binding.editTextValue.text.toString()
-            if (value.isNotEmpty()) {
-
-                val bundle = Bundle()
-                bundle.putString(KEY_VALUE, value)
-                val intent = Intent()
-                intent.putExtras(bundle)
-
-                targetFragment?.onActivityResult(
-                    targetRequestCode,
-                    Activity.RESULT_OK,
-                    intent
-                )
+        launch {
+            binding.editTextValue.onTextChanged().collect {
+                binding.buttonOkay.isEnabled = it.isNotBlank()
             }
+        }
+
+        binding.buttonOkay.setOnClickListener {
+            callback?.onSelected(binding.editTextValue.text.toString(), requestCode)
             dismiss()
         }
 
@@ -90,27 +93,33 @@ class InputSettingDialog : FullscreenDialog() {
         private const val KEY_DEFAULT_VALUE: String = "key_default_value"
         private const val KEY_INPUT_TYPE: String = "key_input_type"
         private const val KEY_IS_CANCELABLE: String = "key_is_cancelable"
+        private const val KEY_CODE = "code"
         private const val MAX_VALUE_LENGTH = 8
         const val KEY_VALUE: String = "key_value"
 
         fun instance(
             title: String,
             defaultValue: String,
-            fragment: Fragment,
-            requestCode: Int,
+            fragment: Fragment? = null,
+            requestCode: Int = -1,
             inputType: Int = InputType.TYPE_CLASS_NUMBER,
             isCancelable: Boolean = true
         ): FullscreenDialog {
 
             val inputSettingDialog = InputSettingDialog()
-            inputSettingDialog.setTargetFragment(fragment, requestCode)
+            fragment?.let { inputSettingDialog.setTargetFragment(it, requestCode) }
             inputSettingDialog.args {
                 putString(KEY_DIALOG_TITLE, title)
                 putString(KEY_DEFAULT_VALUE, defaultValue)
                 putInt(KEY_INPUT_TYPE, inputType)
                 putBoolean(KEY_IS_CANCELABLE, isCancelable)
+                putInt(KEY_CODE, requestCode)
             }
             return inputSettingDialog
         }
+    }
+
+    interface Callback {
+        fun onSelected(value: String, requestCode: Int)
     }
 }

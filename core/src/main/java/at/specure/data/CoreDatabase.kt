@@ -28,6 +28,7 @@ import at.specure.data.entity.CellLocationRecord
 import at.specure.data.entity.GeoLocationRecord
 import at.specure.data.entity.GraphItemRecord
 import at.specure.data.entity.History
+import at.specure.data.entity.LoopModeRecord
 import at.specure.data.entity.MarkerMeasurementRecord
 import at.specure.data.entity.PermissionStatusRecord
 import at.specure.data.entity.PingRecord
@@ -67,8 +68,9 @@ import at.specure.data.entity.TestWlanRecord
         TestResultRecord::class,
         TestWlanRecord::class,
         TestResultDetailsRecord::class,
-        MarkerMeasurementRecord::class],
-    version = 50
+        MarkerMeasurementRecord::class,
+        LoopModeRecord::class],
+    version = 52
 )
 @TypeConverters(TypeConverter::class)
 abstract class CoreDatabase : RoomDatabase() {

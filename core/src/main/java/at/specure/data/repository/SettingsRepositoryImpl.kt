@@ -65,8 +65,8 @@ class SettingsRepositoryImpl(
             }
             val history = settings.success.settings.first().history
             if (history != null) {
-                historyFilterOptions.valueOptionsFilterDevices = history.devices?.toSet()
-                historyFilterOptions.valueOptionsFilterNetworks = history.networks?.toSet()
+                historyFilterOptions.devices = history.devices?.toMutableSet() ?: mutableSetOf()
+                historyFilterOptions.networks = history.networks?.toMutableSet() ?: mutableSetOf()
             }
             // todo: qostest types to DB
             // todo: servers to DB

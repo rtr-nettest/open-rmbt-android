@@ -61,6 +61,7 @@
 
     <!-- Home -->
     <dimen name="home_extra_button_size">56dp</dimen>
+    <dimen name="size_text_loop_count">64sp</dimen>
 
     <!-- Loop mode -->
     <dimen name="loop_mode_header_height">48dp</dimen>

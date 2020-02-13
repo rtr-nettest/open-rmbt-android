@@ -31,6 +31,7 @@ class SettingsViewState constructor(
     val emailAddress = ObservableField(appConfig.aboutEmailAddress)
     val githubRepositoryUrl = ObservableField(appConfig.aboutGithubRepositoryUrl)
     val webPageUrl = ObservableField(appConfig.aboutWebPageUrl)
+    val dataPrivacyAndTermsUrl = ObservableField(appConfig.dataPrivacyAndTermsUrl)
 
     init {
         isNDTEnabled.addOnPropertyChanged { value ->

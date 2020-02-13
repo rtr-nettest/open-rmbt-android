@@ -31,6 +31,11 @@
       "visible": true
     },
     {
+      "name": "LOOP_MODE_NUMBER_OF_TESTS",
+      "value": "10",
+      "visible": true
+    },
+    {
       "name": "EXPERT_MODE_ENABLED",
       "value": "false",
       "visible": true
@@ -219,6 +224,11 @@
       "name": "MAP_FILTERS_ENDPOINT",
       "value": "tiles/info",
       "visible": false
+    },
+    {
+      "name": "DATA_PRIVACY_AND_TERMS_URL",
+      "value": "https://www.rtr.at/en/tk/netztestterms",
+      "visible": true
     }
   ]
 }
