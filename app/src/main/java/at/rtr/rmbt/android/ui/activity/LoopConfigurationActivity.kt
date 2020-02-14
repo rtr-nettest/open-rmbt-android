@@ -6,8 +6,8 @@ import android.os.Bundle
 import at.rtr.rmbt.android.R
 import at.rtr.rmbt.android.databinding.ActivityLoopConfigurationBinding
 import at.rtr.rmbt.android.di.viewModelLazy
-import at.rtr.rmbt.android.ui.dialog.Dialogs
 import at.rtr.rmbt.android.ui.dialog.InputSettingDialog
+import at.rtr.rmbt.android.ui.dialog.SimpleDialog
 import at.rtr.rmbt.android.util.ToolbarTheme
 import at.rtr.rmbt.android.util.changeStatusBarColor
 import at.rtr.rmbt.android.util.onDone
@@ -65,20 +65,20 @@ class LoopConfigurationActivity : BaseActivity(), InputSettingDialog.Callback {
         when (requestCode) {
             CODE_WAITING_TIME -> {
                 if (!viewModel.isWaitingTimeValid(value.toInt(), MIN_WAITING_TIME, MAX_WAITING_TIME)) {
-                    Dialogs.show(
-                        this,
-                        getString(R.string.value_invalid),
-                        String.format(getString(R.string.loop_mode_max_delay_invalid), MIN_WAITING_TIME, MAX_WAITING_TIME)
-                    )
+                    SimpleDialog.Builder()
+                        .messageText(String.format(getString(R.string.loop_mode_max_delay_invalid), MIN_WAITING_TIME, MAX_WAITING_TIME))
+                        .positiveText(android.R.string.ok)
+                        .cancelable(false)
+                        .show(supportFragmentManager, CODE_DIALOG_INVALID)
                 }
             }
             CODE_DISTANCE -> {
                 if (!viewModel.isDistanceValid(value.toInt(), MIN_DISTANCE, MAX_DISTANCE)) {
-                    Dialogs.show(
-                        this,
-                        getString(R.string.value_invalid),
-                        String.format(getString(R.string.loop_mode_max_movement_invalid), MIN_DISTANCE, MAX_DISTANCE)
-                    )
+                    SimpleDialog.Builder()
+                        .messageText(String.format(getString(R.string.loop_mode_max_delay_invalid), MIN_DISTANCE, MAX_DISTANCE))
+                        .positiveText(android.R.string.ok)
+                        .cancelable(false)
+                        .show(supportFragmentManager, CODE_DIALOG_INVALID)
                 }
             }
         }
@@ -86,11 +86,11 @@ class LoopConfigurationActivity : BaseActivity(), InputSettingDialog.Callback {
 
     private fun checkNumber(): Boolean {
         if (!viewModel.isNumberValid(binding.count.text.toString().toInt(), MIN_COUNT, MAX_COUNT)) {
-            Dialogs.show(
-                this,
-                getString(R.string.value_invalid),
-                String.format(getString(R.string.loop_mode_max_delay_invalid), MIN_COUNT, MAX_COUNT)
-            )
+            SimpleDialog.Builder()
+                .messageText(String.format(getString(R.string.loop_mode_max_delay_invalid), MIN_COUNT, MAX_COUNT))
+                .positiveText(android.R.string.ok)
+                .cancelable(false)
+                .show(supportFragmentManager, CODE_DIALOG_INVALID)
             return false
         }
         return true
@@ -100,6 +100,7 @@ class LoopConfigurationActivity : BaseActivity(), InputSettingDialog.Callback {
 
         private const val CODE_WAITING_TIME: Int = 1
         private const val CODE_DISTANCE: Int = 2
+        private const val CODE_DIALOG_INVALID = 3
 
         private const val MIN_WAITING_TIME: Int = 15
         private const val MAX_WAITING_TIME: Int = 1440

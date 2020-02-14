@@ -132,7 +132,7 @@ class HomeFragment : BaseFragment() {
                     homeViewModel.state.isLoopModeActive.set(false)
                 }
             }
-            !binding.btnLoop.isChecked
+            true
         }
     }
 
