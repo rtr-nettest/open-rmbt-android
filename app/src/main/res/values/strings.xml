@@ -78,6 +78,16 @@
     <string name="preferences_developer_options_disabled">Developer options disabled</string>
     <string name="preferences_developer_options_available">Developer options available</string>
     <string name="preferences_developer_try_again">Try again!</string>
+    <string name="preferences_developer_map_server">Map server</string>
+    <string name="preferences_developer_map_override">Override map server</string>
+    <string name="preferences_developer_map_override_sum">Activate custom map server settings</string>
+    <string name="preferences_developer_map_host">Map host</string>
+    <string name="preferences_developer_map_port">Map port</string>
+    <string name="preferences_developer_map_ssl">Map server SSL</string>
+    <string name="preferences_developer_map_ssl_sum">Use encrypted connection to map server</string>
+    <string name="preferences_category_developer_qos_server">QoS server</string>
+    <string name="preferences_developer_qos_ssl" >QoS server SSL</string>
+    <string name="preferences_developer_qos_ssl_sum" >Use encrypted connection to QoS server</string>
 
     <!-- Location Dialog -->
     <string name="location_dialog_label_title">Location</string>

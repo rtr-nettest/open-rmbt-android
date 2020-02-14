@@ -229,6 +229,26 @@
       "name": "DATA_PRIVACY_AND_TERMS_URL",
       "value": "https://www.rtr.at/en/tk/netztestterms",
       "visible": true
+    },
+    {
+      "name": "IS_MAP_SERVER_OVERRIDE_ENABLED",
+      "value": "false",
+      "visible": false
+    },
+    {
+      "name": "MAP_SERVER_HOST",
+      "value": "sdev.netztest.at",
+      "visible": false
+    },
+    {
+      "name": "MAP_SERVER_PORT",
+      "value": "443",
+      "visible": false
+    },
+    {
+      "name": "MAP_SERVER_USE_SSL",
+      "value": "true",
+      "visible": false
     }
   ]
 }

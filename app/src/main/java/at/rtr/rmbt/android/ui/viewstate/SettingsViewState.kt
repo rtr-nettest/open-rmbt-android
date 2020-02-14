@@ -32,6 +32,11 @@ class SettingsViewState constructor(
     val githubRepositoryUrl = ObservableField(appConfig.aboutGithubRepositoryUrl)
     val webPageUrl = ObservableField(appConfig.aboutWebPageUrl)
     val dataPrivacyAndTermsUrl = ObservableField(appConfig.dataPrivacyAndTermsUrl)
+    val mapServerOverrideEnabled = ObservableField(appConfig.mapServerOverrideEnabled)
+    val mapServerHost = ObservableField(appConfig.mapServerHost)
+    val mapServerPort = ObservableField(appConfig.mapServerPort)
+    val mapServerUseSSL = ObservableField(appConfig.mapServerUseSSL)
+    val qosSSL = ObservableField(appConfig.qosSSL)
 
     init {
         isNDTEnabled.addOnPropertyChanged { value ->
@@ -97,6 +102,31 @@ class SettingsViewState constructor(
         controlServerOverrideEnabled.addOnPropertyChanged { value ->
             value.get()?.let {
                 appConfig.controlServerOverrideEnabled = it
+            }
+        }
+        mapServerHost.addOnPropertyChanged { value ->
+            value.get()?.let {
+                appConfig.mapServerHost = it
+            }
+        }
+        mapServerPort.addOnPropertyChanged { value ->
+            value.get()?.let {
+                appConfig.mapServerPort = it
+            }
+        }
+        mapServerUseSSL.addOnPropertyChanged { value ->
+            value.get()?.let {
+                appConfig.mapServerUseSSL = it
+            }
+        }
+        mapServerOverrideEnabled.addOnPropertyChanged { value ->
+            value.get()?.let {
+                appConfig.mapServerOverrideEnabled = it
+            }
+        }
+        qosSSL.addOnPropertyChanged { value ->
+            value.get()?.let {
+                appConfig.qosSSL = it
             }
         }
     }

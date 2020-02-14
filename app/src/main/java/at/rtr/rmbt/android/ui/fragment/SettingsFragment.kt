@@ -7,7 +7,6 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.text.InputType
-import android.view.MotionEvent
 import android.view.View
 import android.widget.Toast
 import at.rtr.rmbt.android.BuildConfig
@@ -60,15 +59,14 @@ class SettingsFragment : BaseFragment(), InputSettingDialog.Callback {
                 .show(activity)
         }
 
-        binding.switchLoopModeEnabled.switchButton.setOnTouchListener { v, event ->
-            if (event.action == MotionEvent.ACTION_DOWN) {
-                if (!binding.switchLoopModeEnabled.switchButton.isChecked) {
-                    LoopInstructionsActivity.start(this, CODE_LOOP_INSTRUCTIONS)
-                } else {
-                    settingsViewModel.state.loopModeEnabled.set(false)
-                }
+        binding.switchLoopModeEnabled.switchButton.isClickable = false
+        binding.switchLoopModeEnabled.rootView.setOnClickListener {
+
+            if (!binding.switchLoopModeEnabled.switchButton.isChecked) {
+                LoopInstructionsActivity.start(this, CODE_LOOP_INSTRUCTIONS)
+            } else {
+                settingsViewModel.state.loopModeEnabled.set(false)
             }
-            !binding.switchLoopModeEnabled.switchButton.isChecked
         }
 
         binding.clientUUID.frameLayoutRootKeyValue.setOnClickListener {
@@ -135,15 +133,36 @@ class SettingsFragment : BaseFragment(), InputSettingDialog.Callback {
                 .show(activity)
         }
 
+        binding.developerMapServerHost.frameLayoutRoot.setOnClickListener {
+
+            InputSettingDialog.instance(
+                getString(R.string.preferences_developer_map_host),
+                binding.developerMapServerHost.value.toString(), this,
+                KEY_DEVELOPER_MAP_SERVER_HOST_CODE,
+                inputType = InputType.TYPE_CLASS_TEXT
+            )
+                .show(activity)
+        }
+
+        binding.developerMapServerPort.frameLayoutRoot.setOnClickListener {
+
+            InputSettingDialog.instance(
+                getString(R.string.preferences_developer_map_port),
+                binding.developerMapServerPort.value.toString(), this,
+                KEY_DEVELOPER_MAP_SERVER_PORT_CODE
+            )
+                .show(activity)
+        }
+
         binding.version.value = BuildConfig.VERSION_NAME
         binding.commitHash.value = BuildConfig.COMMIT_HASH
-        binding.sourceCode.title.setOnClickListener {
+        binding.sourceCode.root.setOnClickListener {
             startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(settingsViewModel.state.githubRepositoryUrl.get())))
         }
-        binding.goToWebsite.title.setOnClickListener {
+        binding.goToWebsite.root.setOnClickListener {
             startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(settingsViewModel.state.webPageUrl.get())))
         }
-        binding.contactUs.title.setOnClickListener {
+        binding.contactUs.root.setOnClickListener {
             val emailIntent = Intent(Intent.ACTION_SEND)
             emailIntent.type = "plain/text"
             emailIntent.putExtra(Intent.EXTRA_EMAIL, arrayOf(settingsViewModel.state.emailAddress.get()))
@@ -187,6 +206,23 @@ class SettingsFragment : BaseFragment(), InputSettingDialog.Callback {
                     }
                 }
             }
+            KEY_REQUEST_CODE_ENTER_CODE -> {
+                Toast.makeText(activity, getString(settingsViewModel.isCodeValid(value)), Toast.LENGTH_LONG).show()
+            }
+            KEY_DEVELOPER_CONTROL_SERVER_HOST_CODE -> {
+                settingsViewModel.state.controlServerHost.set(value)
+            }
+
+            KEY_DEVELOPER_CONTROL_SERVER_PORT_CODE -> {
+                settingsViewModel.state.controlServerPort.set(value.toInt())
+            }
+            KEY_DEVELOPER_MAP_SERVER_HOST_CODE -> {
+                settingsViewModel.state.mapServerHost.set(value)
+            }
+
+            KEY_DEVELOPER_MAP_SERVER_PORT_CODE -> {
+                settingsViewModel.state.mapServerPort.set(value.toInt())
+            }
         }
     }
 
@@ -200,26 +236,6 @@ class SettingsFragment : BaseFragment(), InputSettingDialog.Callback {
                 settingsViewModel.state.loopModeEnabled.set(false)
             }
         }
-
-        if (resultCode == Activity.RESULT_OK) {
-
-            val value: String? = data?.extras?.getString(InputSettingDialog.KEY_VALUE)
-            value?.let {
-                when (requestCode) {
-                    KEY_DEVELOPER_CONTROL_SERVER_HOST_CODE -> {
-                        settingsViewModel.state.controlServerHost.set(value)
-                    }
-
-                    KEY_DEVELOPER_CONTROL_SERVER_PORT_CODE -> {
-                        settingsViewModel.state.controlServerPort.set(value.toInt())
-                    }
-
-                    KEY_REQUEST_CODE_ENTER_CODE -> {
-                        Toast.makeText(activity, getString(settingsViewModel.isCodeValid(value)), Toast.LENGTH_LONG).show()
-                    }
-                }
-            }
-        }
     }
 
     companion object {
@@ -228,6 +244,8 @@ class SettingsFragment : BaseFragment(), InputSettingDialog.Callback {
         private const val KEY_REQUEST_CODE_ENTER_CODE: Int = 3
         private const val KEY_DEVELOPER_CONTROL_SERVER_HOST_CODE: Int = 4
         private const val KEY_DEVELOPER_CONTROL_SERVER_PORT_CODE: Int = 5
+        private const val KEY_DEVELOPER_MAP_SERVER_HOST_CODE: Int = 6
+        private const val KEY_DEVELOPER_MAP_SERVER_PORT_CODE: Int = 7
 
         private const val MIN_LOOP_MODE_WAITING_TIME: Int = 15
         private const val MAX_LOOP_MODE_WAITING_TIME: Int = 1440
