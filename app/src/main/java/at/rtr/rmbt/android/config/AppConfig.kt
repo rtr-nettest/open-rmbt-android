@@ -257,4 +257,20 @@ class AppConfig @Inject constructor(context: Context, private val serverSettings
     override var dataPrivacyAndTermsUrl: String
         get() = getString(BuildConfig.DATA_PRIVACY_AND_TERMS_URL)
         set(value) = setString(BuildConfig.DATA_PRIVACY_AND_TERMS_URL, value)
+
+    override var mapServerOverrideEnabled: Boolean
+        get() = getBoolean(BuildConfig.IS_MAP_SERVER_OVERRIDE_ENABLED)
+        set(value) = setBoolean(BuildConfig.IS_MAP_SERVER_OVERRIDE_ENABLED, value)
+
+    override var mapServerHost: String
+        get() = getString(BuildConfig.MAP_SERVER_HOST)
+        set(value) = setString(BuildConfig.MAP_SERVER_HOST, value)
+
+    override var mapServerPort: Int
+        get() = getInt(BuildConfig.MAP_SERVER_PORT)
+        set(value) = setInt(BuildConfig.MAP_SERVER_PORT, value)
+
+    override var mapServerUseSSL: Boolean
+        get() = getBoolean(BuildConfig.MAP_SERVER_USE_SSL)
+        set(value) = setBoolean(BuildConfig.MAP_SERVER_USE_SSL, value)
 }
