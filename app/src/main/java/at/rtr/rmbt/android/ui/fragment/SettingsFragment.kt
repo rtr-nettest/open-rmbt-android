@@ -13,12 +13,12 @@ import at.rtr.rmbt.android.BuildConfig
 import at.rtr.rmbt.android.R
 import at.rtr.rmbt.android.databinding.FragmentSettingsBinding
 import at.rtr.rmbt.android.di.viewModelLazy
-import at.rtr.rmbt.android.ui.activity.LoopInstructionsActivity
 import at.rtr.rmbt.android.ui.activity.DataPrivacyAndTermsOfUseActivity
-import at.rtr.rmbt.android.ui.dialog.Dialogs
+import at.rtr.rmbt.android.ui.activity.LoopInstructionsActivity
 import at.rtr.rmbt.android.ui.dialog.InputSettingDialog
 import at.rtr.rmbt.android.ui.dialog.OpenGpsSettingDialog
 import at.rtr.rmbt.android.ui.dialog.OpenLocationPermissionDialog
+import at.rtr.rmbt.android.ui.dialog.SimpleDialog
 import at.rtr.rmbt.android.util.listen
 import at.rtr.rmbt.android.viewmodel.SettingsViewModel
 import at.specure.location.LocationProviderState
@@ -176,7 +176,8 @@ class SettingsFragment : BaseFragment(), InputSettingDialog.Callback {
 
         binding.dataPrivacyAndTerms.root.setOnClickListener {
             settingsViewModel.state.dataPrivacyAndTermsUrl.get()?.let { url ->
-                DataPrivacyAndTermsOfUseActivity.start(requireContext(),
+                DataPrivacyAndTermsOfUseActivity.start(
+                    requireContext(),
                     url
                 )
             }
@@ -187,23 +188,24 @@ class SettingsFragment : BaseFragment(), InputSettingDialog.Callback {
         when (requestCode) {
             KEY_REQUEST_CODE_LOOP_MODE_WAITING_TIME -> {
                 if (!settingsViewModel.isLoopModeWaitingTimeValid(value.toInt(), MIN_LOOP_MODE_WAITING_TIME, MAX_LOOP_MODE_WAITING_TIME)) {
-                    activity?.let { it1 ->
-                        Dialogs.show(
-                            it1,
-                            getString(R.string.value_invalid),
+                    SimpleDialog.Builder()
+                        .messageText(
                             String.format(getString(R.string.loop_mode_max_delay_invalid), MIN_LOOP_MODE_WAITING_TIME, MAX_LOOP_MODE_WAITING_TIME)
                         )
-                    }
+                        .positiveText(android.R.string.ok)
+                        .cancelable(false)
+                        .show(childFragmentManager, CODE_DIALOG_INVALID)
                 }
             }
             KEY_REQUEST_CODE_LOOP_MODE_DISTANCE -> {
                 if (!settingsViewModel.isLoopModeDistanceMetersValid(value.toInt(), MIN_LOOP_MODE_DISTANCE, MAX_LOOP_MODE_DISTANCE)) {
-                    activity?.let { it1 ->
-                        Dialogs.show(
-                            it1, getString(R.string.value_invalid),
-                            String.format(getString(R.string.loop_mode_max_movement_invalid), MIN_LOOP_MODE_DISTANCE, MAX_LOOP_MODE_DISTANCE)
+                    SimpleDialog.Builder()
+                        .messageText(
+                            String.format(getString(R.string.loop_mode_max_delay_invalid), MIN_LOOP_MODE_DISTANCE, MAX_LOOP_MODE_DISTANCE)
                         )
-                    }
+                        .positiveText(android.R.string.ok)
+                        .cancelable(false)
+                        .show(childFragmentManager, CODE_DIALOG_INVALID)
                 }
             }
             KEY_REQUEST_CODE_ENTER_CODE -> {
@@ -253,6 +255,7 @@ class SettingsFragment : BaseFragment(), InputSettingDialog.Callback {
         private const val MAX_LOOP_MODE_DISTANCE: Int = 10000
 
         private const val CODE_LOOP_INSTRUCTIONS = 13
+        private const val CODE_DIALOG_INVALID = 14
 
         fun newInstance() = SettingsFragment()
     }
