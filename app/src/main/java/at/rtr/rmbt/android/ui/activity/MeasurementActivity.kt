@@ -28,6 +28,8 @@ import at.rtr.rmbt.android.util.listen
 import at.rtr.rmbt.android.viewmodel.MeasurementViewModel
 import at.specure.measurement.MeasurementState
 import kotlinx.android.synthetic.main.activity_measurement.view.measurementBottomView
+import kotlinx.android.synthetic.main.measurement_bottom_view.view.loop_measurement_next_test_minutes_progress
+import kotlinx.android.synthetic.main.measurement_bottom_view.view.loop_measurement_next_test_minutes_value
 import kotlinx.android.synthetic.main.measurement_bottom_view.view.qosProgressContainer
 import kotlinx.android.synthetic.main.measurement_bottom_view.view.speedChartDownloadUpload
 import timber.log.Timber
@@ -86,16 +88,29 @@ class MeasurementActivity : BaseActivity(), SimpleDialog.Callback {
             binding.root.measurementBottomView.qosProgressContainer.update(it)
         }
 
-        viewModel.loopUuidLiveData.listen(this) {
-            if (it != null) {
+        viewModel.loopUuidLiveData.listen(this) { loopUUID ->
+            if (loopUUID != null) {
                 viewModel.loopProgressLiveData.observe(this@MeasurementActivity) { loopRecord ->
                     Timber.d(
                         "TestPerformed: ${loopRecord?.testsPerformed} \nloop mode status: ${loopRecord?.status} \nviewModel: ${viewModel.state.measurementState.get()}"
                     )
-                    loopRecord?.testsPerformed?.let { it1 -> viewModel.state.setLoopProgress(it1, viewModel.config.loopModeNumberOfTests) }
-                    loopRecord?.status?.let { it1 -> viewModel.state.setLoopState(it1) }
+                    loopRecord?.testsPerformed?.let { testsPerformed ->
+                        viewModel.state.setLoopProgress(
+                            testsPerformed,
+                            viewModel.config.loopModeNumberOfTests
+                        )
+                    }
+                    loopRecord?.status?.let { status -> viewModel.state.setLoopState(status) }
                 }
             }
+        }
+
+        viewModel.timeToNextTestElapsedLiveData.listen(this) {
+            binding.root.measurementBottomView.loop_measurement_next_test_minutes_value.text = it
+        }
+
+        viewModel.timeProgressPercentsLiveData.listen(this) {
+            binding.root.measurementBottomView.loop_measurement_next_test_minutes_progress.progress = it
         }
     }
 

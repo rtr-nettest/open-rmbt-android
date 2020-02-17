@@ -21,6 +21,9 @@ import at.specure.measurement.MeasurementProducer
 import at.specure.measurement.MeasurementService
 import at.specure.measurement.MeasurementState
 import timber.log.Timber
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
@@ -37,7 +40,9 @@ class MeasurementViewModel @Inject constructor(
     private val _downloadGraphLiveData = MutableLiveData<List<GraphItemRecord>>()
     private val _uploadGraphLiveData = MutableLiveData<List<GraphItemRecord>>()
     private val _qosProgressLiveData = MutableLiveData<Map<QoSTestResultEnum, Int>>()
-    private val _loopUUID = MutableLiveData<String>()
+    private val _loopUUIDLiveData = MutableLiveData<String>()
+    private val _timeToNextTestElapsedLiveData = MutableLiveData<String>()
+    private val _timeProgressPercentsLiveData = MutableLiveData<Int>()
 
     private var producer: MeasurementProducer? = null
 
@@ -47,7 +52,13 @@ class MeasurementViewModel @Inject constructor(
         private set
 
     val loopUuidLiveData: LiveData<String?>
-        get() = _loopUUID
+        get() = _loopUUIDLiveData
+
+    val timeToNextTestElapsedLiveData: LiveData<String>
+        get() = _timeToNextTestElapsedLiveData
+
+    val timeProgressPercentsLiveData: LiveData<Int>
+        get() = _timeProgressPercentsLiveData
 
     val measurementFinishLiveData: LiveData<Boolean>
         get() = _measurementFinishLiveData
@@ -68,7 +79,7 @@ class MeasurementViewModel @Inject constructor(
         get() = _qosProgressLiveData
 
     val loopProgressLiveData: LiveData<LoopModeRecord?>
-        get() = _loopUUID.value?.toString()?.let { testDataRepository.getLoopMode(it) }!!
+        get() = _loopUUIDLiveData.value?.toString()?.let { testDataRepository.getLoopMode(it) }!!
 
     private val serviceConnection = object : ServiceConnection {
 
@@ -171,7 +182,8 @@ class MeasurementViewModel @Inject constructor(
     }
 
     override fun onLoopCountDownTimer(timePassedMillis: Long, timeTotalMillis: Long) {
-        // TODO handle countdown timer
+        _timeToNextTestElapsedLiveData.postValue(SimpleDateFormat("mm:ss", Locale.getDefault()).format(Date(timePassedMillis)))
+        _timeProgressPercentsLiveData.postValue(((timePassedMillis * 100) / timeTotalMillis).toInt())
     }
 
     fun cancelMeasurement() {
@@ -185,7 +197,7 @@ class MeasurementViewModel @Inject constructor(
     override fun onClientReady(testUUID: String, loopUUID: String?) {
 
         this.testUUID = testUUID
-        _loopUUID.postValue(loopUUID)
+        _loopUUIDLiveData.postValue(loopUUID)
 
         Timber.d("loopUUID: $loopUUID")
 

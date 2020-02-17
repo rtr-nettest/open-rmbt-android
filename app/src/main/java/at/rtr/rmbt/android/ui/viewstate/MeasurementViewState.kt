@@ -20,6 +20,8 @@ private const val KEY_PING = "KEY_PING"
 private const val KEY_QOS_ENABLED = "KEY_QOS_ENABLED"
 private const val KEY_QOS_TASK_PROGRESS = "QOS_PROGRESS"
 private const val KEY_LOOP_PROGRESS = "KEY_LOOP_PROGRESS"
+private const val KEY_LOOP_NEXT_TEST_TIME_PROGRESS = "KEY_LOOP_NEXT_TEST_TIME_PROGRESS"
+private const val KEY_LOOP_NEXT_TEST_TIME_PERCENT = "KEY_LOOP_NEXT_TEST_TIME_PERCENT"
 private const val KEY_LOOP_STATE = "KEY_LOOP_STATE"
 
 class MeasurementViewState(private val config: AppConfig) : ViewState {
@@ -36,6 +38,8 @@ class MeasurementViewState(private val config: AppConfig) : ViewState {
     val qosTaskProgress = ObservableField<String>()
     val loopProgress = ObservableField<String>()
     val loopUUID = ObservableField<String>()
+    val timeToNextTestElapsed = ObservableField<String>()
+    val timeToNextTestPercentage = ObservableInt()
     val loopState = ObservableField<LoopModeState>().apply { set(LoopModeState.IDLE) }
     val isLoopModeActive = ObservableBoolean(config.loopModeEnabled)
 
@@ -63,6 +67,8 @@ class MeasurementViewState(private val config: AppConfig) : ViewState {
             qosTaskProgress.set(bundle.getString(KEY_QOS_TASK_PROGRESS))
             loopProgress.set(bundle.getString(KEY_LOOP_PROGRESS))
             loopState.set(bundle.getSerializable(KEY_LOOP_STATE) as LoopModeState)
+            timeToNextTestElapsed.set(bundle.getString(KEY_LOOP_NEXT_TEST_TIME_PROGRESS))
+            timeToNextTestPercentage.set(bundle.getInt(KEY_LOOP_NEXT_TEST_TIME_PERCENT, 0))
         }
     }
 
@@ -78,6 +84,8 @@ class MeasurementViewState(private val config: AppConfig) : ViewState {
             putString(KEY_QOS_TASK_PROGRESS, qosTaskProgress.get())
             putString(KEY_LOOP_PROGRESS, loopProgress.get())
             putSerializable(KEY_LOOP_STATE, loopState.get())
+            putString(KEY_LOOP_NEXT_TEST_TIME_PROGRESS, timeToNextTestElapsed.get())
+            putInt(KEY_LOOP_NEXT_TEST_TIME_PERCENT, timeToNextTestPercentage.get())
         }
     }
 }
