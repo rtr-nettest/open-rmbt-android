@@ -90,9 +90,7 @@ class MeasurementActivity : BaseActivity(), SimpleDialog.Callback {
             if (it != null) {
                 viewModel.loopProgressLiveData.observe(this@MeasurementActivity) { loopRecord ->
                     Timber.d(
-                        "TestPerformed: ${loopRecord?.testsPerformed} \n" +
-                                "loop mode status: ${loopRecord?.status} \n" +
-                                "viewModel: ${viewModel.state.measurementState.get()}"
+                        "TestPerformed: ${loopRecord?.testsPerformed} \nloop mode status: ${loopRecord?.status} \nviewModel: ${viewModel.state.measurementState.get()}"
                     )
                     loopRecord?.testsPerformed?.let { it1 -> viewModel.state.setLoopProgress(it1, viewModel.config.loopModeNumberOfTests) }
                     loopRecord?.status?.let { it1 -> viewModel.state.setLoopState(it1) }
