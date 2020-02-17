@@ -27,6 +27,9 @@
         <variable
             name="state"
             type="at.rtr.rmbt.android.ui.viewstate.HomeViewState" />
+
+        <import type="android.view.View" />
+
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -74,10 +77,10 @@
             android:paddingBottom="@dimen/margin_medium"
             android:text="@string/title_loop_mode"
             android:textColor="@{state.isConnected ? @android:color/white : @color/text_dark_gray}"
+            android:visibility="@{state.isLoopModeActive ? View.VISIBLE : View.INVISIBLE}"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/tvTitle"
-            app:visibleOrGone="@{state.isLoopModeActive}"
             tools:visibility="gone" />
 
         <androidx.appcompat.widget.AppCompatImageButton

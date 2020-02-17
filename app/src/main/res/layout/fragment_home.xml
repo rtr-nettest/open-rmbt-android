@@ -29,6 +29,8 @@
             name="state"
             type="at.rtr.rmbt.android.ui.viewstate.HomeViewState" />
 
+        <import type="android.view.View" />
+
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -49,10 +51,10 @@
             style="@style/NavigationButtonStyle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:button="@drawable/selector_loop_mode"
-            android:thumb="@null"
-            android:checked="@{state.isLoopModeActive}"
             android:layout_marginStart="@dimen/margin_medium"
+            android:button="@drawable/selector_loop_mode"
+            android:checked="@{state.isLoopModeActive}"
+            android:thumb="@null"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/status_bar_stub"
             tools:checked="false" />
@@ -85,12 +87,12 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:paddingBottom="@dimen/margin_medium"
-            app:visibleOrGone="@{state.isLoopModeActive}"
             android:text="@string/title_loop_mode"
             android:textColor="@{state.isConnected ? @android:color/white : @color/text_dark_gray}"
-            app:layout_constraintTop_toBottomOf="@+id/tvTitle"
+            android:visibility="@{state.isLoopModeActive ? View.VISIBLE : View.INVISIBLE}"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent" />
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/tvTitle" />
 
         <View
             android:id="@+id/viewCircleShape"
@@ -141,9 +143,9 @@
             app:layout_constraintHorizontal_bias="0.7"
             app:layout_constraintStart_toStartOf="@id/ivIsConnectedCircle"
             app:layout_constraintTop_toTopOf="@+id/ivIsConnectedCircle"
-            app:visibleOrGone="@{state.isLoopModeActive}"
             app:layout_constraintVertical_bias="0.15"
-            app:maxImageSize="48dp" />
+            app:maxImageSize="48dp"
+            app:visibleOrGone="@{state.isLoopModeActive}" />
 
         <View
             android:id="@+id/circleMarginView"

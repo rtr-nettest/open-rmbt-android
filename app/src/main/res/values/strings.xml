@@ -117,9 +117,7 @@
     <string name="text_ip_address_not_available">Address is not available</string>
     <string name="input_setting_dialog_ok">OK</string>
     <string name="input_setting_dialog_cancel">Cancel</string>
-    <string name="value_invalid">Invalid value</string>
     <string name="loop_mode_max_delay_invalid" tools:ignore="PluralsCandidate">Please choose a number between %1$d and %2$d.</string>
-    <string name="loop_mode_max_movement_invalid" tools:ignore="PluralsCandidate">Please choose a number between %1$d and %2$d.</string>
     <string name="about_client_uuid_copied">Client UUID has been copied to clipboard.</string>
     <string name="client_not_registered">Client is not registered, try again later.</string>
 

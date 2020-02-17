@@ -25,7 +25,7 @@ class FilterLabelAdapter(private val onRemove: (String) -> Unit) : RecyclerView.
     override fun onBindViewHolder(holder: Holder, position: Int) {
         val item = _items[position]
         holder.binding.label.text = item
-        holder.binding.remove.setOnClickListener { onRemove.invoke(item) }
+        holder.binding.root.setOnClickListener { onRemove.invoke(item) }
     }
 
     class Holder(val binding: ItemFilterLabelBinding) : RecyclerView.ViewHolder(binding.root)
