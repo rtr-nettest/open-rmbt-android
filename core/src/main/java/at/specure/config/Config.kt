@@ -260,4 +260,24 @@ interface Config {
      * url of data privacy and terms of use
      */
     var dataPrivacyAndTermsUrl: String
+
+    /**
+     * Is Override Map Server turned on
+     */
+    var mapServerOverrideEnabled: Boolean
+
+    /**
+     * Map server host, example "myhost.com"
+     */
+    var mapServerHost: String
+
+    /**
+     * Port that should be used for map server client
+     */
+    var mapServerPort: Int
+
+    /**
+     * Allows to use "https://" when enabled otherwise "http://" should be used
+     */
+    var mapServerUseSSL: Boolean
 }

@@ -76,6 +76,16 @@
     <string name="preferences_developer_options_disabled">Entwickleroptionen deaktiviert</string>
     <string name="preferences_developer_options_available">Entwickleroptionen verfügbar</string>
     <string name="preferences_developer_try_again">Versuchen Sie es nochmals!</string>
+    <string name="preferences_developer_map_server">Map-Server</string>
+    <string name="preferences_developer_map_override">Map-Server überschreiben</string>
+    <string name="preferences_developer_map_override_sum">Aktiviert die folgenden Einstellungen für den Map-Server</string>
+    <string name="preferences_developer_map_host">Map Host</string>
+    <string name="preferences_developer_map_port">Map Port</string>
+    <string name="preferences_developer_map_ssl">Map-Server SSL</string>
+    <string name="preferences_developer_map_ssl_sum">Verschlüsselte Verbindung zum Map-Server</string>
+    <string name="preferences_category_developer_qos_server">QoS-Server</string>
+    <string name="preferences_developer_qos_ssl" >QoS Server SSL</string>
+    <string name="preferences_developer_qos_ssl_sum" >Verwende verschlüsselte Verbindung zum QoS-Server</string>
 
     <!-- Location Dialog -->
     <string name="location_dialog_label_title">Standort</string>
