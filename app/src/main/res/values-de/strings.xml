@@ -262,6 +262,9 @@
     <string name="loop_mode_meters">Meter</string>
     <string name="loop_mode_no_gps">Kein GPS</string>
     <string name="or">oder</string>
+    <string name="loop_mode_finished">Netztest abgeschlossen!</string>
+    <string name="loop_continue_to_results">Weiter zum ergebnis</string>
+    <string name="loop_run_again">Noch einmal ausführen</string>
     <string name="title_privacy_policy">Datenschutzerklärung</string>
 </resources>
 
