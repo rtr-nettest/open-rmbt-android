@@ -157,8 +157,8 @@ class MeasurementService : LifecycleService() {
             }
         }
 
-        override fun onClientReady(testUUID: String, testStartTimeNanos: Long) {
-            clientAggregator.onClientReady(testUUID)
+        override fun onClientReady(testUUID: String, loopUUID: String?, testStartTimeNanos: Long) {
+            clientAggregator.onClientReady(testUUID, loopUUID)
             startNetwork = connectivityManager.activeNetwork
             stateRecorder.onReadyToSubmit = { shouldShowResults ->
                 resultRepository.sendTestResults(testUUID) {
@@ -405,7 +405,7 @@ class MeasurementService : LifecycleService() {
                 onUploadSpeedChanged(measurementProgress, uploadSpeedBps)
                 isQoSEnabled(!config.skipQoSTests)
                 runner.testUUID?.let {
-                    onClientReady(it)
+                    onClientReady(it, stateRecorder.loopUuid)
                 }
                 if (hasErrors) {
                     client.onMeasurementError()
@@ -493,9 +493,9 @@ class MeasurementService : LifecycleService() {
             }
         }
 
-        override fun onClientReady(testUUID: String) {
+        override fun onClientReady(testUUID: String, loopUUID: String?) {
             clients.forEach {
-                it.onClientReady(testUUID)
+                it.onClientReady(testUUID, loopUUID)
             }
         }
 

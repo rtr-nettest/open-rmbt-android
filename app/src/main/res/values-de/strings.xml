@@ -256,5 +256,11 @@
     <string name="text_filter_networks">Zugang</string>
     <string name="label_filter_options">Einstellugen</string>
     <string name="label_filter">Filter</string>
+
+    <string name="loop_mode_next_test">Nächster Test</string>
+    <string name="loop_mode_minutes">Minuten</string>
+    <string name="loop_mode_meters">Meter</string>
+    <string name="loop_mode_no_gps">Kein GPS</string>
+    <string name="or">oder</string>
 </resources>
 

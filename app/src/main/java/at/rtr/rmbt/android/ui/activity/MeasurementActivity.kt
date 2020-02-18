@@ -19,16 +19,22 @@ package at.rtr.rmbt.android.ui.activity
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import androidx.lifecycle.observe
 import at.rtr.rmbt.android.R
 import at.rtr.rmbt.android.databinding.ActivityMeasurementBinding
 import at.rtr.rmbt.android.di.viewModelLazy
 import at.rtr.rmbt.android.ui.dialog.SimpleDialog
 import at.rtr.rmbt.android.util.listen
 import at.rtr.rmbt.android.viewmodel.MeasurementViewModel
+import at.specure.location.LocationProviderState
 import at.specure.measurement.MeasurementState
 import kotlinx.android.synthetic.main.activity_measurement.view.measurementBottomView
+import kotlinx.android.synthetic.main.measurement_bottom_view.view.loop_measurement_next_test_meters_progress
+import kotlinx.android.synthetic.main.measurement_bottom_view.view.loop_measurement_next_test_minutes_progress
+import kotlinx.android.synthetic.main.measurement_bottom_view.view.loop_measurement_next_test_minutes_value
 import kotlinx.android.synthetic.main.measurement_bottom_view.view.qosProgressContainer
 import kotlinx.android.synthetic.main.measurement_bottom_view.view.speedChartDownloadUpload
+import timber.log.Timber
 
 private const val CODE_CANCEL = 0
 private const val CODE_ERROR = 1
@@ -82,6 +88,39 @@ class MeasurementActivity : BaseActivity(), SimpleDialog.Callback {
 
         viewModel.qosProgressLiveData.listen(this) {
             binding.root.measurementBottomView.qosProgressContainer.update(it)
+        }
+
+        viewModel.loopUuidLiveData.listen(this) { loopUUID ->
+            if (loopUUID != null) {
+                viewModel.loopProgressLiveData.observe(this@MeasurementActivity) { loopRecord ->
+                    Timber.d(
+                        "TestPerformed: ${loopRecord?.testsPerformed} \nloop mode status: ${loopRecord?.status} \nviewModel: ${viewModel.state.measurementState.get()}"
+                    )
+                    viewModel.state.setLoopRecord(loopRecord)
+                    loopRecord?.testsPerformed?.let { testsPerformed ->
+                        viewModel.state.setLoopProgress(
+                            testsPerformed,
+                            viewModel.config.loopModeNumberOfTests
+                        )
+                    }
+                    binding.root.measurementBottomView.loop_measurement_next_test_meters_progress.progress = viewModel.state.loopNextTestPercent.get()
+                    loopRecord?.status?.let { status ->
+                        viewModel.state.setLoopState(status)
+                    }
+                }
+            }
+        }
+
+        viewModel.timeToNextTestElapsedLiveData.listen(this) {
+            binding.root.measurementBottomView.loop_measurement_next_test_minutes_value.text = it
+        }
+
+        viewModel.timeProgressPercentsLiveData.listen(this) {
+            binding.root.measurementBottomView.loop_measurement_next_test_minutes_progress.progress = it
+        }
+
+        viewModel.locationProviderStateLiveData.listen(this) {
+            viewModel.state.gpsEnabled.set(it == LocationProviderState.ENABLED)
         }
     }
 

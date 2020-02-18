@@ -17,7 +17,7 @@ interface TestProgressListener {
 
     fun onError()
 
-    fun onClientReady(testUUID: String, testStartTimeNanos: Long)
+    fun onClientReady(testUUID: String, loopUUID: String?, testStartTimeNanos: Long)
 
     fun onQoSTestProgressUpdate(tasksPassed: Int, tasksTotal: Int, progressMap: Map<QoSTestResultEnum, Int>)
 }

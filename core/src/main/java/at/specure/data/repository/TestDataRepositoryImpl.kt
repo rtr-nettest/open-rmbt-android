@@ -1,6 +1,7 @@
 package at.specure.data.repository
 
 import android.os.SystemClock
+import androidx.lifecycle.LiveData
 import at.rmbt.util.io
 import at.rtr.rmbt.client.helper.TestStatus
 import at.specure.data.CoreDatabase
@@ -333,5 +334,9 @@ class TestDataRepositoryImpl(db: CoreDatabase) : TestDataRepository {
 
     override fun updateLoopMode(loopModeRecord: LoopModeRecord) = io {
         testDao.updateLoopModeRecord(loopModeRecord)
+    }
+
+    override fun getLoopMode(loopUUID: String): LiveData<LoopModeRecord?> {
+        return testDao.getLoopModeRecord(loopUUID)
     }
 }
