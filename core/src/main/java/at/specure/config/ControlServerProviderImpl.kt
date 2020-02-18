@@ -55,27 +55,9 @@ class ControlServerProviderImpl(private val config: Config) : ControlEndpointPro
     override val getQosResultDetailsUrl: String
         get() = "$host$routePath/${config.controlServerQosTestResultDetailsEndpoint}"
 
-    override val port: Int
-        get() = config.controlServerPort
-
-    override val mapRoute: String
-        get() = config.mapServerRoute
-
-    override val getMapMarkersUrl: String
-        get() = "$host/$mapRoute/${config.mapMarkersEndpoint}"
-
-    override val getMapTilesUrl: String
-        get() = "$host/$mapRoute/${config.mapTilesEndpoint}"
-
-    override val mapMarkerShowDetailsUrl: String
-        get() = "$host/${config.mapMarkerShowDetailsRoute}"
-
     override val getSyncCodeUrl: String
         get() = "$host$routePath/${config.getSyncCodeRoute}"
 
     override val syncDevicesUrl: String
         get() = "$host$routePath/${config.syncDevicesRoute}"
-
-    override val mapFilterInfoUrl: String
-        get() = "$host/$mapRoute/${config.mapFilterInfoEndpoint}"
 }

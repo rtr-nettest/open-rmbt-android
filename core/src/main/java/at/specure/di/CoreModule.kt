@@ -8,9 +8,11 @@ import android.telephony.TelephonyManager
 import at.rmbt.client.control.ControlEndpointProvider
 import at.rmbt.client.control.ControlServerClient
 import at.rmbt.client.control.IpEndpointProvider
+import at.rmbt.client.control.MapEndpointProvider
 import at.specure.config.Config
 import at.specure.config.ControlServerProviderImpl
 import at.specure.config.IpEndpointProviderImpl
+import at.specure.config.MapServerProviderImpl
 import at.specure.data.ClientUUID
 import at.specure.data.ControlServerSettings
 import at.specure.data.HistoryFilterOptions
@@ -129,6 +131,10 @@ class CoreModule {
     @Provides
     @Singleton
     fun provideIpEndpointProvider(config: Config): IpEndpointProvider = IpEndpointProviderImpl(config)
+
+    @Provides
+    @Singleton
+    fun provideMapEndpointProvider(config: Config): MapEndpointProvider = MapServerProviderImpl(config)
 
     @Provides
     @Singleton

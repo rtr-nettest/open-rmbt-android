@@ -8,7 +8,7 @@ import okhttp3.ResponseBody
 import retrofit2.Response
 import javax.inject.Inject
 
-class MapServerClient @Inject constructor(private val endpointProvider: ControlEndpointProvider, private val api: MapServerApi) {
+class MapServerClient @Inject constructor(private val endpointProvider: MapEndpointProvider, private val api: MapServerApi) {
 
     fun getMarkers(body: MarkersRequestBody): Maybe<MarkersResponse> {
         return api.getMarkers(endpointProvider.getMapMarkersUrl, body).exec()
