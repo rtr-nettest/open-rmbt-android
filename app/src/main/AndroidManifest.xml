@@ -68,6 +68,10 @@
         <activity android:name=".ui.activity.LoopInstructionsActivity"/>
 
         <activity
+            android:name=".ui.activity.LoopFinishedActivity"
+            android:theme="@style/MeasurementTheme" />
+
+        <activity
             android:name="at.rtr.rmbt.android.ui.activity.DataPrivacyAndTermsOfUseActivity"
             android:theme="@style/PreferenceTheme" />
 

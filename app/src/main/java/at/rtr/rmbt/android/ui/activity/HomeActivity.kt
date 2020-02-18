@@ -53,6 +53,15 @@ class HomeActivity : BaseActivity() {
                 MeasurementActivity.start(this)
             }
         }
+
+        if (savedInstanceState == null) {
+            when (intent.extras?.get(FRAGMENT_TO_START_BUNDLE_KEY) ?: HomeNavigationTarget.HOME_FRAGMENT_TO_SHOW) {
+                HomeNavigationTarget.HISTORY_FRAGMENT_TO_SHOW -> binding.navView.selectedItemId = R.id.navigation_history
+                HomeNavigationTarget.HOME_FRAGMENT_TO_SHOW -> binding.navView.selectedItemId = R.id.navigation_home
+                HomeNavigationTarget.STATISTIC_FRAGMENT_TO_SHOW -> binding.navView.selectedItemId = R.id.navigation_statistics
+                HomeNavigationTarget.MAP_FRAGMENT_TO_SHOW -> binding.navView.selectedItemId = R.id.navigation_map
+            }
+        }
     }
 
     override fun onStart() {
@@ -85,8 +94,23 @@ class HomeActivity : BaseActivity() {
 
     companion object {
 
+        enum class HomeNavigationTarget {
+            HISTORY_FRAGMENT_TO_SHOW,
+            HOME_FRAGMENT_TO_SHOW,
+            STATISTIC_FRAGMENT_TO_SHOW,
+            MAP_FRAGMENT_TO_SHOW
+        }
+
+        const val FRAGMENT_TO_START_BUNDLE_KEY = "FRAGMENT_TO_START_BUNDLE_KEY"
+
         private const val CODE_TERMS = 1
 
         fun start(context: Context) = context.startActivity(Intent(context, HomeActivity::class.java))
+
+        fun startWithFragment(context: Context, fragmentToShow: HomeNavigationTarget) {
+            val intent = Intent(context, HomeActivity::class.java)
+            intent.putExtra(FRAGMENT_TO_START_BUNDLE_KEY, fragmentToShow)
+            context.startActivity(intent)
+        }
     }
 }

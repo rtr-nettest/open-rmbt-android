@@ -86,8 +86,8 @@
     <string name="preferences_developer_map_ssl">Map server SSL</string>
     <string name="preferences_developer_map_ssl_sum">Use encrypted connection to map server</string>
     <string name="preferences_category_developer_qos_server">QoS server</string>
-    <string name="preferences_developer_qos_ssl" >QoS server SSL</string>
-    <string name="preferences_developer_qos_ssl_sum" >Use encrypted connection to QoS server</string>
+    <string name="preferences_developer_qos_ssl">QoS server SSL</string>
+    <string name="preferences_developer_qos_ssl_sum">Use encrypted connection to QoS server</string>
 
     <!-- Location Dialog -->
     <string name="location_dialog_label_title">Location</string>
@@ -268,7 +268,6 @@
     <string name="title_loop_instruction_1">Activation and Privacy</string>
     <string name="title_loop_instruction_2">Usage</string>
 
-
     <string name="text_filter_devices">Devices</string>
     <string name="text_filter_networks">Networks</string>
     <string name="label_filter_options">Options</string>
@@ -279,6 +278,9 @@
     <string name="loop_mode_meters">Meters</string>
     <string name="loop_mode_no_gps">No GPS</string>
     <string name="or">or</string>
+    <string name="loop_mode_finished">Nettest loop finished!</string>
+    <string name="loop_continue_to_results">Continue to the result</string>
+    <string name="loop_run_again">Run again</string>
     <string name="title_privacy_policy">Privacy Policy</string>
 
 </resources>
