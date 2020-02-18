@@ -70,7 +70,7 @@ import at.specure.data.entity.TestWlanRecord
         TestResultDetailsRecord::class,
         MarkerMeasurementRecord::class,
         LoopModeRecord::class],
-    version = 52
+    version = 53
 )
 @TypeConverters(TypeConverter::class)
 abstract class CoreDatabase : RoomDatabase() {
