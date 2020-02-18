@@ -40,18 +40,16 @@
 
         <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/buttonCancel"
-            style="?android:attr/borderlessButtonStyle"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:background="@drawable/button_white_background"
-            android:elevation="0dp"
+            android:background="@drawable/button_green_background"
             android:text="@android:string/ok"
             android:textAllCaps="false"
-            android:textColor="@color/colorAccent"
+            android:textColor="@android:color/white"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/editTextValue" />
-
+            app:layout_constraintTop_toBottomOf="@+id/editTextValue"
+             />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
