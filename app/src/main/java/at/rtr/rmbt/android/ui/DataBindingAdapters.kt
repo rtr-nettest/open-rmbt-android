@@ -490,13 +490,31 @@ fun AppCompatTextView.setHistoryTime(networkType: NetworkTypeCompat, historyTime
 
         when (networkType) {
             NetworkTypeCompat.TYPE_2G -> {
-                R.drawable.ic_history_2g
+                when (signalStrength) {
+                    Classification.BAD -> R.drawable.ic_history_2g_1
+                    Classification.NORMAL -> R.drawable.ic_history_2g_2
+                    Classification.GOOD -> R.drawable.ic_history_2g_3
+                    Classification.EXCELLENT -> R.drawable.ic_history_2g_4
+                    Classification.NONE -> R.drawable.ic_history_no_internet
+                }
             }
             NetworkTypeCompat.TYPE_3G -> {
-                R.drawable.ic_history_3g
+                when (signalStrength) {
+                    Classification.BAD -> R.drawable.ic_history_3g_1
+                    Classification.NORMAL -> R.drawable.ic_history_3g_2
+                    Classification.GOOD -> R.drawable.ic_history_3g_3
+                    Classification.EXCELLENT -> R.drawable.ic_history_3g_4
+                    Classification.NONE -> R.drawable.ic_history_no_internet
+                }
             }
             NetworkTypeCompat.TYPE_4G -> {
-                R.drawable.ic_history_4g
+                when (signalStrength) {
+                    Classification.BAD -> R.drawable.ic_history_4g_1
+                    Classification.NORMAL -> R.drawable.ic_history_4g_2
+                    Classification.GOOD -> R.drawable.ic_history_4g_3
+                    Classification.EXCELLENT -> R.drawable.ic_history_4g_4
+                    Classification.NONE -> R.drawable.ic_history_no_internet
+                }
             }
             NetworkTypeCompat.TYPE_WLAN -> {
                 when (signalStrength) {
@@ -504,10 +522,18 @@ fun AppCompatTextView.setHistoryTime(networkType: NetworkTypeCompat, historyTime
                     Classification.NORMAL -> R.drawable.ic_history_wifi_2
                     Classification.GOOD -> R.drawable.ic_history_wifi_3
                     Classification.EXCELLENT -> R.drawable.ic_history_wifi_4
+                    Classification.NONE -> R.drawable.ic_no_wifi
+                }
+            }
+            NetworkTypeCompat.TYPE_5G -> {
+                when (signalStrength) {
+                    Classification.BAD -> R.drawable.ic_history_5g_1
+                    Classification.NORMAL -> R.drawable.ic_history_5g_2
+                    Classification.GOOD -> R.drawable.ic_history_5g_3
+                    Classification.EXCELLENT -> R.drawable.ic_history_5g_4
                     Classification.NONE -> R.drawable.ic_history_no_internet
                 }
             }
-            NetworkTypeCompat.TYPE_5G -> throw IllegalArgumentException("Need to add 5G image here for history")
         }, 0, 0, 0
     )
 }

@@ -49,6 +49,7 @@ class LoopConfigurationActivity : BaseActivity(), InputSettingDialog.Callback {
         binding.count.onDone { checkNumber() }
 
         binding.count.onTextChanged {
+            binding.count.setSelection(binding.count.text?.length ?: 0)
             binding.accept.isEnabled = it.isNotBlank()
         }
 
