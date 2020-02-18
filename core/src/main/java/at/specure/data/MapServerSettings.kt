@@ -66,14 +66,7 @@ class MapServerSettings @Inject constructor(context: Context) {
         }
 
     var mapServerUseSsl: Boolean?
-        get() {
-            val value = preferences.getInt(KEY_MAP_SERVER_USE_SSL, -1)
-            return when {
-                (value == 0) -> false
-                (value == 1) -> true
-                else -> null
-            }
-        }
+        get() = preferences.getBoolean(KEY_MAP_SERVER_USE_SSL, false)
         set(value) {
             preferences.edit().putBoolean(KEY_MAP_SERVER_USE_SSL, value ?: false).apply()
         }

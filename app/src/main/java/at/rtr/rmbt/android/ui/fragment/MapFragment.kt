@@ -70,6 +70,7 @@ class MapFragment : BaseFragment(), OnMapReadyCallback, MapMarkerDetailsAdapter.
         updateTransparentStatusBarHeight(binding.statusBarStub)
 
         binding.map.onCreate(savedInstanceState)
+        mapViewModel.obtainFilters()
         mapViewModel.providerLiveData.listen(this) {
             binding.map.getMapAsync(this)
         }

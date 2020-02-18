@@ -28,12 +28,13 @@ class MapViewModel @Inject constructor(
         Transformations.switchMap(state.coordinatesLiveData) { repository.getMarkers(it?.latitude, it?.longitude, state.zoom.toInt()) }
 
     init {
-        if (providerLiveData.value == null) {
-            repository.obtainFilters {
-                providerLiveData.postValue(RetrofitTileProvider(repository, state))
-            }
-        }
         addStateSaveHandler(state)
+    }
+
+    fun obtainFilters() {
+        repository.obtainFilters {
+            providerLiveData.postValue(RetrofitTileProvider(repository, state))
+        }
     }
 
     fun loadMarkers(latitude: Double, longitude: Double, zoom: Int) {
