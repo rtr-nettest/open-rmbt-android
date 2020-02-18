@@ -11,6 +11,7 @@ import at.rtr.rmbt.android.config.AppConfig
 import at.rtr.rmbt.android.ui.viewstate.MeasurementViewState
 import at.rtr.rmbt.android.util.plusAssign
 import at.rtr.rmbt.client.v2.task.result.QoSTestResultEnum
+import at.specure.data.TermsAndConditions
 import at.specure.data.entity.GraphItemRecord
 import at.specure.data.entity.LoopModeRecord
 import at.specure.data.repository.TestDataRepository
@@ -33,7 +34,8 @@ class MeasurementViewModel @Inject constructor(
     val signalStrengthLiveData: SignalStrengthLiveData,
     val activeNetworkLiveData: ActiveNetworkLiveData,
     val locationProviderStateLiveData: LocationProviderStateLiveData,
-    val config: AppConfig
+    val config: AppConfig,
+    private val tac: TermsAndConditions
 ) : BaseViewModel(), MeasurementClient {
 
     private val _measurementFinishLiveData = MutableLiveData<Boolean>()
@@ -79,6 +81,8 @@ class MeasurementViewModel @Inject constructor(
 
     val qosProgressLiveData: LiveData<Map<QoSTestResultEnum, Int>>
         get() = _qosProgressLiveData
+
+    val tacAcceptanceLiveData = tac.tacAcceptanceLiveData
 
     lateinit var loopProgressLiveData: LiveData<LoopModeRecord?>
 
@@ -218,5 +222,9 @@ class MeasurementViewModel @Inject constructor(
     override fun onQoSTestProgressUpdated(tasksPassed: Int, tasksTotal: Int, progressMap: Map<QoSTestResultEnum, Int>) {
         state.setQoSTaskProgress(tasksPassed, tasksTotal)
         _qosProgressLiveData.postValue(progressMap)
+    }
+
+    fun updateTermsAcceptance(accepted: Boolean) {
+        tac.tacAccepted = accepted
     }
 }

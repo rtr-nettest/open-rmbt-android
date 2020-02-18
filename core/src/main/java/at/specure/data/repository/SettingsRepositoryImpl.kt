@@ -57,6 +57,9 @@ class SettingsRepositoryImpl(
             if (tac != null) {
                 termsAndConditions.tacUrl = tac.url
                 termsAndConditions.ndtTermsUrl = tac.ndtURL
+                if (termsAndConditions.tacVersion != -1 && termsAndConditions.tacVersion != tac.version) {
+                    termsAndConditions.tacAccepted = false
+                }
                 termsAndConditions.tacVersion = tac.version
             }
             val versions = settings.success.settings.first().versions

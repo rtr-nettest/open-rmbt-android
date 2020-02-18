@@ -14,19 +14,33 @@
 
 package at.rtr.rmbt.android.ui.activity
 
+import android.app.Activity
+import android.content.Intent
+import android.os.Bundle
 import android.os.Handler
+import at.rtr.rmbt.android.di.viewModelLazy
+import at.rtr.rmbt.android.util.listen
+import at.rtr.rmbt.android.viewmodel.SplashViewModel
 
 class SplashActivity : BaseActivity() {
 
+    private val viewModel: SplashViewModel by viewModelLazy()
+
     private val startHomeRunnable = Runnable {
-        finish()
-        HomeActivity.start(this)
+        viewModel.tacAcceptanceLiveData.listen(this) { accepted ->
+            if (!accepted) {
+                TermsAcceptanceActivity.start(this, CODE_TERMS)
+            } else {
+                finish()
+                HomeActivity.start(this)
+            }
+        }
     }
 
     private val delayedStartHandler = Handler()
 
-    override fun onStart() {
-        super.onStart()
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
         delayedStartHandler.postDelayed(startHomeRunnable, SPLASH_DISPLAY_TIME_MS)
     }
 
@@ -35,7 +49,20 @@ class SplashActivity : BaseActivity() {
         delayedStartHandler.removeCallbacks(startHomeRunnable)
     }
 
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+
+        if (requestCode == CODE_TERMS) {
+            if (resultCode == Activity.RESULT_OK) {
+                viewModel.updateTermsAcceptance(true)
+            } else {
+                finish()
+            }
+        }
+    }
+
     companion object {
         private const val SPLASH_DISPLAY_TIME_MS: Long = 2000
+        private const val CODE_TERMS = 1
     }
 }

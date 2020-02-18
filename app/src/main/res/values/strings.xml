@@ -279,5 +279,6 @@
     <string name="loop_mode_meters">Meters</string>
     <string name="loop_mode_no_gps">No GPS</string>
     <string name="or">or</string>
+    <string name="title_privacy_policy">Privacy Policy</string>
 
 </resources>

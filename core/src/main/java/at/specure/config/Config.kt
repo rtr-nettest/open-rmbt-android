@@ -262,6 +262,11 @@ interface Config {
     var dataPrivacyAndTermsUrl: String
 
     /**
+     * Default (local stored) url to open terms of use for acceptance
+     */
+    var termsAcceptanceDefaultUrl: String
+
+    /**
      * Is Override Map Server turned on
      */
     var mapServerOverrideEnabled: Boolean

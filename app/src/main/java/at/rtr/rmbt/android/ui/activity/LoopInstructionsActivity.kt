@@ -11,7 +11,7 @@ import androidx.fragment.app.Fragment
 import androidx.viewpager.widget.PagerAdapter
 import at.rtr.rmbt.android.R
 import at.rtr.rmbt.android.databinding.ActivityLoopInstructionsBinding
-import at.rtr.rmbt.android.databinding.ViewLoopModeBinding
+import at.rtr.rmbt.android.databinding.ViewLoopModeInstructionBinding
 import at.rtr.rmbt.android.util.ToolbarTheme
 import at.rtr.rmbt.android.util.changeStatusBarColor
 
@@ -55,7 +55,7 @@ class LoopInstructionsActivity : BaseActivity(), Callback {
         override fun getCount() = PAGE_COUNT
 
         override fun instantiateItem(container: ViewGroup, position: Int): Any {
-            val binding = ViewLoopModeBinding.inflate(LayoutInflater.from(container.context))
+            val binding = ViewLoopModeInstructionBinding.inflate(LayoutInflater.from(container.context))
 
             binding.content.text = items[position]
 
