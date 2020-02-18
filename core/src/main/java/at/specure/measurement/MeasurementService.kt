@@ -8,7 +8,10 @@ import android.net.Network
 import android.net.wifi.WifiManager
 import android.os.Binder
 import android.os.Build
+import android.os.CountDownTimer
+import android.os.Handler
 import android.os.IBinder
+import android.os.Looper
 import android.os.PowerManager
 import android.util.Log
 import at.rmbt.client.control.data.TestFinishReason
@@ -72,11 +75,14 @@ class MeasurementService : LifecycleService() {
     private var qosTasksPassed = 0
     private var qosTasksTotal = 0
     private var qosProgressMap: Map<QoSTestResultEnum, Int> = mapOf()
+    private var isLoopModeRunning = false
 
     private val notificationManager: NotificationManager by lazy { getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager }
 
     private lateinit var wakeLock: PowerManager.WakeLock
     private lateinit var wifiLock: WifiManager.WifiLock
+
+    private var loopCountdownTimer: CountDownTimer? = null
 
     private val testListener = object : TestProgressListener {
 
@@ -85,7 +91,19 @@ class MeasurementService : LifecycleService() {
             measurementProgress = progress
             clientAggregator.onProgressChanged(state, progress)
 
-            notificationManager.notify(NOTIFICATION_ID, notificationProvider.measurementServiceNotification(progress, state, config.skipQoSTests))
+            if (state != MeasurementState.QOS) {
+                notificationManager.notify(
+                    NOTIFICATION_ID,
+                    notificationProvider.measurementServiceNotification(
+                        progress,
+                        state,
+                        config.skipQoSTests,
+                        stateRecorder.loopModeRecord,
+                        config.loopModeNumberOfTests,
+                        stopTestsIntent(this@MeasurementService)
+                    )
+                )
+            }
         }
 
         override fun onPingChanged(pingNanos: Long) {
@@ -106,14 +124,18 @@ class MeasurementService : LifecycleService() {
         }
 
         override fun onFinish() {
-            stopForeground(true)
-            stateRecorder.finish()
-            unlock()
+            if (config.loopModeEnabled && stateRecorder.loopTestCount < config.loopModeNumberOfTests) {
+                scheduleNextLoopTest()
+            } else {
+                stopForeground(true)
+                isLoopModeRunning = false
+                stateRecorder.finish()
+                unlock()
+            }
         }
 
         override fun onError() {
             hasErrors = true
-            stopForeground(true)
             if (startNetwork != connectivityManager.activeNetwork) {
                 Timber.e("Network change!")
                 try {
@@ -124,12 +146,19 @@ class MeasurementService : LifecycleService() {
             }
             stateRecorder.onUnsuccessTest(TestFinishReason.ERROR)
             clientAggregator.onMeasurementError()
-            stateRecorder.finish()
-            unlock()
+
+            if (config.loopModeEnabled && stateRecorder.loopTestCount < config.loopModeNumberOfTests) {
+                scheduleNextLoopTest()
+            } else {
+                stateRecorder.finish()
+                isLoopModeRunning = false
+                unlock()
+                stopForeground(true)
+            }
         }
 
-        override fun onClientReady(testUUID: String, testStartTimeNanos: Long) {
-            clientAggregator.onClientReady(testUUID)
+        override fun onClientReady(testUUID: String, loopUUID: String?, testStartTimeNanos: Long) {
+            clientAggregator.onClientReady(testUUID, loopUUID)
             startNetwork = connectivityManager.activeNetwork
             stateRecorder.onReadyToSubmit = { shouldShowResults ->
                 resultRepository.sendTestResults(testUUID) {
@@ -157,6 +186,20 @@ class MeasurementService : LifecycleService() {
             qosTasksPassed = tasksPassed
             qosTasksTotal = tasksTotal
             qosProgressMap = progressMap
+
+            val progress = (tasksPassed / tasksTotal.toFloat()) * 100
+
+            notificationManager.notify(
+                NOTIFICATION_ID,
+                notificationProvider.measurementServiceNotification(
+                    progress.toInt(),
+                    MeasurementState.QOS,
+                    config.skipQoSTests,
+                    stateRecorder.loopModeRecord,
+                    config.loopModeNumberOfTests,
+                    stopTestsIntent(this@MeasurementService)
+                )
+            )
         }
     }
 
@@ -170,14 +213,22 @@ class MeasurementService : LifecycleService() {
         wifiLock = wifiManager.createWifiLock(WifiManager.WIFI_MODE_FULL_HIGH_PERF, "$packageName:RMBTWifiLock")
         val powerManager = applicationContext.getSystemService(Context.POWER_SERVICE) as PowerManager
         wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "$packageName:RMBTWakeLock")
+
+        stateRecorder.onLoopDistanceReached = {
+            Timber.e("LOOP MODE DISTANCE REACHED")
+            loopCountdownTimer?.cancel()
+            runner.reset()
+            runTest()
+        }
     }
 
-    @Suppress("SENSELESS_COMPARISON") // intent may be null after service restarted by the system
+    @Suppress("UNNECESSARY_SAFE_CALL")
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         if (intent != null) {
             attachToForeground()
-            if (intent != null && intent.action == ACTION_START_TESTS) {
-                startTests()
+            when (intent?.action) {
+                ACTION_START_TESTS -> startTests()
+                ACTION_STOP_TESTS -> stopTests()
             }
         }
         return super.onStartCommand(intent, flags, startId)
@@ -196,6 +247,54 @@ class MeasurementService : LifecycleService() {
 
     private fun startTests() {
         Timber.d("Start tests")
+        stateRecorder.resetLoopMode()
+        isLoopModeRunning = config.loopModeEnabled
+
+        attachToForeground()
+        lock()
+
+        runTest()
+    }
+
+    private fun scheduleNextLoopTest() {
+        runner.reset()
+        stateRecorder.onLoopTestFinished()
+        try {
+            Handler(Looper.getMainLooper()).post {
+                loopCountdownTimer = object : CountDownTimer(TimeUnit.MINUTES.toMillis(config.loopModeWaitingTimeMin.toLong()), 1000) {
+
+                    override fun onFinish() {
+                        Timber.e("CountDownTimer finished")
+                        runner.reset()
+                        runTest()
+                    }
+
+                    override fun onTick(millisUntilFinished: Long) {
+                        Timber.d("CountDownTimer tick $millisUntilFinished")
+                        val notification = notificationProvider.loopCountDownNotification(
+                            millisUntilFinished,
+                            stateRecorder.loopModeRecord?.movementDistanceMeters ?: 0,
+                            config.loopModeDistanceMeters,
+                            stateRecorder.loopTestCount,
+                            config.loopModeNumberOfTests,
+                            stopTestsIntent(this@MeasurementService)
+                        )
+                        notificationManager.notify(NOTIFICATION_ID, notification)
+                        val totalTime = TimeUnit.MINUTES.toMillis(config.loopModeWaitingTimeMin.toLong())
+                        clientAggregator.onLoopCountDownTimer(totalTime - millisUntilFinished, totalTime)
+                    }
+                }
+
+                loopCountdownTimer?.start()
+            }
+
+            Timber.d("CountDownTimer started")
+        } catch (ex: Exception) {
+            Timber.e(ex, "CountDownTimer")
+        }
+    }
+
+    private fun runTest() {
         if (!runner.isRunning) {
             resetStates()
         }
@@ -230,22 +329,33 @@ class MeasurementService : LifecycleService() {
 
         hasErrors = false
         stateRecorder.updateLocationInfo()
-        runner.start(deviceInfo, testListener, stateRecorder)
-
-        attachToForeground()
-        lock()
+        stateRecorder.onTestInLoopStarted()
+        runner.start(deviceInfo, stateRecorder.loopUuid, stateRecorder.loopTestCount, testListener, stateRecorder)
     }
 
     private fun attachToForeground() {
-        startForeground(NOTIFICATION_ID, notificationProvider.measurementServiceNotification(0, MeasurementState.INIT, true))
+        startForeground(
+            NOTIFICATION_ID,
+            notificationProvider.measurementServiceNotification(
+                0,
+                MeasurementState.INIT,
+                true,
+                stateRecorder.loopModeRecord,
+                config.loopModeNumberOfTests,
+                stopTestsIntent(this@MeasurementService)
+            )
+        )
     }
 
     private fun stopTests() {
         Timber.d("Stop tests")
+        isLoopModeRunning = false
         runner.stop()
-        config.previousTestStatus = "ABORTED" // cannot be handle in TestController
+        loopCountdownTimer?.cancel()
+        config.previousTestStatus = TestFinishReason.ABORTED.name // cannot be handled in TestController
         stateRecorder.onUnsuccessTest(TestFinishReason.ABORTED)
         stateRecorder.finish()
+        clientAggregator.onMeasurementCancelled()
         stopForeground(true)
         unlock()
     }
@@ -295,7 +405,7 @@ class MeasurementService : LifecycleService() {
                 onUploadSpeedChanged(measurementProgress, uploadSpeedBps)
                 isQoSEnabled(!config.skipQoSTests)
                 runner.testUUID?.let {
-                    onClientReady(it)
+                    onClientReady(it, stateRecorder.loopUuid)
                 }
                 if (hasErrors) {
                     client.onMeasurementError()
@@ -327,7 +437,7 @@ class MeasurementService : LifecycleService() {
             get() = this@MeasurementService.pingNanos
 
         override val isTestsRunning: Boolean
-            get() = runner.isRunning
+            get() = runner.isRunning || isLoopModeRunning
 
         override val testUUID: String?
             get() = runner.testUUID
@@ -383,9 +493,9 @@ class MeasurementService : LifecycleService() {
             }
         }
 
-        override fun onClientReady(testUUID: String) {
+        override fun onClientReady(testUUID: String, loopUUID: String?) {
             clients.forEach {
-                it.onClientReady(testUUID)
+                it.onClientReady(testUUID, loopUUID)
             }
         }
 
@@ -396,20 +506,48 @@ class MeasurementService : LifecycleService() {
         }
 
         override fun onSubmitted() {
-            clients.forEach {
-                it.onSubmitted()
+            if (config.loopModeEnabled) {
+                if (stateRecorder.loopTestCount >= config.loopModeNumberOfTests) {
+                    clients.forEach {
+                        it.onSubmitted()
+                    }
+                }
+            } else {
+                clients.forEach {
+                    it.onSubmitted()
+                }
             }
         }
 
         override fun onSubmissionError(exception: HandledException) {
-            clients.forEach {
-                it.onSubmissionError(exception)
+            if (config.loopModeEnabled) {
+                if (config.loopModeNumberOfTests >= config.loopModeNumberOfTests) {
+                    clients.forEach {
+                        it.onSubmissionError(exception)
+                    }
+                }
+            } else {
+                clients.forEach {
+                    it.onSubmissionError(exception)
+                }
             }
         }
 
         override fun onQoSTestProgressUpdated(tasksPassed: Int, tasksTotal: Int, progressMap: Map<QoSTestResultEnum, Int>) {
             clients.forEach {
                 it.onQoSTestProgressUpdated(tasksPassed, tasksTotal, progressMap)
+            }
+        }
+
+        override fun onLoopCountDownTimer(timePassedMillis: Long, timeTotalMillis: Long) {
+            clients.forEach {
+                it.onLoopCountDownTimer(timePassedMillis, timeTotalMillis)
+            }
+        }
+
+        override fun onMeasurementCancelled() {
+            clients.forEach {
+                it.onMeasurementCancelled()
             }
         }
     }
@@ -419,6 +557,7 @@ class MeasurementService : LifecycleService() {
         private const val NOTIFICATION_ID = 1
 
         private const val ACTION_START_TESTS = "KEY_START_TESTS"
+        private const val ACTION_STOP_TESTS = "KEY_STOP_TESTS"
 
         fun startTests(context: Context) {
             val intent = intent(context)
@@ -428,6 +567,10 @@ class MeasurementService : LifecycleService() {
             } else {
                 context.startService(intent)
             }
+        }
+
+        fun stopTestsIntent(context: Context): Intent = Intent(context, MeasurementService::class.java).apply {
+            action = ACTION_STOP_TESTS
         }
 
         fun intent(context: Context) = Intent(context, MeasurementService::class.java)

@@ -206,8 +206,18 @@ data class TestRecord(
     var lastClientStatus: TestStatus? = null,
 
     /**
+     * Phase which was the last done by the qos test
+     */
+    var lastQoSStatus: TestStatus? = null,
+
+    /**
      * Stacktrace of IllegalNetworkChangeException exception grabbed from RMBTClient which was happened during the test.
      * May be null if test was success or cancelled
      */
-    var testErrorCause: String? = null // todo add an catch IllegalNetworkChangeException
+    var testErrorCause: String? = null, // todo add an catch IllegalNetworkChangeException
+
+    /**
+     * Test position in loop mode it was performed
+     */
+    var loopModeTestOrder: Int = 0
 )

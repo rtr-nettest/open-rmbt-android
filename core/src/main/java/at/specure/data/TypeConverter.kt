@@ -3,12 +3,17 @@ package at.specure.data
 import androidx.room.TypeConverter
 import at.rmbt.client.control.data.TestFinishReason
 import at.rtr.rmbt.client.helper.TestStatus
+import at.specure.data.entity.LoopModeState
+import at.specure.data.entity.TestResultGraphItemRecord
 import at.specure.info.TransportType
 import at.specure.info.cell.CellTechnology
 import at.specure.info.network.MobileNetworkType
 import at.specure.measurement.MeasurementState
-import org.json.JSONArray
 import at.specure.result.QoECategory
+import at.specure.result.QoSCategory
+import com.google.gson.JsonObject
+import com.google.gson.JsonParser
+import org.json.JSONArray
 
 class TypeConverter {
 
@@ -75,6 +80,12 @@ class TypeConverter {
     fun valueToClassification(value: Int): Classification = Classification.fromValue(value)
 
     @TypeConverter
+    fun jsonObjectToValue(jsonObject: JsonObject): String = jsonObject.toString()
+
+    @TypeConverter
+    fun valueToJsonObject(value: String): JsonObject = JsonParser().parse(value).asJsonObject
+
+    @TypeConverter
     fun jsonArrayToValue(jsonArray: JSONArray): String = jsonArray.toString()
 
     @TypeConverter
@@ -94,4 +105,22 @@ class TypeConverter {
         if (value == null) return null
         return TestFinishReason.values()[value]
     }
+
+    @TypeConverter
+    fun qosCategoryToValue(type: QoSCategory): String = type.categoryName
+
+    @TypeConverter
+    fun valueToQosCategory(value: String): QoSCategory = QoSCategory.fromString(value)
+
+    @TypeConverter
+    fun graphTypeToValue(type: TestResultGraphItemRecord.Type): Int = type.typeValue
+
+    @TypeConverter
+    fun valueToGraphType(value: Int): TestResultGraphItemRecord.Type = TestResultGraphItemRecord.Type.fromValue(value)
+
+    @TypeConverter
+    fun valueToLoopModeState(value: Int): LoopModeState = LoopModeState.fromValue(value)
+
+    @TypeConverter
+    fun loopModeStateToValue(state: LoopModeState): Int = state.valueInt
 }

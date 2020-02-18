@@ -9,6 +9,8 @@
             name="item"
             type="at.specure.data.entity.History" />
 
+        <import type="at.specure.data.Classification"/>
+
     </data>
 
     <androidx.appcompat.widget.LinearLayoutCompat
@@ -28,6 +30,7 @@
             android:textColor="@color/text_dark_gray"
             app:networkType="@{item.networkType}"
             app:historyTime="@{item.time}"
+            app:historySignalStrength="@{item.signalClassification ?? Classification.NONE}"
             app:historyTimezone="@{item.timezone}"
             tools:text="20.11.18, 12:00:45" />
 

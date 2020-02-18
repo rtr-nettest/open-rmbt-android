@@ -76,6 +76,16 @@
     <string name="preferences_developer_options_disabled">Entwickleroptionen deaktiviert</string>
     <string name="preferences_developer_options_available">Entwickleroptionen verfügbar</string>
     <string name="preferences_developer_try_again">Versuchen Sie es nochmals!</string>
+    <string name="preferences_developer_map_server">Map-Server</string>
+    <string name="preferences_developer_map_override">Map-Server überschreiben</string>
+    <string name="preferences_developer_map_override_sum">Aktiviert die folgenden Einstellungen für den Map-Server</string>
+    <string name="preferences_developer_map_host">Map Host</string>
+    <string name="preferences_developer_map_port">Map Port</string>
+    <string name="preferences_developer_map_ssl">Map-Server SSL</string>
+    <string name="preferences_developer_map_ssl_sum">Verschlüsselte Verbindung zum Map-Server</string>
+    <string name="preferences_category_developer_qos_server">QoS-Server</string>
+    <string name="preferences_developer_qos_ssl" >QoS Server SSL</string>
+    <string name="preferences_developer_qos_ssl_sum" >Verwende verschlüsselte Verbindung zum QoS-Server</string>
 
     <!-- Location Dialog -->
     <string name="location_dialog_label_title">Standort</string>
@@ -105,14 +115,12 @@
 
     <string name="input_setting_dialog_ok">OK</string>
     <string name="input_setting_dialog_cancel">Abbrechen</string>
-    <string name="value_invalid">Ungültiger Wert</string>
     <string name="loop_mode_max_delay_invalid" tools:ignore="PluralsCandidate">Bitte wählen Sie einen Wert zwischen %1$d und %2$d.</string>
-    <string name="loop_mode_max_movement_invalid" tools:ignore="PluralsCandidate">Bitte wählen Sie einen Wert zwischen %1$d und %2$d.</string>
     <string name="about_client_uuid_copied">Die Client UUID wurde in die Zwischenablage kopiert.</string>
     <string name="client_not_registered">Der Client ist nicht registriert. Versuchen Sie es später erneut.</string>
 
     <!-- Measurement screen -->
-    <string name="measurement_ping_value">%1$d ms</string>
+    <string name="measurement_ping_value">%1$s ms</string>
     <string name="measurement_download_upload_speed">%1$s Mbit/s</string>
     <string name="measurement_download">Herunterladen</string>
     <string name="measurement_upload">Hochladen</string>
@@ -151,8 +159,7 @@
     <string name="text_continue_measurement">Messung fortführen</string>
     <string name="text_cancel_measurement">Messung abbrechen</string>
 
-    <string name="notification_test_title">RTR-NetTest läuft</string>
-    <string name="notification_test_ticker">Open-RMBT läuft…</string>
+    <string name="notification_test_title">Open-RMBT läuft</string>
 
     <string name="test_dialog_error_text">Etwas ist schiefgegangen. Bitte versuchen Sie es später noch Mal.</string>
 
@@ -186,6 +193,12 @@
     <string name="results_network_provider">Betreiber</string>
     <string name="results_network_ssid">WLAN SSID</string>
     <string name="result_test_details">Test details</string>
+    <string name="label_information">Informationen</string>
+    <string name="label_tests">Tests</string>
+    <string name="label_succeeded">ERFOLGREICH</string>
+    <string name="label_failed">GESCHEITERT</string>
+    <string name="label_description">BESCHREIBUNG</string>
+    <string name="label_detail">DETAIL</string>
 
     <!-- Map -->
     <string name="map_layer_communities">PLZ</string>
@@ -195,6 +208,63 @@
     <string name="map_label_map_appearance">Kartenansicht</string>
     <string name="title_marker_item_details">Mehr details anzeigen</string>
 
+    <string name="map_search_location_dialog_title">Suche</string>
+    <string name="map_search_location_dialog_info">Suche nach einer Adresse oder Stadt:</string>
+    <string name="map_search_location_dialog_not_found">Adresse nicht gefunden.</string>
+    <string name="map_search_location_not_supported">Ihr Gerät unterstützt diese Funktion nicht.</string>
+
     <string name="text_failed_to_load_results">Daten konnten nicht geladen werden.\nZum Aktualisieren bitte nach unten ziehen.</string>
+
+    <string name="title_sync">Synchronisieren</string>
+    <string name="text_sync_info">Es besteht die Möglichkeit die Messergebnisse von anderen Endgeräten zusammenzuführen. Dazu müssen Sie einen bereits erhaltenen Synchronisations-Code eingeben oder einen neuen anfordern.</string>
+    <string name="button_sync_request_code">Code anfordern</string>
+    <string name="button_sync_enter_code">Code eingeben</string>
+    <string name="text_sync_code_received">Bitte geben Sie den unten angezeigten Code auf Ihrem anderen Gerät ein, um diese zu synchronisieren.</string>
+    <string name="text_sync_enter_code_desc">Geben Sie hier bitte den Code ein, den Sie auf Ihrem anderen Gerät angefordert haben.</string>
+    <string name="button_close">Schließen</string>
+    <string name="toast_sync_code_copied_to_clipboard">Kopiert</string>
+    <string name="hint_sync_code">Code</string>
+    <string name="error_sync_code_short">Der Code muss aus 12 Zeichen bestehen</string>
+    <string name="error_no_connection">Keine Netzwerksverbindung: Einträge konnten nicht geladen werden.</string>
+
+    <string name="label_map_filters">Einstellugen</string>
+    <string name="text_filter_confirm">übernehmen</string>
+    <string name="text_filter_continue">Fortsetzen</string>
+    <string name="title_filters_type">Kartentyp</string>
+    <string name="title_filters_subtype">Einstellugen</string>
+
+    <string name="about_email_sending">E-Mail senden…</string>
+    <string name="about_email_subject">Supportanfrage</string>
+
+    <string name="graph_signal_value">-%1$s dBm</string>
+
+    <string name="notification_loop_mode_title_active">Der Wiederholungsmodus ist aktiv</string>
+    <string name="notification_loop_mode_title_running">Der Wiederholungsmodus ist läuft (%1$d/%2$d)</string>
+
+    <string name="title_loop_mode">Wiederholungsmodus</string>
+    <string name="title_loop_count">Wählen Sie die Anzahl der Tests</string>
+    <string name="text_loop_start">Tests Starten</string>
+    <string name="text_loop_mode">Neuer Test nach Wartezeit oder Zurücklegen der Distanz. Max. 2 Tage</string>
+    <string name="text_button_decline">Abbrechen</string>
+    <string name="text_button_accept">Akzeptieren</string>
+    <string name="text_loop_instruction_1"> Der Wiederholungsmodus erlaubt es, den RTR-Netztest automatisiert wiederholt auszuführen.\n\nDer erste Test wird unmittelbar nach dem Start des Wiederholungsmodus gestartet. Weitere Tests werden gestartet, sobald die Wartezeit (Voreinstellung 30 Minuten) abgelaufen ist. Diese Werte können unter „Einstellungen“ verändert werden. Tests werden durchgeführt, bis die eingestellte Testanzahl (Voreinstellung 10 Tests) erreicht ist. Der Wiederholungsmodus wird nach 2 Tagen automatisch beendet. Die Tests können jederzeit gestoppt werden.\n\nEs wird ausdrücklich darauf hingewiesen, dass aufgrund des Wiederholungsmodus ein Rückschluss auf die testende Person nicht ausgeschlossen ist.</string>
+    <string name="text_loop_instruction_2">Im Fall hoher Nachfrage oder einer hohen Anzahl an Tests in einem konkreten Gebiet kann der Wiederholungsmodus durch das Testsystem abgelehnt werden, um Überlast zu vermeiden. Es wird darauf hingewiesen, dass der Widerholungsmodus (nur) zur Nutzung innerhalb der EU- und EFTA-Staaten gedacht ist.\n\nEs ist zu beachten, dass der Wiederholungsmodus eine große Menge an Daten verbraucht. Mit schnellen Verbindungen können 10 Tests 1 GB oder mehr an Daten verbrauchen. Deshalb wird dringend empfohlen, den Wiederholungsmodus nur mit echten Flatrate Tarifen, bei denen zusätzliches Datenvolumen keine zusätzlichen Kosten verursacht, zu verwenden.\n\nDie Batterie wird durch den Wiederholungsmodus schnell entleert. In den Pausen zwischen den Tests bleiben GPS und die Anzeige aktiv, deshalb wird die Energie viel schneller verbraucht als im Ruhemodus. Dazu kommt, dass auch die Tests Energie benötigen. Daher sollte der Wiederholungsmodus nur dann genutzt werden, wenn eine externe Stromversorgung zur Verfügung steht.</string>
+    <string name="title_loop_instruction_1">Wiederholungmodus: Aktivierung</string>
+    <string name="title_loop_instruction_2">Nutzung</string>
+
+    <string name="text_filter_devices">Gerät</string>
+    <string name="text_filter_networks">Zugang</string>
+    <string name="label_filter_options">Einstellugen</string>
+    <string name="label_filter">Filter</string>
+
+    <string name="loop_mode_next_test">Nächster Test</string>
+    <string name="loop_mode_minutes">Minuten</string>
+    <string name="loop_mode_meters">Meter</string>
+    <string name="loop_mode_no_gps">Kein GPS</string>
+    <string name="or">oder</string>
+    <string name="loop_mode_finished">Netztest abgeschlossen!</string>
+    <string name="loop_continue_to_results">Weiter zum ergebnis</string>
+    <string name="loop_run_again">Noch einmal ausführen</string>
+    <string name="title_privacy_policy">Datenschutzerklärung</string>
 </resources>
 

@@ -1,13 +1,18 @@
 package at.rtr.rmbt.android.ui.fragment
 
+import android.annotation.SuppressLint
+import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
+import android.view.MotionEvent
 import android.view.View
 import at.rmbt.client.control.IpProtocol
 import at.rtr.rmbt.android.R
 import at.rtr.rmbt.android.databinding.FragmentHomeBinding
 import at.rtr.rmbt.android.di.viewModelLazy
+import at.rtr.rmbt.android.ui.activity.LoopConfigurationActivity
+import at.rtr.rmbt.android.ui.activity.LoopInstructionsActivity
 import at.rtr.rmbt.android.ui.activity.MeasurementActivity
 import at.rtr.rmbt.android.ui.activity.PreferenceActivity
 import at.rtr.rmbt.android.ui.dialog.FullscreenDialog
@@ -37,9 +42,11 @@ class HomeFragment : BaseFragment() {
 
     override val layoutResId = R.layout.fragment_home
 
+    @SuppressLint("ClickableViewAccessibility")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         binding.state = homeViewModel.state
+        updateTransparentStatusBarHeight(binding.statusBarStub)
         homeViewModel.isConnected.listen(this) {
             activity?.window?.changeStatusBarColor(if (it) ToolbarTheme.BLUE else ToolbarTheme.GRAY)
         }
@@ -103,13 +110,40 @@ class HomeFragment : BaseFragment() {
         binding.ivSignalLevel.setOnClickListener {
             if (homeViewModel.isConnected.value == true) {
                 if (!homeViewModel.clientUUID.value.isNullOrEmpty()) {
-                    MeasurementService.startTests(requireContext())
-                    MeasurementActivity.start(requireContext())
+                    if (homeViewModel.state.isLoopModeActive.get()) {
+                        LoopConfigurationActivity.start(requireContext())
+                    } else {
+                        MeasurementService.startTests(requireContext())
+                        MeasurementActivity.start(requireContext())
+                    }
                 } else {
                     MessageDialog.instance(R.string.client_not_registered).show(activity)
                 }
             } else {
                 MessageDialog.instance(R.string.home_no_internet_connection).show(activity)
+            }
+        }
+
+        binding.btnLoop.setOnTouchListener { v, event ->
+            if (event.action == MotionEvent.ACTION_DOWN) {
+                if (!binding.btnLoop.isChecked) {
+                    LoopInstructionsActivity.start(this, CODE_LOOP_INSTRUCTIONS)
+                } else {
+                    homeViewModel.state.isLoopModeActive.set(false)
+                }
+            }
+            true
+        }
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+
+        if (requestCode == CODE_LOOP_INSTRUCTIONS) {
+            if (resultCode == Activity.RESULT_OK) {
+                homeViewModel.state.isLoopModeActive.set(true)
+            } else {
+                homeViewModel.state.isLoopModeActive.set(false)
             }
         }
     }
@@ -132,6 +166,7 @@ class HomeFragment : BaseFragment() {
             )
         }
         startTimerForInfoWindow()
+        homeViewModel.state.checkConfig()
     }
 
     /**
@@ -149,5 +184,6 @@ class HomeFragment : BaseFragment() {
     companion object {
         private const val PERMISSIONS_REQUEST_CODE: Int = 10
         private const val INFO_WINDOW_TIME_MS: Long = 2000
+        private const val CODE_LOOP_INSTRUCTIONS = 13
     }
 }

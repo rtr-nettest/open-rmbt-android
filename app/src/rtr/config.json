@@ -2,8 +2,8 @@
   "config": [
     {
       "name": "NDT_ENABLED",
-      "value": "true",
-      "visible": true
+      "value": "false",
+      "visible": false
     },
     {
       "name": "SKIP_QOS_TESTS",
@@ -28,6 +28,11 @@
     {
       "name": "LOOP_MODE_DISTANCE_METERS",
       "value": "250",
+      "visible": true
+    },
+    {
+      "name": "LOOP_MODE_NUMBER_OF_TESTS",
+      "value": "10",
       "visible": true
     },
     {
@@ -126,6 +131,26 @@
       "visible": false
     },
     {
+      "name": "CAPTIVE_PORTAL_WALLED_GARDEN_URL",
+      "value": "http://webtest.nettest.at/generate_204",
+      "visible": false
+    },
+    {
+      "name": "SOURCE_CODE_URL",
+      "value": "https://github.com/rtr-nettest",
+      "visible": false
+    },
+    {
+      "name": "WEBSITE_URL",
+      "value": "https://www.netztest.at",
+      "visible": false
+    },
+    {
+      "name": "EMAIL_ADDRESS",
+      "value": "RTR-Netztest Support <netztest@rtr.at>",
+      "visible": false
+    },
+    {
       "name": "CAPABILITIES_RMBT_HTTP",
       "value": "false",
       "visible": false
@@ -179,6 +204,56 @@
       "name": "MAP_MARKERS_ENDPOINT",
       "value": "tiles/markers",
       "visible": false
+    },
+    {
+      "name": "MAP_MARKER_SHOW_DETAILS_ROUTE",
+      "value": "en/Opentest?%s#noMMenu",
+      "visible": false
+    },
+    {
+      "name": "GET_SYNC_CODE_ROUTE",
+      "value": "sync",
+      "visible": false
+    },
+    {
+      "name": "SYNC_DEVICES_ROUTE",
+      "value": "sync",
+      "visible": false
+    },
+    {
+      "name": "MAP_FILTERS_ENDPOINT",
+      "value": "tiles/info",
+      "visible": false
+    },
+    {
+      "name": "DATA_PRIVACY_AND_TERMS_URL",
+      "value": "https://www.rtr.at/en/tk/netztestterms",
+      "visible": true
+    },
+    {
+      "name": "IS_MAP_SERVER_OVERRIDE_ENABLED",
+      "value": "false",
+      "visible": false
+    },
+    {
+      "name": "MAP_SERVER_HOST",
+      "value": "sdev.netztest.at",
+      "visible": false
+    },
+    {
+      "name": "MAP_SERVER_PORT",
+      "value": "443",
+      "visible": false
+    },
+    {
+      "name": "MAP_SERVER_USE_SSL",
+      "value": "true",
+      "visible": false
+    },
+    {
+      "name": "TERMS_FOR_ACCEPTANCE_URL",
+      "value": "https://www.netztest.at/%s/tc_android.html",
+      "visible": true
     }
   ]
 }

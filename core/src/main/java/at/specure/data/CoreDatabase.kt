@@ -13,6 +13,9 @@ import at.specure.data.dao.MapDao
 import at.specure.data.dao.PermissionStatusDao
 import at.specure.data.dao.PingDao
 import at.specure.data.dao.QoeInfoDao
+import at.specure.data.dao.QosCategoryDao
+import at.specure.data.dao.QosTestGoalDao
+import at.specure.data.dao.QosTestItemDao
 import at.specure.data.dao.SignalDao
 import at.specure.data.dao.SpeedDao
 import at.specure.data.dao.TestDao
@@ -25,11 +28,15 @@ import at.specure.data.entity.CellLocationRecord
 import at.specure.data.entity.GeoLocationRecord
 import at.specure.data.entity.GraphItemRecord
 import at.specure.data.entity.History
+import at.specure.data.entity.LoopModeRecord
 import at.specure.data.entity.MarkerMeasurementRecord
 import at.specure.data.entity.PermissionStatusRecord
 import at.specure.data.entity.PingRecord
 import at.specure.data.entity.QoSResultRecord
 import at.specure.data.entity.QoeInfoRecord
+import at.specure.data.entity.QosCategoryRecord
+import at.specure.data.entity.QosTestGoalRecord
+import at.specure.data.entity.QosTestItemRecord
 import at.specure.data.entity.SignalRecord
 import at.specure.data.entity.SpeedRecord
 import at.specure.data.entity.TestRecord
@@ -49,6 +56,9 @@ import at.specure.data.entity.TestWlanRecord
         PermissionStatusRecord::class,
         PingRecord::class,
         QoeInfoRecord::class,
+        QosCategoryRecord::class,
+        QosTestGoalRecord::class,
+        QosTestItemRecord::class,
         QoSResultRecord::class,
         SignalRecord::class,
         TestTelephonyRecord::class,
@@ -58,8 +68,9 @@ import at.specure.data.entity.TestWlanRecord
         TestResultRecord::class,
         TestWlanRecord::class,
         TestResultDetailsRecord::class,
-        MarkerMeasurementRecord::class],
-    version = 40
+        MarkerMeasurementRecord::class,
+        LoopModeRecord::class],
+    version = 53
 )
 @TypeConverters(TypeConverter::class)
 abstract class CoreDatabase : RoomDatabase() {
@@ -73,6 +84,9 @@ abstract class CoreDatabase : RoomDatabase() {
     abstract fun permissionStatusDao(): PermissionStatusDao
     abstract fun pingDao(): PingDao
     abstract fun qoeInfoDao(): QoeInfoDao
+    abstract fun qosCategoryDao(): QosCategoryDao
+    abstract fun qosTestGoalDao(): QosTestGoalDao
+    abstract fun qosTestItemDao(): QosTestItemDao
     abstract fun signalDao(): SignalDao
     abstract fun speedDao(): SpeedDao
     abstract fun testDao(): TestDao

@@ -20,4 +20,7 @@ class IpEndpointProviderImpl(private val config: Config) : IpEndpointProvider {
 
     override val checkPublicIPv6Url: String
         get() = protocol + config.controlServerCheckPublicIPv6Url
+
+    override val captivePortalWalledGardenUrl: String
+        get() = config.captivePortalWalledGardenUrl
 }

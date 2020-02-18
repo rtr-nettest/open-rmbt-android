@@ -541,6 +541,8 @@ data class HistoryItemResponse(
     val speedUpload: String,
     @SerializedName("speed_upload_classification")
     val speedUploadClassification: Int,
+    @SerializedName("signal_classification")
+    val signalClassification: Int?,
     @SerializedName("test_uuid")
     val testUUID: String,
     val time: Long,
@@ -629,10 +631,10 @@ data class QosTestResult(
     val testResultKeys: List<String>,
 
     @SerializedName("test_result_key_map")
-    val testResultMap: List<String>,
+    val testResultMap: JsonObject,
 
     @SerializedName("test_summary")
-    val testSummary: List<String>,
+    val testSummary: String,
 
     @SerializedName("success_count")
     val successCount: Int,
@@ -719,4 +721,50 @@ data class EvalTimes(
      */
     @SerializedName("full")
     val evalTimeWithLoadMillis: String?
+)
+
+@Keep
+class GetSyncCodeResponse(
+    /**
+     * List of sync codes??
+     */
+    val sync: List<GetSyncCodeResponseItem>
+) : BaseResponse()
+
+@Keep
+class DeviceSyncResponse(
+    /**
+     * List of sync codes??
+     */
+    val sync: List<SyncDeviceResponseItem>
+) : BaseResponse()
+
+@Keep
+class GetSyncCodeResponseItem(
+
+    /**
+     * Sync code to sync devices
+     */
+    @SerializedName("sync_code")
+    val syncCode: String,
+
+    val success: Boolean
+)
+
+@Keep
+class SyncDeviceResponseItem(
+
+    /**
+     * Message title to show
+     */
+    @SerializedName("msg_title")
+    val messageTitle: String,
+
+    /**
+     * Message text to show
+     */
+    @SerializedName("msg_text")
+    val messageText: String,
+
+    val success: Boolean
 )

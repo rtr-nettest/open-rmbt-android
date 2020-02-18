@@ -1,12 +1,16 @@
 package at.specure.data.repository
 
+import android.os.SystemClock
+import androidx.lifecycle.LiveData
 import at.rmbt.util.io
+import at.rtr.rmbt.client.helper.TestStatus
 import at.specure.data.CoreDatabase
 import at.specure.data.entity.CapabilitiesRecord
 import at.specure.data.entity.CellInfoRecord
 import at.specure.data.entity.CellLocationRecord
 import at.specure.data.entity.GeoLocationRecord
 import at.specure.data.entity.GraphItemRecord
+import at.specure.data.entity.LoopModeRecord
 import at.specure.data.entity.PermissionStatusRecord
 import at.specure.data.entity.PingRecord
 import at.specure.data.entity.QoSResultRecord
@@ -119,8 +123,6 @@ class TestDataRepositoryImpl(db: CoreDatabase) : TestDataRepository {
     ) {
         var signal = info.value
         var wifiLinkSpeed: Int? = null
-        val timeNanos = info.timestampNanos
-        val timeNanosLast = if (timeNanos < testStartTimeNanos) 0 else timeNanos - testStartTimeNanos
         // 2G/3G
         var bitErrorRate: Int? = null
         // 4G
@@ -147,6 +149,10 @@ class TestDataRepositoryImpl(db: CoreDatabase) : TestDataRepository {
                 timingAdvance = info.timingAdvance
             }
         }
+
+        val startTimestampNsSinceBoot = testStartTimeNanos + (SystemClock.elapsedRealtimeNanos() - System.nanoTime())
+        val timeNanos = info.timestampNanos - startTimestampNsSinceBoot
+        val timeNanosLast = if (info.timestampNanos < startTimestampNsSinceBoot) info.timestampNanos - startTimestampNsSinceBoot else null
 
         val item = SignalRecord(
             testUUID = testUUID,
@@ -293,7 +299,7 @@ class TestDataRepositoryImpl(db: CoreDatabase) : TestDataRepository {
             supplicantDetailedState = wifiInfo.supplicantDetailedState,
             ssid = wifiInfo.ssid,
             bssid = wifiInfo.bssid,
-            networkId = wifiInfo.networkId.toString()
+            networkId = if (wifiInfo.networkId == -1) null else wifiInfo.networkId.toString()
         )
         testDao.insert(record)
     }
@@ -316,5 +322,21 @@ class TestDataRepositoryImpl(db: CoreDatabase) : TestDataRepository {
         )
         testDao.insert(record)
         onUpdated.invoke()
+    }
+
+    override fun updateQoSTestStatus(testUUID: String, status: TestStatus?) = io {
+        testDao.updateQoSTestStatus(testUUID, status?.ordinal)
+    }
+
+    override fun saveLoopMode(loopModeRecord: LoopModeRecord) = io {
+        testDao.saveLoopModeRecord(loopModeRecord)
+    }
+
+    override fun updateLoopMode(loopModeRecord: LoopModeRecord) = io {
+        testDao.updateLoopModeRecord(loopModeRecord)
+    }
+
+    override fun getLoopMode(loopUUID: String): LiveData<LoopModeRecord?> {
+        return testDao.getLoopModeRecord(loopUUID)
     }
 }

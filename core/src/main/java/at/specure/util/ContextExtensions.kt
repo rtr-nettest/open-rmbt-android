@@ -8,6 +8,7 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.provider.Settings
+import android.widget.Toast
 import androidx.core.content.ContextCompat
 
 /**
@@ -50,3 +51,8 @@ fun Context.openAppSettings() {
  * Checks that runtime permission is allowed by user
  */
 fun Context.hasPermission(permission: String) = ContextCompat.checkSelfPermission(this, permission) == PackageManager.PERMISSION_GRANTED
+
+/**
+ * Shows toast message with [Toast.LENGTH_SHORT] duration
+ */
+fun Context.toast(stringRes: Int) = Toast.makeText(this, stringRes, Toast.LENGTH_SHORT).show()

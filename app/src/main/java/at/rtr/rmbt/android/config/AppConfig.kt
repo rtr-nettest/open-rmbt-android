@@ -19,6 +19,7 @@ import at.rtr.rmbt.android.BuildConfig
 import at.rtr.rmbt.android.util.ConfigValue
 import at.specure.config.Config
 import at.specure.data.ControlServerSettings
+import at.specure.data.MapServerSettings
 import javax.inject.Inject
 
 private const val FILENAME = "config.pref"
@@ -26,7 +27,7 @@ private const val FILENAME = "config.pref"
 private const val KEY_TEST_COUNTER = "KEY_TEST_COUNTER"
 private const val KEY_PREVIOUS_TEST_STATUS = "PREVIOUS_TEST_STATUS"
 
-class AppConfig @Inject constructor(context: Context, private val serverSettings: ControlServerSettings) : Config {
+class AppConfig @Inject constructor(context: Context, private val serverSettings: ControlServerSettings, private val mapServerSettings: MapServerSettings) : Config {
 
     private val preferences = context.getSharedPreferences(FILENAME, Context.MODE_PRIVATE)
 
@@ -83,6 +84,10 @@ class AppConfig @Inject constructor(context: Context, private val serverSettings
     override var loopModeDistanceMeters: Int
         get() = getInt(BuildConfig.LOOP_MODE_DISTANCE_METERS)
         set(value) = setInt(BuildConfig.LOOP_MODE_DISTANCE_METERS, value)
+
+    override var loopModeNumberOfTests: Int
+        get() = getInt(BuildConfig.LOOP_MODE_NUMBER_OF_TESTS)
+        set(value) = setInt(BuildConfig.LOOP_MODE_NUMBER_OF_TESTS, value)
 
     override var expertModeEnabled: Boolean
         get() = getBoolean(BuildConfig.EXPERT_MODE_ENABLED)
@@ -176,6 +181,22 @@ class AppConfig @Inject constructor(context: Context, private val serverSettings
         get() = getBoolean(BuildConfig.CAPABILITIES_RMBT_HTTP)
         set(value) = setBoolean(BuildConfig.CAPABILITIES_RMBT_HTTP, value)
 
+    override var captivePortalWalledGardenUrl: String
+        get() = getString(BuildConfig.CAPTIVE_PORTAL_WALLED_GARDEN_URL)
+        set(value) = setString(BuildConfig.CAPTIVE_PORTAL_WALLED_GARDEN_URL, value)
+
+    override var aboutWebPageUrl: String
+        get() = getString(BuildConfig.WEBSITE_URL)
+        set(value) = setString(BuildConfig.WEBSITE_URL, value)
+
+    override var aboutEmailAddress: String
+        get() = getString(BuildConfig.EMAIL_ADDRESS)
+        set(value) = setString(BuildConfig.EMAIL_ADDRESS, value)
+
+    override var aboutGithubRepositoryUrl: String
+        get() = getString(BuildConfig.SOURCE_CODE_URL)
+        set(value) = setString(BuildConfig.SOURCE_CODE_URL, value)
+
     override var capabilitiesQosSupportsInfo: Boolean
         get() = getBoolean(BuildConfig.CAPABILITIES_QOS_SUPPORTS_INFO)
         set(value) = setBoolean(BuildConfig.CAPABILITIES_QOS_SUPPORTS_INFO, value)
@@ -217,4 +238,44 @@ class AppConfig @Inject constructor(context: Context, private val serverSettings
     override var mapTilesEndpoint: String
         get() = getString(BuildConfig.MAP_TILES_ENDPOINT)
         set(value) = setString(BuildConfig.MAP_TILES_ENDPOINT, value)
+
+    override var mapMarkerShowDetailsRoute: String
+        get() = getString(BuildConfig.MAP_MARKER_SHOW_DETAILS_ROUTE)
+        set(value) = setString(BuildConfig.MAP_MARKER_SHOW_DETAILS_ROUTE, value)
+
+    override var getSyncCodeRoute: String
+        get() = getString(BuildConfig.GET_SYNC_CODE_ROUTE)
+        set(value) = setString(BuildConfig.GET_SYNC_CODE_ROUTE, value)
+
+    override var syncDevicesRoute: String
+        get() = getString(BuildConfig.SYNC_DEVICES_ROUTE)
+        set(value) = setString(BuildConfig.SYNC_DEVICES_ROUTE, value)
+
+    override var mapFilterInfoEndpoint: String
+        get() = getString(BuildConfig.MAP_FILTERS_ENDPOINT)
+        set(value) = setString(BuildConfig.MAP_FILTERS_ENDPOINT, value)
+
+    override var dataPrivacyAndTermsUrl: String
+        get() = getString(BuildConfig.DATA_PRIVACY_AND_TERMS_URL)
+        set(value) = setString(BuildConfig.DATA_PRIVACY_AND_TERMS_URL, value)
+
+    override var termsAcceptanceDefaultUrl: String
+        get() = getString(BuildConfig.TERMS_FOR_ACCEPTANCE_URL)
+        set(value) = setString(BuildConfig.TERMS_FOR_ACCEPTANCE_URL, value)
+
+    override var mapServerOverrideEnabled: Boolean
+        get() = getBoolean(BuildConfig.IS_MAP_SERVER_OVERRIDE_ENABLED)
+        set(value) = setBoolean(BuildConfig.IS_MAP_SERVER_OVERRIDE_ENABLED, value)
+
+    override var mapServerHost: String
+        get() = getString(BuildConfig.MAP_SERVER_HOST, mapServerSettings.mapServerHost)
+        set(value) = setString(BuildConfig.MAP_SERVER_HOST, value)
+
+    override var mapServerPort: Int
+        get() = getInt(BuildConfig.MAP_SERVER_PORT, mapServerSettings.mapServerPort)
+        set(value) = setInt(BuildConfig.MAP_SERVER_PORT, value)
+
+    override var mapServerUseSSL: Boolean
+        get() = getBoolean(BuildConfig.MAP_SERVER_USE_SSL, mapServerSettings.mapServerUseSsl)
+        set(value) = setBoolean(BuildConfig.MAP_SERVER_USE_SSL, value)
 }

@@ -15,7 +15,7 @@ interface MeasurementClient {
 
     fun onPingChanged(pingNanos: Long)
 
-    fun onClientReady(testUUID: String)
+    fun onClientReady(testUUID: String, loopUUID: String?)
 
     fun isQoSEnabled(enabled: Boolean)
 
@@ -24,4 +24,8 @@ interface MeasurementClient {
     fun onSubmissionError(exception: HandledException)
 
     fun onQoSTestProgressUpdated(tasksPassed: Int, tasksTotal: Int, progressMap: Map<QoSTestResultEnum, Int>)
+
+    fun onLoopCountDownTimer(timePassedMillis: Long, timeTotalMillis: Long)
+
+    fun onMeasurementCancelled()
 }

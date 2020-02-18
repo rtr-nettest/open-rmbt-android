@@ -5,13 +5,14 @@ import android.graphics.Canvas
 import android.graphics.Paint
 import android.util.AttributeSet
 import at.rtr.rmbt.android.R
+import at.specure.data.NetworkTypeCompat
 import at.specure.data.entity.TestResultGraphItemRecord
 import kotlin.math.ceil
 
 class PingChart @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null
-) : PingChartView(context, attrs) {
+) : PingChartView(context, attrs), ResultChart {
 
     private var paintFill: Paint = Paint(Paint.ANTI_ALIAS_FLAG)
     private var maxValue: Int? = 0
@@ -41,7 +42,7 @@ class PingChart @JvmOverloads constructor(
                 val padding = barWidth / 4.0f
                 for (index in items.indices) {
 
-                    val left = padding + (barWidth*index)
+                    val left = padding + (barWidth * index)
                     val right = left + (barWidth / 2)
                     val top = getChartHeight() * (1.0f - (items[index].value.toFloat() / it.toFloat()))
                     val bottom = getChartHeight()
@@ -55,8 +56,7 @@ class PingChart @JvmOverloads constructor(
     /**
      * This function is use for calculate path
      */
-    fun addGraphItems(graphItems: List<TestResultGraphItemRecord>?) {
-
+    override fun addResultGraphItems(graphItems: List<TestResultGraphItemRecord>?, networkType: NetworkTypeCompat) {
         graphItems?.let {
             this.graphItems = it
             setYLabels(getYLabels(it))
@@ -75,6 +75,7 @@ class PingChart @JvmOverloads constructor(
         maxValue = gapList.maxBy { it }
         return gapList
     }
+
     fun reset() {
         invalidate()
     }

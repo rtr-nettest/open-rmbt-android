@@ -33,17 +33,12 @@ class TestResultDetailFragment : BaseFragment() {
             binding.recyclerViewTestResultDetail.addItemDecoration(itemDecoration)
         }
 
-        val testUUID = arguments?.getString(KEY_TEST_UUID)
-        if (testUUID == null) {
-            throw IllegalArgumentException("Please pass test UUID")
-        } else {
-            testResultDetailViewModel.state.testUUID = testUUID
-            testResultDetailViewModel.testResultDetailsLiveData.listen(this) {
-                it.sortedByDescending { title ->
-                    title.title
-                }
-                adapter.items = it as MutableList<TestResultDetailsRecord>
+        testResultDetailViewModel.state.testUUID = arguments?.getString(KEY_TEST_UUID) ?: throw IllegalArgumentException("Please pass test UUID")
+        testResultDetailViewModel.testResultDetailsLiveData.listen(this) {
+            it.sortedByDescending { title ->
+                title.title
             }
+            adapter.items = it as MutableList<TestResultDetailsRecord>
         }
     }
 

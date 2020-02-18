@@ -3,14 +3,15 @@ package at.specure.data
 import at.specure.info.TransportType
 import at.specure.info.cell.CellTechnology
 import at.specure.info.network.MobileNetworkType
+import at.specure.info.strength.SignalStrengthInfo
 
-enum class NetworkTypeCompat(val stringValue: String) {
+enum class NetworkTypeCompat(val stringValue: String, val minSignalValue: Int, val maxSignalValue: Int) {
 
-    TYPE_2G("2G"),
-    TYPE_3G("3G"),
-    TYPE_4G("4G"),
-    TYPE_5G("5G"),
-    TYPE_WLAN("WLAN");
+    TYPE_2G("2G", SignalStrengthInfo.CELLULAR_SIGNAL_MIN, SignalStrengthInfo.CELLULAR_SIGNAL_MAX),
+    TYPE_3G("3G", SignalStrengthInfo.WCDMA_RSRP_SIGNAL_MIN, SignalStrengthInfo.WCDMA_RSRP_SIGNAL_MAX),
+    TYPE_4G("4G", SignalStrengthInfo.LTE_RSRP_SIGNAL_MIN, SignalStrengthInfo.LTE_RSRP_SIGNAL_MAX),
+    TYPE_5G("5G", SignalStrengthInfo.NR_RSRP_SIGNAL_MIN, SignalStrengthInfo.NR_RSRP_SIGNAL_MAX),
+    TYPE_WLAN("WLAN", SignalStrengthInfo.WIFI_MIN_SIGNAL_VALUE, SignalStrengthInfo.WIFI_MAX_SIGNAL_VALUE);
 
     companion object {
 
@@ -90,7 +91,7 @@ enum class ServerNetworkType(
     TYPE_2G_EVDO_B(12, "2G (EVDO_B)", NetworkTypeCompat.TYPE_2G, TransportType.CELLULAR, MobileNetworkType.EVDO_B),
     TYPE_4G_LTE(13, "4G (LTE)", NetworkTypeCompat.TYPE_4G, TransportType.CELLULAR, MobileNetworkType.LTE),
     TYPE_2G_EHRPD(14, "2G (EHRPD)", NetworkTypeCompat.TYPE_2G, TransportType.CELLULAR, MobileNetworkType.EHRPD),
-    TYPE_3G_HSPA_P(15, "3G (HSPA+)", NetworkTypeCompat.TYPE_2G, TransportType.CELLULAR, MobileNetworkType.HSPAP),
+    TYPE_3G_HSPA_P(15, "3G (HSPA+)", NetworkTypeCompat.TYPE_3G, TransportType.CELLULAR, MobileNetworkType.HSPAP),
     TYPE_4G_LTE_CA(19, "4G (LTE CA)", NetworkTypeCompat.TYPE_4G, TransportType.CELLULAR, MobileNetworkType.LTE_CA),
     TYPE_5G_NR(20, "5G (NR)", NetworkTypeCompat.TYPE_5G, TransportType.CELLULAR, MobileNetworkType.NR),
     TYPE_CLI(97, "CLI", null, null, null),

@@ -37,3 +37,9 @@ class StringSetPreferenceLiveData(preferences: SharedPreferences, key: String, d
 
     override fun readValue(key: String, defaultValue: Set<String>?): Set<String>? = preferences.getStringSet(key, defaultValue)
 }
+
+class BooleanPreferenceLiveData(preferences: SharedPreferences, key: String, defaultValue: Boolean = false) :
+    PreferenceLiveData<Boolean>(preferences, key, defaultValue) {
+
+    override fun readValue(key: String, defaultValue: Boolean?): Boolean? = preferences.getBoolean(key, defaultValue ?: false)
+}

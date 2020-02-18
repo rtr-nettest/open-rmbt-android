@@ -2,8 +2,11 @@ package at.rtr.rmbt.android.di
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import at.rtr.rmbt.android.viewmodel.HistoryFiltersViewModel
 import at.rtr.rmbt.android.viewmodel.HistoryViewModel
 import at.rtr.rmbt.android.viewmodel.HomeViewModel
+import at.rtr.rmbt.android.viewmodel.LoopConfigurationViewModel
+import at.rtr.rmbt.android.viewmodel.MapFiltersViewModel
 import at.rtr.rmbt.android.viewmodel.MapViewModel
 import at.rtr.rmbt.android.viewmodel.StatisticsViewModel
 import at.rtr.rmbt.android.viewmodel.NetworkDetailsViewModel
@@ -11,7 +14,13 @@ import at.rtr.rmbt.android.viewmodel.SettingsViewModel
 import at.rtr.rmbt.android.viewmodel.MeasurementViewModel
 import at.rtr.rmbt.android.viewmodel.ResultViewModel
 import at.rtr.rmbt.android.viewmodel.ResultChartViewModel
+import at.rtr.rmbt.android.viewmodel.SyncDevicesViewModel
 import at.rtr.rmbt.android.viewmodel.TestResultDetailViewModel
+import at.rtr.rmbt.android.viewmodel.QosTestsSummaryViewModel
+import at.rtr.rmbt.android.viewmodel.QosTestDetailViewModel
+import at.rtr.rmbt.android.viewmodel.QosTestDetailPagerViewModel
+import at.rtr.rmbt.android.viewmodel.SplashViewModel
+import at.rtr.rmbt.android.viewmodel.TermsAcceptanceViewModel
 import dagger.Binds
 import dagger.Module
 import dagger.multibindings.IntoMap
@@ -75,4 +84,49 @@ interface ViewModelModule {
     @IntoMap
     @ViewModelKey(TestResultDetailViewModel::class)
     fun bindTestResultDetailViewModel(viewModel: TestResultDetailViewModel): ViewModel
+
+    @Binds
+    @IntoMap
+    @ViewModelKey(SyncDevicesViewModel::class)
+    fun bindSyncDevicesViewModel(viewModel: SyncDevicesViewModel): ViewModel
+
+    @Binds
+    @IntoMap
+    @ViewModelKey(QosTestsSummaryViewModel::class)
+    fun bindQosTestsSummaryViewModel(viewModel: QosTestsSummaryViewModel): ViewModel
+
+    @Binds
+    @IntoMap
+    @ViewModelKey(QosTestDetailViewModel::class)
+    fun bindQosTestDetailViewModel(viewModel: QosTestDetailViewModel): ViewModel
+
+    @Binds
+    @IntoMap
+    @ViewModelKey(QosTestDetailPagerViewModel::class)
+    fun bindQosTestDetailPagerViewModel(viewModel: QosTestDetailPagerViewModel): ViewModel
+
+    @Binds
+    @IntoMap
+    @ViewModelKey(MapFiltersViewModel::class)
+    fun bindMapFiltersViewModel(viewModel: MapFiltersViewModel): ViewModel
+
+    @Binds
+    @IntoMap
+    @ViewModelKey(LoopConfigurationViewModel::class)
+    fun bindLoopConfigurationViewModel(viewModel: LoopConfigurationViewModel): ViewModel
+
+    @Binds
+    @IntoMap
+    @ViewModelKey(HistoryFiltersViewModel::class)
+    fun bindHistoryFiltersViewModel(viewModel: HistoryFiltersViewModel): ViewModel
+
+    @Binds
+    @IntoMap
+    @ViewModelKey(TermsAcceptanceViewModel::class)
+    fun bindTermsAcceptanceViewModel(viewModel: TermsAcceptanceViewModel): ViewModel
+
+    @Binds
+    @IntoMap
+    @ViewModelKey(SplashViewModel::class)
+    fun bindSplashViewModel(viewModel: SplashViewModel): ViewModel
 }

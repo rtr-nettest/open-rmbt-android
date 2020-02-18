@@ -1,28 +1,40 @@
 package at.rtr.rmbt.android.viewmodel
 
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Transformations
 import at.rmbt.client.control.data.MapPresentationType
 import at.rtr.rmbt.android.ui.viewstate.MapViewState
 import at.specure.data.entity.MarkerMeasurementRecord
 import at.specure.data.repository.MapRepository
 import at.specure.location.LocationInfoLiveData
+import at.specure.location.LocationProviderStateLiveData
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.Tile
 import com.google.android.gms.maps.model.TileProvider
 import javax.inject.Inject
 
-class MapViewModel @Inject constructor(private val repository: MapRepository, val locationInfoLiveData: LocationInfoLiveData) : BaseViewModel() {
+class MapViewModel @Inject constructor(
+    private val repository: MapRepository,
+    val locationInfoLiveData: LocationInfoLiveData,
+    val locationProviderStateLiveData: LocationProviderStateLiveData
+) : BaseViewModel() {
 
     val state = MapViewState()
 
-    val provider = RetrofitTileProvider(repository, state)
+    var providerLiveData: MutableLiveData<RetrofitTileProvider> = MutableLiveData()
 
     var markersLiveData: LiveData<List<MarkerMeasurementRecord>> =
-        Transformations.switchMap(state.coordinatesLiveData) { repository.getMarkers(it?.latitude, it?.longitude, state.zoom!!.toInt()) }
+        Transformations.switchMap(state.coordinatesLiveData) { repository.getMarkers(it?.latitude, it?.longitude, state.zoom.toInt()) }
 
     init {
         addStateSaveHandler(state)
+    }
+
+    fun obtainFilters() {
+        repository.obtainFilters {
+            providerLiveData.postValue(RetrofitTileProvider(repository, state))
+        }
     }
 
     fun loadMarkers(latitude: Double, longitude: Double, zoom: Int) {

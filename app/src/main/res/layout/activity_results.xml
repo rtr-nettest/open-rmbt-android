@@ -62,6 +62,7 @@
                 android:layout_marginEnd="@dimen/margin_small"
                 android:contentDescription="@null"
                 android:scaleType="center"
+                visibleOrGone="@{state.testResult != null}"
                 android:src="@drawable/ic_share"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -144,7 +145,7 @@
                     <TextView
                         android:id="@+id/networkNameText"
                         style="@style/TextAppearance.AppCompat.Title"
-                        visibleOrGone="@{state.testResult.networkName != null || state.testResult.networkProviderName != null}"
+                        visibleOrGone="@{(state.testResult.networkName != null &amp;&amp; !state.testResult.networkName.isEmpty()) || (state.testResult.networkProviderName != null &amp;&amp; !state.testResult.networkProviderName.isEmpty())}"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="@dimen/padding_large"
@@ -448,7 +449,7 @@
                         android:text="@string/results_network_ssid"
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toBottomOf="@+id/labelProvider"
-                        app:visibleOrGone="@{state.testResult != null &amp;&amp; state.testResult.networkName != null}"
+                        app:visibleOrGone="@{state.testResult != null &amp;&amp; state.testResult.networkName != null &amp;&amp; !state.testResult.networkName.isEmpty()}"
                         tools:text="WLAN SSID" />
 
                     <androidx.appcompat.widget.AppCompatTextView
@@ -462,7 +463,7 @@
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintTop_toTopOf="@+id/labelNetworkName"
                         app:text="@{state.testResult.networkName}"
-                        app:visibleOrGone="@{state.testResult != null &amp;&amp; state.testResult.networkName != null}"
+                        app:visibleOrGone="@{state.testResult != null &amp;&amp; state.testResult.networkName != null &amp;&amp; !state.testResult.networkName.isEmpty()}"
                         tools:text="WIFIFINKA" />
 
                     <androidx.appcompat.widget.AppCompatTextView
@@ -470,11 +471,14 @@
                         style="@style/RobotoBoldStyle.Medium"
                         visibleOrGone="@{state.testResult != null}"
                         android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
+                        android:layout_height="?attr/actionBarSize"
                         android:layout_marginStart="@dimen/margin_large"
-                        android:drawablePadding="@dimen/padding_very_small"
+                        android:gravity="center_vertical"
+                        android:text="@string/label_qos"
+                        android:textColor="@color/text_dark_gray"
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toBottomOf="@+id/labelNetworkName"
+                        app:textAllCaps="true"
                         tools:text="QoS" />
 
                     <androidx.recyclerview.widget.RecyclerView
@@ -485,17 +489,18 @@
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toBottomOf="@+id/titleQos"
-                        tools:listitem="@layout/item_qoe" />
+                        tools:listitem="@layout/item_qos_result" />
 
                     <androidx.appcompat.widget.AppCompatTextView
                         android:id="@+id/labelTestResultDetail"
                         style="@style/RobotoBoldStyle.Medium"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="@string/result_test_details"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        android:padding="@dimen/padding_large"
                         android:drawableEnd="@drawable/ic_right"
+                        android:padding="@dimen/padding_large"
+                        android:text="@string/result_test_details"
+                        visibleOrGone="@{state.testResult != null}"
+                        app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toBottomOf="@+id/qosResultsRecyclerView" />
 

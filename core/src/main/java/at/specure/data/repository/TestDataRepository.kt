@@ -1,7 +1,10 @@
 package at.specure.data.repository
 
+import androidx.lifecycle.LiveData
+import at.rtr.rmbt.client.helper.TestStatus
 import at.specure.data.entity.CapabilitiesRecord
 import at.specure.data.entity.GraphItemRecord
+import at.specure.data.entity.LoopModeRecord
 import at.specure.data.entity.TestRecord
 import at.specure.info.cell.CellNetworkInfo
 import at.specure.info.network.MobileNetworkType
@@ -66,4 +69,12 @@ interface TestDataRepository {
     fun update(testRecord: TestRecord, onUpdated: () -> Unit)
 
     fun saveQoSResults(testUUID: String, testToken: String, qosData: JSONArray, onUpdated: () -> Unit)
+
+    fun updateQoSTestStatus(testUUID: String, status: TestStatus?)
+
+    fun saveLoopMode(loopModeRecord: LoopModeRecord)
+
+    fun updateLoopMode(loopModeRecord: LoopModeRecord)
+
+    fun getLoopMode(loopUUID: String): LiveData<LoopModeRecord?>
 }

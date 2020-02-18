@@ -45,7 +45,7 @@
     <dimen name="signal_bar_label">12sp</dimen>
     <dimen name="network_name_size">20sp</dimen>
     <dimen name="network_label_size">14sp</dimen>
-    <dimen name="qos_list_max_height">250dp</dimen>
+    <dimen name="qos_list_max_height">200dp</dimen>
 
     <!-- History -->
     <dimen name="history_label_text_size">10sp</dimen>
@@ -55,5 +55,15 @@
 
     <!-- Result screen -->
     <dimen name="result_view_pager_height">160dp</dimen>
+    <dimen name="margin_24">24dp</dimen>
+    <dimen name="margin_32">32dp</dimen>
+    <dimen name="margin_52">52dp</dimen>
 
+    <!-- Home -->
+    <dimen name="home_extra_button_size">56dp</dimen>
+    <dimen name="size_text_loop_count">64sp</dimen>
+
+    <!-- Loop mode -->
+    <dimen name="loop_mode_header_height">48dp</dimen>
+    <dimen name="size_label_height">48dp</dimen>
 </resources>

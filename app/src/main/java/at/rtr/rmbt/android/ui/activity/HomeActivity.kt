@@ -14,11 +14,11 @@
 
 package at.rtr.rmbt.android.ui.activity
 
+import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import android.view.View
-import androidx.navigation.findNavController
+import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.plusAssign
 import androidx.navigation.ui.setupWithNavController
 import at.rtr.rmbt.android.R
@@ -38,10 +38,10 @@ class HomeActivity : BaseActivity() {
         super.onCreate(savedInstanceState)
         binding = bindContentView(R.layout.activity_home)
 
-        window?.decorView?.systemUiVisibility = View.SYSTEM_UI_FLAG_LAYOUT_STABLE or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+        setTransparentStatusBar()
 
-        val navController = findNavController(R.id.navHostFragment)
-        val navHostFragment = supportFragmentManager.findFragmentById(R.id.navHostFragment)!!
+        val navHostFragment = supportFragmentManager.findFragmentById(R.id.navHostFragment) as NavHostFragment
+        val navController = navHostFragment.navController
         val navigator = KeepStateNavigator(this, navHostFragment.childFragmentManager, R.id.navHostFragment)
         navController.navigatorProvider += navigator
         navController.setGraph(R.navigation.mobile_navigation)
@@ -53,11 +53,26 @@ class HomeActivity : BaseActivity() {
                 MeasurementActivity.start(this)
             }
         }
+
+        if (savedInstanceState == null) {
+            when (intent.extras?.get(FRAGMENT_TO_START_BUNDLE_KEY) ?: HomeNavigationTarget.HOME_FRAGMENT_TO_SHOW) {
+                HomeNavigationTarget.HISTORY_FRAGMENT_TO_SHOW -> binding.navView.selectedItemId = R.id.navigation_history
+                HomeNavigationTarget.HOME_FRAGMENT_TO_SHOW -> binding.navView.selectedItemId = R.id.navigation_home
+                HomeNavigationTarget.STATISTIC_FRAGMENT_TO_SHOW -> binding.navView.selectedItemId = R.id.navigation_statistics
+                HomeNavigationTarget.MAP_FRAGMENT_TO_SHOW -> binding.navView.selectedItemId = R.id.navigation_map
+            }
+        }
     }
 
     override fun onStart() {
         super.onStart()
         viewModel.attach(this)
+
+        viewModel.tacAcceptanceLiveData.listen(this) {
+            if (!it) {
+                TermsAcceptanceActivity.start(this, CODE_TERMS)
+            }
+        }
     }
 
     override fun onStop() {
@@ -65,8 +80,37 @@ class HomeActivity : BaseActivity() {
         viewModel.detach(this)
     }
 
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+
+        if (requestCode == CODE_TERMS) {
+            if (resultCode == Activity.RESULT_OK) {
+                viewModel.updateTermsAcceptance(true)
+            } else {
+                finish()
+            }
+        }
+    }
+
     companion object {
 
+        enum class HomeNavigationTarget {
+            HISTORY_FRAGMENT_TO_SHOW,
+            HOME_FRAGMENT_TO_SHOW,
+            STATISTIC_FRAGMENT_TO_SHOW,
+            MAP_FRAGMENT_TO_SHOW
+        }
+
+        const val FRAGMENT_TO_START_BUNDLE_KEY = "FRAGMENT_TO_START_BUNDLE_KEY"
+
+        private const val CODE_TERMS = 1
+
         fun start(context: Context) = context.startActivity(Intent(context, HomeActivity::class.java))
+
+        fun startWithFragment(context: Context, fragmentToShow: HomeNavigationTarget) {
+            val intent = Intent(context, HomeActivity::class.java)
+            intent.putExtra(FRAGMENT_TO_START_BUNDLE_KEY, fragmentToShow)
+            context.startActivity(intent)
+        }
     }
 }

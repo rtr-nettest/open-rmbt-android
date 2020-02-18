@@ -78,6 +78,16 @@
     <string name="preferences_developer_options_disabled">Developer options disabled</string>
     <string name="preferences_developer_options_available">Developer options available</string>
     <string name="preferences_developer_try_again">Try again!</string>
+    <string name="preferences_developer_map_server">Map server</string>
+    <string name="preferences_developer_map_override">Override map server</string>
+    <string name="preferences_developer_map_override_sum">Activate custom map server settings</string>
+    <string name="preferences_developer_map_host">Map host</string>
+    <string name="preferences_developer_map_port">Map port</string>
+    <string name="preferences_developer_map_ssl">Map server SSL</string>
+    <string name="preferences_developer_map_ssl_sum">Use encrypted connection to map server</string>
+    <string name="preferences_category_developer_qos_server">QoS server</string>
+    <string name="preferences_developer_qos_ssl">QoS server SSL</string>
+    <string name="preferences_developer_qos_ssl_sum">Use encrypted connection to QoS server</string>
 
     <!-- Location Dialog -->
     <string name="location_dialog_label_title">Location</string>
@@ -107,14 +117,12 @@
     <string name="text_ip_address_not_available">Address is not available</string>
     <string name="input_setting_dialog_ok">OK</string>
     <string name="input_setting_dialog_cancel">Cancel</string>
-    <string name="value_invalid">Invalid value</string>
     <string name="loop_mode_max_delay_invalid" tools:ignore="PluralsCandidate">Please choose a number between %1$d and %2$d.</string>
-    <string name="loop_mode_max_movement_invalid" tools:ignore="PluralsCandidate">Please choose a number between %1$d and %2$d.</string>
     <string name="about_client_uuid_copied">Client UUID has been copied to clipboard.</string>
     <string name="client_not_registered">Client is not registered, try again later.</string>
 
     <!-- Measurement screen -->
-    <string name="measurement_ping_value">%1$d ms</string>
+    <string name="measurement_ping_value">%1$s ms</string>
     <string name="measurement_download_upload_speed">%1$s Mbit/s</string>
     <string name="measurement_download">Download</string>
     <string name="measurement_upload">Upload</string>
@@ -162,8 +170,7 @@
     <string name="text_continue_measurement">Continue measurement</string>
     <string name="text_cancel_measurement">Cancel measurement</string>
 
-    <string name="notification_test_title">RTR-NetTest is running</string>
-    <string name="notification_test_ticker">Open-RMBT running…</string>
+    <string name="notification_test_title">Open-RMBT is running</string>
 
     <string name="test_dialog_error_text">Something went wrong. Please try again later.</string>
 
@@ -197,6 +204,14 @@
     <string name="results_network_provider">Provider</string>
     <string name="results_network_ssid">WLAN SSID</string>
     <string name="result_test_details">Test details</string>
+    <string name="qos_result_success_count" translatable="false">%1$d / %2$d</string>
+    <string name="qos_test_number" translatable="false"># %1$d</string>
+    <string name="label_information">Information</string>
+    <string name="label_tests">Tests</string>
+    <string name="label_succeeded">SUCCEEDED</string>
+    <string name="label_failed">FAILED</string>
+    <string name="label_description">DESCRIPTION</string>
+    <string name="label_detail">DETAIL</string>
 
     <!-- Map -->
     <string name="map_layer_communities">Communities</string>
@@ -209,5 +224,63 @@
     <string name="map_label_map_appearance">Map appearance</string>
     <string name="title_marker_item_details">Show more details</string>
 
+    <string name="map_search_location_dialog_title">Search</string>
+    <string name="map_search_location_dialog_info">Search for an address or city:</string>
+    <string name="map_search_location_dialog_not_found">Address not found.</string>
+    <string name="map_search_location_not_supported">Sorry, this function is not supported by your device.</string>
+
     <string name="text_failed_to_load_results">Failed to load data.\nPlease pull down to refresh.</string>
+
+    <string name="title_sync">Synchronization</string>
+    <string name="text_sync_info">You have the possibility to join the results from two different devices. To do so, you have to enter an already requested synchronisation code or request a new one.</string>
+    <string name="button_sync_request_code">Request Code</string>
+    <string name="button_sync_enter_code">Enter Code</string>
+    <string name="text_sync_code_received">Please enter the code shown below on your other device to synchronise them.</string>
+    <string name="text_sync_enter_code_desc">Please enter the code you received on your other device.</string>
+    <string name="button_close">Close</string>
+    <string name="toast_sync_code_copied_to_clipboard">Copied</string>
+    <string name="hint_sync_code">Code</string>
+    <string name="error_sync_code_short">The code length must be 12</string>
+    <string name="error_no_connection">No Internet connection. Could not load data.</string>
+
+    <string name="label_map_filters">Map filters</string>
+    <string name="text_filter_confirm">Accept</string>
+    <string name="text_filter_continue">Continue</string>
+    <string name="title_filters_type">Map type</string>
+    <string name="title_filters_subtype">Type options</string>
+
+    <string name="about_email_subject">Support request</string>
+    <string name="about_email_sending">Sending email…</string>
+
+    <string name="graph_signal_value">-%1$s dBm</string>
+
+    <string name="notification_loop_mode_title_active">Loop Mode is active</string>
+    <string name="notification_loop_mode_title_running">Loop Mode is running (%1$d/%2$d)</string>
+
+    <string name="title_loop_mode">Loop mode</string>
+    <string name="title_loop_count">Choose the number of tests</string>
+    <string name="text_loop_start">Start tests</string>
+    <string name="text_loop_mode">New test after waiting or covering the distance. Max. 2 days</string>
+    <string name="text_button_decline">Decline</string>
+    <string name="text_button_accept">Accept</string>
+    <string name="text_loop_instruction_1">The loop mode allows the automatic repetition of RTR-NetTest.\n\nThe first test will start immediately after the loop mode has been initiated. Further tests will be started after the waiting time (default 30 minutes) has elapsed. These values can be changed under “Settings”. Tests will be performed until the configured number of tests (default 10 tests) has been reached. The loop mode is automatically terminated after 2 days. The loop mode can be stopped at any time.\nIt needs to be explicitly pointed out that due to the loop mode it cannot be excluded that the tester is identified.</string>
+    <string name="text_loop_instruction_2">In the case of high demand or a high number of tests in a specific area, loop mode tests may be rejected by the test system in order to avoid overload. It should be noted that the loop mode is intended (only) for usage within the EU and EFTA states.\n\nPlease note that the loop modus consumes a huge amount of data. With high-speed connections 10 tests can consume 1GB or more. Therefore it is highly recommended to run the loop mode only with a true flat rate tariff where additional traffic des not generate additional costs.\nThe loop mode also consumes a lot of battery power. Between the loop tests, the loop mode keeps GPS and the display active, thus the battery is drained much faster than in standbymode. In addition, tests also consume power. Therefore the loop mode should be used only if an extended power supply is available.</string>
+    <string name="title_loop_instruction_1">Activation and Privacy</string>
+    <string name="title_loop_instruction_2">Usage</string>
+
+    <string name="text_filter_devices">Devices</string>
+    <string name="text_filter_networks">Networks</string>
+    <string name="label_filter_options">Options</string>
+    <string name="label_filter">Filter</string>
+
+    <string name="loop_mode_next_test">Next test</string>
+    <string name="loop_mode_minutes">Minutes</string>
+    <string name="loop_mode_meters">Meters</string>
+    <string name="loop_mode_no_gps">No GPS</string>
+    <string name="or">or</string>
+    <string name="loop_mode_finished">Nettest loop finished!</string>
+    <string name="loop_continue_to_results">Continue to the result</string>
+    <string name="loop_run_again">Run again</string>
+    <string name="title_privacy_policy">Privacy Policy</string>
+
 </resources>

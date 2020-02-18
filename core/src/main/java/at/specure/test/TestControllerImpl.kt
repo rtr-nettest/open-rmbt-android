@@ -12,6 +12,7 @@ import at.rtr.rmbt.client.helper.IntermediateResult
 import at.rtr.rmbt.client.helper.TestStatus
 import at.rtr.rmbt.client.v2.task.result.QoSTestResultEnum
 import at.rtr.rmbt.client.v2.task.service.TestSettings
+import at.rtr.rmbt.util.model.shared.LoopModeSettings
 import at.rtr.rmbt.util.model.shared.exception.ErrorStatus
 import at.specure.config.Config
 import at.specure.data.ClientUUID
@@ -29,6 +30,7 @@ import kotlin.math.floor
 
 private const val KEY_TEST_COUNTER = "testCounter"
 private const val KEY_PREVIOUS_TEST_STATUS = "previousTestStatus"
+private const val KEY_LOOP_MODE_SETTINGS = "loopmode_info"
 
 private const val TEST_MAX_TIME = 3000
 private const val MAX_VALUE_UNFINISHED_TEST = 0.9f
@@ -65,7 +67,40 @@ class TestControllerImpl(
     private var finalDownloadValuePosted = false
     private var finalUploadValuePosted = false
 
-    override fun start(deviceInfo: DeviceInfo, listener: TestProgressListener, clientCallback: RMBTClientCallback) {
+    override fun reset() {
+        client?.shutdown()
+        qosTest?.interrupt()
+
+        if (clientJob == null) {
+            Timber.w("client job is already stopped")
+        } else {
+            clientJob?.cancel()
+        }
+
+        if (job == null) {
+            Timber.w("Runner is already stopped")
+        } else {
+            job?.cancel()
+        }
+
+        job = null
+        clientJob = null
+        _listener = null
+        _testUUID = null
+        finalDownloadValuePosted = false
+        finalUploadValuePosted = false
+        previousDownloadProgress = -1
+        previousUploadProgress = -1
+        _listener = null
+    }
+
+    override fun start(
+        deviceInfo: DeviceInfo,
+        loopModeUUID: String?,
+        loopTestCount: Int,
+        listener: TestProgressListener,
+        clientCallback: RMBTClientCallback
+    ) {
         if (job != null) {
             Timber.w("Runner is already started")
             return
@@ -96,10 +131,25 @@ class TestControllerImpl(
                 )
             }
 
+            val loopSettings: LoopModeSettings? = if (config.loopModeEnabled) {
+                LoopModeSettings(
+                    config.loopModeWaitingTimeMin,
+                    config.loopModeDistanceMeters,
+                    config.loopModeNumberOfTests,
+                    loopTestCount,
+                    loopModeUUID
+                )
+            } else null
+
+            val gson = Gson()
             val errorSet = mutableSetOf<ErrorStatus>()
-            val additionalValues = JSONObject(Gson().toJson(deviceInfo))
+            val additionalValues = JSONObject(gson.toJson(deviceInfo))
                 .put(KEY_TEST_COUNTER, config.testCounter)
                 .put(KEY_PREVIOUS_TEST_STATUS, config.previousTestStatus)
+
+            loopSettings?.let {
+                additionalValues.put(KEY_LOOP_MODE_SETTINGS, gson.toJson(it))
+            }
 
             client = RMBTClient.getInstance(
                 config.controlServerHost,
@@ -121,6 +171,8 @@ class TestControllerImpl(
             if (client == null || errorSet.isNotEmpty()) {
                 Timber.w("Client has errors")
                 _listener?.onError()
+                job?.cancel()
+                job = null
                 return@async
             }
 
@@ -137,7 +189,7 @@ class TestControllerImpl(
             _testStartTimeNanos = connection?.startTimeNs ?: 0
             _testUUID = connection.testUuid
 
-            _listener?.onClientReady(_testUUID!!, _testStartTimeNanos)
+            _listener?.onClientReady(_testUUID!!, connection.loopUuid, _testStartTimeNanos)
 
             val skipQoSTests = config.skipQoSTests
 

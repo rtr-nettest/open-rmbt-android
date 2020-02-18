@@ -8,6 +8,7 @@ class HistoryViewState : ViewState {
 
     val isLoadingLiveData = ObservableBoolean()
     val isHistoryEmpty = ObservableBoolean()
+    val isActiveFiltersEmpty = ObservableBoolean()
 
     override fun onRestoreState(bundle: Bundle?) {
         bundle?.let {

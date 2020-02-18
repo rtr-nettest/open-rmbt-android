@@ -50,6 +50,11 @@ interface Config {
     var loopModeDistanceMeters: Int
 
     /**
+     * The number of measurements in the loop
+     */
+    var loopModeNumberOfTests: Int
+
+    /**
      * Shows an expert menu to the user if enabled in settings screen
      */
     var expertModeEnabled: Boolean
@@ -146,6 +151,26 @@ interface Config {
     var controlServerQosTestResultDetailsEndpoint: String
 
     /**
+     * Url for checking captive portal
+     */
+    var captivePortalWalledGardenUrl: String
+
+    /**
+     * WebPage address to be redirected user after click on the contact item in settings
+     */
+    var aboutWebPageUrl: String
+
+    /**
+     * Email address to write on from contact item in settings
+     */
+    var aboutEmailAddress: String
+
+    /**
+     * Url to public github repository with app code
+     */
+    var aboutGithubRepositoryUrl: String
+
+    /**
      * Counter of tests performed by user
      */
     var testCounter: Int
@@ -210,4 +235,54 @@ interface Config {
      * End of url to obtain tiles for map screen, example "RMBTMapServer/tiles/{type}/{zoom}/{x}/{y}.png?map_options=all/download&statistical_method=0.5&period=180
      */
     var mapTilesEndpoint: String
+
+    /**
+     * Link suffix to obtain tiles for map screen, example "RMBTMapServer/tiles/{type}/{zoom}/{x}/{y}.png?map_options=all/download&statistical_method=0.5&period=180
+     */
+    var mapMarkerShowDetailsRoute: String
+
+    /**
+     * Endpoint to get sync code for current device
+     */
+    var getSyncCodeRoute: String
+
+    /**
+     * Endpoint to sync two devices
+     */
+    var syncDevicesRoute: String
+
+    /**
+     * End of url to obtain map filters data, example "RMBTMapServer/tiles/info
+     */
+    var mapFilterInfoEndpoint: String
+
+    /**
+     * url of data privacy and terms of use
+     */
+    var dataPrivacyAndTermsUrl: String
+
+    /**
+     * Default (local stored) url to open terms of use for acceptance
+     */
+    var termsAcceptanceDefaultUrl: String
+
+    /**
+     * Is Override Map Server turned on
+     */
+    var mapServerOverrideEnabled: Boolean
+
+    /**
+     * Map server host, example "myhost.com"
+     */
+    var mapServerHost: String
+
+    /**
+     * Port that should be used for map server client
+     */
+    var mapServerPort: Int
+
+    /**
+     * Allows to use "https://" when enabled otherwise "http://" should be used
+     */
+    var mapServerUseSSL: Boolean
 }

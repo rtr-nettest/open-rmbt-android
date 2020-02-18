@@ -21,8 +21,15 @@
         <import type="at.specure.location.LocationProviderState" />
 
         <variable
+            name="captiveState"
+            type="at.specure.info.ip.CaptivePortal.CaptivePortalStatus" />
+
+        <variable
             name="state"
             type="at.rtr.rmbt.android.ui.viewstate.HomeViewState" />
+
+        <import type="android.view.View" />
+
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -31,14 +38,24 @@
         android:background="@{state.isConnected ? @drawable/bg_splash : @drawable/bg_gray}"
         tools:background="@drawable/bg_splash">
 
-        <androidx.appcompat.widget.AppCompatImageButton
+        <View
+            android:id="@+id/status_bar_stub"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/size_height_status_bar"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <androidx.appcompat.widget.SwitchCompat
             android:id="@+id/btnLoop"
             style="@style/NavigationButtonStyle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:src="@drawable/ic_loop_mode_off"
+            android:layout_marginStart="@dimen/margin_medium"
+            android:button="@drawable/selector_loop_mode"
+            android:checked="@{state.isLoopModeActive}"
+            android:thumb="@null"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toBottomOf="@id/status_bar_stub"
+            tools:checked="true" />
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/tvTitle"
@@ -50,7 +67,21 @@
             app:layout_constraintBottom_toBottomOf="@+id/btnLoop"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toBottomOf="@id/status_bar_stub" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/loop_mode_title"
+            style="@style/RobotoMediumStyle.Medium"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingBottom="@dimen/margin_medium"
+            android:text="@string/title_loop_mode"
+            android:textColor="@{state.isConnected ? @android:color/white : @color/text_dark_gray}"
+            android:visibility="@{state.isLoopModeActive ? View.VISIBLE : View.INVISIBLE}"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/tvTitle"
+            tools:visibility="gone" />
 
         <androidx.appcompat.widget.AppCompatImageButton
             android:id="@+id/btnSetting"
@@ -60,7 +91,7 @@
             android:layout_gravity="end"
             android:src="@{state.isConnected ? @drawable/ic_settings : @drawable/ic_settings_gray}"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/status_bar_stub"
             tools:src="@drawable/ic_settings" />
 
         <View
@@ -70,7 +101,7 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/waveView"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/btnLoop"
+            app:layout_constraintTop_toBottomOf="@+id/loop_mode_title"
             tools:background="@android:color/holo_green_light" />
 
         <at.rtr.rmbt.android.ui.view.WaveView
@@ -80,7 +111,7 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/rightView"
             app:layout_constraintStart_toEndOf="@+id/leftView"
-            app:layout_constraintTop_toBottomOf="@+id/btnLoop"
+            app:layout_constraintTop_toBottomOf="@+id/loop_mode_title"
             app:layout_constraintWidth_percent="0.05"
             app:waveEnabled="@{state.isConnected()}"
             tools:background="@color/text_black_transparency_60" />
@@ -93,19 +124,19 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@+id/waveView"
-            app:layout_constraintTop_toBottomOf="@+id/btnLoop" />
+            app:layout_constraintTop_toBottomOf="@+id/loop_mode_title" />
 
         <View
             android:id="@+id/viewCircleShape"
             android:layout_width="0dp"
             android:layout_height="0dp"
-            tools:background="@android:color/holo_blue_bright"
             app:layout_constraintBottom_toBottomOf="@+id/ivIsConnectedCircle"
             app:layout_constraintDimensionRatio="1:1"
             app:layout_constraintEnd_toEndOf="@+id/ivIsConnectedCircle"
             app:layout_constraintHeight_percent="0.23"
             app:layout_constraintStart_toStartOf="@+id/ivIsConnectedCircle"
-            app:layout_constraintTop_toTopOf="@+id/ivIsConnectedCircle" />
+            app:layout_constraintTop_toTopOf="@+id/ivIsConnectedCircle"
+            tools:background="@android:color/holo_blue_bright" />
 
         <androidx.appcompat.widget.AppCompatImageView
             android:id="@+id/ivIsConnectedCircle"
@@ -131,12 +162,43 @@
             app:layout_constraintTop_toTopOf="@+id/viewCircleShape"
             app:signalLevel="@{state.signalStrength}" />
 
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/icon_loop_mode"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:backgroundTint="@android:color/white"
+            android:src="@drawable/ic_label_loop"
+            app:borderWidth="0dp"
+            app:fabSize="mini"
+            app:layout_constraintBottom_toBottomOf="@id/ivIsConnectedCircle"
+            app:layout_constraintEnd_toEndOf="@+id/ivIsConnectedCircle"
+            app:layout_constraintHorizontal_bias="0.69"
+            app:layout_constraintStart_toStartOf="@id/ivIsConnectedCircle"
+            app:layout_constraintTop_toTopOf="@+id/ivIsConnectedCircle"
+            app:layout_constraintVertical_bias="0.16"
+            app:maxImageSize="36dp"
+            app:visibleOrGone="@{state.isLoopModeActive}" />
+
+        <androidx.appcompat.widget.AppCompatImageView
+            android:id="@+id/ivIsCaptivePortal"
+            android:layout_width="@dimen/home_extra_button_size"
+            android:layout_height="@dimen/home_extra_button_size"
+            android:layout_marginTop="@dimen/padding_large"
+            android:src="@drawable/ic_captive_portal"
+            app:layout_constraintBottom_toBottomOf="@+id/viewCircleShape"
+            app:layout_constraintEnd_toEndOf="@+id/viewCircleShape"
+            app:layout_constraintHorizontal_bias="0.88"
+            app:layout_constraintStart_toEndOf="@+id/ivIsConnectedCircle"
+            app:layout_constraintTop_toBottomOf="@+id/ivIsConnectedCircle"
+            app:layout_constraintVertical_bias="0.75"
+            app:visibleOrGone="@{state.ipV4Info.captivePortalStatus == captiveState.FOUND || state.ipV6Info.captivePortalStatus == captiveState.FOUND}" />
+
         <androidx.appcompat.widget.AppCompatImageView
             android:id="@+id/ivTechnology"
             android:layout_width="0dp"
             android:layout_height="0dp"
-            app:layout_constraintHeight_percent="0.05"
             app:layout_constraintEnd_toEndOf="@+id/viewCircleShape"
+            app:layout_constraintHeight_percent="0.05"
             app:layout_constraintStart_toStartOf="@+id/viewCircleShape"
             app:layout_constraintTop_toTopOf="@+id/viewCircleShape"
             app:technology="@{state.activeNetworkInfo}"

@@ -21,6 +21,7 @@ import at.rmbt.util.io
 import at.specure.data.repository.IpCheckRepository
 import at.specure.info.connectivity.ConnectivityInfo
 import at.specure.info.connectivity.ConnectivityWatcher
+import at.specure.info.ip.CaptivePortal.CaptivePortalStatus
 import at.specure.util.synchronizedForEach
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
@@ -36,13 +37,14 @@ import javax.inject.Inject
  */
 class IpChangeWatcherImpl @Inject constructor(
     private val ipCheckRepository: IpCheckRepository,
-    private val connectivityWatcher: ConnectivityWatcher
+    private val connectivityWatcher: ConnectivityWatcher,
+    private val captivePortal: CaptivePortal
 ) : IpChangeWatcher, ConnectivityWatcher.ConnectivityChangeListener {
 
     private val listenersV4 = Collections.synchronizedSet(mutableSetOf<IpChangeWatcher.OnIpV4ChangedListener>())
     private val listenersV6 = Collections.synchronizedSet(mutableSetOf<IpChangeWatcher.OnIpV6ChangedListener>())
 
-    private var _lastIPv4Address: IpInfo = IpInfo(IpProtocol.V4, null, null, IpStatus.NO_INFO)
+    private var _lastIPv4Address: IpInfo = IpInfo(IpProtocol.V4, null, null, IpStatus.NO_INFO, CaptivePortalStatus.NOT_TESTED)
         set(value) {
             field = value
             listenersV4.synchronizedForEach {
@@ -50,7 +52,7 @@ class IpChangeWatcherImpl @Inject constructor(
             }
         }
 
-    private var _lastIPv6Address: IpInfo = IpInfo(IpProtocol.V6, null, null, IpStatus.NO_INFO)
+    private var _lastIPv6Address: IpInfo = IpInfo(IpProtocol.V6, null, null, IpStatus.NO_INFO, CaptivePortalStatus.NOT_TESTED)
         set(value) {
             field = value
             listenersV6.synchronizedForEach {
@@ -75,11 +77,14 @@ class IpChangeWatcherImpl @Inject constructor(
             }
             val privateAddress: String? = if (privateIp4?.ok == true) privateIp4!!.success.ipAddress else null
             val publicAddress: String? = if (publicIp4?.ok == true) publicIp4!!.success.ipAddress else null
+
+            checkForCaptivePortal(privateAddress, publicAddress, lastIPv4Address.privateAddress, lastIPv4Address.publicAddress)
+
             val status = getIpStatus(privateAddress, publicAddress)
 
-            Timber.i("IPv4 private: $privateAddress public: $publicAddress status: ${status.name} has connection: ${connectivityWatcher.activeNetwork == null}")
+            Timber.i("IPv4 private: $privateAddress public: $publicAddress status: ${status.name} captive portal status: ${captivePortal.captivePortalStatus} has connection: ${connectivityWatcher.activeNetwork == null}")
 
-            _lastIPv4Address = IpInfo(IpProtocol.V4, privateAddress, publicAddress, status)
+            _lastIPv4Address = IpInfo(IpProtocol.V4, privateAddress, publicAddress, status, captivePortal.captivePortalStatus)
         }
     }
 
@@ -97,9 +102,20 @@ class IpChangeWatcherImpl @Inject constructor(
             val publicAddress: String? = if (privateIp6?.ok == true) privateIp6!!.success.ipAddress else null
             val status = getIpStatus(privateAddress, publicAddress)
 
-            Timber.i("IPv6 private: $privateAddress public: $publicAddress status: ${status.name} has connection: ${connectivityWatcher.activeNetwork == null}")
+            checkForCaptivePortal(privateAddress, publicAddress, lastIPv6Address.privateAddress, lastIPv6Address.publicAddress)
 
-            _lastIPv6Address = IpInfo(IpProtocol.V6, privateAddress, publicAddress, status)
+            Timber.i("IPv6 private: $privateAddress public: $publicAddress status: ${status.name} captive portal status: ${captivePortal.captivePortalStatus}  has connection: ${connectivityWatcher.activeNetwork == null}")
+
+            _lastIPv6Address = IpInfo(IpProtocol.V6, privateAddress, publicAddress, status, captivePortal.captivePortalStatus)
+        }
+    }
+
+    private fun checkForCaptivePortal(privateAddress: String?, publicAddress: String?, oldPrivateAddress: String?, oldPublicAddress: String?) {
+        if ((privateAddress != null && privateAddress == oldPrivateAddress) ||
+            (publicAddress != null && (oldPublicAddress != null)) ||
+            (privateAddress == null && oldPrivateAddress != null || publicAddress == null && oldPublicAddress != null)
+        ) {
+            captivePortal.checkForCaptivePortal()
         }
     }
 
@@ -157,8 +173,8 @@ class IpChangeWatcherImpl @Inject constructor(
     }
 
     override fun onConnectivityChanged(connectivityInfo: ConnectivityInfo?) {
-        _lastIPv4Address = IpInfo(IpProtocol.V4, null, null, IpStatus.NO_INFO)
-        _lastIPv6Address = IpInfo(IpProtocol.V6, null, null, IpStatus.NO_INFO)
+        _lastIPv4Address = IpInfo(IpProtocol.V4, null, null, IpStatus.NO_INFO, CaptivePortalStatus.NOT_TESTED)
+        _lastIPv6Address = IpInfo(IpProtocol.V6, null, null, IpStatus.NO_INFO, CaptivePortalStatus.NOT_TESTED)
         if (connectivityInfo != null) {
             updateIpV4()
             updateIpV6()

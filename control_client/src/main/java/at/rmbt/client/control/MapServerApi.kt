@@ -14,4 +14,7 @@ interface MapServerApi {
 
     @GET
     fun loadTiles(@Url url: String): Call<ResponseBody>
+
+    @POST
+    fun getFilters(@Url url: String, @Body body: FilterLanguageRequestBody): Call<MapFilterResponse>
 }

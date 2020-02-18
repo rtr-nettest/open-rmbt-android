@@ -465,6 +465,12 @@ data class TestResultBody(
     var lastClientStatus: String?,
 
     /**
+     * Phase was the last done by the QoS test, provided like value from TestStatus except "ERROR" and "ABORT"
+     */
+    @SerializedName("last_qos_status")
+    var lastQoSStatus: String?,
+
+    /**
      * Stacktrace of IllegalNetworkChangeException exception grabbed from RMBTClient which was happened during the test.
      * May be null if test was success or cancelled
      */
@@ -652,7 +658,7 @@ data class SignalBody(
      * relative timestamp from the start of the test, but time of the last update of the cells (the last updated cells do not have this field filled)
      */
     @SerializedName("time_ns_last")
-    val timeLastNanos: Long
+    val timeLastNanos: Long?
 )
 
 @Keep
@@ -862,4 +868,23 @@ data class QosTestResultDetailBody(
      * 2 character language code
      */
     val language: String
+)
+
+@Keep
+data class GetSyncCodeBody(
+
+    @SerializedName("uuid")
+    val clientUUID: String,
+    val language: String
+)
+
+@Keep
+data class SyncDevicesBody(
+
+    @SerializedName("uuid")
+    val clientUUID: String,
+    val language: String,
+
+    @SerializedName("sync_code")
+    val syncCode: String
 )

@@ -9,6 +9,7 @@ import androidx.recyclerview.widget.DividerItemDecoration
 import at.rtr.rmbt.android.R
 import at.rtr.rmbt.android.databinding.ActivityResultsBinding
 import at.rtr.rmbt.android.di.viewModelLazy
+import at.rtr.rmbt.android.ui.adapter.QosResultAdapter
 import at.rtr.rmbt.android.ui.adapter.ResultChartFragmentPagerAdapter
 import at.rtr.rmbt.android.ui.adapter.ResultQoEAdapter
 import at.rtr.rmbt.android.util.iconFromVector
@@ -28,6 +29,7 @@ class ResultsActivity : BaseActivity(), OnMapReadyCallback {
     private val viewModel: ResultViewModel by viewModelLazy()
     private lateinit var binding: ActivityResultsBinding
     private val adapter: ResultQoEAdapter by lazy { ResultQoEAdapter() }
+    private val qosAdapter: QosResultAdapter by lazy { QosResultAdapter() }
     private lateinit var resultChartFragmentPagerAdapter: ResultChartFragmentPagerAdapter
 
     private var googleMap: GoogleMap? = null
@@ -51,7 +53,7 @@ class ResultsActivity : BaseActivity(), OnMapReadyCallback {
             viewModel.state.testResult.set(result)
 
             result?.testOpenUUID?.let {
-                resultChartFragmentPagerAdapter = ResultChartFragmentPagerAdapter(supportFragmentManager, it)
+                resultChartFragmentPagerAdapter = ResultChartFragmentPagerAdapter(supportFragmentManager, it, result.networkType)
                 binding.viewPagerCharts.adapter = resultChartFragmentPagerAdapter
             }
 
@@ -88,7 +90,6 @@ class ResultsActivity : BaseActivity(), OnMapReadyCallback {
                 }
             }
         }
-
         viewModel.testResultDetailsLiveData.listen(this) {
             Timber.d("found ${it.size} rows of details")
             // todo: display result details
@@ -98,7 +99,9 @@ class ResultsActivity : BaseActivity(), OnMapReadyCallback {
             viewModel.state.qoeRecords.set(it)
             adapter.submitList(it)
         }
+
         binding.qoeResultsRecyclerView.adapter = adapter
+
         binding.qoeResultsRecyclerView.apply {
             val itemDecoration = DividerItemDecoration(context, DividerItemDecoration.VERTICAL)
             ContextCompat.getDrawable(context, R.drawable.history_item_divider)?.let {
@@ -135,6 +138,24 @@ class ResultsActivity : BaseActivity(), OnMapReadyCallback {
             TestResultDetailActivity.start(this, viewModel.state.testUUID)
         }
 
+        binding.qosResultsRecyclerView.apply {
+            adapter = qosAdapter
+            val itemDecoration = DividerItemDecoration(context, DividerItemDecoration.VERTICAL)
+            ContextCompat.getDrawable(context, R.drawable.history_item_divider)?.let {
+                itemDecoration.setDrawable(it)
+            }
+            binding.qosResultsRecyclerView.addItemDecoration(itemDecoration)
+        }
+
+        viewModel.qosCategoryResultLiveData.listen(this) {
+            viewModel.state.qosCategoryRecords.set(it)
+            qosAdapter.submitList(it)
+        }
+
+        qosAdapter.actionCallback = {
+
+            QosTestsSummaryActivity.start(this, it)
+        }
         refreshResults()
     }
 

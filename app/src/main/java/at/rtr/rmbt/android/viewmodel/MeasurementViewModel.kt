@@ -7,25 +7,35 @@ import android.os.IBinder
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import at.rmbt.util.exception.HandledException
+import at.rtr.rmbt.android.config.AppConfig
 import at.rtr.rmbt.android.ui.viewstate.MeasurementViewState
 import at.rtr.rmbt.android.util.plusAssign
 import at.rtr.rmbt.client.v2.task.result.QoSTestResultEnum
+import at.specure.data.TermsAndConditions
 import at.specure.data.entity.GraphItemRecord
+import at.specure.data.entity.LoopModeRecord
 import at.specure.data.repository.TestDataRepository
 import at.specure.info.network.ActiveNetworkLiveData
 import at.specure.info.strength.SignalStrengthLiveData
+import at.specure.location.LocationProviderStateLiveData
 import at.specure.measurement.MeasurementClient
 import at.specure.measurement.MeasurementProducer
 import at.specure.measurement.MeasurementService
 import at.specure.measurement.MeasurementState
 import timber.log.Timber
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
 class MeasurementViewModel @Inject constructor(
     private val testDataRepository: TestDataRepository,
     val signalStrengthLiveData: SignalStrengthLiveData,
-    val activeNetworkLiveData: ActiveNetworkLiveData
+    val activeNetworkLiveData: ActiveNetworkLiveData,
+    val locationProviderStateLiveData: LocationProviderStateLiveData,
+    val config: AppConfig,
+    private val tac: TermsAndConditions
 ) : BaseViewModel(), MeasurementClient {
 
     private val _measurementFinishLiveData = MutableLiveData<Boolean>()
@@ -34,13 +44,25 @@ class MeasurementViewModel @Inject constructor(
     private val _downloadGraphLiveData = MutableLiveData<List<GraphItemRecord>>()
     private val _uploadGraphLiveData = MutableLiveData<List<GraphItemRecord>>()
     private val _qosProgressLiveData = MutableLiveData<Map<QoSTestResultEnum, Int>>()
+    private val _loopUUIDLiveData = MutableLiveData<String>()
+    private val _timeToNextTestElapsedLiveData = MutableLiveData<String>()
+    private val _timeProgressPercentsLiveData = MutableLiveData<Int>()
 
     private var producer: MeasurementProducer? = null
 
-    val state = MeasurementViewState()
+    val state = MeasurementViewState(config)
 
     lateinit var testUUID: String
         private set
+
+    val loopUuidLiveData: LiveData<String?>
+        get() = _loopUUIDLiveData
+
+    val timeToNextTestElapsedLiveData: LiveData<String>
+        get() = _timeToNextTestElapsedLiveData
+
+    val timeProgressPercentsLiveData: LiveData<Int>
+        get() = _timeProgressPercentsLiveData
 
     val measurementFinishLiveData: LiveData<Boolean>
         get() = _measurementFinishLiveData
@@ -59,6 +81,10 @@ class MeasurementViewModel @Inject constructor(
 
     val qosProgressLiveData: LiveData<Map<QoSTestResultEnum, Int>>
         get() = _qosProgressLiveData
+
+    val tacAcceptanceLiveData = tac.tacAcceptanceLiveData
+
+    lateinit var loopProgressLiveData: LiveData<LoopModeRecord?>
 
     private val serviceConnection = object : ServiceConnection {
 
@@ -160,13 +186,29 @@ class MeasurementViewModel @Inject constructor(
         _measurementFinishLiveData.postValue(false)
     }
 
+    override fun onLoopCountDownTimer(timePassedMillis: Long, timeTotalMillis: Long) {
+        _timeToNextTestElapsedLiveData.postValue(SimpleDateFormat("mm:ss", Locale.getDefault()).format(Date(timePassedMillis)))
+        _timeProgressPercentsLiveData.postValue(((timePassedMillis * 100) / timeTotalMillis).toInt())
+    }
+
     fun cancelMeasurement() {
         producer?.stopTests()
     }
 
-    override fun onClientReady(testUUID: String) {
+    override fun onMeasurementCancelled() {
+        _measurementFinishLiveData.postValue(false)
+    }
+
+    override fun onClientReady(testUUID: String, loopUUID: String?) {
 
         this.testUUID = testUUID
+
+        if (loopUUID != null) {
+            loopProgressLiveData = testDataRepository.getLoopMode(loopUUID)
+            _loopUUIDLiveData.postValue(loopUUID)
+        }
+
+        Timber.d("loopUUID: $loopUUID")
 
         testDataRepository.getDownloadGraphItemsLiveData(testUUID) {
             _downloadGraphLiveData.postValue(it)
@@ -180,5 +222,9 @@ class MeasurementViewModel @Inject constructor(
     override fun onQoSTestProgressUpdated(tasksPassed: Int, tasksTotal: Int, progressMap: Map<QoSTestResultEnum, Int>) {
         state.setQoSTaskProgress(tasksPassed, tasksTotal)
         _qosProgressLiveData.postValue(progressMap)
+    }
+
+    fun updateTermsAcceptance(accepted: Boolean) {
+        tac.tacAccepted = accepted
     }
 }

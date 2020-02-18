@@ -32,6 +32,10 @@ object Tables {
     const val TEST_WLAN_RECORD = "test_wlan"
     const val SPEED = "speed"
     const val QOS_RESULT = "qos_result"
+    const val QOS_CATEGORY = "qos_category_summary"
+    const val QOS_TEST_GOAL = "qos_test_goal"
+    const val QOS_TEST_RESULT_ITEM = "qos_result_item"
     const val TEST_RESULT_DETAILS = "test_result_details"
     const val MAP_MARKER_MEASUREMENTS = "map_markers"
+    const val LOOP_MODE = "loop_mode"
 }

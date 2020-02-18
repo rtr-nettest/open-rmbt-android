@@ -36,8 +36,7 @@ class WifiInfoWatcherImpl(private val wifiManager: WifiManager) : WifiInfoWatche
 
             val address = try {
                 val ipAddress = info.ipAddress.toBigInteger().toByteArray()
-                val hostAddress = InetAddress.getByAddress(ipAddress).hostAddress
-                if (hostAddress != DUMMY_MAC_ADDRESS) hostAddress else null
+                InetAddress.getByAddress(ipAddress).hostAddress
             } catch (ex: UnknownHostException) {
                 null
             }
@@ -53,12 +52,12 @@ class WifiInfoWatcherImpl(private val wifiManager: WifiManager) : WifiInfoWatche
             }
 
             return WifiNetworkInfo(
-                bssid = info.bssid,
+                bssid = if (info.bssid == DUMMY_MAC_ADDRESS) null else info.bssid,
                 band = WifiBand.fromFrequency(info.frequency),
                 isSSIDHidden = info.hiddenSSID,
                 ipAddress = address,
                 linkSpeed = info.linkSpeed,
-                networkId = info.networkId,
+                networkId = if (info.bssid == DUMMY_MAC_ADDRESS) -1 else info.networkId,
                 rssi = info.rssi,
                 signalLevel = WifiManager.calculateSignalLevel(info.rssi, 5),
                 ssid = ssid,

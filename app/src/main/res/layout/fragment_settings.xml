@@ -224,13 +224,98 @@
                 bind:value="@{state.controlServerUseSSL}" />
 
             <include
+                android:id="@+id/labelDeveloperMapServer"
+                layout="@layout/item_setting_header"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:visibility="@{state.developerModeIsEnabled ? View.VISIBLE : View.GONE}"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/switchDeveloperControlServerSSL"
+                bind:title="@{@string/preferences_developer_map_server}" />
+
+            <include
+                android:id="@+id/switchDeveloperMapServerOverride"
+                layout="@layout/item_setting_switch"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:visibility="@{state.developerModeIsEnabled ? View.VISIBLE : View.GONE}"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/labelDeveloperMapServer"
+                bind:summary="@{@string/preferences_developer_map_override_sum}"
+                bind:title="@{@string/preferences_developer_map_override}"
+                bind:value="@{state.mapServerOverrideEnabled}" />
+
+            <include
+                android:id="@+id/developerMapServerHost"
+                layout="@layout/item_setting_edittext"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:visibility="@{state.developerModeIsEnabled &amp;&amp; state.mapServerOverrideEnabled ? View.VISIBLE : View.GONE}"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/switchDeveloperMapServerOverride"
+                bind:title="@{@string/preferences_developer_map_host}"
+                bind:value="@{state.mapServerHost}" />
+
+            <include
+                android:id="@+id/developerMapServerPort"
+                layout="@layout/item_setting_edittext"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:visibility="@{state.developerModeIsEnabled  &amp;&amp; state.mapServerOverrideEnabled ? View.VISIBLE : View.GONE}"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/developerMapServerHost"
+                bind:title="@{@string/preferences_developer_map_port}"
+                bind:value="@{String.valueOf(state.mapServerPort)}" />
+
+            <include
+                android:id="@+id/switchDeveloperMapServerSSL"
+                layout="@layout/item_setting_switch"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:visibility="@{state.developerModeIsEnabled  &amp;&amp; state.mapServerOverrideEnabled ? View.VISIBLE : View.GONE}"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/developerMapServerPort"
+                bind:summary="@{@string/preferences_developer_map_ssl_sum}"
+                bind:title="@{@string/preferences_developer_map_ssl}"
+                bind:value="@{state.mapServerUseSSL}" />
+
+            <include
+                android:id="@+id/labelQosServer"
+                layout="@layout/item_setting_header"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:visibility="@{state.developerModeIsEnabled ? View.VISIBLE : View.GONE}"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/switchDeveloperMapServerSSL"
+                bind:title="@{@string/preferences_category_developer_qos_server}" />
+
+            <include
+                android:id="@+id/switchQosServerOverride"
+                layout="@layout/item_setting_switch"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:visibility="@{state.developerModeIsEnabled ? View.VISIBLE : View.GONE}"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/labelQosServer"
+                bind:summary="@{@string/preferences_developer_qos_ssl_sum}"
+                bind:title="@{@string/preferences_developer_qos_ssl}"
+                bind:value="@{state.qosSSL}" />
+
+            <include
                 android:id="@+id/labelContact"
                 layout="@layout/item_setting_header"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/switchDeveloperControlServerSSL"
+                app:layout_constraintTop_toBottomOf="@+id/switchQosServerOverride"
                 bind:title="@{@string/preferences_contact}" />
 
             <include
@@ -348,3 +433,4 @@
         </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.core.widget.NestedScrollView>
 </layout>
+

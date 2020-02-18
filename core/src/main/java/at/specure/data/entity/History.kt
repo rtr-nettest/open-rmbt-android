@@ -20,6 +20,7 @@ data class History(
     val speedDownloadClassification: Classification,
     val speedUpload: String,
     val speedUploadClassification: Classification,
+    val signalClassification: Classification,
     val time: Long,
     val timeString: String,
     val timezone: String

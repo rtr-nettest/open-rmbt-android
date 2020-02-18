@@ -87,4 +87,16 @@ interface ControlServerApi {
      */
     @POST
     fun getQosTestResultDetail(@Url url: String, @Body body: QosTestResultDetailBody): Call<QosTestResultDetailResponse>
+
+    /**
+     * Request to get sync code for current device
+     */
+    @POST
+    fun getSyncCode(@Url url: String, @Body body: GetSyncCodeBody): Call<GetSyncCodeResponse>
+
+    /**
+     * Request to sync two devices
+     */
+    @POST
+    fun syncDevices(@Url url: String, @Body body: SyncDevicesBody): Call<DeviceSyncResponse>
 }

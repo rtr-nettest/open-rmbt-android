@@ -1,7 +1,9 @@
 package at.rtr.rmbt.android.di
 
+import at.rtr.rmbt.android.ui.dialog.HistoryFiltersDialog
 import at.rtr.rmbt.android.ui.dialog.IpInfoDialog
 import at.rtr.rmbt.android.ui.dialog.LocationInfoDialog
+import at.rtr.rmbt.android.ui.dialog.SyncDevicesDialog
 import at.specure.measurement.MeasurementService
 import at.specure.worker.request.SendDataWorker
 import at.specure.worker.request.SettingsWorker
@@ -24,4 +26,8 @@ object Injector : AppComponent {
     override fun inject(sendDataWorker: SendDataWorker) = component.inject(sendDataWorker)
 
     override fun inject(service: MeasurementService) = component.inject(service)
+
+    override fun inject(dialog: SyncDevicesDialog) = component.inject(dialog)
+
+    override fun inject(dialog: HistoryFiltersDialog) = component.inject(dialog)
 }

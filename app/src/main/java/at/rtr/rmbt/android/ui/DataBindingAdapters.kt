@@ -266,7 +266,7 @@ fun AppCompatTextView.setPing(pingMs: Long) {
                 }
             }, 0, 0, 0
         )
-        text = context.getString(R.string.measurement_ping_value, pingMs)
+        text = context.getString(R.string.measurement_ping_value, pingMs.format())
         setTextColor(context.getColor(android.R.color.white))
     } else {
         setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_small_ping_gray, 0, 0, 0)
@@ -478,8 +478,8 @@ fun ConstraintLayout.setBottomSheetState(state: Int) {
 /**
  * A binding adapter that is used for show date and time in history list
  */
-@BindingAdapter("networkType", "historyTime", "historyTimezone", requireAll = true)
-fun AppCompatTextView.setHistoryTime(networkType: NetworkTypeCompat, historyTime: Long, historyTimezone: String) {
+@BindingAdapter("networkType", "historyTime", "historyTimezone", "historySignalStrength", requireAll = true)
+fun AppCompatTextView.setHistoryTime(networkType: NetworkTypeCompat, historyTime: Long, historyTimezone: String, signalStrength: Classification) {
 
     val calendar: Calendar = Calendar.getInstance()
     calendar.timeInMillis = historyTime
@@ -490,18 +490,50 @@ fun AppCompatTextView.setHistoryTime(networkType: NetworkTypeCompat, historyTime
 
         when (networkType) {
             NetworkTypeCompat.TYPE_2G -> {
-                R.drawable.ic_history_2g
+                when (signalStrength) {
+                    Classification.BAD -> R.drawable.ic_history_2g_1
+                    Classification.NORMAL -> R.drawable.ic_history_2g_2
+                    Classification.GOOD -> R.drawable.ic_history_2g_3
+                    Classification.EXCELLENT -> R.drawable.ic_history_2g_4
+                    Classification.NONE -> R.drawable.ic_history_no_internet
+                }
             }
             NetworkTypeCompat.TYPE_3G -> {
-                R.drawable.ic_history_3g
+                when (signalStrength) {
+                    Classification.BAD -> R.drawable.ic_history_3g_1
+                    Classification.NORMAL -> R.drawable.ic_history_3g_2
+                    Classification.GOOD -> R.drawable.ic_history_3g_3
+                    Classification.EXCELLENT -> R.drawable.ic_history_3g_4
+                    Classification.NONE -> R.drawable.ic_history_no_internet
+                }
             }
             NetworkTypeCompat.TYPE_4G -> {
-                R.drawable.ic_history_4g
+                when (signalStrength) {
+                    Classification.BAD -> R.drawable.ic_history_4g_1
+                    Classification.NORMAL -> R.drawable.ic_history_4g_2
+                    Classification.GOOD -> R.drawable.ic_history_4g_3
+                    Classification.EXCELLENT -> R.drawable.ic_history_4g_4
+                    Classification.NONE -> R.drawable.ic_history_no_internet
+                }
             }
             NetworkTypeCompat.TYPE_WLAN -> {
-                R.drawable.ic_history_wifi
+                when (signalStrength) {
+                    Classification.BAD -> R.drawable.ic_history_wifi_1
+                    Classification.NORMAL -> R.drawable.ic_history_wifi_2
+                    Classification.GOOD -> R.drawable.ic_history_wifi_3
+                    Classification.EXCELLENT -> R.drawable.ic_history_wifi_4
+                    Classification.NONE -> R.drawable.ic_no_wifi
+                }
             }
-            NetworkTypeCompat.TYPE_5G -> throw IllegalArgumentException("Need to add 5G image here for history")
+            NetworkTypeCompat.TYPE_5G -> {
+                when (signalStrength) {
+                    Classification.BAD -> R.drawable.ic_history_5g_1
+                    Classification.NORMAL -> R.drawable.ic_history_5g_2
+                    Classification.GOOD -> R.drawable.ic_history_5g_3
+                    Classification.EXCELLENT -> R.drawable.ic_history_5g_4
+                    Classification.NONE -> R.drawable.ic_history_no_internet
+                }
+            }
         }, 0, 0, 0
     )
 }
@@ -615,9 +647,8 @@ fun AppCompatTextView.setPing(pingClassification: Classification) {
  */
 @BindingAdapter("pingResult", "pingClassificationResult", requireAll = true)
 fun AppCompatTextView.setPingResult(pingResult: Double, pingClassificationResult: Classification) {
-
     text = if (pingResult > 0) {
-        context.getString(R.string.measurement_ping_value, pingResult.toInt())
+        context.getString(R.string.measurement_ping_value, pingResult.toLong().format())
     } else {
         context.getString(R.string.measurement_dash)
     }
@@ -742,9 +773,9 @@ fun ResultBar.setQoEValue(value: Double, classification: Classification) {
     updateClassification((value * 100).toInt(), classification)
 }
 
-@BindingAdapter("networkType")
-fun ImageView.setNetworkType(networkType: String) {
-    if (networkType != ServerNetworkType.UNKNOWN.stringValue) {
+@BindingAdapter("networkType", "signalStrength", requireAll = true)
+fun ImageView.setNetworkType(networkType: String, signalStrength: Classification) {
+    if (networkType != ServerNetworkType.UNKNOWN.stringValue && networkType != ServerNetworkType.TYPE_BROWSER.stringValue) {
         setImageResource(
             when (NetworkTypeCompat.fromString(networkType)) {
                 NetworkTypeCompat.TYPE_2G -> {
@@ -757,7 +788,13 @@ fun ImageView.setNetworkType(networkType: String) {
                     R.drawable.ic_history_4g
                 }
                 NetworkTypeCompat.TYPE_WLAN -> {
-                    R.drawable.ic_history_wifi
+                    when (signalStrength) {
+                        Classification.BAD -> R.drawable.ic_history_wifi_1
+                        Classification.NORMAL -> R.drawable.ic_history_wifi_2
+                        Classification.GOOD -> R.drawable.ic_history_wifi_3
+                        Classification.EXCELLENT -> R.drawable.ic_history_wifi_4
+                        Classification.NONE -> R.drawable.ic_history_no_internet
+                    }
                 }
                 NetworkTypeCompat.TYPE_5G -> throw IllegalArgumentException("Need to add 5G image here for history")
             }
@@ -767,7 +804,7 @@ fun ImageView.setNetworkType(networkType: String) {
 
 @BindingAdapter("timeString")
 fun AppCompatTextView.setTimeAs24h(time: Long) {
-    text = SimpleDateFormat("MMM dd, yyyy hh:mm:ss a", Locale.getDefault()).format(Date(time))
+    text = SimpleDateFormat("dd.MM.yy, HH:mm:ss", Locale.US).format(Date(time))
 }
 
 @BindingAdapter("signalStrengthMap", "signalStrengthClassificationMap", requireAll = true)

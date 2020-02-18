@@ -16,10 +16,6 @@ open class BaseViewModel : ViewModel(), CoroutineScope {
     private val viewStates = mutableSetOf<ViewState>()
     private val _errorLiveData = MutableLiveData<HandledException>()
 
-    init {
-        viewModelScope
-    }
-
     val errorLiveData: LiveData<HandledException>
         get() = _errorLiveData
 

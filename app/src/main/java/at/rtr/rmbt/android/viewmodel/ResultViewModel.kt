@@ -5,6 +5,7 @@ import androidx.lifecycle.MutableLiveData
 import at.rmbt.util.exception.HandledException
 import at.rtr.rmbt.android.ui.viewstate.ResultViewState
 import at.specure.data.entity.QoeInfoRecord
+import at.specure.data.entity.QosCategoryRecord
 import at.specure.data.entity.TestResultDetailsRecord
 import at.specure.data.entity.TestResultRecord
 import at.specure.data.repository.TestResultsRepository
@@ -30,6 +31,9 @@ class ResultViewModel @Inject constructor(
 
     val testResultDetailsLiveData: LiveData<List<TestResultDetailsRecord>>
         get() = testResultsRepository.getTestDetailsResult(state.testUUID)
+
+    val qosCategoryResultLiveData: LiveData<List<QosCategoryRecord>>
+        get() = testResultsRepository.getQosTestCategoriesResult(state.testUUID)
 
     val loadingLiveData: LiveData<Boolean>
         get() = _loadingLiveData

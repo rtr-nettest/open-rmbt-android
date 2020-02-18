@@ -8,14 +8,19 @@ import android.telephony.TelephonyManager
 import at.rmbt.client.control.ControlEndpointProvider
 import at.rmbt.client.control.ControlServerClient
 import at.rmbt.client.control.IpEndpointProvider
+import at.rmbt.client.control.MapEndpointProvider
 import at.specure.config.Config
 import at.specure.config.ControlServerProviderImpl
 import at.specure.config.IpEndpointProviderImpl
+import at.specure.config.MapServerProviderImpl
 import at.specure.data.ClientUUID
 import at.specure.data.ControlServerSettings
 import at.specure.data.HistoryFilterOptions
 import at.specure.data.MapServerSettings
 import at.specure.data.TermsAndConditions
+import at.specure.data.repository.DeviceSyncRepository
+import at.specure.data.repository.DeviceSyncRepositoryImpl
+import at.specure.data.repository.HistoryRepository
 import at.specure.data.repository.IpCheckRepository
 import at.specure.data.repository.SettingsRepository
 import at.specure.data.repository.SettingsRepositoryImpl
@@ -23,6 +28,7 @@ import at.specure.info.cell.CellInfoWatcher
 import at.specure.info.cell.CellInfoWatcherImpl
 import at.specure.info.connectivity.ConnectivityWatcher
 import at.specure.info.connectivity.ConnectivityWatcherImpl
+import at.specure.info.ip.CaptivePortal
 import at.specure.info.ip.IpChangeWatcher
 import at.specure.info.ip.IpChangeWatcherImpl
 import at.specure.info.network.ActiveNetworkWatcher
@@ -107,8 +113,12 @@ class CoreModule {
 
     @Provides
     @Singleton
-    fun provideIpChangeWatcher(ipCheckRepository: IpCheckRepository, connectivityWatcher: ConnectivityWatcher): IpChangeWatcher =
-        IpChangeWatcherImpl(ipCheckRepository, connectivityWatcher)
+    fun provideIpChangeWatcher(
+        ipCheckRepository: IpCheckRepository,
+        connectivityWatcher: ConnectivityWatcher,
+        captivePortal: CaptivePortal
+    ): IpChangeWatcher =
+        IpChangeWatcherImpl(ipCheckRepository, connectivityWatcher, captivePortal)
 
     @Provides
     @Singleton
@@ -121,6 +131,14 @@ class CoreModule {
     @Provides
     @Singleton
     fun provideIpEndpointProvider(config: Config): IpEndpointProvider = IpEndpointProviderImpl(config)
+
+    @Provides
+    @Singleton
+    fun provideMapEndpointProvider(config: Config): MapEndpointProvider = MapServerProviderImpl(config)
+
+    @Provides
+    @Singleton
+    fun provideCaptivePortal(ipEndpointProvider: IpEndpointProvider): CaptivePortal = CaptivePortal(ipEndpointProvider)
 
     @Provides
     fun provideSettingRepository(
@@ -153,4 +171,13 @@ class CoreModule {
     @Singleton
     fun provideCellLocationWatcher(context: Context, telephonyManager: TelephonyManager): CellLocationWatcher =
         CellLocationWatcherImpl(context, telephonyManager)
+
+    @Provides
+    fun provideDeviceSyncRepository(
+        context: Context,
+        controlServerClient: ControlServerClient,
+        clientUUID: ClientUUID,
+        historyRepository: HistoryRepository,
+        settingsRepository: SettingsRepository
+    ): DeviceSyncRepository = DeviceSyncRepositoryImpl(context, controlServerClient, clientUUID, historyRepository, settingsRepository)
 }

@@ -4,26 +4,27 @@ import android.os.Bundle
 import android.view.View
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.DividerItemDecoration
-import at.rmbt.util.exception.HandledException
-import at.rmbt.util.exception.NoConnectionException
 import at.rtr.rmbt.android.R
 import at.rtr.rmbt.android.databinding.FragmentHistoryBinding
 import at.rtr.rmbt.android.di.viewModelLazy
 import at.rtr.rmbt.android.ui.activity.ResultsActivity
+import at.rtr.rmbt.android.ui.adapter.FilterLabelAdapter
 import at.rtr.rmbt.android.ui.adapter.HistoryAdapter
-import at.rtr.rmbt.android.ui.dialog.SimpleDialog
+import at.rtr.rmbt.android.ui.dialog.HistoryFiltersDialog
+import at.rtr.rmbt.android.ui.dialog.SyncDevicesDialog
 import at.rtr.rmbt.android.util.ToolbarTheme
 import at.rtr.rmbt.android.util.changeStatusBarColor
 import at.rtr.rmbt.android.util.listen
 import at.rtr.rmbt.android.viewmodel.HistoryViewModel
 
-private const val CODE_ERROR = 1
+private const val CODE_FILTERS = 13
 
-class HistoryFragment : BaseFragment() {
+class HistoryFragment : BaseFragment(), SyncDevicesDialog.Callback, HistoryFiltersDialog.Callback {
 
     private val historyViewModel: HistoryViewModel by viewModelLazy()
     private val binding: FragmentHistoryBinding by bindingLazy()
     private val adapter: HistoryAdapter by lazy { HistoryAdapter() }
+    private lateinit var labelAdapter: FilterLabelAdapter
 
     override val layoutResId = R.layout.fragment_history
 
@@ -31,6 +32,7 @@ class HistoryFragment : BaseFragment() {
         super.onViewCreated(view, savedInstanceState)
 
         binding.state = historyViewModel.state
+        updateTransparentStatusBarHeight(binding.statusBarStub)
         binding.recyclerViewHistoryItems.adapter = adapter
 
         adapter.actionCallback = {
@@ -60,7 +62,25 @@ class HistoryFragment : BaseFragment() {
             refreshHistory()
         }
 
+        binding.buttonSync.setOnClickListener {
+            SyncDevicesDialog.show(childFragmentManager)
+        }
+
+        binding.buttonMenu.setOnClickListener {
+            if (adapter.itemCount > 0) {
+                HistoryFiltersDialog.instance(this, CODE_FILTERS).show(parentFragmentManager)
+            }
+        }
+
+        labelAdapter = FilterLabelAdapter { historyViewModel.removeFromFilters(it) }
+        binding.activeFilters.adapter = labelAdapter
+
         activity?.window?.changeStatusBarColor(ToolbarTheme.WHITE)
+
+        historyViewModel.activeFiltersLiveData.listen(this) { data ->
+            data?.let { labelAdapter.items = it }
+            historyViewModel.state.isActiveFiltersEmpty.set(data.isNullOrEmpty())
+        }
 
         refreshHistory()
     }
@@ -70,22 +90,11 @@ class HistoryFragment : BaseFragment() {
         binding.swipeRefreshLayoutHistoryItems.isRefreshing = false
     }
 
-    override fun onHandledException(exception: HandledException) {
-        val messageTextResId = when (exception) {
-            is NoConnectionException -> {
-                R.string.no_internet_connection_not_load_data
-            }
-            else -> {
-                R.string.test_dialog_error_text
-            }
-        }
+    override fun onFiltersUpdated() {
+        refreshHistory()
+    }
 
-        fragmentManager?.let {
-            SimpleDialog.Builder()
-                .messageText(messageTextResId)
-                .positiveText(R.string.input_setting_dialog_ok)
-                .cancelable(true)
-                .show(it, CODE_ERROR)
-        }
+    override fun onDevicesSynced() {
+        refreshHistory()
     }
 }

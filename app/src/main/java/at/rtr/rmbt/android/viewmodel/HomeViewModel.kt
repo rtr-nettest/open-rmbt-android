@@ -1,6 +1,7 @@
 package at.rtr.rmbt.android.viewmodel
 
 import androidx.lifecycle.LiveData
+import at.rtr.rmbt.android.config.AppConfig
 import at.rtr.rmbt.android.ui.viewstate.HomeViewState
 import at.rtr.rmbt.android.util.map
 import at.specure.data.ClientUUID
@@ -23,10 +24,11 @@ class HomeViewModel @Inject constructor(
     val locationInfoLiveData: LocationInfoLiveData,
     val ipV4ChangeLiveData: IpV4ChangeLiveData,
     val ipV6ChangeLiveData: IpV6ChangeLiveData,
-    val clientUUID: ClientUUID
+    val clientUUID: ClientUUID,
+    appConfig: AppConfig
 ) : BaseViewModel() {
 
-    val state = HomeViewState()
+    val state = HomeViewState(appConfig)
 
     // If ConnectivityInfo is null than no internet connection otherwise internet connection available
     val isConnected: LiveData<Boolean> = connectivityInfoLiveData.map {

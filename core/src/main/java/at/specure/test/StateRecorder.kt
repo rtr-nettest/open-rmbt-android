@@ -2,6 +2,7 @@ package at.specure.test
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.location.Location
 import android.telephony.SubscriptionManager
 import android.telephony.TelephonyManager
 import androidx.lifecycle.LifecycleOwner
@@ -13,6 +14,8 @@ import at.rtr.rmbt.client.helper.TestStatus
 import at.rtr.rmbt.client.v2.task.result.QoSResultCollector
 import at.rtr.rmbt.client.v2.task.service.TestMeasurement.TrafficDirection
 import at.specure.config.Config
+import at.specure.data.entity.LoopModeRecord
+import at.specure.data.entity.LoopModeState
 import at.specure.data.entity.TestRecord
 import at.specure.data.repository.TestDataRepository
 import at.specure.info.TransportType
@@ -75,11 +78,25 @@ class StateRecorder @Inject constructor(
     private var signalStrengthInfo: SignalStrengthInfo? = null
     private var networkInfo: NetworkInfo? = null
     private var cellLocation: CellLocationInfo? = null
+    private var qosRunning = false
 
     var onReadyToSubmit: ((Boolean) -> Unit)? = null
 
+    var onLoopDistanceReached: (() -> Unit)? = null
+
     val locationInfo: LocationInfo?
         get() = _locationInfo
+
+    private var _loopModeRecord: LoopModeRecord? = null
+
+    val loopModeRecord: LoopModeRecord?
+        get() = _loopModeRecord
+
+    val loopUuid: String?
+        get() = _loopModeRecord?.uuid
+
+    val loopTestCount: Int
+        get() = _loopModeRecord?.testsPerformed ?: 1
 
     fun updateLocationInfo() {
         if (locationStateLiveData.value == LocationProviderState.ENABLED) {
@@ -122,10 +139,15 @@ class StateRecorder @Inject constructor(
         })
     }
 
+    fun resetLoopMode() {
+        _loopModeRecord = null
+    }
+
     override fun onClientReady(testUUID: String, loopUUID: String?, testToken: String, testStartTimeNanos: Long, threadNumber: Int) {
         this.testUUID = testUUID
         this.testToken = testToken
         this.testStartTimeNanos = testStartTimeNanos
+        qosRunning = false
         saveTestInitialTestData(testUUID, loopUUID, testToken, testStartTimeNanos, threadNumber)
         saveLocationInfo()
         saveSignalStrengthInfo()
@@ -138,9 +160,9 @@ class StateRecorder @Inject constructor(
     }
 
     fun finish() {
-        // TODO finish
         testUUID = null
         testToken = null
+        qosRunning = false
     }
 
     private fun saveTestInitialTestData(testUUID: String, loopUUID: String?, testToken: String, testStartTimeNanos: Long, threadNumber: Int) {
@@ -152,14 +174,72 @@ class StateRecorder @Inject constructor(
             testStartTimeMillis = TimeUnit.NANOSECONDS.toMillis(testStartTimeNanos),
             threadCount = threadNumber
         )
+        if (!config.skipQoSTests) {
+            testRecord?.lastQoSStatus = TestStatus.WAIT
+        }
+
+        _loopModeRecord?.let { it.testsPerformed++ }
+
+        if (loopUUID != null) {
+            if (_loopModeRecord == null) {
+                _loopModeRecord = LoopModeRecord(loopUUID)
+                repository.saveLoopMode(_loopModeRecord!!)
+            } else {
+                updateLoopModeRecord()
+            }
+        }
+        testRecord?.loopModeTestOrder = loopTestCount
         repository.saveTest(testRecord!!)
+    }
+
+    private fun updateLoopModeRecord() {
+        _loopModeRecord?.run {
+            repository.updateLoopMode(this)
+        }
+    }
+
+    fun onLoopTestFinished() {
+        _loopModeRecord?.let {
+            it.lastTestFinishedTimeMillis = System.currentTimeMillis()
+            it.lastTestLatitude = _locationInfo?.latitude
+            it.lastTestLongitude = _locationInfo?.longitude
+            it.movementDistanceMeters = 0
+            it.status = LoopModeState.IDLE
+            repository.updateLoopMode(it)
+        }
     }
 
     private fun saveLocationInfo() {
         val uuid = testUUID
         val location = locationInfo
-        if (uuid != null && location != null) {
+        if (uuid != null && location != null && locationStateLiveData.value == LocationProviderState.ENABLED) {
             repository.saveGeoLocation(uuid, location)
+        }
+
+        _loopModeRecord?.let {
+            if (it.status == LoopModeState.IDLE) {
+
+                val loopLocation = Location("")
+                loopLocation.latitude = it.lastTestLatitude ?: return@let
+                loopLocation.longitude = it.lastTestLongitude ?: return@let
+
+                val newLocation = Location("")
+                newLocation.latitude = location?.latitude ?: return@let
+                newLocation.longitude = location.longitude
+
+                it.movementDistanceMeters = loopLocation.distanceTo(newLocation).toInt()
+
+                var notifyDistanceReached = false
+                if (it.movementDistanceMeters >= config.loopModeDistanceMeters) {
+                    it.status = LoopModeState.RUNNING
+                    notifyDistanceReached = true
+                }
+
+                repository.updateLoopMode(it)
+                if (notifyDistanceReached) {
+                    onLoopDistanceReached?.invoke()
+                }
+            }
         }
     }
 
@@ -375,6 +455,8 @@ class StateRecorder @Inject constructor(
         if (!waitQosResults) {
             testUUID = null
             testToken = null
+        } else {
+            qosRunning = true
         }
     }
 
@@ -383,19 +465,32 @@ class StateRecorder @Inject constructor(
         val token = testToken
         val data: JSONArray? = qosResult?.toJson()
         if (uuid != null && token != null && qosResult != null && data != null) {
+            testRecord?.lastQoSStatus = TestStatus.QOS_END
+            repository.updateQoSTestStatus(uuid, TestStatus.QOS_END)
+            Timber.d("QOSLOG: ${TestStatus.QOS_END}")
             repository.saveQoSResults(uuid, token, data) {
                 onReadyToSubmit?.invoke(true)
             }
         }
+        testUUID = null
+        qosRunning = false
     }
 
     override fun onTestStatusUpdate(status: TestStatus?) {
         status?.let {
-            testRecord?.also {
-                it.status = status
+            if (qosRunning) {
+                testUUID?.let {
+                    testRecord?.lastQoSStatus = status
+                    repository.updateQoSTestStatus(it, status)
+                    Timber.d("QOSLOG: $status")
+                }
+            } else {
+                testRecord?.also {
+                    it.status = status
 
-                if (status != TestStatus.ERROR && status != TestStatus.ABORTED) {
-                    it.lastClientStatus = status
+                    if (status != TestStatus.ERROR && status != TestStatus.ABORTED) {
+                        it.lastClientStatus = status
+                    }
                 }
             }
         }
@@ -422,6 +517,16 @@ class StateRecorder @Inject constructor(
             "${substring(0, 3)}-${substring(3)}"
         } else {
             this
+        }
+    }
+
+    fun onTestInLoopStarted() {
+        _loopModeRecord?.let {
+            it.movementDistanceMeters = 0
+            it.lastTestLongitude = null
+            it.lastTestLatitude = null
+            it.status = LoopModeState.RUNNING
+            repository.updateLoopMode(it)
         }
     }
 }

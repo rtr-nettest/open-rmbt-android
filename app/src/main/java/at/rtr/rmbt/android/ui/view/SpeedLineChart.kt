@@ -1,25 +1,26 @@
 package at.rtr.rmbt.android.ui.view
 
 import android.content.Context
+import android.graphics.Canvas
 import android.graphics.Paint
 import android.graphics.Path
 import android.graphics.PointF
-import android.graphics.Canvas
 import android.util.AttributeSet
 import at.rtr.rmbt.android.R
+import at.specure.data.NetworkTypeCompat
 import at.specure.data.entity.GraphItemRecord
 import at.specure.data.entity.TestResultGraphItemRecord
 import timber.log.Timber
 import kotlin.math.log10
+import kotlin.math.max
+import kotlin.math.min
 import kotlin.math.pow
 import kotlin.math.sqrt
-import kotlin.math.min
-import kotlin.math.max
 
 class SpeedLineChart @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null
-) : LineChart(context, attrs) {
+) : LineChart(context, attrs), ResultChart {
 
     private var pathStroke: Path
     private var paintStroke: Paint = Paint(Paint.ANTI_ALIAS_FLAG)
@@ -69,7 +70,12 @@ class SpeedLineChart @JvmOverloads constructor(
         canvas?.drawPath(pathStroke, paintStroke)
         canvas?.drawPath(pathFill, paintFill)
         circlePoint?.let {
-            canvas?.drawCircle(getChartWidth() * it.x - STROKE_WIDTH / 2.0f, getChartHeight() - (getChartHeight() * it.y), STROKE_WIDTH / 2, paintStroke)
+            canvas?.drawCircle(
+                getChartWidth() * it.x - STROKE_WIDTH / 2.0f,
+                getChartHeight() - (getChartHeight() * it.y),
+                STROKE_WIDTH / 2,
+                paintStroke
+            )
         }
     }
 
@@ -84,7 +90,7 @@ class SpeedLineChart @JvmOverloads constructor(
             if (graphItems[0].progress > 0) {
                 chartPoints.add(PointF(0.0f, toLog(graphItems[0].value)))
             }
-            for (index in 0 until graphItems.size) {
+            for (index in graphItems.indices) {
 
                 val x = graphItems[index].progress / 100.0f
                 val y = toLog(graphItems[index].value)
@@ -96,7 +102,7 @@ class SpeedLineChart @JvmOverloads constructor(
         invalidate()
     }
 
-    fun addResultGraphItems(graphItems: List<TestResultGraphItemRecord>?) {
+    override fun addResultGraphItems(graphItems: List<TestResultGraphItemRecord>?, networkType: NetworkTypeCompat) {
 
         pathStroke.rewind()
         pathFill.rewind()
@@ -108,7 +114,7 @@ class SpeedLineChart @JvmOverloads constructor(
             val maxValue = items.maxBy { it.time }?.time
             if (maxValue != null) {
 
-                if (((items[0].time / maxValue.toFloat())*100.0f) > 0) {
+                if (((items[0].time / maxValue.toFloat()) * 100.0f) > 0) {
                     chartPoints.add(PointF(0.0f, toLog(graphItems[0].value * 8000 / graphItems[0].time)))
                 }
 
@@ -139,7 +145,8 @@ class SpeedLineChart @JvmOverloads constructor(
             val previousPointY = getChartHeight() - (getChartHeight() * chartPoints[index - 1].y)
 
             // Distance between currentPoint and previousPoint
-            val firstDistance = sqrt((currentPointX - previousPointX).toDouble().pow(2.0) + (currentPointY - previousPointY).toDouble().pow(2.0)).toFloat()
+            val firstDistance =
+                sqrt((currentPointX - previousPointX).toDouble().pow(2.0) + (currentPointY - previousPointY).toDouble().pow(2.0)).toFloat()
 
             // Minimum is used to avoid going too much right
             val firstX = min(previousPointX + lX * firstDistance, (previousPointX + currentPointX) / 2)
@@ -188,7 +195,7 @@ class SpeedLineChart @JvmOverloads constructor(
     }
 
     companion object {
-        private const val GRAPH_MAX_NSECS: Long = 8000000000L
+
         private const val STROKE_WIDTH: Float = 3.0f
     }
 }
