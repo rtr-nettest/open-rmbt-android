@@ -43,7 +43,6 @@ class MeasurementViewModel @Inject constructor(
     private val _uploadGraphLiveData = MutableLiveData<List<GraphItemRecord>>()
     private val _qosProgressLiveData = MutableLiveData<Map<QoSTestResultEnum, Int>>()
     private val _loopUUIDLiveData = MutableLiveData<String>()
-    private val _loopProgressLiveData = MutableLiveData<LoopModeRecord>()
     private val _timeToNextTestElapsedLiveData = MutableLiveData<String>()
     private val _timeProgressPercentsLiveData = MutableLiveData<Int>()
 
@@ -81,8 +80,7 @@ class MeasurementViewModel @Inject constructor(
     val qosProgressLiveData: LiveData<Map<QoSTestResultEnum, Int>>
         get() = _qosProgressLiveData
 
-    val loopProgressLiveData: LiveData<LoopModeRecord?>
-        get() = _loopUUIDLiveData.value?.toString()?.let { testDataRepository.getLoopMode(it) }!!
+    lateinit var loopProgressLiveData: LiveData<LoopModeRecord?>
 
     private val serviceConnection = object : ServiceConnection {
 
@@ -200,7 +198,11 @@ class MeasurementViewModel @Inject constructor(
     override fun onClientReady(testUUID: String, loopUUID: String?) {
 
         this.testUUID = testUUID
-        _loopUUIDLiveData.postValue(loopUUID)
+
+        if (loopUUID != null) {
+            loopProgressLiveData = testDataRepository.getLoopMode(loopUUID)
+            _loopUUIDLiveData.postValue(loopUUID)
+        }
 
         Timber.d("loopUUID: $loopUUID")
 
@@ -211,6 +213,8 @@ class MeasurementViewModel @Inject constructor(
         testDataRepository.getUploadGraphItemsLiveData(testUUID) {
             _uploadGraphLiveData.postValue(it)
         }
+
+
     }
 
     override fun onQoSTestProgressUpdated(tasksPassed: Int, tasksTotal: Int, progressMap: Map<QoSTestResultEnum, Int>) {
