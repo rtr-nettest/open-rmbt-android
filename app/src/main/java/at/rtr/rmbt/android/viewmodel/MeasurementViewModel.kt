@@ -16,6 +16,7 @@ import at.specure.data.entity.LoopModeRecord
 import at.specure.data.repository.TestDataRepository
 import at.specure.info.network.ActiveNetworkLiveData
 import at.specure.info.strength.SignalStrengthLiveData
+import at.specure.location.LocationProviderStateLiveData
 import at.specure.measurement.MeasurementClient
 import at.specure.measurement.MeasurementProducer
 import at.specure.measurement.MeasurementService
@@ -31,6 +32,7 @@ class MeasurementViewModel @Inject constructor(
     private val testDataRepository: TestDataRepository,
     val signalStrengthLiveData: SignalStrengthLiveData,
     val activeNetworkLiveData: ActiveNetworkLiveData,
+    val locationProviderStateLiveData: LocationProviderStateLiveData,
     val config: AppConfig
 ) : BaseViewModel(), MeasurementClient {
 
@@ -41,6 +43,7 @@ class MeasurementViewModel @Inject constructor(
     private val _uploadGraphLiveData = MutableLiveData<List<GraphItemRecord>>()
     private val _qosProgressLiveData = MutableLiveData<Map<QoSTestResultEnum, Int>>()
     private val _loopUUIDLiveData = MutableLiveData<String>()
+    private val _loopProgressLiveData = MutableLiveData<LoopModeRecord>()
     private val _timeToNextTestElapsedLiveData = MutableLiveData<String>()
     private val _timeProgressPercentsLiveData = MutableLiveData<Int>()
 

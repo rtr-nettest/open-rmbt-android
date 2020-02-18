@@ -6,10 +6,12 @@ import androidx.databinding.ObservableField
 import androidx.databinding.ObservableInt
 import androidx.databinding.ObservableLong
 import at.rtr.rmbt.android.config.AppConfig
+import at.specure.data.entity.LoopModeRecord
 import at.specure.data.entity.LoopModeState
 import at.specure.info.network.NetworkInfo
 import at.specure.info.strength.SignalStrengthInfo
 import at.specure.measurement.MeasurementState
+import timber.log.Timber
 
 private const val KEY_STATE = "KEY_STATE"
 private const val KEY_PROGRESS = "KEY_PROGRESS"
@@ -41,6 +43,10 @@ class MeasurementViewState(private val config: AppConfig) : ViewState {
     val timeToNextTestElapsed = ObservableField<String>()
     val timeToNextTestPercentage = ObservableInt()
     val loopState = ObservableField<LoopModeState>().apply { set(LoopModeState.IDLE) }
+    val loopModeRecord = ObservableField<LoopModeRecord?>()
+    val loopNextTestDistanceMeters = ObservableField<String>()
+    val loopNextTestPercent = ObservableInt()
+    val gpsEnabled = ObservableBoolean()
     val isLoopModeActive = ObservableBoolean(config.loopModeEnabled)
 
     fun setQoSTaskProgress(current: Int, total: Int) {
@@ -53,6 +59,23 @@ class MeasurementViewState(private val config: AppConfig) : ViewState {
 
     fun setLoopState(loopState: LoopModeState) {
         this.loopState.set(loopState)
+        if (loopState == LoopModeState.IDLE) {
+            measurementProgress.set(0)
+            measurementDownloadUploadProgress.set(0)
+            measurementState.set(MeasurementState.FINISH)
+            Timber.i("Measurement state from set loop state: ${measurementState.get()}")
+        }
+    }
+
+    fun setLoopRecord(loopModeRecord: LoopModeRecord?) {
+        if (loopModeRecord != null) {
+            this.loopModeRecord.set(loopModeRecord)
+            this.loopNextTestPercent.set((loopModeRecord.movementDistanceMeters * 100 / config.loopModeDistanceMeters))
+            this.loopNextTestDistanceMeters.set(loopModeRecord.movementDistanceMeters.toString())
+        } else {
+            this.loopNextTestPercent.set(0)
+            this.loopNextTestDistanceMeters.set("")
+        }
     }
 
     override fun onRestoreState(bundle: Bundle?) {
