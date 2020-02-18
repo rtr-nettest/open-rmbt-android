@@ -47,6 +47,7 @@ fun HistoryItemResponse.toModel() = History(
     speedDownloadClassification = Classification.fromValue(speedDownloadClassification),
     speedUpload = speedUpload,
     speedUploadClassification = Classification.fromValue(speedUploadClassification),
+    signalClassification = signalClassification?.let { Classification.fromValue(it) } ?: Classification.NONE,
     time = time,
     timeString = timeString,
     timezone = timezone

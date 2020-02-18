@@ -541,6 +541,8 @@ data class HistoryItemResponse(
     val speedUpload: String,
     @SerializedName("speed_upload_classification")
     val speedUploadClassification: Int,
+    @SerializedName("signal_classification")
+    val signalClassification: Int?,
     @SerializedName("test_uuid")
     val testUUID: String,
     val time: Long,

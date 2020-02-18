@@ -74,6 +74,7 @@
                 app:layout_constraintBottom_toBottomOf="@id/labelResultBottomDownload"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="@id/textDownloadSpeed"
+                app:signalStrength="@{item.signalClass ?? Classification.NONE}"
                 app:networkType="@{item.networkTypeLabel}" />
 
             <androidx.appcompat.widget.AppCompatTextView

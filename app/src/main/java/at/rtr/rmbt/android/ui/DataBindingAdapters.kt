@@ -478,8 +478,8 @@ fun ConstraintLayout.setBottomSheetState(state: Int) {
 /**
  * A binding adapter that is used for show date and time in history list
  */
-@BindingAdapter("networkType", "historyTime", "historyTimezone", requireAll = true)
-fun AppCompatTextView.setHistoryTime(networkType: NetworkTypeCompat, historyTime: Long, historyTimezone: String) {
+@BindingAdapter("networkType", "historyTime", "historyTimezone", "historySignalStrength", requireAll = true)
+fun AppCompatTextView.setHistoryTime(networkType: NetworkTypeCompat, historyTime: Long, historyTimezone: String, signalStrength: Classification) {
 
     val calendar: Calendar = Calendar.getInstance()
     calendar.timeInMillis = historyTime
@@ -499,7 +499,13 @@ fun AppCompatTextView.setHistoryTime(networkType: NetworkTypeCompat, historyTime
                 R.drawable.ic_history_4g
             }
             NetworkTypeCompat.TYPE_WLAN -> {
-                R.drawable.ic_history_wifi
+                when (signalStrength) {
+                    Classification.BAD -> R.drawable.ic_history_wifi_1
+                    Classification.NORMAL -> R.drawable.ic_history_wifi_2
+                    Classification.GOOD -> R.drawable.ic_history_wifi_3
+                    Classification.EXCELLENT -> R.drawable.ic_history_wifi_4
+                    Classification.NONE -> R.drawable.ic_history_no_internet
+                }
             }
             NetworkTypeCompat.TYPE_5G -> throw IllegalArgumentException("Need to add 5G image here for history")
         }, 0, 0, 0
@@ -741,8 +747,8 @@ fun ResultBar.setQoEValue(value: Double, classification: Classification) {
     updateClassification((value * 100).toInt(), classification)
 }
 
-@BindingAdapter("networkType")
-fun ImageView.setNetworkType(networkType: String) {
+@BindingAdapter("networkType", "signalStrength", requireAll = true)
+fun ImageView.setNetworkType(networkType: String, signalStrength: Classification) {
     if (networkType != ServerNetworkType.UNKNOWN.stringValue && networkType != ServerNetworkType.TYPE_BROWSER.stringValue) {
         setImageResource(
             when (NetworkTypeCompat.fromString(networkType)) {
@@ -756,7 +762,13 @@ fun ImageView.setNetworkType(networkType: String) {
                     R.drawable.ic_history_4g
                 }
                 NetworkTypeCompat.TYPE_WLAN -> {
-                    R.drawable.ic_history_wifi
+                    when (signalStrength) {
+                        Classification.BAD -> R.drawable.ic_history_wifi_1
+                        Classification.NORMAL -> R.drawable.ic_history_wifi_2
+                        Classification.GOOD -> R.drawable.ic_history_wifi_3
+                        Classification.EXCELLENT -> R.drawable.ic_history_wifi_4
+                        Classification.NONE -> R.drawable.ic_history_no_internet
+                    }
                 }
                 NetworkTypeCompat.TYPE_5G -> throw IllegalArgumentException("Need to add 5G image here for history")
             }
