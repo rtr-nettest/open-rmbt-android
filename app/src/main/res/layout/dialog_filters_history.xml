@@ -62,16 +62,19 @@
         <TextView
             android:id="@+id/text_devices"
             style="@style/RobotoRegularStyle.VerySmall"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/margin_large"
             android:layout_marginEnd="@dimen/padding_large"
             android:alpha="0.56"
+            android:gravity="end"
             android:text="@{state.devices}"
             android:textColor="@color/navigation_gray"
             app:layout_constraintBottom_toBottomOf="@id/devices"
             app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/label_devices"
             app:layout_constraintTop_toTopOf="@id/devices"
-            tools:text="IPhone 10" />
+            tools:text="IPhone 10, Samsung S8, Samsung S9, Samsung S10, Xiaomi MI A1" />
 
         <View
             android:id="@+id/devices_divider"
@@ -109,14 +112,17 @@
         <TextView
             android:id="@+id/text_networks"
             style="@style/RobotoRegularStyle.VerySmall"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/margin_large"
             android:layout_marginEnd="@dimen/padding_large"
             android:alpha="0.56"
+            android:gravity="end"
             android:text="@{state.networks}"
             android:textColor="@color/navigation_gray"
             app:layout_constraintBottom_toBottomOf="@id/networks"
             app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/label_networks"
             app:layout_constraintTop_toTopOf="@id/networks"
             tools:text="2G" />
 
