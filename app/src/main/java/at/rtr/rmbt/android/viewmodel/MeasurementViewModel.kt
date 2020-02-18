@@ -213,8 +213,6 @@ class MeasurementViewModel @Inject constructor(
         testDataRepository.getUploadGraphItemsLiveData(testUUID) {
             _uploadGraphLiveData.postValue(it)
         }
-
-
     }
 
     override fun onQoSTestProgressUpdated(tasksPassed: Int, tasksTotal: Int, progressMap: Map<QoSTestResultEnum, Int>) {

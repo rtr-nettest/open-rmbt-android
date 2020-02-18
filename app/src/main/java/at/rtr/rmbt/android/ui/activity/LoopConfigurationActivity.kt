@@ -54,7 +54,7 @@ class LoopConfigurationActivity : BaseActivity(), InputSettingDialog.Callback {
 
         binding.accept.setOnClickListener {
             if (checkNumber()) {
-                finishAffinity()
+                finish()
                 MeasurementService.startTests(this)
                 MeasurementActivity.start(this)
             }
