@@ -71,6 +71,8 @@
             android:name="at.rtr.rmbt.android.ui.activity.DataPrivacyAndTermsOfUseActivity"
             android:theme="@style/PreferenceTheme" />
 
+        <activity android:name=".ui.activity.TermsAcceptanceActivity"/>
+
         <meta-data
             android:name="io.fabric.ApiKey"
             android:value="${fabricApiKey}" />

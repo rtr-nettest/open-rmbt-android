@@ -19,6 +19,8 @@ import at.rtr.rmbt.android.viewmodel.TestResultDetailViewModel
 import at.rtr.rmbt.android.viewmodel.QosTestsSummaryViewModel
 import at.rtr.rmbt.android.viewmodel.QosTestDetailViewModel
 import at.rtr.rmbt.android.viewmodel.QosTestDetailPagerViewModel
+import at.rtr.rmbt.android.viewmodel.SplashViewModel
+import at.rtr.rmbt.android.viewmodel.TermsAcceptanceViewModel
 import dagger.Binds
 import dagger.Module
 import dagger.multibindings.IntoMap
@@ -117,4 +119,14 @@ interface ViewModelModule {
     @IntoMap
     @ViewModelKey(HistoryFiltersViewModel::class)
     fun bindHistoryFiltersViewModel(viewModel: HistoryFiltersViewModel): ViewModel
+
+    @Binds
+    @IntoMap
+    @ViewModelKey(TermsAcceptanceViewModel::class)
+    fun bindTermsAcceptanceViewModel(viewModel: TermsAcceptanceViewModel): ViewModel
+
+    @Binds
+    @IntoMap
+    @ViewModelKey(SplashViewModel::class)
+    fun bindSplashViewModel(viewModel: SplashViewModel): ViewModel
 }

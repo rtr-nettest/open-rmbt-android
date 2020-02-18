@@ -262,5 +262,6 @@
     <string name="loop_mode_meters">Meter</string>
     <string name="loop_mode_no_gps">Kein GPS</string>
     <string name="or">oder</string>
+    <string name="title_privacy_policy">Datenschutzerklärung</string>
 </resources>
 

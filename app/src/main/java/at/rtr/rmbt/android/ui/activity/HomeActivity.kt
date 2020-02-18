@@ -14,6 +14,7 @@
 
 package at.rtr.rmbt.android.ui.activity
 
+import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
@@ -57,6 +58,12 @@ class HomeActivity : BaseActivity() {
     override fun onStart() {
         super.onStart()
         viewModel.attach(this)
+
+        viewModel.tacAcceptanceLiveData.listen(this) {
+            if (!it) {
+                TermsAcceptanceActivity.start(this, CODE_TERMS)
+            }
+        }
     }
 
     override fun onStop() {
@@ -64,7 +71,21 @@ class HomeActivity : BaseActivity() {
         viewModel.detach(this)
     }
 
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+
+        if (requestCode == CODE_TERMS) {
+            if (resultCode == Activity.RESULT_OK) {
+                viewModel.updateTermsAcceptance(true)
+            } else {
+                finish()
+            }
+        }
+    }
+
     companion object {
+
+        private const val CODE_TERMS = 1
 
         fun start(context: Context) = context.startActivity(Intent(context, HomeActivity::class.java))
     }

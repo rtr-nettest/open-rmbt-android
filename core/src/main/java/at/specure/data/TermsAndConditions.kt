@@ -15,6 +15,10 @@
 package at.specure.data
 
 import android.content.Context
+import at.specure.config.Config
+import at.specure.util.BooleanPreferenceLiveData
+import at.specure.util.StringPreferenceLiveData
+import java.util.Locale
 import javax.inject.Inject
 
 private const val KEY_TAC_URL = "KEY_TAC_URL"
@@ -22,12 +26,17 @@ private const val KEY_NDT_TERMS_URL = "KEY_NDT_TERMS_URL"
 private const val KEY_TAC_VERSION = "KEY_TAC_VERSION"
 private const val KEY_TAC_IS_ACCEPTED = "KEY_TAC_ACCEPTED"
 
-class TermsAndConditions @Inject constructor(context: Context) {
+class TermsAndConditions @Inject constructor(context: Context, private val config: Config) {
 
     private val preferences = context.getSharedPreferences("terms_and_conditions.pref", Context.MODE_PRIVATE)
 
+    private val defaultUrl = when (Locale.getDefault().language) {
+        "de" -> String.format(config.termsAcceptanceDefaultUrl, "de")
+        else -> String.format(config.termsAcceptanceDefaultUrl, "en")
+    }
+
     var tacUrl: String?
-        get() = preferences.getString(KEY_TAC_URL, null)
+        get() = preferences.getString(KEY_TAC_URL, defaultUrl)
         set(value) {
             preferences.edit().putString(KEY_TAC_URL, value).apply()
         }
@@ -51,4 +60,7 @@ class TermsAndConditions @Inject constructor(context: Context) {
     var tacAccepted: Boolean
         get() = preferences.getBoolean(KEY_TAC_IS_ACCEPTED, false)
         set(value) = preferences.edit().putBoolean(KEY_TAC_IS_ACCEPTED, value).apply()
+
+    val tacAcceptanceLiveData = BooleanPreferenceLiveData(preferences, KEY_TAC_IS_ACCEPTED, false)
+    val tacUrlLiveData = StringPreferenceLiveData(preferences, KEY_TAC_URL, defaultUrl)
 }

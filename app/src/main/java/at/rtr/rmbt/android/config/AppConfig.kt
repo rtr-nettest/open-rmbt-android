@@ -259,6 +259,10 @@ class AppConfig @Inject constructor(context: Context, private val serverSettings
         get() = getString(BuildConfig.DATA_PRIVACY_AND_TERMS_URL)
         set(value) = setString(BuildConfig.DATA_PRIVACY_AND_TERMS_URL, value)
 
+    override var termsAcceptanceDefaultUrl: String
+        get() = getString(BuildConfig.TERMS_FOR_ACCEPTANCE_URL)
+        set(value) = setString(BuildConfig.TERMS_FOR_ACCEPTANCE_URL, value)
+
     override var mapServerOverrideEnabled: Boolean
         get() = getBoolean(BuildConfig.IS_MAP_SERVER_OVERRIDE_ENABLED)
         set(value) = setBoolean(BuildConfig.IS_MAP_SERVER_OVERRIDE_ENABLED, value)

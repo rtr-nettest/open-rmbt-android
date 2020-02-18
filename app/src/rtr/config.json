@@ -249,6 +249,11 @@
       "name": "MAP_SERVER_USE_SSL",
       "value": "true",
       "visible": false
+    },
+    {
+      "name": "TERMS_FOR_ACCEPTANCE_URL",
+      "value": "https://www.netztest.at/%s/tc_android.html",
+      "visible": true
     }
   ]
 }
