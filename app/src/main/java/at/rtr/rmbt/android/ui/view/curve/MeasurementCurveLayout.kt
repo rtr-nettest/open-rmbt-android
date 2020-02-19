@@ -124,12 +124,12 @@ class MeasurementCurveLayout @JvmOverloads constructor(context: Context, attrs: 
         curveBinding.curveView.setBottomCenterCallback { x, y ->
             bottomCenterX = x
             bottomCenterY = y
-            setBottomProgress(currentBottomProgress, isLoopEnabled && phase == MeasurementState.IDLE)
+            setBottomProgress(currentBottomProgress, isLoopEnabled && phase == MeasurementState.FINISH)
         }
         curveBinding.curveView.setTopCenterCallback { x, y ->
             topCenterX = x
             topCenterY = y
-            setTopProgress(currentTopProgress, isLoopEnabled && phase == MeasurementState.IDLE)
+            setTopProgress(currentTopProgress, isLoopEnabled && phase == MeasurementState.FINISH)
         }
 
         addView(speedLayout.root, LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT))

@@ -9,6 +9,8 @@
 
         <import type="at.specure.info.strength.SignalStrengthInfo" />
 
+        <import type="at.specure.data.entity.LoopModeState" />
+
         <variable
             name="state"
             type="at.rtr.rmbt.android.ui.viewstate.MeasurementViewState" />
@@ -28,6 +30,7 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:measurementPhase="@{state.measurementState}"
+            app:loopEnabled="@{state.isLoopModeActive}"
             app:percentage="@{state.measurementProgress}"
             app:idleStateBottom="@{state.isLoopModeActive &amp;&amp; state.loopState == LoopModeState.IDLE}"
             app:idleStateUp="@{state.isLoopModeActive &amp;&amp; state.loopState == LoopModeState.IDLE}"

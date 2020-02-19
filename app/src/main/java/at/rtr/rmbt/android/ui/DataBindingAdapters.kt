@@ -448,6 +448,11 @@ fun MeasurementCurveLayout.setQosEnabled(enabled: Boolean) {
     setQoSEnabled(enabled)
 }
 
+@BindingAdapter("loopEnabled")
+fun MeasurementCurveLayout.setLoopEnabled(enabled: Boolean) {
+    setLoopEnabled(enabled)
+}
+
 /**
  * A binding adapter that is used for show label of measurement state
  */

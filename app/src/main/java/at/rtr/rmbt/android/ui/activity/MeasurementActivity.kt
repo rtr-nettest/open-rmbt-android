@@ -98,7 +98,6 @@ class MeasurementActivity : BaseActivity(), SimpleDialog.Callback {
 
         viewModel.loopUuidLiveData.listen(this) { loopUUID ->
             if (loopUUID != null) {
-                binding.root.curve_layout.setLoopEnabled(true)
                 viewModel.loopProgressLiveData.observe(this@MeasurementActivity) { loopRecord ->
                     Timber.d(
                         "TestPerformed: ${loopRecord?.testsPerformed} \nloop mode status: ${loopRecord?.status} \nviewModel: ${viewModel.state.measurementState.get()}"
@@ -114,13 +113,9 @@ class MeasurementActivity : BaseActivity(), SimpleDialog.Callback {
                     loopRecord?.status?.let { status ->
                         viewModel.state.setLoopState(status)
                         if (status == LoopModeState.IDLE) {
-                            binding.root.curve_layout.setLoopEnabled(true)
-                            viewModel.state.measurementState.set(MeasurementState.IDLE)
                             binding.root.measurementBottomView.speedChartDownloadUpload.reset()
                             binding.root.measurementBottomView.speedChartDownloadUpload.reset()
                             binding.root.qosProgressContainer.reset()
-                        } else {
-                            binding.root.curve_layout.setLoopEnabled(false)
                         }
                     }
                 }
@@ -138,6 +133,7 @@ class MeasurementActivity : BaseActivity(), SimpleDialog.Callback {
         viewModel.locationProviderStateLiveData.listen(this) {
             viewModel.state.gpsEnabled.set(it == LocationProviderState.ENABLED)
         }
+        Timber.d("Measurement state loop create: ${viewModel.state.measurementState.get()?.name}")
     }
 
     override fun onDialogPositiveClicked(code: Int) {
@@ -155,6 +151,7 @@ class MeasurementActivity : BaseActivity(), SimpleDialog.Callback {
     override fun onStart() {
         super.onStart()
         viewModel.attach(this)
+        Timber.d("Measurement state loop start: ${viewModel.state.measurementState.get()?.name}")
     }
 
     override fun onStop() {
