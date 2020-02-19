@@ -38,17 +38,23 @@ interface TestDao {
     @Delete
     fun deleteTest(test: TestRecord): Int
 
-    @Query("SELECT * from ${Tables.TEST} WHERE uuid == :uuid")
+    @Query("SELECT * FROM ${Tables.TEST} WHERE uuid == :uuid")
     fun get(uuid: String): TestRecord?
 
-    @Query("SELECT * from ${Tables.QOS_RESULT} WHERE uuid == :uuid")
+    @Query("SELECT * FROM ${Tables.QOS_RESULT} WHERE uuid == :uuid")
     fun getQoSRecord(uuid: String): QoSResultRecord?
 
-    @Query("SELECT * from ${Tables.TEST_TELEPHONY_RECORD} WHERE testUUID == :uuid")
+    @Query("SELECT * FROM ${Tables.TEST_TELEPHONY_RECORD} WHERE testUUID == :uuid")
     fun getTelephonyRecord(uuid: String): TestTelephonyRecord?
+
+    @Query("DELETE FROM ${Tables.TEST_TELEPHONY_RECORD} WHERE testUUID=:uuid")
+    fun removeTelephonyInfo(uuid: String)
 
     @Query("SELECT * from ${Tables.TEST_WLAN_RECORD} WHERE testUUID == :uuid")
     fun getWlanRecord(uuid: String): TestWlanRecord?
+
+    @Query("DELETE FROM ${Tables.TEST_WLAN_RECORD} WHERE testUUID=:uuid")
+    fun removeWlanRecord(uuid: String)
 
     @Query("SELECT submissionRetryCount FROM ${Tables.TEST} WHERE uuid == :uuid")
     fun getSubmissionsRetryCount(uuid: String): Int?

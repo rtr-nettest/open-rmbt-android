@@ -141,4 +141,20 @@ class NotificationProviderImpl(private val context: Context) : NotificationProvi
             .setContentTitle(context.getString(R.string.notification_loop_mode_title_active))
             .build()!!
     }
+
+    override fun signalMeasurementService(stopMeasurementIntent: Intent): Notification {
+        val intent = PendingIntent.getActivity(context, 0, Intent(context, HomeActivity::class.java), 0)
+        val actionIntent = PendingIntent.getService(context, 0, stopMeasurementIntent, 0)
+        val action = NotificationCompat.Action.Builder(0, context.getString(R.string.text_cancel_measurement), actionIntent).build()
+
+        return NotificationCompat.Builder(context, measurementChannelId())
+            .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
+            .setPriority(NotificationCompat.PRIORITY_LOW)
+            .setSmallIcon(R.drawable.ic_cloud_upload)
+            .addAction(action)
+            .setContentText(context.getString(R.string.notification_signal_test_text))
+            .setContentIntent(intent)
+            .setContentTitle(context.getString(R.string.notification_signal_test_title))
+            .build()!!
+    }
 }

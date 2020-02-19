@@ -15,4 +15,7 @@ interface SignalDao {
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     fun insert(signal: SignalRecord)
+
+    @Query("DELETE FROM ${Tables.SIGNAL} WHERE testUUID=:testUUID")
+    fun remove(testUUID: String)
 }

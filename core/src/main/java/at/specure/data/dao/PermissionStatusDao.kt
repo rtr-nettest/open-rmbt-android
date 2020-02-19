@@ -15,4 +15,7 @@ interface PermissionStatusDao {
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     fun insert(permissionStatus: PermissionStatusRecord)
+
+    @Query("DELETE FROM ${Tables.PERMISSIONS_STATUS} WHERE testUUID=:testUUID")
+    fun remove(testUUID: String)
 }

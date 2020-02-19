@@ -126,6 +126,10 @@ class MeasurementActivity : BaseActivity(), SimpleDialog.Callback {
         viewModel.locationProviderStateLiveData.listen(this) {
             viewModel.state.gpsEnabled.set(it == LocationProviderState.ENABLED)
         }
+
+        binding.buttonSignal?.setOnClickListener {
+            startActivity(Intent(this, SignalMeasurementActivity::class.java))
+        }
     }
 
     override fun onDialogPositiveClicked(code: Int) {
