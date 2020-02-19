@@ -175,6 +175,7 @@ class SpeedLineChart @JvmOverloads constructor(
 
     fun reset() {
 
+        chartPoints.clear()
         pathStroke.rewind()
         pathFill.rewind()
         startTime = -1
