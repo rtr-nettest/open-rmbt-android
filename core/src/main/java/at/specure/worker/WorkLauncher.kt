@@ -10,11 +10,15 @@ import androidx.work.OneTimeWorkRequest
 import androidx.work.WorkManager
 import at.specure.worker.request.SendDataWorker
 import at.specure.worker.request.SettingsWorker
+import at.specure.worker.request.SignalMeasurementChunkWorker
+import at.specure.worker.request.SignalMeasurementInfoWorker
 import java.util.concurrent.TimeUnit
 
 private const val WAITING_TIME_BETWEEN_REQUEST = 10L
 private const val SETTINGS_REQUEST_WORK_NAME = "SETTINGS_REQUEST_WORK_NAME"
 private const val DELAYED_SUBMISSION_WORK_NAME = "DELAYED_SUBMISSION_WORK_NAME"
+private const val SERVER_MEASUREMENT_INFO = "SERVER_MEASUREMENT_INFO"
+private const val SIGNAL_MEASUREMENT_CHUNK = "SIGNAL_MEASUREMENT_CHUNK"
 
 const val KEY_TEST_UUID = "key_test_uuid"
 
@@ -38,6 +42,28 @@ object WorkLauncher {
             .setBackoffCriteria(BackoffPolicy.EXPONENTIAL, WAITING_TIME_BETWEEN_REQUEST, TimeUnit.SECONDS)
             .build()
         WorkManager.getInstance(context).enqueueUniqueWork(DELAYED_SUBMISSION_WORK_NAME, ExistingWorkPolicy.REPLACE, workRequest)
+    }
+
+    fun enqueueSignalMeasurementInfoRequest(context: Context, measurementId: String) {
+
+        val request = OneTimeWorkRequest.Builder(SignalMeasurementInfoWorker::class.java)
+            .setInputData(SignalMeasurementInfoWorker.getData(measurementId))
+            .setConstraints(getWorkerConstraints())
+            .setBackoffCriteria(BackoffPolicy.EXPONENTIAL, WAITING_TIME_BETWEEN_REQUEST, TimeUnit.SECONDS)
+            .build()
+
+        WorkManager.getInstance(context).enqueueUniqueWork(SERVER_MEASUREMENT_INFO, ExistingWorkPolicy.REPLACE, request)
+    }
+
+    fun enqueueSignalMeasurementChunkRequest(context: Context, chunkId: String) {
+
+        val request = OneTimeWorkRequest.Builder(SignalMeasurementChunkWorker::class.java)
+            .setInputData(SignalMeasurementChunkWorker.getData(chunkId))
+            .setConstraints(getWorkerConstraints())
+            .setBackoffCriteria(BackoffPolicy.EXPONENTIAL, WAITING_TIME_BETWEEN_REQUEST, TimeUnit.SECONDS)
+            .build()
+
+        WorkManager.getInstance(context).enqueueUniqueWork(SIGNAL_MEASUREMENT_CHUNK, ExistingWorkPolicy.REPLACE, request)
     }
 
     private fun getWorkerConstraints() = Constraints.Builder()

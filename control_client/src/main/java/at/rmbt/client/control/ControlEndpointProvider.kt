@@ -84,4 +84,14 @@ interface ControlEndpointProvider {
      * Endpoint to sync two devices
      */
     val syncDevicesUrl: String
+
+    /**
+     * Signal request url to obtain signal measurement data
+     */
+    val signalRequestUrl: String
+
+    /**
+     * Url to send signal measurement data
+     */
+    val signalResultUrl: String
 }

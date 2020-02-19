@@ -31,6 +31,7 @@ import at.specure.location.LocationProviderState.DISABLED_APP
 import at.specure.location.LocationProviderState.DISABLED_DEVICE
 import at.specure.location.LocationProviderState.ENABLED
 import at.specure.measurement.MeasurementService
+import at.specure.util.toast
 
 class HomeFragment : BaseFragment() {
 
@@ -124,6 +125,19 @@ class HomeFragment : BaseFragment() {
             }
         }
 
+        binding.btnUpload.setOnClickListener {
+            homeViewModel.activeSignalMeasurementLiveData.value?.let { active ->
+                if (!active) {
+                    requireContext().toast(R.string.toast_signal_measurement_enabled)
+                }
+            }
+            homeViewModel.toggleService()
+        }
+
+        homeViewModel.activeSignalMeasurementLiveData.listen(this) {
+            homeViewModel.state.isSignalMeasurementActive.set(it)
+        }
+
         binding.btnLoop.setOnTouchListener { v, event ->
             if (event.action == MotionEvent.ACTION_DOWN) {
                 if (!binding.btnLoop.isChecked) {
@@ -159,6 +173,7 @@ class HomeFragment : BaseFragment() {
 
     override fun onStart() {
         super.onStart()
+        homeViewModel.attach(requireContext())
         if (homeViewModel.permissionsWatcher.requiredPermissions.isNotEmpty()) {
             requestPermissions(
                 homeViewModel.permissionsWatcher.requiredPermissions,
@@ -167,6 +182,11 @@ class HomeFragment : BaseFragment() {
         }
         startTimerForInfoWindow()
         homeViewModel.state.checkConfig()
+    }
+
+    override fun onStop() {
+        super.onStop()
+        homeViewModel.detach(requireContext())
     }
 
     /**

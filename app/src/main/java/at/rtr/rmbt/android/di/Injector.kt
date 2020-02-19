@@ -5,8 +5,11 @@ import at.rtr.rmbt.android.ui.dialog.IpInfoDialog
 import at.rtr.rmbt.android.ui.dialog.LocationInfoDialog
 import at.rtr.rmbt.android.ui.dialog.SyncDevicesDialog
 import at.specure.measurement.MeasurementService
+import at.specure.measurement.signal.SignalMeasurementService
 import at.specure.worker.request.SendDataWorker
 import at.specure.worker.request.SettingsWorker
+import at.specure.worker.request.SignalMeasurementChunkWorker
+import at.specure.worker.request.SignalMeasurementInfoWorker
 
 /**
  * Keeps and delegates all calls to [AppComponent]
@@ -29,5 +32,11 @@ object Injector : AppComponent {
 
     override fun inject(dialog: SyncDevicesDialog) = component.inject(dialog)
 
+    override fun inject(service: SignalMeasurementService) = component.inject(service)
+
     override fun inject(dialog: HistoryFiltersDialog) = component.inject(dialog)
+
+    override fun inject(worker: SignalMeasurementInfoWorker) = component.inject(worker)
+
+    override fun inject(worker: SignalMeasurementChunkWorker) = component.inject(worker)
 }

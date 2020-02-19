@@ -5,6 +5,7 @@ import at.rmbt.client.control.CellInfoBody
 import at.rmbt.client.control.CellLocationBody
 import at.rmbt.client.control.ClassificationBody
 import at.rmbt.client.control.IpRequestBody
+import at.rmbt.client.control.NetworkEventBody
 import at.rmbt.client.control.PermissionStatusBody
 import at.rmbt.client.control.PingBody
 import at.rmbt.client.control.QoSBody
@@ -13,6 +14,9 @@ import at.rmbt.client.control.RadioInfoBody
 import at.rmbt.client.control.SettingsRequestBody
 import at.rmbt.client.control.SignalBody
 import at.rmbt.client.control.SignalItemBody
+import at.rmbt.client.control.SignalMeasurementChunkBody
+import at.rmbt.client.control.SignalMeasurementLocationBody
+import at.rmbt.client.control.SignalMeasurementRequestBody
 import at.rmbt.client.control.SpeedBody
 import at.rmbt.client.control.TestLocationBody
 import at.rmbt.client.control.TestResultBody
@@ -20,10 +24,13 @@ import at.specure.config.Config
 import at.specure.data.entity.CapabilitiesRecord
 import at.specure.data.entity.CellInfoRecord
 import at.specure.data.entity.CellLocationRecord
+import at.specure.data.entity.ConnectivityStateRecord
 import at.specure.data.entity.GeoLocationRecord
 import at.specure.data.entity.PermissionStatusRecord
 import at.specure.data.entity.PingRecord
 import at.specure.data.entity.QoSResultRecord
+import at.specure.data.entity.SignalMeasurementChunk
+import at.specure.data.entity.SignalMeasurementRecord
 import at.specure.data.entity.SignalRecord
 import at.specure.data.entity.SpeedRecord
 import at.specure.data.entity.TestRecord
@@ -384,4 +391,156 @@ fun QoSResultRecord.toRequest(clientUUID: String, deviceInfo: DeviceInfo): QoSRe
         testToken = testToken,
         timeMillis = timeMillis
     )
+}
+
+fun SignalMeasurementRecord.toRequest(clientUUID: String, deviceInfo: DeviceInfo) = SignalMeasurementRequestBody(
+    platform = deviceInfo.platform,
+    softwareVersionCode = deviceInfo.softwareVersionCode,
+    softwareRevision = deviceInfo.softwareRevision,
+    softwareVersion = deviceInfo.softwareRevision,
+    time = startTimeMillis,
+    timezone = deviceInfo.timezone,
+    clientUUID = clientUUID,
+    location = location?.toRequest()
+)
+
+fun DeviceInfo.Location.toRequest() = SignalMeasurementLocationBody(
+    lat = lat,
+    long = long,
+    provider = provider,
+    speed = speed,
+    bearing = bearing,
+    time = time,
+    age = age,
+    accuracy = accuracy,
+    mock_location = mock_location,
+    altitude = altitude
+)
+
+fun SignalMeasurementRecord.toRequest(
+    measurementInfoUUID: String?,
+    clientUUID: String,
+    chunk: SignalMeasurementChunk,
+    deviceInfo: DeviceInfo,
+    telephonyInfo: TestTelephonyRecord?,
+    wlanInfo: TestWlanRecord?,
+    locations: List<GeoLocationRecord>,
+    capabilities: CapabilitiesRecord,
+    cellInfoList: List<CellInfoRecord>,
+    signalList: List<SignalRecord>,
+    permissions: List<PermissionStatusRecord>,
+    networkEvents: List<NetworkEventBody>?,
+    cellLocationList: List<CellLocationRecord>
+): SignalMeasurementChunkBody {
+
+    val geoLocations: List<TestLocationBody>? = if (locations.isEmpty()) {
+        null
+    } else {
+        locations.map { it.toRequest() }
+    }
+
+    var radioInfo: RadioInfoBody? = if (cellInfoList.isEmpty() && signalList.isEmpty()) {
+        null
+    } else {
+        val cells: Map<String, CellInfoBody>? = if (cellInfoList.isEmpty()) {
+            null
+        } else {
+            val map = mutableMapOf<String, CellInfoBody>()
+            cellInfoList.forEach {
+                map[it.uuid] = it.toRequest()
+            }
+            if (map.isEmpty()) null else map
+        }
+
+        val signals: List<SignalBody>? = if (signalList.isEmpty()) {
+            null
+        } else {
+            val list = mutableListOf<SignalBody>()
+            if (cells == null) {
+                null
+            } else {
+                signalList.forEach {
+                    val cell = cells[it.cellUuid]
+                    if (cell != null) {
+                        list.add(it.toRequest(cell.uuid))
+                    }
+                }
+                if (list.isEmpty()) null else list
+            }
+        }
+
+        RadioInfoBody(cells?.entries?.map { it.value }, signals)
+    }
+
+    if (radioInfo?.cells.isNullOrEmpty() && radioInfo?.signals.isNullOrEmpty()) {
+        radioInfo = null
+    }
+
+    val permissionStatuses: List<PermissionStatusBody>? = if (permissions.isEmpty()) {
+        null
+    } else {
+        permissions.map { it.toRequest() }
+    }
+
+    val cellLocations: List<CellLocationBody>? = if (cellLocationList.isEmpty()) {
+        null
+    } else {
+        cellLocationList.map { it.toRequest() }
+    }
+
+    return SignalMeasurementChunkBody(
+        uuid = measurementInfoUUID,
+        platform = deviceInfo.platform,
+        clientUUID = clientUUID,
+        clientVersion = deviceInfo.rmbtClientVersion,
+        clientLanguage = deviceInfo.language,
+        product = deviceInfo.product,
+        osVersion = deviceInfo.osVersion,
+        apiLevel = deviceInfo.apiLevel,
+        device = deviceInfo.device,
+        model = deviceInfo.model,
+        timezone = deviceInfo.timezone,
+        clientSoftwareVersion = deviceInfo.clientVersionName,
+        networkType = (transportType?.toRequestIntValue(mobileNetworkType) ?: Int.MAX_VALUE).toString(),
+        geoLocations = geoLocations,
+        capabilities = capabilities.toRequest(),
+        radioInfo = radioInfo,
+        permissionStatuses = permissionStatuses,
+        telephonyNetworkOperator = telephonyInfo?.networkOperator,
+        telephonyNetworkIsRoaming = telephonyInfo?.networkIsRoaming?.toString(),
+        telephonyNetworkCountry = telephonyInfo?.networkCountry,
+        telephonyNetworkOperatorName = telephonyInfo?.networkOperatorName,
+        telephonyNetworkSimOperatorName = telephonyInfo?.networkSimOperatorName,
+        telephonyNetworkSimOperator = telephonyInfo?.networkSimOperator,
+        telephonyPhoneType = telephonyInfo?.phoneType,
+        telephonyDataState = telephonyInfo?.dataState,
+        telephonyAPN = telephonyInfo?.apn,
+        telephonyNetworkSimCountry = telephonyInfo?.networkSimCountry,
+        wifiSupplicantState = wlanInfo?.supplicantState,
+        wifiSupplicantStateDetail = wlanInfo?.supplicantDetailedState,
+        wifiSSID = wlanInfo?.ssid,
+        wifiNetworkId = wlanInfo?.networkId,
+        wifiBSSID = wlanInfo?.bssid,
+        submissionRetryCount = chunk.submissionRetryCount,
+        testStatus = chunk.state.ordinal,
+        testErrorCause = chunk.testErrorCause,
+        sequenceNumber = chunk.sequenceNumber,
+        testStartTimeNanos = chunk.startTimeNanos,
+        networkEvents = networkEvents,
+        cellLocations = cellLocations
+    )
+}
+
+fun List<ConnectivityStateRecord>.toRequest(): List<NetworkEventBody>? {
+    return if (isEmpty()) {
+        null
+    } else {
+        map {
+            NetworkEventBody(
+                eventType = it.state.name,
+                eventMessage = it.message,
+                timeNanos = it.timeNanos
+            )
+        }
+    }
 }

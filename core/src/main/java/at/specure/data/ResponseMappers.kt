@@ -15,6 +15,7 @@ import at.rmbt.client.control.QosTestResultDetailResponse
 import at.rmbt.client.control.ServerTestResultItem
 import at.rmbt.client.control.ServerTestResultResponse
 import at.rmbt.client.control.SignalGraphItemResponse
+import at.rmbt.client.control.SignalMeasurementRequestResponse
 import at.rmbt.client.control.SpeedGraphItemResponse
 import at.rmbt.client.control.TestResultDetailItem
 import at.rmbt.client.control.TestResultDetailResponse
@@ -25,6 +26,7 @@ import at.specure.data.entity.QoeInfoRecord
 import at.specure.data.entity.QosCategoryRecord
 import at.specure.data.entity.QosTestGoalRecord
 import at.specure.data.entity.QosTestItemRecord
+import at.specure.data.entity.SignalMeasurementInfo
 import at.specure.data.entity.TestResultDetailsRecord
 import at.specure.data.entity.TestResultGraphItemRecord
 import at.specure.data.entity.TestResultRecord
@@ -284,3 +286,11 @@ fun MapFilterObjectResponse.toSubtypesMap(types: MutableMap<String, MapFilterTyp
 
     return result
 }
+
+fun SignalMeasurementRequestResponse.toModel(measurementId: String) = SignalMeasurementInfo(
+    measurementId = measurementId,
+    uuid = testUUID,
+    clientRemoteIp = clientRemoteIp,
+    resultUrl = resultUrl,
+    provider = provider
+)

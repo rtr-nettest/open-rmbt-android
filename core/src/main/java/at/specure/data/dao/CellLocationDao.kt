@@ -15,4 +15,7 @@ interface CellLocationDao {
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     fun insert(cellLocation: CellLocationRecord): Long
+
+    @Query("DELETE FROM ${Tables.CELL_LOCATION} WHERE testUUID=:testUUID")
+    fun remove(testUUID: String)
 }

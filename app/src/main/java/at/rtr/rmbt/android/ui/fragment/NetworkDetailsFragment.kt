@@ -1,11 +1,13 @@
 package at.rtr.rmbt.android.ui.fragment
 
 import android.annotation.SuppressLint
+import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import at.rtr.rmbt.android.R
 import at.rtr.rmbt.android.databinding.FragmentNetworkDetailsBinding
 import at.rtr.rmbt.android.di.viewModelLazy
+import at.rtr.rmbt.android.ui.activity.SignalMeasurementActivity
 import at.rtr.rmbt.android.ui.viewstate.NetworkDetailsViewState
 import at.rtr.rmbt.android.util.listen
 import at.rtr.rmbt.android.viewmodel.NetworkDetailsViewModel
@@ -43,6 +45,10 @@ class NetworkDetailsFragment : BaseFragment() {
 
         viewModel.ipV6ChangeLiveData.listen(this) {
             state.setIpInfo(it)
+        }
+
+        binding.buttonSignalMeasurement.setOnClickListener {
+            startActivity(Intent(requireContext(), SignalMeasurementActivity::class.java))
         }
     }
 

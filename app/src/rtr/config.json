@@ -254,6 +254,16 @@
       "name": "TERMS_FOR_ACCEPTANCE_URL",
       "value": "https://www.netztest.at/%s/tc_android.html",
       "visible": true
+    },
+    {
+      "name": "SIGNAL_REQUEST_ROUTE",
+      "value": "/signalRequest",
+      "visible": false
+    },
+    {
+      "name": "SIGNAL_RESULT_ROUTE",
+      "value": "/signalResult",
+      "visible": false
     }
   ]
 }

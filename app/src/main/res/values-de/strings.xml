@@ -225,6 +225,11 @@
     <string name="toast_sync_code_copied_to_clipboard">Kopiert</string>
     <string name="hint_sync_code">Code</string>
     <string name="error_sync_code_short">Der Code muss aus 12 Zeichen bestehen</string>
+
+    <string name="notification_signal_test_title">Signalmessung läuft</string>
+    <string name="notification_signal_test_text">Open-RTMB Signalmessung läuft im Hintergrund</string>
+
+    <string name="toast_signal_measurement_enabled">Signalmessung start</string>
     <string name="error_no_connection">Keine Netzwerksverbindung: Einträge konnten nicht geladen werden.</string>
 
     <string name="label_map_filters">Einstellugen</string>
