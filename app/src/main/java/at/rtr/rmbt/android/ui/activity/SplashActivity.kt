@@ -16,7 +16,6 @@ package at.rtr.rmbt.android.ui.activity
 
 import android.app.Activity
 import android.content.Intent
-import android.os.Bundle
 import android.os.Handler
 import at.rtr.rmbt.android.di.viewModelLazy
 import at.rtr.rmbt.android.util.listen
@@ -29,6 +28,7 @@ class SplashActivity : BaseActivity() {
     private val startHomeRunnable = Runnable {
         viewModel.tacAcceptanceLiveData.listen(this) { accepted ->
             if (!accepted) {
+                termsIsShown = true
                 TermsAcceptanceActivity.start(this, CODE_TERMS)
             } else {
                 finish()
@@ -39,9 +39,13 @@ class SplashActivity : BaseActivity() {
 
     private val delayedStartHandler = Handler()
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        delayedStartHandler.postDelayed(startHomeRunnable, SPLASH_DISPLAY_TIME_MS)
+    private var termsIsShown: Boolean = false
+
+    override fun onStart() {
+        super.onStart()
+        if (!termsIsShown) {
+            delayedStartHandler.postDelayed(startHomeRunnable, SPLASH_DISPLAY_TIME_MS)
+        }
     }
 
     override fun onStop() {
@@ -53,6 +57,7 @@ class SplashActivity : BaseActivity() {
         super.onActivityResult(requestCode, resultCode, data)
 
         if (requestCode == CODE_TERMS) {
+            termsIsShown = false
             if (resultCode == Activity.RESULT_OK) {
                 viewModel.updateTermsAcceptance(true)
             } else {

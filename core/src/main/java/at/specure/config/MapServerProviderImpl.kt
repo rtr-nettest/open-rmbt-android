@@ -12,20 +12,20 @@ class MapServerProviderImpl @Inject constructor(private val config: Config) : Ma
         get() = config.mapServerPort
 
     override val host: String
-        get() = config.mapServerHost
+        get() = "$protocol${config.mapServerHost}:$port"
 
     override val route: String
         get() = config.mapServerRoute
 
     override val getMapMarkersUrl: String
-        get() = "$protocol$host/$route/${config.mapMarkersEndpoint}"
+        get() = "$host/$route/${config.mapMarkersEndpoint}"
 
     override val getMapTilesUrl: String
-        get() = "$protocol$host/$route/${config.mapTilesEndpoint}"
+        get() = "$host/$route/${config.mapTilesEndpoint}"
 
     override val mapMarkerShowDetailsUrl: String
-        get() = "$protocol$host/$route/${config.mapMarkerShowDetailsRoute}"
+        get() = "$host/$route/${config.mapMarkerShowDetailsRoute}"
 
     override val mapFilterInfoUrl: String
-        get() = "$protocol$host/$route/${config.mapFilterInfoEndpoint}"
+        get() = "$host/$route/${config.mapFilterInfoEndpoint}"
 }
