@@ -155,27 +155,29 @@ class TopCurvePart(context: Context) : CurvePart() {
             drawSections(currentCanvas)
             drawText(currentCanvas)
 
-            currentCanvas.drawArc(
-                cX - largeRadius,
-                cY - largeRadius,
-                cX + largeRadius,
-                cY + largeRadius,
-                sectionEndAngle,
-                progressAngle,
-                false,
-                progressOuterPaint
-            )
+            if (phase != MeasurementState.IDLE && phase != MeasurementState.FINISH) {
+                currentCanvas.drawArc(
+                    cX - largeRadius,
+                    cY - largeRadius,
+                    cX + largeRadius,
+                    cY + largeRadius,
+                    sectionEndAngle,
+                    progressAngle,
+                    false,
+                    progressOuterPaint
+                )
 
-            currentCanvas.drawArc(
-                cX - smallRadius,
-                cY - smallRadius,
-                cX + smallRadius,
-                cY + smallRadius,
-                sectionEndAngle,
-                progressAngle,
-                false,
-                progressInnerPaint
-            )
+                currentCanvas.drawArc(
+                    cX - smallRadius,
+                    cY - smallRadius,
+                    cX + smallRadius,
+                    cY + smallRadius,
+                    sectionEndAngle,
+                    progressAngle,
+                    false,
+                    progressInnerPaint
+                )
+            }
         }
     }
 

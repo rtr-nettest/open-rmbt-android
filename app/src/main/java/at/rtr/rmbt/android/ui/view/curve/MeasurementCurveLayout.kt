@@ -7,6 +7,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.widget.FrameLayout
 import at.rtr.rmbt.android.R
+import at.rtr.rmbt.android.databinding.LayoutDashBinding
 import at.rtr.rmbt.android.databinding.LayoutMeasurementCurveBinding
 import at.rtr.rmbt.android.databinding.LayoutPercentageBinding
 import at.rtr.rmbt.android.databinding.LayoutSpeedBinding
@@ -19,6 +20,8 @@ class MeasurementCurveLayout @JvmOverloads constructor(context: Context, attrs: 
 
     private lateinit var speedLayout: LayoutSpeedBinding
     private lateinit var percentageLayout: LayoutPercentageBinding
+    private lateinit var dashUpperLayout: LayoutDashBinding
+    private lateinit var dashBottomLayout: LayoutDashBinding
     private lateinit var curveBinding: LayoutMeasurementCurveBinding
     private var inflater = LayoutInflater.from(context)
 
@@ -93,6 +96,8 @@ class MeasurementCurveLayout @JvmOverloads constructor(context: Context, attrs: 
 
         speedLayout = LayoutSpeedBinding.inflate(inflater)
         percentageLayout = LayoutPercentageBinding.inflate(inflater)
+        dashBottomLayout = LayoutDashBinding.inflate(inflater)
+        dashUpperLayout = LayoutDashBinding.inflate(inflater)
         curveBinding.curveView.setSquareSizeCallback { squareSize, viewSize ->
             curveBinding.layoutStrength.strength.squareSize = squareSize
             (curveBinding.curveView.layoutParams as LayoutParams).apply {
@@ -114,6 +119,14 @@ class MeasurementCurveLayout @JvmOverloads constructor(context: Context, attrs: 
                 requestLayout()
             }
 
+            with(dashBottomLayout.root) {
+                (layoutParams as LayoutParams).apply {
+                    leftMargin = bottomCenterX
+                    topMargin = bottomCenterY + this@with.measuredHeight / TOP_MARGIN_DIVIDER
+                }
+                requestLayout()
+            }
+
             // to prevent overlapping text size should be depent on curve circle size
             percentageLayout.percentage.setTextSize(TypedValue.COMPLEX_UNIT_PX, (viewSize / VALUE_SIZE_DIVIDER).toFloat())
             percentageLayout.units.setTextSize(TypedValue.COMPLEX_UNIT_PX, (viewSize / UNITS_SIZE_DIVIDER).toFloat())
@@ -124,16 +137,18 @@ class MeasurementCurveLayout @JvmOverloads constructor(context: Context, attrs: 
         curveBinding.curveView.setBottomCenterCallback { x, y ->
             bottomCenterX = x
             bottomCenterY = y
-            setBottomProgress(currentBottomProgress, isLoopEnabled && phase == MeasurementState.FINISH)
+            setBottomProgress(currentBottomProgress, isLoopEnabled && (phase == MeasurementState.IDLE || phase == MeasurementState.FINISH))
         }
         curveBinding.curveView.setTopCenterCallback { x, y ->
             topCenterX = x
             topCenterY = y
-            setTopProgress(currentTopProgress, isLoopEnabled && phase == MeasurementState.FINISH)
+            setTopProgress(currentTopProgress, isLoopEnabled && (phase == MeasurementState.IDLE || phase == MeasurementState.FINISH))
         }
 
         addView(speedLayout.root, LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT))
         addView(percentageLayout.root, LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT))
+        addView(dashUpperLayout.root, LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT))
+        addView(dashBottomLayout.root, LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT))
     }
 
     /**
@@ -141,8 +156,21 @@ class MeasurementCurveLayout @JvmOverloads constructor(context: Context, attrs: 
      */
     fun setTopProgress(currentProgress: Int, showIdleState: Boolean) {
         if (showIdleState) {
-            //todo: hide percentage view and show dash view
+            currentTopProgress = 0
+            percentageLayout.root.visibility = View.GONE
+            curveBinding.curveView.setTopProgress(MeasurementState.IDLE, currentTopProgress, isQoSEnabled)
+            dashUpperLayout.root.post {
+                with(dashUpperLayout.root) {
+                    (layoutParams as LayoutParams).apply {
+                        leftMargin = topCenterX - this@with.measuredWidth / (2 * LEFT_MARGIN_DIVIDER)
+                        topMargin = topCenterY + this@with.measuredHeight / TOP_MARGIN_DIVIDER
+                    }
+                }
+                requestLayout()
+                dashUpperLayout.root.visibility = View.VISIBLE
+            }
         } else {
+            dashUpperLayout.root.visibility = View.GONE
             if (topCenterX != 0 && topCenterY != 0) {
                 currentTopProgress = currentProgress
                 val progress = prepareProgressValueByPhase(currentProgress)
@@ -181,8 +209,20 @@ class MeasurementCurveLayout @JvmOverloads constructor(context: Context, attrs: 
      */
     fun setBottomProgress(progress: Long, showIdleState: Boolean) {
         if (showIdleState) {
-
+            speedLayout.root.visibility = View.GONE
+            dashBottomLayout.root.post {
+                with(dashBottomLayout.root) {
+                    (layoutParams as LayoutParams).apply {
+                        leftMargin = topCenterX - this@with.measuredWidth / (2 * LEFT_MARGIN_DIVIDER)
+                        topMargin = topCenterY + this@with.measuredHeight / TOP_MARGIN_DIVIDER
+                    }
+                }
+                requestLayout()
+                dashBottomLayout.root.visibility = View.VISIBLE
+            }
+            curveBinding.curveView.setBottomProgress(MeasurementState.IDLE, 0, isQoSEnabled)
         } else {
+            dashBottomLayout.root.visibility = View.GONE
             if (phase == MeasurementState.DOWNLOAD || phase == MeasurementState.UPLOAD) {
                 currentBottomProgress = progress
                 speedLayout.icon.setImageResource(if (phase == MeasurementState.DOWNLOAD) R.drawable.ic_speed_download else R.drawable.ic_speed_upload)
@@ -228,7 +268,13 @@ class MeasurementCurveLayout @JvmOverloads constructor(context: Context, attrs: 
     }
 
     fun setMeasurementState(state: MeasurementState) {
-        phase = state
+        if (isLoopEnabled && state == MeasurementState.FINISH) {
+            phase = MeasurementState.IDLE
+            setTopProgress(0, true)
+            setBottomProgress(0, true)
+        } else {
+            phase = state
+        }
         curveBinding.curveView.setMeasurementState(state)
     }
 
@@ -238,6 +284,12 @@ class MeasurementCurveLayout @JvmOverloads constructor(context: Context, attrs: 
 
     fun setLoopEnabled(enabled: Boolean) {
         isLoopEnabled = enabled
+        if (isLoopEnabled && phase == MeasurementState.FINISH) {
+            phase = MeasurementState.IDLE
+            setTopProgress(0, true)
+            setBottomProgress(0, true)
+        }
+        curveBinding.curveView.setMeasurementState(phase)
     }
 
     companion object {
