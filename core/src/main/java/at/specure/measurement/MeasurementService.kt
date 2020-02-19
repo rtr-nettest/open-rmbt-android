@@ -150,6 +150,9 @@ class MeasurementService : CustomLifecycleService() {
             if (config.loopModeEnabled && stateRecorder.loopTestCount < config.loopModeNumberOfTests) {
                 scheduleNextLoopTest()
             } else {
+                if (config.loopModeEnabled) {
+                    notificationManager.notify(NOTIFICATION_LOOP_FINISHED_ID, notificationProvider.loopModeFinishedNotification())
+                }
                 stopForeground(true)
                 isLoopModeRunning = false
                 stateRecorder.finish()
@@ -159,7 +162,6 @@ class MeasurementService : CustomLifecycleService() {
 
         override fun onError() {
             resumeSignalMeasurement()
-            hasErrors = true
             if (startNetwork != connectivityManager.activeNetwork) {
                 Timber.e("Network change!")
                 try {
@@ -169,11 +171,12 @@ class MeasurementService : CustomLifecycleService() {
                 }
             }
             stateRecorder.onUnsuccessTest(TestFinishReason.ERROR)
-            clientAggregator.onMeasurementError()
 
             if (config.loopModeEnabled && stateRecorder.loopTestCount < config.loopModeNumberOfTests) {
                 scheduleNextLoopTest()
             } else {
+                hasErrors = true
+                clientAggregator.onMeasurementError()
                 stateRecorder.finish()
                 isLoopModeRunning = false
                 unlock()
@@ -303,8 +306,11 @@ class MeasurementService : CustomLifecycleService() {
         runner.reset()
         stateRecorder.onLoopTestFinished()
         try {
+//            val timeAwait = TimeUnit.MINUTES.toMillis(config.loopModeWaitingTimeMin.toLong())
+            val timeAwait = 15_000L
+
             Handler(Looper.getMainLooper()).post {
-                loopCountdownTimer = object : CountDownTimer(TimeUnit.MINUTES.toMillis(config.loopModeWaitingTimeMin.toLong()), 1000) {
+                loopCountdownTimer = object : CountDownTimer(timeAwait, 1000) {
 
                     override fun onFinish() {
                         Timber.e("CountDownTimer finished")
@@ -589,6 +595,7 @@ class MeasurementService : CustomLifecycleService() {
     companion object {
 
         private const val NOTIFICATION_ID = 1
+        private const val NOTIFICATION_LOOP_FINISHED_ID = 2
 
         private const val ACTION_START_TESTS = "KEY_START_TESTS"
         private const val ACTION_STOP_TESTS = "KEY_STOP_TESTS"

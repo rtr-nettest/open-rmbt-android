@@ -178,8 +178,6 @@ class StateRecorder @Inject constructor(
             testRecord?.lastQoSStatus = TestStatus.WAIT
         }
 
-        _loopModeRecord?.let { it.testsPerformed++ }
-
         if (loopUUID != null) {
             if (_loopModeRecord == null) {
                 _loopModeRecord = LoopModeRecord(loopUUID)
@@ -526,6 +524,7 @@ class StateRecorder @Inject constructor(
             it.lastTestLongitude = null
             it.lastTestLatitude = null
             it.status = LoopModeState.RUNNING
+            it.testsPerformed++
             repository.updateLoopMode(it)
         }
     }

@@ -157,4 +157,15 @@ class NotificationProviderImpl(private val context: Context) : NotificationProvi
             .setContentTitle(context.getString(R.string.notification_signal_test_title))
             .build()!!
     }
+
+    override fun loopModeFinishedNotification(): Notification {
+        val intent = PendingIntent.getActivity(context, 0, Intent(context, HomeActivity::class.java), 0)
+        return NotificationCompat.Builder(context, measurementChannelId())
+            .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
+            .setPriority(NotificationCompat.PRIORITY_LOW)
+            .setSmallIcon(R.drawable.ic_notification)
+            .setContentIntent(intent)
+            .setContentTitle(context.getString(R.string.notification_loop_mode_finished_title))
+            .build()!!
+    }
 }
