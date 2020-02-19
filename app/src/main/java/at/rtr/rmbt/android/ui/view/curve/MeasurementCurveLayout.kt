@@ -28,6 +28,7 @@ class MeasurementCurveLayout @JvmOverloads constructor(context: Context, attrs: 
     private var bottomCenterY = 0
 
     private var isQoSEnabled = false
+    private var isLoopEnabled = false
 
     private var currentTopProgress = 0
     private var currentBottomProgress = 0L
@@ -123,12 +124,12 @@ class MeasurementCurveLayout @JvmOverloads constructor(context: Context, attrs: 
         curveBinding.curveView.setBottomCenterCallback { x, y ->
             bottomCenterX = x
             bottomCenterY = y
-            setBottomProgress(currentBottomProgress)
+            setBottomProgress(currentBottomProgress, isLoopEnabled && phase == MeasurementState.IDLE)
         }
         curveBinding.curveView.setTopCenterCallback { x, y ->
             topCenterX = x
             topCenterY = y
-            setTopProgress(currentTopProgress)
+            setTopProgress(currentTopProgress, isLoopEnabled && phase == MeasurementState.IDLE)
         }
 
         addView(speedLayout.root, LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT))
@@ -138,24 +139,28 @@ class MeasurementCurveLayout @JvmOverloads constructor(context: Context, attrs: 
     /**
      * Update the top part UI according to progress changing
      */
-    fun setTopProgress(currentProgress: Int) {
-        if (topCenterX != 0 && topCenterY != 0) {
-            currentTopProgress = currentProgress
-            val progress = prepareProgressValueByPhase(currentProgress)
-            curveBinding.curveView.setTopProgress(phase, currentProgress, isQoSEnabled)
-            if (progress != 0) {
-                percentageLayout.percentage.text = min(progress, 100).toString()
-                percentageLayout.units.text = context.getString(R.string.measurement_progress_units)
-                percentageLayout.percentage.requestLayout()
-                percentageLayout.root.post {
-                    with(percentageLayout.root) {
-                        (layoutParams as LayoutParams).apply {
-                            leftMargin = topCenterX - percentageLayout.percentage.measuredWidth / (2 * LEFT_MARGIN_DIVIDER)
-                            topMargin = topCenterY + this@with.measuredHeight / TOP_MARGIN_DIVIDER
+    fun setTopProgress(currentProgress: Int, showIdleState: Boolean) {
+        if (showIdleState) {
+            //todo: hide percentage view and show dash view
+        } else {
+            if (topCenterX != 0 && topCenterY != 0) {
+                currentTopProgress = currentProgress
+                val progress = prepareProgressValueByPhase(currentProgress)
+                curveBinding.curveView.setTopProgress(phase, currentProgress, isQoSEnabled)
+                if (progress != 0) {
+                    percentageLayout.percentage.text = min(progress, 100).toString()
+                    percentageLayout.units.text = context.getString(R.string.measurement_progress_units)
+                    percentageLayout.percentage.requestLayout()
+                    percentageLayout.root.post {
+                        with(percentageLayout.root) {
+                            (layoutParams as LayoutParams).apply {
+                                leftMargin = topCenterX - percentageLayout.percentage.measuredWidth / (2 * LEFT_MARGIN_DIVIDER)
+                                topMargin = topCenterY + this@with.measuredHeight / TOP_MARGIN_DIVIDER
+                            }
                         }
+                        requestLayout()
+                        percentageLayout.root.visibility = View.VISIBLE
                     }
-                    requestLayout()
-                    percentageLayout.root.visibility = View.VISIBLE
                 }
             }
         }
@@ -174,15 +179,18 @@ class MeasurementCurveLayout @JvmOverloads constructor(context: Context, attrs: 
     /**
      * Update the bottom part UI according to progress changing
      */
-    fun setBottomProgress(progress: Long) {
-        if (phase == MeasurementState.DOWNLOAD || phase == MeasurementState.UPLOAD) {
-            currentBottomProgress = progress
-            speedLayout.icon.setImageResource(if (phase == MeasurementState.DOWNLOAD) R.drawable.ic_speed_download else R.drawable.ic_speed_upload)
-            curveBinding.curveView.setBottomProgress(phase, (progress * 1e-3).toInt(), isQoSEnabled)
-            val progressInMbps: Float = progress / 1000000.0f
-            speedLayout.value.text = progressInMbps.format()
+    fun setBottomProgress(progress: Long, showIdleState: Boolean) {
+        if (showIdleState) {
 
-            /*when {
+        } else {
+            if (phase == MeasurementState.DOWNLOAD || phase == MeasurementState.UPLOAD) {
+                currentBottomProgress = progress
+                speedLayout.icon.setImageResource(if (phase == MeasurementState.DOWNLOAD) R.drawable.ic_speed_download else R.drawable.ic_speed_upload)
+                curveBinding.curveView.setBottomProgress(phase, (progress * 1e-3).toInt(), isQoSEnabled)
+                val progressInMbps: Float = progress / 1000000.0f
+                speedLayout.value.text = progressInMbps.format()
+
+                /*when {
                 progress >= 1e7 -> speedLayout.value.text = ((progress * 1e-6).roundToInt()).toString()
                 progress >= 1e6 -> speedLayout.value.text = (BigDecimal(progress * 1e-6).setScale(1, RoundingMode.HALF_EVEN)).toPlainString()
                 else -> { // up to 1 mbit
@@ -198,10 +206,11 @@ class MeasurementCurveLayout @JvmOverloads constructor(context: Context, attrs: 
                         (BigDecimal(tmpProgress * divider * 1e-6).setScale(scale + 2, RoundingMode.HALF_EVEN)).stripTrailingZeros().toPlainString()
                 }
             }*/
-            speedLayout.root.visibility = View.VISIBLE
-        } else {
-            currentBottomProgress = 0
-            curveBinding.curveView.setBottomProgress(phase, 0, isQoSEnabled)
+                speedLayout.root.visibility = View.VISIBLE
+            } else {
+                currentBottomProgress = 0
+                curveBinding.curveView.setBottomProgress(phase, 0, isQoSEnabled)
+            }
         }
     }
 
@@ -225,6 +234,10 @@ class MeasurementCurveLayout @JvmOverloads constructor(context: Context, attrs: 
 
     fun setQoSEnabled(enabled: Boolean) {
         isQoSEnabled = enabled
+    }
+
+    fun setLoopEnabled(enabled: Boolean) {
+        isLoopEnabled = enabled
     }
 
     companion object {

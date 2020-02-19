@@ -68,7 +68,12 @@ class QoSProgressContainer @JvmOverloads constructor(context: Context, attrs: At
     }
 
     init {
+        reset()
+    }
+
+    fun reset() {
         orientation = VERTICAL
+        items.clear()
         qosItems.forEach {
             val binding: ItemQosMeasurementBinding = bindWith(R.layout.item_qos_measurement)
             binding.textQosTitle.text = context.getString(it.second)

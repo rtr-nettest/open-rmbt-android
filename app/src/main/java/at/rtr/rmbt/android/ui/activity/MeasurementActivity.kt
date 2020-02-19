@@ -26,8 +26,10 @@ import at.rtr.rmbt.android.di.viewModelLazy
 import at.rtr.rmbt.android.ui.dialog.SimpleDialog
 import at.rtr.rmbt.android.util.listen
 import at.rtr.rmbt.android.viewmodel.MeasurementViewModel
+import at.specure.data.entity.LoopModeState
 import at.specure.location.LocationProviderState
 import at.specure.measurement.MeasurementState
+import kotlinx.android.synthetic.main.activity_measurement.view.curve_layout
 import kotlinx.android.synthetic.main.activity_measurement.view.measurementBottomView
 import kotlinx.android.synthetic.main.measurement_bottom_view.view.loop_measurement_next_test_meters_progress
 import kotlinx.android.synthetic.main.measurement_bottom_view.view.loop_measurement_next_test_minutes_progress
@@ -96,6 +98,7 @@ class MeasurementActivity : BaseActivity(), SimpleDialog.Callback {
 
         viewModel.loopUuidLiveData.listen(this) { loopUUID ->
             if (loopUUID != null) {
+                binding.root.curve_layout.setLoopEnabled(true)
                 viewModel.loopProgressLiveData.observe(this@MeasurementActivity) { loopRecord ->
                     Timber.d(
                         "TestPerformed: ${loopRecord?.testsPerformed} \nloop mode status: ${loopRecord?.status} \nviewModel: ${viewModel.state.measurementState.get()}"
@@ -110,6 +113,15 @@ class MeasurementActivity : BaseActivity(), SimpleDialog.Callback {
                     binding.root.measurementBottomView.loop_measurement_next_test_meters_progress.progress = viewModel.state.loopNextTestPercent.get()
                     loopRecord?.status?.let { status ->
                         viewModel.state.setLoopState(status)
+                        if (status == LoopModeState.IDLE) {
+                            binding.root.curve_layout.setLoopEnabled(true)
+                            viewModel.state.measurementState.set(MeasurementState.IDLE)
+                            binding.root.measurementBottomView.speedChartDownloadUpload.reset()
+                            binding.root.measurementBottomView.speedChartDownloadUpload.reset()
+                            binding.root.qosProgressContainer.reset()
+                        } else {
+                            binding.root.curve_layout.setLoopEnabled(false)
+                        }
                     }
                 }
             }

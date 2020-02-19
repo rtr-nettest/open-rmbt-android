@@ -29,6 +29,8 @@
             app:layout_constraintTop_toTopOf="parent"
             app:measurementPhase="@{state.measurementState}"
             app:percentage="@{state.measurementProgress}"
+            app:idleStateBottom="@{state.isLoopModeActive &amp;&amp; state.loopState == LoopModeState.IDLE}"
+            app:idleStateUp="@{state.isLoopModeActive &amp;&amp; state.loopState == LoopModeState.IDLE}"
             app:qosEnabled="@{state.qosEnabled}"
             app:speed="@{state.measurementState == MeasurementState.UPLOAD ? state.uploadSpeedBps : state.downloadSpeedBps}"
             app:strength="@{state.signalStrengthInfo.value}"

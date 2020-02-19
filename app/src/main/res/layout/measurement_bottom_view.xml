@@ -390,7 +390,7 @@
             app:progress_fill_color="@color/speed_chart_progress_fill_color"
             app:progress_line_color="@color/colorAccent"
             app:reset="@{state.measurementState}"
-            app:visibleOrGone="@{state.measurementState == MeasurementState.IDLE | state.measurementState == MeasurementState.INIT | state.measurementState == MeasurementState.PING | state.measurementState == MeasurementState.DOWNLOAD | state.measurementState == MeasurementState.UPLOAD}"
+            app:visibleOrGone="@{((state.measurementState == MeasurementState.IDLE | state.measurementState == MeasurementState.INIT | state.measurementState == MeasurementState.PING | state.measurementState == MeasurementState.DOWNLOAD | state.measurementState == MeasurementState.UPLOAD) &amp;&amp; ((state.loopState == LoopModeState.RUNNING &amp;&amp; state.isLoopModeActive) || state.isLoopModeActive == false))}"
             app:xlabel_color="@color/text_gray"
             app:xlabel_text_size="@dimen/chart_label_text_size"
             app:ylabel_color="@color/text_gray"

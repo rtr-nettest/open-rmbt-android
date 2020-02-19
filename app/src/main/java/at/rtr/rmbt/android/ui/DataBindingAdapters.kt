@@ -423,14 +423,14 @@ fun SpeedLineChart.reset(measurementState: MeasurementState) {
     }
 }
 
-@BindingAdapter("speed")
-fun MeasurementCurveLayout.setSpeed(speed: Long) {
-    setBottomProgress(speed)
+@BindingAdapter("speed", "idleStateBottom", requireAll = true)
+fun MeasurementCurveLayout.setSpeed(speed: Long, idleStateBottom: Boolean) {
+    setBottomProgress(speed, idleStateBottom)
 }
 
-@BindingAdapter("percentage")
-fun MeasurementCurveLayout.setPercents(percents: Int) {
-    setTopProgress(percents)
+@BindingAdapter("percentage", "idleStateUp", requireAll = true)
+fun MeasurementCurveLayout.setPercents(percentage: Int, idleStateUp: Boolean) {
+    setTopProgress(percentage, idleStateUp)
 }
 
 @BindingAdapter("strength", "strengthMin", "strengthMax", requireAll = true)
