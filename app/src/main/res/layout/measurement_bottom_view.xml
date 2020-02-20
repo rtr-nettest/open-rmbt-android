@@ -199,7 +199,7 @@
             android:layout_height="wrap_content"
             android:visibility="gone"
             app:visibleOrGone="@{state.isLoopModeActive &amp;&amp; state.loopState == LoopModeState.IDLE &amp;&amp; state.measurementState == MeasurementState.FINISH}"
-            app:constraint_referenced_ids="loop_measurement_next_test_label,loop_measurement_next_test_minutes_label,loop_measurement_next_test_minutes_value,loop_measurement_next_test_minutes_progress,loop_measurement_next_test_distance_label,loop_measurement_next_test_meters_progress,loop_measurement_next_test_meters_value,loop_measurement_next_test_or_label,next_test_separator_start,next_test_separator_end,loop_measurement_next_bottom_line" />
+            app:constraint_referenced_ids="loop_measurement_next_test_label,loop_measurement_next_test_minutes_label,loop_measurement_next_test_minutes_value,loop_measurement_next_test_minutes_progress,loop_measurement_next_test_distance_label,loop_measurement_next_test_meters_progress,loop_measurement_next_test_or_label,next_test_separator_start,next_test_separator_end,loop_measurement_next_bottom_line" />
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/loop_measurement_next_test_label"
@@ -306,7 +306,8 @@
             android:paddingTop="@dimen/padding_medium"
             android:paddingBottom="@dimen/padding_medium"
             android:text="@string/loop_mode_meters"
-            android:textColor="@android:color/white"
+            android:textColor="@color/selector_measurement_text"
+            app:enabled="@{state.gpsEnabled}"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/loop_measurement_next_test_minutes_label" />
 
@@ -323,6 +324,7 @@
             app:layout_constraintEnd_toStartOf="@+id/loop_measurement_next_test_meters_progress"
             app:layout_constraintTop_toTopOf="@+id/loop_measurement_next_test_distance_label"
             android:text="@{state.loopNextTestDistanceMeters}"
+            app:visibleOrGone="@{state.loopState == LoopModeState.IDLE &amp;&amp; state.isLoopModeActive &amp;&amp; state.gpsEnabled}"
             tools:text="153" />
 
         <at.rtr.rmbt.android.ui.view.ProgressBar
@@ -333,6 +335,7 @@
             android:layout_marginEnd="@dimen/padding_large"
             app:layout_constraintBottom_toBottomOf="@+id/loop_measurement_next_test_distance_label"
             app:layout_constraintEnd_toEndOf="parent"
+            app:progress_enabled="@{state.gpsEnabled}"
             app:layout_constraintTop_toTopOf="@+id/loop_measurement_next_test_distance_label" />
 
         <androidx.appcompat.widget.AppCompatTextView

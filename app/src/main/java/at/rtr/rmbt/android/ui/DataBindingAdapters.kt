@@ -9,6 +9,7 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.databinding.BindingAdapter
 import at.rmbt.client.control.IpProtocol
 import at.rtr.rmbt.android.R
+import at.rtr.rmbt.android.ui.view.ProgressBar
 import at.rtr.rmbt.android.ui.view.ResultBar
 import at.rtr.rmbt.android.ui.view.SpeedLineChart
 import at.rtr.rmbt.android.ui.view.WaveView
@@ -451,6 +452,11 @@ fun MeasurementCurveLayout.setQosEnabled(enabled: Boolean) {
 @BindingAdapter("loopEnabled")
 fun MeasurementCurveLayout.setLoopEnabled(enabled: Boolean) {
     setLoopEnabled(enabled)
+}
+
+@BindingAdapter("progress_enabled")
+fun ProgressBar.setProgressEnabled(enabled: Boolean) {
+    setProgressEnabled(enabled)
 }
 
 /**

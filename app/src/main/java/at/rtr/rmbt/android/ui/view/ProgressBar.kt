@@ -35,6 +35,8 @@ class ProgressBar @JvmOverloads constructor(
 ) :
     View(context, attrs, defStyleAttr) {
 
+    private var enabledProgress: Boolean = true
+
     var squareSize: Float = 0f
         set(value) {
             field = value * 2f * resources.displayMetrics.density
@@ -54,6 +56,13 @@ class ProgressBar @JvmOverloads constructor(
         setLayerType(LAYER_TYPE_HARDWARE, null)
         setWillNotDraw(false)
         squareSize = 270f / 160
+    }
+
+    private var disabledSquarePaint = Paint().apply {
+        color = ContextCompat.getColor(context, R.color.measurement_scale)
+        style = Paint.Style.FILL_AND_STROKE
+        xfermode = PorterDuffXfermode(PorterDuff.Mode.SRC)
+        isAntiAlias = true
     }
 
     private var emptySquarePaint = Paint().apply {
@@ -107,7 +116,11 @@ class ProgressBar @JvmOverloads constructor(
                 bitmap = this
                 val canvas = Canvas(this)
                 currentCanvas = canvas
-                drawBackground(canvas)
+                if (enabledProgress) {
+                    drawBackground(canvas)
+                } else {
+                    drawDisabledBackground(canvas)
+                }
             }
         }
     }
@@ -129,14 +142,40 @@ class ProgressBar @JvmOverloads constructor(
     }
 
     /**
+     * Draw gray squares for the background
+     */
+    private fun drawDisabledBackground(canvas: Canvas) {
+
+        var y = 0.0f
+        for (i in 0 until verticalCount) {
+            var x = 0.0f
+            for (j in 0 until horizontalCount) {
+                canvas.drawRect(x, y, x + squareSize, y + squareSize, disabledSquarePaint)
+                x += squareSize * SQUARE_MULTIPLIER
+            }
+            y += squareSize * SQUARE_MULTIPLIER
+        }
+    }
+
+    /**
      * Calculate the size of filled graph of part and draw it
      */
     private fun updateProgress(percentage: Int) {
         currentCanvas?.apply {
-            drawColor(Color.TRANSPARENT, PorterDuff.Mode.CLEAR)
-            drawBackground(this)
-            drawRect(0f, 0f, (measuredWidth * percentage / 100).toFloat(), measuredHeight.toFloat(), progressPaint)
+            if (enabledProgress) {
+                drawColor(Color.TRANSPARENT, PorterDuff.Mode.CLEAR)
+                drawBackground(this)
+                drawRect(0f, 0f, (measuredWidth * percentage / 100).toFloat(), measuredHeight.toFloat(), progressPaint)
+            } else {
+                drawDisabledBackground(this)
+            }
         }
+    }
+
+    fun setProgressEnabled(enabled: Boolean) {
+        this.enabledProgress = enabled
+        updateProgress(progress)
+        invalidate()
     }
 
     companion object {
