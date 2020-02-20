@@ -1,8 +1,10 @@
 package at.specure.data.entity
 
 import androidx.room.Entity
+import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
 import at.specure.data.Classification
+import at.specure.data.Columns
 import at.specure.data.NetworkTypeCompat
 import at.specure.data.Tables
 
@@ -10,6 +12,15 @@ import at.specure.data.Tables
 data class History(
     @PrimaryKey
     val testUUID: String,
+    val loopUUID: String?,
+
+    @ForeignKey(
+        entity = HistoryReference::class,
+        parentColumns = [Columns.TEST_UUID_PARENT_COLUMN],
+        childColumns = ["referenceUUID"],
+        onDelete = ForeignKey.CASCADE
+    )
+    val referenceUUID: String,
     val model: String,
     val networkType: NetworkTypeCompat,
     val ping: String,

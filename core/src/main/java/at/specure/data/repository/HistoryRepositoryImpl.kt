@@ -12,6 +12,7 @@ import at.specure.data.ClientUUID
 import at.specure.data.HistoryFilterOptions
 import at.specure.data.dao.HistoryDao
 import at.specure.data.entity.History
+import at.specure.data.entity.HistoryContainer
 import at.specure.data.toCapabilitiesBody
 import at.specure.data.toModelList
 import timber.log.Timber
@@ -34,11 +35,9 @@ class HistoryRepositoryImpl(
 
     override val appliedFiltersLiveData = historyFilterOptions.appliedFiltersLiveData
 
-    override fun getHistorySource(): DataSource.Factory<Int, History> = historyDao.getHistorySource()
+    override fun getHistorySource(): DataSource.Factory<Int, HistoryContainer> = historyDao.getHistorySource()
 
     private fun loadItems(offset: Int, limit: Int): Maybe<Boolean> {
-        settingsRepository.refreshSettings()
-
         val clientUUID = clientUUID.value
         if (clientUUID == null) {
             Timber.w("Unable to update history client uuid is null")
@@ -79,13 +78,13 @@ class HistoryRepositoryImpl(
         private val onLoadingCallback: ((Boolean) -> Unit),
         private val onErrorCallback: ((HandledException) -> Unit)
     ) :
-        PagedList.BoundaryCallback<History>() {
+        PagedList.BoundaryCallback<HistoryContainer>() {
 
         override fun onZeroItemsLoaded() = io {
             loadContent()
         }
 
-        override fun onItemAtEndLoaded(itemAtEnd: History) {
+        override fun onItemAtEndLoaded(itemAtEnd: HistoryContainer) {
             loadContent()
         }
 
@@ -104,6 +103,7 @@ class HistoryRepositoryImpl(
         onLoadingCallback.invoke(true)
         loadItems(0, limit).onFailure(onErrorCallback)
         onLoadingCallback.invoke(false)
+        settingsRepository.refreshSettings()
     }
 
     override fun clearHistory() {

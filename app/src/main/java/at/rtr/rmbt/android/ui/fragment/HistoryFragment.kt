@@ -9,7 +9,7 @@ import at.rtr.rmbt.android.databinding.FragmentHistoryBinding
 import at.rtr.rmbt.android.di.viewModelLazy
 import at.rtr.rmbt.android.ui.activity.ResultsActivity
 import at.rtr.rmbt.android.ui.adapter.FilterLabelAdapter
-import at.rtr.rmbt.android.ui.adapter.HistoryAdapter
+import at.rtr.rmbt.android.ui.adapter.HistoryLoopAdapter
 import at.rtr.rmbt.android.ui.dialog.HistoryFiltersDialog
 import at.rtr.rmbt.android.ui.dialog.SyncDevicesDialog
 import at.rtr.rmbt.android.util.ToolbarTheme
@@ -23,7 +23,7 @@ class HistoryFragment : BaseFragment(), SyncDevicesDialog.Callback, HistoryFilte
 
     private val historyViewModel: HistoryViewModel by viewModelLazy()
     private val binding: FragmentHistoryBinding by bindingLazy()
-    private val adapter: HistoryAdapter by lazy { HistoryAdapter() }
+    private val adapter: HistoryLoopAdapter by lazy { HistoryLoopAdapter() }
     private lateinit var labelAdapter: FilterLabelAdapter
 
     override val layoutResId = R.layout.fragment_history

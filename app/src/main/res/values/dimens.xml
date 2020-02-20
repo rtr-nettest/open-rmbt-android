@@ -66,4 +66,6 @@
     <!-- Loop mode -->
     <dimen name="loop_mode_header_height">48dp</dimen>
     <dimen name="size_label_height">48dp</dimen>
+
+    <dimen name="history_image_size">24dp</dimen>
 </resources>

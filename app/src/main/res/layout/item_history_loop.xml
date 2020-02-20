@@ -13,7 +13,7 @@
 
     </data>
 
-    <androidx.appcompat.widget.LinearLayoutCompat
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
@@ -32,53 +32,40 @@
             tools:src="@drawable/ic_history_3g_4" />
 
         <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/textTime"
             style="@style/RobotoRegularStyle.Small"
-            android:layout_width="0dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="3"
             android:layout_marginStart="@dimen/margin_medium"
-            android:gravity="center_vertical"
             android:textColor="@color/text_dark_gray"
             app:historyTime="@{item.time}"
             app:historyTimezone="@{item.timezone}"
+            app:layout_constraintBottom_toTopOf="@+id/labelLoop"
+            app:layout_constraintStart_toEndOf="@+id/imageSignal"
+            app:layout_constraintTop_toTopOf="parent"
             tools:text="20.11.18, 12:00:45" />
 
         <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/labelLoop"
             style="@style/RobotoRegularStyle.Small"
-            android:layout_width="0dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:drawablePadding="@dimen/padding_very_small"
-            android:text="@{item.speedDownload}"
+            android:layout_marginStart="@dimen/margin_medium"
+            android:drawablePadding="@dimen/padding_small"
+            android:text="@string/title_history_loop_mode"
             android:textColor="@color/text_dark_gray"
-            app:speedDownloadClassification="@{item.speedDownloadClassification}"
-            tools:drawableStart="@drawable/ic_small_download_light_green"
-            tools:text="79" />
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/imageSignal"
+            app:layout_constraintTop_toBottomOf="@+id/textTime" />
 
-        <androidx.appcompat.widget.AppCompatTextView
-            style="@style/RobotoRegularStyle.Small"
-            android:layout_width="0dp"
+        <ImageView
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:drawablePadding="@dimen/padding_very_small"
-            android:text="@{item.speedUpload}"
-            android:textColor="@color/text_dark_gray"
-            app:speedUploadClassification="@{item.speedUploadClassification}"
-            tools:drawableStart="@drawable/ic_small_upload_light_green"
-            tools:text="12" />
+            android:src="@drawable/ic_expand_more"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
-        <androidx.appcompat.widget.AppCompatTextView
-            style="@style/RobotoRegularStyle.Small"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:drawablePadding="@dimen/padding_very_small"
-            android:text="@{item.ping}"
-            android:textColor="@color/text_dark_gray"
-            app:pingClassification="@{item.pingClassification}"
-            tools:drawableStart="@drawable/ic_small_ping_yellow"
-            tools:text="14" />
-
-    </androidx.appcompat.widget.LinearLayoutCompat>
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
 </layout>

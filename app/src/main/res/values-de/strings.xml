@@ -272,5 +272,7 @@
     <string name="loop_continue_to_results">Weiter zum ergebnis</string>
     <string name="loop_run_again">Noch einmal ausführen</string>
     <string name="title_privacy_policy">Datenschutzerklärung</string>
+
+    <string name="title_history_loop_mode">Wiederholungsmodus</string>
 </resources>
 
