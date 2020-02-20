@@ -35,6 +35,12 @@ class ProgressBar @JvmOverloads constructor(
 ) :
     View(context, attrs, defStyleAttr) {
 
+    /**
+     * Defines count of squares in graph
+     */
+    private var verticalCount = 2
+    private var horizontalCount = DEFAULT_HORIZONTAL_SQUARE_COUNT
+
     private var enabledProgress: Boolean = true
 
     var squareSize: Float = 0f
@@ -53,9 +59,12 @@ class ProgressBar @JvmOverloads constructor(
         }
 
     init {
+        val typedArray = context.obtainStyledAttributes(attrs, R.styleable.ProgressBar)
+        horizontalCount = typedArray.getInt(R.styleable.ProgressBar_horizontal_squares_count, DEFAULT_HORIZONTAL_SQUARE_COUNT)
         setLayerType(LAYER_TYPE_HARDWARE, null)
         setWillNotDraw(false)
         squareSize = 270f / 160
+        typedArray.recycle()
     }
 
     private var disabledSquarePaint = Paint().apply {
@@ -78,11 +87,7 @@ class ProgressBar @JvmOverloads constructor(
         xfermode = PorterDuffXfermode(PorterDuff.Mode.SRC_ATOP)
     }
 
-    /**
-     * Defines count of squares in graph
-     */
-    private var verticalCount = 2
-    private var horizontalCount = 16
+
 
     private var currentCanvas: Canvas? = null
     private var bitmap: Bitmap? = null
@@ -180,5 +185,6 @@ class ProgressBar @JvmOverloads constructor(
 
     companion object {
         private const val SQUARE_MULTIPLIER = 1.75f
+        private const val DEFAULT_HORIZONTAL_SQUARE_COUNT = 16
     }
 }

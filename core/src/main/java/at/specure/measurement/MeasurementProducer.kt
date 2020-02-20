@@ -20,6 +20,8 @@ interface MeasurementProducer {
 
     val testUUID: String?
 
+    val loopUUID: String?
+
     fun startTests()
 
     fun stopTests()

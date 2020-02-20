@@ -245,6 +245,7 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/padding_large"
             android:layout_marginEnd="@dimen/padding_large"
+            app:horizontal_squares_count="12"
             app:layout_constraintBottom_toBottomOf="@+id/loop_measurement_next_test_minutes_label"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="@+id/loop_measurement_next_test_minutes_label" />
@@ -323,12 +324,13 @@
 
         <at.rtr.rmbt.android.ui.view.ProgressBar
             android:id="@+id/loop_measurement_next_test_meters_progress"
-            android:layout_width="wrap_content"
+            android:layout_width="100dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/padding_large"
             android:layout_marginEnd="@dimen/padding_large"
             app:layout_constraintBottom_toBottomOf="@+id/loop_measurement_next_test_distance_label"
             app:layout_constraintEnd_toEndOf="parent"
+            app:horizontal_squares_count="12"
             app:progress_enabled="@{state.gpsEnabled}"
             app:layout_constraintTop_toTopOf="@+id/loop_measurement_next_test_distance_label" />
 
