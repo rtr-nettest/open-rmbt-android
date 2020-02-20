@@ -10,6 +10,6 @@
             android:layout_height="4dp"
             android:layout_marginTop="@dimen/padding_extra_large"
             android:layout_marginBottom="@dimen/padding_extra_large"
-            android:background="@color/cardview_dark_background" />
+            android:background="@color/measurement_scale" />
     </FrameLayout>
 </layout>
