@@ -26,7 +26,7 @@
             android:id="@+id/loop_header_group"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            visibleOrGone="@{state.isLoopModeActive()}"
+            visibleOrGone="@{state.isLoopModeActive}"
             app:constraint_referenced_ids="loop_measurement_title,loop_measurement_test_progress_value,progress_loop,loop_header_bottom_line" />
 
         <androidx.appcompat.widget.AppCompatTextView
