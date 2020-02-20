@@ -11,6 +11,7 @@ import androidx.core.app.NotificationCompat
 import at.rtr.rmbt.android.BuildConfig
 import at.rtr.rmbt.android.R
 import at.rtr.rmbt.android.ui.activity.HomeActivity
+import at.rtr.rmbt.android.ui.activity.LoopFinishedActivity
 import at.specure.data.entity.LoopModeRecord
 import at.specure.data.entity.LoopModeState
 import at.specure.di.NotificationProvider
@@ -159,7 +160,7 @@ class NotificationProviderImpl(private val context: Context) : NotificationProvi
     }
 
     override fun loopModeFinishedNotification(): Notification {
-        val intent = PendingIntent.getActivity(context, 0, Intent(context, HomeActivity::class.java), 0)
+        val intent = PendingIntent.getActivity(context, 0, Intent(context, LoopFinishedActivity::class.java), 0)
         return NotificationCompat.Builder(context, measurementChannelId())
             .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
             .setPriority(NotificationCompat.PRIORITY_LOW)
