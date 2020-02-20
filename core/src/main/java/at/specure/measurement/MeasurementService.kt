@@ -595,7 +595,7 @@ class MeasurementService : CustomLifecycleService() {
     companion object {
 
         private const val NOTIFICATION_ID = 1
-        private const val NOTIFICATION_LOOP_FINISHED_ID = 2
+        const val NOTIFICATION_LOOP_FINISHED_ID = 2
 
         private const val ACTION_START_TESTS = "KEY_START_TESTS"
         private const val ACTION_STOP_TESTS = "KEY_STOP_TESTS"
