@@ -29,7 +29,6 @@ import at.rtr.rmbt.android.viewmodel.MeasurementViewModel
 import at.specure.data.entity.LoopModeState
 import at.specure.location.LocationProviderState
 import at.specure.measurement.MeasurementState
-import kotlinx.android.synthetic.main.activity_measurement.view.curve_layout
 import kotlinx.android.synthetic.main.activity_measurement.view.measurementBottomView
 import kotlinx.android.synthetic.main.measurement_bottom_view.view.loop_measurement_next_test_meters_progress
 import kotlinx.android.synthetic.main.measurement_bottom_view.view.loop_measurement_next_test_minutes_progress
@@ -102,6 +101,7 @@ class MeasurementActivity : BaseActivity(), SimpleDialog.Callback {
                     Timber.d(
                         "TestPerformed: ${loopRecord?.testsPerformed} \nloop mode status: ${loopRecord?.status} \nviewModel: ${viewModel.state.measurementState.get()}"
                     )
+                    binding.curveLayout.setLoopState(loopRecord?.status ?: LoopModeState.RUNNING)
                     viewModel.state.setLoopRecord(loopRecord)
                     loopRecord?.testsPerformed?.let { testsPerformed ->
                         viewModel.state.setLoopProgress(

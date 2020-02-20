@@ -61,8 +61,6 @@
                 app:percentage="@{state.measurementProgress}"
                 app:qosEnabled="@{state.qosEnabled}"
                 app:speed="@{state.measurementState == MeasurementState.UPLOAD ? state.uploadSpeedBps : state.downloadSpeedBps}"
-                app:idleStateBottom="@{state.isLoopModeActive &amp;&amp; state.loopState == LoopModeState.IDLE}"
-                app:idleStateUp="@{state.isLoopModeActive &amp;&amp; state.loopState == LoopModeState.IDLE}"
                 app:strength="@{state.signalStrengthInfo.value}"
                 app:strengthMax="@{state.signalStrengthInfo.max}"
                 app:strengthMin="@{state.signalStrengthInfo.min}">

@@ -424,14 +424,14 @@ fun SpeedLineChart.reset(measurementState: MeasurementState) {
     }
 }
 
-@BindingAdapter("speed", "idleStateBottom", requireAll = true)
-fun MeasurementCurveLayout.setSpeed(speed: Long, idleStateBottom: Boolean) {
-    setBottomProgress(speed, idleStateBottom)
+@BindingAdapter("speed")
+fun MeasurementCurveLayout.setSpeed(speed: Long) {
+    setBottomProgress(speed)
 }
 
-@BindingAdapter("percentage", "idleStateUp", requireAll = true)
-fun MeasurementCurveLayout.setPercents(percentage: Int, idleStateUp: Boolean) {
-    setTopProgress(percentage, idleStateUp)
+@BindingAdapter("percentage")
+fun MeasurementCurveLayout.setPercents(percentage: Int) {
+    setTopProgress(percentage)
 }
 
 @BindingAdapter("strength", "strengthMin", "strengthMax", requireAll = true)
@@ -447,11 +447,6 @@ fun MeasurementCurveLayout.setMeasurementPhase(state: MeasurementState) {
 @BindingAdapter("qosEnabled")
 fun MeasurementCurveLayout.setQosEnabled(enabled: Boolean) {
     setQoSEnabled(enabled)
-}
-
-@BindingAdapter("loopEnabled")
-fun MeasurementCurveLayout.setLoopEnabled(enabled: Boolean) {
-    setLoopEnabled(enabled)
 }
 
 @BindingAdapter("progress_enabled")

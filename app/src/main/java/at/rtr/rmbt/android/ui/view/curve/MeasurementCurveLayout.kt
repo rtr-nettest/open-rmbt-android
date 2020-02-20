@@ -12,7 +12,9 @@ import at.rtr.rmbt.android.databinding.LayoutMeasurementCurveBinding
 import at.rtr.rmbt.android.databinding.LayoutPercentageBinding
 import at.rtr.rmbt.android.databinding.LayoutSpeedBinding
 import at.rtr.rmbt.android.util.format
+import at.specure.data.entity.LoopModeState
 import at.specure.measurement.MeasurementState
+import timber.log.Timber
 import kotlin.math.min
 
 class MeasurementCurveLayout @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) :
@@ -31,10 +33,11 @@ class MeasurementCurveLayout @JvmOverloads constructor(context: Context, attrs: 
     private var bottomCenterY = 0
 
     private var isQoSEnabled = false
-    private var isLoopEnabled = false
 
     private var currentTopProgress = 0
     private var currentBottomProgress = 0L
+
+    private var loopState: LoopModeState = LoopModeState.RUNNING
 
     /**
      * Defines the current phase of measurement
@@ -119,14 +122,6 @@ class MeasurementCurveLayout @JvmOverloads constructor(context: Context, attrs: 
                 requestLayout()
             }
 
-            with(dashBottomLayout.root) {
-                (layoutParams as LayoutParams).apply {
-                    leftMargin = bottomCenterX
-                    topMargin = bottomCenterY + this@with.measuredHeight / TOP_MARGIN_DIVIDER
-                }
-                requestLayout()
-            }
-
             // to prevent overlapping text size should be depent on curve circle size
             percentageLayout.percentage.setTextSize(TypedValue.COMPLEX_UNIT_PX, (viewSize / VALUE_SIZE_DIVIDER).toFloat())
             percentageLayout.units.setTextSize(TypedValue.COMPLEX_UNIT_PX, (viewSize / UNITS_SIZE_DIVIDER).toFloat())
@@ -137,57 +132,67 @@ class MeasurementCurveLayout @JvmOverloads constructor(context: Context, attrs: 
         curveBinding.curveView.setBottomCenterCallback { x, y ->
             bottomCenterX = x
             bottomCenterY = y
-            setBottomProgress(currentBottomProgress, isLoopEnabled && (phase == MeasurementState.IDLE || phase == MeasurementState.FINISH))
+
+            with(dashBottomLayout.root) {
+                (layoutParams as LayoutParams).apply {
+                    leftMargin = bottomCenterX
+                    topMargin = bottomCenterY + this@with.measuredHeight / TOP_MARGIN_DIVIDER
+                }
+                requestLayout()
+            }
+
+            setBottomProgress(currentBottomProgress)
         }
         curveBinding.curveView.setTopCenterCallback { x, y ->
             topCenterX = x
             topCenterY = y
-            setTopProgress(currentTopProgress, isLoopEnabled && (phase == MeasurementState.IDLE || phase == MeasurementState.FINISH))
+
+            dashUpperLayout.root.post {
+                with(dashUpperLayout.root) {
+                    (layoutParams as LayoutParams).apply {
+                        leftMargin = topCenterX - dashUpperLayout.root.measuredWidth / (2 * LEFT_MARGIN_DIVIDER)
+                        topMargin = topCenterY + this@with.measuredHeight / TOP_MARGIN_DIVIDER
+                    }
+                }
+                requestLayout()
+            }
+
+            setTopProgress(currentTopProgress)
         }
 
         addView(speedLayout.root, LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT))
         addView(percentageLayout.root, LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT))
         addView(dashUpperLayout.root, LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT))
         addView(dashBottomLayout.root, LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT))
+        updateLoopRelatedData()
+        setTopProgress(currentTopProgress)
+        setBottomProgress(currentBottomProgress)
     }
 
     /**
      * Update the top part UI according to progress changing
      */
-    fun setTopProgress(currentProgress: Int, showIdleState: Boolean) {
-        if (showIdleState) {
-            currentTopProgress = 0
-            percentageLayout.root.visibility = View.GONE
-            curveBinding.curveView.setTopProgress(MeasurementState.IDLE, currentTopProgress, isQoSEnabled)
-            dashUpperLayout.root.post {
-                with(dashUpperLayout.root) {
-                    (layoutParams as LayoutParams).apply {
-                        leftMargin = topCenterX - this@with.measuredWidth / (2 * LEFT_MARGIN_DIVIDER)
-                        topMargin = topCenterY + this@with.measuredHeight / TOP_MARGIN_DIVIDER
-                    }
-                }
-                requestLayout()
-                dashUpperLayout.root.visibility = View.VISIBLE
-            }
-        } else {
-            dashUpperLayout.root.visibility = View.GONE
-            if (topCenterX != 0 && topCenterY != 0) {
-                currentTopProgress = currentProgress
-                val progress = prepareProgressValueByPhase(currentProgress)
-                curveBinding.curveView.setTopProgress(phase, currentProgress, isQoSEnabled)
-                if (progress != 0) {
-                    percentageLayout.percentage.text = min(progress, 100).toString()
-                    percentageLayout.units.text = context.getString(R.string.measurement_progress_units)
-                    percentageLayout.percentage.requestLayout()
-                    percentageLayout.root.post {
-                        with(percentageLayout.root) {
-                            (layoutParams as LayoutParams).apply {
-                                leftMargin = topCenterX - percentageLayout.percentage.measuredWidth / (2 * LEFT_MARGIN_DIVIDER)
-                                topMargin = topCenterY + this@with.measuredHeight / TOP_MARGIN_DIVIDER
-                            }
+    fun setTopProgress(currentProgress: Int) {
+        if (topCenterX != 0 && topCenterY != 0) {
+            currentTopProgress = currentProgress
+            val progress = prepareProgressValueByPhase(currentProgress)
+            Timber.e("$progress")
+            curveBinding.curveView.setTopProgress(phase, currentProgress, isQoSEnabled)
+            if (progress != progressOffsets[phase] && progress != 0) {
+                percentageLayout.percentage.text = min(progress, 100).toString()
+                percentageLayout.units.text = context.getString(R.string.measurement_progress_units)
+                percentageLayout.percentage.requestLayout()
+                percentageLayout.root.post {
+                    with(percentageLayout.root) {
+                        (layoutParams as LayoutParams).apply {
+                            leftMargin = topCenterX - percentageLayout.percentage.measuredWidth / (2 * LEFT_MARGIN_DIVIDER)
+                            topMargin = topCenterY + this@with.measuredHeight / TOP_MARGIN_DIVIDER
                         }
-                        requestLayout()
+                    }
+                    requestLayout()
+                    if (currentProgress != 0) {
                         percentageLayout.root.visibility = View.VISIBLE
+                        updateLoopRelatedData()
                     }
                 }
             }
@@ -207,50 +212,22 @@ class MeasurementCurveLayout @JvmOverloads constructor(context: Context, attrs: 
     /**
      * Update the bottom part UI according to progress changing
      */
-    fun setBottomProgress(progress: Long, showIdleState: Boolean) {
-        if (showIdleState) {
-            speedLayout.root.visibility = View.GONE
-            dashBottomLayout.root.post {
-                with(dashBottomLayout.root) {
-                    (layoutParams as LayoutParams).apply {
-                        leftMargin = topCenterX - this@with.measuredWidth / (2 * LEFT_MARGIN_DIVIDER)
-                        topMargin = topCenterY + this@with.measuredHeight / TOP_MARGIN_DIVIDER
-                    }
-                }
-                requestLayout()
-                dashBottomLayout.root.visibility = View.VISIBLE
-            }
-            curveBinding.curveView.setBottomProgress(MeasurementState.IDLE, 0, isQoSEnabled)
-        } else {
-            dashBottomLayout.root.visibility = View.GONE
-            if (phase == MeasurementState.DOWNLOAD || phase == MeasurementState.UPLOAD) {
-                currentBottomProgress = progress
-                speedLayout.icon.setImageResource(if (phase == MeasurementState.DOWNLOAD) R.drawable.ic_speed_download else R.drawable.ic_speed_upload)
-                curveBinding.curveView.setBottomProgress(phase, (progress * 1e-3).toInt(), isQoSEnabled)
-                val progressInMbps: Float = progress / 1000000.0f
-                speedLayout.value.text = progressInMbps.format()
-
-                /*when {
-                progress >= 1e7 -> speedLayout.value.text = ((progress * 1e-6).roundToInt()).toString()
-                progress >= 1e6 -> speedLayout.value.text = (BigDecimal(progress * 1e-6).setScale(1, RoundingMode.HALF_EVEN)).toPlainString()
-                else -> { // up to 1 mbit
-                    var scale = 1
-                    var divider = 1
-                    var tmpProgress = progress
-                    while (tmpProgress > 100) {
-                        tmpProgress /= 10
-                        divider *= 10
-                        scale++
-                    }
-                    speedLayout.value.text =
-                        (BigDecimal(tmpProgress * divider * 1e-6).setScale(scale + 2, RoundingMode.HALF_EVEN)).stripTrailingZeros().toPlainString()
-                }
-            }*/
+    fun setBottomProgress(progress: Long) {
+        if (phase == MeasurementState.DOWNLOAD || phase == MeasurementState.UPLOAD) {
+            currentBottomProgress = progress
+            speedLayout.icon.setImageResource(if (phase == MeasurementState.DOWNLOAD) R.drawable.ic_speed_download else R.drawable.ic_speed_upload)
+            curveBinding.curveView.setBottomProgress(phase, (progress * 1e-3).toInt(), isQoSEnabled)
+            val progressInMbps: Float = progress / 1000000.0f
+            speedLayout.value.text = progressInMbps.format()
+            speedLayout.units.text = context.getString(R.string.speed_progress_units)
+            if (progress != 0L) {
                 speedLayout.root.visibility = View.VISIBLE
-            } else {
-                currentBottomProgress = 0
-                curveBinding.curveView.setBottomProgress(phase, 0, isQoSEnabled)
+                updateLoopRelatedData()
             }
+        } else {
+            currentBottomProgress = 0
+            speedLayout.units.text = ""
+            curveBinding.curveView.setBottomProgress(phase, 0, isQoSEnabled)
         }
     }
 
@@ -268,13 +245,7 @@ class MeasurementCurveLayout @JvmOverloads constructor(context: Context, attrs: 
     }
 
     fun setMeasurementState(state: MeasurementState) {
-        if (isLoopEnabled && state == MeasurementState.FINISH) {
-            phase = MeasurementState.IDLE
-            setTopProgress(0, true)
-            setBottomProgress(0, true)
-        } else {
-            phase = state
-        }
+        phase = state
         curveBinding.curveView.setMeasurementState(state)
     }
 
@@ -282,14 +253,37 @@ class MeasurementCurveLayout @JvmOverloads constructor(context: Context, attrs: 
         isQoSEnabled = enabled
     }
 
-    fun setLoopEnabled(enabled: Boolean) {
-        isLoopEnabled = enabled
-        if (isLoopEnabled && phase == MeasurementState.FINISH) {
-            phase = MeasurementState.IDLE
-            setTopProgress(0, true)
-            setBottomProgress(0, true)
+    fun setLoopState(loopModeState: LoopModeState) {
+        loopState = loopModeState
+        Timber.d("update loop mode state $loopState")
+        updateLoopRelatedData()
+    }
+
+    private fun clearPercentage() {
+        percentageLayout.percentage.text = ""
+        percentageLayout.units.text = ""
+    }
+
+    private fun clearSpeed() {
+        speedLayout.icon.setImageResource(android.R.color.transparent)
+        speedLayout.value.text = ""
+        speedLayout.units.text = ""
+    }
+
+    private fun updateLoopRelatedData() {
+        if (loopState == LoopModeState.IDLE) {
+            setTopProgress(0)
+            setBottomProgress(0)
+            percentageLayout.root.visibility = View.INVISIBLE
+            speedLayout.root.visibility = View.INVISIBLE
+            dashBottomLayout.root.visibility = View.VISIBLE
+            dashUpperLayout.root.visibility = View.VISIBLE
+        } else {
+            percentageLayout.root.visibility = View.VISIBLE
+            speedLayout.root.visibility = View.VISIBLE
+            dashBottomLayout.root.visibility = View.INVISIBLE
+            dashUpperLayout.root.visibility = View.INVISIBLE
         }
-        curveBinding.curveView.setMeasurementState(phase)
     }
 
     companion object {
