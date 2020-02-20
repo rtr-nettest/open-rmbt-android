@@ -99,4 +99,16 @@ interface ControlServerApi {
      */
     @POST
     fun syncDevices(@Url url: String, @Body body: SyncDevicesBody): Call<DeviceSyncResponse>
+
+    /**
+     * Request to obtain signal measurement required data
+     */
+    @POST
+    fun signalRequest(@Url url: String, @Body body: SignalMeasurementRequestBody): Call<SignalMeasurementRequestResponse>
+
+    /**
+     * Request to obtain signal measurement required data
+     */
+    @POST
+    fun signalResult(@Url url: String, @Body body: SignalMeasurementChunkBody): Call<SignalMeasurementChunkResultResponse>
 }

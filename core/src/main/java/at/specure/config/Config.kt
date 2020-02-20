@@ -285,4 +285,14 @@ interface Config {
      * Allows to use "https://" when enabled otherwise "http://" should be used
      */
     var mapServerUseSSL: Boolean
+
+    /**
+     * End of url to perform signal measurement request
+     */
+    var signalRequestRoute: String
+
+    /**
+     * End of url to send signal measurement results
+     */
+    var signalResultRoute: String
 }

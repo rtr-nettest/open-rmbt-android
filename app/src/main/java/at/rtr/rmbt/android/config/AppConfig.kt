@@ -259,6 +259,14 @@ class AppConfig @Inject constructor(context: Context, private val serverSettings
         get() = getString(BuildConfig.DATA_PRIVACY_AND_TERMS_URL)
         set(value) = setString(BuildConfig.DATA_PRIVACY_AND_TERMS_URL, value)
 
+    override var signalRequestRoute: String
+        get() = getString(BuildConfig.SIGNAL_REQUEST_ROUTE)
+        set(value) = setString(BuildConfig.SIGNAL_REQUEST_ROUTE, value)
+
+    override var signalResultRoute: String
+        get() = getString(BuildConfig.SIGNAL_RESULT_ROUTE)
+        set(value) = setString(BuildConfig.SIGNAL_RESULT_ROUTE, value)
+
     override var termsAcceptanceDefaultUrl: String
         get() = getString(BuildConfig.TERMS_FOR_ACCEPTANCE_URL)
         set(value) = setString(BuildConfig.TERMS_FOR_ACCEPTANCE_URL, value)

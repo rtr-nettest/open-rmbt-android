@@ -87,8 +87,6 @@ class ProgressBar @JvmOverloads constructor(
         xfermode = PorterDuffXfermode(PorterDuff.Mode.SRC_ATOP)
     }
 
-
-
     private var currentCanvas: Canvas? = null
     private var bitmap: Bitmap? = null
 

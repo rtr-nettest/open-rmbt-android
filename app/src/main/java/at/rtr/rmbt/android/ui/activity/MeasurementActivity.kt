@@ -26,8 +26,6 @@ import at.rtr.rmbt.android.di.viewModelLazy
 import at.rtr.rmbt.android.ui.dialog.SimpleDialog
 import at.rtr.rmbt.android.util.listen
 import at.rtr.rmbt.android.viewmodel.MeasurementViewModel
-import at.specure.data.entity.LoopModeRecord
-import at.specure.data.entity.LoopModeState
 import at.specure.location.LocationProviderState
 import at.specure.measurement.MeasurementState
 import kotlinx.android.synthetic.main.activity_measurement.view.measurementBottomView
@@ -99,7 +97,20 @@ class MeasurementActivity : BaseActivity(), SimpleDialog.Callback {
         viewModel.loopUuidLiveData.listen(this) { loopUUID ->
             if (loopUUID != null) {
                 viewModel.loopProgressLiveData.observe(this@MeasurementActivity) { loopRecord ->
-                    onLoopRecordChanged(loopRecord)
+                    Timber.d(
+                        "TestPerformed: ${loopRecord?.testsPerformed} \nloop mode status: ${loopRecord?.status} \nviewModel: ${viewModel.state.measurementState.get()}"
+                    )
+                    viewModel.state.setLoopRecord(loopRecord)
+                    loopRecord?.testsPerformed?.let { testsPerformed ->
+                        viewModel.state.setLoopProgress(
+                            testsPerformed,
+                            viewModel.config.loopModeNumberOfTests
+                        )
+                    }
+                    binding.root.measurementBottomView.loop_measurement_next_test_meters_progress.progress = viewModel.state.loopNextTestPercent.get()
+                    loopRecord?.status?.let { status ->
+                        viewModel.state.setLoopState(status)
+                    }
                 }
             }
         }
@@ -115,32 +126,9 @@ class MeasurementActivity : BaseActivity(), SimpleDialog.Callback {
         viewModel.locationProviderStateLiveData.listen(this) {
             viewModel.state.gpsEnabled.set(it == LocationProviderState.ENABLED)
         }
-        Timber.d("Measurement state loop create: ${viewModel.state.measurementState.get()?.name}")
 
-        viewModel.state.loopModeRecord.get()?.testsPerformed?.let { viewModel.state.setLoopProgress(it, viewModel.config.loopModeNumberOfTests) }
-    }
-
-    private fun onLoopRecordChanged(loopRecord: LoopModeRecord?) {
-        Timber.d(
-            "TestPerformed: ${loopRecord?.testsPerformed} \nloop mode status: ${loopRecord?.status} \nviewModel: ${viewModel.state.measurementState.get()}"
-        )
-        binding.curveLayout.setLoopState(loopRecord?.status ?: LoopModeState.RUNNING)
-        viewModel.state.setLoopRecord(loopRecord)
-        loopRecord?.testsPerformed?.let { testsPerformed ->
-            viewModel.state.setLoopProgress(
-                testsPerformed,
-                viewModel.config.loopModeNumberOfTests
-            )
-        }
-        binding.root.measurementBottomView.loop_measurement_next_test_meters_progress.progress =
-            viewModel.state.loopNextTestPercent.get()
-        loopRecord?.status?.let { status ->
-            viewModel.state.setLoopState(status)
-            if (status == LoopModeState.IDLE) {
-                binding.root.measurementBottomView.speedChartDownloadUpload.reset()
-                binding.root.measurementBottomView.speedChartDownloadUpload.reset()
-                binding.root.qosProgressContainer.reset()
-            }
+        binding.buttonSignal?.setOnClickListener {
+            startActivity(Intent(this, SignalMeasurementActivity::class.java))
         }
     }
 
@@ -159,7 +147,6 @@ class MeasurementActivity : BaseActivity(), SimpleDialog.Callback {
     override fun onStart() {
         super.onStart()
         viewModel.attach(this)
-        Timber.d("Measurement state loop start: ${viewModel.state.measurementState.get()?.name}")
     }
 
     override fun onStop() {

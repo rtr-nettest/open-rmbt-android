@@ -20,6 +20,7 @@ class HomeViewState(private val config: AppConfig) : ViewState {
     val infoWindowStatus = ObservableField(InfoWindowStatus.NONE)
     val ipV4Info = ObservableField<IpInfo?>()
     val ipV6Info = ObservableField<IpInfo?>()
+    val isSignalMeasurementActive = ObservableField<Boolean>()
     val isLoopModeActive = ObservableBoolean(config.loopModeEnabled)
 
     init {

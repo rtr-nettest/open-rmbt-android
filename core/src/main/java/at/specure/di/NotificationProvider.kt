@@ -14,7 +14,10 @@ interface NotificationProvider {
      * [skipQoSTests] is QoS test skipped or not
      * [loopModeRecord] loop mode record
      * [loopModeTestsCount] count of tests that should be performed during the loop measurement
+     * [stopMeasurementIntent] - intent that should be called to stop signal measurement
      */
+    fun signalMeasurementService(stopMeasurementIntent: Intent): Notification
+
     fun measurementServiceNotification(
         progress: Int,
         state: MeasurementState,
@@ -42,4 +45,9 @@ interface NotificationProvider {
         testsCount: Int,
         cancellationIntent: Intent
     ): Notification
+
+    /**
+     * Returns notification to notify that loop mode finished
+     */
+    fun loopModeFinishedNotification(): Notification
 }

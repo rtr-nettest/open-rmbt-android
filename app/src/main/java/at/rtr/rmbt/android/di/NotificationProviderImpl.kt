@@ -11,6 +11,7 @@ import androidx.core.app.NotificationCompat
 import at.rtr.rmbt.android.BuildConfig
 import at.rtr.rmbt.android.R
 import at.rtr.rmbt.android.ui.activity.HomeActivity
+import at.rtr.rmbt.android.ui.activity.LoopFinishedActivity
 import at.specure.data.entity.LoopModeRecord
 import at.specure.data.entity.LoopModeState
 import at.specure.di.NotificationProvider
@@ -139,6 +140,33 @@ class NotificationProviderImpl(private val context: Context) : NotificationProvi
             .setContentText(text)
             .setContentIntent(intent)
             .setContentTitle(context.getString(R.string.notification_loop_mode_title_active))
+            .build()!!
+    }
+
+    override fun signalMeasurementService(stopMeasurementIntent: Intent): Notification {
+        val intent = PendingIntent.getActivity(context, 0, Intent(context, HomeActivity::class.java), 0)
+        val actionIntent = PendingIntent.getService(context, 0, stopMeasurementIntent, 0)
+        val action = NotificationCompat.Action.Builder(0, context.getString(R.string.text_cancel_measurement), actionIntent).build()
+
+        return NotificationCompat.Builder(context, measurementChannelId())
+            .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
+            .setPriority(NotificationCompat.PRIORITY_LOW)
+            .setSmallIcon(R.drawable.ic_cloud_upload)
+            .addAction(action)
+            .setContentText(context.getString(R.string.notification_signal_test_text))
+            .setContentIntent(intent)
+            .setContentTitle(context.getString(R.string.notification_signal_test_title))
+            .build()!!
+    }
+
+    override fun loopModeFinishedNotification(): Notification {
+        val intent = PendingIntent.getActivity(context, 0, Intent(context, LoopFinishedActivity::class.java), 0)
+        return NotificationCompat.Builder(context, measurementChannelId())
+            .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
+            .setPriority(NotificationCompat.PRIORITY_LOW)
+            .setSmallIcon(R.drawable.ic_notification)
+            .setContentIntent(intent)
+            .setContentTitle(context.getString(R.string.notification_loop_mode_finished_title))
             .build()!!
     }
 }

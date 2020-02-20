@@ -21,6 +21,8 @@ import android.net.NetworkCapabilities
 import android.net.NetworkInfo
 import android.net.NetworkRequest
 import android.os.Build
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import at.specure.info.NetworkCapability
 import at.specure.info.TransportType
 import at.specure.util.id
@@ -34,6 +36,7 @@ import java.util.Collections
 class ConnectivityWatcherImpl(private val connectivityManager: ConnectivityManager) : ConnectivityWatcher {
 
     private val listeners = Collections.synchronizedSet(mutableSetOf<ConnectivityWatcher.ConnectivityChangeListener>())
+    private val _connectivityStateLiveData = MutableLiveData<ConnectivityStateBundle>()
 
     private var availableNetworkId: Int? = null
     private var _activeNetwork: ConnectivityInfo? = null
@@ -41,10 +44,14 @@ class ConnectivityWatcherImpl(private val connectivityManager: ConnectivityManag
     override val activeNetwork: ConnectivityInfo?
         get() = _activeNetwork
 
+    override val connectivityStateLiveData: LiveData<ConnectivityStateBundle>
+        get() = _connectivityStateLiveData
+
     private val callback = object : ConnectivityManager.NetworkCallback() {
 
         override fun onCapabilitiesChanged(network: Network?, networkCapabilities: NetworkCapabilities?) {
             Timber.d("onCapabilitiesChanged ${network?.id()}")
+            postConnectivityState(ConnectivityState.ON_CAPABILITIES_CHANGED, network)
             if (network != null && network.id() == availableNetworkId && networkCapabilities != null) {
                 _activeNetwork = ConnectivityInfo(
                     netId = network.id(),
@@ -59,6 +66,7 @@ class ConnectivityWatcherImpl(private val connectivityManager: ConnectivityManag
 
         override fun onLost(network: Network?) {
             Timber.d("onLost ${network?.id()}")
+            postConnectivityState(ConnectivityState.ON_LOST, network)
             if (availableNetworkId == network?.id()) {
                 availableNetworkId = null
                 _activeNetwork = null
@@ -67,11 +75,13 @@ class ConnectivityWatcherImpl(private val connectivityManager: ConnectivityManag
         }
 
         override fun onLinkPropertiesChanged(network: Network?, linkProperties: LinkProperties?) {
+            postConnectivityState(ConnectivityState.ON_LINK_PROPERTIES_CHANGED, network)
             linkProperties?.linkAddresses
             Timber.d("onLinkPropertiesChanged ${network?.id()}")
         }
 
         override fun onUnavailable() {
+            postConnectivityState(ConnectivityState.ON_UNAVAILABLE, null)
             Timber.d("onUnavailable")
             availableNetworkId = null
             _activeNetwork = null
@@ -79,11 +89,13 @@ class ConnectivityWatcherImpl(private val connectivityManager: ConnectivityManag
         }
 
         override fun onLosing(network: Network?, maxMsToLive: Int) {
+            postConnectivityState(ConnectivityState.ON_LOSING, network)
             Timber.d("onLosing ${network?.id()}")
         }
 
         @Suppress("DEPRECATION")
         override fun onAvailable(network: Network?) {
+            postConnectivityState(ConnectivityState.ON_AVAILABLE, network)
             availableNetworkId = network?.id()
 
             // on android versions prior to 8 onCapabilityChanged callback does not called after registering a listener
@@ -105,6 +117,10 @@ class ConnectivityWatcherImpl(private val connectivityManager: ConnectivityManag
             }
             Timber.d("onAvailable ${network?.id()}")
         }
+    }
+
+    private fun postConnectivityState(state: ConnectivityState, network: Network?) {
+        _connectivityStateLiveData.postValue(ConnectivityStateBundle(state, System.nanoTime(), network?.id().toString()))
     }
 
     override fun addListener(listener: ConnectivityWatcher.ConnectivityChangeListener) {

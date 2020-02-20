@@ -217,18 +217,22 @@ fun ImageView.setIPAddressIcon(ipInfo: IpInfo?) {
         val res = when (it.ipStatus) {
             IpStatus.NO_INFO -> {
                 isClickable = false
+                alpha = 0.25f
                 if (isIPV4) R.drawable.ic_ipv4_gray else R.drawable.ic_ipv6_gray
             }
             IpStatus.NO_ADDRESS -> {
                 isClickable = true
+                alpha = 1f
                 if (isIPV4) R.drawable.ic_ipv4_red else R.drawable.ic_ipv6_red
             }
             IpStatus.NO_NAT -> {
                 isClickable = true
+                alpha = 1f
                 if (isIPV4) R.drawable.ic_ipv4_green else R.drawable.ic_ipv6_green
             }
             else -> {
                 isClickable = true
+                alpha = 1f
                 if (isIPV4) R.drawable.ic_ipv4_yellow else R.drawable.ic_ipv6_yellow
             }
         }

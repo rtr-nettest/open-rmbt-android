@@ -241,6 +241,13 @@
     <string name="toast_sync_code_copied_to_clipboard">Copied</string>
     <string name="hint_sync_code">Code</string>
     <string name="error_sync_code_short">The code length must be 12</string>
+
+    <string name="notification_signal_test_title">Signal measurement is running</string>
+    <string name="notification_signal_test_text">Open-RTMB Signal measurement is running in the background</string>
+
+    <string name="notification_loop_mode_finished_title">Loop mode finished</string>
+
+    <string name="toast_signal_measurement_enabled">Signal measurement started</string>
     <string name="error_no_connection">No Internet connection. Could not load data.</string>
 
     <string name="label_map_filters">Map filters</string>

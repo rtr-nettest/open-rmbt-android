@@ -15,4 +15,7 @@ interface CapabilitiesDao {
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     fun insert(capabilities: CapabilitiesRecord)
+
+    @Query("DELETE FROM ${Tables.CAPABILITIES} WHERE testUUID=:testUUID")
+    fun remove(testUUID: String)
 }

@@ -60,4 +60,10 @@ class ControlServerProviderImpl(private val config: Config) : ControlEndpointPro
 
     override val syncDevicesUrl: String
         get() = "$host$routePath/${config.syncDevicesRoute}"
+
+    override val signalRequestUrl: String
+        get() = "$host/${config.signalRequestRoute}"
+
+    override val signalResultUrl: String
+        get() = "$host/${config.signalResultRoute}"
 }

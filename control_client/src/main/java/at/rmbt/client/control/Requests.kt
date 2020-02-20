@@ -16,6 +16,7 @@ package at.rmbt.client.control
 
 import androidx.annotation.Keep
 import com.google.gson.JsonArray
+import com.google.gson.annotations.Expose
 import com.google.gson.annotations.SerializedName
 
 // TODO Remove mocked values
@@ -887,4 +888,167 @@ data class SyncDevicesBody(
 
     @SerializedName("sync_code")
     val syncCode: String
+)
+
+@Keep
+data class SignalMeasurementRequestBody(
+
+    @SerializedName("plattform")
+    val platform: String,
+    val softwareVersionCode: Int,
+    val softwareRevision: String,
+    val softwareVersion: String,
+    val time: Long,
+    val timezone: String,
+
+    @SerializedName("uuid")
+    val clientUUID: String,
+    val location: SignalMeasurementLocationBody?
+)
+
+@Keep
+data class SignalMeasurementLocationBody(
+    val lat: Double,
+    val long: Double,
+    val provider: String,
+    val speed: Float,
+    val bearing: Float,
+    val time: Long,
+    val age: Long?,
+    val accuracy: Float,
+    val mock_location: Boolean,
+    @Expose
+    val altitude: Double
+)
+
+@Keep
+data class SignalMeasurementChunkBody(
+
+    @SerializedName("test_uuid")
+    val uuid: String?,
+
+    @SerializedName("sequence_number")
+    val sequenceNumber: Int,
+
+    /**
+     * Current time_ns of the client at the time of this submission. In case of resubmission, this time changes.
+     * This property is only mandatory on sequence_number:0 time_ns:0 is defined as the moment that signal measurement is initiated,
+     * either by the user or by network change.
+     */
+    @SerializedName("time_ns")
+    val testStartTimeNanos: Long,
+
+    @SerializedName("client_uuid")
+    val clientUUID: String,
+
+    @SerializedName("client_version")
+    val clientVersion: String,
+
+    @SerializedName("client_language")
+    val clientLanguage: String,
+
+    @SerializedName("timezone")
+    val timezone: String,
+
+    @SerializedName("platform")
+    val platform: String,
+
+    @SerializedName("product")
+    val product: String,
+
+    @SerializedName("api_level")
+    val apiLevel: String,
+
+    @SerializedName("os_version")
+    val osVersion: String,
+
+    @SerializedName("model")
+    val model: String,
+
+    @SerializedName("device")
+    val device: String,
+
+    @SerializedName("client_software_version")
+    val clientSoftwareVersion: String,
+
+    @SerializedName("network_type")
+    val networkType: String,
+
+    @SerializedName("wifi_supplicant_state")
+    val wifiSupplicantState: String?,
+
+    @SerializedName("wifi_supplicant_state_detail")
+    val wifiSupplicantStateDetail: String?,
+
+    @SerializedName("wifi_ssid")
+    val wifiSSID: String?,
+
+    @SerializedName("wifi_network_id")
+    val wifiNetworkId: String?,
+
+    @SerializedName("wifi_bssid")
+    val wifiBSSID: String?,
+
+    @SerializedName("telephony_network_operator")
+    val telephonyNetworkOperator: String?,
+
+    @SerializedName("telephony_network_is_roaming")
+    val telephonyNetworkIsRoaming: String?,
+
+    @SerializedName("telephony_network_country")
+    val telephonyNetworkCountry: String?,
+
+    @SerializedName("telephony_network_operator_name")
+    val telephonyNetworkOperatorName: String?,
+
+    @SerializedName("telephony_network_sim_operator_name")
+    val telephonyNetworkSimOperatorName: String?,
+
+    @SerializedName("telephony_network_sim_operator")
+    val telephonyNetworkSimOperator: String?,
+
+    @SerializedName("telephony_phone_type")
+    val telephonyPhoneType: String?,
+
+    @SerializedName("telephony_data_state")
+    val telephonyDataState: String?,
+
+    @SerializedName("telephony_apn")
+    val telephonyAPN: String?,
+
+    @SerializedName("telephony_network_sim_country")
+    val telephonyNetworkSimCountry: String?,
+
+    @SerializedName("submission_retry_count")
+    val submissionRetryCount: Int,
+
+    @SerializedName("test_status")
+    val testStatus: Int,
+
+    @SerializedName("test_error_cause")
+    val testErrorCause: String?,
+    val geoLocations: List<TestLocationBody>?,
+    val capabilities: CapabilitiesBody,
+
+    val networkEvents: List<NetworkEventBody>?,
+
+    val radioInfo: RadioInfoBody?,
+
+    @SerializedName("android_permission_status")
+    val permissionStatuses: List<PermissionStatusBody>?,
+
+    val cellLocations: List<CellLocationBody>?
+)
+
+@Keep
+data class NetworkEventBody(
+
+    @SerializedName("event_type")
+    val eventType: String,
+
+    @SerializedName("event_message")
+    val eventMessage: String?,
+
+    @SerializedName("time_ns")
+    val timeNanos: Long
 )

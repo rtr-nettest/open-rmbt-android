@@ -1,8 +1,10 @@
 package at.specure.measurement
 
 import android.app.NotificationManager
+import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
+import android.content.ServiceConnection
 import android.net.ConnectivityManager
 import android.net.Network
 import android.net.wifi.WifiManager
@@ -26,16 +28,20 @@ import at.specure.di.CoreInjector
 import at.specure.di.NotificationProvider
 import at.specure.location.LocationProviderState
 import at.specure.location.LocationProviderStateLiveData
+import at.specure.measurement.signal.SignalMeasurementProducer
+import at.specure.measurement.signal.SignalMeasurementService
 import at.specure.test.DeviceInfo
 import at.specure.test.StateRecorder
 import at.specure.test.TestController
 import at.specure.test.TestProgressListener
+import at.specure.test.toDeviceInfoLocation
+import at.specure.util.CustomLifecycleService
 import at.specure.worker.WorkLauncher
 import timber.log.Timber
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
-class MeasurementService : LifecycleService() {
+class MeasurementService : CustomLifecycleService() {
 
     @Inject
     lateinit var config: Config
@@ -63,26 +69,42 @@ class MeasurementService : LifecycleService() {
 
     private val producer: Producer by lazy { Producer() }
     private val clientAggregator: ClientAggregator by lazy { ClientAggregator() }
-
+    private var signalMeasurementProducer: SignalMeasurementProducer? = null
+    private var signalMeasurementPauseRequired = false
     private var measurementState: MeasurementState = MeasurementState.IDLE
+
     private var measurementProgress = 0
     private var pingNanos = 0L
     private var downloadSpeedBps = 0L
     private var uploadSpeedBps = 0L
     private var hasErrors = false
     private var startNetwork: Network? = null
-
     private var qosTasksPassed = 0
+
     private var qosTasksTotal = 0
     private var qosProgressMap: Map<QoSTestResultEnum, Int> = mapOf()
     private var isLoopModeRunning = false
-
     private val notificationManager: NotificationManager by lazy { getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager }
 
     private lateinit var wakeLock: PowerManager.WakeLock
-    private lateinit var wifiLock: WifiManager.WifiLock
 
+    private lateinit var wifiLock: WifiManager.WifiLock
     private var loopCountdownTimer: CountDownTimer? = null
+
+    private val signalMeasurementConnection = object : ServiceConnection {
+
+        override fun onServiceDisconnected(name: ComponentName?) {
+            signalMeasurementProducer = null
+        }
+
+        override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
+            signalMeasurementProducer = service as SignalMeasurementProducer
+            if (signalMeasurementPauseRequired) {
+                signalMeasurementProducer?.pauseMeasurement()
+                signalMeasurementPauseRequired = false
+            }
+        }
+    }
 
     private val testListener = object : TestProgressListener {
 
@@ -124,9 +146,13 @@ class MeasurementService : LifecycleService() {
         }
 
         override fun onFinish() {
+            resumeSignalMeasurement()
             if (config.loopModeEnabled && stateRecorder.loopTestCount < config.loopModeNumberOfTests) {
                 scheduleNextLoopTest()
             } else {
+                if (config.loopModeEnabled) {
+                    notificationManager.notify(NOTIFICATION_LOOP_FINISHED_ID, notificationProvider.loopModeFinishedNotification())
+                }
                 stopForeground(true)
                 isLoopModeRunning = false
                 stateRecorder.finish()
@@ -135,7 +161,7 @@ class MeasurementService : LifecycleService() {
         }
 
         override fun onError() {
-            hasErrors = true
+            resumeSignalMeasurement()
             if (startNetwork != connectivityManager.activeNetwork) {
                 Timber.e("Network change!")
                 try {
@@ -145,11 +171,12 @@ class MeasurementService : LifecycleService() {
                 }
             }
             stateRecorder.onUnsuccessTest(TestFinishReason.ERROR)
-            clientAggregator.onMeasurementError()
 
             if (config.loopModeEnabled && stateRecorder.loopTestCount < config.loopModeNumberOfTests) {
                 scheduleNextLoopTest()
             } else {
+                hasErrors = true
+                clientAggregator.onMeasurementError()
                 stateRecorder.finish()
                 isLoopModeRunning = false
                 unlock()
@@ -203,6 +230,16 @@ class MeasurementService : LifecycleService() {
         }
     }
 
+    private fun resumeSignalMeasurement() {
+        signalMeasurementPauseRequired = false
+        signalMeasurementProducer?.resumeMeasurement()
+    }
+
+    private fun pauseSignalMeasurement() {
+        signalMeasurementPauseRequired = true // in case when service connection wasn't established before test started
+        signalMeasurementProducer?.pauseMeasurement()
+    }
+
     override fun onCreate() {
         super.onCreate()
         CoreInjector.inject(this)
@@ -220,6 +257,8 @@ class MeasurementService : LifecycleService() {
             runner.reset()
             runTest()
         }
+
+        bindService(SignalMeasurementService.intent(this), signalMeasurementConnection, Context.BIND_AUTO_CREATE)
     }
 
     @Suppress("UNNECESSARY_SAFE_CALL")
@@ -245,6 +284,13 @@ class MeasurementService : LifecycleService() {
         return super.onUnbind(intent)
     }
 
+    override fun onDestroy() {
+        resumeSignalMeasurement()
+        signalMeasurementConnection.onServiceDisconnected(null)
+        unbindService(signalMeasurementConnection)
+        super.onDestroy()
+    }
+
     private fun startTests() {
         Timber.d("Start tests")
         stateRecorder.resetLoopMode()
@@ -260,8 +306,11 @@ class MeasurementService : LifecycleService() {
         runner.reset()
         stateRecorder.onLoopTestFinished()
         try {
+//            val timeAwait = TimeUnit.MINUTES.toMillis(config.loopModeWaitingTimeMin.toLong())
+            val timeAwait = 15_000L
+
             Handler(Looper.getMainLooper()).post {
-                loopCountdownTimer = object : CountDownTimer(TimeUnit.MINUTES.toMillis(config.loopModeWaitingTimeMin.toLong()), 1000) {
+                loopCountdownTimer = object : CountDownTimer(timeAwait, 1000) {
 
                     override fun onFinish() {
                         Timber.e("CountDownTimer finished")
@@ -299,22 +348,13 @@ class MeasurementService : LifecycleService() {
             resetStates()
         }
 
+        pauseSignalMeasurement()
+
         var location: DeviceInfo.Location? = null
 
         if (locationStateLiveData.value == LocationProviderState.ENABLED) {
             stateRecorder.locationInfo?.let {
-                location = DeviceInfo.Location(
-                    lat = it.latitude,
-                    long = it.longitude,
-                    provider = it.provider,
-                    speed = it.speed,
-                    bearing = it.bearing,
-                    time = it.elapsedRealtimeNanos,
-                    age = it.ageNanos,
-                    accuracy = it.accuracy,
-                    mock_location = it.locationIsMocked,
-                    altitude = it.altitude
-                )
+                location = it.toDeviceInfoLocation()
             }
         }
 
@@ -558,6 +598,7 @@ class MeasurementService : LifecycleService() {
     companion object {
 
         private const val NOTIFICATION_ID = 1
+        const val NOTIFICATION_LOOP_FINISHED_ID = 2
 
         private const val ACTION_START_TESTS = "KEY_START_TESTS"
         private const val ACTION_STOP_TESTS = "KEY_STOP_TESTS"

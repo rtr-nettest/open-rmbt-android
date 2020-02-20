@@ -225,6 +225,13 @@
     <string name="toast_sync_code_copied_to_clipboard">Kopiert</string>
     <string name="hint_sync_code">Code</string>
     <string name="error_sync_code_short">Der Code muss aus 12 Zeichen bestehen</string>
+
+    <string name="notification_signal_test_title">Signalmessung läuft</string>
+    <string name="notification_signal_test_text">Open-RTMB Signalmessung läuft im Hintergrund</string>
+
+    <string name="notification_loop_mode_finished_title">Der Wiederholungsmodus ist beendet</string>
+
+    <string name="toast_signal_measurement_enabled">Signalmessung start</string>
     <string name="error_no_connection">Keine Netzwerksverbindung: Einträge konnten nicht geladen werden.</string>
 
     <string name="label_map_filters">Einstellugen</string>
@@ -237,7 +244,6 @@
     <string name="about_email_subject">Supportanfrage</string>
 
     <string name="graph_signal_value">-%1$s dBm</string>
-
     <string name="notification_loop_mode_title_active">Der Wiederholungsmodus ist aktiv</string>
     <string name="notification_loop_mode_title_running">Der Wiederholungsmodus ist läuft (%1$d/%2$d)</string>
 

@@ -1,4 +1,4 @@
-package at.specure.measurement
+package at.specure.util
 
 import android.app.Service
 import android.content.Intent
@@ -14,7 +14,7 @@ import androidx.lifecycle.ServiceLifecycleDispatcher
  * Latest check - not fixed in androidx.lifecycle:lifecycle-service:2.2.0-rc3
  */
 
-open class LifecycleService : Service(), LifecycleOwner {
+open class CustomLifecycleService : Service(), LifecycleOwner {
 
     private val mDispatcher = ServiceLifecycleDispatcher(this)
 
