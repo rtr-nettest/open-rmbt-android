@@ -306,8 +306,8 @@ class MeasurementService : CustomLifecycleService() {
         runner.reset()
         stateRecorder.onLoopTestFinished()
         try {
-//            val timeAwait = TimeUnit.MINUTES.toMillis(config.loopModeWaitingTimeMin.toLong())
-            val timeAwait = 5_000L // TODO uncomment this
+            val timeAwait = TimeUnit.MINUTES.toMillis(config.loopModeWaitingTimeMin.toLong())
+//            val timeAwait = 15_000L
 
             Handler(Looper.getMainLooper()).post {
                 loopCountdownTimer = object : CountDownTimer(timeAwait, 1000) {
@@ -595,7 +595,7 @@ class MeasurementService : CustomLifecycleService() {
     companion object {
 
         private const val NOTIFICATION_ID = 1
-        private const val NOTIFICATION_LOOP_FINISHED_ID = 2
+        const val NOTIFICATION_LOOP_FINISHED_ID = 2
 
         private const val ACTION_START_TESTS = "KEY_START_TESTS"
         private const val ACTION_STOP_TESTS = "KEY_STOP_TESTS"
