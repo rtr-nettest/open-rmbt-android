@@ -270,7 +270,7 @@ fun AppCompatTextView.setPing(pingMs: Long) {
                 }
             }, 0, 0, 0
         )
-        text = context.getString(R.string.measurement_ping_value, pingMs.format())
+        text = context.getString(R.string.measurement_ping_value, ((pingMs * 1000000) / 1000000.0f).format())
         setTextColor(context.getColor(android.R.color.white))
     } else {
         setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_small_ping_gray, 0, 0, 0)
