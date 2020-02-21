@@ -306,8 +306,8 @@ class MeasurementService : CustomLifecycleService() {
         runner.reset()
         stateRecorder.onLoopTestFinished()
         try {
-//            val timeAwait = TimeUnit.MINUTES.toMillis(config.loopModeWaitingTimeMin.toLong())
-            val timeAwait = 15_000L
+            val timeAwait = TimeUnit.MINUTES.toMillis(config.loopModeWaitingTimeMin.toLong())
+//            val timeAwait = 15_000L
 
             Handler(Looper.getMainLooper()).post {
                 loopCountdownTimer = object : CountDownTimer(timeAwait, 1000) {
