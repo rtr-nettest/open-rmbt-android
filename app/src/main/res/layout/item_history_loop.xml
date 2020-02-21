@@ -21,13 +21,14 @@
 
         <ImageView
             android:id="@+id/imageSignal"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="@dimen/history_image_size"
+            android:layout_height="@dimen/history_image_size"
             android:contentDescription="@null"
+            android:scaleType="center"
             app:historySignalStrength="@{item.signalClassification ?? Classification.NONE}"
-            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintBottom_toBottomOf="@+id/labelLoop"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/textTime"
             app:networkType="@{item.networkType}"
             tools:src="@drawable/ic_history_3g_4" />
 
@@ -53,18 +54,30 @@
             android:layout_marginStart="@dimen/margin_medium"
             android:drawablePadding="@dimen/padding_small"
             android:text="@string/title_history_loop_mode"
-            android:textColor="@color/text_dark_gray"
-            app:layout_constraintBottom_toBottomOf="parent"
+            android:textColor="@color/text_gray_transparency_60"
+            app:layout_constraintBottom_toTopOf="@+id/recyclerView"
             app:layout_constraintStart_toEndOf="@+id/imageSignal"
             app:layout_constraintTop_toBottomOf="@+id/textTime" />
 
         <ImageView
+            android:id="@+id/imageExpand"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:contentDescription="@null"
             android:src="@drawable/ic_expand_more"
+            app:layout_constraintBottom_toBottomOf="@+id/labelLoop"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/textTime" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recyclerView"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/labelLoop"
+            tools:listitem="@layout/item_history" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

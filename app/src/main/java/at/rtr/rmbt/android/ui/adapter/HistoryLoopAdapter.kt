@@ -17,13 +17,17 @@ package at.rtr.rmbt.android.ui.adapter
 
 import android.view.View
 import android.view.ViewGroup
+import android.view.ViewPropertyAnimator
 import androidx.paging.PagedListAdapter
 import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import at.rtr.rmbt.android.R
 import at.rtr.rmbt.android.databinding.ItemHistoryBinding
 import at.rtr.rmbt.android.databinding.ItemHistoryLoopBinding
 import at.rtr.rmbt.android.util.bindWith
+import at.rtr.rmbt.android.util.gone
+import at.rtr.rmbt.android.util.visible
 import at.specure.data.entity.History
 import at.specure.data.entity.HistoryContainer
 
@@ -32,7 +36,10 @@ private const val ITEM_HISTORY = 1
 
 class HistoryLoopAdapter : PagedListAdapter<HistoryContainer, HistoryLoopAdapter.Holder>(DIFF_CALLBACK) {
 
+    private val expandedItemsMap = mutableMapOf<Int, Boolean>()
+
     var actionCallback: ((History) -> Unit)? = null
+    var pendingAnimationCallback: (() -> Unit)? = null
 
     override fun getItemViewType(position: Int): Int {
         val size = getItem(position)?.items?.size ?: 1
@@ -51,20 +58,72 @@ class HistoryLoopAdapter : PagedListAdapter<HistoryContainer, HistoryLoopAdapter
 
     override fun onBindViewHolder(holder: Holder, position: Int) {
         getItem(position)?.let { item ->
-            holder.bind(item, actionCallback)
+            holder.bind(position, item, expandedItemsMap, actionCallback, pendingAnimationCallback)
         }
     }
 
     class LoopHolder(val binding: ItemHistoryLoopBinding) : Holder(binding.root) {
 
-        override fun bind(item: HistoryContainer, actionCallback: ((History) -> Unit)?) {
+        private var animation: ViewPropertyAnimator? = null
+        private val adapter = HistoryAdapter()
+
+        init {
+            binding.recyclerView.layoutManager = LinearLayoutManager(binding.recyclerView.context)
+            binding.recyclerView.adapter = adapter
+        }
+
+        override fun bind(
+            position: Int,
+            item: HistoryContainer,
+            expandedItemsMap: MutableMap<Int, Boolean>,
+            actionCallback: ((History) -> Unit)?,
+            pendingAnimationCallback: (() -> Unit)?
+        ) {
             binding.item = item.items.first()
+
+            animation?.cancel()
+
+            adapter.items = item.items
+            adapter.actionCallback = actionCallback
+
+            val isExpanded = expandedItemsMap[position] ?: false
+
+            if (isExpanded) {
+                binding.imageExpand.rotation = 180f
+                binding.recyclerView.visible()
+            } else {
+                binding.imageExpand.rotation = 0f
+                binding.recyclerView.gone()
+            }
+
+            binding.root.setOnClickListener {
+                val expanded = expandedItemsMap[position] ?: false
+                expandedItemsMap[position] = !expanded
+
+                val anim = binding.imageExpand.animate()
+                if (expanded) {
+                    anim.rotation(0f)
+                    binding.recyclerView.gone()
+                } else {
+                    anim.rotation(180f)
+                    binding.recyclerView.visible()
+                }
+                pendingAnimationCallback?.invoke()
+                animation = anim
+                anim.start()
+            }
         }
     }
 
     class HistoryHolder(val binding: ItemHistoryBinding) : Holder(binding.root) {
 
-        override fun bind(item: HistoryContainer, actionCallback: ((History) -> Unit)?) {
+        override fun bind(
+            position: Int,
+            item: HistoryContainer,
+            expandedItemsMap: MutableMap<Int, Boolean>,
+            actionCallback: ((History) -> Unit)?,
+            pendingAnimationCallback: (() -> Unit)?
+        ) {
             binding.item = item.items.first()
             binding.root.setOnClickListener {
                 actionCallback?.invoke(item.items.first())
@@ -74,7 +133,13 @@ class HistoryLoopAdapter : PagedListAdapter<HistoryContainer, HistoryLoopAdapter
 
     abstract class Holder(view: View) : RecyclerView.ViewHolder(view) {
 
-        abstract fun bind(item: HistoryContainer, actionCallback: ((History) -> Unit)?)
+        abstract fun bind(
+            position: Int,
+            item: HistoryContainer,
+            expandedItemsMap: MutableMap<Int, Boolean>,
+            actionCallback: ((History) -> Unit)?,
+            pendingAnimationCallback: (() -> Unit)?
+        )
     }
 
     companion object {

@@ -11,7 +11,6 @@ import at.specure.config.Config
 import at.specure.data.ClientUUID
 import at.specure.data.HistoryFilterOptions
 import at.specure.data.dao.HistoryDao
-import at.specure.data.entity.History
 import at.specure.data.entity.HistoryContainer
 import at.specure.data.toCapabilitiesBody
 import at.specure.data.toModelList
