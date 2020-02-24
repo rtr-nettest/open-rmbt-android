@@ -482,6 +482,9 @@ class MeasurementService : CustomLifecycleService() {
         override val testUUID: String?
             get() = runner.testUUID
 
+        override val loopUUID: String?
+            get() = stateRecorder.loopUuid
+
         override fun startTests() {
             this@MeasurementService.startTests()
         }

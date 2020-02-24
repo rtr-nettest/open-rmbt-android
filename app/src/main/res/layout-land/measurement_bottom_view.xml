@@ -26,7 +26,7 @@
             android:id="@+id/loop_header_group"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            visibleOrGone="@{state.isLoopModeActive()}"
+            visibleOrGone="@{state.isLoopModeActive}"
             app:constraint_referenced_ids="loop_measurement_title,loop_measurement_test_progress_value,progress_loop,loop_header_bottom_line" />
 
         <androidx.appcompat.widget.AppCompatTextView
@@ -193,7 +193,7 @@
             android:layout_height="wrap_content"
             android:visibility="gone"
             app:visibleOrGone="@{state.isLoopModeActive &amp;&amp; state.loopState == LoopModeState.IDLE &amp;&amp; state.measurementState == MeasurementState.FINISH}"
-            app:constraint_referenced_ids="loop_measurement_next_test_label,loop_measurement_next_test_minutes_label,loop_measurement_next_test_minutes_value,loop_measurement_next_test_minutes_progress,loop_measurement_next_test_distance_label,loop_measurement_next_test_meters_progress,loop_measurement_next_test_meters_value,loop_measurement_next_test_or_label,next_test_separator_start,next_test_separator_end,loop_measurement_next_bottom_line" />
+            app:constraint_referenced_ids="loop_measurement_next_test_label,loop_measurement_next_test_minutes_label,loop_measurement_next_test_minutes_value,loop_measurement_next_test_minutes_progress,loop_measurement_next_test_distance_label,loop_measurement_next_test_meters_progress,loop_measurement_next_test_or_label,next_test_separator_start,next_test_separator_end,loop_measurement_next_bottom_line" />
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/loop_measurement_next_test_label"
@@ -245,6 +245,7 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/padding_large"
             android:layout_marginEnd="@dimen/padding_large"
+            app:horizontal_squares_count="12"
             app:layout_constraintBottom_toBottomOf="@+id/loop_measurement_next_test_minutes_label"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="@+id/loop_measurement_next_test_minutes_label" />
@@ -300,7 +301,8 @@
             android:paddingTop="@dimen/padding_medium"
             android:paddingBottom="@dimen/padding_medium"
             android:text="@string/loop_mode_meters"
-            android:textColor="@android:color/white"
+            android:textColor="@color/selector_measurement_text"
+            app:enabled="@{state.gpsEnabled}"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/loop_measurement_next_test_minutes_label" />
 
@@ -317,16 +319,19 @@
             app:layout_constraintEnd_toStartOf="@+id/loop_measurement_next_test_meters_progress"
             app:layout_constraintTop_toTopOf="@+id/loop_measurement_next_test_distance_label"
             android:text="@{state.loopNextTestDistanceMeters}"
+            app:visibleOrGone="@{state.loopState == LoopModeState.IDLE &amp;&amp; state.isLoopModeActive &amp;&amp; state.gpsEnabled}"
             tools:text="153" />
 
         <at.rtr.rmbt.android.ui.view.ProgressBar
             android:id="@+id/loop_measurement_next_test_meters_progress"
-            android:layout_width="wrap_content"
+            android:layout_width="100dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/padding_large"
             android:layout_marginEnd="@dimen/padding_large"
             app:layout_constraintBottom_toBottomOf="@+id/loop_measurement_next_test_distance_label"
             app:layout_constraintEnd_toEndOf="parent"
+            app:horizontal_squares_count="12"
+            app:progress_enabled="@{state.gpsEnabled}"
             app:layout_constraintTop_toTopOf="@+id/loop_measurement_next_test_distance_label" />
 
         <androidx.appcompat.widget.AppCompatTextView
@@ -384,7 +389,7 @@
             app:progress_fill_color="@color/speed_chart_progress_fill_color"
             app:progress_line_color="@color/colorAccent"
             app:reset="@{state.measurementState}"
-            app:visibleOrGone="@{state.measurementState == MeasurementState.IDLE | state.measurementState == MeasurementState.INIT | state.measurementState == MeasurementState.PING | state.measurementState == MeasurementState.DOWNLOAD | state.measurementState == MeasurementState.UPLOAD}"
+            app:visibleOrGone="@{((state.measurementState == MeasurementState.IDLE | state.measurementState == MeasurementState.INIT | state.measurementState == MeasurementState.PING | state.measurementState == MeasurementState.DOWNLOAD | state.measurementState == MeasurementState.UPLOAD) &amp;&amp; ((state.loopState == LoopModeState.RUNNING &amp;&amp; state.isLoopModeActive) || state.isLoopModeActive == false))}"
             app:xlabel_color="@color/text_gray"
             app:xlabel_text_size="@dimen/chart_label_text_size"
             app:ylabel_color="@color/text_gray"

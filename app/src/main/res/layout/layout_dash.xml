@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <FrameLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+
+        <View
+            android:layout_width="28dp"
+            android:layout_height="4dp"
+            android:layout_marginTop="@dimen/padding_extra_large"
+            android:layout_marginBottom="@dimen/padding_extra_large"
+            android:background="@color/measurement_scale" />
+    </FrameLayout>
+</layout>

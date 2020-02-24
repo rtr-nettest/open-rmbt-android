@@ -7,11 +7,14 @@ import android.view.LayoutInflater
 import android.view.View
 import android.widget.FrameLayout
 import at.rtr.rmbt.android.R
+import at.rtr.rmbt.android.databinding.LayoutDashBinding
 import at.rtr.rmbt.android.databinding.LayoutMeasurementCurveBinding
 import at.rtr.rmbt.android.databinding.LayoutPercentageBinding
 import at.rtr.rmbt.android.databinding.LayoutSpeedBinding
 import at.rtr.rmbt.android.util.format
+import at.specure.data.entity.LoopModeState
 import at.specure.measurement.MeasurementState
+import timber.log.Timber
 import kotlin.math.min
 
 class MeasurementCurveLayout @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) :
@@ -19,6 +22,8 @@ class MeasurementCurveLayout @JvmOverloads constructor(context: Context, attrs: 
 
     private lateinit var speedLayout: LayoutSpeedBinding
     private lateinit var percentageLayout: LayoutPercentageBinding
+    private lateinit var dashUpperLayout: LayoutDashBinding
+    private lateinit var dashBottomLayout: LayoutDashBinding
     private lateinit var curveBinding: LayoutMeasurementCurveBinding
     private var inflater = LayoutInflater.from(context)
 
@@ -31,6 +36,8 @@ class MeasurementCurveLayout @JvmOverloads constructor(context: Context, attrs: 
 
     private var currentTopProgress = 0
     private var currentBottomProgress = 0L
+
+    private var loopState: LoopModeState = LoopModeState.RUNNING
 
     /**
      * Defines the current phase of measurement
@@ -92,6 +99,8 @@ class MeasurementCurveLayout @JvmOverloads constructor(context: Context, attrs: 
 
         speedLayout = LayoutSpeedBinding.inflate(inflater)
         percentageLayout = LayoutPercentageBinding.inflate(inflater)
+        dashBottomLayout = LayoutDashBinding.inflate(inflater)
+        dashUpperLayout = LayoutDashBinding.inflate(inflater)
         curveBinding.curveView.setSquareSizeCallback { squareSize, viewSize ->
             curveBinding.layoutStrength.strength.squareSize = squareSize
             (curveBinding.curveView.layoutParams as LayoutParams).apply {
@@ -123,16 +132,41 @@ class MeasurementCurveLayout @JvmOverloads constructor(context: Context, attrs: 
         curveBinding.curveView.setBottomCenterCallback { x, y ->
             bottomCenterX = x
             bottomCenterY = y
+
+            with(dashBottomLayout.root) {
+                (layoutParams as LayoutParams).apply {
+                    leftMargin = bottomCenterX
+                    topMargin = bottomCenterY + this@with.measuredHeight / TOP_MARGIN_DIVIDER
+                }
+                requestLayout()
+            }
+
             setBottomProgress(currentBottomProgress)
         }
         curveBinding.curveView.setTopCenterCallback { x, y ->
             topCenterX = x
             topCenterY = y
+
+            dashUpperLayout.root.post {
+                with(dashUpperLayout.root) {
+                    (layoutParams as LayoutParams).apply {
+                        leftMargin = topCenterX - dashUpperLayout.root.measuredWidth / (2 * LEFT_MARGIN_DIVIDER)
+                        topMargin = topCenterY + this@with.measuredHeight / TOP_MARGIN_DIVIDER
+                    }
+                }
+                requestLayout()
+            }
+
             setTopProgress(currentTopProgress)
         }
 
         addView(speedLayout.root, LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT))
         addView(percentageLayout.root, LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT))
+        addView(dashUpperLayout.root, LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT))
+        addView(dashBottomLayout.root, LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT))
+        updateLoopRelatedData()
+        setTopProgress(currentTopProgress)
+        setBottomProgress(currentBottomProgress)
     }
 
     /**
@@ -142,8 +176,9 @@ class MeasurementCurveLayout @JvmOverloads constructor(context: Context, attrs: 
         if (topCenterX != 0 && topCenterY != 0) {
             currentTopProgress = currentProgress
             val progress = prepareProgressValueByPhase(currentProgress)
+            Timber.e("$progress")
             curveBinding.curveView.setTopProgress(phase, currentProgress, isQoSEnabled)
-            if (progress != 0) {
+            if (progress != progressOffsets[phase] && progress != 0) {
                 percentageLayout.percentage.text = min(progress, 100).toString()
                 percentageLayout.units.text = context.getString(R.string.measurement_progress_units)
                 percentageLayout.percentage.requestLayout()
@@ -155,7 +190,10 @@ class MeasurementCurveLayout @JvmOverloads constructor(context: Context, attrs: 
                         }
                     }
                     requestLayout()
-                    percentageLayout.root.visibility = View.VISIBLE
+                    if (currentProgress != 0) {
+                        percentageLayout.root.visibility = View.VISIBLE
+                        updateLoopRelatedData()
+                    }
                 }
             }
         }
@@ -181,26 +219,14 @@ class MeasurementCurveLayout @JvmOverloads constructor(context: Context, attrs: 
             curveBinding.curveView.setBottomProgress(phase, (progress * 1e-3).toInt(), isQoSEnabled)
             val progressInMbps: Float = progress / 1000000.0f
             speedLayout.value.text = progressInMbps.format()
-
-            /*when {
-                progress >= 1e7 -> speedLayout.value.text = ((progress * 1e-6).roundToInt()).toString()
-                progress >= 1e6 -> speedLayout.value.text = (BigDecimal(progress * 1e-6).setScale(1, RoundingMode.HALF_EVEN)).toPlainString()
-                else -> { // up to 1 mbit
-                    var scale = 1
-                    var divider = 1
-                    var tmpProgress = progress
-                    while (tmpProgress > 100) {
-                        tmpProgress /= 10
-                        divider *= 10
-                        scale++
-                    }
-                    speedLayout.value.text =
-                        (BigDecimal(tmpProgress * divider * 1e-6).setScale(scale + 2, RoundingMode.HALF_EVEN)).stripTrailingZeros().toPlainString()
-                }
-            }*/
-            speedLayout.root.visibility = View.VISIBLE
+            speedLayout.units.text = context.getString(R.string.speed_progress_units)
+            if (progress != 0L) {
+                speedLayout.root.visibility = View.VISIBLE
+                updateLoopRelatedData()
+            }
         } else {
             currentBottomProgress = 0
+            speedLayout.units.text = ""
             curveBinding.curveView.setBottomProgress(phase, 0, isQoSEnabled)
         }
     }
@@ -225,6 +251,39 @@ class MeasurementCurveLayout @JvmOverloads constructor(context: Context, attrs: 
 
     fun setQoSEnabled(enabled: Boolean) {
         isQoSEnabled = enabled
+    }
+
+    fun setLoopState(loopModeState: LoopModeState) {
+        loopState = loopModeState
+        Timber.d("update loop mode state $loopState")
+        updateLoopRelatedData()
+    }
+
+    private fun clearPercentage() {
+        percentageLayout.percentage.text = ""
+        percentageLayout.units.text = ""
+    }
+
+    private fun clearSpeed() {
+        speedLayout.icon.setImageResource(android.R.color.transparent)
+        speedLayout.value.text = ""
+        speedLayout.units.text = ""
+    }
+
+    private fun updateLoopRelatedData() {
+        if (loopState == LoopModeState.IDLE) {
+            setTopProgress(0)
+            setBottomProgress(0)
+            percentageLayout.root.visibility = View.INVISIBLE
+            speedLayout.root.visibility = View.INVISIBLE
+            dashBottomLayout.root.visibility = View.VISIBLE
+            dashUpperLayout.root.visibility = View.VISIBLE
+        } else {
+            percentageLayout.root.visibility = View.VISIBLE
+            speedLayout.root.visibility = View.VISIBLE
+            dashBottomLayout.root.visibility = View.INVISIBLE
+            dashUpperLayout.root.visibility = View.INVISIBLE
+        }
     }
 
     companion object {
