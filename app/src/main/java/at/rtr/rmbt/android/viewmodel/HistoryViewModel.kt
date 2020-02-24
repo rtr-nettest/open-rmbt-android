@@ -5,7 +5,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.paging.LivePagedListBuilder
 import androidx.paging.PagedList
 import at.rtr.rmbt.android.ui.viewstate.HistoryViewState
-import at.specure.data.entity.History
+import at.specure.data.entity.HistoryContainer
 import at.specure.data.repository.HistoryRepository
 import javax.inject.Inject
 
@@ -26,7 +26,7 @@ class HistoryViewModel @Inject constructor(private val repository: HistoryReposi
 
     val state = HistoryViewState()
 
-    val historyLiveData: LiveData<PagedList<History>> by lazy {
+    val historyLiveData: LiveData<PagedList<HistoryContainer>> by lazy {
         val source = repository.getHistorySource()
         val config = PagedList.Config.Builder()
             .setPageSize(PAGE_SIZE)

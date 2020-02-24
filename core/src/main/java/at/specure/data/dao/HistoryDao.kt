@@ -8,20 +8,34 @@ import androidx.room.Query
 import androidx.room.Transaction
 import at.specure.data.Tables
 import at.specure.data.entity.History
+import at.specure.data.entity.HistoryContainer
+import at.specure.data.entity.HistoryReference
 
 @Dao
 abstract class HistoryDao {
 
-    @Query("SELECT * from ${Tables.HISTORY} ORDER BY time DESC")
-    abstract fun getHistorySource(): DataSource.Factory<Int, History>
+    @Query("SELECT * from ${Tables.HISTORY_REFERENCE} ORDER BY time DESC")
+    abstract fun getHistorySource(): DataSource.Factory<Int, HistoryContainer>
 
     @Query("SELECT COUNT(*) from ${Tables.HISTORY}")
     abstract fun getItemsCount(): Int
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    abstract fun insert(history: List<History>)
+    abstract fun saveHistory(history: List<History>)
 
-    @Query("DELETE FROM ${Tables.HISTORY}")
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    abstract fun saveReferences(history: List<HistoryReference>)
+
+    @Transaction
+    open fun insert(history: List<History>) {
+        val references = history.map {
+            HistoryReference(it.referenceUUID, it.time)
+        }
+        saveHistory(history)
+        saveReferences(references)
+    }
+
+    @Query("DELETE FROM ${Tables.HISTORY_REFERENCE}")
     abstract fun clear(): Int
 
     @Transaction

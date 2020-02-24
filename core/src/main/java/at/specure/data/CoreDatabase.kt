@@ -31,6 +31,7 @@ import at.specure.data.entity.ConnectivityStateRecord
 import at.specure.data.entity.GeoLocationRecord
 import at.specure.data.entity.GraphItemRecord
 import at.specure.data.entity.History
+import at.specure.data.entity.HistoryReference
 import at.specure.data.entity.LoopModeRecord
 import at.specure.data.entity.MarkerMeasurementRecord
 import at.specure.data.entity.PermissionStatusRecord
@@ -79,7 +80,8 @@ import at.specure.data.entity.TestWlanRecord
         SignalMeasurementRecord::class,
         SignalMeasurementInfo::class,
         SignalMeasurementChunk::class,
-        ConnectivityStateRecord::class],
+        ConnectivityStateRecord::class,
+        HistoryReference::class],
     version = 58
 )
 @TypeConverters(TypeConverter::class)

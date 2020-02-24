@@ -3,7 +3,7 @@ package at.specure.data.repository
 import androidx.paging.DataSource
 import androidx.paging.PagedList
 import at.rmbt.util.exception.HandledException
-import at.specure.data.entity.History
+import at.specure.data.entity.HistoryContainer
 import at.specure.util.StringSetPreferenceLiveData
 
 interface HistoryRepository {
@@ -16,13 +16,13 @@ interface HistoryRepository {
 
     val appliedFiltersLiveData: StringSetPreferenceLiveData
 
-    fun getHistorySource(): DataSource.Factory<Int, History>
+    fun getHistorySource(): DataSource.Factory<Int, HistoryContainer>
 
     fun boundaryCallback(
         limit: Int,
         onLoadingCallback: ((Boolean) -> Unit),
         onErrorCallback: ((HandledException) -> Unit)
-    ): PagedList.BoundaryCallback<History>
+    ): PagedList.BoundaryCallback<HistoryContainer>
 
     fun refreshHistory(limit: Int, onLoadingCallback: (Boolean) -> Unit, onErrorCallback: (HandledException) -> Unit)
 
