@@ -25,4 +25,8 @@
     <declare-styleable name="SignalBarChartView" parent="BarChart">
         <attr name="bar_color" />
     </declare-styleable>
+
+    <declare-styleable name="ProgressBar">
+        <attr name="horizontal_squares_count" format="integer" />
+    </declare-styleable>
 </resources>

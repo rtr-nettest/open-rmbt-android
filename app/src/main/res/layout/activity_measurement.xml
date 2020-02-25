@@ -10,6 +10,8 @@
 
         <import type="at.specure.info.strength.SignalStrengthInfo" />
 
+        <import type="at.specure.data.entity.LoopModeState" />
+
         <variable
             name="state"
             type="at.rtr.rmbt.android.ui.viewstate.MeasurementViewState" />

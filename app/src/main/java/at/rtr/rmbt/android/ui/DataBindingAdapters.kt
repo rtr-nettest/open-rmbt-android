@@ -9,6 +9,7 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.databinding.BindingAdapter
 import at.rmbt.client.control.IpProtocol
 import at.rtr.rmbt.android.R
+import at.rtr.rmbt.android.ui.view.ProgressBar
 import at.rtr.rmbt.android.ui.view.ResultBar
 import at.rtr.rmbt.android.ui.view.SpeedLineChart
 import at.rtr.rmbt.android.ui.view.WaveView
@@ -433,8 +434,8 @@ fun MeasurementCurveLayout.setSpeed(speed: Long) {
 }
 
 @BindingAdapter("percentage")
-fun MeasurementCurveLayout.setPercents(percents: Int) {
-    setTopProgress(percents)
+fun MeasurementCurveLayout.setPercents(percentage: Int) {
+    setTopProgress(percentage)
 }
 
 @BindingAdapter("strength", "strengthMin", "strengthMax", requireAll = true)
@@ -450,6 +451,11 @@ fun MeasurementCurveLayout.setMeasurementPhase(state: MeasurementState) {
 @BindingAdapter("qosEnabled")
 fun MeasurementCurveLayout.setQosEnabled(enabled: Boolean) {
     setQoSEnabled(enabled)
+}
+
+@BindingAdapter("progress_enabled")
+fun ProgressBar.setProgressEnabled(enabled: Boolean) {
+    setProgressEnabled(enabled)
 }
 
 /**
