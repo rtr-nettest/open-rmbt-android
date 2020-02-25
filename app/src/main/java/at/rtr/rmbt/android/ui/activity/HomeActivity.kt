@@ -27,8 +27,6 @@ import at.rtr.rmbt.android.di.viewModelLazy
 import at.rtr.rmbt.android.util.KeepStateNavigator
 import at.rtr.rmbt.android.util.listen
 import at.rtr.rmbt.android.viewmodel.MeasurementViewModel
-import com.google.firebase.analytics.FirebaseAnalytics
-import com.google.firebase.crashlytics.FirebaseCrashlytics
 
 class HomeActivity : BaseActivity() {
 
@@ -39,9 +37,6 @@ class HomeActivity : BaseActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = bindContentView(R.layout.activity_home)
-
-        FirebaseAnalytics.getInstance(this)
-        FirebaseCrashlytics.getInstance()
 
         setTransparentStatusBar()
 
