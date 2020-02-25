@@ -90,6 +90,8 @@ dependencies {
     implementation "androidx.navigation:navigation-fragment-ktx:$versions.navigation_fragment"
     implementation "androidx.navigation:navigation-ui-ktx:$versions.navigation_fragment"
     implementation "com.google.android.gms:play-services-maps:$versions.google_services"
+    implementation "com.google.firebase:firebase-crashlytics:17.0.0-beta01"
+    implementation 'com.google.firebase:firebase-analytics:17.2.2'
 
     kapt "com.google.dagger:dagger-compiler:$versions.dagger"
     kapt "com.google.dagger:dagger-android-processor:$versions.dagger"

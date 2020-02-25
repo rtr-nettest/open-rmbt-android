@@ -28,7 +28,6 @@ buildscript {
                 dagger              : '2.24',
                 timber              : '4.7.1',
                 switch_button       : '0.0.3@aar',
-                crashlytics         : '2.9.7@aar',
                 google_services     : '17.0.0',
                 retrofit            : '2.6.2',
                 stetho              : '1.5.1',
