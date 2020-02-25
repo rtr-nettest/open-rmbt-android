@@ -114,9 +114,9 @@ distributeLocalApp:
   interruptible: true
   script:
     - ./gradlew assembleLocalStageDebug -PbuildVersionCode=${VERSION_CODE} -PbuildVersionName=${VERSION_NAME} -PreleaseNotes="${RELEASE_NOTES}"
-    - ./gradlew crashlyticsUploadDistributionLocalStageDebug
+    - ./gradlew appDistributionUploadLocalStageDebug
     - ./gradlew assembleLocalDemoRelease -PbuildVersionCode=${VERSION_CODE} -PbuildVersionName=${VERSION_NAME} -PreleaseNotes="${RELEASE_NOTES}"
-    - ./gradlew crashlyticsUploadDistributionLocalDemoRelease
+    - ./gradlew appDistributionUploadLocalDemoRelease
   only:
     - develop
   artifacts:
