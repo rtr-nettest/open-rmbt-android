@@ -29,6 +29,7 @@ buildscript {
                 timber              : '4.7.1',
                 switch_button       : '0.0.3@aar',
                 google_services     : '17.0.0',
+                crashlytics         : '17.0.0-beta01',
                 retrofit            : '2.6.2',
                 stetho              : '1.5.1',
                 logging_interceptor : '4.2.1',
