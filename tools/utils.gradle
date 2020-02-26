@@ -87,4 +87,11 @@ buildscript {
         else
             return "false"
     }
+
+    ext.buildNotes = {
+        if (project.hasProperty('releaseNotes') && changeLog.length() > 0) {
+            return releaseNotes
+        }
+        return ""
+    }
 }
