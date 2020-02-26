@@ -89,7 +89,7 @@ buildscript {
     }
 
     ext.buildNotes = {
-        if (project.hasProperty('releaseNotes') && changeLog.length() > 0) {
+        if (project.hasProperty('releaseNotes') && releaseNotes.length() > 0) {
             return releaseNotes
         }
         return ""
