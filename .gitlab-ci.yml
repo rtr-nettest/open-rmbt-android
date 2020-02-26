@@ -79,7 +79,6 @@ controlClientLint:
 checkRTRBuild:
   stage: check
   script:
-    - cp private/app/google-services.json app/google-services.json
     - rm -rf private
     - ./gradlew clean
     - ./gradlew assembleRtrDebug
