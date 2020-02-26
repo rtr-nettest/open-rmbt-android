@@ -31,7 +31,7 @@ stages:
   - distribution
   - gitTag
 
-init:
+distribution:init:
   stage: init
   script:
     - echo "${BUILD_NUMBER}"
@@ -41,7 +41,7 @@ init:
   only:
     - develop
 
-appLint:
+check:app:
   stage: check
   script:
     - ./gradlew :app:ktlint
@@ -53,7 +53,7 @@ appLint:
       - /hotfix\/.*/
       - /test\/.*/
 
-coreLint:
+check:core:
   stage: check
   script:
     - ./gradlew :core:ktlint
@@ -65,7 +65,7 @@ coreLint:
       - /hotfix\/.*/
       - /test\/.*/
 
-controlClientLint:
+check:controlClient:
   stage: check
   script:
     - ./gradlew :control_client:ktlint
@@ -77,7 +77,7 @@ controlClientLint:
       - /hotfix\/.*/
       - /test\/.*/
 
-checkRTRBuild:
+check:rtrBuild:
   stage: check
   script:
     - rm -rf private
@@ -90,7 +90,7 @@ checkRTRBuild:
       - /hotfix\/.*/
       - /test\/.*/
 
-uiTests:
+.check:uiTests:
   stage: check
   interruptible: true
   timeout: 15m
@@ -106,10 +106,8 @@ uiTests:
   only:
     refs:
       - develop
-    variables:
-      - $UI_TEST_RUN
 
-distributeLocalApp:
+distribution:build:
   stage: distribution
   interruptible: true
   script:
@@ -124,7 +122,7 @@ distributeLocalApp:
     paths:
       - app/build/outputs
 
-generateDocumentation:
+distribution:docs:
   stage: distribution
   interruptible: true
   script:
@@ -137,7 +135,7 @@ generateDocumentation:
       - build_results/javadoc
       - build_results/markdown
 
-gitTag:
+distribution:tag:
   stage: gitTag
   interruptible: true
   script:
