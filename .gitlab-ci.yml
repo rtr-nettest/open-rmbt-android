@@ -5,7 +5,7 @@ variables:
   VERSION_MINOR: 0
 
 before_script:
-  - git remote set-url origin https://${CI_USER}:${CI_PUSH_TOKEN}@gitlab.kharkov.dbbest.com/android/nettest.git
+  - git remote set-url origin https://${CI_USER}:${CI_PUSH_TOKEN}@${GITLAB_HOST_URL}/android/nettest.git
   - git config --global user.email '${CI_USER_EMAIL}'
   - git config --global user.name '${CI_USER_NAME}'
   - git submodule update --init --recursive
@@ -23,6 +23,7 @@ before_script:
   - echo "${VERSION_NAME}"
   - echo "${RELEASE_NOTES}"
   - echo "${BUILD_TIME}"
+  - echo "${GITLAB_HOST_URL}
 
 stages:
   - init
@@ -36,7 +37,7 @@ init:
     - echo "${BUILD_NUMBER}"
     - NEW_NUMBER=$((++BUILD_NUMBER))
     - echo "next build number $NEW_NUMBER"
-    - 'curl --request PUT --header "PRIVATE-TOKEN: ${CI_PUSH_TOKEN}" "https://gitlab.kharkov.dbbest.com/api/v4/projects/${CI_PROJECT_ID}/variables/BUILD_NUMBER" --form "value=${NEW_NUMBER}"'
+    - 'curl --request PUT --header "PRIVATE-TOKEN: ${CI_PUSH_TOKEN}" "https://${GITLAB_HOST_URL}/api/v4/projects/${CI_PROJECT_ID}/variables/BUILD_NUMBER" --form "value=${NEW_NUMBER}"'
   only:
     - develop
 
