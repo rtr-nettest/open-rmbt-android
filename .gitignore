@@ -40,8 +40,5 @@ build_results
 
 .DS_Store
 
-# Fabric Properties
-app/fabric.properties
-
 # Google services
 app/google-services.json
