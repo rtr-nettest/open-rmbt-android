@@ -2,7 +2,6 @@ apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
 apply plugin: 'kotlin-kapt'
-apply plugin: "org.sonarqube"
 
 apply from: "$project.rootDir/tools/utils.gradle"
 apply from: "$project.rootDir/tools/script-lint.gradle"
@@ -62,14 +61,6 @@ android {
     }
 }
 
-sonarqube {
-    properties {
-        property "sonar.projectName", "Nettest"
-        property "sonar.projectKey", "android:at.specure.android"
-        property "sonar.projectVersion", "1.0"
-    }
-}
-
 dependencies {
     implementation project(path: ':core')
     implementation project(path: ':location')
@@ -111,4 +102,3 @@ dependencies {
     androidTestImplementation "androidx.test.espresso:espresso-core:$versions.espresso_core"
     androidTestImplementation "androidx.test:rules:$versions.rules"
 }
-apply plugin: 'com.google.gms.google-services'
