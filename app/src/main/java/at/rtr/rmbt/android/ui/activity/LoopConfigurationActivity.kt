@@ -7,6 +7,7 @@ import at.rtr.rmbt.android.R
 import at.rtr.rmbt.android.databinding.ActivityLoopConfigurationBinding
 import at.rtr.rmbt.android.di.viewModelLazy
 import at.rtr.rmbt.android.ui.dialog.InputSettingDialog
+import at.rtr.rmbt.android.ui.dialog.MessageDialog
 import at.rtr.rmbt.android.ui.dialog.SimpleDialog
 import at.rtr.rmbt.android.util.ToolbarTheme
 import at.rtr.rmbt.android.util.changeStatusBarColor
@@ -55,9 +56,13 @@ class LoopConfigurationActivity : BaseActivity(), InputSettingDialog.Callback {
 
         binding.accept.setOnClickListener {
             if (checkNumber()) {
-                finish()
-                MeasurementService.startTests(this)
-                MeasurementActivity.start(this)
+                if (viewModel.isConnected.value == true) {
+                    finish()
+                    MeasurementService.startTests(this)
+                    MeasurementActivity.start(this)
+                } else {
+                    MessageDialog.instance(R.string.home_no_internet_connection).show(this)
+                }
             }
         }
     }
