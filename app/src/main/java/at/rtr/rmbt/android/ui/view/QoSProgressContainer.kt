@@ -79,7 +79,9 @@ class QoSProgressContainer @JvmOverloads constructor(context: Context, attrs: At
             binding.textQosTitle.text = context.getString(it.second)
             addView(binding.root)
             items[it.first] = QoSEntry(binding)
+            items[it.first]?.isRemoved = false
         }
+        Timber.d("Items: ${items.size} QosItems: ${qosItems.size} Views size: ${this.childCount}")
     }
 
     private fun sendProgressMessage(type: QoSTestResultEnum) {

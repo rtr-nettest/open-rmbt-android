@@ -138,7 +138,6 @@ class MeasurementActivity : BaseActivity(), SimpleDialog.Callback {
             viewModel.state.setLoopState(status)
             if (status == LoopModeState.IDLE) {
                 binding.root.measurementBottomView.speedChartDownloadUpload.reset()
-                binding.root.measurementBottomView.speedChartDownloadUpload.reset()
                 binding.root.qosProgressContainer.reset()
             }
         }
