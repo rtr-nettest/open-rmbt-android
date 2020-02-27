@@ -280,7 +280,9 @@ class MeasurementCurveLayout @JvmOverloads constructor(context: Context, attrs: 
             dashUpperLayout.root.visibility = View.VISIBLE
         } else {
             percentageLayout.root.visibility = View.VISIBLE
-            speedLayout.root.visibility = View.VISIBLE
+            if (phase == MeasurementState.DOWNLOAD || phase == MeasurementState.UPLOAD) {
+                speedLayout.root.visibility = View.VISIBLE
+            }
             dashBottomLayout.root.visibility = View.INVISIBLE
             dashUpperLayout.root.visibility = View.INVISIBLE
         }
