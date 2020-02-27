@@ -10,6 +10,6 @@
             android:layout_height="4dp"
             android:layout_marginTop="@dimen/padding_extra_large"
             android:layout_marginBottom="@dimen/padding_extra_large"
-            android:background="@color/measurement_scale" />
+            android:background="@color/measurement_not_progressed" />
     </FrameLayout>
 </layout>
