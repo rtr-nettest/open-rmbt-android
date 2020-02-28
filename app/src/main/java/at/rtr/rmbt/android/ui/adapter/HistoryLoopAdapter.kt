@@ -79,7 +79,7 @@ class HistoryLoopAdapter : PagedListAdapter<HistoryContainer, HistoryLoopAdapter
             actionCallback: ((History) -> Unit)?,
             pendingAnimationCallback: (() -> Unit)?
         ) {
-            binding.item = item.items.first()
+            binding.item = item.items.last()
 
             animation?.cancel()
 
