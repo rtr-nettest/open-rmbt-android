@@ -10,6 +10,7 @@ import at.specure.data.MapServerSettings
 import at.specure.data.TermsAndConditions
 import at.specure.data.toSettingsRequest
 import at.specure.test.DeviceInfo
+import timber.log.Timber
 
 class SettingsRepositoryImpl(
     context: Context,
@@ -18,6 +19,7 @@ class SettingsRepositoryImpl(
     private val controlServerSettings: ControlServerSettings,
     private val mapServerSettings: MapServerSettings,
     private val termsAndConditions: TermsAndConditions,
+    private val tacRepository: TacRepository,
     private val historyFilterOptions: HistoryFilterOptions,
     private val config: Config
 ) : SettingsRepository {
@@ -57,10 +59,14 @@ class SettingsRepositoryImpl(
             if (tac != null) {
                 termsAndConditions.tacUrl = tac.url
                 termsAndConditions.ndtTermsUrl = tac.ndtURL
+                termsAndConditions.tacVersion = tac.version
                 if (termsAndConditions.tacVersion != -1 && termsAndConditions.tacVersion != tac.version) {
+                    tac.url?.let { url ->
+                        Timber.e("TAC load: ${body.language}, version: ${tac.version ?: -1}, tac url: $url")
+                        tacRepository.getTac(body.language)
+                    }
                     termsAndConditions.tacAccepted = false
                 }
-                termsAndConditions.tacVersion = tac.version
             }
             val versions = settings.success.settings.first().versions
             if (versions != null) {

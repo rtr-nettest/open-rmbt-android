@@ -15,6 +15,7 @@ import at.specure.config.IpEndpointProviderImpl
 import at.specure.config.MapServerProviderImpl
 import at.specure.data.ClientUUID
 import at.specure.data.ControlServerSettings
+import at.specure.data.CoreDatabase
 import at.specure.data.HistoryFilterOptions
 import at.specure.data.MapServerSettings
 import at.specure.data.TermsAndConditions
@@ -24,6 +25,8 @@ import at.specure.data.repository.HistoryRepository
 import at.specure.data.repository.IpCheckRepository
 import at.specure.data.repository.SettingsRepository
 import at.specure.data.repository.SettingsRepositoryImpl
+import at.specure.data.repository.TacRepository
+import at.specure.data.repository.TacRepositoryImpl
 import at.specure.info.cell.CellInfoWatcher
 import at.specure.info.cell.CellInfoWatcherImpl
 import at.specure.info.connectivity.ConnectivityWatcher
@@ -148,6 +151,7 @@ class CoreModule {
         controlServerSettings: ControlServerSettings,
         mapServerSettings: MapServerSettings,
         termsAndConditions: TermsAndConditions,
+        tacRepository: TacRepository,
         historyFilterOptions: HistoryFilterOptions,
         config: Config
     ): SettingsRepository =
@@ -159,6 +163,7 @@ class CoreModule {
             mapServerSettings = mapServerSettings,
             termsAndConditions = termsAndConditions,
             historyFilterOptions = historyFilterOptions,
+            tacRepository = tacRepository,
             config = config
         )
 
@@ -180,4 +185,8 @@ class CoreModule {
         historyRepository: HistoryRepository,
         settingsRepository: SettingsRepository
     ): DeviceSyncRepository = DeviceSyncRepositoryImpl(context, controlServerClient, clientUUID, historyRepository, settingsRepository)
+
+    @Provides
+    fun provideTacRepository(coreDatabase: CoreDatabase, termsAndConditions: TermsAndConditions): TacRepository =
+        TacRepositoryImpl(coreDatabase, termsAndConditions)
 }

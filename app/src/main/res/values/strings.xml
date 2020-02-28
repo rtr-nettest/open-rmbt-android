@@ -289,7 +289,7 @@
     <string name="loop_continue_to_results">Continue to the result</string>
     <string name="loop_run_again">Run again</string>
     <string name="title_privacy_policy">Privacy Policy</string>
-
-    <string name="title_history_loop_mode">Loop Mode</string>
+    <string name="text_terms_agree">I agree with RTR’s Privacy and Terms of Use for RTR-NetTest.</string>
+    <string name="text_terms_agree_empty">You have to agree with RTR’s Privacy and Terms of Use to continue.</string>
 
 </resources>
