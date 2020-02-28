@@ -4,7 +4,9 @@ import android.os.Bundle
 import android.view.View
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.DividerItemDecoration
+import androidx.transition.ChangeBounds
 import androidx.transition.TransitionManager
+import androidx.transition.TransitionSet
 import at.rtr.rmbt.android.R
 import at.rtr.rmbt.android.databinding.FragmentHistoryBinding
 import at.rtr.rmbt.android.di.viewModelLazy
@@ -41,7 +43,7 @@ class HistoryFragment : BaseFragment(), SyncDevicesDialog.Callback, HistoryFilte
         }
 
         adapter.pendingAnimationCallback = {
-            TransitionManager.beginDelayedTransition(binding.recyclerViewHistoryItems)
+            TransitionManager.beginDelayedTransition(binding.recyclerViewHistoryItems, TransitionSet().apply { addTransition(ChangeBounds()) })
         }
 
         binding.recyclerViewHistoryItems.apply {
