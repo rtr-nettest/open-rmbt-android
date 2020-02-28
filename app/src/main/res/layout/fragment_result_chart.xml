@@ -7,15 +7,16 @@
         android:id="@+id/relativeLayoutRoot"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:padding="@dimen/padding_small"
         android:minHeight="@dimen/speed_chart_height">
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/textChartType"
             style="@style/RobotoMediumStyle.Medium"
             android:layout_width="match_parent"
+            android:padding="@dimen/padding_medium_large"
             android:textColor="@color/text_dark_gray"
             android:layout_height="wrap_content"
-            android:padding="@dimen/padding_large"
             tools:text="Download" />
 
 

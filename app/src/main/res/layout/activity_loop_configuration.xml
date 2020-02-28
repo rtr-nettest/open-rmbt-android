@@ -73,6 +73,7 @@
                     android:gravity="center"
                     android:inputType="number"
                     android:maxLines="1"
+                    android:maxLength="3"
                     android:minWidth="@dimen/size_text_loop_count"
                     android:singleLine="true"
                     android:text="@{String.valueOf(state.numberOfTests)}"
@@ -89,7 +90,9 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="@dimen/margin_medium"
-                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintEnd_toEndOf
+
+                        ="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@id/count"
                     app:title="@{@string/preferences_loop_mode_min_delay}"
