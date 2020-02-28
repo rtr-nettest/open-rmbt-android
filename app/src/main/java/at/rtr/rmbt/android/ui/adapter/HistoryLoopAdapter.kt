@@ -15,6 +15,7 @@
  */
 package at.rtr.rmbt.android.ui.adapter
 
+import android.os.Bundle
 import android.view.View
 import android.view.ViewGroup
 import android.view.ViewPropertyAnimator
@@ -33,6 +34,7 @@ import at.specure.data.entity.HistoryContainer
 
 private const val ITEM_LOOP = 0
 private const val ITEM_HISTORY = 1
+private const val KEY_STATE = "KEY_STATE"
 
 class HistoryLoopAdapter : PagedListAdapter<HistoryContainer, HistoryLoopAdapter.Holder>(DIFF_CALLBACK) {
 
@@ -60,6 +62,24 @@ class HistoryLoopAdapter : PagedListAdapter<HistoryContainer, HistoryLoopAdapter
         getItem(position)?.let { item ->
             holder.bind(position, item, expandedItemsMap, actionCallback, pendingAnimationCallback)
         }
+    }
+
+    @Suppress("UseSparseArrays")
+    fun onSaveInstanceState(outState: Bundle) {
+        val map = HashMap<Int, Boolean>()
+        map.putAll(expandedItemsMap)
+        outState.putSerializable(KEY_STATE, map)
+    }
+
+    @Suppress("UNCHECKED_CAST")
+    fun onRestoreState(inState: Bundle) {
+        inState.getSerializable(KEY_STATE)?.let {
+            expandedItemsMap.putAll(it as HashMap<Int, Boolean>)
+        }
+    }
+
+    fun onClearState() {
+        expandedItemsMap.clear()
     }
 
     class LoopHolder(val binding: ItemHistoryLoopBinding) : Holder(binding.root) {

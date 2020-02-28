@@ -34,6 +34,10 @@ class HistoryFragment : BaseFragment(), SyncDevicesDialog.Callback, HistoryFilte
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        savedInstanceState?.let {
+            adapter.onRestoreState(it)
+        }
+
         binding.state = historyViewModel.state
         updateTransparentStatusBarHeight(binding.statusBarStub)
         binding.recyclerViewHistoryItems.adapter = adapter
@@ -66,6 +70,7 @@ class HistoryFragment : BaseFragment(), SyncDevicesDialog.Callback, HistoryFilte
         }
 
         binding.swipeRefreshLayoutHistoryItems.setOnRefreshListener {
+            adapter.onClearState()
             refreshHistory()
         }
 
@@ -90,6 +95,11 @@ class HistoryFragment : BaseFragment(), SyncDevicesDialog.Callback, HistoryFilte
         }
 
         refreshHistory()
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        adapter.onSaveInstanceState(outState)
+        super.onSaveInstanceState(outState)
     }
 
     private fun refreshHistory() {
