@@ -5,7 +5,7 @@ variables:
   VERSION_MINOR: 0
 
 before_script:
-  - git remote set-url origin https://${CI_USER}:${CI_PUSH_TOKEN}@gitlab.kharkov.dbbest.com/android/nettest.git
+  - git remote set-url origin https://${CI_USER}:${CI_PUSH_TOKEN}@${GITLAB_HOST_URL}/android/nettest.git
   - git config --global user.email '${CI_USER_EMAIL}'
   - git config --global user.name '${CI_USER_NAME}'
   - git submodule update --init --recursive
@@ -23,6 +23,7 @@ before_script:
   - echo "${VERSION_NAME}"
   - echo "${RELEASE_NOTES}"
   - echo "${BUILD_TIME}"
+  - echo "${GITLAB_HOST_URL}"
 
 stages:
   - init
@@ -30,17 +31,17 @@ stages:
   - distribution
   - gitTag
 
-init:
+distribution:init:
   stage: init
   script:
     - echo "${BUILD_NUMBER}"
     - NEW_NUMBER=$((++BUILD_NUMBER))
     - echo "next build number $NEW_NUMBER"
-    - 'curl --request PUT --header "PRIVATE-TOKEN: ${CI_PUSH_TOKEN}" "https://gitlab.kharkov.dbbest.com/api/v4/projects/${CI_PROJECT_ID}/variables/BUILD_NUMBER" --form "value=${NEW_NUMBER}"'
+    - 'curl --request PUT --header "PRIVATE-TOKEN: ${CI_PUSH_TOKEN}" "https://${GITLAB_HOST_URL}/api/v4/projects/${CI_PROJECT_ID}/variables/BUILD_NUMBER" --form "value=${NEW_NUMBER}"'
   only:
     - develop
 
-appLint:
+check:app:
   stage: check
   script:
     - ./gradlew :app:ktlint
@@ -52,7 +53,7 @@ appLint:
       - /hotfix\/.*/
       - /test\/.*/
 
-coreLint:
+check:core:
   stage: check
   script:
     - ./gradlew :core:ktlint
@@ -64,7 +65,7 @@ coreLint:
       - /hotfix\/.*/
       - /test\/.*/
 
-controlClientLint:
+check:controlClient:
   stage: check
   script:
     - ./gradlew :control_client:ktlint
@@ -76,10 +77,9 @@ controlClientLint:
       - /hotfix\/.*/
       - /test\/.*/
 
-checkRTRBuild:
+check:rtrBuild:
   stage: check
   script:
-    - cp private/app/google-services.json app/google-services.json
     - rm -rf private
     - ./gradlew clean
     - ./gradlew assembleRtrDebug
@@ -90,7 +90,7 @@ checkRTRBuild:
       - /hotfix\/.*/
       - /test\/.*/
 
-uiTests:
+.check:uiTests:
   stage: check
   interruptible: true
   timeout: 15m
@@ -106,17 +106,16 @@ uiTests:
   only:
     refs:
       - develop
-    variables:
-      - $UI_TEST_RUN
 
-distributeLocalApp:
+distribution:build:
   stage: distribution
   interruptible: true
   script:
+    - echo "version ${VERSION_NAME}(${VERSION_CODE})"
     - ./gradlew assembleLocalStageDebug -PbuildVersionCode=${VERSION_CODE} -PbuildVersionName=${VERSION_NAME} -PreleaseNotes="${RELEASE_NOTES}"
-    - ./gradlew crashlyticsUploadDistributionLocalStageDebug
+    - ./gradlew appDistributionUploadLocalStageDebug -PbuildVersionCode=${VERSION_CODE} -PbuildVersionName=${VERSION_NAME} -PreleaseNotes="${RELEASE_NOTES}"
     - ./gradlew assembleLocalDemoRelease -PbuildVersionCode=${VERSION_CODE} -PbuildVersionName=${VERSION_NAME} -PreleaseNotes="${RELEASE_NOTES}"
-    - ./gradlew crashlyticsUploadDistributionLocalDemoRelease
+    - ./gradlew appDistributionUploadLocalDemoRelease -PbuildVersionCode=${VERSION_CODE} -PbuildVersionName=${VERSION_NAME} -PreleaseNotes="${RELEASE_NOTES}"
   only:
     - develop
   artifacts:
@@ -124,7 +123,7 @@ distributeLocalApp:
     paths:
       - app/build/outputs
 
-generateDocumentation:
+distribution:docs:
   stage: distribution
   interruptible: true
   script:
@@ -137,7 +136,7 @@ generateDocumentation:
       - build_results/javadoc
       - build_results/markdown
 
-gitTag:
+distribution:tag:
   stage: gitTag
   interruptible: true
   script:

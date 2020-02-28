@@ -100,6 +100,9 @@ class MeasurementViewModel @Inject constructor(
 
             _isTestsRunningLiveData.postValue(producer?.isTestsRunning ?: false)
 
+            val loopUuid = producer?.loopUUID
+            initializeLoopData(loopUuid)
+
             producer?.let {
                 it.addClient(this@MeasurementViewModel)
 
@@ -203,10 +206,7 @@ class MeasurementViewModel @Inject constructor(
 
         this.testUUID = testUUID
 
-        if (loopUUID != null) {
-            loopProgressLiveData = testDataRepository.getLoopMode(loopUUID)
-            _loopUUIDLiveData.postValue(loopUUID)
-        }
+        initializeLoopData(loopUUID)
 
         Timber.d("loopUUID: $loopUUID")
 
@@ -216,6 +216,14 @@ class MeasurementViewModel @Inject constructor(
 
         testDataRepository.getUploadGraphItemsLiveData(testUUID) {
             _uploadGraphLiveData.postValue(it)
+        }
+    }
+
+    private fun initializeLoopData(loopUUID: String?) {
+        if (loopUUID != null) {
+            loopProgressLiveData = testDataRepository.getLoopMode(loopUUID)
+            _loopUUIDLiveData.postValue(loopUUID)
+            this.state.loopUUID.set(loopUUID)
         }
     }
 

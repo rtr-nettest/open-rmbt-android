@@ -7,13 +7,16 @@ import at.rtr.rmbt.android.R
 import at.rtr.rmbt.android.databinding.ActivityLoopConfigurationBinding
 import at.rtr.rmbt.android.di.viewModelLazy
 import at.rtr.rmbt.android.ui.dialog.InputSettingDialog
+import at.rtr.rmbt.android.ui.dialog.MessageDialog
 import at.rtr.rmbt.android.ui.dialog.SimpleDialog
 import at.rtr.rmbt.android.util.ToolbarTheme
 import at.rtr.rmbt.android.util.changeStatusBarColor
+import at.rtr.rmbt.android.util.listen
 import at.rtr.rmbt.android.util.onDone
 import at.rtr.rmbt.android.util.onTextChanged
 import at.rtr.rmbt.android.viewmodel.LoopConfigurationViewModel
 import at.specure.measurement.MeasurementService
+import timber.log.Timber
 
 class LoopConfigurationActivity : BaseActivity(), InputSettingDialog.Callback {
 
@@ -55,10 +58,18 @@ class LoopConfigurationActivity : BaseActivity(), InputSettingDialog.Callback {
 
         binding.accept.setOnClickListener {
             if (checkNumber()) {
-                finish()
-                MeasurementService.startTests(this)
-                MeasurementActivity.start(this)
+                if (viewModel.isConnected.value == true) {
+                    finish()
+                    MeasurementService.startTests(this)
+                    MeasurementActivity.start(this)
+                } else {
+                    MessageDialog.instance(R.string.home_no_internet_connection).show(this)
+                }
             }
+        }
+
+        viewModel.isConnected.listen(this) {
+            Timber.i("Has connection: $it")
         }
     }
 

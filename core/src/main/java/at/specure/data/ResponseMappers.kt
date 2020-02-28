@@ -39,6 +39,8 @@ fun HistoryResponse.toModelList(): List<History> = history.map { it.toModel() }
 
 fun HistoryItemResponse.toModel() = History(
     testUUID = testUUID,
+    loopUUID = loopUUID,
+    referenceUUID = if (loopUUID == null) testUUID else loopUUID!!,
     model = model,
     networkType = NetworkTypeCompat.fromString(networkType ?: ServerNetworkType.TYPE_MOBILE.stringValue),
     ping = ping,

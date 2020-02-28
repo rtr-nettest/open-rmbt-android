@@ -1,3 +1,5 @@
+applyIfExists "$project.rootDir/private/project-dependencies.gradle"
+
 buildscript {
 
     ext.isPrivate = file("$project.rootDir/private/.gitignore").exists()
@@ -7,6 +9,19 @@ buildscript {
             apply from: "$project.rootDir/private/$filePath"
         } else {
             apply from: "$project.rootDir/$filePath"
+        }
+    }
+
+    ext.applyIfExists = { filePath ->
+        if (file(filePath).exists()) {
+            apply from: filePath
+        }
+    }
+
+    ext.applyDependencies = { closure ->
+        if (file("$project.rootDir/private/project-dependencies.gradle").exists()) {
+            apply from: "$project.rootDir/private/project-dependencies.gradle"
+            applyPrivateDependencies(closure)
         }
     }
 
@@ -71,5 +86,12 @@ buildscript {
             return "true"
         else
             return "false"
+    }
+
+    ext.buildNotes = {
+        if (project.hasProperty('releaseNotes') && releaseNotes.length() > 0) {
+            return releaseNotes
+        }
+        return ""
     }
 }
