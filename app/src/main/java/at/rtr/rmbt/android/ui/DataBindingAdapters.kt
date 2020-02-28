@@ -672,7 +672,12 @@ fun AppCompatTextView.setPing(pingClassification: Classification) {
 @BindingAdapter("pingResult", "pingClassificationResult", requireAll = true)
 fun AppCompatTextView.setPingResult(pingResult: Double, pingClassificationResult: Classification) {
     text = if (pingResult > 0) {
-        context.getString(R.string.measurement_ping_value, pingResult.toLong().format())
+        val mantissa = pingResult - (pingResult.toInt().toDouble())
+        if (mantissa > 0 && pingResult < 10.0) {
+            context.getString(R.string.measurement_ping_value_1f, pingResult)
+        } else {
+            context.getString(R.string.measurement_ping_value, pingResult.toInt().toString())
+        }
     } else {
         context.getString(R.string.measurement_dash)
     }

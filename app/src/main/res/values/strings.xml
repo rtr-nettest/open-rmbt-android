@@ -123,6 +123,7 @@
 
     <!-- Measurement screen -->
     <string name="measurement_ping_value">%1$s ms</string>
+    <string name="measurement_ping_value_1f">%1$.1f ms</string>
     <string name="measurement_download_upload_speed">%1$s Mbit/s</string>
     <string name="measurement_download">Download</string>
     <string name="measurement_upload">Upload</string>

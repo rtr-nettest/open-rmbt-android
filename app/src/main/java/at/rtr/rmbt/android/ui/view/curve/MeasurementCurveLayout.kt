@@ -176,7 +176,6 @@ class MeasurementCurveLayout @JvmOverloads constructor(context: Context, attrs: 
         if (topCenterX != 0 && topCenterY != 0) {
             currentTopProgress = currentProgress
             val progress = prepareProgressValueByPhase(currentProgress)
-            Timber.e("$progress")
             curveBinding.curveView.setTopProgress(phase, currentProgress, isQoSEnabled)
             if (progress != progressOffsets[phase] && progress != 0) {
                 percentageLayout.percentage.text = min(progress, 100).toString()
