@@ -24,6 +24,7 @@ object Tables {
     const val PING = "ping"
     const val QOE = "qoe"
     const val SIGNAL = "signal"
+    const val TAC = "tac"
     const val TEST = "test"
     const val TEST_GRAPH_ITEM = "test_graph_item"
     const val TEST_RESULT = "test_result"
@@ -38,4 +39,9 @@ object Tables {
     const val TEST_RESULT_DETAILS = "test_result_details"
     const val MAP_MARKER_MEASUREMENTS = "map_markers"
     const val LOOP_MODE = "loop_mode"
+    const val SIGNAL_MEASUREMENT = "signal_measurement"
+    const val SIGNAL_MEASUREMENT_INFO = "signal_measurement_info"
+    const val SIGNAL_MEASUREMENT_CHUNK = "signal_measurement_chunk"
+    const val CONNECTIVITY_STATE = "connectivity_state"
+    const val HISTORY_REFERENCE = "history_reference"
 }

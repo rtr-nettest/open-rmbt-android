@@ -12,5 +12,9 @@
         <service
             android:name="at.specure.measurement.MeasurementService"
             android:exported="false" />
+
+        <service
+            android:name="at.specure.measurement.signal.SignalMeasurementService"
+            android:exported="false" />
     </application>
 </manifest>

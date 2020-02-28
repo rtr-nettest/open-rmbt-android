@@ -15,6 +15,7 @@ import at.rmbt.client.control.QosTestResultDetailResponse
 import at.rmbt.client.control.ServerTestResultItem
 import at.rmbt.client.control.ServerTestResultResponse
 import at.rmbt.client.control.SignalGraphItemResponse
+import at.rmbt.client.control.SignalMeasurementRequestResponse
 import at.rmbt.client.control.SpeedGraphItemResponse
 import at.rmbt.client.control.TestResultDetailItem
 import at.rmbt.client.control.TestResultDetailResponse
@@ -25,18 +26,20 @@ import at.specure.data.entity.QoeInfoRecord
 import at.specure.data.entity.QosCategoryRecord
 import at.specure.data.entity.QosTestGoalRecord
 import at.specure.data.entity.QosTestItemRecord
+import at.specure.data.entity.SignalMeasurementInfo
 import at.specure.data.entity.TestResultDetailsRecord
 import at.specure.data.entity.TestResultGraphItemRecord
 import at.specure.data.entity.TestResultRecord
 import at.specure.result.QoECategory
 import at.specure.result.QoSCategory
-import java.math.RoundingMode
 import java.util.EnumMap
 
 fun HistoryResponse.toModelList(): List<History> = history.map { it.toModel() }
 
 fun HistoryItemResponse.toModel() = History(
     testUUID = testUUID,
+    loopUUID = loopUUID,
+    referenceUUID = if (loopUUID == null) testUUID else loopUUID!!,
     model = model,
     networkType = NetworkTypeCompat.fromString(networkType ?: ServerNetworkType.TYPE_MOBILE.stringValue),
     ping = ping,
@@ -68,7 +71,7 @@ fun ServerTestResultItem.toModel(testUUID: String): TestResultRecord {
         uploadClass = Classification.fromValue(measurementItem.uploadClass),
         uploadSpeedKbs = measurementItem.uploadSpeedKbs,
         pingClass = Classification.fromValue(measurementItem.pingClass),
-        pingMillis = measurementItem.pingMillis.setScale(0, RoundingMode.HALF_EVEN).toDouble(),
+        pingMillis = measurementItem.pingMillis.toDouble(),
         signalClass = Classification.fromValue(measurementItem.signalClass),
         signalStrength = signal,
         locationText = locationText,
@@ -284,3 +287,11 @@ fun MapFilterObjectResponse.toSubtypesMap(types: MutableMap<String, MapFilterTyp
 
     return result
 }
+
+fun SignalMeasurementRequestResponse.toModel(measurementId: String) = SignalMeasurementInfo(
+    measurementId = measurementId,
+    uuid = testUUID,
+    clientRemoteIp = clientRemoteIp,
+    resultUrl = resultUrl,
+    provider = provider
+)

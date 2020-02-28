@@ -4,12 +4,15 @@ import android.os.Bundle
 import android.view.View
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.DividerItemDecoration
+import androidx.transition.ChangeBounds
+import androidx.transition.TransitionManager
+import androidx.transition.TransitionSet
 import at.rtr.rmbt.android.R
 import at.rtr.rmbt.android.databinding.FragmentHistoryBinding
 import at.rtr.rmbt.android.di.viewModelLazy
 import at.rtr.rmbt.android.ui.activity.ResultsActivity
 import at.rtr.rmbt.android.ui.adapter.FilterLabelAdapter
-import at.rtr.rmbt.android.ui.adapter.HistoryAdapter
+import at.rtr.rmbt.android.ui.adapter.HistoryLoopAdapter
 import at.rtr.rmbt.android.ui.dialog.HistoryFiltersDialog
 import at.rtr.rmbt.android.ui.dialog.SyncDevicesDialog
 import at.rtr.rmbt.android.util.ToolbarTheme
@@ -23,7 +26,7 @@ class HistoryFragment : BaseFragment(), SyncDevicesDialog.Callback, HistoryFilte
 
     private val historyViewModel: HistoryViewModel by viewModelLazy()
     private val binding: FragmentHistoryBinding by bindingLazy()
-    private val adapter: HistoryAdapter by lazy { HistoryAdapter() }
+    private val adapter: HistoryLoopAdapter by lazy { HistoryLoopAdapter() }
     private lateinit var labelAdapter: FilterLabelAdapter
 
     override val layoutResId = R.layout.fragment_history
@@ -31,12 +34,20 @@ class HistoryFragment : BaseFragment(), SyncDevicesDialog.Callback, HistoryFilte
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        savedInstanceState?.let {
+            adapter.onRestoreState(it)
+        }
+
         binding.state = historyViewModel.state
         updateTransparentStatusBarHeight(binding.statusBarStub)
         binding.recyclerViewHistoryItems.adapter = adapter
 
         adapter.actionCallback = {
             ResultsActivity.start(requireContext(), it.testUUID)
+        }
+
+        adapter.pendingAnimationCallback = {
+            TransitionManager.beginDelayedTransition(binding.recyclerViewHistoryItems, TransitionSet().apply { addTransition(ChangeBounds()) })
         }
 
         binding.recyclerViewHistoryItems.apply {
@@ -59,6 +70,7 @@ class HistoryFragment : BaseFragment(), SyncDevicesDialog.Callback, HistoryFilte
         }
 
         binding.swipeRefreshLayoutHistoryItems.setOnRefreshListener {
+            adapter.onClearState()
             refreshHistory()
         }
 
@@ -83,6 +95,11 @@ class HistoryFragment : BaseFragment(), SyncDevicesDialog.Callback, HistoryFilte
         }
 
         refreshHistory()
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        adapter.onSaveInstanceState(outState)
+        super.onSaveInstanceState(outState)
     }
 
     private fun refreshHistory() {

@@ -121,6 +121,7 @@
 
     <!-- Measurement screen -->
     <string name="measurement_ping_value">%1$s ms</string>
+    <string name="measurement_ping_value_1f">%1$.1f ms</string>
     <string name="measurement_download_upload_speed">%1$s Mbit/s</string>
     <string name="measurement_download">Herunterladen</string>
     <string name="measurement_upload">Hochladen</string>
@@ -225,6 +226,13 @@
     <string name="toast_sync_code_copied_to_clipboard">Kopiert</string>
     <string name="hint_sync_code">Code</string>
     <string name="error_sync_code_short">Der Code muss aus 12 Zeichen bestehen</string>
+
+    <string name="notification_signal_test_title">Signalmessung läuft</string>
+    <string name="notification_signal_test_text">Open-RTMB Signalmessung läuft im Hintergrund</string>
+
+    <string name="notification_loop_mode_finished_title">Der Wiederholungsmodus ist beendet</string>
+
+    <string name="toast_signal_measurement_enabled">Signalmessung start</string>
     <string name="error_no_connection">Keine Netzwerksverbindung: Einträge konnten nicht geladen werden.</string>
 
     <string name="label_map_filters">Einstellugen</string>
@@ -237,7 +245,6 @@
     <string name="about_email_subject">Supportanfrage</string>
 
     <string name="graph_signal_value">-%1$s dBm</string>
-
     <string name="notification_loop_mode_title_active">Der Wiederholungsmodus ist aktiv</string>
     <string name="notification_loop_mode_title_running">Der Wiederholungsmodus ist läuft (%1$d/%2$d)</string>
 
@@ -266,5 +273,7 @@
     <string name="loop_continue_to_results">Weiter zum ergebnis</string>
     <string name="loop_run_again">Noch einmal ausführen</string>
     <string name="title_privacy_policy">Datenschutzerklärung</string>
+    <string name="text_terms_agree">Ich stimme den Datenschutzbestimmungen und Nutzungsbedingungen von RTR für RTR-NetTest zu.</string>
+    <string name="text_terms_agree_empty">Sie müssen den Datenschutzbestimmungen und Nutzungsbedingungen von RTR zustimmen, um fortfahren zu können.</string>
 </resources>
 

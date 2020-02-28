@@ -105,6 +105,12 @@ data class ServerTestResultResponse(
 ) : BaseResponse()
 
 @Keep
+data class SignalMeasurementChunkResultResponse(
+    @SerializedName("test_uuid")
+    val uuid: String
+) : BaseResponse()
+
+@Keep
 data class SpeedCurveBodyResponse(
     // a lot of fields are not important for us, so we will parse only those one we need
     @SerializedName("speed_curve")
@@ -545,6 +551,8 @@ data class HistoryItemResponse(
     val signalClassification: Int?,
     @SerializedName("test_uuid")
     val testUUID: String,
+    @SerializedName("loop_uuid")
+    val loopUUID: String?,
     val time: Long,
     @SerializedName("time_string")
     val timeString: String,
@@ -768,3 +776,19 @@ class SyncDeviceResponseItem(
 
     val success: Boolean
 )
+
+@Keep
+data class SignalMeasurementRequestResponse(
+
+    @SerializedName("client_remote_ip")
+    val clientRemoteIp: String,
+
+    @SerializedName("test_uuid")
+    val testUUID: String,
+
+    @SerializedName("result_url")
+    val resultUrl: String,
+
+    @SerializedName("provider")
+    val provider: String
+) : BaseResponse()

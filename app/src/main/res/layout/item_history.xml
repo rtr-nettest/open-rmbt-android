@@ -9,7 +9,7 @@
             name="item"
             type="at.specure.data.entity.History" />
 
-        <import type="at.specure.data.Classification"/>
+        <import type="at.specure.data.Classification" />
 
     </data>
 
@@ -17,20 +17,31 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:padding="@dimen/padding_large">
+        android:paddingTop="@dimen/padding_large"
+        android:paddingBottom="@dimen/padding_large">
+
+        <ImageView
+            android:id="@+id/imageSignal"
+            android:layout_width="@dimen/history_image_size"
+            android:layout_height="@dimen/history_image_size"
+            android:contentDescription="@null"
+            android:scaleType="center"
+            app:historySignalStrength="@{item.signalClassification ?? Classification.NONE}"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:networkType="@{item.networkType}"
+            tools:src="@drawable/ic_history_3g_4" />
 
         <androidx.appcompat.widget.AppCompatTextView
-
             style="@style/RobotoRegularStyle.Small"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="3"
-            android:drawablePadding="@dimen/padding_small"
+            android:layout_marginStart="@dimen/margin_medium"
+            android:layout_weight="2"
             android:gravity="center_vertical"
             android:textColor="@color/text_dark_gray"
-            app:networkType="@{item.networkType}"
             app:historyTime="@{item.time}"
-            app:historySignalStrength="@{item.signalClassification ?? Classification.NONE}"
             app:historyTimezone="@{item.timezone}"
             tools:text="20.11.18, 12:00:45" />
 

@@ -4,6 +4,7 @@ import android.content.Context
 import android.os.Build
 import androidx.annotation.Keep
 import at.specure.core.BuildConfig
+import at.specure.location.LocationInfo
 import at.specure.util.hasPermission
 import com.google.gson.annotations.Expose
 import com.google.gson.annotations.SerializedName
@@ -75,5 +76,20 @@ class DeviceInfo(context: Context, val location: Location? = null) {
         val mock_location: Boolean,
         @Expose
         val altitude: Double
+    )
+}
+
+fun LocationInfo?.toDeviceInfoLocation(): DeviceInfo.Location? = if (this == null) null else {
+    DeviceInfo.Location(
+        lat = latitude,
+        long = longitude,
+        provider = provider,
+        speed = speed,
+        bearing = bearing,
+        time = elapsedRealtimeNanos,
+        age = ageNanos,
+        accuracy = accuracy,
+        mock_location = locationIsMocked,
+        altitude = altitude
     )
 }

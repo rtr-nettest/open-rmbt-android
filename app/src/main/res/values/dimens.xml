@@ -25,6 +25,7 @@
     <dimen name="padding_very_small">2dp</dimen>
     <dimen name="padding_small">4dp</dimen>
     <dimen name="padding_medium">8dp</dimen>
+    <dimen name="padding_medium_large">12dp</dimen>
     <dimen name="padding_large">16dp</dimen>
     <dimen name="padding_extra_large">24dp</dimen>
     <dimen name="padding_very_extra_large">32dp</dimen>
@@ -66,4 +67,6 @@
     <!-- Loop mode -->
     <dimen name="loop_mode_header_height">48dp</dimen>
     <dimen name="size_label_height">48dp</dimen>
+
+    <dimen name="history_image_size">24dp</dimen>
 </resources>

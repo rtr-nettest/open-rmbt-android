@@ -15,4 +15,7 @@ interface GeoLocationDao {
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     fun insert(geoLocations: GeoLocationRecord): Long
+
+    @Query("DELETE FROM ${Tables.GEO_LOCATION} WHERE testUUID=:testUUID")
+    fun remove(testUUID: String)
 }

@@ -123,6 +123,7 @@
 
     <!-- Measurement screen -->
     <string name="measurement_ping_value">%1$s ms</string>
+    <string name="measurement_ping_value_1f">%1$.1f ms</string>
     <string name="measurement_download_upload_speed">%1$s Mbit/s</string>
     <string name="measurement_download">Download</string>
     <string name="measurement_upload">Upload</string>
@@ -241,6 +242,13 @@
     <string name="toast_sync_code_copied_to_clipboard">Copied</string>
     <string name="hint_sync_code">Code</string>
     <string name="error_sync_code_short">The code length must be 12</string>
+
+    <string name="notification_signal_test_title">Signal measurement is running</string>
+    <string name="notification_signal_test_text">Open-RTMB Signal measurement is running in the background</string>
+
+    <string name="notification_loop_mode_finished_title">Loop mode finished</string>
+
+    <string name="toast_signal_measurement_enabled">Signal measurement started</string>
     <string name="error_no_connection">No Internet connection. Could not load data.</string>
 
     <string name="label_map_filters">Map filters</string>
@@ -282,5 +290,7 @@
     <string name="loop_continue_to_results">Continue to the result</string>
     <string name="loop_run_again">Run again</string>
     <string name="title_privacy_policy">Privacy Policy</string>
+    <string name="text_terms_agree">I agree with RTR’s Privacy and Terms of Use for RTR-NetTest.</string>
+    <string name="text_terms_agree_empty">You have to agree with RTR’s Privacy and Terms of Use to continue.</string>
 
 </resources>

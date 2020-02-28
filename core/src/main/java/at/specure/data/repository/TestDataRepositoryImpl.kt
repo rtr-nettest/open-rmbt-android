@@ -8,6 +8,7 @@ import at.specure.data.CoreDatabase
 import at.specure.data.entity.CapabilitiesRecord
 import at.specure.data.entity.CellInfoRecord
 import at.specure.data.entity.CellLocationRecord
+import at.specure.data.entity.ConnectivityStateRecord
 import at.specure.data.entity.GeoLocationRecord
 import at.specure.data.entity.GraphItemRecord
 import at.specure.data.entity.LoopModeRecord
@@ -45,6 +46,7 @@ class TestDataRepositoryImpl(db: CoreDatabase) : TestDataRepository {
     private val cellLocationDao = db.cellLocationDao()
     private val pingDao = db.pingDao()
     private val testDao = db.testDao()
+    private val connectivityStateDao = db.connectivityStateDao()
 
     override fun saveGeoLocation(testUUID: String, location: LocationInfo) = io {
         val geoLocation = GeoLocationRecord(
@@ -334,6 +336,10 @@ class TestDataRepositoryImpl(db: CoreDatabase) : TestDataRepository {
 
     override fun updateLoopMode(loopModeRecord: LoopModeRecord) = io {
         testDao.updateLoopModeRecord(loopModeRecord)
+    }
+
+    override fun saveConnectivityState(state: ConnectivityStateRecord) = io {
+        connectivityStateDao.saveState(state)
     }
 
     override fun getLoopMode(loopUUID: String): LiveData<LoopModeRecord?> {

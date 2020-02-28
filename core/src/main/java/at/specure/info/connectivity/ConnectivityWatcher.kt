@@ -14,6 +14,8 @@
 
 package at.specure.info.connectivity
 
+import androidx.lifecycle.LiveData
+
 /**
  * Watcher that is responsible for tracking active network state
  */
@@ -24,6 +26,11 @@ interface ConnectivityWatcher {
      * if there is no active network, null will be returned
      */
     val activeNetwork: ConnectivityInfo?
+
+    /**
+     * LiveData that update connectivity state changes
+     */
+    val connectivityStateLiveData: LiveData<ConnectivityStateBundle>
 
     /**
      * Add listener to observe connectivity changes

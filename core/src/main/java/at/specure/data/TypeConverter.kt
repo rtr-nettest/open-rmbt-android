@@ -7,15 +7,21 @@ import at.specure.data.entity.LoopModeState
 import at.specure.data.entity.TestResultGraphItemRecord
 import at.specure.info.TransportType
 import at.specure.info.cell.CellTechnology
+import at.specure.info.connectivity.ConnectivityState
 import at.specure.info.network.MobileNetworkType
 import at.specure.measurement.MeasurementState
+import at.specure.measurement.signal.SignalMeasurementState
 import at.specure.result.QoECategory
 import at.specure.result.QoSCategory
+import at.specure.test.DeviceInfo
+import com.google.gson.Gson
 import com.google.gson.JsonObject
 import com.google.gson.JsonParser
 import org.json.JSONArray
 
 class TypeConverter {
+
+    private val gson = Gson()
 
     @TypeConverter
     fun transportTypeToValue(transportType: TransportType?): Int? = transportType?.value
@@ -123,4 +129,32 @@ class TypeConverter {
 
     @TypeConverter
     fun loopModeStateToValue(state: LoopModeState): Int = state.valueInt
+
+    @TypeConverter
+    fun signalMeasurementStateToValue(state: SignalMeasurementState): Int = state.intValue
+
+    @TypeConverter
+    fun valueToSignalMeasurementState(value: Int): SignalMeasurementState = SignalMeasurementState.fromValue(value)
+
+    @TypeConverter
+    fun jsonToDeviceInfoLocation(json: String?): DeviceInfo.Location? {
+        if (json == null) {
+            return null
+        }
+
+        return gson.fromJson<DeviceInfo.Location>(json, DeviceInfo.Location::class.java)
+    }
+
+    @TypeConverter
+    fun deviceInfoLocationToJson(location: DeviceInfo.Location?): String? = if (location == null) {
+        null
+    } else {
+        gson.toJson(location)
+    }
+
+    @TypeConverter
+    fun connectivityStateToValue(state: ConnectivityState): Int = state.ordinal
+
+    @TypeConverter
+    fun valueToConnectivityState(value: Int): ConnectivityState = ConnectivityState.values()[value]
 }

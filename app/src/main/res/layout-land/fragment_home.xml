@@ -384,10 +384,10 @@
             android:background="?android:attr/selectableItemBackground"
             android:clickable="@{state.isConnected}"
             android:gravity="center"
-            android:src="@{state.isConnected ? @drawable/ic_upload : @drawable/ic_upload_disable}"
+            android:src="@{state.isSignalMeasurementActive() ? @drawable/ic_upload_enabled : (state.isConnected ? @drawable/ic_upload_disabled : @drawable/ic_upload_not_available)}"
             app:layout_constraintEnd_toEndOf="@+id/vBottomDivider"
             app:layout_constraintStart_toEndOf="@+id/btnLocation"
             app:layout_constraintTop_toBottomOf="@+id/vBottomDivider"
-            tools:src="@drawable/ic_upload" />
+            tools:src="@drawable/ic_upload_enabled" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

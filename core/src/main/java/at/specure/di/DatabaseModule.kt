@@ -32,6 +32,8 @@ import at.specure.data.repository.MapRepositoryImpl
 import at.specure.data.repository.ResultsRepository
 import at.specure.data.repository.ResultsRepositoryImpl
 import at.specure.data.repository.SettingsRepository
+import at.specure.data.repository.SignalMeasurementRepository
+import at.specure.data.repository.SignalMeasurementRepositoryImpl
 import at.specure.data.repository.TestDataRepository
 import at.specure.data.repository.TestDataRepositoryImpl
 import at.specure.data.repository.TestResultsRepository
@@ -115,4 +117,12 @@ class DatabaseModule {
         activeFilter: ActiveFilter
     ): MapRepository =
         MapRepositoryImpl(client, database, filterValuesStorage, activeFilter)
+
+    @Provides
+    fun provideSignalMeasurementRepository(
+        database: CoreDatabase,
+        context: Context,
+        clientUUID: ClientUUID,
+        client: ControlServerClient
+    ): SignalMeasurementRepository = SignalMeasurementRepositoryImpl(database, context, clientUUID, client)
 }

@@ -98,8 +98,8 @@ class IpChangeWatcherImpl @Inject constructor(
                 launch { privateIp6 = ipCheckRepository.getPrivateIpV6Address() }
             }
 
-            val privateAddress: String? = if (publicIp6?.ok == true) publicIp6!!.success.ipAddress else null
-            val publicAddress: String? = if (privateIp6?.ok == true) privateIp6!!.success.ipAddress else null
+            val privateAddress: String? = if (privateIp6?.ok == true) privateIp6!!.success.ipAddress else null
+            val publicAddress: String? = if (publicIp6?.ok == true) publicIp6!!.success.ipAddress else null
             val status = getIpStatus(privateAddress, publicAddress)
 
             checkForCaptivePortal(privateAddress, publicAddress, lastIPv6Address.privateAddress, lastIPv6Address.publicAddress)
