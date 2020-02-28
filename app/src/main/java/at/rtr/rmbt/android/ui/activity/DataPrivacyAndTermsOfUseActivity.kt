@@ -20,45 +20,53 @@ import android.content.Intent
 import android.graphics.Bitmap
 import android.os.Bundle
 import android.view.View
+import android.webkit.WebResourceError
+import android.webkit.WebResourceRequest
+import android.webkit.WebResourceResponse
+import android.webkit.WebView
+import android.webkit.WebViewClient
 import androidx.appcompat.widget.Toolbar
 import at.rtr.rmbt.android.R
-import android.webkit.WebViewClient
-import android.webkit.WebView
-import android.webkit.WebResourceRequest
-import android.webkit.WebResourceError
-import android.webkit.WebResourceResponse
 import at.rtr.rmbt.android.databinding.ActivityDataPrivacyTermsOfUseBinding
+import at.rtr.rmbt.android.di.viewModelLazy
+import at.rtr.rmbt.android.util.listen
+import at.rtr.rmbt.android.viewmodel.TermsAcceptanceViewModel
 
 @SuppressLint("SetJavaScriptEnabled")
 class DataPrivacyAndTermsOfUseActivity : BaseActivity() {
 
     private lateinit var binding: ActivityDataPrivacyTermsOfUseBinding
+    private val viewModel: TermsAcceptanceViewModel by viewModelLazy()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = bindContentView(R.layout.activity_data_privacy_terms_of_use)
         setupToolbar()
 
-        val dataPrivacyAndTermsUrl = intent.getStringExtra(KEY_DATA_PRIVACY_AND_TERMS_OF_USE_URL) ?: throw IllegalArgumentException("Please pass data privacy and terms of use URL")
-        with(binding.webViewDataPrivacyAndTermsOfUse) {
-            setInitialScale(1)
-            settings.loadWithOverviewMode = true
-            settings.useWideViewPort = true
-            settings.builtInZoomControls = true
-            settings.javaScriptEnabled = true
-            webViewClient = MyWebViewClient()
+        viewModel.tacContentLiveData.listen(this) {
+            with(binding.webViewDataPrivacyAndTermsOfUse) {
+                setInitialScale(1)
+                settings.loadWithOverviewMode = true
+                settings.useWideViewPort = true
+                settings.builtInZoomControls = true
+                settings.javaScriptEnabled = true
+                webViewClient = MyWebViewClient()
 
-            setOnKeyListener(android.view.View.OnKeyListener { _, keyCode, event ->
-                if (keyCode == android.view.KeyEvent.KEYCODE_BACK &&
-                    event.action == android.view.KeyEvent.ACTION_UP &&
-                    canGoBack()) {
-                    goBack()
-                    return@OnKeyListener true
-                }
-                false
-            })
-            loadUrl(dataPrivacyAndTermsUrl)
+                setOnKeyListener(android.view.View.OnKeyListener { _, keyCode, event ->
+                    if (keyCode == android.view.KeyEvent.KEYCODE_BACK &&
+                        event.action == android.view.KeyEvent.ACTION_UP &&
+                        canGoBack()
+                    ) {
+                        goBack()
+                        return@OnKeyListener true
+                    }
+                    false
+                })
+                loadDataWithBaseURL(null, it?.content, "text/html", "utf-8", null)
+            }
         }
+
+        viewModel.getTac()
     }
     private fun setupToolbar() {
         val toolbar: Toolbar = binding.toolbar

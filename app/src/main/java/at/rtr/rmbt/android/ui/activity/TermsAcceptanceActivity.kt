@@ -10,6 +10,7 @@ import android.webkit.WebViewClient
 import at.rtr.rmbt.android.R
 import at.rtr.rmbt.android.databinding.ActivityTermsAcceptanceBinding
 import at.rtr.rmbt.android.di.viewModelLazy
+import at.rtr.rmbt.android.ui.dialog.SimpleDialog
 import at.rtr.rmbt.android.util.ToolbarTheme
 import at.rtr.rmbt.android.util.changeStatusBarColor
 import at.rtr.rmbt.android.util.listen
@@ -26,8 +27,8 @@ class TermsAcceptanceActivity : BaseActivity() {
         window?.changeStatusBarColor(ToolbarTheme.WHITE)
 
         binding.content.webViewClient = TermsClient()
-        viewModel.tacUrlLiveData.listen(this) {
-            binding.content.loadUrl(it)
+        viewModel.tacContentLiveData.listen(this) {
+            binding.content.loadDataWithBaseURL(null, it?.content, "text/html", "utf-8", null)
         }
 
         binding.buttonToBottom.setOnClickListener {
@@ -47,14 +48,24 @@ class TermsAcceptanceActivity : BaseActivity() {
         }
 
         binding.accept.setOnClickListener {
-            setResult(Activity.RESULT_OK)
-            finish()
+            if (binding.checkbox.isChecked) {
+                setResult(Activity.RESULT_OK)
+                finish()
+            } else {
+                SimpleDialog.Builder()
+                    .messageText(R.string.text_terms_agree_empty)
+                    .positiveText(android.R.string.ok)
+                    .cancelable(true)
+                    .show(supportFragmentManager, CODE_DIALOG)
+            }
         }
 
         binding.decline.setOnClickListener {
             setResult(Activity.RESULT_CANCELED)
             finish()
         }
+
+        viewModel.getTac()
     }
 
     override fun onBackPressed() {}
@@ -68,6 +79,9 @@ class TermsAcceptanceActivity : BaseActivity() {
     }
 
     companion object {
+
+        private const val CODE_DIALOG = 12
+
         fun start(activity: Activity, code: Int) = activity.startActivityForResult(Intent(activity, TermsAcceptanceActivity::class.java), code)
     }
 }

@@ -24,6 +24,7 @@ object Tables {
     const val PING = "ping"
     const val QOE = "qoe"
     const val SIGNAL = "signal"
+    const val TAC = "tac"
     const val TEST = "test"
     const val TEST_GRAPH_ITEM = "test_graph_item"
     const val TEST_RESULT = "test_result"

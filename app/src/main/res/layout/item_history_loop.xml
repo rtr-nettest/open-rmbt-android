@@ -53,7 +53,7 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/margin_medium"
             android:drawablePadding="@dimen/padding_small"
-            android:text="@string/title_history_loop_mode"
+            android:text="@string/title_loop_mode"
             android:textColor="@color/text_gray_transparency_60"
             app:layout_constraintBottom_toTopOf="@+id/recyclerView"
             app:layout_constraintStart_toEndOf="@+id/imageSignal"

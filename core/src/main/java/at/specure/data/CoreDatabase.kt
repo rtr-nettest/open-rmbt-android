@@ -20,6 +20,7 @@ import at.specure.data.dao.QosTestItemDao
 import at.specure.data.dao.SignalDao
 import at.specure.data.dao.SignalMeasurementDao
 import at.specure.data.dao.SpeedDao
+import at.specure.data.dao.TacDao
 import at.specure.data.dao.TestDao
 import at.specure.data.dao.TestResultDao
 import at.specure.data.dao.TestResultDetailsDao
@@ -46,6 +47,7 @@ import at.specure.data.entity.SignalMeasurementInfo
 import at.specure.data.entity.SignalMeasurementRecord
 import at.specure.data.entity.SignalRecord
 import at.specure.data.entity.SpeedRecord
+import at.specure.data.entity.TacRecord
 import at.specure.data.entity.TestRecord
 import at.specure.data.entity.TestResultDetailsRecord
 import at.specure.data.entity.TestResultGraphItemRecord
@@ -70,6 +72,7 @@ import at.specure.data.entity.TestWlanRecord
         SignalRecord::class,
         TestTelephonyRecord::class,
         SpeedRecord::class,
+        TacRecord::class,
         TestRecord::class,
         TestResultGraphItemRecord::class,
         TestResultRecord::class,
@@ -82,7 +85,7 @@ import at.specure.data.entity.TestWlanRecord
         SignalMeasurementChunk::class,
         ConnectivityStateRecord::class,
         HistoryReference::class],
-    version = 58
+    version = 62
 )
 @TypeConverters(TypeConverter::class)
 abstract class CoreDatabase : RoomDatabase() {
@@ -101,6 +104,7 @@ abstract class CoreDatabase : RoomDatabase() {
     abstract fun qosTestItemDao(): QosTestItemDao
     abstract fun signalDao(): SignalDao
     abstract fun speedDao(): SpeedDao
+    abstract fun tacDao(): TacDao
     abstract fun testDao(): TestDao
     abstract fun testResultDao(): TestResultDao
     abstract fun testResultDetailsDao(): TestResultDetailsDao

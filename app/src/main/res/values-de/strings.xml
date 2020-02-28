@@ -272,7 +272,7 @@
     <string name="loop_continue_to_results">Weiter zum ergebnis</string>
     <string name="loop_run_again">Noch einmal ausführen</string>
     <string name="title_privacy_policy">Datenschutzerklärung</string>
-
-    <string name="title_history_loop_mode">Wiederholungsmodus</string>
+    <string name="text_terms_agree">Ich stimme den Datenschutzbestimmungen und Nutzungsbedingungen von RTR für RTR-NetTest zu.</string>
+    <string name="text_terms_agree_empty">Sie müssen den Datenschutzbestimmungen und Nutzungsbedingungen von RTR zustimmen, um fortfahren zu können.</string>
 </resources>
 
