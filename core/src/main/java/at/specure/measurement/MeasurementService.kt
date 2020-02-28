@@ -306,11 +306,8 @@ class MeasurementService : CustomLifecycleService() {
         runner.reset()
         stateRecorder.onLoopTestFinished()
         try {
-            val timeAwait = TimeUnit.MINUTES.toMillis(config.loopModeWaitingTimeMin.toLong())
-//            val timeAwait = 15_000L
-
             Handler(Looper.getMainLooper()).post {
-                loopCountdownTimer = object : CountDownTimer(timeAwait, 1000) {
+                loopCountdownTimer = object : CountDownTimer(loopDelayMs, 1000) {
 
                     override fun onFinish() {
                         Timber.e("CountDownTimer finished")
@@ -329,8 +326,7 @@ class MeasurementService : CustomLifecycleService() {
                             stopTestsIntent(this@MeasurementService)
                         )
                         notificationManager.notify(NOTIFICATION_ID, notification)
-                        val totalTime = TimeUnit.MINUTES.toMillis(config.loopModeWaitingTimeMin.toLong())
-                        clientAggregator.onLoopCountDownTimer(totalTime - millisUntilFinished, totalTime)
+                        clientAggregator.onLoopCountDownTimer(loopDelayMs - millisUntilFinished, loopDelayMs)
                     }
                 }
 
@@ -342,6 +338,15 @@ class MeasurementService : CustomLifecycleService() {
             Timber.e(ex, "CountDownTimer")
         }
     }
+
+    private val loopDelayMs: Long
+        get() {
+            val timeAwait = TimeUnit.MINUTES.toMillis(config.loopModeWaitingTimeMin.toLong())
+            if (timeAwait == 0L) {
+                return 3000
+            }
+            return timeAwait
+        }
 
     private fun runTest() {
         if (!runner.isRunning) {
