@@ -53,7 +53,7 @@ class TestControllerImpl(
         get() = _testUUID
 
     override val isRunning: Boolean
-        get() = job != null && qosTest != null
+        get() = job != null
 
     override val testStartTimeNanos: Long
         get() = _testStartTimeNanos
@@ -265,7 +265,6 @@ class TestControllerImpl(
 
                     this@TestControllerImpl.client = null
                     qosTest = null
-
                     if (currentStatus != TestStatus.ERROR) {
                         _listener?.onFinish()
                     }

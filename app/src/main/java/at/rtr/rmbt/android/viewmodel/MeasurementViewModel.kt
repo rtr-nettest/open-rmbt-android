@@ -96,7 +96,7 @@ class MeasurementViewModel @Inject constructor(
 
         override fun onServiceConnected(componentName: ComponentName?, binder: IBinder?) {
             producer = binder as MeasurementProducer?
-            Timber.i("On service connected")
+            Timber.i("On service connected ${producer?.isTestsRunning}")
 
             _isTestsRunningLiveData.postValue(producer?.isTestsRunning ?: false)
 

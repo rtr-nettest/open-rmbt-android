@@ -22,6 +22,7 @@ class HomeViewState(private val config: AppConfig) : ViewState {
     val ipV6Info = ObservableField<IpInfo?>()
     val isSignalMeasurementActive = ObservableField<Boolean>()
     val isLoopModeActive = ObservableBoolean(config.loopModeEnabled)
+    val developerModeIsEnabled = ObservableField(config.developerModeIsEnabled)
 
     init {
         isLoopModeActive.addOnPropertyChanged {
@@ -37,5 +38,6 @@ class HomeViewState(private val config: AppConfig) : ViewState {
 
     fun checkConfig() {
         isLoopModeActive.set(config.loopModeEnabled)
+        developerModeIsEnabled.set(config.developerModeIsEnabled)
     }
 }
