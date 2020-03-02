@@ -190,7 +190,7 @@ class MeasurementViewModel @Inject constructor(
     }
 
     override fun onLoopCountDownTimer(timePassedMillis: Long, timeTotalMillis: Long) {
-        _timeToNextTestElapsedLiveData.postValue(SimpleDateFormat("mm:ss", Locale.getDefault()).format(Date(timePassedMillis)))
+        _timeToNextTestElapsedLiveData.postValue(SimpleDateFormat("mm:ss", Locale.getDefault()).format(Date(timeTotalMillis - timePassedMillis)))
         _timeProgressPercentsLiveData.postValue(((timePassedMillis * 100) / timeTotalMillis).toInt())
     }
 
