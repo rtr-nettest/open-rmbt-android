@@ -1,26 +1,19 @@
 package at.specure.measurement.signal
 
-import android.annotation.SuppressLint
-import android.content.Context
 import android.os.Binder
 import android.os.Handler
-import android.telephony.SubscriptionManager
-import android.telephony.TelephonyManager
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
-import at.specure.config.Config
 import at.specure.data.entity.ConnectivityStateRecord
 import at.specure.data.entity.SignalMeasurementChunk
 import at.specure.data.entity.SignalMeasurementRecord
+import at.specure.data.repository.MeasurementRepository
 import at.specure.data.repository.SignalMeasurementRepository
 import at.specure.data.repository.TestDataRepository
-import at.specure.info.TransportType
 import at.specure.info.cell.CellInfoWatcher
 import at.specure.info.cell.CellNetworkInfo
-import at.specure.info.cell.mccCompat
-import at.specure.info.cell.mncCompat
 import at.specure.info.connectivity.ConnectivityStateBundle
 import at.specure.info.connectivity.ConnectivityWatcher
 import at.specure.info.network.ActiveNetworkLiveData
@@ -31,7 +24,6 @@ import at.specure.info.network.WifiNetworkInfo
 import at.specure.info.strength.SignalStrengthInfo
 import at.specure.info.strength.SignalStrengthLiveData
 import at.specure.info.strength.SignalStrengthWatcher
-import at.specure.info.wifi.WifiInfoWatcher
 import at.specure.location.LocationInfo
 import at.specure.location.LocationInfoLiveData
 import at.specure.location.LocationProviderState
@@ -41,9 +33,7 @@ import at.specure.location.cell.CellLocationInfo
 import at.specure.location.cell.CellLocationLiveData
 import at.specure.location.cell.CellLocationWatcher
 import at.specure.test.toDeviceInfoLocation
-import at.specure.util.isReadPhoneStatePermitted
 import timber.log.Timber
-import java.text.DecimalFormat
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -53,7 +43,6 @@ private const val MAX_SIGNAL_UPTIME_PER_CHUNK_MIN = 10L
 
 @Singleton
 class SignalMeasurementProcessor @Inject constructor(
-    private val context: Context,
     private val repository: TestDataRepository,
     private val locationInfoLiveData: LocationInfoLiveData,
     private val locationWatcher: LocationWatcher,
@@ -62,15 +51,12 @@ class SignalMeasurementProcessor @Inject constructor(
     private val activeNetworkLiveData: ActiveNetworkLiveData,
     private val activeNetworkWatcher: ActiveNetworkWatcher,
     private val cellInfoWatcher: CellInfoWatcher,
-    private val config: Config,
     private val cellLocationLiveData: CellLocationLiveData,
     private val cellLocationWatcher: CellLocationWatcher,
-    private val telephonyManager: TelephonyManager,
-    private val subscriptionManager: SubscriptionManager,
-    private val wifiInfoWatcher: WifiInfoWatcher,
     private val locationStateLiveData: LocationProviderStateLiveData,
     private val signalRepository: SignalMeasurementRepository,
-    private val connectivityWatcher: ConnectivityWatcher
+    private val connectivityWatcher: ConnectivityWatcher,
+    private val measurementRepository: MeasurementRepository
 ) : Binder(), SignalMeasurementProducer {
 
     private var _isActive = false
@@ -259,6 +245,7 @@ class SignalMeasurementProcessor @Inject constructor(
             saveCellLocation()
             saveLocationInfo()
             saveCapabilities()
+            savePermissionsStatus()
         }
     }
 
@@ -295,14 +282,7 @@ class SignalMeasurementProcessor @Inject constructor(
     }
 
     private fun saveCapabilities() {
-        chunk?.id?.let {
-            repository.saveCapabilities(
-                it,
-                config.capabilitiesRmbtHttp,
-                config.capabilitiesQosSupportsInfo,
-                config.capabilitiesClassificationCount
-            )
-        }
+        chunk?.id?.let { measurementRepository.saveCapabilities(it) }
     }
 
     private fun saveLocationInfo() {
@@ -341,16 +321,14 @@ class SignalMeasurementProcessor @Inject constructor(
         }
     }
 
-    private fun saveWlanInfo() {
-        val wifiInfo = wifiInfoWatcher.activeWifiInfo
-        if (wifiInfo?.ssid != null && wifiInfo.bssid != null) {
-            record?.let {
-                repository.saveWlanInfo(it.id, wifiInfo)
-            }
-        }
+    private fun savePermissionsStatus() {
+        chunk?.id?.let { measurementRepository.savePermissionsStatus(it) }
     }
 
-    @SuppressLint("MissingPermission")
+    private fun saveWlanInfo() {
+        record?.let { measurementRepository.saveWlanInfo(it.id) }
+    }
+
     private fun saveTelephonyInfo() {
         val info = networkInfo
         if (info != null && info is CellNetworkInfo) {
@@ -360,74 +338,6 @@ class SignalMeasurementProcessor @Inject constructor(
             }
         }
 
-        val type = activeNetworkWatcher.currentNetworkInfo?.type
-        val isDualSim = telephonyManager.phoneCount > 1
-        val isDualByMobile = type == TransportType.CELLULAR && isDualSim
-
-        chunk?.id?.let {
-            var operatorName: String? = null
-            var networkOperator: String? = null
-            var networkCountry: String? = null
-            val simCount: Int
-
-            if (context.isReadPhoneStatePermitted() && isDualByMobile) {
-                val subscription = subscriptionManager.activeSubscriptionInfoList.firstOrNull()
-                simCount = if (subscription != null) subscriptionManager.activeSubscriptionInfoCount else 2
-                subscription?.let {
-                    operatorName = subscription.carrierName.toString()
-                    val networkSimOperator = when {
-                        subscription.mccCompat() == null -> null
-                        subscription.mncCompat() == null -> null
-                        else -> "${subscription.mccCompat()}-${DecimalFormat("00").format(subscription.mncCompat())}"
-                    }
-                    networkOperator = networkSimOperator
-                    networkCountry = subscription.countryIso
-                }
-            } else {
-                simCount = 1
-                operatorName = telephonyManager.networkOperatorName
-                networkOperator = telephonyManager.networkOperator.fixOperatorName()
-                networkCountry = telephonyManager.networkCountryIso
-            }
-
-            val networkInfo = cellInfoWatcher.activeNetwork
-            val simCountry = telephonyManager.simCountryIso.fixOperatorName()
-            val simOperatorName = try { // hack for Motorola Defy (#594)
-                telephonyManager.simOperatorName
-            } catch (ex: SecurityException) {
-                ex.printStackTrace()
-                "s.exception"
-            }
-            val phoneType = telephonyManager.phoneType.toString()
-            val dataState = try {
-                telephonyManager.dataState.toString()
-            } catch (ex: SecurityException) {
-                ex.printStackTrace()
-                "s.exception"
-            }
-
-            repository.saveTelephonyInfo(
-                it,
-                networkInfo,
-                operatorName,
-                networkOperator,
-                networkCountry,
-                simCountry,
-                simOperatorName,
-                phoneType,
-                dataState,
-                simCount
-            )
-        }
-    }
-
-    private fun String?.fixOperatorName(): String? {
-        return if (this == null) {
-            null
-        } else if (length >= 5 && !contains("-")) {
-            "${substring(0, 3)}-${substring(3)}"
-        } else {
-            this
-        }
+        chunk?.id?.let { measurementRepository.saveTelephonyInfo(it) }
     }
 }
