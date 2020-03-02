@@ -259,6 +259,7 @@
             app:layout_constraintEnd_toEndOf="@+id/leftView"
             app:layout_constraintStart_toStartOf="@+id/leftView"
             app:layout_constraintTop_toBottomOf="@+id/tvNetworkType"
+            android:drawableEnd="@{state.developerModeIsEnabled ? @drawable/ic_developer_mode : null}"
             tools:text="Android Network"
             tools:textColor="@android:color/white" />
 
