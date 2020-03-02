@@ -65,9 +65,9 @@ fun DeviceInfo.toSettingsRequest(clientUUID: ClientUUID, config: Config, tac: Te
     versionName = clientVersionName,
     versionCode = clientVersionCode.toString(),
     uuid = clientUUID.value ?: "",
-    userServerSelectionEnabled = config.userServerSelectionEnabled,
-    tacVersion = 6, // TODO replace with tac.tacVersion ?: 0,
-    tacAccepted = true, // TODO should be replaced with tac.tacAccepted,
+    userServerSelectionEnabled = config.expertModeEnabled,
+    tacVersion = tac.tacVersion ?: 0,
+    tacAccepted = tac.tacAccepted,
     capabilities = config.toCapabilitiesBody()
 )
 
