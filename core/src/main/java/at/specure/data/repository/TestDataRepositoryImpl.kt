@@ -263,7 +263,7 @@ class TestDataRepositoryImpl(db: CoreDatabase) : TestDataRepository {
         testUUID: String,
         networkInfo: CellNetworkInfo?,
         operatorName: String?,
-        networkOperator: String?,
+        networkSimOperator: String?,
         networkCountry: String?,
         simCountry: String?,
         simOperatorName: String?,
@@ -271,7 +271,7 @@ class TestDataRepositoryImpl(db: CoreDatabase) : TestDataRepository {
         dataState: String?,
         simCount: Int
     ) = io {
-        val networkSimOperator = when {
+        val networkOperator = when {
             networkInfo?.mcc == null -> null
             networkInfo.mnc == null -> null
             else -> "${networkInfo.mcc}-${DecimalFormat("00").format(networkInfo.mnc)}"

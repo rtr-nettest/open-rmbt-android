@@ -23,10 +23,13 @@ import at.specure.data.repository.DeviceSyncRepository
 import at.specure.data.repository.DeviceSyncRepositoryImpl
 import at.specure.data.repository.HistoryRepository
 import at.specure.data.repository.IpCheckRepository
+import at.specure.data.repository.MeasurementRepository
+import at.specure.data.repository.MeasurementRepositoryImpl
 import at.specure.data.repository.SettingsRepository
 import at.specure.data.repository.SettingsRepositoryImpl
 import at.specure.data.repository.TacRepository
 import at.specure.data.repository.TacRepositoryImpl
+import at.specure.data.repository.TestDataRepository
 import at.specure.info.cell.CellInfoWatcher
 import at.specure.info.cell.CellInfoWatcherImpl
 import at.specure.info.connectivity.ConnectivityWatcher
@@ -189,4 +192,27 @@ class CoreModule {
     @Provides
     fun provideTacRepository(coreDatabase: CoreDatabase, termsAndConditions: TermsAndConditions): TacRepository =
         TacRepositoryImpl(coreDatabase, termsAndConditions)
+
+    @Provides
+    fun provideMeasurementRepository(
+        context: Context,
+        telephonyManager: TelephonyManager,
+        subscriptionManager: SubscriptionManager,
+        activeNetworkWatcher: ActiveNetworkWatcher,
+        cellInfoWatcher: CellInfoWatcher,
+        repository: TestDataRepository,
+        wifiInfoWatcher: WifiInfoWatcher,
+        config: Config,
+        permissionsWatcher: PermissionsWatcher
+    ): MeasurementRepository = MeasurementRepositoryImpl(
+        context = context,
+        telephonyManager = telephonyManager,
+        subscriptionManager = subscriptionManager,
+        activeNetworkWatcher = activeNetworkWatcher,
+        cellInfoWatcher = cellInfoWatcher,
+        repository = repository,
+        wifiInfoWatcher = wifiInfoWatcher,
+        config = config,
+        permissionsWatcher = permissionsWatcher
+    )
 }
