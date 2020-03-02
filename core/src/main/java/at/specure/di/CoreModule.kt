@@ -18,6 +18,7 @@ import at.specure.data.ControlServerSettings
 import at.specure.data.CoreDatabase
 import at.specure.data.HistoryFilterOptions
 import at.specure.data.MapServerSettings
+import at.specure.data.MeasurementServers
 import at.specure.data.TermsAndConditions
 import at.specure.data.repository.DeviceSyncRepository
 import at.specure.data.repository.DeviceSyncRepositoryImpl
@@ -151,6 +152,7 @@ class CoreModule {
         controlServerSettings: ControlServerSettings,
         mapServerSettings: MapServerSettings,
         termsAndConditions: TermsAndConditions,
+        measurementServers: MeasurementServers,
         tacRepository: TacRepository,
         historyFilterOptions: HistoryFilterOptions,
         config: Config
@@ -162,6 +164,7 @@ class CoreModule {
             controlServerSettings = controlServerSettings,
             mapServerSettings = mapServerSettings,
             termsAndConditions = termsAndConditions,
+            measurementsServers = measurementServers,
             historyFilterOptions = historyFilterOptions,
             tacRepository = tacRepository,
             config = config
@@ -169,8 +172,19 @@ class CoreModule {
 
     @Provides
     @Singleton
-    fun provideTestController(context: Context, config: Config, clientUUID: ClientUUID, connectivityManager: ConnectivityManager): TestController =
-        TestControllerImpl(context, config, clientUUID, connectivityManager)
+    fun provideTestController(
+        context: Context,
+        config: Config,
+        clientUUID: ClientUUID,
+        measurementServers: MeasurementServers,
+        connectivityManager: ConnectivityManager
+    ): TestController =
+        TestControllerImpl(context, config, clientUUID, connectivityManager, measurementServers)
+
+    @Provides
+    @Singleton
+    fun provideMeasurementServers(context: Context): MeasurementServers =
+        MeasurementServers(context)
 
     @Provides
     @Singleton
