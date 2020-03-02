@@ -182,10 +182,12 @@ fun TestRecord.toRequest(
             if (cells == null) {
                 null
             } else {
+                var ignoreNetworkId = false
                 signalList.forEach {
                     val cell = cells[it.cellUuid]
                     if (cell != null) {
-                        list.add(it.toRequest(cell.uuid))
+                        list.add(it.toRequest(cell.uuid, ignoreNetworkId))
+                        ignoreNetworkId = true
                     }
                 }
                 if (list.isEmpty()) null else list
@@ -326,9 +328,9 @@ fun CellInfoRecord.toRequest() = CellInfoBody(
     registered = registered
 )
 
-fun SignalRecord.toRequest(cellUUID: String) = SignalBody(
+fun SignalRecord.toRequest(cellUUID: String, ignoreNetworkId: Boolean) = SignalBody(
     cellUuid = cellUUID,
-    networkTypeId = transportType.toRequestIntValue(mobileNetworkType),
+    networkTypeId = if (ignoreNetworkId) null else transportType.toRequestIntValue(mobileNetworkType),
     signal = signal.checkSignalValue(),
     bitErrorRate = bitErrorRate.checkSignalValue(),
     wifiLinkSpeed = wifiLinkSpeed.checkSignalValue(),
@@ -462,7 +464,7 @@ fun SignalMeasurementRecord.toRequest(
                 signalList.forEach {
                     val cell = cells[it.cellUuid]
                     if (cell != null) {
-                        list.add(it.toRequest(cell.uuid))
+                        list.add(it.toRequest(cell.uuid, false))
                     }
                 }
                 if (list.isEmpty()) null else list

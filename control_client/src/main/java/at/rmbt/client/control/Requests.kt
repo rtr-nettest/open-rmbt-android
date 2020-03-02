@@ -600,7 +600,7 @@ data class SignalBody(
      * Server id for network type
      */
     @SerializedName("network_type_id")
-    val networkTypeId: Int,
+    val networkTypeId: Int?,
 
     /**
      * Only for non 4G signal types
