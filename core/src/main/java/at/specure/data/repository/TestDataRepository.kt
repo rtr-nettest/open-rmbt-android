@@ -18,7 +18,7 @@ import org.json.JSONArray
 
 interface TestDataRepository {
 
-    fun saveGeoLocation(testUUID: String, location: LocationInfo)
+    fun saveGeoLocation(testUUID: String, location: LocationInfo, testStartTimeNanos: Long)
 
     fun saveSpeedData(testUUID: String, threadId: Int, bytes: Long, timestampNanos: Long, isUpload: Boolean)
 
@@ -46,7 +46,7 @@ interface TestDataRepository {
 
     fun savePermissionStatus(testUUID: String, permission: String, granted: Boolean)
 
-    fun saveCellLocation(testUUID: String, info: CellLocationInfo)
+    fun saveCellLocation(testUUID: String, info: CellLocationInfo, startTimeNanos: Long)
 
     fun saveAllPingValues(testUUID: String, clientPing: Long, serverPing: Long, timeNs: Long)
 
@@ -54,7 +54,7 @@ interface TestDataRepository {
         testUUID: String,
         networkInfo: CellNetworkInfo?,
         operatorName: String?,
-        networkOperator: String?,
+        networkSimOperator: String?,
         networkCountry: String?,
         simCountry: String?,
         simOperatorName: String?,
