@@ -197,7 +197,7 @@ class StateRecorder @Inject constructor(
         val uuid = testUUID
         val location = locationInfo
         if (uuid != null && location != null && locationStateLiveData.value == LocationProviderState.ENABLED) {
-            repository.saveGeoLocation(uuid, location)
+            repository.saveGeoLocation(uuid, location, testStartTimeNanos)
         }
 
         _loopModeRecord?.let {
@@ -266,7 +266,7 @@ class StateRecorder @Inject constructor(
         val uuid = testUUID
         val location = cellLocation
         if (uuid != null && location != null) {
-            repository.saveCellLocation(uuid, location)
+            repository.saveCellLocation(uuid, location, testStartTimeNanos)
         }
     }
 

@@ -25,6 +25,11 @@ data class SignalMeasurementRecord(
     val startTimeMillis: Long = System.currentTimeMillis(),
 
     /**
+     * Test start time in nanos
+     */
+    val startTimeNanos: Long = System.nanoTime(),
+
+    /**
      * Location info on the start of signal measurement
      */
     var location: DeviceInfo.Location?,

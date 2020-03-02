@@ -48,7 +48,7 @@ class TestDataRepositoryImpl(db: CoreDatabase) : TestDataRepository {
     private val testDao = db.testDao()
     private val connectivityStateDao = db.connectivityStateDao()
 
-    override fun saveGeoLocation(testUUID: String, location: LocationInfo) = io {
+    override fun saveGeoLocation(testUUID: String, location: LocationInfo, testStartTimeNanos: Long) = io {
         val geoLocation = GeoLocationRecord(
             testUUID = testUUID,
             latitude = location.latitude,
@@ -57,7 +57,7 @@ class TestDataRepositoryImpl(db: CoreDatabase) : TestDataRepository {
             speed = location.speed,
             altitude = location.altitude,
             timestampMillis = location.time,
-            timeRelativeNanos = location.elapsedRealtimeNanos,
+            timeRelativeNanos = location.elapsedRealtimeNanos - testStartTimeNanos,
             ageNanos = location.ageNanos,
             accuracy = location.accuracy,
             bearing = location.bearing,
@@ -245,13 +245,13 @@ class TestDataRepositoryImpl(db: CoreDatabase) : TestDataRepository {
         capabilitiesDao.insert(capabilities)
     }
 
-    override fun saveCellLocation(testUUID: String, info: CellLocationInfo) = io {
+    override fun saveCellLocation(testUUID: String, info: CellLocationInfo, startTimeNanos: Long) = io {
         val record = CellLocationRecord(
             testUUID = testUUID,
             scramblingCode = info.scramblingCode,
             areaCode = info.areaCode,
             locationId = info.locationId,
-            timestampNanos = info.timestampNanos,
+            timestampNanos = info.timestampNanos - startTimeNanos,
             timestampMillis = info.timestampMillis
         )
         cellLocationDao.insert(record)
