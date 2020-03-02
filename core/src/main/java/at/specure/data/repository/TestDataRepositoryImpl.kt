@@ -154,7 +154,10 @@ class TestDataRepositoryImpl(db: CoreDatabase) : TestDataRepository {
 
         val startTimestampNsSinceBoot = testStartTimeNanos + (SystemClock.elapsedRealtimeNanos() - System.nanoTime())
         val timeNanos = info.timestampNanos - startTimestampNsSinceBoot
-        val timeNanosLast = if (info.timestampNanos < startTimestampNsSinceBoot) info.timestampNanos - startTimestampNsSinceBoot else null
+        var timeNanosLast = if (info.timestampNanos < startTimestampNsSinceBoot) info.timestampNanos - startTimestampNsSinceBoot else null
+        if (timeNanosLast == 0L) {
+            timeNanosLast = null
+        }
 
         val item = SignalRecord(
             testUUID = testUUID,

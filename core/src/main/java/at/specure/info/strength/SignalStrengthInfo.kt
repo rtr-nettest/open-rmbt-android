@@ -93,6 +93,9 @@ open class SignalStrengthInfo(
         const val NR_RSRP_SIGNAL_MIN = -140
         const val NR_RSRP_SIGNAL_MAX = -44
 
+        const val RSSNR_MIN = -200
+        const val RSSNR_MAX = 300
+
         fun from(signal: CellSignalStrengthLte): SignalStrengthInfoLte = SignalStrengthInfoLte(
             transport = TransportType.CELLULAR,
             value = signal.dbm,
@@ -395,7 +398,7 @@ open class SignalStrengthInfo(
         }
 
         private fun Int?.fixRssnr(): Int? =
-            if (this == null || this > 300 || this < -200 || this == Int.MIN_VALUE || this == Int.MAX_VALUE) {
+            if (this == null || this > 300 || this < -200 || this == RSSNR_MIN || this == RSSNR_MAX) {
                 null
             } else {
                 this
