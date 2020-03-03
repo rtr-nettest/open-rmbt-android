@@ -1,5 +1,7 @@
 package at.rtr.rmbt.android.ui.fragment
 
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.view.View
 import androidx.core.content.ContextCompat
@@ -39,6 +41,13 @@ class TestResultDetailFragment : BaseFragment() {
                 title.title
             }
             adapter.items = it as MutableList<TestResultDetailsRecord>
+            adapter.actionCallback = { detailResultItem ->
+                if (!detailResultItem.openTestUUID.isNullOrEmpty() && !testResultDetailViewModel.openDataPrefix.isNullOrEmpty()) {
+                    val openDataLink = testResultDetailViewModel.openDataPrefix + detailResultItem.openTestUUID + "#noMMenu"
+                    val browserIntent = Intent(Intent.ACTION_VIEW, Uri.parse(openDataLink))
+                    startActivity(browserIntent)
+                }
+            }
         }
     }
 
