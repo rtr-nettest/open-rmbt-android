@@ -88,6 +88,12 @@
     <string name="preferences_category_developer_qos_server">QoS server</string>
     <string name="preferences_developer_qos_ssl">QoS server SSL</string>
     <string name="preferences_developer_qos_ssl_sum">Use encrypted connection to QoS server</string>
+    <string name="preferences_server_selection_disabled">Server selection removed.</string>
+    <string name="preferences_server_selection_available">Server selection available.</string>
+    <string name="preferences_all_disabled">Deactivated.</string>
+    <string name="preferences_server_selection">Server selection</string>
+    <string name="preferences_default_server_selection">Default</string>
+    <string name="label_server_selection">Server selection</string>
 
     <!-- Location Dialog -->
     <string name="location_dialog_label_title">Location</string>

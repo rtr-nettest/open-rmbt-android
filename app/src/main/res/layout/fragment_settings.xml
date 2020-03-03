@@ -163,6 +163,19 @@
                 bind:title="@{@string/preferences_radio_info}" />
 
             <include
+                android:id="@+id/userServerSelection"
+                layout="@layout/item_setting_edittext"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:visibility="@{state.expertModeEnabled &amp;&amp; state.userServerSelectionEnabled ? View.VISIBLE : View.GONE}"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/radioInfo"
+                bind:title="@{@string/preferences_server_selection}"
+                bind:value='@{state.selectedMeasurementServer  != null ? state.selectedMeasurementServer.name : @string/preferences_default_server_selection}'
+                />
+
+            <include
                 android:id="@+id/labelDeveloperControlServer"
                 layout="@layout/item_setting_header"
                 android:layout_width="0dp"
@@ -170,7 +183,7 @@
                 android:visibility="@{state.developerModeIsEnabled ? View.VISIBLE : View.GONE}"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/radioInfo"
+                app:layout_constraintTop_toBottomOf="@+id/userServerSelection"
                 bind:title="@{@string/preferences_developer_control_server}" />
 
             <include
