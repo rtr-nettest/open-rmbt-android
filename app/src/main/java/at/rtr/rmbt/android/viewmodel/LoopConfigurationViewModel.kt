@@ -7,7 +7,7 @@ import at.rtr.rmbt.android.util.map
 import at.specure.info.connectivity.ConnectivityInfoLiveData
 import javax.inject.Inject
 
-class LoopConfigurationViewModel @Inject constructor(config: AppConfig, connectivityInfoLiveData: ConnectivityInfoLiveData) : BaseViewModel() {
+class LoopConfigurationViewModel @Inject constructor(val config: AppConfig, connectivityInfoLiveData: ConnectivityInfoLiveData) : BaseViewModel() {
 
     val state = LoopConfigurationViewState(config)
 
@@ -20,19 +20,19 @@ class LoopConfigurationViewModel @Inject constructor(config: AppConfig, connecti
     }
 
     fun isWaitingTimeValid(value: Int, minValue: Int, maxValue: Int) =
-        if (value in minValue..maxValue) {
+        if (value in minValue..maxValue || config.developerModeIsEnabled) {
             state.waitingTime.set(value)
             true
         } else false
 
     fun isDistanceValid(value: Int, minValue: Int, maxValue: Int) =
-        if (value in minValue..maxValue) {
+        if (value in minValue..maxValue || config.developerModeIsEnabled) {
             state.distance.set(value)
             true
         } else false
 
     fun isNumberValid(value: Int, minValue: Int, maxValue: Int) =
-        if (value in minValue..maxValue) {
+        if (value in minValue..maxValue || config.developerModeIsEnabled) {
             state.numberOfTests.set(value)
             true
         } else false

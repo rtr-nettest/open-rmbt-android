@@ -55,6 +55,36 @@ interface Config {
     var loopModeNumberOfTests: Int
 
     /**
+     * Minimum distance to set between 2 loop measurements in meters
+     */
+    var loopModeMinDistanceMeters: Int
+
+    /**
+     * Maximum distance to set between 2 loop measurements in meters
+     */
+    var loopModeMaxDistanceMeters: Int
+
+    /**
+     * Minimum waiting time to set between 2 loop measurements in minutes
+     */
+    var loopModeMinWaitingTimeMin: Int
+
+    /**
+     * Maximum waiting time to set between 2 loop measurements in minutes
+     */
+    var loopModeMaxWaitingTimeMin: Int
+
+    /**
+     * Maximum number of test to execute in loop
+     */
+    var loopModeMaxTestsNumber: Int
+
+    /**
+     * Minimum number of test to execute in loop
+     */
+    var loopModeMinTestsNumber: Int
+
+    /**
      * Shows an expert menu to the user if enabled in settings screen
      */
     var expertModeEnabled: Boolean

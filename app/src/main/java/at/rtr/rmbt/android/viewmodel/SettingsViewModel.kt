@@ -26,7 +26,7 @@ class SettingsViewModel @Inject constructor(appConfig: AppConfig, clientUUID: Cl
 
     fun isLoopModeWaitingTimeValid(value: Int, minValue: Int, maxValue: Int): Boolean {
 
-        if (value in minValue..maxValue) {
+        if (value in minValue..maxValue || state.developerModeIsEnabled.get() == true) {
             state.loopModeWaitingTimeMin.set(value)
             return true
         }
@@ -34,8 +34,16 @@ class SettingsViewModel @Inject constructor(appConfig: AppConfig, clientUUID: Cl
     }
 
     fun isLoopModeDistanceMetersValid(value: Int, minValue: Int, maxValue: Int): Boolean {
-        if (value in minValue..maxValue) {
+        if (value in minValue..maxValue || state.developerModeIsEnabled.get() == true) {
             state.loopModeDistanceMeters.set(value)
+            return true
+        }
+        return false
+    }
+
+    fun isLoopModeNumberOfTestValid(value: Int, minValue: Int, maxValue: Int): Boolean {
+        if (value in minValue..maxValue || state.developerModeIsEnabled.get() == true) {
+            state.loopModeNumberOfTests.set(value)
             return true
         }
         return false

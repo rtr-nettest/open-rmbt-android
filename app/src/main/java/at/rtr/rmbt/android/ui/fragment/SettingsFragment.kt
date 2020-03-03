@@ -19,12 +19,14 @@ import at.rtr.rmbt.android.ui.dialog.InputSettingDialog
 import at.rtr.rmbt.android.ui.dialog.OpenGpsSettingDialog
 import at.rtr.rmbt.android.ui.dialog.OpenLocationPermissionDialog
 import at.rtr.rmbt.android.ui.dialog.SimpleDialog
+import at.rtr.rmbt.android.util.addOnPropertyChanged
 import at.rtr.rmbt.android.util.listen
 import at.rtr.rmbt.android.viewmodel.SettingsViewModel
 import at.specure.location.LocationProviderState
 import at.specure.util.copyToClipboard
 import at.specure.util.openAppSettings
 import timber.log.Timber
+import java.util.Locale
 
 class SettingsFragment : BaseFragment(), InputSettingDialog.Callback {
 
@@ -178,8 +180,40 @@ class SettingsFragment : BaseFragment(), InputSettingDialog.Callback {
             settingsViewModel.state.dataPrivacyAndTermsUrl.get()?.let { url ->
                 DataPrivacyAndTermsOfUseActivity.start(
                     requireContext(),
-                    url
+                    when (Locale.getDefault().language) {
+                        "de" -> String.format(url, "de")
+                        else -> String.format(url, "en")
+                    }
                 )
+            }
+        }
+
+        settingsViewModel.state.developerModeIsEnabled.addOnPropertyChanged {
+            if (it.get() == false) {
+                if (!settingsViewModel.isLoopModeWaitingTimeValid(
+                        settingsViewModel.state.loopModeWaitingTimeMin.get() ?: settingsViewModel.state.appConfig.loopModeMinWaitingTimeMin,
+                        settingsViewModel.state.appConfig.loopModeMaxWaitingTimeMin,
+                        settingsViewModel.state.appConfig.loopModeMinWaitingTimeMin
+                    )
+                ) {
+                    settingsViewModel.state.loopModeWaitingTimeMin.set(settingsViewModel.state.appConfig.loopModeMinWaitingTimeMin)
+                }
+                if (!settingsViewModel.isLoopModeDistanceMetersValid(
+                        settingsViewModel.state.loopModeDistanceMeters.get() ?: settingsViewModel.state.appConfig.loopModeMinDistanceMeters,
+                        settingsViewModel.state.appConfig.loopModeMinDistanceMeters,
+                        settingsViewModel.state.appConfig.loopModeMaxDistanceMeters
+                    )
+                ) {
+                    settingsViewModel.state.loopModeDistanceMeters.set(settingsViewModel.state.appConfig.loopModeMinDistanceMeters)
+                }
+                if (!settingsViewModel.isLoopModeNumberOfTestValid(
+                        settingsViewModel.state.loopModeNumberOfTests.get(),
+                        settingsViewModel.state.appConfig.loopModeMinTestsNumber,
+                        settingsViewModel.state.appConfig.loopModeMaxTestsNumber
+                    )
+                ) {
+                    settingsViewModel.state.loopModeNumberOfTests.set(settingsViewModel.state.appConfig.loopModeMinTestsNumber)
+                }
             }
         }
     }
@@ -187,10 +221,19 @@ class SettingsFragment : BaseFragment(), InputSettingDialog.Callback {
     override fun onSelected(value: String, requestCode: Int) {
         when (requestCode) {
             KEY_REQUEST_CODE_LOOP_MODE_WAITING_TIME -> {
-                if (!settingsViewModel.isLoopModeWaitingTimeValid(value.toInt(), MIN_LOOP_MODE_WAITING_TIME, MAX_LOOP_MODE_WAITING_TIME)) {
+                if (!settingsViewModel.isLoopModeWaitingTimeValid(
+                        value.toInt(),
+                        settingsViewModel.state.appConfig.loopModeMinWaitingTimeMin,
+                        settingsViewModel.state.appConfig.loopModeMaxWaitingTimeMin
+                    ) && settingsViewModel.state.developerModeIsEnabled.get() != true
+                ) {
                     SimpleDialog.Builder()
                         .messageText(
-                            String.format(getString(R.string.loop_mode_max_delay_invalid), MIN_LOOP_MODE_WAITING_TIME, MAX_LOOP_MODE_WAITING_TIME)
+                            String.format(
+                                getString(R.string.loop_mode_max_delay_invalid),
+                                settingsViewModel.state.appConfig.loopModeMinWaitingTimeMin,
+                                settingsViewModel.state.appConfig.loopModeMaxWaitingTimeMin
+                            )
                         )
                         .positiveText(android.R.string.ok)
                         .cancelable(false)
@@ -198,10 +241,19 @@ class SettingsFragment : BaseFragment(), InputSettingDialog.Callback {
                 }
             }
             KEY_REQUEST_CODE_LOOP_MODE_DISTANCE -> {
-                if (!settingsViewModel.isLoopModeDistanceMetersValid(value.toInt(), MIN_LOOP_MODE_DISTANCE, MAX_LOOP_MODE_DISTANCE)) {
+                if (!settingsViewModel.isLoopModeDistanceMetersValid(
+                        value.toInt(),
+                        settingsViewModel.state.appConfig.loopModeMinDistanceMeters,
+                        settingsViewModel.state.appConfig.loopModeMaxDistanceMeters
+                    ) && settingsViewModel.state.developerModeIsEnabled.get() != true
+                ) {
                     SimpleDialog.Builder()
                         .messageText(
-                            String.format(getString(R.string.loop_mode_max_delay_invalid), MIN_LOOP_MODE_DISTANCE, MAX_LOOP_MODE_DISTANCE)
+                            String.format(
+                                getString(R.string.loop_mode_max_delay_invalid),
+                                settingsViewModel.state.appConfig.loopModeMinDistanceMeters,
+                                settingsViewModel.state.appConfig.loopModeMaxDistanceMeters
+                            )
                         )
                         .positiveText(android.R.string.ok)
                         .cancelable(false)
@@ -248,11 +300,6 @@ class SettingsFragment : BaseFragment(), InputSettingDialog.Callback {
         private const val KEY_DEVELOPER_CONTROL_SERVER_PORT_CODE: Int = 5
         private const val KEY_DEVELOPER_MAP_SERVER_HOST_CODE: Int = 6
         private const val KEY_DEVELOPER_MAP_SERVER_PORT_CODE: Int = 7
-
-        private const val MIN_LOOP_MODE_WAITING_TIME: Int = 15
-        private const val MAX_LOOP_MODE_WAITING_TIME: Int = 1440
-        private const val MIN_LOOP_MODE_DISTANCE: Int = 50
-        private const val MAX_LOOP_MODE_DISTANCE: Int = 10000
 
         private const val CODE_LOOP_INSTRUCTIONS = 13
         private const val CODE_DIALOG_INVALID = 14
