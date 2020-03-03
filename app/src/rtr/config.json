@@ -36,6 +36,36 @@
       "visible": true
     },
     {
+      "name": "LOOP_MODE_MAX_NUMBER_OF_TESTS",
+      "value": "100",
+      "visible": false
+    },
+    {
+      "name": "LOOP_MODE_MIN_NUMBER_OF_TESTS",
+      "value": "1",
+      "visible": false
+    },
+    {
+      "name": "LOOP_MODE_MAX_WAITING_TIME_MIN",
+      "value": "1440",
+      "visible": false
+    },
+    {
+      "name": "LOOP_MODE_MIN_WAITING_TIME_MIN",
+      "value": "15",
+      "visible": false
+    },
+    {
+      "name": "LOOP_MODE_MAX_DISTANCE_METERS",
+      "value": "10000",
+      "visible": false
+    },
+    {
+      "name": "LOOP_MODE_MIN_DISTANCE_METERS",
+      "value": "50",
+      "visible": false
+    },
+    {
       "name": "EXPERT_MODE_ENABLED",
       "value": "false",
       "visible": true
@@ -227,7 +257,7 @@
     },
     {
       "name": "DATA_PRIVACY_AND_TERMS_URL",
-      "value": "https://www.rtr.at/en/tk/netztestterms",
+      "value": "https://www.rtr.at/%s/tk/netztestterms",
       "visible": true
     },
     {

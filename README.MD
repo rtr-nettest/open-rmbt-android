@@ -38,3 +38,9 @@ The source code is published under [Apache version 2.0 license](https://github.c
     22. **CAPABILITIES_CLASSIFICATION_COUNT** - number of intervals(classes) to classify measured values, example "4"
     23. **IS_CONTROL_SERVER_OVERRIDE_ENABLED** - Control server override enabled false by default
     24. **DATA_PRIVACY_AND_TERMS_URL** - url of data privacy and terms of use
+    25. **LOOP_MODE_MAX_NUMBER_OF_TESTS** - maximum number of tests to be able to set for loop mode, example "100"
+    26. **LOOP_MODE_MIN_NUMBER_OF_TESTS** - minimum number of tests to be able to set for loop mode, example "1"
+    27. **LOOP_MODE_MAX_WAITING_TIME_MIN** - maximum time to wait between 2 test in the loop mode in minutes, example "1440"
+    28. **LOOP_MODE_MIN_WAITING_TIME_MIN** - minimum time to wait between 2 test in the loop mode in minutes, example "15"
+    29. **LOOP_MODE_MAX_DISTANCE_METERS** - maximum distance in meters to trigger new test in loop mode, example "10000"
+    30. **LOOP_MODE_MIN_DISTANCE_METERS** - minimum distance in meters to trigger new test in loop mode, example "50"

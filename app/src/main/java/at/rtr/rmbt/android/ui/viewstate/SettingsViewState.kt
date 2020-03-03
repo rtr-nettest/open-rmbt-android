@@ -8,7 +8,7 @@ import at.specure.data.ClientUUID
 import at.specure.location.LocationProviderState
 
 class SettingsViewState constructor(
-    private val appConfig: AppConfig,
+    val appConfig: AppConfig,
     val clientUUID: ClientUUID
 ) : ViewState {
 
