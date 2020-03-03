@@ -204,9 +204,9 @@ class SettingsFragment : BaseFragment(), InputSettingDialog.Callback {
                         settingsViewModel.state.appConfig.loopModeMaxDistanceMeters
                     )
                 ) {
-                    settingsViewModel.state.loopModeDistanceMeters.set(settingsViewModel.state.appConfig.loopModeMinTestsNumber)
+                    settingsViewModel.state.loopModeDistanceMeters.set(settingsViewModel.state.appConfig.loopModeMinDistanceMeters)
                 }
-                if (!settingsViewModel.isLoopModeDistanceMetersValid(
+                if (!settingsViewModel.isLoopModeNumberOfTestValid(
                         settingsViewModel.state.loopModeNumberOfTests.get(),
                         settingsViewModel.state.appConfig.loopModeMinTestsNumber,
                         settingsViewModel.state.appConfig.loopModeMaxTestsNumber

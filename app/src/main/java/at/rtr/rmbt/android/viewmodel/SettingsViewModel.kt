@@ -41,6 +41,14 @@ class SettingsViewModel @Inject constructor(appConfig: AppConfig, clientUUID: Cl
         return false
     }
 
+    fun isLoopModeNumberOfTestValid(value: Int, minValue: Int, maxValue: Int): Boolean {
+        if (value in minValue..maxValue || state.developerModeIsEnabled.get() == true) {
+            state.loopModeNumberOfTests.set(value)
+            return true
+        }
+        return false
+    }
+
     /**
      * Function is used for check input code
      */
