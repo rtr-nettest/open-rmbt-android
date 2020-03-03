@@ -20,6 +20,7 @@ class SettingsViewState constructor(
     val expertModeUseIpV4Only = ObservableField(appConfig.expertModeUseIpV4Only)
     val loopModeWaitingTimeMin = ObservableField(appConfig.loopModeWaitingTimeMin)
     val loopModeDistanceMeters = ObservableField(appConfig.loopModeDistanceMeters)
+    val loopModeNumberOfTests = ObservableInt(appConfig.loopModeNumberOfTests)
     val developerModeIsAvailable = appConfig.developerModeIsAvailable
     val developerModeIsEnabled = ObservableField(appConfig.developerModeIsEnabled)
     val controlServerOverrideEnabled = ObservableField(appConfig.controlServerOverrideEnabled)
@@ -77,6 +78,11 @@ class SettingsViewState constructor(
         loopModeDistanceMeters.addOnPropertyChanged { value ->
             value.get()?.let {
                 appConfig.loopModeDistanceMeters = it
+            }
+        }
+        loopModeNumberOfTests.addOnPropertyChanged { value ->
+            value.get().let {
+                appConfig.loopModeNumberOfTests = it
             }
         }
         developerModeIsEnabled.addOnPropertyChanged { value ->

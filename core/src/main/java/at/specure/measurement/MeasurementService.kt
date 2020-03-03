@@ -147,7 +147,7 @@ class MeasurementService : CustomLifecycleService() {
 
         override fun onFinish() {
             resumeSignalMeasurement()
-            if (config.loopModeEnabled && stateRecorder.loopTestCount < config.loopModeNumberOfTests) {
+            if (config.loopModeEnabled && (stateRecorder.loopTestCount < config.loopModeNumberOfTests || (config.loopModeNumberOfTests == 0 && config.developerModeIsEnabled))) {
                 scheduleNextLoopTest()
             } else {
                 if (config.loopModeEnabled) {
@@ -172,7 +172,7 @@ class MeasurementService : CustomLifecycleService() {
             }
             stateRecorder.onUnsuccessTest(TestFinishReason.ERROR)
 
-            if (config.loopModeEnabled && stateRecorder.loopTestCount < config.loopModeNumberOfTests) {
+            if (config.loopModeEnabled && (stateRecorder.loopTestCount < config.loopModeNumberOfTests || (config.loopModeNumberOfTests == 0 && config.developerModeIsEnabled))) {
                 scheduleNextLoopTest()
             } else {
                 hasErrors = true
@@ -555,7 +555,7 @@ class MeasurementService : CustomLifecycleService() {
 
         override fun onSubmitted() {
             if (config.loopModeEnabled) {
-                if (stateRecorder.loopTestCount >= config.loopModeNumberOfTests) {
+                if (stateRecorder.loopTestCount >= config.loopModeNumberOfTests && config.loopModeNumberOfTests != 0) {
                     clients.forEach {
                         it.onSubmitted()
                     }
@@ -569,7 +569,7 @@ class MeasurementService : CustomLifecycleService() {
 
         override fun onSubmissionError(exception: HandledException) {
             if (config.loopModeEnabled) {
-                if (config.loopModeNumberOfTests >= config.loopModeNumberOfTests) {
+                if (config.loopModeNumberOfTests >= config.loopModeNumberOfTests && config.loopModeNumberOfTests != 0) {
                     clients.forEach {
                         it.onSubmissionError(exception)
                     }

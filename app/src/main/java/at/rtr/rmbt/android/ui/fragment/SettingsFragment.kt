@@ -19,6 +19,7 @@ import at.rtr.rmbt.android.ui.dialog.InputSettingDialog
 import at.rtr.rmbt.android.ui.dialog.OpenGpsSettingDialog
 import at.rtr.rmbt.android.ui.dialog.OpenLocationPermissionDialog
 import at.rtr.rmbt.android.ui.dialog.SimpleDialog
+import at.rtr.rmbt.android.util.addOnPropertyChanged
 import at.rtr.rmbt.android.util.listen
 import at.rtr.rmbt.android.viewmodel.SettingsViewModel
 import at.specure.location.LocationProviderState
@@ -182,12 +183,46 @@ class SettingsFragment : BaseFragment(), InputSettingDialog.Callback {
                 )
             }
         }
+
+        settingsViewModel.state.developerModeIsEnabled.addOnPropertyChanged {
+            if (it.get() == false) {
+                if (!settingsViewModel.isLoopModeWaitingTimeValid(
+                        settingsViewModel.state.loopModeWaitingTimeMin.get() ?: MIN_LOOP_MODE_WAITING_TIME,
+                        MIN_LOOP_MODE_WAITING_TIME,
+                        MAX_LOOP_MODE_WAITING_TIME
+                    )
+                ) {
+                    settingsViewModel.state.loopModeWaitingTimeMin.set(MIN_LOOP_MODE_WAITING_TIME)
+                }
+                if (!settingsViewModel.isLoopModeDistanceMetersValid(
+                        settingsViewModel.state.loopModeDistanceMeters.get() ?: MIN_LOOP_MODE_DISTANCE,
+                        MIN_LOOP_MODE_DISTANCE,
+                        MAX_LOOP_MODE_DISTANCE
+                    )
+                ) {
+                    settingsViewModel.state.loopModeDistanceMeters.set(MIN_LOOP_MODE_DISTANCE)
+                }
+                if (!settingsViewModel.isLoopModeDistanceMetersValid(
+                        settingsViewModel.state.loopModeNumberOfTests.get(),
+                        MIN_LOOP_MODE_TEST_COUNT,
+                        MAX_LOOP_MODE_TEST_COUNT
+                    )
+                ) {
+                    settingsViewModel.state.loopModeNumberOfTests.set(MIN_LOOP_MODE_TEST_COUNT)
+                }
+            }
+        }
     }
 
     override fun onSelected(value: String, requestCode: Int) {
         when (requestCode) {
             KEY_REQUEST_CODE_LOOP_MODE_WAITING_TIME -> {
-                if (!settingsViewModel.isLoopModeWaitingTimeValid(value.toInt(), MIN_LOOP_MODE_WAITING_TIME, MAX_LOOP_MODE_WAITING_TIME)) {
+                if (!settingsViewModel.isLoopModeWaitingTimeValid(
+                        value.toInt(),
+                        MIN_LOOP_MODE_WAITING_TIME,
+                        MAX_LOOP_MODE_WAITING_TIME
+                    ) && settingsViewModel.state.developerModeIsEnabled.get() != true
+                ) {
                     SimpleDialog.Builder()
                         .messageText(
                             String.format(getString(R.string.loop_mode_max_delay_invalid), MIN_LOOP_MODE_WAITING_TIME, MAX_LOOP_MODE_WAITING_TIME)
@@ -198,7 +233,12 @@ class SettingsFragment : BaseFragment(), InputSettingDialog.Callback {
                 }
             }
             KEY_REQUEST_CODE_LOOP_MODE_DISTANCE -> {
-                if (!settingsViewModel.isLoopModeDistanceMetersValid(value.toInt(), MIN_LOOP_MODE_DISTANCE, MAX_LOOP_MODE_DISTANCE)) {
+                if (!settingsViewModel.isLoopModeDistanceMetersValid(
+                        value.toInt(),
+                        MIN_LOOP_MODE_DISTANCE,
+                        MAX_LOOP_MODE_DISTANCE
+                    ) && settingsViewModel.state.developerModeIsEnabled.get() != true
+                ) {
                     SimpleDialog.Builder()
                         .messageText(
                             String.format(getString(R.string.loop_mode_max_delay_invalid), MIN_LOOP_MODE_DISTANCE, MAX_LOOP_MODE_DISTANCE)
@@ -253,6 +293,8 @@ class SettingsFragment : BaseFragment(), InputSettingDialog.Callback {
         private const val MAX_LOOP_MODE_WAITING_TIME: Int = 1440
         private const val MIN_LOOP_MODE_DISTANCE: Int = 50
         private const val MAX_LOOP_MODE_DISTANCE: Int = 10000
+        private const val MAX_LOOP_MODE_TEST_COUNT: Int = 100
+        private const val MIN_LOOP_MODE_TEST_COUNT: Int = 1
 
         private const val CODE_LOOP_INSTRUCTIONS = 13
         private const val CODE_DIALOG_INVALID = 14
