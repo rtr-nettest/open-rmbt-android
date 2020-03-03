@@ -96,7 +96,7 @@ class MeasurementViewModel @Inject constructor(
 
         override fun onServiceConnected(componentName: ComponentName?, binder: IBinder?) {
             producer = binder as MeasurementProducer?
-            Timber.i("On service connected")
+            Timber.i("On service connected ${producer?.isTestsRunning}")
 
             _isTestsRunningLiveData.postValue(producer?.isTestsRunning ?: false)
 
@@ -190,7 +190,7 @@ class MeasurementViewModel @Inject constructor(
     }
 
     override fun onLoopCountDownTimer(timePassedMillis: Long, timeTotalMillis: Long) {
-        _timeToNextTestElapsedLiveData.postValue(SimpleDateFormat("mm:ss", Locale.getDefault()).format(Date(timePassedMillis)))
+        _timeToNextTestElapsedLiveData.postValue(SimpleDateFormat("mm:ss", Locale.getDefault()).format(Date(timeTotalMillis - timePassedMillis)))
         _timeProgressPercentsLiveData.postValue(((timePassedMillis * 100) / timeTotalMillis).toInt())
     }
 

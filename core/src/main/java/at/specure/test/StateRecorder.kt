@@ -1,10 +1,7 @@
 package at.specure.test
 
 import android.annotation.SuppressLint
-import android.content.Context
 import android.location.Location
-import android.telephony.SubscriptionManager
-import android.telephony.TelephonyManager
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.Observer
 import at.rmbt.client.control.data.TestFinishReason
@@ -17,12 +14,10 @@ import at.specure.config.Config
 import at.specure.data.entity.LoopModeRecord
 import at.specure.data.entity.LoopModeState
 import at.specure.data.entity.TestRecord
+import at.specure.data.repository.MeasurementRepository
 import at.specure.data.repository.TestDataRepository
-import at.specure.info.TransportType
 import at.specure.info.cell.CellInfoWatcher
 import at.specure.info.cell.CellNetworkInfo
-import at.specure.info.cell.mccCompat
-import at.specure.info.cell.mncCompat
 import at.specure.info.network.ActiveNetworkLiveData
 import at.specure.info.network.ActiveNetworkWatcher
 import at.specure.info.network.MobileNetworkType
@@ -31,7 +26,6 @@ import at.specure.info.network.WifiNetworkInfo
 import at.specure.info.strength.SignalStrengthInfo
 import at.specure.info.strength.SignalStrengthLiveData
 import at.specure.info.strength.SignalStrengthWatcher
-import at.specure.info.wifi.WifiInfoWatcher
 import at.specure.location.LocationInfo
 import at.specure.location.LocationInfoLiveData
 import at.specure.location.LocationProviderState
@@ -40,18 +34,13 @@ import at.specure.location.LocationWatcher
 import at.specure.location.cell.CellLocationInfo
 import at.specure.location.cell.CellLocationLiveData
 import at.specure.location.cell.CellLocationWatcher
-import at.specure.util.hasPermission
-import at.specure.util.isReadPhoneStatePermitted
-import at.specure.util.permission.PermissionsWatcher
 import org.json.JSONArray
 import timber.log.Timber
-import java.text.DecimalFormat
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import kotlin.math.floor
 
 class StateRecorder @Inject constructor(
-    private val context: Context,
     private val repository: TestDataRepository,
     private val locationInfoLiveData: LocationInfoLiveData,
     private val locationWatcher: LocationWatcher,
@@ -60,13 +49,10 @@ class StateRecorder @Inject constructor(
     private val activeNetworkLiveData: ActiveNetworkLiveData,
     private val activeNetworkWatcher: ActiveNetworkWatcher,
     private val cellInfoWatcher: CellInfoWatcher,
-    private val permissionsWatcher: PermissionsWatcher,
     private val config: Config,
     private val cellLocationLiveData: CellLocationLiveData,
     private val cellLocationWatcher: CellLocationWatcher,
-    private val telephonyManager: TelephonyManager,
-    private val subscriptionManager: SubscriptionManager,
-    private val wifiInfoWatcher: WifiInfoWatcher,
+    private val measurementRepository: MeasurementRepository,
     val locationStateLiveData: LocationProviderStateLiveData
 ) : RMBTClientCallback {
     private var testUUID: String? = null
@@ -211,7 +197,7 @@ class StateRecorder @Inject constructor(
         val uuid = testUUID
         val location = locationInfo
         if (uuid != null && location != null && locationStateLiveData.value == LocationProviderState.ENABLED) {
-            repository.saveGeoLocation(uuid, location)
+            repository.saveGeoLocation(uuid, location, testStartTimeNanos)
         }
 
         _loopModeRecord?.let {
@@ -269,33 +255,18 @@ class StateRecorder @Inject constructor(
     }
 
     private fun saveCapabilities() {
-        val uuid = testUUID
-        uuid?.let {
-            repository.saveCapabilities(
-                it,
-                config.capabilitiesRmbtHttp,
-                config.capabilitiesQosSupportsInfo,
-                config.capabilitiesClassificationCount
-            )
-        }
+        testUUID?.let { measurementRepository.saveCapabilities(it) }
     }
 
     private fun savePermissionsStatus() {
-        val permissions = permissionsWatcher.allPermissions
-        val uuid = testUUID
-        uuid?.let {
-            permissions.forEach { permission ->
-                val permissionGranted = context.hasPermission(permission)
-                repository.savePermissionStatus(it, permission, permissionGranted)
-            }
-        }
+        testUUID?.let { measurementRepository.savePermissionsStatus(it) }
     }
 
     private fun saveCellLocation() {
         val uuid = testUUID
         val location = cellLocation
         if (uuid != null && location != null) {
-            repository.saveCellLocation(uuid, location)
+            repository.saveCellLocation(uuid, location, testStartTimeNanos)
         }
     }
 
@@ -306,73 +277,12 @@ class StateRecorder @Inject constructor(
             testRecord?.mobileNetworkType = info.networkType
         }
 
-        val type = activeNetworkWatcher.currentNetworkInfo?.type
-        val isDualSim = telephonyManager.phoneCount > 1
-        val isDualByMobile = type == TransportType.CELLULAR && isDualSim
-
-        testUUID?.let {
-            var operatorName: String? = null
-            var networkOperator: String? = null
-            var networkCountry: String? = null
-            val simCount: Int
-
-            if (context.isReadPhoneStatePermitted() && isDualByMobile) {
-                val subscription = subscriptionManager.activeSubscriptionInfoList.firstOrNull()
-                simCount = if (subscription != null) subscriptionManager.activeSubscriptionInfoCount else 2
-                subscription?.let {
-                    operatorName = subscription.carrierName.toString()
-                    val networkSimOperator = when {
-                        subscription.mccCompat() == null -> null
-                        subscription.mncCompat() == null -> null
-                        else -> "${subscription.mccCompat()}-${DecimalFormat("00").format(subscription.mncCompat())}"
-                    }
-                    networkOperator = networkSimOperator
-                    networkCountry = subscription.countryIso
-                }
-            } else {
-                simCount = 1
-                operatorName = telephonyManager.networkOperatorName
-                networkOperator = telephonyManager.networkOperator.fixOperatorName()
-                networkCountry = telephonyManager.networkCountryIso
-            }
-
-            val networkInfo = cellInfoWatcher.activeNetwork
-            val simCountry = telephonyManager.simCountryIso.fixOperatorName()
-            val simOperatorName = try { // hack for Motorola Defy (#594)
-                telephonyManager.simOperatorName
-            } catch (ex: SecurityException) {
-                ex.printStackTrace()
-                "s.exception"
-            }
-            val phoneType = telephonyManager.phoneType.toString()
-            val dataState = try {
-                telephonyManager.dataState.toString()
-            } catch (ex: SecurityException) {
-                ex.printStackTrace()
-                "s.exception"
-            }
-
-            repository.saveTelephonyInfo(
-                it,
-                networkInfo,
-                operatorName,
-                networkOperator,
-                networkCountry,
-                simCountry,
-                simOperatorName,
-                phoneType,
-                dataState,
-                simCount
-            )
-        }
+        testUUID?.let { measurementRepository.saveTelephonyInfo(it) }
     }
 
     private fun saveWlanInfo() {
-        val wifiInfo = wifiInfoWatcher.activeWifiInfo
-        if (wifiInfo?.ssid != null && wifiInfo.bssid != null) {
-            testUUID?.let {
-                repository.saveWlanInfo(it, wifiInfo)
-            }
+        testUUID?.let {
+            measurementRepository.saveWlanInfo(it)
         }
     }
 
@@ -506,16 +416,6 @@ class StateRecorder @Inject constructor(
 
     fun setErrorCause(message: String) {
         testRecord?.testErrorCause = message
-    }
-
-    private fun String?.fixOperatorName(): String? {
-        return if (this == null) {
-            null
-        } else if (length >= 5 && !contains("-")) {
-            "${substring(0, 3)}-${substring(3)}"
-        } else {
-            this
-        }
     }
 
     fun onTestInLoopStarted() {

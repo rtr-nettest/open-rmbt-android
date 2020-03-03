@@ -31,13 +31,18 @@ class TestResultDetailAdapter : RecyclerView.Adapter<TestResultDetailAdapter.Hol
             notifyDataSetChanged()
         }
     private var _items = mutableListOf<TestResultDetailsRecord>()
+    var actionCallback: ((TestResultDetailsRecord) -> Unit)? = null
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): Holder {
         return Holder(parent.bindWith(R.layout.item_test_result_detail))
     }
 
     override fun onBindViewHolder(holder: Holder, position: Int) {
-        holder.binding.item = _items[position]
+        val item = _items[position]
+        holder.binding.item = item
+        holder.binding.root.setOnClickListener {
+            actionCallback?.invoke(item)
+        }
     }
 
     override fun getItemCount() = _items.size

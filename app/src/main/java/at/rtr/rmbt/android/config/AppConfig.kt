@@ -89,6 +89,42 @@ class AppConfig @Inject constructor(context: Context, private val serverSettings
         get() = getInt(BuildConfig.LOOP_MODE_NUMBER_OF_TESTS)
         set(value) = setInt(BuildConfig.LOOP_MODE_NUMBER_OF_TESTS, value)
 
+    override var loopModeMinDistanceMeters: Int
+        get() = getInt(BuildConfig.LOOP_MODE_MIN_DISTANCE_METERS)
+        set(value) {
+            // this value cannot be changed
+        }
+
+    override var loopModeMaxDistanceMeters: Int
+        get() = getInt(BuildConfig.LOOP_MODE_MAX_DISTANCE_METERS)
+        set(value) {
+            // this value cannot be changed
+        }
+
+    override var loopModeMinWaitingTimeMin: Int
+        get() = getInt(BuildConfig.LOOP_MODE_MIN_WAITING_TIME_MIN)
+        set(value) {
+            // this value cannot be changed
+        }
+
+    override var loopModeMaxWaitingTimeMin: Int
+        get() = getInt(BuildConfig.LOOP_MODE_MAX_WAITING_TIME_MIN)
+        set(value) {
+            // this value cannot be changed
+        }
+
+    override var loopModeMaxTestsNumber: Int
+        get() = getInt(BuildConfig.LOOP_MODE_MAX_NUMBER_OF_TESTS)
+        set(value) {
+            // this value cannot be changed
+        }
+
+    override var loopModeMinTestsNumber: Int
+        get() = getInt(BuildConfig.LOOP_MODE_MIN_NUMBER_OF_TESTS)
+        set(value) {
+            // this value cannot be changed
+        }
+
     override var expertModeEnabled: Boolean
         get() = getBoolean(BuildConfig.EXPERT_MODE_ENABLED)
         set(value) = setBoolean(BuildConfig.EXPERT_MODE_ENABLED, value)

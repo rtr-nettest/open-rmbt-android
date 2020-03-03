@@ -6,13 +6,14 @@ import at.rtr.rmbt.android.R
 import at.rtr.rmbt.android.config.AppConfig
 import at.rtr.rmbt.android.ui.viewstate.SettingsViewState
 import at.specure.data.ClientUUID
+import at.specure.data.MeasurementServers
 import at.specure.location.LocationProviderStateLiveData
 import javax.inject.Inject
 
-class SettingsViewModel @Inject constructor(appConfig: AppConfig, clientUUID: ClientUUID, val locationStateLiveData: LocationProviderStateLiveData) :
+class SettingsViewModel @Inject constructor(appConfig: AppConfig, clientUUID: ClientUUID, val locationStateLiveData: LocationProviderStateLiveData, val measurementServers: MeasurementServers) :
     BaseViewModel() {
 
-    val state = SettingsViewState(appConfig, clientUUID)
+    val state = SettingsViewState(appConfig, clientUUID, measurementServers)
 
     private val _openCodeWindow = MutableLiveData<Boolean>()
     private var count: Int = 0
@@ -26,7 +27,7 @@ class SettingsViewModel @Inject constructor(appConfig: AppConfig, clientUUID: Cl
 
     fun isLoopModeWaitingTimeValid(value: Int, minValue: Int, maxValue: Int): Boolean {
 
-        if (value in minValue..maxValue) {
+        if (value in minValue..maxValue || state.developerModeIsEnabled.get() == true) {
             state.loopModeWaitingTimeMin.set(value)
             return true
         }
@@ -34,8 +35,16 @@ class SettingsViewModel @Inject constructor(appConfig: AppConfig, clientUUID: Cl
     }
 
     fun isLoopModeDistanceMetersValid(value: Int, minValue: Int, maxValue: Int): Boolean {
-        if (value in minValue..maxValue) {
+        if (value in minValue..maxValue || state.developerModeIsEnabled.get() == true) {
             state.loopModeDistanceMeters.set(value)
+            return true
+        }
+        return false
+    }
+
+    fun isLoopModeNumberOfTestValid(value: Int, minValue: Int, maxValue: Int): Boolean {
+        if (value in minValue..maxValue || state.developerModeIsEnabled.get() == true) {
+            state.loopModeNumberOfTests.set(value)
             return true
         }
         return false
@@ -48,7 +57,33 @@ class SettingsViewModel @Inject constructor(appConfig: AppConfig, clientUUID: Cl
 
         if (code.isNotBlank()) {
 
-            state.developerModeIsEnabled.get()?.let {
+            return when (code) {
+                DEVELOPER_ACTIVATE_CODE -> {
+                    state.developerModeIsEnabled.set(true)
+                    R.string.preferences_developer_options_available
+                }
+                DEVELOPER_DEACTIVATE_CODE -> {
+                    state.developerModeIsEnabled.set(false)
+                    R.string.preferences_developer_options_disabled
+                }
+                SERVER_SELECTION_ACTIVATE_CODE -> {
+                    state.userServerSelectionEnabled.set(true)
+                    R.string.preferences_server_selection_available
+                }
+                SERVER_SELECTION_DEACTIVATE_CODE -> {
+                    state.userServerSelectionEnabled.set(false)
+                    R.string.preferences_server_selection_disabled
+                }
+                ALL_DEACTIVATE_CODE -> {
+                    state.developerModeIsEnabled.set(false)
+                    state.userServerSelectionEnabled.set(false)
+                    R.string.preferences_developer_options_disabled
+                }
+                else -> {
+                    R.string.preferences_all_disabled
+                }
+            }
+            /*state.developerModeIsEnabled.get()?.let {
 
                 return if (it) {
                     when (code) {
@@ -75,7 +110,7 @@ class SettingsViewModel @Inject constructor(appConfig: AppConfig, clientUUID: Cl
                         }
                     }
                 }
-            }
+            }*/
         }
         return R.string.preferences_developer_try_again
     }
@@ -100,6 +135,8 @@ class SettingsViewModel @Inject constructor(appConfig: AppConfig, clientUUID: Cl
     companion object {
         private const val DEVELOPER_ACTIVATE_CODE: String = "23656990"
         private const val DEVELOPER_DEACTIVATE_CODE: String = "69652357"
+        private const val SERVER_SELECTION_ACTIVATE_CODE: String = "17031552"
+        private const val SERVER_SELECTION_DEACTIVATE_CODE: String = "15031722"
         private const val ALL_DEACTIVATE_CODE: String = "00000000"
     }
 }

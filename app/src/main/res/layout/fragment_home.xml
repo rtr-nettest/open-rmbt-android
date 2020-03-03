@@ -221,6 +221,8 @@
             app:layout_constraintBottom_toTopOf="@+id/tvLblNoConnection"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
+            android:drawableEnd="@{state.developerModeIsEnabled ? @drawable/ic_developer_mode : null}"
+            android:drawablePadding="@dimen/padding_small"
             app:layout_constraintTop_toBottomOf="@+id/tvNetworkType"
             tools:text="Android Network"
             tools:textColor="@android:color/white" />

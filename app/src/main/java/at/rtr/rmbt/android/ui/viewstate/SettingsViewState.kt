@@ -5,11 +5,13 @@ import androidx.databinding.ObservableInt
 import at.rtr.rmbt.android.config.AppConfig
 import at.rtr.rmbt.android.util.addOnPropertyChanged
 import at.specure.data.ClientUUID
+import at.specure.data.MeasurementServers
 import at.specure.location.LocationProviderState
 
 class SettingsViewState constructor(
-    private val appConfig: AppConfig,
-    val clientUUID: ClientUUID
+    val appConfig: AppConfig,
+    val clientUUID: ClientUUID,
+    val measurementServers: MeasurementServers
 ) : ViewState {
 
     val isNDTEnabled = ObservableField(appConfig.NDTEnabled)
@@ -20,6 +22,7 @@ class SettingsViewState constructor(
     val expertModeUseIpV4Only = ObservableField(appConfig.expertModeUseIpV4Only)
     val loopModeWaitingTimeMin = ObservableField(appConfig.loopModeWaitingTimeMin)
     val loopModeDistanceMeters = ObservableField(appConfig.loopModeDistanceMeters)
+    val loopModeNumberOfTests = ObservableInt(appConfig.loopModeNumberOfTests)
     val developerModeIsAvailable = appConfig.developerModeIsAvailable
     val developerModeIsEnabled = ObservableField(appConfig.developerModeIsEnabled)
     val controlServerOverrideEnabled = ObservableField(appConfig.controlServerOverrideEnabled)
@@ -37,6 +40,8 @@ class SettingsViewState constructor(
     val mapServerPort = ObservableField(appConfig.mapServerPort)
     val mapServerUseSSL = ObservableField(appConfig.mapServerUseSSL)
     val qosSSL = ObservableField(appConfig.qosSSL)
+    val userServerSelectionEnabled = ObservableField(appConfig.userServerSelectionEnabled)
+    val selectedMeasurementServer = ObservableField(measurementServers.selectedMeasurementServer)
 
     init {
         isNDTEnabled.addOnPropertyChanged { value ->
@@ -77,6 +82,11 @@ class SettingsViewState constructor(
         loopModeDistanceMeters.addOnPropertyChanged { value ->
             value.get()?.let {
                 appConfig.loopModeDistanceMeters = it
+            }
+        }
+        loopModeNumberOfTests.addOnPropertyChanged { value ->
+            value.get().let {
+                appConfig.loopModeNumberOfTests = it
             }
         }
         developerModeIsEnabled.addOnPropertyChanged { value ->
@@ -127,6 +137,11 @@ class SettingsViewState constructor(
         qosSSL.addOnPropertyChanged { value ->
             value.get()?.let {
                 appConfig.qosSSL = it
+            }
+        }
+        selectedMeasurementServer.addOnPropertyChanged { value ->
+            value.get()?.let {
+                measurementServers.selectedMeasurementServer = it
             }
         }
     }

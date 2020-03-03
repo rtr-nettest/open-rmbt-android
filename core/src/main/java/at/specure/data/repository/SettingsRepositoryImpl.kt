@@ -7,6 +7,7 @@ import at.specure.data.ClientUUID
 import at.specure.data.ControlServerSettings
 import at.specure.data.HistoryFilterOptions
 import at.specure.data.MapServerSettings
+import at.specure.data.MeasurementServers
 import at.specure.data.TermsAndConditions
 import at.specure.data.toSettingsRequest
 import at.specure.test.DeviceInfo
@@ -19,6 +20,7 @@ class SettingsRepositoryImpl(
     private val controlServerSettings: ControlServerSettings,
     private val mapServerSettings: MapServerSettings,
     private val termsAndConditions: TermsAndConditions,
+    private val measurementsServers: MeasurementServers,
     private val tacRepository: TacRepository,
     private val historyFilterOptions: HistoryFilterOptions,
     private val config: Config
@@ -77,8 +79,8 @@ class SettingsRepositoryImpl(
                 historyFilterOptions.devices = history.devices?.toMutableSet() ?: mutableSetOf()
                 historyFilterOptions.networks = history.networks?.toMutableSet() ?: mutableSetOf()
             }
+            measurementsServers.measurementServers = settings.success.settings.first().servers
             // todo: qostest types to DB
-            // todo: servers to DB
         }
         return settings.ok
     }

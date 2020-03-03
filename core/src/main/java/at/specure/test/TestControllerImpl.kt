@@ -16,6 +16,7 @@ import at.rtr.rmbt.util.model.shared.LoopModeSettings
 import at.rtr.rmbt.util.model.shared.exception.ErrorStatus
 import at.specure.config.Config
 import at.specure.data.ClientUUID
+import at.specure.data.MeasurementServers
 import at.specure.measurement.MeasurementState
 import com.google.gson.Gson
 import kotlinx.coroutines.GlobalScope
@@ -31,6 +32,8 @@ import kotlin.math.floor
 private const val KEY_TEST_COUNTER = "testCounter"
 private const val KEY_PREVIOUS_TEST_STATUS = "previousTestStatus"
 private const val KEY_LOOP_MODE_SETTINGS = "loopmode_info"
+private const val KEY_SERVER_SELECTION_ENABLED = "user_server_selection"
+private const val KEY_SERVER_PREFERED = "prefer_server"
 
 private const val TEST_MAX_TIME = 3000
 private const val MAX_VALUE_UNFINISHED_TEST = 0.9f
@@ -39,7 +42,8 @@ class TestControllerImpl(
     private val context: Context,
     private val config: Config,
     private val clientUUID: ClientUUID,
-    private val connectivityManager: ConnectivityManager
+    private val connectivityManager: ConnectivityManager,
+    private val measurementServer: MeasurementServers
 ) : TestController {
 
     private var job: Job? = null
@@ -53,7 +57,7 @@ class TestControllerImpl(
         get() = _testUUID
 
     override val isRunning: Boolean
-        get() = job != null && qosTest != null
+        get() = job != null
 
     override val testStartTimeNanos: Long
         get() = _testStartTimeNanos
@@ -149,6 +153,13 @@ class TestControllerImpl(
 
             loopSettings?.let {
                 additionalValues.put(KEY_LOOP_MODE_SETTINGS, gson.toJson(it))
+            }
+
+            if (config.expertModeEnabled) {
+                measurementServer.selectedMeasurementServer?.let {
+                    additionalValues.put(KEY_SERVER_SELECTION_ENABLED, true)
+                    additionalValues.put(KEY_SERVER_PREFERED, it.uuid)
+                }
             }
 
             client = RMBTClient.getInstance(
@@ -265,7 +276,6 @@ class TestControllerImpl(
 
                     this@TestControllerImpl.client = null
                     qosTest = null
-
                     if (currentStatus != TestStatus.ERROR) {
                         _listener?.onFinish()
                     }

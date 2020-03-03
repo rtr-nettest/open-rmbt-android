@@ -76,18 +76,40 @@ class LoopConfigurationActivity : BaseActivity(), InputSettingDialog.Callback {
     override fun onSelected(value: String, requestCode: Int) {
         when (requestCode) {
             CODE_WAITING_TIME -> {
-                if (!viewModel.isWaitingTimeValid(value.toInt(), MIN_WAITING_TIME, MAX_WAITING_TIME)) {
+                if (!viewModel.isWaitingTimeValid(
+                        value.toInt(),
+                        viewModel.config.loopModeMinWaitingTimeMin,
+                        viewModel.config.loopModeMaxWaitingTimeMin
+                    )
+                ) {
                     SimpleDialog.Builder()
-                        .messageText(String.format(getString(R.string.loop_mode_max_delay_invalid), MIN_WAITING_TIME, MAX_WAITING_TIME))
+                        .messageText(
+                            String.format(
+                                getString(R.string.loop_mode_max_delay_invalid),
+                                viewModel.config.loopModeMinWaitingTimeMin,
+                                viewModel.config.loopModeMaxWaitingTimeMin
+                            )
+                        )
                         .positiveText(android.R.string.ok)
                         .cancelable(false)
                         .show(supportFragmentManager, CODE_DIALOG_INVALID)
                 }
             }
             CODE_DISTANCE -> {
-                if (!viewModel.isDistanceValid(value.toInt(), MIN_DISTANCE, MAX_DISTANCE)) {
+                if (!viewModel.isDistanceValid(
+                        value.toInt(),
+                        viewModel.config.loopModeMinDistanceMeters,
+                        viewModel.config.loopModeMaxDistanceMeters
+                    )
+                ) {
                     SimpleDialog.Builder()
-                        .messageText(String.format(getString(R.string.loop_mode_max_delay_invalid), MIN_DISTANCE, MAX_DISTANCE))
+                        .messageText(
+                            String.format(
+                                getString(R.string.loop_mode_max_delay_invalid),
+                                viewModel.config.loopModeMinDistanceMeters,
+                                viewModel.config.loopModeMaxDistanceMeters
+                            )
+                        )
                         .positiveText(android.R.string.ok)
                         .cancelable(false)
                         .show(supportFragmentManager, CODE_DIALOG_INVALID)
@@ -97,9 +119,20 @@ class LoopConfigurationActivity : BaseActivity(), InputSettingDialog.Callback {
     }
 
     private fun checkNumber(): Boolean {
-        if (!viewModel.isNumberValid(binding.count.text.toString().toInt(), MIN_COUNT, MAX_COUNT)) {
+        if (!viewModel.isNumberValid(
+                binding.count.text.toString().toInt(),
+                viewModel.config.loopModeMinTestsNumber,
+                viewModel.config.loopModeMaxTestsNumber
+            )
+        ) {
             SimpleDialog.Builder()
-                .messageText(String.format(getString(R.string.loop_mode_max_delay_invalid), MIN_COUNT, MAX_COUNT))
+                .messageText(
+                    String.format(
+                        getString(R.string.loop_mode_max_delay_invalid),
+                        viewModel.config.loopModeMinTestsNumber,
+                        viewModel.config.loopModeMaxTestsNumber
+                    )
+                )
                 .positiveText(android.R.string.ok)
                 .cancelable(false)
                 .show(supportFragmentManager, CODE_DIALOG_INVALID)
@@ -113,13 +146,6 @@ class LoopConfigurationActivity : BaseActivity(), InputSettingDialog.Callback {
         private const val CODE_WAITING_TIME: Int = 1
         private const val CODE_DISTANCE: Int = 2
         private const val CODE_DIALOG_INVALID = 3
-
-        private const val MIN_WAITING_TIME: Int = 15
-        private const val MAX_WAITING_TIME: Int = 1440
-        private const val MIN_DISTANCE: Int = 50
-        private const val MAX_DISTANCE: Int = 10000
-        private const val MIN_COUNT: Int = 1
-        private const val MAX_COUNT: Int = 100
 
         fun start(context: Context) = context.startActivity(Intent(context, LoopConfigurationActivity::class.java))
     }
