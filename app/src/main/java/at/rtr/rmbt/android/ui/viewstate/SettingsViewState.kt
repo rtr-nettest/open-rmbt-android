@@ -5,11 +5,13 @@ import androidx.databinding.ObservableInt
 import at.rtr.rmbt.android.config.AppConfig
 import at.rtr.rmbt.android.util.addOnPropertyChanged
 import at.specure.data.ClientUUID
+import at.specure.data.MeasurementServers
 import at.specure.location.LocationProviderState
 
 class SettingsViewState constructor(
     val appConfig: AppConfig,
-    val clientUUID: ClientUUID
+    val clientUUID: ClientUUID,
+    val measurementServers: MeasurementServers
 ) : ViewState {
 
     val isNDTEnabled = ObservableField(appConfig.NDTEnabled)
@@ -38,6 +40,8 @@ class SettingsViewState constructor(
     val mapServerPort = ObservableField(appConfig.mapServerPort)
     val mapServerUseSSL = ObservableField(appConfig.mapServerUseSSL)
     val qosSSL = ObservableField(appConfig.qosSSL)
+    val userServerSelectionEnabled = ObservableField(appConfig.userServerSelectionEnabled)
+    val selectedMeasurementServer = ObservableField(measurementServers.selectedMeasurementServer)
 
     init {
         isNDTEnabled.addOnPropertyChanged { value ->
@@ -133,6 +137,11 @@ class SettingsViewState constructor(
         qosSSL.addOnPropertyChanged { value ->
             value.get()?.let {
                 appConfig.qosSSL = it
+            }
+        }
+        selectedMeasurementServer.addOnPropertyChanged { value ->
+            value.get()?.let {
+                measurementServers.selectedMeasurementServer = it
             }
         }
     }

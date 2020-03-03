@@ -9,6 +9,7 @@ import android.os.Bundle
 import android.text.InputType
 import android.view.View
 import android.widget.Toast
+import at.rmbt.client.control.Server
 import at.rtr.rmbt.android.BuildConfig
 import at.rtr.rmbt.android.R
 import at.rtr.rmbt.android.databinding.FragmentSettingsBinding
@@ -16,9 +17,10 @@ import at.rtr.rmbt.android.di.viewModelLazy
 import at.rtr.rmbt.android.ui.activity.DataPrivacyAndTermsOfUseActivity
 import at.rtr.rmbt.android.ui.activity.LoopInstructionsActivity
 import at.rtr.rmbt.android.ui.dialog.InputSettingDialog
-import at.rtr.rmbt.android.ui.dialog.OpenGpsSettingDialog
-import at.rtr.rmbt.android.ui.dialog.OpenLocationPermissionDialog
+import at.rtr.rmbt.android.ui.dialog.ServerSelectionDialog
 import at.rtr.rmbt.android.ui.dialog.SimpleDialog
+import at.rtr.rmbt.android.ui.dialog.OpenLocationPermissionDialog
+import at.rtr.rmbt.android.ui.dialog.OpenGpsSettingDialog
 import at.rtr.rmbt.android.util.addOnPropertyChanged
 import at.rtr.rmbt.android.util.listen
 import at.rtr.rmbt.android.viewmodel.SettingsViewModel
@@ -28,7 +30,7 @@ import at.specure.util.openAppSettings
 import timber.log.Timber
 import java.util.Locale
 
-class SettingsFragment : BaseFragment(), InputSettingDialog.Callback {
+class SettingsFragment : BaseFragment(), InputSettingDialog.Callback, ServerSelectionDialog.Callback {
 
     private val settingsViewModel: SettingsViewModel by viewModelLazy()
     private val binding: FragmentSettingsBinding by bindingLazy()
@@ -216,6 +218,15 @@ class SettingsFragment : BaseFragment(), InputSettingDialog.Callback {
                 }
             }
         }
+
+        binding.userServerSelection.root.setOnClickListener {
+
+            ServerSelectionDialog.instance(
+                settingsViewModel.measurementServers.selectedMeasurementServer?.name,
+                settingsViewModel.measurementServers.measurementServers, this
+            )
+                .show(activity)
+        }
     }
 
     override fun onSelected(value: String, requestCode: Int) {
@@ -277,6 +288,15 @@ class SettingsFragment : BaseFragment(), InputSettingDialog.Callback {
             KEY_DEVELOPER_MAP_SERVER_PORT_CODE -> {
                 settingsViewModel.state.mapServerPort.set(value.toInt())
             }
+        }
+    }
+
+    override fun onSelectServer(server: Server) {
+
+        if (server.uuid.equals("default")) {
+            settingsViewModel.state.selectedMeasurementServer.set(null)
+        } else {
+            settingsViewModel.state.selectedMeasurementServer.set(server)
         }
     }
 

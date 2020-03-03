@@ -86,6 +86,12 @@
     <string name="preferences_category_developer_qos_server">QoS-Server</string>
     <string name="preferences_developer_qos_ssl" >QoS Server SSL</string>
     <string name="preferences_developer_qos_ssl_sum" >Verwende verschlüsselte Verbindung zum QoS-Server</string>
+    <string name="preferences_server_selection_disabled">Serverauswahl entfernt.</string>
+    <string name="preferences_server_selection_available">Serverauswahl verfügbar.</string>
+    <string name="preferences_all_disabled">Deaktiviert.</string>
+    <string name="preferences_server_selection">Serverauswahl</string>
+    <string name="preferences_default_server_selection">Voreinstellung</string>
+    <string name="label_server_selection">Serverauswahl</string>
 
     <!-- Location Dialog -->
     <string name="location_dialog_label_title">Standort</string>
