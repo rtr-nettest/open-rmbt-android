@@ -22,6 +22,7 @@ import at.specure.data.MeasurementServers
 import at.specure.data.TermsAndConditions
 import at.specure.data.repository.DeviceSyncRepository
 import at.specure.data.repository.DeviceSyncRepositoryImpl
+import at.specure.data.repository.HistoryLoader
 import at.specure.data.repository.HistoryRepository
 import at.specure.data.repository.IpCheckRepository
 import at.specure.data.repository.MeasurementRepository
@@ -200,8 +201,9 @@ class CoreModule {
         controlServerClient: ControlServerClient,
         clientUUID: ClientUUID,
         historyRepository: HistoryRepository,
-        settingsRepository: SettingsRepository
-    ): DeviceSyncRepository = DeviceSyncRepositoryImpl(context, controlServerClient, clientUUID, historyRepository, settingsRepository)
+        settingsRepository: SettingsRepository,
+        historyLoader: HistoryLoader
+    ): DeviceSyncRepository = DeviceSyncRepositoryImpl(context, controlServerClient, clientUUID, historyRepository, settingsRepository, historyLoader)
 
     @Provides
     fun provideTacRepository(coreDatabase: CoreDatabase, termsAndConditions: TermsAndConditions): TacRepository =

@@ -99,6 +99,9 @@ class HistoryLoopAdapter : PagedListAdapter<HistoryContainer, HistoryLoopAdapter
             actionCallback: ((History) -> Unit)?,
             pendingAnimationCallback: (() -> Unit)?
         ) {
+            if (item.items.isEmpty()) {
+                return
+            }
             binding.item = item.items.last()
 
             animation?.cancel()

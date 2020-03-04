@@ -94,6 +94,10 @@ class HistoryFragment : BaseFragment(), SyncDevicesDialog.Callback, HistoryFilte
             historyViewModel.state.isActiveFiltersEmpty.set(data.isNullOrEmpty())
         }
 
+        historyViewModel.isLoadingLiveData.listen(this) {
+            binding.swipeRefreshLayoutHistoryItems.isRefreshing = it
+        }
+
         refreshHistory()
     }
 

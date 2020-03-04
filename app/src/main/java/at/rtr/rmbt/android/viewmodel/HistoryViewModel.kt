@@ -2,38 +2,53 @@ package at.rtr.rmbt.android.viewmodel
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.paging.LivePagedListBuilder
 import androidx.paging.PagedList
+import at.rmbt.util.exception.HandledException
 import at.rtr.rmbt.android.ui.viewstate.HistoryViewState
 import at.specure.data.entity.HistoryContainer
+import at.specure.data.repository.HistoryLoader
 import at.specure.data.repository.HistoryRepository
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.consumeAsFlow
+import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-private const val PAGE_SIZE = 25
-
-class HistoryViewModel @Inject constructor(private val repository: HistoryRepository) : BaseViewModel() {
-
-    private val boundaryCallback = repository.boundaryCallback(
-        limit = PAGE_SIZE,
-        onLoadingCallback = { _isLoadingLiveData.postValue(it) },
-        onErrorCallback = { postError(it) }
-    )
+class HistoryViewModel @Inject constructor(private val repository: HistoryRepository, private val loader: HistoryLoader) : BaseViewModel() {
 
     private val _isLoadingLiveData = MutableLiveData<Boolean>()
+
+    val state = HistoryViewState()
 
     val isLoadingLiveData: LiveData<Boolean>
         get() = _isLoadingLiveData
 
-    val state = HistoryViewState()
+    val historyLiveData: LiveData<PagedList<HistoryContainer>>
+        get() = loader.historyLiveData
 
-    val historyLiveData: LiveData<PagedList<HistoryContainer>> by lazy {
-        val source = repository.getHistorySource()
-        val config = PagedList.Config.Builder()
-            .setPageSize(PAGE_SIZE)
-            .build()
-        LivePagedListBuilder(source, config)
-            .setBoundaryCallback(boundaryCallback)
-            .build()
+    init {
+        addStateSaveHandler(state)
+
+        val isLoadingChannel = Channel<Boolean>()
+        launch {
+            isLoadingChannel.consumeAsFlow()
+                .debounce(200)
+                .collect {
+                    _isLoadingLiveData.postValue(it)
+                }
+        }
+
+        val errorChannel = Channel<HandledException>()
+        launch {
+            errorChannel.consumeAsFlow()
+                .collect {
+                    postError(it)
+                }
+        }
+
+        loader.isLoadingChannel = isLoadingChannel
+        loader.errorChannel = errorChannel
     }
 
     val activeFiltersLiveData = repository.appliedFiltersLiveData
@@ -42,11 +57,9 @@ class HistoryViewModel @Inject constructor(private val repository: HistoryReposi
         addStateSaveHandler(state)
     }
 
-    fun refreshHistory() = repository.refreshHistory(
-        limit = PAGE_SIZE,
-        onLoadingCallback = { _isLoadingLiveData.postValue(it) },
-        onErrorCallback = { postError(it) }
-    )
+    fun refreshHistory() {
+        loader.refresh()
+    }
 
     fun removeFromFilters(value: String) {
         repository.removeFromFilters(value)

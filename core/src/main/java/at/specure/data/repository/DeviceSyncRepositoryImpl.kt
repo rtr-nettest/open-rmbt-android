@@ -16,7 +16,8 @@ class DeviceSyncRepositoryImpl(
     private val client: ControlServerClient,
     private val clientUUID: ClientUUID,
     private val historyRepository: HistoryRepository,
-    private val settingsRepository: SettingsRepository
+    private val settingsRepository: SettingsRepository,
+    private val historyItemLoader: HistoryLoader
 ) : DeviceSyncRepository {
 
     override fun getDeviceSyncCode(): Flow<String> = flow {
@@ -51,7 +52,7 @@ class DeviceSyncRepositoryImpl(
         result.onSuccess {
             if (it.sync.isNotEmpty()) {
                 settingsRepository.refreshSettings()
-                historyRepository.getHistorySource()
+                historyItemLoader.refresh()
                 val entry = it.sync.first()
                 emit(DeviceSyncRepository.SyncDeviceResult(entry.messageTitle, entry.messageText, entry.success))
             } else {
