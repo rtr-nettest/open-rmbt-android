@@ -45,14 +45,18 @@ class MeasurementServers @Inject constructor(context: Context) {
         }
         set(value) {
             Timber.d("Server uuid selected: ${value?.uuid}")
-            preferences.edit().putString(KEY_SELECTED_SERVER, value?.uuid).apply()
+            if (value == null) {
+                preferences.edit().putString(KEY_SELECTED_SERVER, null).apply()
+            } else {
+                preferences.edit().putString(KEY_SELECTED_SERVER, value.uuid).apply()
+            }
         }
 
     var measurementServers: List<Server>?
         get() {
             val servers = preferences.getString(KEY_MEASUREMENT_SERVERS, null)
             Timber.d("Servers loaded: $servers")
-            return gson.fromJson<List<Server>>(servers, ArrayList::class.java)
+            return gson.fromJson(servers, Array<Server>::class.java).asList()
         }
         set(value) {
             val servers = gson.toJson(value)
