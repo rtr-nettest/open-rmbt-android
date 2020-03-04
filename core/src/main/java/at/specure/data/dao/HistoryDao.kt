@@ -36,11 +36,24 @@ abstract class HistoryDao {
     }
 
     @Query("DELETE FROM ${Tables.HISTORY_REFERENCE}")
-    abstract fun clear(): Int
+    abstract fun clearReferences(): Int
+
+    @Query("DELETE FROM ${Tables.HISTORY}")
+    abstract fun clearHistory(): Int
 
     @Transaction
     open fun clearInsert(history: List<History>) {
-        clear()
+        clearReferences()
+        clearHistory()
         insert(history)
     }
+
+    @Transaction
+    open fun clear() {
+        clearReferences()
+        clearHistory()
+    }
+
+    @Query("SELECT * FROM ${Tables.HISTORY} WHERE testUUID =:testUUID")
+    abstract fun getItemByUUID(testUUID: String): History?
 }

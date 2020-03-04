@@ -1,17 +1,14 @@
 package at.specure.data.repository
 
-import androidx.paging.DataSource
-import androidx.paging.PagedList
 import at.rmbt.client.control.ControlServerClient
 import at.rmbt.client.control.HistoryRequestBody
 import at.rmbt.util.Maybe
-import at.rmbt.util.exception.HandledException
 import at.rmbt.util.io
 import at.specure.config.Config
 import at.specure.data.ClientUUID
 import at.specure.data.HistoryFilterOptions
 import at.specure.data.dao.HistoryDao
-import at.specure.data.entity.HistoryContainer
+import at.specure.data.entity.History
 import at.specure.data.toCapabilitiesBody
 import at.specure.data.toModelList
 import timber.log.Timber
@@ -34,13 +31,11 @@ class HistoryRepositoryImpl(
 
     override val appliedFiltersLiveData = historyFilterOptions.appliedFiltersLiveData
 
-    override fun getHistorySource(): DataSource.Factory<Int, HistoryContainer> = historyDao.getHistorySource()
-
-    private fun loadItems(offset: Int, limit: Int): Maybe<Boolean> {
+    override fun loadHistoryItems(offset: Int, limit: Int): Maybe<List<History>> {
         val clientUUID = clientUUID.value
         if (clientUUID == null) {
             Timber.w("Unable to update history client uuid is null")
-            return Maybe(false)
+            return Maybe(emptyList())
         }
 
         val body = HistoryRequestBody(
@@ -55,58 +50,16 @@ class HistoryRepositoryImpl(
 
         val response = client.getHistory(body)
 
-        response.onSuccess {
+        return response.map {
+            val items = it.toModelList()
             if (offset == 0) {
+                settingsRepository.refreshSettings()
                 historyDao.clear()
             }
-            historyDao.insert(it.toModelList())
+            historyDao.insert(items)
             Timber.i("history offset: $offset limit: $limit loaded: ${it.history.size}")
+            items
         }
-
-        return response.map { response.ok }
-    }
-
-    override fun boundaryCallback(
-        limit: Int,
-        onLoadingCallback: (Boolean) -> Unit,
-        onErrorCallback: (HandledException) -> Unit
-    ) = HistoryBoundaryCallback(limit, onLoadingCallback, onErrorCallback)
-
-    inner class HistoryBoundaryCallback(
-        private val limit: Int,
-        private val onLoadingCallback: ((Boolean) -> Unit),
-        private val onErrorCallback: ((HandledException) -> Unit)
-    ) :
-        PagedList.BoundaryCallback<HistoryContainer>() {
-
-        override fun onZeroItemsLoaded() = io {
-            loadContent()
-        }
-
-        override fun onItemAtEndLoaded(itemAtEnd: HistoryContainer) {
-            loadContent()
-        }
-
-        private fun loadContent() = io {
-            onLoadingCallback.invoke(true)
-            val count = historyDao.getItemsCount()
-            val result = loadItems(count, limit)
-            onLoadingCallback.invoke(false)
-            result.onFailure {
-                onErrorCallback.invoke(it)
-            }
-        }
-    }
-
-    override fun refreshHistory(limit: Int, onLoadingCallback: (Boolean) -> Unit, onErrorCallback: (HandledException) -> Unit) = io {
-        onLoadingCallback.invoke(true)
-        loadItems(0, limit).onFailure(onErrorCallback)
-        onLoadingCallback.invoke(false)
-        settingsRepository.refreshSettings()
-    }
-
-    override fun clearHistory() {
-        historyDao.clear()
     }
 
     override fun saveFiltersNetwork(selected: Set<String>) {
@@ -155,5 +108,9 @@ class HistoryRepositoryImpl(
             historyFilterOptions.activeDevices?.let { addAll(it) }
             historyFilterOptions.activeNetworks?.let { addAll(it) }
         }
+    }
+
+    override fun cleanHistory() = io {
+        historyDao.clearHistory()
     }
 }
