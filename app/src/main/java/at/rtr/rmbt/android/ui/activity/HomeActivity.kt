@@ -27,6 +27,7 @@ import at.rtr.rmbt.android.di.viewModelLazy
 import at.rtr.rmbt.android.util.KeepStateNavigator
 import at.rtr.rmbt.android.util.listen
 import at.rtr.rmbt.android.viewmodel.MeasurementViewModel
+import at.specure.worker.WorkLauncher
 
 class HomeActivity : BaseActivity() {
 
@@ -86,6 +87,7 @@ class HomeActivity : BaseActivity() {
         if (requestCode == CODE_TERMS) {
             if (resultCode == Activity.RESULT_OK) {
                 viewModel.updateTermsAcceptance(true)
+                WorkLauncher.enqueueSettingsRequest(this)
             } else {
                 finish()
             }

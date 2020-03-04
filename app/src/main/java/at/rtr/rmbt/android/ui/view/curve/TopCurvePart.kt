@@ -152,6 +152,12 @@ class TopCurvePart(context: Context) : CurvePart() {
         previousProgress = progress
 
         currentCanvas?.let { currentCanvas ->
+
+            currentCanvas.drawColor(
+                Color.TRANSPARENT,
+                PorterDuff.Mode.CLEAR
+            )
+
             drawSections(currentCanvas)
             drawText(currentCanvas)
 
