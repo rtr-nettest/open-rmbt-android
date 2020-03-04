@@ -223,7 +223,8 @@ class SettingsFragment : BaseFragment(), InputSettingDialog.Callback, ServerSele
 
             ServerSelectionDialog.instance(
                 settingsViewModel.measurementServers.selectedMeasurementServer?.name,
-                settingsViewModel.measurementServers.measurementServers, this
+                settingsViewModel.measurementServers.measurementServers ?: emptyList(),
+                this
             )
                 .show(activity)
         }
