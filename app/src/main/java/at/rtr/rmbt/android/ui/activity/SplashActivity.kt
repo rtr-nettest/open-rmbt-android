@@ -20,6 +20,7 @@ import android.os.Handler
 import at.rtr.rmbt.android.di.viewModelLazy
 import at.rtr.rmbt.android.util.listen
 import at.rtr.rmbt.android.viewmodel.SplashViewModel
+import at.specure.worker.WorkLauncher
 
 class SplashActivity : BaseActivity() {
 
@@ -60,6 +61,7 @@ class SplashActivity : BaseActivity() {
             termsIsShown = false
             if (resultCode == Activity.RESULT_OK) {
                 viewModel.updateTermsAcceptance(true)
+                WorkLauncher.enqueueSettingsRequest(this)
             } else {
                 finish()
             }

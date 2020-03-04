@@ -72,9 +72,12 @@ class QoSProgressContainer @JvmOverloads constructor(context: Context, attrs: At
     }
 
     fun reset() {
+        items.clear()
         removeAllViews()
         orientation = VERTICAL
         qosItems.forEach {
+            removalHandler.removeMessages(it.first.ordinal)
+            progressHandler.removeMessages(it.first.ordinal)
             val binding: ItemQosMeasurementBinding = bindWith(R.layout.item_qos_measurement)
             binding.textQosTitle.text = context.getString(it.second)
             addView(binding.root)
@@ -82,6 +85,7 @@ class QoSProgressContainer @JvmOverloads constructor(context: Context, attrs: At
             items[it.first]?.isRemoved = false
         }
         Timber.d("Items: ${items.size} QosItems: ${qosItems.size} Views size: ${this.childCount}")
+        invalidate()
     }
 
     private fun sendProgressMessage(type: QoSTestResultEnum) {
@@ -109,7 +113,7 @@ class QoSProgressContainer @JvmOverloads constructor(context: Context, attrs: At
     }
 
     private data class QoSEntry(
-        private val binding: ItemQosMeasurementBinding,
+        val binding: ItemQosMeasurementBinding,
         var progress: Int = 0,
         val pendingRemoval: Boolean = false
     ) {
