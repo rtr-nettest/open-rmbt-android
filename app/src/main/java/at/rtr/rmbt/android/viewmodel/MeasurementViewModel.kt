@@ -23,9 +23,6 @@ import at.specure.measurement.MeasurementProducer
 import at.specure.measurement.MeasurementService
 import at.specure.measurement.MeasurementState
 import timber.log.Timber
-import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
@@ -190,7 +187,11 @@ class MeasurementViewModel @Inject constructor(
     }
 
     override fun onLoopCountDownTimer(timePassedMillis: Long, timeTotalMillis: Long) {
-        _timeToNextTestElapsedLiveData.postValue(SimpleDateFormat("mm:ss", Locale.getDefault()).format(Date(timeTotalMillis - timePassedMillis)))
+        val timeToNextTestMillis = (timeTotalMillis - timePassedMillis)
+        val minutesElapsed = TimeUnit.MILLISECONDS.toMinutes(timeToNextTestMillis)
+        val secondsElapsed = TimeUnit.MILLISECONDS.toSeconds(timeToNextTestMillis) - TimeUnit.MINUTES.toSeconds(minutesElapsed)
+        val text = String.format("%02d:%02d", minutesElapsed, secondsElapsed)
+        _timeToNextTestElapsedLiveData.postValue(text)
         _timeProgressPercentsLiveData.postValue(((timePassedMillis * 100) / timeTotalMillis).toInt())
     }
 
