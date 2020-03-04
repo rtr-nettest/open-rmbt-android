@@ -139,6 +139,11 @@ class SettingsViewState constructor(
                 appConfig.qosSSL = it
             }
         }
+        userServerSelectionEnabled.addOnPropertyChanged { value ->
+            value.get()?.let {
+                appConfig.userServerSelectionEnabled = it
+            }
+        }
         selectedMeasurementServer.addOnPropertyChanged { value ->
             value.get()?.let {
                 measurementServers.selectedMeasurementServer = it

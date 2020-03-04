@@ -77,40 +77,12 @@ class SettingsViewModel @Inject constructor(appConfig: AppConfig, clientUUID: Cl
                 ALL_DEACTIVATE_CODE -> {
                     state.developerModeIsEnabled.set(false)
                     state.userServerSelectionEnabled.set(false)
-                    R.string.preferences_developer_options_disabled
-                }
-                else -> {
                     R.string.preferences_all_disabled
                 }
-            }
-            /*state.developerModeIsEnabled.get()?.let {
-
-                return if (it) {
-                    when (code) {
-                        DEVELOPER_DEACTIVATE_CODE -> {
-                            state.developerModeIsEnabled.set(false)
-                            R.string.preferences_developer_options_disabled
-                        }
-                        ALL_DEACTIVATE_CODE -> {
-                            state.developerModeIsEnabled.set(false)
-                            R.string.preferences_developer_options_disabled
-                        }
-                        else -> {
-                            R.string.preferences_developer_try_again
-                        }
-                    }
-                } else {
-                    when (code) {
-                        DEVELOPER_ACTIVATE_CODE -> {
-                            state.developerModeIsEnabled.set(true)
-                            R.string.preferences_developer_options_available
-                        }
-                        else -> {
-                            R.string.preferences_developer_try_again
-                        }
-                    }
+                else -> {
+                    R.string.preferences_developer_try_again
                 }
-            }*/
+            }
         }
         return R.string.preferences_developer_try_again
     }
