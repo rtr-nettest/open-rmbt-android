@@ -157,6 +157,18 @@
             tools:background="@android:color/holo_red_dark" />
 
         <androidx.appcompat.widget.AppCompatTextView
+            style="@style/RobotoRegularStyle.Small"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingStart="@dimen/padding_very_small"
+            android:paddingEnd="@dimen/padding_large"
+            android:text='@{state.selectedMeasurementServer  != null ? state.selectedMeasurementServer.name : @string/preferences_default_server_selection}'
+            android:textColor="@{state.isConnected ? @android:color/white : @color/text_dark_gray}"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/loop_mode_title"
+            app:visibleOrGone='@{state.expertModeIsEnabled}' />
+
+        <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/tv_info"
             style="@style/RobotoRegularStyle.Medium"
             android:layout_width="wrap_content"
@@ -374,17 +386,6 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@+id/btnLocation"
             tools:src="@drawable/ic_upload_enabled" />
-
-        <androidx.appcompat.widget.AppCompatTextView
-            style="@style/RobotoRegularStyle.Small"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text='@{state.selectedMeasurementServer  != null ? state.selectedMeasurementServer.name : @string/preferences_default_server_selection}'
-            android:textColor="@{state.isConnected ? @android:color/white : @color/text_dark_gray}"
-            android:paddingEnd="@dimen/padding_large"
-            android:paddingStart="@dimen/padding_very_small"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/loop_mode_title" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

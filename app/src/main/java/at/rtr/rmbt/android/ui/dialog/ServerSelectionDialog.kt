@@ -17,7 +17,7 @@ import at.rtr.rmbt.android.ui.adapter.ServerSelectionAdapter
 import at.rtr.rmbt.android.util.args
 import java.io.Serializable
 
-class ServerSelectionDialog() : FullscreenDialog() {
+class ServerSelectionDialog : FullscreenDialog() {
 
     private lateinit var binding: DialogServerSelectionBinding
     private var measurementServers = mutableListOf<Server>()
@@ -75,7 +75,6 @@ class ServerSelectionDialog() : FullscreenDialog() {
         dialog?.let {
             dialog.window?.setGravity(Gravity.CENTER_HORIZONTAL or Gravity.CENTER)
             dialog.window?.addFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND)
-            dialog.window?.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE)
         }
     }
 

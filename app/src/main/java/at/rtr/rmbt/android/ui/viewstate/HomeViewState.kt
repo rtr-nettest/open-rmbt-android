@@ -26,6 +26,7 @@ class HomeViewState(
     val ipV6Info = ObservableField<IpInfo?>()
     val isSignalMeasurementActive = ObservableField<Boolean>()
     val isLoopModeActive = ObservableBoolean(config.loopModeEnabled)
+    val expertModeIsEnabled = ObservableField(config.expertModeEnabled)
     val developerModeIsEnabled = ObservableField(config.developerModeIsEnabled)
     val selectedMeasurementServer = ObservableField(measurementServers.selectedMeasurementServer)
 
@@ -45,5 +46,6 @@ class HomeViewState(
         isLoopModeActive.set(config.loopModeEnabled)
         developerModeIsEnabled.set(config.developerModeIsEnabled)
         selectedMeasurementServer.set(measurementServers.selectedMeasurementServer)
+        expertModeIsEnabled.set(config.expertModeEnabled)
     }
 }
