@@ -222,7 +222,7 @@ class SettingsFragment : BaseFragment(), InputSettingDialog.Callback, ServerSele
         binding.userServerSelection.root.setOnClickListener {
 
             ServerSelectionDialog.instance(
-                settingsViewModel.measurementServers.selectedMeasurementServer?.name,
+                settingsViewModel.measurementServers.selectedMeasurementServer?.uuid,
                 settingsViewModel.measurementServers.measurementServers ?: emptyList(),
                 this
             )

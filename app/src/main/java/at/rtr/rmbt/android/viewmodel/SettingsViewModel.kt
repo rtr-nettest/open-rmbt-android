@@ -66,17 +66,8 @@ class SettingsViewModel @Inject constructor(appConfig: AppConfig, clientUUID: Cl
                     state.developerModeIsEnabled.set(false)
                     R.string.preferences_developer_options_disabled
                 }
-                SERVER_SELECTION_ACTIVATE_CODE -> {
-                    state.userServerSelectionEnabled.set(true)
-                    R.string.preferences_server_selection_available
-                }
-                SERVER_SELECTION_DEACTIVATE_CODE -> {
-                    state.userServerSelectionEnabled.set(false)
-                    R.string.preferences_server_selection_disabled
-                }
                 ALL_DEACTIVATE_CODE -> {
                     state.developerModeIsEnabled.set(false)
-                    state.userServerSelectionEnabled.set(false)
                     R.string.preferences_all_disabled
                 }
                 else -> {
@@ -107,8 +98,6 @@ class SettingsViewModel @Inject constructor(appConfig: AppConfig, clientUUID: Cl
     companion object {
         private const val DEVELOPER_ACTIVATE_CODE: String = "23656990"
         private const val DEVELOPER_DEACTIVATE_CODE: String = "69652357"
-        private const val SERVER_SELECTION_ACTIVATE_CODE: String = "17031552"
-        private const val SERVER_SELECTION_DEACTIVATE_CODE: String = "15031722"
         private const val ALL_DEACTIVATE_CODE: String = "00000000"
     }
 }

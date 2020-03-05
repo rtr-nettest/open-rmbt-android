@@ -40,7 +40,6 @@ class SettingsViewState constructor(
     val mapServerPort = ObservableField(appConfig.mapServerPort)
     val mapServerUseSSL = ObservableField(appConfig.mapServerUseSSL)
     val qosSSL = ObservableField(appConfig.qosSSL)
-    val userServerSelectionEnabled = ObservableField(appConfig.userServerSelectionEnabled)
     val selectedMeasurementServer = ObservableField(measurementServers.selectedMeasurementServer)
 
     init {
@@ -139,13 +138,8 @@ class SettingsViewState constructor(
                 appConfig.qosSSL = it
             }
         }
-        userServerSelectionEnabled.addOnPropertyChanged { value ->
-            value.get()?.let {
-                appConfig.userServerSelectionEnabled = it
-            }
-        }
         selectedMeasurementServer.addOnPropertyChanged { value ->
-            value.get()?.let {
+            value.get().let {
                 measurementServers.selectedMeasurementServer = it
             }
         }

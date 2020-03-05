@@ -56,7 +56,11 @@ class MeasurementServers @Inject constructor(context: Context) {
         get() {
             val servers = preferences.getString(KEY_MEASUREMENT_SERVERS, null)
             Timber.d("Servers loaded: $servers")
-            return gson.fromJson(servers, Array<Server>::class.java).asList()
+            return if (servers == null || servers == "null") {
+                emptyList()
+            } else {
+                gson.fromJson(servers, Array<Server>::class.java).asList()
+            }
         }
         set(value) {
             val servers = gson.toJson(value)
