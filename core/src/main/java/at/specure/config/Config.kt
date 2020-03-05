@@ -325,4 +325,19 @@ interface Config {
      * End of url to send signal measurement results
      */
     var signalResultRoute: String
+
+    /**
+     * Secret code to enable developer mode
+     */
+    var secretCodeDeveloperModeOn: String
+
+    /**
+     * Secret code to disable developer mode
+     */
+    var secretCodeDeveloperModeOff: String
+
+    /**
+     * Secret code to disable all special modes
+     */
+    var secretCodeAllModesOff: String
 }

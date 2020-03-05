@@ -303,6 +303,24 @@ class AppConfig @Inject constructor(context: Context, private val serverSettings
         get() = getString(BuildConfig.SIGNAL_RESULT_ROUTE)
         set(value) = setString(BuildConfig.SIGNAL_RESULT_ROUTE, value)
 
+    override var secretCodeDeveloperModeOn: String
+        get() = getString(BuildConfig.DEVELOPER_ACTIVATE_CODE)
+        set(value) {
+            // this value cannot be changed
+        }
+
+    override var secretCodeDeveloperModeOff: String
+        get() = getString(BuildConfig.DEVELOPER_DEACTIVATE_CODE)
+        set(value) {
+            // this value cannot be changed
+        }
+
+    override var secretCodeAllModesOff: String
+        get() = getString(BuildConfig.ALL_DEACTIVATE_CODE)
+        set(value) {
+            // this value cannot be changed
+        }
+
     override var termsAcceptanceDefaultUrl: String
         get() = getString(BuildConfig.TERMS_FOR_ACCEPTANCE_URL)
         set(value) = setString(BuildConfig.TERMS_FOR_ACCEPTANCE_URL, value)

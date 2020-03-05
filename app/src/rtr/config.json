@@ -294,6 +294,21 @@
       "name": "SIGNAL_RESULT_ROUTE",
       "value": "/signalResult",
       "visible": false
+    },
+    {
+      "name": "DEVELOPER_ACTIVATE_CODE",
+      "value": "abcdefghij",
+      "visible": false
+    },
+    {
+      "name": "DEVELOPER_DEACTIVATE_CODE",
+      "value": "abcdefghij",
+      "visible": false
+    },
+    {
+      "name": "ALL_DEACTIVATE_CODE",
+      "value": "abcdefghij",
+      "visible": false
     }
   ]
 }
