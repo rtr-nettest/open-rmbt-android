@@ -10,7 +10,12 @@ import at.specure.data.MeasurementServers
 import at.specure.location.LocationProviderStateLiveData
 import javax.inject.Inject
 
-class SettingsViewModel @Inject constructor(appConfig: AppConfig, clientUUID: ClientUUID, val locationStateLiveData: LocationProviderStateLiveData, val measurementServers: MeasurementServers) :
+class SettingsViewModel @Inject constructor(
+    private val appConfig: AppConfig,
+    clientUUID: ClientUUID,
+    val locationStateLiveData: LocationProviderStateLiveData,
+    val measurementServers: MeasurementServers
+) :
     BaseViewModel() {
 
     val state = SettingsViewState(appConfig, clientUUID, measurementServers)
@@ -58,15 +63,15 @@ class SettingsViewModel @Inject constructor(appConfig: AppConfig, clientUUID: Cl
         if (code.isNotBlank()) {
 
             return when (code) {
-                DEVELOPER_ACTIVATE_CODE -> {
+                appConfig.secretCodeDeveloperModeOn -> {
                     state.developerModeIsEnabled.set(true)
                     R.string.preferences_developer_options_available
                 }
-                DEVELOPER_DEACTIVATE_CODE -> {
+                appConfig.secretCodeDeveloperModeOff -> {
                     state.developerModeIsEnabled.set(false)
                     R.string.preferences_developer_options_disabled
                 }
-                ALL_DEACTIVATE_CODE -> {
+                appConfig.secretCodeAllModesOff -> {
                     state.developerModeIsEnabled.set(false)
                     R.string.preferences_all_disabled
                 }
@@ -93,11 +98,5 @@ class SettingsViewModel @Inject constructor(appConfig: AppConfig, clientUUID: Cl
                 _openCodeWindow.postValue(true)
             }
         }
-    }
-
-    companion object {
-        private const val DEVELOPER_ACTIVATE_CODE: String = "23656990"
-        private const val DEVELOPER_DEACTIVATE_CODE: String = "69652357"
-        private const val ALL_DEACTIVATE_CODE: String = "00000000"
     }
 }
