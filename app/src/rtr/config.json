@@ -1,6 +1,61 @@
 {
   "config": [
     {
+      "line1": "=======================================",
+      "_section": "CONTROL SERVER VARIABLES",
+      "line2": "======================================="
+    },
+    {
+      "name": "CONTROL_SERVER_HOST",
+      "value": "sdev.example.com",
+      "visible": false
+    },
+    {
+      "name": "CONTROL_SERVER_CHECK_PRIVATE_IPV4_HOST",
+      "value": "sdevv4.example.com",
+      "visible": false
+    },
+    {
+      "name": "CONTROL_SERVER_CHECK_PRIVATE_IPV6_HOST",
+      "value": "sdevv6.example.com",
+      "visible": false
+    },
+    {
+      "name": "CONTROL_SERVER_CHECK_PUBLIC_IPV4_URL",
+      "value": "sdevv4.example.com/RMBTControlServer/ip",
+      "visible": false
+    },
+    {
+      "name": "CONTROL_SERVER_CHECK_PUBLIC_IPV6_URL",
+      "value": "sdevv6.example.com/RMBTControlServer/ip",
+      "visible": false
+    },
+    {
+      "name": "CAPTIVE_PORTAL_WALLED_GARDEN_URL",
+      "value": "http://webtest.example.com/generate_204",
+      "visible": false
+    },
+    {
+      "name": "CONTROL_SERVER_PORT",
+      "value": "443",
+      "visible": false
+    },
+    {
+      "name": "CONTROL_SERVER_USE_SSL",
+      "value": "true",
+      "visible": false
+    },
+    {
+      "name": "QOS_SSL",
+      "value": "true",
+      "visible": false
+    },
+    {
+      "line1": "=======================================",
+      "_section": "TEST SETTINGS",
+      "line2": "======================================="
+    },
+    {
       "name": "NDT_ENABLED",
       "value": "false",
       "visible": false
@@ -11,18 +66,13 @@
       "visible": true
     },
     {
-      "name": "CAN_MANAGE_LOCATION_SETTINGS",
-      "value": "false",
-      "visible": true
-    },
-    {
       "name": "LOOP_MODE_ENABLED",
       "value": "false",
       "visible": true
     },
     {
       "name": "LOOP_MODE_WAITING_TIME_MIN",
-      "value": "10",
+      "value": "30",
       "visible": true
     },
     {
@@ -32,7 +82,7 @@
     },
     {
       "name": "LOOP_MODE_NUMBER_OF_TESTS",
-      "value": "10",
+      "value": "30",
       "visible": true
     },
     {
@@ -66,6 +116,36 @@
       "visible": false
     },
     {
+      "name": "CAPABILITIES_RMBT_HTTP",
+      "value": "false",
+      "visible": false
+    },
+    {
+      "name": "CAPABILITIES_QOS_SUPPORTS_INFO",
+      "value": "false",
+      "visible": false
+    },
+    {
+      "name": "CAPABILITIES_CLASSIFICATION_COUNT",
+      "value": "4",
+      "visible": false
+    },
+    {
+      "line1": "=======================================",
+      "_section": "GENERAL SETTINGS",
+      "line2": "======================================="
+    },
+    {
+      "name": "CAN_MANAGE_LOCATION_SETTINGS",
+      "value": "false",
+      "visible": true
+    },
+    {
+      "line1": "=======================================",
+      "_section": "EXPERT SETTINGS",
+      "line2": "======================================="
+    },
+    {
       "name": "EXPERT_MODE_ENABLED",
       "value": "false",
       "visible": true
@@ -76,39 +156,129 @@
       "visible": true
     },
     {
-      "name": "CONTROL_SERVER_HOST",
-      "value": "",
+      "name": "USER_SERVER_SELECTION_ENABLED",
+      "value": "false",
       "visible": false
     },
     {
-      "name": "CONTROL_SERVER_CHECK_PRIVATE_IPV4_HOST",
-      "value": "",
+      "line1": "=======================================",
+      "_section": "DEVELOPER SETTINGS",
+      "line2": "======================================="
+    },
+    {
+      "name": "DEVELOPER_MODE_IS_ENABLED",
+      "value": "false",
       "visible": false
     },
     {
-      "name": "CONTROL_SERVER_CHECK_PRIVATE_IPV6_HOST",
-      "value": "",
+      "name": "DEVELOPER_MODE_IS_AVAILABLE",
+      "value": "true",
       "visible": false
     },
     {
-      "name": "CONTROL_SERVER_CHECK_PUBLIC_IPV4_URL",
-      "value": "",
+      "name": "IS_MAP_SERVER_OVERRIDE_ENABLED",
+      "value": "false",
       "visible": false
     },
     {
-      "name": "CONTROL_SERVER_CHECK_PUBLIC_IPV6_URL",
-      "value": "",
+      "name": "IS_CONTROL_SERVER_OVERRIDE_ENABLED",
+      "value": "false",
       "visible": false
     },
     {
-      "name": "CONTROL_SERVER_PORT",
+      "name": "DEVELOPER_ACTIVATE_CODE",
+      "value": "qwerty",
+      "visible": false
+    },
+    {
+      "name": "DEVELOPER_DEACTIVATE_CODE",
+      "value": "1111",
+      "visible": false
+    },
+    {
+      "name": "ALL_DEACTIVATE_CODE",
+      "value": "0000",
+      "visible": false
+    },
+    {
+      "line1": "=======================================",
+      "_section": "OTHER VALUES",
+      "line2": "======================================="
+    },
+    {
+      "name": "SOURCE_CODE_URL",
+      "value": "https://github.com/rtr-nettest",
+      "visible": false
+    },
+    {
+      "name": "WEBSITE_URL",
+      "value": "https://www.example.com",
+      "visible": false
+    },
+    {
+      "name": "EMAIL_ADDRESS",
+      "value": "RMBT Support <support@example.com>",
+      "visible": false
+    },
+    {
+      "name": "DATA_PRIVACY_AND_TERMS_URL",
+      "value": "https://example.com/%s/tk/netztestterms",
+      "visible": true
+    },
+    {
+      "name": "TERMS_FOR_ACCEPTANCE_URL",
+      "value": "https://example.com/%s/tc_android.html",
+      "visible": true
+    },
+    {
+      "line1": "=======================================",
+      "_section": "MAP SETTINGS",
+      "line2": "======================================="
+    },
+    {
+      "name": "MAP_SERVER_HOST",
+      "value": "sdev.example.com",
+      "visible": false
+    },
+    {
+      "name": "MAP_SERVER_PORT",
       "value": "443",
       "visible": false
     },
     {
-      "name": "CONTROL_SERVER_USE_SSL",
+      "name": "MAP_SERVER_USE_SSL",
       "value": "true",
       "visible": false
+    },
+    {
+      "name": "MAP_SERVER_ROUTE",
+      "value": "RMBTMapServer",
+      "visible": false
+    },
+    {
+      "name": "MAP_TILES_ENDPOINT",
+      "value": "tiles/%s/%d/%d/%d.png",
+      "visible": false
+    },
+    {
+      "name": "MAP_MARKERS_ENDPOINT",
+      "value": "tiles/markers",
+      "visible": false
+    },
+    {
+      "name": "MAP_MARKER_SHOW_DETAILS_ROUTE",
+      "value": "en/Opentest?%s#noMMenu",
+      "visible": false
+    },
+    {
+      "name": "MAP_FILTERS_ENDPOINT",
+      "value": "tiles/info",
+      "visible": false
+    },
+    {
+      "line1": "=======================================",
+      "_section": "CONTROL SERVER ROUTES",
+      "line2": "======================================="
     },
     {
       "name": "CONTROL_SERVER_ROUTE",
@@ -161,153 +331,23 @@
       "visible": false
     },
     {
-      "name": "CAPTIVE_PORTAL_WALLED_GARDEN_URL",
-      "value": "http://webtest.nettest.at/generate_204",
-      "visible": false
-    },
-    {
-      "name": "SOURCE_CODE_URL",
-      "value": "https://github.com/rtr-nettest",
-      "visible": false
-    },
-    {
-      "name": "WEBSITE_URL",
-      "value": "https://www.netztest.at",
-      "visible": false
-    },
-    {
-      "name": "EMAIL_ADDRESS",
-      "value": "RTR-Netztest Support <netztest@rtr.at>",
-      "visible": false
-    },
-    {
-      "name": "CAPABILITIES_RMBT_HTTP",
-      "value": "false",
-      "visible": false
-    },
-    {
-      "name": "CAPABILITIES_QOS_SUPPORTS_INFO",
-      "value": "false",
-      "visible": false
-    },
-    {
-      "name": "CAPABILITIES_CLASSIFICATION_COUNT",
-      "value": "4",
-      "visible": false
-    },
-    {
-      "name": "USER_SERVER_SELECTION_ENABLED",
-      "value": "false",
-      "visible": false
-    },
-    {
-      "name": "DEVELOPER_MODE_IS_ENABLED",
-      "value": "false",
-      "visible": false
-    },
-    {
-      "name": "DEVELOPER_MODE_IS_AVAILABLE",
-      "value": "true",
-      "visible": false
-    },
-    {
-      "name": "IS_CONTROL_SERVER_OVERRIDE_ENABLED",
-      "value": "false",
-      "visible": false
-    },
-    {
-      "name": "QOS_SSL",
-      "value": "true",
-      "visible": false
-    },
-    {
-      "name": "MAP_SERVER_ROUTE",
-      "value": "RMBTMapServer",
-      "visible": false
-    },
-    {
-      "name": "MAP_TILES_ENDPOINT",
-      "value": "tiles/%s/%d/%d/%d.png",
-      "visible": false
-    },
-    {
-      "name": "MAP_MARKERS_ENDPOINT",
-      "value": "tiles/markers",
-      "visible": false
-    },
-    {
-      "name": "MAP_MARKER_SHOW_DETAILS_ROUTE",
-      "value": "en/Opentest?%s#noMMenu",
-      "visible": false
-    },
-    {
-      "name": "GET_SYNC_CODE_ROUTE",
-      "value": "sync",
-      "visible": false
-    },
-    {
-      "name": "SYNC_DEVICES_ROUTE",
-      "value": "sync",
-      "visible": false
-    },
-    {
-      "name": "MAP_FILTERS_ENDPOINT",
-      "value": "tiles/info",
-      "visible": false
-    },
-    {
-      "name": "DATA_PRIVACY_AND_TERMS_URL",
-      "value": "https://www.rtr.at/%s/tk/netztestterms",
-      "visible": true
-    },
-    {
-      "name": "IS_MAP_SERVER_OVERRIDE_ENABLED",
-      "value": "false",
-      "visible": false
-    },
-    {
-      "name": "MAP_SERVER_HOST",
-      "value": "sdev.netztest.at",
-      "visible": false
-    },
-    {
-      "name": "MAP_SERVER_PORT",
-      "value": "443",
-      "visible": false
-    },
-    {
-      "name": "MAP_SERVER_USE_SSL",
-      "value": "true",
-      "visible": false
-    },
-    {
-      "name": "TERMS_FOR_ACCEPTANCE_URL",
-      "value": "https://www.netztest.at/%s/tc_android.html",
-      "visible": true
-    },
-    {
-      "name": "SIGNAL_REQUEST_ROUTE",
+      "name": "CONTROL_SERVER_SIGNAL_REQUEST_ROUTE",
       "value": "/signalRequest",
       "visible": false
     },
     {
-      "name": "SIGNAL_RESULT_ROUTE",
+      "name": "CONTROL_SERVER_SIGNAL_RESULT_ROUTE",
       "value": "/signalResult",
       "visible": false
     },
     {
-      "name": "DEVELOPER_ACTIVATE_CODE",
-      "value": "abcdefghij",
+      "name": "CONTROL_SERVER_GET_SYNC_CODE_ROUTE",
+      "value": "sync",
       "visible": false
     },
     {
-      "name": "DEVELOPER_DEACTIVATE_CODE",
-      "value": "abcdefghij",
-      "visible": false
-    },
-    {
-      "name": "ALL_DEACTIVATE_CODE",
-      "value": "abcdefghij",
+      "name": "CONTROL_SERVER_SYNC_DEVICES_ROUTE",
+      "value": "sync",
       "visible": false
     }
   ]

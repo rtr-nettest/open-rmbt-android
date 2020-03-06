@@ -279,5 +279,7 @@
     <string name="title_privacy_policy">Datenschutzerklärung</string>
     <string name="text_terms_agree">Ich stimme den Datenschutzbestimmungen und Nutzungsbedingungen von RTR für RTR-NetTest zu.</string>
     <string name="text_terms_agree_empty">Sie müssen den Datenschutzbestimmungen und Nutzungsbedingungen von RTR zustimmen, um fortfahren zu können.</string>
+
+    <string name="dialog_title_config_check">Bitte ändern Sie die folgenden Werte:</string>
 </resources>
 

@@ -280,12 +280,12 @@ class AppConfig @Inject constructor(context: Context, private val serverSettings
         set(value) = setString(BuildConfig.MAP_MARKER_SHOW_DETAILS_ROUTE, value)
 
     override var getSyncCodeRoute: String
-        get() = getString(BuildConfig.GET_SYNC_CODE_ROUTE)
-        set(value) = setString(BuildConfig.GET_SYNC_CODE_ROUTE, value)
+        get() = getString(BuildConfig.CONTROL_SERVER_GET_SYNC_CODE_ROUTE)
+        set(value) = setString(BuildConfig.CONTROL_SERVER_GET_SYNC_CODE_ROUTE, value)
 
     override var syncDevicesRoute: String
-        get() = getString(BuildConfig.SYNC_DEVICES_ROUTE)
-        set(value) = setString(BuildConfig.SYNC_DEVICES_ROUTE, value)
+        get() = getString(BuildConfig.CONTROL_SERVER_SYNC_DEVICES_ROUTE)
+        set(value) = setString(BuildConfig.CONTROL_SERVER_SYNC_DEVICES_ROUTE, value)
 
     override var mapFilterInfoEndpoint: String
         get() = getString(BuildConfig.MAP_FILTERS_ENDPOINT)
@@ -296,12 +296,12 @@ class AppConfig @Inject constructor(context: Context, private val serverSettings
         set(value) = setString(BuildConfig.DATA_PRIVACY_AND_TERMS_URL, value)
 
     override var signalRequestRoute: String
-        get() = getString(BuildConfig.SIGNAL_REQUEST_ROUTE)
-        set(value) = setString(BuildConfig.SIGNAL_REQUEST_ROUTE, value)
+        get() = getString(BuildConfig.CONTROL_SERVER_SIGNAL_REQUEST_ROUTE)
+        set(value) = setString(BuildConfig.CONTROL_SERVER_SIGNAL_REQUEST_ROUTE, value)
 
     override var signalResultRoute: String
-        get() = getString(BuildConfig.SIGNAL_RESULT_ROUTE)
-        set(value) = setString(BuildConfig.SIGNAL_RESULT_ROUTE, value)
+        get() = getString(BuildConfig.CONTROL_SERVER_SIGNAL_RESULT_ROUTE)
+        set(value) = setString(BuildConfig.CONTROL_SERVER_SIGNAL_RESULT_ROUTE, value)
 
     override var secretCodeDeveloperModeOn: String
         get() = getString(BuildConfig.DEVELOPER_ACTIVATE_CODE)

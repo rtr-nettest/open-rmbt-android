@@ -297,4 +297,6 @@
     <string name="text_terms_agree">I agree with RTR’s Privacy and Terms of Use for RTR-NetTest.</string>
     <string name="text_terms_agree_empty">You have to agree with RTR’s Privacy and Terms of Use to continue.</string>
 
+    <string name="dialog_title_config_check">Please change the following values:</string>
+
 </resources>

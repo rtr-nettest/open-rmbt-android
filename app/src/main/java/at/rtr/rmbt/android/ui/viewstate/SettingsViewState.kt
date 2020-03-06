@@ -11,7 +11,7 @@ import at.specure.location.LocationProviderState
 class SettingsViewState constructor(
     val appConfig: AppConfig,
     val clientUUID: ClientUUID,
-    val measurementServers: MeasurementServers
+    private val measurementServers: MeasurementServers
 ) : ViewState {
 
     val isNDTEnabled = ObservableField(appConfig.NDTEnabled)
