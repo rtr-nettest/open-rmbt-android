@@ -60,6 +60,9 @@ class IpChangeWatcherImpl @Inject constructor(
             }
         }
 
+    private var isV4Loading: Boolean = false
+    private var isV6Loading: Boolean = false
+
     override val lastIPv4Address: IpInfo
         get() = _lastIPv4Address
 
@@ -71,9 +74,12 @@ class IpChangeWatcherImpl @Inject constructor(
             var publicIp4: Maybe<IpInfoResponse>? = null
             var privateIp4: Maybe<IpInfoResponse>? = null
 
-            coroutineScope {
-                launch { publicIp4 = ipCheckRepository.getPublicIpV4Address() }
-                launch { privateIp4 = ipCheckRepository.getPrivateIpV4Address() }
+            if (!isV4Loading) {
+                isV4Loading = true
+                coroutineScope {
+                    launch { publicIp4 = ipCheckRepository.getPublicIpV4Address() }
+                    launch { privateIp4 = ipCheckRepository.getPrivateIpV4Address() }
+                }.invokeOnCompletion { isV4Loading = false }
             }
             val privateAddress: String? = if (privateIp4?.ok == true) privateIp4!!.success.ipAddress else null
             val publicAddress: String? = if (publicIp4?.ok == true) publicIp4!!.success.ipAddress else null
@@ -93,9 +99,12 @@ class IpChangeWatcherImpl @Inject constructor(
             var publicIp6: Maybe<IpInfoResponse>? = null
             var privateIp6: Maybe<IpInfoResponse>? = null
 
-            coroutineScope {
-                launch { publicIp6 = ipCheckRepository.getPublicIpV6Address() }
-                launch { privateIp6 = ipCheckRepository.getPrivateIpV6Address() }
+            if (!isV6Loading) {
+                isV6Loading = true
+                coroutineScope {
+                    launch { publicIp6 = ipCheckRepository.getPublicIpV6Address() }
+                    launch { privateIp6 = ipCheckRepository.getPrivateIpV6Address() }
+                }.invokeOnCompletion { isV6Loading = false }
             }
 
             val privateAddress: String? = if (privateIp6?.ok == true) privateIp6!!.success.ipAddress else null
