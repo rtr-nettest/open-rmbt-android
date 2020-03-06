@@ -24,8 +24,10 @@ import androidx.navigation.ui.setupWithNavController
 import at.rtr.rmbt.android.R
 import at.rtr.rmbt.android.databinding.ActivityHomeBinding
 import at.rtr.rmbt.android.di.viewModelLazy
+import at.rtr.rmbt.android.ui.dialog.ConfigCheckDialog
 import at.rtr.rmbt.android.util.KeepStateNavigator
 import at.rtr.rmbt.android.util.listen
+import at.rtr.rmbt.android.viewmodel.ConfigCheckViewModel
 import at.rtr.rmbt.android.viewmodel.MeasurementViewModel
 import at.specure.worker.WorkLauncher
 
@@ -34,6 +36,7 @@ class HomeActivity : BaseActivity() {
     private lateinit var binding: ActivityHomeBinding
 
     private val viewModel: MeasurementViewModel by viewModelLazy()
+    private val configCheckViewModel: ConfigCheckViewModel by viewModelLazy()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -63,6 +66,10 @@ class HomeActivity : BaseActivity() {
                 HomeNavigationTarget.MAP_FRAGMENT_TO_SHOW -> binding.navView.selectedItemId = R.id.navigation_map
             }
         }
+
+        configCheckViewModel.incorrectValuesLiveData.listen(this) {
+            ConfigCheckDialog.show(supportFragmentManager, it)
+        }
     }
 
     override fun onStart() {
@@ -74,6 +81,7 @@ class HomeActivity : BaseActivity() {
                 TermsAcceptanceActivity.start(this, CODE_TERMS)
             }
         }
+        configCheckViewModel.checkConfig()
     }
 
     override fun onStop() {
