@@ -67,7 +67,10 @@ class ActiveNetworkWatcher(
             } else {
                 when (connectivityInfo.transportType) {
                     TransportType.WIFI -> wifiInfoWatcher.activeWifiInfo
-                    TransportType.CELLULAR -> cellInfoWatcher.activeNetwork
+                    TransportType.CELLULAR -> {
+                        cellInfoWatcher.forceUpdate()
+                        cellInfoWatcher.activeNetwork
+                    }
                     else -> null
                 }
             }

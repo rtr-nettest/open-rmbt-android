@@ -77,7 +77,7 @@ class CellInfoWatcherImpl(
                 val subscriptions = subscriptionManager.activeSubscriptionInfoList
                 subscriptions?.forEachIndexed { index, it ->
                     // TODO this is not proved solution, need to find another way to connect CellInfo and SubscriptionInfo
-                    if (dataSimSubscriptionId == it.subscriptionId && registeredInfoList.size > index) {
+                    if (dataSimSubscriptionId == it.subscriptionId && (registeredInfoList.size > index || registeredInfoList.size == 1)) {
 
                         val networkType = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                             val manager = telephonyManager.createForSubscriptionId(dataSimSubscriptionId)
@@ -86,7 +86,11 @@ class CellInfoWatcherImpl(
                             telephonyManager.networkType
                         }
 
-                        _cellInfo = registeredInfoList[index]
+                        _cellInfo = if (registeredInfoList.size > index) {
+                            registeredInfoList[index]
+                        } else {
+                            registeredInfoList[0]
+                        }
                         _activeNetwork = CellNetworkInfo.from(
                             _cellInfo!!,
                             it,
@@ -113,6 +117,18 @@ class CellInfoWatcherImpl(
             }
 
             notifyListeners()
+        }
+    }
+
+    @SuppressLint("MissingPermission")
+    override fun forceUpdate() {
+        try {
+            val cells = telephonyManager.allCellInfo
+            if (!cells.isNullOrEmpty()) {
+                infoListener.onCellInfoChanged(cells)
+            }
+        } catch (ex: Exception) {
+            Timber.w(ex, "Failed to update cell info")
         }
     }
 
