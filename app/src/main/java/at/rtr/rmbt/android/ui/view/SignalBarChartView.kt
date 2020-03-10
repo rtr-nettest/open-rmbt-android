@@ -3,6 +3,7 @@ package at.rtr.rmbt.android.ui.view
 import android.content.Context
 import android.graphics.Canvas
 import android.graphics.Paint
+import android.graphics.Path
 import android.util.AttributeSet
 import at.rtr.rmbt.android.R
 import at.specure.data.NetworkTypeCompat
@@ -15,9 +16,23 @@ class SignalBarChartView @JvmOverloads constructor(
     attrs: AttributeSet? = null
 ) : PingChartView(context, attrs), ResultChart {
 
-    private var paintFill: Paint = Paint(Paint.ANTI_ALIAS_FLAG)
+    private var linePaint: Paint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+        style = Paint.Style.STROKE
+        strokeWidth = 3f
+    }
+    private var fillPaint: Paint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+        style = Paint.Style.FILL_AND_STROKE
+    }
     private var maxValue: Int? = 0
+    private var strokePath: Path = Path()
+    private var fillPath: Path = Path()
+    private var widthMultiplier: Float = 0f
     private var graphItems: List<TestResultGraphItemRecord>? = null
+        set(value) {
+            field = value
+            calculatePath()
+            invalidate()
+        }
 
     override val paddingStringStub: String
         get() = "-100 dBmm"
@@ -26,15 +41,9 @@ class SignalBarChartView @JvmOverloads constructor(
         get() = R.string.graph_signal_value
 
     init {
-
-        val typedArray = context.obtainStyledAttributes(attrs, R.styleable.SignalBarChartView)
-
-        paintFill.color = typedArray.getColor(
-            R.styleable.SignalBarChartView_bar_color,
-            context.getColor(R.color.ping_bar_color)
-        )
-        paintFill.style = Paint.Style.FILL
-        paintFill.isAntiAlias = true
+        val typedArray = context.obtainStyledAttributes(attrs, R.styleable.SpeedLineChart)
+        fillPaint.color = typedArray.getColor(R.styleable.SpeedLineChart_progress_fill_color, context.getColor(R.color.ping_bar_color))
+        linePaint.color = typedArray.getColor(R.styleable.SpeedLineChart_progress_line_color, context.getColor(R.color.ping_bar_color))
 
         typedArray.recycle()
     }
@@ -42,22 +51,8 @@ class SignalBarChartView @JvmOverloads constructor(
     override fun onDraw(canvas: Canvas?) {
         super.onDraw(canvas)
 
-        graphItems?.let { items ->
-            maxValue?.let {
-
-                val barWidth = getChartWidth() / items.size
-                val padding = barWidth / 4.0f
-                for (index in items.indices) {
-
-                    val left = padding + (barWidth * index)
-                    val right = left + (barWidth / 2)
-                    val top = getChartHeight() * (1.0f - (items[index].value.toFloat() / it.toFloat()))
-                    val bottom = getChartHeight()
-
-                    canvas?.drawRect(left, top, right, bottom, paintFill)
-                }
-            }
-        }
+        canvas?.drawPath(fillPath, fillPaint)
+        canvas?.drawPath(strokePath, linePaint)
     }
 
     /**
@@ -95,12 +90,52 @@ class SignalBarChartView @JvmOverloads constructor(
         return gapList
     }
 
-    fun reset() {
-        invalidate()
+    private fun calculatePath() {
+        graphItems?.let {
+            widthMultiplier = it.last().time / getChartWidth()
+            strokePath.reset()
+            fillPath.reset()
+            when {
+                it.isEmpty() -> {
+                }
+                it.size == 1 -> {
+                    with(it.first()) {
+                        strokePath.moveTo(0f, this.value.toFloat())
+                        strokePath.lineTo(time / widthMultiplier, this.value.toFloat())
+                        fillPath.moveTo(0f, this.value.toFloat())
+                        fillPath.lineTo(time / widthMultiplier, this.value.toFloat())
+                        fillPath.lineTo(time / widthMultiplier, getChartHeight())
+                        fillPath.lineTo(0f, getChartHeight())
+                        fillPath.close()
+                    }
+                }
+                else -> {
+                    strokePath.moveTo(0f, it.first().value.toFloat())
+                    fillPath.moveTo(0f, it.first().value.toFloat())
+                    for (index in 1 until it.size) {
+                        strokePath.quadTo(
+                            (it[index - 1].time + (it[index].time - it[index - 1].time) / 2) / widthMultiplier,
+                            it[index].value - (it[index].value - it[index - 1].value).toFloat() / 2,
+                            it[index].time / widthMultiplier,
+                            it[index].value.toFloat()
+                        )
+                        fillPath.quadTo(
+                            (it[index - 1].time + (it[index].time - it[index - 1].time) / 2) / widthMultiplier,
+                            it[index].value - (it[index].value - it[index - 1].value).toFloat() / 2,
+                            it[index].time / widthMultiplier,
+                            it[index].value.toFloat()
+                        )
+                    }
+                    fillPath.lineTo(it.last().time / widthMultiplier, getChartHeight())
+                    fillPath.lineTo(0f, getChartHeight())
+                    fillPath.close()
+                }
+            }
+        }
     }
 
     override fun onDetachedFromWindow() {
-        reset()
+        invalidate()
         super.onDetachedFromWindow()
     }
 }
