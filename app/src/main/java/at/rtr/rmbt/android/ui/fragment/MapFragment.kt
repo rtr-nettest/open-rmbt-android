@@ -285,7 +285,9 @@ class MapFragment : BaseFragment(), OnMapReadyCallback, MapMarkerDetailsAdapter.
             visiblePosition = RecyclerView.NO_POSITION
             onCloseMarkerDetails()
             if (isMarkersAvailable()) {
-                mapViewModel.state.coordinatesLiveData.value?.latitude?.let { mapViewModel.loadMarkers(it,  mapViewModel.state.coordinatesLiveData.value!!.longitude, googleMap!!.cameraPosition.zoom.toInt()) }
+                mapViewModel.state.coordinatesLiveData.value?.let {
+                    mapViewModel.loadMarkers(it.latitude, it.longitude, googleMap!!.cameraPosition.zoom.toInt())
+                }
             }
         }
     }
