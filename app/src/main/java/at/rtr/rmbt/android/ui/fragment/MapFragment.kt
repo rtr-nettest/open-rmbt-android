@@ -283,8 +283,12 @@ class MapFragment : BaseFragment(), OnMapReadyCallback, MapMarkerDetailsAdapter.
         } else {
             googleMap?.moveCamera(CameraUpdateFactory.newLatLngZoom(mapViewModel.state.cameraPositionLiveData.value, mapViewModel.state.zoom))
             visiblePosition = RecyclerView.NO_POSITION
-            currentMarker = null
-            drawCurrentMarker()
+            onCloseMarkerDetails()
+            if (isMarkersAvailable()) {
+                mapViewModel.state.coordinatesLiveData.value?.let {
+                    mapViewModel.loadMarkers(it.latitude, it.longitude, googleMap!!.cameraPosition.zoom.toInt())
+                }
+            }
         }
     }
 
