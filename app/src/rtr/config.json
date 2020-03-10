@@ -332,12 +332,12 @@
     },
     {
       "name": "CONTROL_SERVER_SIGNAL_REQUEST_ROUTE",
-      "value": "/signalRequest",
+      "value": "signalRequest",
       "visible": false
     },
     {
       "name": "CONTROL_SERVER_SIGNAL_RESULT_ROUTE",
-      "value": "/signalResult",
+      "value": "signalResult",
       "visible": false
     },
     {

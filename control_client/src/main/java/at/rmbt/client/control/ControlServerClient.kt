@@ -15,9 +15,6 @@
 package at.rmbt.client.control
 
 import at.rmbt.util.Maybe
-import at.rmbt.util.exception.NoConnectionException
-import java.util.Random
-import java.util.UUID
 import javax.inject.Inject
 
 class ControlServerClient @Inject constructor(private val endpointProvider: ControlEndpointProvider, private val api: ControlServerApi) {
@@ -67,29 +64,10 @@ class ControlServerClient @Inject constructor(private val endpointProvider: Cont
     }
 
     fun signalRequest(body: SignalMeasurementRequestBody): Maybe<SignalMeasurementRequestResponse> {
-        api.signalRequest(endpointProvider.signalRequestUrl, body).exec() // TODO make as return statement instead of mocked
-        return if (Random().nextInt(10) > 8) {
-            Maybe(NoConnectionException())
-        } else {
-            val mockedResponse = SignalMeasurementRequestResponse(
-                clientRemoteIp = "91.148.44.167",
-                testUUID = UUID.randomUUID().toString(),
-                resultUrl = "https://dev.netztest.at/RMBTControlServer/signalResult",
-                provider = "02"
-            )
-            Maybe(mockedResponse)
-        }
+        return api.signalRequest(endpointProvider.signalRequestUrl, body).exec()
     }
 
     fun signalResult(body: SignalMeasurementChunkBody): Maybe<SignalMeasurementChunkResultResponse> {
-        api.signalResult(endpointProvider.signalResultUrl, body).exec() // TODO make as return statement instead of mocked
-
-        return if (Random().nextInt(10) > 8) {
-            Maybe(NoConnectionException())
-        } else {
-            val uuid = body.uuid ?: UUID.randomUUID().toString()
-            val mockedResponse = SignalMeasurementChunkResultResponse(uuid)
-            Maybe(mockedResponse)
-        }
+        return api.signalResult(endpointProvider.signalResultUrl, body).exec()
     }
 }
