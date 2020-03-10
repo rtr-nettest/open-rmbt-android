@@ -156,13 +156,14 @@
                         app:text="@{state.testResult.networkName == null ? state.testResult.networkProviderName : state.testResult.networkName}"
                         tools:text="Wififinka" />
 
-                    <androidx.appcompat.widget.AppCompatImageView
+                    <ImageView
                         android:id="@+id/networkTypeIcon"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginEnd="@dimen/padding_large"
                         android:contentDescription="@null"
-                        android:src="@{state.testResult.networkType == NetworkTypeCompat.TYPE_WLAN ? @drawable/ic_wifi_gray_2 : @drawable/ic_mobile_2_gray}"
+                        app:historySignalStrength="@{state.testResult.signalClass ?? Classification.NONE}"
+                        app:networkType="@{state.testResult.networkType}"
                         app:layout_constraintBottom_toBottomOf="@+id/networkNameText"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintTop_toTopOf="@id/networkTypeText" />

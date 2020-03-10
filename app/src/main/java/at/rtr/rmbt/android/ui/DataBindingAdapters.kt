@@ -509,8 +509,8 @@ fun AppCompatTextView.setHistoryTime(historyTime: Long, historyTimezone: String)
 }
 
 @BindingAdapter("networkType", "historySignalStrength", requireAll = true)
-fun ImageView.setSignalIcon(networkType: NetworkTypeCompat, signalStrength: Classification) {
-    setImageResource(getSignalImageResource(networkType, signalStrength))
+fun ImageView.setSignalIcon(networkType: NetworkTypeCompat?, signalStrength: Classification) {
+    networkType?.let { setImageResource(getSignalImageResource(it, signalStrength)) }
 }
 
 private fun getSignalImageResource(networkType: NetworkTypeCompat, signalStrength: Classification): Int =
