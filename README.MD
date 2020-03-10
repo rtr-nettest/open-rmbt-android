@@ -89,7 +89,7 @@ The source code is published under [Apache version 2.0 license](https://github.c
 - __`CONTROL_SERVER_GET_OPENDATA_RESULT_PATH`__ Endpoint to get open test results from control server, default: `opentests`
 - __`CONTROL_SERVER_TEST_RESULT_DETAILS_ENDPOINT`__ Endpoint to get detailed test results, default: `testresultdetail`
 - __`CONTROL_SERVER_GET_QOS_TEST_RESULT_ENDPOINT`__ Endpoint to get QoS test results, default: `qosTestResult?api=2`
-- __`CONTROL_SERVER_SIGNAL_REQUEST_ROUTE`__ Endpoint to get settings for the continious signal measurement, default: `/signalRequest`
-- __`CONTROL_SERVER_SIGNAL_RESULT_ROUTE`__ Endpoint to send chunk of results of continiouse signal measurement, default: `/signalResult`
+- __`CONTROL_SERVER_SIGNAL_REQUEST_ROUTE`__ Endpoint to get settings for the continious signal measurement, default: `signalRequest`
+- __`CONTROL_SERVER_SIGNAL_RESULT_ROUTE`__ Endpoint to send chunk of results of continiouse signal measurement, default: `signalResult`
 - __`CONTROL_SERVER_GET_SYNC_CODE_ROUTE`__ Endpoint to get sync code for current device, default: `sync`
 - __`CONTROL_SERVER_SYNC_DEVICES_ROUTE`__ Endpoint to send other device sync code and make devices history synchonised, default `sync` (has different params in api)
