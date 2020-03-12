@@ -327,9 +327,6 @@ open class SignalStrengthInfo(
             val timestampNanos = SystemClock.elapsedRealtimeNanos()
 
             when (cellInfo) {
-                null -> {
-                    signal = null
-                }
                 is CellInfoLte -> {
                     signal = SignalStrengthInfoLte(
                         transport = transportType,
@@ -371,7 +368,7 @@ open class SignalStrengthInfo(
                     )
                 }
                 else -> {
-                    SignalStrengthInfo(
+                    signal = SignalStrengthInfo(
                         transport = transportType,
                         value = signalValue,
                         rsrq = lteRsrq.fixLteRsrq(),
