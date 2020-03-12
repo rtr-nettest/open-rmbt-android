@@ -87,10 +87,12 @@ open class WifiNetworkInfo(
     /** Return the detailed state of the supplicant's negotiation with an
      * access point, in the form of a [android.net.NetworkInfo.DetailedState] object represented as a String.
      */
-    val supplicantDetailedState: String
+    val supplicantDetailedState: String,
+
+    var locationEnabled: Boolean = false
 
 ) : NetworkInfo(TransportType.WIFI, UUID.nameUUIDFromBytes(ssid.toByteArray()).toString()) {
 
     override val name: String?
-        get() = ssid
+        get() = if (locationEnabled) ssid else null
 }
