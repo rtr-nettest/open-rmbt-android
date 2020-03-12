@@ -106,7 +106,7 @@ class CellNetworkInfo(
             isRoaming: Boolean,
             apn: String?
         ): CellNetworkInfo {
-            val providerName = subscriptionInfo?.displayName?.toString() ?: ""
+            val providerName = subscriptionInfo?.carrierName?.toString() ?: ""
             return when (info) {
                 is CellInfoLte -> fromLte(info, providerName, networkType, isActive, isRoaming, apn)
                 is CellInfoWcdma -> fromWcdma(info, providerName, networkType, isActive, isRoaming, apn)
