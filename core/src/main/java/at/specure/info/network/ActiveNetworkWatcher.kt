@@ -32,7 +32,7 @@ class ActiveNetworkWatcher(
     private val connectivityWatcher: ConnectivityWatcher,
     private val wifiInfoWatcher: WifiInfoWatcher,
     private val cellInfoWatcher: CellInfoWatcher,
-    locationProviderStateWatcher: LocationProviderStateWatcher
+    private var locationProviderStateWatcher: LocationProviderStateWatcher
 ) : LocationProviderStateWatcher.LocationEnabledChangeListener {
 
     private val listeners = Collections.synchronizedSet(mutableSetOf<NetworkChangeListener>())
@@ -66,7 +66,7 @@ class ActiveNetworkWatcher(
                 null
             } else {
                 when (connectivityInfo.transportType) {
-                    TransportType.WIFI -> wifiInfoWatcher.activeWifiInfo
+                    TransportType.WIFI -> wifiInfoWatcher.activeWifiInfo.apply { this?.locationEnabled = locationProviderStateWatcher.isLocationEnabled() }
                     TransportType.CELLULAR -> {
                         cellInfoWatcher.forceUpdate()
                         cellInfoWatcher.activeNetwork
