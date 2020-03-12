@@ -20,7 +20,7 @@ import at.specure.info.cell.CellNetworkInfo
 import at.specure.info.connectivity.ConnectivityInfo
 import at.specure.info.connectivity.ConnectivityWatcher
 import at.specure.info.wifi.WifiInfoWatcher
-import at.specure.util.permission.LocationAccess
+import at.specure.location.LocationProviderStateWatcher
 import at.specure.util.synchronizedForEach
 import java.util.Collections
 
@@ -32,8 +32,8 @@ class ActiveNetworkWatcher(
     private val connectivityWatcher: ConnectivityWatcher,
     private val wifiInfoWatcher: WifiInfoWatcher,
     private val cellInfoWatcher: CellInfoWatcher,
-    locationAccess: LocationAccess
-) : LocationAccess.LocationAccessChangeListener {
+    locationProviderStateWatcher: LocationProviderStateWatcher
+) : LocationProviderStateWatcher.LocationEnabledChangeListener {
 
     private val listeners = Collections.synchronizedSet(mutableSetOf<NetworkChangeListener>())
     private var isCallbacksRegistered = false
@@ -49,7 +49,7 @@ class ActiveNetworkWatcher(
         }
 
     init {
-        locationAccess.addListener(this)
+        locationProviderStateWatcher.addListener(this)
     }
 
     /**
@@ -135,10 +135,13 @@ class ActiveNetworkWatcher(
         fun onActiveNetworkChanged(info: NetworkInfo?)
     }
 
-    override fun onLocationAccessChanged(isAllowed: Boolean) {
-        if (listeners.isNotEmpty() && isAllowed) {
+    override fun onLocationStateChange(enabled: Boolean) {
+        if (listeners.isNotEmpty()) {
             unregisterCallbacks()
             registerCallbacks()
+        }
+        if (_currentNetworkInfo is WifiNetworkInfo) {
+            listeners.forEach { it.onActiveNetworkChanged(wifiInfoWatcher.activeWifiInfo?.apply { locationEnabled = enabled }) }
         }
     }
 }
