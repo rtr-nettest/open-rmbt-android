@@ -17,6 +17,8 @@ import at.specure.util.permission.PermissionsWatcher
 import java.text.DecimalFormat
 import javax.inject.Inject
 
+private const val ACCEPT_WIFI_RSSI_MIN = -113
+
 class MeasurementRepositoryImpl @Inject constructor(
     private val context: Context,
     private val telephonyManager: TelephonyManager,
@@ -48,7 +50,7 @@ class MeasurementRepositoryImpl @Inject constructor(
 
     override fun saveWlanInfo(uuid: String) {
         val wifiInfo = wifiInfoWatcher.activeWifiInfo
-        if (wifiInfo?.ssid != null && wifiInfo.bssid != null) {
+        if (wifiInfo?.ssid != null && wifiInfo.bssid != null && wifiInfo.rssi >= ACCEPT_WIFI_RSSI_MIN) {
             repository.saveWlanInfo(uuid, wifiInfo)
         }
     }
