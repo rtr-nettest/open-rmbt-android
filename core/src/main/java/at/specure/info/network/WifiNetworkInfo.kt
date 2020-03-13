@@ -54,9 +54,9 @@ open class WifiNetworkInfo(
      * Each configured network has a unique small integer ID, used to identify
      * the network when performing operations on the supplicant. This method
      * returns the ID for the currently connected network.
-     * Network ID, or -1 if there is no currently connected network
+     * Network ID, or null if there is no currently connected network or data is not available
      */
-    val networkId: Int,
+    val networkId: Int?,
 
     /**
      * Returns the received signal strength indicator of the current 802.11
@@ -76,7 +76,7 @@ open class WifiNetworkInfo(
      * SSID may be &lt;unknown ssid&gt; if there is no network currently connected,
      * or if the caller has insufficient permissions to access the SSID.
      */
-    val ssid: String,
+    val ssid: String?,
 
     /**
      * Return the state of the supplicant's negotiation with an
@@ -91,7 +91,7 @@ open class WifiNetworkInfo(
 
     var locationEnabled: Boolean = false
 
-) : NetworkInfo(TransportType.WIFI, UUID.nameUUIDFromBytes(ssid.toByteArray()).toString()) {
+) : NetworkInfo(TransportType.WIFI, UUID.nameUUIDFromBytes((ssid ?: "").toByteArray()).toString()) {
 
     override val name: String?
         get() = if (locationEnabled) ssid else null
