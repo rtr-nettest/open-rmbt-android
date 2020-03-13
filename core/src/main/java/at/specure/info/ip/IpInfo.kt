@@ -20,28 +20,34 @@ import at.rmbt.client.control.IpProtocol
  * Data class that describes IPv6 state
  */
 data class IpInfo(
+
     /**
      * Ip protocol used [IpProtocol.V4] or [IpProtocol.V6]
      */
     val protocol: IpProtocol,
 
     /**
+     * Network id
+     */
+    val networkId: Int?,
+
+    /**
      * Private address of device in the local network
      */
-    val privateAddress: String?,
+    val privateAddress: String? = null,
 
     /**
      * Public address of network
      */
-    val publicAddress: String?,
+    val publicAddress: String? = null,
 
     /**
      * Ip status regarding to values from [IpStatus]
      */
-    val ipStatus: IpStatus,
+    val ipStatus: IpStatus = IpStatus.NO_INFO,
 
     /**
      * Captive portal status [CaptivePortal.CaptivePortalStatus]
      */
-    val captivePortalStatus: CaptivePortal.CaptivePortalStatus
+    val captivePortalStatus: CaptivePortal.CaptivePortalStatus = CaptivePortal.CaptivePortalStatus.NOT_TESTED
 )

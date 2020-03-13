@@ -14,6 +14,7 @@
 
 package at.specure.info.connectivity
 
+import android.net.Network
 import androidx.lifecycle.LiveData
 import javax.inject.Inject
 
@@ -24,7 +25,7 @@ import javax.inject.Inject
 class ConnectivityInfoLiveData @Inject constructor(private val connectivityWatcher: ConnectivityWatcher) : LiveData<ConnectivityInfo?>(),
     ConnectivityWatcher.ConnectivityChangeListener {
 
-    override fun onConnectivityChanged(connectivityInfo: ConnectivityInfo?) {
+    override fun onConnectivityChanged(connectivityInfo: ConnectivityInfo?, network: Network?) {
         postValue(connectivityInfo)
     }
 
