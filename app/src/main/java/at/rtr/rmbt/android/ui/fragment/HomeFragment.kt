@@ -15,7 +15,6 @@ import at.rtr.rmbt.android.ui.activity.LoopConfigurationActivity
 import at.rtr.rmbt.android.ui.activity.LoopInstructionsActivity
 import at.rtr.rmbt.android.ui.activity.MeasurementActivity
 import at.rtr.rmbt.android.ui.activity.PreferenceActivity
-import at.rtr.rmbt.android.ui.dialog.FullscreenDialog
 import at.rtr.rmbt.android.ui.dialog.IpInfoDialog
 import at.rtr.rmbt.android.ui.dialog.LocationInfoDialog
 import at.rtr.rmbt.android.ui.dialog.MessageDialog
@@ -26,7 +25,6 @@ import at.rtr.rmbt.android.util.ToolbarTheme
 import at.rtr.rmbt.android.util.changeStatusBarColor
 import at.rtr.rmbt.android.util.listen
 import at.rtr.rmbt.android.viewmodel.HomeViewModel
-import at.specure.info.ip.IpStatus
 import at.specure.location.LocationProviderState.DISABLED_APP
 import at.specure.location.LocationProviderState.DISABLED_DEVICE
 import at.specure.location.LocationProviderState.ENABLED
@@ -37,9 +35,6 @@ class HomeFragment : BaseFragment() {
 
     private val homeViewModel: HomeViewModel by viewModelLazy()
     private val binding: FragmentHomeBinding by bindingLazy()
-
-    private var ipV4InfoDialog: FullscreenDialog? = null
-    private var ipV6InfoDialog: FullscreenDialog? = null
 
     override val layoutResId = R.layout.fragment_home
 
@@ -66,16 +61,10 @@ class HomeFragment : BaseFragment() {
 
         homeViewModel.ipV4ChangeLiveData.listen(this) {
             homeViewModel.state.ipV4Info.set(it)
-            if (it == null || it.ipStatus == IpStatus.NO_INFO) {
-                ipV4InfoDialog?.dismiss()
-            }
         }
 
         homeViewModel.ipV6ChangeLiveData.listen(this) {
             homeViewModel.state.ipV6Info.set(it)
-            if (it == null || it.ipStatus == IpStatus.NO_INFO) {
-                ipV6InfoDialog?.dismiss()
-            }
         }
 
         binding.btnSetting.setOnClickListener {
@@ -86,12 +75,12 @@ class HomeFragment : BaseFragment() {
         }
 
         binding.btnIpv4.setOnClickListener {
-            ipV4InfoDialog = IpInfoDialog.instance(IpProtocol.V4)
+            val ipV4InfoDialog = IpInfoDialog.instance(IpProtocol.V4)
             ipV4InfoDialog?.show(activity)
         }
 
         binding.btnIpv6.setOnClickListener {
-            ipV6InfoDialog = IpInfoDialog.instance(IpProtocol.V6)
+            val ipV6InfoDialog = IpInfoDialog.instance(IpProtocol.V6)
             ipV6InfoDialog?.show(activity)
         }
 

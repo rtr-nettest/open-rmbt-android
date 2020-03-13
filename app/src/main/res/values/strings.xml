@@ -298,5 +298,6 @@
     <string name="text_terms_agree_empty">You have to agree with RTR’s Privacy and Terms of Use to continue.</string>
 
     <string name="dialog_title_config_check">Please change the following values:</string>
+    <string name="label_ip_processing">Processing…</string>
 
 </resources>

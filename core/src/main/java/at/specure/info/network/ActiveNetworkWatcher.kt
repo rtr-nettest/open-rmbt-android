@@ -14,6 +14,7 @@
 
 package at.specure.info.network
 
+import android.net.Network
 import at.specure.info.TransportType
 import at.specure.info.cell.CellInfoWatcher
 import at.specure.info.cell.CellNetworkInfo
@@ -60,13 +61,15 @@ class ActiveNetworkWatcher(
 
     private val connectivityCallback = object : ConnectivityWatcher.ConnectivityChangeListener {
 
-        override fun onConnectivityChanged(connectivityInfo: ConnectivityInfo?) {
+        override fun onConnectivityChanged(connectivityInfo: ConnectivityInfo?, network: Network?) {
             lastConnectivityInfo = connectivityInfo
             _currentNetworkInfo = if (connectivityInfo == null) {
                 null
             } else {
                 when (connectivityInfo.transportType) {
-                    TransportType.WIFI -> wifiInfoWatcher.activeWifiInfo.apply { this?.locationEnabled = locationProviderStateWatcher.isLocationEnabled() }
+                    TransportType.WIFI -> wifiInfoWatcher.activeWifiInfo.apply {
+                        this?.locationEnabled = locationProviderStateWatcher.isLocationEnabled()
+                    }
                     TransportType.CELLULAR -> {
                         cellInfoWatcher.forceUpdate()
                         cellInfoWatcher.activeNetwork
