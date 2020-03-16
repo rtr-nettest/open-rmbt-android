@@ -36,6 +36,7 @@ import java.util.Calendar
 import java.util.Date
 import java.util.Locale
 import java.util.TimeZone
+import kotlin.math.roundToInt
 
 @BindingAdapter("intText")
 fun intText(textView: TextView, value: Int) {
@@ -676,7 +677,7 @@ fun AppCompatTextView.setPingResult(pingResult: Double, pingClassificationResult
         if (mantissa > 0 && pingResult < 10.0) {
             context.getString(R.string.measurement_ping_value_1f, pingResult)
         } else {
-            context.getString(R.string.measurement_ping_value, pingResult.toInt().toString())
+            context.getString(R.string.measurement_ping_value, pingResult.roundToInt().toString())
         }
     } else {
         context.getString(R.string.measurement_dash)
