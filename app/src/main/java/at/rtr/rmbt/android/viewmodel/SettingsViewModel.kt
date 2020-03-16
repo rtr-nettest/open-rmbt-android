@@ -7,6 +7,7 @@ import at.rtr.rmbt.android.config.AppConfig
 import at.rtr.rmbt.android.ui.viewstate.SettingsViewState
 import at.specure.data.ClientUUID
 import at.specure.data.MeasurementServers
+import at.specure.data.repository.SettingsRepository
 import at.specure.location.LocationProviderStateLiveData
 import javax.inject.Inject
 
@@ -14,11 +15,12 @@ class SettingsViewModel @Inject constructor(
     private val appConfig: AppConfig,
     clientUUID: ClientUUID,
     val locationStateLiveData: LocationProviderStateLiveData,
-    val measurementServers: MeasurementServers
+    val measurementServers: MeasurementServers,
+    settingsRepository: SettingsRepository
 ) :
     BaseViewModel() {
 
-    val state = SettingsViewState(appConfig, clientUUID, measurementServers)
+    val state = SettingsViewState(appConfig, clientUUID, measurementServers, settingsRepository)
 
     private val _openCodeWindow = MutableLiveData<Boolean>()
     private var count: Int = 0
