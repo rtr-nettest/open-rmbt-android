@@ -524,7 +524,7 @@ data class HistoryFilterSettings(
 
 @Keep
 data class HistoryResponse(
-    val history: List<HistoryItemResponse>
+    val history: List<HistoryItemResponse>?
 ) : BaseResponse()
 
 @Keep
