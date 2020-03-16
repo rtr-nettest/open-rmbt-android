@@ -20,6 +20,7 @@ import at.rtr.rmbt.android.ui.dialog.LocationInfoDialog
 import at.rtr.rmbt.android.ui.dialog.MessageDialog
 import at.rtr.rmbt.android.ui.dialog.OpenGpsSettingDialog
 import at.rtr.rmbt.android.ui.dialog.OpenLocationPermissionDialog
+import at.rtr.rmbt.android.ui.dialog.SimpleDialog
 import at.rtr.rmbt.android.util.InfoWindowStatus
 import at.rtr.rmbt.android.util.ToolbarTheme
 import at.rtr.rmbt.android.util.changeStatusBarColor
@@ -137,6 +138,25 @@ class HomeFragment : BaseFragment() {
             }
             true
         }
+
+        homeViewModel.newsLiveData.listen(this) {
+            it?.forEach { newItem ->
+                val latestNewsShown: Long = homeViewModel.getLatestNewsShown() ?: -1
+                newItem.text?.let { text ->
+                    newItem.title?.let { title ->
+                        if (newItem.uid ?: -1 > latestNewsShown) {
+                            SimpleDialog.Builder()
+                                .messageText(text)
+                                .titleText(title)
+                                .positiveText(android.R.string.ok)
+                                .cancelable(false)
+                                .show(this.childFragmentManager, CODE_DIALOG_NEWS)
+                        }
+                    }
+                }
+                homeViewModel.setNewsShown(newItem)
+            }
+        }
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -171,6 +191,7 @@ class HomeFragment : BaseFragment() {
         }
         startTimerForInfoWindow()
         homeViewModel.state.checkConfig()
+        homeViewModel.getNews()
     }
 
     override fun onStop() {
@@ -194,5 +215,6 @@ class HomeFragment : BaseFragment() {
         private const val PERMISSIONS_REQUEST_CODE: Int = 10
         private const val INFO_WINDOW_TIME_MS: Long = 2000
         private const val CODE_LOOP_INSTRUCTIONS = 13
+        private const val CODE_DIALOG_NEWS = 14
     }
 }

@@ -349,6 +349,11 @@
       "name": "CONTROL_SERVER_SYNC_DEVICES_ROUTE",
       "value": "sync",
       "visible": false
+    },
+    {
+      "name": "CONTROL_SERVER_GET_NEWS_ENDPOINT",
+      "value": "news",
+      "visible": false
     }
   ]
 }
