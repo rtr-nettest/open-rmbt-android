@@ -19,6 +19,7 @@ import at.specure.data.CoreDatabase
 import at.specure.data.HistoryFilterOptions
 import at.specure.data.MapServerSettings
 import at.specure.data.MeasurementServers
+import at.specure.data.NewsSettings
 import at.specure.data.TermsAndConditions
 import at.specure.data.repository.DeviceSyncRepository
 import at.specure.data.repository.DeviceSyncRepositoryImpl
@@ -27,6 +28,8 @@ import at.specure.data.repository.HistoryRepository
 import at.specure.data.repository.IpCheckRepository
 import at.specure.data.repository.MeasurementRepository
 import at.specure.data.repository.MeasurementRepositoryImpl
+import at.specure.data.repository.NewsRepository
+import at.specure.data.repository.NewsRepositoryImpl
 import at.specure.data.repository.SettingsRepository
 import at.specure.data.repository.SettingsRepositoryImpl
 import at.specure.data.repository.TacRepository
@@ -173,6 +176,16 @@ class CoreModule {
             tacRepository = tacRepository,
             config = config
         )
+
+    @Provides
+    @Singleton
+    fun provideNewsRepository(
+        context: Context,
+        controlServerClient: ControlServerClient,
+        clientUUID: ClientUUID,
+        newsSettings: NewsSettings
+    ): NewsRepository =
+        NewsRepositoryImpl(context = context, controlServerClient = controlServerClient, clientUUID = clientUUID, newsSettings = newsSettings)
 
     @Provides
     @Singleton

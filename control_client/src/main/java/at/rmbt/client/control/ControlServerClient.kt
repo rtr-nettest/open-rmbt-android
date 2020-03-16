@@ -63,6 +63,10 @@ class ControlServerClient @Inject constructor(private val endpointProvider: Cont
         return api.syncDevices(endpointProvider.syncDevicesUrl, body).exec()
     }
 
+    fun getNews(body: NewsRequestBody): Maybe<NewsResponse> {
+        return api.getNews(endpointProvider.getNewsUrl, body).exec()
+    }
+
     fun signalRequest(body: SignalMeasurementRequestBody): Maybe<SignalMeasurementRequestResponse> {
         return api.signalRequest(endpointProvider.signalRequestUrl, body).exec()
     }

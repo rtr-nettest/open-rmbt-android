@@ -282,6 +282,11 @@ interface Config {
     var syncDevicesRoute: String
 
     /**
+     * Endpoint to get news
+     */
+    var controlServerNewsEndpoint: String
+
+    /**
      * End of url to obtain map filters data, example "RMBTMapServer/tiles/info
      */
     var mapFilterInfoEndpoint: String

@@ -201,6 +201,10 @@ class AppConfig @Inject constructor(context: Context, private val serverSettings
         get() = getString(BuildConfig.CONTROL_SERVER_GET_QOS_TEST_RESULT_ENDPOINT)
         set(value) = setString(BuildConfig.CONTROL_SERVER_GET_QOS_TEST_RESULT_ENDPOINT, value)
 
+    override var controlServerNewsEndpoint: String
+        get() = getString(BuildConfig.CONTROL_SERVER_GET_NEWS_ENDPOINT)
+        set(value) = setString(BuildConfig.CONTROL_SERVER_GET_NEWS_ENDPOINT, value)
+
     override var testCounter: Int
         get() = preferences.getInt(KEY_TEST_COUNTER, 0)
         set(value) = preferences.edit()
