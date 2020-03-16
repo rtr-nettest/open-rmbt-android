@@ -6,12 +6,14 @@ import at.rtr.rmbt.android.config.AppConfig
 import at.rtr.rmbt.android.util.addOnPropertyChanged
 import at.specure.data.ClientUUID
 import at.specure.data.MeasurementServers
+import at.specure.data.repository.SettingsRepository
 import at.specure.location.LocationProviderState
 
 class SettingsViewState constructor(
     val appConfig: AppConfig,
     val clientUUID: ClientUUID,
-    private val measurementServers: MeasurementServers
+    private val measurementServers: MeasurementServers,
+    private val settingsRepository: SettingsRepository
 ) : ViewState {
 
     val isNDTEnabled = ObservableField(appConfig.NDTEnabled)
@@ -96,6 +98,7 @@ class SettingsViewState constructor(
         controlServerHost.addOnPropertyChanged { value ->
             value.get()?.let {
                 appConfig.controlServerHost = it
+                settingsRepository.refreshSettings {}
             }
         }
         controlServerPort.addOnPropertyChanged { value ->

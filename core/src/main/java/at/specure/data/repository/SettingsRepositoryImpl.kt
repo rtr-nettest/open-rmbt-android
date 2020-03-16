@@ -2,6 +2,7 @@ package at.specure.data.repository
 
 import android.content.Context
 import at.rmbt.client.control.ControlServerClient
+import at.rmbt.util.io
 import at.specure.config.Config
 import at.specure.data.ClientUUID
 import at.specure.data.ControlServerSettings
@@ -83,6 +84,10 @@ class SettingsRepositoryImpl(
             // todo: qostest types to DB
         }
         return settings.ok
+    }
+
+    override fun refreshSettings(success: (Boolean) -> Unit) = io {
+        success.invoke(refreshSettings())
     }
 
     private fun String?.removeProtocol(): String? {
