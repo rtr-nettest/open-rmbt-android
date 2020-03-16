@@ -57,7 +57,7 @@ class HistoryRepositoryImpl(
                 historyDao.clear()
             }
             historyDao.insert(items)
-            Timber.i("history offset: $offset limit: $limit loaded: ${it.history.size}")
+            Timber.i("history offset: $offset limit: $limit loaded: ${it.history?.size}")
             items
         }
     }

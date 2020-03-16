@@ -34,7 +34,7 @@ import at.specure.result.QoECategory
 import at.specure.result.QoSCategory
 import java.util.EnumMap
 
-fun HistoryResponse.toModelList(): List<History> = history.map { it.toModel() }
+fun HistoryResponse.toModelList(): List<History> = history?.map { it.toModel() } ?: emptyList()
 
 fun HistoryItemResponse.toModel() = History(
     testUUID = testUUID,
