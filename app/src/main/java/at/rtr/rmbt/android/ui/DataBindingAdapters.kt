@@ -838,9 +838,9 @@ fun AppCompatTextView.setTimeAs24h(time: Long) {
 }
 
 @BindingAdapter("signalStrengthMap", "signalStrengthClassificationMap", requireAll = true)
-fun AppCompatTextView.setSignalStrengthMap(signalStrengthResult: Int?, signalStrengthClassificationResult: Classification) {
+fun AppCompatTextView.setSignalStrengthMap(signalStrengthResult: String?, signalStrengthClassificationResult: Classification) {
 
-    text = signalStrengthResult?.toString() ?: context.getString(R.string.measurement_dash)
+    text = signalStrengthResult ?: context.getString(R.string.measurement_dash)
 
     setCompoundDrawablesWithIntrinsicBounds(
 

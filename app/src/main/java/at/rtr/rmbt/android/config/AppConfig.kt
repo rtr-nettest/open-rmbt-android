@@ -19,7 +19,6 @@ import at.rtr.rmbt.android.BuildConfig
 import at.rtr.rmbt.android.util.ConfigValue
 import at.specure.config.Config
 import at.specure.data.ControlServerSettings
-import at.specure.data.MapServerSettings
 import javax.inject.Inject
 
 private const val FILENAME = "config.pref"
@@ -27,7 +26,7 @@ private const val FILENAME = "config.pref"
 private const val KEY_TEST_COUNTER = "KEY_TEST_COUNTER"
 private const val KEY_PREVIOUS_TEST_STATUS = "PREVIOUS_TEST_STATUS"
 
-class AppConfig @Inject constructor(context: Context, private val serverSettings: ControlServerSettings, private val mapServerSettings: MapServerSettings) : Config {
+class AppConfig @Inject constructor(context: Context, private val serverSettings: ControlServerSettings) : Config {
 
     private val preferences = context.getSharedPreferences(FILENAME, Context.MODE_PRIVATE)
 
@@ -334,14 +333,14 @@ class AppConfig @Inject constructor(context: Context, private val serverSettings
         set(value) = setBoolean(BuildConfig.IS_MAP_SERVER_OVERRIDE_ENABLED, value)
 
     override var mapServerHost: String
-        get() = getString(BuildConfig.MAP_SERVER_HOST, mapServerSettings.mapServerHost)
+        get() = getString(BuildConfig.MAP_SERVER_HOST)
         set(value) = setString(BuildConfig.MAP_SERVER_HOST, value)
 
     override var mapServerPort: Int
-        get() = getInt(BuildConfig.MAP_SERVER_PORT, mapServerSettings.mapServerPort)
+        get() = getInt(BuildConfig.MAP_SERVER_PORT)
         set(value) = setInt(BuildConfig.MAP_SERVER_PORT, value)
 
     override var mapServerUseSSL: Boolean
-        get() = getBoolean(BuildConfig.MAP_SERVER_USE_SSL, mapServerSettings.mapServerUseSsl)
+        get() = getBoolean(BuildConfig.MAP_SERVER_USE_SSL)
         set(value) = setBoolean(BuildConfig.MAP_SERVER_USE_SSL, value)
 }

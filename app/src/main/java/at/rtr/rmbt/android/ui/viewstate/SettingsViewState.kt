@@ -137,6 +137,11 @@ class SettingsViewState constructor(
         mapServerOverrideEnabled.addOnPropertyChanged { value ->
             value.get()?.let {
                 appConfig.mapServerOverrideEnabled = it
+                if (!it) {
+                    io {
+                        settingsRepository.refreshSettings()
+                    }
+                }
             }
         }
         qosSSL.addOnPropertyChanged { value ->
