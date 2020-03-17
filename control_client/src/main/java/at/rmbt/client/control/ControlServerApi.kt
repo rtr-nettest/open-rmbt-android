@@ -101,6 +101,12 @@ interface ControlServerApi {
     fun syncDevices(@Url url: String, @Body body: SyncDevicesBody): Call<DeviceSyncResponse>
 
     /**
+     * Request to get news
+     */
+    @POST
+    fun getNews(@Url url: String, @Body body: NewsRequestBody): Call<NewsResponse>
+
+    /**
      * Request to obtain signal measurement required data
      */
     @POST

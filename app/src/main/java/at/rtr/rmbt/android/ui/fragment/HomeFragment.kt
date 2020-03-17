@@ -15,18 +15,17 @@ import at.rtr.rmbt.android.ui.activity.LoopConfigurationActivity
 import at.rtr.rmbt.android.ui.activity.LoopInstructionsActivity
 import at.rtr.rmbt.android.ui.activity.MeasurementActivity
 import at.rtr.rmbt.android.ui.activity.PreferenceActivity
-import at.rtr.rmbt.android.ui.dialog.FullscreenDialog
 import at.rtr.rmbt.android.ui.dialog.IpInfoDialog
 import at.rtr.rmbt.android.ui.dialog.LocationInfoDialog
 import at.rtr.rmbt.android.ui.dialog.MessageDialog
 import at.rtr.rmbt.android.ui.dialog.OpenGpsSettingDialog
 import at.rtr.rmbt.android.ui.dialog.OpenLocationPermissionDialog
+import at.rtr.rmbt.android.ui.dialog.SimpleDialog
 import at.rtr.rmbt.android.util.InfoWindowStatus
 import at.rtr.rmbt.android.util.ToolbarTheme
 import at.rtr.rmbt.android.util.changeStatusBarColor
 import at.rtr.rmbt.android.util.listen
 import at.rtr.rmbt.android.viewmodel.HomeViewModel
-import at.specure.info.ip.IpStatus
 import at.specure.location.LocationProviderState.DISABLED_APP
 import at.specure.location.LocationProviderState.DISABLED_DEVICE
 import at.specure.location.LocationProviderState.ENABLED
@@ -37,9 +36,6 @@ class HomeFragment : BaseFragment() {
 
     private val homeViewModel: HomeViewModel by viewModelLazy()
     private val binding: FragmentHomeBinding by bindingLazy()
-
-    private var ipV4InfoDialog: FullscreenDialog? = null
-    private var ipV6InfoDialog: FullscreenDialog? = null
 
     override val layoutResId = R.layout.fragment_home
 
@@ -66,16 +62,10 @@ class HomeFragment : BaseFragment() {
 
         homeViewModel.ipV4ChangeLiveData.listen(this) {
             homeViewModel.state.ipV4Info.set(it)
-            if (it == null || it.ipStatus == IpStatus.NO_INFO) {
-                ipV4InfoDialog?.dismiss()
-            }
         }
 
         homeViewModel.ipV6ChangeLiveData.listen(this) {
             homeViewModel.state.ipV6Info.set(it)
-            if (it == null || it.ipStatus == IpStatus.NO_INFO) {
-                ipV6InfoDialog?.dismiss()
-            }
         }
 
         binding.btnSetting.setOnClickListener {
@@ -86,12 +76,12 @@ class HomeFragment : BaseFragment() {
         }
 
         binding.btnIpv4.setOnClickListener {
-            ipV4InfoDialog = IpInfoDialog.instance(IpProtocol.V4)
+            val ipV4InfoDialog = IpInfoDialog.instance(IpProtocol.V4)
             ipV4InfoDialog?.show(activity)
         }
 
         binding.btnIpv6.setOnClickListener {
-            ipV6InfoDialog = IpInfoDialog.instance(IpProtocol.V6)
+            val ipV6InfoDialog = IpInfoDialog.instance(IpProtocol.V6)
             ipV6InfoDialog?.show(activity)
         }
 
@@ -148,6 +138,25 @@ class HomeFragment : BaseFragment() {
             }
             true
         }
+
+        homeViewModel.newsLiveData.listen(this) {
+            it?.forEach { newItem ->
+                val latestNewsShown: Long = homeViewModel.getLatestNewsShown() ?: -1
+                newItem.text?.let { text ->
+                    newItem.title?.let { title ->
+                        if (newItem.uid ?: -1 > latestNewsShown) {
+                            SimpleDialog.Builder()
+                                .messageText(text)
+                                .titleText(title)
+                                .positiveText(android.R.string.ok)
+                                .cancelable(false)
+                                .show(this.childFragmentManager, CODE_DIALOG_NEWS)
+                        }
+                    }
+                }
+                homeViewModel.setNewsShown(newItem)
+            }
+        }
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -182,6 +191,7 @@ class HomeFragment : BaseFragment() {
         }
         startTimerForInfoWindow()
         homeViewModel.state.checkConfig()
+        homeViewModel.getNews()
     }
 
     override fun onStop() {
@@ -205,5 +215,6 @@ class HomeFragment : BaseFragment() {
         private const val PERMISSIONS_REQUEST_CODE: Int = 10
         private const val INFO_WINDOW_TIME_MS: Long = 2000
         private const val CODE_LOOP_INSTRUCTIONS = 13
+        private const val CODE_DIALOG_NEWS = 14
     }
 }

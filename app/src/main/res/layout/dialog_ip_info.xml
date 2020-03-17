@@ -19,6 +19,7 @@
     <data>
 
         <import type="at.specure.info.ip.IpStatus" />
+
         <import type="at.rmbt.client.control.IpProtocol" />
 
         <variable
@@ -55,7 +56,7 @@
             app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintStart_toEndOf="@+id/ivIPIcon"
             app:layout_constraintTop_toTopOf="parent"
-            app:visibleOrGone="@{ipInfo != null &amp;&amp; ipInfo.privateAddress != null}" />
+            app:visibleOrGone="@{ipInfo != null &amp;&amp; ipInfo.privateAddress != null &amp;&amp; ipInfo.ipStatus != IpStatus.NO_ADDRESS}" />
 
 
         <androidx.appcompat.widget.AppCompatTextView
@@ -69,7 +70,7 @@
             app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintStart_toEndOf="@+id/tvPrivateIPLbl"
             app:layout_constraintTop_toTopOf="parent"
-            app:visibleOrGone="@{ipInfo != null &amp;&amp; ipInfo.protocol == IpProtocol.V4 &amp;&amp; ipInfo.publicAddress != null}" />
+            app:visibleOrGone="@{ipInfo != null &amp;&amp; ipInfo.protocol == IpProtocol.V4 &amp;&amp; ipInfo.publicAddress != null &amp;&amp; ipInfo.ipStatus != IpStatus.NO_ADDRESS}" />
 
 
         <androidx.appcompat.widget.AppCompatTextView
@@ -84,7 +85,7 @@
             app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintStart_toEndOf="@+id/ivIPIcon"
             app:layout_constraintTop_toBottomOf="@+id/tvPrivateIPLbl"
-            app:visibleOrGone="@{ipInfo != null &amp;&amp; ipInfo.privateAddress != null}"
+            app:visibleOrGone="@{ipInfo != null &amp;&amp; ipInfo.privateAddress != null &amp;&amp; ipInfo.ipStatus != IpStatus.NO_ADDRESS}"
             tools:text="192.168.1.0" />
 
 
@@ -99,7 +100,7 @@
             app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintStart_toEndOf="@+id/tvPrivateIP"
             app:layout_constraintTop_toBottomOf="@+id/tvPublicIPV4Lbl"
-            app:visibleOrGone="@{ipInfo != null &amp;&amp; ipInfo.protocol == IpProtocol.V4 &amp;&amp; ipInfo.publicAddress != null}"
+            app:visibleOrGone="@{ipInfo != null &amp;&amp; ipInfo.protocol == IpProtocol.V4 &amp;&amp; ipInfo.publicAddress != null &amp;&amp; ipInfo.ipStatus != IpStatus.NO_ADDRESS}"
             tools:text="192.168.1.11" />
 
 
@@ -115,7 +116,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@+id/ivIPIcon"
             app:layout_constraintTop_toBottomOf="@+id/tvPrivateIP"
-            app:visibleOrGone="@{ipInfo != null &amp;&amp; ipInfo.protocol == IpProtocol.V6 &amp;&amp; ipInfo.publicAddress != null}" />
+            app:visibleOrGone="@{ipInfo != null &amp;&amp; ipInfo.protocol == IpProtocol.V6 &amp;&amp; ipInfo.publicAddress != null &amp;&amp; ipInfo.ipStatus != IpStatus.NO_ADDRESS}" />
 
 
         <androidx.appcompat.widget.AppCompatTextView
@@ -129,7 +130,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@+id/ivIPIcon"
             app:layout_constraintTop_toBottomOf="@+id/tvPublicIPV6Lbl"
-            app:visibleOrGone="@{ipInfo != null &amp;&amp; ipInfo.protocol == IpProtocol.V6 &amp;&amp; ipInfo.publicAddress != null}"
+            app:visibleOrGone="@{ipInfo != null &amp;&amp; ipInfo.protocol == IpProtocol.V6 &amp;&amp; ipInfo.publicAddress != null &amp;&amp; ipInfo.ipStatus != IpStatus.NO_ADDRESS}"
             tools:text="192.168.1.11" />
 
 
@@ -145,8 +146,22 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@+id/ivIPIcon"
             app:layout_constraintTop_toTopOf="parent"
-            tools:visibility="gone"
-            app:visibleOrGone="@{ipInfo != null &amp;&amp; ipInfo.ipStatus == IpStatus.NO_ADDRESS}" />
+            app:visibleOrGone="@{ipInfo != null &amp;&amp; ipInfo.ipStatus == IpStatus.NO_ADDRESS}"
+            tools:visibility="gone" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/labelProcessing"
+            style="@style/RobotoRegularStyle.Medium"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/margin_medium"
+            android:text="@string/label_ip_processing"
+            android:textColor="@color/text_black_transparency_60"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/ivIPIcon"
+            app:layout_constraintTop_toTopOf="parent"
+            app:visibleOrGone="@{ipInfo != null &amp;&amp; ipInfo.ipStatus == IpStatus.NO_INFO}"
+            tools:visibility="gone" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

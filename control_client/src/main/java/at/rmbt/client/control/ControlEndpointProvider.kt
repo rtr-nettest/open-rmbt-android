@@ -94,4 +94,9 @@ interface ControlEndpointProvider {
      * Url to send signal measurement data
      */
     val signalResultUrl: String
+
+    /**
+     * Endpoint to get news
+     */
+    val getNewsUrl: String
 }

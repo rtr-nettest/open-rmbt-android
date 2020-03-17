@@ -14,6 +14,7 @@
 
 package at.specure.info.connectivity
 
+import android.net.Network
 import androidx.lifecycle.LiveData
 
 /**
@@ -26,6 +27,11 @@ interface ConnectivityWatcher {
      * if there is no active network, null will be returned
      */
     val activeNetwork: ConnectivityInfo?
+
+    /**
+     * current active network
+     */
+    val network: Network?
 
     /**
      * LiveData that update connectivity state changes
@@ -51,6 +57,6 @@ interface ConnectivityWatcher {
          * When connectivity change is detected this callback will be triggered
          * NULL is returned if no active network is available
          */
-        fun onConnectivityChanged(connectivityInfo: ConnectivityInfo?)
+        fun onConnectivityChanged(connectivityInfo: ConnectivityInfo?, network: Network?)
     }
 }

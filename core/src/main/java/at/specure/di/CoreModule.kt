@@ -17,19 +17,20 @@ import at.specure.data.ClientUUID
 import at.specure.data.ControlServerSettings
 import at.specure.data.CoreDatabase
 import at.specure.data.HistoryFilterOptions
-import at.specure.data.MapServerSettings
 import at.specure.data.MeasurementServers
+import at.specure.data.NewsSettings
 import at.specure.data.TermsAndConditions
 import at.specure.data.repository.DeviceSyncRepository
 import at.specure.data.repository.DeviceSyncRepositoryImpl
+import at.specure.data.repository.HistoryLoader
 import at.specure.data.repository.HistoryRepository
 import at.specure.data.repository.IpCheckRepository
 import at.specure.data.repository.MeasurementRepository
 import at.specure.data.repository.MeasurementRepositoryImpl
+import at.specure.data.repository.NewsRepository
+import at.specure.data.repository.NewsRepositoryImpl
 import at.specure.data.repository.SettingsRepository
 import at.specure.data.repository.SettingsRepositoryImpl
-import at.specure.data.repository.TacRepository
-import at.specure.data.repository.TacRepositoryImpl
 import at.specure.data.repository.TestDataRepository
 import at.specure.info.cell.CellInfoWatcher
 import at.specure.info.cell.CellInfoWatcherImpl
@@ -114,9 +115,9 @@ class CoreModule {
         connectivityWatcher: ConnectivityWatcher,
         wifiInfoWatcher: WifiInfoWatcher,
         cellInfoWatcher: CellInfoWatcher,
-        locationAccess: LocationAccess
+        locationProvider: LocationProviderStateWatcher
     ): ActiveNetworkWatcher =
-        ActiveNetworkWatcher(connectivityWatcher, wifiInfoWatcher, cellInfoWatcher, locationAccess)
+        ActiveNetworkWatcher(connectivityWatcher, wifiInfoWatcher, cellInfoWatcher, locationProvider)
 
     @Provides
     @Singleton
@@ -153,25 +154,33 @@ class CoreModule {
         controlServerClient: ControlServerClient,
         clientUUID: ClientUUID,
         controlServerSettings: ControlServerSettings,
-        mapServerSettings: MapServerSettings,
         termsAndConditions: TermsAndConditions,
         measurementServers: MeasurementServers,
-        tacRepository: TacRepository,
         historyFilterOptions: HistoryFilterOptions,
-        config: Config
+        config: Config,
+        coreDatabase: CoreDatabase
     ): SettingsRepository =
         SettingsRepositoryImpl(
             context = context,
             controlServerClient = controlServerClient,
             clientUUID = clientUUID,
             controlServerSettings = controlServerSettings,
-            mapServerSettings = mapServerSettings,
             termsAndConditions = termsAndConditions,
             measurementsServers = measurementServers,
             historyFilterOptions = historyFilterOptions,
-            tacRepository = tacRepository,
-            config = config
+            config = config,
+            tacDao = coreDatabase.tacDao()
         )
+
+    @Provides
+    @Singleton
+    fun provideNewsRepository(
+        context: Context,
+        controlServerClient: ControlServerClient,
+        clientUUID: ClientUUID,
+        newsSettings: NewsSettings
+    ): NewsRepository =
+        NewsRepositoryImpl(context = context, controlServerClient = controlServerClient, clientUUID = clientUUID, newsSettings = newsSettings)
 
     @Provides
     @Singleton
@@ -200,12 +209,9 @@ class CoreModule {
         controlServerClient: ControlServerClient,
         clientUUID: ClientUUID,
         historyRepository: HistoryRepository,
-        settingsRepository: SettingsRepository
-    ): DeviceSyncRepository = DeviceSyncRepositoryImpl(context, controlServerClient, clientUUID, historyRepository, settingsRepository)
-
-    @Provides
-    fun provideTacRepository(coreDatabase: CoreDatabase, termsAndConditions: TermsAndConditions): TacRepository =
-        TacRepositoryImpl(coreDatabase, termsAndConditions)
+        settingsRepository: SettingsRepository,
+        historyLoader: HistoryLoader
+    ): DeviceSyncRepository = DeviceSyncRepositoryImpl(context, controlServerClient, clientUUID, historyRepository, settingsRepository, historyLoader)
 
     @Provides
     fun provideMeasurementRepository(

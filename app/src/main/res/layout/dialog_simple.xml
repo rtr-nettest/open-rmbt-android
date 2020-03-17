@@ -9,6 +9,23 @@
         android:padding="@dimen/padding_large">
 
         <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/titleTextMessage"
+            style="@style/RobotoBoldStyle.Medium"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:paddingStart="@dimen/padding_small"
+            android:paddingTop="@dimen/padding_medium"
+            android:paddingEnd="@dimen/padding_small"
+            android:paddingBottom="@dimen/padding_large"
+            android:text="@string/dialog_title_error"
+            android:textColor="@color/text_black_transparency_60"
+            android:visibility="gone"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/textMessage"
             style="@style/RobotoRegularStyle.Medium"
             android:layout_width="0dp"
@@ -22,7 +39,7 @@
             android:textColor="@color/text_black_transparency_60"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toBottomOf="@+id/titleTextMessage" />
 
         <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/buttonPositive"

@@ -81,7 +81,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/tvTitle"
-            tools:visibility="gone" />
+             />
 
         <androidx.appcompat.widget.AppCompatImageButton
             android:id="@+id/btnSetting"
@@ -213,6 +213,16 @@
             app:layout_constraintStart_toStartOf="@+id/leftView"
             app:layout_constraintTop_toTopOf="@+id/ivIsConnectedCircle"
             tools:background="@android:color/holo_red_dark" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            style="@style/RobotoRegularStyle.Small"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text='@{state.selectedMeasurementServer  != null ? state.selectedMeasurementServer.name : @string/preferences_default_server_selection}'
+            android:textColor="@{state.isConnected ? @android:color/white : @color/text_dark_gray}"
+            app:layout_constraintEnd_toEndOf="@+id/circleMarginView"
+            app:layout_constraintTop_toBottomOf="@+id/loop_mode_title"
+            app:visibleOrGone='@{state.expertModeIsEnabled}' />
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/tv_info"
@@ -390,5 +400,6 @@
             app:layout_constraintStart_toEndOf="@+id/btnLocation"
             app:layout_constraintTop_toBottomOf="@+id/vBottomDivider"
             tools:src="@drawable/ic_upload_enabled" />
+
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

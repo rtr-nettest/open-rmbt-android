@@ -42,6 +42,11 @@ interface CellInfoWatcher {
     fun removeListener(listener: CellInfoChangeListener)
 
     /**
+     * Try update cellular network info without callbacks
+     */
+    fun forceUpdate()
+
+    /**
      * Callback that is used to observe cellular network changes tracked by [CellInfoWatcher]
      */
     interface CellInfoChangeListener {

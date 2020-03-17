@@ -23,11 +23,11 @@ import com.google.gson.annotations.SerializedName
 @Keep
 data class NewsRequestBody(
     val language: String = "en",
-    val lastNewsUid: Long = 54654656,
+    val lastNewsUid: Long? = null,
     @SerializedName("plattform")
     val platform: String = "Android",
-    val softwareVersionCode: String = 30604.toString(),
-    val uuid: String
+    val softwareVersionCode: String = "0",
+    val uuid: String?
 )
 
 @Keep

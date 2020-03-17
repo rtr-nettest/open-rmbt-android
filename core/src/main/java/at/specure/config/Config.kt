@@ -282,6 +282,11 @@ interface Config {
     var syncDevicesRoute: String
 
     /**
+     * Endpoint to get news
+     */
+    var controlServerNewsEndpoint: String
+
+    /**
      * End of url to obtain map filters data, example "RMBTMapServer/tiles/info
      */
     var mapFilterInfoEndpoint: String
@@ -325,4 +330,19 @@ interface Config {
      * End of url to send signal measurement results
      */
     var signalResultRoute: String
+
+    /**
+     * Secret code to enable developer mode
+     */
+    var secretCodeDeveloperModeOn: String
+
+    /**
+     * Secret code to disable developer mode
+     */
+    var secretCodeDeveloperModeOff: String
+
+    /**
+     * Secret code to disable all special modes
+     */
+    var secretCodeAllModesOff: String
 }

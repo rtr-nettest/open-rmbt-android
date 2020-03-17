@@ -46,18 +46,18 @@ class WifiInfoWatcherImpl(private val wifiManager: WifiManager) : WifiInfoWatche
             }
 
             val ssid = if (info.ssid == UNKNOWN_SSID || info.hiddenSSID) {
-                ""
+                null
             } else {
                 info.ssid.removeQuotation() ?: ""
             }
 
             return WifiNetworkInfo(
-                bssid = if (info.bssid == DUMMY_MAC_ADDRESS) null else info.bssid,
+                bssid = if (info.bssid == DUMMY_MAC_ADDRESS || info.networkId == -1) null else info.bssid,
                 band = WifiBand.fromFrequency(info.frequency),
                 isSSIDHidden = info.hiddenSSID,
                 ipAddress = address,
                 linkSpeed = info.linkSpeed,
-                networkId = if (info.bssid == DUMMY_MAC_ADDRESS) -1 else info.networkId,
+                networkId = if (info.bssid == DUMMY_MAC_ADDRESS || info.networkId == -1) null else info.networkId,
                 rssi = info.rssi,
                 signalLevel = WifiManager.calculateSignalLevel(info.rssi, 5),
                 ssid = ssid,

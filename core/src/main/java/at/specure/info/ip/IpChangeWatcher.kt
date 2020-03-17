@@ -14,6 +14,8 @@
 
 package at.specure.info.ip
 
+import android.net.Network
+
 /**
  * Ip change watcher that tracks changes of IPv4 and IPv6 address changes for an active network
  */
@@ -32,12 +34,12 @@ interface IpChangeWatcher {
     /**
      * Request an IPv4 address update
      */
-    fun updateIpV4()
+    fun updateIpV4(networkId: Int, network: Network)
 
     /**
      * Request an IPv6 address update
      */
-    fun updateIpV6()
+    fun updateIpV6(networkId: Int, network: Network)
 
     /**
      * Add listener for IPv4 address changes

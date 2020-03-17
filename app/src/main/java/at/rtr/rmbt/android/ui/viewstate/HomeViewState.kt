@@ -6,12 +6,16 @@ import androidx.databinding.ObservableField
 import at.rtr.rmbt.android.config.AppConfig
 import at.rtr.rmbt.android.util.InfoWindowStatus
 import at.rtr.rmbt.android.util.addOnPropertyChanged
+import at.specure.data.MeasurementServers
 import at.specure.info.ip.IpInfo
 import at.specure.info.network.NetworkInfo
 import at.specure.info.strength.SignalStrengthInfo
 import at.specure.location.LocationProviderState
 
-class HomeViewState(private val config: AppConfig) : ViewState {
+class HomeViewState(
+    private val config: AppConfig,
+    val measurementServers: MeasurementServers
+) : ViewState {
 
     val isConnected = ObservableField<Boolean?>()
     val isLocationEnabled = ObservableField<LocationProviderState>()
@@ -22,7 +26,9 @@ class HomeViewState(private val config: AppConfig) : ViewState {
     val ipV6Info = ObservableField<IpInfo?>()
     val isSignalMeasurementActive = ObservableField<Boolean>()
     val isLoopModeActive = ObservableBoolean(config.loopModeEnabled)
+    val expertModeIsEnabled = ObservableField(config.expertModeEnabled)
     val developerModeIsEnabled = ObservableField(config.developerModeIsEnabled)
+    val selectedMeasurementServer = ObservableField(measurementServers.selectedMeasurementServer)
 
     init {
         isLoopModeActive.addOnPropertyChanged {
@@ -39,5 +45,7 @@ class HomeViewState(private val config: AppConfig) : ViewState {
     fun checkConfig() {
         isLoopModeActive.set(config.loopModeEnabled)
         developerModeIsEnabled.set(config.developerModeIsEnabled)
+        selectedMeasurementServer.set(measurementServers.selectedMeasurementServer)
+        expertModeIsEnabled.set(config.expertModeEnabled)
     }
 }

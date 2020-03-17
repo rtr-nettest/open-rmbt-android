@@ -7,13 +7,20 @@ import at.rtr.rmbt.android.config.AppConfig
 import at.rtr.rmbt.android.ui.viewstate.SettingsViewState
 import at.specure.data.ClientUUID
 import at.specure.data.MeasurementServers
+import at.specure.data.repository.SettingsRepository
 import at.specure.location.LocationProviderStateLiveData
 import javax.inject.Inject
 
-class SettingsViewModel @Inject constructor(appConfig: AppConfig, clientUUID: ClientUUID, val locationStateLiveData: LocationProviderStateLiveData, val measurementServers: MeasurementServers) :
+class SettingsViewModel @Inject constructor(
+    private val appConfig: AppConfig,
+    clientUUID: ClientUUID,
+    val locationStateLiveData: LocationProviderStateLiveData,
+    val measurementServers: MeasurementServers,
+    settingsRepository: SettingsRepository
+) :
     BaseViewModel() {
 
-    val state = SettingsViewState(appConfig, clientUUID, measurementServers)
+    val state = SettingsViewState(appConfig, clientUUID, measurementServers, settingsRepository)
 
     private val _openCodeWindow = MutableLiveData<Boolean>()
     private var count: Int = 0
@@ -58,59 +65,22 @@ class SettingsViewModel @Inject constructor(appConfig: AppConfig, clientUUID: Cl
         if (code.isNotBlank()) {
 
             return when (code) {
-                DEVELOPER_ACTIVATE_CODE -> {
+                appConfig.secretCodeDeveloperModeOn -> {
                     state.developerModeIsEnabled.set(true)
                     R.string.preferences_developer_options_available
                 }
-                DEVELOPER_DEACTIVATE_CODE -> {
+                appConfig.secretCodeDeveloperModeOff -> {
                     state.developerModeIsEnabled.set(false)
                     R.string.preferences_developer_options_disabled
                 }
-                SERVER_SELECTION_ACTIVATE_CODE -> {
-                    state.userServerSelectionEnabled.set(true)
-                    R.string.preferences_server_selection_available
-                }
-                SERVER_SELECTION_DEACTIVATE_CODE -> {
-                    state.userServerSelectionEnabled.set(false)
-                    R.string.preferences_server_selection_disabled
-                }
-                ALL_DEACTIVATE_CODE -> {
+                appConfig.secretCodeAllModesOff -> {
                     state.developerModeIsEnabled.set(false)
-                    state.userServerSelectionEnabled.set(false)
-                    R.string.preferences_developer_options_disabled
-                }
-                else -> {
                     R.string.preferences_all_disabled
                 }
-            }
-            /*state.developerModeIsEnabled.get()?.let {
-
-                return if (it) {
-                    when (code) {
-                        DEVELOPER_DEACTIVATE_CODE -> {
-                            state.developerModeIsEnabled.set(false)
-                            R.string.preferences_developer_options_disabled
-                        }
-                        ALL_DEACTIVATE_CODE -> {
-                            state.developerModeIsEnabled.set(false)
-                            R.string.preferences_developer_options_disabled
-                        }
-                        else -> {
-                            R.string.preferences_developer_try_again
-                        }
-                    }
-                } else {
-                    when (code) {
-                        DEVELOPER_ACTIVATE_CODE -> {
-                            state.developerModeIsEnabled.set(true)
-                            R.string.preferences_developer_options_available
-                        }
-                        else -> {
-                            R.string.preferences_developer_try_again
-                        }
-                    }
+                else -> {
+                    R.string.preferences_developer_try_again
                 }
-            }*/
+            }
         }
         return R.string.preferences_developer_try_again
     }
@@ -130,13 +100,5 @@ class SettingsViewModel @Inject constructor(appConfig: AppConfig, clientUUID: Cl
                 _openCodeWindow.postValue(true)
             }
         }
-    }
-
-    companion object {
-        private const val DEVELOPER_ACTIVATE_CODE: String = "23656990"
-        private const val DEVELOPER_DEACTIVATE_CODE: String = "69652357"
-        private const val SERVER_SELECTION_ACTIVATE_CODE: String = "17031552"
-        private const val SERVER_SELECTION_DEACTIVATE_CODE: String = "15031722"
-        private const val ALL_DEACTIVATE_CODE: String = "00000000"
     }
 }

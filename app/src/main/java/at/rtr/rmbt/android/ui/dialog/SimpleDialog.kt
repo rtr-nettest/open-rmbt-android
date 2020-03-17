@@ -71,6 +71,22 @@ class SimpleDialog : FullscreenDialog() {
         } else {
             binding.textMessage.text = builder.messageText
         }
+
+        if (builder.messageTitleText == null) {
+            if (builder.messageTitleTextRes == 0) {
+                binding.titleTextMessage.visibility = View.GONE
+            } else {
+                binding.titleTextMessage.setText(builder.messageTitleTextRes)
+                binding.titleTextMessage.visibility = View.VISIBLE
+            }
+        } else {
+            if (builder.messageTitleText.isNullOrEmpty()) {
+                binding.titleTextMessage.visibility = View.GONE
+            } else {
+                binding.titleTextMessage.text = builder.messageTitleText
+                binding.titleTextMessage.visibility = View.VISIBLE
+            }
+        }
     }
 
     interface Callback {
@@ -84,12 +100,16 @@ class SimpleDialog : FullscreenDialog() {
 
         var messageText: String? = null
         var messageTextRes = 0
+        var messageTitleText: String? = null
+        var messageTitleTextRes = 0
         var positiveTextRes = 0
         var negativeTextRes = 0
         var cancelable = true
         var code = 0
 
         constructor(parcel: Parcel) : this() {
+            messageTitleText = parcel.readString()
+            messageTitleTextRes = parcel.readInt()
             messageText = parcel.readString()
             messageTextRes = parcel.readInt()
             positiveTextRes = parcel.readInt()
@@ -99,6 +119,8 @@ class SimpleDialog : FullscreenDialog() {
         }
 
         override fun writeToParcel(dest: Parcel?, flags: Int) {
+            dest?.writeString(messageTitleText)
+            dest?.writeInt(messageTitleTextRes)
             dest?.writeString(messageText)
             dest?.writeInt(messageTextRes)
             dest?.writeInt(positiveTextRes)
@@ -126,6 +148,16 @@ class SimpleDialog : FullscreenDialog() {
 
         fun messageText(messageText: String): Builder {
             this.messageText = messageText
+            return this
+        }
+
+        fun titleText(titleTextRes: Int): Builder {
+            this.messageTitleTextRes = titleTextRes
+            return this
+        }
+
+        fun titleText(titleText: String): Builder {
+            this.messageTitleText = titleText
             return this
         }
 

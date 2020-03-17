@@ -19,7 +19,6 @@ import at.rtr.rmbt.android.BuildConfig
 import at.rtr.rmbt.android.util.ConfigValue
 import at.specure.config.Config
 import at.specure.data.ControlServerSettings
-import at.specure.data.MapServerSettings
 import javax.inject.Inject
 
 private const val FILENAME = "config.pref"
@@ -27,7 +26,7 @@ private const val FILENAME = "config.pref"
 private const val KEY_TEST_COUNTER = "KEY_TEST_COUNTER"
 private const val KEY_PREVIOUS_TEST_STATUS = "PREVIOUS_TEST_STATUS"
 
-class AppConfig @Inject constructor(context: Context, private val serverSettings: ControlServerSettings, private val mapServerSettings: MapServerSettings) : Config {
+class AppConfig @Inject constructor(context: Context, private val serverSettings: ControlServerSettings) : Config {
 
     private val preferences = context.getSharedPreferences(FILENAME, Context.MODE_PRIVATE)
 
@@ -201,6 +200,10 @@ class AppConfig @Inject constructor(context: Context, private val serverSettings
         get() = getString(BuildConfig.CONTROL_SERVER_GET_QOS_TEST_RESULT_ENDPOINT)
         set(value) = setString(BuildConfig.CONTROL_SERVER_GET_QOS_TEST_RESULT_ENDPOINT, value)
 
+    override var controlServerNewsEndpoint: String
+        get() = getString(BuildConfig.CONTROL_SERVER_GET_NEWS_ENDPOINT)
+        set(value) = setString(BuildConfig.CONTROL_SERVER_GET_NEWS_ENDPOINT, value)
+
     override var testCounter: Int
         get() = preferences.getInt(KEY_TEST_COUNTER, 0)
         set(value) = preferences.edit()
@@ -280,12 +283,12 @@ class AppConfig @Inject constructor(context: Context, private val serverSettings
         set(value) = setString(BuildConfig.MAP_MARKER_SHOW_DETAILS_ROUTE, value)
 
     override var getSyncCodeRoute: String
-        get() = getString(BuildConfig.GET_SYNC_CODE_ROUTE)
-        set(value) = setString(BuildConfig.GET_SYNC_CODE_ROUTE, value)
+        get() = getString(BuildConfig.CONTROL_SERVER_GET_SYNC_CODE_ROUTE)
+        set(value) = setString(BuildConfig.CONTROL_SERVER_GET_SYNC_CODE_ROUTE, value)
 
     override var syncDevicesRoute: String
-        get() = getString(BuildConfig.SYNC_DEVICES_ROUTE)
-        set(value) = setString(BuildConfig.SYNC_DEVICES_ROUTE, value)
+        get() = getString(BuildConfig.CONTROL_SERVER_SYNC_DEVICES_ROUTE)
+        set(value) = setString(BuildConfig.CONTROL_SERVER_SYNC_DEVICES_ROUTE, value)
 
     override var mapFilterInfoEndpoint: String
         get() = getString(BuildConfig.MAP_FILTERS_ENDPOINT)
@@ -296,12 +299,30 @@ class AppConfig @Inject constructor(context: Context, private val serverSettings
         set(value) = setString(BuildConfig.DATA_PRIVACY_AND_TERMS_URL, value)
 
     override var signalRequestRoute: String
-        get() = getString(BuildConfig.SIGNAL_REQUEST_ROUTE)
-        set(value) = setString(BuildConfig.SIGNAL_REQUEST_ROUTE, value)
+        get() = getString(BuildConfig.CONTROL_SERVER_SIGNAL_REQUEST_ROUTE)
+        set(value) = setString(BuildConfig.CONTROL_SERVER_SIGNAL_REQUEST_ROUTE, value)
 
     override var signalResultRoute: String
-        get() = getString(BuildConfig.SIGNAL_RESULT_ROUTE)
-        set(value) = setString(BuildConfig.SIGNAL_RESULT_ROUTE, value)
+        get() = getString(BuildConfig.CONTROL_SERVER_SIGNAL_RESULT_ROUTE)
+        set(value) = setString(BuildConfig.CONTROL_SERVER_SIGNAL_RESULT_ROUTE, value)
+
+    override var secretCodeDeveloperModeOn: String
+        get() = getString(BuildConfig.DEVELOPER_ACTIVATE_CODE)
+        set(value) {
+            // this value cannot be changed
+        }
+
+    override var secretCodeDeveloperModeOff: String
+        get() = getString(BuildConfig.DEVELOPER_DEACTIVATE_CODE)
+        set(value) {
+            // this value cannot be changed
+        }
+
+    override var secretCodeAllModesOff: String
+        get() = getString(BuildConfig.ALL_DEACTIVATE_CODE)
+        set(value) {
+            // this value cannot be changed
+        }
 
     override var termsAcceptanceDefaultUrl: String
         get() = getString(BuildConfig.TERMS_FOR_ACCEPTANCE_URL)
@@ -312,14 +333,14 @@ class AppConfig @Inject constructor(context: Context, private val serverSettings
         set(value) = setBoolean(BuildConfig.IS_MAP_SERVER_OVERRIDE_ENABLED, value)
 
     override var mapServerHost: String
-        get() = getString(BuildConfig.MAP_SERVER_HOST, mapServerSettings.mapServerHost)
+        get() = getString(BuildConfig.MAP_SERVER_HOST)
         set(value) = setString(BuildConfig.MAP_SERVER_HOST, value)
 
     override var mapServerPort: Int
-        get() = getInt(BuildConfig.MAP_SERVER_PORT, mapServerSettings.mapServerPort)
+        get() = getInt(BuildConfig.MAP_SERVER_PORT)
         set(value) = setInt(BuildConfig.MAP_SERVER_PORT, value)
 
     override var mapServerUseSSL: Boolean
-        get() = getBoolean(BuildConfig.MAP_SERVER_USE_SSL, mapServerSettings.mapServerUseSsl)
+        get() = getBoolean(BuildConfig.MAP_SERVER_USE_SSL)
         set(value) = setBoolean(BuildConfig.MAP_SERVER_USE_SSL, value)
 }

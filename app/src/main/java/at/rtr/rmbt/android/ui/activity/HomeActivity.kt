@@ -24,8 +24,10 @@ import androidx.navigation.ui.setupWithNavController
 import at.rtr.rmbt.android.R
 import at.rtr.rmbt.android.databinding.ActivityHomeBinding
 import at.rtr.rmbt.android.di.viewModelLazy
+import at.rtr.rmbt.android.ui.dialog.ConfigCheckDialog
 import at.rtr.rmbt.android.util.KeepStateNavigator
 import at.rtr.rmbt.android.util.listen
+import at.rtr.rmbt.android.viewmodel.ConfigCheckViewModel
 import at.rtr.rmbt.android.viewmodel.MeasurementViewModel
 
 class HomeActivity : BaseActivity() {
@@ -33,6 +35,7 @@ class HomeActivity : BaseActivity() {
     private lateinit var binding: ActivityHomeBinding
 
     private val viewModel: MeasurementViewModel by viewModelLazy()
+    private val configCheckViewModel: ConfigCheckViewModel by viewModelLazy()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -62,17 +65,28 @@ class HomeActivity : BaseActivity() {
                 HomeNavigationTarget.MAP_FRAGMENT_TO_SHOW -> binding.navView.selectedItemId = R.id.navigation_map
             }
         }
+
+        configCheckViewModel.incorrectValuesLiveData.listen(this) {
+            ConfigCheckDialog.show(supportFragmentManager, it)
+        }
+    }
+
+    override fun onBackPressed() {
+        if (binding.navView.selectedItemId == R.id.navigation_home) {
+            super.onBackPressed()
+        } else {
+            binding.navView.selectedItemId = R.id.navigation_home
+        }
     }
 
     override fun onStart() {
         super.onStart()
         viewModel.attach(this)
 
-        viewModel.tacAcceptanceLiveData.listen(this) {
-            if (!it) {
-                TermsAcceptanceActivity.start(this, CODE_TERMS)
-            }
+        if (!viewModel.isTacAccepted) {
+            TermsAcceptanceActivity.start(this, CODE_TERMS)
         }
+        configCheckViewModel.checkConfig()
     }
 
     override fun onStop() {
@@ -82,11 +96,8 @@ class HomeActivity : BaseActivity() {
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-
         if (requestCode == CODE_TERMS) {
-            if (resultCode == Activity.RESULT_OK) {
-                viewModel.updateTermsAcceptance(true)
-            } else {
+            if (resultCode != Activity.RESULT_OK) {
                 finish()
             }
         }

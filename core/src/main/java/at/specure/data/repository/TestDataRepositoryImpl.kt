@@ -304,7 +304,7 @@ class TestDataRepositoryImpl(db: CoreDatabase) : TestDataRepository {
             supplicantDetailedState = wifiInfo.supplicantDetailedState,
             ssid = wifiInfo.ssid,
             bssid = wifiInfo.bssid,
-            networkId = if (wifiInfo.networkId == -1) null else wifiInfo.networkId.toString()
+            networkId = wifiInfo.networkId?.toString()
         )
         testDao.insert(record)
     }

@@ -47,6 +47,9 @@ class ConnectivityWatcherImpl(private val connectivityManager: ConnectivityManag
     override val connectivityStateLiveData: LiveData<ConnectivityStateBundle>
         get() = _connectivityStateLiveData
 
+    override val network: Network?
+        get() = connectivityManager.activeNetwork
+
     private val callback = object : ConnectivityManager.NetworkCallback() {
 
         override fun onCapabilitiesChanged(network: Network?, networkCapabilities: NetworkCapabilities?) {
@@ -128,7 +131,7 @@ class ConnectivityWatcherImpl(private val connectivityManager: ConnectivityManag
             _activeNetwork = null
         }
         listeners.add(listener)
-        listener.onConnectivityChanged(_activeNetwork)
+        listener.onConnectivityChanged(_activeNetwork, connectivityManager.activeNetwork)
         if (listeners.size == 1) {
             registerCallbacks()
         }
@@ -142,7 +145,7 @@ class ConnectivityWatcherImpl(private val connectivityManager: ConnectivityManag
     }
 
     private fun notifyListeners() {
-        listeners.synchronizedForEach { it.onConnectivityChanged(_activeNetwork) }
+        listeners.synchronizedForEach { it.onConnectivityChanged(_activeNetwork, connectivityManager.activeNetwork) }
     }
 
     private fun registerCallbacks() {

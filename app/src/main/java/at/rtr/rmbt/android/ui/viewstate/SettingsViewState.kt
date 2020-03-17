@@ -2,16 +2,19 @@ package at.rtr.rmbt.android.ui.viewstate
 
 import androidx.databinding.ObservableField
 import androidx.databinding.ObservableInt
+import at.rmbt.util.io
 import at.rtr.rmbt.android.config.AppConfig
 import at.rtr.rmbt.android.util.addOnPropertyChanged
 import at.specure.data.ClientUUID
 import at.specure.data.MeasurementServers
+import at.specure.data.repository.SettingsRepository
 import at.specure.location.LocationProviderState
 
 class SettingsViewState constructor(
     val appConfig: AppConfig,
     val clientUUID: ClientUUID,
-    val measurementServers: MeasurementServers
+    private val measurementServers: MeasurementServers,
+    private val settingsRepository: SettingsRepository
 ) : ViewState {
 
     val isNDTEnabled = ObservableField(appConfig.NDTEnabled)
@@ -40,7 +43,6 @@ class SettingsViewState constructor(
     val mapServerPort = ObservableField(appConfig.mapServerPort)
     val mapServerUseSSL = ObservableField(appConfig.mapServerUseSSL)
     val qosSSL = ObservableField(appConfig.qosSSL)
-    val userServerSelectionEnabled = ObservableField(appConfig.userServerSelectionEnabled)
     val selectedMeasurementServer = ObservableField(measurementServers.selectedMeasurementServer)
 
     init {
@@ -97,6 +99,9 @@ class SettingsViewState constructor(
         controlServerHost.addOnPropertyChanged { value ->
             value.get()?.let {
                 appConfig.controlServerHost = it
+                io {
+                    settingsRepository.refreshSettings()
+                }
             }
         }
         controlServerPort.addOnPropertyChanged { value ->
@@ -132,6 +137,11 @@ class SettingsViewState constructor(
         mapServerOverrideEnabled.addOnPropertyChanged { value ->
             value.get()?.let {
                 appConfig.mapServerOverrideEnabled = it
+                if (!it) {
+                    io {
+                        settingsRepository.refreshSettings()
+                    }
+                }
             }
         }
         qosSSL.addOnPropertyChanged { value ->
@@ -140,7 +150,7 @@ class SettingsViewState constructor(
             }
         }
         selectedMeasurementServer.addOnPropertyChanged { value ->
-            value.get()?.let {
+            value.get().let {
                 measurementServers.selectedMeasurementServer = it
             }
         }

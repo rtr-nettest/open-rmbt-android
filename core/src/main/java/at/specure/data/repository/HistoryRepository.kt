@@ -1,9 +1,7 @@
 package at.specure.data.repository
 
-import androidx.paging.DataSource
-import androidx.paging.PagedList
-import at.rmbt.util.exception.HandledException
-import at.specure.data.entity.HistoryContainer
+import at.rmbt.util.Maybe
+import at.specure.data.entity.History
 import at.specure.util.StringSetPreferenceLiveData
 
 interface HistoryRepository {
@@ -15,18 +13,6 @@ interface HistoryRepository {
     val devicesLiveData: StringSetPreferenceLiveData
 
     val appliedFiltersLiveData: StringSetPreferenceLiveData
-
-    fun getHistorySource(): DataSource.Factory<Int, HistoryContainer>
-
-    fun boundaryCallback(
-        limit: Int,
-        onLoadingCallback: ((Boolean) -> Unit),
-        onErrorCallback: ((HandledException) -> Unit)
-    ): PagedList.BoundaryCallback<HistoryContainer>
-
-    fun refreshHistory(limit: Int, onLoadingCallback: (Boolean) -> Unit, onErrorCallback: (HandledException) -> Unit)
-
-    fun clearHistory()
 
     fun saveFiltersNetwork(selected: Set<String>)
 
@@ -41,4 +27,8 @@ interface HistoryRepository {
     fun getNetworks(): Set<String>?
 
     fun getDevices(): Set<String>?
+
+    fun loadHistoryItems(offset: Int, limit: Int): Maybe<List<History>>
+
+    fun cleanHistory()
 }

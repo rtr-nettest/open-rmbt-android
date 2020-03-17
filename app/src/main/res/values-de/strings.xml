@@ -86,8 +86,6 @@
     <string name="preferences_category_developer_qos_server">QoS-Server</string>
     <string name="preferences_developer_qos_ssl" >QoS Server SSL</string>
     <string name="preferences_developer_qos_ssl_sum" >Verwende verschlüsselte Verbindung zum QoS-Server</string>
-    <string name="preferences_server_selection_disabled">Serverauswahl entfernt.</string>
-    <string name="preferences_server_selection_available">Serverauswahl verfügbar.</string>
     <string name="preferences_all_disabled">Deaktiviert.</string>
     <string name="preferences_server_selection">Serverauswahl</string>
     <string name="preferences_default_server_selection">Voreinstellung</string>
@@ -281,5 +279,8 @@
     <string name="title_privacy_policy">Datenschutzerklärung</string>
     <string name="text_terms_agree">Ich stimme den Datenschutzbestimmungen und Nutzungsbedingungen von RTR für RTR-NetTest zu.</string>
     <string name="text_terms_agree_empty">Sie müssen den Datenschutzbestimmungen und Nutzungsbedingungen von RTR zustimmen, um fortfahren zu können.</string>
+
+    <string name="dialog_title_config_check">Bitte ändern Sie die folgenden Werte:</string>
+    <string name="label_ip_processing">Wird Bearbeitet…</string>
 </resources>
 

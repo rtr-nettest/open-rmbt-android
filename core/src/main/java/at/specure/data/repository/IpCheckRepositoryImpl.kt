@@ -1,6 +1,7 @@
 package at.specure.data.repository
 
 import android.content.Context
+import android.net.Network
 import at.rmbt.client.control.IpClient
 import at.rmbt.client.control.IpInfoResponse
 import at.rmbt.client.control.IpRequestBody
@@ -34,9 +35,9 @@ class IpCheckRepositoryImpl(
         )
 
     @Throws(HandledException::class)
-    override fun getPublicIpV4Address(): Maybe<IpInfoResponse> = client.getPublicIpV4Address(ipRequestBody)
+    override fun getPublicIpV4Address(network: Network): Maybe<IpInfoResponse> = client.getPublicIpV4Address(ipRequestBody, network)
 
-    override fun getPublicIpV6Address(): Maybe<IpInfoResponse> = client.getPublicIpV6Address(ipRequestBody)
+    override fun getPublicIpV6Address(network: Network): Maybe<IpInfoResponse> = client.getPublicIpV6Address(ipRequestBody, network)
 
     override fun getPrivateIpV4Address(): Maybe<IpInfoResponse> = client.getPrivateIpV4Address()
 

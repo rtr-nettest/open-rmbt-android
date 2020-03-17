@@ -14,13 +14,14 @@
 
 package at.specure.info.network
 
+import android.net.Network
 import at.specure.info.TransportType
 import at.specure.info.cell.CellInfoWatcher
 import at.specure.info.cell.CellNetworkInfo
 import at.specure.info.connectivity.ConnectivityInfo
 import at.specure.info.connectivity.ConnectivityWatcher
 import at.specure.info.wifi.WifiInfoWatcher
-import at.specure.util.permission.LocationAccess
+import at.specure.location.LocationProviderStateWatcher
 import at.specure.util.synchronizedForEach
 import java.util.Collections
 
@@ -32,8 +33,8 @@ class ActiveNetworkWatcher(
     private val connectivityWatcher: ConnectivityWatcher,
     private val wifiInfoWatcher: WifiInfoWatcher,
     private val cellInfoWatcher: CellInfoWatcher,
-    locationAccess: LocationAccess
-) : LocationAccess.LocationAccessChangeListener {
+    private var locationProviderStateWatcher: LocationProviderStateWatcher
+) : LocationProviderStateWatcher.LocationEnabledChangeListener {
 
     private val listeners = Collections.synchronizedSet(mutableSetOf<NetworkChangeListener>())
     private var isCallbacksRegistered = false
@@ -49,7 +50,7 @@ class ActiveNetworkWatcher(
         }
 
     init {
-        locationAccess.addListener(this)
+        locationProviderStateWatcher.addListener(this)
     }
 
     /**
@@ -60,14 +61,19 @@ class ActiveNetworkWatcher(
 
     private val connectivityCallback = object : ConnectivityWatcher.ConnectivityChangeListener {
 
-        override fun onConnectivityChanged(connectivityInfo: ConnectivityInfo?) {
+        override fun onConnectivityChanged(connectivityInfo: ConnectivityInfo?, network: Network?) {
             lastConnectivityInfo = connectivityInfo
             _currentNetworkInfo = if (connectivityInfo == null) {
                 null
             } else {
                 when (connectivityInfo.transportType) {
-                    TransportType.WIFI -> wifiInfoWatcher.activeWifiInfo
-                    TransportType.CELLULAR -> cellInfoWatcher.activeNetwork
+                    TransportType.WIFI -> wifiInfoWatcher.activeWifiInfo.apply {
+                        this?.locationEnabled = locationProviderStateWatcher.isLocationEnabled()
+                    }
+                    TransportType.CELLULAR -> {
+                        cellInfoWatcher.forceUpdate()
+                        cellInfoWatcher.activeNetwork
+                    }
                     else -> null
                 }
             }
@@ -132,10 +138,13 @@ class ActiveNetworkWatcher(
         fun onActiveNetworkChanged(info: NetworkInfo?)
     }
 
-    override fun onLocationAccessChanged(isAllowed: Boolean) {
-        if (listeners.isNotEmpty() && isAllowed) {
+    override fun onLocationStateChange(enabled: Boolean) {
+        if (listeners.isNotEmpty()) {
             unregisterCallbacks()
             registerCallbacks()
+        }
+        if (_currentNetworkInfo is WifiNetworkInfo) {
+            listeners.forEach { it.onActiveNetworkChanged(wifiInfoWatcher.activeWifiInfo?.apply { locationEnabled = enabled }) }
         }
     }
 }

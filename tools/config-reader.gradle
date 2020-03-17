@@ -18,7 +18,7 @@ android.applicationVariants.all { variant ->
     println("flavorDimension: ${flavorDimension}")
 
     def jsonFile
-    if(isPrivate){
+    if (isPrivate) {
         jsonFile = file("$project.rootDir/private/app/src/${flavorDimension}/config.json")
     } else {
         jsonFile = file("$project.rootDir/app/src/${flavorDimension}/config.json")
@@ -33,9 +33,11 @@ android.applicationVariants.all { variant ->
     def configClass = "at.rtr.rmbt.android.util.ConfigValue"
 
     parsedJson.config.each {
-        if (verbose) {
-            println "${it.name} ${it.value} ${it.visible}"
+        if (it._section == null) {
+            if (verbose) {
+                println "${it.name} ${it.value} ${it.visible}"
+            }
+            buildConfigField("$configClass", it.name, "new ${configClass}(\"${it.name}\", \"${it.value}\", ${it.visible})")
         }
-        buildConfigField("$configClass", it.name, "new ${configClass}(\"${it.name}\", \"${it.value}\", ${it.visible})")
     }
 }

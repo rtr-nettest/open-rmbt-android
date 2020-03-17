@@ -2,31 +2,39 @@ package at.specure.data.repository
 
 import android.content.Context
 import at.rmbt.client.control.ControlServerClient
+import at.rmbt.client.control.TermsAndConditionsSettings
 import at.specure.config.Config
 import at.specure.data.ClientUUID
 import at.specure.data.ControlServerSettings
 import at.specure.data.HistoryFilterOptions
-import at.specure.data.MapServerSettings
 import at.specure.data.MeasurementServers
 import at.specure.data.TermsAndConditions
+import at.specure.data.dao.TacDao
+import at.specure.data.entity.TacRecord
 import at.specure.data.toSettingsRequest
 import at.specure.test.DeviceInfo
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
 import timber.log.Timber
+import java.io.BufferedReader
+import java.io.IOException
+import java.io.InputStreamReader
+import java.net.URL
 
 class SettingsRepositoryImpl(
-    context: Context,
+    private val context: Context,
     private val controlServerClient: ControlServerClient,
     private val clientUUID: ClientUUID,
     private val controlServerSettings: ControlServerSettings,
-    private val mapServerSettings: MapServerSettings,
     private val termsAndConditions: TermsAndConditions,
     private val measurementsServers: MeasurementServers,
-    private val tacRepository: TacRepository,
     private val historyFilterOptions: HistoryFilterOptions,
-    private val config: Config
+    private val config: Config,
+    private val tacDao: TacDao
 ) : SettingsRepository {
 
-    private val deviceInfo = DeviceInfo(context)
+    private val deviceInfo: DeviceInfo
+        get() = DeviceInfo(context)
 
     override fun refreshSettings(): Boolean {
         val body = deviceInfo.toSettingsRequest(clientUUID, config, termsAndConditions)
@@ -49,27 +57,15 @@ class SettingsRepositoryImpl(
                 controlServerSettings.openDataPrefix = urls.openDataPrefixUrl
                 controlServerSettings.shareUrl = urls.shareUrl
                 controlServerSettings.statisticsUrl = urls.statisticsUrl
-                mapServerSettings.mapServerUrl = urls.mapServerUrl
             }
             val mapServer = settings.success.settings.first().mapServerSettings
-            if (mapServer != null) {
-                mapServerSettings.mapServerHost = mapServer.host
-                mapServerSettings.mapServerPort = mapServer.port
-                mapServerSettings.mapServerUseSsl = mapServer.ssl
+            if (mapServer != null && !config.mapServerOverrideEnabled) {
+                mapServer.host?.let { config.mapServerHost = it }
+                mapServer.port?.let { config.mapServerPort = it }
+                mapServer.ssl?.let { config.mapServerUseSSL = it }
             }
             val tac = settings.success.settings.first().termsAndConditions
-            if (tac != null) {
-                termsAndConditions.tacUrl = tac.url
-                termsAndConditions.ndtTermsUrl = tac.ndtURL
-                termsAndConditions.tacVersion = tac.version
-                if (termsAndConditions.tacVersion != -1 && termsAndConditions.tacVersion != tac.version) {
-                    tac.url?.let { url ->
-                        Timber.e("TAC load: ${body.language}, version: ${tac.version ?: -1}, tac url: $url")
-                        tacRepository.getTac(body.language)
-                    }
-                    termsAndConditions.tacAccepted = false
-                }
-            }
+            updateTermsAndConditions(tac)
             val versions = settings.success.settings.first().versions
             if (versions != null) {
                 controlServerSettings.controlServerVersion = versions.controlServerVersion
@@ -85,8 +81,58 @@ class SettingsRepositoryImpl(
         return settings.ok
     }
 
+    private fun updateTermsAndConditions(tac: TermsAndConditionsSettings?) = tac?.let { terms ->
+        if (termsAndConditions.tacUrl != terms.url) {
+            termsAndConditions.tacUrl = terms.url
+            termsAndConditions.tacAccepted = false
+        }
+        termsAndConditions.ndtTermsUrl = terms.ndtURL
+        if (termsAndConditions.tacVersion != terms.version) {
+            termsAndConditions.tacVersion = terms.version
+            termsAndConditions.tacAccepted = false
+            terms.url?.let { url ->
+                tacDao.deleteTermsAndCondition(url)
+            }
+        }
+    }
+
     private fun String?.removeProtocol(): String? {
         this ?: return null
         return this.removePrefix("http://").removePrefix("https://")
+    }
+
+    override fun getTermsAndConditions(): Flow<String> = flow {
+        val url = termsAndConditions.tacUrl
+        if (url == null) {
+            getEmbeddedTac()?.let { text ->
+                emit(text)
+            }
+        } else {
+            (getOrFetchTac(url) ?: getEmbeddedTac())?.let { text ->
+                emit(text)
+            }
+        }
+    }
+
+    private fun getEmbeddedTac(): String? = try {
+        BufferedReader(InputStreamReader(termsAndConditions.localVersion)).readText()
+    } catch (ex: IOException) {
+        Timber.w(ex, "Failed to load embedded TaC")
+        null
+    }
+
+    private fun getOrFetchTac(url: String): String? {
+        val record = tacDao.loadTermsAndConditions(url)
+        return record?.content
+            ?: try {
+                val stream = URL(url).openStream()
+                val text = BufferedReader(InputStreamReader(stream)).readText()
+                val newRecord = TacRecord(url, text)
+                tacDao.clearInsertItems(newRecord)
+                text
+            } catch (ex: IOException) {
+                Timber.w(ex, "Failed to load TaC")
+                null
+            }
     }
 }

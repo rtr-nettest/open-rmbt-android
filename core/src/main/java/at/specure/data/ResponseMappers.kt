@@ -5,7 +5,9 @@ import at.rmbt.client.control.HistoryResponse
 import at.rmbt.client.control.MapFilterObjectResponse
 import at.rmbt.client.control.MapFiltersResponse
 import at.rmbt.client.control.MapTypeOptionsResponse
+import at.rmbt.client.control.MarkerMeasurementItem
 import at.rmbt.client.control.MarkerMeasurementsResponse
+import at.rmbt.client.control.MarkerNetworkItem
 import at.rmbt.client.control.MarkersResponse
 import at.rmbt.client.control.PingGraphItemResponse
 import at.rmbt.client.control.QoEClassification
@@ -34,7 +36,7 @@ import at.specure.result.QoECategory
 import at.specure.result.QoSCategory
 import java.util.EnumMap
 
-fun HistoryResponse.toModelList(): List<History> = history.map { it.toModel() }
+fun HistoryResponse.toModelList(): List<History> = history?.map { it.toModel() } ?: emptyList()
 
 fun HistoryItemResponse.toModel() = History(
     testUUID = testUUID,
@@ -143,25 +145,35 @@ fun TestResultDetailItem.toModel(testUUID: String): TestResultDetailsRecord =
 
 fun MarkersResponse.toModelList(): List<MarkerMeasurementRecord> = measurements.map { it.toModel() }
 
-fun MarkerMeasurementsResponse.toModel(): MarkerMeasurementRecord =
-    MarkerMeasurementRecord(
+fun MarkerMeasurementsResponse.toModel(): MarkerMeasurementRecord {
+    val upload = measurement.extractFromList(1) as? MarkerMeasurementItem
+    val download = measurement.extractFromList(0) as? MarkerMeasurementItem
+    val signal = measurement.extractFromList(3) as? MarkerMeasurementItem
+    val ping = measurement.extractFromList(2) as? MarkerMeasurementItem
+
+    val networkType = networkItems.extractFromList(0) as? MarkerNetworkItem
+    val provider = networkItems.extractFromList(1) as? MarkerNetworkItem
+    val wifi = networkItems.extractFromList(2) as? MarkerNetworkItem
+
+    return MarkerMeasurementRecord(
         longitude,
         latitude,
-        Classification.values()[measurementResult.uploadClassification],
-        measurementResult.uploadKbit,
-        Classification.values()[measurementResult.downloadClassification],
-        measurementResult.downloadKbit,
-        Classification.values()[measurementResult.signalClassification],
-        measurementResult.signalStrength,
-        Classification.values()[measurementResult.pingClassification],
-        measurementResult.pingMs,
-        networkInfo.networkTypeLabel,
-        networkInfo.providerName,
-        networkInfo.wifiSSID,
+        Classification.values()[upload?.classification ?: Classification.NONE.intValue],
+        upload?.value ?: "-",
+        Classification.values()[download?.classification ?: Classification.NONE.intValue],
+        download?.value ?: "-",
+        Classification.values()[signal?.classification ?: Classification.NONE.intValue],
+        signal?.value ?: "-",
+        Classification.values()[ping?.classification ?: Classification.NONE.intValue],
+        ping?.value ?: "-",
+        networkType?.value,
+        provider?.value,
+        wifi?.value,
         openTestUUID,
         time,
         timeString
     )
+}
 
 fun QosTestResultDetailResponse.toModels(
     testUUID: String,
@@ -295,3 +307,9 @@ fun SignalMeasurementRequestResponse.toModel(measurementId: String) = SignalMeas
     resultUrl = resultUrl,
     provider = provider
 )
+
+private fun List<Any?>.extractFromList(position: Int): Any? = try {
+    this[position]
+} catch (ex: java.lang.IndexOutOfBoundsException) {
+    null
+}
