@@ -464,7 +464,7 @@ data class SettingItem(
 
 @Keep
 data class TermsAndConditionsSettings(
-    val version: Int?,
+    var version: Int?,
     val url: String?,
     @SerializedName("ndt_url")
     val ndtURL: String?

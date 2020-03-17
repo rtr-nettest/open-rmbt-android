@@ -8,15 +8,10 @@ import at.specure.data.Tables
 data class TacRecord(
 
     /**
-     * language code of the terms and conditions
+     * url of the terms and conditions
      */
     @PrimaryKey
-    val language: String,
-
-    /**
-     * version of the saved terms and conditions
-     */
-    val version: Int,
+    val url: String,
 
     /**
      * HTML content of the terms and conditions

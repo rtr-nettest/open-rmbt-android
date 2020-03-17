@@ -79,7 +79,8 @@ class MeasurementViewModel @Inject constructor(
     val qosProgressLiveData: LiveData<Map<QoSTestResultEnum, Int>>
         get() = _qosProgressLiveData
 
-    val tacAcceptanceLiveData = tac.tacAcceptanceLiveData
+    val isTacAccepted: Boolean
+        get() = tac.tacAccepted
 
     lateinit var loopProgressLiveData: LiveData<LoopModeRecord?>
 
@@ -231,9 +232,5 @@ class MeasurementViewModel @Inject constructor(
     override fun onQoSTestProgressUpdated(tasksPassed: Int, tasksTotal: Int, progressMap: Map<QoSTestResultEnum, Int>) {
         state.setQoSTaskProgress(tasksPassed, tasksTotal)
         _qosProgressLiveData.postValue(progressMap)
-    }
-
-    fun updateTermsAcceptance(accepted: Boolean) {
-        tac.tacAccepted = accepted
     }
 }

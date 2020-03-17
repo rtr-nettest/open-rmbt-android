@@ -29,7 +29,6 @@ import at.rtr.rmbt.android.util.KeepStateNavigator
 import at.rtr.rmbt.android.util.listen
 import at.rtr.rmbt.android.viewmodel.ConfigCheckViewModel
 import at.rtr.rmbt.android.viewmodel.MeasurementViewModel
-import at.specure.worker.WorkLauncher
 
 class HomeActivity : BaseActivity() {
 
@@ -76,10 +75,8 @@ class HomeActivity : BaseActivity() {
         super.onStart()
         viewModel.attach(this)
 
-        viewModel.tacAcceptanceLiveData.listen(this) {
-            if (!it) {
-                TermsAcceptanceActivity.start(this, CODE_TERMS)
-            }
+        if (!viewModel.isTacAccepted) {
+            TermsAcceptanceActivity.start(this, CODE_TERMS)
         }
         configCheckViewModel.checkConfig()
     }
@@ -91,12 +88,8 @@ class HomeActivity : BaseActivity() {
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-
         if (requestCode == CODE_TERMS) {
-            if (resultCode == Activity.RESULT_OK) {
-                viewModel.updateTermsAcceptance(true)
-                WorkLauncher.enqueueSettingsRequest(this)
-            } else {
+            if (resultCode != Activity.RESULT_OK) {
                 finish()
             }
         }

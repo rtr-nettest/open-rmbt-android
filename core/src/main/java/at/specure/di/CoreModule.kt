@@ -32,8 +32,6 @@ import at.specure.data.repository.NewsRepository
 import at.specure.data.repository.NewsRepositoryImpl
 import at.specure.data.repository.SettingsRepository
 import at.specure.data.repository.SettingsRepositoryImpl
-import at.specure.data.repository.TacRepository
-import at.specure.data.repository.TacRepositoryImpl
 import at.specure.data.repository.TestDataRepository
 import at.specure.info.cell.CellInfoWatcher
 import at.specure.info.cell.CellInfoWatcherImpl
@@ -160,9 +158,9 @@ class CoreModule {
         mapServerSettings: MapServerSettings,
         termsAndConditions: TermsAndConditions,
         measurementServers: MeasurementServers,
-        tacRepository: TacRepository,
         historyFilterOptions: HistoryFilterOptions,
-        config: Config
+        config: Config,
+        coreDatabase: CoreDatabase
     ): SettingsRepository =
         SettingsRepositoryImpl(
             context = context,
@@ -173,8 +171,8 @@ class CoreModule {
             termsAndConditions = termsAndConditions,
             measurementsServers = measurementServers,
             historyFilterOptions = historyFilterOptions,
-            tacRepository = tacRepository,
-            config = config
+            config = config,
+            tacDao = coreDatabase.tacDao()
         )
 
     @Provides
@@ -217,10 +215,6 @@ class CoreModule {
         settingsRepository: SettingsRepository,
         historyLoader: HistoryLoader
     ): DeviceSyncRepository = DeviceSyncRepositoryImpl(context, controlServerClient, clientUUID, historyRepository, settingsRepository, historyLoader)
-
-    @Provides
-    fun provideTacRepository(coreDatabase: CoreDatabase, termsAndConditions: TermsAndConditions): TacRepository =
-        TacRepositoryImpl(coreDatabase, termsAndConditions)
 
     @Provides
     fun provideMeasurementRepository(

@@ -14,15 +14,15 @@ abstract class TacDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     abstract fun saveTermsAndConditions(tac: TacRecord)
 
-    @Query("SELECT * FROM ${Tables.TAC} WHERE language == :language")
-    abstract fun loadTermsAndConditions(language: String): TacRecord?
+    @Query("SELECT * FROM ${Tables.TAC} WHERE url == :url")
+    abstract fun loadTermsAndConditions(url: String): TacRecord?
 
-    @Query("DELETE FROM ${Tables.TAC} WHERE language == :language")
-    abstract fun deleteTermsAndCondition(language: String)
+    @Query("DELETE FROM ${Tables.TAC} WHERE url == :url")
+    abstract fun deleteTermsAndCondition(url: String)
 
     @Transaction
     open fun clearInsertItems(tac: TacRecord) {
-        deleteTermsAndCondition(tac.language)
+        deleteTermsAndCondition(tac.url)
         saveTermsAndConditions(tac)
     }
 }
