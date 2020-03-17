@@ -17,7 +17,6 @@ package at.rtr.rmbt.android.config
 import android.content.Context
 import at.specure.config.Config
 import at.specure.data.ControlServerSettings
-import at.specure.data.MapServerSettings
 import dagger.Module
 import dagger.Provides
 import javax.inject.Singleton
@@ -27,6 +26,5 @@ class ConfigModule {
 
     @Provides
     @Singleton
-    fun provideConfig(context: Context, serverSettings: ControlServerSettings, mapServerSettings: MapServerSettings): Config =
-        AppConfig(context, serverSettings, mapServerSettings)
+    fun provideConfig(context: Context, serverSettings: ControlServerSettings): Config = AppConfig(context, serverSettings)
 }

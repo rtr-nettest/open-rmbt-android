@@ -17,7 +17,6 @@ import at.specure.data.ClientUUID
 import at.specure.data.ControlServerSettings
 import at.specure.data.CoreDatabase
 import at.specure.data.HistoryFilterOptions
-import at.specure.data.MapServerSettings
 import at.specure.data.MeasurementServers
 import at.specure.data.NewsSettings
 import at.specure.data.TermsAndConditions
@@ -155,7 +154,6 @@ class CoreModule {
         controlServerClient: ControlServerClient,
         clientUUID: ClientUUID,
         controlServerSettings: ControlServerSettings,
-        mapServerSettings: MapServerSettings,
         termsAndConditions: TermsAndConditions,
         measurementServers: MeasurementServers,
         historyFilterOptions: HistoryFilterOptions,
@@ -167,7 +165,6 @@ class CoreModule {
             controlServerClient = controlServerClient,
             clientUUID = clientUUID,
             controlServerSettings = controlServerSettings,
-            mapServerSettings = mapServerSettings,
             termsAndConditions = termsAndConditions,
             measurementsServers = measurementServers,
             historyFilterOptions = historyFilterOptions,

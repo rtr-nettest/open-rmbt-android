@@ -7,7 +7,6 @@ import at.specure.config.Config
 import at.specure.data.ClientUUID
 import at.specure.data.ControlServerSettings
 import at.specure.data.HistoryFilterOptions
-import at.specure.data.MapServerSettings
 import at.specure.data.MeasurementServers
 import at.specure.data.TermsAndConditions
 import at.specure.data.dao.TacDao
@@ -27,7 +26,6 @@ class SettingsRepositoryImpl(
     private val controlServerClient: ControlServerClient,
     private val clientUUID: ClientUUID,
     private val controlServerSettings: ControlServerSettings,
-    private val mapServerSettings: MapServerSettings,
     private val termsAndConditions: TermsAndConditions,
     private val measurementsServers: MeasurementServers,
     private val historyFilterOptions: HistoryFilterOptions,
@@ -59,13 +57,12 @@ class SettingsRepositoryImpl(
                 controlServerSettings.openDataPrefix = urls.openDataPrefixUrl
                 controlServerSettings.shareUrl = urls.shareUrl
                 controlServerSettings.statisticsUrl = urls.statisticsUrl
-                mapServerSettings.mapServerUrl = urls.mapServerUrl
             }
             val mapServer = settings.success.settings.first().mapServerSettings
-            if (mapServer != null) {
-                mapServerSettings.mapServerHost = mapServer.host
-                mapServerSettings.mapServerPort = mapServer.port
-                mapServerSettings.mapServerUseSsl = mapServer.ssl
+            if (mapServer != null && !config.mapServerOverrideEnabled) {
+                mapServer.host?.let { config.mapServerHost = it }
+                mapServer.port?.let { config.mapServerPort = it }
+                mapServer.ssl?.let { config.mapServerUseSSL = it }
             }
             val tac = settings.success.settings.first().termsAndConditions
             updateTermsAndConditions(tac)

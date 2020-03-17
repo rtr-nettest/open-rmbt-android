@@ -28,7 +28,7 @@ data class MarkerMeasurementRecord(
     /**
      * Upload speed in kbit per second
      */
-    val uploadSpeedKbs: Long?,
+    val uploadSpeed: String?,
 
     /**
      * Classification value for assigning traffic-light-color
@@ -38,7 +38,7 @@ data class MarkerMeasurementRecord(
     /**
      * Download speed in kbit per second
      */
-    val downloadSpeedKbs: Long?,
+    val downloadSpeed: String?,
 
     /**
      * Classification value for assigning traffic-light-color
@@ -48,7 +48,7 @@ data class MarkerMeasurementRecord(
     /**
      * Signal value in dBm for WIFI, 3G, 2G, 4G measurement connections
      */
-    val signalStrength: Int?,
+    val signalStrength: String?,
 
     /**
      * Classification value for assigning traffic-light-color
@@ -58,7 +58,7 @@ data class MarkerMeasurementRecord(
     /**
      * Median ping (round-trip time) in milliseconds, measured on the server side. In previous versions (before June 3rd 2015) this was the minimum ping measured on the client side.
      */
-    val pingMillis: Double?,
+    val pingMillis: String?,
 
     /**
      * Server type of the network (human readable format)

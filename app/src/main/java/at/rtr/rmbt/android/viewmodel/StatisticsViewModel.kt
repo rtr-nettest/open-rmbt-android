@@ -6,10 +6,9 @@ import javax.inject.Inject
 
 class StatisticsViewModel @Inject constructor(private val controlServerSettings: ControlServerSettings) : BaseViewModel() {
 
-    val state = StatisticsViewState()
+    val state = StatisticsViewState(controlServerSettings)
 
     init {
         addStateSaveHandler(state)
-        state.statisticsURL.set(controlServerSettings.statisticsUrl)
     }
 }
