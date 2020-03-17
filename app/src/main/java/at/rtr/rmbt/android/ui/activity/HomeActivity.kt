@@ -71,6 +71,14 @@ class HomeActivity : BaseActivity() {
         }
     }
 
+    override fun onBackPressed() {
+        if (binding.navView.selectedItemId == R.id.navigation_home) {
+            super.onBackPressed()
+        } else {
+            binding.navView.selectedItemId = R.id.navigation_home
+        }
+    }
+
     override fun onStart() {
         super.onStart()
         viewModel.attach(this)
