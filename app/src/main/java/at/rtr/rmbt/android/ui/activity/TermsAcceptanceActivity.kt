@@ -15,6 +15,7 @@ import at.rtr.rmbt.android.util.ToolbarTheme
 import at.rtr.rmbt.android.util.changeStatusBarColor
 import at.rtr.rmbt.android.util.listen
 import at.rtr.rmbt.android.viewmodel.TermsAcceptanceViewModel
+import at.specure.worker.WorkLauncher
 
 class TermsAcceptanceActivity : BaseActivity() {
 
@@ -28,7 +29,7 @@ class TermsAcceptanceActivity : BaseActivity() {
 
         binding.content.webViewClient = TermsClient()
         viewModel.tacContentLiveData.listen(this) {
-            binding.content.loadDataWithBaseURL(null, it?.content, "text/html", "utf-8", null)
+            binding.content.loadDataWithBaseURL(null, it, "text/html", "utf-8", null)
         }
 
         binding.buttonToBottom.setOnClickListener {
@@ -49,6 +50,8 @@ class TermsAcceptanceActivity : BaseActivity() {
 
         binding.accept.setOnClickListener {
             if (binding.checkbox.isChecked) {
+                viewModel.updateTermsAcceptance(true)
+                WorkLauncher.enqueueSettingsRequest(this)
                 setResult(Activity.RESULT_OK)
                 finish()
             } else {
@@ -62,6 +65,7 @@ class TermsAcceptanceActivity : BaseActivity() {
 
         binding.decline.setOnClickListener {
             setResult(Activity.RESULT_CANCELED)
+            viewModel.updateTermsAcceptance(false)
             finish()
         }
 

@@ -1,8 +1,10 @@
 package at.specure.data.repository
 
+import kotlinx.coroutines.flow.Flow
+
 interface SettingsRepository {
 
     fun refreshSettings(): Boolean
 
-    fun refreshSettings(success: (Boolean) -> Unit)
+    fun getTermsAndConditions(): Flow<String>
 }

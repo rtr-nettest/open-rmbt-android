@@ -2,6 +2,7 @@ package at.rtr.rmbt.android.ui.viewstate
 
 import androidx.databinding.ObservableField
 import androidx.databinding.ObservableInt
+import at.rmbt.util.io
 import at.rtr.rmbt.android.config.AppConfig
 import at.rtr.rmbt.android.util.addOnPropertyChanged
 import at.specure.data.ClientUUID
@@ -98,7 +99,9 @@ class SettingsViewState constructor(
         controlServerHost.addOnPropertyChanged { value ->
             value.get()?.let {
                 appConfig.controlServerHost = it
-                settingsRepository.refreshSettings {}
+                io {
+                    settingsRepository.refreshSettings()
+                }
             }
         }
         controlServerPort.addOnPropertyChanged { value ->

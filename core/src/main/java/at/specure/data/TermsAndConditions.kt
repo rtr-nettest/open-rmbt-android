@@ -21,12 +21,14 @@ import at.specure.util.BooleanPreferenceLiveData
 import java.io.InputStream
 import java.util.Locale
 import javax.inject.Inject
+import javax.inject.Singleton
 
 private const val KEY_TAC_URL = "KEY_TAC_URL"
 private const val KEY_NDT_TERMS_URL = "KEY_NDT_TERMS_URL"
 private const val KEY_TAC_VERSION = "KEY_TAC_VERSION"
 private const val KEY_TAC_IS_ACCEPTED = "KEY_TAC_ACCEPTED"
 
+@Singleton
 class TermsAndConditions @Inject constructor(context: Context, config: Config) {
 
     private val preferences = context.getSharedPreferences("terms_and_conditions.pref", Context.MODE_PRIVATE)

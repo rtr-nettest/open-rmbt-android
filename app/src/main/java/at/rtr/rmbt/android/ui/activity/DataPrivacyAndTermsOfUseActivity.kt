@@ -43,7 +43,7 @@ class DataPrivacyAndTermsOfUseActivity : BaseActivity() {
         binding = bindContentView(R.layout.activity_data_privacy_terms_of_use)
         setupToolbar()
 
-        viewModel.tacContentLiveData.listen(this) {
+        viewModel.tacContentLiveData.listen(this) { tacContent ->
             with(binding.webViewDataPrivacyAndTermsOfUse) {
                 setInitialScale(1)
                 settings.loadWithOverviewMode = true
@@ -62,12 +62,13 @@ class DataPrivacyAndTermsOfUseActivity : BaseActivity() {
                     }
                     false
                 })
-                loadDataWithBaseURL(null, it?.content, "text/html", "utf-8", null)
+                loadDataWithBaseURL(null, tacContent, "text/html", "utf-8", null)
             }
         }
 
         viewModel.getTac()
     }
+
     private fun setupToolbar() {
         val toolbar: Toolbar = binding.toolbar
         setSupportActionBar(toolbar)
@@ -84,6 +85,7 @@ class DataPrivacyAndTermsOfUseActivity : BaseActivity() {
             view?.loadUrl(url)
             return true
         }
+
         override fun onPageStarted(view: WebView?, url: String?, favicon: Bitmap?) {
             super.onPageStarted(view, url, favicon)
             binding.progressDataPrivacyAndTermsOfUse.visibility = View.VISIBLE
