@@ -2,6 +2,7 @@ package at.specure.data.repository
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.os.Build
 import android.telephony.SubscriptionManager
 import android.telephony.TelephonyManager
 import at.specure.config.Config
@@ -63,36 +64,77 @@ class MeasurementRepositoryImpl @Inject constructor(
 
         var operatorName: String? = null
         var networkSimOperator: String? = null
-        var networkCountry: String? = null
         val simCount: Int
+        var simCountry: String? = null
+        var simOperatorName: String? = null
 
         if (context.isReadPhoneStatePermitted() && isDualByMobile) {
             val subscription = subscriptionManager.activeSubscriptionInfoList.firstOrNull()
             simCount = if (subscription != null) subscriptionManager.activeSubscriptionInfoCount else 2
-            subscription?.let {
-                operatorName = subscription.carrierName.toString()
-                networkSimOperator = when {
-                    subscription.mccCompat() == null -> null
-                    subscription.mncCompat() == null -> null
-                    else -> "${subscription.mccCompat()}-${DecimalFormat("00").format(subscription.mncCompat())}"
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                val defaultDataSubscriptionId = SubscriptionManager.getDefaultDataSubscriptionId()
+                if (defaultDataSubscriptionId == SubscriptionManager.INVALID_SUBSCRIPTION_ID) {
+                    // TODO: this execution branch needs to be tested
+                    operatorName = activeNetworkWatcher.currentNetworkInfo?.name
+                    networkSimOperator = telephonyManager.simOperator.fixOperatorName()
+
+                    subscriptionManager.activeSubscriptionInfoList.forEach {
+                        val checkNetworkSimOperator = when {
+                            it.mccCompat() == null -> null
+                            it.mncCompat() == null -> null
+                            else -> "${it.mccCompat()}-${DecimalFormat("00").format(it.mncCompat())}"
+                        }
+                        if (checkNetworkSimOperator.equals(networkSimOperator)) {
+                            simCountry = it.countryIso
+                            simOperatorName = it.displayName.toString()
+                        }
+                    }
+                } else {
+                    val subscriptionInfo = subscriptionManager.getActiveSubscriptionInfo(defaultDataSubscriptionId)
+                    subscriptionInfo?.let {
+                        operatorName = subscriptionInfo.carrierName.toString()
+                        networkSimOperator = when {
+                            subscriptionInfo.mccCompat() == null -> null
+                            subscriptionInfo.mncCompat() == null -> null
+                            else -> "${subscriptionInfo.mccCompat()}-${DecimalFormat("00").format(subscriptionInfo.mncCompat())}"
+                        }
+                        simCountry = subscriptionInfo.countryIso
+                        simOperatorName = subscriptionInfo.displayName.toString()
+                    }
                 }
-                networkCountry = subscription.countryIso
+            } else {
+                operatorName = activeNetworkWatcher.currentNetworkInfo?.name
+                networkSimOperator = telephonyManager.simOperator.fixOperatorName()
+
+                subscriptionManager.activeSubscriptionInfoList.forEach {
+                    val checkNetworkSimOperator = when {
+                        it.mccCompat() == null -> null
+                        it.mncCompat() == null -> null
+                        else -> "${it.mccCompat()}-${DecimalFormat("00").format(it.mncCompat())}"
+                    }
+                    if (checkNetworkSimOperator.equals(networkSimOperator)) {
+                        simCountry = it.countryIso
+                        simOperatorName = it.displayName.toString()
+                    }
+                }
             }
         } else {
             simCount = 1
             operatorName = telephonyManager.networkOperatorName
-            networkSimOperator = telephonyManager.networkOperator.fixOperatorName()
-            networkCountry = telephonyManager.networkCountryIso
+            networkSimOperator = telephonyManager.simOperator.fixOperatorName()
+            simCountry = telephonyManager.simCountryIso.fixOperatorName()
+            simOperatorName = try { // hack for Motorola Defy (#594)
+                telephonyManager.simOperatorName
+            } catch (ex: SecurityException) {
+                ex.printStackTrace()
+                "s.exception"
+            }
         }
+        val networkCountry: String? = telephonyManager.networkCountryIso
 
         val networkInfo = cellInfoWatcher.activeNetwork
-        val simCountry = telephonyManager.simCountryIso.fixOperatorName()
-        val simOperatorName = try { // hack for Motorola Defy (#594)
-            telephonyManager.simOperatorName
-        } catch (ex: SecurityException) {
-            ex.printStackTrace()
-            "s.exception"
-        }
+
         val phoneType = telephonyManager.phoneType.toString()
         val dataState = try {
             telephonyManager.dataState.toString()
