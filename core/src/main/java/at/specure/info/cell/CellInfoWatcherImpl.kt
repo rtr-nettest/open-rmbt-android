@@ -83,7 +83,15 @@ class CellInfoWatcherImpl(
                             val manager = telephonyManager.createForSubscriptionId(dataSimSubscriptionId)
                             manager.dataNetworkType
                         } else {
-                            telephonyManager.networkType
+                            // Todo: problem if operators are the same for both SIM cards (e.g. roaming network), but solving problems with different Networks (if user has no restriction on the usage of the network type for data or voice sim then it should use the same)
+                            val networkTypeCheck =
+                                connectivityManager.cellNetworkInfoCompat(telephonyManager.networkOperatorName)?.networkType
+                                    ?: MobileNetworkType.UNKNOWN
+                            if (networkTypeCheck == MobileNetworkType.UNKNOWN) {
+                                telephonyManager.networkType
+                            } else {
+                                networkTypeCheck.ordinal
+                            }
                         }
 
                         _cellInfo = if (registeredInfoList.size > index) {
