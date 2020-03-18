@@ -76,13 +76,11 @@ class HomeFragment : BaseFragment() {
         }
 
         binding.btnIpv4.setOnClickListener {
-            val ipV4InfoDialog = IpInfoDialog.instance(IpProtocol.V4)
-            ipV4InfoDialog?.show(activity)
+            IpInfoDialog.instance(IpProtocol.V4).show(activity)
         }
 
         binding.btnIpv6.setOnClickListener {
-            val ipV6InfoDialog = IpInfoDialog.instance(IpProtocol.V6)
-            ipV6InfoDialog?.show(activity)
+            IpInfoDialog.instance(IpProtocol.V6).show(activity)
         }
 
         binding.btnLocation.setOnClickListener {
