@@ -412,7 +412,7 @@ data class TestResultBody(
     val telephonyNetworkSimCountry: String?,
 
     @SerializedName("telephony_sim_count")
-    val telephonySimCount: Int?,
+    val telephonySimCount: String?,
 
     @SerializedName("dual_sim")
     val telephonyHasDualSim: Boolean?,
