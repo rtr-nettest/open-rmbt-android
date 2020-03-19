@@ -273,7 +273,7 @@ fun TestRecord.toRequest(
         telephonyDataState = telephonyInfo?.dataState,
         telephonyApn = telephonyInfo?.apn,
         telephonyNetworkSimCountry = telephonyInfo?.networkSimCountry,
-        telephonySimCount = telephonyInfo?.simCount,
+        telephonySimCount = telephonyInfo?.simCount.toString(),
         telephonyHasDualSim = telephonyInfo?.hasDualSim,
         wifiSupplicantState = wlanInfo?.supplicantState,
         wifiSupplicantStateDetail = wlanInfo?.supplicantDetailedState,
