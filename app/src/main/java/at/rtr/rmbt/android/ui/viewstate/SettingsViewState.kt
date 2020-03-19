@@ -3,9 +3,11 @@ package at.rtr.rmbt.android.ui.viewstate
 import androidx.databinding.ObservableField
 import androidx.databinding.ObservableInt
 import at.rmbt.util.io
+import at.rtr.rmbt.android.BuildConfig
 import at.rtr.rmbt.android.config.AppConfig
 import at.rtr.rmbt.android.util.addOnPropertyChanged
 import at.specure.data.ClientUUID
+import at.specure.data.ControlServerSettings
 import at.specure.data.MeasurementServers
 import at.specure.data.repository.SettingsRepository
 import at.specure.location.LocationProviderState
@@ -14,6 +16,7 @@ class SettingsViewState constructor(
     val appConfig: AppConfig,
     val clientUUID: ClientUUID,
     private val measurementServers: MeasurementServers,
+    private val controlServerSettings: ControlServerSettings,
     private val settingsRepository: SettingsRepository
 ) : ViewState {
 
@@ -74,6 +77,13 @@ class SettingsViewState constructor(
         expertModeUseIpV4Only.addOnPropertyChanged { value ->
             value.get()?.let {
                 appConfig.expertModeUseIpV4Only = it
+                if (it) {
+                    controlServerSettings.controlServerV4Url?.let { controlServerIPv4HostAddress ->
+                        appConfig.controlServerHost = controlServerIPv4HostAddress
+                    }
+                } else {
+                    appConfig.controlServerHost = BuildConfig.CONTROL_SERVER_HOST.value
+                }
             }
         }
         loopModeWaitingTimeMin.addOnPropertyChanged { value ->
