@@ -15,7 +15,6 @@
 package at.specure.data
 
 import android.content.Context
-import at.specure.config.Config
 import com.google.gson.Gson
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -35,7 +34,7 @@ private const val KEY_FILTER_NETWORK_TYPE = "FILTER_NETWORK_TYPE"
 private const val KEY_FILTER_DEVICES = "KEY_FILTER_DEVICES"
 
 @Singleton
-class ControlServerSettings @Inject constructor(context: Context, config: Config) {
+class ControlServerSettings @Inject constructor(context: Context) {
 
     private val gson = Gson()
     private val preferences = context.getSharedPreferences("server_settings.pref", Context.MODE_PRIVATE)
@@ -128,8 +127,8 @@ class ControlServerSettings @Inject constructor(context: Context, config: Config
 
     init {
         controlServerUrl = preferences.getString(KEY_CONTROL_SERVER_URL, null)
-        controlServerOverrideUrl = preferences.getString(KEY_CONTROL_SERVER_OVERRIDE_URL, config.controlServerHost)
-        controlServerOverridePort = preferences.getString(KEY_CONTROL_SERVER_OVERRIDE_PORT, config.controlServerPort.toString())
+        controlServerOverrideUrl = preferences.getString(KEY_CONTROL_SERVER_OVERRIDE_URL, null)
+        controlServerOverridePort = preferences.getString(KEY_CONTROL_SERVER_OVERRIDE_PORT, null)
         controlServerV4Url = preferences.getString(KEY_CONTROL_V4_SERVER_URL, null)
         controlServerV6Url = preferences.getString(KEY_CONTROL_V6_SERVER_URL, null)
         ipV4CheckUrl = preferences.getString(KEY_CONTROL_IPV4_CHECK_URL, null)

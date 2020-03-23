@@ -280,7 +280,7 @@ class SettingsFragment : BaseFragment(), InputSettingDialog.Callback, ServerSele
             }
 
             KEY_DEVELOPER_CONTROL_SERVER_PORT_CODE -> {
-                settingsViewModel.state.controlServerPort.set(value.toInt())
+                settingsViewModel.state.controlServerPort.set(value)
             }
             KEY_DEVELOPER_MAP_SERVER_HOST_CODE -> {
                 settingsViewModel.state.mapServerHost.set(value)

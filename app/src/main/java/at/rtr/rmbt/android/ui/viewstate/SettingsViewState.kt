@@ -64,20 +64,17 @@ class SettingsViewState constructor(
         io {
             settingsRepository.refreshSettings()
         }
-
-//        if ((appConfig.expertModeUseIpV4Only) && (appConfig.expertModeEnabled)) {
-//            controlServerSettings.controlServerV4Url?.let { controlServerIPv4HostAddress ->
-//                appConfig.controlServerHost = controlServerIPv4HostAddress
-//                io {
-//                    settingsRepository.refreshSettings()
-//                }
-//            }
-//        } else {
-//            appConfig.controlServerHost = BuildConfig.CONTROL_SERVER_HOST.value
-//        }
     }
 
     init {
+        if (controlServerPort.get().isNullOrEmpty()) {
+            controlServerPort.set(appConfig.controlServerPort.toString())
+            controlServerSettings.controlServerOverridePort = controlServerPort.get()
+        }
+        if (controlServerHost.get().isNullOrEmpty()) {
+            controlServerHost.set(appConfig.controlServerHost)
+            controlServerSettings.controlServerOverrideUrl = controlServerHost.get()
+        }
         isNDTEnabled.addOnPropertyChanged { value ->
             value.get()?.let {
                 appConfig.NDTEnabled = it
@@ -106,7 +103,6 @@ class SettingsViewState constructor(
         expertModeUseIpV4Only.addOnPropertyChanged { value ->
             value.get()?.let {
                 appConfig.expertModeUseIpV4Only = it
-                setControlServerAddress()
             }
         }
         loopModeWaitingTimeMin.addOnPropertyChanged { value ->
@@ -132,11 +128,13 @@ class SettingsViewState constructor(
         }
         controlServerHost.addOnPropertyChanged { value ->
             value.get()?.let {
+                controlServerSettings.controlServerOverrideUrl = it
                 setControlServerAddress()
             }
         }
         controlServerPort.addOnPropertyChanged { value ->
             value.get()?.let {
+                controlServerSettings.controlServerOverridePort = it
                 setControlServerAddress()
             }
         }
