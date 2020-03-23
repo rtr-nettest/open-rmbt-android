@@ -141,7 +141,13 @@ class AppConfig @Inject constructor(context: Context, private val serverSettings
         set(value) = setInt(BuildConfig.CONTROL_SERVER_PORT, value)
 
     override var controlServerHost: String
-        get() = getString(BuildConfig.CONTROL_SERVER_HOST)
+        get() {
+            return if (expertModeEnabled && expertModeUseIpV4Only && serverSettings.controlServerV4Url != null) {
+                serverSettings.controlServerV4Url!!
+            } else {
+                getString(BuildConfig.CONTROL_SERVER_HOST)
+            }
+        }
         set(value) = setString(BuildConfig.CONTROL_SERVER_HOST, value)
 
     override var controlServerCheckPrivateIPv4Host: String

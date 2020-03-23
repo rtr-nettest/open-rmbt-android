@@ -15,11 +15,14 @@
 package at.specure.data
 
 import android.content.Context
+import at.specure.config.Config
 import com.google.gson.Gson
 import javax.inject.Inject
 import javax.inject.Singleton
 
 private const val KEY_CONTROL_SERVER_URL = "CONTROL_SERVER_URL"
+private const val KEY_CONTROL_SERVER_OVERRIDE_URL = "CONTROL_SERVER_OVERRIDE_URL"
+private const val KEY_CONTROL_SERVER_OVERRIDE_PORT = "CONTROL_SERVER_OVERRIDE_PORT"
 private const val KEY_CONTROL_V4_SERVER_URL = "CONTROL_V4_SERVER_URL"
 private const val KEY_CONTROL_V6_SERVER_URL = "CONTROL_V6_SERVER_URL"
 private const val KEY_CONTROL_IPV4_CHECK_URL = "CONTROL_IPV4_CHECK_URL"
@@ -32,7 +35,7 @@ private const val KEY_FILTER_NETWORK_TYPE = "FILTER_NETWORK_TYPE"
 private const val KEY_FILTER_DEVICES = "KEY_FILTER_DEVICES"
 
 @Singleton
-class ControlServerSettings @Inject constructor(context: Context) {
+class ControlServerSettings @Inject constructor(context: Context, config: Config) {
 
     private val gson = Gson()
     private val preferences = context.getSharedPreferences("server_settings.pref", Context.MODE_PRIVATE)
@@ -41,6 +44,20 @@ class ControlServerSettings @Inject constructor(context: Context) {
         set(value) {
             field = value
             preferences.edit().putString(KEY_CONTROL_SERVER_URL, value).apply()
+        }
+
+    var controlServerOverrideUrl: String? = null
+        set(value) {
+            field = value
+            preferences.edit().putString(KEY_CONTROL_SERVER_OVERRIDE_URL, value).apply()
+        }
+
+    var controlServerOverridePort: String? = null
+        set(value) {
+            field = value
+            value?.let {
+                preferences.edit().putString(KEY_CONTROL_SERVER_OVERRIDE_PORT, value).apply()
+            }
         }
 
     var controlServerV4Url: String? = null
@@ -111,6 +128,8 @@ class ControlServerSettings @Inject constructor(context: Context) {
 
     init {
         controlServerUrl = preferences.getString(KEY_CONTROL_SERVER_URL, null)
+        controlServerOverrideUrl = preferences.getString(KEY_CONTROL_SERVER_OVERRIDE_URL, config.controlServerHost)
+        controlServerOverridePort = preferences.getString(KEY_CONTROL_SERVER_OVERRIDE_PORT, config.controlServerPort.toString())
         controlServerV4Url = preferences.getString(KEY_CONTROL_V4_SERVER_URL, null)
         controlServerV6Url = preferences.getString(KEY_CONTROL_V6_SERVER_URL, null)
         ipV4CheckUrl = preferences.getString(KEY_CONTROL_IPV4_CHECK_URL, null)

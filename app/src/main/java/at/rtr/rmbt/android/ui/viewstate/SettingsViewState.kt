@@ -32,8 +32,8 @@ class SettingsViewState constructor(
     val developerModeIsAvailable = appConfig.developerModeIsAvailable
     val developerModeIsEnabled = ObservableField(appConfig.developerModeIsEnabled)
     val controlServerOverrideEnabled = ObservableField(appConfig.controlServerOverrideEnabled)
-    val controlServerHost = ObservableField(appConfig.controlServerHost)
-    val controlServerPort = ObservableField(appConfig.controlServerPort)
+    val controlServerHost = ObservableField(controlServerSettings.controlServerOverrideUrl)
+    val controlServerPort = ObservableField(controlServerSettings.controlServerOverridePort)
     val controlServerUseSSL = ObservableField(appConfig.controlServerUseSSL)
     val isLocationEnabled = ObservableField<LocationProviderState>()
     val numberOfTests = ObservableInt(appConfig.testCounter)
@@ -47,6 +47,35 @@ class SettingsViewState constructor(
     val mapServerUseSSL = ObservableField(appConfig.mapServerUseSSL)
     val qosSSL = ObservableField(appConfig.qosSSL)
     val selectedMeasurementServer = ObservableField(measurementServers.selectedMeasurementServer)
+
+    private fun setControlServerAddress() {
+        if ((appConfig.controlServerOverrideEnabled) && (appConfig.developerModeIsEnabled)) {
+            controlServerHost.get()?.let {
+                appConfig.controlServerHost = it
+            }
+            controlServerPort.get()?.let {
+                appConfig.controlServerPort = it.toInt()
+            }
+        } else {
+            appConfig.controlServerHost = BuildConfig.CONTROL_SERVER_HOST.value
+            appConfig.controlServerPort = BuildConfig.CONTROL_SERVER_PORT.value.toInt()
+        }
+
+        io {
+            settingsRepository.refreshSettings()
+        }
+
+//        if ((appConfig.expertModeUseIpV4Only) && (appConfig.expertModeEnabled)) {
+//            controlServerSettings.controlServerV4Url?.let { controlServerIPv4HostAddress ->
+//                appConfig.controlServerHost = controlServerIPv4HostAddress
+//                io {
+//                    settingsRepository.refreshSettings()
+//                }
+//            }
+//        } else {
+//            appConfig.controlServerHost = BuildConfig.CONTROL_SERVER_HOST.value
+//        }
+    }
 
     init {
         isNDTEnabled.addOnPropertyChanged { value ->
@@ -77,13 +106,7 @@ class SettingsViewState constructor(
         expertModeUseIpV4Only.addOnPropertyChanged { value ->
             value.get()?.let {
                 appConfig.expertModeUseIpV4Only = it
-                if (it) {
-                    controlServerSettings.controlServerV4Url?.let { controlServerIPv4HostAddress ->
-                        appConfig.controlServerHost = controlServerIPv4HostAddress
-                    }
-                } else {
-                    appConfig.controlServerHost = BuildConfig.CONTROL_SERVER_HOST.value
-                }
+                setControlServerAddress()
             }
         }
         loopModeWaitingTimeMin.addOnPropertyChanged { value ->
@@ -104,19 +127,17 @@ class SettingsViewState constructor(
         developerModeIsEnabled.addOnPropertyChanged { value ->
             value.get()?.let {
                 appConfig.developerModeIsEnabled = it
+                setControlServerAddress()
             }
         }
         controlServerHost.addOnPropertyChanged { value ->
             value.get()?.let {
-                appConfig.controlServerHost = it
-                io {
-                    settingsRepository.refreshSettings()
-                }
+                setControlServerAddress()
             }
         }
         controlServerPort.addOnPropertyChanged { value ->
             value.get()?.let {
-                appConfig.controlServerPort = it
+                setControlServerAddress()
             }
         }
         controlServerUseSSL.addOnPropertyChanged { value ->
@@ -127,6 +148,7 @@ class SettingsViewState constructor(
         controlServerOverrideEnabled.addOnPropertyChanged { value ->
             value.get()?.let {
                 appConfig.controlServerOverrideEnabled = it
+                setControlServerAddress()
             }
         }
         mapServerHost.addOnPropertyChanged { value ->

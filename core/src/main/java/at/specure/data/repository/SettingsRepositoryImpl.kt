@@ -38,6 +38,9 @@ class SettingsRepositoryImpl(
 
     override fun refreshSettings(): Boolean {
         val body = deviceInfo.toSettingsRequest(clientUUID, config, termsAndConditions)
+        // we must remove ipv4 url before we want to check settings, because settings request should go to the original URL
+        controlServerSettings.controlServerV4Url = null
+        controlServerSettings.controlServerV6Url = null
         val settings = controlServerClient.getSettings(body)
         settings.onSuccess {
             val uuid = settings.success.settings.first().uuid
