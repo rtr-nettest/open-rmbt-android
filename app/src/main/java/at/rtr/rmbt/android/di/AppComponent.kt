@@ -6,6 +6,7 @@ import at.rtr.rmbt.android.config.ConfigModule
 import at.rtr.rmbt.android.ui.dialog.HistoryFiltersDialog
 import at.rtr.rmbt.android.ui.dialog.IpInfoDialog
 import at.rtr.rmbt.android.ui.dialog.LocationInfoDialog
+import at.rtr.rmbt.android.ui.dialog.NetworkInfoDialog
 import at.rtr.rmbt.android.ui.dialog.SyncDevicesDialog
 import at.specure.di.CoreComponent
 import at.specure.di.CoreModule
@@ -31,6 +32,8 @@ interface AppComponent : CoreComponent {
     fun inject(dialog: SyncDevicesDialog)
 
     fun inject(dialog: HistoryFiltersDialog)
+
+    fun inject(dialog: NetworkInfoDialog)
 
     @Component.Builder
     abstract class Builder {

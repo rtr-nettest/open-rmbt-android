@@ -282,5 +282,12 @@
 
     <string name="dialog_title_config_check">Bitte ändern Sie die folgenden Werte:</string>
     <string name="label_ip_processing">Wird Bearbeitet…</string>
+
+    <string name="dialog_signal_info_title">Signalinfo</string>
+    <string name="dialog_signal_info_waiting">Warten Sie mal…</string>
+    <string name="dialog_signal_info_band">Band</string>
+    <string name="dialog_signal_info_channel">Kanal</string>
+    <string name="dialog_signal_info_ta">TA</string>
+    <string name="dialog_signal_info_quality">Qualität</string>
 </resources>
 

@@ -1,5 +1,6 @@
 package at.rtr.rmbt.android.ui.view
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Canvas
 import android.graphics.DashPathEffect
@@ -12,6 +13,7 @@ import at.rtr.rmbt.android.R
 import at.rtr.rmbt.android.util.calcTextHeight
 import at.rtr.rmbt.android.util.calcTextWidth
 
+@SuppressLint("CustomViewStyleable")
 open class PingChartView @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null
