@@ -156,14 +156,14 @@ open class SignalStrengthInfo(
 
         fun from(signalStrength: SignalStrength?, network: NetworkInfo?, cellInfo: CellInfo?): SignalStrengthInfo? {
             return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                signalStrengthQ(signalStrength)
+                signalStrengthQ(signalStrength, cellInfo)
             } else {
                 signalStrengthOld(signalStrength, network, cellInfo)
             }
         }
 
         @SuppressLint("NewApi")
-        private fun signalStrengthQ(signalStrength: SignalStrength?): SignalStrengthInfo? {
+        private fun signalStrengthQ(signalStrength: SignalStrength?, cellInfo: CellInfo?): SignalStrengthInfo? {
             if (signalStrength == null) {
                 return null
             }
@@ -190,7 +190,7 @@ open class SignalStrengthInfo(
                                 rsrp = it.rsrp.fixLteRsrp(),
                                 rssi = it.rssi.checkValueAvailable(),
                                 rssnr = it.rssnr.fixRssnr(),
-                                timingAdvance = it.timingAdvance.fixTimingAdvance()
+                                timingAdvance = cellInfo.lteTimingAdvance() ?: it.timingAdvance.fixTimingAdvance()
                             )
                         }
                         is CellSignalStrengthNr -> {
@@ -432,5 +432,12 @@ open class SignalStrengthInfo(
             } else {
                 this
             }
+
+        private fun CellInfo?.lteTimingAdvance(): Int? {
+            if (this != null && this is CellInfoLte) {
+                return this.cellSignalStrength.timingAdvance.fixTimingAdvance()
+            }
+            return null
+        }
     }
 }
