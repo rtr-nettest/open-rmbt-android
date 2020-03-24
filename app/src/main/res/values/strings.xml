@@ -300,4 +300,11 @@
     <string name="dialog_title_config_check">Please change the following values:</string>
     <string name="label_ip_processing">Processing…</string>
 
+    <string name="dialog_signal_info_title">Signal Info</string>
+    <string name="dialog_signal_info_waiting">Please wait…</string>
+    <string name="dialog_signal_info_band">Band</string>
+    <string name="dialog_signal_info_channel">Channel</string>
+    <string name="dialog_signal_info_ta">TA</string>
+    <string name="dialog_signal_info_quality">Quality</string>
+
 </resources>

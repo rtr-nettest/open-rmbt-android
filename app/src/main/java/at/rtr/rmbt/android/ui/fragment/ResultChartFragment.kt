@@ -1,5 +1,6 @@
 package at.rtr.rmbt.android.ui.fragment
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import android.view.View
 import android.view.ViewGroup
@@ -25,6 +26,7 @@ class ResultChartFragment : BaseFragment() {
 
     override val layoutResId = R.layout.fragment_result_chart
 
+    @SuppressLint("InflateParams")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 

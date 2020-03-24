@@ -1,5 +1,6 @@
 package at.rtr.rmbt.android.ui.view
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Canvas
 import android.graphics.Paint
@@ -11,6 +12,7 @@ import at.specure.data.entity.TestResultGraphItemRecord
 import kotlin.math.abs
 import kotlin.math.ceil
 
+@SuppressLint("CustomViewStyleable")
 class SignalBarChartView @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null
