@@ -300,6 +300,10 @@
 
     <string name="dialog_title_config_check">Please change the following values:</string>
     <string name="label_ip_processing">Processing…</string>
+    <string name="radio_info_warning_title">Radio settings</string>
+    <string name="radio_info_warning_message">Be careful: Changing advanced settings of your radio configuration might be harmful to the stability and performance of your device.</string>
+    <string name="accept_risk">I accept the risk</string>
+    <string name="preferences_connection_details_not_supported">Extended connection details are not supported on this device</string>
 
     <string name="dialog_signal_info_title">Signal Info</string>
     <string name="dialog_signal_info_waiting">Please wait…</string>
