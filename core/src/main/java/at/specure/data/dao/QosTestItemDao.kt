@@ -13,7 +13,7 @@ import at.specure.result.QoSCategory
 @Dao
 abstract class QosTestItemDao {
 
-    @Query("SELECT * from ${Tables.QOS_TEST_RESULT_ITEM} WHERE testUUID == :testUUID AND category == :category")
+    @Query("SELECT * from ${Tables.QOS_TEST_RESULT_ITEM} WHERE testUUID == :testUUID AND category == :category ORDER BY testNumber")
     abstract fun get(testUUID: String, category: QoSCategory): LiveData<List<QosTestItemRecord>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
