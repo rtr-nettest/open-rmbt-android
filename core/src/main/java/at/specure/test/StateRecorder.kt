@@ -158,7 +158,8 @@ class StateRecorder @Inject constructor(
             loopUUID = loopUUID,
             token = testToken,
             testStartTimeMillis = TimeUnit.NANOSECONDS.toMillis(testStartTimeNanos),
-            threadCount = threadNumber
+            threadCount = threadNumber,
+            testTag = config.measurementTag
         )
         if (!config.skipQoSTests) {
             testRecord?.lastQoSStatus = TestStatus.WAIT

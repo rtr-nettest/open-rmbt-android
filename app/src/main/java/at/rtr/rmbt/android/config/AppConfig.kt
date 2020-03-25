@@ -163,7 +163,6 @@ class AppConfig @Inject constructor(context: Context, private val serverSettings
             .putString(KEY_MEASUREMENT_TAG, value)
             .apply()
 
-
     override var controlServerCheckPrivateIPv4Host: String
         get() = getString(BuildConfig.CONTROL_SERVER_CHECK_PRIVATE_IPV4_HOST, serverSettings.controlServerV4Url)
         set(value) = setString(BuildConfig.CONTROL_SERVER_CHECK_PRIVATE_IPV4_HOST, value)
