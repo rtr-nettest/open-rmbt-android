@@ -322,6 +322,11 @@ interface Config {
     var mapServerUseSSL: Boolean
 
     /**
+     * User can define tag for measurements, this tag is sent with results to control server, if it is null or empty, nothing is sent
+     */
+    var measurementTag: String?
+
+    /**
      * End of url to perform signal measurement request
      */
     var signalRequestRoute: String

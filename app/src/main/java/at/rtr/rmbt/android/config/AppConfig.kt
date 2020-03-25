@@ -25,6 +25,7 @@ private const val FILENAME = "config.pref"
 
 private const val KEY_TEST_COUNTER = "KEY_TEST_COUNTER"
 private const val KEY_PREVIOUS_TEST_STATUS = "PREVIOUS_TEST_STATUS"
+private const val KEY_MEASUREMENT_TAG = "MEASUREMENT_TAG"
 
 class AppConfig @Inject constructor(context: Context, private val serverSettings: ControlServerSettings) : Config {
 
@@ -149,6 +150,19 @@ class AppConfig @Inject constructor(context: Context, private val serverSettings
             }
         }
         set(value) = setString(BuildConfig.CONTROL_SERVER_HOST, value)
+
+    override var measurementTag: String?
+        get() {
+            return if (developerModeIsEnabled && developerModeIsAvailable) {
+                preferences.getString(KEY_MEASUREMENT_TAG, null)
+            } else {
+                return null
+            }
+        }
+        set(value) = preferences.edit()
+            .putString(KEY_MEASUREMENT_TAG, value)
+            .apply()
+
 
     override var controlServerCheckPrivateIPv4Host: String
         get() = getString(BuildConfig.CONTROL_SERVER_CHECK_PRIVATE_IPV4_HOST, serverSettings.controlServerV4Url)
