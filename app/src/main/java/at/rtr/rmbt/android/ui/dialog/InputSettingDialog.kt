@@ -61,9 +61,15 @@ class InputSettingDialog : FullscreenDialog() {
         binding.editTextValue.setText(arguments?.getString(KEY_DEFAULT_VALUE))
         binding.editTextValue.text?.length?.let { binding.editTextValue.setSelection(it) }
 
+        val isEmptyInputAllowed = arguments?.getBoolean(KEY_IS_ALLOWED_EMPTY_INPUT, false) ?: false
+
         launch {
             binding.editTextValue.onTextChanged().collect {
-                binding.buttonOkay.isEnabled = it.isNotBlank()
+                if (isEmptyInputAllowed) {
+                    binding.buttonOkay.isEnabled = true
+                } else {
+                    binding.buttonOkay.isEnabled = it.isNotBlank()
+                }
             }
         }
 
@@ -93,6 +99,7 @@ class InputSettingDialog : FullscreenDialog() {
         private const val KEY_DEFAULT_VALUE: String = "key_default_value"
         private const val KEY_INPUT_TYPE: String = "key_input_type"
         private const val KEY_IS_CANCELABLE: String = "key_is_cancelable"
+        private const val KEY_IS_ALLOWED_EMPTY_INPUT: String = "key_is_allowed_empty_input"
         private const val KEY_CODE = "code"
         private const val MAX_VALUE_LENGTH = 8
         const val KEY_VALUE: String = "key_value"
@@ -103,7 +110,8 @@ class InputSettingDialog : FullscreenDialog() {
             fragment: Fragment? = null,
             requestCode: Int = -1,
             inputType: Int = InputType.TYPE_CLASS_NUMBER,
-            isCancelable: Boolean = true
+            isCancelable: Boolean = true,
+            isEmptyInputAllowed: Boolean = false
         ): FullscreenDialog {
 
             val inputSettingDialog = InputSettingDialog()
@@ -113,6 +121,7 @@ class InputSettingDialog : FullscreenDialog() {
                 putString(KEY_DEFAULT_VALUE, defaultValue)
                 putInt(KEY_INPUT_TYPE, inputType)
                 putBoolean(KEY_IS_CANCELABLE, isCancelable)
+                putBoolean(KEY_IS_ALLOWED_EMPTY_INPUT, isEmptyInputAllowed)
                 putInt(KEY_CODE, requestCode)
             }
             return inputSettingDialog

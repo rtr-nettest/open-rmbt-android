@@ -164,7 +164,8 @@ class SettingsFragment : BaseFragment(), InputSettingDialog.Callback, ServerSele
                 getString(R.string.preferences_tag),
                 binding.developerTag.value?.toString() ?: "", this,
                 KEY_DEVELOPER_TAG_CODE,
-                inputType = InputType.TYPE_CLASS_TEXT
+                inputType = InputType.TYPE_CLASS_TEXT,
+                isEmptyInputAllowed = true
             )
                 .show(activity)
         }
@@ -302,7 +303,11 @@ class SettingsFragment : BaseFragment(), InputSettingDialog.Callback, ServerSele
             }
 
             KEY_DEVELOPER_TAG_CODE -> {
-                settingsViewModel.state.developerModeTag.set(value)
+                if (value.isEmpty() || value.isBlank()) {
+                    settingsViewModel.state.developerModeTag.set(null)
+                } else {
+                    settingsViewModel.state.developerModeTag.set(value)
+                }
             }
         }
     }
