@@ -307,6 +307,8 @@ class MeasurementService : CustomLifecycleService() {
         stateRecorder.onLoopTestFinished()
         try {
             Handler(Looper.getMainLooper()).post {
+                loopCountdownTimer?.cancel()
+                loopCountdownTimer = null
                 loopCountdownTimer = object : CountDownTimer(loopDelayMs, 1000) {
 
                     override fun onFinish() {
@@ -316,7 +318,7 @@ class MeasurementService : CustomLifecycleService() {
                     }
 
                     override fun onTick(millisUntilFinished: Long) {
-                        Timber.d("CountDownTimer tick $millisUntilFinished")
+                        Timber.d("CountDownTimer tick $millisUntilFinished - ${this.hashCode()}")
                         val notification = notificationProvider.loopCountDownNotification(
                             millisUntilFinished,
                             stateRecorder.loopModeRecord?.movementDistanceMeters ?: 0,
@@ -420,9 +422,9 @@ class MeasurementService : CustomLifecycleService() {
             if (!wifiLock.isHeld) {
                 wifiLock.acquire()
             }
-            Timber.d("Wake locked")
+            Timber.i("Wake locked")
         } catch (ex: Exception) {
-            Timber.e(ex)
+            Timber.e(ex, "Wake lock failed")
         }
     }
 
@@ -434,8 +436,9 @@ class MeasurementService : CustomLifecycleService() {
             if (wifiLock.isHeld) {
                 wifiLock.release()
             }
+            Timber.v("Wake unlocked")
         } catch (ex: Exception) {
-            Timber.e(ex)
+            Timber.e(ex, "Wake unlock failed")
         }
     }
 
