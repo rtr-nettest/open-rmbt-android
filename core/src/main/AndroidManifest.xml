@@ -15,6 +15,7 @@
 
         <service
             android:name="at.specure.measurement.signal.SignalMeasurementService"
+            android:foregroundServiceType="location"
             android:exported="false" />
     </application>
 </manifest>
