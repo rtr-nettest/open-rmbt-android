@@ -13,10 +13,12 @@
 
 package at.specure.info.strength
 
+import android.annotation.SuppressLint
 import android.os.Build
 import android.os.Handler
 import android.telephony.PhoneStateListener
 import android.telephony.SignalStrength
+import android.telephony.SubscriptionManager
 import android.telephony.TelephonyManager
 import at.specure.info.TransportType
 import at.specure.info.cell.CellInfoWatcher
@@ -36,6 +38,7 @@ private const val WIFI_MESSAGE_ID = 1
  * signal strength changes of current network available on the mobile device
  */
 class SignalStrengthWatcherImpl(
+    private val subscriptionManager: SubscriptionManager,
     private val telephonyManager: TelephonyManager,
     private val activeNetworkWatcher: ActiveNetworkWatcher,
     private val wifiInfoWatcher: WifiInfoWatcher,
@@ -65,6 +68,7 @@ class SignalStrengthWatcherImpl(
         private val isDeviceIgnored: Boolean
             get() = ignoredDevices.contains(Build.MODEL)
 
+        @SuppressLint("MissingPermission")
         override fun onSignalStrengthsChanged(signalStrength: SignalStrength?) {
             if (isDeviceIgnored) {
                 Timber.i("Signal Strength is ignored for current device")
@@ -74,7 +78,7 @@ class SignalStrengthWatcherImpl(
             val network = activeNetworkWatcher.currentNetworkInfo
             val cellInfo = cellInfoWatcher.cellInfo
 
-            val signal = SignalStrengthInfo.from(signalStrength, network, cellInfo)
+            val signal = SignalStrengthInfo.from(signalStrength, network, cellInfo, subscriptionManager.activeSubscriptionInfoCount > 1)
 
             if (signal?.value != null && signal.value != 0) {
                 signalStrengthInfo = signal
