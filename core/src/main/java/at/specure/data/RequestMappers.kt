@@ -284,7 +284,8 @@ fun TestRecord.toRequest(
         testStatus = testFinishReason?.ordinal,
         lastClientStatus = lastClientStatus?.name,
         testErrorCause = testErrorCause,
-        lastQoSStatus = lastQoSStatus?.name
+        lastQoSStatus = lastQoSStatus?.name,
+        testTag = testTag
     )
 }
 

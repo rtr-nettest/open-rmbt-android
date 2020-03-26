@@ -158,7 +158,8 @@ class StateRecorder @Inject constructor(
             loopUUID = loopUUID,
             token = testToken,
             testStartTimeMillis = TimeUnit.NANOSECONDS.toMillis(testStartTimeNanos),
-            threadCount = threadNumber
+            threadCount = threadNumber,
+            testTag = config.measurementTag
         )
         if (!config.skipQoSTests) {
             testRecord?.lastQoSStatus = TestStatus.WAIT
@@ -214,6 +215,7 @@ class StateRecorder @Inject constructor(
                 it.movementDistanceMeters = loopLocation.distanceTo(newLocation).toInt()
 
                 var notifyDistanceReached = false
+                Timber.d("LOOP Distance: changed ${this.hashCode()}")
                 if (it.movementDistanceMeters >= config.loopModeDistanceMeters) {
                     it.status = LoopModeState.RUNNING
                     notifyDistanceReached = true

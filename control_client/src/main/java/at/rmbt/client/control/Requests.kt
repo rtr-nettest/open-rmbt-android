@@ -476,7 +476,13 @@ data class TestResultBody(
      * May be null if test was success or cancelled
      */
     @SerializedName("test_error_cause")
-    var testErrorCause: String? = null // todo add an catch IllegalNetworkChangeException
+    var testErrorCause: String? = null, // todo add an catch IllegalNetworkChangeException
+
+    /**
+     * Test tag added to each test, can be set in the developer mode settings
+     */
+    @SerializedName("tag")
+    var testTag: String? = null
 )
 
 @Keep

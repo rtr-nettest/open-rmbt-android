@@ -1,8 +1,12 @@
 package at.rtr.rmbt.android.ui.activity
 
+import android.Manifest
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
+import androidx.core.app.ActivityCompat
 import at.rtr.rmbt.android.R
 import at.rtr.rmbt.android.databinding.ActivityLoopConfigurationBinding
 import at.rtr.rmbt.android.di.viewModelLazy
@@ -70,6 +74,39 @@ class LoopConfigurationActivity : BaseActivity(), InputSettingDialog.Callback {
 
         viewModel.isConnected.listen(this) {
             Timber.i("Has connection: $it")
+        }
+
+        checkBackgroundLocationPermission()
+    }
+
+    private fun checkBackgroundLocationPermission() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            val hasForegroundLocationPermission = ActivityCompat.checkSelfPermission(
+                this,
+                Manifest.permission.ACCESS_COARSE_LOCATION
+            ) == PackageManager.PERMISSION_GRANTED
+            if (hasForegroundLocationPermission) {
+                val hasBackgroundLocationPermission = ActivityCompat.checkSelfPermission(
+                    this,
+                    Manifest.permission.ACCESS_BACKGROUND_LOCATION
+                ) == PackageManager.PERMISSION_GRANTED
+                if (hasBackgroundLocationPermission) {
+                    // handle location update
+                } else {
+                    ActivityCompat.requestPermissions(
+                        this,
+                        arrayOf(Manifest.permission.ACCESS_BACKGROUND_LOCATION), REQUEST_CODE_BACKGROUND
+                    )
+                }
+            } else {
+                ActivityCompat.requestPermissions(
+                    this,
+                    arrayOf(
+                        Manifest.permission.ACCESS_COARSE_LOCATION,
+                        Manifest.permission.ACCESS_BACKGROUND_LOCATION
+                    ), REQUEST_CODE_BACKGROUND
+                )
+            }
         }
     }
 
@@ -146,6 +183,7 @@ class LoopConfigurationActivity : BaseActivity(), InputSettingDialog.Callback {
         private const val CODE_WAITING_TIME: Int = 1
         private const val CODE_DISTANCE: Int = 2
         private const val CODE_DIALOG_INVALID = 3
+        private const val REQUEST_CODE_BACKGROUND = 1
 
         fun start(context: Context) = context.startActivity(Intent(context, LoopConfigurationActivity::class.java))
     }
