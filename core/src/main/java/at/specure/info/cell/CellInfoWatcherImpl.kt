@@ -103,11 +103,11 @@ class CellInfoWatcherImpl(
                         val mobileNetworkType = MobileNetworkType.fromValue(networkType)
                         val dataCellTechnology = CellTechnology.fromMobileNetworkType(mobileNetworkType)
 
-                        //single sim
+                        // single sim
                         if (subscriptions.size == 1) {
                             _cellInfo = registeredInfoList[0]
                         } else {
-                            //dual sim handling
+                            // dual sim handling
                             // we need to check which of the registered cells uses same type of the network as data sim
                             var dualSimRegistered = registeredInfoList.filter { cellInfo ->
                                 var sameNetworkType = false
