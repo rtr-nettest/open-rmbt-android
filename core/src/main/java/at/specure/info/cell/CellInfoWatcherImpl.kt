@@ -18,6 +18,12 @@ import android.annotation.SuppressLint
 import android.net.ConnectivityManager
 import android.os.Build
 import android.telephony.CellInfo
+import android.telephony.CellInfoCdma
+import android.telephony.CellInfoGsm
+import android.telephony.CellInfoLte
+import android.telephony.CellInfoNr
+import android.telephony.CellInfoTdscdma
+import android.telephony.CellInfoWcdma
 import android.telephony.PhoneStateListener
 import android.telephony.SubscriptionManager
 import android.telephony.TelephonyManager
@@ -94,13 +100,82 @@ class CellInfoWatcherImpl(
                             }
                         }
 
-                        _cellInfo = if (registeredInfoList.size > index) {
-                            registeredInfoList[index]
+                        val mobileNetworkType = MobileNetworkType.fromValue(networkType)
+                        val dataCellTechnology = CellTechnology.fromMobileNetworkType(mobileNetworkType)
+
+                        //single sim
+                        if (subscriptions.size == 1) {
+                            _cellInfo = registeredInfoList[0]
                         } else {
-                            registeredInfoList[0]
+                            //dual sim handling
+                            // we need to check which of the registered cells uses same type of the network as data sim
+                            var dualSimRegistered = registeredInfoList.filter { cellInfo ->
+                                var sameNetworkType = false
+                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                                    when (cellInfo) {
+                                        // 5G connections
+                                        is CellInfoNr ->
+                                            sameNetworkType = CellTechnology.CONNECTION_5G == dataCellTechnology
+                                        // 3G connections
+                                        is CellInfoTdscdma -> {
+                                            sameNetworkType = CellTechnology.CONNECTION_3G == dataCellTechnology
+                                        }
+                                    }
+                                }
+                                if (sameNetworkType) {
+                                    sameNetworkType
+                                } else {
+                                    when (cellInfo) {
+                                        // 4G connections
+                                        is CellInfoLte -> {
+                                            CellTechnology.CONNECTION_4G == dataCellTechnology
+                                        }
+                                        // 3G connections
+                                        is CellInfoWcdma -> {
+                                            CellTechnology.CONNECTION_3G == dataCellTechnology
+                                        }
+                                        // 2G connections
+                                        is CellInfoCdma -> {
+                                            CellTechnology.CONNECTION_2G == dataCellTechnology
+                                        }
+                                        is CellInfoGsm -> {
+                                            CellTechnology.CONNECTION_2G == dataCellTechnology
+                                        }
+                                        else -> false
+                                    }
+                                }
+                            }
+                            // if there is still more than one we can try filter it according to network operator name
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                                if (dualSimRegistered.size > 1) {
+                                    dualSimRegistered = dualSimRegistered.filter { cellInfo ->
+                                        val networkOperator = it.carrierName.toString()
+                                        when (cellInfo) {
+                                            is CellInfoLte -> networkOperator.contentEquals(cellInfo.cellIdentity.operatorAlphaLong.toString()) || networkOperator.contentEquals(
+                                                cellInfo.cellIdentity.operatorAlphaShort.toString()
+                                            )
+                                            is CellInfoWcdma -> networkOperator.contentEquals(cellInfo.cellIdentity.operatorAlphaLong.toString()) || networkOperator.contentEquals(
+                                                cellInfo.cellIdentity.operatorAlphaShort.toString()
+                                            )
+                                            is CellInfoCdma -> networkOperator.contentEquals(cellInfo.cellIdentity.operatorAlphaLong.toString()) || networkOperator.contentEquals(
+                                                cellInfo.cellIdentity.operatorAlphaShort.toString()
+                                            )
+                                            is CellInfoGsm -> networkOperator.contentEquals(cellInfo.cellIdentity.operatorAlphaLong.toString()) || networkOperator.contentEquals(
+                                                cellInfo.cellIdentity.operatorAlphaShort.toString()
+                                            )
+                                            else -> false
+                                        }
+                                    }
+                                }
+                            }
+
+                            if (dualSimRegistered.size == 1) {
+                                _cellInfo = dualSimRegistered[0]
+                            }
                         }
+
                         _activeNetwork = CellNetworkInfo.from(
-                            _cellInfo!!,
+                            _cellInfo,
                             it,
                             MobileNetworkType.fromValue(networkType),
                             true,
