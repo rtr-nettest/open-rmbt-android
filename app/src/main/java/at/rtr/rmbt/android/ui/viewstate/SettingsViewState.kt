@@ -31,6 +31,7 @@ class SettingsViewState constructor(
     val loopModeNumberOfTests = ObservableInt(appConfig.loopModeNumberOfTests)
     val developerModeIsAvailable = appConfig.developerModeIsAvailable
     val developerModeIsEnabled = ObservableField(appConfig.developerModeIsEnabled)
+    val developerModeTag = ObservableField(appConfig.measurementTag)
     val controlServerOverrideEnabled = ObservableField(appConfig.controlServerOverrideEnabled)
     val controlServerHost = ObservableField(controlServerSettings.controlServerOverrideUrl)
     val controlServerPort = ObservableField(controlServerSettings.controlServerOverridePort)
@@ -173,6 +174,9 @@ class SettingsViewState constructor(
                     }
                 }
             }
+        }
+        developerModeTag.addOnPropertyChanged { value ->
+            appConfig.measurementTag = value.get()
         }
         qosSSL.addOnPropertyChanged { value ->
             value.get()?.let {
