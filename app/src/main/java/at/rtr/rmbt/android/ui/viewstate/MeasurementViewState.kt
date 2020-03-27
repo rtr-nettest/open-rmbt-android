@@ -53,6 +53,9 @@ class MeasurementViewState(private val config: AppConfig) : ViewState {
     val gpsEnabled = ObservableBoolean()
     val isLoopModeActive = ObservableBoolean(config.loopModeEnabled)
 
+    val metersLeft = ObservableField<String>().apply { set("") }
+    val locationAvailable = ObservableBoolean().apply { set(true) }
+
     fun setQoSTaskProgress(current: Int, total: Int) {
         qosTaskProgress.set("$current/$total")
     }

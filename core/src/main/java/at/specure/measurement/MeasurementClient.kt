@@ -27,5 +27,7 @@ interface MeasurementClient {
 
     fun onLoopCountDownTimer(timePassedMillis: Long, timeTotalMillis: Long)
 
+    fun onLoopDistanceChanged(distancePassed: Int, distanceTotal: Int, locationAvailable: Boolean)
+
     fun onMeasurementCancelled()
 }

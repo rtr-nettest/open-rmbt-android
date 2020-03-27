@@ -10,6 +10,7 @@ import at.rmbt.util.exception.HandledException
 import at.rtr.rmbt.android.config.AppConfig
 import at.rtr.rmbt.android.ui.viewstate.MeasurementViewState
 import at.rtr.rmbt.android.util.plusAssign
+import at.rtr.rmbt.android.util.timeString
 import at.rtr.rmbt.client.v2.task.result.QoSTestResultEnum
 import at.specure.data.TermsAndConditions
 import at.specure.data.entity.GraphItemRecord
@@ -188,11 +189,7 @@ class MeasurementViewModel @Inject constructor(
     }
 
     override fun onLoopCountDownTimer(timePassedMillis: Long, timeTotalMillis: Long) {
-        val timeToNextTestMillis = (timeTotalMillis - timePassedMillis)
-        val minutesElapsed = TimeUnit.MILLISECONDS.toMinutes(timeToNextTestMillis)
-        val secondsElapsed = TimeUnit.MILLISECONDS.toSeconds(timeToNextTestMillis) - TimeUnit.MINUTES.toSeconds(minutesElapsed)
-        val text = String.format("%02d:%02d", minutesElapsed, secondsElapsed)
-        _timeToNextTestElapsedLiveData.postValue(text)
+        _timeToNextTestElapsedLiveData.postValue((timeTotalMillis - timePassedMillis).timeString())
         _timeProgressPercentsLiveData.postValue(((timePassedMillis * 100) / timeTotalMillis).toInt())
     }
 
@@ -232,5 +229,10 @@ class MeasurementViewModel @Inject constructor(
     override fun onQoSTestProgressUpdated(tasksPassed: Int, tasksTotal: Int, progressMap: Map<QoSTestResultEnum, Int>) {
         state.setQoSTaskProgress(tasksPassed, tasksTotal)
         _qosProgressLiveData.postValue(progressMap)
+    }
+
+    override fun onLoopDistanceChanged(distancePassed: Int, distanceTotal: Int, locationAvailable: Boolean) {
+        state.metersLeft.set((distanceTotal - distancePassed).toString())
+        state.locationAvailable.set(locationAvailable)
     }
 }
