@@ -26,6 +26,7 @@ import com.google.android.gms.maps.model.MarkerOptions
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
+import java.util.concurrent.TimeUnit
 
 fun HandledException.getStringTitle(context: Context): String {
     return getTitle(context) ?: context.getString(R.string.dialog_title_error)
@@ -52,4 +53,16 @@ fun Marker.iconFromVector(context: Context, vectorResId: Int) {
         draw(Canvas(bitmap))
         BitmapDescriptorFactory.fromBitmap(bitmap)
     })
+}
+
+fun Long.timeString(): String {
+    val hours = TimeUnit.MILLISECONDS.toHours(this)
+    val minutes = TimeUnit.MILLISECONDS.toMinutes(this - TimeUnit.HOURS.toMillis(hours))
+    val seconds = TimeUnit.MILLISECONDS.toSeconds(this - TimeUnit.MINUTES.toMillis(minutes) - TimeUnit.HOURS.toMillis(hours))
+
+    return if (hours > 0) {
+        String.format("%02d:%02d:%02d", hours, minutes, seconds)
+    } else {
+        String.format("%02d:%02d", minutes, seconds)
+    }
 }

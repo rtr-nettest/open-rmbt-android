@@ -214,8 +214,7 @@ class StateRecorder @Inject constructor(
                 it.movementDistanceMeters = loopLocation.distanceTo(newLocation).toInt()
 
                 var notifyDistanceReached = false
-                Timber.d("LOOP Distance: changed ${this.hashCode()}")
-                if (it.movementDistanceMeters >= config.loopModeDistanceMeters) {
+                if (it.movementDistanceMeters >= config.loopModeDistanceMeters && newLocation.accuracy < config.loopModeDistanceMeters) {
                     it.status = LoopModeState.RUNNING
                     notifyDistanceReached = true
                 }

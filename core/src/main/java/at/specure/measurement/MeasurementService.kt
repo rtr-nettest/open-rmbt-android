@@ -319,13 +319,17 @@ class MeasurementService : CustomLifecycleService() {
 
                     override fun onTick(millisUntilFinished: Long) {
                         Timber.d("CountDownTimer tick $millisUntilFinished - ${this.hashCode()}")
+                        val location = stateRecorder.locationInfo
+                        val locationAvailable =
+                            locationStateLiveData.value == LocationProviderState.ENABLED && location != null && location.accuracy < config.loopModeDistanceMeters
                         val notification = notificationProvider.loopCountDownNotification(
                             millisUntilFinished,
                             stateRecorder.loopModeRecord?.movementDistanceMeters ?: 0,
                             config.loopModeDistanceMeters,
                             stateRecorder.loopTestCount,
                             config.loopModeNumberOfTests,
-                            stopTestsIntent(this@MeasurementService)
+                            stopTestsIntent(this@MeasurementService),
+                            locationAvailable
                         )
                         notificationManager.notify(NOTIFICATION_ID, notification)
                         clientAggregator.onLoopCountDownTimer(loopDelayMs - millisUntilFinished, loopDelayMs)
