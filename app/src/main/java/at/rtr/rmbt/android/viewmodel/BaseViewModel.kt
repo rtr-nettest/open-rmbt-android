@@ -19,6 +19,10 @@ open class BaseViewModel : ViewModel(), CoroutineScope {
     val errorLiveData: LiveData<HandledException>
         get() = _errorLiveData
 
+    fun clearErrorMessages() {
+        _errorLiveData.postValue(null)
+    }
+
     /**
      * Sends an error to default error-handling LiveData
      */

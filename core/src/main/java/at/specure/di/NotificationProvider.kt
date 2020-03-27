@@ -43,7 +43,8 @@ interface NotificationProvider {
         metersRequired: Int,
         testsPassed: Int,
         testsCount: Int,
-        cancellationIntent: Intent
+        cancellationIntent: Intent,
+        locationAvailable: Boolean
     ): Notification
 
     /**

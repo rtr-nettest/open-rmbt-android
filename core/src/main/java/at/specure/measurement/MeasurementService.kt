@@ -319,16 +319,25 @@ class MeasurementService : CustomLifecycleService() {
 
                     override fun onTick(millisUntilFinished: Long) {
                         Timber.d("CountDownTimer tick $millisUntilFinished - ${this.hashCode()}")
+                        val location = stateRecorder.locationInfo
+                        val locationAvailable =
+                            locationStateLiveData.value == LocationProviderState.ENABLED &&
+                                    location != null &&
+                                    location.accuracy < config.loopModeDistanceMeters &&
+                                    stateRecorder.locationAvailableOnLoopStart
+                        val distancePassed = stateRecorder.loopModeRecord?.movementDistanceMeters ?: 0
                         val notification = notificationProvider.loopCountDownNotification(
                             millisUntilFinished,
-                            stateRecorder.loopModeRecord?.movementDistanceMeters ?: 0,
+                            distancePassed,
                             config.loopModeDistanceMeters,
                             stateRecorder.loopTestCount,
                             config.loopModeNumberOfTests,
-                            stopTestsIntent(this@MeasurementService)
+                            stopTestsIntent(this@MeasurementService),
+                            locationAvailable
                         )
                         notificationManager.notify(NOTIFICATION_ID, notification)
                         clientAggregator.onLoopCountDownTimer(loopDelayMs - millisUntilFinished, loopDelayMs)
+                        clientAggregator.onLoopDistanceChanged(distancePassed, config.loopModeDistanceMeters, locationAvailable)
                     }
                 }
 
@@ -593,6 +602,12 @@ class MeasurementService : CustomLifecycleService() {
         override fun onLoopCountDownTimer(timePassedMillis: Long, timeTotalMillis: Long) {
             clients.forEach {
                 it.onLoopCountDownTimer(timePassedMillis, timeTotalMillis)
+            }
+        }
+
+        override fun onLoopDistanceChanged(distancePassed: Int, distanceTotal: Int, locationAvailable: Boolean) {
+            clients.forEach {
+                it.onLoopDistanceChanged(distancePassed, distanceTotal, locationAvailable)
             }
         }
 

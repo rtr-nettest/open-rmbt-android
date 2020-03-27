@@ -318,8 +318,8 @@
             app:layout_constraintBottom_toBottomOf="@+id/loop_measurement_next_test_distance_label"
             app:layout_constraintEnd_toStartOf="@+id/loop_measurement_next_test_meters_progress"
             app:layout_constraintTop_toTopOf="@+id/loop_measurement_next_test_distance_label"
-            android:text="@{state.loopNextTestDistanceMeters}"
-            app:visibleOrGone="@{state.loopState == LoopModeState.IDLE &amp;&amp; state.isLoopModeActive &amp;&amp; state.gpsEnabled}"
+            android:text="@{state.metersLeft}"
+            app:visibleOrGone="@{state.loopState == LoopModeState.IDLE &amp;&amp; state.isLoopModeActive &amp;&amp; state.locationAvailable}"
             tools:text="153" />
 
         <at.rtr.rmbt.android.ui.view.ProgressBar
@@ -346,7 +346,7 @@
             app:layout_constraintBottom_toBottomOf="@+id/loop_measurement_next_test_distance_label"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:visibleOrGone="@{state.gpsEnabled == false &amp;&amp; state.isLoopModeActive &amp;&amp; state.loopState == LoopModeState.IDLE}"
+            app:visibleOrGone="@{state.locationAvailable == false &amp;&amp; state.isLoopModeActive &amp;&amp; state.loopState == LoopModeState.IDLE}"
             app:layout_constraintTop_toTopOf="@+id/loop_measurement_next_test_distance_label" />
 
         <View
