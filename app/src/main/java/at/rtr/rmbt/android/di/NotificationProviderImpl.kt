@@ -119,7 +119,7 @@ class NotificationProviderImpl(private val context: Context) : NotificationProvi
         val secondsPassed = TimeUnit.MILLISECONDS.toSeconds(timePassedMillis) - TimeUnit.MINUTES.toSeconds(minutesPassed)
 
         val text = String.format(
-            "%02d:%02d \t %dm/%dm \t %d/%d",
+            "%02d:%02d \t %dm/%dm \t (%d/%d)",
             minutesPassed,
             secondsPassed,
             metersPassed,
