@@ -92,6 +92,7 @@
     <string name="preferences_server_selection">Server selection</string>
     <string name="preferences_default_server_selection">Default</string>
     <string name="label_server_selection">Server selection</string>
+    <string name="preferences_tag">Tag</string>
 
     <!-- Location Dialog -->
     <string name="location_dialog_label_title">Location</string>

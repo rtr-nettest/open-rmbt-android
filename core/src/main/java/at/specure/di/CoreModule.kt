@@ -68,13 +68,14 @@ class CoreModule {
     @Provides
     @Singleton
     fun provideSignalStrengthWatcher(
+        subscriptionManager: SubscriptionManager,
         telephonyManager: TelephonyManager,
         activeNetworkWatcher: ActiveNetworkWatcher,
         wifiInfoWatcher: WifiInfoWatcher,
         cellInfoWatcher: CellInfoWatcher,
         locationAccess: LocationAccess
     ): SignalStrengthWatcher =
-        SignalStrengthWatcherImpl(telephonyManager, activeNetworkWatcher, wifiInfoWatcher, cellInfoWatcher, locationAccess)
+        SignalStrengthWatcherImpl(subscriptionManager, telephonyManager, activeNetworkWatcher, wifiInfoWatcher, cellInfoWatcher, locationAccess)
 
     @Provides
     @Singleton

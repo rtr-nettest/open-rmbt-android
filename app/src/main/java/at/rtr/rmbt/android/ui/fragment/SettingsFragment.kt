@@ -159,6 +159,18 @@ class SettingsFragment : BaseFragment(), InputSettingDialog.Callback, ServerSele
                 .show(activity)
         }
 
+        binding.developerTag.frameLayoutRoot.setOnClickListener {
+
+            InputSettingDialog.instance(
+                getString(R.string.preferences_tag),
+                binding.developerTag.value?.toString() ?: "", this,
+                KEY_DEVELOPER_TAG_CODE,
+                inputType = InputType.TYPE_CLASS_TEXT,
+                isEmptyInputAllowed = true
+            )
+                .show(activity)
+        }
+
         binding.version.value = BuildConfig.VERSION_NAME
         binding.commitHash.value = BuildConfig.COMMIT_HASH
         binding.sourceCode.root.setOnClickListener {
@@ -300,6 +312,14 @@ class SettingsFragment : BaseFragment(), InputSettingDialog.Callback, ServerSele
             KEY_DEVELOPER_MAP_SERVER_PORT_CODE -> {
                 settingsViewModel.state.mapServerPort.set(value.toInt())
             }
+
+            KEY_DEVELOPER_TAG_CODE -> {
+                if (value.isEmpty() || value.isBlank()) {
+                    settingsViewModel.state.developerModeTag.set(null)
+                } else {
+                    settingsViewModel.state.developerModeTag.set(value)
+                }
+            }
         }
     }
 
@@ -333,6 +353,7 @@ class SettingsFragment : BaseFragment(), InputSettingDialog.Callback, ServerSele
         private const val KEY_DEVELOPER_MAP_SERVER_HOST_CODE: Int = 6
         private const val KEY_DEVELOPER_MAP_SERVER_PORT_CODE: Int = 7
         private const val KEY_RADIO_INFO_CODE: Int = 8
+        private const val KEY_DEVELOPER_TAG_CODE: Int = 9
 
         private const val CODE_LOOP_INSTRUCTIONS = 13
         private const val CODE_DIALOG_INVALID = 14

@@ -219,5 +219,10 @@ data class TestRecord(
     /**
      * Test position in loop mode it was performed
      */
-    var loopModeTestOrder: Int = 0
+    var loopModeTestOrder: Int = 0,
+
+    /**
+     * Test tag which user can set in the developer mode settings for measurements
+     */
+    var testTag: String? = null
 )

@@ -219,6 +219,7 @@ fun QosTestResultDetailResponse.toModels(
         categoryDescMap = categoryDescMap.plus(Pair(qoSCategory, category))
     }
 
+    val successfulTests: MutableList<QosTestResult> = ArrayList<QosTestResult>()
     categoryDescMap.keys.forEach { key ->
 
         val qosTestCategoryDescription = categoryDescMap[key]
@@ -226,26 +227,40 @@ fun QosTestResultDetailResponse.toModels(
 
         var successCount = 0
         var failureCount = 0
-        var success: Boolean
-
         var qosTestOrderNumber = 1
 
         resultList?.forEach { result ->
-            success = if (result.failureCount > 0) {
+            if (result.failureCount > 0) {
                 failureCount++
-                false
+                results.add(
+                    QosTestItemRecord(
+                        testUUID = testUUID,
+                        qosTestId = result.qosTestUid,
+                        language = language,
+                        category = key,
+                        success = false,
+                        testSummary = result.testSummary,
+                        testDescription = result.testDescription,
+                        testNumber = qosTestOrderNumber,
+                        durationNanos = result.result.get("duration_ns").asLong,
+                        startTimeNanos = result.result.get("start_time_ns").asLong
+                    )
+                )
+                qosTestOrderNumber++
             } else {
+                successfulTests.add(result)
                 successCount++
-                true
             }
+        }
 
+        successfulTests.forEach { result ->
             results.add(
                 QosTestItemRecord(
                     testUUID = testUUID,
                     qosTestId = result.qosTestUid,
                     language = language,
                     category = key,
-                    success = success,
+                    success = true,
                     testSummary = result.testSummary,
                     testDescription = result.testDescription,
                     testNumber = qosTestOrderNumber,
@@ -255,6 +270,7 @@ fun QosTestResultDetailResponse.toModels(
             )
             qosTestOrderNumber++
         }
+        successfulTests.clear()
 
         if (failureCount != successCount && qosTestCategoryDescription != null) {
             categories.add(
