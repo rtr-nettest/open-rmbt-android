@@ -13,13 +13,17 @@
 
 package at.specure.info.strength
 
+import android.Manifest.permission.READ_PHONE_STATE
 import android.annotation.SuppressLint
+import android.content.Context
 import android.os.Build
 import android.os.Handler
 import android.telephony.PhoneStateListener
 import android.telephony.SignalStrength
 import android.telephony.SubscriptionManager
 import android.telephony.TelephonyManager
+import androidx.core.content.PermissionChecker
+import androidx.core.content.PermissionChecker.PERMISSION_GRANTED
 import at.specure.info.TransportType
 import at.specure.info.cell.CellInfoWatcher
 import at.specure.info.network.ActiveNetworkWatcher
@@ -38,6 +42,7 @@ private const val WIFI_MESSAGE_ID = 1
  * signal strength changes of current network available on the mobile device
  */
 class SignalStrengthWatcherImpl(
+    private val context: Context,
     private val subscriptionManager: SubscriptionManager,
     private val telephonyManager: TelephonyManager,
     private val activeNetworkWatcher: ActiveNetworkWatcher,
@@ -78,7 +83,14 @@ class SignalStrengthWatcherImpl(
             val network = activeNetworkWatcher.currentNetworkInfo
             val cellInfo = cellInfoWatcher.cellInfo
 
-            val signal = SignalStrengthInfo.from(signalStrength, network, cellInfo, subscriptionManager.activeSubscriptionInfoCount > 1)
+            var dualSim = false
+            dualSim = if (PermissionChecker.checkSelfPermission(context, READ_PHONE_STATE) == PERMISSION_GRANTED) {
+                subscriptionManager.activeSubscriptionInfoCount > 1
+            } else {
+                telephonyManager.phoneCount > 1
+            }
+
+            val signal = SignalStrengthInfo.from(signalStrength, network, cellInfo, dualSim)
 
             if (signal?.value != null && signal.value != 0) {
                 signalStrengthInfo = signal
