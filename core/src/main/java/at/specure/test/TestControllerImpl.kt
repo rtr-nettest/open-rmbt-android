@@ -33,7 +33,8 @@ private const val KEY_TEST_COUNTER = "testCounter"
 private const val KEY_PREVIOUS_TEST_STATUS = "previousTestStatus"
 private const val KEY_LOOP_MODE_SETTINGS = "loopmode_info"
 private const val KEY_SERVER_SELECTION_ENABLED = "user_server_selection"
-private const val KEY_SERVER_PREFERED = "prefer_server"
+private const val KEY_SERVER_PREFERRED = "prefer_server"
+private const val KEY_DEVELOPER_MODE_ENABLED = "developer_mode"
 
 private const val TEST_MAX_TIME = 3000
 private const val MAX_VALUE_UNFINISHED_TEST = 0.9f
@@ -156,10 +157,14 @@ class TestControllerImpl(
             }
 
             if (config.expertModeEnabled) {
+                additionalValues.put(KEY_SERVER_SELECTION_ENABLED, true)
                 measurementServer.selectedMeasurementServer?.let {
-                    additionalValues.put(KEY_SERVER_SELECTION_ENABLED, true)
-                    additionalValues.put(KEY_SERVER_PREFERED, it.uuid)
+                    additionalValues.put(KEY_SERVER_PREFERRED, it.uuid)
                 }
+            }
+
+            if (config.developerModeIsEnabled) {
+                additionalValues.put(KEY_DEVELOPER_MODE_ENABLED, true)
             }
 
             client = RMBTClient.getInstance(

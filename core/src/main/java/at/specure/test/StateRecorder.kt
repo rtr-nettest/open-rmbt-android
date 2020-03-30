@@ -168,7 +168,10 @@ class StateRecorder @Inject constructor(
             token = testToken,
             testStartTimeMillis = TimeUnit.NANOSECONDS.toMillis(testStartTimeNanos),
             threadCount = threadNumber,
-            testTag = config.measurementTag
+            testTag = config.measurementTag,
+            developerModeEnabled = config.developerModeIsEnabled,
+            serverSelectionEnabled = config.expertModeEnabled,
+            loopModeEnabled = config.loopModeEnabled
         )
         if (!config.skipQoSTests) {
             testRecord?.lastQoSStatus = TestStatus.WAIT

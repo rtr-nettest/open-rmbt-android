@@ -351,6 +351,15 @@ data class TestResultBody(
     @SerializedName("android_permission_status")
     val permissionStatuses: List<PermissionStatusBody>?,
 
+    @SerializedName("developer_mode")
+    val developerModeEnabled: Boolean,
+
+    @SerializedName("user_server_selection")
+    val userServerSelectionEnabled: Boolean,
+
+    @SerializedName("user_loop_mode")
+    val loopModeEnabled: Boolean,
+
     /**
      * mcc-mnc of the operator network, mobile networks only, e.g. "231-06"
      */

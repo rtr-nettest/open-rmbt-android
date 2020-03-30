@@ -285,7 +285,10 @@ fun TestRecord.toRequest(
         lastClientStatus = lastClientStatus?.name,
         testErrorCause = testErrorCause,
         lastQoSStatus = lastQoSStatus?.name,
-        testTag = testTag
+        testTag = testTag,
+        developerModeEnabled = developerModeEnabled,
+        loopModeEnabled = loopModeEnabled,
+        userServerSelectionEnabled = serverSelectionEnabled
     )
 }
 
