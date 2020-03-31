@@ -90,6 +90,7 @@
     <string name="preferences_server_selection">Serverauswahl</string>
     <string name="preferences_default_server_selection">Voreinstellung</string>
     <string name="label_server_selection">Serverauswahl</string>
+    <string name="preferences_tag">Kennzeichen</string>
 
     <!-- Location Dialog -->
     <string name="location_dialog_label_title">Standort</string>
@@ -282,5 +283,16 @@
 
     <string name="dialog_title_config_check">Bitte ändern Sie die folgenden Werte:</string>
     <string name="label_ip_processing">Wird Bearbeitet…</string>
+    <string name="radio_info_warning_title">Mobilfunkinformation</string>
+    <string name="radio_info_warning_message">Achtung: Änderungen in den erweiterten Einstellungen der Mobilfunkkonfiguration können Auswirkungen auf Funktion, Stabilität und Performance Ihres Gerätes haben.</string>
+    <string name="accept_risk">Ich bin mir der Gefahren bewusst</string>
+    <string name="preferences_connection_details_not_supported">Erweiterte Verbindungsdetails werden auf diesem Gerät nicht unterstützt</string>
+
+    <string name="dialog_signal_info_title">Signalinfo</string>
+    <string name="dialog_signal_info_waiting">Warten Sie mal…</string>
+    <string name="dialog_signal_info_band">Band</string>
+    <string name="dialog_signal_info_channel">Kanal</string>
+    <string name="dialog_signal_info_ta">TA</string>
+    <string name="dialog_signal_info_quality">Qualität</string>
 </resources>
 

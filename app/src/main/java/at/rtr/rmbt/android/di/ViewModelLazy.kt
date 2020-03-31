@@ -17,7 +17,10 @@ class FragmentViewModelLazy<T : BaseViewModel>(private val fragment: BaseFragmen
         get() = ViewModelProviders.of(fragment, Injector.component.viewModelFactory())
 
     override fun subscribeOnError(viewModel: BaseViewModel) {
-        viewModel.errorLiveData.listenNonNull(fragment) { fragment.onHandledException(it) }
+        viewModel.errorLiveData.listenNonNull(fragment) {
+            fragment.onHandledException(it)
+            viewModel.clearErrorMessages()
+        }
         fragment.addViewModel(viewModel)
     }
 }
@@ -28,7 +31,10 @@ class ActivityViewModelLazy<T : BaseViewModel>(private val activity: BaseActivit
         get() = ViewModelProviders.of(activity, Injector.component.viewModelFactory())
 
     override fun subscribeOnError(viewModel: BaseViewModel) {
-        viewModel.errorLiveData.listenNonNull(activity) { activity.onHandledException(it) }
+        viewModel.errorLiveData.listenNonNull(activity) {
+            activity.onHandledException(it)
+            viewModel.clearErrorMessages()
+        }
         activity.addViewModel(viewModel)
     }
 }

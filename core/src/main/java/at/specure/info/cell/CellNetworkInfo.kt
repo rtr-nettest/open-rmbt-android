@@ -95,11 +95,19 @@ class CellNetworkInfo(
             return from(info, subscriptionInfo, networkType, isActive, isRoaming, apn)
         }
 
+        /* fun checkNetworkOperator(cellInfo: CellInfo, networkOperator: String): Boolean {
+             when (cellInfo) {
+                 is CellInfoLte -> networkOperator.contentEquals(cellInfo.cellIdentity.operatorAlphaLong) || (networkOperator.contentEquals(cellInfo.cellIdentity.operatorAlphaShort))
+                 is CellInfoWcdma -> MobileNetworkType.HSPAP
+                 is CellInfoCdma -> MobileNetworkType.CDMA
+                 is CellInfoGsm -> MobileNetworkType.GSM
+         }
+ */
         /**
          * Creates [CellNetworkInfo] from initial data objects
          */
         fun from(
-            info: CellInfo,
+            info: CellInfo?,
             subscriptionInfo: SubscriptionInfo?,
             networkType: MobileNetworkType,
             isActive: Boolean,
@@ -112,8 +120,34 @@ class CellNetworkInfo(
                 is CellInfoWcdma -> fromWcdma(info, providerName, networkType, isActive, isRoaming, apn)
                 is CellInfoGsm -> fromGsm(info, providerName, networkType, isActive, isRoaming, apn)
                 is CellInfoCdma -> fromCdma(info, providerName, networkType, isActive, isRoaming, apn)
-                else -> throw IllegalArgumentException("Unknown cell info cannot be extracted ${info::class.java.name}")
+                else -> fromUnknown(providerName, networkType, isActive, isRoaming, apn)
             }
+        }
+
+        private fun fromUnknown(
+            providerName: String,
+            networkType: MobileNetworkType,
+            isActive: Boolean,
+            isRoaming: Boolean,
+            apn: String?
+        ): CellNetworkInfo {
+
+            return CellNetworkInfo(
+                providerName = providerName,
+                band = null,
+                networkType = networkType,
+                mcc = null,
+                mnc = null,
+                locationId = null,
+                areaCode = null,
+                scramblingCode = null,
+                cellUUID = "",
+                isRegistered = false,
+                isActive = isActive,
+                isRoaming = isRoaming,
+                apn = apn,
+                signalStrength = null
+            )
         }
 
         private fun fromLte(

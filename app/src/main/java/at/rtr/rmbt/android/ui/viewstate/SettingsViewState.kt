@@ -3,9 +3,11 @@ package at.rtr.rmbt.android.ui.viewstate
 import androidx.databinding.ObservableField
 import androidx.databinding.ObservableInt
 import at.rmbt.util.io
+import at.rtr.rmbt.android.BuildConfig
 import at.rtr.rmbt.android.config.AppConfig
 import at.rtr.rmbt.android.util.addOnPropertyChanged
 import at.specure.data.ClientUUID
+import at.specure.data.ControlServerSettings
 import at.specure.data.MeasurementServers
 import at.specure.data.repository.SettingsRepository
 import at.specure.location.LocationProviderState
@@ -14,6 +16,7 @@ class SettingsViewState constructor(
     val appConfig: AppConfig,
     val clientUUID: ClientUUID,
     private val measurementServers: MeasurementServers,
+    private val controlServerSettings: ControlServerSettings,
     private val settingsRepository: SettingsRepository
 ) : ViewState {
 
@@ -28,9 +31,10 @@ class SettingsViewState constructor(
     val loopModeNumberOfTests = ObservableInt(appConfig.loopModeNumberOfTests)
     val developerModeIsAvailable = appConfig.developerModeIsAvailable
     val developerModeIsEnabled = ObservableField(appConfig.developerModeIsEnabled)
+    val developerModeTag = ObservableField(appConfig.measurementTag)
     val controlServerOverrideEnabled = ObservableField(appConfig.controlServerOverrideEnabled)
-    val controlServerHost = ObservableField(appConfig.controlServerHost)
-    val controlServerPort = ObservableField(appConfig.controlServerPort)
+    val controlServerHost = ObservableField(controlServerSettings.controlServerOverrideUrl)
+    val controlServerPort = ObservableField(controlServerSettings.controlServerOverridePort)
     val controlServerUseSSL = ObservableField(appConfig.controlServerUseSSL)
     val isLocationEnabled = ObservableField<LocationProviderState>()
     val numberOfTests = ObservableInt(appConfig.testCounter)
@@ -45,7 +49,33 @@ class SettingsViewState constructor(
     val qosSSL = ObservableField(appConfig.qosSSL)
     val selectedMeasurementServer = ObservableField(measurementServers.selectedMeasurementServer)
 
+    private fun setControlServerAddress() {
+        if ((appConfig.controlServerOverrideEnabled) && (appConfig.developerModeIsEnabled)) {
+            controlServerHost.get()?.let {
+                appConfig.controlServerHost = it
+            }
+            controlServerPort.get()?.let {
+                appConfig.controlServerPort = it.toInt()
+            }
+        } else {
+            appConfig.controlServerHost = BuildConfig.CONTROL_SERVER_HOST.value
+            appConfig.controlServerPort = BuildConfig.CONTROL_SERVER_PORT.value.toInt()
+        }
+
+        io {
+            settingsRepository.refreshSettings()
+        }
+    }
+
     init {
+        if (controlServerPort.get().isNullOrEmpty()) {
+            controlServerPort.set(appConfig.controlServerPort.toString())
+            controlServerSettings.controlServerOverridePort = controlServerPort.get()
+        }
+        if (controlServerHost.get().isNullOrEmpty()) {
+            controlServerHost.set(appConfig.controlServerHost)
+            controlServerSettings.controlServerOverrideUrl = controlServerHost.get()
+        }
         isNDTEnabled.addOnPropertyChanged { value ->
             value.get()?.let {
                 appConfig.NDTEnabled = it
@@ -94,19 +124,19 @@ class SettingsViewState constructor(
         developerModeIsEnabled.addOnPropertyChanged { value ->
             value.get()?.let {
                 appConfig.developerModeIsEnabled = it
+                setControlServerAddress()
             }
         }
         controlServerHost.addOnPropertyChanged { value ->
             value.get()?.let {
-                appConfig.controlServerHost = it
-                io {
-                    settingsRepository.refreshSettings()
-                }
+                controlServerSettings.controlServerOverrideUrl = it
+                setControlServerAddress()
             }
         }
         controlServerPort.addOnPropertyChanged { value ->
             value.get()?.let {
-                appConfig.controlServerPort = it
+                controlServerSettings.controlServerOverridePort = it
+                setControlServerAddress()
             }
         }
         controlServerUseSSL.addOnPropertyChanged { value ->
@@ -117,6 +147,7 @@ class SettingsViewState constructor(
         controlServerOverrideEnabled.addOnPropertyChanged { value ->
             value.get()?.let {
                 appConfig.controlServerOverrideEnabled = it
+                setControlServerAddress()
             }
         }
         mapServerHost.addOnPropertyChanged { value ->
@@ -143,6 +174,9 @@ class SettingsViewState constructor(
                     }
                 }
             }
+        }
+        developerModeTag.addOnPropertyChanged { value ->
+            appConfig.measurementTag = value.get()
         }
         qosSSL.addOnPropertyChanged { value ->
             value.get()?.let {

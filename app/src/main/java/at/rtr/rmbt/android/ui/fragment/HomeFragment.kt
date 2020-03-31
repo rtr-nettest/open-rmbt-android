@@ -18,6 +18,7 @@ import at.rtr.rmbt.android.ui.activity.PreferenceActivity
 import at.rtr.rmbt.android.ui.dialog.IpInfoDialog
 import at.rtr.rmbt.android.ui.dialog.LocationInfoDialog
 import at.rtr.rmbt.android.ui.dialog.MessageDialog
+import at.rtr.rmbt.android.ui.dialog.NetworkInfoDialog
 import at.rtr.rmbt.android.ui.dialog.OpenGpsSettingDialog
 import at.rtr.rmbt.android.ui.dialog.OpenLocationPermissionDialog
 import at.rtr.rmbt.android.ui.dialog.SimpleDialog
@@ -76,13 +77,11 @@ class HomeFragment : BaseFragment() {
         }
 
         binding.btnIpv4.setOnClickListener {
-            val ipV4InfoDialog = IpInfoDialog.instance(IpProtocol.V4)
-            ipV4InfoDialog?.show(activity)
+            IpInfoDialog.instance(IpProtocol.V4).show(activity)
         }
 
         binding.btnIpv6.setOnClickListener {
-            val ipV6InfoDialog = IpInfoDialog.instance(IpProtocol.V6)
-            ipV6InfoDialog?.show(activity)
+            IpInfoDialog.instance(IpProtocol.V6).show(activity)
         }
 
         binding.btnLocation.setOnClickListener {
@@ -155,6 +154,18 @@ class HomeFragment : BaseFragment() {
                     }
                 }
                 homeViewModel.setNewsShown(newItem)
+            }
+        }
+
+        binding.tvFrequency.setOnClickListener {
+            if (homeViewModel.isExpertModeOn) {
+                NetworkInfoDialog.show(childFragmentManager)
+            }
+        }
+
+        binding.tvSignal.setOnClickListener {
+            if (homeViewModel.isExpertModeOn) {
+                NetworkInfoDialog.show(childFragmentManager)
             }
         }
     }

@@ -219,5 +219,25 @@ data class TestRecord(
     /**
      * Test position in loop mode it was performed
      */
-    var loopModeTestOrder: Int = 0
+    var loopModeTestOrder: Int = 0,
+
+    /**
+     * Test tag which user can set in the developer mode settings for measurements
+     */
+    var testTag: String? = null,
+
+    /**
+     * true if developer mode is enabled, false otherwise
+     */
+    val developerModeEnabled: Boolean,
+
+    /**
+     * true if user server selection is enabled
+     */
+    val serverSelectionEnabled: Boolean,
+
+    /**
+     * true if loop mode is enabled, false otherwise
+     */
+    val loopModeEnabled: Boolean
 )

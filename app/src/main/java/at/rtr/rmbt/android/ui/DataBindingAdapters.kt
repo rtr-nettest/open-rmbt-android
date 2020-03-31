@@ -800,7 +800,12 @@ fun AppCompatTextView.setQoEName(qoECategory: QoECategory) {
  */
 @BindingAdapter("qoePercent", "classification")
 fun ResultBar.setQoEValue(value: Double, classification: Classification) {
-    updateClassification((value * 100).toInt(), classification)
+    val qoeMinThreshold = 0.16f
+    if (value < qoeMinThreshold) {
+        updateClassification((qoeMinThreshold * 100).toInt(), Classification.BAD)
+    } else {
+        updateClassification((value * 100).toInt(), classification)
+    }
 }
 
 @BindingAdapter("networkType", "signalStrength", requireAll = true)

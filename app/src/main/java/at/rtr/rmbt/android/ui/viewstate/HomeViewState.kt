@@ -14,7 +14,7 @@ import at.specure.location.LocationProviderState
 
 class HomeViewState(
     private val config: AppConfig,
-    val measurementServers: MeasurementServers
+    private val measurementServers: MeasurementServers
 ) : ViewState {
 
     val isConnected = ObservableField<Boolean?>()

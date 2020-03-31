@@ -273,7 +273,7 @@ fun TestRecord.toRequest(
         telephonyDataState = telephonyInfo?.dataState,
         telephonyApn = telephonyInfo?.apn,
         telephonyNetworkSimCountry = telephonyInfo?.networkSimCountry,
-        telephonySimCount = telephonyInfo?.simCount,
+        telephonySimCount = telephonyInfo?.simCount.toString(),
         telephonyHasDualSim = telephonyInfo?.hasDualSim,
         wifiSupplicantState = wlanInfo?.supplicantState,
         wifiSupplicantStateDetail = wlanInfo?.supplicantDetailedState,
@@ -284,7 +284,11 @@ fun TestRecord.toRequest(
         testStatus = testFinishReason?.ordinal,
         lastClientStatus = lastClientStatus?.name,
         testErrorCause = testErrorCause,
-        lastQoSStatus = lastQoSStatus?.name
+        lastQoSStatus = lastQoSStatus?.name,
+        testTag = testTag,
+        developerModeEnabled = developerModeEnabled,
+        loopModeEnabled = loopModeEnabled,
+        userServerSelectionEnabled = serverSelectionEnabled
     )
 }
 

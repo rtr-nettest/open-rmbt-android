@@ -154,16 +154,16 @@ open class SignalStrengthInfo(
             linkSpeed = info.linkSpeed
         )
 
-        fun from(signalStrength: SignalStrength?, network: NetworkInfo?, cellInfo: CellInfo?): SignalStrengthInfo? {
+        fun from(signalStrength: SignalStrength?, network: NetworkInfo?, cellInfo: CellInfo?, isDualSim: Boolean): SignalStrengthInfo? {
             return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                signalStrengthQ(signalStrength)
+                signalStrengthQ(signalStrength, cellInfo)
             } else {
-                signalStrengthOld(signalStrength, network, cellInfo)
+                signalStrengthOld(signalStrength, network, cellInfo, isDualSim)
             }
         }
 
         @SuppressLint("NewApi")
-        private fun signalStrengthQ(signalStrength: SignalStrength?): SignalStrengthInfo? {
+        private fun signalStrengthQ(signalStrength: SignalStrength?, cellInfo: CellInfo?): SignalStrengthInfo? {
             if (signalStrength == null) {
                 return null
             }
@@ -190,7 +190,7 @@ open class SignalStrengthInfo(
                                 rsrp = it.rsrp.fixLteRsrp(),
                                 rssi = it.rssi.checkValueAvailable(),
                                 rssnr = it.rssnr.fixRssnr(),
-                                timingAdvance = it.timingAdvance.fixTimingAdvance()
+                                timingAdvance = cellInfo.lteTimingAdvance() ?: it.timingAdvance.fixTimingAdvance()
                             )
                         }
                         is CellSignalStrengthNr -> {
@@ -253,7 +253,12 @@ open class SignalStrengthInfo(
             return signal
         }
 
-        private fun signalStrengthOld(signalStrength: SignalStrength?, network: NetworkInfo?, cellInfo: CellInfo?): SignalStrengthInfo? {
+        private fun signalStrengthOld(
+            signalStrength: SignalStrength?,
+            network: NetworkInfo?,
+            cellInfo: CellInfo?,
+            isDualSim: Boolean
+        ): SignalStrengthInfo? {
             var strength: Int? = null
             var lteRsrp: Int? = null
             var lteRsrq: Int? = null
@@ -310,6 +315,36 @@ open class SignalStrengthInfo(
                         }
                         strength = dBm
                     }
+                }
+
+                // correction for dual sims, because with dual sims we receive updates for both sims so we must filter signal changes only for relevant sim
+                if (isDualSim) {
+                    when (network.signalStrength) {
+                        is SignalStrengthInfoLte -> {
+                            try {
+                                lteRsrp = network.signalStrength.rsrp
+                                lteRsrq = network.signalStrength.rsrq
+                                lteRssnr = network.signalStrength.rssnr
+                                lteCqi = network.signalStrength.cqi
+
+                                if (lteRsrp == Integer.MAX_VALUE)
+                                    lteRsrp = null
+                                if (lteRsrq == Integer.MAX_VALUE)
+                                    lteRsrq = null
+                                if (lteRsrq != null && lteRsrq > 0)
+                                    lteRsrq = -lteRsrq // fix invalid rsrq values for some devices (see #996)
+                                if (lteRssnr == Integer.MAX_VALUE) {
+                                    lteRssnr = null
+                                }
+                                if (lteCqi == Integer.MAX_VALUE) {
+                                    lteCqi = null
+                                }
+                            } catch (t: Throwable) {
+                                Timber.e(t)
+                            }
+                        }
+                    }
+                    strength = network.signalStrength?.value
                 }
             }
 
@@ -432,5 +467,12 @@ open class SignalStrengthInfo(
             } else {
                 this
             }
+
+        private fun CellInfo?.lteTimingAdvance(): Int? {
+            if (this != null && this is CellInfoLte) {
+                return this.cellSignalStrength.timingAdvance.fixTimingAdvance()
+            }
+            return null
+        }
     }
 }

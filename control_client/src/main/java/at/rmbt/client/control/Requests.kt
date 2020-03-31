@@ -351,6 +351,15 @@ data class TestResultBody(
     @SerializedName("android_permission_status")
     val permissionStatuses: List<PermissionStatusBody>?,
 
+    @SerializedName("developer_mode")
+    val developerModeEnabled: Boolean,
+
+    @SerializedName("user_server_selection")
+    val userServerSelectionEnabled: Boolean,
+
+    @SerializedName("user_loop_mode")
+    val loopModeEnabled: Boolean,
+
     /**
      * mcc-mnc of the operator network, mobile networks only, e.g. "231-06"
      */
@@ -412,7 +421,7 @@ data class TestResultBody(
     val telephonyNetworkSimCountry: String?,
 
     @SerializedName("telephony_sim_count")
-    val telephonySimCount: Int?,
+    val telephonySimCount: String?,
 
     @SerializedName("dual_sim")
     val telephonyHasDualSim: Boolean?,
@@ -476,7 +485,13 @@ data class TestResultBody(
      * May be null if test was success or cancelled
      */
     @SerializedName("test_error_cause")
-    var testErrorCause: String? = null // todo add an catch IllegalNetworkChangeException
+    var testErrorCause: String? = null, // todo add an catch IllegalNetworkChangeException
+
+    /**
+     * Test tag added to each test, can be set in the developer mode settings
+     */
+    @SerializedName("tag")
+    var testTag: String? = null
 )
 
 @Keep

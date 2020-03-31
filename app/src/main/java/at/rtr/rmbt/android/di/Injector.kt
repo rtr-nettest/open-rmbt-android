@@ -3,6 +3,7 @@ package at.rtr.rmbt.android.di
 import at.rtr.rmbt.android.ui.dialog.HistoryFiltersDialog
 import at.rtr.rmbt.android.ui.dialog.IpInfoDialog
 import at.rtr.rmbt.android.ui.dialog.LocationInfoDialog
+import at.rtr.rmbt.android.ui.dialog.NetworkInfoDialog
 import at.rtr.rmbt.android.ui.dialog.SyncDevicesDialog
 import at.specure.measurement.MeasurementService
 import at.specure.measurement.signal.SignalMeasurementService
@@ -39,4 +40,6 @@ object Injector : AppComponent {
     override fun inject(worker: SignalMeasurementInfoWorker) = component.inject(worker)
 
     override fun inject(worker: SignalMeasurementChunkWorker) = component.inject(worker)
+
+    override fun inject(dialog: NetworkInfoDialog) = component.inject(dialog)
 }

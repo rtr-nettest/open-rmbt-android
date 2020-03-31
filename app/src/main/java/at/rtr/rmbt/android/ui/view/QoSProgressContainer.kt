@@ -82,6 +82,8 @@ class QoSProgressContainer @JvmOverloads constructor(context: Context, attrs: At
             binding.textQosTitle.text = context.getString(it.second)
             addView(binding.root)
             items[it.first] = QoSEntry(binding)
+            items[it.first]?.progress = 0
+            items[it.first]?.visibleProgress = 1
             items[it.first]?.isRemoved = false
         }
         Timber.d("Items: ${items.size} QosItems: ${qosItems.size} Views size: ${this.childCount}")
@@ -104,6 +106,9 @@ class QoSProgressContainer @JvmOverloads constructor(context: Context, attrs: At
             if (data.containsKey(entry.key)) {
                 data[entry.key]?.let { progress ->
                     entry.value.progress = progress
+                    if (progress == 100) {
+                        entry.value.isRemoved = true
+                    }
                     sendProgressMessage(entry.key)
                 }
             } else {

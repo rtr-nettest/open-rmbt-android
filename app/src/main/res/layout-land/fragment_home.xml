@@ -80,8 +80,7 @@
             android:visibility="@{state.isLoopModeActive ? View.VISIBLE : View.INVISIBLE}"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/tvTitle"
-             />
+            app:layout_constraintTop_toBottomOf="@+id/tvTitle" />
 
         <androidx.appcompat.widget.AppCompatImageButton
             android:id="@+id/btnSetting"
@@ -103,6 +102,23 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/loop_mode_title"
             tools:background="@android:color/holo_green_light" />
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guideline"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_percent="0.515" />
+
+        <View
+            android:id="@+id/waveViewBackground"
+            android:layout_width="15dp"
+            android:layout_height="0dp"
+            app:layout_constraintBottom_toBottomOf="@+id/waveView"
+            app:layout_constraintStart_toEndOf="@+id/guideline"
+            app:layout_constraintTop_toTopOf="@+id/waveView"
+            android:background="@android:color/white"
+            tools:background="@android:color/holo_red_dark" />
 
         <at.rtr.rmbt.android.ui.view.WaveView
             android:id="@+id/waveView"
@@ -263,13 +279,13 @@
             style="@style/RobotoMediumStyle.Large"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:drawableEnd="@{state.developerModeIsEnabled ? @drawable/ic_developer_mode : null}"
             android:text="@{state.isConnected ? state.activeNetworkInfo.name : @string/home_no_internet_connection}"
             android:textColor="@{state.isConnected ? @android:color/white : @color/text_dark_gray}"
             app:layout_constraintBottom_toTopOf="@+id/tvLblNoConnection"
             app:layout_constraintEnd_toEndOf="@+id/leftView"
             app:layout_constraintStart_toStartOf="@+id/leftView"
             app:layout_constraintTop_toBottomOf="@+id/tvNetworkType"
-            android:drawableEnd="@{state.developerModeIsEnabled ? @drawable/ic_developer_mode : null}"
             tools:text="Android Network"
             tools:textColor="@android:color/white" />
 

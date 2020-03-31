@@ -2,6 +2,7 @@ package at.rtr.rmbt.android.ui.fragment
 
 import android.annotation.SuppressLint
 import android.app.Activity
+import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
@@ -17,10 +18,10 @@ import at.rtr.rmbt.android.di.viewModelLazy
 import at.rtr.rmbt.android.ui.activity.DataPrivacyAndTermsOfUseActivity
 import at.rtr.rmbt.android.ui.activity.LoopInstructionsActivity
 import at.rtr.rmbt.android.ui.dialog.InputSettingDialog
+import at.rtr.rmbt.android.ui.dialog.OpenGpsSettingDialog
+import at.rtr.rmbt.android.ui.dialog.OpenLocationPermissionDialog
 import at.rtr.rmbt.android.ui.dialog.ServerSelectionDialog
 import at.rtr.rmbt.android.ui.dialog.SimpleDialog
-import at.rtr.rmbt.android.ui.dialog.OpenLocationPermissionDialog
-import at.rtr.rmbt.android.ui.dialog.OpenGpsSettingDialog
 import at.rtr.rmbt.android.util.addOnPropertyChanged
 import at.rtr.rmbt.android.util.listen
 import at.rtr.rmbt.android.viewmodel.SettingsViewModel
@@ -30,7 +31,7 @@ import at.specure.util.openAppSettings
 import timber.log.Timber
 import java.util.Locale
 
-class SettingsFragment : BaseFragment(), InputSettingDialog.Callback, ServerSelectionDialog.Callback {
+class SettingsFragment : BaseFragment(), InputSettingDialog.Callback, ServerSelectionDialog.Callback, SimpleDialog.Callback {
 
     private val settingsViewModel: SettingsViewModel by viewModelLazy()
     private val binding: FragmentSettingsBinding by bindingLazy()
@@ -158,6 +159,18 @@ class SettingsFragment : BaseFragment(), InputSettingDialog.Callback, ServerSele
                 .show(activity)
         }
 
+        binding.developerTag.frameLayoutRoot.setOnClickListener {
+
+            InputSettingDialog.instance(
+                getString(R.string.preferences_tag),
+                binding.developerTag.value?.toString() ?: "", this,
+                KEY_DEVELOPER_TAG_CODE,
+                inputType = InputType.TYPE_CLASS_TEXT,
+                isEmptyInputAllowed = true
+            )
+                .show(activity)
+        }
+
         binding.version.value = BuildConfig.VERSION_NAME
         binding.commitHash.value = BuildConfig.COMMIT_HASH
         binding.sourceCode.root.setOnClickListener {
@@ -188,6 +201,16 @@ class SettingsFragment : BaseFragment(), InputSettingDialog.Callback, ServerSele
                     }
                 )
             }
+        }
+
+        binding.radioInfo.root.setOnClickListener {
+            SimpleDialog.Builder()
+                .titleText(R.string.radio_info_warning_title)
+                .messageText(R.string.radio_info_warning_message)
+                .positiveText(R.string.accept_risk)
+                .negativeText(android.R.string.cancel)
+                .cancelable(false)
+                .show(childFragmentManager, KEY_RADIO_INFO_CODE)
         }
 
         settingsViewModel.state.developerModeIsEnabled.addOnPropertyChanged {
@@ -280,7 +303,7 @@ class SettingsFragment : BaseFragment(), InputSettingDialog.Callback, ServerSele
             }
 
             KEY_DEVELOPER_CONTROL_SERVER_PORT_CODE -> {
-                settingsViewModel.state.controlServerPort.set(value.toInt())
+                settingsViewModel.state.controlServerPort.set(value)
             }
             KEY_DEVELOPER_MAP_SERVER_HOST_CODE -> {
                 settingsViewModel.state.mapServerHost.set(value)
@@ -288,6 +311,14 @@ class SettingsFragment : BaseFragment(), InputSettingDialog.Callback, ServerSele
 
             KEY_DEVELOPER_MAP_SERVER_PORT_CODE -> {
                 settingsViewModel.state.mapServerPort.set(value.toInt())
+            }
+
+            KEY_DEVELOPER_TAG_CODE -> {
+                if (value.isEmpty() || value.isBlank()) {
+                    settingsViewModel.state.developerModeTag.set(null)
+                } else {
+                    settingsViewModel.state.developerModeTag.set(value)
+                }
             }
         }
     }
@@ -321,10 +352,36 @@ class SettingsFragment : BaseFragment(), InputSettingDialog.Callback, ServerSele
         private const val KEY_DEVELOPER_CONTROL_SERVER_PORT_CODE: Int = 5
         private const val KEY_DEVELOPER_MAP_SERVER_HOST_CODE: Int = 6
         private const val KEY_DEVELOPER_MAP_SERVER_PORT_CODE: Int = 7
+        private const val KEY_RADIO_INFO_CODE: Int = 8
+        private const val KEY_DEVELOPER_TAG_CODE: Int = 9
 
         private const val CODE_LOOP_INSTRUCTIONS = 13
         private const val CODE_DIALOG_INVALID = 14
 
         fun newInstance() = SettingsFragment()
+    }
+
+    override fun onDialogPositiveClicked(code: Int) {
+        when (code) {
+            KEY_RADIO_INFO_CODE -> {
+                val i = Intent(Intent.ACTION_VIEW)
+                i.setClassName("com.android.settings", "com.android.settings.RadioInfo")
+                try {
+                    startActivity(i)
+                } catch (e: ActivityNotFoundException) {
+                    showNotSupportedToast()
+                } catch (e: SecurityException) {
+                    showNotSupportedToast()
+                }
+            }
+        }
+    }
+
+    override fun onDialogNegativeClicked(code: Int) {
+        // not needed
+    }
+
+    private fun showNotSupportedToast() {
+        Toast.makeText(activity, R.string.preferences_connection_details_not_supported, Toast.LENGTH_SHORT).show()
     }
 }

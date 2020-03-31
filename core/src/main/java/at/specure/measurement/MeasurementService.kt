@@ -307,6 +307,8 @@ class MeasurementService : CustomLifecycleService() {
         stateRecorder.onLoopTestFinished()
         try {
             Handler(Looper.getMainLooper()).post {
+                loopCountdownTimer?.cancel()
+                loopCountdownTimer = null
                 loopCountdownTimer = object : CountDownTimer(loopDelayMs, 1000) {
 
                     override fun onFinish() {
@@ -316,17 +318,26 @@ class MeasurementService : CustomLifecycleService() {
                     }
 
                     override fun onTick(millisUntilFinished: Long) {
-                        Timber.d("CountDownTimer tick $millisUntilFinished")
+                        Timber.d("CountDownTimer tick $millisUntilFinished - ${this.hashCode()}")
+                        val location = stateRecorder.locationInfo
+                        val locationAvailable =
+                            locationStateLiveData.value == LocationProviderState.ENABLED &&
+                                    location != null &&
+                                    location.accuracy < config.loopModeDistanceMeters &&
+                                    stateRecorder.locationAvailableOnLoopStart
+                        val distancePassed = stateRecorder.loopModeRecord?.movementDistanceMeters ?: 0
                         val notification = notificationProvider.loopCountDownNotification(
                             millisUntilFinished,
-                            stateRecorder.loopModeRecord?.movementDistanceMeters ?: 0,
+                            distancePassed,
                             config.loopModeDistanceMeters,
                             stateRecorder.loopTestCount,
                             config.loopModeNumberOfTests,
-                            stopTestsIntent(this@MeasurementService)
+                            stopTestsIntent(this@MeasurementService),
+                            locationAvailable
                         )
                         notificationManager.notify(NOTIFICATION_ID, notification)
                         clientAggregator.onLoopCountDownTimer(loopDelayMs - millisUntilFinished, loopDelayMs)
+                        clientAggregator.onLoopDistanceChanged(distancePassed, config.loopModeDistanceMeters, locationAvailable)
                     }
                 }
 
@@ -420,9 +431,9 @@ class MeasurementService : CustomLifecycleService() {
             if (!wifiLock.isHeld) {
                 wifiLock.acquire()
             }
-            Timber.d("Wake locked")
+            Timber.i("Wake locked")
         } catch (ex: Exception) {
-            Timber.e(ex)
+            Timber.e(ex, "Wake lock failed")
         }
     }
 
@@ -434,8 +445,9 @@ class MeasurementService : CustomLifecycleService() {
             if (wifiLock.isHeld) {
                 wifiLock.release()
             }
+            Timber.v("Wake unlocked")
         } catch (ex: Exception) {
-            Timber.e(ex)
+            Timber.e(ex, "Wake unlock failed")
         }
     }
 
@@ -590,6 +602,12 @@ class MeasurementService : CustomLifecycleService() {
         override fun onLoopCountDownTimer(timePassedMillis: Long, timeTotalMillis: Long) {
             clients.forEach {
                 it.onLoopCountDownTimer(timePassedMillis, timeTotalMillis)
+            }
+        }
+
+        override fun onLoopDistanceChanged(distancePassed: Int, distanceTotal: Int, locationAvailable: Boolean) {
+            clients.forEach {
+                it.onLoopDistanceChanged(distancePassed, distanceTotal, locationAvailable)
             }
         }
 

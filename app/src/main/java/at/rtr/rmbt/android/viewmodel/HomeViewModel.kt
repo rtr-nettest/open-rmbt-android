@@ -38,7 +38,7 @@ class HomeViewModel @Inject constructor(
     val ipV4ChangeLiveData: IpV4ChangeLiveData,
     val ipV6ChangeLiveData: IpV6ChangeLiveData,
     val clientUUID: ClientUUID,
-    appConfig: AppConfig,
+    private val appConfig: AppConfig,
     private val newsRepository: NewsRepository,
     measurementServers: MeasurementServers
 ) : BaseViewModel() {
@@ -68,6 +68,9 @@ class HomeViewModel @Inject constructor(
 
     val newsLiveData: LiveData<List<NewsItem>?>
         get() = _getNewsLiveData
+
+    val isExpertModeOn: Boolean
+        get() = appConfig.expertModeEnabled
 
     private val serviceConnection = object : ServiceConnection {
 

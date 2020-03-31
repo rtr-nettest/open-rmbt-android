@@ -12,11 +12,11 @@ import at.rtr.rmbt.android.BuildConfig
 import at.rtr.rmbt.android.R
 import at.rtr.rmbt.android.ui.activity.HomeActivity
 import at.rtr.rmbt.android.ui.activity.LoopFinishedActivity
+import at.rtr.rmbt.android.util.timeString
 import at.specure.data.entity.LoopModeRecord
 import at.specure.data.entity.LoopModeState
 import at.specure.di.NotificationProvider
 import at.specure.measurement.MeasurementState
-import java.util.concurrent.TimeUnit
 
 class NotificationProviderImpl(private val context: Context) : NotificationProvider {
 
@@ -112,18 +112,20 @@ class NotificationProviderImpl(private val context: Context) : NotificationProvi
         metersRequired: Int,
         testsPassed: Int,
         testsCount: Int,
-        cancellationIntent: Intent
+        cancellationIntent: Intent,
+        locationAvailable: Boolean
     ): Notification {
 
-        val minutesPassed = TimeUnit.MILLISECONDS.toMinutes(timePassedMillis)
-        val secondsPassed = TimeUnit.MILLISECONDS.toSeconds(timePassedMillis) - TimeUnit.MINUTES.toSeconds(minutesPassed)
+        val locationString = if (locationAvailable) {
+            String.format("  %dm left  ", metersRequired - metersPassed)
+        } else {
+            "  No GPS  "
+        }
 
         val text = String.format(
-            "%02d:%02d \t %dm/%dm \t %d/%d",
-            minutesPassed,
-            secondsPassed,
-            metersPassed,
-            metersRequired,
+            "%s%s(%d/%d)",
+            timePassedMillis.timeString(),
+            locationString,
             testsPassed,
             testsCount
         )
