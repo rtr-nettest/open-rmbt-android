@@ -8,13 +8,17 @@ import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationResult
 import com.google.android.gms.location.LocationServices
+import okhttp3.internal.notify
+import okhttp3.internal.wait
 import timber.log.Timber
 import java.util.Collections
 
 class LocationInfoWatcherFusedImpl(context: Context) : LocationWatcher {
 
-    private lateinit var handlerThread: HandlerThread
+    private var handlerThread: HandlerThread? = null
+
     private val locationRequest = LocationRequest()
+    private val monitor = Any()
 
     private var lastKnownLocation: Location? = null
         get() {
@@ -67,23 +71,40 @@ class LocationInfoWatcherFusedImpl(context: Context) : LocationWatcher {
 
     override fun addLocationInfoListener(listener: LocationWatcher.LocationInfoChangeListener) {
         locationInfoListeners.add(listener)
-        if (locationInfoListeners.size == 1)
-            registerReceiver()
+        registerReceiver()
         if (lastKnownLocationInfo != null) {
             notifyInfoListeners(lastKnownLocationInfo)
         }
     }
 
     private fun registerReceiver() {
-        handlerThread = HandlerThread("locationAcquiringThread")
-        if (!handlerThread.isAlive) {
-            handlerThread.start()
+
+        if (handlerThread == null) {
+            handlerThread = object : HandlerThread("locationAcquiringThread") {
+                override fun onLooperPrepared() {
+                    super.onLooperPrepared()
+                    synchronized(monitor) {
+                        monitor.notify()
+                    }
+                }
+            }
+            if (!handlerThread!!.isAlive) {
+                handlerThread!!.start()
+
+                synchronized(monitor) {
+                    try {
+                        monitor.wait()
+                    } catch (e: InterruptedException) {
+                        Timber.e(e)
+                    }
+                }
+            }
         }
 
         val task = mFusedLocationProviderClient.requestLocationUpdates(
             locationRequest,
             locationCallback,
-            handlerThread.looper
+            handlerThread!!.looper
         )
 
         if (!task.isSuccessful) {
@@ -93,7 +114,8 @@ class LocationInfoWatcherFusedImpl(context: Context) : LocationWatcher {
 
     private fun unregisterReceiver() {
         mFusedLocationProviderClient.removeLocationUpdates(locationCallback)
-        handlerThread.quit()
+        handlerThread?.quit()
+        handlerThread = null
     }
 
     override fun getLatestLocation(): Location? {
