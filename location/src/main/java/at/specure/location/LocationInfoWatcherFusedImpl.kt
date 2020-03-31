@@ -8,8 +8,6 @@ import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationResult
 import com.google.android.gms.location.LocationServices
-import okhttp3.internal.notify
-import okhttp3.internal.wait
 import timber.log.Timber
 import java.util.Collections
 
@@ -84,7 +82,7 @@ class LocationInfoWatcherFusedImpl(context: Context) : LocationWatcher {
                 override fun onLooperPrepared() {
                     super.onLooperPrepared()
                     synchronized(monitor) {
-                        monitor.notify()
+                        (monitor as java.lang.Object).notify()
                     }
                 }
             }
@@ -93,7 +91,7 @@ class LocationInfoWatcherFusedImpl(context: Context) : LocationWatcher {
 
                 synchronized(monitor) {
                     try {
-                        monitor.wait()
+                        (monitor as java.lang.Object).wait()
                     } catch (e: InterruptedException) {
                         Timber.e(e)
                     }
