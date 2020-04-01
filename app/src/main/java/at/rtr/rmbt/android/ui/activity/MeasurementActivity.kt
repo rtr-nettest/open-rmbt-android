@@ -85,9 +85,7 @@ class MeasurementActivity : BaseActivity(), SimpleDialog.Callback {
         }
 
         viewModel.signalStrengthLiveData.listen(this) {
-            if (!viewModel.state.isLoopModeActive.get() || viewModel.state.loopState.get() != LoopModeState.IDLE) {
-                viewModel.state.signalStrengthInfo.set(it)
-            }
+            viewModel.state.setSignalStrength(it)
         }
 
         viewModel.activeNetworkLiveData.listen(this) {
