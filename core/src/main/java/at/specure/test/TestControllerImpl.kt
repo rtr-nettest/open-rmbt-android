@@ -315,7 +315,7 @@ class TestControllerImpl(
             if (result.pingNano > 0) {
                 _listener?.onPingChanged(result.pingNano)
             }
-            _listener?.onDownloadSpeedChanged(progress, result.downBitPerSec)
+            _listener?.onDownloadSpeedChanged(progress, result.downBitPerSec * 10)
             previousDownloadProgress = progress
         }
     }

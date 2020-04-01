@@ -48,6 +48,8 @@ class SettingsViewState constructor(
     val mapServerUseSSL = ObservableField(appConfig.mapServerUseSSL)
     val qosSSL = ObservableField(appConfig.qosSSL)
     val selectedMeasurementServer = ObservableField(measurementServers.selectedMeasurementServer)
+    val developer5GSimulationEnabled = ObservableField(appConfig.developer5GSimulationEnabled)
+    val developer5GSimulationAvailable = ObservableField(appConfig.developer5GSimulationAvailable)
 
     private fun setControlServerAddress() {
         if ((appConfig.controlServerOverrideEnabled) && (appConfig.developerModeIsEnabled)) {
@@ -186,6 +188,11 @@ class SettingsViewState constructor(
         selectedMeasurementServer.addOnPropertyChanged { value ->
             value.get().let {
                 measurementServers.selectedMeasurementServer = it
+            }
+        }
+        developer5GSimulationEnabled.addOnPropertyChanged { value ->
+            value.get()?.let {
+                appConfig.developer5GSimulationEnabled = it
             }
         }
     }
