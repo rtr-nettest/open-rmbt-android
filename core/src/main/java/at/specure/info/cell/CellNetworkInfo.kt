@@ -23,8 +23,12 @@ import android.telephony.CellInfo
 import android.telephony.CellInfoCdma
 import android.telephony.CellInfoGsm
 import android.telephony.CellInfoLte
+import android.telephony.CellInfoNr
 import android.telephony.CellInfoWcdma
+import android.telephony.CellSignalStrengthNr
 import android.telephony.SubscriptionInfo
+import androidx.annotation.RequiresApi
+import at.specure.info.Network5GSimulator
 import at.specure.info.TransportType
 import at.specure.info.band.CellBand
 import at.specure.info.network.MobileNetworkType
@@ -85,24 +89,17 @@ class CellNetworkInfo(
     companion object {
 
         fun from(info: CellInfo, subscriptionInfo: SubscriptionInfo?, isActive: Boolean, isRoaming: Boolean, apn: String?): CellNetworkInfo {
-            val networkType: MobileNetworkType = when (info) {
-                is CellInfoLte -> MobileNetworkType.LTE
-                is CellInfoWcdma -> MobileNetworkType.HSPAP
-                is CellInfoCdma -> MobileNetworkType.CDMA
-                is CellInfoGsm -> MobileNetworkType.GSM
+            val networkType: MobileNetworkType = when {
+                info is CellInfoLte -> MobileNetworkType.LTE
+                info is CellInfoWcdma -> MobileNetworkType.HSPAP
+                info is CellInfoCdma -> MobileNetworkType.CDMA
+                info is CellInfoGsm -> MobileNetworkType.GSM
+                Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q && info is CellInfoNr -> MobileNetworkType.NR
                 else -> throw IllegalArgumentException("Unknown cell info cannot be extracted ${info::class.java.name}")
             }
             return from(info, subscriptionInfo, networkType, isActive, isRoaming, apn)
         }
 
-        /* fun checkNetworkOperator(cellInfo: CellInfo, networkOperator: String): Boolean {
-             when (cellInfo) {
-                 is CellInfoLte -> networkOperator.contentEquals(cellInfo.cellIdentity.operatorAlphaLong) || (networkOperator.contentEquals(cellInfo.cellIdentity.operatorAlphaShort))
-                 is CellInfoWcdma -> MobileNetworkType.HSPAP
-                 is CellInfoCdma -> MobileNetworkType.CDMA
-                 is CellInfoGsm -> MobileNetworkType.GSM
-         }
- */
         /**
          * Creates [CellNetworkInfo] from initial data objects
          */
@@ -115,11 +112,24 @@ class CellNetworkInfo(
             apn: String?
         ): CellNetworkInfo {
             val providerName = subscriptionInfo?.carrierName?.toString() ?: ""
-            return when (info) {
-                is CellInfoLte -> fromLte(info, providerName, networkType, isActive, isRoaming, apn)
-                is CellInfoWcdma -> fromWcdma(info, providerName, networkType, isActive, isRoaming, apn)
-                is CellInfoGsm -> fromGsm(info, providerName, networkType, isActive, isRoaming, apn)
-                is CellInfoCdma -> fromCdma(info, providerName, networkType, isActive, isRoaming, apn)
+
+            if (Network5GSimulator.isEnabled && info != null) {
+                return Network5GSimulator.fromInfo(info, isActive, isRoaming, apn)
+            }
+
+            return when {
+                info is CellInfoLte -> fromLte(info, providerName, networkType, isActive, isRoaming, apn)
+                info is CellInfoWcdma -> fromWcdma(info, providerName, networkType, isActive, isRoaming, apn)
+                info is CellInfoGsm -> fromGsm(info, providerName, networkType, isActive, isRoaming, apn)
+                info is CellInfoCdma -> fromCdma(info, providerName, networkType, isActive, isRoaming, apn)
+                Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q && info is CellInfoNr -> fromNr(
+                    info,
+                    providerName,
+                    networkType,
+                    isActive,
+                    isRoaming,
+                    apn
+                )
                 else -> fromUnknown(providerName, networkType, isActive, isRoaming, apn)
             }
         }
@@ -273,6 +283,35 @@ class CellNetworkInfo(
                 isRoaming = isRoaming,
                 apn = apn,
                 signalStrength = SignalStrengthInfo.from(info.cellSignalStrength)
+            )
+        }
+
+        @RequiresApi(Build.VERSION_CODES.Q)
+        // TODO cell info NR
+        private fun fromNr(
+            info: CellInfoNr,
+            providerName: String,
+            networkType: MobileNetworkType,
+            isActive: Boolean,
+            isRoaming: Boolean,
+            apn: String?
+        ): CellNetworkInfo {
+
+            return CellNetworkInfo(
+                providerName = providerName,
+                band = null,
+                networkType = networkType,
+                mcc = null,
+                mnc = null,
+                locationId = null,
+                areaCode = 1,
+                scramblingCode = null,
+                cellUUID = info.uuid(),
+                isActive = isActive,
+                isRegistered = info.isRegistered,
+                isRoaming = isRoaming,
+                apn = apn,
+                signalStrength = SignalStrengthInfo.from(info.cellSignalStrength as CellSignalStrengthNr)
             )
         }
     }

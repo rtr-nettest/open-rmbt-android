@@ -96,6 +96,21 @@ open class SignalStrengthInfo(
         const val RSSNR_MIN = -200
         const val RSSNR_MAX = 300
 
+        fun from(signal: CellSignalStrengthNr): SignalStrengthInfoLte = SignalStrengthInfoLte(
+            transport = TransportType.CELLULAR,
+            value = signal.dbm,
+            rsrq = null,
+            signalLevel = signal.level,
+            min = LTE_RSRP_SIGNAL_MIN,
+            max = LTE_RSRP_SIGNAL_MAX,
+            timestampNanos = SystemClock.elapsedRealtimeNanos(),
+            cqi = null,
+            rsrp = null,
+            rssi = null,
+            rssnr = null,
+            timingAdvance = null
+        )
+
         fun from(signal: CellSignalStrengthLte): SignalStrengthInfoLte = SignalStrengthInfoLte(
             transport = TransportType.CELLULAR,
             value = signal.dbm,

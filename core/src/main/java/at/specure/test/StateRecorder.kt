@@ -16,6 +16,7 @@ import at.specure.data.entity.LoopModeState
 import at.specure.data.entity.TestRecord
 import at.specure.data.repository.MeasurementRepository
 import at.specure.data.repository.TestDataRepository
+import at.specure.info.Network5GSimulator
 import at.specure.info.cell.CellInfoWatcher
 import at.specure.info.cell.CellNetworkInfo
 import at.specure.info.network.ActiveNetworkLiveData
@@ -322,7 +323,12 @@ class StateRecorder @Inject constructor(
 
     override fun onSpeedDataChanged(threadId: Int, bytes: Long, timestampNanos: Long, isUpload: Boolean) {
         testUUID?.let {
-            repository.saveSpeedData(it, threadId, bytes, timestampNanos, isUpload)
+            val value = if (isUpload) {
+                Network5GSimulator.upBitPerSec(bytes)
+            } else {
+                Network5GSimulator.downBitPerSec(bytes)
+            }
+            repository.saveSpeedData(it, threadId, value, timestampNanos, isUpload)
         }
     }
 
@@ -344,8 +350,8 @@ class StateRecorder @Inject constructor(
             serverPublicIp = result.ip_server?.hostAddress
             downloadDurationNanos = result.nsec_download
             uploadDurationNanos = result.nsec_upload
-            downloadSpeedKps = floor(result.speed_download + 0.5).toLong()
-            uploadSpeedKps = floor(result.speed_upload + 0.5).toLong()
+            downloadSpeedKps = Network5GSimulator.downBitPerSec(floor(result.speed_download + 0.5).toLong())
+            uploadSpeedKps = Network5GSimulator.upBitPerSec(floor(result.speed_upload + 0.5).toLong())
             shortestPingNanos = result.ping_shortest
             downloadedBytesOnInterface = result.getTotalTrafficMeasurement(TrafficDirection.RX)
             uploadedBytesOnInterface = result.getTotalTrafficMeasurement(TrafficDirection.TX)

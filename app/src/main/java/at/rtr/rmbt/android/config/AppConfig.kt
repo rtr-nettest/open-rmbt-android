@@ -365,7 +365,7 @@ class AppConfig @Inject constructor(context: Context, private val serverSettings
 
     override var developer5GSimulationEnabled: Boolean
         get() = getBoolean(BuildConfig.DEV_SIMULATE_5G_NETWORK)
-        set(value) = setBoolean(BuildConfig.DEVELOPER_MODE_IS_ENABLED, value)
+        set(value) = setBoolean(BuildConfig.DEV_SIMULATE_5G_NETWORK, value)
 
     override val developer5GSimulationAvailable: Boolean
         get() = getBoolean(BuildConfig.DEVELOPER_MODE_IS_AVAILABLE)
