@@ -144,12 +144,13 @@ class StateRecorder @Inject constructor(
         this.testStartTimeNanos = testStartTimeNanos
         qosRunning = false
         saveTestInitialTestData(testUUID, loopUUID, testToken, testStartTimeNanos, threadNumber)
+        cellLocation = cellLocationWatcher.getCellLocationFromTelephony()
+        saveCellLocation()
         saveLocationInfo()
         saveSignalStrengthInfo()
         saveCellInfo()
         saveCapabilities()
         savePermissionsStatus()
-        saveCellLocation()
         saveTelephonyInfo()
         saveWlanInfo()
     }
