@@ -130,5 +130,7 @@ data class TestResultRecord(
      */
     val pingClass: Classification,
 
-    val networkType: NetworkTypeCompat
+    val networkType: NetworkTypeCompat,
+
+    val isLocalOnly: Boolean
 )

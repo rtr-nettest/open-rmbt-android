@@ -113,7 +113,7 @@ class TestResultsRepositoryImpl(
     override fun loadTestResults(testUUID: String): Flow<Boolean> = flow {
         val clientUUID = clientUUID.value
         if (clientUUID == null) {
-            Timber.w("Unable to update history client uuid is null")
+            Timber.w("Unable to update test results client uuid is null")
             throw DataMissingException("ClientUUID is null")
         } else {
             val response = client.getTestResult(

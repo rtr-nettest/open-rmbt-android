@@ -4,14 +4,21 @@ import android.content.Context
 import at.rmbt.client.control.ControlServerClient
 import at.rmbt.util.Maybe
 import at.rmbt.util.io
+import at.specure.data.Classification
 import at.specure.data.ClientUUID
 import at.specure.data.CoreDatabase
+import at.specure.data.NetworkTypeCompat
+import at.specure.data.entity.TestResultRecord
 import at.specure.data.entity.TestTelephonyRecord
 import at.specure.data.entity.TestWlanRecord
 import at.specure.data.toRequest
+import at.specure.info.NetworkCapability
 import at.specure.info.TransportType
+import at.specure.info.cell.CellTechnology
+import at.specure.info.network.MobileNetworkType
 import at.specure.test.DeviceInfo
 import at.specure.util.exception.DataMissingException
+import java.util.Locale
 import javax.inject.Inject
 
 class ResultsRepositoryImpl @Inject constructor(
@@ -33,6 +40,7 @@ class ResultsRepositoryImpl @Inject constructor(
         val clientUUID = clientUUID.value ?: throw DataMissingException("ClientUUID is null")
 
         var finalResult: Maybe<Boolean> = Maybe(true)
+        val qosRecord = testDao.getQoSRecord(testUUID)
 
         if (!testRecord.isSubmitted) {
 
@@ -70,11 +78,57 @@ class ResultsRepositoryImpl @Inject constructor(
                 db.testDao().updateTestIsSubmitted(testUUID)
             }
 
+            result.onFailure {
+
+                val networkType = NetworkTypeCompat.fromResultIntType(body.networkType.toInt())
+
+                db.testResultDao().insert(
+                    TestResultRecord(
+                        uuid = testUUID,
+                        clientOpenUUID = "C$clientUUID",
+                        testOpenUUID = "O$testUUID",
+                        timezone = "",
+                        shareText = "",
+                        shareTitle = "",
+                        locationText = "",
+                        longitude = body?.geoLocations?.get(0)?.longitude,
+                        latitude = body?.geoLocations?.get(0)?.latitude,
+                        timestamp = body.timeMillis,
+                        timeText = "",
+                        networkTypeRaw = body.networkType.toInt(),
+                        networkTypeText = MobileNetworkType.fromValue(body.networkType.toInt()).displayName,
+                        networkName = if (networkType == NetworkTypeCompat.TYPE_WLAN) wlanInfo?.ssid ?: wlanInfo?.bssid else null,
+                        networkProviderName = body.telephonyNetworkSimOperatorName,
+                        networkType = networkType,
+                        uploadClass = Classification.fromValue(0),
+                        downloadClass = Classification.fromValue(0),
+                        downloadSpeedKbs = body.downloadSpeedKbs,
+                        uploadSpeedKbs = body.uploadSpeedKbs,
+                        signalClass = Classification.fromValue(0),
+                        signalStrength = body.radioInfo?.signals?.get(0)?.signal ?: body.radioInfo?.signals?.get(0)?.lteRsrp,
+                        pingClass = Classification.fromValue(0),
+                        pingMillis = body.shortestPingNanos / 1000000.toDouble(),
+                        isLocalOnly = true
+                    )
+                )
+            }
+
+            if (qosRecord != null) {
+                val body = qosRecord.toRequest(clientUUID, deviceInfo)
+
+                val result = client.sendQoSTestResults(body)
+                result.onSuccess {
+                    db.testDao().updateQoSTestIsSubmitted(testUUID)
+                    db.historyDao().clear()
+                }
+
+                finalResult = result.map { result.ok }
+            }
+
             finalResult = result.map { result.ok }
         }
 
         if (finalResult.ok) {
-            val qosRecord = testDao.getQoSRecord(testUUID)
             if (qosRecord != null) {
                 val body = qosRecord.toRequest(clientUUID, deviceInfo)
 
