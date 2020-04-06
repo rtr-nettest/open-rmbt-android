@@ -47,6 +47,10 @@ class NetworkDetailsFragment : BaseFragment() {
             state.setIpInfo(it)
         }
 
+        viewModel.locationProducer.liveData.listen(this) {
+            state.setLocationInfo(it)
+        }
+
         binding.buttonSignalMeasurement.setOnClickListener {
             startActivity(Intent(requireContext(), SignalMeasurementActivity::class.java))
         }

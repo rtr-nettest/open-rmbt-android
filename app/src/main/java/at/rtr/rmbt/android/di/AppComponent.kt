@@ -3,6 +3,7 @@ package at.rtr.rmbt.android.di
 import android.content.Context
 import at.rmbt.client.control.ControlServerModule
 import at.rtr.rmbt.android.config.ConfigModule
+import at.rtr.rmbt.android.location.LocationModule
 import at.rtr.rmbt.android.ui.dialog.HistoryFiltersDialog
 import at.rtr.rmbt.android.ui.dialog.IpInfoDialog
 import at.rtr.rmbt.android.ui.dialog.LocationInfoDialog
@@ -20,7 +21,16 @@ import javax.inject.Singleton
  * Main Application component that wires all application modules together
  */
 @Singleton
-@Component(modules = [ViewModelModule::class, SystemModule::class, DependencyModule::class, DatabaseModule::class, CoreModule::class, ControlServerModule::class, ConfigModule::class])
+@Component(
+    modules = [ViewModelModule::class,
+        SystemModule::class,
+        DependencyModule::class,
+        DatabaseModule::class,
+        CoreModule::class,
+        ControlServerModule::class,
+        ConfigModule::class,
+        LocationModule::class]
+)
 interface AppComponent : CoreComponent {
 
     fun viewModelFactory(): ViewModelFactory

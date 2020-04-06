@@ -32,6 +32,7 @@ import at.specure.location.LocationProviderState.DISABLED_DEVICE
 import at.specure.location.LocationProviderState.ENABLED
 import at.specure.measurement.MeasurementService
 import at.specure.util.toast
+import timber.log.Timber
 
 class HomeFragment : BaseFragment() {
 
@@ -167,6 +168,10 @@ class HomeFragment : BaseFragment() {
             if (homeViewModel.isExpertModeOn) {
                 NetworkInfoDialog.show(childFragmentManager)
             }
+        }
+
+        homeViewModel.locationProducer.liveData.listen(this) {
+            Timber.w("LOCATION CHANGED: ${it?.provider} - ${it?.accuracy}")
         }
     }
 
