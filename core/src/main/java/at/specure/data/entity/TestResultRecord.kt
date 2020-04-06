@@ -132,5 +132,5 @@ data class TestResultRecord(
 
     val networkType: NetworkTypeCompat,
 
-    val isLocalOnly: Boolean
+    val isLocalOnly: Boolean = false
 )
