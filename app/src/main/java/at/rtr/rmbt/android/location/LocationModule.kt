@@ -17,5 +17,4 @@ class LocationModule {
         .addSource(GPSLocationSource(context))
         .addSource(NetworkLocationSource(context))
         .build()
-
 }
