@@ -2,7 +2,7 @@ package at.specure.location
 
 import android.location.Location
 
-interface LocationWatcher {
+interface LocationWatcherOld {
 
     /**
      * Add listener to listen for location info changes

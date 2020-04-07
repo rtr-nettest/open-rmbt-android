@@ -4,7 +4,7 @@ import android.content.Context
 import androidx.lifecycle.LiveData
 import java.util.Collections
 
-class LocationProducer private constructor(context: Context, sourceSet: Set<LocationSource>, private val dispatcher: LocationDispatcher) {
+class LocationWatcher private constructor(context: Context, sourceSet: Set<LocationSource>, private val dispatcher: LocationDispatcher) {
 
     private val monitor = Any()
 
@@ -123,8 +123,8 @@ class LocationProducer private constructor(context: Context, sourceSet: Set<Loca
             return this
         }
 
-        fun build(): LocationProducer {
-            return LocationProducer(context, sourceSet, dispatcher ?: DefaultLocationDispatcher())
+        fun build(): LocationWatcher {
+            return LocationWatcher(context, sourceSet, dispatcher ?: DefaultLocationDispatcher())
         }
     }
 

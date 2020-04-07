@@ -2,7 +2,7 @@ package at.specure.location
 
 import androidx.lifecycle.MutableLiveData
 
-class LocationLiveData(private val producer: LocationProducer) : MutableLiveData<LocationInfo>(), LocationProducer.Listener {
+class LocationLiveData(private val producer: LocationWatcher) : MutableLiveData<LocationInfo>(), LocationWatcher.Listener {
 
     override fun onActive() {
         super.onActive()

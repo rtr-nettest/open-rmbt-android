@@ -19,7 +19,7 @@ import at.specure.info.ip.IpV4ChangeLiveData
 import at.specure.info.ip.IpV6ChangeLiveData
 import at.specure.info.network.ActiveNetworkLiveData
 import at.specure.info.strength.SignalStrengthLiveData
-import at.specure.location.LocationProducer
+import at.specure.location.LocationWatcher
 import at.specure.location.LocationProviderStateLiveData
 import at.specure.measurement.signal.SignalMeasurementProducer
 import at.specure.measurement.signal.SignalMeasurementService
@@ -42,7 +42,7 @@ class HomeViewModel @Inject constructor(
     private val appConfig: AppConfig,
     private val newsRepository: NewsRepository,
     measurementServers: MeasurementServers,
-    val locationProducer: LocationProducer
+    val locationProducer: LocationWatcher
 ) : BaseViewModel() {
 
     val state = HomeViewState(appConfig, measurementServers)

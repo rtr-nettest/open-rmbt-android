@@ -28,7 +28,7 @@ import at.specure.location.LocationInfo
 import at.specure.location.LocationInfoLiveData
 import at.specure.location.LocationProviderState
 import at.specure.location.LocationProviderStateLiveData
-import at.specure.location.LocationWatcher
+import at.specure.location.LocationWatcherOld
 import at.specure.location.cell.CellLocationInfo
 import at.specure.location.cell.CellLocationLiveData
 import at.specure.location.cell.CellLocationWatcher
@@ -45,7 +45,7 @@ private const val MAX_SIGNAL_UPTIME_PER_CHUNK_MIN = 10L
 class SignalMeasurementProcessor @Inject constructor(
     private val repository: TestDataRepository,
     private val locationInfoLiveData: LocationInfoLiveData,
-    private val locationWatcher: LocationWatcher,
+    private val locationWatcher: LocationWatcherOld,
     private val signalStrengthLiveData: SignalStrengthLiveData,
     private val signalStrengthWatcher: SignalStrengthWatcher,
     private val activeNetworkLiveData: ActiveNetworkLiveData,

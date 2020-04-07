@@ -39,9 +39,6 @@ android {
 }
 
 dependencies {
-    implementation project(path: ':core')
-    implementation fileTree(dir: 'libs', include: ['*.jar'])
-
     // Kotlin
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$versions.kotlin"
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:$versions.coroutines"
