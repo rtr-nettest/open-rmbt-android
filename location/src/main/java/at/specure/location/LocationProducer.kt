@@ -15,16 +15,32 @@ class LocationProducer private constructor(context: Context, sourceSet: Set<Loca
     private val stateListener = object : LocationStateWatcher.Listener {
         override fun onLocationStateChanged(state: LocationState?) {
             synchronized(monitor) {
-                if (listeners.isNotEmpty() && !isStarted) {
-                    sources.forEach { it.attach() }
-                    isStarted = true
+                if (state == LocationState.ENABLED) {
+                    if (listeners.isNotEmpty()) {
+                        if (isStarted) {
+                            sources.forEach {
+                                dispatcher.onLocationInfoChanged(it.source, it.source.location)
+                                it.attach()
+                            }
+                        } else {
+                            sources.forEach { it.attach() }
+                            isStarted = true
+                        }
+                    }
+                } else {
+                    dispatcher.onPermissionsDisabled()
+                    listeners.forEach { it.onLocationInfoChanged(null) }
                 }
             }
         }
     }
 
     val liveData: LiveData<LocationInfo?> by lazy { LocationLiveData(this) }
-    val stateLiveData: LiveData<LocationState?> by lazy { LocationStateLiveData(stateWatcher) }
+    val stateLiveData: LiveData<LocationState?> by lazy {
+        val liveData = LocationStateLiveData(stateWatcher)
+        stateWatcher.updateLocationPermissions()
+        liveData
+    }
 
     private var isStarted = false
 

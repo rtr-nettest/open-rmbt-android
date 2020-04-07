@@ -11,16 +11,24 @@ class DefaultLocationDispatcher : LocationDispatcher {
     private var lastTimestamp = 0L
 
     override fun latestLocation(sources: LocationSource): LocationInfo? {
-        // TODO get last location from source
         return lastLocation
     }
 
+    override fun onPermissionsDisabled() {
+        lastLocation = null
+        lastSource = null
+        lastTimestamp = 0
+    }
+
     override fun onLocationInfoChanged(source: LocationSource, location: LocationInfo?): LocationDispatcher.Decision {
+        Timber.i("locupd: new location came: ${location?.provider} ${location?.accuracy}")
         val timestamp = System.currentTimeMillis()
         if (location == null) {
-            // TODO set null if all sources are null
-            Timber.w("locupd: null")
-            return LocationDispatcher.Decision(null, false)
+            return if (lastSource == source) {
+                LocationDispatcher.Decision(null, true)
+            } else {
+                LocationDispatcher.Decision(null, false)
+            }
         } else {
             return if (lastLocation == null) {
                 Timber.v("locupd: no last location")

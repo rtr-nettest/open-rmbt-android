@@ -23,8 +23,8 @@ class LocationStateWatcher(private val context: Context) : DeviceLocationStateWa
     /**
      * Permission granted for app
      */
-    private var appEnabled: Boolean =
-        ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED ||
+    private val appEnabled: Boolean
+        get() = ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED ||
                 ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED
 
     val state: LocationState?
@@ -63,6 +63,7 @@ class LocationStateWatcher(private val context: Context) : DeviceLocationStateWa
             if (listeners.size == 1) {
                 deviceStateWatcher.addListener(this)
             }
+            listener.onLocationStateChanged(state)
         }
     }
 

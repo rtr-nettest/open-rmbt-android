@@ -2,6 +2,8 @@ package at.specure.location
 
 interface LocationSource {
 
+    val location: LocationInfo?
+
     fun start(listener: Listener): Boolean
 
     fun stop()

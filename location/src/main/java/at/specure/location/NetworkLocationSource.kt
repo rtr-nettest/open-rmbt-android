@@ -13,6 +13,16 @@ class NetworkLocationSource(context: Context) : LocationSource {
     private val manager = context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
     private var listener: LocationSource.Listener? = null
 
+    override val location: LocationInfo?
+        @SuppressLint("MissingPermission")
+        get() = try {
+            val location = manager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER)
+            location?.let { LocationInfo(it) }
+        } catch (ex: Exception) {
+            Timber.e(ex, "Failed to get last known network location")
+            null
+        }
+
     private val locationListener = object : LocationListener {
 
         override fun onLocationChanged(location: Location?) {
