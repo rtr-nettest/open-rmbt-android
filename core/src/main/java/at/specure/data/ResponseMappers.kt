@@ -111,27 +111,27 @@ fun QoEClassification.toModel(testUUID: String): QoeInfoRecord {
     )
 }
 
-fun SignalGraphItemResponse.toModel(openTestUUID: String): TestResultGraphItemRecord {
+fun SignalGraphItemResponse.toModel(testUUID: String): TestResultGraphItemRecord {
     return TestResultGraphItemRecord(
-        testOpenUUID = openTestUUID,
+        testUUID = testUUID,
         time = timeMillis,
         value = signalStrength?.toLong() ?: lteRsrp?.toLong() ?: 0,
         type = TestResultGraphItemRecord.Type.SIGNAL
     )
 }
 
-fun PingGraphItemResponse.toModel(openTestUUID: String): TestResultGraphItemRecord {
+fun PingGraphItemResponse.toModel(testUUID: String): TestResultGraphItemRecord {
     return TestResultGraphItemRecord(
-        testOpenUUID = openTestUUID,
+        testUUID = testUUID,
         time = timeMillis,
         value = durationMillis.toLong(),
         type = TestResultGraphItemRecord.Type.PING
     )
 }
 
-fun SpeedGraphItemResponse.toModel(openTestUUID: String, type: TestResultGraphItemRecord.Type): TestResultGraphItemRecord {
+fun SpeedGraphItemResponse.toModel(testUUID: String, type: TestResultGraphItemRecord.Type): TestResultGraphItemRecord {
     return TestResultGraphItemRecord(
-        testOpenUUID = openTestUUID,
+        testUUID = testUUID,
         time = timeMillis,
         value = bytes,
         type = type

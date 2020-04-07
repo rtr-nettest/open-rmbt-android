@@ -8,17 +8,18 @@ import at.specure.data.Classification
 import at.specure.data.ClientUUID
 import at.specure.data.CoreDatabase
 import at.specure.data.NetworkTypeCompat
+import at.specure.data.entity.PingRecord
+import at.specure.data.entity.SignalRecord
+import at.specure.data.entity.SpeedRecord
+import at.specure.data.entity.TestResultGraphItemRecord
 import at.specure.data.entity.TestResultRecord
 import at.specure.data.entity.TestTelephonyRecord
 import at.specure.data.entity.TestWlanRecord
 import at.specure.data.toRequest
-import at.specure.info.NetworkCapability
 import at.specure.info.TransportType
-import at.specure.info.cell.CellTechnology
 import at.specure.info.network.MobileNetworkType
 import at.specure.test.DeviceInfo
 import at.specure.util.exception.DataMissingException
-import java.util.Locale
 import javax.inject.Inject
 
 class ResultsRepositoryImpl @Inject constructor(
@@ -57,6 +58,10 @@ class ResultsRepositoryImpl @Inject constructor(
                 null
             }
 
+            val pings: List<PingRecord> = db.pingDao().get(testUUID)
+            val speeds: List<SpeedRecord> = db.speedDao().get(testUUID)
+            val signals: List<SignalRecord> = db.signalDao().get(testUUID)
+
             val body = testRecord.toRequest(
                 clientUUID = clientUUID,
                 deviceInfo = deviceInfo,
@@ -64,10 +69,10 @@ class ResultsRepositoryImpl @Inject constructor(
                 wlanInfo = wlanInfo,
                 locations = db.geoLocationDao().get(testUUID),
                 capabilities = db.capabilitiesDao().get(testUUID),
-                pingList = db.pingDao().get(testUUID),
+                pingList = pings,
                 cellInfoList = db.cellInfoDao().get(testUUID),
-                signalList = db.signalDao().get(testUUID),
-                speedInfoList = db.speedDao().get(testUUID),
+                signalList = signals,
+                speedInfoList = speeds,
                 cellLocationList = db.cellLocationDao().get(testUUID),
                 permissions = db.permissionStatusDao().get(testUUID)
             )
@@ -85,8 +90,8 @@ class ResultsRepositoryImpl @Inject constructor(
                 db.testResultDao().insert(
                     TestResultRecord(
                         uuid = testUUID,
-                        clientOpenUUID = "C$clientUUID",
-                        testOpenUUID = "O$testUUID",
+                        clientOpenUUID = "",
+                        testOpenUUID = "",
                         timezone = "",
                         shareText = "",
                         shareTitle = "",
@@ -96,7 +101,7 @@ class ResultsRepositoryImpl @Inject constructor(
                         timestamp = body.timeMillis,
                         timeText = "",
                         networkTypeRaw = body.networkType.toInt(),
-                        networkTypeText = MobileNetworkType.fromValue(body.networkType.toInt()).displayName,
+                        networkTypeText = if (networkType != NetworkTypeCompat.TYPE_WLAN) MobileNetworkType.fromValue(body.networkType.toInt()).displayName else NetworkTypeCompat.TYPE_WLAN.stringValue,
                         networkName = if (networkType == NetworkTypeCompat.TYPE_WLAN) wlanInfo?.ssid ?: wlanInfo?.bssid else null,
                         networkProviderName = body.telephonyNetworkSimOperatorName,
                         networkType = networkType,
@@ -111,6 +116,43 @@ class ResultsRepositoryImpl @Inject constructor(
                         isLocalOnly = true
                     )
                 )
+
+                val resultPings = pings.map { transformPing(it, testUUID) }
+                db.testResultGraphItemDao().clearInsertItems(resultPings)
+                val resultSignals = signals.map { transformSignal(it, testUUID) }
+                db.testResultGraphItemDao().clearInsertItems(resultSignals)
+
+                val uploadSpeeds = HashMap<Int, MutableList<SpeedRecord>>()
+                val downloadSpeeds = HashMap<Int, MutableList<SpeedRecord>>()
+                val totalUploadTime = 0L
+                val totalDownloadTime = 0L
+                val totalUploadBytes = 0L
+                val totalDownloadBytes = 0L
+                val resultDownloadSpeeds = HashMap<Int, MutableList<TestResultGraphItemRecord>>()
+                val resultUploadSpeeds = HashMap<Int, MutableList<TestResultGraphItemRecord>>()
+                speeds.forEach {
+                    if (it.isUpload) {
+                        var threadList = uploadSpeeds[it.threadId]
+                        if (threadList == null) {
+                            threadList = mutableListOf<SpeedRecord>()
+                        }
+                        threadList.add(it)
+                        uploadSpeeds[it.threadId] = threadList
+
+                    } else {
+                        var threadList = downloadSpeeds[it.threadId]
+                        if (threadList == null) {
+                            threadList = mutableListOf<SpeedRecord>()
+                        }
+                        threadList.add(it)
+                        downloadSpeeds[it.threadId] = threadList
+                    }
+                }
+
+                val downloadSpeedsRecords = convertToThreadSpeeds(downloadSpeeds)
+                db.testResultGraphItemDao().clearInsertItems(downloadSpeedsRecords)
+                val uploadSpeedsRecords = convertToThreadSpeeds(uploadSpeeds)
+                db.testResultGraphItemDao().clearInsertItems(uploadSpeedsRecords)
             }
 
             if (qosRecord != null) {
@@ -145,6 +187,91 @@ class ResultsRepositoryImpl @Inject constructor(
         }
 
         return finalResult
+    }
+
+    /**
+     * Create simulated internal openTestUUID, this is not the same as openTestUUID obtained from server, it is only for purpose of creating local results
+     */
+    private fun createOpenTestUUID(testUUID: String): String {
+        return "O$testUUID"
+    }
+
+    /**
+     * Create simulated internal openClientUUID, this is not the same as openClientUUID obtained from server, it is only for purpose of creating local results
+     */
+    private fun createOpenClientUUID(clientUUID: String): String {
+        return "P$clientUUID"
+    }
+
+    private fun transformPing(pingRecord: PingRecord, testUUID: String): TestResultGraphItemRecord {
+        return TestResultGraphItemRecord(
+            testUUID = testUUID,
+            time = pingRecord.testTimeNanos / 1000000,
+            type = TestResultGraphItemRecord.Type.PING,
+            value = pingRecord.value / 1000000
+        )
+    }
+
+    private fun transformSignal(signalRecord: SignalRecord, testUUID: String): TestResultGraphItemRecord {
+        return TestResultGraphItemRecord(
+            testUUID = testUUID,
+            time = signalRecord.timeNanos / 1000000,
+            type = TestResultGraphItemRecord.Type.SIGNAL,
+            value = signalRecord.signal?.toLong() ?: signalRecord.lteRsrp?.toLong() ?: 0
+        )
+    }
+
+    /**
+     * convert data transferred at point of time to speed at point of time
+     */
+    private fun convertToThreadSpeeds(dataTransferred: HashMap<Int, MutableList<SpeedRecord>>): MutableList<TestResultGraphItemRecord> {
+        val isThereSomeData = false
+        val currentIndexes = HashMap<Int, Int>()
+        val currentValues = HashMap<Int, SpeedRecord>()
+        val records = mutableListOf<TestResultGraphItemRecord>()
+        var shouldContinue = false
+
+        dataTransferred.keys.forEach {
+            currentIndexes[it] = 0
+            currentValues[it] = dataTransferred[it]?.get(currentIndexes[it]!!) as SpeedRecord //?.get(currentIndexes.get(it) ?: 0)
+        }
+
+        do {
+            var lowestValueKey = 0
+            dataTransferred.keys.forEach {
+                currentValues[it] = dataTransferred[it]?.get(0) as SpeedRecord //?.get(currentIndexes.get(it) ?: 0)
+            }
+            // selectMinimumTime
+            val minTime = currentValues.minWith(Comparator { o1, o2 -> o1.value.timestampNanos.compareTo(o2.value.timestampNanos) })
+            if (minTime?.value != null) {
+                records.add(calculateSpeed(dataTransferred, minTime.value))
+                dataTransferred[minTime.key]?.remove(minTime.value)
+            }
+            shouldContinue = false
+            dataTransferred.keys.forEach {
+                if (dataTransferred[it]?.isNotEmpty() == true) {
+                    shouldContinue = true
+                }
+            }
+        } while (shouldContinue)
+
+        return records
+    }
+
+    private fun calculateSpeed(dataTransferred: java.util.HashMap<Int, MutableList<SpeedRecord>>, minTime: SpeedRecord): TestResultGraphItemRecord {
+        var speed: Long = 0
+        dataTransferred.keys.forEach {
+            val speedRecord = dataTransferred[it]?.get(0)
+            speedRecord?.let {
+                speed += (speedRecord.bytes * 8 / 1000) / (speedRecord.timestampNanos / 1000000000)
+            }
+        }
+        return TestResultGraphItemRecord(
+            testUUID = minTime.testUUID,
+            value = speed,
+            time = minTime.timestampNanos / 1000000,
+            type = if (minTime.isUpload) TestResultGraphItemRecord.Type.UPLOAD else TestResultGraphItemRecord.Type.DOWNLOAD
+        )
     }
 
     override fun updateSubmissionsCounter(testUUID: String) {

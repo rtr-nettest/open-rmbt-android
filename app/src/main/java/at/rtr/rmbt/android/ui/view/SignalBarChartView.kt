@@ -68,7 +68,7 @@ class SignalBarChartView @JvmOverloads constructor(
                     time = it.time,
                     value = abs(it.value),
                     type = it.type,
-                    testOpenUUID = it.testOpenUUID
+                    testUUID = it.testUUID
                 )
             }
 

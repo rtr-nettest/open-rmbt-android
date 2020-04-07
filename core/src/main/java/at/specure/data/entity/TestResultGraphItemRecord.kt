@@ -12,11 +12,11 @@ data class TestResultGraphItemRecord(
     val id: Long = 0,
     @ForeignKey(
         entity = TestResultRecord::class,
-        parentColumns = [Columns.TEST_OPEN_UUID_PARENT_COLUMN],
-        childColumns = ["testOpenUUID"],
+        parentColumns = [Columns.TEST_UUID_PARENT_COLUMN],
+        childColumns = ["testUUID"],
         onDelete = ForeignKey.CASCADE
     )
-    val testOpenUUID: String,
+    val testUUID: String,
 
     /**
      * time in milliseconds relative to start of the test
