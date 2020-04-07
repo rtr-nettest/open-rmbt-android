@@ -227,7 +227,7 @@ class ResultsRepositoryImpl @Inject constructor(
     private fun convertToThreadSpeeds(dataTransferred: HashMap<Int, MutableList<SpeedRecord>>): MutableList<TestResultGraphItemRecord> {
         val isThereSomeData = false
         val currentIndexes = HashMap<Int, Int>()
-        val currentValues = HashMap<Int, SpeedRecord>()
+        val currentValues = HashMap<Int, SpeedRecord?>()
         val records = mutableListOf<TestResultGraphItemRecord>()
         var shouldContinue = false
 
@@ -239,13 +239,24 @@ class ResultsRepositoryImpl @Inject constructor(
         do {
             var lowestValueKey = 0
             dataTransferred.keys.forEach {
-                currentValues[it] = dataTransferred[it]?.get(0) as SpeedRecord //?.get(currentIndexes.get(it) ?: 0)
+                currentValues[it] =
+                    if (dataTransferred[it]?.size!! > 0) dataTransferred[it]?.get(0) as SpeedRecord else null//?.get(currentIndexes.get(it) ?: 0)
             }
             // selectMinimumTime
-            val minTime = currentValues.minWith(Comparator { o1, o2 -> o1.value.timestampNanos.compareTo(o2.value.timestampNanos) })
+            val minTime = currentValues.minWith(Comparator { o1, o2 ->
+                if (o1?.value == null) {
+                    1
+                } else {
+                    if (o2?.value == null) {
+                        -1
+                    } else {
+                        o1.value?.timestampNanos?.compareTo(o2.value?.timestampNanos ?: 0) ?: 1
+                    }
+                }
+            })
             if (minTime?.value != null) {
-                records.add(calculateSpeed(dataTransferred, minTime.value))
-                dataTransferred[minTime.key]?.remove(minTime.value)
+                records.add(calculateSpeed(dataTransferred, minTime.value as SpeedRecord))
+                dataTransferred[minTime.key]?.remove(minTime.value as SpeedRecord)
             }
             shouldContinue = false
             dataTransferred.keys.forEach {
@@ -261,9 +272,9 @@ class ResultsRepositoryImpl @Inject constructor(
     private fun calculateSpeed(dataTransferred: java.util.HashMap<Int, MutableList<SpeedRecord>>, minTime: SpeedRecord): TestResultGraphItemRecord {
         var speed: Long = 0
         dataTransferred.keys.forEach {
-            val speedRecord = dataTransferred[it]?.get(0)
+            val speedRecord = if (dataTransferred[it]?.size!! > 0) dataTransferred[it]?.get(0) as SpeedRecord else null
             speedRecord?.let {
-                speed += (speedRecord.bytes * 8 / 1000) / (speedRecord.timestampNanos / 1000000000)
+                speed += ((speedRecord.bytes * 8 / 1000f) / (speedRecord.timestampNanos / 1000000000f)).toLong()
             }
         }
         return TestResultGraphItemRecord(
