@@ -10,7 +10,7 @@ class LocationWatcher private constructor(context: Context, sourceSet: Set<Locat
 
     private val sources: Set<SourceObserver> = sourceSet.map { SourceObserver(it) }.toSet()
     private val listeners = Collections.synchronizedSet(mutableSetOf<Listener>())
-    private val stateWatcher = LocationStateWatcher(context)
+    val stateWatcher = LocationStateWatcher(context)
 
     private val stateListener = object : LocationStateWatcher.Listener {
         override fun onLocationStateChanged(state: LocationState?) {
@@ -41,6 +41,12 @@ class LocationWatcher private constructor(context: Context, sourceSet: Set<Locat
         stateWatcher.updateLocationPermissions()
         liveData
     }
+
+    val latestLocation: LocationInfo?
+        get() = dispatcher.latestLocation
+
+    val state: LocationState?
+        get() = stateWatcher.state
 
     private var isStarted = false
 

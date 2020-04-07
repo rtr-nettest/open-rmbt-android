@@ -28,7 +28,7 @@ import at.rtr.rmbt.android.util.listen
 import at.rtr.rmbt.android.viewmodel.MeasurementViewModel
 import at.specure.data.entity.LoopModeRecord
 import at.specure.data.entity.LoopModeState
-import at.specure.location.LocationProviderState
+import at.specure.location.LocationState
 import at.specure.measurement.MeasurementState
 import kotlinx.android.synthetic.main.activity_measurement.view.measurementBottomView
 import kotlinx.android.synthetic.main.measurement_bottom_view.view.loop_measurement_next_test_meters_progress
@@ -112,8 +112,8 @@ class MeasurementActivity : BaseActivity(), SimpleDialog.Callback {
             binding.root.measurementBottomView.loop_measurement_next_test_minutes_progress.progress = it
         }
 
-        viewModel.locationProviderStateLiveData.listen(this) {
-            viewModel.state.gpsEnabled.set(it == LocationProviderState.ENABLED)
+        viewModel.locationStateLiveData.listen(this) {
+            viewModel.state.gpsEnabled.set(it == LocationState.ENABLED)
         }
         Timber.d("Measurement state loop create: ${viewModel.state.measurementState.get()?.name}")
 

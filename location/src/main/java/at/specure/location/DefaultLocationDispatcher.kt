@@ -10,9 +10,8 @@ class DefaultLocationDispatcher : LocationDispatcher {
     private var lastSource: LocationSource? = null
     private var lastTimestamp = 0L
 
-    override fun latestLocation(sources: LocationSource): LocationInfo? {
-        return lastLocation
-    }
+    override val latestLocation: LocationInfo?
+        get() = lastLocation
 
     override fun onPermissionsDisabled() {
         lastLocation = null
@@ -21,7 +20,7 @@ class DefaultLocationDispatcher : LocationDispatcher {
     }
 
     override fun onLocationInfoChanged(source: LocationSource, location: LocationInfo?): LocationDispatcher.Decision {
-        Timber.i("locupd: new location came: ${location?.provider} ${location?.accuracy}")
+        Timber.i("location update: new location came: ${location?.provider} ${location?.accuracy}")
         val timestamp = System.currentTimeMillis()
         if (location == null) {
             return if (lastSource == source) {
@@ -31,19 +30,19 @@ class DefaultLocationDispatcher : LocationDispatcher {
             }
         } else {
             return if (lastLocation == null) {
-                Timber.v("locupd: no last location")
+                Timber.v("location update: no last location")
                 updateLastLocation(location, timestamp, source)
             } else if (lastLocation?.accuracy ?: Float.MAX_VALUE > location.accuracy) {
-                Timber.v("locupd: accuracy is better")
+                Timber.v("location update: accuracy is better")
                 updateLastLocation(location, timestamp, source)
             } else if (timestamp >= lastTimestamp + LOCATION_MAX_AGE) {
-                Timber.v("locupd: last outdated")
+                Timber.v("location update: last outdated")
                 updateLastLocation(location, timestamp, source)
             } else if (lastSource != null && lastSource == source) {
-                Timber.v("locupd: source")
+                Timber.v("location update: source")
                 updateLastLocation(location, timestamp, source)
             } else {
-                Timber.v("locupd: else")
+                Timber.v("location update: else")
                 LocationDispatcher.Decision(null, false)
             }
         }

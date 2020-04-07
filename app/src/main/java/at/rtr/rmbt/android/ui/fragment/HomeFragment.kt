@@ -27,12 +27,9 @@ import at.rtr.rmbt.android.util.ToolbarTheme
 import at.rtr.rmbt.android.util.changeStatusBarColor
 import at.rtr.rmbt.android.util.listen
 import at.rtr.rmbt.android.viewmodel.HomeViewModel
-import at.specure.location.LocationProviderState.DISABLED_APP
-import at.specure.location.LocationProviderState.DISABLED_DEVICE
-import at.specure.location.LocationProviderState.ENABLED
+import at.specure.location.LocationState
 import at.specure.measurement.MeasurementService
 import at.specure.util.toast
-import timber.log.Timber
 
 class HomeFragment : BaseFragment() {
 
@@ -90,9 +87,9 @@ class HomeFragment : BaseFragment() {
             context?.let {
                 homeViewModel.state.isLocationEnabled.get()?.let {
                     when (it) {
-                        ENABLED -> LocationInfoDialog.instance().show(activity)
-                        DISABLED_APP -> OpenLocationPermissionDialog.instance().show(activity)
-                        DISABLED_DEVICE -> OpenGpsSettingDialog.instance().show(activity)
+                        LocationState.ENABLED -> LocationInfoDialog.instance().show(activity)
+                        LocationState.DISABLED_APP -> OpenLocationPermissionDialog.instance().show(activity)
+                        LocationState.DISABLED_DEVICE -> OpenGpsSettingDialog.instance().show(activity)
                     }
                 }
             }
@@ -168,10 +165,6 @@ class HomeFragment : BaseFragment() {
             if (homeViewModel.isExpertModeOn) {
                 NetworkInfoDialog.show(childFragmentManager)
             }
-        }
-
-        homeViewModel.locationProducer.liveData.listen(this) {
-            Timber.w("LOCATION CHANGED: ${it?.provider} - ${it?.accuracy}")
         }
     }
 

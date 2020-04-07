@@ -19,8 +19,8 @@ import at.specure.info.ip.IpV4ChangeLiveData
 import at.specure.info.ip.IpV6ChangeLiveData
 import at.specure.info.network.ActiveNetworkLiveData
 import at.specure.info.strength.SignalStrengthLiveData
+import at.specure.location.LocationState
 import at.specure.location.LocationWatcher
-import at.specure.location.LocationProviderStateLiveData
 import at.specure.measurement.signal.SignalMeasurementProducer
 import at.specure.measurement.signal.SignalMeasurementService
 import at.specure.util.permission.PermissionsWatcher
@@ -31,18 +31,17 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 class HomeViewModel @Inject constructor(
+    private val locationWatcher: LocationWatcher,
     val signalStrengthLiveData: SignalStrengthLiveData,
     connectivityInfoLiveData: ConnectivityInfoLiveData,
     val activeNetworkLiveData: ActiveNetworkLiveData,
     val permissionsWatcher: PermissionsWatcher,
-    val locationStateLiveData: LocationProviderStateLiveData,
     val ipV4ChangeLiveData: IpV4ChangeLiveData,
     val ipV6ChangeLiveData: IpV6ChangeLiveData,
     val clientUUID: ClientUUID,
     private val appConfig: AppConfig,
     private val newsRepository: NewsRepository,
-    measurementServers: MeasurementServers,
-    val locationProducer: LocationWatcher
+    measurementServers: MeasurementServers
 ) : BaseViewModel() {
 
     val state = HomeViewState(appConfig, measurementServers)
@@ -52,6 +51,9 @@ class HomeViewModel @Inject constructor(
         state.isConnected.set(it != null)
         it != null
     }
+
+    val locationStateLiveData: LiveData<LocationState?>
+        get() = locationWatcher.stateLiveData
 
     private var producer: SignalMeasurementProducer? = null
     private var _activeMeasurementSource: LiveData<Boolean>? = null

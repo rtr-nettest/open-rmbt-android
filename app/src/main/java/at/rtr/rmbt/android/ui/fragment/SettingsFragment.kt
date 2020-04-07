@@ -25,7 +25,7 @@ import at.rtr.rmbt.android.ui.dialog.SimpleDialog
 import at.rtr.rmbt.android.util.addOnPropertyChanged
 import at.rtr.rmbt.android.util.listen
 import at.rtr.rmbt.android.viewmodel.SettingsViewModel
-import at.specure.location.LocationProviderState
+import at.specure.location.LocationState
 import at.specure.util.copyToClipboard
 import at.specure.util.openAppSettings
 import timber.log.Timber
@@ -88,7 +88,7 @@ class SettingsFragment : BaseFragment(), InputSettingDialog.Callback, ServerSele
 
         settingsViewModel.locationStateLiveData.listen(this) {
             settingsViewModel.state.isLocationEnabled.set(it)
-            settingsViewModel.state.canManageLocationSettings.set(it == LocationProviderState.ENABLED)
+            settingsViewModel.state.canManageLocationSettings.set(it == LocationState.ENABLED)
             Timber.d("LocationStateLiveData Fragment  : $it")
         }
 
@@ -96,9 +96,9 @@ class SettingsFragment : BaseFragment(), InputSettingDialog.Callback, ServerSele
         binding.switchLocations.rootView.setOnClickListener {
             settingsViewModel.state.isLocationEnabled.get()?.let {
                 when (it) {
-                    LocationProviderState.ENABLED -> requireContext().openAppSettings()
-                    LocationProviderState.DISABLED_APP -> OpenLocationPermissionDialog.instance().show(activity)
-                    LocationProviderState.DISABLED_DEVICE -> OpenGpsSettingDialog.instance().show(activity)
+                    LocationState.ENABLED -> requireContext().openAppSettings()
+                    LocationState.DISABLED_APP -> OpenLocationPermissionDialog.instance().show(activity)
+                    LocationState.DISABLED_DEVICE -> OpenGpsSettingDialog.instance().show(activity)
                 }
             }
         }

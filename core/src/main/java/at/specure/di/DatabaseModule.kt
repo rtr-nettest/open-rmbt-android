@@ -39,7 +39,7 @@ import at.specure.data.repository.TestDataRepositoryImpl
 import at.specure.data.repository.TestResultsRepository
 import at.specure.data.repository.TestResultsRepositoryImpl
 import at.specure.info.strength.SignalStrengthWatcher
-import at.specure.location.LocationWatcherOld
+import at.specure.location.LocationWatcher
 import at.specure.util.ActiveFilter
 import at.specure.util.FilterValuesStorage
 import dagger.Module
@@ -78,7 +78,7 @@ class DatabaseModule {
         context: Context,
         config: Config,
         clientUUID: ClientUUID,
-        locationWatcher: LocationWatcherOld,
+        locationWatcher: LocationWatcher,
         signalStrengthWatcher: SignalStrengthWatcher,
         client: IpClient
     ): IpCheckRepository = IpCheckRepositoryImpl(

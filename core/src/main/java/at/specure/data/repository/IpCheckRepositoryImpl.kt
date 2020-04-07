@@ -12,14 +12,14 @@ import at.specure.data.ClientUUID
 import at.specure.data.toCapabilitiesBody
 import at.specure.data.toIpRequest
 import at.specure.info.strength.SignalStrengthWatcher
-import at.specure.location.LocationWatcherOld
+import at.specure.location.LocationWatcher
 import at.specure.test.DeviceInfo
 
 class IpCheckRepositoryImpl(
     context: Context,
     private val config: Config,
     private val clientUUID: ClientUUID,
-    private val locationWatcher: LocationWatcherOld,
+    private val locationWatcher: LocationWatcher,
     private val signalStrengthWatcher: SignalStrengthWatcher,
     private val client: IpClient
 ) : IpCheckRepository {
@@ -29,7 +29,7 @@ class IpCheckRepositoryImpl(
     private val ipRequestBody: IpRequestBody
         get() = deviceInfo.toIpRequest(
             clientUUID = clientUUID.value,
-            location = locationWatcher.getLatestLocationInfo(),
+            location = locationWatcher.latestLocation,
             signalStrengthInfo = signalStrengthWatcher.lastSignalStrength,
             capabilities = config.toCapabilitiesBody()
         )

@@ -25,10 +25,8 @@ import at.specure.info.strength.SignalStrengthInfo
 import at.specure.info.strength.SignalStrengthLiveData
 import at.specure.info.strength.SignalStrengthWatcher
 import at.specure.location.LocationInfo
-import at.specure.location.LocationInfoLiveData
-import at.specure.location.LocationProviderState
-import at.specure.location.LocationProviderStateLiveData
-import at.specure.location.LocationWatcherOld
+import at.specure.location.LocationState
+import at.specure.location.LocationWatcher
 import at.specure.location.cell.CellLocationInfo
 import at.specure.location.cell.CellLocationLiveData
 import at.specure.location.cell.CellLocationWatcher
@@ -44,8 +42,7 @@ private const val MAX_SIGNAL_UPTIME_PER_CHUNK_MIN = 10L
 @Singleton
 class SignalMeasurementProcessor @Inject constructor(
     private val repository: TestDataRepository,
-    private val locationInfoLiveData: LocationInfoLiveData,
-    private val locationWatcher: LocationWatcherOld,
+    private val locationWatcher: LocationWatcher,
     private val signalStrengthLiveData: SignalStrengthLiveData,
     private val signalStrengthWatcher: SignalStrengthWatcher,
     private val activeNetworkLiveData: ActiveNetworkLiveData,
@@ -53,7 +50,6 @@ class SignalMeasurementProcessor @Inject constructor(
     private val cellInfoWatcher: CellInfoWatcher,
     private val cellLocationLiveData: CellLocationLiveData,
     private val cellLocationWatcher: CellLocationWatcher,
-    private val locationStateLiveData: LocationProviderStateLiveData,
     private val signalRepository: SignalMeasurementRepository,
     private val connectivityWatcher: ConnectivityWatcher,
     private val measurementRepository: MeasurementRepository
@@ -141,11 +137,11 @@ class SignalMeasurementProcessor @Inject constructor(
             }
         })
 
-        if (locationStateLiveData.value == LocationProviderState.ENABLED) {
-            locationInfo = locationWatcher.getLatestLocationInfo()
+        if (locationWatcher.state == LocationState.ENABLED) {
+            locationInfo = locationWatcher.latestLocation
         }
-        locationInfoLiveData.observe(owner, Observer { info ->
-            if (locationStateLiveData.value == LocationProviderState.ENABLED) {
+        locationWatcher.liveData.observe(owner, Observer { info ->
+            if (locationWatcher.state == LocationState.ENABLED) {
                 locationInfo = info
                 if (isActive && !isPaused) {
                     saveLocationInfo()
@@ -288,7 +284,7 @@ class SignalMeasurementProcessor @Inject constructor(
     private fun saveLocationInfo() {
         val uuid = chunk?.id
         val location = locationInfo
-        if (uuid != null && location != null && locationStateLiveData.value == LocationProviderState.ENABLED) {
+        if (uuid != null && location != null && locationWatcher.state == LocationState.ENABLED) {
             repository.saveGeoLocation(uuid, location, record?.startTimeNanos ?: 0)
         }
     }

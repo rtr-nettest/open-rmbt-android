@@ -10,7 +10,7 @@ import at.specure.data.ClientUUID
 import at.specure.data.ControlServerSettings
 import at.specure.data.MeasurementServers
 import at.specure.data.repository.SettingsRepository
-import at.specure.location.LocationProviderState
+import at.specure.location.LocationState
 
 class SettingsViewState constructor(
     val appConfig: AppConfig,
@@ -36,7 +36,7 @@ class SettingsViewState constructor(
     val controlServerHost = ObservableField(controlServerSettings.controlServerOverrideUrl)
     val controlServerPort = ObservableField(controlServerSettings.controlServerOverridePort)
     val controlServerUseSSL = ObservableField(appConfig.controlServerUseSSL)
-    val isLocationEnabled = ObservableField<LocationProviderState>()
+    val isLocationEnabled = ObservableField<LocationState>()
     val numberOfTests = ObservableInt(appConfig.testCounter)
     val emailAddress = ObservableField(appConfig.aboutEmailAddress)
     val githubRepositoryUrl = ObservableField(appConfig.aboutGithubRepositoryUrl)
