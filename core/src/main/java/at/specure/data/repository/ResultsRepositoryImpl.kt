@@ -117,19 +117,9 @@ class ResultsRepositoryImpl @Inject constructor(
                     )
                 )
 
-                val resultPings = pings.map { transformPing(it, testUUID) }
-                db.testResultGraphItemDao().clearInsertItems(resultPings)
-                val resultSignals = signals.map { transformSignal(it, testUUID) }
-                db.testResultGraphItemDao().clearInsertItems(resultSignals)
-
                 val uploadSpeeds = HashMap<Int, MutableList<SpeedRecord>>()
                 val downloadSpeeds = HashMap<Int, MutableList<SpeedRecord>>()
-                val totalUploadTime = 0L
-                val totalDownloadTime = 0L
-                val totalUploadBytes = 0L
-                val totalDownloadBytes = 0L
-                val resultDownloadSpeeds = HashMap<Int, MutableList<TestResultGraphItemRecord>>()
-                val resultUploadSpeeds = HashMap<Int, MutableList<TestResultGraphItemRecord>>()
+
                 speeds.forEach {
                     if (it.isUpload) {
                         var threadList = uploadSpeeds[it.threadId]
@@ -153,6 +143,10 @@ class ResultsRepositoryImpl @Inject constructor(
                 db.testResultGraphItemDao().clearInsertItems(downloadSpeedsRecords)
                 val uploadSpeedsRecords = convertToThreadSpeeds(uploadSpeeds)
                 db.testResultGraphItemDao().clearInsertItems(uploadSpeedsRecords)
+                val resultPings = pings.map { transformPing(it, testUUID) }
+                db.testResultGraphItemDao().clearInsertItems(resultPings)
+                val resultSignals = signals.map { transformSignal(it, testUUID) }
+                db.testResultGraphItemDao().clearInsertItems(resultSignals)
             }
 
             if (qosRecord != null) {
@@ -189,20 +183,6 @@ class ResultsRepositoryImpl @Inject constructor(
         return finalResult
     }
 
-    /**
-     * Create simulated internal openTestUUID, this is not the same as openTestUUID obtained from server, it is only for purpose of creating local results
-     */
-    private fun createOpenTestUUID(testUUID: String): String {
-        return "O$testUUID"
-    }
-
-    /**
-     * Create simulated internal openClientUUID, this is not the same as openClientUUID obtained from server, it is only for purpose of creating local results
-     */
-    private fun createOpenClientUUID(clientUUID: String): String {
-        return "P$clientUUID"
-    }
-
     private fun transformPing(pingRecord: PingRecord, testUUID: String): TestResultGraphItemRecord {
         return TestResultGraphItemRecord(
             testUUID = testUUID,
@@ -225,24 +205,20 @@ class ResultsRepositoryImpl @Inject constructor(
      * convert data transferred at point of time to speed at point of time
      */
     private fun convertToThreadSpeeds(dataTransferred: HashMap<Int, MutableList<SpeedRecord>>): MutableList<TestResultGraphItemRecord> {
-        val isThereSomeData = false
-        val currentIndexes = HashMap<Int, Int>()
         val currentValues = HashMap<Int, SpeedRecord?>()
         val records = mutableListOf<TestResultGraphItemRecord>()
-        var shouldContinue = false
+        var shouldContinue: Boolean
 
         dataTransferred.keys.forEach {
-            currentIndexes[it] = 0
-            currentValues[it] = dataTransferred[it]?.get(currentIndexes[it]!!) as SpeedRecord //?.get(currentIndexes.get(it) ?: 0)
+            currentValues[it] = dataTransferred[it]?.get(0) as SpeedRecord
         }
 
         do {
-            var lowestValueKey = 0
             dataTransferred.keys.forEach {
                 currentValues[it] =
                     if (dataTransferred[it]?.size!! > 0) dataTransferred[it]?.get(0) as SpeedRecord else null//?.get(currentIndexes.get(it) ?: 0)
             }
-            // selectMinimumTime
+            // select item with minimum time
             val minTime = currentValues.minWith(Comparator { o1, o2 ->
                 if (o1?.value == null) {
                     1
@@ -258,10 +234,10 @@ class ResultsRepositoryImpl @Inject constructor(
                 records.add(calculateSpeed(dataTransferred, minTime.value as SpeedRecord))
                 dataTransferred[minTime.key]?.remove(minTime.value as SpeedRecord)
             }
-            shouldContinue = false
+            shouldContinue = true
             dataTransferred.keys.forEach {
-                if (dataTransferred[it]?.isNotEmpty() == true) {
-                    shouldContinue = true
+                if (dataTransferred[it]?.isEmpty() == true) {
+                    shouldContinue = false
                 }
             }
         } while (shouldContinue)
@@ -270,16 +246,16 @@ class ResultsRepositoryImpl @Inject constructor(
     }
 
     private fun calculateSpeed(dataTransferred: java.util.HashMap<Int, MutableList<SpeedRecord>>, minTime: SpeedRecord): TestResultGraphItemRecord {
-        var speed: Long = 0
+        var speedBPS: Long = 0
         dataTransferred.keys.forEach {
             val speedRecord = if (dataTransferred[it]?.size!! > 0) dataTransferred[it]?.get(0) as SpeedRecord else null
             speedRecord?.let {
-                speed += ((speedRecord.bytes * 8 / 1000f) / (speedRecord.timestampNanos / 1000000000f)).toLong()
+                speedBPS += ((speedRecord.bytes) / (speedRecord.timestampNanos / 1000000000f)).toLong()
             }
         }
         return TestResultGraphItemRecord(
             testUUID = minTime.testUUID,
-            value = speed,
+            value = (speedBPS * (minTime.timestampNanos / 1000000000f)).toLong(),
             time = minTime.timestampNanos / 1000000,
             type = if (minTime.isUpload) TestResultGraphItemRecord.Type.UPLOAD else TestResultGraphItemRecord.Type.DOWNLOAD
         )

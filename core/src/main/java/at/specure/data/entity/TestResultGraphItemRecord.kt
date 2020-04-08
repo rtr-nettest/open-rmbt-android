@@ -24,7 +24,7 @@ data class TestResultGraphItemRecord(
     val time: Long,
 
     /**
-     * kilobits per seconds for type RESULT_GRAPH_ITEM_TYPE_DOWNLOAD and RESULT_GRAPH_ITEM_TYPE_UPLOAD,
+     * total transferred bytes for type RESULT_GRAPH_ITEM_TYPE_DOWNLOAD and RESULT_GRAPH_ITEM_TYPE_UPLOAD,
      * ping value in milliseconds for type RESULT_GRAPH_ITEM_TYPE_PING,
      * dBm value for RESULT_GRAPH_ITEM_TYPE_SIGNAL
      */
