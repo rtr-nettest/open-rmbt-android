@@ -10,7 +10,7 @@ import at.specure.data.entity.PingRecord
 @Dao
 interface PingDao {
 
-    @Query("SELECT * from ${Tables.PING} WHERE testUUID == :testUUID")
+    @Query("SELECT * from ${Tables.PING} WHERE testUUID == :testUUID ORDER BY testTimeNanos")
     fun get(testUUID: String): List<PingRecord>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)

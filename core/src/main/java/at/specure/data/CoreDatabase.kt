@@ -85,7 +85,7 @@ import at.specure.data.entity.TestWlanRecord
         SignalMeasurementChunk::class,
         ConnectivityStateRecord::class,
         HistoryReference::class],
-    version = 71
+    version = 74
 )
 @TypeConverters(TypeConverter::class)
 abstract class CoreDatabase : RoomDatabase() {

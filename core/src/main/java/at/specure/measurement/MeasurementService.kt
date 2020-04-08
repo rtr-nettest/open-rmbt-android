@@ -197,7 +197,7 @@ class MeasurementService : CustomLifecycleService() {
 
                     it.onFailure { ex ->
                         if (shouldShowResults) {
-                            clientAggregator.onSubmissionError(ex)
+                            clientAggregator.onSubmitted()
                         }
                         if (ex is NoConnectionException) {
                             Timber.d("Delayed submission work created")
