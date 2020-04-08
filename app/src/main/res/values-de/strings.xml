@@ -296,5 +296,6 @@
     <string name="dialog_signal_info_channel">Kanal</string>
     <string name="dialog_signal_info_ta">TA</string>
     <string name="dialog_signal_info_quality">Qualität</string>
+    <string name="text_local_results">Nur lokale Ergebnisse</string>
 </resources>
 

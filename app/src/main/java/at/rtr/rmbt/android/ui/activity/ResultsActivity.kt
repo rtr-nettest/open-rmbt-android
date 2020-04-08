@@ -53,7 +53,7 @@ class ResultsActivity : BaseActivity(), OnMapReadyCallback {
             viewModel.state.testResult.set(result)
 
             result?.testOpenUUID?.let {
-                resultChartFragmentPagerAdapter = ResultChartFragmentPagerAdapter(supportFragmentManager, it, result.networkType)
+                resultChartFragmentPagerAdapter = ResultChartFragmentPagerAdapter(supportFragmentManager, testUUID, result.networkType)
                 binding.viewPagerCharts.adapter = resultChartFragmentPagerAdapter
             }
 
