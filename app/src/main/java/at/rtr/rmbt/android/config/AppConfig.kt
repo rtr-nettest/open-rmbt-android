@@ -26,6 +26,7 @@ private const val FILENAME = "config.pref"
 private const val KEY_TEST_COUNTER = "KEY_TEST_COUNTER"
 private const val KEY_PREVIOUS_TEST_STATUS = "PREVIOUS_TEST_STATUS"
 private const val KEY_MEASUREMENT_TAG = "MEASUREMENT_TAG"
+private const val KEY_LAST_QOS_TEST_PERFORMED_TIMESTAMP_MILLIS = "LAST_QOS_TEST_PERFORMED_TIMESTAMP_MILLIS"
 
 class AppConfig @Inject constructor(context: Context, private val serverSettings: ControlServerSettings) : Config {
 
@@ -68,6 +69,20 @@ class AppConfig @Inject constructor(context: Context, private val serverSettings
     override var skipQoSTests: Boolean
         get() = getBoolean(BuildConfig.SKIP_QOS_TESTS)
         set(value) = setBoolean(BuildConfig.SKIP_QOS_TESTS, value)
+
+    override var skipQoSTestsForPeriod: Boolean
+        get() = getBoolean(BuildConfig.SKIP_QOS_TESTS)
+        set(value) = setBoolean(BuildConfig.SKIP_QOS_TESTS, value)
+
+    override var skipQoSTestsPeriodMinutes: Int
+        get() = getInt(BuildConfig.SKIP_QOS_TESTS)
+        set(value) = setInt(BuildConfig.SKIP_QOS_TESTS, value)
+
+    override var lastQosTestExecutionTimestampMillis: Long
+        get() = preferences.getLong(KEY_LAST_QOS_TEST_PERFORMED_TIMESTAMP_MILLIS, 0)
+        set(value) = preferences.edit()
+            .putLong(KEY_LAST_QOS_TEST_PERFORMED_TIMESTAMP_MILLIS, value)
+            .apply()
 
     override var canManageLocationSettings: Boolean
         get() = getBoolean(BuildConfig.CAN_MANAGE_LOCATION_SETTINGS)

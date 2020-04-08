@@ -22,6 +22,7 @@ class SettingsViewState constructor(
 
     val isNDTEnabled = ObservableField(appConfig.NDTEnabled)
     val qosMeasurement = ObservableField(!appConfig.skipQoSTests)
+    val qosMeasurementSkipForPeriod = ObservableField(appConfig.skipQoSTestsForPeriod)
     val canManageLocationSettings = ObservableField(appConfig.canManageLocationSettings)
     val loopModeEnabled = ObservableField(appConfig.loopModeEnabled)
     val expertModeEnabled = ObservableField(appConfig.expertModeEnabled)

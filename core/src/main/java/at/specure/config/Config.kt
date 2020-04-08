@@ -30,6 +30,21 @@ interface Config {
     var skipQoSTests: Boolean
 
     /**
+     * Show that QoS tests can be skipped for predefined period
+     */
+    var skipQoSTestsForPeriod: Boolean
+
+    /**
+     * Defines the period for QoS tests should be skipped if @see{skipQoSTestsForPeriod} is set to "true"
+     */
+    var skipQoSTestsPeriodMinutes: Int
+
+    /**
+     * Holds information about last time the QoS test was executed in milliseconds
+     */
+    var lastQosTestExecutionTimestampMillis: Long
+
+    /**
      * User can menage location settings from the settings menu by opening application or system settings
      */
     var canManageLocationSettings: Boolean

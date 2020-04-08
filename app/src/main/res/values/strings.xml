@@ -44,6 +44,8 @@
     <string name="preferences_general_settings">General Settings</string>
     <string name="preferences_ndt">NDT</string>
     <string name="preferences_qos_measurement">QoS measurement</string>
+    <string name="preferences_qos_measurement_only_after_some_time">Only after 2 hours</string>
+    <string name="preferences_qos_measurement_only_after_some_time_summary">Do not perform new QoS measurements if the last one was done less than 2 hours ago.</string>
     <string name="preferences_location">Location</string>
     <string name="preferences_loop_mode">Loop mode</string>
     <string name="preferences_advanced_settings">Advanced Settings</string>
