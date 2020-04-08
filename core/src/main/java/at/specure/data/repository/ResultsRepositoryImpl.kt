@@ -128,7 +128,6 @@ class ResultsRepositoryImpl @Inject constructor(
                         }
                         threadList.add(it)
                         uploadSpeeds[it.threadId] = threadList
-
                     } else {
                         var threadList = downloadSpeeds[it.threadId]
                         if (threadList == null) {
@@ -216,7 +215,7 @@ class ResultsRepositoryImpl @Inject constructor(
         do {
             dataTransferred.keys.forEach {
                 currentValues[it] =
-                    if (dataTransferred[it]?.size!! > 0) dataTransferred[it]?.get(0) as SpeedRecord else null//?.get(currentIndexes.get(it) ?: 0)
+                    if (dataTransferred[it]?.size!! > 0) dataTransferred[it]?.get(0) as SpeedRecord else null
             }
             // select item with minimum time
             val minTime = currentValues.minWith(Comparator { o1, o2 ->
