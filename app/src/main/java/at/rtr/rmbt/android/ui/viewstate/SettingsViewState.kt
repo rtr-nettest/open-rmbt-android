@@ -87,6 +87,11 @@ class SettingsViewState constructor(
                 appConfig.skipQoSTests = !it
             }
         }
+        qosMeasurementSkipForPeriod.addOnPropertyChanged { value ->
+            value.get()?.let {
+                appConfig.skipQoSTestsForPeriod = it
+            }
+        }
         canManageLocationSettings.addOnPropertyChanged { value ->
             value.get()?.let {
                 appConfig.canManageLocationSettings = it

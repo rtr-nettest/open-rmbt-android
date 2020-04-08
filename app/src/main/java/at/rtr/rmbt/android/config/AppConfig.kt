@@ -68,21 +68,29 @@ class AppConfig @Inject constructor(context: Context, private val serverSettings
 
     override var skipQoSTests: Boolean
         get() = getBoolean(BuildConfig.SKIP_QOS_TESTS)
-        set(value) = setBoolean(BuildConfig.SKIP_QOS_TESTS, value)
+        set(value) {
+            setBoolean(BuildConfig.SKIP_QOS_TESTS, value)
+            lastQosTestExecutionTimestampMillis = 0
+            skipQoSTestsForPeriod = false
+        }
 
     override var skipQoSTestsForPeriod: Boolean
-        get() = getBoolean(BuildConfig.SKIP_QOS_TESTS)
-        set(value) = setBoolean(BuildConfig.SKIP_QOS_TESTS, value)
+        get() = getBoolean(BuildConfig.SKIP_QOS_TESTS_FOR_PERIOD)
+        set(value) = setBoolean(BuildConfig.SKIP_QOS_TESTS_FOR_PERIOD, value)
 
     override var skipQoSTestsPeriodMinutes: Int
-        get() = getInt(BuildConfig.SKIP_QOS_TESTS)
-        set(value) = setInt(BuildConfig.SKIP_QOS_TESTS, value)
+        get() = getInt(BuildConfig.SKIP_QOS_TESTS_PERIOD_MIN)
+        set(value) = setInt(BuildConfig.SKIP_QOS_TESTS_PERIOD_MIN, value)
 
     override var lastQosTestExecutionTimestampMillis: Long
         get() = preferences.getLong(KEY_LAST_QOS_TEST_PERFORMED_TIMESTAMP_MILLIS, 0)
         set(value) = preferences.edit()
             .putLong(KEY_LAST_QOS_TEST_PERFORMED_TIMESTAMP_MILLIS, value)
             .apply()
+
+    override var shouldRunQosTest: Boolean
+        get() = (!skipQoSTests && (!skipQoSTestsForPeriod || (skipQoSTestsForPeriod && (System.currentTimeMillis() - lastQosTestExecutionTimestampMillis >= skipQoSTestsPeriodMinutes * 60 * 1000))))
+        set(value) {}
 
     override var canManageLocationSettings: Boolean
         get() = getBoolean(BuildConfig.CAN_MANAGE_LOCATION_SETTINGS)

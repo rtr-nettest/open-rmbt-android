@@ -470,7 +470,7 @@
                     <androidx.appcompat.widget.AppCompatTextView
                         android:id="@+id/titleQos"
                         style="@style/RobotoBoldStyle.Medium"
-                        visibleOrGone="@{state.testResult != null}"
+                        visibleOrGone="@{state.testResult != null &amp;&amp; state.qosCategoryRecords != null}"
                         android:layout_width="wrap_content"
                         android:layout_height="?attr/actionBarSize"
                         android:layout_marginStart="@dimen/margin_large"

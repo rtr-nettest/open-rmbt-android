@@ -45,6 +45,11 @@ interface Config {
     var lastQosTestExecutionTimestampMillis: Long
 
     /**
+     * this is variable which we should check before we are trying to start Qos Tests
+     */
+    var shouldRunQosTest: Boolean
+
+    /**
      * User can menage location settings from the settings menu by opening application or system settings
      */
     var canManageLocationSettings: Boolean
