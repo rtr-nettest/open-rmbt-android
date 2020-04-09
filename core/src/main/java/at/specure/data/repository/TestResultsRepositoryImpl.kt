@@ -103,9 +103,9 @@ class TestResultsRepositoryImpl(
                 )
             })
 
-            testResultGraphItemDao.clearInsertItems(response.speedCurve.ping.map { it.toModel(openTestUUID) })
+            testResultGraphItemDao.clearInsertItems(response.speedCurve.ping.map { it.toModel(testUUID) })
 
-            testResultGraphItemDao.clearInsertItems(response.speedCurve.signal.map { it.toModel(openTestUUID) })
+            testResultGraphItemDao.clearInsertItems(response.speedCurve.signal.map { it.toModel(testUUID) })
         }
         return detailedTestResults
     }
