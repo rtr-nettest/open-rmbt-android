@@ -8,7 +8,9 @@ import android.location.LocationManager
 import android.os.Bundle
 import timber.log.Timber
 
-
+/**
+ * [LocationSource] that is used to provide location changes using GPS Provider
+ */
 class GPSLocationSource(context: Context) : LocationSource {
 
     private val manager = context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
@@ -38,8 +40,8 @@ class GPSLocationSource(context: Context) : LocationSource {
     }
 
     @SuppressLint("MissingPermission")
-    override fun start(listener: LocationSource.Listener): Boolean {
-        return try {
+    override fun start(listener: LocationSource.Listener) {
+        try {
             this.listener = listener
             manager.requestLocationUpdates(
                 LocationManager.GPS_PROVIDER,
@@ -48,10 +50,8 @@ class GPSLocationSource(context: Context) : LocationSource {
                 locationListener
             )
             Timber.d("GPS Location Source started")
-            true
         } catch (ex: Exception) {
             Timber.e(ex, "Failed to register gps updates")
-            false
         }
     }
 

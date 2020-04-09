@@ -8,6 +8,9 @@ import android.location.LocationManager
 import android.os.Bundle
 import timber.log.Timber
 
+/**
+ * Location source that uses network services to get and observe location
+ */
 class NetworkLocationSource(context: Context) : LocationSource {
 
     private val manager = context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
@@ -37,8 +40,8 @@ class NetworkLocationSource(context: Context) : LocationSource {
     }
 
     @SuppressLint("MissingPermission")
-    override fun start(listener: LocationSource.Listener): Boolean {
-        return try {
+    override fun start(listener: LocationSource.Listener) {
+        try {
             this.listener = listener
             manager.requestLocationUpdates(
                 LocationManager.NETWORK_PROVIDER,
@@ -46,10 +49,8 @@ class NetworkLocationSource(context: Context) : LocationSource {
                 LocationSource.MINIMUM_DISTANCE_METERS,
                 locationListener
             )
-            true
         } catch (ex: Exception) {
             Timber.e(ex, "Failed to register gps updates")
-            false
         }
     }
 

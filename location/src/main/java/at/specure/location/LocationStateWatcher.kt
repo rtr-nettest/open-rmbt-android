@@ -8,6 +8,9 @@ import androidx.core.content.ContextCompat
 import timber.log.Timber
 import java.util.Collections
 
+/**
+ * Class that is used to track location permission changes
+ */
 class LocationStateWatcher(private val context: Context) : DeviceLocationStateWatcher.Listener {
 
     private val monitor = Any()

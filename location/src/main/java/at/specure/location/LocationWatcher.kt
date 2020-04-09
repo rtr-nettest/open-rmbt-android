@@ -2,14 +2,22 @@ package at.specure.location
 
 import android.content.Context
 import androidx.lifecycle.LiveData
+import timber.log.Timber
 import java.util.Collections
 
+/**
+ * Class that uses to observe location changes from different [LocationSource]
+ */
 class LocationWatcher private constructor(context: Context, sourceSet: Set<LocationSource>, private val dispatcher: LocationDispatcher) {
 
     private val monitor = Any()
 
-    private val sources: Set<SourceObserver> = sourceSet.map { SourceObserver(it) }.toSet()
+    private val sources: List<SourceObserver> = sourceSet.map { SourceObserver(it) }
     private val listeners = Collections.synchronizedSet(mutableSetOf<Listener>())
+
+    /**
+     * [LocationStateWatcher] instance that uses to obtain location state changes
+     */
     val stateWatcher = LocationStateWatcher(context)
 
     private val stateListener = object : LocationStateWatcher.Listener {
@@ -20,9 +28,9 @@ class LocationWatcher private constructor(context: Context, sourceSet: Set<Locat
                         if (isStarted) {
                             sources.forEach {
                                 dispatcher.onLocationInfoChanged(it.source, it.source.location)
-                                it.attach()
                             }
                         } else {
+                            Timber.w("location update: on state changed start managers")
                             sources.forEach { it.attach() }
                             isStarted = true
                         }
@@ -35,16 +43,29 @@ class LocationWatcher private constructor(context: Context, sourceSet: Set<Locat
         }
     }
 
+    /**
+     * LiveData that produces [LocationInfo] changes
+     */
     val liveData: LiveData<LocationInfo?> by lazy { LocationLiveData(this) }
+
+    /**
+     * LiveData that produces [LocationState] changes
+     */
     val stateLiveData: LiveData<LocationState?> by lazy {
         val liveData = LocationStateLiveData(stateWatcher)
         stateWatcher.updateLocationPermissions()
         liveData
     }
 
+    /**
+     * Returns the latest [LocationInfo] with best accuracy from the different sources
+     */
     val latestLocation: LocationInfo?
-        get() = dispatcher.latestLocation
+        get() = dispatcher.latestLocation(sources.map { it.source })
 
+    /**
+     * Current [LocationState]
+     */
     val state: LocationState?
         get() = stateWatcher.state
 
@@ -60,6 +81,7 @@ class LocationWatcher private constructor(context: Context, sourceSet: Set<Locat
             listeners.add(listener)
             if (listeners.size == 1) {
                 if (stateWatcher.state == LocationState.ENABLED) {
+                    Timber.w("location update: Add listener start managers")
                     sources.forEach { it.attach() }
                     isStarted = true
                 }
@@ -86,7 +108,10 @@ class LocationWatcher private constructor(context: Context, sourceSet: Set<Locat
         }
     }
 
-    // TODO call each time user changes location permissions
+    /**
+     * Should be called in base activity or fragment inside onRequestPermissionsResult for location permission changes
+     * It is needed to track location app permission changes
+     */
     fun updateLocationPermissions() {
         stateWatcher.updateLocationPermissions()
     }
@@ -109,26 +134,39 @@ class LocationWatcher private constructor(context: Context, sourceSet: Set<Locat
             }
         }
 
-        fun attach(): Boolean = source.start(sourceListener)
+        fun attach() = source.start(sourceListener)
 
         fun detach() = source.stop()
     }
 
+    /**
+     * Class used to create an instance of [LocationWatcher]
+     */
     class Builder(private val context: Context) {
 
         private val sourceSet = mutableSetOf<LocationSource>()
         private var dispatcher: LocationDispatcher? = null
 
+        /**
+         * Add new [LocationSource] that will be used to obtain location changes
+         */
         fun addSource(source: LocationSource): Builder {
             sourceSet.add(source)
             return this
         }
 
+        /**
+         * Add [LocationDispatcher] that will be used to make decisions about the best location from [LocationSource]
+         * In dispatches is not set [DefaultLocationDispatcher] will be set
+         */
         fun dispatcher(dispatcher: LocationDispatcher): Builder {
             this.dispatcher = dispatcher
             return this
         }
 
+        /**
+         * Builds an instance of [LocationWatcher]
+         */
         fun build(): LocationWatcher {
             return LocationWatcher(context, sourceSet, dispatcher ?: DefaultLocationDispatcher())
         }

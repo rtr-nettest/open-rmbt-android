@@ -2,16 +2,59 @@ package at.specure.location
 
 import timber.log.Timber
 
-private const val LOCATION_MAX_AGE = 30_000L
+private const val LOCATION_MAX_AGE_MS = 30_000L
 
+/**
+ * [LocationDispatcher] that uses to choose the best location to publish
+ *
+ * Dispatched is following rules to publish location:
+ * - last location was missing
+ * - last location accuracy is worse then new location accuracy
+ * - last location age is more then [LOCATION_MAX_AGE_MS]
+ * - last location came from the same source that new location
+ */
 class DefaultLocationDispatcher : LocationDispatcher {
 
     private var lastLocation: LocationInfo? = null
     private var lastSource: LocationSource? = null
     private var lastTimestamp = 0L
 
-    override val latestLocation: LocationInfo?
-        get() = lastLocation
+    override fun latestLocation(sources: List<LocationSource>): LocationInfo? {
+        val timestamp = System.currentTimeMillis()
+        var location: LocationInfo? = null
+        var missingLocationsCount = 0
+        if (timestamp >= lastTimestamp + LOCATION_MAX_AGE_MS) {
+            sources.forEach {
+                val newLocation = it.location
+                if (newLocation == null) {
+                    missingLocationsCount++
+                }
+
+                newLocation?.let {
+                    if (location == null) {
+                        location = newLocation
+                    } else if (location?.accuracy ?: Float.MAX_VALUE > newLocation.accuracy) {
+                        location = newLocation
+                    }
+                }
+            }
+
+            return if (location == null) {
+                if (missingLocationsCount == sources.size) {
+                    lastLocation = null
+                    lastSource = null
+                    lastTimestamp = 0
+                    null
+                } else {
+                    lastLocation
+                }
+            } else {
+                location
+            }
+        }
+
+        return lastLocation
+    }
 
     override fun onPermissionsDisabled() {
         lastLocation = null
@@ -20,7 +63,7 @@ class DefaultLocationDispatcher : LocationDispatcher {
     }
 
     override fun onLocationInfoChanged(source: LocationSource, location: LocationInfo?): LocationDispatcher.Decision {
-        Timber.i("location update: new location came: ${location?.provider} ${location?.accuracy}")
+        Timber.i("location update: new location came: ${source::class.java.simpleName} ${location?.provider} ${location?.accuracy}")
         val timestamp = System.currentTimeMillis()
         if (location == null) {
             return if (lastSource == source) {
@@ -35,7 +78,7 @@ class DefaultLocationDispatcher : LocationDispatcher {
             } else if (lastLocation?.accuracy ?: Float.MAX_VALUE > location.accuracy) {
                 Timber.v("location update: accuracy is better")
                 updateLastLocation(location, timestamp, source)
-            } else if (timestamp >= lastTimestamp + LOCATION_MAX_AGE) {
+            } else if (timestamp >= lastTimestamp + LOCATION_MAX_AGE_MS) {
                 Timber.v("location update: last outdated")
                 updateLastLocation(location, timestamp, source)
             } else if (lastSource != null && lastSource == source) {

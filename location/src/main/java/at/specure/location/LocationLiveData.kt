@@ -2,6 +2,9 @@ package at.specure.location
 
 import androidx.lifecycle.MutableLiveData
 
+/**
+ * LiveData that is using [LocationWatcher] to listen & produce location changes
+ */
 class LocationLiveData(private val producer: LocationWatcher) : MutableLiveData<LocationInfo>(), LocationWatcher.Listener {
 
     override fun onActive() {

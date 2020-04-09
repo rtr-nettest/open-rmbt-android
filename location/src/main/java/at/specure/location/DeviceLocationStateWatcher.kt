@@ -8,6 +8,9 @@ import android.location.LocationManager
 import androidx.core.location.LocationManagerCompat
 import java.util.Collections
 
+/**
+ * State location watcher that is used to monitor System location permission changes
+ */
 class DeviceLocationStateWatcher(private val context: Context) {
 
     private val monitor = Any()

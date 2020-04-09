@@ -2,7 +2,7 @@ package at.specure.location
 
 interface LocationDispatcher {
 
-    val latestLocation: LocationInfo?
+    fun latestLocation(sources: List<LocationSource>): LocationInfo?
 
     fun onLocationInfoChanged(source: LocationSource, location: LocationInfo?): Decision
 

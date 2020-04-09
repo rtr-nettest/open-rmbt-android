@@ -7,7 +7,6 @@ apply from: "$project.rootDir/tools/script-lint.gradle"
 apply from: "$project.rootDir/tools/script-ktlint.gradle"
 
 android {
-
     compileSdkVersion config.targetSdkVersion
     buildToolsVersion config.buildToolsVersion
 
@@ -39,8 +38,9 @@ android {
 }
 
 dependencies {
-    // Kotlin
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$versions.kotlin"
+    api project(path: ':location')
+
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+    implementation "com.google.android.gms:play-services-location:$versions.google_services"
     implementation "com.jakewharton.timber:timber:$versions.timber"
-    implementation "androidx.appcompat:appcompat:$versions.appcompat"
 }
