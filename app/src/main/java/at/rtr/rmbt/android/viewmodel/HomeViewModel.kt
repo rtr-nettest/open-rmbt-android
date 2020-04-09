@@ -61,6 +61,7 @@ class HomeViewModel @Inject constructor(
 
     private var _pausedMeasurementSource: LiveData<Boolean>? = null
     private var _pausedMeasurementMediator = MediatorLiveData<Boolean>()
+    private var toggleService: Boolean = false
 
     private var _getNewsLiveData = MutableLiveData<List<NewsItem>?>()
 
@@ -80,6 +81,11 @@ class HomeViewModel @Inject constructor(
 
         override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
             producer = service as SignalMeasurementProducer
+
+            if (producer != null) {
+                toggleSignalMeasurementService()
+                toggleService = false
+            }
 
             _activeMeasurementSource = producer?.activeStateLiveData
             _activeMeasurementSource?.let { lv ->
@@ -113,14 +119,19 @@ class HomeViewModel @Inject constructor(
 
     init {
         addStateSaveHandler(state)
+        _activeMeasurementMediator.postValue(false)
     }
 
-    fun toggleService() {
-        producer?.let {
-            if (it.isActive) {
-                it.stopMeasurement()
-            } else {
-                it.startMeasurement()
+    fun toggleSignalMeasurementService() {
+        if (producer == null) {
+            toggleService = true
+        } else {
+            producer?.let {
+                if (it.isActive) {
+                    it.stopMeasurement()
+                } else {
+                    it.startMeasurement()
+                }
             }
         }
     }

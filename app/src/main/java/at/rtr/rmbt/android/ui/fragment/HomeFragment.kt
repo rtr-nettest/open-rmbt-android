@@ -15,6 +15,7 @@ import at.rtr.rmbt.android.ui.activity.LoopConfigurationActivity
 import at.rtr.rmbt.android.ui.activity.LoopInstructionsActivity
 import at.rtr.rmbt.android.ui.activity.MeasurementActivity
 import at.rtr.rmbt.android.ui.activity.PreferenceActivity
+import at.rtr.rmbt.android.ui.activity.SignalMeasurementTermsActivity
 import at.rtr.rmbt.android.ui.dialog.IpInfoDialog
 import at.rtr.rmbt.android.ui.dialog.LocationInfoDialog
 import at.rtr.rmbt.android.ui.dialog.MessageDialog
@@ -115,10 +116,11 @@ class HomeFragment : BaseFragment() {
         binding.btnUpload.setOnClickListener {
             homeViewModel.activeSignalMeasurementLiveData.value?.let { active ->
                 if (!active) {
-                    requireContext().toast(R.string.toast_signal_measurement_enabled)
+                    SignalMeasurementTermsActivity.start(this, CODE_SIGNAL_MEASUREMENT_TERMS)
+                } else {
+                    homeViewModel.toggleSignalMeasurementService()
                 }
             }
-            homeViewModel.toggleService()
         }
 
         homeViewModel.activeSignalMeasurementLiveData.listen(this) {
@@ -171,11 +173,19 @@ class HomeFragment : BaseFragment() {
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
 
-        if (requestCode == CODE_LOOP_INSTRUCTIONS) {
-            if (resultCode == Activity.RESULT_OK) {
-                homeViewModel.state.isLoopModeActive.set(true)
-            } else {
-                homeViewModel.state.isLoopModeActive.set(false)
+        when (requestCode) {
+            CODE_LOOP_INSTRUCTIONS -> {
+                if (resultCode == Activity.RESULT_OK) {
+                    homeViewModel.state.isLoopModeActive.set(true)
+                } else {
+                    homeViewModel.state.isLoopModeActive.set(false)
+                }
+            }
+            CODE_SIGNAL_MEASUREMENT_TERMS -> {
+                if (resultCode == Activity.RESULT_OK) {
+                    homeViewModel.toggleSignalMeasurementService()
+                    requireContext().toast(R.string.toast_signal_measurement_enabled)
+                }
             }
         }
     }
@@ -223,6 +233,7 @@ class HomeFragment : BaseFragment() {
     companion object {
         private const val PERMISSIONS_REQUEST_CODE: Int = 10
         private const val INFO_WINDOW_TIME_MS: Long = 2000
+        private const val CODE_SIGNAL_MEASUREMENT_TERMS = 12
         private const val CODE_LOOP_INSTRUCTIONS = 13
         private const val CODE_DIALOG_NEWS = 14
     }
