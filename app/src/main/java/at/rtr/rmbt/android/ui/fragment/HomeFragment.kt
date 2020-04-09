@@ -32,6 +32,7 @@ import at.specure.location.LocationProviderState.DISABLED_APP
 import at.specure.location.LocationProviderState.DISABLED_DEVICE
 import at.specure.location.LocationProviderState.ENABLED
 import at.specure.measurement.MeasurementService
+import at.specure.util.toast
 
 class HomeFragment : BaseFragment() {
 
@@ -185,6 +186,7 @@ class HomeFragment : BaseFragment() {
             CODE_SIGNAL_MEASUREMENT_TERMS -> {
                 if (resultCode == Activity.RESULT_OK) {
                     homeViewModel.toggleSignalMeasurementService()
+                    requireContext().toast(R.string.toast_signal_measurement_enabled)
                 }
             }
         }
