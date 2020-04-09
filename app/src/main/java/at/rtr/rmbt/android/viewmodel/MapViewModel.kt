@@ -7,8 +7,9 @@ import at.rmbt.client.control.data.MapPresentationType
 import at.rtr.rmbt.android.ui.viewstate.MapViewState
 import at.specure.data.entity.MarkerMeasurementRecord
 import at.specure.data.repository.MapRepository
-import at.specure.location.LocationInfoLiveData
-import at.specure.location.LocationProviderStateLiveData
+import at.specure.location.LocationInfo
+import at.specure.location.LocationState
+import at.specure.location.LocationWatcher
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.Tile
 import com.google.android.gms.maps.model.TileProvider
@@ -16,11 +17,16 @@ import javax.inject.Inject
 
 class MapViewModel @Inject constructor(
     private val repository: MapRepository,
-    val locationInfoLiveData: LocationInfoLiveData,
-    val locationProviderStateLiveData: LocationProviderStateLiveData
+    private val locationWatcher: LocationWatcher
 ) : BaseViewModel() {
 
     val state = MapViewState()
+
+    val locationLiveData: LiveData<LocationInfo?>
+        get() = locationWatcher.liveData
+
+    val locationStateLiveData: LiveData<LocationState?>
+        get() = locationWatcher.stateLiveData
 
     var providerLiveData: MutableLiveData<RetrofitTileProvider> = MutableLiveData()
 
@@ -51,9 +57,13 @@ class RetrofitTileProvider(private val repository: MapRepository, private val st
     override fun getTile(x: Int, y: Int, zoom: Int): Tile {
         val type = state.type.get() ?: MapPresentationType.POINTS
         return if (type == MapPresentationType.AUTOMATIC && zoom > 10) {
-            Tile(256, 256, repository.loadAutomaticTiles(x, y, zoom))
+            Tile(TILE_SIZE, TILE_SIZE, repository.loadAutomaticTiles(x, y, zoom))
         } else {
-            Tile(256, 256, repository.loadTiles(x, y, zoom, type))
+            Tile(TILE_SIZE, TILE_SIZE, repository.loadTiles(x, y, zoom, type))
         }
+    }
+
+    companion object {
+        private const val TILE_SIZE = 256
     }
 }

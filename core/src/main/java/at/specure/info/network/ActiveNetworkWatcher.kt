@@ -21,7 +21,8 @@ import at.specure.info.cell.CellNetworkInfo
 import at.specure.info.connectivity.ConnectivityInfo
 import at.specure.info.connectivity.ConnectivityWatcher
 import at.specure.info.wifi.WifiInfoWatcher
-import at.specure.location.LocationProviderStateWatcher
+import at.specure.location.LocationState
+import at.specure.location.LocationStateWatcher
 import at.specure.util.synchronizedForEach
 import java.util.Collections
 
@@ -33,8 +34,8 @@ class ActiveNetworkWatcher(
     private val connectivityWatcher: ConnectivityWatcher,
     private val wifiInfoWatcher: WifiInfoWatcher,
     private val cellInfoWatcher: CellInfoWatcher,
-    private var locationProviderStateWatcher: LocationProviderStateWatcher
-) : LocationProviderStateWatcher.LocationEnabledChangeListener {
+    private val locationStateWatcher: LocationStateWatcher
+) : LocationStateWatcher.Listener {
 
     private val listeners = Collections.synchronizedSet(mutableSetOf<NetworkChangeListener>())
     private var isCallbacksRegistered = false
@@ -50,7 +51,7 @@ class ActiveNetworkWatcher(
         }
 
     init {
-        locationProviderStateWatcher.addListener(this)
+        locationStateWatcher.addListener(this)
     }
 
     /**
@@ -68,7 +69,7 @@ class ActiveNetworkWatcher(
             } else {
                 when (connectivityInfo.transportType) {
                     TransportType.WIFI -> wifiInfoWatcher.activeWifiInfo.apply {
-                        this?.locationEnabled = locationProviderStateWatcher.isLocationEnabled()
+                        this?.locationEnabled = locationStateWatcher.state == LocationState.ENABLED
                     }
                     TransportType.CELLULAR -> {
                         cellInfoWatcher.forceUpdate()
@@ -138,7 +139,8 @@ class ActiveNetworkWatcher(
         fun onActiveNetworkChanged(info: NetworkInfo?)
     }
 
-    override fun onLocationStateChange(enabled: Boolean) {
+    override fun onLocationStateChanged(state: LocationState?) {
+        val enabled = state == LocationState.ENABLED
         if (listeners.isNotEmpty()) {
             unregisterCallbacks()
             registerCallbacks()
