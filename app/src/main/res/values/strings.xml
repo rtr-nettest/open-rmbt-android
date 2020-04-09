@@ -177,6 +177,7 @@
     <string name="title_cancel_measurement">Do you really want to cancel the ongoing measurement?</string>
     <string name="text_continue_measurement">Continue measurement</string>
     <string name="text_cancel_measurement">Cancel measurement</string>
+    <string name="text_stop_measurement">Stop measurement</string>
 
     <string name="notification_test_title">Open-RMBT is running</string>
 
