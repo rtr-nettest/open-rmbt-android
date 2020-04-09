@@ -119,7 +119,7 @@ class MeasurementService : CustomLifecycleService() {
                     notificationProvider.measurementServiceNotification(
                         progress,
                         state,
-                        config.skipQoSTests,
+                        !config.shouldRunQosTest,
                         stateRecorder.loopModeRecord,
                         config.loopModeNumberOfTests,
                         stopTestsIntent(this@MeasurementService)
@@ -197,7 +197,7 @@ class MeasurementService : CustomLifecycleService() {
 
                     it.onFailure { ex ->
                         if (shouldShowResults) {
-                            clientAggregator.onSubmissionError(ex)
+                            clientAggregator.onSubmitted()
                         }
                         if (ex is NoConnectionException) {
                             Timber.d("Delayed submission work created")
@@ -221,7 +221,7 @@ class MeasurementService : CustomLifecycleService() {
                 notificationProvider.measurementServiceNotification(
                     progress.toInt(),
                     MeasurementState.QOS,
-                    config.skipQoSTests,
+                    !config.shouldRunQosTest,
                     stateRecorder.loopModeRecord,
                     config.loopModeNumberOfTests,
                     stopTestsIntent(this@MeasurementService)
@@ -460,7 +460,7 @@ class MeasurementService : CustomLifecycleService() {
                 onPingChanged(pingNanos)
                 onDownloadSpeedChanged(measurementProgress, downloadSpeedBps)
                 onUploadSpeedChanged(measurementProgress, uploadSpeedBps)
-                isQoSEnabled(!config.skipQoSTests)
+                isQoSEnabled(config.shouldRunQosTest)
                 runner.testUUID?.let {
                     onClientReady(it, stateRecorder.loopUuid)
                 }

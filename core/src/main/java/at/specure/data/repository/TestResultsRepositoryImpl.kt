@@ -52,8 +52,8 @@ class TestResultsRepositoryImpl(
         return testResultDao.get(testUUID)
     }
 
-    override fun getGraphDataLiveData(openTestUUID: String, type: TestResultGraphItemRecord.Type): LiveData<List<TestResultGraphItemRecord>> =
-        testResultGraphItemDao.getGraphDataLiveData(openTestUUID, type.typeValue)
+    override fun getGraphDataLiveData(testUUID: String, type: TestResultGraphItemRecord.Type): LiveData<List<TestResultGraphItemRecord>> =
+        testResultGraphItemDao.getGraphDataLiveData(testUUID, type.typeValue)
 
     override fun getTestDetailsResult(testUUID: String): LiveData<List<TestResultDetailsRecord>> = testResultDetailsDao.get(testUUID)
 
@@ -86,26 +86,26 @@ class TestResultsRepositoryImpl(
         }
     }
 
-    private fun loadOpenDataTestResults(openTestUUID: String): Maybe<BaseResponse> {
+    private fun loadOpenDataTestResults(openTestUUID: String, testUUID: String): Maybe<BaseResponse> {
         val detailedTestResults = client.getDetailedTestResults(openTestUUID)
         detailedTestResults.onSuccess { response ->
             testResultGraphItemDao.clearInsertItems(response.speedCurve.download.map {
                 it.toModel(
-                    openTestUUID,
+                    testUUID,
                     TestResultGraphItemRecord.Type.DOWNLOAD
                 )
             })
 
             testResultGraphItemDao.clearInsertItems(response.speedCurve.upload.map {
                 it.toModel(
-                    openTestUUID,
+                    testUUID,
                     TestResultGraphItemRecord.Type.UPLOAD
                 )
             })
 
-            testResultGraphItemDao.clearInsertItems(response.speedCurve.ping.map { it.toModel(openTestUUID) })
+            testResultGraphItemDao.clearInsertItems(response.speedCurve.ping.map { it.toModel(testUUID) })
 
-            testResultGraphItemDao.clearInsertItems(response.speedCurve.signal.map { it.toModel(openTestUUID) })
+            testResultGraphItemDao.clearInsertItems(response.speedCurve.signal.map { it.toModel(testUUID) })
         }
         return detailedTestResults
     }
@@ -113,7 +113,7 @@ class TestResultsRepositoryImpl(
     override fun loadTestResults(testUUID: String): Flow<Boolean> = flow {
         val clientUUID = clientUUID.value
         if (clientUUID == null) {
-            Timber.w("Unable to update history client uuid is null")
+            Timber.w("Unable to update test results client uuid is null")
             throw DataMissingException("ClientUUID is null")
         } else {
             val response = client.getTestResult(
@@ -132,7 +132,7 @@ class TestResultsRepositoryImpl(
                 testResultDao.insert(testResult)
                 qoeInfoDao.clearInsert(qoeRecords)
                 getServerTestResult(testUUID)
-                loadOpenDataTestResults(testResult.testOpenUUID)
+                loadOpenDataTestResults(testResult.testOpenUUID, testUUID)
                 loadQosTestResults(testUUID, clientUUID)
                 emit(true)
             }

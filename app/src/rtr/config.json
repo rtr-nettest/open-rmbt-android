@@ -66,6 +66,16 @@
       "visible": true
     },
     {
+      "name": "SKIP_QOS_TESTS_FOR_PERIOD",
+      "value": "false",
+      "visible": true
+    },
+    {
+      "name": "SKIP_QOS_TESTS_PERIOD_MIN",
+      "value": "120",
+      "visible": false
+    },
+    {
       "name": "LOOP_MODE_ENABLED",
       "value": "false",
       "visible": true

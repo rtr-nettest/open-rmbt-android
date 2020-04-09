@@ -10,7 +10,7 @@ import at.specure.data.entity.SpeedRecord
 @Dao
 interface SpeedDao {
 
-    @Query("SELECT * from ${Tables.SPEED} WHERE testUUID == :testUUID")
+    @Query("SELECT * from ${Tables.SPEED} WHERE testUUID == :testUUID ORDER BY timestampNanos")
     fun get(testUUID: String): List<SpeedRecord>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)

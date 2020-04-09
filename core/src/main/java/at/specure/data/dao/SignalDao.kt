@@ -10,7 +10,7 @@ import at.specure.data.entity.SignalRecord
 @Dao
 interface SignalDao {
 
-    @Query("SELECT * from ${Tables.SIGNAL} WHERE testUUID == :testUUID")
+    @Query("SELECT * from ${Tables.SIGNAL} WHERE testUUID == :testUUID ORDER BY timeNanos")
     fun get(testUUID: String): List<SignalRecord>
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)

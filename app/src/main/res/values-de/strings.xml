@@ -43,6 +43,8 @@
     <string name="preferences_general_settings">Allgemeine Einstellungen</string>
     <string name="preferences_ndt">NDT</string>
     <string name="preferences_qos_measurement">QoS Messung</string>
+    <string name="preferences_qos_measurement_only_after_some_time">Nur nach 2 Stunden</string>
+    <string name="preferences_qos_measurement_only_after_some_time_summary">Keine neue QoS-Messung wenn die letzte vor weniger als 2 Stunden durchgeführt wurde.</string>
     <string name="preferences_location">Standort</string>
     <string name="preferences_loop_mode">Wiederholungsmodus</string>
     <string name="preferences_advanced_settings">Erweiterte Einstellungen</string>
@@ -164,6 +166,7 @@
     <string name="title_cancel_measurement">Wollen Sie wirklich den laufenden Messung abbrechen?</string>
     <string name="text_continue_measurement">Messung fortführen</string>
     <string name="text_cancel_measurement">Messung abbrechen</string>
+    <string name="text_stop_measurement">Messung beenden</string>
 
     <string name="notification_test_title">Open-RMBT läuft</string>
 
@@ -294,5 +297,6 @@
     <string name="dialog_signal_info_channel">Kanal</string>
     <string name="dialog_signal_info_ta">TA</string>
     <string name="dialog_signal_info_quality">Qualität</string>
+    <string name="text_local_results">Nur lokale Ergebnisse</string>
 </resources>
 
