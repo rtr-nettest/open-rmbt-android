@@ -39,8 +39,11 @@ class FusedLocationSource(context: Context) : LocationSource {
                         lastLocationMonitor.notify()
                     }
                 }
-                lastLocationMonitor.wait()
+                synchronized(lastLocationMonitor) {
+                    lastLocationMonitor.wait(200, 1000)
+                }
             }
+            Timber.e("location update: GET FETCHED SOURCE!")
             return location?.let { LocationInfo(it) }
         }
 
