@@ -109,9 +109,10 @@ class HomeViewModel @Inject constructor(
 
     init {
         addStateSaveHandler(state)
+        _activeMeasurementMediator.postValue(false)
     }
 
-    fun toggleService() {
+    fun toggleSignalMeasurementService() {
         producer?.let {
             if (it.isActive) {
                 it.stopMeasurement()
