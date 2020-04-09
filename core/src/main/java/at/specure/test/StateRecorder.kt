@@ -174,7 +174,7 @@ class StateRecorder @Inject constructor(
             serverSelectionEnabled = config.expertModeEnabled,
             loopModeEnabled = config.loopModeEnabled
         )
-        if (!config.skipQoSTests) {
+        if (config.shouldRunQosTest) {
             testRecord?.lastQoSStatus = TestStatus.WAIT
         }
 
