@@ -67,6 +67,8 @@
             android:name=".ui.activity.LoopConfigurationActivity"
             android:windowSoftInputMode="adjustResize" />
 
+        <activity android:name=".ui.activity.LoopInstructionsActivity" />
+
         <activity android:name=".ui.activity.SignalMeasurementTermsActivity" />
 
         <activity
