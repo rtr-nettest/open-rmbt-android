@@ -14,6 +14,7 @@
 
 package at.rtr.rmbt.android.util
 
+import android.Manifest
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Canvas
@@ -65,4 +66,16 @@ fun Long.timeString(): String {
     } else {
         String.format("%02d:%02d", minutes, seconds)
     }
+}
+
+fun Array<out String>.hasLocationPermissions(): Boolean {
+    forEach {
+        if (it == Manifest.permission.ACCESS_COARSE_LOCATION ||
+            it == Manifest.permission.ACCESS_FINE_LOCATION ||
+            it == Manifest.permission.ACCESS_BACKGROUND_LOCATION
+        ) {
+            return true
+        }
+    }
+    return false
 }

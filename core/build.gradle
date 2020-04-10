@@ -40,6 +40,8 @@ dependencies {
     api project(path: ':control_client')
     api project(path: ':rmbt-client')
 
+    api project(path: ':location')
+
     // Kotlin
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$versions.kotlin"
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:$versions.coroutines"

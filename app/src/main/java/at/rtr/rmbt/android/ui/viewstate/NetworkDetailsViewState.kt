@@ -12,6 +12,7 @@ import at.specure.info.ip.IpInfo
 import at.specure.info.network.NetworkInfo
 import at.specure.info.network.WifiNetworkInfo
 import at.specure.info.strength.SignalStrengthInfo
+import at.specure.location.LocationInfo
 
 class NetworkDetailsViewState : ViewState {
 
@@ -20,6 +21,8 @@ class NetworkDetailsViewState : ViewState {
     val signalStrengthInfo = ObservableField<Spanned?>()
     val ipV4Info = ObservableField<Spanned?>()
     val ipV6Info = ObservableField<Spanned?>()
+    val locationInfo = ObservableField<Spanned?>()
+    val locationState = ObservableField<String>()
 
     fun setIpInfo(ipInfo: IpInfo?) {
         val info = buildString {
@@ -82,6 +85,21 @@ class NetworkDetailsViewState : ViewState {
         }
 
         this.activeNetworkInfo.set(info.html())
+    }
+
+    fun setLocationInfo(location: LocationInfo?) {
+        val info = when (location) {
+            null -> "Not available"
+            else -> extractLocationInfo(location)
+        }
+        locationInfo.set(info.html())
+    }
+
+    private fun extractLocationInfo(info: LocationInfo) = buildString {
+        bold("provider: ").append(info.provider).newLine()
+        bold("lat: ").append(info.latitude).newLine()
+        bold("lon: ").append(info.longitude).newLine()
+        bold("acc: ").append(info.accuracy).newLine()
     }
 
     private fun extractWifiNetworkInfo(info: WifiNetworkInfo): String = buildString {

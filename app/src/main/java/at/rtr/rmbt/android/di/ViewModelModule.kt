@@ -6,22 +6,23 @@ import at.rtr.rmbt.android.viewmodel.ConfigCheckViewModel
 import at.rtr.rmbt.android.viewmodel.HistoryFiltersViewModel
 import at.rtr.rmbt.android.viewmodel.HistoryViewModel
 import at.rtr.rmbt.android.viewmodel.HomeViewModel
+import at.rtr.rmbt.android.viewmodel.LocationViewModel
 import at.rtr.rmbt.android.viewmodel.LoopConfigurationViewModel
 import at.rtr.rmbt.android.viewmodel.MapFiltersViewModel
 import at.rtr.rmbt.android.viewmodel.MapViewModel
-import at.rtr.rmbt.android.viewmodel.StatisticsViewModel
-import at.rtr.rmbt.android.viewmodel.NetworkDetailsViewModel
-import at.rtr.rmbt.android.viewmodel.SettingsViewModel
 import at.rtr.rmbt.android.viewmodel.MeasurementViewModel
-import at.rtr.rmbt.android.viewmodel.ResultViewModel
-import at.rtr.rmbt.android.viewmodel.ResultChartViewModel
-import at.rtr.rmbt.android.viewmodel.SyncDevicesViewModel
-import at.rtr.rmbt.android.viewmodel.TestResultDetailViewModel
-import at.rtr.rmbt.android.viewmodel.QosTestsSummaryViewModel
-import at.rtr.rmbt.android.viewmodel.QosTestDetailViewModel
+import at.rtr.rmbt.android.viewmodel.NetworkDetailsViewModel
 import at.rtr.rmbt.android.viewmodel.QosTestDetailPagerViewModel
+import at.rtr.rmbt.android.viewmodel.QosTestDetailViewModel
+import at.rtr.rmbt.android.viewmodel.QosTestsSummaryViewModel
+import at.rtr.rmbt.android.viewmodel.ResultChartViewModel
+import at.rtr.rmbt.android.viewmodel.ResultViewModel
+import at.rtr.rmbt.android.viewmodel.SettingsViewModel
 import at.rtr.rmbt.android.viewmodel.SplashViewModel
+import at.rtr.rmbt.android.viewmodel.StatisticsViewModel
+import at.rtr.rmbt.android.viewmodel.SyncDevicesViewModel
 import at.rtr.rmbt.android.viewmodel.TermsAcceptanceViewModel
+import at.rtr.rmbt.android.viewmodel.TestResultDetailViewModel
 import dagger.Binds
 import dagger.Module
 import dagger.multibindings.IntoMap
@@ -135,4 +136,9 @@ interface ViewModelModule {
     @IntoMap
     @ViewModelKey(ConfigCheckViewModel::class)
     fun bindConfigCheckViewModel(viewModel: ConfigCheckViewModel): ViewModel
+
+    @Binds
+    @IntoMap
+    @ViewModelKey(LocationViewModel::class)
+    fun bindLocationViewModel(viewModel: LocationViewModel): ViewModel
 }

@@ -208,7 +208,7 @@ class TestControllerImpl(
 
             _listener?.onClientReady(_testUUID!!, connection.loopUuid, _testStartTimeNanos)
 
-            val skipQoSTests = config.skipQoSTests
+            val skipQoSTests = !config.shouldRunQosTest
 
             clientJob = GlobalScope.async {
                 @Suppress("BlockingMethodInNonBlockingContext")
@@ -238,6 +238,7 @@ class TestControllerImpl(
                     val qosResult = qosTest?.call()
                     Timber.d("qos finished")
                     client.status = TestStatus.QOS_END
+                    config.lastQosTestExecutionTimestampMillis = System.currentTimeMillis()
                     clientCallback.onQoSTestCompleted(qosResult)
                 }
             }

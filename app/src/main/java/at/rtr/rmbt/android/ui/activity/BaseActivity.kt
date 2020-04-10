@@ -14,14 +14,19 @@ import androidx.databinding.ViewDataBinding
 import at.rmbt.util.exception.HandledException
 import at.rmbt.util.exception.NoConnectionException
 import at.rtr.rmbt.android.R
+import at.rtr.rmbt.android.di.viewModelLazy
 import at.rtr.rmbt.android.ui.dialog.SimpleDialog
+import at.rtr.rmbt.android.util.hasLocationPermissions
 import at.rtr.rmbt.android.viewmodel.BaseViewModel
+import at.rtr.rmbt.android.viewmodel.LocationViewModel
 
 private const val DIALOG_DEFAULT_OK = -1
 
 abstract class BaseActivity : AppCompatActivity() {
 
     private val viewModels = mutableListOf<BaseViewModel>()
+
+    private val locationViewModel: LocationViewModel by viewModelLazy()
 
     override fun onRestoreInstanceState(savedInstanceState: Bundle) {
         super.onRestoreInstanceState(savedInstanceState)
@@ -31,6 +36,13 @@ abstract class BaseActivity : AppCompatActivity() {
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
         viewModels.forEach { it.onSaveState(outState) }
+    }
+
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if (permissions.hasLocationPermissions()) {
+            locationViewModel.updateLocationPermissions()
+        }
     }
 
     /**

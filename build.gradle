@@ -3,6 +3,9 @@
 buildscript {
     apply from: "$project.rootDir/dependencies.gradle"
     apply from: "$project.rootDir/tools/utils.gradle"
+    ext {
+        kotlin_version = '1.3.71'
+    }
 
     repositories {
         mavenLocal()

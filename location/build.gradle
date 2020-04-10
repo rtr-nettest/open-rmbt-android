@@ -39,22 +39,8 @@ android {
 }
 
 dependencies {
-    implementation project(path: ':core')
-    implementation fileTree(dir: 'libs', include: ['*.jar'])
-
     // Kotlin
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$versions.kotlin"
-    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:$versions.coroutines"
-    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:$versions.coroutines"
-
-    implementation "androidx.appcompat:appcompat:$versions.appcompat"
-
-    implementation "com.google.android.gms:play-services-location:$versions.google_services"
-
     implementation "com.jakewharton.timber:timber:$versions.timber"
-
-    testImplementation "junit:junit:$versions.junit"
-
-    androidTestImplementation "androidx.test:runner:$versions.test_runner"
-    androidTestImplementation "androidx.test.espresso:espresso-core:$versions.espresso_core"
+    implementation "androidx.appcompat:appcompat:$versions.appcompat"
 }

@@ -26,8 +26,8 @@ import at.specure.data.repository.ResultsRepository
 import at.specure.data.repository.TestDataRepository
 import at.specure.di.CoreInjector
 import at.specure.di.NotificationProvider
-import at.specure.location.LocationProviderState
-import at.specure.location.LocationProviderStateLiveData
+import at.specure.location.LocationState
+import at.specure.location.LocationWatcher
 import at.specure.measurement.signal.SignalMeasurementProducer
 import at.specure.measurement.signal.SignalMeasurementService
 import at.specure.test.DeviceInfo
@@ -65,7 +65,7 @@ class MeasurementService : CustomLifecycleService() {
     lateinit var connectivityManager: ConnectivityManager
 
     @Inject
-    lateinit var locationStateLiveData: LocationProviderStateLiveData
+    lateinit var locationWatcher: LocationWatcher
 
     private val producer: Producer by lazy { Producer() }
     private val clientAggregator: ClientAggregator by lazy { ClientAggregator() }
@@ -119,7 +119,7 @@ class MeasurementService : CustomLifecycleService() {
                     notificationProvider.measurementServiceNotification(
                         progress,
                         state,
-                        config.skipQoSTests,
+                        !config.shouldRunQosTest,
                         stateRecorder.loopModeRecord,
                         config.loopModeNumberOfTests,
                         stopTestsIntent(this@MeasurementService)
@@ -197,7 +197,7 @@ class MeasurementService : CustomLifecycleService() {
 
                     it.onFailure { ex ->
                         if (shouldShowResults) {
-                            clientAggregator.onSubmissionError(ex)
+                            clientAggregator.onSubmitted()
                         }
                         if (ex is NoConnectionException) {
                             Timber.d("Delayed submission work created")
@@ -221,7 +221,7 @@ class MeasurementService : CustomLifecycleService() {
                 notificationProvider.measurementServiceNotification(
                     progress.toInt(),
                     MeasurementState.QOS,
-                    config.skipQoSTests,
+                    !config.shouldRunQosTest,
                     stateRecorder.loopModeRecord,
                     config.loopModeNumberOfTests,
                     stopTestsIntent(this@MeasurementService)
@@ -321,7 +321,7 @@ class MeasurementService : CustomLifecycleService() {
                         Timber.d("CountDownTimer tick $millisUntilFinished - ${this.hashCode()}")
                         val location = stateRecorder.locationInfo
                         val locationAvailable =
-                            locationStateLiveData.value == LocationProviderState.ENABLED &&
+                            locationWatcher.state == LocationState.ENABLED &&
                                     location != null &&
                                     location.accuracy < config.loopModeDistanceMeters &&
                                     stateRecorder.locationAvailableOnLoopStart
@@ -368,7 +368,7 @@ class MeasurementService : CustomLifecycleService() {
 
         var location: DeviceInfo.Location? = null
 
-        if (locationStateLiveData.value == LocationProviderState.ENABLED) {
+        if (locationWatcher.state == LocationState.ENABLED) {
             stateRecorder.locationInfo?.let {
                 location = it.toDeviceInfoLocation()
             }
@@ -460,7 +460,7 @@ class MeasurementService : CustomLifecycleService() {
                 onPingChanged(pingNanos)
                 onDownloadSpeedChanged(measurementProgress, downloadSpeedBps)
                 onUploadSpeedChanged(measurementProgress, uploadSpeedBps)
-                isQoSEnabled(!config.skipQoSTests)
+                isQoSEnabled(config.shouldRunQosTest)
                 runner.testUUID?.let {
                     onClientReady(it, stateRecorder.loopUuid)
                 }

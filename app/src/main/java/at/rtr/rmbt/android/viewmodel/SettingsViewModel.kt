@@ -9,13 +9,14 @@ import at.specure.data.ClientUUID
 import at.specure.data.ControlServerSettings
 import at.specure.data.MeasurementServers
 import at.specure.data.repository.SettingsRepository
-import at.specure.location.LocationProviderStateLiveData
+import at.specure.location.LocationState
+import at.specure.location.LocationWatcher
 import javax.inject.Inject
 
 class SettingsViewModel @Inject constructor(
     private val appConfig: AppConfig,
+    private val locationWatcher: LocationWatcher,
     clientUUID: ClientUUID,
-    val locationStateLiveData: LocationProviderStateLiveData,
     val measurementServers: MeasurementServers,
     settingsRepository: SettingsRepository,
     controlServerSettings: ControlServerSettings
@@ -29,6 +30,9 @@ class SettingsViewModel @Inject constructor(
 
     val openCodeWindow: LiveData<Boolean>
         get() = _openCodeWindow
+
+    val locationStateLiveData: LiveData<LocationState?>
+        get() = locationWatcher.stateLiveData
 
     init {
         addStateSaveHandler(state)

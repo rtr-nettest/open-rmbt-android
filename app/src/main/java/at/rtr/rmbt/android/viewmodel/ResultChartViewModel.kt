@@ -13,7 +13,7 @@ class ResultChartViewModel @Inject constructor(
     val state = ResultChartViewState()
 
     val graphData: LiveData<List<TestResultGraphItemRecord>>
-        get() = testResultsRepository.getGraphDataLiveData(state.openTestUUID, state.chartType)
+        get() = testResultsRepository.getGraphDataLiveData(state.testUUID, state.chartType)
 
     init {
         addStateSaveHandler(state)

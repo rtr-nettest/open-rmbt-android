@@ -30,6 +30,8 @@ The source code is published under [Apache version 2.0 license](https://github.c
 ##### TEST SETTINGS
 - __`NDT_ENABLED`__ Indicates NDT Tests is enabled, default: `false` _(NDT fuctionality not implemented)_
 - __`SKIP_QOS_TESTS`__ Indicates QoS Tests can be skipped after basic measurement, default: `false`
+- __`SKIP_QOS_TESTS_FOR_PERIOD`__ Indicates QoS Tests can be skipped until specified time in minutes runs out after previously executed QoS tests, default: `false`
+- __`SKIP_QOS_TESTS_PERIOD_MIN`__ Indicates how much time in minutes QoS Tests should be skipped after previously executed QoS tests, default: `120`
 - __`LOOP_MODE_ENABLED`__ Indicates Loop Mode is enabled, default `false`
 - __`LOOP_MODE_WAITING_TIME_MIN`__ Default delay between measurements in Loop Mode in minutes, default: `30`
 - __`LOOP_MODE_DISTANCE_METERS`__ Default distance between measurements in Loop Mode in meters, default: `250`

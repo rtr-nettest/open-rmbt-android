@@ -148,7 +148,7 @@ class NotificationProviderImpl(private val context: Context) : NotificationProvi
     override fun signalMeasurementService(stopMeasurementIntent: Intent): Notification {
         val intent = PendingIntent.getActivity(context, 0, Intent(context, HomeActivity::class.java), 0)
         val actionIntent = PendingIntent.getService(context, 0, stopMeasurementIntent, 0)
-        val action = NotificationCompat.Action.Builder(0, context.getString(R.string.text_cancel_measurement), actionIntent).build()
+        val action = NotificationCompat.Action.Builder(0, context.getString(R.string.text_stop_measurement), actionIntent).build()
 
         return NotificationCompat.Builder(context, measurementChannelId())
             .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)

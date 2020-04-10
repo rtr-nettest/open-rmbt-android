@@ -12,11 +12,11 @@ data class TestResultGraphItemRecord(
     val id: Long = 0,
     @ForeignKey(
         entity = TestResultRecord::class,
-        parentColumns = [Columns.TEST_OPEN_UUID_PARENT_COLUMN],
-        childColumns = ["testOpenUUID"],
+        parentColumns = [Columns.TEST_UUID_PARENT_COLUMN],
+        childColumns = ["testUUID"],
         onDelete = ForeignKey.CASCADE
     )
-    val testOpenUUID: String,
+    val testUUID: String,
 
     /**
      * time in milliseconds relative to start of the test
@@ -24,7 +24,7 @@ data class TestResultGraphItemRecord(
     val time: Long,
 
     /**
-     * kilobits per seconds for type RESULT_GRAPH_ITEM_TYPE_DOWNLOAD and RESULT_GRAPH_ITEM_TYPE_UPLOAD,
+     * total transferred bytes for type RESULT_GRAPH_ITEM_TYPE_DOWNLOAD and RESULT_GRAPH_ITEM_TYPE_UPLOAD,
      * ping value in milliseconds for type RESULT_GRAPH_ITEM_TYPE_PING,
      * dBm value for RESULT_GRAPH_ITEM_TYPE_SIGNAL
      */

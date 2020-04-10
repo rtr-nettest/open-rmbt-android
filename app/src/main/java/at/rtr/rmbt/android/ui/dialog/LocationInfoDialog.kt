@@ -10,9 +10,8 @@ import at.rtr.rmbt.android.R
 import at.rtr.rmbt.android.databinding.DialogLocationInfoBinding
 import at.rtr.rmbt.android.di.Injector
 import at.rtr.rmbt.android.util.listen
-import at.specure.location.LocationInfoLiveData
-import at.specure.location.LocationProviderState
-import at.specure.location.LocationProviderStateLiveData
+import at.specure.location.LocationState
+import at.specure.location.LocationWatcher
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
@@ -21,10 +20,7 @@ class LocationInfoDialog : FullscreenDialog() {
     private lateinit var binding: DialogLocationInfoBinding
 
     @Inject
-    lateinit var locationInfoLiveData: LocationInfoLiveData
-
-    @Inject
-    lateinit var locationProviderStateLiveData: LocationProviderStateLiveData
+    lateinit var locationWatcher: LocationWatcher
 
     private var locationAge = 0L
 
@@ -55,17 +51,17 @@ class LocationInfoDialog : FullscreenDialog() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        locationProviderStateLiveData.listen(this) {
-            if (it != LocationProviderState.ENABLED) dismiss()
+        locationWatcher.stateLiveData.listen(this) {
+            if (it != LocationState.ENABLED) dismiss()
         }
 
-        locationInfoLiveData.listen(this) {
+        locationWatcher.liveData.listen(this) {
             binding.locationInfo = it
             if (locationAge == null) {
                 updateHandler.removeCallbacks(ageUpdateRunnable)
                 locationAge = 0
             } else {
-                locationAge = it.ageNanos
+                locationAge = it?.ageNanos ?: 0
                 scheduleUpdate()
             }
         }

@@ -69,6 +69,8 @@
 
         <activity android:name=".ui.activity.LoopInstructionsActivity" />
 
+        <activity android:name=".ui.activity.SignalMeasurementTermsActivity" />
+
         <activity
             android:name=".ui.activity.SignalMeasurementActivity"
             android:screenOrientation="portrait" />

@@ -28,7 +28,7 @@ import at.rtr.rmbt.android.viewmodel.MapViewModel
 import at.specure.data.NetworkTypeCompat
 import at.specure.data.ServerNetworkType
 import at.specure.data.entity.MarkerMeasurementRecord
-import at.specure.location.LocationProviderState
+import at.specure.location.LocationState
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
@@ -249,7 +249,7 @@ class MapFragment : BaseFragment(), OnMapReadyCallback, MapMarkerDetailsAdapter.
         currentOverlay = googleMap?.addTileOverlay(TileOverlayOptions().tileProvider(mapViewModel.providerLiveData.value))
         googleMap?.setOnMapClickListener { latlng ->
             mapViewModel.state.locationChanged.set(true)
-            mapViewModel.locationInfoLiveData.removeObservers(this)
+            mapViewModel.locationLiveData.removeObservers(this)
             mapViewModel.state.cameraPositionLiveData.postValue(latlng)
             onCloseMarkerDetails()
             if (isMarkersAvailable()) {
@@ -260,7 +260,7 @@ class MapFragment : BaseFragment(), OnMapReadyCallback, MapMarkerDetailsAdapter.
 
         googleMap?.setOnCameraChangeListener {
             mapViewModel.state.locationChanged.set(true)
-            mapViewModel.locationInfoLiveData.removeObservers(this)
+            mapViewModel.locationLiveData.removeObservers(this)
             mapViewModel.state.cameraPositionLiveData.postValue(it.target)
             if (it.zoom != mapViewModel.state.zoom) {
                 currentOverlay?.remove()
@@ -272,12 +272,14 @@ class MapFragment : BaseFragment(), OnMapReadyCallback, MapMarkerDetailsAdapter.
 
     private fun checkLocationAndSetCurrent() {
         if (!mapViewModel.state.locationChanged.get()) {
-            mapViewModel.locationInfoLiveData.listen(this) {
-                with(LatLng(it.latitude, it.longitude)) {
-                    mapViewModel.state.cameraPositionLiveData.postValue(this)
-                    mapViewModel.state.coordinatesLiveData.postValue(this)
-                    googleMap?.moveCamera(CameraUpdateFactory.newLatLngZoom(this, mapViewModel.state.zoom))
-                    mapViewModel.locationInfoLiveData.removeObservers(this@MapFragment)
+            mapViewModel.locationLiveData.listen(this) {
+                if (it != null) {
+                    with(LatLng(it.latitude, it.longitude)) {
+                        mapViewModel.state.cameraPositionLiveData.postValue(this)
+                        mapViewModel.state.coordinatesLiveData.postValue(this)
+                        googleMap?.moveCamera(CameraUpdateFactory.newLatLngZoom(this, mapViewModel.state.zoom))
+                        mapViewModel.locationLiveData.removeObservers(this@MapFragment)
+                    }
                 }
             }
         } else {
@@ -293,14 +295,16 @@ class MapFragment : BaseFragment(), OnMapReadyCallback, MapMarkerDetailsAdapter.
     }
 
     private fun updateLocationPermissionRelatedUi() {
-        mapViewModel.locationProviderStateLiveData.listen(this) {
-            googleMap?.isMyLocationEnabled = it == LocationProviderState.ENABLED
+        mapViewModel.locationStateLiveData.listen(this) { state ->
+            googleMap?.isMyLocationEnabled = state == LocationState.ENABLED
 
-            binding.fabLocation.setOnClickListener { view ->
-                if (it == LocationProviderState.ENABLED) {
-                    mapViewModel.locationInfoLiveData.listen(this) {
-                        mapViewModel.locationInfoLiveData.removeObservers(this)
-                        googleMap?.animateCamera(CameraUpdateFactory.newLatLng(LatLng(it.latitude, it.longitude)))
+            binding.fabLocation.setOnClickListener {
+                if (state == LocationState.ENABLED) {
+                    mapViewModel.locationLiveData.listen(this) { info ->
+                        if (info != null) {
+                            mapViewModel.locationLiveData.removeObservers(this)
+                            googleMap?.animateCamera(CameraUpdateFactory.newLatLng(LatLng(info.latitude, info.longitude)))
+                        }
                     }
                 }
             }

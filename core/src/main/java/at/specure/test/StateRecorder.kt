@@ -28,9 +28,7 @@ import at.specure.info.strength.SignalStrengthInfo
 import at.specure.info.strength.SignalStrengthLiveData
 import at.specure.info.strength.SignalStrengthWatcher
 import at.specure.location.LocationInfo
-import at.specure.location.LocationInfoLiveData
-import at.specure.location.LocationProviderState
-import at.specure.location.LocationProviderStateLiveData
+import at.specure.location.LocationState
 import at.specure.location.LocationWatcher
 import at.specure.location.cell.CellLocationInfo
 import at.specure.location.cell.CellLocationLiveData
@@ -43,7 +41,6 @@ import kotlin.math.floor
 
 class StateRecorder @Inject constructor(
     private val repository: TestDataRepository,
-    private val locationInfoLiveData: LocationInfoLiveData,
     private val locationWatcher: LocationWatcher,
     private val signalStrengthLiveData: SignalStrengthLiveData,
     private val signalStrengthWatcher: SignalStrengthWatcher,
@@ -53,8 +50,7 @@ class StateRecorder @Inject constructor(
     private val config: Config,
     private val cellLocationLiveData: CellLocationLiveData,
     private val cellLocationWatcher: CellLocationWatcher,
-    private val measurementRepository: MeasurementRepository,
-    val locationStateLiveData: LocationProviderStateLiveData
+    private val measurementRepository: MeasurementRepository
 ) : RMBTClientCallback {
     private var testUUID: String? = null
     private var testToken: String? = null
@@ -91,8 +87,8 @@ class StateRecorder @Inject constructor(
     val locationAvailableOnLoopStart = _loopModeRecord?.locationAvailableOnStart ?: false
 
     fun updateLocationInfo() {
-        _locationInfo = if (locationStateLiveData.value == LocationProviderState.ENABLED) {
-            locationWatcher.getLatestLocationInfo()
+        _locationInfo = if (locationWatcher.state == LocationState.ENABLED) {
+            locationWatcher.latestLocation
         } else {
             null
         }
@@ -105,8 +101,8 @@ class StateRecorder @Inject constructor(
 
         updateLocationInfo()
 
-        locationInfoLiveData.observe(lifecycle, Observer { info ->
-            if (locationStateLiveData.value == LocationProviderState.ENABLED) {
+        locationWatcher.liveData.observe(lifecycle, Observer { info ->
+            if (locationWatcher.state == LocationState.ENABLED) {
                 _locationInfo = info
                 saveLocationInfo()
             } else {
@@ -145,12 +141,13 @@ class StateRecorder @Inject constructor(
         this.testStartTimeNanos = testStartTimeNanos
         qosRunning = false
         saveTestInitialTestData(testUUID, loopUUID, testToken, testStartTimeNanos, threadNumber)
+        cellLocation = cellLocationWatcher.getCellLocationFromTelephony()
+        saveCellLocation()
         saveLocationInfo()
         saveSignalStrengthInfo()
         saveCellInfo()
         saveCapabilities()
         savePermissionsStatus()
-        saveCellLocation()
         saveTelephonyInfo()
         saveWlanInfo()
     }
@@ -174,7 +171,7 @@ class StateRecorder @Inject constructor(
             serverSelectionEnabled = config.expertModeEnabled,
             loopModeEnabled = config.loopModeEnabled
         )
-        if (!config.skipQoSTests) {
+        if (config.shouldRunQosTest) {
             testRecord?.lastQoSStatus = TestStatus.WAIT
         }
 
@@ -212,7 +209,7 @@ class StateRecorder @Inject constructor(
     private fun saveLocationInfo() {
         val uuid = testUUID
         val location = locationInfo
-        if (uuid != null && location != null && locationStateLiveData.value == LocationProviderState.ENABLED) {
+        if (uuid != null && location != null && locationWatcher.state == LocationState.ENABLED) {
             repository.saveGeoLocation(uuid, location, testStartTimeNanos)
         }
 
