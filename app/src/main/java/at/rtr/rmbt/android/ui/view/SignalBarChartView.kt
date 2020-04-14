@@ -10,7 +10,6 @@ import at.rtr.rmbt.android.R
 import at.specure.data.NetworkTypeCompat
 import at.specure.data.entity.TestResultGraphItemRecord
 import kotlin.math.abs
-import kotlin.math.ceil
 
 @SuppressLint("CustomViewStyleable")
 class SignalBarChartView @JvmOverloads constructor(
@@ -86,54 +85,10 @@ class SignalBarChartView @JvmOverloads constructor(
                     testUUID = it.testUUID
                 )
             }
-
             this.graphItems = items
-/*            val fix: Long = 140
-            var multiplicator = 1
-            this.graphItems = mutableListOf<TestResultGraphItemRecord>()
-            this.graphItems?.add(TestResultGraphItemRecord(
-                id = 0,
-                time = items[0].time + multiplicator++ * 1000,
-                value = -140 + fix,
-                type = items[0].type,
-                testUUID = items[0].testUUID
-            ))
-            this.graphItems?.add(TestResultGraphItemRecord(
-                id = 0,
-                time = items[0].time + multiplicator++ * 1000,
-                value = -110 + fix,
-                type = items[0].type,
-                testUUID = items[0].testUUID
-            ))
-
-            this.graphItems?.add(TestResultGraphItemRecord(
-                id = 0,
-                time = items[0].time + multiplicator++ * 1000,
-                value = -80 + fix,
-                type = items[0].type,
-                testUUID = items[0].testUUID
-            ))
-
-            this.graphItems?.add(TestResultGraphItemRecord(
-                id = 0,
-                time = items[0].time + multiplicator++ * 1000,
-                value = -50 + fix,
-                type = items[0].type,
-                testUUID = items[0].testUUID
-            ))
-            this.graphItems?.add(TestResultGraphItemRecord(
-                id = 0,
-                time = items[0].time + multiplicator++ * 1000,
-                value = -20 + fix,
-                type = items[0].type,
-                testUUID = items[0].testUUID
-            ))
-
-            calculatePath()*/
 
             setYLabels(labelsYAxis)
         }
-
         invalidate()
     }
 
@@ -158,8 +113,9 @@ class SignalBarChartView @JvmOverloads constructor(
                     }
                 }
                 else -> {
-                    strokePath.moveTo(0f, it.first().value.toFloat())
-                    fillPath.moveTo(0f, it.first().value.toFloat())
+                    val firstValue = countCorrectHeight(it.first().value)
+                    strokePath.moveTo(0f, firstValue)
+                    fillPath.moveTo(0f, firstValue)
                     for (index in 1 until it.size) {
                         val currentValue = countCorrectHeight(it[index].value)
                         val previousValue = countCorrectHeight(it[index - 1].value)
