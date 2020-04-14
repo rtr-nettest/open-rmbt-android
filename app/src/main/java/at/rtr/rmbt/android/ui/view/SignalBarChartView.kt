@@ -10,7 +10,6 @@ import at.rtr.rmbt.android.R
 import at.specure.data.NetworkTypeCompat
 import at.specure.data.entity.TestResultGraphItemRecord
 import kotlin.math.abs
-import kotlin.math.ceil
 
 @SuppressLint("CustomViewStyleable")
 class SignalBarChartView @JvmOverloads constructor(
@@ -25,7 +24,22 @@ class SignalBarChartView @JvmOverloads constructor(
     private var fillPaint: Paint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         style = Paint.Style.FILL_AND_STROKE
     }
-    private var maxValue: Int? = 0
+
+    /**
+     *  distance in dBm between signal values shown in the graph
+     */
+    private val gap = 30
+
+    /**
+     *  Values of dBm shown in the graph
+     */
+    private val labelsYAxis = Array(5) { i -> -(5 - i) * gap + 10 }
+
+    /**
+     * value of X-axis at bottom of the graph
+     */
+    private var minValue: Int = labelsYAxis.minBy { it }!!
+    private var maxValue: Int = labelsYAxis.maxBy { it }!!
     private var strokePath: Path = Path()
     private var fillPath: Path = Path()
     private var widthMultiplier: Float = 0f
@@ -66,30 +80,16 @@ class SignalBarChartView @JvmOverloads constructor(
                 TestResultGraphItemRecord(
                     id = it.id,
                     time = it.time,
-                    value = abs(it.value),
+                    value = it.value,
                     type = it.type,
                     testUUID = it.testUUID
                 )
             }
-
             this.graphItems = items
 
-            setYLabels(getYLabels(items))
+            setYLabels(labelsYAxis)
         }
-
         invalidate()
-    }
-
-    private fun getYLabels(graphItems: List<TestResultGraphItemRecord>): Array<Int> {
-
-        val gap = graphItems.let { list ->
-            list.maxBy { it.value }?.let { item ->
-                (ceil(item.value * 5 / 100.0) * 5).toInt()
-            }
-        }
-        val gapList = Array(5) { i -> if (gap != null) (i * gap) else 0 }
-        maxValue = gapList.maxBy { it } ?: 0
-        return gapList
     }
 
     private fun calculatePath() {
@@ -102,30 +102,34 @@ class SignalBarChartView @JvmOverloads constructor(
                 }
                 it.size == 1 -> {
                     with(it.first()) {
-                        strokePath.moveTo(0f, this.value.toFloat())
-                        strokePath.lineTo(time / widthMultiplier, this.value.toFloat())
-                        fillPath.moveTo(0f, this.value.toFloat())
-                        fillPath.lineTo(time / widthMultiplier, this.value.toFloat())
+                        val correctHeight = countCorrectHeight(this.value)
+                        strokePath.moveTo(0f, correctHeight)
+                        strokePath.lineTo(time / widthMultiplier, correctHeight)
+                        fillPath.moveTo(0f, correctHeight)
+                        fillPath.lineTo(time / widthMultiplier, correctHeight)
                         fillPath.lineTo(time / widthMultiplier, getChartHeight())
                         fillPath.lineTo(0f, getChartHeight())
                         fillPath.close()
                     }
                 }
                 else -> {
-                    strokePath.moveTo(0f, it.first().value.toFloat())
-                    fillPath.moveTo(0f, it.first().value.toFloat())
+                    val firstValue = countCorrectHeight(it.first().value)
+                    strokePath.moveTo(0f, firstValue)
+                    fillPath.moveTo(0f, firstValue)
                     for (index in 1 until it.size) {
+                        val currentValue = countCorrectHeight(it[index].value)
+                        val previousValue = countCorrectHeight(it[index - 1].value)
                         strokePath.quadTo(
                             (it[index - 1].time + (it[index].time - it[index - 1].time) / 2) / widthMultiplier,
-                            it[index].value - (it[index].value - it[index - 1].value).toFloat() / 2,
+                            currentValue - (currentValue - previousValue) / 2,
                             it[index].time / widthMultiplier,
-                            it[index].value.toFloat()
+                            currentValue
                         )
                         fillPath.quadTo(
                             (it[index - 1].time + (it[index].time - it[index - 1].time) / 2) / widthMultiplier,
-                            it[index].value - (it[index].value - it[index - 1].value).toFloat() / 2,
+                            currentValue - (currentValue - previousValue) / 2,
                             it[index].time / widthMultiplier,
-                            it[index].value.toFloat()
+                            currentValue
                         )
                     }
                     fillPath.lineTo(it.last().time / widthMultiplier, getChartHeight())
@@ -134,6 +138,10 @@ class SignalBarChartView @JvmOverloads constructor(
                 }
             }
         }
+    }
+
+    private fun countCorrectHeight(value: Long): Float {
+        return ((((abs(value) - abs(maxValue))) / (maxValue - minValue).toFloat()) * getChartHeight())
     }
 
     override fun onDetachedFromWindow() {
