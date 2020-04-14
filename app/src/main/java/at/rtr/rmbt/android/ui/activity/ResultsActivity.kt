@@ -73,7 +73,7 @@ class ResultsActivity : BaseActivity(), OnMapReadyCallback {
                         NetworkTypeCompat.TYPE_4G -> R.drawable.ic_marker_4g
                         NetworkTypeCompat.TYPE_3G -> R.drawable.ic_marker_3g
                         NetworkTypeCompat.TYPE_2G -> R.drawable.ic_marker_2g
-                        NetworkTypeCompat.TYPE_5G -> throw IllegalArgumentException("Need to add 5G marker image for the map")
+                        NetworkTypeCompat.TYPE_5G -> R.drawable.ic_marker_5g
                     }
 
                     googleMap?.addMarker(MarkerOptions().position(this).anchor(ANCHOR_U, ANCHOR_V).iconFromVector(this@ResultsActivity, icon))

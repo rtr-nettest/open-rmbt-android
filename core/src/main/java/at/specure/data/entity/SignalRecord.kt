@@ -43,5 +43,12 @@ data class SignalRecord(
     val lteRsrq: Int?,
     val lteRssnr: Int?,
     val lteCqi: Int?,
-    val timingAdvance: Int?
+    val timingAdvance: Int?,
+    // 5G
+    val nrCsiRsrp: Int?,
+    val nrCsiRsrq: Int?,
+    val nrCsiSinr: Int?,
+    val nrSsRsrp: Int?,
+    val nrSsRsrq: Int?,
+    val nrSsSinr: Int?
 )

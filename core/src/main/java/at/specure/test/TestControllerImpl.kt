@@ -17,6 +17,7 @@ import at.rtr.rmbt.util.model.shared.exception.ErrorStatus
 import at.specure.config.Config
 import at.specure.data.ClientUUID
 import at.specure.data.MeasurementServers
+import at.specure.info.Network5GSimulator
 import at.specure.measurement.MeasurementState
 import com.google.gson.Gson
 import kotlinx.coroutines.GlobalScope
@@ -316,7 +317,8 @@ class TestControllerImpl(
             if (result.pingNano > 0) {
                 _listener?.onPingChanged(result.pingNano)
             }
-            _listener?.onDownloadSpeedChanged(progress, result.downBitPerSec)
+            val value = Network5GSimulator.downBitPerSec(result.downBitPerSec)
+            _listener?.onDownloadSpeedChanged(progress, value)
             previousDownloadProgress = progress
         }
     }
@@ -333,12 +335,16 @@ class TestControllerImpl(
             if (result.pingNano > 0) {
                 _listener?.onPingChanged(result.pingNano)
             }
-            _listener?.onUploadSpeedChanged(progress, result.upBitPerSec)
+            val value = Network5GSimulator.upBitPerSec(result.upBitPerSec)
+            Timber.e("Progressy2: ${result.upBitPerSec} - $value")
+            _listener?.onUploadSpeedChanged(progress, value)
             previousUploadProgress = progress
         }
 
         if (!finalDownloadValuePosted) {
-            _listener?.onDownloadSpeedChanged(-1, result.downBitPerSec)
+            val value = Network5GSimulator.downBitPerSec(result.downBitPerSec)
+            Timber.w("Progressy2: ${result.upBitPerSec} - $value")
+            _listener?.onDownloadSpeedChanged(-1, value)
             finalDownloadValuePosted = true
         }
     }

@@ -2,6 +2,7 @@ package at.rtr.rmbt.android.di
 
 import android.content.Context
 import at.rmbt.client.control.ControlServerModule
+import at.rtr.rmbt.android.App
 import at.rtr.rmbt.android.config.ConfigModule
 import at.rtr.rmbt.android.location.LocationModule
 import at.rtr.rmbt.android.ui.dialog.HistoryFiltersDialog
@@ -44,6 +45,8 @@ interface AppComponent : CoreComponent {
     fun inject(dialog: HistoryFiltersDialog)
 
     fun inject(dialog: NetworkInfoDialog)
+
+    fun inject(app: App)
 
     @Component.Builder
     abstract class Builder {
