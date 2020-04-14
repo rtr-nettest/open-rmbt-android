@@ -87,7 +87,7 @@ open class PingChartView @JvmOverloads constructor(
     }
 
     /**
-     * Return size of chart width without x labels text size
+     * Return size of chart height without x or y labels text size
      */
     fun getChartHeight(): Float {
         return height.toFloat()

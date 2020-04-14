@@ -25,7 +25,22 @@ class SignalBarChartView @JvmOverloads constructor(
     private var fillPaint: Paint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         style = Paint.Style.FILL_AND_STROKE
     }
-    private var maxValue: Int? = 0
+
+    /**
+     *  distance in dBm between signal values shown in the graph
+     */
+    private val gap = 30
+
+    /**
+     *  Values of dBm shown in the graph
+     */
+    private val labelsYAxis = Array(5) { i -> -(5 - i) * gap + 10 }
+
+    /**
+     * value of X-axis at bottom of the graph
+     */
+    private var minValue: Int = labelsYAxis.minBy { it }!!
+    private var maxValue: Int = labelsYAxis.maxBy { it }!!
     private var strokePath: Path = Path()
     private var fillPath: Path = Path()
     private var widthMultiplier: Float = 0f
@@ -66,30 +81,60 @@ class SignalBarChartView @JvmOverloads constructor(
                 TestResultGraphItemRecord(
                     id = it.id,
                     time = it.time,
-                    value = abs(it.value),
+                    value = it.value,
                     type = it.type,
                     testUUID = it.testUUID
                 )
             }
 
             this.graphItems = items
+/*            val fix: Long = 140
+            var multiplicator = 1
+            this.graphItems = mutableListOf<TestResultGraphItemRecord>()
+            this.graphItems?.add(TestResultGraphItemRecord(
+                id = 0,
+                time = items[0].time + multiplicator++ * 1000,
+                value = -140 + fix,
+                type = items[0].type,
+                testUUID = items[0].testUUID
+            ))
+            this.graphItems?.add(TestResultGraphItemRecord(
+                id = 0,
+                time = items[0].time + multiplicator++ * 1000,
+                value = -110 + fix,
+                type = items[0].type,
+                testUUID = items[0].testUUID
+            ))
 
-            setYLabels(getYLabels(items))
+            this.graphItems?.add(TestResultGraphItemRecord(
+                id = 0,
+                time = items[0].time + multiplicator++ * 1000,
+                value = -80 + fix,
+                type = items[0].type,
+                testUUID = items[0].testUUID
+            ))
+
+            this.graphItems?.add(TestResultGraphItemRecord(
+                id = 0,
+                time = items[0].time + multiplicator++ * 1000,
+                value = -50 + fix,
+                type = items[0].type,
+                testUUID = items[0].testUUID
+            ))
+            this.graphItems?.add(TestResultGraphItemRecord(
+                id = 0,
+                time = items[0].time + multiplicator++ * 1000,
+                value = -20 + fix,
+                type = items[0].type,
+                testUUID = items[0].testUUID
+            ))
+
+            calculatePath()*/
+
+            setYLabels(labelsYAxis)
         }
 
         invalidate()
-    }
-
-    private fun getYLabels(graphItems: List<TestResultGraphItemRecord>): Array<Int> {
-
-        val gap = graphItems.let { list ->
-            list.maxBy { it.value }?.let { item ->
-                (ceil(item.value * 5 / 100.0) * 5).toInt()
-            }
-        }
-        val gapList = Array(5) { i -> if (gap != null) (i * gap) else 0 }
-        maxValue = gapList.maxBy { it } ?: 0
-        return gapList
     }
 
     private fun calculatePath() {
@@ -102,10 +147,11 @@ class SignalBarChartView @JvmOverloads constructor(
                 }
                 it.size == 1 -> {
                     with(it.first()) {
-                        strokePath.moveTo(0f, this.value.toFloat())
-                        strokePath.lineTo(time / widthMultiplier, this.value.toFloat())
-                        fillPath.moveTo(0f, this.value.toFloat())
-                        fillPath.lineTo(time / widthMultiplier, this.value.toFloat())
+                        val correctHeight = countCorrectHeight(this.value)
+                        strokePath.moveTo(0f, correctHeight)
+                        strokePath.lineTo(time / widthMultiplier, correctHeight)
+                        fillPath.moveTo(0f, correctHeight)
+                        fillPath.lineTo(time / widthMultiplier, correctHeight)
                         fillPath.lineTo(time / widthMultiplier, getChartHeight())
                         fillPath.lineTo(0f, getChartHeight())
                         fillPath.close()
@@ -115,17 +161,19 @@ class SignalBarChartView @JvmOverloads constructor(
                     strokePath.moveTo(0f, it.first().value.toFloat())
                     fillPath.moveTo(0f, it.first().value.toFloat())
                     for (index in 1 until it.size) {
+                        val currentValue = countCorrectHeight(it[index].value)
+                        val previousValue = countCorrectHeight(it[index - 1].value)
                         strokePath.quadTo(
                             (it[index - 1].time + (it[index].time - it[index - 1].time) / 2) / widthMultiplier,
-                            it[index].value - (it[index].value - it[index - 1].value).toFloat() / 2,
+                            currentValue - (currentValue - previousValue) / 2,
                             it[index].time / widthMultiplier,
-                            it[index].value.toFloat()
+                            currentValue
                         )
                         fillPath.quadTo(
                             (it[index - 1].time + (it[index].time - it[index - 1].time) / 2) / widthMultiplier,
-                            it[index].value - (it[index].value - it[index - 1].value).toFloat() / 2,
+                            currentValue - (currentValue - previousValue) / 2,
                             it[index].time / widthMultiplier,
-                            it[index].value.toFloat()
+                            currentValue
                         )
                     }
                     fillPath.lineTo(it.last().time / widthMultiplier, getChartHeight())
@@ -134,6 +182,10 @@ class SignalBarChartView @JvmOverloads constructor(
                 }
             }
         }
+    }
+
+    private fun countCorrectHeight(value: Long): Float {
+        return ((((abs(value) - abs(maxValue))) / (maxValue - minValue).toFloat()) * getChartHeight())
     }
 
     override fun onDetachedFromWindow() {
