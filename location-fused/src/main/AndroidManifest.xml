@@ -1,2 +1,2 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="at.specure.location" />
+    package="at.specure.location.fused" />

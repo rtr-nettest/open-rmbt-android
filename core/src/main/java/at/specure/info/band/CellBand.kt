@@ -78,6 +78,10 @@ data class CellBand(
                     data = getBandFromEarfcn(channel)
                     step = 0.1
                 }
+                CellChannelAttribution.NRARFCN -> {
+                    data = getBandFromNrarfcn(channel)
+                    step = 0.1
+                }
             }
 
             return if (data == null) {
@@ -143,6 +147,27 @@ data class CellBand(
             }
             return null
         }
+
+        /**
+         * @param nrarfcn Frequency to check
+         * @return NRBand object for matched band, or NULL if invalid nrarfcn is passed
+         */
+        private fun getBandFromNrarfcn(earfcn: Int): CellBandData? {
+            if (earfcn in 1..17999) { // DL
+                for (band in nrBands) { // Loop through all lteBands
+                    if (band.containsDLChannel(earfcn)) { // If the band contains the earfcn then return it
+                        return band
+                    }
+                }
+            } else if (earfcn in 18000..65535) { // UL
+                for (band in nrBands) { // Loop through all lteBands
+                    if (band.containsULChannel(earfcn)) { // If the band contains the earfcn then return it
+                        return band
+                    }
+                }
+            }
+            return null
+        }
     }
 }
 
@@ -184,20 +209,6 @@ private class CellBandData(
     }
 }
 
-// TODO check 3gpp specs
-private val nrBands: Set<CellBandData> = mutableSetOf<CellBandData>().apply {
-    add(1, 1920.0, 1980.0, 2110.0, 2170.0, 18000.0, 18599.0, 18000.0, "2100 MHz")
-    add(2, 1850.0, 1910.0, 1930.0, 1990.0, 18600.0, 19199.0, 18000.0, "PCS A-F blocks 1,9 GHz")
-    add(3, 1710.0, 1785.0, 1805.0, 1880.0, 19200.0, 19949.0, 18000.0, "1800 MHz")
-    add(4, 1710.0, 1755.0, 2110.0, 2155.0, 19950.0, 20399.0, 18000.0, "AWS-1 1.7+2.1 GHz")
-    add(5, 824.0, 849.0, 869.0, 894.0, 20400.0, 20649.0, 18000.0, "850MHz (was CDMA)")
-    add(6, 830.0, 840.0, 875.0, 885.0, 20650.0, 20749.0, 18000.0, "850MHz subset (was CDMA)")
-    add(7, 2500.0, 2570.0, 2620.0, 2690.0, 20750.0, 21449.0, 18000.0, "2600 MHz")
-    add(8, 880.0, 915.0, 925.0, 960.0, 21450.0, 21799.0, 18000.0, "900 MHz")
-    add(9, 1749.9, 1784.9, 1844.9, 1879.9, 21800.0, 22149.0, 18000.0, "DCS1800 subset")
-    add(10, 1710.0, 1770.0, 2110.0, 2170.0, 22150.0, 22749.0, 18000.0, "Extended AWS/AWS-2/AWS-3")
-}
-
 private fun MutableSet<CellBandData>.add(
     band: Int,
     uploadFrequencyLowerBound: Double,
@@ -223,6 +234,9 @@ private fun MutableSet<CellBandData>.add(
         )
     )
 }
+
+// TODO fill this table for NR Bands
+private val nrBands: Set<CellBandData> = mutableSetOf<CellBandData>().apply { }
 
 /**
  * Static list of all LTE Bands

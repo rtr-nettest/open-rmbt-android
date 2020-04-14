@@ -28,6 +28,7 @@ import android.telephony.CellSignalStrengthNr
 import android.telephony.CellSignalStrengthTdscdma
 import android.telephony.CellSignalStrengthWcdma
 import android.telephony.SignalStrength
+import androidx.annotation.RequiresApi
 import at.specure.info.TransportType
 import at.specure.info.cell.CellNetworkInfo
 import at.specure.info.network.MobileNetworkType
@@ -96,19 +97,21 @@ open class SignalStrengthInfo(
         const val RSSNR_MIN = -200
         const val RSSNR_MAX = 300
 
-        fun from(signal: CellSignalStrengthNr): SignalStrengthInfoLte = SignalStrengthInfoLte(
+        @RequiresApi(Build.VERSION_CODES.Q)
+        fun from(signal: CellSignalStrengthNr): SignalStrengthInfoNr = SignalStrengthInfoNr(
             transport = TransportType.CELLULAR,
             value = signal.dbm,
             rsrq = null,
             signalLevel = signal.level,
-            min = LTE_RSRP_SIGNAL_MIN,
-            max = LTE_RSRP_SIGNAL_MAX,
+            min = NR_RSRP_SIGNAL_MIN,
+            max = NR_RSRP_SIGNAL_MAX,
             timestampNanos = SystemClock.elapsedRealtimeNanos(),
-            cqi = null,
-            rsrp = null,
-            rssi = null,
-            rssnr = null,
-            timingAdvance = null
+            csiRsrp = if (signal.csiRsrp == CellInfo.UNAVAILABLE) null else signal.csiRsrp,
+            csiRsrq = if (signal.csiRsrq == CellInfo.UNAVAILABLE) null else signal.csiRsrq,
+            csiSinr = if (signal.csiSinr == CellInfo.UNAVAILABLE) null else signal.csiSinr,
+            ssRsrp = if (signal.ssRsrp == CellInfo.UNAVAILABLE) null else signal.ssRsrp,
+            ssRsrq = if (signal.ssRsrq == CellInfo.UNAVAILABLE) null else signal.ssRsrq,
+            ssSinr = if (signal.ssSinr == CellInfo.UNAVAILABLE) null else signal.ssSinr
         )
 
         fun from(signal: CellSignalStrengthLte): SignalStrengthInfoLte = SignalStrengthInfoLte(

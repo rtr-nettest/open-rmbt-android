@@ -336,12 +336,14 @@ class TestControllerImpl(
                 _listener?.onPingChanged(result.pingNano)
             }
             val value = Network5GSimulator.upBitPerSec(result.upBitPerSec)
+            Timber.e("Progressy2: ${result.upBitPerSec} - $value")
             _listener?.onUploadSpeedChanged(progress, value)
             previousUploadProgress = progress
         }
 
         if (!finalDownloadValuePosted) {
             val value = Network5GSimulator.downBitPerSec(result.downBitPerSec)
+            Timber.w("Progressy2: ${result.upBitPerSec} - $value")
             _listener?.onDownloadSpeedChanged(-1, value)
             finalDownloadValuePosted = true
         }

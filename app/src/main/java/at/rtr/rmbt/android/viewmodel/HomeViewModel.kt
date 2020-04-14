@@ -83,7 +83,6 @@ class HomeViewModel @Inject constructor(
             producer = service as SignalMeasurementProducer
 
             if (producer != null) {
-                toggleSignalMeasurementService()
                 toggleService = false
             }
 

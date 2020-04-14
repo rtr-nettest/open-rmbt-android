@@ -28,6 +28,7 @@ import at.specure.info.network.WifiNetworkInfo
 import at.specure.info.strength.SignalStrengthInfo
 import at.specure.info.strength.SignalStrengthInfoGsm
 import at.specure.info.strength.SignalStrengthInfoLte
+import at.specure.info.strength.SignalStrengthInfoNr
 import at.specure.info.strength.SignalStrengthInfoWiFi
 import at.specure.location.LocationInfo
 import at.specure.location.cell.CellLocationInfo
@@ -134,7 +135,22 @@ class TestDataRepositoryImpl(db: CoreDatabase) : TestDataRepository {
         var lteCqi: Int? = null
         var timingAdvance: Int? = null
 
+        var nrCsiRsrp: Int? = null
+        var nrCsiRsrq: Int? = null
+        var nrCsiSinr: Int? = null
+        var nrSsRsrp: Int? = null
+        var nrSsRsrq: Int? = null
+        var nrSsSinr: Int? = null
+
         when (info) {
+            is SignalStrengthInfoNr -> {
+                nrCsiRsrp = info.csiRsrp
+                nrCsiRsrq = info.csiRsrq
+                nrCsiSinr = info.csiSinr
+                nrSsRsrp = info.ssRsrp
+                nrSsRsrq = info.ssRsrq
+                nrSsSinr = info.ssSinr
+            }
             is SignalStrengthInfoLte -> {
                 signal = null
                 lteRsrp = info.rsrp
@@ -173,7 +189,13 @@ class TestDataRepositoryImpl(db: CoreDatabase) : TestDataRepository {
             lteCqi = lteCqi,
             timingAdvance = timingAdvance,
             mobileNetworkType = mobileNetworkType,
-            transportType = info.transport
+            transportType = info.transport,
+            nrCsiRsrp = nrCsiRsrp,
+            nrCsiRsrq = nrCsiRsrq,
+            nrCsiSinr = nrCsiSinr,
+            nrSsRsrp = nrSsRsrp,
+            nrSsRsrq = nrSsRsrq,
+            nrSsSinr = nrSsSinr
         )
         signalDao.insert(item)
     }

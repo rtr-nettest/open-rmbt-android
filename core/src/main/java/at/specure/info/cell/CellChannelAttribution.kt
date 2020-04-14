@@ -20,6 +20,11 @@ package at.specure.info.cell
 enum class CellChannelAttribution {
 
     /**
+     *  New Radio Absolute Radio Frequency Channel Number.
+     */
+    NRARFCN,
+
+    /**
      * 18-bit Absolute RF Channel Number
      */
     EARFCN,

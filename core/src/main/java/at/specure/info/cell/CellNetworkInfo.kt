@@ -18,6 +18,7 @@ import android.os.Build
 import android.telephony.CellIdentityCdma
 import android.telephony.CellIdentityGsm
 import android.telephony.CellIdentityLte
+import android.telephony.CellIdentityNr
 import android.telephony.CellIdentityWcdma
 import android.telephony.CellInfo
 import android.telephony.CellInfoCdma
@@ -160,6 +161,38 @@ class CellNetworkInfo(
             )
         }
 
+        @RequiresApi(Build.VERSION_CODES.Q)
+        private fun fromNr(
+            info: CellInfoNr,
+            providerName: String,
+            networkType: MobileNetworkType,
+            isActive: Boolean,
+            isRoaming: Boolean,
+            apn: String?
+        ): CellNetworkInfo {
+
+            val identity = info.cellIdentity as CellIdentityNr
+
+            val band = CellBand.fromChannelNumber(identity.nrarfcn, CellChannelAttribution.NRARFCN)
+
+            return CellNetworkInfo(
+                providerName = providerName,
+                band = band,
+                networkType = networkType,
+                mcc = identity.mccCompat(),
+                mnc = identity.mncCompat(),
+                locationId = null,
+                areaCode = identity.tac.fixValue(),
+                scramblingCode = identity.pci,
+                cellUUID = info.uuid(),
+                isActive = isActive,
+                isRegistered = info.isRegistered,
+                isRoaming = isRoaming,
+                apn = apn,
+                signalStrength = SignalStrengthInfo.from(info.cellSignalStrength as CellSignalStrengthNr)
+            )
+        }
+
         private fun fromLte(
             info: CellInfoLte,
             providerName: String,
@@ -285,35 +318,6 @@ class CellNetworkInfo(
                 signalStrength = SignalStrengthInfo.from(info.cellSignalStrength)
             )
         }
-
-        @RequiresApi(Build.VERSION_CODES.Q)
-        // TODO cell info NR
-        private fun fromNr(
-            info: CellInfoNr,
-            providerName: String,
-            networkType: MobileNetworkType,
-            isActive: Boolean,
-            isRoaming: Boolean,
-            apn: String?
-        ): CellNetworkInfo {
-
-            return CellNetworkInfo(
-                providerName = providerName,
-                band = null,
-                networkType = networkType,
-                mcc = null,
-                mnc = null,
-                locationId = null,
-                areaCode = 1,
-                scramblingCode = null,
-                cellUUID = info.uuid(),
-                isActive = isActive,
-                isRegistered = info.isRegistered,
-                isRoaming = isRoaming,
-                apn = apn,
-                signalStrength = SignalStrengthInfo.from(info.cellSignalStrength as CellSignalStrengthNr)
-            )
-        }
     }
 }
 
@@ -374,6 +378,12 @@ private fun CellIdentityCdma.uuid(): String {
     }.toByteArray()
     return UUID.nameUUIDFromBytes(id).toString()
 }
+
+@RequiresApi(Build.VERSION_CODES.Q)
+private fun CellIdentityNr.mccCompat(): Int? = mccString?.toInt().fixValue()
+
+@RequiresApi(Build.VERSION_CODES.Q)
+private fun CellIdentityNr.mncCompat(): Int? = mncString?.toInt().fixValue()
 
 private fun CellIdentityLte.mccCompat(): Int? =
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
