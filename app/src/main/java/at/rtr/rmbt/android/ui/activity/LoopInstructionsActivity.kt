@@ -7,7 +7,6 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.fragment.app.Fragment
 import androidx.viewpager.widget.PagerAdapter
 import at.rtr.rmbt.android.R
 import at.rtr.rmbt.android.databinding.ActivityLoopInstructionsBinding
@@ -71,8 +70,7 @@ class LoopInstructionsActivity : BaseActivity(), Callback {
     }
 
     companion object {
-        fun start(fragment: Fragment, requestCode: Int) =
-            fragment.startActivityForResult(Intent(fragment.requireContext(), LoopInstructionsActivity::class.java), requestCode)
+        fun start(context: Context): Intent = Intent(context, LoopInstructionsActivity::class.java)
     }
 }
 

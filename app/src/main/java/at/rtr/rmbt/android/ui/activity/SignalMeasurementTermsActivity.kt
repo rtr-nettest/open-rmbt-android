@@ -1,9 +1,9 @@
 package at.rtr.rmbt.android.ui.activity
 
 import android.app.Activity
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import at.rtr.rmbt.android.R
 import at.rtr.rmbt.android.databinding.ActivitySignalMeasurementTermsBinding
 import at.rtr.rmbt.android.util.ToolbarTheme
@@ -30,7 +30,7 @@ class SignalMeasurementTermsActivity : BaseActivity() {
     }
 
     companion object {
-        fun start(fragment: Fragment, requestCode: Int) =
-            fragment.startActivityForResult(Intent(fragment.requireContext(), SignalMeasurementTermsActivity::class.java), requestCode)
+
+        fun start(context: Context): Intent = Intent(context, SignalMeasurementTermsActivity::class.java)
     }
 }
