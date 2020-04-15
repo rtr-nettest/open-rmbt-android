@@ -116,7 +116,8 @@ class HomeFragment : BaseFragment() {
         binding.btnUpload.setOnClickListener {
             homeViewModel.activeSignalMeasurementLiveData.value?.let { active ->
                 if (!active) {
-                    SignalMeasurementTermsActivity.start(this, CODE_SIGNAL_MEASUREMENT_TERMS)
+                    val intent = SignalMeasurementTermsActivity.start(requireContext())
+                    startActivityForResult(intent, CODE_SIGNAL_MEASUREMENT_TERMS)
                 } else {
                     homeViewModel.toggleSignalMeasurementService()
                 }
@@ -130,7 +131,8 @@ class HomeFragment : BaseFragment() {
         binding.btnLoop.setOnTouchListener { v, event ->
             if (event.action == MotionEvent.ACTION_DOWN) {
                 if (!binding.btnLoop.isChecked) {
-                    LoopInstructionsActivity.start(this, CODE_LOOP_INSTRUCTIONS)
+                    val intent = LoopInstructionsActivity.start(requireContext())
+                    startActivityForResult(intent, CODE_LOOP_INSTRUCTIONS)
                 } else {
                     homeViewModel.state.isLoopModeActive.set(false)
                 }
