@@ -385,4 +385,11 @@ class AppConfig @Inject constructor(context: Context, private val serverSettings
     override var mapServerUseSSL: Boolean
         get() = getBoolean(BuildConfig.MAP_SERVER_USE_SSL)
         set(value) = setBoolean(BuildConfig.MAP_SERVER_USE_SSL, value)
+
+    override var developer5GSimulationEnabled: Boolean
+        get() = getBoolean(BuildConfig.DEV_SIMULATE_5G_NETWORK)
+        set(value) = setBoolean(BuildConfig.DEV_SIMULATE_5G_NETWORK, value)
+
+    override val developer5GSimulationAvailable: Boolean
+        get() = getBoolean(BuildConfig.DEVELOPER_MODE_IS_AVAILABLE)
 }

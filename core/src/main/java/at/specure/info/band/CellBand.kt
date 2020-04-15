@@ -78,6 +78,10 @@ data class CellBand(
                     data = getBandFromEarfcn(channel)
                     step = 0.1
                 }
+                CellChannelAttribution.NRARFCN -> {
+                    data = getBandFromNrarfcn(channel)
+                    step = 0.1
+                }
             }
 
             return if (data == null) {
@@ -136,6 +140,27 @@ data class CellBand(
                 }
             } else if (earfcn in 18000..65535) { // UL
                 for (band in lteBands) { // Loop through all lteBands
+                    if (band.containsULChannel(earfcn)) { // If the band contains the earfcn then return it
+                        return band
+                    }
+                }
+            }
+            return null
+        }
+
+        /**
+         * @param nrarfcn Frequency to check
+         * @return NRBand object for matched band, or NULL if invalid nrarfcn is passed
+         */
+        private fun getBandFromNrarfcn(earfcn: Int): CellBandData? {
+            if (earfcn in 1..17999) { // DL
+                for (band in nrBands) { // Loop through all lteBands
+                    if (band.containsDLChannel(earfcn)) { // If the band contains the earfcn then return it
+                        return band
+                    }
+                }
+            } else if (earfcn in 18000..65535) { // UL
+                for (band in nrBands) { // Loop through all lteBands
                     if (band.containsULChannel(earfcn)) { // If the band contains the earfcn then return it
                         return band
                     }
@@ -209,6 +234,9 @@ private fun MutableSet<CellBandData>.add(
         )
     )
 }
+
+// TODO fill this table for NR Bands
+private val nrBands: Set<CellBandData> = mutableSetOf<CellBandData>().apply { }
 
 /**
  * Static list of all LTE Bands

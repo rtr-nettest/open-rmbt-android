@@ -62,6 +62,8 @@ The source code is published under [Apache version 2.0 license](https://github.c
 - __`DEVELOPER_ACTIVATE_CODE`__:exclamation:Code to activate Developer Mode (10 taps on version number in Settings), default: `qwerty`
 - __`DEVELOPER_DEACTIVATE_CODE`__:exclamation:Code to deactivate Developer Mode (10 taps on version number), default: `1111`
 - __`ALL_DEACTIVATE_CODE`__:exclamation:Code to deactivate everything(?) (10 taps on version number), default: `0000`
+- __`DEV_SIMULATE_5G_NETWORK`__:Allows to simulate 5G network in the developer mode
+- __`DEV_SIMULATE_5G_NETWORK_IS_AVAILABLE`__:This flag makes simulate 5G network visible in the developer mode or not
 
 ##### OTHER VALUES
 - __`SOURCE_CODE_URL`__:exclamation:Link to Source Code, value: `https://github.com/rtr-nettest`

@@ -211,6 +211,16 @@
       "visible": false
     },
     {
+      "name": "DEV_SIMULATE_5G_NETWORK",
+      "value": "false",
+      "visible": false
+    },
+    {
+      "name": "DEV_SIMULATE_5G_NETWORK_IS_AVAILABLE",
+      "value": "false",
+      "visible": false
+    },
+    {
       "line1": "=======================================",
       "_section": "OTHER VALUES",
       "line2": "======================================="

@@ -56,7 +56,7 @@ enum class NetworkTypeCompat(val stringValue: String, val minSignalValue: Int, v
                         CellTechnology.CONNECTION_2G -> TYPE_2G
                         CellTechnology.CONNECTION_3G -> TYPE_3G
                         CellTechnology.CONNECTION_4G -> TYPE_4G
-                        CellTechnology.CONNECTION_5G -> throw IllegalArgumentException("5G not supported to send to the server")
+                        CellTechnology.CONNECTION_5G -> TYPE_5G
                         else -> throw java.lang.IllegalArgumentException("Incorrect cell technology value or null ${cellTechnology?.name}")
                     }
                 }

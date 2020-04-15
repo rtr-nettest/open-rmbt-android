@@ -68,7 +68,8 @@ class SettingsFragment : BaseFragment(), InputSettingDialog.Callback, ServerSele
         binding.switchLoopModeEnabled.rootView.setOnClickListener {
 
             if (!binding.switchLoopModeEnabled.switchButton.isChecked) {
-                LoopInstructionsActivity.start(this, CODE_LOOP_INSTRUCTIONS)
+                val intent = LoopInstructionsActivity.start(requireContext())
+                startActivityForResult(intent, CODE_LOOP_INSTRUCTIONS)
             } else {
                 settingsViewModel.state.loopModeEnabled.set(false)
             }

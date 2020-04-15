@@ -225,7 +225,7 @@ class BottomCurvePart(context: Context) : CurvePart() {
                 val mbits = (currentProgress / 1e3).roundToInt() - 10
                 angle = (sections[1].endAngle - sections[3].endAngle) + mbits * sectionAngle / 100
             }
-            currentProgress < 1e6 -> { // up to 1000 mbit
+            else -> { // up to 1000 mbit
                 val sectionAngle = sections[0].startAngle - sections[0].endAngle
                 val mbits = (currentProgress / 1e3).roundToInt()
                 angle = (sections[0].endAngle - sections[3].endAngle) + 0.1f * mbits * sectionAngle / 100

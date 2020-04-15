@@ -2,6 +2,7 @@ package at.specure.test
 
 import android.content.Context
 import android.net.ConnectivityManager
+import android.net.Network
 import at.rtr.rmbt.client.QualityOfServiceTest
 import at.rtr.rmbt.client.RMBTClient
 import at.rtr.rmbt.client.RMBTClientCallback
@@ -17,6 +18,7 @@ import at.rtr.rmbt.util.model.shared.exception.ErrorStatus
 import at.specure.config.Config
 import at.specure.data.ClientUUID
 import at.specure.data.MeasurementServers
+import at.specure.info.Network5GSimulator
 import at.specure.measurement.MeasurementState
 import com.google.gson.Gson
 import kotlinx.coroutines.GlobalScope
@@ -48,6 +50,7 @@ class TestControllerImpl(
     private val measurementServer: MeasurementServers
 ) : TestController {
 
+    private var lastNetwork: Network? = null
     private var job: Job? = null
     private var clientJob: Job? = null
     private val result: IntermediateResult by lazy { IntermediateResult() }
@@ -74,6 +77,7 @@ class TestControllerImpl(
     private var finalUploadValuePosted = false
 
     override fun reset() {
+        lastNetwork = null
         client?.shutdown()
         qosTest?.interrupt()
 
@@ -112,6 +116,7 @@ class TestControllerImpl(
             return
         }
 
+        lastNetwork = null
         _listener = listener
 
         job = GlobalScope.async {
@@ -263,7 +268,7 @@ class TestControllerImpl(
                     TestStatus.INIT_UP -> handleInitUp()
                     TestStatus.UP -> handleUp(client)
                     TestStatus.SPEEDTEST_END -> handleSpeedTestEnd(skipQoSTests)
-                    TestStatus.QOS_TEST_RUNNING -> handleQoSRunning(qosTest)
+                    TestStatus.QOS_TEST_RUNNING -> handleQoSRunning(qosTest, client)
                     TestStatus.QOS_END -> handleQoSEnd()
                     TestStatus.ERROR -> handleError(client)
                     TestStatus.END -> handleEnd()
@@ -321,7 +326,8 @@ class TestControllerImpl(
             if (result.pingNano > 0) {
                 _listener?.onPingChanged(result.pingNano)
             }
-            _listener?.onDownloadSpeedChanged(progress, result.downBitPerSec)
+            val value = Network5GSimulator.downBitPerSec(result.downBitPerSec)
+            _listener?.onDownloadSpeedChanged(progress, value)
             previousDownloadProgress = progress
         }
     }
@@ -338,12 +344,16 @@ class TestControllerImpl(
             if (result.pingNano > 0) {
                 _listener?.onPingChanged(result.pingNano)
             }
-            _listener?.onUploadSpeedChanged(progress, result.upBitPerSec)
+            val value = Network5GSimulator.upBitPerSec(result.upBitPerSec)
+            Timber.e("Progressy2: ${result.upBitPerSec} - $value")
+            _listener?.onUploadSpeedChanged(progress, value)
             previousUploadProgress = progress
         }
 
         if (!finalDownloadValuePosted) {
-            _listener?.onDownloadSpeedChanged(-1, result.downBitPerSec)
+            val value = Network5GSimulator.downBitPerSec(result.downBitPerSec)
+            Timber.w("Progressy2: ${result.upBitPerSec} - $value")
+            _listener?.onDownloadSpeedChanged(-1, value)
             finalDownloadValuePosted = true
         }
     }
@@ -354,7 +364,7 @@ class TestControllerImpl(
         }
     }
 
-    private fun handleQoSRunning(qosTest: QualityOfServiceTest?) {
+    private fun handleQoSRunning(qosTest: QualityOfServiceTest?, client: RMBTClient) {
         qosTest ?: return
         Timber.i("${TestStatus.QOS_TEST_RUNNING} progress: ${qosTest.progress}/${qosTest.testSize}")
         val progress = ((qosTest.progress.toDouble() / qosTest.testSize) * 100).toInt()
@@ -397,7 +407,15 @@ class TestControllerImpl(
             Timber.i("$key : $testGroupProgress")
         }
 
-        _listener?.onQoSTestProgressUpdate(qosTest.progress, qosTest.testSize, progressMap)
+        val activeNetwork = connectivityManager.activeNetwork
+        if (lastNetwork != null && activeNetwork != lastNetwork) {
+            Timber.e("Qos Test error - illegal network change detected \n last: $lastNetwork \n\n active: $activeNetwork")
+            handleError(client)
+            stop()
+        } else {
+            lastNetwork = activeNetwork
+            _listener?.onQoSTestProgressUpdate(qosTest.progress, qosTest.testSize, progressMap)
+        }
     }
 
     private fun handleQoSEnd() {

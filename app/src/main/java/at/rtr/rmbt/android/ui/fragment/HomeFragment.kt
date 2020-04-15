@@ -1,12 +1,16 @@
 package at.rtr.rmbt.android.ui.fragment
 
+import android.Manifest
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Intent
+import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.view.MotionEvent
 import android.view.View
+import androidx.core.content.ContextCompat.checkSelfPermission
 import at.rmbt.client.control.IpProtocol
 import at.rtr.rmbt.android.R
 import at.rtr.rmbt.android.databinding.FragmentHomeBinding
@@ -116,7 +120,8 @@ class HomeFragment : BaseFragment() {
         binding.btnUpload.setOnClickListener {
             homeViewModel.activeSignalMeasurementLiveData.value?.let { active ->
                 if (!active) {
-                    SignalMeasurementTermsActivity.start(this, CODE_SIGNAL_MEASUREMENT_TERMS)
+                    val intent = SignalMeasurementTermsActivity.start(requireContext())
+                    startActivityForResult(intent, CODE_SIGNAL_MEASUREMENT_TERMS)
                 } else {
                     homeViewModel.toggleSignalMeasurementService()
                 }
@@ -130,7 +135,8 @@ class HomeFragment : BaseFragment() {
         binding.btnLoop.setOnTouchListener { v, event ->
             if (event.action == MotionEvent.ACTION_DOWN) {
                 if (!binding.btnLoop.isChecked) {
-                    LoopInstructionsActivity.start(this, CODE_LOOP_INSTRUCTIONS)
+                    val intent = LoopInstructionsActivity.start(requireContext())
+                    startActivityForResult(intent, CODE_LOOP_INSTRUCTIONS)
                 } else {
                     homeViewModel.state.isLoopModeActive.set(false)
                 }
@@ -202,15 +208,48 @@ class HomeFragment : BaseFragment() {
     override fun onStart() {
         super.onStart()
         homeViewModel.attach(requireContext())
-        if (homeViewModel.permissionsWatcher.requiredPermissions.isNotEmpty()) {
-            requestPermissions(
-                homeViewModel.permissionsWatcher.requiredPermissions,
-                PERMISSIONS_REQUEST_CODE
-            )
-        }
+
+        checkPermissions()
         startTimerForInfoWindow()
         homeViewModel.state.checkConfig()
         homeViewModel.getNews()
+    }
+
+    private fun checkPermissions() {
+        val permissions = homeViewModel.permissionsWatcher.requiredPermissions.toMutableSet()
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            val hasForegroundLocationPermission =
+                checkSelfPermission(requireContext(), Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED
+            if (hasForegroundLocationPermission) {
+                val hasBackgroundLocationPermission = checkSelfPermission(
+                    requireContext(),
+                    Manifest.permission.ACCESS_BACKGROUND_LOCATION
+                ) == PackageManager.PERMISSION_GRANTED
+                if (!hasBackgroundLocationPermission) {
+                    permissions.remove(Manifest.permission.ACCESS_BACKGROUND_LOCATION)
+                    requestPermissions(arrayOf(Manifest.permission.ACCESS_BACKGROUND_LOCATION), PERMISSIONS_REQUEST_CODE)
+                }
+            } else {
+                permissions.remove(Manifest.permission.ACCESS_COARSE_LOCATION)
+                permissions.remove(Manifest.permission.ACCESS_FINE_LOCATION)
+                permissions.remove(Manifest.permission.ACCESS_BACKGROUND_LOCATION)
+                requestPermissions(
+                    arrayOf(
+                        Manifest.permission.ACCESS_COARSE_LOCATION,
+                        Manifest.permission.ACCESS_FINE_LOCATION,
+                        Manifest.permission.ACCESS_BACKGROUND_LOCATION
+                    ), PERMISSIONS_REQUEST_CODE
+                )
+            }
+        }
+
+        if (permissions.isNotEmpty()) {
+            requestPermissions(
+                permissions.toTypedArray(),
+                PERMISSIONS_REQUEST_CODE
+            )
+        }
     }
 
     override fun onStop() {

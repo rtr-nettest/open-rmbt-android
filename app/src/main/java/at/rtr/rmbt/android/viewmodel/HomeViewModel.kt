@@ -82,9 +82,9 @@ class HomeViewModel @Inject constructor(
         override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
             producer = service as SignalMeasurementProducer
 
-            if (producer != null) {
-                toggleSignalMeasurementService()
+            if (producer != null && toggleService) {
                 toggleService = false
+                toggleSignalMeasurementService()
             }
 
             _activeMeasurementSource = producer?.activeStateLiveData
