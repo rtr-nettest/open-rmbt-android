@@ -35,6 +35,7 @@ private const val KEY_LOOP_MODE_SETTINGS = "loopmode_info"
 private const val KEY_SERVER_SELECTION_ENABLED = "user_server_selection"
 private const val KEY_SERVER_PREFERRED = "prefer_server"
 private const val KEY_DEVELOPER_MODE_ENABLED = "developer_mode"
+private const val KEY_LOOP_MODE_ENABLED = "user_loop_mode"
 
 private const val TEST_MAX_TIME = 3000
 private const val MAX_VALUE_UNFINISHED_TEST = 0.9f
@@ -165,6 +166,10 @@ class TestControllerImpl(
 
             if (config.developerModeIsEnabled) {
                 additionalValues.put(KEY_DEVELOPER_MODE_ENABLED, true)
+            }
+
+            if (config.loopModeEnabled) {
+                additionalValues.put(KEY_LOOP_MODE_ENABLED, true)
             }
 
             client = RMBTClient.getInstance(

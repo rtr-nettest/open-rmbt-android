@@ -3,7 +3,9 @@ package at.specure.test
 import android.content.Context
 import android.os.Build
 import androidx.annotation.Keep
+import at.rmbt.client.control.PermissionStatusBody
 import at.specure.core.BuildConfig
+import at.specure.data.entity.PermissionStatusRecord
 import at.specure.location.LocationInfo
 import at.specure.util.hasPermission
 import com.google.gson.annotations.Expose
@@ -54,13 +56,28 @@ class DeviceInfo(context: Context, val location: Location? = null) {
     val rmbtClientVersion = "1.2.1"
 
     @SerializedName("android_permission_status")
-    val permissionsStatus: Map<String, Boolean> = mutableMapOf<String, Boolean>().apply {
-        put(android.Manifest.permission.ACCESS_FINE_LOCATION, context.hasPermission(android.Manifest.permission.ACCESS_FINE_LOCATION))
-        put(android.Manifest.permission.ACCESS_COARSE_LOCATION, context.hasPermission(android.Manifest.permission.ACCESS_COARSE_LOCATION))
+    val permissionsStatus: List<PermissionStatusBody> = mutableListOf<PermissionStatusBody>().apply {
+        add(
+            PermissionStatusBody(
+                android.Manifest.permission.ACCESS_FINE_LOCATION,
+                context.hasPermission(android.Manifest.permission.ACCESS_FINE_LOCATION)
+            )
+        )
+        add(
+            PermissionStatusBody(
+                android.Manifest.permission.ACCESS_COARSE_LOCATION,
+                context.hasPermission(android.Manifest.permission.ACCESS_COARSE_LOCATION)
+            )
+        )
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            put(android.Manifest.permission.ACCESS_BACKGROUND_LOCATION, context.hasPermission(android.Manifest.permission.ACCESS_BACKGROUND_LOCATION))
+            add(
+                PermissionStatusBody(
+                    android.Manifest.permission.ACCESS_BACKGROUND_LOCATION,
+                    context.hasPermission(android.Manifest.permission.ACCESS_BACKGROUND_LOCATION)
+                )
+            )
         } else {
-            put("android.permission.ACCESS_BACKGROUND_LOCATION", false)
+            add(PermissionStatusBody("android.permission.ACCESS_BACKGROUND_LOCATION", false))
         }
     }
 
