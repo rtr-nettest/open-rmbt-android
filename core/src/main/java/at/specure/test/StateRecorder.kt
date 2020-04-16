@@ -81,11 +81,6 @@ class StateRecorder @Inject constructor(
     val loopTestCount: Int
         get() = _loopModeRecord?.testsPerformed ?: 1
 
-    /**
-     * true if location was available when previous test finished and distance can be measured to the next test
-     */
-    val locationAvailableOnLoopStart = _loopModeRecord?.locationAvailableOnStart ?: false
-
     fun updateLocationInfo() {
         _locationInfo = if (locationWatcher.state == LocationState.ENABLED) {
             locationWatcher.latestLocation
@@ -195,13 +190,18 @@ class StateRecorder @Inject constructor(
 
     fun onLoopTestFinished() {
         _loopModeRecord?.let {
+            it.status = LoopModeState.IDLE
+            repository.updateLoopMode(it)
+        }
+    }
+
+    fun onLoopTestScheduled() {
+        _loopModeRecord?.let {
             val location = locationInfo
             it.lastTestFinishedTimeMillis = System.currentTimeMillis()
             it.lastTestLatitude = _locationInfo?.latitude
             it.lastTestLongitude = _locationInfo?.longitude
-            it.locationAvailableOnStart = location != null && location.accuracy > config.loopModeDistanceMeters
             it.movementDistanceMeters = 0
-            it.status = LoopModeState.IDLE
             repository.updateLoopMode(it)
         }
     }
@@ -214,32 +214,31 @@ class StateRecorder @Inject constructor(
         }
 
         _loopModeRecord?.let {
-            if (it.status == LoopModeState.IDLE) {
+            val newLocation = Location("")
+            newLocation.latitude = location?.latitude ?: return@let
+            newLocation.longitude = location.longitude
 
+            if (it.lastTestLatitude == null || it.lastTestLongitude == null) {
+                it.lastTestLatitude = location.latitude
+                it.lastTestLongitude = location.longitude
+            } else {
                 val loopLocation = Location("")
                 loopLocation.latitude = it.lastTestLatitude ?: return@let
                 loopLocation.longitude = it.lastTestLongitude ?: return@let
 
-                val newLocation = Location("")
-                newLocation.latitude = location?.latitude ?: return@let
-                newLocation.longitude = location.longitude
-
                 it.movementDistanceMeters = loopLocation.distanceTo(newLocation).toInt()
 
                 var notifyDistanceReached = false
-                if (it.locationAvailableOnStart &&
-                    it.movementDistanceMeters >= config.loopModeDistanceMeters &&
-                    newLocation.accuracy < config.loopModeDistanceMeters
-                ) {
-                    it.status = LoopModeState.RUNNING
+                if (it.movementDistanceMeters >= config.loopModeDistanceMeters && newLocation.accuracy < config.loopModeDistanceMeters) {
                     notifyDistanceReached = true
                 }
 
-                repository.updateLoopMode(it)
                 if (notifyDistanceReached) {
                     onLoopDistanceReached?.invoke()
                 }
             }
+
+            repository.updateLoopMode(it)
         }
     }
 
@@ -442,9 +441,8 @@ class StateRecorder @Inject constructor(
     fun onTestInLoopStarted() {
         _loopModeRecord?.let {
             it.movementDistanceMeters = 0
-            it.lastTestLongitude = null
-            it.lastTestLatitude = null
-            it.locationAvailableOnStart = false
+            it.lastTestLongitude = locationInfo?.longitude
+            it.lastTestLatitude = locationInfo?.latitude
             it.status = LoopModeState.RUNNING
             it.testsPerformed++
             repository.updateLoopMode(it)
