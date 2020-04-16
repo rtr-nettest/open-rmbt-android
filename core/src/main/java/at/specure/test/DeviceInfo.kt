@@ -5,7 +5,6 @@ import android.os.Build
 import androidx.annotation.Keep
 import at.rmbt.client.control.PermissionStatusBody
 import at.specure.core.BuildConfig
-import at.specure.data.entity.PermissionStatusRecord
 import at.specure.location.LocationInfo
 import at.specure.util.hasPermission
 import com.google.gson.annotations.Expose
