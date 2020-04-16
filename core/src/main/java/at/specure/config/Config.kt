@@ -231,7 +231,7 @@ interface Config {
     var previousTestStatus: String?
 
     /**
-     * Client uses RMBTHttp if true, default should be false
+     * Client uses RMBTHttp if true, default should be true
      */
     var capabilitiesRmbtHttp: Boolean
 

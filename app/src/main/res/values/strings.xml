@@ -107,6 +107,7 @@
     <string name="location_dialog_label_source">Source</string>
     <string name="location_dialog_label_altitude">Altitude</string>
     <string name="location_dialog_label_speed">Speed</string>
+    <string name="location_dialog_label_satellites">Satellites</string>
     <string name="location_dialog_label_location_progress_message">Looking for your location. Please wait…</string>
     <string name="open_gps_setting_dialog_label_gps_not_enabled">Location services are not enabled. Would you like to modify location settings?</string>
     <string name="open_gps_setting_dialog_label_open_gps_setting">Open Location settings</string>

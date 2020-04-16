@@ -42,7 +42,7 @@ The source code is published under [Apache version 2.0 license](https://github.c
 - __`LOOP_MODE_MIN_WAITING_TIME_MIN`__ Minimum delay in minutes between measurements in Loop Mode can be entered by User, default `15`
 - __`LOOP_MODE_MAX_DISTANCE_METERS`__ Maximum distance in meters between measurements in Loop Mode can be entered by User, default `10000`
 - __`LOOP_MODE_MIN_DISTANCE_METERS`__ Minimum distance in meters between measurements in Loop Mode can be entered by User, default `50`
-- __`CAPABILITIES_RMBT_HTTP`__ client supports RMBT HTTP, default: `false`
+- __`CAPABILITIES_RMBT_HTTP`__ client supports RMBT HTTP, default: `true`
 - __`CAPABILITIES_QOS_SUPPORTS_INFO`__ The third state (=INFO) is supported or not, default: `false`
 - __`CAPABILITIES_CLASSIFICATION_COUNT`__ Number of intervals(classes) to classify measured values, default: `4`
 

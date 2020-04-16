@@ -58,11 +58,11 @@ class TestDataRepositoryImpl(db: CoreDatabase) : TestDataRepository {
             speed = location.speed,
             altitude = location.altitude,
             timestampMillis = location.time,
-            timeRelativeNanos = location.elapsedRealtimeNanos - testStartTimeNanos,
+            timeRelativeNanos = location.systemNanoTime - testStartTimeNanos,
             ageNanos = location.ageNanos,
             accuracy = location.accuracy,
             bearing = location.bearing,
-            satellitesCount = location.satellites,
+            satellitesCount = location.satellites ?: 0,
             isMocked = location.locationIsMocked
         )
         geoLocationDao.insert(geoLocation)

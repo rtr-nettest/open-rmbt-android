@@ -180,6 +180,38 @@
             app:locationProvider="@{locationInfo.provider}"
             tools:text="Network" />
 
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/labelSatellites"
+            style="@style/RobotoMediumStyle.Small"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="@dimen/margin_medium"
+            android:gravity="end|center_vertical"
+            android:text="@string/location_dialog_label_satellites"
+            android:textColor="@color/text_gray_transparency_55"
+            app:layout_constraintBottom_toBottomOf="@+id/textSatellites"
+            app:layout_constraintEnd_toStartOf="@+id/textSatellites"
+            app:layout_constraintHorizontal_weight="3"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/textSatellites"
+            app:visibleOrGone="@{locationInfo.satellites > 0}" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/textSatellites"
+            style="@style/RobotoRegularStyle.Medium"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/margin_medium"
+            android:layout_marginTop="@dimen/margin_medium"
+            android:textColor="@color/text_black_transparency_60"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_weight="7"
+            app:layout_constraintStart_toEndOf="@+id/labelSatellites"
+            app:layout_constraintTop_toBottomOf="@+id/textSource"
+            app:text="@{locationInfo.satellites.toString()}"
+            app:visibleOrGone="@{locationInfo.satellites > 0}"
+            tools:text="Network" />
+
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/labelAltitude"
@@ -208,7 +240,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_weight="7"
             app:layout_constraintStart_toEndOf="@+id/labelAltitude"
-            app:layout_constraintTop_toBottomOf="@+id/textSource"
+            app:layout_constraintTop_toBottomOf="@+id/textSatellites"
             app:locationAltitude="@{locationInfo}"
             app:visibleOrGone="@{locationInfo.hasAltitude}" />
 

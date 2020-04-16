@@ -127,7 +127,7 @@
     },
     {
       "name": "CAPABILITIES_RMBT_HTTP",
-      "value": "false",
+      "value": "true",
       "visible": false
     },
     {
