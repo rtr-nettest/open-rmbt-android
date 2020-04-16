@@ -749,7 +749,7 @@ data class TestLocationBody(
     val bearing: Float,
     @SerializedName("mock_location")
     val mockLocation: Boolean,
-    val satellites: Int
+    val satellites: Int?
 )
 
 @Keep
@@ -954,7 +954,8 @@ data class SignalMeasurementLocationBody(
     val accuracy: Float,
     val mock_location: Boolean,
     @Expose
-    val altitude: Double
+    val altitude: Double,
+    val satellites: Int?
 )
 
 @Keep

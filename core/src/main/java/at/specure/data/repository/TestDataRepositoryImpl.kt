@@ -62,7 +62,7 @@ class TestDataRepositoryImpl(db: CoreDatabase) : TestDataRepository {
             ageNanos = location.ageNanos,
             accuracy = location.accuracy,
             bearing = location.bearing,
-            satellitesCount = location.satellites,
+            satellitesCount = location.satellites ?: 0,
             isMocked = location.locationIsMocked
         )
         geoLocationDao.insert(geoLocation)

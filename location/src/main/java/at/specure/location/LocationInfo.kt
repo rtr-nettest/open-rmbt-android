@@ -60,7 +60,7 @@ class LocationInfo {
     /**
      * Count of available satellites or 0 if N/A
      */
-    val satellites: Int
+    val satellites: Int?
 
     /**
      * true if location has accuracy valid

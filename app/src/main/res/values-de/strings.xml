@@ -105,6 +105,7 @@
     <string name="location_dialog_label_source">Quelle</string>
     <string name="location_dialog_label_altitude">Höhe</string>
     <string name="location_dialog_label_speed">Geschwindigkeit</string>
+    <string name="location_dialog_label_satellites">Satelliten</string>
     <string name="location_dialog_label_location_progress_message">Suche nach Ihrer Adresse läuft. Bitte warten…</string>
     <string name="open_gps_setting_dialog_label_gps_not_enabled">Standort nicht verfügbar. Möchten Sie die Standorteinstellungen ändern?</string>
     <string name="open_gps_setting_dialog_label_open_gps_setting">Einstellungen öffnen</string>

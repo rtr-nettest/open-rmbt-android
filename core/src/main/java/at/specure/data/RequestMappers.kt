@@ -426,7 +426,8 @@ fun DeviceInfo.Location.toRequest() = SignalMeasurementLocationBody(
     age = age,
     accuracy = accuracy,
     mock_location = mock_location,
-    altitude = altitude
+    altitude = altitude,
+    satellites = satellites
 )
 
 fun SignalMeasurementRecord.toRequest(

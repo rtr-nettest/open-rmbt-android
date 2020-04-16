@@ -91,6 +91,7 @@ class DeviceInfo(context: Context, val location: Location? = null) {
         val age: Long?,
         val accuracy: Float,
         val mock_location: Boolean,
+        val satellites: Int?,
         @Expose
         val altitude: Double
     )
@@ -107,6 +108,7 @@ fun LocationInfo?.toDeviceInfoLocation(): DeviceInfo.Location? = if (this == nul
         age = ageNanos,
         accuracy = accuracy,
         mock_location = locationIsMocked,
-        altitude = altitude
+        altitude = altitude,
+        satellites = satellites
     )
 }
