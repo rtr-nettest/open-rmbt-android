@@ -28,6 +28,16 @@ class LocationInfo {
     val elapsedRealtimeNanos: Long
 
     /**
+     * Time acquired with System.nanoTime() in the time of the creation of this object
+     */
+    val systemNanoTime: Long
+
+    /**
+     * Time acquired with System.currentTimeMillis() in the time of the creation of this object
+     */
+    val systemMillisTime: Long
+
+    /**
      * Direction of latitude ([NORTH], [SOUTH]) or null if it is not defined
      */
     val latitudeDirection: LocationCardinalDirections
@@ -162,6 +172,10 @@ class LocationInfo {
         }
         elapsedRealtimeNanos = location.elapsedRealtimeNanos
 
+        systemNanoTime = System.nanoTime()
+
+        systemMillisTime = System.currentTimeMillis()
+
         time = location.time
 
         location.time
@@ -234,6 +248,10 @@ class LocationInfo {
         this.bearingAccuracy = bearingAccuracyDegrees
 
         this.elapsedRealtimeNanos = elapsedRealtimeNanos
+
+        this.systemNanoTime = System.nanoTime()
+
+        this.systemMillisTime = System.currentTimeMillis()
 
         this.time = time
     }

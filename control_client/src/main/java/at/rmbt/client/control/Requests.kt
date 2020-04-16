@@ -823,7 +823,7 @@ data class CapabilitiesBody(
     val classification: ClassificationBody = ClassificationBody(4),
     val qos: QoSBody = QoSBody(false),
     @SerializedName("RMBThttp")
-    val rmbtHttpStatus: Boolean = false
+    val rmbtHttpStatus: Boolean = true
 )
 
 @Keep
