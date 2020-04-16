@@ -4,6 +4,7 @@ import android.content.Context
 import at.rmbt.client.control.ControlServerClient
 import at.rmbt.util.Maybe
 import at.rmbt.util.io
+import at.rtr.rmbt.client.helper.TestStatus
 import at.specure.data.Classification
 import at.specure.data.ClientUUID
 import at.specure.data.CoreDatabase
@@ -84,6 +85,10 @@ class ResultsRepositoryImpl @Inject constructor(
             }
 
             result.onFailure {
+
+                if (testRecord.status != TestStatus.SPEEDTEST_END) {
+                    return@onFailure
+                }
 
                 val networkType = NetworkTypeCompat.fromResultIntType(body.networkType.toInt())
 

@@ -227,28 +227,17 @@ class HomeFragment : BaseFragment() {
                     Manifest.permission.ACCESS_BACKGROUND_LOCATION
                 ) == PackageManager.PERMISSION_GRANTED
                 if (!hasBackgroundLocationPermission) {
-                    permissions.remove(Manifest.permission.ACCESS_BACKGROUND_LOCATION)
-                    requestPermissions(arrayOf(Manifest.permission.ACCESS_BACKGROUND_LOCATION), PERMISSIONS_REQUEST_CODE)
+                    permissions.add(Manifest.permission.ACCESS_BACKGROUND_LOCATION)
                 }
             } else {
-                permissions.remove(Manifest.permission.ACCESS_COARSE_LOCATION)
-                permissions.remove(Manifest.permission.ACCESS_FINE_LOCATION)
-                permissions.remove(Manifest.permission.ACCESS_BACKGROUND_LOCATION)
-                requestPermissions(
-                    arrayOf(
-                        Manifest.permission.ACCESS_COARSE_LOCATION,
-                        Manifest.permission.ACCESS_FINE_LOCATION,
-                        Manifest.permission.ACCESS_BACKGROUND_LOCATION
-                    ), PERMISSIONS_REQUEST_CODE
-                )
+                permissions.add(Manifest.permission.ACCESS_COARSE_LOCATION)
+                permissions.add(Manifest.permission.ACCESS_FINE_LOCATION)
+                permissions.add(Manifest.permission.ACCESS_BACKGROUND_LOCATION)
             }
         }
 
         if (permissions.isNotEmpty()) {
-            requestPermissions(
-                permissions.toTypedArray(),
-                PERMISSIONS_REQUEST_CODE
-            )
+            requestPermissions(permissions.toTypedArray(), PERMISSIONS_REQUEST_CODE)
         }
     }
 

@@ -12,7 +12,6 @@ data class LoopModeRecord(
     var testsPerformed: Int = 1,
     var lastTestLongitude: Double? = null,
     var lastTestLatitude: Double? = null,
-    var locationAvailableOnStart: Boolean = false,
     var lastTestFinishedTimeMillis: Long = 0,
     var movementDistanceMeters: Int = 0,
     var status: LoopModeState = LoopModeState.RUNNING
