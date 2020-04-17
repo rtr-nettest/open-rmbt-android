@@ -2,8 +2,14 @@ applyIfExists "$project.rootDir/private/project-dependencies.gradle"
 
 buildscript {
 
-    ext.isPrivate = file("$project.rootDir/private/.gitignore").exists()
+    /**
+     * Checks that private files are available
+     */
+    ext.isPrivate = file("$project.rootDir/private/project-dependencies.gradle").exists()
 
+    /**
+     * Applies file from private directory (if dir exists) or public analog with the same path
+     */
     ext.applyPrivate = { filePath ->
         if (isPrivate) {
             apply from: "$project.rootDir/private/$filePath"
@@ -12,12 +18,18 @@ buildscript {
         }
     }
 
+    /**
+     * Applies file if it exists
+     */
     ext.applyIfExists = { filePath ->
         if (file(filePath).exists()) {
             apply from: filePath
         }
     }
 
+    /**
+     * Applies dependencies for the root gradle file (applies for whole project)
+     */
     ext.applyDependencies = { closure ->
         if (file("$project.rootDir/private/project-dependencies.gradle").exists()) {
             apply from: "$project.rootDir/private/project-dependencies.gradle"
@@ -25,6 +37,9 @@ buildscript {
         }
     }
 
+    /**
+     * Returns git commit hash
+     */
     ext.getGitHash = { ->
         def stdout = new ByteArrayOutputStream()
         exec {
@@ -34,6 +49,9 @@ buildscript {
         return stdout.toString().trim()
     }
 
+    /**
+     * Returns command output for "git describe --tags --always" (version name from git tag)
+     */
     ext.gitVersionName = {
         def stdout = new ByteArrayOutputStream()
         exec {
@@ -43,6 +61,9 @@ buildscript {
         return stdout.toString().trim()
     }
 
+    /**
+     * Returns current git branch name
+     */
     ext.gitBranchName = {
         def stdoutBranch = new ByteArrayOutputStream()
 
@@ -56,6 +77,9 @@ buildscript {
         return stdoutBranch.toString().trim()
     }
 
+    /**
+     * Returns git commit full hash
+     */
     ext.gitFullHash = {
         def stdout = new ByteArrayOutputStream()
         exec {
@@ -65,6 +89,9 @@ buildscript {
         return stdout.toString().trim()
     }
 
+    /**
+     * returns "git rev-list HEAD --count" command result
+     */
     ext.gitVersionCode = {
         def stdout = new ByteArrayOutputStream()
         exec {
@@ -74,6 +101,9 @@ buildscript {
         return stdout.toString().trim()
     }
 
+    /**
+     * Returns true if git has untracked or modified files
+     */
     ext.gitIsDirty = {
         def stdout = new ByteArrayOutputStream()
         exec {
@@ -88,6 +118,9 @@ buildscript {
             return "false"
     }
 
+    /**
+     * Extracts release notes from console build arguments sample "-PreleaseNotes="${RELEASE_NOTES}""
+     */
     ext.buildNotes = {
         if (project.hasProperty('releaseNotes') && releaseNotes.length() > 0) {
             return releaseNotes
