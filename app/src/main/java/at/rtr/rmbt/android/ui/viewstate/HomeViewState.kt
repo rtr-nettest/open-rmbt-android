@@ -10,7 +10,7 @@ import at.specure.data.MeasurementServers
 import at.specure.info.ip.IpInfo
 import at.specure.info.network.NetworkInfo
 import at.specure.info.strength.SignalStrengthInfo
-import at.specure.location.LocationProviderState
+import at.specure.location.LocationState
 
 class HomeViewState(
     private val config: AppConfig,
@@ -18,7 +18,7 @@ class HomeViewState(
 ) : ViewState {
 
     val isConnected = ObservableField<Boolean?>()
-    val isLocationEnabled = ObservableField<LocationProviderState>()
+    val isLocationEnabled = ObservableField<LocationState>()
     val signalStrength = ObservableField<SignalStrengthInfo>()
     val activeNetworkInfo = ObservableField<NetworkInfo?>()
     val infoWindowStatus = ObservableField(InfoWindowStatus.NONE)

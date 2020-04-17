@@ -32,7 +32,7 @@ public class Capabilities {
 	protected QualityOfServiceCapability qos = new QualityOfServiceCapability();
 
 	@SerializedName("RMBThttp")
-	private boolean rmbtHttp = false;
+    private boolean rmbtHttp = true;
 
 	/**
 	 * classification capability

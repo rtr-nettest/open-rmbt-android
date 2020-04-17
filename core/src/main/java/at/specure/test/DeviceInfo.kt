@@ -3,6 +3,7 @@ package at.specure.test
 import android.content.Context
 import android.os.Build
 import androidx.annotation.Keep
+import at.rmbt.client.control.PermissionStatusBody
 import at.specure.core.BuildConfig
 import at.specure.location.LocationInfo
 import at.specure.util.hasPermission
@@ -54,13 +55,28 @@ class DeviceInfo(context: Context, val location: Location? = null) {
     val rmbtClientVersion = "1.2.1"
 
     @SerializedName("android_permission_status")
-    val permissionsStatus: Map<String, Boolean> = mutableMapOf<String, Boolean>().apply {
-        put(android.Manifest.permission.ACCESS_FINE_LOCATION, context.hasPermission(android.Manifest.permission.ACCESS_FINE_LOCATION))
-        put(android.Manifest.permission.ACCESS_COARSE_LOCATION, context.hasPermission(android.Manifest.permission.ACCESS_COARSE_LOCATION))
+    val permissionsStatus: List<PermissionStatusBody> = mutableListOf<PermissionStatusBody>().apply {
+        add(
+            PermissionStatusBody(
+                android.Manifest.permission.ACCESS_FINE_LOCATION,
+                context.hasPermission(android.Manifest.permission.ACCESS_FINE_LOCATION)
+            )
+        )
+        add(
+            PermissionStatusBody(
+                android.Manifest.permission.ACCESS_COARSE_LOCATION,
+                context.hasPermission(android.Manifest.permission.ACCESS_COARSE_LOCATION)
+            )
+        )
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            put(android.Manifest.permission.ACCESS_BACKGROUND_LOCATION, context.hasPermission(android.Manifest.permission.ACCESS_BACKGROUND_LOCATION))
+            add(
+                PermissionStatusBody(
+                    android.Manifest.permission.ACCESS_BACKGROUND_LOCATION,
+                    context.hasPermission(android.Manifest.permission.ACCESS_BACKGROUND_LOCATION)
+                )
+            )
         } else {
-            put("android.permission.ACCESS_BACKGROUND_LOCATION", false)
+            add(PermissionStatusBody("android.permission.ACCESS_BACKGROUND_LOCATION", false))
         }
     }
 
@@ -70,10 +86,17 @@ class DeviceInfo(context: Context, val location: Location? = null) {
         val provider: String,
         val speed: Float,
         val bearing: Float,
+        /**
+         * System.currentTimeMillis() when information was obtained
+         */
         val time: Long,
+        /**
+         *  Age in millis
+         */
         val age: Long?,
         val accuracy: Float,
         val mock_location: Boolean,
+        val satellites: Int?,
         @Expose
         val altitude: Double
     )
@@ -86,10 +109,11 @@ fun LocationInfo?.toDeviceInfoLocation(): DeviceInfo.Location? = if (this == nul
         provider = provider,
         speed = speed,
         bearing = bearing,
-        time = elapsedRealtimeNanos,
-        age = ageNanos,
+        time = systemMillisTime, // fixed according to RTR - do not change this!
+        age = ageNanos / 1000000,
         accuracy = accuracy,
         mock_location = locationIsMocked,
-        altitude = altitude
+        altitude = altitude,
+        satellites = satellites
     )
 }

@@ -66,6 +66,16 @@
       "visible": true
     },
     {
+      "name": "SKIP_QOS_TESTS_FOR_PERIOD",
+      "value": "false",
+      "visible": true
+    },
+    {
+      "name": "SKIP_QOS_TESTS_PERIOD_MIN",
+      "value": "120",
+      "visible": false
+    },
+    {
       "name": "LOOP_MODE_ENABLED",
       "value": "false",
       "visible": true
@@ -117,7 +127,7 @@
     },
     {
       "name": "CAPABILITIES_RMBT_HTTP",
-      "value": "false",
+      "value": "true",
       "visible": false
     },
     {
@@ -198,6 +208,16 @@
     {
       "name": "ALL_DEACTIVATE_CODE",
       "value": "0000",
+      "visible": false
+    },
+    {
+      "name": "DEV_SIMULATE_5G_NETWORK",
+      "value": "false",
+      "visible": false
+    },
+    {
+      "name": "DEV_SIMULATE_5G_NETWORK_IS_AVAILABLE",
+      "value": "false",
       "visible": false
     },
     {

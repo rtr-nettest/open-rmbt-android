@@ -8,7 +8,7 @@ android {
 
     flavorDimensions 'target'
     productFlavors {
-        rtr {
+        openRmbt {
             dimension "target"
         }
     }

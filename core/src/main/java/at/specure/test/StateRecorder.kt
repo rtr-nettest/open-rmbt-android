@@ -16,6 +16,7 @@ import at.specure.data.entity.LoopModeState
 import at.specure.data.entity.TestRecord
 import at.specure.data.repository.MeasurementRepository
 import at.specure.data.repository.TestDataRepository
+import at.specure.info.Network5GSimulator
 import at.specure.info.cell.CellInfoWatcher
 import at.specure.info.cell.CellNetworkInfo
 import at.specure.info.network.ActiveNetworkLiveData
@@ -27,9 +28,7 @@ import at.specure.info.strength.SignalStrengthInfo
 import at.specure.info.strength.SignalStrengthLiveData
 import at.specure.info.strength.SignalStrengthWatcher
 import at.specure.location.LocationInfo
-import at.specure.location.LocationInfoLiveData
-import at.specure.location.LocationProviderState
-import at.specure.location.LocationProviderStateLiveData
+import at.specure.location.LocationState
 import at.specure.location.LocationWatcher
 import at.specure.location.cell.CellLocationInfo
 import at.specure.location.cell.CellLocationLiveData
@@ -42,7 +41,6 @@ import kotlin.math.floor
 
 class StateRecorder @Inject constructor(
     private val repository: TestDataRepository,
-    private val locationInfoLiveData: LocationInfoLiveData,
     private val locationWatcher: LocationWatcher,
     private val signalStrengthLiveData: SignalStrengthLiveData,
     private val signalStrengthWatcher: SignalStrengthWatcher,
@@ -52,8 +50,7 @@ class StateRecorder @Inject constructor(
     private val config: Config,
     private val cellLocationLiveData: CellLocationLiveData,
     private val cellLocationWatcher: CellLocationWatcher,
-    private val measurementRepository: MeasurementRepository,
-    val locationStateLiveData: LocationProviderStateLiveData
+    private val measurementRepository: MeasurementRepository
 ) : RMBTClientCallback {
     private var testUUID: String? = null
     private var testToken: String? = null
@@ -84,14 +81,9 @@ class StateRecorder @Inject constructor(
     val loopTestCount: Int
         get() = _loopModeRecord?.testsPerformed ?: 1
 
-    /**
-     * true if location was available when previous test finished and distance can be measured to the next test
-     */
-    val locationAvailableOnLoopStart = _loopModeRecord?.locationAvailableOnStart ?: false
-
     fun updateLocationInfo() {
-        _locationInfo = if (locationStateLiveData.value == LocationProviderState.ENABLED) {
-            locationWatcher.getLatestLocationInfo()
+        _locationInfo = if (locationWatcher.state == LocationState.ENABLED) {
+            locationWatcher.latestLocation
         } else {
             null
         }
@@ -104,8 +96,8 @@ class StateRecorder @Inject constructor(
 
         updateLocationInfo()
 
-        locationInfoLiveData.observe(lifecycle, Observer { info ->
-            if (locationStateLiveData.value == LocationProviderState.ENABLED) {
+        locationWatcher.liveData.observe(lifecycle, Observer { info ->
+            if (locationWatcher.state == LocationState.ENABLED) {
                 _locationInfo = info
                 saveLocationInfo()
             } else {
@@ -144,12 +136,13 @@ class StateRecorder @Inject constructor(
         this.testStartTimeNanos = testStartTimeNanos
         qosRunning = false
         saveTestInitialTestData(testUUID, loopUUID, testToken, testStartTimeNanos, threadNumber)
+        cellLocation = cellLocationWatcher.getCellLocationFromTelephony()
+        saveCellLocation()
         saveLocationInfo()
         saveSignalStrengthInfo()
         saveCellInfo()
         saveCapabilities()
         savePermissionsStatus()
-        saveCellLocation()
         saveTelephonyInfo()
         saveWlanInfo()
     }
@@ -173,7 +166,7 @@ class StateRecorder @Inject constructor(
             serverSelectionEnabled = config.expertModeEnabled,
             loopModeEnabled = config.loopModeEnabled
         )
-        if (!config.skipQoSTests) {
+        if (config.shouldRunQosTest) {
             testRecord?.lastQoSStatus = TestStatus.WAIT
         }
 
@@ -197,13 +190,18 @@ class StateRecorder @Inject constructor(
 
     fun onLoopTestFinished() {
         _loopModeRecord?.let {
+            it.status = LoopModeState.IDLE
+            repository.updateLoopMode(it)
+        }
+    }
+
+    fun onLoopTestScheduled() {
+        _loopModeRecord?.let {
             val location = locationInfo
             it.lastTestFinishedTimeMillis = System.currentTimeMillis()
             it.lastTestLatitude = _locationInfo?.latitude
             it.lastTestLongitude = _locationInfo?.longitude
-            it.locationAvailableOnStart = location != null && location.accuracy > config.loopModeDistanceMeters
             it.movementDistanceMeters = 0
-            it.status = LoopModeState.IDLE
             repository.updateLoopMode(it)
         }
     }
@@ -211,37 +209,36 @@ class StateRecorder @Inject constructor(
     private fun saveLocationInfo() {
         val uuid = testUUID
         val location = locationInfo
-        if (uuid != null && location != null && locationStateLiveData.value == LocationProviderState.ENABLED) {
+        if (uuid != null && location != null && locationWatcher.state == LocationState.ENABLED) {
             repository.saveGeoLocation(uuid, location, testStartTimeNanos)
         }
 
         _loopModeRecord?.let {
-            if (it.status == LoopModeState.IDLE) {
+            val newLocation = Location("")
+            newLocation.latitude = location?.latitude ?: return@let
+            newLocation.longitude = location.longitude
 
+            if (it.lastTestLatitude == null || it.lastTestLongitude == null) {
+                it.lastTestLatitude = location.latitude
+                it.lastTestLongitude = location.longitude
+            } else {
                 val loopLocation = Location("")
                 loopLocation.latitude = it.lastTestLatitude ?: return@let
                 loopLocation.longitude = it.lastTestLongitude ?: return@let
 
-                val newLocation = Location("")
-                newLocation.latitude = location?.latitude ?: return@let
-                newLocation.longitude = location.longitude
-
                 it.movementDistanceMeters = loopLocation.distanceTo(newLocation).toInt()
 
                 var notifyDistanceReached = false
-                if (it.locationAvailableOnStart &&
-                    it.movementDistanceMeters >= config.loopModeDistanceMeters &&
-                    newLocation.accuracy < config.loopModeDistanceMeters
-                ) {
-                    it.status = LoopModeState.RUNNING
+                if (it.movementDistanceMeters >= config.loopModeDistanceMeters && newLocation.accuracy < config.loopModeDistanceMeters) {
                     notifyDistanceReached = true
                 }
 
-                repository.updateLoopMode(it)
                 if (notifyDistanceReached) {
                     onLoopDistanceReached?.invoke()
                 }
             }
+
+            repository.updateLoopMode(it)
         }
     }
 
@@ -322,7 +319,12 @@ class StateRecorder @Inject constructor(
 
     override fun onSpeedDataChanged(threadId: Int, bytes: Long, timestampNanos: Long, isUpload: Boolean) {
         testUUID?.let {
-            repository.saveSpeedData(it, threadId, bytes, timestampNanos, isUpload)
+            val value = if (isUpload) {
+                Network5GSimulator.upBitPerSec(bytes)
+            } else {
+                Network5GSimulator.downBitPerSec(bytes)
+            }
+            repository.saveSpeedData(it, threadId, value, timestampNanos, isUpload)
         }
     }
 
@@ -344,8 +346,8 @@ class StateRecorder @Inject constructor(
             serverPublicIp = result.ip_server?.hostAddress
             downloadDurationNanos = result.nsec_download
             uploadDurationNanos = result.nsec_upload
-            downloadSpeedKps = floor(result.speed_download + 0.5).toLong()
-            uploadSpeedKps = floor(result.speed_upload + 0.5).toLong()
+            downloadSpeedKps = Network5GSimulator.downBitPerSec(floor(result.speed_download + 0.5).toLong())
+            uploadSpeedKps = Network5GSimulator.upBitPerSec(floor(result.speed_upload + 0.5).toLong())
             shortestPingNanos = result.ping_shortest
             downloadedBytesOnInterface = result.getTotalTrafficMeasurement(TrafficDirection.RX)
             uploadedBytesOnInterface = result.getTotalTrafficMeasurement(TrafficDirection.TX)
@@ -439,9 +441,8 @@ class StateRecorder @Inject constructor(
     fun onTestInLoopStarted() {
         _loopModeRecord?.let {
             it.movementDistanceMeters = 0
-            it.lastTestLongitude = null
-            it.lastTestLatitude = null
-            it.locationAvailableOnStart = false
+            it.lastTestLongitude = locationInfo?.longitude
+            it.lastTestLatitude = locationInfo?.latitude
             it.status = LoopModeState.RUNNING
             it.testsPerformed++
             repository.updateLoopMode(it)

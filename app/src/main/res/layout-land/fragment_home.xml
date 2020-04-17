@@ -18,7 +18,7 @@
 
     <data>
 
-        <import type="at.specure.location.LocationProviderState" />
+        <import type="at.specure.location.LocationState" />
 
         <variable
             name="captiveState"
@@ -398,7 +398,7 @@
             android:layout_height="?android:attr/actionBarSize"
             android:background="?android:attr/selectableItemBackground"
             android:gravity="center"
-            android:src="@{state.isLocationEnabled == LocationProviderState.ENABLED ? @drawable/ic_location : @drawable/ic_location_disable}"
+            android:src="@{state.isLocationEnabled == LocationState.ENABLED ? @drawable/ic_location : @drawable/ic_location_disable}"
             app:layout_constraintEnd_toStartOf="@+id/btnUpload"
             app:layout_constraintStart_toEndOf="@+id/btnIpv6"
             app:layout_constraintTop_toBottomOf="@+id/vBottomDivider"

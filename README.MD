@@ -30,6 +30,8 @@ The source code is published under [Apache version 2.0 license](https://github.c
 ##### TEST SETTINGS
 - __`NDT_ENABLED`__ Indicates NDT Tests is enabled, default: `false` _(NDT fuctionality not implemented)_
 - __`SKIP_QOS_TESTS`__ Indicates QoS Tests can be skipped after basic measurement, default: `false`
+- __`SKIP_QOS_TESTS_FOR_PERIOD`__ Indicates QoS Tests can be skipped until specified time in minutes runs out after previously executed QoS tests, default: `false`
+- __`SKIP_QOS_TESTS_PERIOD_MIN`__ Indicates how much time in minutes QoS Tests should be skipped after previously executed QoS tests, default: `120`
 - __`LOOP_MODE_ENABLED`__ Indicates Loop Mode is enabled, default `false`
 - __`LOOP_MODE_WAITING_TIME_MIN`__ Default delay between measurements in Loop Mode in minutes, default: `30`
 - __`LOOP_MODE_DISTANCE_METERS`__ Default distance between measurements in Loop Mode in meters, default: `250`
@@ -40,7 +42,7 @@ The source code is published under [Apache version 2.0 license](https://github.c
 - __`LOOP_MODE_MIN_WAITING_TIME_MIN`__ Minimum delay in minutes between measurements in Loop Mode can be entered by User, default `15`
 - __`LOOP_MODE_MAX_DISTANCE_METERS`__ Maximum distance in meters between measurements in Loop Mode can be entered by User, default `10000`
 - __`LOOP_MODE_MIN_DISTANCE_METERS`__ Minimum distance in meters between measurements in Loop Mode can be entered by User, default `50`
-- __`CAPABILITIES_RMBT_HTTP`__ client supports RMBT HTTP, default: `false`
+- __`CAPABILITIES_RMBT_HTTP`__ client supports RMBT HTTP, default: `true`
 - __`CAPABILITIES_QOS_SUPPORTS_INFO`__ The third state (=INFO) is supported or not, default: `false`
 - __`CAPABILITIES_CLASSIFICATION_COUNT`__ Number of intervals(classes) to classify measured values, default: `4`
 
@@ -60,6 +62,8 @@ The source code is published under [Apache version 2.0 license](https://github.c
 - __`DEVELOPER_ACTIVATE_CODE`__:exclamation:Code to activate Developer Mode (10 taps on version number in Settings), default: `qwerty`
 - __`DEVELOPER_DEACTIVATE_CODE`__:exclamation:Code to deactivate Developer Mode (10 taps on version number), default: `1111`
 - __`ALL_DEACTIVATE_CODE`__:exclamation:Code to deactivate everything(?) (10 taps on version number), default: `0000`
+- __`DEV_SIMULATE_5G_NETWORK`__:Allows to simulate 5G network in the developer mode
+- __`DEV_SIMULATE_5G_NETWORK_IS_AVAILABLE`__:This flag makes simulate 5G network visible in the developer mode or not
 
 ##### OTHER VALUES
 - __`SOURCE_CODE_URL`__:exclamation:Link to Source Code, value: `https://github.com/rtr-nettest`

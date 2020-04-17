@@ -1,5 +1,6 @@
 package at.specure.location.cell
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.telephony.CellLocation
 import android.telephony.PhoneStateListener
@@ -50,6 +51,28 @@ class CellLocationWatcherImpl @Inject constructor(private val context: Context, 
         if (needToRegister && context.hasPermission(android.Manifest.permission.ACCESS_COARSE_LOCATION)) {
             telephonyManager.listen(locationListener, PhoneStateListener.LISTEN_CELL_LOCATION)
         }
+    }
+
+    @SuppressLint("MissingPermission")
+    override fun getCellLocationFromTelephony(): CellLocationInfo? {
+        if (context.hasPermission(android.Manifest.permission.ACCESS_COARSE_LOCATION)) {
+            val cellLocation = telephonyManager.cellLocation
+            _latestLocation = when (cellLocation) {
+                is GsmCellLocation -> {
+                    CellLocationInfo(
+                        timestampMillis = System.currentTimeMillis(),
+                        timestampNanos = System.nanoTime(),
+                        locationId = cellLocation.cid.fixValue(),
+                        areaCode = cellLocation.lac.fixValue(),
+                        scramblingCode = cellLocation.psc
+                    )
+                }
+                else -> {
+                    null
+                }
+            }
+        }
+        return _latestLocation
     }
 
     override fun removeListener(listener: CellLocationWatcher.CellLocationChangeListener) {

@@ -26,6 +26,7 @@ private const val FILENAME = "config.pref"
 private const val KEY_TEST_COUNTER = "KEY_TEST_COUNTER"
 private const val KEY_PREVIOUS_TEST_STATUS = "PREVIOUS_TEST_STATUS"
 private const val KEY_MEASUREMENT_TAG = "MEASUREMENT_TAG"
+private const val KEY_LAST_QOS_TEST_PERFORMED_TIMESTAMP_MILLIS = "LAST_QOS_TEST_PERFORMED_TIMESTAMP_MILLIS"
 
 class AppConfig @Inject constructor(context: Context, private val serverSettings: ControlServerSettings) : Config {
 
@@ -67,7 +68,29 @@ class AppConfig @Inject constructor(context: Context, private val serverSettings
 
     override var skipQoSTests: Boolean
         get() = getBoolean(BuildConfig.SKIP_QOS_TESTS)
-        set(value) = setBoolean(BuildConfig.SKIP_QOS_TESTS, value)
+        set(value) {
+            setBoolean(BuildConfig.SKIP_QOS_TESTS, value)
+            lastQosTestExecutionTimestampMillis = 0
+            skipQoSTestsForPeriod = false
+        }
+
+    override var skipQoSTestsForPeriod: Boolean
+        get() = getBoolean(BuildConfig.SKIP_QOS_TESTS_FOR_PERIOD)
+        set(value) = setBoolean(BuildConfig.SKIP_QOS_TESTS_FOR_PERIOD, value)
+
+    override var skipQoSTestsPeriodMinutes: Int
+        get() = getInt(BuildConfig.SKIP_QOS_TESTS_PERIOD_MIN)
+        set(value) = setInt(BuildConfig.SKIP_QOS_TESTS_PERIOD_MIN, value)
+
+    override var lastQosTestExecutionTimestampMillis: Long
+        get() = preferences.getLong(KEY_LAST_QOS_TEST_PERFORMED_TIMESTAMP_MILLIS, 0)
+        set(value) = preferences.edit()
+            .putLong(KEY_LAST_QOS_TEST_PERFORMED_TIMESTAMP_MILLIS, value)
+            .apply()
+
+    override var shouldRunQosTest: Boolean
+        get() = (!skipQoSTests && (!skipQoSTestsForPeriod || (skipQoSTestsForPeriod && (System.currentTimeMillis() - lastQosTestExecutionTimestampMillis >= skipQoSTestsPeriodMinutes * 60 * 1000))))
+        set(value) {}
 
     override var canManageLocationSettings: Boolean
         get() = getBoolean(BuildConfig.CAN_MANAGE_LOCATION_SETTINGS)
@@ -362,4 +385,11 @@ class AppConfig @Inject constructor(context: Context, private val serverSettings
     override var mapServerUseSSL: Boolean
         get() = getBoolean(BuildConfig.MAP_SERVER_USE_SSL)
         set(value) = setBoolean(BuildConfig.MAP_SERVER_USE_SSL, value)
+
+    override var developer5GSimulationEnabled: Boolean
+        get() = getBoolean(BuildConfig.DEV_SIMULATE_5G_NETWORK)
+        set(value) = setBoolean(BuildConfig.DEV_SIMULATE_5G_NETWORK, value)
+
+    override val developer5GSimulationAvailable: Boolean
+        get() = getBoolean(BuildConfig.DEVELOPER_MODE_IS_AVAILABLE)
 }

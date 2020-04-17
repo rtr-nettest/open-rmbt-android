@@ -10,7 +10,7 @@ import at.specure.data.ClientUUID
 import at.specure.data.ControlServerSettings
 import at.specure.data.MeasurementServers
 import at.specure.data.repository.SettingsRepository
-import at.specure.location.LocationProviderState
+import at.specure.location.LocationState
 
 class SettingsViewState constructor(
     val appConfig: AppConfig,
@@ -22,6 +22,7 @@ class SettingsViewState constructor(
 
     val isNDTEnabled = ObservableField(appConfig.NDTEnabled)
     val qosMeasurement = ObservableField(!appConfig.skipQoSTests)
+    val qosMeasurementSkipForPeriod = ObservableField(appConfig.skipQoSTestsForPeriod)
     val canManageLocationSettings = ObservableField(appConfig.canManageLocationSettings)
     val loopModeEnabled = ObservableField(appConfig.loopModeEnabled)
     val expertModeEnabled = ObservableField(appConfig.expertModeEnabled)
@@ -36,7 +37,7 @@ class SettingsViewState constructor(
     val controlServerHost = ObservableField(controlServerSettings.controlServerOverrideUrl)
     val controlServerPort = ObservableField(controlServerSettings.controlServerOverridePort)
     val controlServerUseSSL = ObservableField(appConfig.controlServerUseSSL)
-    val isLocationEnabled = ObservableField<LocationProviderState>()
+    val isLocationEnabled = ObservableField<LocationState>()
     val numberOfTests = ObservableInt(appConfig.testCounter)
     val emailAddress = ObservableField(appConfig.aboutEmailAddress)
     val githubRepositoryUrl = ObservableField(appConfig.aboutGithubRepositoryUrl)
@@ -48,6 +49,8 @@ class SettingsViewState constructor(
     val mapServerUseSSL = ObservableField(appConfig.mapServerUseSSL)
     val qosSSL = ObservableField(appConfig.qosSSL)
     val selectedMeasurementServer = ObservableField(measurementServers.selectedMeasurementServer)
+    val developer5GSimulationEnabled = ObservableField(appConfig.developer5GSimulationEnabled)
+    val developer5GSimulationAvailable = ObservableField(appConfig.developer5GSimulationAvailable)
 
     private fun setControlServerAddress() {
         if ((appConfig.controlServerOverrideEnabled) && (appConfig.developerModeIsEnabled)) {
@@ -84,6 +87,11 @@ class SettingsViewState constructor(
         qosMeasurement.addOnPropertyChanged { value ->
             value.get()?.let {
                 appConfig.skipQoSTests = !it
+            }
+        }
+        qosMeasurementSkipForPeriod.addOnPropertyChanged { value ->
+            value.get()?.let {
+                appConfig.skipQoSTestsForPeriod = it
             }
         }
         canManageLocationSettings.addOnPropertyChanged { value ->
@@ -186,6 +194,11 @@ class SettingsViewState constructor(
         selectedMeasurementServer.addOnPropertyChanged { value ->
             value.get().let {
                 measurementServers.selectedMeasurementServer = it
+            }
+        }
+        developer5GSimulationEnabled.addOnPropertyChanged { value ->
+            value.get()?.let {
+                appConfig.developer5GSimulationEnabled = it
             }
         }
     }

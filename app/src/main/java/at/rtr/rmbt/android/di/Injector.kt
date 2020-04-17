@@ -1,5 +1,6 @@
 package at.rtr.rmbt.android.di
 
+import at.rtr.rmbt.android.App
 import at.rtr.rmbt.android.ui.dialog.HistoryFiltersDialog
 import at.rtr.rmbt.android.ui.dialog.IpInfoDialog
 import at.rtr.rmbt.android.ui.dialog.LocationInfoDialog
@@ -42,4 +43,6 @@ object Injector : AppComponent {
     override fun inject(worker: SignalMeasurementChunkWorker) = component.inject(worker)
 
     override fun inject(dialog: NetworkInfoDialog) = component.inject(dialog)
+
+    override fun inject(app: App) = component.inject(app)
 }

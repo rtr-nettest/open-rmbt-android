@@ -77,12 +77,12 @@ check:controlClient:
       - /hotfix\/.*/
       - /test\/.*/
 
-check:rtrBuild:
+check:openRMBTBuild:
   stage: check
   script:
     - rm -rf private
     - ./gradlew clean
-    - ./gradlew assembleRtrDebug
+    - ./gradlew assembleOpenRmbtDebug
   only:
     refs:
       - /fix\/.*/

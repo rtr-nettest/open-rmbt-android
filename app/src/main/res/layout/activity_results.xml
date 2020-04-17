@@ -62,7 +62,7 @@
                 android:layout_marginEnd="@dimen/margin_small"
                 android:contentDescription="@null"
                 android:scaleType="center"
-                visibleOrGone="@{state.testResult != null}"
+                visibleOrGone="@{state.testResult != null &amp;&amp; state.testResult.isLocalOnly == false}"
                 android:src="@drawable/ic_share"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -97,6 +97,21 @@
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toTopOf="parent" />
 
+                    <TextView
+                        android:id="@+id/localResultsMessage"
+                        style="@style/TextAppearance.AppCompat.Menu"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:drawableStart="@drawable/ic_no_gps"
+                        android:drawablePadding="@dimen/inset_small"
+                        android:gravity="center_horizontal"
+                        android:padding="@dimen/padding_large"
+                        android:text="@string/text_local_results"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:visibleOrGone="@{state.testResult != null &amp;&amp; state.testResult.localOnly}" />
+
                     <androidx.cardview.widget.CardView
                         android:id="@+id/mapContainer"
                         android:layout_width="0dp"
@@ -106,7 +121,7 @@
                         app:layout_constraintDimensionRatio="H,3:1"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintTop_toBottomOf="@+id/localResultsMessage"
                         app:visibleOrGone="@{state.testResult.longitude != null &amp;&amp; state.testResult.latitude != null }">
 
                         <com.google.android.gms.maps.MapView
@@ -361,7 +376,7 @@
                         android:text="@string/results_quality"
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toBottomOf="@+id/titleOtherDetails"
-                        app:visibleOrGone="@{state.testResult != null}" />
+                        app:visibleOrGone="@{state.testResult != null &amp;&amp; state.testResult.localOnly == false}" />
 
                     <androidx.recyclerview.widget.RecyclerView
                         android:id="@+id/qoeResultsRecyclerView"
@@ -470,7 +485,7 @@
                     <androidx.appcompat.widget.AppCompatTextView
                         android:id="@+id/titleQos"
                         style="@style/RobotoBoldStyle.Medium"
-                        visibleOrGone="@{state.testResult != null}"
+                        visibleOrGone="@{state.testResult != null &amp;&amp; state.qosCategoryRecords != null &amp;&amp; state.testResult.localOnly == false}"
                         android:layout_width="wrap_content"
                         android:layout_height="?attr/actionBarSize"
                         android:layout_marginStart="@dimen/margin_large"
@@ -500,7 +515,7 @@
                         android:drawableEnd="@drawable/ic_right"
                         android:padding="@dimen/padding_large"
                         android:text="@string/result_test_details"
-                        visibleOrGone="@{state.testResult != null}"
+                        visibleOrGone="@{state.testResult != null &amp;&amp; state.testResult.isLocalOnly == false}"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toBottomOf="@+id/qosResultsRecyclerView" />

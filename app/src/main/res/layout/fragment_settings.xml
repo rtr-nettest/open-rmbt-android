@@ -62,6 +62,19 @@
                 bind:value="@{state.qosMeasurement}" />
 
             <include
+                android:id="@+id/switchSkipQosTestsForPeriodOnly"
+                layout="@layout/item_setting_switch"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:visibility="@{state.qosMeasurement ? View.VISIBLE : View.GONE}"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/switchSkipQosTests"
+                bind:summary="@{@string/preferences_qos_measurement_only_after_some_time_summary}"
+                bind:title="@{@string/preferences_qos_measurement_only_after_some_time}"
+                bind:value="@{state.qosMeasurementSkipForPeriod}" />
+
+            <include
                 android:id="@+id/switchLocations"
                 layout="@layout/item_setting_switch"
                 android:layout_width="0dp"
@@ -69,7 +82,7 @@
                 android:visibility="@{BuildConfig.CAN_MANAGE_LOCATION_SETTINGS.visible ? View.VISIBLE : View.GONE}"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/switchSkipQosTests"
+                app:layout_constraintTop_toBottomOf="@+id/switchSkipQosTestsForPeriodOnly"
                 bind:title="@{@string/preferences_location}"
                 bind:value="@{state.canManageLocationSettings}" />
 
@@ -171,8 +184,7 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/radioInfo"
                 bind:title="@{@string/preferences_server_selection}"
-                bind:value='@{state.selectedMeasurementServer  != null ? state.selectedMeasurementServer.name : @string/preferences_default_server_selection}'
-                />
+                bind:value='@{state.selectedMeasurementServer  != null ? state.selectedMeasurementServer.name : @string/preferences_default_server_selection}' />
 
             <include
                 android:id="@+id/labelDeveloperControlServer"
@@ -284,6 +296,30 @@
                 bind:value="@{String.valueOf(state.mapServerPort)}" />
 
             <include
+                android:id="@+id/labelDeveloperSimulate5G"
+                layout="@layout/item_setting_header"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:visibility="@{state.developerModeIsEnabled &amp;&amp; state.developer5GSimulationAvailable ? View.VISIBLE : View.GONE}"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/developerMapServerPort"
+                bind:title="@{@string/preferences_5g_simulation_title}" />
+
+            <include
+                android:id="@+id/switchDeveloper5GSimulation"
+                layout="@layout/item_setting_switch"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:visibility="@{state.developerModeIsEnabled &amp;&amp; state.developer5GSimulationAvailable ? View.VISIBLE : View.GONE}"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/labelDeveloperSimulate5G"
+                bind:summary="@{@string/preferences_5g_simulation_sum}"
+                bind:title="@{@string/preferences_5g_simulation}"
+                bind:value="@{state.developer5GSimulationEnabled}" />
+
+            <include
                 android:id="@+id/switchDeveloperMapServerSSL"
                 layout="@layout/item_setting_switch"
                 android:layout_width="0dp"
@@ -291,7 +327,7 @@
                 android:visibility="@{state.developerModeIsEnabled  &amp;&amp; state.mapServerOverrideEnabled ? View.VISIBLE : View.GONE}"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/developerMapServerPort"
+                app:layout_constraintTop_toBottomOf="@+id/switchDeveloper5GSimulation"
                 bind:summary="@{@string/preferences_developer_map_ssl_sum}"
                 bind:title="@{@string/preferences_developer_map_ssl}"
                 bind:value="@{state.mapServerUseSSL}" />

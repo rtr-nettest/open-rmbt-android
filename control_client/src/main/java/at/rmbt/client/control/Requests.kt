@@ -674,7 +674,28 @@ data class SignalBody(
      * relative timestamp from the start of the test, but time of the last update of the cells (the last updated cells do not have this field filled)
      */
     @SerializedName("time_ns_last")
-    val timeLastNanos: Long?
+    val timeLastNanos: Long?,
+
+    /**
+     * Only for 5G networks
+     */
+    @SerializedName("nr_csi_rsrp")
+    val nrCsiRsrp: Int?,
+
+    @SerializedName("nr_csi_rsrq")
+    val nrCsiRsrq: Int?,
+
+    @SerializedName("nr_csi_sinr")
+    val nrCsiSinr: Int?,
+
+    @SerializedName("nr_ss_rsrp")
+    val nrSsRsrp: Int?,
+
+    @SerializedName("nr_ss_rsrq")
+    val nrSsRsrq: Int?,
+
+    @SerializedName("nr_ss_sinr")
+    val nrSsSinr: Int?
 )
 
 @Keep
@@ -728,7 +749,7 @@ data class TestLocationBody(
     val bearing: Float,
     @SerializedName("mock_location")
     val mockLocation: Boolean,
-    val satellites: Int
+    val satellites: Int?
 )
 
 @Keep
@@ -802,7 +823,7 @@ data class CapabilitiesBody(
     val classification: ClassificationBody = ClassificationBody(4),
     val qos: QoSBody = QoSBody(false),
     @SerializedName("RMBThttp")
-    val rmbtHttpStatus: Boolean = false
+    val rmbtHttpStatus: Boolean = true
 )
 
 @Keep
@@ -933,7 +954,8 @@ data class SignalMeasurementLocationBody(
     val accuracy: Float,
     val mock_location: Boolean,
     @Expose
-    val altitude: Double
+    val altitude: Double,
+    val satellites: Int?
 )
 
 @Keep

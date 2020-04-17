@@ -6,6 +6,8 @@ interface CellLocationWatcher {
 
     fun addListener(listener: CellLocationChangeListener)
 
+    fun getCellLocationFromTelephony(): CellLocationInfo?
+
     fun removeListener(listener: CellLocationChangeListener)
 
     interface CellLocationChangeListener {

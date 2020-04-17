@@ -30,7 +30,7 @@ class ResultChartFragment : BaseFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        viewModel.state.openTestUUID = arguments?.getString(KEY_OPEN_TEST_UUID) ?: throw IllegalArgumentException("Please pass open test UUID")
+        viewModel.state.testUUID = arguments?.getString(KEY_TEST_UUID) ?: throw IllegalArgumentException("Please pass test UUID")
         val typeValue = arguments?.getInt(KEY_CHART_TYPE) ?: throw IllegalArgumentException("Graph type not passed")
         viewModel.state.chartType = TestResultGraphItemRecord.Type.fromValue(typeValue)
         val networkType = arguments?.getInt(KEY_NETWORK_TYPE) ?: throw IllegalArgumentException("Network type not passed")
@@ -95,14 +95,14 @@ class ResultChartFragment : BaseFragment() {
     companion object {
 
         private const val KEY_CHART_TYPE: String = "KEY_CHART_TYPE"
-        private const val KEY_OPEN_TEST_UUID: String = "KEY_OPEN_TEST_UUID"
+        private const val KEY_TEST_UUID: String = "KEY_TEST_UUID"
         private const val KEY_NETWORK_TYPE = "KEY_NETWORK_TYPE"
 
-        fun newInstance(chartType: TestResultGraphItemRecord.Type, openTestUUID: String, networkType: NetworkTypeCompat): ResultChartFragment {
+        fun newInstance(chartType: TestResultGraphItemRecord.Type, testUUID: String, networkType: NetworkTypeCompat): ResultChartFragment {
 
             val args = Bundle()
             args.putInt(KEY_CHART_TYPE, chartType.typeValue)
-            args.putString(KEY_OPEN_TEST_UUID, openTestUUID)
+            args.putString(KEY_TEST_UUID, testUUID)
             args.putInt(KEY_NETWORK_TYPE, networkType.ordinal)
 
             val fragment = ResultChartFragment()

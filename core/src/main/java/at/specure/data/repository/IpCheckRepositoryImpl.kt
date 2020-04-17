@@ -29,7 +29,7 @@ class IpCheckRepositoryImpl(
     private val ipRequestBody: IpRequestBody
         get() = deviceInfo.toIpRequest(
             clientUUID = clientUUID.value,
-            location = locationWatcher.getLatestLocationInfo(),
+            location = locationWatcher.latestLocation,
             signalStrengthInfo = signalStrengthWatcher.lastSignalStrength,
             capabilities = config.toCapabilitiesBody()
         )

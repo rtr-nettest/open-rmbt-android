@@ -26,8 +26,8 @@ import at.specure.data.repository.ResultsRepository
 import at.specure.data.repository.TestDataRepository
 import at.specure.di.CoreInjector
 import at.specure.di.NotificationProvider
-import at.specure.location.LocationProviderState
-import at.specure.location.LocationProviderStateLiveData
+import at.specure.location.LocationState
+import at.specure.location.LocationWatcher
 import at.specure.measurement.signal.SignalMeasurementProducer
 import at.specure.measurement.signal.SignalMeasurementService
 import at.specure.test.DeviceInfo
@@ -65,7 +65,7 @@ class MeasurementService : CustomLifecycleService() {
     lateinit var connectivityManager: ConnectivityManager
 
     @Inject
-    lateinit var locationStateLiveData: LocationProviderStateLiveData
+    lateinit var locationWatcher: LocationWatcher
 
     private val producer: Producer by lazy { Producer() }
     private val clientAggregator: ClientAggregator by lazy { ClientAggregator() }
@@ -90,6 +90,7 @@ class MeasurementService : CustomLifecycleService() {
 
     private lateinit var wifiLock: WifiManager.WifiLock
     private var loopCountdownTimer: CountDownTimer? = null
+    private var startPendingTest = false
 
     private val signalMeasurementConnection = object : ServiceConnection {
 
@@ -119,7 +120,7 @@ class MeasurementService : CustomLifecycleService() {
                     notificationProvider.measurementServiceNotification(
                         progress,
                         state,
-                        config.skipQoSTests,
+                        !config.shouldRunQosTest,
                         stateRecorder.loopModeRecord,
                         config.loopModeNumberOfTests,
                         stopTestsIntent(this@MeasurementService)
@@ -147,16 +148,23 @@ class MeasurementService : CustomLifecycleService() {
 
         override fun onFinish() {
             resumeSignalMeasurement()
-            if (config.loopModeEnabled && (stateRecorder.loopTestCount < config.loopModeNumberOfTests || (config.loopModeNumberOfTests == 0 && config.developerModeIsEnabled))) {
-                scheduleNextLoopTest()
+
+            stateRecorder.onLoopTestFinished()
+            if (startPendingTest) {
+                runner.reset()
+                runTest()
             } else {
-                if (config.loopModeEnabled) {
-                    notificationManager.notify(NOTIFICATION_LOOP_FINISHED_ID, notificationProvider.loopModeFinishedNotification())
+                if (!config.loopModeEnabled || (config.loopModeEnabled && (stateRecorder.loopTestCount >= config.loopModeNumberOfTests))) {
+                    loopCountdownTimer?.cancel()
+
+                    if (config.loopModeEnabled) {
+                        notificationManager.notify(NOTIFICATION_LOOP_FINISHED_ID, notificationProvider.loopModeFinishedNotification())
+                    }
+                    stopForeground(true)
+                    isLoopModeRunning = false
+                    stateRecorder.finish()
+                    unlock()
                 }
-                stopForeground(true)
-                isLoopModeRunning = false
-                stateRecorder.finish()
-                unlock()
             }
         }
 
@@ -170,17 +178,27 @@ class MeasurementService : CustomLifecycleService() {
                     stateRecorder.setErrorCause(Log.getStackTraceString(ex))
                 }
             }
-            stateRecorder.onUnsuccessTest(TestFinishReason.ERROR)
 
-            if (config.loopModeEnabled && (stateRecorder.loopTestCount < config.loopModeNumberOfTests || (config.loopModeNumberOfTests == 0 && config.developerModeIsEnabled))) {
-                scheduleNextLoopTest()
+            stateRecorder.onUnsuccessTest(TestFinishReason.ERROR)
+            stateRecorder.onLoopTestFinished()
+
+            if (startPendingTest) {
+                runner.reset()
+                runTest()
             } else {
-                hasErrors = true
-                clientAggregator.onMeasurementError()
-                stateRecorder.finish()
-                isLoopModeRunning = false
-                unlock()
-                stopForeground(true)
+                if (!config.loopModeEnabled || (config.loopModeEnabled && (stateRecorder.loopTestCount >= config.loopModeNumberOfTests))) {
+                    loopCountdownTimer?.cancel()
+
+                    if (config.loopModeEnabled) {
+                        notificationManager.notify(NOTIFICATION_LOOP_FINISHED_ID, notificationProvider.loopModeFinishedNotification())
+                    }
+                    hasErrors = true
+                    clientAggregator.onMeasurementError()
+                    stateRecorder.finish()
+                    isLoopModeRunning = false
+                    unlock()
+                    stopForeground(true)
+                }
             }
         }
 
@@ -197,7 +215,7 @@ class MeasurementService : CustomLifecycleService() {
 
                     it.onFailure { ex ->
                         if (shouldShowResults) {
-                            clientAggregator.onSubmissionError(ex)
+                            clientAggregator.onSubmitted()
                         }
                         if (ex is NoConnectionException) {
                             Timber.d("Delayed submission work created")
@@ -221,7 +239,7 @@ class MeasurementService : CustomLifecycleService() {
                 notificationProvider.measurementServiceNotification(
                     progress.toInt(),
                     MeasurementState.QOS,
-                    config.skipQoSTests,
+                    !config.shouldRunQosTest,
                     stateRecorder.loopModeRecord,
                     config.loopModeNumberOfTests,
                     stopTestsIntent(this@MeasurementService)
@@ -252,10 +270,17 @@ class MeasurementService : CustomLifecycleService() {
         wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "$packageName:RMBTWakeLock")
 
         stateRecorder.onLoopDistanceReached = {
-            Timber.e("LOOP MODE DISTANCE REACHED")
+            Timber.i("LOOP MODE DISTANCE REACHED")
             loopCountdownTimer?.cancel()
-            runner.reset()
-            runTest()
+
+            if (stateRecorder.loopTestCount < config.loopModeNumberOfTests) {
+                if (runner.isRunning) {
+                    startPendingTest = true
+                } else {
+                    runner.reset()
+                    runTest()
+                }
+            }
         }
 
         bindService(SignalMeasurementService.intent(this), signalMeasurementConnection, Context.BIND_AUTO_CREATE)
@@ -303,8 +328,7 @@ class MeasurementService : CustomLifecycleService() {
     }
 
     private fun scheduleNextLoopTest() {
-        runner.reset()
-        stateRecorder.onLoopTestFinished()
+        stateRecorder.onLoopTestScheduled()
         try {
             Handler(Looper.getMainLooper()).post {
                 loopCountdownTimer?.cancel()
@@ -312,32 +336,37 @@ class MeasurementService : CustomLifecycleService() {
                 loopCountdownTimer = object : CountDownTimer(loopDelayMs, 1000) {
 
                     override fun onFinish() {
-                        Timber.e("CountDownTimer finished")
-                        runner.reset()
-                        runTest()
+                        Timber.i("CountDownTimer finished")
+                        if (runner.isRunning) {
+                            startPendingTest = true
+                        } else {
+                            runner.reset()
+                            runTest()
+                        }
                     }
 
                     override fun onTick(millisUntilFinished: Long) {
                         Timber.d("CountDownTimer tick $millisUntilFinished - ${this.hashCode()}")
-                        val location = stateRecorder.locationInfo
-                        val locationAvailable =
-                            locationStateLiveData.value == LocationProviderState.ENABLED &&
-                                    location != null &&
-                                    location.accuracy < config.loopModeDistanceMeters &&
-                                    stateRecorder.locationAvailableOnLoopStart
-                        val distancePassed = stateRecorder.loopModeRecord?.movementDistanceMeters ?: 0
-                        val notification = notificationProvider.loopCountDownNotification(
-                            millisUntilFinished,
-                            distancePassed,
-                            config.loopModeDistanceMeters,
-                            stateRecorder.loopTestCount,
-                            config.loopModeNumberOfTests,
-                            stopTestsIntent(this@MeasurementService),
-                            locationAvailable
-                        )
-                        notificationManager.notify(NOTIFICATION_ID, notification)
-                        clientAggregator.onLoopCountDownTimer(loopDelayMs - millisUntilFinished, loopDelayMs)
-                        clientAggregator.onLoopDistanceChanged(distancePassed, config.loopModeDistanceMeters, locationAvailable)
+                        if (!runner.isRunning) {
+                            val location = stateRecorder.locationInfo
+                            val locationAvailable =
+                                locationWatcher.state == LocationState.ENABLED &&
+                                        location != null &&
+                                        location.accuracy < config.loopModeDistanceMeters
+                            val distancePassed = stateRecorder.loopModeRecord?.movementDistanceMeters ?: 0
+                            val notification = notificationProvider.loopCountDownNotification(
+                                millisUntilFinished,
+                                distancePassed,
+                                config.loopModeDistanceMeters,
+                                stateRecorder.loopTestCount,
+                                config.loopModeNumberOfTests,
+                                stopTestsIntent(this@MeasurementService),
+                                locationAvailable
+                            )
+                            notificationManager.notify(NOTIFICATION_ID, notification)
+                            clientAggregator.onLoopCountDownTimer(loopDelayMs - millisUntilFinished, loopDelayMs)
+                            clientAggregator.onLoopDistanceChanged(distancePassed, config.loopModeDistanceMeters, locationAvailable)
+                        }
                     }
                 }
 
@@ -360,6 +389,11 @@ class MeasurementService : CustomLifecycleService() {
         }
 
     private fun runTest() {
+        startPendingTest = false
+        if (config.loopModeEnabled && (stateRecorder.loopTestCount < config.loopModeNumberOfTests || (config.loopModeNumberOfTests == 0 && config.developerModeIsEnabled))) {
+            scheduleNextLoopTest()
+        }
+
         if (!runner.isRunning) {
             resetStates()
         }
@@ -368,7 +402,7 @@ class MeasurementService : CustomLifecycleService() {
 
         var location: DeviceInfo.Location? = null
 
-        if (locationStateLiveData.value == LocationProviderState.ENABLED) {
+        if (locationWatcher.state == LocationState.ENABLED) {
             stateRecorder.locationInfo?.let {
                 location = it.toDeviceInfoLocation()
             }
@@ -460,7 +494,7 @@ class MeasurementService : CustomLifecycleService() {
                 onPingChanged(pingNanos)
                 onDownloadSpeedChanged(measurementProgress, downloadSpeedBps)
                 onUploadSpeedChanged(measurementProgress, uploadSpeedBps)
-                isQoSEnabled(!config.skipQoSTests)
+                isQoSEnabled(config.shouldRunQosTest)
                 runner.testUUID?.let {
                     onClientReady(it, stateRecorder.loopUuid)
                 }

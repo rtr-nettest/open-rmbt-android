@@ -44,8 +44,7 @@ import at.specure.info.strength.SignalStrengthWatcher
 import at.specure.info.strength.SignalStrengthWatcherImpl
 import at.specure.info.wifi.WifiInfoWatcher
 import at.specure.info.wifi.WifiInfoWatcherImpl
-import at.specure.location.LocationProviderStateWatcher
-import at.specure.location.LocationProviderStateWatcherImpl
+import at.specure.location.LocationWatcher
 import at.specure.location.cell.CellLocationWatcher
 import at.specure.location.cell.CellLocationWatcherImpl
 import at.specure.test.TestController
@@ -125,9 +124,9 @@ class CoreModule {
         connectivityWatcher: ConnectivityWatcher,
         wifiInfoWatcher: WifiInfoWatcher,
         cellInfoWatcher: CellInfoWatcher,
-        locationProvider: LocationProviderStateWatcher
+        locationWatcher: LocationWatcher
     ): ActiveNetworkWatcher =
-        ActiveNetworkWatcher(connectivityWatcher, wifiInfoWatcher, cellInfoWatcher, locationProvider)
+        ActiveNetworkWatcher(connectivityWatcher, wifiInfoWatcher, cellInfoWatcher, locationWatcher.stateWatcher)
 
     @Provides
     @Singleton
@@ -137,10 +136,6 @@ class CoreModule {
         captivePortal: CaptivePortal
     ): IpChangeWatcher =
         IpChangeWatcherImpl(ipCheckRepository, connectivityWatcher, captivePortal)
-
-    @Provides
-    @Singleton
-    fun provideLocationState(context: Context): LocationProviderStateWatcher = LocationProviderStateWatcherImpl(context)
 
     @Provides
     @Singleton

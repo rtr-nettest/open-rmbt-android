@@ -24,6 +24,7 @@ import android.telephony.SubscriptionManager
 import android.telephony.TelephonyManager
 import androidx.core.content.PermissionChecker
 import androidx.core.content.PermissionChecker.PERMISSION_GRANTED
+import at.specure.info.Network5GSimulator
 import at.specure.info.TransportType
 import at.specure.info.cell.CellInfoWatcher
 import at.specure.info.network.ActiveNetworkWatcher
@@ -93,7 +94,11 @@ class SignalStrengthWatcherImpl(
             val signal = SignalStrengthInfo.from(signalStrength, network, cellInfo, dualSim)
 
             if (signal?.value != null && signal.value != 0) {
-                signalStrengthInfo = signal
+                signalStrengthInfo = if (Network5GSimulator.isEnabled) {
+                    Network5GSimulator.signalStrength(signal)
+                } else {
+                    signal
+                }
                 notifyInfoChanged()
             }
         }

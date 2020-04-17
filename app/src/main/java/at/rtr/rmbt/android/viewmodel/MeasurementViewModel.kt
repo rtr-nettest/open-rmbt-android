@@ -18,7 +18,8 @@ import at.specure.data.entity.LoopModeRecord
 import at.specure.data.repository.TestDataRepository
 import at.specure.info.network.ActiveNetworkLiveData
 import at.specure.info.strength.SignalStrengthLiveData
-import at.specure.location.LocationProviderStateLiveData
+import at.specure.location.LocationState
+import at.specure.location.LocationWatcher
 import at.specure.measurement.MeasurementClient
 import at.specure.measurement.MeasurementProducer
 import at.specure.measurement.MeasurementService
@@ -29,9 +30,9 @@ import javax.inject.Inject
 
 class MeasurementViewModel @Inject constructor(
     private val testDataRepository: TestDataRepository,
+    private val locationWatcher: LocationWatcher,
     val signalStrengthLiveData: SignalStrengthLiveData,
     val activeNetworkLiveData: ActiveNetworkLiveData,
-    val locationProviderStateLiveData: LocationProviderStateLiveData,
     val config: AppConfig,
     private val tac: TermsAndConditions
 ) : BaseViewModel(), MeasurementClient {
@@ -52,6 +53,9 @@ class MeasurementViewModel @Inject constructor(
 
     lateinit var testUUID: String
         private set
+
+    val locationStateLiveData: LiveData<LocationState?>
+        get() = locationWatcher.stateLiveData
 
     val loopUuidLiveData: LiveData<String?>
         get() = _loopUUIDLiveData

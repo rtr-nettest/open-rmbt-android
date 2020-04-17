@@ -19,7 +19,8 @@ import at.specure.info.ip.IpV4ChangeLiveData
 import at.specure.info.ip.IpV6ChangeLiveData
 import at.specure.info.network.ActiveNetworkLiveData
 import at.specure.info.strength.SignalStrengthLiveData
-import at.specure.location.LocationProviderStateLiveData
+import at.specure.location.LocationState
+import at.specure.location.LocationWatcher
 import at.specure.measurement.signal.SignalMeasurementProducer
 import at.specure.measurement.signal.SignalMeasurementService
 import at.specure.util.permission.PermissionsWatcher
@@ -30,11 +31,11 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 class HomeViewModel @Inject constructor(
+    private val locationWatcher: LocationWatcher,
     val signalStrengthLiveData: SignalStrengthLiveData,
     connectivityInfoLiveData: ConnectivityInfoLiveData,
     val activeNetworkLiveData: ActiveNetworkLiveData,
     val permissionsWatcher: PermissionsWatcher,
-    val locationStateLiveData: LocationProviderStateLiveData,
     val ipV4ChangeLiveData: IpV4ChangeLiveData,
     val ipV6ChangeLiveData: IpV6ChangeLiveData,
     val clientUUID: ClientUUID,
@@ -51,12 +52,16 @@ class HomeViewModel @Inject constructor(
         it != null
     }
 
+    val locationStateLiveData: LiveData<LocationState?>
+        get() = locationWatcher.stateLiveData
+
     private var producer: SignalMeasurementProducer? = null
     private var _activeMeasurementSource: LiveData<Boolean>? = null
     private val _activeMeasurementMediator = MediatorLiveData<Boolean>()
 
     private var _pausedMeasurementSource: LiveData<Boolean>? = null
     private var _pausedMeasurementMediator = MediatorLiveData<Boolean>()
+    private var toggleService: Boolean = false
 
     private var _getNewsLiveData = MutableLiveData<List<NewsItem>?>()
 
@@ -76,6 +81,11 @@ class HomeViewModel @Inject constructor(
 
         override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
             producer = service as SignalMeasurementProducer
+
+            if (producer != null && toggleService) {
+                toggleService = false
+                toggleSignalMeasurementService()
+            }
 
             _activeMeasurementSource = producer?.activeStateLiveData
             _activeMeasurementSource?.let { lv ->
@@ -109,14 +119,19 @@ class HomeViewModel @Inject constructor(
 
     init {
         addStateSaveHandler(state)
+        _activeMeasurementMediator.postValue(false)
     }
 
-    fun toggleService() {
-        producer?.let {
-            if (it.isActive) {
-                it.stopMeasurement()
-            } else {
-                it.startMeasurement()
+    fun toggleSignalMeasurementService() {
+        if (producer == null) {
+            toggleService = true
+        } else {
+            producer?.let {
+                if (it.isActive) {
+                    it.stopMeasurement()
+                } else {
+                    it.startMeasurement()
+                }
             }
         }
     }

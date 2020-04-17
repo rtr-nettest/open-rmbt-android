@@ -39,6 +39,7 @@ class MeasurementViewState(private val config: AppConfig) : ViewState {
     val uploadSpeedBps = ObservableLong()
     val pingMs = ObservableLong()
     val signalStrengthInfo = ObservableField<SignalStrengthInfo?>()
+    val signalStrengthInfoResult = ObservableField<SignalStrengthInfo?>()
     val networkInfo = ObservableField<NetworkInfo?>()
     val qosEnabled = ObservableBoolean()
     val qosTaskProgress = ObservableField<String>()
@@ -128,6 +129,13 @@ class MeasurementViewState(private val config: AppConfig) : ViewState {
             putInt(KEY_LOOP_NEXT_TEST_DISTANCE_PERCENT, loopNextTestPercent.get())
             putString(KEY_LOOP_UUID, loopUUID.get())
             putBoolean(KEY_LOOP_MODE_ENABLED, isLoopModeActive.get())
+        }
+    }
+
+    fun setSignalStrength(it: SignalStrengthInfo?) {
+        signalStrengthInfo.set(it)
+        if (!isLoopModeActive.get() || loopState.get() != LoopModeState.IDLE) {
+            signalStrengthInfoResult.set(it)
         }
     }
 }

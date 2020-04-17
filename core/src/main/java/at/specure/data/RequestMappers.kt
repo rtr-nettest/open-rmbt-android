@@ -344,7 +344,13 @@ fun SignalRecord.toRequest(cellUUID: String, ignoreNetworkId: Boolean) = SignalB
     lteCqi = lteCqi.checkSignalValue(),
     timingAdvance = timingAdvance.checkSignalValue(),
     timeNanos = timeNanos,
-    timeLastNanos = timeNanosLast
+    timeLastNanos = timeNanosLast,
+    nrCsiRsrp = nrCsiRsrp,
+    nrCsiRsrq = nrCsiRsrq,
+    nrCsiSinr = nrSsSinr,
+    nrSsRsrp = nrSsRsrp,
+    nrSsRsrq = nrSsRsrq,
+    nrSsSinr = nrSsSinr
 )
 
 private fun Int?.checkSignalValue(): Int? = if (this == null || this == Int.MAX_VALUE || this == Int.MAX_VALUE) {
@@ -420,7 +426,8 @@ fun DeviceInfo.Location.toRequest() = SignalMeasurementLocationBody(
     age = age,
     accuracy = accuracy,
     mock_location = mock_location,
-    altitude = altitude
+    altitude = altitude,
+    satellites = satellites
 )
 
 fun SignalMeasurementRecord.toRequest(
