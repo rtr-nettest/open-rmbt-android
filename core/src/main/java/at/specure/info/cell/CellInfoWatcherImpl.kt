@@ -109,6 +109,7 @@ class CellInfoWatcherImpl(
                         } else {
                             // dual sim handling
                             // we need to check which of the registered cells uses same type of the network as data sim
+                            var dualSimDecisionLog = ""
                             var dualSimRegistered = registeredInfoList.filter { cellInfo ->
                                 var sameNetworkType = false
                                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
@@ -145,6 +146,10 @@ class CellInfoWatcherImpl(
                                     }
                                 }
                             }
+                            val countAfterNetworkTypeFilter = dualSimRegistered.size
+                            if (registeredInfoList.size > dualSimRegistered.size) {
+                                dualSimDecisionLog += "DSD - filtered according to same network type from ${registeredInfoList.size} to $countAfterNetworkTypeFilter\n"
+                            }
                             // if there is still more than one we can try filter it according to network operator name
                             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
                                 if (dualSimRegistered.size > 1) {
@@ -169,9 +174,17 @@ class CellInfoWatcherImpl(
                                 }
                             }
 
+                            if (countAfterNetworkTypeFilter > dualSimRegistered.size) {
+                                dualSimDecisionLog += "DSD - filtered according to same network operator name as in data subscription info $countAfterNetworkTypeFilter to ${dualSimRegistered.size}\n"
+                            }
+
                             if (dualSimRegistered.size == 1) {
                                 _cellInfo = dualSimRegistered[0]
+                                dualSimDecisionLog += "DSD - SUCCESS! \n Filtered this: \n\n$_cellInfo\n\n\n"
+                            } else {
+                                dualSimDecisionLog += "DSD - FAILED! \n Unable to select one data cell info!"
                             }
+                            Timber.v(dualSimDecisionLog)
                         }
 
                         _activeNetwork = CellNetworkInfo.from(
