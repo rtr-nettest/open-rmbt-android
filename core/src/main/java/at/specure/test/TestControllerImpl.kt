@@ -259,6 +259,7 @@ class TestControllerImpl(
                 Timber.v(currentStatus.name)
 
                 clientCallback.onTestStatusUpdate(currentStatus)
+                checkIllegalNetworkChange(client)
 
                 when (currentStatus) {
                     TestStatus.WAIT -> handleWait()
@@ -268,7 +269,7 @@ class TestControllerImpl(
                     TestStatus.INIT_UP -> handleInitUp()
                     TestStatus.UP -> handleUp(client)
                     TestStatus.SPEEDTEST_END -> handleSpeedTestEnd(skipQoSTests)
-                    TestStatus.QOS_TEST_RUNNING -> handleQoSRunning(qosTest, client)
+                    TestStatus.QOS_TEST_RUNNING -> handleQoSRunning(qosTest)
                     TestStatus.QOS_END -> handleQoSEnd()
                     TestStatus.ERROR -> handleError(client)
                     TestStatus.END -> handleEnd()
@@ -276,7 +277,6 @@ class TestControllerImpl(
                 }
 
                 if (currentStatus.isFinalState(skipQoSTests)) {
-                    // todo check correctness of counter's values after implementing QoS logic
                     config.testCounter++
                     config.previousTestStatus = if (currentStatus == TestStatus.ERROR) {
                         var errorStatus = "ERROR"
@@ -364,7 +364,7 @@ class TestControllerImpl(
         }
     }
 
-    private fun handleQoSRunning(qosTest: QualityOfServiceTest?, client: RMBTClient) {
+    private fun handleQoSRunning(qosTest: QualityOfServiceTest?) {
         qosTest ?: return
         Timber.i("${TestStatus.QOS_TEST_RUNNING} progress: ${qosTest.progress}/${qosTest.testSize}")
         val progress = ((qosTest.progress.toDouble() / qosTest.testSize) * 100).toInt()
@@ -407,14 +407,17 @@ class TestControllerImpl(
             Timber.i("$key : $testGroupProgress")
         }
 
+        _listener?.onQoSTestProgressUpdate(qosTest.progress, qosTest.testSize, progressMap)
+    }
+
+    private fun checkIllegalNetworkChange(client: RMBTClient) {
         val activeNetwork = connectivityManager.activeNetwork
         if (lastNetwork != null && activeNetwork != lastNetwork) {
-            Timber.e("Qos Test error - illegal network change detected \n last: $lastNetwork \n\n active: $activeNetwork")
+            Timber.e("XDTE: Illegal network change detected \n last: $lastNetwork \n\n active: $activeNetwork")
             handleError(client)
             stop()
         } else {
             lastNetwork = activeNetwork
-            _listener?.onQoSTestProgressUpdate(qosTest.progress, qosTest.testSize, progressMap)
         }
     }
 
@@ -424,6 +427,7 @@ class TestControllerImpl(
     }
 
     private fun handleError(client: RMBTClient) {
+        Timber.d("XDTE: Handle error ${client.errorMsg}")
         _listener?.onError()
         _testUUID = null
     }
