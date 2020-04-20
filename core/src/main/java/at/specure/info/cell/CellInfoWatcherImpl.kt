@@ -187,7 +187,6 @@ class CellInfoWatcherImpl(
                             Timber.v(dualSimDecisionLog)
                         }
 
-
                         _activeNetwork = CellNetworkInfo.from(
                             _cellInfo,
                             it,
