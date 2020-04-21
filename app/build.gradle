@@ -75,6 +75,7 @@ dependencies {
     implementation "androidx.core:core-ktx:$versions.androidx_core"
     implementation "com.google.android.material:material:$versions.material"
     implementation "androidx.constraintlayout:constraintlayout:$versions.constraint_layout"
+    implementation "androidx.swiperefreshlayout:swiperefreshlayout:$versions.swiperefresh_layout"
     implementation "androidx.vectordrawable:vectordrawable:$versions.vectordrawable"
     implementation "androidx.navigation:navigation-fragment:$versions.navigation_fragment"
     implementation "androidx.navigation:navigation-ui:$versions.navigation_ui"
@@ -93,7 +94,7 @@ dependencies {
 
     implementation "com.jakewharton.timber:timber:$versions.timber"
 
-    implementation "androidx.preference:preference-ktx:$versions.androidx_core"
+    implementation "androidx.preference:preference-ktx:$versions.androidx_preference"
     implementation "com.github.zcweng:switch-button:$versions.switch_button"
 
     debugImplementation "com.facebook.stetho:stetho:$versions.stetho"
