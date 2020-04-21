@@ -11,7 +11,8 @@ enum class NetworkTypeCompat(val stringValue: String, val minSignalValue: Int, v
     TYPE_3G("3G", SignalStrengthInfo.WCDMA_RSRP_SIGNAL_MIN, SignalStrengthInfo.WCDMA_RSRP_SIGNAL_MAX),
     TYPE_4G("4G", SignalStrengthInfo.LTE_RSRP_SIGNAL_MIN, SignalStrengthInfo.LTE_RSRP_SIGNAL_MAX),
     TYPE_5G("5G", SignalStrengthInfo.NR_RSRP_SIGNAL_MIN, SignalStrengthInfo.NR_RSRP_SIGNAL_MAX),
-    TYPE_WLAN("WLAN", SignalStrengthInfo.WIFI_MIN_SIGNAL_VALUE, SignalStrengthInfo.WIFI_MAX_SIGNAL_VALUE);
+    TYPE_WLAN("WLAN", SignalStrengthInfo.WIFI_MIN_SIGNAL_VALUE, SignalStrengthInfo.WIFI_MAX_SIGNAL_VALUE),
+    TYPE_LAN("LAN", Int.MIN_VALUE, Int.MIN_VALUE);
 
     companion object {
 
@@ -24,10 +25,10 @@ enum class NetworkTypeCompat(val stringValue: String, val minSignalValue: Int, v
             var cellTechnology: CellTechnology? = null
             val mobileNetworkType = MobileNetworkType.fromValue(value)
             val transportType = if (mobileNetworkType == MobileNetworkType.UNKNOWN) {
-                if (value == TYPE_WIFI_VALUE) {
-                    TransportType.WIFI
-                } else {
-                    throw IllegalArgumentException("Unsupported type $value")
+                when (value) {
+                    TYPE_WIFI_VALUE -> TransportType.WIFI
+                    TYPE_BROWSER_VALUE -> TransportType.WIFI
+                    else -> throw IllegalArgumentException("Unsupported type $value")
                 }
             } else {
                 cellTechnology = CellTechnology.fromMobileNetworkType(mobileNetworkType)
@@ -50,6 +51,7 @@ enum class NetworkTypeCompat(val stringValue: String, val minSignalValue: Int, v
 
         fun fromType(transportType: TransportType, cellTechnology: CellTechnology? = null): NetworkTypeCompat {
             return when (transportType) {
+                TransportType.ETHERNET -> TYPE_LAN
                 TransportType.WIFI -> TYPE_WLAN
                 TransportType.CELLULAR -> {
                     when (cellTechnology) {
@@ -67,6 +69,7 @@ enum class NetworkTypeCompat(val stringValue: String, val minSignalValue: Int, v
         const val TYPE_BLUETOOTH_VALUE = 107
         const val TYPE_ETHERNET_VALUE = 106
         const val TYPE_WIFI_VALUE = 99
+        const val TYPE_BROWSER_VALUE = 98
     }
 }
 
