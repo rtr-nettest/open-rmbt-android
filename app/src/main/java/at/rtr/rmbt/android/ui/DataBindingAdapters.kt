@@ -552,6 +552,15 @@ private fun getSignalImageResource(networkType: NetworkTypeCompat, signalStrengt
                 Classification.NONE -> R.drawable.ic_no_wifi
             }
         }
+        NetworkTypeCompat.TYPE_LAN -> {
+            when (signalStrength) {
+                Classification.BAD -> R.drawable.ic_history_wifi_1
+                Classification.NORMAL -> R.drawable.ic_history_wifi_2
+                Classification.GOOD -> R.drawable.ic_history_wifi_3
+                Classification.EXCELLENT -> R.drawable.ic_history_wifi_4
+                Classification.NONE -> R.drawable.ic_no_wifi
+            }
+        }
         NetworkTypeCompat.TYPE_5G -> {
             when (signalStrength) {
                 Classification.BAD -> R.drawable.ic_history_5g_1
@@ -822,6 +831,7 @@ fun ImageView.setNetworkType(networkType: String, signalStrength: Classification
                 NetworkTypeCompat.TYPE_4G -> {
                     R.drawable.ic_history_4g
                 }
+                NetworkTypeCompat.TYPE_LAN,
                 NetworkTypeCompat.TYPE_WLAN -> {
                     when (signalStrength) {
                         Classification.BAD -> R.drawable.ic_history_wifi_1
@@ -831,7 +841,9 @@ fun ImageView.setNetworkType(networkType: String, signalStrength: Classification
                         Classification.NONE -> R.drawable.ic_history_no_internet
                     }
                 }
-                NetworkTypeCompat.TYPE_5G -> throw IllegalArgumentException("Need to add 5G image here for history")
+                NetworkTypeCompat.TYPE_5G -> {
+                    R.drawable.ic_history_5g_3
+                }
             }
         )
     }
