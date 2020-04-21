@@ -52,8 +52,10 @@ dependencies {
     api "androidx.paging:paging-runtime-ktx:$versions.paging"
     implementation "androidx.lifecycle:lifecycle-service:$versions.lifecycle_service"
 
-    implementation "android.arch.persistence.room:runtime:$versions.room"
-    kapt "android.arch.persistence.room:compiler:$versions.room"
+    api "androidx.room:room-runtime:$versions.room"
+    implementation "androidx.room:room-ktx:$versions.room"
+
+    kapt "androidx.room:room-compiler:$versions.room"
 
     kapt "com.google.dagger:dagger-compiler:$versions.dagger"
     kapt "com.google.dagger:dagger-android-processor:$versions.dagger"
@@ -69,7 +71,7 @@ dependencies {
 
     androidTestImplementation "androidx.test:runner:$versions.test_runner"
     androidTestImplementation "androidx.test.espresso:espresso-core:$versions.espresso_core"
-    androidTestImplementation "android.arch.persistence.room:testing:$versions.roomVersion"
+    androidTestImplementation "androidx.room:room-testing:$versions.room"
 }
 
 task dokkaMarkdown(type: org.jetbrains.dokka.gradle.DokkaTask) {
