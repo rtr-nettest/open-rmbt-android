@@ -182,12 +182,10 @@ fun TestRecord.toRequest(
             if (cells == null) {
                 null
             } else {
-                var ignoreNetworkId = false
                 signalList.forEach {
                     val cell = cells[it.cellUuid]
                     if (cell != null) {
-                        list.add(it.toRequest(cell.uuid, ignoreNetworkId))
-                        ignoreNetworkId = true
+                        list.add(it.toRequest(cell.uuid, !cell.active))
                     }
                 }
                 if (list.isEmpty()) null else list
