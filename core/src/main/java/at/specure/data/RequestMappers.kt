@@ -20,6 +20,7 @@ import at.rmbt.client.control.SignalMeasurementRequestBody
 import at.rmbt.client.control.SpeedBody
 import at.rmbt.client.control.TestLocationBody
 import at.rmbt.client.control.TestResultBody
+import at.rtr.rmbt.util.BandCalculationUtil
 import at.specure.config.Config
 import at.specure.data.entity.CapabilitiesRecord
 import at.specure.data.entity.CellInfoRecord
@@ -321,7 +322,7 @@ fun CellInfoRecord.toRequest() = CellInfoBody(
     active = isActive,
     areaCode = areaCode,
     uuid = UUID.randomUUID().toString(),
-    channelNumber = channelNumber,
+    channelNumber = if (transportType == TransportType.WIFI) frequency?.toInt() else channelNumber,
     locationId = locationId,
     mnc = mnc,
     mcc = mcc,
