@@ -553,13 +553,7 @@ private fun getSignalImageResource(networkType: NetworkTypeCompat, signalStrengt
             }
         }
         NetworkTypeCompat.TYPE_LAN -> {
-            when (signalStrength) {
-                Classification.BAD -> R.drawable.ic_history_wifi_1
-                Classification.NORMAL -> R.drawable.ic_history_wifi_2
-                Classification.GOOD -> R.drawable.ic_history_wifi_3
-                Classification.EXCELLENT -> R.drawable.ic_history_wifi_4
-                Classification.NONE -> R.drawable.ic_no_wifi
-            }
+            R.drawable.ic_browser
         }
         NetworkTypeCompat.TYPE_5G -> {
             when (signalStrength) {
