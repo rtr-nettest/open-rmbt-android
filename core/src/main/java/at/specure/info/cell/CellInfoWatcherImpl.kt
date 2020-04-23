@@ -217,7 +217,7 @@ class CellInfoWatcherImpl(
                     _activeNetwork?.cellUUID == it.uuid(),
                     connectivityManager.activeNetworkInfo?.isRoaming ?: false,
                     connectivityManager.activeNetworkInfo?.extraInfo,
-                    null
+                    dualSimDecision
                 )
                 _allCellInfo.add(info)
                 Timber.v("cell: ${info.networkType.displayName} ${info.mnc} ${info.mcc} ${info.cellUUID}")

@@ -427,6 +427,12 @@ data class TestResultBody(
     val telephonyHasDualSim: Boolean?,
 
     /**
+     * Contains info about how data sim was selected and how cell info was chosen for mobile data connection
+     */
+    @SerializedName("dual_sim_detection_method")
+    val dualSimDetectionMethod: String?,
+
+    /**
      * Wifi supplicant state e.g. "COMPLETED"
      */
     @SerializedName("wifi_supplicant_state")
