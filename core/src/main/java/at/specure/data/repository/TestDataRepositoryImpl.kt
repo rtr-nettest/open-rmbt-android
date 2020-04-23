@@ -231,7 +231,8 @@ class TestDataRepositoryImpl(db: CoreDatabase) : TestDataRepository {
         locationId = null,
         mcc = null,
         mnc = null,
-        primaryScramblingCode = null
+        primaryScramblingCode = null,
+        dualSimDetectionMethod = null
     )
 
     private fun CellNetworkInfo.toCellInfoRecord(testUUID: String) = CellInfoRecord(
@@ -247,7 +248,8 @@ class TestDataRepositoryImpl(db: CoreDatabase) : TestDataRepository {
         locationId = locationId,
         mcc = mcc,
         mnc = mnc,
-        primaryScramblingCode = scramblingCode
+        primaryScramblingCode = scramblingCode,
+        dualSimDetectionMethod = dualSimDetectionMethod
     )
 
     override fun savePermissionStatus(testUUID: String, permission: String, granted: Boolean) = io {
