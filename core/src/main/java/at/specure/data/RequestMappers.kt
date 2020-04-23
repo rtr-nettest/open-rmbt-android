@@ -161,7 +161,7 @@ fun TestRecord.toRequest(
     } else {
         pingList.map { it.toRequest() }
     }
-
+    var dualSimDetectionMethod: String? = null
     var radioInfo: RadioInfoBody? = if (cellInfoList.isEmpty() && signalList.isEmpty()) {
         null
     } else {
@@ -171,6 +171,9 @@ fun TestRecord.toRequest(
             val map = mutableMapOf<String, CellInfoBody>()
             cellInfoList.forEach {
                 map[it.uuid] = it.toRequest()
+                if (it.isActive) {
+                    dualSimDetectionMethod = it.dualSimDetectionMethod
+                }
             }
             if (map.isEmpty()) null else map
         }
@@ -182,12 +185,10 @@ fun TestRecord.toRequest(
             if (cells == null) {
                 null
             } else {
-                var ignoreNetworkId = false
                 signalList.forEach {
                     val cell = cells[it.cellUuid]
                     if (cell != null) {
-                        list.add(it.toRequest(cell.uuid, ignoreNetworkId))
-                        ignoreNetworkId = true
+                        list.add(it.toRequest(cell.uuid, !cell.active))
                     }
                 }
                 if (list.isEmpty()) null else list
@@ -275,6 +276,7 @@ fun TestRecord.toRequest(
         telephonyNetworkSimCountry = telephonyInfo?.networkSimCountry,
         telephonySimCount = telephonyInfo?.simCount.toString(),
         telephonyHasDualSim = telephonyInfo?.hasDualSim,
+        dualSimDetectionMethod = dualSimDetectionMethod,
         wifiSupplicantState = wlanInfo?.supplicantState,
         wifiSupplicantStateDetail = wlanInfo?.supplicantDetailedState,
         wifiSsid = wlanInfo?.ssid,
@@ -323,7 +325,7 @@ fun CellInfoRecord.toRequest() = CellInfoBody(
     active = isActive,
     areaCode = areaCode,
     uuid = UUID.randomUUID().toString(),
-    channelNumber = channelNumber,
+    channelNumber = if (transportType == TransportType.WIFI) frequency?.toInt() else channelNumber,
     locationId = locationId,
     mnc = mnc,
     mcc = mcc,
