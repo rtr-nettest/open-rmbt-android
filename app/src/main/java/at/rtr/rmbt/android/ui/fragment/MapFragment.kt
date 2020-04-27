@@ -198,7 +198,7 @@ class MapFragment : BaseFragment(), OnMapReadyCallback, MapMarkerDetailsAdapter.
     }
 
     private fun drawMarker(record: MarkerMeasurementRecord) {
-        if (record.networkTypeLabel != ServerNetworkType.UNKNOWN.stringValue && record.networkTypeLabel != ServerNetworkType.TYPE_BROWSER.stringValue) {
+        if (record.networkTypeLabel != ServerNetworkType.UNKNOWN.stringValue) {
             record.networkTypeLabel?.let {
                 val icon = when (NetworkTypeCompat.fromString(it)) {
                     NetworkTypeCompat.TYPE_LAN,

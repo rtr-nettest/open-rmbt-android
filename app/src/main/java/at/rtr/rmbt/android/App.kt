@@ -43,8 +43,8 @@ class App : CoreApp() {
             if (!sharedPreferences.contains("fixed")) {
                 val corruptedZoomTables = File(filesDir, "ZoomTables.data")
                 val corruptedSavedClientParameters = File(filesDir, "SavedClientParameters.data.cs")
-                val corruptedClientParametersData = File(filesDir, "DATA_ServerControlledParametersManager.data.${packageName}")
-                val corruptedClientParametersDataV1 = File(filesDir, "DATA_ServerControlledParametersManager.data.v1.${packageName}")
+                val corruptedClientParametersData = File(filesDir, "DATA_ServerControlledParametersManager.data.$packageName")
+                val corruptedClientParametersDataV1 = File(filesDir, "DATA_ServerControlledParametersManager.data.v1.$packageName")
                 corruptedZoomTables.delete()
                 corruptedSavedClientParameters.delete()
                 corruptedClientParametersData.delete()
@@ -52,7 +52,6 @@ class App : CoreApp() {
                 sharedPreferences.edit().putBoolean("fixed", true).apply()
             }
         } catch (exception: Exception) {
-
         }
     }
 }

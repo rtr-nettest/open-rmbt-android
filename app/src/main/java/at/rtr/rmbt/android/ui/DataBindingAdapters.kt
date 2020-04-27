@@ -814,7 +814,7 @@ fun ResultBar.setQoEValue(value: Double, classification: Classification) {
 
 @BindingAdapter("networkType", "signalStrength", requireAll = true)
 fun ImageView.setNetworkType(networkType: String, signalStrength: Classification) {
-    if (networkType != ServerNetworkType.UNKNOWN.stringValue && networkType != ServerNetworkType.TYPE_BROWSER.stringValue) {
+    if (networkType != ServerNetworkType.UNKNOWN.stringValue) {
         setImageResource(
             when (NetworkTypeCompat.fromString(networkType)) {
                 NetworkTypeCompat.TYPE_2G -> {
