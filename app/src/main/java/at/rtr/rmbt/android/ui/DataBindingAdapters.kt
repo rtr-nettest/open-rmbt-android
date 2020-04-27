@@ -552,7 +552,8 @@ private fun getSignalImageResource(networkType: NetworkTypeCompat, signalStrengt
                 Classification.NONE -> R.drawable.ic_no_wifi
             }
         }
-        NetworkTypeCompat.TYPE_LAN -> {
+        NetworkTypeCompat.TYPE_LAN,
+        NetworkTypeCompat.TYPE_BROWSER -> {
             R.drawable.ic_browser
         }
         NetworkTypeCompat.TYPE_5G -> {
@@ -826,6 +827,9 @@ fun ImageView.setNetworkType(networkType: String, signalStrength: Classification
                     R.drawable.ic_history_4g
                 }
                 NetworkTypeCompat.TYPE_LAN,
+                NetworkTypeCompat.TYPE_BROWSER -> {
+                    R.drawable.ic_browser
+                }
                 NetworkTypeCompat.TYPE_WLAN -> {
                     when (signalStrength) {
                         Classification.BAD -> R.drawable.ic_history_wifi_1

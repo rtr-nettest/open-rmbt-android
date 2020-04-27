@@ -17,6 +17,7 @@ package at.specure.info
 import android.annotation.TargetApi
 import android.net.NetworkCapabilities
 import android.os.Build
+import at.specure.data.ServerNetworkType
 
 /**
  * Enum that represents [android.net.NetworkCapabilities] constants for transport types
@@ -62,7 +63,9 @@ enum class TransportType(
      * Indicates this network uses a LoWPAN transport.
      */
     @TargetApi(Build.VERSION_CODES.O_MR1)
-    LOWPAN(NetworkCapabilities.TRANSPORT_LOWPAN);
+    LOWPAN(NetworkCapabilities.TRANSPORT_LOWPAN),
+
+    BROWSER(ServerNetworkType.UNKNOWN.intValue);
 
     companion object {
 

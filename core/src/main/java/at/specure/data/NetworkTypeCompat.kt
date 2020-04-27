@@ -12,7 +12,8 @@ enum class NetworkTypeCompat(val stringValue: String, val minSignalValue: Int, v
     TYPE_4G("4G", SignalStrengthInfo.LTE_RSRP_SIGNAL_MIN, SignalStrengthInfo.LTE_RSRP_SIGNAL_MAX),
     TYPE_5G("5G", SignalStrengthInfo.NR_RSRP_SIGNAL_MIN, SignalStrengthInfo.NR_RSRP_SIGNAL_MAX),
     TYPE_WLAN("WLAN", SignalStrengthInfo.WIFI_MIN_SIGNAL_VALUE, SignalStrengthInfo.WIFI_MAX_SIGNAL_VALUE),
-    TYPE_LAN("LAN", Int.MIN_VALUE, Int.MIN_VALUE);
+    TYPE_LAN("LAN", Int.MIN_VALUE, Int.MIN_VALUE),
+    TYPE_BROWSER("BROWSER", Int.MIN_VALUE, Int.MIN_VALUE);
 
     companion object {
 
@@ -27,7 +28,7 @@ enum class NetworkTypeCompat(val stringValue: String, val minSignalValue: Int, v
             val transportType = if (mobileNetworkType == MobileNetworkType.UNKNOWN) {
                 when (value) {
                     TYPE_WIFI_VALUE -> TransportType.WIFI
-                    TYPE_BROWSER_VALUE -> TransportType.WIFI
+                    TYPE_BROWSER_VALUE -> TransportType.BROWSER
                     else -> throw IllegalArgumentException("Unsupported type $value")
                 }
             } else {
@@ -51,7 +52,7 @@ enum class NetworkTypeCompat(val stringValue: String, val minSignalValue: Int, v
 
         fun fromType(transportType: TransportType, cellTechnology: CellTechnology? = null): NetworkTypeCompat {
             return when (transportType) {
-                TransportType.ETHERNET -> TYPE_LAN
+                TransportType.BROWSER -> TYPE_BROWSER
                 TransportType.WIFI -> TYPE_WLAN
                 TransportType.CELLULAR -> {
                     when (cellTechnology) {
