@@ -472,7 +472,7 @@ data class TestResultBody(
      * Reason of the test finishing, provided as int value, example - "0" for Success
      */
     @SerializedName("test_status")
-    var testStatus: Int?,
+    var testStatus: String,
 
     /**
      * Phase was the last done by the client, provided like value from TestStatus except "ERROR" and "ABORT"
@@ -1066,7 +1066,7 @@ data class SignalMeasurementChunkBody(
     val submissionRetryCount: Int,
 
     @SerializedName("test_status")
-    val testStatus: Int,
+    val testStatus: String,
 
     @SerializedName("test_error_cause")
     val testErrorCause: String?,
