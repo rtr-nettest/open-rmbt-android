@@ -552,7 +552,8 @@ private fun getSignalImageResource(networkType: NetworkTypeCompat, signalStrengt
                 Classification.NONE -> R.drawable.ic_no_wifi
             }
         }
-        NetworkTypeCompat.TYPE_LAN -> {
+        NetworkTypeCompat.TYPE_LAN,
+        NetworkTypeCompat.TYPE_BROWSER -> {
             R.drawable.ic_browser
         }
         NetworkTypeCompat.TYPE_5G -> {
@@ -813,7 +814,7 @@ fun ResultBar.setQoEValue(value: Double, classification: Classification) {
 
 @BindingAdapter("networkType", "signalStrength", requireAll = true)
 fun ImageView.setNetworkType(networkType: String, signalStrength: Classification) {
-    if (networkType != ServerNetworkType.UNKNOWN.stringValue && networkType != ServerNetworkType.TYPE_BROWSER.stringValue) {
+    if (networkType != ServerNetworkType.UNKNOWN.stringValue) {
         setImageResource(
             when (NetworkTypeCompat.fromString(networkType)) {
                 NetworkTypeCompat.TYPE_2G -> {
@@ -826,6 +827,9 @@ fun ImageView.setNetworkType(networkType: String, signalStrength: Classification
                     R.drawable.ic_history_4g
                 }
                 NetworkTypeCompat.TYPE_LAN,
+                NetworkTypeCompat.TYPE_BROWSER -> {
+                    R.drawable.ic_browser
+                }
                 NetworkTypeCompat.TYPE_WLAN -> {
                     when (signalStrength) {
                         Classification.BAD -> R.drawable.ic_history_wifi_1
