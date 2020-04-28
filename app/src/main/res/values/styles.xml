@@ -29,7 +29,7 @@
         <item name="android:statusBarColor">@android:color/transparent</item>
         <item name="android:windowBackground">@color/colorPrimary</item>
         <item name="colorControlHighlight">@color/greenRipple</item>
-        <item name="android:windowDrawsSystemBarBackgrounds">true</item>
+        <item name="android:windowDrawsSystemBarBackgrounds">false</item>
     </style>
 
     <style name="PreferenceTheme" parent="Theme.AppCompat.Light.NoActionBar">
