@@ -359,6 +359,7 @@ public class RMBTClient implements RMBTClientCallback {
             );
         } catch (Exception e) {
             e.printStackTrace();
+            testStatus.set(TestStatus.ERROR);
         }
 
         if (testStatus.get() != TestStatus.ERROR && testThreadPool != null) {
@@ -529,8 +530,11 @@ public class RMBTClient implements RMBTClientCallback {
                 throw e;
             }
         } else {
-            setStatus(TestStatus.SPEEDTEST_END);
-
+            if (testStatus.get() == TestStatus.ERROR) {
+                abortTest(true);
+            } else {
+                setStatus(TestStatus.SPEEDTEST_END);
+            }
             return null;
         }
     }
