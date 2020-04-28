@@ -112,10 +112,11 @@ class MeasurementViewModel @Inject constructor(
                 with(state) {
                     measurementState.set(it.measurementState)
                     measurementProgress.set(it.measurementProgress)
-                    pingMs.set(TimeUnit.NANOSECONDS.toMillis(it.pingNanos))
+                    pingNanos.set(it.pingNanos)
                     downloadSpeedBps.set(it.downloadSpeedBps)
                     uploadSpeedBps.set(it.uploadSpeedBps)
                 }
+                Timber.i("Ping value from: ${it.pingNanos}")
             }
         }
     }
@@ -175,7 +176,8 @@ class MeasurementViewModel @Inject constructor(
     }
 
     override fun onPingChanged(pingNanos: Long) {
-        state.pingMs.set(TimeUnit.NANOSECONDS.toMillis(pingNanos))
+        Timber.i("Ping value from: $pingNanos")
+        state.pingNanos.set(pingNanos)
     }
 
     override fun isQoSEnabled(enabled: Boolean) {

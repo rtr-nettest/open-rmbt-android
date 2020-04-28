@@ -31,12 +31,14 @@ import at.specure.info.strength.SignalStrengthInfo
 import at.specure.measurement.MeasurementState
 import at.specure.result.QoECategory
 import com.google.android.material.bottomsheet.BottomSheetBehavior
+import timber.log.Timber
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
 import java.util.Locale
 import java.util.TimeZone
 import kotlin.math.roundToInt
+import kotlin.math.roundToLong
 
 @BindingAdapter("intText")
 fun intText(textView: TextView, value: Int) {
@@ -246,18 +248,26 @@ fun waveEnabled(view: WaveView, enabled: Boolean) {
     view.waveEnabled = enabled
 }
 
-val THRESHOLD_PING = listOf(0, 10, 25, 75) // 0ms, 10ms, 25ms, 75ms
+val THRESHOLD_PING = listOf(0.0, 10.0, 25.0, 75.0) // 0ms, 10ms, 25ms, 75ms
+
 /**
  * A binding adapter that is used for show ping value
  */
 @BindingAdapter("pingMs")
-fun AppCompatTextView.setPing(pingMs: Long) {
+fun AppCompatTextView.setPing(pingNanos: Long) {
 
-    if (pingMs > 0) {
+
+    if (pingNanos > 0) {
+
+        val pingResult = if (pingNanos > 1000000) {
+            (pingNanos / 1000000.0).roundToLong().toDouble()
+        } else {
+            (pingNanos / 1000000.0)
+        }
 
         setCompoundDrawablesWithIntrinsicBounds(
 
-            when (pingMs) {
+            when (pingResult) {
                 in THRESHOLD_PING[0]..THRESHOLD_PING[1] -> {
                     R.drawable.ic_small_ping_dark_green
                 }
@@ -272,8 +282,14 @@ fun AppCompatTextView.setPing(pingMs: Long) {
                 }
             }, 0, 0, 0
         )
-        text = context.getString(R.string.measurement_ping_value, ((pingMs * 1000000) / 1000000.0f).format())
+
         setTextColor(context.getColor(android.R.color.white))
+        val mantissa = pingResult - (pingResult.toInt().toDouble())
+        if (mantissa > 0 && pingResult < 10.0) {
+            text = context.getString(R.string.measurement_ping_value_1f, pingResult)
+        } else {
+            text = context.getString(R.string.measurement_ping_value, pingResult.roundToInt().toString())
+        }
     } else {
         setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_small_ping_gray, 0, 0, 0)
         setTextColor(context.getColor(R.color.text_white_transparency_40))
@@ -282,6 +298,7 @@ fun AppCompatTextView.setPing(pingMs: Long) {
 }
 
 val THRESHOLD_DOWNLOAD = listOf(0L, 1000000L, 2000000L, 30000000L) // 0mb, 1mb, 2mb, 30mb
+
 /**
  * A binding adapter that is used for show download speed
  */
@@ -321,6 +338,7 @@ fun AppCompatTextView.setDownload(downloadSpeedBps: Long) {
 }
 
 val THRESHOLD_UPLOAD = listOf(0L, 500000L, 1000000L, 10000000L) // 0mb, 0.5mb, 1mb, 10mb
+
 /**
  * A binding adapter that is used for show upload speed
  */

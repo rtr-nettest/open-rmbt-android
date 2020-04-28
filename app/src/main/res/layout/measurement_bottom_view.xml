@@ -156,7 +156,7 @@
             app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintStart_toEndOf="@+id/imageViewSignalLevel"
             app:layout_constraintTop_toBottomOf="@+id/labelMeasurementBottomPing"
-            app:pingMs="@{state.pingMs}"
+            app:pingMs="@{state.pingNanos}"
             tools:drawableStart="@drawable/ic_small_ping_yellow"
             tools:text="14 ms"
             tools:textColor="@android:color/white" />
