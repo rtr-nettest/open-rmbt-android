@@ -31,7 +31,6 @@ import at.specure.info.strength.SignalStrengthInfo
 import at.specure.measurement.MeasurementState
 import at.specure.result.QoECategory
 import com.google.android.material.bottomsheet.BottomSheetBehavior
-import timber.log.Timber
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
@@ -255,7 +254,6 @@ val THRESHOLD_PING = listOf(0.0, 10.0, 25.0, 75.0) // 0ms, 10ms, 25ms, 75ms
  */
 @BindingAdapter("pingMs")
 fun AppCompatTextView.setPing(pingNanos: Long) {
-
 
     if (pingNanos > 0) {
 

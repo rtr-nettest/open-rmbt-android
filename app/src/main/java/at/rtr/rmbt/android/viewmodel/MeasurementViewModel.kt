@@ -25,7 +25,6 @@ import at.specure.measurement.MeasurementProducer
 import at.specure.measurement.MeasurementService
 import at.specure.measurement.MeasurementState
 import timber.log.Timber
-import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
 class MeasurementViewModel @Inject constructor(
