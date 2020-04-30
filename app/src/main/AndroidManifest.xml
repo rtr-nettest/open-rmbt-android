@@ -43,7 +43,7 @@
         <activity
             android:name=".ui.activity.MeasurementActivity"
             android:theme="@style/MeasurementTheme"
-            android:launchMode="singleTop"
+            android:launchMode="singleTask"
             android:windowSoftInputMode="stateAlwaysHidden" />
 
         <activity
@@ -77,6 +77,7 @@
 
         <activity
             android:name=".ui.activity.LoopFinishedActivity"
+            android:launchMode="singleTop"
             android:theme="@style/MeasurementTheme" />
 
         <activity
