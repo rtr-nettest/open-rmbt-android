@@ -65,6 +65,10 @@ class SettingsViewState constructor(
             appConfig.controlServerPort = BuildConfig.CONTROL_SERVER_PORT.value.toInt()
         }
 
+        refreshSettings()
+    }
+
+    private fun refreshSettings() {
         io {
             settingsRepository.refreshSettings()
         }
@@ -107,6 +111,9 @@ class SettingsViewState constructor(
         expertModeEnabled.addOnPropertyChanged { value ->
             value.get()?.let {
                 appConfig.expertModeEnabled = it
+                if (it) {
+                    refreshSettings()
+                }
             }
         }
         expertModeUseIpV4Only.addOnPropertyChanged { value ->

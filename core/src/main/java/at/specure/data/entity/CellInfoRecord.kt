@@ -22,6 +22,7 @@ data class CellInfoRecord(
     val isActive: Boolean,
     val uuid: String,
     val channelNumber: Int?,
+    val frequency: Double?,
     val registered: Boolean,
     val transportType: TransportType,
     // another more for mobile cell
@@ -30,5 +31,6 @@ data class CellInfoRecord(
     val locationId: Int?,
     val mcc: Int?,
     val mnc: Int?,
-    val primaryScramblingCode: Int?
+    val primaryScramblingCode: Int?,
+    val dualSimDetectionMethod: String?
 )

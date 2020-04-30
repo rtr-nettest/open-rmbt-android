@@ -227,10 +227,12 @@ class TestDataRepositoryImpl(db: CoreDatabase) : TestDataRepository {
         registered = true,
         areaCode = null,
         channelNumber = band.channelNumber,
+        frequency = band.frequency.toDouble(),
         locationId = null,
         mcc = null,
         mnc = null,
-        primaryScramblingCode = null
+        primaryScramblingCode = null,
+        dualSimDetectionMethod = null
     )
 
     private fun CellNetworkInfo.toCellInfoRecord(testUUID: String) = CellInfoRecord(
@@ -242,10 +244,12 @@ class TestDataRepositoryImpl(db: CoreDatabase) : TestDataRepository {
         registered = isRegistered,
         areaCode = areaCode,
         channelNumber = band?.channel,
+        frequency = band?.frequencyDL,
         locationId = locationId,
         mcc = mcc,
         mnc = mnc,
-        primaryScramblingCode = scramblingCode
+        primaryScramblingCode = scramblingCode,
+        dualSimDetectionMethod = dualSimDetectionMethod
     )
 
     override fun savePermissionStatus(testUUID: String, permission: String, granted: Boolean) = io {

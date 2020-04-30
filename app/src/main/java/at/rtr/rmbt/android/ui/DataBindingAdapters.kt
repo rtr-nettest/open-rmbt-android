@@ -37,6 +37,7 @@ import java.util.Date
 import java.util.Locale
 import java.util.TimeZone
 import kotlin.math.roundToInt
+import kotlin.math.roundToLong
 
 @BindingAdapter("intText")
 fun intText(textView: TextView, value: Int) {
@@ -246,18 +247,25 @@ fun waveEnabled(view: WaveView, enabled: Boolean) {
     view.waveEnabled = enabled
 }
 
-val THRESHOLD_PING = listOf(0, 10, 25, 75) // 0ms, 10ms, 25ms, 75ms
+val THRESHOLD_PING = listOf(0.0, 10.0, 25.0, 75.0) // 0ms, 10ms, 25ms, 75ms
+
 /**
  * A binding adapter that is used for show ping value
  */
 @BindingAdapter("pingMs")
-fun AppCompatTextView.setPing(pingMs: Long) {
+fun AppCompatTextView.setPing(pingNanos: Long) {
 
-    if (pingMs > 0) {
+    if (pingNanos > 0) {
+
+        val pingResult = if (pingNanos > 1000000) {
+            (pingNanos / 1000000.0).roundToLong().toDouble()
+        } else {
+            (pingNanos / 1000000.0)
+        }
 
         setCompoundDrawablesWithIntrinsicBounds(
 
-            when (pingMs) {
+            when (pingResult) {
                 in THRESHOLD_PING[0]..THRESHOLD_PING[1] -> {
                     R.drawable.ic_small_ping_dark_green
                 }
@@ -272,8 +280,14 @@ fun AppCompatTextView.setPing(pingMs: Long) {
                 }
             }, 0, 0, 0
         )
-        text = context.getString(R.string.measurement_ping_value, ((pingMs * 1000000) / 1000000.0f).format())
+
         setTextColor(context.getColor(android.R.color.white))
+        val mantissa = pingResult - (pingResult.toInt().toDouble())
+        if (mantissa > 0 && pingResult < 10.0) {
+            text = context.getString(R.string.measurement_ping_value_1f, pingResult)
+        } else {
+            text = context.getString(R.string.measurement_ping_value, pingResult.roundToInt().toString())
+        }
     } else {
         setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_small_ping_gray, 0, 0, 0)
         setTextColor(context.getColor(R.color.text_white_transparency_40))
@@ -282,6 +296,7 @@ fun AppCompatTextView.setPing(pingMs: Long) {
 }
 
 val THRESHOLD_DOWNLOAD = listOf(0L, 1000000L, 2000000L, 30000000L) // 0mb, 1mb, 2mb, 30mb
+
 /**
  * A binding adapter that is used for show download speed
  */
@@ -321,6 +336,7 @@ fun AppCompatTextView.setDownload(downloadSpeedBps: Long) {
 }
 
 val THRESHOLD_UPLOAD = listOf(0L, 500000L, 1000000L, 10000000L) // 0mb, 0.5mb, 1mb, 10mb
+
 /**
  * A binding adapter that is used for show upload speed
  */
@@ -551,6 +567,10 @@ private fun getSignalImageResource(networkType: NetworkTypeCompat, signalStrengt
                 Classification.EXCELLENT -> R.drawable.ic_history_wifi_4
                 Classification.NONE -> R.drawable.ic_no_wifi
             }
+        }
+        NetworkTypeCompat.TYPE_LAN,
+        NetworkTypeCompat.TYPE_BROWSER -> {
+            R.drawable.ic_browser
         }
         NetworkTypeCompat.TYPE_5G -> {
             when (signalStrength) {
@@ -810,7 +830,7 @@ fun ResultBar.setQoEValue(value: Double, classification: Classification) {
 
 @BindingAdapter("networkType", "signalStrength", requireAll = true)
 fun ImageView.setNetworkType(networkType: String, signalStrength: Classification) {
-    if (networkType != ServerNetworkType.UNKNOWN.stringValue && networkType != ServerNetworkType.TYPE_BROWSER.stringValue) {
+    if (networkType != ServerNetworkType.UNKNOWN.stringValue) {
         setImageResource(
             when (NetworkTypeCompat.fromString(networkType)) {
                 NetworkTypeCompat.TYPE_2G -> {
@@ -822,6 +842,10 @@ fun ImageView.setNetworkType(networkType: String, signalStrength: Classification
                 NetworkTypeCompat.TYPE_4G -> {
                     R.drawable.ic_history_4g
                 }
+                NetworkTypeCompat.TYPE_LAN,
+                NetworkTypeCompat.TYPE_BROWSER -> {
+                    R.drawable.ic_browser
+                }
                 NetworkTypeCompat.TYPE_WLAN -> {
                     when (signalStrength) {
                         Classification.BAD -> R.drawable.ic_history_wifi_1
@@ -831,7 +855,9 @@ fun ImageView.setNetworkType(networkType: String, signalStrength: Classification
                         Classification.NONE -> R.drawable.ic_history_no_internet
                     }
                 }
-                NetworkTypeCompat.TYPE_5G -> throw IllegalArgumentException("Need to add 5G image here for history")
+                NetworkTypeCompat.TYPE_5G -> {
+                    R.drawable.ic_history_5g_3
+                }
             }
         )
     }

@@ -198,14 +198,16 @@ class MapFragment : BaseFragment(), OnMapReadyCallback, MapMarkerDetailsAdapter.
     }
 
     private fun drawMarker(record: MarkerMeasurementRecord) {
-        if (record.networkTypeLabel != ServerNetworkType.UNKNOWN.stringValue && record.networkTypeLabel != ServerNetworkType.TYPE_BROWSER.stringValue) {
+        if (record.networkTypeLabel != ServerNetworkType.UNKNOWN.stringValue) {
             record.networkTypeLabel?.let {
                 val icon = when (NetworkTypeCompat.fromString(it)) {
+                    NetworkTypeCompat.TYPE_LAN,
+                    NetworkTypeCompat.TYPE_BROWSER -> R.drawable.ic_marker_browser
                     NetworkTypeCompat.TYPE_WLAN -> R.drawable.ic_marker_wifi
                     NetworkTypeCompat.TYPE_4G -> R.drawable.ic_marker_4g
                     NetworkTypeCompat.TYPE_3G -> R.drawable.ic_marker_3g
                     NetworkTypeCompat.TYPE_2G -> R.drawable.ic_marker_2g
-                    NetworkTypeCompat.TYPE_5G -> throw IllegalArgumentException("Need to add 5G marker image for the map")
+                    NetworkTypeCompat.TYPE_5G -> R.drawable.ic_marker_5g
                 }
                 addMarkerWithIcon(icon)
             }

@@ -182,13 +182,29 @@ class MeasurementService : CustomLifecycleService() {
             stateRecorder.onUnsuccessTest(TestFinishReason.ERROR)
             stateRecorder.onLoopTestFinished()
 
+            if (config.loopModeEnabled) {
+                if (stateRecorder.loopUuid == null) {
+                    loopCountdownTimer?.cancel()
+                    hasErrors = true
+                    clientAggregator.onMeasurementError()
+                    stateRecorder.finish()
+                    isLoopModeRunning = false
+                    unlock()
+                    stopForeground(true)
+                }
+            }
+
+            Timber.e("TEST ERROR HANDLING")
+
             if (startPendingTest) {
+                Timber.e("TEST ERROR HANDLING - PENDING")
                 runner.reset()
                 runTest()
             } else {
+                Timber.e("TEST ERROR HANDLING - NOT PENDING")
                 if (!config.loopModeEnabled || (config.loopModeEnabled && (stateRecorder.loopTestCount >= config.loopModeNumberOfTests))) {
                     loopCountdownTimer?.cancel()
-
+                    Timber.e("TEST ERROR HANDLING - NOT PENDING LOOP DISABLED")
                     if (config.loopModeEnabled) {
                         notificationManager.notify(NOTIFICATION_LOOP_FINISHED_ID, notificationProvider.loopModeFinishedNotification())
                     }
@@ -408,6 +424,9 @@ class MeasurementService : CustomLifecycleService() {
             }
         }
 
+        stateRecorder.updateLocationInfo()
+        stateRecorder.onTestInLoopStarted()
+
         val deviceInfo = DeviceInfo(
             context = this,
             location = location
@@ -418,8 +437,7 @@ class MeasurementService : CustomLifecycleService() {
         qosProgressMap = mapOf()
 
         hasErrors = false
-        stateRecorder.updateLocationInfo()
-        stateRecorder.onTestInLoopStarted()
+
         runner.start(deviceInfo, stateRecorder.loopUuid, stateRecorder.loopTestCount, testListener, stateRecorder)
     }
 

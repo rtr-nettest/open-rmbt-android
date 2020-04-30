@@ -19,6 +19,7 @@ package at.rtr.rmbt.android.ui.activity
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.view.WindowManager
 import androidx.lifecycle.observe
 import at.rtr.rmbt.android.R
 import at.rtr.rmbt.android.databinding.ActivityMeasurementBinding
@@ -50,6 +51,8 @@ class MeasurementActivity : BaseActivity(), SimpleDialog.Callback {
         super.onCreate(savedInstanceState)
         binding = bindContentView(R.layout.activity_measurement)
         binding.state = viewModel.state
+
+        window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
 
         binding.buttonCancel.setOnClickListener { onCrossIconClicked() }
 

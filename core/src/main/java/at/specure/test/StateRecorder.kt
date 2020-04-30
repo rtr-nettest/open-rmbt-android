@@ -37,6 +37,7 @@ import org.json.JSONArray
 import timber.log.Timber
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
+import kotlin.RuntimeException
 import kotlin.math.floor
 
 class StateRecorder @Inject constructor(
@@ -170,7 +171,12 @@ class StateRecorder @Inject constructor(
             testRecord?.lastQoSStatus = TestStatus.WAIT
         }
 
-        if (loopUUID != null) {
+        if (config.loopModeEnabled && loopUUID == null) {
+            Timber.e("Loop uuid not obtained")
+            throw RuntimeException("Loop uuid not obtained")
+        }
+
+        if (config.loopModeEnabled && loopUUID != null) {
             if (_loopModeRecord == null) {
                 _loopModeRecord = LoopModeRecord(loopUUID)
                 repository.saveLoopMode(_loopModeRecord!!)
@@ -178,6 +184,7 @@ class StateRecorder @Inject constructor(
                 updateLoopModeRecord()
             }
         }
+
         testRecord?.loopModeTestOrder = loopTestCount
         repository.saveTest(testRecord!!)
     }

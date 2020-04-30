@@ -27,7 +27,7 @@ class ConfigCheckDialog : FullscreenDialog() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val values = arguments!!.getSerializable(KEY_VALUES) as HashMap<String, String>
+        val values = requireArguments().getSerializable(KEY_VALUES) as HashMap<String, String>
         val message = buildString {
             values.forEach {
                 append(it.key)

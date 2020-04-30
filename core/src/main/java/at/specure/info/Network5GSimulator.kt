@@ -41,7 +41,8 @@ object Network5GSimulator {
             isRegistered = info.isRegistered,
             isRoaming = isRoaming,
             apn = apn,
-            signalStrength = null
+            signalStrength = null,
+            dualSimDetectionMethod = null
         )
     }
 

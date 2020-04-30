@@ -36,6 +36,7 @@ import java.util.Collections
 import java.util.UUID
 
 private const val INVALID_SUBSCRIPTION_ID = -1
+private val DUAL_SIM_METHOD_API = "api_" + Build.VERSION.SDK_INT
 
 /**
  * Default implementation of [CellInfoWatcher] that is using to track Cellular network information
@@ -75,6 +76,8 @@ class CellInfoWatcherImpl(
             cellInfo ?: return
 
             val dataSimSubscriptionId = subscriptionManager.getCurrentDataSubscriptionId()
+            var dualSimDecisionLog = ""
+            var dualSimDecision = ""
 
             _activeNetwork = null
             if (dataSimSubscriptionId != INVALID_SUBSCRIPTION_ID) {
@@ -108,6 +111,9 @@ class CellInfoWatcherImpl(
                             _cellInfo = registeredInfoList[0]
                         } else {
                             // dual sim handling
+                            it.displayName
+                            dualSimDecision =
+                                "$DUAL_SIM_METHOD_API\nDATA_SIM: slotIndex: ${it.simSlotIndex} carrierName: ${it.carrierName} displayName: ${it.displayName}\n"
                             // we need to check which of the registered cells uses same type of the network as data sim
                             var dualSimRegistered = registeredInfoList.filter { cellInfo ->
                                 var sameNetworkType = false
@@ -145,6 +151,11 @@ class CellInfoWatcherImpl(
                                     }
                                 }
                             }
+                            val countAfterNetworkTypeFilter = dualSimRegistered.size
+                            if (registeredInfoList.size > dualSimRegistered.size) {
+                                dualSimDecisionLog += "DSD - filtered according to same network type from ${registeredInfoList.size} to $countAfterNetworkTypeFilter\n"
+                                dualSimDecision += "CELL_INFO: filtered according to: same network type from ${registeredInfoList.size} to $countAfterNetworkTypeFilter\n"
+                            }
                             // if there is still more than one we can try filter it according to network operator name
                             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
                                 if (dualSimRegistered.size > 1) {
@@ -169,9 +180,20 @@ class CellInfoWatcherImpl(
                                 }
                             }
 
+                            if (countAfterNetworkTypeFilter > dualSimRegistered.size) {
+                                dualSimDecisionLog += "DSD - filtered according to same network operator name as in data subscription info $countAfterNetworkTypeFilter to ${dualSimRegistered.size}\n"
+                                dualSimDecision += "CELL_INFO: filtered according to: same network operator name as in data subscription info $countAfterNetworkTypeFilter to ${dualSimRegistered.size}\n"
+                            }
+
                             if (dualSimRegistered.size == 1) {
                                 _cellInfo = dualSimRegistered[0]
+                                dualSimDecisionLog += "DSD - SUCCESS! \n Filtered this: \n\n$_cellInfo\n\n\n"
+                                dualSimDecision += "CELL_INFO: SUCCESS! $_cellInfo"
+                            } else {
+                                dualSimDecisionLog += "DSD - FAILED! \n Unable to select one data cell info!"
+                                dualSimDecision += "CELL_INFO: FAILED!"
                             }
+                            Timber.v(dualSimDecisionLog)
                         }
 
                         _activeNetwork = CellNetworkInfo.from(
@@ -180,7 +202,8 @@ class CellInfoWatcherImpl(
                             MobileNetworkType.fromValue(networkType),
                             true,
                             connectivityManager.activeNetworkInfo?.isRoaming ?: false,
-                            connectivityManager.activeNetworkInfo?.extraInfo
+                            connectivityManager.activeNetworkInfo?.extraInfo,
+                            if (subscriptions.size > 1) dualSimDecisionLog else null
                         )
                     }
                 }
@@ -193,7 +216,8 @@ class CellInfoWatcherImpl(
                     null,
                     _activeNetwork?.cellUUID == it.uuid(),
                     connectivityManager.activeNetworkInfo?.isRoaming ?: false,
-                    connectivityManager.activeNetworkInfo?.extraInfo
+                    connectivityManager.activeNetworkInfo?.extraInfo,
+                    dualSimDecision
                 )
                 _allCellInfo.add(info)
                 Timber.v("cell: ${info.networkType.displayName} ${info.mnc} ${info.mcc} ${info.cellUUID}")
@@ -312,7 +336,8 @@ private fun ConnectivityManager.cellNetworkInfoCompat(operatorName: String?): Ce
             isRegistered = true,
             isRoaming = info.isRoaming,
             apn = info.extraInfo,
-            signalStrength = null
+            signalStrength = null,
+            dualSimDetectionMethod = null
         )
     }
 }

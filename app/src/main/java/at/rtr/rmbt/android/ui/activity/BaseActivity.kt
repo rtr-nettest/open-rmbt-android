@@ -74,14 +74,14 @@ abstract class BaseActivity : AppCompatActivity() {
 
     protected fun setTransparentStatusBar() {
         window.addFlags(WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS)
-        window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+        window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN or View.SYSTEM_UI_FLAG_LAYOUT_STABLE
 
         ViewCompat.setOnApplyWindowInsetsListener(window.decorView) { v, insets ->
             when ((getSystemService(Context.WINDOW_SERVICE) as? WindowManager)?.defaultDisplay?.orientation) {
-                Surface.ROTATION_0 -> v.setPadding(0, 0, 0, v.paddingBottom + insets.systemWindowInsetBottom)
-                Surface.ROTATION_90 -> v.setPadding(0, 0, v.paddingRight + insets.systemWindowInsetRight, 0)
-                Surface.ROTATION_180 -> v.setPadding(0, v.paddingTop + insets.systemWindowInsetTop, 0, 0)
-                Surface.ROTATION_270 -> v.setPadding(v.paddingLeft + insets.systemWindowInsetLeft, 0, 0, 0)
+                Surface.ROTATION_0 -> v.setPadding(0, 0, 0, v.paddingBottom + insets.systemWindowInsetBottom / 2)
+                Surface.ROTATION_90 -> v.setPadding(0, 0, v.paddingRight + insets.systemWindowInsetRight / 2, 0)
+                Surface.ROTATION_180 -> v.setPadding(0, v.paddingTop + insets.systemWindowInsetTop / 2, 0, 0)
+                Surface.ROTATION_270 -> v.setPadding(v.paddingLeft + insets.systemWindowInsetLeft / 2, 0, 0, 0)
             }
             window.decorView.setBackgroundColor(Color.BLACK)
             insets
