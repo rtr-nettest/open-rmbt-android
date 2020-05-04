@@ -23,7 +23,6 @@ import timber.log.Timber
 class NotificationProviderImpl(private val context: Context) : NotificationProvider {
     private var measurementRunningNotification: NotificationCompat.Builder? = null
     private var loopCountdownNotification: NotificationCompat.Builder? = null
-    private val notificationBuilder = NotificationCompat.Builder(context, measurementChannelId())
 
     override fun measurementServiceNotification(
         progress: Int,
@@ -104,7 +103,7 @@ class NotificationProviderImpl(private val context: Context) : NotificationProvi
         loopCountdownNotification = null
         if (measurementRunningNotification == null) {
             Timber.d("Created measurement notification created")
-            measurementRunningNotification = notificationBuilder
+            measurementRunningNotification = NotificationCompat.Builder(context, measurementChannelId())
                 .extend(clearActionsNotificationExtender)
                 .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
                 .setPriority(NotificationCompat.PRIORITY_LOW)
@@ -155,7 +154,7 @@ class NotificationProviderImpl(private val context: Context) : NotificationProvi
 
         measurementRunningNotification = null
         if (loopCountdownNotification == null) {
-            loopCountdownNotification = notificationBuilder
+            loopCountdownNotification = NotificationCompat.Builder(context, measurementChannelId())
                 .extend(clearActionsNotificationExtender)
                 .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
                 .setPriority(NotificationCompat.PRIORITY_LOW)
@@ -177,7 +176,7 @@ class NotificationProviderImpl(private val context: Context) : NotificationProvi
         val actionIntent = PendingIntent.getService(context, 0, stopMeasurementIntent, 0)
         val action = NotificationCompat.Action.Builder(0, context.getString(R.string.text_stop_measurement), actionIntent).build()
 
-        return notificationBuilder
+        return NotificationCompat.Builder(context, measurementChannelId())
             .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
             .setPriority(NotificationCompat.PRIORITY_LOW)
             .setSmallIcon(R.drawable.ic_cloud_upload)
@@ -192,7 +191,7 @@ class NotificationProviderImpl(private val context: Context) : NotificationProvi
     override fun loopModeFinishedNotification(): Notification {
         val intent = PendingIntent.getActivity(context, 0, Intent(context, LoopFinishedActivity::class.java), 0)
 
-        return notificationBuilder
+        return NotificationCompat.Builder(context, measurementChannelId())
             .extend(clearActionsNotificationExtender)
             .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
             .setPriority(NotificationCompat.PRIORITY_LOW)
