@@ -21,7 +21,8 @@ import at.specure.measurement.MeasurementState
 import timber.log.Timber
 
 class NotificationProviderImpl(private val context: Context) : NotificationProvider {
-    private var measurementRunningNotification: Notification? = null
+    private var measurementRunningNotification: NotificationCompat.Builder? = null
+    private var loopCountdownNotification: NotificationCompat.Builder? = null
     private val notificationBuilder = NotificationCompat.Builder(context, measurementChannelId())
 
     override fun measurementServiceNotification(
@@ -33,14 +34,14 @@ class NotificationProviderImpl(private val context: Context) : NotificationProvi
         cancellationIntent: Intent
     ): Notification {
         return if (loopModeRecord == null) {
-            Timber.v("Created measurement notification no loop mode")
+            Timber.d("Created measurement notification no loop mode")
             createMeasurementNotification(progress, state, skipQoSTests, context.getString(R.string.notification_test_title), cancellationIntent)
         } else {
             if (loopModeRecord.status == LoopModeState.IDLE) {
-                Timber.v("Created measurement notification loop mode IDLE")
+                Timber.d("Created measurement notification loop mode IDLE")
                 createMeasurementNotification(progress, state, skipQoSTests, context.getString(R.string.notification_test_title), cancellationIntent)
             } else {
-                Timber.v("Created measurement notification loop mode TEST PROGRESS")
+                Timber.d("Created measurement notification loop mode TEST PROGRESS")
                 createMeasurementNotification(
                     progress,
                     state,
@@ -100,9 +101,9 @@ class NotificationProviderImpl(private val context: Context) : NotificationProvi
         val intent = PendingIntent.getActivity(context, 0, Intent(context, MeasurementActivity::class.java), 0)
         val actionIntent = PendingIntent.getService(context, 0, cancellationIntent, 0)
         val action = NotificationCompat.Action.Builder(0, context.getString(R.string.text_cancel_measurement), actionIntent).build()
-
+        loopCountdownNotification = null
         if (measurementRunningNotification == null) {
-            Timber.v("Created measurement notification created")
+            Timber.d("Created measurement notification created")
             measurementRunningNotification = notificationBuilder
                 .extend(clearActionsNotificationExtender)
                 .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
@@ -115,16 +116,13 @@ class NotificationProviderImpl(private val context: Context) : NotificationProvi
                 .setOngoing(true)
                 .setOnlyAlertOnce(true)
                 .setProgress(100, progressIntermediate.toInt(), false)
-                .build()!!
         } else {
-            Timber.v("Created measurement notification refreshed")
-            measurementRunningNotification = notificationBuilder
-                .setContentText(context.getString(textResource))
+            Timber.d("Created measurement notification refreshed")
+            measurementRunningNotification!!.setContentText(context.getString(textResource))
                 .setContentTitle(titleText)
                 .setProgress(100, progressIntermediate.toInt(), false)
-                .build()!!
         }
-        return measurementRunningNotification as Notification
+        return measurementRunningNotification?.build()!!
     }
 
     override fun loopCountDownNotification(
@@ -153,19 +151,25 @@ class NotificationProviderImpl(private val context: Context) : NotificationProvi
 
         val intent = PendingIntent.getActivity(context, 0, Intent(context, MeasurementActivity::class.java), 0)
         val actionIntent = PendingIntent.getService(context, 0, cancellationIntent, 0)
-        val action = NotificationCompat.Action.Builder(0, "2" + context.getString(R.string.text_cancel_measurement), actionIntent).build()
+        val action = NotificationCompat.Action.Builder(0, context.getString(R.string.text_cancel_measurement), actionIntent).build()
 
         measurementRunningNotification = null
-        return notificationBuilder
-            .extend(clearActionsNotificationExtender)
-            .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
-            .setPriority(NotificationCompat.PRIORITY_LOW)
-            .setSmallIcon(R.drawable.ic_notification)
-            .addAction(action)
-            .setContentText(text)
-            .setContentIntent(intent)
-            .setContentTitle(context.getString(R.string.notification_loop_mode_title_active))
-            .build()!!
+        if (loopCountdownNotification == null) {
+            loopCountdownNotification = notificationBuilder
+                .extend(clearActionsNotificationExtender)
+                .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
+                .setPriority(NotificationCompat.PRIORITY_LOW)
+                .setSmallIcon(R.drawable.ic_notification)
+                .addAction(action)
+                .setOngoing(true)
+                .setOnlyAlertOnce(true)
+                .setContentText(text)
+                .setContentIntent(intent)
+                .setContentTitle(context.getString(R.string.notification_loop_mode_title_active))
+        } else {
+            loopCountdownNotification!!.setContentText(text)
+        }
+        return loopCountdownNotification?.build()!!
     }
 
     override fun signalMeasurementService(stopMeasurementIntent: Intent): Notification {

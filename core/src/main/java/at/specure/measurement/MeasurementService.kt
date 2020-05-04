@@ -390,7 +390,7 @@ class MeasurementService : CustomLifecycleService() {
                                         location.accuracy < config.loopModeDistanceMeters
                             val distancePassed = stateRecorder.loopModeRecord?.movementDistanceMeters ?: 0
 
-                            Timber.v("Created measurement notification time remaining")
+                            Timber.d("Created measurement notification time remaining")
                             if (stateRecorder.loopModeRecord?.status == LoopModeState.IDLE) {
                                 val notification = notificationProvider.loopCountDownNotification(
                                     millisUntilFinished,
@@ -402,7 +402,7 @@ class MeasurementService : CustomLifecycleService() {
                                     locationAvailable
                                 )
                                 notificationManager.notify(NOTIFICATION_ID, notification)
-                                Timber.v("Created measurement notification time remaining")
+                                Timber.d("Created measurement notification time remaining IDLE state")
                             }
                             clientAggregator.onLoopCountDownTimer(loopDelayMs - millisUntilFinished, loopDelayMs)
                             clientAggregator.onLoopDistanceChanged(distancePassed, config.loopModeDistanceMeters, locationAvailable)
@@ -698,8 +698,7 @@ class MeasurementService : CustomLifecycleService() {
 
         private const val NOTIFICATION_ID = 1
         const val NOTIFICATION_LOOP_FINISHED_ID = 2
-        private const val NOTIFICATION_UPDATE_INTERVAL_MS = 500
-
+        private const val NOTIFICATION_UPDATE_INTERVAL_MS = 700
 
         private const val ACTION_START_TESTS = "KEY_START_TESTS"
         private const val ACTION_STOP_TESTS = "KEY_STOP_TESTS"
