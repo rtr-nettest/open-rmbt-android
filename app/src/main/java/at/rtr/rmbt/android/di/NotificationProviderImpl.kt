@@ -18,8 +18,11 @@ import at.specure.data.entity.LoopModeRecord
 import at.specure.data.entity.LoopModeState
 import at.specure.di.NotificationProvider
 import at.specure.measurement.MeasurementState
+import timber.log.Timber
 
 class NotificationProviderImpl(private val context: Context) : NotificationProvider {
+    private var measurementRunningNotification: Notification? = null
+    private val notificationBuilder = NotificationCompat.Builder(context, measurementChannelId())
 
     override fun measurementServiceNotification(
         progress: Int,
@@ -30,11 +33,14 @@ class NotificationProviderImpl(private val context: Context) : NotificationProvi
         cancellationIntent: Intent
     ): Notification {
         return if (loopModeRecord == null) {
+            Timber.v("Created measurement notification no loop mode")
             createMeasurementNotification(progress, state, skipQoSTests, context.getString(R.string.notification_test_title), cancellationIntent)
         } else {
             if (loopModeRecord.status == LoopModeState.IDLE) {
+                Timber.v("Created measurement notification loop mode IDLE")
                 createMeasurementNotification(progress, state, skipQoSTests, context.getString(R.string.notification_test_title), cancellationIntent)
             } else {
+                Timber.v("Created measurement notification loop mode TEST PROGRESS")
                 createMeasurementNotification(
                     progress,
                     state,
@@ -95,16 +101,30 @@ class NotificationProviderImpl(private val context: Context) : NotificationProvi
         val actionIntent = PendingIntent.getService(context, 0, cancellationIntent, 0)
         val action = NotificationCompat.Action.Builder(0, context.getString(R.string.text_cancel_measurement), actionIntent).build()
 
-        return NotificationCompat.Builder(context, measurementChannelId())
-            .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
-            .setPriority(NotificationCompat.PRIORITY_LOW)
-            .setSmallIcon(R.drawable.ic_notification)
-            .addAction(action)
-            .setContentText(context.getString(textResource))
-            .setContentIntent(intent)
-            .setContentTitle(titleText)
-            .setProgress(100, progressIntermediate.toInt(), false)
-            .build()!!
+        if (measurementRunningNotification == null) {
+            Timber.v("Created measurement notification created")
+            measurementRunningNotification = notificationBuilder
+                .extend(clearActionsNotificationExtender)
+                .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
+                .setPriority(NotificationCompat.PRIORITY_LOW)
+                .setSmallIcon(R.drawable.ic_notification)
+                .addAction(action)
+                .setContentText(context.getString(textResource))
+                .setContentIntent(intent)
+                .setContentTitle(titleText)
+                .setOngoing(true)
+                .setOnlyAlertOnce(true)
+                .setProgress(100, progressIntermediate.toInt(), false)
+                .build()!!
+        } else {
+            Timber.v("Created measurement notification refreshed")
+            measurementRunningNotification = notificationBuilder
+                .setContentText(context.getString(textResource))
+                .setContentTitle(titleText)
+                .setProgress(100, progressIntermediate.toInt(), false)
+                .build()!!
+        }
+        return measurementRunningNotification as Notification
     }
 
     override fun loopCountDownNotification(
@@ -133,9 +153,11 @@ class NotificationProviderImpl(private val context: Context) : NotificationProvi
 
         val intent = PendingIntent.getActivity(context, 0, Intent(context, MeasurementActivity::class.java), 0)
         val actionIntent = PendingIntent.getService(context, 0, cancellationIntent, 0)
-        val action = NotificationCompat.Action.Builder(0, context.getString(R.string.text_cancel_measurement), actionIntent).build()
+        val action = NotificationCompat.Action.Builder(0, "2" + context.getString(R.string.text_cancel_measurement), actionIntent).build()
 
-        return NotificationCompat.Builder(context, measurementChannelId())
+        measurementRunningNotification = null
+        return notificationBuilder
+            .extend(clearActionsNotificationExtender)
             .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
             .setPriority(NotificationCompat.PRIORITY_LOW)
             .setSmallIcon(R.drawable.ic_notification)
@@ -151,10 +173,11 @@ class NotificationProviderImpl(private val context: Context) : NotificationProvi
         val actionIntent = PendingIntent.getService(context, 0, stopMeasurementIntent, 0)
         val action = NotificationCompat.Action.Builder(0, context.getString(R.string.text_stop_measurement), actionIntent).build()
 
-        return NotificationCompat.Builder(context, measurementChannelId())
+        return notificationBuilder
             .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
             .setPriority(NotificationCompat.PRIORITY_LOW)
             .setSmallIcon(R.drawable.ic_cloud_upload)
+            .extend(clearActionsNotificationExtender)
             .addAction(action)
             .setContentText(context.getString(R.string.notification_signal_test_text))
             .setContentIntent(intent)
@@ -164,12 +187,19 @@ class NotificationProviderImpl(private val context: Context) : NotificationProvi
 
     override fun loopModeFinishedNotification(): Notification {
         val intent = PendingIntent.getActivity(context, 0, Intent(context, LoopFinishedActivity::class.java), 0)
-        return NotificationCompat.Builder(context, measurementChannelId())
+
+        return notificationBuilder
+            .extend(clearActionsNotificationExtender)
             .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
             .setPriority(NotificationCompat.PRIORITY_LOW)
             .setSmallIcon(R.drawable.ic_notification)
             .setContentIntent(intent)
             .setContentTitle(context.getString(R.string.notification_loop_mode_finished_title))
             .build()!!
+    }
+
+    private val clearActionsNotificationExtender = NotificationCompat.Extender { notificationBuilder ->
+        notificationBuilder.mActions.clear()
+        notificationBuilder
     }
 }

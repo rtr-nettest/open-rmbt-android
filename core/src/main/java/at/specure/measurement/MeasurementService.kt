@@ -1,5 +1,6 @@
 package at.specure.measurement
 
+import android.app.Notification
 import android.app.NotificationManager
 import android.content.ComponentName
 import android.content.Context
@@ -22,6 +23,7 @@ import at.rmbt.util.exception.NoConnectionException
 import at.rtr.rmbt.client.v2.task.result.QoSTestResultEnum
 import at.rtr.rmbt.util.IllegalNetworkChangeException
 import at.specure.config.Config
+import at.specure.data.entity.LoopModeState
 import at.specure.data.repository.ResultsRepository
 import at.specure.data.repository.TestDataRepository
 import at.specure.di.CoreInjector
@@ -42,6 +44,9 @@ import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
 class MeasurementService : CustomLifecycleService() {
+
+    private var elapsedTime: Long = 0
+    private var startTime: Long = 0
 
     @Inject
     lateinit var config: Config
@@ -115,8 +120,7 @@ class MeasurementService : CustomLifecycleService() {
             clientAggregator.onProgressChanged(state, progress)
 
             if (state != MeasurementState.QOS) {
-                notificationManager.notify(
-                    NOTIFICATION_ID,
+                notifyDelayed(
                     notificationProvider.measurementServiceNotification(
                         progress,
                         state,
@@ -127,6 +131,22 @@ class MeasurementService : CustomLifecycleService() {
                     )
                 )
             }
+        }
+
+        /**
+         * This methods solves problem with changing notification too often (then it is problem to click on the button in the notification)
+         */
+        fun notifyDelayed(notification: Notification) {
+            if (elapsedTime > NOTIFICATION_UPDATE_INTERVAL_MS) {
+                Handler(Looper.getMainLooper()).post(Runnable {
+                    notificationManager.notify(
+                        NOTIFICATION_ID,
+                        notification
+                    )
+                    startTime = System.currentTimeMillis()
+                    elapsedTime = 0
+                })
+            } else elapsedTime = System.currentTimeMillis() - startTime
         }
 
         override fun onPingChanged(pingNanos: Long) {
@@ -194,17 +214,17 @@ class MeasurementService : CustomLifecycleService() {
                 }
             }
 
-            Timber.e("TEST ERROR HANDLING")
+            Timber.d("TEST ERROR HANDLING")
 
             if (startPendingTest) {
-                Timber.e("TEST ERROR HANDLING - PENDING")
+                Timber.d("TEST ERROR HANDLING - PENDING")
                 runner.reset()
                 runTest()
             } else {
-                Timber.e("TEST ERROR HANDLING - NOT PENDING")
+                Timber.d("TEST ERROR HANDLING - NOT PENDING")
                 if (!config.loopModeEnabled || (config.loopModeEnabled && (stateRecorder.loopTestCount >= config.loopModeNumberOfTests))) {
                     loopCountdownTimer?.cancel()
-                    Timber.e("TEST ERROR HANDLING - NOT PENDING LOOP DISABLED")
+                    Timber.d("TEST ERROR HANDLING - NOT PENDING LOOP DISABLED")
                     if (config.loopModeEnabled) {
                         notificationManager.notify(NOTIFICATION_LOOP_FINISHED_ID, notificationProvider.loopModeFinishedNotification())
                     }
@@ -250,8 +270,7 @@ class MeasurementService : CustomLifecycleService() {
 
             val progress = (tasksPassed / tasksTotal.toFloat()) * 100
 
-            notificationManager.notify(
-                NOTIFICATION_ID,
+            notifyDelayed(
                 notificationProvider.measurementServiceNotification(
                     progress.toInt(),
                     MeasurementState.QOS,
@@ -370,16 +389,21 @@ class MeasurementService : CustomLifecycleService() {
                                         location != null &&
                                         location.accuracy < config.loopModeDistanceMeters
                             val distancePassed = stateRecorder.loopModeRecord?.movementDistanceMeters ?: 0
-                            val notification = notificationProvider.loopCountDownNotification(
-                                millisUntilFinished,
-                                distancePassed,
-                                config.loopModeDistanceMeters,
-                                stateRecorder.loopTestCount,
-                                config.loopModeNumberOfTests,
-                                stopTestsIntent(this@MeasurementService),
-                                locationAvailable
-                            )
-                            notificationManager.notify(NOTIFICATION_ID, notification)
+
+                            Timber.v("Created measurement notification time remaining")
+                            if (stateRecorder.loopModeRecord?.status == LoopModeState.IDLE) {
+                                val notification = notificationProvider.loopCountDownNotification(
+                                    millisUntilFinished,
+                                    distancePassed,
+                                    config.loopModeDistanceMeters,
+                                    stateRecorder.loopTestCount,
+                                    config.loopModeNumberOfTests,
+                                    stopTestsIntent(this@MeasurementService),
+                                    locationAvailable
+                                )
+                                notificationManager.notify(NOTIFICATION_ID, notification)
+                                Timber.v("Created measurement notification time remaining")
+                            }
                             clientAggregator.onLoopCountDownTimer(loopDelayMs - millisUntilFinished, loopDelayMs)
                             clientAggregator.onLoopDistanceChanged(distancePassed, config.loopModeDistanceMeters, locationAvailable)
                         }
@@ -674,6 +698,8 @@ class MeasurementService : CustomLifecycleService() {
 
         private const val NOTIFICATION_ID = 1
         const val NOTIFICATION_LOOP_FINISHED_ID = 2
+        private const val NOTIFICATION_UPDATE_INTERVAL_MS = 500
+
 
         private const val ACTION_START_TESTS = "KEY_START_TESTS"
         private const val ACTION_STOP_TESTS = "KEY_STOP_TESTS"
