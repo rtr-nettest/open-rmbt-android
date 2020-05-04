@@ -57,14 +57,7 @@ class MeasurementActivity : BaseActivity(), SimpleDialog.Callback {
         binding.buttonCancel.setOnClickListener { onCrossIconClicked() }
 
         viewModel.measurementFinishLiveData.listen(this) {
-            finish()
-            if (viewModel.state.isLoopModeActive.get()) {
-                LoopFinishedActivity.start(this)
-            } else {
-                if (it) {
-                    ResultsActivity.start(this, viewModel.testUUID)
-                }
-            }
+            finishActivity(it)
         }
 
         viewModel.measurementErrorLiveData.listen(this) {
@@ -125,6 +118,17 @@ class MeasurementActivity : BaseActivity(), SimpleDialog.Callback {
         viewModel.qosProgressLiveData.value?.let { binding.root.measurementBottomView.qosProgressContainer.update(it) }
     }
 
+    private fun finishActivity(measurementFinished: Boolean) {
+        finish()
+        if (viewModel.state.isLoopModeActive.get()) {
+            LoopFinishedActivity.start(this)
+        } else {
+            if (measurementFinished) {
+                ResultsActivity.start(this, viewModel.testUUID)
+            }
+        }
+    }
+
     private fun onLoopRecordChanged(loopRecord: LoopModeRecord?) {
         Timber.d(
             "TestPerformed: ${loopRecord?.testsPerformed} \nloop mode status: ${loopRecord?.status} \nviewModel: ${viewModel.state.measurementState.get()}"
@@ -176,6 +180,13 @@ class MeasurementActivity : BaseActivity(), SimpleDialog.Callback {
 
     override fun onBackPressed() {
         onCrossIconClicked()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        if (viewModel.measurementFinishLiveData.value == true) {
+            finishActivity(true)
+        }
     }
 
     private fun onCrossIconClicked() {

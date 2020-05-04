@@ -12,6 +12,7 @@ import at.rtr.rmbt.android.BuildConfig
 import at.rtr.rmbt.android.R
 import at.rtr.rmbt.android.ui.activity.HomeActivity
 import at.rtr.rmbt.android.ui.activity.LoopFinishedActivity
+import at.rtr.rmbt.android.ui.activity.MeasurementActivity
 import at.rtr.rmbt.android.util.timeString
 import at.specure.data.entity.LoopModeRecord
 import at.specure.data.entity.LoopModeState
@@ -90,7 +91,7 @@ class NotificationProviderImpl(private val context: Context) : NotificationProvi
         val totalProgress = if (skipQoSTests) 400 else 500
         val progressIntermediate = ((stateProgress + progress) / totalProgress.toFloat()) * 100
 
-        val intent = PendingIntent.getActivity(context, 0, Intent(context, HomeActivity::class.java), 0)
+        val intent = PendingIntent.getActivity(context, 0, Intent(context, MeasurementActivity::class.java), 0)
         val actionIntent = PendingIntent.getService(context, 0, cancellationIntent, 0)
         val action = NotificationCompat.Action.Builder(0, context.getString(R.string.text_cancel_measurement), actionIntent).build()
 
@@ -130,7 +131,7 @@ class NotificationProviderImpl(private val context: Context) : NotificationProvi
             testsCount
         )
 
-        val intent = PendingIntent.getActivity(context, 0, Intent(context, HomeActivity::class.java), 0)
+        val intent = PendingIntent.getActivity(context, 0, Intent(context, MeasurementActivity::class.java), 0)
         val actionIntent = PendingIntent.getService(context, 0, cancellationIntent, 0)
         val action = NotificationCompat.Action.Builder(0, context.getString(R.string.text_cancel_measurement), actionIntent).build()
 

@@ -15,6 +15,7 @@ import at.rtr.rmbt.client.v2.task.result.QoSTestResultEnum
 import at.specure.data.TermsAndConditions
 import at.specure.data.entity.GraphItemRecord
 import at.specure.data.entity.LoopModeRecord
+import at.specure.data.entity.LoopModeState
 import at.specure.data.repository.TestDataRepository
 import at.specure.info.network.ActiveNetworkLiveData
 import at.specure.info.strength.SignalStrengthLiveData
@@ -118,6 +119,18 @@ class MeasurementViewModel @Inject constructor(
                 Timber.i("Ping value from: ${it.pingNanos}")
             }
         }
+
+        override fun onNullBinding(name: ComponentName?) {
+            super.onNullBinding(name)
+            Timber.d("Measurement binding null")
+            _measurementFinishLiveData.value = true
+        }
+
+        override fun onBindingDied(name: ComponentName?) {
+            super.onBindingDied(name)
+            Timber.d("Measurement binding died")
+            _measurementFinishLiveData.value = true
+        }
     }
 
     init {
@@ -125,7 +138,11 @@ class MeasurementViewModel @Inject constructor(
     }
 
     fun attach(context: Context) {
-        context.bindService(MeasurementService.intent(context), serviceConnection, Context.BIND_AUTO_CREATE)
+        val bound = context.bindService(MeasurementService.intent(context), serviceConnection, Context.BIND_AUTO_CREATE)
+        Timber.d("Measurement binding success: $bound")
+        if (!bound) {
+            _measurementFinishLiveData.value = true
+        }
     }
 
     fun detach(context: Context) {
@@ -228,6 +245,9 @@ class MeasurementViewModel @Inject constructor(
             loopProgressLiveData = testDataRepository.getLoopMode(loopUUID)
             _loopUUIDLiveData.postValue(loopUUID)
             this.state.loopUUID.set(loopUUID)
+            if (loopProgressLiveData.value?.status == LoopModeState.IDLE) {
+                _measurementFinishLiveData.value = true
+            }
         }
     }
 
