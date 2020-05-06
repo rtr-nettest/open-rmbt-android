@@ -20,7 +20,8 @@ data class LoopModeRecord(
 enum class LoopModeState(val valueInt: Int) {
 
     IDLE(0),
-    RUNNING(1);
+    RUNNING(1),
+    FINISHED(2);
 
     companion object {
 

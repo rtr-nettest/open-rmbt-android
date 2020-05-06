@@ -45,6 +45,7 @@ import javax.inject.Inject
 
 class MeasurementService : CustomLifecycleService() {
 
+    private var lastNotifiedState: MeasurementState = MeasurementState.FINISH
     private var elapsedTime: Long = 0
     private var startTime: Long = 0
 
@@ -77,6 +78,7 @@ class MeasurementService : CustomLifecycleService() {
     private var signalMeasurementProducer: SignalMeasurementProducer? = null
     private var signalMeasurementPauseRequired = false
     private var measurementState: MeasurementState = MeasurementState.IDLE
+    private var loopModeState: LoopModeState = LoopModeState.IDLE
 
     private var measurementProgress = 0
     private var pingNanos = 0L
@@ -88,7 +90,6 @@ class MeasurementService : CustomLifecycleService() {
 
     private var qosTasksTotal = 0
     private var qosProgressMap: Map<QoSTestResultEnum, Int> = mapOf()
-    private var isLoopModeRunning = false
     private val notificationManager: NotificationManager by lazy { getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager }
 
     private lateinit var wakeLock: PowerManager.WakeLock
@@ -128,7 +129,9 @@ class MeasurementService : CustomLifecycleService() {
                         stateRecorder.loopModeRecord,
                         config.loopModeNumberOfTests,
                         stopTestsIntent(this@MeasurementService)
-                    )
+                    ),
+                    state,
+                    false
                 )
             }
         }
@@ -136,13 +139,15 @@ class MeasurementService : CustomLifecycleService() {
         /**
          * This methods solves problem with changing notification too often (then it is problem to click on the button in the notification)
          */
-        fun notifyDelayed(notification: Notification) {
-            if (elapsedTime > NOTIFICATION_UPDATE_INTERVAL_MS) {
+        fun notifyDelayed(notification: Notification, state: MeasurementState, forceUpdate: Boolean) {
+
+            if (elapsedTime > NOTIFICATION_UPDATE_INTERVAL_MS || lastNotifiedState != state || forceUpdate) {
                 Handler(Looper.getMainLooper()).post(Runnable {
                     notificationManager.notify(
                         NOTIFICATION_ID,
                         notification
                     )
+                    lastNotifiedState = state
                     startTime = System.currentTimeMillis()
                     elapsedTime = 0
                 })
@@ -181,7 +186,7 @@ class MeasurementService : CustomLifecycleService() {
                         notificationManager.notify(NOTIFICATION_LOOP_FINISHED_ID, notificationProvider.loopModeFinishedNotification())
                     }
                     stopForeground(true)
-                    isLoopModeRunning = false
+                    loopModeState = LoopModeState.FINISHED
                     stateRecorder.finish()
                     unlock()
                 }
@@ -208,8 +213,8 @@ class MeasurementService : CustomLifecycleService() {
                     hasErrors = true
                     clientAggregator.onMeasurementError()
                     stateRecorder.finish()
-                    isLoopModeRunning = false
                     unlock()
+                    loopModeState = LoopModeState.FINISHED
                     stopForeground(true)
                 }
             }
@@ -231,7 +236,7 @@ class MeasurementService : CustomLifecycleService() {
                     hasErrors = true
                     clientAggregator.onMeasurementError()
                     stateRecorder.finish()
-                    isLoopModeRunning = false
+                    loopModeState = LoopModeState.FINISHED
                     unlock()
                     stopForeground(true)
                 }
@@ -278,7 +283,7 @@ class MeasurementService : CustomLifecycleService() {
                     stateRecorder.loopModeRecord,
                     config.loopModeNumberOfTests,
                     stopTestsIntent(this@MeasurementService)
-                )
+                ), MeasurementState.QOS, false
             )
         }
     }
@@ -354,7 +359,12 @@ class MeasurementService : CustomLifecycleService() {
     private fun startTests() {
         Timber.d("Start tests")
         stateRecorder.resetLoopMode()
-        isLoopModeRunning = config.loopModeEnabled
+        loopModeState = if (config.loopModeEnabled) {
+            LoopModeState.RUNNING
+        } else {
+            LoopModeState.IDLE
+        }
+        measurementState = MeasurementState.INIT
 
         attachToForeground()
         lock()
@@ -481,7 +491,7 @@ class MeasurementService : CustomLifecycleService() {
 
     private fun stopTests() {
         Timber.d("Stop tests")
-        isLoopModeRunning = false
+        loopModeState = LoopModeState.FINISHED
         runner.stop()
         loopCountdownTimer?.cancel()
         config.previousTestStatus = TestFinishReason.ABORTED.name // cannot be handled in TestController
@@ -569,8 +579,11 @@ class MeasurementService : CustomLifecycleService() {
         override val pingNanos: Long
             get() = this@MeasurementService.pingNanos
 
+        override val loopModeState: LoopModeState
+            get() = this@MeasurementService.loopModeState
+
         override val isTestsRunning: Boolean
-            get() = runner.isRunning || isLoopModeRunning
+            get() = runner.isRunning || loopModeState != LoopModeState.FINISHED || measurementState == MeasurementState.INIT
 
         override val testUUID: String?
             get() = runner.testUUID

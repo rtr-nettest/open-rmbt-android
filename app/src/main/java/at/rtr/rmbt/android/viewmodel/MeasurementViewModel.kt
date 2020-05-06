@@ -99,12 +99,6 @@ class MeasurementViewModel @Inject constructor(
 
         override fun onServiceConnected(componentName: ComponentName?, binder: IBinder?) {
             producer = binder as MeasurementProducer?
-            Timber.i("On service connected ${producer?.isTestsRunning}")
-
-            _isTestsRunningLiveData.postValue(producer?.isTestsRunning ?: false)
-
-            val loopUuid = producer?.loopUUID
-            initializeLoopData(loopUuid)
 
             producer?.let {
                 it.addClient(this@MeasurementViewModel)
@@ -116,20 +110,28 @@ class MeasurementViewModel @Inject constructor(
                     downloadSpeedBps.set(it.downloadSpeedBps)
                     uploadSpeedBps.set(it.uploadSpeedBps)
                 }
-                Timber.i("Ping value from: ${it.pingNanos}")
+                Timber.d("Ping value from: ${it.pingNanos}")
             }
+            Timber.d("On service connected:\n test running:  ${producer?.isTestsRunning} \n measurement state:  ${producer?.measurementState} \n loop state: ${producer?.loopModeState} \nloop uuid: ${producer?.loopUUID} \n")
+
+            val finished =
+                producer?.isTestsRunning == false || (config.loopModeEnabled && producer?.measurementState == MeasurementState.IDLE && ((producer?.loopModeState == LoopModeState.IDLE && producer?.loopUUID == null) || producer?.loopModeState == LoopModeState.FINISHED))
+            Timber.d("FINISHED?: $finished")
+            _measurementFinishLiveData.postValue(finished)
+            val loopUuid = producer?.loopUUID
+            initializeLoopData(loopUuid)
         }
 
         override fun onNullBinding(name: ComponentName?) {
             super.onNullBinding(name)
             Timber.d("Measurement binding null")
-            _measurementFinishLiveData.value = true
+            _measurementFinishLiveData.postValue(true)
         }
 
         override fun onBindingDied(name: ComponentName?) {
             super.onBindingDied(name)
             Timber.d("Measurement binding died")
-            _measurementFinishLiveData.value = true
+            _measurementFinishLiveData.postValue(true)
         }
     }
 
@@ -141,7 +143,7 @@ class MeasurementViewModel @Inject constructor(
         val bound = context.bindService(MeasurementService.intent(context), serviceConnection, Context.BIND_AUTO_CREATE)
         Timber.d("Measurement binding success: $bound")
         if (!bound) {
-            _measurementFinishLiveData.value = true
+            _measurementFinishLiveData.postValue(true)
         }
     }
 
@@ -227,8 +229,6 @@ class MeasurementViewModel @Inject constructor(
 
         this.testUUID = testUUID
 
-        initializeLoopData(loopUUID)
-
         Timber.d("loopUUID: $loopUUID")
 
         testDataRepository.getDownloadGraphItemsLiveData(testUUID) {
@@ -242,12 +242,10 @@ class MeasurementViewModel @Inject constructor(
 
     private fun initializeLoopData(loopUUID: String?) {
         if (loopUUID != null) {
+            Timber.d("Loop UUID not null")
             loopProgressLiveData = testDataRepository.getLoopMode(loopUUID)
             _loopUUIDLiveData.postValue(loopUUID)
             this.state.loopUUID.set(loopUUID)
-            if (loopProgressLiveData.value?.status == LoopModeState.IDLE) {
-                _measurementFinishLiveData.value = true
-            }
         }
     }
 
