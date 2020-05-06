@@ -29,6 +29,8 @@ import at.rtr.rmbt.android.util.KeepStateNavigator
 import at.rtr.rmbt.android.util.listen
 import at.rtr.rmbt.android.viewmodel.ConfigCheckViewModel
 import at.rtr.rmbt.android.viewmodel.MeasurementViewModel
+import at.specure.data.entity.LoopModeState
+import timber.log.Timber
 
 class HomeActivity : BaseActivity() {
 
@@ -54,6 +56,14 @@ class HomeActivity : BaseActivity() {
         viewModel.isTestsRunningLiveData.listen(this) { isRunning ->
             if (isRunning) {
                 MeasurementActivity.start(this)
+            } else {
+                if (viewModel.config.loopModeEnabled) {
+                    Timber.d("MeasurementViewModel: home activity, loop mode state: ${viewModel.state.loopState.get()}")
+                    if (viewModel.state.loopState.get() == LoopModeState.FINISHED && viewModel.measurementResultsShownLiveData.value == false) {
+                        viewModel.setMeasurementResultsShown()
+                        LoopFinishedActivity.start(this)
+                    }
+                }
             }
         }
 

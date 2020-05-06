@@ -120,7 +120,8 @@ class MeasurementService : CustomLifecycleService() {
             measurementProgress = progress
             clientAggregator.onProgressChanged(state, progress)
 
-            if (state != MeasurementState.QOS) {
+            if ((state != MeasurementState.QOS) && (state != MeasurementState.IDLE) && (state != MeasurementState.FINISH)) {
+                Timber.d("MeasurementViewModel: Progress changed notification state: $state")
                 notifyDelayed(
                     notificationProvider.measurementServiceNotification(
                         progress,
@@ -172,6 +173,7 @@ class MeasurementService : CustomLifecycleService() {
         }
 
         override fun onFinish() {
+            notificationManager.cancel(NOTIFICATION_ID)
             resumeSignalMeasurement()
 
             stateRecorder.onLoopTestFinished()
@@ -231,6 +233,7 @@ class MeasurementService : CustomLifecycleService() {
                     loopCountdownTimer?.cancel()
                     Timber.d("TEST ERROR HANDLING - NOT PENDING LOOP DISABLED")
                     if (config.loopModeEnabled) {
+                        notificationManager.cancel(NOTIFICATION_ID)
                         notificationManager.notify(NOTIFICATION_LOOP_FINISHED_ID, notificationProvider.loopModeFinishedNotification())
                     }
                     hasErrors = true
@@ -274,7 +277,7 @@ class MeasurementService : CustomLifecycleService() {
             qosProgressMap = progressMap
 
             val progress = (tasksPassed / tasksTotal.toFloat()) * 100
-
+            Timber.d("MeasurementViewModel: QOS progress changed notification")
             notifyDelayed(
                 notificationProvider.measurementServiceNotification(
                     progress.toInt(),
@@ -328,6 +331,7 @@ class MeasurementService : CustomLifecycleService() {
 
     @Suppress("UNNECESSARY_SAFE_CALL")
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        Timber.d("MeasurementViewModel: Service: onStartCommand ${intent?.action}")
         if (intent != null) {
             attachToForeground()
             when (intent?.action) {
@@ -476,6 +480,7 @@ class MeasurementService : CustomLifecycleService() {
     }
 
     private fun attachToForeground() {
+        Timber.d("MeasurementViewModel: Attached to foreground notification")
         startForeground(
             NOTIFICATION_ID,
             notificationProvider.measurementServiceNotification(
@@ -583,7 +588,9 @@ class MeasurementService : CustomLifecycleService() {
             get() = this@MeasurementService.loopModeState
 
         override val isTestsRunning: Boolean
-            get() = runner.isRunning || loopModeState != LoopModeState.FINISHED || measurementState == MeasurementState.INIT
+            get() = !((!config.loopModeEnabled && producer.measurementState != MeasurementState.IDLE && producer.measurementState != MeasurementState.ERROR && producer.measurementState != MeasurementState.FINISH)
+                    || (config.loopModeEnabled && /*(producer.measurementState == MeasurementState.IDLE || producer.measurementState == MeasurementState.FINISH) &&*/ ((producer.loopModeState == LoopModeState.IDLE && producer.loopUUID == null) || producer.loopModeState == LoopModeState.FINISHED)))
+        // commented part because of when loop mode is finished...it is finished, no matter state of the measurement itself
 
         override val testUUID: String?
             get() = runner.testUUID
