@@ -15,6 +15,7 @@ import at.rtr.rmbt.client.v2.task.result.QoSTestResultEnum
 import at.specure.data.TermsAndConditions
 import at.specure.data.entity.GraphItemRecord
 import at.specure.data.entity.LoopModeRecord
+import at.specure.data.entity.LoopModeState
 import at.specure.data.repository.TestDataRepository
 import at.specure.info.network.ActiveNetworkLiveData
 import at.specure.info.strength.SignalStrengthLiveData
@@ -37,7 +38,8 @@ class MeasurementViewModel @Inject constructor(
 ) : BaseViewModel(), MeasurementClient {
 
     private val _measurementFinishLiveData = MutableLiveData<Boolean>()
-    private val _measurementResultShownLiveData = MutableLiveData<Boolean>()
+
+    //    private val _measurementResultShownLiveData = MutableLiveData<Boolean>()
     private val _isTestsRunningLiveData = MutableLiveData<Boolean>()
     private val _measurementErrorLiveData = MutableLiveData<Boolean>()
     private val _downloadGraphLiveData = MutableLiveData<List<GraphItemRecord>>()
@@ -69,8 +71,8 @@ class MeasurementViewModel @Inject constructor(
     val measurementFinishLiveData: LiveData<Boolean>
         get() = _measurementFinishLiveData
 
-    val measurementResultsShownLiveData: LiveData<Boolean>
-        get() = _measurementResultShownLiveData
+//    val measurementResultsShownLiveData: LiveData<Boolean>
+//        get() = _measurementResultShownLiveData
 
     val isTestsRunningLiveData: LiveData<Boolean>
         get() = _isTestsRunningLiveData
@@ -199,12 +201,12 @@ class MeasurementViewModel @Inject constructor(
         }
     }
 
-    fun setMeasurementResultsShown() {
-        _measurementResultShownLiveData.value = true
-    }
+//    fun setMeasurementResultsShown() {
+//        _measurementResultShownLiveData.value = true
+//    }
 
     override fun onPingChanged(pingNanos: Long) {
-        _measurementResultShownLiveData.value = false
+//        _measurementResultShownLiveData.value = false
         Timber.i("Ping value from: $pingNanos")
         state.pingNanos.set(pingNanos)
     }

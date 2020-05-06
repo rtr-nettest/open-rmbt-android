@@ -123,10 +123,10 @@ class MeasurementActivity : BaseActivity(), SimpleDialog.Callback {
         if (measurementFinished) {
             finish()
             if (viewModel.state.isLoopModeActive.get()) {
-                viewModel.setMeasurementResultsShown()
+//                viewModel.setMeasurementResultsShown()
                 LoopFinishedActivity.start(this)
             } else {
-                viewModel.setMeasurementResultsShown()
+//                viewModel.setMeasurementResultsShown()
                 ResultsActivity.start(this, viewModel.testUUID)
             }
         }
