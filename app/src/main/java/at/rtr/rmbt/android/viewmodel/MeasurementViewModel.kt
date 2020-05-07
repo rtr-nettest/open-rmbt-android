@@ -15,7 +15,6 @@ import at.rtr.rmbt.client.v2.task.result.QoSTestResultEnum
 import at.specure.data.TermsAndConditions
 import at.specure.data.entity.GraphItemRecord
 import at.specure.data.entity.LoopModeRecord
-import at.specure.data.entity.LoopModeState
 import at.specure.data.repository.TestDataRepository
 import at.specure.info.network.ActiveNetworkLiveData
 import at.specure.info.strength.SignalStrengthLiveData
@@ -39,7 +38,6 @@ class MeasurementViewModel @Inject constructor(
 
     private val _measurementFinishLiveData = MutableLiveData<Boolean>()
 
-    //    private val _measurementResultShownLiveData = MutableLiveData<Boolean>()
     private val _isTestsRunningLiveData = MutableLiveData<Boolean>()
     private val _measurementErrorLiveData = MutableLiveData<Boolean>()
     private val _downloadGraphLiveData = MutableLiveData<List<GraphItemRecord>>()
@@ -70,9 +68,6 @@ class MeasurementViewModel @Inject constructor(
 
     val measurementFinishLiveData: LiveData<Boolean>
         get() = _measurementFinishLiveData
-
-//    val measurementResultsShownLiveData: LiveData<Boolean>
-//        get() = _measurementResultShownLiveData
 
     val isTestsRunningLiveData: LiveData<Boolean>
         get() = _isTestsRunningLiveData
@@ -121,8 +116,6 @@ class MeasurementViewModel @Inject constructor(
             Timber.d("On service connected:\n test running:  ${producer?.isTestsRunning} \n measurement state:  ${producer?.measurementState} \n loop state: ${producer?.loopModeState} \nloop uuid: ${producer?.loopUUID} \n")
 
             val finished = producer?.isTestsRunning != true
-//          val finished = ((!config.loopModeEnabled && producer?.measurementState != MeasurementState.IDLE && producer?.measurementState != MeasurementState.ERROR && producer?.measurementState != MeasurementState.FINISH)
-//                        || (config.loopModeEnabled && producer?.measurementState == MeasurementState.IDLE && ((producer?.loopModeState == LoopModeState.IDLE && producer?.loopUUID == null) || producer?.loopModeState == LoopModeState.FINISHED)))
             Timber.d("FINISHED?: $finished")
             _isTestsRunningLiveData.postValue(!finished) // to notify new opened home activity
             _measurementFinishLiveData.postValue(finished) // to notify recreated measurement activity to show results

@@ -146,7 +146,7 @@ class MeasurementService : CustomLifecycleService() {
         fun notifyDelayed(notification: Notification, state: MeasurementState, forceUpdate: Boolean) {
 
             if (elapsedTime > NOTIFICATION_UPDATE_INTERVAL_MS || lastNotifiedState != state || forceUpdate) {
-                Handler(Looper.getMainLooper()).post(Runnable {
+                Handler(Looper.getMainLooper()).post {
                     notificationManager.notify(
                         NOTIFICATION_ID,
                         notification
@@ -154,7 +154,7 @@ class MeasurementService : CustomLifecycleService() {
                     lastNotifiedState = state
                     startTime = System.currentTimeMillis()
                     elapsedTime = 0
-                })
+                }
             } else elapsedTime = System.currentTimeMillis() - startTime
         }
 
@@ -507,7 +507,7 @@ class MeasurementService : CustomLifecycleService() {
         if (config.loopModeEnabled) {
             notificationManager.cancel(NOTIFICATION_ID)
         } else {
-            notificationManager.cancelAll() //stop foreground does not hide notification about test running during loop mode sometimes
+            notificationManager.cancelAll() // stop foreground does not hide notification about test running during loop mode sometimes
         }
         loopModeState = LoopModeState.FINISHED
         runner.stop()
@@ -605,9 +605,7 @@ class MeasurementService : CustomLifecycleService() {
             get() = this@MeasurementService.loopModeState
 
         override val isTestsRunning: Boolean
-            get() = !((!config.loopModeEnabled && (this.measurementState == MeasurementState.IDLE || this.measurementState == MeasurementState.ERROR || this.measurementState == MeasurementState.FINISH))
-                    || (config.loopModeEnabled && /*(this.measurementState == MeasurementState.IDLE || this.measurementState == MeasurementState.FINISH) &&*/ ((this.loopModeState == LoopModeState.IDLE && this.loopUUID == null) || this.loopModeState == LoopModeState.FINISHED)))
-        // commented part because of when loop mode is finished...it is finished, no matter state of the measurement itself
+            get() = !((!config.loopModeEnabled && (this.measurementState == MeasurementState.IDLE || this.measurementState == MeasurementState.ERROR || this.measurementState == MeasurementState.FINISH)) || (config.loopModeEnabled && ((this.loopModeState == LoopModeState.IDLE && this.loopUUID == null) || this.loopModeState == LoopModeState.FINISHED)))
 
         override val testUUID: String?
             get() = runner.testUUID
