@@ -118,6 +118,9 @@ class MeasurementService : CustomLifecycleService() {
         override fun onProgressChanged(state: MeasurementState, progress: Int) {
             measurementState = state
             measurementProgress = progress
+            if (config.loopModeEnabled) {
+                loopModeState = LoopModeState.RUNNING
+            }
             clientAggregator.onProgressChanged(state, progress)
 
             if ((state != MeasurementState.QOS) && (state != MeasurementState.IDLE) && (state != MeasurementState.FINISH)) {
@@ -186,9 +189,9 @@ class MeasurementService : CustomLifecycleService() {
 
                     if (config.loopModeEnabled) {
                         notificationManager.notify(NOTIFICATION_LOOP_FINISHED_ID, notificationProvider.loopModeFinishedNotification())
+                        loopModeState = LoopModeState.FINISHED
                     }
                     stopForeground(true)
-                    loopModeState = LoopModeState.FINISHED
                     stateRecorder.finish()
                     unlock()
                 }
@@ -241,6 +244,7 @@ class MeasurementService : CustomLifecycleService() {
                     stateRecorder.finish()
                     loopModeState = LoopModeState.FINISHED
                     unlock()
+                    measurementState = MeasurementState.IDLE
                     stopForeground(true)
                 }
             }
@@ -463,7 +467,10 @@ class MeasurementService : CustomLifecycleService() {
         }
 
         stateRecorder.updateLocationInfo()
-        stateRecorder.onTestInLoopStarted()
+        if (config.loopModeEnabled) {
+            loopModeState = LoopModeState.RUNNING
+            stateRecorder.onTestInLoopStarted()
+        }
 
         val deviceInfo = DeviceInfo(
             context = this,
@@ -508,7 +515,8 @@ class MeasurementService : CustomLifecycleService() {
     }
 
     private fun resetStates() {
-        testListener.onProgressChanged(MeasurementState.IDLE, 0)
+        loopModeState = LoopModeState.IDLE
+        testListener.onProgressChanged(MeasurementState.INIT, 0)
         testListener.onPingChanged(0)
         testListener.onDownloadSpeedChanged(0, 0)
         testListener.onUploadSpeedChanged(0, 0)
@@ -588,7 +596,7 @@ class MeasurementService : CustomLifecycleService() {
             get() = this@MeasurementService.loopModeState
 
         override val isTestsRunning: Boolean
-            get() = !((!config.loopModeEnabled && producer.measurementState != MeasurementState.IDLE && producer.measurementState != MeasurementState.ERROR && producer.measurementState != MeasurementState.FINISH)
+            get() = !((!config.loopModeEnabled && (producer.measurementState == MeasurementState.IDLE || producer.measurementState == MeasurementState.ERROR || producer.measurementState == MeasurementState.FINISH))
                     || (config.loopModeEnabled && /*(producer.measurementState == MeasurementState.IDLE || producer.measurementState == MeasurementState.FINISH) &&*/ ((producer.loopModeState == LoopModeState.IDLE && producer.loopUUID == null) || producer.loopModeState == LoopModeState.FINISHED)))
         // commented part because of when loop mode is finished...it is finished, no matter state of the measurement itself
 
