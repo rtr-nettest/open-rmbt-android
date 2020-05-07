@@ -123,7 +123,6 @@ class MeasurementViewModel @Inject constructor(
 
             _isTestsRunningLiveData.postValue(!finished) // to notify new opened home activity
             _measurementFinishLiveData.postValue(finished) // to notify recreated measurement activity to show results
-
         }
 
         override fun onNullBinding(name: ComponentName?) {
