@@ -99,13 +99,16 @@ class MeasurementViewModel @Inject constructor(
 
         override fun onServiceConnected(componentName: ComponentName?, binder: IBinder?) {
             producer = binder as MeasurementProducer?
-
+            val loopUuid = producer?.loopUUID
+            initializeLoopData(loopUuid)
+            Timber.d("Passed loop UUID: $loopUuid")
             producer?.let {
                 it.addClient(this@MeasurementViewModel)
 
                 with(state) {
                     measurementState.set(it.measurementState)
                     loopState.set(it.loopModeState)
+                    _loopUUIDLiveData.postValue(it.loopUUID)
                     measurementProgress.set(it.measurementProgress)
                     pingNanos.set(it.pingNanos)
                     downloadSpeedBps.set(it.downloadSpeedBps)
@@ -117,10 +120,10 @@ class MeasurementViewModel @Inject constructor(
 
             val finished = producer?.isTestsRunning != true
             Timber.d("FINISHED?: $finished")
+
             _isTestsRunningLiveData.postValue(!finished) // to notify new opened home activity
             _measurementFinishLiveData.postValue(finished) // to notify recreated measurement activity to show results
-            val loopUuid = producer?.loopUUID
-            initializeLoopData(loopUuid)
+
         }
 
         override fun onNullBinding(name: ComponentName?) {
@@ -234,6 +237,9 @@ class MeasurementViewModel @Inject constructor(
     override fun onClientReady(testUUID: String, loopUUID: String?) {
 
         this.testUUID = testUUID
+
+        initializeLoopData(loopUUID)
+        _loopUUIDLiveData.postValue(loopUUID)
 
         Timber.d("loopUUID: $loopUUID")
 
