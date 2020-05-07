@@ -1,5 +1,7 @@
 package at.specure.measurement
 
+import at.specure.data.entity.LoopModeState
+
 interface MeasurementProducer {
 
     fun addClient(client: MeasurementClient)
@@ -7,6 +9,8 @@ interface MeasurementProducer {
     fun removeClient(client: MeasurementClient)
 
     val measurementState: MeasurementState
+
+    val loopModeState: LoopModeState
 
     val measurementProgress: Int
 
