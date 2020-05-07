@@ -219,9 +219,10 @@ class MeasurementService : CustomLifecycleService() {
                     clientAggregator.onMeasurementError()
                     stateRecorder.finish()
                     unlock()
-                    loopModeState = LoopModeState.FINISHED
                     stopForeground(true)
                 }
+                measurementState = MeasurementState.IDLE
+                onProgressChanged(measurementState, 0)
             }
 
             Timber.d("TEST ERROR HANDLING")
@@ -238,13 +239,12 @@ class MeasurementService : CustomLifecycleService() {
                     if (config.loopModeEnabled) {
                         notificationManager.cancel(NOTIFICATION_ID)
                         notificationManager.notify(NOTIFICATION_LOOP_FINISHED_ID, notificationProvider.loopModeFinishedNotification())
+                        loopModeState = LoopModeState.FINISHED
                     }
                     hasErrors = true
                     clientAggregator.onMeasurementError()
                     stateRecorder.finish()
-                    loopModeState = LoopModeState.FINISHED
                     unlock()
-                    measurementState = MeasurementState.IDLE
                     stopForeground(true)
                 }
             }
@@ -447,6 +447,7 @@ class MeasurementService : CustomLifecycleService() {
         }
 
     private fun runTest() {
+        notificationManager.cancel(NOTIFICATION_LOOP_FINISHED_ID)
         startPendingTest = false
         if (config.loopModeEnabled && (stateRecorder.loopTestCount < config.loopModeNumberOfTests || (config.loopModeNumberOfTests == 0 && config.developerModeIsEnabled))) {
             scheduleNextLoopTest()
@@ -503,6 +504,11 @@ class MeasurementService : CustomLifecycleService() {
 
     private fun stopTests() {
         Timber.d("Stop tests")
+        if (config.loopModeEnabled) {
+            notificationManager.cancel(NOTIFICATION_ID)
+        } else {
+            notificationManager.cancelAll() //stop foreground does not hide notification about test running during loop mode sometimes
+        }
         loopModeState = LoopModeState.FINISHED
         runner.stop()
         loopCountdownTimer?.cancel()
@@ -550,6 +556,9 @@ class MeasurementService : CustomLifecycleService() {
         }
     }
 
+    /**
+     * Binder, creates a bound to listeners - in this case MeasurementViewModel
+     */
     private inner class Producer : Binder(), MeasurementProducer {
 
         override fun addClient(client: MeasurementClient) {
@@ -596,8 +605,8 @@ class MeasurementService : CustomLifecycleService() {
             get() = this@MeasurementService.loopModeState
 
         override val isTestsRunning: Boolean
-            get() = !((!config.loopModeEnabled && (producer.measurementState == MeasurementState.IDLE || producer.measurementState == MeasurementState.ERROR || producer.measurementState == MeasurementState.FINISH))
-                    || (config.loopModeEnabled && /*(producer.measurementState == MeasurementState.IDLE || producer.measurementState == MeasurementState.FINISH) &&*/ ((producer.loopModeState == LoopModeState.IDLE && producer.loopUUID == null) || producer.loopModeState == LoopModeState.FINISHED)))
+            get() = !((!config.loopModeEnabled && (this.measurementState == MeasurementState.IDLE || this.measurementState == MeasurementState.ERROR || this.measurementState == MeasurementState.FINISH))
+                    || (config.loopModeEnabled && /*(this.measurementState == MeasurementState.IDLE || this.measurementState == MeasurementState.FINISH) &&*/ ((this.loopModeState == LoopModeState.IDLE && this.loopUUID == null) || this.loopModeState == LoopModeState.FINISHED)))
         // commented part because of when loop mode is finished...it is finished, no matter state of the measurement itself
 
         override val testUUID: String?
@@ -615,6 +624,9 @@ class MeasurementService : CustomLifecycleService() {
         }
     }
 
+    /**
+     * This aggregates all listeners for test updates
+     */
     private inner class ClientAggregator : MeasurementClient {
 
         private val clients = mutableSetOf<MeasurementClient>()
