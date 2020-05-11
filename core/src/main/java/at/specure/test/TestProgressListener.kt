@@ -15,6 +15,11 @@ interface TestProgressListener {
 
     fun onFinish()
 
+    /**
+     * Called when test is finished and client destroyed
+     */
+    fun onPostFinish()
+
     fun onError()
 
     fun onClientReady(testUUID: String, loopUUID: String?, testStartTimeNanos: Long)

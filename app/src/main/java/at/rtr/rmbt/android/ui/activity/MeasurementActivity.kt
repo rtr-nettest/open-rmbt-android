@@ -148,7 +148,7 @@ class MeasurementActivity : BaseActivity(), SimpleDialog.Callback {
             viewModel.state.loopNextTestPercent.get()
         loopRecord?.status?.let { status ->
             viewModel.state.setLoopState(status)
-            if (status == LoopModeState.IDLE) {
+            if ((status == LoopModeState.IDLE) || (status == LoopModeState.FINISHED)) {
                 binding.root.measurementBottomView.speedChartDownloadUpload.reset()
                 binding.root.qosProgressContainer.reset()
             }

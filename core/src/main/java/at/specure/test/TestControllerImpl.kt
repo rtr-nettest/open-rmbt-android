@@ -464,6 +464,7 @@ class TestControllerImpl(
 
         job = null
         clientJob = null
+        _listener?.onPostFinish()
         _listener = null
     }
 
