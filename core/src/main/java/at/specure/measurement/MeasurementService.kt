@@ -240,9 +240,10 @@ class MeasurementService : CustomLifecycleService() {
                         notificationManager.cancel(NOTIFICATION_ID)
                         notificationManager.notify(NOTIFICATION_LOOP_FINISHED_ID, notificationProvider.loopModeFinishedNotification())
                         loopModeState = LoopModeState.FINISHED
+                    } else {
+                        clientAggregator.onMeasurementError()
                     }
                     hasErrors = true
-                    clientAggregator.onMeasurementError()
                     stateRecorder.finish()
                     unlock()
                     stopForeground(true)

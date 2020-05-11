@@ -157,6 +157,10 @@ class MeasurementActivity : BaseActivity(), SimpleDialog.Callback {
         binding.buttonSignal?.setOnClickListener {
             startActivity(Intent(this, SignalMeasurementActivity::class.java))
         }
+
+        if (loopRecord?.status == LoopModeState.FINISHED) {
+            finishActivity(true)
+        }
     }
 
     override fun onDialogPositiveClicked(code: Int) {
