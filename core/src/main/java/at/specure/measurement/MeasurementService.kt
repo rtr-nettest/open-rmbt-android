@@ -180,21 +180,27 @@ class MeasurementService : CustomLifecycleService() {
             resumeSignalMeasurement()
 
             stateRecorder.onLoopTestFinished()
-            if (startPendingTest) {
-                runner.reset()
-                runTest()
-            } else {
-                if (!config.loopModeEnabled || (config.loopModeEnabled && (stateRecorder.loopTestCount >= config.loopModeNumberOfTests))) {
-                    loopCountdownTimer?.cancel()
 
-                    if (config.loopModeEnabled) {
-                        notificationManager.notify(NOTIFICATION_LOOP_FINISHED_ID, notificationProvider.loopModeFinishedNotification())
-                        loopModeState = LoopModeState.FINISHED
-                    }
-                    stopForeground(true)
-                    stateRecorder.finish()
-                    unlock()
+            if (!config.loopModeEnabled || (config.loopModeEnabled && (stateRecorder.loopTestCount >= config.loopModeNumberOfTests))) {
+                loopCountdownTimer?.cancel()
+
+                if (config.loopModeEnabled) {
+                    notificationManager.notify(NOTIFICATION_LOOP_FINISHED_ID, notificationProvider.loopModeFinishedNotification())
+                    loopModeState = LoopModeState.FINISHED
                 }
+                stopForeground(true)
+                stateRecorder.finish()
+                unlock()
+            }
+        }
+
+        override fun onPostFinish() {
+            if (startPendingTest) {
+                Handler(Looper.getMainLooper()).postDelayed({
+                    runner.reset()
+                    Timber.d("LOOP STARTING PENDING TEST from onFinish")
+                    runTest()
+                }, 500)
             }
         }
 
@@ -230,6 +236,7 @@ class MeasurementService : CustomLifecycleService() {
             if (startPendingTest) {
                 Timber.d("TEST ERROR HANDLING - PENDING")
                 runner.reset()
+                Timber.d("LOOP STARTING PENDING TEST from onError")
                 runTest()
             } else {
                 Timber.d("TEST ERROR HANDLING - NOT PENDING")
@@ -324,8 +331,10 @@ class MeasurementService : CustomLifecycleService() {
             if (stateRecorder.loopTestCount < config.loopModeNumberOfTests) {
                 if (runner.isRunning) {
                     startPendingTest = true
+                    Timber.d("LOOP STARTING PENDING TEST set to true onCreate due to distance")
                 } else {
                     runner.reset()
+                    Timber.d("LOOP STARTING TEST onCreate due to distance")
                     runTest()
                 }
             }
@@ -377,7 +386,7 @@ class MeasurementService : CustomLifecycleService() {
 
         attachToForeground()
         lock()
-
+        Timber.d("LOOP STARTING TEST from startTests")
         runTest()
     }
 
@@ -392,9 +401,11 @@ class MeasurementService : CustomLifecycleService() {
                     override fun onFinish() {
                         Timber.i("CountDownTimer finished")
                         if (runner.isRunning) {
+                            Timber.d("LOOP STARTING PENDING TEST set to true")
                             startPendingTest = true
                         } else {
                             runner.reset()
+                            Timber.d("LOOP STARTING PENDING TEST on timer finished")
                             runTest()
                         }
                     }
@@ -454,6 +465,7 @@ class MeasurementService : CustomLifecycleService() {
             scheduleNextLoopTest()
         }
 
+        Timber.d("LOOP MODE: runner is running: ${runner.isRunning}")
         if (!runner.isRunning) {
             resetStates()
         }

@@ -1,5 +1,6 @@
 package at.rtr.rmbt.android.di
 
+import android.annotation.SuppressLint
 import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
@@ -201,6 +202,7 @@ class NotificationProviderImpl(private val context: Context) : NotificationProvi
             .build()!!
     }
 
+    @SuppressLint("RestrictedApi")
     private val clearActionsNotificationExtender = NotificationCompat.Extender { notificationBuilder ->
         notificationBuilder.mActions.clear()
         notificationBuilder

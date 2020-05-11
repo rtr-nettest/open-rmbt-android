@@ -179,6 +179,7 @@ class StateRecorder @Inject constructor(
         if (config.loopModeEnabled && loopUUID != null) {
             if (_loopModeRecord == null) {
                 _loopModeRecord = LoopModeRecord(loopUUID)
+                Timber.d("LOOP STATE SAVED 1: ${_loopModeRecord!!.status}")
                 repository.saveLoopMode(_loopModeRecord!!)
             } else {
                 updateLoopModeRecord()
@@ -191,6 +192,7 @@ class StateRecorder @Inject constructor(
 
     private fun updateLoopModeRecord() {
         _loopModeRecord?.run {
+            Timber.d("LOOP STATE UPDATED 1: ${this.status}")
             repository.updateLoopMode(this)
         }
     }
@@ -202,6 +204,7 @@ class StateRecorder @Inject constructor(
             } else {
                 it.status = LoopModeState.IDLE
             }
+            Timber.d("LOOP STATE UPDATED FINISHED 2: ${it.status}")
             repository.updateLoopMode(it)
         }
     }
@@ -213,6 +216,7 @@ class StateRecorder @Inject constructor(
             it.lastTestLatitude = _locationInfo?.latitude
             it.lastTestLongitude = _locationInfo?.longitude
             it.movementDistanceMeters = 0
+            Timber.d("LOOP STATE UPDATED SCHEDULED 3: ${it.status}")
             repository.updateLoopMode(it)
         }
     }
@@ -238,9 +242,11 @@ class StateRecorder @Inject constructor(
                 loopLocation.longitude = it.lastTestLongitude ?: return@let
 
                 it.movementDistanceMeters = loopLocation.distanceTo(newLocation).toInt()
+                Timber.d("LOOP DISTANCE: ${it.movementDistanceMeters}")
 
                 var notifyDistanceReached = false
                 if (it.movementDistanceMeters >= config.loopModeDistanceMeters && newLocation.accuracy < config.loopModeDistanceMeters) {
+                    Timber.d("LOOP STARTING DISTANCE: ${it.movementDistanceMeters}")
                     notifyDistanceReached = true
                 }
 
@@ -248,7 +254,7 @@ class StateRecorder @Inject constructor(
                     onLoopDistanceReached?.invoke()
                 }
             }
-
+            Timber.d("LOOP STATE UPDATED LOCATION SAVE 5: ${it.status}")
             repository.updateLoopMode(it)
         }
     }
@@ -456,6 +462,7 @@ class StateRecorder @Inject constructor(
             it.lastTestLatitude = locationInfo?.latitude
             it.status = LoopModeState.RUNNING
             it.testsPerformed++
+            Timber.d("LOOP STATE UPDATED STARTED 4: ${it.status}")
             repository.updateLoopMode(it)
         }
     }
