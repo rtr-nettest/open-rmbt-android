@@ -183,6 +183,7 @@ class MeasurementService : CustomLifecycleService() {
 
             if (!config.loopModeEnabled || (config.loopModeEnabled && (stateRecorder.loopTestCount >= config.loopModeNumberOfTests))) {
                 loopCountdownTimer?.cancel()
+                Timber.d("TIMER: cancelling 3: ${loopCountdownTimer?.hashCode()}")
 
                 if (config.loopModeEnabled) {
                     notificationManager.notify(NOTIFICATION_LOOP_FINISHED_ID, notificationProvider.loopModeFinishedNotification())
@@ -221,6 +222,7 @@ class MeasurementService : CustomLifecycleService() {
             if (config.loopModeEnabled) {
                 if (stateRecorder.loopUuid == null) {
                     loopCountdownTimer?.cancel()
+                    Timber.d("TIMER: cancelling 4: ${loopCountdownTimer?.hashCode()}")
                     hasErrors = true
                     clientAggregator.onMeasurementError()
                     stateRecorder.finish()
@@ -241,6 +243,7 @@ class MeasurementService : CustomLifecycleService() {
             } else {
                 Timber.d("TEST ERROR HANDLING - NOT PENDING")
                 if (!config.loopModeEnabled || (config.loopModeEnabled && (stateRecorder.loopTestCount >= config.loopModeNumberOfTests))) {
+                    Timber.d("TIMER: cancelling 5: ${loopCountdownTimer?.hashCode()}")
                     loopCountdownTimer?.cancel()
                     Timber.d("TEST ERROR HANDLING - NOT PENDING LOOP DISABLED")
                     if (config.loopModeEnabled) {
@@ -326,6 +329,7 @@ class MeasurementService : CustomLifecycleService() {
 
         stateRecorder.onLoopDistanceReached = {
             Timber.i("LOOP MODE DISTANCE REACHED")
+            Timber.d("TIMER: cancelling 1: ${loopCountdownTimer?.hashCode()}")
             loopCountdownTimer?.cancel()
 
             if (stateRecorder.loopTestCount < config.loopModeNumberOfTests) {
@@ -394,12 +398,14 @@ class MeasurementService : CustomLifecycleService() {
         stateRecorder.onLoopTestScheduled()
         try {
             Handler(Looper.getMainLooper()).post {
+                Timber.d("TIMER: cancelling: ${loopCountdownTimer?.hashCode()}")
                 loopCountdownTimer?.cancel()
                 loopCountdownTimer = null
+
                 loopCountdownTimer = object : CountDownTimer(loopDelayMs, 1000) {
 
                     override fun onFinish() {
-                        Timber.i("CountDownTimer finished")
+                        Timber.i("CountDownTimer finished - ${this.hashCode()}")
                         if (runner.isRunning) {
                             Timber.d("LOOP STARTING PENDING TEST set to true")
                             startPendingTest = true
@@ -439,11 +445,12 @@ class MeasurementService : CustomLifecycleService() {
                         }
                     }
                 }
-
+                Timber.d("TIMER: CountDownTimer created - ${loopCountdownTimer.hashCode()}")
                 loopCountdownTimer?.start()
+                Timber.d("TIMER: starting: ${loopCountdownTimer?.hashCode()}")
             }
 
-            Timber.d("CountDownTimer started")
+            Timber.d("CountDownTimer scheduled")
         } catch (ex: Exception) {
             Timber.e(ex, "CountDownTimer")
         }
@@ -524,6 +531,7 @@ class MeasurementService : CustomLifecycleService() {
         }
         loopModeState = LoopModeState.FINISHED
         runner.stop()
+        Timber.d("TIMER: cancelling 2: ${loopCountdownTimer?.hashCode()}")
         loopCountdownTimer?.cancel()
         config.previousTestStatus = TestFinishReason.ABORTED.name // cannot be handled in TestController
         stateRecorder.onUnsuccessTest(TestFinishReason.ABORTED)

@@ -244,14 +244,16 @@ class StateRecorder @Inject constructor(
                 it.movementDistanceMeters = loopLocation.distanceTo(newLocation).toInt()
                 Timber.d("LOOP DISTANCE: ${it.movementDistanceMeters}")
 
-                var notifyDistanceReached = false
-                if (it.movementDistanceMeters >= config.loopModeDistanceMeters && newLocation.accuracy < config.loopModeDistanceMeters) {
-                    Timber.d("LOOP STARTING DISTANCE: ${it.movementDistanceMeters}")
-                    notifyDistanceReached = true
-                }
+                if (config.loopModeEnabled && loopModeRecord != null && loopModeRecord?.status != LoopModeState.FINISHED) {
+                    var notifyDistanceReached = false
+                    if (it.movementDistanceMeters >= config.loopModeDistanceMeters && newLocation.accuracy < config.loopModeDistanceMeters) {
+                        Timber.d("LOOP STARTING DISTANCE: ${it.movementDistanceMeters}")
+                        notifyDistanceReached = true
+                    }
 
-                if (notifyDistanceReached) {
-                    onLoopDistanceReached?.invoke()
+                    if (notifyDistanceReached) {
+                        onLoopDistanceReached?.invoke()
+                    }
                 }
             }
             Timber.d("LOOP STATE UPDATED LOCATION SAVE 5: ${it.status}")
