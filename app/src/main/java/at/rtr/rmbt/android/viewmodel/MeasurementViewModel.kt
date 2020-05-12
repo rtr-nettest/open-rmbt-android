@@ -52,7 +52,7 @@ class MeasurementViewModel @Inject constructor(
 
     val state = MeasurementViewState(config)
 
-    lateinit var testUUID: String
+    var testUUID: String? = null
         private set
 
     val locationStateLiveData: LiveData<LocationState?>
@@ -104,6 +104,8 @@ class MeasurementViewModel @Inject constructor(
         override fun onServiceConnected(componentName: ComponentName?, binder: IBinder?) {
             producer = binder as MeasurementProducer?
             val loopUuid = producer?.loopUUID
+            testUUID = producer?.testUUID
+
             initializeLoopData(loopUuid)
             Timber.d("Passed loop UUID: $loopUuid")
             producer?.let {

@@ -132,7 +132,9 @@ class MeasurementActivity : BaseActivity(), SimpleDialog.Callback {
                 LoopFinishedActivity.start(this)
             } else {
 //                viewModel.setMeasurementResultsShown()
-                ResultsActivity.start(this, viewModel.testUUID)
+                viewModel.testUUID?.let {
+                    ResultsActivity.start(this, it)
+                }
             }
         }
     }
