@@ -57,8 +57,13 @@ class MeasurementActivity : BaseActivity(), SimpleDialog.Callback {
         binding.buttonCancel.setOnClickListener { onCrossIconClicked() }
 
         viewModel.measurementFinishLiveData.listen(this) {
-            Timber.d("MeasurementViewModel activity = listened $it")
+            Timber.d("MeasurementViewModel finished activity = listened $it")
             finishActivity(it)
+        }
+
+        viewModel.measurementCancelledLiveData.listen(this) {
+            Timber.d("MeasurementViewModel cancelled activity = listened $it")
+            cancelMeasurement()
         }
 
         viewModel.measurementErrorLiveData.listen(this) {
@@ -129,6 +134,13 @@ class MeasurementActivity : BaseActivity(), SimpleDialog.Callback {
 //                viewModel.setMeasurementResultsShown()
                 ResultsActivity.start(this, viewModel.testUUID)
             }
+        }
+    }
+
+    private fun cancelMeasurement() {
+        finish()
+        if (viewModel.state.isLoopModeActive.get()) {
+            LoopFinishedActivity.start(this)
         }
     }
 

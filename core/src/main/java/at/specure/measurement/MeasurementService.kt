@@ -527,6 +527,7 @@ class MeasurementService : CustomLifecycleService() {
         loopCountdownTimer?.cancel()
         config.previousTestStatus = TestFinishReason.ABORTED.name // cannot be handled in TestController
         stateRecorder.onUnsuccessTest(TestFinishReason.ABORTED)
+        stateRecorder.loopModeRecord?.status = LoopModeState.FINISHED
         stateRecorder.finish()
         clientAggregator.onMeasurementCancelled()
         stopForeground(true)

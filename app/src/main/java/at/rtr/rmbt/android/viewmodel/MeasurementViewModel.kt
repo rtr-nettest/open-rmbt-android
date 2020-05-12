@@ -37,6 +37,7 @@ class MeasurementViewModel @Inject constructor(
 ) : BaseViewModel(), MeasurementClient {
 
     private val _measurementFinishLiveData = MutableLiveData<Boolean>()
+    private val _measurementCancelledLiveData = MutableLiveData<Boolean>()
 
     private val _isTestsRunningLiveData = MutableLiveData<Boolean>()
     private val _measurementErrorLiveData = MutableLiveData<Boolean>()
@@ -68,6 +69,9 @@ class MeasurementViewModel @Inject constructor(
 
     val measurementFinishLiveData: LiveData<Boolean>
         get() = _measurementFinishLiveData
+
+    val measurementCancelledLiveData: LiveData<Boolean>
+        get() = _measurementCancelledLiveData
 
     val isTestsRunningLiveData: LiveData<Boolean>
         get() = _isTestsRunningLiveData
@@ -230,7 +234,7 @@ class MeasurementViewModel @Inject constructor(
     }
 
     override fun onMeasurementCancelled() {
-        _measurementFinishLiveData.postValue(false)
+        _measurementCancelledLiveData.postValue(false)
     }
 
     override fun onClientReady(testUUID: String, loopUUID: String?) {
