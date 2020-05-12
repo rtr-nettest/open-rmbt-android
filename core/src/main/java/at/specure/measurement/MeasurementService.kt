@@ -123,7 +123,7 @@ class MeasurementService : CustomLifecycleService() {
             }
             clientAggregator.onProgressChanged(state, progress)
 
-            if ((state != MeasurementState.QOS) && (state != MeasurementState.IDLE) && (state != MeasurementState.FINISH)) {
+            if ((state != MeasurementState.QOS) && (state != MeasurementState.ERROR) && (state != MeasurementState.IDLE) && (state != MeasurementState.FINISH)) {
                 Timber.d("MeasurementViewModel: Progress changed notification state: $state")
                 notifyDelayed(
                     notificationProvider.measurementServiceNotification(
@@ -229,9 +229,10 @@ class MeasurementService : CustomLifecycleService() {
                     unlock()
                     stopForeground(true)
                 }
-                measurementState = MeasurementState.IDLE
-                onProgressChanged(measurementState, 0)
             }
+
+            measurementState = MeasurementState.ERROR
+            onProgressChanged(measurementState, 0)
 
             Timber.d("TEST ERROR HANDLING")
 
@@ -251,6 +252,7 @@ class MeasurementService : CustomLifecycleService() {
                         notificationManager.notify(NOTIFICATION_LOOP_FINISHED_ID, notificationProvider.loopModeFinishedNotification())
                         loopModeState = LoopModeState.FINISHED
                     } else {
+                        notificationManager.cancel(NOTIFICATION_ID)
                         clientAggregator.onMeasurementError()
                     }
                     hasErrors = true
