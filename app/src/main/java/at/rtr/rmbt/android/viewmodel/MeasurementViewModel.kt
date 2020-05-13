@@ -37,6 +37,7 @@ class MeasurementViewModel @Inject constructor(
 ) : BaseViewModel(), MeasurementClient {
 
     private val _measurementFinishLiveData = MutableLiveData<Boolean>()
+    private val _measurementCancelledLiveData = MutableLiveData<Boolean>()
 
     private val _isTestsRunningLiveData = MutableLiveData<Boolean>()
     private val _measurementErrorLiveData = MutableLiveData<Boolean>()
@@ -51,7 +52,7 @@ class MeasurementViewModel @Inject constructor(
 
     val state = MeasurementViewState(config)
 
-    lateinit var testUUID: String
+    var testUUID: String? = null
         private set
 
     val locationStateLiveData: LiveData<LocationState?>
@@ -68,6 +69,9 @@ class MeasurementViewModel @Inject constructor(
 
     val measurementFinishLiveData: LiveData<Boolean>
         get() = _measurementFinishLiveData
+
+    val measurementCancelledLiveData: LiveData<Boolean>
+        get() = _measurementCancelledLiveData
 
     val isTestsRunningLiveData: LiveData<Boolean>
         get() = _isTestsRunningLiveData
@@ -100,6 +104,8 @@ class MeasurementViewModel @Inject constructor(
         override fun onServiceConnected(componentName: ComponentName?, binder: IBinder?) {
             producer = binder as MeasurementProducer?
             val loopUuid = producer?.loopUUID
+            testUUID = producer?.testUUID
+
             initializeLoopData(loopUuid)
             Timber.d("Passed loop UUID: $loopUuid")
             producer?.let {
@@ -230,7 +236,7 @@ class MeasurementViewModel @Inject constructor(
     }
 
     override fun onMeasurementCancelled() {
-        _measurementFinishLiveData.postValue(false)
+        _measurementCancelledLiveData.postValue(false)
     }
 
     override fun onClientReady(testUUID: String, loopUUID: String?) {
