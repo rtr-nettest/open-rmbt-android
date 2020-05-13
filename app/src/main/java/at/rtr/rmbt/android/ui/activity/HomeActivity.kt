@@ -15,6 +15,7 @@
 package at.rtr.rmbt.android.ui.activity
 
 import android.app.Activity
+import android.app.NotificationManager
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
@@ -29,10 +30,14 @@ import at.rtr.rmbt.android.util.KeepStateNavigator
 import at.rtr.rmbt.android.util.listen
 import at.rtr.rmbt.android.viewmodel.ConfigCheckViewModel
 import at.rtr.rmbt.android.viewmodel.MeasurementViewModel
+import at.specure.data.entity.LoopModeState
+import timber.log.Timber
 
 class HomeActivity : BaseActivity() {
 
     private lateinit var binding: ActivityHomeBinding
+
+    private val notificationManager by lazy { getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager }
 
     private val viewModel: MeasurementViewModel by viewModelLazy()
     private val configCheckViewModel: ConfigCheckViewModel by viewModelLazy()
@@ -53,7 +58,20 @@ class HomeActivity : BaseActivity() {
 
         viewModel.isTestsRunningLiveData.listen(this) { isRunning ->
             if (isRunning) {
-                MeasurementActivity.start(this)
+                if (viewModel.config.loopModeEnabled) {
+                    if (viewModel.state.loopState.get() != LoopModeState.FINISHED && viewModel.state.loopUUID.get() != null) {
+                        MeasurementActivity.start(this)
+                    }
+                } else {
+                    MeasurementActivity.start(this)
+                }
+            } else {
+                if (viewModel.config.loopModeEnabled) {
+                    Timber.d("MeasurementViewModel: home activity, loop mode state: ${viewModel.state.loopState.get()}")
+                    if (viewModel.state.loopState.get() == LoopModeState.FINISHED && notificationManager.activeNotifications.isNotEmpty()) {
+                        LoopFinishedActivity.start(this)
+                    }
+                }
             }
         }
 

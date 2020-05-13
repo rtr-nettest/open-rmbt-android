@@ -1,5 +1,6 @@
 package at.specure.measurement
 
+import android.app.Notification
 import android.app.NotificationManager
 import android.content.ComponentName
 import android.content.Context
@@ -22,6 +23,7 @@ import at.rmbt.util.exception.NoConnectionException
 import at.rtr.rmbt.client.v2.task.result.QoSTestResultEnum
 import at.rtr.rmbt.util.IllegalNetworkChangeException
 import at.specure.config.Config
+import at.specure.data.entity.LoopModeState
 import at.specure.data.repository.ResultsRepository
 import at.specure.data.repository.TestDataRepository
 import at.specure.di.CoreInjector
@@ -42,6 +44,10 @@ import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
 class MeasurementService : CustomLifecycleService() {
+
+    private var lastNotifiedState: MeasurementState = MeasurementState.FINISH
+    private var elapsedTime: Long = 0
+    private var startTime: Long = 0
 
     @Inject
     lateinit var config: Config
@@ -72,6 +78,7 @@ class MeasurementService : CustomLifecycleService() {
     private var signalMeasurementProducer: SignalMeasurementProducer? = null
     private var signalMeasurementPauseRequired = false
     private var measurementState: MeasurementState = MeasurementState.IDLE
+    private var loopModeState: LoopModeState = LoopModeState.IDLE
 
     private var measurementProgress = 0
     private var pingNanos = 0L
@@ -83,7 +90,6 @@ class MeasurementService : CustomLifecycleService() {
 
     private var qosTasksTotal = 0
     private var qosProgressMap: Map<QoSTestResultEnum, Int> = mapOf()
-    private var isLoopModeRunning = false
     private val notificationManager: NotificationManager by lazy { getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager }
 
     private lateinit var wakeLock: PowerManager.WakeLock
@@ -112,11 +118,14 @@ class MeasurementService : CustomLifecycleService() {
         override fun onProgressChanged(state: MeasurementState, progress: Int) {
             measurementState = state
             measurementProgress = progress
+            if (config.loopModeEnabled) {
+                loopModeState = LoopModeState.RUNNING
+            }
             clientAggregator.onProgressChanged(state, progress)
 
-            if (state != MeasurementState.QOS) {
-                notificationManager.notify(
-                    NOTIFICATION_ID,
+            if ((state != MeasurementState.QOS) && (state != MeasurementState.ERROR) && (state != MeasurementState.IDLE) && (state != MeasurementState.FINISH)) {
+                Timber.d("MeasurementViewModel: Progress changed notification state: $state")
+                notifyDelayed(
                     notificationProvider.measurementServiceNotification(
                         progress,
                         state,
@@ -124,9 +133,29 @@ class MeasurementService : CustomLifecycleService() {
                         stateRecorder.loopModeRecord,
                         config.loopModeNumberOfTests,
                         stopTestsIntent(this@MeasurementService)
-                    )
+                    ),
+                    state,
+                    false
                 )
             }
+        }
+
+        /**
+         * This methods solves problem with changing notification too often (then it is problem to click on the button in the notification)
+         */
+        fun notifyDelayed(notification: Notification, state: MeasurementState, forceUpdate: Boolean) {
+
+            if (elapsedTime > NOTIFICATION_UPDATE_INTERVAL_MS || lastNotifiedState != state || forceUpdate) {
+                Handler(Looper.getMainLooper()).post {
+                    notificationManager.notify(
+                        NOTIFICATION_ID,
+                        notification
+                    )
+                    lastNotifiedState = state
+                    startTime = System.currentTimeMillis()
+                    elapsedTime = 0
+                }
+            } else elapsedTime = System.currentTimeMillis() - startTime
         }
 
         override fun onPingChanged(pingNanos: Long) {
@@ -147,24 +176,34 @@ class MeasurementService : CustomLifecycleService() {
         }
 
         override fun onFinish() {
+            notificationManager.cancel(NOTIFICATION_ID)
             resumeSignalMeasurement()
 
             stateRecorder.onLoopTestFinished()
-            if (startPendingTest) {
-                runner.reset()
-                runTest()
-            } else {
-                if (!config.loopModeEnabled || (config.loopModeEnabled && (stateRecorder.loopTestCount >= config.loopModeNumberOfTests))) {
-                    loopCountdownTimer?.cancel()
 
-                    if (config.loopModeEnabled) {
-                        notificationManager.notify(NOTIFICATION_LOOP_FINISHED_ID, notificationProvider.loopModeFinishedNotification())
-                    }
-                    stopForeground(true)
-                    isLoopModeRunning = false
-                    stateRecorder.finish()
-                    unlock()
+            if (!config.loopModeEnabled || (config.loopModeEnabled && (stateRecorder.loopTestCount >= config.loopModeNumberOfTests))) {
+                loopCountdownTimer?.cancel()
+                Timber.d("TIMER: cancelling 3: ${loopCountdownTimer?.hashCode()}")
+
+                if (config.loopModeEnabled) {
+                    notificationManager.notify(NOTIFICATION_LOOP_FINISHED_ID, notificationProvider.loopModeFinishedNotification())
+                    loopModeState = LoopModeState.FINISHED
                 }
+                stopForeground(true)
+                stateRecorder.finish()
+                unlock()
+            }
+        }
+
+        override fun onPostFinish() {
+            if (startPendingTest) {
+                Handler(Looper.getMainLooper()).postDelayed({
+                    if (config.loopModeEnabled && (stateRecorder.loopTestCount < config.loopModeNumberOfTests || (config.loopModeNumberOfTests == 0 && config.developerModeIsEnabled))) {
+                        runner.reset()
+                        Timber.d("LOOP STARTING PENDING TEST from onFinish")
+                        runTest()
+                    }
+                }, 500)
             }
         }
 
@@ -185,33 +224,41 @@ class MeasurementService : CustomLifecycleService() {
             if (config.loopModeEnabled) {
                 if (stateRecorder.loopUuid == null) {
                     loopCountdownTimer?.cancel()
+                    Timber.d("TIMER: cancelling 4: ${loopCountdownTimer?.hashCode()}")
                     hasErrors = true
                     clientAggregator.onMeasurementError()
                     stateRecorder.finish()
-                    isLoopModeRunning = false
                     unlock()
                     stopForeground(true)
                 }
             }
 
-            Timber.e("TEST ERROR HANDLING")
+            measurementState = MeasurementState.ERROR
+            onProgressChanged(measurementState, 0)
 
-            if (startPendingTest) {
-                Timber.e("TEST ERROR HANDLING - PENDING")
+            Timber.d("TEST ERROR HANDLING")
+
+            if (startPendingTest && (config.loopModeEnabled && (stateRecorder.loopTestCount < config.loopModeNumberOfTests || (config.loopModeNumberOfTests == 0 && config.developerModeIsEnabled)))) {
+                Timber.d("TEST ERROR HANDLING - PENDING")
                 runner.reset()
+                Timber.d("LOOP STARTING PENDING TEST from onError")
                 runTest()
             } else {
-                Timber.e("TEST ERROR HANDLING - NOT PENDING")
+                Timber.d("TEST ERROR HANDLING - NOT PENDING")
                 if (!config.loopModeEnabled || (config.loopModeEnabled && (stateRecorder.loopTestCount >= config.loopModeNumberOfTests))) {
+                    Timber.d("TIMER: cancelling 5: ${loopCountdownTimer?.hashCode()}")
                     loopCountdownTimer?.cancel()
-                    Timber.e("TEST ERROR HANDLING - NOT PENDING LOOP DISABLED")
+                    Timber.d("TEST ERROR HANDLING - NOT PENDING LOOP DISABLED")
                     if (config.loopModeEnabled) {
+                        notificationManager.cancel(NOTIFICATION_ID)
                         notificationManager.notify(NOTIFICATION_LOOP_FINISHED_ID, notificationProvider.loopModeFinishedNotification())
+                        loopModeState = LoopModeState.FINISHED
+                    } else {
+                        notificationManager.cancel(NOTIFICATION_ID)
+                        clientAggregator.onMeasurementError()
                     }
                     hasErrors = true
-                    clientAggregator.onMeasurementError()
                     stateRecorder.finish()
-                    isLoopModeRunning = false
                     unlock()
                     stopForeground(true)
                 }
@@ -249,9 +296,8 @@ class MeasurementService : CustomLifecycleService() {
             qosProgressMap = progressMap
 
             val progress = (tasksPassed / tasksTotal.toFloat()) * 100
-
-            notificationManager.notify(
-                NOTIFICATION_ID,
+            Timber.d("MeasurementViewModel: QOS progress changed notification")
+            notifyDelayed(
                 notificationProvider.measurementServiceNotification(
                     progress.toInt(),
                     MeasurementState.QOS,
@@ -259,7 +305,7 @@ class MeasurementService : CustomLifecycleService() {
                     stateRecorder.loopModeRecord,
                     config.loopModeNumberOfTests,
                     stopTestsIntent(this@MeasurementService)
-                )
+                ), MeasurementState.QOS, false
             )
         }
     }
@@ -287,13 +333,16 @@ class MeasurementService : CustomLifecycleService() {
 
         stateRecorder.onLoopDistanceReached = {
             Timber.i("LOOP MODE DISTANCE REACHED")
+            Timber.d("TIMER: cancelling 1: ${loopCountdownTimer?.hashCode()}")
             loopCountdownTimer?.cancel()
 
-            if (stateRecorder.loopTestCount < config.loopModeNumberOfTests) {
+            if ((stateRecorder.loopTestCount < config.loopModeNumberOfTests) || config.loopModeNumberOfTests == 0 && config.developerModeIsEnabled) {
                 if (runner.isRunning) {
                     startPendingTest = true
+                    Timber.d("LOOP STARTING PENDING TEST set to true onCreate due to distance")
                 } else {
                     runner.reset()
+                    Timber.d("LOOP STARTING TEST onCreate due to distance")
                     runTest()
                 }
             }
@@ -304,6 +353,7 @@ class MeasurementService : CustomLifecycleService() {
 
     @Suppress("UNNECESSARY_SAFE_CALL")
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        Timber.d("MeasurementViewModel: Service: onStartCommand ${intent?.action}")
         if (intent != null) {
             attachToForeground()
             when (intent?.action) {
@@ -335,11 +385,16 @@ class MeasurementService : CustomLifecycleService() {
     private fun startTests() {
         Timber.d("Start tests")
         stateRecorder.resetLoopMode()
-        isLoopModeRunning = config.loopModeEnabled
+        loopModeState = if (config.loopModeEnabled) {
+            LoopModeState.RUNNING
+        } else {
+            LoopModeState.IDLE
+        }
+        measurementState = MeasurementState.INIT
 
         attachToForeground()
         lock()
-
+        Timber.d("LOOP STARTING TEST from startTests")
         runTest()
     }
 
@@ -347,17 +402,23 @@ class MeasurementService : CustomLifecycleService() {
         stateRecorder.onLoopTestScheduled()
         try {
             Handler(Looper.getMainLooper()).post {
+                Timber.d("TIMER: cancelling: ${loopCountdownTimer?.hashCode()}")
                 loopCountdownTimer?.cancel()
                 loopCountdownTimer = null
+
                 loopCountdownTimer = object : CountDownTimer(loopDelayMs, 1000) {
 
                     override fun onFinish() {
-                        Timber.i("CountDownTimer finished")
+                        Timber.i("CountDownTimer finished - ${this.hashCode()}")
                         if (runner.isRunning) {
+                            Timber.d("LOOP STARTING PENDING TEST set to true")
                             startPendingTest = true
                         } else {
-                            runner.reset()
-                            runTest()
+                            if (!config.loopModeEnabled || (config.loopModeEnabled && (stateRecorder.loopTestCount < config.loopModeNumberOfTests || (config.loopModeNumberOfTests == 0 && config.developerModeIsEnabled)))) {
+                                runner.reset()
+                                Timber.d("LOOP STARTING PENDING TEST on timer finished")
+                                runTest()
+                            }
                         }
                     }
 
@@ -370,26 +431,32 @@ class MeasurementService : CustomLifecycleService() {
                                         location != null &&
                                         location.accuracy < config.loopModeDistanceMeters
                             val distancePassed = stateRecorder.loopModeRecord?.movementDistanceMeters ?: 0
-                            val notification = notificationProvider.loopCountDownNotification(
-                                millisUntilFinished,
-                                distancePassed,
-                                config.loopModeDistanceMeters,
-                                stateRecorder.loopTestCount,
-                                config.loopModeNumberOfTests,
-                                stopTestsIntent(this@MeasurementService),
-                                locationAvailable
-                            )
-                            notificationManager.notify(NOTIFICATION_ID, notification)
+
+                            Timber.d("Created measurement notification time remaining")
+                            if (stateRecorder.loopModeRecord?.status == LoopModeState.IDLE) {
+                                val notification = notificationProvider.loopCountDownNotification(
+                                    millisUntilFinished,
+                                    distancePassed,
+                                    config.loopModeDistanceMeters,
+                                    stateRecorder.loopTestCount,
+                                    config.loopModeNumberOfTests,
+                                    stopTestsIntent(this@MeasurementService),
+                                    locationAvailable
+                                )
+                                notificationManager.notify(NOTIFICATION_ID, notification)
+                                Timber.d("Created measurement notification time remaining IDLE state")
+                            }
                             clientAggregator.onLoopCountDownTimer(loopDelayMs - millisUntilFinished, loopDelayMs)
                             clientAggregator.onLoopDistanceChanged(distancePassed, config.loopModeDistanceMeters, locationAvailable)
                         }
                     }
                 }
-
+                Timber.d("TIMER: CountDownTimer created - ${loopCountdownTimer.hashCode()}")
                 loopCountdownTimer?.start()
+                Timber.d("TIMER: starting: ${loopCountdownTimer?.hashCode()}")
             }
 
-            Timber.d("CountDownTimer started")
+            Timber.d("CountDownTimer scheduled")
         } catch (ex: Exception) {
             Timber.e(ex, "CountDownTimer")
         }
@@ -405,11 +472,13 @@ class MeasurementService : CustomLifecycleService() {
         }
 
     private fun runTest() {
+        notificationManager.cancel(NOTIFICATION_LOOP_FINISHED_ID)
         startPendingTest = false
         if (config.loopModeEnabled && (stateRecorder.loopTestCount < config.loopModeNumberOfTests || (config.loopModeNumberOfTests == 0 && config.developerModeIsEnabled))) {
             scheduleNextLoopTest()
         }
 
+        Timber.d("LOOP MODE: runner is running: ${runner.isRunning}")
         if (!runner.isRunning) {
             resetStates()
         }
@@ -425,7 +494,10 @@ class MeasurementService : CustomLifecycleService() {
         }
 
         stateRecorder.updateLocationInfo()
-        stateRecorder.onTestInLoopStarted()
+        if (config.loopModeEnabled) {
+            loopModeState = LoopModeState.RUNNING
+            stateRecorder.onTestInLoopStarted()
+        }
 
         val deviceInfo = DeviceInfo(
             context = this,
@@ -442,6 +514,7 @@ class MeasurementService : CustomLifecycleService() {
     }
 
     private fun attachToForeground() {
+        Timber.d("MeasurementViewModel: Attached to foreground notification")
         startForeground(
             NOTIFICATION_ID,
             notificationProvider.measurementServiceNotification(
@@ -457,19 +530,29 @@ class MeasurementService : CustomLifecycleService() {
 
     private fun stopTests() {
         Timber.d("Stop tests")
-        isLoopModeRunning = false
+        if (config.loopModeEnabled) {
+            notificationManager.cancel(NOTIFICATION_ID)
+        } else {
+            notificationManager.cancelAll() // stop foreground does not hide notification about test running during loop mode sometimes
+        }
+        loopModeState = LoopModeState.FINISHED
         runner.stop()
+        Timber.d("TIMER: cancelling 2: ${loopCountdownTimer?.hashCode()}")
         loopCountdownTimer?.cancel()
         config.previousTestStatus = TestFinishReason.ABORTED.name // cannot be handled in TestController
         stateRecorder.onUnsuccessTest(TestFinishReason.ABORTED)
+        stateRecorder.loopModeRecord?.status = LoopModeState.FINISHED
+        measurementState = MeasurementState.ABORTED
         stateRecorder.finish()
         clientAggregator.onMeasurementCancelled()
+        clientAggregator.onProgressChanged(measurementState, 0)
         stopForeground(true)
         unlock()
     }
 
     private fun resetStates() {
-        testListener.onProgressChanged(MeasurementState.IDLE, 0)
+        loopModeState = LoopModeState.IDLE
+        testListener.onProgressChanged(MeasurementState.INIT, 0)
         testListener.onPingChanged(0)
         testListener.onDownloadSpeedChanged(0, 0)
         testListener.onUploadSpeedChanged(0, 0)
@@ -503,6 +586,9 @@ class MeasurementService : CustomLifecycleService() {
         }
     }
 
+    /**
+     * Binder, creates a bound to listeners - in this case MeasurementViewModel
+     */
     private inner class Producer : Binder(), MeasurementProducer {
 
         override fun addClient(client: MeasurementClient) {
@@ -545,8 +631,11 @@ class MeasurementService : CustomLifecycleService() {
         override val pingNanos: Long
             get() = this@MeasurementService.pingNanos
 
+        override val loopModeState: LoopModeState
+            get() = this@MeasurementService.loopModeState
+
         override val isTestsRunning: Boolean
-            get() = runner.isRunning || isLoopModeRunning
+            get() = !((!config.loopModeEnabled && (this.measurementState == MeasurementState.IDLE || this.measurementState == MeasurementState.ERROR || this.measurementState == MeasurementState.ABORTED || this.measurementState == MeasurementState.FINISH)) || (config.loopModeEnabled && ((this.loopModeState == LoopModeState.IDLE && this.loopUUID == null) || this.loopModeState == LoopModeState.FINISHED)))
 
         override val testUUID: String?
             get() = runner.testUUID
@@ -563,6 +652,9 @@ class MeasurementService : CustomLifecycleService() {
         }
     }
 
+    /**
+     * This aggregates all listeners for test updates
+     */
     private inner class ClientAggregator : MeasurementClient {
 
         private val clients = mutableSetOf<MeasurementClient>()
@@ -674,6 +766,7 @@ class MeasurementService : CustomLifecycleService() {
 
         private const val NOTIFICATION_ID = 1
         const val NOTIFICATION_LOOP_FINISHED_ID = 2
+        private const val NOTIFICATION_UPDATE_INTERVAL_MS = 700
 
         private const val ACTION_START_TESTS = "KEY_START_TESTS"
         private const val ACTION_STOP_TESTS = "KEY_STOP_TESTS"

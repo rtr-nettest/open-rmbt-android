@@ -1,5 +1,6 @@
 package at.rtr.rmbt.android.di
 
+import android.annotation.SuppressLint
 import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
@@ -12,13 +13,17 @@ import at.rtr.rmbt.android.BuildConfig
 import at.rtr.rmbt.android.R
 import at.rtr.rmbt.android.ui.activity.HomeActivity
 import at.rtr.rmbt.android.ui.activity.LoopFinishedActivity
+import at.rtr.rmbt.android.ui.activity.MeasurementActivity
 import at.rtr.rmbt.android.util.timeString
 import at.specure.data.entity.LoopModeRecord
 import at.specure.data.entity.LoopModeState
 import at.specure.di.NotificationProvider
 import at.specure.measurement.MeasurementState
+import timber.log.Timber
 
 class NotificationProviderImpl(private val context: Context) : NotificationProvider {
+    private var measurementRunningNotification: NotificationCompat.Builder? = null
+    private var loopCountdownNotification: NotificationCompat.Builder? = null
 
     override fun measurementServiceNotification(
         progress: Int,
@@ -29,11 +34,14 @@ class NotificationProviderImpl(private val context: Context) : NotificationProvi
         cancellationIntent: Intent
     ): Notification {
         return if (loopModeRecord == null) {
+            Timber.d("Created measurement notification no loop mode")
             createMeasurementNotification(progress, state, skipQoSTests, context.getString(R.string.notification_test_title), cancellationIntent)
         } else {
             if (loopModeRecord.status == LoopModeState.IDLE) {
+                Timber.d("Created measurement notification loop mode IDLE")
                 createMeasurementNotification(progress, state, skipQoSTests, context.getString(R.string.notification_test_title), cancellationIntent)
             } else {
+                Timber.d("Created measurement notification loop mode TEST PROGRESS")
                 createMeasurementNotification(
                     progress,
                     state,
@@ -90,20 +98,31 @@ class NotificationProviderImpl(private val context: Context) : NotificationProvi
         val totalProgress = if (skipQoSTests) 400 else 500
         val progressIntermediate = ((stateProgress + progress) / totalProgress.toFloat()) * 100
 
-        val intent = PendingIntent.getActivity(context, 0, Intent(context, HomeActivity::class.java), 0)
+        val intent = PendingIntent.getActivity(context, 0, Intent(context, MeasurementActivity::class.java), 0)
         val actionIntent = PendingIntent.getService(context, 0, cancellationIntent, 0)
         val action = NotificationCompat.Action.Builder(0, context.getString(R.string.text_cancel_measurement), actionIntent).build()
-
-        return NotificationCompat.Builder(context, measurementChannelId())
-            .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
-            .setPriority(NotificationCompat.PRIORITY_LOW)
-            .setSmallIcon(R.drawable.ic_notification)
-            .addAction(action)
-            .setContentText(context.getString(textResource))
-            .setContentIntent(intent)
-            .setContentTitle(titleText)
-            .setProgress(100, progressIntermediate.toInt(), false)
-            .build()!!
+        loopCountdownNotification = null
+        if (measurementRunningNotification == null) {
+            Timber.d("Created measurement notification created")
+            measurementRunningNotification = NotificationCompat.Builder(context, measurementChannelId())
+                .extend(clearActionsNotificationExtender)
+                .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
+                .setPriority(NotificationCompat.PRIORITY_LOW)
+                .setSmallIcon(R.drawable.ic_notification)
+                .addAction(action)
+                .setContentText(context.getString(textResource))
+                .setContentIntent(intent)
+                .setContentTitle(titleText)
+                .setOngoing(true)
+                .setOnlyAlertOnce(true)
+                .setProgress(100, progressIntermediate.toInt(), false)
+        } else {
+            Timber.d("Created measurement notification refreshed")
+            measurementRunningNotification!!.setContentText(context.getString(textResource))
+                .setContentTitle(titleText)
+                .setProgress(100, progressIntermediate.toInt(), false)
+        }
+        return measurementRunningNotification?.build()!!
     }
 
     override fun loopCountDownNotification(
@@ -130,19 +149,27 @@ class NotificationProviderImpl(private val context: Context) : NotificationProvi
             testsCount
         )
 
-        val intent = PendingIntent.getActivity(context, 0, Intent(context, HomeActivity::class.java), 0)
+        val intent = PendingIntent.getActivity(context, 0, Intent(context, MeasurementActivity::class.java), 0)
         val actionIntent = PendingIntent.getService(context, 0, cancellationIntent, 0)
         val action = NotificationCompat.Action.Builder(0, context.getString(R.string.text_cancel_measurement), actionIntent).build()
 
-        return NotificationCompat.Builder(context, measurementChannelId())
-            .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
-            .setPriority(NotificationCompat.PRIORITY_LOW)
-            .setSmallIcon(R.drawable.ic_notification)
-            .addAction(action)
-            .setContentText(text)
-            .setContentIntent(intent)
-            .setContentTitle(context.getString(R.string.notification_loop_mode_title_active))
-            .build()!!
+        measurementRunningNotification = null
+        if (loopCountdownNotification == null) {
+            loopCountdownNotification = NotificationCompat.Builder(context, measurementChannelId())
+                .extend(clearActionsNotificationExtender)
+                .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
+                .setPriority(NotificationCompat.PRIORITY_LOW)
+                .setSmallIcon(R.drawable.ic_notification)
+                .addAction(action)
+                .setOngoing(true)
+                .setOnlyAlertOnce(true)
+                .setContentText(text)
+                .setContentIntent(intent)
+                .setContentTitle(context.getString(R.string.notification_loop_mode_title_active))
+        } else {
+            loopCountdownNotification!!.setContentText(text)
+        }
+        return loopCountdownNotification?.build()!!
     }
 
     override fun signalMeasurementService(stopMeasurementIntent: Intent): Notification {
@@ -154,6 +181,7 @@ class NotificationProviderImpl(private val context: Context) : NotificationProvi
             .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
             .setPriority(NotificationCompat.PRIORITY_LOW)
             .setSmallIcon(R.drawable.ic_cloud_upload)
+            .extend(clearActionsNotificationExtender)
             .addAction(action)
             .setContentText(context.getString(R.string.notification_signal_test_text))
             .setContentIntent(intent)
@@ -163,12 +191,20 @@ class NotificationProviderImpl(private val context: Context) : NotificationProvi
 
     override fun loopModeFinishedNotification(): Notification {
         val intent = PendingIntent.getActivity(context, 0, Intent(context, LoopFinishedActivity::class.java), 0)
+
         return NotificationCompat.Builder(context, measurementChannelId())
+            .extend(clearActionsNotificationExtender)
             .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
             .setPriority(NotificationCompat.PRIORITY_LOW)
             .setSmallIcon(R.drawable.ic_notification)
             .setContentIntent(intent)
             .setContentTitle(context.getString(R.string.notification_loop_mode_finished_title))
             .build()!!
+    }
+
+    @SuppressLint("RestrictedApi")
+    private val clearActionsNotificationExtender = NotificationCompat.Extender { notificationBuilder ->
+        notificationBuilder.mActions.clear()
+        notificationBuilder
     }
 }

@@ -24,13 +24,20 @@ class LoopFinishedActivity : BaseActivity() {
         }
 
         binding.buttonRunAgain.setOnClickListener {
+            HomeActivity.startWithFragment(this, HomeActivity.Companion.HomeNavigationTarget.HOME_FRAGMENT_TO_SHOW)
             LoopConfigurationActivity.start(this)
-            finish()
+            finishAffinity()
         }
     }
 
-    override fun onStart() {
-        super.onStart()
+    override fun onBackPressed() {
+        super.onBackPressed()
+        HomeActivity.startWithFragment(this, HomeActivity.Companion.HomeNavigationTarget.HOME_FRAGMENT_TO_SHOW)
+        finishAffinity()
+    }
+
+    override fun onResume() {
+        super.onResume()
         notificationManager.cancel(MeasurementService.NOTIFICATION_LOOP_FINISHED_ID)
     }
 

@@ -126,7 +126,7 @@ class TestControllerImpl(
             finalDownloadValuePosted = false
             finalUploadValuePosted = false
 
-            setState(MeasurementState.IDLE, 0)
+            setState(MeasurementState.INIT, 0)
 
             var geoInfo: ArrayList<String>? = null
             deviceInfo.location?.let {
@@ -305,7 +305,7 @@ class TestControllerImpl(
     }
 
     private fun handleWait() {
-        setState(MeasurementState.IDLE, 0)
+        setState(MeasurementState.INIT, 0)
     }
 
     private fun handleInit(client: RMBTClient) {
@@ -464,6 +464,7 @@ class TestControllerImpl(
 
         job = null
         clientJob = null
+        _listener?.onPostFinish()
         _listener = null
     }
 

@@ -112,7 +112,7 @@ class ResultsActivity : BaseActivity(), OnMapReadyCallback {
             binding.qoeResultsRecyclerView.addItemDecoration(itemDecoration)
         }
         binding.buttonBack.setOnClickListener {
-            super.onBackPressed()
+            onBackPressed()
         }
         binding.buttonShare.setOnClickListener {
             val shareIntent = Intent()
@@ -191,6 +191,12 @@ class ResultsActivity : BaseActivity(), OnMapReadyCallback {
     override fun onPause() {
         binding.map.onPause()
         super.onPause()
+    }
+
+    override fun onBackPressed() {
+        super.onBackPressed()
+        HomeActivity.startWithFragment(this, HomeActivity.Companion.HomeNavigationTarget.HISTORY_FRAGMENT_TO_SHOW)
+        finishAffinity()
     }
 
     companion object {
