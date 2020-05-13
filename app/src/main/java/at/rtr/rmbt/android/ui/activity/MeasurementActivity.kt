@@ -141,9 +141,11 @@ class MeasurementActivity : BaseActivity(), SimpleDialog.Callback {
     }
 
     private fun cancelMeasurement() {
-        finish()
         if (viewModel.state.isLoopModeActive.get()) {
             LoopFinishedActivity.start(this)
+        } else {
+            finishAffinity()
+            HomeActivity.startWithFragment(this, HomeActivity.Companion.HomeNavigationTarget.HOME_FRAGMENT_TO_SHOW)
         }
     }
 

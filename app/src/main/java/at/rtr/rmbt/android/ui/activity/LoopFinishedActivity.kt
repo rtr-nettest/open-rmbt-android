@@ -36,8 +36,8 @@ class LoopFinishedActivity : BaseActivity() {
         finishAffinity()
     }
 
-    override fun onStart() {
-        super.onStart()
+    override fun onResume() {
+        super.onResume()
         notificationManager.cancel(MeasurementService.NOTIFICATION_LOOP_FINISHED_ID)
     }
 
