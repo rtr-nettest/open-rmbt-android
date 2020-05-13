@@ -198,7 +198,7 @@ class ResultsActivity : BaseActivity(), OnMapReadyCallback {
         HomeActivity.startWithFragment(this, HomeActivity.Companion.HomeNavigationTarget.HISTORY_FRAGMENT_TO_SHOW)
         finishAffinity()
     }
-    
+
     companion object {
 
         private const val ZOOM_LEVEL = 15f
