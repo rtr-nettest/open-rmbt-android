@@ -8,5 +8,6 @@ enum class MeasurementState {
     UPLOAD,
     QOS,
     FINISH,
-    ERROR
+    ERROR,
+    ABORTED
 }
