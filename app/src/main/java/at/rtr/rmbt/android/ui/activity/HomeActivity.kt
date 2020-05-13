@@ -58,7 +58,13 @@ class HomeActivity : BaseActivity() {
 
         viewModel.isTestsRunningLiveData.listen(this) { isRunning ->
             if (isRunning) {
-                MeasurementActivity.start(this)
+                if (viewModel.config.loopModeEnabled) {
+                    if (viewModel.state.loopState.get() != LoopModeState.FINISHED && viewModel.state.loopUUID.get() != null) {
+                        MeasurementActivity.start(this)
+                    }
+                } else {
+                    MeasurementActivity.start(this)
+                }
             } else {
                 if (viewModel.config.loopModeEnabled) {
                     Timber.d("MeasurementViewModel: home activity, loop mode state: ${viewModel.state.loopState.get()}")
