@@ -336,7 +336,7 @@ class MeasurementService : CustomLifecycleService() {
             Timber.d("TIMER: cancelling 1: ${loopCountdownTimer?.hashCode()}")
             loopCountdownTimer?.cancel()
 
-            if (stateRecorder.loopTestCount < config.loopModeNumberOfTests) {
+            if ((stateRecorder.loopTestCount < config.loopModeNumberOfTests) || config.loopModeNumberOfTests == 0 && config.developerModeIsEnabled) {
                 if (runner.isRunning) {
                     startPendingTest = true
                     Timber.d("LOOP STARTING PENDING TEST set to true onCreate due to distance")
@@ -414,9 +414,11 @@ class MeasurementService : CustomLifecycleService() {
                             Timber.d("LOOP STARTING PENDING TEST set to true")
                             startPendingTest = true
                         } else {
-                            runner.reset()
-                            Timber.d("LOOP STARTING PENDING TEST on timer finished")
-                            runTest()
+                            if (!config.loopModeEnabled || (config.loopModeEnabled && (stateRecorder.loopTestCount < config.loopModeNumberOfTests || (config.loopModeNumberOfTests == 0 && config.developerModeIsEnabled)))) {
+                                runner.reset()
+                                Timber.d("LOOP STARTING PENDING TEST on timer finished")
+                                runTest()
+                            }
                         }
                     }
 
