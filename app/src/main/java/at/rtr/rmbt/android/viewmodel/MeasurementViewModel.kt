@@ -38,8 +38,6 @@ class MeasurementViewModel @Inject constructor(
 
     private val _measurementFinishLiveData = MutableLiveData<Boolean>()
     private val _measurementCancelledLiveData = MutableLiveData<Boolean>()
-
-
     private val _isTestsRunningLiveData = MutableLiveData<Boolean>()
     private val _measurementErrorLiveData = MutableLiveData<Boolean>()
     private val _downloadGraphLiveData = MutableLiveData<List<GraphItemRecord>>()
