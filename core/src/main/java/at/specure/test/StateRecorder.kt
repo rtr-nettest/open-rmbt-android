@@ -38,7 +38,6 @@ import timber.log.Timber
 import java.util.UUID
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
-import kotlin.RuntimeException
 import kotlin.math.floor
 
 class StateRecorder @Inject constructor(
@@ -180,7 +179,7 @@ class StateRecorder @Inject constructor(
         repository.saveTest(testRecord!!)
     }
 
-    public fun initializeLoopModeData(loopUUID: String?) {
+    fun initializeLoopModeData(loopUUID: String?) {
         if (_loopModeRecord == null) {
             val localLoopUUID = UUID.randomUUID().toString()
             Timber.d("new generated local loop uuid $localLoopUUID")

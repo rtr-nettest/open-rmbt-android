@@ -23,7 +23,6 @@ import at.rmbt.util.exception.NoConnectionException
 import at.rtr.rmbt.client.v2.task.result.QoSTestResultEnum
 import at.rtr.rmbt.util.IllegalNetworkChangeException
 import at.specure.config.Config
-import at.specure.data.entity.LoopModeRecord
 import at.specure.data.entity.LoopModeState
 import at.specure.data.repository.ResultsRepository
 import at.specure.data.repository.TestDataRepository
@@ -41,7 +40,6 @@ import at.specure.test.toDeviceInfoLocation
 import at.specure.util.CustomLifecycleService
 import at.specure.worker.WorkLauncher
 import timber.log.Timber
-import java.util.UUID
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
