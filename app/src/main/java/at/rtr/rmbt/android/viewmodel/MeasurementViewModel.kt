@@ -45,7 +45,6 @@ class MeasurementViewModel @Inject constructor(
     private val _downloadGraphLiveData = MutableLiveData<List<GraphItemRecord>>()
     private val _uploadGraphLiveData = MutableLiveData<List<GraphItemRecord>>()
     private val _qosProgressLiveData = MutableLiveData<Map<QoSTestResultEnum, Int>>()
-    var _loopProgressLiveData = MutableLiveData<LoopModeRecord?>()
     private val _loopUUIDLiveData = MutableLiveData<String>()
     private val _timeToNextTestElapsedLiveData = MutableLiveData<String>()
     private val _timeProgressPercentsLiveData = MutableLiveData<Int>()
@@ -93,8 +92,7 @@ class MeasurementViewModel @Inject constructor(
     val isTacAccepted: Boolean
         get() = tac.tacAccepted
 
-    val loopProgressLiveData: LiveData<LoopModeRecord?>
-        get() = (loopUuidLiveData.value?.let { testDataRepository.getLoopModeByLocal(it) } ?: null) as LiveData<LoopModeRecord?>
+    lateinit var loopProgressLiveData: LiveData<LoopModeRecord?>
 
     private val serviceConnection = object : ServiceConnection {
 
@@ -262,7 +260,7 @@ class MeasurementViewModel @Inject constructor(
     private fun initializeLoopData(loopLocalUUID: String?) {
         if (loopLocalUUID != null) {
             Timber.d("Loop UUID not null")
-//            _loopProgressLiveData = testDataRepository.getLoopModeByLocal(loopLocalUUID)
+            loopProgressLiveData = testDataRepository.getLoopModeByLocal(loopLocalUUID)
             _loopUUIDLiveData.postValue(loopLocalUUID)
             this.state.loopLocalUUID.set(loopLocalUUID)
             this.state.loopState.set(loopProgressLiveData.value?.status)
