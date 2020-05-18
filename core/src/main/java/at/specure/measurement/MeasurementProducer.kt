@@ -24,7 +24,9 @@ interface MeasurementProducer {
 
     val testUUID: String?
 
-    val loopUUID: String?
+//    val loopUUID: String?
+
+    val loopLocalUUID: String?
 
     fun startTests()
 

@@ -35,9 +35,9 @@ import at.specure.location.cell.CellLocationLiveData
 import at.specure.location.cell.CellLocationWatcher
 import org.json.JSONArray
 import timber.log.Timber
+import java.util.UUID
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
-import kotlin.RuntimeException
 import kotlin.math.floor
 
 class StateRecorder @Inject constructor(
@@ -76,8 +76,8 @@ class StateRecorder @Inject constructor(
     val loopModeRecord: LoopModeRecord?
         get() = _loopModeRecord
 
-    val loopUuid: String?
-        get() = _loopModeRecord?.uuid
+    val loopLocalUuid: String?
+        get() = _loopModeRecord?.localUuid
 
     val loopTestCount: Int
         get() = _loopModeRecord?.testsPerformed ?: 1
@@ -171,23 +171,28 @@ class StateRecorder @Inject constructor(
             testRecord?.lastQoSStatus = TestStatus.WAIT
         }
 
-        if (config.loopModeEnabled && loopUUID == null) {
-            Timber.e("Loop uuid not obtained")
-            throw RuntimeException("Loop uuid not obtained")
-        }
-
-        if (config.loopModeEnabled && loopUUID != null) {
-            if (_loopModeRecord == null) {
-                _loopModeRecord = LoopModeRecord(loopUUID)
-                Timber.d("LOOP STATE SAVED 1: ${_loopModeRecord!!.status}")
-                repository.saveLoopMode(_loopModeRecord!!)
-            } else {
-                updateLoopModeRecord()
-            }
+        if (config.loopModeEnabled) {
+            initializeLoopModeData(loopUUID)
         }
 
         testRecord?.loopModeTestOrder = loopTestCount
         repository.saveTest(testRecord!!)
+    }
+
+    fun initializeLoopModeData(loopUUID: String?) {
+        if (_loopModeRecord == null) {
+            val localLoopUUID = UUID.randomUUID().toString()
+            Timber.d("new generated local loop uuid $localLoopUUID")
+            _loopModeRecord = LoopModeRecord(localLoopUUID, loopUUID)
+            Timber.d("LOOP STATE SAVED 1: ${_loopModeRecord!!.status}")
+            repository.saveLoopMode(_loopModeRecord!!)
+        } else {
+            if (_loopModeRecord?.uuid == null) {
+                _loopModeRecord?.uuid = loopUUID
+                Timber.d("new added remote loop uuid $loopUUID")
+            }
+            updateLoopModeRecord()
+        }
     }
 
     private fun updateLoopModeRecord() {

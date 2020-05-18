@@ -100,7 +100,7 @@ class MeasurementActivity : BaseActivity(), SimpleDialog.Callback {
 
         viewModel.loopUuidLiveData.listen(this) { loopUUID ->
             if (loopUUID != null) {
-                viewModel.loopProgressLiveData.observe(this@MeasurementActivity) { loopRecord ->
+                viewModel.loopProgressLiveData?.observe(this@MeasurementActivity) { loopRecord ->
                     onLoopRecordChanged(loopRecord)
                 }
             }
@@ -122,6 +122,10 @@ class MeasurementActivity : BaseActivity(), SimpleDialog.Callback {
         viewModel.state.loopModeRecord.get()?.testsPerformed?.let { viewModel.state.setLoopProgress(it, viewModel.config.loopModeNumberOfTests) }
 
         viewModel.qosProgressLiveData.value?.let { binding.root.measurementBottomView.qosProgressContainer.update(it) }
+
+//        if (viewModel.loopUuidLiveData.value != null) {
+//            onLoopRecordChanged(viewModel.loopProgressLiveData.value)
+//        }
     }
 
     private fun finishActivity(measurementFinished: Boolean) {
@@ -151,8 +155,9 @@ class MeasurementActivity : BaseActivity(), SimpleDialog.Callback {
 
     private fun onLoopRecordChanged(loopRecord: LoopModeRecord?) {
         Timber.d(
-            "TestPerformed: ${loopRecord?.testsPerformed} \nloop mode status: ${loopRecord?.status} \nviewModel: ${viewModel.state.measurementState.get()}"
+            "TestPerformed: ${loopRecord?.testsPerformed} \nloop mode status: ${loopRecord?.status} \nLoop local uuid: ${loopRecord?.localUuid}\nLoop remote uuid: ${loopRecord?.uuid}\nviewModel: ${viewModel.state.measurementState.get()}"
         )
+        Timber.d("local loop UUID to read loop data: ${viewModel.loopUuidLiveData.value}")
         binding.curveLayout.setLoopState(loopRecord?.status ?: LoopModeState.RUNNING)
         viewModel.state.setLoopRecord(loopRecord)
         loopRecord?.testsPerformed?.let { testsPerformed ->
@@ -178,6 +183,7 @@ class MeasurementActivity : BaseActivity(), SimpleDialog.Callback {
         if (loopRecord?.status == LoopModeState.FINISHED) {
             finishActivity(true)
         }
+        viewModel.state.loopState.set(loopRecord?.status)
     }
 
     override fun onDialogPositiveClicked(code: Int) {

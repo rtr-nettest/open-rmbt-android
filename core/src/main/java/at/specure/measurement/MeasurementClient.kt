@@ -15,7 +15,7 @@ interface MeasurementClient {
 
     fun onPingChanged(pingNanos: Long)
 
-    fun onClientReady(testUUID: String, loopUUID: String?)
+    fun onClientReady(testUUID: String, loopLocalUUID: String?)
 
     fun isQoSEnabled(enabled: Boolean)
 

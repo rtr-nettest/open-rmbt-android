@@ -44,7 +44,7 @@ class MeasurementViewState(private val config: AppConfig) : ViewState {
     val qosEnabled = ObservableBoolean()
     val qosTaskProgress = ObservableField<String>()
     val loopProgress = ObservableField<String>()
-    val loopUUID = ObservableField<String>()
+    val loopLocalUUID = ObservableField<String>()
     val timeToNextTestElapsed = ObservableField<String>()
     val timeToNextTestPercentage = ObservableInt()
     val loopState = ObservableField<LoopModeState>().apply { set(LoopModeState.IDLE) }
@@ -106,7 +106,7 @@ class MeasurementViewState(private val config: AppConfig) : ViewState {
             timeToNextTestPercentage.set(bundle.getInt(KEY_LOOP_NEXT_TEST_TIME_PERCENT, 0))
             loopNextTestDistanceMeters.set(bundle.getString(KEY_LOOP_NEXT_TEST_DISTANCE_METERS))
             loopNextTestPercent.set(bundle.getInt(KEY_LOOP_NEXT_TEST_DISTANCE_PERCENT))
-            loopUUID.set(bundle.getString(KEY_LOOP_UUID))
+            loopLocalUUID.set(bundle.getString(KEY_LOOP_UUID))
             isLoopModeActive.set(bundle.getBoolean(KEY_LOOP_MODE_ENABLED))
         }
     }
@@ -127,7 +127,7 @@ class MeasurementViewState(private val config: AppConfig) : ViewState {
             putInt(KEY_LOOP_NEXT_TEST_TIME_PERCENT, timeToNextTestPercentage.get())
             putString(KEY_LOOP_NEXT_TEST_DISTANCE_METERS, loopNextTestDistanceMeters.get())
             putInt(KEY_LOOP_NEXT_TEST_DISTANCE_PERCENT, loopNextTestPercent.get())
-            putString(KEY_LOOP_UUID, loopUUID.get())
+            putString(KEY_LOOP_UUID, loopLocalUUID.get())
             putBoolean(KEY_LOOP_MODE_ENABLED, isLoopModeActive.get())
         }
     }

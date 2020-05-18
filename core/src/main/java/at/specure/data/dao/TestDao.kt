@@ -77,6 +77,6 @@ interface TestDao {
     @Update
     fun updateLoopModeRecord(loopModeRecord: LoopModeRecord)
 
-    @Query("SELECT * FROM ${Tables.LOOP_MODE} WHERE uuid == :uuid")
-    fun getLoopModeRecord(uuid: String): LiveData<LoopModeRecord?>
+    @Query("SELECT * FROM ${Tables.LOOP_MODE} WHERE localUuid == :localUuid")
+    fun getLoopModeRecord(localUuid: String): LiveData<LoopModeRecord?>
 }

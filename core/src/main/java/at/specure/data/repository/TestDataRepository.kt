@@ -79,5 +79,5 @@ interface TestDataRepository {
 
     fun saveConnectivityState(state: ConnectivityStateRecord)
 
-    fun getLoopMode(loopUUID: String): LiveData<LoopModeRecord?>
+    fun getLoopModeByLocal(loopUUID: String): LiveData<LoopModeRecord?>
 }

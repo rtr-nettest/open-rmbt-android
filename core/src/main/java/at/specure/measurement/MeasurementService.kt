@@ -222,7 +222,7 @@ class MeasurementService : CustomLifecycleService() {
             stateRecorder.onLoopTestFinished()
 
             if (config.loopModeEnabled) {
-                if (stateRecorder.loopUuid == null) {
+                if (stateRecorder.loopLocalUuid == null) {
                     loopCountdownTimer?.cancel()
                     Timber.d("TIMER: cancelling 4: ${loopCountdownTimer?.hashCode()}")
                     hasErrors = true
@@ -265,8 +265,8 @@ class MeasurementService : CustomLifecycleService() {
             }
         }
 
-        override fun onClientReady(testUUID: String, loopUUID: String?, testStartTimeNanos: Long) {
-            clientAggregator.onClientReady(testUUID, loopUUID)
+        override fun onClientReady(testUUID: String, loopUUID: String?, loopLocalUUID: String?, testStartTimeNanos: Long) {
+            clientAggregator.onClientReady(testUUID, loopLocalUUID)
             startNetwork = connectivityManager.activeNetwork
             stateRecorder.onReadyToSubmit = { shouldShowResults ->
                 resultRepository.sendTestResults(testUUID) {
@@ -385,6 +385,9 @@ class MeasurementService : CustomLifecycleService() {
     private fun startTests() {
         Timber.d("Start tests")
         stateRecorder.resetLoopMode()
+        if (config.loopModeEnabled) {
+            stateRecorder.initializeLoopModeData(null)
+        }
         loopModeState = if (config.loopModeEnabled) {
             LoopModeState.RUNNING
         } else {
@@ -510,7 +513,14 @@ class MeasurementService : CustomLifecycleService() {
 
         hasErrors = false
 
-        runner.start(deviceInfo, stateRecorder.loopUuid, stateRecorder.loopTestCount, testListener, stateRecorder)
+        runner.start(
+            deviceInfo,
+            stateRecorder.loopModeRecord?.uuid,
+            stateRecorder.loopLocalUuid,
+            stateRecorder.loopTestCount,
+            testListener,
+            stateRecorder
+        )
     }
 
     private fun attachToForeground() {
@@ -600,7 +610,7 @@ class MeasurementService : CustomLifecycleService() {
                 onUploadSpeedChanged(measurementProgress, uploadSpeedBps)
                 isQoSEnabled(config.shouldRunQosTest)
                 runner.testUUID?.let {
-                    onClientReady(it, stateRecorder.loopUuid)
+                    onClientReady(it, stateRecorder.loopLocalUuid)
                 }
                 if (hasErrors) {
                     client.onMeasurementError()
@@ -635,13 +645,16 @@ class MeasurementService : CustomLifecycleService() {
             get() = this@MeasurementService.loopModeState
 
         override val isTestsRunning: Boolean
-            get() = !((!config.loopModeEnabled && (this.measurementState == MeasurementState.IDLE || this.measurementState == MeasurementState.ERROR || this.measurementState == MeasurementState.ABORTED || this.measurementState == MeasurementState.FINISH)) || (config.loopModeEnabled && ((this.loopModeState == LoopModeState.IDLE && this.loopUUID == null) || this.loopModeState == LoopModeState.FINISHED)))
+            get() = !((!config.loopModeEnabled && (this.measurementState == MeasurementState.IDLE || this.measurementState == MeasurementState.ERROR || this.measurementState == MeasurementState.ABORTED || this.measurementState == MeasurementState.FINISH)) || (config.loopModeEnabled && ((this.loopModeState == LoopModeState.IDLE && this.loopLocalUUID == null) || this.loopModeState == LoopModeState.FINISHED)))
 
         override val testUUID: String?
             get() = runner.testUUID
 
-        override val loopUUID: String?
-            get() = stateRecorder.loopUuid
+        //        override val loopUUID: String?
+//            get() = stateRecorder.loopModeRecord?.uuid
+//
+        override val loopLocalUUID: String?
+            get() = stateRecorder.loopLocalUuid
 
         override fun startTests() {
             this@MeasurementService.startTests()
@@ -697,9 +710,9 @@ class MeasurementService : CustomLifecycleService() {
             }
         }
 
-        override fun onClientReady(testUUID: String, loopUUID: String?) {
+        override fun onClientReady(testUUID: String, loopLocalUUID: String?) {
             clients.forEach {
-                it.onClientReady(testUUID, loopUUID)
+                it.onClientReady(testUUID, loopLocalUUID)
             }
         }
 
