@@ -107,6 +107,7 @@ class TestControllerImpl(
     override fun start(
         deviceInfo: DeviceInfo,
         loopModeUUID: String?,
+        loopLocalUUID: String?,
         loopTestCount: Int,
         listener: TestProgressListener,
         clientCallback: RMBTClientCallback
@@ -215,7 +216,7 @@ class TestControllerImpl(
             _testStartTimeNanos = connection?.startTimeNs ?: 0
             _testUUID = connection.testUuid
 
-            _listener?.onClientReady(_testUUID!!, connection.loopUuid, _testStartTimeNanos)
+            _listener?.onClientReady(_testUUID!!, connection.loopUuid, loopLocalUUID, _testStartTimeNanos)
 
             val skipQoSTests = !config.shouldRunQosTest
 
