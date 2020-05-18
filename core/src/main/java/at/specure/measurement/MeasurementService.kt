@@ -219,7 +219,6 @@ class MeasurementService : CustomLifecycleService() {
             }
 
             stateRecorder.onUnsuccessTest(TestFinishReason.ERROR)
-            stateRecorder.onLoopTestFinished()
 
             if (config.loopModeEnabled) {
                 if (stateRecorder.loopLocalUuid == null) {
@@ -235,6 +234,7 @@ class MeasurementService : CustomLifecycleService() {
 
             measurementState = MeasurementState.ERROR
             onProgressChanged(measurementState, 0)
+            stateRecorder.onLoopTestFinished()
 
             Timber.d("TEST ERROR HANDLING")
 
