@@ -34,6 +34,7 @@ data class CellBand(
 
     /**
      * Channel Number
+     * for [CellChannelAttribution.NRARFCN] NR technology - nrarfcn
      * for [CellChannelAttribution.EARFCN] LTE technology - earfcn
      * for [CellChannelAttribution.UARFCN] WCDMA technology - uarfcn
      * for [CellChannelAttribution.ARFCN] GSM technology - arfcn
@@ -80,7 +81,7 @@ data class CellBand(
                 }
                 CellChannelAttribution.NRARFCN -> {
                     data = getBandFromNrarfcn(channel)
-                    step = 0.1
+                    step = 0.0 // not applicable for NR cells
                 }
             }
 
@@ -152,21 +153,50 @@ data class CellBand(
          * @param nrarfcn Frequency to check
          * @return NRBand object for matched band, or NULL if invalid nrarfcn is passed
          */
-        private fun getBandFromNrarfcn(earfcn: Int): CellBandData? {
-            if (earfcn in 1..17999) { // DL
-                for (band in nrBands) { // Loop through all lteBands
-                    if (band.containsDLChannel(earfcn)) { // If the band contains the earfcn then return it
-                        return band
-                    }
-                }
-            } else if (earfcn in 18000..65535) { // UL
-                for (band in nrBands) { // Loop through all lteBands
-                    if (band.containsULChannel(earfcn)) { // If the band contains the earfcn then return it
-                        return band
-                    }
+        private fun getBandFromNrarfcn(nrarfcn: Int): CellBandData? {
+            // different calculation - get frequency from nrarfcn directly, then assign band
+            val frequencyMHz: Double = getNrFrequencyFromNrArfcn(nrarfcn)
+            if (frequencyMHz == 0.0) {
+                return null
+            }
+
+            // check if a band contains this frequency
+            for (band in nrBands) {
+                if (band.containsULFrequency(frequencyMHz)) {
+                    return band
                 }
             }
             return null
+        }
+
+        private fun getNrFrequencyFromNrArfcn(nrarfcn: Int): Double {
+            val frequencyOffset: Double
+            val deltaFrequencyKHz: Double
+            val nRefOffs: Double
+            when (nrarfcn) {
+                in 0..599999 -> {
+                    frequencyOffset = 0.0
+                    deltaFrequencyKHz = 5.0
+                    nRefOffs = 0.0
+                }
+                in 600000..2016666 -> {
+                    frequencyOffset = 3000.0
+                    deltaFrequencyKHz = 15.0
+                    nRefOffs = 600000.0
+                }
+                in 2016667..3279164 -> {
+                    frequencyOffset = 24250.08
+                    deltaFrequencyKHz = 60.0
+                    nRefOffs = 2016667.0
+                }
+                else -> {
+                    //invalid input
+                    return 0.0
+                }
+            }
+
+            // FREF = FREF-Offs + ΔFGlobal (NREF – NREF-Offs)
+            return frequencyOffset + deltaFrequencyKHz / 1000f * (nrarfcn - nRefOffs)
         }
     }
 }
@@ -192,6 +222,14 @@ private class CellBandData(
 
     fun containsULChannel(channel: Int): Boolean {
         return channel > uploadChannelLowerBound && channel < uploadChannelUpperBound
+    }
+
+    fun containsULFrequency(frequencyMHz: Double): Boolean {
+        return frequencyMHz in uploadFrequencyLowerBound..uploadFrequencyUpperBound
+    }
+
+    fun containsDLFrequency(frequencyMHz: Double): Boolean {
+        return frequencyMHz in downloadFrequencyLowerBound..downloadFrequencyUpperBound
     }
 
     fun getFrequencyDL(step: Double, channel: Int): Double {
@@ -235,8 +273,50 @@ private fun MutableSet<CellBandData>.add(
     )
 }
 
-// TODO fill this table for NR Bands
-private val nrBands: Set<CellBandData> = mutableSetOf<CellBandData>().apply { }
+/**
+ * Table of NR Band channels, European channels are on the top
+ */
+private val nrBands: Set<CellBandData> = mutableSetOf<CellBandData>().apply {
+    add(1, 1920.0, 1980.0, 2110.0, 2170.0, 0.0, 0.0, 0.0, "2100 MHz")
+    add(3, 1710.0, 1785.0, 1805.0, 1880.0, 0.0, 0.0, 0.0, "1800 MHz")
+    add(8, 880.0, 915.0, 925.0, 960.0, 0.0, 0.0, 0.0, "900 MHz")
+    add(7, 2500.0, 2570.0, 2620.0, 2690.0, 0.0, 0.0, 0.0, "2600 MHz")
+    add(78, 3300.0, 3800.0, 3300.0, 3800.0, 0.0, 0.0, 0.0, "3500 MHz")
+    add(75, 0.0, 0.0, 1432.0, 1517.0, 0.0, 0.0, 0.0, "1500 MHz")
+    add(258, 24250.0, 27500.0, 24250.0, 27500.0, 0.0, 0.0, 0.0, "26 GHz")
+    add(20, 832.0, 862.0, 791.0, 821.0, 0.0, 0.0, 0.0, "800 MHz")
+    add(28, 703.0, 748.0, 758.0, 803.0, 0.0, 0.0, 0.0, "700 MHz")
+    add(40, 2300.0, 2400.0, 2300.0, 2400.0, 0.0, 0.0, 0.0, "TD 2300 MHz")
+    add(2, 1850.0, 1910.0, 1930.0, 1990.0, 0.0, 0.0, 0.0, "1900 MHz")
+    add(5, 824.0, 849.0, 869.0, 894.0, 0.0, 0.0, 0.0, "850 MHz")
+    add(12, 699.0, 716.0, 729.0, 746.0, 0.0, 0.0, 0.0, "700 MHz US A")
+    add(25, 1850.0, 1915.0, 1930.0, 1995.0, 0.0, 0.0, 0.0, "1900 MHz +")
+    add(34, 2010.0, 2025.0, 2010.0, 2025.0, 0.0, 0.0, 0.0, "TD 2 GHz upper")
+    add(38, 2570.0, 2620.0, 2570.0, 2620.0, 0.0, 0.0, 0.0, "TD 2600 MHz")
+    add(39, 1880.0, 1920.0, 1880.0, 1920.0, 0.0, 0.0, 0.0, "TD 1900 MHz")
+    add(41, 2496.0, 2690.0, 2496.0, 2690.0, 0.0, 0.0, 0.0, "TD 2.6 GHz +")
+    add(50, 1432.0, 1517.0, 1432.0, 1517.0, 0.0, 0.0, 0.0, "TD 1500 MHz +")
+    add(51, 1427.0, 1432.0, 1427.0, 1432.0, 0.0, 0.0, 0.0, "TD 1500 MHz -")
+    add(66, 1710.0, 1780.0, 2110.0, 2200.0, 0.0, 0.0, 0.0, "AWS-3")
+    add(70, 1695.0, 1710.0, 1995.0, 2020.0, 0.0, 0.0, 0.0, "AWS-4")
+    add(71, 663.0, 698.0, 617.0, 652.0, 0.0, 0.0, 0.0, "600 MHz US")
+    add(74, 1427.0, 1470.0, 1475.0, 1518.0, 0.0, 0.0, 0.0, "L-Band")
+    add(76, 0.0, 0.0, 1427.0, 1432.0, 0.0, 0.0, 0.0, "500 MHz -")
+
+    add(77, 3300.0, 4200.0, 3300.0, 4200.0, 0.0, 0.0, 0.0, "3500 MHz +")
+    add(79, 4400.0, 5000.0, 4400.0, 5000.0, 0.0, 0.0, 0.0, "4500 MHz")
+
+    add(80, 1710.0, 1785.0, 0.0, 0.0, 0.0, 0.0, 0.0, "SUL 1800 MHz+")
+    add(81, 880.0, 915.0, 0.0, 0.0, 0.0, 0.0, 0.0, "SUL 900 MHz")
+    add(82, 832.0, 862.0, 0.0, 0.0, 0.0, 0.0, 0.0, "SUL 800 MHz")
+    add(83, 703.0, 748.0, 0.0, 0.0, 0.0, 0.0, 0.0, "SUL 700 MHz")
+    add(84, 1920.0, 1980.0, 0.0, 0.0, 0.0, 0.0, 0.0, "SUL 2100 MHz")
+    add(86, 1710.0, 1780.0, 0.0, 0.0, 0.0, 0.0, 0.0, "SUL 1800 MHz")
+
+    add(257, 26500.0, 29500.0, 26500.0, 29500.0, 0.0, 0.0, 0.0, "28 GHz")
+    add(260, 37000.0, 40000.0, 37000.0, 40000.0, 0.0, 0.0, 0.0, "39 GHz US")
+    add(261, 27500.0, 28350.0, 27500.0, 28350.0, 0.0, 0.0, 0.0, "28 GHz US")
+}
 
 /**
  * Static list of all LTE Bands
