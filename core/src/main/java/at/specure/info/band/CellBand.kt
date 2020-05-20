@@ -190,7 +190,7 @@ data class CellBand(
                     nRefOffs = 2016667.0
                 }
                 else -> {
-                    //invalid input
+                    // invalid input
                     return 0.0
                 }
             }
