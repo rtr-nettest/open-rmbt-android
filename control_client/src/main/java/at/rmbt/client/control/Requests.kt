@@ -45,7 +45,6 @@ data class SettingsRequestBody(
     val model: String,
     val product: String,
     val timezone: String,
-    @SerializedName("software_revision")
     val softwareRevision: String,
     val softwareVersionCode: String,
     val softwareVersionName: String,

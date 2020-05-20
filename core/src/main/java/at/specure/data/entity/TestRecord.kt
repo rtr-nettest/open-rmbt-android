@@ -37,7 +37,7 @@ data class TestRecord(
      * Number of threads used during the upload and download phase (there is only intended number of threads and no if the fallback to 1 thread was triggered)
      * test_num_threads
      */
-    val threadCount: Int,
+    var threadCount: Int,
 
     /**
      * Remote port of the measurement server to communicate through

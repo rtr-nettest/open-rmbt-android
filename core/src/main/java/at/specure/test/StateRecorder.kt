@@ -360,6 +360,7 @@ class StateRecorder @Inject constructor(
 
     override fun onTestCompleted(result: TotalTestResult, waitQosResults: Boolean) {
         testRecord?.apply {
+            threadCount = result.num_threads
             portRemote = result.port_remote
             bytesDownloaded = result.bytes_download
             bytesUploaded = result.bytes_upload

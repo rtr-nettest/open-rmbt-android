@@ -4,6 +4,7 @@ import android.app.Activity
 import android.content.Intent
 import android.graphics.Rect
 import android.os.Bundle
+import android.view.KeyEvent
 import android.view.View
 import android.webkit.WebView
 import android.webkit.WebViewClient
@@ -16,6 +17,7 @@ import at.rtr.rmbt.android.util.changeStatusBarColor
 import at.rtr.rmbt.android.util.listen
 import at.rtr.rmbt.android.viewmodel.TermsAcceptanceViewModel
 import at.specure.worker.WorkLauncher
+import timber.log.Timber
 
 class TermsAcceptanceActivity : BaseActivity() {
 
@@ -69,7 +71,41 @@ class TermsAcceptanceActivity : BaseActivity() {
             finish()
         }
 
+        binding.checkbox.isFocusable = true
+        binding.checkbox.isFocusableInTouchMode = false
+        binding.accept.isFocusable = true
+        binding.accept.isFocusableInTouchMode = false
+        binding.decline.isFocusable = true
+        binding.decline.isFocusableInTouchMode = false
+
         viewModel.getTac()
+    }
+
+    override fun dispatchKeyEvent(event: KeyEvent): Boolean {
+        when (event.keyCode) {
+            KeyEvent.KEYCODE_DPAD_DOWN -> {
+                if (binding.content.isFocused) {
+                    val scrollViewReachedEnd = binding.scrollView.getChildAt(0).bottom <= (binding.scrollView.height + binding.scrollView.scrollY)
+                    if (scrollViewReachedEnd) {
+                        binding.checkbox.requestFocus()
+                    } else {
+                        binding.scrollView.scrollTo(0, binding.scrollView.scrollY + 100)
+                    }
+                    Timber.d("Webview DOWN: ${binding.scrollView.scrollX} ${binding.scrollView.scrollY}")
+                    return true
+                }
+            }
+            KeyEvent.KEYCODE_DPAD_UP -> {
+                if (binding.content.isFocused) {
+                    if (binding.scrollView.scrollY != 0) {
+                        binding.scrollView.scrollTo(0, binding.scrollView.scrollY - 100)
+                        return true
+                    }
+                    Timber.d("Webview UP: ${binding.scrollView.scrollX} ${binding.scrollView.scrollY}")
+                }
+            }
+        }
+        return super.dispatchKeyEvent(event)
     }
 
     override fun onBackPressed() {}

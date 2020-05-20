@@ -37,6 +37,7 @@ import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
 import com.google.android.gms.maps.model.TileOverlay
 import com.google.android.gms.maps.model.TileOverlayOptions
+import timber.log.Timber
 import kotlin.math.abs
 
 const val START_ZOOM_LEVEL = 12f
@@ -137,12 +138,15 @@ class MapFragment : BaseFragment(), OnMapReadyCallback, MapMarkerDetailsAdapter.
         }
         updateLocationPermissionRelatedUi()
 
+        setDefaultMapPosition()
+
         mapViewModel.markersLiveData.listen(this) {
             adapter.items = it as MutableList<MarkerMeasurementRecord>
             if (it.isNotEmpty()) {
                 val latlng = LatLng(it.first().latitude, it.first().longitude)
                 if (currentLocation != latlng) {
                     currentLocation = latlng
+                    Timber.d("Position markersLiveData to : $latlng")
                     googleMap?.animateCamera(CameraUpdateFactory.newLatLng(latlng))
                 }
                 binding.markerItems.visibility = View.VISIBLE
@@ -195,6 +199,15 @@ class MapFragment : BaseFragment(), OnMapReadyCallback, MapMarkerDetailsAdapter.
     override fun onFiltersUpdated() {
         currentOverlay?.remove()
         currentOverlay = googleMap?.addTileOverlay(TileOverlayOptions().tileProvider(mapViewModel.providerLiveData.value))
+    }
+
+    private fun setDefaultMapPosition() {
+        Timber.d("Position default check to : ${mapViewModel.state.cameraPositionLiveData.value?.latitude} ${mapViewModel.state.cameraPositionLiveData.value?.longitude}")
+        if (mapViewModel.state.cameraPositionLiveData.value == null || mapViewModel.state.cameraPositionLiveData.value?.latitude == 0.0 && mapViewModel.state.cameraPositionLiveData.value?.longitude == 0.0) {
+            val defaultPosition = LatLng(47.6782058, 11.09728)
+            Timber.d("Position default to : ${defaultPosition.latitude} ${defaultPosition.longitude}")
+            googleMap?.animateCamera(CameraUpdateFactory.newLatLngZoom(defaultPosition, 4f))
+        }
     }
 
     private fun drawMarker(record: MarkerMeasurementRecord) {
@@ -306,6 +319,7 @@ class MapFragment : BaseFragment(), OnMapReadyCallback, MapMarkerDetailsAdapter.
                         if (info != null) {
                             mapViewModel.locationLiveData.removeObservers(this)
                             googleMap?.animateCamera(CameraUpdateFactory.newLatLng(LatLng(info.latitude, info.longitude)))
+                            Timber.d("Position locationLiveData to : ${info.latitude} ${info.longitude}")
                         }
                     }
                 }
