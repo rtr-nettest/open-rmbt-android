@@ -29,6 +29,7 @@ private const val KEY_LOOP_NEXT_TEST_DISTANCE_METERS = "KEY_LOOP_NEXT_TEST_DISTA
 private const val KEY_LOOP_NEXT_TEST_DISTANCE_PERCENT = "KEY_LOOP_NEXT_TEST_DISTANCE_PERCENT"
 private const val KEY_LOOP_UUID = "KEY_LOOP_UUID"
 private const val KEY_LOOP_MODE_ENABLED = "KEY_LOOP_MODE_ENABLED"
+private const val KEY_LAST_MEASUREMENT_SIGNAL = "KEY_LAST_MEASUREMENT_SIGNAL"
 
 class MeasurementViewState(private val config: AppConfig) : ViewState {
 
@@ -66,6 +67,10 @@ class MeasurementViewState(private val config: AppConfig) : ViewState {
     }
 
     fun setLoopState(loopState: LoopModeState) {
+        Timber.i("Measurement state from set loop state: loop: $loopState")
+        if ((this.loopState.get() != LoopModeState.RUNNING) && (loopState == LoopModeState.RUNNING)) {
+            signalStrengthInfoResult.set(null)
+        }
         this.loopState.set(loopState)
         if (loopState == LoopModeState.IDLE) {
             measurementProgress.set(0)
@@ -108,6 +113,7 @@ class MeasurementViewState(private val config: AppConfig) : ViewState {
             loopNextTestPercent.set(bundle.getInt(KEY_LOOP_NEXT_TEST_DISTANCE_PERCENT))
             loopLocalUUID.set(bundle.getString(KEY_LOOP_UUID))
             isLoopModeActive.set(bundle.getBoolean(KEY_LOOP_MODE_ENABLED))
+            signalStrengthInfoResult.set(bundle.getParcelable(KEY_LAST_MEASUREMENT_SIGNAL))
         }
     }
 
@@ -129,12 +135,13 @@ class MeasurementViewState(private val config: AppConfig) : ViewState {
             putInt(KEY_LOOP_NEXT_TEST_DISTANCE_PERCENT, loopNextTestPercent.get())
             putString(KEY_LOOP_UUID, loopLocalUUID.get())
             putBoolean(KEY_LOOP_MODE_ENABLED, isLoopModeActive.get())
+            putParcelable(KEY_LAST_MEASUREMENT_SIGNAL, signalStrengthInfoResult.get())
         }
     }
 
     fun setSignalStrength(it: SignalStrengthInfo?) {
         signalStrengthInfo.set(it)
-        if (!isLoopModeActive.get() || loopState.get() != LoopModeState.IDLE) {
+        if (!isLoopModeActive.get() || (measurementState.get() == MeasurementState.INIT || measurementState.get() == MeasurementState.DOWNLOAD || measurementState.get() == MeasurementState.PING || measurementState.get() == MeasurementState.UPLOAD || measurementState.get() == MeasurementState.QOS)) {
             signalStrengthInfoResult.set(it)
         }
     }

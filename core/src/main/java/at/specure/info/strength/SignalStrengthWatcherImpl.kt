@@ -91,16 +91,27 @@ class SignalStrengthWatcherImpl(
                 telephonyManager.phoneCount > 1
             }
 
+            Timber.d("Signal changed detected: value: ${signalStrength?.level}\nclass: ${signalStrength?.javaClass}\n ${signalStrength?.toString()}")
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                signalStrength?.getCellSignalStrengths()?.forEach {
+                    Timber.d("Cell signal changed detected: \ndbm: ${it.dbm}\nLevel: ${it.level}\nasuLevel: ${it.asuLevel}\nclass: ${it.javaClass}")
+                }
+            }
+
             val signal = SignalStrengthInfo.from(signalStrength, network, cellInfo, dualSim)
 
-            if (signal?.value != null && signal.value != 0) {
+            if (signal?.value == null || signal.value == 0) {
+                signalStrengthInfo = null
+                Timber.d("Signal changed to: NULL")
+            } else {
                 signalStrengthInfo = if (Network5GSimulator.isEnabled) {
                     Network5GSimulator.signalStrength(signal)
                 } else {
                     signal
                 }
-                notifyInfoChanged()
+                Timber.d("Signal changed to: \ntransport: ${signal.transport} \nvalue: ${signal.value} \nsignalLevel:${signal.signalLevel}")
             }
+            notifyInfoChanged()
         }
     }
 

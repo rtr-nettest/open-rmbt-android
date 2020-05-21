@@ -118,6 +118,7 @@ class MeasurementViewModel @Inject constructor(
                     pingNanos.set(it.pingNanos)
                     downloadSpeedBps.set(it.downloadSpeedBps)
                     uploadSpeedBps.set(it.uploadSpeedBps)
+                    signalStrengthInfoResult.set(it.lastMeasurementSignalInfo)
                 }
                 Timber.d("Ping value from: ${it.pingNanos}")
             }
@@ -163,6 +164,9 @@ class MeasurementViewModel @Inject constructor(
     override fun onProgressChanged(state: MeasurementState, progress: Int) {
         this.state.measurementState.set(state)
         this.state.measurementProgress.set(progress)
+        if (config.loopModeEnabled) {
+            this.state.signalStrengthInfoResult.set(producer?.lastMeasurementSignalInfo)
+        }
     }
 
     override fun onMeasurementError() {

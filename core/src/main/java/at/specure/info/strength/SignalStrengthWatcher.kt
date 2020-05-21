@@ -41,7 +41,7 @@ interface SignalStrengthWatcher {
 
         /**
          * Triggers when signal data of currently active network is updated
-         * NULL will be triggered if no active network avai
+         * NULL will be triggered if no active network available
          */
         fun onSignalStrengthChanged(signalInfo: SignalStrengthInfo?)
     }

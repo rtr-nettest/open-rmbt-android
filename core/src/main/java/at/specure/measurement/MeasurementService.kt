@@ -28,6 +28,7 @@ import at.specure.data.repository.ResultsRepository
 import at.specure.data.repository.TestDataRepository
 import at.specure.di.CoreInjector
 import at.specure.di.NotificationProvider
+import at.specure.info.strength.SignalStrengthInfo
 import at.specure.location.LocationState
 import at.specure.location.LocationWatcher
 import at.specure.measurement.signal.SignalMeasurementProducer
@@ -86,6 +87,8 @@ class MeasurementService : CustomLifecycleService() {
     private var uploadSpeedBps = 0L
     private var hasErrors = false
     private var startNetwork: Network? = null
+    private val lastMeasurementSignal: SignalStrengthInfo?
+        get() = stateRecorder.lastMeasurementSignalStrength
     private var qosTasksPassed = 0
 
     private var qosTasksTotal = 0
@@ -643,6 +646,9 @@ class MeasurementService : CustomLifecycleService() {
 
         override val loopModeState: LoopModeState
             get() = this@MeasurementService.loopModeState
+
+        override val lastMeasurementSignalInfo: SignalStrengthInfo?
+            get() = this@MeasurementService.lastMeasurementSignal
 
         override val isTestsRunning: Boolean
             get() = !((!config.loopModeEnabled && (this.measurementState == MeasurementState.IDLE || this.measurementState == MeasurementState.ERROR || this.measurementState == MeasurementState.ABORTED || this.measurementState == MeasurementState.FINISH)) || (config.loopModeEnabled && ((this.loopModeState == LoopModeState.IDLE && this.loopLocalUUID == null) || this.loopModeState == LoopModeState.FINISHED)))

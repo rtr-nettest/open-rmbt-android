@@ -92,6 +92,9 @@ class MeasurementActivity : BaseActivity(), SimpleDialog.Callback {
 
         viewModel.activeNetworkLiveData.listen(this) {
             viewModel.state.networkInfo.set(it)
+            if (it == null) {
+                viewModel.state.setSignalStrength(null)
+            }
         }
 
         viewModel.qosProgressLiveData.listen(this) {
@@ -100,7 +103,7 @@ class MeasurementActivity : BaseActivity(), SimpleDialog.Callback {
 
         viewModel.loopUuidLiveData.listen(this) { loopUUID ->
             if (loopUUID != null) {
-                viewModel.loopProgressLiveData?.observe(this@MeasurementActivity) { loopRecord ->
+                viewModel.loopProgressLiveData.observe(this@MeasurementActivity) { loopRecord ->
                     onLoopRecordChanged(loopRecord)
                 }
             }
@@ -122,20 +125,14 @@ class MeasurementActivity : BaseActivity(), SimpleDialog.Callback {
         viewModel.state.loopModeRecord.get()?.testsPerformed?.let { viewModel.state.setLoopProgress(it, viewModel.config.loopModeNumberOfTests) }
 
         viewModel.qosProgressLiveData.value?.let { binding.root.measurementBottomView.qosProgressContainer.update(it) }
-
-//        if (viewModel.loopUuidLiveData.value != null) {
-//            onLoopRecordChanged(viewModel.loopProgressLiveData.value)
-//        }
     }
 
     private fun finishActivity(measurementFinished: Boolean) {
         if (measurementFinished) {
             finish()
             if (viewModel.state.isLoopModeActive.get()) {
-//                viewModel.setMeasurementResultsShown()
                 LoopFinishedActivity.start(this)
             } else {
-//                viewModel.setMeasurementResultsShown()
                 viewModel.testUUID?.let {
                     if (viewModel.state.measurementState.get() == MeasurementState.FINISH)
                         ResultsActivity.start(this, it)
