@@ -129,7 +129,6 @@ class ResultsRepositoryImpl @Inject constructor(
         }
 
         return finalResult
-
     }
 
     private fun saveLocalTestResults(
