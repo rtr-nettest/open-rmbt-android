@@ -164,7 +164,9 @@ class MeasurementViewModel @Inject constructor(
     override fun onProgressChanged(state: MeasurementState, progress: Int) {
         this.state.measurementState.set(state)
         this.state.measurementProgress.set(progress)
-        this.state.signalStrengthInfoResult.set(producer?.lastMeasurementSignalInfo)
+        if (config.loopModeEnabled) {
+            this.state.signalStrengthInfoResult.set(producer?.lastMeasurementSignalInfo)
+        }
     }
 
     override fun onMeasurementError() {
