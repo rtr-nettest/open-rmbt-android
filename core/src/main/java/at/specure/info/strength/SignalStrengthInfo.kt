@@ -16,6 +16,7 @@ package at.specure.info.strength
 
 import android.annotation.SuppressLint
 import android.os.Build
+import android.os.Parcelable
 import android.os.SystemClock
 import android.telephony.CellInfo
 import android.telephony.CellInfoGsm
@@ -34,12 +35,14 @@ import at.specure.info.cell.CellNetworkInfo
 import at.specure.info.network.MobileNetworkType
 import at.specure.info.network.NetworkInfo
 import at.specure.info.network.WifiNetworkInfo
+import kotlinx.android.parcel.Parcelize
 import timber.log.Timber
 import kotlin.math.abs
 
 /**
  * Class that contains data about signal strength
  */
+@Parcelize
 open class SignalStrengthInfo(
 
     /**
@@ -76,7 +79,7 @@ open class SignalStrengthInfo(
      * Timestamp in nanoseconds when data was received
      */
     val timestampNanos: Long
-) {
+) : Parcelable {
 
     companion object {
         const val WIFI_MIN_SIGNAL_VALUE = -100

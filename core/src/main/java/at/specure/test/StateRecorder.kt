@@ -60,6 +60,7 @@ class StateRecorder @Inject constructor(
 
     private var _locationInfo: LocationInfo? = null
     private var signalStrengthInfo: SignalStrengthInfo? = null
+    var lastMeasurementSignalStrength: SignalStrengthInfo? = null
     private var networkInfo: NetworkInfo? = null
     private var cellLocation: CellLocationInfo? = null
     private var qosRunning = false
@@ -107,7 +108,14 @@ class StateRecorder @Inject constructor(
         })
 
         signalStrengthInfo = signalStrengthWatcher.lastSignalStrength
+        if ((loopModeRecord != null) && (loopModeRecord?.status == LoopModeState.RUNNING)) {
+            lastMeasurementSignalStrength = signalStrengthInfo
+        }
         signalStrengthLiveData.observe(lifecycle, Observer { info ->
+            Timber.d("Signal change detection: $info")
+            if ((loopModeRecord != null) && (loopModeRecord?.status == LoopModeState.RUNNING)) {
+                lastMeasurementSignalStrength = signalStrengthInfo
+            }
             signalStrengthInfo = info
             saveSignalStrengthInfo()
         })
@@ -464,6 +472,7 @@ class StateRecorder @Inject constructor(
     }
 
     fun onTestInLoopStarted() {
+        lastMeasurementSignalStrength = null
         _loopModeRecord?.let {
             it.movementDistanceMeters = 0
             it.lastTestLongitude = locationInfo?.longitude

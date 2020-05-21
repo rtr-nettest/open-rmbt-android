@@ -92,6 +92,9 @@ class MeasurementActivity : BaseActivity(), SimpleDialog.Callback {
 
         viewModel.activeNetworkLiveData.listen(this) {
             viewModel.state.networkInfo.set(it)
+            if (it == null) {
+                viewModel.state.setSignalStrength(null)
+            }
         }
 
         viewModel.qosProgressLiveData.listen(this) {
@@ -100,7 +103,7 @@ class MeasurementActivity : BaseActivity(), SimpleDialog.Callback {
 
         viewModel.loopUuidLiveData.listen(this) { loopUUID ->
             if (loopUUID != null) {
-                viewModel.loopProgressLiveData?.observe(this@MeasurementActivity) { loopRecord ->
+                viewModel.loopProgressLiveData.observe(this@MeasurementActivity) { loopRecord ->
                     onLoopRecordChanged(loopRecord)
                 }
             }
