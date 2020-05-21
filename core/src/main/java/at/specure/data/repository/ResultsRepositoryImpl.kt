@@ -2,6 +2,7 @@ package at.specure.data.repository
 
 import android.content.Context
 import at.rmbt.client.control.ControlServerClient
+import at.rmbt.client.control.TestResultBody
 import at.rmbt.util.Maybe
 import at.rmbt.util.io
 import at.rtr.rmbt.client.helper.TestStatus
@@ -78,6 +79,11 @@ class ResultsRepositoryImpl @Inject constructor(
                 permissions = db.permissionStatusDao().get(testUUID)
             )
 
+            // save results locally in every condition the test was successful, if result will be sent and obtained successfully, it overwrites the local results
+            if (testRecord.status != TestStatus.SPEEDTEST_END) {
+                saveLocalTestResults(body, testUUID, wlanInfo, speeds, pings, signals)
+            }
+
             val result = client.sendTestResults(body)
 
             result.onSuccess {
@@ -89,68 +95,6 @@ class ResultsRepositoryImpl @Inject constructor(
                 if (testRecord.status != TestStatus.SPEEDTEST_END) {
                     return@onFailure
                 }
-
-                val networkType = NetworkTypeCompat.fromResultIntType(body.networkType.toInt())
-
-                db.testResultDao().insert(
-                    TestResultRecord(
-                        uuid = testUUID,
-                        clientOpenUUID = "",
-                        testOpenUUID = "",
-                        timezone = "",
-                        shareText = "",
-                        shareTitle = "",
-                        locationText = "",
-                        longitude = body?.geoLocations?.get(0)?.longitude,
-                        latitude = body?.geoLocations?.get(0)?.latitude,
-                        timestamp = body.timeMillis,
-                        timeText = "",
-                        networkTypeRaw = body.networkType.toInt(),
-                        networkTypeText = if (networkType != NetworkTypeCompat.TYPE_WLAN) MobileNetworkType.fromValue(body.networkType.toInt()).displayName else NetworkTypeCompat.TYPE_WLAN.stringValue,
-                        networkName = if (networkType == NetworkTypeCompat.TYPE_WLAN) wlanInfo?.ssid ?: wlanInfo?.bssid else null,
-                        networkProviderName = body.telephonyNetworkSimOperatorName,
-                        networkType = networkType,
-                        uploadClass = Classification.fromValue(0),
-                        downloadClass = Classification.fromValue(0),
-                        downloadSpeedKbs = body.downloadSpeedKbs,
-                        uploadSpeedKbs = body.uploadSpeedKbs,
-                        signalClass = Classification.fromValue(0),
-                        signalStrength = body.radioInfo?.signals?.get(0)?.signal ?: body.radioInfo?.signals?.get(0)?.lteRsrp,
-                        pingClass = Classification.fromValue(0),
-                        pingMillis = body.shortestPingNanos / 1000000.toDouble(),
-                        isLocalOnly = true
-                    )
-                )
-
-                val uploadSpeeds = HashMap<Int, MutableList<SpeedRecord>>()
-                val downloadSpeeds = HashMap<Int, MutableList<SpeedRecord>>()
-
-                speeds.forEach {
-                    if (it.isUpload) {
-                        var threadList = uploadSpeeds[it.threadId]
-                        if (threadList == null) {
-                            threadList = mutableListOf<SpeedRecord>()
-                        }
-                        threadList.add(it)
-                        uploadSpeeds[it.threadId] = threadList
-                    } else {
-                        var threadList = downloadSpeeds[it.threadId]
-                        if (threadList == null) {
-                            threadList = mutableListOf<SpeedRecord>()
-                        }
-                        threadList.add(it)
-                        downloadSpeeds[it.threadId] = threadList
-                    }
-                }
-
-                val downloadSpeedsRecords = convertToThreadSpeeds(downloadSpeeds)
-                db.testResultGraphItemDao().clearInsertItems(downloadSpeedsRecords)
-                val uploadSpeedsRecords = convertToThreadSpeeds(uploadSpeeds)
-                db.testResultGraphItemDao().clearInsertItems(uploadSpeedsRecords)
-                val resultPings = pings.map { transformPing(it, testUUID) }
-                db.testResultGraphItemDao().clearInsertItems(resultPings)
-                val resultSignals = signals.map { transformSignal(it, testUUID) }
-                db.testResultGraphItemDao().clearInsertItems(resultSignals)
             }
 
             if (qosRecord != null) {
@@ -185,6 +129,78 @@ class ResultsRepositoryImpl @Inject constructor(
         }
 
         return finalResult
+
+    }
+
+    private fun saveLocalTestResults(
+        body: TestResultBody,
+        testUUID: String,
+        wlanInfo: TestWlanRecord?,
+        speeds: List<SpeedRecord>,
+        pings: List<PingRecord>,
+        signals: List<SignalRecord>
+    ) {
+        val networkType = NetworkTypeCompat.fromResultIntType(body.networkType.toInt())
+
+        db.testResultDao().insert(
+            TestResultRecord(
+                uuid = testUUID,
+                clientOpenUUID = "",
+                testOpenUUID = "",
+                timezone = "",
+                shareText = "",
+                shareTitle = "",
+                locationText = "",
+                longitude = body?.geoLocations?.get(0)?.longitude,
+                latitude = body?.geoLocations?.get(0)?.latitude,
+                timestamp = body.timeMillis,
+                timeText = "",
+                networkTypeRaw = body.networkType.toInt(),
+                networkTypeText = if (networkType != NetworkTypeCompat.TYPE_WLAN) MobileNetworkType.fromValue(body.networkType.toInt()).displayName else NetworkTypeCompat.TYPE_WLAN.stringValue,
+                networkName = if (networkType == NetworkTypeCompat.TYPE_WLAN) wlanInfo?.ssid ?: wlanInfo?.bssid else null,
+                networkProviderName = body.telephonyNetworkSimOperatorName,
+                networkType = networkType,
+                uploadClass = Classification.fromValue(0),
+                downloadClass = Classification.fromValue(0),
+                downloadSpeedKbs = body.downloadSpeedKbs,
+                uploadSpeedKbs = body.uploadSpeedKbs,
+                signalClass = Classification.fromValue(0),
+                signalStrength = body.radioInfo?.signals?.get(0)?.signal ?: body.radioInfo?.signals?.get(0)?.lteRsrp,
+                pingClass = Classification.fromValue(0),
+                pingMillis = body.shortestPingNanos / 1000000.toDouble(),
+                isLocalOnly = true
+            )
+        )
+
+        val uploadSpeeds = HashMap<Int, MutableList<SpeedRecord>>()
+        val downloadSpeeds = HashMap<Int, MutableList<SpeedRecord>>()
+
+        speeds.forEach {
+            if (it.isUpload) {
+                var threadList = uploadSpeeds[it.threadId]
+                if (threadList == null) {
+                    threadList = mutableListOf<SpeedRecord>()
+                }
+                threadList.add(it)
+                uploadSpeeds[it.threadId] = threadList
+            } else {
+                var threadList = downloadSpeeds[it.threadId]
+                if (threadList == null) {
+                    threadList = mutableListOf<SpeedRecord>()
+                }
+                threadList.add(it)
+                downloadSpeeds[it.threadId] = threadList
+            }
+        }
+
+        val downloadSpeedsRecords = convertToThreadSpeeds(downloadSpeeds)
+        db.testResultGraphItemDao().clearInsertItems(downloadSpeedsRecords)
+        val uploadSpeedsRecords = convertToThreadSpeeds(uploadSpeeds)
+        db.testResultGraphItemDao().clearInsertItems(uploadSpeedsRecords)
+        val resultPings = pings.map { transformPing(it, testUUID) }
+        db.testResultGraphItemDao().clearInsertItems(resultPings)
+        val resultSignals = signals.map { transformSignal(it, testUUID) }
+        db.testResultGraphItemDao().clearInsertItems(resultSignals)
     }
 
     private fun transformPing(pingRecord: PingRecord, testUUID: String): TestResultGraphItemRecord {
