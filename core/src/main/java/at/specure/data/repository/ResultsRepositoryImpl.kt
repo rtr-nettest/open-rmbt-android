@@ -80,7 +80,7 @@ class ResultsRepositoryImpl @Inject constructor(
             )
 
             // save results locally in every condition the test was successful, if result will be sent and obtained successfully, it overwrites the local results
-            if (testRecord.status != TestStatus.SPEEDTEST_END) {
+            if ((testRecord.status == TestStatus.SPEEDTEST_END) || (testRecord.status == TestStatus.QOS_END) || (testRecord.status == TestStatus.END)) {
                 saveLocalTestResults(body, testUUID, wlanInfo, speeds, pings, signals)
             }
 
@@ -92,7 +92,7 @@ class ResultsRepositoryImpl @Inject constructor(
 
             result.onFailure {
 
-                if (testRecord.status != TestStatus.SPEEDTEST_END) {
+                if ((testRecord.status != TestStatus.SPEEDTEST_END) || (testRecord.status != TestStatus.QOS_END) || (testRecord.status != TestStatus.END)) {
                     return@onFailure
                 }
             }
