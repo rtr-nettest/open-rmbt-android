@@ -1,6 +1,7 @@
 package at.specure.measurement
 
 import at.specure.data.entity.LoopModeState
+import at.specure.info.strength.SignalStrengthInfo
 
 interface MeasurementProducer {
 
@@ -24,7 +25,9 @@ interface MeasurementProducer {
 
     val testUUID: String?
 
-    val loopUUID: String?
+    val lastMeasurementSignalInfo: SignalStrengthInfo?
+
+    val loopLocalUUID: String?
 
     fun startTests()
 

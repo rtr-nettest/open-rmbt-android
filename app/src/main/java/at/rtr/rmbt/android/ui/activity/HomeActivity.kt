@@ -59,7 +59,7 @@ class HomeActivity : BaseActivity() {
         viewModel.isTestsRunningLiveData.listen(this) { isRunning ->
             if (isRunning) {
                 if (viewModel.config.loopModeEnabled) {
-                    if (viewModel.state.loopState.get() != LoopModeState.FINISHED && viewModel.state.loopUUID.get() != null) {
+                    if (viewModel.state.loopState.get() != LoopModeState.FINISHED && viewModel.state.loopLocalUUID.get() != null) {
                         MeasurementActivity.start(this)
                     }
                 } else {

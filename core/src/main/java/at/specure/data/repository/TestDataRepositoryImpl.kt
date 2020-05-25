@@ -371,7 +371,7 @@ class TestDataRepositoryImpl(db: CoreDatabase) : TestDataRepository {
         connectivityStateDao.saveState(state)
     }
 
-    override fun getLoopMode(loopUUID: String): LiveData<LoopModeRecord?> {
+    override fun getLoopModeByLocal(loopUUID: String): LiveData<LoopModeRecord?> {
         return testDao.getLoopModeRecord(loopUUID)
     }
 }

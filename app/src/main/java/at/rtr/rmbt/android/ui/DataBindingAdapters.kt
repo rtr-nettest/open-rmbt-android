@@ -266,17 +266,20 @@ fun AppCompatTextView.setPing(pingNanos: Long) {
         setCompoundDrawablesWithIntrinsicBounds(
 
             when (pingResult) {
-                in THRESHOLD_PING[0]..THRESHOLD_PING[1] -> {
-                    R.drawable.ic_small_ping_dark_green
-                }
-                in THRESHOLD_PING[1]..THRESHOLD_PING[2] -> {
-                    R.drawable.ic_small_ping_light_green
+                in THRESHOLD_PING[3]..Double.MAX_VALUE -> {
+                    R.drawable.ic_small_ping_red
                 }
                 in THRESHOLD_PING[2]..THRESHOLD_PING[3] -> {
                     R.drawable.ic_small_ping_yellow
                 }
+                in THRESHOLD_PING[1]..THRESHOLD_PING[2] -> {
+                    R.drawable.ic_small_ping_light_green
+                }
+                in THRESHOLD_PING[0]..THRESHOLD_PING[1] -> {
+                    R.drawable.ic_small_ping_dark_green
+                }
                 else -> {
-                    R.drawable.ic_small_ping_red
+                    R.drawable.ic_small_ping_gray
                 }
             }, 0, 0, 0
         )
@@ -455,9 +458,9 @@ fun MeasurementCurveLayout.setPercents(percentage: Int) {
     setTopProgress(percentage)
 }
 
-@BindingAdapter("strength", "strengthMin", "strengthMax", requireAll = true)
-fun MeasurementCurveLayout.setSignal(signalLevel: Int, strengthMin: Int, strengthMax: Int) {
-    setSignalStrength(signalLevel, strengthMin, strengthMax)
+@BindingAdapter("strength")
+fun MeasurementCurveLayout.setSignal(signalLevel: SignalStrengthInfo?) {
+    setSignalStrength(signalLevel)
 }
 
 @BindingAdapter("measurementPhase")

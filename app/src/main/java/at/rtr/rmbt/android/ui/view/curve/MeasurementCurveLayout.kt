@@ -13,6 +13,7 @@ import at.rtr.rmbt.android.databinding.LayoutPercentageBinding
 import at.rtr.rmbt.android.databinding.LayoutSpeedBinding
 import at.rtr.rmbt.android.util.format
 import at.specure.data.entity.LoopModeState
+import at.specure.info.strength.SignalStrengthInfo
 import at.specure.measurement.MeasurementState
 import timber.log.Timber
 import kotlin.math.min
@@ -233,12 +234,16 @@ class MeasurementCurveLayout @JvmOverloads constructor(context: Context, attrs: 
     /**
      * Update the signal strength bar UI according to progress changing
      */
-    fun setSignalStrength(signalLevel: Int, minValue: Int, maxValue: Int) {
-        if (minValue != maxValue) {
+    fun setSignalStrength(signalStrengthInfo: SignalStrengthInfo?) {
+        if (signalStrengthInfo?.value != null && signalStrengthInfo.value != 0 && signalStrengthInfo.min != signalStrengthInfo.max) {
             with(curveBinding.layoutStrength) {
                 root.visibility = View.VISIBLE
-                strength.setSignalData(signalLevel, minValue, maxValue)
-                strengthValue.text = context.getString(R.string.strength_signal_value, signalLevel)
+                strength.setSignalData(signalStrengthInfo.value ?: 0, signalStrengthInfo.min, signalStrengthInfo.max)
+                strengthValue.text = context.getString(R.string.strength_signal_value, signalStrengthInfo.value ?: 0)
+            }
+        } else {
+            with(curveBinding.layoutStrength) {
+                root.visibility = View.INVISIBLE
             }
         }
     }

@@ -8,8 +8,9 @@ import at.specure.data.Tables
 data class LoopModeRecord(
 
     @PrimaryKey
-    val uuid: String,
-    var testsPerformed: Int = 1,
+    val localUuid: String,
+    var uuid: String?,
+    var testsPerformed: Int = 0,
     var lastTestLongitude: Double? = null,
     var lastTestLatitude: Double? = null,
     var lastTestFinishedTimeMillis: Long = 0,

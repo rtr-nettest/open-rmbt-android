@@ -38,7 +38,6 @@ class MeasurementViewModel @Inject constructor(
 
     private val _measurementFinishLiveData = MutableLiveData<Boolean>()
     private val _measurementCancelledLiveData = MutableLiveData<Boolean>()
-
     private val _isTestsRunningLiveData = MutableLiveData<Boolean>()
     private val _measurementErrorLiveData = MutableLiveData<Boolean>()
     private val _downloadGraphLiveData = MutableLiveData<List<GraphItemRecord>>()
@@ -103,26 +102,27 @@ class MeasurementViewModel @Inject constructor(
 
         override fun onServiceConnected(componentName: ComponentName?, binder: IBinder?) {
             producer = binder as MeasurementProducer?
-            val loopUuid = producer?.loopUUID
+            val loopLocalUuid = producer?.loopLocalUUID
             testUUID = producer?.testUUID
 
-            initializeLoopData(loopUuid)
-            Timber.d("Passed loop UUID: $loopUuid")
+            initializeLoopData(loopLocalUuid)
+            Timber.d("Passed local loop UUID: $loopLocalUuid")
             producer?.let {
                 it.addClient(this@MeasurementViewModel)
 
                 with(state) {
                     measurementState.set(it.measurementState)
                     loopState.set(it.loopModeState)
-                    _loopUUIDLiveData.postValue(it.loopUUID)
+                    _loopUUIDLiveData.postValue(it.loopLocalUUID)
                     measurementProgress.set(it.measurementProgress)
                     pingNanos.set(it.pingNanos)
                     downloadSpeedBps.set(it.downloadSpeedBps)
                     uploadSpeedBps.set(it.uploadSpeedBps)
+                    signalStrengthInfoResult.set(it.lastMeasurementSignalInfo)
                 }
                 Timber.d("Ping value from: ${it.pingNanos}")
             }
-            Timber.d("On service connected:\n test running:  ${producer?.isTestsRunning} \n measurement state:  ${producer?.measurementState} \n loop state: ${producer?.loopModeState} \nloop uuid: ${producer?.loopUUID} \n")
+            Timber.d("On service connected:\n test running:  ${producer?.isTestsRunning} \n measurement state:  ${producer?.measurementState} \n loop state: ${producer?.loopModeState} \nloop local uuid: ${producer?.loopLocalUUID} \n")
 
             val finished = producer?.isTestsRunning != true
             Timber.d("FINISHED?: $finished")
@@ -164,6 +164,9 @@ class MeasurementViewModel @Inject constructor(
     override fun onProgressChanged(state: MeasurementState, progress: Int) {
         this.state.measurementState.set(state)
         this.state.measurementProgress.set(progress)
+        if (config.loopModeEnabled) {
+            this.state.signalStrengthInfoResult.set(producer?.lastMeasurementSignalInfo)
+        }
     }
 
     override fun onMeasurementError() {
@@ -239,14 +242,13 @@ class MeasurementViewModel @Inject constructor(
         _measurementCancelledLiveData.postValue(false)
     }
 
-    override fun onClientReady(testUUID: String, loopUUID: String?) {
+    override fun onClientReady(testUUID: String, loopLocalUUID: String?) {
 
         this.testUUID = testUUID
+        _loopUUIDLiveData.postValue(loopLocalUUID)
+        initializeLoopData(loopLocalUUID)
 
-        initializeLoopData(loopUUID)
-        _loopUUIDLiveData.postValue(loopUUID)
-
-        Timber.d("loopUUID: $loopUUID")
+        Timber.d("loopUUID: $loopLocalUUID")
 
         testDataRepository.getDownloadGraphItemsLiveData(testUUID) {
             _downloadGraphLiveData.postValue(it)
@@ -257,12 +259,13 @@ class MeasurementViewModel @Inject constructor(
         }
     }
 
-    private fun initializeLoopData(loopUUID: String?) {
-        if (loopUUID != null) {
+    private fun initializeLoopData(loopLocalUUID: String?) {
+        if (loopLocalUUID != null) {
             Timber.d("Loop UUID not null")
-            loopProgressLiveData = testDataRepository.getLoopMode(loopUUID)
-            _loopUUIDLiveData.postValue(loopUUID)
-            this.state.loopUUID.set(loopUUID)
+            loopProgressLiveData = testDataRepository.getLoopModeByLocal(loopLocalUUID)
+            _loopUUIDLiveData.postValue(loopLocalUUID)
+            this.state.loopLocalUUID.set(loopLocalUUID)
+            this.state.loopState.set(loopProgressLiveData.value?.status)
         }
     }
 
