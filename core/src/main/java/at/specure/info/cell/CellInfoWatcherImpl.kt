@@ -56,7 +56,7 @@ class CellInfoWatcherImpl(
     private var _activeNetwork: CellNetworkInfo? = null
     private var callbacksRegistered = false
     private var _cellInfo: CellInfo? = null
-    private var _allCellInfo = mutableListOf<CellNetworkInfo>()
+    private var _allCellInfo = Collections.synchronizedList(mutableListOf<CellNetworkInfo>())
 
     override val cellInfo: CellInfo?
         get() = _cellInfo
