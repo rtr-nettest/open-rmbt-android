@@ -68,6 +68,7 @@ class HomeActivity : BaseActivity() {
             } else {
                 if (viewModel.config.loopModeEnabled) {
                     Timber.d("MeasurementViewModel: home activity, loop mode state: ${viewModel.state.loopState.get()}")
+                    // not very good solution
                     if (viewModel.state.loopState.get() == LoopModeState.FINISHED && notificationManager.activeNotifications.isNotEmpty()) {
                         LoopFinishedActivity.start(this)
                     }

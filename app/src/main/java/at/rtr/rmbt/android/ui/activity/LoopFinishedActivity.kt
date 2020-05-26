@@ -38,7 +38,7 @@ class LoopFinishedActivity : BaseActivity() {
 
     override fun onResume() {
         super.onResume()
-        notificationManager.cancel(MeasurementService.NOTIFICATION_LOOP_FINISHED_ID)
+        notificationManager.cancelAll()
     }
 
     companion object {
