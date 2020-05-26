@@ -31,6 +31,7 @@ import at.specure.location.cell.CellLocationInfo
 import at.specure.location.cell.CellLocationLiveData
 import at.specure.location.cell.CellLocationWatcher
 import at.specure.test.toDeviceInfoLocation
+import okhttp3.internal.toImmutableList
 import timber.log.Timber
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
@@ -273,7 +274,7 @@ class SignalMeasurementProcessor @Inject constructor(
                 else -> throw IllegalArgumentException("Unknown cell info ${info.javaClass.simpleName}")
             }
 
-            repository.saveCellInfo(uuid, infoList, record?.startTimeMillis ?: 0)
+            repository.saveCellInfo(uuid, infoList.toImmutableList(), record?.startTimeMillis ?: 0)
         }
     }
 
