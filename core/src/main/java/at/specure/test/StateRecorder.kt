@@ -33,7 +33,6 @@ import at.specure.location.LocationWatcher
 import at.specure.location.cell.CellLocationInfo
 import at.specure.location.cell.CellLocationLiveData
 import at.specure.location.cell.CellLocationWatcher
-import okhttp3.internal.toImmutableList
 import org.json.JSONArray
 import timber.log.Timber
 import java.util.UUID
@@ -298,7 +297,7 @@ class StateRecorder @Inject constructor(
                 else -> throw IllegalArgumentException("Unknown cell info ${info.javaClass.simpleName}")
             }
 
-            repository.saveCellInfo(uuid, infoList.toImmutableList(), testStartTimeNanos)
+            repository.saveCellInfo(uuid, infoList.toList(), testStartTimeNanos)
         }
     }
 
