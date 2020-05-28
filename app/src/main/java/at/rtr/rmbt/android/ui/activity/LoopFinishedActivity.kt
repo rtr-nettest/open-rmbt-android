@@ -6,7 +6,6 @@ import android.content.Intent
 import android.os.Bundle
 import at.rtr.rmbt.android.R
 import at.rtr.rmbt.android.databinding.ActivityLoopFinishedBinding
-import at.specure.measurement.MeasurementService
 
 class LoopFinishedActivity : BaseActivity() {
 
