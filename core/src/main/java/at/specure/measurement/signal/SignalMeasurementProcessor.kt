@@ -273,7 +273,7 @@ class SignalMeasurementProcessor @Inject constructor(
                 else -> throw IllegalArgumentException("Unknown cell info ${info.javaClass.simpleName}")
             }
 
-            repository.saveCellInfo(uuid, infoList, record?.startTimeMillis ?: 0)
+            repository.saveCellInfo(uuid, infoList.toList(), record?.startTimeMillis ?: 0)
         }
     }
 

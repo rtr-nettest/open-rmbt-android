@@ -297,7 +297,7 @@ class StateRecorder @Inject constructor(
                 else -> throw IllegalArgumentException("Unknown cell info ${info.javaClass.simpleName}")
             }
 
-            repository.saveCellInfo(uuid, infoList, testStartTimeNanos)
+            repository.saveCellInfo(uuid, infoList.toList(), testStartTimeNanos)
         }
     }
 
@@ -472,7 +472,7 @@ class StateRecorder @Inject constructor(
     }
 
     fun onTestInLoopStarted() {
-        lastMeasurementSignalStrength = null
+        lastMeasurementSignalStrength = signalStrengthInfo
         _loopModeRecord?.let {
             it.movementDistanceMeters = 0
             it.lastTestLongitude = locationInfo?.longitude

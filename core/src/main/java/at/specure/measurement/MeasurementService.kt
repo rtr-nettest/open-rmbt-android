@@ -228,6 +228,7 @@ class MeasurementService : CustomLifecycleService() {
                     loopCountdownTimer?.cancel()
                     Timber.d("TIMER: cancelling 4: ${loopCountdownTimer?.hashCode()}")
                     hasErrors = true
+                    notificationManager.cancel(NOTIFICATION_ID)
                     clientAggregator.onMeasurementError()
                     stateRecorder.finish()
                     unlock()
@@ -253,9 +254,10 @@ class MeasurementService : CustomLifecycleService() {
                     loopCountdownTimer?.cancel()
                     Timber.d("TEST ERROR HANDLING - NOT PENDING LOOP DISABLED")
                     if (config.loopModeEnabled) {
+                        loopModeState = LoopModeState.FINISHED
                         notificationManager.cancel(NOTIFICATION_ID)
                         notificationManager.notify(NOTIFICATION_LOOP_FINISHED_ID, notificationProvider.loopModeFinishedNotification())
-                        loopModeState = LoopModeState.FINISHED
+                        clientAggregator.onMeasurementError()
                     } else {
                         notificationManager.cancel(NOTIFICATION_ID)
                         clientAggregator.onMeasurementError()
@@ -429,6 +431,9 @@ class MeasurementService : CustomLifecycleService() {
                     }
 
                     override fun onTick(millisUntilFinished: Long) {
+                        if (stateRecorder.loopModeRecord?.status == LoopModeState.FINISHED || stateRecorder.loopModeRecord?.testsPerformed ?: 0 >= config.loopModeMaxTestsNumber) {
+                            this.cancel()
+                        }
                         Timber.d("CountDownTimer tick $millisUntilFinished - ${this.hashCode()}")
                         if (!runner.isRunning) {
                             val location = stateRecorder.locationInfo
@@ -539,6 +544,10 @@ class MeasurementService : CustomLifecycleService() {
                 stopTestsIntent(this@MeasurementService)
             )
         )
+
+        if (!producer.isTestsRunning) {
+            notificationManager.cancel(NOTIFICATION_ID)
+        }
     }
 
     private fun stopTests() {
