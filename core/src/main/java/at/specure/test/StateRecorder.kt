@@ -473,7 +473,7 @@ class StateRecorder @Inject constructor(
     }
 
     fun onTestInLoopStarted() {
-        lastMeasurementSignalStrength = null
+        lastMeasurementSignalStrength = signalStrengthInfo
         _loopModeRecord?.let {
             it.movementDistanceMeters = 0
             it.lastTestLongitude = locationInfo?.longitude
