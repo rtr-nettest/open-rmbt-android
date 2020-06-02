@@ -124,9 +124,10 @@ class CoreModule {
         connectivityWatcher: ConnectivityWatcher,
         wifiInfoWatcher: WifiInfoWatcher,
         cellInfoWatcher: CellInfoWatcher,
-        locationWatcher: LocationWatcher
+        locationWatcher: LocationWatcher,
+        captivePortal: CaptivePortal
     ): ActiveNetworkWatcher =
-        ActiveNetworkWatcher(connectivityWatcher, wifiInfoWatcher, cellInfoWatcher, locationWatcher.stateWatcher)
+        ActiveNetworkWatcher(connectivityWatcher, wifiInfoWatcher, cellInfoWatcher, locationWatcher.stateWatcher, captivePortal)
 
     @Provides
     @Singleton
