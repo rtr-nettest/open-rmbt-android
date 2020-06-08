@@ -35,8 +35,10 @@ import at.specure.info.cell.CellNetworkInfo
 import at.specure.info.network.MobileNetworkType
 import at.specure.info.network.NetworkInfo
 import at.specure.info.network.WifiNetworkInfo
+import com.google.firebase.crashlytics.FirebaseCrashlytics
 import kotlinx.android.parcel.Parcelize
 import timber.log.Timber
+import java.lang.Exception
 import kotlin.math.abs
 
 /**
@@ -375,7 +377,15 @@ open class SignalStrengthInfo(
 
             var signal: SignalStrengthInfo? = null
 
+            var message = ""
+            if (network is CellNetworkInfo) {
+                message =
+                    "SSP - Network type: ${network.networkType}\n SignalStrength: $signalStrength\n SignalValue: $signalValue\n CellInfo: $cellInfo"
+                Timber.e(message)
+            }
+
             if (signalValue == null) {
+                FirebaseCrashlytics.getInstance().recordException(Exception(message))
                 return null
             }
 
