@@ -4,6 +4,7 @@ import at.specure.info.TransportType
 import at.specure.info.cell.CellTechnology
 import at.specure.info.network.MobileNetworkType
 import at.specure.info.strength.SignalStrengthInfo
+import timber.log.Timber
 
 enum class NetworkTypeCompat(val stringValue: String, val minSignalValue: Int, val maxSignalValue: Int) {
 
@@ -13,7 +14,8 @@ enum class NetworkTypeCompat(val stringValue: String, val minSignalValue: Int, v
     TYPE_5G("5G", SignalStrengthInfo.NR_RSRP_SIGNAL_MIN, SignalStrengthInfo.NR_RSRP_SIGNAL_MAX),
     TYPE_WLAN("WLAN", SignalStrengthInfo.WIFI_MIN_SIGNAL_VALUE, SignalStrengthInfo.WIFI_MAX_SIGNAL_VALUE),
     TYPE_LAN("LAN", Int.MIN_VALUE, Int.MIN_VALUE),
-    TYPE_BROWSER("BROWSER", Int.MIN_VALUE, Int.MIN_VALUE);
+    TYPE_BROWSER("BROWSER", Int.MIN_VALUE, Int.MIN_VALUE),
+    TYPE_UNKNOWN("UNKNOWN", Int.MIN_VALUE, Int.MIN_VALUE);
 
     companion object {
 
@@ -29,7 +31,10 @@ enum class NetworkTypeCompat(val stringValue: String, val minSignalValue: Int, v
                 when (value) {
                     TYPE_WIFI_VALUE -> TransportType.WIFI
                     TYPE_BROWSER_VALUE -> TransportType.BROWSER
-                    else -> throw IllegalArgumentException("Unsupported type $value")
+                    else -> {
+                        Timber.e("Unsupported type $value")
+                        null
+                    }
                 }
             } else {
                 cellTechnology = CellTechnology.fromMobileNetworkType(mobileNetworkType)
@@ -50,8 +55,10 @@ enum class NetworkTypeCompat(val stringValue: String, val minSignalValue: Int, v
             throw IllegalArgumentException("Failed to find NetworkTypeCompat for value $value")
         }
 
-        fun fromType(transportType: TransportType, cellTechnology: CellTechnology? = null): NetworkTypeCompat {
-            return when (transportType) {
+        fun fromType(transportType: TransportType?, cellTechnology: CellTechnology? = null): NetworkTypeCompat {
+            return if (transportType == null) {
+                TYPE_UNKNOWN
+            } else when (transportType) {
                 TransportType.BROWSER -> TYPE_BROWSER
                 TransportType.WIFI -> TYPE_WLAN
                 TransportType.CELLULAR -> {
@@ -60,10 +67,16 @@ enum class NetworkTypeCompat(val stringValue: String, val minSignalValue: Int, v
                         CellTechnology.CONNECTION_3G -> TYPE_3G
                         CellTechnology.CONNECTION_4G -> TYPE_4G
                         CellTechnology.CONNECTION_5G -> TYPE_5G
-                        else -> throw java.lang.IllegalArgumentException("Incorrect cell technology value or null ${cellTechnology?.name}")
+                        else -> {
+                            Timber.e("Incorrect cell technology value or null ${cellTechnology?.name}")
+                            TYPE_UNKNOWN
+                        }
                     }
                 }
-                else -> throw IllegalArgumentException("Unsupported transport type ${transportType.name}")
+                else -> {
+                    Timber.e("Unsupported transport type ${transportType.name}")
+                    TYPE_UNKNOWN
+                }
             }
         }
 
@@ -108,5 +121,6 @@ enum class ServerNetworkType(
     TYPE_MOBILE(105, "MOBILE", NetworkTypeCompat.TYPE_3G, TransportType.CELLULAR, MobileNetworkType.HSUPA),
     TYPE_ETHERNET(106, "Ethernet", null, TransportType.ETHERNET, null),
     TYPE_BLUETOOTH(107, "Bluetooth", null, TransportType.BLUETOOTH, null),
-    UNKNOWN(-1, "UNKNOWN", null, null, null),
+    TYPE_UNKNOWN(-1, "UNKNOWN", null, null, null),
+    TYPE_UNKNOWN2(Int.MAX_VALUE, "UNKNOWN", null, null, null)
 }

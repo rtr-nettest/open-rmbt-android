@@ -67,6 +67,10 @@ dependencies {
 
     implementation "com.google.code.gson:gson:$versions.gson"
 
+    implementation ("com.google.firebase:firebase-crashlytics:$versions.crashlytics"){
+        transitive = true
+    }
+
     testImplementation "junit:junit:$versions.junit"
 
     androidTestImplementation "androidx.test:runner:$versions.test_runner"

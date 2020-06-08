@@ -31,7 +31,7 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:networkType="@{item.networkType}"
-            tools:src="@drawable/ic_history_3g_4" />
+            tools:src="@drawable/ic_history_no_internet" />
 
         <androidx.appcompat.widget.AppCompatTextView
             style="@style/RobotoRegularStyle.Small"

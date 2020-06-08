@@ -43,7 +43,7 @@ fun HistoryItemResponse.toModel() = History(
     loopUUID = loopUUID,
     referenceUUID = if (loopUUID == null) testUUID else loopUUID!!,
     model = model,
-    networkType = NetworkTypeCompat.fromString(networkType ?: ServerNetworkType.TYPE_MOBILE.stringValue),
+    networkType = NetworkTypeCompat.fromString(networkType ?: ServerNetworkType.TYPE_UNKNOWN2.stringValue),
     ping = ping,
     pingClassification = Classification.fromValue(pingClassification),
     pingShortest = pingShortest,

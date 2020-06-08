@@ -35,51 +35,49 @@ import at.specure.info.cell.CellNetworkInfo
 import at.specure.info.network.MobileNetworkType
 import at.specure.info.network.NetworkInfo
 import at.specure.info.network.WifiNetworkInfo
-import kotlinx.android.parcel.Parcelize
+import com.google.firebase.crashlytics.FirebaseCrashlytics
 import timber.log.Timber
+import java.lang.Exception
 import kotlin.math.abs
 
 /**
  * Class that contains data about signal strength
  */
-@Parcelize
-open class SignalStrengthInfo(
-
+abstract class SignalStrengthInfo : Parcelable {
     /**
      * Transport type of network
      */
-    val transport: TransportType,
+    abstract val transport: TransportType
 
     /**
      * Signal strength in dBm
      */
-    val value: Int?,
+    abstract val value: Int?
 
     /**
      * RSRQ in db
      */
-    val rsrq: Int?,
+    abstract val rsrq: Int?
 
     /**
      * Signal level in range 0..4
      */
-    val signalLevel: Int,
+    abstract val signalLevel: Int
 
     /**
      * Minimum signal value for current network type in dBm
      */
-    val min: Int,
+    abstract val min: Int
 
     /**
      * Maximum signal value for current network type in dBm
      */
-    val max: Int,
+    abstract val max: Int
 
     /**
      * Timestamp in nanoseconds when data was received
      */
-    val timestampNanos: Long
-) : Parcelable {
+    abstract val timestampNanos: Long
 
     companion object {
         const val WIFI_MIN_SIGNAL_VALUE = -100
@@ -132,7 +130,7 @@ open class SignalStrengthInfo(
             timingAdvance = signal.timingAdvance.fixTimingAdvance()
         )
 
-        fun from(signal: CellSignalStrengthWcdma) = SignalStrengthInfo(
+        fun from(signal: CellSignalStrengthWcdma) = SignalStrengthInfoCommon(
             transport = TransportType.CELLULAR,
             value = signal.dbm,
             rsrq = null,
@@ -154,7 +152,7 @@ open class SignalStrengthInfo(
             timingAdvance = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) signal.timingAdvance.fixTimingAdvance() else null
         )
 
-        fun from(signal: CellSignalStrengthCdma) = SignalStrengthInfo(
+        fun from(signal: CellSignalStrengthCdma) = SignalStrengthInfoCommon(
             transport = TransportType.CELLULAR,
             value = signal.dbm,
             rsrq = null,
@@ -233,7 +231,7 @@ open class SignalStrengthInfo(
                         }
                         is CellSignalStrengthTdscdma,
                         is CellSignalStrengthWcdma -> {
-                            signal = SignalStrengthInfo(
+                            signal = SignalStrengthInfoCommon(
                                 transport = transportType,
                                 value = it.dbm,
                                 rsrq = null,
@@ -257,7 +255,7 @@ open class SignalStrengthInfo(
                             )
                         }
                         else -> {
-                            signal = SignalStrengthInfo(
+                            signal = SignalStrengthInfoCommon(
                                 transport = transportType,
                                 value = it.dbm,
                                 rsrq = null,
@@ -375,7 +373,15 @@ open class SignalStrengthInfo(
 
             var signal: SignalStrengthInfo? = null
 
+            var message = ""
+            if (network is CellNetworkInfo) {
+                message =
+                    "SSP - Network type: ${network.networkType}\n SignalStrength: $signalStrength\n SignalValue: $signalValue\n CellInfo: $cellInfo"
+                Timber.e(message)
+            }
+
             if (signalValue == null) {
+                FirebaseCrashlytics.getInstance().recordException(Exception(message))
                 return null
             }
 
@@ -400,7 +406,7 @@ open class SignalStrengthInfo(
                     )
                 }
                 is CellInfoWcdma -> {
-                    signal = SignalStrengthInfo(
+                    signal = SignalStrengthInfoCommon(
                         transport = transportType,
                         value = signalValue,
                         rsrq = null,
@@ -424,7 +430,7 @@ open class SignalStrengthInfo(
                     )
                 }
                 else -> {
-                    signal = SignalStrengthInfo(
+                    signal = SignalStrengthInfoCommon(
                         transport = transportType,
                         value = signalValue,
                         rsrq = lteRsrq.fixLteRsrq(),
