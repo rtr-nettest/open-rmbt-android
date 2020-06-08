@@ -1,15 +1,18 @@
 package at.specure.info.strength
 
+import android.os.Parcelable
 import at.specure.info.TransportType
+import kotlinx.android.parcel.Parcelize
 
+@Parcelize
 class SignalStrengthInfoGsm(
-    transport: TransportType,
-    value: Int?,
-    rsrq: Int?,
-    signalLevel: Int,
-    min: Int,
-    max: Int,
-    timestampNanos: Long,
+    override val transport: TransportType,
+    override val value: Int?,
+    override val rsrq: Int?,
+    override val signalLevel: Int,
+    override val min: Int,
+    override val max: Int,
+    override val timestampNanos: Long,
 
     /**
      * Return the Bit Error Rate
@@ -28,4 +31,4 @@ class SignalStrengthInfoGsm(
      */
     val timingAdvance: Int?
 
-) : SignalStrengthInfo(transport, value, rsrq, signalLevel, min, max, timestampNanos)
+) : SignalStrengthInfo(), Parcelable

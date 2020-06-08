@@ -870,7 +870,7 @@ fun ImageView.setNetworkType(networkType: String, signalStrength: Classification
             }
         )
     } else {
-        setImageResource(R.drawable.ic_history_no_internet);
+        setImageResource(R.drawable.ic_history_no_internet)
     }
 }
 
