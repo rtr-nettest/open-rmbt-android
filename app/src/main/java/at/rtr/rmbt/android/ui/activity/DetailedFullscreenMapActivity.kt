@@ -65,6 +65,7 @@ class DetailedFullscreenMapActivity : BaseActivity(), OnMapReadyCallback, MapLay
             )
 
             val icon = when (networkType) {
+                NetworkTypeCompat.TYPE_UNKNOWN -> R.drawable.ic_marker_empty
                 NetworkTypeCompat.TYPE_LAN,
                 NetworkTypeCompat.TYPE_BROWSER -> R.drawable.ic_marker_browser
                 NetworkTypeCompat.TYPE_WLAN -> R.drawable.ic_marker_wifi

@@ -571,6 +571,9 @@ private fun getSignalImageResource(networkType: NetworkTypeCompat, signalStrengt
                 Classification.NONE -> R.drawable.ic_no_wifi
             }
         }
+        NetworkTypeCompat.TYPE_UNKNOWN -> {
+            R.drawable.ic_history_no_internet
+        }
         NetworkTypeCompat.TYPE_LAN,
         NetworkTypeCompat.TYPE_BROWSER -> {
             R.drawable.ic_browser
@@ -833,7 +836,7 @@ fun ResultBar.setQoEValue(value: Double, classification: Classification) {
 
 @BindingAdapter("networkType", "signalStrength", requireAll = true)
 fun ImageView.setNetworkType(networkType: String, signalStrength: Classification) {
-    if (networkType != ServerNetworkType.UNKNOWN.stringValue) {
+    if (networkType != ServerNetworkType.TYPE_UNKNOWN.stringValue) {
         setImageResource(
             when (NetworkTypeCompat.fromString(networkType)) {
                 NetworkTypeCompat.TYPE_2G -> {
@@ -844,6 +847,9 @@ fun ImageView.setNetworkType(networkType: String, signalStrength: Classification
                 }
                 NetworkTypeCompat.TYPE_4G -> {
                     R.drawable.ic_history_4g
+                }
+                NetworkTypeCompat.TYPE_UNKNOWN -> {
+                    R.drawable.ic_history_no_internet
                 }
                 NetworkTypeCompat.TYPE_LAN,
                 NetworkTypeCompat.TYPE_BROWSER -> {
@@ -863,6 +869,8 @@ fun ImageView.setNetworkType(networkType: String, signalStrength: Classification
                 }
             }
         )
+    } else {
+        setImageResource(R.drawable.ic_history_no_internet);
     }
 }
 
