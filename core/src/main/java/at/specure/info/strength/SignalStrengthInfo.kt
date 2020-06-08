@@ -79,7 +79,6 @@ abstract class SignalStrengthInfo : Parcelable {
      */
     abstract val timestampNanos: Long
 
-
     companion object {
         const val WIFI_MIN_SIGNAL_VALUE = -100
         const val WIFI_MAX_SIGNAL_VALUE = -30
