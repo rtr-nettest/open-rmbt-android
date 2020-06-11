@@ -9,8 +9,9 @@ interface SignalMeasurementProducer {
     val activeStateLiveData: LiveData<Boolean>
     val pausedStateLiveData: LiveData<Boolean>
 
-    fun startMeasurement()
-    fun stopMeasurement()
-    fun pauseMeasurement()
-    fun resumeMeasurement()
+    fun setEndAlarm()
+    fun startMeasurement(unstoppable: Boolean)
+    fun stopMeasurement(unstoppable: Boolean)
+    fun pauseMeasurement(unstoppable: Boolean)
+    fun resumeMeasurement(unstoppable: Boolean)
 }

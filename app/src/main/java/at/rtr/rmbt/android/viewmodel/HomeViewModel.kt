@@ -128,9 +128,10 @@ class HomeViewModel @Inject constructor(
         } else {
             producer?.let {
                 if (it.isActive) {
-                    it.stopMeasurement()
+                    it.stopMeasurement(false)
                 } else {
-                    it.startMeasurement()
+                    it.startMeasurement(false)
+                    it.setEndAlarm()
                 }
             }
         }
@@ -145,19 +146,19 @@ class HomeViewModel @Inject constructor(
     }
 
     fun startSignalMeasurement() {
-        producer?.startMeasurement()
+        producer?.startMeasurement(false)
     }
 
     fun stopSignalMeasurement() {
-        producer?.stopMeasurement()
+        producer?.stopMeasurement(false)
     }
 
     fun pauseSignalMeasurement() {
-        producer?.pauseMeasurement()
+        producer?.pauseMeasurement(false)
     }
 
     fun resumeSignalMeasurement() {
-        producer?.resumeMeasurement()
+        producer?.resumeMeasurement(false)
     }
 
     fun attach(context: Context) {

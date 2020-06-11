@@ -1,5 +1,7 @@
 package at.specure.measurement.signal
 
+import android.app.AlarmManager
+import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.os.Binder
@@ -9,8 +11,12 @@ import android.os.PowerManager
 import androidx.lifecycle.LiveData
 import at.specure.di.CoreInjector
 import at.specure.di.NotificationProvider
+import at.specure.info.Network5GSimulator.config
 import at.specure.util.CustomLifecycleService
 import timber.log.Timber
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
@@ -23,8 +29,17 @@ class SignalMeasurementService : CustomLifecycleService() {
     lateinit var processor: SignalMeasurementProcessor
 
     private val producer: Producer by lazy { Producer() }
+    private var alarmManager: AlarmManager? = null
 
     private lateinit var wakeLock: PowerManager.WakeLock
+
+    private lateinit var alarmStopPendingIntent: PendingIntent
+
+    var endTime: Long? = null
+    var isUnstoppable: Boolean =
+        false // during the loop mode should be this value set to true, then alarm will not stop signal measurement, but instead will set shouldEndAfterLoopMode to true
+    var shouldEndAfterLoopMode: Boolean =
+        false // after end of the loop mode this will try to continue in signal measurement, but when time runs out it should not be resumed anymore
 
     override fun onCreate() {
         super.onCreate()
@@ -34,15 +49,29 @@ class SignalMeasurementService : CustomLifecycleService() {
 
         val powerManager = applicationContext.getSystemService(Context.POWER_SERVICE) as PowerManager
         wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "$packageName:RMBTSignalWakeLock")
-
+        alarmStopPendingIntent = PendingIntent.getService(this, 0, alarmStopIntent(this), 0)
         processor.bind(this)
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         Timber.v("SERVICE onStartCommand")
-        if (intent?.action == ACTION_STOP) {
-            stopMeasurement()
+        when (intent?.action) {
+            ACTION_STOP -> {
+                stopMeasurement()
+            }
+            ACTION_ALARM_STOP -> {
+                if (!isUnstoppable) {
+                    endTime = null
+                    shouldEndAfterLoopMode = false
+                    Timber.i("Signal measurement stopping on alarm")
+                    stopMeasurement()
+                } else {
+                    Timber.i("Signal measurement try to stop on alarm but it is unstoppable, set to stop later after it will be not unstoppable")
+                    shouldEndAfterLoopMode = true
+                }
+            }
         }
+
         return super.onStartCommand(intent, flags, startId)
     }
 
@@ -64,15 +93,18 @@ class SignalMeasurementService : CustomLifecycleService() {
 
     private fun startMeasurement() {
         if (!wakeLock.isHeld) {
-            wakeLock.acquire(TimeUnit.HOURS.toMillis(8))
+            wakeLock.acquire(TimeUnit.MINUTES.toMillis(config.signalMeasurementDurationMin.toLong()))
         }
-        processor.startMeasurement()
+        processor.startMeasurement(false)
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             startForegroundService(intent(this))
         } else {
             startService(intent(this))
         }
+
+        shouldEndAfterLoopMode = false
+        isUnstoppable = false
 
         startForeground(NOTIFICATION_ID, notificationProvider.signalMeasurementService(stopIntent(this))) // TODO
     }
@@ -82,8 +114,36 @@ class SignalMeasurementService : CustomLifecycleService() {
             wakeLock.release()
         }
 
-        processor.stopMeasurement()
+        cancelSignalMeasurementStopAlarm()
+        Timber.i("Signal measurement stopped")
+        processor.stopMeasurement(false)
         stopForeground(true)
+    }
+
+    private fun setEndAlarm() {
+        val durationInMinutes = config.signalMeasurementDurationMin.toLong()
+        val currentTimeMillis = System.currentTimeMillis()
+        if ((durationInMinutes > 0) && (endTime?.compareTo(currentTimeMillis) != 1)) {
+            endTime = currentTimeMillis + TimeUnit.MINUTES.toMillis(durationInMinutes)
+            alarmManager = getSystemService(Context.ALARM_SERVICE) as? AlarmManager
+
+            cancelSignalMeasurementStopAlarm()
+
+            endTime?.let {
+                val formatter = SimpleDateFormat("dd/MM/yyyy hh:mm:ss.SSS", Locale.getDefault())
+                val dateString = formatter.format(Date(endTime!!))
+
+                Timber.i("Signal measurement will end by alarm at: $dateString")
+                alarmManager?.set(AlarmManager.RTC_WAKEUP, endTime!!, alarmStopPendingIntent)
+            }
+        }
+    }
+
+    private fun cancelSignalMeasurementStopAlarm() {
+        if (alarmStopPendingIntent != null && alarmManager != null) {
+            Timber.i("Signal measurement alarm cancelled")
+            alarmManager?.cancel(alarmStopPendingIntent)
+        }
     }
 
     private inner class Producer : Binder(), SignalMeasurementProducer {
@@ -100,29 +160,51 @@ class SignalMeasurementService : CustomLifecycleService() {
         override val pausedStateLiveData: LiveData<Boolean>
             get() = processor.pausedStateLiveData
 
-        override fun startMeasurement() {
+        override fun startMeasurement(unstoppable: Boolean) {
+            this@SignalMeasurementService.isUnstoppable = unstoppable
+            Timber.i("Signal measurement start unstoppable: $unstoppable")
             this@SignalMeasurementService.startMeasurement()
         }
 
-        override fun stopMeasurement() {
+        override fun stopMeasurement(unstoppable: Boolean) {
+            this@SignalMeasurementService.isUnstoppable = unstoppable
+            Timber.i("Signal measurement start stop: $unstoppable")
             this@SignalMeasurementService.stopMeasurement()
         }
 
-        override fun pauseMeasurement() {
-            processor.pauseMeasurement()
+        override fun pauseMeasurement(unstoppable: Boolean) {
+            this@SignalMeasurementService.isUnstoppable = unstoppable
+            Timber.i("Signal measurement pause unstoppable: $unstoppable")
+            processor.pauseMeasurement(unstoppable)
         }
 
-        override fun resumeMeasurement() {
-            processor.resumeMeasurement()
+        override fun resumeMeasurement(unstoppable: Boolean) {
+            this@SignalMeasurementService.isUnstoppable = unstoppable
+            Timber.i("Signal measurement resume unstoppable: $unstoppable")
+            processor.resumeMeasurement(unstoppable)
+            if (!isUnstoppable && shouldEndAfterLoopMode) {
+                this@SignalMeasurementService.endTime = null
+                this@SignalMeasurementService.shouldEndAfterLoopMode = false
+                Timber.i("Signal measurement stopping on alarm delayed")
+                stopMeasurement()
+            }
+        }
+
+        override fun setEndAlarm() {
+            Timber.i("Signal measurement trying to set alarm")
+            this@SignalMeasurementService.setEndAlarm()
         }
     }
 
     companion object {
 
-        private const val NOTIFICATION_ID = 2
+        private const val NOTIFICATION_ID = 3
         private const val ACTION_STOP = "KEY_ACTION_STOP"
+        private const val ACTION_ALARM_STOP = "KEY_ACTION_ALARM_STOP"
 
         private fun stopIntent(context: Context): Intent = Intent(context, SignalMeasurementService::class.java).setAction(ACTION_STOP)
+
+        private fun alarmStopIntent(context: Context): Intent = Intent(context, SignalMeasurementService::class.java).setAction(ACTION_ALARM_STOP)
 
         fun intent(context: Context) = Intent(context, SignalMeasurementService::class.java)
     }
