@@ -55,6 +55,7 @@ class SignalMeasurementProcessor @Inject constructor(
     private val measurementRepository: MeasurementRepository
 ) : Binder(), SignalMeasurementProducer {
 
+    private var isUnstoppable = false
     private var _isActive = false
     private var _isPaused = false
     private val _activeStateLiveData = MutableLiveData<Boolean>()
@@ -88,9 +89,14 @@ class SignalMeasurementProcessor @Inject constructor(
     override val pausedStateLiveData: LiveData<Boolean>
         get() = _pausedStateLiveData
 
-    override fun startMeasurement() {
+    override fun setEndAlarm() {
+        // not necessary to implement here
+    }
+
+    override fun startMeasurement(unstoppable: Boolean) {
         Timber.w("startMeasurement")
         _isActive = true
+        isUnstoppable = unstoppable
         _activeStateLiveData.postValue(_isActive)
         _pausedStateLiveData.postValue(_isPaused)
 
@@ -99,12 +105,12 @@ class SignalMeasurementProcessor @Inject constructor(
         }
     }
 
-    override fun stopMeasurement() {
+    override fun stopMeasurement(unstoppable: Boolean) {
         Timber.w("stopMeasurement")
 
         chunk?.state = SignalMeasurementState.SUCCESS
         commitChunkData()
-
+        isUnstoppable = unstoppable
         _isActive = false
         _isPaused = false
         networkInfo = null
@@ -114,15 +120,16 @@ class SignalMeasurementProcessor @Inject constructor(
         _pausedStateLiveData.postValue(_isPaused)
     }
 
-    override fun pauseMeasurement() {
+    override fun pauseMeasurement(unstoppable: Boolean) {
         Timber.w("pauseMeasurement")
+        isUnstoppable = unstoppable
         _isPaused = true
         _pausedStateLiveData.postValue(_isPaused)
     }
 
-    override fun resumeMeasurement() {
+    override fun resumeMeasurement(unstoppable: Boolean) {
         Timber.w("resumeMeasurement")
-
+        isUnstoppable = unstoppable
         _isPaused = false
         _pausedStateLiveData.postValue(_isPaused)
         if (isActive) {

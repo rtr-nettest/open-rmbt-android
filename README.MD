@@ -45,6 +45,7 @@ The source code is published under [Apache version 2.0 license](https://github.c
 - __`CAPABILITIES_RMBT_HTTP`__ client supports RMBT HTTP, default: `true`
 - __`CAPABILITIES_QOS_SUPPORTS_INFO`__ The third state (=INFO) is supported or not, default: `false`
 - __`CAPABILITIES_CLASSIFICATION_COUNT`__ Number of intervals(classes) to classify measured values, default: `4`
+- __`SIGNAL_MEASUREMENT_DURATION_MIN`__ Maximum time in minutes to run signal measurement, default: `2880`
 
 ##### GENERAL SETTINGS
 - __`CAN_MANAGE_LOCATION_SETTINGS`__ Settings menu that allows to open application settings (If location permissions are not provided to app) or System Location settings (if location settings disabled for device)

@@ -376,12 +376,12 @@ abstract class SignalStrengthInfo : Parcelable {
             var message = ""
             if (network is CellNetworkInfo) {
                 message =
-                    "SSP - Network type: ${network.networkType}\n SignalStrength: $signalStrength\n SignalValue: $signalValue\n CellInfo: $cellInfo"
+                    "SSP - Model: ${Build.MODEL} \n Network type: ${network.networkType}\n SignalStrength: $signalStrength\n SignalValue: $signalValue\n CellInfo: $cellInfo"
                 Timber.e(message)
+                FirebaseCrashlytics.getInstance().recordException(Exception(message))
             }
 
             if (signalValue == null) {
-                FirebaseCrashlytics.getInstance().recordException(Exception(message))
                 return null
             }
 
