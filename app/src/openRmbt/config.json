@@ -141,6 +141,11 @@
       "visible": false
     },
     {
+      "name": "SIGNAL_MEASUREMENT_DURATION_MIN",
+      "value": "2880",
+      "visible": false
+    },
+    {
       "line1": "=======================================",
       "_section": "GENERAL SETTINGS",
       "line2": "======================================="

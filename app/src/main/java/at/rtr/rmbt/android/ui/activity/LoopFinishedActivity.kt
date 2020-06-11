@@ -6,6 +6,7 @@ import android.content.Intent
 import android.os.Bundle
 import at.rtr.rmbt.android.R
 import at.rtr.rmbt.android.databinding.ActivityLoopFinishedBinding
+import at.specure.measurement.MeasurementService
 
 class LoopFinishedActivity : BaseActivity() {
 
@@ -37,7 +38,8 @@ class LoopFinishedActivity : BaseActivity() {
 
     override fun onResume() {
         super.onResume()
-        notificationManager.cancelAll()
+        notificationManager.cancel(MeasurementService.NOTIFICATION_LOOP_FINISHED_ID)
+        notificationManager.cancel(MeasurementService.NOTIFICATION_ID)
     }
 
     companion object {
