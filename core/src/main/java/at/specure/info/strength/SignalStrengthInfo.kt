@@ -401,6 +401,7 @@ abstract class SignalStrengthInfo : Parcelable {
                     FirebaseCrashlytics.getInstance().recordException(Exception(message))
                 }
             }
+
             if (signalValue == null) {
                 return null
             }
