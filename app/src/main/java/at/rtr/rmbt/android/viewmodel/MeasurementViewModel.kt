@@ -112,7 +112,6 @@ class MeasurementViewModel @Inject constructor(
 
                 with(state) {
                     measurementState.set(it.measurementState)
-                    loopState.set(it.loopModeState)
                     _loopUUIDLiveData.postValue(it.loopLocalUUID)
                     measurementProgress.set(it.measurementProgress)
                     pingNanos.set(it.pingNanos)
@@ -265,7 +264,6 @@ class MeasurementViewModel @Inject constructor(
             loopProgressLiveData = testDataRepository.getLoopModeByLocal(loopLocalUUID)
             _loopUUIDLiveData.postValue(loopLocalUUID)
             this.state.loopLocalUUID.set(loopLocalUUID)
-            this.state.loopState.set(loopProgressLiveData.value?.status)
         }
     }
 
