@@ -61,7 +61,7 @@
             app:layout_constraintBottom_toBottomOf="@+id/loop_measurement_title"
             app:layout_constraintEnd_toStartOf="@+id/progress_loop"
             app:layout_constraintTop_toTopOf="@+id/loop_measurement_title"
-            visibleOrGone="@{state.loopLocalUUID != null &amp;&amp; state.loopState != LoopModeState.FINISHED }"
+            visibleOrGone="@{state.loopLocalUUID != null &amp;&amp; state.loopModeRecord.status != LoopModeState.FINISHED }"
             app:text="@{state.loopProgress}"
             tools:text="1/5" />
 
@@ -199,7 +199,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:visibility="gone"
-            app:visibleOrGone="@{state.isLoopModeActive &amp;&amp; state.loopState == LoopModeState.IDLE &amp;&amp; state.measurementState == MeasurementState.FINISH}"
+            app:visibleOrGone="@{state.isLoopModeActive &amp;&amp; state.loopModeRecord.status == LoopModeState.IDLE &amp;&amp; state.measurementState == MeasurementState.FINISH}"
             app:constraint_referenced_ids="loop_measurement_next_test_label,loop_measurement_next_test_minutes_label,loop_measurement_next_test_minutes_value,loop_measurement_next_test_minutes_progress,loop_measurement_next_test_distance_label,loop_measurement_next_test_meters_progress,loop_measurement_next_test_or_label,next_test_separator_start,next_test_separator_end,loop_measurement_next_bottom_line" />
 
         <androidx.appcompat.widget.AppCompatTextView
@@ -325,7 +325,7 @@
             app:layout_constraintBottom_toBottomOf="@+id/loop_measurement_next_test_distance_label"
             app:layout_constraintEnd_toStartOf="@+id/loop_measurement_next_test_meters_progress"
             app:layout_constraintTop_toTopOf="@+id/loop_measurement_next_test_distance_label"
-            app:visibleOrGone="@{state.loopState == LoopModeState.IDLE &amp;&amp; state.isLoopModeActive &amp;&amp; state.locationAvailable}"
+            app:visibleOrGone="@{state.loopModeRecord.status == LoopModeState.IDLE &amp;&amp; state.isLoopModeActive &amp;&amp; state.locationAvailable}"
             tools:text="153" />
 
         <at.rtr.rmbt.android.ui.view.ProgressBar
@@ -352,7 +352,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="@+id/loop_measurement_next_test_distance_label"
-            app:visibleOrGone="@{state.locationAvailable == false &amp;&amp; state.isLoopModeActive &amp;&amp; state.loopState == LoopModeState.IDLE}" />
+            app:visibleOrGone="@{state.locationAvailable == false &amp;&amp; state.isLoopModeActive &amp;&amp; state.loopModeRecord.status == LoopModeState.IDLE}" />
 
         <View
             android:id="@+id/loop_measurement_next_bottom_line"
@@ -378,7 +378,7 @@
             app:layout_constraintEnd_toStartOf="@+id/textQosProgress"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/viewHeader"
-            app:visibleOrGone="@{(state.isLoopModeActive &amp;&amp; state.loopState != LoopModeState.IDLE) || !state.isLoopModeActive}"
+            app:visibleOrGone="@{(state.isLoopModeActive &amp;&amp; state.loopModeRecord.status != LoopModeState.IDLE) || !state.isLoopModeActive}"
             tools:text="@string/measurement_download"
             tools:visibility="gone" />
 
@@ -394,7 +394,7 @@
             app:progress_fill_color="@color/speed_chart_progress_fill_color"
             app:progress_line_color="@color/colorAccent"
             app:reset="@{state.measurementState}"
-            app:visibleOrGone="@{((state.measurementState == MeasurementState.IDLE | state.measurementState == MeasurementState.INIT | state.measurementState == MeasurementState.PING | state.measurementState == MeasurementState.DOWNLOAD | state.measurementState == MeasurementState.UPLOAD) &amp;&amp; ((state.loopState == LoopModeState.RUNNING &amp;&amp; state.isLoopModeActive) || state.isLoopModeActive == false))}"
+            app:visibleOrGone="@{((state.measurementState == MeasurementState.IDLE | state.measurementState == MeasurementState.INIT | state.measurementState == MeasurementState.PING | state.measurementState == MeasurementState.DOWNLOAD | state.measurementState == MeasurementState.UPLOAD) &amp;&amp; ((state.loopModeRecord.status == LoopModeState.RUNNING &amp;&amp; state.isLoopModeActive) || state.isLoopModeActive == false))}"
             app:xlabel_color="@color/text_gray"
             app:xlabel_text_size="@dimen/chart_label_text_size"
             app:ylabel_color="@color/text_gray"
