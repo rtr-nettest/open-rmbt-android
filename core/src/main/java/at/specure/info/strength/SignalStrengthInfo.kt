@@ -22,6 +22,7 @@ import android.telephony.CellInfo
 import android.telephony.CellInfoGsm
 import android.telephony.CellInfoLte
 import android.telephony.CellInfoWcdma
+import android.telephony.CellSignalStrength
 import android.telephony.CellSignalStrengthCdma
 import android.telephony.CellSignalStrengthGsm
 import android.telephony.CellSignalStrengthLte
@@ -364,6 +365,26 @@ abstract class SignalStrengthInfo : Parcelable {
                         }
                     }
                     strength = network.signalStrength?.value
+                }
+            }
+
+            if (strength == null) {
+                if (cellInfo is CellInfoWcdma) {
+                    val cellSignalStrength = (cellInfo as CellInfoWcdma).cellSignalStrength
+                    cellSignalStrength?.let {
+                        strength = if (it.dbm != CellInfo.UNAVAILABLE) it.dbm else null
+                    }
+                    if (strength == null)
+                        try {
+                            val getDbm = CellSignalStrength::class.java.getMethod("getDbm")
+                            val result = getDbm.invoke(cellSignalStrength) as Int
+                            if (result != CellInfo.UNAVAILABLE)
+                                strength = result
+                        } catch (t: Throwable) {
+                            Timber.e(t)
+                        }
+                } else {
+                    Timber.e("SSP - cellInfo is not wcdma type")
                 }
             }
 
