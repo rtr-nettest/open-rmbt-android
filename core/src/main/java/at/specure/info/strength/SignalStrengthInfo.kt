@@ -36,9 +36,7 @@ import at.specure.info.cell.CellNetworkInfo
 import at.specure.info.network.MobileNetworkType
 import at.specure.info.network.NetworkInfo
 import at.specure.info.network.WifiNetworkInfo
-import com.google.firebase.crashlytics.FirebaseCrashlytics
 import timber.log.Timber
-import java.lang.Exception
 import kotlin.math.abs
 
 /**
@@ -384,7 +382,7 @@ abstract class SignalStrengthInfo : Parcelable {
                             Timber.e(t)
                         }
                 } else {
-                    Timber.e("SSP - cellInfo is not wcdma type")
+                    Timber.v("SSP - cellInfo is not wcdma type")
                 }
             }
 
@@ -398,8 +396,7 @@ abstract class SignalStrengthInfo : Parcelable {
             if (network is CellNetworkInfo) {
                 message =
                     "SSP - Model: ${Build.MODEL} \n Network type: ${network.networkType}\n SignalStrength: $signalStrength\n SignalValue: $signalValue\n CellInfo: $cellInfo"
-                Timber.e(message)
-                FirebaseCrashlytics.getInstance().recordException(Exception(message))
+                Timber.v(message)
             }
 
             if (signalValue == null) {
