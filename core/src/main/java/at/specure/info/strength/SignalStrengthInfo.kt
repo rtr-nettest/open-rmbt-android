@@ -183,6 +183,10 @@ abstract class SignalStrengthInfo : Parcelable {
         @SuppressLint("NewApi")
         private fun signalStrengthQ(signalStrength: SignalStrength?, cellInfo: CellInfo?): SignalStrengthInfo? {
             if (signalStrength == null) {
+                val message =
+                    "SSPQ - SignalStrength: null"
+                Timber.e(message)
+                FirebaseCrashlytics.getInstance().recordException(Exception(message))
                 return null
             }
             var signal: SignalStrengthInfo? = null
@@ -193,6 +197,10 @@ abstract class SignalStrengthInfo : Parcelable {
             signalStrength.cellSignalStrengths.forEach {
                 if (it.dbm == Int.MAX_VALUE) {
                     signal = null
+                    val message =
+                        "SSPQ - SignalStrength: Int.maxValue"
+                    Timber.e(message)
+                    FirebaseCrashlytics.getInstance().recordException(Exception(message))
                 } else {
                     when (it) {
                         is CellSignalStrengthLte -> {
@@ -393,6 +401,7 @@ abstract class SignalStrengthInfo : Parcelable {
             var signal: SignalStrengthInfo? = null
 
             var message = ""
+
             if (network is CellNetworkInfo) {
                 message =
                     "SSP - Model: ${Build.MODEL} \n Network type: ${network.networkType}\n SignalStrength: $signalStrength\n SignalValue: $signalValue\n CellInfo: $cellInfo"
