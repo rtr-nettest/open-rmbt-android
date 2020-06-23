@@ -22,6 +22,7 @@ import android.telephony.CellInfo
 import android.telephony.CellInfoGsm
 import android.telephony.CellInfoLte
 import android.telephony.CellInfoWcdma
+import android.telephony.CellSignalStrength
 import android.telephony.CellSignalStrengthCdma
 import android.telephony.CellSignalStrengthGsm
 import android.telephony.CellSignalStrengthLte
@@ -35,9 +36,7 @@ import at.specure.info.cell.CellNetworkInfo
 import at.specure.info.network.MobileNetworkType
 import at.specure.info.network.NetworkInfo
 import at.specure.info.network.WifiNetworkInfo
-import com.google.firebase.crashlytics.FirebaseCrashlytics
 import timber.log.Timber
-import java.lang.Exception
 import kotlin.math.abs
 
 /**
@@ -186,8 +185,7 @@ abstract class SignalStrengthInfo : Parcelable {
             if (signalStrength == null) {
                 val message =
                     "SSPQ - SignalStrength: null"
-                Timber.e(message)
-                FirebaseCrashlytics.getInstance().recordException(Exception(message))
+                Timber.v(message)
                 return null
             }
             var signal: SignalStrengthInfo? = null
@@ -200,8 +198,7 @@ abstract class SignalStrengthInfo : Parcelable {
                     signal = null
                     val message =
                         "SSPQ - SignalStrength: Int.maxValue"
-                    Timber.e(message)
-                    FirebaseCrashlytics.getInstance().recordException(Exception(message))
+                    Timber.v(message)
                 } else {
                     when (it) {
                         is CellSignalStrengthLte -> {
@@ -375,6 +372,26 @@ abstract class SignalStrengthInfo : Parcelable {
                 }
             }
 
+            if (strength == null) {
+                if (cellInfo is CellInfoWcdma) {
+                    val cellSignalStrength = (cellInfo as CellInfoWcdma).cellSignalStrength
+                    cellSignalStrength?.let {
+                        strength = if (it.dbm != CellInfo.UNAVAILABLE) it.dbm else null
+                    }
+                    if (strength == null)
+                        try {
+                            val getDbm = CellSignalStrength::class.java.getMethod("getDbm")
+                            val result = getDbm.invoke(cellSignalStrength) as Int
+                            if (result != CellInfo.UNAVAILABLE)
+                                strength = result
+                        } catch (t: Throwable) {
+                            Timber.e(t)
+                        }
+                } else {
+                    Timber.v("SSP - cellInfo is not wcdma type")
+                }
+            }
+
             val signalValue = lteRsrp.fixLteRsrp() ?: strength
             val signalMin = if (lteRsrp == null) CELLULAR_SIGNAL_MIN else LTE_RSRP_SIGNAL_MIN
             val signalMax = if (lteRsrp == null) CELLULAR_SIGNAL_MAX else LTE_RSRP_SIGNAL_MAX
@@ -386,20 +403,7 @@ abstract class SignalStrengthInfo : Parcelable {
             if (network is CellNetworkInfo) {
                 message =
                     "SSP - Model: ${Build.MODEL} \n Network type: ${network.networkType}\n SignalStrength: $signalStrength\n SignalValue: $signalValue\n CellInfo: $cellInfo"
-                Timber.e(message)
-                FirebaseCrashlytics.getInstance().recordException(Exception(message))
-            } else {
-                if (network == null) {
-                    message =
-                        "SSP - Model: ${Build.MODEL} \n Network type: NULL \n SignalStrength: $signalStrength\n SignalValue: $signalValue\n CellInfo: $cellInfo"
-                    Timber.e(message)
-                    FirebaseCrashlytics.getInstance().recordException(Exception(message))
-                } else {
-                    message =
-                        "SSP - Model: ${Build.MODEL} \n Network type: WIFI \n SignalStrength: $signalStrength\n SignalValue: $signalValue\n"
-                    Timber.e(message)
-                    FirebaseCrashlytics.getInstance().recordException(Exception(message))
-                }
+                Timber.v(message)
             }
 
             if (signalValue == null) {
