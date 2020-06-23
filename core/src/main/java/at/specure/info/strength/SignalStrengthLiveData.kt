@@ -14,9 +14,7 @@
 package at.specure.info.strength
 
 import androidx.lifecycle.LiveData
-import com.google.firebase.crashlytics.FirebaseCrashlytics
 import timber.log.Timber
-import java.lang.Exception
 import javax.inject.Inject
 
 /**
@@ -42,8 +40,7 @@ class SignalStrengthLiveData @Inject constructor(private val signalStrengthWatch
         } else {
             "SSP NOTIFY - SignalStrength: value: ${signalInfo.value} \nmax: ${signalInfo.max} \nmin: ${signalInfo.min} \nrsrq: ${signalInfo.rsrq} \ntransportType: ${signalInfo.transport.name} \nsignal level: ${signalInfo.signalLevel} \n "
         }
-        Timber.e(message)
-        FirebaseCrashlytics.getInstance().recordException(Exception(message))
+        Timber.v(message)
         postValue(signalInfo)
     }
 }

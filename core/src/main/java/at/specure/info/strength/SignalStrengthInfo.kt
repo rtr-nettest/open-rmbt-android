@@ -185,8 +185,7 @@ abstract class SignalStrengthInfo : Parcelable {
             if (signalStrength == null) {
                 val message =
                     "SSPQ - SignalStrength: null"
-                Timber.e(message)
-                FirebaseCrashlytics.getInstance().recordException(Exception(message))
+                Timber.v(message)
                 return null
             }
             var signal: SignalStrengthInfo? = null
@@ -199,8 +198,7 @@ abstract class SignalStrengthInfo : Parcelable {
                     signal = null
                     val message =
                         "SSPQ - SignalStrength: Int.maxValue"
-                    Timber.e(message)
-                    FirebaseCrashlytics.getInstance().recordException(Exception(message))
+                    Timber.v(message)
                 } else {
                     when (it) {
                         is CellSignalStrengthLte -> {
