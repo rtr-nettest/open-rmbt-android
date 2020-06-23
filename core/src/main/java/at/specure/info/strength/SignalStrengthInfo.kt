@@ -22,6 +22,7 @@ import android.telephony.CellInfo
 import android.telephony.CellInfoGsm
 import android.telephony.CellInfoLte
 import android.telephony.CellInfoWcdma
+import android.telephony.CellSignalStrength
 import android.telephony.CellSignalStrengthCdma
 import android.telephony.CellSignalStrengthGsm
 import android.telephony.CellSignalStrengthLte
@@ -35,51 +36,47 @@ import at.specure.info.cell.CellNetworkInfo
 import at.specure.info.network.MobileNetworkType
 import at.specure.info.network.NetworkInfo
 import at.specure.info.network.WifiNetworkInfo
-import kotlinx.android.parcel.Parcelize
 import timber.log.Timber
 import kotlin.math.abs
 
 /**
  * Class that contains data about signal strength
  */
-@Parcelize
-open class SignalStrengthInfo(
-
+abstract class SignalStrengthInfo : Parcelable {
     /**
      * Transport type of network
      */
-    val transport: TransportType,
+    abstract val transport: TransportType
 
     /**
      * Signal strength in dBm
      */
-    val value: Int?,
+    abstract val value: Int?
 
     /**
      * RSRQ in db
      */
-    val rsrq: Int?,
+    abstract val rsrq: Int?
 
     /**
      * Signal level in range 0..4
      */
-    val signalLevel: Int,
+    abstract val signalLevel: Int
 
     /**
      * Minimum signal value for current network type in dBm
      */
-    val min: Int,
+    abstract val min: Int
 
     /**
      * Maximum signal value for current network type in dBm
      */
-    val max: Int,
+    abstract val max: Int
 
     /**
      * Timestamp in nanoseconds when data was received
      */
-    val timestampNanos: Long
-) : Parcelable {
+    abstract val timestampNanos: Long
 
     companion object {
         const val WIFI_MIN_SIGNAL_VALUE = -100
@@ -132,7 +129,7 @@ open class SignalStrengthInfo(
             timingAdvance = signal.timingAdvance.fixTimingAdvance()
         )
 
-        fun from(signal: CellSignalStrengthWcdma) = SignalStrengthInfo(
+        fun from(signal: CellSignalStrengthWcdma) = SignalStrengthInfoCommon(
             transport = TransportType.CELLULAR,
             value = signal.dbm,
             rsrq = null,
@@ -154,7 +151,7 @@ open class SignalStrengthInfo(
             timingAdvance = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) signal.timingAdvance.fixTimingAdvance() else null
         )
 
-        fun from(signal: CellSignalStrengthCdma) = SignalStrengthInfo(
+        fun from(signal: CellSignalStrengthCdma) = SignalStrengthInfoCommon(
             transport = TransportType.CELLULAR,
             value = signal.dbm,
             rsrq = null,
@@ -186,6 +183,9 @@ open class SignalStrengthInfo(
         @SuppressLint("NewApi")
         private fun signalStrengthQ(signalStrength: SignalStrength?, cellInfo: CellInfo?): SignalStrengthInfo? {
             if (signalStrength == null) {
+                val message =
+                    "SSPQ - SignalStrength: null"
+                Timber.v(message)
                 return null
             }
             var signal: SignalStrengthInfo? = null
@@ -196,6 +196,9 @@ open class SignalStrengthInfo(
             signalStrength.cellSignalStrengths.forEach {
                 if (it.dbm == Int.MAX_VALUE) {
                     signal = null
+                    val message =
+                        "SSPQ - SignalStrength: Int.maxValue"
+                    Timber.v(message)
                 } else {
                     when (it) {
                         is CellSignalStrengthLte -> {
@@ -233,7 +236,7 @@ open class SignalStrengthInfo(
                         }
                         is CellSignalStrengthTdscdma,
                         is CellSignalStrengthWcdma -> {
-                            signal = SignalStrengthInfo(
+                            signal = SignalStrengthInfoCommon(
                                 transport = transportType,
                                 value = it.dbm,
                                 rsrq = null,
@@ -257,7 +260,7 @@ open class SignalStrengthInfo(
                             )
                         }
                         else -> {
-                            signal = SignalStrengthInfo(
+                            signal = SignalStrengthInfoCommon(
                                 transport = transportType,
                                 value = it.dbm,
                                 rsrq = null,
@@ -369,11 +372,39 @@ open class SignalStrengthInfo(
                 }
             }
 
+            if (strength == null) {
+                if (cellInfo is CellInfoWcdma) {
+                    val cellSignalStrength = (cellInfo as CellInfoWcdma).cellSignalStrength
+                    cellSignalStrength?.let {
+                        strength = if (it.dbm != CellInfo.UNAVAILABLE) it.dbm else null
+                    }
+                    if (strength == null)
+                        try {
+                            val getDbm = CellSignalStrength::class.java.getMethod("getDbm")
+                            val result = getDbm.invoke(cellSignalStrength) as Int
+                            if (result != CellInfo.UNAVAILABLE)
+                                strength = result
+                        } catch (t: Throwable) {
+                            Timber.e(t)
+                        }
+                } else {
+                    Timber.v("SSP - cellInfo is not wcdma type")
+                }
+            }
+
             val signalValue = lteRsrp.fixLteRsrp() ?: strength
             val signalMin = if (lteRsrp == null) CELLULAR_SIGNAL_MIN else LTE_RSRP_SIGNAL_MIN
             val signalMax = if (lteRsrp == null) CELLULAR_SIGNAL_MAX else LTE_RSRP_SIGNAL_MAX
 
             var signal: SignalStrengthInfo? = null
+
+            var message = ""
+
+            if (network is CellNetworkInfo) {
+                message =
+                    "SSP - Model: ${Build.MODEL} \n Network type: ${network.networkType}\n SignalStrength: $signalStrength\n SignalValue: $signalValue\n CellInfo: $cellInfo"
+                Timber.v(message)
+            }
 
             if (signalValue == null) {
                 return null
@@ -400,7 +431,7 @@ open class SignalStrengthInfo(
                     )
                 }
                 is CellInfoWcdma -> {
-                    signal = SignalStrengthInfo(
+                    signal = SignalStrengthInfoCommon(
                         transport = transportType,
                         value = signalValue,
                         rsrq = null,
@@ -424,7 +455,7 @@ open class SignalStrengthInfo(
                     )
                 }
                 else -> {
-                    signal = SignalStrengthInfo(
+                    signal = SignalStrengthInfoCommon(
                         transport = transportType,
                         value = signalValue,
                         rsrq = lteRsrq.fixLteRsrq(),

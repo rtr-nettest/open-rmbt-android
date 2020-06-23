@@ -110,7 +110,7 @@ class MeasurementService : CustomLifecycleService() {
         override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
             signalMeasurementProducer = service as SignalMeasurementProducer
             if (signalMeasurementPauseRequired) {
-                signalMeasurementProducer?.pauseMeasurement()
+                signalMeasurementProducer?.pauseMeasurement(true)
                 signalMeasurementPauseRequired = false
             }
         }
@@ -180,7 +180,6 @@ class MeasurementService : CustomLifecycleService() {
 
         override fun onFinish() {
             notificationManager.cancel(NOTIFICATION_ID)
-            resumeSignalMeasurement()
 
             stateRecorder.onLoopTestFinished()
 
@@ -195,6 +194,9 @@ class MeasurementService : CustomLifecycleService() {
                 stopForeground(true)
                 stateRecorder.finish()
                 unlock()
+                resumeSignalMeasurement(false)
+            } else {
+                resumeSignalMeasurement(true)
             }
         }
 
@@ -211,7 +213,11 @@ class MeasurementService : CustomLifecycleService() {
         }
 
         override fun onError() {
-            resumeSignalMeasurement()
+            if (config.loopModeEnabled && (stateRecorder.loopTestCount < config.loopModeNumberOfTests || (config.loopModeNumberOfTests == 0 && config.developerModeIsEnabled))) {
+                resumeSignalMeasurement(true)
+            } else {
+                resumeSignalMeasurement(false)
+            }
             if (startNetwork != connectivityManager.activeNetwork) {
                 Timber.e("Network change!")
                 try {
@@ -315,14 +321,14 @@ class MeasurementService : CustomLifecycleService() {
         }
     }
 
-    private fun resumeSignalMeasurement() {
+    private fun resumeSignalMeasurement(unstoppable: Boolean) {
         signalMeasurementPauseRequired = false
-        signalMeasurementProducer?.resumeMeasurement()
+        signalMeasurementProducer?.resumeMeasurement(unstoppable)
     }
 
     private fun pauseSignalMeasurement() {
         signalMeasurementPauseRequired = true // in case when service connection wasn't established before test started
-        signalMeasurementProducer?.pauseMeasurement()
+        signalMeasurementProducer?.pauseMeasurement(true)
     }
 
     override fun onCreate() {
@@ -381,7 +387,7 @@ class MeasurementService : CustomLifecycleService() {
     }
 
     override fun onDestroy() {
-        resumeSignalMeasurement()
+        resumeSignalMeasurement(false)
         signalMeasurementConnection.onServiceDisconnected(null)
         unbindService(signalMeasurementConnection)
         super.onDestroy()
@@ -552,11 +558,9 @@ class MeasurementService : CustomLifecycleService() {
 
     private fun stopTests() {
         Timber.d("Stop tests")
-        if (config.loopModeEnabled) {
-            notificationManager.cancel(NOTIFICATION_ID)
-        } else {
-            notificationManager.cancelAll() // stop foreground does not hide notification about test running during loop mode sometimes
-        }
+        // stop foreground does not hide notification about test running during loop mode sometimes
+        notificationManager.cancel(NOTIFICATION_ID)
+        notificationManager.cancel(NOTIFICATION_LOOP_FINISHED_ID)
         loopModeState = LoopModeState.FINISHED
         runner.stop()
         Timber.d("TIMER: cancelling 2: ${loopCountdownTimer?.hashCode()}")
@@ -568,6 +572,7 @@ class MeasurementService : CustomLifecycleService() {
         stateRecorder.finish()
         clientAggregator.onMeasurementCancelled()
         clientAggregator.onProgressChanged(measurementState, 0)
+        resumeSignalMeasurement(false)
         stopForeground(true)
         unlock()
     }
@@ -792,7 +797,7 @@ class MeasurementService : CustomLifecycleService() {
 
     companion object {
 
-        private const val NOTIFICATION_ID = 1
+        const val NOTIFICATION_ID = 1
         const val NOTIFICATION_LOOP_FINISHED_ID = 2
         private const val NOTIFICATION_UPDATE_INTERVAL_MS = 700
 

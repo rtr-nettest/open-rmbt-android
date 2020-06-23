@@ -330,7 +330,7 @@ fun CellInfoRecord.toRequest() = CellInfoBody(
     mnc = mnc,
     mcc = mcc,
     primaryScramblingCode = primaryScramblingCode,
-    technology = NetworkTypeCompat.fromType(transportType, cellTechnology).stringValue,
+    technology = NetworkTypeCompat.fromType(transportType, cellTechnology)?.stringValue,
     registered = registered
 )
 

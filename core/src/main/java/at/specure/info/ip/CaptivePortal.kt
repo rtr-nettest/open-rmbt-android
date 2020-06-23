@@ -14,12 +14,17 @@ class CaptivePortal @Inject constructor(private val ipEndpointProvider: IpEndpoi
     var captivePortalStatus: CaptivePortalStatus = CaptivePortalStatus.NOT_TESTED
     private var isCaptivePortalTestRunning = false
 
+    fun resetCaptivePortalStatus() {
+        captivePortalStatus = CaptivePortalStatus.NOT_TESTED
+    }
+
     fun checkForCaptivePortal() {
         if (!isCaptivePortalTestRunning) {
             isCaptivePortalTestRunning = true
             captivePortalStatus = CaptivePortalStatus.TESTING
             val status = isWalledGardenConnection()
             captivePortalStatus = if (status.ok && status.success) CaptivePortalStatus.FOUND else CaptivePortalStatus.NOT_FOUND
+            Timber.e("CPS detected: $status")
             isCaptivePortalTestRunning = false
         }
     }

@@ -20,10 +20,13 @@ import at.specure.info.cell.CellInfoWatcher
 import at.specure.info.cell.CellNetworkInfo
 import at.specure.info.connectivity.ConnectivityInfo
 import at.specure.info.connectivity.ConnectivityWatcher
+import at.specure.info.ip.CaptivePortal
 import at.specure.info.wifi.WifiInfoWatcher
 import at.specure.location.LocationState
 import at.specure.location.LocationStateWatcher
 import at.specure.util.synchronizedForEach
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import java.util.Collections
 
 /**
@@ -34,7 +37,8 @@ class ActiveNetworkWatcher(
     private val connectivityWatcher: ConnectivityWatcher,
     private val wifiInfoWatcher: WifiInfoWatcher,
     private val cellInfoWatcher: CellInfoWatcher,
-    private val locationStateWatcher: LocationStateWatcher
+    private val locationStateWatcher: LocationStateWatcher,
+    private val captivePortal: CaptivePortal
 ) : LocationStateWatcher.Listener {
 
     private val listeners = Collections.synchronizedSet(mutableSetOf<NetworkChangeListener>())
@@ -77,6 +81,10 @@ class ActiveNetworkWatcher(
                     }
                     else -> null
                 }
+            }
+            GlobalScope.launch {
+                captivePortal.resetCaptivePortalStatus()
+                captivePortal.checkForCaptivePortal()
             }
         }
     }

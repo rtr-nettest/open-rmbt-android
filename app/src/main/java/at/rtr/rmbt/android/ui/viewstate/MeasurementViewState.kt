@@ -48,7 +48,6 @@ class MeasurementViewState(private val config: AppConfig) : ViewState {
     val loopLocalUUID = ObservableField<String>()
     val timeToNextTestElapsed = ObservableField<String>()
     val timeToNextTestPercentage = ObservableInt()
-    val loopState = ObservableField<LoopModeState>().apply { set(LoopModeState.IDLE) }
     val loopModeRecord = ObservableField<LoopModeRecord?>()
     val loopNextTestDistanceMeters = ObservableField<String>()
     val loopNextTestPercent = ObservableInt()
@@ -66,12 +65,11 @@ class MeasurementViewState(private val config: AppConfig) : ViewState {
         loopProgress.set("$current/$total")
     }
 
-    fun setLoopState(loopState: LoopModeState) {
+    private fun setLoopState(loopState: LoopModeState) {
         Timber.i("Measurement state from set loop state: loop: $loopState")
-        if ((this.loopState.get() != LoopModeState.RUNNING) && (loopState == LoopModeState.RUNNING)) {
+        if ((loopState != LoopModeState.RUNNING) && (loopState == LoopModeState.RUNNING)) {
             signalStrengthInfoResult.set(null)
         }
-        this.loopState.set(loopState)
         if (loopState == LoopModeState.IDLE) {
             measurementProgress.set(0)
             measurementDownloadUploadProgress.set(0)
@@ -89,6 +87,7 @@ class MeasurementViewState(private val config: AppConfig) : ViewState {
             }
             this.loopNextTestPercent.set(distancePercent)
             this.loopNextTestDistanceMeters.set(loopModeRecord.movementDistanceMeters.toString())
+            this.loopModeRecord.get()?.status?.let { setLoopState(it) }
         } else {
             this.loopNextTestPercent.set(0)
             this.loopNextTestDistanceMeters.set("")
@@ -106,7 +105,6 @@ class MeasurementViewState(private val config: AppConfig) : ViewState {
             qosEnabled.set(bundle.getBoolean(KEY_QOS_ENABLED, false))
             qosTaskProgress.set(bundle.getString(KEY_QOS_TASK_PROGRESS))
             loopProgress.set(bundle.getString(KEY_LOOP_PROGRESS))
-            loopState.set(bundle.getSerializable(KEY_LOOP_STATE) as LoopModeState)
             timeToNextTestElapsed.set(bundle.getString(KEY_LOOP_NEXT_TEST_TIME_PROGRESS))
             timeToNextTestPercentage.set(bundle.getInt(KEY_LOOP_NEXT_TEST_TIME_PERCENT, 0))
             loopNextTestDistanceMeters.set(bundle.getString(KEY_LOOP_NEXT_TEST_DISTANCE_METERS))
@@ -128,7 +126,6 @@ class MeasurementViewState(private val config: AppConfig) : ViewState {
             putBoolean(KEY_QOS_ENABLED, qosEnabled.get())
             putString(KEY_QOS_TASK_PROGRESS, qosTaskProgress.get())
             putString(KEY_LOOP_PROGRESS, loopProgress.get())
-            putSerializable(KEY_LOOP_STATE, loopState.get())
             putString(KEY_LOOP_NEXT_TEST_TIME_PROGRESS, timeToNextTestElapsed.get())
             putInt(KEY_LOOP_NEXT_TEST_TIME_PERCENT, timeToNextTestPercentage.get())
             putString(KEY_LOOP_NEXT_TEST_DISTANCE_METERS, loopNextTestDistanceMeters.get())

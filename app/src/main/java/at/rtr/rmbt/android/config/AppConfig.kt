@@ -262,6 +262,12 @@ class AppConfig @Inject constructor(context: Context, private val serverSettings
         get() = getBoolean(BuildConfig.CAPABILITIES_RMBT_HTTP)
         set(value) = setBoolean(BuildConfig.CAPABILITIES_RMBT_HTTP, value)
 
+    override var signalMeasurementDurationMin: Int
+        get() = getInt(BuildConfig.SIGNAL_MEASUREMENT_DURATION_MIN)
+        set(value) {
+            // this value cannot be changed
+        }
+
     override var captivePortalWalledGardenUrl: String
         get() = getString(BuildConfig.CAPTIVE_PORTAL_WALLED_GARDEN_URL)
         set(value) = setString(BuildConfig.CAPTIVE_PORTAL_WALLED_GARDEN_URL, value)

@@ -1,11 +1,14 @@
 package at.rtr.rmbt.android.ui.fragment
 
+import android.Manifest
+import android.content.pm.PackageManager
 import android.location.Address
 import android.location.Geocoder
 import android.os.Bundle
 import android.view.View
 import android.widget.Toast
 import androidx.annotation.DrawableRes
+import androidx.core.app.ActivityCompat
 import androidx.recyclerview.widget.LinearSnapHelper
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.SnapHelper
@@ -211,9 +214,10 @@ class MapFragment : BaseFragment(), OnMapReadyCallback, MapMarkerDetailsAdapter.
     }
 
     private fun drawMarker(record: MarkerMeasurementRecord) {
-        if (record.networkTypeLabel != ServerNetworkType.UNKNOWN.stringValue) {
+        if (record.networkTypeLabel != ServerNetworkType.TYPE_UNKNOWN.stringValue) {
             record.networkTypeLabel?.let {
                 val icon = when (NetworkTypeCompat.fromString(it)) {
+                    NetworkTypeCompat.TYPE_UNKNOWN -> R.drawable.ic_marker_empty
                     NetworkTypeCompat.TYPE_LAN,
                     NetworkTypeCompat.TYPE_BROWSER -> R.drawable.ic_marker_browser
                     NetworkTypeCompat.TYPE_WLAN -> R.drawable.ic_marker_wifi
@@ -311,7 +315,19 @@ class MapFragment : BaseFragment(), OnMapReadyCallback, MapMarkerDetailsAdapter.
 
     private fun updateLocationPermissionRelatedUi() {
         mapViewModel.locationStateLiveData.listen(this) { state ->
-            googleMap?.isMyLocationEnabled = state == LocationState.ENABLED
+            activity?.applicationContext?.let {
+                if (ActivityCompat.checkSelfPermission(
+                        it,
+                        Manifest.permission.ACCESS_FINE_LOCATION
+                    )
+                    == PackageManager.PERMISSION_GRANTED || ActivityCompat.checkSelfPermission(
+                        it,
+                        Manifest.permission.ACCESS_COARSE_LOCATION
+                    ) == PackageManager.PERMISSION_GRANTED
+                ) {
+                    googleMap?.isMyLocationEnabled = state == LocationState.ENABLED
+                }
+            }
 
             binding.fabLocation.setOnClickListener {
                 if (state == LocationState.ENABLED) {

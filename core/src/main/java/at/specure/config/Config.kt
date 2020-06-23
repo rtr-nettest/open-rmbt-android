@@ -105,6 +105,11 @@ interface Config {
     var loopModeMinTestsNumber: Int
 
     /**
+     * Duration of the signal measurement activity time after user enable it, in minutes
+     */
+    var signalMeasurementDurationMin: Int
+
+    /**
      * Shows an expert menu to the user if enabled in settings screen
      */
     var expertModeEnabled: Boolean

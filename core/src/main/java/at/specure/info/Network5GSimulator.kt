@@ -49,8 +49,8 @@ object Network5GSimulator {
     fun signalStrength(info: SignalStrengthInfo): SignalStrengthInfoNr {
         val value = when {
             info.value == null -> Random.nextInt(SignalStrengthInfo.NR_RSRP_SIGNAL_MIN, SignalStrengthInfo.NR_RSRP_SIGNAL_MIN)
-            info.value < SignalStrengthInfo.NR_RSRP_SIGNAL_MIN -> SignalStrengthInfo.NR_RSRP_SIGNAL_MIN
-            info.value > SignalStrengthInfo.NR_RSRP_SIGNAL_MAX -> SignalStrengthInfo.NR_RSRP_SIGNAL_MAX
+            info.value!! < SignalStrengthInfo.NR_RSRP_SIGNAL_MIN -> SignalStrengthInfo.NR_RSRP_SIGNAL_MIN
+            info.value!! > SignalStrengthInfo.NR_RSRP_SIGNAL_MAX -> SignalStrengthInfo.NR_RSRP_SIGNAL_MAX
             else -> info.value
         }
         return SignalStrengthInfoNr(

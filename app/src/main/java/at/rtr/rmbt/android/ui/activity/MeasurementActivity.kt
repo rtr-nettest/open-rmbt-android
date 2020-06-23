@@ -166,7 +166,6 @@ class MeasurementActivity : BaseActivity(), SimpleDialog.Callback {
         binding.root.measurementBottomView.loop_measurement_next_test_meters_progress.progress =
             viewModel.state.loopNextTestPercent.get()
         loopRecord?.status?.let { status ->
-            viewModel.state.setLoopState(status)
             if ((status == LoopModeState.IDLE) || (status == LoopModeState.FINISHED)) {
                 binding.root.measurementBottomView.speedChartDownloadUpload.reset()
                 binding.root.qosProgressContainer.reset()
@@ -180,7 +179,6 @@ class MeasurementActivity : BaseActivity(), SimpleDialog.Callback {
         if (loopRecord?.status == LoopModeState.FINISHED) {
             finishActivity(true)
         }
-        viewModel.state.loopState.set(loopRecord?.status)
     }
 
     override fun onDialogPositiveClicked(code: Int) {
