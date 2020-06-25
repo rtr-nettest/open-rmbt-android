@@ -375,17 +375,17 @@
             tools:src="@drawable/ic_location" />
 
         <androidx.appcompat.widget.AppCompatImageButton
-            android:id="@+id/btnUpload"
-            android:layout_width="0dp"
-            android:layout_height="?android:attr/actionBarSize"
-            android:background="?android:attr/selectableItemBackground"
-            android:clickable="@{state.isConnected || state.isSignalMeasurementActive}"
-            android:gravity="center"
-            android:src="@{state.isSignalMeasurementActive ? @drawable/ic_upload_enabled : (state.isConnected ? @drawable/ic_upload_disabled : @drawable/ic_upload_not_available)}"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@+id/btnLocation"
-            tools:src="@drawable/ic_upload_enabled" />
+                android:id="@+id/btnUpload"
+                android:layout_width="0dp"
+                android:layout_height="?android:attr/actionBarSize"
+                android:background="?android:attr/selectableItemBackground"
+                android:clickable="@{state.isConnected || state.isSignalMeasurementActive}"
+                android:gravity="center"
+                android:src="@{state.isSignalMeasurementActive ? @drawable/ic_upload_enabled : (state.isConnected ? @drawable/ic_upload_disabled : @drawable/ic_upload_not_available)}"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@+id/btnLocation"
+                tools:src="@drawable/ic_upload_enabled" android:visibility="gone"/>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>
