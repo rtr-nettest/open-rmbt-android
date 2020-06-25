@@ -367,28 +367,6 @@
                         app:visibleOrGone="@{state.testResult != null}" />
 
                     <androidx.appcompat.widget.AppCompatTextView
-                        android:id="@+id/titleQuality"
-                        style="@style/RobotoBoldStyle.Medium"
-                        android:layout_width="wrap_content"
-                        android:layout_height="?attr/actionBarSize"
-                        android:layout_marginStart="@dimen/margin_large"
-                        android:gravity="center_vertical"
-                        android:text="@string/results_quality"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toBottomOf="@+id/titleOtherDetails"
-                        app:visibleOrGone="@{state.testResult != null &amp;&amp; state.testResult.localOnly == false}" />
-
-                    <androidx.recyclerview.widget.RecyclerView
-                        android:id="@+id/qoeResultsRecyclerView"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toBottomOf="@+id/titleQuality"
-                        tools:listitem="@layout/item_qoe" />
-
-                    <androidx.appcompat.widget.AppCompatTextView
                         android:id="@+id/titleNetwork"
                         style="@style/RobotoBoldStyle.Medium"
                         android:layout_width="wrap_content"
@@ -397,7 +375,7 @@
                         android:gravity="center_vertical"
                         android:text="@string/network_label"
                         app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toBottomOf="@+id/qoeResultsRecyclerView"
+                        app:layout_constraintTop_toBottomOf="@+id/titleOtherDetails"
                         app:visibleOrGone="@{state.testResult != null}" />
 
                     <androidx.appcompat.widget.AppCompatTextView
@@ -483,19 +461,26 @@
                         tools:text="WIFIFINKA" />
 
                     <androidx.appcompat.widget.AppCompatTextView
-                        android:id="@+id/titleQos"
-                        style="@style/RobotoBoldStyle.Medium"
-                        visibleOrGone="@{state.testResult != null &amp;&amp; state.qosCategoryRecords != null &amp;&amp; state.testResult.localOnly == false}"
-                        android:layout_width="wrap_content"
-                        android:layout_height="?attr/actionBarSize"
-                        android:layout_marginStart="@dimen/margin_large"
-                        android:gravity="center_vertical"
-                        android:text="@string/label_qos"
-                        android:textColor="@color/text_dark_gray"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toBottomOf="@+id/labelNetworkName"
-                        app:textAllCaps="true"
-                        tools:text="QoS" />
+                            android:id="@+id/titleQuality"
+                            style="@style/RobotoBoldStyle.Medium"
+                            android:layout_width="wrap_content"
+                            android:layout_height="?attr/actionBarSize"
+                            android:layout_marginStart="@dimen/margin_large"
+                            android:gravity="center_vertical"
+                            android:text="@string/results_quality"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toBottomOf="@+id/labelNetworkName"
+                            app:visibleOrGone="@{state.testResult != null &amp;&amp; state.testResult.localOnly == false}" />
+
+                    <androidx.recyclerview.widget.RecyclerView
+                            android:id="@+id/qoeResultsRecyclerView"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toBottomOf="@+id/titleQuality"
+                            tools:listitem="@layout/item_qoe" />
 
                     <androidx.recyclerview.widget.RecyclerView
                         android:id="@+id/qosResultsRecyclerView"
@@ -504,7 +489,7 @@
                         app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toBottomOf="@+id/titleQos"
+                        app:layout_constraintTop_toBottomOf="@+id/qoeResultsRecyclerView"
                         tools:listitem="@layout/item_qos_result" />
 
                     <androidx.appcompat.widget.AppCompatTextView
