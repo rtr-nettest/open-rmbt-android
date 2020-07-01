@@ -35,12 +35,12 @@
 
             <TextView
                 android:id="@+id/content"
-                style="@style/RobotoMediumStyle.Small"
+                style="@style/RobotoRegularStyle.Small"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:gravity="center"
+                android:padding="@dimen/margin_large"
                 android:text="@string/signal_measurement_terms_content"
-                android:textColor="@color/text_gray"
+                android:textColor="@color/text_dark_gray"
                 tools:text="Content" />
 
         </ScrollView>

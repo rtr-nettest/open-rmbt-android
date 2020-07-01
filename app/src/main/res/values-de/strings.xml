@@ -269,7 +269,7 @@
     <string name="text_loop_instruction_1"> Der Wiederholungsmodus erlaubt es, den RTR-Netztest automatisiert wiederholt auszuführen.\n\nDer erste Test wird unmittelbar nach dem Start des Wiederholungsmodus gestartet. Weitere Tests werden gestartet, sobald die Wartezeit (Voreinstellung 30 Minuten) abgelaufen ist. Diese Werte können unter „Einstellungen“ verändert werden. Tests werden durchgeführt, bis die eingestellte Testanzahl (Voreinstellung 10 Tests) erreicht ist. Der Wiederholungsmodus wird nach 2 Tagen automatisch beendet. Die Tests können jederzeit gestoppt werden.\n\nEs wird ausdrücklich darauf hingewiesen, dass aufgrund des Wiederholungsmodus ein Rückschluss auf die testende Person nicht ausgeschlossen ist.</string>
     <string name="text_loop_instruction_2">Im Fall hoher Nachfrage oder einer hohen Anzahl an Tests in einem konkreten Gebiet kann der Wiederholungsmodus durch das Testsystem abgelehnt werden, um Überlast zu vermeiden. Es wird darauf hingewiesen, dass der Widerholungsmodus (nur) zur Nutzung innerhalb der EU- und EFTA-Staaten gedacht ist.\n\nEs ist zu beachten, dass der Wiederholungsmodus eine große Menge an Daten verbraucht. Mit schnellen Verbindungen können 10 Tests 1 GB oder mehr an Daten verbrauchen. Deshalb wird dringend empfohlen, den Wiederholungsmodus nur mit echten Flatrate Tarifen, bei denen zusätzliches Datenvolumen keine zusätzlichen Kosten verursacht, zu verwenden.\n\nDie Batterie wird durch den Wiederholungsmodus schnell entleert. In den Pausen zwischen den Tests bleiben GPS und die Anzeige aktiv, deshalb wird die Energie viel schneller verbraucht als im Ruhemodus. Dazu kommt, dass auch die Tests Energie benötigen. Daher sollte der Wiederholungsmodus nur dann genutzt werden, wenn eine externe Stromversorgung zur Verfügung steht.</string>
     <string name="title_loop_instruction_1">Wiederholungmodus: Aktivierung</string>
-    <string name="title_loop_instruction_2">Nutzung</string>
+    <string name="title_loop_instruction_2">Wiederholungsmodus: Nutzung</string>
 
     <string name="text_filter_devices">Gerät</string>
     <string name="text_filter_networks">Zugang</string>
@@ -285,7 +285,7 @@
     <string name="loop_continue_to_results">Weiter zum ergebnis</string>
     <string name="loop_run_again">Noch einmal ausführen</string>
     <string name="title_privacy_policy">Datenschutzerklärung</string>
-    <string name="text_terms_agree">Ich stimme den Datenschutzbestimmungen und Nutzungsbedingungen von RTR für RTR-NetTest zu.</string>
+    <string name="text_terms_agree">Ich stimme der Datenschutzerklärung und den Nutzungsbedingungen zu.</string>
     <string name="text_terms_agree_empty">Sie müssen den Datenschutzbestimmungen und Nutzungsbedingungen von RTR zustimmen, um fortfahren zu können.</string>
 
     <string name="dialog_title_config_check">Bitte ändern Sie die folgenden Werte:</string>
