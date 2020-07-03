@@ -43,7 +43,7 @@
     <string name="preferences_general_settings">Allgemeine Einstellungen</string>
     <string name="preferences_ndt">NDT</string>
     <string name="preferences_qos_measurement">QoS Messung</string>
-    <string name="preferences_qos_measurement_only_after_some_time">Nur nach 2 Stunden</string>
+    <string name="preferences_qos_measurement_only_after_some_time">Nur alle 2 Stunden</string>
     <string name="preferences_qos_measurement_only_after_some_time_summary">Keine neue QoS-Messung wenn die letzte vor weniger als 2 Stunden durchgeführt wurde.</string>
     <string name="preferences_location">Standort</string>
     <string name="preferences_loop_mode">Wiederholungsmodus</string>
@@ -62,7 +62,7 @@
     <string name="preferences_contact_us">E-Mail schreiben</string>
     <string name="preferences_additional_Information">Weitere Informationen</string>
     <string name="preferences_client_uuid">Client UUID</string>
-    <string name="preferences_test_cases">Testfälle</string>
+    <string name="preferences_test_cases">Durchgeführte Tests</string>
     <string name="preferences_about">Über</string>
     <string name="preferences_source_code">Source Code</string>
     <string name="preferences_data_protection">Datenschutzerklärung</string>
