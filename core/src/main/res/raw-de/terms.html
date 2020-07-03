@@ -1,275 +1,309 @@
 <!DOCTYPE html>
 <html lang="de">
-<head>
-    <meta charset="UTF-8">
-    <title>Nutzungsbedingungen</title>
-    <style>
-        h1 {
-            font-size: 120%;
-        }
+    <head>
+        <meta charset="UTF-8">
+        <title>Nutzungsbedingungen</title>
+        <style>
+            h1 {
+                font-size: 120%;
+            }
 
-        h2 {
-            font-size: 100%;
-        }
+            h2 {
+                font-size: 100%;
+            }
 
-        h3 {
-            font-size: 100%;
-        }
+            h3 {
+                font-size: 100%;
+            }
 
 
-        a {
-            word-break: break-word;
-        }
+            a {
+                word-break: break-word;
+            }
 
-        a:link {
-            color: #bbd8ff
-        }
+            a:link {
+                color: #0071D7
+            }
 
-        a:visited {
-            color: #bbd8ff
-        }
+            a:visited {
+                color: #0071D7
+            }
 
-        a:hover {
-            color: #bbd8ff
-        }
+            a:hover {
+                color: #0071D7
+            }
 
-        a:active {
-            color: #bbd8ff
-        }
+            a:active {
+                color: #0071D7
+            }
 
-        p {
-            text-align: justify;
-        }
+            p {
+                text-align: justify;
+            }
 
-        .tc_border {
-            border-style: solid;
-            border-width: 2px;
-            padding: 0px 0.5em;
-        }
-    </style>
-</head>
-<body style="color: #424242; font-size: 80%; background-color: white;">
-<h1>1. Datenschutzerklärung</h1>
-<p>Die Verwendung der RTR-Netztest-App ist erst nach ausdrücklicher Zustimmung zur Datenschutzerklärung sowie den
-    Nutzungsbedingungen des RTR-Netztests möglich. Es wird darauf hingewiesen, dass die IP-Adresse übermittelt wird, ua.
-    auch in Drittländer (= außerhalb der EU und des EWR) für die es keinen Angemessenheitsbeschluss und keine geeigneten
-    Garantien gibt. Siehe dazu unter 1.2.1.3. und 1.2.2.3.</p>
-<h2>1.1. Allgemeines</h2>
-<p>Die RTR-GmbH bietet der Nutzerin bzw. dem Nutzer die Möglichkeit, den RTR-Netztest zu verwenden. Unter 14-Jährige
-    Personen können den RTR-Netztest nur mit Einwilligung der Obsorgeberechtigten nutzen. Die gesetzliche Ermächtigung
-    der RTR-GmbH, den RTR-Netztest anzubieten, ergibt sich aus <a href="https://www.rtr.at/de/tk/TKG2003"
-                                                                  title="Link to TKG 2003" target="_blank"
-                                                                  rel="noopener noreferrer" class="external-link">§&nbsp;17
-        Abs.&nbsp;4 und Abs.&nbsp;5 Telekommunikationsgesetz 2003</a> sowie <a href="https://eur-lex.europa.eu/legal-content/DE/TXT/?uri=celex:32015R2120"
-                                                                               title="Link to TSM Regulation" target="_blank"
-                                                                               class="external-link">Art 5 Abs. 1 Verordnung (EU) 2015/2120 ("TSM-Verordnung")</a>.
-    Um diese Aufgabe erfüllen zu können und der
-    Nutzerin bzw. dem Nutzer – unter Achtung der Privatsphäre – größtmögliche Transparenz und ausführliche Information
-    zu bieten, basiert der RTR-Netztest auf dem Open Source- und Open Data-Prinzip.</p>
-<p>Der RTR-Netztest umfasst zwei eigenständige Tests: einen von der RTR-GmbH entwickelten Test (= RTR Multithreaded
-    Broadband-Test, <strong>RMB-Test</strong>) sowie einen <strong>optionalen</strong>, vertiefenden Test (= Network
-    Diagnostic Tool-Test der Forschungsplattform M-Lab, <strong>NDT-Test</strong>).</p>
-<h2>1.2. Datenverarbeitung beim RMB-Test und optionalen NDT-Test</h2>
-<h3>1.2.1. RMB-Test</h3>
-<h4>1.2.1.1. Welche Daten werden verarbeitet?</h4>
-<p>Im Rahmen des <strong>RMB-Tests</strong> werden folgende Daten verarbeitet:</p>
-<ul>
-    <li>Geschwindigkeit der Datenverbindung in beiden Richtungen (Down-/Uplink)*</li>
-    <li>Latenz der Datenverbindung (Ping)*</li>
-    <li>Qualitätsparameter (z.B.: Signalstärke, Konnektivität auf unterschiedlichen Ports, Veränderungen bei der
-        Datenübertragung, Übertragungsdauer für eine Referenz-Website, im Hintergrund übertragene Datenmenge, Abfrage
-        von Domain Name System-Servern, Traceroute, VoIP-Testverbindung)*
-    </li>
-    <li>Testparameter (Testmethode, Testfortschritt, Testserver, Testkonfiguration [z.B: Testdauer])*</li>
-    <li>zufällig erzeugte ID des Clients (Client UUID)</li>
-    <li>Zustimmungsnachweis zur Datenschutzerklärung und zu den Nutzungsbedingungen</li>
-    <li>öffentliche ID des Clients*</li>
-    <li>Sync-Code und –Gruppe des Clients</li>
-    <li>Testzeitpunkt*</li>
-    <li>Standort des Clients (sofern bekannt) / Zeitzone*</li>
-    <li>Metainformationen zum Standort des Clients (z.B. Standortgenauigkeit, Methode der Standortbestimmung,
-        zurückgelegter Weg)*
-    </li>
-    <li>Gerätetyp/-modell, Betriebssystem-/Software-Version der App*</li>
-    <li>NAT ja/nein (wird ein direkter Internetzugang oder eine private Adresse verwendet)*</li>
-    <li>Roaming-Status (nationales, internationales Roaming)*</li>
-    <li>IP-Version*</li>
-    <li>IP-Adresse</li>
-    <li>IP-Netzwerk (autonomes System, AS) bzw. anonymisierte IP-Adresse*</li>
-    <li>Kennung WLAN-Netzwerk (SSID) und numerische WLAN-Kennung (BSSID)</li>
-    <li>Mobilfunknetz (z.B. Heimatnetz, eingebuchtes Netzwerk, Typ der Verbindung [GSM, UMTS, LTE etc.], Name des
-        Mobilfunknetzwerks, verwendete Frequenz, Frequenzband, eindeutige Nummer der Basisstation)*
-    </li>
-</ul>
-<p>Die mit * gekennzeichneten Daten werden auf der RTR-Netztest-Website und in der RTR-Netztest-App veröffentlicht und
-    der Allgemeinheit als Open Data (<a href="https://www.netztest.at/de/Opendata" target="_blank"
-                                        rel="noopener noreferrer">https://www.netztest.at/de/Opendata</a>) zur
-    Information, Nutzung, Weiterverbreitung und Weiterverwendung frei zugänglich gemacht.</p>
-<h4><strong>1.2.1.2. Verarbeitung personenbezogener Daten und Zwecke der Verarbeitung personenbezogener Daten</strong>
-</h4>
-<p>Folgende personenbezogene Daten werden im Rahmen des RMB-Tests ausschließlich mit der Einwilligung der Nutzerin bzw.
-    des Nutzers verarbeitet: (1) die <strong>Client UUID</strong>, (2) die <strong>Kennung WLAN-Netzwerk (SSID)</strong>
-    und <strong>numerische WLAN-Kennung (BSSID)</strong> sowie (3) die <strong>IP-Adresse</strong>.</p>
-<p>Zweck der Verarbeitung:</p>
-<ul>
-    <li>bei der <strong>Client UUID</strong>: Ermöglichung von Verlauf/History für Nutzerin bzw. Nutzer; Identifikation
-        zusammenhängender Tests insbesondere im Zusammenhang mit missbräuchlicher Nutzung oder Fehlfunktionen;
-        Wahrnehmung der Rechte durch die Nutzerin bzw. den Nutzer unter 1.4.
-    </li>
-    <li>bei der <strong>Kennung WLAN-Netzwerk (SSID)</strong> und <strong>numerische WLAN-Kennung (BSSID)</strong>:
-        Darstellung in Verlauf/History für Nutzerin bzw. Nutzer; Identifikation zusammenhängender Tests insbesondere im
-        Zusammenhang mit missbräuchlicher Nutzung oder Fehlfunktionen.
-    </li>
-    <li>bei der <strong>IP-Adresse</strong>: Technische Ermöglichung des RTR-Netztests und Gewährleistung des
-        vollständigen Funktionsumfangs, insbesondere Kartendarstellung und Qualitätsmessungen; Zuordnung des Tests zu
-        Betreiber (über Routinginformation [AS] bzw. Hostnamen); Erkennung von missbräuchlicher Nutzung und
-        Fehlfunktionen.
-    </li>
-</ul>
-<h4><strong>1.2.1.3. Übermittlung personenbezogener Daten</strong></h4>
-<p>Die <strong>IP-Adresse</strong> wird an folgende Empfänger - <strong>darunter </strong><strong>auch in
-        Drittländer</strong> - <strong>übermittelt</strong>:</p>
-<ul>
-    <li><strong>innerhalb der EU und des EWR</strong>: Für die Darstellung der Karten und zu Positionsbestimmungen
-        werden abhängig von der aufgerufenen Seite und vom Endgerät Kartendaten von basemap.at (<a
-                href="https://basemap.at" target="_blank" rel="noopener noreferrer">https://basemap.at</a>) sowie
-        OpenStreetMap (<a href="https://www.openstreetmap.org" target="_blank" rel="noopener noreferrer">https://www.openstreetmap.org</a>)
-        geladen.
-    </li>
-    <li><strong>Drittländer</strong>: Zur Durchführung von DNS-Tests im Rahmen der Qualitäts-Tests werden DNS-Anfragen
-        an die öffentlichen DNS-Server von Google (<a href="https://www.google.com" target="_blank"
-                                                      rel="noopener noreferrer">https://www.google.com</a>), Cloudflare
-        (<a href="https://www.cloudflare.com" target="_blank" rel="noopener noreferrer">https://www.cloudflare.com</a>)
-        und Quad9 (<a href="https://www.quad9.net" target="_blank" rel="noopener noreferrer">https://www.quad9.net</a>)
-        gesendet. Für die Darstellung der Karten und zu Positionsbestimmungen werden abhängig von der aufgerufenen Seite
-        und vom Endgerät Kartendaten von Google (<a href="https://www.google.at" target="_blank"
-                                                    rel="noopener noreferrer">https://www.google.at</a>) und Microsoft (<a
-                href="https://www.microsoft.com" target="_blank" rel="noopener noreferrer">https://www.microsoft.com</a>)
-        geladen.
-    </li>
-</ul>
-<p>Die Datenübermittlung an Google, Cloudflare und Microsoft erfolgt auf Grundlage von Angemessenheitsbeschlüssen der
-    Europäischen Kommission gem. Art. 45 Datenschutz-Grundverordnung (DSGVO). Für Quad9 liegt weder ein
-    Angemessenheitsbeschluss vor, noch gibt es geeignete Garantien im Sinne von Art. 46 DSGVO. Ein mögliches Risiko
-    besteht darin, dass die IP-Adresse der Nutzerin bzw. des Nutzers an Quad9 übermittelt wird und damit gegebenenfalls
-    Rückschlüsse auf die Ausführung des RTR-Netztests zulässt.</p>
-<h3>1.2.2. Optionaler NDT-Test</h3>
-<p>Der NDT-Test wird nur dann ausgeführt, wenn nach erfolgter Zustimmung zur Datenschutzerklärung und den
-    Nutzungsbedingungen des RTR-Netztests die Checkbox „Ich möchte zusätzlich den optionalen, vertiefenden NDT-Test
-    ausführen“ angekreuzt wird. Die Nutzerin bzw. der Nutzer stimmt im Rahmen des NDT-Tests der <strong>Verarbeitung und
-        Übermittlung der IP-Adresse in ein Drittland sowie deren Veröffentlichung</strong> ausdrücklich zu.</p>
-<h4><strong>1.2.2.1. Welche Daten werden verarbeitet?</strong></h4>
-<p>Im Rahmen des <strong>NDT-Tests</strong> werden folgende Daten verarbeitet:</p>
-<ul>
-    <li>Geschwindigkeit der Datenverarbeitung in beiden Richtungen (Down-/Uplink)</li>
-    <li>TCP/IP-Protokollparameter (z.B: TCP-Rcv-Window)</li>
-    <li>Anteil der IP-Paketverluste, Verbindungsfehler (z.B.: Halbduplex)</li>
-    <li>Latenz/Jitter der Datenverbindung („Ping“)</li>
-    <li>Testparameter (Testmethode, Testserver, Testkonfiguration)</li>
-    <li>Betriebssystem (Bezeichnung/Version) und Prozessorarchitektur</li>
-    <li>Java-Laufzeitumgebung (Bezeichnung/Version)</li>
-    <li>IP-Version</li>
-    <li>IP-Adresse (lokal/öffentlich)</li>
-    <li>Hostname des Rechners</li>
-    <li>NAT- und Firewall-Status und Datenverbindungsparameter</li>
-    <li>Testzeitpunkt</li>
-    <li>übertragene Testdaten</li>
-</ul>
-<h4><strong>1.2.2.2. </strong><strong>Verarbeitung personenbezogener Daten und Zwecke der Verarbeitung personenbezogener
-        Daten </strong></h4>
-<p>Folgendes personenbezogene Datum wird im Rahmen des NDT-Tests ausschließlich mit der Einwilligung der Nutzerin bzw.
-    des Nutzers verarbeitet und veröffentlicht: <strong>IP-Adresse</strong>.</p>
-<p>Zweck der Verarbeitung: Technische Durchführung des NDT-Tests sowie Ermöglichung von Auswertungen für eine breite
-    Öffentlichkeit.</p>
-<h4><strong>1.2.2.3. Übermittlung personenbezogener Daten</strong></h4>
-<p>Zu den oben genannten Zwecken wird die IP-Adresse an die Forschungsplattform M-Lab (<a
-            href="https://www.measurementlab.net" target="_blank" rel="noopener noreferrer">https://www.measurementlab.net</a>)
-    in ein Drittland übermittelt. Dieses Datum wird durch M-Lab dauerhaft gespeichert, als Open Data veröffentlicht und
-    ist unter M-Lab-Open Data für die Allgemeinheit zur Information, Nutzung, Weiterverarbeitung und Weiterverwendung
-    frei zugänglich. Zur Datenschutzerklärung von M-Lab siehe <a href="https://www.measurementlab.net/privacy"
-                                                                 target="_blank" rel="noopener noreferrer">https://www.measurementlab.net/privacy</a>.
-</p>
-<p>Für M-Lab liegt weder ein Angemessenheitsbeschluss vor, noch gibt es geeignete Garantien im Sinne von Art. 46 DSGVO.
-    Ein mögliches Risiko besteht darin, dass die IP-Adresse der Nutzerin bzw. des Nutzers an M-Lab übermittelt wird und
-    veröffentlicht wird. Damit sind Rückschlüsse auf die Ausführung des NDT-Tests möglich. Unter Umständen können
-    Testergebnisse des NDT-Tests mit jenen des RMB-Tests verknüpft werden und so weitere Informationen gewonnen
-    werden.</p>
-<h2>1.3. Speicherdauer </h2>
-<p>Die <strong>IP-Adresse,</strong> die <strong>Kennung WLAN-Netzwerk (SSID)</strong> und <strong>numerische
-        WLAN-Kennung (BSSID)</strong> werden von der RTR-GmbH maximal für eine Dauer von sechs Monaten gespeichert. Die
-    <strong>Client UUID</strong> wird jedenfalls mit der endgültigen Einstellung des RTR-Netztests gelöscht.</p>
-<h2>1.4. Rechte der Nutzerin bzw. des Nutzers im Zusammenhang mit personenbezogenen Daten</h2>
-<p>Die Nutzerin bzw. der Nutzer hat unter Bekanntgabe der zufällig erzeugten ID des Clients (= <strong>Client
-        UUID</strong>) - in der App unter Info abrufbar - gegenüber der RTR-GmbH, hinsichtlich ihrer bzw. seiner
-    personenbezogener Daten ua. das Recht auf:</p>
-<ul>
-    <li>Auskunft;</li>
-    <li>Löschung, somit zum jederzeitigen Widerruf der Zustimmung hinsichtlich der Verarbeitung ihrer bzw. seiner
-        personenbezogener Daten;
-    </li>
-    <li>Beschwerde bei der Datenschutzbehörde (<a href="https://www.dsb.gv.at" target="_blank" rel="noopener noreferrer"
-                                                  class="external-link">https://www.dsb.gv.at</a>);
-    </li>
-    <li>Berichtigung;</li>
-    <li>Einschränkung;</li>
-    <li>Datenübertragbarkeit.</li>
-</ul>
-<h2>1.5. Kontaktdaten</h2>
-<p>Fragen zur Verarbeitung personenbezogener Daten und zum Datenschutz hinsichtlich des RTR-Netztests können gerichtet
-    werden an:</p>
-<ul>
-    <li>E-Mail: <a href="mailto:netztest@rtr.at">netztest@rtr.at</a></li>
-    <li>Datenschutzbeauftragte der RTR-GmbH: E-Mail: <a href="mailto:dsba@rtr.at">dsba@rtr.at</a></li>
-    <li>Adresse: Rundfunk und Telekom Regulierungs-GmbH (RTR-GmbH), RTR-Netztest, Mariahilfer Straße 77-79, 1060 Wien,
-        Österreich
-    </li>
-</ul>
+            .tc_border {
+                border-style: solid;
+                border-width: 2px;
+                padding: 0px 0.5em;
+            }
 
-<h1>2. Nutzungsbedingungen</h1>
+            body {
+                color: #424242;
+                font-size: 80%;
+                background-color: white;
+                font-family: 'Roboto', sans-serif;
+            }
+        </style>
+    </head>
+    <body>
+        <h1>1. Datenschutzerklärung</h1>
+        <h2>1.1. Allgemeines</h2>
+        <p>Die Verwendung der RTR-Netztest-App ist erst nach ausdrücklicher Zustimmung zur Datenschutzerklärung sowie den
+            Nutzungsbedingungen des RTR-Netztests möglich. Unter 14-Jährige Personen können den RTR-Netztest nur mit
+            Einwilligung der bzw des Obsorgeberechtigten nutzen. Es wird darauf hingewiesen, dass die IP-Adresse übermittelt
+            wird, ua auch in Drittländer (= außerhalb der Europäischen Union, EU, und des Europäischen Wirtschaftsraums, EWR)
+            für die es keinen Angemessenheitsbeschluss und keine geeigneten Garantien gibt. Siehe dazu unter 4.
+        </p>
+        <p>
+            Der RTR-Netztest der RTR-GmbH bietet Nutzerinnen und Nutzern die Möglichkeit, Informationen über die aktuelle
+            Dienstequalität (ua Upload, Download, Ping) ihres Internetzugangs zu beziehen. Für technisch Interessierte bietet
+            der RTR-Netztest zwei weitere Optionen an: Einerseits einen Wiederholungsmodus (Loop), der ermöglicht, dass der
+            RTR-Netztest automatisiert wiederholt durchgeführt wird; andererseits besteht mit der Option Nur-Signalmessung
+            Wiederholungsmodus die Möglichkeit, dass ausschließlich Signalmessungen wiederholt durchgeführt werden - ohne, dass
+            dabei Geschwindigkeits- oder Qualitätstests durchgeführt werden.
+            Die gesetzliche Ermächtigung der RTR-GmbH, den RTR-Netztest anzubieten, ergibt sich aus <a href="https://www.rtr.at/de/tk/TKG2003"
+                                                                                                       title="Link to TKG 2003" target="_blank"
+                                                                                                       rel="noopener noreferrer" class="external-link">§&nbsp;17
+            Abs&nbsp;4 und Abs&nbsp;5 sowie § 17b Telekommunikationsgesetz 2003</a> sowie <a href="https://eur-lex.europa.eu/legal-content/DE/TXT/?uri=celex:32015R2120"
+                                                                                             title="Link to TSM Regulation" target="_blank"
+                                                                                             class="external-link">Art 4 Abs 4 und Art 5 Abs 1 Verordnung (EU) 2015/2120</a>.
+            Um diese Aufgabe erfüllen zu können und der Nutzerin bzw dem Nutzer – unter Achtung der Privatsphäre – größtmögliche
+            Transparenz und ausführliche Information zu bieten, basiert der RTR-Netztest auf dem Open Source- und Open
+            Data-Prinzip.</p>
+        <h2>1.2. Welche Daten werden verarbeitet?</h2>
+        <h3>1.2.1. RTR-Netztest </h3>
+        <p>Im Rahmen des RTR-Netztests werden folgende Daten verarbeitet:</p>
+        <ul>
+            <li>Geschwindigkeit der Datenverbindung in beiden Richtungen (Down-/Uplink)*</li>
+            <li>Latenz der Datenverbindung (Ping)*</li>
+            <li>Qualitätsparameter (zB Signalstärke, Konnektivität auf unterschiedlichen Ports, Veränderungen bei der
+                Datenübertragung, Übertragungsdauer für eine Referenz-Website, im Hintergrund übertragene Datenmenge, Abfrage
+                von Domain Name System-Servern, Traceroute, VoIP-Testverbindung)*
+            </li>
+            <li>Testparameter (Testmethode, Testfortschritt, Testserver, Testkonfiguration [z.B: Testdauer])*</li>
+            <li>zufällig erzeugte ID des Clients (Client UUID)</li>
+            <li>Zustimmungsnachweis zur Datenschutzerklärung und zu den Nutzungsbedingungen</li>
+            <li>öffentliche ID des Clients*</li>
+            <li>Sync-Code und –Gruppe des Clients</li>
+            <li>Testzeitpunkt*</li>
+            <li>Standort des Clients (sofern bekannt) / Zeitzone*</li>
+            <li>Metainformationen zum Standort des Clients (zB Standortgenauigkeit, Methode der Standortbestimmung,
+                zurückgelegter Weg)*
+            </li>
+            <li>Gerätetyp/-modell, Betriebssystem-/Software-Version der App*</li>
+            <li>NAT ja/nein (wird ein direkter Internetzugang oder eine private Adresse verwendet)*</li>
+            <li>Roaming-Status (nationales, internationales Roaming)*</li>
+            <li>IP-Version*</li>
+            <li>IP-Adresse</li>
+            <li>IP-Netzwerk (autonomes System, AS) bzw. anonymisierte IP-Adresse*</li>
+            <li>Kennung WLAN-Netzwerk (SSID) und numerische WLAN-Kennung (BSSID)</li>
+            <li>Mobilfunknetz (zB Heimatnetz, eingebuchtes Netzwerk, Typ der Verbindung [GSM, UMTS, LTE etc], Name des
+                Mobilfunknetzwerks, verwendete Frequenz, Frequenzband, eindeutige Nummer der Basisstation)*
+            </li>
+        </ul>
+        <p>Die mit * gekennzeichneten Daten werden auf der RTR-Netztest-Website und in der RTR-Netztest-App veröffentlicht und
+            der Allgemeinheit als Open Data (<a href="https://www.netztest.at/de/Opendata" target="_blank"
+                                                rel="noopener noreferrer">https://www.netztest.at/de/Opendata</a>) zur
+            Information, Nutzung, Weiterverbreitung und Weiterverwendung frei zugänglich gemacht.</p>
+        <h3>2.2 Option Wiederholungsmodus (Loop)</h3>
+        <p>Die Option Wiederholungsmodus (Loop) für technisch Interessierte ermöglicht, dass der RTR-Netztest automatisiert
+            wiederholt durchgeführt wird.
+        </p>
+        <p> Der erste Test wird unmittelbar nach dem Start des Wiederholungsmodus gestartet. Weitere Tests werden, sobald
+            entweder die Wartezeit (Voreinstellung 30 Minuten) abgelaufen ist oder die festgelegte Distanz (Voreinstellung 250
+            Meter) zurückgelegt wurde, gestartet. Tests werden durchgeführt bis die eingestellte Testanzahl (Voreinstellung 10
+            Tests) erreicht ist. Zwischen zwei Tests wird die Signalstärke weiter gemessen. Der Wiederholungsmodus wird
+            automatisch nach 48 Stunden gestoppt bzw kann er jederzeit gestoppt werden. Es wird ausdrücklich darauf hingewiesen,
+            dass aufgrund des Wiederholungsmodus ein Rückschluss auf die testende Person nicht ausgeschlossen ist.
+        </p>
+        <p> Es werden dieselben Daten, wie unter 2.1 aufgelistet, verarbeitet. Die dort mit * gekennzeichneten Daten werden auf
+            der RTR-Netztest-Website und in der RTR-Netztest-App veröffentlicht und der Allgemeinheit als Open Data
+            ( <a href="https://www.netztest.at/de/Opendata"
+                 title="Link to TSM Regulation" target="_blank"
+                 class="external-link">https://www.netztest.at/de/Opendata</a>) zur Information, Nutzung, Weiterverbreitung und Weiterverwendung frei
+            zugänglich gemacht.
+        </p>
 
-<p>Die Benutzung der Browser-Version sowie der App des RTR-Netztests erfolgt auf eigene Gefahr. Hinweise zur Korrektur
-    unrichtiger Inhalte, Darstellungen etc. werden von der RTR-GmbH unter <a href="mailto:netztest@rtr.at">netztest@rtr.at</a>
-    entgegengenommen. Unter 14-Jährige Personen können den RTR-Netztest mit Einwilligung ihrer Obsorgeberechtigten
-    nutzen.</p>
-<p>Um der gesetzlichen Ermächtigung, die sich aus <a href="https://www.rtr.at/TKG2003" target="_blank"
-                                                         rel="noopener noreferrer">§&nbsp;17 Abs. 4 und Abs.&nbsp;5
-        Telekommunikationsgesetz 2003</a> in der geltenden Fassung
-    sowie <a href="https://eur-lex.europa.eu/legal-content/DE/TXT/?uri=celex:32015R2120"
-                                                                            title="Link to TSM Regulation" target="_blank"
-                                                                            class="external-link">Art 5 Abs. 1 Verordnung (EU) 2015/2120 ("TSM-Verordnung")</a>
-    ergibt, nachzukommen sowie um der Nutzerin bzw. dem
-    Nutzer – unter Achtung der Privatsphäre – größtmögliche Transparenz und ausführliche Information zu bieten, basiert
-    der RTR-Netztest auf dem Open Source- und Open Data-Prinzip.</p>
-<p>Dies bedeutet nach dem Open Source-Prinzip, dass der Quellcode der RTR-Netztest Software öffentlich zugänglich ist
-    und die RTR-GmbH die von ihr entwickelten Komponenten unter eine Open Source-Lizenz, der Apache License Version 2.0
-    (<a href="https://www.apache.org/licenses/LICENSE-2.0" target="_blank" rel="noopener noreferrer">https://www.apache.org/licenses/LICENSE-2.0</a>),
-    gestellt hat. Es ist jedoch zu beachten, dass bei der Nutzung des Quellcodes des RTR-Netztests gegebenenfalls
-    weitere Lizenzen notwendig sind. Das RTR-Netztest-Logo und der RTR-Netztest-Schriftzug unterliegen nicht dem Open
-    Source-Prinzip und dürfen daher nicht kopiert, modifiziert, verändert sowie unverändert weiterverarbeitet werden.
-    Die unter <a href="https://www.netztest.at/de/Opendata" target="_blank" rel="noopener noreferrer">https://www.netztest.at/de/Opendata</a>
-    angeführten Daten des RTR-Netztests sind als Open Data abrufbar und werden so unter Verwendung der Creative Commons
-    Namensnennung 4.0 (CC BY 4.0) Lizenz (<a href="https://creativecommons.org/licenses/by/4.0/deed.de"
-                                                         target="_blank" rel="noopener noreferrer">https://creativecommons.org/licenses/by/4.0/deed.de</a>)
-    der Allgemeinheit zur Information, Nutzung, Weiterverbreitung und Weiterverwendung frei zugänglich gemacht.</p>
-<p>Die RTR-GmbH verweist weiters darauf, dass zum Zeitpunkt der Verlinkung auf fremde Inhalte im World Wide Web (Links)
-    diese frei von illegalen Inhalten waren und sie keinerlei Einfluss auf die aktuelle und zukünftige Gestaltung der
-    verlinkten Inhalte hat. Die RTR-GmbH distanziert sich ausdrücklich von den Inhalten von verknüpften/verlinkten
-    Seiten, die nach der Linksetzung verändert wurden. Für die Richtigkeit der Inhalte ist immer der jeweilige Anbieter
-    oder Betreiber der Website verantwortlich. Die RTR-GmbH übernimmt hierfür keinerlei Haftung und/oder
-    Gewährleistung.</p>
-<p>Es besteht kein Anspruch auf ständige Verfügbarkeit des Angebots. Die RTR-GmbH behält sich ausdrücklich vor, Teile
-    des RTR-Netztests oder das gesamte Angebot des RTR-Netztests ohne gesonderte Ankündigung zu verändern, zu ergänzen,
-    zu löschen oder die Veröffentlichung zeitweise oder endgültig einzustellen.</p>
-<p>Die RTR-GmbH bemüht sich um Aktualität, Vollständigkeit und Richtigkeit der RTR-Netztest-Browser-Version/Website
-    sowie der RTR-Netztest-App. Um die Richtigkeit der Ergebnisse sicherzustellen, können unplausible und/oder
-    offensichtlich missbräuchliche Messungen durch die RTR-GmbH gekennzeichnet und/oder entfernt werden. Die RTR-GmbH
-    behält sich vor, gegebenenfalls rechtliche Schritte einzuleiten. Die RTR-GmbH übernimmt insbesondere keinerlei
-    Gewähr für die Aktualität, Korrektheit, Vollständigkeit oder Qualität der bereitgestellten Informationen und
-    Angebote. Haftungsansprüche gegen die RTR-GmbH für materielle oder ideelle Nachteile und/oder Schäden, die durch die
-    Nutzung oder Nichtnutzung der dargebotenen Informationen bzw. durch die Nutzung fehlerhafter und unvollständiger
-    Informationen verursacht wurden, sind grundsätzlich ausgeschlossen. Sofern ein gänzlicher Haftungsausschluss der
-    RTR-GmbH aufgrund der jeweils anzuwendenden Gesetzeslage nicht möglich ist, wird die Haftung auf Vorsatz und grobe
-    Fahrlässigkeit begrenzt.</p>
-<p>Version 2018-12-10</p>
-</body>
+        <h3>2.3 Option Nur-Signalmessung Wiederholungsmodus</h3>
+        <p>
+            Mit dieser weiteren Option für technisch Interessierte wird die Signalstärke automatisiert wiederholt gemessen –
+            ohne, dass dabei Geschwindigkeits- oder Qualitätstests durchgeführt werden. Der Nur-Signalmessung Wiederholungsmodus
+            wird automatisch nach 48 Stunden gestoppt bzw kann er jederzeit gestoppt werden. Es wird ausdrücklich darauf
+            hingewiesen, dass aufgrund der Nur-Signalmessung ein Rückschluss auf die testende Person nicht ausgeschlossen ist.
+        </p>
+        <p>
+            Es werden dieselben Daten, wie unter 2.1, verarbeitet – außer, dass die Latenz der Datenverbindung (Ping), die
+            Konnektivität auf unterschiedlichen Ports, Veränderungen bei der Datenübertragung, die Übertragungsdauer für eine
+            Referenz-Website, die im Hintergrund übertragene Datenmenge, die Abfrage von Domain Name System-Servern, Traceroute,
+            VoIP-Testverbindung nicht getestet wird und es daher keine diesbezüglichen Daten gibt, die verarbeitet werden. Die
+            unter 2.1 mit * gekennzeichneten Daten werden auf der RTR-Netztest-Website und in der RTR-Netztest-App
+            veröffentlicht und der Allgemeinheit als Open Data zur Information, Nutzung, Weiterverbreitung und Weiterverwendung
+            frei zugänglich gemacht.
+        </p>
+
+        <h2>1.3. Verarbeitung personenbezogener Daten und Zwecke der Verarbeitung personenbezogener Daten</h2>
+        <h3>Verarbeitung:</h3>
+        <p>
+            Folgende personenbezogene Daten werden im Rahmen des RTR-Netztests, der Option Wiederholungsmodus und des
+            Nur-Signalmessung Wiederholungsmodus verarbeitet: (1) die Client UUID, (2) die Kennung WLAN-Netzwerk (SSID) und
+            numerische WLAN-Kennung (BSSID) sowie (3) die IP-Adresse.
+        </p>
+        <p>Zweck der Verarbeitung:</p>
+        <ul>
+            <li>bei der <strong>Client UUID</strong>: Ermöglichung von Verlauf für Nutzerin bzw. Nutzer; Identifikation
+                zusammenhängender Tests insbesondere im Zusammenhang mit missbräuchlicher Nutzung oder Fehlfunktionen;
+                Wahrnehmung der Rechte durch die Nutzerin bzw. den Nutzer unter 1.6.
+            </li>
+            <li>bei der <strong>Kennung WLAN-Netzwerk (SSID)</strong> und <strong>numerische WLAN-Kennung (BSSID)</strong>:
+                Darstellung in Verlauf für Nutzerin bzw. Nutzer; Identifikation zusammenhängender Tests insbesondere im
+                Zusammenhang mit missbräuchlicher Nutzung oder Fehlfunktionen.
+            </li>
+            <li>bei der <strong>IP-Adresse</strong>: Technische Ermöglichung des RTR-Netztests und Gewährleistung des
+                vollständigen Funktionsumfangs, insbesondere Kartendarstellung und Qualitätsmessungen; Zuordnung des Tests zu
+                Betreiber (über Routinginformation [AS] bzw. Hostnamen); Erkennung von missbräuchlicher Nutzung und
+                Fehlfunktionen.
+            </li>
+        </ul>
+        <h2>1.4. Übermittlung personenbezogener Daten</h2>
+        <p>Die <strong>IP-Adresse</strong> wird an folgende Empfänger - <strong>darunter </strong><strong>auch in
+            Drittländer</strong> - <strong>übermittelt</strong>:</p>
+        <ul>
+            <li><strong>innerhalb der EU und des EWR</strong>: Für die Darstellung der Karten und zu Positionsbestimmungen
+                werden abhängig von der aufgerufenen Seite und vom Endgerät Kartendaten von basemap.at (<a
+                        href="https://basemap.at" target="_blank" rel="noopener noreferrer">https://basemap.at</a>) sowie
+                OpenStreetMap (<a href="https://www.openstreetmap.org" target="_blank" rel="noopener noreferrer">https://www.openstreetmap.org</a>)
+                geladen.
+            </li>
+            <li><strong>Drittländer</strong>: Zur Durchführung von DNS-Tests im Rahmen der Qualitäts-Tests werden DNS-Anfragen
+                an die öffentlichen DNS-Server von Google (<a href="https://www.google.com" target="_blank"
+                                                              rel="noopener noreferrer">https://www.google.com</a>), Cloudflare
+                (<a href="https://www.cloudflare.com" target="_blank" rel="noopener noreferrer">https://www.cloudflare.com</a>)
+                und Quad9 (<a href="https://www.quad9.net" target="_blank" rel="noopener noreferrer">https://www.quad9.net</a>)
+                gesendet. Für die Darstellung der Karten und zu Positionsbestimmungen werden abhängig von der aufgerufenen Seite
+                und vom Endgerät Kartendaten von Google (<a href="https://www.google.at" target="_blank"
+                                                            rel="noopener noreferrer">https://www.google.at</a>) und Microsoft (<a
+                        href="https://www.microsoft.com" target="_blank" rel="noopener noreferrer">https://www.microsoft.com</a>)
+                geladen.
+            </li>
+        </ul>
+        <p>Die Datenübermittlung an Google, Cloudflare und Microsoft erfolgt auf Grundlage von Angemessenheitsbeschlüssen der
+            Europäischen Kommission gem. Art 45 Datenschutz-Grundverordnung (DSGVO). Für Quad9 liegt weder ein
+            Angemessenheitsbeschluss vor, noch gibt es geeignete Garantien im Sinne von Art 46 DSGVO. Ein mögliches Risiko
+            besteht darin, dass die IP-Adresse der Nutzerin bzw des Nutzers an Quad9 übermittelt wird und damit gegebenenfalls
+            Rückschlüsse auf die Ausführung des RTR-Netztests zulässt.</p>
+
+        <h2>1.5. Speicherdauer </h2>
+        <p>Die <strong>IP-Adresse,</strong> die <strong>Kennung WLAN-Netzwerk (SSID)</strong> und <strong>numerische
+            WLAN-Kennung (BSSID)</strong> werden von der RTR-GmbH maximal für eine Dauer von sechs Monaten gespeichert. Die
+            <strong>Client UUID</strong> wird jedenfalls mit der endgültigen Einstellung des RTR-Netztests gelöscht.</p>
+        <h2>1.6. Rechte der Nutzerin bzw des Nutzers im Zusammenhang mit personenbezogenen Daten</h2>
+        <p>Die Nutzerin bzw der Nutzer hat unter Bekanntgabe der zufällig erzeugten ID des Clients (= <strong>Client
+            UUID</strong>) - in der App unter Info abrufbar - gegenüber der RTR-GmbH, hinsichtlich ihrer bzw seiner
+            personenbezogener Daten ua. das Recht auf:</p>
+        <ul>
+            <li>Auskunft;</li>
+            <li>Löschung, somit zum jederzeitigen Widerruf der Zustimmung hinsichtlich der Verarbeitung ihrer bzw seiner
+                personenbezogener Daten;
+            </li>
+            <li>Beschwerde bei der Datenschutzbehörde (<a href="https://www.dsb.gv.at" target="_blank" rel="noopener noreferrer"
+                                                          class="external-link">https://www.dsb.gv.at</a>);
+            </li>
+            <li>Berichtigung;</li>
+            <li>Einschränkung;</li>
+            <li>Datenübertragbarkeit.</li>
+        </ul>
+        <h2>1.7. Kontaktdaten</h2>
+        <p>Fragen zur Verarbeitung personenbezogener Daten und zum Datenschutz hinsichtlich des RTR-Netztests können gerichtet
+            werden an:</p>
+        <ul>
+            <li>E-Mail: <a href="mailto:netztest@rtr.at">netztest@rtr.at</a></li>
+            <li>Datenschutzbeauftragte der RTR-GmbH: E-Mail: <a href="mailto:dsba@rtr.at">dsba@rtr.at</a></li>
+            <li>Adresse: Rundfunk und Telekom Regulierungs-GmbH (RTR-GmbH), RTR-Netztest, Mariahilfer Straße 77-79, 1060 Wien,
+                Österreich
+            </li>
+        </ul>
+
+        <h1>2. Nutzungsbedingungen</h1>
+
+        <p>Die Benutzung der Browser-Version sowie der App des RTR-Netztests erfolgt auf eigene Gefahr. Hinweise zur Korrektur
+            unrichtiger Inhalte, Darstellungen etc werden von der RTR-GmbH unter netztest@rtr.at entgegengenommen. Unter
+            14-Jährige Personen können den RTR-Netztest mit Einwilligung der bzw des Obsorgeberechtigten nutzen. Der
+            <strong>RTR-Netztest</strong> der RTR-GmbH bietet Nutzerinnen und Nutzern die Möglichkeit, Informationen über die aktuelle
+            Dienstequalität (ua Upload, Download, Ping, Signalstärke) ihres Internetzugangs zu beziehen. Für technisch
+            Interessierte bietet der RTR-Netztest zwei weitere Optionen an: Einerseits einen <strong>Wiederholungsmodus (Loop)</strong>, der
+            ermöglicht, dass der RTR-Netztest automatisiert wiederholt durchgeführt wird; andererseits besteht mit der Option
+            <strong>Nur-Signalmessung Wiederholungsmodus</strong> die Möglichkeit, dass ausschließlich Signalmessungen wiederholt durchgeführt
+            werden - ohne, dass dabei Geschwindigkeits- oder Qualitätstests durchgeführt werden.</p>
+        <p>
+            Im Fall hoher Nachfrage oder einer hohen Anzahl an Tests in einem konkreten Gebiet kann der Wiederholungsmodus
+            (Loop) durch das Testsystem abgelehnt werden, um Überlast zu vermeiden. Es wird darauf hingewiesen, dass der
+            Wiederholungsmodus (nur) zur Nutzung innerhalb der EU- und des EWR gedacht ist. Es ist zu beachten, dass der
+            Wiederholungsmodus eine große Menge an Daten verbraucht. Mit schnellen Verbindungen können 10 Tests 1 GB oder mehr
+            an Daten verbrauchen. Deshalb wird dringend empfohlen, den Wiederholungsmodus nur mit echten Flatrate Tarifen, bei
+            denen zusätzliches Datenvolumen keine zusätzlichen Kosten verursacht, zu verwenden. Die Batterie wird durch den
+            Wiederholungsmodus schnell entleert. In den Pausen zwischen den Tests bleiben GPS und die Anzeige aktiv und es
+            werden weiter Signalmessungen durchgeführt, deshalb wird die Energie viel schneller verbraucht als im Ruhemodus.
+            Daher sollte der Wiederholungsmodus nur genutzt werden, wenn externe Stromversorgung zur Verfügung steht.
+        </p>
+        <p>
+            Ähnliches gilt für den Nur-Signalmessung Wiederholungsmodus: Im Fall hoher Nachfrage oder einer hohen Anzahl an
+            Tests in einem konkreten Gebiet kann die Nur-Signalmessung durch das Testsystem abgelehnt werden, um Überlast zu
+            vermeiden. Es wird darauf hingewiesen, dass die Nur-Signalmessung (nur) zur Nutzung innerhalb der EU- und des EWR
+            gedacht ist. Die Batterie wird durch die Nur-Signalmessung schnell entleert. In den Pausen zwischen den Tests
+            bleiben GPS und die Anzeige aktiv und es werden weiter Signalmessungen durchgeführt, deshalb wird die Energie viel
+            schneller verbraucht als im Ruhemodus. Daher sollte der Wiederholungsmodus nur genutzt werden, wenn externe
+            Stromversorgung zur Verfügung steht.
+        </p>
+
+
+
+        <p>Um der gesetzlichen Ermächtigung, die sich aus <a href="https://www.rtr.at/TKG2003" target="_blank"
+                                                             rel="noopener noreferrer">§&nbsp;17 Abs 4 und Abs&nbsp;5 sowie § 17b
+            Telekommunikationsgesetz 2003</a> in der geltenden Fassung
+            sowie <a href="https://eur-lex.europa.eu/legal-content/DE/TXT/?uri=celex:32015R2120"
+                     title="Link to TSM Regulation" target="_blank"
+                     class="external-link">Art 4 Abs 4 und Art 5 Abs 1 Verordnung (EU) 2015/2120</a>
+            ergibt, nachzukommen sowie um der Nutzerin bzw dem
+            Nutzer – unter Achtung der Privatsphäre – größtmögliche Transparenz und ausführliche Information zu bieten, basiert
+            der RTR-Netztest auf dem Open Source- und Open Data-Prinzip.</p>
+        <p>Dies bedeutet nach dem Open Source-Prinzip, dass der Quellcode der RTR-Netztest Software öffentlich zugänglich ist
+            und die RTR-GmbH die von ihr entwickelten Komponenten unter eine Open Source-Lizenz, der Apache License Version 2.0
+            (<a href="https://www.apache.org/licenses/LICENSE-2.0" target="_blank" rel="noopener noreferrer">https://www.apache.org/licenses/LICENSE-2.0</a>),
+            gestellt hat. Es ist jedoch zu beachten, dass bei der Nutzung des Quellcodes des RTR-Netztests gegebenenfalls
+            weitere Lizenzen notwendig sind. Das RTR-Netztest-Logo und der RTR-Netztest-Schriftzug unterliegen nicht dem Open
+            Source-Prinzip und dürfen daher nicht kopiert, modifiziert, verändert sowie unverändert weiterverarbeitet werden.
+            Die unter <a href="https://www.netztest.at/de/Opendata" target="_blank" rel="noopener noreferrer">https://www.netztest.at/de/Opendata</a>
+            angeführten Daten des RTR-Netztests sind als Open Data abrufbar und werden so unter Verwendung der Creative Commons
+            Namensnennung 4.0 (CC BY 4.0) Lizenz (<a href="https://creativecommons.org/licenses/by/4.0/deed.de"
+                                                     target="_blank" rel="noopener noreferrer">https://creativecommons.org/licenses/by/4.0/deed.de</a>)
+            der Allgemeinheit zur Information, Nutzung, Weiterverbreitung und Weiterverwendung frei zugänglich gemacht.</p>
+        <p>Die RTR-GmbH verweist weiters darauf, dass zum Zeitpunkt der Verlinkung auf fremde Inhalte im World Wide Web (Links)
+            diese frei von illegalen Inhalten waren und sie keinerlei Einfluss auf die aktuelle und zukünftige Gestaltung der
+            verlinkten Inhalte hat. Die RTR-GmbH distanziert sich ausdrücklich von den Inhalten von verknüpften/verlinkten
+            Seiten, die nach der Linksetzung verändert wurden. Für die Richtigkeit der Inhalte ist immer der jeweilige Anbieter
+            oder Betreiber der Website verantwortlich. Die RTR-GmbH übernimmt hierfür keinerlei Haftung und/oder Gewährleistung.
+            Es besteht kein Anspruch auf ständige Verfügbarkeit des Angebots. Die RTR-GmbH behält sich ausdrücklich vor, Teile
+            des RTR-Netztests oder das gesamte Angebot des RTR-Netztests ohne gesonderte Ankündigung zu verändern, zu ergänzen,
+            zu löschen oder die Veröffentlichung zeitweise oder endgültig einzustellen. Die RTR-GmbH bemüht sich um Aktualität,
+            Vollständigkeit und Richtigkeit der RTR-Netztest-Browser-Version/Website sowie der RTR-Netztest-App. Um die
+            Richtigkeit der Ergebnisse sicherzustellen, können unplausible und/oder offensichtlich missbräuchliche Messungen
+            durch die RTR-GmbH gekennzeichnet und/oder entfernt werden. Die RTR-GmbH behält sich vor, gegebenenfalls rechtliche
+            Schritte einzuleiten. Die RTR-GmbH übernimmt insbesondere keinerlei Gewähr für die Aktualität, Korrektheit,
+            Vollständigkeit oder Qualität der bereitgestellten Informationen und Angebote. Haftungsansprüche gegen die RTR-GmbH
+            für materielle oder ideelle Nachteile und/oder Schäden, die durch die Nutzung oder Nichtnutzung der dargebotenen
+            Informationen bzw durch die Nutzung fehlerhafter und unvollständiger Informationen verursacht wurden, sind
+            grundsätzlich ausgeschlossen. Sofern ein gänzlicher Haftungsausschluss der RTR-GmbH aufgrund der jeweils
+            anzuwendenden Gesetzeslage nicht möglich ist, wird die Haftung auf Vorsatz und grobe Fahrlässigkeit begrenzt.</p>
+        <p>Version 2020-07-01</p>
+    </body>
 </html>
