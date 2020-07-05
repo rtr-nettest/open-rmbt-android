@@ -90,7 +90,7 @@
     <string name="preferences_developer_qos_ssl_sum" >Verwende verschlüsselte Verbindung zum QoS-Server</string>
     <string name="preferences_all_disabled">Deaktiviert.</string>
     <string name="preferences_server_selection">Serverauswahl</string>
-    <string name="preferences_default_server_selection">Voreinstellung</string>
+    <string name="preferences_default_server_selection"></string>
     <string name="preferences_5g_simulation_title">5G-Netzwerk (experimentell)</string>
     <string name="preferences_5g_simulation">Simulieren Sie 5G</string>
     <string name="preferences_5g_simulation_sum">Ersetzt Mobilfunknetze durch 5G-Simulation</string>
@@ -134,8 +134,8 @@
     <string name="measurement_ping_value">%1$s ms</string>
     <string name="measurement_ping_value_1f">%1$.1f ms</string>
     <string name="measurement_download_upload_speed">%1$s Mbit/s</string>
-    <string name="measurement_download">Herunterladen</string>
-    <string name="measurement_upload">Hochladen</string>
+    <string name="measurement_download">Download</string>
+    <string name="measurement_upload">Upload</string>
     <string name="measurement_dash">-</string>
     <string name="measurement_speed_chart_x_label_min">0s</string>
     <string name="measurement_speed_chart_x_label_max">8s</string>
@@ -205,7 +205,7 @@
     <string name="results_network_type">Zugang</string>
     <string name="results_network_provider">Betreiber</string>
     <string name="results_network_ssid">WLAN SSID</string>
-    <string name="result_test_details">Test details</string>
+    <string name="result_test_details">Test Details</string>
     <string name="label_information">Informationen</string>
     <string name="label_tests">Tests</string>
     <string name="label_succeeded">ERFOLGREICH</string>
