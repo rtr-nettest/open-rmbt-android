@@ -81,6 +81,7 @@ class ConnectivityWatcherImpl(private val connectivityManager: ConnectivityManag
             postConnectivityState(ConnectivityState.ON_LINK_PROPERTIES_CHANGED, network)
             linkProperties?.linkAddresses
             Timber.d("onLinkPropertiesChanged ${network?.id()}")
+            notifyListeners()
         }
 
         override fun onUnavailable() {
