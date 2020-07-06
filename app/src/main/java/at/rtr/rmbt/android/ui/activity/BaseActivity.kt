@@ -1,7 +1,10 @@
 package at.rtr.rmbt.android.ui.activity
 
+import android.annotation.TargetApi
 import android.content.Context
+import android.content.res.Configuration
 import android.graphics.Color
+import android.os.Build
 import android.os.Bundle
 import android.view.Surface
 import android.view.View
@@ -19,6 +22,7 @@ import at.rtr.rmbt.android.ui.dialog.SimpleDialog
 import at.rtr.rmbt.android.util.hasLocationPermissions
 import at.rtr.rmbt.android.viewmodel.BaseViewModel
 import at.rtr.rmbt.android.viewmodel.LocationViewModel
+import timber.log.Timber
 
 private const val DIALOG_DEFAULT_OK = -1
 
@@ -70,6 +74,17 @@ abstract class BaseActivity : AppCompatActivity() {
      */
     fun addViewModel(viewModel: BaseViewModel) {
         viewModels.add(viewModel)
+    }
+
+    @TargetApi(Build.VERSION_CODES.HONEYCOMB_MR2)
+    protected fun checkIsTelevision(): Boolean {
+        var isAndroidTV = false
+        val uiMode = this.resources?.configuration?.uiMode
+        if (uiMode != null && (uiMode and Configuration.UI_MODE_TYPE_MASK) == Configuration.UI_MODE_TYPE_TELEVISION) {
+            isAndroidTV = true;
+        }
+        Timber.i("Is Android TV: $isAndroidTV")
+        return isAndroidTV
     }
 
     protected fun setTransparentStatusBar() {

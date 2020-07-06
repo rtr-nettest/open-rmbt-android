@@ -1,5 +1,8 @@
 package at.rtr.rmbt.android.ui.fragment
 
+import android.annotation.TargetApi
+import android.content.res.Configuration
+import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -15,6 +18,7 @@ import at.rtr.rmbt.android.ui.dialog.SimpleDialog
 import at.rtr.rmbt.android.util.hasLocationPermissions
 import at.rtr.rmbt.android.viewmodel.BaseViewModel
 import at.rtr.rmbt.android.viewmodel.LocationViewModel
+import timber.log.Timber
 
 private const val DIALOG_DEFAULT_OK = -1
 
@@ -77,11 +81,24 @@ abstract class BaseFragment : Fragment() {
     }
 
     protected fun updateTransparentStatusBarHeight(stubView: View) {
-        val heightDimensionId = resources.getIdentifier("status_bar_height", "dimen", "android")
-        if (heightDimensionId > 0) {
-            stubView.layoutParams.height = resources.getDimensionPixelSize(heightDimensionId)
-            stubView.requestLayout()
+        if (!checkIsTelevision()) {
+            val heightDimensionId = resources.getIdentifier("status_bar_height", "dimen", "android")
+            if (heightDimensionId > 0) {
+                stubView.layoutParams.height = resources.getDimensionPixelSize(heightDimensionId)
+                stubView.requestLayout()
+            }
         }
+    }
+
+    @TargetApi(Build.VERSION_CODES.HONEYCOMB_MR2)
+    protected fun checkIsTelevision(): Boolean {
+        var isAndroidTV = false
+        val uiMode = context?.resources?.configuration?.uiMode
+        if (uiMode != null && (uiMode and Configuration.UI_MODE_TYPE_MASK) == Configuration.UI_MODE_TYPE_TELEVISION) {
+            isAndroidTV = true;
+        }
+        Timber.i("Is Android TV: $isAndroidTV")
+        return isAndroidTV
     }
 
     @Suppress("UNCHECKED_CAST")

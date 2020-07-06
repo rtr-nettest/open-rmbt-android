@@ -2,9 +2,11 @@ package at.rtr.rmbt.android.ui.fragment
 
 import android.Manifest
 import android.annotation.SuppressLint
+import android.annotation.TargetApi
 import android.app.Activity
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.content.res.Configuration
 import android.os.Build
 import android.os.Bundle
 import android.os.Handler
@@ -35,6 +37,7 @@ import at.rtr.rmbt.android.viewmodel.HomeViewModel
 import at.specure.location.LocationState
 import at.specure.measurement.MeasurementService
 import at.specure.util.toast
+import timber.log.Timber
 
 class HomeFragment : BaseFragment() {
 
@@ -47,7 +50,10 @@ class HomeFragment : BaseFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         binding.state = homeViewModel.state
-        updateTransparentStatusBarHeight(binding.statusBarStub)
+        if (!checkIsTelevision()) {
+            updateTransparentStatusBarHeight(binding.statusBarStub)
+        }
+
         homeViewModel.isConnected.listen(this) {
             activity?.window?.changeStatusBarColor(if (it) ToolbarTheme.BLUE else ToolbarTheme.GRAY)
         }
