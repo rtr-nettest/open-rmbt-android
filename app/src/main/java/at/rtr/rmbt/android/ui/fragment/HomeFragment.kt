@@ -50,9 +50,7 @@ class HomeFragment : BaseFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         binding.state = homeViewModel.state
-        if (!checkIsTelevision()) {
-            updateTransparentStatusBarHeight(binding.statusBarStub)
-        }
+        updateTransparentStatusBarHeight(binding.statusBarStub)
 
         homeViewModel.isConnected.listen(this) {
             activity?.window?.changeStatusBarColor(if (it) ToolbarTheme.BLUE else ToolbarTheme.GRAY)
