@@ -739,13 +739,13 @@ data class TestLocationBody(
     val altitude: Double,
 
     /**
-     * Timestamp of the information in millis
+     * Timestamp of the information in millis from Location.time
      */
     @SerializedName("tstamp")
     val timeMillis: Long,
 
     /**
-     * Relative time from the start of the test
+     * Relative time from the start of the test System.currentTimeMillis() - millis of the test start
      */
     @SerializedName("time_ns")
     val timeNanos: Long,

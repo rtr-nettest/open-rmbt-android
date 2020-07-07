@@ -34,6 +34,7 @@ import at.specure.location.LocationInfo
 import at.specure.location.cell.CellLocationInfo
 import org.json.JSONArray
 import java.text.DecimalFormat
+import java.util.concurrent.TimeUnit
 
 class TestDataRepositoryImpl(db: CoreDatabase) : TestDataRepository {
 
@@ -49,7 +50,15 @@ class TestDataRepositoryImpl(db: CoreDatabase) : TestDataRepository {
     private val testDao = db.testDao()
     private val connectivityStateDao = db.connectivityStateDao()
 
-    override fun saveGeoLocation(testUUID: String, location: LocationInfo, testStartTimeNanos: Long) = io {
+    override fun saveGeoLocation(testUUID: String, location: LocationInfo, testStartTimeNanos: Long, filterOldValues: Boolean) = io {
+        if (filterOldValues) {
+            val timeDiff = TimeUnit.MINUTES.toMillis(3)
+            val locationAgeDiff = System.currentTimeMillis() - location.time
+            if (timeDiff > locationAgeDiff) {
+                return@io
+            }
+        }
+
         val geoLocation = GeoLocationRecord(
             testUUID = testUUID,
             latitude = location.latitude,

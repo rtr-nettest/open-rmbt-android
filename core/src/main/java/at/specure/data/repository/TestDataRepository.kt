@@ -18,7 +18,7 @@ import org.json.JSONArray
 
 interface TestDataRepository {
 
-    fun saveGeoLocation(testUUID: String, location: LocationInfo, testStartTimeNanos: Long)
+    fun saveGeoLocation(testUUID: String, location: LocationInfo, testStartTimeNanos: Long, filterOldValues: Boolean)
 
     fun saveSpeedData(testUUID: String, threadId: Int, bytes: Long, timestampNanos: Long, isUpload: Boolean)
 

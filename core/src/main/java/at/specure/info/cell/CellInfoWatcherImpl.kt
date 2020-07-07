@@ -90,7 +90,15 @@ class CellInfoWatcherImpl(
 
                         val networkType = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                             val manager = telephonyManager.createForSubscriptionId(dataSimSubscriptionId)
-                            manager.dataNetworkType
+                            if (isNRConnected(manager)) {
+                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                                    TelephonyManager.NETWORK_TYPE_NR
+                                } else {
+                                    manager.dataNetworkType
+                                }
+                            } else {
+                                manager.dataNetworkType
+                            }
                         } else {
                             // Todo: problem if operators are the same for both SIM cards (e.g. roaming network), but solving problems with different Networks (if user has no restriction on the usage of the network type for data or voice sim then it should use the same)
                             val networkTypeCheck =
@@ -309,6 +317,40 @@ private fun SubscriptionManager.getCurrentDataSubscriptionId(): Int {
             -1
         }
     }
+}
+
+// get 5G connection info from Service State over reflection call
+// https://stackoverflow.com/questions/55598359/how-to-detect-samsung-s10-5g-is-running-on-5g-network
+fun isNRConnected(telephonyManager: TelephonyManager): Boolean {
+    // only for android 9 and up
+    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.P) {
+        return false
+    }
+    try {
+        val obj = Class.forName(telephonyManager.javaClass.name)
+            .getDeclaredMethod("getServiceState", *arrayOfNulls(0)).invoke(telephonyManager, *arrayOfNulls(0))
+        val methods = Class.forName(obj.javaClass.name).declaredMethods
+
+        // try extracting from string
+        // source: https://github.com/mroczis/netmonster-core/blob/master/library/src/main/java/cz/mroczis/netmonster/core/feature/detect/DetectorLteAdvancedNrServiceState.kt#L69
+        val serviceState = obj.toString()
+        val is5gActive = serviceState.contains("nrState=CONNECTED") ||
+                serviceState.contains("nsaState=5") ||
+                serviceState.contains("EnDc=true") &&
+                serviceState.contains("5G Allocated=true")
+        if (is5gActive) {
+            return true
+        }
+        for (method in methods) {
+            if (method.name == "getNrStatus" || method.name == "getNrState") {
+                method.isAccessible = true
+                return (method.invoke(obj, *arrayOfNulls(0)) as Int).toInt() == 3
+            }
+        }
+    } catch (e: java.lang.Exception) {
+        e.printStackTrace()
+    }
+    return false
 }
 
 private fun ConnectivityManager.cellNetworkInfoCompat(operatorName: String?): CellNetworkInfo? {
