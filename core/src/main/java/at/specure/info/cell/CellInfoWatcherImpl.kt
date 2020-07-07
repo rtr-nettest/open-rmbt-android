@@ -315,10 +315,10 @@ private fun SubscriptionManager.getCurrentDataSubscriptionId(): Int {
     }
 }
 
-//get 5G connection info from Service State over reflection call
-//https://stackoverflow.com/questions/55598359/how-to-detect-samsung-s10-5g-is-running-on-5g-network
+// get 5G connection info from Service State over reflection call
+// https://stackoverflow.com/questions/55598359/how-to-detect-samsung-s10-5g-is-running-on-5g-network
 fun isNRConnected(telephonyManager: TelephonyManager): Boolean {
-    //only for android 9 and up
+    // only for android 9 and up
     if (Build.VERSION.SDK_INT < Build.VERSION_CODES.P) {
         return false
     }
@@ -327,8 +327,8 @@ fun isNRConnected(telephonyManager: TelephonyManager): Boolean {
             .getDeclaredMethod("getServiceState", *arrayOfNulls(0)).invoke(telephonyManager, *arrayOfNulls(0))
         val methods = Class.forName(obj.javaClass.name).declaredMethods
 
-        //try extracting from string
-        //source: https://github.com/mroczis/netmonster-core/blob/master/library/src/main/java/cz/mroczis/netmonster/core/feature/detect/DetectorLteAdvancedNrServiceState.kt#L69
+        // try extracting from string
+        // source: https://github.com/mroczis/netmonster-core/blob/master/library/src/main/java/cz/mroczis/netmonster/core/feature/detect/DetectorLteAdvancedNrServiceState.kt#L69
         val serviceState = obj.toString()
         val is5gActive = serviceState.contains("nrState=CONNECTED") ||
                 serviceState.contains("nsaState=5") ||
