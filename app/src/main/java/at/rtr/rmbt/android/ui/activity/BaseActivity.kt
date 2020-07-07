@@ -81,7 +81,7 @@ abstract class BaseActivity : AppCompatActivity() {
         var isAndroidTV = false
         val uiMode = this.resources?.configuration?.uiMode
         if (uiMode != null && (uiMode and Configuration.UI_MODE_TYPE_MASK) == Configuration.UI_MODE_TYPE_TELEVISION) {
-            isAndroidTV = true;
+            isAndroidTV = true
         }
         Timber.i("Is Android TV: $isAndroidTV")
         return isAndroidTV

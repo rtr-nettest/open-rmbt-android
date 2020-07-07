@@ -2,11 +2,9 @@ package at.rtr.rmbt.android.ui.fragment
 
 import android.Manifest
 import android.annotation.SuppressLint
-import android.annotation.TargetApi
 import android.app.Activity
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.content.res.Configuration
 import android.os.Build
 import android.os.Bundle
 import android.os.Handler
@@ -37,7 +35,6 @@ import at.rtr.rmbt.android.viewmodel.HomeViewModel
 import at.specure.location.LocationState
 import at.specure.measurement.MeasurementService
 import at.specure.util.toast
-import timber.log.Timber
 
 class HomeFragment : BaseFragment() {
 
