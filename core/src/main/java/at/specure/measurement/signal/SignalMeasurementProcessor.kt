@@ -292,7 +292,7 @@ class SignalMeasurementProcessor @Inject constructor(
         val uuid = chunk?.id
         val location = locationInfo
         if (uuid != null && location != null && locationWatcher.state == LocationState.ENABLED) {
-            repository.saveGeoLocation(uuid, location, record?.startTimeNanos ?: 0)
+            repository.saveGeoLocation(uuid, location, record?.startTimeNanos ?: 0, true)
         }
     }
 
