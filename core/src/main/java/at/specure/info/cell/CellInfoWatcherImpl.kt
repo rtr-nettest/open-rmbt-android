@@ -90,7 +90,7 @@ class CellInfoWatcherImpl(
 
                         val networkType = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                             val manager = telephonyManager.createForSubscriptionId(dataSimSubscriptionId)
-                            if (isNRConnected(manager)) {
+                            if ((Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) && isNRConnected(manager)) {
                                 TelephonyManager.NETWORK_TYPE_NR
                             } else {
                                 manager.dataNetworkType
