@@ -52,7 +52,7 @@ class TestDataRepositoryImpl(db: CoreDatabase) : TestDataRepository {
 
     override fun saveGeoLocation(testUUID: String, location: LocationInfo, testStartTimeNanos: Long, filterOldValues: Boolean) = io {
         if (filterOldValues) {
-            val timeDiff = TimeUnit.MINUTES.toMillis(3)
+            val timeDiff = TimeUnit.MINUTES.toMillis(1)
             val locationAgeDiff = System.currentTimeMillis() - location.time
             if (timeDiff > locationAgeDiff) {
                 return@io
