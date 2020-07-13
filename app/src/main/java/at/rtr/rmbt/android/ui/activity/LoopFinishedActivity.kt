@@ -20,20 +20,17 @@ class LoopFinishedActivity : BaseActivity() {
 
         binding.buttonGoToResults.setOnClickListener {
             HomeActivity.startWithFragment(this, HomeActivity.Companion.HomeNavigationTarget.HISTORY_FRAGMENT_TO_SHOW)
-            finishAffinity()
         }
 
         binding.buttonRunAgain.setOnClickListener {
             HomeActivity.startWithFragment(this, HomeActivity.Companion.HomeNavigationTarget.HOME_FRAGMENT_TO_SHOW)
             LoopConfigurationActivity.start(this)
-            finishAffinity()
         }
     }
 
     override fun onBackPressed() {
         super.onBackPressed()
         HomeActivity.startWithFragment(this, HomeActivity.Companion.HomeNavigationTarget.HOME_FRAGMENT_TO_SHOW)
-        finishAffinity()
     }
 
     override fun onResume() {
