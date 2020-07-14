@@ -33,6 +33,7 @@ import at.specure.info.strength.SignalStrengthInfoWiFi
 import at.specure.location.LocationInfo
 import at.specure.location.cell.CellLocationInfo
 import org.json.JSONArray
+import timber.log.Timber
 import java.text.DecimalFormat
 import java.util.concurrent.TimeUnit
 
@@ -54,7 +55,7 @@ class TestDataRepositoryImpl(db: CoreDatabase) : TestDataRepository {
         if (filterOldValues) {
             val timeDiff = TimeUnit.MINUTES.toMillis(1)
             val locationAgeDiff = System.currentTimeMillis() - location.time
-            if (timeDiff > locationAgeDiff) {
+            if (timeDiff < locationAgeDiff) {
                 return@io
             }
         }
