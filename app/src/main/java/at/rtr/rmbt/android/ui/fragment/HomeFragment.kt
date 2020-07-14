@@ -8,7 +8,6 @@ import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
 import android.os.Handler
-import android.view.MotionEvent
 import android.view.View
 import androidx.core.content.ContextCompat.checkSelfPermission
 import at.rmbt.client.control.IpProtocol
@@ -139,7 +138,6 @@ class HomeFragment : BaseFragment() {
             } else {
                 homeViewModel.state.isLoopModeActive.set(false)
             }
-            true
         }
 
         homeViewModel.newsLiveData.listen(this) {

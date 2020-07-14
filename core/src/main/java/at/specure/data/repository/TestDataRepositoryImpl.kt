@@ -33,7 +33,6 @@ import at.specure.info.strength.SignalStrengthInfoWiFi
 import at.specure.location.LocationInfo
 import at.specure.location.cell.CellLocationInfo
 import org.json.JSONArray
-import timber.log.Timber
 import java.text.DecimalFormat
 import java.util.concurrent.TimeUnit
 
