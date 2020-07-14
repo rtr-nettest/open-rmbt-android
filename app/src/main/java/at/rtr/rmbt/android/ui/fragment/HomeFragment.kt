@@ -132,15 +132,12 @@ class HomeFragment : BaseFragment() {
         homeViewModel.activeSignalMeasurementLiveData.listen(this) {
             homeViewModel.state.isSignalMeasurementActive.set(it)
         }
-
-        binding.btnLoop.setOnTouchListener { v, event ->
-            if (event.action == MotionEvent.ACTION_DOWN) {
-                if (!binding.btnLoop.isChecked) {
-                    val intent = LoopInstructionsActivity.start(requireContext())
-                    startActivityForResult(intent, CODE_LOOP_INSTRUCTIONS)
-                } else {
-                    homeViewModel.state.isLoopModeActive.set(false)
-                }
+        binding.btnLoop.setOnCheckedChangeListener { _, isChecked ->
+            if (isChecked) {
+                val intent = LoopInstructionsActivity.start(requireContext())
+                startActivityForResult(intent, CODE_LOOP_INSTRUCTIONS)
+            } else {
+                homeViewModel.state.isLoopModeActive.set(false)
             }
             true
         }
