@@ -172,7 +172,7 @@ class SettingsFragment : BaseFragment(), InputSettingDialog.Callback, ServerSele
                 .show(activity)
         }
 
-        binding.version.value = BuildConfig.VERSION_NAME
+        binding.version.value =  BuildConfig.VERSION_NAME+" ("+BuildConfig.BUILD_TIME+")";
         binding.commitHash.value = BuildConfig.COMMIT_HASH
         binding.sourceCode.root.setOnClickListener {
             startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(settingsViewModel.state.githubRepositoryUrl.get())))
