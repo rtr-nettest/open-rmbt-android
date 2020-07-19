@@ -26,7 +26,7 @@ class MapViewState : ViewState {
     var coordinatesLiveData: MutableLiveData<LatLng> = MutableLiveData()
     var cameraPositionLiveData: MutableLiveData<LatLng> = MutableLiveData()
 
-    val type = ObservableField<MapPresentationType>(MapPresentationType.POINTS)
+    val type = ObservableField<MapPresentationType>(MapPresentationType.AUTOMATIC)
     val style = ObservableField<MapStyleType>(MapStyleType.STANDARD)
     val locationChanged = ObservableBoolean(false)
 
