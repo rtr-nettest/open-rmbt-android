@@ -13,7 +13,7 @@
   -->
 
 <resources xmlns:tools="http://schemas.android.com/tools">
-    <string name="toolbar_title">RTR-Netztest</string>
+    <string name="toolbar_title">RTR-NetTest</string>
 
     <!-- Navigation menu titles -->
     <string name="menu_button_title_page">Home</string>
@@ -23,7 +23,7 @@
 
     <!-- Error dialog messages -->
     <string name="dialog_title_error">Error</string>
-    <string name="error_unknown">An error occurred. Please try again later</string>
+    <string name="error_unknown">Poor connection. Please try again later</string>
     <string name="no_internet_connection_not_load_data">No Internet connection. Could not load data.</string>
 
     <!-- Home screen -->
@@ -31,51 +31,51 @@
     <string name="home_frequency">Frequency</string>
     <string name="home_attention">Attention</string>
     <string name="home_no_internet_connection">No Internet connection!</string>
-    <string name="home_use_wifi_or_data_connection">Turn off flight mode or use Wi-Fi for\nData access.</string>
+    <string name="home_use_wifi_or_data_connection">Poor Internet connection.</string>
     <string name="home_signal_value">%1$d dBm</string>
     <string name="home_start_test_info">Press the button to start the test now!</string>
     <string name="home_wifi">WLAN</string>
-    <string name="public_ip_address">Public Address</string>
-    <string name="private_ip_address">Private Address</string>
+    <string name="public_ip_address">Public address</string>
+    <string name="private_ip_address">Private address</string>
 
 
     <!-- Preference titles -->
     <string name="options">Options</string>
-    <string name="preferences_general_settings">General Settings</string>
+    <string name="preferences_general_settings">General settings</string>
     <string name="preferences_ndt">NDT</string>
     <string name="preferences_qos_measurement">QoS measurement</string>
     <string name="preferences_qos_measurement_only_after_some_time">Only after 2 hours</string>
-    <string name="preferences_qos_measurement_only_after_some_time_summary">Do not perform new QoS measurements if the last one was done less than 2 hours ago.</string>
+    <string name="preferences_qos_measurement_only_after_some_time_summary">Do not perform new QoS measurements, if the last one was done less than 2 hours ago.</string>
     <string name="preferences_location">Location</string>
     <string name="preferences_loop_mode">Loop mode</string>
-    <string name="preferences_advanced_settings">Advanced Settings</string>
+    <string name="preferences_advanced_settings">Advanced settings</string>
     <string name="preferences_loop_mode_summary">New test after waiting time or covering the distance. Max. 2 days</string>
     <string name="preferences_loop_mode_min_delay">Waiting time (in minutes)</string>
     <string name="preferences_loop_mode_max_movement">Distance (in meters)</string>
     <string name="preferences_expert_mode">Expert mode</string>
     <string name="preferences_expert_mode_summary">Show advanced settings and information</string>
     <string name="preferences_ipv4_only">IPv4 only</string>
-    <string name="preferences_ipv4_only_sum">Never use IPv6</string>
+    <string name="preferences_ipv4_only_sum">Do not use IPv6</string>
     <string name="preferences_radio_info">Radio info</string>
     <string name="preferences_radio_info_sum">Details on radio configuration</string>
     <string name="preferences_contact">Contact</string>
     <string name="preferences_go_to_website">Go to website</string>
     <string name="preferences_contact_us">Contact us</string>
-    <string name="preferences_additional_Information">Additional Information</string>
+    <string name="preferences_additional_Information">Additional information</string>
     <string name="preferences_client_uuid">Client UUID</string>
     <string name="preferences_test_cases">Number of tests performed</string>
     <string name="preferences_about">About</string>
-    <string name="preferences_source_code">Source Code</string>
-    <string name="preferences_data_protection">Data Privacy and terms of use</string>
+    <string name="preferences_source_code">Source code</string>
+    <string name="preferences_data_protection">Privacy policy and terms of use</string>
     <string name="preferences_version">Version</string>
-    <string name="preferences_commit_hash">Commit Hash</string>
+    <string name="preferences_commit_hash">Commit hash</string>
     <string name="preferences_enter_code">Please enter the code</string>
     <string name="preferences_developer_control_server">Control server</string>
     <string name="preferences_override_control_server">Override control server</string>
     <string name="preferences_override_control_server_sum">Activate custom control server settings</string>
     <string name="preferences_override_control_server_host">Control host</string>
     <string name="preferences_override_control_server_port">Control port</string>
-    <string name="preferences_override_control_server_ssl">Control server SSL</string>
+    <string name="preferences_override_control_server_ssl">Control SSL</string>
     <string name="preferences_override_control_server_ssl_sum">Use encrypted connection to control server</string>
     <string name="preferences_developer_options_disabled">Developer options disabled</string>
     <string name="preferences_developer_options_available">Developer options available</string>
@@ -92,10 +92,10 @@
     <string name="preferences_developer_qos_ssl_sum">Use encrypted connection to QoS server</string>
     <string name="preferences_all_disabled">Deactivated.</string>
     <string name="preferences_server_selection">Server selection</string>
-    <string name="preferences_default_server_selection"></string>
-    <string name="preferences_5g_simulation_title">5G Network (Experimental)</string>
-    <string name="preferences_5g_simulation">Simulate 5G</string>
-    <string name="preferences_5g_simulation_sum">Replaces networks with 5G simulation</string>
+    <string name="preferences_default_server_selection"/>
+    <string name="preferences_5g_simulation_title">xG network debug(experimental)</string>
+    <string name="preferences_5g_simulation">Simulate xG</string>
+    <string name="preferences_5g_simulation_sum">Replaces networks with xG simulation</string>
     <string name="label_server_selection">Server selection</string>
     <string name="preferences_tag">Tag</string>
 
@@ -108,9 +108,9 @@
     <string name="location_dialog_label_altitude">Altitude</string>
     <string name="location_dialog_label_speed">Speed</string>
     <string name="location_dialog_label_satellites">Satellites</string>
-    <string name="location_dialog_label_location_progress_message">Looking for your location. Please wait…</string>
+    <string name="location_dialog_label_location_progress_message">Determining location, please wait…</string>
     <string name="open_gps_setting_dialog_label_gps_not_enabled">Location services are not enabled. Would you like to modify location settings?</string>
-    <string name="open_gps_setting_dialog_label_open_gps_setting">Open Location settings</string>
+    <string name="open_gps_setting_dialog_label_open_gps_setting">Open location settings</string>
     <string name="open_gps_setting_dialog_label_cancel">Cancel</string>
     <string name="location_dialog_not_available">Not available</string>
     <string name="location_dialog_age">%1$s s</string>
@@ -121,7 +121,7 @@
     <string name="location_location_direction_e">E %1$s</string>
     <string name="location_location_direction_s">S %1$s</string>
     <string name="location_location_direction_w">W %1$s</string>
-    <string name="open_location_permission_dialog_label_location_not_permitted">RTR-Netztest is not allowed to use your location. Would you like to allow RTR-Netztest to use your location?</string>
+    <string name="open_location_permission_dialog_label_location_not_permitted">RTR-NetTest is not allowed to use your location. Would you like to allow RTR-NetTest to use your location?</string>
     <string name="open_location_permission_dialog_label_open_permission_setting">Open application settings</string>
 
 
@@ -130,7 +130,7 @@
     <string name="input_setting_dialog_cancel">Cancel</string>
     <string name="loop_mode_max_delay_invalid" tools:ignore="PluralsCandidate">Please choose a number between %1$d and %2$d.</string>
     <string name="about_client_uuid_copied">Client UUID has been copied to clipboard.</string>
-    <string name="client_not_registered">Client is not registered, try again later.</string>
+    <string name="client_not_registered">App is not registered, try again later.</string>
 
     <!-- Measurement screen -->
     <string name="measurement_ping_value">%1$s ms</string>
@@ -144,7 +144,7 @@
     <string name="measurement_ping">Ping</string>
     <string name="measurement_down">Down</string>
     <string name="measurement_up">Up</string>
-    <string name="measurement_qos">Quality of Service (QoS)</string>
+    <string name="measurement_qos">Quality of service (QoS)</string>
     <string name="measurement_qos_web_site">Web site</string>
     <string name="measurement_qos_transparent_connection">Transparent connection</string>
     <string name="measurement_qos_dns">DNS</string>
@@ -185,7 +185,7 @@
 
     <string name="notification_test_title">RTR-NetTest is running</string>
 
-    <string name="test_dialog_error_text">Something went wrong. Please try again later.</string>
+    <string name="test_dialog_error_text">Test failed. Please try again later.</string>
 
     <!-- History -->
     <string name="history_item_header_test">Test</string>
@@ -196,7 +196,7 @@
     <string name="history_no_data">No data available.</string>
 
     <!-- Results -->
-    <string name="results_other_details">Other details</string>
+    <string name="results_other_details">Further details</string>
     <string name="results_qoe_videos_sd">Videos SD</string>
     <string name="results_qoe_videos_hd">Videos HD</string>
     <string name="results_qoe_videos_uhd">Videos UHD</string>
@@ -224,7 +224,7 @@
     <string name="label_succeeded">SUCCEEDED</string>
     <string name="label_failed">FAILED</string>
     <string name="label_description">DESCRIPTION</string>
-    <string name="label_detail">DETAIL</string>
+    <string name="label_detail">DETAILS</string>
 
     <!-- Map -->
     <string name="map_layer_communities">Communities</string>
@@ -245,25 +245,25 @@
     <string name="text_failed_to_load_results">Failed to load data.\nPlease pull down to refresh.</string>
 
     <string name="title_sync">Synchronization</string>
-    <string name="text_sync_info">You have the possibility to join the results from two different devices. To do so, you have to enter an already requested synchronisation code or request a new one.</string>
+    <string name="text_sync_info">You have the possibility to join results from different devices. To do so, you have to enter an already requested synchronisation code or request a new one.</string>
     <string name="button_sync_request_code">Request Code</string>
     <string name="button_sync_enter_code">Enter Code</string>
-    <string name="text_sync_code_received">Please enter the code shown below on your other device to synchronise them.</string>
+    <string name="text_sync_code_received">Please enter the code shown below on the other device to synchronise the results.</string>
     <string name="text_sync_enter_code_desc">Please enter the code you received on your other device.</string>
     <string name="button_close">Close</string>
     <string name="toast_sync_code_copied_to_clipboard">Copied</string>
     <string name="hint_sync_code">Code</string>
-    <string name="error_sync_code_short">The code length must be 12</string>
+    <string name="error_sync_code_short">The code must consist of twelve characters</string>
 
     <string name="notification_signal_test_title">Signal measurement is running</string>
-    <string name="notification_signal_test_text">RTR-NetTest Signal measurement is running in the background</string>
+    <string name="notification_signal_test_text">RTR-NetTest signal measurement is running in the background</string>
 
     <string name="notification_loop_mode_finished_title">Loop mode finished</string>
 
-    <string name="toast_signal_measurement_enabled">Signal measurement started</string>
+    <string name="toast_signal_measurement_enabled">Signal measurement started.</string>
     <string name="error_no_connection">No Internet connection. Could not load data.</string>
 
-    <string name="label_map_filters">Map filters</string>
+    <string name="label_map_filters">Map settings</string>
     <string name="text_filter_confirm">Accept</string>
     <string name="text_filter_continue">Continue</string>
     <string name="title_filters_type">Map type</string>
@@ -274,8 +274,8 @@
 
     <string name="graph_signal_value">-%1$s dBm</string>
 
-    <string name="notification_loop_mode_title_active">Loop Mode is active</string>
-    <string name="notification_loop_mode_title_running">Loop Mode is running (%1$d/%2$d)</string>
+    <string name="notification_loop_mode_title_active">Loop mode is active</string>
+    <string name="notification_loop_mode_title_running">Loop mode is running (%1$d/%2$d)</string>
 
     <string name="title_loop_mode">Loop mode</string>
     <string name="title_loop_count">Choose the number of tests</string>
@@ -283,8 +283,8 @@
     <string name="text_loop_mode">New test after waiting or covering the distance. Max. 2 days</string>
     <string name="text_button_decline">Decline</string>
     <string name="text_button_accept">Accept</string>
-    <string name="text_loop_instruction_1">The loop-mode option for technically interested users allows the automatic repetition of RTR-NetTest. The first test starts right after activation of the loop-modus; further tests are carried out when either the waiting time has elapsed or the specified distance has been covered. Tests will be performed until the configured number of tests has been reached. The signal strength is measured continuously, also between two tests. The loop-modus can be stopped at any time respectively it stops after 48 hours. It needs to be explicitly pointed out that due to the loop modus it cannot be excluded that the tester is identified.</string>
-    <string name="text_loop_instruction_2">In the event of a great demand or very high number of tests in a specific area, the loop-modus can be rejected by the test system in order to avoid overload. Please note that the loop-modus is (only) intended for use within the EU and the EEA. The loop-modus consumes a large amount of data. With fast connections, 10 tests can consume 1 GB or more of data. It is therefore strongly recommended that the loop-modus is only used with real flat rate tariffs, where additional data volume does not cause additional costs. The loop-modus drains the battery quickly. In pauses between the tests, the GPS and the display remain active and signal measurements continue, which means that the energy is used up much faster than during stand-by mode. The loop-modus should therefore only be used if an external power supply is available.</string>
+    <string name="text_loop_instruction_1">The loop mode option for technically interested users allows the automatic repetition of RTR-NetTest. The first test starts right after activation of the loop-modus; further tests are carried out when either the waiting time has elapsed or the specified distance has been covered. Tests will be performed until the configured number of tests has been reached. The signal strength is measured continuously, also between two tests. The loop-modus can be stopped at any time respectively it stops after 48 hours. It needs to be explicitly pointed out that due to the loop mode it cannot be excluded that the tester is identified.</string>
+    <string name="text_loop_instruction_2">In the event of a great demand or very high number of tests in a specific area, the loop mode can be rejected by the test system in order to avoid overload. Please note that the loop-modus is (only) intended for use within the EU and the EEA. The loop-modus consumes a large amount of data. With fast connections, 10 tests can consume 1 GB or more of data. It is therefore strongly recommended that the loop-modus is only used with real flat rate tariffs, where additional data volume does not cause additional costs. The loop-modus drains the battery quickly. In pauses between the tests, the GPS and the display remain active and signal measurements continue, which means that the energy is used up much faster than during stand-by mode. The loop-modus should therefore only be used if an external power supply is available.</string>
     <string name="title_loop_instruction_1">Activation</string>
     <string name="title_loop_instruction_2">Usage</string>
 
@@ -298,12 +298,12 @@
     <string name="loop_mode_meters">Meters</string>
     <string name="loop_mode_no_gps">No GPS</string>
     <string name="or">or</string>
-    <string name="loop_mode_finished">Nettest loop finished!</string>
+    <string name="loop_mode_finished">RTR-NetTest loop mode finished!</string>
     <string name="loop_continue_to_results">Continue to the result</string>
     <string name="loop_run_again">Run again</string>
-    <string name="title_privacy_policy">Privacy Policy</string>
-    <string name="text_terms_agree">I agree with RTR’s Privacy and Terms of Use for RTR-NetTest.</string>
-    <string name="text_terms_agree_empty">You have to agree with RTR’s Privacy and Terms of Use to continue.</string>
+    <string name="title_privacy_policy">Privacy policy</string>
+    <string name="text_terms_agree">I agree with RTR’s privacy policyand terms of use for RTR-NetTest.</string>
+    <string name="text_terms_agree_empty">You have to agree to the privacy policy and terms of use to continue.</string>
 
     <string name="dialog_title_config_check">Please change the following values:</string>
     <string name="label_ip_processing">Processing…</string>
@@ -312,14 +312,14 @@
     <string name="accept_risk">I accept the risk</string>
     <string name="preferences_connection_details_not_supported">Extended connection details are not supported on this device</string>
 
-    <string name="dialog_signal_info_title">Signal Info</string>
+    <string name="dialog_signal_info_title">Signal info</string>
     <string name="dialog_signal_info_waiting">Please wait…</string>
     <string name="dialog_signal_info_band">Band</string>
     <string name="dialog_signal_info_channel">Channel</string>
     <string name="dialog_signal_info_ta">TA</string>
     <string name="dialog_signal_info_quality">Quality</string>
     <string name="text_local_results">Local results only</string>
-    <string name="signal_measurement_terms_title">Activation and Usage</string>
-    <string name="signal_measurement_terms_content">The signal-only loop-mode option for technically interested users allows the automatic repetition of signal measurements - without any speed- or quality tests being carried out. The signal-only loop-modus can be stopped at any time respectively it stops automatically after 48 hours. The signal-only loop-modus is (only) intended for use within the EU and the EEA. The battery is quickly drained by the signal-only measurements. In the pauses between tests, the GPS and the display remain active and signal measurements continue, which means that the energy is used up much faster than in stand-by mode. The loop-modus should therefore only be used if an external power supply is available. It needs to be explicitly pointed out that due to the signal-only loop modus it cannot be excluded that the tester is identified.</string>
+    <string name="signal_measurement_terms_title">Activation and usage</string>
+    <string name="signal_measurement_terms_content">The signal-only loop mode option for technically interested users allows the automatic repetition of signal measurements - without any speed- or quality tests being carried out. The signal-only loop-modus can be stopped at any time respectively it stops automatically after 48 hours. The signal-only loop-modus is (only) intended for use within the EU and the EEA. The battery is quickly drained by the signal-only measurements. In the pauses between tests, the GPS and the display remain active and signal measurements continue, which means that the energy is used up much faster than in stand-by mode. The loop-modus should therefore only be used if an external power supply is available. It needs to be explicitly pointed out that due to the signal-only loop mode it cannot be excluded that the tester is identified.</string>
 
 </resources>
