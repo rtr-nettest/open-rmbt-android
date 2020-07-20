@@ -106,7 +106,7 @@ class MapRepositoryImpl @Inject constructor(
         return if (controlServerSettings.openDataPrefix.isNullOrEmpty()) {
             client.prepareDetailsLink(openUUID)
         } else {
-            MutableLiveData<String>().apply { postValue(controlServerSettings.openDataPrefix + openUUID + "#NoMMenu") }
+            MutableLiveData<String>().apply { postValue(controlServerSettings.openDataPrefix + openUUID + "#noMMenu") }
         }
     }
 
