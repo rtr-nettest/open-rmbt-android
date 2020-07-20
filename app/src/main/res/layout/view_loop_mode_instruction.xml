@@ -20,6 +20,7 @@
                 style="@style/RobotoRegularStyle.Small"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:justificationMode="inter_word"
                 android:padding="@dimen/margin_large"
                 android:textColor="@color/text_dark_gray" />
 
