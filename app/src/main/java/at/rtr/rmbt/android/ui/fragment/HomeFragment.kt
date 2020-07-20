@@ -232,8 +232,9 @@ class HomeFragment : BaseFragment() {
             }
         }
 
-        if (permissions.isNotEmpty()) {
+        if (permissions.isNotEmpty() && homeViewModel.shouldAskForPermission()) {
             requestPermissions(permissions.toTypedArray(), PERMISSIONS_REQUEST_CODE)
+            homeViewModel.permissionsWereAsked()
         }
     }
 

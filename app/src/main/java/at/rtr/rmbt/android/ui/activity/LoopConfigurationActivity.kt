@@ -91,19 +91,25 @@ class LoopConfigurationActivity : BaseActivity(), InputSettingDialog.Callback {
                 if (hasBackgroundLocationPermission) {
                     // handle location update
                 } else {
-                    ActivityCompat.requestPermissions(
-                        this,
-                        arrayOf(Manifest.permission.ACCESS_BACKGROUND_LOCATION), REQUEST_CODE_BACKGROUND
-                    )
+                    if (viewModel.shouldAskForPermission()) {
+                        ActivityCompat.requestPermissions(
+                            this,
+                            arrayOf(Manifest.permission.ACCESS_BACKGROUND_LOCATION), REQUEST_CODE_BACKGROUND
+                        )
+                        viewModel.permissionsWereAsked()
+                    }
                 }
             } else {
-                ActivityCompat.requestPermissions(
-                    this,
-                    arrayOf(
-                        Manifest.permission.ACCESS_COARSE_LOCATION,
-                        Manifest.permission.ACCESS_BACKGROUND_LOCATION
-                    ), REQUEST_CODE_BACKGROUND
-                )
+                if (viewModel.shouldAskForPermission()) {
+                    ActivityCompat.requestPermissions(
+                        this,
+                        arrayOf(
+                            Manifest.permission.ACCESS_COARSE_LOCATION,
+                            Manifest.permission.ACCESS_BACKGROUND_LOCATION
+                        ), REQUEST_CODE_BACKGROUND
+                    )
+                    viewModel.permissionsWereAsked()
+                }
             }
         }
     }

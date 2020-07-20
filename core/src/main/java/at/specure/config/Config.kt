@@ -385,4 +385,9 @@ interface Config {
      * This flag makes simulate 5G network visible in the developer mode or not
      */
     val developer5GSimulationAvailable: Boolean
+
+    /**
+     * Timestamp of last asked permissions System.currentTimeMillis()
+     */
+    val lastPermissionAskedTimestampMillis: Long
 }
