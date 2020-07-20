@@ -222,13 +222,10 @@ class HomeFragment : BaseFragment() {
                     requireContext(),
                     Manifest.permission.ACCESS_BACKGROUND_LOCATION
                 ) == PackageManager.PERMISSION_GRANTED
-                if (!hasBackgroundLocationPermission) {
-                    permissions.add(Manifest.permission.ACCESS_BACKGROUND_LOCATION)
-                }
             } else {
                 permissions.add(Manifest.permission.ACCESS_COARSE_LOCATION)
                 permissions.add(Manifest.permission.ACCESS_FINE_LOCATION)
-                permissions.add(Manifest.permission.ACCESS_BACKGROUND_LOCATION)
+
             }
         }
 
