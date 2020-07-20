@@ -10,11 +10,13 @@ import at.rmbt.util.exception.HandledException
 import at.rtr.rmbt.android.ui.viewstate.ViewState
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
+import java.util.concurrent.TimeUnit
 
 open class BaseViewModel : ViewModel(), CoroutineScope {
 
     private val viewStates = mutableSetOf<ViewState>()
     private val _errorLiveData = MutableLiveData<HandledException>()
+    val askPermissionsAgainTimesMillis = TimeUnit.DAYS.toMillis(1)
 
     val errorLiveData: LiveData<HandledException>
         get() = _errorLiveData

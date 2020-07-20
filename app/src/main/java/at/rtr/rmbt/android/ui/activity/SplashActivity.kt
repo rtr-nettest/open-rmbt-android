@@ -32,7 +32,7 @@ class SplashActivity : BaseActivity() {
                 termsIsShown = true
                 TermsAcceptanceActivity.start(this, CODE_TERMS)
             } else {
-                finish()
+                finishAffinity()
                 HomeActivity.start(this)
             }
         }

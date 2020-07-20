@@ -197,7 +197,6 @@ class ResultsActivity : BaseActivity(), OnMapReadyCallback {
     override fun onBackPressed() {
         super.onBackPressed()
         HomeActivity.startWithFragment(this, HomeActivity.Companion.HomeNavigationTarget.HISTORY_FRAGMENT_TO_SHOW)
-        finishAffinity()
     }
 
     companion object {

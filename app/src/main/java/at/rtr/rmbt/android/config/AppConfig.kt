@@ -27,6 +27,7 @@ private const val KEY_TEST_COUNTER = "KEY_TEST_COUNTER"
 private const val KEY_PREVIOUS_TEST_STATUS = "PREVIOUS_TEST_STATUS"
 private const val KEY_MEASUREMENT_TAG = "MEASUREMENT_TAG"
 private const val KEY_LAST_QOS_TEST_PERFORMED_TIMESTAMP_MILLIS = "LAST_QOS_TEST_PERFORMED_TIMESTAMP_MILLIS"
+private const val KEY_LAST_PERMISSIONS_ASKED_TIMESTAMP_MILLIS = "LAST_PERMISSIONS_ASKED_TIMESTAMP_MILLIS"
 
 class AppConfig @Inject constructor(context: Context, private val serverSettings: ControlServerSettings) : Config {
 
@@ -398,4 +399,10 @@ class AppConfig @Inject constructor(context: Context, private val serverSettings
 
     override val developer5GSimulationAvailable: Boolean
         get() = getBoolean(BuildConfig.DEVELOPER_MODE_IS_AVAILABLE)
+
+    override var lastPermissionAskedTimestampMillis: Long
+        get() = preferences.getLong(KEY_LAST_PERMISSIONS_ASKED_TIMESTAMP_MILLIS, 0)
+        set(value) = preferences.edit()
+            .putLong(KEY_LAST_PERMISSIONS_ASKED_TIMESTAMP_MILLIS, value)
+            .apply()
 }

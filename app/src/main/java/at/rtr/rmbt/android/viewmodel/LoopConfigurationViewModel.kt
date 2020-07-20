@@ -36,4 +36,12 @@ class LoopConfigurationViewModel @Inject constructor(val config: AppConfig, conn
             state.numberOfTests.set(value)
             true
         } else false
+
+    fun shouldAskForPermission(): Boolean {
+        return (config.lastPermissionAskedTimestampMillis + askPermissionsAgainTimesMillis) < System.currentTimeMillis()
+    }
+
+    fun permissionsWereAsked() {
+        config.lastPermissionAskedTimestampMillis = System.currentTimeMillis()
+    }
 }

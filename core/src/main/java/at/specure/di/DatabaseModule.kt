@@ -21,6 +21,7 @@ import at.rmbt.client.control.IpClient
 import at.rmbt.client.control.MapServerClient
 import at.specure.config.Config
 import at.specure.data.ClientUUID
+import at.specure.data.ControlServerSettings
 import at.specure.data.CoreDatabase
 import at.specure.data.HistoryFilterOptions
 import at.specure.data.repository.HistoryRepository
@@ -114,9 +115,10 @@ class DatabaseModule {
         client: MapServerClient,
         database: CoreDatabase,
         filterValuesStorage: FilterValuesStorage,
-        activeFilter: ActiveFilter
+        activeFilter: ActiveFilter,
+        controlServerSettings: ControlServerSettings
     ): MapRepository =
-        MapRepositoryImpl(client, database, filterValuesStorage, activeFilter)
+        MapRepositoryImpl(client, database, filterValuesStorage, activeFilter, controlServerSettings)
 
     @Provides
     fun provideSignalMeasurementRepository(
