@@ -24,7 +24,7 @@ import android.widget.FrameLayout
 import androidx.core.content.ContextCompat
 import at.rtr.rmbt.android.R
 
-private const val ANIMATION_SPEED = 1700L
+private const val ANIMATION_SPEED = 3000L //higher number means slower
 private const val NEXT_VIEW_DELAY = 500L
 
 private const val TAG_WAVE = "WAVE"
