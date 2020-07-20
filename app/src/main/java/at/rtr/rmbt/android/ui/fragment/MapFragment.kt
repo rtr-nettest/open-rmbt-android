@@ -51,6 +51,15 @@ private const val CODE_SEARCH_DIALOG = 3
 private const val ANCHOR_U = 0.5f
 private const val ANCHOR_V = 0.865f
 
+// default map position and zoom when no location information is available
+// focus to Austria based on boundary box 'AT': ('Austria', (9.47996951665, 46.4318173285, 16.9796667823, 49.0390742051))
+// derived from Github/graydon/country-bounding-boxes.py
+// extracted from http//www.naturalearthdata.com/download/110m/cultural/ne_110m_admin_0_countries.zip
+// under public domain terms
+private const val DEFAULT_LAT = (49.0390742051F + 46.4318173285F)/2F
+private const val DEFAULT_LONG = (16.9796667823F + 9.47996951665F)/2F
+private const val DEFAULT_ZOOM_LEVEL = 6F
+
 class MapFragment : BaseFragment(), OnMapReadyCallback, MapMarkerDetailsAdapter.MarkerDetailsCallback, MapLayersDialog.Callback,
     MapFiltersDialog.Callback, MapSearchDialog.Callback {
 
@@ -207,9 +216,9 @@ class MapFragment : BaseFragment(), OnMapReadyCallback, MapMarkerDetailsAdapter.
     private fun setDefaultMapPosition() {
         Timber.d("Position default check to : ${mapViewModel.state.cameraPositionLiveData.value?.latitude} ${mapViewModel.state.cameraPositionLiveData.value?.longitude}")
         if (mapViewModel.state.cameraPositionLiveData.value == null || mapViewModel.state.cameraPositionLiveData.value?.latitude == 0.0 && mapViewModel.state.cameraPositionLiveData.value?.longitude == 0.0) {
-            val defaultPosition = LatLng(47.6782058, 11.09728)
+            val defaultPosition = LatLng(DEFAULT_LAT.toDouble(), DEFAULT_LONG.toDouble())
             Timber.d("Position default to : ${defaultPosition.latitude} ${defaultPosition.longitude}")
-            googleMap?.animateCamera(CameraUpdateFactory.newLatLngZoom(defaultPosition, 4f))
+            googleMap?.animateCamera(CameraUpdateFactory.newLatLngZoom(defaultPosition, DEFAULT_ZOOM_LEVEL))
         }
     }
 
