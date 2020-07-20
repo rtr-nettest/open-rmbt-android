@@ -415,7 +415,7 @@
                 app:layout_constraintEnd_toEndOf="@+id/vBottomDivider"
                 app:layout_constraintStart_toEndOf="@+id/btnLocation"
                 app:layout_constraintTop_toBottomOf="@+id/vBottomDivider"
-                tools:src="@drawable/ic_upload_enabled" android:visibility="gone"/>
+                tools:src="@drawable/ic_upload_enabled" android:visibility="@{state.developerModeIsEnabled ? View.VISIBLE : View.GONE}"/>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>
