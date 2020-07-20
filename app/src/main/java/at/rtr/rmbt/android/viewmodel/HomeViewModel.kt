@@ -28,6 +28,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.launch
+import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
 class HomeViewModel @Inject constructor(
@@ -176,5 +177,13 @@ class HomeViewModel @Inject constructor(
 
     fun getLatestNewsShown(): Long? {
         return newsRepository.getLatestNewsShown()
+    }
+
+    fun shouldAskForPermission(): Boolean {
+        return (appConfig.lastPermissionAskedTimestampMillis + askPermissionsAgainTimesMillis) < System.currentTimeMillis()
+    }
+
+    fun permissionsWereAsked() {
+        appConfig.lastPermissionAskedTimestampMillis = System.currentTimeMillis()
     }
 }
