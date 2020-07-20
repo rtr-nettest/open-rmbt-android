@@ -177,4 +177,12 @@ class HomeViewModel @Inject constructor(
     fun getLatestNewsShown(): Long? {
         return newsRepository.getLatestNewsShown()
     }
+
+    fun shouldAskForPermission(): Boolean {
+        return (appConfig.lastPermissionAskedTimestampMillis + askPermissionsAgainTimesMillis) < System.currentTimeMillis()
+    }
+
+    fun permissionsWereAsked() {
+        appConfig.lastPermissionAskedTimestampMillis = System.currentTimeMillis()
+    }
 }

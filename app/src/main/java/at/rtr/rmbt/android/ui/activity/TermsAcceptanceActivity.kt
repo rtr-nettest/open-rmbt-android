@@ -5,7 +5,6 @@ import android.content.Intent
 import android.graphics.Rect
 import android.net.Uri
 import android.os.Bundle
-import android.view.KeyEvent
 import android.view.View
 import android.webkit.WebView
 import android.webkit.WebViewClient
@@ -18,7 +17,6 @@ import at.rtr.rmbt.android.util.changeStatusBarColor
 import at.rtr.rmbt.android.util.listen
 import at.rtr.rmbt.android.viewmodel.TermsAcceptanceViewModel
 import at.specure.worker.WorkLauncher
-import timber.log.Timber
 
 class TermsAcceptanceActivity : BaseActivity() {
 
@@ -82,31 +80,9 @@ class TermsAcceptanceActivity : BaseActivity() {
         viewModel.getTac()
     }
 
-    override fun dispatchKeyEvent(event: KeyEvent): Boolean {
-        when (event.keyCode) {
-            KeyEvent.KEYCODE_DPAD_DOWN -> {
-                if (binding.content.isFocused) {
-                    val scrollViewReachedEnd = binding.scrollView.getChildAt(0).bottom <= (binding.scrollView.height + binding.scrollView.scrollY)
-                    if (scrollViewReachedEnd) {
-                        binding.checkbox.requestFocus()
-                    } else {
-                        binding.scrollView.scrollTo(0, binding.scrollView.scrollY + 100)
-                    }
-                    Timber.d("Webview DOWN: ${binding.scrollView.scrollX} ${binding.scrollView.scrollY}")
-                    return true
-                }
-            }
-            KeyEvent.KEYCODE_DPAD_UP -> {
-                if (binding.content.isFocused) {
-                    if (binding.scrollView.scrollY != 0) {
-                        binding.scrollView.scrollTo(0, binding.scrollView.scrollY - 100)
-                        return true
-                    }
-                    Timber.d("Webview UP: ${binding.scrollView.scrollX} ${binding.scrollView.scrollY}")
-                }
-            }
-        }
-        return super.dispatchKeyEvent(event)
+    override fun onResume() {
+        super.onResume()
+        binding.checkbox.requestFocus()
     }
 
     override fun onBackPressed() {}
@@ -114,8 +90,11 @@ class TermsAcceptanceActivity : BaseActivity() {
     inner class TermsClient : WebViewClient() {
         override fun onPageFinished(view: WebView?, url: String?) {
             super.onPageFinished(view, url)
-            binding.buttonToBottom.show()
+            if (!checkIsTelevision()) {
+                binding.buttonToBottom.show()
+            }
             binding.scrollView.visibility = View.VISIBLE
+            binding.checkbox.requestFocus()
         }
 
         override fun shouldOverrideUrlLoading(view: WebView?, url: String?): Boolean {

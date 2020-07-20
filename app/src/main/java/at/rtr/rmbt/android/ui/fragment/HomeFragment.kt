@@ -8,7 +8,6 @@ import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
 import android.os.Handler
-import android.view.MotionEvent
 import android.view.View
 import androidx.core.content.ContextCompat.checkSelfPermission
 import at.rmbt.client.control.IpProtocol
@@ -48,6 +47,7 @@ class HomeFragment : BaseFragment() {
         super.onViewCreated(view, savedInstanceState)
         binding.state = homeViewModel.state
         updateTransparentStatusBarHeight(binding.statusBarStub)
+
         homeViewModel.isConnected.listen(this) {
             activity?.window?.changeStatusBarColor(if (it) ToolbarTheme.BLUE else ToolbarTheme.GRAY)
         }
@@ -131,17 +131,13 @@ class HomeFragment : BaseFragment() {
         homeViewModel.activeSignalMeasurementLiveData.listen(this) {
             homeViewModel.state.isSignalMeasurementActive.set(it)
         }
-
-        binding.btnLoop.setOnTouchListener { v, event ->
-            if (event.action == MotionEvent.ACTION_DOWN) {
-                if (!binding.btnLoop.isChecked) {
-                    val intent = LoopInstructionsActivity.start(requireContext())
-                    startActivityForResult(intent, CODE_LOOP_INSTRUCTIONS)
-                } else {
-                    homeViewModel.state.isLoopModeActive.set(false)
-                }
+        binding.btnLoop.setOnCheckedChangeListener { _, isChecked ->
+            if (isChecked) {
+                val intent = LoopInstructionsActivity.start(requireContext())
+                startActivityForResult(intent, CODE_LOOP_INSTRUCTIONS)
+            } else {
+                homeViewModel.state.isLoopModeActive.set(false)
             }
-            true
         }
 
         homeViewModel.newsLiveData.listen(this) {
@@ -236,8 +232,9 @@ class HomeFragment : BaseFragment() {
             }
         }
 
-        if (permissions.isNotEmpty()) {
+        if (permissions.isNotEmpty() && homeViewModel.shouldAskForPermission()) {
             requestPermissions(permissions.toTypedArray(), PERMISSIONS_REQUEST_CODE)
+            homeViewModel.permissionsWereAsked()
         }
     }
 

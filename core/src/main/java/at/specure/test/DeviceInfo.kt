@@ -91,7 +91,7 @@ class DeviceInfo(context: Context, val location: Location? = null) {
          */
         val time: Long,
         /**
-         *  Age in millis
+         *  This should be taken from Location.time
          */
         val age: Long?,
         val accuracy: Float,
@@ -109,7 +109,7 @@ fun LocationInfo?.toDeviceInfoLocation(): DeviceInfo.Location? = if (this == nul
         provider = provider,
         speed = speed,
         bearing = bearing,
-        time = systemMillisTime, // fixed according to RTR - do not change this!
+        time = time,
         age = ageNanos / 1000000,
         accuracy = accuracy,
         mock_location = locationIsMocked,

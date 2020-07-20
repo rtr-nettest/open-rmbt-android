@@ -34,6 +34,7 @@
 
         <activity
             android:name="at.rtr.rmbt.android.ui.activity.HomeActivity"
+            android:launchMode="singleTask"
             android:windowSoftInputMode="stateAlwaysHidden" />
 
         <activity
