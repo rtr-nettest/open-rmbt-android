@@ -390,4 +390,9 @@ interface Config {
      * Timestamp of last asked permissions System.currentTimeMillis()
      */
     val lastPermissionAskedTimestampMillis: Long
+
+    /**
+     * Timestamp of last asked for background location permission System.currentTimeMillis()
+     */
+    val lastBackgroundPermissionAskedTimestampMillis: Long
 }

@@ -91,12 +91,12 @@ class LoopConfigurationActivity : BaseActivity(), InputSettingDialog.Callback {
                 if (hasBackgroundLocationPermission) {
                     // handle location update
                 } else {
-                    if (viewModel.shouldAskForPermission()) {
+                    if (viewModel.shouldAskForBackgroundPermission()) {
                         ActivityCompat.requestPermissions(
                             this,
                             arrayOf(Manifest.permission.ACCESS_BACKGROUND_LOCATION), REQUEST_CODE_BACKGROUND
                         )
-                        viewModel.permissionsWereAsked()
+                        viewModel.backgroundPermissionsWereAsked()
                     }
                 }
             } else {
@@ -109,6 +109,7 @@ class LoopConfigurationActivity : BaseActivity(), InputSettingDialog.Callback {
                         ), REQUEST_CODE_BACKGROUND
                     )
                     viewModel.permissionsWereAsked()
+                    viewModel.backgroundPermissionsWereAsked()
                 }
             }
         }
