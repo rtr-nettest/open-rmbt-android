@@ -225,6 +225,8 @@ class MapFragment : BaseFragment(), OnMapReadyCallback, MapMarkerDetailsAdapter.
                     NetworkTypeCompat.TYPE_3G -> R.drawable.ic_marker_3g
                     NetworkTypeCompat.TYPE_2G -> R.drawable.ic_marker_2g
                     NetworkTypeCompat.TYPE_5G -> R.drawable.ic_marker_5g
+                    NetworkTypeCompat.TYPE_5G_NSA -> R.drawable.ic_marker_5g
+                    NetworkTypeCompat.TYPE_5G_AVAILABLE -> R.drawable.ic_marker_4g
                 }
                 addMarkerWithIcon(icon)
             }

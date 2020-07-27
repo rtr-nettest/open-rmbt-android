@@ -38,6 +38,7 @@ import at.specure.data.entity.TestTelephonyRecord
 import at.specure.data.entity.TestWlanRecord
 import at.specure.info.TransportType
 import at.specure.info.network.MobileNetworkType
+import at.specure.info.network.NRConnectionState
 import at.specure.info.strength.SignalStrengthInfo
 import at.specure.info.strength.SignalStrengthInfoGsm
 import at.specure.info.strength.SignalStrengthInfoLte
@@ -220,6 +221,22 @@ fun TestRecord.toRequest(
         permissions.map { it.toRequest() }
     }
 
+    var telephonyNRConnectionState: String? = null
+
+    val signals5G = signalList.filter {
+        it.mobileNetworkType == MobileNetworkType.NR_AVAILABLE || it.mobileNetworkType == MobileNetworkType.NR_NSA || it.mobileNetworkType == MobileNetworkType.NR
+    }
+
+    if (signals5G.isNotEmpty()) {
+        telephonyNRConnectionState = when (signals5G[0].mobileNetworkType) {
+            MobileNetworkType.NR -> NRConnectionState.SA.toString()
+            MobileNetworkType.NR_NSA -> NRConnectionState.NSA.toString()
+            MobileNetworkType.NR_AVAILABLE -> NRConnectionState.AVAILABLE.toString()
+            else -> null
+        }
+
+    }
+
     return TestResultBody(
         platform = deviceInfo.platform,
         clientUUID = clientUUID,
@@ -290,7 +307,8 @@ fun TestRecord.toRequest(
         testTag = testTag,
         developerModeEnabled = developerModeEnabled,
         loopModeEnabled = loopModeEnabled,
-        userServerSelectionEnabled = serverSelectionEnabled
+        userServerSelectionEnabled = serverSelectionEnabled,
+        telephonyNRConnection = telephonyNRConnectionState
     )
 }
 

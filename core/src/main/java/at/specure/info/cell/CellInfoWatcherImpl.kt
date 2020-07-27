@@ -27,7 +27,9 @@ import android.telephony.CellInfoWcdma
 import android.telephony.PhoneStateListener
 import android.telephony.SubscriptionManager
 import android.telephony.TelephonyManager
+import at.specure.data.ServerNetworkType
 import at.specure.info.network.MobileNetworkType
+import at.specure.info.network.NRConnectionState
 import at.specure.util.permission.LocationAccess
 import at.specure.util.permission.PhoneStateAccess
 import at.specure.util.synchronizedForEach
@@ -75,6 +77,7 @@ class CellInfoWatcherImpl(
         override fun onCellInfoChanged(cellInfo: MutableList<CellInfo>?) {
             cellInfo ?: return
 
+            var nrCollectionState = NRConnectionState.NOT_AVAILABLE
             val dataSimSubscriptionId = subscriptionManager.getCurrentDataSubscriptionId()
             var dualSimDecisionLog = ""
             var dualSimDecision = ""
@@ -90,9 +93,15 @@ class CellInfoWatcherImpl(
 
                         val networkType = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                             val manager = telephonyManager.createForSubscriptionId(dataSimSubscriptionId)
-                            if (isNRConnected(manager)) {
+                            if (NRConnectionState.getNRConnectionState(manager) != NRConnectionState.NOT_AVAILABLE) {
                                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                                    TelephonyManager.NETWORK_TYPE_NR
+                                    nrCollectionState = NRConnectionState.getNRConnectionState(manager)
+                                    when (nrCollectionState) {
+                                        NRConnectionState.NOT_AVAILABLE -> manager.dataNetworkType
+                                        NRConnectionState.AVAILABLE -> ServerNetworkType.TYPE_5G_NR_AVAILABLE.intValue
+                                        NRConnectionState.NSA -> ServerNetworkType.TYPE_5G_NR_NSA.intValue
+                                        NRConnectionState.SA -> TelephonyManager.NETWORK_TYPE_NR
+                                    }
                                 } else {
                                     manager.dataNetworkType
                                 }
@@ -317,40 +326,6 @@ private fun SubscriptionManager.getCurrentDataSubscriptionId(): Int {
             -1
         }
     }
-}
-
-// get 5G connection info from Service State over reflection call
-// https://stackoverflow.com/questions/55598359/how-to-detect-samsung-s10-5g-is-running-on-5g-network
-fun isNRConnected(telephonyManager: TelephonyManager): Boolean {
-    // only for android 9 and up
-    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.P) {
-        return false
-    }
-    try {
-        val obj = Class.forName(telephonyManager.javaClass.name)
-            .getDeclaredMethod("getServiceState", *arrayOfNulls(0)).invoke(telephonyManager, *arrayOfNulls(0))
-        val methods = Class.forName(obj.javaClass.name).declaredMethods
-
-        // try extracting from string
-        // source: https://github.com/mroczis/netmonster-core/blob/master/library/src/main/java/cz/mroczis/netmonster/core/feature/detect/DetectorLteAdvancedNrServiceState.kt#L69
-        val serviceState = obj.toString()
-        val is5gActive = serviceState.contains("nrState=CONNECTED") ||
-                serviceState.contains("nsaState=5") ||
-                serviceState.contains("EnDc=true") &&
-                serviceState.contains("5G Allocated=true")
-        if (is5gActive) {
-            return true
-        }
-        for (method in methods) {
-            if (method.name == "getNrStatus" || method.name == "getNrState") {
-                method.isAccessible = true
-                return (method.invoke(obj, *arrayOfNulls(0)) as Int).toInt() == 3
-            }
-        }
-    } catch (e: java.lang.Exception) {
-        e.printStackTrace()
-    }
-    return false
 }
 
 private fun ConnectivityManager.cellNetworkInfoCompat(operatorName: String?): CellNetworkInfo? {
