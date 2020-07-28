@@ -126,7 +126,17 @@ enum class MobileNetworkType(val intValue: Int, val displayName: String) {
     /**
      *  Current network is NR(New Radio) 5G.
      */
-    NR(20, "NR"); // TelephonyManager.NETWORK_TYPE_NR
+    NR(20, "NR"), // TelephonyManager.NETWORK_TYPE_NR
+
+    /**
+     * Current network is NR(New Radio) Non standalone mode 5G.
+     */
+    NR_NSA(-2, "NR-NSA"), // made up number because of no support in current android version fot this type
+
+    /**
+     * Current network is LTE with 5G signalling
+     */
+    NR_AVAILABLE(-3, "NR-AVAILABLE"); // made up number because of no support in current android version fot this type
 
     companion object {
 

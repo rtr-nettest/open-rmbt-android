@@ -16,6 +16,8 @@ import at.rtr.rmbt.android.util.iconFromVector
 import at.rtr.rmbt.android.util.listen
 import at.rtr.rmbt.android.viewmodel.ResultViewModel
 import at.specure.data.NetworkTypeCompat
+import com.google.android.gms.common.ConnectionResult
+import com.google.android.gms.common.GoogleApiAvailability
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
@@ -38,6 +40,8 @@ class ResultsActivity : BaseActivity(), OnMapReadyCallback {
         super.onCreate(savedInstanceState)
         binding = bindContentView(R.layout.activity_results)
         binding.state = viewModel.state
+
+        viewModel.state.playServicesAvailable.set(checkPlayServices())
 
         binding.map.onCreate(savedInstanceState)
         binding.map.getMapAsync(this)
@@ -73,9 +77,11 @@ class ResultsActivity : BaseActivity(), OnMapReadyCallback {
                         NetworkTypeCompat.TYPE_LAN,
                         NetworkTypeCompat.TYPE_BROWSER -> R.drawable.ic_marker_browser
                         NetworkTypeCompat.TYPE_WLAN -> R.drawable.ic_marker_wifi
+                        NetworkTypeCompat.TYPE_5G_AVAILABLE,
                         NetworkTypeCompat.TYPE_4G -> R.drawable.ic_marker_4g
                         NetworkTypeCompat.TYPE_3G -> R.drawable.ic_marker_3g
                         NetworkTypeCompat.TYPE_2G -> R.drawable.ic_marker_2g
+                        NetworkTypeCompat.TYPE_5G_NSA,
                         NetworkTypeCompat.TYPE_5G -> R.drawable.ic_marker_5g
                     }
 
@@ -165,6 +171,15 @@ class ResultsActivity : BaseActivity(), OnMapReadyCallback {
     private fun refreshResults() {
         viewModel.loadTestResults()
         binding.swipeRefreshLayout.isRefreshing = true
+    }
+
+    private fun checkPlayServices(): Boolean {
+        val gApi: GoogleApiAvailability = GoogleApiAvailability.getInstance()
+        val resultCode: Int = gApi.isGooglePlayServicesAvailable(this)
+        if (resultCode != ConnectionResult.SUCCESS) {
+            return false
+        }
+        return true
     }
 
     override fun onMapReady(map: GoogleMap?) {

@@ -199,6 +199,9 @@ fun AppCompatImageView.setTechnologyIcon(networkInfo: NetworkInfo?) {
             CellTechnology.CONNECTION_4G -> {
                 setImageResource(R.drawable.ic_4g)
             }
+            CellTechnology.CONNECTION_4G_5G -> {
+                setImageResource(R.drawable.ic_4g)
+            }
             CellTechnology.CONNECTION_5G -> {
                 setImageResource(R.drawable.ic_5g)
             }
@@ -553,6 +556,7 @@ private fun getSignalImageResource(networkType: NetworkTypeCompat, signalStrengt
                 Classification.NONE -> R.drawable.ic_history_no_internet
             }
         }
+        NetworkTypeCompat.TYPE_5G_AVAILABLE,
         NetworkTypeCompat.TYPE_4G -> {
             when (signalStrength) {
                 Classification.BAD -> R.drawable.ic_history_4g_1
@@ -578,6 +582,7 @@ private fun getSignalImageResource(networkType: NetworkTypeCompat, signalStrengt
         NetworkTypeCompat.TYPE_BROWSER -> {
             R.drawable.ic_browser
         }
+        NetworkTypeCompat.TYPE_5G_NSA,
         NetworkTypeCompat.TYPE_5G -> {
             when (signalStrength) {
                 Classification.BAD -> R.drawable.ic_history_5g_1
@@ -845,6 +850,7 @@ fun ImageView.setNetworkType(networkType: String, signalStrength: Classification
                 NetworkTypeCompat.TYPE_3G -> {
                     R.drawable.ic_history_3g
                 }
+                NetworkTypeCompat.TYPE_5G_AVAILABLE,
                 NetworkTypeCompat.TYPE_4G -> {
                     R.drawable.ic_history_4g
                 }
@@ -864,6 +870,7 @@ fun ImageView.setNetworkType(networkType: String, signalStrength: Classification
                         Classification.NONE -> R.drawable.ic_history_no_internet
                     }
                 }
+                NetworkTypeCompat.TYPE_5G_NSA,
                 NetworkTypeCompat.TYPE_5G -> {
                     R.drawable.ic_history_5g_3
                 }
