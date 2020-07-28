@@ -98,18 +98,6 @@ class ResultsRepositoryImpl @Inject constructor(
                 }
             }
 
-            if (qosRecord != null) {
-                val body = qosRecord.toRequest(clientUUID, deviceInfo)
-
-                val result = client.sendQoSTestResults(body)
-                result.onSuccess {
-                    db.testDao().updateQoSTestIsSubmitted(testUUID)
-                    db.historyDao().clear()
-                }
-
-                finalResult = result.map { result.ok }
-            }
-
             finalResult = result.map { result.ok }
         }
 
