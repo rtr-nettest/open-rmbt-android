@@ -16,6 +16,8 @@ import at.rtr.rmbt.android.util.iconFromVector
 import at.rtr.rmbt.android.util.listen
 import at.rtr.rmbt.android.viewmodel.ResultViewModel
 import at.specure.data.NetworkTypeCompat
+import com.google.android.gms.common.ConnectionResult
+import com.google.android.gms.common.GoogleApiAvailability
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
@@ -38,6 +40,8 @@ class ResultsActivity : BaseActivity(), OnMapReadyCallback {
         super.onCreate(savedInstanceState)
         binding = bindContentView(R.layout.activity_results)
         binding.state = viewModel.state
+
+        viewModel.state.playServicesAvailable.set(checkPlayServices())
 
         binding.map.onCreate(savedInstanceState)
         binding.map.getMapAsync(this)
@@ -167,6 +171,15 @@ class ResultsActivity : BaseActivity(), OnMapReadyCallback {
     private fun refreshResults() {
         viewModel.loadTestResults()
         binding.swipeRefreshLayout.isRefreshing = true
+    }
+
+    private fun checkPlayServices(): Boolean {
+        val gApi: GoogleApiAvailability = GoogleApiAvailability.getInstance()
+        val resultCode: Int = gApi.isGooglePlayServicesAvailable(this)
+        if (resultCode != ConnectionResult.SUCCESS) {
+            return false
+        }
+        return true
     }
 
     override fun onMapReady(map: GoogleMap?) {
