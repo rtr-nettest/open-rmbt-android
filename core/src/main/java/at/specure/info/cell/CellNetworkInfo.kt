@@ -128,21 +128,44 @@ class CellNetworkInfo(
                 return Network5GSimulator.fromInfo(info, isActive, isRoaming, apn)
             }
 
-            return when {
-                info is CellInfoLte -> fromLte(info, providerName, networkType, isActive, isRoaming, apn, dualSimDetectionMethod)
-                info is CellInfoWcdma -> fromWcdma(info, providerName, networkType, isActive, isRoaming, apn, dualSimDetectionMethod)
-                info is CellInfoGsm -> fromGsm(info, providerName, networkType, isActive, isRoaming, apn, dualSimDetectionMethod)
-                info is CellInfoCdma -> fromCdma(info, providerName, networkType, isActive, isRoaming, apn, dualSimDetectionMethod)
-                Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q && info is CellInfoNr -> fromNr(
-                    info,
-                    providerName,
-                    networkType,
-                    isActive,
-                    isRoaming,
-                    apn,
-                    dualSimDetectionMethod
-                )
-                else -> fromUnknown(providerName, networkType, isActive, isRoaming, apn, dualSimDetectionMethod)
+            return when (networkType) {
+                MobileNetworkType.NR,
+                MobileNetworkType.NR_NSA ->
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q && info is CellInfoNr) {
+                        fromNr(
+                            info,
+                            providerName,
+                            networkType,
+                            isActive,
+                            isRoaming,
+                            apn,
+                            dualSimDetectionMethod
+                        )
+                    } else {
+                        fromUnknown(providerName, networkType, isActive, isRoaming, apn, dualSimDetectionMethod)
+                    }
+                MobileNetworkType.NR_AVAILABLE ->
+                    when (info) {
+                        is CellInfoLte -> fromLte(info, providerName, networkType, isActive, isRoaming, apn, dualSimDetectionMethod)
+                        else -> fromUnknown(providerName, networkType, isActive, isRoaming, apn, dualSimDetectionMethod)
+                    }
+                else ->
+                    when {
+                        info is CellInfoLte -> fromLte(info, providerName, networkType, isActive, isRoaming, apn, dualSimDetectionMethod)
+                        info is CellInfoWcdma -> fromWcdma(info, providerName, networkType, isActive, isRoaming, apn, dualSimDetectionMethod)
+                        info is CellInfoGsm -> fromGsm(info, providerName, networkType, isActive, isRoaming, apn, dualSimDetectionMethod)
+                        info is CellInfoCdma -> fromCdma(info, providerName, networkType, isActive, isRoaming, apn, dualSimDetectionMethod)
+                        Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q && info is CellInfoNr -> fromNr(
+                            info,
+                            providerName,
+                            networkType,
+                            isActive,
+                            isRoaming,
+                            apn,
+                            dualSimDetectionMethod
+                        )
+                        else -> fromUnknown(providerName, networkType, isActive, isRoaming, apn, dualSimDetectionMethod)
+                    }
             }
         }
 

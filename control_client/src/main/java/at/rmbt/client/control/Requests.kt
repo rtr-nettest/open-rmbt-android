@@ -432,6 +432,12 @@ data class TestResultBody(
     val dualSimDetectionMethod: String?,
 
     /**
+     * Contains information about the way the 5G connection is handled
+     */
+    @SerializedName("telephony_nr_connection")
+    val telephonyNRConnection: String?,
+
+    /**
      * Wifi supplicant state e.g. "COMPLETED"
      */
     @SerializedName("wifi_supplicant_state")
