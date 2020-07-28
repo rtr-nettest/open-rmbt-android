@@ -234,7 +234,6 @@ fun TestRecord.toRequest(
             MobileNetworkType.NR_AVAILABLE -> NRConnectionState.AVAILABLE.toString()
             else -> null
         }
-
     }
 
     return TestResultBody(

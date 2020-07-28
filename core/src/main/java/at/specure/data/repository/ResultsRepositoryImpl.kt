@@ -20,7 +20,6 @@ import at.specure.data.entity.TestWlanRecord
 import at.specure.data.toRequest
 import at.specure.info.TransportType
 import at.specure.info.network.MobileNetworkType
-import at.specure.info.network.NRConnectionState
 import at.specure.test.DeviceInfo
 import at.specure.util.exception.DataMissingException
 import javax.inject.Inject

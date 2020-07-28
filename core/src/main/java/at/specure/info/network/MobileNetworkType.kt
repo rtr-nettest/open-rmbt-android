@@ -136,7 +136,7 @@ enum class MobileNetworkType(val intValue: Int, val displayName: String) {
     /**
      * Current network is LTE with 5G signalling
      */
-    NR_AVAILABLE(-3, "NR-AVAILABLE");  // made up number because of no support in current android version fot this type
+    NR_AVAILABLE(-3, "NR-AVAILABLE"); // made up number because of no support in current android version fot this type
 
     companion object {
 

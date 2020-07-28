@@ -14,7 +14,7 @@ enum class NRConnectionState {
 
         fun getNRConnectionState(telephonyManager: TelephonyManager): NRConnectionState {
 
-            //only for android 9 and up
+            // only for android 9 and up
             if (Build.VERSION.SDK_INT < Build.VERSION_CODES.P) {
                 return NOT_AVAILABLE
             }
