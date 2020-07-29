@@ -12,6 +12,8 @@ enum class NetworkTypeCompat(val stringValue: String, val minSignalValue: Int, v
     TYPE_3G("3G", SignalStrengthInfo.WCDMA_RSRP_SIGNAL_MIN, SignalStrengthInfo.WCDMA_RSRP_SIGNAL_MAX),
     TYPE_4G("4G", SignalStrengthInfo.LTE_RSRP_SIGNAL_MIN, SignalStrengthInfo.LTE_RSRP_SIGNAL_MAX),
     TYPE_5G("5G", SignalStrengthInfo.NR_RSRP_SIGNAL_MIN, SignalStrengthInfo.NR_RSRP_SIGNAL_MAX),
+    TYPE_5G_NSA("5G", SignalStrengthInfo.NR_RSRP_SIGNAL_MIN, SignalStrengthInfo.NR_RSRP_SIGNAL_MAX),
+    TYPE_5G_AVAILABLE("5G+4G", SignalStrengthInfo.LTE_RSRP_SIGNAL_MIN, SignalStrengthInfo.LTE_RSRP_SIGNAL_MAX),
     TYPE_WLAN("WLAN", SignalStrengthInfo.WIFI_MIN_SIGNAL_VALUE, SignalStrengthInfo.WIFI_MAX_SIGNAL_VALUE),
     TYPE_LAN("LAN", Int.MIN_VALUE, Int.MIN_VALUE),
     TYPE_BROWSER("BROWSER", Int.MIN_VALUE, Int.MIN_VALUE),
@@ -66,6 +68,7 @@ enum class NetworkTypeCompat(val stringValue: String, val minSignalValue: Int, v
                         CellTechnology.CONNECTION_2G -> TYPE_2G
                         CellTechnology.CONNECTION_3G -> TYPE_3G
                         CellTechnology.CONNECTION_4G -> TYPE_4G
+                        CellTechnology.CONNECTION_4G_5G -> TYPE_5G_AVAILABLE
                         CellTechnology.CONNECTION_5G -> TYPE_5G
                         else -> {
                             Timber.e("Incorrect cell technology value or null ${cellTechnology?.name}")
@@ -111,6 +114,8 @@ enum class ServerNetworkType(
     TYPE_3G_HSPA_P(15, "3G (HSPA+)", NetworkTypeCompat.TYPE_3G, TransportType.CELLULAR, MobileNetworkType.HSPAP),
     TYPE_4G_LTE_CA(19, "4G (LTE CA)", NetworkTypeCompat.TYPE_4G, TransportType.CELLULAR, MobileNetworkType.LTE_CA),
     TYPE_5G_NR(20, "5G (NR)", NetworkTypeCompat.TYPE_5G, TransportType.CELLULAR, MobileNetworkType.NR),
+    TYPE_5G_NR_NSA(-2, "5G (NSA)", NetworkTypeCompat.TYPE_5G_NSA, TransportType.CELLULAR, MobileNetworkType.NR_NSA),
+    TYPE_5G_NR_AVAILABLE(-3, "4G+5G", NetworkTypeCompat.TYPE_5G_NSA, TransportType.CELLULAR, MobileNetworkType.NR_AVAILABLE),
     TYPE_CLI(97, "CLI", null, null, null),
     TYPE_BROWSER(98, "BROWSER", null, null, null),
     TYPE_WLAN(99, "WLAN", NetworkTypeCompat.TYPE_WLAN, TransportType.WIFI, null),

@@ -1,6 +1,7 @@
 package at.rtr.rmbt.android.ui.fragment
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.content.pm.PackageManager
 import android.location.Address
 import android.location.Geocoder
@@ -32,6 +33,8 @@ import at.specure.data.NetworkTypeCompat
 import at.specure.data.ServerNetworkType
 import at.specure.data.entity.MarkerMeasurementRecord
 import at.specure.location.LocationState
+import com.google.android.gms.common.ConnectionResult
+import com.google.android.gms.common.GoogleApiAvailability
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
@@ -78,12 +81,14 @@ class MapFragment : BaseFragment(), OnMapReadyCallback, MapMarkerDetailsAdapter.
 
     private var adapter: MapMarkerDetailsAdapter = MapMarkerDetailsAdapter(this)
 
+    @SuppressLint("SetJavaScriptEnabled")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         binding.state = mapViewModel.state
         updateTransparentStatusBarHeight(binding.statusBarStub)
 
         binding.map.onCreate(savedInstanceState)
+        mapViewModel.state.playServicesAvailable.set(checkPlayServices())
         mapViewModel.obtainFilters()
         mapViewModel.providerLiveData.listen(this) {
             binding.map.getMapAsync(this)
@@ -113,6 +118,11 @@ class MapFragment : BaseFragment(), OnMapReadyCallback, MapMarkerDetailsAdapter.
         binding.fabSearch.setOnClickListener {
             showSearchDialog()
         }
+
+        if (!mapViewModel.state.playServicesAvailable.get()) {
+            binding.webMap.settings.javaScriptEnabled = true
+            binding.webMap.loadUrl("https://www.netztest.at/en/Karte")
+        }
     }
 
     override fun onStyleSelected(style: MapStyleType) {
@@ -136,6 +146,15 @@ class MapFragment : BaseFragment(), OnMapReadyCallback, MapMarkerDetailsAdapter.
         } else {
             Toast.makeText(activity, R.string.map_search_location_dialog_not_found, Toast.LENGTH_SHORT).show()
         }
+    }
+
+    private fun checkPlayServices(): Boolean {
+        val gApi: GoogleApiAvailability = GoogleApiAvailability.getInstance()
+        val resultCode: Int = gApi.isGooglePlayServicesAvailable(this.context)
+        if (resultCode != ConnectionResult.SUCCESS) {
+            return false
+        }
+        return true
     }
 
     override fun onMapReady(map: GoogleMap?) {
@@ -236,6 +255,8 @@ class MapFragment : BaseFragment(), OnMapReadyCallback, MapMarkerDetailsAdapter.
                     NetworkTypeCompat.TYPE_3G -> R.drawable.ic_marker_3g
                     NetworkTypeCompat.TYPE_2G -> R.drawable.ic_marker_2g
                     NetworkTypeCompat.TYPE_5G -> R.drawable.ic_marker_5g
+                    NetworkTypeCompat.TYPE_5G_NSA -> R.drawable.ic_marker_5g
+                    NetworkTypeCompat.TYPE_5G_AVAILABLE -> R.drawable.ic_marker_4g
                 }
                 addMarkerWithIcon(icon)
             }

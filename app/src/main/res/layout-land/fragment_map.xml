@@ -20,6 +20,24 @@
             android:layout_height="@dimen/size_height_status_bar"
             app:layout_constraintTop_toTopOf="parent" />
 
+        <androidx.constraintlayout.widget.Group
+            android:id="@+id/play_services_available_ui"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:visibility="gone"
+            app:constraint_referenced_ids="map, fab_layers, fab_search, fab_filters, fab_location"
+            app:visibleOrGone="@{state.playServicesAvailable}" />
+
+        <WebView
+            android:id="@+id/web_map"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:visibleOrGone="@{!state.playServicesAvailable}" />
+
         <com.google.android.gms.maps.MapView
             android:id="@+id/map"
             android:layout_width="0dp"
