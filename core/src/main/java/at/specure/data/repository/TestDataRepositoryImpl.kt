@@ -33,6 +33,7 @@ import at.specure.info.strength.SignalStrengthInfoWiFi
 import at.specure.location.LocationInfo
 import at.specure.location.cell.CellLocationInfo
 import org.json.JSONArray
+import timber.log.Timber
 import java.text.DecimalFormat
 import java.util.concurrent.TimeUnit
 
@@ -177,8 +178,9 @@ class TestDataRepositoryImpl(db: CoreDatabase) : TestDataRepository {
             }
         }
 
+        Timber.e("Signal saving time 1: ${info.timestampNanos}  starting time: $testStartTimeNanos   current time: ${System.nanoTime()}")
         val startTimestampNsSinceBoot = testStartTimeNanos + (SystemClock.elapsedRealtimeNanos() - System.nanoTime())
-        val timeNanos = info.timestampNanos - startTimestampNsSinceBoot
+        val timeNanos = info.timestampNanos - testStartTimeNanos
         var timeNanosLast = if (info.timestampNanos < startTimestampNsSinceBoot) info.timestampNanos - startTimestampNsSinceBoot else null
         if (timeNanosLast == 0L) {
             timeNanosLast = null
@@ -216,6 +218,7 @@ class TestDataRepositoryImpl(db: CoreDatabase) : TestDataRepository {
                 is WifiNetworkInfo -> info.toCellInfoRecord(testUUID)
                 is CellNetworkInfo -> {
                     info.signalStrength?.let {
+                        Timber.e("Signal saving time SCI: starting time: $testStartTimeNanos   current time: ${System.nanoTime()}")
                         saveSignalStrengthDirectly(testUUID, info.cellUUID, info.networkType, it, testStartTimeNanos)
                     }
                     info.toCellInfoRecord(testUUID)

@@ -33,7 +33,6 @@ data class SignalMeasurementInfo(
 
     /**
      * Provider name
-     * Must be filled with data from server.
      */
-    var provider: String
+    var provider: String?
 )

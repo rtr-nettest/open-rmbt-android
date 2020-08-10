@@ -28,6 +28,7 @@ private const val KEY_PREVIOUS_TEST_STATUS = "PREVIOUS_TEST_STATUS"
 private const val KEY_MEASUREMENT_TAG = "MEASUREMENT_TAG"
 private const val KEY_LAST_QOS_TEST_PERFORMED_TIMESTAMP_MILLIS = "LAST_QOS_TEST_PERFORMED_TIMESTAMP_MILLIS"
 private const val KEY_LAST_PERMISSIONS_ASKED_TIMESTAMP_MILLIS = "LAST_PERMISSIONS_ASKED_TIMESTAMP_MILLIS"
+private const val KEY_LAST_BACKGROUND_PERMISSIONS_ASKED_TIMESTAMP_MILLIS = "LAST_BACKGROUND_PERMISSIONS_ASKED_TIMESTAMP_MILLIS"
 
 class AppConfig @Inject constructor(context: Context, private val serverSettings: ControlServerSettings) : Config {
 
@@ -404,5 +405,11 @@ class AppConfig @Inject constructor(context: Context, private val serverSettings
         get() = preferences.getLong(KEY_LAST_PERMISSIONS_ASKED_TIMESTAMP_MILLIS, 0)
         set(value) = preferences.edit()
             .putLong(KEY_LAST_PERMISSIONS_ASKED_TIMESTAMP_MILLIS, value)
+            .apply()
+
+    override var lastBackgroundPermissionAskedTimestampMillis: Long
+        get() = preferences.getLong(KEY_LAST_BACKGROUND_PERMISSIONS_ASKED_TIMESTAMP_MILLIS, 0)
+        set(value) = preferences.edit()
+            .putLong(KEY_LAST_BACKGROUND_PERMISSIONS_ASKED_TIMESTAMP_MILLIS, value)
             .apply()
 }

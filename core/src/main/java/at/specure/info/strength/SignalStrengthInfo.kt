@@ -17,7 +17,6 @@ package at.specure.info.strength
 import android.annotation.SuppressLint
 import android.os.Build
 import android.os.Parcelable
-import android.os.SystemClock
 import android.telephony.CellInfo
 import android.telephony.CellInfoGsm
 import android.telephony.CellInfoLte
@@ -105,7 +104,7 @@ abstract class SignalStrengthInfo : Parcelable {
             signalLevel = signal.level,
             min = NR_RSRP_SIGNAL_MIN,
             max = NR_RSRP_SIGNAL_MAX,
-            timestampNanos = SystemClock.elapsedRealtimeNanos(),
+            timestampNanos = System.nanoTime(),
             csiRsrp = if (signal.csiRsrp == CellInfo.UNAVAILABLE) null else signal.csiRsrp,
             csiRsrq = if (signal.csiRsrq == CellInfo.UNAVAILABLE) null else signal.csiRsrq,
             csiSinr = if (signal.csiSinr == CellInfo.UNAVAILABLE) null else signal.csiSinr,
@@ -121,7 +120,7 @@ abstract class SignalStrengthInfo : Parcelable {
             signalLevel = signal.level,
             min = LTE_RSRP_SIGNAL_MIN,
             max = LTE_RSRP_SIGNAL_MAX,
-            timestampNanos = SystemClock.elapsedRealtimeNanos(),
+            timestampNanos = System.nanoTime(),
             cqi = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) signal.cqi.checkValueAvailable() else null,
             rsrp = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) signal.rsrp.fixLteRsrp() else signal.dbm.fixLteRsrp(),
             rssi = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) signal.rssi.checkValueAvailable() else null,
@@ -136,7 +135,7 @@ abstract class SignalStrengthInfo : Parcelable {
             signalLevel = signal.level,
             min = WCDMA_RSRP_SIGNAL_MIN,
             max = WCDMA_RSRP_SIGNAL_MAX,
-            timestampNanos = SystemClock.elapsedRealtimeNanos()
+            timestampNanos = System.nanoTime()
         )
 
         fun from(signal: CellSignalStrengthGsm) = SignalStrengthInfoGsm(
@@ -146,7 +145,7 @@ abstract class SignalStrengthInfo : Parcelable {
             signalLevel = signal.level,
             min = CELLULAR_SIGNAL_MIN,
             max = CELLULAR_SIGNAL_MAX,
-            timestampNanos = SystemClock.elapsedRealtimeNanos(),
+            timestampNanos = System.nanoTime(),
             bitErrorRate = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) signal.bitErrorRate.fixErrorBitRate() else null,
             timingAdvance = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) signal.timingAdvance.fixTimingAdvance() else null
         )
@@ -158,7 +157,7 @@ abstract class SignalStrengthInfo : Parcelable {
             signalLevel = signal.level,
             min = WCDMA_RSRP_SIGNAL_MIN,
             max = WCDMA_RSRP_SIGNAL_MAX,
-            timestampNanos = SystemClock.elapsedRealtimeNanos()
+            timestampNanos = System.nanoTime()
         )
 
         fun from(info: WifiNetworkInfo) = SignalStrengthInfoWiFi(
@@ -168,7 +167,7 @@ abstract class SignalStrengthInfo : Parcelable {
             signalLevel = info.signalLevel,
             max = WIFI_MAX_SIGNAL_VALUE,
             min = WIFI_MIN_SIGNAL_VALUE,
-            timestampNanos = SystemClock.elapsedRealtimeNanos(),
+            timestampNanos = System.nanoTime(),
             linkSpeed = info.linkSpeed
         )
 
@@ -191,7 +190,7 @@ abstract class SignalStrengthInfo : Parcelable {
             var signal: SignalStrengthInfo? = null
 
             val transportType = TransportType.CELLULAR
-            val timestampNanos = SystemClock.elapsedRealtimeNanos()
+            val timestampNanos = System.nanoTime()
 
             signalStrength.cellSignalStrengths.forEach {
                 if (it.dbm == Int.MAX_VALUE) {
@@ -411,7 +410,8 @@ abstract class SignalStrengthInfo : Parcelable {
             }
 
             val transportType = TransportType.CELLULAR
-            val timestampNanos = SystemClock.elapsedRealtimeNanos()
+            val timestampNanos = System.nanoTime()
+            Timber.v("Signal time 1: $timestampNanos")
 
             when (cellInfo) {
                 is CellInfoLte -> {
