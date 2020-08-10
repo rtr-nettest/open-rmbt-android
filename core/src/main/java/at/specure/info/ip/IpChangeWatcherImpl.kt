@@ -86,7 +86,7 @@ class IpChangeWatcherImpl @Inject constructor(
 
                 checkForCaptivePortal(privateAddress, publicAddress, lastIPv4Address.privateAddress, lastIPv4Address.publicAddress)
 
-                val status = getIpStatus(privateAddress, publicAddress)
+                val status = getIpStatus(privateAddress, publicAddress, IpProtocol.V4)
 
                 Timber.i("IPv4 private: $privateAddress public: $publicAddress status: ${status.name} captive portal status: ${captivePortal.captivePortalStatus} has connection: ${connectivityWatcher.activeNetwork == null}")
 
@@ -111,13 +111,15 @@ class IpChangeWatcherImpl @Inject constructor(
 
                 val privateAddress: String? = if (privateIp6?.ok == true) privateIp6!!.success.ipAddress else null
                 val publicAddress: String? = if (publicIp6?.ok == true) publicIp6!!.success.ipAddress else null
-                val status = getIpStatus(privateAddress, publicAddress)
+                val status = getIpStatus(privateAddress, publicAddress, IpProtocol.V6)
 
-                checkForCaptivePortal(privateAddress, publicAddress, lastIPv6Address.privateAddress, lastIPv6Address.publicAddress)
-
-                Timber.i("IPv6 private: $privateAddress public: $publicAddress status: ${status.name} captive portal status: ${captivePortal.captivePortalStatus}  has connection: ${connectivityWatcher.activeNetwork == null}")
+                if (status != IpStatus.NO_ADDRESS) {
+                    checkForCaptivePortal(privateAddress, publicAddress, lastIPv6Address.privateAddress, lastIPv6Address.publicAddress)
+                }
 
                 _lastIPv6Address = IpInfo(IpProtocol.V6, networkId, privateAddress, publicAddress, status, captivePortal.captivePortalStatus)
+
+                Timber.i("IPv6 private: $privateAddress public: $publicAddress status: ${status.name} captive portal status: ${captivePortal.captivePortalStatus}  has connection: ${connectivityWatcher.activeNetwork == null}")
 
                 isV6Loading = false
             }
@@ -133,9 +135,15 @@ class IpChangeWatcherImpl @Inject constructor(
         }
     }
 
-    private fun getIpStatus(privateAddressStr: String?, publicAddressStr: String?): IpStatus {
+    private fun getIpStatus(privateAddressStr: String?, publicAddressStr: String?, protocol: IpProtocol): IpStatus {
         val privateAdr: InetAddress? = if (privateAddressStr == null) null else InetAddress.getByName(privateAddressStr)
         val publicAdr: InetAddress? = if (publicAddressStr == null) null else InetAddress.getByName(publicAddressStr)
+
+        if (protocol == IpProtocol.V6) {
+            if (privateAdr is Inet4Address || publicAdr is Inet4Address) {
+                return IpStatus.NO_ADDRESS
+            }
+        }
 
         return if (publicAdr != null && privateAdr != null) {
             if (privateAdr is Inet4Address && publicAdr is Inet6Address) {
