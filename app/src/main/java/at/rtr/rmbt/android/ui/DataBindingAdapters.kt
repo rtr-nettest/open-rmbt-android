@@ -200,7 +200,7 @@ fun AppCompatImageView.setTechnologyIcon(networkInfo: NetworkInfo?) {
                 setImageResource(R.drawable.ic_4g)
             }
             CellTechnology.CONNECTION_4G_5G -> {
-                setImageResource(R.drawable.ic_4g)
+                setImageResource(R.drawable.ic_5g_available)
             }
             CellTechnology.CONNECTION_5G -> {
                 setImageResource(R.drawable.ic_5g)

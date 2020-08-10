@@ -280,7 +280,7 @@ class SignalMeasurementProcessor @Inject constructor(
                 else -> throw IllegalArgumentException("Unknown cell info ${info.javaClass.simpleName}")
             }
 
-            repository.saveCellInfo(uuid, infoList.toList(), record?.startTimeMillis ?: 0)
+            repository.saveCellInfo(uuid, infoList.toList(), record?.startTimeNanos ?: 0)
         }
     }
 
@@ -292,7 +292,7 @@ class SignalMeasurementProcessor @Inject constructor(
         val uuid = chunk?.id
         val location = locationInfo
         if (uuid != null && location != null && locationWatcher.state == LocationState.ENABLED) {
-            repository.saveGeoLocation(uuid, location, record?.startTimeNanos ?: 0, true)
+            repository.saveGeoLocation(uuid, location, record?.startTimeNanos ?: 0, false)
         }
     }
 
@@ -313,7 +313,8 @@ class SignalMeasurementProcessor @Inject constructor(
             if (networkInfo != null && networkInfo is CellNetworkInfo) {
                 mobileNetworkType = (networkInfo as CellNetworkInfo).networkType
             }
-            repository.saveSignalStrength(uuid, cellUUID, mobileNetworkType, info, record?.startTimeMillis ?: 0)
+            Timber.e("Signal saving time SMP: starting time: ${record?.startTimeNanos}   current time: ${System.nanoTime()}")
+            repository.saveSignalStrength(uuid, cellUUID, mobileNetworkType, info, record?.startTimeNanos ?: 0)
 
             chunkDataSize++
             if (chunkDataSize >= MAX_SIGNAL_COUNT_PER_CHUNK) {
