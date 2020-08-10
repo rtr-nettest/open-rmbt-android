@@ -31,7 +31,7 @@
     <string name="home_frequency">Frequenz</string>
     <string name="home_attention">Hinweis</string>
     <string name="home_no_internet_connection">Keine Internetverbindung!</string>
-    <string name="home_use_wifi_or_data_connection">Die Internetverbindung ist unzureichend.</string>
+    <string name="home_no_internet_connection_details">Es ist kein Test möglich.</string>
     <string name="home_signal_value">%1$d dBm</string>
     <string name="home_start_test_info">Drücken Sie den Knopf, um den Test jetzt zu starten!</string>
     <string name="home_wifi">WLAN</string>
@@ -164,7 +164,7 @@
     <string name="label_ping">Ping</string>
     <string name="label_init">Init</string>
     <string name="label_signal_strength">Signal</string>
-    <string name="network_label">Netzwerk</string>
+    <string name="network_label">Netz</string>
 
     <string name="title_cancel_measurement">Wollen Sie wirklich die laufende Messung abbrechen?</string>
     <string name="text_continue_measurement">Messung fortführen</string>

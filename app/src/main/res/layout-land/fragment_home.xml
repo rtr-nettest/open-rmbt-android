@@ -295,7 +295,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:gravity="center"
-            android:text="@string/home_use_wifi_or_data_connection"
+            android:text="@string/home_no_internet_connection_details"
             android:textColor="@color/text_gray"
             app:layout_constraintBottom_toBottomOf="@+id/leftView"
             app:layout_constraintEnd_toEndOf="@+id/leftView"
