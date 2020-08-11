@@ -117,6 +117,7 @@ class StateRecorder @Inject constructor(
                 lastMeasurementSignalStrength = signalStrengthInfo
             }
             signalStrengthInfo = info
+            Timber.e("Signal saving time OBSERVER: starting time: $testStartTimeNanos   current time: ${System.nanoTime()}")
             saveSignalStrengthInfo()
         })
 
@@ -144,6 +145,7 @@ class StateRecorder @Inject constructor(
         this.testToken = testToken
         this.testStartTimeNanos = testStartTimeNanos
         qosRunning = false
+        Timber.e("Signal saving time OCR: starting time: $testStartTimeNanos   current time: ${System.nanoTime()}")
         saveTestInitialTestData(testUUID, loopUUID, testToken, testStartTimeNanos, threadNumber)
         cellLocation = cellLocationWatcher.getCellLocationFromTelephony()
         saveCellLocation()
@@ -283,6 +285,7 @@ class StateRecorder @Inject constructor(
             if (networkInfo != null && networkInfo is CellNetworkInfo) {
                 mobileNetworkType = (networkInfo as CellNetworkInfo).networkType
             }
+            Timber.e("Signal saving time SR: starting time: $testStartTimeNanos   current time: ${System.nanoTime()}")
             repository.saveSignalStrength(uuid, cellUUID, mobileNetworkType, info, testStartTimeNanos)
         }
     }

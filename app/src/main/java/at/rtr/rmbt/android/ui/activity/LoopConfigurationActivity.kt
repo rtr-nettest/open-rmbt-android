@@ -108,7 +108,6 @@ class LoopConfigurationActivity : BaseActivity(), InputSettingDialog.Callback {
                             Manifest.permission.ACCESS_BACKGROUND_LOCATION
                         ), REQUEST_CODE_BACKGROUND
                     )
-                    viewModel.permissionsWereAsked()
                     viewModel.backgroundPermissionsWereAsked()
                 }
             }

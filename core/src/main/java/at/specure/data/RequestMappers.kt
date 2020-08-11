@@ -189,7 +189,7 @@ fun TestRecord.toRequest(
                 signalList.forEach {
                     val cell = cells[it.cellUuid]
                     if (cell != null) {
-                        list.add(it.toRequest(cell.uuid, !cell.active))
+                        list.add(it.toRequest(cell.uuid, !cell.active, null))
                     }
                 }
                 if (list.isEmpty()) null else list
@@ -351,7 +351,7 @@ fun CellInfoRecord.toRequest() = CellInfoBody(
     registered = registered
 )
 
-fun SignalRecord.toRequest(cellUUID: String, ignoreNetworkId: Boolean) = SignalBody(
+fun SignalRecord.toRequest(cellUUID: String, ignoreNetworkId: Boolean, signalMeasurementStartTimeNs: Long?) = SignalBody(
     cellUuid = cellUUID,
     networkTypeId = if (ignoreNetworkId) null else transportType.toRequestIntValue(mobileNetworkType),
     signal = signal.checkSignalValue(),
@@ -362,7 +362,7 @@ fun SignalRecord.toRequest(cellUUID: String, ignoreNetworkId: Boolean) = SignalB
     lteRssnr = lteRssnr.checkSignalValue(),
     lteCqi = lteCqi.checkSignalValue(),
     timingAdvance = timingAdvance.checkSignalValue(),
-    timeNanos = timeNanos,
+    timeNanos = if (signalMeasurementStartTimeNs != null) timeNanos else timeNanos.minus(signalMeasurementStartTimeNs ?: 0),
     timeLastNanos = timeNanosLast,
     nrCsiRsrp = nrCsiRsrp,
     nrCsiRsrq = nrCsiRsrq,
@@ -494,7 +494,7 @@ fun SignalMeasurementRecord.toRequest(
                 signalList.forEach {
                     val cell = cells[it.cellUuid]
                     if (cell != null) {
-                        list.add(it.toRequest(cell.uuid, false))
+                        list.add(it.toRequest(cell.uuid, false, startTimeNanos))
                     }
                 }
                 if (list.isEmpty()) null else list
@@ -557,7 +557,7 @@ fun SignalMeasurementRecord.toRequest(
         testStatus = chunk.state.ordinal.toString(),
         testErrorCause = chunk.testErrorCause,
         sequenceNumber = chunk.sequenceNumber,
-        testStartTimeNanos = chunk.startTimeNanos,
+        testStartTimeNanos = chunk.startTimeNanos - startTimeNanos,
         networkEvents = networkEvents,
         cellLocations = cellLocations
     )
