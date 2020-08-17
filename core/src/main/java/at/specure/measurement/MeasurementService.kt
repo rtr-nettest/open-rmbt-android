@@ -41,9 +41,7 @@ import at.specure.test.toDeviceInfoLocation
 import at.specure.util.CustomLifecycleService
 import at.specure.worker.WorkLauncher
 import timber.log.Timber
-import java.sql.Time
 import java.util.Timer
-import java.util.TimerTask
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import kotlin.concurrent.timerTask
@@ -51,35 +49,41 @@ import kotlin.concurrent.timerTask
 class MeasurementService : CustomLifecycleService() {
 
     private var measurementLastUpdate: Long = System.currentTimeMillis()
-    private val MEASUREMENT_INACTIVITY_THRESHOLD_SECONDS: Long = 120
-    private val MEASUREMENT_INACTIVITY_CHECKER_PERIOD_SECONDS: Long = 10
     private var lastNotifiedState: MeasurementState = MeasurementState.FINISH
     private var elapsedTime: Long = 0
     private var startTime: Long = 0
-    var inactivityTimer: Timer = Timer()
+    private var inactivityTimer: Timer = Timer()
 
     private fun isRMBTClientResponding(): Boolean {
         val clientLastResponseDurationMillis = System.currentTimeMillis() - measurementLastUpdate
-        Timber.i("RMBTClient inactivity for: ${TimeUnit.MILLISECONDS.toSeconds(clientLastResponseDurationMillis)} seconds")
+        Timber.d("RMBTClient inactivity for: ${TimeUnit.MILLISECONDS.toSeconds(clientLastResponseDurationMillis)} seconds")
         return (clientLastResponseDurationMillis < TimeUnit.SECONDS.toMillis(MEASUREMENT_INACTIVITY_THRESHOLD_SECONDS))
     }
 
     private fun planInactivityCheck() {
+
         inactivityTimer.cancel()
+        inactivityTimer.purge()
         inactivityTimer = Timer()
-        Timber.i("RMBTClient inactivity checking started")
-        inactivityTimer.scheduleAtFixedRate(timerTask {
-            val isNotResponding = !isRMBTClientResponding()
-            if (isNotResponding) {
-                testListener.onError()
-                runner.stop()
-                Timber.e("Test has been terminated, because of RMBTClient inactivity")
-            }
-        }, MEASUREMENT_INACTIVITY_THRESHOLD_SECONDS, MEASUREMENT_INACTIVITY_CHECKER_PERIOD_SECONDS)
+        Timber.d("RMBTClient inactivity checking started")
+        inactivityTimer.scheduleAtFixedRate(
+            timerTask {
+                val isNotResponding = !isRMBTClientResponding()
+                if (isNotResponding) {
+                    testListener.onError()
+                    runner.stop()
+                    inactivityTimer.cancel()
+                    inactivityTimer.purge()
+                    Timber.e("Test has been terminated, because of RMBTClient inactivity")
+                }
+            },
+            TimeUnit.SECONDS.toMillis(MEASUREMENT_INACTIVITY_CHECKER_PERIOD_SECONDS),
+            TimeUnit.SECONDS.toMillis(MEASUREMENT_INACTIVITY_CHECKER_PERIOD_SECONDS)
+        )
     }
 
     private fun removeInactivityCheck() {
-        Timber.i("RMBTClient inactivity checking stopped")
+        Timber.d("RMBTClient inactivity checking stopped")
         inactivityTimer.cancel()
     }
 
@@ -837,6 +841,9 @@ class MeasurementService : CustomLifecycleService() {
         const val NOTIFICATION_ID = 1
         const val NOTIFICATION_LOOP_FINISHED_ID = 2
         private const val NOTIFICATION_UPDATE_INTERVAL_MS = 700
+
+        private const val MEASUREMENT_INACTIVITY_THRESHOLD_SECONDS: Long = 120
+        private const val MEASUREMENT_INACTIVITY_CHECKER_PERIOD_SECONDS: Long = 1
 
         private const val ACTION_START_TESTS = "KEY_START_TESTS"
         private const val ACTION_STOP_TESTS = "KEY_STOP_TESTS"
