@@ -41,14 +41,51 @@ import at.specure.test.toDeviceInfoLocation
 import at.specure.util.CustomLifecycleService
 import at.specure.worker.WorkLauncher
 import timber.log.Timber
+import java.util.Timer
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
+import kotlin.concurrent.timerTask
 
 class MeasurementService : CustomLifecycleService() {
 
+    private var measurementLastUpdate: Long = System.currentTimeMillis()
     private var lastNotifiedState: MeasurementState = MeasurementState.FINISH
     private var elapsedTime: Long = 0
     private var startTime: Long = 0
+    private var inactivityTimer: Timer = Timer()
+
+    private fun isRMBTClientResponding(): Boolean {
+        val clientLastResponseDurationMillis = System.currentTimeMillis() - measurementLastUpdate
+        Timber.d("RMBTClient inactivity for: ${TimeUnit.MILLISECONDS.toSeconds(clientLastResponseDurationMillis)} seconds")
+        return (clientLastResponseDurationMillis < TimeUnit.SECONDS.toMillis(MEASUREMENT_INACTIVITY_THRESHOLD_SECONDS))
+    }
+
+    private fun planInactivityCheck() {
+
+        inactivityTimer.cancel()
+        inactivityTimer.purge()
+        inactivityTimer = Timer()
+        Timber.d("RMBTClient inactivity checking started")
+        inactivityTimer.scheduleAtFixedRate(
+            timerTask {
+                val isNotResponding = !isRMBTClientResponding()
+                if (isNotResponding) {
+                    testListener.onError()
+                    runner.stop()
+                    inactivityTimer.cancel()
+                    inactivityTimer.purge()
+                    Timber.e("Test has been terminated, because of RMBTClient inactivity")
+                }
+            },
+            TimeUnit.SECONDS.toMillis(MEASUREMENT_INACTIVITY_CHECKER_PERIOD_SECONDS),
+            TimeUnit.SECONDS.toMillis(MEASUREMENT_INACTIVITY_CHECKER_PERIOD_SECONDS)
+        )
+    }
+
+    private fun removeInactivityCheck() {
+        Timber.d("RMBTClient inactivity checking stopped")
+        inactivityTimer.cancel()
+    }
 
     @Inject
     lateinit var config: Config
@@ -119,6 +156,7 @@ class MeasurementService : CustomLifecycleService() {
     private val testListener = object : TestProgressListener {
 
         override fun onProgressChanged(state: MeasurementState, progress: Int) {
+            measurementLastUpdate = System.currentTimeMillis()
             measurementState = state
             measurementProgress = progress
             if (config.loopModeEnabled) {
@@ -179,6 +217,7 @@ class MeasurementService : CustomLifecycleService() {
         }
 
         override fun onFinish() {
+            removeInactivityCheck()
             notificationManager.cancel(NOTIFICATION_ID)
 
             stateRecorder.onLoopTestFinished()
@@ -213,6 +252,7 @@ class MeasurementService : CustomLifecycleService() {
         }
 
         override fun onError() {
+            removeInactivityCheck()
             if (config.loopModeEnabled && (stateRecorder.loopTestCount < config.loopModeNumberOfTests || (config.loopModeNumberOfTests == 0 && config.developerModeIsEnabled))) {
                 resumeSignalMeasurement(true)
             } else {
@@ -277,6 +317,7 @@ class MeasurementService : CustomLifecycleService() {
         }
 
         override fun onClientReady(testUUID: String, loopUUID: String?, loopLocalUUID: String?, testStartTimeNanos: Long) {
+            planInactivityCheck()
             clientAggregator.onClientReady(testUUID, loopLocalUUID)
             startNetwork = connectivityManager.activeNetwork
             stateRecorder.onReadyToSubmit = { shouldShowResults ->
@@ -800,6 +841,9 @@ class MeasurementService : CustomLifecycleService() {
         const val NOTIFICATION_ID = 1
         const val NOTIFICATION_LOOP_FINISHED_ID = 2
         private const val NOTIFICATION_UPDATE_INTERVAL_MS = 700
+
+        private const val MEASUREMENT_INACTIVITY_THRESHOLD_SECONDS: Long = 120
+        private const val MEASUREMENT_INACTIVITY_CHECKER_PERIOD_SECONDS: Long = 1
 
         private const val ACTION_START_TESTS = "KEY_START_TESTS"
         private const val ACTION_STOP_TESTS = "KEY_STOP_TESTS"
