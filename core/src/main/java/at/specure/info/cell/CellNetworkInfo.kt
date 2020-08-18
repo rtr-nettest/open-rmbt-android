@@ -368,12 +368,23 @@ class CellNetworkInfo(
 }
 
 fun CellInfo.uuid(): String {
-    return when (this) {
-        is CellInfoLte -> cellIdentity.uuid()
-        is CellInfoWcdma -> cellIdentity.uuid()
-        is CellInfoGsm -> cellIdentity.uuid()
-        is CellInfoCdma -> cellIdentity.uuid()
-        else -> throw IllegalArgumentException("Unknown cell info cannot be extracted ${javaClass.name}")
+    return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+        when (this) {
+            is CellInfoLte -> cellIdentity.uuid()
+            is CellInfoWcdma -> cellIdentity.uuid()
+            is CellInfoGsm -> cellIdentity.uuid()
+            is CellInfoCdma -> cellIdentity.uuid()
+            is CellInfoNr -> (cellIdentity as CellIdentityNr).uuid()
+            else -> throw IllegalArgumentException("Unknown cell info cannot be extracted ${javaClass.name}")
+        }
+    } else {
+        when (this) {
+            is CellInfoLte -> cellIdentity.uuid()
+            is CellInfoWcdma -> cellIdentity.uuid()
+            is CellInfoGsm -> cellIdentity.uuid()
+            is CellInfoCdma -> cellIdentity.uuid()
+            else -> throw IllegalArgumentException("Unknown cell info cannot be extracted ${javaClass.name}")
+        }
     }
 }
 
@@ -390,6 +401,16 @@ fun SubscriptionInfo.mncCompat(): Int? =
     } else {
         mnc.fixValue()
     }
+
+@RequiresApi(Build.VERSION_CODES.Q)
+private fun CellIdentityNr.uuid(): String {
+    val id = buildString {
+        append("nr")
+        append(nci)
+        append(pci)
+    }.toByteArray()
+    return UUID.nameUUIDFromBytes(id).toString()
+}
 
 private fun CellIdentityLte.uuid(): String {
     val id = buildString {

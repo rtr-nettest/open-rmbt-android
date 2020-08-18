@@ -272,7 +272,7 @@ fun TestRecord.toRequest(
         device = deviceInfo.device,
         model = deviceInfo.model,
         clientSoftwareVersion = deviceInfo.clientVersionName,
-        networkType = (transportType?.toRequestIntValue(mobileNetworkType) ?: Int.MAX_VALUE).toString(),
+        networkType = convertLocalNetworkTypeToServerType(transportType, mobileNetworkType),
         geoLocations = geoLocations,
         capabilities = capabilities.toRequest(),
         pings = pings,
@@ -533,7 +533,7 @@ fun SignalMeasurementRecord.toRequest(
         model = deviceInfo.model,
         timezone = deviceInfo.timezone,
         clientSoftwareVersion = deviceInfo.clientVersionName,
-        networkType = (transportType?.toRequestIntValue(mobileNetworkType) ?: Int.MAX_VALUE).toString(),
+        networkType = convertLocalNetworkTypeToServerType(transportType, mobileNetworkType),
         geoLocations = geoLocations,
         capabilities = capabilities.toRequest(),
         radioInfo = radioInfo,
@@ -561,6 +561,17 @@ fun SignalMeasurementRecord.toRequest(
         networkEvents = networkEvents,
         cellLocations = cellLocations
     )
+}
+
+fun convertLocalNetworkTypeToServerType(transportType: TransportType?, mobileNetworkType: MobileNetworkType?): String {
+    return when (transportType) {
+        TransportType.CELLULAR -> when (mobileNetworkType) {
+            MobileNetworkType.NR_NSA,
+            MobileNetworkType.NR_AVAILABLE -> MobileNetworkType.NR.intValue.toString()
+            else -> (transportType?.toRequestIntValue(mobileNetworkType) ?: Int.MAX_VALUE).toString()
+        }
+        else -> (transportType?.toRequestIntValue(mobileNetworkType) ?: Int.MAX_VALUE).toString()
+    }
 }
 
 fun List<ConnectivityStateRecord>.toRequest(): List<NetworkEventBody>? {
