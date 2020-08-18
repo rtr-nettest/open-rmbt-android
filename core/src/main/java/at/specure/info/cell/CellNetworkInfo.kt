@@ -373,6 +373,7 @@ fun CellInfo.uuid(): String {
         is CellInfoWcdma -> cellIdentity.uuid()
         is CellInfoGsm -> cellIdentity.uuid()
         is CellInfoCdma -> cellIdentity.uuid()
+        is CellInfoNr -> (cellIdentity as CellIdentityNr).uuid()
         else -> throw IllegalArgumentException("Unknown cell info cannot be extracted ${javaClass.name}")
     }
 }
@@ -390,6 +391,15 @@ fun SubscriptionInfo.mncCompat(): Int? =
     } else {
         mnc.fixValue()
     }
+
+private fun CellIdentityNr.uuid(): String {
+    val id = buildString {
+        append("nr")
+        append(nci)
+        append(pci)
+    }.toByteArray()
+    return UUID.nameUUIDFromBytes(id).toString()
+}
 
 private fun CellIdentityLte.uuid(): String {
     val id = buildString {

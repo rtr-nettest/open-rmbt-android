@@ -20,6 +20,7 @@ import android.os.Parcelable
 import android.telephony.CellInfo
 import android.telephony.CellInfoGsm
 import android.telephony.CellInfoLte
+import android.telephony.CellInfoNr
 import android.telephony.CellInfoWcdma
 import android.telephony.CellSignalStrength
 import android.telephony.CellSignalStrengthCdma
@@ -438,6 +439,17 @@ abstract class SignalStrengthInfo : Parcelable {
                         signalLevel = calculateCellSignalLevel(signalValue, signalMin, signalMax),
                         min = WCDMA_RSRP_SIGNAL_MIN,
                         max = WCDMA_RSRP_SIGNAL_MAX,
+                        timestampNanos = timestampNanos
+                    )
+                }
+                is CellInfoNr -> {
+                    signal = SignalStrengthInfoCommon(
+                        transport = transportType,
+                        value = signalValue,
+                        rsrq = null,
+                        signalLevel = calculateCellSignalLevel(signalValue, signalMin, signalMax),
+                        min = NR_RSRP_SIGNAL_MIN,
+                        max = NR_RSRP_SIGNAL_MAX,
                         timestampNanos = timestampNanos
                     )
                 }

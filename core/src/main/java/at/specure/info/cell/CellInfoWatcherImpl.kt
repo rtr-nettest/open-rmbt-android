@@ -179,6 +179,9 @@ class CellInfoWatcherImpl(
                                     dualSimRegistered = dualSimRegistered.filter { cellInfo ->
                                         val networkOperator = it.carrierName.toString()
                                         when (cellInfo) {
+                                            is CellInfoNr -> networkOperator.contentEquals(cellInfo.cellIdentity.operatorAlphaLong.toString()) || networkOperator.contentEquals(
+                                                cellInfo.cellIdentity.operatorAlphaShort.toString()
+                                            )
                                             is CellInfoLte -> networkOperator.contentEquals(cellInfo.cellIdentity.operatorAlphaLong.toString()) || networkOperator.contentEquals(
                                                 cellInfo.cellIdentity.operatorAlphaShort.toString()
                                             )
