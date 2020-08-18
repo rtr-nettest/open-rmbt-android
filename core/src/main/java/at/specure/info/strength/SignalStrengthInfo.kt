@@ -442,17 +442,6 @@ abstract class SignalStrengthInfo : Parcelable {
                         timestampNanos = timestampNanos
                     )
                 }
-                is CellInfoNr -> {
-                    signal = SignalStrengthInfoCommon(
-                        transport = transportType,
-                        value = signalValue,
-                        rsrq = null,
-                        signalLevel = calculateCellSignalLevel(signalValue, signalMin, signalMax),
-                        min = NR_RSRP_SIGNAL_MIN,
-                        max = NR_RSRP_SIGNAL_MAX,
-                        timestampNanos = timestampNanos
-                    )
-                }
                 is CellInfoGsm -> {
                     signal = SignalStrengthInfoGsm(
                         transport = transportType,
@@ -467,15 +456,27 @@ abstract class SignalStrengthInfo : Parcelable {
                     )
                 }
                 else -> {
-                    signal = SignalStrengthInfoCommon(
-                        transport = transportType,
-                        value = signalValue,
-                        rsrq = lteRsrq.fixLteRsrq(),
-                        signalLevel = calculateCellSignalLevel(signalValue, signalMin, signalMax),
-                        max = signalMax,
-                        min = signalMin,
-                        timestampNanos = timestampNanos
-                    )
+                    if ((Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) && (cellInfo is CellInfoNr)) {
+                        signal = SignalStrengthInfoCommon(
+                            transport = transportType,
+                            value = signalValue,
+                            rsrq = null,
+                            signalLevel = calculateCellSignalLevel(signalValue, signalMin, signalMax),
+                            min = NR_RSRP_SIGNAL_MIN,
+                            max = NR_RSRP_SIGNAL_MAX,
+                            timestampNanos = timestampNanos
+                        )
+                    } else {
+                        signal = SignalStrengthInfoCommon(
+                            transport = transportType,
+                            value = signalValue,
+                            rsrq = lteRsrq.fixLteRsrq(),
+                            signalLevel = calculateCellSignalLevel(signalValue, signalMin, signalMax),
+                            max = signalMax,
+                            min = signalMin,
+                            timestampNanos = timestampNanos
+                        )
+                    }
                 }
             }
 
