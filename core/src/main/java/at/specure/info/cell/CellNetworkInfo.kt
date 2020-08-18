@@ -402,6 +402,7 @@ fun SubscriptionInfo.mncCompat(): Int? =
         mnc.fixValue()
     }
 
+@RequiresApi(Build.VERSION_CODES.Q)
 private fun CellIdentityNr.uuid(): String {
     val id = buildString {
         append("nr")
