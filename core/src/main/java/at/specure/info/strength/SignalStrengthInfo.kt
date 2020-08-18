@@ -414,59 +414,63 @@ abstract class SignalStrengthInfo : Parcelable {
             val timestampNanos = System.nanoTime()
             Timber.v("Signal time 1: $timestampNanos")
 
-            when (cellInfo) {
-                is CellInfoLte -> {
-                    signal = SignalStrengthInfoLte(
-                        transport = transportType,
-                        value = signalValue,
-                        rsrq = lteRsrq.fixLteRsrq(),
-                        signalLevel = calculateCellSignalLevel(signalValue, signalMin, signalMax),
-                        min = LTE_RSRP_SIGNAL_MIN,
-                        max = LTE_RSRP_SIGNAL_MAX,
-                        timestampNanos = timestampNanos,
-                        cqi = lteCqi.checkValueAvailable(),
-                        rsrp = lteRsrp.fixLteRsrp(),
-                        rssi = null,
-                        rssnr = lteRssnr.fixRssnr(),
-                        timingAdvance = cellInfo.cellSignalStrength.timingAdvance.checkValueAvailable()
-                    )
-                }
-                is CellInfoWcdma -> {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                if (cellInfo is CellInfoNr) {
                     signal = SignalStrengthInfoCommon(
                         transport = transportType,
                         value = signalValue,
                         rsrq = null,
                         signalLevel = calculateCellSignalLevel(signalValue, signalMin, signalMax),
-                        min = WCDMA_RSRP_SIGNAL_MIN,
-                        max = WCDMA_RSRP_SIGNAL_MAX,
+                        min = NR_RSRP_SIGNAL_MIN,
+                        max = NR_RSRP_SIGNAL_MAX,
                         timestampNanos = timestampNanos
                     )
                 }
-                is CellInfoGsm -> {
-                    signal = SignalStrengthInfoGsm(
-                        transport = transportType,
-                        value = signalValue,
-                        rsrq = null,
-                        signalLevel = calculateCellSignalLevel(signalValue, signalMin, signalMax),
-                        min = CELLULAR_SIGNAL_MIN,
-                        max = CELLULAR_SIGNAL_MAX,
-                        timestampNanos = timestampNanos,
-                        bitErrorRate = signalStrength?.gsmBitErrorRate.fixErrorBitRate(),
-                        timingAdvance = null
-                    )
-                }
-                else -> {
-                    if ((Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) && (cellInfo is CellInfoNr)) {
+            }
+
+            if (signal == null) {
+                when (cellInfo) {
+                    is CellInfoLte -> {
+                        signal = SignalStrengthInfoLte(
+                            transport = transportType,
+                            value = signalValue,
+                            rsrq = lteRsrq.fixLteRsrq(),
+                            signalLevel = calculateCellSignalLevel(signalValue, signalMin, signalMax),
+                            min = LTE_RSRP_SIGNAL_MIN,
+                            max = LTE_RSRP_SIGNAL_MAX,
+                            timestampNanos = timestampNanos,
+                            cqi = lteCqi.checkValueAvailable(),
+                            rsrp = lteRsrp.fixLteRsrp(),
+                            rssi = null,
+                            rssnr = lteRssnr.fixRssnr(),
+                            timingAdvance = cellInfo.cellSignalStrength.timingAdvance.checkValueAvailable()
+                        )
+                    }
+                    is CellInfoWcdma -> {
                         signal = SignalStrengthInfoCommon(
                             transport = transportType,
                             value = signalValue,
                             rsrq = null,
                             signalLevel = calculateCellSignalLevel(signalValue, signalMin, signalMax),
-                            min = NR_RSRP_SIGNAL_MIN,
-                            max = NR_RSRP_SIGNAL_MAX,
+                            min = WCDMA_RSRP_SIGNAL_MIN,
+                            max = WCDMA_RSRP_SIGNAL_MAX,
                             timestampNanos = timestampNanos
                         )
-                    } else {
+                    }
+                    is CellInfoGsm -> {
+                        signal = SignalStrengthInfoGsm(
+                            transport = transportType,
+                            value = signalValue,
+                            rsrq = null,
+                            signalLevel = calculateCellSignalLevel(signalValue, signalMin, signalMax),
+                            min = CELLULAR_SIGNAL_MIN,
+                            max = CELLULAR_SIGNAL_MAX,
+                            timestampNanos = timestampNanos,
+                            bitErrorRate = signalStrength?.gsmBitErrorRate.fixErrorBitRate(),
+                            timingAdvance = null
+                        )
+                    }
+                    else -> {
                         signal = SignalStrengthInfoCommon(
                             transport = transportType,
                             value = signalValue,
@@ -477,6 +481,7 @@ abstract class SignalStrengthInfo : Parcelable {
                             timestampNanos = timestampNanos
                         )
                     }
+
                 }
             }
 
