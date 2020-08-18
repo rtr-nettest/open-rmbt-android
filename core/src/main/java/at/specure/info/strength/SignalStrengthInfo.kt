@@ -481,7 +481,6 @@ abstract class SignalStrengthInfo : Parcelable {
                             timestampNanos = timestampNanos
                         )
                     }
-
                 }
             }
 
