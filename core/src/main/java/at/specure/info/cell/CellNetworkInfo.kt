@@ -368,13 +368,23 @@ class CellNetworkInfo(
 }
 
 fun CellInfo.uuid(): String {
-    return when (this) {
-        is CellInfoLte -> cellIdentity.uuid()
-        is CellInfoWcdma -> cellIdentity.uuid()
-        is CellInfoGsm -> cellIdentity.uuid()
-        is CellInfoCdma -> cellIdentity.uuid()
-        is CellInfoNr -> (cellIdentity as CellIdentityNr).uuid()
-        else -> throw IllegalArgumentException("Unknown cell info cannot be extracted ${javaClass.name}")
+    return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+        when (this) {
+            is CellInfoLte -> cellIdentity.uuid()
+            is CellInfoWcdma -> cellIdentity.uuid()
+            is CellInfoGsm -> cellIdentity.uuid()
+            is CellInfoCdma -> cellIdentity.uuid()
+            is CellInfoNr -> (cellIdentity as CellIdentityNr).uuid()
+            else -> throw IllegalArgumentException("Unknown cell info cannot be extracted ${javaClass.name}")
+        }
+    } else {
+        when (this) {
+            is CellInfoLte -> cellIdentity.uuid()
+            is CellInfoWcdma -> cellIdentity.uuid()
+            is CellInfoGsm -> cellIdentity.uuid()
+            is CellInfoCdma -> cellIdentity.uuid()
+            else -> throw IllegalArgumentException("Unknown cell info cannot be extracted ${javaClass.name}")
+        }
     }
 }
 
