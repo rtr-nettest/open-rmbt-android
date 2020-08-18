@@ -174,7 +174,31 @@ class CellInfoWatcherImpl(
                                 dualSimDecision += "CELL_INFO: filtered according to: same network type from ${registeredInfoList.size} to $countAfterNetworkTypeFilter\n"
                             }
                             // if there is still more than one we can try filter it according to network operator name
-                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                                if (dualSimRegistered.size > 1) {
+                                    dualSimRegistered = dualSimRegistered.filter { cellInfo ->
+                                        val networkOperator = it.carrierName.toString()
+                                        when (cellInfo) {
+                                            is CellInfoNr -> networkOperator.contentEquals(cellInfo.cellIdentity.operatorAlphaLong.toString()) || networkOperator.contentEquals(
+                                                cellInfo.cellIdentity.operatorAlphaShort.toString()
+                                            )
+                                            is CellInfoLte -> networkOperator.contentEquals(cellInfo.cellIdentity.operatorAlphaLong.toString()) || networkOperator.contentEquals(
+                                                cellInfo.cellIdentity.operatorAlphaShort.toString()
+                                            )
+                                            is CellInfoWcdma -> networkOperator.contentEquals(cellInfo.cellIdentity.operatorAlphaLong.toString()) || networkOperator.contentEquals(
+                                                cellInfo.cellIdentity.operatorAlphaShort.toString()
+                                            )
+                                            is CellInfoCdma -> networkOperator.contentEquals(cellInfo.cellIdentity.operatorAlphaLong.toString()) || networkOperator.contentEquals(
+                                                cellInfo.cellIdentity.operatorAlphaShort.toString()
+                                            )
+                                            is CellInfoGsm -> networkOperator.contentEquals(cellInfo.cellIdentity.operatorAlphaLong.toString()) || networkOperator.contentEquals(
+                                                cellInfo.cellIdentity.operatorAlphaShort.toString()
+                                            )
+                                            else -> false
+                                        }
+                                    }
+                                }
+                            } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
                                 if (dualSimRegistered.size > 1) {
                                     dualSimRegistered = dualSimRegistered.filter { cellInfo ->
                                         val networkOperator = it.carrierName.toString()
