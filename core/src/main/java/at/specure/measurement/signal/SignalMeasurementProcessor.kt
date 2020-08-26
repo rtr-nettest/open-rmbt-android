@@ -195,7 +195,8 @@ class SignalMeasurementProcessor @Inject constructor(
                 networkInfo = newInfo
                 createNewRecord(newInfo)
             }
-            newInfo != null && currentInfo != null && currentInfo.cellUUID != newInfo.cellUUID -> {
+            // it must be started like new chunk on different type of the network because network type is common for entire chunk
+            newInfo != null && currentInfo != null && currentInfo.type != newInfo.type -> {
                 Timber.i("Network changed")
                 networkInfo = newInfo
                 commitChunkData()
