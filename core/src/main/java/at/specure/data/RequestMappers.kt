@@ -564,14 +564,7 @@ fun SignalMeasurementRecord.toRequest(
 }
 
 fun convertLocalNetworkTypeToServerType(transportType: TransportType?, mobileNetworkType: MobileNetworkType?): String {
-    return when (transportType) {
-        TransportType.CELLULAR -> when (mobileNetworkType) {
-            MobileNetworkType.NR_NSA,
-            MobileNetworkType.NR_AVAILABLE -> MobileNetworkType.NR.intValue.toString()
-            else -> (transportType?.toRequestIntValue(mobileNetworkType) ?: Int.MAX_VALUE).toString()
-        }
-        else -> (transportType?.toRequestIntValue(mobileNetworkType) ?: Int.MAX_VALUE).toString()
-    }
+    return (transportType?.toRequestIntValue(mobileNetworkType) ?: Int.MAX_VALUE).toString()
 }
 
 fun List<ConnectivityStateRecord>.toRequest(): List<NetworkEventBody>? {

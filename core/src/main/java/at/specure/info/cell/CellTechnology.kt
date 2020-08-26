@@ -23,7 +23,7 @@ enum class CellTechnology(val displayName: String) {
     CONNECTION_2G("2G"),
     CONNECTION_3G("3G"),
     CONNECTION_4G("4G"),
-    CONNECTION_4G_5G("4G+5G"),
+    CONNECTION_4G_5G("4G+(5G)"),
     CONNECTION_5G("5G");
 
     companion object {
