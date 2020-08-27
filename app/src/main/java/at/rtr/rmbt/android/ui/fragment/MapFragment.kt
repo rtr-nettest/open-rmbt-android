@@ -182,8 +182,7 @@ class MapFragment : BaseFragment(), OnMapReadyCallback, MapMarkerDetailsAdapter.
                     googleMap?.animateCamera(CameraUpdateFactory.newLatLng(latlng))
                 }
                 binding.markerItems.visibility = View.VISIBLE
-                binding.fabFilters.hide()
-                binding.fabLocation.hide()
+                binding.fabsGroup?.visibility = View.GONE
                 visiblePosition = 0
                 drawMarker(it.first())
             } else {
@@ -215,10 +214,10 @@ class MapFragment : BaseFragment(), OnMapReadyCallback, MapMarkerDetailsAdapter.
 
     override fun onCloseMarkerDetails() {
         binding.markerItems.visibility = View.GONE
-        binding.fabFilters.show()
-        binding.fabLocation.show()
         currentMarker?.remove()
         currentMarker = null
+//        adapter.items = mutableListOf()
+        binding.fabsGroup?.visibility = View.VISIBLE
     }
 
     override fun onMoreDetailsClicked(openTestUUID: String) {

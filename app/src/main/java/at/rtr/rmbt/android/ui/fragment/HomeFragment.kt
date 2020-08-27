@@ -203,6 +203,7 @@ class HomeFragment : BaseFragment() {
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         homeViewModel.permissionsWatcher.notifyPermissionsUpdated()
+        homeViewModel.getNews() // displaying news after permissions were/were not granted
     }
 
     override fun onStart() {
@@ -212,7 +213,6 @@ class HomeFragment : BaseFragment() {
         checkPermissions()
         startTimerForInfoWindow()
         homeViewModel.state.checkConfig()
-        homeViewModel.getNews()
     }
 
     private fun checkPermissions() {
@@ -236,6 +236,8 @@ class HomeFragment : BaseFragment() {
         if (permissions.isNotEmpty() && homeViewModel.shouldAskForPermission()) {
             requestPermissions(permissions.toTypedArray(), PERMISSIONS_REQUEST_CODE)
             homeViewModel.permissionsWereAsked()
+        } else {
+            homeViewModel.getNews()
         }
     }
 

@@ -13,7 +13,7 @@ enum class NetworkTypeCompat(val stringValue: String, val minSignalValue: Int, v
     TYPE_4G("4G", SignalStrengthInfo.LTE_RSRP_SIGNAL_MIN, SignalStrengthInfo.LTE_RSRP_SIGNAL_MAX),
     TYPE_5G("5G", SignalStrengthInfo.NR_RSRP_SIGNAL_MIN, SignalStrengthInfo.NR_RSRP_SIGNAL_MAX),
     TYPE_5G_NSA("5G", SignalStrengthInfo.NR_RSRP_SIGNAL_MIN, SignalStrengthInfo.NR_RSRP_SIGNAL_MAX),
-    TYPE_5G_AVAILABLE("5G+4G", SignalStrengthInfo.LTE_RSRP_SIGNAL_MIN, SignalStrengthInfo.LTE_RSRP_SIGNAL_MAX),
+    TYPE_5G_AVAILABLE("4G (+5G)", SignalStrengthInfo.LTE_RSRP_SIGNAL_MIN, SignalStrengthInfo.LTE_RSRP_SIGNAL_MAX),
     TYPE_WLAN("WLAN", SignalStrengthInfo.WIFI_MIN_SIGNAL_VALUE, SignalStrengthInfo.WIFI_MAX_SIGNAL_VALUE),
     TYPE_LAN("LAN", Int.MIN_VALUE, Int.MIN_VALUE),
     TYPE_BROWSER("BROWSER", Int.MIN_VALUE, Int.MIN_VALUE),
