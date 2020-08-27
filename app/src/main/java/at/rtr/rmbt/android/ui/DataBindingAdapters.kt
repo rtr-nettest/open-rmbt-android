@@ -118,8 +118,8 @@ fun AppCompatTextView.showPopup(isConnected: Boolean, infoWindowStatus: InfoWind
  * A binding adapter that is used for show network icon based on network type (WIFI/MOBILE),
  * and signalLevel(0..4)
  */
-@BindingAdapter("signalLevel")
-fun AppCompatImageView.setIcon(signalStrengthInfo: SignalStrengthInfo?) {
+@BindingAdapter("signalLevel", "connected")
+fun AppCompatImageView.setIcon(signalStrengthInfo: SignalStrengthInfo?, connected: Boolean) {
 
     if (signalStrengthInfo != null) {
 
@@ -153,7 +153,11 @@ fun AppCompatImageView.setIcon(signalStrengthInfo: SignalStrengthInfo?) {
             }
         }
     } else {
-        setImageResource(R.drawable.ic_no_internet)
+        if (connected) {
+            setImageResource(R.drawable.ic_signal_unknown)
+        } else {
+            setImageResource(R.drawable.ic_no_internet)
+        }
     }
 }
 
