@@ -58,7 +58,6 @@ class SignalMeasurementProcessor @Inject constructor(
     private val measurementRepository: MeasurementRepository
 ) : Binder(), SignalMeasurementProducer {
 
-
     private var isUnstoppable = false
     private var _isActive = false
     private var _isPaused = false
