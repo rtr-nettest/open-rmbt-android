@@ -18,7 +18,6 @@ import android.app.Activity
 import android.content.Intent
 import android.os.Handler
 import at.rtr.rmbt.android.di.viewModelLazy
-import at.rtr.rmbt.android.util.listen
 import at.rtr.rmbt.android.viewmodel.SplashViewModel
 import at.specure.worker.WorkLauncher
 
@@ -27,14 +26,13 @@ class SplashActivity : BaseActivity() {
     private val viewModel: SplashViewModel by viewModelLazy()
 
     private val startHomeRunnable = Runnable {
-        viewModel.tacAcceptanceLiveData.listen(this) { accepted ->
-            if (!accepted) {
-                termsIsShown = true
-                TermsAcceptanceActivity.start(this, CODE_TERMS)
-            } else {
-                finishAffinity()
-                HomeActivity.start(this)
-            }
+        val accepted = viewModel.isTacAccepted()
+        if (!accepted) {
+            termsIsShown = true
+            TermsAcceptanceActivity.start(this, CODE_TERMS)
+        } else {
+            finishAffinity()
+            HomeActivity.start(this)
         }
     }
 
@@ -62,6 +60,8 @@ class SplashActivity : BaseActivity() {
             if (resultCode == Activity.RESULT_OK) {
                 viewModel.updateTermsAcceptance(true)
                 WorkLauncher.enqueueSettingsRequest(this)
+                finishAffinity()
+                HomeActivity.start(this)
             } else {
                 finish()
             }

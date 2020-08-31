@@ -10,4 +10,8 @@ class SplashViewModel @Inject constructor(private val tac: TermsAndConditions) :
     fun updateTermsAcceptance(accepted: Boolean) {
         tac.tacAccepted = accepted
     }
+
+    fun isTacAccepted(): Boolean {
+        return tac.tacAccepted
+    }
 }
