@@ -47,7 +47,9 @@ import at.specure.location.LocationInfo
 import at.specure.test.DeviceInfo
 import com.google.gson.JsonArray
 import com.google.gson.JsonParser
+import timber.log.Timber
 import java.util.UUID
+import kotlin.math.abs
 
 fun DeviceInfo.toSettingsRequest(clientUUID: ClientUUID, config: Config, tac: TermsAndConditions) = SettingsRequestBody(
     type = clientType,
@@ -484,7 +486,7 @@ fun SignalMeasurementRecord.toRequest(
             if (map.isEmpty()) null else map
         }
 
-        val signals: List<SignalBody>? = if (signalList.isEmpty()) {
+        var signals: List<SignalBody>? = if (signalList.isEmpty()) {
             null
         } else {
             val list = mutableListOf<SignalBody>()
@@ -494,12 +496,37 @@ fun SignalMeasurementRecord.toRequest(
                 signalList.forEach {
                     val cell = cells[it.cellUuid]
                     if (cell != null) {
-                        list.add(it.toRequest(cell.uuid, false, startTimeNanos))
+                        if (it.timeNanos > 0) { // to filter out previous values
+                            list.add(it.toRequest(cell.uuid, false, null))
+                        }
                     }
                 }
                 if (list.isEmpty()) null else list
             }
         }
+        Timber.i("Old list size: ${signals?.size}")
+        // remove last signal from previous chunk
+        if (signals != null && (signals.size > 1) && (chunk.sequenceNumber > 0)) {
+            signals = signals.filterIndexed { index, it ->
+                if (index == signals?.lastIndex) {
+                    true
+                } else {
+                    val newValueUnder60s = abs(signals!![index + 1].timeNanos) - abs(it.timeNanos) <= 60000000000
+                    if (newValueUnder60s) {
+                        true
+                    } else {
+                        Timber.i("Filtered out: $it")
+                        false
+                    }
+                }
+            }
+            // remove previous last entry which is added by getLastSignal
+            signals = signals.filterIndexed { index, _ ->
+                Timber.i("index checking list size: $index")
+                index != 0
+            }
+        }
+        Timber.i("New list size: ${signals?.size} + last time: ")
 
         RadioInfoBody(cells?.entries?.map { it.value }, signals)
     }
