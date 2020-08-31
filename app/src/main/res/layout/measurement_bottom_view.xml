@@ -103,6 +103,7 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/loop_header_bottom_line"
             app:measurementSignalLevel="@{state.signalStrengthInfoResult}"
+            app:connected="@{state.isConnected}"
             tools:src="@drawable/ic_small_wifi_1" />
 
         <androidx.appcompat.widget.AppCompatTextView

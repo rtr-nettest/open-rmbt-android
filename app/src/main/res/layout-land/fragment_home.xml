@@ -176,6 +176,7 @@
             app:layout_constraintEnd_toEndOf="@+id/viewCircleShape"
             app:layout_constraintStart_toStartOf="@+id/viewCircleShape"
             app:layout_constraintTop_toTopOf="@+id/viewCircleShape"
+            app:connected="@{state.isConnected}"
             app:signalLevel="@{state.signalStrength}" />
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton

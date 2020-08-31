@@ -33,6 +33,7 @@ private const val KEY_LAST_MEASUREMENT_SIGNAL = "KEY_LAST_MEASUREMENT_SIGNAL"
 
 class MeasurementViewState(private val config: AppConfig) : ViewState {
 
+    val isConnected = ObservableField<Boolean?>()
     val measurementState = ObservableField<MeasurementState>().apply { set(MeasurementState.IDLE) }
     val measurementProgress = ObservableInt()
     val measurementDownloadUploadProgress = ObservableInt()

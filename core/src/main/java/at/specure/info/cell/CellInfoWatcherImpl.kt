@@ -237,6 +237,7 @@ class CellInfoWatcherImpl(
                             Timber.v(dualSimDecisionLog)
                         }
 
+//                        Timber.v("Cell: $_cellInfo, Network_type: $networkType, MNT: ${MobileNetworkType.fromValue(networkType)}" )
                         _activeNetwork = CellNetworkInfo.from(
                             _cellInfo,
                             it,
