@@ -9,7 +9,6 @@ import androidx.lifecycle.MutableLiveData
 import at.rmbt.util.exception.HandledException
 import at.rtr.rmbt.android.config.AppConfig
 import at.rtr.rmbt.android.ui.viewstate.MeasurementViewState
-import at.rtr.rmbt.android.util.map
 import at.rtr.rmbt.android.util.plusAssign
 import at.rtr.rmbt.android.util.timeString
 import at.rtr.rmbt.client.v2.task.result.QoSTestResultEnum
@@ -17,7 +16,6 @@ import at.specure.data.TermsAndConditions
 import at.specure.data.entity.GraphItemRecord
 import at.specure.data.entity.LoopModeRecord
 import at.specure.data.repository.TestDataRepository
-import at.specure.info.connectivity.ConnectivityInfoLiveData
 import at.specure.info.network.ActiveNetworkLiveData
 import at.specure.info.strength.SignalStrengthLiveData
 import at.specure.location.LocationState
@@ -32,7 +30,6 @@ import javax.inject.Inject
 class MeasurementViewModel @Inject constructor(
     private val testDataRepository: TestDataRepository,
     private val locationWatcher: LocationWatcher,
-    connectivityInfoLiveData: ConnectivityInfoLiveData,
     val signalStrengthLiveData: SignalStrengthLiveData,
     val activeNetworkLiveData: ActiveNetworkLiveData,
     val config: AppConfig,
@@ -53,12 +50,6 @@ class MeasurementViewModel @Inject constructor(
     private var producer: MeasurementProducer? = null
 
     val state = MeasurementViewState(config)
-
-    // If ConnectivityInfo is null than no internet connection otherwise internet connection available
-    val isConnected: LiveData<Boolean> = connectivityInfoLiveData.map {
-        state.isConnected.set(it != null)
-        it != null
-    }
 
     var testUUID: String? = null
         private set
