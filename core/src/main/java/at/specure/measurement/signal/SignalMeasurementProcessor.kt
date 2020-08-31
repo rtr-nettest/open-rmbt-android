@@ -32,12 +32,15 @@ import at.specure.location.cell.CellLocationLiveData
 import at.specure.location.cell.CellLocationWatcher
 import at.specure.test.toDeviceInfoLocation
 import timber.log.Timber
+import java.util.Timer
+import java.util.TimerTask
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import javax.inject.Singleton
 
 private const val MAX_SIGNAL_COUNT_PER_CHUNK = 25
 private const val MAX_SIGNAL_UPTIME_PER_CHUNK_MIN = 10L
+private const val MAX_TIME_NETWORK_UNREACHABLE_SECONDS = 10L
 
 @Singleton
 class SignalMeasurementProcessor @Inject constructor(
@@ -64,6 +67,11 @@ class SignalMeasurementProcessor @Inject constructor(
     private var networkInfo: NetworkInfo? = null
     private var record: SignalMeasurementRecord? = null
     private var chunk: SignalMeasurementChunk? = null
+
+    private var lastSeenNetworkInfo: NetworkInfo? = null
+    private var lastSeenNetworkRecord: SignalMeasurementRecord? = null
+    private var lastSeenNetworkTimestampMillis: Long? = null
+    private var unconnectedTimer = Timer()
 
     private var chunkDataSize = 0
     private var chunkCountDownRunner = Runnable {
@@ -181,21 +189,73 @@ class SignalMeasurementProcessor @Inject constructor(
         })
     }
 
+    private fun planUnconnectedClean() {
+        synchronized(this) {
+            unconnectedTimer.cancel()
+            unconnectedTimer.purge()
+            unconnectedTimer = Timer()
+            Timber.d("Signal measurement unconnected gap timeout started")
+            unconnectedTimer.schedule(
+                object : TimerTask() {
+                    override fun run() {
+                        Timber.d("Signal measurement unconnected gap timeout reached")
+                        cleanLastNetwork()
+                    }
+                },
+                TimeUnit.SECONDS.toMillis(MAX_TIME_NETWORK_UNREACHABLE_SECONDS)
+            )
+        }
+    }
+
+    private fun cancelPlannedUnconnectedCleaning() {
+        synchronized(this) {
+            unconnectedTimer.cancel()
+            unconnectedTimer.purge()
+            Timber.d("Signal measurement unconnected gap timeout removed")
+        }
+    }
+
+    private fun cleanLastNetwork() {
+        lastSeenNetworkInfo = null
+        lastSeenNetworkRecord = null
+        lastSeenNetworkTimestampMillis = null
+    }
+
     private fun handleNewNetwork(newInfo: NetworkInfo?) {
         val currentInfo = networkInfo
         when {
             newInfo == null && currentInfo != null -> {
                 Timber.i("Network become unavailable")
                 commitChunkData()
+                lastSeenNetworkInfo = networkInfo
+                lastSeenNetworkRecord = record
+                lastSeenNetworkTimestampMillis = System.currentTimeMillis()
+                planUnconnectedClean()
                 networkInfo = null
                 record = null
             }
             newInfo != null && currentInfo == null -> {
                 Timber.i("Network appeared")
                 networkInfo = newInfo
-                createNewRecord(newInfo)
+                if ((lastSeenNetworkInfo != null) && (lastSeenNetworkInfo?.type == newInfo.type) && (lastSeenNetworkTimestampMillis?.plus(
+                        TimeUnit.SECONDS.toMillis(
+                            MAX_TIME_NETWORK_UNREACHABLE_SECONDS
+                        )
+                    ) ?: -1 >= System.currentTimeMillis())
+                ) {
+                    networkInfo = lastSeenNetworkInfo
+                    record = lastSeenNetworkRecord
+                    cleanLastNetwork()
+                    cancelPlannedUnconnectedCleaning()
+                    Timber.i("Network appeared ${record?.mobileNetworkType?.name}")
+                } else {
+                    cleanLastNetwork()
+                    cancelPlannedUnconnectedCleaning()
+                    createNewRecord(newInfo)
+                }
             }
-            newInfo != null && currentInfo != null && currentInfo.cellUUID != newInfo.cellUUID -> {
+            // it must be started like new chunk on different type of the network because network type is common for entire chunk
+            newInfo != null && currentInfo != null && currentInfo.type != newInfo.type -> {
                 Timber.i("Network changed")
                 networkInfo = newInfo
                 commitChunkData()
@@ -313,7 +373,7 @@ class SignalMeasurementProcessor @Inject constructor(
             if (networkInfo != null && networkInfo is CellNetworkInfo) {
                 mobileNetworkType = (networkInfo as CellNetworkInfo).networkType
             }
-            Timber.e("Signal saving time SMP: starting time: ${record?.startTimeNanos}   current time: ${System.nanoTime()}")
+            Timber.d("Signal saving time SMP: starting time: ${record?.startTimeNanos}   current time: ${System.nanoTime()}")
             repository.saveSignalStrength(uuid, cellUUID, mobileNetworkType, info, record?.startTimeNanos ?: 0)
 
             chunkDataSize++

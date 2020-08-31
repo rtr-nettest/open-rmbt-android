@@ -94,6 +94,9 @@ class MeasurementActivity : BaseActivity(), SimpleDialog.Callback {
             viewModel.state.networkInfo.set(it)
             if (it == null) {
                 viewModel.state.setSignalStrength(null)
+                viewModel.state.isConnected.set(false)
+            } else {
+                viewModel.state.isConnected.set(true)
             }
         }
 
