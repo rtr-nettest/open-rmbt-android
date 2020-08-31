@@ -99,10 +99,6 @@ class HomeActivity : BaseActivity() {
     override fun onStart() {
         super.onStart()
         viewModel.attach(this)
-
-        if (!viewModel.isTacAccepted) {
-            TermsAcceptanceActivity.start(this, CODE_TERMS)
-        }
         configCheckViewModel.checkConfig()
     }
 

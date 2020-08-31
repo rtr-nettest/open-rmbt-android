@@ -118,8 +118,8 @@ fun AppCompatTextView.showPopup(isConnected: Boolean, infoWindowStatus: InfoWind
  * A binding adapter that is used for show network icon based on network type (WIFI/MOBILE),
  * and signalLevel(0..4)
  */
-@BindingAdapter("signalLevel")
-fun AppCompatImageView.setIcon(signalStrengthInfo: SignalStrengthInfo?) {
+@BindingAdapter("signalLevel", "connected")
+fun AppCompatImageView.setIcon(signalStrengthInfo: SignalStrengthInfo?, connected: Boolean) {
 
     if (signalStrengthInfo != null) {
 
@@ -153,7 +153,11 @@ fun AppCompatImageView.setIcon(signalStrengthInfo: SignalStrengthInfo?) {
             }
         }
     } else {
-        setImageResource(R.drawable.ic_no_internet)
+        if (connected) {
+            setImageResource(R.drawable.ic_signal_unknown)
+        } else {
+            setImageResource(R.drawable.ic_no_internet)
+        }
     }
 }
 
@@ -388,45 +392,49 @@ fun AppCompatTextView.setUpload(uploadSpeedBps: Long) {
  * A binding adapter that is used for show network icon based on network type (WIFI/MOBILE),
  * and signalLevel(0..4)
  */
-@BindingAdapter("measurementSignalLevel")
-fun AppCompatImageView.setSmallIcon(signalStrengthInfo: SignalStrengthInfo?) {
+@BindingAdapter("measurementSignalLevel", "connected")
+fun AppCompatImageView.setSmallIcon(signalStrengthInfo: SignalStrengthInfo?, connectionAvailable: Boolean) {
 
-    when (signalStrengthInfo?.transport) {
-        TransportType.WIFI -> {
-            when (signalStrengthInfo.signalLevel) {
-                2 -> {
-                    setImageResource(R.drawable.ic_small_wifi_2)
-                }
-                3 -> {
-                    setImageResource(R.drawable.ic_small_wifi_3)
-                }
-                4 -> {
-                    setImageResource(R.drawable.ic_small_wifi_4)
-                }
-                else -> {
-                    setImageResource(R.drawable.ic_small_wifi_1)
-                }
-            }
-        }
-        TransportType.CELLULAR -> {
-            when (signalStrengthInfo.signalLevel) {
-                2 -> {
-                    setImageResource(R.drawable.ic_small_mobile_2)
-                }
-                3 -> {
-                    setImageResource(R.drawable.ic_small_mobile_3)
-                }
-                4 -> {
-                    setImageResource(R.drawable.ic_small_mobile_4)
-                }
-                else -> {
-                    setImageResource(R.drawable.ic_small_mobile_1)
+    if (connectionAvailable) {
+        when (signalStrengthInfo?.transport) {
+            TransportType.WIFI -> {
+                when (signalStrengthInfo.signalLevel) {
+                    2 -> {
+                        setImageResource(R.drawable.ic_small_wifi_2)
+                    }
+                    3 -> {
+                        setImageResource(R.drawable.ic_small_wifi_3)
+                    }
+                    4 -> {
+                        setImageResource(R.drawable.ic_small_wifi_4)
+                    }
+                    else -> {
+                        setImageResource(R.drawable.ic_small_wifi_1)
+                    }
                 }
             }
+            TransportType.CELLULAR -> {
+                when (signalStrengthInfo.signalLevel) {
+                    2 -> {
+                        setImageResource(R.drawable.ic_small_mobile_2)
+                    }
+                    3 -> {
+                        setImageResource(R.drawable.ic_small_mobile_3)
+                    }
+                    4 -> {
+                        setImageResource(R.drawable.ic_small_mobile_4)
+                    }
+                    else -> {
+                        setImageResource(R.drawable.ic_small_mobile_1)
+                    }
+                }
+            }
+            else -> {
+                setImageResource(R.drawable.ic_signal_unknown_small)
+            }
         }
-        else -> {
-            setImageResource(R.drawable.ic_small_no_internet)
-        }
+    } else {
+        setImageResource(R.drawable.ic_small_no_internet)
     }
 }
 
