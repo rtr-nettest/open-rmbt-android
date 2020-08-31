@@ -36,6 +36,7 @@
         android:id="@+id/llMain"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:keepScreenOn="@{state.isSignalMeasurementActive}"
         android:background="@{state.isConnected ? @drawable/bg_splash : @drawable/bg_gray}"
         tools:background="@drawable/bg_splash">
 
