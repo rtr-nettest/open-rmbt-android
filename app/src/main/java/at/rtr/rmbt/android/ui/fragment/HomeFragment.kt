@@ -220,7 +220,7 @@ class HomeFragment : BaseFragment() {
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             val hasForegroundLocationPermission =
-                checkSelfPermission(requireContext(), Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED
+                checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
             if (hasForegroundLocationPermission) {
                 val hasBackgroundLocationPermission = checkSelfPermission(
                     requireContext(),

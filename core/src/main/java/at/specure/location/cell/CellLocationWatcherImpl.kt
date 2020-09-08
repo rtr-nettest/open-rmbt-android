@@ -48,14 +48,14 @@ class CellLocationWatcherImpl @Inject constructor(private val context: Context, 
         val needToRegister = listeners.isEmpty() || !isRegistered
         listeners.add(listener)
         listener.onCellLocationChanged(_latestLocation)
-        if (needToRegister && context.hasPermission(android.Manifest.permission.ACCESS_COARSE_LOCATION)) {
+        if (needToRegister && context.hasPermission(android.Manifest.permission.ACCESS_FINE_LOCATION)) {
             telephonyManager.listen(locationListener, PhoneStateListener.LISTEN_CELL_LOCATION)
         }
     }
 
     @SuppressLint("MissingPermission")
     override fun getCellLocationFromTelephony(): CellLocationInfo? {
-        if (context.hasPermission(android.Manifest.permission.ACCESS_COARSE_LOCATION)) {
+        if (context.hasPermission(android.Manifest.permission.ACCESS_FINE_LOCATION)) {
             val cellLocation = telephonyManager.cellLocation
             _latestLocation = when (cellLocation) {
                 is GsmCellLocation -> {
