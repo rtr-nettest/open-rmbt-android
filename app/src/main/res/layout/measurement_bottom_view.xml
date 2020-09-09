@@ -309,7 +309,7 @@
             android:paddingBottom="@dimen/padding_medium"
             android:text="@string/loop_mode_meters"
             android:textColor="@color/selector_measurement_text"
-            app:enabled="@{state.locationAvailable}"
+            app:enabled="@{state.gpsEnabled}"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/loop_measurement_next_test_minutes_label" />
 

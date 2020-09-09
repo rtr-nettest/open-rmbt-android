@@ -483,11 +483,8 @@ class MeasurementService : CustomLifecycleService() {
                         }
                         Timber.d("CountDownTimer tick $millisUntilFinished - ${this.hashCode()}")
                         if (!runner.isRunning) {
-                            val location = stateRecorder.locationInfo
                             val locationAvailable =
-                                locationWatcher.state == LocationState.ENABLED &&
-                                        location != null &&
-                                        location.accuracy < config.loopModeDistanceMeters
+                                locationWatcher.state == LocationState.ENABLED
                             val distancePassed = stateRecorder.loopModeRecord?.movementDistanceMeters ?: 0
 
                             Timber.d("Created measurement notification time remaining")
