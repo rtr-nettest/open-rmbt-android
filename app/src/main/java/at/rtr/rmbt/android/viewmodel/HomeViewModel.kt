@@ -14,6 +14,7 @@ import at.rtr.rmbt.android.util.map
 import at.specure.data.ClientUUID
 import at.specure.data.MeasurementServers
 import at.specure.data.repository.NewsRepository
+import at.specure.data.repository.SettingsRepository
 import at.specure.info.connectivity.ConnectivityInfoLiveData
 import at.specure.info.ip.IpV4ChangeLiveData
 import at.specure.info.ip.IpV6ChangeLiveData
@@ -28,6 +29,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.launch
+import timber.log.Timber
 import javax.inject.Inject
 
 class HomeViewModel @Inject constructor(
@@ -41,6 +43,7 @@ class HomeViewModel @Inject constructor(
     val clientUUID: ClientUUID,
     private val appConfig: AppConfig,
     private val newsRepository: NewsRepository,
+    private val settingsRepository: SettingsRepository,
     measurementServers: MeasurementServers
 ) : BaseViewModel() {
 
@@ -138,6 +141,11 @@ class HomeViewModel @Inject constructor(
     }
 
     fun getNews() = launch {
+        settingsRepository.refreshSettingsByFlow()
+            .flowOn(Dispatchers.IO)
+            .collect {
+                Timber.d("OkHttp Settings request response received")
+            }
         newsRepository.getNews()
             .flowOn(Dispatchers.IO)
             .collect {

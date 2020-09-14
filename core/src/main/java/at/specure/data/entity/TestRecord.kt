@@ -239,5 +239,10 @@ data class TestRecord(
     /**
      * true if loop mode is enabled, false otherwise
      */
-    val loopModeEnabled: Boolean
+    val loopModeEnabled: Boolean,
+
+    /**
+     * version of the measurement server used during the test
+     */
+    var clientVersion: String
 )

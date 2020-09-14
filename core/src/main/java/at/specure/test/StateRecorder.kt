@@ -175,7 +175,8 @@ class StateRecorder @Inject constructor(
             testTag = config.measurementTag,
             developerModeEnabled = config.developerModeIsEnabled,
             serverSelectionEnabled = config.expertModeEnabled,
-            loopModeEnabled = config.loopModeEnabled
+            loopModeEnabled = config.loopModeEnabled,
+            clientVersion = ""
         )
         if (config.shouldRunQosTest) {
             testRecord?.lastQoSStatus = TestStatus.WAIT
@@ -373,6 +374,7 @@ class StateRecorder @Inject constructor(
         testRecord?.apply {
             threadCount = result.num_threads
             portRemote = result.port_remote
+            clientVersion = result.client_version
             bytesDownloaded = result.bytes_download
             bytesUploaded = result.bytes_upload
             totalBytesDownloaded = result.totalDownBytes
