@@ -174,6 +174,17 @@ class HomeFragment : BaseFragment() {
         }
     }
 
+    override fun onResume() {
+        super.onResume()
+        homeViewModel.signalStrengthLiveData.listen(this) {
+            homeViewModel.state.signalStrength.set(it)
+        }
+
+        homeViewModel.activeNetworkLiveData.listen(this) {
+            homeViewModel.state.activeNetworkInfo.set(it)
+        }
+    }
+
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
 
