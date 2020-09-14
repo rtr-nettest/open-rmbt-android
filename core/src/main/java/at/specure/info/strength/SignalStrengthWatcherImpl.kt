@@ -115,12 +115,13 @@ class SignalStrengthWatcherImpl(
         }
     }
 
+    // this method is not 100% reliable detected on xiaomi redmi 9 - it did not work with 4G when forced to use - but solved after phone has been restarted
     private val activeNetworkListener = object : ActiveNetworkWatcher.NetworkChangeListener {
 
         override fun onActiveNetworkChanged(info: NetworkInfo?) {
             if (info == null) {
                 unregisterWifiCallbacks()
-                unregisterCellCallbacks()
+//                unregisterCellCallbacks()
 
                 Timber.i("Network changed to NULL")
                 signalStrengthInfo = null
