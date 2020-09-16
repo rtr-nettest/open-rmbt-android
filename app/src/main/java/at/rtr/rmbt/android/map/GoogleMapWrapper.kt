@@ -1,11 +1,13 @@
 package at.rtr.rmbt.android.map
 
+import android.annotation.SuppressLint
 import android.content.Context
 import at.rmbt.client.control.data.MapStyleType
 import at.rtr.rmbt.android.map.wrapper.*
 import at.rtr.rmbt.android.util.iconFromVector
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
+import com.google.android.gms.maps.model.CircleOptions
 import com.google.android.gms.maps.model.MarkerOptions
 import com.google.android.gms.maps.model.TileOverlayOptions
 
@@ -46,6 +48,7 @@ class GoogleMapWrapper(private val googleMap: GoogleMap) : MapWrapper {
         return GMSMarker(marker)
     }
 
+    @SuppressLint("MissingPermission")
     override fun setMyLocationEnabled(enabled: Boolean) {
         googleMap.isMyLocationEnabled = enabled
     }
@@ -73,6 +76,26 @@ class GoogleMapWrapper(private val googleMap: GoogleMap) : MapWrapper {
             MapStyleType.SATELLITE -> GoogleMap.MAP_TYPE_SATELLITE
             MapStyleType.HYBRID -> GoogleMap.MAP_TYPE_HYBRID
         }
+    }
+
+    override fun addCircle(
+        latLngW: LatLngW,
+        fillColor: Int,
+        strokeColor: Int,
+        strokeWidth: Float,
+        circleRadius: Double
+    ) {
+        googleMap.addCircle(CircleOptions()
+            .center(latLngW.toGMSLatLng())
+            .fillColor(fillColor)
+            .strokeColor(strokeColor)
+            .strokeWidth(strokeWidth)
+            .radius(circleRadius)
+        )
+    }
+
+    override fun supportSatelliteAndHybridView(): Boolean {
+        return true
     }
 
 }

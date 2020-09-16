@@ -39,6 +39,14 @@ class GoogleMapViewWrapper(private val mapView : MapView) : MapViewWrapper {
         mapView.onStop()
     }
 
+    override fun onSaveInstanceState(savedInstanceState: Bundle?) {
+        mapView.onSaveInstanceState(savedInstanceState)
+    }
+
+    override fun onDestroy() {
+        mapView.onDestroy()
+    }
+
     override fun loadMapAsync(mapLoaded: () -> Unit) {
         mapView.getMapAsync {
             with(it.uiSettings) {

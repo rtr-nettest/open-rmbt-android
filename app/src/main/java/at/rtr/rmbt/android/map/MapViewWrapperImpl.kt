@@ -57,6 +57,14 @@ class MapViewWrapperImpl @JvmOverloads constructor(
         mapViewWrapper.onStop()
     }
 
+    override fun onSaveInstanceState(savedInstanceState: Bundle?) {
+        mapViewWrapper.onSaveInstanceState(savedInstanceState)
+    }
+
+    override fun onDestroy() {
+        mapViewWrapper.onDestroy()
+    }
+
     override fun loadMapAsync(mapLoaded : () -> Unit) {
         mapViewWrapper.loadMapAsync(mapLoaded)
     }

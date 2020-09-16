@@ -8,26 +8,20 @@ import at.rmbt.client.control.data.MapPresentationType
 import at.rmbt.client.control.data.MapStyleType
 import at.rtr.rmbt.android.R
 import at.rtr.rmbt.android.databinding.ActivityDetailedFullscreenMapBinding
+import at.rtr.rmbt.android.map.wrapper.LatLngW
+import at.rtr.rmbt.android.map.wrapper.MapWrapper
 import at.rtr.rmbt.android.ui.dialog.MapLayersDialog
 import at.rtr.rmbt.android.util.ToolbarTheme
 import at.rtr.rmbt.android.util.changeStatusBarColor
-import at.rtr.rmbt.android.util.iconFromVector
 import at.specure.data.NetworkTypeCompat
-import com.google.android.gms.maps.CameraUpdateFactory
-import com.google.android.gms.maps.GoogleMap
-import com.google.android.gms.maps.OnMapReadyCallback
-import com.google.android.gms.maps.model.CircleOptions
-import com.google.android.gms.maps.model.LatLng
-import com.google.android.gms.maps.model.MarkerOptions
 
-class DetailedFullscreenMapActivity : BaseActivity(), OnMapReadyCallback, MapLayersDialog.Callback {
+class DetailedFullscreenMapActivity : BaseActivity(), MapLayersDialog.Callback {
 
     private lateinit var binding: ActivityDetailedFullscreenMapBinding
 
-    private lateinit var latLng: LatLng
+    private lateinit var latLng: LatLngW
     private lateinit var networkType: NetworkTypeCompat
 
-    private var map: GoogleMap? = null
     private var currentMapStyle = MapStyleType.STANDARD
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -40,46 +34,49 @@ class DetailedFullscreenMapActivity : BaseActivity(), OnMapReadyCallback, MapLay
         if (!intent.hasExtra(KEY_LATITUDE) || !intent.hasExtra(KEY_LONGITUDE) || !intent.hasExtra(KEY_NETWORK_TYPE)) {
             throw IllegalArgumentException("Should start with latitude and network type")
         }
-        latLng = LatLng(intent.getDoubleExtra(KEY_LATITUDE, 0.0), intent.getDoubleExtra(KEY_LONGITUDE, 0.0))
+        latLng = LatLngW(intent.getDoubleExtra(KEY_LATITUDE, 0.0), intent.getDoubleExtra(KEY_LONGITUDE, 0.0))
         networkType = NetworkTypeCompat.values()[intent.getIntExtra(KEY_NETWORK_TYPE, 0)]
 
         binding.map.onCreate(savedInstanceState)
-        binding.map.getMapAsync(this)
+        binding.map.loadMapAsync {
+            onMapReady()
+        }
 
         binding.closeFab.setOnClickListener { finish() }
         binding.layersFab.setOnClickListener {
-            MapLayersDialog.instance(activeStyle = currentMapStyle.ordinal).show(this)
+            MapLayersDialog.instance(
+                activeStyle = currentMapStyle.ordinal,
+                noSatelliteOrHybrid = !mapW().supportSatelliteAndHybridView()
+            ).show(this)
         }
     }
 
-    override fun onMapReady(googleMap: GoogleMap?) {
-        map = googleMap
-        with(latLng) {
-            googleMap?.addCircle(
-                CircleOptions()
-                    .center(this)
-                    .fillColor(ContextCompat.getColor(this@DetailedFullscreenMapActivity, R.color.map_circle_fill))
-                    .strokeColor(ContextCompat.getColor(this@DetailedFullscreenMapActivity, R.color.map_circle_stroke))
-                    .strokeWidth(STROKE_WIDTH)
-                    .radius(CIRCLE_RADIUS)
-            )
+    private fun mapW() : MapWrapper  = binding.map.mapWrapper
 
-            val icon = when (networkType) {
-                NetworkTypeCompat.TYPE_UNKNOWN -> R.drawable.ic_marker_empty
-                NetworkTypeCompat.TYPE_LAN,
-                NetworkTypeCompat.TYPE_BROWSER -> R.drawable.ic_marker_browser
-                NetworkTypeCompat.TYPE_WLAN -> R.drawable.ic_marker_wifi
-                NetworkTypeCompat.TYPE_5G_AVAILABLE,
-                NetworkTypeCompat.TYPE_4G -> R.drawable.ic_marker_4g
-                NetworkTypeCompat.TYPE_3G -> R.drawable.ic_marker_3g
-                NetworkTypeCompat.TYPE_2G -> R.drawable.ic_marker_2g
-                NetworkTypeCompat.TYPE_5G_NSA,
-                NetworkTypeCompat.TYPE_5G -> R.drawable.ic_marker_5g
-            }
+    private fun onMapReady() {
+        mapW().addCircle(latLng,
+            ContextCompat.getColor(this@DetailedFullscreenMapActivity, R.color.map_circle_fill),
+            ContextCompat.getColor(this@DetailedFullscreenMapActivity, R.color.map_circle_stroke),
+            STROKE_WIDTH,
+            CIRCLE_RADIUS
+        )
 
-            googleMap?.addMarker(MarkerOptions().position(this).anchor(ANCHOR_U, ANCHOR_V).iconFromVector(this@DetailedFullscreenMapActivity, icon))
-            googleMap?.moveCamera(CameraUpdateFactory.newLatLngZoom(this, ZOOM_LEVEL))
-            googleMap?.setOnMarkerClickListener { true }
+        val icon = when (networkType) {
+            NetworkTypeCompat.TYPE_UNKNOWN -> R.drawable.ic_marker_empty
+            NetworkTypeCompat.TYPE_LAN,
+            NetworkTypeCompat.TYPE_BROWSER -> R.drawable.ic_marker_browser
+            NetworkTypeCompat.TYPE_WLAN -> R.drawable.ic_marker_wifi
+            NetworkTypeCompat.TYPE_5G_AVAILABLE,
+            NetworkTypeCompat.TYPE_4G -> R.drawable.ic_marker_4g
+            NetworkTypeCompat.TYPE_3G -> R.drawable.ic_marker_3g
+            NetworkTypeCompat.TYPE_2G -> R.drawable.ic_marker_2g
+            NetworkTypeCompat.TYPE_5G_NSA,
+            NetworkTypeCompat.TYPE_5G -> R.drawable.ic_marker_5g
+        }
+
+        mapW().run {
+            addMarker(this@DetailedFullscreenMapActivity, latLng, ANCHOR_U, ANCHOR_V, icon)
+            moveCamera(latLng, ZOOM_LEVEL)
         }
     }
 
@@ -127,18 +124,16 @@ class DetailedFullscreenMapActivity : BaseActivity(), OnMapReadyCallback, MapLay
 
     override fun onStyleSelected(style: MapStyleType) {
         currentMapStyle = style
-        map?.mapType = when (style) {
+        mapW().setMapStyleType(style)
+        when (style) {
             MapStyleType.HYBRID -> {
                 window.changeStatusBarColor(ToolbarTheme.BLUE)
-                GoogleMap.MAP_TYPE_HYBRID
             }
             MapStyleType.SATELLITE -> {
                 window.changeStatusBarColor(ToolbarTheme.BLUE)
-                GoogleMap.MAP_TYPE_SATELLITE
             }
             else -> {
                 window.changeStatusBarColor(ToolbarTheme.WHITE)
-                GoogleMap.MAP_TYPE_NORMAL
             }
         }
     }

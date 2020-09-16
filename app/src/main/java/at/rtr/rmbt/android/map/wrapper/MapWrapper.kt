@@ -26,6 +26,10 @@ interface MapWrapper {
     fun setOnCameraChangeListener(listener : (latlngW : LatLngW, currentZoom : Float) -> Unit)
 
     fun setMapStyleType(style : MapStyleType)
+
+    fun addCircle(latLngW: LatLngW, fillColor : Int, strokeColor : Int, strokeWidth : Float, circleRadius : Double)
+
+    fun supportSatelliteAndHybridView() : Boolean
 }
 
 interface MapViewWrapper {
@@ -41,6 +45,10 @@ interface MapViewWrapper {
     fun onStart()
 
     fun onStop()
+
+    fun onSaveInstanceState(savedInstanceState: Bundle?)
+
+    fun onDestroy()
 
     fun loadMapAsync(mapLoaded : () -> Unit)
 }
@@ -86,6 +94,20 @@ class EmptyMapWrapper : MapWrapper {
 
     override fun setMapStyleType(style: MapStyleType) {
     }
+
+    override fun addCircle(
+        latLngW: LatLngW,
+        fillColor: Int,
+        strokeColor: Int,
+        strokeWidth: Float,
+        circleRadius: Double
+    ) {
+
+    }
+
+    override fun supportSatelliteAndHybridView() : Boolean {
+        return false
+    }
 }
 
 class EmptyMapViewWrapper : MapViewWrapper {
@@ -105,6 +127,12 @@ class EmptyMapViewWrapper : MapViewWrapper {
     }
 
     override fun onStop() {
+    }
+
+    override fun onSaveInstanceState(savedInstanceState: Bundle?) {
+    }
+
+    override fun onDestroy() {
     }
 
     override fun loadMapAsync(mapLoaded: () -> Unit) {

@@ -4,13 +4,10 @@ import android.content.Context
 import at.rmbt.client.control.data.MapStyleType
 import at.rtr.rmbt.android.map.wrapper.*
 import at.rtr.rmbt.android.util.iconFromVector
-import com.huawei.hms.maps.CameraUpdate
 import com.huawei.hms.maps.CameraUpdateFactory
 import com.huawei.hms.maps.HuaweiMap
 import com.huawei.hms.maps.model.MarkerOptions
-import com.huawei.hms.maps.model.Tile
 import com.huawei.hms.maps.model.TileOverlayOptions
-import com.huawei.hms.maps.model.TileProvider
 import com.huawei.hms.maps.model.TileProvider.NO_TILE
 import timber.log.Timber
 
@@ -82,6 +79,27 @@ class HuaweiMapWrapper(private val huaweiMap : HuaweiMap) : MapWrapper {
             MapStyleType.SATELLITE -> HuaweiMap.MAP_TYPE_SATELLITE
             MapStyleType.HYBRID -> HuaweiMap.MAP_TYPE_HYBRID
         }
+    }
+
+    override fun addCircle(
+        latLngW: LatLngW,
+        fillColor: Int,
+        strokeColor: Int,
+        strokeWidth: Float,
+        circleRadius: Double
+    ) {
+        huaweiMap.addCircle(
+            com.huawei.hms.maps.model.CircleOptions()
+            .center(latLngW.toHMSLatLng())
+            .fillColor(fillColor)
+            .strokeColor(strokeColor)
+            .strokeWidth(strokeWidth)
+            .radius(circleRadius)
+        )
+    }
+
+    override fun supportSatelliteAndHybridView(): Boolean {
+        return false
     }
 
 }

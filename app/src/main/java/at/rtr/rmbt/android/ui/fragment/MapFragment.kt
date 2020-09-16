@@ -30,7 +30,6 @@ import at.specure.data.NetworkTypeCompat
 import at.specure.data.ServerNetworkType
 import at.specure.data.entity.MarkerMeasurementRecord
 import at.specure.location.LocationState
-import kotlinx.android.synthetic.main.fragment_map.*
 import timber.log.Timber
 import kotlin.math.abs
 
@@ -89,7 +88,8 @@ class MapFragment : BaseFragment(), MapMarkerDetailsAdapter.MarkerDetailsCallbac
                 this,
                 CODE_LAYERS_DIALOG,
                 mapViewModel.state.style.get()!!.ordinal,
-                mapViewModel.state.type.get()!!.ordinal
+                mapViewModel.state.type.get()!!.ordinal,
+                noSatelliteOrHybrid = !mapW().supportSatelliteAndHybridView()
             )
                 .show(fragmentManager)
         }
@@ -197,8 +197,18 @@ class MapFragment : BaseFragment(), MapMarkerDetailsAdapter.MarkerDetailsCallbac
     }
 
     override fun onPause() {
-        binding.map.onPause()
         super.onPause()
+        binding.map.onPause()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        binding.map.onDestroy()
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        binding.map.onSaveInstanceState(outState)
     }
 
     override fun onCloseMarkerDetails() {
@@ -267,7 +277,6 @@ class MapFragment : BaseFragment(), MapMarkerDetailsAdapter.MarkerDetailsCallbac
 
     private fun updateMapStyle() {
         with(mapViewModel.state.style.get()) {
-            mapW().setMapStyleType(this ?: MapStyleType.STANDARD)
             when (this) {
                 MapStyleType.HYBRID -> {
                     activity?.window?.changeStatusBarColor(ToolbarTheme.BLUE)
@@ -279,6 +288,7 @@ class MapFragment : BaseFragment(), MapMarkerDetailsAdapter.MarkerDetailsCallbac
                     activity?.window?.changeStatusBarColor(ToolbarTheme.WHITE)
                 }
             }
+            mapW().setMapStyleType(this ?: MapStyleType.STANDARD)
         }
     }
 

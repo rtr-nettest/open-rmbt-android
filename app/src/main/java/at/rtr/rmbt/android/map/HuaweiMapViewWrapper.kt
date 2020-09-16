@@ -39,6 +39,14 @@ class HuaweiMapViewWrapper(private val mapView: MapView) : MapViewWrapper {
         mapView.onStop()
     }
 
+    override fun onSaveInstanceState(savedInstanceState: Bundle?) {
+        mapView.onSaveInstanceState(savedInstanceState)
+    }
+
+    override fun onDestroy() {
+        mapView.onDestroy()
+    }
+
     override fun loadMapAsync(mapLoaded: () -> Unit) {
         mapView.getMapAsync {
             with(it.uiSettings) {
@@ -47,6 +55,7 @@ class HuaweiMapViewWrapper(private val mapView: MapView) : MapViewWrapper {
                 isZoomControlsEnabled = false
                 isCompassEnabled = false
                 isIndoorLevelPickerEnabled = false
+                isTiltGesturesEnabled = false
             }
             wrapper = HuaweiMapWrapper(it)
             mapLoaded.invoke()
