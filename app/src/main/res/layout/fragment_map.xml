@@ -38,7 +38,7 @@
             app:layout_constraintTop_toTopOf="parent"
             app:visibleOrGone="@{!state.playServicesAvailable}" />
 
-        <com.google.android.gms.maps.MapView
+        <at.rtr.rmbt.android.map.MapViewWrapperImpl
             android:id="@+id/map"
             android:layout_width="0dp"
             android:layout_height="0dp"

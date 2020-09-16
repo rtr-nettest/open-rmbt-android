@@ -2,6 +2,7 @@ apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
 apply plugin: 'kotlin-kapt'
+apply plugin: 'com.huawei.agconnect'
 
 apply from: "$project.rootDir/tools/utils.gradle"
 apply from: "$project.rootDir/tools/script-lint.gradle"
@@ -97,6 +98,9 @@ dependencies {
     implementation "com.github.zcweng:switch-button:$versions.switch_button"
 
     debugImplementation "com.facebook.stetho:stetho:$versions.stetho"
+
+    implementation 'com.huawei.hms:maps:5.0.1.300'
+    implementation 'com.huawei.agconnect:agconnect-core:1.4.0.300'
 
     testImplementation "junit:junit:$versions.junit"
     androidTestImplementation "androidx.test:runner:$versions.test_runner"
