@@ -54,6 +54,7 @@ class HuaweiMapWrapper(private val huaweiMap : HuaweiMap) : MapWrapper {
 
     override fun setMyLocationEnabled(enabled: Boolean) {
         huaweiMap.isMyLocationEnabled = enabled
+        huaweiMap.uiSettings.isMyLocationButtonEnabled = false
     }
 
     override fun currentCameraZoom(): Float {

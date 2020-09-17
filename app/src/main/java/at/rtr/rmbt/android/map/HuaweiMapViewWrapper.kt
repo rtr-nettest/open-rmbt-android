@@ -4,9 +4,9 @@ import android.os.Bundle
 import at.rtr.rmbt.android.map.wrapper.EmptyMapWrapper
 import at.rtr.rmbt.android.map.wrapper.MapViewWrapper
 import at.rtr.rmbt.android.map.wrapper.MapWrapper
-import com.huawei.hms.maps.MapView
+import com.huawei.hms.maps.SupportMapFragment
 
-class HuaweiMapViewWrapper(private val mapView: MapView) : MapViewWrapper {
+class HuaweiMapViewWrapper(private val mapFragment: SupportMapFragment) : MapViewWrapper {
 
     private lateinit var wrapper: MapWrapper
 
@@ -20,35 +20,28 @@ class HuaweiMapViewWrapper(private val mapView: MapView) : MapViewWrapper {
         }
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        mapView.onCreate(savedInstanceState)
     }
 
     override fun onResume() {
-        mapView.onResume()
     }
 
     override fun onPause() {
-        mapView.onPause()
     }
 
     override fun onStart() {
-        mapView.onStart()
     }
 
     override fun onStop() {
-        mapView.onStop()
     }
 
     override fun onSaveInstanceState(savedInstanceState: Bundle?) {
-        mapView.onSaveInstanceState(savedInstanceState)
     }
 
     override fun onDestroy() {
-        mapView.onDestroy()
     }
 
     override fun loadMapAsync(mapLoaded: () -> Unit) {
-        mapView.getMapAsync {
+        mapFragment.getMapAsync {
             with(it.uiSettings) {
                 isRotateGesturesEnabled = false
                 isMyLocationButtonEnabled = false
