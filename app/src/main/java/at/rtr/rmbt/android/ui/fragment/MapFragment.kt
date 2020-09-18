@@ -67,7 +67,6 @@ class MapFragment : BaseFragment(), MapMarkerDetailsAdapter.MarkerDetailsCallbac
     private var snapHelper: SnapHelper? = null
 
     private var adapter: MapMarkerDetailsAdapter = MapMarkerDetailsAdapter(this)
-    private var mapLoaded = false
 
     @SuppressLint("SetJavaScriptEnabled")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -78,13 +77,8 @@ class MapFragment : BaseFragment(), MapMarkerDetailsAdapter.MarkerDetailsCallbac
         binding.map.onCreate(savedInstanceState)
         mapViewModel.state.playServicesAvailable.set(checkServices())
         mapViewModel.obtainFilters()
-        mapViewModel.providerLiveData.listen(this) {
-            if(mapLoaded)
-                return@listen
-            mapLoaded = true
-            binding.map.loadMapAsync {
-                onMapReady()
-            }
+        binding.map.loadMapAsync {
+            onMapReady()
         }
 
         binding.fabLayers.setOnClickListener {
@@ -203,11 +197,6 @@ class MapFragment : BaseFragment(), MapMarkerDetailsAdapter.MarkerDetailsCallbac
     override fun onPause() {
         super.onPause()
         binding.map.onPause()
-    }
-
-    override fun onDestroyView() {
-        super.onDestroyView()
-        mapLoaded = false
     }
 
     override fun onDestroy() {
