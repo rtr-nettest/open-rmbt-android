@@ -226,7 +226,7 @@ class MapFragment : BaseFragment(), MapMarkerDetailsAdapter.MarkerDetailsCallbac
 
     override fun onFiltersUpdated() {
         currentOverlay?.remove()
-        mapViewModel.providerLiveData.value?.let {
+        currentOverlay = mapViewModel.providerLiveData.value?.let {
             mapW().addTileOverlay(it)
         }
     }
