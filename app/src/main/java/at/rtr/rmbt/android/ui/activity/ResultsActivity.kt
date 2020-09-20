@@ -19,6 +19,7 @@ import at.rtr.rmbt.android.util.isHmsAvailable
 import at.rtr.rmbt.android.util.listen
 import at.rtr.rmbt.android.viewmodel.ResultViewModel
 import at.specure.data.NetworkTypeCompat
+import at.specure.data.entity.TestResultRecord
 import timber.log.Timber
 
 class ResultsActivity : BaseActivity() {
@@ -29,6 +30,8 @@ class ResultsActivity : BaseActivity() {
     private val qosAdapter: QosResultAdapter by lazy { QosResultAdapter() }
     private lateinit var resultChartFragmentPagerAdapter: ResultChartFragmentPagerAdapter
 
+    private var mapLoadRequested : Boolean = false
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = bindContentView(R.layout.activity_results)
@@ -37,7 +40,6 @@ class ResultsActivity : BaseActivity() {
         viewModel.state.playServicesAvailable.set(isGmsAvailable() || isHmsAvailable())
 
         binding.map.onCreate(savedInstanceState)
-        binding.map.loadMapAsync { }
 
         val testUUID = intent.getStringExtra(KEY_TEST_UUID)
         check(!testUUID.isNullOrEmpty()) { "TestUUID was not passed to result activity" }
@@ -54,37 +56,11 @@ class ResultsActivity : BaseActivity() {
                 binding.viewPagerCharts.adapter = resultChartFragmentPagerAdapter
             }
 
-            if (result?.latitude != null && result.longitude != null) {
-                val latLngW = LatLngW(result.latitude!!, result.longitude!!)
-
-                val icon = when (result.networkType) {
-                    NetworkTypeCompat.TYPE_UNKNOWN -> R.drawable.ic_marker_empty
-                    NetworkTypeCompat.TYPE_LAN,
-                    NetworkTypeCompat.TYPE_BROWSER -> R.drawable.ic_marker_browser
-                    NetworkTypeCompat.TYPE_WLAN -> R.drawable.ic_marker_wifi
-                    NetworkTypeCompat.TYPE_5G_AVAILABLE,
-                    NetworkTypeCompat.TYPE_4G -> R.drawable.ic_marker_4g
-                    NetworkTypeCompat.TYPE_3G -> R.drawable.ic_marker_3g
-                    NetworkTypeCompat.TYPE_2G -> R.drawable.ic_marker_2g
-                    NetworkTypeCompat.TYPE_5G_NSA,
-                    NetworkTypeCompat.TYPE_5G -> R.drawable.ic_marker_5g
-                }
-
-                mapW().run {
-                    addCircle(latLngW,
-                        ContextCompat.getColor(this@ResultsActivity, R.color.map_circle_fill),
-                        ContextCompat.getColor(this@ResultsActivity, R.color.map_circle_stroke),
-                        STROKE_WIDTH, CIRCLE_RADIUS
-                    )
-                    addMarker(this@ResultsActivity, latLngW, ANCHOR_U, ANCHOR_V, icon)
-                    moveCamera(latLngW, ZOOM_LEVEL)
-                    setOnMapClickListener {
-                        DetailedFullscreenMapActivity.start(
-                            this@ResultsActivity,
-                            it.latitude,
-                            it.longitude,
-                            result.networkType
-                        )
+            result?.let {
+                if(!mapLoadRequested) {
+                    mapLoadRequested = true
+                    binding.map.loadMapAsync {
+                        setUpMap(it)
                     }
                 }
             }
@@ -156,6 +132,43 @@ class ResultsActivity : BaseActivity() {
             QosTestsSummaryActivity.start(this, it)
         }
         refreshResults()
+    }
+
+    private fun setUpMap(result : TestResultRecord) {
+        if (result.latitude != null && result.longitude != null) {
+            val latLngW = LatLngW(result.latitude!!, result.longitude!!)
+
+            val icon = when (result.networkType) {
+                NetworkTypeCompat.TYPE_UNKNOWN -> R.drawable.ic_marker_empty
+                NetworkTypeCompat.TYPE_LAN,
+                NetworkTypeCompat.TYPE_BROWSER -> R.drawable.ic_marker_browser
+                NetworkTypeCompat.TYPE_WLAN -> R.drawable.ic_marker_wifi
+                NetworkTypeCompat.TYPE_5G_AVAILABLE,
+                NetworkTypeCompat.TYPE_4G -> R.drawable.ic_marker_4g
+                NetworkTypeCompat.TYPE_3G -> R.drawable.ic_marker_3g
+                NetworkTypeCompat.TYPE_2G -> R.drawable.ic_marker_2g
+                NetworkTypeCompat.TYPE_5G_NSA,
+                NetworkTypeCompat.TYPE_5G -> R.drawable.ic_marker_5g
+            }
+
+            mapW().run {
+                addCircle(latLngW,
+                    ContextCompat.getColor(this@ResultsActivity, R.color.map_circle_fill),
+                    ContextCompat.getColor(this@ResultsActivity, R.color.map_circle_stroke),
+                    STROKE_WIDTH, CIRCLE_RADIUS
+                )
+                addMarker(this@ResultsActivity, latLngW, ANCHOR_U, ANCHOR_V, icon)
+                moveCamera(latLngW, ZOOM_LEVEL)
+                setOnMapClickListener {
+                    DetailedFullscreenMapActivity.start(
+                        this@ResultsActivity,
+                        it.latitude,
+                        it.longitude,
+                        result.networkType
+                    )
+                }
+            }
+        }
     }
 
     private fun mapW() : MapWrapper = binding.map.mapWrapper
