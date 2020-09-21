@@ -132,12 +132,15 @@ class HomeFragment : BaseFragment() {
             homeViewModel.state.isSignalMeasurementActive.set(it)
         }
 
-        binding.btnLoop.setOnCheckedChangeListener { _, isChecked ->
-            if (isChecked) {
-                val intent = LoopInstructionsActivity.start(requireContext())
-                startActivityForResult(intent, CODE_LOOP_INSTRUCTIONS)
-            } else {
-                homeViewModel.state.isLoopModeActive.set(false)
+        binding.btnLoop.setOnClickListener {
+            if (this.isResumed) {
+                if (binding.btnLoop.isChecked) {
+                    val intent = LoopInstructionsActivity.start(requireContext())
+                    startActivityForResult(intent, CODE_LOOP_INSTRUCTIONS)
+                } else {
+                    homeViewModel.state.isLoopModeActive.set(false)
+                    binding.btnLoop.isChecked = false
+                }
             }
         }
 
@@ -191,8 +194,10 @@ class HomeFragment : BaseFragment() {
             CODE_LOOP_INSTRUCTIONS -> {
                 if (resultCode == Activity.RESULT_OK) {
                     homeViewModel.state.isLoopModeActive.set(true)
+                    binding.btnLoop.isChecked = true
                 } else {
                     homeViewModel.state.isLoopModeActive.set(false)
+                    binding.btnLoop.isChecked = false
                 }
             }
             CODE_SIGNAL_MEASUREMENT_TERMS -> {
