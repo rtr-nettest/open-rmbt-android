@@ -61,7 +61,7 @@
             app:layout_constraintBottom_toBottomOf="@+id/loop_measurement_title"
             app:layout_constraintEnd_toStartOf="@+id/progress_loop"
             app:layout_constraintTop_toTopOf="@+id/loop_measurement_title"
-            visibleOrGone="@{state.loopLocalUUID != null &amp;&amp; state.loopModeRecord.status != LoopModeState.FINISHED }"
+            visibleOrGone="@{state.loopLocalUUID != null &amp;&amp; state.loopModeRecord.status != LoopModeState.FINISHED &amp;&amp; state.loopModeRecord.status != LoopModeState.CANCELLED}"
             app:text="@{state.loopProgress}"
             tools:text="1/5" />
 
@@ -309,7 +309,7 @@
             android:paddingBottom="@dimen/padding_medium"
             android:text="@string/loop_mode_meters"
             android:textColor="@color/selector_measurement_text"
-            app:enabled="@{state.locationAvailable}"
+            app:enabled="@{state.gpsEnabled}"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/loop_measurement_next_test_minutes_label" />
 
@@ -326,7 +326,7 @@
             app:layout_constraintBottom_toBottomOf="@+id/loop_measurement_next_test_distance_label"
             app:layout_constraintEnd_toStartOf="@+id/loop_measurement_next_test_meters_progress"
             app:layout_constraintTop_toTopOf="@+id/loop_measurement_next_test_distance_label"
-            app:visibleOrGone="@{state.loopModeRecord.status == LoopModeState.IDLE &amp;&amp; state.isLoopModeActive &amp;&amp; state.locationAvailable}"
+            app:visibleOrGone="@{state.loopModeRecord.status == LoopModeState.IDLE &amp;&amp; state.isLoopModeActive &amp;&amp; state.gpsEnabled}"
             tools:text="153" />
 
         <at.rtr.rmbt.android.ui.view.ProgressBar
@@ -353,7 +353,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="@+id/loop_measurement_next_test_distance_label"
-            app:visibleOrGone="@{state.locationAvailable == false &amp;&amp; state.isLoopModeActive &amp;&amp; state.loopModeRecord.status == LoopModeState.IDLE}" />
+            app:visibleOrGone="@{state.gpsEnabled == false &amp;&amp; state.isLoopModeActive &amp;&amp; state.loopModeRecord.status == LoopModeState.IDLE}" />
 
         <View
             android:id="@+id/loop_measurement_next_bottom_line"

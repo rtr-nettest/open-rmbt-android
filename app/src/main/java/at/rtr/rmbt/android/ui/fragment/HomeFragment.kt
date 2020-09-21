@@ -133,12 +133,14 @@ class HomeFragment : BaseFragment() {
         }
 
         binding.btnLoop.setOnClickListener {
-            if (binding.btnLoop.isChecked) {
-                val intent = LoopInstructionsActivity.start(requireContext())
-                startActivityForResult(intent, CODE_LOOP_INSTRUCTIONS)
-            } else {
-                homeViewModel.state.isLoopModeActive.set(false)
-                binding.btnLoop.isChecked = false
+            if (this.isResumed) {
+                if (binding.btnLoop.isChecked) {
+                    val intent = LoopInstructionsActivity.start(requireContext())
+                    startActivityForResult(intent, CODE_LOOP_INSTRUCTIONS)
+                } else {
+                    homeViewModel.state.isLoopModeActive.set(false)
+                    binding.btnLoop.isChecked = false
+                }
             }
         }
 
@@ -171,6 +173,17 @@ class HomeFragment : BaseFragment() {
             if (homeViewModel.isExpertModeOn) {
                 NetworkInfoDialog.show(childFragmentManager)
             }
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        homeViewModel.signalStrengthLiveData.listen(this) {
+            homeViewModel.state.signalStrength.set(it)
+        }
+
+        homeViewModel.activeNetworkLiveData.listen(this) {
+            homeViewModel.state.activeNetworkInfo.set(it)
         }
     }
 
@@ -220,7 +233,7 @@ class HomeFragment : BaseFragment() {
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             val hasForegroundLocationPermission =
-                checkSelfPermission(requireContext(), Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED
+                checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
             if (hasForegroundLocationPermission) {
                 val hasBackgroundLocationPermission = checkSelfPermission(
                     requireContext(),

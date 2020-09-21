@@ -40,7 +40,7 @@ import javax.inject.Singleton
 
 private const val MAX_SIGNAL_COUNT_PER_CHUNK = 25
 private const val MAX_SIGNAL_UPTIME_PER_CHUNK_MIN = 10L
-private const val MAX_TIME_NETWORK_UNREACHABLE_SECONDS = 10L
+private const val MAX_TIME_NETWORK_UNREACHABLE_SECONDS = 300L
 
 @Singleton
 class SignalMeasurementProcessor @Inject constructor(

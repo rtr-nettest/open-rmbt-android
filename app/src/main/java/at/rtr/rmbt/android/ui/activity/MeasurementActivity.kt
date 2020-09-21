@@ -123,6 +123,7 @@ class MeasurementActivity : BaseActivity(), SimpleDialog.Callback {
         viewModel.locationStateLiveData.listen(this) {
             viewModel.state.gpsEnabled.set(it == LocationState.ENABLED)
         }
+
         Timber.d("Measurement state loop create: ${viewModel.state.measurementState.get()?.name}")
 
         viewModel.state.loopModeRecord.get()?.testsPerformed?.let { viewModel.state.setLoopProgress(it, viewModel.config.loopModeNumberOfTests) }
@@ -179,7 +180,7 @@ class MeasurementActivity : BaseActivity(), SimpleDialog.Callback {
             startActivity(Intent(this, SignalMeasurementActivity::class.java))
         }
 
-        if (loopRecord?.status == LoopModeState.FINISHED) {
+        if (loopRecord?.status == LoopModeState.FINISHED || loopRecord?.status == LoopModeState.CANCELLED) {
             finishActivity(true)
         }
     }
