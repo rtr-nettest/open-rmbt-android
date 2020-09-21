@@ -133,12 +133,14 @@ class HomeFragment : BaseFragment() {
         }
 
         binding.btnLoop.setOnClickListener {
-            if (binding.btnLoop.isChecked) {
-                val intent = LoopInstructionsActivity.start(requireContext())
-                startActivityForResult(intent, CODE_LOOP_INSTRUCTIONS)
-            } else {
-                homeViewModel.state.isLoopModeActive.set(false)
-                binding.btnLoop.isChecked = false
+            if (this.isResumed) {
+                if (binding.btnLoop.isChecked) {
+                    val intent = LoopInstructionsActivity.start(requireContext())
+                    startActivityForResult(intent, CODE_LOOP_INSTRUCTIONS)
+                } else {
+                    homeViewModel.state.isLoopModeActive.set(false)
+                    binding.btnLoop.isChecked = false
+                }
             }
         }
 
