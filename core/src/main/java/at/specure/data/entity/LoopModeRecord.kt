@@ -22,7 +22,8 @@ enum class LoopModeState(val valueInt: Int) {
 
     IDLE(0),
     RUNNING(1),
-    FINISHED(2);
+    FINISHED(2),
+    CANCELLED(3);
 
     companion object {
 

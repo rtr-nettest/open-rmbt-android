@@ -56,7 +56,7 @@
             app:layout_constraintBottom_toBottomOf="@+id/loop_measurement_title"
             app:layout_constraintEnd_toStartOf="@+id/progress_loop"
             app:layout_constraintTop_toTopOf="@+id/loop_measurement_title"
-            visibleOrGone="@{state.loopLocalUUID != null &amp;&amp; state.loopModeRecord.status != LoopModeState.FINISHED }"
+            visibleOrGone="@{state.loopLocalUUID != null &amp;&amp; state.loopModeRecord.status != LoopModeState.FINISHED &amp;&amp; state.loopModeRecord.status != LoopModeState.CANCELLED}"
             app:text="@{state.loopProgress}"
             tools:text="1/5" />
 

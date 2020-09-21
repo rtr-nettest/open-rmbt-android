@@ -215,7 +215,7 @@ class StateRecorder @Inject constructor(
 
     fun onLoopTestFinished() {
         _loopModeRecord?.let {
-            if (it.testsPerformed == config.loopModeNumberOfTests) {
+            if (it.testsPerformed >= config.loopModeNumberOfTests) {
                 it.status = LoopModeState.FINISHED
             } else {
                 it.status = LoopModeState.IDLE
@@ -260,7 +260,7 @@ class StateRecorder @Inject constructor(
                 it.movementDistanceMeters = loopLocation.distanceTo(newLocation).toInt()
                 Timber.d("LOOP DISTANCE: ${it.movementDistanceMeters}")
 
-                if (config.loopModeEnabled && loopModeRecord != null && loopModeRecord?.status != LoopModeState.FINISHED) {
+                if (config.loopModeEnabled && loopModeRecord != null && loopModeRecord?.status != LoopModeState.FINISHED && loopModeRecord?.status != LoopModeState.CANCELLED) {
                     var notifyDistanceReached = false
                     if (it.movementDistanceMeters >= config.loopModeDistanceMeters && newLocation.accuracy < config.loopModeDistanceMeters) {
                         Timber.d("LOOP STARTING DISTANCE: ${it.movementDistanceMeters}")
@@ -485,6 +485,13 @@ class StateRecorder @Inject constructor(
             it.status = LoopModeState.RUNNING
             it.testsPerformed++
             Timber.d("LOOP STATE UPDATED STARTED 4: ${it.status}")
+            repository.updateLoopMode(it)
+        }
+    }
+
+    fun onLoopTestStatusChanged(loopModeState: LoopModeState) {
+        _loopModeRecord?.let {
+            it.status = loopModeState
             repository.updateLoopMode(it)
         }
     }
