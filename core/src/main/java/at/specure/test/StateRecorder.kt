@@ -2,6 +2,7 @@ package at.specure.test
 
 import android.annotation.SuppressLint
 import android.location.Location
+import android.location.LocationProvider
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.Observer
 import at.rmbt.client.control.data.TestFinishReason
@@ -245,6 +246,11 @@ class StateRecorder @Inject constructor(
         }
 
         _loopModeRecord?.let {
+
+            Timber.d("Location obtained: provider:${location?.provider} accuracy:${location?.accuracy}")
+            // allow to use only high precision location data to start next test during the loop mode (default: ignore network provider, accept only accuracy better or equal to 20m)
+            if (location?.provider == "network" || location?.accuracy?.compareTo(20) ?: 1 > 0) return@let
+            Timber.d("Location accepted: provider:${location?.provider} accuracy:${location?.accuracy}")
             val newLocation = Location("")
             newLocation.latitude = location?.latitude ?: return@let
             newLocation.longitude = location.longitude
