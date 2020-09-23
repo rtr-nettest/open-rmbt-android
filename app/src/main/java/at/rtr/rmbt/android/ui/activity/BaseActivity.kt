@@ -1,17 +1,13 @@
 package at.rtr.rmbt.android.ui.activity
 
 import android.annotation.TargetApi
-import android.content.Context
 import android.content.res.Configuration
-import android.graphics.Color
 import android.os.Build
 import android.os.Bundle
-import android.view.Surface
 import android.view.View
 import android.view.WindowManager
 import androidx.annotation.LayoutRes
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.ViewCompat
 import androidx.databinding.DataBindingUtil
 import androidx.databinding.ViewDataBinding
 import at.rmbt.util.exception.HandledException
@@ -87,19 +83,19 @@ abstract class BaseActivity : AppCompatActivity() {
         return isAndroidTV
     }
 
-    protected fun setTransparentStatusBar() {
-        window.addFlags(WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS)
-        window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN or View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-
-        ViewCompat.setOnApplyWindowInsetsListener(window.decorView) { v, insets ->
-            when ((getSystemService(Context.WINDOW_SERVICE) as? WindowManager)?.defaultDisplay?.orientation) {
-                Surface.ROTATION_0 -> v.setPadding(0, 0, 0, v.paddingBottom + insets.systemWindowInsetBottom / 2)
-                Surface.ROTATION_90 -> v.setPadding(0, 0, v.paddingRight + insets.systemWindowInsetRight / 2, 0)
-                Surface.ROTATION_180 -> v.setPadding(0, v.paddingTop + insets.systemWindowInsetTop / 2, 0, 0)
-                Surface.ROTATION_270 -> v.setPadding(v.paddingLeft + insets.systemWindowInsetLeft / 2, 0, 0, 0)
-            }
-            window.decorView.setBackgroundColor(Color.BLACK)
-            insets
+    private fun setWindowFlag(bits: Int, on: Boolean) {
+        val winParams = window.attributes
+        if (on) {
+            winParams.flags = winParams.flags or bits
+        } else {
+            winParams.flags = winParams.flags and bits.inv()
         }
+        window.attributes = winParams
+    }
+
+    protected fun setTransparentStatusBar() {
+        setWindowFlag(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS, false)
+        setWindowFlag(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS, true)
+        window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN or View.SYSTEM_UI_FLAG_LAYOUT_STABLE
     }
 }
