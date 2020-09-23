@@ -600,7 +600,7 @@ private fun getSignalImageResource(networkType: NetworkTypeCompat, signalStrengt
                 Classification.NORMAL -> R.drawable.ic_history_5g_2
                 Classification.GOOD -> R.drawable.ic_history_5g_3
                 Classification.EXCELLENT -> R.drawable.ic_history_5g_4
-                Classification.NONE -> R.drawable.ic_history_no_internet
+                Classification.NONE -> R.drawable.ic_history_5g_0
             }
         }
     }

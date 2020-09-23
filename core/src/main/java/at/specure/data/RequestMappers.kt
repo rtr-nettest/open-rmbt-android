@@ -242,7 +242,7 @@ fun TestRecord.toRequest(
         platform = deviceInfo.platform,
         clientUUID = clientUUID,
         clientName = deviceInfo.clientName,
-        clientVersion = deviceInfo.rmbtClientVersion,
+        clientVersion = clientVersion,
         clientLanguage = deviceInfo.language,
         timeMillis = testTimeMillis,
         token = token,
