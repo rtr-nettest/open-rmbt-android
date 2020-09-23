@@ -80,16 +80,6 @@ abstract class BaseFragment : Fragment() {
         viewModels.add(viewModel)
     }
 
-    protected fun updateTransparentStatusBarHeight(stubView: View) {
-        if (!checkIsTelevision()) {
-            val heightDimensionId = resources.getIdentifier("status_bar_height", "dimen", "android")
-            if (heightDimensionId > 0) {
-                stubView.layoutParams.height = resources.getDimensionPixelSize(heightDimensionId)
-                stubView.requestLayout()
-            }
-        }
-    }
-
     @TargetApi(Build.VERSION_CODES.HONEYCOMB_MR2)
     protected fun checkIsTelevision(): Boolean {
         var isAndroidTV = false
