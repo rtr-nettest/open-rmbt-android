@@ -75,7 +75,6 @@ class MapFragment : BaseFragment(), OnMapReadyCallback, MapMarkerDetailsAdapter.
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         binding.state = mapViewModel.state
-        updateTransparentStatusBarHeight(binding.statusBarStub)
 
         binding.map.onCreate(savedInstanceState)
         mapViewModel.state.playServicesAvailable.set(checkPlayServices())
