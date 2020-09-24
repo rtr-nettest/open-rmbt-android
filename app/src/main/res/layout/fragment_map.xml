@@ -14,12 +14,6 @@
         android:layout_height="match_parent"
         android:background="@drawable/bg_gray">
 
-        <View
-            android:id="@+id/status_bar_stub"
-            android:layout_width="match_parent"
-            android:layout_height="@dimen/size_height_status_bar"
-            app:layout_constraintTop_toTopOf="parent" />
-
         <androidx.constraintlayout.widget.Group
             android:id="@+id/play_services_available_ui"
             android:layout_width="wrap_content"
@@ -69,7 +63,7 @@
             android:src="@drawable/ic_map_search"
             app:borderWidth="0dp"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/status_bar_stub" />
+            app:layout_constraintTop_toTopOf="parent" />
 
         <androidx.constraintlayout.widget.Group
             android:id="@+id/fabs_group"
