@@ -13,13 +13,7 @@ import at.specure.config.Config
 import at.specure.config.ControlServerProviderImpl
 import at.specure.config.IpEndpointProviderImpl
 import at.specure.config.MapServerProviderImpl
-import at.specure.data.ClientUUID
-import at.specure.data.ControlServerSettings
-import at.specure.data.CoreDatabase
-import at.specure.data.HistoryFilterOptions
-import at.specure.data.MeasurementServers
-import at.specure.data.NewsSettings
-import at.specure.data.TermsAndConditions
+import at.specure.data.*
 import at.specure.data.repository.DeviceSyncRepository
 import at.specure.data.repository.DeviceSyncRepositoryImpl
 import at.specure.data.repository.HistoryLoader
@@ -159,6 +153,7 @@ class CoreModule {
         context: Context,
         controlServerClient: ControlServerClient,
         clientUUID: ClientUUID,
+        clientUUIDLegacy: ClientUUIDLegacy,
         controlServerSettings: ControlServerSettings,
         termsAndConditions: TermsAndConditions,
         measurementServers: MeasurementServers,
@@ -170,6 +165,7 @@ class CoreModule {
             context = context,
             controlServerClient = controlServerClient,
             clientUUID = clientUUID,
+            clientUUIDLegacy = clientUUIDLegacy,
             controlServerSettings = controlServerSettings,
             termsAndConditions = termsAndConditions,
             measurementsServers = measurementServers,

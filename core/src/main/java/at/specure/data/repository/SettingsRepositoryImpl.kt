@@ -6,14 +6,9 @@ import at.rmbt.client.control.SettingsResponse
 import at.rmbt.client.control.TermsAndConditionsSettings
 import at.rmbt.util.Maybe
 import at.specure.config.Config
-import at.specure.data.ClientUUID
-import at.specure.data.ControlServerSettings
-import at.specure.data.HistoryFilterOptions
-import at.specure.data.MeasurementServers
-import at.specure.data.TermsAndConditions
+import at.specure.data.*
 import at.specure.data.dao.TacDao
 import at.specure.data.entity.TacRecord
-import at.specure.data.toSettingsRequest
 import at.specure.test.DeviceInfo
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
@@ -27,6 +22,7 @@ class SettingsRepositoryImpl(
     private val context: Context,
     private val controlServerClient: ControlServerClient,
     private val clientUUID: ClientUUID,
+    private val clientUUIDLegacy: ClientUUIDLegacy,
     private val controlServerSettings: ControlServerSettings,
     private val termsAndConditions: TermsAndConditions,
     private val measurementsServers: MeasurementServers,
@@ -59,7 +55,12 @@ class SettingsRepositoryImpl(
     }
 
     private fun emitSettingsRequest(): Maybe<SettingsResponse> {
-        val body = deviceInfo.toSettingsRequest(clientUUID, config, termsAndConditions)
+        //for migration phase - reuse existing client uuid, if any
+        if (clientUUID.value == null && clientUUIDLegacy.value != null) {
+            clientUUID.value = clientUUIDLegacy.value
+        }
+
+        val body = deviceInfo.toSettingsRequest(clientUUID, clientUUIDLegacy, config, termsAndConditions)
         // we must remove ipv4 url before we want to check settings, because settings request should go to the original URL
         controlServerSettings.controlServerV4Url = null
         controlServerSettings.controlServerV6Url = null

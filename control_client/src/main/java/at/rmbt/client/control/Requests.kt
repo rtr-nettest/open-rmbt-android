@@ -59,7 +59,9 @@ data class SettingsRequestBody(
     var tacVersion: Int,
     @SerializedName("terms_and_conditions_accepted")
     var tacAccepted: Boolean,
-    var capabilities: CapabilitiesBody
+    var capabilities: CapabilitiesBody,
+    @SerializedName("uuid_legacy")
+    var uuidLegacy: String?
 )
 
 @Keep

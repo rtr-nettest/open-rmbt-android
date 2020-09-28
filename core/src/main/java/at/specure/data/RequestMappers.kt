@@ -51,7 +51,7 @@ import timber.log.Timber
 import java.util.UUID
 import kotlin.math.abs
 
-fun DeviceInfo.toSettingsRequest(clientUUID: ClientUUID, config: Config, tac: TermsAndConditions) = SettingsRequestBody(
+fun DeviceInfo.toSettingsRequest(clientUUID: ClientUUID, clientUUIDLegacy: ClientUUIDLegacy, config: Config, tac: TermsAndConditions) = SettingsRequestBody(
     type = clientType,
     name = clientName,
     language = language,
@@ -71,7 +71,8 @@ fun DeviceInfo.toSettingsRequest(clientUUID: ClientUUID, config: Config, tac: Te
     userServerSelectionEnabled = config.expertModeEnabled,
     tacVersion = tac.tacVersion ?: 0,
     tacAccepted = tac.tacAccepted,
-    capabilities = config.toCapabilitiesBody()
+    capabilities = config.toCapabilitiesBody(),
+    uuidLegacy = clientUUIDLegacy.value
 )
 
 fun DeviceInfo.toIpRequest(clientUUID: String?, location: LocationInfo?, signalStrengthInfo: SignalStrengthInfo?, capabilities: CapabilitiesBody) =
