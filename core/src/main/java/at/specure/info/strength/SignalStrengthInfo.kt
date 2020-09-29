@@ -34,6 +34,7 @@ import androidx.annotation.RequiresApi
 import at.specure.info.TransportType
 import at.specure.info.cell.CellNetworkInfo
 import at.specure.info.network.MobileNetworkType
+import at.specure.info.network.NRConnectionState
 import at.specure.info.network.NetworkInfo
 import at.specure.info.network.WifiNetworkInfo
 import timber.log.Timber
@@ -172,16 +173,22 @@ abstract class SignalStrengthInfo : Parcelable {
             linkSpeed = info.linkSpeed
         )
 
-        fun from(signalStrength: SignalStrength?, network: NetworkInfo?, cellInfo: CellInfo?, isDualSim: Boolean): SignalStrengthInfo? {
+        fun from(
+            signalStrength: SignalStrength?,
+            network: NetworkInfo?,
+            cellInfo: CellInfo?,
+            nrConnectionState: NRConnectionState,
+            isDualSim: Boolean
+        ): SignalStrengthInfo? {
             return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                signalStrengthQ(signalStrength, cellInfo)
+                signalStrengthQ(signalStrength, cellInfo, nrConnectionState)
             } else {
                 signalStrengthOld(signalStrength, network, cellInfo, isDualSim)
             }
         }
 
         @SuppressLint("NewApi")
-        private fun signalStrengthQ(signalStrength: SignalStrength?, cellInfo: CellInfo?): SignalStrengthInfo? {
+        private fun signalStrengthQ(signalStrength: SignalStrength?, cellInfo: CellInfo?, nrConnectionState: NRConnectionState): SignalStrengthInfo? {
             if (signalStrength == null) {
                 val message =
                     "SSPQ - SignalStrength: null"
@@ -202,20 +209,24 @@ abstract class SignalStrengthInfo : Parcelable {
                 } else {
                     when (it) {
                         is CellSignalStrengthLte -> {
-                            signal = SignalStrengthInfoLte(
-                                transport = transportType,
-                                value = it.dbm,
-                                rsrq = it.rsrq.fixLteRsrq(),
-                                signalLevel = it.level,
-                                min = LTE_RSRP_SIGNAL_MIN,
-                                max = LTE_RSRP_SIGNAL_MAX,
-                                timestampNanos = timestampNanos,
-                                cqi = it.cqi.checkValueAvailable(),
-                                rsrp = it.rsrp.fixLteRsrp(),
-                                rssi = it.rssi.checkValueAvailable(),
-                                rssnr = it.rssnr.fixRssnr(),
-                                timingAdvance = cellInfo.lteTimingAdvance() ?: it.timingAdvance.fixTimingAdvance()
-                            )
+                            if (nrConnectionState == NRConnectionState.NSA) {
+                                return null
+                            } else {
+                                signal = SignalStrengthInfoLte(
+                                    transport = transportType,
+                                    value = it.dbm,
+                                    rsrq = it.rsrq.fixLteRsrq(),
+                                    signalLevel = it.level,
+                                    min = LTE_RSRP_SIGNAL_MIN,
+                                    max = LTE_RSRP_SIGNAL_MAX,
+                                    timestampNanos = timestampNanos,
+                                    cqi = it.cqi.checkValueAvailable(),
+                                    rsrp = it.rsrp.fixLteRsrp(),
+                                    rssi = it.rssi.checkValueAvailable(),
+                                    rssnr = it.rssnr.fixRssnr(),
+                                    timingAdvance = cellInfo.lteTimingAdvance() ?: it.timingAdvance.fixTimingAdvance()
+                                )
+                            }
                         }
                         is CellSignalStrengthNr -> {
                             signal = SignalStrengthInfoNr(
