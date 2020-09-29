@@ -284,6 +284,18 @@ class MeasurementService : CustomLifecycleService() {
 
             measurementState = MeasurementState.ERROR
             onProgressChanged(measurementState, 0)
+            if (config.loopModeEnabled && (stateRecorder.loopTestCount >= config.loopModeNumberOfTests || (config.loopModeNumberOfTests == 0 && config.developerModeIsEnabled))) {
+                loopCountdownTimer?.cancel()
+                Timber.d("TIMER: cancelling 8: ${loopCountdownTimer?.hashCode()}")
+                hasErrors = true
+                notificationManager.cancel(NOTIFICATION_ID)
+                clientAggregator.onMeasurementError()
+                stateRecorder.onLoopTestStatusChanged(LoopModeState.FINISHED)
+                stateRecorder.finish()
+                unlock()
+                stopForeground(true)
+            }
+
             stateRecorder.onLoopTestFinished()
 
             Timber.d("TEST ERROR HANDLING")
