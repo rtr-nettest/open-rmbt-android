@@ -59,12 +59,16 @@ class CellInfoWatcherImpl(
     private var callbacksRegistered = false
     private var _cellInfo: CellInfo? = null
     private var _allCellInfo = Collections.synchronizedList(mutableListOf<CellNetworkInfo>())
+    private var _nrConnectionState = NRConnectionState.NOT_AVAILABLE
 
     override val cellInfo: CellInfo?
         get() = _cellInfo
 
     override val allCellInfo: List<CellNetworkInfo>
         get() = _allCellInfo
+
+    override val nrConnectionState: NRConnectionState
+        get() = _nrConnectionState
 
     init {
         locationAccess.addListener(this)
@@ -77,7 +81,7 @@ class CellInfoWatcherImpl(
         override fun onCellInfoChanged(cellInfo: MutableList<CellInfo>?) {
             cellInfo ?: return
 
-            var nrCollectionState = NRConnectionState.NOT_AVAILABLE
+            _nrConnectionState = NRConnectionState.NOT_AVAILABLE
             val dataSimSubscriptionId = subscriptionManager.getCurrentDataSubscriptionId()
             var dualSimDecisionLog = ""
             var dualSimDecision = ""
@@ -95,8 +99,8 @@ class CellInfoWatcherImpl(
                             val manager = telephonyManager.createForSubscriptionId(dataSimSubscriptionId)
                             if (NRConnectionState.getNRConnectionState(manager) != NRConnectionState.NOT_AVAILABLE) {
                                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                                    nrCollectionState = NRConnectionState.getNRConnectionState(manager)
-                                    when (nrCollectionState) {
+                                    _nrConnectionState = NRConnectionState.getNRConnectionState(manager)
+                                    when (_nrConnectionState) {
                                         NRConnectionState.NOT_AVAILABLE -> manager.dataNetworkType
                                         NRConnectionState.AVAILABLE -> ServerNetworkType.TYPE_5G_NR_AVAILABLE.intValue
                                         NRConnectionState.NSA -> ServerNetworkType.TYPE_5G_NR_NSA.intValue
@@ -235,6 +239,19 @@ class CellInfoWatcherImpl(
                                 dualSimDecision += "CELL_INFO: FAILED!"
                             }
                             Timber.v(dualSimDecisionLog)
+                        }
+
+                        // apply fix for 5G NSA when there is 4G connection as anchor connection and 5G is used as secondary one while 5G cell is signalled as non registered
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                            if (_nrConnectionState == NRConnectionState.NSA) {
+                                val onlyNRCells = cellInfo.filterIsInstance<CellInfoNr>()
+                                val sortedNRCellsBySignalDesc = onlyNRCells.sortedByDescending { it.cellSignalStrength.dbm }
+                                _cellInfo = if (sortedNRCellsBySignalDesc.isEmpty()) {
+                                    _cellInfo
+                                } else {
+                                    sortedNRCellsBySignalDesc.first()
+                                }
+                            }
                         }
 
 //                        Timber.v("Cell: $_cellInfo, Network_type: $networkType, MNT: ${MobileNetworkType.fromValue(networkType)}" )

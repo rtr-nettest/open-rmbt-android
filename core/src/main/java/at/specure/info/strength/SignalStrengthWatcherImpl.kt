@@ -83,6 +83,7 @@ class SignalStrengthWatcherImpl(
 
             val network = activeNetworkWatcher.currentNetworkInfo
             val cellInfo = cellInfoWatcher.cellInfo
+            val nrConnectionState = cellInfoWatcher.nrConnectionState
 
             var dualSim = false
             dualSim = if (PermissionChecker.checkSelfPermission(context, READ_PHONE_STATE) == PERMISSION_GRANTED) {
@@ -98,7 +99,7 @@ class SignalStrengthWatcherImpl(
                 }
             }
 
-            val signal = SignalStrengthInfo.from(signalStrength, network, cellInfo, dualSim)
+            val signal = SignalStrengthInfo.from(signalStrength, network, cellInfo, nrConnectionState, dualSim)
 
             if (signal?.value == null || signal.value == 0) {
                 signalStrengthInfo = null
