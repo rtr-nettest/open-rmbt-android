@@ -2,7 +2,6 @@ package at.specure.test
 
 import android.annotation.SuppressLint
 import android.location.Location
-import android.location.LocationProvider
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.Observer
 import at.rmbt.client.control.data.TestFinishReason
