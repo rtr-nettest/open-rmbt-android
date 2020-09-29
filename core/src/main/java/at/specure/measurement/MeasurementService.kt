@@ -490,7 +490,7 @@ class MeasurementService : CustomLifecycleService() {
                     }
 
                     override fun onTick(millisUntilFinished: Long) {
-                        if (stateRecorder.loopModeRecord?.status == LoopModeState.FINISHED || stateRecorder.loopModeRecord?.status == LoopModeState.CANCELLED || stateRecorder.loopModeRecord?.testsPerformed ?: 0 >= config.loopModeMaxTestsNumber) {
+                        if (stateRecorder.loopModeRecord?.status == LoopModeState.FINISHED || stateRecorder.loopModeRecord?.status == LoopModeState.CANCELLED || stateRecorder.loopModeRecord?.testsPerformed ?: 0 >= config.loopModeNumberOfTests) {
                             this.cancel()
                         }
                         Timber.d("CountDownTimer tick $millisUntilFinished - ${this.hashCode()}")
