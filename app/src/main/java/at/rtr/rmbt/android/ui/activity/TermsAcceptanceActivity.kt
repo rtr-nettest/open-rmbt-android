@@ -3,6 +3,7 @@ package at.rtr.rmbt.android.ui.activity
 import android.app.Activity
 import android.content.Intent
 import android.graphics.Rect
+import android.net.Uri
 import android.os.Bundle
 import android.view.View
 import android.webkit.WebView
@@ -94,6 +95,15 @@ class TermsAcceptanceActivity : BaseActivity() {
             }
             binding.scrollView.visibility = View.VISIBLE
             binding.checkbox.requestFocus()
+        }
+
+        override fun shouldOverrideUrlLoading(view: WebView?, url: String?): Boolean {
+            // always open links in new intent on terms/conditions/privacy
+            Intent(Intent.ACTION_VIEW, Uri.parse(url)).apply {
+                startActivity(this)
+            }
+
+            return true
         }
     }
 

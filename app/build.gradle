@@ -63,7 +63,7 @@ android {
 dependencies {
     implementation project(path: ':core')
     implementation project(path: ':location')
-    implementation project(path: ':location-fused')
+//    implementation project(path: ':location-fused')
 
     // Kotlin
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$versions.kotlin"

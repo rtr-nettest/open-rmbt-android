@@ -175,7 +175,7 @@ class TestResultsRepositoryImpl(
                     percentage = percentage,
                     info = "${(percentage * 100).toInt()}% ($successCount/${successCount + failureCount})",
                     classification = getQosClassification(percentage * 100f),
-                    priority = 1
+                    priority = -1
                 )
             )
         }

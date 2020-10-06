@@ -15,6 +15,7 @@
 package at.specure.info.cell
 
 import android.telephony.CellInfo
+import at.specure.info.network.NRConnectionState
 
 /**
  * Watcher that is responsible for tracking cellular connection info
@@ -30,6 +31,11 @@ interface CellInfoWatcher {
     val cellInfo: CellInfo?
 
     val allCellInfo: List<CellNetworkInfo>
+
+    /**
+     * NR connection type default should be [NRConnectionState.NOT_AVAILABLE]
+     */
+    val nrConnectionState: NRConnectionState
 
     /**
      * Add listener to observe cell network changes

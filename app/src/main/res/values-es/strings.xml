@@ -31,7 +31,7 @@
     <string name="home_frequency">Frecuencia</string>
     <string name="home_attention">Aviso</string>
     <string name="home_no_internet_connection">No hay conexión a Internet!</string>
-    <string name="home_use_wifi_or_data_connection">Desactivar modo avión o usar WiFi para el consumo de datos.</string>
+    <string name="home_no_internet_connection_details" />
     <string name="home_signal_value">%1$d dBm</string>
     <string name="home_start_test_info">Toque el botón, para comenzar la prueba</string>
     <string name="home_wifi">WLAN</string>

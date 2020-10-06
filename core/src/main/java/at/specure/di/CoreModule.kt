@@ -14,6 +14,7 @@ import at.specure.config.ControlServerProviderImpl
 import at.specure.config.IpEndpointProviderImpl
 import at.specure.config.MapServerProviderImpl
 import at.specure.data.ClientUUID
+import at.specure.data.ClientUUIDLegacy
 import at.specure.data.ControlServerSettings
 import at.specure.data.CoreDatabase
 import at.specure.data.HistoryFilterOptions
@@ -159,6 +160,7 @@ class CoreModule {
         context: Context,
         controlServerClient: ControlServerClient,
         clientUUID: ClientUUID,
+        clientUUIDLegacy: ClientUUIDLegacy,
         controlServerSettings: ControlServerSettings,
         termsAndConditions: TermsAndConditions,
         measurementServers: MeasurementServers,
@@ -170,6 +172,7 @@ class CoreModule {
             context = context,
             controlServerClient = controlServerClient,
             clientUUID = clientUUID,
+            clientUUIDLegacy = clientUUIDLegacy,
             controlServerSettings = controlServerSettings,
             termsAndConditions = termsAndConditions,
             measurementsServers = measurementServers,
