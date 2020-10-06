@@ -42,6 +42,7 @@
                 android:text="@string/signal_measurement_terms_content"
                 android:justificationMode="inter_word"
                 android:textColor="@color/text_dark_gray"
+                tools:targetApi="o"
                 tools:text="Content" />
 
         </ScrollView>
