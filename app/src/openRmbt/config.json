@@ -67,7 +67,7 @@
     },
     {
       "name": "SKIP_QOS_TESTS_FOR_PERIOD",
-      "value": "false",
+      "value": "true",
       "visible": true
     },
     {
