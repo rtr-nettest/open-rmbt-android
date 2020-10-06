@@ -6,9 +6,15 @@ import at.rmbt.client.control.SettingsResponse
 import at.rmbt.client.control.TermsAndConditionsSettings
 import at.rmbt.util.Maybe
 import at.specure.config.Config
-import at.specure.data.*
+import at.specure.data.ClientUUID
+import at.specure.data.ClientUUIDLegacy
+import at.specure.data.ControlServerSettings
+import at.specure.data.HistoryFilterOptions
+import at.specure.data.MeasurementServers
+import at.specure.data.TermsAndConditions
 import at.specure.data.dao.TacDao
 import at.specure.data.entity.TacRecord
+import at.specure.data.toSettingsRequest
 import at.specure.test.DeviceInfo
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
@@ -55,7 +61,7 @@ class SettingsRepositoryImpl(
     }
 
     private fun emitSettingsRequest(): Maybe<SettingsResponse> {
-        //for migration phase - reuse existing client uuid, if any
+        // for migration phase - reuse existing client uuid, if any
         if (clientUUID.value == null && clientUUIDLegacy.value != null) {
             clientUUID.value = clientUUIDLegacy.value
         }

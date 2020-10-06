@@ -241,7 +241,6 @@ class HomeFragment : BaseFragment() {
             } else {
                 permissions.add(Manifest.permission.ACCESS_COARSE_LOCATION)
                 permissions.add(Manifest.permission.ACCESS_FINE_LOCATION)
-
             }
         }
 

@@ -167,15 +167,17 @@ fun AppCompatImageView.setIcon(signalStrengthInfo: SignalStrengthInfo?, connecte
 @BindingAdapter("networkType")
 fun AppCompatTextView.setNetworkType(networkInfo: NetworkInfo?) {
 
-    // display "LTE" (true) or "4G/LTE" (false)
-    val  SHORT_DISPLAY_OF_TECHNOLOGY = true
+    /**
+     *  display "LTE" (true) or "4G/LTE" (false)
+     */
+    val shortDisplayOfTechnology = true
 
     text = when (networkInfo) {
         is WifiNetworkInfo -> context.getString(R.string.home_wifi)
         is CellNetworkInfo -> {
             val technology =
                 CellTechnology.fromMobileNetworkType(networkInfo.networkType)?.displayName
-            if (SHORT_DISPLAY_OF_TECHNOLOGY || technology == null) {
+            if (shortDisplayOfTechnology || technology == null) {
                 networkInfo.networkType.displayName
             } else {
                 "$technology/${networkInfo.networkType.displayName}"
