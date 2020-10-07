@@ -210,7 +210,26 @@ abstract class SignalStrengthInfo : Parcelable {
                     when (it) {
                         is CellSignalStrengthLte -> {
                             if (nrConnectionState == NRConnectionState.NSA) {
-                                return null
+                                if ((cellInfo is CellInfoNr) && (cellInfo.cellSignalStrength is CellSignalStrengthNr)) {
+                                    val cellInfoNr = cellInfo.cellSignalStrength as CellSignalStrengthNr
+                                    signal = SignalStrengthInfoNr(
+                                        transport = TransportType.CELLULAR,
+                                        value = cellInfoNr.dbm,
+                                        rsrq = cellInfoNr.csiRsrq.checkValueAvailable(),
+                                        signalLevel = cellInfoNr.level,
+                                        min = NR_RSRP_SIGNAL_MIN,
+                                        max = NR_RSRP_SIGNAL_MAX,
+                                        timestampNanos = timestampNanos,
+                                        csiRsrp = cellInfoNr.csiRsrp.checkValueAvailable(),
+                                        csiRsrq = cellInfoNr.csiRsrq.checkValueAvailable(),
+                                        csiSinr = cellInfoNr.csiSinr.checkValueAvailable(),
+                                        ssRsrp = cellInfoNr.ssRsrp.checkValueAvailable(),
+                                        ssRsrq = cellInfoNr.ssRsrq.checkValueAvailable(),
+                                        ssSinr = cellInfoNr.ssSinr.checkValueAvailable()
+                                    )
+                                } else {
+                                    return null
+                                }
                             } else {
                                 signal = SignalStrengthInfoLte(
                                     transport = transportType,
