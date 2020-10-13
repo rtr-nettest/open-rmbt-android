@@ -5,6 +5,7 @@ import android.annotation.SuppressLint
 import android.content.pm.PackageManager
 import android.location.Address
 import android.location.Geocoder
+import android.os.Build
 import android.os.Bundle
 import android.view.View
 import android.widget.Toast
@@ -148,6 +149,10 @@ class MapFragment : BaseFragment(), OnMapReadyCallback, MapMarkerDetailsAdapter.
     }
 
     private fun checkPlayServices(): Boolean {
+
+        if (Build.MANUFACTURER.compareTo("Amazon", true) == 0) {
+            return false;
+        }
         val gApi: GoogleApiAvailability = GoogleApiAvailability.getInstance()
         val resultCode: Int = gApi.isGooglePlayServicesAvailable(this.context)
         if (resultCode != ConnectionResult.SUCCESS) {
@@ -199,6 +204,11 @@ class MapFragment : BaseFragment(), OnMapReadyCallback, MapMarkerDetailsAdapter.
         super.onResume()
         binding.map.onResume()
         updateLocationPermissionRelatedUi()
+        if (!checkPlayServices()) {
+            binding.fabsGroup.visibility = View.GONE
+            binding.webMap.visibility = View.VISIBLE
+            binding.playServicesAvailableUi.visibility = View.GONE
+        }
     }
 
     override fun onStop() {
@@ -216,7 +226,9 @@ class MapFragment : BaseFragment(), OnMapReadyCallback, MapMarkerDetailsAdapter.
         currentMarker?.remove()
         currentMarker = null
 //        adapter.items = mutableListOf()
-        binding.fabsGroup?.visibility = View.VISIBLE
+        if (mapViewModel.state.playServicesAvailable.get()) {
+            binding.fabsGroup?.visibility = View.VISIBLE
+        }
     }
 
     override fun onMoreDetailsClicked(openTestUUID: String) {

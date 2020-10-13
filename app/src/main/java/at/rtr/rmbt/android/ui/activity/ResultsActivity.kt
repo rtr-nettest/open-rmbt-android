@@ -2,6 +2,7 @@ package at.rtr.rmbt.android.ui.activity
 
 import android.content.Context
 import android.content.Intent
+import android.os.Build
 import android.os.Bundle
 import android.view.View
 import androidx.core.content.ContextCompat
@@ -174,6 +175,9 @@ class ResultsActivity : BaseActivity(), OnMapReadyCallback {
     }
 
     private fun checkPlayServices(): Boolean {
+        if (Build.MANUFACTURER.compareTo("Amazon", true) == 0) {
+            return false;
+        }
         val gApi: GoogleApiAvailability = GoogleApiAvailability.getInstance()
         val resultCode: Int = gApi.isGooglePlayServicesAvailable(this)
         if (resultCode != ConnectionResult.SUCCESS) {
