@@ -186,6 +186,7 @@
             android:layout_width="0dp"
             android:layout_height="0dp"
             android:src="@drawable/ic_mobile_3"
+            android:scaleType="centerInside"
             android:background="@drawable/bg_selection"
             app:layout_constraintBottom_toBottomOf="@+id/viewCircleShape"
             app:layout_constraintEnd_toEndOf="@+id/viewCircleShape"
