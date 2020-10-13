@@ -176,7 +176,7 @@ class ResultsActivity : BaseActivity(), OnMapReadyCallback {
 
     private fun checkPlayServices(): Boolean {
         if (Build.MANUFACTURER.compareTo("Amazon", true) == 0) {
-            return false;
+            return false
         }
         val gApi: GoogleApiAvailability = GoogleApiAvailability.getInstance()
         val resultCode: Int = gApi.isGooglePlayServicesAvailable(this)
