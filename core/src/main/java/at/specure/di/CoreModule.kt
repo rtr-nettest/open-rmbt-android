@@ -33,6 +33,8 @@ import at.specure.data.repository.NewsRepositoryImpl
 import at.specure.data.repository.SettingsRepository
 import at.specure.data.repository.SettingsRepositoryImpl
 import at.specure.data.repository.TestDataRepository
+import at.specure.info.cell.ActiveDataCellInfoExtractor
+import at.specure.info.cell.ActiveDataCellInfoExtractorImpl
 import at.specure.info.cell.CellInfoWatcher
 import at.specure.info.cell.CellInfoWatcherImpl
 import at.specure.info.connectivity.ConnectivityWatcher
@@ -106,14 +108,22 @@ class CoreModule {
 
     @Provides
     @Singleton
-    fun provideCellInfoWatcher(
+    fun provideActiveDataCellInfoExtractor(
         telephonyManager: TelephonyManager,
         subscriptionManager: SubscriptionManager,
+        connectivityManager: ConnectivityManager
+    ): ActiveDataCellInfoExtractor = ActiveDataCellInfoExtractorImpl(telephonyManager, subscriptionManager, connectivityManager)
+
+    @Provides
+    @Singleton
+    fun provideCellInfoWatcher(
+        telephonyManager: TelephonyManager,
         locationAccess: LocationAccess,
         phoneStateAccess: PhoneStateAccess,
-        connectivityManager: ConnectivityManager
+        connectivityManager: ConnectivityManager,
+        activeDataCellInfoExtractor: ActiveDataCellInfoExtractor
     ): CellInfoWatcher =
-        CellInfoWatcherImpl(telephonyManager, subscriptionManager, locationAccess, phoneStateAccess, connectivityManager)
+        CellInfoWatcherImpl(telephonyManager, locationAccess, phoneStateAccess, connectivityManager, activeDataCellInfoExtractor)
 
     @Provides
     @Singleton
