@@ -27,14 +27,14 @@ class SignalMeasurementChunkWorker(appContext: Context, workerParams: WorkerPara
         repository.sendMeasurementChunk(chunkId)
             .catch { e ->
                 if (e is NoConnectionException) {
-                    emit(false)
+                    emit(null)
                 } else {
                     Timber.e(e, "Getting signal info record error")
-                    emit(true)
+                    emit("")
                 }
             }
             .collect {
-                result = if (it) Result.success() else Result.retry()
+                result = if (it != null) Result.success() else Result.retry()
             }
 
         return result

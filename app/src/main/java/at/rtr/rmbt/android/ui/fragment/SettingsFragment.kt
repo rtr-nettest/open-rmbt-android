@@ -177,6 +177,9 @@ class SettingsFragment : BaseFragment(), InputSettingDialog.Callback, ServerSele
         binding.sourceCode.root.setOnClickListener {
             startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(settingsViewModel.state.githubRepositoryUrl.get())))
         }
+        binding.developedBy.root.setOnClickListener {
+            startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(getString(R.string.preferences_developer_page))))
+        }
         binding.goToWebsite.root.setOnClickListener {
             startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(settingsViewModel.state.webPageUrl.get())))
         }
