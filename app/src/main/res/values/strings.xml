@@ -67,6 +67,8 @@
     <string name="preferences_about">About</string>
     <string name="preferences_source_code">Source code</string>
     <string name="preferences_data_protection">Privacy policy and terms of use</string>
+    <string name="preferences_developed_by">Developed by Specure GmbH</string>
+    <string name="preferences_developer_page" translatable="false">https://specure.com/</string>
     <string name="preferences_version">Version</string>
     <string name="preferences_commit_hash">Commit hash</string>
     <string name="preferences_enter_code">Please enter the code</string>
