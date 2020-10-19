@@ -8,4 +8,4 @@ data class ActiveDataCellInfo(
     val activeDataNetwork: CellNetworkInfo? = null,
     val activeDataNetworkCellInfo: CellInfo? = null,
     val nrConnectionState: NRConnectionState = NRConnectionState.NOT_AVAILABLE
-) {}
+)

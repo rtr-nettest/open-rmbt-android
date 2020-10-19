@@ -233,8 +233,6 @@ class ActiveDataCellInfoExtractorImpl(
             activeDataNetwork = _activeDataNetwork
         )
     }
-
-
 }
 
 fun SubscriptionManager.getCurrentDataSubscriptionId(): Int {
