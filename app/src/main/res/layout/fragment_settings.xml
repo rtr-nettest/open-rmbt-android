@@ -417,7 +417,7 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/labelAdditionalInformation"
                 bind:title="@{@string/preferences_client_uuid}"
-                bind:value="@{state.clientUUID.value}" />
+                bind:value="@{state.clientUUIDFormatted}" />
 
             <include
                 android:id="@+id/numberOfTestsPerformed"

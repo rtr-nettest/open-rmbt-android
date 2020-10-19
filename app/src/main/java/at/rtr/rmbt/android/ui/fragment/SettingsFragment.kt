@@ -84,7 +84,7 @@ class SettingsFragment : BaseFragment(), InputSettingDialog.Callback, ServerSele
         }
 
         settingsViewModel.state.clientUUID.liveData.listen(this) {
-            binding.clientUUID.value = it
+            binding.clientUUID.value = if (it.isNullOrEmpty()) "" else "U$it"
         }
 
         settingsViewModel.locationStateLiveData.listen(this) {
