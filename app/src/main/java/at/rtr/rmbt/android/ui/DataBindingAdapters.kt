@@ -3,6 +3,7 @@ package at.rtr.rmbt.android.ui
 import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.appcompat.widget.AppCompatImageButton
 import androidx.appcompat.widget.AppCompatImageView
 import androidx.appcompat.widget.AppCompatTextView
 import androidx.constraintlayout.widget.ConstraintLayout
@@ -119,7 +120,7 @@ fun AppCompatTextView.showPopup(isConnected: Boolean, infoWindowStatus: InfoWind
  * and signalLevel(0..4)
  */
 @BindingAdapter("signalLevel", "connected")
-fun AppCompatImageView.setIcon(signalStrengthInfo: SignalStrengthInfo?, connected: Boolean) {
+fun AppCompatImageButton.setIcon(signalStrengthInfo: SignalStrengthInfo?, connected: Boolean) {
 
     if (signalStrengthInfo != null) {
 
