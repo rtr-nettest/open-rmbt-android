@@ -258,10 +258,19 @@ class MeasurementService : CustomLifecycleService() {
             } else {
                 resumeSignalMeasurement(false)
             }
-            if (startNetwork != connectivityManager.activeNetwork) {
+            if (startNetwork != null && startNetwork != connectivityManager.activeNetwork) {
                 Timber.e("Network change!")
                 try {
                     throw IllegalNetworkChangeException("Illegal network change during the test")
+                } catch (ex: Exception) {
+                    stateRecorder.setErrorCause(Log.getStackTraceString(ex))
+                }
+            }
+
+            if (startNetwork == null) {
+                Timber.e("Network not detected!")
+                try {
+                    throw IllegalNetworkChangeException("No active network detected")
                 } catch (ex: Exception) {
                     stateRecorder.setErrorCause(Log.getStackTraceString(ex))
                 }

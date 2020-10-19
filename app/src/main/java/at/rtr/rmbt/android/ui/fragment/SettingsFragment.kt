@@ -84,7 +84,7 @@ class SettingsFragment : BaseFragment(), InputSettingDialog.Callback, ServerSele
         }
 
         settingsViewModel.state.clientUUID.liveData.listen(this) {
-            binding.clientUUID.value = it
+            binding.clientUUID.value = if (it.isNullOrEmpty()) "" else "U$it"
         }
 
         settingsViewModel.locationStateLiveData.listen(this) {
@@ -176,6 +176,9 @@ class SettingsFragment : BaseFragment(), InputSettingDialog.Callback, ServerSele
         binding.commitHash.value = BuildConfig.COMMIT_HASH
         binding.sourceCode.root.setOnClickListener {
             startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(settingsViewModel.state.githubRepositoryUrl.get())))
+        }
+        binding.developedBy.root.setOnClickListener {
+            startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(getString(R.string.preferences_developer_page))))
         }
         binding.goToWebsite.root.setOnClickListener {
             startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(settingsViewModel.state.webPageUrl.get())))

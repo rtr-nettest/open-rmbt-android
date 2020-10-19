@@ -12,6 +12,7 @@ import at.specure.data.entity.SignalMeasurementRecord
 import at.specure.data.repository.MeasurementRepository
 import at.specure.data.repository.SignalMeasurementRepository
 import at.specure.data.repository.TestDataRepository
+import at.specure.info.TransportType
 import at.specure.info.cell.CellInfoWatcher
 import at.specure.info.cell.CellNetworkInfo
 import at.specure.info.connectivity.ConnectivityStateBundle
@@ -56,7 +57,7 @@ class SignalMeasurementProcessor @Inject constructor(
     private val signalRepository: SignalMeasurementRepository,
     private val connectivityWatcher: ConnectivityWatcher,
     private val measurementRepository: MeasurementRepository
-) : Binder(), SignalMeasurementProducer {
+) : Binder(), SignalMeasurementProducer, SignalMeasurementChunkResultCallback {
 
     private var isUnstoppable = false
     private var _isActive = false
@@ -84,6 +85,7 @@ class SignalMeasurementProcessor @Inject constructor(
     private var locationInfo: LocationInfo? = null
     private var signalStrengthInfo: SignalStrengthInfo? = null
     private var cellLocation: CellLocationInfo? = null
+    private val saveWlanInfo = false
 
     override val isActive: Boolean
         get() = _isActive
@@ -223,8 +225,12 @@ class SignalMeasurementProcessor @Inject constructor(
 
     private fun handleNewNetwork(newInfo: NetworkInfo?) {
         val currentInfo = networkInfo
+        var newNetworkInfo = newInfo
+        if (newInfo?.type != TransportType.CELLULAR) {
+            newNetworkInfo = null
+        }
         when {
-            newInfo == null && currentInfo != null -> {
+            newNetworkInfo == null && currentInfo != null -> {
                 Timber.i("Network become unavailable")
                 commitChunkData()
                 lastSeenNetworkInfo = networkInfo
@@ -234,10 +240,10 @@ class SignalMeasurementProcessor @Inject constructor(
                 networkInfo = null
                 record = null
             }
-            newInfo != null && currentInfo == null -> {
+            newNetworkInfo != null && currentInfo == null -> {
                 Timber.i("Network appeared")
-                networkInfo = newInfo
-                if ((lastSeenNetworkInfo != null) && (lastSeenNetworkInfo?.type == newInfo.type) && (lastSeenNetworkTimestampMillis?.plus(
+                networkInfo = newNetworkInfo
+                if ((lastSeenNetworkInfo != null) && (lastSeenNetworkInfo?.type == newNetworkInfo.type) && (lastSeenNetworkTimestampMillis?.plus(
                         TimeUnit.SECONDS.toMillis(
                             MAX_TIME_NETWORK_UNREACHABLE_SECONDS
                         )
@@ -251,18 +257,18 @@ class SignalMeasurementProcessor @Inject constructor(
                 } else {
                     cleanLastNetwork()
                     cancelPlannedUnconnectedCleaning()
-                    createNewRecord(newInfo)
+                    createNewRecord(newNetworkInfo)
                 }
             }
             // it must be started like new chunk on different type of the network because network type is common for entire chunk
-            newInfo != null && currentInfo != null && currentInfo.type != newInfo.type -> {
+            newNetworkInfo != null && currentInfo != null && currentInfo.type != newNetworkInfo.type -> {
                 Timber.i("Network changed")
-                networkInfo = newInfo
+                networkInfo = newNetworkInfo
                 commitChunkData()
-                createNewRecord(newInfo)
+                createNewRecord(newNetworkInfo)
             }
             else -> {
-                Timber.i("New network other case -> new: ${newInfo?.cellUUID} old ${currentInfo?.cellUUID}")
+                Timber.i("New network other case -> new: ${newNetworkInfo?.cellUUID} old ${currentInfo?.cellUUID}")
             }
         }
     }
@@ -301,7 +307,9 @@ class SignalMeasurementProcessor @Inject constructor(
                 Timber.i("New chunk created")
             }
 
-            saveWlanInfo()
+            if (saveWlanInfo) {
+                saveWlanInfo()
+            }
             saveCellInfo()
             saveTelephonyInfo()
             saveSignalStrengthInfo()
@@ -372,15 +380,15 @@ class SignalMeasurementProcessor @Inject constructor(
             var mobileNetworkType: MobileNetworkType? = null
             if (networkInfo != null && networkInfo is CellNetworkInfo) {
                 mobileNetworkType = (networkInfo as CellNetworkInfo).networkType
-            }
-            Timber.d("Signal saving time SMP: starting time: ${record?.startTimeNanos}   current time: ${System.nanoTime()}")
-            repository.saveSignalStrength(uuid, cellUUID, mobileNetworkType, info, record?.startTimeNanos ?: 0)
+                Timber.d("Signal saving time SMP: starting time: ${record?.startTimeNanos}   current time: ${System.nanoTime()}")
+                repository.saveSignalStrength(uuid, cellUUID, mobileNetworkType, info, record?.startTimeNanos ?: 0)
 
-            chunkDataSize++
-            if (chunkDataSize >= MAX_SIGNAL_COUNT_PER_CHUNK) {
-                Timber.v("Chunk max size reached: $chunkDataSize")
-                commitChunkData()
-                createNewChunk()
+                chunkDataSize++
+                if (chunkDataSize >= MAX_SIGNAL_COUNT_PER_CHUNK) {
+                    Timber.v("Chunk max size reached: $chunkDataSize")
+                    commitChunkData()
+                    createNewChunk()
+                }
             }
         }
     }
@@ -403,5 +411,17 @@ class SignalMeasurementProcessor @Inject constructor(
         }
 
         chunk?.id?.let { measurementRepository.saveTelephonyInfo(it) }
+    }
+
+    override fun chunkSentResult(respondedUuid: String?) {
+        if (chunk != null && !respondedUuid.isNullOrEmpty() && chunk?.measurementId == respondedUuid) {
+            commitChunkData()
+            if (lastSeenNetworkInfo != null) {
+                val networkInfo: NetworkInfo = lastSeenNetworkInfo as NetworkInfo
+                createNewRecord(networkInfo)
+            } else {
+                cleanLastNetwork()
+            }
+        }
     }
 }
