@@ -214,7 +214,7 @@ abstract class SignalStrengthInfo : Parcelable {
                                     val cellInfoNr = cellInfo.cellSignalStrength as CellSignalStrengthNr
                                     return SignalStrengthInfoNr(
                                         transport = TransportType.CELLULAR,
-                                        value = cellInfoNr.ssRsrp.checkValueAvailable(),
+                                        value = cellInfoNr.ssRsrp.checkValueAvailable()?.let { nrSignal -> -abs(nrSignal) },
                                         rsrq = cellInfoNr.ssRsrq.checkValueAvailable(),
                                         signalLevel = cellInfoNr.level,
                                         min = NR_RSRP_SIGNAL_MIN,
@@ -233,7 +233,7 @@ abstract class SignalStrengthInfo : Parcelable {
                             } else {
                                 signal = SignalStrengthInfoLte(
                                     transport = transportType,
-                                    value = it.dbm,
+                                    value = it.dbm.let { nrSignal -> -abs(nrSignal) },
                                     rsrq = it.rsrq.fixLteRsrq(),
                                     signalLevel = it.level,
                                     min = LTE_RSRP_SIGNAL_MIN,
