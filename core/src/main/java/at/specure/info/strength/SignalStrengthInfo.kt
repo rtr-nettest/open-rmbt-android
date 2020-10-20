@@ -212,7 +212,7 @@ abstract class SignalStrengthInfo : Parcelable {
                             if (nrConnectionState == NRConnectionState.NSA) {
                                 if ((cellInfo is CellInfoNr) && (cellInfo.cellSignalStrength is CellSignalStrengthNr)) {
                                     val cellInfoNr = cellInfo.cellSignalStrength as CellSignalStrengthNr
-                                    signal = SignalStrengthInfoNr(
+                                    return SignalStrengthInfoNr(
                                         transport = TransportType.CELLULAR,
                                         value = cellInfoNr.ssRsrp.checkValueAvailable(),
                                         rsrq = cellInfoNr.ssRsrq.checkValueAvailable(),
