@@ -68,6 +68,15 @@ class CellInfoWatcherImpl(
             cellInfos ?: return
 
             val activeDataCellInfo = activeDataCellInfoExtractor.extractActiveCellInfo(cellInfos)
+            activeDataCellInfo.activeDataNetworkCellInfo?.let {
+                _cellInfo = it
+            }
+
+            activeDataCellInfo.activeDataNetwork?.let {
+                _activeNetwork = it
+            }
+
+            _nrConnectionState = activeDataCellInfo.nrConnectionState
 
             _allCellInfo.clear()
             cellInfos.forEach {
