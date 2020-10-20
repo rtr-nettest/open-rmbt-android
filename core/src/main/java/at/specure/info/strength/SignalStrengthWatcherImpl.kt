@@ -27,7 +27,9 @@ import androidx.core.content.PermissionChecker.PERMISSION_GRANTED
 import at.specure.info.Network5GSimulator
 import at.specure.info.TransportType
 import at.specure.info.cell.ActiveDataCellInfoExtractor
+import at.specure.info.cell.CellInfoWatcher
 import at.specure.info.network.ActiveNetworkWatcher
+import at.specure.info.network.NRConnectionState
 import at.specure.info.network.NetworkInfo
 import at.specure.info.wifi.WifiInfoWatcher
 import at.specure.util.permission.LocationAccess
@@ -48,6 +50,7 @@ class SignalStrengthWatcherImpl(
     private val telephonyManager: TelephonyManager,
     private val activeNetworkWatcher: ActiveNetworkWatcher,
     private val wifiInfoWatcher: WifiInfoWatcher,
+    private val cellInfoWatcher: CellInfoWatcher,
     private val activeDataCellInfoExtractor: ActiveDataCellInfoExtractor,
     locationAccess: LocationAccess
 ) : SignalStrengthWatcher, LocationAccess.LocationAccessChangeListener {
@@ -58,6 +61,8 @@ class SignalStrengthWatcherImpl(
     private var wifiListenerRegistered = false
 
     private var signalStrengthInfo: SignalStrengthInfo? = null
+
+    private var lastNRConnectionState: NRConnectionState? = null
 
     override val lastSignalStrength: SignalStrengthInfo?
         get() = signalStrengthInfo
@@ -101,8 +106,14 @@ class SignalStrengthWatcherImpl(
 
             val signal = SignalStrengthInfo.from(signalStrength, network, cellInfo, nrConnectionState, dualSim)
 
+            if (nrConnectionState != lastNRConnectionState) {
+                cellInfoWatcher.forceUpdate()
+                lastNRConnectionState = nrConnectionState
+            }
+
             if (signal?.value == null || signal.value == 0) {
                 signalStrengthInfo = null
+                lastNRConnectionState = null
                 Timber.d("Signal changed to: NULL")
             } else {
                 signalStrengthInfo = if (Network5GSimulator.isEnabled) {

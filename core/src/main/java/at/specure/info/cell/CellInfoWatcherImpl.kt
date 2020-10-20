@@ -65,35 +65,39 @@ class CellInfoWatcherImpl(
 
         @SuppressLint("MissingPermission")
         override fun onCellInfoChanged(cellInfos: MutableList<CellInfo>?) {
-            cellInfos ?: return
-
-            val activeDataCellInfo = activeDataCellInfoExtractor.extractActiveCellInfo(cellInfos)
-            activeDataCellInfo.activeDataNetworkCellInfo?.let {
-                _cellInfo = it
-            }
-
-            activeDataCellInfo.activeDataNetwork?.let {
-                _activeNetwork = it
-            }
-
-            _nrConnectionState = activeDataCellInfo.nrConnectionState
-
-            _allCellInfo.clear()
-            cellInfos.forEach {
-                val info = CellNetworkInfo.from(
-                    it,
-                    null,
-                    activeDataCellInfo.activeDataNetwork?.cellUUID == it.uuid(),
-                    connectivityManager.activeNetworkInfo?.isRoaming ?: false,
-                    connectivityManager.activeNetworkInfo?.extraInfo,
-                    activeDataCellInfo.dualSimDecision
-                )
-                _allCellInfo.add(info)
-                Timber.v("cell: ${info.networkType.displayName} ${info.mnc} ${info.mcc} ${info.cellUUID}")
-            }
-
-            notifyListeners()
+            processCellInfos(cellInfos)
         }
+    }
+
+    private fun processCellInfos(cellInfos: MutableList<CellInfo>?) {
+        cellInfos ?: return
+
+        val activeDataCellInfo = activeDataCellInfoExtractor.extractActiveCellInfo(cellInfos)
+        activeDataCellInfo.activeDataNetworkCellInfo?.let {
+            _cellInfo = it
+        }
+
+        activeDataCellInfo.activeDataNetwork?.let {
+            _activeNetwork = it
+        }
+
+        _nrConnectionState = activeDataCellInfo.nrConnectionState
+
+        _allCellInfo.clear()
+        cellInfos.forEach {
+            val info = CellNetworkInfo.from(
+                it,
+                null,
+                activeDataCellInfo.activeDataNetwork?.cellUUID == it.uuid(),
+                connectivityManager.activeNetworkInfo?.isRoaming ?: false,
+                connectivityManager.activeNetworkInfo?.extraInfo,
+                activeDataCellInfo.dualSimDecision
+            )
+            _allCellInfo.add(info)
+            Timber.v("cell: ${info.networkType.displayName} ${info.mnc} ${info.mcc} ${info.cellUUID}")
+        }
+
+        notifyListeners()
     }
 
     @SuppressLint("MissingPermission")

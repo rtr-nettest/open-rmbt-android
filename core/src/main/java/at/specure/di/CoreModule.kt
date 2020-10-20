@@ -76,6 +76,7 @@ class CoreModule {
         activeNetworkWatcher: ActiveNetworkWatcher,
         wifiInfoWatcher: WifiInfoWatcher,
         locationAccess: LocationAccess,
+        cellInfoWatcher: CellInfoWatcher,
         activeDataCellInfoExtractor: ActiveDataCellInfoExtractor
     ): SignalStrengthWatcher =
         SignalStrengthWatcherImpl(
@@ -84,6 +85,7 @@ class CoreModule {
             telephonyManager,
             activeNetworkWatcher,
             wifiInfoWatcher,
+            cellInfoWatcher,
             activeDataCellInfoExtractor,
             locationAccess
         )
