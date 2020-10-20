@@ -250,7 +250,7 @@ abstract class SignalStrengthInfo : Parcelable {
                         is CellSignalStrengthNr -> {
                             signal = SignalStrengthInfoNr(
                                 transport = transportType,
-                                value = it.dbm,
+                                value = it.dbm.let { dbm -> -abs(dbm) },
                                 rsrq = it.csiRsrq.checkValueAvailable(),
                                 signalLevel = it.level,
                                 min = NR_RSRP_SIGNAL_MIN,
