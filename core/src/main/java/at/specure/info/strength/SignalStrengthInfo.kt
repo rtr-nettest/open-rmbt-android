@@ -212,10 +212,10 @@ abstract class SignalStrengthInfo : Parcelable {
                             if (nrConnectionState == NRConnectionState.NSA) {
                                 if ((cellInfo is CellInfoNr) && (cellInfo.cellSignalStrength is CellSignalStrengthNr)) {
                                     val cellInfoNr = cellInfo.cellSignalStrength as CellSignalStrengthNr
-                                    signal = SignalStrengthInfoNr(
+                                    return SignalStrengthInfoNr(
                                         transport = TransportType.CELLULAR,
-                                        value = cellInfoNr.dbm,
-                                        rsrq = cellInfoNr.csiRsrq.checkValueAvailable(),
+                                        value = cellInfoNr.ssRsrp.checkValueAvailable()?.let { nrSignal -> -abs(nrSignal) },
+                                        rsrq = cellInfoNr.ssRsrq.checkValueAvailable(),
                                         signalLevel = cellInfoNr.level,
                                         min = NR_RSRP_SIGNAL_MIN,
                                         max = NR_RSRP_SIGNAL_MAX,
@@ -233,7 +233,7 @@ abstract class SignalStrengthInfo : Parcelable {
                             } else {
                                 signal = SignalStrengthInfoLte(
                                     transport = transportType,
-                                    value = it.dbm,
+                                    value = it.dbm.let { nrSignal -> -abs(nrSignal) },
                                     rsrq = it.rsrq.fixLteRsrq(),
                                     signalLevel = it.level,
                                     min = LTE_RSRP_SIGNAL_MIN,
@@ -250,7 +250,7 @@ abstract class SignalStrengthInfo : Parcelable {
                         is CellSignalStrengthNr -> {
                             signal = SignalStrengthInfoNr(
                                 transport = transportType,
-                                value = it.dbm,
+                                value = it.dbm.let { dbm -> -abs(dbm) },
                                 rsrq = it.csiRsrq.checkValueAvailable(),
                                 signalLevel = it.level,
                                 min = NR_RSRP_SIGNAL_MIN,

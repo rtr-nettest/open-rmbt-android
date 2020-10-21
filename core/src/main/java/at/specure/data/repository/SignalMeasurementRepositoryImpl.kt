@@ -90,20 +90,20 @@ class SignalMeasurementRepositoryImpl(
         sendMeasurementChunk(chunk.id)
             .catch { e ->
                 if (e is NoConnectionException) {
-                    emit(false)
+                    emit(null)
                 } else {
                     Timber.e(e, "Getting signal info record error")
-                    emit(true)
+                    emit("")
                 }
             }
             .collect {
-                if (!it) {
+                if (it == null) {
                     WorkLauncher.enqueueSignalMeasurementChunkRequest(context, chunk.id)
                 }
             }
     }
 
-    override fun sendMeasurementChunk(chunkId: String): Flow<Boolean> = flow {
+    override fun sendMeasurementChunk(chunkId: String): Flow<String?> = flow {
         val chunk = dao.getSignalMeasurementChunk(chunkId) ?: throw DataMissingException("SignalMeasurementChunk not found with id: $chunkId")
         val record = dao.getSignalMeasurementRecord(chunk.measurementId)
             ?: throw DataMissingException("SignalMeasurementRecord not found with id: ${chunk.measurementId}")
@@ -156,7 +156,7 @@ class SignalMeasurementRepositoryImpl(
                 dao.saveSignalMeasurementInfo(info)
             }
 
-            emit(true)
+            emit(result.success.uuid)
 
             testDao.removeTelephonyInfo(chunkId)
             testDao.removeWlanRecord(chunkId)

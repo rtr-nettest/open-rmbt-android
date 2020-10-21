@@ -19,5 +19,11 @@ interface SignalMeasurementRepository {
 
     fun sendMeasurementChunk(chunk: SignalMeasurementChunk)
 
-    fun sendMeasurementChunk(chunkId: String): Flow<Boolean>
+    /**
+     * if it returns:
+     * null -> result was not send successfully
+     * empty string -> result was sent successfully
+     * string -> result was sent successfully and we have uuid to compare wih old one. If it is different we must use new uuid with signal chunks.
+     */
+    fun sendMeasurementChunk(chunkId: String): Flow<String?>
 }

@@ -51,6 +51,7 @@ class SettingsViewState constructor(
     val selectedMeasurementServer = ObservableField(measurementServers.selectedMeasurementServer)
     val developer5GSimulationEnabled = ObservableField(appConfig.developer5GSimulationEnabled)
     val developer5GSimulationAvailable = ObservableField(appConfig.developer5GSimulationAvailable)
+    val clientUUIDFormatted = ObservableField(if (clientUUID.value.isNullOrEmpty()) "" else "U{$clientUUID.value}")
 
     private fun setControlServerAddress() {
         if ((appConfig.controlServerOverrideEnabled) && (appConfig.developerModeIsEnabled)) {
