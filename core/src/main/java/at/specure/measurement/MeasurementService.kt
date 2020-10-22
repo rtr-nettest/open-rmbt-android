@@ -243,9 +243,11 @@ class MeasurementService : CustomLifecycleService() {
             if (startPendingTest) {
                 Handler(Looper.getMainLooper()).postDelayed({
                     if (config.loopModeEnabled && (stateRecorder.loopTestCount < config.loopModeNumberOfTests || (config.loopModeNumberOfTests == 0 && config.developerModeIsEnabled))) {
-                        runner.reset()
-                        Timber.d("LOOP STARTING PENDING TEST from onFinish")
-                        runTest()
+                        if (!runner.isRunning) {
+                            runner.reset()
+                            Timber.d("LOOP STARTING PENDING TEST from onFinish")
+                            runTest()
+                        }
                     }
                 }, 500)
             }
@@ -309,7 +311,7 @@ class MeasurementService : CustomLifecycleService() {
 
             Timber.d("TEST ERROR HANDLING")
 
-            if (startPendingTest && (config.loopModeEnabled && (stateRecorder.loopTestCount < config.loopModeNumberOfTests || (config.loopModeNumberOfTests == 0 && config.developerModeIsEnabled)))) {
+            if (startPendingTest && !runner.isRunning && (config.loopModeEnabled && (stateRecorder.loopTestCount < config.loopModeNumberOfTests || (config.loopModeNumberOfTests == 0 && config.developerModeIsEnabled)))) {
                 Timber.d("TEST ERROR HANDLING - PENDING")
                 runner.reset()
                 Timber.d("LOOP STARTING PENDING TEST from onError")
