@@ -139,7 +139,7 @@ class MeasurementActivity : BaseActivity(), SimpleDialog.Callback {
             } else {
                 viewModel.testUUID?.let {
                     if (viewModel.state.measurementState.get() == MeasurementState.FINISH)
-                        ResultsActivity.start(this, it)
+                        ResultsActivity.start(this, it, ResultsActivity.ReturnPoint.HOME)
                 }
             }
         }
