@@ -50,10 +50,14 @@ class ResultsActivity : BaseActivity(), OnMapReadyCallback {
         val testUUID = intent.getStringExtra(KEY_TEST_UUID)
         check(!testUUID.isNullOrEmpty()) { "TestUUID was not passed to result activity" }
 
+        val returnPoint = intent.getStringExtra(KEY_RETURN_POINT)
+        check(!testUUID.isNullOrEmpty()) { "ReturnPoint was not passed to result activity" }
+
         binding.viewPagerCharts.offscreenPageLimit = 3
         binding.tabLayoutCharts.setupWithViewPager(binding.viewPagerCharts, true)
 
         viewModel.state.testUUID = testUUID
+        viewModel.state.returnPoint = returnPoint?.let { ReturnPoint.valueOf(returnPoint) } ?: ReturnPoint.HOME
         viewModel.testServerResultLiveData.listen(this) { result ->
             viewModel.state.testResult.set(result)
 
@@ -215,7 +219,15 @@ class ResultsActivity : BaseActivity(), OnMapReadyCallback {
 
     override fun onBackPressed() {
         super.onBackPressed()
-        HomeActivity.startWithFragment(this, HomeActivity.Companion.HomeNavigationTarget.HISTORY_FRAGMENT_TO_SHOW)
+        when (viewModel.state.returnPoint) {
+            ReturnPoint.HOME -> HomeActivity.startWithFragment(this, HomeActivity.Companion.HomeNavigationTarget.HOME_FRAGMENT_TO_SHOW)
+            ReturnPoint.HISTORY -> HomeActivity.startWithFragment(this, HomeActivity.Companion.HomeNavigationTarget.HISTORY_FRAGMENT_TO_SHOW)
+        }
+    }
+
+    enum class ReturnPoint {
+        HOME,
+        HISTORY;
     }
 
     companion object {
@@ -227,10 +239,12 @@ class ResultsActivity : BaseActivity(), OnMapReadyCallback {
         private const val ANCHOR_V = 0.865f
 
         private const val KEY_TEST_UUID = "KEY_TEST_UUID"
+        private const val KEY_RETURN_POINT = "KEY_RETURN_POINT"
 
-        fun start(context: Context, testUUID: String) {
+        fun start(context: Context, testUUID: String, returnPoint: ReturnPoint) {
             val intent = Intent(context, ResultsActivity::class.java)
             intent.putExtra(KEY_TEST_UUID, testUUID)
+            intent.putExtra(KEY_RETURN_POINT, returnPoint.name)
             context.startActivity(intent)
         }
     }

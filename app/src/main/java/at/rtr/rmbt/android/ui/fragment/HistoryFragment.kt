@@ -42,7 +42,7 @@ class HistoryFragment : BaseFragment(), SyncDevicesDialog.Callback, HistoryFilte
         binding.recyclerViewHistoryItems.adapter = adapter
 
         adapter.actionCallback = {
-            ResultsActivity.start(requireContext(), it.testUUID)
+            ResultsActivity.start(requireContext(), it.testUUID, ResultsActivity.ReturnPoint.HISTORY)
         }
 
         adapter.pendingAnimationCallback = {
