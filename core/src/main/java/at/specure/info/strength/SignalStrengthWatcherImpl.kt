@@ -18,6 +18,7 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.os.Build
 import android.os.Handler
+import android.telephony.CellInfo
 import android.telephony.PhoneStateListener
 import android.telephony.SignalStrength
 import android.telephony.SubscriptionManager
@@ -26,6 +27,7 @@ import androidx.core.content.PermissionChecker
 import androidx.core.content.PermissionChecker.PERMISSION_GRANTED
 import at.specure.info.Network5GSimulator
 import at.specure.info.TransportType
+import at.specure.info.cell.ActiveDataCellInfo
 import at.specure.info.cell.ActiveDataCellInfoExtractor
 import at.specure.info.cell.CellInfoWatcher
 import at.specure.info.network.ActiveNetworkWatcher
@@ -85,11 +87,14 @@ class SignalStrengthWatcherImpl(
                 Timber.i("Signal Strength is ignored for current device")
                 return
             }
-
+            var nrConnectionState = NRConnectionState.NOT_AVAILABLE
+            var cellInfo: CellInfo? = null
             val network = activeNetworkWatcher.currentNetworkInfo
-            val activeDataCellInfo = activeDataCellInfoExtractor.extractActiveCellInfo(telephonyManager.allCellInfo)
-            val cellInfo = activeDataCellInfo.activeDataNetworkCellInfo
-            val nrConnectionState = activeDataCellInfo.nrConnectionState
+            if (PermissionChecker.checkSelfPermission(context, READ_PHONE_STATE) == PERMISSION_GRANTED) {
+                val activeDataCellInfo = activeDataCellInfoExtractor.extractActiveCellInfo(telephonyManager.allCellInfo)
+                cellInfo = activeDataCellInfo.activeDataNetworkCellInfo
+                nrConnectionState = activeDataCellInfo.nrConnectionState
+            }
 
             val dualSim = if (PermissionChecker.checkSelfPermission(context, READ_PHONE_STATE) == PERMISSION_GRANTED) {
                 subscriptionManager.activeSubscriptionInfoCount > 1
