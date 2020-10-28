@@ -1,6 +1,5 @@
 package at.specure.test
 
-import android.annotation.SuppressLint
 import android.location.Location
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.Observer

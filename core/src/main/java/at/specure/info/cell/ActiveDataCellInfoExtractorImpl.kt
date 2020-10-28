@@ -218,7 +218,7 @@ class ActiveDataCellInfoExtractorImpl(
                             }
                         }
 
-                        //                        Timber.v("Cell: $_cellInfo, Network_type: $networkType, MNT: ${MobileNetworkType.fromValue(networkType)}" )
+                        // Timber.v("Cell: $_cellInfo, Network_type: $networkType, MNT: ${MobileNetworkType.fromValue(networkType)}" )
                         _activeDataNetwork = CellNetworkInfo.from(
                             _activeDataNetworkCellInfo,
                             it,
@@ -231,7 +231,6 @@ class ActiveDataCellInfoExtractorImpl(
                     }
                 }
             }
-
         }
         return ActiveDataCellInfo(
             dualSimDecision = _dualSimDecision,

@@ -1,6 +1,5 @@
 package at.rmbt.client.control
 
-import android.annotation.SuppressLint
 import android.net.ConnectivityManager
 import android.net.Network
 import at.rmbt.util.Maybe
