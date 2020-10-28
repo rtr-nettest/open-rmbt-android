@@ -143,7 +143,7 @@ fun TestResultDetailResponse.toModelList(testUUID: String): List<TestResultDetai
 fun TestResultDetailItem.toModel(testUUID: String): TestResultDetailsRecord =
     TestResultDetailsRecord(testUUID, openTestUUID, openUuid, time, timezone, title, value)
 
-fun MarkersResponse.toModelList(): List<MarkerMeasurementRecord> = measurements.map { it.toModel() }
+fun MarkersResponse.toModelList(): List<MarkerMeasurementRecord> = measurements?.map { it.toModel() } ?: emptyList()
 
 fun MarkerMeasurementsResponse.toModel(): MarkerMeasurementRecord {
     val upload = measurement.extractFromList(1) as? MarkerMeasurementItem
