@@ -13,6 +13,7 @@
 
 package at.specure.info.strength
 
+import android.Manifest.permission.ACCESS_COARSE_LOCATION
 import android.Manifest.permission.READ_PHONE_STATE
 import android.annotation.SuppressLint
 import android.content.Context
@@ -89,10 +90,18 @@ class SignalStrengthWatcherImpl(
             var nrConnectionState = NRConnectionState.NOT_AVAILABLE
             var cellInfo: CellInfo? = null
             val network = activeNetworkWatcher.currentNetworkInfo
-            if (PermissionChecker.checkSelfPermission(context, READ_PHONE_STATE) == PERMISSION_GRANTED) {
-                val activeDataCellInfo = activeDataCellInfoExtractor.extractActiveCellInfo(telephonyManager.allCellInfo)
-                cellInfo = activeDataCellInfo.activeDataNetworkCellInfo
-                nrConnectionState = activeDataCellInfo.nrConnectionState
+            if ((PermissionChecker.checkSelfPermission(context, READ_PHONE_STATE) == PERMISSION_GRANTED) && PermissionChecker.checkSelfPermission(
+                    context,
+                    ACCESS_COARSE_LOCATION
+                ) == PERMISSION_GRANTED
+            ) {
+                try {
+                    val activeDataCellInfo = activeDataCellInfoExtractor.extractActiveCellInfo(telephonyManager.allCellInfo)
+                    cellInfo = activeDataCellInfo.activeDataNetworkCellInfo
+                    nrConnectionState = activeDataCellInfo.nrConnectionState
+                } catch (e: SecurityException) {
+                    Timber.e("SecurityException: Not able to read telephonyManager.allCellInfo")
+                }
             }
 
             val dualSim = if (PermissionChecker.checkSelfPermission(context, READ_PHONE_STATE) == PERMISSION_GRANTED) {

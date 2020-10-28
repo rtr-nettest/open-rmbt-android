@@ -105,7 +105,7 @@ class CellInfoWatcherImpl(
     @SuppressLint("MissingPermission")
     override fun forceUpdate() {
         try {
-            if (context.isCoarseLocationPermitted()) {
+            if (context.isCoarseLocationPermitted() && phoneStateAccess.isAllowed) {
                 val cells = telephonyManager.allCellInfo
                 if (!cells.isNullOrEmpty()) {
                     infoListener.onCellInfoChanged(cells)
@@ -148,12 +148,16 @@ class CellInfoWatcherImpl(
 
     @SuppressLint("MissingPermission")
     private fun registerCallbacks() {
-        if (locationAccess.isAllowed && phoneStateAccess.isAllowed) {
-            if (context.isCoarseLocationPermitted()) {
-                infoListener.onCellInfoChanged(telephonyManager.allCellInfo)
-                telephonyManager.listen(infoListener, PhoneStateListener.LISTEN_CELL_INFO)
-                callbacksRegistered = true
+        try {
+            if (locationAccess.isAllowed && phoneStateAccess.isAllowed) {
+                if (context.isCoarseLocationPermitted()) {
+                    infoListener.onCellInfoChanged(telephonyManager.allCellInfo)
+                    telephonyManager.listen(infoListener, PhoneStateListener.LISTEN_CELL_INFO)
+                    callbacksRegistered = true
+                }
             }
+        } catch (ex: Exception) {
+            Timber.w(ex, "Failed to register callback for update cell info")
         }
     }
 
