@@ -1,6 +1,5 @@
 package at.specure.test
 
-import android.annotation.SuppressLint
 import android.location.Location
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.Observer
@@ -326,7 +325,6 @@ class StateRecorder @Inject constructor(
         }
     }
 
-    @SuppressLint("MissingPermission")
     private fun saveTelephonyInfo() {
         val info = networkInfo
         if (info != null && info is CellNetworkInfo) {
