@@ -15,11 +15,13 @@
 package at.specure.info.cell
 
 import android.annotation.SuppressLint
+import android.content.Context
 import android.net.ConnectivityManager
 import android.telephony.CellInfo
 import android.telephony.PhoneStateListener
 import android.telephony.TelephonyManager
 import at.specure.info.network.NRConnectionState
+import at.specure.util.isCoarseLocationPermitted
 import at.specure.util.permission.LocationAccess
 import at.specure.util.permission.PhoneStateAccess
 import at.specure.util.synchronizedForEach
@@ -30,6 +32,7 @@ import java.util.Collections
  * Default implementation of [CellInfoWatcher] that is using to track Cellular network information
  */
 class CellInfoWatcherImpl(
+    private val context: Context,
     private val telephonyManager: TelephonyManager,
     private val locationAccess: LocationAccess,
     private val phoneStateAccess: PhoneStateAccess,
@@ -63,7 +66,6 @@ class CellInfoWatcherImpl(
 
     private val infoListener = object : PhoneStateListener() {
 
-        @SuppressLint("MissingPermission")
         override fun onCellInfoChanged(cellInfos: MutableList<CellInfo>?) {
             processCellInfos(cellInfos)
         }
@@ -103,9 +105,11 @@ class CellInfoWatcherImpl(
     @SuppressLint("MissingPermission")
     override fun forceUpdate() {
         try {
-            val cells = telephonyManager.allCellInfo
-            if (!cells.isNullOrEmpty()) {
-                infoListener.onCellInfoChanged(cells)
+            if (context.isCoarseLocationPermitted() && phoneStateAccess.isAllowed) {
+                val cells = telephonyManager.allCellInfo
+                if (!cells.isNullOrEmpty()) {
+                    infoListener.onCellInfoChanged(cells)
+                }
             }
         } catch (ex: Exception) {
             Timber.w(ex, "Failed to update cell info")
@@ -144,10 +148,16 @@ class CellInfoWatcherImpl(
 
     @SuppressLint("MissingPermission")
     private fun registerCallbacks() {
-        if (locationAccess.isAllowed && phoneStateAccess.isAllowed) {
-            infoListener.onCellInfoChanged(telephonyManager.allCellInfo)
-            telephonyManager.listen(infoListener, PhoneStateListener.LISTEN_CELL_INFO)
-            callbacksRegistered = true
+        try {
+            if (locationAccess.isAllowed && phoneStateAccess.isAllowed) {
+                if (context.isCoarseLocationPermitted()) {
+                    infoListener.onCellInfoChanged(telephonyManager.allCellInfo)
+                    telephonyManager.listen(infoListener, PhoneStateListener.LISTEN_CELL_INFO)
+                    callbacksRegistered = true
+                }
+            }
+        } catch (ex: Exception) {
+            Timber.w(ex, "Failed to register callback for update cell info")
         }
     }
 
