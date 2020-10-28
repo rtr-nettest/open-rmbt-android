@@ -27,7 +27,6 @@ import androidx.core.content.PermissionChecker
 import androidx.core.content.PermissionChecker.PERMISSION_GRANTED
 import at.specure.info.Network5GSimulator
 import at.specure.info.TransportType
-import at.specure.info.cell.ActiveDataCellInfo
 import at.specure.info.cell.ActiveDataCellInfoExtractor
 import at.specure.info.cell.CellInfoWatcher
 import at.specure.info.network.ActiveNetworkWatcher
