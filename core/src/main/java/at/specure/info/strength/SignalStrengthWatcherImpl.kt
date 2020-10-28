@@ -13,11 +13,13 @@
 
 package at.specure.info.strength
 
+import android.Manifest.permission.ACCESS_COARSE_LOCATION
 import android.Manifest.permission.READ_PHONE_STATE
 import android.annotation.SuppressLint
 import android.content.Context
 import android.os.Build
 import android.os.Handler
+import android.telephony.CellInfo
 import android.telephony.PhoneStateListener
 import android.telephony.SignalStrength
 import android.telephony.SubscriptionManager
@@ -85,11 +87,22 @@ class SignalStrengthWatcherImpl(
                 Timber.i("Signal Strength is ignored for current device")
                 return
             }
-
+            var nrConnectionState = NRConnectionState.NOT_AVAILABLE
+            var cellInfo: CellInfo? = null
             val network = activeNetworkWatcher.currentNetworkInfo
-            val activeDataCellInfo = activeDataCellInfoExtractor.extractActiveCellInfo(telephonyManager.allCellInfo)
-            val cellInfo = activeDataCellInfo.activeDataNetworkCellInfo
-            val nrConnectionState = activeDataCellInfo.nrConnectionState
+            if ((PermissionChecker.checkSelfPermission(context, READ_PHONE_STATE) == PERMISSION_GRANTED) && PermissionChecker.checkSelfPermission(
+                    context,
+                    ACCESS_COARSE_LOCATION
+                ) == PERMISSION_GRANTED
+            ) {
+                try {
+                    val activeDataCellInfo = activeDataCellInfoExtractor.extractActiveCellInfo(telephonyManager.allCellInfo)
+                    cellInfo = activeDataCellInfo.activeDataNetworkCellInfo
+                    nrConnectionState = activeDataCellInfo.nrConnectionState
+                } catch (e: SecurityException) {
+                    Timber.e("SecurityException: Not able to read telephonyManager.allCellInfo")
+                }
+            }
 
             val dualSim = if (PermissionChecker.checkSelfPermission(context, READ_PHONE_STATE) == PERMISSION_GRANTED) {
                 subscriptionManager.activeSubscriptionInfoCount > 1
