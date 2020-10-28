@@ -6,7 +6,7 @@ import com.google.gson.annotations.SerializedName
 import kotlinx.android.parcel.Parcelize
 
 @Keep
-data class MarkersResponse(val measurements: List<MarkerMeasurementsResponse>) : BaseResponse()
+data class MarkersResponse(val measurements: List<MarkerMeasurementsResponse>?) : BaseResponse()
 
 @Keep
 data class MarkerMeasurementsResponse(
