@@ -54,7 +54,8 @@ enum class NetworkTypeCompat(val stringValue: String, val minSignalValue: Int, v
             ServerNetworkType.values().forEach {
                 if (it.stringValue == value && it.compatType != null) return it.compatType
             }
-            throw IllegalArgumentException("Failed to find NetworkTypeCompat for value $value")
+            return TYPE_UNKNOWN
+//            throw IllegalArgumentException("Failed to find NetworkTypeCompat for value $value")
         }
 
         fun fromType(transportType: TransportType?, cellTechnology: CellTechnology? = null): NetworkTypeCompat {
