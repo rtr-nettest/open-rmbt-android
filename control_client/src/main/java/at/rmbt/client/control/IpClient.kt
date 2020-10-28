@@ -42,7 +42,6 @@ class IpClient @Inject constructor(
         }
     }
 
-    @SuppressLint("MissingPermission")
     fun getPublicIpV4Address(body: IpRequestBody, network: Network): Maybe<IpInfoResponse> {
         return try {
             val connection = network.openConnection(URL(endpoint.checkPublicIPv4Url)) as HttpURLConnection

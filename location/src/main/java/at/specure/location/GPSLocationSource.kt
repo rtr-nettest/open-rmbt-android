@@ -56,13 +56,24 @@ class GPSLocationSource(val context: Context) : LocationSource {
     override fun start(listener: LocationSource.Listener) {
         try {
             this.listener = listener
-            manager.requestLocationUpdates(
-                LocationManager.GPS_PROVIDER,
-                LocationSource.MINIMUM_UPDATE_TIME_MS,
-                LocationSource.MINIMUM_DISTANCE_METERS,
-                locationListener
-            )
-            Timber.d("GPS Location Source started")
+            if (ActivityCompat.checkSelfPermission(
+                    context,
+                    Manifest.permission.ACCESS_FINE_LOCATION
+                ) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
+                    context,
+                    Manifest.permission.ACCESS_COARSE_LOCATION
+                ) != PackageManager.PERMISSION_GRANTED
+            ) {
+                throw Exception("No location permissions enabled")
+            } else {
+                manager.requestLocationUpdates(
+                    LocationManager.GPS_PROVIDER,
+                    LocationSource.MINIMUM_UPDATE_TIME_MS,
+                    LocationSource.MINIMUM_DISTANCE_METERS,
+                    locationListener
+                )
+                Timber.d("GPS Location Source started")
+            }
         } catch (ex: Exception) {
             Timber.e(ex, "Failed to register gps updates")
         }

@@ -111,21 +111,23 @@ class CoreModule {
     @Provides
     @Singleton
     fun provideActiveDataCellInfoExtractor(
+        context: Context,
         telephonyManager: TelephonyManager,
         subscriptionManager: SubscriptionManager,
         connectivityManager: ConnectivityManager
-    ): ActiveDataCellInfoExtractor = ActiveDataCellInfoExtractorImpl(telephonyManager, subscriptionManager, connectivityManager)
+    ): ActiveDataCellInfoExtractor = ActiveDataCellInfoExtractorImpl(context, telephonyManager, subscriptionManager, connectivityManager)
 
     @Provides
     @Singleton
     fun provideCellInfoWatcher(
+        context: Context,
         telephonyManager: TelephonyManager,
         locationAccess: LocationAccess,
         phoneStateAccess: PhoneStateAccess,
         connectivityManager: ConnectivityManager,
         activeDataCellInfoExtractor: ActiveDataCellInfoExtractor
     ): CellInfoWatcher =
-        CellInfoWatcherImpl(telephonyManager, locationAccess, phoneStateAccess, connectivityManager, activeDataCellInfoExtractor)
+        CellInfoWatcherImpl(context, telephonyManager, locationAccess, phoneStateAccess, connectivityManager, activeDataCellInfoExtractor)
 
     @Provides
     @Singleton

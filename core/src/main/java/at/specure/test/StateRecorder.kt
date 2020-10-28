@@ -326,7 +326,6 @@ class StateRecorder @Inject constructor(
         }
     }
 
-    @SuppressLint("MissingPermission")
     private fun saveTelephonyInfo() {
         val info = networkInfo
         if (info != null && info is CellNetworkInfo) {
