@@ -222,7 +222,7 @@ class MeasurementService : CustomLifecycleService() {
 
             stateRecorder.onLoopTestFinished()
 
-            if (!config.loopModeEnabled || (config.loopModeEnabled && (stateRecorder.loopTestCount >= config.loopModeNumberOfTests))) {
+            if (!config.loopModeEnabled || (config.loopModeEnabled && (stateRecorder.loopTestCount >= config.loopModeNumberOfTests || stateRecorder.loopModeRecord?.status == LoopModeState.CANCELLED))) {
                 loopCountdownTimer?.cancel()
                 Timber.d("TIMER: cancelling 3: ${loopCountdownTimer?.hashCode()}")
 
@@ -242,7 +242,7 @@ class MeasurementService : CustomLifecycleService() {
         override fun onPostFinish() {
             if (startPendingTest) {
                 Handler(Looper.getMainLooper()).postDelayed({
-                    if (config.loopModeEnabled && (stateRecorder.loopTestCount < config.loopModeNumberOfTests || (config.loopModeNumberOfTests == 0 && config.developerModeIsEnabled))) {
+                    if (config.loopModeEnabled && stateRecorder.loopModeRecord?.status != LoopModeState.CANCELLED && (stateRecorder.loopTestCount < config.loopModeNumberOfTests || (config.loopModeNumberOfTests == 0 && config.developerModeIsEnabled))) {
                         if (!runner.isRunning) {
                             runner.reset()
                             Timber.d("LOOP STARTING PENDING TEST from onFinish")
@@ -255,7 +255,7 @@ class MeasurementService : CustomLifecycleService() {
 
         override fun onError() {
             removeInactivityCheck()
-            if (config.loopModeEnabled && (stateRecorder.loopTestCount < config.loopModeNumberOfTests || (config.loopModeNumberOfTests == 0 && config.developerModeIsEnabled))) {
+            if (config.loopModeEnabled && stateRecorder.loopModeRecord?.status != LoopModeState.CANCELLED && (stateRecorder.loopTestCount < config.loopModeNumberOfTests || (config.loopModeNumberOfTests == 0 && config.developerModeIsEnabled))) {
                 resumeSignalMeasurement(true)
             } else {
                 resumeSignalMeasurement(false)
@@ -311,7 +311,7 @@ class MeasurementService : CustomLifecycleService() {
 
             Timber.d("TEST ERROR HANDLING")
 
-            if (startPendingTest && !runner.isRunning && (config.loopModeEnabled && (stateRecorder.loopTestCount < config.loopModeNumberOfTests || (config.loopModeNumberOfTests == 0 && config.developerModeIsEnabled)))) {
+            if (startPendingTest && !runner.isRunning && (config.loopModeEnabled && stateRecorder.loopModeRecord?.status != LoopModeState.CANCELLED && (stateRecorder.loopTestCount < config.loopModeNumberOfTests || (config.loopModeNumberOfTests == 0 && config.developerModeIsEnabled)))) {
                 Timber.d("TEST ERROR HANDLING - PENDING")
                 runner.reset()
                 Timber.d("LOOP STARTING PENDING TEST from onError")
@@ -411,7 +411,7 @@ class MeasurementService : CustomLifecycleService() {
             Timber.d("TIMER: cancelling 1: ${loopCountdownTimer?.hashCode()}")
             loopCountdownTimer?.cancel()
 
-            if ((stateRecorder.loopTestCount < config.loopModeNumberOfTests) || config.loopModeNumberOfTests == 0 && config.developerModeIsEnabled) {
+            if (((stateRecorder.loopTestCount < config.loopModeNumberOfTests) || config.loopModeNumberOfTests == 0 && config.developerModeIsEnabled) && stateRecorder.loopModeRecord?.status != LoopModeState.CANCELLED) {
                 if (runner.isRunning) {
                     startPendingTest = true
                     Timber.d("LOOP STARTING PENDING TEST set to true onCreate due to distance")
@@ -492,7 +492,7 @@ class MeasurementService : CustomLifecycleService() {
                             Timber.d("LOOP STARTING PENDING TEST set to true")
                             startPendingTest = true
                         } else {
-                            if (!config.loopModeEnabled || (config.loopModeEnabled && (stateRecorder.loopTestCount < config.loopModeNumberOfTests || (config.loopModeNumberOfTests == 0 && config.developerModeIsEnabled)))) {
+                            if (!config.loopModeEnabled || (config.loopModeEnabled && stateRecorder.loopModeRecord?.status != LoopModeState.CANCELLED && (stateRecorder.loopTestCount < config.loopModeNumberOfTests || (config.loopModeNumberOfTests == 0 && config.developerModeIsEnabled)))) {
                                 runner.reset()
                                 Timber.d("LOOP STARTING PENDING TEST on timer finished")
                                 runTest()
@@ -552,7 +552,7 @@ class MeasurementService : CustomLifecycleService() {
     private fun runTest() {
         notificationManager.cancel(NOTIFICATION_LOOP_FINISHED_ID)
         startPendingTest = false
-        if (config.loopModeEnabled && (stateRecorder.loopTestCount < config.loopModeNumberOfTests || (config.loopModeNumberOfTests == 0 && config.developerModeIsEnabled))) {
+        if (config.loopModeEnabled && stateRecorder.loopModeRecord?.status != LoopModeState.CANCELLED && (stateRecorder.loopTestCount < config.loopModeNumberOfTests || (config.loopModeNumberOfTests == 0 && config.developerModeIsEnabled))) {
             scheduleNextLoopTest()
         }
 
