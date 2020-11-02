@@ -1,6 +1,5 @@
 package at.specure.test
 
-import android.annotation.SuppressLint
 import android.location.Location
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.Observer
@@ -175,7 +174,8 @@ class StateRecorder @Inject constructor(
             testTag = config.measurementTag,
             developerModeEnabled = config.developerModeIsEnabled,
             serverSelectionEnabled = config.expertModeEnabled,
-            loopModeEnabled = config.loopModeEnabled
+            loopModeEnabled = config.loopModeEnabled,
+            clientVersion = ""
         )
         if (config.shouldRunQosTest) {
             testRecord?.lastQoSStatus = TestStatus.WAIT
@@ -214,7 +214,7 @@ class StateRecorder @Inject constructor(
 
     fun onLoopTestFinished() {
         _loopModeRecord?.let {
-            if (it.testsPerformed == config.loopModeNumberOfTests) {
+            if (it.testsPerformed >= config.loopModeNumberOfTests) {
                 it.status = LoopModeState.FINISHED
             } else {
                 it.status = LoopModeState.IDLE
@@ -244,6 +244,11 @@ class StateRecorder @Inject constructor(
         }
 
         _loopModeRecord?.let {
+
+            Timber.d("Location obtained: provider:${location?.provider} accuracy:${location?.accuracy}")
+            // allow to use only high precision location data to start next test during the loop mode (default: ignore network provider, accept only accuracy better or equal to 20m)
+            if (location?.provider == "network" || location?.accuracy?.compareTo(20) ?: 1 > 0) return@let
+            Timber.d("Location accepted: provider:${location?.provider} accuracy:${location?.accuracy}")
             val newLocation = Location("")
             newLocation.latitude = location?.latitude ?: return@let
             newLocation.longitude = location.longitude
@@ -259,7 +264,7 @@ class StateRecorder @Inject constructor(
                 it.movementDistanceMeters = loopLocation.distanceTo(newLocation).toInt()
                 Timber.d("LOOP DISTANCE: ${it.movementDistanceMeters}")
 
-                if (config.loopModeEnabled && loopModeRecord != null && loopModeRecord?.status != LoopModeState.FINISHED) {
+                if (config.loopModeEnabled && loopModeRecord != null && loopModeRecord?.status != LoopModeState.FINISHED && loopModeRecord?.status != LoopModeState.CANCELLED) {
                     var notifyDistanceReached = false
                     if (it.movementDistanceMeters >= config.loopModeDistanceMeters && newLocation.accuracy < config.loopModeDistanceMeters) {
                         Timber.d("LOOP STARTING DISTANCE: ${it.movementDistanceMeters}")
@@ -320,7 +325,6 @@ class StateRecorder @Inject constructor(
         }
     }
 
-    @SuppressLint("MissingPermission")
     private fun saveTelephonyInfo() {
         val info = networkInfo
         if (info != null && info is CellNetworkInfo) {
@@ -373,6 +377,7 @@ class StateRecorder @Inject constructor(
         testRecord?.apply {
             threadCount = result.num_threads
             portRemote = result.port_remote
+            clientVersion = result.client_version
             bytesDownloaded = result.bytes_download
             bytesUploaded = result.bytes_upload
             totalBytesDownloaded = result.totalDownBytes
@@ -483,6 +488,13 @@ class StateRecorder @Inject constructor(
             it.status = LoopModeState.RUNNING
             it.testsPerformed++
             Timber.d("LOOP STATE UPDATED STARTED 4: ${it.status}")
+            repository.updateLoopMode(it)
+        }
+    }
+
+    fun onLoopTestStatusChanged(loopModeState: LoopModeState) {
+        _loopModeRecord?.let {
+            it.status = loopModeState
             repository.updateLoopMode(it)
         }
     }

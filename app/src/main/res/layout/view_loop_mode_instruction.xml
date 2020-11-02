@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -22,7 +23,8 @@
                 android:layout_height="wrap_content"
                 android:justificationMode="inter_word"
                 android:padding="@dimen/margin_large"
-                android:textColor="@color/text_dark_gray" />
+                android:textColor="@color/text_dark_gray"
+                tools:targetApi="o" />
 
         </ScrollView>
 

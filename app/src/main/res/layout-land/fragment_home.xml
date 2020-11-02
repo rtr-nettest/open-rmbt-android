@@ -38,12 +38,6 @@
         android:background="@{state.isConnected ? @drawable/bg_splash : @drawable/bg_gray}"
         tools:background="@drawable/bg_splash">
 
-        <View
-            android:id="@+id/status_bar_stub"
-            android:layout_width="match_parent"
-            android:layout_height="@dimen/size_height_status_bar"
-            app:layout_constraintTop_toTopOf="parent" />
-
         <androidx.appcompat.widget.SwitchCompat
             android:id="@+id/btnLoop"
             style="@style/NavigationButtonStyle"
@@ -54,7 +48,7 @@
             android:checked="@{state.isLoopModeActive}"
             android:thumb="@null"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/status_bar_stub"
+            app:layout_constraintTop_toTopOf="parent"
             tools:checked="true" />
 
         <androidx.appcompat.widget.AppCompatTextView
@@ -67,7 +61,7 @@
             app:layout_constraintBottom_toBottomOf="@+id/btnLoop"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/status_bar_stub" />
+            app:layout_constraintTop_toTopOf="parent" />
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/loop_mode_title"
@@ -90,7 +84,7 @@
             android:layout_gravity="end"
             android:src="@{state.isConnected ? @drawable/ic_settings : @drawable/ic_settings_gray}"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/status_bar_stub"
+            app:layout_constraintTop_toTopOf="parent"
             tools:src="@drawable/ic_settings" />
 
         <View
@@ -167,11 +161,13 @@
             app:layout_constraintVertical_chainStyle="packed"
             tools:src="@drawable/bg_home_with_internet_circle" />
 
-        <androidx.appcompat.widget.AppCompatImageView
+        <androidx.appcompat.widget.AppCompatImageButton
             android:id="@+id/ivSignalLevel"
             android:layout_width="0dp"
             android:layout_height="0dp"
             android:src="@drawable/ic_mobile_1"
+            android:background="@drawable/bg_selection"
+            android:scaleType="centerInside"
             app:layout_constraintBottom_toBottomOf="@+id/viewCircleShape"
             app:layout_constraintEnd_toEndOf="@+id/viewCircleShape"
             app:layout_constraintStart_toStartOf="@+id/viewCircleShape"

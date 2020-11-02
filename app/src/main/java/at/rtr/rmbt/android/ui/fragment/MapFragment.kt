@@ -49,7 +49,7 @@ private const val ANCHOR_V = 0.865f
 private const val DEFAULT_LAT = (49.0390742051F + 46.4318173285F) / 2F
 private const val DEFAULT_LONG = (16.9796667823F + 9.47996951665F) / 2F
 private const val DEFAULT_ZOOM_LEVEL = 6F
-private val DEFAULT_PRESENTATION_TYPE = MapPresentationType.AUTOMATIC;
+private val DEFAULT_PRESENTATION_TYPE = MapPresentationType.AUTOMATIC
 
 class MapFragment : BaseFragment(), MapMarkerDetailsAdapter.MarkerDetailsCallback,
     MapLayersDialog.Callback,
@@ -72,7 +72,6 @@ class MapFragment : BaseFragment(), MapMarkerDetailsAdapter.MarkerDetailsCallbac
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         binding.state = mapViewModel.state
-        updateTransparentStatusBarHeight(binding.statusBarStub)
 
         binding.map.onCreate(savedInstanceState)
         mapViewModel.state.playServicesAvailable.set(checkServices())
@@ -187,6 +186,11 @@ class MapFragment : BaseFragment(), MapMarkerDetailsAdapter.MarkerDetailsCallbac
         super.onResume()
         binding.map.onResume()
         updateLocationPermissionRelatedUi()
+        if (!checkServices()) {
+            binding.fabsGroup.visibility = View.GONE
+            binding.webMap.visibility = View.VISIBLE
+            binding.playServicesAvailableUi.visibility = View.GONE
+        }
     }
 
     override fun onStop() {
@@ -214,7 +218,9 @@ class MapFragment : BaseFragment(), MapMarkerDetailsAdapter.MarkerDetailsCallbac
         currentMarker?.remove()
         currentMarker = null
 //        adapter.items = mutableListOf()
-        binding.fabsGroup?.visibility = View.VISIBLE
+        if (mapViewModel.state.playServicesAvailable.get()) {
+            binding.fabsGroup?.visibility = View.VISIBLE
+        }
     }
 
     override fun onMoreDetailsClicked(openTestUUID: String) {
@@ -237,7 +243,7 @@ class MapFragment : BaseFragment(), MapMarkerDetailsAdapter.MarkerDetailsCallbac
             val defaultPosition = LatLngW(DEFAULT_LAT.toDouble(), DEFAULT_LONG.toDouble())
             Timber.d("Position default to : ${defaultPosition.latitude} ${defaultPosition.longitude}")
             mapW().animateCamera(defaultPosition, DEFAULT_ZOOM_LEVEL)
-            mapViewModel.state.type.set(DEFAULT_PRESENTATION_TYPE);
+            mapViewModel.state.type.set(DEFAULT_PRESENTATION_TYPE)
         }
     }
 

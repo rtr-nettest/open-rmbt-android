@@ -3,6 +3,7 @@ package at.rtr.rmbt.android.ui
 import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.appcompat.widget.AppCompatImageButton
 import androidx.appcompat.widget.AppCompatImageView
 import androidx.appcompat.widget.AppCompatTextView
 import androidx.constraintlayout.widget.ConstraintLayout
@@ -119,7 +120,7 @@ fun AppCompatTextView.showPopup(isConnected: Boolean, infoWindowStatus: InfoWind
  * and signalLevel(0..4)
  */
 @BindingAdapter("signalLevel", "connected")
-fun AppCompatImageView.setIcon(signalStrengthInfo: SignalStrengthInfo?, connected: Boolean) {
+fun AppCompatImageButton.setIcon(signalStrengthInfo: SignalStrengthInfo?, connected: Boolean) {
 
     if (signalStrengthInfo != null) {
 
@@ -167,15 +168,17 @@ fun AppCompatImageView.setIcon(signalStrengthInfo: SignalStrengthInfo?, connecte
 @BindingAdapter("networkType")
 fun AppCompatTextView.setNetworkType(networkInfo: NetworkInfo?) {
 
-    // display "LTE" (true) or "4G/LTE" (false)
-    val  SHORT_DISPLAY_OF_TECHNOLOGY = true
+    /**
+     *  display "LTE" (true) or "4G/LTE" (false)
+     */
+    val shortDisplayOfTechnology = true
 
     text = when (networkInfo) {
         is WifiNetworkInfo -> context.getString(R.string.home_wifi)
         is CellNetworkInfo -> {
             val technology =
                 CellTechnology.fromMobileNetworkType(networkInfo.networkType)?.displayName
-            if (SHORT_DISPLAY_OF_TECHNOLOGY || technology == null) {
+            if (shortDisplayOfTechnology || technology == null) {
                 networkInfo.networkType.displayName
             } else {
                 "$technology/${networkInfo.networkType.displayName}"
@@ -600,7 +603,7 @@ private fun getSignalImageResource(networkType: NetworkTypeCompat, signalStrengt
                 Classification.NORMAL -> R.drawable.ic_history_5g_2
                 Classification.GOOD -> R.drawable.ic_history_5g_3
                 Classification.EXCELLENT -> R.drawable.ic_history_5g_4
-                Classification.NONE -> R.drawable.ic_history_no_internet
+                Classification.NONE -> R.drawable.ic_history_5g_0
             }
         }
     }

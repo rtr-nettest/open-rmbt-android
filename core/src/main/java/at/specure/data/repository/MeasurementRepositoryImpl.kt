@@ -87,7 +87,7 @@ class MeasurementRepositoryImpl @Inject constructor(
                         }
                         if (checkNetworkSimOperator.equals(networkSimOperator)) {
                             simCountry = it.countryIso
-                            simOperatorName = it.displayName.toString()
+                            simOperatorName = it.displayName?.toString()
                         }
                     }
                 } else {
@@ -100,7 +100,7 @@ class MeasurementRepositoryImpl @Inject constructor(
                             else -> "${subscriptionInfo.mccCompat()}-${DecimalFormat("00").format(subscriptionInfo.mncCompat())}"
                         }
                         simCountry = subscriptionInfo.countryIso
-                        simOperatorName = subscriptionInfo.displayName.toString()
+                        simOperatorName = subscriptionInfo.displayName?.toString()
                     }
                 }
             } else {

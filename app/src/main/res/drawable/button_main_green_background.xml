@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<inset xmlns:android="http://schemas.android.com/apk/res/android"
+    android:insetLeft="@dimen/inset_small"
+    android:insetTop="@dimen/inset_small"
+    android:insetRight="@dimen/inset_small"
+    android:insetBottom="@dimen/inset_very_small">
+    <shape android:shape="oval">
+        <solid android:color="@color/colorSelector" />
+        <padding
+            android:bottom="-10dp"
+            android:left="-10dp"
+            android:right="-10dp"
+            android:top="-10dp" />
+    </shape>
+</inset>

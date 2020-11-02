@@ -16,7 +16,6 @@ build/
 
 # Local configuration file (sdk path, etc)
 local.properties
-private
 
 # Eclipse project files
 .classpath

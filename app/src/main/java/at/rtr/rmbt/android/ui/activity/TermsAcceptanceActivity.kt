@@ -98,7 +98,7 @@ class TermsAcceptanceActivity : BaseActivity() {
         }
 
         override fun shouldOverrideUrlLoading(view: WebView?, url: String?): Boolean {
-            //always open links in new intent on terms/conditions/privacy
+            // always open links in new intent on terms/conditions/privacy
             Intent(Intent.ACTION_VIEW, Uri.parse(url)).apply {
                 startActivity(this)
             }

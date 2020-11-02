@@ -39,11 +39,10 @@ class HistoryFragment : BaseFragment(), SyncDevicesDialog.Callback, HistoryFilte
         }
 
         binding.state = historyViewModel.state
-        updateTransparentStatusBarHeight(binding.statusBarStub)
         binding.recyclerViewHistoryItems.adapter = adapter
 
         adapter.actionCallback = {
-            ResultsActivity.start(requireContext(), it.testUUID)
+            ResultsActivity.start(requireContext(), it.testUUID, ResultsActivity.ReturnPoint.HISTORY)
         }
 
         adapter.pendingAnimationCallback = {
