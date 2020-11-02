@@ -37,6 +37,7 @@ import at.specure.info.wifi.WifiInfoWatcher
 import at.specure.util.permission.LocationAccess
 import at.specure.util.synchronizedForEach
 import timber.log.Timber
+import java.lang.IllegalStateException
 import java.util.Collections
 
 private const val WIFI_UPDATE_DELAY = 2000L
@@ -101,6 +102,8 @@ class SignalStrengthWatcherImpl(
                     nrConnectionState = activeDataCellInfo.nrConnectionState
                 } catch (e: SecurityException) {
                     Timber.e("SecurityException: Not able to read telephonyManager.allCellInfo")
+                } catch (e: IllegalStateException) {
+                    Timber.e("IllegalStateException: Not able to read telephonyManager.allCellInfo")
                 }
             }
 
