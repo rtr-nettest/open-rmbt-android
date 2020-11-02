@@ -291,9 +291,20 @@ class MapFragment : BaseFragment(), MapMarkerDetailsAdapter.MarkerDetailsCallbac
     }
 
     private fun setTiles() {
-        currentOverlay = mapViewModel.providerLiveData.value?.let {
-            mapW().addTileOverlay(it)
+        val providerData = mapViewModel.providerLiveData.value
+
+        if(providerData == null) {
+            mapViewModel.providerLiveData.listen(this) {
+                currentOverlay = mapViewModel.providerLiveData.value?.let {
+                    mapW().addTileOverlay(it)
+                }
+            }
+        } else {
+            currentOverlay = mapViewModel.providerLiveData.value?.let {
+                mapW().addTileOverlay(it)
+            }
         }
+
         mapW().setOnMapClickListener { latlng ->
             mapViewModel.state.locationChanged.set(true)
             mapViewModel.locationLiveData.removeObservers(this)

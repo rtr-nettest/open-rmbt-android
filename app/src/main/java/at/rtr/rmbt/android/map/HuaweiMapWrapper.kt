@@ -26,7 +26,7 @@ class HuaweiMapWrapper(private val huaweiMap : HuaweiMap) : MapWrapper {
     }
 
     override fun addTileOverlay(tileWProvider: TileWrapperProvider): TileOverlayWrapper {
-        val overlay = huaweiMap.addTileOverlay(TileOverlayOptions().tileProvider { x, y, zoom ->
+        val overlay = huaweiMap.addTileOverlay(TileOverlayOptions().fadeIn(true).tileProvider { x, y, zoom ->
             return@tileProvider try {
                 tileWProvider.getTileW(x,y,zoom).toHMSTile()
             } catch (e : Exception) {
