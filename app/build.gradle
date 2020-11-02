@@ -99,8 +99,8 @@ dependencies {
 
     debugImplementation "com.facebook.stetho:stetho:$versions.stetho"
 
-    implementation 'com.huawei.hms:maps:5.0.1.301'
-    implementation 'com.huawei.agconnect:agconnect-core:1.4.0.300'
+    implementation 'com.huawei.hms:maps:5.0.3.301'
+    implementation 'com.huawei.agconnect:agconnect-core:1.4.1.300'
 
     testImplementation "junit:junit:$versions.junit"
     androidTestImplementation "androidx.test:runner:$versions.test_runner"
