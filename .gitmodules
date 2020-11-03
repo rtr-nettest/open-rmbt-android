@@ -1,3 +1,0 @@
-[submodule "private"]
-	path = private
-	url = ../../android/nettest-private.git

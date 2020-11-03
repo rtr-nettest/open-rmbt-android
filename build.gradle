@@ -52,4 +52,4 @@ task clean(type: Delete) {
     delete rootProject.buildDir
 }
 
-apply from: "$project.rootDir/tools/dokka.gradle" 
+apply from: "$project.rootDir/tools/dokka.gradle"
