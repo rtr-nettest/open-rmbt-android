@@ -1,0 +1,3 @@
+[submodule "private"]
+	path = private
+	url = ../open-rmbt-android-private.git
