@@ -115,7 +115,7 @@ class SignalStrengthWatcherImpl(
 
             Timber.d("Signal changed detected: value: ${signalStrength?.level}\nclass: ${signalStrength?.javaClass}\n ${signalStrength?.toString()}")
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                signalStrength?.getCellSignalStrengths()?.forEach {
+                signalStrength?.cellSignalStrengths?.forEach {
                     Timber.d("Cell signal changed detected: \ndbm: ${it.dbm}\nLevel: ${it.level}\nasuLevel: ${it.asuLevel}\nclass: ${it.javaClass}")
                 }
             }
