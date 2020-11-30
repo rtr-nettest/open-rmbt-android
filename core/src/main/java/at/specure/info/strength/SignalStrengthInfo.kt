@@ -96,9 +96,6 @@ abstract class SignalStrengthInfo : Parcelable {
         const val NR_RSRP_SIGNAL_MIN = -140
         const val NR_RSRP_SIGNAL_MAX = -44
 
-        const val RSSNR_MIN = -200
-        const val RSSNR_MAX = 300
-
         // Lifted from Default carrier configs and max range of SSRSRP from
         // mSsRsrpThresholds array
         // Boundaries: [-140 dB, -44 dB]
@@ -107,6 +104,7 @@ abstract class SignalStrengthInfo : Parcelable {
         const val SSRSRP_SIGNAL_STRENGTH_MODERATE = -90
         const val SSRSRP_SIGNAL_STRENGTH_GOOD = -80
         const val SSRSRP_SIGNAL_STRENGTH_FULL = -65
+        const val SSRSRP_SIGNAL_STRENGTH_MAX = -44
 
         @RequiresApi(Build.VERSION_CODES.Q)
         fun from(signal: CellSignalStrengthNr): SignalStrengthInfoNr = SignalStrengthInfoNr(
@@ -558,12 +556,19 @@ abstract class SignalStrengthInfo : Parcelable {
             }
         }
 
-        private fun Int?.fixRssnr(): Int? =
-            if (this == null || this > 300 || this < -200 || this == RSSNR_MIN || this == RSSNR_MAX) {
-                null
+        private fun Int?.fixRssnr(): Int? {
+            if (this == null) {
+                return null
             } else {
-                this
+                var value = -1 * abs(this)
+                if (value < NR_RSRP_SIGNAL_MIN || value > NR_RSRP_SIGNAL_MAX || this == Int.MIN_VALUE) {
+                    null
+                } else {
+                    this
+                }
             }
+            return null
+        }
 
         internal fun Int?.checkValueAvailable(): Int? = if (this == null || this == Int.MIN_VALUE || this == Int.MAX_VALUE) {
             null

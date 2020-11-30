@@ -125,9 +125,18 @@ class CoreModule {
         locationAccess: LocationAccess,
         phoneStateAccess: PhoneStateAccess,
         connectivityManager: ConnectivityManager,
-        activeDataCellInfoExtractor: ActiveDataCellInfoExtractor
+        activeDataCellInfoExtractor: ActiveDataCellInfoExtractor,
+        subscriptionManager: SubscriptionManager
     ): CellInfoWatcher =
-        CellInfoWatcherImpl(context, telephonyManager, locationAccess, phoneStateAccess, connectivityManager, activeDataCellInfoExtractor)
+        CellInfoWatcherImpl(
+            context,
+            telephonyManager,
+            locationAccess,
+            phoneStateAccess,
+            connectivityManager,
+            activeDataCellInfoExtractor,
+            subscriptionManager
+        )
 
     @Provides
     @Singleton
