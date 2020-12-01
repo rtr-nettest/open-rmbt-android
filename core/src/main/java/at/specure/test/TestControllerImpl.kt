@@ -22,7 +22,6 @@ import at.specure.config.Config
 import at.specure.data.ClientUUID
 import at.specure.data.MeasurementServers
 import at.specure.info.Network5GSimulator
-import at.specure.info.TransportType
 import at.specure.measurement.MeasurementState
 import com.google.gson.Gson
 import kotlinx.coroutines.GlobalScope
