@@ -3,6 +3,9 @@ package at.specure.test
 import android.content.Context
 import android.net.ConnectivityManager
 import android.net.Network
+import android.net.NetworkCapabilities.TRANSPORT_CELLULAR
+import android.net.NetworkCapabilities.TRANSPORT_ETHERNET
+import android.net.NetworkCapabilities.TRANSPORT_WIFI
 import at.rtr.rmbt.client.QualityOfServiceTest
 import at.rtr.rmbt.client.RMBTClient
 import at.rtr.rmbt.client.RMBTClientCallback
@@ -412,9 +415,35 @@ class TestControllerImpl(
     }
 
     private fun checkIllegalNetworkChange(client: RMBTClient) {
+        var newNetworkWifi = false
+        var newNetworkCellular = false
+        var newNetworkEthernet = false
+        var lastNetworkWifi = false
+        var lastNetworkCellular = false
+        var lastNetworkEthernet = false
+
         val activeNetwork = connectivityManager.activeNetwork
-        if (lastNetwork != null && activeNetwork != lastNetwork) {
+        activeNetwork?.let {
+            val newNetworkCapabilities = connectivityManager.getNetworkCapabilities(it)
+            newNetworkCapabilities?.let { nc ->
+                newNetworkCellular = nc.hasTransport(TRANSPORT_CELLULAR)
+                newNetworkWifi = nc.hasTransport(TRANSPORT_WIFI)
+                newNetworkEthernet = nc.hasTransport(TRANSPORT_ETHERNET)
+            }
+        }
+
+        lastNetwork?.let {
+            val lastNetworkCapabilities = connectivityManager.getNetworkCapabilities(it)
+            lastNetworkCapabilities?.let { nc ->
+                lastNetworkCellular = nc.hasTransport(TRANSPORT_CELLULAR)
+                lastNetworkWifi = nc.hasTransport(TRANSPORT_WIFI)
+                lastNetworkEthernet = nc.hasTransport(TRANSPORT_ETHERNET)
+            }
+        }
+
+        if (lastNetwork != null && ((lastNetworkCellular != newNetworkCellular) || (lastNetworkEthernet != newNetworkEthernet) || (lastNetworkWifi != newNetworkWifi))) {
             Timber.e("XDTE: Illegal network change detected \n last: $lastNetwork \n\n active: $activeNetwork")
+            Timber.e("XDTE: Illegal network change detected \n type last vs  new:\n cellular:   $lastNetworkCellular    vs  $newNetworkCellular\nwifi:   $lastNetworkWifi    vs  $newNetworkWifi\nethernet:   $lastNetworkEthernet    vs  $newNetworkEthernet\n")
             handleError(client)
             stop()
         } else {
