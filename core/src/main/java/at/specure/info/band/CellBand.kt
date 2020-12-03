@@ -217,11 +217,11 @@ private class CellBandData(
     }
 
     fun containsDLChannel(channel: Int): Boolean {
-        return channel > uploadChannelLowerBound - channelOffset && channel < uploadChannelUpperBound - channelOffset
+        return channel > uploadChannelLowerBound - channelOffset && channel <= uploadChannelUpperBound - channelOffset
     }
 
     fun containsULChannel(channel: Int): Boolean {
-        return channel > uploadChannelLowerBound && channel < uploadChannelUpperBound
+        return channel > uploadChannelLowerBound && channel <= uploadChannelUpperBound
     }
 
     fun containsULFrequency(frequencyMHz: Double): Boolean {
