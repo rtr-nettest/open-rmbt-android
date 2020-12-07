@@ -37,6 +37,7 @@ import at.specure.info.network.MobileNetworkType
 import at.specure.info.network.NRConnectionState
 import at.specure.info.network.NetworkInfo
 import at.specure.info.network.WifiNetworkInfo
+import at.specure.info.strength.SignalStrengthInfo.Companion.checkValueAvailable
 import timber.log.Timber
 import kotlin.math.abs
 
@@ -95,15 +96,22 @@ abstract class SignalStrengthInfo : Parcelable {
         const val NR_RSRP_SIGNAL_MIN = -140
         const val NR_RSRP_SIGNAL_MAX = -44
 
-        const val RSSNR_MIN = -200
-        const val RSSNR_MAX = 300
+        // Lifted from Default carrier configs and max range of SSRSRP from
+        // mSsRsrpThresholds array
+        // Boundaries: [-140 dB, -44 dB]
+        const val SSRSRP_SIGNAL_STRENGTH_NONE = -140
+        const val SSRSRP_SIGNAL_STRENGTH_POOR = -110
+        const val SSRSRP_SIGNAL_STRENGTH_MODERATE = -90
+        const val SSRSRP_SIGNAL_STRENGTH_GOOD = -80
+        const val SSRSRP_SIGNAL_STRENGTH_FULL = -65
+        const val SSRSRP_SIGNAL_STRENGTH_MAX = -44
 
         @RequiresApi(Build.VERSION_CODES.Q)
         fun from(signal: CellSignalStrengthNr): SignalStrengthInfoNr = SignalStrengthInfoNr(
             transport = TransportType.CELLULAR,
-            value = signal.dbm,
+            value = signal.extractSignalValue(),
             rsrq = null,
-            signalLevel = signal.level,
+            signalLevel = calculateNRCellSignalLevel(signal),
             min = NR_RSRP_SIGNAL_MIN,
             max = NR_RSRP_SIGNAL_MAX,
             timestampNanos = System.nanoTime(),
@@ -528,14 +536,41 @@ abstract class SignalStrengthInfo : Parcelable {
             }
         }
 
-        private fun Int?.fixRssnr(): Int? =
-            if (this == null || this > 300 || this < -200 || this == RSSNR_MIN || this == RSSNR_MAX) {
-                null
-            } else {
-                this
+        /**
+         * Count level of the 5G signal only from ssrsrp field value according to NR ssrsrp thresholds
+         * 0 - NONE
+         * 1
+         * 2
+         * 3
+         * 4 - HIGHEST
+         */
+        private fun calculateNRCellSignalLevel(signal: CellSignalStrengthNr): Int {
+            val signalValue = signal.extractSignalValue()
+            return when {
+                signalValue == null -> 0
+                signalValue <= SSRSRP_SIGNAL_STRENGTH_NONE -> 0
+                signalValue < SSRSRP_SIGNAL_STRENGTH_POOR -> 1
+                signalValue < SSRSRP_SIGNAL_STRENGTH_MODERATE -> 2
+                signalValue < SSRSRP_SIGNAL_STRENGTH_GOOD -> 3
+                else -> 4
             }
+        }
 
-        private fun Int?.checkValueAvailable(): Int? = if (this == null || this == Int.MIN_VALUE || this == Int.MAX_VALUE) {
+        private fun Int?.fixRssnr(): Int? {
+            if (this == null) {
+                return null
+            } else {
+                var value = -1 * abs(this)
+                if (value < NR_RSRP_SIGNAL_MIN || value > NR_RSRP_SIGNAL_MAX || this == Int.MIN_VALUE) {
+                    null
+                } else {
+                    this
+                }
+            }
+            return null
+        }
+
+        internal fun Int?.checkValueAvailable(): Int? = if (this == null || this == Int.MIN_VALUE || this == Int.MAX_VALUE) {
             null
         } else {
             this
@@ -573,5 +608,19 @@ abstract class SignalStrengthInfo : Parcelable {
             }
             return null
         }
+    }
+}
+
+fun CellSignalStrengthNr.extractSignalValue(): Int? {
+    return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+        if (dbm == CellInfo.UNAVAILABLE) {
+            if (ssRsrp.checkValueAvailable() != null) {
+                ssRsrp.checkValueAvailable()?.let { nrSignal -> -abs(nrSignal) }
+            } else {
+                dbm
+            }
+        } else dbm
+    } else {
+        null
     }
 }

@@ -19,6 +19,7 @@ import android.content.Context
 import android.net.ConnectivityManager
 import android.telephony.CellInfo
 import android.telephony.PhoneStateListener
+import android.telephony.SubscriptionManager
 import android.telephony.TelephonyManager
 import at.specure.info.network.NRConnectionState
 import at.specure.util.isCoarseLocationPermitted
@@ -27,6 +28,8 @@ import at.specure.util.permission.PhoneStateAccess
 import at.specure.util.synchronizedForEach
 import timber.log.Timber
 import java.util.Collections
+
+private const val INVALID_SUBSCRIPTION_ID = -1
 
 /**
  * Default implementation of [CellInfoWatcher] that is using to track Cellular network information
@@ -37,7 +40,8 @@ class CellInfoWatcherImpl(
     private val locationAccess: LocationAccess,
     private val phoneStateAccess: PhoneStateAccess,
     private val connectivityManager: ConnectivityManager,
-    private val activeDataCellInfoExtractor: ActiveDataCellInfoExtractor
+    private val activeDataCellInfoExtractor: ActiveDataCellInfoExtractor,
+    private val subscriptionManager: SubscriptionManager
 ) : CellInfoWatcher,
     LocationAccess.LocationAccessChangeListener,
     PhoneStateAccess.PhoneStateAccessChangeListener {
@@ -119,10 +123,28 @@ class CellInfoWatcherImpl(
     override val activeNetwork: CellNetworkInfo?
         get() {
             if (_activeNetwork == null) {
-                return connectivityManager.cellNetworkInfoCompat(telephonyManager.networkOperatorName)
+                return if (isDualSim() && android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
+                    try {
+                        val dataSubscriptionId = subscriptionManager.getCurrentDataSubscriptionId()
+                        if (dataSubscriptionId != INVALID_SUBSCRIPTION_ID) {
+                            connectivityManager.cellNetworkInfoCompat(telephonyManager.createForSubscriptionId(dataSubscriptionId).networkOperatorName)
+                        } else {
+                            connectivityManager.cellNetworkInfoCompat(telephonyManager.networkOperatorName)
+                        }
+                    } catch (e: Exception) {
+                        Timber.e("problem to obtain correct subscription ID when active network obtaining")
+                        connectivityManager.cellNetworkInfoCompat(telephonyManager.networkOperatorName)
+                    }
+                } else {
+                    connectivityManager.cellNetworkInfoCompat(telephonyManager.networkOperatorName)
+                }
             }
             return _activeNetwork
         }
+
+    private fun isDualSim(): Boolean {
+        return telephonyManager.phoneCount > 1
+    }
 
     private fun notifyListeners() {
         listeners.synchronizedForEach {
