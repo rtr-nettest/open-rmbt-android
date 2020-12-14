@@ -244,10 +244,10 @@ fun QosTestResultDetailResponse.toModels(
                         testNumber = qosTestOrderNumber,
                         durationNanos = if (result.result.has("duration_ns") && result.result.get("duration_ns") != null) {
                             result.result.get("duration_ns").asLong
-                        } else 0L,
+                        } else null,
                         startTimeNanos = if (result.result.has("start_time_ns") && result.result.get("start_time_ns") != null) {
                             result.result.get("start_time_ns").asLong
-                        } else 0L
+                        } else null
                     )
                 )
                 qosTestOrderNumber++
@@ -270,10 +270,10 @@ fun QosTestResultDetailResponse.toModels(
                     testNumber = qosTestOrderNumber,
                     durationNanos = if (result.result.has("duration_ns") && result.result.get("duration_ns") != null) {
                         result.result.get("duration_ns").asLong
-                    } else 0L,
+                    } else null,
                     startTimeNanos = if (result.result.has("start_time_ns") && result.result.get("start_time_ns") != null) {
                         result.result.get("start_time_ns").asLong
-                    } else 0L
+                    } else null
                 )
             )
             qosTestOrderNumber++
