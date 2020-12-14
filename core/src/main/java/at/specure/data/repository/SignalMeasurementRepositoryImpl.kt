@@ -144,7 +144,7 @@ class SignalMeasurementRepositoryImpl(
         val result = client.signalResult(body)
 
         if (result.ok) {
-
+            Timber.d("SM Chunk OK responded with uuid: ${result.success.uuid}   before: ${info?.uuid}")
             if (info == null) {
                 info = SignalMeasurementInfo(
                     measurementId = record.id,
@@ -154,9 +154,19 @@ class SignalMeasurementRepositoryImpl(
                     provider = "" // TODO need to fill that field
                 )
                 dao.saveSignalMeasurementInfo(info)
+            } else {
+                if (result.success.uuid.isNotEmpty() && result.success.uuid != info.uuid) {
+                    Timber.d("SM Chunk creating new chunk with uuid: ${result.success.uuid}   before: ${info.uuid}")
+                    info = SignalMeasurementInfo(
+                        measurementId = record.id,
+                        uuid = result.success.uuid,
+                        clientRemoteIp = info.clientRemoteIp,
+                        resultUrl = info.resultUrl,
+                        provider = info.provider
+                    )
+                    dao.saveSignalMeasurementInfo(info)
+                }
             }
-
-            emit(result.success.uuid)
 
             testDao.removeTelephonyInfo(chunkId)
             testDao.removeWlanRecord(chunkId)
@@ -169,7 +179,7 @@ class SignalMeasurementRepositoryImpl(
             db.cellLocationDao().remove(chunkId)
         } else {
             chunk.submissionRetryCount++
-
+            Timber.d("SM Chunk FAILED responded: ${info?.uuid}")
             if (result.failure !is NoConnectionException) {
                 chunk.testErrorCause = result.failure.message
             }

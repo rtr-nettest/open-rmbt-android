@@ -57,7 +57,7 @@ class SignalMeasurementProcessor @Inject constructor(
     private val signalRepository: SignalMeasurementRepository,
     private val connectivityWatcher: ConnectivityWatcher,
     private val measurementRepository: MeasurementRepository
-) : Binder(), SignalMeasurementProducer, SignalMeasurementChunkResultCallback {
+) : Binder(), SignalMeasurementProducer {
 
     private var isUnstoppable = false
     private var _isActive = false
@@ -411,17 +411,5 @@ class SignalMeasurementProcessor @Inject constructor(
         }
 
         chunk?.id?.let { measurementRepository.saveTelephonyInfo(it) }
-    }
-
-    override fun chunkSentResult(respondedUuid: String?) {
-        if (chunk != null && !respondedUuid.isNullOrEmpty() && chunk?.measurementId == respondedUuid) {
-            commitChunkData()
-            if (lastSeenNetworkInfo != null) {
-                val networkInfo: NetworkInfo = lastSeenNetworkInfo as NetworkInfo
-                createNewRecord(networkInfo)
-            } else {
-                cleanLastNetwork()
-            }
-        }
     }
 }
