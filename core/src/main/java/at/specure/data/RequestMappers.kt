@@ -497,7 +497,7 @@ fun SignalMeasurementRecord.toRequest(
                 signalList.forEach {
                     val cell = cells[it.cellUuid]
                     if (cell != null) {
-                        if (it.timeNanos > 0) { // to filter out previous values
+                        if (it.timeNanos > 0 && chunk.sequenceNumber > 0) { // to filter out previous values
                             list.add(it.toRequest(cell.uuid, false, null))
                         }
                     }
