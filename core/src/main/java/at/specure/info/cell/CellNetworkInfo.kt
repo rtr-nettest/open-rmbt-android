@@ -19,12 +19,14 @@ import android.telephony.CellIdentityCdma
 import android.telephony.CellIdentityGsm
 import android.telephony.CellIdentityLte
 import android.telephony.CellIdentityNr
+import android.telephony.CellIdentityTdscdma
 import android.telephony.CellIdentityWcdma
 import android.telephony.CellInfo
 import android.telephony.CellInfoCdma
 import android.telephony.CellInfoGsm
 import android.telephony.CellInfoLte
 import android.telephony.CellInfoNr
+import android.telephony.CellInfoTdscdma
 import android.telephony.CellInfoWcdma
 import android.telephony.CellSignalStrengthNr
 import android.telephony.SubscriptionInfo
@@ -105,6 +107,7 @@ class CellNetworkInfo(
                 info is CellInfoCdma -> MobileNetworkType.CDMA
                 info is CellInfoGsm -> MobileNetworkType.GSM
                 Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q && info is CellInfoNr -> MobileNetworkType.NR
+                Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q && info is CellInfoTdscdma -> MobileNetworkType.TD_SCDMA
                 else -> throw IllegalArgumentException("Unknown cell info cannot be extracted ${info::class.java.name}")
             }
             return from(info, subscriptionInfo, networkType, isActive, isRoaming, apn, dualSimDetectionMethod)
@@ -156,6 +159,15 @@ class CellNetworkInfo(
                         info is CellInfoGsm -> fromGsm(info, providerName, networkType, isActive, isRoaming, apn, dualSimDetectionMethod)
                         info is CellInfoCdma -> fromCdma(info, providerName, networkType, isActive, isRoaming, apn, dualSimDetectionMethod)
                         Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q && info is CellInfoNr -> fromNr(
+                            info,
+                            providerName,
+                            networkType,
+                            isActive,
+                            isRoaming,
+                            apn,
+                            dualSimDetectionMethod
+                        )
+                        Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q && info is CellInfoTdscdma -> fromTdscdma(
                             info,
                             providerName,
                             networkType,
@@ -221,6 +233,40 @@ class CellNetworkInfo(
                 locationId = null,
                 areaCode = identity.tac.fixValue(),
                 scramblingCode = identity.pci,
+                cellUUID = info.uuid(),
+                isActive = isActive,
+                isRegistered = info.isRegistered,
+                isRoaming = isRoaming,
+                apn = apn,
+                signalStrength = SignalStrengthInfo.from(info.cellSignalStrength as CellSignalStrengthNr),
+                dualSimDetectionMethod = dualSimDetectionMethod
+            )
+        }
+
+        @RequiresApi(Build.VERSION_CODES.Q)
+        private fun fromTdscdma(
+            info: CellInfoTdscdma,
+            providerName: String,
+            networkType: MobileNetworkType,
+            isActive: Boolean,
+            isRoaming: Boolean,
+            apn: String?,
+            dualSimDetectionMethod: String?
+        ): CellNetworkInfo {
+
+            val identity = info.cellIdentity as CellIdentityTdscdma
+
+            val band = CellBand.fromChannelNumber(identity.uarfcn, CellChannelAttribution.UARFCN)
+
+            return CellNetworkInfo(
+                providerName = providerName,
+                band = band,
+                networkType = networkType,
+                mcc = identity.mccCompat(),
+                mnc = identity.mncCompat(),
+                locationId = null,
+                areaCode = identity.lac.fixValue(),
+                scramblingCode = null,
                 cellUUID = info.uuid(),
                 isActive = isActive,
                 isRegistered = info.isRegistered,
@@ -412,6 +458,16 @@ private fun CellIdentityNr.uuid(): String {
     return UUID.nameUUIDFromBytes(id).toString()
 }
 
+@RequiresApi(Build.VERSION_CODES.Q)
+private fun CellIdentityTdscdma.uuid(): String {
+    val id = buildString {
+        append("tdscdma")
+        append(cid)
+        append(cpid)
+    }.toByteArray()
+    return UUID.nameUUIDFromBytes(id).toString()
+}
+
 private fun CellIdentityLte.uuid(): String {
     val id = buildString {
         append("lte")
@@ -451,6 +507,13 @@ private fun CellIdentityNr.mccCompat(): Int? = mccString?.toInt().fixValue()
 
 @RequiresApi(Build.VERSION_CODES.Q)
 private fun CellIdentityNr.mncCompat(): Int? = mncString?.toInt().fixValue()
+
+@RequiresApi(Build.VERSION_CODES.Q)
+private fun CellIdentityTdscdma.mccCompat(): Int? = mccString?.toInt().fixValue()
+
+@RequiresApi(Build.VERSION_CODES.Q)
+private fun CellIdentityTdscdma.mncCompat(): Int? = mncString?.toInt().fixValue()
+
 
 private fun CellIdentityLte.mccCompat(): Int? =
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
