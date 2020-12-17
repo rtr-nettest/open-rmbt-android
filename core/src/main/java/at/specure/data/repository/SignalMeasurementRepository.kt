@@ -1,6 +1,7 @@
 package at.specure.data.repository
 
 import at.specure.data.entity.SignalMeasurementChunk
+import at.specure.data.entity.SignalMeasurementInfo
 import at.specure.data.entity.SignalMeasurementRecord
 import at.specure.measurement.signal.SignalMeasurementChunkResultCallback
 import kotlinx.coroutines.flow.Flow
@@ -14,7 +15,15 @@ interface SignalMeasurementRepository {
 
     fun updateSignalMeasurementRecord(record: SignalMeasurementRecord)
 
+    /**
+     * Method to save new [record] and create new SignalMeasurementInfo record because of provided new [newUuid] from the backend and
+     * create a new info from old info and updated uuid
+     */
+    fun saveAndUpdateRegisteredRecord(record: SignalMeasurementRecord, newUuid: String, oldInfo: SignalMeasurementInfo)
+
     fun registerMeasurement(measurementId: String): Flow<Boolean>
+
+    fun saveMeasurementRecord(record: SignalMeasurementRecord)
 
     fun saveMeasurementChunk(chunk: SignalMeasurementChunk)
 
