@@ -28,6 +28,9 @@ import at.specure.util.permission.PhoneStateAccess
 import at.specure.util.synchronizedForEach
 import timber.log.Timber
 import java.util.Collections
+import java.util.Timer
+import java.util.concurrent.TimeUnit
+import kotlin.concurrent.timerTask
 
 private const val INVALID_SUBSCRIPTION_ID = -1
 
@@ -46,6 +49,7 @@ class CellInfoWatcherImpl(
     LocationAccess.LocationAccessChangeListener,
     PhoneStateAccess.PhoneStateAccessChangeListener {
 
+    private var timer: Timer? = null
     private val listeners = Collections.synchronizedSet(mutableSetOf<CellInfoWatcher.CellInfoChangeListener>())
 
     private var _activeNetwork: CellNetworkInfo? = null
@@ -175,6 +179,26 @@ class CellInfoWatcherImpl(
                 if (context.isCoarseLocationPermitted()) {
                     infoListener.onCellInfoChanged(telephonyManager.allCellInfo)
                     telephonyManager.listen(infoListener, PhoneStateListener.LISTEN_CELL_INFO)
+                    if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q) {
+                        val cellInfoCallback = object : TelephonyManager.CellInfoCallback() {
+
+                            override fun onCellInfo(cellInfo: MutableList<CellInfo>) {
+                                processCellInfos(cellInfo)
+                            }
+                        }
+
+                        if (timer != null) {
+                            removeNextTimerUpdates()
+                        }
+                        timer = Timer()
+                        timer?.scheduleAtFixedRate(
+                            timerTask {
+                                telephonyManager.requestCellInfoUpdate({ command -> Thread(command).start() }, cellInfoCallback)
+                            },
+                            TimeUnit.SECONDS.toMillis(REFRESH_CELL_INFO_INTERVAL_SECONDS),
+                            TimeUnit.SECONDS.toMillis(REFRESH_CELL_INFO_INTERVAL_SECONDS)
+                        )
+                    }
                     callbacksRegistered = true
                 }
             }
@@ -185,7 +209,14 @@ class CellInfoWatcherImpl(
 
     private fun unregisterCallbacks() {
         telephonyManager.listen(infoListener, PhoneStateListener.LISTEN_NONE)
+        removeNextTimerUpdates()
         callbacksRegistered = false
+    }
+
+    private fun removeNextTimerUpdates() {
+        timer?.cancel()
+        timer?.purge()
+        timer = null
     }
 
     override fun onLocationAccessChanged(isAllowed: Boolean) {
@@ -198,5 +229,9 @@ class CellInfoWatcherImpl(
         if (listeners.isNotEmpty() && isAllowed && !callbacksRegistered) {
             registerCallbacks()
         }
+    }
+
+    companion object {
+        private const val REFRESH_CELL_INFO_INTERVAL_SECONDS: Long = 5
     }
 }
