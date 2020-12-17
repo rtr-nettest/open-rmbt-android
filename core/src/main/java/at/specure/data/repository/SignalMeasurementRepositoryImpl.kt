@@ -16,7 +16,6 @@ import at.specure.data.toRequest
 import at.specure.info.TransportType
 import at.specure.measurement.signal.SignalMeasurementChunkResultCallback
 import at.specure.test.DeviceInfo
-import at.specure.test.toDeviceInfoLocation
 import at.specure.util.exception.DataMissingException
 import at.specure.worker.WorkLauncher
 import kotlinx.coroutines.flow.Flow
@@ -100,7 +99,6 @@ class SignalMeasurementRepositoryImpl(
     }
 
     override fun saveMeasurementChunk(chunk: SignalMeasurementChunk) = io {
-        var record = dao.getSignalMeasurementRecord(chunk.measurementId);
         dao.saveSignalMeasurementChunk(chunk)
     }
 
@@ -123,7 +121,7 @@ class SignalMeasurementRepositoryImpl(
             }
     }
 
-    override fun sendMeasurementChunk(chunkId: String, callBack: SignalMeasurementChunkResultCallback): Flow<String?> = flow {
+    override fun sendMeasurementChunk(chunkId: String, callback: SignalMeasurementChunkResultCallback): Flow<String?> = flow {
         var chunk = dao.getSignalMeasurementChunk(chunkId) ?: throw DataMissingException("SignalMeasurementChunk not found with id: $chunkId")
         val record = dao.getSignalMeasurementRecord(chunk.measurementId)
             ?: throw DataMissingException("SignalMeasurementRecord not found with id: ${chunk.measurementId}")
@@ -192,7 +190,7 @@ class SignalMeasurementRepositoryImpl(
                         provider = info.provider
                     )
                     dao.saveSignalMeasurementInfo(info)
-                    val newrecord = SignalMeasurementRecord(
+                    SignalMeasurementRecord(
                         id = record.id,
                         networkUUID = record.networkUUID,
                         location = record.location,
@@ -216,7 +214,7 @@ class SignalMeasurementRepositoryImpl(
             db.permissionStatusDao().remove(chunkId)
             db.connectivityStateDao().remove(chunkId)
             db.cellLocationDao().remove(chunkId)
-            callBack.chunkSentResult(result.success.uuid)
+            callback.chunkSentResult(result.success.uuid)
         } else {
             chunk.submissionRetryCount++
             Timber.d("SM Chunk FAILED responded: ${info?.uuid}")

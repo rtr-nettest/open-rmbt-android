@@ -36,6 +36,7 @@ import at.specure.test.toDeviceInfoLocation
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.launch
@@ -103,7 +104,7 @@ class SignalMeasurementProcessor @Inject constructor(
         }
     }
 
-    final override val coroutineContext = EmptyCoroutineContext + coroutineExceptionHandler
+    override val coroutineContext = EmptyCoroutineContext + coroutineExceptionHandler
 
     override val isActive: Boolean
         get() = _isActive
@@ -312,6 +313,7 @@ class SignalMeasurementProcessor @Inject constructor(
         }
     }
 
+    @ExperimentalCoroutinesApi
     private fun updateChunkInfo(chunkId: String) = launch {
         signalRepository.getSignalMeasurementChunk(chunkId)
             .flowOn(Dispatchers.IO)
@@ -324,25 +326,12 @@ class SignalMeasurementProcessor @Inject constructor(
             }
     }
 
-//    private fun updateRecordAndCreateChunk(recordUpdate: SignalMeasurementRecord) = launch {
-//        val recordId = record?.id ?: ""
-//        signalRepository.getSignalMeasurementRecord(recordId)
-//            .flowOn(Dispatchers.IO)
-//            .collect { smr ->
-//                record = smr
-//                createNewChunkAfterRecordUpdated()
-//            }
-//    }
-
-    private fun createNewChunkAfterRecordUpdated() {
+    @ExperimentalCoroutinesApi
+    private fun createNewChunk() {
         record?.let {
             chunk = SignalMeasurementChunk(
                 measurementId = it.id,
-                sequenceNumber = /*if (it.resetChunkNumber) {
-                    0
-                } else {*/
-                chunk?.sequenceNumber?.inc() ?: 0
-                /* }*/,
+                sequenceNumber = chunk?.sequenceNumber?.inc() ?: 0,
                 state = SignalMeasurementState.RUNNING,
                 startTimeNanos = System.nanoTime(),
                 submissionRetryCount = 0
@@ -364,14 +353,7 @@ class SignalMeasurementProcessor @Inject constructor(
             saveCapabilities()
             savePermissionsStatus()
             updateChunkInfo(it.id)
-//            it.resetChunkNumber = false
-//            signalRepository.updateSignalMeasurementRecord(it)
         }
-    }
-
-    private fun createNewChunk() {
-//        record?.let { updateRecordAndCreateChunk(it) }
-        createNewChunkAfterRecordUpdated()
     }
 
     private fun scheduleCountDownTimer() {
@@ -467,19 +449,10 @@ class SignalMeasurementProcessor @Inject constructor(
         chunk?.id?.let { measurementRepository.saveTelephonyInfo(it) }
     }
 
+    @ExperimentalCoroutinesApi
     override fun chunkSentResult(respondedUuid: String?) {
         chunk?.let {
             updateChunkInfo(it.id)
         }
-        /*if (chunk != null && !respondedUuid.isNullOrEmpty() && chunk?.measurementId == respondedUuid) {
-            commitChunkData()
-            if (lastSeenNetworkInfo != null) {
-                val networkInfo: NetworkInfo = lastSeenNetworkInfo as NetworkInfo
-                createNewRecord(networkInfo)
-            } else {
-                cleanLastNetwork()
-            }
-        }
-    }*/
     }
 }

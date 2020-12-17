@@ -20,7 +20,7 @@ interface SignalMeasurementRepository {
 
     fun sendMeasurementChunk(chunk: SignalMeasurementChunk, callback: SignalMeasurementChunkResultCallback)
 
-    fun getSignalMeasurementChunk(measurementId: String): Flow<SignalMeasurementChunk?>
+    fun getSignalMeasurementChunk(chunkId: String): Flow<SignalMeasurementChunk?>
 
     /**
      * if it returns:
