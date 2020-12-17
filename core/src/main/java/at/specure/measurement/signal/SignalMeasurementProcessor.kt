@@ -6,6 +6,7 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
+import at.rmbt.util.exception.HandledException
 import at.specure.data.entity.ConnectivityStateRecord
 import at.specure.data.entity.SignalMeasurementChunk
 import at.specure.data.entity.SignalMeasurementRecord
@@ -32,12 +33,20 @@ import at.specure.location.cell.CellLocationInfo
 import at.specure.location.cell.CellLocationLiveData
 import at.specure.location.cell.CellLocationWatcher
 import at.specure.test.toDeviceInfoLocation
+import kotlinx.coroutines.CoroutineExceptionHandler
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.launch
 import timber.log.Timber
 import java.util.Timer
 import java.util.TimerTask
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlin.coroutines.EmptyCoroutineContext
 
 private const val MAX_SIGNAL_COUNT_PER_CHUNK = 25
 private const val MAX_SIGNAL_UPTIME_PER_CHUNK_MIN = 10L
@@ -57,7 +66,7 @@ class SignalMeasurementProcessor @Inject constructor(
     private val signalRepository: SignalMeasurementRepository,
     private val connectivityWatcher: ConnectivityWatcher,
     private val measurementRepository: MeasurementRepository
-) : Binder(), SignalMeasurementProducer, SignalMeasurementChunkResultCallback {
+) : Binder(), SignalMeasurementProducer, CoroutineScope, SignalMeasurementChunkResultCallback {
 
     private var isUnstoppable = false
     private var _isActive = false
@@ -86,6 +95,16 @@ class SignalMeasurementProcessor @Inject constructor(
     private var signalStrengthInfo: SignalStrengthInfo? = null
     private var cellLocation: CellLocationInfo? = null
     private val saveWlanInfo = false
+
+    private val coroutineExceptionHandler = CoroutineExceptionHandler { _, e ->
+        if (e is HandledException) {
+            // do nothing
+        } else {
+            throw e
+        }
+    }
+
+    override val coroutineContext = EmptyCoroutineContext + coroutineExceptionHandler
 
     override val isActive: Boolean
         get() = _isActive
@@ -277,7 +296,8 @@ class SignalMeasurementProcessor @Inject constructor(
         record = SignalMeasurementRecord(
             networkUUID = networkInfo.cellUUID,
             transportType = networkInfo.type,
-            location = locationInfo.toDeviceInfoLocation()
+            location = locationInfo.toDeviceInfoLocation(),
+            resetChunkNumber = false
         ).also {
             signalRepository.saveAndRegisterRecord(it)
         }
@@ -287,11 +307,25 @@ class SignalMeasurementProcessor @Inject constructor(
 
     private fun commitChunkData() {
         chunk?.let {
-            Timber.i("Commit chunk data")
-            signalRepository.sendMeasurementChunk(it)
+            Timber.i("Commit chunk data chunkID = ${it.id} sequence: ${it.sequenceNumber}")
+            signalRepository.sendMeasurementChunk(it, this)
         }
     }
 
+    @ExperimentalCoroutinesApi
+    private fun updateChunkInfo(chunkId: String) = launch {
+        signalRepository.getSignalMeasurementChunk(chunkId)
+            .flowOn(Dispatchers.IO)
+            .collect { smr ->
+                smr?.let {
+                    Timber.i("Update chunk data chunkID started = ${chunk?.id} sequence: ${chunk?.sequenceNumber}")
+                    chunk = smr
+                    Timber.i("Update chunk data chunkID = ${chunk?.id} sequence: ${chunk?.sequenceNumber}")
+                }
+            }
+    }
+
+    @ExperimentalCoroutinesApi
     private fun createNewChunk() {
         record?.let {
             chunk = SignalMeasurementChunk(
@@ -304,7 +338,7 @@ class SignalMeasurementProcessor @Inject constructor(
                 signalRepository.saveMeasurementChunk(chunk)
                 chunkDataSize = 0
                 scheduleCountDownTimer()
-                Timber.i("New chunk created")
+                Timber.i("New chunk created chunkID = ${chunk.id} sequence: ${chunk.sequenceNumber}")
             }
 
             if (saveWlanInfo) {
@@ -317,6 +351,7 @@ class SignalMeasurementProcessor @Inject constructor(
             saveLocationInfo()
             saveCapabilities()
             savePermissionsStatus()
+            updateChunkInfo(it.id)
         }
     }
 
@@ -380,7 +415,7 @@ class SignalMeasurementProcessor @Inject constructor(
             var mobileNetworkType: MobileNetworkType? = null
             if (networkInfo != null && networkInfo is CellNetworkInfo) {
                 mobileNetworkType = (networkInfo as CellNetworkInfo).networkType
-                Timber.d("Signal saving time SMP: starting time: ${record?.startTimeNanos}   current time: ${System.nanoTime()}")
+                Timber.d("Signal saving time SMP: chunkID: $uuid    starting time: ${record?.startTimeNanos}   current time: ${System.nanoTime()}")
                 repository.saveSignalStrength(uuid, cellUUID, mobileNetworkType, info, record?.startTimeNanos ?: 0)
 
                 chunkDataSize++
@@ -413,15 +448,10 @@ class SignalMeasurementProcessor @Inject constructor(
         chunk?.id?.let { measurementRepository.saveTelephonyInfo(it) }
     }
 
+    @ExperimentalCoroutinesApi
     override fun chunkSentResult(respondedUuid: String?) {
-        if (chunk != null && !respondedUuid.isNullOrEmpty() && chunk?.measurementId == respondedUuid) {
-            commitChunkData()
-            if (lastSeenNetworkInfo != null) {
-                val networkInfo: NetworkInfo = lastSeenNetworkInfo as NetworkInfo
-                createNewRecord(networkInfo)
-            } else {
-                cleanLastNetwork()
-            }
+        chunk?.let {
+            updateChunkInfo(it.id)
         }
     }
 }
