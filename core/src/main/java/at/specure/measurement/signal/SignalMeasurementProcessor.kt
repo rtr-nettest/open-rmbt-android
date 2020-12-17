@@ -416,7 +416,7 @@ class SignalMeasurementProcessor @Inject constructor(
             var mobileNetworkType: MobileNetworkType? = null
             if (networkInfo != null && networkInfo is CellNetworkInfo) {
                 mobileNetworkType = (networkInfo as CellNetworkInfo).networkType
-                Timber.d("Signal saving time SMP: starting time: ${record?.startTimeNanos}   current time: ${System.nanoTime()}")
+                Timber.d("Signal saving time SMP: chunkID: $uuid    starting time: ${record?.startTimeNanos}   current time: ${System.nanoTime()}")
                 repository.saveSignalStrength(uuid, cellUUID, mobileNetworkType, info, record?.startTimeNanos ?: 0)
 
                 chunkDataSize++
