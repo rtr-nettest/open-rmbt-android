@@ -42,5 +42,13 @@ data class SignalMeasurementRecord(
     /**
      * Type of the network
      */
-    var transportType: TransportType?
+    var transportType: TransportType?,
+
+    /**
+     * Flag if the next chunk number must be reset to 0 - this should be
+     *
+     * - true   - if new uuid arrived from backend and
+     * - false  - right after new chunk with sequence number == 0 was created.
+     */
+    var resetChunkNumber: Boolean
 )

@@ -14,7 +14,9 @@ import at.specure.data.entity.TestWlanRecord
 import at.specure.data.toModel
 import at.specure.data.toRequest
 import at.specure.info.TransportType
+import at.specure.measurement.signal.SignalMeasurementChunkResultCallback
 import at.specure.test.DeviceInfo
+import at.specure.test.toDeviceInfoLocation
 import at.specure.util.exception.DataMissingException
 import at.specure.worker.WorkLauncher
 import kotlinx.coroutines.flow.Flow
@@ -81,13 +83,30 @@ class SignalMeasurementRepositoryImpl(
         }
     }
 
+    override fun getSignalMeasurementChunk(chunkId: String): Flow<SignalMeasurementChunk?> = flow {
+        var chunk = dao.getSignalMeasurementChunk(chunkId)
+        chunk?.let {
+            val record = dao.getSignalMeasurementRecord(it.measurementId)
+            if (record != null) {
+                if (record.resetChunkNumber) {
+                    chunk = it.copy(id = chunkId, sequenceNumber = 0)
+                    Timber.i("update chunk sequence id GET chunkBefore = $chunkId, chunkID = ${it.id} sequence: ${it.sequenceNumber}")
+                    record.resetChunkNumber = false
+                    updateSignalMeasurementRecord(record)
+                }
+            }
+        }
+        emit(chunk)
+    }
+
     override fun saveMeasurementChunk(chunk: SignalMeasurementChunk) = io {
+        var record = dao.getSignalMeasurementRecord(chunk.measurementId);
         dao.saveSignalMeasurementChunk(chunk)
     }
 
-    override fun sendMeasurementChunk(chunk: SignalMeasurementChunk) = io {
+    override fun sendMeasurementChunk(chunk: SignalMeasurementChunk, callBack: SignalMeasurementChunkResultCallback) = io {
         dao.saveSignalMeasurementChunk(chunk)
-        sendMeasurementChunk(chunk.id)
+        sendMeasurementChunk(chunk.id, callBack)
             .catch { e ->
                 if (e is NoConnectionException) {
                     emit(null)
@@ -100,11 +119,12 @@ class SignalMeasurementRepositoryImpl(
                 if (it == null) {
                     WorkLauncher.enqueueSignalMeasurementChunkRequest(context, chunk.id)
                 }
+                callBack.chunkSentResult(it)
             }
     }
 
-    override fun sendMeasurementChunk(chunkId: String): Flow<String?> = flow {
-        val chunk = dao.getSignalMeasurementChunk(chunkId) ?: throw DataMissingException("SignalMeasurementChunk not found with id: $chunkId")
+    override fun sendMeasurementChunk(chunkId: String, callBack: SignalMeasurementChunkResultCallback): Flow<String?> = flow {
+        var chunk = dao.getSignalMeasurementChunk(chunkId) ?: throw DataMissingException("SignalMeasurementChunk not found with id: $chunkId")
         val record = dao.getSignalMeasurementRecord(chunk.measurementId)
             ?: throw DataMissingException("SignalMeasurementRecord not found with id: ${chunk.measurementId}")
 
@@ -123,6 +143,13 @@ class SignalMeasurementRepositoryImpl(
             testDao.getWlanRecord(chunkId)
         } else {
             null
+        }
+
+        if (record.resetChunkNumber) {
+            chunk = chunk.copy(id = chunkId, sequenceNumber = 0)
+            record.resetChunkNumber = false
+            Timber.i("update chunk sequence id send chunk Before = $chunkId, chunkID = ${chunk.id} sequence: ${chunk.sequenceNumber}")
+            dao.updateSignalMeasurementRecord(record)
         }
 
         val body = record.toRequest(
@@ -165,6 +192,18 @@ class SignalMeasurementRepositoryImpl(
                         provider = info.provider
                     )
                     dao.saveSignalMeasurementInfo(info)
+                    val newrecord = SignalMeasurementRecord(
+                        id = record.id,
+                        networkUUID = record.networkUUID,
+                        location = record.location,
+                        transportType = record.transportType,
+                        mobileNetworkType = record.mobileNetworkType,
+                        resetChunkNumber = true
+                    ).also {
+                        dao.updateSignalMeasurementRecord(it)
+                        Timber.d("SM Chunk updating record to reset chunk sequence number")
+                    }
+
                 }
             }
 
@@ -177,6 +216,7 @@ class SignalMeasurementRepositoryImpl(
             db.permissionStatusDao().remove(chunkId)
             db.connectivityStateDao().remove(chunkId)
             db.cellLocationDao().remove(chunkId)
+            callBack.chunkSentResult(result.success.uuid)
         } else {
             chunk.submissionRetryCount++
             Timber.d("SM Chunk FAILED responded: ${info?.uuid}")
