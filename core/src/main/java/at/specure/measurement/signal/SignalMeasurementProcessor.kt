@@ -9,6 +9,7 @@ import androidx.lifecycle.Observer
 import at.rmbt.util.exception.HandledException
 import at.specure.data.entity.ConnectivityStateRecord
 import at.specure.data.entity.SignalMeasurementChunk
+import at.specure.data.entity.SignalMeasurementInfo
 import at.specure.data.entity.SignalMeasurementRecord
 import at.specure.data.repository.MeasurementRepository
 import at.specure.data.repository.SignalMeasurementRepository
@@ -296,10 +297,21 @@ class SignalMeasurementProcessor @Inject constructor(
         record = SignalMeasurementRecord(
             networkUUID = networkInfo.cellUUID,
             transportType = networkInfo.type,
-            location = locationInfo.toDeviceInfoLocation(),
-            resetChunkNumber = false
+            location = locationInfo.toDeviceInfoLocation()
         ).also {
             signalRepository.saveAndRegisterRecord(it)
+        }
+        chunk = null
+        createNewChunk()
+    }
+
+    private fun createNewRecordBecauseOfChangedUUID(networkInfo: NetworkInfo, newUUID: String, info: SignalMeasurementInfo) {
+        record = SignalMeasurementRecord(
+            networkUUID = networkInfo.cellUUID,
+            transportType = networkInfo.type,
+            location = locationInfo.toDeviceInfoLocation()
+        ).also {
+            signalRepository.saveAndUpdateRegisteredRecord(it, newUUID, info)
         }
         chunk = null
         createNewChunk()
@@ -449,9 +461,10 @@ class SignalMeasurementProcessor @Inject constructor(
     }
 
     @ExperimentalCoroutinesApi
-    override fun chunkSentResult(respondedUuid: String?) {
-        chunk?.let {
-            updateChunkInfo(it.id)
+    override fun newUUIDSent(respondedUuid: String, info: SignalMeasurementInfo) {
+        val network = networkInfo
+        network?.let {
+            createNewRecordBecauseOfChangedUUID(network, respondedUuid, info)
         }
     }
 }

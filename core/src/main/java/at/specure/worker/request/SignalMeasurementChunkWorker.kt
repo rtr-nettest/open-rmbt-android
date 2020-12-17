@@ -5,6 +5,7 @@ import androidx.work.CoroutineWorker
 import androidx.work.Data
 import androidx.work.WorkerParameters
 import at.rmbt.util.exception.NoConnectionException
+import at.specure.data.entity.SignalMeasurementInfo
 import at.specure.data.repository.SignalMeasurementRepository
 import at.specure.di.CoreInjector
 import at.specure.measurement.signal.SignalMeasurementChunkResultCallback
@@ -26,7 +27,9 @@ class SignalMeasurementChunkWorker(appContext: Context, workerParams: WorkerPara
 
         var result = Result.failure()
         repository.sendMeasurementChunk(chunkId, object : SignalMeasurementChunkResultCallback {
-            override fun chunkSentResult(respondedUuid: String?) {}
+            override fun newUUIDSent(respondedUuid: String, info: SignalMeasurementInfo) {
+                // ignored for retried submissions
+            }
         })
             .catch { e ->
                 if (e is NoConnectionException) {
