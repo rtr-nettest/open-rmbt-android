@@ -514,7 +514,6 @@ private fun CellIdentityTdscdma.mccCompat(): Int? = mccString?.toInt().fixValue(
 @RequiresApi(Build.VERSION_CODES.Q)
 private fun CellIdentityTdscdma.mncCompat(): Int? = mncString?.toInt().fixValue()
 
-
 private fun CellIdentityLte.mccCompat(): Int? =
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
         mccString?.toInt().fixValue()

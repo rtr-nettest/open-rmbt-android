@@ -201,7 +201,6 @@ class SignalMeasurementRepositoryImpl(
                         dao.updateSignalMeasurementRecord(it)
                         Timber.d("SM Chunk updating record to reset chunk sequence number")
                     }
-
                 }
             }
 

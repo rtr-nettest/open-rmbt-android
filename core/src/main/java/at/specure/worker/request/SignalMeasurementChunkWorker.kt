@@ -26,9 +26,7 @@ class SignalMeasurementChunkWorker(appContext: Context, workerParams: WorkerPara
 
         var result = Result.failure()
         repository.sendMeasurementChunk(chunkId, object : SignalMeasurementChunkResultCallback {
-            override fun chunkSentResult(respondedUuid: String?) {
-
-            }
+            override fun chunkSentResult(respondedUuid: String?) {}
         })
             .catch { e ->
                 if (e is NoConnectionException) {

@@ -309,7 +309,6 @@ class SignalMeasurementProcessor @Inject constructor(
         chunk?.let {
             Timber.i("Commit chunk data chunkID = ${it.id} sequence: ${it.sequenceNumber}")
             signalRepository.sendMeasurementChunk(it, this)
-            //updateChunkInfo(chunk.id)
         }
     }
 
