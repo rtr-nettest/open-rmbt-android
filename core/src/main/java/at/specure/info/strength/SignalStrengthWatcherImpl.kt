@@ -88,6 +88,7 @@ class SignalStrengthWatcherImpl(
                 Timber.i("Signal Strength is ignored for current device")
                 return
             }
+
             var nrConnectionState = NRConnectionState.NOT_AVAILABLE
             var cellInfo: CellInfo? = null
             val network = activeNetworkWatcher.currentNetworkInfo
