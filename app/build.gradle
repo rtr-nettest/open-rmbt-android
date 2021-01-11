@@ -25,12 +25,16 @@ android {
         targetSdkVersion config.targetSdkVersion
         versionCode config.versionCode
         versionName config.versionName
+        compileSdkVersion config.targetSdkVersion
+        buildToolsVersion config.buildToolsVersion
 
         testInstrumentationRunner "androidx.text.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary = true
 
         buildConfigField "java.util.Date", "BUILD_TIME", "new java.util.Date(" + System.currentTimeMillis() + "L)"
         buildConfigField "String", "COMMIT_HASH", "\"${getGitHash()}\""
+        buildConfigField "int", "VERSION_CODE", "${versionCode}"
+        buildConfigField "String", "VERSION_NAME", "\"${versionName}\""
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
