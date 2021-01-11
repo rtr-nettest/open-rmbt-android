@@ -88,6 +88,7 @@ check:openRMBTBuild:
       - /fix\/.*/
       - /feature\/.*/
       - /hotfix\/.*/
+      - /update\/.*/
       - /test\/.*/
 
 .check:uiTests:
