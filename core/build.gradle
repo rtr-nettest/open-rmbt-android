@@ -26,6 +26,8 @@ android {
         buildConfigField "String", "GIT_FULL_HASH", "\"${gitFullHash()}\""
         buildConfigField "int", "GIT_VERSION_CODE", gitVersionCode()
         buildConfigField "boolean", "GIT_IS_DIRTY", gitIsDirty()
+        buildConfigField "int", "VERSION_CODE", "${versionCode}"
+        buildConfigField "String", "VERSION_NAME", "\"${versionName}\""
     }
 
     buildTypes {
