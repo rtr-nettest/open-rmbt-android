@@ -1,9 +1,3 @@
-import groovy.json.JsonSlurper
-
-import java.util.regex.Matcher
-import java.util.regex.Pattern
-import at.specure.*
-
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
@@ -21,8 +15,6 @@ applyPrivate "app/analytics.gradle"
 applyPrivate "app/flavor-config.gradle"
 
 android {
-
-    def projectName
 
     compileSdkVersion config.targetSdkVersion
     buildToolsVersion config.buildToolsVersion
@@ -70,74 +62,6 @@ android {
     kotlinOptions {
         jvmTarget = "1.8"
     }
-
-    task getCurrentFlavor() {
-        Gradle gradle = getGradle()
-        String tskReqStr = gradle.getStartParameter().getTaskRequests().toString()
-
-        Pattern pattern
-
-        if (tskReqStr.contains("assemble"))
-//            pattern = Pattern.compile("assemble(\\w+)(Release|Debug)")
-            pattern = Pattern.compile("assemble(\\w+)")
-        else
-            pattern = Pattern.compile("generate(\\w+)")
-//            pattern = Pattern.compile("generate(\\w+)(Release|Debug)")
-
-        Matcher matcher = pattern.matcher(tskReqStr)
-
-        if (matcher.find()) {
-            projectName = matcher.group(1).toLowerCase() // Changing to 2 will return build type, 1 provides product flavor
-        } else {
-            println "NO MATCH FOUND"
-        }
-    }
-
-    task myTask(type: Copy) {
-        dependsOn getCurrentFlavor
-        println "flavor name is $projectName"
-        def flavorDimension = projectName
-        def buildType = ""
-        if (flavorDimension != null) {
-            if ((flavorDimension as String).contains("debug") || (flavorDimension as String).contains("Debug")) {
-                buildType = "debug"
-            } else if ((flavorDimension as String).contains("release") || (flavorDimension as String).contains("Release")) {
-                buildType = "release"
-            } else {
-                throw new IllegalArgumentException("An unknown build variant is using. Please add it in tools/config-reader.gradle file")
-            }
-
-
-            flavorDimension = projectName - buildType
-            println("flavorDimension: ${flavorDimension}")
-
-            def jsonFile
-            if (isPrivate) {
-                jsonFile = file("$project.rootDir/private/app/src/${flavorDimension}/config.json")
-            } else {
-                jsonFile = file("$project.rootDir/app/src/${flavorDimension}/config.json")
-            }
-
-            def parsedJson = new JsonSlurper().parseText(jsonFile.text)
-
-            println "-------------${flavorDimension}--------------"
-
-            def configClass = "at.rtr.rmbt.android.util.ConfigValue"
-
-            parsedJson.config.each {
-                if (it._section == null) {
-//                    if (verbose) {
-//                        println "${it.name} ${it.value} ${it.visible}"
-//                    }
-//                    buildConfigField "java.util.Date", "BUILD_TIME", "new java.util.Date(" + System.currentTimeMillis() + "L)"
-//                    buildConfigField("$configClass", it.name, "new ${configClass}(\"${it.name}\", \"${it.value}\", ${it.visible})")
-                    android.defaultConfig.buildConfigField "$configClass", it.name, "new ${configClass}(\"${it.name}\", \"${it.value}\", ${it.visible})"
-
-                }
-            }
-        }
-    }
-    preBuild.dependsOn myTask
 }
 
 dependencies {
