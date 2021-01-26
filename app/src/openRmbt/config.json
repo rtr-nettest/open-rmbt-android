@@ -36,8 +36,13 @@
       "visible": false
     },
     {
-      "name": "CONTROL_SERVER_NEW_URL",
-      "value": "http://api-test.example.org",
+      "name": "CONTROL_SERVER_NEW_HOST",
+      "value": "api-test.example.org",
+      "visible": false
+    },
+    {
+      "name": "CONTROL_SERVER_NEW_ROUTE",
+      "value": "rtr",
       "visible": false
     },
     {
@@ -382,7 +387,7 @@
     },
     {
       "name": "CONTROL_SERVER_GET_NEWS_ENDPOINT",
-      "value": "rtr/news",
+      "value": "news",
       "visible": false
     }
   ]
