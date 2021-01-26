@@ -412,4 +412,8 @@ class AppConfig @Inject constructor(context: Context, private val serverSettings
         set(value) = preferences.edit()
             .putLong(KEY_LAST_BACKGROUND_PERMISSIONS_ASKED_TIMESTAMP_MILLIS, value)
             .apply()
+
+    override var newServerURL: String
+        get() = getString(BuildConfig.CONTROL_SERVER_NEW_URL)
+    set(value) = setString(BuildConfig.CONTROL_SERVER_NEW_URL, value)
 }

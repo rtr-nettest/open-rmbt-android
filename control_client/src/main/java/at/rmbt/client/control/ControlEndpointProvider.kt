@@ -99,4 +99,9 @@ interface ControlEndpointProvider {
      * Endpoint to get news
      */
     val getNewsUrl: String
+
+    /**
+     * The URL of updated server
+     */
+    val newServerUrl: String
 }
