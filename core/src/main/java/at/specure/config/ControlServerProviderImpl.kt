@@ -67,6 +67,16 @@ class ControlServerProviderImpl(private val config: Config) : ControlEndpointPro
     override val signalResultUrl: String
         get() = "$host$routePath/${config.signalResultRoute}"
 
+    private val newServerProtocol = "http://"
+
+    override val newServerHost: String
+        get() = "${newServerProtocol}${config.newServerHost}"
+
+    override val newServerRoute: String
+        get() = config.newServerRoute
+
+    private val newRoutePath = if (newServerRoute.isEmpty()) "" else "/$newServerRoute"
+
     override val getNewsUrl: String
-        get() = "$host$routePath/${config.controlServerNewsEndpoint}"
+        get() = "${newServerHost}${newRoutePath}/${config.controlServerNewsEndpoint}"
 }
