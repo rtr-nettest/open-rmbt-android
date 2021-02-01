@@ -5,6 +5,7 @@ import java.util.regex.Pattern
 
 android {
     def projectName
+    def projectVariant
 
     task getCurrentFlavor() {
         Gradle gradle = getGradle()
@@ -12,25 +13,43 @@ android {
 
         Pattern pattern
 
-        if (tskReqStr.contains("assemble"))
+        if (tskReqStr.contains("assemble")) {
             pattern = Pattern.compile("assemble(\\w+)")
-        else
+        } else if (tskReqStr.contains("generate")) {
             pattern = Pattern.compile("generate(\\w+)")
+        } else /*if (tskReqStr.contains("lint")) */{
+            pattern = Pattern.compile("lint(\\w+)")
+        }
 
         Matcher matcher = pattern.matcher(tskReqStr)
 
         if (matcher.find()) {
-
             println "MATCH FOUND ${matcher.group(1)}"
             projectName = matcher.group(1) // Changing to 2 will return build type, 1 provides product flavor
         } else {
             println "NO MATCH FOUND"
         }
+//
+//        if (tskReqStr.contains("assemble")) {
+//            pattern = Pattern.compile("assemble(\\w+)(Release|Debug)")
+//        } else {
+//            pattern = Pattern.compile("generate(\\w+)(Release|Debug)")
+//        }
+//
+//        Matcher matcher = pattern.matcher(tskReqStr)
+//
+//        if (matcher.find()) {
+//            println "VARIANT match found: ${matcher.group(2)}"
+//            projectVariant = matcher.group(2).toLowerCase()
+//        } else {
+//            println "VARIANT NO MATCH FOUND"
+//        }
     }
 
     task myTask(type: Copy) {
         dependsOn getCurrentFlavor
         println "flavor name is $projectName"
+//        println "VARIANT name is $projectVariant"
 //        if (projectName == null) {
 //            projectName = "localDemoDebug"
 //            println "default flavor name set up as $projectName"
@@ -38,6 +57,7 @@ android {
         def verbose = false
         def flavorDimension = projectName
         def buildType = ""
+
         if (flavorDimension != null) {
             if ((flavorDimension as String).contains("debug")) {
                 buildType = "debug"
