@@ -56,8 +56,7 @@ class HomeActivity : BaseActivity() {
 
         val navHostFragment = supportFragmentManager.findFragmentById(R.id.navHostFragment) as NavHostFragment
         val navController = navHostFragment.navController
-        val navigator = KeepStateNavigator(this, navHostFragment.childFragmentManager, R.id.navHostFragment)
-        navController.navigatorProvider += navigator
+        KeepStateNavigator(this, navHostFragment.childFragmentManager, R.id.navHostFragment)
         navController.setGraph(R.navigation.mobile_navigation)
 
         binding.navView.setupWithNavController(navController)
