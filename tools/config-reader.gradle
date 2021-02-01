@@ -5,7 +5,7 @@ import java.util.regex.Pattern
 
 android {
     def projectName
-    
+
     task getCurrentFlavor() {
         Gradle gradle = getGradle()
         String tskReqStr = gradle.getStartParameter().getTaskRequests().toString()
@@ -53,12 +53,12 @@ android {
             flavorDimension = flavorDimension - buildType
             println("flavorDimension: ${flavorDimension}")
 
-            def jsonFile
-            if (isPrivate) {
-                jsonFile = file("$project.rootDir/private/app/src/${flavorDimension}/config.json")
-            } else {
-                jsonFile = file("$project.rootDir/app/src/${flavorDimension}/config.json")
-            }
+    def jsonFile
+    if (isPrivate) {
+        jsonFile = file("$project.rootDir/private/app/src/${flavorDimension}/config.json")
+    } else {
+        jsonFile = file("$project.rootDir/app/src/${flavorDimension}/config.json")
+    }
 
             def parsedJson = new JsonSlurper().parseText(jsonFile.text)
 
