@@ -29,20 +29,28 @@ android {
     task myTask(type: Copy) {
         dependsOn getCurrentFlavor
         println "flavor name is $projectName"
+        if (projectName == null) {
+            projectName = "localDemoDebug"
+            println "default flavor name set up as $projectName"
+        }
         def verbose = false
         def flavorDimension = projectName
         def buildType = ""
         if (flavorDimension != null) {
-            if ((flavorDimension as String).contains("debug") || (flavorDimension as String).contains("Debug")) {
+            if ((flavorDimension as String).contains("debug")) {
                 buildType = "debug"
-            } else if ((flavorDimension as String).contains("release") || (flavorDimension as String).contains("Release")) {
+            } else if ((flavorDimension as String).contains("Debug")) {
+                buildType = "Debug"
+            } else if ((flavorDimension as String).contains("release")) {
                 buildType = "release"
+            } else if ((flavorDimension as String).contains("Release")) {
+                buildType = "Release"
             } else {
                 throw new IllegalArgumentException("An unknown build variant is using. Please add it in tools/config-reader.gradle file")
             }
 
 
-            flavorDimension = projectName - buildType
+            flavorDimension = flavorDimension - buildType
             println("flavorDimension: ${flavorDimension}")
 
             def jsonFile

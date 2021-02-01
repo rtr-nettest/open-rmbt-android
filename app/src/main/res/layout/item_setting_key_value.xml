@@ -27,7 +27,7 @@
 
 
         <androidx.appcompat.widget.AppCompatTextView
-            android:id="@+id/titleTV"
+            android:id="@+id/titleTVISKV"
             style="@style/RobotoRegularStyle.Medium"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -39,7 +39,7 @@
             tools:text="Title" />
 
         <androidx.appcompat.widget.AppCompatTextView
-            android:id="@+id/summaryTV"
+            android:id="@+id/summaryTVISKV"
             style="@style/RobotoRegularStyle.VerySmall"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

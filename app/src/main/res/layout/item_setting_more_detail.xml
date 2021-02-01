@@ -14,7 +14,7 @@
     </data>
 
     <androidx.appcompat.widget.AppCompatTextView
-        android:id="@+id/titleTV"
+        android:id="@+id/titleTVISMD"
         style="@style/RobotoRegularStyle.Medium"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
