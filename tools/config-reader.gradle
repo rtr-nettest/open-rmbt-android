@@ -20,7 +20,8 @@ android {
         Matcher matcher = pattern.matcher(tskReqStr)
 
         if (matcher.find()) {
-            projectName = matcher.group(1).toLowerCase() // Changing to 2 will return build type, 1 provides product flavor
+            println "MATCH FOUND ${matcher.group(1)}"
+            projectName = matcher.group(1) // Changing to 2 will return build type, 1 provides product flavor
         } else {
             println "NO MATCH FOUND"
         }
@@ -51,6 +52,8 @@ android {
 
 
             flavorDimension = flavorDimension - buildType
+            println("flavorDimension: ${flavorDimension}")
+            flavorDimension = flavorDimension.substring(0,1).toLowerCase() + flavorDimension.substring(1, flavorDimension.length())
             println("flavorDimension: ${flavorDimension}")
 
     def jsonFile
