@@ -20,6 +20,7 @@ android {
         Matcher matcher = pattern.matcher(tskReqStr)
 
         if (matcher.find()) {
+
             println "MATCH FOUND ${matcher.group(1)}"
             projectName = matcher.group(1) // Changing to 2 will return build type, 1 provides product flavor
         } else {
@@ -30,10 +31,10 @@ android {
     task myTask(type: Copy) {
         dependsOn getCurrentFlavor
         println "flavor name is $projectName"
-        if (projectName == null) {
-            projectName = "localDemoDebug"
-            println "default flavor name set up as $projectName"
-        }
+//        if (projectName == null) {
+//            projectName = "localDemoDebug"
+//            println "default flavor name set up as $projectName"
+//        }
         def verbose = false
         def flavorDimension = projectName
         def buildType = ""
@@ -49,7 +50,6 @@ android {
             } else {
                 throw new IllegalArgumentException("An unknown build variant is using. Please add it in tools/config-reader.gradle file")
             }
-
 
             flavorDimension = flavorDimension - buildType
             println("flavorDimension: ${flavorDimension}")
