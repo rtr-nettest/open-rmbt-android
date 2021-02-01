@@ -1,9 +1,11 @@
 package at.rtr.rmbt.android.ui.fragment
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.content.pm.PackageManager
 import android.location.Address
 import android.location.Geocoder
+import android.os.Build
 import android.os.Bundle
 import android.view.View
 import android.widget.Toast
@@ -32,6 +34,8 @@ import at.specure.data.NetworkTypeCompat
 import at.specure.data.ServerNetworkType
 import at.specure.data.entity.MarkerMeasurementRecord
 import at.specure.location.LocationState
+import com.google.android.gms.common.ConnectionResult
+import com.google.android.gms.common.GoogleApiAvailability
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
@@ -51,6 +55,16 @@ private const val CODE_SEARCH_DIALOG = 3
 private const val ANCHOR_U = 0.5f
 private const val ANCHOR_V = 0.865f
 
+// default map position and zoom when no location information is available
+// focus to Austria based on boundary box 'AT': ('Austria', (9.47996951665, 46.4318173285, 16.9796667823, 49.0390742051))
+// derived from Github/graydon/country-bounding-boxes.py
+// extracted from http//www.naturalearthdata.com/download/110m/cultural/ne_110m_admin_0_countries.zip
+// under public domain terms
+private const val DEFAULT_LAT = (49.0390742051F + 46.4318173285F) / 2F
+private const val DEFAULT_LONG = (16.9796667823F + 9.47996951665F) / 2F
+private const val DEFAULT_ZOOM_LEVEL = 6F
+private val DEFAULT_PRESENTATION_TYPE = MapPresentationType.AUTOMATIC
+
 class MapFragment : BaseFragment(), OnMapReadyCallback, MapMarkerDetailsAdapter.MarkerDetailsCallback, MapLayersDialog.Callback,
     MapFiltersDialog.Callback, MapSearchDialog.Callback {
 
@@ -68,12 +82,13 @@ class MapFragment : BaseFragment(), OnMapReadyCallback, MapMarkerDetailsAdapter.
 
     private var adapter: MapMarkerDetailsAdapter = MapMarkerDetailsAdapter(this)
 
+    @SuppressLint("SetJavaScriptEnabled")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         binding.state = mapViewModel.state
-        updateTransparentStatusBarHeight(binding.statusBarStub)
 
         binding.map.onCreate(savedInstanceState)
+        mapViewModel.state.playServicesAvailable.set(checkPlayServices())
         mapViewModel.obtainFilters()
         mapViewModel.providerLiveData.listen(this) {
             binding.map.getMapAsync(this)
@@ -103,6 +118,11 @@ class MapFragment : BaseFragment(), OnMapReadyCallback, MapMarkerDetailsAdapter.
         binding.fabSearch.setOnClickListener {
             showSearchDialog()
         }
+
+        if (!mapViewModel.state.playServicesAvailable.get()) {
+            binding.webMap.settings.javaScriptEnabled = true
+            binding.webMap.loadUrl("https://www.netztest.at/en/Karte")
+        }
     }
 
     override fun onStyleSelected(style: MapStyleType) {
@@ -126,6 +146,19 @@ class MapFragment : BaseFragment(), OnMapReadyCallback, MapMarkerDetailsAdapter.
         } else {
             Toast.makeText(activity, R.string.map_search_location_dialog_not_found, Toast.LENGTH_SHORT).show()
         }
+    }
+
+    private fun checkPlayServices(): Boolean {
+
+        if (Build.MANUFACTURER.compareTo("Amazon", true) == 0) {
+            return false
+        }
+        val gApi: GoogleApiAvailability = GoogleApiAvailability.getInstance()
+        val resultCode: Int = gApi.isGooglePlayServicesAvailable(this.context)
+        if (resultCode != ConnectionResult.SUCCESS) {
+            return false
+        }
+        return true
     }
 
     override fun onMapReady(map: GoogleMap?) {
@@ -153,8 +186,7 @@ class MapFragment : BaseFragment(), OnMapReadyCallback, MapMarkerDetailsAdapter.
                     googleMap?.animateCamera(CameraUpdateFactory.newLatLng(latlng))
                 }
                 binding.markerItems.visibility = View.VISIBLE
-                binding.fabFilters.hide()
-                binding.fabLocation.hide()
+                binding.fabsGroup?.visibility = View.GONE
                 visiblePosition = 0
                 drawMarker(it.first())
             } else {
@@ -172,6 +204,11 @@ class MapFragment : BaseFragment(), OnMapReadyCallback, MapMarkerDetailsAdapter.
         super.onResume()
         binding.map.onResume()
         updateLocationPermissionRelatedUi()
+        if (!checkPlayServices()) {
+            binding.fabsGroup.visibility = View.GONE
+            binding.webMap.visibility = View.VISIBLE
+            binding.playServicesAvailableUi.visibility = View.GONE
+        }
     }
 
     override fun onStop() {
@@ -186,10 +223,12 @@ class MapFragment : BaseFragment(), OnMapReadyCallback, MapMarkerDetailsAdapter.
 
     override fun onCloseMarkerDetails() {
         binding.markerItems.visibility = View.GONE
-        binding.fabFilters.show()
-        binding.fabLocation.show()
         currentMarker?.remove()
         currentMarker = null
+//        adapter.items = mutableListOf()
+        if (mapViewModel.state.playServicesAvailable.get()) {
+            binding.fabsGroup?.visibility = View.VISIBLE
+        }
     }
 
     override fun onMoreDetailsClicked(openTestUUID: String) {
@@ -207,9 +246,10 @@ class MapFragment : BaseFragment(), OnMapReadyCallback, MapMarkerDetailsAdapter.
     private fun setDefaultMapPosition() {
         Timber.d("Position default check to : ${mapViewModel.state.cameraPositionLiveData.value?.latitude} ${mapViewModel.state.cameraPositionLiveData.value?.longitude}")
         if (mapViewModel.state.cameraPositionLiveData.value == null || mapViewModel.state.cameraPositionLiveData.value?.latitude == 0.0 && mapViewModel.state.cameraPositionLiveData.value?.longitude == 0.0) {
-            val defaultPosition = LatLng(47.6782058, 11.09728)
+            val defaultPosition = LatLng(DEFAULT_LAT.toDouble(), DEFAULT_LONG.toDouble())
             Timber.d("Position default to : ${defaultPosition.latitude} ${defaultPosition.longitude}")
-            googleMap?.animateCamera(CameraUpdateFactory.newLatLngZoom(defaultPosition, 4f))
+            googleMap?.animateCamera(CameraUpdateFactory.newLatLngZoom(defaultPosition, DEFAULT_ZOOM_LEVEL))
+            mapViewModel.state.type.set(DEFAULT_PRESENTATION_TYPE)
         }
     }
 
@@ -225,6 +265,8 @@ class MapFragment : BaseFragment(), OnMapReadyCallback, MapMarkerDetailsAdapter.
                     NetworkTypeCompat.TYPE_3G -> R.drawable.ic_marker_3g
                     NetworkTypeCompat.TYPE_2G -> R.drawable.ic_marker_2g
                     NetworkTypeCompat.TYPE_5G -> R.drawable.ic_marker_5g
+                    NetworkTypeCompat.TYPE_5G_NSA -> R.drawable.ic_marker_5g
+                    NetworkTypeCompat.TYPE_5G_AVAILABLE -> R.drawable.ic_marker_4g
                 }
                 addMarkerWithIcon(icon)
             }

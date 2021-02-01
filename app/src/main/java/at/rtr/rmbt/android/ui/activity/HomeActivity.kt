@@ -15,7 +15,6 @@
 package at.rtr.rmbt.android.ui.activity
 
 import android.app.Activity
-import android.app.NotificationManager
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
@@ -31,16 +30,23 @@ import at.rtr.rmbt.android.util.listen
 import at.rtr.rmbt.android.viewmodel.ConfigCheckViewModel
 import at.rtr.rmbt.android.viewmodel.MeasurementViewModel
 import at.specure.data.entity.LoopModeState
-import timber.log.Timber
 
 class HomeActivity : BaseActivity() {
 
     private lateinit var binding: ActivityHomeBinding
 
-    private val notificationManager by lazy { getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager }
-
     private val viewModel: MeasurementViewModel by viewModelLazy()
     private val configCheckViewModel: ConfigCheckViewModel by viewModelLazy()
+
+    override fun onNewIntent(intent: Intent?) {
+        super.onNewIntent(intent)
+        when (intent?.extras?.get(FRAGMENT_TO_START_BUNDLE_KEY) ?: HomeNavigationTarget.HOME_FRAGMENT_TO_SHOW) {
+            HomeNavigationTarget.HISTORY_FRAGMENT_TO_SHOW -> binding.navView.selectedItemId = R.id.navigation_history
+            HomeNavigationTarget.HOME_FRAGMENT_TO_SHOW -> binding.navView.selectedItemId = R.id.navigation_home
+            HomeNavigationTarget.STATISTIC_FRAGMENT_TO_SHOW -> binding.navView.selectedItemId = R.id.navigation_statistics
+            HomeNavigationTarget.MAP_FRAGMENT_TO_SHOW -> binding.navView.selectedItemId = R.id.navigation_map
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -59,19 +65,11 @@ class HomeActivity : BaseActivity() {
         viewModel.isTestsRunningLiveData.listen(this) { isRunning ->
             if (isRunning) {
                 if (viewModel.config.loopModeEnabled) {
-                    if (viewModel.state.loopState.get() != LoopModeState.FINISHED && viewModel.state.loopLocalUUID.get() != null) {
+                    if (viewModel.state.loopModeRecord.get()?.status != LoopModeState.FINISHED && viewModel.state.loopModeRecord.get()?.status != LoopModeState.CANCELLED && viewModel.state.loopLocalUUID.get() != null && (viewModel.state.loopModeRecord.get()?.testsPerformed != viewModel.config.loopModeNumberOfTests)) {
                         MeasurementActivity.start(this)
                     }
                 } else {
                     MeasurementActivity.start(this)
-                }
-            } else {
-                if (viewModel.config.loopModeEnabled) {
-                    Timber.d("MeasurementViewModel: home activity, loop mode state: ${viewModel.state.loopState.get()}")
-                    // not very good solution
-                    if (viewModel.state.loopState.get() == LoopModeState.FINISHED && notificationManager.activeNotifications.isNotEmpty()) {
-                        LoopFinishedActivity.start(this)
-                    }
                 }
             }
         }
@@ -101,10 +99,6 @@ class HomeActivity : BaseActivity() {
     override fun onStart() {
         super.onStart()
         viewModel.attach(this)
-
-        if (!viewModel.isTacAccepted) {
-            TermsAcceptanceActivity.start(this, CODE_TERMS)
-        }
         configCheckViewModel.checkConfig()
     }
 

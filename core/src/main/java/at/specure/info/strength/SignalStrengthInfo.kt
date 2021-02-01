@@ -17,11 +17,12 @@ package at.specure.info.strength
 import android.annotation.SuppressLint
 import android.os.Build
 import android.os.Parcelable
-import android.os.SystemClock
 import android.telephony.CellInfo
 import android.telephony.CellInfoGsm
 import android.telephony.CellInfoLte
+import android.telephony.CellInfoNr
 import android.telephony.CellInfoWcdma
+import android.telephony.CellSignalStrength
 import android.telephony.CellSignalStrengthCdma
 import android.telephony.CellSignalStrengthGsm
 import android.telephony.CellSignalStrengthLte
@@ -33,11 +34,11 @@ import androidx.annotation.RequiresApi
 import at.specure.info.TransportType
 import at.specure.info.cell.CellNetworkInfo
 import at.specure.info.network.MobileNetworkType
+import at.specure.info.network.NRConnectionState
 import at.specure.info.network.NetworkInfo
 import at.specure.info.network.WifiNetworkInfo
-import com.google.firebase.crashlytics.FirebaseCrashlytics
+import at.specure.info.strength.SignalStrengthInfo.Companion.checkValueAvailable
 import timber.log.Timber
-import java.lang.Exception
 import kotlin.math.abs
 
 /**
@@ -95,18 +96,25 @@ abstract class SignalStrengthInfo : Parcelable {
         const val NR_RSRP_SIGNAL_MIN = -140
         const val NR_RSRP_SIGNAL_MAX = -44
 
-        const val RSSNR_MIN = -200
-        const val RSSNR_MAX = 300
+        // Lifted from Default carrier configs and max range of SSRSRP from
+        // mSsRsrpThresholds array
+        // Boundaries: [-140 dB, -44 dB]
+        const val SSRSRP_SIGNAL_STRENGTH_NONE = -140
+        const val SSRSRP_SIGNAL_STRENGTH_POOR = -110
+        const val SSRSRP_SIGNAL_STRENGTH_MODERATE = -90
+        const val SSRSRP_SIGNAL_STRENGTH_GOOD = -80
+        const val SSRSRP_SIGNAL_STRENGTH_FULL = -65
+        const val SSRSRP_SIGNAL_STRENGTH_MAX = -44
 
         @RequiresApi(Build.VERSION_CODES.Q)
         fun from(signal: CellSignalStrengthNr): SignalStrengthInfoNr = SignalStrengthInfoNr(
             transport = TransportType.CELLULAR,
-            value = signal.dbm,
+            value = signal.extractSignalValue(),
             rsrq = null,
-            signalLevel = signal.level,
+            signalLevel = calculateNRCellSignalLevel(signal),
             min = NR_RSRP_SIGNAL_MIN,
             max = NR_RSRP_SIGNAL_MAX,
-            timestampNanos = SystemClock.elapsedRealtimeNanos(),
+            timestampNanos = System.nanoTime(),
             csiRsrp = if (signal.csiRsrp == CellInfo.UNAVAILABLE) null else signal.csiRsrp,
             csiRsrq = if (signal.csiRsrq == CellInfo.UNAVAILABLE) null else signal.csiRsrq,
             csiSinr = if (signal.csiSinr == CellInfo.UNAVAILABLE) null else signal.csiSinr,
@@ -122,7 +130,7 @@ abstract class SignalStrengthInfo : Parcelable {
             signalLevel = signal.level,
             min = LTE_RSRP_SIGNAL_MIN,
             max = LTE_RSRP_SIGNAL_MAX,
-            timestampNanos = SystemClock.elapsedRealtimeNanos(),
+            timestampNanos = System.nanoTime(),
             cqi = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) signal.cqi.checkValueAvailable() else null,
             rsrp = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) signal.rsrp.fixLteRsrp() else signal.dbm.fixLteRsrp(),
             rssi = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) signal.rssi.checkValueAvailable() else null,
@@ -137,7 +145,7 @@ abstract class SignalStrengthInfo : Parcelable {
             signalLevel = signal.level,
             min = WCDMA_RSRP_SIGNAL_MIN,
             max = WCDMA_RSRP_SIGNAL_MAX,
-            timestampNanos = SystemClock.elapsedRealtimeNanos()
+            timestampNanos = System.nanoTime()
         )
 
         fun from(signal: CellSignalStrengthGsm) = SignalStrengthInfoGsm(
@@ -147,7 +155,7 @@ abstract class SignalStrengthInfo : Parcelable {
             signalLevel = signal.level,
             min = CELLULAR_SIGNAL_MIN,
             max = CELLULAR_SIGNAL_MAX,
-            timestampNanos = SystemClock.elapsedRealtimeNanos(),
+            timestampNanos = System.nanoTime(),
             bitErrorRate = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) signal.bitErrorRate.fixErrorBitRate() else null,
             timingAdvance = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) signal.timingAdvance.fixTimingAdvance() else null
         )
@@ -159,7 +167,7 @@ abstract class SignalStrengthInfo : Parcelable {
             signalLevel = signal.level,
             min = WCDMA_RSRP_SIGNAL_MIN,
             max = WCDMA_RSRP_SIGNAL_MAX,
-            timestampNanos = SystemClock.elapsedRealtimeNanos()
+            timestampNanos = System.nanoTime()
         )
 
         fun from(info: WifiNetworkInfo) = SignalStrengthInfoWiFi(
@@ -169,53 +177,88 @@ abstract class SignalStrengthInfo : Parcelable {
             signalLevel = info.signalLevel,
             max = WIFI_MAX_SIGNAL_VALUE,
             min = WIFI_MIN_SIGNAL_VALUE,
-            timestampNanos = SystemClock.elapsedRealtimeNanos(),
+            timestampNanos = System.nanoTime(),
             linkSpeed = info.linkSpeed
         )
 
-        fun from(signalStrength: SignalStrength?, network: NetworkInfo?, cellInfo: CellInfo?, isDualSim: Boolean): SignalStrengthInfo? {
+        fun from(
+            signalStrength: SignalStrength?,
+            network: NetworkInfo?,
+            cellInfo: CellInfo?,
+            nrConnectionState: NRConnectionState,
+            isDualSim: Boolean
+        ): SignalStrengthInfo? {
             return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                signalStrengthQ(signalStrength, cellInfo)
+                signalStrengthQ(signalStrength, cellInfo, nrConnectionState)
             } else {
                 signalStrengthOld(signalStrength, network, cellInfo, isDualSim)
             }
         }
 
         @SuppressLint("NewApi")
-        private fun signalStrengthQ(signalStrength: SignalStrength?, cellInfo: CellInfo?): SignalStrengthInfo? {
+        private fun signalStrengthQ(signalStrength: SignalStrength?, cellInfo: CellInfo?, nrConnectionState: NRConnectionState): SignalStrengthInfo? {
             if (signalStrength == null) {
+                val message =
+                    "SSPQ - SignalStrength: null"
+                Timber.v(message)
                 return null
             }
             var signal: SignalStrengthInfo? = null
 
             val transportType = TransportType.CELLULAR
-            val timestampNanos = SystemClock.elapsedRealtimeNanos()
+            val timestampNanos = System.nanoTime()
 
             signalStrength.cellSignalStrengths.forEach {
                 if (it.dbm == Int.MAX_VALUE) {
                     signal = null
+                    val message =
+                        "SSPQ - SignalStrength: Int.maxValue"
+                    Timber.v(message)
                 } else {
                     when (it) {
                         is CellSignalStrengthLte -> {
-                            signal = SignalStrengthInfoLte(
-                                transport = transportType,
-                                value = it.dbm,
-                                rsrq = it.rsrq.fixLteRsrq(),
-                                signalLevel = it.level,
-                                min = LTE_RSRP_SIGNAL_MIN,
-                                max = LTE_RSRP_SIGNAL_MAX,
-                                timestampNanos = timestampNanos,
-                                cqi = it.cqi.checkValueAvailable(),
-                                rsrp = it.rsrp.fixLteRsrp(),
-                                rssi = it.rssi.checkValueAvailable(),
-                                rssnr = it.rssnr.fixRssnr(),
-                                timingAdvance = cellInfo.lteTimingAdvance() ?: it.timingAdvance.fixTimingAdvance()
-                            )
+                            if (nrConnectionState == NRConnectionState.NSA) {
+                                if ((cellInfo is CellInfoNr) && (cellInfo.cellSignalStrength is CellSignalStrengthNr)) {
+                                    val cellInfoNr = cellInfo.cellSignalStrength as CellSignalStrengthNr
+                                    return SignalStrengthInfoNr(
+                                        transport = TransportType.CELLULAR,
+                                        value = cellInfoNr.ssRsrp.checkValueAvailable()?.let { nrSignal -> -abs(nrSignal) },
+                                        rsrq = cellInfoNr.ssRsrq.checkValueAvailable(),
+                                        signalLevel = cellInfoNr.level,
+                                        min = NR_RSRP_SIGNAL_MIN,
+                                        max = NR_RSRP_SIGNAL_MAX,
+                                        timestampNanos = timestampNanos,
+                                        csiRsrp = cellInfoNr.csiRsrp.checkValueAvailable(),
+                                        csiRsrq = cellInfoNr.csiRsrq.checkValueAvailable(),
+                                        csiSinr = cellInfoNr.csiSinr.checkValueAvailable(),
+                                        ssRsrp = cellInfoNr.ssRsrp.checkValueAvailable(),
+                                        ssRsrq = cellInfoNr.ssRsrq.checkValueAvailable(),
+                                        ssSinr = cellInfoNr.ssSinr.checkValueAvailable()
+                                    )
+                                } else {
+                                    return null
+                                }
+                            } else {
+                                signal = SignalStrengthInfoLte(
+                                    transport = transportType,
+                                    value = it.dbm.let { nrSignal -> -abs(nrSignal) },
+                                    rsrq = it.rsrq.fixLteRsrq(),
+                                    signalLevel = it.level,
+                                    min = LTE_RSRP_SIGNAL_MIN,
+                                    max = LTE_RSRP_SIGNAL_MAX,
+                                    timestampNanos = timestampNanos,
+                                    cqi = it.cqi.checkValueAvailable(),
+                                    rsrp = it.rsrp.fixLteRsrp(),
+                                    rssi = it.rssi.checkValueAvailable(),
+                                    rssnr = it.rssnr.fixRssnr(),
+                                    timingAdvance = cellInfo.lteTimingAdvance() ?: it.timingAdvance.fixTimingAdvance()
+                                )
+                            }
                         }
                         is CellSignalStrengthNr -> {
                             signal = SignalStrengthInfoNr(
                                 transport = transportType,
-                                value = it.dbm,
+                                value = it.dbm.let { dbm -> -abs(dbm) },
                                 rsrq = it.csiRsrq.checkValueAvailable(),
                                 signalLevel = it.level,
                                 min = NR_RSRP_SIGNAL_MIN,
@@ -367,6 +410,26 @@ abstract class SignalStrengthInfo : Parcelable {
                 }
             }
 
+            if (strength == null) {
+                if (cellInfo is CellInfoWcdma) {
+                    val cellSignalStrength = (cellInfo as CellInfoWcdma).cellSignalStrength
+                    cellSignalStrength?.let {
+                        strength = if (it.dbm != CellInfo.UNAVAILABLE) it.dbm else null
+                    }
+                    if (strength == null)
+                        try {
+                            val getDbm = CellSignalStrength::class.java.getMethod("getDbm")
+                            val result = getDbm.invoke(cellSignalStrength) as Int
+                            if (result != CellInfo.UNAVAILABLE)
+                                strength = result
+                        } catch (t: Throwable) {
+                            Timber.e(t)
+                        }
+                } else {
+                    Timber.v("SSP - cellInfo is not wcdma type")
+                }
+            }
+
             val signalValue = lteRsrp.fixLteRsrp() ?: strength
             val signalMin = if (lteRsrp == null) CELLULAR_SIGNAL_MIN else LTE_RSRP_SIGNAL_MIN
             val signalMax = if (lteRsrp == null) CELLULAR_SIGNAL_MAX else LTE_RSRP_SIGNAL_MAX
@@ -374,71 +437,88 @@ abstract class SignalStrengthInfo : Parcelable {
             var signal: SignalStrengthInfo? = null
 
             var message = ""
+
             if (network is CellNetworkInfo) {
                 message =
-                    "SSP - Network type: ${network.networkType}\n SignalStrength: $signalStrength\n SignalValue: $signalValue\n CellInfo: $cellInfo"
-                Timber.e(message)
+                    "SSP - Model: ${Build.MODEL} \n Network type: ${network.networkType}\n SignalStrength: $signalStrength\n SignalValue: $signalValue\n CellInfo: $cellInfo"
+                Timber.v(message)
             }
 
             if (signalValue == null) {
-                FirebaseCrashlytics.getInstance().recordException(Exception(message))
                 return null
             }
 
             val transportType = TransportType.CELLULAR
-            val timestampNanos = SystemClock.elapsedRealtimeNanos()
+            val timestampNanos = System.nanoTime()
+            Timber.v("Signal time 1: $timestampNanos")
 
-            when (cellInfo) {
-                is CellInfoLte -> {
-                    signal = SignalStrengthInfoLte(
-                        transport = transportType,
-                        value = signalValue,
-                        rsrq = lteRsrq.fixLteRsrq(),
-                        signalLevel = calculateCellSignalLevel(signalValue, signalMin, signalMax),
-                        min = LTE_RSRP_SIGNAL_MIN,
-                        max = LTE_RSRP_SIGNAL_MAX,
-                        timestampNanos = timestampNanos,
-                        cqi = lteCqi.checkValueAvailable(),
-                        rsrp = lteRsrp.fixLteRsrp(),
-                        rssi = null,
-                        rssnr = lteRssnr.fixRssnr(),
-                        timingAdvance = cellInfo.cellSignalStrength.timingAdvance.checkValueAvailable()
-                    )
-                }
-                is CellInfoWcdma -> {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                if (cellInfo is CellInfoNr) {
                     signal = SignalStrengthInfoCommon(
                         transport = transportType,
                         value = signalValue,
                         rsrq = null,
                         signalLevel = calculateCellSignalLevel(signalValue, signalMin, signalMax),
-                        min = WCDMA_RSRP_SIGNAL_MIN,
-                        max = WCDMA_RSRP_SIGNAL_MAX,
+                        min = NR_RSRP_SIGNAL_MIN,
+                        max = NR_RSRP_SIGNAL_MAX,
                         timestampNanos = timestampNanos
                     )
                 }
-                is CellInfoGsm -> {
-                    signal = SignalStrengthInfoGsm(
-                        transport = transportType,
-                        value = signalValue,
-                        rsrq = null,
-                        signalLevel = calculateCellSignalLevel(signalValue, signalMin, signalMax),
-                        min = CELLULAR_SIGNAL_MIN,
-                        max = CELLULAR_SIGNAL_MAX,
-                        timestampNanos = timestampNanos,
-                        bitErrorRate = signalStrength?.gsmBitErrorRate.fixErrorBitRate(),
-                        timingAdvance = null
-                    )
-                }
-                else -> {
-                    signal = SignalStrengthInfoCommon(
-                        transport = transportType,
-                        value = signalValue,
-                        rsrq = lteRsrq.fixLteRsrq(),
-                        signalLevel = calculateCellSignalLevel(signalValue, signalMin, signalMax),
-                        max = signalMax,
-                        min = signalMin,
-                        timestampNanos = timestampNanos
-                    )
+            }
+
+            if (signal == null) {
+                when (cellInfo) {
+                    is CellInfoLte -> {
+                        signal = SignalStrengthInfoLte(
+                            transport = transportType,
+                            value = signalValue,
+                            rsrq = lteRsrq.fixLteRsrq(),
+                            signalLevel = calculateCellSignalLevel(signalValue, signalMin, signalMax),
+                            min = LTE_RSRP_SIGNAL_MIN,
+                            max = LTE_RSRP_SIGNAL_MAX,
+                            timestampNanos = timestampNanos,
+                            cqi = lteCqi.checkValueAvailable(),
+                            rsrp = lteRsrp.fixLteRsrp(),
+                            rssi = null,
+                            rssnr = lteRssnr.fixRssnr(),
+                            timingAdvance = cellInfo.cellSignalStrength.timingAdvance.checkValueAvailable()
+                        )
+                    }
+                    is CellInfoWcdma -> {
+                        signal = SignalStrengthInfoCommon(
+                            transport = transportType,
+                            value = signalValue,
+                            rsrq = null,
+                            signalLevel = calculateCellSignalLevel(signalValue, signalMin, signalMax),
+                            min = WCDMA_RSRP_SIGNAL_MIN,
+                            max = WCDMA_RSRP_SIGNAL_MAX,
+                            timestampNanos = timestampNanos
+                        )
+                    }
+                    is CellInfoGsm -> {
+                        signal = SignalStrengthInfoGsm(
+                            transport = transportType,
+                            value = signalValue,
+                            rsrq = null,
+                            signalLevel = calculateCellSignalLevel(signalValue, signalMin, signalMax),
+                            min = CELLULAR_SIGNAL_MIN,
+                            max = CELLULAR_SIGNAL_MAX,
+                            timestampNanos = timestampNanos,
+                            bitErrorRate = signalStrength?.gsmBitErrorRate.fixErrorBitRate(),
+                            timingAdvance = null
+                        )
+                    }
+                    else -> {
+                        signal = SignalStrengthInfoCommon(
+                            transport = transportType,
+                            value = signalValue,
+                            rsrq = lteRsrq.fixLteRsrq(),
+                            signalLevel = calculateCellSignalLevel(signalValue, signalMin, signalMax),
+                            max = signalMax,
+                            min = signalMin,
+                            timestampNanos = timestampNanos
+                        )
+                    }
                 }
             }
 
@@ -456,14 +536,41 @@ abstract class SignalStrengthInfo : Parcelable {
             }
         }
 
-        private fun Int?.fixRssnr(): Int? =
-            if (this == null || this > 300 || this < -200 || this == RSSNR_MIN || this == RSSNR_MAX) {
-                null
-            } else {
-                this
+        /**
+         * Count level of the 5G signal only from ssrsrp field value according to NR ssrsrp thresholds
+         * 0 - NONE
+         * 1
+         * 2
+         * 3
+         * 4 - HIGHEST
+         */
+        private fun calculateNRCellSignalLevel(signal: CellSignalStrengthNr): Int {
+            val signalValue = signal.extractSignalValue()
+            return when {
+                signalValue == null -> 0
+                signalValue <= SSRSRP_SIGNAL_STRENGTH_NONE -> 0
+                signalValue < SSRSRP_SIGNAL_STRENGTH_POOR -> 1
+                signalValue < SSRSRP_SIGNAL_STRENGTH_MODERATE -> 2
+                signalValue < SSRSRP_SIGNAL_STRENGTH_GOOD -> 3
+                else -> 4
             }
+        }
 
-        private fun Int?.checkValueAvailable(): Int? = if (this == null || this == Int.MIN_VALUE || this == Int.MAX_VALUE) {
+        private fun Int?.fixRssnr(): Int? {
+            if (this == null) {
+                return null
+            } else {
+                var value = -1 * abs(this)
+                if (value < NR_RSRP_SIGNAL_MIN || value > NR_RSRP_SIGNAL_MAX || this == Int.MIN_VALUE) {
+                    null
+                } else {
+                    this
+                }
+            }
+            return null
+        }
+
+        internal fun Int?.checkValueAvailable(): Int? = if (this == null || this == Int.MIN_VALUE || this == Int.MAX_VALUE) {
             null
         } else {
             this
@@ -501,5 +608,19 @@ abstract class SignalStrengthInfo : Parcelable {
             }
             return null
         }
+    }
+}
+
+fun CellSignalStrengthNr.extractSignalValue(): Int? {
+    return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+        if (dbm == CellInfo.UNAVAILABLE) {
+            if (ssRsrp.checkValueAvailable() != null) {
+                ssRsrp.checkValueAvailable()?.let { nrSignal -> -abs(nrSignal) }
+            } else {
+                dbm
+            }
+        } else dbm
+    } else {
+        null
     }
 }

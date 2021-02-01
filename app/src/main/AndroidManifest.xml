@@ -10,6 +10,19 @@
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />
 
+    <uses-feature
+        android:name="android.hardware.touchscreen"
+        android:required="false" />
+    <uses-feature
+        android:name="android.hardware.faketouch"
+        android:required="false" />
+    <uses-feature
+        android:name="android.hardware.screen.portrait"
+        android:required="false" />
+    <uses-feature
+        android:name="android.hardware.wifi"
+        android:required="false" />
+
     <application
         android:name=".App"
         android:allowBackup="false"
@@ -34,6 +47,7 @@
 
         <activity
             android:name="at.rtr.rmbt.android.ui.activity.HomeActivity"
+            android:launchMode="singleTask"
             android:windowSoftInputMode="stateAlwaysHidden" />
 
         <activity

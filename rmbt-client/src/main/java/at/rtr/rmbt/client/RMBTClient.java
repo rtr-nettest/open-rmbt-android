@@ -33,12 +33,15 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CyclicBarrier;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
@@ -137,6 +140,71 @@ public class RMBTClient implements RMBTClientCallback {
 
     private ConcurrentHashMap<TestStatus, TestMeasurement> measurementMap = new ConcurrentHashMap<TestStatus, TestMeasurement>();
 
+    private final static Long MEASUREMENT_INACTIVITY_THRESHOLD_SECONDS = 120L;
+    private final static Long MEASUREMENT_INACTIVITY_CHECKER_PERIOD_SECONDS = 1L;
+    private Long measurementLastUpdate = System.currentTimeMillis();
+    private Timer inactivityTimer = new Timer();
+
+    RMBTClient(final RMBTTestParameter params, final ControlServerConnection controlConnection) {
+        this.params = params;
+        this.controlConnection = controlConnection;
+
+        planInactivityCheck();
+
+        params.check();
+
+        if (params.getNumThreads() > 0) {
+            testThreadPool = Executors.newFixedThreadPool(params.getNumThreads());
+            testTasks = new RMBTTest[params.getNumThreads()];
+        } else {
+            testThreadPool = null;
+            testTasks = null;
+        }
+
+        durationDownNano = params.getDuration() * 1000000000L;
+        durationUpNano = params.getDuration() * 1000000000L;
+
+        lastTransfer = new long[params.getNumThreads()][KEEP_LAST_ENTRIES];
+        lastTime = new long[params.getNumThreads()][KEEP_LAST_ENTRIES];
+
+        if (controlConnection != null)
+            this.taskDescList = controlConnection.v2TaskDesc;
+        //if (params.isEncryption())
+        //    sslSocketFactory = createSSLSocketFactory();
+
+    }
+
+    private Boolean isRMBTClientResponding() {
+        long clientLastResponseDurationMillis = System.currentTimeMillis() - measurementLastUpdate;
+        Timber.d("RMBTClient inactivity internal for: " + TimeUnit.MILLISECONDS.toSeconds(clientLastResponseDurationMillis) + " seconds");
+        return (clientLastResponseDurationMillis < TimeUnit.SECONDS.toMillis(MEASUREMENT_INACTIVITY_THRESHOLD_SECONDS));
+    }
+
+    private void planInactivityCheck() {
+        synchronized (this) {
+            inactivityTimer.cancel();
+            inactivityTimer.purge();
+            inactivityTimer = new Timer();
+            Timber.d("RMBTClient inactivity internal checking started");
+            inactivityTimer.scheduleAtFixedRate(new TimerTask() {
+                @Override
+                public void run() {
+                    boolean isNotResponding = !isRMBTClientResponding();
+                    if (isNotResponding) {
+                        if (commonCallback != null) {
+                            commonCallback.onTestStatusUpdate(TestStatus.ERROR);
+                        }
+                        RMBTClient.this.abortTest(true);
+                        RMBTClient.this.shutdown();
+                        inactivityTimer.cancel();
+                        inactivityTimer.purge();
+                        Timber.e("Test has been terminated, because of RMBTClient inactivity internal");
+                    }
+                }
+            }, TimeUnit.SECONDS.toMillis(MEASUREMENT_INACTIVITY_CHECKER_PERIOD_SECONDS), TimeUnit.SECONDS.toMillis(MEASUREMENT_INACTIVITY_CHECKER_PERIOD_SECONDS));
+        }
+    }
+
     public static RMBTClient getInstance(final String host, final String pathPrefix, final int port,
                                          final boolean encryption, final ArrayList<String> geoInfo, final String uuid, final String clientType,
                                          final String clientName, final String clientVersion, final RMBTTestParameter overrideParams,
@@ -185,31 +253,9 @@ public class RMBTClient implements RMBTClientCallback {
         return new RMBTClient(params, null);
     }
 
-    RMBTClient(final RMBTTestParameter params, final ControlServerConnection controlConnection) {
-        this.params = params;
-        this.controlConnection = controlConnection;
-
-        params.check();
-
-        if (params.getNumThreads() > 0) {
-            testThreadPool = Executors.newFixedThreadPool(params.getNumThreads());
-            testTasks = new RMBTTest[params.getNumThreads()];
-        } else {
-            testThreadPool = null;
-            testTasks = null;
-        }
-
-        durationDownNano = params.getDuration() * 1000000000L;
-        durationUpNano = params.getDuration() * 1000000000L;
-
-        lastTransfer = new long[params.getNumThreads()][KEEP_LAST_ENTRIES];
-        lastTime = new long[params.getNumThreads()][KEEP_LAST_ENTRIES];
-
-        if (controlConnection != null)
-            this.taskDescList = controlConnection.v2TaskDesc;
-        //if (params.isEncryption())
-        //    sslSocketFactory = createSSLSocketFactory();
-
+    private void removeInactivityCheck() {
+        Timber.d("RMBTClient inactivity internal checking stopped");
+        inactivityTimer.cancel();
     }
 
     public void setTrafficService(TrafficService trafficService) {
@@ -350,6 +396,8 @@ public class RMBTClient implements RMBTClientCallback {
         final long timeStampStart = System.nanoTime();
 
         try {
+            measurementLastUpdate = System.currentTimeMillis();
+            planInactivityCheck();
             commonCallback.onClientReady(
                     controlConnection.getTestUuid(),
                     controlConnection.getLoopUuid(),
@@ -553,6 +601,7 @@ public class RMBTClient implements RMBTClientCallback {
         if (testThreadPool != null)
             testThreadPool.shutdownNow();
 
+        removeInactivityCheck();
         return true;
     }
 
@@ -560,7 +609,7 @@ public class RMBTClient implements RMBTClientCallback {
         System.out.println("Shutting down RMBT thread pool...");
         if (testThreadPool != null)
             testThreadPool.shutdownNow();
-
+        removeInactivityCheck();
         System.out.println("Shutdown finished.");
     }
 
@@ -569,6 +618,7 @@ public class RMBTClient implements RMBTClientCallback {
         super.finalize();
         if (testThreadPool != null)
             testThreadPool.shutdownNow();
+        removeInactivityCheck();
     }
 
     public SSLSocketFactory getSslSocketFactory() {
@@ -890,6 +940,8 @@ public class RMBTClient implements RMBTClientCallback {
         if (commonCallback != null) {
             commonCallback.onSpeedDataChanged(threadId, bytes, timestampNanos, isUpload);
         }
+        measurementLastUpdate = System.currentTimeMillis();
+        planInactivityCheck();
     }
 
     @Override
@@ -899,6 +951,8 @@ public class RMBTClient implements RMBTClientCallback {
             long startTime = controlConnection == null ? 0 : controlConnection.getStartTimeNs();
             commonCallback.onPingDataChanged(clientPing, serverPing, timeNs - startTime);
         }
+        measurementLastUpdate = System.currentTimeMillis();
+        planInactivityCheck();
     }
 
     @Override

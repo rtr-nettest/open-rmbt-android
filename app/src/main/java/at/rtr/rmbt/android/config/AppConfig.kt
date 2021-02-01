@@ -27,6 +27,8 @@ private const val KEY_TEST_COUNTER = "KEY_TEST_COUNTER"
 private const val KEY_PREVIOUS_TEST_STATUS = "PREVIOUS_TEST_STATUS"
 private const val KEY_MEASUREMENT_TAG = "MEASUREMENT_TAG"
 private const val KEY_LAST_QOS_TEST_PERFORMED_TIMESTAMP_MILLIS = "LAST_QOS_TEST_PERFORMED_TIMESTAMP_MILLIS"
+private const val KEY_LAST_PERMISSIONS_ASKED_TIMESTAMP_MILLIS = "LAST_PERMISSIONS_ASKED_TIMESTAMP_MILLIS"
+private const val KEY_LAST_BACKGROUND_PERMISSIONS_ASKED_TIMESTAMP_MILLIS = "LAST_BACKGROUND_PERMISSIONS_ASKED_TIMESTAMP_MILLIS"
 
 class AppConfig @Inject constructor(context: Context, private val serverSettings: ControlServerSettings) : Config {
 
@@ -262,6 +264,12 @@ class AppConfig @Inject constructor(context: Context, private val serverSettings
         get() = getBoolean(BuildConfig.CAPABILITIES_RMBT_HTTP)
         set(value) = setBoolean(BuildConfig.CAPABILITIES_RMBT_HTTP, value)
 
+    override var signalMeasurementDurationMin: Int
+        get() = getInt(BuildConfig.SIGNAL_MEASUREMENT_DURATION_MIN)
+        set(value) {
+            // this value cannot be changed
+        }
+
     override var captivePortalWalledGardenUrl: String
         get() = getString(BuildConfig.CAPTIVE_PORTAL_WALLED_GARDEN_URL)
         set(value) = setString(BuildConfig.CAPTIVE_PORTAL_WALLED_GARDEN_URL, value)
@@ -392,4 +400,24 @@ class AppConfig @Inject constructor(context: Context, private val serverSettings
 
     override val developer5GSimulationAvailable: Boolean
         get() = getBoolean(BuildConfig.DEVELOPER_MODE_IS_AVAILABLE)
+
+    override var lastPermissionAskedTimestampMillis: Long
+        get() = preferences.getLong(KEY_LAST_PERMISSIONS_ASKED_TIMESTAMP_MILLIS, 0)
+        set(value) = preferences.edit()
+            .putLong(KEY_LAST_PERMISSIONS_ASKED_TIMESTAMP_MILLIS, value)
+            .apply()
+
+    override var lastBackgroundPermissionAskedTimestampMillis: Long
+        get() = preferences.getLong(KEY_LAST_BACKGROUND_PERMISSIONS_ASKED_TIMESTAMP_MILLIS, 0)
+        set(value) = preferences.edit()
+            .putLong(KEY_LAST_BACKGROUND_PERMISSIONS_ASKED_TIMESTAMP_MILLIS, value)
+            .apply()
+
+    override var newServerHost: String
+        get() = getString(BuildConfig.CONTROL_SERVER_NEW_HOST)
+    set(value) = setString(BuildConfig.CONTROL_SERVER_NEW_HOST, value)
+
+    override var newServerRoute: String
+        get() = getString(BuildConfig.CONTROL_SERVER_NEW_ROUTE)
+        set(value) = setString(BuildConfig.CONTROL_SERVER_NEW_ROUTE, value)
 }

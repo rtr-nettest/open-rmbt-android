@@ -82,7 +82,7 @@ class LoopConfigurationActivity : BaseActivity(), InputSettingDialog.Callback {
     private fun checkBackgroundLocationPermission() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             val hasForegroundLocationPermission =
-                ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED
+                ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
             if (hasForegroundLocationPermission) {
                 val hasBackgroundLocationPermission = ActivityCompat.checkSelfPermission(
                     this,
@@ -91,19 +91,25 @@ class LoopConfigurationActivity : BaseActivity(), InputSettingDialog.Callback {
                 if (hasBackgroundLocationPermission) {
                     // handle location update
                 } else {
-                    ActivityCompat.requestPermissions(
-                        this,
-                        arrayOf(Manifest.permission.ACCESS_BACKGROUND_LOCATION), REQUEST_CODE_BACKGROUND
-                    )
+                    if (viewModel.shouldAskForBackgroundPermission()) {
+                        ActivityCompat.requestPermissions(
+                            this,
+                            arrayOf(Manifest.permission.ACCESS_BACKGROUND_LOCATION), REQUEST_CODE_BACKGROUND
+                        )
+                        viewModel.backgroundPermissionsWereAsked()
+                    }
                 }
             } else {
-                ActivityCompat.requestPermissions(
-                    this,
-                    arrayOf(
-                        Manifest.permission.ACCESS_COARSE_LOCATION,
-                        Manifest.permission.ACCESS_BACKGROUND_LOCATION
-                    ), REQUEST_CODE_BACKGROUND
-                )
+                if (viewModel.shouldAskForPermission()) {
+                    ActivityCompat.requestPermissions(
+                        this,
+                        arrayOf(
+                            Manifest.permission.ACCESS_FINE_LOCATION,
+                            Manifest.permission.ACCESS_BACKGROUND_LOCATION
+                        ), REQUEST_CODE_BACKGROUND
+                    )
+                    viewModel.backgroundPermissionsWereAsked()
+                }
             }
         }
     }

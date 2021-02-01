@@ -41,14 +41,51 @@ import at.specure.test.toDeviceInfoLocation
 import at.specure.util.CustomLifecycleService
 import at.specure.worker.WorkLauncher
 import timber.log.Timber
+import java.util.Timer
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
+import kotlin.concurrent.timerTask
 
 class MeasurementService : CustomLifecycleService() {
 
+    private var measurementLastUpdate: Long = System.currentTimeMillis()
     private var lastNotifiedState: MeasurementState = MeasurementState.FINISH
     private var elapsedTime: Long = 0
     private var startTime: Long = 0
+    private var inactivityTimer: Timer = Timer()
+
+    private fun isRMBTClientResponding(): Boolean {
+        val clientLastResponseDurationMillis = System.currentTimeMillis() - measurementLastUpdate
+        Timber.d("RMBTClient inactivity for: ${TimeUnit.MILLISECONDS.toSeconds(clientLastResponseDurationMillis)} seconds")
+        return (clientLastResponseDurationMillis < TimeUnit.SECONDS.toMillis(MEASUREMENT_INACTIVITY_THRESHOLD_SECONDS))
+    }
+
+    private fun planInactivityCheck() {
+
+        inactivityTimer.cancel()
+        inactivityTimer.purge()
+        inactivityTimer = Timer()
+        Timber.d("RMBTClient inactivity checking started")
+        inactivityTimer.scheduleAtFixedRate(
+            timerTask {
+                val isNotResponding = !isRMBTClientResponding()
+                if (isNotResponding) {
+                    testListener.onError()
+                    runner.stop()
+                    inactivityTimer.cancel()
+                    inactivityTimer.purge()
+                    Timber.e("Test has been terminated, because of RMBTClient inactivity")
+                }
+            },
+            TimeUnit.SECONDS.toMillis(MEASUREMENT_INACTIVITY_CHECKER_PERIOD_SECONDS),
+            TimeUnit.SECONDS.toMillis(MEASUREMENT_INACTIVITY_CHECKER_PERIOD_SECONDS)
+        )
+    }
+
+    private fun removeInactivityCheck() {
+        Timber.d("RMBTClient inactivity checking stopped")
+        inactivityTimer.cancel()
+    }
 
     @Inject
     lateinit var config: Config
@@ -110,7 +147,7 @@ class MeasurementService : CustomLifecycleService() {
         override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
             signalMeasurementProducer = service as SignalMeasurementProducer
             if (signalMeasurementPauseRequired) {
-                signalMeasurementProducer?.pauseMeasurement()
+                signalMeasurementProducer?.pauseMeasurement(true)
                 signalMeasurementPauseRequired = false
             }
         }
@@ -119,6 +156,7 @@ class MeasurementService : CustomLifecycleService() {
     private val testListener = object : TestProgressListener {
 
         override fun onProgressChanged(state: MeasurementState, progress: Int) {
+            measurementLastUpdate = System.currentTimeMillis()
             measurementState = state
             measurementProgress = progress
             if (config.loopModeEnabled) {
@@ -179,12 +217,12 @@ class MeasurementService : CustomLifecycleService() {
         }
 
         override fun onFinish() {
+            removeInactivityCheck()
             notificationManager.cancel(NOTIFICATION_ID)
-            resumeSignalMeasurement()
 
             stateRecorder.onLoopTestFinished()
 
-            if (!config.loopModeEnabled || (config.loopModeEnabled && (stateRecorder.loopTestCount >= config.loopModeNumberOfTests))) {
+            if (!config.loopModeEnabled || (config.loopModeEnabled && (stateRecorder.loopTestCount >= config.loopModeNumberOfTests || stateRecorder.loopModeRecord?.status == LoopModeState.CANCELLED))) {
                 loopCountdownTimer?.cancel()
                 Timber.d("TIMER: cancelling 3: ${loopCountdownTimer?.hashCode()}")
 
@@ -195,27 +233,46 @@ class MeasurementService : CustomLifecycleService() {
                 stopForeground(true)
                 stateRecorder.finish()
                 unlock()
+                resumeSignalMeasurement(false)
+            } else {
+                resumeSignalMeasurement(true)
             }
         }
 
         override fun onPostFinish() {
             if (startPendingTest) {
                 Handler(Looper.getMainLooper()).postDelayed({
-                    if (config.loopModeEnabled && (stateRecorder.loopTestCount < config.loopModeNumberOfTests || (config.loopModeNumberOfTests == 0 && config.developerModeIsEnabled))) {
-                        runner.reset()
-                        Timber.d("LOOP STARTING PENDING TEST from onFinish")
-                        runTest()
+                    if (config.loopModeEnabled && stateRecorder.loopModeRecord?.status != LoopModeState.CANCELLED && (stateRecorder.loopTestCount < config.loopModeNumberOfTests || (config.loopModeNumberOfTests == 0 && config.developerModeIsEnabled))) {
+                        if (!runner.isRunning) {
+                            runner.reset()
+                            Timber.d("LOOP STARTING PENDING TEST from onFinish")
+                            runTest()
+                        }
                     }
                 }, 500)
             }
         }
 
         override fun onError() {
-            resumeSignalMeasurement()
-            if (startNetwork != connectivityManager.activeNetwork) {
+            removeInactivityCheck()
+            if (config.loopModeEnabled && stateRecorder.loopModeRecord?.status != LoopModeState.CANCELLED && (stateRecorder.loopTestCount < config.loopModeNumberOfTests || (config.loopModeNumberOfTests == 0 && config.developerModeIsEnabled))) {
+                resumeSignalMeasurement(true)
+            } else {
+                resumeSignalMeasurement(false)
+            }
+            if (startNetwork != null && startNetwork != connectivityManager.activeNetwork) {
                 Timber.e("Network change!")
                 try {
                     throw IllegalNetworkChangeException("Illegal network change during the test")
+                } catch (ex: Exception) {
+                    stateRecorder.setErrorCause(Log.getStackTraceString(ex))
+                }
+            }
+
+            if (startNetwork == null) {
+                Timber.e("Network not detected!")
+                try {
+                    throw IllegalNetworkChangeException("No active network detected")
                 } catch (ex: Exception) {
                     stateRecorder.setErrorCause(Log.getStackTraceString(ex))
                 }
@@ -238,11 +295,23 @@ class MeasurementService : CustomLifecycleService() {
 
             measurementState = MeasurementState.ERROR
             onProgressChanged(measurementState, 0)
+            if (config.loopModeEnabled && (stateRecorder.loopTestCount >= config.loopModeNumberOfTests || (config.loopModeNumberOfTests == 0 && config.developerModeIsEnabled))) {
+                loopCountdownTimer?.cancel()
+                Timber.d("TIMER: cancelling 8: ${loopCountdownTimer?.hashCode()}")
+                hasErrors = true
+                notificationManager.cancel(NOTIFICATION_ID)
+                clientAggregator.onMeasurementError()
+                stateRecorder.onLoopTestStatusChanged(LoopModeState.FINISHED)
+                stateRecorder.finish()
+                unlock()
+                stopForeground(true)
+            }
+
             stateRecorder.onLoopTestFinished()
 
             Timber.d("TEST ERROR HANDLING")
 
-            if (startPendingTest && (config.loopModeEnabled && (stateRecorder.loopTestCount < config.loopModeNumberOfTests || (config.loopModeNumberOfTests == 0 && config.developerModeIsEnabled)))) {
+            if (startPendingTest && !runner.isRunning && (config.loopModeEnabled && stateRecorder.loopModeRecord?.status != LoopModeState.CANCELLED && (stateRecorder.loopTestCount < config.loopModeNumberOfTests || (config.loopModeNumberOfTests == 0 && config.developerModeIsEnabled)))) {
                 Timber.d("TEST ERROR HANDLING - PENDING")
                 runner.reset()
                 Timber.d("LOOP STARTING PENDING TEST from onError")
@@ -271,6 +340,7 @@ class MeasurementService : CustomLifecycleService() {
         }
 
         override fun onClientReady(testUUID: String, loopUUID: String?, loopLocalUUID: String?, testStartTimeNanos: Long) {
+            planInactivityCheck()
             clientAggregator.onClientReady(testUUID, loopLocalUUID)
             startNetwork = connectivityManager.activeNetwork
             stateRecorder.onReadyToSubmit = { shouldShowResults ->
@@ -315,14 +385,14 @@ class MeasurementService : CustomLifecycleService() {
         }
     }
 
-    private fun resumeSignalMeasurement() {
+    private fun resumeSignalMeasurement(unstoppable: Boolean) {
         signalMeasurementPauseRequired = false
-        signalMeasurementProducer?.resumeMeasurement()
+        signalMeasurementProducer?.resumeMeasurement(unstoppable)
     }
 
     private fun pauseSignalMeasurement() {
         signalMeasurementPauseRequired = true // in case when service connection wasn't established before test started
-        signalMeasurementProducer?.pauseMeasurement()
+        signalMeasurementProducer?.pauseMeasurement(true)
     }
 
     override fun onCreate() {
@@ -341,7 +411,7 @@ class MeasurementService : CustomLifecycleService() {
             Timber.d("TIMER: cancelling 1: ${loopCountdownTimer?.hashCode()}")
             loopCountdownTimer?.cancel()
 
-            if ((stateRecorder.loopTestCount < config.loopModeNumberOfTests) || config.loopModeNumberOfTests == 0 && config.developerModeIsEnabled) {
+            if (((stateRecorder.loopTestCount < config.loopModeNumberOfTests) || config.loopModeNumberOfTests == 0 && config.developerModeIsEnabled) && stateRecorder.loopModeRecord?.status != LoopModeState.CANCELLED) {
                 if (runner.isRunning) {
                     startPendingTest = true
                     Timber.d("LOOP STARTING PENDING TEST set to true onCreate due to distance")
@@ -381,7 +451,7 @@ class MeasurementService : CustomLifecycleService() {
     }
 
     override fun onDestroy() {
-        resumeSignalMeasurement()
+        resumeSignalMeasurement(false)
         signalMeasurementConnection.onServiceDisconnected(null)
         unbindService(signalMeasurementConnection)
         super.onDestroy()
@@ -422,7 +492,7 @@ class MeasurementService : CustomLifecycleService() {
                             Timber.d("LOOP STARTING PENDING TEST set to true")
                             startPendingTest = true
                         } else {
-                            if (!config.loopModeEnabled || (config.loopModeEnabled && (stateRecorder.loopTestCount < config.loopModeNumberOfTests || (config.loopModeNumberOfTests == 0 && config.developerModeIsEnabled)))) {
+                            if (!config.loopModeEnabled || (config.loopModeEnabled && stateRecorder.loopModeRecord?.status != LoopModeState.CANCELLED && (stateRecorder.loopTestCount < config.loopModeNumberOfTests || (config.loopModeNumberOfTests == 0 && config.developerModeIsEnabled)))) {
                                 runner.reset()
                                 Timber.d("LOOP STARTING PENDING TEST on timer finished")
                                 runTest()
@@ -431,16 +501,13 @@ class MeasurementService : CustomLifecycleService() {
                     }
 
                     override fun onTick(millisUntilFinished: Long) {
-                        if (stateRecorder.loopModeRecord?.status == LoopModeState.FINISHED || stateRecorder.loopModeRecord?.testsPerformed ?: 0 >= config.loopModeMaxTestsNumber) {
+                        if (stateRecorder.loopModeRecord?.status == LoopModeState.FINISHED || stateRecorder.loopModeRecord?.status == LoopModeState.CANCELLED || stateRecorder.loopModeRecord?.testsPerformed ?: 0 >= config.loopModeNumberOfTests) {
                             this.cancel()
                         }
                         Timber.d("CountDownTimer tick $millisUntilFinished - ${this.hashCode()}")
                         if (!runner.isRunning) {
-                            val location = stateRecorder.locationInfo
                             val locationAvailable =
-                                locationWatcher.state == LocationState.ENABLED &&
-                                        location != null &&
-                                        location.accuracy < config.loopModeDistanceMeters
+                                locationWatcher.state == LocationState.ENABLED
                             val distancePassed = stateRecorder.loopModeRecord?.movementDistanceMeters ?: 0
 
                             Timber.d("Created measurement notification time remaining")
@@ -485,7 +552,7 @@ class MeasurementService : CustomLifecycleService() {
     private fun runTest() {
         notificationManager.cancel(NOTIFICATION_LOOP_FINISHED_ID)
         startPendingTest = false
-        if (config.loopModeEnabled && (stateRecorder.loopTestCount < config.loopModeNumberOfTests || (config.loopModeNumberOfTests == 0 && config.developerModeIsEnabled))) {
+        if (config.loopModeEnabled && stateRecorder.loopModeRecord?.status != LoopModeState.CANCELLED && (stateRecorder.loopTestCount < config.loopModeNumberOfTests || (config.loopModeNumberOfTests == 0 && config.developerModeIsEnabled))) {
             scheduleNextLoopTest()
         }
 
@@ -552,22 +619,21 @@ class MeasurementService : CustomLifecycleService() {
 
     private fun stopTests() {
         Timber.d("Stop tests")
-        if (config.loopModeEnabled) {
-            notificationManager.cancel(NOTIFICATION_ID)
-        } else {
-            notificationManager.cancelAll() // stop foreground does not hide notification about test running during loop mode sometimes
-        }
-        loopModeState = LoopModeState.FINISHED
+        // stop foreground does not hide notification about test running during loop mode sometimes
+        notificationManager.cancel(NOTIFICATION_ID)
+        notificationManager.cancel(NOTIFICATION_LOOP_FINISHED_ID)
+        loopModeState = LoopModeState.CANCELLED
+        stateRecorder.onLoopTestStatusChanged(loopModeState)
         runner.stop()
         Timber.d("TIMER: cancelling 2: ${loopCountdownTimer?.hashCode()}")
         loopCountdownTimer?.cancel()
         config.previousTestStatus = TestFinishReason.ABORTED.name // cannot be handled in TestController
         stateRecorder.onUnsuccessTest(TestFinishReason.ABORTED)
-        stateRecorder.loopModeRecord?.status = LoopModeState.FINISHED
         measurementState = MeasurementState.ABORTED
         stateRecorder.finish()
         clientAggregator.onMeasurementCancelled()
         clientAggregator.onProgressChanged(measurementState, 0)
+        resumeSignalMeasurement(false)
         stopForeground(true)
         unlock()
     }
@@ -660,7 +726,7 @@ class MeasurementService : CustomLifecycleService() {
             get() = this@MeasurementService.lastMeasurementSignal
 
         override val isTestsRunning: Boolean
-            get() = !((!config.loopModeEnabled && (this.measurementState == MeasurementState.IDLE || this.measurementState == MeasurementState.ERROR || this.measurementState == MeasurementState.ABORTED || this.measurementState == MeasurementState.FINISH)) || (config.loopModeEnabled && ((this.loopModeState == LoopModeState.IDLE && this.loopLocalUUID == null) || this.loopModeState == LoopModeState.FINISHED)))
+            get() = !((!config.loopModeEnabled && (this.measurementState == MeasurementState.IDLE || this.measurementState == MeasurementState.ERROR || this.measurementState == MeasurementState.ABORTED || this.measurementState == MeasurementState.FINISH)) || (config.loopModeEnabled && ((this.loopModeState == LoopModeState.IDLE && this.loopLocalUUID == null) || this.loopModeState == LoopModeState.FINISHED || this.loopModeState == LoopModeState.CANCELLED)))
 
         override val testUUID: String?
             get() = runner.testUUID
@@ -792,9 +858,12 @@ class MeasurementService : CustomLifecycleService() {
 
     companion object {
 
-        private const val NOTIFICATION_ID = 1
+        const val NOTIFICATION_ID = 1
         const val NOTIFICATION_LOOP_FINISHED_ID = 2
         private const val NOTIFICATION_UPDATE_INTERVAL_MS = 700
+
+        private const val MEASUREMENT_INACTIVITY_THRESHOLD_SECONDS: Long = 120
+        private const val MEASUREMENT_INACTIVITY_CHECKER_PERIOD_SECONDS: Long = 1
 
         private const val ACTION_START_TESTS = "KEY_START_TESTS"
         private const val ACTION_STOP_TESTS = "KEY_STOP_TESTS"

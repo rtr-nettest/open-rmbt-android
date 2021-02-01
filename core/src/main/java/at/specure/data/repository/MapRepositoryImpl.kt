@@ -20,6 +20,7 @@ import at.rmbt.client.control.MarkersRequestBody
 import at.rmbt.client.control.data.MapFilterType
 import at.rmbt.client.control.data.MapPresentationType
 import at.rmbt.util.io
+import at.specure.data.ControlServerSettings
 import at.specure.data.CoreDatabase
 import at.specure.data.entity.MarkerMeasurementRecord
 import at.specure.data.getTypeTitle
@@ -33,13 +34,13 @@ import kotlinx.coroutines.runBlocking
 import java.io.ByteArrayOutputStream
 import java.util.Locale
 import javax.inject.Inject
-import kotlin.collections.LinkedHashMap
 
 class MapRepositoryImpl @Inject constructor(
     private val client: MapServerClient,
     private val db: CoreDatabase,
     override val storage: FilterValuesStorage,
-    override val active: ActiveFilter
+    override val active: ActiveFilter,
+    private val controlServerSettings: ControlServerSettings
 ) : MapRepository {
 
     override val subtypesLiveData: FilterOptionLiveData<MapTypeOptionsResponse> = MutableLiveData()
@@ -101,7 +102,13 @@ class MapRepositoryImpl @Inject constructor(
         return stream.toByteArray()
     }
 
-    override fun prepareDetailsLink(openUUID: String) = client.prepareDetailsLink(openUUID)
+    override fun prepareDetailsLink(openUUID: String): LiveData<String> {
+        return if (controlServerSettings.openDataPrefix.isNullOrEmpty()) {
+            client.prepareDetailsLink(openUUID)
+        } else {
+            MutableLiveData<String>().apply { postValue(controlServerSettings.openDataPrefix + openUUID + "#noMMenu") }
+        }
+    }
 
     override fun obtainFilters(callback: (List<String>) -> Unit) = io {
         val result = client.obtainMapFiltersInfo(FilterLanguageRequestBody(Locale.getDefault().language))

@@ -14,6 +14,7 @@ import at.rtr.rmbt.android.util.map
 import at.specure.data.ClientUUID
 import at.specure.data.MeasurementServers
 import at.specure.data.repository.NewsRepository
+import at.specure.data.repository.SettingsRepository
 import at.specure.info.connectivity.ConnectivityInfoLiveData
 import at.specure.info.ip.IpV4ChangeLiveData
 import at.specure.info.ip.IpV6ChangeLiveData
@@ -28,6 +29,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.launch
+import timber.log.Timber
 import javax.inject.Inject
 
 class HomeViewModel @Inject constructor(
@@ -41,6 +43,7 @@ class HomeViewModel @Inject constructor(
     val clientUUID: ClientUUID,
     private val appConfig: AppConfig,
     private val newsRepository: NewsRepository,
+    private val settingsRepository: SettingsRepository,
     measurementServers: MeasurementServers
 ) : BaseViewModel() {
 
@@ -128,15 +131,21 @@ class HomeViewModel @Inject constructor(
         } else {
             producer?.let {
                 if (it.isActive) {
-                    it.stopMeasurement()
+                    it.stopMeasurement(false)
                 } else {
-                    it.startMeasurement()
+                    it.startMeasurement(false)
+                    it.setEndAlarm()
                 }
             }
         }
     }
 
     fun getNews() = launch {
+        settingsRepository.refreshSettingsByFlow()
+            .flowOn(Dispatchers.IO)
+            .collect {
+                Timber.d("OkHttp Settings request response received")
+            }
         newsRepository.getNews()
             .flowOn(Dispatchers.IO)
             .collect {
@@ -145,19 +154,19 @@ class HomeViewModel @Inject constructor(
     }
 
     fun startSignalMeasurement() {
-        producer?.startMeasurement()
+        producer?.startMeasurement(false)
     }
 
     fun stopSignalMeasurement() {
-        producer?.stopMeasurement()
+        producer?.stopMeasurement(false)
     }
 
     fun pauseSignalMeasurement() {
-        producer?.pauseMeasurement()
+        producer?.pauseMeasurement(false)
     }
 
     fun resumeSignalMeasurement() {
-        producer?.resumeMeasurement()
+        producer?.resumeMeasurement(false)
     }
 
     fun attach(context: Context) {
@@ -175,5 +184,13 @@ class HomeViewModel @Inject constructor(
 
     fun getLatestNewsShown(): Long? {
         return newsRepository.getLatestNewsShown()
+    }
+
+    fun shouldAskForPermission(): Boolean {
+        return (appConfig.lastPermissionAskedTimestampMillis + askPermissionsAgainTimesMillis) < System.currentTimeMillis()
+    }
+
+    fun permissionsWereAsked() {
+        appConfig.lastPermissionAskedTimestampMillis = System.currentTimeMillis()
     }
 }

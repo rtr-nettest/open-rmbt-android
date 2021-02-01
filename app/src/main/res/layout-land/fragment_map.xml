@@ -14,11 +14,23 @@
         android:layout_height="match_parent"
         android:background="@drawable/bg_gray">
 
-        <View
-            android:id="@+id/status_bar_stub"
-            android:layout_width="match_parent"
-            android:layout_height="@dimen/size_height_status_bar"
-            app:layout_constraintTop_toTopOf="parent" />
+        <androidx.constraintlayout.widget.Group
+            android:id="@+id/play_services_available_ui"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:visibility="gone"
+            app:constraint_referenced_ids="map, fab_layers, fab_search, fab_filters, fab_location"
+            app:visibleOrGone="@{state.playServicesAvailable}" />
+
+        <WebView
+            android:id="@+id/web_map"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:visibleOrGone="@{!state.playServicesAvailable}" />
 
         <com.google.android.gms.maps.MapView
             android:id="@+id/map"
@@ -51,7 +63,13 @@
             android:src="@drawable/ic_map_search"
             app:borderWidth="0dp"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/status_bar_stub" />
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <androidx.constraintlayout.widget.Group
+            android:id="@+id/fabs_group"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:constraint_referenced_ids="fab_filters,fab_location" />
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/fab_filters"

@@ -2,9 +2,12 @@ package at.specure.data.repository
 
 import android.content.Context
 import at.rmbt.client.control.ControlServerClient
+import at.rmbt.client.control.SettingsResponse
 import at.rmbt.client.control.TermsAndConditionsSettings
+import at.rmbt.util.Maybe
 import at.specure.config.Config
 import at.specure.data.ClientUUID
+import at.specure.data.ClientUUIDLegacy
 import at.specure.data.ControlServerSettings
 import at.specure.data.HistoryFilterOptions
 import at.specure.data.MeasurementServers
@@ -25,6 +28,7 @@ class SettingsRepositoryImpl(
     private val context: Context,
     private val controlServerClient: ControlServerClient,
     private val clientUUID: ClientUUID,
+    private val clientUUIDLegacy: ClientUUIDLegacy,
     private val controlServerSettings: ControlServerSettings,
     private val termsAndConditions: TermsAndConditions,
     private val measurementsServers: MeasurementServers,
@@ -36,52 +40,80 @@ class SettingsRepositoryImpl(
     private val deviceInfo: DeviceInfo
         get() = DeviceInfo(context)
 
+    override fun refreshSettingsByFlow(): Flow<Boolean> = flow {
+        val getNews = emitSettingsRequest()
+
+        getNews.onSuccess {
+            processSettingsResponse(it)
+            emit(true)
+        }
+        getNews.onFailure {
+            emit(false)
+        }
+    }
+
     override fun refreshSettings(): Boolean {
-        val body = deviceInfo.toSettingsRequest(clientUUID, config, termsAndConditions)
+        val settings = emitSettingsRequest()
+        settings.onSuccess {
+            processSettingsResponse(it)
+        }
+        return settings.ok
+    }
+
+    private fun emitSettingsRequest(): Maybe<SettingsResponse> {
+        // for migration phase - reuse existing client uuid, if any
+        if (clientUUID.value == null && clientUUIDLegacy.value != null) {
+            clientUUID.value = clientUUIDLegacy.value
+        }
+
+        val body = deviceInfo.toSettingsRequest(clientUUID, clientUUIDLegacy, config, termsAndConditions)
         // we must remove ipv4 url before we want to check settings, because settings request should go to the original URL
         controlServerSettings.controlServerV4Url = null
         controlServerSettings.controlServerV6Url = null
         val settings = controlServerClient.getSettings(body)
-        settings.onSuccess {
-            val uuid = settings.success.settings.first().uuid
-            if (uuid != null && uuid.isNotBlank()) {
-                clientUUID.value = uuid
-            }
+        return settings
+    }
 
-            controlServerSettings.filterDevices = it.settings.first().history?.devices ?: listOf()
-            controlServerSettings.filterNetworkTypes = it.settings.first().history?.networks ?: listOf()
-
-            val urls = settings.success.settings.first().urls
-            if (urls != null) {
-                controlServerSettings.controlServerV4Url = urls.ipv4OnlyControlServerUrl.removeProtocol()
-                controlServerSettings.controlServerV6Url = urls.ipv6OnlyControlServerUrl.removeProtocol()
-                controlServerSettings.ipV4CheckUrl = urls.ipv4CheckUrl.removeProtocol()
-                controlServerSettings.ipV6CheckUrl = urls.ipv6CheckUrl.removeProtocol()
-                controlServerSettings.openDataPrefix = urls.openDataPrefixUrl
-                controlServerSettings.shareUrl = urls.shareUrl
-                controlServerSettings.statisticsUrl = urls.statisticsUrl
-            }
-            val mapServer = settings.success.settings.first().mapServerSettings
-            if (mapServer != null && !config.mapServerOverrideEnabled) {
-                mapServer.host?.let { config.mapServerHost = it }
-                mapServer.port?.let { config.mapServerPort = it }
-                mapServer.ssl?.let { config.mapServerUseSSL = it }
-            }
-            val tac = settings.success.settings.first().termsAndConditions
-            updateTermsAndConditions(tac)
-            val versions = settings.success.settings.first().versions
-            if (versions != null) {
-                controlServerSettings.controlServerVersion = versions.controlServerVersion
-            }
-            val history = settings.success.settings.first().history
-            if (history != null) {
-                historyFilterOptions.devices = history.devices?.toMutableSet() ?: mutableSetOf()
-                historyFilterOptions.networks = history.networks?.toMutableSet() ?: mutableSetOf()
-            }
-            measurementsServers.measurementServers = settings.success.settings.first().servers
-            // todo: qostest types to DB
+    private fun processSettingsResponse(
+        settingsResponse: SettingsResponse
+    ) {
+        val uuid = settingsResponse.settings.first().uuid
+        if (uuid != null && uuid.isNotBlank()) {
+            clientUUID.value = uuid
         }
-        return settings.ok
+
+        controlServerSettings.filterDevices = settingsResponse.settings.first().history?.devices ?: listOf()
+        controlServerSettings.filterNetworkTypes = settingsResponse.settings.first().history?.networks ?: listOf()
+
+        val urls = settingsResponse.settings.first().urls
+        if (urls != null) {
+            controlServerSettings.controlServerV4Url = urls.ipv4OnlyControlServerUrl.removeProtocol()
+            controlServerSettings.controlServerV6Url = urls.ipv6OnlyControlServerUrl.removeProtocol()
+            controlServerSettings.ipV4CheckUrl = urls.ipv4CheckUrl.removeProtocol()
+            controlServerSettings.ipV6CheckUrl = urls.ipv6CheckUrl.removeProtocol()
+            controlServerSettings.openDataPrefix = urls.openDataPrefixUrl
+            controlServerSettings.shareUrl = urls.shareUrl
+            controlServerSettings.statisticsUrl = urls.statisticsUrl
+        }
+        val mapServer = settingsResponse.settings.first().mapServerSettings
+        if (mapServer != null && !config.mapServerOverrideEnabled) {
+            mapServer.host?.let { config.mapServerHost = it }
+            mapServer.port?.let { config.mapServerPort = it }
+            mapServer.ssl?.let { config.mapServerUseSSL = it }
+        }
+        val tac = settingsResponse.settings.first().termsAndConditions
+        updateTermsAndConditions(tac)
+        val versions = settingsResponse.settings.first().versions
+        if (versions != null) {
+            controlServerSettings.controlServerVersion = versions.controlServerVersion
+        }
+        val history = settingsResponse.settings.first().history
+        if (history != null) {
+            historyFilterOptions.devices = history.devices?.toMutableSet() ?: mutableSetOf()
+            historyFilterOptions.networks = history.networks?.toMutableSet() ?: mutableSetOf()
+        }
+        measurementsServers.measurementServers = settingsResponse.settings.first().servers
+        // todo: qostest types to DB
     }
 
     private fun updateTermsAndConditions(tac: TermsAndConditionsSettings?) = tac?.let { terms ->

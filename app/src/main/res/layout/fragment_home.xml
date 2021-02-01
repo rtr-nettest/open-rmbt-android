@@ -36,14 +36,9 @@
         android:id="@+id/llMain"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:keepScreenOn="@{state.isSignalMeasurementActive}"
         android:background="@{state.isConnected ? @drawable/bg_splash : @drawable/bg_gray}"
         tools:background="@drawable/bg_splash">
-
-        <View
-            android:id="@+id/status_bar_stub"
-            android:layout_width="match_parent"
-            android:layout_height="@dimen/size_height_status_bar"
-            app:layout_constraintTop_toTopOf="parent" />
 
         <androidx.appcompat.widget.SwitchCompat
             android:id="@+id/btnLoop"
@@ -55,7 +50,7 @@
             android:checked="@{state.isLoopModeActive}"
             android:thumb="@null"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/status_bar_stub"
+            app:layout_constraintTop_toTopOf="parent"
             tools:checked="false" />
 
         <androidx.appcompat.widget.AppCompatTextView
@@ -68,7 +63,7 @@
             app:layout_constraintBottom_toBottomOf="@+id/btnLoop"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/status_bar_stub" />
+            app:layout_constraintTop_toTopOf="parent" />
 
         <androidx.appcompat.widget.AppCompatImageButton
             android:id="@+id/btnSetting"
@@ -77,7 +72,7 @@
             android:layout_height="wrap_content"
             android:src="@{state.isConnected ? @drawable/ic_settings : @drawable/ic_settings_gray}"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/status_bar_stub"
+            app:layout_constraintTop_toTopOf="parent"
             tools:src="@drawable/ic_settings" />
 
         <androidx.appcompat.widget.AppCompatTextView
@@ -186,15 +181,18 @@
             app:layout_constraintEnd_toEndOf="@+id/ivIsConnectedCircle"
             app:layout_constraintStart_toStartOf="@+id/ivIsConnectedCircle" />
 
-        <androidx.appcompat.widget.AppCompatImageView
+        <androidx.appcompat.widget.AppCompatImageButton
             android:id="@+id/ivSignalLevel"
             android:layout_width="0dp"
             android:layout_height="0dp"
             android:src="@drawable/ic_mobile_3"
+            android:scaleType="centerInside"
+            android:background="@drawable/bg_selection"
             app:layout_constraintBottom_toBottomOf="@+id/viewCircleShape"
             app:layout_constraintEnd_toEndOf="@+id/viewCircleShape"
             app:layout_constraintStart_toStartOf="@+id/viewCircleShape"
             app:layout_constraintTop_toTopOf="@+id/viewCircleShape"
+            app:connected="@{state.isConnected}"
             app:signalLevel="@{state.signalStrength}" />
 
         <androidx.appcompat.widget.AppCompatImageView
@@ -245,7 +243,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:gravity="center"
-            android:text="@string/home_use_wifi_or_data_connection"
+            android:text="@string/home_no_internet_connection_details"
             android:textColor="@color/text_gray"
             app:layout_constraintBottom_toTopOf="@+id/waveView"
             app:layout_constraintEnd_toEndOf="parent"
@@ -375,17 +373,17 @@
             tools:src="@drawable/ic_location" />
 
         <androidx.appcompat.widget.AppCompatImageButton
-            android:id="@+id/btnUpload"
-            android:layout_width="0dp"
-            android:layout_height="?android:attr/actionBarSize"
-            android:background="?android:attr/selectableItemBackground"
-            android:clickable="@{state.isConnected || state.isSignalMeasurementActive}"
-            android:gravity="center"
-            android:src="@{state.isSignalMeasurementActive ? @drawable/ic_upload_enabled : (state.isConnected ? @drawable/ic_upload_disabled : @drawable/ic_upload_not_available)}"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@+id/btnLocation"
-            tools:src="@drawable/ic_upload_enabled" />
+                android:id="@+id/btnUpload"
+                android:layout_width="0dp"
+                android:layout_height="?android:attr/actionBarSize"
+                android:background="?android:attr/selectableItemBackground"
+                android:clickable="@{state.isConnected || state.isSignalMeasurementActive}"
+                android:gravity="center"
+                android:src="@{state.isSignalMeasurementActive ? @drawable/ic_upload_enabled : (state.isConnected ? @drawable/ic_upload_disabled : @drawable/ic_upload_not_available)}"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@+id/btnLocation"
+                tools:src="@drawable/ic_upload_enabled" android:visibility="@{state.developerModeIsEnabled ? View.VISIBLE : View.GONE}"/>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

@@ -59,7 +59,9 @@ data class SettingsRequestBody(
     var tacVersion: Int,
     @SerializedName("terms_and_conditions_accepted")
     var tacAccepted: Boolean,
-    var capabilities: CapabilitiesBody
+    var capabilities: CapabilitiesBody,
+    @SerializedName("uuid_legacy")
+    var uuidLegacy: String?
 )
 
 @Keep
@@ -432,6 +434,12 @@ data class TestResultBody(
     val dualSimDetectionMethod: String?,
 
     /**
+     * Contains information about the way the 5G connection is handled
+     */
+    @SerializedName("telephony_nr_connection")
+    val telephonyNRConnection: String?,
+
+    /**
      * Wifi supplicant state e.g. "COMPLETED"
      */
     @SerializedName("wifi_supplicant_state")
@@ -739,13 +747,13 @@ data class TestLocationBody(
     val altitude: Double,
 
     /**
-     * Timestamp of the information in millis
+     * Timestamp of the information in millis from Location.time
      */
     @SerializedName("tstamp")
     val timeMillis: Long,
 
     /**
-     * Relative time from the start of the test
+     * Relative time from the start of the test System.currentTimeMillis() - millis of the test start
      */
     @SerializedName("time_ns")
     val timeNanos: Long,

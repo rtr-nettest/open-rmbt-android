@@ -9,7 +9,7 @@
         android:id="@+id/navigation_home"
         android:name="at.rtr.rmbt.android.ui.fragment.HomeFragment"
         android:label="@string/menu_button_title_page"
-        tools:layout="@layout/fragment_home" />
+        tools:layout="@layout/fragment_home2" />
 
     <keep_state_fragment
         android:id="@+id/navigation_history"

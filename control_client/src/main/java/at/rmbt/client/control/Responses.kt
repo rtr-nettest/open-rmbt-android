@@ -790,5 +790,5 @@ data class SignalMeasurementRequestResponse(
     val resultUrl: String,
 
     @SerializedName("provider")
-    val provider: String
+    val provider: String?
 ) : BaseResponse()

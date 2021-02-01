@@ -143,7 +143,7 @@ fun TestResultDetailResponse.toModelList(testUUID: String): List<TestResultDetai
 fun TestResultDetailItem.toModel(testUUID: String): TestResultDetailsRecord =
     TestResultDetailsRecord(testUUID, openTestUUID, openUuid, time, timezone, title, value)
 
-fun MarkersResponse.toModelList(): List<MarkerMeasurementRecord> = measurements.map { it.toModel() }
+fun MarkersResponse.toModelList(): List<MarkerMeasurementRecord> = measurements?.map { it.toModel() } ?: emptyList()
 
 fun MarkerMeasurementsResponse.toModel(): MarkerMeasurementRecord {
     val upload = measurement.extractFromList(1) as? MarkerMeasurementItem
@@ -242,8 +242,12 @@ fun QosTestResultDetailResponse.toModels(
                         testSummary = result.testSummary,
                         testDescription = result.testDescription,
                         testNumber = qosTestOrderNumber,
-                        durationNanos = result.result.get("duration_ns").asLong,
-                        startTimeNanos = result.result.get("start_time_ns").asLong
+                        durationNanos = if (result.result.has("duration_ns") && result.result.get("duration_ns") != null) {
+                            result.result.get("duration_ns").asLong
+                        } else null,
+                        startTimeNanos = if (result.result.has("start_time_ns") && result.result.get("start_time_ns") != null) {
+                            result.result.get("start_time_ns").asLong
+                        } else null
                     )
                 )
                 qosTestOrderNumber++
@@ -264,8 +268,12 @@ fun QosTestResultDetailResponse.toModels(
                     testSummary = result.testSummary,
                     testDescription = result.testDescription,
                     testNumber = qosTestOrderNumber,
-                    durationNanos = result.result.get("duration_ns").asLong,
-                    startTimeNanos = result.result.get("start_time_ns").asLong
+                    durationNanos = if (result.result.has("duration_ns") && result.result.get("duration_ns") != null) {
+                        result.result.get("duration_ns").asLong
+                    } else null,
+                    startTimeNanos = if (result.result.has("start_time_ns") && result.result.get("start_time_ns") != null) {
+                        result.result.get("start_time_ns").asLong
+                    } else null
                 )
             )
             qosTestOrderNumber++

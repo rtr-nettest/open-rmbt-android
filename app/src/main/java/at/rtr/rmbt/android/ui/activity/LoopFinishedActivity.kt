@@ -6,6 +6,7 @@ import android.content.Intent
 import android.os.Bundle
 import at.rtr.rmbt.android.R
 import at.rtr.rmbt.android.databinding.ActivityLoopFinishedBinding
+import at.specure.measurement.MeasurementService
 
 class LoopFinishedActivity : BaseActivity() {
 
@@ -19,25 +20,23 @@ class LoopFinishedActivity : BaseActivity() {
 
         binding.buttonGoToResults.setOnClickListener {
             HomeActivity.startWithFragment(this, HomeActivity.Companion.HomeNavigationTarget.HISTORY_FRAGMENT_TO_SHOW)
-            finishAffinity()
         }
 
         binding.buttonRunAgain.setOnClickListener {
             HomeActivity.startWithFragment(this, HomeActivity.Companion.HomeNavigationTarget.HOME_FRAGMENT_TO_SHOW)
             LoopConfigurationActivity.start(this)
-            finishAffinity()
         }
     }
 
     override fun onBackPressed() {
         super.onBackPressed()
         HomeActivity.startWithFragment(this, HomeActivity.Companion.HomeNavigationTarget.HOME_FRAGMENT_TO_SHOW)
-        finishAffinity()
     }
 
     override fun onResume() {
         super.onResume()
-        notificationManager.cancelAll()
+        notificationManager.cancel(MeasurementService.NOTIFICATION_LOOP_FINISHED_ID)
+        notificationManager.cancel(MeasurementService.NOTIFICATION_ID)
     }
 
     companion object {

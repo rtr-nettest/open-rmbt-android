@@ -36,6 +36,16 @@
       "visible": false
     },
     {
+      "name": "CONTROL_SERVER_NEW_HOST",
+      "value": "api-test.example.org",
+      "visible": false
+    },
+    {
+      "name": "CONTROL_SERVER_NEW_ROUTE",
+      "value": "rtr",
+      "visible": false
+    },
+    {
       "name": "CONTROL_SERVER_PORT",
       "value": "443",
       "visible": false
@@ -67,7 +77,7 @@
     },
     {
       "name": "SKIP_QOS_TESTS_FOR_PERIOD",
-      "value": "false",
+      "value": "true",
       "visible": true
     },
     {
@@ -138,6 +148,11 @@
     {
       "name": "CAPABILITIES_CLASSIFICATION_COUNT",
       "value": "4",
+      "visible": false
+    },
+    {
+      "name": "SIGNAL_MEASUREMENT_DURATION_MIN",
+      "value": "2880",
       "visible": false
     },
     {

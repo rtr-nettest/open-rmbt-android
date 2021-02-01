@@ -13,11 +13,13 @@
 
 package at.specure.info.strength
 
+import android.Manifest.permission.ACCESS_COARSE_LOCATION
 import android.Manifest.permission.READ_PHONE_STATE
 import android.annotation.SuppressLint
 import android.content.Context
 import android.os.Build
 import android.os.Handler
+import android.telephony.CellInfo
 import android.telephony.PhoneStateListener
 import android.telephony.SignalStrength
 import android.telephony.SubscriptionManager
@@ -26,13 +28,16 @@ import androidx.core.content.PermissionChecker
 import androidx.core.content.PermissionChecker.PERMISSION_GRANTED
 import at.specure.info.Network5GSimulator
 import at.specure.info.TransportType
+import at.specure.info.cell.ActiveDataCellInfoExtractor
 import at.specure.info.cell.CellInfoWatcher
 import at.specure.info.network.ActiveNetworkWatcher
+import at.specure.info.network.NRConnectionState
 import at.specure.info.network.NetworkInfo
 import at.specure.info.wifi.WifiInfoWatcher
 import at.specure.util.permission.LocationAccess
 import at.specure.util.synchronizedForEach
 import timber.log.Timber
+import java.lang.IllegalStateException
 import java.util.Collections
 
 private const val WIFI_UPDATE_DELAY = 2000L
@@ -49,6 +54,7 @@ class SignalStrengthWatcherImpl(
     private val activeNetworkWatcher: ActiveNetworkWatcher,
     private val wifiInfoWatcher: WifiInfoWatcher,
     private val cellInfoWatcher: CellInfoWatcher,
+    private val activeDataCellInfoExtractor: ActiveDataCellInfoExtractor,
     locationAccess: LocationAccess
 ) : SignalStrengthWatcher, LocationAccess.LocationAccessChangeListener {
 
@@ -58,6 +64,8 @@ class SignalStrengthWatcherImpl(
     private var wifiListenerRegistered = false
 
     private var signalStrengthInfo: SignalStrengthInfo? = null
+
+    private var lastNRConnectionState: NRConnectionState? = null
 
     override val lastSignalStrength: SignalStrengthInfo?
         get() = signalStrengthInfo
@@ -81,11 +89,26 @@ class SignalStrengthWatcherImpl(
                 return
             }
 
+            var nrConnectionState = NRConnectionState.NOT_AVAILABLE
+            var cellInfo: CellInfo? = null
             val network = activeNetworkWatcher.currentNetworkInfo
-            val cellInfo = cellInfoWatcher.cellInfo
+            if ((PermissionChecker.checkSelfPermission(context, READ_PHONE_STATE) == PERMISSION_GRANTED) && PermissionChecker.checkSelfPermission(
+                    context,
+                    ACCESS_COARSE_LOCATION
+                ) == PERMISSION_GRANTED
+            ) {
+                try {
+                    val activeDataCellInfo = activeDataCellInfoExtractor.extractActiveCellInfo(telephonyManager.allCellInfo)
+                    cellInfo = activeDataCellInfo.activeDataNetworkCellInfo
+                    nrConnectionState = activeDataCellInfo.nrConnectionState
+                } catch (e: SecurityException) {
+                    Timber.e("SecurityException: Not able to read telephonyManager.allCellInfo")
+                } catch (e: IllegalStateException) {
+                    Timber.e("IllegalStateException: Not able to read telephonyManager.allCellInfo")
+                }
+            }
 
-            var dualSim = false
-            dualSim = if (PermissionChecker.checkSelfPermission(context, READ_PHONE_STATE) == PERMISSION_GRANTED) {
+            val dualSim = if (PermissionChecker.checkSelfPermission(context, READ_PHONE_STATE) == PERMISSION_GRANTED) {
                 subscriptionManager.activeSubscriptionInfoCount > 1
             } else {
                 telephonyManager.phoneCount > 1
@@ -93,15 +116,21 @@ class SignalStrengthWatcherImpl(
 
             Timber.d("Signal changed detected: value: ${signalStrength?.level}\nclass: ${signalStrength?.javaClass}\n ${signalStrength?.toString()}")
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                signalStrength?.getCellSignalStrengths()?.forEach {
+                signalStrength?.cellSignalStrengths?.forEach {
                     Timber.d("Cell signal changed detected: \ndbm: ${it.dbm}\nLevel: ${it.level}\nasuLevel: ${it.asuLevel}\nclass: ${it.javaClass}")
                 }
             }
 
-            val signal = SignalStrengthInfo.from(signalStrength, network, cellInfo, dualSim)
+            val signal = SignalStrengthInfo.from(signalStrength, network, cellInfo, nrConnectionState, dualSim)
+
+            if (nrConnectionState != lastNRConnectionState) {
+                cellInfoWatcher.forceUpdate()
+                lastNRConnectionState = nrConnectionState
+            }
 
             if (signal?.value == null || signal.value == 0) {
                 signalStrengthInfo = null
+                lastNRConnectionState = null
                 Timber.d("Signal changed to: NULL")
             } else {
                 signalStrengthInfo = if (Network5GSimulator.isEnabled) {

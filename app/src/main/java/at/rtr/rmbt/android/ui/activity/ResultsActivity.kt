@@ -2,6 +2,7 @@ package at.rtr.rmbt.android.ui.activity
 
 import android.content.Context
 import android.content.Intent
+import android.os.Build
 import android.os.Bundle
 import android.view.View
 import androidx.core.content.ContextCompat
@@ -16,6 +17,8 @@ import at.rtr.rmbt.android.util.iconFromVector
 import at.rtr.rmbt.android.util.listen
 import at.rtr.rmbt.android.viewmodel.ResultViewModel
 import at.specure.data.NetworkTypeCompat
+import com.google.android.gms.common.ConnectionResult
+import com.google.android.gms.common.GoogleApiAvailability
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
@@ -39,16 +42,22 @@ class ResultsActivity : BaseActivity(), OnMapReadyCallback {
         binding = bindContentView(R.layout.activity_results)
         binding.state = viewModel.state
 
+        viewModel.state.playServicesAvailable.set(checkPlayServices())
+
         binding.map.onCreate(savedInstanceState)
         binding.map.getMapAsync(this)
 
         val testUUID = intent.getStringExtra(KEY_TEST_UUID)
         check(!testUUID.isNullOrEmpty()) { "TestUUID was not passed to result activity" }
 
+        val returnPoint = intent.getStringExtra(KEY_RETURN_POINT)
+        check(!testUUID.isNullOrEmpty()) { "ReturnPoint was not passed to result activity" }
+
         binding.viewPagerCharts.offscreenPageLimit = 3
         binding.tabLayoutCharts.setupWithViewPager(binding.viewPagerCharts, true)
 
         viewModel.state.testUUID = testUUID
+        viewModel.state.returnPoint = returnPoint?.let { ReturnPoint.valueOf(returnPoint) } ?: ReturnPoint.HOME
         viewModel.testServerResultLiveData.listen(this) { result ->
             viewModel.state.testResult.set(result)
 
@@ -73,9 +82,11 @@ class ResultsActivity : BaseActivity(), OnMapReadyCallback {
                         NetworkTypeCompat.TYPE_LAN,
                         NetworkTypeCompat.TYPE_BROWSER -> R.drawable.ic_marker_browser
                         NetworkTypeCompat.TYPE_WLAN -> R.drawable.ic_marker_wifi
+                        NetworkTypeCompat.TYPE_5G_AVAILABLE,
                         NetworkTypeCompat.TYPE_4G -> R.drawable.ic_marker_4g
                         NetworkTypeCompat.TYPE_3G -> R.drawable.ic_marker_3g
                         NetworkTypeCompat.TYPE_2G -> R.drawable.ic_marker_2g
+                        NetworkTypeCompat.TYPE_5G_NSA,
                         NetworkTypeCompat.TYPE_5G -> R.drawable.ic_marker_5g
                     }
 
@@ -167,6 +178,18 @@ class ResultsActivity : BaseActivity(), OnMapReadyCallback {
         binding.swipeRefreshLayout.isRefreshing = true
     }
 
+    private fun checkPlayServices(): Boolean {
+        if (Build.MANUFACTURER.compareTo("Amazon", true) == 0) {
+            return false
+        }
+        val gApi: GoogleApiAvailability = GoogleApiAvailability.getInstance()
+        val resultCode: Int = gApi.isGooglePlayServicesAvailable(this)
+        if (resultCode != ConnectionResult.SUCCESS) {
+            return false
+        }
+        return true
+    }
+
     override fun onMapReady(map: GoogleMap?) {
         googleMap = map
         googleMap?.uiSettings?.isScrollGesturesEnabled = false
@@ -196,8 +219,15 @@ class ResultsActivity : BaseActivity(), OnMapReadyCallback {
 
     override fun onBackPressed() {
         super.onBackPressed()
-        HomeActivity.startWithFragment(this, HomeActivity.Companion.HomeNavigationTarget.HISTORY_FRAGMENT_TO_SHOW)
-        finishAffinity()
+        when (viewModel.state.returnPoint) {
+            ReturnPoint.HOME -> HomeActivity.startWithFragment(this, HomeActivity.Companion.HomeNavigationTarget.HOME_FRAGMENT_TO_SHOW)
+            ReturnPoint.HISTORY -> HomeActivity.startWithFragment(this, HomeActivity.Companion.HomeNavigationTarget.HISTORY_FRAGMENT_TO_SHOW)
+        }
+    }
+
+    enum class ReturnPoint {
+        HOME,
+        HISTORY;
     }
 
     companion object {
@@ -209,10 +239,12 @@ class ResultsActivity : BaseActivity(), OnMapReadyCallback {
         private const val ANCHOR_V = 0.865f
 
         private const val KEY_TEST_UUID = "KEY_TEST_UUID"
+        private const val KEY_RETURN_POINT = "KEY_RETURN_POINT"
 
-        fun start(context: Context, testUUID: String) {
+        fun start(context: Context, testUUID: String, returnPoint: ReturnPoint) {
             val intent = Intent(context, ResultsActivity::class.java)
             intent.putExtra(KEY_TEST_UUID, testUUID)
+            intent.putExtra(KEY_RETURN_POINT, returnPoint.name)
             context.startActivity(intent)
         }
     }

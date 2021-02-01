@@ -14,6 +14,7 @@ import at.specure.config.ControlServerProviderImpl
 import at.specure.config.IpEndpointProviderImpl
 import at.specure.config.MapServerProviderImpl
 import at.specure.data.ClientUUID
+import at.specure.data.ClientUUIDLegacy
 import at.specure.data.ControlServerSettings
 import at.specure.data.CoreDatabase
 import at.specure.data.HistoryFilterOptions
@@ -32,6 +33,8 @@ import at.specure.data.repository.NewsRepositoryImpl
 import at.specure.data.repository.SettingsRepository
 import at.specure.data.repository.SettingsRepositoryImpl
 import at.specure.data.repository.TestDataRepository
+import at.specure.info.cell.ActiveDataCellInfoExtractor
+import at.specure.info.cell.ActiveDataCellInfoExtractorImpl
 import at.specure.info.cell.CellInfoWatcher
 import at.specure.info.cell.CellInfoWatcherImpl
 import at.specure.info.connectivity.ConnectivityWatcher
@@ -72,8 +75,9 @@ class CoreModule {
         telephonyManager: TelephonyManager,
         activeNetworkWatcher: ActiveNetworkWatcher,
         wifiInfoWatcher: WifiInfoWatcher,
+        locationAccess: LocationAccess,
         cellInfoWatcher: CellInfoWatcher,
-        locationAccess: LocationAccess
+        activeDataCellInfoExtractor: ActiveDataCellInfoExtractor
     ): SignalStrengthWatcher =
         SignalStrengthWatcherImpl(
             context,
@@ -82,6 +86,7 @@ class CoreModule {
             activeNetworkWatcher,
             wifiInfoWatcher,
             cellInfoWatcher,
+            activeDataCellInfoExtractor,
             locationAccess
         )
 
@@ -105,14 +110,33 @@ class CoreModule {
 
     @Provides
     @Singleton
-    fun provideCellInfoWatcher(
+    fun provideActiveDataCellInfoExtractor(
+        context: Context,
         telephonyManager: TelephonyManager,
         subscriptionManager: SubscriptionManager,
+        connectivityManager: ConnectivityManager
+    ): ActiveDataCellInfoExtractor = ActiveDataCellInfoExtractorImpl(context, telephonyManager, subscriptionManager, connectivityManager)
+
+    @Provides
+    @Singleton
+    fun provideCellInfoWatcher(
+        context: Context,
+        telephonyManager: TelephonyManager,
         locationAccess: LocationAccess,
         phoneStateAccess: PhoneStateAccess,
-        connectivityManager: ConnectivityManager
+        connectivityManager: ConnectivityManager,
+        activeDataCellInfoExtractor: ActiveDataCellInfoExtractor,
+        subscriptionManager: SubscriptionManager
     ): CellInfoWatcher =
-        CellInfoWatcherImpl(telephonyManager, subscriptionManager, locationAccess, phoneStateAccess, connectivityManager)
+        CellInfoWatcherImpl(
+            context,
+            telephonyManager,
+            locationAccess,
+            phoneStateAccess,
+            connectivityManager,
+            activeDataCellInfoExtractor,
+            subscriptionManager
+        )
 
     @Provides
     @Singleton
@@ -159,6 +183,7 @@ class CoreModule {
         context: Context,
         controlServerClient: ControlServerClient,
         clientUUID: ClientUUID,
+        clientUUIDLegacy: ClientUUIDLegacy,
         controlServerSettings: ControlServerSettings,
         termsAndConditions: TermsAndConditions,
         measurementServers: MeasurementServers,
@@ -170,6 +195,7 @@ class CoreModule {
             context = context,
             controlServerClient = controlServerClient,
             clientUUID = clientUUID,
+            clientUUIDLegacy = clientUUIDLegacy,
             controlServerSettings = controlServerSettings,
             termsAndConditions = termsAndConditions,
             measurementsServers = measurementServers,

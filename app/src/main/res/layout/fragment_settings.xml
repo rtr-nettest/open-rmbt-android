@@ -179,7 +179,7 @@
                 layout="@layout/item_setting_edittext"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:visibility="@{state.expertModeEnabled ? View.VISIBLE : View.GONE}"
+                android:visibility="@{state.developerModeIsEnabled ? View.VISIBLE : View.GONE}"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/radioInfo"
@@ -417,7 +417,7 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/labelAdditionalInformation"
                 bind:title="@{@string/preferences_client_uuid}"
-                bind:value="@{state.clientUUID.value}" />
+                bind:value="@{state.clientUUIDFormatted}" />
 
             <include
                 android:id="@+id/numberOfTestsPerformed"
@@ -461,13 +461,23 @@
                 bind:title="@{@string/preferences_data_protection}" />
 
             <include
+                android:id="@+id/developedBy"
+                layout="@layout/item_setting_more_detail"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/dataPrivacyAndTerms"
+                bind:title="@{@string/preferences_developed_by}" />
+
+            <include
                 android:id="@+id/version"
                 layout="@layout/item_setting_key_value"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/dataPrivacyAndTerms"
+                app:layout_constraintTop_toBottomOf="@+id/developedBy"
                 bind:title="@{@string/preferences_version}" />
 
             <include

@@ -93,6 +93,9 @@ class MeasurementActivity : BaseActivity(), SimpleDialog.Callback {
             viewModel.state.networkInfo.set(it)
             if (it == null) {
                 viewModel.state.setSignalStrength(null)
+                viewModel.state.isConnected.set(false)
+            } else {
+                viewModel.state.isConnected.set(true)
             }
         }
 
@@ -119,6 +122,7 @@ class MeasurementActivity : BaseActivity(), SimpleDialog.Callback {
         viewModel.locationStateLiveData.listen(this) {
             viewModel.state.gpsEnabled.set(it == LocationState.ENABLED)
         }
+
         Timber.d("Measurement state loop create: ${viewModel.state.measurementState.get()?.name}")
 
         viewModel.state.loopModeRecord.get()?.testsPerformed?.let { viewModel.state.setLoopProgress(it, viewModel.config.loopModeNumberOfTests) }
@@ -134,7 +138,7 @@ class MeasurementActivity : BaseActivity(), SimpleDialog.Callback {
             } else {
                 viewModel.testUUID?.let {
                     if (viewModel.state.measurementState.get() == MeasurementState.FINISH)
-                        ResultsActivity.start(this, it)
+                        ResultsActivity.start(this, it, ResultsActivity.ReturnPoint.HOME)
                 }
             }
         }
@@ -165,7 +169,6 @@ class MeasurementActivity : BaseActivity(), SimpleDialog.Callback {
         binding.measurementBottomView.loopMeasurementNextTestMetersProgress.progress =
             viewModel.state.loopNextTestPercent.get()
         loopRecord?.status?.let { status ->
-            viewModel.state.setLoopState(status)
             if ((status == LoopModeState.IDLE) || (status == LoopModeState.FINISHED)) {
                 binding.measurementBottomView.speedChartDownloadUpload.reset()
                 binding.measurementBottomView.qosProgressContainer.reset()
@@ -176,10 +179,9 @@ class MeasurementActivity : BaseActivity(), SimpleDialog.Callback {
             startActivity(Intent(this, SignalMeasurementActivity::class.java))
         }
 
-        if (loopRecord?.status == LoopModeState.FINISHED) {
+        if (loopRecord?.status == LoopModeState.FINISHED || loopRecord?.status == LoopModeState.CANCELLED) {
             finishActivity(true)
         }
-        viewModel.state.loopState.set(loopRecord?.status)
     }
 
     override fun onDialogPositiveClicked(code: Int) {

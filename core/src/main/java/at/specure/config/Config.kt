@@ -105,6 +105,11 @@ interface Config {
     var loopModeMinTestsNumber: Int
 
     /**
+     * Duration of the signal measurement activity time after user enable it, in minutes
+     */
+    var signalMeasurementDurationMin: Int
+
+    /**
      * Shows an expert menu to the user if enabled in settings screen
      */
     var expertModeEnabled: Boolean
@@ -380,4 +385,24 @@ interface Config {
      * This flag makes simulate 5G network visible in the developer mode or not
      */
     val developer5GSimulationAvailable: Boolean
+
+    /**
+     * Timestamp of last asked permissions System.currentTimeMillis()
+     */
+    val lastPermissionAskedTimestampMillis: Long
+
+    /**
+     * Timestamp of last asked for background location permission System.currentTimeMillis()
+     */
+    val lastBackgroundPermissionAskedTimestampMillis: Long
+
+    /**
+     * The URL of updated Server
+     */
+    var newServerHost: String
+
+    /**
+     * The URL of updated Server
+     */
+    var newServerRoute: String
 }

@@ -3,6 +3,7 @@ package at.rtr.rmbt.android.ui
 import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.appcompat.widget.AppCompatImageButton
 import androidx.appcompat.widget.AppCompatImageView
 import androidx.appcompat.widget.AppCompatTextView
 import androidx.constraintlayout.widget.ConstraintLayout
@@ -118,8 +119,8 @@ fun AppCompatTextView.showPopup(isConnected: Boolean, infoWindowStatus: InfoWind
  * A binding adapter that is used for show network icon based on network type (WIFI/MOBILE),
  * and signalLevel(0..4)
  */
-@BindingAdapter("signalLevel")
-fun AppCompatImageView.setIcon(signalStrengthInfo: SignalStrengthInfo?) {
+@BindingAdapter("signalLevel", "connected")
+fun AppCompatImageButton.setIcon(signalStrengthInfo: SignalStrengthInfo?, connected: Boolean) {
 
     if (signalStrengthInfo != null) {
 
@@ -153,7 +154,11 @@ fun AppCompatImageView.setIcon(signalStrengthInfo: SignalStrengthInfo?) {
             }
         }
     } else {
-        setImageResource(R.drawable.ic_no_internet)
+        if (connected) {
+            setImageResource(R.drawable.ic_signal_unknown)
+        } else {
+            setImageResource(R.drawable.ic_no_internet)
+        }
     }
 }
 
@@ -163,12 +168,17 @@ fun AppCompatImageView.setIcon(signalStrengthInfo: SignalStrengthInfo?) {
 @BindingAdapter("networkType")
 fun AppCompatTextView.setNetworkType(networkInfo: NetworkInfo?) {
 
+    /**
+     *  display "LTE" (true) or "4G/LTE" (false)
+     */
+    val shortDisplayOfTechnology = true
+
     text = when (networkInfo) {
         is WifiNetworkInfo -> context.getString(R.string.home_wifi)
         is CellNetworkInfo -> {
             val technology =
                 CellTechnology.fromMobileNetworkType(networkInfo.networkType)?.displayName
-            if (technology == null) {
+            if (shortDisplayOfTechnology || technology == null) {
                 networkInfo.networkType.displayName
             } else {
                 "$technology/${networkInfo.networkType.displayName}"
@@ -198,6 +208,9 @@ fun AppCompatImageView.setTechnologyIcon(networkInfo: NetworkInfo?) {
             }
             CellTechnology.CONNECTION_4G -> {
                 setImageResource(R.drawable.ic_4g)
+            }
+            CellTechnology.CONNECTION_4G_5G -> {
+                setImageResource(R.drawable.ic_5g_available)
             }
             CellTechnology.CONNECTION_5G -> {
                 setImageResource(R.drawable.ic_5g)
@@ -382,45 +395,49 @@ fun AppCompatTextView.setUpload(uploadSpeedBps: Long) {
  * A binding adapter that is used for show network icon based on network type (WIFI/MOBILE),
  * and signalLevel(0..4)
  */
-@BindingAdapter("measurementSignalLevel")
-fun AppCompatImageView.setSmallIcon(signalStrengthInfo: SignalStrengthInfo?) {
+@BindingAdapter("measurementSignalLevel", "connected")
+fun AppCompatImageView.setSmallIcon(signalStrengthInfo: SignalStrengthInfo?, connectionAvailable: Boolean) {
 
-    when (signalStrengthInfo?.transport) {
-        TransportType.WIFI -> {
-            when (signalStrengthInfo.signalLevel) {
-                2 -> {
-                    setImageResource(R.drawable.ic_small_wifi_2)
-                }
-                3 -> {
-                    setImageResource(R.drawable.ic_small_wifi_3)
-                }
-                4 -> {
-                    setImageResource(R.drawable.ic_small_wifi_4)
-                }
-                else -> {
-                    setImageResource(R.drawable.ic_small_wifi_1)
-                }
-            }
-        }
-        TransportType.CELLULAR -> {
-            when (signalStrengthInfo.signalLevel) {
-                2 -> {
-                    setImageResource(R.drawable.ic_small_mobile_2)
-                }
-                3 -> {
-                    setImageResource(R.drawable.ic_small_mobile_3)
-                }
-                4 -> {
-                    setImageResource(R.drawable.ic_small_mobile_4)
-                }
-                else -> {
-                    setImageResource(R.drawable.ic_small_mobile_1)
+    if (connectionAvailable) {
+        when (signalStrengthInfo?.transport) {
+            TransportType.WIFI -> {
+                when (signalStrengthInfo.signalLevel) {
+                    2 -> {
+                        setImageResource(R.drawable.ic_small_wifi_2)
+                    }
+                    3 -> {
+                        setImageResource(R.drawable.ic_small_wifi_3)
+                    }
+                    4 -> {
+                        setImageResource(R.drawable.ic_small_wifi_4)
+                    }
+                    else -> {
+                        setImageResource(R.drawable.ic_small_wifi_1)
+                    }
                 }
             }
+            TransportType.CELLULAR -> {
+                when (signalStrengthInfo.signalLevel) {
+                    2 -> {
+                        setImageResource(R.drawable.ic_small_mobile_2)
+                    }
+                    3 -> {
+                        setImageResource(R.drawable.ic_small_mobile_3)
+                    }
+                    4 -> {
+                        setImageResource(R.drawable.ic_small_mobile_4)
+                    }
+                    else -> {
+                        setImageResource(R.drawable.ic_small_mobile_1)
+                    }
+                }
+            }
+            else -> {
+                setImageResource(R.drawable.ic_signal_unknown_small)
+            }
         }
-        else -> {
-            setImageResource(R.drawable.ic_small_no_internet)
-        }
+    } else {
+        setImageResource(R.drawable.ic_small_no_internet)
     }
 }
 
@@ -553,6 +570,7 @@ private fun getSignalImageResource(networkType: NetworkTypeCompat, signalStrengt
                 Classification.NONE -> R.drawable.ic_history_no_internet
             }
         }
+        NetworkTypeCompat.TYPE_5G_AVAILABLE,
         NetworkTypeCompat.TYPE_4G -> {
             when (signalStrength) {
                 Classification.BAD -> R.drawable.ic_history_4g_1
@@ -578,13 +596,14 @@ private fun getSignalImageResource(networkType: NetworkTypeCompat, signalStrengt
         NetworkTypeCompat.TYPE_BROWSER -> {
             R.drawable.ic_browser
         }
+        NetworkTypeCompat.TYPE_5G_NSA,
         NetworkTypeCompat.TYPE_5G -> {
             when (signalStrength) {
                 Classification.BAD -> R.drawable.ic_history_5g_1
                 Classification.NORMAL -> R.drawable.ic_history_5g_2
                 Classification.GOOD -> R.drawable.ic_history_5g_3
                 Classification.EXCELLENT -> R.drawable.ic_history_5g_4
-                Classification.NONE -> R.drawable.ic_history_no_internet
+                Classification.NONE -> R.drawable.ic_history_5g_0
             }
         }
     }
@@ -845,6 +864,7 @@ fun ImageView.setNetworkType(networkType: String, signalStrength: Classification
                 NetworkTypeCompat.TYPE_3G -> {
                     R.drawable.ic_history_3g
                 }
+                NetworkTypeCompat.TYPE_5G_AVAILABLE,
                 NetworkTypeCompat.TYPE_4G -> {
                     R.drawable.ic_history_4g
                 }
@@ -864,6 +884,7 @@ fun ImageView.setNetworkType(networkType: String, signalStrength: Classification
                         Classification.NONE -> R.drawable.ic_history_no_internet
                     }
                 }
+                NetworkTypeCompat.TYPE_5G_NSA,
                 NetworkTypeCompat.TYPE_5G -> {
                     R.drawable.ic_history_5g_3
                 }

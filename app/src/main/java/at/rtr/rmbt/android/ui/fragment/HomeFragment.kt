@@ -8,7 +8,6 @@ import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
 import android.os.Handler
-import android.view.MotionEvent
 import android.view.View
 import androidx.core.content.ContextCompat.checkSelfPermission
 import at.rmbt.client.control.IpProtocol
@@ -47,7 +46,7 @@ class HomeFragment : BaseFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         binding.state = homeViewModel.state
-        updateTransparentStatusBarHeight(binding.statusBarStub)
+
         homeViewModel.isConnected.listen(this) {
             activity?.window?.changeStatusBarColor(if (it) ToolbarTheme.BLUE else ToolbarTheme.GRAY)
         }
@@ -132,16 +131,16 @@ class HomeFragment : BaseFragment() {
             homeViewModel.state.isSignalMeasurementActive.set(it)
         }
 
-        binding.btnLoop.setOnTouchListener { v, event ->
-            if (event.action == MotionEvent.ACTION_DOWN) {
-                if (!binding.btnLoop.isChecked) {
+        binding.btnLoop.setOnClickListener {
+            if (this.isResumed) {
+                if (binding.btnLoop.isChecked) {
                     val intent = LoopInstructionsActivity.start(requireContext())
                     startActivityForResult(intent, CODE_LOOP_INSTRUCTIONS)
                 } else {
                     homeViewModel.state.isLoopModeActive.set(false)
+                    binding.btnLoop.isChecked = false
                 }
             }
-            true
         }
 
         homeViewModel.newsLiveData.listen(this) {
@@ -176,6 +175,17 @@ class HomeFragment : BaseFragment() {
         }
     }
 
+    override fun onResume() {
+        super.onResume()
+        homeViewModel.signalStrengthLiveData.listen(this) {
+            homeViewModel.state.signalStrength.set(it)
+        }
+
+        homeViewModel.activeNetworkLiveData.listen(this) {
+            homeViewModel.state.activeNetworkInfo.set(it)
+        }
+    }
+
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
 
@@ -183,8 +193,10 @@ class HomeFragment : BaseFragment() {
             CODE_LOOP_INSTRUCTIONS -> {
                 if (resultCode == Activity.RESULT_OK) {
                     homeViewModel.state.isLoopModeActive.set(true)
+                    binding.btnLoop.isChecked = true
                 } else {
                     homeViewModel.state.isLoopModeActive.set(false)
+                    binding.btnLoop.isChecked = false
                 }
             }
             CODE_SIGNAL_MEASUREMENT_TERMS -> {
@@ -203,6 +215,7 @@ class HomeFragment : BaseFragment() {
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         homeViewModel.permissionsWatcher.notifyPermissionsUpdated()
+        homeViewModel.getNews() // displaying news after permissions were/were not granted
     }
 
     override fun onStart() {
@@ -212,7 +225,6 @@ class HomeFragment : BaseFragment() {
         checkPermissions()
         startTimerForInfoWindow()
         homeViewModel.state.checkConfig()
-        homeViewModel.getNews()
     }
 
     private fun checkPermissions() {
@@ -220,24 +232,23 @@ class HomeFragment : BaseFragment() {
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             val hasForegroundLocationPermission =
-                checkSelfPermission(requireContext(), Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED
+                checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
             if (hasForegroundLocationPermission) {
                 val hasBackgroundLocationPermission = checkSelfPermission(
                     requireContext(),
                     Manifest.permission.ACCESS_BACKGROUND_LOCATION
                 ) == PackageManager.PERMISSION_GRANTED
-                if (!hasBackgroundLocationPermission) {
-                    permissions.add(Manifest.permission.ACCESS_BACKGROUND_LOCATION)
-                }
             } else {
                 permissions.add(Manifest.permission.ACCESS_COARSE_LOCATION)
                 permissions.add(Manifest.permission.ACCESS_FINE_LOCATION)
-                permissions.add(Manifest.permission.ACCESS_BACKGROUND_LOCATION)
             }
         }
 
-        if (permissions.isNotEmpty()) {
+        if (permissions.isNotEmpty() && homeViewModel.shouldAskForPermission()) {
             requestPermissions(permissions.toTypedArray(), PERMISSIONS_REQUEST_CODE)
+            homeViewModel.permissionsWereAsked()
+        } else {
+            homeViewModel.getNews()
         }
     }
 
