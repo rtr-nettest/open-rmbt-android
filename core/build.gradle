@@ -1,7 +1,7 @@
 apply plugin: 'com.android.library'
 apply plugin: 'org.jetbrains.dokka'
 apply plugin: 'kotlin-android'
-apply plugin: 'kotlin-android-extensions'
+apply plugin: 'kotlin-parcelize'
 apply plugin: 'kotlin-kapt'
 
 apply from: "$project.rootDir/tools/script-lint.gradle"

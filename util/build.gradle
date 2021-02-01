@@ -1,6 +1,5 @@
 apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
-apply plugin: 'kotlin-android-extensions'
 
 apply from: "$project.rootDir/tools/script-lint.gradle"
 apply from: "$project.rootDir/tools/script-ktlint.gradle"

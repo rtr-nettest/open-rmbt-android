@@ -1,6 +1,5 @@
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
-apply plugin: 'kotlin-android-extensions'
 apply plugin: 'kotlin-kapt'
 
 apply from: "$project.rootDir/tools/utils.gradle"
@@ -40,8 +39,11 @@ android {
     }
 
     buildFeatures {
-        dataBinding = true
+        dataBinding true
+        viewBinding true
     }
+
+    kapt { correctErrorTypes = true }
 
     buildTypes {
         release {

@@ -44,7 +44,6 @@ class SettingsFragment : BaseFragment(), InputSettingDialog.Callback, ServerSele
         binding.state = settingsViewModel.state
 
         binding.loopModeWaitingTime.frameLayoutRoot.setOnClickListener {
-
             InputSettingDialog.instance(
                 getString(R.string.preferences_loop_mode_min_delay),
                 binding.loopModeWaitingTime.value.toString(), this,

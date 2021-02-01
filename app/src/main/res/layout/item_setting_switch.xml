@@ -31,7 +31,7 @@
         android:padding="@dimen/padding_large">
 
         <androidx.appcompat.widget.AppCompatTextView
-            android:id="@android:id/title"
+            android:id="@+id/titleTV"
             style="@style/RobotoRegularStyle.Medium"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -43,7 +43,7 @@
             tools:text="Title" />
 
         <androidx.appcompat.widget.AppCompatTextView
-            android:id="@android:id/summary"
+            android:id="@+id/summaryTV"
             style="@style/RobotoRegularStyle.VerySmall"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
