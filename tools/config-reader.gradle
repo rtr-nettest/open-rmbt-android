@@ -13,7 +13,10 @@ android {
 
         Pattern pattern
 
-        if (tskReqStr.contains("assemble")) {
+        if (tskReqStr.contains("clean")) {
+            projectName = "openRmbtDebug" // fix for openRMBT build because there is clean command before assembling which makes trouble because of null flavor
+            return
+        } else if (tskReqStr.contains("assemble")) {
             pattern = Pattern.compile("assemble(\\w+)")
         } else if (tskReqStr.contains("generate")) {
             pattern = Pattern.compile("generate(\\w+)")
