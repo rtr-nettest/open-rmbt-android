@@ -78,5 +78,5 @@ class ControlServerProviderImpl(private val config: Config) : ControlEndpointPro
     private val newRoutePath = if (newServerRoute.isEmpty()) "" else "/$newServerRoute"
 
     override val getNewsUrl: String
-        get() = "${newServerHost}${newRoutePath}/${config.controlServerNewsEndpoint}"
+        get() = "$newServerHost$newRoutePath/${config.controlServerNewsEndpoint}"
 }
