@@ -5,7 +5,6 @@ import java.util.regex.Pattern
 
 android {
     def projectName
-    def projectVariant
 
     task getCurrentFlavor() {
         Gradle gradle = getGradle()
@@ -14,13 +13,22 @@ android {
         Pattern pattern
 
         if (tskReqStr.contains("clean")) {
-            projectName = "openRmbtDebug" // fix for openRMBT build because there is clean command before assembling which makes trouble because of null flavor
+            projectName = "openRmbtDebug"
+            // fix for openRMBT build because there is clean command before assembling which makes trouble because of null flavor
+            return
+        } else if (tskReqStr.contains("LocalStageDebug")) {
+            projectName = "localStageDebug"
+            // fix for distribution build
+            return
+        } else if (tskReqStr.contains("LocalDemoRelease")) {
+            projectName = "localDemoRelease"
+            // fix for distribution build
             return
         } else if (tskReqStr.contains("assemble")) {
             pattern = Pattern.compile("assemble(\\w+)")
         } else if (tskReqStr.contains("generate")) {
             pattern = Pattern.compile("generate(\\w+)")
-        } else /*if (tskReqStr.contains("lint")) */{
+        } else {
             pattern = Pattern.compile("lint(\\w+)")
         }
 
@@ -32,31 +40,12 @@ android {
         } else {
             println "NO MATCH FOUND"
         }
-//
-//        if (tskReqStr.contains("assemble")) {
-//            pattern = Pattern.compile("assemble(\\w+)(Release|Debug)")
-//        } else {
-//            pattern = Pattern.compile("generate(\\w+)(Release|Debug)")
-//        }
-//
-//        Matcher matcher = pattern.matcher(tskReqStr)
-//
-//        if (matcher.find()) {
-//            println "VARIANT match found: ${matcher.group(2)}"
-//            projectVariant = matcher.group(2).toLowerCase()
-//        } else {
-//            println "VARIANT NO MATCH FOUND"
-//        }
     }
 
     task myTask(type: Copy) {
         dependsOn getCurrentFlavor
         println "flavor name is $projectName"
-//        println "VARIANT name is $projectVariant"
-//        if (projectName == null) {
-//            projectName = "localDemoDebug"
-//            println "default flavor name set up as $projectName"
-//        }
+
         def verbose = false
         def flavorDimension = projectName
         def buildType = ""
