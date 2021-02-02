@@ -70,7 +70,7 @@ class ControlServerProviderImpl(private val config: Config) : ControlEndpointPro
     private val newServerProtocol = "http://"
 
     override val newServerHost: String
-        get() = "${newServerProtocol}${config.newServerHost}"
+        get() = "$newServerProtocol${config.newServerHost}"
 
     override val newServerRoute: String
         get() = config.newServerRoute

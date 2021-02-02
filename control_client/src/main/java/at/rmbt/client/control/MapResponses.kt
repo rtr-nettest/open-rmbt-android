@@ -3,7 +3,7 @@ package at.rmbt.client.control
 import android.os.Parcelable
 import androidx.annotation.Keep
 import com.google.gson.annotations.SerializedName
-import kotlinx.android.parcel.Parcelize
+import kotlinx.parcelize.Parcelize
 
 @Keep
 data class MarkersResponse(val measurements: List<MarkerMeasurementsResponse>?) : BaseResponse()
