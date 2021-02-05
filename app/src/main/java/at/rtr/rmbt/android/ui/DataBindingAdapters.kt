@@ -311,7 +311,7 @@ fun AppCompatTextView.setPing(pingNanos: Long) {
     }
 }
 
-val THRESHOLD_DOWNLOAD = listOf(0L, 1000000L, 2000000L, 30000000L) // 0mb, 1mb, 2mb, 30mb
+val THRESHOLD_DOWNLOAD = listOf(0L, 5000000L, 10000000L, 100000000L) // 0mb, 5mb, 10mb, 100mb
 
 /**
  * A binding adapter that is used for show download speed
@@ -351,7 +351,7 @@ fun AppCompatTextView.setDownload(downloadSpeedBps: Long) {
     }
 }
 
-val THRESHOLD_UPLOAD = listOf(0L, 500000L, 1000000L, 10000000L) // 0mb, 0.5mb, 1mb, 10mb
+val THRESHOLD_UPLOAD = listOf(0L, 2500000L, 5000000L, 50000000L) // 0mb, 2.5mb, 5mb, 50mb
 
 /**
  * A binding adapter that is used for show upload speed
