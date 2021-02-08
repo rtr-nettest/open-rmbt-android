@@ -6,11 +6,19 @@ import java.util.regex.Pattern
 android {
     def projectName
 
+    /**
+     * Checks that private files are available
+     */
+    isPrivate = file("$project.rootDir/private/project-dependencies.gradle").exists()
+
     task getCurrentFlavor() {
         Gradle gradle = getGradle()
         String tskReqStr = gradle.getStartParameter().getTaskRequests().toString()
 
         Pattern pattern
+
+        println "-----------TASK:   ${tskReqStr}-----------------"
+        println "-----------PRIVATE:    ${isPrivate}-----------------"
 
         if (tskReqStr.contains("clean")) {
             projectName = "openRmbtDebug"
@@ -69,7 +77,7 @@ android {
             println("flavorDimension: ${flavorDimension}")
 
     def jsonFile
-    if (isPrivate) {
+    if ((isPrivate) && (flavorDimension != "openRmbt")) {
         jsonFile = file("$project.rootDir/private/app/src/${flavorDimension}/config.json")
     } else {
         jsonFile = file("$project.rootDir/app/src/${flavorDimension}/config.json")
@@ -78,6 +86,7 @@ android {
             def parsedJson = new JsonSlurper().parseText(jsonFile.text)
 
             println "-------------${flavorDimension}--------------"
+            println "----------------${isPrivate}-----------------"
 
             def configClass = "at.rtr.rmbt.android.util.ConfigValue"
 
