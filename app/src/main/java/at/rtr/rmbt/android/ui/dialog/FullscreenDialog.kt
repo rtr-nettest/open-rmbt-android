@@ -1,6 +1,7 @@
 package at.rtr.rmbt.android.ui.dialog
 
 import android.app.Dialog
+import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.view.Gravity
 import android.view.ViewGroup
@@ -45,6 +46,7 @@ open class FullscreenDialog : DialogFragment(), CoroutineScope {
             val height = ViewGroup.LayoutParams.WRAP_CONTENT
             dialog.window?.setLayout(width, height)
             dialog.window?.setGravity(gravity)
+            dialog.window?.setBackgroundDrawable(ColorDrawable(android.graphics.Color.TRANSPARENT))
             if (dimBackground) {
                 dialog.window?.clearFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND)
             }

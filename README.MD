@@ -99,3 +99,5 @@ The source code is published under [Apache version 2.0 license](https://github.c
 - __`CONTROL_SERVER_GET_SYNC_CODE_ROUTE`__ Endpoint to get sync code for current device, default: `sync`
 - __`CONTROL_SERVER_SYNC_DEVICES_ROUTE`__ Endpoint to send other device sync code and make devices history synchonised, default `sync` (has different params in api)
 - __`CONTROL_SERVER_GET_NEWS_ENDPOINT`__ Endpoint to get news, default: `news`
+- __`CONTROL_SERVER_NEW_HOST`__ Host for the updated version of server
+- __`CONTROL_SERVER_NEW_ROUTE`__ Route for the updated version of server

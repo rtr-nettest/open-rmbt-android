@@ -31,7 +31,7 @@
         android:padding="@dimen/padding_large">
 
         <androidx.appcompat.widget.AppCompatTextView
-            android:id="@android:id/title"
+            android:id="@+id/titleTVISS"
             style="@style/RobotoRegularStyle.Medium"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -43,11 +43,11 @@
             tools:text="Title" />
 
         <androidx.appcompat.widget.AppCompatTextView
-            android:id="@android:id/summary"
+            android:id="@+id/summaryTVISS"
             style="@style/RobotoRegularStyle.VerySmall"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@android:id/title"
+            android:layout_below="@id/titleTVISS"
             android:layout_toStartOf="@+id/switchButton"
             android:maxLines="2"
             android:text="@{summary}"

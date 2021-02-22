@@ -36,6 +36,16 @@
       "visible": false
     },
     {
+      "name": "CONTROL_SERVER_NEW_HOST",
+      "value": "api-test.example.org",
+      "visible": false
+    },
+    {
+      "name": "CONTROL_SERVER_NEW_ROUTE",
+      "value": "rtr",
+      "visible": false
+    },
+    {
       "name": "CONTROL_SERVER_PORT",
       "value": "443",
       "visible": false

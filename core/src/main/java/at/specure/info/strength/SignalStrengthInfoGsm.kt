@@ -2,7 +2,7 @@ package at.specure.info.strength
 
 import android.os.Parcelable
 import at.specure.info.TransportType
-import kotlinx.android.parcel.Parcelize
+import kotlinx.parcelize.Parcelize
 
 @Parcelize
 class SignalStrengthInfoGsm(

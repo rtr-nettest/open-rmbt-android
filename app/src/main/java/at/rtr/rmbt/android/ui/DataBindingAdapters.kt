@@ -7,6 +7,7 @@ import androidx.appcompat.widget.AppCompatImageButton
 import androidx.appcompat.widget.AppCompatImageView
 import androidx.appcompat.widget.AppCompatTextView
 import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.core.content.ContextCompat
 import androidx.databinding.BindingAdapter
 import at.rmbt.client.control.IpProtocol
 import at.rtr.rmbt.android.R
@@ -790,7 +791,8 @@ fun AppCompatTextView.setSignalStrength(signalStrengthResult: Int?, signalStreng
 @BindingAdapter("qoeIcon")
 fun AppCompatImageView.setQoEIcon(qoECategory: QoECategory) {
     setImageDrawable(
-        context.getDrawable(
+        ContextCompat.getDrawable(
+            context,
             when (qoECategory) {
                 QoECategory.QOE_UNKNOWN -> 0
                 QoECategory.QOE_AUDIO_STREAMING -> R.drawable.ic_qoe_music
