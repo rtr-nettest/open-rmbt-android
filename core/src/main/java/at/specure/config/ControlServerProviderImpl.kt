@@ -65,7 +65,7 @@ class ControlServerProviderImpl(private val config: Config) : ControlEndpointPro
         get() = "$controlServerHostNew$newRoutePath/${config.signalRequestRoute}"
 
     override val signalResultUrl: String
-        get() = "$host$routePath/${config.signalResultRoute}"
+        get() = "$controlServerHostNew$newRoutePath/${config.signalResultRoute}"
 
     override val controlServerHostNew: String
         get() = "$protocol${config.controlServerHostNew}"
