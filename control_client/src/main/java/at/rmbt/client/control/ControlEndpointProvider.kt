@@ -103,10 +103,10 @@ interface ControlEndpointProvider {
     /**
      * The host for the updated server
      */
-    val newServerHost: String
+    val controlServerHostNew: String
 
     /**
      * The route for the updated server
      */
-    val newServerRoute: String
+    val controlServerRouteNew: String
 }
