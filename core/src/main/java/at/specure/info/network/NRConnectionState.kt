@@ -2,8 +2,6 @@ package at.specure.info.network
 
 import android.os.Build
 import android.telephony.TelephonyManager
-import at.specure.data.Classification
-import at.specure.data.NetworkTypeCompat
 
 enum class NRConnectionState(val stringValue: String) {
 
