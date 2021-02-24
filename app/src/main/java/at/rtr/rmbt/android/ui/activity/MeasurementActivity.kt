@@ -31,12 +31,6 @@ import at.specure.data.entity.LoopModeRecord
 import at.specure.data.entity.LoopModeState
 import at.specure.location.LocationState
 import at.specure.measurement.MeasurementState
-import kotlinx.android.synthetic.main.activity_measurement.view.measurementBottomView
-import kotlinx.android.synthetic.main.measurement_bottom_view.view.loop_measurement_next_test_meters_progress
-import kotlinx.android.synthetic.main.measurement_bottom_view.view.loop_measurement_next_test_minutes_progress
-import kotlinx.android.synthetic.main.measurement_bottom_view.view.loop_measurement_next_test_minutes_value
-import kotlinx.android.synthetic.main.measurement_bottom_view.view.qosProgressContainer
-import kotlinx.android.synthetic.main.measurement_bottom_view.view.speedChartDownloadUpload
 import timber.log.Timber
 
 private const val CODE_CANCEL = 0
@@ -49,7 +43,12 @@ class MeasurementActivity : BaseActivity(), SimpleDialog.Callback {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = bindContentView(R.layout.activity_measurement)
+
+        binding = ActivityMeasurementBinding.inflate(layoutInflater)
+        val view = binding.root
+        setContentView(view)
+
+//        binding = bindContentView(R.layout.activity_measurement)
         binding.state = viewModel.state
 
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
@@ -76,13 +75,13 @@ class MeasurementActivity : BaseActivity(), SimpleDialog.Callback {
 
         viewModel.downloadGraphSource.listen(this) {
             if (viewModel.state.measurementState.get() == MeasurementState.DOWNLOAD) {
-                binding.root.measurementBottomView.speedChartDownloadUpload.addGraphItems(it)
+                binding.measurementBottomView.speedChartDownloadUpload.addGraphItems(it)
             }
         }
 
         viewModel.uploadGraphSource.listen(this) {
             if (viewModel.state.measurementState.get() == MeasurementState.UPLOAD) {
-                binding.root.measurementBottomView.speedChartDownloadUpload.addGraphItems(it)
+                binding.measurementBottomView.speedChartDownloadUpload.addGraphItems(it)
             }
         }
 
@@ -101,7 +100,7 @@ class MeasurementActivity : BaseActivity(), SimpleDialog.Callback {
         }
 
         viewModel.qosProgressLiveData.listen(this) {
-            binding.root.measurementBottomView.qosProgressContainer.update(it)
+            binding.measurementBottomView.qosProgressContainer.update(it)
         }
 
         viewModel.loopUuidLiveData.listen(this) { loopUUID ->
@@ -113,11 +112,11 @@ class MeasurementActivity : BaseActivity(), SimpleDialog.Callback {
         }
 
         viewModel.timeToNextTestElapsedLiveData.listen(this) {
-            binding.root.measurementBottomView.loop_measurement_next_test_minutes_value.text = it
+            binding.measurementBottomView.loopMeasurementNextTestMinutesValue.text = it
         }
 
         viewModel.timeProgressPercentsLiveData.listen(this) {
-            binding.root.measurementBottomView.loop_measurement_next_test_minutes_progress.progress = it
+            binding.measurementBottomView.loopMeasurementNextTestMinutesProgress.progress = it
         }
 
         viewModel.locationStateLiveData.listen(this) {
@@ -128,7 +127,7 @@ class MeasurementActivity : BaseActivity(), SimpleDialog.Callback {
 
         viewModel.state.loopModeRecord.get()?.testsPerformed?.let { viewModel.state.setLoopProgress(it, viewModel.config.loopModeNumberOfTests) }
 
-        viewModel.qosProgressLiveData.value?.let { binding.root.measurementBottomView.qosProgressContainer.update(it) }
+        viewModel.qosProgressLiveData.value?.let { binding.measurementBottomView.qosProgressContainer.update(it) }
     }
 
     private fun finishActivity(measurementFinished: Boolean) {
@@ -167,12 +166,12 @@ class MeasurementActivity : BaseActivity(), SimpleDialog.Callback {
                 viewModel.config.loopModeNumberOfTests
             )
         }
-        binding.root.measurementBottomView.loop_measurement_next_test_meters_progress.progress =
+        binding.measurementBottomView.loopMeasurementNextTestMetersProgress.progress =
             viewModel.state.loopNextTestPercent.get()
         loopRecord?.status?.let { status ->
             if ((status == LoopModeState.IDLE) || (status == LoopModeState.FINISHED)) {
-                binding.root.measurementBottomView.speedChartDownloadUpload.reset()
-                binding.root.qosProgressContainer.reset()
+                binding.measurementBottomView.speedChartDownloadUpload.reset()
+                binding.measurementBottomView.qosProgressContainer.reset()
             }
         }
 

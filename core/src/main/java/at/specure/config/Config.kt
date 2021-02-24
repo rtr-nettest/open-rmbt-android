@@ -395,4 +395,14 @@ interface Config {
      * Timestamp of last asked for background location permission System.currentTimeMillis()
      */
     val lastBackgroundPermissionAskedTimestampMillis: Long
+
+    /**
+     * The URL of updated Server
+     */
+    var newServerHost: String
+
+    /**
+     * The URL of updated Server
+     */
+    var newServerRoute: String
 }

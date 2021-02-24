@@ -51,6 +51,7 @@ check:app:
       - /fix\/.*/
       - /feature\/.*/
       - /hotfix\/.*/
+      - /update\/.*/
       - /test\/.*/
 
 check:core:
@@ -63,6 +64,7 @@ check:core:
       - /fix\/.*/
       - /feature\/.*/
       - /hotfix\/.*/
+      - /update\/.*/
       - /test\/.*/
 
 check:controlClient:
@@ -75,6 +77,7 @@ check:controlClient:
       - /fix\/.*/
       - /feature\/.*/
       - /hotfix\/.*/
+      - /update\/.*/
       - /test\/.*/
 
 check:openRMBTBuild:
@@ -88,6 +91,7 @@ check:openRMBTBuild:
       - /fix\/.*/
       - /feature\/.*/
       - /hotfix\/.*/
+      - /update\/.*/
       - /test\/.*/
 
 .check:uiTests:
