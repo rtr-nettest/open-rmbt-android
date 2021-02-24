@@ -9,6 +9,7 @@ import at.specure.info.TransportType
 import at.specure.info.cell.CellTechnology
 import at.specure.info.connectivity.ConnectivityState
 import at.specure.info.network.MobileNetworkType
+import at.specure.info.network.NRConnectionState
 import at.specure.measurement.MeasurementState
 import at.specure.measurement.signal.SignalMeasurementState
 import at.specure.result.QoECategory
@@ -84,6 +85,12 @@ class TypeConverter {
 
     @TypeConverter
     fun valueToClassification(value: Int): Classification = Classification.fromValue(value)
+
+    @TypeConverter
+    fun nrConnectionStateToValue(nrConnectionState: NRConnectionState): String = nrConnectionState.stringValue
+
+    @TypeConverter
+    fun valueToNrConnectionState(value: String): NRConnectionState = NRConnectionState.fromString(value)
 
     @TypeConverter
     fun jsonObjectToValue(jsonObject: JsonObject): String = jsonObject.toString()

@@ -101,7 +101,8 @@ class CellInfoWatcherImpl(
                 activeDataCellInfo.activeDataNetwork?.cellUUID == it.uuid(),
                 connectivityManager.activeNetworkInfo?.isRoaming ?: false,
                 connectivityManager.activeNetworkInfo?.extraInfo,
-                activeDataCellInfo.dualSimDecision
+                activeDataCellInfo.dualSimDecision,
+                _nrConnectionState
             )
             _allCellInfo.add(info)
             Timber.v("cell: ${info.networkType.displayName} ${info.mnc} ${info.mcc} ${info.cellUUID}")
@@ -131,16 +132,19 @@ class CellInfoWatcherImpl(
                     try {
                         val dataSubscriptionId = subscriptionManager.getCurrentDataSubscriptionId()
                         if (dataSubscriptionId != INVALID_SUBSCRIPTION_ID) {
-                            connectivityManager.cellNetworkInfoCompat(telephonyManager.createForSubscriptionId(dataSubscriptionId).networkOperatorName)
+                            connectivityManager.cellNetworkInfoCompat(
+                                telephonyManager.createForSubscriptionId(dataSubscriptionId).networkOperatorName,
+                                _nrConnectionState
+                            )
                         } else {
-                            connectivityManager.cellNetworkInfoCompat(telephonyManager.networkOperatorName)
+                            connectivityManager.cellNetworkInfoCompat(telephonyManager.networkOperatorName, _nrConnectionState)
                         }
                     } catch (e: Exception) {
                         Timber.e("problem to obtain correct subscription ID when active network obtaining")
-                        connectivityManager.cellNetworkInfoCompat(telephonyManager.networkOperatorName)
+                        connectivityManager.cellNetworkInfoCompat(telephonyManager.networkOperatorName, _nrConnectionState)
                     }
                 } else {
-                    connectivityManager.cellNetworkInfoCompat(telephonyManager.networkOperatorName)
+                    connectivityManager.cellNetworkInfoCompat(telephonyManager.networkOperatorName, _nrConnectionState)
                 }
             }
             return _activeNetwork
