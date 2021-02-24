@@ -79,7 +79,7 @@ class ActiveDataCellInfoExtractorImpl(
                         } else {
                             // Todo: problem if operators are the same for both SIM cards (e.g. roaming network), but solving problems with different Networks (if user has no restriction on the usage of the network type for data or voice sim then it should use the same)
                             val networkTypeCheck =
-                                connectivityManager.cellNetworkInfoCompat(telephonyManager.networkOperatorName)?.networkType
+                                connectivityManager.cellNetworkInfoCompat(telephonyManager.networkOperatorName, _nrConnectionState)?.networkType
                                     ?: MobileNetworkType.UNKNOWN
                             if (networkTypeCheck == MobileNetworkType.UNKNOWN) {
                                 telephonyManager.networkType
@@ -226,7 +226,8 @@ class ActiveDataCellInfoExtractorImpl(
                             true,
                             connectivityManager.activeNetworkInfo?.isRoaming ?: false,
                             connectivityManager.activeNetworkInfo?.extraInfo,
-                            if (subscriptions.size > 1) dualSimDecisionLog else null
+                            if (subscriptions.size > 1) dualSimDecisionLog else null,
+                            _nrConnectionState
                         )
                     }
                 }
@@ -256,7 +257,7 @@ fun SubscriptionManager.getCurrentDataSubscriptionId(): Int {
     }
 }
 
-fun ConnectivityManager.cellNetworkInfoCompat(operatorName: String?): CellNetworkInfo? {
+fun ConnectivityManager.cellNetworkInfoCompat(operatorName: String?, nrConnectionState: NRConnectionState): CellNetworkInfo? {
     val info = activeNetworkInfo
     Timber.i("type: ${info?.type}")
     Timber.i("typeName: ${info?.typeName}")
@@ -282,7 +283,8 @@ fun ConnectivityManager.cellNetworkInfoCompat(operatorName: String?): CellNetwor
             isRoaming = info.isRoaming,
             apn = info.extraInfo,
             signalStrength = null,
-            dualSimDetectionMethod = null
+            dualSimDetectionMethod = null,
+            nrConnectionState = nrConnectionState
         )
     }
 }

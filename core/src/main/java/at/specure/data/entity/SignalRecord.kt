@@ -7,6 +7,7 @@ import at.specure.data.Columns
 import at.specure.data.Tables
 import at.specure.info.TransportType
 import at.specure.info.network.MobileNetworkType
+import at.specure.info.network.NRConnectionState
 
 @Entity(tableName = Tables.SIGNAL)
 data class SignalRecord(
@@ -32,6 +33,13 @@ data class SignalRecord(
     val transportType: TransportType,
 
     val mobileNetworkType: MobileNetworkType?,
+
+    /**
+     * NR connection state from netmonster magic during the signal obtaining, added because of 5G NSA (we have inactive NR cells found with signal
+     * information, but it is still NSA mode, so we want to distinguish it somehow - problem is we do not know how to report pure 5G then, we will
+     * need to debug it when 5G SA will be available in some country)
+     */
+    val nrConnectionState: NRConnectionState,
 
     // wifi
     val signal: Int?,

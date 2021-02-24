@@ -22,6 +22,7 @@ import at.specure.info.connectivity.ConnectivityWatcher
 import at.specure.info.network.ActiveNetworkLiveData
 import at.specure.info.network.ActiveNetworkWatcher
 import at.specure.info.network.MobileNetworkType
+import at.specure.info.network.NRConnectionState
 import at.specure.info.network.NetworkInfo
 import at.specure.info.network.WifiNetworkInfo
 import at.specure.info.strength.SignalStrengthInfo
@@ -425,10 +426,12 @@ class SignalMeasurementProcessor @Inject constructor(
         if (uuid != null && info != null) {
             val cellUUID = networkInfo?.cellUUID ?: ""
             var mobileNetworkType: MobileNetworkType? = null
+            var nrConnectionState = NRConnectionState.NOT_AVAILABLE
             if (networkInfo != null && networkInfo is CellNetworkInfo) {
                 mobileNetworkType = (networkInfo as CellNetworkInfo).networkType
+                nrConnectionState = (networkInfo as CellNetworkInfo).nrConnectionState
                 Timber.d("Signal saving time SMP: chunkID: $uuid    starting time: ${record?.startTimeNanos}   current time: ${System.nanoTime()}")
-                repository.saveSignalStrength(uuid, cellUUID, mobileNetworkType, info, record?.startTimeNanos ?: 0)
+                repository.saveSignalStrength(uuid, cellUUID, mobileNetworkType, info, record?.startTimeNanos ?: 0, nrConnectionState)
 
                 chunkDataSize++
                 if (chunkDataSize >= MAX_SIGNAL_COUNT_PER_CHUNK) {
