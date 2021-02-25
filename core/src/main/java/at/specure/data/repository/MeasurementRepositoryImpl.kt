@@ -5,20 +5,24 @@ import android.content.Context
 import android.os.Build
 import android.telephony.SubscriptionManager
 import android.telephony.TelephonyManager
+import at.rmbt.client.control.getCorrectDataTelephonyManager
 import at.specure.config.Config
 import at.specure.info.TransportType
 import at.specure.info.cell.CellInfoWatcher
+import at.specure.info.cell.CellNetworkInfo
 import at.specure.info.cell.mccCompat
 import at.specure.info.cell.mncCompat
 import at.specure.info.network.ActiveNetworkWatcher
 import at.specure.info.wifi.WifiInfoWatcher
 import at.specure.util.hasPermission
+import at.specure.util.isDualSim
 import at.specure.util.isReadPhoneStatePermitted
 import at.specure.util.permission.PermissionsWatcher
 import java.text.DecimalFormat
 import javax.inject.Inject
 
 private const val ACCEPT_WIFI_RSSI_MIN = -113
+private const val INVALID_SUBSCRIPTION_ID = -1
 
 class MeasurementRepositoryImpl @Inject constructor(
     private val context: Context,
@@ -58,15 +62,20 @@ class MeasurementRepositoryImpl @Inject constructor(
 
     @SuppressLint("MissingPermission")
     override fun saveTelephonyInfo(uuid: String) {
+        // TODO: all these fields should be moved to some watcher to be updated regularly at one place (maybe activeNetworkWatcherImpl)
         val type = activeNetworkWatcher.currentNetworkInfo?.type
-        val isDualSim = telephonyManager.phoneCount > 1
+        val isDualSim = context.isDualSim(telephonyManager, subscriptionManager)
         val isDualByMobile = type == TransportType.CELLULAR && isDualSim
+
+        val localTelephonyManager = telephonyManager.getCorrectDataTelephonyManager(subscriptionManager)
 
         var operatorName: String? = null
         var networkSimOperator: String? = null
         val simCount: Int
         var simCountry: String? = null
         var simOperatorName: String? = null
+
+        val networkInfo = cellInfoWatcher.activeNetwork
 
         if (context.isReadPhoneStatePermitted() && isDualByMobile) {
             val subscription = subscriptionManager.activeSubscriptionInfoList.firstOrNull()
@@ -77,7 +86,7 @@ class MeasurementRepositoryImpl @Inject constructor(
                 if (defaultDataSubscriptionId == SubscriptionManager.INVALID_SUBSCRIPTION_ID) {
                     // TODO: this execution branch needs to be tested
                     operatorName = activeNetworkWatcher.currentNetworkInfo?.name
-                    networkSimOperator = telephonyManager.simOperator.fixOperatorName()
+                    networkSimOperator = localTelephonyManager.simOperator.fixOperatorName()
 
                     subscriptionManager.activeSubscriptionInfoList.forEach {
                         val checkNetworkSimOperator = when {
@@ -105,7 +114,7 @@ class MeasurementRepositoryImpl @Inject constructor(
                 }
             } else {
                 operatorName = activeNetworkWatcher.currentNetworkInfo?.name
-                networkSimOperator = telephonyManager.simOperator.fixOperatorName()
+                networkSimOperator = localTelephonyManager.simOperator.fixOperatorName()
 
                 subscriptionManager.activeSubscriptionInfoList.forEach {
                     val checkNetworkSimOperator = when {
@@ -120,24 +129,28 @@ class MeasurementRepositoryImpl @Inject constructor(
                 }
             }
         } else {
-            simCount = 1
-            operatorName = telephonyManager.networkOperatorName
-            networkSimOperator = telephonyManager.simOperator.fixOperatorName()
-            simCountry = telephonyManager.simCountryIso.fixOperatorName()
+            // dual sim but we have no granted READ_PHONE_STATE_PERMISSIONS
+            simCount = if (isDualByMobile) {
+                2
+            } else {
+                // single sim
+                1
+            }
+            operatorName = extractNetworkOperatorNameForSingleSim(localTelephonyManager, networkInfo)
+            networkSimOperator = localTelephonyManager.simOperator.fixOperatorName()
+            simCountry = localTelephonyManager.simCountryIso.fixOperatorName()
             simOperatorName = try { // hack for Motorola Defy (#594)
-                telephonyManager.simOperatorName
+                localTelephonyManager.simOperatorName
             } catch (ex: SecurityException) {
                 ex.printStackTrace()
                 "s.exception"
             }
         }
-        val networkCountry: String? = telephonyManager.networkCountryIso
+        val networkCountry: String? = localTelephonyManager.networkCountryIso
 
-        val networkInfo = cellInfoWatcher.activeNetwork
-
-        val phoneType = telephonyManager.phoneType.toString()
+        val phoneType = localTelephonyManager.phoneType.toString()
         val dataState = try {
-            telephonyManager.dataState.toString()
+            localTelephonyManager.dataState.toString()
         } catch (ex: SecurityException) {
             ex.printStackTrace()
             "s.exception"
@@ -155,6 +168,20 @@ class MeasurementRepositoryImpl @Inject constructor(
             dataState,
             simCount
         )
+    }
+
+    private fun extractNetworkOperatorNameForSingleSim(
+        telephonyManager: TelephonyManager,
+        networkInfo: CellNetworkInfo?
+    ): String? {
+        var operatorName: String? = null
+        // for CDMA getting network operator name is not reliable (according to api documentation)
+        operatorName = if (telephonyManager.phoneType == TelephonyManager.PHONE_TYPE_CDMA) {
+            telephonyManager.networkOperatorName
+        } else {
+            networkInfo?.providerName // from cell info
+        }
+        return operatorName
     }
 
     private fun String?.fixOperatorName(): String? {

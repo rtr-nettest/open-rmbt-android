@@ -8,8 +8,11 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.provider.Settings
+import android.telephony.SubscriptionManager
+import android.telephony.TelephonyManager
 import android.widget.Toast
 import androidx.core.content.ContextCompat
+import androidx.core.content.PermissionChecker
 
 /**
  * @return true if [Manifest.permission.ACCESS_FINE_LOCATION] or [Manifest.permission.ACCESS_COARSE_LOCATION] permissions
@@ -56,3 +59,14 @@ fun Context.hasPermission(permission: String) = ContextCompat.checkSelfPermissio
  * Shows toast message with [Toast.LENGTH_SHORT] duration
  */
 fun Context.toast(stringRes: Int) = Toast.makeText(this, stringRes, Toast.LENGTH_SHORT).show()
+
+/**
+ * Checks if current device is running in dual sim mode or single sim mode
+ */
+fun Context.isDualSim(telephonyManager: TelephonyManager, subscriptionManager: SubscriptionManager): Boolean {
+    return if (PermissionChecker.checkSelfPermission(this, Manifest.permission.READ_PHONE_STATE) == PermissionChecker.PERMISSION_GRANTED) {
+        subscriptionManager.activeSubscriptionInfoCount > 1
+    } else {
+        telephonyManager.phoneCount > 1
+    }
+}

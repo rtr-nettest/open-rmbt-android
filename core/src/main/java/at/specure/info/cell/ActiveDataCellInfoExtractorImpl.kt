@@ -16,6 +16,7 @@ import android.telephony.SubscriptionInfo
 import android.telephony.SubscriptionManager
 import android.telephony.TelephonyManager
 import androidx.core.app.ActivityCompat
+import at.rmbt.client.control.getCurrentDataSubscriptionId
 import at.specure.data.ServerNetworkType
 import at.specure.info.network.MobileNetworkType
 import at.specure.info.network.NRConnectionState
@@ -239,21 +240,6 @@ class ActiveDataCellInfoExtractorImpl(
             activeDataNetworkCellInfo = _activeDataNetworkCellInfo,
             activeDataNetwork = _activeDataNetwork
         )
-    }
-}
-
-fun SubscriptionManager.getCurrentDataSubscriptionId(): Int {
-    return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-        SubscriptionManager.getDefaultDataSubscriptionId()
-    } else {
-        val clazz = this::class.java
-        try {
-            val method = clazz.getMethod("getDefaultDataSubId")
-            method.invoke(this) as Int
-        } catch (ex: Throwable) {
-            Timber.e(ex)
-            -1
-        }
     }
 }
 

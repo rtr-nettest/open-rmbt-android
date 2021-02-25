@@ -21,6 +21,7 @@ import android.telephony.CellInfo
 import android.telephony.PhoneStateListener
 import android.telephony.SubscriptionManager
 import android.telephony.TelephonyManager
+import at.rmbt.client.control.getCurrentDataSubscriptionId
 import at.specure.info.network.NRConnectionState
 import at.specure.util.isCoarseLocationPermitted
 import at.specure.util.permission.LocationAccess

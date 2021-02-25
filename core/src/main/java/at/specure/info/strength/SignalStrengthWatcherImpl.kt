@@ -34,6 +34,7 @@ import at.specure.info.network.ActiveNetworkWatcher
 import at.specure.info.network.NRConnectionState
 import at.specure.info.network.NetworkInfo
 import at.specure.info.wifi.WifiInfoWatcher
+import at.specure.util.isDualSim
 import at.specure.util.permission.LocationAccess
 import at.specure.util.synchronizedForEach
 import timber.log.Timber
@@ -108,11 +109,7 @@ class SignalStrengthWatcherImpl(
                 }
             }
 
-            val dualSim = if (PermissionChecker.checkSelfPermission(context, READ_PHONE_STATE) == PERMISSION_GRANTED) {
-                subscriptionManager.activeSubscriptionInfoCount > 1
-            } else {
-                telephonyManager.phoneCount > 1
-            }
+            val dualSim = context.isDualSim(telephonyManager, subscriptionManager)
 
             Timber.d("Signal changed detected: value: ${signalStrength?.level}\nclass: ${signalStrength?.javaClass}\n ${signalStrength?.toString()}")
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
