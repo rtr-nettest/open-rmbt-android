@@ -26,7 +26,7 @@ class ControlServerProviderImpl(private val config: Config) : ControlEndpointPro
         get() = protocol + config.controlServerHost
 
     override val checkSettingsUrl: String
-       get() = "$controlServerHostNew$newRoutePath/${config.controlServerSettingsEndpoint}"
+        get() = "$controlServerHostNew$newRoutePath/${config.controlServerSettingsEndpoint}"
 
     override val testRequestUrl: String
         get() = "$host$routePath/${config.controlServerRequestTestEndpoint}"
