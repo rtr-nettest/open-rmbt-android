@@ -14,7 +14,6 @@
 
 package at.specure.info.network
 
-import android.telephony.CellInfo
 import androidx.lifecycle.LiveData
 import javax.inject.Inject
 

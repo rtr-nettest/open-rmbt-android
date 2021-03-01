@@ -85,7 +85,6 @@ class ActiveNetworkWatcher(
                         _rawAllCellInfoInfo = cellInfoWatcher.rawAllCellInfo
                         _nrConnectivityState = cellInfoWatcher.nrConnectionState
                         cellInfoWatcher.activeNetwork
-
                     }
                     else -> null
                 }

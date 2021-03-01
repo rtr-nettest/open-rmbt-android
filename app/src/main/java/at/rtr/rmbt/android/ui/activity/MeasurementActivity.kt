@@ -29,7 +29,6 @@ import at.rtr.rmbt.android.util.listen
 import at.rtr.rmbt.android.viewmodel.MeasurementViewModel
 import at.specure.data.entity.LoopModeRecord
 import at.specure.data.entity.LoopModeState
-import at.specure.info.network.DetailedNetworkInfo
 import at.specure.location.LocationState
 import at.specure.measurement.MeasurementState
 import timber.log.Timber

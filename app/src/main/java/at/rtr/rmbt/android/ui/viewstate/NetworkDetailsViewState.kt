@@ -12,7 +12,6 @@ import at.specure.info.connectivity.ConnectivityInfo
 import at.specure.info.ip.IpInfo
 import at.specure.info.network.DetailedNetworkInfo
 import at.specure.info.network.NRConnectionState
-import at.specure.info.network.NetworkInfo
 import at.specure.info.network.WifiNetworkInfo
 import at.specure.info.strength.SignalStrengthInfo
 import at.specure.location.LocationInfo

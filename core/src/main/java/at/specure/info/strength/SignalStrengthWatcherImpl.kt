@@ -34,13 +34,11 @@ import at.specure.info.cell.CellInfoWatcher
 import at.specure.info.network.ActiveNetworkWatcher
 import at.specure.info.network.DetailedNetworkInfo
 import at.specure.info.network.NRConnectionState
-import at.specure.info.network.NetworkInfo
 import at.specure.info.wifi.WifiInfoWatcher
 import at.specure.util.isDualSim
 import at.specure.util.permission.LocationAccess
 import at.specure.util.synchronizedForEach
 import timber.log.Timber
-import java.lang.IllegalStateException
 import java.util.Collections
 
 private const val WIFI_UPDATE_DELAY = 2000L
