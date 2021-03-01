@@ -26,11 +26,13 @@ import android.telephony.SubscriptionManager
 import android.telephony.TelephonyManager
 import androidx.core.content.PermissionChecker
 import androidx.core.content.PermissionChecker.PERMISSION_GRANTED
+import at.rmbt.client.control.getCorrectDataTelephonyManager
 import at.specure.info.Network5GSimulator
 import at.specure.info.TransportType
 import at.specure.info.cell.ActiveDataCellInfoExtractor
 import at.specure.info.cell.CellInfoWatcher
 import at.specure.info.network.ActiveNetworkWatcher
+import at.specure.info.network.DetailedNetworkInfo
 import at.specure.info.network.NRConnectionState
 import at.specure.info.network.NetworkInfo
 import at.specure.info.wifi.WifiInfoWatcher
@@ -99,7 +101,8 @@ class SignalStrengthWatcherImpl(
                 ) == PERMISSION_GRANTED
             ) {
                 try {
-                    val activeDataCellInfo = activeDataCellInfoExtractor.extractActiveCellInfo(telephonyManager.allCellInfo)
+                    val activeDataCellInfo =
+                        activeDataCellInfoExtractor.extractActiveCellInfo(telephonyManager.getCorrectDataTelephonyManager(subscriptionManager).allCellInfo)
                     cellInfo = activeDataCellInfo.activeDataNetworkCellInfo
                     nrConnectionState = activeDataCellInfo.nrConnectionState
                 } catch (e: SecurityException) {
@@ -143,8 +146,8 @@ class SignalStrengthWatcherImpl(
 
     private val activeNetworkListener = object : ActiveNetworkWatcher.NetworkChangeListener {
 
-        override fun onActiveNetworkChanged(info: NetworkInfo?) {
-            if (info == null) {
+        override fun onActiveNetworkChanged(info: DetailedNetworkInfo) {
+            if (info.networkInfo == null) {
                 unregisterWifiCallbacks()
                 unregisterCellCallbacks()
 
@@ -155,11 +158,11 @@ class SignalStrengthWatcherImpl(
                 return
             }
 
-            if (info.type == TransportType.CELLULAR) {
+            if (info.networkInfo.type == TransportType.CELLULAR) {
                 registerCellCallbacks()
             }
 
-            if (info.type == TransportType.WIFI) {
+            if (info.networkInfo.type == TransportType.WIFI) {
                 registerWifiCallbacks()
             }
         }
@@ -218,7 +221,7 @@ class SignalStrengthWatcherImpl(
     private fun registerCellCallbacks() {
         Timber.i("Network changed to CELLULAR")
         if (!cellListenerRegistered) {
-            telephonyManager.listen(strengthListener, PhoneStateListener.LISTEN_SIGNAL_STRENGTHS)
+            telephonyManager.getCorrectDataTelephonyManager(subscriptionManager).listen(strengthListener, PhoneStateListener.LISTEN_SIGNAL_STRENGTHS)
             cellListenerRegistered = true
         }
         unregisterWifiCallbacks()
@@ -235,7 +238,7 @@ class SignalStrengthWatcherImpl(
 
     private fun unregisterCellCallbacks() {
         if (cellListenerRegistered) {
-            telephonyManager.listen(strengthListener, PhoneStateListener.LISTEN_NONE)
+            telephonyManager.getCorrectDataTelephonyManager(subscriptionManager).listen(strengthListener, PhoneStateListener.LISTEN_NONE)
             cellListenerRegistered = false
         }
     }

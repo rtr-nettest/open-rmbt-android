@@ -171,7 +171,7 @@ class SignalMeasurementProcessor @Inject constructor(
     fun bind(owner: LifecycleOwner) {
         activeNetworkLiveData.observe(owner, Observer {
             if (isActive && !isPaused) {
-                handleNewNetwork(it)
+                handleNewNetwork(it?.networkInfo)
             }
         })
 

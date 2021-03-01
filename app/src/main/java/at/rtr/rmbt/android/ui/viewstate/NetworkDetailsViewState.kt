@@ -1,6 +1,7 @@
 package at.rtr.rmbt.android.ui.viewstate
 
 import android.os.Build
+import android.telephony.CellInfo
 import android.text.Html
 import android.text.Spanned
 import androidx.databinding.ObservableField
@@ -9,6 +10,8 @@ import at.specure.info.cell.CellNetworkInfo
 import at.specure.info.cell.CellTechnology
 import at.specure.info.connectivity.ConnectivityInfo
 import at.specure.info.ip.IpInfo
+import at.specure.info.network.DetailedNetworkInfo
+import at.specure.info.network.NRConnectionState
 import at.specure.info.network.NetworkInfo
 import at.specure.info.network.WifiNetworkInfo
 import at.specure.info.strength.SignalStrengthInfo
@@ -76,11 +79,17 @@ class NetworkDetailsViewState : ViewState {
         this.signalStrengthInfo.set(info.html())
     }
 
-    fun setActiveNetworkInfo(networkInfo: NetworkInfo?) {
-        val info = when (networkInfo) {
+    fun setActiveNetworkInfo(detailedNetworkInfo: DetailedNetworkInfo?) {
+        val info = when (detailedNetworkInfo?.networkInfo) {
             null -> "Disconnected"
-            is WifiNetworkInfo -> extractWifiNetworkInfo(networkInfo)
-            is CellNetworkInfo -> extractCellNetworkInfo(networkInfo)
+            is WifiNetworkInfo -> extractWifiNetworkInfo(detailedNetworkInfo.networkInfo as WifiNetworkInfo)
+            is CellNetworkInfo -> {
+                extractCellNetworkInfo(
+                    detailedNetworkInfo.networkInfo as CellNetworkInfo,
+                    detailedNetworkInfo.cellInfos,
+                    detailedNetworkInfo.nrConnectionState
+                )
+            }
             else -> "Not Implemented"
         }
 
@@ -116,13 +125,16 @@ class NetworkDetailsViewState : ViewState {
         bold("supplicantState: ").append(info.supplicantState).newLine()
     }
 
-    private fun extractCellNetworkInfo(info: CellNetworkInfo): String = buildString {
-        bold("name: ").append(info.name).newLine()
-        bold("band: ").append(info.band).newLine()
-        bold("technology: ").append(CellTechnology.fromMobileNetworkType(info.networkType)).newLine()
-        bold("provider name: ").append(info.providerName).newLine()
-        bold("network type: ").append(info.networkType.name).newLine()
-    }
+    private fun extractCellNetworkInfo(info: CellNetworkInfo, rawCellInfos: List<CellInfo>?, nrConnectionState: NRConnectionState?): String =
+        buildString {
+            bold("name: ").append(info.name).newLine()
+            bold("band: ").append(info.band).newLine()
+            bold("technology: ").append(CellTechnology.fromMobileNetworkType(info.networkType)).newLine()
+            bold("provider name: ").append(info.providerName).newLine()
+            bold("network type: ").append(info.networkType.name).newLine()
+            bold("nrState: ").append(nrConnectionState?.stringValue).newLine()
+            bold("cell infos: ").append(rawCellInfos).newLine()
+        }
 
     @Suppress("DEPRECATION")
     private fun String.html() = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
