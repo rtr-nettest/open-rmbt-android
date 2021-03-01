@@ -123,7 +123,7 @@ class StateRecorder @Inject constructor(
 
         networkInfo = activeNetworkWatcher.currentNetworkInfo
         activeNetworkLiveData.observe(lifecycle, Observer {
-            networkInfo = it
+            networkInfo = it?.networkInfo
             saveCellInfo()
             saveTelephonyInfo()
             saveWlanInfo()

@@ -16,6 +16,8 @@ import android.telephony.SubscriptionInfo
 import android.telephony.SubscriptionManager
 import android.telephony.TelephonyManager
 import androidx.core.app.ActivityCompat
+import at.rmbt.client.control.getCorrectDataTelephonyManager
+import at.rmbt.client.control.getCurrentDataSubscriptionId
 import at.specure.data.ServerNetworkType
 import at.specure.info.network.MobileNetworkType
 import at.specure.info.network.NRConnectionState
@@ -79,10 +81,13 @@ class ActiveDataCellInfoExtractorImpl(
                         } else {
                             // Todo: problem if operators are the same for both SIM cards (e.g. roaming network), but solving problems with different Networks (if user has no restriction on the usage of the network type for data or voice sim then it should use the same)
                             val networkTypeCheck =
-                                connectivityManager.cellNetworkInfoCompat(telephonyManager.networkOperatorName, _nrConnectionState)?.networkType
+                                connectivityManager.cellNetworkInfoCompat(
+                                    telephonyManager.getCorrectDataTelephonyManager(subscriptionManager).networkOperatorName,
+                                    _nrConnectionState
+                                )?.networkType
                                     ?: MobileNetworkType.UNKNOWN
                             if (networkTypeCheck == MobileNetworkType.UNKNOWN) {
-                                telephonyManager.networkType
+                                telephonyManager.getCorrectDataTelephonyManager(subscriptionManager).networkType
                             } else {
                                 networkTypeCheck.ordinal
                             }
@@ -239,21 +244,6 @@ class ActiveDataCellInfoExtractorImpl(
             activeDataNetworkCellInfo = _activeDataNetworkCellInfo,
             activeDataNetwork = _activeDataNetwork
         )
-    }
-}
-
-fun SubscriptionManager.getCurrentDataSubscriptionId(): Int {
-    return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-        SubscriptionManager.getDefaultDataSubscriptionId()
-    } else {
-        val clazz = this::class.java
-        try {
-            val method = clazz.getMethod("getDefaultDataSubId")
-            method.invoke(this) as Int
-        } catch (ex: Throwable) {
-            Timber.e(ex)
-            -1
-        }
     }
 }
 

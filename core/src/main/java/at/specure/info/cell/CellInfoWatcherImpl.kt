@@ -21,6 +21,8 @@ import android.telephony.CellInfo
 import android.telephony.PhoneStateListener
 import android.telephony.SubscriptionManager
 import android.telephony.TelephonyManager
+import at.rmbt.client.control.getCorrectDataTelephonyManager
+import at.rmbt.client.control.getCurrentDataSubscriptionId
 import at.specure.info.network.NRConnectionState
 import at.specure.util.isCoarseLocationPermitted
 import at.specure.util.permission.LocationAccess
@@ -56,6 +58,7 @@ class CellInfoWatcherImpl(
     private var callbacksRegistered = false
     private var _cellInfo: CellInfo? = null
     private var _allCellInfo = Collections.synchronizedList(mutableListOf<CellNetworkInfo>())
+    private var _rawAllCellInfo = Collections.synchronizedList(mutableListOf<CellInfo>())
     private var _nrConnectionState = NRConnectionState.NOT_AVAILABLE
 
     override val cellInfo: CellInfo?
@@ -63,6 +66,9 @@ class CellInfoWatcherImpl(
 
     override val allCellInfo: List<CellNetworkInfo>
         get() = _allCellInfo
+
+    override val rawAllCellInfo: List<CellInfo>
+        get() = _rawAllCellInfo
 
     override val nrConnectionState: NRConnectionState
         get() = _nrConnectionState
@@ -80,6 +86,7 @@ class CellInfoWatcherImpl(
     }
 
     private fun processCellInfos(cellInfos: MutableList<CellInfo>?) {
+        _rawAllCellInfo.clear()
         cellInfos ?: return
 
         val activeDataCellInfo = activeDataCellInfoExtractor.extractActiveCellInfo(cellInfos)
@@ -90,6 +97,8 @@ class CellInfoWatcherImpl(
         activeDataCellInfo.activeDataNetwork?.let {
             _activeNetwork = it
         }
+
+        _rawAllCellInfo = cellInfos
 
         _nrConnectionState = activeDataCellInfo.nrConnectionState
 
@@ -115,7 +124,7 @@ class CellInfoWatcherImpl(
     override fun forceUpdate() {
         try {
             if (context.isCoarseLocationPermitted() && phoneStateAccess.isAllowed) {
-                val cells = telephonyManager.allCellInfo
+                val cells = telephonyManager.getCorrectDataTelephonyManager(subscriptionManager).allCellInfo
                 if (!cells.isNullOrEmpty()) {
                     infoListener.onCellInfoChanged(cells)
                 }
@@ -137,21 +146,30 @@ class CellInfoWatcherImpl(
                                 _nrConnectionState
                             )
                         } else {
-                            connectivityManager.cellNetworkInfoCompat(telephonyManager.networkOperatorName, _nrConnectionState)
+                            connectivityManager.cellNetworkInfoCompat(
+                                telephonyManager.getCorrectDataTelephonyManager(subscriptionManager).networkOperatorName,
+                                _nrConnectionState
+                            )
                         }
                     } catch (e: Exception) {
                         Timber.e("problem to obtain correct subscription ID when active network obtaining")
-                        connectivityManager.cellNetworkInfoCompat(telephonyManager.networkOperatorName, _nrConnectionState)
+                        connectivityManager.cellNetworkInfoCompat(
+                            telephonyManager.getCorrectDataTelephonyManager(subscriptionManager).networkOperatorName,
+                            _nrConnectionState
+                        )
                     }
                 } else {
-                    connectivityManager.cellNetworkInfoCompat(telephonyManager.networkOperatorName, _nrConnectionState)
+                    connectivityManager.cellNetworkInfoCompat(
+                        telephonyManager.getCorrectDataTelephonyManager(subscriptionManager).networkOperatorName,
+                        _nrConnectionState
+                    )
                 }
             }
             return _activeNetwork
         }
 
     private fun isDualSim(): Boolean {
-        return telephonyManager.phoneCount > 1
+        return telephonyManager.getCorrectDataTelephonyManager(subscriptionManager).phoneCount > 1
     }
 
     private fun notifyListeners() {
@@ -181,8 +199,9 @@ class CellInfoWatcherImpl(
         try {
             if (locationAccess.isAllowed && phoneStateAccess.isAllowed) {
                 if (context.isCoarseLocationPermitted()) {
-                    infoListener.onCellInfoChanged(telephonyManager.allCellInfo)
-                    telephonyManager.listen(infoListener, PhoneStateListener.LISTEN_CELL_INFO)
+                    0
+                    infoListener.onCellInfoChanged(telephonyManager.getCorrectDataTelephonyManager(subscriptionManager).allCellInfo)
+                    telephonyManager.getCorrectDataTelephonyManager(subscriptionManager).listen(infoListener, PhoneStateListener.LISTEN_CELL_INFO)
                     if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q) {
                         val cellInfoCallback = object : TelephonyManager.CellInfoCallback() {
 
@@ -197,7 +216,8 @@ class CellInfoWatcherImpl(
                         timer = Timer()
                         timer?.scheduleAtFixedRate(
                             timerTask {
-                                telephonyManager.requestCellInfoUpdate({ command -> Thread(command).start() }, cellInfoCallback)
+                                telephonyManager.getCorrectDataTelephonyManager(subscriptionManager)
+                                    .requestCellInfoUpdate({ command -> Thread(command).start() }, cellInfoCallback)
                             },
                             TimeUnit.SECONDS.toMillis(REFRESH_CELL_INFO_INTERVAL_SECONDS),
                             TimeUnit.SECONDS.toMillis(REFRESH_CELL_INFO_INTERVAL_SECONDS)
@@ -212,7 +232,7 @@ class CellInfoWatcherImpl(
     }
 
     private fun unregisterCallbacks() {
-        telephonyManager.listen(infoListener, PhoneStateListener.LISTEN_NONE)
+        telephonyManager.getCorrectDataTelephonyManager(subscriptionManager).listen(infoListener, PhoneStateListener.LISTEN_NONE)
         removeNextTimerUpdates()
         callbacksRegistered = false
     }
