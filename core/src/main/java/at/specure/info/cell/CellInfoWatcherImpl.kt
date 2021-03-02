@@ -85,6 +85,7 @@ class CellInfoWatcherImpl(
         }
     }
 
+    @Synchronized
     private fun processCellInfos(cellInfos: MutableList<CellInfo>?) {
         _rawAllCellInfo.clear()
         cellInfos ?: return
