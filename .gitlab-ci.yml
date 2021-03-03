@@ -46,6 +46,7 @@ check:app:
   script:
     - ./gradlew :app:ktlint
     - ./gradlew :app:lintLocalDevDebug
+    - ./gradlew :app:lintOntStageDebug
   only:
     refs:
       - /fix\/.*/
@@ -116,6 +117,10 @@ distribution:build:
   interruptible: true
   script:
     - echo "version ${VERSION_NAME}(${VERSION_CODE})"
+    - ./gradlew assembleOntStageDebug -PbuildVersionCode=${VERSION_CODE} -PbuildVersionName=${VERSION_NAME} -PreleaseNotes="${RELEASE_NOTES}"
+    - ./gradlew appDistributionUploadOntStageDebug -PbuildVersionCode=${VERSION_CODE} -PbuildVersionName=${VERSION_NAME} -PreleaseNotes="${RELEASE_NOTES}"
+    - ./gradlew assembleOntDemoRelease -PbuildVersionCode=${VERSION_CODE} -PbuildVersionName=${VERSION_NAME} -PreleaseNotes="${RELEASE_NOTES}"
+    - ./gradlew appDistributionUploadOntDemoRelease -PbuildVersionCode=${VERSION_CODE} -PbuildVersionName=${VERSION_NAME} -PreleaseNotes="${RELEASE_NOTES}"
     - ./gradlew assembleLocalStageDebug -PbuildVersionCode=${VERSION_CODE} -PbuildVersionName=${VERSION_NAME} -PreleaseNotes="${RELEASE_NOTES}"
     - ./gradlew appDistributionUploadLocalStageDebug -PbuildVersionCode=${VERSION_CODE} -PbuildVersionName=${VERSION_NAME} -PreleaseNotes="${RELEASE_NOTES}"
     - ./gradlew assembleLocalDemoRelease -PbuildVersionCode=${VERSION_CODE} -PbuildVersionName=${VERSION_NAME} -PreleaseNotes="${RELEASE_NOTES}"
