@@ -56,7 +56,7 @@ class HomeFragment : BaseFragment() {
         }
 
         homeViewModel.activeNetworkLiveData.listen(this) {
-            homeViewModel.state.activeNetworkInfo.set(it)
+            homeViewModel.state.activeNetworkInfo.set(it.networkInfo)
         }
 
         homeViewModel.locationStateLiveData.listen(this) {
@@ -182,7 +182,7 @@ class HomeFragment : BaseFragment() {
         }
 
         homeViewModel.activeNetworkLiveData.listen(this) {
-            homeViewModel.state.activeNetworkInfo.set(it)
+            homeViewModel.state.activeNetworkInfo.set(it.networkInfo)
         }
     }
 

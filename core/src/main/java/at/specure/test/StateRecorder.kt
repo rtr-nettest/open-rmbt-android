@@ -21,6 +21,7 @@ import at.specure.info.cell.CellNetworkInfo
 import at.specure.info.network.ActiveNetworkLiveData
 import at.specure.info.network.ActiveNetworkWatcher
 import at.specure.info.network.MobileNetworkType
+import at.specure.info.network.NRConnectionState
 import at.specure.info.network.NetworkInfo
 import at.specure.info.network.WifiNetworkInfo
 import at.specure.info.strength.SignalStrengthInfo
@@ -122,7 +123,7 @@ class StateRecorder @Inject constructor(
 
         networkInfo = activeNetworkWatcher.currentNetworkInfo
         activeNetworkLiveData.observe(lifecycle, Observer {
-            networkInfo = it
+            networkInfo = it?.networkInfo
             saveCellInfo()
             saveTelephonyInfo()
             saveWlanInfo()
@@ -287,11 +288,14 @@ class StateRecorder @Inject constructor(
         if (uuid != null && info != null) {
             val cellUUID = networkInfo?.cellUUID ?: ""
             var mobileNetworkType: MobileNetworkType? = null
+            var nrConnectionState = NRConnectionState.NOT_AVAILABLE
+            // adjusting mobile network type because of NSA mode where we are reporting NR cell
             if (networkInfo != null && networkInfo is CellNetworkInfo) {
                 mobileNetworkType = (networkInfo as CellNetworkInfo).networkType
+                nrConnectionState = (networkInfo as CellNetworkInfo).nrConnectionState
             }
             Timber.e("Signal saving time SR: starting time: $testStartTimeNanos   current time: ${System.nanoTime()}")
-            repository.saveSignalStrength(uuid, cellUUID, mobileNetworkType, info, testStartTimeNanos)
+            repository.saveSignalStrength(uuid, cellUUID, mobileNetworkType, info, testStartTimeNanos, nrConnectionState)
         }
     }
 

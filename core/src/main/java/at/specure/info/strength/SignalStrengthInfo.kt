@@ -218,23 +218,30 @@ abstract class SignalStrengthInfo : Parcelable {
                     when (it) {
                         is CellSignalStrengthLte -> {
                             if (nrConnectionState == NRConnectionState.NSA) {
+                                // this is a case when there is 4G signal but we detected inactive NR cell during 5G NSA mode
                                 if ((cellInfo is CellInfoNr) && (cellInfo.cellSignalStrength is CellSignalStrengthNr)) {
-                                    val cellInfoNr = cellInfo.cellSignalStrength as CellSignalStrengthNr
-                                    return SignalStrengthInfoNr(
-                                        transport = TransportType.CELLULAR,
-                                        value = cellInfoNr.ssRsrp.checkValueAvailable()?.let { nrSignal -> -abs(nrSignal) },
-                                        rsrq = cellInfoNr.ssRsrq.checkValueAvailable(),
-                                        signalLevel = cellInfoNr.level,
-                                        min = NR_RSRP_SIGNAL_MIN,
-                                        max = NR_RSRP_SIGNAL_MAX,
-                                        timestampNanos = timestampNanos,
-                                        csiRsrp = cellInfoNr.csiRsrp.checkValueAvailable(),
-                                        csiRsrq = cellInfoNr.csiRsrq.checkValueAvailable(),
-                                        csiSinr = cellInfoNr.csiSinr.checkValueAvailable(),
-                                        ssRsrp = cellInfoNr.ssRsrp.checkValueAvailable(),
-                                        ssRsrq = cellInfoNr.ssRsrq.checkValueAvailable(),
-                                        ssSinr = cellInfoNr.ssSinr.checkValueAvailable()
-                                    )
+                                    val cellSignalStrengthNr = cellInfo.cellSignalStrength as CellSignalStrengthNr
+                                    val signalValue = cellSignalStrengthNr.extractSignalValue()
+                                    // if we are not able to extract signal information from inactive NR cell info (inactive because of NSA mode), we are returning null signal
+                                    if (signalValue != null) {
+                                        return SignalStrengthInfoNr(
+                                            transport = TransportType.CELLULAR,
+                                            value = signalValue,
+                                            rsrq = cellSignalStrengthNr.ssRsrq.checkValueAvailable(),
+                                            signalLevel = cellSignalStrengthNr.level,
+                                            min = NR_RSRP_SIGNAL_MIN,
+                                            max = NR_RSRP_SIGNAL_MAX,
+                                            timestampNanos = timestampNanos,
+                                            csiRsrp = cellSignalStrengthNr.csiRsrp.checkValueAvailable(),
+                                            csiRsrq = cellSignalStrengthNr.csiRsrq.checkValueAvailable(),
+                                            csiSinr = cellSignalStrengthNr.csiSinr.checkValueAvailable(),
+                                            ssRsrp = cellSignalStrengthNr.ssRsrp.checkValueAvailable(),
+                                            ssRsrq = cellSignalStrengthNr.ssRsrq.checkValueAvailable(),
+                                            ssSinr = cellSignalStrengthNr.ssSinr.checkValueAvailable()
+                                        )
+                                    } else {
+                                        return null
+                                    }
                                 } else {
                                     return null
                                 }

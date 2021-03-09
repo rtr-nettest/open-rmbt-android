@@ -232,8 +232,12 @@ class CoreModule {
 
     @Provides
     @Singleton
-    fun provideCellLocationWatcher(context: Context, telephonyManager: TelephonyManager): CellLocationWatcher =
-        CellLocationWatcherImpl(context, telephonyManager)
+    fun provideCellLocationWatcher(
+        context: Context,
+        telephonyManager: TelephonyManager,
+        subscriptionManager: SubscriptionManager
+    ): CellLocationWatcher =
+        CellLocationWatcherImpl(context, telephonyManager, subscriptionManager)
 
     @Provides
     fun provideDeviceSyncRepository(
