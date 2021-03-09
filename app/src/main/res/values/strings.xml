@@ -304,7 +304,7 @@
     <string name="loop_continue_to_results">Continue to the result</string>
     <string name="loop_run_again">Run again</string>
     <string name="title_privacy_policy">Privacy policy</string>
-    <string name="text_terms_agree">I agree with RTR’s privacy policyand terms of use for RTR-NetTest.</string>
+    <string name="text_terms_agree">I agree with RTR’s privacy policy and terms of use for RTR-NetTest.</string>
     <string name="text_terms_agree_empty">You have to agree to the privacy policy and terms of use to continue.</string>
 
     <string name="dialog_title_config_check">Please change the following values:</string>

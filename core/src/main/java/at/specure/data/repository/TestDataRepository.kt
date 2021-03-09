@@ -9,6 +9,7 @@ import at.specure.data.entity.LoopModeRecord
 import at.specure.data.entity.TestRecord
 import at.specure.info.cell.CellNetworkInfo
 import at.specure.info.network.MobileNetworkType
+import at.specure.info.network.NRConnectionState
 import at.specure.info.network.NetworkInfo
 import at.specure.info.network.WifiNetworkInfo
 import at.specure.info.strength.SignalStrengthInfo
@@ -35,7 +36,8 @@ interface TestDataRepository {
         cellUUID: String,
         mobileNetworkType: MobileNetworkType?,
         info: SignalStrengthInfo,
-        testStartTimeNanos: Long
+        testStartTimeNanos: Long,
+        nrConnectionState: NRConnectionState
     )
 
     fun saveCellInfo(testUUID: String, infoList: List<NetworkInfo>, testStartTimeNanos: Long)

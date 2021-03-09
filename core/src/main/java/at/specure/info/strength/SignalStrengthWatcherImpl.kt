@@ -26,18 +26,19 @@ import android.telephony.SubscriptionManager
 import android.telephony.TelephonyManager
 import androidx.core.content.PermissionChecker
 import androidx.core.content.PermissionChecker.PERMISSION_GRANTED
+import at.rmbt.client.control.getCorrectDataTelephonyManager
 import at.specure.info.Network5GSimulator
 import at.specure.info.TransportType
 import at.specure.info.cell.ActiveDataCellInfoExtractor
 import at.specure.info.cell.CellInfoWatcher
 import at.specure.info.network.ActiveNetworkWatcher
+import at.specure.info.network.DetailedNetworkInfo
 import at.specure.info.network.NRConnectionState
-import at.specure.info.network.NetworkInfo
 import at.specure.info.wifi.WifiInfoWatcher
+import at.specure.util.isDualSim
 import at.specure.util.permission.LocationAccess
 import at.specure.util.synchronizedForEach
 import timber.log.Timber
-import java.lang.IllegalStateException
 import java.util.Collections
 
 private const val WIFI_UPDATE_DELAY = 2000L
@@ -98,7 +99,8 @@ class SignalStrengthWatcherImpl(
                 ) == PERMISSION_GRANTED
             ) {
                 try {
-                    val activeDataCellInfo = activeDataCellInfoExtractor.extractActiveCellInfo(telephonyManager.allCellInfo)
+                    val activeDataCellInfo =
+                        activeDataCellInfoExtractor.extractActiveCellInfo(telephonyManager.getCorrectDataTelephonyManager(subscriptionManager).allCellInfo)
                     cellInfo = activeDataCellInfo.activeDataNetworkCellInfo
                     nrConnectionState = activeDataCellInfo.nrConnectionState
                 } catch (e: SecurityException) {
@@ -108,11 +110,7 @@ class SignalStrengthWatcherImpl(
                 }
             }
 
-            val dualSim = if (PermissionChecker.checkSelfPermission(context, READ_PHONE_STATE) == PERMISSION_GRANTED) {
-                subscriptionManager.activeSubscriptionInfoCount > 1
-            } else {
-                telephonyManager.phoneCount > 1
-            }
+            val dualSim = context.isDualSim(telephonyManager, subscriptionManager)
 
             Timber.d("Signal changed detected: value: ${signalStrength?.level}\nclass: ${signalStrength?.javaClass}\n ${signalStrength?.toString()}")
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
@@ -146,8 +144,8 @@ class SignalStrengthWatcherImpl(
 
     private val activeNetworkListener = object : ActiveNetworkWatcher.NetworkChangeListener {
 
-        override fun onActiveNetworkChanged(info: NetworkInfo?) {
-            if (info == null) {
+        override fun onActiveNetworkChanged(info: DetailedNetworkInfo) {
+            if (info.networkInfo == null) {
                 unregisterWifiCallbacks()
                 unregisterCellCallbacks()
 
@@ -158,11 +156,11 @@ class SignalStrengthWatcherImpl(
                 return
             }
 
-            if (info.type == TransportType.CELLULAR) {
+            if (info.networkInfo.type == TransportType.CELLULAR) {
                 registerCellCallbacks()
             }
 
-            if (info.type == TransportType.WIFI) {
+            if (info.networkInfo.type == TransportType.WIFI) {
                 registerWifiCallbacks()
             }
         }
@@ -221,7 +219,7 @@ class SignalStrengthWatcherImpl(
     private fun registerCellCallbacks() {
         Timber.i("Network changed to CELLULAR")
         if (!cellListenerRegistered) {
-            telephonyManager.listen(strengthListener, PhoneStateListener.LISTEN_SIGNAL_STRENGTHS)
+            telephonyManager.getCorrectDataTelephonyManager(subscriptionManager).listen(strengthListener, PhoneStateListener.LISTEN_SIGNAL_STRENGTHS)
             cellListenerRegistered = true
         }
         unregisterWifiCallbacks()
@@ -238,7 +236,7 @@ class SignalStrengthWatcherImpl(
 
     private fun unregisterCellCallbacks() {
         if (cellListenerRegistered) {
-            telephonyManager.listen(strengthListener, PhoneStateListener.LISTEN_NONE)
+            telephonyManager.getCorrectDataTelephonyManager(subscriptionManager).listen(strengthListener, PhoneStateListener.LISTEN_NONE)
             cellListenerRegistered = false
         }
     }

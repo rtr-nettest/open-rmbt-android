@@ -399,10 +399,10 @@ interface Config {
     /**
      * The URL of updated Server
      */
-    var newServerHost: String
+    var controlServerHostNew: String
 
     /**
      * The URL of updated Server
      */
-    var newServerRoute: String
+    var controlServerRouteNew: String
 }

@@ -3,14 +3,21 @@ package at.specure.info.network
 import android.os.Build
 import android.telephony.TelephonyManager
 
-enum class NRConnectionState {
+enum class NRConnectionState(val stringValue: String) {
 
-    NSA,
-    SA,
-    AVAILABLE,
-    NOT_AVAILABLE;
+    NSA("NSA"),
+    SA("SA"),
+    AVAILABLE("AVAILABLE"),
+    NOT_AVAILABLE("NOT_AVAILABLE");
 
     companion object {
+
+        fun fromString(value: String): NRConnectionState {
+            values().forEach {
+                if (it.stringValue == value) return it
+            }
+            return NOT_AVAILABLE
+        }
 
         fun getNRConnectionState(telephonyManager: TelephonyManager): NRConnectionState {
 

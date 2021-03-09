@@ -413,11 +413,11 @@ class AppConfig @Inject constructor(context: Context, private val serverSettings
             .putLong(KEY_LAST_BACKGROUND_PERMISSIONS_ASKED_TIMESTAMP_MILLIS, value)
             .apply()
 
-    override var newServerHost: String
+    override var controlServerHostNew: String
         get() = getString(BuildConfig.CONTROL_SERVER_NEW_HOST)
     set(value) = setString(BuildConfig.CONTROL_SERVER_NEW_HOST, value)
 
-    override var newServerRoute: String
+    override var controlServerRouteNew: String
         get() = getString(BuildConfig.CONTROL_SERVER_NEW_ROUTE)
         set(value) = setString(BuildConfig.CONTROL_SERVER_NEW_ROUTE, value)
 }
