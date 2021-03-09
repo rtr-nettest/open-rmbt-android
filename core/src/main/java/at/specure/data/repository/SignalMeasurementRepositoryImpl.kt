@@ -234,7 +234,7 @@ class SignalMeasurementRepositoryImpl(
             testDao.removeWlanRecord(chunkId)
             db.geoLocationDao().remove(chunkId)
             db.capabilitiesDao().remove(chunkId)
-            db.cellInfoDao().removeCellInfo(chunkId)
+            db.cellInfoDao().removeAllCellInfo(chunkId)
             db.signalDao().remove(chunkId)
             db.permissionStatusDao().remove(chunkId)
             db.connectivityStateDao().remove(chunkId)
