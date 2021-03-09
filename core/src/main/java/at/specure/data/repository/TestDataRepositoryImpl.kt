@@ -23,6 +23,7 @@ import at.specure.data.entity.TestWlanRecord
 import at.specure.info.cell.CellNetworkInfo
 import at.specure.info.cell.CellTechnology
 import at.specure.info.network.MobileNetworkType
+import at.specure.info.network.NRConnectionState
 import at.specure.info.network.NetworkInfo
 import at.specure.info.network.WifiNetworkInfo
 import at.specure.info.strength.SignalStrengthInfo
@@ -122,9 +123,10 @@ class TestDataRepositoryImpl(db: CoreDatabase) : TestDataRepository {
         cellUUID: String,
         mobileNetworkType: MobileNetworkType?,
         info: SignalStrengthInfo,
-        testStartTimeNanos: Long
+        testStartTimeNanos: Long,
+        nrConnectionState: NRConnectionState
     ) = io {
-        saveSignalStrengthDirectly(testUUID, cellUUID, mobileNetworkType, info, testStartTimeNanos)
+        saveSignalStrengthDirectly(testUUID, cellUUID, mobileNetworkType, info, testStartTimeNanos, nrConnectionState)
     }
 
     private fun saveSignalStrengthDirectly(
@@ -132,7 +134,8 @@ class TestDataRepositoryImpl(db: CoreDatabase) : TestDataRepository {
         cellUUID: String,
         mobileNetworkType: MobileNetworkType?,
         info: SignalStrengthInfo,
-        testStartTimeNanos: Long
+        testStartTimeNanos: Long,
+        nrConnectionState: NRConnectionState
     ) {
         var signal = info.value
         var wifiLinkSpeed: Int? = null
@@ -201,6 +204,7 @@ class TestDataRepositoryImpl(db: CoreDatabase) : TestDataRepository {
             timingAdvance = timingAdvance,
             mobileNetworkType = mobileNetworkType,
             transportType = info.transport,
+            nrConnectionState = nrConnectionState,
             nrCsiRsrp = nrCsiRsrp,
             nrCsiRsrq = nrCsiRsrq,
             nrCsiSinr = nrCsiSinr,
@@ -219,7 +223,7 @@ class TestDataRepositoryImpl(db: CoreDatabase) : TestDataRepository {
                 is CellNetworkInfo -> {
                     info.signalStrength?.let {
                         Timber.e("Signal saving time SCI: starting time: $testStartTimeNanos   current time: ${System.nanoTime()}")
-                        saveSignalStrengthDirectly(testUUID, info.cellUUID, info.networkType, it, testStartTimeNanos)
+                        saveSignalStrengthDirectly(testUUID, info.cellUUID, info.networkType, it, testStartTimeNanos, info.nrConnectionState)
                     }
                     info.toCellInfoRecord(testUUID)
                 }

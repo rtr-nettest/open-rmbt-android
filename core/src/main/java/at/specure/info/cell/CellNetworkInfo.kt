@@ -35,6 +35,7 @@ import at.specure.info.Network5GSimulator
 import at.specure.info.TransportType
 import at.specure.info.band.CellBand
 import at.specure.info.network.MobileNetworkType
+import at.specure.info.network.NRConnectionState
 import at.specure.info.network.NetworkInfo
 import at.specure.info.strength.SignalStrengthInfo
 import java.util.UUID
@@ -82,6 +83,11 @@ class CellNetworkInfo(
     val dualSimDetectionMethod: String?,
 
     /**
+     * additional information about network status because we can have NR cell but it is for NR NSA mode (where is more often LTE cell available)
+     */
+    val nrConnectionState: NRConnectionState,
+
+    /**
      * Random generated cell UUID
      */
     cellUUID: String
@@ -99,7 +105,8 @@ class CellNetworkInfo(
             isActive: Boolean,
             isRoaming: Boolean,
             apn: String?,
-            dualSimDetectionMethod: String?
+            dualSimDetectionMethod: String?,
+            nrConnectionState: NRConnectionState
         ): CellNetworkInfo {
             val networkType: MobileNetworkType = when {
                 info is CellInfoLte -> MobileNetworkType.LTE
@@ -110,7 +117,7 @@ class CellNetworkInfo(
                 Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q && info is CellInfoTdscdma -> MobileNetworkType.TD_SCDMA
                 else -> throw IllegalArgumentException("Unknown cell info cannot be extracted ${info::class.java.name}")
             }
-            return from(info, subscriptionInfo, networkType, isActive, isRoaming, apn, dualSimDetectionMethod)
+            return from(info, subscriptionInfo, networkType, isActive, isRoaming, apn, dualSimDetectionMethod, nrConnectionState)
         }
 
         /**
@@ -123,7 +130,8 @@ class CellNetworkInfo(
             isActive: Boolean,
             isRoaming: Boolean,
             apn: String?,
-            dualSimDetectionMethod: String?
+            dualSimDetectionMethod: String?,
+            nrConnectionState: NRConnectionState
         ): CellNetworkInfo {
             val providerName = subscriptionInfo?.carrierName?.toString() ?: ""
 
@@ -142,22 +150,68 @@ class CellNetworkInfo(
                             isActive,
                             isRoaming,
                             apn,
-                            dualSimDetectionMethod
+                            dualSimDetectionMethod,
+                            nrConnectionState
                         )
                     } else {
-                        fromUnknown(providerName, networkType, isActive, isRoaming, apn, dualSimDetectionMethod)
+                        fromUnknown(providerName, networkType, isActive, isRoaming, apn, dualSimDetectionMethod, nrConnectionState)
                     }
                 MobileNetworkType.NR_AVAILABLE ->
                     when (info) {
-                        is CellInfoLte -> fromLte(info, providerName, networkType, isActive, isRoaming, apn, dualSimDetectionMethod)
-                        else -> fromUnknown(providerName, networkType, isActive, isRoaming, apn, dualSimDetectionMethod)
+                        is CellInfoLte -> fromLte(
+                            info,
+                            providerName,
+                            networkType,
+                            isActive,
+                            isRoaming,
+                            apn,
+                            dualSimDetectionMethod,
+                            nrConnectionState
+                        )
+                        else -> fromUnknown(providerName, networkType, isActive, isRoaming, apn, dualSimDetectionMethod, nrConnectionState)
                     }
                 else ->
                     when {
-                        info is CellInfoLte -> fromLte(info, providerName, networkType, isActive, isRoaming, apn, dualSimDetectionMethod)
-                        info is CellInfoWcdma -> fromWcdma(info, providerName, networkType, isActive, isRoaming, apn, dualSimDetectionMethod)
-                        info is CellInfoGsm -> fromGsm(info, providerName, networkType, isActive, isRoaming, apn, dualSimDetectionMethod)
-                        info is CellInfoCdma -> fromCdma(info, providerName, networkType, isActive, isRoaming, apn, dualSimDetectionMethod)
+                        info is CellInfoLte -> fromLte(
+                            info,
+                            providerName,
+                            networkType,
+                            isActive,
+                            isRoaming,
+                            apn,
+                            dualSimDetectionMethod,
+                            nrConnectionState
+                        )
+                        info is CellInfoWcdma -> fromWcdma(
+                            info,
+                            providerName,
+                            networkType,
+                            isActive,
+                            isRoaming,
+                            apn,
+                            dualSimDetectionMethod,
+                            nrConnectionState
+                        )
+                        info is CellInfoGsm -> fromGsm(
+                            info,
+                            providerName,
+                            networkType,
+                            isActive,
+                            isRoaming,
+                            apn,
+                            dualSimDetectionMethod,
+                            nrConnectionState
+                        )
+                        info is CellInfoCdma -> fromCdma(
+                            info,
+                            providerName,
+                            networkType,
+                            isActive,
+                            isRoaming,
+                            apn,
+                            dualSimDetectionMethod,
+                            nrConnectionState
+                        )
                         Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q && info is CellInfoNr -> fromNr(
                             info,
                             providerName,
@@ -165,7 +219,8 @@ class CellNetworkInfo(
                             isActive,
                             isRoaming,
                             apn,
-                            dualSimDetectionMethod
+                            dualSimDetectionMethod,
+                            nrConnectionState
                         )
                         Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q && info is CellInfoTdscdma -> fromTdscdma(
                             info,
@@ -174,9 +229,10 @@ class CellNetworkInfo(
                             isActive,
                             isRoaming,
                             apn,
-                            dualSimDetectionMethod
+                            dualSimDetectionMethod,
+                            nrConnectionState
                         )
-                        else -> fromUnknown(providerName, networkType, isActive, isRoaming, apn, dualSimDetectionMethod)
+                        else -> fromUnknown(providerName, networkType, isActive, isRoaming, apn, dualSimDetectionMethod, nrConnectionState)
                     }
             }
         }
@@ -187,7 +243,8 @@ class CellNetworkInfo(
             isActive: Boolean,
             isRoaming: Boolean,
             apn: String?,
-            dualSimDetectionMethod: String?
+            dualSimDetectionMethod: String?,
+            nrConnectionState: NRConnectionState
         ): CellNetworkInfo {
 
             return CellNetworkInfo(
@@ -205,7 +262,8 @@ class CellNetworkInfo(
                 isRoaming = isRoaming,
                 apn = apn,
                 signalStrength = null,
-                dualSimDetectionMethod = dualSimDetectionMethod
+                dualSimDetectionMethod = dualSimDetectionMethod,
+                nrConnectionState = nrConnectionState
             )
         }
 
@@ -217,7 +275,8 @@ class CellNetworkInfo(
             isActive: Boolean,
             isRoaming: Boolean,
             apn: String?,
-            dualSimDetectionMethod: String?
+            dualSimDetectionMethod: String?,
+            nrConnectionState: NRConnectionState
         ): CellNetworkInfo {
 
             val identity = info.cellIdentity as CellIdentityNr
@@ -239,7 +298,8 @@ class CellNetworkInfo(
                 isRoaming = isRoaming,
                 apn = apn,
                 signalStrength = SignalStrengthInfo.from(info.cellSignalStrength as CellSignalStrengthNr),
-                dualSimDetectionMethod = dualSimDetectionMethod
+                dualSimDetectionMethod = dualSimDetectionMethod,
+                nrConnectionState = nrConnectionState
             )
         }
 
@@ -251,7 +311,8 @@ class CellNetworkInfo(
             isActive: Boolean,
             isRoaming: Boolean,
             apn: String?,
-            dualSimDetectionMethod: String?
+            dualSimDetectionMethod: String?,
+            nrConnectionState: NRConnectionState
         ): CellNetworkInfo {
 
             val identity = info.cellIdentity as CellIdentityTdscdma
@@ -273,7 +334,8 @@ class CellNetworkInfo(
                 isRoaming = isRoaming,
                 apn = apn,
                 signalStrength = SignalStrengthInfo.from(info.cellSignalStrength as CellSignalStrengthNr),
-                dualSimDetectionMethod = dualSimDetectionMethod
+                dualSimDetectionMethod = dualSimDetectionMethod,
+                nrConnectionState = nrConnectionState
             )
         }
 
@@ -284,7 +346,8 @@ class CellNetworkInfo(
             isActive: Boolean,
             isRoaming: Boolean,
             apn: String?,
-            dualSimDetectionMethod: String?
+            dualSimDetectionMethod: String?,
+            nrConnectionState: NRConnectionState
         ): CellNetworkInfo {
 
             val band: CellBand? = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
@@ -308,7 +371,8 @@ class CellNetworkInfo(
                 isRoaming = isRoaming,
                 apn = apn,
                 signalStrength = SignalStrengthInfo.from(info.cellSignalStrength),
-                dualSimDetectionMethod = dualSimDetectionMethod
+                dualSimDetectionMethod = dualSimDetectionMethod,
+                nrConnectionState = nrConnectionState
             )
         }
 
@@ -319,7 +383,8 @@ class CellNetworkInfo(
             isActive: Boolean,
             isRoaming: Boolean,
             apn: String?,
-            dualSimDetectionMethod: String?
+            dualSimDetectionMethod: String?,
+            nrConnectionState: NRConnectionState
         ): CellNetworkInfo {
             val band: CellBand? = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                 CellBand.fromChannelNumber(info.cellIdentity.uarfcn, CellChannelAttribution.UARFCN)
@@ -342,7 +407,8 @@ class CellNetworkInfo(
                 isRoaming = isRoaming,
                 apn = apn,
                 signalStrength = SignalStrengthInfo.from(info.cellSignalStrength),
-                dualSimDetectionMethod = dualSimDetectionMethod
+                dualSimDetectionMethod = dualSimDetectionMethod,
+                nrConnectionState = nrConnectionState
             )
         }
 
@@ -353,7 +419,8 @@ class CellNetworkInfo(
             isActive: Boolean,
             isRoaming: Boolean,
             apn: String?,
-            dualSimDetectionMethod: String?
+            dualSimDetectionMethod: String?,
+            nrConnectionState: NRConnectionState
         ): CellNetworkInfo {
             val band: CellBand? = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                 CellBand.fromChannelNumber(info.cellIdentity.arfcn, CellChannelAttribution.ARFCN)
@@ -378,7 +445,8 @@ class CellNetworkInfo(
                 isRoaming = isRoaming,
                 apn = apn,
                 signalStrength = SignalStrengthInfo.from(info.cellSignalStrength),
-                dualSimDetectionMethod = dualSimDetectionMethod
+                dualSimDetectionMethod = dualSimDetectionMethod,
+                nrConnectionState = nrConnectionState
             )
         }
 
@@ -389,7 +457,8 @@ class CellNetworkInfo(
             isActive: Boolean,
             isRoaming: Boolean,
             apn: String?,
-            dualSimDetectionMethod: String?
+            dualSimDetectionMethod: String?,
+            nrConnectionState: NRConnectionState
         ): CellNetworkInfo {
 
             return CellNetworkInfo(
@@ -407,7 +476,8 @@ class CellNetworkInfo(
                 isRoaming = isRoaming,
                 apn = apn,
                 signalStrength = SignalStrengthInfo.from(info.cellSignalStrength),
-                dualSimDetectionMethod = dualSimDetectionMethod
+                dualSimDetectionMethod = dualSimDetectionMethod,
+                nrConnectionState = nrConnectionState
             )
         }
     }
