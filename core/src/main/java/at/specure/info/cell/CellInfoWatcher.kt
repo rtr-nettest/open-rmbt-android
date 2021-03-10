@@ -32,6 +32,8 @@ interface CellInfoWatcher {
 
     val allCellInfo: List<CellNetworkInfo>
 
+    val rawAllCellInfo: List<CellInfo>
+
     /**
      * NR connection type default should be [NRConnectionState.NOT_AVAILABLE]
      */
