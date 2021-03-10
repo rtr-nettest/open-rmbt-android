@@ -90,32 +90,37 @@ class CellInfoWatcherImpl(
         _rawAllCellInfo.clear()
         cellInfos ?: return
 
-        val activeDataCellInfo = activeDataCellInfoExtractor.extractActiveCellInfo(cellInfos)
-        activeDataCellInfo.activeDataNetworkCellInfo?.let {
-            _cellInfo = it
-        }
+        try {
+            val activeDataCellInfo = activeDataCellInfoExtractor.extractActiveCellInfo(cellInfos)
+            activeDataCellInfo.activeDataNetworkCellInfo?.let {
+                _cellInfo = it
+            }
 
-        activeDataCellInfo.activeDataNetwork?.let {
-            _activeNetwork = it
-        }
+            activeDataCellInfo.activeDataNetwork?.let {
+                _activeNetwork = it
+            }
+            _nrConnectionState = activeDataCellInfo.nrConnectionState
 
-        _rawAllCellInfo = cellInfos
-
-        _nrConnectionState = activeDataCellInfo.nrConnectionState
-
-        _allCellInfo.clear()
-        cellInfos.forEach {
-            val info = CellNetworkInfo.from(
-                it,
-                null,
-                activeDataCellInfo.activeDataNetwork?.cellUUID == it.uuid(),
-                connectivityManager.activeNetworkInfo?.isRoaming ?: false,
-                connectivityManager.activeNetworkInfo?.extraInfo,
-                activeDataCellInfo.dualSimDecision,
-                _nrConnectionState
-            )
-            _allCellInfo.add(info)
-            Timber.v("cell: ${info.networkType.displayName} ${info.mnc} ${info.mcc} ${info.cellUUID}")
+            _allCellInfo.clear()
+            cellInfos.forEach {
+                val info = CellNetworkInfo.from(
+                    it,
+                    null,
+                    activeDataCellInfo.activeDataNetwork?.cellUUID == it.uuid(),
+                    connectivityManager.activeNetworkInfo?.isRoaming ?: false,
+                    connectivityManager.activeNetworkInfo?.extraInfo,
+                    activeDataCellInfo.dualSimDecision,
+                    _nrConnectionState
+                )
+                _allCellInfo.add(info)
+                Timber.v("cell: ${info.networkType.displayName} ${info.mnc} ${info.mcc} ${info.cellUUID}")
+            }
+        } catch (e: SecurityException) {
+            Timber.e("SecurityException: Not able to read telephonyManager.allCellInfo")
+        } catch (e: IllegalStateException) {
+            Timber.e("IllegalStateException: Not able to read telephonyManager.allCellInfo")
+        } catch (e: NullPointerException) {
+            Timber.e("NullPointerException: Not able to read telephonyManager.allCellInfo from other reason")
         }
 
         notifyListeners()
