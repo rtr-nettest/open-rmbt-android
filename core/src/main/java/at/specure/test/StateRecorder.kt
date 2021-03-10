@@ -119,6 +119,7 @@ class StateRecorder @Inject constructor(
             signalStrengthInfo = info
             Timber.e("Signal saving time OBSERVER: starting time: $testStartTimeNanos   current time: ${System.nanoTime()}")
             saveSignalStrengthInfo()
+            saveCellInfo()
         })
 
         networkInfo = activeNetworkWatcher.currentNetworkInfo
@@ -308,7 +309,9 @@ class StateRecorder @Inject constructor(
                 is CellNetworkInfo -> cellInfoWatcher.allCellInfo
                 else -> throw IllegalArgumentException("Unknown cell info ${info.javaClass.simpleName}")
             }
-
+            cellInfoWatcher.allCellInfo.forEach {
+                Timber.d("saving cell:\n\n testUUID: $uuid \n networkInfo: $info \n\n ${it.cellUUID}     ${it.networkType.displayName}     \n\n")
+            }
             repository.saveCellInfo(uuid, infoList.toList(), testStartTimeNanos)
         }
     }

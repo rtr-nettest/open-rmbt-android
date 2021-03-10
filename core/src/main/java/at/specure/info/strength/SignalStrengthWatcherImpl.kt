@@ -107,6 +107,8 @@ class SignalStrengthWatcherImpl(
                     Timber.e("SecurityException: Not able to read telephonyManager.allCellInfo")
                 } catch (e: IllegalStateException) {
                     Timber.e("IllegalStateException: Not able to read telephonyManager.allCellInfo")
+                } catch (e: NullPointerException) {
+                    Timber.e("NullPointerException: Not able to read telephonyManager.allCellInfo from other reason")
                 }
             }
 
