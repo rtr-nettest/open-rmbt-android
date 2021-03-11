@@ -22,6 +22,8 @@ import at.specure.info.TransportType
 import at.specure.info.network.MobileNetworkType
 import at.specure.test.DeviceInfo
 import at.specure.util.exception.DataMissingException
+import timber.log.Timber
+import timber.log.Timber.d
 import javax.inject.Inject
 
 class ResultsRepositoryImpl @Inject constructor(
@@ -82,6 +84,10 @@ class ResultsRepositoryImpl @Inject constructor(
             // save results locally in every condition the test was successful, if result will be sent and obtained successfully, it overwrites the local results
             if ((testRecord.status == TestStatus.SPEEDTEST_END) || (testRecord.status == TestStatus.QOS_END) || (testRecord.status == TestStatus.END)) {
                 saveLocalTestResults(body, testUUID, wlanInfo, speeds, pings, signals)
+            }
+
+            body.radioInfo?.cells?.forEach {
+                Timber.d("valid cells: ${it.uuid}   technology: ${it.technology}")
             }
 
             val result = client.sendTestResults(body)

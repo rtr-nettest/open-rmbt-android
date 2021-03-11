@@ -295,8 +295,14 @@ class StateRecorder @Inject constructor(
                 mobileNetworkType = (networkInfo as CellNetworkInfo).networkType
                 nrConnectionState = (networkInfo as CellNetworkInfo).nrConnectionState
             }
-            Timber.e("Signal saving time SR: starting time: $testStartTimeNanos   current time: ${System.nanoTime()}")
-            repository.saveSignalStrength(uuid, cellUUID, mobileNetworkType, info, testStartTimeNanos, nrConnectionState)
+            Timber.d("valid signal SSSI")
+            val isSignalValid = repository.validateSignalStrengthInfo(mobileNetworkType, info, cellUUID)
+
+            // saving only valid signal with associated cell (wifi and mobile connections)
+            if (cellUUID.isNotEmpty() && isSignalValid) {
+                Timber.e("Signal saving time SR: starting time: $testStartTimeNanos   current time: ${System.nanoTime()}")
+                repository.saveSignalStrength(uuid, cellUUID, mobileNetworkType, info, testStartTimeNanos, nrConnectionState)
+            }
         }
     }
 

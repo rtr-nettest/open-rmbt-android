@@ -51,6 +51,8 @@ class ActiveDataCellInfoExtractorImpl(
         var dualSimDecision = ""
 
         _activeDataNetwork = null
+        // flag if network data are in consistent state cell info is updated with data corresponds to active network info
+        var isConsistent = true
         if (dataSimSubscriptionId != INVALID_SUBSCRIPTION_ID) {
             val registeredInfoList = cellInfo.filter { it.isRegistered }
 
@@ -99,51 +101,23 @@ class ActiveDataCellInfoExtractorImpl(
                         // single sim
                         if (subscriptions.size == 1) {
                             _activeDataNetworkCellInfo = registeredInfoList[0]
+                            // we need to check if the registered cell uses same type of the network as data sim but 5G NSA has exception
+                            isConsistent = isNetworkDataConsistent(registeredInfoList[0], dataCellTechnology)
                         } else {
                             // dual sim handling
                             it.displayName
                             dualSimDecision =
                                 "$DUAL_SIM_METHOD_API\nDATA_SIM: slotIndex: ${it.simSlotIndex} carrierName: ${it.carrierName} displayName: ${it.displayName}\n"
-                            // we need to check which of the registered cells uses same type of the network as data sim
+                            // we need to check which of the registered cells uses same type of the network as data sim but 5G NSA has exception
                             var dualSimRegistered = registeredInfoList.filter { cellInfo ->
-                                var sameNetworkType = false
-                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                                    when (cellInfo) {
-                                        // 5G connections
-                                        is CellInfoNr ->
-                                            sameNetworkType = CellTechnology.CONNECTION_5G == dataCellTechnology
-                                        // 3G connections
-                                        is CellInfoTdscdma -> {
-                                            sameNetworkType = CellTechnology.CONNECTION_3G == dataCellTechnology
-                                        }
-                                    }
-                                }
-                                if (sameNetworkType) {
-                                    sameNetworkType
-                                } else {
-                                    when (cellInfo) {
-                                        // 4G connections
-                                        is CellInfoLte -> {
-                                            CellTechnology.CONNECTION_4G == dataCellTechnology
-                                        }
-                                        // 3G connections
-                                        is CellInfoWcdma -> {
-                                            CellTechnology.CONNECTION_3G == dataCellTechnology
-                                        }
-                                        // 2G connections
-                                        is CellInfoCdma -> {
-                                            CellTechnology.CONNECTION_2G == dataCellTechnology
-                                        }
-                                        is CellInfoGsm -> {
-                                            CellTechnology.CONNECTION_2G == dataCellTechnology
-                                        }
-                                        else -> false
-                                    }
-                                }
+                                isNetworkDataConsistent(cellInfo, dataCellTechnology)
                             }
                             val countAfterNetworkTypeFilter = dualSimRegistered.size
+                            if (countAfterNetworkTypeFilter == 0) {
+                                isConsistent = false // we filter out all options and we so not find suitable registered cell info for active network
+                            }
                             if (registeredInfoList.size > dualSimRegistered.size) {
-                                dualSimDecisionLog += "DSD - filtered according to same network type from ${registeredInfoList.size} to $countAfterNetworkTypeFilter\n"
+                                dualSimDecisionLog += "DSD - filtered according to same network type from ${registeredInfoList.size} to $countAfterNetworkTypeFilter -> Subscriptions.size: ${subscriptions.size}\n"
                                 dualSimDecision += "CELL_INFO: filtered according to: same network type from ${registeredInfoList.size} to $countAfterNetworkTypeFilter\n"
                             }
                             // if there is still more than one we can try filter it according to network operator name
@@ -218,12 +192,13 @@ class ActiveDataCellInfoExtractorImpl(
                                 _activeDataNetworkCellInfo = if (sortedNRCellsBySignalDesc.isEmpty()) {
                                     _activeDataNetworkCellInfo
                                 } else {
+                                    isConsistent = true // exception for consistency for 5G NSA mode
                                     sortedNRCellsBySignalDesc.first()
                                 }
                             }
                         }
 
-                        // Timber.v("Cell: $_cellInfo, Network_type: $networkType, MNT: ${MobileNetworkType.fromValue(networkType)}" )
+
                         _activeDataNetwork = CellNetworkInfo.from(
                             _activeDataNetworkCellInfo,
                             it,
@@ -234,16 +209,66 @@ class ActiveDataCellInfoExtractorImpl(
                             if (subscriptions.size > 1) dualSimDecisionLog else null,
                             _nrConnectionState
                         )
+
+                        Timber.d(
+                            "Cell: ${(_activeDataNetwork as CellNetworkInfo).cellUUID} networkType: ${(_activeDataNetwork as CellNetworkInfo).cellUUID} \n Network_type: $networkType, MNT: ${
+                                MobileNetworkType.fromValue(
+                                    networkType
+                                )
+                            }"
+                        )
                     }
                 }
             }
         }
+
         return ActiveDataCellInfo(
             dualSimDecision = _dualSimDecision,
             nrConnectionState = _nrConnectionState,
             activeDataNetworkCellInfo = _activeDataNetworkCellInfo,
-            activeDataNetwork = _activeDataNetwork
+            activeDataNetwork = _activeDataNetwork,
+            isConsistent = isConsistent
         )
+    }
+
+    /**
+     * To check if active cell and active network has the same technology - sometimes we get cell info later and we must filter out these inconsistencies
+     */
+    private fun isNetworkDataConsistent(cellInfo: CellInfo, dataCellTechnology: CellTechnology?): Boolean {
+        var sameNetworkType = false
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            when (cellInfo) {
+                // 5G connections
+                is CellInfoNr ->
+                    sameNetworkType = CellTechnology.CONNECTION_5G == dataCellTechnology
+                // 3G connections
+                is CellInfoTdscdma -> {
+                    sameNetworkType = CellTechnology.CONNECTION_3G == dataCellTechnology
+                }
+            }
+        }
+        return if (sameNetworkType) {
+            sameNetworkType
+        } else {
+            when (cellInfo) {
+                // 4G connections
+                is CellInfoLte -> {
+                    CellTechnology.CONNECTION_4G == dataCellTechnology || CellTechnology.CONNECTION_4G_5G == dataCellTechnology
+                }
+                // 3G connections
+                is CellInfoWcdma -> {
+                    CellTechnology.CONNECTION_3G == dataCellTechnology
+                }
+                // 2G connections
+                is CellInfoCdma -> {
+                    CellTechnology.CONNECTION_2G == dataCellTechnology
+                }
+                is CellInfoGsm -> {
+                    CellTechnology.CONNECTION_2G == dataCellTechnology
+                }
+                else -> false
+            }
+        }
     }
 }
 
