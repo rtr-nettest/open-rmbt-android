@@ -198,7 +198,6 @@ class ActiveDataCellInfoExtractorImpl(
                             }
                         }
 
-
                         _activeDataNetwork = CellNetworkInfo.from(
                             _activeDataNetworkCellInfo,
                             it,
