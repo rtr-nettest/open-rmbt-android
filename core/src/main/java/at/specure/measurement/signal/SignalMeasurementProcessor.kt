@@ -172,6 +172,7 @@ class SignalMeasurementProcessor @Inject constructor(
         activeNetworkLiveData.observe(owner, Observer {
             if (isActive && !isPaused) {
                 handleNewNetwork(it?.networkInfo)
+                saveCellInfo()
             }
         })
 
@@ -192,6 +193,7 @@ class SignalMeasurementProcessor @Inject constructor(
             signalStrengthInfo = info
             if (isActive && !isPaused) {
                 saveSignalStrengthInfo()
+                saveCellInfo()
             }
         })
 
