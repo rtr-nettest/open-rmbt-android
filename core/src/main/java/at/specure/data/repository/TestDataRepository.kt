@@ -31,6 +31,12 @@ interface TestDataRepository {
 
     fun getUploadGraphItemsLiveData(testUUID: String, loadUploadGraphItems: (List<GraphItemRecord>) -> Unit)
 
+    /**
+     * Mentioned only for mobile network types and signals but you can validate wifi signals too, just pass null to mobileNetworkType parameter
+     * return true if signal strength was valid and saved, false otherwise
+     */
+    fun validateSignalStrengthInfo(mobileNetworkType: MobileNetworkType?, info: SignalStrengthInfo, cellUUID: String): Boolean
+
     fun saveSignalStrength(
         testUUID: String,
         cellUUID: String,

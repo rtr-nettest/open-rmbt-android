@@ -93,6 +93,9 @@ abstract class SignalStrengthInfo : Parcelable {
         const val WCDMA_RSRP_SIGNAL_MIN = -120
         const val WCDMA_RSRP_SIGNAL_MAX = -24
 
+        const val TDSCDMA_RSRP_SIGNAL_MIN = -120
+        const val TDSCDMA_RSRP_SIGNAL_MAX = -24
+
         const val NR_RSRP_SIGNAL_MIN = -140
         const val NR_RSRP_SIGNAL_MAX = -44
 
@@ -145,6 +148,16 @@ abstract class SignalStrengthInfo : Parcelable {
             signalLevel = signal.level,
             min = WCDMA_RSRP_SIGNAL_MIN,
             max = WCDMA_RSRP_SIGNAL_MAX,
+            timestampNanos = System.nanoTime()
+        )
+
+        fun from(signal: CellSignalStrengthTdscdma) = SignalStrengthInfoCommon(
+            transport = TransportType.CELLULAR,
+            value = signal.dbm,
+            rsrq = null,
+            signalLevel = signal.level,
+            min = TDSCDMA_RSRP_SIGNAL_MIN,
+            max = TDSCDMA_RSRP_SIGNAL_MAX,
             timestampNanos = System.nanoTime()
         )
 
