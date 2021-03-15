@@ -178,6 +178,7 @@ fun TestRecord.toRequest(
                 if (it.isActive) {
                     dualSimDetectionMethod = it.dualSimDetectionMethod
                 }
+                Timber.d("valid cell to send: ${it.uuid} mapped to ${map[it.uuid]?.uuid}")
             }
             if (map.isEmpty()) null else map
         }

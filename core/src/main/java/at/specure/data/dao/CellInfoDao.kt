@@ -18,11 +18,16 @@ abstract class CellInfoDao {
     abstract fun insert(cellInfo: List<CellInfoRecord>)
 
     @Query("DELETE FROM ${Tables.CELL_INFO} WHERE testUUID=:testUUID")
-    abstract fun removeCellInfo(testUUID: String)
+    abstract fun removeAllCellInfo(testUUID: String)
+
+    @Query("DELETE FROM ${Tables.CELL_INFO} WHERE testUUID=:testUUID AND uuid==:cellInfoUUID")
+    abstract fun removeSingleCellInfo(testUUID: String, cellInfoUUID: String)
 
     @Transaction
     open fun clearInsert(testUUID: String, cellInfo: List<CellInfoRecord>) {
-        removeCellInfo(testUUID)
+        cellInfo.forEach {
+            removeSingleCellInfo(testUUID, it.uuid)
+        }
         insert(cellInfo)
     }
 }

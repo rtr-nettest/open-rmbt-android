@@ -90,6 +90,7 @@ class SignalStrengthWatcherImpl(
                 return
             }
 
+            var isNetworkStateConsistent = true
             var nrConnectionState = NRConnectionState.NOT_AVAILABLE
             var cellInfo: CellInfo? = null
             val network = activeNetworkWatcher.currentNetworkInfo
@@ -101,12 +102,15 @@ class SignalStrengthWatcherImpl(
                 try {
                     val activeDataCellInfo =
                         activeDataCellInfoExtractor.extractActiveCellInfo(telephonyManager.getCorrectDataTelephonyManager(subscriptionManager).allCellInfo)
+                    isNetworkStateConsistent = activeDataCellInfo.isConsistent
                     cellInfo = activeDataCellInfo.activeDataNetworkCellInfo
                     nrConnectionState = activeDataCellInfo.nrConnectionState
                 } catch (e: SecurityException) {
                     Timber.e("SecurityException: Not able to read telephonyManager.allCellInfo")
                 } catch (e: IllegalStateException) {
                     Timber.e("IllegalStateException: Not able to read telephonyManager.allCellInfo")
+                } catch (e: NullPointerException) {
+                    Timber.e("NullPointerException: Not able to read telephonyManager.allCellInfo from other reason")
                 }
             }
 
@@ -134,11 +138,17 @@ class SignalStrengthWatcherImpl(
                 signalStrengthInfo = if (Network5GSimulator.isEnabled) {
                     Network5GSimulator.signalStrength(signal)
                 } else {
-                    signal
+                    if (isNetworkStateConsistent) {
+                        signal
+                    } else {
+                        null
+                    }
                 }
                 Timber.d("Signal changed to: \ntransport: ${signal.transport} \nvalue: ${signal.value} \nsignalLevel:${signal.signalLevel}")
             }
-            notifyInfoChanged()
+            if (isNetworkStateConsistent) {
+                notifyInfoChanged()
+            }
         }
     }
 

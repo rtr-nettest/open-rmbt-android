@@ -172,6 +172,7 @@ class SignalMeasurementProcessor @Inject constructor(
         activeNetworkLiveData.observe(owner, Observer {
             if (isActive && !isPaused) {
                 handleNewNetwork(it?.networkInfo)
+                saveCellInfo()
             }
         })
 
@@ -192,6 +193,7 @@ class SignalMeasurementProcessor @Inject constructor(
             signalStrengthInfo = info
             if (isActive && !isPaused) {
                 saveSignalStrengthInfo()
+                saveCellInfo()
             }
         })
 
@@ -427,17 +429,23 @@ class SignalMeasurementProcessor @Inject constructor(
             val cellUUID = networkInfo?.cellUUID ?: ""
             var mobileNetworkType: MobileNetworkType? = null
             var nrConnectionState = NRConnectionState.NOT_AVAILABLE
-            if (networkInfo != null && networkInfo is CellNetworkInfo) {
+            if (networkInfo != null && networkInfo is CellNetworkInfo && cellUUID.isNotEmpty()) {
                 mobileNetworkType = (networkInfo as CellNetworkInfo).networkType
                 nrConnectionState = (networkInfo as CellNetworkInfo).nrConnectionState
-                Timber.d("Signal saving time SMP: chunkID: $uuid    starting time: ${record?.startTimeNanos}   current time: ${System.nanoTime()}")
-                repository.saveSignalStrength(uuid, cellUUID, mobileNetworkType, info, record?.startTimeNanos ?: 0, nrConnectionState)
 
-                chunkDataSize++
-                if (chunkDataSize >= MAX_SIGNAL_COUNT_PER_CHUNK) {
-                    Timber.v("Chunk max size reached: $chunkDataSize")
-                    commitChunkData()
-                    createNewChunk()
+                val isSignalValid = repository.validateSignalStrengthInfo(mobileNetworkType, info, cellUUID)
+
+                // saving only valid signal with associated cell (wifi and mobile connections)
+                if (isSignalValid) {
+                    Timber.d("Signal saving time SMP: chunkID: $uuid    starting time: ${record?.startTimeNanos}   current time: ${System.nanoTime()}")
+                    repository.saveSignalStrength(uuid, cellUUID, mobileNetworkType, info, record?.startTimeNanos ?: 0, nrConnectionState)
+
+                    chunkDataSize++
+                    if (chunkDataSize >= MAX_SIGNAL_COUNT_PER_CHUNK) {
+                        Timber.v("Chunk max size reached: $chunkDataSize")
+                        commitChunkData()
+                        createNewChunk()
+                    }
                 }
             }
         }
