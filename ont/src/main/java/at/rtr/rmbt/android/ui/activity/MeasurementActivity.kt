@@ -175,10 +175,6 @@ class MeasurementActivity : BaseActivity(), SimpleDialog.Callback {
             }
         }
 
-        binding.buttonSignal?.setOnClickListener {
-            startActivity(Intent(this, SignalMeasurementActivity::class.java))
-        }
-
         if (loopRecord?.status == LoopModeState.FINISHED || loopRecord?.status == LoopModeState.CANCELLED) {
             finishActivity(true)
         }

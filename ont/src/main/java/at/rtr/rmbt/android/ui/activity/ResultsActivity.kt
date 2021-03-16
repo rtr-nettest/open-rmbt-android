@@ -6,12 +6,10 @@ import android.os.Build
 import android.os.Bundle
 import android.view.View
 import androidx.core.content.ContextCompat
-import androidx.recyclerview.widget.DividerItemDecoration
 import at.rtr.rmbt.android.R
 import at.rtr.rmbt.android.databinding.ActivityResultsBinding
 import at.rtr.rmbt.android.di.viewModelLazy
 import at.rtr.rmbt.android.ui.adapter.QosResultAdapter
-import at.rtr.rmbt.android.ui.adapter.ResultChartFragmentPagerAdapter
 import at.rtr.rmbt.android.ui.adapter.ResultQoEAdapter
 import at.rtr.rmbt.android.util.iconFromVector
 import at.rtr.rmbt.android.util.listen
@@ -33,7 +31,6 @@ class ResultsActivity : BaseActivity(), OnMapReadyCallback {
     private lateinit var binding: ActivityResultsBinding
     private val adapter: ResultQoEAdapter by lazy { ResultQoEAdapter() }
     private val qosAdapter: QosResultAdapter by lazy { QosResultAdapter() }
-    private lateinit var resultChartFragmentPagerAdapter: ResultChartFragmentPagerAdapter
 
     private var googleMap: GoogleMap? = null
 
@@ -44,29 +41,16 @@ class ResultsActivity : BaseActivity(), OnMapReadyCallback {
 
         viewModel.state.playServicesAvailable.set(checkPlayServices())
 
-        binding.map?.onCreate(savedInstanceState)
-        binding.map?.getMapAsync(this)
-
         val testUUID = intent.getStringExtra(KEY_TEST_UUID)
         check(!testUUID.isNullOrEmpty()) { "TestUUID was not passed to result activity" }
 
         val returnPoint = intent.getStringExtra(KEY_RETURN_POINT)
         check(!testUUID.isNullOrEmpty()) { "ReturnPoint was not passed to result activity" }
 
-        binding.viewPagerCharts?.offscreenPageLimit = 3
-        binding.viewPagerCharts?.let { viewPagerCharts ->
-            binding.tabLayoutCharts?.setupWithViewPager(viewPagerCharts, true)
-        }
-
         viewModel.state.testUUID = testUUID
         viewModel.state.returnPoint = returnPoint?.let { ReturnPoint.valueOf(returnPoint) } ?: ReturnPoint.HOME
         viewModel.testServerResultLiveData.listen(this) { result ->
             viewModel.state.testResult.set(result)
-
-            result?.testOpenUUID?.let {
-                resultChartFragmentPagerAdapter = ResultChartFragmentPagerAdapter(supportFragmentManager, testUUID, result.networkType)
-                binding.viewPagerCharts?.adapter = resultChartFragmentPagerAdapter
-            }
 
             if (result?.latitude != null && result.longitude != null) {
                 with(LatLng(result.latitude!!, result.longitude!!)) {
@@ -116,15 +100,6 @@ class ResultsActivity : BaseActivity(), OnMapReadyCallback {
             adapter.submitList(it)
         }
 
-        binding.qoeResultsRecyclerView?.adapter = adapter
-
-        binding.qoeResultsRecyclerView?.apply {
-            val itemDecoration = DividerItemDecoration(context, DividerItemDecoration.VERTICAL)
-            ContextCompat.getDrawable(context, R.drawable.history_item_divider)?.let {
-                itemDecoration.setDrawable(it)
-            }
-            binding.qoeResultsRecyclerView?.addItemDecoration(itemDecoration)
-        }
         binding.buttonBack.setOnClickListener {
             onBackPressed()
         }
@@ -148,19 +123,6 @@ class ResultsActivity : BaseActivity(), OnMapReadyCallback {
             } else {
                 binding.textFailedToLoad.visibility = View.GONE
             }
-        }
-
-        binding.labelTestResultDetail?.setOnClickListener {
-            TestResultDetailActivity.start(this, viewModel.state.testUUID)
-        }
-
-        binding.qosResultsRecyclerView?.apply {
-            adapter = qosAdapter
-            val itemDecoration = DividerItemDecoration(context, DividerItemDecoration.VERTICAL)
-            ContextCompat.getDrawable(context, R.drawable.history_item_divider)?.let {
-                itemDecoration.setDrawable(it)
-            }
-            binding.qosResultsRecyclerView?.addItemDecoration(itemDecoration)
         }
 
         viewModel.qosCategoryResultLiveData.listen(this) {
@@ -197,26 +159,6 @@ class ResultsActivity : BaseActivity(), OnMapReadyCallback {
         googleMap?.uiSettings?.isScrollGesturesEnabled = false
         googleMap?.uiSettings?.isZoomGesturesEnabled = false
         googleMap?.uiSettings?.isRotateGesturesEnabled = false
-    }
-
-    override fun onStart() {
-        super.onStart()
-        binding.map?.onStart()
-    }
-
-    override fun onResume() {
-        super.onResume()
-        binding.map?.onResume()
-    }
-
-    override fun onStop() {
-        super.onStop()
-        binding.map?.onStop()
-    }
-
-    override fun onPause() {
-        binding.map?.onPause()
-        super.onPause()
     }
 
     override fun onBackPressed() {

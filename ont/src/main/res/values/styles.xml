@@ -139,4 +139,30 @@
         <item name="colorPrimary">@android:color/holo_green_dark</item>
     </style>
 
+    <style name="Text.Title.Screen" parent="RobotoMediumStyle">
+        <item name="android:textSize">14sp</item>
+        <item name="android:textColor">@color/measurement_progress_start</item>
+    </style>
+
+    <style name="ResultMainItemLabel" parent="RobotoMediumStyle.VerySmall">
+        <item name="android:textColor">@color/black_40</item>
+        <item name="textAllCaps">true</item>
+    </style>
+
+    <style name="ScreenTitle" parent="RobotoMediumStyle.Large">
+        <item name="android:textColor">@color/main_color</item>
+    </style>
+
+    <style name="ResultMainItemMainValue" parent="RobotoMediumStyle.Large">
+        <item name="android:textColor">@android:color/black</item>
+    </style>
+
+    <style name="ResultMainItemValue" parent="RobotoMediumStyle.Medium">
+        <item name="android:textColor">@android:color/black</item>
+    </style>
+
+    <style name="ResultMainItemUnits" parent="RobotoMediumStyle.VerySmall">
+        <item name="android:textColor">@android:color/black</item>
+    </style>
+
 </resources>

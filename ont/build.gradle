@@ -10,8 +10,8 @@ apply from: "$project.rootDir/tools/script-detekt.gradle"
 apply from: "$project.rootDir/tools/config-reader.gradle"
 
 applyPrivate "signing/signing-config.gradle"
-applyPrivate "app/analytics.gradle"
-applyPrivate "app/flavor-config.gradle"
+applyPrivate "ont/analytics.gradle"
+applyPrivate "ont/flavor-config.gradle"
 
 android {
 

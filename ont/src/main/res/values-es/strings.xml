@@ -13,7 +13,14 @@
   -->
 
 <resources xmlns:tools="http://schemas.android.com/tools">
-    <string name="toolbar_title">RTR-Netztest</string>
+    <string name="open_location_permission_dialog_label_location_not_permitted">Posición no disponible. Desea permitir que Open Nettest acceda a la posición de su dispositivo?</string>
+    <string name="text_loop_instruction_1"> El modo bucle permite a Open Nettest repetir las pruebas de forma automática.\n\nLa primera prueba comienza inmediatamente al iniciar el modo bucle. Las siguientes pruebas se iniciarán cuando se cumpla el tiempo de espera elegido (por defecto 30 minutos) o cuando se haya recorrido la distancia elegida (por defecto 250 metros). Estos valores se pueden modificar en los "Ajustes" del modo bucle. Las pruebas continuarán hasta que se alcance el número máximo de pruebas elegido (por defecto 10 pruebas). El modo bucle se desactiva automáticamente después de 2 días. Las pruebas se pueden detener en cualquier momento.\n\nPor favor tenga en cuenta que no se descarta la posibilidad de que debido al uso del modo bucle se pueda rastrear a la persona ejecutando las pruebas.</string>
+    <string name="text_terms_agree">Acepto la política de privacidad y condiciones de uso de Specure para Open Nettest.</string>
+    <string name="text_terms_agree_empty">Debe aceptar la política de privacidad y condiciones de uso de Specure para poder continuar utilizando Open Nettest.</string>
+
+    <string name="basic_result_title" translatable="false">Resultados Básicos</string>
+    <string name="test_bottom_test_status_jitter">Estar nervioso</string>
+    <string name="test_packet_loss">Paquete perdido</string>
 
     <!-- Navigation menu titles -->
     <string name="menu_button_title_page">Home</string>
@@ -121,7 +128,6 @@
     <string name="preferences_commit_hash">Commit Hash</string>
 
     <string name="text_ip_address_not_available">Dirección no disponible</string>
-    <string name="open_location_permission_dialog_label_location_not_permitted">Posición no disponible. Desea permitir que RTR-Netztest acceda a la posición de su dispositivo?</string>
     <string name="open_location_permission_dialog_label_open_permission_setting">Cambiar ajustes</string>
 
     <string name="input_setting_dialog_ok">OK</string>
@@ -266,7 +272,6 @@
     <string name="text_loop_mode">Nueva prueba después de cada intervalo o después de recorrer la distancia. Máx. 2 días.</string>
     <string name="text_button_decline">Cancelar</string>
     <string name="text_button_accept">Aceptar</string>
-    <string name="text_loop_instruction_1"> El modo bucle permite a RTR-Netztest repetir las pruebas de forma automática.\n\nLa primera prueba comienza inmediatamente al iniciar el modo bucle. Las siguientes pruebas se iniciarán cuando se cumpla el tiempo de espera elegido (por defecto 30 minutos) o cuando se haya recorrido la distancia elegida (por defecto 250 metros). Estos valores se pueden modificar en los "Ajustes" del modo bucle. Las pruebas continuarán hasta que se alcance el número máximo de pruebas elegido (por defecto 10 pruebas). El modo bucle se desactiva automáticamente después de 2 días. Las pruebas se pueden detener en cualquier momento.\n\nPor favor tenga en cuenta que no se descarta la posibilidad de que debido al uso del modo bucle se pueda rastrear a la persona ejecutando las pruebas.</string>
     <string name="text_loop_instruction_2">En caso de alta demanda o de la ocurrencia de un elevado número de pruebas en un área determinada, es posible que el sistema rechace las pruebas en bucle para evitar la sobrecarga. Es importante destacar que el modo bucle está (únicamente) diseñado para su uso en los países que forman parte de la EU y EFTA.\n\nTenga en cuenta que el modo bucle puede utilizar una gran cantidad de datos. En las conexiones más rápidas, 10 pruebas pueden consumir 1 GB o más datos. Por ello, le recomendamos encarecidamente que utilice el modo bucle sólo en caso de disponer de una tarifa plana, de modo que el consumo de datos no origine costes adicionales. \n\nEl modo bucle puede consumir rápidamente la batería de su dispositivo. En los intervalos de pausa entre las pruebas del modo bucle, la pantalla y la conexión GPS permancen activos, por lo que se utiliza mayor energía que en modo descanso. Por lo tanto, se recomienda utilizar el modo bucle cuando sea posible conectar su dispositivo a una fuente de energía.</string>
     <string name="title_loop_instruction_1">Modo bucle: Activación</string>
     <string name="title_loop_instruction_2">Uso</string>
@@ -285,8 +290,6 @@
     <string name="loop_continue_to_results">Ver resultados</string>
     <string name="loop_run_again">Empezar de nuevo</string>
     <string name="title_privacy_policy">Protección de datos</string>
-    <string name="text_terms_agree">Acepto la política de privacidad y condiciones de uso de RTR para RTR-NetTest.</string>
-    <string name="text_terms_agree_empty">Debe aceptar la política de privacidad y condiciones de uso de RTR para poder continuar utilizando RTR-NetTest.</string>
 
     <string name="dialog_title_config_check">Por favor modifique los siguientes valores:</string>
     <string name="label_ip_processing">Procesando…</string>

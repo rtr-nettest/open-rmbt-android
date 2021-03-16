@@ -13,7 +13,20 @@
   -->
 
 <resources xmlns:tools="http://schemas.android.com/tools">
-    <string name="toolbar_title">RTR-NetTest</string>
+    <string name="toolbar_title" translatable="false">Open Nettest</string>
+    <string name="open_location_permission_dialog_label_location_not_permitted">Open Nettest is not allowed to use your location. Would you like to allow Open Nettest to use your location?</string>
+    <string name="notification_test_title">Open nettest is running</string>
+    <string name="notification_signal_test_text">Open Nettest signal measurement is running in the background</string>
+    <string name="text_loop_instruction_1">The loop mode option for technically interested users allows the automatic repetition of Open Nettest. The first test starts right after activation of the loop-modus; further tests are carried out when either the waiting time has elapsed or the specified distance has been covered. Tests will be performed until the configured number of tests has been reached. The signal strength is measured continuously, also between two tests. The loop-modus can be stopped at any time respectively it stops after 48 hours. It needs to be explicitly pointed out that due to the loop mode it cannot be excluded that the tester is identified.</string>
+    <string name="loop_mode_finished">Open Nettest loop mode finished!</string>
+    <string name="text_terms_agree">I agree with Specure’s privacy policy and terms of use for Open Nettest.</string>
+
+    <string name="text_home_run" translatable="false">Run Basic Measurement</string>
+    <string name="text_basic_measurement" translatable="false">Basic measurement</string>
+
+    <string name="basic_result_title" translatable="false">Basic Result</string>
+    <string name="test_bottom_test_status_jitter">Jitter</string>
+    <string name="test_packet_loss">Packet loss</string>
 
     <!-- Navigation menu titles -->
     <string name="menu_button_title_page">Home</string>
@@ -123,7 +136,6 @@
     <string name="location_location_direction_e">E %1$s</string>
     <string name="location_location_direction_s">S %1$s</string>
     <string name="location_location_direction_w">W %1$s</string>
-    <string name="open_location_permission_dialog_label_location_not_permitted">RTR-NetTest is not allowed to use your location. Would you like to allow RTR-NetTest to use your location?</string>
     <string name="open_location_permission_dialog_label_open_permission_setting">Open application settings</string>
 
 
@@ -184,8 +196,6 @@
     <string name="text_continue_measurement">Continue measurement</string>
     <string name="text_cancel_measurement">Cancel measurement</string>
     <string name="text_stop_measurement">Stop measurement</string>
-
-    <string name="notification_test_title">RTR-NetTest is running</string>
 
     <string name="test_dialog_error_text">Test failed. Please try again later.</string>
 
@@ -258,7 +268,6 @@
     <string name="error_sync_code_short">The code must consist of twelve characters</string>
 
     <string name="notification_signal_test_title">Signal measurement is running</string>
-    <string name="notification_signal_test_text">RTR-NetTest signal measurement is running in the background</string>
 
     <string name="notification_loop_mode_finished_title">Loop mode finished</string>
 
@@ -285,7 +294,6 @@
     <string name="text_loop_mode">New test after waiting or covering the distance. Max. 2 days</string>
     <string name="text_button_decline">Decline</string>
     <string name="text_button_accept">Accept</string>
-    <string name="text_loop_instruction_1">The loop mode option for technically interested users allows the automatic repetition of RTR-NetTest. The first test starts right after activation of the loop-modus; further tests are carried out when either the waiting time has elapsed or the specified distance has been covered. Tests will be performed until the configured number of tests has been reached. The signal strength is measured continuously, also between two tests. The loop-modus can be stopped at any time respectively it stops after 48 hours. It needs to be explicitly pointed out that due to the loop mode it cannot be excluded that the tester is identified.</string>
     <string name="text_loop_instruction_2">In the event of a great demand or very high number of tests in a specific area, the loop mode can be rejected by the test system in order to avoid overload. Please note that the loop-modus is (only) intended for use within the EU and the EEA. The loop-modus consumes a large amount of data. With fast connections, 10 tests can consume 1 GB or more of data. It is therefore strongly recommended that the loop-modus is only used with real flat rate tariffs, where additional data volume does not cause additional costs. The loop-modus drains the battery quickly. In pauses between the tests, the GPS and the display remain active and signal measurements continue, which means that the energy is used up much faster than during stand-by mode. The loop-modus should therefore only be used if an external power supply is available.</string>
     <string name="title_loop_instruction_1">Activation</string>
     <string name="title_loop_instruction_2">Usage</string>
@@ -300,11 +308,9 @@
     <string name="loop_mode_meters">Meters</string>
     <string name="loop_mode_no_gps">No GPS</string>
     <string name="or">or</string>
-    <string name="loop_mode_finished">RTR-NetTest loop mode finished!</string>
     <string name="loop_continue_to_results">Continue to the result</string>
     <string name="loop_run_again">Run again</string>
     <string name="title_privacy_policy">Privacy policy</string>
-    <string name="text_terms_agree">I agree with RTR’s privacy policy and terms of use for RTR-NetTest.</string>
     <string name="text_terms_agree_empty">You have to agree to the privacy policy and terms of use to continue.</string>
 
     <string name="dialog_title_config_check">Please change the following values:</string>

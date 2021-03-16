@@ -13,7 +13,14 @@
   -->
 
 <resources xmlns:tools="http://schemas.android.com/tools">
-    <string name="toolbar_title">RTR-Netztest</string>
+    <string name="open_location_permission_dialog_label_location_not_permitted">Standort nicht verfügbar. Zulassen, dass Open Nettest auf den Standort Ihres Geräts zugreift?</string>
+    <string name="notification_test_title">Der Open Nettest läuft</string>
+    <string name="notification_signal_test_text">Open Nettest Signalmessung läuft im Hintergrund</string>
+    <string name="text_loop_instruction_1">Der Wiederholungsmodus (Loop-Mode) für technisch Interessierte ermöglicht, dass der Open Nettest automatisiert wiederholt durchgeführt wird. Der erste Test wird unmittelbar nach dem Start des Wiederholungsmodus gestartet; weitere Tests sobald entweder die Wartezeit abgelaufen ist oder die festgelegte Distanz zurückgelegt wurde. Tests werden durchgeführt bis die eingestellte Testanzahl erreicht ist. Zwischen zwei Tests wird die Signalstärke weiter gemessen. Der Wiederholungsmodus kann jederzeit gestoppt werden bzw endet automatisch nach 48 Stunden.\nEs wird ausdrücklich darauf hingewiesen, dass aufgrund des Wiederholungsmodus ein Rückschluss auf die testende Person nicht ausgeschlossen ist.</string>
+
+    <string name="basic_result_title" translatable="false">Grundlegende Ergebnisse</string>
+    <string name="test_bottom_test_status_jitter">Jitter</string>
+    <string name="test_packet_loss">Packet loss</string>
 
     <!-- Navigation menu titles -->
     <string name="menu_button_title_page">Start</string>
@@ -119,7 +126,6 @@
     <string name="location_location_direction_e">E %1$s</string>
     <string name="location_location_direction_s">S %1$s</string>
     <string name="location_location_direction_w">W %1$s</string>
-    <string name="open_location_permission_dialog_label_location_not_permitted">Standort nicht verfügbar. Zulassen, dass RTR-Netztest auf den Standort Ihres Geräts zugreift?</string>
     <string name="open_location_permission_dialog_label_open_permission_setting">Einstellungen öffnen</string>
 
     <string name="text_ip_address_not_available">Die Adresse nicht verfügbar</string>
@@ -170,8 +176,6 @@
     <string name="text_continue_measurement">Messung fortführen</string>
     <string name="text_cancel_measurement">Messung abbrechen</string>
     <string name="text_stop_measurement">Messung beenden</string>
-
-    <string name="notification_test_title">Der RTR-Netztest läuft</string>
 
     <string name="test_dialog_error_text">Der Test schlug fehl. Bitte versuchen Sie es später noch einmal.</string>
 
@@ -239,7 +243,6 @@
     <string name="error_sync_code_short">Der Code muss aus zwölf Zeichen bestehen</string>
 
     <string name="notification_signal_test_title">Die Signalmessung läuft</string>
-    <string name="notification_signal_test_text">RTR-Netztest Signalmessung läuft im Hintergrund</string>
 
     <string name="notification_loop_mode_finished_title">Der Wiederholungsmodus ist beendet</string>
 
@@ -265,7 +268,6 @@
     <string name="text_loop_mode">Neuer Test nach Wartezeit oder Zurücklegen der Distanz. Max. 2 Tage</string>
     <string name="text_button_decline">Abbrechen</string>
     <string name="text_button_accept">Akzeptieren</string>
-    <string name="text_loop_instruction_1">Der Wiederholungsmodus (Loop-Mode) für technisch Interessierte ermöglicht, dass der RTR-Netztest automatisiert wiederholt durchgeführt wird. Der erste Test wird unmittelbar nach dem Start des Wiederholungsmodus gestartet; weitere Tests sobald entweder die Wartezeit abgelaufen ist oder die festgelegte Distanz zurückgelegt wurde. Tests werden durchgeführt bis die eingestellte Testanzahl erreicht ist. Zwischen zwei Tests wird die Signalstärke weiter gemessen. Der Wiederholungsmodus kann jederzeit gestoppt werden bzw endet automatisch nach 48 Stunden.\nEs wird ausdrücklich darauf hingewiesen, dass aufgrund des Wiederholungsmodus ein Rückschluss auf die testende Person nicht ausgeschlossen ist.</string>
     <string name="text_loop_instruction_2">Im Fall hoher Nachfrage oder einer hohen Anzahl an Tests in einem konkreten Gebiet kann der Wiederholungsmodus (Loop) durch das Testsystem abgelehnt werden, um Überlast zu vermeiden. Es wird darauf hingewiesen, dass er (nur) zur Nutzung innerhalb der EU- und des EWR gedacht ist. \nDer Wiederholungsmodus verbraucht eine große Menge an Daten. Mit schnellen Verbindungen können 10 Tests 1 GB oder mehr an Daten verbrauchen. Er sollte nur mit echten Flatrate Tarifen genutzt werden. In den Pausen zwischen den Tests bleiben GPS und die Anzeige aktiv und es werden weiter Signalmessungen durchgeführt, deshalb wird die Batterie schnell entleert. Daher sollte der Wiederholungsmodus nur genutzt werden, wenn externe Stromversorgung zur Verfügung steht.</string>
     <string name="title_loop_instruction_1">Aktivierung</string>
     <string name="title_loop_instruction_2">Nutzung</string>
