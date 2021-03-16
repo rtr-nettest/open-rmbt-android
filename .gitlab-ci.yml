@@ -97,8 +97,8 @@ check:openRMBTBuild:
   stage: check
   script:
     - rm -rf private
-    - ./gradlew clean
-    - ./gradlew assembleOpenRmbtDebug
+    - ./gradlew app:clean
+    - ./gradlew app:assembleOpenRmbtDebug
   only:
     refs:
       - /fix\/.*/
