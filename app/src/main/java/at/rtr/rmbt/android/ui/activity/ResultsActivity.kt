@@ -54,8 +54,8 @@ class ResultsActivity : BaseActivity(), OnMapReadyCallback {
         check(!testUUID.isNullOrEmpty()) { "ReturnPoint was not passed to result activity" }
 
         binding.viewPagerCharts?.offscreenPageLimit = 3
-        binding.tabLayoutCharts?.let {
-            it.setupWithViewPager(it, true)
+        binding.viewPagerCharts?.let { viewPagerCharts ->
+            binding.tabLayoutCharts?.setupWithViewPager(viewPagerCharts, true)
         }
 
         viewModel.state.testUUID = testUUID
