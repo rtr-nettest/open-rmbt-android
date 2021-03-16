@@ -1,0 +1,142 @@
+<!--
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~ http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<resources xmlns:tools="http://schemas.android.com/tools">
+
+    <!-- Base application theme. -->
+
+    <!--  No ActionBar theme -->
+    <style name="AppTheme.NoActionBar">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+    </style>
+
+    <style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorAccent">@color/colorAccent</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:windowBackground">@color/colorPrimary</item>
+        <item name="colorControlHighlight">@color/greenRipple</item>
+        <item name="android:windowDrawsSystemBarBackgrounds">false</item>
+    </style>
+
+    <style name="PreferenceTheme" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorAccent">@color/colorAccent</item>
+        <item name="android:windowBackground">@color/colorPrimary</item>
+        <item name="android:windowLightStatusBar">true</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="colorControlHighlight">@color/greenRipple</item>
+    </style>
+
+    <style name="MeasurementTheme" parent="AppTheme">
+        <item name="android:windowBackground">@color/measurement_dark_gray</item>
+        <item name="android:statusBarColor">@color/measurement_dark_gray</item>
+    </style>
+
+    <!--  Splash screen theme -->
+
+    <style name="SplashNoActionBarTheme" parent="AppTheme.NoActionBar">
+        <item name="android:windowBackground">@drawable/splash_background</item>
+        <item name="android:windowFullscreen">true</item>
+        <item name="android:windowContentOverlay">@null</item>
+    </style>
+
+    <!-- Roboto font style -->
+    <style name="RobotoRegularStyle">
+        <item name="android:fontFamily">@font/roboto_regular</item>
+        <item name="fontFamily">@font/roboto_regular</item>
+    </style>
+
+    <style name="RobotoMediumStyle">
+        <item name="android:fontFamily">@font/roboto_medium</item>
+        <item name="fontFamily">@font/roboto_medium</item>
+    </style>
+
+    <style name="RobotoBoldStyle">
+        <item name="android:fontFamily">@font/roboto_bold</item>
+        <item name="fontFamily">@font/roboto_bold</item>
+    </style>
+
+    <style name="RobotoRegularStyle.VerySmall">
+        <item name="android:textSize">12sp</item>
+    </style>
+
+    <style name="RobotoRegularStyle.Small">
+        <item name="android:textSize">14sp</item>
+    </style>
+
+    <style name="RobotoRegularStyle.Medium">
+        <item name="android:textSize">16sp</item>
+    </style>
+
+    <style name="RobotoBoldStyle.Medium">
+        <item name="android:textSize">16sp</item>
+    </style>
+
+    <!--<style name="RobotoRegularStyle.Large">
+        <item name="android:textSize">20sp</item>
+    </style>-->
+
+    <!--<style name="RobotoRegularStyle.ExtraLarge">
+        <item name="android:textSize">24sp</item>
+    </style>-->
+
+    <style name="RobotoMediumStyle.VerySmall">
+        <item name="android:textSize">12sp</item>
+    </style>
+
+    <style name="RobotoMediumStyle.Small">
+        <item name="android:textSize">14sp</item>
+    </style>
+
+    <style name="RobotoMediumStyle.Medium">
+        <item name="android:textSize">16sp</item>
+    </style>
+
+    <style name="RobotoMediumStyle.Large">
+        <item name="android:textSize">20sp</item>
+    </style>
+
+    <style name="RobotoMediumStyle.ExtraLarge">
+        <item name="android:textSize">24sp</item>
+    </style>
+
+    <style name="ItemBackground" parent="android:Widget">
+        <item name="colorControlHighlight">@color/blackRipple</item>
+    </style>
+
+    <style name="NavigationButtonStyle">
+        <item name="android:theme">@style/ItemBackground</item>
+        <item name="android:minWidth">56dp</item>
+        <item name="android:minHeight">?attr/actionBarSize</item>
+        <item name="android:scaleType">center</item>
+        <item name="android:background">?selectableItemBackgroundBorderless</item>
+
+    </style>
+
+    <style name="FullScreenDialogStyle" parent="Theme.AppCompat.Dialog">
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowIsFloating">true</item>
+        <item name="android:windowBackground">@null</item>
+        <item name="colorControlHighlight">@color/greenRipple</item>
+    </style>
+
+    <style name="TextInputTheme" parent="AppTheme">
+        <item name="colorPrimary">@android:color/holo_green_dark</item>
+    </style>
+
+</resources>

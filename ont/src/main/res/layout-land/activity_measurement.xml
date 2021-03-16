@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:bind="http://schemas.android.com/apk/res-auto">
+
+    <data>
+
+        <import type="at.specure.measurement.MeasurementState" />
+
+        <import type="at.specure.info.strength.SignalStrengthInfo" />
+
+        <import type="at.specure.data.entity.LoopModeState" />
+
+        <variable
+            name="state"
+            type="at.rtr.rmbt.android.ui.viewstate.MeasurementViewState" />
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/measurement_dark_gray">
+
+        <at.rtr.rmbt.android.ui.view.curve.MeasurementCurveLayout
+            android:id="@+id/curve_layout"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/measurementBottomView"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:measurementPhase="@{state.measurementState}"
+            app:percentage="@{state.measurementProgress}"
+            app:qosEnabled="@{state.qosEnabled}"
+            app:speed="@{state.measurementState == MeasurementState.UPLOAD ? state.uploadSpeedBps : state.downloadSpeedBps}"
+            app:strength="@{state.signalStrengthInfo}" />
+
+        <ImageView
+            android:id="@+id/buttonCancel"
+            android:layout_width="@dimen/toolbar_button_size"
+            android:layout_height="@dimen/toolbar_button_size"
+            android:layout_marginTop="@dimen/margin_small"
+            android:layout_marginEnd="@dimen/margin_small"
+            android:contentDescription="@null"
+            android:scaleType="center"
+            android:src="@drawable/ic_cancel"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/network_name_label"
+            android:layout_width="wrap_content"
+            android:layout_height="0dp"
+            android:layout_marginTop="@dimen/padding_medium"
+            android:text="@string/network_label"
+            android:textColor="@color/text_white_transparency_40"
+            android:textSize="@dimen/network_label_size"
+            android:textStyle="bold"
+            app:layout_constraintStart_toStartOf="@id/measurementBottomView"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/network_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@{state.networkInfo.name}"
+            android:textColor="@android:color/background_light"
+            android:textSize="@dimen/network_name_size"
+            android:textStyle="bold"
+            app:layout_constraintStart_toStartOf="@id/measurementBottomView"
+            app:layout_constraintTop_toBottomOf="@id/network_name_label" />
+
+        <include
+            android:id="@+id/measurementBottomView"
+            layout="@layout/measurement_bottom_view"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_marginTop="@dimen/margin_small"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/network_name"
+            app:layout_constraintWidth_percent="0.45"
+            bind:state="@{state}" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</layout>
