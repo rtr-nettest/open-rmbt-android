@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <data>
+
+        <import type="at.specure.measurement.MeasurementState" />
+
+        <import type="at.specure.info.strength.SignalStrengthInfo" />
+
+        <import type="at.specure.data.entity.LoopModeState" />
+
+        <variable
+            name="state"
+            type="at.rtr.rmbt.android.ui.viewstate.MeasurementViewState" />
+    </data>
+
+    <androidx.coordinatorlayout.widget.CoordinatorLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@android:color/white">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <TextView
+                android:id="@+id/screen_title"
+                style="@style/Text.Title.Screen"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="56dp"
+                android:text="@string/text_basic_measurement"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <at.rtr.rmbt.android.ui.view.MeasurementProgressView
+                android:id="@+id/progress"
+                android:layout_width="0dp"
+                android:layout_height="2dp"
+                android:layout_margin="40dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/screen_title"
+                app:percentage="@{state.measurementProgress}"
+                app:phase="@{state.measurementState}"
+                app:qosEnabled="@{state.qosEnabled}" />
+
+            <!--            <at.rtr.rmbt.android.ui.view.curve.MeasurementCurveLayout-->
+            <!--                android:id="@+id/curve_layout"-->
+            <!--                android:layout_width="wrap_content"-->
+            <!--                android:layout_height="0dp"-->
+            <!--                app:layout_constraintBottom_toTopOf="@id/guideline"-->
+            <!--                app:layout_constraintEnd_toEndOf="parent"-->
+            <!--                app:layout_constraintStart_toStartOf="parent"-->
+            <!--                app:layout_constraintTop_toBottomOf="@id/network_name"-->
+            <!--                app:measurementPhase="@{state.measurementState}"-->
+            <!--                app:percentage="@{state.measurementProgress}"-->
+            <!--                app:qosEnabled="@{state.qosEnabled}"-->
+            <!--                app:speed="@{state.measurementState == MeasurementState.UPLOAD ? state.uploadSpeedBps : state.downloadSpeedBps}"-->
+            <!--                app:strength="@{state.signalStrengthInfo}">-->
+
+
+            <!--            </at.rtr.rmbt.android.ui.view.curve.MeasurementCurveLayout>-->
+
+            <ImageView
+                android:id="@+id/buttonCancel"
+                android:layout_width="@dimen/toolbar_button_size"
+                android:layout_height="@dimen/toolbar_button_size"
+                android:layout_marginTop="@dimen/margin_small"
+                android:layout_marginEnd="@dimen/margin_small"
+                android:contentDescription="@null"
+                android:scaleType="center"
+                android:src="@drawable/ic_close"
+                app:layout_constraintBottom_toBottomOf="@id/screen_title"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="@id/screen_title" />
+
+            <!--            todo update with square view-->
+            <TextView
+                android:id="@+id/square"
+                android:layout_width="160dp"
+                android:layout_height="160dp"
+                android:background="@color/measurement_progress_start"
+                android:gravity="center"
+                android:text="@{state.measurementState.name}"
+                android:textColor="@android:color/white"
+                android:textSize="20sp"
+                app:layout_constraintBottom_toTopOf="@id/image"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/progress" />
+
+            <androidx.appcompat.widget.AppCompatImageView
+                android:id="@+id/image"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="120dp"
+                android:src="@drawable/image_basic"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </androidx.coordinatorlayout.widget.CoordinatorLayout>
+
+
+</layout>

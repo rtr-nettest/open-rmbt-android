@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?><!--
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~ http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<resources>
+    <!-- RTR-Netztest dimens -->
+    <dimen name="margin_small">4dp</dimen>
+    <dimen name="margin_medium">8dp</dimen>
+    <dimen name="margin_large">16dp</dimen>
+    <dimen name="margin_large_">-16dp</dimen>
+
+    <!--<dimen name="padding_very_small">2dp</dimen>
+    <dimen name="padding_small">4dp</dimen>-->
+    <dimen name="padding_very_small">2dp</dimen>
+    <dimen name="padding_small">4dp</dimen>
+    <dimen name="padding_medium">8dp</dimen>
+    <dimen name="padding_medium_large">12dp</dimen>
+    <dimen name="padding_large">16dp</dimen>
+    <dimen name="padding_extra_large">24dp</dimen>
+    <dimen name="padding_very_extra_large">32dp</dimen>
+    <dimen name="dialog_corner_radius">8dp</dimen>
+
+    <dimen name="inset_very_small">2dp</dimen>
+    <dimen name="inset_small">4dp</dimen>
+    <dimen name="inset_large">16dp</dimen>
+
+    <!-- Chart label text size -->
+    <dimen name="measurement_bottom_header_height">56dp</dimen>
+    <dimen name="chart_label_text_size">11sp</dimen>
+    <dimen name="speed_chart_height">128dp</dimen>
+    <dimen name="signal_bar_start_margin">16dp</dimen>
+    <dimen name="signal_bar_top_margin">8dp</dimen>
+    <dimen name="signal_bar_scale_value">10sp</dimen>
+    <dimen name="signal_bar_value">16sp</dimen>
+    <dimen name="signal_bar_label">12sp</dimen>
+    <dimen name="network_name_size">20sp</dimen>
+    <dimen name="network_label_size">14sp</dimen>
+    <dimen name="qos_list_max_height">200dp</dimen>
+
+    <!-- History -->
+    <dimen name="history_label_text_size">10sp</dimen>
+    <dimen name="toolbar_button_size">48dp</dimen>
+    <dimen name="size_height_status_bar">24dp</dimen>
+    <dimen name="size_divider_height">1dp</dimen>
+
+    <!-- Result screen -->
+    <dimen name="margin_24">24dp</dimen>
+    <dimen name="margin_32">32dp</dimen>
+    <dimen name="margin_52">52dp</dimen>
+
+    <!-- Home -->
+    <dimen name="home_extra_button_size">56dp</dimen>
+    <dimen name="size_text_loop_count">64sp</dimen>
+
+    <!-- Loop mode -->
+    <dimen name="loop_mode_header_height">48dp</dimen>
+    <dimen name="size_label_height">48dp</dimen>
+
+    <dimen name="history_image_size">24dp</dimen>
+</resources>

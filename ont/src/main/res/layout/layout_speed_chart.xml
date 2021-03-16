@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<at.rtr.rmbt.android.ui.view.SpeedLineChart xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/chart"
+    android:layout_width="match_parent"
+    android:layout_height="@dimen/speed_chart_height"
+    app:grid_color="@color/result_chart_grid_line_color"
+    app:grid_row="4"
+    app:progress_fill_color="@color/speed_chart_progress_fill_color"
+    app:progress_line_color="@color/colorAccent"
+    app:xlabel_color="@color/text_gray"
+    app:xlabel_text_size="@dimen/chart_label_text_size"
+    app:ylabel_color="@color/text_gray"
+    app:ylabel_text_size="@dimen/chart_label_text_size" />

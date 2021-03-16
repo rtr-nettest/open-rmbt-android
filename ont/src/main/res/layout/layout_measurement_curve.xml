@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <at.rtr.rmbt.android.ui.view.curve.MeasurementCurveView
+            android:id="@+id/curveView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/margin_medium"
+            android:layout_marginEnd="@dimen/margin_medium" />
+
+        <include
+            android:id="@+id/layout_strength"
+            layout="@layout/view_strength_signal_bar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/signal_bar_start_margin"
+            android:layout_marginTop="@dimen/signal_bar_top_margin" />
+
+    </FrameLayout>
+</layout>
