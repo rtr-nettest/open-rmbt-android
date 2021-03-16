@@ -12,7 +12,7 @@
   ~ limitations under the License.
   -->
 
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <color name="colorPrimary">@android:color/white</color>
     <color name="colorPrimaryDark">@android:color/white</color>
     <color name="colorAccent">#59b200</color>
@@ -29,8 +29,8 @@
 
     <color name="measurement_progress_empty">@color/main_inactive_color</color>
     <color name="measurement_progress_start">@color/main_color</color>
-    <color name="measurement_progress_center">#00ACB1</color>
-    <color name="measurement_progress_end">#00ACB1</color>
+    <color name="measurement_progress_center" tools:ignore="UnusedResources">#00ACB1</color>
+    <color name="measurement_progress_end" tools:ignore="UnusedResources">#00ACB1</color>
 
     <!-- Bottom navigation icon colors -->
     <color name="navigation_green">@color/colorAccent</color>
@@ -59,7 +59,6 @@
     <color name="text_gray_transparency_60">#99424242</color>
     <!-- Use in IPInfoDialog, ip address value text color -->
     <color name="text_black_transparency_60">#99000000</color>
-    <color name="text_black_transparency_40">#66000000</color>
     <color name="text_black_transparency_20">#33000000</color>
 
     <color name="wave_primary">@android:color/white</color>

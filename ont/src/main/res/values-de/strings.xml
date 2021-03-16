@@ -18,9 +18,12 @@
     <string name="notification_signal_test_text">Open Nettest Signalmessung läuft im Hintergrund</string>
     <string name="text_loop_instruction_1">Der Wiederholungsmodus (Loop-Mode) für technisch Interessierte ermöglicht, dass der Open Nettest automatisiert wiederholt durchgeführt wird. Der erste Test wird unmittelbar nach dem Start des Wiederholungsmodus gestartet; weitere Tests sobald entweder die Wartezeit abgelaufen ist oder die festgelegte Distanz zurückgelegt wurde. Tests werden durchgeführt bis die eingestellte Testanzahl erreicht ist. Zwischen zwei Tests wird die Signalstärke weiter gemessen. Der Wiederholungsmodus kann jederzeit gestoppt werden bzw endet automatisch nach 48 Stunden.\nEs wird ausdrücklich darauf hingewiesen, dass aufgrund des Wiederholungsmodus ein Rückschluss auf die testende Person nicht ausgeschlossen ist.</string>
 
-    <string name="basic_result_title" translatable="false">Grundlegende Ergebnisse</string>
+    <string name="text_home_run">Grundmessung durchführen</string>
+    <string name="text_basic_measurement">Grundmessung</string>
+
+    <string name="basic_result_title">Grundlegende Ergebnisse</string>
     <string name="test_bottom_test_status_jitter">Jitter</string>
-    <string name="test_packet_loss">Packet loss</string>
+    <string name="test_packet_loss">Paket loss</string>
 
     <!-- Navigation menu titles -->
     <string name="menu_button_title_page">Start</string>
@@ -188,7 +191,6 @@
     <string name="history_no_data">Keine Daten verfügbar.</string>
 
     <!-- Results -->
-    <string name="results_other_details">Weitere Details</string>
     <string name="results_qoe_videos_sd">Video SD</string>
     <string name="results_qoe_videos_hd">Video HD</string>
     <string name="results_qoe_videos_uhd">Video UHD</string>
@@ -204,7 +206,6 @@
     <string name="results_qoe_web">Netz</string>
     <string name="results_qoe_cloud">Cloud</string>
     <string name="results_qoe_qos">QoS Tests</string>
-    <string name="results_quality">Qualität</string>
     <string name="results_network_type">Zugang</string>
     <string name="results_network_provider">Betreiber</string>
     <string name="results_network_ssid">WLAN SSID</string>

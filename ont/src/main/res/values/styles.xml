@@ -161,8 +161,4 @@
         <item name="android:textColor">@android:color/black</item>
     </style>
 
-    <style name="ResultMainItemUnits" parent="RobotoMediumStyle.VerySmall">
-        <item name="android:textColor">@android:color/black</item>
-    </style>
-
 </resources>

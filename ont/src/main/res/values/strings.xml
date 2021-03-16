@@ -21,10 +21,10 @@
     <string name="loop_mode_finished">Open Nettest loop mode finished!</string>
     <string name="text_terms_agree">I agree with Specure’s privacy policy and terms of use for Open Nettest.</string>
 
-    <string name="text_home_run" translatable="false">Run Basic Measurement</string>
-    <string name="text_basic_measurement" translatable="false">Basic measurement</string>
+    <string name="text_home_run">Run Basic Measurement</string>
+    <string name="text_basic_measurement">Basic measurement</string>
 
-    <string name="basic_result_title" translatable="false">Basic Result</string>
+    <string name="basic_result_title">Basic Result</string>
     <string name="test_bottom_test_status_jitter">Jitter</string>
     <string name="test_packet_loss">Packet loss</string>
 
@@ -208,7 +208,6 @@
     <string name="history_no_data">No data available.</string>
 
     <!-- Results -->
-    <string name="results_other_details">Further details</string>
     <string name="results_qoe_videos_sd">Videos SD</string>
     <string name="results_qoe_videos_hd">Videos HD</string>
     <string name="results_qoe_videos_uhd">Videos UHD</string>
@@ -224,7 +223,6 @@
     <string name="results_qoe_web">Web</string>
     <string name="results_qoe_cloud">Cloud</string>
     <string name="results_qoe_qos">QoS tests</string>
-    <string name="results_quality">Quality</string>
     <string name="results_network_type">Type</string>
     <string name="results_network_provider">Provider</string>
     <string name="results_network_ssid">WLAN SSID</string>
