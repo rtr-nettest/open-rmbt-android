@@ -58,7 +58,7 @@ check:app-ont:
   stage: check
   script:
     - ./gradlew :ont:ktlint
-    - ./gradlew :ont:lintOntStageDebug
+    - ./gradlew :ont:lintLocalStageDebug
   only:
     refs:
       - /fix\/.*/
