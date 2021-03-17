@@ -318,7 +318,16 @@ class StateRecorder @Inject constructor(
             cellInfoWatcher.allCellInfo.forEach {
                 Timber.d("saving cell:\n\n testUUID: $uuid \n networkInfo: $info \n\n ${it.cellUUID}     ${it.networkType.displayName}     \n\n")
             }
-            repository.saveCellInfo(uuid, infoList.toList(), testStartTimeNanos)
+
+            val onlyActiveCellInfoList = infoList.filter {
+                if (it is CellNetworkInfo) {
+                    it.isActive
+                } else {
+                    true
+                }
+            }
+
+            repository.saveCellInfo(uuid, onlyActiveCellInfoList.toList(), testStartTimeNanos)
         }
     }
 
