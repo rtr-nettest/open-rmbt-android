@@ -398,7 +398,15 @@ class SignalMeasurementProcessor @Inject constructor(
                 else -> throw IllegalArgumentException("Unknown cell info ${info.javaClass.simpleName}")
             }
 
-            repository.saveCellInfo(uuid, infoList.toList(), record?.startTimeNanos ?: 0)
+            val onlyActiveCellInfoList = infoList.filter {
+                if (it is CellNetworkInfo) {
+                    it.isActive
+                } else {
+                    true
+                }
+            }
+
+            repository.saveCellInfo(uuid, onlyActiveCellInfoList.toList(), record?.startTimeNanos ?: 0)
         }
     }
 
