@@ -284,18 +284,18 @@ abstract class SignalStrengthInfo : Parcelable {
                         is CellSignalStrengthNr -> {
                             signal = SignalStrengthInfoNr(
                                 transport = transportType,
-                                value = it.dbm.let { dbm -> -abs(dbm) },
-                                rsrq = it.csiRsrq.checkValueAvailable(),
+                                value = it.dbm.let { dbm -> -abs(dbm) }.fixNrRsrp(),
+                                rsrq = it.csiRsrq.checkValueAvailable().fixNrRsrq(),
                                 signalLevel = it.level,
                                 min = NR_RSRP_SIGNAL_MIN,
                                 max = NR_RSRP_SIGNAL_MAX,
                                 timestampNanos = timestampNanos,
-                                csiRsrp = it.csiRsrp.checkValueAvailable(),
-                                csiRsrq = it.csiRsrq.checkValueAvailable(),
-                                csiSinr = it.csiSinr.checkValueAvailable(),
-                                ssRsrp = it.ssRsrp.checkValueAvailable(),
-                                ssRsrq = it.ssRsrq.checkValueAvailable(),
-                                ssSinr = it.ssSinr.checkValueAvailable()
+                                csiRsrp = it.csiRsrp.checkValueAvailable()?.fixNrRsrp(),
+                                csiRsrq = it.csiRsrq.checkValueAvailable()?.fixNrRsrq(),
+                                csiSinr = it.csiSinr.checkValueAvailable()?.fixNrSinr(),
+                                ssRsrp = it.ssRsrp.checkValueAvailable()?.fixNrRsrp(),
+                                ssRsrq = it.ssRsrq.checkValueAvailable()?.fixNrRsrq(),
+                                ssSinr = it.ssSinr.checkValueAvailable()?.fixNrSinr()
                             )
                         }
                         is CellSignalStrengthTdscdma,
