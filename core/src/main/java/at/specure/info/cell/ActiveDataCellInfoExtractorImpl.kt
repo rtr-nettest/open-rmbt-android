@@ -1,6 +1,7 @@
 package at.specure.info.cell
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.pm.PackageManager
 import android.net.ConnectivityManager
@@ -246,6 +247,10 @@ class ActiveDataCellInfoExtractorImpl(
         )
     }
 
+    /**
+     * Before usage of this method ensure you have READ_PHONE_STATE permission granted
+     */
+    @SuppressLint("MissingPermission")
     private fun extractNetworkType(dataSimSubscriptionId: Int) = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
         val manager = telephonyManager.createForSubscriptionId(dataSimSubscriptionId)
         if (NRConnectionState.getNRConnectionState(manager) != NRConnectionState.NOT_AVAILABLE) {
