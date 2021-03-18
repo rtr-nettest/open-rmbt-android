@@ -153,11 +153,15 @@
         <item name="android:textColor">@color/main_color</item>
     </style>
 
-    <style name="ResultMainItemMainValue" parent="RobotoMediumStyle.Large">
+    <style name="ResultMainItemMainValue" parent="RobotoMediumStyle.ExtraLarge">
         <item name="android:textColor">@android:color/black</item>
     </style>
 
     <style name="ResultMainItemValue" parent="RobotoMediumStyle.Medium">
+        <item name="android:textColor">@android:color/black</item>
+    </style>
+
+    <style name="ResultMainItemUnit" parent="RobotoMediumStyle.Small">
         <item name="android:textColor">@android:color/black</item>
     </style>
 
