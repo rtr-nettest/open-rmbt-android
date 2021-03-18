@@ -417,6 +417,7 @@ class SignalMeasurementProcessor @Inject constructor(
     private fun saveLocationInfo() {
         val uuid = chunk?.id
         val location = locationInfo
+        Timber.d("Saving location:  UUID:$uuid  ${location.toDeviceInfoLocation()} ")
         if (uuid != null && location != null && locationWatcher.state == LocationState.ENABLED) {
             repository.saveGeoLocation(uuid, location, record?.startTimeNanos ?: 0, false)
         }

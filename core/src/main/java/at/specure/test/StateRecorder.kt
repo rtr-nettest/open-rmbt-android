@@ -306,6 +306,7 @@ class StateRecorder @Inject constructor(
         }
     }
 
+    @Synchronized
     private fun saveCellInfo() {
         val uuid = testUUID
         val info = networkInfo
