@@ -633,15 +633,14 @@ fun AppCompatTextView.setDownload(speedDownloadClassification: Classification) {
 /**
  * A binding adapter that is used for show download speed with classification icon in results
  */
-@BindingAdapter("speedDownloadResult", "speedDownloadClassificationResult", requireAll = true)
-fun AppCompatTextView.speedDownloadResult(speedDownloadResult: Long, speedDownloadClassificationResult: Classification) {
+@BindingAdapter("speedDownloadResult")
+fun AppCompatTextView.speedDownloadResult(speedDownloadResult: Long) {
 
     text = if (speedDownloadResult > 0) {
         context.getString(R.string.measurement_download_upload_speed, ((speedDownloadResult.toFloat() / 1000f).format()))
     } else {
         context.getString(R.string.measurement_dash)
     }
-    setCompoundDrawablesWithIntrinsicBounds(getSpeedDownloadClassification(speedDownloadClassificationResult), 0, 0, 0)
 }
 
 fun getSpeedDownloadClassification(speedDownloadClassification: Classification): Int {
@@ -667,14 +666,13 @@ fun getSpeedDownloadClassification(speedDownloadClassification: Classification):
 /**
  * A binding adapter that is used for show upload speed with classification icon in results
  */
-@BindingAdapter("speedUploadResult", "speedUploadClassificationResult", requireAll = true)
-fun AppCompatTextView.speedUploadResult(speedUploadResult: Long, speedUploadClassificationResult: Classification) {
+@BindingAdapter("speedUploadResult")
+fun AppCompatTextView.speedUploadResult(speedUploadResult: Long) {
     text = if (speedUploadResult > 0) {
         context.getString(R.string.measurement_download_upload_speed, ((speedUploadResult.toFloat() / 1000f).format()))
     } else {
         context.getString(R.string.measurement_dash)
     }
-    setCompoundDrawablesWithIntrinsicBounds(getSpeedUploadClassificationIcon(speedUploadClassificationResult), 0, 0, 0)
 }
 
 /**
@@ -716,8 +714,8 @@ fun AppCompatTextView.setPing(pingClassification: Classification) {
 /**
  * A binding adapter that is used for show download ping with classification icon in results
  */
-@BindingAdapter("pingResult", "pingClassificationResult", requireAll = true)
-fun AppCompatTextView.setPingResult(pingResult: Double, pingClassificationResult: Classification) {
+@BindingAdapter("pingResult")
+fun AppCompatTextView.setPingResult(pingResult: Double) {
     text = if (pingResult > 0) {
         val mantissa = pingResult - (pingResult.toInt().toDouble())
         if (mantissa > 0 && pingResult < 10.0) {
@@ -728,7 +726,6 @@ fun AppCompatTextView.setPingResult(pingResult: Double, pingClassificationResult
     } else {
         context.getString(R.string.measurement_dash)
     }
-    setCompoundDrawablesWithIntrinsicBounds(getPingClassificationIcon(pingClassificationResult), 0, 0, 0)
 }
 
 fun getPingClassificationIcon(pingClassification: Classification): Int {
