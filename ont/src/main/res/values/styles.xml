@@ -43,8 +43,8 @@
     </style>
 
     <style name="MeasurementTheme" parent="AppTheme">
-        <item name="android:windowBackground">@color/measurement_dark_gray</item>
-        <item name="android:statusBarColor">@color/measurement_dark_gray</item>
+        <item name="android:windowBackground">@color/colorPrimary</item>
+        <item name="android:statusBarColor">@color/colorPrimary</item>
     </style>
 
     <!--  Splash screen theme -->
@@ -139,9 +139,21 @@
         <item name="colorPrimary">@android:color/holo_green_dark</item>
     </style>
 
-    <style name="Text.Title.Screen" parent="RobotoMediumStyle">
+    <style name="Text.MeasurementProgress" parent="RobotoRegularStyle">
+        <item name="android:textSize">44sp</item>
+        <item name="android:fontFamily">sans-serif-light</item>
+    </style>
+
+    <style name="Text.MeasurementProgress.Phase" parent="RobotoMediumStyle">
         <item name="android:textSize">14sp</item>
-        <item name="android:textColor">@color/measurement_progress_start</item>
+        <item name="android:textAllCaps">true</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textColor">@color/main_color</item>
+    </style>
+
+    <style name="Text.MeasurementProgress.Units" parent="RobotoMediumStyle">
+        <item name="android:textSize">12sp</item>
+        <item name="android:textColor">@color/main_color</item>
     </style>
 
     <style name="ResultMainItemLabel" parent="RobotoMediumStyle.VerySmall">
