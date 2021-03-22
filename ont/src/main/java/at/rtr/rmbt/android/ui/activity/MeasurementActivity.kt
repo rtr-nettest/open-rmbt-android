@@ -20,15 +20,12 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.view.WindowManager
-import androidx.lifecycle.observe
 import at.rtr.rmbt.android.R
 import at.rtr.rmbt.android.databinding.ActivityMeasurementBinding
 import at.rtr.rmbt.android.di.viewModelLazy
 import at.rtr.rmbt.android.ui.dialog.SimpleDialog
 import at.rtr.rmbt.android.util.listen
 import at.rtr.rmbt.android.viewmodel.MeasurementViewModel
-import at.specure.data.entity.LoopModeRecord
-import at.specure.data.entity.LoopModeState
 import at.specure.location.LocationState
 import at.specure.measurement.MeasurementState
 import timber.log.Timber
@@ -74,16 +71,15 @@ class MeasurementActivity : BaseActivity(), SimpleDialog.Callback {
 
         viewModel.downloadGraphSource.listen(this) {
             if (viewModel.state.measurementState.get() == MeasurementState.DOWNLOAD) {
- //               binding.measurementBottomView?.speedChartDownloadUpload?.addGraphItems(it)
+                //               binding.measurementBottomView?.speedChartDownloadUpload?.addGraphItems(it)
             }
         }
 
         viewModel.uploadGraphSource.listen(this) {
             if (viewModel.state.measurementState.get() == MeasurementState.UPLOAD) {
- //               binding.measurementBottomView?.speedChartDownloadUpload?.addGraphItems(it)
+                //               binding.measurementBottomView?.speedChartDownloadUpload?.addGraphItems(it)
             }
         }
-
 
         viewModel.activeNetworkLiveData.listen(this) {
             viewModel.state.networkInfo.set(it.networkInfo)
@@ -145,7 +141,10 @@ class MeasurementActivity : BaseActivity(), SimpleDialog.Callback {
             LoopFinishedActivity.start(this)
         } else {
             finishAffinity()
-            HomeActivity.startWithFragment(this, HomeActivity.Companion.HomeNavigationTarget.HOME_FRAGMENT_TO_SHOW)
+            HomeActivity.startWithFragment(
+                this,
+                HomeActivity.Companion.HomeNavigationTarget.HOME_FRAGMENT_TO_SHOW
+            )
         }
     }
 //

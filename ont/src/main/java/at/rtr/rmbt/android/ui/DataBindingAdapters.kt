@@ -34,7 +34,10 @@ import at.specure.measurement.MeasurementState
 import at.specure.result.QoECategory
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import java.text.SimpleDateFormat
-import java.util.*
+import java.util.Calendar
+import java.util.Locale
+import java.util.TimeZone
+import java.util.Date
 import kotlin.math.roundToInt
 import kotlin.math.roundToLong
 
