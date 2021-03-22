@@ -11,11 +11,11 @@ import androidx.core.content.ContextCompat
 import androidx.databinding.BindingAdapter
 import at.rmbt.client.control.IpProtocol
 import at.rtr.rmbt.android.R
+import at.rtr.rmbt.android.ui.view.MeasurementProgressSquareView
 import at.rtr.rmbt.android.ui.view.ProgressBar
 import at.rtr.rmbt.android.ui.view.ResultBar
 import at.rtr.rmbt.android.ui.view.SpeedLineChart
 import at.rtr.rmbt.android.ui.view.WaveView
-import at.rtr.rmbt.android.ui.view.curve.MeasurementCurveLayout
 import at.rtr.rmbt.android.util.InfoWindowStatus
 import at.rtr.rmbt.android.util.format
 import at.specure.data.Classification
@@ -34,10 +34,7 @@ import at.specure.measurement.MeasurementState
 import at.specure.result.QoECategory
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import java.text.SimpleDateFormat
-import java.util.Calendar
-import java.util.Date
-import java.util.Locale
-import java.util.TimeZone
+import java.util.*
 import kotlin.math.roundToInt
 import kotlin.math.roundToLong
 
@@ -303,7 +300,10 @@ fun AppCompatTextView.setPing(pingNanos: Long) {
         if (mantissa > 0 && pingResult < 10.0) {
             text = context.getString(R.string.measurement_ping_value_1f, pingResult)
         } else {
-            text = context.getString(R.string.measurement_ping_value, pingResult.roundToInt().toString())
+            text = context.getString(
+                R.string.measurement_ping_value,
+                pingResult.roundToInt().toString()
+            )
         }
     } else {
         setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_small_ping_gray, 0, 0, 0)
@@ -397,7 +397,10 @@ fun AppCompatTextView.setUpload(uploadSpeedBps: Long) {
  * and signalLevel(0..4)
  */
 @BindingAdapter("measurementSignalLevel", "connected")
-fun AppCompatImageView.setSmallIcon(signalStrengthInfo: SignalStrengthInfo?, connectionAvailable: Boolean) {
+fun AppCompatImageView.setSmallIcon(
+    signalStrengthInfo: SignalStrengthInfo?,
+    connectionAvailable: Boolean
+) {
 
     if (connectionAvailable) {
         when (signalStrengthInfo?.transport) {
@@ -466,29 +469,35 @@ fun SpeedLineChart.reset(measurementState: MeasurementState) {
     }
 }
 
-@BindingAdapter("speed")
-fun MeasurementCurveLayout.setSpeed(speed: Long) {
-    setBottomProgress(speed)
+@BindingAdapter("app:percentage")
+fun MeasurementProgressSquareView.setPercents(percentage: Int) {
+    setProgress(percentage)
 }
 
-@BindingAdapter("percentage")
-fun MeasurementCurveLayout.setPercents(percentage: Int) {
-    setTopProgress(percentage)
-}
-
-@BindingAdapter("strength")
-fun MeasurementCurveLayout.setSignal(signalLevel: SignalStrengthInfo?) {
-    setSignalStrength(signalLevel)
-}
-
-@BindingAdapter("measurementPhase")
-fun MeasurementCurveLayout.setMeasurementPhase(state: MeasurementState) {
+@BindingAdapter(
+    value = ["app:measurementPhase", "app:downloadSpeed", "app:uploadSpeed", "app:ping"],
+    requireAll = true
+)
+fun MeasurementProgressSquareView.setMeasurementPhase(
+    state: MeasurementState,
+    downloadSpeed: Long,
+    uploadSpeed: Long,
+    ping: Long
+) {
     setMeasurementState(state)
-}
-
-@BindingAdapter("qosEnabled")
-fun MeasurementCurveLayout.setQosEnabled(enabled: Boolean) {
-    setQoSEnabled(enabled)
+    if (state == MeasurementState.PING) {
+        if (ping > 0) {
+            setSpeed(ping / 1000000.0f)
+        } else {
+            setSpeed(-1.0f)
+        }
+    }
+    if (state == MeasurementState.UPLOAD) {
+        setSpeed(uploadSpeed / 1000000.0f)
+    }
+    if (state == MeasurementState.DOWNLOAD) {
+        setSpeed(downloadSpeed / 1000000.0f)
+    }
 }
 
 @BindingAdapter("progress_enabled")
@@ -526,15 +535,31 @@ fun ConstraintLayout.setBottomSheetState(state: Int) {
 /**
  * A binding adapter that is used for show date and time in history list
  */
-@BindingAdapter("networkType", "historyTime", "historyTimezone", "historySignalStrength", requireAll = true)
-fun AppCompatTextView.setHistoryTime(networkType: NetworkTypeCompat, historyTime: Long, historyTimezone: String, signalStrength: Classification) {
+@BindingAdapter(
+    "networkType",
+    "historyTime",
+    "historyTimezone",
+    "historySignalStrength",
+    requireAll = true
+)
+fun AppCompatTextView.setHistoryTime(
+    networkType: NetworkTypeCompat,
+    historyTime: Long,
+    historyTimezone: String,
+    signalStrength: Classification
+) {
 
     val calendar: Calendar = Calendar.getInstance()
     calendar.timeInMillis = historyTime
     calendar.timeZone = TimeZone.getTimeZone(historyTimezone)
     text = calendar.format("dd.MM.yy, HH:mm:ss")
 
-    setCompoundDrawablesWithIntrinsicBounds(getSignalImageResource(networkType, signalStrength), 0, 0, 0)
+    setCompoundDrawablesWithIntrinsicBounds(
+        getSignalImageResource(networkType, signalStrength),
+        0,
+        0,
+        0
+    )
 }
 
 @BindingAdapter("historyTime", "historyTimezone", requireAll = true)
@@ -551,7 +576,10 @@ fun ImageView.setSignalIcon(networkType: NetworkTypeCompat?, signalStrength: Cla
     networkType?.let { setImageResource(getSignalImageResource(it, signalStrength)) }
 }
 
-private fun getSignalImageResource(networkType: NetworkTypeCompat, signalStrength: Classification): Int =
+private fun getSignalImageResource(
+    networkType: NetworkTypeCompat,
+    signalStrength: Classification
+): Int =
     when (networkType) {
         NetworkTypeCompat.TYPE_2G -> {
             when (signalStrength) {
@@ -627,21 +655,35 @@ fun AppCompatTextView.setResultTime(resultTime: Long?, resultTimezone: String?) 
  */
 @BindingAdapter("speedDownloadClassification")
 fun AppCompatTextView.setDownload(speedDownloadClassification: Classification) {
-    setCompoundDrawablesWithIntrinsicBounds(getSpeedDownloadClassification(speedDownloadClassification), 0, 0, 0)
+    setCompoundDrawablesWithIntrinsicBounds(
+        getSpeedDownloadClassification(
+            speedDownloadClassification
+        ), 0, 0, 0
+    )
 }
 
 /**
  * A binding adapter that is used for show download speed with classification icon in results
  */
 @BindingAdapter("speedDownloadResult", "speedDownloadClassificationResult", requireAll = true)
-fun AppCompatTextView.speedDownloadResult(speedDownloadResult: Long, speedDownloadClassificationResult: Classification) {
+fun AppCompatTextView.speedDownloadResult(
+    speedDownloadResult: Long,
+    speedDownloadClassificationResult: Classification
+) {
 
     text = if (speedDownloadResult > 0) {
-        context.getString(R.string.measurement_download_upload_speed, ((speedDownloadResult.toFloat() / 1000f).format()))
+        context.getString(
+            R.string.measurement_download_upload_speed,
+            ((speedDownloadResult.toFloat() / 1000f).format())
+        )
     } else {
         context.getString(R.string.measurement_dash)
     }
-    setCompoundDrawablesWithIntrinsicBounds(getSpeedDownloadClassification(speedDownloadClassificationResult), 0, 0, 0)
+    setCompoundDrawablesWithIntrinsicBounds(
+        getSpeedDownloadClassification(
+            speedDownloadClassificationResult
+        ), 0, 0, 0
+    )
 }
 
 fun getSpeedDownloadClassification(speedDownloadClassification: Classification): Int {
@@ -668,13 +710,23 @@ fun getSpeedDownloadClassification(speedDownloadClassification: Classification):
  * A binding adapter that is used for show upload speed with classification icon in results
  */
 @BindingAdapter("speedUploadResult", "speedUploadClassificationResult", requireAll = true)
-fun AppCompatTextView.speedUploadResult(speedUploadResult: Long, speedUploadClassificationResult: Classification) {
+fun AppCompatTextView.speedUploadResult(
+    speedUploadResult: Long,
+    speedUploadClassificationResult: Classification
+) {
     text = if (speedUploadResult > 0) {
-        context.getString(R.string.measurement_download_upload_speed, ((speedUploadResult.toFloat() / 1000f).format()))
+        context.getString(
+            R.string.measurement_download_upload_speed,
+            ((speedUploadResult.toFloat() / 1000f).format())
+        )
     } else {
         context.getString(R.string.measurement_dash)
     }
-    setCompoundDrawablesWithIntrinsicBounds(getSpeedUploadClassificationIcon(speedUploadClassificationResult), 0, 0, 0)
+    setCompoundDrawablesWithIntrinsicBounds(
+        getSpeedUploadClassificationIcon(
+            speedUploadClassificationResult
+        ), 0, 0, 0
+    )
 }
 
 /**
@@ -682,7 +734,11 @@ fun AppCompatTextView.speedUploadResult(speedUploadResult: Long, speedUploadClas
  */
 @BindingAdapter("speedUploadClassification")
 fun AppCompatTextView.setUpload(speedUploadClassification: Classification) {
-    setCompoundDrawablesWithIntrinsicBounds(getSpeedUploadClassificationIcon(speedUploadClassification), 0, 0, 0)
+    setCompoundDrawablesWithIntrinsicBounds(
+        getSpeedUploadClassificationIcon(
+            speedUploadClassification
+        ), 0, 0, 0
+    )
 }
 
 fun getSpeedUploadClassificationIcon(speedUploadClassification: Classification): Int {
@@ -728,7 +784,12 @@ fun AppCompatTextView.setPingResult(pingResult: Double, pingClassificationResult
     } else {
         context.getString(R.string.measurement_dash)
     }
-    setCompoundDrawablesWithIntrinsicBounds(getPingClassificationIcon(pingClassificationResult), 0, 0, 0)
+    setCompoundDrawablesWithIntrinsicBounds(
+        getPingClassificationIcon(pingClassificationResult),
+        0,
+        0,
+        0
+    )
 }
 
 fun getPingClassificationIcon(pingClassification: Classification): Int {
@@ -755,7 +816,10 @@ fun getPingClassificationIcon(pingClassification: Classification): Int {
  * A binding adapter that is used for show signal strength with classification icon in result
  */
 @BindingAdapter("signalStrengthResult", "signalStrengthClassificationResult", requireAll = true)
-fun AppCompatTextView.setSignalStrength(signalStrengthResult: Int?, signalStrengthClassificationResult: Classification) {
+fun AppCompatTextView.setSignalStrength(
+    signalStrengthResult: Int?,
+    signalStrengthClassificationResult: Classification
+) {
 
     text = if (signalStrengthResult != null) {
         context.getString(R.string.strength_signal_value, signalStrengthResult)
@@ -903,7 +967,10 @@ fun AppCompatTextView.setTimeAs24h(time: Long) {
 }
 
 @BindingAdapter("signalStrengthMap", "signalStrengthClassificationMap", requireAll = true)
-fun AppCompatTextView.setSignalStrengthMap(signalStrengthResult: String?, signalStrengthClassificationResult: Classification) {
+fun AppCompatTextView.setSignalStrengthMap(
+    signalStrengthResult: String?,
+    signalStrengthClassificationResult: Classification
+) {
 
     text = signalStrengthResult ?: context.getString(R.string.measurement_dash)
 
