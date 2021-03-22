@@ -395,6 +395,34 @@
                         app:visibleOrGone="@{state.testResult != null &amp;&amp; state.testResult.networkName != null &amp;&amp; !state.testResult.networkName.isEmpty()}"
                         tools:text="WIFIFINKA" />
 
+                    <androidx.appcompat.widget.AppCompatTextView
+                        android:id="@+id/labelProviderName"
+                        style="@style/ResultMainItemLabel"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginEnd="40dp"
+                        android:text="@string/results_network_provider"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintHorizontal_bias="0.5"
+                        app:layout_constraintHorizontal_weight="1"
+                        app:layout_constraintStart_toEndOf="@+id/labelConnection"
+                        app:layout_constraintTop_toTopOf="@+id/labelConnection"
+                        app:visibleOrGone="@{state.testResult != null &amp;&amp; state.testResult.networkProviderName != null &amp;&amp; !state.testResult.networkProviderName.isEmpty()  &amp;&amp; (state.testResult.networkName == null || state.testResult.networkName.isEmpty())}"
+                        tools:text="Provider" />
+
+                    <androidx.appcompat.widget.AppCompatTextView
+                        android:id="@+id/textProviderName"
+                        style="@style/ResultMainItemValue"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        app:layout_constraintEnd_toEndOf="@+id/labelNetworkName"
+                        app:layout_constraintHorizontal_weight="1"
+                        app:layout_constraintStart_toEndOf="@+id/textConnection"
+                        app:layout_constraintTop_toBottomOf="@+id/labelNetworkName"
+                        app:text="@{state.testResult.networkProviderName}"
+                        app:visibleOrGone="@{state.testResult != null &amp;&amp; state.testResult.networkProviderName != null &amp;&amp; !state.testResult.networkProviderName.isEmpty() &amp;&amp; (state.testResult.networkName == null || state.testResult.networkName.isEmpty())}"
+                        tools:text="O2" />
+
                     <LinearLayout
                         android:id="@+id/graphContainer"
                         android:layout_width="match_parent"
