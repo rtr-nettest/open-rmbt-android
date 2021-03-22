@@ -35,6 +35,7 @@ import at.specure.location.cell.CellLocationLiveData
 import at.specure.location.cell.CellLocationWatcher
 import org.json.JSONArray
 import timber.log.Timber
+import java.util.Collections
 import java.util.UUID
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
@@ -124,10 +125,12 @@ class StateRecorder @Inject constructor(
 
         networkInfo = activeNetworkWatcher.currentNetworkInfo
         activeNetworkLiveData.observe(lifecycle, Observer {
-            networkInfo = it?.networkInfo
-            saveCellInfo()
-            saveTelephonyInfo()
-            saveWlanInfo()
+            synchronized(this) {
+                networkInfo = it?.networkInfo
+                saveCellInfo()
+                saveTelephonyInfo()
+                saveWlanInfo()
+            }
         })
 
         cellLocation = cellLocationWatcher.latestLocation
@@ -242,7 +245,7 @@ class StateRecorder @Inject constructor(
         val uuid = testUUID
         val location = locationInfo
         if (uuid != null && location != null && locationWatcher.state == LocationState.ENABLED) {
-            repository.saveGeoLocation(uuid, location, testStartTimeNanos, true)
+            repository.saveGeoLocation(uuid, location, testStartTimeNanos, false)
         }
 
         _loopModeRecord?.let {
@@ -316,17 +319,19 @@ class StateRecorder @Inject constructor(
                 is CellNetworkInfo -> cellInfoWatcher.allCellInfo
                 else -> throw IllegalArgumentException("Unknown cell info ${info.javaClass.simpleName}")
             }
-            cellInfoWatcher.allCellInfo.forEach {
-                Timber.d("saving cell:\n\n testUUID: $uuid \n networkInfo: $info \n\n ${it.cellUUID}     ${it.networkType.displayName}     \n\n")
-            }
+//            cellInfoWatcher.allCellInfo.forEach {
+//                Timber.d("saving cell:\n\n testUUID: $uuid \n networkInfo: $info \n\n ${it.cellUUID}     ${it.networkType.displayName}     \n\n")
+//            }
 
-            val onlyActiveCellInfoList = infoList.filter {
+            val copyInfoList = Collections.synchronizedList(infoList.toMutableList())
+
+            val onlyActiveCellInfoList = Collections.synchronizedList(copyInfoList.filter {
                 if (it is CellNetworkInfo) {
                     it.isActive
                 } else {
                     true
                 }
-            }
+            })
 
             repository.saveCellInfo(uuid, onlyActiveCellInfoList.toList(), testStartTimeNanos)
         }
