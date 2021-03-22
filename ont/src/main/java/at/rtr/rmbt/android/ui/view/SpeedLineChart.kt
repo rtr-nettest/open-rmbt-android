@@ -1,6 +1,9 @@
 package at.rtr.rmbt.android.ui.view
 
+import android.annotation.SuppressLint
 import android.content.Context
+import android.graphics.Bitmap
+import android.graphics.BitmapShader
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.LinearGradient
@@ -8,74 +11,63 @@ import android.graphics.Paint
 import android.graphics.Path
 import android.graphics.PointF
 import android.graphics.Shader
+import android.graphics.drawable.Drawable
 import android.util.AttributeSet
+import androidx.core.content.ContextCompat
+import androidx.core.content.res.ResourcesCompat
 import at.rtr.rmbt.android.R
 import at.specure.data.NetworkTypeCompat
 import at.specure.data.entity.GraphItemRecord
 import at.specure.data.entity.TestResultGraphItemRecord
-import timber.log.Timber
 import kotlin.math.log10
 import kotlin.math.max
 import kotlin.math.min
 import kotlin.math.pow
 import kotlin.math.sqrt
+import timber.log.Timber
 
 class SpeedLineChart @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null
 ) : LineChart(context, attrs), ResultChart {
 
-    private var pathStroke: Path
-    private var paintStroke: Paint = Paint(Paint.ANTI_ALIAS_FLAG)
+    private var pathStroke: Path = Path()
+    private var paintStroke: Paint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+        color = ContextCompat.getColor(context, R.color.colorAccent)
+        style = Paint.Style.STROKE
+        strokeWidth = STROKE_WIDTH
+        strokeCap = Paint.Cap.ROUND
+        strokeJoin = Paint.Join.ROUND
+    }
 
-    private var pathFill: Path
-    private var paintFill: Paint = Paint(Paint.ANTI_ALIAS_FLAG)
+    private var pathFill: Path = Path()
+    private var paintFill: Paint = Paint(Paint.ANTI_ALIAS_FLAG).apply { style = Paint.Style.FILL }
 
-    private var circlePoint: PointF? = null
+    private var lineGradientBitmap: Bitmap? = null
+    private var lineShader: BitmapShader? = null
+    private var fillShader: LinearGradient? = null
+
     private var startTime: Long = -1
 
     private var chartPoints: ArrayList<PointF> = ArrayList()
 
-    init {
-
-        val typedArray = context.obtainStyledAttributes(attrs, R.styleable.SpeedLineChart)
-
-        paintStroke.color = typedArray.getColor(
-            R.styleable.SpeedLineChart_progress_line_color,
-            context.getColor(R.color.colorAccent)
-        )
-
-        val endColor = context.getColor(R.color.measurement_progress_end)
-        paintStroke.style = Paint.Style.STROKE
-        paintStroke.strokeWidth = STROKE_WIDTH
-        paintStroke.strokeCap = Paint.Cap.ROUND
-        paintStroke.strokeJoin = Paint.Join.ROUND
-        paintStroke.isAntiAlias = true
-        paintFill.setShader(LinearGradient(0F, 0F, getChartWidth(), getChartHeight(), paintStroke.color, endColor, Shader.TileMode.CLAMP))
-
-        pathStroke = Path()
-
-        paintFill.color = typedArray.getColor(
-            R.styleable.SpeedLineChart_progress_fill_color,
-            context.getColor(R.color.speed_chart_progress_fill_color)
-        )
-        paintFill.style = Paint.Style.FILL
-        paintFill.isAntiAlias = true
-        paintFill.setShader(
-            LinearGradient(
-                0F,
-                0F,
-                getChartWidth(),
-                getChartHeight().toFloat(),
-                paintFill.color,
-                Color.TRANSPARENT,
+    @SuppressLint("DrawAllocation")
+    override fun onLayout(changed: Boolean, left: Int, top: Int, right: Int, bottom: Int) {
+        super.onLayout(changed, left, top, right, bottom)
+        if (changed) {
+            lineGradientBitmap = ResourcesCompat.getDrawable(resources, R.drawable.bg_line_chart_gradient_path, null)
+                ?.let { convertToBitmap(it, right - left, bottom - top) }
+            lineShader = lineGradientBitmap?.let { BitmapShader(it, Shader.TileMode.CLAMP, Shader.TileMode.CLAMP) }
+            fillShader = LinearGradient(
+                0f,
+                0f,
+                0f,
+                measuredHeight.toFloat(),
+                intArrayOf(Color.parseColor("#00205b"), Color.parseColor("#f2f6fa")), // todo update colors
+                floatArrayOf(0.1f, 1f),
                 Shader.TileMode.CLAMP
             )
-        )
-
-        pathFill = Path()
-
-        typedArray.recycle()
+        }
     }
 
     override fun onDraw(canvas: Canvas?) {
@@ -84,16 +76,13 @@ class SpeedLineChart @JvmOverloads constructor(
         if (pathStroke.isEmpty && chartPoints.isNotEmpty()) {
             calculatePath()
         }
-        canvas?.drawPath(pathStroke, paintStroke)
+
+        paintStroke.shader = lineShader
+        paintFill.shader = fillShader
+
         canvas?.drawPath(pathFill, paintFill)
-        circlePoint?.let {
-            canvas?.drawCircle(
-                getChartWidth() * it.x - STROKE_WIDTH / 2.0f,
-                getChartHeight() - (getChartHeight() * it.y),
-                STROKE_WIDTH / 2,
-                paintStroke
-            )
-        }
+        canvas?.drawPath(pathStroke, paintStroke)
+
     }
 
     fun addGraphItems(graphItems: List<GraphItemRecord>?) {
@@ -151,7 +140,6 @@ class SpeedLineChart @JvmOverloads constructor(
      */
 
     private fun calculatePath() {
-        circlePoint = chartPoints[chartPoints.size - 1]
         var lX = 0f
         var lY = 0f
         pathStroke.moveTo(getChartWidth() * chartPoints[0].x, getChartHeight() - (getChartHeight() * chartPoints[0].y))
@@ -190,13 +178,20 @@ class SpeedLineChart @JvmOverloads constructor(
         pathFill.lineTo(getChartWidth() * chartPoints[0].x, getChartHeight())
     }
 
+    private fun convertToBitmap(drawable: Drawable, widthPixels: Int, heightPixels: Int): Bitmap? {
+        val mutableBitmap = Bitmap.createBitmap(widthPixels, heightPixels, Bitmap.Config.ARGB_8888)
+        val canvas = Canvas(mutableBitmap)
+        drawable.setBounds(0, 0, widthPixels, heightPixels)
+        drawable.draw(canvas)
+        return mutableBitmap
+    }
+
     fun reset() {
 
         chartPoints.clear()
         pathStroke.rewind()
         pathFill.rewind()
         startTime = -1
-        circlePoint = null
         invalidate()
     }
 
