@@ -2,9 +2,12 @@ package at.rtr.rmbt.android.ui.view
 
 import android.content.Context
 import android.graphics.Canvas
+import android.graphics.Color
+import android.graphics.LinearGradient
 import android.graphics.Paint
 import android.graphics.Path
 import android.graphics.PointF
+import android.graphics.Shader
 import android.util.AttributeSet
 import at.rtr.rmbt.android.R
 import at.specure.data.NetworkTypeCompat
@@ -41,11 +44,14 @@ class SpeedLineChart @JvmOverloads constructor(
             R.styleable.SpeedLineChart_progress_line_color,
             context.getColor(R.color.colorAccent)
         )
+
+        val endColor = context.getColor(R.color.measurement_progress_end)
         paintStroke.style = Paint.Style.STROKE
         paintStroke.strokeWidth = STROKE_WIDTH
         paintStroke.strokeCap = Paint.Cap.ROUND
         paintStroke.strokeJoin = Paint.Join.ROUND
         paintStroke.isAntiAlias = true
+        paintFill.setShader(LinearGradient(0F, 0F, getChartWidth(), getChartHeight(), paintStroke.color, endColor, Shader.TileMode.CLAMP))
 
         pathStroke = Path()
 
@@ -55,6 +61,17 @@ class SpeedLineChart @JvmOverloads constructor(
         )
         paintFill.style = Paint.Style.FILL
         paintFill.isAntiAlias = true
+        paintFill.setShader(
+            LinearGradient(
+                0F,
+                0F,
+                getChartWidth(),
+                getChartHeight().toFloat(),
+                paintFill.color,
+                Color.TRANSPARENT,
+                Shader.TileMode.CLAMP
+            )
+        )
 
         pathFill = Path()
 

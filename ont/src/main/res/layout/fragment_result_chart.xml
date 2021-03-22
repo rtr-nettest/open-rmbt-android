@@ -9,23 +9,13 @@
         android:minHeight="@dimen/speed_chart_height"
         android:padding="@dimen/padding_small">
 
-        <androidx.appcompat.widget.AppCompatTextView
-            android:id="@+id/textChartType"
-            style="@style/RobotoMediumStyle.Medium"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:padding="@dimen/padding_medium_large"
-            android:textColor="@color/text_dark_gray"
-            tools:text="Download" />
-
-
         <androidx.core.widget.ContentLoadingProgressBar
             android:id="@+id/progressLoadItems"
             style="?android:attr/progressBarStyle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerInParent="true"
-            android:indeterminateTint="@color/colorAccent" />
+            android:indeterminateTint="@color/toolbar_blue" />
 
     </RelativeLayout>
 </layout>

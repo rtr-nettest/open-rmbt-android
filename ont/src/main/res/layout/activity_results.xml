@@ -146,22 +146,14 @@
                         app:layout_constraintHorizontal_bias="0.5"
                         app:layout_constraintStart_toEndOf="@+id/textDownloadSpeed" />
 
-                    <at.rtr.rmbt.android.ui.view.SpeedLineChart
-                        android:id="@+id/download_chart"
+                    <androidx.viewpager.widget.ViewPager
+                        android:id="@+id/viewPagerDownloadChart"
                         android:layout_width="0dp"
                         android:layout_height="@dimen/speed_chart_height"
                         android:layout_marginTop="24dp"
-                        app:grid_color="@android:color/transparent"
-                        app:grid_row="4"
                         app:layout_constraintEnd_toEndOf="@+id/labelResultBottomDownload"
                         app:layout_constraintStart_toStartOf="@+id/labelResultBottomDownload"
-                        app:layout_constraintTop_toBottomOf="@+id/textDownloadSpeed"
-                        app:progress_fill_color="@color/main_inactive_color"
-                        app:progress_line_color="@color/main_color"
-                        app:xlabel_color="@android:color/transparent"
-                        app:xlabel_text_size="0dp"
-                        app:ylabel_color="@android:color/transparent"
-                        app:ylabel_text_size="0dp" />
+                        app:layout_constraintTop_toBottomOf="@+id/textDownloadSpeed" />
 
                     <androidx.appcompat.widget.AppCompatTextView
                         android:id="@+id/labelResultBottomUpload"
@@ -199,23 +191,15 @@
                         app:layout_constraintHorizontal_bias="0.5"
                         app:layout_constraintStart_toEndOf="@+id/textUploadSpeed" />
 
-                    <at.rtr.rmbt.android.ui.view.SpeedLineChart
-                        android:id="@+id/upload_chart"
+                    <androidx.viewpager.widget.ViewPager
+                        android:id="@+id/viewPagerUploadChart"
                         android:layout_width="0dp"
                         android:layout_height="@dimen/speed_chart_height"
                         android:layout_marginTop="24dp"
                         android:layout_marginEnd="@dimen/margin_large"
-                        app:grid_color="@android:color/transparent"
-                        app:grid_row="4"
                         app:layout_constraintEnd_toEndOf="@+id/labelResultBottomUpload"
                         app:layout_constraintStart_toStartOf="@+id/labelResultBottomUpload"
-                        app:layout_constraintTop_toBottomOf="@+id/textUploadSpeed"
-                        app:progress_fill_color="@color/main_inactive_color"
-                        app:progress_line_color="@color/main_color"
-                        app:xlabel_color="@android:color/transparent"
-                        app:xlabel_text_size="0dp"
-                        app:ylabel_color="@android:color/transparent"
-                        app:ylabel_text_size="0dp" />
+                        app:layout_constraintTop_toBottomOf="@+id/textUploadSpeed" />
 
                     <androidx.appcompat.widget.AppCompatTextView
                         android:id="@+id/labelResultBottomPing"
@@ -228,7 +212,7 @@
                         app:layout_constraintHorizontal_bias="0.5"
                         app:layout_constraintHorizontal_weight="2"
                         app:layout_constraintStart_toStartOf="@id/labelResultBottomDownload"
-                        app:layout_constraintTop_toBottomOf="@id/download_chart" />
+                        app:layout_constraintTop_toBottomOf="@id/viewPagerDownloadChart" />
 
                     <androidx.appcompat.widget.AppCompatTextView
                         android:id="@+id/textPing"
@@ -410,6 +394,17 @@
                         app:text="@{state.testResult.networkName}"
                         app:visibleOrGone="@{state.testResult != null &amp;&amp; state.testResult.networkName != null &amp;&amp; !state.testResult.networkName.isEmpty()}"
                         tools:text="WIFIFINKA" />
+
+                    <LinearLayout
+                        android:id="@+id/graphContainer"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@+id/textConnection">
+
+                    </LinearLayout>
 
                 </androidx.constraintlayout.widget.ConstraintLayout>
             </androidx.core.widget.NestedScrollView>

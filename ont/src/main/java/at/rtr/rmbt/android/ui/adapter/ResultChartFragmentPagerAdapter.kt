@@ -11,15 +11,14 @@ import at.specure.data.entity.TestResultGraphItemRecord
 class ResultChartFragmentPagerAdapter(
     fragmentManager: FragmentManager,
     private val openTestUUID: String,
-    private val networkTypeCompat: NetworkTypeCompat
+    private val networkTypeCompat: NetworkTypeCompat,
+    private val type: TestResultGraphItemRecord.Type
 ) :
     FragmentPagerAdapter(fragmentManager, BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT) {
 
     private val fragments = mutableMapOf<TestResultGraphItemRecord.Type, Fragment>()
 
     override fun getItem(position: Int): Fragment {
-        val type = TestResultGraphItemRecord.Type.values()[position]
-
         return if (fragments.contains(type)) {
             fragments[type]!!
         } else {
@@ -30,7 +29,7 @@ class ResultChartFragmentPagerAdapter(
     }
 
     override fun getCount(): Int {
-        return TestResultGraphItemRecord.Type.values().size
+        return 1
     }
 
     override fun destroyItem(container: ViewGroup, position: Int, obj: Any) {
