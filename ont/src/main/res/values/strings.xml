@@ -176,18 +176,12 @@
     </string-array>
 
     <string name="strength_signal_value" translatable="false">%d dBm</string>
-    <string name="scale_value_1000" translatable="false">1000</string>
-    <string name="scale_value_100" translatable="false">100</string>
-    <string name="scale_value_10" translatable="false">10</string>
-    <string name="scale_value_1" translatable="false">1</string>
-    <string name="scale_value_0_1" translatable="false">0.1</string>
 
     <string name="label_qos">QoS</string>
     <string name="label_upload">Upload</string>
     <string name="label_download">Download</string>
     <string name="label_ping">Ping</string>
     <string name="label_init">Init</string>
-    <string name="measurement_progress_units" translatable="false">%</string>
     <string name="label_signal_strength">Signal</string>
     <string name="network_label">Network</string>
 
@@ -301,11 +295,6 @@
     <string name="label_filter_options">Options</string>
     <string name="label_filter">Filter</string>
 
-    <string name="loop_mode_next_test">Next test</string>
-    <string name="loop_mode_minutes">Minutes</string>
-    <string name="loop_mode_meters">Meters</string>
-    <string name="loop_mode_no_gps">No GPS</string>
-    <string name="or">or</string>
     <string name="loop_continue_to_results">Continue to the result</string>
     <string name="loop_run_again">Run again</string>
     <string name="title_privacy_policy">Privacy policy</string>
