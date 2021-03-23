@@ -166,6 +166,7 @@
     </style>
 
     <style name="ResultMainItemMainValue" parent="RobotoMediumStyle.ExtraLarge">
+        <item name="android:textSize">26sp</item>
         <item name="android:textColor">@android:color/black</item>
     </style>
 

@@ -5,36 +5,24 @@ import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import android.view.View
-import androidx.core.content.ContextCompat
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LiveData
 import at.rtr.rmbt.android.R
 import at.rtr.rmbt.android.databinding.ActivityResultsBinding
 import at.rtr.rmbt.android.di.viewModelLazy
-import at.rtr.rmbt.android.ui.adapter.QosResultAdapter
-import at.rtr.rmbt.android.ui.adapter.ResultChartFragmentPagerAdapter
-import at.rtr.rmbt.android.ui.adapter.ResultQoEAdapter
-import at.rtr.rmbt.android.util.iconFromVector
 import at.rtr.rmbt.android.util.listen
 import at.rtr.rmbt.android.viewmodel.ResultViewModel
 import at.specure.data.NetworkTypeCompat
 import at.specure.data.entity.TestResultGraphItemRecord
 import com.google.android.gms.common.ConnectionResult
 import com.google.android.gms.common.GoogleApiAvailability
-import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
-import com.google.android.gms.maps.model.CircleOptions
-import com.google.android.gms.maps.model.LatLng
-import com.google.android.gms.maps.model.MarkerOptions
-import timber.log.Timber
 
 class ResultsActivity : BaseActivity(), OnMapReadyCallback {
 
     private val viewModel: ResultViewModel by viewModelLazy()
     private lateinit var binding: ActivityResultsBinding
-    private val adapter: ResultQoEAdapter by lazy { ResultQoEAdapter() }
-    private val qosAdapter: QosResultAdapter by lazy { QosResultAdapter() }
-    private lateinit var resultChartFragmentPagerAdapterDownload: ResultChartFragmentPagerAdapter
-    private lateinit var resultChartFragmentPagerAdapterUpload: ResultChartFragmentPagerAdapter
 
     private var googleMap: GoogleMap? = null
 
@@ -56,61 +44,8 @@ class ResultsActivity : BaseActivity(), OnMapReadyCallback {
         viewModel.testServerResultLiveData.listen(this) { result ->
             viewModel.state.testResult.set(result)
 
-            result?.testOpenUUID?.let {
-                resultChartFragmentPagerAdapterDownload =
-                    ResultChartFragmentPagerAdapter(supportFragmentManager, testUUID, result.networkType, TestResultGraphItemRecord.Type.DOWNLOAD)
-                binding.viewPagerDownloadChart?.adapter = resultChartFragmentPagerAdapterDownload
-                resultChartFragmentPagerAdapterUpload =
-                    ResultChartFragmentPagerAdapter(supportFragmentManager, testUUID, result.networkType, TestResultGraphItemRecord.Type.UPLOAD)
-                binding.viewPagerUploadChart?.adapter = resultChartFragmentPagerAdapterUpload
-            }
-
-            if (result?.latitude != null && result.longitude != null) {
-                with(LatLng(result.latitude!!, result.longitude!!)) {
-                    googleMap?.addCircle(
-                        CircleOptions()
-                            .center(this)
-                            .fillColor(ContextCompat.getColor(this@ResultsActivity, R.color.map_circle_fill))
-                            .strokeColor(ContextCompat.getColor(this@ResultsActivity, R.color.map_circle_stroke))
-                            .strokeWidth(STROKE_WIDTH)
-                            .radius(CIRCLE_RADIUS)
-                    )
-
-                    val icon = when (result.networkType) {
-                        NetworkTypeCompat.TYPE_UNKNOWN -> R.drawable.ic_marker_empty
-                        NetworkTypeCompat.TYPE_LAN,
-                        NetworkTypeCompat.TYPE_BROWSER -> R.drawable.ic_marker_browser
-                        NetworkTypeCompat.TYPE_WLAN -> R.drawable.ic_marker_wifi
-                        NetworkTypeCompat.TYPE_5G_AVAILABLE,
-                        NetworkTypeCompat.TYPE_4G -> R.drawable.ic_marker_4g
-                        NetworkTypeCompat.TYPE_3G -> R.drawable.ic_marker_3g
-                        NetworkTypeCompat.TYPE_2G -> R.drawable.ic_marker_2g
-                        NetworkTypeCompat.TYPE_5G_NSA,
-                        NetworkTypeCompat.TYPE_5G -> R.drawable.ic_marker_5g
-                    }
-
-                    googleMap?.addMarker(MarkerOptions().position(this).anchor(ANCHOR_U, ANCHOR_V).iconFromVector(this@ResultsActivity, icon))
-                    googleMap?.moveCamera(CameraUpdateFactory.newLatLngZoom(this, ZOOM_LEVEL))
-                    googleMap?.setOnMapClickListener {
-                        DetailedFullscreenMapActivity.start(
-                            this@ResultsActivity,
-                            latitude,
-                            longitude,
-                            result.networkType
-                        )
-                    }
-                    googleMap?.setOnMarkerClickListener { true }
-                }
-            }
-        }
-        viewModel.testResultDetailsLiveData.listen(this) {
-            Timber.d("found ${it.size} rows of details")
-            // todo: display result details
-        }
-
-        viewModel.qoeResultLiveData.listen(this) {
-            viewModel.state.qoeRecords.set(it)
-            adapter.submitList(it)
+            loadGraphItems(viewModel.state.downloadGraphData, viewModel.downloadGraphLiveData, TestResultGraphItemRecord.Type.DOWNLOAD)
+            loadGraphItems(viewModel.state.uploadGraphData, viewModel.uploadGraphLiveData, TestResultGraphItemRecord.Type.UPLOAD)
         }
 
         binding.buttonBack.setOnClickListener {
@@ -137,17 +72,45 @@ class ResultsActivity : BaseActivity(), OnMapReadyCallback {
                 binding.textFailedToLoad.visibility = View.GONE
             }
         }
-
-        viewModel.qosCategoryResultLiveData.listen(this) {
-            viewModel.state.qosCategoryRecords.set(it)
-            qosAdapter.submitList(it)
-        }
-
-        qosAdapter.actionCallback = {
-
-            QosTestsSummaryActivity.start(this, it)
-        }
         refreshResults()
+    }
+
+    private fun loadGraphItems(
+        graphLoadedData: List<TestResultGraphItemRecord>?,
+        graphLiveData: LiveData<List<TestResultGraphItemRecord>>,
+        type: TestResultGraphItemRecord.Type
+    ) {
+        if (graphLoadedData.isNullOrEmpty()) {
+            graphLiveData.listen(this) {
+                when (type) {
+                    TestResultGraphItemRecord.Type.DOWNLOAD -> viewModel.state.downloadGraphData = it
+                    TestResultGraphItemRecord.Type.UPLOAD -> viewModel.state.uploadGraphData = it
+                }
+                showGraphItems(type)
+            }
+        } else {
+            showGraphItems(type)
+        }
+    }
+
+    private fun showGraphItems(type: TestResultGraphItemRecord.Type) {
+        val isActivityInForeground = this.lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED)
+        if (isActivityInForeground) {
+            when (type) {
+                TestResultGraphItemRecord.Type.DOWNLOAD -> {
+                    binding.downloadChart.addResultGraphItems(
+                        viewModel.state.downloadGraphData,
+                        viewModel.state.testResult.get()?.networkType ?: NetworkTypeCompat.TYPE_UNKNOWN
+                    )
+                }
+                TestResultGraphItemRecord.Type.UPLOAD -> {
+                    binding.uploadChart.addResultGraphItems(
+                        viewModel.state.uploadGraphData,
+                        viewModel.state.testResult.get()?.networkType ?: NetworkTypeCompat.TYPE_UNKNOWN
+                    )
+                }
+            }
+        }
     }
 
     private fun refreshResults() {

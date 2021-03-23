@@ -49,7 +49,7 @@ class SpeedLineChart @JvmOverloads constructor(
     @SuppressLint("DrawAllocation")
     override fun onLayout(changed: Boolean, left: Int, top: Int, right: Int, bottom: Int) {
         super.onLayout(changed, left, top, right, bottom)
-        if (changed) {
+        if (changed && right - left > 0 && bottom - top > 0) {
             val lineGradientBitmap = ResourcesCompat.getDrawable(resources, R.drawable.bg_line_chart_gradient_path, null)
                 ?.let { convertToBitmap(it, right - left, bottom - top) }
             paintStroke.shader = lineGradientBitmap?.let { BitmapShader(it, Shader.TileMode.CLAMP, Shader.TileMode.CLAMP) }
