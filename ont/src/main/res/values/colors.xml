@@ -67,11 +67,8 @@
     <!-- Chart colors -->
     <color name="chart_labels_color">#8CFFFFFF</color>
     <color name="chart_grid_line_color">#3D3D3D</color>
-    <color name="result_chart_grid_line_color">#EDEEEF</color>
-    <!--<color name="chart_progress_shadow_color">#4D78Ed03</color>-->
 
     <!-- Measurement screen -->
-    <color name="speed_chart_progress_fill_color">#4D78Ed03</color>
     <color name="measurement_bottom_background">#282828</color>
     <color name="measurement_scale">#3a3a3a</color>
     <color name="measurement_not_progressed">#7a7a7a</color>

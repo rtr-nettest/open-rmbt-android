@@ -99,11 +99,6 @@ class ResultsActivity : BaseActivity(), OnMapReadyCallback {
     private fun showGraphItems(type: TestResultGraphItemRecord.Type) {
         val isActivityInForeground = this.lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED)
         if (isActivityInForeground) {
-            val params = RelativeLayout.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT
-            )
-            val graph: ResultChart = layoutInflater.inflate(R.layout.layout_speed_chart, null) as ResultChart
-
             when (type) {
                 TestResultGraphItemRecord.Type.DOWNLOAD -> {
                     binding.downloadChart.addResultGraphItems(
