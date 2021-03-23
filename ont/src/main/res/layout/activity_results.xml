@@ -146,14 +146,18 @@
                         app:layout_constraintHorizontal_bias="0.5"
                         app:layout_constraintStart_toEndOf="@+id/textDownloadSpeed" />
 
-                    <androidx.viewpager.widget.ViewPager
-                        android:id="@+id/viewPagerDownloadChart"
+                    <RelativeLayout
+                        android:id="@+id/download_chart_container"
                         android:layout_width="0dp"
                         android:layout_height="@dimen/speed_chart_height"
-                        android:layout_marginTop="24dp"
+                        android:layout_marginEnd="@dimen/margin_large"
+                        android:minHeight="@dimen/speed_chart_height"
+                        android:padding="@dimen/padding_small"
                         app:layout_constraintEnd_toEndOf="@+id/labelResultBottomDownload"
                         app:layout_constraintStart_toStartOf="@+id/labelResultBottomDownload"
-                        app:layout_constraintTop_toBottomOf="@+id/textDownloadSpeed" />
+                        app:layout_constraintTop_toBottomOf="@+id/textDownloadSpeed">
+
+                    </RelativeLayout>
 
                     <androidx.appcompat.widget.AppCompatTextView
                         android:id="@+id/labelResultBottomUpload"
@@ -191,15 +195,18 @@
                         app:layout_constraintHorizontal_bias="0.5"
                         app:layout_constraintStart_toEndOf="@+id/textUploadSpeed" />
 
-                    <androidx.viewpager.widget.ViewPager
-                        android:id="@+id/viewPagerUploadChart"
+                    <RelativeLayout
+                        android:id="@+id/upload_chart_container"
                         android:layout_width="0dp"
                         android:layout_height="@dimen/speed_chart_height"
-                        android:layout_marginTop="24dp"
+                        android:minHeight="@dimen/speed_chart_height"
+                        android:padding="@dimen/padding_small"
                         android:layout_marginEnd="@dimen/margin_large"
                         app:layout_constraintEnd_toEndOf="@+id/labelResultBottomUpload"
                         app:layout_constraintStart_toStartOf="@+id/labelResultBottomUpload"
-                        app:layout_constraintTop_toBottomOf="@+id/textUploadSpeed" />
+                        app:layout_constraintTop_toBottomOf="@+id/textUploadSpeed">
+
+                    </RelativeLayout>
 
                     <androidx.appcompat.widget.AppCompatTextView
                         android:id="@+id/labelResultBottomPing"
@@ -212,7 +219,7 @@
                         app:layout_constraintHorizontal_bias="0.5"
                         app:layout_constraintHorizontal_weight="2"
                         app:layout_constraintStart_toStartOf="@id/labelResultBottomDownload"
-                        app:layout_constraintTop_toBottomOf="@id/viewPagerDownloadChart" />
+                        app:layout_constraintTop_toBottomOf="@id/download_chart_container" />
 
                     <androidx.appcompat.widget.AppCompatTextView
                         android:id="@+id/textPing"
@@ -422,17 +429,6 @@
                         app:text="@{state.testResult.networkProviderName}"
                         app:visibleOrGone="@{state.testResult != null &amp;&amp; state.testResult.networkProviderName != null &amp;&amp; !state.testResult.networkProviderName.isEmpty() &amp;&amp; (state.testResult.networkName == null || state.testResult.networkName.isEmpty())}"
                         tools:text="O2" />
-
-                    <LinearLayout
-                        android:id="@+id/graphContainer"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="vertical"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toBottomOf="@+id/textConnection">
-
-                    </LinearLayout>
 
                 </androidx.constraintlayout.widget.ConstraintLayout>
             </androidx.core.widget.NestedScrollView>

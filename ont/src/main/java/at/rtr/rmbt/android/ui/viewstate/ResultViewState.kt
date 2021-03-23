@@ -3,9 +3,11 @@ package at.rtr.rmbt.android.ui.viewstate
 import android.os.Bundle
 import androidx.databinding.ObservableBoolean
 import androidx.databinding.ObservableField
+import androidx.lifecycle.LiveData
 import at.rtr.rmbt.android.ui.activity.ResultsActivity
 import at.specure.data.entity.QoeInfoRecord
 import at.specure.data.entity.QosCategoryRecord
+import at.specure.data.entity.TestResultGraphItemRecord
 import at.specure.data.entity.TestResultRecord
 
 private const val KEY_TEST_UUID = "KEY_TEST_UUID"
@@ -18,6 +20,8 @@ class ResultViewState : ViewState {
     val testResult = ObservableField<TestResultRecord?>()
     val qoeRecords = ObservableField<List<QoeInfoRecord>>()
     val qosCategoryRecords = ObservableField<List<QosCategoryRecord>>()
+    var downloadGraphData: List<TestResultGraphItemRecord>? = null
+    var uploadGraphData: List<TestResultGraphItemRecord>? = null
     lateinit var testUUID: String
     lateinit var returnPoint: ResultsActivity.ReturnPoint
 

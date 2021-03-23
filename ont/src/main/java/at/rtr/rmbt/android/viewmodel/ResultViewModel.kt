@@ -7,6 +7,7 @@ import at.rtr.rmbt.android.ui.viewstate.ResultViewState
 import at.specure.data.entity.QoeInfoRecord
 import at.specure.data.entity.QosCategoryRecord
 import at.specure.data.entity.TestResultDetailsRecord
+import at.specure.data.entity.TestResultGraphItemRecord
 import at.specure.data.entity.TestResultRecord
 import at.specure.data.repository.TestResultsRepository
 import kotlinx.coroutines.Dispatchers
@@ -37,6 +38,12 @@ class ResultViewModel @Inject constructor(
 
     val loadingLiveData: LiveData<Boolean>
         get() = _loadingLiveData
+
+    val downloadGraphLiveData: LiveData<List<TestResultGraphItemRecord>>
+        get() = testResultsRepository.getGraphDataLiveData(state.testUUID, TestResultGraphItemRecord.Type.DOWNLOAD)
+
+    val uploadGraphLiveData: LiveData<List<TestResultGraphItemRecord>>
+        get() = testResultsRepository.getGraphDataLiveData(state.testUUID, TestResultGraphItemRecord.Type.UPLOAD)
 
     private val _loadingLiveData = MutableLiveData<Boolean>()
 
