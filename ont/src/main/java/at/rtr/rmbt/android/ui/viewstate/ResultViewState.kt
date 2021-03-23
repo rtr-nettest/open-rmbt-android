@@ -3,7 +3,6 @@ package at.rtr.rmbt.android.ui.viewstate
 import android.os.Bundle
 import androidx.databinding.ObservableBoolean
 import androidx.databinding.ObservableField
-import androidx.lifecycle.LiveData
 import at.rtr.rmbt.android.ui.activity.ResultsActivity
 import at.specure.data.entity.QoeInfoRecord
 import at.specure.data.entity.QosCategoryRecord

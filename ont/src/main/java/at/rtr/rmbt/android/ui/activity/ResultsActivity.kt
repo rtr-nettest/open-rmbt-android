@@ -106,15 +106,13 @@ class ResultsActivity : BaseActivity(), OnMapReadyCallback {
 
             when (type) {
                 TestResultGraphItemRecord.Type.DOWNLOAD -> {
-                    binding.downloadChartContainer.addView(graph as View, params)
-                    graph.addResultGraphItems(
+                    binding.downloadChart.addResultGraphItems(
                         viewModel.state.downloadGraphData,
                         viewModel.state.testResult.get()?.networkType ?: NetworkTypeCompat.TYPE_UNKNOWN
                     )
                 }
                 TestResultGraphItemRecord.Type.UPLOAD -> {
-                    binding.uploadChartContainer.addView(graph as View, params)
-                    graph.addResultGraphItems(
+                    binding.uploadChart.addResultGraphItems(
                         viewModel.state.uploadGraphData,
                         viewModel.state.testResult.get()?.networkType ?: NetworkTypeCompat.TYPE_UNKNOWN
                     )
