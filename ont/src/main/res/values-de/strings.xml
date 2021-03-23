@@ -278,11 +278,6 @@
     <string name="label_filter_options">Einstellungen</string>
     <string name="label_filter">Filter</string>
 
-    <string name="loop_mode_next_test">Nächster Test</string>
-    <string name="loop_mode_minutes">Minuten</string>
-    <string name="loop_mode_meters">Meter</string>
-    <string name="loop_mode_no_gps">Kein GPS</string>
-    <string name="or">oder</string>
     <string name="loop_mode_finished">Netztest abgeschlossen!</string>
     <string name="loop_continue_to_results">Weiter zum Ergebnis</string>
     <string name="loop_run_again">Nochmals ausführen</string>
@@ -307,5 +302,14 @@
     <string name="signal_measurement_terms_title">Aktivierung und Nutzung</string>
     <string name="signal_measurement_terms_content">Die Nur-Signalmessung für technisch Interessierte ermöglicht, dass die Signalstärke automatisiert wiederholt gemessen wird – ohne, dass dabei Geschwindigkeits- oder Qualitätstests durchgeführt werden. Die Nur-Signalmessung kann jederzeit gestoppt werden bzw endet automatisch nach 48 Stunden. Sie ist (nur) zur Nutzung innerhalb der EU- und des EWR gedacht ist. Während der Signalmessung bleiben GPS und die Anzeige aktiv, deshalb wird die Batterie schnell entleert. Daher sollte sie nur genutzt werden, wenn externe Stromversorgung zur Verfügung steht. Es wird ausdrücklich darauf hingewiesen, dass aufgrund der Nur-Signalmessung ein Rückschluss auf die testende Person nicht ausgeschlossen ist.</string>
     <string name="preferences_developed_by">Entwickelt von Specure GmbH</string>
+
+    <!--    todo add translates-->
+    <string name="text_phase_init">Initialization</string>
+    <string name="text_phase_qos">Quality of Service</string>
+    <string name="text_phase_upload">Upload</string>
+    <string name="text_phase_download">Download</string>
+    <string name="text_phase_ping">Ping</string>
+    <string name="text_unit_mbps">Mbps</string>
+    <string name="text_unit_ping">ms</string>
 </resources>
 
