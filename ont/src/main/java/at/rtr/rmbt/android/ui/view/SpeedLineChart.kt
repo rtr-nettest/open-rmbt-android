@@ -5,7 +5,6 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapShader
 import android.graphics.Canvas
-import android.graphics.Color
 import android.graphics.LinearGradient
 import android.graphics.Paint
 import android.graphics.Path
@@ -43,10 +42,6 @@ class SpeedLineChart @JvmOverloads constructor(
     private var pathFill: Path = Path()
     private var paintFill: Paint = Paint(Paint.ANTI_ALIAS_FLAG).apply { style = Paint.Style.FILL }
 
-    private var lineGradientBitmap: Bitmap? = null
-    private var lineShader: BitmapShader? = null
-    private var fillShader: LinearGradient? = null
-
     private var startTime: Long = -1
 
     private var chartPoints: ArrayList<PointF> = ArrayList()
@@ -55,18 +50,14 @@ class SpeedLineChart @JvmOverloads constructor(
     override fun onLayout(changed: Boolean, left: Int, top: Int, right: Int, bottom: Int) {
         super.onLayout(changed, left, top, right, bottom)
         if (changed) {
-            lineGradientBitmap = ResourcesCompat.getDrawable(resources, R.drawable.bg_line_chart_gradient_path, null)
+            val lineGradientBitmap = ResourcesCompat.getDrawable(resources, R.drawable.bg_line_chart_gradient_path, null)
                 ?.let { convertToBitmap(it, right - left, bottom - top) }
-            lineShader = lineGradientBitmap?.let { BitmapShader(it, Shader.TileMode.CLAMP, Shader.TileMode.CLAMP) }
-            fillShader = LinearGradient(
-                0f,
-                0f,
-                0f,
-                measuredHeight.toFloat(),
-                intArrayOf(Color.parseColor("#00205b"), Color.parseColor("#f2f6fa")), // todo update colors
-                floatArrayOf(0.1f, 1f),
-                Shader.TileMode.CLAMP
+            paintStroke.shader = lineGradientBitmap?.let { BitmapShader(it, Shader.TileMode.CLAMP, Shader.TileMode.CLAMP) }
+            val colors = intArrayOf(
+                ContextCompat.getColor(context, R.color.speed_graph_gradient_fill_start),
+                ContextCompat.getColor(context, R.color.speed_graph_gradient_fill_end)
             )
+            paintFill.shader = LinearGradient(0f, 0f, 0f, getChartHeight(), colors, floatArrayOf(0.2f, 1f), Shader.TileMode.CLAMP)
         }
     }
 
@@ -77,12 +68,8 @@ class SpeedLineChart @JvmOverloads constructor(
             calculatePath()
         }
 
-        paintStroke.shader = lineShader
-        paintFill.shader = fillShader
-
         canvas?.drawPath(pathFill, paintFill)
         canvas?.drawPath(pathStroke, paintStroke)
-
     }
 
     fun addGraphItems(graphItems: List<GraphItemRecord>?) {

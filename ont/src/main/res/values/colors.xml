@@ -88,4 +88,7 @@
     <color name="ping_bar_color">#4D78Ed03</color>
 
     <color name="colorSelector">#5559b200</color>
+
+    <color name="speed_graph_gradient_fill_start">#26004394</color>
+    <color name="speed_graph_gradient_fill_end">#0Df2f6fa</color>
 </resources>

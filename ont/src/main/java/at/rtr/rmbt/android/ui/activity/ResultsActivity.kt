@@ -5,16 +5,13 @@ import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import android.view.View
-import android.view.ViewGroup
-import android.widget.RelativeLayout
 import androidx.core.content.ContextCompat
-import androidx.lifecycle.LiveData
 import at.rtr.rmbt.android.R
 import at.rtr.rmbt.android.databinding.ActivityResultsBinding
 import at.rtr.rmbt.android.di.viewModelLazy
 import at.rtr.rmbt.android.ui.adapter.QosResultAdapter
+import at.rtr.rmbt.android.ui.adapter.ResultChartFragmentPagerAdapter
 import at.rtr.rmbt.android.ui.adapter.ResultQoEAdapter
-import at.rtr.rmbt.android.ui.view.ResultChart
 import at.rtr.rmbt.android.util.iconFromVector
 import at.rtr.rmbt.android.util.listen
 import at.rtr.rmbt.android.viewmodel.ResultViewModel
@@ -36,6 +33,8 @@ class ResultsActivity : BaseActivity(), OnMapReadyCallback {
     private lateinit var binding: ActivityResultsBinding
     private val adapter: ResultQoEAdapter by lazy { ResultQoEAdapter() }
     private val qosAdapter: QosResultAdapter by lazy { QosResultAdapter() }
+    private lateinit var resultChartFragmentPagerAdapterDownload: ResultChartFragmentPagerAdapter
+    private lateinit var resultChartFragmentPagerAdapterUpload: ResultChartFragmentPagerAdapter
 
     private var googleMap: GoogleMap? = null
 
@@ -57,8 +56,14 @@ class ResultsActivity : BaseActivity(), OnMapReadyCallback {
         viewModel.testServerResultLiveData.listen(this) { result ->
             viewModel.state.testResult.set(result)
 
-            loadGraphItems(viewModel.state.downloadGraphData, viewModel.downloadGraphLiveData, TestResultGraphItemRecord.Type.DOWNLOAD)
-            loadGraphItems(viewModel.state.uploadGraphData, viewModel.uploadGraphLiveData, TestResultGraphItemRecord.Type.UPLOAD)
+            result?.testOpenUUID?.let {
+                resultChartFragmentPagerAdapterDownload =
+                    ResultChartFragmentPagerAdapter(supportFragmentManager, testUUID, result.networkType, TestResultGraphItemRecord.Type.DOWNLOAD)
+                binding.viewPagerDownloadChart?.adapter = resultChartFragmentPagerAdapterDownload
+                resultChartFragmentPagerAdapterUpload =
+                    ResultChartFragmentPagerAdapter(supportFragmentManager, testUUID, result.networkType, TestResultGraphItemRecord.Type.UPLOAD)
+                binding.viewPagerUploadChart?.adapter = resultChartFragmentPagerAdapterUpload
+            }
 
             if (result?.latitude != null && result.longitude != null) {
                 with(LatLng(result.latitude!!, result.longitude!!)) {
@@ -143,49 +148,6 @@ class ResultsActivity : BaseActivity(), OnMapReadyCallback {
             QosTestsSummaryActivity.start(this, it)
         }
         refreshResults()
-    }
-
-    private fun loadGraphItems(
-        graphLoadedData: List<TestResultGraphItemRecord>?,
-        graphLiveData: LiveData<List<TestResultGraphItemRecord>>,
-        type: TestResultGraphItemRecord.Type
-    ) {
-        if (graphLoadedData.isNullOrEmpty()) {
-            graphLiveData.listen(this) {
-                when (type) {
-                    TestResultGraphItemRecord.Type.DOWNLOAD -> viewModel.state.downloadGraphData = it
-                    TestResultGraphItemRecord.Type.UPLOAD -> viewModel.state.uploadGraphData = it
-                }
-                showGraphItems(type)
-            }
-        } else {
-            showGraphItems(type)
-        }
-    }
-
-    private fun showGraphItems(type: TestResultGraphItemRecord.Type) {
-        val params = RelativeLayout.LayoutParams(
-            ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT
-        )
-        val graph: ResultChart = layoutInflater.inflate(R.layout.layout_speed_chart, null) as ResultChart
-
-        when (type) {
-            TestResultGraphItemRecord.Type.DOWNLOAD -> {
-                graph.addResultGraphItems(
-                    viewModel.state.downloadGraphData,
-                    viewModel.state.testResult.get()?.networkType ?: NetworkTypeCompat.TYPE_UNKNOWN
-                )
-                binding.downloadChartContainer.addView(graph as View, params)
-            }
-            TestResultGraphItemRecord.Type.UPLOAD -> {
-                val uploadGraph = layoutInflater.inflate(R.layout.layout_speed_chart, null) as ResultChart
-                graph.addResultGraphItems(
-                    viewModel.state.uploadGraphData,
-                    viewModel.state.testResult.get()?.networkType ?: NetworkTypeCompat.TYPE_UNKNOWN
-                )
-                binding.uploadChartContainer.addView(graph as View, params)
-            }
-        }
     }
 
     private fun refreshResults() {

@@ -2,8 +2,14 @@ package at.rtr.rmbt.android.ui.view
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.graphics.Bitmap
+import android.graphics.BitmapShader
 import android.graphics.Canvas
 import android.graphics.Paint
+import android.graphics.PorterDuff
+import android.graphics.PorterDuffXfermode
+import android.graphics.Shader
+import android.graphics.drawable.Drawable
 import android.util.AttributeSet
 import androidx.appcompat.widget.AppCompatImageView
 import androidx.core.content.res.ResourcesCompat
@@ -15,8 +21,8 @@ import at.specure.measurement.MeasurementState
 class MeasurementProgressLineView(context: Context, attrs: AttributeSet? = null) :
     AppCompatImageView(context, attrs) {
 
-    private val paintFilled = Paint().apply {
-        color = ResourcesCompat.getColor(resources, R.color.measurement_progress_start, null)
+    private val paintFilled = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+        xfermode = PorterDuffXfermode(PorterDuff.Mode.SRC)
     }
     private val paintEmpty = Paint().apply {
         color = ResourcesCompat.getColor(resources, R.color.measurement_progress_empty, null)
@@ -72,6 +78,16 @@ class MeasurementProgressLineView(context: Context, attrs: AttributeSet? = null)
         put(MeasurementState.FINISH, 1f)
     }
 
+    @SuppressLint("DrawAllocation")
+    override fun onLayout(changed: Boolean, left: Int, top: Int, right: Int, bottom: Int) {
+        super.onLayout(changed, left, top, right, bottom)
+        if (changed) {
+            val lineGradientBitmap = ResourcesCompat.getDrawable(resources, R.drawable.bg_line_chart_gradient_path, null)
+                ?.let { convertToBitmap(it, right - left, bottom - top) }
+            paintFilled.shader = lineGradientBitmap?.let { BitmapShader(it, Shader.TileMode.CLAMP, Shader.TileMode.CLAMP) }
+        }
+    }
+
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
 
@@ -91,6 +107,14 @@ class MeasurementProgressLineView(context: Context, attrs: AttributeSet? = null)
                     (progressCoefficients[phase] ?: 0f) * filledPercents / 100f) * measuredWidth
         }
         canvas.drawRect(0f, 0f, width, measuredHeight.toFloat(), paintFilled)
+    }
+
+    private fun convertToBitmap(drawable: Drawable, widthPixels: Int, heightPixels: Int): Bitmap? {
+        val mutableBitmap = Bitmap.createBitmap(widthPixels, heightPixels, Bitmap.Config.ARGB_8888)
+        val canvas = Canvas(mutableBitmap)
+        drawable.setBounds(0, 0, widthPixels, heightPixels)
+        drawable.draw(canvas)
+        return mutableBitmap
     }
 
     companion object {
