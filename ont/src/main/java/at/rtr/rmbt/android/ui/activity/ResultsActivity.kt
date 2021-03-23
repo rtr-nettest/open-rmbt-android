@@ -56,7 +56,6 @@ class ResultsActivity : BaseActivity(), OnMapReadyCallback {
         viewModel.testServerResultLiveData.listen(this) { result ->
             viewModel.state.testResult.set(result)
 
-
             result?.testOpenUUID?.let {
                 resultChartFragmentPagerAdapterDownload =
                     ResultChartFragmentPagerAdapter(supportFragmentManager, testUUID, result.networkType, TestResultGraphItemRecord.Type.DOWNLOAD)
