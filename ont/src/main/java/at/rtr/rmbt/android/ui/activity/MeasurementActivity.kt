@@ -71,13 +71,13 @@ class MeasurementActivity : BaseActivity(), SimpleDialog.Callback {
 
         viewModel.downloadGraphSource.listen(this) {
             if (viewModel.state.measurementState.get() == MeasurementState.DOWNLOAD) {
-                //               binding.measurementBottomView?.speedChartDownloadUpload?.addGraphItems(it)
+                binding.speedLine.addGraphItems(it)
             }
         }
 
         viewModel.uploadGraphSource.listen(this) {
             if (viewModel.state.measurementState.get() == MeasurementState.UPLOAD) {
-                //               binding.measurementBottomView?.speedChartDownloadUpload?.addGraphItems(it)
+                binding.speedLine.addGraphItems(it)
             }
         }
 
@@ -92,6 +92,7 @@ class MeasurementActivity : BaseActivity(), SimpleDialog.Callback {
         }
 
         viewModel.qosProgressLiveData.listen(this) {
+            // todo qos progress
 //            binding.measurementBottomView?.qosProgressContainer?.update(it)
         }
 
@@ -147,7 +148,9 @@ class MeasurementActivity : BaseActivity(), SimpleDialog.Callback {
             )
         }
     }
-//
+
+// todo loop mode
+
 //    private fun onLoopRecordChanged(loopRecord: LoopModeRecord?) {
 //        Timber.d(
 //            "TestPerformed: ${loopRecord?.testsPerformed} \nloop mode status: ${loopRecord?.status} \nLoop local uuid: ${loopRecord?.localUuid}\nLoop remote uuid: ${loopRecord?.uuid}\nviewModel: ${viewModel.state.measurementState.get()}"

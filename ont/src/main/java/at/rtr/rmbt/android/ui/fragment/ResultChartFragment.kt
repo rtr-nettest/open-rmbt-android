@@ -40,19 +40,15 @@ class ResultChartFragment : BaseFragment() {
 
         graphView = when (viewModel.state.chartType) {
             TestResultGraphItemRecord.Type.DOWNLOAD -> {
-                binding.textChartType.text = getString(R.string.label_download)
                 layoutInflater.inflate(R.layout.layout_speed_chart, null)
             }
             TestResultGraphItemRecord.Type.UPLOAD -> {
-                binding.textChartType.text = getString(R.string.label_upload)
                 layoutInflater.inflate(R.layout.layout_speed_chart, null)
             }
             TestResultGraphItemRecord.Type.PING -> {
-                binding.textChartType.text = getString(R.string.label_ping)
                 layoutInflater.inflate(R.layout.layout_ping_chart, null)
             }
             TestResultGraphItemRecord.Type.SIGNAL -> {
-                binding.textChartType.text = getString(R.string.label_signal_strength)
                 layoutInflater.inflate(R.layout.layout_signal_chart, null)
             }
         }
@@ -60,7 +56,6 @@ class ResultChartFragment : BaseFragment() {
         val params = RelativeLayout.LayoutParams(
             ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT
         )
-        params.addRule(RelativeLayout.BELOW, binding.textChartType.id)
         binding.relativeLayoutRoot.addView(graphView, params)
 
         graphView.visibility = View.INVISIBLE

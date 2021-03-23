@@ -10,11 +10,13 @@ import at.rtr.rmbt.android.R
 import at.rtr.rmbt.android.databinding.ActivityResultsBinding
 import at.rtr.rmbt.android.di.viewModelLazy
 import at.rtr.rmbt.android.ui.adapter.QosResultAdapter
+import at.rtr.rmbt.android.ui.adapter.ResultChartFragmentPagerAdapter
 import at.rtr.rmbt.android.ui.adapter.ResultQoEAdapter
 import at.rtr.rmbt.android.util.iconFromVector
 import at.rtr.rmbt.android.util.listen
 import at.rtr.rmbt.android.viewmodel.ResultViewModel
 import at.specure.data.NetworkTypeCompat
+import at.specure.data.entity.TestResultGraphItemRecord
 import com.google.android.gms.common.ConnectionResult
 import com.google.android.gms.common.GoogleApiAvailability
 import com.google.android.gms.maps.CameraUpdateFactory
@@ -31,6 +33,8 @@ class ResultsActivity : BaseActivity(), OnMapReadyCallback {
     private lateinit var binding: ActivityResultsBinding
     private val adapter: ResultQoEAdapter by lazy { ResultQoEAdapter() }
     private val qosAdapter: QosResultAdapter by lazy { QosResultAdapter() }
+    private lateinit var resultChartFragmentPagerAdapterDownload: ResultChartFragmentPagerAdapter
+    private lateinit var resultChartFragmentPagerAdapterUpload: ResultChartFragmentPagerAdapter
 
     private var googleMap: GoogleMap? = null
 
@@ -51,6 +55,15 @@ class ResultsActivity : BaseActivity(), OnMapReadyCallback {
         viewModel.state.returnPoint = returnPoint?.let { ReturnPoint.valueOf(returnPoint) } ?: ReturnPoint.HOME
         viewModel.testServerResultLiveData.listen(this) { result ->
             viewModel.state.testResult.set(result)
+
+            result?.testOpenUUID?.let {
+                resultChartFragmentPagerAdapterDownload =
+                    ResultChartFragmentPagerAdapter(supportFragmentManager, testUUID, result.networkType, TestResultGraphItemRecord.Type.DOWNLOAD)
+                binding.viewPagerDownloadChart?.adapter = resultChartFragmentPagerAdapterDownload
+                resultChartFragmentPagerAdapterUpload =
+                    ResultChartFragmentPagerAdapter(supportFragmentManager, testUUID, result.networkType, TestResultGraphItemRecord.Type.UPLOAD)
+                binding.viewPagerUploadChart?.adapter = resultChartFragmentPagerAdapterUpload
+            }
 
             if (result?.latitude != null && result.longitude != null) {
                 with(LatLng(result.latitude!!, result.longitude!!)) {
