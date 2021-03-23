@@ -4,17 +4,14 @@ import android.content.Context
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
-import android.os.Handler
 import android.view.View
 import androidx.core.content.ContextCompat
-import androidx.fragment.app.Fragment
 import at.rtr.rmbt.android.R
 import at.rtr.rmbt.android.databinding.ActivityResultsBinding
 import at.rtr.rmbt.android.di.viewModelLazy
 import at.rtr.rmbt.android.ui.adapter.QosResultAdapter
 import at.rtr.rmbt.android.ui.adapter.ResultChartFragmentPagerAdapter
 import at.rtr.rmbt.android.ui.adapter.ResultQoEAdapter
-import at.rtr.rmbt.android.ui.fragment.ResultChartFragment
 import at.rtr.rmbt.android.util.iconFromVector
 import at.rtr.rmbt.android.util.listen
 import at.rtr.rmbt.android.viewmodel.ResultViewModel
