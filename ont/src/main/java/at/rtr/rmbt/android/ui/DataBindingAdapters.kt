@@ -54,6 +54,11 @@ fun View.setVisibleOrGone(show: Boolean) {
     visibility = if (show) View.VISIBLE else View.GONE
 }
 
+@BindingAdapter("visibleOrInvisible")
+fun View.setVisibleOrInvisible(show: Boolean) {
+    visibility = if (show) View.VISIBLE else View.INVISIBLE
+}
+
 /**
  * A binding adapter that is used for show signal
  */
