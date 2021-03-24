@@ -29,13 +29,13 @@ class ControlServerProviderImpl(private val config: Config) : ControlEndpointPro
         get() = "$controlServerHostNew$newRoutePath/${config.controlServerSettingsEndpoint}"
 
     override val testRequestUrl: String
-        get() = "$host$routePath/${config.controlServerRequestTestEndpoint}"
+        get() = "$controlServerHostNew$newRoutePath/${config.controlServerRequestTestEndpoint}"
 
     override val sendTestResultsUrl: String
-        get() = "$host$routePath/${config.controlServerSendResultEndpoint}"
+        get() = "$controlServerHostNew$newRoutePath/${config.controlServerSendResultEndpoint}"
 
     override val sendQoSTestResultsUrl: String
-        get() = "$host$routePath/${config.controlServerSendQoSResultEndpoint}"
+        get() = "$controlServerHostNew$newRoutePath/${config.controlServerSendQoSResultEndpoint}"
 
     override val getHistoryUrl: String
         get() = "$host$routePath/${config.controlServerHistoryEndpoint}"
@@ -44,16 +44,16 @@ class ControlServerProviderImpl(private val config: Config) : ControlEndpointPro
         get() = config.controlServerRoute
 
     override val getTestResultsBasicUrl: String
-        get() = "$host$routePath/${config.controlServerResultsBasicPath}"
+        get() = "$controlServerHostNew$newRoutePath/${config.controlServerResultsBasicPath}"
 
     override val getTestResultsOpenDataUrl: String
-        get() = "$host$routePath/${config.controlServerResultsOpenDataPath}"
+        get() = "$controlServerHostNew$newRoutePath/${config.controlServerResultsOpenDataPath}"
 
     override val getTestResultsDetailsUrl: String
-        get() = "$host$routePath/${config.controlServerTestResultDetailsEndpoint}"
+        get() = "$controlServerHostNew$newRoutePath/${config.controlServerTestResultDetailsEndpoint}"
 
     override val getQosResultDetailsUrl: String
-        get() = "$host$routePath/${config.controlServerQosTestResultDetailsEndpoint}"
+        get() = "$controlServerHostNew$newRoutePath/${config.controlServerQosTestResultDetailsEndpoint}"
 
     override val getSyncCodeUrl: String
         get() = "$host$routePath/${config.getSyncCodeRoute}"

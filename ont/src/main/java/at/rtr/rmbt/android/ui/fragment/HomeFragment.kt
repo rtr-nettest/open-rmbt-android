@@ -127,6 +127,10 @@ class HomeFragment : BaseFragment() {
             }
         }
 
+        binding.buttonMenu?.setOnClickListener {
+            startActivity(Intent(requireContext(), PreferenceActivity::class.java))
+        }
+
         homeViewModel.activeSignalMeasurementLiveData.listen(this) {
             homeViewModel.state.isSignalMeasurementActive.set(it)
         }

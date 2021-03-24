@@ -127,8 +127,6 @@
                         style="@style/ResultMainItemMainValue"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:drawablePadding="@dimen/padding_very_small"
-                        android:maxLines="2"
                         app:layout_constraintHorizontal_bias="0.5"
                         app:layout_constraintStart_toStartOf="@+id/labelResultBottomDownload"
                         app:layout_constraintTop_toBottomOf="@+id/labelResultBottomDownload"
@@ -142,7 +140,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginStart="@dimen/margin_small"
                         android:text="@string/unit_mbps"
-                        app:layout_constraintBottom_toBottomOf="@+id/textDownloadSpeed"
+                        app:layout_constraintBaseline_toBaselineOf="@+id/textDownloadSpeed"
                         app:layout_constraintHorizontal_bias="0.5"
                         app:layout_constraintStart_toEndOf="@+id/textDownloadSpeed" />
 
@@ -206,7 +204,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginStart="@dimen/margin_small"
                         android:text="@string/unit_mbps"
-                        app:layout_constraintBottom_toBottomOf="@+id/textUploadSpeed"
+                        app:layout_constraintBaseline_toBaselineOf="@+id/textUploadSpeed"
                         app:layout_constraintHorizontal_bias="0.5"
                         app:layout_constraintStart_toEndOf="@+id/textUploadSpeed" />
 
@@ -244,7 +242,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginStart="@dimen/margin_small"
                         android:text="@string/unit_ms"
-                        app:layout_constraintBottom_toBottomOf="@+id/textPing"
+                        app:layout_constraintBaseline_toBaselineOf="@+id/textPing"
                         app:layout_constraintHorizontal_bias="0.5"
                         app:layout_constraintStart_toEndOf="@+id/textPing" />
 
@@ -280,7 +278,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginStart="@dimen/margin_small"
                         android:text="@string/unit_ms"
-                        app:layout_constraintBottom_toBottomOf="@+id/textJitter"
+                        app:layout_constraintBaseline_toBaselineOf="@+id/textJitter"
                         app:layout_constraintHorizontal_bias="0.5"
                         app:layout_constraintStart_toEndOf="@+id/textJitter" />
 
@@ -316,7 +314,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginStart="@dimen/margin_small"
                         android:text="@string/unit_percents"
-                        app:layout_constraintBottom_toBottomOf="@+id/textPacketLoss"
+                        app:layout_constraintBaseline_toBaselineOf="@+id/textPacketLoss"
                         app:layout_constraintHorizontal_bias="0.5"
                         app:layout_constraintStart_toEndOf="@+id/textPacketLoss" />
 
