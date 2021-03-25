@@ -445,6 +445,7 @@ fun SignalMeasurementRecord.toRequest(clientUUID: String, deviceInfo: DeviceInfo
     time = startTimeMillis,
     timezone = deviceInfo.timezone,
     clientUUID = clientUUID,
+    measurementTypeFlag = signalMeasurementType.signalTypeName,
     location = location?.toRequest()
 )
 
