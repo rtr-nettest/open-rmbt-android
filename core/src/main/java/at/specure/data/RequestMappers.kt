@@ -534,10 +534,28 @@ fun SignalMeasurementRecord.toRequest(
             }
             // remove previous last entry which is added by getLastSignal
             signals = signals.filterIndexed { index, _ ->
-                Timber.i("index checking list size: $index")
                 index != 0
             }
         }
+        // remove values with negative timestamp and keep only last one
+        var lastSignalWithNegativeTime: SignalBody? = null
+        Timber.d("Previous list size: ${signals?.size} + last time: ")
+        if (signals != null && (signals.size > 1)) {
+            signals = signals.filter {
+                if (it.timeNanos < 0) {
+                    lastSignalWithNegativeTime = it
+                    false
+                } else {
+                    true
+                }
+            }
+        }
+        Timber.d("Previous list size filtered negative: ${signals?.size} + last time: ")
+        // add back previously removed last value with time < 0
+        lastSignalWithNegativeTime?.let {
+            (signals as MutableList<SignalBody>).add(0, it)
+        }
+
         Timber.i("New list size: ${signals?.size} + last time: ")
 
         RadioInfoBody(cells?.entries?.map { it.value }, signals)
