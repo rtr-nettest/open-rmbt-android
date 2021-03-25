@@ -12,6 +12,7 @@ import androidx.lifecycle.LiveData
 import at.specure.di.CoreInjector
 import at.specure.di.NotificationProvider
 import at.specure.info.Network5GSimulator.config
+import at.specure.test.SignalMeasurementType
 import at.specure.util.CustomLifecycleService
 import timber.log.Timber
 import java.text.SimpleDateFormat
@@ -91,11 +92,11 @@ class SignalMeasurementService : CustomLifecycleService() {
         Timber.v("SERVICE onDestroy")
     }
 
-    private fun startMeasurement() {
+    private fun startMeasurement(signalMeasurementType: SignalMeasurementType) {
         if (!wakeLock.isHeld) {
             wakeLock.acquire(TimeUnit.MINUTES.toMillis(config.signalMeasurementDurationMin.toLong()))
         }
-        processor.startMeasurement(false)
+        processor.startMeasurement(false, signalMeasurementType)
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             startForegroundService(intent(this))
@@ -160,10 +161,10 @@ class SignalMeasurementService : CustomLifecycleService() {
         override val pausedStateLiveData: LiveData<Boolean>
             get() = processor.pausedStateLiveData
 
-        override fun startMeasurement(unstoppable: Boolean) {
+        override fun startMeasurement(unstoppable: Boolean, signalMeasurementType: SignalMeasurementType) {
             this@SignalMeasurementService.isUnstoppable = unstoppable
             Timber.i("Signal measurement start unstoppable: $unstoppable")
-            this@SignalMeasurementService.startMeasurement()
+            this@SignalMeasurementService.startMeasurement(signalMeasurementType)
         }
 
         override fun stopMeasurement(unstoppable: Boolean) {

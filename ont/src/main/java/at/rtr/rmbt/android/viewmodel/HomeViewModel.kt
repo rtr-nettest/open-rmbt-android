@@ -24,6 +24,7 @@ import at.specure.location.LocationState
 import at.specure.location.LocationWatcher
 import at.specure.measurement.signal.SignalMeasurementProducer
 import at.specure.measurement.signal.SignalMeasurementService
+import at.specure.test.SignalMeasurementType
 import at.specure.util.permission.PermissionsWatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collect
@@ -133,7 +134,7 @@ class HomeViewModel @Inject constructor(
                 if (it.isActive) {
                     it.stopMeasurement(false)
                 } else {
-                    it.startMeasurement(false)
+                    it.startMeasurement(false, SignalMeasurementType.DEDICATED)
                     it.setEndAlarm()
                 }
             }
@@ -153,8 +154,8 @@ class HomeViewModel @Inject constructor(
             }
     }
 
-    fun startSignalMeasurement() {
-        producer?.startMeasurement(false)
+    fun startSignalMeasurement(signalMeasurementType: SignalMeasurementType) {
+        producer?.startMeasurement(false, signalMeasurementType)
     }
 
     fun stopSignalMeasurement() {

@@ -6,6 +6,7 @@ import at.rtr.rmbt.android.databinding.ActivitySignalMeasurementBinding
 import at.rtr.rmbt.android.di.viewModelLazy
 import at.rtr.rmbt.android.util.listen
 import at.rtr.rmbt.android.viewmodel.HomeViewModel
+import at.specure.test.SignalMeasurementType
 
 class SignalMeasurementActivity : BaseActivity() {
 
@@ -27,7 +28,7 @@ class SignalMeasurementActivity : BaseActivity() {
         }
 
         binding.buttonStart.setOnClickListener {
-            viewModel.startSignalMeasurement()
+            viewModel.startSignalMeasurement(SignalMeasurementType.DEDICATED)
         }
 
         binding.buttonStop.setOnClickListener {
