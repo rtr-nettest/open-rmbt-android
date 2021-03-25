@@ -34,6 +34,7 @@ import at.specure.location.LocationWatcher
 import at.specure.location.cell.CellLocationInfo
 import at.specure.location.cell.CellLocationLiveData
 import at.specure.location.cell.CellLocationWatcher
+import at.specure.test.SignalMeasurementType
 import at.specure.test.toDeviceInfoLocation
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
@@ -85,6 +86,7 @@ class SignalMeasurementProcessor @Inject constructor(
     private var lastSeenNetworkTimestampMillis: Long? = null
     private var unconnectedTimer = Timer()
 
+    private var lastSignalMeasurementType: SignalMeasurementType = SignalMeasurementType.UNKNOWN
     private var chunkDataSize = 0
     private var chunkCountDownRunner = Runnable {
         Timber.i("Chunk countdown timer reached")
@@ -124,12 +126,13 @@ class SignalMeasurementProcessor @Inject constructor(
         // not necessary to implement here
     }
 
-    override fun startMeasurement(unstoppable: Boolean) {
+    override fun startMeasurement(unstoppable: Boolean, signalMeasurementType: SignalMeasurementType) {
         Timber.w("startMeasurement")
         _isActive = true
         isUnstoppable = unstoppable
         _activeStateLiveData.postValue(_isActive)
         _pausedStateLiveData.postValue(_isPaused)
+        lastSignalMeasurementType = signalMeasurementType
 
         if (!isPaused) {
             handleNewNetwork(activeNetworkWatcher.currentNetworkInfo)
@@ -298,6 +301,7 @@ class SignalMeasurementProcessor @Inject constructor(
 
     private fun createNewRecord(networkInfo: NetworkInfo) {
         record = SignalMeasurementRecord(
+            signalMeasurementType = lastSignalMeasurementType,
             networkUUID = networkInfo.cellUUID,
             transportType = networkInfo.type,
             location = locationInfo.toDeviceInfoLocation()
@@ -310,6 +314,7 @@ class SignalMeasurementProcessor @Inject constructor(
 
     private fun createNewRecordBecauseOfChangedUUID(networkInfo: NetworkInfo, newUUID: String, info: SignalMeasurementInfo) {
         record = SignalMeasurementRecord(
+            signalMeasurementType = lastSignalMeasurementType,
             networkUUID = networkInfo.cellUUID,
             transportType = networkInfo.type,
             location = locationInfo.toDeviceInfoLocation()

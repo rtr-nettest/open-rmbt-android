@@ -184,7 +184,7 @@ fun TestRecord.toRequest(
             if (map.isEmpty()) null else map
         }
 
-        val signals: List<SignalBody>? = if (signalList.isEmpty()) {
+        var signals: List<SignalBody>? = if (signalList.isEmpty()) {
             null
         } else {
             val list = mutableListOf<SignalBody>()
@@ -200,6 +200,8 @@ fun TestRecord.toRequest(
                 if (list.isEmpty()) null else list
             }
         }
+
+        signals = removeOldRedundantSignalValuesWithNegativeTimestamp(signals)
 
         RadioInfoBody(cells?.entries?.map { it.value }, signals)
     }
@@ -445,6 +447,7 @@ fun SignalMeasurementRecord.toRequest(clientUUID: String, deviceInfo: DeviceInfo
     time = startTimeMillis,
     timezone = deviceInfo.timezone,
     clientUUID = clientUUID,
+    measurementTypeFlag = signalMeasurementType.signalTypeName,
     location = location?.toRequest()
 )
 
@@ -533,10 +536,12 @@ fun SignalMeasurementRecord.toRequest(
             }
             // remove previous last entry which is added by getLastSignal
             signals = signals.filterIndexed { index, _ ->
-                Timber.i("index checking list size: $index")
                 index != 0
             }
         }
+
+        signals = removeOldRedundantSignalValuesWithNegativeTimestamp(signals)
+
         Timber.i("New list size: ${signals?.size} + last time: ")
 
         RadioInfoBody(cells?.entries?.map { it.value }, signals)
@@ -599,6 +604,29 @@ fun SignalMeasurementRecord.toRequest(
         networkEvents = networkEvents,
         cellLocations = cellLocations
     )
+}
+
+private fun removeOldRedundantSignalValuesWithNegativeTimestamp(signals: List<SignalBody>?): List<SignalBody>? {
+    // remove values with negative timestamp and keep only last one
+    var signals = signals
+    var lastSignalWithNegativeTime: SignalBody? = null
+    Timber.d("Previous list size: ${signals?.size} + last time: ")
+    if (signals != null && (signals.size > 1)) {
+        signals = signals.filter {
+            if (it.timeNanos < 0) {
+                lastSignalWithNegativeTime = it
+                false
+            } else {
+                true
+            }
+        }
+    }
+    Timber.d("Previous list size filtered negative: ${signals?.size} + last time: ")
+    // add back previously removed last value with time < 0
+    lastSignalWithNegativeTime?.let {
+        (signals as MutableList<SignalBody>).add(0, it)
+    }
+    return signals
 }
 
 fun convertLocalNetworkTypeToServerType(transportType: TransportType?, mobileNetworkType: MobileNetworkType?): String {

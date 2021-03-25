@@ -1,7 +1,5 @@
 package at.specure.test
 
-import at.specure.result.QoECategory
-
 enum class SignalMeasurementType(val signalTypeName: String) {
     /**
      * Original signal measurement triggered by user from UI
@@ -21,16 +19,21 @@ enum class SignalMeasurementType(val signalTypeName: String) {
     /**
      * Signal recorded during the waiting phase between 2 regular measurements executed in loop measurement
      */
-    LOOP_WAITING("loop_waiting");
+    LOOP_WAITING("loop_waiting"),
+
+    /**
+     * for unknown values
+     */
+    UNKNOWN("unknown"), ;
 
     companion object {
-        fun fromString(type: String): QoECategory {
-            QoECategory.values().forEach { x ->
-                if (x.categoryName == type) {
+        fun fromString(type: String): SignalMeasurementType {
+            values().forEach { x ->
+                if (x.signalTypeName == type) {
                     return x
                 }
             }
-            return QoECategory.QOE_UNKNOWN
+            return UNKNOWN
         }
     }
 }
