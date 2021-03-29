@@ -647,6 +647,7 @@ class MeasurementService : CustomLifecycleService() {
         // stop foreground does not hide notification about test running during loop mode sometimes
         notificationManager.cancel(NOTIFICATION_ID)
         notificationManager.cancel(NOTIFICATION_LOOP_FINISHED_ID)
+        val previousLoopModeState = loopModeState
         loopModeState = LoopModeState.CANCELLED
         stateRecorder.onLoopTestStatusChanged(loopModeState)
         runner.stop()
@@ -658,7 +659,12 @@ class MeasurementService : CustomLifecycleService() {
         stateRecorder.finish()
         clientAggregator.onMeasurementCancelled()
         clientAggregator.onProgressChanged(measurementState, 0)
-        resumeSignalMeasurement(false)
+        if (config.loopModeEnabled) {
+            Timber.d("Signal measurement stopping: Loop mode state: ${previousLoopModeState.name}")
+            stopSignalMeasurement()
+        } else {
+            resumeSignalMeasurement(false)
+        }
         stopForeground(true)
         unlock()
     }
