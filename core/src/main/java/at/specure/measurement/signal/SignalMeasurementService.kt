@@ -169,7 +169,7 @@ class SignalMeasurementService : CustomLifecycleService() {
 
         override fun stopMeasurement(unstoppable: Boolean) {
             this@SignalMeasurementService.isUnstoppable = unstoppable
-            Timber.i("Signal measurement start stop: $unstoppable")
+            Timber.i("Signal measurement stop: $unstoppable")
             this@SignalMeasurementService.stopMeasurement()
         }
 
