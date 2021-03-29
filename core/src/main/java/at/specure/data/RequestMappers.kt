@@ -201,7 +201,7 @@ fun TestRecord.toRequest(
             }
         }
 
-        signals = removeOldRedundantSignalValuesWithNegativeTimestamp(signals)
+        signals = removeOldRedundantSignalValuesWithNegativeTimestamp(signals)?.distinctBy { listOf(it.timeNanos, it.networkTypeId) }
 
         RadioInfoBody(cells?.entries?.map { it.value }, signals)
     }
