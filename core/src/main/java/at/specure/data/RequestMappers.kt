@@ -540,7 +540,7 @@ fun SignalMeasurementRecord.toRequest(
             }
         }
 
-        signals = removeOldRedundantSignalValuesWithNegativeTimestamp(signals)
+        signals = removeOldRedundantSignalValuesWithNegativeTimestamp(signals)?.distinctBy { listOf(it.timeNanos, it.networkTypeId) }
 
         Timber.i("New list size: ${signals?.size} + last time: ")
 
