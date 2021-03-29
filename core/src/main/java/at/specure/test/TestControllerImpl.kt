@@ -164,7 +164,7 @@ class TestControllerImpl(
                 .put(KEY_PREVIOUS_TEST_STATUS, config.previousTestStatus)
 
             loopSettings?.let {
-                additionalValues.put(KEY_LOOP_MODE_SETTINGS, gson.toJson(it))
+                additionalValues.put(KEY_LOOP_MODE_SETTINGS, JSONObject(gson.toJson(it, LoopModeSettings::class.java)))
             }
 
             if (config.expertModeEnabled) {
