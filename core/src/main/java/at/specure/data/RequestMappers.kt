@@ -21,6 +21,8 @@ import at.rmbt.client.control.SpeedBody
 import at.rmbt.client.control.TestLocationBody
 import at.rmbt.client.control.TestResultBody
 import at.specure.config.Config
+import at.specure.data.RequestFilters.Companion.createRadioInfoBody
+import at.specure.data.RequestFilters.Companion.removeOldRedundantSignalValuesWithNegativeTimestamp
 import at.specure.data.entity.CapabilitiesRecord
 import at.specure.data.entity.CellInfoRecord
 import at.specure.data.entity.CellLocationRecord
@@ -49,7 +51,6 @@ import com.google.gson.JsonArray
 import com.google.gson.JsonParser
 import timber.log.Timber
 import java.util.UUID
-import kotlin.math.abs
 
 fun DeviceInfo.toSettingsRequest(clientUUID: ClientUUID, clientUUIDLegacy: ClientUUIDLegacy, config: Config, tac: TermsAndConditions) =
     SettingsRequestBody(
@@ -361,11 +362,7 @@ fun CellInfoRecord.toRequest() = CellInfoBody(
 fun SignalRecord.toRequest(cellUUID: String, ignoreNetworkId: Boolean, signalMeasurementStartTimeNs: Long?) = SignalBody(
     cellUuid = cellUUID,
     networkTypeId = if (ignoreNetworkId) null else if (transportType.toRequestIntValue(mobileNetworkType) == MobileNetworkType.NR.intValue) {
-        if (nrConnectionState == NRConnectionState.NSA) {
             MobileNetworkType.NR_NSA.intValue
-        } else {
-            transportType.toRequestIntValue(mobileNetworkType)
-        }
     } else {
         transportType.toRequestIntValue(mobileNetworkType)
     },
@@ -487,65 +484,7 @@ fun SignalMeasurementRecord.toRequest(
         locations.map { it.toRequest() }
     }
 
-    var radioInfo: RadioInfoBody? = if (cellInfoList.isEmpty() && signalList.isEmpty()) {
-        null
-    } else {
-        val cells: Map<String, CellInfoBody>? = if (cellInfoList.isEmpty()) {
-            null
-        } else {
-            val map = mutableMapOf<String, CellInfoBody>()
-            cellInfoList.forEach {
-                map[it.uuid] = it.toRequest()
-            }
-            if (map.isEmpty()) null else map
-        }
-
-        var signals: List<SignalBody>? = if (signalList.isEmpty()) {
-            null
-        } else {
-            val list = mutableListOf<SignalBody>()
-            if (cells == null) {
-                null
-            } else {
-                signalList.forEach {
-                    val cell = cells[it.cellUuid]
-                    if (cell != null) {
-                        list.add(it.toRequest(cell.uuid, false, null))
-                    } else {
-                        list.add(it.toRequest("", false, null))
-                    }
-                }
-                if (list.isEmpty()) null else list
-            }
-        }
-        Timber.i("Old list size: ${signals?.size}")
-        // remove last signal from previous chunk
-        if (signals != null && (signals.size > 1) && (chunk.sequenceNumber > 0)) {
-            signals = signals.filterIndexed { index, it ->
-                if (index == signals?.lastIndex) {
-                    true
-                } else {
-                    val newValueUnder60s = abs(signals!![index + 1].timeNanos) - abs(it.timeNanos) <= 60000000000
-                    if (newValueUnder60s) {
-                        true
-                    } else {
-                        Timber.i("Filtered out: $it")
-                        false
-                    }
-                }
-            }
-            // remove previous last entry which is added by getLastSignal
-            signals = signals.filterIndexed { index, _ ->
-                index != 0
-            }
-        }
-
-        signals = removeOldRedundantSignalValuesWithNegativeTimestamp(signals)?.distinctBy { listOf(it.timeNanos, it.networkTypeId) }
-
-        Timber.i("New list size: ${signals?.size} + last time: ")
-
-        RadioInfoBody(cells?.entries?.map { it.value }, signals)
-    }
+    var radioInfo: RadioInfoBody? = createRadioInfoBody(cellInfoList, signalList, chunk)
 
     if (radioInfo?.cells.isNullOrEmpty() && radioInfo?.signals.isNullOrEmpty()) {
         radioInfo = null
@@ -604,29 +543,6 @@ fun SignalMeasurementRecord.toRequest(
         networkEvents = networkEvents,
         cellLocations = cellLocations
     )
-}
-
-private fun removeOldRedundantSignalValuesWithNegativeTimestamp(signals: List<SignalBody>?): List<SignalBody>? {
-    // remove values with negative timestamp and keep only last one
-    var signals = signals
-    var lastSignalWithNegativeTime: SignalBody? = null
-    Timber.d("Previous list size: ${signals?.size} + last time: ")
-    if (signals != null && (signals.size > 1)) {
-        signals = signals.filter {
-            if (it.timeNanos < 0) {
-                lastSignalWithNegativeTime = it
-                false
-            } else {
-                true
-            }
-        }
-    }
-    Timber.d("Previous list size filtered negative: ${signals?.size} + last time: ")
-    // add back previously removed last value with time < 0
-    lastSignalWithNegativeTime?.let {
-        (signals as MutableList<SignalBody>).add(0, it)
-    }
-    return signals
 }
 
 fun convertLocalNetworkTypeToServerType(transportType: TransportType?, mobileNetworkType: MobileNetworkType?): String {

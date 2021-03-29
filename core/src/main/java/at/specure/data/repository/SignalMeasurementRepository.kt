@@ -3,7 +3,9 @@ package at.specure.data.repository
 import at.specure.data.entity.SignalMeasurementChunk
 import at.specure.data.entity.SignalMeasurementInfo
 import at.specure.data.entity.SignalMeasurementRecord
+import at.specure.measurement.signal.SignalMeasurementChunkReadyCallback
 import at.specure.measurement.signal.SignalMeasurementChunkResultCallback
+import at.specure.measurement.signal.ValidChunkPostProcessing
 import kotlinx.coroutines.flow.Flow
 
 interface SignalMeasurementRepository {
@@ -27,7 +29,13 @@ interface SignalMeasurementRepository {
 
     fun saveMeasurementChunk(chunk: SignalMeasurementChunk)
 
-    fun sendMeasurementChunk(chunk: SignalMeasurementChunk, callback: SignalMeasurementChunkResultCallback)
+    fun sendMeasurementChunk(chunk: SignalMeasurementChunk, callBack: SignalMeasurementChunkResultCallback)
+
+    fun shouldSendMeasurementChunk(
+        chunk: SignalMeasurementChunk,
+        postProcessing: ValidChunkPostProcessing,
+        callback: SignalMeasurementChunkReadyCallback
+    )
 
     fun getSignalMeasurementChunk(chunkId: String): Flow<SignalMeasurementChunk?>
 
