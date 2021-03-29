@@ -69,7 +69,7 @@ class SignalMeasurementProcessor @Inject constructor(
     private val signalRepository: SignalMeasurementRepository,
     private val connectivityWatcher: ConnectivityWatcher,
     private val measurementRepository: MeasurementRepository
-) : Binder(), SignalMeasurementProducer, CoroutineScope, SignalMeasurementChunkResultCallback {
+) : Binder(), SignalMeasurementProducer, CoroutineScope, SignalMeasurementChunkResultCallback, SignalMeasurementChunkReadyCallback {
 
     private var isUnstoppable = false
     private var _isActive = false
@@ -90,8 +90,7 @@ class SignalMeasurementProcessor @Inject constructor(
     private var chunkDataSize = 0
     private var chunkCountDownRunner = Runnable {
         Timber.i("Chunk countdown timer reached")
-        commitChunkData()
-        createNewChunk()
+        commitChunkData(ValidChunkPostProcessing.CREATE_NEW_CHUNK)
     }
     private var chunkCountDownHandler = Handler()
 
@@ -143,7 +142,7 @@ class SignalMeasurementProcessor @Inject constructor(
         Timber.w("stopMeasurement")
 
         chunk?.state = SignalMeasurementState.SUCCESS
-        commitChunkData()
+        commitChunkData(ValidChunkPostProcessing.NOTHING)
         isUnstoppable = unstoppable
         _isActive = false
         _isPaused = false
@@ -258,7 +257,7 @@ class SignalMeasurementProcessor @Inject constructor(
         when {
             newNetworkInfo == null && currentInfo != null -> {
                 Timber.i("Network become unavailable")
-                commitChunkData()
+                commitChunkData(ValidChunkPostProcessing.NOTHING)
                 lastSeenNetworkInfo = networkInfo
                 lastSeenNetworkRecord = record
                 lastSeenNetworkTimestampMillis = System.currentTimeMillis()
@@ -290,7 +289,7 @@ class SignalMeasurementProcessor @Inject constructor(
             newNetworkInfo != null && currentInfo != null && currentInfo.type != newNetworkInfo.type -> {
                 Timber.i("Network changed")
                 networkInfo = newNetworkInfo
-                commitChunkData()
+                commitChunkData(ValidChunkPostProcessing.NOTHING)
                 createNewRecord(newNetworkInfo)
             }
             else -> {
@@ -325,10 +324,10 @@ class SignalMeasurementProcessor @Inject constructor(
         createNewChunk()
     }
 
-    private fun commitChunkData() {
+    private fun commitChunkData(postProcessing: ValidChunkPostProcessing) {
         chunk?.let {
-            Timber.i("Commit chunk data chunkID = ${it.id} sequence: ${it.sequenceNumber}")
-            signalRepository.sendMeasurementChunk(it, this)
+            Timber.i("Checking chunk data chunkID = ${it.id} sequence: ${it.sequenceNumber}")
+            signalRepository.shouldSendMeasurementChunk(it, postProcessing, this)
         }
     }
 
@@ -457,8 +456,7 @@ class SignalMeasurementProcessor @Inject constructor(
                     chunkDataSize++
                     if (chunkDataSize >= MAX_SIGNAL_COUNT_PER_CHUNK) {
                         Timber.v("Chunk max size reached: $chunkDataSize")
-                        commitChunkData()
-                        createNewChunk()
+                        commitChunkData(ValidChunkPostProcessing.CREATE_NEW_CHUNK)
                     }
                 }
             }
@@ -490,6 +488,26 @@ class SignalMeasurementProcessor @Inject constructor(
         val network = networkInfo
         network?.let {
             createNewRecordBecauseOfChangedUUID(network, respondedUuid, info)
+        }
+    }
+
+    override fun onSignalMeasurementChunkReadyCheckResult(
+        isReady: Boolean,
+        chunk: SignalMeasurementChunk?,
+        validChunkPostProcessing: ValidChunkPostProcessing
+    ) {
+        if (isReady) {
+            chunk?.let {
+                Timber.i("Commit chunk data chunkID = ${it.id} sequence: ${it.sequenceNumber}")
+                signalRepository.sendMeasurementChunk(it, this)
+            }
+            when (validChunkPostProcessing) {
+                ValidChunkPostProcessing.NOTHING -> {
+                }
+                ValidChunkPostProcessing.CREATE_NEW_CHUNK -> {
+                    createNewChunk()
+                }
+            }
         }
     }
 }
