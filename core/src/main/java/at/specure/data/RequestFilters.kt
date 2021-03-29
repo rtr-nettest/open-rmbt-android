@@ -103,5 +103,4 @@ class RequestFilters {
             return signals
         }
     }
-
 }
