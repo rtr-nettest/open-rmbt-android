@@ -950,6 +950,9 @@ data class SignalMeasurementRequestBody(
     val time: Long,
     val timezone: String,
 
+    @SerializedName("measurement_type_flag")
+    val measurementTypeFlag: String,
+
     @SerializedName("uuid")
     val clientUUID: String,
     val location: SignalMeasurementLocationBody?

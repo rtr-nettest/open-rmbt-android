@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <data>
+
+        <import type="at.specure.measurement.MeasurementState" />
+
+        <variable
+            name="state"
+            type="at.rtr.rmbt.android.ui.viewstate.MeasurementViewState" />
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <TextView
+            android:id="@+id/screen_title"
+            style="@style/ScreenTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="56dp"
+            android:text="@string/text_basic_measurement"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <at.rtr.rmbt.android.ui.view.MeasurementProgressLineView
+            android:id="@+id/progress"
+            android:layout_width="0dp"
+            android:layout_height="2dp"
+            android:layout_margin="40dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/screen_title"
+            app:percentage="@{state.measurementProgress}"
+            app:phase="@{state.measurementState}"
+            app:qosEnabled="@{state.qosEnabled}" />
+
+        <ImageView
+            android:id="@+id/buttonCancel"
+            android:layout_width="@dimen/toolbar_button_size"
+            android:layout_height="@dimen/toolbar_button_size"
+            android:layout_marginTop="@dimen/margin_small"
+            android:layout_marginEnd="@dimen/margin_small"
+            android:contentDescription="@null"
+            android:scaleType="center"
+            android:src="@drawable/ic_close"
+            app:layout_constraintBottom_toBottomOf="@id/screen_title"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@id/screen_title" />
+
+        <at.rtr.rmbt.android.ui.view.MeasurementProgressSquareView
+            android:id="@+id/square"
+            android:layout_width="@dimen/size_progress_square"
+            android:layout_height="@dimen/size_progress_square"
+            app:downloadSpeed="@{state.downloadSpeedBps}"
+            app:layout_constraintBottom_toTopOf="@id/speed_line"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/progress"
+            app:measurementPhase="@{state.measurementState}"
+            app:percentage="@{state.measurementProgress}"
+            app:ping="@{state.pingNanos}"
+            app:uploadSpeed="@{state.uploadSpeedBps}" />
+
+        <at.rtr.rmbt.android.ui.view.SpeedLineChart
+            android:id="@+id/speed_line"
+            android:layout_width="match_parent"
+            android:layout_height="80dp"
+            android:layout_marginStart="40dp"
+            android:layout_marginEnd="40dp"
+            android:layout_marginBottom="20dp"
+            android:paddingBottom="2dp"
+            app:grid_color="@android:color/transparent"
+            app:grid_row="4"
+            app:layout_constraintBottom_toTopOf="@id/image"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/square"
+            app:visibleOrInvisible="@{state.measurementState == MeasurementState.DOWNLOAD || state.measurementState == MeasurementState.UPLOAD}"
+            app:xlabel_text_size="0dp"
+            app:ylabel_text_size="0dp" />
+
+        <androidx.appcompat.widget.AppCompatImageView
+            android:id="@+id/image"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="50dp"
+            android:src="@drawable/image_basic"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/speed_line" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</layout>
