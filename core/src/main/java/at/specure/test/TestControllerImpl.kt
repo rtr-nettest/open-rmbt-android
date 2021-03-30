@@ -186,7 +186,7 @@ class TestControllerImpl(
             }
 
             client = RMBTClient.getInstance(
-                config.controlServerHostNew,
+                config.controlServerHost,
                 null,
                 config.controlServerPort,
                 config.controlServerUseSSL,
