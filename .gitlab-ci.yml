@@ -54,19 +54,6 @@ check:app-rtr:
       - /update\/.*/
       - /test\/.*/
 
-check:app-ont:
-  stage: check
-  script:
-    - ./gradlew :ont:ktlint
-    - ./gradlew :ont:lintLocalStageDebug
-  only:
-    refs:
-      - /fix\/.*/
-      - /feature\/.*/
-      - /hotfix\/.*/
-      - /update\/.*/
-      - /test\/.*/
-
 check:core:
   stage: check
   script:
@@ -137,22 +124,6 @@ distribution:build-rtr:
     - develop
   artifacts:
     name: "local-$VERSION_NAME-$CI_COMMIT_REF_SLUG-$CI_COMMIT_SHORT_SHA"
-    paths:
-      - app/build/outputs
-
-distribution:build-ont:
-  stage: distribution
-  interruptible: true
-  script:
-    - echo "version ${VERSION_NAME}(${VERSION_CODE})"
-    - ./gradlew ont:assembleLocalStageDebug -PbuildVersionCode=${VERSION_CODE} -PbuildVersionName=${VERSION_NAME} -PreleaseNotes="${RELEASE_NOTES}"
-    - ./gradlew ont:appDistributionUploadLocalStageDebug -PbuildVersionCode=${VERSION_CODE} -PbuildVersionName=${VERSION_NAME} -PreleaseNotes="${RELEASE_NOTES}"
-    - ./gradlew ont:assembleLocalDemoRelease -PbuildVersionCode=${VERSION_CODE} -PbuildVersionName=${VERSION_NAME} -PreleaseNotes="${RELEASE_NOTES}"
-    - ./gradlew ont:appDistributionUploadLocalDemoRelease -PbuildVersionCode=${VERSION_CODE} -PbuildVersionName=${VERSION_NAME} -PreleaseNotes="${RELEASE_NOTES}"
-  only:
-    - develop
-  artifacts:
-    name: "ont-$VERSION_NAME-$CI_COMMIT_REF_SLUG-$CI_COMMIT_SHORT_SHA"
     paths:
       - app/build/outputs
 
