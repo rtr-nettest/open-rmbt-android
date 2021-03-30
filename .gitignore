@@ -43,3 +43,7 @@ build_results
 # Google services
 app/google-services.json
 ont/google-services.json
+
+# Not related source files
+ont
+ont/*
