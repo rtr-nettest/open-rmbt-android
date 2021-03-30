@@ -44,8 +44,8 @@ class ResultsActivity : BaseActivity(), OnMapReadyCallback {
 
         viewModel.state.playServicesAvailable.set(checkPlayServices())
 
-        binding.map.onCreate(savedInstanceState)
-        binding.map.getMapAsync(this)
+        binding.map?.onCreate(savedInstanceState)
+        binding.map?.getMapAsync(this)
 
         val testUUID = intent.getStringExtra(KEY_TEST_UUID)
         check(!testUUID.isNullOrEmpty()) { "TestUUID was not passed to result activity" }
@@ -53,8 +53,10 @@ class ResultsActivity : BaseActivity(), OnMapReadyCallback {
         val returnPoint = intent.getStringExtra(KEY_RETURN_POINT)
         check(!testUUID.isNullOrEmpty()) { "ReturnPoint was not passed to result activity" }
 
-        binding.viewPagerCharts.offscreenPageLimit = 3
-        binding.tabLayoutCharts.setupWithViewPager(binding.viewPagerCharts, true)
+        binding.viewPagerCharts?.offscreenPageLimit = 3
+        binding.viewPagerCharts?.let { viewPagerCharts ->
+            binding.tabLayoutCharts?.setupWithViewPager(viewPagerCharts, true)
+        }
 
         viewModel.state.testUUID = testUUID
         viewModel.state.returnPoint = returnPoint?.let { ReturnPoint.valueOf(returnPoint) } ?: ReturnPoint.HOME
@@ -63,7 +65,7 @@ class ResultsActivity : BaseActivity(), OnMapReadyCallback {
 
             result?.testOpenUUID?.let {
                 resultChartFragmentPagerAdapter = ResultChartFragmentPagerAdapter(supportFragmentManager, testUUID, result.networkType)
-                binding.viewPagerCharts.adapter = resultChartFragmentPagerAdapter
+                binding.viewPagerCharts?.adapter = resultChartFragmentPagerAdapter
             }
 
             if (result?.latitude != null && result.longitude != null) {
@@ -114,14 +116,14 @@ class ResultsActivity : BaseActivity(), OnMapReadyCallback {
             adapter.submitList(it)
         }
 
-        binding.qoeResultsRecyclerView.adapter = adapter
+        binding.qoeResultsRecyclerView?.adapter = adapter
 
-        binding.qoeResultsRecyclerView.apply {
+        binding.qoeResultsRecyclerView?.apply {
             val itemDecoration = DividerItemDecoration(context, DividerItemDecoration.VERTICAL)
             ContextCompat.getDrawable(context, R.drawable.history_item_divider)?.let {
                 itemDecoration.setDrawable(it)
             }
-            binding.qoeResultsRecyclerView.addItemDecoration(itemDecoration)
+            binding.qoeResultsRecyclerView?.addItemDecoration(itemDecoration)
         }
         binding.buttonBack.setOnClickListener {
             onBackPressed()
@@ -148,17 +150,17 @@ class ResultsActivity : BaseActivity(), OnMapReadyCallback {
             }
         }
 
-        binding.labelTestResultDetail.setOnClickListener {
+        binding.labelTestResultDetail?.setOnClickListener {
             TestResultDetailActivity.start(this, viewModel.state.testUUID)
         }
 
-        binding.qosResultsRecyclerView.apply {
+        binding.qosResultsRecyclerView?.apply {
             adapter = qosAdapter
             val itemDecoration = DividerItemDecoration(context, DividerItemDecoration.VERTICAL)
             ContextCompat.getDrawable(context, R.drawable.history_item_divider)?.let {
                 itemDecoration.setDrawable(it)
             }
-            binding.qosResultsRecyclerView.addItemDecoration(itemDecoration)
+            binding.qosResultsRecyclerView?.addItemDecoration(itemDecoration)
         }
 
         viewModel.qosCategoryResultLiveData.listen(this) {
@@ -199,21 +201,21 @@ class ResultsActivity : BaseActivity(), OnMapReadyCallback {
 
     override fun onStart() {
         super.onStart()
-        binding.map.onStart()
+        binding.map?.onStart()
     }
 
     override fun onResume() {
         super.onResume()
-        binding.map.onResume()
+        binding.map?.onResume()
     }
 
     override fun onStop() {
         super.onStop()
-        binding.map.onStop()
+        binding.map?.onStop()
     }
 
     override fun onPause() {
-        binding.map.onPause()
+        binding.map?.onPause()
         super.onPause()
     }
 

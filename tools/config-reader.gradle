@@ -78,9 +78,17 @@ android {
 
     def jsonFile
     if ((isPrivate) && (flavorDimension != "openRmbt")) {
-        jsonFile = file("$project.rootDir/private/app/src/${flavorDimension}/config.json")
+        if (project.name == "app") {
+            jsonFile = file("$project.rootDir/private/app/src/${flavorDimension}/config.json")
+        } else if (project.name == "ont") {
+            jsonFile = file("$project.rootDir/private/ont/src/${flavorDimension}/config.json")
+        }
     } else {
-        jsonFile = file("$project.rootDir/app/src/${flavorDimension}/config.json")
+        if (project.name == "app") {
+            jsonFile = file("$project.rootDir/app/src/${flavorDimension}/config.json")
+        } else if (project.name == "ont") {
+            jsonFile = file("$project.rootDir/ont/src/${flavorDimension}/config.json")
+        }
     }
 
             def parsedJson = new JsonSlurper().parseText(jsonFile.text)

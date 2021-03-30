@@ -1,2 +1,2 @@
-include ':app', ':core', ':control_client', ':util', ':location', ':rmbt-client'
+include ':app', ':ont', ':core', ':control_client', ':util', ':location', ':rmbt-client'
 include ':location-fused'

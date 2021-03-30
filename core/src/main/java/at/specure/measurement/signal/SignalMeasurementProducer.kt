@@ -1,6 +1,7 @@
 package at.specure.measurement.signal
 
 import androidx.lifecycle.LiveData
+import at.specure.test.SignalMeasurementType
 
 interface SignalMeasurementProducer {
 
@@ -10,7 +11,7 @@ interface SignalMeasurementProducer {
     val pausedStateLiveData: LiveData<Boolean>
 
     fun setEndAlarm()
-    fun startMeasurement(unstoppable: Boolean)
+    fun startMeasurement(unstoppable: Boolean, signalMeasurementType: SignalMeasurementType)
     fun stopMeasurement(unstoppable: Boolean)
     fun pauseMeasurement(unstoppable: Boolean)
     fun resumeMeasurement(unstoppable: Boolean)

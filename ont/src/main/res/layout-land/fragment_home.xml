@@ -1,0 +1,419 @@
+<?xml version="1.0" encoding="utf-8"?><!--
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~ http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <import type="at.specure.location.LocationState" />
+
+        <variable
+            name="captiveState"
+            type="at.specure.info.ip.CaptivePortal.CaptivePortalStatus" />
+
+        <variable
+            name="state"
+            type="at.rtr.rmbt.android.ui.viewstate.HomeViewState" />
+
+        <import type="android.view.View" />
+
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@{state.isConnected ? @drawable/bg_splash : @drawable/bg_gray}"
+        tools:background="@drawable/bg_splash">
+
+        <androidx.appcompat.widget.SwitchCompat
+            android:id="@+id/btnLoop"
+            style="@style/NavigationButtonStyle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/margin_medium"
+            android:button="@drawable/selector_loop_mode"
+            android:checked="@{state.isLoopModeActive}"
+            android:thumb="@null"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:checked="true" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/tvTitle"
+            style="@style/RobotoMediumStyle.Large"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/toolbar_title"
+            android:textColor="@{state.isConnected ? @android:color/white : @color/text_dark_gray}"
+            app:layout_constraintBottom_toBottomOf="@+id/btnLoop"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/loop_mode_title"
+            style="@style/RobotoMediumStyle.Medium"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingBottom="@dimen/margin_medium"
+            android:text="@string/title_loop_mode"
+            android:textColor="@{state.isConnected ? @android:color/white : @color/text_dark_gray}"
+            android:visibility="@{state.isLoopModeActive ? View.VISIBLE : View.INVISIBLE}"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/tvTitle" />
+
+        <androidx.appcompat.widget.AppCompatImageButton
+            android:id="@+id/btnSetting"
+            style="@style/NavigationButtonStyle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="end"
+            android:src="@{state.isConnected ? @drawable/ic_settings : @drawable/ic_settings_gray}"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:src="@drawable/ic_settings" />
+
+        <View
+            android:id="@+id/leftView"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/waveView"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/loop_mode_title"
+            tools:background="@android:color/holo_green_light" />
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guideline"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_percent="0.515" />
+
+        <View
+            android:id="@+id/waveViewBackground"
+            android:layout_width="15dp"
+            android:layout_height="0dp"
+            android:background="@android:color/white"
+            app:layout_constraintBottom_toBottomOf="@+id/waveView"
+            app:layout_constraintStart_toEndOf="@+id/guideline"
+            app:layout_constraintTop_toTopOf="@+id/waveView"
+            tools:background="@android:color/holo_red_dark" />
+
+        <at.rtr.rmbt.android.ui.view.WaveView
+            android:id="@+id/waveView"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/rightView"
+            app:layout_constraintStart_toEndOf="@+id/leftView"
+            app:layout_constraintTop_toBottomOf="@+id/loop_mode_title"
+            app:layout_constraintWidth_percent="0.05"
+            app:waveEnabled="@{state.isConnected()}"
+            tools:background="@color/text_black_transparency_60" />
+
+        <View
+            android:id="@+id/rightView"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:background="@android:color/white"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/waveView"
+            app:layout_constraintTop_toBottomOf="@+id/loop_mode_title" />
+
+        <View
+            android:id="@+id/viewCircleShape"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            app:layout_constraintBottom_toBottomOf="@+id/ivIsConnectedCircle"
+            app:layout_constraintDimensionRatio="1:1"
+            app:layout_constraintEnd_toEndOf="@+id/ivIsConnectedCircle"
+            app:layout_constraintHeight_percent="0.23"
+            app:layout_constraintStart_toStartOf="@+id/ivIsConnectedCircle"
+            app:layout_constraintTop_toTopOf="@+id/ivIsConnectedCircle"
+            tools:background="@android:color/holo_blue_bright" />
+
+        <androidx.appcompat.widget.AppCompatImageView
+            android:id="@+id/ivIsConnectedCircle"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:src="@{state.isConnected ? @drawable/bg_home_with_internet_circle : @drawable/bg_home_without_internet_circle}"
+            app:layout_constraintBottom_toTopOf="@+id/tvNetworkType"
+            app:layout_constraintEnd_toEndOf="@+id/leftView"
+            app:layout_constraintHeight_percent="0.45"
+            app:layout_constraintStart_toStartOf="@+id/leftView"
+            app:layout_constraintTop_toTopOf="@+id/leftView"
+            app:layout_constraintVertical_chainStyle="packed"
+            tools:src="@drawable/bg_home_with_internet_circle" />
+
+        <androidx.appcompat.widget.AppCompatImageButton
+            android:id="@+id/ivSignalLevel"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:background="@drawable/bg_selection"
+            android:scaleType="centerInside"
+            android:src="@drawable/ic_mobile_1"
+            app:connected="@{state.isConnected}"
+            app:layout_constraintBottom_toBottomOf="@+id/viewCircleShape"
+            app:layout_constraintEnd_toEndOf="@+id/viewCircleShape"
+            app:layout_constraintStart_toStartOf="@+id/viewCircleShape"
+            app:layout_constraintTop_toTopOf="@+id/viewCircleShape"
+            app:signalLevel="@{state.signalStrength}" />
+
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/icon_loop_mode"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:backgroundTint="@android:color/white"
+            android:src="@drawable/ic_label_loop"
+            app:borderWidth="0dp"
+            app:fabSize="mini"
+            app:layout_constraintBottom_toBottomOf="@id/ivIsConnectedCircle"
+            app:layout_constraintEnd_toEndOf="@+id/ivIsConnectedCircle"
+            app:layout_constraintHorizontal_bias="0.69"
+            app:layout_constraintStart_toStartOf="@id/ivIsConnectedCircle"
+            app:layout_constraintTop_toTopOf="@+id/ivIsConnectedCircle"
+            app:layout_constraintVertical_bias="0.16"
+            app:maxImageSize="36dp"
+            app:visibleOrGone="@{state.isLoopModeActive}" />
+
+        <androidx.appcompat.widget.AppCompatImageView
+            android:id="@+id/ivIsCaptivePortal"
+            android:layout_width="@dimen/home_extra_button_size"
+            android:layout_height="@dimen/home_extra_button_size"
+            android:layout_marginTop="@dimen/padding_large"
+            android:src="@drawable/ic_captive_portal"
+            app:layout_constraintBottom_toBottomOf="@+id/viewCircleShape"
+            app:layout_constraintEnd_toEndOf="@+id/viewCircleShape"
+            app:layout_constraintHorizontal_bias="0.88"
+            app:layout_constraintStart_toEndOf="@+id/ivIsConnectedCircle"
+            app:layout_constraintTop_toBottomOf="@+id/ivIsConnectedCircle"
+            app:layout_constraintVertical_bias="0.75"
+            app:visibleOrGone="@{state.ipV4Info.captivePortalStatus == captiveState.FOUND || state.ipV6Info.captivePortalStatus == captiveState.FOUND}" />
+
+        <androidx.appcompat.widget.AppCompatImageView
+            android:id="@+id/ivTechnology"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            app:layout_constraintEnd_toEndOf="@+id/viewCircleShape"
+            app:layout_constraintHeight_percent="0.05"
+            app:layout_constraintStart_toStartOf="@+id/viewCircleShape"
+            app:layout_constraintTop_toTopOf="@+id/viewCircleShape"
+            app:technology="@{state.activeNetworkInfo}"
+            tools:src="@drawable/ic_3g" />
+
+        <View
+            android:id="@+id/circleMarginView"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            app:layout_constraintEnd_toEndOf="@id/leftView"
+            app:layout_constraintHeight_percent="0.043"
+            app:layout_constraintStart_toStartOf="@+id/leftView"
+            app:layout_constraintTop_toTopOf="@+id/ivIsConnectedCircle"
+            tools:background="@android:color/holo_red_dark" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            style="@style/RobotoRegularStyle.Small"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text='@{state.selectedMeasurementServer  != null ? state.selectedMeasurementServer.name : @string/preferences_default_server_selection}'
+            android:textColor="@{state.isConnected ? @android:color/white : @color/text_dark_gray}"
+            app:layout_constraintEnd_toEndOf="@+id/circleMarginView"
+            app:layout_constraintTop_toBottomOf="@+id/loop_mode_title"
+            app:visibleOrGone='@{state.expertModeIsEnabled}' />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/tv_info"
+            style="@style/RobotoRegularStyle.Small"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginBottom="@dimen/margin_large_"
+            android:background="@drawable/bg_info_window"
+            android:gravity="center"
+            android:paddingStart="@dimen/padding_large"
+            android:paddingTop="@dimen/padding_medium"
+            android:paddingEnd="@dimen/padding_large"
+            android:paddingBottom="@dimen/padding_large"
+            android:text="@string/home_start_test_info"
+            app:infoWindowStatus="@{state.infoWindowStatus}"
+            app:isConnected="@{state.isConnected}"
+            app:layout_constraintBottom_toBottomOf="@+id/circleMarginView"
+            app:layout_constraintEnd_toEndOf="@id/leftView"
+            app:layout_constraintStart_toStartOf="@+id/leftView" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/tvNetworkType"
+            style="@style/RobotoMediumStyle.Small"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@{state.isConnected ? @color/text_white_transparency_40 : @color/text_gray_transparency_40}"
+            app:layout_constraintBottom_toTopOf="@+id/tvNetworkName"
+            app:layout_constraintEnd_toEndOf="@+id/leftView"
+            app:layout_constraintStart_toStartOf="@+id/leftView"
+            app:layout_constraintTop_toBottomOf="@+id/ivIsConnectedCircle"
+            app:networkType="@{state.activeNetworkInfo}"
+            tools:text="4G/LTE"
+            tools:textColor="@color/text_white_transparency_40" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/tvNetworkName"
+            style="@style/RobotoMediumStyle.Large"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:drawableEnd="@{state.developerModeIsEnabled ? @drawable/ic_developer_mode : null}"
+            android:text="@{state.isConnected ? state.activeNetworkInfo.name : @string/home_no_internet_connection}"
+            android:textColor="@{state.isConnected ? @android:color/white : @color/text_dark_gray}"
+            app:layout_constraintBottom_toTopOf="@+id/tvLblNoConnection"
+            app:layout_constraintEnd_toEndOf="@+id/leftView"
+            app:layout_constraintStart_toStartOf="@+id/leftView"
+            app:layout_constraintTop_toBottomOf="@+id/tvNetworkType"
+            tools:text="Android Network"
+            tools:textColor="@android:color/white" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/tvLblNoConnection"
+            style="@style/RobotoRegularStyle.Medium"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:text="@string/home_no_internet_connection_details"
+            android:textColor="@color/text_gray"
+            app:layout_constraintBottom_toBottomOf="@+id/leftView"
+            app:layout_constraintEnd_toEndOf="@+id/leftView"
+            app:layout_constraintStart_toStartOf="@+id/leftView"
+            app:layout_constraintTop_toBottomOf="@+id/tvNetworkName"
+            app:visibleOrGone="@{!state.isConnected}" />
+
+        <View
+            android:id="@+id/vBottomDivider"
+            android:layout_width="0dp"
+            android:layout_height="1dp"
+            android:layout_marginEnd="@dimen/margin_large"
+            android:background="@color/horizontal_divider"
+            app:layout_constraintBottom_toBottomOf="@+id/rightView"
+            app:layout_constraintEnd_toEndOf="@+id/rightView"
+            app:layout_constraintStart_toStartOf="@+id/rightView"
+            app:layout_constraintTop_toTopOf="@+id/rightView" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/tvLblSignal"
+            style="@style/RobotoRegularStyle.VerySmall"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:paddingBottom="@dimen/padding_large"
+            android:text="@string/home_signal"
+            android:textColor="@color/text_gray_transparency_40"
+            app:layout_constraintBottom_toTopOf="@+id/vBottomDivider"
+            app:layout_constraintEnd_toStartOf="@+id/tvLblFrequency"
+            app:layout_constraintStart_toStartOf="@id/vBottomDivider" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/tvLblFrequency"
+            style="@style/RobotoRegularStyle.VerySmall"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:paddingBottom="@dimen/padding_large"
+            android:text="@string/home_frequency"
+            android:textColor="@color/text_gray_transparency_40"
+            app:frequencyVisibility="@{state.activeNetworkInfo}"
+            app:layout_constraintBottom_toTopOf="@+id/vBottomDivider"
+            app:layout_constraintEnd_toEndOf="@id/vBottomDivider"
+            app:layout_constraintStart_toEndOf="@+id/tvLblSignal" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/tvSignal"
+            style="@style/RobotoMediumStyle.ExtraLarge"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:textColor="@color/text_gray"
+            app:layout_constraintBottom_toTopOf="@+id/tvLblSignal"
+            app:layout_constraintEnd_toStartOf="@+id/tvFrequency"
+            app:layout_constraintStart_toStartOf="@id/vBottomDivider"
+            app:signal="@{state.signalStrength.value}"
+            tools:text="-10 db" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/tvFrequency"
+            style="@style/RobotoMediumStyle.ExtraLarge"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:textColor="@color/text_gray"
+            app:frequency="@{state.activeNetworkInfo}"
+            app:frequencyVisibility="@{state.activeNetworkInfo}"
+            app:layout_constraintBottom_toTopOf="@+id/tvLblSignal"
+            app:layout_constraintEnd_toEndOf="@id/vBottomDivider"
+            app:layout_constraintStart_toEndOf="@+id/tvSignal"
+            tools:text="-12 db" />
+
+        <androidx.appcompat.widget.AppCompatImageButton
+            android:id="@+id/btnIpv4"
+            android:layout_width="0dp"
+            android:layout_height="?android:attr/actionBarSize"
+            android:background="?android:attr/selectableItemBackground"
+            android:gravity="center"
+            app:IpIcon="@{state.ipV4Info}"
+            app:layout_constraintEnd_toStartOf="@+id/btnIpv6"
+            app:layout_constraintStart_toStartOf="@+id/vBottomDivider"
+            app:layout_constraintTop_toBottomOf="@+id/vBottomDivider"
+            tools:src="@drawable/ic_ipv4_red" />
+
+        <androidx.appcompat.widget.AppCompatImageButton
+            android:id="@+id/btnIpv6"
+            android:layout_width="0dp"
+            android:layout_height="?android:attr/actionBarSize"
+            android:background="?android:attr/selectableItemBackground"
+            android:gravity="center"
+            app:IpIcon="@{state.ipV6Info}"
+            app:layout_constraintEnd_toStartOf="@+id/btnLocation"
+            app:layout_constraintStart_toEndOf="@+id/btnIpv4"
+            app:layout_constraintTop_toBottomOf="@+id/vBottomDivider"
+            tools:src="@drawable/ic_ipv6_gray" />
+
+        <androidx.appcompat.widget.AppCompatImageButton
+            android:id="@+id/btnLocation"
+            android:layout_width="0dp"
+            android:layout_height="?android:attr/actionBarSize"
+            android:background="?android:attr/selectableItemBackground"
+            android:gravity="center"
+            android:src="@{state.isLocationEnabled == LocationState.ENABLED ? @drawable/ic_location : @drawable/ic_location_disable}"
+            app:layout_constraintEnd_toStartOf="@+id/btnUpload"
+            app:layout_constraintStart_toEndOf="@+id/btnIpv6"
+            app:layout_constraintTop_toBottomOf="@+id/vBottomDivider"
+            tools:src="@drawable/ic_location" />
+
+        <androidx.appcompat.widget.AppCompatImageButton
+            android:id="@+id/btnUpload"
+            android:layout_width="0dp"
+            android:layout_height="?android:attr/actionBarSize"
+            android:background="?android:attr/selectableItemBackground"
+            android:clickable="@{state.isConnected}"
+            android:gravity="center"
+            android:src="@{state.isSignalMeasurementActive() ? @drawable/ic_upload_enabled : (state.isConnected ? @drawable/ic_upload_disabled : @drawable/ic_upload_not_available)}"
+            android:visibility="@{state.developerModeIsEnabled ? View.VISIBLE : View.GONE}"
+            app:layout_constraintEnd_toEndOf="@+id/vBottomDivider"
+            app:layout_constraintStart_toEndOf="@+id/btnLocation"
+            app:layout_constraintTop_toBottomOf="@+id/vBottomDivider"
+            tools:src="@drawable/ic_upload_enabled" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

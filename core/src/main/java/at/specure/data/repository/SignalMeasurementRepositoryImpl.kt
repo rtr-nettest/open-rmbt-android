@@ -6,15 +6,20 @@ import at.rmbt.util.exception.NoConnectionException
 import at.rmbt.util.io
 import at.specure.data.ClientUUID
 import at.specure.data.CoreDatabase
+import at.specure.data.RequestFilters.Companion.createRadioInfoBody
+import at.specure.data.entity.CellInfoRecord
 import at.specure.data.entity.SignalMeasurementChunk
 import at.specure.data.entity.SignalMeasurementInfo
 import at.specure.data.entity.SignalMeasurementRecord
+import at.specure.data.entity.SignalRecord
 import at.specure.data.entity.TestTelephonyRecord
 import at.specure.data.entity.TestWlanRecord
 import at.specure.data.toModel
 import at.specure.data.toRequest
 import at.specure.info.TransportType
+import at.specure.measurement.signal.SignalMeasurementChunkReadyCallback
 import at.specure.measurement.signal.SignalMeasurementChunkResultCallback
+import at.specure.measurement.signal.ValidChunkPostProcessing
 import at.specure.test.DeviceInfo
 import at.specure.util.exception.DataMissingException
 import at.specure.worker.WorkLauncher
@@ -118,6 +123,20 @@ class SignalMeasurementRepositoryImpl(
 
     override fun saveMeasurementRecord(record: SignalMeasurementRecord) = io {
         dao.saveSignalMeasurementRecord(record)
+    }
+
+    override fun shouldSendMeasurementChunk(
+        chunk: SignalMeasurementChunk,
+        postProcessing: ValidChunkPostProcessing,
+        callback: SignalMeasurementChunkReadyCallback
+    ) = io {
+        val valid = validateMeasurementChunk(db.cellInfoDao().get(chunk.id), db.signalDao().get(chunk.id), chunk)
+        callback.onSignalMeasurementChunkReadyCheckResult(valid, chunk, postProcessing)
+    }
+
+    private fun validateMeasurementChunk(cellInfos: List<CellInfoRecord>, signals: List<SignalRecord>, chunk: SignalMeasurementChunk): Boolean {
+        val radioInfo = createRadioInfoBody(cellInfos, signals, chunk)
+        return (radioInfo != null) && radioInfo.signals?.isNotEmpty() ?: false
     }
 
     override fun sendMeasurementChunk(chunk: SignalMeasurementChunk, callBack: SignalMeasurementChunkResultCallback) = io {
