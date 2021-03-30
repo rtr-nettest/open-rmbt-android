@@ -15,6 +15,7 @@ import at.specure.measurement.signal.SignalMeasurementState
 import at.specure.result.QoECategory
 import at.specure.result.QoSCategory
 import at.specure.test.DeviceInfo
+import at.specure.test.SignalMeasurementType
 import com.google.gson.Gson
 import com.google.gson.JsonObject
 import com.google.gson.JsonParser
@@ -73,6 +74,12 @@ class TypeConverter {
         TestStatus.values().forEach { if (value == it.ordinal) return it }
         throw IllegalArgumentException("Test status $value not found")
     }
+
+    @TypeConverter
+    fun signalMeasurementTypeToValue(type: SignalMeasurementType): String = type.signalTypeName
+
+    @TypeConverter
+    fun valueToSignalMeasurementType(value: String): SignalMeasurementType = SignalMeasurementType.fromString(value)
 
     @TypeConverter
     fun networkTypeCompatToValue(type: NetworkTypeCompat): String = type.stringValue
