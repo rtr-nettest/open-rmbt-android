@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <variable
+            name="state"
+            type="at.rtr.rmbt.android.ui.viewstate.LoopConfigurationViewState" />
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        tools:context="at.rtr.rmbt.android.ui.activity.LoopConfigurationActivity">
+
+        <ImageView
+            android:id="@+id/icon_close"
+            android:layout_width="0dp"
+            android:layout_height="?attr/actionBarSize"
+            android:padding="@dimen/margin_large"
+            android:src="@drawable/ic_close"
+            app:layout_constraintDimensionRatio="H,1:1"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/title"
+            style="@style/RobotoMediumStyle.Large"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:text="@string/title_loop_mode"
+            android:textColor="@color/text_dark_gray"
+            app:layout_constraintBottom_toBottomOf="@id/icon_close"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <ScrollView
+            android:id="@+id/scrollView"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:fillViewport="true"
+            app:layout_constraintBottom_toTopOf="@id/text_explanation"
+            app:layout_constraintTop_toBottomOf="@id/icon_close">
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <TextView
+                    android:id="@+id/title_count"
+                    style="@style/RobotoMediumStyle.Large"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/margin_large"
+                    android:layout_marginEnd="@dimen/margin_large"
+                    android:gravity="center"
+                    android:text="@string/title_loop_count"
+                    android:textColor="@color/text_dark_gray"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <androidx.appcompat.widget.AppCompatEditText
+                    android:id="@+id/count"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="@dimen/margin_medium"
+                    android:background="@null"
+                    android:gravity="center"
+                    android:inputType="number"
+                    android:maxLength="@{state.developerModeEnabled ? 5 : 3}"
+                    android:maxLines="1"
+                    android:minWidth="@dimen/size_text_loop_count"
+                    android:singleLine="true"
+                    android:text="@{String.valueOf(state.numberOfTests)}"
+                    android:textColor="@color/colorAccent"
+                    android:textSize="@dimen/size_text_loop_count"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/title_count"
+                    tools:text="5" />
+
+                <include
+                    android:id="@+id/loopModeWaitingTime"
+                    layout="@layout/item_setting_edittext"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/margin_medium"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/count"
+                    app:title="@{@string/preferences_loop_mode_min_delay}"
+                    app:value="@{String.valueOf(state.waitingTime)}" />
+
+                <include
+                    android:id="@+id/loopModeDistanceMeters"
+                    layout="@layout/item_setting_edittext"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/loopModeWaitingTime"
+                    app:title="@{@string/preferences_loop_mode_max_movement}"
+                    app:value="@{String.valueOf(state.distance)}" />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+        </ScrollView>
+
+        <TextView
+            android:id="@+id/text_explanation"
+            style="@style/RobotoRegularStyle.Small"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:alpha="0.6"
+            android:gravity="bottom"
+            android:paddingStart="@dimen/margin_large"
+            android:paddingTop="@dimen/margin_large"
+            android:paddingEnd="@dimen/margin_large"
+            android:text="@string/text_loop_mode"
+            android:textColor="@color/text_dark_gray"
+            app:layout_constraintBottom_toTopOf="@id/accept"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/scrollView" />
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/accept"
+            style="?android:attr/borderlessButtonStyle"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/margin_large"
+            android:background="@drawable/button_green_background"
+            android:text="@string/text_loop_start"
+            android:textColor="@android:color/white"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/text_explanation" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</layout>

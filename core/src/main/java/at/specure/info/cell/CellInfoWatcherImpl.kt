@@ -92,12 +92,16 @@ class CellInfoWatcherImpl(
 
         try {
             val activeDataCellInfo = activeDataCellInfoExtractor.extractActiveCellInfo(cellInfos)
+
+            if (!activeDataCellInfo.isConsistent) return
+
             activeDataCellInfo.activeDataNetworkCellInfo?.let {
                 _cellInfo = it
             }
 
             activeDataCellInfo.activeDataNetwork?.let {
                 _activeNetwork = it
+                Timber.d("Active Network ${it.cellUUID} ${it.networkType}")
             }
             _nrConnectionState = activeDataCellInfo.nrConnectionState
 

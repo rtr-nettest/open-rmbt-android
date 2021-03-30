@@ -26,7 +26,7 @@ class ControlServerProviderImpl(private val config: Config) : ControlEndpointPro
         get() = protocol + config.controlServerHost
 
     override val checkSettingsUrl: String
-        get() = "$controlServerHostNew$newRoutePath/${config.controlServerSettingsEndpoint}"
+        get() = "$host$routePath/${config.controlServerSettingsEndpoint}"
 
     override val testRequestUrl: String
         get() = "$host$routePath/${config.controlServerRequestTestEndpoint}"
@@ -62,19 +62,11 @@ class ControlServerProviderImpl(private val config: Config) : ControlEndpointPro
         get() = "$host$routePath/${config.syncDevicesRoute}"
 
     override val signalRequestUrl: String
-        get() = "$controlServerHostNew$newRoutePath/${config.signalRequestRoute}"
+        get() = "$host$routePath/${config.signalRequestRoute}"
 
     override val signalResultUrl: String
-        get() = "$controlServerHostNew$newRoutePath/${config.signalResultRoute}"
-
-    override val controlServerHostNew: String
-        get() = "$protocol${config.controlServerHostNew}"
-
-    override val controlServerRouteNew: String
-        get() = config.controlServerRouteNew
-
-    private val newRoutePath = if (controlServerRouteNew.isEmpty()) "" else "/$controlServerRouteNew"
+        get() = "$host$routePath/${config.signalResultRoute}"
 
     override val getNewsUrl: String
-        get() = "$controlServerHostNew$newRoutePath/${config.controlServerNewsEndpoint}"
+        get() = "$host$routePath/${config.controlServerNewsEndpoint}"
 }

@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <variable
+            name="item"
+            type="at.specure.data.entity.QosCategoryRecord" />
+    </data>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="@dimen/padding_large">
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/textQosTitle"
+            style="@style/RobotoRegularStyle.Small"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_toStartOf="@+id/textQosValue"
+            android:text="@{item.categoryName}"
+            android:textColor="@color/text_dark_gray"
+            tools:text="Website" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/textQosValue"
+            style="@style/RobotoRegularStyle.VerySmall"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_centerVertical="true"
+            android:drawableEnd="@drawable/ic_right"
+            android:drawablePadding="@dimen/padding_medium"
+            android:gravity="center_vertical"
+            android:text="@{String.format(@string/qos_result_success_count, item.successCount, item.successCount + item.failedCount)}"
+            android:textColor="@color/text_gray_transparency_60"
+            tools:text="1/1" />
+
+
+    </RelativeLayout>
+
+</layout>

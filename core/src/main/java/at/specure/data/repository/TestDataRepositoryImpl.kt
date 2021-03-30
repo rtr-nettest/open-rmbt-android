@@ -1,6 +1,7 @@
 package at.specure.data.repository
 
 import android.os.SystemClock
+import android.util.Log.d
 import androidx.lifecycle.LiveData
 import at.rmbt.util.io
 import at.rtr.rmbt.client.helper.TestStatus
@@ -27,6 +28,7 @@ import at.specure.info.network.NRConnectionState
 import at.specure.info.network.NetworkInfo
 import at.specure.info.network.WifiNetworkInfo
 import at.specure.info.strength.SignalStrengthInfo
+import at.specure.info.strength.SignalStrengthInfoCommon
 import at.specure.info.strength.SignalStrengthInfoGsm
 import at.specure.info.strength.SignalStrengthInfoLte
 import at.specure.info.strength.SignalStrengthInfoNr
@@ -116,6 +118,28 @@ class TestDataRepositoryImpl(db: CoreDatabase) : TestDataRepository {
             isUpload = isUpload
         )
         speedDao.insert(record)
+    }
+
+    override fun validateSignalStrengthInfo(mobileNetworkType: MobileNetworkType?, info: SignalStrengthInfo, cellUUID: String): Boolean {
+        if (cellUUID.isEmpty()) return false
+
+        val technologyClass = CellTechnology.fromMobileNetworkType(mobileNetworkType ?: MobileNetworkType.UNKNOWN)
+
+        val isSignalValid = when {
+            (info is SignalStrengthInfoLte && (technologyClass == CellTechnology.CONNECTION_4G || technologyClass == CellTechnology.CONNECTION_4G_5G)) -> true
+            (info is SignalStrengthInfoLte && (technologyClass == CellTechnology.CONNECTION_3G || technologyClass == CellTechnology.CONNECTION_2G || technologyClass == CellTechnology.CONNECTION_5G)) -> false
+            (info is SignalStrengthInfoNr && technologyClass == CellTechnology.CONNECTION_5G) -> true
+            (info is SignalStrengthInfoNr && (technologyClass == CellTechnology.CONNECTION_4G_5G || technologyClass == CellTechnology.CONNECTION_4G || technologyClass == CellTechnology.CONNECTION_3G || technologyClass == CellTechnology.CONNECTION_2G)) -> false
+            (info is SignalStrengthInfoGsm && (technologyClass == CellTechnology.CONNECTION_2G || technologyClass == CellTechnology.CONNECTION_3G)) -> true
+            (info is SignalStrengthInfoGsm && (technologyClass == CellTechnology.CONNECTION_5G || technologyClass == CellTechnology.CONNECTION_4G_5G || technologyClass == CellTechnology.CONNECTION_4G)) -> false
+            (info is SignalStrengthInfoCommon && (technologyClass == CellTechnology.CONNECTION_2G || technologyClass == CellTechnology.CONNECTION_3G)) -> true // this might be TDSCDMA, WCDMA, CDMA or some unknown type
+            (info is SignalStrengthInfoCommon && (technologyClass == CellTechnology.CONNECTION_5G || technologyClass == CellTechnology.CONNECTION_4G_5G || technologyClass == CellTechnology.CONNECTION_4G)) -> false
+            (info is SignalStrengthInfoWiFi) -> true // accepting all wifi signals as valid
+            (mobileNetworkType == null || mobileNetworkType == MobileNetworkType.UNKNOWN) -> true
+            else -> false
+        }
+        Timber.d("Signal valid?  ${mobileNetworkType?.displayName}  ${info.transport}   ${info::class.java.name}    $cellUUID   $technologyClass    $isSignalValid")
+        return isSignalValid
     }
 
     override fun saveSignalStrength(
@@ -223,13 +247,18 @@ class TestDataRepositoryImpl(db: CoreDatabase) : TestDataRepository {
                 is CellNetworkInfo -> {
                     info.signalStrength?.let {
                         Timber.e("Signal saving time SCI: starting time: $testStartTimeNanos   current time: ${System.nanoTime()}")
-                        saveSignalStrengthDirectly(testUUID, info.cellUUID, info.networkType, it, testStartTimeNanos, info.nrConnectionState)
+                        Timber.d("valid signal directly")
+                        if (info.cellUUID.isNotEmpty() && validateSignalStrengthInfo(info.networkType, it, info.cellUUID)) {
+                            saveSignalStrengthDirectly(testUUID, info.cellUUID, info.networkType, it, testStartTimeNanos, info.nrConnectionState)
+                        }
                     }
                     info.toCellInfoRecord(testUUID)
                 }
                 else -> throw IllegalArgumentException("Don't know how to save ${info.javaClass.simpleName} info into db")
             }
-            cellInfo.add(mapped)
+            if (mapped.uuid.isNotEmpty()) {
+                cellInfo.add(mapped)
+            }
         }
         cellInfoDao.clearInsert(testUUID, cellInfo)
     }

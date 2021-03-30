@@ -1,6 +1,7 @@
 package at.specure.info.cell
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.pm.PackageManager
 import android.net.ConnectivityManager
@@ -51,6 +52,8 @@ class ActiveDataCellInfoExtractorImpl(
         var dualSimDecision = ""
 
         _activeDataNetwork = null
+        // flag if network data are in consistent state cell info is updated with data corresponds to active network info
+        var isConsistent = true
         if (dataSimSubscriptionId != INVALID_SUBSCRIPTION_ID) {
             val registeredInfoList = cellInfo.filter { it.isRegistered }
 
@@ -59,191 +62,265 @@ class ActiveDataCellInfoExtractorImpl(
                 subscriptions = subscriptionManager.activeSubscriptionInfoList
                 subscriptions?.forEachIndexed { index, it ->
                     // TODO this is not proved solution, need to find another way to connect CellInfo and SubscriptionInfo
-                    if (dataSimSubscriptionId == it.subscriptionId && (registeredInfoList.size > index || registeredInfoList.size == 1)) {
-
-                        val networkType = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                            val manager = telephonyManager.createForSubscriptionId(dataSimSubscriptionId)
-                            if (NRConnectionState.getNRConnectionState(manager) != NRConnectionState.NOT_AVAILABLE) {
-                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                                    _nrConnectionState = NRConnectionState.getNRConnectionState(manager)
-                                    when (_nrConnectionState) {
-                                        NRConnectionState.NOT_AVAILABLE -> manager.dataNetworkType
-                                        NRConnectionState.AVAILABLE -> ServerNetworkType.TYPE_5G_NR_AVAILABLE.intValue
-                                        NRConnectionState.NSA -> ServerNetworkType.TYPE_5G_NR_NSA.intValue
-                                        NRConnectionState.SA -> TelephonyManager.NETWORK_TYPE_NR
-                                    }
-                                } else {
-                                    manager.dataNetworkType
-                                }
-                            } else {
-                                manager.dataNetworkType
-                            }
-                        } else {
-                            // Todo: problem if operators are the same for both SIM cards (e.g. roaming network), but solving problems with different Networks (if user has no restriction on the usage of the network type for data or voice sim then it should use the same)
-                            val networkTypeCheck =
-                                connectivityManager.cellNetworkInfoCompat(
-                                    telephonyManager.getCorrectDataTelephonyManager(subscriptionManager).networkOperatorName,
-                                    _nrConnectionState
-                                )?.networkType
-                                    ?: MobileNetworkType.UNKNOWN
-                            if (networkTypeCheck == MobileNetworkType.UNKNOWN) {
-                                telephonyManager.getCorrectDataTelephonyManager(subscriptionManager).networkType
-                            } else {
-                                networkTypeCheck.ordinal
-                            }
-                        }
-
+                    if (dataSimSubscriptionId == it.subscriptionId) {
+                        val networkType = extractNetworkType(dataSimSubscriptionId)
                         val mobileNetworkType = MobileNetworkType.fromValue(networkType)
                         val dataCellTechnology = CellTechnology.fromMobileNetworkType(mobileNetworkType)
 
-                        // single sim
-                        if (subscriptions.size == 1) {
-                            _activeDataNetworkCellInfo = registeredInfoList[0]
-                        } else {
-                            // dual sim handling
-                            it.displayName
-                            dualSimDecision =
-                                "$DUAL_SIM_METHOD_API\nDATA_SIM: slotIndex: ${it.simSlotIndex} carrierName: ${it.carrierName} displayName: ${it.displayName}\n"
-                            // we need to check which of the registered cells uses same type of the network as data sim
-                            var dualSimRegistered = registeredInfoList.filter { cellInfo ->
-                                var sameNetworkType = false
-                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                                    when (cellInfo) {
-                                        // 5G connections
-                                        is CellInfoNr ->
-                                            sameNetworkType = CellTechnology.CONNECTION_5G == dataCellTechnology
-                                        // 3G connections
-                                        is CellInfoTdscdma -> {
-                                            sameNetworkType = CellTechnology.CONNECTION_3G == dataCellTechnology
-                                        }
-                                    }
-                                }
-                                if (sameNetworkType) {
-                                    sameNetworkType
-                                } else {
-                                    when (cellInfo) {
-                                        // 4G connections
-                                        is CellInfoLte -> {
-                                            CellTechnology.CONNECTION_4G == dataCellTechnology
-                                        }
-                                        // 3G connections
-                                        is CellInfoWcdma -> {
-                                            CellTechnology.CONNECTION_3G == dataCellTechnology
-                                        }
-                                        // 2G connections
-                                        is CellInfoCdma -> {
-                                            CellTechnology.CONNECTION_2G == dataCellTechnology
-                                        }
-                                        is CellInfoGsm -> {
-                                            CellTechnology.CONNECTION_2G == dataCellTechnology
-                                        }
-                                        else -> false
-                                    }
-                                }
-                            }
-                            val countAfterNetworkTypeFilter = dualSimRegistered.size
-                            if (registeredInfoList.size > dualSimRegistered.size) {
-                                dualSimDecisionLog += "DSD - filtered according to same network type from ${registeredInfoList.size} to $countAfterNetworkTypeFilter\n"
-                                dualSimDecision += "CELL_INFO: filtered according to: same network type from ${registeredInfoList.size} to $countAfterNetworkTypeFilter\n"
-                            }
-                            // if there is still more than one we can try filter it according to network operator name
-                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                                if (dualSimRegistered.size > 1) {
-                                    dualSimRegistered = dualSimRegistered.filter { cellInfo ->
-                                        val networkOperator = it.carrierName.toString()
-                                        when (cellInfo) {
-                                            is CellInfoNr -> networkOperator.contentEquals(cellInfo.cellIdentity.operatorAlphaLong.toString()) || networkOperator.contentEquals(
-                                                cellInfo.cellIdentity.operatorAlphaShort.toString()
-                                            )
-                                            is CellInfoLte -> networkOperator.contentEquals(cellInfo.cellIdentity.operatorAlphaLong.toString()) || networkOperator.contentEquals(
-                                                cellInfo.cellIdentity.operatorAlphaShort.toString()
-                                            )
-                                            is CellInfoWcdma -> networkOperator.contentEquals(cellInfo.cellIdentity.operatorAlphaLong.toString()) || networkOperator.contentEquals(
-                                                cellInfo.cellIdentity.operatorAlphaShort.toString()
-                                            )
-                                            is CellInfoCdma -> networkOperator.contentEquals(cellInfo.cellIdentity.operatorAlphaLong.toString()) || networkOperator.contentEquals(
-                                                cellInfo.cellIdentity.operatorAlphaShort.toString()
-                                            )
-                                            is CellInfoGsm -> networkOperator.contentEquals(cellInfo.cellIdentity.operatorAlphaLong.toString()) || networkOperator.contentEquals(
-                                                cellInfo.cellIdentity.operatorAlphaShort.toString()
-                                            )
-                                            else -> false
-                                        }
-                                    }
-                                }
-                            } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-                                if (dualSimRegistered.size > 1) {
-                                    dualSimRegistered = dualSimRegistered.filter { cellInfo ->
-                                        val networkOperator = it.carrierName.toString()
-                                        when (cellInfo) {
-                                            is CellInfoLte -> networkOperator.contentEquals(cellInfo.cellIdentity.operatorAlphaLong.toString()) || networkOperator.contentEquals(
-                                                cellInfo.cellIdentity.operatorAlphaShort.toString()
-                                            )
-                                            is CellInfoWcdma -> networkOperator.contentEquals(cellInfo.cellIdentity.operatorAlphaLong.toString()) || networkOperator.contentEquals(
-                                                cellInfo.cellIdentity.operatorAlphaShort.toString()
-                                            )
-                                            is CellInfoCdma -> networkOperator.contentEquals(cellInfo.cellIdentity.operatorAlphaLong.toString()) || networkOperator.contentEquals(
-                                                cellInfo.cellIdentity.operatorAlphaShort.toString()
-                                            )
-                                            is CellInfoGsm -> networkOperator.contentEquals(cellInfo.cellIdentity.operatorAlphaLong.toString()) || networkOperator.contentEquals(
-                                                cellInfo.cellIdentity.operatorAlphaShort.toString()
-                                            )
-                                            else -> false
-                                        }
-                                    }
-                                }
-                            }
+                        if (registeredInfoList.size > index || registeredInfoList.size == 1) {
 
-                            if (countAfterNetworkTypeFilter > dualSimRegistered.size) {
-                                dualSimDecisionLog += "DSD - filtered according to same network operator name as in data subscription info $countAfterNetworkTypeFilter to ${dualSimRegistered.size}\n"
-                                dualSimDecision += "CELL_INFO: filtered according to: same network operator name as in data subscription info $countAfterNetworkTypeFilter to ${dualSimRegistered.size}\n"
-                            }
-
-                            if (dualSimRegistered.size == 1) {
-                                _activeDataNetworkCellInfo = dualSimRegistered[0]
-                                dualSimDecisionLog += "DSD - SUCCESS! \n Filtered this: \n\n$_activeDataNetworkCellInfo\n\n\n"
-                                dualSimDecision += "CELL_INFO: SUCCESS! $_activeDataNetworkCellInfo"
+                            // single sim
+                            if (subscriptions.size == 1) {
+                                _activeDataNetworkCellInfo = registeredInfoList[0]
+                                // we need to check if the registered cell uses same type of the network as data sim but 5G NSA has exception
+                                isConsistent = isNetworkDataConsistent(registeredInfoList[0], dataCellTechnology)
                             } else {
-                                dualSimDecisionLog += "DSD - FAILED! \n Unable to select one data cell info!"
-                                dualSimDecision += "CELL_INFO: FAILED!"
-                            }
-                            Timber.v(dualSimDecisionLog)
-                        }
+                                // dual sim handling
+                                it.displayName
+                                dualSimDecision =
+                                    "$DUAL_SIM_METHOD_API\nDATA_SIM: slotIndex: ${it.simSlotIndex} carrierName: ${it.carrierName} displayName: ${it.displayName}\n"
+                                // we need to check which of the registered cells uses same type of the network as data sim but 5G NSA has exception
+                                var dualSimRegistered = registeredInfoList.filter { cellInfo ->
+                                    isNetworkDataConsistent(cellInfo, dataCellTechnology)
+                                }
+                                val countAfterNetworkTypeFilter = dualSimRegistered.size
+                                if (countAfterNetworkTypeFilter == 0) {
+                                    isConsistent =
+                                        false // we filter out all options and we so not find suitable registered cell info for active network
+                                }
+                                if (registeredInfoList.size > dualSimRegistered.size) {
+                                    dualSimDecisionLog += "DSD - filtered according to same network type from ${registeredInfoList.size} to $countAfterNetworkTypeFilter -> Subscriptions.size: ${subscriptions.size}\n"
+                                    dualSimDecision += "CELL_INFO: filtered according to: same network type from ${registeredInfoList.size} to $countAfterNetworkTypeFilter\n"
+                                }
+                                // if there is still more than one we can try filter it according to network operator name
+                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                                    if (dualSimRegistered.size > 1) {
+                                        dualSimRegistered = dualSimRegistered.filter { cellInfo ->
+                                            val networkOperator = it.carrierName.toString()
+                                            when (cellInfo) {
+                                                is CellInfoNr -> networkOperator.contentEquals(cellInfo.cellIdentity.operatorAlphaLong.toString()) || networkOperator.contentEquals(
+                                                    cellInfo.cellIdentity.operatorAlphaShort.toString()
+                                                )
+                                                is CellInfoLte -> networkOperator.contentEquals(cellInfo.cellIdentity.operatorAlphaLong.toString()) || networkOperator.contentEquals(
+                                                    cellInfo.cellIdentity.operatorAlphaShort.toString()
+                                                )
+                                                is CellInfoWcdma -> networkOperator.contentEquals(cellInfo.cellIdentity.operatorAlphaLong.toString()) || networkOperator.contentEquals(
+                                                    cellInfo.cellIdentity.operatorAlphaShort.toString()
+                                                )
+                                                is CellInfoCdma -> networkOperator.contentEquals(cellInfo.cellIdentity.operatorAlphaLong.toString()) || networkOperator.contentEquals(
+                                                    cellInfo.cellIdentity.operatorAlphaShort.toString()
+                                                )
+                                                is CellInfoGsm -> networkOperator.contentEquals(cellInfo.cellIdentity.operatorAlphaLong.toString()) || networkOperator.contentEquals(
+                                                    cellInfo.cellIdentity.operatorAlphaShort.toString()
+                                                )
+                                                else -> false
+                                            }
+                                        }
+                                    }
+                                } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                                    if (dualSimRegistered.size > 1) {
+                                        dualSimRegistered = dualSimRegistered.filter { cellInfo ->
+                                            val networkOperator = it.carrierName.toString()
+                                            when (cellInfo) {
+                                                is CellInfoLte -> networkOperator.contentEquals(cellInfo.cellIdentity.operatorAlphaLong.toString()) || networkOperator.contentEquals(
+                                                    cellInfo.cellIdentity.operatorAlphaShort.toString()
+                                                )
+                                                is CellInfoWcdma -> networkOperator.contentEquals(cellInfo.cellIdentity.operatorAlphaLong.toString()) || networkOperator.contentEquals(
+                                                    cellInfo.cellIdentity.operatorAlphaShort.toString()
+                                                )
+                                                is CellInfoCdma -> networkOperator.contentEquals(cellInfo.cellIdentity.operatorAlphaLong.toString()) || networkOperator.contentEquals(
+                                                    cellInfo.cellIdentity.operatorAlphaShort.toString()
+                                                )
+                                                is CellInfoGsm -> networkOperator.contentEquals(cellInfo.cellIdentity.operatorAlphaLong.toString()) || networkOperator.contentEquals(
+                                                    cellInfo.cellIdentity.operatorAlphaShort.toString()
+                                                )
+                                                else -> false
+                                            }
+                                        }
+                                    }
+                                }
 
-                        // apply fix for 5G NSA when there is 4G connection as anchor connection and 5G is used as secondary one while 5G cell is signalled as non registered
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                            if (_nrConnectionState == NRConnectionState.NSA) {
-                                val onlyNRCells = cellInfo.filterIsInstance<CellInfoNr>()
-                                val sortedNRCellsBySignalDesc = onlyNRCells.sortedByDescending { it.cellSignalStrength.dbm }
-                                _activeDataNetworkCellInfo = if (sortedNRCellsBySignalDesc.isEmpty()) {
-                                    _activeDataNetworkCellInfo
+                                if (countAfterNetworkTypeFilter > dualSimRegistered.size) {
+                                    dualSimDecisionLog += "DSD - filtered according to same network operator name as in data subscription info $countAfterNetworkTypeFilter to ${dualSimRegistered.size}\n"
+                                    dualSimDecision += "CELL_INFO: filtered according to: same network operator name as in data subscription info $countAfterNetworkTypeFilter to ${dualSimRegistered.size}\n"
+                                }
+
+                                if (dualSimRegistered.size == 1) {
+                                    _activeDataNetworkCellInfo = dualSimRegistered[0]
+                                    dualSimDecisionLog += "DSD - SUCCESS! \n Filtered this: \n\n$_activeDataNetworkCellInfo\n\n\n"
+                                    dualSimDecision += "CELL_INFO: SUCCESS! $_activeDataNetworkCellInfo"
                                 } else {
-                                    sortedNRCellsBySignalDesc.first()
+                                    dualSimDecisionLog += "DSD - FAILED! \n Unable to select one data cell info!"
+                                    dualSimDecision += "CELL_INFO: FAILED!"
+                                }
+                                Timber.v(dualSimDecisionLog)
+                            }
+
+                            // apply fix for 5G NSA when there is 4G connection as anchor connection and 5G is used as secondary one while 5G cell is signalled as non registered
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                                if (_nrConnectionState == NRConnectionState.NSA) {
+                                    val onlyNRCells = cellInfo.filterIsInstance<CellInfoNr>()
+                                    val sortedNRCellsBySignalDesc = onlyNRCells.sortedByDescending { it.cellSignalStrength.dbm }
+                                    _activeDataNetworkCellInfo = if (sortedNRCellsBySignalDesc.isEmpty()) {
+                                        _activeDataNetworkCellInfo
+                                    } else {
+                                        isConsistent = true // exception for consistency for 5G NSA mode
+                                        sortedNRCellsBySignalDesc.first()
+                                    }
                                 }
                             }
-                        }
 
-                        // Timber.v("Cell: $_cellInfo, Network_type: $networkType, MNT: ${MobileNetworkType.fromValue(networkType)}" )
-                        _activeDataNetwork = CellNetworkInfo.from(
-                            _activeDataNetworkCellInfo,
-                            it,
-                            MobileNetworkType.fromValue(networkType),
-                            true,
-                            connectivityManager.activeNetworkInfo?.isRoaming ?: false,
-                            connectivityManager.activeNetworkInfo?.extraInfo,
-                            if (subscriptions.size > 1) dualSimDecisionLog else null,
-                            _nrConnectionState
-                        )
+                            _activeDataNetwork = CellNetworkInfo.from(
+                                _activeDataNetworkCellInfo,
+                                it,
+                                MobileNetworkType.fromValue(networkType),
+                                true,
+                                connectivityManager.activeNetworkInfo?.isRoaming ?: false,
+                                connectivityManager.activeNetworkInfo?.extraInfo,
+                                if (subscriptions.size > 1) dualSimDecisionLog else null,
+                                _nrConnectionState
+                            )
+
+                            Timber.d(
+                                "Cell: ${(_activeDataNetwork as CellNetworkInfo).cellUUID} networkType: ${(_activeDataNetwork as CellNetworkInfo).cellUUID} \n Network_type: $networkType, MNT: ${
+                                    MobileNetworkType.fromValue(
+                                        networkType
+                                    )
+                                }"
+                            )
+                        } else {
+                            // for no cell info available e.g. for reasons of not granted location permissions
+                            // single sim
+                            _activeDataNetworkCellInfo = null // cell info is not available so null is only option
+
+                            if (subscriptions.size == 1) {
+                                _activeDataNetwork = CellNetworkInfo.from(
+                                    _activeDataNetworkCellInfo,
+                                    it,
+                                    MobileNetworkType.fromValue(networkType),
+                                    true,
+                                    connectivityManager.activeNetworkInfo?.isRoaming ?: false,
+                                    connectivityManager.activeNetworkInfo?.extraInfo,
+                                    if (subscriptions.size > 1) dualSimDecisionLog else null,
+                                    _nrConnectionState
+                                )
+                                Timber.d(
+                                    "Cell: ${(_activeDataNetwork as CellNetworkInfo).cellUUID} networkType: ${(_activeDataNetwork as CellNetworkInfo).cellUUID} \n Network_type: $networkType, MNT: ${
+                                        MobileNetworkType.fromValue(
+                                            networkType
+                                        )
+                                    }"
+                                )
+                            } else {
+                                // dual sim
+                                // TODO: need to be validated for dual sim
+                                _activeDataNetwork = CellNetworkInfo.from(
+                                    _activeDataNetworkCellInfo,
+                                    it,
+                                    MobileNetworkType.fromValue(networkType),
+                                    true,
+                                    connectivityManager.activeNetworkInfo?.isRoaming ?: false,
+                                    connectivityManager.activeNetworkInfo?.extraInfo,
+                                    if (subscriptions.size > 1) dualSimDecisionLog else null,
+                                    _nrConnectionState
+                                )
+                                Timber.d(
+                                    "Cell: ${(_activeDataNetwork as CellNetworkInfo).cellUUID} networkType: ${(_activeDataNetwork as CellNetworkInfo).cellUUID} \n Network_type: $networkType, MNT: ${
+                                        MobileNetworkType.fromValue(
+                                            networkType
+                                        )
+                                    }"
+                                )
+                            }
+                        }
                     }
                 }
             }
         }
+
         return ActiveDataCellInfo(
             dualSimDecision = _dualSimDecision,
             nrConnectionState = _nrConnectionState,
             activeDataNetworkCellInfo = _activeDataNetworkCellInfo,
-            activeDataNetwork = _activeDataNetwork
+            activeDataNetwork = _activeDataNetwork,
+            isConsistent = isConsistent
         )
+    }
+
+    /**
+     * Before usage of this method ensure you have READ_PHONE_STATE permission granted
+     */
+    @SuppressLint("MissingPermission")
+    private fun extractNetworkType(dataSimSubscriptionId: Int) = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+        val manager = telephonyManager.createForSubscriptionId(dataSimSubscriptionId)
+        if (NRConnectionState.getNRConnectionState(manager) != NRConnectionState.NOT_AVAILABLE) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                _nrConnectionState = NRConnectionState.getNRConnectionState(manager)
+                when (_nrConnectionState) {
+                    NRConnectionState.NOT_AVAILABLE -> manager.dataNetworkType
+                    NRConnectionState.AVAILABLE -> ServerNetworkType.TYPE_5G_NR_AVAILABLE.intValue
+                    NRConnectionState.NSA -> ServerNetworkType.TYPE_5G_NR_NSA.intValue
+                    NRConnectionState.SA -> TelephonyManager.NETWORK_TYPE_NR
+                }
+            } else {
+                manager.dataNetworkType
+            }
+        } else {
+            manager.dataNetworkType
+        }
+    } else {
+        // Todo: problem if operators are the same for both SIM cards (e.g. roaming network), but solving problems with different Networks (if user has no restriction on the usage of the network type for data or voice sim then it should use the same)
+        val networkTypeCheck =
+            connectivityManager.cellNetworkInfoCompat(
+                telephonyManager.getCorrectDataTelephonyManager(subscriptionManager).networkOperatorName,
+                _nrConnectionState
+            )?.networkType
+                ?: MobileNetworkType.UNKNOWN
+        if (networkTypeCheck == MobileNetworkType.UNKNOWN) {
+            telephonyManager.getCorrectDataTelephonyManager(subscriptionManager).networkType
+        } else {
+            networkTypeCheck.ordinal
+        }
+    }
+
+    /**
+     * To check if active cell and active network has the same technology - sometimes we get cell info later and we must filter out these inconsistencies
+     */
+    private fun isNetworkDataConsistent(cellInfo: CellInfo, dataCellTechnology: CellTechnology?): Boolean {
+        var sameNetworkType = false
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            when (cellInfo) {
+                // 5G connections
+                is CellInfoNr ->
+                    sameNetworkType = CellTechnology.CONNECTION_5G == dataCellTechnology
+                // 3G connections
+                is CellInfoTdscdma -> {
+                    sameNetworkType = CellTechnology.CONNECTION_3G == dataCellTechnology
+                }
+            }
+        }
+        return if (sameNetworkType) {
+            sameNetworkType
+        } else {
+            when (cellInfo) {
+                // 4G connections
+                is CellInfoLte -> {
+                    CellTechnology.CONNECTION_4G == dataCellTechnology || CellTechnology.CONNECTION_4G_5G == dataCellTechnology
+                }
+                // 3G connections
+                is CellInfoWcdma -> {
+                    CellTechnology.CONNECTION_3G == dataCellTechnology
+                }
+                // 2G connections
+                is CellInfoCdma -> {
+                    CellTechnology.CONNECTION_2G == dataCellTechnology
+                }
+                is CellInfoGsm -> {
+                    CellTechnology.CONNECTION_2G == dataCellTechnology
+                }
+                else -> false
+            }
+        }
     }
 }
 

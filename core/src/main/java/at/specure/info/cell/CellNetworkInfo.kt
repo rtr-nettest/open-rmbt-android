@@ -333,7 +333,7 @@ class CellNetworkInfo(
                 isRegistered = info.isRegistered,
                 isRoaming = isRoaming,
                 apn = apn,
-                signalStrength = SignalStrengthInfo.from(info.cellSignalStrength as CellSignalStrengthNr),
+                signalStrength = SignalStrengthInfo.from(info.cellSignalStrength),
                 dualSimDetectionMethod = dualSimDetectionMethod,
                 nrConnectionState = nrConnectionState
             )
@@ -489,6 +489,7 @@ fun CellInfo.uuid(): String {
             is CellInfoLte -> cellIdentity.uuid()
             is CellInfoWcdma -> cellIdentity.uuid()
             is CellInfoGsm -> cellIdentity.uuid()
+            is CellInfoTdscdma -> cellIdentity.uuid()
             is CellInfoCdma -> cellIdentity.uuid()
             is CellInfoNr -> (cellIdentity as CellIdentityNr).uuid()
             else -> throw IllegalArgumentException("Unknown cell info cannot be extracted ${javaClass.name}")

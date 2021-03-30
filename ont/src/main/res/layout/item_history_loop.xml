@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <variable
+            name="item"
+            type="at.specure.data.entity.History" />
+
+        <import type="at.specure.data.Classification" />
+
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:paddingTop="@dimen/padding_large"
+        android:paddingBottom="@dimen/padding_large">
+
+        <ImageView
+            android:id="@+id/imageSignal"
+            android:layout_width="@dimen/history_image_size"
+            android:layout_height="@dimen/history_image_size"
+            android:contentDescription="@null"
+            android:scaleType="center"
+            app:historySignalStrength="@{item.signalClassification ?? Classification.NONE}"
+            app:layout_constraintBottom_toBottomOf="@+id/labelLoop"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/textTime"
+            app:networkType="@{item.networkType}"
+            tools:src="@drawable/ic_history_no_internet" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/textTime"
+            style="@style/RobotoRegularStyle.Small"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/margin_medium"
+            android:textColor="@color/text_dark_gray"
+            app:historyTime="@{item.time}"
+            app:historyTimezone="@{item.timezone}"
+            app:layout_constraintBottom_toTopOf="@+id/labelLoop"
+            app:layout_constraintStart_toEndOf="@+id/imageSignal"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="20.11.18, 12:00:45" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/labelLoop"
+            style="@style/RobotoRegularStyle.Small"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/margin_medium"
+            android:drawablePadding="@dimen/padding_small"
+            android:text="@string/title_loop_mode"
+            android:textColor="@color/text_gray_transparency_60"
+            app:layout_constraintBottom_toTopOf="@+id/recyclerView"
+            app:layout_constraintStart_toEndOf="@+id/imageSignal"
+            app:layout_constraintTop_toBottomOf="@+id/textTime" />
+
+        <ImageView
+            android:id="@+id/imageExpand"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="@dimen/padding_large"
+            android:contentDescription="@null"
+            android:src="@drawable/ic_expand_more"
+            app:layout_constraintBottom_toBottomOf="@+id/labelLoop"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/textTime" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recyclerView"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:paddingStart="@dimen/padding_large"
+            android:paddingEnd="0dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/labelLoop"
+            tools:listitem="@layout/item_history" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</layout>
