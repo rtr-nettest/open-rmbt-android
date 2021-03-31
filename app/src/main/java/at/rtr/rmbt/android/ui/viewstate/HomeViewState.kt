@@ -9,7 +9,6 @@ import at.rtr.rmbt.android.util.addOnPropertyChanged
 import at.specure.data.MeasurementServers
 import at.specure.info.ip.IpInfo
 import at.specure.info.network.DetailedNetworkInfo
-import at.specure.info.network.NetworkInfo
 import at.specure.info.strength.SignalStrengthInfo
 import at.specure.location.LocationState
 

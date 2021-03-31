@@ -71,34 +71,6 @@ class HomeFragment : BaseFragment() {
             homeViewModel.state.ipV6Info.set(it)
         }
 
-        binding.btnSetting?.setOnClickListener {
-            startActivity(Intent(requireContext(), PreferenceActivity::class.java))
-        }
-        binding.tvInfo?.setOnClickListener {
-            homeViewModel.state.infoWindowStatus.set(InfoWindowStatus.GONE)
-        }
-
-        binding.btnIpv4?.setOnClickListener {
-            IpInfoDialog.instance(IpProtocol.V4).show(activity)
-        }
-
-        binding.btnIpv6?.setOnClickListener {
-            IpInfoDialog.instance(IpProtocol.V6).show(activity)
-        }
-
-        binding.btnLocation?.setOnClickListener {
-
-            context?.let {
-                homeViewModel.state.isLocationEnabled.get()?.let {
-                    when (it) {
-                        LocationState.ENABLED -> LocationInfoDialog.instance().show(activity)
-                        LocationState.DISABLED_APP -> OpenLocationPermissionDialog.instance().show(activity)
-                        LocationState.DISABLED_DEVICE -> OpenGpsSettingDialog.instance().show(activity)
-                    }
-                }
-            }
-        }
-
         binding.ivSignalLevel.setOnClickListener {
             if (homeViewModel.isConnected.value == true) {
                 if (!homeViewModel.clientUUID.value.isNullOrEmpty()) {
@@ -116,35 +88,12 @@ class HomeFragment : BaseFragment() {
             }
         }
 
-        binding.btnUpload?.setOnClickListener {
-            homeViewModel.activeSignalMeasurementLiveData.value?.let { active ->
-                if (!active) {
-                    val intent = SignalMeasurementTermsActivity.start(requireContext())
-                    startActivityForResult(intent, CODE_SIGNAL_MEASUREMENT_TERMS)
-                } else {
-                    homeViewModel.toggleSignalMeasurementService()
-                }
-            }
-        }
-
         binding.buttonMenu?.setOnClickListener {
             startActivity(Intent(requireContext(), PreferenceActivity::class.java))
         }
 
         homeViewModel.activeSignalMeasurementLiveData.listen(this) {
             homeViewModel.state.isSignalMeasurementActive.set(it)
-        }
-
-        binding.btnLoop?.setOnClickListener {
-            if (this.isResumed) {
-                if (binding.btnLoop?.isChecked == true) {
-                    val intent = LoopInstructionsActivity.start(requireContext())
-                    startActivityForResult(intent, CODE_LOOP_INSTRUCTIONS)
-                } else {
-                    homeViewModel.state.isLoopModeActive.set(false)
-                    binding.btnLoop?.isChecked = false
-                }
-            }
         }
 
         homeViewModel.newsLiveData.listen(this) {
@@ -163,18 +112,6 @@ class HomeFragment : BaseFragment() {
                     }
                 }
                 homeViewModel.setNewsShown(newItem)
-            }
-        }
-
-        binding.tvFrequency?.setOnClickListener {
-            if (homeViewModel.isExpertModeOn) {
-                NetworkInfoDialog.show(childFragmentManager)
-            }
-        }
-
-        binding.tvSignal?.setOnClickListener {
-            if (homeViewModel.isExpertModeOn) {
-                NetworkInfoDialog.show(childFragmentManager)
             }
         }
     }
@@ -197,10 +134,8 @@ class HomeFragment : BaseFragment() {
             CODE_LOOP_INSTRUCTIONS -> {
                 if (resultCode == Activity.RESULT_OK) {
                     homeViewModel.state.isLoopModeActive.set(true)
-                    binding.btnLoop?.isChecked = true
                 } else {
                     homeViewModel.state.isLoopModeActive.set(false)
-                    binding.btnLoop?.isChecked = false
                 }
             }
             CODE_SIGNAL_MEASUREMENT_TERMS -> {
