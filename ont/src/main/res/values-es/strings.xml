@@ -37,13 +37,10 @@
     <string name="no_internet_connection_not_load_data">Sin conexión a Internet: No se pudieron cargar los datos.</string>
 
     <!-- Home screen -->
-    <string name="home_signal">Señal</string>
-    <string name="home_frequency">Frecuencia</string>
     <string name="home_attention">Aviso</string>
     <string name="home_no_internet_connection">No hay conexión a Internet!</string>
     <string name="home_no_internet_connection_details" />
     <string name="home_signal_value">%1$d dBm</string>
-    <string name="home_start_test_info">Toque el botón, para comenzar la prueba</string>
     <string name="home_wifi">WLAN</string>
     <string name="public_ip_address">Dirección pública</string>
     <string name="private_ip_address">Dirección privada</string>
@@ -268,9 +265,6 @@
     <string name="notification_loop_mode_title_running">Modo bucle en marcha (%1$d/%2$d)</string>
 
     <string name="title_loop_mode">Modo bucle</string>
-    <string name="title_loop_count">Elegir número de pruebas</string>
-    <string name="text_loop_start">Comenzar pruebas</string>
-    <string name="text_loop_mode">Nueva prueba después de cada intervalo o después de recorrer la distancia. Máx. 2 días.</string>
     <string name="text_button_decline">Cancelar</string>
     <string name="text_button_accept">Aceptar</string>
     <string name="text_loop_instruction_2">En caso de alta demanda o de la ocurrencia de un elevado número de pruebas en un área determinada, es posible que el sistema rechace las pruebas en bucle para evitar la sobrecarga. Es importante destacar que el modo bucle está (únicamente) diseñado para su uso en los países que forman parte de la EU y EFTA.\n\nTenga en cuenta que el modo bucle puede utilizar una gran cantidad de datos. En las conexiones más rápidas, 10 pruebas pueden consumir 1 GB o más datos. Por ello, le recomendamos encarecidamente que utilice el modo bucle sólo en caso de disponer de una tarifa plana, de modo que el consumo de datos no origine costes adicionales. \n\nEl modo bucle puede consumir rápidamente la batería de su dispositivo. En los intervalos de pausa entre las pruebas del modo bucle, la pantalla y la conexión GPS permancen activos, por lo que se utiliza mayor energía que en modo descanso. Por lo tanto, se recomienda utilizar el modo bucle cuando sea posible conectar su dispositivo a una fuente de energía.</string>

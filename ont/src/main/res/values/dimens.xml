@@ -17,7 +17,6 @@
     <dimen name="margin_small">4dp</dimen>
     <dimen name="margin_medium">8dp</dimen>
     <dimen name="margin_large">16dp</dimen>
-    <dimen name="margin_large_">-16dp</dimen>
 
     <!--<dimen name="padding_very_small">2dp</dimen>
     <dimen name="padding_small">4dp</dimen>-->
@@ -47,10 +46,6 @@
     <dimen name="margin_24">24dp</dimen>
     <dimen name="margin_32">32dp</dimen>
     <dimen name="margin_52">52dp</dimen>
-
-    <!-- Home -->
-    <dimen name="home_extra_button_size">56dp</dimen>
-    <dimen name="size_text_loop_count">64sp</dimen>
 
     <!-- Loop mode -->
     <dimen name="size_label_height">48dp</dimen>

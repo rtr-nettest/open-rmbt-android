@@ -284,7 +284,7 @@ class CellNetworkInfo(
 
             val band = CellBand.fromChannelNumber(identity.nrarfcn, CellChannelAttribution.NRARFCN)
 
-            Timber.d("Extracting signal info from ${(info.cellSignalStrength as CellSignalStrengthNr).toString()}")
+            Timber.d("Extracting signal info from ${(info.cellSignalStrength as CellSignalStrengthNr)}")
 
             return CellNetworkInfo(
                 providerName = providerName,

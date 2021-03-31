@@ -118,7 +118,7 @@ abstract class SignalStrengthInfo : Parcelable {
         @RequiresApi(Build.VERSION_CODES.Q)
         fun from(signal: CellSignalStrengthNr): SignalStrengthInfoNr {
             Timber.d(
-                "Extracting from 1: ${signal.toString()} \n\n\n to: dbm: ${signal.dbm} csiRsrp: ${signal.csiRsrp} csiRsrq: ${signal.csiRsrq} csiSinr: ${signal.csiSinr} " +
+                "Extracting from 1: $signal \n\n\n to: dbm: ${signal.dbm} csiRsrp: ${signal.csiRsrp} csiRsrq: ${signal.csiRsrq} csiSinr: ${signal.csiSinr} " +
                         "ssRsrp: ${signal.ssRsrp} ssRsrq: ${signal.ssRsrq} ssSinr: ${signal.ssSinr}"
             )
             return SignalStrengthInfoNr(
@@ -251,7 +251,7 @@ abstract class SignalStrengthInfo : Parcelable {
                                     if (signalValue != null) {
 
                                         Timber.d(
-                                            "Extracting from 2: ${cellSignalStrengthNr.toString()} \n\n\n to: dbm: ${cellSignalStrengthNr.dbm} csiRsrp: ${cellSignalStrengthNr.csiRsrp} csiRsrq: ${cellSignalStrengthNr.csiRsrq} csiSinr: ${cellSignalStrengthNr.csiSinr} " +
+                                            "Extracting from 2: $cellSignalStrengthNr \n\n\n to: dbm: ${cellSignalStrengthNr.dbm} csiRsrp: ${cellSignalStrengthNr.csiRsrp} csiRsrq: ${cellSignalStrengthNr.csiRsrq} csiSinr: ${cellSignalStrengthNr.csiSinr} " +
                                                     "ssRsrp: ${cellSignalStrengthNr.ssRsrp} ssRsrq: ${cellSignalStrengthNr.ssRsrq} ssSinr: ${cellSignalStrengthNr.ssSinr}"
                                         )
 
@@ -295,7 +295,7 @@ abstract class SignalStrengthInfo : Parcelable {
                         }
                         is CellSignalStrengthNr -> {
                             Timber.d(
-                                "Extracting from 3: ${it.toString()} \n\n\n to: dbm: ${it.dbm} csiRsrp: ${it.csiRsrp} csiRsrq: ${it.csiRsrq} csiSinr: ${it.csiSinr} " +
+                                "Extracting from 3: $it \n\n\n to: dbm: ${it.dbm} csiRsrp: ${it.csiRsrp} csiRsrq: ${it.csiRsrq} csiSinr: ${it.csiSinr} " +
                                         "ssRsrp: ${it.ssRsrp} ssRsrq: ${it.ssRsrq} ssSinr: ${it.ssSinr}"
                             )
                             signal = SignalStrengthInfoNr(

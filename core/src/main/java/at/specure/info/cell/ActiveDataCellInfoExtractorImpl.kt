@@ -181,7 +181,7 @@ class ActiveDataCellInfoExtractorImpl(
                                 _nrConnectionState
                             )
 
-                            Timber.d("Raw cellInfo: 1 ${_activeDataNetworkCellInfo.toString()} \n NRConnectionState: ${_nrConnectionState.name}")
+                            Timber.d("Raw cellInfo: 1 $_activeDataNetworkCellInfo \n NRConnectionState: ${_nrConnectionState.name}")
 
                             Timber.d(
                                 "Cell: ${(_activeDataNetwork as CellNetworkInfo).cellUUID} networkType: ${(_activeDataNetwork as CellNetworkInfo).cellUUID} \n Network_type: $networkType, MNT: ${
@@ -207,7 +207,7 @@ class ActiveDataCellInfoExtractorImpl(
                                     _nrConnectionState
                                 )
 
-                                Timber.d("Raw cellInfo: 2 ${_activeDataNetworkCellInfo.toString()} \n NRConnectionState: ${_nrConnectionState.name}")
+                                Timber.d("Raw cellInfo: 2 $_activeDataNetworkCellInfo \n NRConnectionState: ${_nrConnectionState.name}")
 
                                 Timber.d(
                                     "Cell: ${(_activeDataNetwork as CellNetworkInfo).cellUUID} networkType: ${(_activeDataNetwork as CellNetworkInfo).cellUUID} \n Network_type: $networkType, MNT: ${
@@ -230,7 +230,7 @@ class ActiveDataCellInfoExtractorImpl(
                                     _nrConnectionState
                                 )
 
-                                Timber.d("Raw cellInfo: 3 ${_activeDataNetworkCellInfo.toString()} \n NRConnectionState: ${_nrConnectionState.name}")
+                                Timber.d("Raw cellInfo: 3 $_activeDataNetworkCellInfo \n NRConnectionState: ${_nrConnectionState.name}")
 
                                 Timber.d(
                                     "Cell: ${(_activeDataNetwork as CellNetworkInfo).cellUUID} networkType: ${(_activeDataNetwork as CellNetworkInfo).cellUUID} \n Network_type: $networkType, MNT: ${

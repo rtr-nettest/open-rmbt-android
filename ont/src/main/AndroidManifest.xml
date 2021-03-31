@@ -78,10 +78,6 @@
             android:name="at.rtr.rmbt.android.ui.activity.QosTestsSummaryActivity"
             android:theme="@style/PreferenceTheme" />
 
-        <activity
-            android:name=".ui.activity.LoopConfigurationActivity"
-            android:windowSoftInputMode="adjustResize" />
-
         <activity android:name=".ui.activity.LoopInstructionsActivity" />
 
         <activity android:name=".ui.activity.SignalMeasurementTermsActivity" />
