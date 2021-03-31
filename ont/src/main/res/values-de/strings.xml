@@ -37,13 +37,10 @@
     <string name="no_internet_connection_not_load_data">Keine Netzwerksverbindung: Die Datenkonnten nicht geladen werden.</string>
 
     <!-- Home screen -->
-    <string name="home_signal">Signal</string>
-    <string name="home_frequency">Frequenz</string>
     <string name="home_attention">Hinweis</string>
     <string name="home_no_internet_connection">Keine Internetverbindung!</string>
     <string name="home_no_internet_connection_details">Es ist kein Test möglich.</string>
     <string name="home_signal_value">%1$d dBm</string>
-    <string name="home_start_test_info">Drücken Sie den Knopf, um den Test jetzt zu starten!</string>
     <string name="home_wifi">WLAN</string>
     <string name="public_ip_address">Öffentliche Adresse</string>
     <string name="private_ip_address">Lokale Adresse</string>
@@ -264,9 +261,6 @@
     <string name="notification_loop_mode_title_running">Der Wiederholungsmodus läuft (%1$d/%2$d)</string>
 
     <string name="title_loop_mode">Wiederholungsmodus</string>
-    <string name="title_loop_count">Wählen Sie die Anzahl der Tests</string>
-    <string name="text_loop_start">Tests starten</string>
-    <string name="text_loop_mode">Neuer Test nach Wartezeit oder Zurücklegen der Distanz. Max. 2 Tage</string>
     <string name="text_button_decline">Abbrechen</string>
     <string name="text_button_accept">Akzeptieren</string>
     <string name="text_loop_instruction_2">Im Fall hoher Nachfrage oder einer hohen Anzahl an Tests in einem konkreten Gebiet kann der Wiederholungsmodus (Loop) durch das Testsystem abgelehnt werden, um Überlast zu vermeiden. Es wird darauf hingewiesen, dass er (nur) zur Nutzung innerhalb der EU- und des EWR gedacht ist. \nDer Wiederholungsmodus verbraucht eine große Menge an Daten. Mit schnellen Verbindungen können 10 Tests 1 GB oder mehr an Daten verbrauchen. Er sollte nur mit echten Flatrate Tarifen genutzt werden. In den Pausen zwischen den Tests bleiben GPS und die Anzeige aktiv und es werden weiter Signalmessungen durchgeführt, deshalb wird die Batterie schnell entleert. Daher sollte der Wiederholungsmodus nur genutzt werden, wenn externe Stromversorgung zur Verfügung steht.</string>

@@ -115,22 +115,29 @@ abstract class SignalStrengthInfo : Parcelable {
         const val SSRSRP_SIGNAL_STRENGTH_FULL = -65
         const val SSRSRP_SIGNAL_STRENGTH_MAX = -44
 
+        @SuppressLint("BinaryOperationInTimber")
         @RequiresApi(Build.VERSION_CODES.Q)
-        fun from(signal: CellSignalStrengthNr): SignalStrengthInfoNr = SignalStrengthInfoNr(
-            transport = TransportType.CELLULAR,
-            value = signal.extractSignalValue()?.fixNrRsrp(),
-            rsrq = null,
-            signalLevel = calculateNRCellSignalLevel(signal),
-            min = NR_RSRP_SIGNAL_MIN,
-            max = NR_RSRP_SIGNAL_MAX,
-            timestampNanos = System.nanoTime(),
-            csiRsrp = if (signal.csiRsrp == CellInfo.UNAVAILABLE) null else signal.csiRsrp.fixNrRsrp(),
-            csiRsrq = if (signal.csiRsrq == CellInfo.UNAVAILABLE) null else signal.csiRsrq.fixNrRsrq(),
-            csiSinr = if (signal.csiSinr == CellInfo.UNAVAILABLE) null else signal.csiSinr.fixNrSinr(),
-            ssRsrp = if (signal.ssRsrp == CellInfo.UNAVAILABLE) null else signal.ssRsrp.fixNrRsrp(),
-            ssRsrq = if (signal.ssRsrq == CellInfo.UNAVAILABLE) null else signal.ssRsrq.fixNrRsrq(),
-            ssSinr = if (signal.ssSinr == CellInfo.UNAVAILABLE) null else signal.ssSinr.fixNrSinr()
-        )
+        fun from(signal: CellSignalStrengthNr): SignalStrengthInfoNr {
+            Timber.d(
+                "Extracting from 1: $signal \n\n\n to: dbm: ${signal.dbm} csiRsrp: ${signal.csiRsrp} csiRsrq: ${signal.csiRsrq} csiSinr: ${signal.csiSinr} " +
+                        "ssRsrp: ${signal.ssRsrp} ssRsrq: ${signal.ssRsrq} ssSinr: ${signal.ssSinr}"
+            )
+            return SignalStrengthInfoNr(
+                transport = TransportType.CELLULAR,
+                value = signal.extractSignalValue()?.fixNrRsrp(),
+                rsrq = signal.extractSignalQualityValue()?.fixNrRsrq(),
+                signalLevel = calculateNRCellSignalLevel(signal),
+                min = NR_RSRP_SIGNAL_MIN,
+                max = NR_RSRP_SIGNAL_MAX,
+                timestampNanos = System.nanoTime(),
+                csiRsrp = if (signal.csiRsrp == CellInfo.UNAVAILABLE) null else signal.csiRsrp.fixNrRsrp(),
+                csiRsrq = if (signal.csiRsrq == CellInfo.UNAVAILABLE) null else signal.csiRsrq.fixNrRsrq(),
+                csiSinr = if (signal.csiSinr == CellInfo.UNAVAILABLE) null else signal.csiSinr.fixNrSinr(),
+                ssRsrp = if (signal.ssRsrp == CellInfo.UNAVAILABLE) null else signal.ssRsrp.fixNrRsrp(),
+                ssRsrq = if (signal.ssRsrq == CellInfo.UNAVAILABLE) null else signal.ssRsrq.fixNrRsrq(),
+                ssSinr = if (signal.ssSinr == CellInfo.UNAVAILABLE) null else signal.ssSinr.fixNrSinr()
+            )
+        }
 
         fun from(signal: CellSignalStrengthLte): SignalStrengthInfoLte = SignalStrengthInfoLte(
             transport = TransportType.CELLULAR,
@@ -214,7 +221,7 @@ abstract class SignalStrengthInfo : Parcelable {
             }
         }
 
-        @SuppressLint("NewApi")
+        @SuppressLint("NewApi", "BinaryOperationInTimber")
         private fun signalStrengthQ(signalStrength: SignalStrength?, cellInfo: CellInfo?, nrConnectionState: NRConnectionState): SignalStrengthInfo? {
             if (signalStrength == null) {
                 val message =
@@ -243,6 +250,12 @@ abstract class SignalStrengthInfo : Parcelable {
                                     val signalValue = cellSignalStrengthNr.extractSignalValue()?.fixNrRsrp()
                                     // if we are not able to extract signal information from inactive NR cell info (inactive because of NSA mode), we are returning null signal
                                     if (signalValue != null) {
+
+                                        Timber.d(
+                                            "Extracting from 2: $cellSignalStrengthNr \n\n\n to: dbm: ${cellSignalStrengthNr.dbm} csiRsrp: ${cellSignalStrengthNr.csiRsrp} csiRsrq: ${cellSignalStrengthNr.csiRsrq} csiSinr: ${cellSignalStrengthNr.csiSinr} " +
+                                                    "ssRsrp: ${cellSignalStrengthNr.ssRsrp} ssRsrq: ${cellSignalStrengthNr.ssRsrq} ssSinr: ${cellSignalStrengthNr.ssSinr}"
+                                        )
+
                                         return SignalStrengthInfoNr(
                                             transport = TransportType.CELLULAR,
                                             value = signalValue.fixNrRsrp(),
@@ -282,6 +295,10 @@ abstract class SignalStrengthInfo : Parcelable {
                             }
                         }
                         is CellSignalStrengthNr -> {
+                            Timber.d(
+                                "Extracting from 3: $it \n\n\n to: dbm: ${it.dbm} csiRsrp: ${it.csiRsrp} csiRsrq: ${it.csiRsrq} csiSinr: ${it.csiSinr} " +
+                                        "ssRsrp: ${it.ssRsrp} ssRsrq: ${it.ssRsrq} ssSinr: ${it.ssSinr}"
+                            )
                             signal = SignalStrengthInfoNr(
                                 transport = transportType,
                                 value = it.dbm.let { dbm -> -abs(dbm) }.fixNrRsrp(),
@@ -583,8 +600,8 @@ abstract class SignalStrengthInfo : Parcelable {
         }
 
         private fun Int?.fixRssnr(): Int? {
-            if (this == null) {
-                return null
+            return if (this == null) {
+                null
             } else {
                 var value = -1 * abs(this)
                 if (value < NR_RSRP_SIGNAL_MIN || value > NR_RSRP_SIGNAL_MAX || this == Int.MIN_VALUE) {
@@ -593,35 +610,32 @@ abstract class SignalStrengthInfo : Parcelable {
                     this
                 }
             }
-            return null
         }
 
         private fun Int?.fixNrRsrp(): Int? {
-            if (this == null) {
-                return null
+            return if (this == null) {
+                null
             } else {
                 var value = -1 * abs(this)
                 if (value < NR_RSRP_SIGNAL_MIN || value > NR_RSRP_SIGNAL_MAX || this == Int.MIN_VALUE || this == -1 * abs(CellInfo.UNAVAILABLE)) {
                     null
                 } else {
-                    this
+                    -1 * abs(this)
                 }
             }
-            return null
         }
 
         private fun Int?.fixNrRsrq(): Int? {
-            if (this == null) {
-                return null
+            return if (this == null) {
+                null
             } else {
                 var value = -1 * abs(this)
                 if (value < NR_RSRQ_SIGNAL_MIN || value > NR_RSRQ_SIGNAL_MAX || this == Int.MIN_VALUE || this == -1 * abs(CellInfo.UNAVAILABLE)) {
                     null
                 } else {
-                    this
+                    -abs(this)
                 }
             }
-            return null
         }
 
         private fun Int?.fixNrSinr(): Int? =
@@ -681,13 +695,27 @@ abstract class SignalStrengthInfo : Parcelable {
 
 fun CellSignalStrengthNr.extractSignalValue(): Int? {
     return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-        if (dbm == CellInfo.UNAVAILABLE) {
+        if (abs(dbm) == abs(CellInfo.UNAVAILABLE)) {
             if (ssRsrp.checkValueAvailable() != null) {
                 ssRsrp.checkValueAvailable()?.let { nrSignal -> -abs(nrSignal) }
             } else {
                 dbm
             }
         } else dbm
+    } else {
+        null
+    }
+}
+
+fun CellSignalStrengthNr.extractSignalQualityValue(): Int? {
+    return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+        if (abs(csiRsrq) == abs(CellInfo.UNAVAILABLE)) {
+            if (ssRsrq.checkValueAvailable() != null) {
+                ssRsrq.checkValueAvailable()?.let { nrSignalQuality -> -abs(nrSignalQuality) }
+            } else {
+                csiRsrq
+            }
+        } else csiRsrq
     } else {
         null
     }

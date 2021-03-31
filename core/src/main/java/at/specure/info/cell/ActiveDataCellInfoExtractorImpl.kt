@@ -181,6 +181,8 @@ class ActiveDataCellInfoExtractorImpl(
                                 _nrConnectionState
                             )
 
+                            Timber.d("Raw cellInfo: 1 $_activeDataNetworkCellInfo \n NRConnectionState: ${_nrConnectionState.name}")
+
                             Timber.d(
                                 "Cell: ${(_activeDataNetwork as CellNetworkInfo).cellUUID} networkType: ${(_activeDataNetwork as CellNetworkInfo).cellUUID} \n Network_type: $networkType, MNT: ${
                                     MobileNetworkType.fromValue(
@@ -204,6 +206,9 @@ class ActiveDataCellInfoExtractorImpl(
                                     if (subscriptions.size > 1) dualSimDecisionLog else null,
                                     _nrConnectionState
                                 )
+
+                                Timber.d("Raw cellInfo: 2 $_activeDataNetworkCellInfo \n NRConnectionState: ${_nrConnectionState.name}")
+
                                 Timber.d(
                                     "Cell: ${(_activeDataNetwork as CellNetworkInfo).cellUUID} networkType: ${(_activeDataNetwork as CellNetworkInfo).cellUUID} \n Network_type: $networkType, MNT: ${
                                         MobileNetworkType.fromValue(
@@ -224,6 +229,9 @@ class ActiveDataCellInfoExtractorImpl(
                                     if (subscriptions.size > 1) dualSimDecisionLog else null,
                                     _nrConnectionState
                                 )
+
+                                Timber.d("Raw cellInfo: 3 $_activeDataNetworkCellInfo \n NRConnectionState: ${_nrConnectionState.name}")
+
                                 Timber.d(
                                     "Cell: ${(_activeDataNetwork as CellNetworkInfo).cellUUID} networkType: ${(_activeDataNetwork as CellNetworkInfo).cellUUID} \n Network_type: $networkType, MNT: ${
                                         MobileNetworkType.fromValue(
