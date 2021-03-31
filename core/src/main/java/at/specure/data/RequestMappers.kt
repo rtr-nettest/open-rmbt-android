@@ -235,13 +235,33 @@ fun TestRecord.toRequest(
         it.mobileNetworkType == MobileNetworkType.NR_AVAILABLE || it.mobileNetworkType == MobileNetworkType.NR_NSA || it.mobileNetworkType == MobileNetworkType.NR
     }
 
-    if (signals5G.isNotEmpty()) {
-        telephonyNRConnectionState = when (signals5G[0].mobileNetworkType) {
-            MobileNetworkType.NR -> NRConnectionState.SA.toString()
-            MobileNetworkType.NR_NSA -> NRConnectionState.NSA.toString()
-            MobileNetworkType.NR_AVAILABLE -> NRConnectionState.AVAILABLE.toString()
-            else -> null
+    var best5GTechnologyAchieved: NRConnectionState? = null
+
+    signals5G.forEach() {
+        Timber.d("5G technology: MNT: ${it.mobileNetworkType?.displayName} NRstate: ${it.nrConnectionState.name}")
+        var current5GTechnology =
+            when {
+                (it.mobileNetworkType == MobileNetworkType.NR && it.nrConnectionState != NRConnectionState.NSA) -> NRConnectionState.SA
+                (it.mobileNetworkType == MobileNetworkType.NR && it.nrConnectionState == NRConnectionState.NSA) -> NRConnectionState.NSA
+                (it.mobileNetworkType == MobileNetworkType.NR_NSA) -> NRConnectionState.NSA
+                (it.mobileNetworkType == MobileNetworkType.NR_AVAILABLE) -> NRConnectionState.AVAILABLE
+                else -> null
+            }
+        when (current5GTechnology) {
+            NRConnectionState.SA -> if (best5GTechnologyAchieved == null || best5GTechnologyAchieved == NRConnectionState.NSA || best5GTechnologyAchieved == NRConnectionState.AVAILABLE) {
+                best5GTechnologyAchieved = NRConnectionState.SA
+            }
+            NRConnectionState.NSA -> if (best5GTechnologyAchieved == null || best5GTechnologyAchieved == NRConnectionState.AVAILABLE) {
+                best5GTechnologyAchieved = NRConnectionState.NSA
+            }
+            NRConnectionState.AVAILABLE -> if (best5GTechnologyAchieved == null) {
+                best5GTechnologyAchieved = NRConnectionState.AVAILABLE
+            }
         }
+    }
+
+    best5GTechnologyAchieved?.let {
+        telephonyNRConnectionState = it.stringValue
     }
 
     return TestResultBody(
@@ -362,7 +382,7 @@ fun CellInfoRecord.toRequest() = CellInfoBody(
 fun SignalRecord.toRequest(cellUUID: String, ignoreNetworkId: Boolean, signalMeasurementStartTimeNs: Long?) = SignalBody(
     cellUuid = cellUUID,
     networkTypeId = if (ignoreNetworkId) null else if (transportType.toRequestIntValue(mobileNetworkType) == MobileNetworkType.NR.intValue) {
-            MobileNetworkType.NR_NSA.intValue
+        MobileNetworkType.NR_NSA.intValue
     } else {
         transportType.toRequestIntValue(mobileNetworkType)
     },
@@ -378,7 +398,7 @@ fun SignalRecord.toRequest(cellUUID: String, ignoreNetworkId: Boolean, signalMea
     timeLastNanos = timeNanosLast,
     nrCsiRsrp = nrCsiRsrp,
     nrCsiRsrq = nrCsiRsrq,
-    nrCsiSinr = nrSsSinr,
+    nrCsiSinr = nrCsiSinr,
     nrSsRsrp = nrSsRsrp,
     nrSsRsrq = nrSsRsrq,
     nrSsSinr = nrSsSinr
