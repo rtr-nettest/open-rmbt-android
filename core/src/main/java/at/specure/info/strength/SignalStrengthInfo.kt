@@ -115,6 +115,7 @@ abstract class SignalStrengthInfo : Parcelable {
         const val SSRSRP_SIGNAL_STRENGTH_FULL = -65
         const val SSRSRP_SIGNAL_STRENGTH_MAX = -44
 
+        @SuppressLint("BinaryOperationInTimber")
         @RequiresApi(Build.VERSION_CODES.Q)
         fun from(signal: CellSignalStrengthNr): SignalStrengthInfoNr {
             Timber.d(
@@ -220,7 +221,7 @@ abstract class SignalStrengthInfo : Parcelable {
             }
         }
 
-        @SuppressLint("NewApi")
+        @SuppressLint("NewApi", "BinaryOperationInTimber")
         private fun signalStrengthQ(signalStrength: SignalStrength?, cellInfo: CellInfo?, nrConnectionState: NRConnectionState): SignalStrengthInfo? {
             if (signalStrength == null) {
                 val message =
