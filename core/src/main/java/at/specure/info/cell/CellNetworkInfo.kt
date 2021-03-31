@@ -38,6 +38,7 @@ import at.specure.info.network.MobileNetworkType
 import at.specure.info.network.NRConnectionState
 import at.specure.info.network.NetworkInfo
 import at.specure.info.strength.SignalStrengthInfo
+import timber.log.Timber
 import java.util.UUID
 
 /**
@@ -282,6 +283,8 @@ class CellNetworkInfo(
             val identity = info.cellIdentity as CellIdentityNr
 
             val band = CellBand.fromChannelNumber(identity.nrarfcn, CellChannelAttribution.NRARFCN)
+
+            Timber.d("Extracting signal info from ${(info.cellSignalStrength as CellSignalStrengthNr).toString()}")
 
             return CellNetworkInfo(
                 providerName = providerName,
