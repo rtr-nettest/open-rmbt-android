@@ -5,7 +5,6 @@ import android.app.Activity
 import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
-import android.net.Uri
 import android.os.Bundle
 import android.text.InputType
 import android.view.View
@@ -74,16 +73,15 @@ class SettingsFragment : BaseFragment(), InputSettingDialog.Callback, ServerSele
             }
         }
 
-        binding.clientUUID.frameLayoutRootKeyValue.setOnClickListener {
-            val clientUUIDExists = !binding.clientUUID.value.isNullOrEmpty()
-            if (clientUUIDExists) {
-                context?.copyToClipboard(binding.clientUUID.value)
-                Toast.makeText(context, R.string.about_client_uuid_copied, Toast.LENGTH_SHORT).show()
-            }
+        binding.clientUUIDtitle.setOnClickListener {
+            copyClientUUIDToClipboard()
+        }
+        binding.clientUUIDvalue.setOnClickListener {
+            copyClientUUIDToClipboard()
         }
 
         settingsViewModel.state.clientUUID.liveData.listen(this) {
-            binding.clientUUID.value = if (it.isNullOrEmpty()) "" else "U$it"
+            binding.clientUUIDvalue.text = if (it.isNullOrEmpty()) "" else "U$it"
         }
 
         settingsViewModel.locationStateLiveData.listen(this) {
@@ -171,30 +169,9 @@ class SettingsFragment : BaseFragment(), InputSettingDialog.Callback, ServerSele
                 .show(activity)
         }
 
-        binding.version.value = "${BuildConfig.VERSION_NAME} (${BuildConfig.BUILD_TIME})"
-        binding.commitHash.value = BuildConfig.COMMIT_HASH
-        binding.sourceCode.root.setOnClickListener {
-            startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(settingsViewModel.state.githubRepositoryUrl.get())))
-        }
-        binding.developedBy.root.setOnClickListener {
-            startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(getString(R.string.preferences_developer_page))))
-        }
-        binding.goToWebsite.root.setOnClickListener {
-            startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(settingsViewModel.state.webPageUrl.get())))
-        }
-        binding.contactUs.root.setOnClickListener {
-            val emailIntent = Intent(Intent.ACTION_SEND)
-            emailIntent.type = "plain/text"
-            emailIntent.putExtra(Intent.EXTRA_EMAIL, arrayOf(settingsViewModel.state.emailAddress.get()))
-            emailIntent.putExtra(
-                Intent.EXTRA_SUBJECT,
-                "${getString(R.string.about_email_subject)}  ${getString(R.string.app_name)}  ${BuildConfig.VERSION_NAME}"
-            )
-            emailIntent.putExtra(Intent.EXTRA_TEXT, "") // to navigate cursor directly to the message body
-            startActivity(Intent.createChooser(emailIntent, getString(R.string.about_email_sending)))
-        }
+        binding.version.value = "${BuildConfig.VERSION_NAME}"
 
-        binding.dataPrivacyAndTerms.root.setOnClickListener {
+        binding.terms.root.setOnClickListener {
             settingsViewModel.state.dataPrivacyAndTermsUrl.get()?.let { url ->
                 DataPrivacyAndTermsOfUseActivity.start(
                     requireContext(),
@@ -253,6 +230,14 @@ class SettingsFragment : BaseFragment(), InputSettingDialog.Callback, ServerSele
                 this
             )
                 .show(activity)
+        }
+    }
+
+    private fun copyClientUUIDToClipboard() {
+        val clientUUIDExists = !binding.clientUUIDvalue.text.isNullOrEmpty()
+        if (clientUUIDExists) {
+            context?.copyToClipboard(binding.clientUUIDvalue.text as String)
+            Toast.makeText(context, R.string.about_client_uuid_copied, Toast.LENGTH_SHORT).show()
         }
     }
 

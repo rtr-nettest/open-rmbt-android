@@ -25,7 +25,7 @@
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/titleTVISET"
-            style="@style/RobotoRegularStyle.Medium"
+            style="@style/RobotoRegularStyle.MediumSmall"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerVertical="true"
@@ -37,11 +37,13 @@
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/summaryTVISET"
-            style="@style/RobotoRegularStyle.Medium"
+            style="@style/RobotoRegularStyle.MediumSmall"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_centerVertical="true"
             android:layout_toEndOf="@android:id/title"
+            android:drawableEnd="@drawable/ic_right"
+            android:drawableTint="@color/main_color"
             android:gravity="end"
             android:maxLines="2"
             android:text="@{value}"

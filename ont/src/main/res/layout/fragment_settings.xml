@@ -2,7 +2,8 @@
 
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:bind="http://schemas.android.com/apk/res-auto">
+    xmlns:bind="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
 
     <data>
 
@@ -27,52 +28,54 @@
             android:layout_height="match_parent">
 
             <include
-                android:id="@+id/labelGeneralSettings"
+                android:id="@+id/labelInformation"
                 layout="@layout/item_setting_header"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
+                bind:title="@{@string/preferences_information}" />
+
+            <include
+                android:id="@+id/about"
+                layout="@layout/item_setting_more_detail"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/labelInformation"
+                bind:title="@{@string/preferences_about + ' ' + @string/toolbar_title}" />
+
+            <include
+                android:id="@+id/terms"
+                layout="@layout/item_setting_more_detail"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/about"
+                bind:title="@{@string/preferences_terms_of_service}" />
+
+            <include
+                android:id="@+id/version"
+                layout="@layout/item_setting_key_value"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/terms"
+                bind:title="@{@string/preferences_version}" />
+
+            <include
+                android:id="@+id/labelGeneralSettings"
+                layout="@layout/item_setting_header"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/version"
                 bind:title="@{@string/preferences_general_settings}" />
-
-
-            <include
-                android:id="@+id/switchNDT"
-                layout="@layout/item_setting_switch"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:visibility="@{BuildConfig.NDT_ENABLED.visible ? View.VISIBLE : View.GONE}"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/labelGeneralSettings"
-                bind:title="@{@string/preferences_ndt}"
-                bind:value="@{state.isNDTEnabled}" />
-
-            <include
-                android:id="@+id/switchSkipQosTests"
-                layout="@layout/item_setting_switch"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:visibility="@{BuildConfig.SKIP_QOS_TESTS.visible ? View.VISIBLE : View.GONE}"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/switchNDT"
-                bind:title="@{@string/preferences_qos_measurement}"
-                bind:value="@{state.qosMeasurement}" />
-
-            <include
-                android:id="@+id/switchSkipQosTestsForPeriodOnly"
-                layout="@layout/item_setting_switch"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:visibility="@{state.qosMeasurement ? View.VISIBLE : View.GONE}"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/switchSkipQosTests"
-                bind:summary="@{@string/preferences_qos_measurement_only_after_some_time_summary}"
-                bind:title="@{@string/preferences_qos_measurement_only_after_some_time}"
-                bind:value="@{state.qosMeasurementSkipForPeriod}" />
 
             <include
                 android:id="@+id/switchLocations"
@@ -82,20 +85,45 @@
                 android:visibility="@{BuildConfig.CAN_MANAGE_LOCATION_SETTINGS.visible ? View.VISIBLE : View.GONE}"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/switchSkipQosTestsForPeriodOnly"
+                app:layout_constraintTop_toBottomOf="@+id/labelGeneralSettings"
+                bind:summary="@{@string/preferences_location_summary}"
                 bind:title="@{@string/preferences_location}"
                 bind:value="@{state.canManageLocationSettings}" />
 
+            <include
+                android:id="@+id/switchExpertModeIPV4Only"
+                layout="@layout/item_setting_switch"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:visibility="@{state.expertModeEnabled ? View.VISIBLE : View.GONE}"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/switchLocations"
+                bind:summary="@{@string/preferences_ipv4_only_sum}"
+                bind:title="@{@string/preferences_ipv4_only}"
+                bind:value="@{state.expertModeUseIpV4Only}" />
 
             <include
-                android:id="@+id/labelAdvancedSettings"
+                android:id="@+id/switchSkipQosTests"
+                layout="@layout/item_setting_edittext"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:visibility="@{BuildConfig.SKIP_QOS_TESTS.visible ? View.VISIBLE : View.GONE}"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/switchExpertModeIPV4Only"
+                bind:title="@{@string/preferences_qos_measurement}"
+                bind:value="@{state.qosMeasurement.toString()}" />
+
+            <include
+                android:id="@+id/labelLoopMode"
                 layout="@layout/item_setting_header"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/switchLocations"
-                bind:title="@{@string/preferences_advanced_settings}" />
+                app:layout_constraintTop_toBottomOf="@+id/switchSkipQosTests"
+                bind:title="@{@string/preferences_loop_mode}" />
 
 
             <include
@@ -106,7 +134,7 @@
                 android:visibility="@{BuildConfig.LOOP_MODE_ENABLED.visible ? View.VISIBLE : View.GONE}"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/labelAdvancedSettings"
+                app:layout_constraintTop_toBottomOf="@+id/labelLoopMode"
                 bind:summary="@{@string/preferences_loop_mode_summary}"
                 bind:title="@{@string/preferences_loop_mode}"
                 bind:value="@{state.loopModeEnabled}" />
@@ -137,6 +165,128 @@
                 bind:value="@{String.valueOf(state.loopModeDistanceMeters)}" />
 
             <include
+                android:id="@+id/loopModeMeasurementCount"
+                layout="@layout/item_setting_edittext"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:visibility="@{state.loopModeEnabled ? View.VISIBLE : View.GONE}"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/loopModeDistanceMeters"
+                bind:title="@{@string/preferences_loop_test_count}"
+                bind:value="@{String.valueOf(state.loopModeNumberOfTests)}" />
+
+            <TextView
+                android:id="@+id/labelLoopModeClarification"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:background="@color/text_lightest_gray"
+                android:padding="@dimen/margin_large"
+                android:text="@string/loop_mode_clarification"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/loopModeMeasurementCount" />
+
+            <include
+                android:id="@+id/labelMap"
+                layout="@layout/item_setting_header"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/labelLoopModeClarification"
+                bind:title="@{@string/menu_button_map}" />
+
+            <include
+                android:id="@+id/mapSetting"
+                layout="@layout/item_setting_edittext"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/labelMap"
+                bind:title="@{@string/preferences_map_settings}"
+                bind:value="@{state.qosMeasurement.toString()}" />
+
+            <include
+                android:id="@+id/labelPrivacy"
+                layout="@layout/item_setting_header"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/mapSetting"
+                bind:title="@{@string/preferences_privacy}" />
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/clientUUIDtitle"
+                style="@style/RobotoRegularStyle.MediumSmall"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:ellipsize="marquee"
+                android:gravity="start"
+                android:paddingStart="@dimen/padding_large"
+                android:paddingTop="@dimen/padding_large"
+                android:paddingEnd="@dimen/padding_large"
+                android:singleLine="true"
+                android:text="@string/preferences_client_uuid"
+                android:textColor="@color/text_dark_gray"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/labelPrivacy" />
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/clientUUIDvalue"
+                style="@style/RobotoRegularStyle.MediumSmall"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:gravity="start"
+                android:maxLines="2"
+                android:paddingStart="@dimen/padding_large"
+                android:paddingEnd="@dimen/padding_large"
+                android:paddingBottom="@dimen/padding_large"
+                android:text="@{state.clientUUIDFormatted}"
+                android:textColor="@color/text_dark_gray"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/clientUUIDtitle"
+                tools:text="10" />
+
+            <include
+                android:id="@+id/privacy_policy"
+                layout="@layout/item_setting_more_detail"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/clientUUIDvalue"
+                bind:title="@{@string/preferences_data_protection}" />
+
+            <include
+                android:id="@+id/switchPersistentClientUUID"
+                layout="@layout/item_setting_switch"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/privacy_policy"
+                bind:summary="@{@string/preferences_persistent_clientUUID_summary}"
+                bind:title="@{@string/preferences_persistent_clientUUID}"
+                bind:value="@{state.persistentClientUUIDEnabled}" />
+
+            <include
+                android:id="@+id/switchAnalytics"
+                layout="@layout/item_setting_switch"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/switchPersistentClientUUID"
+                bind:summary="@{@string/preferences_analytics_summary}"
+                bind:title="@{@string/preferences_analytics}"
+                bind:value="@{state.analyticsEnabled}" />
+
+            <include
                 android:id="@+id/switchExpertModeEnabled"
                 layout="@layout/item_setting_switch"
                 android:layout_width="0dp"
@@ -144,23 +294,10 @@
                 android:visibility="@{BuildConfig.EXPERT_MODE_ENABLED.visible ? View.VISIBLE : View.GONE}"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/loopModeDistanceMeters"
+                app:layout_constraintTop_toBottomOf="@+id/switchAnalytics"
                 bind:summary="@{@string/preferences_expert_mode_summary}"
                 bind:title="@{@string/preferences_expert_mode}"
                 bind:value="@{state.expertModeEnabled}" />
-
-            <include
-                android:id="@+id/switchExpertModeIPV4Only"
-                layout="@layout/item_setting_switch"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:visibility="@{state.expertModeEnabled ? View.VISIBLE : View.GONE}"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/switchExpertModeEnabled"
-                bind:summary="@{@string/preferences_ipv4_only_sum}"
-                bind:title="@{@string/preferences_ipv4_only}"
-                bind:value="@{state.expertModeUseIpV4Only}" />
 
             <include
                 android:id="@+id/radioInfo"
@@ -170,7 +307,7 @@
                 android:visibility="@{state.expertModeEnabled ? View.VISIBLE : View.GONE}"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/switchExpertModeIPV4Only"
+                app:layout_constraintTop_toBottomOf="@+id/switchExpertModeEnabled"
                 bind:summary="@{@string/preferences_radio_info_sum}"
                 bind:title="@{@string/preferences_radio_info}" />
 
@@ -296,30 +433,6 @@
                 bind:value="@{String.valueOf(state.mapServerPort)}" />
 
             <include
-                android:id="@+id/labelDeveloperSimulate5G"
-                layout="@layout/item_setting_header"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:visibility="@{state.developerModeIsEnabled &amp;&amp; state.developer5GSimulationAvailable ? View.VISIBLE : View.GONE}"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/developerMapServerPort"
-                bind:title="@{@string/preferences_5g_simulation_title}" />
-
-            <include
-                android:id="@+id/switchDeveloper5GSimulation"
-                layout="@layout/item_setting_switch"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:visibility="@{state.developerModeIsEnabled &amp;&amp; state.developer5GSimulationAvailable ? View.VISIBLE : View.GONE}"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/labelDeveloperSimulate5G"
-                bind:summary="@{@string/preferences_5g_simulation_sum}"
-                bind:title="@{@string/preferences_5g_simulation}"
-                bind:value="@{state.developer5GSimulationEnabled}" />
-
-            <include
                 android:id="@+id/switchDeveloperMapServerSSL"
                 layout="@layout/item_setting_switch"
                 android:layout_width="0dp"
@@ -327,7 +440,7 @@
                 android:visibility="@{state.developerModeIsEnabled  &amp;&amp; state.mapServerOverrideEnabled ? View.VISIBLE : View.GONE}"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/switchDeveloper5GSimulation"
+                app:layout_constraintTop_toBottomOf="@+id/developerMapServerPort"
                 bind:summary="@{@string/preferences_developer_map_ssl_sum}"
                 bind:title="@{@string/preferences_developer_map_ssl}"
                 bind:value="@{state.mapServerUseSSL}" />
@@ -367,138 +480,6 @@
                 app:layout_constraintTop_toBottomOf="@+id/switchQosServerOverride"
                 bind:title="@{@string/preferences_tag}"
                 bind:value="@{state.developerModeTag}" />
-
-            <include
-                android:id="@+id/labelContact"
-                layout="@layout/item_setting_header"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/developerTag"
-                bind:title="@{@string/preferences_contact}" />
-
-            <include
-                android:id="@+id/goToWebsite"
-                layout="@layout/item_setting_more_detail"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/labelContact"
-                bind:title="@{@string/preferences_go_to_website}" />
-
-            <include
-                android:id="@+id/contactUs"
-                layout="@layout/item_setting_more_detail"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/goToWebsite"
-                bind:title="@{@string/preferences_contact_us}" />
-
-            <include
-                android:id="@+id/labelAdditionalInformation"
-                layout="@layout/item_setting_header"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/contactUs"
-                bind:title="@{@string/preferences_additional_Information}" />
-
-            <include
-                android:id="@+id/clientUUID"
-                layout="@layout/item_setting_key_value"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/labelAdditionalInformation"
-                bind:title="@{@string/preferences_client_uuid}"
-                bind:value="@{state.clientUUIDFormatted}" />
-
-            <include
-                android:id="@+id/numberOfTestsPerformed"
-                layout="@layout/item_setting_key_value"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/clientUUID"
-                bind:title="@{@string/preferences_test_cases}"
-                bind:value="@{String.valueOf(state.numberOfTests)}" />
-
-            <include
-                android:id="@+id/labelAbout"
-                layout="@layout/item_setting_header"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/numberOfTestsPerformed"
-                bind:title="@{@string/preferences_about}" />
-
-            <include
-                android:id="@+id/sourceCode"
-                layout="@layout/item_setting_more_detail"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/labelAbout"
-                bind:title="@{@string/preferences_source_code}" />
-
-            <include
-                android:id="@+id/dataPrivacyAndTerms"
-                layout="@layout/item_setting_more_detail"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/sourceCode"
-                bind:title="@{@string/preferences_data_protection}" />
-
-            <include
-                android:id="@+id/developedBy"
-                layout="@layout/item_setting_more_detail"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/dataPrivacyAndTerms"
-                bind:title="@{@string/preferences_developed_by}" />
-
-            <include
-                android:id="@+id/version"
-                layout="@layout/item_setting_key_value"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/developedBy"
-                bind:title="@{@string/preferences_version}" />
-
-            <include
-                android:id="@+id/commitHash"
-                layout="@layout/item_setting_key_value"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/version"
-                bind:title="@{@string/preferences_commit_hash}" />
-
-            <androidx.appcompat.widget.AppCompatImageView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:padding="@dimen/padding_very_extra_large"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/commitHash"
-                app:srcCompat="@drawable/ic_rtr" />
-
 
         </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.core.widget.NestedScrollView>

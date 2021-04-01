@@ -88,8 +88,16 @@
         <item name="android:textSize">12sp</item>
     </style>
 
+    <style name="RobotoRegularStyle.SmallSmall">
+        <item name="android:textSize">13sp</item>
+    </style>
+
     <style name="RobotoRegularStyle.Small">
         <item name="android:textSize">14sp</item>
+    </style>
+
+    <style name="RobotoRegularStyle.MediumSmall">
+        <item name="android:textSize">15sp</item>
     </style>
 
     <style name="RobotoRegularStyle.Medium">

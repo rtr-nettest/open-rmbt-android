@@ -46,8 +46,9 @@
     <string name="private_ip_address">Dirección privada</string>
 
     <!-- Preference titles -->
-    <string name="options">Opciones</string>
-    <string name="preferences_general_settings">Ajustes globales</string>
+    <string name="options">Ajustes</string>
+    <string name="preferences_information">Información</string>
+    <string name="preferences_general_settings">Globales</string>
     <string name="preferences_ndt">NDT</string>
     <string name="preferences_qos_measurement">Prueba de QoS</string>
     <string name="preferences_qos_measurement_only_after_some_time">Sólo cada 2 horas</string>

@@ -15,7 +15,7 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <color name="colorPrimary">@android:color/white</color>
     <color name="colorPrimaryDark">@android:color/white</color>
-    <color name="colorAccent">#59b200</color>
+    <color name="colorAccent">@color/main_color</color>
 
     <!-- Theme colors -->
     <color name="toolbar_blue">#00ACB1</color>
@@ -23,6 +23,7 @@
 
     <!-- Font colors -->
     <color name="black_40">#40000000</color>
+    <color name="black_10">#b4b6b1</color>
 
     <color name="main_inactive_color">#1A000000</color>
     <color name="main_color">#0958BD</color>
@@ -44,8 +45,11 @@
     <color name="text_white_transparency_40">#66FFFFFF</color>
 
     <!-- Text colors -->
+    <color name="text_lightest_gray">#EFEFEF</color>
+    <color name="text_light_gray">#908E8E</color>
     <color name="text_gray">#545454</color>
     <color name="text_dark_gray">#424242</color>
+    <color name="text_darkest_gray">#212121</color>
 
     <!-- Horizontal line divider color -->
     <color name="horizontal_divider">#eeeeee</color>

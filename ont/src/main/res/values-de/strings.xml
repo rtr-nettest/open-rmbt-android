@@ -46,8 +46,9 @@
     <string name="private_ip_address">Lokale Adresse</string>
 
     <!-- Preference titles -->
-    <string name="options">Optionen</string>
-    <string name="preferences_general_settings">Allgemeine Einstellungen</string>
+    <string name="options">Einstellungen</string>
+    <string name="preferences_information">Informationen</string>
+    <string name="preferences_general_settings">Allgemeine</string>
     <string name="preferences_ndt">NDT</string>
     <string name="preferences_qos_measurement">QoS Messung</string>
     <string name="preferences_qos_measurement_only_after_some_time">Nur alle 2 Stunden</string>
