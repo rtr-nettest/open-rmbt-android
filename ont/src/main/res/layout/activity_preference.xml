@@ -16,38 +16,56 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <LinearLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical">
+        android:layout_height="match_parent">
 
-        <androidx.appcompat.widget.Toolbar
-            android:id="@+id/toolbar"
-            android:layout_width="match_parent"
+        <View
+            android:id="@+id/status_bar_stub"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:background="@drawable/bg_splash"
+            app:layout_constraintBottom_toBottomOf="@+id/tvToolbarTitle"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/tvToolbarTitle"
+            style="@style/RobotoMediumStyle.Large"
+            android:layout_width="wrap_content"
             android:layout_height="?attr/actionBarSize"
-            android:layout_gravity="top"
-            android:background="@android:color/white"
-            android:elevation="2dp"
-            android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
-            app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
-            tools:targetApi="lollipop">
+            android:layout_marginTop="@dimen/size_height_status_bar"
+            android:gravity="center"
+            android:text="@string/options"
+            android:textColor="@color/colorPrimary"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="@string/options" />
 
-            <androidx.appcompat.widget.AppCompatTextView
-                android:id="@+id/tvToolbarTitle"
-                style="@style/RobotoMediumStyle.Large"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:textColor="@color/text_dark_gray" />
-
-        </androidx.appcompat.widget.Toolbar>
+        <androidx.appcompat.widget.AppCompatImageButton
+            android:id="@+id/btnSetting"
+            style="@style/NavigationButtonStyle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_close"
+            android:tint="@color/colorPrimary"
+            app:layout_constraintBottom_toBottomOf="@+id/tvToolbarTitle"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/tvToolbarTitle"
+            tools:src="@drawable/ic_close" />
 
         <FrameLayout
             android:id="@+id/fragment_content"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/tvToolbarTitle">
 
         </FrameLayout>
 
-    </LinearLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

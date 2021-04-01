@@ -27,23 +27,13 @@ class PreferenceActivity : BaseActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = bindContentView(R.layout.activity_preference)
-        setupToolbar()
+
+        setTransparentStatusBar()
 
         if (savedInstanceState == null) {
             supportFragmentManager.beginTransaction()
                 .replace(R.id.fragment_content, SettingsFragment.newInstance())
                 .commitNow()
-        }
-    }
-
-    private fun setupToolbar() {
-        val toolbar: Toolbar = binding.toolbar
-        setSupportActionBar(toolbar)
-        supportActionBar?.setDisplayShowTitleEnabled(false)
-        toolbar.setNavigationIcon(R.drawable.ic_close)
-        binding.tvToolbarTitle.text = getString(R.string.options)
-        toolbar.setNavigationOnClickListener {
-            finish()
         }
     }
 }
