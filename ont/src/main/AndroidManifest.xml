@@ -51,9 +51,7 @@
             android:launchMode="singleTask"
             android:windowSoftInputMode="stateAlwaysHidden" />
 
-        <activity
-            android:name="at.rtr.rmbt.android.ui.activity.PreferenceActivity"
-            android:theme="@style/PreferenceTheme" />
+        <activity android:name="at.rtr.rmbt.android.ui.activity.PreferenceActivity" />
 
         <activity
             android:name=".ui.activity.MeasurementActivity"

@@ -15,7 +15,6 @@
 package at.rtr.rmbt.android.ui.activity
 
 import android.os.Bundle
-import androidx.appcompat.widget.Toolbar
 import at.rtr.rmbt.android.R
 import at.rtr.rmbt.android.databinding.ActivityPreferenceBinding
 import at.rtr.rmbt.android.ui.fragment.SettingsFragment
@@ -34,6 +33,10 @@ class PreferenceActivity : BaseActivity() {
             supportFragmentManager.beginTransaction()
                 .replace(R.id.fragment_content, SettingsFragment.newInstance())
                 .commitNow()
+        }
+
+        binding.btnClose.setOnClickListener {
+            finish()
         }
     }
 }

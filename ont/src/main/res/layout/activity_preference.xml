@@ -45,7 +45,7 @@
             tools:text="@string/options" />
 
         <androidx.appcompat.widget.AppCompatImageButton
-            android:id="@+id/btnSetting"
+            android:id="@+id/btnClose"
             style="@style/NavigationButtonStyle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
