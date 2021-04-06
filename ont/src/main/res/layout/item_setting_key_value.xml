@@ -21,6 +21,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center_vertical"
+        android:background="@drawable/settings_item_divider_bg"
         android:minHeight="?android:attr/listPreferredItemHeight"
         android:orientation="horizontal"
         android:padding="@dimen/padding_large">
@@ -28,7 +29,7 @@
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/titleTVISKV"
-            style="@style/RobotoRegularStyle.Medium"
+            style="@style/RobotoRegularStyle.MediumSmall"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:ellipsize="marquee"
@@ -40,15 +41,14 @@
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/summaryTVISKV"
-            style="@style/RobotoRegularStyle.VerySmall"
+            style="@style/RobotoRegularStyle.MediumSmall"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="end"
             android:maxLines="2"
             android:text="@{value}"
-            android:textColor="@color/text_gray_transparency_60"
+            android:textColor="@color/text_dark_gray"
             tools:text="10" />
-
 
     </androidx.appcompat.widget.LinearLayoutCompat>
 

@@ -61,12 +61,18 @@ class InputSettingDialog : FullscreenDialog() {
         binding.editTextValue.setText(arguments?.getString(KEY_DEFAULT_VALUE))
         binding.editTextValue.text?.length?.let { binding.editTextValue.setSelection(it) }
 
+        binding.editTextValue.text?.length?.let { binding.editTextValue.setSelection(it) }
+
         val isEmptyInputAllowed = arguments?.getBoolean(KEY_IS_ALLOWED_EMPTY_INPUT, false) ?: false
 
         launch {
+            val minValue = arguments?.getInt(KEY_MIN_VALUE)
+            val maxValue = arguments?.getInt(KEY_MAX_VALUE)
             binding.editTextValue.onTextChanged().collect {
                 if (isEmptyInputAllowed) {
                     binding.buttonOkay.isEnabled = true
+                } else if ((minValue != null) && (maxValue != null) && ((minValue != 0) && (maxValue != 0) && minValue < maxValue)) {
+                    checkNumber(it.toIntOrNull(), minValue, maxValue)
                 } else {
                     binding.buttonOkay.isEnabled = it.isNotBlank()
                 }
@@ -93,6 +99,38 @@ class InputSettingDialog : FullscreenDialog() {
         }
     }
 
+    private fun checkNumber(value: Int?, minValue: Int, maxValue: Int): Boolean {
+        if (value == null || !isNumberValid(
+                value,
+                minValue,
+                maxValue
+            )
+        ) {
+            try {
+                parentFragmentManager.let { fragManager ->
+                    SimpleDialog.Builder()
+                        .messageText(
+                            String.format(
+                                getString(R.string.loop_mode_max_delay_invalid),
+                                minValue,
+                                maxValue
+                            )
+                        )
+                        .positiveText(android.R.string.ok)
+                        .cancelable(false)
+                        .show(fragManager, CODE_DIALOG_INVALID)
+                }
+            } catch (e: IllegalStateException) {
+                // ignored
+            }
+            return false
+        }
+        return true
+    }
+
+    private fun isNumberValid(value: Int, minValue: Int, maxValue: Int) =
+        value in minValue..maxValue
+
     companion object {
 
         private const val KEY_DIALOG_TITLE: String = "key_dialog_title"
@@ -102,6 +140,9 @@ class InputSettingDialog : FullscreenDialog() {
         private const val KEY_IS_ALLOWED_EMPTY_INPUT: String = "key_is_allowed_empty_input"
         private const val KEY_CODE = "code"
         private const val MAX_VALUE_LENGTH = 8
+        private const val KEY_MAX_VALUE = "key_max_value"
+        private const val KEY_MIN_VALUE = "key_min_value"
+        private const val CODE_DIALOG_INVALID = -1
         const val KEY_VALUE: String = "key_value"
 
         fun instance(
@@ -120,6 +161,33 @@ class InputSettingDialog : FullscreenDialog() {
                 putString(KEY_DIALOG_TITLE, title)
                 putString(KEY_DEFAULT_VALUE, defaultValue)
                 putInt(KEY_INPUT_TYPE, inputType)
+                putBoolean(KEY_IS_CANCELABLE, isCancelable)
+                putBoolean(KEY_IS_ALLOWED_EMPTY_INPUT, isEmptyInputAllowed)
+                putInt(KEY_CODE, requestCode)
+            }
+            return inputSettingDialog
+        }
+
+        fun instance(
+            title: String,
+            defaultValue: String,
+            fragment: Fragment? = null,
+            requestCode: Int = -1,
+            inputType: Int = InputType.TYPE_CLASS_NUMBER,
+            isCancelable: Boolean = true,
+            isEmptyInputAllowed: Boolean = false,
+            minValue: Int,
+            maxValue: Int
+        ): FullscreenDialog {
+
+            val inputSettingDialog = InputSettingDialog()
+            fragment?.let { inputSettingDialog.setTargetFragment(it, requestCode) }
+            inputSettingDialog.args {
+                putString(KEY_DIALOG_TITLE, title)
+                putString(KEY_DEFAULT_VALUE, defaultValue)
+                putInt(KEY_INPUT_TYPE, inputType)
+                putInt(KEY_MIN_VALUE, minValue)
+                putInt(KEY_MAX_VALUE, maxValue)
                 putBoolean(KEY_IS_CANCELABLE, isCancelable)
                 putBoolean(KEY_IS_ALLOWED_EMPTY_INPUT, isEmptyInputAllowed)
                 putInt(KEY_CODE, requestCode)

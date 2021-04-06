@@ -9,23 +9,23 @@
         <variable
             name="title"
             type="String" />
-
-
     </data>
 
     <androidx.appcompat.widget.AppCompatTextView
         android:id="@+id/titleTVISMD"
-        style="@style/RobotoRegularStyle.Medium"
+        style="@style/RobotoRegularStyle.MediumSmall"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:drawableEnd="@drawable/ic_right"
+        android:drawableTint="@color/main_color"
         android:ellipsize="marquee"
         android:gravity="center_vertical"
         android:minHeight="?android:attr/listPreferredItemHeight"
         android:padding="@dimen/padding_large"
         android:singleLine="true"
         android:text="@{title}"
-        android:textColor="@color/text_dark_gray"
+        android:background="@drawable/settings_item_divider_bg"
+        android:textColor="@color/text_darkest_gray"
         tools:text="Title" />
 
 </layout>

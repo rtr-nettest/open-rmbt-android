@@ -20,9 +20,7 @@ class SettingsViewState constructor(
     private val settingsRepository: SettingsRepository
 ) : ViewState {
 
-    val isNDTEnabled = ObservableField(appConfig.NDTEnabled)
     val qosMeasurement = ObservableField(!appConfig.skipQoSTests)
-    val qosMeasurementSkipForPeriod = ObservableField(appConfig.skipQoSTestsForPeriod)
     val canManageLocationSettings = ObservableField(appConfig.canManageLocationSettings)
     val loopModeEnabled = ObservableField(appConfig.loopModeEnabled)
     val expertModeEnabled = ObservableField(appConfig.expertModeEnabled)
@@ -38,20 +36,18 @@ class SettingsViewState constructor(
     val controlServerPort = ObservableField(controlServerSettings.controlServerOverridePort)
     val controlServerUseSSL = ObservableField(appConfig.controlServerUseSSL)
     val isLocationEnabled = ObservableField<LocationState>()
-    val numberOfTests = ObservableInt(appConfig.testCounter)
-    val emailAddress = ObservableField(appConfig.aboutEmailAddress)
-    val githubRepositoryUrl = ObservableField(appConfig.aboutGithubRepositoryUrl)
-    val webPageUrl = ObservableField(appConfig.aboutWebPageUrl)
-    val dataPrivacyAndTermsUrl = ObservableField(appConfig.dataPrivacyAndTermsUrl)
+    val dataPrivacyPolicyUrl = ObservableField(appConfig.dataPrivacyAndTermsUrl)
+    val termsUrl = ObservableField(appConfig.termsAcceptanceDefaultUrl)
     val mapServerOverrideEnabled = ObservableField(appConfig.mapServerOverrideEnabled)
     val mapServerHost = ObservableField(appConfig.mapServerHost)
     val mapServerPort = ObservableField(appConfig.mapServerPort)
     val mapServerUseSSL = ObservableField(appConfig.mapServerUseSSL)
     val qosSSL = ObservableField(appConfig.qosSSL)
     val selectedMeasurementServer = ObservableField(measurementServers.selectedMeasurementServer)
-    val developer5GSimulationEnabled = ObservableField(appConfig.developer5GSimulationEnabled)
-    val developer5GSimulationAvailable = ObservableField(appConfig.developer5GSimulationAvailable)
     val clientUUIDFormatted = ObservableField(if (clientUUID.value.isNullOrEmpty()) "" else "U{$clientUUID.value}")
+    val persistentClientUUIDEnabled = ObservableField(appConfig.persistentClientUUIDEnabled)
+    val analyticsEnabled = ObservableField(appConfig.analyticsEnabled)
+    val webPageUrl = ObservableField(appConfig.aboutWebPageUrl)
 
     private fun setControlServerAddress() {
         if ((appConfig.controlServerOverrideEnabled) && (appConfig.developerModeIsEnabled)) {
@@ -84,19 +80,9 @@ class SettingsViewState constructor(
             controlServerHost.set(appConfig.controlServerHost)
             controlServerSettings.controlServerOverrideUrl = controlServerHost.get()
         }
-        isNDTEnabled.addOnPropertyChanged { value ->
-            value.get()?.let {
-                appConfig.NDTEnabled = it
-            }
-        }
         qosMeasurement.addOnPropertyChanged { value ->
             value.get()?.let {
                 appConfig.skipQoSTests = !it
-            }
-        }
-        qosMeasurementSkipForPeriod.addOnPropertyChanged { value ->
-            value.get()?.let {
-                appConfig.skipQoSTestsForPeriod = it
             }
         }
         canManageLocationSettings.addOnPropertyChanged { value ->
@@ -202,11 +188,6 @@ class SettingsViewState constructor(
         selectedMeasurementServer.addOnPropertyChanged { value ->
             value.get().let {
                 measurementServers.selectedMeasurementServer = it
-            }
-        }
-        developer5GSimulationEnabled.addOnPropertyChanged { value ->
-            value.get()?.let {
-                appConfig.developer5GSimulationEnabled = it
             }
         }
     }

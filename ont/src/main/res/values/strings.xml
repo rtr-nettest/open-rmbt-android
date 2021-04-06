@@ -13,6 +13,9 @@
   -->
 
 <resources xmlns:tools="http://schemas.android.com/tools">
+
+    <string name="toolbar_title" translatable="false">Open Nettest</string>
+
     <string name="open_location_permission_dialog_label_location_not_permitted">Open Nettest is not allowed to use your location. Would you like to allow Open Nettest to use your location?</string>
     <string name="notification_test_title">Open nettest is running</string>
     <string name="notification_signal_test_text">Open Nettest signal measurement is running in the background</string>
@@ -55,15 +58,25 @@
 
 
     <!-- Preference titles -->
-    <string name="options">Options</string>
-    <string name="preferences_general_settings">General settings</string>
-    <string name="preferences_ndt">NDT</string>
+    <string name="preferences_information">Information</string>
+    <string name="options">Settings</string>
+    <string name="preferences_general_settings">General</string>
+    <string name="preferences_terms_of_service">Terms of Service</string>
+    <string name="preferences_loop_test_count">Number of Measurements</string>
+    <string name="loop_mode_clarification">When loop mode is enabled, new tests are automatically performed after the configured waiting time or when the device moves more than the configured distance.</string>
+    <string name="preferences_privacy">Privacy</string>
+    <string name="preferences_persistent_clientUUID">Persistent Client UUID</string>
+    <string name="preferences_persistent_clientUUID_summary">Persistent Client UUID is needed to enable measurement history and synchronisation of the results between devices</string>
+    <string name="preferences_analytics">Analytics</string>
+    <string name="preferences_analytics_summary">Enable analytics and send crash traces to us</string>
+    <string name="preferences_location_summary">Manage the permissions regarding the location tracking</string>
+    <string name="preferences_loop_test_number">Select the number of tests</string>
+
+    <string name="preferences_version">Version</string>
+
     <string name="preferences_qos_measurement">QoS measurement</string>
-    <string name="preferences_qos_measurement_only_after_some_time">Only after 2 hours</string>
-    <string name="preferences_qos_measurement_only_after_some_time_summary">Do not perform new QoS measurements, if the last one was done less than 2 hours ago.</string>
     <string name="preferences_location">Location</string>
     <string name="preferences_loop_mode">Loop mode</string>
-    <string name="preferences_advanced_settings">Advanced settings</string>
     <string name="preferences_loop_mode_summary">New test after waiting time or covering the distance. Max. 2 days</string>
     <string name="preferences_loop_mode_min_delay">Waiting time (in minutes)</string>
     <string name="preferences_loop_mode_max_movement">Distance (in meters)</string>
@@ -73,19 +86,9 @@
     <string name="preferences_ipv4_only_sum">Do not use IPv6</string>
     <string name="preferences_radio_info">Radio info</string>
     <string name="preferences_radio_info_sum">Details on radio configuration</string>
-    <string name="preferences_contact">Contact</string>
-    <string name="preferences_go_to_website">Go to website</string>
-    <string name="preferences_contact_us">Contact us</string>
-    <string name="preferences_additional_Information">Additional information</string>
     <string name="preferences_client_uuid">Client UUID</string>
-    <string name="preferences_test_cases">Number of tests performed</string>
     <string name="preferences_about">About</string>
-    <string name="preferences_source_code">Source code</string>
-    <string name="preferences_data_protection">Privacy policy and terms of use</string>
-    <string name="preferences_developed_by">Developed by Specure GmbH</string>
-    <string name="preferences_developer_page" translatable="false">https://specure.com/</string>
-    <string name="preferences_version">Version</string>
-    <string name="preferences_commit_hash">Commit hash</string>
+    <string name="preferences_data_protection">Privacy policy</string>
     <string name="preferences_enter_code">Please enter the code</string>
     <string name="preferences_developer_control_server">Control server</string>
     <string name="preferences_override_control_server">Override control server</string>
@@ -110,9 +113,6 @@
     <string name="preferences_all_disabled">Deactivated.</string>
     <string name="preferences_server_selection">Server selection</string>
     <string name="preferences_default_server_selection" />
-    <string name="preferences_5g_simulation_title">xG network debug(experimental)</string>
-    <string name="preferences_5g_simulation">Simulate xG</string>
-    <string name="preferences_5g_simulation_sum">Replaces networks with xG simulation</string>
     <string name="label_server_selection">Server selection</string>
     <string name="preferences_tag">Tag</string>
 
@@ -273,9 +273,6 @@
     <string name="text_filter_continue">Continue</string>
     <string name="title_filters_type">Map type</string>
     <string name="title_filters_subtype">Type options</string>
-
-    <string name="about_email_subject">Support request</string>
-    <string name="about_email_sending">Sending email…</string>
 
     <string name="graph_signal_value">-%1$s dBm</string>
 
