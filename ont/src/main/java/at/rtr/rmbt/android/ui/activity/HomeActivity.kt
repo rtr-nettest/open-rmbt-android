@@ -71,7 +71,6 @@ class HomeActivity : BaseActivity() {
         navController.navigatorProvider += navigator
         navController.setGraph(R.navigation.mobile_navigation)
 
-
         binding.navView.setupWithNavController(navController)
 
         viewModel.isTestsRunningLiveData.listen(this) { isRunning ->
