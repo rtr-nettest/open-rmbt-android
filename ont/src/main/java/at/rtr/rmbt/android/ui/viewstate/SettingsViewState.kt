@@ -36,7 +36,8 @@ class SettingsViewState constructor(
     val controlServerPort = ObservableField(controlServerSettings.controlServerOverridePort)
     val controlServerUseSSL = ObservableField(appConfig.controlServerUseSSL)
     val isLocationEnabled = ObservableField<LocationState>()
-    val dataPrivacyAndTermsUrl = ObservableField(appConfig.dataPrivacyAndTermsUrl)
+    val dataPrivacyPolicyUrl = ObservableField(appConfig.dataPrivacyAndTermsUrl)
+    val termsUrl = ObservableField(appConfig.termsAcceptanceDefaultUrl)
     val mapServerOverrideEnabled = ObservableField(appConfig.mapServerOverrideEnabled)
     val mapServerHost = ObservableField(appConfig.mapServerHost)
     val mapServerPort = ObservableField(appConfig.mapServerPort)
@@ -46,6 +47,7 @@ class SettingsViewState constructor(
     val clientUUIDFormatted = ObservableField(if (clientUUID.value.isNullOrEmpty()) "" else "U{$clientUUID.value}")
     val persistentClientUUIDEnabled = ObservableField(appConfig.persistentClientUUIDEnabled)
     val analyticsEnabled = ObservableField(appConfig.analyticsEnabled)
+    val webPageUrl = ObservableField(appConfig.aboutWebPageUrl)
 
     private fun setControlServerAddress() {
         if ((appConfig.controlServerOverrideEnabled) && (appConfig.developerModeIsEnabled)) {

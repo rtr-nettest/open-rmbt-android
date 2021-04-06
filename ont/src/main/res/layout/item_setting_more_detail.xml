@@ -24,6 +24,7 @@
         android:padding="@dimen/padding_large"
         android:singleLine="true"
         android:text="@{title}"
+        android:background="@drawable/settings_item_divider_bg"
         android:textColor="@color/text_darkest_gray"
         tools:text="Title" />
 

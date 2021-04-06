@@ -49,6 +49,18 @@
     <string name="options">Ajustes</string>
     <string name="preferences_information">Información</string>
     <string name="preferences_general_settings">Globales</string>
+    <string name="preferences_terms_of_service">Condiciones de servicio</string>
+    <string name="preferences_loop_test_count">Número de mediciones</string>
+    <string name="preferences_map_settings">Móvil</string>
+    <string name="loop_mode_clarification">Cuando el modo de bucle está habilitado, las nuevas pruebas se realizan automáticamente después del tiempo de espera configurado o cuando el dispositivo se mueve más que la distancia configurada.</string>
+    <string name="preferences_privacy">Privacidad</string>
+    <string name="preferences_persistent_clientUUID">UUID de cliente persistente</string>
+    <string name="preferences_persistent_clientUUID_summary">Se necesita el UUID de cliente persistente para habilitar el historial de medición y la sincronización de los resultados entre dispositivos</string>
+    <string name="preferences_analytics">Analytics</string>
+    <string name="preferences_analytics_summary">Habilite el análisis y envíenos los seguimientos de fallas</string>
+    <string name="preferences_location_summary">Administra los permisos relacionados con el seguimiento de la ubicación</string>
+    <string name="preferences_loop_test_number">Seleccione el número de pruebas</string>
+
     <string name="preferences_ndt">NDT</string>
     <string name="preferences_qos_measurement">Prueba de QoS</string>
     <string name="preferences_qos_measurement_only_after_some_time">Sólo cada 2 horas</string>

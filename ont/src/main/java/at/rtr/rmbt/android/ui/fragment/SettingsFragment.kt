@@ -5,6 +5,7 @@ import android.app.Activity
 import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.text.InputType
 import android.view.View
@@ -60,6 +61,16 @@ class SettingsFragment : BaseFragment(), InputSettingDialog.Callback, ServerSele
                 KEY_REQUEST_CODE_LOOP_MODE_DISTANCE
             )
                 .show(activity)
+        }
+
+        binding.loopModeMeasurementCount.frameLayoutRoot.setOnClickListener {
+            InputSettingDialog.instance(
+                getString(R.string.preferences_loop_test_number),
+                binding.loopModeMeasurementCount.value.toString(), this,
+                KEY_REQUEST_CODE_LOOP_MODE_TEST_COUNT
+            )
+                .show(activity)
+            requireContext().getSystemService(Context.CLIPBOARD_SERVICE)
         }
 
         binding.switchLoopModeEnabled.switchButton.isClickable = false
@@ -171,14 +182,32 @@ class SettingsFragment : BaseFragment(), InputSettingDialog.Callback, ServerSele
 
         binding.version.value = "${BuildConfig.VERSION_NAME}"
 
-        binding.terms.root.setOnClickListener {
-            settingsViewModel.state.dataPrivacyAndTermsUrl.get()?.let { url ->
+        binding.privacyPolicy.root.setOnClickListener {
+            settingsViewModel.state.dataPrivacyPolicyUrl.get()?.let { url ->
                 DataPrivacyAndTermsOfUseActivity.start(
                     requireContext(),
                     when (Locale.getDefault().language) {
                         "de" -> String.format(url, "de")
                         else -> String.format(url, "en")
-                    }
+                    },
+                    getString(R.string.title_privacy_policy)
+                )
+            }
+        }
+
+        binding.about.root.setOnClickListener {
+            startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(settingsViewModel.state.webPageUrl.get())))
+        }
+
+        binding.terms.root.setOnClickListener {
+            settingsViewModel.state.termsUrl.get()?.let { url ->
+                DataPrivacyAndTermsOfUseActivity.start(
+                    requireContext(),
+                    when (Locale.getDefault().language) {
+                        "de" -> String.format(url, "de")
+                        else -> String.format(url, "en")
+                    },
+                    getString(R.string.preferences_terms_of_service)
                 )
             }
         }
@@ -197,8 +226,8 @@ class SettingsFragment : BaseFragment(), InputSettingDialog.Callback, ServerSele
             if (it.get() == false) {
                 if (!settingsViewModel.isLoopModeWaitingTimeValid(
                         settingsViewModel.state.loopModeWaitingTimeMin.get() ?: settingsViewModel.state.appConfig.loopModeMinWaitingTimeMin,
-                        settingsViewModel.state.appConfig.loopModeMaxWaitingTimeMin,
-                        settingsViewModel.state.appConfig.loopModeMinWaitingTimeMin
+                        settingsViewModel.state.appConfig.loopModeMinWaitingTimeMin,
+                        settingsViewModel.state.appConfig.loopModeMaxWaitingTimeMin
                     )
                 ) {
                     settingsViewModel.state.loopModeWaitingTimeMin.set(settingsViewModel.state.appConfig.loopModeMinWaitingTimeMin)
@@ -243,6 +272,26 @@ class SettingsFragment : BaseFragment(), InputSettingDialog.Callback, ServerSele
 
     override fun onSelected(value: String, requestCode: Int) {
         when (requestCode) {
+            KEY_REQUEST_CODE_LOOP_MODE_TEST_COUNT -> {
+                if (!settingsViewModel.isLoopModeNumberOfTestValid(
+                        value.toInt(),
+                        settingsViewModel.state.appConfig.loopModeMinTestsNumber,
+                        settingsViewModel.state.appConfig.loopModeMaxTestsNumber
+                    ) && settingsViewModel.state.developerModeIsEnabled.get() != true
+                ) {
+                    SimpleDialog.Builder()
+                        .messageText(
+                            String.format(
+                                getString(R.string.loop_mode_max_delay_invalid),
+                                settingsViewModel.state.appConfig.loopModeMinTestsNumber,
+                                settingsViewModel.state.appConfig.loopModeMaxTestsNumber
+                            )
+                        )
+                        .positiveText(android.R.string.ok)
+                        .cancelable(false)
+                        .show(childFragmentManager, CODE_DIALOG_INVALID)
+                }
+            }
             KEY_REQUEST_CODE_LOOP_MODE_WAITING_TIME -> {
                 if (!settingsViewModel.isLoopModeWaitingTimeValid(
                         value.toInt(),
@@ -342,6 +391,7 @@ class SettingsFragment : BaseFragment(), InputSettingDialog.Callback, ServerSele
         private const val KEY_DEVELOPER_MAP_SERVER_PORT_CODE: Int = 7
         private const val KEY_RADIO_INFO_CODE: Int = 8
         private const val KEY_DEVELOPER_TAG_CODE: Int = 9
+        private const val KEY_REQUEST_CODE_LOOP_MODE_TEST_COUNT: Int = 10
 
         private const val CODE_LOOP_INSTRUCTIONS = 13
         private const val CODE_DIALOG_INVALID = 14

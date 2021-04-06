@@ -105,7 +105,7 @@
 
             <include
                 android:id="@+id/switchSkipQosTests"
-                layout="@layout/item_setting_edittext"
+                layout="@layout/item_setting_switch"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:visibility="@{BuildConfig.SKIP_QOS_TESTS.visible ? View.VISIBLE : View.GONE}"
@@ -113,7 +113,7 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/switchExpertModeIPV4Only"
                 bind:title="@{@string/preferences_qos_measurement}"
-                bind:value="@{state.qosMeasurement.toString()}" />
+                bind:value="@{state.qosMeasurement}" />
 
             <include
                 android:id="@+id/labelLoopMode"
@@ -188,34 +188,13 @@
                 app:layout_constraintTop_toBottomOf="@+id/loopModeMeasurementCount" />
 
             <include
-                android:id="@+id/labelMap"
-                layout="@layout/item_setting_header"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/labelLoopModeClarification"
-                bind:title="@{@string/menu_button_map}" />
-
-            <include
-                android:id="@+id/mapSetting"
-                layout="@layout/item_setting_edittext"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/labelMap"
-                bind:title="@{@string/preferences_map_settings}"
-                bind:value="@{state.qosMeasurement.toString()}" />
-
-            <include
                 android:id="@+id/labelPrivacy"
                 layout="@layout/item_setting_header"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/mapSetting"
+                app:layout_constraintTop_toBottomOf="@+id/labelLoopModeClarification"
                 bind:title="@{@string/preferences_privacy}" />
 
             <androidx.appcompat.widget.AppCompatTextView
@@ -237,7 +216,7 @@
 
             <androidx.appcompat.widget.AppCompatTextView
                 android:id="@+id/clientUUIDvalue"
-                style="@style/RobotoRegularStyle.MediumSmall"
+                style="@style/RobotoRegularStyle.SmallSmall"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:gravity="start"
@@ -246,10 +225,11 @@
                 android:paddingEnd="@dimen/padding_large"
                 android:paddingBottom="@dimen/padding_large"
                 android:text="@{state.clientUUIDFormatted}"
-                android:textColor="@color/text_dark_gray"
+                android:background="@drawable/settings_item_divider_bg"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/clientUUIDtitle"
+                android:textColor="@color/text_light_gray"
                 tools:text="10" />
 
             <include

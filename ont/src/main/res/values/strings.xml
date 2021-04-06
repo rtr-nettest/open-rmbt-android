@@ -71,7 +71,7 @@
     <string name="preferences_analytics">Analytics</string>
     <string name="preferences_analytics_summary">Enable analytics and send crash traces to us</string>
     <string name="preferences_location_summary">Manage the permissions regarding the location tracking</string>
-
+    <string name="preferences_loop_test_number">Select the number of tests</string>
 
     <string name="preferences_version">Version</string>
 

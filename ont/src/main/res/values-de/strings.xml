@@ -49,6 +49,19 @@
     <string name="options">Einstellungen</string>
     <string name="preferences_information">Informationen</string>
     <string name="preferences_general_settings">Allgemeine</string>
+    <string name="preferences_terms_of_service">Nutzungsbedingungen</string>
+    <string name="preferences_loop_test_count">Anzahl der Messungen</string>
+    <string name="preferences_map_settings">Mobil</string>
+    <string name="loop_mode_clarification">Wenn der Schleifenmodus aktiviert ist, werden nach der konfigurierten Wartezeit oder wenn sich das Gerät mehr als die konfigurierte Entfernung bewegt, automatisch neue Tests durchgeführt.</string>
+    <string name="preferences_privacy">Datenschutz</string>
+    <string name="preferences_persistent_clientUUID">Persistente Client-UUID</string>
+    <string name="preferences_persistent_clientUUID_summary">Die persistente Client-UUID wird benötigt, um den Messverlauf und die Synchronisation der Ergebnisse zwischen Geräten</string>
+    zu ermöglichen
+    <string name="preferences_analytics">Analytics</string>
+    <string name="preferences_analytics_summary">Aktivieren Sie die Analyse und senden Sie uns Absturzspuren</string>
+    <string name="preferences_location_summary">Verwalten Sie die Berechtigungen für die Standortverfolgung</string>
+    <string name="preferences_loop_test_number">Wählen Sie die Anzahl der Tests</string>
+
     <string name="preferences_ndt">NDT</string>
     <string name="preferences_qos_measurement">QoS Messung</string>
     <string name="preferences_qos_measurement_only_after_some_time">Nur alle 2 Stunden</string>
