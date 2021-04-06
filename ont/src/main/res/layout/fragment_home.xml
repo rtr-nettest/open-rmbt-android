@@ -52,7 +52,7 @@
             app:layout_constraintBottom_toTopOf="@id/logo"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/buttonMenu"
+            app:layout_constraintTop_toBottomOf="@id/buttonSettings"
             app:visibleOrGone="@{state.isConnected}" />
 
         <ImageView
@@ -66,12 +66,13 @@
             app:layout_constraintStart_toStartOf="parent" />
 
         <ImageView
-            android:id="@+id/buttonMenu"
+            android:id="@+id/buttonSettings"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginEnd="20dp"
             android:padding="8dp"
-            android:src="@drawable/ic_menu"
+            android:src="@drawable/ic_settings"
+            app:tint="@color/main_color"
             app:layout_constraintBottom_toBottomOf="@id/app_logo"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="@id/app_logo" />

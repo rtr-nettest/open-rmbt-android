@@ -77,7 +77,7 @@ class HomeFragment : BaseFragment() {
             }
         }
 
-        binding.buttonMenu?.setOnClickListener {
+        binding.buttonSettings.setOnClickListener {
             startActivity(Intent(requireContext(), PreferenceActivity::class.java))
         }
 
