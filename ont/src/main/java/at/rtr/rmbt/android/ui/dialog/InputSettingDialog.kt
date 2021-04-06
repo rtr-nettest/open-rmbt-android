@@ -10,7 +10,6 @@ import android.view.ViewGroup
 import android.view.WindowManager
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentManager
 import at.rtr.rmbt.android.R
 import at.rtr.rmbt.android.databinding.DialogInputSettingBinding
 import at.rtr.rmbt.android.util.args

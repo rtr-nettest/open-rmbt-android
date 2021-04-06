@@ -28,8 +28,6 @@ import android.webkit.WebViewClient
 import androidx.appcompat.widget.Toolbar
 import at.rtr.rmbt.android.R
 import at.rtr.rmbt.android.databinding.ActivityDataPrivacyTermsOfUseBinding
-import at.rtr.rmbt.android.di.viewModelLazy
-import at.rtr.rmbt.android.viewmodel.TermsAcceptanceViewModel
 
 @SuppressLint("SetJavaScriptEnabled")
 class DataPrivacyAndTermsOfUseActivity : BaseActivity() {
