@@ -95,7 +95,6 @@
                 layout="@layout/item_setting_switch"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:visibility="@{state.expertModeEnabled ? View.VISIBLE : View.GONE}"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/switchLocations"
