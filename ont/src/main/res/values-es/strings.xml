@@ -51,7 +51,6 @@
     <string name="preferences_general_settings">Globales</string>
     <string name="preferences_terms_of_service">Condiciones de servicio</string>
     <string name="preferences_loop_test_count">Número de mediciones</string>
-    <string name="preferences_map_settings">Móvil</string>
     <string name="loop_mode_clarification">Cuando el modo de bucle está habilitado, las nuevas pruebas se realizan automáticamente después del tiempo de espera configurado o cuando el dispositivo se mueve más que la distancia configurada.</string>
     <string name="preferences_privacy">Privacidad</string>
     <string name="preferences_persistent_clientUUID">UUID de cliente persistente</string>
@@ -61,13 +60,9 @@
     <string name="preferences_location_summary">Administra los permisos relacionados con el seguimiento de la ubicación</string>
     <string name="preferences_loop_test_number">Seleccione el número de pruebas</string>
 
-    <string name="preferences_ndt">NDT</string>
     <string name="preferences_qos_measurement">Prueba de QoS</string>
-    <string name="preferences_qos_measurement_only_after_some_time">Sólo cada 2 horas</string>
-    <string name="preferences_qos_measurement_only_after_some_time_summary">No realizar nuevas pruebas de QoS si hace menos de 2 horas desde la prueba anterior.</string>
     <string name="preferences_location">Localización</string>
     <string name="preferences_loop_mode">Modo bucle</string>
-    <string name="preferences_advanced_settings">Ajustes avanzados</string>
     <string name="preferences_loop_mode_summary">Nueva prueba después de cada intervalo o después de recorrer la distancia. Máx. 2 días</string>
     <string name="preferences_loop_mode_min_delay">Intervalo (en minutos)</string>
     <string name="preferences_loop_mode_max_movement">Distancia (en metros)</string>
@@ -77,14 +72,8 @@
     <string name="preferences_ipv4_only_sum">No utilizar IPv6</string>
     <string name="preferences_radio_info">Informacion de conexión móvil</string>
     <string name="preferences_radio_info_sum">Detalles sobre la configuración de red móvil</string>
-    <string name="preferences_contact">Contacto</string>
-    <string name="preferences_go_to_website">Visitar página web</string>
-    <string name="preferences_contact_us">Escribir E-Mail</string>
-    <string name="preferences_additional_Information">Información adicional</string>
     <string name="preferences_client_uuid">UUID de cliente</string>
-    <string name="preferences_test_cases">Número de pruebas realizadas</string>
     <string name="preferences_about">Sobre nosotros</string>
-    <string name="preferences_source_code">Código fuente</string>
     <string name="preferences_data_protection">Protección de datos</string>
     <string name="preferences_version">Versión</string>
     <string name="preferences_enter_code">Por favor, introduzca su código</string>
@@ -111,9 +100,6 @@
     <string name="preferences_all_disabled">Desactivar.</string>
     <string name="preferences_server_selection">Seleccionar servidor</string>
     <string name="preferences_default_server_selection">Default</string>
-    <string name="preferences_5g_simulation_title">5G (experimental)</string>
-    <string name="preferences_5g_simulation">Simular conexión 5G</string>
-    <string name="preferences_5g_simulation_sum">Reemplazar red móvil para simulación de 5G</string>
     <string name="label_server_selection">Elegir servidor</string>
     <string name="preferences_tag">Etiqueta</string>
 
@@ -138,7 +124,6 @@
     <string name="location_location_direction_e">E %1$s</string>
     <string name="location_location_direction_s">S %1$s</string>
     <string name="location_location_direction_w">O %1$s</string>
-    <string name="preferences_commit_hash">Commit Hash</string>
 
     <string name="text_ip_address_not_available">Dirección no disponible</string>
     <string name="open_location_permission_dialog_label_open_permission_setting">Cambiar ajustes</string>
@@ -270,9 +255,6 @@
     <string name="title_filters_type">Tipo</string>
     <string name="title_filters_subtype">Ajustes</string>
 
-    <string name="about_email_sending">Enviar E-Mail…</string>
-    <string name="about_email_subject">Supportanfrage</string>
-
     <string name="graph_signal_value">-%1$s dBm</string>
     <string name="notification_loop_mode_title_active">Modo bucle activado</string>
     <string name="notification_loop_mode_title_running">Modo bucle en marcha (%1$d/%2$d)</string>
@@ -310,7 +292,6 @@
     <string name="text_local_results">Sólo resultados locales</string>
     <string name="signal_measurement_terms_title">Medidas de señal: Condiciones de uso</string>
     <string name="signal_measurement_terms_content">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec at nisl ornare, mattis libero vel, ornare orci. Integer aliquet massa at erat semper, non suscipit metus condimentum. Proin felis quam, posuere nec auctor ac, gravida in est. Phasellus dui lectus, lobortis eget mauris non, mattis sollicitudin turpis. Donec auctor leo vel ligula feugiat suscipit. Nulla eleifend nec eros at tincidunt. Nunc tincidunt sapien in sapien facilisis commodo. Duis faucibus, diam in facilisis viverra, lacus leo ultrices elit, vitae luctus nisl purus at velit. Nulla vitae aliquam massa. Mauris viverra magna elementum augue lacinia, ut aliquam odio pretium.  Duis congue velit sed vestibulum porttitor. Donec aliquet lectus eu ex porttitor tristique. Curabitur nulla ipsum, imperdiet ut enim vitae, congue posuere velit. Nullam accumsan, mi vitae ultrices tristique, est risus tempus velit, at tincidunt nunc ipsum sit amet orci. Nulla eget sapien tortor. Interdum et malesuada fames ac ante ipsum primis in faucibus. Fusce nec blandit nisi, et tristique erat. Donec tristique arcu purus, et blandit justo auctor sed. Vivamus semper lorem sit amet condimentum efficitur. Duis ut enim libero. Morbi at ante sed nisi feugiat lobortis. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec at nisl ornare, mattis libero vel, ornare orci. Integer aliquet massa at erat semper, non suscipit metus condimentum. Proin felis quam, posuere nec auctor ac, gravida in est. Phasellus dui lectus, lobortis eget mauris non, mattis sollicitudin turpis. Donec auctor leo vel ligula feugiat suscipit. Nulla eleifend nec eros at tincidunt. Nunc tincidunt sapien in sapien facilisis commodo. Duis faucibus, diam in facilisis viverra, lacus leo ultrices elit, vitae luctus nisl purus at velit. Nulla vitae aliquam massa. Mauris viverra magna elementum augue lacinia, ut aliquam odio pretium.  Duis congue velit sed vestibulum porttitor. Donec aliquet lectus eu ex porttitor tristique. Curabitur nulla ipsum, imperdiet ut enim vitae, congue posuere velit. Nullam accumsan, mi vitae ultrices tristique, est risus tempus velit, at tincidunt nunc ipsum sit amet orci. Nulla eget sapien tortor. Interdum et malesuada fames ac ante ipsum primis in faucibus. Fusce nec blandit nisi, et tristique erat. Donec tristique arcu purus, et blandit justo auctor sed. Vivamus semper lorem sit amet condimentum efficitur. Duis ut enim libero. Morbi at ante sed nisi feugiat lobortis.</string>
-    <string name="preferences_developed_by">Desarrollado por Specure GmbH</string>
 
     <!--    todo add translates-->
     <string name="text_phase_init">Initialization</string>

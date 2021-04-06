@@ -51,7 +51,6 @@
     <string name="preferences_general_settings">Allgemeine</string>
     <string name="preferences_terms_of_service">Nutzungsbedingungen</string>
     <string name="preferences_loop_test_count">Anzahl der Messungen</string>
-    <string name="preferences_map_settings">Mobil</string>
     <string name="loop_mode_clarification">Wenn der Schleifenmodus aktiviert ist, werden nach der konfigurierten Wartezeit oder wenn sich das Gerät mehr als die konfigurierte Entfernung bewegt, automatisch neue Tests durchgeführt.</string>
     <string name="preferences_privacy">Datenschutz</string>
     <string name="preferences_persistent_clientUUID">Persistente Client-UUID</string>
@@ -62,13 +61,9 @@
     <string name="preferences_location_summary">Verwalten Sie die Berechtigungen für die Standortverfolgung</string>
     <string name="preferences_loop_test_number">Wählen Sie die Anzahl der Tests</string>
 
-    <string name="preferences_ndt">NDT</string>
     <string name="preferences_qos_measurement">QoS Messung</string>
-    <string name="preferences_qos_measurement_only_after_some_time">Nur alle 2 Stunden</string>
-    <string name="preferences_qos_measurement_only_after_some_time_summary">Keine neue QoS-Messung, wenn die letzte vor weniger als 2 Stunden durchgeführt wurde.</string>
     <string name="preferences_location">Standort</string>
     <string name="preferences_loop_mode">Wiederholungsmodus</string>
-    <string name="preferences_advanced_settings">Erweiterte Einstellungen</string>
     <string name="preferences_loop_mode_summary">Neuer Test nach Wartezeit oder Zurücklegen der Distanz. Max. 2 Tage</string>
     <string name="preferences_loop_mode_min_delay">Wartezeit (in Minuten)</string>
     <string name="preferences_loop_mode_max_movement">Distanz (in Metern)</string>
@@ -78,17 +73,10 @@
     <string name="preferences_ipv4_only_sum">Keine Verwendung von IPv6</string>
     <string name="preferences_radio_info">Mobilfunkinformation</string>
     <string name="preferences_radio_info_sum">Details der Mobilfunkkonfiguration</string>
-    <string name="preferences_contact">Kontakt</string>
-    <string name="preferences_go_to_website">Website besuchen</string>
-    <string name="preferences_contact_us">E-Mail schreiben</string>
-    <string name="preferences_additional_Information">Weitere Informationen</string>
     <string name="preferences_client_uuid">Client UUID</string>
-    <string name="preferences_test_cases">Durchgeführte Tests</string>
     <string name="preferences_about">Über die App</string>
-    <string name="preferences_source_code">Source Code</string>
     <string name="preferences_data_protection">Datenschutzerklärung und Nutzungsbedingungen</string>
     <string name="preferences_version">Version</string>
-    <string name="preferences_commit_hash">Commit hash</string>
     <string name="preferences_enter_code">Bitte geben Sie den Code ein</string>
     <string name="preferences_developer_control_server">Control-Server</string>
     <string name="preferences_override_control_server">Control-Server überschreiben</string>
@@ -113,9 +101,6 @@
     <string name="preferences_all_disabled">Deaktiviert.</string>
     <string name="preferences_server_selection">Serverauswahl</string>
     <string name="preferences_default_server_selection" />
-    <string name="preferences_5g_simulation_title">xG-Netzwerk Debug (experimentell)</string>
-    <string name="preferences_5g_simulation">Simulieren Sie 5x</string>
-    <string name="preferences_5g_simulation_sum">Ersetzt Mobilfunknetze durch xG-Simulation</string>
     <string name="label_server_selection">Serverauswahl</string>
     <string name="preferences_tag">Kennzeichen</string>
 
@@ -267,9 +252,6 @@
     <string name="title_filters_type">Kartentyp</string>
     <string name="title_filters_subtype">Einstellungen</string>
 
-    <string name="about_email_sending">E-Mail senden…</string>
-    <string name="about_email_subject">Supportanfrage</string>
-
     <string name="graph_signal_value">-%1$s dBm</string>
     <string name="notification_loop_mode_title_active">Der Wiederholungsmodus ist aktiv</string>
     <string name="notification_loop_mode_title_running">Der Wiederholungsmodus läuft (%1$d/%2$d)</string>
@@ -309,7 +291,6 @@
     <string name="text_local_results">Nur lokale Ergebnisse</string>
     <string name="signal_measurement_terms_title">Aktivierung und Nutzung</string>
     <string name="signal_measurement_terms_content">Die Nur-Signalmessung für technisch Interessierte ermöglicht, dass die Signalstärke automatisiert wiederholt gemessen wird – ohne, dass dabei Geschwindigkeits- oder Qualitätstests durchgeführt werden. Die Nur-Signalmessung kann jederzeit gestoppt werden bzw endet automatisch nach 48 Stunden. Sie ist (nur) zur Nutzung innerhalb der EU- und des EWR gedacht ist. Während der Signalmessung bleiben GPS und die Anzeige aktiv, deshalb wird die Batterie schnell entleert. Daher sollte sie nur genutzt werden, wenn externe Stromversorgung zur Verfügung steht. Es wird ausdrücklich darauf hingewiesen, dass aufgrund der Nur-Signalmessung ein Rückschluss auf die testende Person nicht ausgeschlossen ist.</string>
-    <string name="preferences_developed_by">Entwickelt von Specure GmbH</string>
 
     <!--    todo add translates-->
     <string name="text_phase_init">Initialization</string>
