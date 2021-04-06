@@ -31,6 +31,8 @@ import at.rtr.rmbt.android.util.listen
 import at.rtr.rmbt.android.viewmodel.ConfigCheckViewModel
 import at.rtr.rmbt.android.viewmodel.MeasurementViewModel
 import at.specure.data.entity.LoopModeState
+import com.google.firebase.crashlytics.FirebaseCrashlytics
+import timber.log.Timber
 
 class HomeActivity : BaseActivity() {
 
@@ -54,6 +56,13 @@ class HomeActivity : BaseActivity() {
         super.onCreate(savedInstanceState)
         binding = bindContentView(R.layout.activity_home)
 
+        if (viewModel.config.analyticsEnabled) {
+            FirebaseCrashlytics.getInstance().setCrashlyticsCollectionEnabled(true)
+        } else {
+            FirebaseCrashlytics.getInstance().setCrashlyticsCollectionEnabled(false)
+        }
+        Timber.d("Firebase crashlytics enabled: ${viewModel.config.analyticsEnabled}")
+
         setTransparentStatusBar()
 
         val navHostFragment = supportFragmentManager.findFragmentById(R.id.navHostFragment) as NavHostFragment
@@ -61,6 +70,7 @@ class HomeActivity : BaseActivity() {
         val navigator = KeepStateNavigator(this, navHostFragment.childFragmentManager, R.id.navHostFragment)
         navController.navigatorProvider += navigator
         navController.setGraph(R.navigation.mobile_navigation)
+
 
         binding.navView.setupWithNavController(navController)
 
