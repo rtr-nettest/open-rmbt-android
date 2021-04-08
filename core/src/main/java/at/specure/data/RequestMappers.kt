@@ -401,7 +401,8 @@ fun SignalRecord.toRequest(cellUUID: String, ignoreNetworkId: Boolean, signalMea
     nrCsiSinr = nrCsiSinr,
     nrSsRsrp = nrSsRsrp,
     nrSsRsrq = nrSsRsrq,
-    nrSsSinr = nrSsSinr
+    nrSsSinr = nrSsSinr,
+    signalSource = source.stringValue
 )
 
 private fun Int?.checkSignalValue(): Int? = if (this == null || this == Int.MAX_VALUE || this == Int.MAX_VALUE) {

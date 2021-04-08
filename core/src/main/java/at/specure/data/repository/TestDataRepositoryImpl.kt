@@ -1,7 +1,6 @@
 package at.specure.data.repository
 
 import android.os.SystemClock
-import android.util.Log.d
 import androidx.lifecycle.LiveData
 import at.rmbt.util.io
 import at.rtr.rmbt.client.helper.TestStatus
@@ -234,7 +233,8 @@ class TestDataRepositoryImpl(db: CoreDatabase) : TestDataRepository {
             nrCsiSinr = nrCsiSinr,
             nrSsRsrp = nrSsRsrp,
             nrSsRsrq = nrSsRsrq,
-            nrSsSinr = nrSsSinr
+            nrSsSinr = nrSsSinr,
+            source = info.source
         )
         signalDao.insert(item)
     }

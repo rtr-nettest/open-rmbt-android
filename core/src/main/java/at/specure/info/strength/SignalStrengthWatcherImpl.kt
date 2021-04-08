@@ -100,8 +100,10 @@ class SignalStrengthWatcherImpl(
                 ) == PERMISSION_GRANTED
             ) {
                 try {
+                    val cellInfos = cellInfoWatcher.rawAllCellInfo as MutableList<CellInfo>
+                    Timber.d("CellInfosChanged: is null? ${cellInfos.isNullOrEmpty()} empty? ${cellInfos?.isEmpty()} from SignalStrengthWatcher")
                     val activeDataCellInfo =
-                        activeDataCellInfoExtractor.extractActiveCellInfo(telephonyManager.getCorrectDataTelephonyManager(subscriptionManager).allCellInfo)
+                        activeDataCellInfoExtractor.extractActiveCellInfo(cellInfos)
                     isNetworkStateConsistent = activeDataCellInfo.isConsistent
                     cellInfo = activeDataCellInfo.activeDataNetworkCellInfo
                     nrConnectionState = activeDataCellInfo.nrConnectionState

@@ -8,6 +8,7 @@ import at.specure.data.Tables
 import at.specure.info.TransportType
 import at.specure.info.network.MobileNetworkType
 import at.specure.info.network.NRConnectionState
+import at.specure.info.strength.SignalSource
 
 @Entity(tableName = Tables.SIGNAL)
 data class SignalRecord(
@@ -40,6 +41,11 @@ data class SignalRecord(
      * need to debug it when 5G SA will be available in some country)
      */
     val nrConnectionState: NRConnectionState,
+
+    /**
+     * Indication of source of the signal information (CellInfo, onSignalStrengthChanged, not available)
+     */
+    val source: SignalSource,
 
     // wifi
     val signal: Int?,

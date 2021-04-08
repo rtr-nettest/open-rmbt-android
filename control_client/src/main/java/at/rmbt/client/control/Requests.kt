@@ -708,7 +708,11 @@ data class SignalBody(
     val nrSsRsrq: Int?,
 
     @SerializedName("nr_ss_sinr")
-    val nrSsSinr: Int?
+    val nrSsSinr: Int?,
+
+    // debug only to know from which source is signal obtained
+    @SerializedName("signal_source")
+    val signalSource: String
 )
 
 @Keep

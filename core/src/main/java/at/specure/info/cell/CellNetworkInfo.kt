@@ -37,6 +37,7 @@ import at.specure.info.band.CellBand
 import at.specure.info.network.MobileNetworkType
 import at.specure.info.network.NRConnectionState
 import at.specure.info.network.NetworkInfo
+import at.specure.info.strength.SignalSource
 import at.specure.info.strength.SignalStrengthInfo
 import timber.log.Timber
 import java.util.UUID
@@ -300,7 +301,7 @@ class CellNetworkInfo(
                 isRegistered = info.isRegistered,
                 isRoaming = isRoaming,
                 apn = apn,
-                signalStrength = SignalStrengthInfo.from(info.cellSignalStrength as CellSignalStrengthNr),
+                signalStrength = SignalStrengthInfo.from(info.cellSignalStrength as CellSignalStrengthNr, SignalSource.CELL_INFO),
                 dualSimDetectionMethod = dualSimDetectionMethod,
                 nrConnectionState = nrConnectionState
             )
@@ -336,7 +337,7 @@ class CellNetworkInfo(
                 isRegistered = info.isRegistered,
                 isRoaming = isRoaming,
                 apn = apn,
-                signalStrength = SignalStrengthInfo.from(info.cellSignalStrength),
+                signalStrength = SignalStrengthInfo.from(info.cellSignalStrength, SignalSource.CELL_INFO),
                 dualSimDetectionMethod = dualSimDetectionMethod,
                 nrConnectionState = nrConnectionState
             )
@@ -373,7 +374,7 @@ class CellNetworkInfo(
                 isActive = isActive,
                 isRoaming = isRoaming,
                 apn = apn,
-                signalStrength = SignalStrengthInfo.from(info.cellSignalStrength),
+                signalStrength = SignalStrengthInfo.from(info.cellSignalStrength, SignalSource.CELL_INFO),
                 dualSimDetectionMethod = dualSimDetectionMethod,
                 nrConnectionState = nrConnectionState
             )
@@ -409,7 +410,7 @@ class CellNetworkInfo(
                 isRegistered = info.isRegistered,
                 isRoaming = isRoaming,
                 apn = apn,
-                signalStrength = SignalStrengthInfo.from(info.cellSignalStrength),
+                signalStrength = SignalStrengthInfo.from(info.cellSignalStrength, SignalSource.CELL_INFO),
                 dualSimDetectionMethod = dualSimDetectionMethod,
                 nrConnectionState = nrConnectionState
             )
@@ -447,7 +448,7 @@ class CellNetworkInfo(
                 isRegistered = info.isRegistered,
                 isRoaming = isRoaming,
                 apn = apn,
-                signalStrength = SignalStrengthInfo.from(info.cellSignalStrength),
+                signalStrength = SignalStrengthInfo.from(info.cellSignalStrength, SignalSource.CELL_INFO),
                 dualSimDetectionMethod = dualSimDetectionMethod,
                 nrConnectionState = nrConnectionState
             )
@@ -478,7 +479,7 @@ class CellNetworkInfo(
                 isRegistered = info.isRegistered,
                 isRoaming = isRoaming,
                 apn = apn,
-                signalStrength = SignalStrengthInfo.from(info.cellSignalStrength),
+                signalStrength = SignalStrengthInfo.from(info.cellSignalStrength, SignalSource.CELL_INFO),
                 dualSimDetectionMethod = dualSimDetectionMethod,
                 nrConnectionState = nrConnectionState
             )
