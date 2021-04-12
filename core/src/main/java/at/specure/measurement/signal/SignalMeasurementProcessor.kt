@@ -194,7 +194,6 @@ class SignalMeasurementProcessor @Inject constructor(
         signalStrengthLiveData.observe(owner, Observer { info ->
             signalStrengthInfo = info
             if (isActive && !isPaused) {
-                saveSignalStrengthInfo()
                 saveCellInfo()
             }
         })
@@ -365,7 +364,6 @@ class SignalMeasurementProcessor @Inject constructor(
             }
             saveCellInfo()
             saveTelephonyInfo()
-            saveSignalStrengthInfo()
             saveCellLocation()
             saveLocationInfo()
             saveCapabilities()
@@ -411,6 +409,12 @@ class SignalMeasurementProcessor @Inject constructor(
             }
 
             repository.saveCellInfo(uuid, onlyActiveCellInfoList.toList(), record?.startTimeNanos ?: 0)
+            onlyActiveCellInfoList.toList().forEach {
+                if (it is CellNetworkInfo) {
+                    saveSignalStrength(uuid, it.signalStrength)
+                }
+            }
+
         }
     }
 
@@ -435,9 +439,17 @@ class SignalMeasurementProcessor @Inject constructor(
         }
     }
 
+    /**
+     * This method is deprecated because we want to save signal strength only from cellinfo directly to be mapped correctly cellinfo and signal strength
+     */
+    @Deprecated("This method is deprecated because we want to save signal strength only from cellinfo directly to be mapped correctly cellinfo and signal strength use saveSignalStrength(uuid, info) instead")
     private fun saveSignalStrengthInfo() {
         val uuid = chunk?.id
         val info = signalStrengthInfo
+        saveSignalStrength(uuid, info)
+    }
+
+    private fun saveSignalStrength(uuid: String?, info: SignalStrengthInfo?) {
         if (uuid != null && info != null) {
             val cellUUID = networkInfo?.cellUUID ?: ""
             var mobileNetworkType: MobileNetworkType? = null
