@@ -362,10 +362,13 @@ class SignalMeasurementProcessor @Inject constructor(
             if (saveWlanInfo) {
                 saveWlanInfo()
             }
-            saveCellInfo()
+            if (chunk?.sequenceNumber == 0) {
+                saveCellInfo()
+                Timber.i("Saving signal New chunk created chunkID = ${chunk?.id} sequence: ${chunk?.sequenceNumber}")
+                saveCellLocation()
+                saveLocationInfo()
+            }
             saveTelephonyInfo()
-            saveCellLocation()
-            saveLocationInfo()
             saveCapabilities()
             savePermissionsStatus()
             updateChunkInfo(it.id)
@@ -408,6 +411,7 @@ class SignalMeasurementProcessor @Inject constructor(
                 }
             }
 
+            Timber.i("Saving signal New cellInfo ${chunk?.id} sequence: ${chunk?.sequenceNumber} size: ${onlyActiveCellInfoList.toList().size}")
             repository.saveCellInfo(uuid, onlyActiveCellInfoList.toList(), record?.startTimeNanos ?: 0)
             onlyActiveCellInfoList.toList().forEach {
                 if (it is CellNetworkInfo) {
@@ -439,16 +443,6 @@ class SignalMeasurementProcessor @Inject constructor(
         }
     }
 
-    /**
-     * This method is deprecated because we want to save signal strength only from cellinfo directly to be mapped correctly cellinfo and signal strength
-     */
-    @Deprecated("This method is deprecated because we want to save signal strength only from cellinfo directly to be mapped correctly cellinfo and signal strength use saveSignalStrength(uuid, info) instead")
-    private fun saveSignalStrengthInfo() {
-        val uuid = chunk?.id
-        val info = signalStrengthInfo
-        saveSignalStrength(uuid, info)
-    }
-
     private fun saveSignalStrength(uuid: String?, info: SignalStrengthInfo?) {
         if (uuid != null && info != null) {
             val cellUUID = networkInfo?.cellUUID ?: ""
@@ -462,7 +456,7 @@ class SignalMeasurementProcessor @Inject constructor(
 
                 // saving only valid signal with associated cell (wifi and mobile connections)
                 if (isSignalValid) {
-                    Timber.d("Signal saving time SMP: chunkID: $uuid    starting time: ${record?.startTimeNanos}   current time: ${System.nanoTime()}")
+                    Timber.d("Saving signal time SMP: chunkID: $uuid cellUUID: $cellUUID  timediff: ${record?.startTimeNanos?.minus(System.nanoTime())} starting time: ${record?.startTimeNanos}   current time: ${System.nanoTime()}")
                     repository.saveSignalStrength(uuid, cellUUID, mobileNetworkType, info, record?.startTimeNanos ?: 0, nrConnectionState)
 
                     chunkDataSize++

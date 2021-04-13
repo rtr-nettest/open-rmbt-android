@@ -119,7 +119,7 @@ class StateRecorder @Inject constructor(
             }
             signalStrengthInfo = info
             Timber.e("Signal saving time OBSERVER: starting time: $testStartTimeNanos   current time: ${System.nanoTime()}")
-            saveSignalStrengthInfo()
+//            saveSignalStrengthInfo()
             saveCellInfo()
         })
 
@@ -154,7 +154,7 @@ class StateRecorder @Inject constructor(
         cellLocation = cellLocationWatcher.getCellLocationFromTelephony()
         saveCellLocation()
         saveLocationInfo()
-        saveSignalStrengthInfo()
+//        saveSignalStrengthInfo()
         saveCellInfo()
         saveCapabilities()
         savePermissionsStatus()
@@ -286,9 +286,14 @@ class StateRecorder @Inject constructor(
         }
     }
 
+    @Deprecated("Use only saveSignalStrength")
     private fun saveSignalStrengthInfo() {
         val uuid = testUUID
         val info = signalStrengthInfo
+        saveSignalStrength(uuid, info)
+    }
+
+    private fun saveSignalStrength(uuid: String?, info: SignalStrengthInfo?) {
         if (uuid != null && info != null) {
             val cellUUID = networkInfo?.cellUUID ?: ""
             var mobileNetworkType: MobileNetworkType? = null
@@ -334,6 +339,12 @@ class StateRecorder @Inject constructor(
             })
 
             repository.saveCellInfo(uuid, onlyActiveCellInfoList.toList(), testStartTimeNanos)
+            onlyActiveCellInfoList.toList().forEach {
+                if (it is CellNetworkInfo) {
+                    saveSignalStrength(uuid, it.signalStrength)
+                }
+            }
+
         }
     }
 
