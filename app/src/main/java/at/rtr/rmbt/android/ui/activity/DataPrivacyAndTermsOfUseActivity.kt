@@ -62,7 +62,7 @@ class DataPrivacyAndTermsOfUseActivity : BaseActivity() {
                     }
                     false
                 })
-                loadDataWithBaseURL(null, tacContent, "text/html", "utf-8", null)
+                loadDataWithBaseURL(null, tacContent ?: "", "text/html", "utf-8", null)
             }
         }
 
@@ -82,7 +82,7 @@ class DataPrivacyAndTermsOfUseActivity : BaseActivity() {
 
     inner class MyWebViewClient : WebViewClient() {
         override fun shouldOverrideUrlLoading(view: WebView?, url: String?): Boolean {
-            view?.loadUrl(url)
+            view?.loadUrl(url ?: "")
             return true
         }
 
