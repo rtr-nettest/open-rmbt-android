@@ -43,6 +43,7 @@ import at.specure.info.strength.SignalStrengthWatcher
 import at.specure.location.LocationWatcher
 import at.specure.util.ActiveFilter
 import at.specure.util.FilterValuesStorage
+import cz.mroczis.netmonster.core.INetMonster
 import dagger.Module
 import dagger.Provides
 import javax.inject.Singleton
@@ -62,8 +63,8 @@ class DatabaseModule {
     }
 
     @Provides
-    fun provideTestDataRepository(database: CoreDatabase): TestDataRepository =
-        TestDataRepositoryImpl(database)
+    fun provideTestDataRepository(database: CoreDatabase, netmonster: INetMonster): TestDataRepository =
+        TestDataRepositoryImpl(database, netmonster)
 
     @Provides
     fun provideResultsRepository(

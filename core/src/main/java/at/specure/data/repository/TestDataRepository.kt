@@ -15,6 +15,7 @@ import at.specure.info.network.WifiNetworkInfo
 import at.specure.info.strength.SignalStrengthInfo
 import at.specure.location.LocationInfo
 import at.specure.location.cell.CellLocationInfo
+import cz.mroczis.netmonster.core.model.cell.ICell
 import org.json.JSONArray
 
 interface TestDataRepository {
@@ -47,6 +48,8 @@ interface TestDataRepository {
     )
 
     fun saveCellInfo(testUUID: String, infoList: List<NetworkInfo>, testStartTimeNanos: Long)
+
+    fun saveNMCellInfo(testUUID: String, infoList: List<ICell>, testStartTimeNanos: Long)
 
     fun getCapabilities(testUUID: String): CapabilitiesRecord
 

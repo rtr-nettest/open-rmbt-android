@@ -24,7 +24,6 @@ import at.specure.info.network.ActiveNetworkWatcher
 import at.specure.info.network.MobileNetworkType
 import at.specure.info.network.NRConnectionState
 import at.specure.info.network.NetworkInfo
-import at.specure.info.network.WifiNetworkInfo
 import at.specure.info.strength.SignalStrengthInfo
 import at.specure.info.strength.SignalStrengthLiveData
 import at.specure.info.strength.SignalStrengthWatcher
@@ -36,6 +35,9 @@ import at.specure.location.cell.CellLocationLiveData
 import at.specure.location.cell.CellLocationWatcher
 import at.specure.test.SignalMeasurementType
 import at.specure.test.toDeviceInfoLocation
+import cz.mroczis.netmonster.core.INetMonster
+import cz.mroczis.netmonster.core.model.cell.ICell
+import cz.mroczis.netmonster.core.model.connection.PrimaryConnection
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -59,6 +61,7 @@ private const val MAX_TIME_NETWORK_UNREACHABLE_SECONDS = 300L
 class SignalMeasurementProcessor @Inject constructor(
     private val repository: TestDataRepository,
     private val locationWatcher: LocationWatcher,
+    private val netmonster: INetMonster,
     private val signalStrengthLiveData: SignalStrengthLiveData,
     private val signalStrengthWatcher: SignalStrengthWatcher,
     private val activeNetworkLiveData: ActiveNetworkLiveData,
@@ -395,30 +398,29 @@ class SignalMeasurementProcessor @Inject constructor(
 
     private fun saveCellInfo() {
         val uuid = chunk?.id
-        val info = networkInfo
-        if (uuid != null && info != null) {
-            val infoList: List<NetworkInfo> = when (info) {
-                is WifiNetworkInfo -> listOf(info)
-                is CellNetworkInfo -> cellInfoWatcher.allCellInfo
-                else -> throw IllegalArgumentException("Unknown cell info ${info.javaClass.simpleName}")
-            }
+        var cells: List<ICell>? = null
+        try {
+            cells = netmonster.getCells()
+        } catch (e: SecurityException) {
+            Timber.e("SecurityException: Not able to read telephonyManager.allCellInfo")
+        } catch (e: IllegalStateException) {
+            Timber.e("IllegalStateException: Not able to read telephonyManager.allCellInfo")
+        } catch (e: NullPointerException) {
+            Timber.e("NullPointerException: Not able to read telephonyManager.allCellInfo from other reason")
+        }
 
-            val onlyActiveCellInfoList = infoList.filter {
-                if (it is CellNetworkInfo) {
-                    it.isActive
-                } else {
-                    true
+        // in case of dual sims here we will find primary cells for both sims
+        val primaryCells = cells?.filter { it.connectionStatus is PrimaryConnection }
+
+        if (uuid != null) {
+            primaryCells?.toList()?.let {
+                repository.saveNMCellInfo(uuid, it, record?.startTimeNanos ?: 0)
+                chunkDataSize += it.size
+                if (chunkDataSize >= MAX_SIGNAL_COUNT_PER_CHUNK) {
+                    Timber.v("Chunk max size reached: $chunkDataSize")
+                    commitChunkData(ValidChunkPostProcessing.CREATE_NEW_CHUNK)
                 }
             }
-
-            Timber.i("Saving signal New cellInfo ${chunk?.id} sequence: ${chunk?.sequenceNumber} size: ${onlyActiveCellInfoList.toList().size}")
-            repository.saveCellInfo(uuid, onlyActiveCellInfoList.toList(), record?.startTimeNanos ?: 0)
-            onlyActiveCellInfoList.toList().forEach {
-                if (it is CellNetworkInfo) {
-                    saveSignalStrength(uuid, it.signalStrength)
-                }
-            }
-
         }
     }
 

@@ -57,6 +57,9 @@ import at.specure.util.permission.LocationAccessImpl
 import at.specure.util.permission.PermissionsWatcher
 import at.specure.util.permission.PhoneStateAccess
 import at.specure.util.permission.PhoneStateAccessImpl
+import cz.mroczis.netmonster.core.INetMonster
+import cz.mroczis.netmonster.core.factory.NetMonsterFactory
+import cz.mroczis.netmonster.core.subscription.ISubscriptionManagerCompat
 import dagger.Module
 import dagger.Provides
 import javax.inject.Singleton
@@ -93,6 +96,14 @@ class CoreModule {
     @Provides
     @Singleton
     fun provideConnectivityWatcher(connectivityManager: ConnectivityManager): ConnectivityWatcher = ConnectivityWatcherImpl(connectivityManager)
+
+    @Provides
+    @Singleton
+    fun provideNetmonster(context: Context): INetMonster = NetMonsterFactory.get(context)
+
+    @Provides
+    @Singleton
+    fun provideNetmonsterSubscriptionCompat(context: Context): ISubscriptionManagerCompat = NetMonsterFactory.getSubscription(context)
 
     @Provides
     @Singleton
