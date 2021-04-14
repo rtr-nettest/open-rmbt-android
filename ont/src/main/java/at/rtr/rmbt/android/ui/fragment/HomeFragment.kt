@@ -1,15 +1,11 @@
 package at.rtr.rmbt.android.ui.fragment
 
-import android.Manifest
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Intent
-import android.content.pm.PackageManager
-import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.view.View
-import androidx.core.content.ContextCompat.checkSelfPermission
 import at.rtr.rmbt.android.R
 import at.rtr.rmbt.android.databinding.FragmentHomeBinding
 import at.rtr.rmbt.android.di.viewModelLazy
@@ -136,48 +132,12 @@ class HomeFragment : BaseFragment() {
         }
     }
 
-    override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<out String>,
-        grantResults: IntArray
-    ) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        homeViewModel.permissionsWatcher.notifyPermissionsUpdated()
-        homeViewModel.getNews() // displaying news after permissions were/were not granted
-    }
-
     override fun onStart() {
         super.onStart()
         homeViewModel.attach(requireContext())
 
-        checkPermissions()
         startTimerForInfoWindow()
         homeViewModel.state.checkConfig()
-    }
-
-    private fun checkPermissions() {
-        val permissions = homeViewModel.permissionsWatcher.requiredPermissions.toMutableSet()
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            val hasForegroundLocationPermission =
-                checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
-            if (hasForegroundLocationPermission) {
-                val hasBackgroundLocationPermission = checkSelfPermission(
-                    requireContext(),
-                    Manifest.permission.ACCESS_BACKGROUND_LOCATION
-                ) == PackageManager.PERMISSION_GRANTED
-            } else {
-                permissions.add(Manifest.permission.ACCESS_COARSE_LOCATION)
-                permissions.add(Manifest.permission.ACCESS_FINE_LOCATION)
-            }
-        }
-
-        if (permissions.isNotEmpty() && homeViewModel.shouldAskForPermission()) {
-            requestPermissions(permissions.toTypedArray(), PERMISSIONS_REQUEST_CODE)
-            homeViewModel.permissionsWereAsked()
-        } else {
-            homeViewModel.getNews()
-        }
     }
 
     override fun onStop() {
