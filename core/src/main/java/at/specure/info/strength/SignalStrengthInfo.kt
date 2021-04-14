@@ -275,8 +275,10 @@ abstract class SignalStrengthInfo : Parcelable {
                         if (signalValue != null) {
 
                             Timber.d(
-                                "Extracting from cell 2: $cellSignalStrengthNr \n\n\n to: dbm: ${cellSignalStrengthNr.dbm} csiRsrp: ${cellSignalStrengthNr.csiRsrp} csiRsrq: ${cellSignalStrengthNr.csiRsrq} csiSinr: ${cellSignalStrengthNr.csiSinr} " +
-                                        "ssRsrp: ${cellSignalStrengthNr.ssRsrp} ssRsrq: ${cellSignalStrengthNr.ssRsrq} ssSinr: ${cellSignalStrengthNr.ssSinr}"
+                                """Extracting from cell 2: $cellSignalStrengthNr 
+
+
+ to: dbm: ${cellSignalStrengthNr.dbm} csiRsrp: ${cellSignalStrengthNr.csiRsrp} csiRsrq: ${cellSignalStrengthNr.csiRsrq} csiSinr: ${cellSignalStrengthNr.csiSinr} ssRsrp: ${cellSignalStrengthNr.ssRsrp} ssRsrq: ${cellSignalStrengthNr.ssRsrq} ssSinr: ${cellSignalStrengthNr.ssSinr}"""
                             )
 
                             return SignalStrengthInfoNr(
@@ -420,8 +422,10 @@ abstract class SignalStrengthInfo : Parcelable {
                                     if (signalValue != null) {
 
                                         Timber.d(
-                                            "Extracting from 2: $cellSignalStrengthNr \n\n\n to: dbm: ${cellSignalStrengthNr.dbm} csiRsrp: ${cellSignalStrengthNr.csiRsrp} csiRsrq: ${cellSignalStrengthNr.csiRsrq} csiSinr: ${cellSignalStrengthNr.csiSinr} " +
-                                                    "ssRsrp: ${cellSignalStrengthNr.ssRsrp} ssRsrq: ${cellSignalStrengthNr.ssRsrq} ssSinr: ${cellSignalStrengthNr.ssSinr}"
+                                            """Extracting from 2: $cellSignalStrengthNr 
+
+
+ to: dbm: ${cellSignalStrengthNr.dbm} csiRsrp: ${cellSignalStrengthNr.csiRsrp} csiRsrq: ${cellSignalStrengthNr.csiRsrq} csiSinr: ${cellSignalStrengthNr.csiSinr} ssRsrp: ${cellSignalStrengthNr.ssRsrp} ssRsrq: ${cellSignalStrengthNr.ssRsrq} ssSinr: ${cellSignalStrengthNr.ssSinr}"""
                                         )
 
                                         return SignalStrengthInfoNr(
@@ -466,8 +470,10 @@ abstract class SignalStrengthInfo : Parcelable {
                         }
                         is CellSignalStrengthNr -> {
                             Timber.d(
-                                "Extracting from 3: $it \n\n\n to: dbm: ${it.dbm} csiRsrp: ${it.csiRsrp} csiRsrq: ${it.csiRsrq} csiSinr: ${it.csiSinr} " +
-                                        "ssRsrp: ${it.ssRsrp} ssRsrq: ${it.ssRsrq} ssSinr: ${it.ssSinr}"
+                                """Extracting from 3: $it 
+
+
+ to: dbm: ${it.dbm} csiRsrp: ${it.csiRsrp} csiRsrq: ${it.csiRsrq} csiSinr: ${it.csiSinr} ssRsrp: ${it.ssRsrp} ssRsrq: ${it.ssRsrq} ssSinr: ${it.ssSinr}"""
                             )
                             signal = SignalStrengthInfoNr(
                                 transport = transportType,
