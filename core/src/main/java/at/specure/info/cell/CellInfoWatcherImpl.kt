@@ -225,7 +225,7 @@ class CellInfoWatcherImpl(
 
                             override fun onError(errorCode: Int, detail: Throwable?) {
                                 super.onError(errorCode, detail)
-                                Timber.d("CellInfosChanged: is null? true errorCode: $errorCode detail: ${detail.toString()}")
+                                Timber.d("CellInfosChanged: is null? true errorCode: $errorCode detail: $detail")
                             }
                         }
 

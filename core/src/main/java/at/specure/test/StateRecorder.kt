@@ -344,7 +344,6 @@ class StateRecorder @Inject constructor(
                     saveSignalStrength(uuid, it.signalStrength)
                 }
             }
-
         }
     }
 

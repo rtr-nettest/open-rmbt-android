@@ -61,7 +61,7 @@ class DataPrivacyAndTermsOfUseActivity : BaseActivity() {
                 }
                 false
             })
-            loadUrl(intent.getStringExtra(KEY_DATA_PRIVACY_AND_TERMS_OF_USE_URL))
+            loadUrl(intent.getStringExtra(KEY_DATA_PRIVACY_AND_TERMS_OF_USE_URL) ?: "")
         }
     }
 
@@ -78,7 +78,7 @@ class DataPrivacyAndTermsOfUseActivity : BaseActivity() {
 
     inner class MyWebViewClient : WebViewClient() {
         override fun shouldOverrideUrlLoading(view: WebView?, url: String?): Boolean {
-            view?.loadUrl(url)
+            view?.loadUrl(url ?: "")
             return true
         }
 
