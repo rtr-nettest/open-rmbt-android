@@ -7,10 +7,12 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
 import at.rmbt.util.exception.HandledException
+import at.specure.data.entity.CellInfoRecord
 import at.specure.data.entity.ConnectivityStateRecord
 import at.specure.data.entity.SignalMeasurementChunk
 import at.specure.data.entity.SignalMeasurementInfo
 import at.specure.data.entity.SignalMeasurementRecord
+import at.specure.data.entity.SignalRecord
 import at.specure.data.repository.MeasurementRepository
 import at.specure.data.repository.SignalMeasurementRepository
 import at.specure.data.repository.TestDataRepository
@@ -35,6 +37,9 @@ import at.specure.location.cell.CellLocationLiveData
 import at.specure.location.cell.CellLocationWatcher
 import at.specure.test.SignalMeasurementType
 import at.specure.test.toDeviceInfoLocation
+import at.specure.util.mobileNetworkType
+import at.specure.util.toCellInfoRecord
+import at.specure.util.toSignalRecord
 import cz.mroczis.netmonster.core.INetMonster
 import cz.mroczis.netmonster.core.model.cell.ICell
 import cz.mroczis.netmonster.core.model.connection.PrimaryConnection
@@ -412,10 +417,35 @@ class SignalMeasurementProcessor @Inject constructor(
         // in case of dual sims here we will find primary cells for both sims
         val primaryCells = cells?.filter { it.connectionStatus is PrimaryConnection }
 
+        val cellInfosToSave = mutableListOf<CellInfoRecord>()
+        val signalsToSave = mutableListOf<SignalRecord>()
+
         if (uuid != null) {
+            val testStartTimeNanos = record?.startTimeNanos ?: 0
             primaryCells?.toList()?.let {
-                repository.saveNMCellInfo(uuid, it, record?.startTimeNanos ?: 0)
-                chunkDataSize += it.size
+                it.forEach { iCell ->
+                    val cellInfoRecord = iCell.toCellInfoRecord(uuid, netmonster)
+
+                    if (cellInfoRecord.uuid.isNotEmpty()) {
+                        iCell.signal?.let { iSignal ->
+                            Timber.e("Signal saving time SCI: starting time: $testStartTimeNanos   current time: ${System.nanoTime()}")
+                            Timber.d("valid signal directly")
+                            val signalRecord = iSignal.toSignalRecord(
+                                uuid,
+                                cellInfoRecord.uuid,
+                                iCell.mobileNetworkType(netmonster),
+                                testStartTimeNanos,
+                                NRConnectionState.NOT_AVAILABLE
+                            )
+                            signalsToSave.add(signalRecord)
+                        }
+                    }
+
+                    cellInfosToSave.add(cellInfoRecord)
+                }
+                repository.saveCellInfoRecord(cellInfosToSave)
+                repository.saveSignalRecord(signalsToSave)
+                chunkDataSize += signalsToSave.size
                 if (chunkDataSize >= MAX_SIGNAL_COUNT_PER_CHUNK) {
                     Timber.v("Chunk max size reached: $chunkDataSize")
                     commitChunkData(ValidChunkPostProcessing.CREATE_NEW_CHUNK)

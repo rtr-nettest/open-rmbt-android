@@ -3,9 +3,11 @@ package at.specure.data.repository
 import androidx.lifecycle.LiveData
 import at.rtr.rmbt.client.helper.TestStatus
 import at.specure.data.entity.CapabilitiesRecord
+import at.specure.data.entity.CellInfoRecord
 import at.specure.data.entity.ConnectivityStateRecord
 import at.specure.data.entity.GraphItemRecord
 import at.specure.data.entity.LoopModeRecord
+import at.specure.data.entity.SignalRecord
 import at.specure.data.entity.TestRecord
 import at.specure.info.cell.CellNetworkInfo
 import at.specure.info.network.MobileNetworkType
@@ -15,7 +17,6 @@ import at.specure.info.network.WifiNetworkInfo
 import at.specure.info.strength.SignalStrengthInfo
 import at.specure.location.LocationInfo
 import at.specure.location.cell.CellLocationInfo
-import cz.mroczis.netmonster.core.model.cell.ICell
 import org.json.JSONArray
 
 interface TestDataRepository {
@@ -49,7 +50,9 @@ interface TestDataRepository {
 
     fun saveCellInfo(testUUID: String, infoList: List<NetworkInfo>, testStartTimeNanos: Long)
 
-    fun saveNMCellInfo(testUUID: String, infoList: List<ICell>, testStartTimeNanos: Long)
+    fun saveCellInfoRecord(cellInfoRecordList: List<CellInfoRecord>)
+
+    fun saveSignalRecord(signalRecordList: List<SignalRecord>)
 
     fun getCapabilities(testUUID: String): CapabilitiesRecord
 

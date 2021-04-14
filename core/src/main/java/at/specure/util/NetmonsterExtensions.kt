@@ -1,10 +1,14 @@
 package at.specure.util
 
+import android.os.SystemClock
 import at.rtr.rmbt.util.BandCalculationUtil
 import at.specure.data.entity.CellInfoRecord
+import at.specure.data.entity.SignalRecord
 import at.specure.info.TransportType
 import at.specure.info.cell.CellTechnology
 import at.specure.info.network.MobileNetworkType
+import at.specure.info.network.NRConnectionState
+import at.specure.info.strength.SignalSource
 import cz.mroczis.netmonster.core.INetMonster
 import cz.mroczis.netmonster.core.db.model.NetworkType
 import cz.mroczis.netmonster.core.model.band.BandGsm
@@ -20,8 +24,96 @@ import cz.mroczis.netmonster.core.model.cell.CellTdscdma
 import cz.mroczis.netmonster.core.model.cell.CellWcdma
 import cz.mroczis.netmonster.core.model.cell.ICell
 import cz.mroczis.netmonster.core.model.connection.PrimaryConnection
+import cz.mroczis.netmonster.core.model.signal.ISignal
+import cz.mroczis.netmonster.core.model.signal.SignalGsm
+import cz.mroczis.netmonster.core.model.signal.SignalLte
+import cz.mroczis.netmonster.core.model.signal.SignalNr
 import timber.log.Timber
 import java.util.UUID
+
+fun ISignal.toSignalRecord(
+    testUUID: String,
+    cellUUID: String,
+    mobileNetworkType: MobileNetworkType,
+    testStartTimeNanos: Long,
+    nrConnectionState: NRConnectionState
+): SignalRecord {
+
+    val currentTime = System.nanoTime()
+    var signal = this.dbm
+    val wifiLinkSpeed: Int? = null
+    // 2G/3G
+    var bitErrorRate: Int? = null
+    // 4G
+    var lteRsrp: Int? = null
+    var lteRsrq: Int? = null
+    var lteRssnr: Int? = null
+    var lteCqi: Int? = null
+    var timingAdvance: Int? = null
+
+    var nrCsiRsrp: Int? = null
+    var nrCsiRsrq: Int? = null
+    var nrCsiSinr: Int? = null
+    var nrSsRsrp: Int? = null
+    var nrSsRsrq: Int? = null
+    var nrSsSinr: Int? = null
+
+    when (this) {
+        is SignalNr -> {
+            nrCsiRsrp = this.csiRsrp
+            nrCsiRsrq = this.csiRsrq
+            nrCsiSinr = this.csiSinr
+            nrSsRsrp = this.ssRsrp
+            nrSsRsrq = this.ssRsrq
+            nrSsSinr = this.ssSinr
+        }
+        is SignalLte -> {
+            signal = null
+            lteRsrp = this.rsrp?.toInt()
+            lteRsrq = this.rsrq?.toInt()
+            lteRssnr = this.snr?.toInt()
+            lteCqi = this.cqi
+            timingAdvance = this.timingAdvance
+        }
+        is SignalGsm -> {
+            bitErrorRate = this.bitErrorRate
+            timingAdvance = this.timingAdvance
+        }
+    }
+
+    Timber.e("Signal saving time 1: $currentTime  starting time: $testStartTimeNanos   current time: ${System.nanoTime()}")
+    val startTimestampNsSinceBoot = testStartTimeNanos + (SystemClock.elapsedRealtimeNanos() - System.nanoTime())
+    val timeNanos = currentTime - testStartTimeNanos
+    var timeNanosLast = if (currentTime < startTimestampNsSinceBoot) currentTime - startTimestampNsSinceBoot else null
+    if (timeNanosLast == 0L) {
+        timeNanosLast = null
+    }
+
+    return SignalRecord(
+        testUUID = testUUID,
+        cellUuid = cellUUID,
+        signal = signal,
+        wifiLinkSpeed = wifiLinkSpeed,
+        timeNanos = timeNanos,
+        timeNanosLast = timeNanosLast,
+        bitErrorRate = bitErrorRate,
+        lteRsrp = lteRsrp,
+        lteRsrq = lteRsrq,
+        lteRssnr = lteRssnr,
+        lteCqi = lteCqi,
+        timingAdvance = timingAdvance,
+        mobileNetworkType = mobileNetworkType,
+        transportType = TransportType.CELLULAR,
+        nrConnectionState = nrConnectionState,
+        nrCsiRsrp = nrCsiRsrp,
+        nrCsiRsrq = nrCsiRsrq,
+        nrCsiSinr = nrCsiSinr,
+        nrSsRsrp = nrSsRsrp,
+        nrSsRsrq = nrSsRsrq,
+        nrSsSinr = nrSsSinr,
+        source = SignalSource.NM_CELL_INFO
+    )
+}
 
 fun ICell.toCellInfoRecord(testUUID: String, netMonster: INetMonster) = CellInfoRecord(
     testUUID = testUUID,

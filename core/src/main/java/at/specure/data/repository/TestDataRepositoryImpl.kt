@@ -20,14 +20,12 @@ import at.specure.data.entity.SpeedRecord
 import at.specure.data.entity.TestRecord
 import at.specure.data.entity.TestTelephonyRecord
 import at.specure.data.entity.TestWlanRecord
-import at.specure.info.TransportType
 import at.specure.info.cell.CellNetworkInfo
 import at.specure.info.cell.CellTechnology
 import at.specure.info.network.MobileNetworkType
 import at.specure.info.network.NRConnectionState
 import at.specure.info.network.NetworkInfo
 import at.specure.info.network.WifiNetworkInfo
-import at.specure.info.strength.SignalSource
 import at.specure.info.strength.SignalStrengthInfo
 import at.specure.info.strength.SignalStrengthInfoCommon
 import at.specure.info.strength.SignalStrengthInfoGsm
@@ -36,21 +34,12 @@ import at.specure.info.strength.SignalStrengthInfoNr
 import at.specure.info.strength.SignalStrengthInfoWiFi
 import at.specure.location.LocationInfo
 import at.specure.location.cell.CellLocationInfo
-import at.specure.util.toCellInfoRecord
-import at.specure.util.uuid
-import cz.mroczis.netmonster.core.INetMonster
-import cz.mroczis.netmonster.core.model.cell.ICell
-import cz.mroczis.netmonster.core.model.signal.ISignal
-import cz.mroczis.netmonster.core.model.signal.SignalGsm
-import cz.mroczis.netmonster.core.model.signal.SignalLte
-import cz.mroczis.netmonster.core.model.signal.SignalNr
 import org.json.JSONArray
 import timber.log.Timber
 import java.text.DecimalFormat
 import java.util.concurrent.TimeUnit
 
-// TODO: remove netmonster dependency and bring the logic to upper layer (ony for testing prototype purposes)
-class TestDataRepositoryImpl(db: CoreDatabase, var netmonster: INetMonster) : TestDataRepository {
+class TestDataRepositoryImpl(db: CoreDatabase) : TestDataRepository {
 
     private val geoLocationDao = db.geoLocationDao()
     private val graphItemDao = db.graphItemsDao()
@@ -250,88 +239,16 @@ class TestDataRepositoryImpl(db: CoreDatabase, var netmonster: INetMonster) : Te
         signalDao.insert(item)
     }
 
-    private fun saveSignalStrengtNMhDirectly(
-        testUUID: String,
-        cellUUID: String,
-        info: ISignal,
-        testStartTimeNanos: Long,
-        nrConnectionState: NRConnectionState
-    ) {
-        val currentTime = System.nanoTime()
-        var signal = info.dbm
-        var wifiLinkSpeed: Int? = null
-        // 2G/3G
-        var bitErrorRate: Int? = null
-        // 4G
-        var lteRsrp: Int? = null
-        var lteRsrq: Int? = null
-        var lteRssnr: Int? = null
-        var lteCqi: Int? = null
-        var timingAdvance: Int? = null
-
-        var nrCsiRsrp: Int? = null
-        var nrCsiRsrq: Int? = null
-        var nrCsiSinr: Int? = null
-        var nrSsRsrp: Int? = null
-        var nrSsRsrq: Int? = null
-        var nrSsSinr: Int? = null
-
-        when (info) {
-            is SignalNr -> {
-                nrCsiRsrp = info.csiRsrp
-                nrCsiRsrq = info.csiRsrq
-                nrCsiSinr = info.csiSinr
-                nrSsRsrp = info.ssRsrp
-                nrSsRsrq = info.ssRsrq
-                nrSsSinr = info.ssSinr
-            }
-            is SignalLte -> {
-                signal = null
-                lteRsrp = info.rsrp?.toInt()
-                lteRsrq = info.rsrq?.toInt()
-                lteRssnr = info.snr?.toInt()
-                lteCqi = info.cqi
-                timingAdvance = info.timingAdvance
-            }
-            is SignalGsm -> {
-                bitErrorRate = info.bitErrorRate
-                timingAdvance = info.timingAdvance
-            }
+    override fun saveCellInfoRecord(cellInfoRecordList: List<CellInfoRecord>) = io {
+        if (cellInfoRecordList.isNotEmpty()) {
+            cellInfoDao.clearInsert(cellInfoRecordList[0].testUUID, cellInfoRecordList)
         }
+    }
 
-        Timber.e("Signal saving time 1: ${currentTime}  starting time: $testStartTimeNanos   current time: ${System.nanoTime()}")
-        val startTimestampNsSinceBoot = testStartTimeNanos + (SystemClock.elapsedRealtimeNanos() - System.nanoTime())
-        val timeNanos = currentTime - testStartTimeNanos
-        var timeNanosLast = if (currentTime < startTimestampNsSinceBoot) currentTime - startTimestampNsSinceBoot else null
-        if (timeNanosLast == 0L) {
-            timeNanosLast = null
+    override fun saveSignalRecord(signalRecordList: List<SignalRecord>) = io {
+        signalRecordList.forEach {
+            signalDao.insert(it)
         }
-
-        val item = SignalRecord(
-            testUUID = testUUID,
-            cellUuid = cellUUID,
-            signal = signal,
-            wifiLinkSpeed = wifiLinkSpeed,
-            timeNanos = timeNanos,
-            timeNanosLast = timeNanosLast,
-            bitErrorRate = bitErrorRate,
-            lteRsrp = lteRsrp,
-            lteRsrq = lteRsrq,
-            lteRssnr = lteRssnr,
-            lteCqi = lteCqi,
-            timingAdvance = timingAdvance,
-            mobileNetworkType = MobileNetworkType.UNKNOWN,
-            transportType = TransportType.CELLULAR,
-            nrConnectionState = nrConnectionState,
-            nrCsiRsrp = nrCsiRsrp,
-            nrCsiRsrq = nrCsiRsrq,
-            nrCsiSinr = nrCsiSinr,
-            nrSsRsrp = nrSsRsrp,
-            nrSsRsrq = nrSsRsrq,
-            nrSsSinr = nrSsSinr,
-            source = SignalSource.NM_CELL_INFO
-        )
-        signalDao.insert(item)
     }
 
     override fun saveCellInfo(testUUID: String, infoList: List<NetworkInfo>, testStartTimeNanos: Long) = io {
@@ -348,27 +265,6 @@ class TestDataRepositoryImpl(db: CoreDatabase, var netmonster: INetMonster) : Te
                         }
                     }
                     info.toCellInfoRecord(testUUID)
-                }
-                else -> throw IllegalArgumentException("Don't know how to save ${info.javaClass.simpleName} info into db")
-            }
-            if (mapped.uuid.isNotEmpty()) {
-                cellInfo.add(mapped)
-            }
-        }
-        cellInfoDao.clearInsert(testUUID, cellInfo)
-    }
-
-    override fun saveNMCellInfo(testUUID: String, infoList: List<ICell>, testStartTimeNanos: Long) = io {
-        val cellInfo = mutableListOf<CellInfoRecord>()
-        infoList.forEach { info ->
-            val mapped = when (info) {
-                is ICell -> {
-                    info.signal?.let {
-                        Timber.e("Signal saving time SCI: starting time: $testStartTimeNanos   current time: ${System.nanoTime()}")
-                        Timber.d("valid signal directly")
-                        saveSignalStrengtNMhDirectly(testUUID, info.uuid(), it, testStartTimeNanos, NRConnectionState.NOT_AVAILABLE)
-                    }
-                    info.toCellInfoRecord(testUUID, netmonster)
                 }
                 else -> throw IllegalArgumentException("Don't know how to save ${info.javaClass.simpleName} info into db")
             }
