@@ -917,7 +917,8 @@ data class QosTestResultDetailBody(
     /**
      * 2 character language code
      */
-    val language: String
+    val language: String,
+    val capabilities: CapabilitiesBody?
 )
 
 @Keep
