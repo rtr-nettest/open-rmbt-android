@@ -36,13 +36,13 @@ import at.specure.location.LocationWatcher
 import at.specure.location.cell.CellLocationInfo
 import at.specure.test.SignalMeasurementType
 import at.specure.test.toDeviceInfoLocation
+import at.specure.util.filterOnlyActiveDataCell
 import at.specure.util.mobileNetworkType
 import at.specure.util.toCellInfoRecord
 import at.specure.util.toCellLocation
 import at.specure.util.toSignalRecord
 import cz.mroczis.netmonster.core.INetMonster
 import cz.mroczis.netmonster.core.model.cell.ICell
-import cz.mroczis.netmonster.core.model.connection.PrimaryConnection
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -405,12 +405,7 @@ class SignalMeasurementProcessor @Inject constructor(
 
         val dataSubscriptionId = subscriptionManager.getCurrentDataSubscriptionId()
 
-        val primaryCells = cells?.filter {
-            // when there is -1 we will report both sims signal because we are unable to detect correct data subscription
-            val isFromDataSubscription = dataSubscriptionId == -1 || it.subscriptionId == dataSubscriptionId
-            val isPrimaryCell = it.connectionStatus is PrimaryConnection
-            isFromDataSubscription && isPrimaryCell
-        }
+        val primaryCells = cells?.filterOnlyActiveDataCell(dataSubscriptionId)
 
         val cellInfosToSave = mutableListOf<CellInfoRecord>()
         val signalsToSave = mutableListOf<SignalRecord>()

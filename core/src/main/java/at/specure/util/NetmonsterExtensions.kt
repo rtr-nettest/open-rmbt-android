@@ -32,6 +32,15 @@ import cz.mroczis.netmonster.core.model.signal.SignalNr
 import timber.log.Timber
 import java.util.UUID
 
+fun List<ICell>.filterOnlyActiveDataCell(dataSubscriptionId: Int): List<ICell> {
+    return this.filter {
+        // when there is -1 we will report both sims signal because we are unable to detect correct data subscription
+        val isFromDataSubscription = dataSubscriptionId == -1 || it.subscriptionId == dataSubscriptionId
+        val isPrimaryCell = it.connectionStatus is PrimaryConnection
+        isFromDataSubscription && isPrimaryCell
+    }
+}
+
 fun ISignal.toSignalRecord(
     testUUID: String,
     cellUUID: String,
