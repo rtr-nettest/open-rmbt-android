@@ -16,6 +16,7 @@ import at.specure.data.entity.TestRecord
 import at.specure.data.repository.MeasurementRepository
 import at.specure.data.repository.TestDataRepository
 import at.specure.info.Network5GSimulator
+import at.specure.info.TransportType
 import at.specure.info.cell.CellInfoWatcher
 import at.specure.info.cell.CellNetworkInfo
 import at.specure.info.network.ActiveNetworkLiveData
@@ -119,7 +120,9 @@ class StateRecorder @Inject constructor(
             }
             signalStrengthInfo = info
             Timber.e("Signal saving time OBSERVER: starting time: $testStartTimeNanos   current time: ${System.nanoTime()}")
-//            saveSignalStrengthInfo()
+            if (networkInfo?.type != TransportType.CELLULAR) {
+                saveSignalStrength(testUUID, signalStrengthInfo)
+            }
             saveCellInfo()
         })
 
@@ -154,7 +157,9 @@ class StateRecorder @Inject constructor(
         cellLocation = cellLocationWatcher.getCellLocationFromTelephony()
         saveCellLocation()
         saveLocationInfo()
-//        saveSignalStrengthInfo()
+        if (networkInfo?.type != TransportType.CELLULAR) {
+            saveSignalStrength(testUUID, signalStrengthInfo)
+        }
         saveCellInfo()
         saveCapabilities()
         savePermissionsStatus()
