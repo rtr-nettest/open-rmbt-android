@@ -8,6 +8,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
 import at.rmbt.util.exception.HandledException
 import at.specure.data.entity.CellInfoRecord
+import at.specure.data.entity.CellLocationRecord
 import at.specure.data.entity.ConnectivityStateRecord
 import at.specure.data.entity.SignalMeasurementChunk
 import at.specure.data.entity.SignalMeasurementInfo
@@ -23,7 +24,6 @@ import at.specure.info.connectivity.ConnectivityStateBundle
 import at.specure.info.connectivity.ConnectivityWatcher
 import at.specure.info.network.ActiveNetworkLiveData
 import at.specure.info.network.ActiveNetworkWatcher
-import at.specure.info.network.MobileNetworkType
 import at.specure.info.network.NRConnectionState
 import at.specure.info.network.NetworkInfo
 import at.specure.info.strength.SignalStrengthInfo
@@ -39,6 +39,7 @@ import at.specure.test.SignalMeasurementType
 import at.specure.test.toDeviceInfoLocation
 import at.specure.util.mobileNetworkType
 import at.specure.util.toCellInfoRecord
+import at.specure.util.toCellLocation
 import at.specure.util.toSignalRecord
 import cz.mroczis.netmonster.core.INetMonster
 import cz.mroczis.netmonster.core.model.cell.ICell
@@ -206,14 +207,6 @@ class SignalMeasurementProcessor @Inject constructor(
             }
         })
 
-        cellLocation = cellLocationWatcher.latestLocation
-        cellLocationLiveData.observe(owner, Observer {
-            cellLocation = it
-            if (isActive && !isPaused) {
-                saveCellLocation()
-            }
-        })
-
         connectivityWatcher.connectivityStateLiveData.observe(owner, Observer { state ->
             state?.let {
                 if (isActive) {
@@ -373,7 +366,6 @@ class SignalMeasurementProcessor @Inject constructor(
             if (chunk?.sequenceNumber == 0) {
                 saveCellInfo()
                 Timber.i("Saving signal New chunk created chunkID = ${chunk?.id} sequence: ${chunk?.sequenceNumber}")
-                saveCellLocation()
                 saveLocationInfo()
             }
             saveTelephonyInfo()
@@ -419,6 +411,7 @@ class SignalMeasurementProcessor @Inject constructor(
 
         val cellInfosToSave = mutableListOf<CellInfoRecord>()
         val signalsToSave = mutableListOf<SignalRecord>()
+        val cellLocationsToSave = mutableListOf<CellLocationRecord>()
 
         if (uuid != null) {
             val testStartTimeNanos = record?.startTimeNanos ?: 0
@@ -440,9 +433,13 @@ class SignalMeasurementProcessor @Inject constructor(
                             signalsToSave.add(signalRecord)
                         }
                     }
-
+                    val cellLocationRecord = iCell.toCellLocation(uuid, System.currentTimeMillis(), System.nanoTime(), testStartTimeNanos)
+                    cellLocationRecord?.let {
+                        cellLocationsToSave.add(cellLocationRecord)
+                    }
                     cellInfosToSave.add(cellInfoRecord)
                 }
+                repository.saveCellLocationRecord(cellLocationsToSave)
                 repository.saveCellInfoRecord(cellInfosToSave)
                 repository.saveSignalRecord(signalsToSave)
                 chunkDataSize += signalsToSave.size
@@ -464,40 +461,6 @@ class SignalMeasurementProcessor @Inject constructor(
         Timber.d("Saving location:  UUID:$uuid  ${location.toDeviceInfoLocation()} ")
         if (uuid != null && location != null && locationWatcher.state == LocationState.ENABLED) {
             repository.saveGeoLocation(uuid, location, record?.startTimeNanos ?: 0, false)
-        }
-    }
-
-    private fun saveCellLocation() {
-        val uuid = chunk?.id
-        val location = cellLocation
-        if (uuid != null && location != null) {
-            repository.saveCellLocation(uuid, location, record?.startTimeNanos ?: 0L)
-        }
-    }
-
-    private fun saveSignalStrength(uuid: String?, info: SignalStrengthInfo?) {
-        if (uuid != null && info != null) {
-            val cellUUID = networkInfo?.cellUUID ?: ""
-            var mobileNetworkType: MobileNetworkType? = null
-            var nrConnectionState = NRConnectionState.NOT_AVAILABLE
-            if (networkInfo != null && networkInfo is CellNetworkInfo && cellUUID.isNotEmpty()) {
-                mobileNetworkType = (networkInfo as CellNetworkInfo).networkType
-                nrConnectionState = (networkInfo as CellNetworkInfo).nrConnectionState
-
-                val isSignalValid = repository.validateSignalStrengthInfo(mobileNetworkType, info, cellUUID)
-
-                // saving only valid signal with associated cell (wifi and mobile connections)
-                if (isSignalValid) {
-                    Timber.d("Saving signal time SMP: chunkID: $uuid cellUUID: $cellUUID  timediff: ${record?.startTimeNanos?.minus(System.nanoTime())} starting time: ${record?.startTimeNanos}   current time: ${System.nanoTime()}")
-                    repository.saveSignalStrength(uuid, cellUUID, mobileNetworkType, info, record?.startTimeNanos ?: 0, nrConnectionState)
-
-                    chunkDataSize++
-                    if (chunkDataSize >= MAX_SIGNAL_COUNT_PER_CHUNK) {
-                        Timber.v("Chunk max size reached: $chunkDataSize")
-                        commitChunkData(ValidChunkPostProcessing.CREATE_NEW_CHUNK)
-                    }
-                }
-            }
         }
     }
 

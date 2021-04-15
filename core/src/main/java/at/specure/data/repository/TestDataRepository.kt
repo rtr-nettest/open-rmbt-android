@@ -4,6 +4,7 @@ import androidx.lifecycle.LiveData
 import at.rtr.rmbt.client.helper.TestStatus
 import at.specure.data.entity.CapabilitiesRecord
 import at.specure.data.entity.CellInfoRecord
+import at.specure.data.entity.CellLocationRecord
 import at.specure.data.entity.ConnectivityStateRecord
 import at.specure.data.entity.GraphItemRecord
 import at.specure.data.entity.LoopModeRecord
@@ -53,6 +54,8 @@ interface TestDataRepository {
     fun saveCellInfoRecord(cellInfoRecordList: List<CellInfoRecord>)
 
     fun saveSignalRecord(signalRecordList: List<SignalRecord>)
+
+    fun saveCellLocationRecord(cellLocationRecordList: List<CellLocationRecord>)
 
     fun getCapabilities(testUUID: String): CapabilitiesRecord
 

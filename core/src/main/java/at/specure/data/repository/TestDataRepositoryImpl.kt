@@ -251,6 +251,12 @@ class TestDataRepositoryImpl(db: CoreDatabase) : TestDataRepository {
         }
     }
 
+    override fun saveCellLocationRecord(cellLocationRecordList: List<CellLocationRecord>) = io {
+        if (cellLocationRecordList.isNotEmpty()) {
+            cellLocationDao.insertNew(cellLocationRecordList[0].testUUID, cellLocationRecordList)
+        }
+    }
+
     override fun saveCellInfo(testUUID: String, infoList: List<NetworkInfo>, testStartTimeNanos: Long) = io {
         val cellInfo = mutableListOf<CellInfoRecord>()
         infoList.forEach { info ->

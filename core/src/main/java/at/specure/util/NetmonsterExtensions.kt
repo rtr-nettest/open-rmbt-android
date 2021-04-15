@@ -3,6 +3,7 @@ package at.specure.util
 import android.os.SystemClock
 import at.rtr.rmbt.util.BandCalculationUtil
 import at.specure.data.entity.CellInfoRecord
+import at.specure.data.entity.CellLocationRecord
 import at.specure.data.entity.SignalRecord
 import at.specure.info.TransportType
 import at.specure.info.cell.CellTechnology
@@ -113,6 +114,20 @@ fun ISignal.toSignalRecord(
         nrSsSinr = nrSsSinr,
         source = SignalSource.NM_CELL_INFO
     )
+}
+
+fun ICell.toCellLocation(testUUID: String, timestampMillis: Long, timestampNanos: Long, startTimeNanos: Long): CellLocationRecord? {
+    primaryScramblingCode()?.let {
+        return CellLocationRecord(
+            testUUID = testUUID,
+            scramblingCode = it,
+            areaCode = this.areaCode(),
+            locationId = this.locationId(),
+            timestampNanos = timestampNanos - startTimeNanos,
+            timestampMillis = timestampMillis
+        )
+    }
+    return null
 }
 
 fun ICell.toCellInfoRecord(testUUID: String, netMonster: INetMonster) = CellInfoRecord(
