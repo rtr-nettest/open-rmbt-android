@@ -2,10 +2,12 @@ package at.specure.measurement.signal
 
 import android.os.Binder
 import android.os.Handler
+import android.telephony.SubscriptionManager
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
+import at.rmbt.client.control.getCurrentDataSubscriptionId
 import at.rmbt.util.exception.HandledException
 import at.specure.data.entity.CellInfoRecord
 import at.specure.data.entity.CellLocationRecord
@@ -18,7 +20,6 @@ import at.specure.data.repository.MeasurementRepository
 import at.specure.data.repository.SignalMeasurementRepository
 import at.specure.data.repository.TestDataRepository
 import at.specure.info.TransportType
-import at.specure.info.cell.CellInfoWatcher
 import at.specure.info.cell.CellNetworkInfo
 import at.specure.info.connectivity.ConnectivityStateBundle
 import at.specure.info.connectivity.ConnectivityWatcher
@@ -33,8 +34,6 @@ import at.specure.location.LocationInfo
 import at.specure.location.LocationState
 import at.specure.location.LocationWatcher
 import at.specure.location.cell.CellLocationInfo
-import at.specure.location.cell.CellLocationLiveData
-import at.specure.location.cell.CellLocationWatcher
 import at.specure.test.SignalMeasurementType
 import at.specure.test.toDeviceInfoLocation
 import at.specure.util.mobileNetworkType
@@ -72,9 +71,7 @@ class SignalMeasurementProcessor @Inject constructor(
     private val signalStrengthWatcher: SignalStrengthWatcher,
     private val activeNetworkLiveData: ActiveNetworkLiveData,
     private val activeNetworkWatcher: ActiveNetworkWatcher,
-    private val cellInfoWatcher: CellInfoWatcher,
-    private val cellLocationLiveData: CellLocationLiveData,
-    private val cellLocationWatcher: CellLocationWatcher,
+    private val subscriptionManager: SubscriptionManager,
     private val signalRepository: SignalMeasurementRepository,
     private val connectivityWatcher: ConnectivityWatcher,
     private val measurementRepository: MeasurementRepository
@@ -406,8 +403,14 @@ class SignalMeasurementProcessor @Inject constructor(
             Timber.e("NullPointerException: Not able to read telephonyManager.allCellInfo from other reason")
         }
 
-        // in case of dual sims here we will find primary cells for both sims
-        val primaryCells = cells?.filter { it.connectionStatus is PrimaryConnection }
+        val dataSubscriptionId = subscriptionManager.getCurrentDataSubscriptionId()
+
+        val primaryCells = cells?.filter {
+            // when there is -1 we will report both sims signal because we are unable to detect correct data subscription
+            val isFromDataSubscription = dataSubscriptionId == -1 || it.subscriptionId == dataSubscriptionId
+            val isPrimaryCell = it.connectionStatus is PrimaryConnection
+            isFromDataSubscription && isPrimaryCell
+        }
 
         val cellInfosToSave = mutableListOf<CellInfoRecord>()
         val signalsToSave = mutableListOf<SignalRecord>()
