@@ -428,7 +428,9 @@ class SignalMeasurementProcessor @Inject constructor(
                                 testStartTimeNanos,
                                 NRConnectionState.NOT_AVAILABLE
                             )
-                            signalsToSave.add(signalRecord)
+                            if (signalRecord.hasNonNullSignal()) {
+                                signalsToSave.add(signalRecord)
+                            }
                         }
                     }
                     val cellLocationRecord = iCell.toCellLocation(uuid, System.currentTimeMillis(), System.nanoTime(), testStartTimeNanos)
