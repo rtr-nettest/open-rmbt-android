@@ -2,7 +2,6 @@ package at.specure.data.entity
 
 import androidx.room.Entity
 import androidx.room.ForeignKey
-import androidx.room.PrimaryKey
 import at.specure.data.Columns
 import at.specure.data.Tables
 import at.specure.info.TransportType
@@ -10,10 +9,11 @@ import at.specure.info.network.MobileNetworkType
 import at.specure.info.network.NRConnectionState
 import at.specure.info.strength.SignalSource
 
-@Entity(tableName = Tables.SIGNAL)
+@Entity(
+    tableName = Tables.SIGNAL,
+    primaryKeys = ["timeNanos","testUUID","cellUuid"]
+)
 data class SignalRecord(
-    @PrimaryKey(autoGenerate = true)
-    val id: Long = 0,
     @ForeignKey(
         entity = TestRecord::class,
         parentColumns = [Columns.TEST_UUID_PARENT_COLUMN],
@@ -65,4 +65,22 @@ data class SignalRecord(
     val nrSsRsrp: Int?,
     val nrSsRsrq: Int?,
     val nrSsSinr: Int?
-)
+) {
+    fun hasNonNullSignal(): Boolean {
+        return listOfNotNull(
+            signal,
+            wifiLinkSpeed,
+            bitErrorRate,
+            lteRsrp,
+            lteRsrq,
+            lteRssnr,
+            lteCqi,
+            nrCsiRsrp,
+            nrCsiRsrq,
+            nrCsiSinr,
+            nrSsRsrp,
+            nrSsRsrq,
+            nrSsSinr
+        ).isNotEmpty()
+    }
+}
