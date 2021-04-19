@@ -11,7 +11,7 @@ import at.specure.info.strength.SignalSource
 
 @Entity(
     tableName = Tables.SIGNAL,
-    primaryKeys = ["timeNanos","testUUID","cellUuid"]
+    primaryKeys = ["timeNanos", "testUUID", "cellUuid"]
 )
 data class SignalRecord(
     @ForeignKey(
