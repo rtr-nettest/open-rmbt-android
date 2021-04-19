@@ -78,7 +78,7 @@ fun AppCompatTextView.setFrequency(networkInfo: NetworkInfo?) {
 
     text = when (networkInfo) {
         is WifiNetworkInfo -> networkInfo.band.name
-        is CellNetworkInfo -> networkInfo.band?.name
+        is CellNetworkInfo -> String.format(context.getString(R.string.home_frequency_value), networkInfo.band?.name)
         else -> "-"
     }
 }

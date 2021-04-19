@@ -9,6 +9,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
 import at.rmbt.client.control.getCurrentDataSubscriptionId
 import at.rmbt.util.exception.HandledException
+import at.rmbt.util.io
 import at.specure.data.entity.CellInfoRecord
 import at.specure.data.entity.CellLocationRecord
 import at.specure.data.entity.ConnectivityStateRecord
@@ -23,8 +24,6 @@ import at.specure.info.TransportType
 import at.specure.info.cell.CellNetworkInfo
 import at.specure.info.connectivity.ConnectivityStateBundle
 import at.specure.info.connectivity.ConnectivityWatcher
-import at.specure.info.network.ActiveNetworkLiveData
-import at.specure.info.network.ActiveNetworkWatcher
 import at.specure.info.network.NRConnectionState
 import at.specure.info.network.NetworkInfo
 import at.specure.info.strength.SignalStrengthInfo
@@ -69,8 +68,6 @@ class SignalMeasurementProcessor @Inject constructor(
     private val netmonster: INetMonster,
     private val signalStrengthLiveData: SignalStrengthLiveData,
     private val signalStrengthWatcher: SignalStrengthWatcher,
-    private val activeNetworkLiveData: ActiveNetworkLiveData,
-    private val activeNetworkWatcher: ActiveNetworkWatcher,
     private val subscriptionManager: SubscriptionManager,
     private val signalRepository: SignalMeasurementRepository,
     private val connectivityWatcher: ConnectivityWatcher,
@@ -140,7 +137,7 @@ class SignalMeasurementProcessor @Inject constructor(
         lastSignalMeasurementType = signalMeasurementType
 
         if (!isPaused) {
-            handleNewNetwork(activeNetworkWatcher.currentNetworkInfo)
+            handleNewNetwork(signalStrengthWatcher.lastNetworkInfo)
         }
     }
 
@@ -172,17 +169,11 @@ class SignalMeasurementProcessor @Inject constructor(
         _isPaused = false
         _pausedStateLiveData.postValue(_isPaused)
         if (isActive) {
-            handleNewNetwork(activeNetworkWatcher.currentNetworkInfo)
+            handleNewNetwork(signalStrengthWatcher.lastNetworkInfo)
         }
     }
 
     fun bind(owner: LifecycleOwner) {
-        activeNetworkLiveData.observe(owner, Observer {
-            if (isActive && !isPaused) {
-                handleNewNetwork(it?.networkInfo)
-                saveCellInfo()
-            }
-        })
 
         if (locationWatcher.state == LocationState.ENABLED) {
             locationInfo = locationWatcher.latestLocation
@@ -198,8 +189,9 @@ class SignalMeasurementProcessor @Inject constructor(
 
         signalStrengthInfo = signalStrengthWatcher.lastSignalStrength
         signalStrengthLiveData.observe(owner, Observer { info ->
-            signalStrengthInfo = info
+            signalStrengthInfo = info?.signalStrengthInfo
             if (isActive && !isPaused) {
+                handleNewNetwork(info?.networkInfo)
                 saveCellInfo()
             }
         })
@@ -390,7 +382,7 @@ class SignalMeasurementProcessor @Inject constructor(
         }
     }
 
-    private fun saveCellInfo() {
+    private fun saveCellInfo() = io {
         val uuid = chunk?.id
         var cells: List<ICell>? = null
         try {

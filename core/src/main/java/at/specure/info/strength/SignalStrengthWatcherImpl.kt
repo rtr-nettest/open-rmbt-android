@@ -26,10 +26,12 @@ import at.rmbt.util.io
 import at.specure.info.TransportType
 import at.specure.info.network.ActiveNetworkWatcher
 import at.specure.info.network.DetailedNetworkInfo
+import at.specure.info.network.NetworkInfo
 import at.specure.info.wifi.WifiInfoWatcher
 import at.specure.util.filterOnlyActiveDataCell
 import at.specure.util.permission.LocationAccess
 import at.specure.util.synchronizedForEach
+import at.specure.util.toCellNetworkInfo
 import at.specure.util.toSignalStrengthInfo
 import cz.mroczis.netmonster.core.INetMonster
 import cz.mroczis.netmonster.core.model.cell.ICell
@@ -58,6 +60,11 @@ class SignalStrengthWatcherImpl(
     private var wifiListenerRegistered = false
 
     private var signalStrengthInfo: SignalStrengthInfo? = null
+
+    private var networkInfo: NetworkInfo? = null
+
+    override val lastNetworkInfo: NetworkInfo?
+        get() = networkInfo
 
     override val lastSignalStrength: SignalStrengthInfo?
         get() = signalStrengthInfo
@@ -100,6 +107,7 @@ class SignalStrengthWatcherImpl(
         primaryCells?.toList()?.let {
             it.forEach { iCell ->
                 signalStrengthInfo = iCell.toSignalStrengthInfo(timeNanos)
+                networkInfo = iCell.toCellNetworkInfo(netmonster)
             }
         }
         notifyInfoChanged()
@@ -107,23 +115,23 @@ class SignalStrengthWatcherImpl(
 
     private val activeNetworkListener = object : ActiveNetworkWatcher.NetworkChangeListener {
 
-        override fun onActiveNetworkChanged(info: DetailedNetworkInfo) {
-            if (info.networkInfo == null) {
+        override fun onActiveNetworkChanged(detailedNetworkInfo: DetailedNetworkInfo) {
+            if (detailedNetworkInfo.networkInfo == null) {
                 unregisterWifiCallbacks()
                 unregisterCellCallbacks()
 
                 Timber.i("Network changed to NULL")
                 signalStrengthInfo = null
+                networkInfo = null
                 notifyInfoChanged()
-
                 return
             }
 
-            if (info.networkInfo.type == TransportType.CELLULAR) {
+            if (detailedNetworkInfo.networkInfo.type == TransportType.CELLULAR) {
                 registerCellCallbacks()
             }
 
-            if (info.networkInfo.type == TransportType.WIFI) {
+            if (detailedNetworkInfo.networkInfo.type == TransportType.WIFI) {
                 registerWifiCallbacks()
             }
         }
@@ -138,6 +146,7 @@ class SignalStrengthWatcherImpl(
         val wifiInfo = wifiInfoWatcher.activeWifiInfo
         if (wifiInfo != null) {
             signalStrengthInfo = SignalStrengthInfo.from(wifiInfo)
+            networkInfo = wifiInfo
         }
         notifyInfoChanged()
         scheduleWifiUpdate()
@@ -151,12 +160,12 @@ class SignalStrengthWatcherImpl(
     }
 
     private fun notifyInfoChanged() {
-        listeners.synchronizedForEach { it.onSignalStrengthChanged(signalStrengthInfo) }
+        listeners.synchronizedForEach { it.onSignalStrengthChanged(DetailedNetworkInfo(networkInfo, signalStrengthInfo, null, null)) }
     }
 
     override fun addListener(listener: SignalStrengthWatcher.SignalStrengthListener) {
         listeners.add(listener)
-        listener.onSignalStrengthChanged(lastSignalStrength)
+        listener.onSignalStrengthChanged(DetailedNetworkInfo(networkInfo, signalStrengthInfo, null, null))
         if (listeners.size == 1) {
             registerCallbacks()
         }

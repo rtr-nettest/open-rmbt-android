@@ -24,8 +24,6 @@ import at.specure.info.Network5GSimulator
 import at.specure.info.TransportType
 import at.specure.info.cell.CellInfoWatcher
 import at.specure.info.cell.CellNetworkInfo
-import at.specure.info.network.ActiveNetworkLiveData
-import at.specure.info.network.ActiveNetworkWatcher
 import at.specure.info.network.MobileNetworkType
 import at.specure.info.network.NRConnectionState
 import at.specure.info.network.NetworkInfo
@@ -58,8 +56,6 @@ class StateRecorder @Inject constructor(
     private val locationWatcher: LocationWatcher,
     private val signalStrengthLiveData: SignalStrengthLiveData,
     private val signalStrengthWatcher: SignalStrengthWatcher,
-    private val activeNetworkLiveData: ActiveNetworkLiveData,
-    private val activeNetworkWatcher: ActiveNetworkWatcher,
     private val cellInfoWatcher: CellInfoWatcher,
     private val config: Config,
     private val netmonster: INetMonster,
@@ -130,24 +126,15 @@ class StateRecorder @Inject constructor(
             if ((loopModeRecord != null) && (loopModeRecord?.status == LoopModeState.RUNNING)) {
                 lastMeasurementSignalStrength = signalStrengthInfo
             }
-            signalStrengthInfo = info
+            signalStrengthInfo = info?.signalStrengthInfo
             Timber.e("Signal saving time OBSERVER: starting time: $testStartTimeNanos   current time: ${System.nanoTime()}")
             if (networkInfo?.type != TransportType.CELLULAR) {
                 saveSignalStrength(testUUID, signalStrengthInfo)
             }
+            networkInfo = info?.networkInfo
             saveCellInfo()
-        })
-
-        networkInfo = activeNetworkWatcher.currentNetworkInfo
-        activeNetworkLiveData.observe(lifecycle, Observer {
-            synchronized(this) {
-                networkInfo = it?.networkInfo
-                if (networkInfo?.type != TransportType.CELLULAR) {
-                    saveCellInfo()
-                }
-                saveTelephonyInfo()
-                saveWlanInfo()
-            }
+            saveTelephonyInfo()
+            saveWlanInfo()
         })
     }
 

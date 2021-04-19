@@ -6,6 +6,10 @@ import at.specure.data.entity.CellInfoRecord
 import at.specure.data.entity.CellLocationRecord
 import at.specure.data.entity.SignalRecord
 import at.specure.info.TransportType
+import at.specure.info.band.CellBand
+import at.specure.info.band.CellBand.Companion.fromChannelNumber
+import at.specure.info.cell.CellChannelAttribution
+import at.specure.info.cell.CellNetworkInfo
 import at.specure.info.cell.CellTechnology
 import at.specure.info.network.MobileNetworkType
 import at.specure.info.network.NRConnectionState
@@ -34,6 +38,7 @@ import cz.mroczis.netmonster.core.model.band.BandLte
 import cz.mroczis.netmonster.core.model.band.BandNr
 import cz.mroczis.netmonster.core.model.band.BandTdscdma
 import cz.mroczis.netmonster.core.model.band.BandWcdma
+import cz.mroczis.netmonster.core.model.band.IBand
 import cz.mroczis.netmonster.core.model.cell.CellCdma
 import cz.mroczis.netmonster.core.model.cell.CellGsm
 import cz.mroczis.netmonster.core.model.cell.CellLte
@@ -268,6 +273,98 @@ fun ICell.toSignalStrengthInfo(timestampNanos: Long): SignalStrengthInfo? {
     } else {
         null
     }
+}
+
+fun ICell.toCellNetworkInfo(netMonster: INetMonster): CellNetworkInfo {
+    return CellNetworkInfo(
+        providerName = "", // TODO: can be change to legacy logic
+        band = this.band?.toCellBand(),
+        networkType = this.mobileNetworkType(netMonster),
+        mnc = this.network?.mnc?.toIntOrNull(),
+        mcc = this.network?.mcc?.toIntOrNull(),
+        locationId = this.locationId(),
+        areaCode = this.areaCode(),
+        scramblingCode = this.primaryScramblingCode(),
+        isRegistered = this.connectionStatus is PrimaryConnection,
+        isActive = this.connectionStatus is PrimaryConnection,
+        apn = null, // TODO: extract apn from legacy logic
+        isRoaming = false, // TODO: extract roaming from legacy logic
+        signalStrength = this.toSignalStrengthInfo(System.nanoTime()),
+        nrConnectionState = NRConnectionState.NOT_AVAILABLE, // TODO: could be changed to legacy logic
+        dualSimDetectionMethod = null,
+        cellUUID = this.uuid()
+    )
+}
+
+fun IBand.toCellBand(): CellBand? {
+    return when (this) {
+        is BandNr -> this.toCellBand()
+        is BandTdscdma -> this.toCellBand()
+        is BandLte -> this.toCellBand()
+        is BandWcdma -> this.toCellBand()
+        is BandGsm -> this.toCellBand()
+        else -> null
+    }
+}
+
+fun BandNr.toCellBand(): CellBand {
+    val legacyCellBand = fromChannelNumber(this.channelNumber, CellChannelAttribution.NRARFCN)
+    return CellBand(
+        frequencyDL = this.downlinkFrequency.toDouble(),
+        band = this.number ?: legacyCellBand?.band ?: -1,
+        channel = this.channelNumber,
+        name = this.name,
+        channelAttribution = CellChannelAttribution.NRARFCN,
+        frequencyUL = legacyCellBand?.frequencyUL ?: -1.0
+    )
+}
+
+fun BandLte.toCellBand(): CellBand {
+    val legacyCellBand = fromChannelNumber(this.channelNumber, CellChannelAttribution.EARFCN)
+    return CellBand(
+        frequencyDL = legacyCellBand?.frequencyDL ?: -1.0,
+        band = this.number ?: -1,
+        channel = this.channelNumber,
+        name = this.name,
+        channelAttribution = CellChannelAttribution.EARFCN,
+        frequencyUL = legacyCellBand?.frequencyUL ?: -1.0
+    )
+}
+
+fun BandWcdma.toCellBand(): CellBand {
+    val legacyCellBand = fromChannelNumber(this.channelNumber, CellChannelAttribution.UARFCN)
+    return CellBand(
+        frequencyDL = legacyCellBand?.frequencyDL ?: -1.0,
+        band = this.number ?: -1,
+        channel = this.channelNumber,
+        name = this.name,
+        channelAttribution = CellChannelAttribution.UARFCN,
+        frequencyUL = legacyCellBand?.frequencyUL ?: -1.0
+    )
+}
+
+fun BandTdscdma.toCellBand(): CellBand {
+    val legacyCellBand = fromChannelNumber(this.channelNumber, CellChannelAttribution.UARFCN)
+    return CellBand(
+        frequencyDL = legacyCellBand?.frequencyDL ?: -1.0,
+        band = this.number ?: -1,
+        channel = this.channelNumber,
+        name = this.name,
+        channelAttribution = CellChannelAttribution.UARFCN,
+        frequencyUL = legacyCellBand?.frequencyUL ?: -1.0
+    )
+}
+
+fun BandGsm.toCellBand(): CellBand {
+    val legacyCellBand = fromChannelNumber(this.channelNumber, CellChannelAttribution.ARFCN)
+    return CellBand(
+        frequencyDL = legacyCellBand?.frequencyDL ?: -1.0,
+        band = this.number ?: -1,
+        channel = this.channelNumber,
+        name = this.name,
+        channelAttribution = CellChannelAttribution.ARFCN,
+        frequencyUL = legacyCellBand?.frequencyUL ?: -1.0
+    )
 }
 
 fun ICell.toCellLocation(testUUID: String, timestampMillis: Long, timestampNanos: Long, startTimeNanos: Long): CellLocationRecord? {
