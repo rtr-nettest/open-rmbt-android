@@ -13,31 +13,26 @@
 
 package at.specure.info.strength
 
-import android.Manifest.permission.ACCESS_COARSE_LOCATION
-import android.Manifest.permission.READ_PHONE_STATE
 import android.annotation.SuppressLint
-import android.content.Context
 import android.os.Build
 import android.os.Handler
-import android.telephony.CellInfo
 import android.telephony.PhoneStateListener
 import android.telephony.SignalStrength
 import android.telephony.SubscriptionManager
 import android.telephony.TelephonyManager
-import androidx.core.content.PermissionChecker
-import androidx.core.content.PermissionChecker.PERMISSION_GRANTED
 import at.rmbt.client.control.getCorrectDataTelephonyManager
-import at.specure.info.Network5GSimulator
+import at.rmbt.client.control.getCurrentDataSubscriptionId
+import at.rmbt.util.io
 import at.specure.info.TransportType
-import at.specure.info.cell.ActiveDataCellInfoExtractor
-import at.specure.info.cell.CellInfoWatcher
 import at.specure.info.network.ActiveNetworkWatcher
 import at.specure.info.network.DetailedNetworkInfo
-import at.specure.info.network.NRConnectionState
 import at.specure.info.wifi.WifiInfoWatcher
-import at.specure.util.isDualSim
+import at.specure.util.filterOnlyActiveDataCell
 import at.specure.util.permission.LocationAccess
 import at.specure.util.synchronizedForEach
+import at.specure.util.toSignalStrengthInfo
+import cz.mroczis.netmonster.core.INetMonster
+import cz.mroczis.netmonster.core.model.cell.ICell
 import timber.log.Timber
 import java.util.Collections
 
@@ -49,13 +44,11 @@ private const val WIFI_MESSAGE_ID = 1
  * signal strength changes of current network available on the mobile device
  */
 class SignalStrengthWatcherImpl(
-    private val context: Context,
     private val subscriptionManager: SubscriptionManager,
+    private val netmonster: INetMonster,
     private val telephonyManager: TelephonyManager,
     private val activeNetworkWatcher: ActiveNetworkWatcher,
     private val wifiInfoWatcher: WifiInfoWatcher,
-    private val cellInfoWatcher: CellInfoWatcher,
-    private val activeDataCellInfoExtractor: ActiveDataCellInfoExtractor,
     locationAccess: LocationAccess
 ) : SignalStrengthWatcher, LocationAccess.LocationAccessChangeListener {
 
@@ -65,8 +58,6 @@ class SignalStrengthWatcherImpl(
     private var wifiListenerRegistered = false
 
     private var signalStrengthInfo: SignalStrengthInfo? = null
-
-    private var lastNRConnectionState: NRConnectionState? = null
 
     override val lastSignalStrength: SignalStrengthInfo?
         get() = signalStrengthInfo
@@ -85,73 +76,33 @@ class SignalStrengthWatcherImpl(
 
         @SuppressLint("MissingPermission")
         override fun onSignalStrengthsChanged(signalStrength: SignalStrength?) {
-            if (isDeviceIgnored) {
-                Timber.i("Signal Strength is ignored for current device")
-                return
-            }
+            processSignalChange()
+        }
+    }
 
-            var isNetworkStateConsistent = true
-            var nrConnectionState = NRConnectionState.NOT_AVAILABLE
-            var cellInfo: CellInfo? = null
-            val network = activeNetworkWatcher.currentNetworkInfo
-            if ((PermissionChecker.checkSelfPermission(context, READ_PHONE_STATE) == PERMISSION_GRANTED) && PermissionChecker.checkSelfPermission(
-                    context,
-                    ACCESS_COARSE_LOCATION
-                ) == PERMISSION_GRANTED
-            ) {
-                try {
-                    val cellInfos = cellInfoWatcher.rawAllCellInfo as MutableList<CellInfo>
-                    Timber.d("CellInfosChanged: is null? ${cellInfos.isNullOrEmpty()} empty? ${cellInfos?.isEmpty()} from SignalStrengthWatcher")
-                    val activeDataCellInfo =
-                        activeDataCellInfoExtractor.extractActiveCellInfo(cellInfos)
-                    isNetworkStateConsistent = activeDataCellInfo.isConsistent
-                    cellInfo = activeDataCellInfo.activeDataNetworkCellInfo
-                    nrConnectionState = activeDataCellInfo.nrConnectionState
-                } catch (e: SecurityException) {
-                    Timber.e("SecurityException: Not able to read telephonyManager.allCellInfo")
-                } catch (e: IllegalStateException) {
-                    Timber.e("IllegalStateException: Not able to read telephonyManager.allCellInfo")
-                } catch (e: NullPointerException) {
-                    Timber.e("NullPointerException: Not able to read telephonyManager.allCellInfo from other reason")
-                }
-            }
+    private fun processSignalChange() = io {
+        var cells: List<ICell>? = null
 
-            val dualSim = context.isDualSim(telephonyManager, subscriptionManager)
+        try {
+            cells = netmonster.getCells()
+        } catch (e: SecurityException) {
+            Timber.e("SecurityException: Not able to read telephonyManager.allCellInfo")
+        } catch (e: IllegalStateException) {
+            Timber.e("IllegalStateException: Not able to read telephonyManager.allCellInfo")
+        } catch (e: NullPointerException) {
+            Timber.e("NullPointerException: Not able to read telephonyManager.allCellInfo from other reason")
+        }
+        val timeNanos = System.nanoTime()
+        val dataSubscriptionId = subscriptionManager.getCurrentDataSubscriptionId()
 
-            Timber.d("Signal changed detected: value: ${signalStrength?.level}\nclass: ${signalStrength?.javaClass}\n ${signalStrength?.toString()}")
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                signalStrength?.cellSignalStrengths?.forEach {
-                    Timber.d("Cell signal changed detected: \ndbm: ${it.dbm}\nLevel: ${it.level}\nasuLevel: ${it.asuLevel}\nclass: ${it.javaClass}")
-                }
-            }
+        val primaryCells = cells?.filterOnlyActiveDataCell(dataSubscriptionId)
 
-            val signal = SignalStrengthInfo.from(signalStrength, network, cellInfo, nrConnectionState, dualSim)
-
-            if (nrConnectionState != lastNRConnectionState) {
-                cellInfoWatcher.forceUpdate()
-                lastNRConnectionState = nrConnectionState
-            }
-
-            if (signal?.value == null || signal.value == 0) {
-                signalStrengthInfo = null
-                lastNRConnectionState = null
-                Timber.d("Signal changed to: NULL")
-            } else {
-                signalStrengthInfo = if (Network5GSimulator.isEnabled) {
-                    Network5GSimulator.signalStrength(signal)
-                } else {
-                    if (isNetworkStateConsistent) {
-                        signal
-                    } else {
-                        null
-                    }
-                }
-                Timber.d("Signal changed to: \ntransport: ${signal.transport} \nvalue: ${signal.value} \nsignalLevel:${signal.signalLevel}")
-            }
-            if (isNetworkStateConsistent) {
-                notifyInfoChanged()
+        primaryCells?.toList()?.let {
+            it.forEach { iCell ->
+                signalStrengthInfo = iCell.toSignalStrengthInfo(timeNanos)
             }
         }
+        notifyInfoChanged()
     }
 
     private val activeNetworkListener = object : ActiveNetworkWatcher.NetworkChangeListener {

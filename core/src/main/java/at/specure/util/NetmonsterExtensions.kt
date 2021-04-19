@@ -10,6 +10,23 @@ import at.specure.info.cell.CellTechnology
 import at.specure.info.network.MobileNetworkType
 import at.specure.info.network.NRConnectionState
 import at.specure.info.strength.SignalSource
+import at.specure.info.strength.SignalStrengthInfo
+import at.specure.info.strength.SignalStrengthInfo.Companion.CELLULAR_SIGNAL_MAX
+import at.specure.info.strength.SignalStrengthInfo.Companion.CELLULAR_SIGNAL_MIN
+import at.specure.info.strength.SignalStrengthInfo.Companion.LTE_RSRP_SIGNAL_MAX
+import at.specure.info.strength.SignalStrengthInfo.Companion.LTE_RSRP_SIGNAL_MIN
+import at.specure.info.strength.SignalStrengthInfo.Companion.NR_RSRP_SIGNAL_MAX
+import at.specure.info.strength.SignalStrengthInfo.Companion.NR_RSRP_SIGNAL_MIN
+import at.specure.info.strength.SignalStrengthInfo.Companion.TDSCDMA_RSRP_SIGNAL_MAX
+import at.specure.info.strength.SignalStrengthInfo.Companion.TDSCDMA_RSRP_SIGNAL_MIN
+import at.specure.info.strength.SignalStrengthInfo.Companion.WCDMA_RSRP_SIGNAL_MAX
+import at.specure.info.strength.SignalStrengthInfo.Companion.WCDMA_RSRP_SIGNAL_MIN
+import at.specure.info.strength.SignalStrengthInfo.Companion.calculateCellSignalLevel
+import at.specure.info.strength.SignalStrengthInfo.Companion.calculateNRSignalLevel
+import at.specure.info.strength.SignalStrengthInfoCommon
+import at.specure.info.strength.SignalStrengthInfoGsm
+import at.specure.info.strength.SignalStrengthInfoLte
+import at.specure.info.strength.SignalStrengthInfoNr
 import cz.mroczis.netmonster.core.INetMonster
 import cz.mroczis.netmonster.core.db.model.NetworkType
 import cz.mroczis.netmonster.core.model.band.BandGsm
@@ -26,9 +43,12 @@ import cz.mroczis.netmonster.core.model.cell.CellWcdma
 import cz.mroczis.netmonster.core.model.cell.ICell
 import cz.mroczis.netmonster.core.model.connection.PrimaryConnection
 import cz.mroczis.netmonster.core.model.signal.ISignal
+import cz.mroczis.netmonster.core.model.signal.SignalCdma
 import cz.mroczis.netmonster.core.model.signal.SignalGsm
 import cz.mroczis.netmonster.core.model.signal.SignalLte
 import cz.mroczis.netmonster.core.model.signal.SignalNr
+import cz.mroczis.netmonster.core.model.signal.SignalTdscdma
+import cz.mroczis.netmonster.core.model.signal.SignalWcdma
 import timber.log.Timber
 import java.util.UUID
 
@@ -125,6 +145,131 @@ fun ISignal.toSignalRecord(
     )
 }
 
+fun ISignal.toSignalStrengthInfo(timestampNanos: Long): SignalStrengthInfo? {
+    return when (this) {
+        is SignalNr -> {
+            this.toSignalStrengthInfo(timestampNanos)
+        }
+        is SignalLte -> {
+            this.toSignalStrengthInfo(timestampNanos)
+        }
+        is SignalGsm -> {
+            this.toSignalStrengthInfo(timestampNanos)
+        }
+        is SignalCdma -> {
+            this.toSignalStrengthInfo(timestampNanos)
+        }
+        is SignalWcdma -> {
+            this.toSignalStrengthInfo(timestampNanos)
+        }
+        is SignalTdscdma -> {
+            this.toSignalStrengthInfo(timestampNanos)
+        }
+        else -> null
+    }
+}
+
+fun SignalTdscdma.toSignalStrengthInfo(timestampNanos: Long): SignalStrengthInfo {
+    return SignalStrengthInfoCommon(
+        transport = TransportType.CELLULAR,
+        value = this.dbm,
+        rsrq = null,
+        signalLevel = calculateCellSignalLevel(this.dbm, TDSCDMA_RSRP_SIGNAL_MIN, TDSCDMA_RSRP_SIGNAL_MAX),
+        min = TDSCDMA_RSRP_SIGNAL_MIN,
+        max = TDSCDMA_RSRP_SIGNAL_MAX,
+        timestampNanos = timestampNanos,
+        source = SignalSource.NM_CELL_INFO
+    )
+}
+
+fun SignalCdma.toSignalStrengthInfo(timestampNanos: Long): SignalStrengthInfo {
+    return SignalStrengthInfoCommon(
+        transport = TransportType.CELLULAR,
+        value = this.dbm,
+        rsrq = null,
+        signalLevel = calculateCellSignalLevel(this.dbm, WCDMA_RSRP_SIGNAL_MIN, WCDMA_RSRP_SIGNAL_MAX),
+        min = WCDMA_RSRP_SIGNAL_MIN,
+        max = WCDMA_RSRP_SIGNAL_MAX,
+        timestampNanos = timestampNanos,
+        source = SignalSource.NM_CELL_INFO
+    )
+}
+
+fun SignalWcdma.toSignalStrengthInfo(timestampNanos: Long): SignalStrengthInfo {
+    return SignalStrengthInfoCommon(
+        transport = TransportType.CELLULAR,
+        value = this.dbm,
+        rsrq = null,
+        signalLevel = calculateCellSignalLevel(this.dbm, WCDMA_RSRP_SIGNAL_MIN, WCDMA_RSRP_SIGNAL_MAX),
+        min = WCDMA_RSRP_SIGNAL_MIN,
+        max = WCDMA_RSRP_SIGNAL_MAX,
+        timestampNanos = timestampNanos,
+        source = SignalSource.NM_CELL_INFO
+    )
+}
+
+fun SignalGsm.toSignalStrengthInfo(timestampNanos: Long): SignalStrengthInfo {
+    return SignalStrengthInfoGsm(
+        transport = TransportType.CELLULAR,
+        value = this.dbm,
+        rsrq = null,
+        signalLevel = calculateCellSignalLevel(this.dbm, CELLULAR_SIGNAL_MIN, CELLULAR_SIGNAL_MAX),
+        min = CELLULAR_SIGNAL_MIN,
+        max = CELLULAR_SIGNAL_MAX,
+        timestampNanos = timestampNanos,
+        source = SignalSource.NM_CELL_INFO,
+        bitErrorRate = this.bitErrorRate,
+        timingAdvance = this.timingAdvance
+    )
+}
+
+fun SignalLte.toSignalStrengthInfo(timestampNanos: Long): SignalStrengthInfo {
+    val signalValue = this.dbm ?: this.rsrp?.toInt()
+    return SignalStrengthInfoLte(
+        transport = TransportType.CELLULAR,
+        value = signalValue,
+        rsrq = this.rsrq?.toInt(),
+        signalLevel = calculateCellSignalLevel(signalValue, LTE_RSRP_SIGNAL_MIN, LTE_RSRP_SIGNAL_MAX),
+        min = LTE_RSRP_SIGNAL_MIN,
+        max = LTE_RSRP_SIGNAL_MAX,
+        timestampNanos = timestampNanos,
+        source = SignalSource.NM_CELL_INFO,
+        cqi = this.cqi,
+        rsrp = this.rsrp?.toInt(),
+        rssi = this.rssi,
+        rssnr = this.snr?.toInt(),
+        timingAdvance = this.timingAdvance
+    )
+}
+
+fun SignalNr.toSignalStrengthInfo(timestampNanos: Long): SignalStrengthInfo {
+    return SignalStrengthInfoNr(
+        transport = TransportType.CELLULAR,
+        value = this.dbm,
+        rsrq = null,
+        signalLevel = calculateNRSignalLevel(this.dbm),
+        min = NR_RSRP_SIGNAL_MIN,
+        max = NR_RSRP_SIGNAL_MAX,
+        timestampNanos = timestampNanos,
+        source = SignalSource.NM_CELL_INFO,
+        csiRsrp = this.csiRsrp,
+        csiRsrq = this.csiRsrq,
+        csiSinr = this.csiSinr,
+        ssRsrp = this.ssRsrp,
+        ssRsrq = this.ssRsrq,
+        ssSinr = this.ssSinr
+    )
+}
+
+fun ICell.toSignalStrengthInfo(timestampNanos: Long): SignalStrengthInfo? {
+    val iSignal: ISignal? = this.signal
+    return if (iSignal != null) {
+        signal?.toSignalStrengthInfo(timestampNanos)
+    } else {
+        null
+    }
+}
+
 fun ICell.toCellLocation(testUUID: String, timestampMillis: Long, timestampNanos: Long, startTimeNanos: Long): CellLocationRecord? {
     primaryScramblingCode()?.let {
         return CellLocationRecord(
@@ -170,10 +315,10 @@ fun ICell.channelNumber(): Int? {
 fun ICell.frequency(): Double? {
     return when (band) {
         is BandNr -> (band as BandNr).downlinkFrequency.toDouble()
-        is BandGsm -> BandCalculationUtil.getBandFromArfcn((band as BandGsm).arfcn).frequencyDL
-        is BandLte -> BandCalculationUtil.getBandFromEarfcn((band as BandLte).downlinkEarfcn).frequencyDL
-        is BandTdscdma -> BandCalculationUtil.getBandFromUarfcn((band as BandTdscdma).downlinkUarfcn).frequencyDL
-        is BandWcdma -> BandCalculationUtil.getBandFromUarfcn((band as BandWcdma).downlinkUarfcn).frequencyDL
+        is BandGsm -> BandCalculationUtil.getBandFromArfcn((band as BandGsm).arfcn)?.frequencyDL
+        is BandLte -> BandCalculationUtil.getBandFromEarfcn((band as BandLte).downlinkEarfcn)?.frequencyDL
+        is BandTdscdma -> BandCalculationUtil.getBandFromUarfcn((band as BandTdscdma).downlinkUarfcn)?.frequencyDL
+        is BandWcdma -> BandCalculationUtil.getBandFromUarfcn((band as BandWcdma).downlinkUarfcn)?.frequencyDL
         else -> null
     }
 }

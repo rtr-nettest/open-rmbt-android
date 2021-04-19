@@ -752,7 +752,7 @@ abstract class SignalStrengthInfo : Parcelable {
             return signal
         }
 
-        private fun calculateCellSignalLevel(signal: Int?, min: Int, max: Int): Int {
+        fun calculateCellSignalLevel(signal: Int?, min: Int, max: Int): Int {
             val relativeSignal: Double = ((signal ?: 0) - min.toDouble()) / (max - min)
             return when {
                 relativeSignal <= 0.0 -> 0
@@ -773,6 +773,10 @@ abstract class SignalStrengthInfo : Parcelable {
          */
         private fun calculateNRCellSignalLevel(signal: CellSignalStrengthNr): Int {
             val signalValue = signal.extractSignalValue().fixNrRsrp()
+            return calculateNRSignalLevel(signalValue)
+        }
+
+        fun calculateNRSignalLevel(signalValue: Int?): Int {
             return when {
                 signalValue == null -> 0
                 signalValue <= SSRSRP_SIGNAL_STRENGTH_NONE -> 0
