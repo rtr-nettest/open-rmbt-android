@@ -31,11 +31,9 @@ import at.rtr.rmbt.android.util.ToolbarTheme
 import at.rtr.rmbt.android.util.changeStatusBarColor
 import at.rtr.rmbt.android.util.listen
 import at.rtr.rmbt.android.viewmodel.HomeViewModel
-import at.specure.info.cell.CellNetworkInfo
 import at.specure.location.LocationState
 import at.specure.measurement.MeasurementService
 import at.specure.util.toast
-import timber.log.Timber
 
 class HomeFragment : BaseFragment() {
 
@@ -54,13 +52,7 @@ class HomeFragment : BaseFragment() {
         }
 
         homeViewModel.signalStrengthLiveData.listen(this) {
-            homeViewModel.state.signalStrength.set(it)
-        }
-
-        homeViewModel.activeNetworkLiveData.listen(this) {
-            if (it.networkInfo != null && it.networkInfo is CellNetworkInfo) {
-                Timber.d("DNI: 1 nrstate:${it.nrConnectionState}  networkInfo: ${it.networkInfo} networktype: ${(it.networkInfo as CellNetworkInfo).networkType}  networktypeNRstate: ${(it.networkInfo as CellNetworkInfo).nrConnectionState}")
-            }
+            homeViewModel.state.signalStrength.set(it?.signalStrengthInfo)
             homeViewModel.state.activeNetworkInfo.set(it)
         }
 
@@ -183,13 +175,7 @@ class HomeFragment : BaseFragment() {
     override fun onResume() {
         super.onResume()
         homeViewModel.signalStrengthLiveData.listen(this) {
-            homeViewModel.state.signalStrength.set(it)
-        }
-
-        homeViewModel.activeNetworkLiveData.listen(this) {
-            if (it.networkInfo != null && it.networkInfo is CellNetworkInfo) {
-                Timber.d("DNI: 2 nrstate:${it.nrConnectionState}  networkInfo: ${it.networkInfo} networktype: ${(it.networkInfo as CellNetworkInfo).networkType}  networktypeNRstate: ${(it.networkInfo as CellNetworkInfo).nrConnectionState}")
-            }
+            homeViewModel.state.signalStrength.set(it?.signalStrengthInfo)
             homeViewModel.state.activeNetworkInfo.set(it)
         }
     }
