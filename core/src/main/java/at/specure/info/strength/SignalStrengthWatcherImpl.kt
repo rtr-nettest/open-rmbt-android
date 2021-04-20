@@ -14,6 +14,7 @@
 package at.specure.info.strength
 
 import android.annotation.SuppressLint
+import android.content.Context
 import android.os.Build
 import android.os.Handler
 import android.telephony.PhoneStateListener
@@ -22,6 +23,7 @@ import android.telephony.SubscriptionManager
 import android.telephony.TelephonyManager
 import at.rmbt.client.control.getCorrectDataTelephonyManager
 import at.rmbt.client.control.getCurrentDataSubscriptionId
+import at.rmbt.client.control.getTelephonyManagerForSubscription
 import at.rmbt.util.io
 import at.specure.info.TransportType
 import at.specure.info.network.ActiveNetworkWatcher
@@ -34,6 +36,7 @@ import at.specure.util.synchronizedForEach
 import at.specure.util.toCellNetworkInfo
 import at.specure.util.toSignalStrengthInfo
 import cz.mroczis.netmonster.core.INetMonster
+import cz.mroczis.netmonster.core.factory.NetMonsterFactory
 import cz.mroczis.netmonster.core.model.cell.ICell
 import timber.log.Timber
 import java.util.Collections
@@ -46,6 +49,7 @@ private const val WIFI_MESSAGE_ID = 1
  * signal strength changes of current network available on the mobile device
  */
 class SignalStrengthWatcherImpl(
+    private val context: Context,
     private val subscriptionManager: SubscriptionManager,
     private val netmonster: INetMonster,
     private val telephonyManager: TelephonyManager,
@@ -107,7 +111,20 @@ class SignalStrengthWatcherImpl(
         primaryCells?.toList()?.let {
             it.forEach { iCell ->
                 signalStrengthInfo = iCell.toSignalStrengthInfo(timeNanos)
-                networkInfo = iCell.toCellNetworkInfo(netmonster)
+                try {
+                    networkInfo = iCell.toCellNetworkInfo(
+                        activeNetworkWatcher.currentNetworkInfo,
+                        telephonyManager.getTelephonyManagerForSubscription(iCell.subscriptionId),
+                        NetMonsterFactory.getTelephony(context, iCell.subscriptionId),
+                        netmonster
+                    )
+                } catch (e: SecurityException) {
+                    Timber.e("SecurityException: Not able to obtain networkInfo")
+                } catch (e: IllegalStateException) {
+                    Timber.e("IllegalStateException: Not able to obtain networkInfo")
+                } catch (e: NullPointerException) {
+                    Timber.e("NullPointerException: Not able to obtain networkInfo from other reason")
+                }
             }
         }
         notifyInfoChanged()

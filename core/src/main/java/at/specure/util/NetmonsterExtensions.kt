@@ -1,6 +1,9 @@
 package at.specure.util
 
+import android.Manifest
 import android.os.SystemClock
+import android.telephony.TelephonyManager
+import androidx.annotation.RequiresPermission
 import at.rtr.rmbt.util.BandCalculationUtil
 import at.specure.data.entity.CellInfoRecord
 import at.specure.data.entity.CellLocationRecord
@@ -13,6 +16,7 @@ import at.specure.info.cell.CellNetworkInfo
 import at.specure.info.cell.CellTechnology
 import at.specure.info.network.MobileNetworkType
 import at.specure.info.network.NRConnectionState
+import at.specure.info.network.NetworkInfo
 import at.specure.info.strength.SignalSource
 import at.specure.info.strength.SignalStrengthInfo
 import at.specure.info.strength.SignalStrengthInfo.Companion.CELLULAR_SIGNAL_MAX
@@ -54,6 +58,7 @@ import cz.mroczis.netmonster.core.model.signal.SignalLte
 import cz.mroczis.netmonster.core.model.signal.SignalNr
 import cz.mroczis.netmonster.core.model.signal.SignalTdscdma
 import cz.mroczis.netmonster.core.model.signal.SignalWcdma
+import cz.mroczis.netmonster.core.telephony.ITelephonyManagerCompat
 import timber.log.Timber
 import java.util.UUID
 
@@ -275,9 +280,15 @@ fun ICell.toSignalStrengthInfo(timestampNanos: Long): SignalStrengthInfo? {
     }
 }
 
-fun ICell.toCellNetworkInfo(netMonster: INetMonster): CellNetworkInfo {
+@RequiresPermission(allOf = [Manifest.permission.READ_PHONE_STATE, Manifest.permission.ACCESS_COARSE_LOCATION])
+fun ICell.toCellNetworkInfo(
+    networkInfo: NetworkInfo?,
+    dataTelephonyManager: TelephonyManager?,
+    telephonyManagerNetmonster: ITelephonyManagerCompat,
+    netMonster: INetMonster
+): CellNetworkInfo {
     return CellNetworkInfo(
-        providerName = "", // TODO: can be change to legacy logic
+        providerName = dataTelephonyManager?.networkOperatorName ?: telephonyManagerNetmonster.getNetworkOperator()?.toPlmn("-") ?: "",
         band = this.band?.toCellBand(),
         networkType = this.mobileNetworkType(netMonster),
         mnc = this.network?.mnc?.toIntOrNull(),
@@ -287,10 +298,14 @@ fun ICell.toCellNetworkInfo(netMonster: INetMonster): CellNetworkInfo {
         scramblingCode = this.primaryScramblingCode(),
         isRegistered = this.connectionStatus is PrimaryConnection,
         isActive = this.connectionStatus is PrimaryConnection,
-        apn = null, // TODO: extract apn from legacy logic
-        isRoaming = false, // TODO: extract roaming from legacy logic
+        apn = if (networkInfo != null && networkInfo is CellNetworkInfo) {
+            networkInfo.apn
+        } else "",
+        isRoaming = dataTelephonyManager?.isNetworkRoaming ?: false,
         signalStrength = this.toSignalStrengthInfo(System.nanoTime()),
-        nrConnectionState = NRConnectionState.NOT_AVAILABLE, // TODO: could be changed to legacy logic
+        nrConnectionState = if (dataTelephonyManager != null) {
+            NRConnectionState.getNRConnectionState(dataTelephonyManager)
+        } else NRConnectionState.NOT_AVAILABLE,
         dualSimDetectionMethod = null,
         cellUUID = this.uuid()
     )

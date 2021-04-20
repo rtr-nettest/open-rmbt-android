@@ -88,9 +88,11 @@ class MeasurementActivity : BaseActivity(), SimpleDialog.Callback {
         viewModel.signalStrengthLiveData.listen(this) {
             if (it?.networkInfo == null) {
                 viewModel.state.setSignalStrength(null)
+                viewModel.state.networkInfo.set(null)
                 viewModel.state.isConnected.set(false)
             } else {
                 viewModel.state.isConnected.set(true)
+                viewModel.state.networkInfo.set(it.networkInfo)
                 viewModel.state.setSignalStrength(it.signalStrengthInfo)
             }
         }
