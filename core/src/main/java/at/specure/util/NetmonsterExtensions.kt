@@ -234,7 +234,7 @@ fun SignalGsm.toSignalStrengthInfo(timestampNanos: Long): SignalStrengthInfo {
 }
 
 fun SignalLte.toSignalStrengthInfo(timestampNanos: Long): SignalStrengthInfo {
-    val signalValue = this.dbm ?: this.rsrp?.toInt()
+    val signalValue = this.rsrp?.toInt()
     return SignalStrengthInfoLte(
         transport = TransportType.CELLULAR,
         value = signalValue,
@@ -255,9 +255,9 @@ fun SignalLte.toSignalStrengthInfo(timestampNanos: Long): SignalStrengthInfo {
 fun SignalNr.toSignalStrengthInfo(timestampNanos: Long): SignalStrengthInfo {
     return SignalStrengthInfoNr(
         transport = TransportType.CELLULAR,
-        value = this.dbm,
+        value = this.ssRsrp,
         rsrq = null,
-        signalLevel = calculateNRSignalLevel(this.dbm),
+        signalLevel = calculateNRSignalLevel(this.ssRsrp),
         min = NR_RSRP_SIGNAL_MIN,
         max = NR_RSRP_SIGNAL_MAX,
         timestampNanos = timestampNanos,
