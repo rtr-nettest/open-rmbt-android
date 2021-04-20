@@ -78,7 +78,7 @@ class CoreModule {
         telephonyManager: TelephonyManager,
         activeNetworkWatcher: ActiveNetworkWatcher,
         wifiInfoWatcher: WifiInfoWatcher,
-        locationAccess: LocationAccess,
+        locationAccess: LocationAccess
     ): SignalStrengthWatcher =
         SignalStrengthWatcherImpl(
             subscriptionManager,
