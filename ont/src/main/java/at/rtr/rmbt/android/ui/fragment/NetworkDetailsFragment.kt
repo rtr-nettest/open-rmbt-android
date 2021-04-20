@@ -31,12 +31,9 @@ class NetworkDetailsFragment : BaseFragment() {
             state.setConnectivityInfo(it)
         }
 
-        viewModel.activeNetworkLiveData.listen(this) {
-            state.setActiveNetworkInfo(it)
-        }
-
         viewModel.signalStrengthLiveData.listen(this) {
-            state.setSignalStrengthInfo(it)
+            state.setSignalStrengthInfo(it?.signalStrengthInfo)
+            state.setActiveNetworkInfo(it)
         }
 
         viewModel.ipV4ChangeLiveData.listen(this) {

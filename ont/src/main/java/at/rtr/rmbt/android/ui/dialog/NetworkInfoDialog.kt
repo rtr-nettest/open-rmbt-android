@@ -61,19 +61,19 @@ class NetworkInfoDialog : FullscreenDialog() {
         }
 
         signalStrengthLiveData.listen(this) { signal ->
-            binding.signal = signal
+            binding.signal = signal?.signalStrengthInfo
 
-            if (signal is SignalStrengthInfoLte && signal.timingAdvance != null) {
-                val ta = signal.timingAdvance!!
+            if (signal?.signalStrengthInfo is SignalStrengthInfoLte && (signal?.signalStrengthInfo as SignalStrengthInfoLte).timingAdvance != null) {
+                val ta = (signal?.signalStrengthInfo as SignalStrengthInfoLte).timingAdvance!!
                 binding.timingAdvance = "$ta ~(${ta * 78} m)"
             } else {
                 binding.timingAdvance = null
             }
 
-            if (signal?.rsrq == null) {
+            if (signal?.signalStrengthInfo?.rsrq == null) {
                 binding.quality = null
             } else {
-                binding.quality = "${signal.rsrq} dB"
+                binding.quality = "${signal.signalStrengthInfo?.rsrq} dB"
             }
         }
     }
