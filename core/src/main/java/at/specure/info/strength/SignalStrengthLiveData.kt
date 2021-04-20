@@ -14,13 +14,14 @@
 package at.specure.info.strength
 
 import androidx.lifecycle.LiveData
+import at.specure.info.network.DetailedNetworkInfo
 import timber.log.Timber
 import javax.inject.Inject
 
 /**
  * LiveData that observes cellular signal strength changes
  */
-class SignalStrengthLiveData @Inject constructor(private val signalStrengthWatcher: SignalStrengthWatcher) : LiveData<SignalStrengthInfo?>(),
+class SignalStrengthLiveData @Inject constructor(private val signalStrengthWatcher: SignalStrengthWatcher) : LiveData<DetailedNetworkInfo?>(),
     SignalStrengthWatcher.SignalStrengthListener {
 
     override fun onActive() {
@@ -33,12 +34,12 @@ class SignalStrengthLiveData @Inject constructor(private val signalStrengthWatch
         signalStrengthWatcher.removeListener(this)
     }
 
-    override fun onSignalStrengthChanged(signalInfo: SignalStrengthInfo?) {
+    override fun onSignalStrengthChanged(signalInfo: DetailedNetworkInfo?) {
         var message = ""
         message = if (signalInfo == null) {
             "SSP NOTIFY - SignalStrength: null"
         } else {
-            "SSP NOTIFY - SignalStrength: value: ${signalInfo.value} \nmax: ${signalInfo.max} \nmin: ${signalInfo.min} \nrsrq: ${signalInfo.rsrq} \ntransportType: ${signalInfo.transport.name} \nsignal level: ${signalInfo.signalLevel} \n "
+            "SSP NOTIFY - SignalStrength: value: ${signalInfo.signalStrengthInfo?.value} \nmax: ${signalInfo.signalStrengthInfo?.max} \nmin: ${signalInfo.signalStrengthInfo?.min} \nrsrq: ${signalInfo.signalStrengthInfo?.rsrq} \ntransportType: ${signalInfo.signalStrengthInfo?.transport?.name} \nsignal level: ${signalInfo.signalStrengthInfo?.signalLevel} \n "
         }
         Timber.v(message)
         postValue(signalInfo)

@@ -24,7 +24,7 @@ import java.util.concurrent.TimeUnit
 import javax.inject.Singleton
 
 private const val CONNECTION_TIMEOUT_SEC = 30L
-private const val READ_TIMEOUT_SEC = 8L
+private const val READ_TIMEOUT_SEC = 10L
 
 /**
  * Temporary module for providing Retrofit instance

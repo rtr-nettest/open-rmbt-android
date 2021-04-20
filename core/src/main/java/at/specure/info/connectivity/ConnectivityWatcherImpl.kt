@@ -52,10 +52,10 @@ class ConnectivityWatcherImpl(private val connectivityManager: ConnectivityManag
 
     private val callback = object : ConnectivityManager.NetworkCallback() {
 
-        override fun onCapabilitiesChanged(network: Network?, networkCapabilities: NetworkCapabilities?) {
+        override fun onCapabilitiesChanged(network: Network, networkCapabilities: NetworkCapabilities) {
             Timber.d("onCapabilitiesChanged ${network?.id()}")
             postConnectivityState(ConnectivityState.ON_CAPABILITIES_CHANGED, network)
-            if (network != null && network.id() == availableNetworkId && networkCapabilities != null) {
+            if (network.id() == availableNetworkId) {
                 _activeNetwork = ConnectivityInfo(
                     netId = network.id(),
                     transportType = TransportType.fromNetworkCapability(networkCapabilities),
@@ -67,20 +67,20 @@ class ConnectivityWatcherImpl(private val connectivityManager: ConnectivityManag
             }
         }
 
-        override fun onLost(network: Network?) {
-            Timber.d("onLost ${network?.id()}")
+        override fun onLost(network: Network) {
+            Timber.d("onLost ${network.id()}")
             postConnectivityState(ConnectivityState.ON_LOST, network)
-            if (availableNetworkId == network?.id()) {
+            if (availableNetworkId == network.id()) {
                 availableNetworkId = null
                 _activeNetwork = null
                 notifyListeners()
             }
         }
 
-        override fun onLinkPropertiesChanged(network: Network?, linkProperties: LinkProperties?) {
+        override fun onLinkPropertiesChanged(network: Network, linkProperties: LinkProperties) {
             postConnectivityState(ConnectivityState.ON_LINK_PROPERTIES_CHANGED, network)
-            linkProperties?.linkAddresses
-            Timber.d("onLinkPropertiesChanged ${network?.id()}")
+            linkProperties.linkAddresses
+            Timber.d("onLinkPropertiesChanged ${network.id()}")
             notifyListeners()
         }
 
@@ -92,19 +92,19 @@ class ConnectivityWatcherImpl(private val connectivityManager: ConnectivityManag
             notifyListeners()
         }
 
-        override fun onLosing(network: Network?, maxMsToLive: Int) {
+        override fun onLosing(network: Network, maxMsToLive: Int) {
             postConnectivityState(ConnectivityState.ON_LOSING, network)
-            Timber.d("onLosing ${network?.id()}")
+            Timber.d("onLosing ${network.id()}")
         }
 
         @Suppress("DEPRECATION")
-        override fun onAvailable(network: Network?) {
+        override fun onAvailable(network: Network) {
             postConnectivityState(ConnectivityState.ON_AVAILABLE, network)
-            availableNetworkId = network?.id()
+            availableNetworkId = network.id()
 
             // on android versions prior to 8 onCapabilityChanged callback does not called after registering a listener
             // This code forces to get information about network from deprecated methods
-            if (network != null && Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
                 connectivityManager.activeNetworkInfo?.let {
                     val transportType = it.transportType()
                     if (transportType != null) {

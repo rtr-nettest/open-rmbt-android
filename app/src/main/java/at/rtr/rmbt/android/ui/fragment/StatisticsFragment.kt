@@ -4,12 +4,14 @@ import android.annotation.SuppressLint
 import android.graphics.Bitmap
 import android.os.Bundle
 import android.view.KeyEvent
+import android.view.LayoutInflater
 import android.view.View
-import android.webkit.WebViewClient
-import android.webkit.WebView
-import android.webkit.WebResourceRequest
+import android.view.ViewGroup
 import android.webkit.WebResourceError
+import android.webkit.WebResourceRequest
 import android.webkit.WebResourceResponse
+import android.webkit.WebView
+import android.webkit.WebViewClient
 import at.rtr.rmbt.android.R
 import at.rtr.rmbt.android.databinding.FragmentStatisticsBinding
 import at.rtr.rmbt.android.di.viewModelLazy
@@ -21,9 +23,15 @@ import at.rtr.rmbt.android.viewmodel.StatisticsViewModel
 class StatisticsFragment : BaseFragment() {
 
     private val statisticsViewModel: StatisticsViewModel by viewModelLazy()
-    private val binding: FragmentStatisticsBinding by bindingLazy()
+    private var _binding: FragmentStatisticsBinding? = null
+    private val binding get() = _binding!!
 
     override val layoutResId = R.layout.fragment_statistics
+
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+        _binding = FragmentStatisticsBinding.inflate(inflater, container, false)
+        return binding.root
+    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -43,7 +51,8 @@ class StatisticsFragment : BaseFragment() {
             setOnKeyListener(View.OnKeyListener { _, keyCode, event ->
                 if (keyCode == KeyEvent.KEYCODE_BACK &&
                     event.action == KeyEvent.ACTION_UP &&
-                    canGoBack()) {
+                    canGoBack()
+                ) {
                     goBack()
                     return@OnKeyListener true
                 }
@@ -52,11 +61,17 @@ class StatisticsFragment : BaseFragment() {
         }
     }
 
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
+    }
+
     private class MyWebViewClient(private val statisticsViewModel: StatisticsViewModel) : WebViewClient() {
         override fun shouldOverrideUrlLoading(view: WebView?, url: String?): Boolean {
-            view?.loadUrl(url)
+            view?.loadUrl(url ?: "")
             return true
         }
+
         override fun onPageStarted(view: WebView?, url: String?, favicon: Bitmap?) {
             super.onPageStarted(view, url, favicon)
             statisticsViewModel.state.isLoading.set(true)

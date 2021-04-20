@@ -62,6 +62,26 @@ fun <T : BaseResponse> Call<T>.exec(silentError: Boolean = false): Maybe<T> {
 }
 
 /**
+ * Returns correct telephony manager for data connection or if it fails it returns null.
+ */
+fun TelephonyManager.getTelephonyManagerForSubscription(dataSubscriptionId: Int): TelephonyManager? {
+    return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+        try {
+            if (dataSubscriptionId != INVALID_SUBSCRIPTION_ID) {
+                this.createForSubscriptionId(dataSubscriptionId)
+            } else {
+                null
+            }
+        } catch (e: Exception) {
+            Timber.e("problem to obtain correct telephony manager for data subscription")
+            null
+        }
+    } else {
+        null
+    }
+}
+
+/**
  * Returns correct telephony manager for data connection or if it fails it returns default one.
  */
 fun TelephonyManager.getCorrectDataTelephonyManager(subscriptionManager: SubscriptionManager): TelephonyManager {

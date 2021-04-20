@@ -30,7 +30,7 @@ class TermsAcceptanceActivity : BaseActivity() {
 
         binding.content.webViewClient = TermsClient()
         viewModel.tacContentLiveData.listen(this) {
-            binding.content.loadDataWithBaseURL(null, it, "text/html", "utf-8", null)
+            binding.content.loadDataWithBaseURL(null, it ?: "", "text/html", "utf-8", null)
         }
 
         binding.buttonToBottom.setOnClickListener {

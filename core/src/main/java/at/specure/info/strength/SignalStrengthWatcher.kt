@@ -14,6 +14,9 @@
 
 package at.specure.info.strength
 
+import at.specure.info.network.DetailedNetworkInfo
+import at.specure.info.network.NetworkInfo
+
 /**
  * Watcher that is responsible for tracking signal strength of active network
  */
@@ -23,6 +26,11 @@ interface SignalStrengthWatcher {
      * The last received signal strength
      */
     val lastSignalStrength: SignalStrengthInfo?
+
+    /**
+     * The last received networkInfo
+     */
+    val lastNetworkInfo: NetworkInfo?
 
     /**
      * Add listener to start receiving updates of [SignalStrengthInfo]
@@ -43,6 +51,6 @@ interface SignalStrengthWatcher {
          * Triggers when signal data of currently active network is updated
          * NULL will be triggered if no active network available
          */
-        fun onSignalStrengthChanged(signalInfo: SignalStrengthInfo?)
+        fun onSignalStrengthChanged(signalInfo: DetailedNetworkInfo?)
     }
 }
