@@ -27,6 +27,9 @@ import at.specure.info.cell.CellNetworkInfo
 import at.specure.info.cell.CellTechnology
 import at.specure.info.ip.IpInfo
 import at.specure.info.ip.IpStatus
+import at.specure.info.network.DetailedNetworkInfo
+import at.specure.info.network.MobileNetworkType
+import at.specure.info.network.NRConnectionState
 import at.specure.info.network.NetworkInfo
 import at.specure.info.network.WifiNetworkInfo
 import at.specure.info.strength.SignalStrengthInfo
@@ -75,7 +78,7 @@ fun AppCompatTextView.setFrequency(networkInfo: NetworkInfo?) {
 
     text = when (networkInfo) {
         is WifiNetworkInfo -> networkInfo.band.name
-        is CellNetworkInfo -> networkInfo.band?.name
+        is CellNetworkInfo -> String.format(context.getString(R.string.home_frequency_value), networkInfo.band?.name)
         else -> "-"
     }
 }
@@ -167,22 +170,26 @@ fun AppCompatImageButton.setIcon(signalStrengthInfo: SignalStrengthInfo?, connec
  * A binding adapter that is used for show network type
  */
 @BindingAdapter("networkType")
-fun AppCompatTextView.setNetworkType(networkInfo: NetworkInfo?) {
+fun AppCompatTextView.setNetworkType(detailedNetworkInfo: DetailedNetworkInfo?) {
 
     /**
      *  display "LTE" (true) or "4G/LTE" (false)
      */
     val shortDisplayOfTechnology = true
 
-    text = when (networkInfo) {
+    text = when (detailedNetworkInfo?.networkInfo) {
         is WifiNetworkInfo -> context.getString(R.string.home_wifi)
         is CellNetworkInfo -> {
             val technology =
-                CellTechnology.fromMobileNetworkType(networkInfo.networkType)?.displayName
+                CellTechnology.fromMobileNetworkType((detailedNetworkInfo.networkInfo as CellNetworkInfo).networkType)?.displayName
             if (shortDisplayOfTechnology || technology == null) {
-                networkInfo.networkType.displayName
+                if ((detailedNetworkInfo.networkInfo as CellNetworkInfo).networkType == MobileNetworkType.NR && detailedNetworkInfo.nrConnectionState == NRConnectionState.NSA) {
+                    MobileNetworkType.NR_NSA.displayName
+                } else {
+                    (detailedNetworkInfo.networkInfo as CellNetworkInfo).networkType.displayName
+                }
             } else {
-                "$technology/${networkInfo.networkType.displayName}"
+                "$technology/${(detailedNetworkInfo.networkInfo as CellNetworkInfo).networkType.displayName}"
             }
         }
         else -> context.getString(R.string.home_attention)

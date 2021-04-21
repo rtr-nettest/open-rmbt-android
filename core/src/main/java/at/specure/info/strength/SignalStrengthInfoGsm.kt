@@ -13,6 +13,7 @@ class SignalStrengthInfoGsm(
     override val min: Int,
     override val max: Int,
     override val timestampNanos: Long,
+    override val source: SignalSource,
 
     /**
      * Return the Bit Error Rate

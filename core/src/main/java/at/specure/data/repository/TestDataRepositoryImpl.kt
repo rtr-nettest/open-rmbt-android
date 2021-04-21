@@ -1,7 +1,6 @@
 package at.specure.data.repository
 
 import android.os.SystemClock
-import android.util.Log.d
 import androidx.lifecycle.LiveData
 import at.rmbt.util.io
 import at.rtr.rmbt.client.helper.TestStatus
@@ -234,9 +233,28 @@ class TestDataRepositoryImpl(db: CoreDatabase) : TestDataRepository {
             nrCsiSinr = nrCsiSinr,
             nrSsRsrp = nrSsRsrp,
             nrSsRsrq = nrSsRsrq,
-            nrSsSinr = nrSsSinr
+            nrSsSinr = nrSsSinr,
+            source = info.source
         )
         signalDao.insert(item)
+    }
+
+    override fun saveCellInfoRecord(cellInfoRecordList: List<CellInfoRecord>) = io {
+        if (cellInfoRecordList.isNotEmpty()) {
+            cellInfoDao.clearInsert(cellInfoRecordList[0].testUUID, cellInfoRecordList)
+        }
+    }
+
+    override fun saveSignalRecord(signalRecordList: List<SignalRecord>) = io {
+        signalRecordList.forEach {
+            signalDao.insert(it)
+        }
+    }
+
+    override fun saveCellLocationRecord(cellLocationRecordList: List<CellLocationRecord>) = io {
+        if (cellLocationRecordList.isNotEmpty()) {
+            cellLocationDao.insertNew(cellLocationRecordList[0].testUUID, cellLocationRecordList)
+        }
     }
 
     override fun saveCellInfo(testUUID: String, infoList: List<NetworkInfo>, testStartTimeNanos: Long) = io {

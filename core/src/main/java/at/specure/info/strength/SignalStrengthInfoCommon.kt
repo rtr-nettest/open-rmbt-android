@@ -12,5 +12,6 @@ class SignalStrengthInfoCommon(
     override val signalLevel: Int,
     override val min: Int,
     override val max: Int,
-    override val timestampNanos: Long
+    override val timestampNanos: Long,
+    override val source: SignalSource
 ) : SignalStrengthInfo(), Parcelable

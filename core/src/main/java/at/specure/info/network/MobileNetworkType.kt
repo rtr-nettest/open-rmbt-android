@@ -16,6 +16,7 @@ package at.specure.info.network
 
 import android.telephony.TelephonyManager
 import at.specure.data.ServerNetworkType
+import cz.mroczis.netmonster.core.db.model.NetworkType
 import timber.log.Timber
 
 /**
@@ -131,7 +132,7 @@ enum class MobileNetworkType(val intValue: Int, val displayName: String) {
     /**
      * Current network is NR(New Radio) Non standalone mode 5G.
      */
-    NR_NSA(41, "NR"), // made up number because of no support in current android version fot this type
+    NR_NSA(41, "NR NSA"), // made up number because of no support in current android version fot this type
 
     /**
      * Current network is LTE with 5G signalling
@@ -148,6 +149,9 @@ enum class MobileNetworkType(val intValue: Int, val displayName: String) {
             }
 
             return when (intValue) {
+                NetworkType.LTE_NR -> NR_NSA
+                NetworkType.LTE_CA_NR -> NR_NSA
+                NetworkType.HSPA_DC -> HSPA
                 ServerNetworkType.TYPE_2G_3G.intValue -> HSPA
                 ServerNetworkType.TYPE_2G_3G_4G.intValue -> LTE
                 ServerNetworkType.TYPE_2G_4G.intValue -> LTE

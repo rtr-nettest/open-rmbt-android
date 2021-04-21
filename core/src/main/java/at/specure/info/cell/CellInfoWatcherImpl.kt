@@ -81,18 +81,19 @@ class CellInfoWatcherImpl(
     private val infoListener = object : PhoneStateListener() {
 
         override fun onCellInfoChanged(cellInfos: MutableList<CellInfo>?) {
-            processCellInfos(cellInfos)
+            processCellInfos(cellInfos, "callback")
         }
     }
 
     @Synchronized
-    private fun processCellInfos(cellInfos: MutableList<CellInfo>?) {
-        _rawAllCellInfo.clear()
+    private fun processCellInfos(cellInfos: MutableList<CellInfo>?, source: String) {
+        Timber.d("CellInfosChanged: is null? ${cellInfos.isNullOrEmpty()} empty? ${cellInfos?.isEmpty()} from $source")
         cellInfos ?: return
-
+        _rawAllCellInfo = cellInfos
         try {
             val activeDataCellInfo = activeDataCellInfoExtractor.extractActiveCellInfo(cellInfos)
 
+            Timber.d("CellInfosChanged: is null? activeDataNetworkCellInfo? ${activeDataCellInfo.activeDataNetworkCellInfo == null} inconstent ${!activeDataCellInfo.isConsistent}")
             if (!activeDataCellInfo.isConsistent) return
 
             activeDataCellInfo.activeDataNetworkCellInfo?.let {
@@ -209,14 +210,22 @@ class CellInfoWatcherImpl(
         try {
             if (locationAccess.isAllowed && phoneStateAccess.isAllowed) {
                 if (context.isCoarseLocationPermitted()) {
-                    0
+                    Timber.d("CellInfosChanged: is null? registration ${telephonyManager.getCorrectDataTelephonyManager(subscriptionManager).allCellInfo == null}")
                     infoListener.onCellInfoChanged(telephonyManager.getCorrectDataTelephonyManager(subscriptionManager).allCellInfo)
                     telephonyManager.getCorrectDataTelephonyManager(subscriptionManager).listen(infoListener, PhoneStateListener.LISTEN_CELL_INFO)
                     if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q) {
                         val cellInfoCallback = object : TelephonyManager.CellInfoCallback() {
 
+                            // this can return an empty list or error in case of null so we need to handle error situations
                             override fun onCellInfo(cellInfo: MutableList<CellInfo>) {
-                                processCellInfos(cellInfo)
+                                if (cellInfo.isNotEmpty()) {
+                                    processCellInfos(cellInfo, "original callback")
+                                }
+                            }
+
+                            override fun onError(errorCode: Int, detail: Throwable?) {
+                                super.onError(errorCode, detail)
+                                Timber.d("CellInfosChanged: is null? true errorCode: $errorCode detail: $detail")
                             }
                         }
 
