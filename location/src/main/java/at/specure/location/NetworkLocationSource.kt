@@ -20,6 +20,7 @@ class NetworkLocationSource(val context: Context) : LocationSource {
     private var listener: LocationSource.Listener? = null
 
     override val location: LocationInfo?
+        @SuppressLint("MissingPermission")
         get() = try {
             if (ActivityCompat.checkSelfPermission(
                     context,
@@ -41,15 +42,15 @@ class NetworkLocationSource(val context: Context) : LocationSource {
 
     private val locationListener = object : LocationListener {
 
-        override fun onLocationChanged(location: Location?) {
-            listener?.onLocationChanged(location?.let { LocationInfo(it) })
+        override fun onLocationChanged(location: Location) {
+            listener?.onLocationChanged(LocationInfo(location))
         }
 
         override fun onStatusChanged(provider: String?, status: Int, extras: Bundle?) {}
 
-        override fun onProviderEnabled(provider: String?) {}
+        override fun onProviderEnabled(provider: String) {}
 
-        override fun onProviderDisabled(provider: String?) {}
+        override fun onProviderDisabled(provider: String) {}
     }
 
     @SuppressLint("MissingPermission")

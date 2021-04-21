@@ -13,6 +13,7 @@ class SignalStrengthInfoWiFi(
     override val min: Int,
     override val max: Int,
     override val timestampNanos: Long,
+    override val source: SignalSource = SignalSource.NOT_AVAILABLE,
 
     /**
      * The current link speed in Mbps.
