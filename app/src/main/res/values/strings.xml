@@ -33,7 +33,7 @@
     <string name="home_no_internet_connection">No Internet connection!</string>
     <string name="home_no_internet_connection_details">No test is possible.</string>
     <string name="home_signal_value">%1$d dBm</string>
-    <string name="home_frequency_value" translatable="false">%1$s Mhz</string>
+    <string name="home_frequency_value" translatable="false">%1$s MHz</string>
     <string name="home_start_test_info">Press the button to start the test now!</string>
     <string name="home_wifi">WLAN</string>
     <string name="public_ip_address">Public address</string>
