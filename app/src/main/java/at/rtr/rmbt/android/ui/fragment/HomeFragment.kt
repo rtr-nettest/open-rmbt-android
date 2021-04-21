@@ -52,11 +52,8 @@ class HomeFragment : BaseFragment() {
         }
 
         homeViewModel.signalStrengthLiveData.listen(this) {
-            homeViewModel.state.signalStrength.set(it)
-        }
-
-        homeViewModel.activeNetworkLiveData.listen(this) {
-            homeViewModel.state.activeNetworkInfo.set(it.networkInfo)
+            homeViewModel.state.signalStrength.set(it?.signalStrengthInfo)
+            homeViewModel.state.activeNetworkInfo.set(it)
         }
 
         homeViewModel.locationStateLiveData.listen(this) {
@@ -178,11 +175,8 @@ class HomeFragment : BaseFragment() {
     override fun onResume() {
         super.onResume()
         homeViewModel.signalStrengthLiveData.listen(this) {
-            homeViewModel.state.signalStrength.set(it)
-        }
-
-        homeViewModel.activeNetworkLiveData.listen(this) {
-            homeViewModel.state.activeNetworkInfo.set(it.networkInfo)
+            homeViewModel.state.signalStrength.set(it?.signalStrengthInfo)
+            homeViewModel.state.activeNetworkInfo.set(it)
         }
     }
 
