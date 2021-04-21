@@ -24,7 +24,6 @@ class LoopFinishedActivity : BaseActivity() {
 
         binding.buttonRunAgain.setOnClickListener {
             HomeActivity.startWithFragment(this, HomeActivity.Companion.HomeNavigationTarget.HOME_FRAGMENT_TO_SHOW)
-            LoopConfigurationActivity.start(this)
         }
     }
 

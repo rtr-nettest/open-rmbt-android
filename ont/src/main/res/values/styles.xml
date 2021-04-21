@@ -55,6 +55,19 @@
         <item name="android:windowContentOverlay">@null</item>
     </style>
 
+    <style name="NavigationButtonStyle">
+        <item name="android:theme">@style/ItemBackground</item>
+        <item name="android:minWidth">56dp</item>
+        <item name="android:minHeight">?attr/actionBarSize</item>
+        <item name="android:scaleType">center</item>
+        <item name="android:background">?selectableItemBackgroundBorderless</item>
+
+    </style>
+
+    <style name="ItemBackground" parent="android:Widget">
+        <item name="colorControlHighlight">@color/blackRipple</item>
+    </style>
+
     <!-- Roboto font style -->
     <style name="RobotoRegularStyle">
         <item name="android:fontFamily">@font/roboto_regular</item>
@@ -75,8 +88,16 @@
         <item name="android:textSize">12sp</item>
     </style>
 
+    <style name="RobotoRegularStyle.SmallSmall">
+        <item name="android:textSize">13sp</item>
+    </style>
+
     <style name="RobotoRegularStyle.Small">
         <item name="android:textSize">14sp</item>
+    </style>
+
+    <style name="RobotoRegularStyle.MediumSmall">
+        <item name="android:textSize">15sp</item>
     </style>
 
     <style name="RobotoRegularStyle.Medium">
@@ -113,19 +134,6 @@
 
     <style name="RobotoMediumStyle.ExtraLarge">
         <item name="android:textSize">24sp</item>
-    </style>
-
-    <style name="ItemBackground" parent="android:Widget">
-        <item name="colorControlHighlight">@color/blackRipple</item>
-    </style>
-
-    <style name="NavigationButtonStyle">
-        <item name="android:theme">@style/ItemBackground</item>
-        <item name="android:minWidth">56dp</item>
-        <item name="android:minHeight">?attr/actionBarSize</item>
-        <item name="android:scaleType">center</item>
-        <item name="android:background">?selectableItemBackgroundBorderless</item>
-
     </style>
 
     <style name="FullScreenDialogStyle" parent="Theme.AppCompat.Dialog">

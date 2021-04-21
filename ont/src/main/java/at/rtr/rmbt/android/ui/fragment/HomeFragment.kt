@@ -10,28 +10,18 @@ import android.os.Bundle
 import android.os.Handler
 import android.view.View
 import androidx.core.content.ContextCompat.checkSelfPermission
-import at.rmbt.client.control.IpProtocol
 import at.rtr.rmbt.android.R
 import at.rtr.rmbt.android.databinding.FragmentHomeBinding
 import at.rtr.rmbt.android.di.viewModelLazy
-import at.rtr.rmbt.android.ui.activity.LoopConfigurationActivity
-import at.rtr.rmbt.android.ui.activity.LoopInstructionsActivity
 import at.rtr.rmbt.android.ui.activity.MeasurementActivity
 import at.rtr.rmbt.android.ui.activity.PreferenceActivity
-import at.rtr.rmbt.android.ui.activity.SignalMeasurementTermsActivity
-import at.rtr.rmbt.android.ui.dialog.IpInfoDialog
-import at.rtr.rmbt.android.ui.dialog.LocationInfoDialog
 import at.rtr.rmbt.android.ui.dialog.MessageDialog
-import at.rtr.rmbt.android.ui.dialog.NetworkInfoDialog
-import at.rtr.rmbt.android.ui.dialog.OpenGpsSettingDialog
-import at.rtr.rmbt.android.ui.dialog.OpenLocationPermissionDialog
 import at.rtr.rmbt.android.ui.dialog.SimpleDialog
 import at.rtr.rmbt.android.util.InfoWindowStatus
 import at.rtr.rmbt.android.util.ToolbarTheme
 import at.rtr.rmbt.android.util.changeStatusBarColor
 import at.rtr.rmbt.android.util.listen
 import at.rtr.rmbt.android.viewmodel.HomeViewModel
-import at.specure.location.LocationState
 import at.specure.measurement.MeasurementService
 import at.specure.util.toast
 
@@ -52,11 +42,8 @@ class HomeFragment : BaseFragment() {
         }
 
         homeViewModel.signalStrengthLiveData.listen(this) {
-            homeViewModel.state.signalStrength.set(it)
-        }
-
-        homeViewModel.activeNetworkLiveData.listen(this) {
-            homeViewModel.state.activeNetworkInfo.set(it.networkInfo)
+            homeViewModel.state.signalStrength.set(it?.signalStrengthInfo)
+            homeViewModel.state.activeNetworkInfo.set(it?.networkInfo)
         }
 
         homeViewModel.locationStateLiveData.listen(this) {
@@ -71,39 +58,10 @@ class HomeFragment : BaseFragment() {
             homeViewModel.state.ipV6Info.set(it)
         }
 
-        binding.btnSetting?.setOnClickListener {
-            startActivity(Intent(requireContext(), PreferenceActivity::class.java))
-        }
-        binding.tvInfo?.setOnClickListener {
-            homeViewModel.state.infoWindowStatus.set(InfoWindowStatus.GONE)
-        }
-
-        binding.btnIpv4?.setOnClickListener {
-            IpInfoDialog.instance(IpProtocol.V4).show(activity)
-        }
-
-        binding.btnIpv6?.setOnClickListener {
-            IpInfoDialog.instance(IpProtocol.V6).show(activity)
-        }
-
-        binding.btnLocation?.setOnClickListener {
-
-            context?.let {
-                homeViewModel.state.isLocationEnabled.get()?.let {
-                    when (it) {
-                        LocationState.ENABLED -> LocationInfoDialog.instance().show(activity)
-                        LocationState.DISABLED_APP -> OpenLocationPermissionDialog.instance().show(activity)
-                        LocationState.DISABLED_DEVICE -> OpenGpsSettingDialog.instance().show(activity)
-                    }
-                }
-            }
-        }
-
         binding.ivSignalLevel.setOnClickListener {
             if (homeViewModel.isConnected.value == true) {
                 if (!homeViewModel.clientUUID.value.isNullOrEmpty()) {
                     if (homeViewModel.state.isLoopModeActive.get()) {
-                        LoopConfigurationActivity.start(requireContext())
                     } else {
                         MeasurementService.startTests(requireContext())
                         MeasurementActivity.start(requireContext())
@@ -116,35 +74,12 @@ class HomeFragment : BaseFragment() {
             }
         }
 
-        binding.btnUpload?.setOnClickListener {
-            homeViewModel.activeSignalMeasurementLiveData.value?.let { active ->
-                if (!active) {
-                    val intent = SignalMeasurementTermsActivity.start(requireContext())
-                    startActivityForResult(intent, CODE_SIGNAL_MEASUREMENT_TERMS)
-                } else {
-                    homeViewModel.toggleSignalMeasurementService()
-                }
-            }
-        }
-
-        binding.buttonMenu?.setOnClickListener {
+        binding.buttonSettings.setOnClickListener {
             startActivity(Intent(requireContext(), PreferenceActivity::class.java))
         }
 
         homeViewModel.activeSignalMeasurementLiveData.listen(this) {
             homeViewModel.state.isSignalMeasurementActive.set(it)
-        }
-
-        binding.btnLoop?.setOnClickListener {
-            if (this.isResumed) {
-                if (binding.btnLoop?.isChecked == true) {
-                    val intent = LoopInstructionsActivity.start(requireContext())
-                    startActivityForResult(intent, CODE_LOOP_INSTRUCTIONS)
-                } else {
-                    homeViewModel.state.isLoopModeActive.set(false)
-                    binding.btnLoop?.isChecked = false
-                }
-            }
         }
 
         homeViewModel.newsLiveData.listen(this) {
@@ -165,28 +100,13 @@ class HomeFragment : BaseFragment() {
                 homeViewModel.setNewsShown(newItem)
             }
         }
-
-        binding.tvFrequency?.setOnClickListener {
-            if (homeViewModel.isExpertModeOn) {
-                NetworkInfoDialog.show(childFragmentManager)
-            }
-        }
-
-        binding.tvSignal?.setOnClickListener {
-            if (homeViewModel.isExpertModeOn) {
-                NetworkInfoDialog.show(childFragmentManager)
-            }
-        }
     }
 
     override fun onResume() {
         super.onResume()
         homeViewModel.signalStrengthLiveData.listen(this) {
-            homeViewModel.state.signalStrength.set(it)
-        }
-
-        homeViewModel.activeNetworkLiveData.listen(this) {
-            homeViewModel.state.activeNetworkInfo.set(it.networkInfo)
+            homeViewModel.state.signalStrength.set(it?.signalStrengthInfo)
+            homeViewModel.state.activeNetworkInfo.set(it?.networkInfo)
         }
     }
 
@@ -197,10 +117,8 @@ class HomeFragment : BaseFragment() {
             CODE_LOOP_INSTRUCTIONS -> {
                 if (resultCode == Activity.RESULT_OK) {
                     homeViewModel.state.isLoopModeActive.set(true)
-                    binding.btnLoop?.isChecked = true
                 } else {
                     homeViewModel.state.isLoopModeActive.set(false)
-                    binding.btnLoop?.isChecked = false
                 }
             }
             CODE_SIGNAL_MEASUREMENT_TERMS -> {

@@ -28,45 +28,41 @@ import android.webkit.WebViewClient
 import androidx.appcompat.widget.Toolbar
 import at.rtr.rmbt.android.R
 import at.rtr.rmbt.android.databinding.ActivityDataPrivacyTermsOfUseBinding
-import at.rtr.rmbt.android.di.viewModelLazy
-import at.rtr.rmbt.android.util.listen
-import at.rtr.rmbt.android.viewmodel.TermsAcceptanceViewModel
 
 @SuppressLint("SetJavaScriptEnabled")
 class DataPrivacyAndTermsOfUseActivity : BaseActivity() {
 
     private lateinit var binding: ActivityDataPrivacyTermsOfUseBinding
-    private val viewModel: TermsAcceptanceViewModel by viewModelLazy()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = bindContentView(R.layout.activity_data_privacy_terms_of_use)
+
+        if (!intent.hasExtra(KEY_DATA_PRIVACY_AND_TERMS_OF_USE_URL) || !intent.hasExtra(KEY_TITLE)) {
+            throw IllegalArgumentException("No url or name provided")
+        }
         setupToolbar()
 
-        viewModel.tacContentLiveData.listen(this) { tacContent ->
-            with(binding.webViewDataPrivacyAndTermsOfUse) {
-                setInitialScale(1)
-                settings.loadWithOverviewMode = true
-                settings.useWideViewPort = true
-                settings.builtInZoomControls = true
-                settings.javaScriptEnabled = true
-                webViewClient = MyWebViewClient()
+        with(binding.webViewDataPrivacyAndTermsOfUse) {
+            setInitialScale(1)
+            settings.loadWithOverviewMode = true
+            settings.useWideViewPort = true
+            settings.builtInZoomControls = true
+            settings.javaScriptEnabled = true
+            webViewClient = MyWebViewClient()
 
-                setOnKeyListener(android.view.View.OnKeyListener { _, keyCode, event ->
-                    if (keyCode == android.view.KeyEvent.KEYCODE_BACK &&
-                        event.action == android.view.KeyEvent.ACTION_UP &&
-                        canGoBack()
-                    ) {
-                        goBack()
-                        return@OnKeyListener true
-                    }
-                    false
-                })
-                loadDataWithBaseURL(null, tacContent, "text/html", "utf-8", null)
-            }
+            setOnKeyListener(android.view.View.OnKeyListener { _, keyCode, event ->
+                if (keyCode == android.view.KeyEvent.KEYCODE_BACK &&
+                    event.action == android.view.KeyEvent.ACTION_UP &&
+                    canGoBack()
+                ) {
+                    goBack()
+                    return@OnKeyListener true
+                }
+                false
+            })
+            loadUrl(intent.getStringExtra(KEY_DATA_PRIVACY_AND_TERMS_OF_USE_URL) ?: "")
         }
-
-        viewModel.getTac()
     }
 
     private fun setupToolbar() {
@@ -74,7 +70,7 @@ class DataPrivacyAndTermsOfUseActivity : BaseActivity() {
         setSupportActionBar(toolbar)
         supportActionBar?.setDisplayShowTitleEnabled(false)
         toolbar.setNavigationIcon(R.drawable.ic_back)
-        binding.tvToolbarTitle.text = getString(R.string.preferences_data_protection)
+        binding.tvToolbarTitle.text = intent.getStringExtra(KEY_TITLE)
         toolbar.setNavigationOnClickListener {
             finish()
         }
@@ -82,7 +78,7 @@ class DataPrivacyAndTermsOfUseActivity : BaseActivity() {
 
     inner class MyWebViewClient : WebViewClient() {
         override fun shouldOverrideUrlLoading(view: WebView?, url: String?): Boolean {
-            view?.loadUrl(url)
+            view?.loadUrl(url ?: "")
             return true
         }
 
@@ -118,10 +114,12 @@ class DataPrivacyAndTermsOfUseActivity : BaseActivity() {
     companion object {
 
         private const val KEY_DATA_PRIVACY_AND_TERMS_OF_USE_URL: String = "KEY_DATA_PRIVACY_AND_TERMS_OF_USE_URL"
-        fun start(context: Context, dataPrivacyAndTermsUrl: String) {
+        private const val KEY_TITLE: String = "KEY_TITLE"
+        fun start(context: Context, dataPrivacyAndTermsUrl: String, title: String) {
 
             val intent = Intent(context, DataPrivacyAndTermsOfUseActivity::class.java).apply {
                 putExtra(KEY_DATA_PRIVACY_AND_TERMS_OF_USE_URL, dataPrivacyAndTermsUrl)
+                putExtra(KEY_TITLE, title)
             }
             context.startActivity(intent)
         }

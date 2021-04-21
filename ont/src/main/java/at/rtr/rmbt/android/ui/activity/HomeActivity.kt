@@ -31,6 +31,8 @@ import at.rtr.rmbt.android.util.listen
 import at.rtr.rmbt.android.viewmodel.ConfigCheckViewModel
 import at.rtr.rmbt.android.viewmodel.MeasurementViewModel
 import at.specure.data.entity.LoopModeState
+import com.google.firebase.crashlytics.FirebaseCrashlytics
+import timber.log.Timber
 
 class HomeActivity : BaseActivity() {
 
@@ -53,6 +55,13 @@ class HomeActivity : BaseActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = bindContentView(R.layout.activity_home)
+
+        if (viewModel.config.analyticsEnabled) {
+            FirebaseCrashlytics.getInstance().setCrashlyticsCollectionEnabled(true)
+        } else {
+            FirebaseCrashlytics.getInstance().setCrashlyticsCollectionEnabled(false)
+        }
+        Timber.d("Firebase crashlytics enabled: ${viewModel.config.analyticsEnabled}")
 
         setTransparentStatusBar()
 

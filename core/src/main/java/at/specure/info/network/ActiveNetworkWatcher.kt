@@ -51,7 +51,7 @@ class ActiveNetworkWatcher(
         set(value) {
             field = value
             listeners.synchronizedForEach {
-                it.onActiveNetworkChanged(DetailedNetworkInfo(value, _nrConnectivityState, _rawAllCellInfoInfo))
+                it.onActiveNetworkChanged(DetailedNetworkInfo(value, null, _nrConnectivityState, _rawAllCellInfoInfo))
             }
         }
 
@@ -112,7 +112,7 @@ class ActiveNetworkWatcher(
      */
     fun addListener(listener: NetworkChangeListener) {
         listeners.add(listener)
-        listener.onActiveNetworkChanged(DetailedNetworkInfo(currentNetworkInfo, _nrConnectivityState, _rawAllCellInfoInfo))
+        listener.onActiveNetworkChanged(DetailedNetworkInfo(currentNetworkInfo, null, _nrConnectivityState, _rawAllCellInfoInfo))
         if (listeners.size == 1) {
             registerCallbacks()
         }
@@ -167,6 +167,7 @@ class ActiveNetworkWatcher(
                 it.onActiveNetworkChanged(
                     DetailedNetworkInfo(
                         wifiInfoWatcher.activeWifiInfo?.apply { locationEnabled = enabled },
+                        null,
                         null,
                         null
                     )

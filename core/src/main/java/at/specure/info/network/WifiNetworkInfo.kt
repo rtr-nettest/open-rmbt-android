@@ -94,5 +94,5 @@ open class WifiNetworkInfo(
 ) : NetworkInfo(TransportType.WIFI, UUID.nameUUIDFromBytes((ssid ?: "").toByteArray()).toString()) {
 
     override val name: String?
-        get() = if (locationEnabled) ssid else null
+        get() = ssid
 }

@@ -63,6 +63,16 @@ class SettingsFragment : BaseFragment(), InputSettingDialog.Callback, ServerSele
                 .show(activity)
         }
 
+        binding.loopModeMeasurementCount.frameLayoutRoot.setOnClickListener {
+            InputSettingDialog.instance(
+                getString(R.string.preferences_loop_test_number),
+                binding.loopModeMeasurementCount.value.toString(), this,
+                KEY_REQUEST_CODE_LOOP_MODE_TEST_COUNT
+            )
+                .show(activity)
+            requireContext().getSystemService(Context.CLIPBOARD_SERVICE)
+        }
+
         binding.switchLoopModeEnabled.switchButton.isClickable = false
         binding.switchLoopModeEnabled.rootView.setOnClickListener {
 
@@ -74,16 +84,15 @@ class SettingsFragment : BaseFragment(), InputSettingDialog.Callback, ServerSele
             }
         }
 
-        binding.clientUUID.frameLayoutRootKeyValue.setOnClickListener {
-            val clientUUIDExists = !binding.clientUUID.value.isNullOrEmpty()
-            if (clientUUIDExists) {
-                context?.copyToClipboard(binding.clientUUID.value)
-                Toast.makeText(context, R.string.about_client_uuid_copied, Toast.LENGTH_SHORT).show()
-            }
+        binding.clientUUIDtitle.setOnClickListener {
+            copyClientUUIDToClipboard()
+        }
+        binding.clientUUIDvalue.setOnClickListener {
+            copyClientUUIDToClipboard()
         }
 
         settingsViewModel.state.clientUUID.liveData.listen(this) {
-            binding.clientUUID.value = if (it.isNullOrEmpty()) "" else "U$it"
+            binding.clientUUIDvalue.text = if (it.isNullOrEmpty()) "" else "U$it"
         }
 
         settingsViewModel.locationStateLiveData.listen(this) {
@@ -171,37 +180,34 @@ class SettingsFragment : BaseFragment(), InputSettingDialog.Callback, ServerSele
                 .show(activity)
         }
 
-        binding.version.value = "${BuildConfig.VERSION_NAME} (${BuildConfig.BUILD_TIME})"
-        binding.commitHash.value = BuildConfig.COMMIT_HASH
-        binding.sourceCode.root.setOnClickListener {
-            startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(settingsViewModel.state.githubRepositoryUrl.get())))
-        }
-        binding.developedBy.root.setOnClickListener {
-            startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(getString(R.string.preferences_developer_page))))
-        }
-        binding.goToWebsite.root.setOnClickListener {
-            startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(settingsViewModel.state.webPageUrl.get())))
-        }
-        binding.contactUs.root.setOnClickListener {
-            val emailIntent = Intent(Intent.ACTION_SEND)
-            emailIntent.type = "plain/text"
-            emailIntent.putExtra(Intent.EXTRA_EMAIL, arrayOf(settingsViewModel.state.emailAddress.get()))
-            emailIntent.putExtra(
-                Intent.EXTRA_SUBJECT,
-                "${getString(R.string.about_email_subject)}  ${getString(R.string.app_name)}  ${BuildConfig.VERSION_NAME}"
-            )
-            emailIntent.putExtra(Intent.EXTRA_TEXT, "") // to navigate cursor directly to the message body
-            startActivity(Intent.createChooser(emailIntent, getString(R.string.about_email_sending)))
-        }
+        binding.version.value = "${BuildConfig.VERSION_NAME}"
 
-        binding.dataPrivacyAndTerms.root.setOnClickListener {
-            settingsViewModel.state.dataPrivacyAndTermsUrl.get()?.let { url ->
+        binding.privacyPolicy.root.setOnClickListener {
+            settingsViewModel.state.dataPrivacyPolicyUrl.get()?.let { url ->
                 DataPrivacyAndTermsOfUseActivity.start(
                     requireContext(),
                     when (Locale.getDefault().language) {
                         "de" -> String.format(url, "de")
                         else -> String.format(url, "en")
-                    }
+                    },
+                    getString(R.string.title_privacy_policy)
+                )
+            }
+        }
+
+        binding.about.root.setOnClickListener {
+            startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(settingsViewModel.state.webPageUrl.get())))
+        }
+
+        binding.terms.root.setOnClickListener {
+            settingsViewModel.state.termsUrl.get()?.let { url ->
+                DataPrivacyAndTermsOfUseActivity.start(
+                    requireContext(),
+                    when (Locale.getDefault().language) {
+                        "de" -> String.format(url, "de")
+                        else -> String.format(url, "en")
+                    },
+                    getString(R.string.preferences_terms_of_service)
                 )
             }
         }
@@ -220,8 +226,8 @@ class SettingsFragment : BaseFragment(), InputSettingDialog.Callback, ServerSele
             if (it.get() == false) {
                 if (!settingsViewModel.isLoopModeWaitingTimeValid(
                         settingsViewModel.state.loopModeWaitingTimeMin.get() ?: settingsViewModel.state.appConfig.loopModeMinWaitingTimeMin,
-                        settingsViewModel.state.appConfig.loopModeMaxWaitingTimeMin,
-                        settingsViewModel.state.appConfig.loopModeMinWaitingTimeMin
+                        settingsViewModel.state.appConfig.loopModeMinWaitingTimeMin,
+                        settingsViewModel.state.appConfig.loopModeMaxWaitingTimeMin
                     )
                 ) {
                     settingsViewModel.state.loopModeWaitingTimeMin.set(settingsViewModel.state.appConfig.loopModeMinWaitingTimeMin)
@@ -256,8 +262,36 @@ class SettingsFragment : BaseFragment(), InputSettingDialog.Callback, ServerSele
         }
     }
 
+    private fun copyClientUUIDToClipboard() {
+        val clientUUIDExists = !binding.clientUUIDvalue.text.isNullOrEmpty()
+        if (clientUUIDExists) {
+            context?.copyToClipboard(binding.clientUUIDvalue.text as String)
+            Toast.makeText(context, R.string.about_client_uuid_copied, Toast.LENGTH_SHORT).show()
+        }
+    }
+
     override fun onSelected(value: String, requestCode: Int) {
         when (requestCode) {
+            KEY_REQUEST_CODE_LOOP_MODE_TEST_COUNT -> {
+                if (!settingsViewModel.isLoopModeNumberOfTestValid(
+                        value.toInt(),
+                        settingsViewModel.state.appConfig.loopModeMinTestsNumber,
+                        settingsViewModel.state.appConfig.loopModeMaxTestsNumber
+                    ) && settingsViewModel.state.developerModeIsEnabled.get() != true
+                ) {
+                    SimpleDialog.Builder()
+                        .messageText(
+                            String.format(
+                                getString(R.string.loop_mode_max_delay_invalid),
+                                settingsViewModel.state.appConfig.loopModeMinTestsNumber,
+                                settingsViewModel.state.appConfig.loopModeMaxTestsNumber
+                            )
+                        )
+                        .positiveText(android.R.string.ok)
+                        .cancelable(false)
+                        .show(childFragmentManager, CODE_DIALOG_INVALID)
+                }
+            }
             KEY_REQUEST_CODE_LOOP_MODE_WAITING_TIME -> {
                 if (!settingsViewModel.isLoopModeWaitingTimeValid(
                         value.toInt(),
@@ -357,6 +391,7 @@ class SettingsFragment : BaseFragment(), InputSettingDialog.Callback, ServerSele
         private const val KEY_DEVELOPER_MAP_SERVER_PORT_CODE: Int = 7
         private const val KEY_RADIO_INFO_CODE: Int = 8
         private const val KEY_DEVELOPER_TAG_CODE: Int = 9
+        private const val KEY_REQUEST_CODE_LOOP_MODE_TEST_COUNT: Int = 10
 
         private const val CODE_LOOP_INSTRUCTIONS = 13
         private const val CODE_DIALOG_INVALID = 14

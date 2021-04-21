@@ -13,6 +13,7 @@ class SignalStrengthInfoNr(
     override val min: Int,
     override val max: Int,
     override val timestampNanos: Long,
+    override val source: SignalSource,
 
     /**
      * Reference: 3GPP TS 38.215.

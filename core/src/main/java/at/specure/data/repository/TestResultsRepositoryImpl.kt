@@ -146,7 +146,8 @@ class TestResultsRepositoryImpl(
             QosTestResultDetailBody(
                 testUUID = testUUID,
                 clientUUID = clientUUID,
-                language = Locale.getDefault().language
+                language = Locale.getDefault().language,
+                capabilities = CapabilitiesBody()
             )
         )
         qosTestResults.onSuccess { response ->
