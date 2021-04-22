@@ -60,7 +60,6 @@ class SignalStrengthWatcherImpl(
 
     private val listeners = Collections.synchronizedSet(mutableSetOf<SignalStrengthWatcher.SignalStrengthListener>())
 
-    private var cellListenerRegistered = false
     private var wifiListenerRegistered = false
 
     private var signalStrengthInfo: SignalStrengthInfo? = null
