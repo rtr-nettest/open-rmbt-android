@@ -60,7 +60,6 @@ class SignalStrengthWatcherImpl(
 
     private val listeners = Collections.synchronizedSet(mutableSetOf<SignalStrengthWatcher.SignalStrengthListener>())
 
-    private var cellListenerRegistered = false
     private var wifiListenerRegistered = false
 
     private var signalStrengthInfo: SignalStrengthInfo? = null
@@ -207,10 +206,7 @@ class SignalStrengthWatcherImpl(
 
     private fun registerCellCallbacks() {
         Timber.i("Network changed to CELLULAR")
-        if (!cellListenerRegistered) {
-            telephonyManager.getCorrectDataTelephonyManager(subscriptionManager).listen(strengthListener, PhoneStateListener.LISTEN_SIGNAL_STRENGTHS)
-            cellListenerRegistered = true
-        }
+        telephonyManager.getCorrectDataTelephonyManager(subscriptionManager).listen(strengthListener, PhoneStateListener.LISTEN_SIGNAL_STRENGTHS)
         unregisterWifiCallbacks()
     }
 
@@ -224,10 +220,7 @@ class SignalStrengthWatcherImpl(
     }
 
     private fun unregisterCellCallbacks() {
-        if (cellListenerRegistered) {
-            telephonyManager.getCorrectDataTelephonyManager(subscriptionManager).listen(strengthListener, PhoneStateListener.LISTEN_NONE)
-            cellListenerRegistered = false
-        }
+        telephonyManager.getCorrectDataTelephonyManager(subscriptionManager).listen(strengthListener, PhoneStateListener.LISTEN_NONE)
     }
 
     private fun unregisterWifiCallbacks() {
