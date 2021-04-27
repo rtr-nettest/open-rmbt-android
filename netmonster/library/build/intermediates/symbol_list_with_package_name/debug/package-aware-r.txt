@@ -1,2 +1,0 @@
-cz.mroczis.netmonster.core
-string app_name
