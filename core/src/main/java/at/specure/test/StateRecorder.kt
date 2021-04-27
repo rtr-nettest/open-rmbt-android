@@ -41,6 +41,10 @@ import at.specure.location.cell.CellLocationWatcher
 import at.specure.util.filterOnlyActiveDataCell
 import at.specure.util.isCoarseLocationPermitted
 import at.specure.util.isReadPhoneStatePermitted
+import at.specure.util.mobileNetworkType
+import at.specure.util.toCellInfoRecord
+import at.specure.util.toCellLocation
+import at.specure.util.toSignalRecord
 import cz.mroczis.netmonster.core.INetMonster
 import cz.mroczis.netmonster.core.model.cell.ICell
 import org.json.JSONArray
