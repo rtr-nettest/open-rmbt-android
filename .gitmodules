@@ -1,6 +1,6 @@
 [submodule "private"]
 	path = private
 	url = ../../android/nettest-private.git
-[submodule "netmonster"]
-	path = netmonster
+[submodule "netmonster_core"]
+	path = netmonster_core
 	url = https://github.com/mroczis/netmonster-core.git

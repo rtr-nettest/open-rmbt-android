@@ -43,7 +43,7 @@ dependencies {
     api project(path: ':rmbt-client')
 
     api project(path: ':location')
-    api project(path: ':netmonster:library')
+    api project(path: ':netmonster_core:library')
 
     // Kotlin
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$versions.kotlin"
