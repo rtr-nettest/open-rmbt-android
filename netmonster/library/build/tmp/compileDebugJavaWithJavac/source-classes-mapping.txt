@@ -1,0 +1,2 @@
+cz/mroczis/netmonster/core/BuildConfig.java
+ cz.mroczis.netmonster.core.BuildConfig
