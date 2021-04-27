@@ -1,11 +1,13 @@
 package at.specure.test
 
+import android.content.Context
 import android.location.Location
 import android.telephony.SubscriptionManager
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.Observer
 import at.rmbt.client.control.data.TestFinishReason
 import at.rmbt.client.control.getCurrentDataSubscriptionId
+import at.rmbt.util.io
 import at.rtr.rmbt.client.RMBTClientCallback
 import at.rtr.rmbt.client.TotalTestResult
 import at.rtr.rmbt.client.helper.TestStatus
@@ -37,11 +39,13 @@ import at.specure.location.LocationWatcher
 import at.specure.location.cell.CellLocationInfo
 import at.specure.location.cell.CellLocationWatcher
 import at.specure.util.filterOnlyActiveDataCell
+import at.specure.util.isCoarseLocationPermitted
+import at.specure.util.isReadPhoneStatePermitted
 import at.specure.util.mobileNetworkType
 import at.specure.util.toCellInfoRecord
 import at.specure.util.toCellLocation
 import at.specure.util.toSignalRecord
-import cz.mroczis.netmonster.core.INetMonster
+import cz.mroczis.netmonster.core.factory.NetMonsterFactory
 import cz.mroczis.netmonster.core.model.cell.ICell
 import org.json.JSONArray
 import timber.log.Timber
@@ -52,13 +56,13 @@ import javax.inject.Inject
 import kotlin.math.floor
 
 class StateRecorder @Inject constructor(
+    private val context: Context,
     private val repository: TestDataRepository,
     private val locationWatcher: LocationWatcher,
     private val signalStrengthLiveData: SignalStrengthLiveData,
     private val signalStrengthWatcher: SignalStrengthWatcher,
     private val cellInfoWatcher: CellInfoWatcher,
     private val config: Config,
-    private val netmonster: INetMonster,
     private val subscriptionManager: SubscriptionManager,
     private val cellLocationWatcher: CellLocationWatcher,
     private val measurementRepository: MeasurementRepository
@@ -315,58 +319,68 @@ class StateRecorder @Inject constructor(
     }
 
     @Synchronized
-    private fun saveCellInfo() {
+    private fun saveCellInfo() = io {
         val uuid = testUUID
         val info = networkInfo
         if (networkInfo?.type == TransportType.CELLULAR) {
-            var cells: List<ICell>? = null
-            try {
-                cells = netmonster.getCells()
-            } catch (e: SecurityException) {
-                Timber.e("SecurityException: Not able to read telephonyManager.allCellInfo")
-            } catch (e: IllegalStateException) {
-                Timber.e("IllegalStateException: Not able to read telephonyManager.allCellInfo")
-            } catch (e: NullPointerException) {
-                Timber.e("NullPointerException: Not able to read telephonyManager.allCellInfo from other reason")
-            }
+            if (context.isCoarseLocationPermitted() && context.isReadPhoneStatePermitted()) {
+                var cells: List<ICell>? = null
+                try {
+                    cells = NetMonsterFactory.get(context).getCells()
+                } catch (e: SecurityException) {
+                    Timber.e("SecurityException: Not able to read telephonyManager.allCellInfo")
+                } catch (e: IllegalStateException) {
+                    Timber.e("IllegalStateException: Not able to read telephonyManager.allCellInfo")
+                } catch (e: NullPointerException) {
+                    Timber.e("NullPointerException: Not able to read telephonyManager.allCellInfo from other reason")
+                }
 
-            val dataSubscriptionId = subscriptionManager.getCurrentDataSubscriptionId()
+                val dataSubscriptionId = subscriptionManager.getCurrentDataSubscriptionId()
 
-            val primaryCells = cells?.filterOnlyActiveDataCell(dataSubscriptionId)
+                val primaryCells = cells?.filterOnlyActiveDataCell(dataSubscriptionId)
 
-            val cellInfosToSave = mutableListOf<CellInfoRecord>()
-            val signalsToSave = mutableListOf<SignalRecord>()
-            val cellLocationsToSave = mutableListOf<CellLocationRecord>()
+                val cellInfosToSave = mutableListOf<CellInfoRecord>()
+                val signalsToSave = mutableListOf<SignalRecord>()
+                val cellLocationsToSave = mutableListOf<CellLocationRecord>()
 
-            if (uuid != null) {
-                val testStartTimeNanos = testStartTimeNanos ?: 0
-                primaryCells?.toList()?.let {
-                    it.forEach { iCell ->
-                        val cellInfoRecord = iCell.toCellInfoRecord(uuid, netmonster)
+                if (uuid != null) {
+                    val testStartTimeNanos = testStartTimeNanos ?: 0
+                    primaryCells?.toList()?.let {
+                        it.forEach { iCell ->
 
-                        if (cellInfoRecord.uuid.isNotEmpty()) {
-                            iCell.signal?.let { iSignal ->
-                                Timber.e("Signal saving time SCI: starting time: $testStartTimeNanos   current time: ${System.nanoTime()}")
-                                Timber.d("valid signal directly")
-                                val signalRecord = iSignal.toSignalRecord(
-                                    uuid,
-                                    cellInfoRecord.uuid,
-                                    iCell.mobileNetworkType(netmonster),
-                                    testStartTimeNanos,
-                                    NRConnectionState.NOT_AVAILABLE
-                                )
-                                signalsToSave.add(signalRecord)
+                            try {
+                                val cellInfoRecord = iCell.toCellInfoRecord(uuid, NetMonsterFactory.get(context))
+                                if (cellInfoRecord.uuid.isNotEmpty()) {
+                                    iCell.signal?.let { iSignal ->
+                                        Timber.e("Signal saving time SCI: starting time: $testStartTimeNanos   current time: ${System.nanoTime()}")
+                                        Timber.d("valid signal directly")
+                                        val signalRecord = iSignal.toSignalRecord(
+                                            uuid,
+                                            cellInfoRecord.uuid,
+                                            iCell.mobileNetworkType(NetMonsterFactory.get(context)),
+                                            testStartTimeNanos,
+                                            NRConnectionState.NOT_AVAILABLE
+                                        )
+                                        signalsToSave.add(signalRecord)
+                                    }
+                                }
+                                val cellLocationRecord = iCell.toCellLocation(uuid, System.currentTimeMillis(), System.nanoTime(), testStartTimeNanos)
+                                cellLocationRecord?.let {
+                                    cellLocationsToSave.add(cellLocationRecord)
+                                }
+                                cellInfosToSave.add(cellInfoRecord)
+                            } catch (e: SecurityException) {
+                                Timber.e("SecurityException: Not able to read netmonster")
+                            } catch (e: IllegalStateException) {
+                                Timber.e("IllegalStateException: Not able to read netmonster")
+                            } catch (e: NullPointerException) {
+                                Timber.e("NullPointerException: Not able to read netmonster from other reason")
                             }
                         }
-                        val cellLocationRecord = iCell.toCellLocation(uuid, System.currentTimeMillis(), System.nanoTime(), testStartTimeNanos)
-                        cellLocationRecord?.let {
-                            cellLocationsToSave.add(cellLocationRecord)
-                        }
-                        cellInfosToSave.add(cellInfoRecord)
+                        repository.saveCellLocationRecord(cellLocationsToSave)
+                        repository.saveCellInfoRecord(cellInfosToSave)
+                        repository.saveSignalRecord(signalsToSave)
                     }
-                    repository.saveCellLocationRecord(cellLocationsToSave)
-                    repository.saveCellInfoRecord(cellInfosToSave)
-                    repository.saveSignalRecord(signalsToSave)
                 }
             }
         } else if (networkInfo?.type == TransportType.WIFI) {
