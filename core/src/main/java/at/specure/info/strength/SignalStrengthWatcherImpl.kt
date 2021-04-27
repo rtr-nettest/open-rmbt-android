@@ -37,6 +37,7 @@ import at.specure.util.permission.LocationAccess
 import at.specure.util.synchronizedForEach
 import at.specure.util.toCellNetworkInfo
 import at.specure.util.toSignalStrengthInfo
+import cz.mroczis.netmonster.core.INetMonster
 import cz.mroczis.netmonster.core.factory.NetMonsterFactory
 import cz.mroczis.netmonster.core.model.cell.ICell
 import timber.log.Timber
@@ -51,6 +52,7 @@ private const val WIFI_MESSAGE_ID = 1
  */
 class SignalStrengthWatcherImpl(
     private val context: Context,
+    private val netmonster: INetMonster,
     private val subscriptionManager: SubscriptionManager,
     private val telephonyManager: TelephonyManager,
     private val activeNetworkWatcher: ActiveNetworkWatcher,
@@ -94,7 +96,25 @@ class SignalStrengthWatcherImpl(
         var cells: List<ICell>? = null
         if (context.isCoarseLocationPermitted() && context.isReadPhoneStatePermitted()) {
             try {
-                cells = NetMonsterFactory.get(context).getCells()
+                cells = netmonster.getCells()
+
+                val timeNanos = System.nanoTime()
+                val dataSubscriptionId = subscriptionManager.getCurrentDataSubscriptionId()
+
+                val primaryCells = cells?.filterOnlyActiveDataCell(dataSubscriptionId)
+
+                primaryCells?.toList()?.let {
+                    it.forEach { iCell ->
+                        signalStrengthInfo = iCell.toSignalStrengthInfo(timeNanos)
+                        networkInfo = iCell.toCellNetworkInfo(
+                            activeNetworkWatcher.currentNetworkInfo,
+                            telephonyManager.getTelephonyManagerForSubscription(iCell.subscriptionId),
+                            NetMonsterFactory.getTelephony(context, iCell.subscriptionId),
+                            netmonster
+                        )
+                    }
+                }
+                notifyInfoChanged()
             } catch (e: SecurityException) {
                 Timber.e("SecurityException: Not able to read telephonyManager.allCellInfo")
             } catch (e: IllegalStateException) {
@@ -102,31 +122,6 @@ class SignalStrengthWatcherImpl(
             } catch (e: NullPointerException) {
                 Timber.e("NullPointerException: Not able to read telephonyManager.allCellInfo from other reason")
             }
-            val timeNanos = System.nanoTime()
-            val dataSubscriptionId = subscriptionManager.getCurrentDataSubscriptionId()
-
-            val primaryCells = cells?.filterOnlyActiveDataCell(dataSubscriptionId)
-
-            primaryCells?.toList()?.let {
-                it.forEach { iCell ->
-                    signalStrengthInfo = iCell.toSignalStrengthInfo(timeNanos)
-                    try {
-                        networkInfo = iCell.toCellNetworkInfo(
-                            activeNetworkWatcher.currentNetworkInfo,
-                            telephonyManager.getTelephonyManagerForSubscription(iCell.subscriptionId),
-                            NetMonsterFactory.getTelephony(context, iCell.subscriptionId),
-                            NetMonsterFactory.get(context)
-                        )
-                    } catch (e: SecurityException) {
-                        Timber.e("SecurityException: Not able to obtain networkInfo")
-                    } catch (e: IllegalStateException) {
-                        Timber.e("IllegalStateException: Not able to obtain networkInfo")
-                    } catch (e: NullPointerException) {
-                        Timber.e("NullPointerException: Not able to obtain networkInfo from other reason")
-                    }
-                }
-            }
-            notifyInfoChanged()
         }
     }
 

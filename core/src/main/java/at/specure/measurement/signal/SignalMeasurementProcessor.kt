@@ -43,7 +43,7 @@ import at.specure.util.mobileNetworkType
 import at.specure.util.toCellInfoRecord
 import at.specure.util.toCellLocation
 import at.specure.util.toSignalRecord
-import cz.mroczis.netmonster.core.factory.NetMonsterFactory
+import cz.mroczis.netmonster.core.INetMonster
 import cz.mroczis.netmonster.core.model.cell.ICell
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
@@ -67,6 +67,7 @@ private const val MAX_TIME_NETWORK_UNREACHABLE_SECONDS = 300L
 @Singleton
 class SignalMeasurementProcessor @Inject constructor(
     private val context: Context,
+    private val netmonster: INetMonster,
     private val repository: TestDataRepository,
     private val locationWatcher: LocationWatcher,
     private val signalStrengthLiveData: SignalStrengthLiveData,
@@ -390,29 +391,21 @@ class SignalMeasurementProcessor @Inject constructor(
         var cells: List<ICell>? = null
         if (context.isCoarseLocationPermitted() && context.isReadPhoneStatePermitted()) {
             try {
-                cells = NetMonsterFactory.get(context).getCells()
-            } catch (e: SecurityException) {
-                Timber.e("SecurityException: Not able to read telephonyManager.allCellInfo")
-            } catch (e: IllegalStateException) {
-                Timber.e("IllegalStateException: Not able to read telephonyManager.allCellInfo")
-            } catch (e: NullPointerException) {
-                Timber.e("NullPointerException: Not able to read telephonyManager.allCellInfo from other reason")
-            }
+                cells = netmonster.getCells()
 
-            val dataSubscriptionId = subscriptionManager.getCurrentDataSubscriptionId()
+                val dataSubscriptionId = subscriptionManager.getCurrentDataSubscriptionId()
 
-            val primaryCells = cells?.filterOnlyActiveDataCell(dataSubscriptionId)
+                val primaryCells = cells?.filterOnlyActiveDataCell(dataSubscriptionId)
 
-            val cellInfosToSave = mutableListOf<CellInfoRecord>()
-            val signalsToSave = mutableListOf<SignalRecord>()
-            val cellLocationsToSave = mutableListOf<CellLocationRecord>()
+                val cellInfosToSave = mutableListOf<CellInfoRecord>()
+                val signalsToSave = mutableListOf<SignalRecord>()
+                val cellLocationsToSave = mutableListOf<CellLocationRecord>()
 
-            if (uuid != null) {
-                val testStartTimeNanos = record?.startTimeNanos ?: 0
-                primaryCells?.toList()?.let {
-                    it.forEach { iCell ->
-                        try {
-                            val cellInfoRecord = iCell.toCellInfoRecord(uuid, NetMonsterFactory.get(context))
+                if (uuid != null) {
+                    val testStartTimeNanos = record?.startTimeNanos ?: 0
+                    primaryCells?.toList()?.let {
+                        it.forEach { iCell ->
+                            val cellInfoRecord = iCell.toCellInfoRecord(uuid, netmonster)
 
                             if (cellInfoRecord.uuid.isNotEmpty()) {
                                 iCell.signal?.let { iSignal ->
@@ -421,7 +414,7 @@ class SignalMeasurementProcessor @Inject constructor(
                                     val signalRecord = iSignal.toSignalRecord(
                                         uuid,
                                         cellInfoRecord.uuid,
-                                        iCell.mobileNetworkType(NetMonsterFactory.get(context)),
+                                        iCell.mobileNetworkType(netmonster),
                                         testStartTimeNanos,
                                         NRConnectionState.NOT_AVAILABLE
                                     )
@@ -435,23 +428,23 @@ class SignalMeasurementProcessor @Inject constructor(
                                 cellLocationsToSave.add(cellLocationRecord)
                             }
                             cellInfosToSave.add(cellInfoRecord)
-                        } catch (e: SecurityException) {
-                            Timber.e("SecurityException: Not able to read netmonster")
-                        } catch (e: IllegalStateException) {
-                            Timber.e("IllegalStateException: Not able to read netmonster")
-                        } catch (e: NullPointerException) {
-                            Timber.e("NullPointerException: Not able to read netmonster from other reason")
+                        }
+                        repository.saveCellLocationRecord(cellLocationsToSave)
+                        repository.saveCellInfoRecord(cellInfosToSave)
+                        repository.saveSignalRecord(signalsToSave)
+                        chunkDataSize += signalsToSave.size
+                        if (chunkDataSize >= MAX_SIGNAL_COUNT_PER_CHUNK) {
+                            Timber.v("Chunk max size reached: $chunkDataSize")
+                            commitChunkData(ValidChunkPostProcessing.CREATE_NEW_CHUNK)
                         }
                     }
-                    repository.saveCellLocationRecord(cellLocationsToSave)
-                    repository.saveCellInfoRecord(cellInfosToSave)
-                    repository.saveSignalRecord(signalsToSave)
-                    chunkDataSize += signalsToSave.size
-                    if (chunkDataSize >= MAX_SIGNAL_COUNT_PER_CHUNK) {
-                        Timber.v("Chunk max size reached: $chunkDataSize")
-                        commitChunkData(ValidChunkPostProcessing.CREATE_NEW_CHUNK)
-                    }
                 }
+            } catch (e: SecurityException) {
+                Timber.e("SecurityException: Not able to read telephonyManager.allCellInfo")
+            } catch (e: IllegalStateException) {
+                Timber.e("IllegalStateException: Not able to read telephonyManager.allCellInfo")
+            } catch (e: NullPointerException) {
+                Timber.e("NullPointerException: Not able to read telephonyManager.allCellInfo from other reason")
             }
         }
     }
