@@ -17,11 +17,11 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.os.Build
 import android.os.Handler
+import android.os.Looper
 import android.telephony.PhoneStateListener
 import android.telephony.SignalStrength
 import android.telephony.SubscriptionManager
 import android.telephony.TelephonyManager
-import at.rmbt.client.control.getCorrectDataTelephonyManager
 import at.rmbt.client.control.getCurrentDataSubscriptionId
 import at.rmbt.client.control.getTelephonyManagerForSubscription
 import at.rmbt.util.io
@@ -44,6 +44,7 @@ import timber.log.Timber
 import java.util.Collections
 
 private const val WIFI_UPDATE_DELAY = 2000L
+private const val CELL_UPDATE_DELAY = 1000L
 private const val WIFI_MESSAGE_ID = 1
 
 /**
@@ -61,6 +62,13 @@ class SignalStrengthWatcherImpl(
 ) : SignalStrengthWatcher, LocationAccess.LocationAccessChangeListener {
 
     private val listeners = Collections.synchronizedSet(mutableSetOf<SignalStrengthWatcher.SignalStrengthListener>())
+
+    private val handler = Looper.myLooper()?.let { Handler(it) }
+
+    private val signalUpdateRunnable = Runnable {
+        processSignalChange()
+        scheduleUpdate()
+    }
 
     private var wifiListenerRegistered = false
 
@@ -90,6 +98,11 @@ class SignalStrengthWatcherImpl(
         override fun onSignalStrengthsChanged(signalStrength: SignalStrength?) {
             processSignalChange()
         }
+    }
+
+    private fun scheduleUpdate() {
+        handler?.removeCallbacks(signalUpdateRunnable)
+        handler?.postDelayed(signalUpdateRunnable, CELL_UPDATE_DELAY)
     }
 
     private fun processSignalChange() = io {
@@ -202,7 +215,7 @@ class SignalStrengthWatcherImpl(
 
     private fun registerCellCallbacks() {
         Timber.i("Network changed to CELLULAR")
-        telephonyManager.getCorrectDataTelephonyManager(subscriptionManager).listen(strengthListener, PhoneStateListener.LISTEN_SIGNAL_STRENGTHS)
+        handler?.postDelayed(signalUpdateRunnable, CELL_UPDATE_DELAY)
         unregisterWifiCallbacks()
     }
 
@@ -216,7 +229,7 @@ class SignalStrengthWatcherImpl(
     }
 
     private fun unregisterCellCallbacks() {
-        telephonyManager.getCorrectDataTelephonyManager(subscriptionManager).listen(strengthListener, PhoneStateListener.LISTEN_NONE)
+        handler?.removeCallbacks(signalUpdateRunnable)
     }
 
     private fun unregisterWifiCallbacks() {
