@@ -25,9 +25,11 @@ abstract class CellInfoDao {
 
     @Transaction
     open fun clearInsert(testUUID: String, cellInfo: List<CellInfoRecord>) {
-        cellInfo.forEach {
-            removeSingleCellInfo(testUUID, it.uuid)
+        val filteredCellInfo = cellInfo.filter { it.cellTechnology != null }
+        filteredCellInfo.forEach {
+            if (it.cellTechnology != null) removeSingleCellInfo(testUUID, it.uuid)
         }
-        insert(cellInfo)
+
+        insert(filteredCellInfo)
     }
 }

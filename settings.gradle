@@ -1,3 +1,3 @@
-include ':netmonster'
+include ':netmonster_core:library'
 include ':app', ':ont', ':core', ':control_client', ':util', ':location', ':rmbt-client'
 include ':location-fused'

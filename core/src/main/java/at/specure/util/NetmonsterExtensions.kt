@@ -487,7 +487,7 @@ fun ICell.locationId(): Int? {
     return when (this) {
         is CellNr -> null
         is CellTdscdma -> this.cid
-        is CellLte -> this.cid
+        is CellLte -> this.eci
         is CellCdma -> this.bid
         is CellWcdma -> this.cid
         is CellGsm -> this.cid
