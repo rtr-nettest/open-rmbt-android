@@ -66,10 +66,6 @@ class RequestFilters {
                             }
                         }
                     }
-                    // remove previous last entry which is added by getLastSignal
-                    signals = signals.filterIndexed { index, _ ->
-                        index != 0
-                    }
                 }
 
                 signals = removeOldRedundantSignalValuesWithNegativeTimestamp(signals)?.distinctBy { listOf(it.timeNanos, it.networkTypeId) }
