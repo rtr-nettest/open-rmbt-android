@@ -1,25 +1,31 @@
 package at.specure.test
 
+import android.content.Context
 import android.location.Location
+import android.telephony.SubscriptionManager
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.Observer
 import at.rmbt.client.control.data.TestFinishReason
+import at.rmbt.client.control.getCurrentDataSubscriptionId
+import at.rmbt.util.io
 import at.rtr.rmbt.client.RMBTClientCallback
 import at.rtr.rmbt.client.TotalTestResult
 import at.rtr.rmbt.client.helper.TestStatus
 import at.rtr.rmbt.client.v2.task.result.QoSResultCollector
 import at.rtr.rmbt.client.v2.task.service.TestMeasurement.TrafficDirection
 import at.specure.config.Config
+import at.specure.data.entity.CellInfoRecord
+import at.specure.data.entity.CellLocationRecord
 import at.specure.data.entity.LoopModeRecord
 import at.specure.data.entity.LoopModeState
+import at.specure.data.entity.SignalRecord
 import at.specure.data.entity.TestRecord
 import at.specure.data.repository.MeasurementRepository
 import at.specure.data.repository.TestDataRepository
 import at.specure.info.Network5GSimulator
+import at.specure.info.TransportType
 import at.specure.info.cell.CellInfoWatcher
 import at.specure.info.cell.CellNetworkInfo
-import at.specure.info.network.ActiveNetworkLiveData
-import at.specure.info.network.ActiveNetworkWatcher
 import at.specure.info.network.MobileNetworkType
 import at.specure.info.network.NRConnectionState
 import at.specure.info.network.NetworkInfo
@@ -31,8 +37,16 @@ import at.specure.location.LocationInfo
 import at.specure.location.LocationState
 import at.specure.location.LocationWatcher
 import at.specure.location.cell.CellLocationInfo
-import at.specure.location.cell.CellLocationLiveData
 import at.specure.location.cell.CellLocationWatcher
+import at.specure.util.filterOnlyActiveDataCell
+import at.specure.util.isCoarseLocationPermitted
+import at.specure.util.isReadPhoneStatePermitted
+import at.specure.util.mobileNetworkType
+import at.specure.util.toCellInfoRecord
+import at.specure.util.toCellLocation
+import at.specure.util.toSignalRecord
+import cz.mroczis.netmonster.core.INetMonster
+import cz.mroczis.netmonster.core.model.cell.ICell
 import org.json.JSONArray
 import timber.log.Timber
 import java.util.Collections
@@ -42,15 +56,15 @@ import javax.inject.Inject
 import kotlin.math.floor
 
 class StateRecorder @Inject constructor(
+    private val context: Context,
+    private val netmonster: INetMonster,
     private val repository: TestDataRepository,
     private val locationWatcher: LocationWatcher,
     private val signalStrengthLiveData: SignalStrengthLiveData,
     private val signalStrengthWatcher: SignalStrengthWatcher,
-    private val activeNetworkLiveData: ActiveNetworkLiveData,
-    private val activeNetworkWatcher: ActiveNetworkWatcher,
     private val cellInfoWatcher: CellInfoWatcher,
     private val config: Config,
-    private val cellLocationLiveData: CellLocationLiveData,
+    private val subscriptionManager: SubscriptionManager,
     private val cellLocationWatcher: CellLocationWatcher,
     private val measurementRepository: MeasurementRepository
 ) : RMBTClientCallback {
@@ -117,26 +131,15 @@ class StateRecorder @Inject constructor(
             if ((loopModeRecord != null) && (loopModeRecord?.status == LoopModeState.RUNNING)) {
                 lastMeasurementSignalStrength = signalStrengthInfo
             }
-            signalStrengthInfo = info
+            signalStrengthInfo = info?.signalStrengthInfo
             Timber.e("Signal saving time OBSERVER: starting time: $testStartTimeNanos   current time: ${System.nanoTime()}")
-            saveSignalStrengthInfo()
-            saveCellInfo()
-        })
-
-        networkInfo = activeNetworkWatcher.currentNetworkInfo
-        activeNetworkLiveData.observe(lifecycle, Observer {
-            synchronized(this) {
-                networkInfo = it?.networkInfo
-                saveCellInfo()
-                saveTelephonyInfo()
-                saveWlanInfo()
+            if (networkInfo?.type != TransportType.CELLULAR) {
+                saveSignalStrength(testUUID, signalStrengthInfo)
             }
-        })
-
-        cellLocation = cellLocationWatcher.latestLocation
-        cellLocationLiveData.observe(lifecycle, Observer {
-            cellLocation = it
-            saveCellLocation()
+            networkInfo = info?.networkInfo
+            saveCellInfo()
+            saveTelephonyInfo()
+            saveWlanInfo()
         })
     }
 
@@ -154,7 +157,9 @@ class StateRecorder @Inject constructor(
         cellLocation = cellLocationWatcher.getCellLocationFromTelephony()
         saveCellLocation()
         saveLocationInfo()
-        saveSignalStrengthInfo()
+        if (networkInfo?.type != TransportType.CELLULAR) {
+            saveSignalStrength(testUUID, signalStrengthInfo)
+        }
         saveCellInfo()
         saveCapabilities()
         savePermissionsStatus()
@@ -286,9 +291,14 @@ class StateRecorder @Inject constructor(
         }
     }
 
+    @Deprecated("Use only saveSignalStrength")
     private fun saveSignalStrengthInfo() {
         val uuid = testUUID
         val info = signalStrengthInfo
+        saveSignalStrength(uuid, info)
+    }
+
+    private fun saveSignalStrength(uuid: String?, info: SignalStrengthInfo?) {
         if (uuid != null && info != null) {
             val cellUUID = networkInfo?.cellUUID ?: ""
             var mobileNetworkType: MobileNetworkType? = null
@@ -310,30 +320,89 @@ class StateRecorder @Inject constructor(
     }
 
     @Synchronized
-    private fun saveCellInfo() {
+    private fun saveCellInfo() = io {
         val uuid = testUUID
         val info = networkInfo
-        if (uuid != null && info != null) {
-            val infoList: List<NetworkInfo> = when (info) {
-                is WifiNetworkInfo -> listOf(info)
-                is CellNetworkInfo -> cellInfoWatcher.allCellInfo
-                else -> throw IllegalArgumentException("Unknown cell info ${info.javaClass.simpleName}")
-            }
-//            cellInfoWatcher.allCellInfo.forEach {
-//                Timber.d("saving cell:\n\n testUUID: $uuid \n networkInfo: $info \n\n ${it.cellUUID}     ${it.networkType.displayName}     \n\n")
-//            }
+        if (networkInfo?.type == TransportType.CELLULAR) {
+            if (context.isCoarseLocationPermitted() && context.isReadPhoneStatePermitted()) {
+                try {
+                    var cells: List<ICell>? = null
 
-            val copyInfoList = Collections.synchronizedList(infoList.toMutableList())
+                    cells = netmonster.getCells()
 
-            val onlyActiveCellInfoList = Collections.synchronizedList(copyInfoList.filter {
-                if (it is CellNetworkInfo) {
-                    it.isActive
-                } else {
-                    true
+                    val dataSubscriptionId = subscriptionManager.getCurrentDataSubscriptionId()
+
+                    val primaryCells = cells?.filterOnlyActiveDataCell(dataSubscriptionId)
+
+                    val cellInfosToSave = mutableListOf<CellInfoRecord>()
+                    val signalsToSave = mutableListOf<SignalRecord>()
+                    val cellLocationsToSave = mutableListOf<CellLocationRecord>()
+
+                    if (uuid != null) {
+                        val testStartTimeNanos = testStartTimeNanos ?: 0
+                        primaryCells?.toList()?.let {
+                            it.forEach { iCell ->
+
+                                val cellInfoRecord = iCell.toCellInfoRecord(uuid, netmonster)
+                                if (cellInfoRecord.uuid.isNotEmpty()) {
+                                    iCell.signal?.let { iSignal ->
+                                        Timber.e("Signal saving time SCI: starting time: $testStartTimeNanos   current time: ${System.nanoTime()}")
+                                        Timber.d("valid signal directly")
+                                        val signalRecord = iSignal.toSignalRecord(
+                                            uuid,
+                                            cellInfoRecord.uuid,
+                                            iCell.mobileNetworkType(netmonster),
+                                            testStartTimeNanos,
+                                            NRConnectionState.NOT_AVAILABLE
+                                        )
+                                        signalsToSave.add(signalRecord)
+                                    }
+                                }
+                                val cellLocationRecord =
+                                    iCell.toCellLocation(uuid, System.currentTimeMillis(), System.nanoTime(), testStartTimeNanos)
+                                cellLocationRecord?.let {
+                                    cellLocationsToSave.add(cellLocationRecord)
+                                }
+                                cellInfosToSave.add(cellInfoRecord)
+                            }
+                            repository.saveCellLocationRecord(cellLocationsToSave)
+                            repository.saveCellInfoRecord(cellInfosToSave)
+                            repository.saveSignalRecord(signalsToSave)
+                        }
+                    }
+                } catch (e: SecurityException) {
+                    Timber.e("SecurityException: Not able to read telephonyManager.allCellInfo")
+                } catch (e: IllegalStateException) {
+                    Timber.e("IllegalStateException: Not able to read telephonyManager.allCellInfo")
+                } catch (e: NullPointerException) {
+                    Timber.e("NullPointerException: Not able to read telephonyManager.allCellInfo from other reason")
                 }
-            })
+            }
+        } else if (networkInfo?.type == TransportType.WIFI) {
+            if (uuid != null && info != null) {
+                val infoList: List<NetworkInfo> = when (info) {
+                    is WifiNetworkInfo -> listOf(info)
+                    is CellNetworkInfo -> cellInfoWatcher.allCellInfo
+                    else -> throw IllegalArgumentException("Unknown cell info ${info.javaClass.simpleName}")
+                }
 
-            repository.saveCellInfo(uuid, onlyActiveCellInfoList.toList(), testStartTimeNanos)
+                val copyInfoList = Collections.synchronizedList(infoList.toMutableList())
+
+                val onlyActiveCellInfoList = Collections.synchronizedList(copyInfoList.filter {
+                    if (it is CellNetworkInfo) {
+                        it.isActive
+                    } else {
+                        true
+                    }
+                })
+
+                repository.saveCellInfo(uuid, onlyActiveCellInfoList.toList(), testStartTimeNanos)
+                onlyActiveCellInfoList.toList().forEach {
+                    if (it is CellNetworkInfo) {
+                        saveSignalStrength(uuid, it.signalStrength)
+                    }
+                }
+            }
         }
     }
 

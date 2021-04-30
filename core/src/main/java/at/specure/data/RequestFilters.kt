@@ -42,9 +42,10 @@ class RequestFilters {
                             val cell = cells[it.cellUuid]
                             if (cell != null) {
                                 list.add(it.toRequest(cell.uuid, false, null))
-                            } else {
-                                list.add(it.toRequest("", false, null))
                             }
+//                            else {
+//                                list.add(it.toRequest("", false, null))
+//                            }
                         }
                         if (list.isEmpty()) null else list
                     }
@@ -64,10 +65,6 @@ class RequestFilters {
                                 false
                             }
                         }
-                    }
-                    // remove previous last entry which is added by getLastSignal
-                    signals = signals.filterIndexed { index, _ ->
-                        index != 0
                     }
                 }
 

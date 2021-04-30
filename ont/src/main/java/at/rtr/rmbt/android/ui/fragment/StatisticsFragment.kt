@@ -5,11 +5,11 @@ import android.graphics.Bitmap
 import android.os.Bundle
 import android.view.KeyEvent
 import android.view.View
-import android.webkit.WebViewClient
-import android.webkit.WebView
-import android.webkit.WebResourceRequest
 import android.webkit.WebResourceError
+import android.webkit.WebResourceRequest
 import android.webkit.WebResourceResponse
+import android.webkit.WebView
+import android.webkit.WebViewClient
 import at.rtr.rmbt.android.R
 import at.rtr.rmbt.android.databinding.FragmentStatisticsBinding
 import at.rtr.rmbt.android.di.viewModelLazy
@@ -55,7 +55,9 @@ class StatisticsFragment : BaseFragment() {
 
     private class MyWebViewClient(private val statisticsViewModel: StatisticsViewModel) : WebViewClient() {
         override fun shouldOverrideUrlLoading(view: WebView?, url: String?): Boolean {
-            view?.loadUrl(url)
+            url?.let {
+                view?.loadUrl(url)
+            }
             return true
         }
 
