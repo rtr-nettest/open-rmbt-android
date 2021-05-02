@@ -24,23 +24,7 @@ class PermissionsViewModel @Inject constructor(private val permissionsWatcher: P
 
     val signalPermissions = mutableListOf<String>().also {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            val hasForegroundLocationPermission =
-                ContextCompat.checkSelfPermission(
-                    permissionsWatcher.context,
-                    Manifest.permission.ACCESS_FINE_LOCATION
-                ) == PackageManager.PERMISSION_GRANTED
-            if (hasForegroundLocationPermission) {
-                val hasBackgroundLocationPermission = ContextCompat.checkSelfPermission(
-                    permissionsWatcher.context,
-                    Manifest.permission.ACCESS_BACKGROUND_LOCATION
-                ) == PackageManager.PERMISSION_GRANTED
-                if (!hasBackgroundLocationPermission) {
-                    it.add(Manifest.permission.ACCESS_BACKGROUND_LOCATION)
-                }
-            } else {
-                it.add(Manifest.permission.ACCESS_COARSE_LOCATION)
-                it.add(Manifest.permission.ACCESS_FINE_LOCATION)
-            }
+            it.add(Manifest.permission.ACCESS_BACKGROUND_LOCATION)
         }
     }.toTypedArray()
 
@@ -64,7 +48,17 @@ class PermissionsViewModel @Inject constructor(private val permissionsWatcher: P
     fun moveToNext() {
         val newPage = when (currentPage) {
             PermissionsPage.WELCOME -> PermissionsPage.ACCURACY
-            PermissionsPage.ACCURACY -> PermissionsPage.SIGNAL
+            PermissionsPage.ACCURACY -> {
+                if (ContextCompat.checkSelfPermission(
+                        permissionsWatcher.context,
+                        Manifest.permission.ACCESS_FINE_LOCATION
+                    ) != PackageManager.PERMISSION_GRANTED
+                ) {
+                    PermissionsPage.ANALYTICS
+                } else {
+                    PermissionsPage.SIGNAL
+                }
+            }
             PermissionsPage.SIGNAL -> PermissionsPage.ANALYTICS
             PermissionsPage.ANALYTICS -> PermissionsPage.CLIENT_ID
             else -> PermissionsPage.COMPLETED

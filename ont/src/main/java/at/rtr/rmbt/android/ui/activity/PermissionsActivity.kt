@@ -58,6 +58,8 @@ class PermissionsActivity : BaseActivity() {
         const val REQUEST_CODE_ACCURACY = 1103
         const val REQUEST_CODE_SIGNAL = 1104
 
-        fun start(context: Context) = context.startActivity(Intent(context, PermissionsActivity::class.java))
+        fun start(context: Context) = context.startActivity(Intent(context, PermissionsActivity::class.java).apply {
+            flags = Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK
+        })
     }
 }

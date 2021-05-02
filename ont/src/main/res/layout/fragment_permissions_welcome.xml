@@ -5,7 +5,8 @@
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:background="@android:color/white">
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/label_welcome"
@@ -14,10 +15,10 @@
             android:layout_height="40dp"
             android:layout_marginStart="24dp"
             android:layout_marginEnd="24dp"
+            android:gravity="center_vertical"
             android:text="@string/title_permissions_welcome"
             android:textColor="@color/text_color_welcome"
             android:textSize="24sp"
-            android:gravity="center_vertical"
             app:layout_constraintBottom_toTopOf="@id/logo"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -52,10 +53,10 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:src="@drawable/image_home"
-            app:layout_constraintTop_toBottomOf="@id/text_welcome"
             app:layout_constraintBottom_toTopOf="@id/next"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent" />
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/text_welcome" />
 
         <Button
             android:id="@+id/next"
