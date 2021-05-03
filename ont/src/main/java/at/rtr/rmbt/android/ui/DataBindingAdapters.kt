@@ -959,3 +959,16 @@ fun AppCompatTextView.setSignalStrengthMap(signalStrengthResult: String?, signal
         }, 0, 0, 0
     )
 }
+
+/**
+ * A binding adapter that is used for show signal
+ */
+@BindingAdapter("app:currentCount", "app:totalCount", requireAll = true)
+fun AppCompatTextView.setProgress(currentCount: Int?, totalCount: Int?) {
+
+    text = if ((currentCount != null) && (totalCount != null)) {
+        String.format(context.getString(R.string.text_current_from_count), currentCount, totalCount)
+    } else {
+        ""
+    }
+}

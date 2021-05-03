@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <data>
@@ -17,14 +18,48 @@
 
         <TextView
             android:id="@+id/screen_title"
-            style="@style/ScreenTitle"
+            style="@style/ResultMainItemValue"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:text="@{state.isLoopModeActive ? @string/title_loop_measurement : @string/text_basic_measurement}"
             android:layout_marginTop="56dp"
-            android:text="@string/text_basic_measurement"
-            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/screen_title_loop_progress"
+            app:layout_constraintHorizontal_chainStyle="packed"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="Loop measurement" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/screen_title_loop_progress"
+            style="@style/ResultMainItemValue"
+            visibleOrGone="@{state.isLoopModeActive}"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/margin_small"
+            app:currentCount="@{state.loopCurrentProgress}"
+            app:layout_constraintBaseline_toBaselineOf="@+id/screen_title"
+            app:layout_constraintEnd_toStartOf="@+id/ivLoopStatusIcon"
+            app:layout_constraintHorizontal_chainStyle="packed"
+            app:layout_constraintStart_toEndOf="@+id/screen_title"
+            app:totalCount="@{state.loopTotalCount}"
+            tools:text="2 of 100" />
+
+        <androidx.appcompat.widget.AppCompatImageView
+            android:id="@+id/ivLoopStatusIcon"
+            visibleOrGone="@{state.isLoopModeActive}"
+            android:layout_width="@dimen/history_image_size"
+            android:layout_height="@dimen/history_image_size"
+            android:background="@drawable/bg_loop_active"
+            android:padding="@dimen/padding_small"
+            android:scaleType="centerInside"
+            android:src="@drawable/ic_loop_24"
+            android:translationZ="@dimen/cardview_default_elevation"
+            app:layout_constraintBottom_toBottomOf="@+id/screen_title"
+            app:layout_constraintHorizontal_chainStyle="packed"
+            app:layout_constraintStart_toEndOf="@+id/screen_title_loop_progress"
+            app:layout_constraintTop_toTopOf="@+id/screen_title"
+            app:layout_constraintEnd_toEndOf="parent"
+            tools:layout_editor_absoluteY="-3dp" />
 
         <at.rtr.rmbt.android.ui.view.MeasurementProgressLineView
             android:id="@+id/progress"

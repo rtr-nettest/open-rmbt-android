@@ -22,6 +22,7 @@ private const val KEY_PING = "KEY_PING"
 private const val KEY_QOS_ENABLED = "KEY_QOS_ENABLED"
 private const val KEY_QOS_TASK_PROGRESS = "QOS_PROGRESS"
 private const val KEY_LOOP_PROGRESS = "KEY_LOOP_PROGRESS"
+private const val KEY_LOOP_TOTAL = "KEY_LOOP_TOTAL"
 private const val KEY_LOOP_NEXT_TEST_TIME_PROGRESS = "KEY_LOOP_NEXT_TEST_TIME_PROGRESS"
 private const val KEY_LOOP_NEXT_TEST_TIME_PERCENT = "KEY_LOOP_NEXT_TEST_TIME_PERCENT"
 private const val KEY_LOOP_STATE = "KEY_LOOP_STATE"
@@ -45,7 +46,8 @@ class MeasurementViewState(private val config: AppConfig) : ViewState {
     val networkInfo = ObservableField<NetworkInfo?>()
     val qosEnabled = ObservableBoolean()
     val qosTaskProgress = ObservableField<String>()
-    val loopProgress = ObservableField<String>()
+    val loopCurrentProgress = ObservableInt()
+    val loopTotalCount = ObservableInt()
     val loopLocalUUID = ObservableField<String>()
     val timeToNextTestElapsed = ObservableField<String>()
     val timeToNextTestPercentage = ObservableInt()
@@ -63,7 +65,16 @@ class MeasurementViewState(private val config: AppConfig) : ViewState {
     }
 
     fun setLoopProgress(current: Int, total: Int) {
-        loopProgress.set("$current/$total")
+        setLoopCurrentTestNumber(current)
+        setLoopTotalTestNumber(total)
+    }
+
+    private fun setLoopCurrentTestNumber(current: Int) {
+        loopCurrentProgress.set(current)
+    }
+
+    private fun setLoopTotalTestNumber(total: Int) {
+        loopTotalCount.set(total)
     }
 
     private fun setLoopState(loopState: LoopModeState) {
@@ -105,7 +116,8 @@ class MeasurementViewState(private val config: AppConfig) : ViewState {
             pingNanos.set(bundle.getLong(KEY_PING, 0))
             qosEnabled.set(bundle.getBoolean(KEY_QOS_ENABLED, false))
             qosTaskProgress.set(bundle.getString(KEY_QOS_TASK_PROGRESS))
-            loopProgress.set(bundle.getString(KEY_LOOP_PROGRESS))
+            loopTotalCount.set(bundle.getInt(KEY_LOOP_TOTAL))
+            loopCurrentProgress.set(bundle.getInt(KEY_LOOP_PROGRESS))
             timeToNextTestElapsed.set(bundle.getString(KEY_LOOP_NEXT_TEST_TIME_PROGRESS))
             timeToNextTestPercentage.set(bundle.getInt(KEY_LOOP_NEXT_TEST_TIME_PERCENT, 0))
             loopNextTestDistanceMeters.set(bundle.getString(KEY_LOOP_NEXT_TEST_DISTANCE_METERS))
@@ -126,7 +138,8 @@ class MeasurementViewState(private val config: AppConfig) : ViewState {
             putLong(KEY_PING, pingNanos.get())
             putBoolean(KEY_QOS_ENABLED, qosEnabled.get())
             putString(KEY_QOS_TASK_PROGRESS, qosTaskProgress.get())
-            putString(KEY_LOOP_PROGRESS, loopProgress.get())
+            putInt(KEY_LOOP_PROGRESS, loopCurrentProgress.get())
+            putInt(KEY_LOOP_TOTAL, loopTotalCount.get())
             putString(KEY_LOOP_NEXT_TEST_TIME_PROGRESS, timeToNextTestElapsed.get())
             putInt(KEY_LOOP_NEXT_TEST_TIME_PERCENT, timeToNextTestPercentage.get())
             putString(KEY_LOOP_NEXT_TEST_DISTANCE_METERS, loopNextTestDistanceMeters.get())
