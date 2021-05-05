@@ -34,7 +34,7 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         tools:ignore="AllowBackup,GoogleAppIndexingWarning,UnusedAttribute">
-
+        <activity android:name=".ui.activity.PermissionsActivity"></activity>
         <activity
             android:name=".ui.activity.SplashActivity"
             android:theme="@style/SplashNoActionBarTheme"
@@ -45,58 +45,45 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
         <activity
-            android:name="at.rtr.rmbt.android.ui.activity.HomeActivity"
+            android:name=".ui.activity.HomeActivity"
             android:launchMode="singleTask"
             android:windowSoftInputMode="stateAlwaysHidden" />
-
-        <activity android:name="at.rtr.rmbt.android.ui.activity.PreferenceActivity" />
-
+        <activity
+            android:name=".ui.activity.PreferenceActivity"
+            android:theme="@style/PreferenceTheme" />
         <activity
             android:name=".ui.activity.MeasurementActivity"
             android:launchMode="singleTask"
             android:theme="@style/MeasurementTheme"
             android:windowSoftInputMode="stateAlwaysHidden" />
-
         <activity
             android:name=".ui.activity.ResultsActivity"
             android:theme="@style/PreferenceTheme"
             android:windowSoftInputMode="stateAlwaysHidden" />
-
         <activity android:name=".ui.activity.DetailedFullscreenMapActivity" />
-
         <activity android:name=".ui.activity.ShowWebViewActivity" />
-
         <activity
-            android:name="at.rtr.rmbt.android.ui.activity.TestResultDetailActivity"
+            android:name=".ui.activity.TestResultDetailActivity"
             android:theme="@style/PreferenceTheme" />
-
         <activity
-            android:name="at.rtr.rmbt.android.ui.activity.QosTestsSummaryActivity"
+            android:name=".ui.activity.QosTestsSummaryActivity"
             android:theme="@style/PreferenceTheme" />
-
         <activity android:name=".ui.activity.LoopInstructionsActivity" />
-
         <activity android:name=".ui.activity.SignalMeasurementTermsActivity" />
-
         <activity android:name=".ui.activity.SignalMeasurementActivity" />
-
         <activity
             android:name=".ui.activity.LoopFinishedActivity"
             android:launchMode="singleTop"
             android:theme="@style/MeasurementTheme" />
-
         <activity
-            android:name="at.rtr.rmbt.android.ui.activity.DataPrivacyAndTermsOfUseActivity"
+            android:name=".ui.activity.DataPrivacyAndTermsOfUseActivity"
             android:theme="@style/PreferenceTheme" />
-
         <activity android:name=".ui.activity.TermsAcceptanceActivity" />
 
         <meta-data
             android:name="com.google.android.geo.API_KEY"
             android:value="${googleMapsApiKey}" />
-
     </application>
 
 </manifest>

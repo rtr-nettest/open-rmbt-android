@@ -13,6 +13,7 @@ import at.rtr.rmbt.android.viewmodel.MapFiltersViewModel
 import at.rtr.rmbt.android.viewmodel.MapViewModel
 import at.rtr.rmbt.android.viewmodel.MeasurementViewModel
 import at.rtr.rmbt.android.viewmodel.NetworkDetailsViewModel
+import at.rtr.rmbt.android.viewmodel.PermissionsViewModel
 import at.rtr.rmbt.android.viewmodel.QosTestDetailPagerViewModel
 import at.rtr.rmbt.android.viewmodel.QosTestDetailViewModel
 import at.rtr.rmbt.android.viewmodel.QosTestsSummaryViewModel
@@ -147,4 +148,9 @@ interface ViewModelModule {
     @IntoMap
     @ViewModelKey(LocationViewModel::class)
     fun bindLocationViewModel(viewModel: LocationViewModel): ViewModel
+
+    @Binds
+    @IntoMap
+    @ViewModelKey(PermissionsViewModel::class)
+    fun bindPermissionsViewModel(viewModel: PermissionsViewModel): ViewModel
 }
