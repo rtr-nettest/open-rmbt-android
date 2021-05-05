@@ -10,6 +10,7 @@ data class LoopModeRecord(
     @PrimaryKey
     val localUuid: String,
     var uuid: String?,
+    var lastTestUuid: String?,
     var testsPerformed: Int = 0,
     var lastTestLongitude: Double? = null,
     var lastTestLatitude: Double? = null,

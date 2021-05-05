@@ -2,6 +2,7 @@ package at.rtr.rmbt.android.di
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import at.rtr.rmbt.android.viewmodel.BasicResultViewModel
 import at.rtr.rmbt.android.viewmodel.ConfigCheckViewModel
 import at.rtr.rmbt.android.viewmodel.HistoryFiltersViewModel
 import at.rtr.rmbt.android.viewmodel.HistoryViewModel
@@ -76,6 +77,11 @@ interface ViewModelModule {
     @IntoMap
     @ViewModelKey(ResultViewModel::class)
     fun bindTestResultsViewModel(viewModel: ResultViewModel): ViewModel
+
+    @Binds
+    @IntoMap
+    @ViewModelKey(BasicResultViewModel::class)
+    fun bindBasicResultViewModel(viewModel: BasicResultViewModel): ViewModel
 
     @Binds
     @IntoMap

@@ -1,11 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
 
     <data>
 
         <import type="at.specure.measurement.MeasurementState" />
+
+        <import type="at.specure.data.entity.LoopModeState" />
 
         <variable
             name="state"
@@ -21,8 +23,8 @@
             style="@style/ResultMainItemValue"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@{state.isLoopModeActive ? @string/title_loop_measurement : @string/text_basic_measurement}"
             android:layout_marginTop="56dp"
+            android:text="@{state.isLoopModeActive ? (state.loopModeRecord.status == LoopModeState.IDLE &amp;&amp; state.measurementState == MeasurementState.FINISH ? @string/title_loop_waiting : @string/title_loop_measurement) : @string/text_basic_measurement}"
             app:layout_constraintEnd_toStartOf="@+id/screen_title_loop_progress"
             app:layout_constraintHorizontal_chainStyle="packed"
             app:layout_constraintStart_toStartOf="parent"
@@ -55,10 +57,10 @@
             android:src="@drawable/ic_loop_24"
             android:translationZ="@dimen/cardview_default_elevation"
             app:layout_constraintBottom_toBottomOf="@+id/screen_title"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_chainStyle="packed"
             app:layout_constraintStart_toEndOf="@+id/screen_title_loop_progress"
             app:layout_constraintTop_toTopOf="@+id/screen_title"
-            app:layout_constraintEnd_toEndOf="parent"
             tools:layout_editor_absoluteY="-3dp" />
 
         <at.rtr.rmbt.android.ui.view.MeasurementProgressLineView
@@ -128,6 +130,100 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/speed_line" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/labelTimeNextMeasurement"
+            style="@style/ResultMainItemLabel"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/margin_large"
+            android:layout_marginTop="40dp"
+            android:text="@string/loop_mode_next_test"
+            app:layout_constraintEnd_toStartOf="@+id/labelDistanceNextMeasurement"
+            app:layout_constraintHorizontal_weight="1"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/screen_title" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/textTimeNextMeasurement"
+            style="@style/ResultMainItemMainValue"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toStartOf="@+id/labelTimeNextMeasurement"
+            app:layout_constraintTop_toBottomOf="@+id/labelTimeNextMeasurement"
+            app:speedDownloadResult="@{state.loopNextTestPercent}"
+            tools:text="24.12" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/unitTimeNextMeasurement"
+            style="@style/ResultMainItemUnit"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/margin_small"
+            android:text="@string/unit_minutes"
+            app:layout_constraintBaseline_toBaselineOf="@+id/textTimeNextMeasurement"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toEndOf="@+id/textTimeNextMeasurement" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/labelDistanceNextMeasurement"
+            style="@style/ResultMainItemLabel"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="@string/or"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_weight="1"
+            app:layout_constraintStart_toEndOf="@+id/labelTimeNextMeasurement"
+            app:layout_constraintTop_toTopOf="@+id/labelTimeNextMeasurement" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/textDistanceNextMeasurement"
+            style="@style/ResultMainItemMainValue"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:drawablePadding="@dimen/padding_very_small"
+            android:maxLines="2"
+            android:text="@{state.loopNextTestDistanceMeters}"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintHorizontal_weight="1"
+            app:layout_constraintStart_toStartOf="@+id/labelDistanceNextMeasurement"
+            app:layout_constraintTop_toBottomOf="@+id/labelDistanceNextMeasurement"
+            tools:text="135" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/unitDistanceNextMeasurement"
+            style="@style/ResultMainItemUnit"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/margin_small"
+            android:text="@string/unit_meter"
+            app:layout_constraintBaseline_toBaselineOf="@+id/textDistanceNextMeasurement"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toEndOf="@+id/textDistanceNextMeasurement" />
+
+        <FrameLayout
+            android:id="@+id/resultContainer"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/textTimeNextMeasurement" />
+
+        <androidx.constraintlayout.widget.Group
+            android:id="@+id/loop_waiting_phase_group"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:visibility="gone"
+            app:constraint_referenced_ids="labelTimeNextMeasurement, textTimeNextMeasurement, unitTimeNextMeasurement, labelDistanceNextMeasurement, textDistanceNextMeasurement, unitDistanceNextMeasurement, resultContainer"
+            app:visibleOrGone="@{state.isLoopModeActive &amp;&amp; state.loopModeRecord.status == LoopModeState.IDLE &amp;&amp; state.measurementState == MeasurementState.FINISH}" />
+
+        <androidx.constraintlayout.widget.Group
+            android:id="@+id/loop_measurement_phase_group"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:constraint_referenced_ids="speed_line, image, progress, square"
+            app:visibleOrGone="@{state.isLoopModeActive == false || (state.isLoopModeActive == true &amp;&amp; state.measurementState != MeasurementState.FINISH)}" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

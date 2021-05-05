@@ -24,6 +24,7 @@ import at.rtr.rmbt.android.R
 import at.rtr.rmbt.android.databinding.ActivityMeasurementBinding
 import at.rtr.rmbt.android.di.viewModelLazy
 import at.rtr.rmbt.android.ui.dialog.SimpleDialog
+import at.rtr.rmbt.android.ui.fragment.BasicResultFragment
 import at.rtr.rmbt.android.util.listen
 import at.rtr.rmbt.android.viewmodel.MeasurementViewModel
 import at.specure.data.entity.LoopModeRecord
@@ -107,11 +108,7 @@ class MeasurementActivity : BaseActivity(), SimpleDialog.Callback {
         }
 
         viewModel.timeToNextTestElapsedLiveData.listen(this) {
-//            binding.measurementBottomView?.loopMeasurementNextTestMinutesValue?.text = it
-        }
-
-        viewModel.timeProgressPercentsLiveData.listen(this) {
-//            binding.measurementBottomView?.loopMeasurementNextTestMinutesProgress?.progress = it
+            binding.textTimeNextMeasurement.text = it
         }
 
         viewModel.locationStateLiveData.listen(this) {
@@ -156,7 +153,6 @@ class MeasurementActivity : BaseActivity(), SimpleDialog.Callback {
             "TestPerformed: ${loopRecord?.testsPerformed} \nloop mode status: ${loopRecord?.status} \nLoop local uuid: ${loopRecord?.localUuid}\nLoop remote uuid: ${loopRecord?.uuid}\nviewModel: ${viewModel.state.measurementState.get()}"
         )
         Timber.d("local loop UUID to read loop data: ${viewModel.loopUuidLiveData.value}")
-//        binding.curveLayout?.setLoopState(loopRecord?.status ?: LoopModeState.RUNNING)
         viewModel.state.setLoopRecord(loopRecord)
         loopRecord?.testsPerformed?.let { testsPerformed ->
             viewModel.state.setLoopProgress(
@@ -164,11 +160,13 @@ class MeasurementActivity : BaseActivity(), SimpleDialog.Callback {
                 viewModel.config.loopModeNumberOfTests
             )
         }
-//        binding.measurementBottomView?.loopMeasurementNextTestMetersProgress?.progress = viewModel.state.loopNextTestPercent.get()
+        binding.textDistanceNextMeasurement.text = viewModel.state.loopNextTestDistanceMeters.get()
         loopRecord?.status?.let { status ->
             if ((status == LoopModeState.IDLE) || (status == LoopModeState.FINISHED)) {
-//                binding.measurementBottomView?.speedChartDownloadUpload?.reset()
-//                binding.measurementBottomView?.qosProgressContainer?.reset()
+                loopRecord.lastTestUuid?.let {
+                    val basicResultFragment = BasicResultFragment.newInstance(it)
+                    supportFragmentManager.beginTransaction().replace(binding.resultContainer.id, basicResultFragment).commit()
+                }
             }
         }
 

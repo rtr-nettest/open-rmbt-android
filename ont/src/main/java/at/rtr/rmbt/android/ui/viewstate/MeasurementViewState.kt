@@ -98,7 +98,12 @@ class MeasurementViewState(private val config: AppConfig) : ViewState {
                 distancePercent = loopModeRecord.movementDistanceMeters * 100 / config.loopModeDistanceMeters
             }
             this.loopNextTestPercent.set(distancePercent)
-            this.loopNextTestDistanceMeters.set(loopModeRecord.movementDistanceMeters.toString())
+            val distanceToNextTestMeters = config.loopModeDistanceMeters - loopModeRecord.movementDistanceMeters
+            this.loopNextTestDistanceMeters.set(
+                if (distanceToNextTestMeters < 0) {
+                    "0"
+                } else distanceToNextTestMeters.toString()
+            )
             this.loopModeRecord.get()?.status?.let { setLoopState(it) }
         } else {
             this.loopNextTestPercent.set(0)
