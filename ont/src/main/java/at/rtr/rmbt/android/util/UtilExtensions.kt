@@ -28,6 +28,8 @@ import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
 import java.util.concurrent.TimeUnit
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.channels.Channel
 
 fun HandledException.getStringTitle(context: Context): String {
     return getTitle(context) ?: context.getString(R.string.dialog_title_error)
@@ -78,4 +80,11 @@ fun Array<out String>.hasLocationPermissions(): Boolean {
         }
     }
     return false
+}
+
+@OptIn(ExperimentalCoroutinesApi::class)
+fun <T> Channel<T>.safeOffer(elem: T) {
+    if (!isClosedForSend) {
+        offer(elem)
+    }
 }
