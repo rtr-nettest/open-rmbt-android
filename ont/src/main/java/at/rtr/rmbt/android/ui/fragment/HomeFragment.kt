@@ -57,16 +57,23 @@ class HomeFragment : BaseFragment() {
         binding.ivSignalLevel.setOnClickListener {
             if (homeViewModel.isConnected.value == true) {
                 if (!homeViewModel.clientUUID.value.isNullOrEmpty()) {
-                    if (homeViewModel.state.isLoopModeActive.get()) {
-                    } else {
-                        MeasurementService.startTests(requireContext())
-                        MeasurementActivity.start(requireContext())
-                    }
+                    MeasurementService.startTests(requireContext())
+                    MeasurementActivity.start(requireContext())
                 } else {
                     MessageDialog.instance(R.string.client_not_registered).show(activity)
                 }
             } else {
                 MessageDialog.instance(R.string.home_no_internet_connection).show(activity)
+            }
+        }
+
+        binding.buttonLoop.setOnClickListener {
+            if (this.isResumed) {
+                if (homeViewModel.state.isLoopModeActive.get()) {
+                    homeViewModel.state.isLoopModeActive.set(false)
+                } else {
+                    homeViewModel.state.isLoopModeActive.set(true)
+                }
             }
         }
 

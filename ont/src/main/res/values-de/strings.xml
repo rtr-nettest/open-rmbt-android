@@ -300,5 +300,12 @@
     <string name="text_phase_ping">Ping</string>
     <string name="text_unit_mbps">Mbps</string>
     <string name="text_unit_ping">ms</string>
+    <string name="title_loop_measurement">Wiederholungsmessung</string>
+    <string name="text_current_from_count">"%1$d  von %2$d "</string>
+    <string name="unit_minutes">min</string>
+    <string name="or">or</string>
+    <string name="unit_meter">m</string>
+    <string name="title_loop_waiting">Schleife warten</string>
+    <string name="loop_mode_next_test">Nächste Messung</string>
 </resources>
 

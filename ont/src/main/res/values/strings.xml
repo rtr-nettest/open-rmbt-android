@@ -280,6 +280,8 @@
     <string name="notification_loop_mode_title_running">Loop mode is running (%1$d/%2$d)</string>
 
     <string name="title_loop_mode">Loop mode</string>
+    <string name="title_loop_measurement">Loop measurement</string>
+    <string name="title_loop_waiting">Loop waiting</string>
     <string name="text_button_decline">Decline</string>
     <string name="text_button_accept">Accept</string>
     <string name="text_loop_instruction_2">In the event of a great demand or very high number of tests in a specific area, the loop mode can be rejected by the test system in order to avoid overload. Please note that the loop-modus is (only) intended for use within the EU and the EEA. The loop-modus consumes a large amount of data. With fast connections, 10 tests can consume 1 GB or more of data. It is therefore strongly recommended that the loop-modus is only used with real flat rate tariffs, where additional data volume does not cause additional costs. The loop-modus drains the battery quickly. In pauses between the tests, the GPS and the display remain active and signal measurements continue, which means that the energy is used up much faster than during stand-by mode. The loop-modus should therefore only be used if an external power supply is available.</string>
@@ -319,6 +321,11 @@
     <string name="text_phase_ping">Ping</string>
     <string name="text_unit_mbps">Mbps</string>
     <string name="text_unit_ping">ms</string>
+    <string name="text_current_from_count">%1$d of %2$d</string>
+    <string name="loop_mode_next_test">Next measurement</string>
+    <string name="unit_minutes">min</string>
+    <string name="or">or</string>
+    <string name="unit_meter">m</string>
 
     <string name="title_permissions_welcome" tools:ignore="MissingTranslation">Welcome to Open Nettest</string>
     <string name="text_permissions_welcome" tools:ignore="MissingTranslation">Let’s Review your Privacy Options</string>

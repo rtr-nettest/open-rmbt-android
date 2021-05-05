@@ -50,10 +50,32 @@
             android:textAllCaps="false"
             android:textColor="@android:color/white"
             app:layout_constraintBottom_toTopOf="@id/logo"
+            android:stateListAnimator="@null"
+            android:translationZ="0dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/buttonSettings"
             app:visibleOrGone="@{state.isConnected}" />
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/buttonLoop"
+            android:layout_width="wrap_content"
+            android:layout_height="@dimen/home_loop_button_height"
+            android:layout_marginEnd="@dimen/margin_medium"
+            android:background="@{state.isLoopModeActive ? @drawable/bg_loop_button_enabled : @drawable/bg_loop_button_disabled}"
+            android:drawableStart="@drawable/ic_loop_24"
+            android:drawablePadding="@dimen/padding_small"
+            android:inputType="textCapWords"
+            android:paddingStart="@dimen/padding_large"
+            android:paddingTop="@dimen/padding_medium"
+            android:paddingEnd="@dimen/padding_large"
+            android:paddingBottom="@dimen/padding_medium"
+            android:text="@string/title_loop_mode"
+            android:textAllCaps="false"
+            android:translationZ="@dimen/cardview_default_elevation"
+            app:layout_constraintBottom_toBottomOf="@id/app_logo"
+            app:layout_constraintEnd_toStartOf="@+id/buttonSettings"
+            app:layout_constraintTop_toTopOf="@id/app_logo" />
 
         <ImageView
             android:id="@+id/logo"
@@ -76,6 +98,21 @@
             app:layout_constraintBottom_toBottomOf="@id/app_logo"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="@id/app_logo" />
+
+        <androidx.appcompat.widget.AppCompatImageView
+            android:id="@+id/ivLoopStatusIcon"
+            visibleOrGone="@{state.isLoopModeActive}"
+            android:layout_width="@dimen/history_image_size"
+            android:layout_height="@dimen/history_image_size"
+            android:layout_marginEnd="@dimen/margin_medium"
+            android:layout_marginBottom="@dimen/margin_44"
+            android:background="@drawable/bg_loop_active"
+            android:padding="@dimen/padding_small"
+            android:scaleType="centerInside"
+            android:src="@drawable/ic_loop_24"
+            android:translationZ="@dimen/cardview_default_elevation"
+            app:layout_constraintBottom_toBottomOf="@+id/ivSignalLevel"
+            app:layout_constraintEnd_toEndOf="@+id/ivSignalLevel" />
 
         <ImageView
             android:id="@+id/app_logo"

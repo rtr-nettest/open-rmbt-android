@@ -4,16 +4,12 @@ import android.content.Context
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
-import android.view.View
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LiveData
 import at.rtr.rmbt.android.R
 import at.rtr.rmbt.android.databinding.ActivityResultsBinding
 import at.rtr.rmbt.android.di.viewModelLazy
+import at.rtr.rmbt.android.ui.fragment.BasicResultFragment
 import at.rtr.rmbt.android.util.listen
 import at.rtr.rmbt.android.viewmodel.ResultViewModel
-import at.specure.data.NetworkTypeCompat
-import at.specure.data.entity.TestResultGraphItemRecord
 import com.google.android.gms.common.ConnectionResult
 import com.google.android.gms.common.GoogleApiAvailability
 import com.google.android.gms.maps.GoogleMap
@@ -43,10 +39,10 @@ class ResultsActivity : BaseActivity(), OnMapReadyCallback {
         viewModel.state.returnPoint = returnPoint?.let { ReturnPoint.valueOf(returnPoint) } ?: ReturnPoint.HOME
         viewModel.testServerResultLiveData.listen(this) { result ->
             viewModel.state.testResult.set(result)
-
-            loadGraphItems(viewModel.state.downloadGraphData, viewModel.downloadGraphLiveData, TestResultGraphItemRecord.Type.DOWNLOAD)
-            loadGraphItems(viewModel.state.uploadGraphData, viewModel.uploadGraphLiveData, TestResultGraphItemRecord.Type.UPLOAD)
         }
+
+        val fragment = BasicResultFragment.newInstance(testUUID)
+        supportFragmentManager.beginTransaction().replace(binding.basicResultContainer.id, fragment).commit()
 
         binding.buttonBack.setOnClickListener {
             onBackPressed()
@@ -66,51 +62,8 @@ class ResultsActivity : BaseActivity(), OnMapReadyCallback {
 
         viewModel.loadingLiveData.listen(this) {
             binding.swipeRefreshLayout.isRefreshing = false
-            if (viewModel.state.testResult.get() == null) {
-                binding.textFailedToLoad.visibility = if (it) View.GONE else View.VISIBLE
-            } else {
-                binding.textFailedToLoad.visibility = View.GONE
-            }
         }
         refreshResults()
-    }
-
-    private fun loadGraphItems(
-        graphLoadedData: List<TestResultGraphItemRecord>?,
-        graphLiveData: LiveData<List<TestResultGraphItemRecord>>,
-        type: TestResultGraphItemRecord.Type
-    ) {
-        if (graphLoadedData.isNullOrEmpty()) {
-            graphLiveData.listen(this) {
-                when (type) {
-                    TestResultGraphItemRecord.Type.DOWNLOAD -> viewModel.state.downloadGraphData = it
-                    TestResultGraphItemRecord.Type.UPLOAD -> viewModel.state.uploadGraphData = it
-                }
-                showGraphItems(type)
-            }
-        } else {
-            showGraphItems(type)
-        }
-    }
-
-    private fun showGraphItems(type: TestResultGraphItemRecord.Type) {
-        val isActivityInForeground = this.lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED)
-        if (isActivityInForeground) {
-            when (type) {
-                TestResultGraphItemRecord.Type.DOWNLOAD -> {
-                    binding.downloadChart.addResultGraphItems(
-                        viewModel.state.downloadGraphData,
-                        viewModel.state.testResult.get()?.networkType ?: NetworkTypeCompat.TYPE_UNKNOWN
-                    )
-                }
-                TestResultGraphItemRecord.Type.UPLOAD -> {
-                    binding.uploadChart.addResultGraphItems(
-                        viewModel.state.uploadGraphData,
-                        viewModel.state.testResult.get()?.networkType ?: NetworkTypeCompat.TYPE_UNKNOWN
-                    )
-                }
-            }
-        }
     }
 
     private fun refreshResults() {
