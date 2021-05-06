@@ -25,6 +25,7 @@ import at.rtr.rmbt.android.databinding.ActivityMeasurementBinding
 import at.rtr.rmbt.android.di.viewModelLazy
 import at.rtr.rmbt.android.ui.dialog.SimpleDialog
 import at.rtr.rmbt.android.ui.fragment.BasicResultFragment
+import at.rtr.rmbt.android.util.TestUuidType
 import at.rtr.rmbt.android.util.listen
 import at.rtr.rmbt.android.viewmodel.MeasurementViewModel
 import at.specure.data.entity.LoopModeRecord
@@ -40,6 +41,7 @@ class MeasurementActivity : BaseActivity(), SimpleDialog.Callback {
 
     private val viewModel: MeasurementViewModel by viewModelLazy()
     private lateinit var binding: ActivityMeasurementBinding
+    private var resultFragment: BasicResultFragment? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -115,6 +117,12 @@ class MeasurementActivity : BaseActivity(), SimpleDialog.Callback {
             viewModel.state.gpsEnabled.set(it == LocationState.ENABLED)
         }
 
+        viewModel.resultWaitingToBeSentLiveData.listen(this) {
+            if (!it) {
+                showBasicResultsFragment()
+            }
+        }
+
         Timber.d("Measurement state loop create: ${viewModel.state.measurementState.get()?.name}")
 
         viewModel.state.loopModeRecord.get()?.testsPerformed?.let { viewModel.state.setLoopProgress(it, viewModel.config.loopModeNumberOfTests) }
@@ -162,16 +170,31 @@ class MeasurementActivity : BaseActivity(), SimpleDialog.Callback {
         }
         binding.textDistanceNextMeasurement.text = viewModel.state.loopNextTestDistanceMeters.get()
         loopRecord?.status?.let { status ->
-            if ((status == LoopModeState.IDLE) || (status == LoopModeState.FINISHED)) {
-                loopRecord.lastTestUuid?.let {
-                    val basicResultFragment = BasicResultFragment.newInstance(it)
-                    supportFragmentManager.beginTransaction().replace(binding.resultContainer.id, basicResultFragment).commit()
+            when (status) {
+                LoopModeState.IDLE -> {
+                    showBasicResultsFragment()
                 }
+                LoopModeState.RUNNING -> {
+                    resultFragment?.let { supportFragmentManager.beginTransaction().remove(resultFragment!!).commitNow() }
+                    resultFragment = null
+                }
+                else -> {
+                } // do nothing
             }
         }
 
         if (loopRecord?.status == LoopModeState.FINISHED || loopRecord?.status == LoopModeState.CANCELLED) {
             finishActivity(true)
+        }
+    }
+
+    private fun showBasicResultsFragment() {
+        Timber.d("history test result Show fragment: ${viewModel.state.loopModeRecord.get()?.status == LoopModeState.IDLE}, ${resultFragment == null},  ${viewModel.resultWaitingToBeSentLiveData.value == false}")
+        if (viewModel.state.loopModeRecord.get()?.status == LoopModeState.IDLE && resultFragment == null && viewModel.resultWaitingToBeSentLiveData.value == false) {
+            viewModel.state.loopModeRecord.get()?.uuid?.let {
+                resultFragment = BasicResultFragment.newInstance(it, TestUuidType.LOOP_UUID)
+                supportFragmentManager.beginTransaction().replace(binding.resultContainer.id, resultFragment as BasicResultFragment).commitNow()
+            }
         }
     }
 

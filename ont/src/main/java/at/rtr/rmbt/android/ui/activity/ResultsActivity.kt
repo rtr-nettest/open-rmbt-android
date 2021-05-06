@@ -8,6 +8,7 @@ import at.rtr.rmbt.android.R
 import at.rtr.rmbt.android.databinding.ActivityResultsBinding
 import at.rtr.rmbt.android.di.viewModelLazy
 import at.rtr.rmbt.android.ui.fragment.BasicResultFragment
+import at.rtr.rmbt.android.util.TestUuidType
 import at.rtr.rmbt.android.util.listen
 import at.rtr.rmbt.android.viewmodel.ResultViewModel
 import com.google.android.gms.common.ConnectionResult
@@ -41,7 +42,7 @@ class ResultsActivity : BaseActivity(), OnMapReadyCallback {
             viewModel.state.testResult.set(result)
         }
 
-        val fragment = BasicResultFragment.newInstance(testUUID)
+        val fragment = BasicResultFragment.newInstance(testUUID, TestUuidType.TEST_UUID)
         supportFragmentManager.beginTransaction().replace(binding.basicResultContainer.id, fragment).commit()
 
         binding.buttonBack.setOnClickListener {
