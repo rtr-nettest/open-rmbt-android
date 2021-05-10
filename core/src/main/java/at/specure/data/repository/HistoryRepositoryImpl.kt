@@ -7,12 +7,16 @@ import at.rmbt.util.io
 import at.specure.config.Config
 import at.specure.data.ClientUUID
 import at.specure.data.HistoryFilterOptions
+import at.specure.data.HistoryLoopMedian
 import at.specure.data.dao.HistoryDao
 import at.specure.data.entity.History
 import at.specure.data.toCapabilitiesBody
 import at.specure.data.toModelList
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
 import timber.log.Timber
 import java.util.Locale
+import kotlin.math.ceil
 
 class HistoryRepositoryImpl(
     private val historyDao: HistoryDao,
@@ -31,7 +35,7 @@ class HistoryRepositoryImpl(
 
     override val appliedFiltersLiveData = historyFilterOptions.appliedFiltersLiveData
 
-    override fun loadHistoryItems(offset: Int, limit: Int): Maybe<List<History>> {
+    override fun loadHistoryItems(offset: Int, limit: Int, ignoreFilters: Boolean): Maybe<List<History>> {
         val clientUUID = clientUUID.value
         if (clientUUID == null) {
             Timber.w("Unable to update history client uuid is null")
@@ -43,8 +47,8 @@ class HistoryRepositoryImpl(
             offset = offset,
             limit = limit,
             capabilities = config.toCapabilitiesBody(),
-            devices = historyFilterOptions.activeDevices?.toList(),
-            networks = historyFilterOptions.activeNetworks?.toList(),
+            devices = if (ignoreFilters) null else historyFilterOptions.activeDevices?.toList(),
+            networks = if (ignoreFilters) null else historyFilterOptions.activeNetworks?.toList(),
             language = Locale.getDefault().language
         )
 
@@ -59,6 +63,80 @@ class HistoryRepositoryImpl(
             historyDao.insert(items)
             Timber.i("history offset: $offset limit: $limit loaded: ${it.history?.size}")
             items
+        }
+    }
+
+    override fun loadHistoryItems(offset: Int, limit: Int): Maybe<List<History>> {
+        return loadHistoryItems(offset, limit, false)
+    }
+
+    /**
+     * load loop history items present in the history table (watch out for filters)
+     */
+    override fun loadLoopHistoryItems(loopUuid: String): List<History> {
+        return historyDao.getItemByLoopUUID(loopUuid)
+    }
+
+    /**
+     * compute median values for particular loop measurement from currently available results in the history (watch out for filters)
+     */
+    override fun loadLoopMedianValues(loopUuid: String): Flow<HistoryLoopMedian?> = flow {
+        val historyItems = historyDao.getItemByLoopUUID(loopUuid)
+        if (historyItems.isEmpty()) {
+            emit(null)
+            Timber.e("history items: No loop items")
+        }
+        val pingList = mutableListOf<Float>()
+        val jitterList = mutableListOf<Float>()
+        val packetLoss = mutableListOf<Float>()
+        val downloadList = mutableListOf<Float>()
+        val uploadList = mutableListOf<Float>()
+        val qosList = mutableListOf<Float>()
+        historyItems.forEach { historyItem ->
+            historyItem.ping.toFloatOrNull()?.let { ping ->
+                pingList.add(ping)
+            }
+//            todo: prepared for ONT CS
+//            historyItem.jitter.toFloatOrNull()?.let { jitter ->
+//                jitterList.add(jitter)
+//            }
+//            historyItem.packetLoss.toFloatOrNull()?.let { packetLoss ->
+//                packetLossList.add(packetLoss)
+//            }
+            historyItem.speedDownload.toFloatOrNull()?.let { downloadSpeed ->
+                downloadList.add(downloadSpeed)
+            }
+            historyItem.speedUpload.toFloatOrNull()?.let { uploadSpeed ->
+                uploadList.add(uploadSpeed)
+            }
+        }
+        Timber.d("history items: ${historyItems.size}")
+        historyItems.forEach { Timber.d("history item from ${it.timeString} with ${it.ping}, ${it.speedDownload}, ${it.speedUpload}") }
+        Timber.d("history median: ${median(pingList)}, ${median(downloadList)}, ${median(uploadList)}")
+        emit(
+            HistoryLoopMedian(
+                loopUuid = loopUuid,
+                pingMedian = median(pingList),
+                packetLossMedian = median(packetLoss),
+                jitterMedian = median(jitterList),
+                downloadMedian = median(downloadList),
+                uploadMedian = median(uploadList),
+                qosMedian = median(qosList)
+            )
+        )
+    }
+
+    private fun median(floatList: List<Float>): Float {
+        if (floatList.isEmpty()) {
+            return 0f
+        }
+
+        val sortedFloatList = floatList.sorted()
+        val halfIndex = (ceil((sortedFloatList.size / 2f).toDouble()) - 1).toInt()
+        return if (sortedFloatList.size % 2 == 0) {
+            (sortedFloatList[halfIndex] + sortedFloatList[halfIndex + 1]) / 2f
+        } else {
+            sortedFloatList[halfIndex]
         }
     }
 

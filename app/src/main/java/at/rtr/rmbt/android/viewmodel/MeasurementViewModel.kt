@@ -221,6 +221,10 @@ class MeasurementViewModel @Inject constructor(
         _measurementFinishLiveData.postValue(true)
     }
 
+    override fun onResultSubmitted() {
+        // do nothing, because it is done in onSubmitted
+    }
+
     override fun onSubmissionError(exception: HandledException) {
         Timber.d("Test Data submission failed")
         _measurementFinishLiveData.postValue(false)
