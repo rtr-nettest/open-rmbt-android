@@ -23,11 +23,6 @@ import java.util.UUID
 open class EthernetNetworkInfo(
 
     /**
-     * Device IP address in WiFi network
-     */
-    val ipAddress: String?,
-
-    /**
      * The current link speed in Mbps.
      */
     val linkSpeed: Int?,

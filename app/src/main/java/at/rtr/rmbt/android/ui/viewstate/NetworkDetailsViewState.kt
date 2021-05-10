@@ -11,6 +11,7 @@ import at.specure.info.cell.CellTechnology
 import at.specure.info.connectivity.ConnectivityInfo
 import at.specure.info.ip.IpInfo
 import at.specure.info.network.DetailedNetworkInfo
+import at.specure.info.network.EthernetNetworkInfo
 import at.specure.info.network.NRConnectionState
 import at.specure.info.network.WifiNetworkInfo
 import at.specure.info.strength.SignalStrengthInfo
@@ -81,6 +82,7 @@ class NetworkDetailsViewState : ViewState {
     fun setActiveNetworkInfo(detailedNetworkInfo: DetailedNetworkInfo?) {
         val info = when (detailedNetworkInfo?.networkInfo) {
             null -> "Disconnected"
+            is EthernetNetworkInfo -> extractEthernetNetworkInfo(detailedNetworkInfo.networkInfo as EthernetNetworkInfo)
             is WifiNetworkInfo -> extractWifiNetworkInfo(detailedNetworkInfo.networkInfo as WifiNetworkInfo)
             is CellNetworkInfo -> {
                 extractCellNetworkInfo(
@@ -122,6 +124,12 @@ class NetworkDetailsViewState : ViewState {
         bold("signalLevel: ").append(info.signalLevel).newLine()
         bold("ssid: ").append(info.ssid).newLine()
         bold("supplicantState: ").append(info.supplicantState).newLine()
+    }
+
+    private fun extractEthernetNetworkInfo(info: EthernetNetworkInfo): String = buildString {
+        bold("linkSpeed: ").append(info.linkSpeed).newLine()
+        bold("networkId: ").append(info.networkId).newLine()
+        bold("network type: ").append(info.type.name).newLine()
     }
 
     private fun extractCellNetworkInfo(info: CellNetworkInfo, rawCellInfos: List<CellInfo>?, nrConnectionState: NRConnectionState?): String =

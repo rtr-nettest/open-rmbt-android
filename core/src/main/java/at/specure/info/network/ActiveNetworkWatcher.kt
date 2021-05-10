@@ -78,8 +78,7 @@ class ActiveNetworkWatcher(
             } else {
                 when (connectivityInfo.transportType) {
                     TransportType.ETHERNET -> {
-                        EthernetNetworkInfo(null, null, connectivityInfo.netId, null)
-                        // TODO:
+                        EthernetNetworkInfo(connectivityInfo.linkDownstreamBandwidthKbps, connectivityInfo.netId, null)
                     }
                     TransportType.WIFI -> wifiInfoWatcher.activeWifiInfo.apply {
                         this?.locationEnabled = locationStateWatcher.state == LocationState.ENABLED
