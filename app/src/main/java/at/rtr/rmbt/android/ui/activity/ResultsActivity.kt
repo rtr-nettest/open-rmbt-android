@@ -81,7 +81,7 @@ class ResultsActivity : BaseActivity(), OnMapReadyCallback {
 
                     val icon = when (result.networkType) {
                         NetworkTypeCompat.TYPE_UNKNOWN -> R.drawable.ic_marker_empty
-                        NetworkTypeCompat.TYPE_LAN,
+                        NetworkTypeCompat.TYPE_LAN -> R.drawable.ic_marker_ethernet
                         NetworkTypeCompat.TYPE_BROWSER -> R.drawable.ic_marker_browser
                         NetworkTypeCompat.TYPE_WLAN -> R.drawable.ic_marker_wifi
                         NetworkTypeCompat.TYPE_5G_AVAILABLE,

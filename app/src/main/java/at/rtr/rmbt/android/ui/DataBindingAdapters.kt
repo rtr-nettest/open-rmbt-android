@@ -28,6 +28,7 @@ import at.specure.info.cell.CellTechnology
 import at.specure.info.ip.IpInfo
 import at.specure.info.ip.IpStatus
 import at.specure.info.network.DetailedNetworkInfo
+import at.specure.info.network.EthernetNetworkInfo
 import at.specure.info.network.MobileNetworkType
 import at.specure.info.network.NRConnectionState
 import at.specure.info.network.NetworkInfo
@@ -123,8 +124,8 @@ fun AppCompatTextView.showPopup(isConnected: Boolean, infoWindowStatus: InfoWind
  * A binding adapter that is used for show network icon based on network type (WIFI/MOBILE),
  * and signalLevel(0..4)
  */
-@BindingAdapter("signalLevel", "connected")
-fun AppCompatImageButton.setIcon(signalStrengthInfo: SignalStrengthInfo?, connected: Boolean) {
+@BindingAdapter("signalLevel", "connected", "networkTransportType")
+fun AppCompatImageButton.setIcon(signalStrengthInfo: SignalStrengthInfo?, connected: Boolean, networkTransportType: TransportType?) {
 
     if (signalStrengthInfo != null) {
 
@@ -159,7 +160,10 @@ fun AppCompatImageButton.setIcon(signalStrengthInfo: SignalStrengthInfo?, connec
         }
     } else {
         if (connected) {
-            setImageResource(R.drawable.ic_signal_unknown)
+            when (networkTransportType) {
+                TransportType.ETHERNET -> setImageResource(R.drawable.ic_ethernet_home)
+                else -> setImageResource(R.drawable.ic_signal_unknown)
+            }
         } else {
             setImageResource(R.drawable.ic_no_internet)
         }
@@ -178,6 +182,7 @@ fun AppCompatTextView.setNetworkType(detailedNetworkInfo: DetailedNetworkInfo?) 
     val shortDisplayOfTechnology = true
 
     text = when (detailedNetworkInfo?.networkInfo) {
+        is EthernetNetworkInfo -> context.getString(R.string.home_ethernet)
         is WifiNetworkInfo -> context.getString(R.string.home_wifi)
         is CellNetworkInfo -> {
             val technology =
@@ -600,7 +605,9 @@ private fun getSignalImageResource(networkType: NetworkTypeCompat, signalStrengt
         NetworkTypeCompat.TYPE_UNKNOWN -> {
             R.drawable.ic_history_no_internet
         }
-        NetworkTypeCompat.TYPE_LAN,
+        NetworkTypeCompat.TYPE_LAN -> {
+            R.drawable.ic_ethernet
+        }
         NetworkTypeCompat.TYPE_BROWSER -> {
             R.drawable.ic_browser
         }
