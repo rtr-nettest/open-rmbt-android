@@ -222,7 +222,7 @@
             android:id="@+id/loop_measurement_phase_group"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            app:constraint_referenced_ids="speed_line, image, progress, square"
+            app:constraint_referenced_ids="image, progress, square"
             app:visibleOrGone="@{state.isLoopModeActive == false || (state.isLoopModeActive == true &amp;&amp; state.measurementState != MeasurementState.FINISH)}" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
