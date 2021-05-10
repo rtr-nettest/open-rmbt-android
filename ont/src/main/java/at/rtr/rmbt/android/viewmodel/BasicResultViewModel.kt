@@ -70,8 +70,15 @@ class BasicResultViewModel @Inject constructor(
             }
             TestUuidType.LOOP_UUID ->
                 io {
-                    // TODO: offset and limit needs to be changed according to the usage of the fragment in history or during loop mode execution
-                    historyRepository.loadHistoryItems(0, 100, true).onSuccess {
+                    if (state.useLatestResults) {
+                        historyRepository.loadHistoryItems(0, 100, true).onSuccess {
+                            historyRepository.loadLoopMedianValues(state.testUUID).onCompletion {
+                                _loadingLiveData.postValue(true)
+                            }.collect {
+                                _loopMedianValuesLiveData.postValue(it)
+                            }
+                        }
+                    } else {
                         historyRepository.loadLoopMedianValues(state.testUUID).onCompletion {
                             _loadingLiveData.postValue(true)
                         }.collect {

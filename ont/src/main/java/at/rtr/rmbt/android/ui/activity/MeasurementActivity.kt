@@ -192,7 +192,7 @@ class MeasurementActivity : BaseActivity(), SimpleDialog.Callback {
         Timber.d("history test result Show fragment: ${viewModel.state.loopModeRecord.get()?.status == LoopModeState.IDLE}, ${resultFragment == null},  ${viewModel.resultWaitingToBeSentLiveData.value == false}")
         if (viewModel.state.loopModeRecord.get()?.status == LoopModeState.IDLE && resultFragment == null && viewModel.resultWaitingToBeSentLiveData.value == false) {
             viewModel.state.loopModeRecord.get()?.uuid?.let {
-                resultFragment = BasicResultFragment.newInstance(it, TestUuidType.LOOP_UUID)
+                resultFragment = BasicResultFragment.newInstance(it, TestUuidType.LOOP_UUID, true)
                 supportFragmentManager.beginTransaction().replace(binding.resultContainer.id, resultFragment as BasicResultFragment).commitNow()
             }
         }

@@ -30,6 +30,7 @@ class BasicResultFragment : BaseFragment() {
         binding.state = viewModel.state
 
         val uuidTypeOrdinal = arguments?.getInt(KEY_UUID_TYPE) ?: throw IllegalArgumentException("Please pass UUID type")
+        viewModel.state.useLatestResults = arguments?.getBoolean(KEY_RELOAD_HISTORY, false) ?: false
         viewModel.state.uuidType = TestUuidType.values()[uuidTypeOrdinal]
         viewModel.state.testUUID = arguments?.getString(KEY_TEST_UUID) ?: throw IllegalArgumentException("Please pass test UUID")
 
@@ -50,7 +51,7 @@ class BasicResultFragment : BaseFragment() {
                         viewModel.state.testResult.set(
                             TestResultRecord(
                                 uuid = result.loopUuid,
-                                uploadSpeedKbs = (result.uploadMedian * 1000f).toLong(),
+                                uploadSpeedKbs = (result.uploadMedian * 1000).toLong(),
                                 downloadSpeedKbs = (result.downloadMedian * 1000).toLong(),
                                 pingMillis = result.pingMedian.toDouble(),
                                 clientOpenUUID = "",
@@ -77,7 +78,6 @@ class BasicResultFragment : BaseFragment() {
                             )
                         )
                     }
-
                 }
             }
         }
@@ -135,11 +135,19 @@ class BasicResultFragment : BaseFragment() {
 
         private const val KEY_TEST_UUID: String = "KEY_TEST_UUID"
         private const val KEY_UUID_TYPE: String = "KEY_UUID_TYPE"
+        private const val KEY_RELOAD_HISTORY: String = "KEY_RELOAD_HISTORY"
+
         fun newInstance(testUUID: String, uuidType: TestUuidType): BasicResultFragment {
+
+            return newInstance(testUUID, uuidType, false)
+        }
+
+        fun newInstance(testUUID: String, uuidType: TestUuidType, reloadHistory: Boolean): BasicResultFragment {
 
             val args = Bundle()
             args.putString(KEY_TEST_UUID, testUUID)
             args.putInt(KEY_UUID_TYPE, uuidType.ordinal)
+            args.putBoolean(KEY_RELOAD_HISTORY, reloadHistory)
 
             val fragment = BasicResultFragment()
             fragment.arguments = args
