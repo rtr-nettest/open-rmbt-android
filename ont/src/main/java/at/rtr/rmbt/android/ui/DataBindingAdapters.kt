@@ -14,6 +14,7 @@ import at.rtr.rmbt.android.R
 import at.rtr.rmbt.android.ui.view.MeasurementProgressSquareView
 import at.rtr.rmbt.android.ui.view.ProgressBar
 import at.rtr.rmbt.android.ui.view.ResultBar
+import at.rtr.rmbt.android.ui.view.ResultsTechnologyView
 import at.rtr.rmbt.android.ui.view.SpeedLineChart
 import at.rtr.rmbt.android.ui.view.WaveView
 import at.rtr.rmbt.android.util.InfoWindowStatus
@@ -576,6 +577,11 @@ fun AppCompatTextView.setHistoryTime(historyTime: Long, historyTimezone: String)
 @BindingAdapter("networkType", "historySignalStrength", requireAll = true)
 fun ImageView.setSignalIcon(networkType: NetworkTypeCompat?, signalStrength: Classification) {
     networkType?.let { setImageResource(getSignalImageResource(it, signalStrength)) }
+}
+
+@BindingAdapter("networkType")
+fun ResultsTechnologyView.setSignalIcon(networkType: NetworkTypeCompat) {
+    technology = networkType
 }
 
 private fun getSignalImageResource(

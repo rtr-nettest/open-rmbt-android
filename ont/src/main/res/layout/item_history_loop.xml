@@ -13,7 +13,9 @@
 
     </data>
 
-    <androidx.constraintlayout.widget.ConstraintLayout
+    <!--    todo: set median values-->
+
+    <androidx.appcompat.widget.LinearLayoutCompat
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
@@ -24,65 +26,51 @@
             android:id="@+id/imageSignal"
             android:layout_width="@dimen/history_image_size"
             android:layout_height="@dimen/history_image_size"
+            android:layout_marginStart="16dp"
+            android:layout_gravity="center"
             android:contentDescription="@null"
             android:scaleType="center"
-            app:historySignalStrength="@{item.signalClassification ?? Classification.NONE}"
-            app:layout_constraintBottom_toBottomOf="@+id/labelLoop"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="@+id/textTime"
-            app:networkType="@{item.networkType}"
-            tools:src="@drawable/ic_history_no_internet" />
+            android:src="@drawable/ic_history_loop" />
 
         <androidx.appcompat.widget.AppCompatTextView
-            android:id="@+id/textTime"
-            style="@style/RobotoRegularStyle.Small"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            style="@style/Text.ResultListDate"
+            android:layout_width="0dp"
+            android:layout_height="24dp"
+            android:layout_gravity="center_vertical"
             android:layout_marginStart="@dimen/margin_medium"
-            android:textColor="@color/text_dark_gray"
+            android:layout_weight="2"
+            android:gravity="center_vertical"
             app:historyTime="@{item.time}"
             app:historyTimezone="@{item.timezone}"
-            app:layout_constraintBottom_toTopOf="@+id/labelLoop"
-            app:layout_constraintStart_toEndOf="@+id/imageSignal"
-            app:layout_constraintTop_toTopOf="parent"
             tools:text="20.11.18, 12:00:45" />
 
         <androidx.appcompat.widget.AppCompatTextView
-            android:id="@+id/labelLoop"
-            style="@style/RobotoRegularStyle.Small"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/margin_medium"
-            android:drawablePadding="@dimen/padding_small"
-            android:text="@string/title_loop_mode"
-            android:textColor="@color/text_gray_transparency_60"
-            app:layout_constraintBottom_toTopOf="@+id/recyclerView"
-            app:layout_constraintStart_toEndOf="@+id/imageSignal"
-            app:layout_constraintTop_toBottomOf="@+id/textTime" />
-
-        <ImageView
-            android:id="@+id/imageExpand"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="@dimen/padding_large"
-            android:contentDescription="@null"
-            android:src="@drawable/ic_expand_more"
-            app:layout_constraintBottom_toBottomOf="@+id/labelLoop"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="@+id/textTime" />
-
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/recyclerView"
+            style="@style/Text.ResultListValue"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:paddingStart="@dimen/padding_large"
-            android:paddingEnd="0dp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/labelLoop"
-            tools:listitem="@layout/item_history" />
+            android:layout_weight="1"
+            android:gravity="center"
+            android:text="@{item.speedDownload}"
+            tools:text="79" />
 
-    </androidx.constraintlayout.widget.ConstraintLayout>
+        <androidx.appcompat.widget.AppCompatTextView
+            style="@style/Text.ResultListValue"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:text="@{item.speedUpload}"
+            tools:text="12" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            style="@style/Text.ResultListValue"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:text="@{item.ping}"
+            tools:text="14" />
+
+    </androidx.appcompat.widget.LinearLayoutCompat>
 
 </layout>

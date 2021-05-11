@@ -4,7 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import at.rtr.rmbt.android.viewmodel.BasicResultViewModel
 import at.rtr.rmbt.android.viewmodel.ConfigCheckViewModel
-import at.rtr.rmbt.android.viewmodel.HistoryFiltersViewModel
+import at.rtr.rmbt.android.viewmodel.ResultListFiltersViewModel
 import at.rtr.rmbt.android.viewmodel.HistoryViewModel
 import at.rtr.rmbt.android.viewmodel.HomeViewModel
 import at.rtr.rmbt.android.viewmodel.LocationViewModel
@@ -126,8 +126,8 @@ interface ViewModelModule {
 
     @Binds
     @IntoMap
-    @ViewModelKey(HistoryFiltersViewModel::class)
-    fun bindHistoryFiltersViewModel(viewModel: HistoryFiltersViewModel): ViewModel
+    @ViewModelKey(ResultListFiltersViewModel::class)
+    fun bindHistoryFiltersViewModel(viewModel: ResultListFiltersViewModel): ViewModel
 
     @Binds
     @IntoMap
