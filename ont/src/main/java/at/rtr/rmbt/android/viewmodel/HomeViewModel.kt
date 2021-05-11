@@ -25,7 +25,6 @@ import at.specure.location.LocationWatcher
 import at.specure.measurement.signal.SignalMeasurementProducer
 import at.specure.measurement.signal.SignalMeasurementService
 import at.specure.test.SignalMeasurementType
-import at.specure.util.permission.PermissionsWatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.flowOn
@@ -38,7 +37,6 @@ class HomeViewModel @Inject constructor(
     val signalStrengthLiveData: SignalStrengthLiveData,
     connectivityInfoLiveData: ConnectivityInfoLiveData,
     val activeNetworkLiveData: ActiveNetworkLiveData,
-    val permissionsWatcher: PermissionsWatcher,
     val ipV4ChangeLiveData: IpV4ChangeLiveData,
     val ipV6ChangeLiveData: IpV6ChangeLiveData,
     val clientUUID: ClientUUID,
@@ -185,13 +183,5 @@ class HomeViewModel @Inject constructor(
 
     fun getLatestNewsShown(): Long? {
         return newsRepository.getLatestNewsShown()
-    }
-
-    fun shouldAskForPermission(): Boolean {
-        return (appConfig.lastPermissionAskedTimestampMillis + askPermissionsAgainTimesMillis) < System.currentTimeMillis()
-    }
-
-    fun permissionsWereAsked() {
-        appConfig.lastPermissionAskedTimestampMillis = System.currentTimeMillis()
     }
 }
