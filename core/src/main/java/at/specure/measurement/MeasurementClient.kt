@@ -19,7 +19,15 @@ interface MeasurementClient {
 
     fun isQoSEnabled(enabled: Boolean)
 
+    /**
+     * This should inform about event when results were sent, but only if client should display them
+     */
     fun onSubmitted()
+
+    /**
+     * This should inform about event when results were sent, no matter if client should display them
+     */
+    fun onResultSubmitted()
 
     fun onSubmissionError(exception: HandledException)
 

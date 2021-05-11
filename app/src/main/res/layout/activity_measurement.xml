@@ -10,6 +10,8 @@
 
         <import type="at.specure.info.strength.SignalStrengthInfo" />
 
+        <import type="at.specure.info.TransportType" />
+
         <import type="at.specure.data.entity.LoopModeState" />
 
         <variable
@@ -54,7 +56,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/padding_large"
-                android:text="@{state.networkInfo.name}"
+                android:text="@{(state.networkInfo.type == TransportType.ETHERNET) ? @string/home_ethernet : state.networkInfo.name}"
                 android:textColor="@android:color/background_light"
                 android:textSize="@dimen/network_name_size"
                 android:textStyle="bold"

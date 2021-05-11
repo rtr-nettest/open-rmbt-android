@@ -51,6 +51,10 @@ class HomeFragment : BaseFragment() {
             activity?.window?.changeStatusBarColor(if (it) ToolbarTheme.BLUE else ToolbarTheme.GRAY)
         }
 
+        homeViewModel.activeNetworkLiveData.listen(this) {
+            homeViewModel.state.activeNetworkInfo.set(it)
+        }
+
         homeViewModel.signalStrengthLiveData.listen(this) {
             homeViewModel.state.signalStrength.set(it?.signalStrengthInfo)
             homeViewModel.state.activeNetworkInfo.set(it)

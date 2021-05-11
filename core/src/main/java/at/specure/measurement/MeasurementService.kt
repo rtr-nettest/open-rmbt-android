@@ -359,9 +359,10 @@ class MeasurementService : CustomLifecycleService() {
                         if (shouldShowResults) {
                             clientAggregator.onSubmitted()
                         }
+                        clientAggregator.onResultSubmitted()
                     }
-
                     it.onFailure { ex ->
+
                         if (shouldShowResults) {
                             clientAggregator.onSubmitted()
                         }
@@ -369,6 +370,7 @@ class MeasurementService : CustomLifecycleService() {
                             Timber.d("Delayed submission work created")
                             WorkLauncher.enqueueDelayedDataSaveRequest(applicationContext, testUUID)
                         }
+                        clientAggregator.onResultSubmitted()
                     }
                 }
             }
@@ -834,6 +836,9 @@ class MeasurementService : CustomLifecycleService() {
             }
         }
 
+        /**
+         * This should inform about event when results were sent, but only if client should display them
+         */
         override fun onSubmitted() {
             if (config.loopModeEnabled) {
                 if (stateRecorder.loopTestCount >= config.loopModeNumberOfTests && config.loopModeNumberOfTests != 0) {
@@ -845,6 +850,15 @@ class MeasurementService : CustomLifecycleService() {
                 clients.forEach {
                     it.onSubmitted()
                 }
+            }
+        }
+
+        /**
+         * This should inform about event when results were sent, no matter if client should display them or not
+         */
+        override fun onResultSubmitted() {
+            clients.forEach {
+                it.onResultSubmitted()
             }
         }
 
