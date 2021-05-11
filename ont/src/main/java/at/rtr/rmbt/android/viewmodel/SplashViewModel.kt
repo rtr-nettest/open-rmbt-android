@@ -8,7 +8,7 @@ import javax.inject.Inject
 class SplashViewModel @Inject constructor(
     private val tac: TermsAndConditions,
     private val appConfig: AppConfig,
-    private val permissionsWatcher: PermissionsWatcher
+    val permissionsWatcher: PermissionsWatcher
 ) : BaseViewModel() {
 
     val tacAcceptanceLiveData = tac.tacAcceptanceLiveData
@@ -22,6 +22,6 @@ class SplashViewModel @Inject constructor(
     }
 
     fun shouldAskForPermission(): Boolean {
-        return (appConfig.lastPermissionAskedTimestampMillis + askPermissionsAgainTimesMillis) < System.currentTimeMillis() && permissionsWatcher.requiredPermissions.isNotEmpty()
+        return (appConfig.lastPermissionAskedTimestampMillis + askPermissionsAgainTimesMillis) < System.currentTimeMillis()
     }
 }

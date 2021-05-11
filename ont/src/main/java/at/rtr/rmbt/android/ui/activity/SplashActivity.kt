@@ -16,7 +16,9 @@ package at.rtr.rmbt.android.ui.activity
 
 import android.app.Activity
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.os.Handler
+import androidx.core.content.ContextCompat
 import at.rtr.rmbt.android.di.viewModelLazy
 import at.rtr.rmbt.android.viewmodel.SplashViewModel
 import at.specure.worker.WorkLauncher
@@ -33,7 +35,7 @@ class SplashActivity : BaseActivity() {
             TermsAcceptanceActivity.start(this, CODE_TERMS)
         } else {
             finishAffinity()
-            if (viewModel.shouldAskForPermission()) {
+            if (viewModel.shouldAskForPermission() && hasDeniedPermissions()) {
                 PermissionsActivity.start(this)
             } else {
                 HomeActivity.start(this)
@@ -71,6 +73,10 @@ class SplashActivity : BaseActivity() {
                 finish()
             }
         }
+    }
+
+    private fun hasDeniedPermissions() = viewModel.permissionsWatcher.requiredPermissions.any {
+        ContextCompat.checkSelfPermission(this, it) == PackageManager.PERMISSION_DENIED
     }
 
     companion object {
