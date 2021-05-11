@@ -307,5 +307,6 @@
     <string name="unit_meter">m</string>
     <string name="title_loop_waiting">Schleife warten</string>
     <string name="loop_mode_next_test">Nächste Messung</string>
+    <string name="median">Median</string>
 </resources>
 

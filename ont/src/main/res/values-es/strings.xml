@@ -308,4 +308,5 @@
     <string name="unit_meter">m</string>
     <string name="title_loop_waiting">"Bucle esperando "</string>
     <string name="loop_mode_next_test">Medida siguiente</string>
+    <string name="median">Mediano</string>
 </resources>
