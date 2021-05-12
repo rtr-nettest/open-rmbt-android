@@ -11,6 +11,7 @@ import androidx.core.content.ContextCompat
 import androidx.databinding.BindingAdapter
 import at.rmbt.client.control.IpProtocol
 import at.rtr.rmbt.android.R
+import at.rtr.rmbt.android.ui.view.MeasurementMedianSquareView
 import at.rtr.rmbt.android.ui.view.MeasurementProgressSquareView
 import at.rtr.rmbt.android.ui.view.ProgressBar
 import at.rtr.rmbt.android.ui.view.ResultBar
@@ -481,6 +482,32 @@ fun MeasurementProgressSquareView.setPercents(percentage: Int) {
     requireAll = true
 )
 fun MeasurementProgressSquareView.setMeasurementPhase(
+    state: MeasurementState,
+    downloadSpeed: Long,
+    uploadSpeed: Long,
+    ping: Long
+) {
+    setMeasurementState(state)
+    if (state == MeasurementState.PING) {
+        if (ping > 0) {
+            setSpeed(ping / 1000000.0f)
+        } else {
+            setSpeed(-1.0f)
+        }
+    }
+    if (state == MeasurementState.UPLOAD) {
+        setSpeed(uploadSpeed / 1000000.0f)
+    }
+    if (state == MeasurementState.DOWNLOAD) {
+        setSpeed(downloadSpeed / 1000000.0f)
+    }
+}
+
+@BindingAdapter(
+    value = ["app:measurementPhase", "app:downloadSpeed", "app:uploadSpeed", "app:ping"],
+    requireAll = true
+)
+fun MeasurementMedianSquareView.setMeasurementPhase(
     state: MeasurementState,
     downloadSpeed: Long,
     uploadSpeed: Long,

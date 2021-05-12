@@ -23,8 +23,8 @@
     <string name="loop_mode_finished">Open Nettest loop mode finished!</string>
     <string name="text_terms_agree">I agree with Specure’s privacy policy and terms of use for Open Nettest.</string>
 
-    <string name="text_home_run">Run Basic Measurement</string>
-    <string name="text_basic_measurement">Basic measurement</string>
+    <string name="text_home_run">Run Speed Measurement</string>
+    <string name="text_basic_measurement">Speed measurement</string>
 
     <string name="basic_result_title">Basic Result</string>
     <string name="test_bottom_test_status_jitter">Jitter</string>
@@ -326,6 +326,7 @@
     <string name="unit_minutes">min</string>
     <string name="or">or</string>
     <string name="unit_meter">m</string>
+    <string name="median">Median</string>
 
     <string name="title_permissions_welcome" tools:ignore="MissingTranslation">Welcome to Open Nettest</string>
     <string name="text_permissions_welcome" tools:ignore="MissingTranslation">Let’s Review your Privacy Options</string>
@@ -348,5 +349,6 @@
     <string name="button_agree" tools:ignore="MissingTranslation">Agree</string>
     <string name="title_permissions_uuid" tools:ignore="MissingTranslation">Persistent Client UUID</string>
     <string name="text_permissions_uuid" tools:ignore="MissingTranslation">Client UUID is a randomly generated ID that is saved with every measurement. Persistent Client UUID means that the ID is the same for your every measurement. It is needed to enable measurement history and synchronisation of the results between devices. You can change it later in settings.</string>
+
 
 </resources>

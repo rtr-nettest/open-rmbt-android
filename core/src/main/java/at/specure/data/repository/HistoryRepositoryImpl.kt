@@ -82,6 +82,7 @@ class HistoryRepositoryImpl(
      */
     override fun loadLoopMedianValues(loopUuid: String): Flow<HistoryLoopMedian?> = flow {
         val historyItems = historyDao.getItemByLoopUUID(loopUuid)
+        Timber.d("history items: for $loopUuid")
         if (historyItems.isEmpty()) {
             emit(null)
             Timber.e("history items: No loop items")
@@ -116,11 +117,11 @@ class HistoryRepositoryImpl(
         emit(
             HistoryLoopMedian(
                 loopUuid = loopUuid,
-                pingMedian = median(pingList),
+                pingMedianMillis = median(pingList),
                 packetLossMedian = median(packetLoss),
-                jitterMedian = median(jitterList),
-                downloadMedian = median(downloadList),
-                uploadMedian = median(uploadList),
+                jitterMedianMillis = median(jitterList),
+                downloadMedianMbps = median(downloadList),
+                uploadMedianMbps = median(uploadList),
                 qosMedian = median(qosList)
             )
         )

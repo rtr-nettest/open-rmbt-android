@@ -51,9 +51,9 @@ class BasicResultFragment : BaseFragment() {
                         viewModel.state.testResult.set(
                             TestResultRecord(
                                 uuid = result.loopUuid,
-                                uploadSpeedKbs = (result.uploadMedian * 1000).toLong(),
-                                downloadSpeedKbs = (result.downloadMedian * 1000).toLong(),
-                                pingMillis = result.pingMedian.toDouble(),
+                                uploadSpeedKbs = (result.uploadMedianMbps * 1000).toLong(),
+                                downloadSpeedKbs = (result.downloadMedianMbps * 1000).toLong(),
+                                pingMillis = result.pingMedianMillis.toDouble(),
                                 clientOpenUUID = "",
                                 testOpenUUID = "",
                                 timezone = "",
