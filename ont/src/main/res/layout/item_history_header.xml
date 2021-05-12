@@ -1,94 +1,62 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout xmlns:android="http://schemas.android.com/apk/res/android">
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <androidx.appcompat.widget.LinearLayoutCompat
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:paddingStart="@dimen/padding_large"
         android:paddingTop="@dimen/padding_medium"
-        android:paddingEnd="@dimen/padding_large"
         android:paddingBottom="@dimen/padding_medium">
 
-        <androidx.appcompat.widget.AppCompatTextView
-            style="@style/RobotoRegularStyle.VerySmall"
-            android:layout_width="0dp"
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guideline"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="3"
-            android:text="@string/history_item_header_test"
-            android:textColor="@color/text_gray_transparency_60" />
-
-        <androidx.appcompat.widget.LinearLayoutCompat
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            app:layout_constraintGuide_percent="0.45" />
 
             <androidx.appcompat.widget.AppCompatTextView
-                style="@style/RobotoRegularStyle.VerySmall"
-                android:layout_width="wrap_content"
+                style="@style/Text.ResultListHeader"
+                android:id="@+id/download"
+                android:layout_width="0dp"
+                android:gravity="center"
+                android:orientation="vertical"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="@id/upload"
+                app:layout_constraintStart_toEndOf="@id/guideline"
+                app:layout_constraintTop_toTopOf="parent"
                 android:layout_height="wrap_content"
                 android:maxLines="1"
-                android:text="@string/history_item_header_down"
-                android:textColor="@color/text_gray_transparency_60" />
+                android:text="@string/history_item_header_down"/>
 
             <androidx.appcompat.widget.AppCompatTextView
-                style="@style/RobotoRegularStyle.VerySmall"
-                android:layout_width="wrap_content"
+                android:id="@+id/upload"
+                style="@style/Text.ResultListHeader"
+                android:layout_width="0dp"
+                android:gravity="center"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="@id/ping"
+                app:layout_constraintStart_toEndOf="@id/download"
+                app:layout_constraintTop_toTopOf="parent"
                 android:layout_height="wrap_content"
                 android:maxLines="1"
-                android:text="@string/speed_progress_units"
-                android:textColor="@color/text_gray_transparency_60"
-                android:textSize="@dimen/history_label_text_size" />
-        </androidx.appcompat.widget.LinearLayoutCompat>
+                android:text="@string/history_item_header_up" />
 
-        <androidx.appcompat.widget.LinearLayoutCompat
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:orientation="vertical">
 
             <androidx.appcompat.widget.AppCompatTextView
-                style="@style/RobotoRegularStyle.VerySmall"
-                android:layout_width="wrap_content"
+                android:id="@+id/ping"
+                style="@style/Text.ResultListHeader"
+                android:layout_width="0dp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@id/upload"
+                app:layout_constraintTop_toTopOf="parent"
+                android:gravity="center"
                 android:layout_height="wrap_content"
                 android:maxLines="1"
-                android:text="@string/history_item_header_up"
-                android:textColor="@color/text_gray_transparency_60" />
+                android:text="@string/history_item_header_ping" />
 
-            <androidx.appcompat.widget.AppCompatTextView
-                style="@style/RobotoRegularStyle.VerySmall"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:maxLines="1"
-                android:text="@string/speed_progress_units"
-                android:textColor="@color/text_gray_transparency_60"
-                android:textSize="@dimen/history_label_text_size" />
-        </androidx.appcompat.widget.LinearLayoutCompat>
 
-        <androidx.appcompat.widget.LinearLayoutCompat
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:orientation="vertical">
-
-            <androidx.appcompat.widget.AppCompatTextView
-                style="@style/RobotoRegularStyle.VerySmall"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:maxLines="1"
-                android:text="@string/history_item_header_ping"
-                android:textColor="@color/text_gray_transparency_60" />
-
-            <androidx.appcompat.widget.AppCompatTextView
-                style="@style/RobotoRegularStyle.VerySmall"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:maxLines="1"
-                android:text="@string/history_item_header_ms"
-                android:textColor="@color/text_gray_transparency_60"
-                android:textSize="@dimen/history_label_text_size" />
-        </androidx.appcompat.widget.LinearLayoutCompat>
-
-    </androidx.appcompat.widget.LinearLayoutCompat>
+    </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

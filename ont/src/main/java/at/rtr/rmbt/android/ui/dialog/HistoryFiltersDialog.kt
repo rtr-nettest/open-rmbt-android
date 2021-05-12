@@ -11,7 +11,7 @@ import at.rtr.rmbt.android.R
 import at.rtr.rmbt.android.databinding.DialogFiltersHistoryBinding
 import at.rtr.rmbt.android.di.Injector
 import at.rtr.rmbt.android.util.listen
-import at.rtr.rmbt.android.viewmodel.HistoryFiltersViewModel
+import at.rtr.rmbt.android.viewmodel.ResultListFiltersViewModel
 import javax.inject.Inject
 
 class HistoryFiltersDialog : FullscreenDialog(), HistoryFiltersConfirmationDialog.Callback {
@@ -21,7 +21,7 @@ class HistoryFiltersDialog : FullscreenDialog(), HistoryFiltersConfirmationDialo
     override val dimBackground: Boolean = false
 
     @Inject
-    lateinit var viewModel: HistoryFiltersViewModel
+    lateinit var viewModel: ResultListFiltersViewModel
 
     private lateinit var binding: DialogFiltersHistoryBinding
 
@@ -76,29 +76,29 @@ class HistoryFiltersDialog : FullscreenDialog(), HistoryFiltersConfirmationDialo
                 .show(parentFragmentManager)
         }
 
-        viewModel.devicesLiveData.listen(this) {
-            viewModel.state.defaultDevices = it
-        }
+//        viewModel.devicesLiveData.listen(this) {
+//            viewModel.state.defaultDevices = it
+//        }
 
-        viewModel.activeDevicesLiveData.listen(this) {
-            viewModel.state.run {
-                activeDevices = it
-                val displayString = viewModel.displayStringSet(it, defaultDevices)
-                devices.set(displayString)
-            }
-        }
+//        viewModel.activeDevicesLiveData.listen(this) {
+//            viewModel.state.run {
+//                activeDevices = it
+//                val displayString = viewModel.displayStringSet(it, defaultDevices)
+//                devices.set(displayString)
+//            }
+//        }
 
-        viewModel.networksLiveData.listen(this) {
-            viewModel.state.defaultNetwors = it
-        }
+//        viewModel.networksLiveData.listen(this) {
+//            viewModel.state.defaultNetwors = it
+//        }
 
-        viewModel.activeNetworksLiveData.listen(this) {
-            viewModel.state.run {
-                activeNetworks = it
-                val displayString = viewModel.displayStringSet(it, defaultNetwors)
-                networks.set(displayString)
-            }
-        }
+//        viewModel.activeNetworksLiveData.listen(this) {
+//            viewModel.state.run {
+//                activeNetworks = it
+//                val displayString = viewModel.displayStringSet(it, defaultNetwors)
+//                networks.set(displayString)
+//            }
+//        }
 
         binding.iconClose.setOnClickListener { dismiss() }
     }

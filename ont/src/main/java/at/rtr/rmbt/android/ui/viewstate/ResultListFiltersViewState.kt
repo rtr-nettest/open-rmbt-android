@@ -6,7 +6,7 @@ import androidx.databinding.ObservableField
 private const val KEY_NETWORKS = "networks"
 private const val KEY_DEVICES = "devices"
 
-class HistoryFiltersViewState : ViewState {
+class ResultListFiltersViewState : ViewState {
 
     var networks: ObservableField<String> = ObservableField()
     var devices: ObservableField<String> = ObservableField()

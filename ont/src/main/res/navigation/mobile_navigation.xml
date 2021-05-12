@@ -9,13 +9,13 @@
         android:id="@+id/navigation_home"
         android:name="at.rtr.rmbt.android.ui.fragment.HomeFragment"
         android:label="@string/menu_button_title_page"
-        tools:layout="@layout/fragment_home2" />
+        tools:layout="@layout/fragment_home" />
 
     <keep_state_fragment
         android:id="@+id/navigation_history"
-        android:name="at.rtr.rmbt.android.ui.fragment.HistoryFragment"
+        android:name="at.rtr.rmbt.android.ui.fragment.ResultsFragment"
         android:label="@string/menu_button_history"
-        tools:layout="@layout/fragment_history" />
+        tools:layout="@layout/fragment_results" />
 
     <keep_state_fragment
         android:id="@+id/navigation_statistics"

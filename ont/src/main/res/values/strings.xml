@@ -196,9 +196,8 @@
     <string name="test_dialog_error_text">Test failed. Please try again later.</string>
 
     <!-- History -->
-    <string name="history_item_header_test">Test</string>
-    <string name="history_item_header_down">Down</string>
-    <string name="history_item_header_up">Up</string>
+    <string name="history_item_header_down">Download</string>
+    <string name="history_item_header_up">Upload</string>
     <string name="history_item_header_ping">Ping</string>
     <string name="history_item_header_ms">ms</string>
     <string name="history_no_data">No data available.</string>
@@ -349,6 +348,21 @@
     <string name="button_agree" tools:ignore="MissingTranslation">Agree</string>
     <string name="title_permissions_uuid" tools:ignore="MissingTranslation">Persistent Client UUID</string>
     <string name="text_permissions_uuid" tools:ignore="MissingTranslation">Client UUID is a randomly generated ID that is saved with every measurement. Persistent Client UUID means that the ID is the same for your every measurement. It is needed to enable measurement history and synchronisation of the results between devices. You can change it later in settings.</string>
+    <string name="technology_2g" translatable="false">2G</string>
+    <string name="technology_4g" translatable="false">4G</string>
+    <string name="technology_3g" translatable="false">3G</string>
+    <string name="technology_5g" translatable="false">5G</string>
+
+    <string name="title_activity_result_filters">ResultFiltersActivity</string>
+    <string name="title_result_filter_operator_country">Country of operators</string>
+    <string name="title_result_filter_operators">Operators</string>
+    <string name="title_result_filter_period">Period</string>
+    <string name="label_results">Results</string>
+
+    <string-array name="title_results_tabs">
+        <item>List</item>
+        <item>Map</item>
+    </string-array>
 
 
 </resources>
