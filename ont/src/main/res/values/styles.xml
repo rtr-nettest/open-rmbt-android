@@ -197,7 +197,7 @@
         <item name="android:textColor">@android:color/black</item>
     </style>
 
-    <style name="Text.ResultListHeader" parent="RobotoRegularStyle">
+    <style name="Text.ResultListHeader" parent="RobotoMediumStyle">
         <item name="android:textSize">12sp</item>
         <item name="android:textColor">@android:color/black</item>
     </style>

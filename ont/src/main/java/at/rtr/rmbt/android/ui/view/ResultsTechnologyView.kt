@@ -28,7 +28,6 @@ class ResultsTechnologyView @JvmOverloads constructor(
                 NetworkTypeCompat.TYPE_5G_AVAILABLE, NetworkTypeCompat.TYPE_4G -> addMobile(context.getString(R.string.technology_4g))
                 NetworkTypeCompat.TYPE_WLAN -> addView(ImageView(context).apply {
                     layoutParams = LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT)
-                    gravity =  Gravity.CENTER
                     setImageResource(R.drawable.ic_results_wifi)
                     requestLayout()
                 })

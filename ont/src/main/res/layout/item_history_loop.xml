@@ -15,10 +15,9 @@
 
     <!--    todo: set median values-->
 
-    <androidx.appcompat.widget.LinearLayoutCompat
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
         android:paddingTop="@dimen/padding_large"
         android:paddingBottom="@dimen/padding_large">
 
@@ -28,6 +27,9 @@
             android:layout_height="@dimen/history_image_size"
             android:layout_marginStart="16dp"
             android:layout_gravity="center"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
             android:contentDescription="@null"
             android:scaleType="center"
             android:src="@drawable/ic_history_loop" />
@@ -40,24 +42,43 @@
             android:layout_marginStart="@dimen/margin_medium"
             android:layout_weight="2"
             android:gravity="center_vertical"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/guideline"
+            app:layout_constraintStart_toEndOf="@id/imageSignal"
+            app:layout_constraintTop_toTopOf="parent"
             app:historyTime="@{item.time}"
             app:historyTimezone="@{item.timezone}"
             tools:text="20.11.18, 12:00:45" />
 
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guideline"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_percent="0.45" />
+
         <androidx.appcompat.widget.AppCompatTextView
             style="@style/Text.ResultListValue"
+            android:id="@+id/download"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/upload"
+            app:layout_constraintStart_toEndOf="@id/guideline"
+            app:layout_constraintTop_toTopOf="parent"
             android:gravity="center"
             android:text="@{item.speedDownload}"
             tools:text="79" />
 
         <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/upload"
             style="@style/Text.ResultListValue"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/ping"
+            app:layout_constraintStart_toEndOf="@id/download"
+            app:layout_constraintTop_toTopOf="parent"
             android:gravity="center"
             android:text="@{item.speedUpload}"
             tools:text="12" />
@@ -65,12 +86,16 @@
         <androidx.appcompat.widget.AppCompatTextView
             style="@style/Text.ResultListValue"
             android:layout_width="0dp"
+            android:id="@+id/ping"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/upload"
+            app:layout_constraintTop_toTopOf="parent"
             android:gravity="center"
             android:text="@{item.ping}"
             tools:text="14" />
 
-    </androidx.appcompat.widget.LinearLayoutCompat>
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
 </layout>

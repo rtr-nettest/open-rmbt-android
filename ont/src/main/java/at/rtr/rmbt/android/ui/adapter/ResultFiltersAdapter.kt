@@ -4,35 +4,22 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import at.rtr.rmbt.android.R
 import at.rtr.rmbt.android.databinding.ItemFilterBinding
-import at.rtr.rmbt.android.databinding.ItemFilterConfirmationBinding
 import at.rtr.rmbt.android.util.bindWith
 import at.rtr.rmbt.android.viewmodel.ResultListFiltersViewModel
 
-class ResultFiltersAdapter(private val items: List<ResultListFiltersViewModel.FilterOption>) : RecyclerView.Adapter<ResultFiltersAdapter.Holder>() {
+class ResultFiltersAdapter : RecyclerView.Adapter<ResultFiltersAdapter.Holder>() {
 
-//    private var items = mutableListOf<String>()
-
-    var selected: MutableSet<ResultListFiltersViewModel.FilterOption> = LinkedHashSet()
-        private set
-
-    init {
+    var items = mutableListOf<ResultListFiltersViewModel.FilterOption>()
+    set(value) {
+        field.clear()
+        field.addAll(value)
+        selected.clear()
         selected.addAll(items.filter { it.selected })
         notifyDataSetChanged()
     }
 
-//    fun init(items: MutableList<String>?, selected: MutableSet<String>?) {
-////        items?.let {
-////            this.items.clear()
-////            this.items.addAll(it)
-////        }
-//        if (selected.isNullOrEmpty()) {
-//            this.selected.clear()
-//            this.selected.addAll(this.items.toSet())
-//        } else {
-//            this.selected = selected
-//        }
-//        notifyDataSetChanged()
-//    }
+    var selected: MutableSet<ResultListFiltersViewModel.FilterOption> = LinkedHashSet()
+        private set
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) = Holder(parent.bindWith(R.layout.item_filter))
 

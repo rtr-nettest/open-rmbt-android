@@ -1,5 +1,6 @@
 package at.rtr.rmbt.android.ui.fragment
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import at.rtr.rmbt.android.R
@@ -14,10 +15,11 @@ class ResultsFragment : BaseFragment() {
 
     private val binding: FragmentResultsBinding by bindingLazy()
 
+    val pagerAdapter = ResultsPagerAdapter(childFragmentManager, lifecycle)
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val pagerAdapter = ResultsPagerAdapter(childFragmentManager, lifecycle)
         binding.pager.adapter = pagerAdapter
         binding.pager.isUserInputEnabled = false
         binding.pager.offscreenPageLimit = pagerAdapter.itemCount - 1
@@ -29,8 +31,13 @@ class ResultsFragment : BaseFragment() {
 
         binding.iconFilter.setOnClickListener {
             val openMode = if (binding.pager.currentItem == 0) ResultFiltersActivity.FilterMode.LIST else ResultFiltersActivity.FilterMode.MAP
-            ResultFiltersActivity.start(activity, openMode)
+            ResultFiltersActivity.start(this, openMode)
         }
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        repeat(pagerAdapter.fragments.size) { onActivityResult(requestCode, resultCode, data) }
     }
 
 }

@@ -4,6 +4,7 @@ import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import androidx.databinding.DataBindingUtil
+import androidx.fragment.app.Fragment
 import at.rtr.rmbt.android.R
 import at.rtr.rmbt.android.databinding.ActivityResultFiltersBinding
 import at.rtr.rmbt.android.databinding.ViewResultFiltersSectionBinding
@@ -17,7 +18,7 @@ class ResultFiltersActivity : BaseActivity() {
     lateinit var binding: ActivityResultFiltersBinding
     private val listViewModel: ResultListFiltersViewModel by viewModelLazy()
 
-    private val adapters = mutableListOf<ResultFiltersAdapter>()
+    private val adapters = mutableMapOf<String, ResultFiltersAdapter>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -33,10 +34,10 @@ class ResultFiltersActivity : BaseActivity() {
             val data = Intent()
             when (openMode) {
                 FilterMode.LIST -> {
-                    val selectedDevices = adapters[1].selected.map { it.option }.toSet()
+                    val selectedDevices = adapters[getString(R.string.text_filter_devices)]!!.selected.map { it.option }.toSet()
                     listViewModel.updateDeviceFilters(selectedDevices)
 
-                    val selectedNetworks = adapters[0].selected.map { it.option }.toSet()
+                    val selectedNetworks = adapters[getString(R.string.text_filter_networks)]!!.selected.map { it.option }.toSet()
                     listViewModel.updateNetworkFilters(selectedNetworks)
                 }
                 FilterMode.MAP -> {
@@ -49,25 +50,29 @@ class ResultFiltersActivity : BaseActivity() {
 
 
     private fun prepareListFilters() {
+        adapters.clear()
+
         val networksBinding = ViewResultFiltersSectionBinding.inflate(layoutInflater, null, false)
         networksBinding.title.text = getString(R.string.text_filter_networks)
+        val networkAdapter = ResultFiltersAdapter()
+        networksBinding.list.adapter = networkAdapter
+        adapters[getString(R.string.text_filter_networks)] = networkAdapter
         binding.sections.addView(networksBinding.root)
 
         val devicesBinding = ViewResultFiltersSectionBinding.inflate(layoutInflater, null, false)
         devicesBinding.title.text = getString(R.string.text_filter_devices)
+        val devicesAdapter = ResultFiltersAdapter()
+        devicesBinding.list.adapter = devicesAdapter
+        adapters[getString(R.string.text_filter_devices)] = devicesAdapter
         binding.sections.addView(devicesBinding.root)
 
         listViewModel.devicesLiveData.listen(this) {
-            val adapter = ResultFiltersAdapter(it)
-            devicesBinding.list.adapter = adapter
-            adapters.add(adapter)
+            devicesAdapter.items = it
             devicesBinding.root.requestLayout()
         }
 
         listViewModel.networksLiveData.listen(this) {
-            val adapter = ResultFiltersAdapter(it)
-            networksBinding.list.adapter = adapter
-            adapters.add(adapter)
+            networkAdapter.items = it
             networksBinding.root.requestLayout()
         }
     }
@@ -80,10 +85,10 @@ class ResultFiltersActivity : BaseActivity() {
         const val CODE = 18194
         private const val KEY_OPEN_MODE = "key_mode"
 
-        fun start(activity: Activity?, openMode: FilterMode) {
-            val starter = Intent(activity, ResultFiltersActivity::class.java)
+        fun start(fragment: Fragment?, openMode: FilterMode) {
+            val starter = Intent(fragment?.requireContext(), ResultFiltersActivity::class.java)
                 .putExtra(KEY_OPEN_MODE, openMode.ordinal)
-            activity?.startActivityForResult(starter, CODE)
+            fragment?.startActivityForResult(starter, CODE)
         }
     }
 
