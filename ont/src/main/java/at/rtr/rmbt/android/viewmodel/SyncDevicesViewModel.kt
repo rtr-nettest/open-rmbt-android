@@ -1,16 +1,16 @@
 package at.rtr.rmbt.android.viewmodel
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import at.rmbt.util.exception.HandledException
 import at.rtr.rmbt.android.ui.viewstate.SyncDeviceViewState
+import at.rtr.rmbt.android.util.safeOffer
 import at.specure.data.repository.DeviceSyncRepository
+import javax.inject.Inject
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
 class SyncDevicesViewModel @Inject constructor(private val repository: DeviceSyncRepository) : BaseViewModel() {
 
@@ -18,25 +18,16 @@ class SyncDevicesViewModel @Inject constructor(private val repository: DeviceSyn
         addStateSaveHandler(it)
     }
 
-    private val _loadingLiveData = MutableLiveData<Boolean>()
-    private val _getSyncCodeLiveData = MutableLiveData<String>()
-    private val _syncDevicesLiveData = MutableLiveData<DeviceSyncRepository.SyncDeviceResult>()
-
-    val loadingLiveData: LiveData<Boolean>
-        get() = _loadingLiveData
-
-    val syncDevicesLiveData: LiveData<DeviceSyncRepository.SyncDeviceResult>
-        get() = _syncDevicesLiveData
-
-    val getSyncCodeLiveData: LiveData<String>
-        get() = _getSyncCodeLiveData
+    val loadingChannel = Channel<Boolean>(Channel.CONFLATED)
+    val pageChannel = Channel<SyncPage>(Channel.CONFLATED)
+    val completedChannel = Channel<Unit>(Channel.CONFLATED)
 
     fun getSyncCode() = launch {
-        _loadingLiveData.postValue(true)
+        loadingChannel.safeOffer(true)
         repository.getDeviceSyncCode()
             .flowOn(Dispatchers.IO)
             .catch {
-                _loadingLiveData.postValue(false)
+                loadingChannel.safeOffer(false)
                 state.currentDeviceSyncCode.set(null)
                 if (it is HandledException) {
                     postError(it)
@@ -45,17 +36,17 @@ class SyncDevicesViewModel @Inject constructor(private val repository: DeviceSyn
                 }
             }
             .collect {
-                _loadingLiveData.postValue(false)
-                _getSyncCodeLiveData.postValue(it)
+                loadingChannel.safeOffer(false)
+                state.currentDeviceSyncCode.set(it)
             }
     }
 
     fun syncDevices() = launch {
-        _loadingLiveData.postValue(true)
+        loadingChannel.safeOffer(true)
         repository.syncDevices(state.otherDeviceSyncCode.get()!!)
             .flowOn(Dispatchers.IO)
             .catch {
-                _loadingLiveData.postValue(false)
+                loadingChannel.safeOffer(false)
                 state.currentDeviceSyncCode.set(null)
                 if (it is HandledException) {
                     postError(it)
@@ -64,8 +55,20 @@ class SyncDevicesViewModel @Inject constructor(private val repository: DeviceSyn
                 }
             }
             .collect {
-                _loadingLiveData.postValue(false)
-                _syncDevicesLiveData.postValue(it)
+                loadingChannel.safeOffer(false)
+                completedChannel.safeOffer(Unit)
             }
     }
+
+    fun showRequest() {
+        pageChannel.safeOffer(SyncPage.REQUEST)
+    }
+
+    fun showEnter() {
+        pageChannel.safeOffer(SyncPage.ENTER)
+    }
+}
+
+enum class SyncPage {
+    STARTER, REQUEST, ENTER
 }

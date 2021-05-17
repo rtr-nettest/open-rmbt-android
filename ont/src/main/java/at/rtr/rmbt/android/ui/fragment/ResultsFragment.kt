@@ -4,8 +4,9 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import at.rtr.rmbt.android.R
-import at.rtr.rmbt.android.ui.activity.ResultFiltersActivity
 import at.rtr.rmbt.android.databinding.FragmentResultsBinding
+import at.rtr.rmbt.android.ui.activity.ResultFiltersActivity
+import at.rtr.rmbt.android.ui.activity.SyncActivity
 import at.rtr.rmbt.android.ui.adapter.ResultsPagerAdapter
 import com.google.android.material.tabs.TabLayoutMediator
 
@@ -15,11 +16,12 @@ class ResultsFragment : BaseFragment() {
 
     private val binding: FragmentResultsBinding by bindingLazy()
 
-    val pagerAdapter = ResultsPagerAdapter(childFragmentManager, lifecycle)
+    private lateinit var pagerAdapter: ResultsPagerAdapter
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        pagerAdapter = ResultsPagerAdapter(childFragmentManager, lifecycle)
         binding.pager.adapter = pagerAdapter
         binding.pager.isUserInputEnabled = false
         binding.pager.offscreenPageLimit = pagerAdapter.itemCount - 1
@@ -32,6 +34,10 @@ class ResultsFragment : BaseFragment() {
         binding.iconFilter.setOnClickListener {
             val openMode = if (binding.pager.currentItem == 0) ResultFiltersActivity.FilterMode.LIST else ResultFiltersActivity.FilterMode.MAP
             ResultFiltersActivity.start(this, openMode)
+        }
+
+        binding.iconSync.setOnClickListener {
+            SyncActivity.start(this)
         }
     }
 
