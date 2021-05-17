@@ -10,7 +10,6 @@ import androidx.fragment.app.Fragment
 import at.rtr.rmbt.android.R
 import at.rtr.rmbt.android.databinding.DialogFiltersHistoryBinding
 import at.rtr.rmbt.android.di.Injector
-import at.rtr.rmbt.android.util.listen
 import at.rtr.rmbt.android.viewmodel.ResultListFiltersViewModel
 import javax.inject.Inject
 

@@ -45,5 +45,4 @@ class ResultsFragment : BaseFragment() {
         super.onActivityResult(requestCode, resultCode, data)
         repeat(pagerAdapter.fragments.size) { onActivityResult(requestCode, resultCode, data) }
     }
-
 }

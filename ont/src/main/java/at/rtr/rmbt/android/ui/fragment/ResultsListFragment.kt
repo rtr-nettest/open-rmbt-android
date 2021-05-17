@@ -5,23 +5,15 @@ import android.os.Bundle
 import android.view.View
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.DividerItemDecoration
-import androidx.transition.ChangeBounds
-import androidx.transition.TransitionManager
-import androidx.transition.TransitionSet
 import at.rtr.rmbt.android.R
-import at.rtr.rmbt.android.databinding.FragmentHistoryBinding
 import at.rtr.rmbt.android.databinding.FragmentResultsListBinding
 import at.rtr.rmbt.android.di.viewModelLazy
 import at.rtr.rmbt.android.ui.activity.ResultsActivity
-import at.rtr.rmbt.android.ui.adapter.FilterLabelAdapter
 import at.rtr.rmbt.android.ui.adapter.HistoryLoopAdapter
-import at.rtr.rmbt.android.ui.dialog.HistoryFiltersDialog
-import at.rtr.rmbt.android.util.ToolbarTheme
-import at.rtr.rmbt.android.util.changeStatusBarColor
 import at.rtr.rmbt.android.util.listen
 import at.rtr.rmbt.android.viewmodel.HistoryViewModel
 
-class ResultsListFragment  : BaseFragment() {
+class ResultsListFragment : BaseFragment() {
 
     private val historyViewModel: HistoryViewModel by viewModelLazy()
     private val binding: FragmentResultsListBinding by bindingLazy()

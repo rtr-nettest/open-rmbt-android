@@ -1,6 +1,5 @@
 package at.rtr.rmbt.android.ui.activity
 
-import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import androidx.databinding.DataBindingUtil
@@ -48,7 +47,6 @@ class ResultFiltersActivity : BaseActivity() {
         }
     }
 
-
     private fun prepareListFilters() {
         adapters.clear()
 
@@ -77,9 +75,7 @@ class ResultFiltersActivity : BaseActivity() {
         }
     }
 
-    private fun prepareMapFilters() {
-
-    }
+    private fun prepareMapFilters() {}
 
     companion object {
         const val CODE = 18194

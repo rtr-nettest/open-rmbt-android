@@ -94,7 +94,6 @@ class BasicResultFragment : BaseFragment() {
         }
         Timber.d("history loading results from $this")
         viewModel.loadTestResults()
-
     }
 
     private fun loadGraphItems(
