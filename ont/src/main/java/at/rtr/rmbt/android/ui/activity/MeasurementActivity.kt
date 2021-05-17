@@ -198,7 +198,7 @@ class MeasurementActivity : BaseActivity(), SimpleDialog.Callback {
                 (resultFragment as BasicResultFragment).onDataLoadedListener = object : DataLoadedListener {
 
                     override fun onDataLoaded() {
-                        val resultListFragment = SimpleResultsListFragment.newInstance(it)
+                        val resultListFragment = SimpleResultsListFragment.newInstance(it, false)
                         supportFragmentManager.beginTransaction()
                             .replace(binding.resultListContainer.id, resultListFragment as SimpleResultsListFragment).commitNow()
                     }

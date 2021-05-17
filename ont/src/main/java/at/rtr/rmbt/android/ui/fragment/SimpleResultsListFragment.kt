@@ -17,7 +17,7 @@ class SimpleResultsListFragment : BaseFragment() {
 
     private val simpleResultsListViewModel: SimpleResultsListViewModel by viewModelLazy()
     private val binding: FragmentSimpleResultsListBinding by bindingLazy()
-    private val adapter: LoopMeasurementAdapter by lazy { LoopMeasurementAdapter() }
+    private lateinit var adapter: LoopMeasurementAdapter
 
     override val layoutResId = R.layout.fragment_simple_results_list
 
@@ -27,6 +27,9 @@ class SimpleResultsListFragment : BaseFragment() {
         binding.state = simpleResultsListViewModel.state
 
         simpleResultsListViewModel.state.loopUUID = arguments?.getString(KEY_LOOP_UUID)
+        simpleResultsListViewModel.state.allowOpenListItemDetails = arguments?.getBoolean(KEY_ALLOW_OPEN_LIST_ITEM_DETAILS, true) ?: true
+
+        adapter = LoopMeasurementAdapter(simpleResultsListViewModel.state.allowOpenListItemDetails)
 
         binding.recyclerViewHistoryItems.adapter = adapter
 
@@ -66,11 +69,17 @@ class SimpleResultsListFragment : BaseFragment() {
     companion object {
 
         private const val KEY_LOOP_UUID: String = "KEY_LOOP_UUID"
+        private const val KEY_ALLOW_OPEN_LIST_ITEM_DETAILS: String = "KEY_ALLOW_OPEN_LIST_ITEM_DETAILS"
 
         fun newInstance(loopUUID: String): SimpleResultsListFragment {
+            return newInstance(loopUUID, true)
+        }
+
+        fun newInstance(loopUUID: String, allowOpenListItemDetails: Boolean): SimpleResultsListFragment {
 
             val args = Bundle()
             args.putString(KEY_LOOP_UUID, loopUUID)
+            args.putBoolean(KEY_ALLOW_OPEN_LIST_ITEM_DETAILS, allowOpenListItemDetails)
 
             val fragment = SimpleResultsListFragment()
             fragment.arguments = args
