@@ -43,7 +43,8 @@ class ResultsFragment : BaseFragment() {
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        repeat(pagerAdapter.fragments.size) { onActivityResult(requestCode, resultCode, data) }
+        pagerAdapter.fragments.onEach {
+            it.onActivityResult(requestCode, resultCode, data)
+        }
     }
-
 }

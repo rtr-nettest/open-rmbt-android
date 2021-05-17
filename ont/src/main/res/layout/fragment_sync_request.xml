@@ -59,36 +59,17 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/text"
+            app:visibleOrInvisible="@{!loading}"
             tools:text="a1b2c3d4e5" />
-
-        <androidx.appcompat.widget.AppCompatButton
-            android:id="@+id/buttonRequestCode"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="120dp"
-            android:background="@drawable/bg_button_accent"
-            android:paddingStart="40dp"
-            android:paddingTop="20dp"
-            android:paddingEnd="40dp"
-            android:paddingBottom="20dp"
-            android:text="@string/button_sync_request_code"
-            android:textAllCaps="false"
-            android:textColor="@android:color/white"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/text"
-            app:visibleOrInvisible="@{!loading}" />
 
         <ProgressBar
             android:id="@+id/progress"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="120dp"
-            app:layout_constraintBottom_toBottomOf="parent"
+            android:layout_marginTop="32dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/text"
+            app:layout_constraintTop_toBottomOf="@+id/text"
             app:visibleOrInvisible="@{loading}" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>

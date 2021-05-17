@@ -3,7 +3,6 @@
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
-
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/llMain"
         android:layout_width="match_parent"
@@ -57,10 +56,11 @@
             android:paddingStart="40dp"
             android:paddingTop="20dp"
             android:paddingEnd="40dp"
+            android:layout_marginTop="24dp"
             android:paddingBottom="20dp"
             android:text="@string/button_sync_request_code"
             android:textAllCaps="false"
-            android:layout_marginBottom="120dp"
+            android:layout_marginBottom="80dp"
             android:textColor="@android:color/white"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
