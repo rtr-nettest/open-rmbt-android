@@ -20,6 +20,9 @@ class ResultsFragment : BaseFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        if (savedInstanceState == null) {
+            childFragmentManager.beginTransaction().add(binding.pager.id, fragments[0]).commitAllowingStateLoss()
+        }
 
         val tabNames = resources.getStringArray(R.array.title_results_tabs)
         tabNames.onEach {
