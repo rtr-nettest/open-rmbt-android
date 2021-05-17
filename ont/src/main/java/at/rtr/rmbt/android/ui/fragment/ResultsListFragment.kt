@@ -16,13 +16,12 @@ import at.rtr.rmbt.android.ui.activity.ResultsActivity
 import at.rtr.rmbt.android.ui.adapter.FilterLabelAdapter
 import at.rtr.rmbt.android.ui.adapter.HistoryLoopAdapter
 import at.rtr.rmbt.android.ui.dialog.HistoryFiltersDialog
-import at.rtr.rmbt.android.ui.dialog.SyncDevicesDialog
 import at.rtr.rmbt.android.util.ToolbarTheme
 import at.rtr.rmbt.android.util.changeStatusBarColor
 import at.rtr.rmbt.android.util.listen
 import at.rtr.rmbt.android.viewmodel.HistoryViewModel
 
-class ResultsListFragment  : BaseFragment(), SyncDevicesDialog.Callback {
+class ResultsListFragment  : BaseFragment() {
 
     private val historyViewModel: HistoryViewModel by viewModelLazy()
     private val binding: FragmentResultsListBinding by bindingLazy()
@@ -79,7 +78,7 @@ class ResultsListFragment  : BaseFragment(), SyncDevicesDialog.Callback {
         binding.swipeRefreshLayoutHistoryItems.isRefreshing = false
     }
 
-    override fun onDevicesSynced() {
-        refreshHistory()
-    }
+//    override fun onDevicesSynced() {
+//        refreshHistory()
+//    }
 }

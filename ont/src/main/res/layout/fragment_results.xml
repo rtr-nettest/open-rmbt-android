@@ -30,13 +30,23 @@
         app:tabMaxWidth="100dp" />
 
     <androidx.appcompat.widget.AppCompatImageView
+        android:id="@+id/icon_sync"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:padding="16dp"
+        android:src="@drawable/ic_sync_devices"
+        app:layout_constraintBottom_toBottomOf="@id/tab_layout"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@id/tab_layout" />
+
+    <androidx.appcompat.widget.AppCompatImageView
         android:id="@+id/icon_filter"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:padding="16dp"
         android:src="@drawable/ic_filter"
         app:layout_constraintBottom_toBottomOf="@id/tab_layout"
-        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/icon_sync"
         app:layout_constraintTop_toTopOf="@id/tab_layout" />
 
     <androidx.viewpager2.widget.ViewPager2

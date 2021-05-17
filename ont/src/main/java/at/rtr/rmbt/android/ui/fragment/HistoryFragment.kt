@@ -14,7 +14,6 @@ import at.rtr.rmbt.android.ui.activity.ResultsActivity
 import at.rtr.rmbt.android.ui.adapter.FilterLabelAdapter
 import at.rtr.rmbt.android.ui.adapter.HistoryLoopAdapter
 import at.rtr.rmbt.android.ui.dialog.HistoryFiltersDialog
-import at.rtr.rmbt.android.ui.dialog.SyncDevicesDialog
 import at.rtr.rmbt.android.util.ToolbarTheme
 import at.rtr.rmbt.android.util.changeStatusBarColor
 import at.rtr.rmbt.android.util.listen
@@ -22,7 +21,7 @@ import at.rtr.rmbt.android.viewmodel.HistoryViewModel
 
 private const val CODE_FILTERS = 13
 
-class HistoryFragment : BaseFragment(), SyncDevicesDialog.Callback, HistoryFiltersDialog.Callback {
+class HistoryFragment : BaseFragment(), HistoryFiltersDialog.Callback {
 
     private val historyViewModel: HistoryViewModel by viewModelLazy()
     private val binding: FragmentHistoryBinding by bindingLazy()
@@ -73,9 +72,9 @@ class HistoryFragment : BaseFragment(), SyncDevicesDialog.Callback, HistoryFilte
             refreshHistory()
         }
 
-        binding.buttonSync.setOnClickListener {
-            SyncDevicesDialog.show(childFragmentManager)
-        }
+//        binding.buttonSync.setOnClickListener {
+//            SyncDevicesDialog.show(childFragmentManager)
+//        }
 
         binding.buttonMenu.setOnClickListener {
             if (adapter.itemCount > 0) {
@@ -114,7 +113,7 @@ class HistoryFragment : BaseFragment(), SyncDevicesDialog.Callback, HistoryFilte
         refreshHistory()
     }
 
-    override fun onDevicesSynced() {
-        refreshHistory()
-    }
+//    override fun onDevicesSynced() {
+//        refreshHistory()
+//    }
 }
