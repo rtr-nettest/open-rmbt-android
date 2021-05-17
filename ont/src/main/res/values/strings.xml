@@ -353,7 +353,6 @@
     <string name="technology_3g" translatable="false">3G</string>
     <string name="technology_5g" translatable="false">5G</string>
 
-    <string name="title_activity_result_filters">ResultFiltersActivity</string>
     <string name="title_result_filter_operator_country">Country of operators</string>
     <string name="title_result_filter_operators">Operators</string>
     <string name="title_result_filter_period">Period</string>

@@ -308,4 +308,9 @@
     <string name="title_loop_waiting">"Bucle esperando "</string>
     <string name="loop_mode_next_test">Medida siguiente</string>
     <string name="median">Mediano</string>
+
+    <string name="title_result_filter_operator_country">País de los operadores</string>
+    <string name="title_result_filter_operators">Operadores</string>
+    <string name="title_result_filter_period">Período</string>
+    <string name="label_results">Resultados</string>
 </resources>

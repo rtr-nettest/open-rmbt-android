@@ -307,5 +307,10 @@
     <string name="title_loop_waiting">Schleife warten</string>
     <string name="loop_mode_next_test">Nächste Messung</string>
     <string name="median">Median</string>
+
+    <string name="title_result_filter_operator_country">Land der Betreiber</string>
+    <string name="title_result_filter_operators">Betreiber</string>
+    <string name="title_result_filter_period">Zeitraum</string>
+    <string name="label_results">Ergebnisse</string>
 </resources>
 
