@@ -2,11 +2,9 @@ package at.rtr.rmbt.android.viewmodel
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.Transformations
 import androidx.paging.PagedList
 import at.rmbt.util.exception.HandledException
 import at.rtr.rmbt.android.ui.viewstate.HistoryViewState
-import at.specure.data.entity.History
 import at.specure.data.entity.HistoryContainer
 import at.specure.data.repository.HistoryLoader
 import at.specure.data.repository.HistoryRepository

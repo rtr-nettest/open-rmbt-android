@@ -8,7 +8,6 @@ import at.rtr.rmbt.android.R
 import at.rtr.rmbt.android.databinding.FragmentResultsBinding
 import at.rtr.rmbt.android.ui.activity.ResultFiltersActivity
 import at.rtr.rmbt.android.ui.activity.SyncActivity
-import at.rtr.rmbt.android.ui.adapter.ResultsPagerAdapter
 import com.google.android.material.tabs.TabLayout
 
 class ResultsFragment : BaseFragment() {
@@ -43,7 +42,8 @@ class ResultsFragment : BaseFragment() {
         })
 
         binding.iconFilter.setOnClickListener {
-            val openMode = if (binding.tabLayout.selectedTabPosition == 0) ResultFiltersActivity.FilterMode.LIST else ResultFiltersActivity.FilterMode.MAP
+            val openMode =
+                if (binding.tabLayout.selectedTabPosition == 0) ResultFiltersActivity.FilterMode.LIST else ResultFiltersActivity.FilterMode.MAP
             ResultFiltersActivity.start(this, openMode)
         }
 
