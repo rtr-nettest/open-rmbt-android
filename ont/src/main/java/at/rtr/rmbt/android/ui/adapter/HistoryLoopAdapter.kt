@@ -15,6 +15,7 @@
  */
 package at.rtr.rmbt.android.ui.adapter
 
+import android.view.View
 import android.view.ViewGroup
 import androidx.databinding.ViewDataBinding
 import androidx.paging.PagedListAdapter
@@ -55,29 +56,32 @@ class HistoryLoopAdapter : PagedListAdapter<HistoryContainer, HistoryLoopAdapter
     override fun onBindViewHolder(holder: Holder, position: Int) {
         getItem(position)?.let { item ->
             Timber.e("$position")
-            holder.bind(position, item)
-            holder.binding.root.setOnClickListener {
+            holder.bind(position, item, clickChannel)
+        }
+    }
+
+    abstract class Holder(view: View) : RecyclerView.ViewHolder(view) {
+        abstract fun bind(position: Int, item: HistoryContainer, clickChannel: Channel<String>)
+    }
+
+    class LoopHolder(val binding: ItemHistoryLoopBinding) : Holder(binding.root) {
+        override fun bind(position: Int, item: HistoryContainer, clickChannel: Channel<String>) {
+            if (item.items.isEmpty()) {
+                return
+            }
+            binding.item = item.items.last()
+            binding.root.setOnClickListener {
                 clickChannel.safeOffer(item.items.first().testUUID)
             }
         }
     }
 
-    abstract class Holder(open val binding: ViewDataBinding) : RecyclerView.ViewHolder(binding.root) {
-        abstract fun bind(position: Int, item: HistoryContainer)
-    }
-
-    class LoopHolder(override val binding: ItemHistoryLoopBinding) : Holder(binding) {
-        override fun bind(position: Int, item: HistoryContainer) {
-            if (item.items.isEmpty()) {
-                return
-            }
-            binding.item = item.items.last()
-        }
-    }
-
-    class HistoryHolder(override val binding: ItemHistoryBinding) : Holder(binding) {
-        override fun bind(position: Int, item: HistoryContainer) {
+    class HistoryHolder(val binding: ItemHistoryBinding) : Holder(binding.root) {
+        override fun bind(position: Int, item: HistoryContainer, clickChannel: Channel<String>) {
             binding.item = item.items.first()
+            binding.root.setOnClickListener {
+                clickChannel.safeOffer(item.items.first().testUUID)
+            }
         }
     }
 

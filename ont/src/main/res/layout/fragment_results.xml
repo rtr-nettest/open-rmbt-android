@@ -49,11 +49,10 @@
         app:layout_constraintEnd_toStartOf="@id/icon_sync"
         app:layout_constraintTop_toTopOf="@id/tab_layout" />
 
-    <androidx.viewpager2.widget.ViewPager2
+    <FrameLayout
         android:id="@+id/pager"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

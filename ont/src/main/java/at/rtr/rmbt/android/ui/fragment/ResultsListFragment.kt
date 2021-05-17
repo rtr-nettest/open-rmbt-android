@@ -4,6 +4,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.DividerItemDecoration
 import at.rtr.rmbt.android.R
 import at.rtr.rmbt.android.databinding.FragmentResultsListBinding
@@ -12,6 +13,7 @@ import at.rtr.rmbt.android.ui.activity.ResultsActivity
 import at.rtr.rmbt.android.ui.adapter.HistoryLoopAdapter
 import at.rtr.rmbt.android.util.listen
 import at.rtr.rmbt.android.viewmodel.HistoryViewModel
+import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.receiveAsFlow
 
@@ -31,7 +33,7 @@ class ResultsListFragment : BaseFragment() {
 
         adapter.clickChannel.receiveAsFlow().onEach {
             ResultsActivity.start(requireContext(), it, ResultsActivity.ReturnPoint.HISTORY)
-        }
+        }.launchIn(lifecycleScope)
 
         binding.recyclerViewHistoryItems.apply {
             val itemDecoration = DividerItemDecoration(context, DividerItemDecoration.VERTICAL)
