@@ -23,8 +23,8 @@
     <string name="loop_mode_finished">Open Nettest loop mode finished!</string>
     <string name="text_terms_agree">I agree with Specure’s privacy policy and terms of use for Open Nettest.</string>
 
-    <string name="text_home_run">Run Basic Measurement</string>
-    <string name="text_basic_measurement">Basic measurement</string>
+    <string name="text_home_run">Run Speed Measurement</string>
+    <string name="text_basic_measurement">Speed measurement</string>
 
     <string name="basic_result_title">Basic Result</string>
     <string name="test_bottom_test_status_jitter">Jitter</string>
@@ -325,6 +325,7 @@
     <string name="unit_minutes">min</string>
     <string name="or">or</string>
     <string name="unit_meter">m</string>
+    <string name="median">Median</string>
 
     <string name="title_permissions_welcome" tools:ignore="MissingTranslation">Welcome to Open Nettest</string>
     <string name="text_permissions_welcome" tools:ignore="MissingTranslation">Let’s Review your Privacy Options</string>
@@ -362,5 +363,6 @@
         <item>List</item>
         <item>Map</item>
     </string-array>
+
 
 </resources>

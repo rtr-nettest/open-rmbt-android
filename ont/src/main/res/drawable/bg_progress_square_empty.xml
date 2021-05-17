@@ -1,7 +1,21 @@
-<?xml version="1.0" encoding="utf-8"?>
-<shape android:shape="rectangle" xmlns:android="http://schemas.android.com/apk/res/android">
-
-    <stroke android:width="2dp"
-        android:color="@color/main_color"/>
-
-</shape>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item>
+        <shape android:shape="rectangle">
+            <gradient
+                android:angle="45"
+                android:centerColor="@color/measurement_progress_center"
+                android:centerX="5"
+                android:endColor="@color/measurement_progress_end"
+                android:startColor="@color/measurement_progress_start" />
+        </shape>
+    </item>
+    <item
+        android:bottom="2dp"
+        android:left="2dp"
+        android:right="2dp"
+        android:top="2dp">
+        <shape android:shape="rectangle">
+            <solid android:color="#fff" />
+        </shape>
+    </item>
+</layer-list>

@@ -94,13 +94,27 @@
             android:layout_height="@dimen/size_progress_square"
             app:downloadSpeed="@{state.downloadSpeedBps}"
             app:layout_constraintBottom_toTopOf="@id/speed_line"
-            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/square_median"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/progress"
             app:measurementPhase="@{state.measurementState}"
             app:percentage="@{state.measurementProgress}"
             app:ping="@{state.pingNanos}"
             app:uploadSpeed="@{state.uploadSpeedBps}" />
+
+        <at.rtr.rmbt.android.ui.view.MeasurementMedianSquareView
+            android:id="@+id/square_median"
+            visibleOrGone="@{state.isLoopModeActive == true &amp;&amp; state.loopCurrentProgress > 1 &amp;&amp; state.loopModeRecord.status == LoopModeState.RUNNING &amp;&amp; state.measurementState != MeasurementState.INIT}"
+            android:layout_width="@dimen/size_progress_square"
+            android:layout_height="@dimen/size_progress_square"
+            app:downloadSpeed="@{state.downloadSpeedBpsMedian}"
+            app:layout_constraintBottom_toTopOf="@id/speed_line"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/square"
+            app:layout_constraintTop_toBottomOf="@id/progress"
+            app:measurementPhase="@{state.measurementState}"
+            app:ping="@{state.pingNanosMedian}"
+            app:uploadSpeed="@{state.uploadSpeedBpsMedian}" />
 
         <at.rtr.rmbt.android.ui.view.SpeedLineChart
             android:id="@+id/speed_line"

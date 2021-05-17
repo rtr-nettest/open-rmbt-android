@@ -7,6 +7,7 @@ import android.os.IBinder
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import at.rmbt.util.exception.HandledException
+import at.rmbt.util.io
 import at.rtr.rmbt.android.config.AppConfig
 import at.rtr.rmbt.android.ui.viewstate.MeasurementViewState
 import at.rtr.rmbt.android.util.plusAssign
@@ -15,6 +16,7 @@ import at.rtr.rmbt.client.v2.task.result.QoSTestResultEnum
 import at.specure.data.TermsAndConditions
 import at.specure.data.entity.GraphItemRecord
 import at.specure.data.entity.LoopModeRecord
+import at.specure.data.repository.HistoryRepository
 import at.specure.data.repository.TestDataRepository
 import at.specure.info.network.ActiveNetworkLiveData
 import at.specure.info.strength.SignalStrengthLiveData
@@ -24,11 +26,13 @@ import at.specure.measurement.MeasurementClient
 import at.specure.measurement.MeasurementProducer
 import at.specure.measurement.MeasurementService
 import at.specure.measurement.MeasurementState
+import kotlinx.coroutines.flow.collect
 import timber.log.Timber
 import javax.inject.Inject
 
 class MeasurementViewModel @Inject constructor(
     private val testDataRepository: TestDataRepository,
+    private val historyRepository: HistoryRepository,
     private val locationWatcher: LocationWatcher,
     val signalStrengthLiveData: SignalStrengthLiveData,
     val activeNetworkLiveData: ActiveNetworkLiveData,
@@ -169,6 +173,16 @@ class MeasurementViewModel @Inject constructor(
         this.state.measurementProgress.set(progress)
         if (config.loopModeEnabled) {
             this.state.signalStrengthInfoResult.set(producer?.lastMeasurementSignalInfo)
+            if (state == MeasurementState.INIT) {
+                val loopUUID = this.state.loopModeRecord.get()?.uuid
+                loopUUID?.let { loopUuid ->
+                    io {
+                        historyRepository.loadLoopMedianValues(loopUuid).collect { medians ->
+                            this@MeasurementViewModel.state.setMedianValues(medians)
+                        }
+                    }
+                }
+            }
         }
     }
 

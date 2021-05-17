@@ -6,6 +6,7 @@ import androidx.databinding.ObservableField
 import androidx.databinding.ObservableInt
 import androidx.databinding.ObservableLong
 import at.rtr.rmbt.android.config.AppConfig
+import at.specure.data.HistoryLoopMedian
 import at.specure.data.entity.LoopModeRecord
 import at.specure.data.entity.LoopModeState
 import at.specure.info.network.NetworkInfo
@@ -31,6 +32,9 @@ private const val KEY_LOOP_NEXT_TEST_DISTANCE_PERCENT = "KEY_LOOP_NEXT_TEST_DIST
 private const val KEY_LOOP_UUID = "KEY_LOOP_UUID"
 private const val KEY_LOOP_MODE_ENABLED = "KEY_LOOP_MODE_ENABLED"
 private const val KEY_LAST_MEASUREMENT_SIGNAL = "KEY_LAST_MEASUREMENT_SIGNAL"
+private const val KEY_DOWNLOAD_MEDIAN = "KEY_DOWNLOAD_MEDIAN"
+private const val KEY_UPLOAD_MEDIAN = "KEY_UPLOAD_MEDIAN"
+private const val KEY_PING_MEDIAN = "KEY_PING_MEDIAN"
 
 class MeasurementViewState(private val config: AppConfig) : ViewState {
 
@@ -56,6 +60,9 @@ class MeasurementViewState(private val config: AppConfig) : ViewState {
     val loopNextTestPercent = ObservableInt()
     val gpsEnabled = ObservableBoolean()
     val isLoopModeActive = ObservableBoolean(config.loopModeEnabled)
+    val downloadSpeedBpsMedian = ObservableLong()
+    val uploadSpeedBpsMedian = ObservableLong()
+    val pingNanosMedian = ObservableLong()
 
     val metersLeft = ObservableField<String>().apply { set(loopNextTestDistanceMeters.get()) }
     val locationAvailable = ObservableBoolean().apply { set(true) }
@@ -87,6 +94,14 @@ class MeasurementViewState(private val config: AppConfig) : ViewState {
             measurementDownloadUploadProgress.set(0)
             measurementState.set(MeasurementState.FINISH)
             Timber.i("Measurement state from set loop state: ${measurementState.get()}")
+        }
+    }
+
+    fun setMedianValues(historyLoopMedian: HistoryLoopMedian?) {
+        historyLoopMedian?.let {
+            this.downloadSpeedBpsMedian.set((historyLoopMedian.downloadMedianMbps * 1000000f).toLong())
+            this.uploadSpeedBpsMedian.set((historyLoopMedian.uploadMedianMbps * 1000000f).toLong())
+            this.pingNanosMedian.set((historyLoopMedian.pingMedianMillis * 1000000f).toLong())
         }
     }
 
@@ -130,6 +145,9 @@ class MeasurementViewState(private val config: AppConfig) : ViewState {
             loopLocalUUID.set(bundle.getString(KEY_LOOP_UUID))
             isLoopModeActive.set(bundle.getBoolean(KEY_LOOP_MODE_ENABLED))
             signalStrengthInfoResult.set(bundle.getParcelable(KEY_LAST_MEASUREMENT_SIGNAL))
+            downloadSpeedBpsMedian.set(bundle.getLong(KEY_DOWNLOAD_MEDIAN, 0))
+            uploadSpeedBpsMedian.set(bundle.getLong(KEY_UPLOAD_MEDIAN, 0))
+            pingNanosMedian.set(bundle.getLong(KEY_PING_MEDIAN, 0))
         }
     }
 
@@ -152,6 +170,9 @@ class MeasurementViewState(private val config: AppConfig) : ViewState {
             putString(KEY_LOOP_UUID, loopLocalUUID.get())
             putBoolean(KEY_LOOP_MODE_ENABLED, isLoopModeActive.get())
             putParcelable(KEY_LAST_MEASUREMENT_SIGNAL, signalStrengthInfoResult.get())
+            putLong(KEY_DOWNLOAD_MEDIAN, downloadSpeedBpsMedian.get())
+            putLong(KEY_UPLOAD_MEDIAN, uploadSpeedBpsMedian.get())
+            putLong(KEY_PING_MEDIAN, pingNanosMedian.get())
         }
     }
 
