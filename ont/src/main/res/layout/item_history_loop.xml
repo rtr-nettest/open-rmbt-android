@@ -13,9 +13,9 @@
 
     </data>
 
-    <!--    todo: set median values-->
-
     <androidx.constraintlayout.widget.ConstraintLayout
+        android:clickable="true"
+        android:focusable="true"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:paddingTop="@dimen/padding_large"
@@ -67,7 +67,6 @@
             app:layout_constraintStart_toEndOf="@id/guideline"
             app:layout_constraintTop_toTopOf="parent"
             android:gravity="center"
-            android:text="@{item.speedDownload}"
             tools:text="79" />
 
         <androidx.appcompat.widget.AppCompatTextView
@@ -80,7 +79,6 @@
             app:layout_constraintStart_toEndOf="@id/download"
             app:layout_constraintTop_toTopOf="parent"
             android:gravity="center"
-            android:text="@{item.speedUpload}"
             tools:text="12" />
 
         <androidx.appcompat.widget.AppCompatTextView
@@ -93,7 +91,6 @@
             app:layout_constraintStart_toEndOf="@id/upload"
             app:layout_constraintTop_toTopOf="parent"
             android:gravity="center"
-            android:text="@{item.ping}"
             tools:text="14" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>

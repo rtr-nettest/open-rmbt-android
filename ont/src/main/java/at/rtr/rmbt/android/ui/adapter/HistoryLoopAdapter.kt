@@ -24,14 +24,18 @@ import at.rtr.rmbt.android.R
 import at.rtr.rmbt.android.databinding.ItemHistoryBinding
 import at.rtr.rmbt.android.databinding.ItemHistoryLoopBinding
 import at.rtr.rmbt.android.util.bindWith
-import at.specure.data.entity.History
+import at.rtr.rmbt.android.util.safeOffer
 import at.specure.data.entity.HistoryContainer
+import java.text.NumberFormat
+import kotlin.math.ceil
+import kotlinx.coroutines.channels.Channel
 
 private const val ITEM_LOOP = 0
 private const val ITEM_HISTORY = 1
 
 class HistoryLoopAdapter : PagedListAdapter<HistoryContainer, HistoryLoopAdapter.Holder>(DIFF_CALLBACK) {
-    var actionCallback: ((History) -> Unit)? = null
+
+    val clickChannel = Channel<String>(Channel.CONFLATED)
 
     override fun getItemViewType(position: Int): Int {
         val size = getItem(position)?.items?.size ?: 1
@@ -42,44 +46,59 @@ class HistoryLoopAdapter : PagedListAdapter<HistoryContainer, HistoryLoopAdapter
         }
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) = if (viewType == ITEM_LOOP) {
-        LoopHolder(parent.bindWith(R.layout.item_history_loop))
-    } else {
-        HistoryHolder(parent.bindWith(R.layout.item_history))
-    }
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) =
+        if (viewType == ITEM_LOOP) {
+            LoopHolder(parent.bindWith(R.layout.item_history_loop))
+        } else {
+            HistoryHolder(parent.bindWith(R.layout.item_history))
+        }
 
     override fun onBindViewHolder(holder: Holder, position: Int) {
-        getItem(position)?.let { item ->
-            holder.bind(position, item, actionCallback)
-        }
+        getItem(position)?.let { item -> holder.bind(position, item, clickChannel) }
+    }
+
+    abstract class Holder(view: View) : RecyclerView.ViewHolder(view) {
+        abstract fun bind(position: Int, item: HistoryContainer, clickChannel: Channel<String>)
     }
 
     class LoopHolder(val binding: ItemHistoryLoopBinding) : Holder(binding.root) {
-
-        override fun bind(position: Int, item: HistoryContainer, actionCallback: ((History) -> Unit)?) {
+        override fun bind(position: Int, item: HistoryContainer, clickChannel: Channel<String>) {
             if (item.items.isEmpty()) {
                 return
             }
-            // todo median
             binding.item = item.items.last()
+            val numberFormat = NumberFormat.getInstance()
+            binding.download.text = numberFormat.format(median(item.items.mapNotNull { it.speedDownload.toFloatOrNull() }))
+            binding.upload.text = numberFormat.format(median(item.items.mapNotNull { it.speedUpload.toFloatOrNull() }))
+            binding.ping.text = numberFormat.format(median(item.items.mapNotNull { it.ping.toFloatOrNull() }))
+
             binding.root.setOnClickListener {
-                actionCallback?.invoke(item.items.first())
+                clickChannel.safeOffer(item.items.first().testUUID)
+            }
+        }
+
+        private fun median(floatList: List<Float>): Float {
+            if (floatList.isEmpty()) {
+                return 0f
+            }
+
+            val sortedFloatList = floatList.sorted()
+            val halfIndex = (ceil((sortedFloatList.size / 2f).toDouble()) - 1).toInt()
+            return if (sortedFloatList.size % 2 == 0) {
+                (sortedFloatList[halfIndex] + sortedFloatList[halfIndex + 1]) / 2f
+            } else {
+                sortedFloatList[halfIndex]
             }
         }
     }
 
     class HistoryHolder(val binding: ItemHistoryBinding) : Holder(binding.root) {
-
-        override fun bind(position: Int, item: HistoryContainer, actionCallback: ((History) -> Unit)?) {
+        override fun bind(position: Int, item: HistoryContainer, clickChannel: Channel<String>) {
             binding.item = item.items.first()
             binding.root.setOnClickListener {
-                actionCallback?.invoke(item.items.first())
+                clickChannel.safeOffer(item.items.first().testUUID)
             }
         }
-    }
-
-    abstract class Holder(view: View) : RecyclerView.ViewHolder(view) {
-        abstract fun bind(position: Int, item: HistoryContainer, actionCallback: ((History) -> Unit)?)
     }
 
     companion object {

@@ -8,12 +8,12 @@ import at.rtr.rmbt.android.ui.viewstate.HistoryViewState
 import at.specure.data.entity.HistoryContainer
 import at.specure.data.repository.HistoryLoader
 import at.specure.data.repository.HistoryRepository
+import javax.inject.Inject
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.consumeAsFlow
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
 class HistoryViewModel @Inject constructor(private val repository: HistoryRepository, private val loader: HistoryLoader) : BaseViewModel() {
 
