@@ -28,7 +28,7 @@ import at.specure.data.entity.History
 
 private const val ITEM_HISTORY = 1
 
-class LoopMeasurementAdapter(private val allowOpenDetails: Boolean) : ListAdapter<History, LoopMeasurementAdapter.Holder>(DIFF_CALLBACK) {
+class LoopMeasurementAdapter(private val allowOpenDetails: Boolean = true) : ListAdapter<History, LoopMeasurementAdapter.Holder>(DIFF_CALLBACK) {
     var actionCallback: ((History) -> Unit)? = null
 
     override fun getItemViewType(position: Int): Int {
