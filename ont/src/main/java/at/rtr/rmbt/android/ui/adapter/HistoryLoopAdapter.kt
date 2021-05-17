@@ -15,8 +15,8 @@
  */
 package at.rtr.rmbt.android.ui.adapter
 
-import android.view.View
 import android.view.ViewGroup
+import androidx.databinding.ViewDataBinding
 import androidx.paging.PagedListAdapter
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
@@ -24,14 +24,17 @@ import at.rtr.rmbt.android.R
 import at.rtr.rmbt.android.databinding.ItemHistoryBinding
 import at.rtr.rmbt.android.databinding.ItemHistoryLoopBinding
 import at.rtr.rmbt.android.util.bindWith
-import at.specure.data.entity.History
+import at.rtr.rmbt.android.util.safeOffer
 import at.specure.data.entity.HistoryContainer
+import kotlinx.coroutines.channels.Channel
+import timber.log.Timber
 
 private const val ITEM_LOOP = 0
 private const val ITEM_HISTORY = 1
 
 class HistoryLoopAdapter : PagedListAdapter<HistoryContainer, HistoryLoopAdapter.Holder>(DIFF_CALLBACK) {
-    var actionCallback: ((History) -> Unit)? = null
+
+    val clickChannel = Channel<String>(Channel.CONFLATED)
 
     override fun getItemViewType(position: Int): Int {
         val size = getItem(position)?.items?.size ?: 1
@@ -42,44 +45,40 @@ class HistoryLoopAdapter : PagedListAdapter<HistoryContainer, HistoryLoopAdapter
         }
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) = if (viewType == ITEM_LOOP) {
-        LoopHolder(parent.bindWith(R.layout.item_history_loop))
-    } else {
-        HistoryHolder(parent.bindWith(R.layout.item_history))
-    }
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) =
+        if (viewType == ITEM_LOOP) {
+            LoopHolder(parent.bindWith(R.layout.item_history_loop))
+        } else {
+            HistoryHolder(parent.bindWith(R.layout.item_history))
+        }
 
     override fun onBindViewHolder(holder: Holder, position: Int) {
         getItem(position)?.let { item ->
-            holder.bind(position, item, actionCallback)
+            Timber.e("$position")
+            holder.bind(position, item)
+            holder.binding.root.setOnClickListener {
+                clickChannel.safeOffer(item.items.first().testUUID)
+            }
         }
     }
 
-    class LoopHolder(val binding: ItemHistoryLoopBinding) : Holder(binding.root) {
+    abstract class Holder(open val binding: ViewDataBinding) : RecyclerView.ViewHolder(binding.root) {
+        abstract fun bind(position: Int, item: HistoryContainer)
+    }
 
-        override fun bind(position: Int, item: HistoryContainer, actionCallback: ((History) -> Unit)?) {
+    class LoopHolder(override val binding: ItemHistoryLoopBinding) : Holder(binding) {
+        override fun bind(position: Int, item: HistoryContainer) {
             if (item.items.isEmpty()) {
                 return
             }
-            // todo median
             binding.item = item.items.last()
-            binding.root.setOnClickListener {
-                actionCallback?.invoke(item.items.first())
-            }
         }
     }
 
-    class HistoryHolder(val binding: ItemHistoryBinding) : Holder(binding.root) {
-
-        override fun bind(position: Int, item: HistoryContainer, actionCallback: ((History) -> Unit)?) {
+    class HistoryHolder(override val binding: ItemHistoryBinding) : Holder(binding) {
+        override fun bind(position: Int, item: HistoryContainer) {
             binding.item = item.items.first()
-            binding.root.setOnClickListener {
-                actionCallback?.invoke(item.items.first())
-            }
         }
-    }
-
-    abstract class Holder(view: View) : RecyclerView.ViewHolder(view) {
-        abstract fun bind(position: Int, item: HistoryContainer, actionCallback: ((History) -> Unit)?)
     }
 
     companion object {

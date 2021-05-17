@@ -5,23 +5,17 @@ import android.os.Bundle
 import android.view.View
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.DividerItemDecoration
-import androidx.transition.ChangeBounds
-import androidx.transition.TransitionManager
-import androidx.transition.TransitionSet
 import at.rtr.rmbt.android.R
-import at.rtr.rmbt.android.databinding.FragmentHistoryBinding
 import at.rtr.rmbt.android.databinding.FragmentResultsListBinding
 import at.rtr.rmbt.android.di.viewModelLazy
 import at.rtr.rmbt.android.ui.activity.ResultsActivity
-import at.rtr.rmbt.android.ui.adapter.FilterLabelAdapter
 import at.rtr.rmbt.android.ui.adapter.HistoryLoopAdapter
-import at.rtr.rmbt.android.ui.dialog.HistoryFiltersDialog
-import at.rtr.rmbt.android.util.ToolbarTheme
-import at.rtr.rmbt.android.util.changeStatusBarColor
 import at.rtr.rmbt.android.util.listen
 import at.rtr.rmbt.android.viewmodel.HistoryViewModel
+import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.receiveAsFlow
 
-class ResultsListFragment  : BaseFragment() {
+class ResultsListFragment : BaseFragment() {
 
     private val historyViewModel: HistoryViewModel by viewModelLazy()
     private val binding: FragmentResultsListBinding by bindingLazy()
@@ -35,8 +29,8 @@ class ResultsListFragment  : BaseFragment() {
         binding.state = historyViewModel.state
         binding.recyclerViewHistoryItems.adapter = adapter
 
-        adapter.actionCallback = {
-            ResultsActivity.start(requireContext(), it.testUUID, ResultsActivity.ReturnPoint.HISTORY)
+        adapter.clickChannel.receiveAsFlow().onEach {
+            ResultsActivity.start(requireContext(), it, ResultsActivity.ReturnPoint.HISTORY)
         }
 
         binding.recyclerViewHistoryItems.apply {
@@ -48,21 +42,13 @@ class ResultsListFragment  : BaseFragment() {
         }
 
         historyViewModel.historyLiveData.listen(this) {
+            binding.swipeRefreshLayoutHistoryItems.isRefreshing = false
             historyViewModel.state.isHistoryEmpty.set(it.isEmpty())
-
             adapter.submitList(it)
-        }
-
-        historyViewModel.isLoadingLiveData.listen(this) {
-            historyViewModel.state.isLoadingLiveData.set(it)
         }
 
         binding.swipeRefreshLayoutHistoryItems.setOnRefreshListener {
             refreshHistory()
-        }
-
-        historyViewModel.isLoadingLiveData.listen(this) {
-            binding.swipeRefreshLayoutHistoryItems.isRefreshing = it
         }
 
         refreshHistory()
@@ -75,10 +61,6 @@ class ResultsListFragment  : BaseFragment() {
 
     private fun refreshHistory() {
         historyViewModel.refreshHistory()
-        binding.swipeRefreshLayoutHistoryItems.isRefreshing = false
+        binding.swipeRefreshLayoutHistoryItems.isRefreshing = true
     }
-
-//    override fun onDevicesSynced() {
-//        refreshHistory()
-//    }
 }
