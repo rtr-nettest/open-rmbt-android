@@ -56,4 +56,7 @@ abstract class HistoryDao {
 
     @Query("SELECT * FROM ${Tables.HISTORY} WHERE testUUID =:testUUID")
     abstract fun getItemByUUID(testUUID: String): History?
+
+    @Query("SELECT * FROM ${Tables.HISTORY} WHERE loopUUID =:loopUuid")
+    abstract fun getItemByLoopUUID(loopUuid: String): List<History>
 }

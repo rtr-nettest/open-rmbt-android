@@ -489,7 +489,7 @@ fun ICell.locationId(): Int? {
         is CellTdscdma -> this.cid
         is CellLte -> this.eci
         is CellCdma -> this.bid
-        is CellWcdma -> this.cid
+        is CellWcdma -> this.ci
         is CellGsm -> this.cid
         else -> null
     }

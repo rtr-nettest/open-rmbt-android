@@ -15,7 +15,7 @@ enum class NetworkTypeCompat(val stringValue: String, val minSignalValue: Int, v
     TYPE_5G_NSA("5G", SignalStrengthInfo.NR_RSRP_SIGNAL_MIN, SignalStrengthInfo.NR_RSRP_SIGNAL_MAX),
     TYPE_5G_AVAILABLE("4G (+5G)", SignalStrengthInfo.LTE_RSRP_SIGNAL_MIN, SignalStrengthInfo.LTE_RSRP_SIGNAL_MAX),
     TYPE_WLAN("WLAN", SignalStrengthInfo.WIFI_MIN_SIGNAL_VALUE, SignalStrengthInfo.WIFI_MAX_SIGNAL_VALUE),
-    TYPE_LAN("LAN", Int.MIN_VALUE, Int.MIN_VALUE),
+    TYPE_LAN("ETHERNET", Int.MIN_VALUE, Int.MIN_VALUE),
     TYPE_BROWSER("BROWSER", Int.MIN_VALUE, Int.MIN_VALUE),
     TYPE_UNKNOWN("UNKNOWN", Int.MIN_VALUE, Int.MIN_VALUE);
 
@@ -31,6 +31,7 @@ enum class NetworkTypeCompat(val stringValue: String, val minSignalValue: Int, v
             val mobileNetworkType = MobileNetworkType.fromValue(value)
             val transportType = if (mobileNetworkType == MobileNetworkType.UNKNOWN) {
                 when (value) {
+                    TYPE_ETHERNET_VALUE -> TransportType.ETHERNET
                     TYPE_WIFI_VALUE -> TransportType.WIFI
                     TYPE_BROWSER_VALUE -> TransportType.BROWSER
                     else -> {
@@ -48,11 +49,11 @@ enum class NetworkTypeCompat(val stringValue: String, val minSignalValue: Int, v
 
         fun fromString(value: String): NetworkTypeCompat {
             values().forEach {
-                if (it.stringValue == value) return it
+                if (it.stringValue.equals(value, ignoreCase = true)) return it
             }
 
             ServerNetworkType.values().forEach {
-                if (it.stringValue == value && it.compatType != null) return it.compatType
+                if (it.stringValue.equals(value, ignoreCase = true) && it.compatType != null) return it.compatType
             }
             return TYPE_UNKNOWN
 //            throw IllegalArgumentException("Failed to find NetworkTypeCompat for value $value")
@@ -63,6 +64,7 @@ enum class NetworkTypeCompat(val stringValue: String, val minSignalValue: Int, v
                 TYPE_UNKNOWN
             } else when (transportType) {
                 TransportType.BROWSER -> TYPE_BROWSER
+                TransportType.ETHERNET -> TYPE_LAN
                 TransportType.WIFI -> TYPE_WLAN
                 TransportType.CELLULAR -> {
                     when (cellTechnology) {
@@ -125,7 +127,7 @@ enum class ServerNetworkType(
     TYPE_2G_4G(103, "2G/4G", NetworkTypeCompat.TYPE_4G, TransportType.CELLULAR, MobileNetworkType.EVDO_A),
     TYPE_2G_3G_4G(104, "2G/3G/4G", NetworkTypeCompat.TYPE_4G, TransportType.CELLULAR, MobileNetworkType.LTE),
     TYPE_MOBILE(105, "MOBILE", NetworkTypeCompat.TYPE_3G, TransportType.CELLULAR, MobileNetworkType.HSUPA),
-    TYPE_ETHERNET(106, "Ethernet", null, TransportType.ETHERNET, null),
+    TYPE_ETHERNET(106, "Ethernet", NetworkTypeCompat.TYPE_LAN, TransportType.ETHERNET, null),
     TYPE_BLUETOOTH(107, "Bluetooth", null, TransportType.BLUETOOTH, null),
     TYPE_UNKNOWN(-1, "UNKNOWN", null, null, null),
     TYPE_UNKNOWN2(Int.MAX_VALUE, "UNKNOWN", null, null, null)
