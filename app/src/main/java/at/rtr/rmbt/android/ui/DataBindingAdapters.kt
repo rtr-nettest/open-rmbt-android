@@ -79,7 +79,13 @@ fun AppCompatTextView.setFrequency(networkInfo: NetworkInfo?) {
 
     text = when (networkInfo) {
         is WifiNetworkInfo -> networkInfo.band.name
-        is CellNetworkInfo -> String.format(context.getString(R.string.home_frequency_value), networkInfo.band?.name)
+        is CellNetworkInfo -> {
+            if (networkInfo.band?.name?.contains("MHz") == true) {
+                networkInfo.band?.name
+            } else {
+                String.format(context.getString(R.string.home_frequency_value), networkInfo.band?.name)
+            }
+        }
         else -> "-"
     }
 }
@@ -207,30 +213,35 @@ fun AppCompatTextView.setNetworkType(detailedNetworkInfo: DetailedNetworkInfo?) 
 @BindingAdapter("technology")
 fun AppCompatImageView.setTechnologyIcon(networkInfo: NetworkInfo?) {
 
-    if (networkInfo is CellNetworkInfo) {
-        visibility = View.VISIBLE
-        when (CellTechnology.fromMobileNetworkType(networkInfo.networkType)) {
-            null -> {
-                setImageDrawable(null)
-            }
-            CellTechnology.CONNECTION_2G -> {
-                setImageResource(R.drawable.ic_2g)
-            }
-            CellTechnology.CONNECTION_3G -> {
-                setImageResource(R.drawable.ic_3g)
-            }
-            CellTechnology.CONNECTION_4G -> {
-                setImageResource(R.drawable.ic_4g)
-            }
-            CellTechnology.CONNECTION_4G_5G -> {
-                setImageResource(R.drawable.ic_5g_available)
-            }
-            CellTechnology.CONNECTION_5G -> {
-                setImageResource(R.drawable.ic_5g)
+    when (networkInfo) {
+        is CellNetworkInfo -> {
+            visibility = View.VISIBLE
+            when (CellTechnology.fromMobileNetworkType(networkInfo.networkType)) {
+                null -> {
+                    setImageDrawable(null)
+                }
+                CellTechnology.CONNECTION_2G -> {
+                    setImageResource(R.drawable.ic_2g)
+                }
+                CellTechnology.CONNECTION_3G -> {
+                    setImageResource(R.drawable.ic_3g)
+                }
+                CellTechnology.CONNECTION_4G -> {
+                    setImageResource(R.drawable.ic_4g)
+                }
+                CellTechnology.CONNECTION_4G_5G -> {
+                    setImageResource(R.drawable.ic_5g_available)
+                }
+                CellTechnology.CONNECTION_5G -> {
+                    setImageResource(R.drawable.ic_5g)
+                }
             }
         }
-    } else {
-        visibility = View.GONE
+        is EthernetNetworkInfo -> {
+            visibility = View.VISIBLE
+            setImageResource(R.drawable.ic_label_ethernet)
+        }
+        else -> visibility = View.GONE
     }
 }
 

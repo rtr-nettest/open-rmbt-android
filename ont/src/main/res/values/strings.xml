@@ -187,7 +187,6 @@
     <string name="label_signal_strength">Signal</string>
     <string name="network_label">Network</string>
 
-    <string name="speed_progress_units" translatable="false">Mbit/s</string>
     <string name="title_cancel_measurement">Do you really want to cancel the ongoing measurement?</string>
     <string name="text_continue_measurement">Continue measurement</string>
     <string name="text_cancel_measurement">Cancel measurement</string>
@@ -199,7 +198,6 @@
     <string name="history_item_header_down">Download</string>
     <string name="history_item_header_up">Upload</string>
     <string name="history_item_header_ping">Ping</string>
-    <string name="history_item_header_ms">ms</string>
     <string name="history_no_data">No data available.</string>
 
     <!-- Results -->
@@ -256,7 +254,6 @@
     <string name="text_sync_code_received">Please enter the code shown below on the other device to synchronise the results.</string>
     <string name="text_sync_enter_code_desc">Please enter the code you received on your other device.</string>
     <string name="button_close">Close</string>
-    <string name="toast_sync_code_copied_to_clipboard">Copied</string>
     <string name="hint_sync_code">Code</string>
     <string name="error_sync_code_short">The code must consist of twelve characters</string>
 
@@ -353,10 +350,7 @@
     <string name="technology_3g" translatable="false">3G</string>
     <string name="technology_5g" translatable="false">5G</string>
 
-    <string name="title_activity_result_filters">ResultFiltersActivity</string>
-    <string name="title_result_filter_operator_country">Country of operators</string>
     <string name="title_result_filter_operators">Operators</string>
-    <string name="title_result_filter_period">Period</string>
     <string name="label_results">Results</string>
 
     <string-array name="title_results_tabs">

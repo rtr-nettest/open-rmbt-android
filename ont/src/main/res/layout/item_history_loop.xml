@@ -10,8 +10,16 @@
             type="at.specure.data.entity.History" />
 
         <variable
-            name="median"
-            type="at.specure.data.HistoryLoopMedian" />
+            name="downloadMedian"
+            type="float" />
+
+        <variable
+            name="uploadMedian"
+            type="float" />
+
+        <variable
+            name="pingMedian"
+            type="float" />
 
         <import type="at.specure.data.Classification" />
 
@@ -71,7 +79,7 @@
             app:layout_constraintStart_toEndOf="@id/guideline"
             app:layout_constraintTop_toTopOf="parent"
             android:gravity="center"
-            android:text="@{String.valueOf(median.downloadMedianMbps)}"
+            android:text="@{String.valueOf(downloadMedian)}"
             tools:text="79" />
 
         <androidx.appcompat.widget.AppCompatTextView
@@ -84,7 +92,7 @@
             app:layout_constraintStart_toEndOf="@id/download"
             app:layout_constraintTop_toTopOf="parent"
             android:gravity="center"
-            android:text="@{String.valueOf(median.uploadMedianMbps)}"
+            android:text="@{String.valueOf(uploadMedian)}"
             tools:text="12" />
 
         <androidx.appcompat.widget.AppCompatTextView
@@ -97,7 +105,7 @@
             app:layout_constraintStart_toEndOf="@id/upload"
             app:layout_constraintTop_toTopOf="parent"
             android:gravity="center"
-            android:text="@{String.valueOf(median.pingMedianMillis)}"
+            android:text="@{String.valueOf(pingMedian)}"
             tools:text="14" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
