@@ -6,6 +6,7 @@ import androidx.databinding.ObservableField
 import androidx.databinding.ObservableInt
 import androidx.databinding.ObservableLong
 import at.rtr.rmbt.android.config.AppConfig
+import at.specure.data.HistoryLoopMedian
 import at.specure.data.entity.LoopModeRecord
 import at.specure.data.entity.LoopModeState
 import at.specure.info.network.NetworkInfo
@@ -22,6 +23,7 @@ private const val KEY_PING = "KEY_PING"
 private const val KEY_QOS_ENABLED = "KEY_QOS_ENABLED"
 private const val KEY_QOS_TASK_PROGRESS = "QOS_PROGRESS"
 private const val KEY_LOOP_PROGRESS = "KEY_LOOP_PROGRESS"
+private const val KEY_LOOP_TOTAL = "KEY_LOOP_TOTAL"
 private const val KEY_LOOP_NEXT_TEST_TIME_PROGRESS = "KEY_LOOP_NEXT_TEST_TIME_PROGRESS"
 private const val KEY_LOOP_NEXT_TEST_TIME_PERCENT = "KEY_LOOP_NEXT_TEST_TIME_PERCENT"
 private const val KEY_LOOP_STATE = "KEY_LOOP_STATE"
@@ -30,6 +32,9 @@ private const val KEY_LOOP_NEXT_TEST_DISTANCE_PERCENT = "KEY_LOOP_NEXT_TEST_DIST
 private const val KEY_LOOP_UUID = "KEY_LOOP_UUID"
 private const val KEY_LOOP_MODE_ENABLED = "KEY_LOOP_MODE_ENABLED"
 private const val KEY_LAST_MEASUREMENT_SIGNAL = "KEY_LAST_MEASUREMENT_SIGNAL"
+private const val KEY_DOWNLOAD_MEDIAN = "KEY_DOWNLOAD_MEDIAN"
+private const val KEY_UPLOAD_MEDIAN = "KEY_UPLOAD_MEDIAN"
+private const val KEY_PING_MEDIAN = "KEY_PING_MEDIAN"
 
 class MeasurementViewState(private val config: AppConfig) : ViewState {
 
@@ -45,7 +50,8 @@ class MeasurementViewState(private val config: AppConfig) : ViewState {
     val networkInfo = ObservableField<NetworkInfo?>()
     val qosEnabled = ObservableBoolean()
     val qosTaskProgress = ObservableField<String>()
-    val loopProgress = ObservableField<String>()
+    val loopCurrentProgress = ObservableInt()
+    val loopTotalCount = ObservableInt()
     val loopLocalUUID = ObservableField<String>()
     val timeToNextTestElapsed = ObservableField<String>()
     val timeToNextTestPercentage = ObservableInt()
@@ -54,6 +60,9 @@ class MeasurementViewState(private val config: AppConfig) : ViewState {
     val loopNextTestPercent = ObservableInt()
     val gpsEnabled = ObservableBoolean()
     val isLoopModeActive = ObservableBoolean(config.loopModeEnabled)
+    val downloadSpeedBpsMedian = ObservableLong()
+    val uploadSpeedBpsMedian = ObservableLong()
+    val pingNanosMedian = ObservableLong()
 
     val metersLeft = ObservableField<String>().apply { set(loopNextTestDistanceMeters.get()) }
     val locationAvailable = ObservableBoolean().apply { set(true) }
@@ -63,7 +72,16 @@ class MeasurementViewState(private val config: AppConfig) : ViewState {
     }
 
     fun setLoopProgress(current: Int, total: Int) {
-        loopProgress.set("$current/$total")
+        setLoopCurrentTestNumber(current)
+        setLoopTotalTestNumber(total)
+    }
+
+    private fun setLoopCurrentTestNumber(current: Int) {
+        loopCurrentProgress.set(current)
+    }
+
+    private fun setLoopTotalTestNumber(total: Int) {
+        loopTotalCount.set(total)
     }
 
     private fun setLoopState(loopState: LoopModeState) {
@@ -79,6 +97,14 @@ class MeasurementViewState(private val config: AppConfig) : ViewState {
         }
     }
 
+    fun setMedianValues(historyLoopMedian: HistoryLoopMedian?) {
+        historyLoopMedian?.let {
+            this.downloadSpeedBpsMedian.set((historyLoopMedian.downloadMedianMbps * 1000000f).toLong())
+            this.uploadSpeedBpsMedian.set((historyLoopMedian.uploadMedianMbps * 1000000f).toLong())
+            this.pingNanosMedian.set((historyLoopMedian.pingMedianMillis * 1000000f).toLong())
+        }
+    }
+
     fun setLoopRecord(loopModeRecord: LoopModeRecord?) {
         if (loopModeRecord != null) {
             this.loopModeRecord.set(loopModeRecord)
@@ -87,7 +113,12 @@ class MeasurementViewState(private val config: AppConfig) : ViewState {
                 distancePercent = loopModeRecord.movementDistanceMeters * 100 / config.loopModeDistanceMeters
             }
             this.loopNextTestPercent.set(distancePercent)
-            this.loopNextTestDistanceMeters.set(loopModeRecord.movementDistanceMeters.toString())
+            val distanceToNextTestMeters = config.loopModeDistanceMeters - loopModeRecord.movementDistanceMeters
+            this.loopNextTestDistanceMeters.set(
+                if (distanceToNextTestMeters < 0) {
+                    "0"
+                } else distanceToNextTestMeters.toString()
+            )
             this.loopModeRecord.get()?.status?.let { setLoopState(it) }
         } else {
             this.loopNextTestPercent.set(0)
@@ -105,7 +136,8 @@ class MeasurementViewState(private val config: AppConfig) : ViewState {
             pingNanos.set(bundle.getLong(KEY_PING, 0))
             qosEnabled.set(bundle.getBoolean(KEY_QOS_ENABLED, false))
             qosTaskProgress.set(bundle.getString(KEY_QOS_TASK_PROGRESS))
-            loopProgress.set(bundle.getString(KEY_LOOP_PROGRESS))
+            loopTotalCount.set(bundle.getInt(KEY_LOOP_TOTAL))
+            loopCurrentProgress.set(bundle.getInt(KEY_LOOP_PROGRESS))
             timeToNextTestElapsed.set(bundle.getString(KEY_LOOP_NEXT_TEST_TIME_PROGRESS))
             timeToNextTestPercentage.set(bundle.getInt(KEY_LOOP_NEXT_TEST_TIME_PERCENT, 0))
             loopNextTestDistanceMeters.set(bundle.getString(KEY_LOOP_NEXT_TEST_DISTANCE_METERS))
@@ -113,6 +145,9 @@ class MeasurementViewState(private val config: AppConfig) : ViewState {
             loopLocalUUID.set(bundle.getString(KEY_LOOP_UUID))
             isLoopModeActive.set(bundle.getBoolean(KEY_LOOP_MODE_ENABLED))
             signalStrengthInfoResult.set(bundle.getParcelable(KEY_LAST_MEASUREMENT_SIGNAL))
+            downloadSpeedBpsMedian.set(bundle.getLong(KEY_DOWNLOAD_MEDIAN, 0))
+            uploadSpeedBpsMedian.set(bundle.getLong(KEY_UPLOAD_MEDIAN, 0))
+            pingNanosMedian.set(bundle.getLong(KEY_PING_MEDIAN, 0))
         }
     }
 
@@ -126,7 +161,8 @@ class MeasurementViewState(private val config: AppConfig) : ViewState {
             putLong(KEY_PING, pingNanos.get())
             putBoolean(KEY_QOS_ENABLED, qosEnabled.get())
             putString(KEY_QOS_TASK_PROGRESS, qosTaskProgress.get())
-            putString(KEY_LOOP_PROGRESS, loopProgress.get())
+            putInt(KEY_LOOP_PROGRESS, loopCurrentProgress.get())
+            putInt(KEY_LOOP_TOTAL, loopTotalCount.get())
             putString(KEY_LOOP_NEXT_TEST_TIME_PROGRESS, timeToNextTestElapsed.get())
             putInt(KEY_LOOP_NEXT_TEST_TIME_PERCENT, timeToNextTestPercentage.get())
             putString(KEY_LOOP_NEXT_TEST_DISTANCE_METERS, loopNextTestDistanceMeters.get())
@@ -134,6 +170,9 @@ class MeasurementViewState(private val config: AppConfig) : ViewState {
             putString(KEY_LOOP_UUID, loopLocalUUID.get())
             putBoolean(KEY_LOOP_MODE_ENABLED, isLoopModeActive.get())
             putParcelable(KEY_LAST_MEASUREMENT_SIGNAL, signalStrengthInfoResult.get())
+            putLong(KEY_DOWNLOAD_MEDIAN, downloadSpeedBpsMedian.get())
+            putLong(KEY_UPLOAD_MEDIAN, uploadSpeedBpsMedian.get())
+            putLong(KEY_PING_MEDIAN, pingNanosMedian.get())
         }
     }
 

@@ -11,6 +11,7 @@ import androidx.core.content.ContextCompat
 import androidx.databinding.BindingAdapter
 import at.rmbt.client.control.IpProtocol
 import at.rtr.rmbt.android.R
+import at.rtr.rmbt.android.ui.view.MeasurementMedianSquareView
 import at.rtr.rmbt.android.ui.view.MeasurementProgressSquareView
 import at.rtr.rmbt.android.ui.view.ProgressBar
 import at.rtr.rmbt.android.ui.view.ResultBar
@@ -502,6 +503,32 @@ fun MeasurementProgressSquareView.setMeasurementPhase(
     }
 }
 
+@BindingAdapter(
+    value = ["app:measurementPhase", "app:downloadSpeed", "app:uploadSpeed", "app:ping"],
+    requireAll = true
+)
+fun MeasurementMedianSquareView.setMeasurementPhase(
+    state: MeasurementState,
+    downloadSpeed: Long,
+    uploadSpeed: Long,
+    ping: Long
+) {
+    setMeasurementState(state)
+    if (state == MeasurementState.PING) {
+        if (ping > 0) {
+            setSpeed(ping / 1000000.0f)
+        } else {
+            setSpeed(-1.0f)
+        }
+    }
+    if (state == MeasurementState.UPLOAD) {
+        setSpeed(uploadSpeed / 1000000.0f)
+    }
+    if (state == MeasurementState.DOWNLOAD) {
+        setSpeed(downloadSpeed / 1000000.0f)
+    }
+}
+
 @BindingAdapter("progress_enabled")
 fun ProgressBar.setProgressEnabled(enabled: Boolean) {
     setProgressEnabled(enabled)
@@ -958,4 +985,17 @@ fun AppCompatTextView.setSignalStrengthMap(signalStrengthResult: String?, signal
             }
         }, 0, 0, 0
     )
+}
+
+/**
+ * A binding adapter that is used for show signal
+ */
+@BindingAdapter("app:currentCount", "app:totalCount", requireAll = true)
+fun AppCompatTextView.setProgress(currentCount: Int?, totalCount: Int?) {
+
+    text = if ((currentCount != null) && (totalCount != null)) {
+        String.format(context.getString(R.string.text_current_from_count), currentCount, totalCount)
+    } else {
+        ""
+    }
 }

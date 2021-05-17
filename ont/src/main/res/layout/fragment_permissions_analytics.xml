@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@android:color/white">
+
+        <ImageView
+            android:id="@+id/corner_image"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:rotation="30"
+            android:src="@drawable/image_permissions"
+            android:visibility="invisible"
+            app:layout_constraintDimensionRatio="W,4:3"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintWidth_percent="0.5" />
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guideline_top"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            app:layout_constraintGuide_percent="0.2" />
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guideline_bottom"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="horizontal"
+            app:layout_constraintGuide_percent="0.9" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/label_analytics"
+            style="@style/RobotoRegularStyle.Medium"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="24dp"
+            android:layout_marginEnd="80dp"
+            android:lineSpacingExtra="10sp"
+            android:text="@string/title_permissions_analytics"
+            android:textColor="@color/text_color_welcome"
+            android:textSize="24sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/guideline_top" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/text_analytics"
+            style="@style/RobotoRegularStyle.Medium"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="24dp"
+            android:lineSpacingExtra="4sp"
+            android:text="@string/text_permissions_analytics"
+            android:textColor="@color/text_color_welcome"
+            app:layout_constraintBottom_toTopOf="@id/icon_analytics"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="@id/label_analytics"
+            app:layout_constraintTop_toBottomOf="@id/icon_analytics" />
+
+        <ImageView
+            android:id="@+id/icon_analytics"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:src="@drawable/ic_permissions_analytics"
+            app:layout_constraintBottom_toTopOf="@id/text_analytics"
+            app:layout_constraintStart_toStartOf="@id/label_analytics"
+            app:layout_constraintTop_toBottomOf="@id/label_analytics" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/text_coverage"
+            style="@style/RobotoRegularStyle.Medium"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:alpha="0.5"
+            android:lineSpacingExtra="4sp"
+            android:text="@string/text_permissions_analytics_coverage"
+            android:textColor="@android:color/black"
+            android:textSize="14sp"
+            app:layout_constraintEnd_toEndOf="@id/text_analytics"
+            app:layout_constraintStart_toStartOf="@id/label_analytics"
+            app:layout_constraintTop_toBottomOf="@id/text_analytics" />
+
+        <Button
+            android:id="@+id/allow"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/bg_button_run"
+            android:minWidth="120dp"
+            android:paddingStart="40dp"
+            android:paddingTop="20dp"
+            android:paddingEnd="40dp"
+            android:paddingBottom="20dp"
+            android:text="@string/button_allow"
+            android:textAllCaps="false"
+            android:textColor="@android:color/white"
+            app:layout_constraintBottom_toTopOf="@id/guideline_bottom"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/not_allow" />
+
+        <Button
+            android:id="@+id/not_allow"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@android:color/transparent"
+            android:minWidth="120dp"
+            android:paddingStart="40dp"
+            android:paddingTop="20dp"
+            android:paddingEnd="40dp"
+            android:paddingBottom="20dp"
+            android:text="@string/button_not_allow"
+            android:textAllCaps="false"
+            android:textColor="@color/main_color"
+            app:layout_constraintBottom_toTopOf="@id/guideline_bottom"
+            app:layout_constraintEnd_toStartOf="@id/allow"
+            app:layout_constraintStart_toStartOf="parent" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

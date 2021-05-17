@@ -74,6 +74,8 @@
     <color name="measurement_bottom_background">#282828</color>
     <color name="measurement_scale">#3a3a3a</color>
     <color name="measurement_not_progressed">#7a7a7a</color>
+    <color name="measurement_median_background">#0D000000</color>
+    <color name="measurement_median_text">#80000000</color>
 
     <color name="classification_green_dark">#007C0E</color>
     <color name="classification_green">#59B200</color>
@@ -88,4 +90,9 @@
 
     <color name="speed_graph_gradient_fill_start">#26004394</color>
     <color name="speed_graph_gradient_fill_end">#0Df2f6fa</color>
+    <color name="text_color_welcome">#212222</color>
+
+    <color name="loop_mode_icon_background">#FFE57F</color>
+    <color name="loop_mode_icon_background_disabled">#11000000</color>
+
 </resources>

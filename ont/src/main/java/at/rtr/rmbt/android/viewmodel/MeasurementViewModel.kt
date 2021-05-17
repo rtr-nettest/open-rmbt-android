@@ -7,6 +7,7 @@ import android.os.IBinder
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import at.rmbt.util.exception.HandledException
+import at.rmbt.util.io
 import at.rtr.rmbt.android.config.AppConfig
 import at.rtr.rmbt.android.ui.viewstate.MeasurementViewState
 import at.rtr.rmbt.android.util.plusAssign
@@ -15,6 +16,7 @@ import at.rtr.rmbt.client.v2.task.result.QoSTestResultEnum
 import at.specure.data.TermsAndConditions
 import at.specure.data.entity.GraphItemRecord
 import at.specure.data.entity.LoopModeRecord
+import at.specure.data.repository.HistoryRepository
 import at.specure.data.repository.TestDataRepository
 import at.specure.info.network.ActiveNetworkLiveData
 import at.specure.info.strength.SignalStrengthLiveData
@@ -24,11 +26,13 @@ import at.specure.measurement.MeasurementClient
 import at.specure.measurement.MeasurementProducer
 import at.specure.measurement.MeasurementService
 import at.specure.measurement.MeasurementState
+import kotlinx.coroutines.flow.collect
 import timber.log.Timber
 import javax.inject.Inject
 
 class MeasurementViewModel @Inject constructor(
     private val testDataRepository: TestDataRepository,
+    private val historyRepository: HistoryRepository,
     private val locationWatcher: LocationWatcher,
     val signalStrengthLiveData: SignalStrengthLiveData,
     val activeNetworkLiveData: ActiveNetworkLiveData,
@@ -37,6 +41,7 @@ class MeasurementViewModel @Inject constructor(
 ) : BaseViewModel(), MeasurementClient {
 
     private val _measurementFinishLiveData = MutableLiveData<Boolean>()
+    private val _resultWaitingToBeSentLiveData = MutableLiveData<Boolean>()
     private val _measurementCancelledLiveData = MutableLiveData<Boolean>()
     private val _isTestsRunningLiveData = MutableLiveData<Boolean>()
     private val _measurementErrorLiveData = MutableLiveData<Boolean>()
@@ -65,6 +70,9 @@ class MeasurementViewModel @Inject constructor(
 
     val timeProgressPercentsLiveData: LiveData<Int>
         get() = _timeProgressPercentsLiveData
+
+    val resultWaitingToBeSentLiveData: LiveData<Boolean>
+        get() = _resultWaitingToBeSentLiveData
 
     val measurementFinishLiveData: LiveData<Boolean>
         get() = _measurementFinishLiveData
@@ -165,15 +173,27 @@ class MeasurementViewModel @Inject constructor(
         this.state.measurementProgress.set(progress)
         if (config.loopModeEnabled) {
             this.state.signalStrengthInfoResult.set(producer?.lastMeasurementSignalInfo)
+            if (state == MeasurementState.INIT) {
+                val loopUUID = this.state.loopModeRecord.get()?.uuid
+                loopUUID?.let { loopUuid ->
+                    io {
+                        historyRepository.loadLoopMedianValues(loopUuid).collect { medians ->
+                            this@MeasurementViewModel.state.setMedianValues(medians)
+                        }
+                    }
+                }
+            }
         }
     }
 
     override fun onMeasurementError() {
         _measurementErrorLiveData.postValue(true)
+        _resultWaitingToBeSentLiveData.postValue(false)
     }
 
     override fun onDownloadSpeedChanged(progress: Int, speedBps: Long) {
         state.downloadSpeedBps.set(speedBps)
+        _resultWaitingToBeSentLiveData.postValue(true)
         if (progress > -1) {
             state.measurementDownloadUploadProgress.set(progress)
 
@@ -190,6 +210,7 @@ class MeasurementViewModel @Inject constructor(
 
     override fun onUploadSpeedChanged(progress: Int, speedBps: Long) {
         state.uploadSpeedBps.set(speedBps)
+        _resultWaitingToBeSentLiveData.postValue(true)
         if (progress > -1) {
             state.measurementDownloadUploadProgress.set(progress)
 
@@ -212,20 +233,28 @@ class MeasurementViewModel @Inject constructor(
 //        _measurementResultShownLiveData.value = false
         Timber.i("Ping value from: $pingNanos")
         state.pingNanos.set(pingNanos)
+        _resultWaitingToBeSentLiveData.postValue(true)
     }
 
     override fun isQoSEnabled(enabled: Boolean) {
         state.qosEnabled.set(enabled)
     }
 
+    override fun onResultSubmitted() {
+        Timber.d("Test Data sent")
+        _resultWaitingToBeSentLiveData.postValue(false)
+    }
+
     override fun onSubmitted() {
         Timber.d("Test Data sent")
         _measurementFinishLiveData.postValue(true)
+        _resultWaitingToBeSentLiveData.postValue(false)
     }
 
     override fun onSubmissionError(exception: HandledException) {
         Timber.d("Test Data submission failed")
         _measurementFinishLiveData.postValue(false)
+        _resultWaitingToBeSentLiveData.postValue(false)
     }
 
     override fun onLoopCountDownTimer(timePassedMillis: Long, timeTotalMillis: Long) {
@@ -235,10 +264,12 @@ class MeasurementViewModel @Inject constructor(
 
     fun cancelMeasurement() {
         producer?.stopTests()
+        _resultWaitingToBeSentLiveData.postValue(false)
     }
 
     override fun onMeasurementCancelled() {
         _measurementCancelledLiveData.postValue(false)
+        _resultWaitingToBeSentLiveData.postValue(false)
     }
 
     override fun onClientReady(testUUID: String, loopLocalUUID: String?) {
@@ -270,6 +301,7 @@ class MeasurementViewModel @Inject constructor(
     override fun onQoSTestProgressUpdated(tasksPassed: Int, tasksTotal: Int, progressMap: Map<QoSTestResultEnum, Int>) {
         state.setQoSTaskProgress(tasksPassed, tasksTotal)
         _qosProgressLiveData.postValue(progressMap)
+        _resultWaitingToBeSentLiveData.postValue(true)
     }
 
     override fun onLoopDistanceChanged(distancePassed: Int, distanceTotal: Int, locationAvailable: Boolean) {

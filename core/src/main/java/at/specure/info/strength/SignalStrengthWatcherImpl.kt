@@ -96,7 +96,13 @@ class SignalStrengthWatcherImpl(
 
         @SuppressLint("MissingPermission")
         override fun onSignalStrengthsChanged(signalStrength: SignalStrength?) {
-            processSignalChange()
+            when (activeNetworkWatcher.currentNetworkInfo?.type) {
+                TransportType.CELLULAR,
+                TransportType.WIFI -> processSignalChange()
+                else -> {
+                    // no signal information to process
+                }
+            }
         }
     }
 
@@ -158,6 +164,14 @@ class SignalStrengthWatcherImpl(
 
             if (detailedNetworkInfo.networkInfo.type == TransportType.WIFI) {
                 registerWifiCallbacks()
+            }
+
+            if (detailedNetworkInfo.networkInfo.type == TransportType.ETHERNET) {
+                unregisterWifiCallbacks()
+                unregisterCellCallbacks()
+                signalStrengthInfo = null
+                networkInfo = detailedNetworkInfo.networkInfo
+                notifyInfoChanged()
             }
         }
     }

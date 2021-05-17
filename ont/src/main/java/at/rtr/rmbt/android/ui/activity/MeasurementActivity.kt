@@ -24,8 +24,12 @@ import at.rtr.rmbt.android.R
 import at.rtr.rmbt.android.databinding.ActivityMeasurementBinding
 import at.rtr.rmbt.android.di.viewModelLazy
 import at.rtr.rmbt.android.ui.dialog.SimpleDialog
+import at.rtr.rmbt.android.ui.fragment.BasicResultFragment
+import at.rtr.rmbt.android.util.TestUuidType
 import at.rtr.rmbt.android.util.listen
 import at.rtr.rmbt.android.viewmodel.MeasurementViewModel
+import at.specure.data.entity.LoopModeRecord
+import at.specure.data.entity.LoopModeState
 import at.specure.location.LocationState
 import at.specure.measurement.MeasurementState
 import timber.log.Timber
@@ -37,6 +41,7 @@ class MeasurementActivity : BaseActivity(), SimpleDialog.Callback {
 
     private val viewModel: MeasurementViewModel by viewModelLazy()
     private lateinit var binding: ActivityMeasurementBinding
+    private var resultFragment: BasicResultFragment? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -96,29 +101,31 @@ class MeasurementActivity : BaseActivity(), SimpleDialog.Callback {
 //            binding.measurementBottomView?.qosProgressContainer?.update(it)
         }
 
-//        viewModel.loopUuidLiveData.listen(this) { loopUUID ->
-//            if (loopUUID != null) {
-//                viewModel.loopProgressLiveData.observe(this@MeasurementActivity) { loopRecord ->
-//                    onLoopRecordChanged(loopRecord)
-//                }
-//            }
-//        }
-
-        viewModel.timeToNextTestElapsedLiveData.listen(this) {
-//            binding.measurementBottomView?.loopMeasurementNextTestMinutesValue?.text = it
+        viewModel.loopUuidLiveData.listen(this) { loopUUID ->
+            if (loopUUID != null) {
+                viewModel.loopProgressLiveData.observe(this@MeasurementActivity) { loopRecord ->
+                    onLoopRecordChanged(loopRecord)
+                }
+            }
         }
 
-        viewModel.timeProgressPercentsLiveData.listen(this) {
-//            binding.measurementBottomView?.loopMeasurementNextTestMinutesProgress?.progress = it
+        viewModel.timeToNextTestElapsedLiveData.listen(this) {
+            binding.textTimeNextMeasurement.text = it
         }
 
         viewModel.locationStateLiveData.listen(this) {
             viewModel.state.gpsEnabled.set(it == LocationState.ENABLED)
         }
 
+        viewModel.resultWaitingToBeSentLiveData.listen(this) {
+            if (!it) {
+                showBasicResultsFragment()
+            }
+        }
+
         Timber.d("Measurement state loop create: ${viewModel.state.measurementState.get()?.name}")
 
-//        viewModel.state.loopModeRecord.get()?.testsPerformed?.let { viewModel.state.setLoopProgress(it, viewModel.config.loopModeNumberOfTests) }
+        viewModel.state.loopModeRecord.get()?.testsPerformed?.let { viewModel.state.setLoopProgress(it, viewModel.config.loopModeNumberOfTests) }
 
 //        viewModel.qosProgressLiveData.value?.let { binding.measurementBottomView?.qosProgressContainer?.update(it) }
     }
@@ -149,34 +156,47 @@ class MeasurementActivity : BaseActivity(), SimpleDialog.Callback {
         }
     }
 
-// todo loop mode
+    private fun onLoopRecordChanged(loopRecord: LoopModeRecord?) {
+        Timber.d(
+            "TestPerformed: ${loopRecord?.testsPerformed} \nloop mode status: ${loopRecord?.status} \nLoop local uuid: ${loopRecord?.localUuid}\nLoop remote uuid: ${loopRecord?.uuid}\nviewModel: ${viewModel.state.measurementState.get()}"
+        )
+        Timber.d("local loop UUID to read loop data: ${viewModel.loopUuidLiveData.value}")
+        viewModel.state.setLoopRecord(loopRecord)
+        loopRecord?.testsPerformed?.let { testsPerformed ->
+            viewModel.state.setLoopProgress(
+                testsPerformed,
+                viewModel.config.loopModeNumberOfTests
+            )
+        }
+        binding.textDistanceNextMeasurement.text = viewModel.state.loopNextTestDistanceMeters.get()
+        loopRecord?.status?.let { status ->
+            when (status) {
+                LoopModeState.IDLE -> {
+                    showBasicResultsFragment()
+                }
+                LoopModeState.RUNNING -> {
+                    resultFragment?.let { supportFragmentManager.beginTransaction().remove(resultFragment!!).commitNow() }
+                    resultFragment = null
+                }
+                else -> {
+                } // do nothing
+            }
+        }
 
-//    private fun onLoopRecordChanged(loopRecord: LoopModeRecord?) {
-//        Timber.d(
-//            "TestPerformed: ${loopRecord?.testsPerformed} \nloop mode status: ${loopRecord?.status} \nLoop local uuid: ${loopRecord?.localUuid}\nLoop remote uuid: ${loopRecord?.uuid}\nviewModel: ${viewModel.state.measurementState.get()}"
-//        )
-//        Timber.d("local loop UUID to read loop data: ${viewModel.loopUuidLiveData.value}")
-//        binding.curveLayout?.setLoopState(loopRecord?.status ?: LoopModeState.RUNNING)
-//        viewModel.state.setLoopRecord(loopRecord)
-//        loopRecord?.testsPerformed?.let { testsPerformed ->
-//            viewModel.state.setLoopProgress(
-//                testsPerformed,
-//                viewModel.config.loopModeNumberOfTests
-//            )
-//        }
-//        binding.measurementBottomView?.loopMeasurementNextTestMetersProgress?.progress =
-//            viewModel.state.loopNextTestPercent.get()
-//        loopRecord?.status?.let { status ->
-//            if ((status == LoopModeState.IDLE) || (status == LoopModeState.FINISHED)) {
-//                binding.measurementBottomView?.speedChartDownloadUpload?.reset()
-//                binding.measurementBottomView?.qosProgressContainer?.reset()
-//            }
-//        }
-//
-//        if (loopRecord?.status == LoopModeState.FINISHED || loopRecord?.status == LoopModeState.CANCELLED) {
-//            finishActivity(true)
-//        }
-//    }
+        if (loopRecord?.status == LoopModeState.FINISHED || loopRecord?.status == LoopModeState.CANCELLED) {
+            finishActivity(true)
+        }
+    }
+
+    private fun showBasicResultsFragment() {
+        Timber.d("history test result Show fragment: ${viewModel.state.loopModeRecord.get()?.status == LoopModeState.IDLE}, ${resultFragment == null},  ${viewModel.resultWaitingToBeSentLiveData.value == false}")
+        if (viewModel.state.loopModeRecord.get()?.status == LoopModeState.IDLE && resultFragment == null && viewModel.resultWaitingToBeSentLiveData.value == false) {
+            viewModel.state.loopModeRecord.get()?.uuid?.let {
+                resultFragment = BasicResultFragment.newInstance(it, TestUuidType.LOOP_UUID, true)
+                supportFragmentManager.beginTransaction().replace(binding.resultContainer.id, resultFragment as BasicResultFragment).commitNow()
+            }
+        }
+    }
 
     override fun onDialogPositiveClicked(code: Int) {
         if (code == CODE_CANCEL) {

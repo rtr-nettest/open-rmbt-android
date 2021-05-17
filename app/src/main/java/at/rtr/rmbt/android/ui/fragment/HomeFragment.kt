@@ -51,6 +51,10 @@ class HomeFragment : BaseFragment() {
             activity?.window?.changeStatusBarColor(if (it) ToolbarTheme.BLUE else ToolbarTheme.GRAY)
         }
 
+        homeViewModel.activeNetworkLiveData.listen(this) {
+            homeViewModel.state.activeNetworkInfo.set(it)
+        }
+
         homeViewModel.signalStrengthLiveData.listen(this) {
             homeViewModel.state.signalStrength.set(it?.signalStrengthInfo)
             homeViewModel.state.activeNetworkInfo.set(it)
@@ -160,13 +164,13 @@ class HomeFragment : BaseFragment() {
         }
 
         binding.tvFrequency?.setOnClickListener {
-            if (homeViewModel.isExpertModeOn) {
+            if (homeViewModel.shouldDisplayNetworkDetails()) {
                 NetworkInfoDialog.show(childFragmentManager)
             }
         }
 
         binding.tvSignal?.setOnClickListener {
-            if (homeViewModel.isExpertModeOn) {
+            if (homeViewModel.shouldDisplayNetworkDetails()) {
                 NetworkInfoDialog.show(childFragmentManager)
             }
         }

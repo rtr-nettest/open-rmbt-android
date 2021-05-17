@@ -15,6 +15,7 @@ import at.specure.data.ClientUUID
 import at.specure.data.MeasurementServers
 import at.specure.data.repository.NewsRepository
 import at.specure.data.repository.SettingsRepository
+import at.specure.info.TransportType
 import at.specure.info.connectivity.ConnectivityInfoLiveData
 import at.specure.info.ip.IpV4ChangeLiveData
 import at.specure.info.ip.IpV6ChangeLiveData
@@ -193,5 +194,9 @@ class HomeViewModel @Inject constructor(
 
     fun permissionsWereAsked() {
         appConfig.lastPermissionAskedTimestampMillis = System.currentTimeMillis()
+    }
+
+    fun shouldDisplayNetworkDetails(): Boolean {
+        return ((isExpertModeOn) && (activeNetworkLiveData.value?.networkInfo?.type == TransportType.WIFI || activeNetworkLiveData.value?.networkInfo?.type == TransportType.CELLULAR))
     }
 }
