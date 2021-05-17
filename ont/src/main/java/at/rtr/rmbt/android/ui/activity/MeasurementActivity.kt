@@ -25,6 +25,8 @@ import at.rtr.rmbt.android.databinding.ActivityMeasurementBinding
 import at.rtr.rmbt.android.di.viewModelLazy
 import at.rtr.rmbt.android.ui.dialog.SimpleDialog
 import at.rtr.rmbt.android.ui.fragment.BasicResultFragment
+import at.rtr.rmbt.android.ui.fragment.BasicResultFragment.DataLoadedListener
+import at.rtr.rmbt.android.ui.fragment.SimpleResultsListFragment
 import at.rtr.rmbt.android.util.TestUuidType
 import at.rtr.rmbt.android.util.listen
 import at.rtr.rmbt.android.viewmodel.MeasurementViewModel
@@ -193,6 +195,14 @@ class MeasurementActivity : BaseActivity(), SimpleDialog.Callback {
         if (viewModel.state.loopModeRecord.get()?.status == LoopModeState.IDLE && resultFragment == null && viewModel.resultWaitingToBeSentLiveData.value == false) {
             viewModel.state.loopModeRecord.get()?.uuid?.let {
                 resultFragment = BasicResultFragment.newInstance(it, TestUuidType.LOOP_UUID, true)
+                (resultFragment as BasicResultFragment).onDataLoadedListener = object : DataLoadedListener {
+
+                    override fun onDataLoaded() {
+                        val resultListFragment = SimpleResultsListFragment.newInstance(it)
+                        supportFragmentManager.beginTransaction()
+                            .replace(binding.resultListContainer.id, resultListFragment as SimpleResultsListFragment).commitNow()
+                    }
+                }
                 supportFragmentManager.beginTransaction().replace(binding.resultContainer.id, resultFragment as BasicResultFragment).commitNow()
             }
         }

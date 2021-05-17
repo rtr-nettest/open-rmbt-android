@@ -4,9 +4,6 @@ import android.os.Bundle
 import android.view.View
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.DividerItemDecoration
-import androidx.transition.ChangeBounds
-import androidx.transition.TransitionManager
-import androidx.transition.TransitionSet
 import at.rtr.rmbt.android.R
 import at.rtr.rmbt.android.databinding.FragmentHistoryBinding
 import at.rtr.rmbt.android.di.viewModelLazy
@@ -60,7 +57,6 @@ class HistoryFragment : BaseFragment(), SyncDevicesDialog.Callback, HistoryFilte
 
         historyViewModel.historyLiveData.listen(this) {
             historyViewModel.state.isHistoryEmpty.set(it.isEmpty())
-
             adapter.submitList(it)
         }
 
