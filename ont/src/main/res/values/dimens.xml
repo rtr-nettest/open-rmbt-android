@@ -29,21 +29,17 @@
 
     <dimen name="inset_very_small">2dp</dimen>
     <dimen name="inset_small">4dp</dimen>
-    <dimen name="inset_large">16dp</dimen>
 
     <!-- Chart label text size -->
     <dimen name="chart_label_text_size">11sp</dimen>
     <dimen name="speed_chart_height">128dp</dimen>
 
     <!-- History -->
-    <dimen name="history_label_text_size">10sp</dimen>
     <dimen name="toolbar_button_size">48dp</dimen>
     <dimen name="size_height_status_bar">24dp</dimen>
     <dimen name="size_divider_height">1dp</dimen>
 
     <!-- Result screen -->
-    <dimen name="margin_24">24dp</dimen>
-    <dimen name="margin_32">32dp</dimen>
     <dimen name="margin_44">44dp</dimen>
     <dimen name="margin_52">52dp</dimen>
 

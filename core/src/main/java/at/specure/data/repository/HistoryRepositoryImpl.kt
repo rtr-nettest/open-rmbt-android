@@ -73,8 +73,10 @@ class HistoryRepositoryImpl(
     /**
      * load loop history items present in the history table (watch out for filters)
      */
-    override fun loadLoopHistoryItems(loopUuid: String): List<History> {
-        return historyDao.getItemByLoopUUID(loopUuid)
+    override fun loadLoopHistoryItems(loopUuid: String): Flow<List<History>> = flow {
+        val loopItems = historyDao.getItemByLoopUUID(loopUuid)
+        Timber.i("history loaded: ${loopItems.size}")
+        emit(loopItems)
     }
 
     /**

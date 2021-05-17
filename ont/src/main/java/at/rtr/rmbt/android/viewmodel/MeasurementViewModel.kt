@@ -174,13 +174,21 @@ class MeasurementViewModel @Inject constructor(
         if (config.loopModeEnabled) {
             this.state.signalStrengthInfoResult.set(producer?.lastMeasurementSignalInfo)
             if (state == MeasurementState.INIT) {
-                val loopUUID = this.state.loopModeRecord.get()?.uuid
-                loopUUID?.let { loopUuid ->
-                    io {
-                        historyRepository.loadLoopMedianValues(loopUuid).collect { medians ->
-                            this@MeasurementViewModel.state.setMedianValues(medians)
-                        }
-                    }
+                _resultWaitingToBeSentLiveData.postValue(true)
+                loadMedianValues(this.state.loopModeRecord.get()?.uuid)
+            } else {
+                if (this.loopUuidLiveData.value != null && this.loopProgressLiveData.value != null && this.loopProgressLiveData.value?.testsPerformed!! > 0 && this.state.pingNanos.get() == 0L || this.state.pingNanosMedian.get() == 0L) {
+                    loadMedianValues(this.state.loopModeRecord.get()?.uuid)
+                }
+            }
+        }
+    }
+
+    private fun loadMedianValues(loopUUID: String?) {
+        loopUUID?.let { loopUuid ->
+            io {
+                historyRepository.loadLoopMedianValues(loopUuid).collect { medians ->
+                    this@MeasurementViewModel.state.setMedianValues(medians)
                 }
             }
         }
@@ -193,7 +201,6 @@ class MeasurementViewModel @Inject constructor(
 
     override fun onDownloadSpeedChanged(progress: Int, speedBps: Long) {
         state.downloadSpeedBps.set(speedBps)
-        _resultWaitingToBeSentLiveData.postValue(true)
         if (progress > -1) {
             state.measurementDownloadUploadProgress.set(progress)
 
@@ -210,7 +217,6 @@ class MeasurementViewModel @Inject constructor(
 
     override fun onUploadSpeedChanged(progress: Int, speedBps: Long) {
         state.uploadSpeedBps.set(speedBps)
-        _resultWaitingToBeSentLiveData.postValue(true)
         if (progress > -1) {
             state.measurementDownloadUploadProgress.set(progress)
 
@@ -233,7 +239,6 @@ class MeasurementViewModel @Inject constructor(
 //        _measurementResultShownLiveData.value = false
         Timber.i("Ping value from: $pingNanos")
         state.pingNanos.set(pingNanos)
-        _resultWaitingToBeSentLiveData.postValue(true)
     }
 
     override fun isQoSEnabled(enabled: Boolean) {
@@ -290,9 +295,11 @@ class MeasurementViewModel @Inject constructor(
     }
 
     private fun initializeLoopData(loopLocalUUID: String?) {
+        _resultWaitingToBeSentLiveData.postValue(false)
         if (loopLocalUUID != null) {
             Timber.d("Loop UUID not null")
             loopProgressLiveData = testDataRepository.getLoopModeByLocal(loopLocalUUID)
+            loadMedianValues(loopProgressLiveData.value?.uuid)
             _loopUUIDLiveData.postValue(loopLocalUUID)
             this.state.loopLocalUUID.set(loopLocalUUID)
         }
@@ -301,7 +308,6 @@ class MeasurementViewModel @Inject constructor(
     override fun onQoSTestProgressUpdated(tasksPassed: Int, tasksTotal: Int, progressMap: Map<QoSTestResultEnum, Int>) {
         state.setQoSTaskProgress(tasksPassed, tasksTotal)
         _qosProgressLiveData.postValue(progressMap)
-        _resultWaitingToBeSentLiveData.postValue(true)
     }
 
     override fun onLoopDistanceChanged(distancePassed: Int, distanceTotal: Int, locationAvailable: Boolean) {

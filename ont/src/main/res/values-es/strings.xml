@@ -181,11 +181,9 @@
     <string name="test_dialog_error_text">Algo ha ido mal. Por favor, inténtelo de nuevo más tarde.</string>
 
     <!-- History -->
-    <string name="history_item_header_test">Prueba</string>
     <string name="history_item_header_down">Descarge</string>
     <string name="history_item_header_up">Subida</string>
     <string name="history_item_header_ping">Ping</string>
-    <string name="history_item_header_ms">ms</string>
     <string name="history_no_data">No hay datos disponibles.</string>
 
     <!-- Results -->
@@ -237,7 +235,6 @@
     <string name="text_sync_code_received">Por favor, introduzca el código en su otro dispositivo para sincronizar sus resultados.</string>
     <string name="text_sync_enter_code_desc">Por favor, introduzca el código que ha recibido en su otro dispositivo.</string>
     <string name="button_close">Cerrar</string>
-    <string name="toast_sync_code_copied_to_clipboard">Copiado</string>
     <string name="hint_sync_code">Código</string>
     <string name="error_sync_code_short">El código debe tener 12 caracteres</string>
 
@@ -309,4 +306,7 @@
     <string name="title_loop_waiting">"Bucle esperando "</string>
     <string name="loop_mode_next_test">Medida siguiente</string>
     <string name="median">Mediano</string>
+
+    <string name="title_result_filter_operators">Operadores</string>
+    <string name="label_results">Resultados</string>
 </resources>

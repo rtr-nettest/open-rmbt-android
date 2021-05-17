@@ -4,9 +4,6 @@ import android.os.Bundle
 import android.view.View
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.DividerItemDecoration
-import androidx.transition.ChangeBounds
-import androidx.transition.TransitionManager
-import androidx.transition.TransitionSet
 import at.rtr.rmbt.android.R
 import at.rtr.rmbt.android.databinding.FragmentHistoryBinding
 import at.rtr.rmbt.android.di.viewModelLazy
@@ -14,7 +11,6 @@ import at.rtr.rmbt.android.ui.activity.ResultsActivity
 import at.rtr.rmbt.android.ui.adapter.FilterLabelAdapter
 import at.rtr.rmbt.android.ui.adapter.HistoryLoopAdapter
 import at.rtr.rmbt.android.ui.dialog.HistoryFiltersDialog
-import at.rtr.rmbt.android.ui.dialog.SyncDevicesDialog
 import at.rtr.rmbt.android.util.ToolbarTheme
 import at.rtr.rmbt.android.util.changeStatusBarColor
 import at.rtr.rmbt.android.util.listen
@@ -22,7 +18,7 @@ import at.rtr.rmbt.android.viewmodel.HistoryViewModel
 
 private const val CODE_FILTERS = 13
 
-class HistoryFragment : BaseFragment(), SyncDevicesDialog.Callback, HistoryFiltersDialog.Callback {
+class HistoryFragment : BaseFragment(), HistoryFiltersDialog.Callback {
 
     private val historyViewModel: HistoryViewModel by viewModelLazy()
     private val binding: FragmentHistoryBinding by bindingLazy()
@@ -33,10 +29,10 @@ class HistoryFragment : BaseFragment(), SyncDevicesDialog.Callback, HistoryFilte
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
-        savedInstanceState?.let {
-            adapter.onRestoreState(it)
-        }
+//
+//        savedInstanceState?.let {
+//            adapter.onRestoreState(it)
+//        }
 
         binding.state = historyViewModel.state
         binding.recyclerViewHistoryItems.adapter = adapter
@@ -45,9 +41,9 @@ class HistoryFragment : BaseFragment(), SyncDevicesDialog.Callback, HistoryFilte
             ResultsActivity.start(requireContext(), it.testUUID, ResultsActivity.ReturnPoint.HISTORY)
         }
 
-        adapter.pendingAnimationCallback = {
-            TransitionManager.beginDelayedTransition(binding.recyclerViewHistoryItems, TransitionSet().apply { addTransition(ChangeBounds()) })
-        }
+//        adapter.pendingAnimationCallback = {
+//            TransitionManager.beginDelayedTransition(binding.recyclerViewHistoryItems, TransitionSet().apply { addTransition(ChangeBounds()) })
+//        }
 
         binding.recyclerViewHistoryItems.apply {
 
@@ -60,7 +56,6 @@ class HistoryFragment : BaseFragment(), SyncDevicesDialog.Callback, HistoryFilte
 
         historyViewModel.historyLiveData.listen(this) {
             historyViewModel.state.isHistoryEmpty.set(it.isEmpty())
-
             adapter.submitList(it)
         }
 
@@ -69,13 +64,13 @@ class HistoryFragment : BaseFragment(), SyncDevicesDialog.Callback, HistoryFilte
         }
 
         binding.swipeRefreshLayoutHistoryItems.setOnRefreshListener {
-            adapter.onClearState()
+//            adapter.onClearState()
             refreshHistory()
         }
 
-        binding.buttonSync.setOnClickListener {
-            SyncDevicesDialog.show(childFragmentManager)
-        }
+//        binding.buttonSync.setOnClickListener {
+//            SyncDevicesDialog.show(childFragmentManager)
+//        }
 
         binding.buttonMenu.setOnClickListener {
             if (adapter.itemCount > 0) {
@@ -100,10 +95,10 @@ class HistoryFragment : BaseFragment(), SyncDevicesDialog.Callback, HistoryFilte
         refreshHistory()
     }
 
-    override fun onSaveInstanceState(outState: Bundle) {
-        adapter.onSaveInstanceState(outState)
-        super.onSaveInstanceState(outState)
-    }
+//    override fun onSaveInstanceState(outState: Bundle) {
+//        adapter.onSaveInstanceState(outState)
+//        super.onSaveInstanceState(outState)
+//    }
 
     private fun refreshHistory() {
         historyViewModel.refreshHistory()
@@ -114,7 +109,7 @@ class HistoryFragment : BaseFragment(), SyncDevicesDialog.Callback, HistoryFilte
         refreshHistory()
     }
 
-    override fun onDevicesSynced() {
-        refreshHistory()
-    }
+//    override fun onDevicesSynced() {
+//        refreshHistory()
+//    }
 }
