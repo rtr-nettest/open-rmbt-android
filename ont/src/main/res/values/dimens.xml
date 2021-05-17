@@ -29,21 +29,17 @@
 
     <dimen name="inset_very_small">2dp</dimen>
     <dimen name="inset_small">4dp</dimen>
-    <dimen name="inset_large">16dp</dimen>
 
     <!-- Chart label text size -->
     <dimen name="chart_label_text_size">11sp</dimen>
     <dimen name="speed_chart_height">128dp</dimen>
 
     <!-- History -->
-    <dimen name="history_label_text_size">10sp</dimen>
     <dimen name="toolbar_button_size">48dp</dimen>
     <dimen name="size_height_status_bar">24dp</dimen>
     <dimen name="size_divider_height">1dp</dimen>
 
     <!-- Result screen -->
-    <dimen name="margin_24">24dp</dimen>
-    <dimen name="margin_32">32dp</dimen>
     <dimen name="margin_44">44dp</dimen>
     <dimen name="margin_52">52dp</dimen>
 
@@ -53,16 +49,4 @@
 
     <dimen name="history_image_size">24dp</dimen>
     <dimen name="size_progress_square">160dp</dimen>
-    <!--
-    Because the window insets on round devices are larger than 15dp, this padding only applies
-    to square screens.
-    -->
-    <dimen name="box_inset_layout_padding">0dp</dimen>
-
-    <!--
-    This padding applies to both square and round screens. The total padding between the buttons
-    and the window insets is box_inset_layout_padding (above variable) on square screens and
-    inner_frame_layout_padding (below variable) on round screens.
-    -->
-    <dimen name="inner_frame_layout_padding">5dp</dimen>
 </resources>

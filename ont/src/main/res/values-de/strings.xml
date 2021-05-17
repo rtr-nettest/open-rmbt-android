@@ -182,7 +182,6 @@
     <string name="history_item_header_down">Download</string>
     <string name="history_item_header_up">Upload</string>
     <string name="history_item_header_ping">Ping</string>
-    <string name="history_item_header_ms">ms</string>
     <string name="history_no_data">Keine Daten verfügbar.</string>
 
     <!-- Results -->
@@ -234,7 +233,6 @@
     <string name="text_sync_code_received">Bitte geben Sie den unten angezeigten Code auf dem anderen Gerät ein, um die Ergebnisse zu synchronisieren.</string>
     <string name="text_sync_enter_code_desc">Geben Sie hier bitte den Code ein, den Sie auf Ihrem anderen Gerät angefordert haben.</string>
     <string name="button_close">Schließen</string>
-    <string name="toast_sync_code_copied_to_clipboard">Kopiert</string>
     <string name="hint_sync_code">Code</string>
     <string name="error_sync_code_short">Der Code muss aus zwölf Zeichen bestehen</string>
 
@@ -308,9 +306,7 @@
     <string name="loop_mode_next_test">Nächste Messung</string>
     <string name="median">Median</string>
 
-    <string name="title_result_filter_operator_country">Land der Betreiber</string>
     <string name="title_result_filter_operators">Betreiber</string>
-    <string name="title_result_filter_period">Zeitraum</string>
     <string name="label_results">Ergebnisse</string>
 </resources>
 
