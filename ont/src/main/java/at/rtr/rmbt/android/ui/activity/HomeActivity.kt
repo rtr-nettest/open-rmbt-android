@@ -140,7 +140,9 @@ class HomeActivity : BaseActivity() {
 
         private const val CODE_TERMS = 1
 
-        fun start(context: Context) = context.startActivity(Intent(context, HomeActivity::class.java))
+        fun start(context: Context) = context.startActivity(Intent(context, HomeActivity::class.java).apply {
+            flags = Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK
+        })
 
         fun startWithFragment(context: Context, fragmentToShow: HomeNavigationTarget) {
             val intent = Intent(context, HomeActivity::class.java)
