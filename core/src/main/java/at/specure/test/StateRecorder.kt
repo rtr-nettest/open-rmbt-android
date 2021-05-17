@@ -203,12 +203,13 @@ class StateRecorder @Inject constructor(
         if (_loopModeRecord == null) {
             val localLoopUUID = UUID.randomUUID().toString()
             Timber.d("new generated local loop uuid $localLoopUUID")
-            _loopModeRecord = LoopModeRecord(localLoopUUID, loopUUID)
+            _loopModeRecord = LoopModeRecord(localLoopUUID, loopUUID, lastTestUuid = testRecord?.uuid)
             Timber.d("LOOP STATE SAVED 1: ${_loopModeRecord!!.status}")
             repository.saveLoopMode(_loopModeRecord!!)
         } else {
             if (_loopModeRecord?.uuid == null) {
                 _loopModeRecord?.uuid = loopUUID
+                _loopModeRecord?.lastTestUuid = testRecord?.uuid
                 Timber.d("new added remote loop uuid $loopUUID")
             }
             updateLoopModeRecord()
@@ -229,6 +230,7 @@ class StateRecorder @Inject constructor(
             } else {
                 it.status = LoopModeState.IDLE
             }
+            it.lastTestUuid = testRecord?.uuid
             Timber.d("LOOP STATE UPDATED FINISHED 2: ${it.status}")
             repository.updateLoopMode(it)
         }
