@@ -29,7 +29,6 @@ class SyncRequestFragment : BaseFragment() {
         activityViewModel.loadingChannel.receiveAsFlow().onEach {
             binding.loading = it
         }.launchIn(lifecycleScope)
-
     }
 
     companion object {
