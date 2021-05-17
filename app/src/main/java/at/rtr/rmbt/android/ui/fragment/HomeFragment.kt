@@ -164,13 +164,13 @@ class HomeFragment : BaseFragment() {
         }
 
         binding.tvFrequency?.setOnClickListener {
-            if (homeViewModel.isExpertModeOn) {
+            if (homeViewModel.shouldDisplayNetworkDetails()) {
                 NetworkInfoDialog.show(childFragmentManager)
             }
         }
 
         binding.tvSignal?.setOnClickListener {
-            if (homeViewModel.isExpertModeOn) {
+            if (homeViewModel.shouldDisplayNetworkDetails()) {
                 NetworkInfoDialog.show(childFragmentManager)
             }
         }
