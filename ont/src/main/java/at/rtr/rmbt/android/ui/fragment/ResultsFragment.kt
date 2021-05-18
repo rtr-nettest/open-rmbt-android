@@ -20,7 +20,7 @@ class ResultsFragment : BaseFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        if (savedInstanceState == null) {
+        if (savedInstanceState == null && !isAdded) {
             childFragmentManager.beginTransaction().add(binding.pager.id, fragments[0]).commitAllowingStateLoss()
         }
 
