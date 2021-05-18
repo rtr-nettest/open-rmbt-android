@@ -26,7 +26,7 @@
         android:required="false" />
     <uses-feature
         android:name="android.hardware.location.gps"
-        required="false" />
+        android:required="false" />
 
     <application
         android:banner="@mipmap/ic_banner"
