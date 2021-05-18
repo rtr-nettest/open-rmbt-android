@@ -8,9 +8,9 @@
     <androidx.appcompat.widget.AppCompatTextView
         android:id="@+id/technology"
         style="@style/Text.ResultListDate"
-        android:layout_width="0dp"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:gravity="end"
+        android:singleLine="true"
         app:layout_constraintBottom_toTopOf="@id/icon"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -22,10 +22,10 @@
         android:layout_width="16dp"
         android:layout_height="16dp"
         android:contentDescription="@null"
-        android:scaleType="center"
         android:src="@drawable/ic_signal_cellular"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/technology" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
