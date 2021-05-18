@@ -24,6 +24,9 @@
     <uses-feature
         android:name="android.software.leanback"
         android:required="false" />
+    <uses-feature
+        android:name="android.hardware.location.gps"
+        required="false" />
 
     <application
         android:banner="@mipmap/ic_banner"
