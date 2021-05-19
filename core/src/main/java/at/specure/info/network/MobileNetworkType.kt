@@ -151,7 +151,7 @@ enum class MobileNetworkType(val intValue: Int, val displayName: String) {
             return when (intValue) {
                 NetworkType.LTE_NR -> NR_NSA
                 NetworkType.LTE_CA_NR -> NR_NSA
-                NetworkType.HSPA_DC -> HSPA
+                NetworkType.HSPA_DC -> HSPAP
                 ServerNetworkType.TYPE_2G_3G.intValue -> HSPA
                 ServerNetworkType.TYPE_2G_3G_4G.intValue -> LTE
                 ServerNetworkType.TYPE_2G_4G.intValue -> LTE
