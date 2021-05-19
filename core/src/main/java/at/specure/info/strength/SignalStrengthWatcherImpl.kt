@@ -26,6 +26,7 @@ import at.rmbt.client.control.getCurrentDataSubscriptionId
 import at.rmbt.client.control.getTelephonyManagerForSubscription
 import at.rmbt.util.io
 import at.specure.info.TransportType
+import at.specure.info.cell.CellNetworkInfo
 import at.specure.info.network.ActiveNetworkWatcher
 import at.specure.info.network.DetailedNetworkInfo
 import at.specure.info.network.NetworkInfo
@@ -124,6 +125,7 @@ class SignalStrengthWatcherImpl(
 
                 primaryCells?.toList()?.let {
                     it.forEach { iCell ->
+                        Timber.d("NM network type ${netmonster.getNetworkType(iCell.subscriptionId)} from subscription: $dataSubscriptionId")
                         signalStrengthInfo = iCell.toSignalStrengthInfo(timeNanos)
                         networkInfo = iCell.toCellNetworkInfo(
                             activeNetworkWatcher.currentNetworkInfo,
@@ -132,6 +134,11 @@ class SignalStrengthWatcherImpl(
                             netmonster
                         )
                     }
+                }
+                if (networkInfo is CellNetworkInfo) {
+                    Timber.d(
+                        "NM network type Primary cells: ${primaryCells.size}   Network type: ${(networkInfo as CellNetworkInfo).networkType.displayName}"
+                    )
                 }
                 notifyInfoChanged()
             } catch (e: SecurityException) {
@@ -199,12 +206,12 @@ class SignalStrengthWatcherImpl(
     }
 
     private fun notifyInfoChanged() {
-        listeners.synchronizedForEach { it.onSignalStrengthChanged(DetailedNetworkInfo(networkInfo, signalStrengthInfo, null, null)) }
+        listeners.synchronizedForEach { it.onSignalStrengthChanged(DetailedNetworkInfo(networkInfo, signalStrengthInfo, null)) }
     }
 
     override fun addListener(listener: SignalStrengthWatcher.SignalStrengthListener) {
         listeners.add(listener)
-        listener.onSignalStrengthChanged(DetailedNetworkInfo(networkInfo, signalStrengthInfo, null, null))
+        listener.onSignalStrengthChanged(DetailedNetworkInfo(networkInfo, signalStrengthInfo, null))
         if (listeners.size == 1) {
             registerCallbacks()
         }

@@ -6,6 +6,5 @@ import at.specure.info.strength.SignalStrengthInfo
 class DetailedNetworkInfo(
     val networkInfo: NetworkInfo?,
     val signalStrengthInfo: SignalStrengthInfo?,
-    val nrConnectionState: NRConnectionState?,
     val cellInfos: List<CellInfo>?
 )
