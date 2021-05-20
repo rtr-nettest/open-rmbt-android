@@ -55,6 +55,11 @@ interface CellInfoWatcher {
     fun forceUpdate()
 
     /**
+     * updating current cell info from netmonster library and extracting information
+     */
+    fun updateCellNetworkInfo(): CellNetworkInfo?
+
+    /**
      * Callback that is used to observe cellular network changes tracked by [CellInfoWatcher]
      */
     interface CellInfoChangeListener {

@@ -44,6 +44,7 @@ import at.specure.util.toCellInfoRecord
 import at.specure.util.toCellLocation
 import at.specure.util.toSignalRecord
 import cz.mroczis.netmonster.core.INetMonster
+import cz.mroczis.netmonster.core.feature.merge.CellSource
 import cz.mroczis.netmonster.core.model.cell.ICell
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
@@ -391,7 +392,7 @@ class SignalMeasurementProcessor @Inject constructor(
         var cells: List<ICell>? = null
         if (context.isCoarseLocationPermitted() && context.isReadPhoneStatePermitted()) {
             try {
-                cells = netmonster.getCells()
+                cells = netmonster.getCells(CellSource.NEIGHBOURING_CELLS, CellSource.ALL_CELL_INFO, CellSource.CELL_LOCATION)
 
                 val dataSubscriptionId = subscriptionManager.getCurrentDataSubscriptionId()
 
@@ -405,29 +406,33 @@ class SignalMeasurementProcessor @Inject constructor(
                     val testStartTimeNanos = record?.startTimeNanos ?: 0
                     primaryCells?.toList()?.let {
                         it.forEach { iCell ->
+
                             val cellInfoRecord = iCell.toCellInfoRecord(uuid, netmonster)
 
-                            if (cellInfoRecord.uuid.isNotEmpty()) {
-                                iCell.signal?.let { iSignal ->
-                                    Timber.e("Signal saving time SCI: starting time: $testStartTimeNanos   current time: ${System.nanoTime()}")
-                                    Timber.d("valid signal directly")
-                                    val signalRecord = iSignal.toSignalRecord(
-                                        uuid,
-                                        cellInfoRecord.uuid,
-                                        iCell.mobileNetworkType(netmonster),
-                                        testStartTimeNanos,
-                                        NRConnectionState.NOT_AVAILABLE
-                                    )
-                                    if (signalRecord.hasNonNullSignal()) {
-                                        signalsToSave.add(signalRecord)
+                            cellInfoRecord?.let {
+                                if (cellInfoRecord.uuid.isNotEmpty()) {
+                                    iCell.signal?.let { iSignal ->
+                                        Timber.e("Signal saving time SCI: starting time: $testStartTimeNanos   current time: ${System.nanoTime()}")
+                                        Timber.d("valid signal directly")
+                                        val signalRecord = iSignal.toSignalRecord(
+                                            uuid,
+                                            cellInfoRecord.uuid,
+                                            iCell.mobileNetworkType(netmonster),
+                                            testStartTimeNanos,
+                                            NRConnectionState.NOT_AVAILABLE
+                                        )
+                                        if (signalRecord.hasNonNullSignal()) {
+                                            signalsToSave.add(signalRecord)
+                                        }
                                     }
                                 }
+
+                                val cellLocationRecord = iCell.toCellLocation(uuid, System.currentTimeMillis(), System.nanoTime(), testStartTimeNanos)
+                                cellLocationRecord?.let {
+                                    cellLocationsToSave.add(cellLocationRecord)
+                                }
+                                cellInfosToSave.add(cellInfoRecord)
                             }
-                            val cellLocationRecord = iCell.toCellLocation(uuid, System.currentTimeMillis(), System.nanoTime(), testStartTimeNanos)
-                            cellLocationRecord?.let {
-                                cellLocationsToSave.add(cellLocationRecord)
-                            }
-                            cellInfosToSave.add(cellInfoRecord)
                         }
                         repository.saveCellLocationRecord(cellLocationsToSave)
                         repository.saveCellInfoRecord(cellInfosToSave)

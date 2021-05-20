@@ -15,7 +15,6 @@
 package at.specure.info.network
 
 import android.net.Network
-import android.telephony.CellInfo
 import at.specure.info.TransportType
 import at.specure.info.cell.CellInfoWatcher
 import at.specure.info.cell.CellNetworkInfo
@@ -51,13 +50,9 @@ class ActiveNetworkWatcher(
         set(value) {
             field = value
             listeners.synchronizedForEach {
-                it.onActiveNetworkChanged(DetailedNetworkInfo(value, null, _rawAllCellInfoInfo))
+                it.onActiveNetworkChanged(value)
             }
         }
-
-    private var _rawAllCellInfoInfo: List<CellInfo>? = null
-
-    private var _nrConnectivityState: NRConnectionState? = null
 
     init {
         locationStateWatcher.addListener(this)
@@ -84,9 +79,7 @@ class ActiveNetworkWatcher(
                         this?.locationEnabled = locationStateWatcher.state == LocationState.ENABLED
                     }
                     TransportType.CELLULAR -> {
-                        cellInfoWatcher.forceUpdate()
-                        _rawAllCellInfoInfo = cellInfoWatcher.rawAllCellInfo
-                        _nrConnectivityState = cellInfoWatcher.nrConnectionState
+                        cellInfoWatcher.updateCellNetworkInfo()
                         cellInfoWatcher.activeNetwork
                     }
                     else -> null
@@ -103,8 +96,6 @@ class ActiveNetworkWatcher(
 
         override fun onCellInfoChanged(activeNetwork: CellNetworkInfo?) {
             if (lastConnectivityInfo?.transportType == TransportType.CELLULAR) {
-                _rawAllCellInfoInfo = cellInfoWatcher.rawAllCellInfo
-                _nrConnectivityState = cellInfoWatcher.nrConnectionState
                 _currentNetworkInfo = activeNetwork
             }
         }
@@ -115,7 +106,7 @@ class ActiveNetworkWatcher(
      */
     fun addListener(listener: NetworkChangeListener) {
         listeners.add(listener)
-        listener.onActiveNetworkChanged(DetailedNetworkInfo(currentNetworkInfo, null, _rawAllCellInfoInfo))
+        listener.onActiveNetworkChanged(currentNetworkInfo)
         if (listeners.size == 1) {
             registerCallbacks()
         }
@@ -156,7 +147,7 @@ class ActiveNetworkWatcher(
          * When active network change is detected this callback will be triggered
          * if no active network is available null will be returned
          */
-        fun onActiveNetworkChanged(detailedNetworkInfo: DetailedNetworkInfo)
+        fun onActiveNetworkChanged(networkInfo: NetworkInfo?)
     }
 
     override fun onLocationStateChanged(state: LocationState?) {
@@ -168,11 +159,7 @@ class ActiveNetworkWatcher(
         if (_currentNetworkInfo is WifiNetworkInfo) {
             listeners.forEach {
                 it.onActiveNetworkChanged(
-                    DetailedNetworkInfo(
-                        wifiInfoWatcher.activeWifiInfo?.apply { locationEnabled = enabled },
-                        null,
-                        null
-                    )
+                    wifiInfoWatcher.activeWifiInfo?.apply { locationEnabled = enabled }
                 )
             }
         }

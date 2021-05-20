@@ -16,7 +16,6 @@ import at.specure.info.cell.CellNetworkInfo
 import at.specure.info.cell.CellTechnology
 import at.specure.info.network.MobileNetworkType
 import at.specure.info.network.NRConnectionState
-import at.specure.info.network.NetworkInfo
 import at.specure.info.strength.SignalSource
 import at.specure.info.strength.SignalStrengthInfo
 import at.specure.info.strength.SignalStrengthInfo.Companion.CELLULAR_SIGNAL_MAX
@@ -282,7 +281,7 @@ fun ICell.toSignalStrengthInfo(timestampNanos: Long): SignalStrengthInfo? {
 
 @RequiresPermission(allOf = [Manifest.permission.READ_PHONE_STATE, Manifest.permission.ACCESS_COARSE_LOCATION])
 fun ICell.toCellNetworkInfo(
-    networkInfo: NetworkInfo?,
+    apn: String?,
     dataTelephonyManager: TelephonyManager?,
     telephonyManagerNetmonster: ITelephonyManagerCompat,
     netMonster: INetMonster
@@ -298,9 +297,7 @@ fun ICell.toCellNetworkInfo(
         scramblingCode = this.primaryScramblingCode(),
         isRegistered = this.connectionStatus is PrimaryConnection,
         isActive = this.connectionStatus is PrimaryConnection,
-        apn = if (networkInfo != null && networkInfo is CellNetworkInfo) {
-            networkInfo.apn
-        } else "",
+        apn = apn ?: "",
         isRoaming = dataTelephonyManager?.isNetworkRoaming ?: false,
         signalStrength = this.toSignalStrengthInfo(System.nanoTime()),
         nrConnectionState = if (dataTelephonyManager != null) {
@@ -396,22 +393,63 @@ fun ICell.toCellLocation(testUUID: String, timestampMillis: Long, timestampNanos
     return null
 }
 
-fun ICell.toCellInfoRecord(testUUID: String, netMonster: INetMonster) = CellInfoRecord(
-    testUUID = testUUID,
-    uuid = this.uuid(),
-    isActive = this.connectionStatus is PrimaryConnection,
-    cellTechnology = CellTechnology.fromMobileNetworkType(this.mobileNetworkType(netMonster)),
-    transportType = TransportType.CELLULAR,
-    registered = this.connectionStatus is PrimaryConnection,
-    areaCode = areaCode(),
-    channelNumber = channelNumber(),
-    frequency = frequency(),
-    locationId = locationId(),
-    mcc = this.network?.mcc?.toIntOrNull(),
-    mnc = this.network?.mnc?.toIntOrNull(),
-    primaryScramblingCode = primaryScramblingCode(),
-    dualSimDetectionMethod = "NOT_AVAILABLE" // TODO it is for local purpose only
-)
+/**
+ * Verify if the signal and cell information are in the same technology class, because when network changes from eg. 4G to 3G
+ * there is cell technology marked as 3G and signal is LTE
+ */
+fun ICell.isInformationCorrect(cellTechnology: CellTechnology): Boolean {
+    val isCorrect = when (this) {
+        is CellNr -> cellTechnology == CellTechnology.CONNECTION_5G
+        is CellLte -> cellTechnology == CellTechnology.CONNECTION_4G_5G || cellTechnology == CellTechnology.CONNECTION_5G || cellTechnology == CellTechnology.CONNECTION_4G
+        is CellWcdma -> cellTechnology == CellTechnology.CONNECTION_3G
+        is CellTdscdma -> cellTechnology == CellTechnology.CONNECTION_3G
+        is CellCdma -> cellTechnology == CellTechnology.CONNECTION_2G
+        is CellGsm -> cellTechnology == CellTechnology.CONNECTION_2G
+        else -> false
+    }
+    Timber.d("Saving ICell: $this and  technology: ${cellTechnology?.name} is Correct: $isCorrect")
+    return isCorrect
+}
+
+@Synchronized
+fun ICell.toCellInfoRecord(testUUID: String, netMonster: INetMonster): CellInfoRecord? {
+    val cellTechnology = CellTechnology.fromMobileNetworkType(this.mobileNetworkType(netMonster))
+    cellTechnology?.let {
+        if (isInformationCorrect(cellTechnology)) {
+            val cellInfoRecord = CellInfoRecord(
+                testUUID = testUUID,
+                uuid = this.uuid(),
+                isActive = this.connectionStatus is PrimaryConnection,
+                cellTechnology = cellTechnology,
+                transportType = TransportType.CELLULAR,
+                registered = this.connectionStatus is PrimaryConnection,
+                areaCode = areaCode(),
+                channelNumber = channelNumber(),
+                frequency = frequency(),
+                locationId = locationId(),
+                mcc = this.network?.mcc?.toIntOrNull(),
+                mnc = this.network?.mnc?.toIntOrNull(),
+                primaryScramblingCode = primaryScramblingCode(),
+                dualSimDetectionMethod = "NOT_AVAILABLE" // TODO it is for local purpose only
+            )
+//            Timber.d("Saving CellInfo Record with uuid: ${cellInfoRecord.uuid} and cellTechnology: ${cellInfoRecord.cellTechnology?.name} and channel number: ${cellInfoRecord.channelNumber}")
+//            Timber.d("Saving ICell: $this")
+//            try {
+//                var networkTypeFromNM = netMonster.getNetworkType(this.subscriptionId)
+//                Timber.d("Saving network type direct: ${networkTypeFromNM.technology}")
+//            } catch (e: SecurityException) {
+//                Timber.e("SecurityException: Not able to read network type")
+//            } catch (e: IllegalStateException) {
+//                Timber.e("IllegalStateException: Not able to read network type")
+//            }
+//
+//            Timber.d("Saving connectionStatus: ${this.connectionStatus}")
+//            Timber.d("Saving signalStrengthInfo: ${this.signal}")
+            return cellInfoRecord
+        }
+    }
+    return null
+}
 
 fun ICell.channelNumber(): Int? {
     return when (band) {
@@ -439,6 +477,7 @@ fun ICell.mobileNetworkType(netMonster: INetMonster): MobileNetworkType {
     var networkTypeFromNM: NetworkType? = null
     try {
         networkTypeFromNM = netMonster.getNetworkType(this.subscriptionId)
+//        Timber.d("NM network type direct: ${networkTypeFromNM.technology}")
     } catch (e: SecurityException) {
         Timber.e("SecurityException: Not able to read network type")
     } catch (e: IllegalStateException) {

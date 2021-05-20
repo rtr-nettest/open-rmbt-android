@@ -24,10 +24,17 @@ import android.telephony.TelephonyManager
 import at.rmbt.client.control.getCorrectDataTelephonyManager
 import at.rmbt.client.control.getCurrentDataSubscriptionId
 import at.specure.info.network.NRConnectionState
+import at.specure.util.filterOnlyActiveDataCell
 import at.specure.util.isCoarseLocationPermitted
+import at.specure.util.isReadPhoneStatePermitted
 import at.specure.util.permission.LocationAccess
 import at.specure.util.permission.PhoneStateAccess
 import at.specure.util.synchronizedForEach
+import at.specure.util.toCellNetworkInfo
+import cz.mroczis.netmonster.core.INetMonster
+import cz.mroczis.netmonster.core.factory.NetMonsterFactory
+import cz.mroczis.netmonster.core.feature.merge.CellSource
+import cz.mroczis.netmonster.core.model.cell.ICell
 import timber.log.Timber
 import java.util.Collections
 import java.util.Timer
@@ -46,6 +53,7 @@ class CellInfoWatcherImpl(
     private val phoneStateAccess: PhoneStateAccess,
     private val connectivityManager: ConnectivityManager,
     private val activeDataCellInfoExtractor: ActiveDataCellInfoExtractor,
+    private val netMonster: INetMonster,
     private val subscriptionManager: SubscriptionManager
 ) : CellInfoWatcher,
     LocationAccess.LocationAccessChangeListener,
@@ -85,98 +93,136 @@ class CellInfoWatcherImpl(
         }
     }
 
+    override fun updateCellNetworkInfo(): CellNetworkInfo? {
+
+        if (context.isCoarseLocationPermitted() && context.isReadPhoneStatePermitted()) {
+            try {
+                var cells: List<ICell>? = null
+
+                cells = netMonster.getCells(CellSource.NEIGHBOURING_CELLS, CellSource.ALL_CELL_INFO, CellSource.CELL_LOCATION)
+
+                val dataSubscriptionId = subscriptionManager.getCurrentDataSubscriptionId()
+
+                val primaryCells = cells?.filterOnlyActiveDataCell(dataSubscriptionId)
+
+                if (primaryCells.size == 1) {
+                    _activeNetwork = primaryCells[0].toCellNetworkInfo(
+                        connectivityManager.activeNetworkInfo?.extraInfo,
+                        telephonyManager.getCorrectDataTelephonyManager(subscriptionManager),
+                        NetMonsterFactory.getTelephony(context, primaryCells[0].subscriptionId),
+                        netMonster
+                    )
+                    // dual sims
+                } else {
+                    Timber.e("NM network type unable to detect because of dual sim")
+                }
+
+                return _activeNetwork
+
+            } catch (e: SecurityException) {
+                Timber.e("SecurityException: Not able to read telephonyManager.allCellInfo")
+            } catch (e: IllegalStateException) {
+                Timber.e("IllegalStateException: Not able to read telephonyManager.allCellInfo")
+            } catch (e: NullPointerException) {
+                Timber.e("NullPointerException: Not able to read telephonyManager.allCellInfo from other reason")
+            }
+        }
+        return null
+    }
+
     @Synchronized
     private fun processCellInfos(cellInfos: MutableList<CellInfo>?, source: String) {
-        Timber.d("CellInfosChanged: is null? ${cellInfos.isNullOrEmpty()} empty? ${cellInfos?.isEmpty()} from $source")
-        cellInfos ?: return
-        _rawAllCellInfo = cellInfos
-        try {
-            val activeDataCellInfo = activeDataCellInfoExtractor.extractActiveCellInfo(cellInfos)
+        /*   Timber.d("CellInfosChanged: is null? ${cellInfos.isNullOrEmpty()} empty? ${cellInfos?.isEmpty()} from $source")
+           cellInfos ?: return
+           _rawAllCellInfo = cellInfos
+           try {
+               val activeDataCellInfo = activeDataCellInfoExtractor.extractActiveCellInfo(cellInfos)
 
-            Timber.d("CellInfosChanged: is null? activeDataNetworkCellInfo? ${activeDataCellInfo.activeDataNetworkCellInfo == null} inconstent ${!activeDataCellInfo.isConsistent}")
-            if (!activeDataCellInfo.isConsistent) return
+               Timber.d("CellInfosChanged: is null? activeDataNetworkCellInfo? ${activeDataCellInfo.activeDataNetworkCellInfo == null} inconstent ${!activeDataCellInfo.isConsistent}")
+               if (!activeDataCellInfo.isConsistent) return
 
-            activeDataCellInfo.activeDataNetworkCellInfo?.let {
-                _cellInfo = it
-            }
+               activeDataCellInfo.activeDataNetworkCellInfo?.let {
+                   _cellInfo = it
+               }
 
-            activeDataCellInfo.activeDataNetwork?.let {
-                _activeNetwork = it
-                Timber.d("Active Network ${it.cellUUID} ${it.networkType}")
-            }
-            _nrConnectionState = activeDataCellInfo.nrConnectionState
+               activeDataCellInfo.activeDataNetwork?.let {
+                   _activeNetwork = it
+                   Timber.d("Active Network ${it.cellUUID} ${it.networkType}")
+               }
+               _nrConnectionState = activeDataCellInfo.nrConnectionState
 
-            _allCellInfo.clear()
-            cellInfos.forEach {
-                val info = CellNetworkInfo.from(
-                    it,
-                    null,
-                    activeDataCellInfo.activeDataNetwork?.cellUUID == it.uuid(),
-                    connectivityManager.activeNetworkInfo?.isRoaming ?: false,
-                    connectivityManager.activeNetworkInfo?.extraInfo,
-                    activeDataCellInfo.dualSimDecision,
-                    _nrConnectionState
-                )
-                _allCellInfo.add(info)
-                Timber.v("cell: ${info.networkType.displayName} ${info.mnc} ${info.mcc} ${info.cellUUID}")
-            }
-        } catch (e: SecurityException) {
-            Timber.e("SecurityException: Not able to read telephonyManager.allCellInfo")
-        } catch (e: IllegalStateException) {
-            Timber.e("IllegalStateException: Not able to read telephonyManager.allCellInfo")
-        } catch (e: NullPointerException) {
-            Timber.e("NullPointerException: Not able to read telephonyManager.allCellInfo from other reason")
-        }
+               _allCellInfo.clear()
+               cellInfos.forEach {
+                   val info = CellNetworkInfo.from(
+                       it,
+                       null,
+                       activeDataCellInfo.activeDataNetwork?.cellUUID == it.uuid(),
+                       connectivityManager.activeNetworkInfo?.isRoaming ?: false,
+                       connectivityManager.activeNetworkInfo?.extraInfo,
+                       activeDataCellInfo.dualSimDecision,
+                       _nrConnectionState
+                   )
+                   _allCellInfo.add(info)
+                   Timber.v("cell: ${info.networkType.displayName} ${info.mnc} ${info.mcc} ${info.cellUUID}")
+               }
+           } catch (e: SecurityException) {
+               Timber.e("SecurityException: Not able to read telephonyManager.allCellInfo")
+           } catch (e: IllegalStateException) {
+               Timber.e("IllegalStateException: Not able to read telephonyManager.allCellInfo")
+           } catch (e: NullPointerException) {
+               Timber.e("NullPointerException: Not able to read telephonyManager.allCellInfo from other reason")
+           }
 
-        notifyListeners()
+           notifyListeners()*/
     }
 
     @SuppressLint("MissingPermission")
     override fun forceUpdate() {
-        try {
-            if (context.isCoarseLocationPermitted() && phoneStateAccess.isAllowed) {
-                val cells = telephonyManager.getCorrectDataTelephonyManager(subscriptionManager).allCellInfo
-                if (!cells.isNullOrEmpty()) {
-                    infoListener.onCellInfoChanged(cells)
-                }
-            }
-        } catch (ex: Exception) {
-            Timber.w(ex, "Failed to update cell info")
-        }
+        /* try {
+             if (context.isCoarseLocationPermitted() && phoneStateAccess.isAllowed) {
+                 val cells = telephonyManager.getCorrectDataTelephonyManager(subscriptionManager).allCellInfo
+                 if (!cells.isNullOrEmpty()) {
+                     infoListener.onCellInfoChanged(cells)
+                 }
+             }
+         } catch (ex: Exception) {
+             Timber.w(ex, "Failed to update cell info")
+         }*/
     }
 
     override val activeNetwork: CellNetworkInfo?
         get() {
-            if (_activeNetwork == null) {
-                return if (isDualSim() && android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
-                    try {
-                        val dataSubscriptionId = subscriptionManager.getCurrentDataSubscriptionId()
-                        if (dataSubscriptionId != INVALID_SUBSCRIPTION_ID) {
-                            connectivityManager.cellNetworkInfoCompat(
-                                telephonyManager.createForSubscriptionId(dataSubscriptionId).networkOperatorName,
-                                _nrConnectionState
-                            )
-                        } else {
-                            connectivityManager.cellNetworkInfoCompat(
-                                telephonyManager.getCorrectDataTelephonyManager(subscriptionManager).networkOperatorName,
-                                _nrConnectionState
-                            )
-                        }
-                    } catch (e: Exception) {
-                        Timber.e("problem to obtain correct subscription ID when active network obtaining")
-                        connectivityManager.cellNetworkInfoCompat(
-                            telephonyManager.getCorrectDataTelephonyManager(subscriptionManager).networkOperatorName,
-                            _nrConnectionState
-                        )
-                    }
-                } else {
-                    connectivityManager.cellNetworkInfoCompat(
-                        telephonyManager.getCorrectDataTelephonyManager(subscriptionManager).networkOperatorName,
-                        _nrConnectionState
-                    )
-                }
-            }
-            return _activeNetwork
+            return updateCellNetworkInfo()
+//            if (_activeNetwork == null) {
+//                return if (isDualSim() && android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
+//                    try {
+//                        val dataSubscriptionId = subscriptionManager.getCurrentDataSubscriptionId()
+//                        if (dataSubscriptionId != INVALID_SUBSCRIPTION_ID) {
+//                            connectivityManager.cellNetworkInfoCompat(
+//                                telephonyManager.createForSubscriptionId(dataSubscriptionId).networkOperatorName,
+//                                _nrConnectionState
+//                            )
+//                        } else {
+//                            connectivityManager.cellNetworkInfoCompat(
+//                                telephonyManager.getCorrectDataTelephonyManager(subscriptionManager).networkOperatorName,
+//                                _nrConnectionState
+//                            )
+//                        }
+//                    } catch (e: Exception) {
+//                        Timber.e("problem to obtain correct subscription ID when active network obtaining")
+//                        connectivityManager.cellNetworkInfoCompat(
+//                            telephonyManager.getCorrectDataTelephonyManager(subscriptionManager).networkOperatorName,
+//                            _nrConnectionState
+//                        )
+//                    }
+//                } else {
+//                    connectivityManager.cellNetworkInfoCompat(
+//                        telephonyManager.getCorrectDataTelephonyManager(subscriptionManager).networkOperatorName,
+//                        _nrConnectionState
+//                    )
+//                }
+//            }
+//            return _activeNetwork
         }
 
     private fun isDualSim(): Boolean {

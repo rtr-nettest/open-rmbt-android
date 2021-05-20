@@ -130,6 +130,7 @@ class CoreModule {
         phoneStateAccess: PhoneStateAccess,
         connectivityManager: ConnectivityManager,
         activeDataCellInfoExtractor: ActiveDataCellInfoExtractor,
+        netmonster: INetMonster,
         subscriptionManager: SubscriptionManager
     ): CellInfoWatcher =
         CellInfoWatcherImpl(
@@ -139,6 +140,7 @@ class CoreModule {
             phoneStateAccess,
             connectivityManager,
             activeDataCellInfoExtractor,
+            netmonster,
             subscriptionManager
         )
 
