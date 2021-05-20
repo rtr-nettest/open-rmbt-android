@@ -86,7 +86,7 @@ class NetworkDetailsViewState : ViewState {
             is CellNetworkInfo -> {
                 extractCellNetworkInfo(
                     detailedNetworkInfo.networkInfo as CellNetworkInfo,
-                    detailedNetworkInfo.cellInfos,
+                    detailedNetworkInfo.cellInfos
                 )
             }
             else -> "Not Implemented"
