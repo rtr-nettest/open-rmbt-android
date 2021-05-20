@@ -35,7 +35,8 @@ private const val ITEM_HISTORY = 1
 
 class HistoryLoopAdapter : PagedListAdapter<HistoryContainer, HistoryLoopAdapter.Holder>(DIFF_CALLBACK) {
 
-    val clickChannel = Channel<String>(Channel.CONFLATED)
+    val simpleClickChannel = Channel<String>(Channel.CONFLATED)
+    val loopClickChannel = Channel<String>(Channel.CONFLATED)
 
     override fun getItemViewType(position: Int): Int {
         val size = getItem(position)?.items?.size ?: 1
@@ -54,7 +55,8 @@ class HistoryLoopAdapter : PagedListAdapter<HistoryContainer, HistoryLoopAdapter
         }
 
     override fun onBindViewHolder(holder: Holder, position: Int) {
-        getItem(position)?.let { item -> holder.bind(position, item, clickChannel) }
+        val channel = if (getItemViewType(position) == ITEM_HISTORY) simpleClickChannel else loopClickChannel
+        getItem(position)?.let { item -> holder.bind(position, item, channel) }
     }
 
     abstract class Holder(view: View) : RecyclerView.ViewHolder(view) {
@@ -73,7 +75,7 @@ class HistoryLoopAdapter : PagedListAdapter<HistoryContainer, HistoryLoopAdapter
             binding.ping.text = numberFormat.format(median(item.items.mapNotNull { it.ping.toFloatOrNull() }))
 
             binding.root.setOnClickListener {
-                clickChannel.safeOffer(item.items.first().testUUID)
+                item.items.first().loopUUID?.let(clickChannel::safeOffer)
             }
         }
 

@@ -324,27 +324,27 @@
     <string name="unit_meter">m</string>
     <string name="median">Median</string>
 
-    <string name="title_permissions_welcome" tools:ignore="MissingTranslation">Welcome to Open Nettest</string>
-    <string name="text_permissions_welcome" tools:ignore="MissingTranslation">Let’s Review your Privacy Options</string>
-    <string name="button_next" tools:ignore="MissingTranslation">Next</string>
-    <string name="title_permissions_accuracy" tools:ignore="MissingTranslation">Open Nettest Accuracy</string>
-    <string name="text_permissions_accuracy" tools:ignore="MissingTranslation">Open Nettest needs certain functionality to operate correctly.</string>
-    <string name="text_permissions_accuracy_phone" tools:ignore="MissingTranslation">We will never make or manage phone calls. We use phone permissions to identify the mobile operator used for testing.</string>
-    <string name="title_permissions_accuracy_phone" tools:ignore="MissingTranslation">Phone Permissons</string>
-    <string name="title_permissions_accuracy_location" tools:ignore="MissingTranslation">Location Permissons</string>
-    <string name="text_permissions_accuracy_location" tools:ignore="MissingTranslation">Your location identifies nearby servers and your device\'s cellular connection in order to properly configure Open Nettest</string>
-    <string name="button_continue" tools:ignore="MissingTranslation">Continue</string>
-    <string name="title_permissions_signal" tools:ignore="MissingTranslation">Allow network signal scanning</string>
-    <string name="text_permissions_signal" tools:ignore="MissingTranslation">Open Nettest would like to periodically check mobile coverage, quality and location data to provide you with operator coverage maps. This data is also collected when the app is closed or not in use in order to create the most accurate map possible.We use phone permissions to identify the mobile operator used for testing.</string>
-    <string name="text_permissions_signal_coverage" tools:ignore="MissingTranslation">Anonymised coverage data may be shared with operators to help them improve their networks. Learn more</string>
-    <string name="button_not_allow" tools:ignore="MissingTranslation">Do not allow</string>
-    <string name="button_allow" tools:ignore="MissingTranslation">Allow</string>
-    <string name="title_permissions_analytics" tools:ignore="MissingTranslation">Help us improve Open Nettest</string>
-    <string name="text_permissions_analytics" tools:ignore="MissingTranslation">Open Nettest may use third party services to collect data about your device and your usage of Open Nettest and use it to improve the application experience and stability.</string>
-    <string name="text_permissions_analytics_coverage" tools:ignore="MissingTranslation">Allow Open Nettest to collect analytics and crash reports?</string>
-    <string name="button_agree" tools:ignore="MissingTranslation">Agree</string>
-    <string name="title_permissions_uuid" tools:ignore="MissingTranslation">Persistent Client UUID</string>
-    <string name="text_permissions_uuid" tools:ignore="MissingTranslation">Client UUID is a randomly generated ID that is saved with every measurement. Persistent Client UUID means that the ID is the same for your every measurement. It is needed to enable measurement history and synchronisation of the results between devices. You can change it later in settings.</string>
+    <string name="title_permissions_welcome">Welcome to Open Nettest</string>
+    <string name="text_permissions_welcome">Let’s Review your Privacy Options</string>
+    <string name="button_next">Next</string>
+    <string name="title_permissions_accuracy">Open Nettest Accuracy</string>
+    <string name="text_permissions_accuracy">Open Nettest needs certain functionality to operate correctly.</string>
+    <string name="text_permissions_accuracy_phone">We will never make or manage phone calls. We use phone permissions to identify the mobile operator used for testing.</string>
+    <string name="title_permissions_accuracy_phone">Phone Permissons</string>
+    <string name="title_permissions_accuracy_location">Location Permissons</string>
+    <string name="text_permissions_accuracy_location">Your location identifies nearby servers and your device\'s cellular connection in order to properly configure Open Nettest</string>
+    <string name="button_continue">Continue</string>
+    <string name="title_permissions_signal">Allow network signal scanning</string>
+    <string name="text_permissions_signal">Open Nettest would like to periodically check mobile coverage, quality and location data to provide you with operator coverage maps. This data is also collected when the app is closed or not in use in order to create the most accurate map possible.We use phone permissions to identify the mobile operator used for testing.</string>
+    <string name="text_permissions_signal_coverage">Anonymised coverage data may be shared with operators to help them improve their networks. Learn more</string>
+    <string name="button_not_allow">Do not allow</string>
+    <string name="button_allow">Allow</string>
+    <string name="title_permissions_analytics">Help us improve Open Nettest</string>
+    <string name="text_permissions_analytics">Open Nettest may use third party services to collect data about your device and your usage of Open Nettest and use it to improve the application experience and stability.</string>
+    <string name="text_permissions_analytics_coverage">Allow Open Nettest to collect analytics and crash reports?</string>
+    <string name="button_agree">Agree</string>
+    <string name="title_permissions_uuid">Persistent Client UUID</string>
+    <string name="text_permissions_uuid">Client UUID is a randomly generated ID that is saved with every measurement. Persistent Client UUID means that the ID is the same for your every measurement. It is needed to enable measurement history and synchronisation of the results between devices. You can change it later in settings.</string>
     <string name="technology_2g" translatable="false">2G</string>
     <string name="technology_4g" translatable="false">4G</string>
     <string name="technology_3g" translatable="false">3G</string>
@@ -352,6 +352,9 @@
 
     <string name="title_result_filter_operators">Operators</string>
     <string name="label_results">Results</string>
+    <string name="title_loop_measurements">Loop measurements</string>
+    <string name="text_link_history_empty">Make your first measurement</string>
+    <string name="text_history_empty">No results to show.</string>
 
     <string-array name="title_results_tabs">
         <item>List</item>

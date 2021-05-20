@@ -12,6 +12,8 @@ import at.rtr.rmbt.android.ui.dialog.SimpleDialog
 import at.rtr.rmbt.android.ui.fragment.sync.SyncEnterFragment
 import at.rtr.rmbt.android.ui.fragment.sync.SyncRequestFragment
 import at.rtr.rmbt.android.ui.fragment.sync.SyncStarterFragment
+import at.rtr.rmbt.android.util.ToolbarTheme
+import at.rtr.rmbt.android.util.changeStatusBarColor
 import at.rtr.rmbt.android.util.listen
 import at.rtr.rmbt.android.viewmodel.SyncDevicesViewModel
 import at.rtr.rmbt.android.viewmodel.SyncPage
@@ -27,6 +29,8 @@ class SyncActivity : BaseActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = DataBindingUtil.setContentView(this, R.layout.activity_sync)
+
+        window?.changeStatusBarColor(ToolbarTheme.WHITE)
 
         supportFragmentManager.beginTransaction().replace(binding.container.id, get(SyncPage.STARTER), SyncPage.STARTER.toString())
             .commitAllowingStateLoss()

@@ -96,12 +96,14 @@ class ResultsActivity : BaseActivity(), OnMapReadyCallback {
         when (viewModel.state.returnPoint) {
             ReturnPoint.HOME -> HomeActivity.startWithFragment(this, HomeActivity.Companion.HomeNavigationTarget.HOME_FRAGMENT_TO_SHOW)
             ReturnPoint.HISTORY -> HomeActivity.startWithFragment(this, HomeActivity.Companion.HomeNavigationTarget.HISTORY_FRAGMENT_TO_SHOW)
+            else -> finish()
         }
     }
 
     enum class ReturnPoint {
         HOME,
-        HISTORY;
+        HISTORY,
+        NONE
     }
 
     companion object {
@@ -115,7 +117,7 @@ class ResultsActivity : BaseActivity(), OnMapReadyCallback {
         private const val KEY_TEST_UUID = "KEY_TEST_UUID"
         private const val KEY_RETURN_POINT = "KEY_RETURN_POINT"
 
-        fun start(context: Context, testUUID: String, returnPoint: ReturnPoint) {
+        fun start(context: Context, testUUID: String, returnPoint: ReturnPoint = ReturnPoint.NONE) {
             val intent = Intent(context, ResultsActivity::class.java)
             intent.putExtra(KEY_TEST_UUID, testUUID)
             intent.putExtra(KEY_RETURN_POINT, returnPoint.name)

@@ -13,7 +13,7 @@
 
     <keep_state_fragment
         android:id="@+id/navigation_history"
-        android:name="at.rtr.rmbt.android.ui.fragment.ResultsFragment"
+        android:name="at.rtr.rmbt.android.ui.fragment.results.ResultsFragment"
         android:label="@string/menu_button_history"
         tools:layout="@layout/fragment_results" />
 
