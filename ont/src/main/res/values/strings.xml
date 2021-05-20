@@ -353,6 +353,8 @@
     <string name="title_result_filter_operators">Operators</string>
     <string name="label_results">Results</string>
     <string name="title_loop_measurements">Loop measurements</string>
+    <string name="text_link_history_empty">Make your first measurement</string>
+    <string name="text_history_empty">No results to show.</string>
 
     <string-array name="title_results_tabs">
         <item>List</item>

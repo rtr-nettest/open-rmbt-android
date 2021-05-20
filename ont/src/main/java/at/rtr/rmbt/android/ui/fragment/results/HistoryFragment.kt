@@ -7,7 +7,7 @@ import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.DividerItemDecoration
 import at.rtr.rmbt.android.R
-import at.rtr.rmbt.android.databinding.FragmentResultsListBinding
+import at.rtr.rmbt.android.databinding.FragmentHistoryBinding
 import at.rtr.rmbt.android.di.viewModelLazy
 import at.rtr.rmbt.android.ui.activity.LoopMeasurementResultsActivity
 import at.rtr.rmbt.android.ui.activity.ResultsActivity
@@ -19,13 +19,13 @@ import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.receiveAsFlow
 
-class ResultsListFragment : BaseFragment() {
+class HistoryFragment : BaseFragment() {
 
     private val historyViewModel: HistoryViewModel by viewModelLazy()
-    private val binding: FragmentResultsListBinding by bindingLazy()
+    private val binding: FragmentHistoryBinding by bindingLazy()
     private val adapter: HistoryLoopAdapter by lazy { HistoryLoopAdapter() }
 
-    override val layoutResId = R.layout.fragment_results_list
+    override val layoutResId = R.layout.fragment_history
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -52,6 +52,7 @@ class ResultsListFragment : BaseFragment() {
         historyViewModel.historyLiveData.listen(this) {
             binding.swipeRefreshLayoutHistoryItems.isRefreshing = false
             historyViewModel.state.isHistoryEmpty.set(it.isEmpty())
+            (parentFragment as? ResultsFragment)?.onDataLoaded(it.isEmpty())
             adapter.submitList(it)
         }
 
