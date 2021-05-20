@@ -1,4 +1,4 @@
-package at.rtr.rmbt.android.ui.fragment
+package at.rtr.rmbt.android.ui.fragment.results
 
 import android.content.Intent
 import android.os.Bundle
@@ -8,6 +8,9 @@ import at.rtr.rmbt.android.R
 import at.rtr.rmbt.android.databinding.FragmentResultsBinding
 import at.rtr.rmbt.android.ui.activity.ResultFiltersActivity
 import at.rtr.rmbt.android.ui.activity.SyncActivity
+import at.rtr.rmbt.android.ui.fragment.BaseFragment
+import at.rtr.rmbt.android.util.ToolbarTheme
+import at.rtr.rmbt.android.util.changeStatusBarColor
 import com.google.android.material.tabs.TabLayout
 
 class ResultsFragment : BaseFragment() {
@@ -23,6 +26,8 @@ class ResultsFragment : BaseFragment() {
         if (savedInstanceState == null && !isAdded) {
             childFragmentManager.beginTransaction().add(binding.pager.id, fragments[0]).commitAllowingStateLoss()
         }
+
+        activity?.window?.changeStatusBarColor(ToolbarTheme.WHITE)
 
         val tabNames = resources.getStringArray(R.array.title_results_tabs)
         tabNames.onEach {

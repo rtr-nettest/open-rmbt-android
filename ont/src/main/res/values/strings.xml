@@ -352,6 +352,7 @@
 
     <string name="title_result_filter_operators">Operators</string>
     <string name="label_results">Results</string>
+    <string name="title_loop_measurements">Loop measurements</string>
 
     <string-array name="title_results_tabs">
         <item>List</item>
