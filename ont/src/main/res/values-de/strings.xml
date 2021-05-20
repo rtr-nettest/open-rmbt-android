@@ -306,7 +306,32 @@
     <string name="loop_mode_next_test">Nächste Messung</string>
     <string name="median">Median</string>
 
+    <string name="title_permissions_welcome"> Willkommen bei Open Nettest </ string>
+    <string name="text_permissions_welcome"> Überprüfen wir Ihre Datenschutzoptionen </ string>
+    <string name="button_next"> Weiter </ string>
+    <string name="title_permissions_accuracy"> Öffnen Sie Nettest Accuracy </ string>
+    <string name="text_permissions_accuracy"> Open Nettest benötigt bestimmte Funktionen, um ordnungsgemäß zu funktionieren. </ string>
+    <string name="text_permissions_accuracy_phone"> Wir werden niemals Anrufe tätigen oder verwalten. Wir verwenden Telefonberechtigungen, um den zum Testen verwendeten Mobilfunkbetreiber zu identifizieren. </ String>
+    <string name="title_permissions_accuracy_phone"> Telefonberechtigungen </ string>
+    <string name="title_permissions_accuracy_location"> Standortberechtigungen </ string>
+    <string name="text_permissions_accuracy_location"> Ihr Standort identifiziert Server in der Nähe und die Mobilfunkverbindung Ihres Geräts, um Open Nettest ordnungsgemäß zu konfigurieren</ string>
+    <string name="button_continue"> Weiter </ string>
+    <string name="title_permissions_signal"> Erlaube das Scannen von Netzwerksignalen </ string>
+    <string name="text_permissions_signal"> Open Nettest möchte die Daten zur Mobilfunkabdeckung, -qualität und -standort regelmäßig überprüfen, um Ihnen Karten zur Netzabdeckung bereitzustellen. Diese Daten werden auch erfasst, wenn die App geschlossen ist oder nicht verwendet wird, um eine möglichst genaue Karte zu erstellen. Wir verwenden Telefonberechtigungen, um den zum Testen verwendeten Mobilfunkbetreiber zu identifizieren. </ String>
+    <string name="text_permissions_signal_coverage"> Anonymisierte Abdeckungsdaten können an Betreiber weitergegeben werden, um sie bei der Verbesserung ihrer Netzwerke zu unterstützen. Erfahren Sie mehr </ string>
+    <string name="button_not_allow"> Erlaube nicht</ string>
+    <string name="button_allow"> Erlaube </ string>
+    <string name="title_permissions_analytics"> Helfen Sie uns, Open Nettest zu verbessern </ string>
+    <string name="text_permissions_analytics"> Open Nettest verwendet möglicherweise Dienste von Drittanbietern, um Daten über Ihr Gerät und Ihre Verwendung von Open Nettest zu sammeln und die Anwendungserfahrung und -stabilität zu verbessern. </ string>
+    <string name="text_permissions_analytics_coverage"> Open Nettest erlauben, Analysen und Absturzberichte zu sammeln? </ string>
+    <string name="button_agree"> Zustimmen </ string>
+    <string name="title_permissions_uuid"> Persistente Client-UUID </ string>
+    <string name="text_permissions_uuid"> Die Client-UUID ist eine zufällig generierte ID, die bei jeder Messung gespeichert wird. Permanente Client-UUID bedeutet, dass die ID für jede Messung gleich ist. Es wird benötigt, um den Messverlauf und die Synchronisation der Ergebnisse zwischen Geräten zu ermöglichen. Sie können es später in den Einstellungen ändern. </ String>
     <string name="title_result_filter_operators">Betreiber</string>
     <string name="label_results">Ergebnisse</string>
+
+    <string name="title_loop_measurements"> Schleifenmessungen </ string>
+    <string name="text_link_history_empty"> Führen Sie Ihre erste Messung durch </ string>
+    <string name="text_history_empty"> Keine Ergebnisse angezeigt. </ string>
 </resources>
 
