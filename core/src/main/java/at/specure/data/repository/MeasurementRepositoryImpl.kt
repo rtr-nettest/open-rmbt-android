@@ -63,7 +63,7 @@ class MeasurementRepositoryImpl @Inject constructor(
     @SuppressLint("MissingPermission")
     override fun saveTelephonyInfo(uuid: String) {
         // TODO: all these fields should be moved to some watcher to be updated regularly at one place (maybe activeNetworkWatcherImpl)
-        val type = activeNetworkWatcher.currentNetworkInfo?.type
+        val type = cellInfoWatcher.activeNetwork?.type
         val isDualSim = context.isDualSim(telephonyManager, subscriptionManager)
         val isDualByMobile = type == TransportType.CELLULAR && isDualSim
 
@@ -75,7 +75,7 @@ class MeasurementRepositoryImpl @Inject constructor(
         var simCountry: String? = null
         var simOperatorName: String? = null
 
-        val networkInfo = cellInfoWatcher.activeNetwork
+        val networkInfo = (cellInfoWatcher.activeNetwork as CellNetworkInfo)
 
         if (context.isReadPhoneStatePermitted() && isDualByMobile) {
             val subscription = subscriptionManager.activeSubscriptionInfoList.firstOrNull()

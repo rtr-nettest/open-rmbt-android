@@ -405,7 +405,8 @@ class SignalMeasurementProcessor @Inject constructor(
                 if (uuid != null) {
                     val testStartTimeNanos = record?.startTimeNanos ?: 0
                     primaryCells?.toList()?.let {
-                        it.forEach { iCell ->
+                        if (it.size == 1) {
+                            val iCell = it[0]
 
                             val cellInfoRecord = iCell.toCellInfoRecord(uuid, netmonster)
 

@@ -26,6 +26,7 @@ import at.rmbt.client.control.getCurrentDataSubscriptionId
 import at.rmbt.client.control.getTelephonyManagerForSubscription
 import at.rmbt.util.io
 import at.specure.info.TransportType
+import at.specure.info.cell.CellInfoWatcher
 import at.specure.info.cell.CellNetworkInfo
 import at.specure.info.network.ActiveNetworkWatcher
 import at.specure.info.network.DetailedNetworkInfo
@@ -48,6 +49,7 @@ import java.util.Collections
 private const val WIFI_UPDATE_DELAY = 2000L
 private const val CELL_UPDATE_DELAY = 1000L
 private const val WIFI_MESSAGE_ID = 1
+private const val CELL_MESSAGE_ID = 2
 
 /**
  * Basic implementation of [SignalStrengthInfo] that using [ActiveNetworkWatcher] and [WifiInfoWatcher] to detect network changes and handle
@@ -60,6 +62,7 @@ class SignalStrengthWatcherImpl(
     private val telephonyManager: TelephonyManager,
     private val activeNetworkWatcher: ActiveNetworkWatcher,
     private val wifiInfoWatcher: WifiInfoWatcher,
+    private val cellInfoWatcher: CellInfoWatcher,
     locationAccess: LocationAccess
 ) : SignalStrengthWatcher, LocationAccess.LocationAccessChangeListener {
 
@@ -73,6 +76,7 @@ class SignalStrengthWatcherImpl(
     }
 
     private var wifiListenerRegistered = false
+    private var cellListenerRegistered = false
 
     private var signalStrengthInfo: SignalStrengthInfo? = null
 
@@ -125,7 +129,8 @@ class SignalStrengthWatcherImpl(
                 val primaryCells = cells?.filterOnlyActiveDataCell(dataSubscriptionId)
 
                 primaryCells?.toList()?.let {
-                    it.forEach { iCell ->
+                    if (it.size == 1) {
+                        val iCell = it[0]
                         Timber.d("NM network type ${netmonster.getNetworkType(iCell.subscriptionId)} from subscription: $dataSubscriptionId")
                         signalStrengthInfo = iCell.toSignalStrengthInfo(timeNanos)
                         networkInfo = iCell.toCellNetworkInfo(
@@ -189,6 +194,11 @@ class SignalStrengthWatcherImpl(
         return@Handler true
     }
 
+    private val cellUpdateHandler = Handler {
+        handleCellUpdate()
+        return@Handler true
+    }
+
     private fun handleWifiUpdate() {
         val wifiInfo = wifiInfoWatcher.activeWifiInfo
         if (wifiInfo != null) {
@@ -203,6 +213,24 @@ class SignalStrengthWatcherImpl(
         wifiUpdateHandler.removeMessages(WIFI_MESSAGE_ID)
         if (wifiListenerRegistered) {
             wifiUpdateHandler.sendEmptyMessageDelayed(WIFI_MESSAGE_ID, WIFI_UPDATE_DELAY)
+        }
+    }
+
+    private fun handleCellUpdate() {
+        val cellInfo = cellInfoWatcher.activeNetwork
+        signalStrengthInfo = cellInfoWatcher.signalStrengthInfo
+        if (cellInfo != null) {
+            networkInfo = cellInfo
+        }
+        notifyInfoChanged()
+        scheduleCellUpdate()
+    }
+
+    private fun scheduleCellUpdate() {
+        cellUpdateHandler.removeMessages(CELL_MESSAGE_ID)
+        if (cellListenerRegistered) {
+            cellUpdateHandler.sendEmptyMessageDelayed(CELL_MESSAGE_ID, CELL_UPDATE_DELAY)
+            cellInfoWatcher.updateInfo()
         }
     }
 
@@ -237,7 +265,12 @@ class SignalStrengthWatcherImpl(
 
     private fun registerCellCallbacks() {
         Timber.i("Network changed to CELLULAR")
-        handler?.postDelayed(signalUpdateRunnable, CELL_UPDATE_DELAY)
+//        processSignalChange()
+//        handler?.postDelayed(signalUpdateRunnable, CELL_UPDATE_DELAY)
+        if (!cellListenerRegistered) {
+            cellListenerRegistered = true
+            handleCellUpdate()
+        }
         unregisterWifiCallbacks()
     }
 

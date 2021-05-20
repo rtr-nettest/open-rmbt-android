@@ -24,7 +24,6 @@ import at.specure.data.repository.MeasurementRepository
 import at.specure.data.repository.TestDataRepository
 import at.specure.info.Network5GSimulator
 import at.specure.info.TransportType
-import at.specure.info.cell.CellInfoWatcher
 import at.specure.info.cell.CellNetworkInfo
 import at.specure.info.network.MobileNetworkType
 import at.specure.info.network.NRConnectionState
@@ -63,7 +62,6 @@ class StateRecorder @Inject constructor(
     private val locationWatcher: LocationWatcher,
     private val signalStrengthLiveData: SignalStrengthLiveData,
     private val signalStrengthWatcher: SignalStrengthWatcher,
-    private val cellInfoWatcher: CellInfoWatcher,
     private val config: Config,
     private val subscriptionManager: SubscriptionManager,
     private val cellLocationWatcher: CellLocationWatcher,
@@ -344,8 +342,8 @@ class StateRecorder @Inject constructor(
                     if (uuid != null) {
                         val testStartTimeNanos = testStartTimeNanos ?: 0
                         primaryCells?.toList()?.let {
-                            it.forEach { iCell ->
-
+                            if (it.size == 1) {
+                                val iCell = it[0]
                                 val cellInfoRecord = iCell.toCellInfoRecord(uuid, netmonster)
                                 cellInfoRecord?.let {
                                     if (cellInfoRecord.uuid.isNotEmpty()) {
@@ -369,7 +367,10 @@ class StateRecorder @Inject constructor(
                                     }
                                     cellInfosToSave.add(cellInfoRecord)
                                 }
+                            } else {
+                                // ignoring more than one primary cell for one subscription ID - not consistent state
                             }
+
                             repository.saveCellLocationRecord(cellLocationsToSave)
                             repository.saveCellInfoRecord(cellInfosToSave)
                             repository.saveSignalRecord(signalsToSave)
@@ -387,7 +388,7 @@ class StateRecorder @Inject constructor(
             if (uuid != null && info != null) {
                 val infoList: List<NetworkInfo> = when (info) {
                     is WifiNetworkInfo -> listOf(info)
-                    is CellNetworkInfo -> cellInfoWatcher.allCellInfo
+                    is CellNetworkInfo -> listOf<NetworkInfo>()
                     else -> throw IllegalArgumentException("Unknown cell info ${info.javaClass.simpleName}")
                 }
 
@@ -432,7 +433,6 @@ class StateRecorder @Inject constructor(
         if (info != null && info is CellNetworkInfo) {
             testRecord?.mobileNetworkType = info.networkType
         }
-
         testUUID?.let { measurementRepository.saveTelephonyInfo(it) }
     }
 

@@ -14,8 +14,7 @@
 
 package at.specure.info.cell
 
-import android.telephony.CellInfo
-import at.specure.info.network.NRConnectionState
+import at.specure.info.strength.SignalStrengthInfo
 
 /**
  * Watcher that is responsible for tracking cellular connection info
@@ -28,46 +27,7 @@ interface CellInfoWatcher {
      */
     val activeNetwork: CellNetworkInfo?
 
-    val cellInfo: CellInfo?
+    val signalStrengthInfo: SignalStrengthInfo?
 
-    val allCellInfo: List<CellNetworkInfo>
-
-    val rawAllCellInfo: List<CellInfo>
-
-    /**
-     * NR connection type default should be [NRConnectionState.NOT_AVAILABLE]
-     */
-    val nrConnectionState: NRConnectionState
-
-    /**
-     * Add listener to observe cell network changes
-     */
-    fun addListener(listener: CellInfoChangeListener)
-
-    /**
-     * Remove listener from observing cell network changes
-     */
-    fun removeListener(listener: CellInfoChangeListener)
-
-    /**
-     * Try update cellular network info without callbacks
-     */
-    fun forceUpdate()
-
-    /**
-     * updating current cell info from netmonster library and extracting information
-     */
-    fun updateCellNetworkInfo(): CellNetworkInfo?
-
-    /**
-     * Callback that is used to observe cellular network changes tracked by [CellInfoWatcher]
-     */
-    interface CellInfoChangeListener {
-
-        /**
-         * When cellular network change is detected this callback will be triggered
-         * if no active network or cell network is available null will be returned
-         */
-        fun onCellInfoChanged(activeNetwork: CellNetworkInfo?)
-    }
+    fun updateInfo()
 }
