@@ -55,8 +55,7 @@ class HomeFragment : BaseFragment() {
 
         homeViewModel.activeNetworkLiveData.listen(this) {
             if (it.networkInfo is CellNetworkInfo) {
-                if (it.networkInfo is CellNetworkInfo)
-                    Timber.d("NM network type to display from ANLD: ${(it.networkInfo as CellNetworkInfo).networkType.displayName}")
+                Timber.d("NM network type to display from ANLD: ${(it.networkInfo as CellNetworkInfo).networkType.displayName}")
             } else {
                 homeViewModel.state.activeNetworkInfo.set(it)
             }
