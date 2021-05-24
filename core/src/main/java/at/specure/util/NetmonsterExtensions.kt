@@ -430,21 +430,8 @@ fun ICell.toCellInfoRecord(testUUID: String, netMonster: INetMonster): CellInfoR
                 mcc = this.network?.mcc?.toIntOrNull(),
                 mnc = this.network?.mnc?.toIntOrNull(),
                 primaryScramblingCode = primaryScramblingCode(),
-                dualSimDetectionMethod = "NOT_AVAILABLE" // TODO it is for local purpose only
+                dualSimDetectionMethod = "NOT_AVAILABLE" // local purpose only
             )
-//            Timber.d("Saving CellInfo Record with uuid: ${cellInfoRecord.uuid} and cellTechnology: ${cellInfoRecord.cellTechnology?.name} and channel number: ${cellInfoRecord.channelNumber}")
-//            Timber.d("Saving ICell: $this")
-//            try {
-//                var networkTypeFromNM = netMonster.getNetworkType(this.subscriptionId)
-//                Timber.d("Saving network type direct: ${networkTypeFromNM.technology}")
-//            } catch (e: SecurityException) {
-//                Timber.e("SecurityException: Not able to read network type")
-//            } catch (e: IllegalStateException) {
-//                Timber.e("IllegalStateException: Not able to read network type")
-//            }
-//
-//            Timber.d("Saving connectionStatus: ${this.connectionStatus}")
-//            Timber.d("Saving signalStrengthInfo: ${this.signal}")
             return cellInfoRecord
         }
     }

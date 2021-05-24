@@ -95,6 +95,7 @@ class ActiveNetworkWatcher(
 
         override fun onConnectivityChanged(connectivityInfo: ConnectivityInfo?, network: Network?) {
             lastConnectivityInfo = connectivityInfo
+            handler?.removeCallbacks(signalUpdateRunnable)
             _currentNetworkInfo = if (connectivityInfo == null) {
                 null
             } else {
@@ -137,12 +138,10 @@ class ActiveNetworkWatcher(
                         NetMonsterFactory.getTelephony(context, primaryCells[0].subscriptionId),
                         netMonster
                     )
-                    // dual sims
+                    // more than one primary cell for data subscription
                 } else {
-                    Timber.e("NM network type unable to detect because of dual sim")
+                    Timber.e("NM network type unable to detect because of more than 1 primary cells for subscription")
                 }
-
-
 
                 if (activeCellNetwork == null) {
                     scheduleUpdate()
