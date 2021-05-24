@@ -11,7 +11,6 @@ import at.specure.info.cell.CellTechnology
 import at.specure.info.connectivity.ConnectivityInfo
 import at.specure.info.ip.IpInfo
 import at.specure.info.network.DetailedNetworkInfo
-import at.specure.info.network.NRConnectionState
 import at.specure.info.network.WifiNetworkInfo
 import at.specure.info.strength.SignalStrengthInfo
 import at.specure.location.LocationInfo
@@ -85,8 +84,7 @@ class NetworkDetailsViewState : ViewState {
             is CellNetworkInfo -> {
                 extractCellNetworkInfo(
                     detailedNetworkInfo.networkInfo as CellNetworkInfo,
-                    detailedNetworkInfo.cellInfos,
-                    detailedNetworkInfo.nrConnectionState
+                    detailedNetworkInfo.cellInfos
                 )
             }
             else -> "Not Implemented"
@@ -124,14 +122,13 @@ class NetworkDetailsViewState : ViewState {
         bold("supplicantState: ").append(info.supplicantState).newLine()
     }
 
-    private fun extractCellNetworkInfo(info: CellNetworkInfo, rawCellInfos: List<CellInfo>?, nrConnectionState: NRConnectionState?): String =
+    private fun extractCellNetworkInfo(info: CellNetworkInfo, rawCellInfos: List<CellInfo>?): String =
         buildString {
             bold("name: ").append(info.name).newLine()
             bold("band: ").append(info.band).newLine()
             bold("technology: ").append(CellTechnology.fromMobileNetworkType(info.networkType)).newLine()
             bold("provider name: ").append(info.providerName).newLine()
             bold("network type: ").append(info.networkType.name).newLine()
-            bold("nrState: ").append(nrConnectionState?.stringValue).newLine()
             bold("cell infos: ").append(rawCellInfos).newLine()
         }
 
