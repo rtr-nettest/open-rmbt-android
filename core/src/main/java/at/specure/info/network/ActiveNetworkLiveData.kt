@@ -21,11 +21,11 @@ import javax.inject.Inject
  * LiveData that observes changes of active network from [ActiveNetworkWatcher]
  * If no active connection is available null well be posted
  */
-class ActiveNetworkLiveData @Inject constructor(private val activeNetworkWatcher: ActiveNetworkWatcher) : LiveData<DetailedNetworkInfo>(),
+class ActiveNetworkLiveData @Inject constructor(private val activeNetworkWatcher: ActiveNetworkWatcher) : LiveData<NetworkInfo>(),
     ActiveNetworkWatcher.NetworkChangeListener {
 
-    override fun onActiveNetworkChanged(detailedNetworkInfo: DetailedNetworkInfo) {
-        postValue(detailedNetworkInfo)
+    override fun onActiveNetworkChanged(networkInfo: NetworkInfo?) {
+        postValue(networkInfo)
     }
 
     override fun onActive() {
