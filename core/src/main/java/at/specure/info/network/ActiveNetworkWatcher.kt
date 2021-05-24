@@ -147,7 +147,6 @@ class ActiveNetworkWatcher(
                     scheduleUpdate()
                 }
                 return activeCellNetwork
-
             } catch (e: SecurityException) {
                 Timber.e("SecurityException: Not able to read telephonyManager.allCellInfo")
             } catch (e: IllegalStateException) {

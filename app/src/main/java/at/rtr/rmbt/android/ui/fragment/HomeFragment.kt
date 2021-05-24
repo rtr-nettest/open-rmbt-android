@@ -53,14 +53,6 @@ class HomeFragment : BaseFragment() {
             activity?.window?.changeStatusBarColor(if (it) ToolbarTheme.BLUE else ToolbarTheme.GRAY)
         }
 
-//        homeViewModel.activeNetworkLiveData.listen(this) {
-//            if (it is CellNetworkInfo) {
-//                    Timber.d("NM network type to display from ANLD: ${(it as CellNetworkInfo).networkType.displayName}")
-//            } else {
-////                homeViewModel.state.activeNetworkInfo.set(it)
-//            }
-//        }
-
         homeViewModel.signalStrengthLiveData.listen(this) {
             homeViewModel.state.signalStrength.set(it?.signalStrengthInfo)
             homeViewModel.state.activeNetworkInfo.set(it)
