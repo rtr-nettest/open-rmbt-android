@@ -9,6 +9,8 @@ import at.rtr.rmbt.android.databinding.ActivityResultFiltersBinding
 import at.rtr.rmbt.android.databinding.ViewResultFiltersSectionBinding
 import at.rtr.rmbt.android.di.viewModelLazy
 import at.rtr.rmbt.android.ui.adapter.ResultFiltersAdapter
+import at.rtr.rmbt.android.util.ToolbarTheme
+import at.rtr.rmbt.android.util.changeStatusBarColor
 import at.rtr.rmbt.android.util.listen
 import at.rtr.rmbt.android.viewmodel.ResultListFiltersViewModel
 
@@ -22,6 +24,7 @@ class ResultFiltersActivity : BaseActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = DataBindingUtil.setContentView(this, R.layout.activity_result_filters)
+        window?.changeStatusBarColor(ToolbarTheme.WHITE)
 
         val openMode = FilterMode.values()[intent?.extras?.getInt(KEY_OPEN_MODE) ?: 0]
         when (openMode) {

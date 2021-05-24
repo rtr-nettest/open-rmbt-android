@@ -19,6 +19,7 @@ import at.rtr.rmbt.android.viewmodel.QosTestsSummaryViewModel
 import at.rtr.rmbt.android.viewmodel.ResultChartViewModel
 import at.rtr.rmbt.android.viewmodel.ResultListFiltersViewModel
 import at.rtr.rmbt.android.viewmodel.ResultViewModel
+import at.rtr.rmbt.android.viewmodel.ResultsListLoopViewModel
 import at.rtr.rmbt.android.viewmodel.SettingsViewModel
 import at.rtr.rmbt.android.viewmodel.SimpleResultsListViewModel
 import at.rtr.rmbt.android.viewmodel.SplashViewModel
@@ -159,4 +160,9 @@ interface ViewModelModule {
     @IntoMap
     @ViewModelKey(PermissionsViewModel::class)
     fun bindPermissionsViewModel(viewModel: PermissionsViewModel): ViewModel
+
+    @Binds
+    @IntoMap
+    @ViewModelKey(ResultsListLoopViewModel::class)
+    fun bindResultsListLoopViewModel(viewModel: ResultsListLoopViewModel): ViewModel
 }
