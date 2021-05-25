@@ -1,8 +1,10 @@
 package at.specure.data.repository
 
 import at.rmbt.util.Maybe
+import at.specure.data.HistoryLoopMedian
 import at.specure.data.entity.History
 import at.specure.util.StringSetPreferenceLiveData
+import kotlinx.coroutines.flow.Flow
 
 interface HistoryRepository {
 
@@ -29,6 +31,12 @@ interface HistoryRepository {
     fun getDevices(): Set<String>?
 
     fun loadHistoryItems(offset: Int, limit: Int): Maybe<List<History>>
+
+    fun loadHistoryItems(offset: Int, limit: Int, ignoreFilters: Boolean): Maybe<List<History>>
+
+    fun loadLoopHistoryItems(loopUuid: String): List<History>
+
+    fun loadLoopMedianValues(loopUuid: String): Flow<HistoryLoopMedian?>
 
     fun cleanHistory()
 }

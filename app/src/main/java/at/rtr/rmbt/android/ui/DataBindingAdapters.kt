@@ -28,6 +28,7 @@ import at.specure.info.cell.CellTechnology
 import at.specure.info.ip.IpInfo
 import at.specure.info.ip.IpStatus
 import at.specure.info.network.DetailedNetworkInfo
+import at.specure.info.network.EthernetNetworkInfo
 import at.specure.info.network.MobileNetworkType
 import at.specure.info.network.NRConnectionState
 import at.specure.info.network.NetworkInfo
@@ -78,7 +79,13 @@ fun AppCompatTextView.setFrequency(networkInfo: NetworkInfo?) {
 
     text = when (networkInfo) {
         is WifiNetworkInfo -> networkInfo.band.name
-        is CellNetworkInfo -> String.format(context.getString(R.string.home_frequency_value), networkInfo.band?.name)
+        is CellNetworkInfo -> {
+            if (networkInfo.band?.name?.contains("MHz") == true) {
+                networkInfo.band?.name
+            } else {
+                String.format(context.getString(R.string.home_frequency_value), networkInfo.band?.name)
+            }
+        }
         else -> "-"
     }
 }
@@ -123,8 +130,8 @@ fun AppCompatTextView.showPopup(isConnected: Boolean, infoWindowStatus: InfoWind
  * A binding adapter that is used for show network icon based on network type (WIFI/MOBILE),
  * and signalLevel(0..4)
  */
-@BindingAdapter("signalLevel", "connected")
-fun AppCompatImageButton.setIcon(signalStrengthInfo: SignalStrengthInfo?, connected: Boolean) {
+@BindingAdapter("signalLevel", "connected", "networkTransportType")
+fun AppCompatImageButton.setIcon(signalStrengthInfo: SignalStrengthInfo?, connected: Boolean, networkTransportType: TransportType?) {
 
     if (signalStrengthInfo != null) {
 
@@ -159,7 +166,10 @@ fun AppCompatImageButton.setIcon(signalStrengthInfo: SignalStrengthInfo?, connec
         }
     } else {
         if (connected) {
-            setImageResource(R.drawable.ic_signal_unknown)
+            when (networkTransportType) {
+                TransportType.ETHERNET -> setImageResource(R.drawable.ic_ethernet_home)
+                else -> setImageResource(R.drawable.ic_signal_unknown)
+            }
         } else {
             setImageResource(R.drawable.ic_no_internet)
         }
@@ -178,6 +188,7 @@ fun AppCompatTextView.setNetworkType(detailedNetworkInfo: DetailedNetworkInfo?) 
     val shortDisplayOfTechnology = true
 
     text = when (detailedNetworkInfo?.networkInfo) {
+        is EthernetNetworkInfo -> context.getString(R.string.home_ethernet)
         is WifiNetworkInfo -> context.getString(R.string.home_wifi)
         is CellNetworkInfo -> {
             val technology =
@@ -202,30 +213,35 @@ fun AppCompatTextView.setNetworkType(detailedNetworkInfo: DetailedNetworkInfo?) 
 @BindingAdapter("technology")
 fun AppCompatImageView.setTechnologyIcon(networkInfo: NetworkInfo?) {
 
-    if (networkInfo is CellNetworkInfo) {
-        visibility = View.VISIBLE
-        when (CellTechnology.fromMobileNetworkType(networkInfo.networkType)) {
-            null -> {
-                setImageDrawable(null)
-            }
-            CellTechnology.CONNECTION_2G -> {
-                setImageResource(R.drawable.ic_2g)
-            }
-            CellTechnology.CONNECTION_3G -> {
-                setImageResource(R.drawable.ic_3g)
-            }
-            CellTechnology.CONNECTION_4G -> {
-                setImageResource(R.drawable.ic_4g)
-            }
-            CellTechnology.CONNECTION_4G_5G -> {
-                setImageResource(R.drawable.ic_5g_available)
-            }
-            CellTechnology.CONNECTION_5G -> {
-                setImageResource(R.drawable.ic_5g)
+    when (networkInfo) {
+        is CellNetworkInfo -> {
+            visibility = View.VISIBLE
+            when (CellTechnology.fromMobileNetworkType(networkInfo.networkType)) {
+                null -> {
+                    setImageDrawable(null)
+                }
+                CellTechnology.CONNECTION_2G -> {
+                    setImageResource(R.drawable.ic_2g)
+                }
+                CellTechnology.CONNECTION_3G -> {
+                    setImageResource(R.drawable.ic_3g)
+                }
+                CellTechnology.CONNECTION_4G -> {
+                    setImageResource(R.drawable.ic_4g)
+                }
+                CellTechnology.CONNECTION_4G_5G -> {
+                    setImageResource(R.drawable.ic_5g_available)
+                }
+                CellTechnology.CONNECTION_5G -> {
+                    setImageResource(R.drawable.ic_5g)
+                }
             }
         }
-    } else {
-        visibility = View.GONE
+        is EthernetNetworkInfo -> {
+            visibility = View.VISIBLE
+            setImageResource(R.drawable.ic_label_ethernet)
+        }
+        else -> visibility = View.GONE
     }
 }
 
@@ -600,7 +616,9 @@ private fun getSignalImageResource(networkType: NetworkTypeCompat, signalStrengt
         NetworkTypeCompat.TYPE_UNKNOWN -> {
             R.drawable.ic_history_no_internet
         }
-        NetworkTypeCompat.TYPE_LAN,
+        NetworkTypeCompat.TYPE_LAN -> {
+            R.drawable.ic_ethernet
+        }
         NetworkTypeCompat.TYPE_BROWSER -> {
             R.drawable.ic_browser
         }
