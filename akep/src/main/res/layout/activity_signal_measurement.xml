@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <variable
+            name="isActive"
+            type="Boolean" />
+
+        <variable
+            name="isPaused"
+            type="Boolean" />
+    </data>
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="@dimen/margin_medium">
+
+            <Button
+                android:id="@+id/buttonStart"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:enabled="@{!isActive}"
+                android:text="Start"
+                app:layout_constraintEnd_toStartOf="@+id/buttonStop"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                tools:ignore="HardcodedText" />
+
+            <Button
+                android:id="@+id/buttonStop"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:enabled="@{isActive}"
+                android:text="Stop"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@+id/buttonStart"
+                app:layout_constraintTop_toTopOf="parent"
+                tools:ignore="HardcodedText" />
+
+            <Button
+                android:id="@+id/buttonPause"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:enabled="@{!isPaused &amp;&amp; isActive}"
+                android:text="Pause"
+                app:layout_constraintEnd_toStartOf="@+id/buttonResume"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/buttonStart"
+                tools:ignore="HardcodedText" />
+
+            <Button
+                android:id="@+id/buttonResume"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:enabled="@{isPaused &amp;&amp; isActive}"
+                android:text="Resume"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@+id/buttonPause"
+                app:layout_constraintTop_toBottomOf="@+id/buttonStop"
+                tools:ignore="HardcodedText" />
+
+            <Button
+                android:id="@+id/buttonWipe"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:text="Wipe all data"
+                android:visibility="gone"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/buttonPause"
+                tools:ignore="HardcodedText" />
+
+            <TextView
+                android:id="@+id/labelActive"
+                style="@style/TextInputTheme"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/margin_medium"
+                android:text="isActive: "
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/buttonWipe"
+                tools:ignore="HardcodedText" />
+
+            <TextView
+                android:id="@+id/textActive"
+                style="@style/TextInputTheme"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/margin_small"
+                android:layout_marginTop="@dimen/margin_medium"
+                android:text="@{String.valueOf(isActive)}"
+                app:layout_constraintStart_toEndOf="@+id/labelActive"
+                app:layout_constraintTop_toBottomOf="@+id/buttonWipe"
+                tools:text="true" />
+
+            <TextView
+                android:id="@+id/labelPaused"
+                style="@style/TextInputTheme"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/margin_medium"
+                android:text="isPaused: "
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/labelActive"
+                tools:ignore="HardcodedText" />
+
+            <TextView
+                android:id="@+id/textPaused"
+                style="@style/TextInputTheme"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/margin_small"
+                android:layout_marginTop="@dimen/margin_medium"
+                android:text="@{String.valueOf(isPaused)}"
+                app:layout_constraintStart_toEndOf="@+id/labelPaused"
+                app:layout_constraintTop_toBottomOf="@+id/labelActive"
+                tools:text="false" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/recyclerView"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/margin_medium"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/textPaused" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </ScrollView>
+
+
+</layout>

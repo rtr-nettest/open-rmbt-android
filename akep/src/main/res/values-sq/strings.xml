@@ -1,0 +1,344 @@
+<!--
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~ http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<resources xmlns:tools="http://schemas.android.com/tools">
+
+    <string name="open_location_permission_dialog_label_location_not_permitted">Akep Nettest nuk lejohet të përdor vendndodhjen tuaj. Dëshironi të lejoni që Akep Nettest të përdor vendndodhjen tuaj?</string>
+    <string name="notification_test_title">Akep nettest po ekzekutohet</string>
+    <string name="notification_signal_test_text">Matja e sinjalit Akep Nettest po ekzekutohet në sfond</string>
+    <string name="text_loop_instruction_1">Opsioni i modalitetit loop për përdoruesit e interesuar teknikisht lejon përsëritjen automatike të Akep Nettest. Testi i parë fillon menjëherë pas aktivizimit të modusit loop; testet e mëtejshme kryhen kur ose koha e pritjes ka kaluar ose distanca e specifikuar është mbuluar. Testet do të kryhen derisa të arrihet numri i konfiguruar i testeve. Fuqia e sinjalit matet vazhdimisht, gjithashtu midis dy provave. Modeli i lakut mund të ndalet në çdo kohë, përkatësisht ndalet pas 48 orësh. Duhet theksuar qartë se për shkak të mënyrës së lakut nuk mund të përjashtohet që testuesi të identifikohet.</string>
+    <string name="loop_mode_finished">Modaliteti i lakut Akep Nettest përfundoi!</string>
+    <string name="text_terms_agree">Pajtohem me politikën e privatësisë së Specure dhe kushtet e përdorimit për Akep Nettest.</string>
+
+    <string name="text_home_run">Drejtoni Matjen e Shpejtësisë</string>
+    <string name="text_basic_measurement">Matja e shpejtësisë</string>
+
+    <string name="basic_result_title">Rezultati themelor</string>
+    <string name="test_bottom_test_status_jitter">Hidhërimë</string>
+    <string name="test_packet_loss">Humbja e paketave</string>
+
+    <!-- Navigation menu titles -->
+    <string name="menu_button_title_page">Shtëpi</string>
+    <string name="menu_button_history">Historia</string>
+    <string name="menu_button_statistics">Statistikat</string>
+    <string name="menu_button_map">Harta</string>
+
+    <!-- Error dialog messages -->
+    <string name="dialog_title_error">Gabim</string>
+    <string name="error_unknown">Lidhje e dobët. Ju lutemi provoni përsëri më vonë</string>
+    <string name="no_internet_connection_not_load_data">Nuk ka lidhje interneti. Të dhënat nuk mund të ngarkohen.</string>
+
+    <!-- Home screen -->
+    <string name="home_attention">Vëmendje</string>
+    <string name="home_no_internet_connection">Pa lidhje interneti!</string>
+    <string name="home_no_internet_connection_details">Asnjë provë nuk është e mundur.</string>
+    <string name="home_signal_value">%1$d dBm</string>
+    <string name="home_wifi">WLAN</string>
+    <string name="public_ip_address">Adresa publike</string>
+    <string name="private_ip_address">Adresa private</string>
+
+
+    <!-- Preference titles -->
+    <string name="preferences_information">Informacioni</string>
+    <string name="options">Cilësimet</string>
+    <string name="preferences_general_settings">Gjeneral</string>
+    <string name="preferences_terms_of_service">Kushtet e shërbimit</string>
+    <string name="preferences_loop_test_count">Numri i Matjeve</string>
+    <string name="loop_mode_clarification">Kur modaliteti i lakut është i aktivizuar, testet e reja kryhen automatikisht pas kohës së konfiguruar të pritjes ose kur pajisja lëviz më shumë se distanca e konfiguruar.</string>
+    <string name="preferences_privacy">Privatësia</string>
+    <string name="preferences_persistent_clientUUID">Klient i vazhdueshëm UUID</string>
+    <string name="preferences_persistent_clientUUID_summary">Nevojitet klient i vazhdueshëm UUID për të mundësuar historinë e matjeve dhe sinkronizimin e rezultateve midis pajisjeve</string>
+    <string name="preferences_analytics">Analizat</string>
+    <string name="preferences_analytics_summary">Aktivizoni analizat dhe dërgoni tek ne gjurmët e aksidentit</string>
+    <string name="preferences_location_summary">Menaxhoni lejet në lidhje me gjurmimin e vendndodhjes</string>
+    <string name="preferences_loop_test_number">Zgjidhni numrin e testeve</string>
+
+    <string name="preferences_version">Version</string>
+
+    <string name="preferences_qos_measurement">Matja e QoS</string>
+    <string name="preferences_location">Vendndodhja</string>
+    <string name="preferences_loop_mode">Modaliteti i lakut</string>
+    <string name="preferences_loop_mode_summary">Test i ri pas kohës së pritjes ose mbulimit të distancës. Maks. 2 dite</string>
+    <string name="preferences_loop_mode_min_delay">Koha e pritjes (në minuta)</string>
+    <string name="preferences_loop_mode_max_movement">Distanca (në metra)</string>
+    <string name="preferences_expert_mode">Mënyra e ekspertit</string>
+    <string name="preferences_expert_mode_summary">Trego cilësimet dhe informacionin e përparuar</string>
+    <string name="preferences_ipv4_only">Vetëm IPv4</string>
+    <string name="preferences_ipv4_only_sum">Mos përdorni IPv6</string>
+    <string name="preferences_radio_info">Radio info</string>
+    <string name="preferences_radio_info_sum">Detaje mbi konfigurimin e radios</string>
+    <string name="preferences_client_uuid">Klienti UUID</string>
+    <string name="preferences_about">Rreth</string>
+    <string name="preferences_data_protection">Politika e privatësisë</string>
+    <string name="preferences_enter_code">Ju lutemi shkruani kodin</string>
+    <string name="preferences_developer_control_server">Kontrolloni serverin</string>
+    <string name="preferences_override_control_server">Anulo serverin e kontrollit</string>
+    <string name="preferences_override_control_server_sum">Aktivizoni cilësimet e serverit të kontrollit të personalizuar</string>
+    <string name="preferences_override_control_server_host">Kontrolloni hostin</string>
+    <string name="preferences_override_control_server_port">Porta e kontrollit</string>
+    <string name="preferences_override_control_server_ssl">Kontrolloni SSL</string>
+    <string name="preferences_override_control_server_ssl_sum">Përdorni lidhjen e koduar për të kontrolluar serverin</string>
+    <string name="preferences_developer_options_disabled">Opsionet e zhvilluesit janë çaktivizuar</string>
+    <string name="preferences_developer_options_available">Mundësitë e krijuesit të mundshëm</string>
+    <string name="preferences_developer_try_again">Provo përsëri!</string>
+    <string name="preferences_developer_map_server">Serveri i hartës</string>
+    <string name="preferences_developer_map_override">Anulo serverin e hartës</string>
+    <string name="preferences_developer_map_override_sum">Aktivizoni cilësimet e serverit të hartave të personalizuara</string>
+    <string name="preferences_developer_map_host">Pritësi i hartës</string>
+    <string name="preferences_developer_map_port">Porti i hartës</string>
+    <string name="preferences_developer_map_ssl">Server i hartës SSL</string>
+    <string name="preferences_developer_map_ssl_sum">Përdorni lidhje të koduar në serverin e hartës</string>
+    <string name="preferences_category_developer_qos_server">Serveri QoS</string>
+    <string name="preferences_developer_qos_ssl">Server QoS SSL</string>
+    <string name="preferences_developer_qos_ssl_sum">Përdorni lidhjen e koduar me serverin QoS</string>
+    <string name="preferences_all_disabled">Çaktivizohet.</string>
+    <string name="preferences_server_selection">Zgjedhja e serverit</string>
+    <string name="preferences_default_server_selection" />
+    <string name="label_server_selection">Zgjedhja e serverit</string>
+    <string name="preferences_tag">Etiketoj</string>
+
+    <!-- Location Dialog -->
+    <string name="location_dialog_label_title">Vendndodhja</string>
+    <string name="location_dialog_label_position">Pozicioni</string>
+    <string name="location_dialog_label_accuracy">Saktësia</string>
+    <string name="location_dialog_label_age">Mosha</string>
+    <string name="location_dialog_label_source">Burimi</string>
+    <string name="location_dialog_label_altitude">Lartësi</string>
+    <string name="location_dialog_label_speed">Shpejtësia</string>
+    <string name="location_dialog_label_satellites">Satelitë</string>
+    <string name="location_dialog_label_location_progress_message">Përcaktimi i vendndodhjes, ju lutemi prisni</string>
+    <string name="open_gps_setting_dialog_label_gps_not_enabled">Shërbimet e vendndodhjes nuk janë aktivizuar. Dëshironi të modifikoni cilësimet e vendndodhjes?</string>
+    <string name="open_gps_setting_dialog_label_open_gps_setting">Hapni cilësimet e vendndodhjes</string>
+    <string name="open_gps_setting_dialog_label_cancel">Anulo</string>
+    <string name="location_dialog_not_available">I padisponueshem</string>
+    <string name="location_dialog_age">%1$s s</string>
+    <string name="location_dialog_accuracy">%1$s m</string>
+    <string name="location_dialog_speed">%1$s km/orë</string>
+    <string name="location_location_direction_n">N %1$s</string>
+    <string name="location_location_direction_e">E %1$s</string>
+    <string name="location_location_direction_s">S %1$s</string>
+    <string name="location_location_direction_w">W %1$s</string>
+    <string name="open_location_permission_dialog_label_open_permission_setting">Hapni cilësimet e aplikacionit</string>
+
+
+    <string name="text_ip_address_not_available">Adresa nuk është e disponueshme</string>
+    <string name="input_setting_dialog_ok">Ne rregull</string>
+    <string name="input_setting_dialog_cancel">Anulo</string>
+    <string name="loop_mode_max_delay_invalid" tools:ignore="PluralsCandidate">Ju lutemi zgjidhni një numër midis %1$d dhe %2$d.</string>
+    <string name="about_client_uuid_copied">UUID i klientit është kopjuar në clipboard.</string>
+    <string name="client_not_registered">Aplikacioni nuk është regjistruar, provo përsëri më vonë.</string>
+
+    <!-- Measurement screen -->
+    <string name="measurement_ping_value">%1$s</string>
+    <string name="measurement_ping_value_1f">%1$.1f</string>
+    <string name="measurement_download_upload_speed">%1$s</string>
+    <string name="measurement_download">Shkarko</string>
+    <string name="measurement_upload">Ngarkoni</string>
+    <string name="measurement_dash">-</string>
+    <string name="measurement_speed_chart_x_label_min">0s</string>
+    <string name="measurement_speed_chart_x_label_max">8-të</string>
+    <string name="measurement_ping">Ping</string>
+    <string name="measurement_down">Poshtë</string>
+    <string name="measurement_up">Lart</string>
+    <string name="measurement_qos">Cilësia e shërbimit (QoS)</string>
+    <string name="measurement_qos_web_site">Uebfaqe</string>
+    <string name="measurement_qos_transparent_connection">Lidhje transparente</string>
+    <string name="measurement_qos_dns">DNS</string>
+    <string name="measurement_qos_tcp_ports">Portet TCP</string>
+    <string name="measurement_qos_udp_ports">Portet UDP</string>
+    <string name="measurement_qos_unmodified_content">Përmbajtje e pa modifikuar</string>
+    <string name="measurement_qos_traceroute">Gjurmë gjurmë</string>
+    <string name="measurement_qos_voip">VoIP</string>
+
+    <string-array name="measurement_speed_chart_y_labels">
+        <item>1</item>
+        <item>10</item>
+        <item>100</item>
+        <item>1000</item>
+    </string-array>
+
+    <string name="label_qos">QoS</string>
+    <string name="label_upload">Ngarkoni</string>
+    <string name="label_download">Shkarko</string>
+    <string name="label_ping">Ping</string>
+    <string name="label_init">Fillimi</string>
+    <string name="label_signal_strength">Sinjal</string>
+    <string name="network_label">Rrjeti</string>
+
+    <string name="title_cancel_measurement">Dëshiron vërtet të anulosh matjen në vazhdim?</string>
+    <string name="text_continue_measurement">Vazhdoni matjen</string>
+    <string name="text_cancel_measurement">Anuloni matjen</string>
+    <string name="text_stop_measurement">Ndaloni matjen</string>
+
+    <string name="test_dialog_error_text">Testi dështoi. Ju lutemi provoni përsëri më vonë.</string>
+
+    <!-- History -->
+    <string name="history_item_header_down">Shkarko</string>
+    <string name="history_item_header_up">Ngarkoni</string>
+    <string name="history_item_header_ping">Ping</string>
+    <string name="history_no_data">Nuk ka të dhëna të disponueshme.</string>
+
+    <!-- Results -->
+    <string name="results_qoe_videos_sd">Videot SD</string>
+    <string name="results_qoe_videos_hd">Video HD</string>
+    <string name="results_qoe_videos_uhd">Videot UHD</string>
+    <string name="results_qoe_gaming">Lojërat e fatit</string>
+    <string name="results_qoe_gaming_cloud">Cloud i lojrave</string>
+    <string name="results_qoe_gaming_streaming">Transmetimi i lojërave</string>
+    <string name="results_qoe_gaming_download">Shkarkim lojrash</string>
+    <string name="results_qoe_audio_streaming">Transmetimi i audios</string>
+    <string name="results_qoe_voip">VoIP</string>
+    <string name="results_qoe_video_telephony">Video Telefonia</string>
+    <string name="results_qoe_video_conferencing">Konferenca me video</string>
+    <string name="results_qoe_messaging">Mesazheve</string>
+    <string name="results_qoe_web">Uebfaqe</string>
+    <string name="results_qoe_cloud">Re</string>
+    <string name="results_qoe_qos">Testet QoS</string>
+    <string name="results_network_type">Lloji</string>
+    <string name="results_network_provider">Ofruesi</string>
+    <string name="results_network_ssid">WLAN SSID</string>
+    <string name="result_test_details">Detajet e provës</string>
+    <string name="label_information">Informacioni</string>
+    <string name="label_tests">Testet</string>
+    <string name="label_succeeded">SUKSESUAR</string>
+    <string name="label_failed">D FASHTUAR</string>
+    <string name="label_description">PËRSHKRIM</string>
+    <string name="label_detail">DETAJE</string>
+
+    <!-- Map -->
+    <string name="map_layer_communities">Komunitetet</string>
+    <string name="map_layer_points">Pikët</string>
+    <string name="map_layer_automatic">Automatik</string>
+    <string name="map_label_overlay_type">Lloji i mbivendosjes</string>
+    <string name="map_label_map_appearance">Pamja e hartës</string>
+    <string name="title_marker_item_details">Shfaq më shumë detaje</string>
+
+    <string name="map_search_location_dialog_title">Kërko</string>
+    <string name="map_search_location_dialog_info">Kërkoni për një adresë ose qytet:</string>
+    <string name="map_search_location_dialog_not_found">Adresa nuk u gjet.</string>
+    <string name="map_search_location_not_supported">Na vjen keq, ky funksion nuk mbështetet nga pajisja juaj.</string>
+
+    <string name="text_failed_to_load_results">Ngarkimi i të dhënave dështoi. \ NJu lutemi tërhiqeni poshtë për të rifreskuar.</string>
+
+    <string name="title_sync">Sinkronizimi</string>
+    <string name="text_sync_info">Ju keni mundësinë të bashkoni rezultate nga pajisje të ndryshme. Për ta bërë këtë, duhet të futni një kod sinkronizimi të kërkuar tashmë ose të kërkoni një të ri.</string>
+    <string name="button_sync_request_code">Kodi i Kërkesës</string>
+    <string name="button_sync_enter_code">Shkruani kodin</string>
+    <string name="text_sync_code_received">Ju lutemi shkruani kodin e treguar më poshtë në pajisjen tjetër për të sinkronizuar rezultatet.</string>
+    <string name="text_sync_enter_code_desc">Ju lutemi shkruani kodin që keni marrë në pajisjen tuaj tjetër.</string>
+    <string name="button_close">Mbylle</string>
+    <string name="hint_sync_code">Kodin</string>
+    <string name="error_sync_code_short">Kodi duhet të përbëhet nga dymbëdhjetë karaktere</string>
+
+    <string name="notification_signal_test_title">Matja e sinjalit po ekzekutohet</string>
+
+    <string name="notification_loop_mode_finished_title">Modaliteti i lakut përfundoi</string>
+
+    <string name="toast_signal_measurement_enabled">Matja e sinjalit filloi.</string>
+    <string name="error_no_connection">Nuk ka lidhje interneti. Të dhënat nuk mund të ngarkohen.</string>
+
+    <string name="label_map_filters">Cilësimet e hartës</string>
+    <string name="text_filter_confirm">Pranoj</string>
+    <string name="text_filter_continue">Vazhdoni</string>
+    <string name="title_filters_type">Lloji i hartës</string>
+    <string name="title_filters_subtype">Llojet e opsioneve</string>
+
+    <string name="graph_signal_value">-%1$s dBm</string>
+
+    <string name="notification_loop_mode_title_active">Modaliteti i lakut është aktiv</string>
+    <string name="notification_loop_mode_title_running">Modaliteti i lakut po ekzekutohet (%1$d / %2$d)</string>
+
+    <string name="title_loop_mode">Modaliteti i lakut</string>
+    <string name="title_loop_measurement">Matja e lakut</string>
+    <string name="title_loop_waiting">Lak pritje</string>
+    <string name="text_button_decline">Rënie</string>
+    <string name="text_button_accept">Pranoj</string>
+    <string name="text_loop_instruction_2">Në rast të një kërkese të madhe ose një numri shumë të lartë të testeve në një zonë specifike, mënyra e lakut mund të refuzohet nga sistemi i provës në mënyrë që të shmanget mbingarkesa. Ju lutemi vini re se modusi i lakut është (vetëm) i destinuar për t\'u përdorur brenda BE dhe EEA. Moduli loop konsumon një sasi të madhe të të dhënave. Me lidhje të shpejta, 10 teste mund të konsumojnë 1 GB ose më shumë të dhëna. Prandaj rekomandohet me forcë që moduli i lakut të përdoret vetëm me tarifa reale me normë të sheshtë, ku vëllimi shtesë i të dhënave nuk shkakton kosto shtesë. Modeli loop harxhon baterinë shpejt. Në pauza midis provave, GPS dhe ekrani mbetet aktiv dhe matjet e sinjalit vazhdojnë, që do të thotë se energjia harxhohet shumë më shpejt sesa gjatë modalitetit të gatishmërisë. Moduli i lakut duhet të përdoret vetëm nëse është në dispozicion një furnizim i jashtëm i energjisë.</string>
+    <string name="title_loop_instruction_1">Aktivizimi</string>
+    <string name="title_loop_instruction_2">Përdorimi</string>
+
+    <string name="text_filter_devices">Pajisjet</string>
+    <string name="text_filter_networks">Rrjetet</string>
+    <string name="label_filter_options">Opsione</string>
+    <string name="label_filter">Filtri</string>
+
+    <string name="loop_continue_to_results">Vazhdoni te rezultati</string>
+    <string name="loop_run_again">Vrapo përsëri</string>
+    <string name="title_privacy_policy">Politika e privatësisë</string>
+    <string name="text_terms_agree_empty">Ju duhet të bini dakord me politikën e privatësisë dhe kushtet e përdorimit për të vazhduar.</string>
+
+    <string name="dialog_title_config_check">Ju lutemi ndryshoni vlerat e mëposhtme:</string>
+    <string name="label_ip_processing">Po përpunon</string>
+    <string name="radio_info_warning_title">Cilësimet e radios</string>
+    <string name="radio_info_warning_message">Kini kujdes: Ndryshimi i cilësimeve të përparuara të konfigurimit të radios mund të jetë i dëmshëm për stabilitetin dhe performancën e pajisjes tuaj.</string>
+    <string name="accept_risk">Unë e pranoj rrezikun</string>
+    <string name="preferences_connection_details_not_supported">Detajet e zgjatura të lidhjes nuk mbështeten në këtë pajisje</string>
+
+    <string name="dialog_signal_info_title">Informacioni i sinjalit</string>
+    <string name="dialog_signal_info_waiting">Te lutem prit…</string>
+    <string name="dialog_signal_info_band">Bandë</string>
+    <string name="dialog_signal_info_channel">Kanali</string>
+    <string name="dialog_signal_info_ta">AT</string>
+    <string name="dialog_signal_info_quality">Cilësia</string>
+    <string name="text_local_results">Vetëm rezultatet lokale</string>
+    <string name="signal_measurement_terms_title">Aktivizimi dhe përdorimi</string>
+    <string name="signal_measurement_terms_content">Opsioni i modalitetit të lakut vetëm për sinjalin për përdoruesit e interesuar teknikisht lejon përsëritjen automatike të matjeve të sinjalit - pa u kryer ndonjë provë shpejtësie ose cilësie. Moduli i lakut vetëm për sinjal mund të ndalet në çdo kohë, përkatësisht ndalet automatikisht pas 48 orësh. Moduli i lakut vetëm të sinjalit është (vetëm) i destinuar për përdorim brenda BE-së dhe ZEE-së. Bateria thahet shpejt nga matjet vetëm të sinjalit. Në pauzat ndërmjet provave, GPS dhe ekrani mbeten aktivë dhe matjet e sinjalit vazhdojnë, që do të thotë se energjia harxhohet shumë më shpejt sesa në modalitetin e gatishmërisë. Moduli i lakut duhet të përdoret vetëm nëse është në dispozicion një furnizim i jashtëm i energjisë. Duhet theksuar qartë se për shkak të mënyrës së lakut vetëm për sinjal nuk mund të përjashtohet që testuesi të identifikohet.</string>
+    <string name="text_phase_init">Inicializimi</string>
+    <string name="text_phase_qos">Cilësia e Shërbimit</string>
+    <string name="text_phase_upload">Ngarkoni</string>
+    <string name="text_phase_download">Shkarko</string>
+    <string name="text_phase_ping">Ping</string>
+    <string name="text_unit_mbps">Mbps</string>
+    <string name="text_unit_ping">Znj</string>
+    <string name="text_current_from_count">%1$d e %2$d</string>
+    <string name="loop_mode_next_test">Matja tjetër</string>
+    <string name="unit_minutes">min</string>
+    <string name="or">ose</string>
+    <string name="unit_meter">m</string>
+    <string name="median">Mesatare</string>
+
+    <string name="title_permissions_welcome">Mirësevini në Akep Nettest</string>
+    <string name="text_permissions_welcome">Le të Rishikojmë Opsionet tuaja të Privatësisë</string>
+    <string name="button_next">Tjetra</string>
+    <string name="title_permissions_accuracy">Saktësia Akep Nettest</string>
+    <string name="text_permissions_accuracy">Akep Nettest ka nevojë për funksionalitete të caktuara për të funksionuar si duhet.</string>
+    <string name="text_permissions_accuracy_phone">Ne kurrë nuk do të bëjmë ose menaxhojmë thirrjet telefonike. Ne përdorim lejet e telefonit për të identifikuar operatorin celular të përdorur për testim.</string>
+    <string name="title_permissions_accuracy_phone">Lejet e telefonit</string>
+    <string name="title_permissions_accuracy_location">Lejet e vendndodhjes</string>
+    <string name="text_permissions_accuracy_location">Vendndodhja juaj identifikon serverat e afërt dhe lidhjen celulare të pajisjes tuaj në mënyrë që të konfiguroni siç duhet Akep Nettest</string>
+    <string name="button_continue">Vazhdoni</string>
+    <string name="title_permissions_signal">Lejoni skanimin e sinjalit të rrjetit</string>
+    <string name="text_permissions_signal">Akep Nettest do të dëshironte të kontrollonte periodikisht mbulimin celular, cilësinë dhe të dhënat e vendndodhjes për t\'ju siguruar me hartat e mbulimit të operatorit. Këto të dhëna mblidhen gjithashtu kur aplikacioni është i mbyllur ose nuk është në përdorim për të krijuar hartën më të saktë të mundshme. Ne përdorim lejet e telefonit për të identifikuar operatorin celular të përdorur për testim.</string>
+    <string name="text_permissions_signal_coverage">Të dhënat e mbulimit anonim mund të ndahen me operatorët për t\'i ndihmuar ata të përmirësojnë rrjetet e tyre. Mëso më shumë</string>
+    <string name="button_not_allow">Nuk lejojnë</string>
+    <string name="button_allow">Lejo</string>
+    <string name="title_permissions_analytics">Na ndihmoni të përmirësojmë Akep Nettest</string>
+    <string name="text_permissions_analytics">Akep Nettest mund të përdorë shërbime të palëve të treta për të mbledhur të dhëna në lidhje me pajisjen tuaj dhe përdorimin tuaj të Akep Nettest dhe t\'i përdorë ato për të përmirësuar përvojën dhe qëndrueshmërinë e aplikimit.</string>
+    <string name="text_permissions_analytics_coverage">Të lejohet Akep Nettest të mbledhë analiza dhe raporte të ndërprerjeve aksidentale?</string>
+    <string name="button_agree">Pajtohem</string>
+    <string name="title_permissions_uuid">Klient i vazhdueshëm UUID</string>
+    <string name="text_permissions_uuid">Klient UUID është një ID e gjeneruar rastësisht që ruhet me çdo matje. Klient i Përhershëm UUID do të thotë që ID-ja është e njëjtë për çdo matje tuaj. Shtë e nevojshme për të mundësuar historinë e matjeve dhe sinkronizimin e rezultateve midis pajisjeve. Mund ta ndryshoni më vonë te cilësimet.</string>
+    <string name="title_result_filter_operators">Operatorët</string>
+    <string name="label_results">Rezultatet</string>
+    <string name="title_loop_measurements">Matjet e lakut</string>
+    <string name="text_link_history_empty">Bëni matjen tuaj të parë</string>
+    <string name="text_history_empty">Asnjë rezultat për të treguar.</string>
+
+    <string-array name="title_results_tabs">
+        <item>Listë</item>
+        <item>Harta</item>
+    </string-array>
+
+
+</resources>
