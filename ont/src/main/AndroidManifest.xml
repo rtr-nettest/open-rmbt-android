@@ -7,7 +7,6 @@
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-    <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />
 
     <uses-feature
@@ -22,10 +21,17 @@
     <uses-feature
         android:name="android.hardware.wifi"
         android:required="false" />
+    <uses-feature
+        android:name="android.software.leanback"
+        android:required="false" />
+    <uses-feature
+        android:name="android.hardware.location.gps"
+        android:required="false" />
 
     <application
         android:name=".App"
         android:allowBackup="false"
+        android:banner="@mipmap/ic_banner"
         android:hardwareAccelerated="false"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
@@ -34,7 +40,6 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         tools:ignore="AllowBackup,GoogleAppIndexingWarning,UnusedAttribute">
-        <activity android:name=".ui.activity.PermissionsActivity"></activity>
         <activity
             android:name=".ui.activity.SplashActivity"
             android:theme="@style/SplashNoActionBarTheme"
@@ -42,6 +47,7 @@
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
+                <category android:name="android.intent.category.LEANBACK_LAUNCHER" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
@@ -80,6 +86,10 @@
             android:name=".ui.activity.DataPrivacyAndTermsOfUseActivity"
             android:theme="@style/PreferenceTheme" />
         <activity android:name=".ui.activity.TermsAcceptanceActivity" />
+        <activity android:name=".ui.activity.PermissionsActivity" />
+        <activity android:name=".ui.activity.ResultFiltersActivity" />
+        <activity android:name=".ui.activity.SyncActivity" />
+        <activity android:name=".ui.activity.LoopMeasurementResultsActivity"/>
 
         <meta-data
             android:name="com.google.android.geo.API_KEY"

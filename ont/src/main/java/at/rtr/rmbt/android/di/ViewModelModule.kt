@@ -4,7 +4,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import at.rtr.rmbt.android.viewmodel.BasicResultViewModel
 import at.rtr.rmbt.android.viewmodel.ConfigCheckViewModel
-import at.rtr.rmbt.android.viewmodel.HistoryFiltersViewModel
 import at.rtr.rmbt.android.viewmodel.HistoryViewModel
 import at.rtr.rmbt.android.viewmodel.HomeViewModel
 import at.rtr.rmbt.android.viewmodel.LocationViewModel
@@ -18,8 +17,11 @@ import at.rtr.rmbt.android.viewmodel.QosTestDetailPagerViewModel
 import at.rtr.rmbt.android.viewmodel.QosTestDetailViewModel
 import at.rtr.rmbt.android.viewmodel.QosTestsSummaryViewModel
 import at.rtr.rmbt.android.viewmodel.ResultChartViewModel
+import at.rtr.rmbt.android.viewmodel.ResultListFiltersViewModel
 import at.rtr.rmbt.android.viewmodel.ResultViewModel
+import at.rtr.rmbt.android.viewmodel.ResultsListLoopViewModel
 import at.rtr.rmbt.android.viewmodel.SettingsViewModel
+import at.rtr.rmbt.android.viewmodel.SimpleResultsListViewModel
 import at.rtr.rmbt.android.viewmodel.SplashViewModel
 import at.rtr.rmbt.android.viewmodel.StatisticsViewModel
 import at.rtr.rmbt.android.viewmodel.SyncDevicesViewModel
@@ -48,6 +50,11 @@ interface ViewModelModule {
     @IntoMap
     @ViewModelKey(HistoryViewModel::class)
     fun bindHistoryViewModel(viewModel: HistoryViewModel): ViewModel
+
+    @Binds
+    @IntoMap
+    @ViewModelKey(SimpleResultsListViewModel::class)
+    fun bindSimpleResultsViewModel(viewModel: SimpleResultsListViewModel): ViewModel
 
     @Binds
     @IntoMap
@@ -126,8 +133,8 @@ interface ViewModelModule {
 
     @Binds
     @IntoMap
-    @ViewModelKey(HistoryFiltersViewModel::class)
-    fun bindHistoryFiltersViewModel(viewModel: HistoryFiltersViewModel): ViewModel
+    @ViewModelKey(ResultListFiltersViewModel::class)
+    fun bindHistoryFiltersViewModel(viewModel: ResultListFiltersViewModel): ViewModel
 
     @Binds
     @IntoMap
@@ -153,4 +160,9 @@ interface ViewModelModule {
     @IntoMap
     @ViewModelKey(PermissionsViewModel::class)
     fun bindPermissionsViewModel(viewModel: PermissionsViewModel): ViewModel
+
+    @Binds
+    @IntoMap
+    @ViewModelKey(ResultsListLoopViewModel::class)
+    fun bindResultsListLoopViewModel(viewModel: ResultsListLoopViewModel): ViewModel
 }

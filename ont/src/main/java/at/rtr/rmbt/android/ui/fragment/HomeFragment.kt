@@ -34,7 +34,7 @@ class HomeFragment : BaseFragment() {
         binding.state = homeViewModel.state
 
         homeViewModel.isConnected.listen(this) {
-            activity?.window?.changeStatusBarColor(if (it) ToolbarTheme.BLUE else ToolbarTheme.GRAY)
+            activity?.window?.changeStatusBarColor(ToolbarTheme.WHITE)
         }
 
         homeViewModel.signalStrengthLiveData.listen(this) {

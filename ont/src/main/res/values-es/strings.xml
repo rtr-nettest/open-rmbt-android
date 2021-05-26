@@ -181,11 +181,9 @@
     <string name="test_dialog_error_text">Algo ha ido mal. Por favor, inténtelo de nuevo más tarde.</string>
 
     <!-- History -->
-    <string name="history_item_header_test">Prueba</string>
     <string name="history_item_header_down">Descarge</string>
     <string name="history_item_header_up">Subida</string>
     <string name="history_item_header_ping">Ping</string>
-    <string name="history_item_header_ms">ms</string>
     <string name="history_no_data">No hay datos disponibles.</string>
 
     <!-- Results -->
@@ -237,7 +235,6 @@
     <string name="text_sync_code_received">Por favor, introduzca el código en su otro dispositivo para sincronizar sus resultados.</string>
     <string name="text_sync_enter_code_desc">Por favor, introduzca el código que ha recibido en su otro dispositivo.</string>
     <string name="button_close">Cerrar</string>
-    <string name="toast_sync_code_copied_to_clipboard">Copiado</string>
     <string name="hint_sync_code">Código</string>
     <string name="error_sync_code_short">El código debe tener 12 caracteres</string>
 
@@ -309,4 +306,33 @@
     <string name="title_loop_waiting">"Bucle esperando "</string>
     <string name="loop_mode_next_test">Medida siguiente</string>
     <string name="median">Mediano</string>
+
+    <string name="title_permissions_welcome"> Bienvenido a Open Nettest </string>
+    <string name="text_permissions_welcome"> Revisemos sus opciones de privacidad </string>
+    <string name="button_next"> Siguiente </string>
+    <string name="title_permissions_accuracy"> Abrir precisión nettest </string>
+    <string name="text_permissions_accuracy"> Open Nettest necesita cierta funcionalidad para funcionar correctamente. </string>
+    <string name="text_permissions_accuracy_phone"> Nunca haremos ni administraremos llamadas telefónicas. Usamos permisos telefónicos para identificar el operador de telefonía móvil utilizado para las pruebas. </string>
+    <string name="title_permissions_accuracy_phone"> Permisos telefónicos </string>
+    <string name="title_permissions_accuracy_location"> Permisos de ubicación </string>
+    <string name="text_permissions_accuracy_location"> Su ubicación identifica los servidores cercanos y la conexión celular de su dispositivo para configurar correctamente Open Nettest </string>
+    <string name="button_continue"> Continuar </string>
+    <string name="title_permissions_signal"> Permitir el escaneo de señales de red </string>
+    <string name="text_permissions_signal"> Open Nettest desea verificar periódicamente la cobertura móvil, la calidad y los datos de ubicación para proporcionarle mapas de cobertura del operador. Estos datos también se recopilan cuando la aplicación está cerrada o no está en uso para crear el mapa más preciso posible. Usamos permisos telefónicos para identificar el operador de telefonía móvil utilizado para las pruebas. </string>
+    <string name="text_permissions_signal_coverage"> Los datos de cobertura anonimizados pueden compartirse con los operadores para ayudarlos a mejorar sus redes. Más información </string>
+    <string name="button_not_allow"> No permitir </string>
+    <string name="button_allow"> Permitir </string>
+    <string name="title_permissions_analytics"> Ayúdenos a mejorar Open Nettest </string>
+    <string name="text_permissions_analytics"> Open Nettest puede usar servicios de terceros para recopilar datos sobre su dispositivo y su uso de Open Nettest y usarlos para mejorar la experiencia y la estabilidad de la aplicación. </string>
+    <string name="text_permissions_analytics_coverage"> ¿Permitir que Open Nettest recopile análisis e informes de fallos? </string>
+    <string name="button_agree"> Estoy de acuerdo </string>
+    <string name="title_permissions_uuid"> UUID de cliente persistente </string>
+    <string name="text_permissions_uuid"> El UUID del cliente es un ID generado aleatoriamente que se guarda con cada medición. UUID de cliente persistente significa que el ID es el mismo para todas sus mediciones. Es necesario para habilitar el historial de mediciones y la sincronización de los resultados entre dispositivos. Puedes cambiarlo más tarde en la configuración. </string>
+
+    <string name="title_result_filter_operators">Operadores</string>
+    <string name="label_results">Resultados</string>
+
+    <string name="title_loop_measurements"> Medidas de bucle </string>
+    <string name="text_link_history_empty"> Realice su primera medición </string>
+    <string name="text_history_empty"> No hay resultados para mostrar. </string>
 </resources>

@@ -24,7 +24,6 @@ import at.specure.data.repository.MeasurementRepository
 import at.specure.data.repository.TestDataRepository
 import at.specure.info.Network5GSimulator
 import at.specure.info.TransportType
-import at.specure.info.cell.CellInfoWatcher
 import at.specure.info.cell.CellNetworkInfo
 import at.specure.info.network.MobileNetworkType
 import at.specure.info.network.NRConnectionState
@@ -46,6 +45,7 @@ import at.specure.util.toCellInfoRecord
 import at.specure.util.toCellLocation
 import at.specure.util.toSignalRecord
 import cz.mroczis.netmonster.core.INetMonster
+import cz.mroczis.netmonster.core.feature.merge.CellSource
 import cz.mroczis.netmonster.core.model.cell.ICell
 import org.json.JSONArray
 import timber.log.Timber
@@ -62,7 +62,6 @@ class StateRecorder @Inject constructor(
     private val locationWatcher: LocationWatcher,
     private val signalStrengthLiveData: SignalStrengthLiveData,
     private val signalStrengthWatcher: SignalStrengthWatcher,
-    private val cellInfoWatcher: CellInfoWatcher,
     private val config: Config,
     private val subscriptionManager: SubscriptionManager,
     private val cellLocationWatcher: CellLocationWatcher,
@@ -330,7 +329,7 @@ class StateRecorder @Inject constructor(
                 try {
                     var cells: List<ICell>? = null
 
-                    cells = netmonster.getCells()
+                    cells = netmonster.getCells(CellSource.NEIGHBOURING_CELLS, CellSource.ALL_CELL_INFO, CellSource.CELL_LOCATION)
 
                     val dataSubscriptionId = subscriptionManager.getCurrentDataSubscriptionId()
 
@@ -343,30 +342,35 @@ class StateRecorder @Inject constructor(
                     if (uuid != null) {
                         val testStartTimeNanos = testStartTimeNanos ?: 0
                         primaryCells?.toList()?.let {
-                            it.forEach { iCell ->
-
+                            if (it.size == 1) {
+                                val iCell = it[0]
                                 val cellInfoRecord = iCell.toCellInfoRecord(uuid, netmonster)
-                                if (cellInfoRecord.uuid.isNotEmpty()) {
-                                    iCell.signal?.let { iSignal ->
-                                        Timber.e("Signal saving time SCI: starting time: $testStartTimeNanos   current time: ${System.nanoTime()}")
-                                        Timber.d("valid signal directly")
-                                        val signalRecord = iSignal.toSignalRecord(
-                                            uuid,
-                                            cellInfoRecord.uuid,
-                                            iCell.mobileNetworkType(netmonster),
-                                            testStartTimeNanos,
-                                            NRConnectionState.NOT_AVAILABLE
-                                        )
-                                        signalsToSave.add(signalRecord)
+                                cellInfoRecord?.let {
+                                    if (cellInfoRecord.uuid.isNotEmpty()) {
+                                        iCell.signal?.let { iSignal ->
+                                            Timber.e("Signal saving time SCI: starting time: $testStartTimeNanos   current time: ${System.nanoTime()}")
+                                            Timber.d("valid signal directly")
+                                            val signalRecord = iSignal.toSignalRecord(
+                                                uuid,
+                                                cellInfoRecord.uuid,
+                                                iCell.mobileNetworkType(netmonster),
+                                                testStartTimeNanos,
+                                                NRConnectionState.NOT_AVAILABLE
+                                            )
+                                            signalsToSave.add(signalRecord)
+                                        }
                                     }
+                                    val cellLocationRecord =
+                                        iCell.toCellLocation(uuid, System.currentTimeMillis(), System.nanoTime(), testStartTimeNanos)
+                                    cellLocationRecord?.let {
+                                        cellLocationsToSave.add(cellLocationRecord)
+                                    }
+                                    cellInfosToSave.add(cellInfoRecord)
                                 }
-                                val cellLocationRecord =
-                                    iCell.toCellLocation(uuid, System.currentTimeMillis(), System.nanoTime(), testStartTimeNanos)
-                                cellLocationRecord?.let {
-                                    cellLocationsToSave.add(cellLocationRecord)
-                                }
-                                cellInfosToSave.add(cellInfoRecord)
+                            } else {
+                                // ignoring more than one primary cell for one subscription ID - not consistent state
                             }
+
                             repository.saveCellLocationRecord(cellLocationsToSave)
                             repository.saveCellInfoRecord(cellInfosToSave)
                             repository.saveSignalRecord(signalsToSave)
@@ -384,7 +388,7 @@ class StateRecorder @Inject constructor(
             if (uuid != null && info != null) {
                 val infoList: List<NetworkInfo> = when (info) {
                     is WifiNetworkInfo -> listOf(info)
-                    is CellNetworkInfo -> cellInfoWatcher.allCellInfo
+                    is CellNetworkInfo -> listOf<NetworkInfo>()
                     else -> throw IllegalArgumentException("Unknown cell info ${info.javaClass.simpleName}")
                 }
 
@@ -429,7 +433,6 @@ class StateRecorder @Inject constructor(
         if (info != null && info is CellNetworkInfo) {
             testRecord?.mobileNetworkType = info.networkType
         }
-
         testUUID?.let { measurementRepository.saveTelephonyInfo(it) }
     }
 

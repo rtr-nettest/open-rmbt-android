@@ -298,22 +298,26 @@ class TestDataRepositoryImpl(db: CoreDatabase) : TestDataRepository {
         dualSimDetectionMethod = null
     )
 
-    private fun CellNetworkInfo.toCellInfoRecord(testUUID: String) = CellInfoRecord(
-        testUUID = testUUID,
-        uuid = cellUUID,
-        isActive = isActive,
-        cellTechnology = CellTechnology.fromMobileNetworkType(networkType),
-        transportType = type,
-        registered = isRegistered,
-        areaCode = areaCode,
-        channelNumber = band?.channel,
-        frequency = band?.frequencyDL,
-        locationId = locationId,
-        mcc = mcc,
-        mnc = mnc,
-        primaryScramblingCode = scramblingCode,
-        dualSimDetectionMethod = dualSimDetectionMethod
-    )
+    private fun CellNetworkInfo.toCellInfoRecord(testUUID: String): CellInfoRecord {
+        val cellInfoRecord = CellInfoRecord(
+            testUUID = testUUID,
+            uuid = cellUUID,
+            isActive = isActive,
+            cellTechnology = CellTechnology.fromMobileNetworkType(networkType),
+            transportType = type,
+            registered = isRegistered,
+            areaCode = areaCode,
+            channelNumber = band?.channel,
+            frequency = band?.frequencyDL,
+            locationId = locationId,
+            mcc = mcc,
+            mnc = mnc,
+            primaryScramblingCode = scramblingCode,
+            dualSimDetectionMethod = dualSimDetectionMethod
+        )
+        Timber.d("Saving CellInfo Record TDR with uuid: ${cellInfoRecord.uuid} and cellTechnology: ${cellInfoRecord.cellTechnology?.name} and channel number: ${cellInfoRecord.channelNumber}")
+        return cellInfoRecord
+    }
 
     override fun savePermissionStatus(testUUID: String, permission: String, granted: Boolean) = io {
         val permissionStatus = PermissionStatusRecord(testUUID = testUUID, permissionName = permission, status = granted)
