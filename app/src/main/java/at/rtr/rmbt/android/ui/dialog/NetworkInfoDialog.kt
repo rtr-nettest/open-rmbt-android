@@ -41,16 +41,16 @@ class NetworkInfoDialog : FullscreenDialog() {
         super.onViewCreated(view, savedInstanceState)
 
         activeNetworkLiveData.listen(this) { info ->
-            binding.info = info?.networkInfo
+            binding.info = info
 
-            if (info?.networkInfo is CellNetworkInfo && (info.networkInfo as CellNetworkInfo).band != null) {
-                val band = (info.networkInfo as CellNetworkInfo).band!!
+            if (info is CellNetworkInfo && (info as CellNetworkInfo).band != null) {
+                val band = (info as CellNetworkInfo).band!!
                 binding.channelNumber = band.channel.toString()
                 binding.labelChannelNumber.text = band.channelAttribution.name
 
                 binding.channelName = "${band.band} (${band.name})"
-            } else if (info?.networkInfo is WifiNetworkInfo) {
-                val band = (info.networkInfo as WifiNetworkInfo).band
+            } else if (info is WifiNetworkInfo) {
+                val band = (info as WifiNetworkInfo).band
                 binding.channelNumber = "${band.channelNumber} (${band.frequency} MHz)"
                 binding.labelChannelNumber.text = getString(R.string.dialog_signal_info_channel)
 

@@ -22,6 +22,8 @@ class BasicResultFragment : BaseFragment() {
     private val viewModel: BasicResultViewModel by viewModelLazy()
     private val binding: FragmentBasicResultBinding by bindingLazy()
 
+    var onDataLoadedListener: DataLoadedListener? = null
+
     override val layoutResId = R.layout.fragment_basic_result
 
     @SuppressLint("ClickableViewAccessibility")
@@ -77,6 +79,7 @@ class BasicResultFragment : BaseFragment() {
                                 signalStrength = null
                             )
                         )
+                        onDataLoadedListener?.onDataLoaded()
                     }
                 }
             }
@@ -153,5 +156,10 @@ class BasicResultFragment : BaseFragment() {
             fragment.arguments = args
             return fragment
         }
+    }
+
+    public interface DataLoadedListener {
+
+        fun onDataLoaded()
     }
 }

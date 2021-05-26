@@ -144,14 +144,18 @@ enum class MobileNetworkType(val intValue: Int, val displayName: String) {
         fun fromValue(intValue: Int): MobileNetworkType {
             for (value in values()) {
                 if (value.intValue == intValue) {
-                    return value
+                    // fix because of netmonster library returns LTE_CA in cases when it is plain LTE - so we decided to report only LTE in case LTE and LTE_CA
+                    return if (value == LTE_CA)
+                        LTE
+                    else
+                        value
                 }
             }
 
             return when (intValue) {
                 NetworkType.LTE_NR -> NR_NSA
                 NetworkType.LTE_CA_NR -> NR_NSA
-                NetworkType.HSPA_DC -> HSPA
+                NetworkType.HSPA_DC -> HSPAP
                 ServerNetworkType.TYPE_2G_3G.intValue -> HSPA
                 ServerNetworkType.TYPE_2G_3G_4G.intValue -> LTE
                 ServerNetworkType.TYPE_2G_4G.intValue -> LTE

@@ -34,7 +34,7 @@ interface HistoryRepository {
 
     fun loadHistoryItems(offset: Int, limit: Int, ignoreFilters: Boolean): Maybe<List<History>>
 
-    fun loadLoopHistoryItems(loopUuid: String): List<History>
+    fun loadLoopHistoryItems(loopUuid: String): Flow<List<History>>
 
     fun loadLoopMedianValues(loopUuid: String): Flow<HistoryLoopMedian?>
 

@@ -29,14 +29,13 @@ import at.specure.info.ip.IpInfo
 import at.specure.info.ip.IpStatus
 import at.specure.info.network.DetailedNetworkInfo
 import at.specure.info.network.EthernetNetworkInfo
-import at.specure.info.network.MobileNetworkType
-import at.specure.info.network.NRConnectionState
 import at.specure.info.network.NetworkInfo
 import at.specure.info.network.WifiNetworkInfo
 import at.specure.info.strength.SignalStrengthInfo
 import at.specure.measurement.MeasurementState
 import at.specure.result.QoECategory
 import com.google.android.material.bottomsheet.BottomSheetBehavior
+import timber.log.Timber
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
@@ -193,12 +192,9 @@ fun AppCompatTextView.setNetworkType(detailedNetworkInfo: DetailedNetworkInfo?) 
         is CellNetworkInfo -> {
             val technology =
                 CellTechnology.fromMobileNetworkType((detailedNetworkInfo.networkInfo as CellNetworkInfo).networkType)?.displayName
+            Timber.d("NM network type to display: ${(detailedNetworkInfo.networkInfo as CellNetworkInfo).networkType.displayName}")
             if (shortDisplayOfTechnology || technology == null) {
-                if ((detailedNetworkInfo.networkInfo as CellNetworkInfo).networkType == MobileNetworkType.NR && detailedNetworkInfo.nrConnectionState == NRConnectionState.NSA) {
-                    MobileNetworkType.NR_NSA.displayName
-                } else {
-                    (detailedNetworkInfo.networkInfo as CellNetworkInfo).networkType.displayName
-                }
+                (detailedNetworkInfo.networkInfo as CellNetworkInfo).networkType.displayName
             } else {
                 "$technology/${(detailedNetworkInfo.networkInfo as CellNetworkInfo).networkType.displayName}"
             }

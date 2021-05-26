@@ -31,9 +31,11 @@ import at.rtr.rmbt.android.util.ToolbarTheme
 import at.rtr.rmbt.android.util.changeStatusBarColor
 import at.rtr.rmbt.android.util.listen
 import at.rtr.rmbt.android.viewmodel.HomeViewModel
+import at.specure.info.cell.CellNetworkInfo
 import at.specure.location.LocationState
 import at.specure.measurement.MeasurementService
 import at.specure.util.toast
+import timber.log.Timber
 
 class HomeFragment : BaseFragment() {
 
@@ -51,13 +53,11 @@ class HomeFragment : BaseFragment() {
             activity?.window?.changeStatusBarColor(if (it) ToolbarTheme.BLUE else ToolbarTheme.GRAY)
         }
 
-        homeViewModel.activeNetworkLiveData.listen(this) {
-            homeViewModel.state.activeNetworkInfo.set(it)
-        }
-
         homeViewModel.signalStrengthLiveData.listen(this) {
             homeViewModel.state.signalStrength.set(it?.signalStrengthInfo)
             homeViewModel.state.activeNetworkInfo.set(it)
+            if (it?.networkInfo is CellNetworkInfo)
+                Timber.d("NM network type to display from SSLD: ${(it.networkInfo as CellNetworkInfo).networkType.displayName}")
         }
 
         homeViewModel.locationStateLiveData.listen(this) {
@@ -181,6 +181,8 @@ class HomeFragment : BaseFragment() {
         homeViewModel.signalStrengthLiveData.listen(this) {
             homeViewModel.state.signalStrength.set(it?.signalStrengthInfo)
             homeViewModel.state.activeNetworkInfo.set(it)
+            if (it?.networkInfo is CellNetworkInfo)
+                Timber.d("NM network type to display from SSLD OR: ${(it.networkInfo as CellNetworkInfo).networkType.displayName}")
         }
     }
 
