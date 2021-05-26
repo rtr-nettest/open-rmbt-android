@@ -197,6 +197,6 @@ class HomeViewModel @Inject constructor(
     }
 
     fun shouldDisplayNetworkDetails(): Boolean {
-        return ((isExpertModeOn) && (activeNetworkLiveData.value?.networkInfo?.type == TransportType.WIFI || activeNetworkLiveData.value?.networkInfo?.type == TransportType.CELLULAR))
+        return ((isExpertModeOn) && (state.activeNetworkInfo.get()?.networkInfo?.type == TransportType.WIFI || state.activeNetworkInfo.get()?.networkInfo?.type == TransportType.CELLULAR))
     }
 }
