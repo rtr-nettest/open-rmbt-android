@@ -78,6 +78,7 @@ class CoreModule {
         telephonyManager: TelephonyManager,
         activeNetworkWatcher: ActiveNetworkWatcher,
         wifiInfoWatcher: WifiInfoWatcher,
+        cellInfoWatcher: CellInfoWatcher,
         locationAccess: LocationAccess
     ): SignalStrengthWatcher =
         SignalStrengthWatcherImpl(
@@ -87,6 +88,7 @@ class CoreModule {
             telephonyManager,
             activeNetworkWatcher,
             wifiInfoWatcher,
+            cellInfoWatcher,
             locationAccess
         )
 
@@ -126,19 +128,15 @@ class CoreModule {
     fun provideCellInfoWatcher(
         context: Context,
         telephonyManager: TelephonyManager,
-        locationAccess: LocationAccess,
-        phoneStateAccess: PhoneStateAccess,
         connectivityManager: ConnectivityManager,
-        activeDataCellInfoExtractor: ActiveDataCellInfoExtractor,
+        netmonster: INetMonster,
         subscriptionManager: SubscriptionManager
     ): CellInfoWatcher =
         CellInfoWatcherImpl(
             context,
             telephonyManager,
-            locationAccess,
-            phoneStateAccess,
             connectivityManager,
-            activeDataCellInfoExtractor,
+            netmonster,
             subscriptionManager
         )
 
@@ -149,13 +147,27 @@ class CoreModule {
     @Provides
     @Singleton
     fun provideActiveNetworkWatcher(
+        context: Context,
+        netmonster: INetMonster,
+        subscriptionManager: SubscriptionManager,
+        telephonyManager: TelephonyManager,
+        connectivityManager: ConnectivityManager,
         connectivityWatcher: ConnectivityWatcher,
         wifiInfoWatcher: WifiInfoWatcher,
-        cellInfoWatcher: CellInfoWatcher,
         locationWatcher: LocationWatcher,
         captivePortal: CaptivePortal
     ): ActiveNetworkWatcher =
-        ActiveNetworkWatcher(connectivityWatcher, wifiInfoWatcher, cellInfoWatcher, locationWatcher.stateWatcher, captivePortal)
+        ActiveNetworkWatcher(
+            context,
+            netmonster,
+            subscriptionManager,
+            telephonyManager,
+            connectivityManager,
+            connectivityWatcher,
+            wifiInfoWatcher,
+            locationWatcher.stateWatcher,
+            captivePortal
+        )
 
     @Provides
     @Singleton
