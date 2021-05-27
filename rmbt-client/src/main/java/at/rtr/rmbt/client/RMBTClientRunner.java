@@ -16,6 +16,11 @@
  ******************************************************************************/
 package at.rtr.rmbt.client;
 
+import net.measurementlab.ndt.NdtTests;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.IOException;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
@@ -24,14 +29,6 @@ import java.util.Arrays;
 
 import javax.net.ssl.SSLContext;
 
-import joptsimple.OptionException;
-import joptsimple.OptionParser;
-import joptsimple.OptionSet;
-import net.measurementlab.ndt.NdtTests;
-
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import at.rtr.rmbt.client.helper.Config;
 import at.rtr.rmbt.client.helper.RevisionHelper;
 import at.rtr.rmbt.client.helper.TestStatus;
@@ -39,6 +36,9 @@ import at.rtr.rmbt.client.ndt.NDTRunner;
 import at.rtr.rmbt.client.v2.task.QoSTestEnum;
 import at.rtr.rmbt.client.v2.task.result.QoSResultCollector;
 import at.rtr.rmbt.client.v2.task.service.TestSettings;
+import joptsimple.OptionException;
+import joptsimple.OptionParser;
+import joptsimple.OptionSet;
 
 public class RMBTClientRunner
 {
@@ -202,7 +202,7 @@ public class RMBTClientRunner
             
             // standard mode with contact to control server
             client = RMBTClient.getInstance(host, null, port, encryption, geoInfo, uuid,
-                    "DESKTOP", Config.RMBT_CLIENT_NAME, Config.RMBT_VERSION_NUMBER, overrideParams, null);
+                    "DESKTOP", Config.RMBT_CLIENT_NAME, Config.RMBT_VERSION_NUMBER, overrideParams, null, null, true);
         }
         
         if (client != null)
@@ -221,7 +221,7 @@ public class RMBTClientRunner
                 {
                     e.printStackTrace();
                 }
-                client.sendResult(jsonResult);
+                client.sendResult(jsonResult, null);
             }
             
             client.shutdown();
@@ -235,10 +235,10 @@ public class RMBTClientRunner
     				QoSResultCollector nnResult = nnTest.call();
                 	System.out.println("finished.");
     				if (nnResult != null && nnTest.getStatus().equals(QoSTestEnum.QOS_FINISHED)) {
-    					System.out.print("Sending QoS results... ");
-    					client.sendQoSResult(nnResult);
-    					System.out.println("finished");
-    				}
+                        System.out.print("Sending QoS results... ");
+                        client.sendQoSResult(nnResult, null);
+                        System.out.println("finished");
+                    }
     				else {
     					System.out.println("Error during QoS test.");
     				}
@@ -279,7 +279,7 @@ public class RMBTClientRunner
                         public void sendResults()
                         {
                             System.out.println("sending NDT results...");
-                            client.getControlConnection().sendNDTResult(this, null);
+                            client.getControlConnection().sendNDTResult(this, null, null);
                         }
                     });
                     

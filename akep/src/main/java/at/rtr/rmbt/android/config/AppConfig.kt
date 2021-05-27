@@ -426,4 +426,13 @@ class AppConfig @Inject constructor(context: Context, private val serverSettings
         set(value) = preferences.edit()
             .putBoolean(KEY_ANALYTICS_ENABLED, value)
             .apply()
+
+    override var headerValue: String
+        get() = getString(BuildConfig.REQUEST_HEADER_VALUE)
+        set(value) {}
+
+    override var rmbtClientRequestsPathPrefix: String
+        get() = getString(BuildConfig.RMBT_CLIENT_REQUESTS_PATH_PREFIX)
+        set(value) {}
+
 }

@@ -187,7 +187,7 @@ class TestControllerImpl(
 
             client = RMBTClient.getInstance(
                 config.controlServerHost,
-                null,
+                if (config.headerValue.isNullOrEmpty()) null else config.rmbtClientRequestsPathPrefix,
                 config.controlServerPort,
                 config.controlServerUseSSL,
                 geoInfo,
@@ -197,6 +197,8 @@ class TestControllerImpl(
                 deviceInfo.softwareVersionName,
                 null,
                 additionalValues,
+                config.headerValue,
+                config.shouldRunQosTest,
                 errorSet
             )
 
