@@ -268,7 +268,7 @@
     <string name="title_loop_waiting">Lak pritje</string>
     <string name="text_button_decline">Rënie</string>
     <string name="text_button_accept">Pranoj</string>
-    <string name="text_loop_instruction_2">Në rast të një kërkese të madhe ose një numri shumë të lartë të testeve në një zonë specifike, mënyra e lakut mund të refuzohet nga sistemi i provës në mënyrë që të shmanget mbingarkesa. Ju lutemi vini re se modusi i lakut është (vetëm) i destinuar për t&#39;u përdorur brenda BE dhe EEA. Moduli loop konsumon një sasi të madhe të të dhënave. Me lidhje të shpejta, 10 teste mund të konsumojnë 1 GB ose më shumë të dhëna. Prandaj rekomandohet me forcë që moduli i lakut të përdoret vetëm me tarifa reale me normë të sheshtë, ku vëllimi shtesë i të dhënave nuk shkakton kosto shtesë. Modeli loop harxhon baterinë shpejt. Në pauza midis provave, GPS dhe ekrani mbetet aktiv dhe matjet e sinjalit vazhdojnë, që do të thotë se energjia harxhohet shumë më shpejt sesa gjatë modalitetit të gatishmërisë. Moduli i lakut duhet të përdoret vetëm nëse është në dispozicion një furnizim i jashtëm i energjisë.</string>
+    <string name="text_loop_instruction_2">Në rast të një kërkese të madhe ose një numri shumë të lartë të testeve në një zonë specifike, mënyra e lakut mund të refuzohet nga sistemi i provës në mënyrë që të shmanget mbingarkesa. Ju lutemi vini re se modusi i lakut është (vetëm) i destinuar për t\'u përdorur brenda BE dhe EEA. Moduli loop konsumon një sasi të madhe të të dhënave. Me lidhje të shpejta, 10 teste mund të konsumojnë 1 GB ose më shumë të dhëna. Prandaj rekomandohet me forcë që moduli i lakut të përdoret vetëm me tarifa reale me normë të sheshtë, ku vëllimi shtesë i të dhënave nuk shkakton kosto shtesë. Modeli loop harxhon baterinë shpejt. Në pauza midis provave, GPS dhe ekrani mbetet aktiv dhe matjet e sinjalit vazhdojnë, që do të thotë se energjia harxhohet shumë më shpejt sesa gjatë modalitetit të gatishmërisë. Moduli i lakut duhet të përdoret vetëm nëse është në dispozicion një furnizim i jashtëm i energjisë.</string>
     <string name="title_loop_instruction_1">Aktivizimi</string>
     <string name="title_loop_instruction_2">Përdorimi</string>
 
@@ -323,12 +323,12 @@
     <string name="text_permissions_accuracy_location">Vendndodhja juaj identifikon serverat e afërt dhe lidhjen celulare të pajisjes tuaj në mënyrë që të konfiguroni siç duhet Akep Nettest</string>
     <string name="button_continue">Vazhdoni</string>
     <string name="title_permissions_signal">Lejoni skanimin e sinjalit të rrjetit</string>
-    <string name="text_permissions_signal">Akep Nettest do të dëshironte të kontrollonte periodikisht mbulimin celular, cilësinë dhe të dhënat e vendndodhjes për t&#39;ju siguruar me hartat e mbulimit të operatorit. Këto të dhëna mblidhen gjithashtu kur aplikacioni është i mbyllur ose nuk është në përdorim për të krijuar hartën më të saktë të mundshme. Ne përdorim lejet e telefonit për të identifikuar operatorin celular të përdorur për testim.</string>
-    <string name="text_permissions_signal_coverage">Të dhënat e mbulimit anonim mund të ndahen me operatorët për t&#39;i ndihmuar ata të përmirësojnë rrjetet e tyre. Mëso më shumë</string>
+    <string name="text_permissions_signal">Akep Nettest do të dëshironte të kontrollonte periodikisht mbulimin celular, cilësinë dhe të dhënat e vendndodhjes për t\'ju siguruar me hartat e mbulimit të operatorit. Këto të dhëna mblidhen gjithashtu kur aplikacioni është i mbyllur ose nuk është në përdorim për të krijuar hartën më të saktë të mundshme. Ne përdorim lejet e telefonit për të identifikuar operatorin celular të përdorur për testim.</string>
+    <string name="text_permissions_signal_coverage">Të dhënat e mbulimit anonim mund të ndahen me operatorët për t\'i ndihmuar ata të përmirësojnë rrjetet e tyre. Mëso më shumë</string>
     <string name="button_not_allow">Nuk lejojnë</string>
     <string name="button_allow">Lejo</string>
     <string name="title_permissions_analytics">Na ndihmoni të përmirësojmë Akep Nettest</string>
-    <string name="text_permissions_analytics">Akep Nettest mund të përdorë shërbime të palëve të treta për të mbledhur të dhëna në lidhje me pajisjen tuaj dhe përdorimin tuaj të Akep Nettest dhe t&#39;i përdorë ato për të përmirësuar përvojën dhe qëndrueshmërinë e aplikimit.</string>
+    <string name="text_permissions_analytics">Akep Nettest mund të përdorë shërbime të palëve të treta për të mbledhur të dhëna në lidhje me pajisjen tuaj dhe përdorimin tuaj të Akep Nettest dhe t\'i përdorë ato për të përmirësuar përvojën dhe qëndrueshmërinë e aplikimit.</string>
     <string name="text_permissions_analytics_coverage">Të lejohet Akep Nettest të mbledhë analiza dhe raporte të ndërprerjeve aksidentale?</string>
     <string name="button_agree">Pajtohem</string>
     <string name="title_permissions_uuid">Klient i vazhdueshëm UUID</string>
@@ -345,6 +345,5 @@
         <item>Listë</item>
         <item>Harta</item>
     </string-array>
-
 
 </resources>
