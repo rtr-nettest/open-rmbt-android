@@ -67,6 +67,19 @@ check:app-ont:
       - /update\/.*/
       - /test\/.*/
 
+check:app-akep:
+  stage: check
+  script:
+    - ./gradlew :akep:ktlint
+    - ./gradlew :akep:lintLocalStageDebug
+  only:
+    refs:
+      - /fix\/.*/
+      - /feature\/.*/
+      - /hotfix\/.*/
+      - /update\/.*/
+      - /test\/.*/
+
 check:core:
   stage: check
   script:
@@ -153,6 +166,22 @@ distribution:build-ont:
     - develop
   artifacts:
     name: "ont-$VERSION_NAME-$CI_COMMIT_REF_SLUG-$CI_COMMIT_SHORT_SHA"
+    paths:
+      - app/build/outputs
+
+distribution:build-akep:
+  stage: distribution
+  interruptible: true
+  script:
+    - echo "version ${VERSION_NAME}(${VERSION_CODE})"
+    - ./gradlew akep:assembleLocalStageDebug -PbuildVersionCode=${VERSION_CODE} -PbuildVersionName=${VERSION_NAME} -PreleaseNotes="${RELEASE_NOTES}"
+    - ./gradlew akep:appDistributionUploadLocalStageDebug -PbuildVersionCode=${VERSION_CODE} -PbuildVersionName=${VERSION_NAME} -PreleaseNotes="${RELEASE_NOTES}"
+    - ./gradlew akep:assembleLocalDemoRelease -PbuildVersionCode=${VERSION_CODE} -PbuildVersionName=${VERSION_NAME} -PreleaseNotes="${RELEASE_NOTES}"
+    - ./gradlew akep:appDistributionUploadLocalDemoRelease -PbuildVersionCode=${VERSION_CODE} -PbuildVersionName=${VERSION_NAME} -PreleaseNotes="${RELEASE_NOTES}"
+  only:
+    - develop
+  artifacts:
+    name: "akep-$VERSION_NAME-$CI_COMMIT_REF_SLUG-$CI_COMMIT_SHORT_SHA"
     paths:
       - app/build/outputs
 

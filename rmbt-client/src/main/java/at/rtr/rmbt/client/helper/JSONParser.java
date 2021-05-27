@@ -16,6 +16,12 @@
  ******************************************************************************/
 package at.rtr.rmbt.client.helper;
 
+import com.google.gson.Gson;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -28,12 +34,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import com.google.gson.Gson;
 
 import at.rtr.rmbt.util.capability.Capabilities;
 
@@ -81,23 +81,25 @@ public abstract class JSONParser
         }
     }
 
-    public static String sendToUrl(final URL url, final String data, int connectTimeout) throws IOException
-    {
+    public static String sendToUrl(final URL url, final String data, int connectTimeout, String headerValue) throws IOException {
         final HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
         try {
             urlConnection.setDoOutput(true);
             urlConnection.setDoInput(true);
-            
+
             urlConnection.setConnectTimeout(connectTimeout);
             urlConnection.setReadTimeout(READ_TIMEOUT);
-            
+
             urlConnection.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
             urlConnection.setRequestProperty("Accept", "application/json");
-            
+            if (headerValue != null && !headerValue.isEmpty()) {
+                urlConnection.setRequestProperty("X-Nettest-Client", headerValue);
+            }
+
             final byte[] bytes = data.getBytes(Charset.forName("UTF-8"));
             urlConnection.setFixedLengthStreamingMode(bytes.length);
             urlConnection.getOutputStream().write(bytes);
-            
+
             final StringBuilder stringBuilder = new StringBuilder();
             final BufferedReader reader = new BufferedReader(new InputStreamReader(urlConnection.getInputStream()));
             int read;
@@ -117,30 +119,28 @@ public abstract class JSONParser
         {
             final String data = readUrl(url);
             return new JSONObject(data);
-        }
-        catch (final Exception e)
-        {
+        } catch (final Exception e) {
             //e.printStackTrace();
             return null;
         }
     }
-    
-    
+
+
     public static JSONObject sendJSONToUrl(final URL url, final JSONObject data) {
-        return sendJSONToUrl(url, data, CONNECT_TIMEOUT);
+        return sendJSONToUrl(url, data, CONNECT_TIMEOUT, null);
     }
 
-    public static JSONObject sendJSONToUrl(final URL url, final JSONObject data, int connectTimeout)
-    {
-        try
-        {
+    public static JSONObject sendJSONToUrl(final URL url, final JSONObject data, final String headerValue) {
+        return sendJSONToUrl(url, data, CONNECT_TIMEOUT, headerValue);
+    }
+
+    public static JSONObject sendJSONToUrl(final URL url, final JSONObject data, int connectTimeout, String headerValue) {
+        try {
             if (CAPABILITIES != null)
                 data.put("capabilities", CAPABILITIES);
-            final String output = sendToUrl(url, data.toString(), connectTimeout);
+            final String output = sendToUrl(url, data.toString(), connectTimeout, headerValue);
             return new JSONObject(output);
-        }
-        catch (final Exception e)
-        {
+        } catch (final Exception e) {
             e.printStackTrace();
             return null;
         }
