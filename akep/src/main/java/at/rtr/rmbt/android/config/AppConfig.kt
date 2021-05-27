@@ -434,5 +434,4 @@ class AppConfig @Inject constructor(context: Context, private val serverSettings
     override var rmbtClientRequestsPathPrefix: String
         get() = getString(BuildConfig.RMBT_CLIENT_REQUESTS_PATH_PREFIX)
         set(value) {}
-
 }
