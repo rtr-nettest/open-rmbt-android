@@ -169,8 +169,9 @@
         <item name="textAllCaps">true</item>
     </style>
 
-    <style name="ScreenTitle" parent="RobotoMediumStyle.Large">
-        <item name="android:textColor">@color/main_color</item>
+    <style name="ScreenTitle" parent="RobotoMediumStyle.Medium">
+        <item name="android:textColor">@color/text_dark_gray</item>
+        <item name="android:gravity">center</item>
     </style>
 
     <style name="ResultMainItemMainValue" parent="RobotoMediumStyle.ExtraLarge">
