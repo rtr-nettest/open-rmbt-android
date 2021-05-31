@@ -16,12 +16,10 @@
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/labelTitle"
-            style="@style/RobotoMediumStyle.Large"
+            style="@style/ScreenTitle"
             android:layout_width="0dp"
             android:layout_height="?attr/actionBarSize"
-            android:gravity="center"
             android:text="@string/menu_button_statistics"
-            android:textColor="@color/text_dark_gray"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />

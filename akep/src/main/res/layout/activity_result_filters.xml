@@ -27,10 +27,9 @@
 
         <TextView
             android:id="@+id/screen_title"
-            style="@style/ResultMainItemValue"
+            style="@style/ScreenTitle"
             android:layout_width="wrap_content"
             android:layout_height="?listPreferredItemHeight"
-            android:gravity="center_vertical"
             android:text="@string/label_filter"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_chainStyle="packed"

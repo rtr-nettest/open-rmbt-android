@@ -20,12 +20,10 @@
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/screen_title"
-            style="@style/ResultMainItemValue"
+            style="@style/ScreenTitle"
             android:layout_width="0dp"
             android:layout_height="?attr/actionBarSize"
-            android:gravity="center"
             android:text="@string/title_loop_measurements"
-            android:textColor="@color/text_dark_gray"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
