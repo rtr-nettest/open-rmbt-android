@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <variable
+            name="state"
+            type="at.rtr.rmbt.android.ui.viewstate.QosTestDetailViewState" />
+    </data>
+
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <androidx.appcompat.widget.LinearLayoutCompat
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/labelDescription"
+                style="@style/RobotoMediumStyle.Medium"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="@dimen/padding_large"
+                android:text="@string/label_description"
+                android:textColor="@color/text_dark_gray"
+                tools:text="@string/label_description" />
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/textDescription"
+                style="@style/RobotoRegularStyle.Small"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="@dimen/padding_large"
+                android:text="@{state.testItemDescription}"
+                android:textColor="@color/text_gray"
+                tools:text="Description" />
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/labelTestStatus"
+                style="@style/RobotoMediumStyle.Medium"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="@dimen/padding_large"
+                android:text="@{state.testSuccess ? @string/label_succeeded : @string/label_failed}"
+                android:textColor="@{state.testSuccess ? @color/classification_green : @color/classification_red}" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/recyclerViewTestGoals"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                tools:listitem="@layout/item_qos_test_goal" />
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/labelDetail"
+                style="@style/RobotoMediumStyle.Medium"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="@dimen/padding_large"
+                android:text="@string/label_detail"
+                android:textColor="@color/text_dark_gray"
+                tools:text="@string/label_detail" />
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/textDetail"
+                style="@style/RobotoRegularStyle.Small"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="@dimen/padding_large"
+                android:text="@{state.testItemDetail}"
+                android:textColor="@color/text_gray"
+                tools:text="Detail" />
+
+        </androidx.appcompat.widget.LinearLayoutCompat>
+
+    </androidx.core.widget.NestedScrollView>
+
+</layout>

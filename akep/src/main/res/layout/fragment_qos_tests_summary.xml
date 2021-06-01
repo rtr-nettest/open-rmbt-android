@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <variable
+            name="state"
+            type="at.rtr.rmbt.android.ui.viewstate.QosTestsSummaryViewState" />
+    </data>
+
+    <androidx.appcompat.widget.LinearLayoutCompat
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/labelInformation"
+            style="@style/RobotoMediumStyle.Medium"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="@dimen/padding_large"
+            android:text="@string/label_information"
+            android:textColor="@color/text_dark_gray" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/textInformation"
+            style="@style/RobotoRegularStyle.Small"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="@dimen/padding_large"
+            android:text="@{state.categoryDescription}"
+            android:textColor="@color/text_gray"
+            tools:text="Information" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/labelTests"
+            style="@style/RobotoMediumStyle.Medium"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="@dimen/padding_large"
+            android:text="@string/label_tests"
+            android:textColor="@color/text_dark_gray" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recyclerViewTests"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+            tools:listitem="@layout/item_qos_test_summary" />
+    </androidx.appcompat.widget.LinearLayoutCompat>
+
+</layout>
