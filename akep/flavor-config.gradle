@@ -1,0 +1,15 @@
+android {
+
+    defaultConfig {
+        manifestPlaceholders = [
+                googleMapsApiKey: ""
+        ]
+    }
+
+    flavorDimensions 'target'
+    productFlavors {
+        openRmbt {
+            dimension "target"
+        }
+    }
+}

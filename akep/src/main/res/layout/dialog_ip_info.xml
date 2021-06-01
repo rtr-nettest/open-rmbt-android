@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="utf-8"?><!--
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~ http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <import type="at.specure.info.ip.IpStatus" />
+
+        <import type="at.rmbt.client.control.IpProtocol" />
+
+        <variable
+            name="ipInfo"
+            type="at.specure.info.ip.IpInfo" />
+
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/dialog_background"
+        android:padding="@dimen/margin_large">
+
+        <androidx.appcompat.widget.AppCompatImageView
+            android:id="@+id/ivIPIcon"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:IpIcon="@{ipInfo}"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:src="@drawable/ic_ipv4_green" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/tvPrivateIPLbl"
+            style="@style/RobotoMediumStyle.Small"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:text="@string/private_ip_address"
+            android:textColor="@color/text_gray_transparency_55"
+            app:layout_constraintEnd_toStartOf="@+id/tvPublicIPV4Lbl"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toEndOf="@+id/ivIPIcon"
+            app:layout_constraintTop_toTopOf="parent"
+            app:visibleOrGone="@{ipInfo != null &amp;&amp; ipInfo.privateAddress != null &amp;&amp; ipInfo.ipStatus != IpStatus.NO_ADDRESS}" />
+
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/tvPublicIPV4Lbl"
+            style="@style/RobotoMediumStyle.Small"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="@string/public_ip_address"
+            android:textColor="@color/text_gray_transparency_55"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toEndOf="@+id/tvPrivateIPLbl"
+            app:layout_constraintTop_toTopOf="parent"
+            app:visibleOrGone="@{ipInfo != null &amp;&amp; ipInfo.protocol == IpProtocol.V4 &amp;&amp; ipInfo.publicAddress != null &amp;&amp; ipInfo.ipStatus != IpStatus.NO_ADDRESS}" />
+
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/tvPrivateIP"
+            style="@style/RobotoRegularStyle.Medium"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:text="@{ipInfo.privateAddress}"
+            android:textColor="@color/text_black_transparency_60"
+            app:layout_constraintEnd_toStartOf="@+id/tvPublicIPV4"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toEndOf="@+id/ivIPIcon"
+            app:layout_constraintTop_toBottomOf="@+id/tvPrivateIPLbl"
+            app:visibleOrGone="@{ipInfo != null &amp;&amp; ipInfo.privateAddress != null &amp;&amp; ipInfo.ipStatus != IpStatus.NO_ADDRESS}"
+            tools:text="192.168.1.0" />
+
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/tvPublicIPV4"
+            style="@style/RobotoRegularStyle.Medium"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="@{ipInfo.publicAddress}"
+            android:textColor="@color/text_black_transparency_60"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toEndOf="@+id/tvPrivateIP"
+            app:layout_constraintTop_toBottomOf="@+id/tvPublicIPV4Lbl"
+            app:visibleOrGone="@{ipInfo != null &amp;&amp; ipInfo.protocol == IpProtocol.V4 &amp;&amp; ipInfo.publicAddress != null &amp;&amp; ipInfo.ipStatus != IpStatus.NO_ADDRESS}"
+            tools:text="192.168.1.11" />
+
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/tvPublicIPV6Lbl"
+            style="@style/RobotoMediumStyle.Small"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="8dp"
+            android:text="@string/public_ip_address"
+            android:textColor="@color/text_gray_transparency_55"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/ivIPIcon"
+            app:layout_constraintTop_toBottomOf="@+id/tvPrivateIP"
+            app:visibleOrGone="@{ipInfo != null &amp;&amp; ipInfo.protocol == IpProtocol.V6 &amp;&amp; ipInfo.publicAddress != null &amp;&amp; ipInfo.ipStatus != IpStatus.NO_ADDRESS}" />
+
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/tvPublicIPV6"
+            style="@style/RobotoRegularStyle.Medium"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:text="@{ipInfo.publicAddress}"
+            android:textColor="@color/text_black_transparency_60"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/ivIPIcon"
+            app:layout_constraintTop_toBottomOf="@+id/tvPublicIPV6Lbl"
+            app:visibleOrGone="@{ipInfo != null &amp;&amp; ipInfo.protocol == IpProtocol.V6 &amp;&amp; ipInfo.publicAddress != null &amp;&amp; ipInfo.ipStatus != IpStatus.NO_ADDRESS}"
+            tools:text="192.168.1.11" />
+
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/labelAddressNotAvailable"
+            style="@style/RobotoRegularStyle.Medium"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/margin_medium"
+            android:text="@string/text_ip_address_not_available"
+            android:textColor="@color/text_black_transparency_60"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/ivIPIcon"
+            app:layout_constraintTop_toTopOf="parent"
+            app:visibleOrGone="@{ipInfo != null &amp;&amp; ipInfo.ipStatus == IpStatus.NO_ADDRESS}"
+            tools:visibility="gone" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/labelProcessing"
+            style="@style/RobotoRegularStyle.Medium"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/margin_medium"
+            android:text="@string/label_ip_processing"
+            android:textColor="@color/text_black_transparency_60"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/ivIPIcon"
+            app:layout_constraintTop_toTopOf="parent"
+            app:visibleOrGone="@{ipInfo != null &amp;&amp; ipInfo.ipStatus == IpStatus.NO_INFO}"
+            tools:visibility="gone" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</layout>

@@ -406,4 +406,14 @@ interface Config {
      * When this flag is set to true, analytics and crash reports are enabled for the app, when it is set to false, no reports are sent
      */
     var analyticsEnabled: Boolean
+
+    /**
+     * Value for the request header for nettest family apps
+     */
+    var headerValue: String
+
+    /**
+     * Path prefix for RMBTClient calls
+     */
+    var rmbtClientRequestsPathPrefix: String
 }

@@ -208,9 +208,9 @@ public class RMBTClient implements RMBTClientCallback {
     public static RMBTClient getInstance(final String host, final String pathPrefix, final int port,
                                          final boolean encryption, final ArrayList<String> geoInfo, final String uuid, final String clientType,
                                          final String clientName, final String clientVersion, final RMBTTestParameter overrideParams,
-                                         final JSONObject additionalValues) {
+                                         final JSONObject additionalValues, final String headerValue, final Boolean qosEnabled) {
         return getInstance(host, pathPrefix, port, encryption, geoInfo, uuid, clientType,
-                clientName, clientVersion, overrideParams, additionalValues, null);
+                clientName, clientVersion, overrideParams, additionalValues, headerValue, qosEnabled, null);
     }
 
     /**
@@ -220,11 +220,11 @@ public class RMBTClient implements RMBTClientCallback {
     public static RMBTClient getInstance(final String host, final String pathPrefix, final int port,
                                          final boolean encryption, final ArrayList<String> geoInfo, final String uuid, final String clientType,
                                          final String clientName, final String clientVersion, final RMBTTestParameter overrideParams,
-                                         final JSONObject additionalValues, final Set<ErrorStatus> errorSet) {
+                                         final JSONObject additionalValues, final String headerValue, final Boolean qosEnabled, final Set<ErrorStatus> errorSet) {
         final ControlServerConnection controlConnection = new ControlServerConnection();
 
         final String error = controlConnection.requestNewTestConnection(host, pathPrefix, port, encryption, geoInfo,
-                uuid, clientType, clientName, clientVersion, additionalValues);
+                uuid, clientType, clientName, clientVersion, additionalValues, headerValue);
 
         if (controlConnection.getLastErrorList() != null && errorSet != null) {
             errorSet.addAll(controlConnection.getLastErrorList());
@@ -235,13 +235,14 @@ public class RMBTClient implements RMBTClientCallback {
             return null;
         }
 
-        //TODO: simple and fast solution; make it better
-        final String errorNewTest = controlConnection.requestQoSTestParameters(host, pathPrefix, port, encryption, geoInfo,
-                uuid, clientType, clientName, clientVersion, additionalValues);
+        if (qosEnabled) {
+            final String errorNewTest = controlConnection.requestQoSTestParameters(host, pathPrefix, port, encryption, geoInfo,
+                    uuid, clientType, clientName, clientVersion, additionalValues, headerValue);
 
-        if (errorNewTest != null) {
-            System.out.println(errorNewTest);
-            return null;
+            if (errorNewTest != null) {
+                System.out.println(errorNewTest);
+                return null;
+            }
         }
 
         final RMBTTestParameter params = controlConnection.getTestParameter(overrideParams);
@@ -803,9 +804,9 @@ public class RMBTClient implements RMBTClientCallback {
         return errorMsg;
     }
 
-    public void sendResult(final JSONObject additionalValues) {
+    public void sendResult(final JSONObject additionalValues, final String headerValue) {
         if (controlConnection != null) {
-            final String errorMsg = controlConnection.sendTestResult(result, additionalValues);
+            final String errorMsg = controlConnection.sendTestResult(result, additionalValues, headerValue);
             if (errorMsg != null) {
                 setErrorStatus();
                 log("Error sending Result...");
@@ -814,9 +815,9 @@ public class RMBTClient implements RMBTClientCallback {
         }
     }
 
-    public void sendQoSResult(final QoSResultCollector qosResult) {
+    public void sendQoSResult(final QoSResultCollector qosResult, final String headerValue) {
         if (controlConnection != null) {
-            final String errorMsg = controlConnection.sendQoSResult(result, qosResult.toJson());
+            final String errorMsg = controlConnection.sendQoSResult(result, qosResult.toJson(), headerValue);
             if (errorMsg != null) {
                 setErrorStatus();
                 log("Error sending QoS Result...");
