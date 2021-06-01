@@ -33,8 +33,6 @@ import at.specure.data.repository.NewsRepositoryImpl
 import at.specure.data.repository.SettingsRepository
 import at.specure.data.repository.SettingsRepositoryImpl
 import at.specure.data.repository.TestDataRepository
-import at.specure.info.cell.ActiveDataCellInfoExtractor
-import at.specure.info.cell.ActiveDataCellInfoExtractorImpl
 import at.specure.info.cell.CellInfoWatcher
 import at.specure.info.cell.CellInfoWatcherImpl
 import at.specure.info.connectivity.ConnectivityWatcher
@@ -72,20 +70,12 @@ class CoreModule {
     @Provides
     @Singleton
     fun provideSignalStrengthWatcher(
-        context: Context,
-        netmonster: INetMonster,
-        subscriptionManager: SubscriptionManager,
-        telephonyManager: TelephonyManager,
         activeNetworkWatcher: ActiveNetworkWatcher,
         wifiInfoWatcher: WifiInfoWatcher,
         cellInfoWatcher: CellInfoWatcher,
         locationAccess: LocationAccess
     ): SignalStrengthWatcher =
         SignalStrengthWatcherImpl(
-            context,
-            netmonster,
-            subscriptionManager,
-            telephonyManager,
             activeNetworkWatcher,
             wifiInfoWatcher,
             cellInfoWatcher,
@@ -113,15 +103,6 @@ class CoreModule {
     @Singleton
     fun providePermissionsWatcher(context: Context, locationAccess: LocationAccess, phoneStateAccess: PhoneStateAccess): PermissionsWatcher =
         PermissionsWatcher(context, locationAccess, phoneStateAccess)
-
-    @Provides
-    @Singleton
-    fun provideActiveDataCellInfoExtractor(
-        context: Context,
-        telephonyManager: TelephonyManager,
-        subscriptionManager: SubscriptionManager,
-        connectivityManager: ConnectivityManager
-    ): ActiveDataCellInfoExtractor = ActiveDataCellInfoExtractorImpl(context, telephonyManager, subscriptionManager, connectivityManager)
 
     @Provides
     @Singleton
