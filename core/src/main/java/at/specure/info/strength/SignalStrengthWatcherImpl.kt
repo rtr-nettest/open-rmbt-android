@@ -14,14 +14,11 @@
 package at.specure.info.strength
 
 import android.annotation.SuppressLint
-import android.content.Context
 import android.os.Build
 import android.os.Handler
 import android.os.Looper
 import android.telephony.PhoneStateListener
 import android.telephony.SignalStrength
-import android.telephony.SubscriptionManager
-import android.telephony.TelephonyManager
 import at.specure.info.TransportType
 import at.specure.info.cell.CellInfoWatcher
 import at.specure.info.network.ActiveNetworkWatcher
@@ -30,7 +27,6 @@ import at.specure.info.network.NetworkInfo
 import at.specure.info.wifi.WifiInfoWatcher
 import at.specure.util.permission.LocationAccess
 import at.specure.util.synchronizedForEach
-import cz.mroczis.netmonster.core.INetMonster
 import timber.log.Timber
 import java.util.Collections
 
@@ -44,10 +40,6 @@ private const val CELL_MESSAGE_ID = 2
  * signal strength changes of current network available on the mobile device
  */
 class SignalStrengthWatcherImpl(
-    private val context: Context,
-    private val netmonster: INetMonster,
-    private val subscriptionManager: SubscriptionManager,
-    private val telephonyManager: TelephonyManager,
     private val activeNetworkWatcher: ActiveNetworkWatcher,
     private val wifiInfoWatcher: WifiInfoWatcher,
     private val cellInfoWatcher: CellInfoWatcher,
