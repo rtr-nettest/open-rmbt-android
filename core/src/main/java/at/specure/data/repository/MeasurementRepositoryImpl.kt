@@ -74,7 +74,8 @@ class MeasurementRepositoryImpl @Inject constructor(
         var simCountry: String? = null
         var simOperatorName: String? = null
 
-        val networkInfo = (cellInfoWatcher.activeNetwork as CellNetworkInfo)
+        val networkInfo =
+            if (cellInfoWatcher.activeNetwork != null && cellInfoWatcher.activeNetwork is CellNetworkInfo) cellInfoWatcher.activeNetwork as CellNetworkInfo else null
 
         if (context.isReadPhoneStatePermitted() && isDualByMobile) {
             val subscription = subscriptionManager.activeSubscriptionInfoList.firstOrNull()
