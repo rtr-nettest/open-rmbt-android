@@ -169,7 +169,6 @@
             app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintStart_toStartOf="@+id/labelTimeNextMeasurement"
             app:layout_constraintTop_toBottomOf="@+id/labelTimeNextMeasurement"
-            app:speedDownloadResult="@{state.loopNextTestPercent}"
             tools:text="24.12" />
 
         <androidx.appcompat.widget.AppCompatTextView
