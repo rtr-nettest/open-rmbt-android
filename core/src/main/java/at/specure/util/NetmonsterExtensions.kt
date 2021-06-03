@@ -413,7 +413,13 @@ fun ICell.isInformationCorrect(cellTechnology: CellTechnology): Boolean {
 
 @Synchronized
 fun ICell.toCellInfoRecord(testUUID: String, netMonster: INetMonster): CellInfoRecord? {
-    val cellTechnology = CellTechnology.fromMobileNetworkType(this.mobileNetworkType(netMonster))
+    val cellTechnologyFromNetworkType = CellTechnology.fromMobileNetworkType(this.mobileNetworkType(netMonster))
+    // for 4G cells we want to have it marked as 4G not 5G also in case when it is NR_NSA
+    val cellTechnology = if (this is CellLte && cellTechnologyFromNetworkType == CellTechnology.CONNECTION_5G) {
+        CellTechnology.CONNECTION_4G
+    } else {
+        cellTechnologyFromNetworkType
+    }
     cellTechnology?.let {
         if (isInformationCorrect(cellTechnology)) {
             val cellInfoRecord = CellInfoRecord(

@@ -58,15 +58,15 @@ class ControlServerModule {
                 ).create()
             )
         )
-        .client(createOkHttpClient())
+        .client(createOkHttpClient(controlEndpointProvider))
         .build()
 
-    fun createOkHttpClient(): OkHttpClient {
+    fun createOkHttpClient(controlEndpointProvider: ControlEndpointProvider): OkHttpClient {
         val builder = OkHttpClient.Builder()
             .connectTimeout(CONNECTION_TIMEOUT_SEC, TimeUnit.SECONDS)
             .readTimeout(READ_TIMEOUT_SEC, TimeUnit.SECONDS)
             .writeTimeout(CONNECTION_TIMEOUT_SEC, TimeUnit.SECONDS)
-            .addInterceptor(ControlServerInterceptor())
+            .addInterceptor(ControlServerInterceptor(controlEndpointProvider))
 
         return setupOkHttpClient(builder).build()
     }

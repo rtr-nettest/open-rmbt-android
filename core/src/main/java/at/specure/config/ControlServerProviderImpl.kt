@@ -69,4 +69,7 @@ class ControlServerProviderImpl(private val config: Config) : ControlEndpointPro
 
     override val getNewsUrl: String
         get() = "$host$routePath/${config.controlServerNewsEndpoint}"
+
+    override val getNettestHeaderValue: String
+        get() = config.headerValue
 }
