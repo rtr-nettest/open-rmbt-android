@@ -198,8 +198,9 @@ class TestControllerImpl(
                 null,
                 additionalValues,
                 config.headerValue,
-                config.shouldRunQosTest,
-                errorSet
+                context.cacheDir,
+                errorSet,
+                config.performJitterAndPacketLossTest
             )
 
             val client = client
@@ -276,6 +277,7 @@ class TestControllerImpl(
                     TestStatus.INIT -> handleInit(client)
                     TestStatus.PING -> handlePing(client)
                     TestStatus.DOWN -> handleDown(client)
+                    TestStatus.PACKET_LOSS_AND_JITTER -> handleJitterAndPacketLoss(client)
                     TestStatus.INIT_UP -> handleInitUp()
                     TestStatus.UP -> handleUp(client)
                     TestStatus.SPEEDTEST_END -> handleSpeedTestEnd(skipQoSTests)
@@ -340,6 +342,20 @@ class TestControllerImpl(
             _listener?.onDownloadSpeedChanged(progress, value)
             previousDownloadProgress = progress
         }
+    }
+
+    private fun handleJitterAndPacketLoss(client: RMBTClient) {
+        client.getIntermediateResult(result)
+        val progress = (result.progress * 100).toInt()
+//        if (progress != previousDownloadProgress) {
+//            setState(MeasurementState.JITTER_AND_PACKET_LOSS, progress)
+//            if (result.jitter > 0) {
+//                _listener?.onPingChanged(result.pingNano)
+//            }
+//            val value = Network5GSimulator.downBitPerSec(result.downBitPerSec)
+//            _listener?.onDownloadSpeedChanged(progress, value)
+//            previousDownloadProgress = progress
+//        }
     }
 
     private fun handleInitUp() {

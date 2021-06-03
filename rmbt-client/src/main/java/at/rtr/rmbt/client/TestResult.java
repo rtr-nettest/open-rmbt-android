@@ -27,18 +27,23 @@ public abstract class TestResult
     public int port_remote;
     public int num_threads;
     public String encryption = "NONE";
-    
+
     public long ping_shortest;
     public long ping_median;
     public String client_version;
-    
+
     public final List<Ping> pings = new ArrayList<Ping>();
-    
+
     public final List<SpeedItem> speedItems = new ArrayList<SpeedItem>();
-    
-    public static long getSpeedBitPerSec(final long bytes, final long nsec)
-    {
+
+    public VoipTestResult voipTestResult;
+
+    public long jitterMedian;
+    public long packetLossPercentUp;
+    public long packetLossPercentDown;
+
+    public static long getSpeedBitPerSec(final long bytes, final long nsec) {
         return Math.round((double) bytes / (double) nsec * 1e9 * 8.0);
     }
-    
+
 }
