@@ -35,6 +35,8 @@ private const val KEY_LAST_MEASUREMENT_SIGNAL = "KEY_LAST_MEASUREMENT_SIGNAL"
 private const val KEY_DOWNLOAD_MEDIAN = "KEY_DOWNLOAD_MEDIAN"
 private const val KEY_UPLOAD_MEDIAN = "KEY_UPLOAD_MEDIAN"
 private const val KEY_PING_MEDIAN = "KEY_PING_MEDIAN"
+private const val KEY_JITTER_MEDIAN = "KEY_JITTER_MEDIAN"
+private const val KEY_PACKET_LOSS_MEDIAN = "KEY_PACKET_LOSS_MEDIAN"
 
 class MeasurementViewState(private val config: AppConfig) : ViewState {
 
@@ -45,6 +47,8 @@ class MeasurementViewState(private val config: AppConfig) : ViewState {
     val downloadSpeedBps = ObservableLong()
     val uploadSpeedBps = ObservableLong()
     val pingNanos = ObservableLong()
+    val jitterNanos = ObservableLong()
+    val packetLossPercent = ObservableInt()
     val signalStrengthInfo = ObservableField<SignalStrengthInfo?>()
     val signalStrengthInfoResult = ObservableField<SignalStrengthInfo?>()
     val networkInfo = ObservableField<NetworkInfo?>()
@@ -63,6 +67,8 @@ class MeasurementViewState(private val config: AppConfig) : ViewState {
     val downloadSpeedBpsMedian = ObservableLong()
     val uploadSpeedBpsMedian = ObservableLong()
     val pingNanosMedian = ObservableLong()
+    val jitterNanosMedian = ObservableLong()
+    val packetLossPercentMedian = ObservableInt()
 
     val metersLeft = ObservableField<String>().apply { set(loopNextTestDistanceMeters.get()) }
     val locationAvailable = ObservableBoolean().apply { set(true) }
@@ -102,6 +108,8 @@ class MeasurementViewState(private val config: AppConfig) : ViewState {
             this.downloadSpeedBpsMedian.set((historyLoopMedian.downloadMedianMbps * 1000000f).toLong())
             this.uploadSpeedBpsMedian.set((historyLoopMedian.uploadMedianMbps * 1000000f).toLong())
             this.pingNanosMedian.set((historyLoopMedian.pingMedianMillis * 1000000f).toLong())
+            this.jitterNanosMedian.set((historyLoopMedian.jitterMedianMillis * 1000000f).toLong())
+            this.packetLossPercentMedian.set((historyLoopMedian.packetLossMedian).toInt())
         }
     }
 
@@ -148,6 +156,8 @@ class MeasurementViewState(private val config: AppConfig) : ViewState {
             downloadSpeedBpsMedian.set(bundle.getLong(KEY_DOWNLOAD_MEDIAN, 0))
             uploadSpeedBpsMedian.set(bundle.getLong(KEY_UPLOAD_MEDIAN, 0))
             pingNanosMedian.set(bundle.getLong(KEY_PING_MEDIAN, 0))
+            jitterNanosMedian.set(bundle.getLong(KEY_JITTER_MEDIAN, 0))
+            packetLossPercentMedian.set(bundle.getInt(KEY_PACKET_LOSS_MEDIAN, 0))
         }
     }
 

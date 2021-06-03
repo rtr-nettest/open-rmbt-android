@@ -16,8 +16,6 @@
  ******************************************************************************/
 package at.rtr.rmbt.client.v2.task;
 
-import com.google.gson.JsonElement;
-
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.DatagramPacket;
@@ -174,7 +172,7 @@ public class VoipTask extends AbstractQoSTask {
 		this.outgoingPort = value != null ? Integer.valueOf(value) : null;
 
 		if (customTimeout == null) {
-			value = ((JsonElement) taskDesc.getParams().get(PARAM_TIMEOUT)).getAsString();
+			value = (String) taskDesc.getParams().get(PARAM_TIMEOUT);
 			this.timeout = value != null ? Long.valueOf(value) : DEFAULT_TIMEOUT;
 		} else {
 			this.timeout = customTimeout;

@@ -32,6 +32,7 @@ import javax.net.ssl.SSLSession;
 import javax.net.ssl.SSLSocket;
 
 import at.rtr.rmbt.client.helper.Config;
+import timber.log.Timber;
 
 public abstract class AbstractRMBTTest {
     protected static final String EXPECT_GREETING = Config.RMBT_SERVER_NAME;
@@ -211,9 +212,12 @@ public abstract class AbstractRMBTTest {
         out.flush();
     }
     
-    protected void log(final CharSequence text)
-    {
-        client.log(text);
+    protected void log(final CharSequence text) {
+        if (client != null) {
+            client.log(text);
+        } else {
+            if (text != null) Timber.d(text.toString());
+        }
     }
 
 }

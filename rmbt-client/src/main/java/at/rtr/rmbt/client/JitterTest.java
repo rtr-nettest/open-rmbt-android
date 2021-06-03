@@ -32,13 +32,19 @@ import at.rtr.rmbt.client.v2.task.service.TrafficService;
  */
 
 public class JitterTest extends VoipTest {
+
+    RMBTClient client;
+
     public JitterTest(RMBTClient client, TestSettings nnTestSettings) {
         super(client, nnTestSettings, true, null, true);
+        this.client = client;
     }
 
     @Override
     protected String getTestId() {
-        return RMBTClient.TASK_JITTER;
+//        TODO: return back when JITTER will be done
+//        return RMBTClient.TASK_JITTER;
+        return RMBTClient.TASK_VOIP;
     }
 
 
@@ -128,5 +134,13 @@ public class JitterTest extends VoipTest {
             executor.shutdownNow();
 
         return result;
+    }
+
+    /**
+     * @return
+     */
+    public RMBTClient getRMBTClient() {
+
+        return client;
     }
 }

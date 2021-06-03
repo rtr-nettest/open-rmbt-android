@@ -71,14 +71,22 @@ public class QualityOfServiceTest implements Callable<QoSResultCollector> {
     final TreeMap<Integer, List<AbstractQoSTask>> concurrentTasks = new TreeMap<Integer, List<AbstractQoSTask>>();
     final TreeMap<QoSTestResultEnum, List<AbstractQoSTask>> testMap = new TreeMap<QoSTestResultEnum, List<AbstractQoSTask>>();
     final TreeMap<String, QoSControlConnection> controlConnectionMap = new TreeMap<String, QoSControlConnection>();
+    private boolean onlyVoipTest = false;
 
     private TreeMap<QoSTestResultEnum, Counter> testGroupCounterMap = new TreeMap<QoSTestResultEnum, Counter>();
 
-    public QualityOfServiceTest(RMBTClient client, TestSettings nnTestSettings) {
-        this(client, nnTestSettings, false);
+    /**
+     * Only for purposes of inheritance
+     */
+    protected QualityOfServiceTest(RMBTClient client, TestSettings nnTestSettings, boolean onlyVoipTest) {
+        this.client = client;
+        this.onlyVoipTest = onlyVoipTest;
+        this.qoSTestSettings = nnTestSettings;
+        this.executor = null;
+        this.executorService = null;
     }
 
-    public QualityOfServiceTest(RMBTClient client, TestSettings nnTestSettings, boolean onlyVoipTest) {
+    public QualityOfServiceTest(RMBTClient client, TestSettings nnTestSettings) {
         System.out.println("\n\n---- Initializing QoS Tests ----\n");
         this.client = client;
         executor = Executors.newFixedThreadPool(client.getTaskDescList().size());
@@ -93,44 +101,40 @@ public class QualityOfServiceTest implements Callable<QoSResultCollector> {
             String taskId = (String) taskDesc.getParams().get(TaskDesc.QOS_TEST_IDENTIFIER_KEY);
             AbstractQoSTask test = null;
 
-            if (onlyVoipTest && RMBTClient.TASK_JITTER.equals(taskId)) {
-                test = new VoipTask(this, taskDesc, threadCounter++, null, true);
-            } else {
-                if (RMBTClient.TASK_HTTP.equals(taskId)) {
-                    test = new HttpProxyTask(this, taskDesc, threadCounter++);
-                } else if (RMBTClient.TASK_NON_TRANSPARENT_PROXY.equals(taskId)) {
-                    test = new NonTransparentProxyTask(this, taskDesc, threadCounter++);
-                } else if (RMBTClient.TASK_DNS.equals(taskId)) {
-                    //Android O - if dns servers are set and default dns servers should be used - use these
-                    if (taskDesc.getParams().get(DnsTask.PARAM_DNS_RESOLVER) == null && nnTestSettings.getDefaultDnsResolvers().size() > 0) {
-                        taskDesc.getParams().put(DnsTask.PARAM_DNS_RESOLVER, nnTestSettings.getDefaultDnsResolvers().get(0).getHostAddress());
-                    }
-                    test = new DnsTask(this, taskDesc, threadCounter++);
-                } else if (RMBTClient.TASK_TCP.equals(taskId)) {
-                    test = new TcpTask(this, taskDesc, threadCounter++);
-                } else if (RMBTClient.TASK_UDP.equals(taskId)) {
-                    test = new UdpTask(this, taskDesc, threadCounter++);
-                } else if (RMBTClient.TASK_VOIP.equals(taskId)) {
-                    test = new VoipTask(this, taskDesc, threadCounter++, null, false);
-                } else if (RMBTClient.TASK_TRACEROUTE.equals(taskId)) {
-                    if (nnTestSettings != null && nnTestSettings.getTracerouteServiceClazz() != null) {
-                        test = new TracerouteTask(this, taskDesc, threadCounter++, false);
-                    } else {
-                        System.out.println("No TracerouteService implementation: Skipping TracerouteTask: " + taskDesc);
-                    }
-                } else if (RMBTClient.TASK_TRACEROUTE_MASKED.equals(taskId)) {
-                    final boolean TraceRouteMaskedAvailable = true; // enable service
-                    if (TraceRouteMaskedAvailable && nnTestSettings != null && nnTestSettings.getTracerouteServiceClazz() != null) {
-                        test = new TracerouteTask(this, taskDesc, threadCounter++, true);
-                    } else {
-                        System.out.println("No TracerouteMaskedService implementation: Skipping TracerouteMaskedTask: " + taskDesc);
-                    }
-                } else if (RMBTClient.TASK_WEBSITE.equals(taskId)) {
-                    if (nnTestSettings != null && nnTestSettings.getWebsiteTestService() != null) {
-                        test = new WebsiteTask(this, taskDesc, threadCounter++);
-                    } else {
-                        System.out.println("No WebsiteTestService implementation: Skipping WebsiteTask: " + taskDesc);
-                    }
+            if (RMBTClient.TASK_HTTP.equals(taskId)) {
+                test = new HttpProxyTask(this, taskDesc, threadCounter++);
+            } else if (RMBTClient.TASK_NON_TRANSPARENT_PROXY.equals(taskId)) {
+                test = new NonTransparentProxyTask(this, taskDesc, threadCounter++);
+            } else if (RMBTClient.TASK_DNS.equals(taskId)) {
+                //Android O - if dns servers are set and default dns servers should be used - use these
+                if (taskDesc.getParams().get(DnsTask.PARAM_DNS_RESOLVER) == null && nnTestSettings.getDefaultDnsResolvers().size() > 0) {
+                    taskDesc.getParams().put(DnsTask.PARAM_DNS_RESOLVER, nnTestSettings.getDefaultDnsResolvers().get(0).getHostAddress());
+                }
+                test = new DnsTask(this, taskDesc, threadCounter++);
+            } else if (RMBTClient.TASK_TCP.equals(taskId)) {
+                test = new TcpTask(this, taskDesc, threadCounter++);
+            } else if (RMBTClient.TASK_UDP.equals(taskId)) {
+                test = new UdpTask(this, taskDesc, threadCounter++);
+            } else if (RMBTClient.TASK_VOIP.equals(taskId)) {
+                test = new VoipTask(this, taskDesc, threadCounter++, null, false);
+            } else if (RMBTClient.TASK_TRACEROUTE.equals(taskId)) {
+                if (nnTestSettings != null && nnTestSettings.getTracerouteServiceClazz() != null) {
+                    test = new TracerouteTask(this, taskDesc, threadCounter++, false);
+                } else {
+                    System.out.println("No TracerouteService implementation: Skipping TracerouteTask: " + taskDesc);
+                }
+            } else if (RMBTClient.TASK_TRACEROUTE_MASKED.equals(taskId)) {
+                final boolean TraceRouteMaskedAvailable = true; // enable service
+                if (TraceRouteMaskedAvailable && nnTestSettings != null && nnTestSettings.getTracerouteServiceClazz() != null) {
+                    test = new TracerouteTask(this, taskDesc, threadCounter++, true);
+                } else {
+                    System.out.println("No TracerouteMaskedService implementation: Skipping TracerouteMaskedTask: " + taskDesc);
+                }
+            } else if (RMBTClient.TASK_WEBSITE.equals(taskId)) {
+                if (nnTestSettings != null && nnTestSettings.getWebsiteTestService() != null) {
+                    test = new WebsiteTask(this, taskDesc, threadCounter++);
+                } else {
+                    System.out.println("No WebsiteTestService implementation: Skipping WebsiteTask: " + taskDesc);
                 }
             }
 

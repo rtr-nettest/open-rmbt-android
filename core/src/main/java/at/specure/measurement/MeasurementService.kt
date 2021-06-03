@@ -121,6 +121,8 @@ class MeasurementService : CustomLifecycleService() {
 
     private var measurementProgress = 0
     private var pingNanos = 0L
+    private var jitterNanos = 0L
+    private var packetLossPercent = 0
     private var downloadSpeedBps = 0L
     private var uploadSpeedBps = 0L
     private var hasErrors = false
@@ -208,6 +210,16 @@ class MeasurementService : CustomLifecycleService() {
         override fun onPingChanged(pingNanos: Long) {
             this@MeasurementService.pingNanos = pingNanos
             clientAggregator.onPingChanged(pingNanos)
+        }
+
+        override fun onJitterChanged(jitterNanos: Long) {
+            this@MeasurementService.jitterNanos = jitterNanos
+            clientAggregator.onJitterChanged(jitterNanos)
+        }
+
+        override fun onPacketLossChanged(packetLossPercent: Int) {
+            this@MeasurementService.packetLossPercent = packetLossPercent
+            clientAggregator.onPacketLossPercentChanged(packetLossPercent)
         }
 
         override fun onDownloadSpeedChanged(progress: Int, speedBps: Long) {
@@ -822,6 +834,23 @@ class MeasurementService : CustomLifecycleService() {
             clients.forEach {
                 it.onPingChanged(pingNanos)
             }
+        }
+
+        override fun onJitterChanged(jitterNanos: Long) {
+            clients.forEach {
+                it.onPingChanged(pingNanos)
+            }
+            this@MeasurementService.jitterNanos = jitterNanos
+            clientAggregator.onJitterChanged(jitterNanos)
+        }
+
+        override fun onPacketLossPercentChanged(packetLossPercent: Int) {
+            clients.forEach {
+                it.onPingChanged(pingNanos)
+            }
+
+            this@MeasurementService.packetLossPercent = packetLossPercent
+            clientAggregator.onPacketLossPercentChanged(packetLossPercent)
         }
 
         override fun onClientReady(testUUID: String, loopLocalUUID: String?) {

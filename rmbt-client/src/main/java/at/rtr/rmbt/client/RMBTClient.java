@@ -83,7 +83,7 @@ public class RMBTClient implements RMBTClientCallback {
     private final long durationInitNano = 2500000000L; // TODO
     private final long durationUpNano;
     private final long durationDownNano;
-    public final static String TASK_JITTER = "jitter";
+//    public final static String TASK_JITTER = "jitter";
     private final boolean enabledJitterAndPacketLoss;
 
     private final AtomicLong pingNano = new AtomicLong(-1);
@@ -625,7 +625,6 @@ public class RMBTClient implements RMBTClientCallback {
 
     public void performVoipTest() {
         VoipTest voipTest;
-
         if (!aborted.get()) {
             try {
                 QoSResultCollector voipResult;
@@ -640,7 +639,6 @@ public class RMBTClient implements RMBTClientCallback {
                 boolean onlyVoipTest = true;
                 //noinspection ConstantConditions
                 voipTest = new JitterTest(this, qosTestSettings);
-
                 voipReference.set(voipTest);
                 setStatus(TestStatus.PACKET_LOSS_AND_JITTER);
                 voipResult = voipTest.call();

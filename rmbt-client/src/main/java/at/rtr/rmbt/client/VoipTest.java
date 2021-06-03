@@ -96,15 +96,17 @@ public class VoipTest extends QualityOfServiceTest implements Callable<QoSResult
             taskDescs.add(taskDescList.get(0));
         }
 
+        AbstractQoSTask test = null;
+
         for (TaskDesc taskDesc : client.getTaskDescList()) {
             String taskId = (String) taskDesc.getParams().get(TaskDesc.QOS_TEST_IDENTIFIER_KEY);
-            AbstractQoSTask test = null;
             if (getTestId().equals(taskId)) {
                 test = new VoipTask(this, taskDesc, threadCounter++, customTimeout, ignoreErrors);
             }
+        }
 
-            if (test != null) {
-                //manage taskMap:
+        if (test != null) {
+            //manage taskMap:
                 List<AbstractQoSTask> testList = null;
                 testList = testMap.get(test.getTestType());
                 if (testList == null) {
@@ -114,7 +116,6 @@ public class VoipTest extends QualityOfServiceTest implements Callable<QoSResult
                 testList.add(test);
 
                 QualityOfServiceTest.Counter testTypeCounter;
-
                 if (testGroupCounterMap.containsKey(test.getTestType())) {
                     testTypeCounter = testGroupCounterMap.get(test.getTestType());
                     testTypeCounter.increaseCounter(test.getConcurrencyGroup());
@@ -122,7 +123,6 @@ public class VoipTest extends QualityOfServiceTest implements Callable<QoSResult
                     testTypeCounter = new QualityOfServiceTest.Counter(test.getTestType(), 1, test.getConcurrencyGroup());
                     testGroupCounterMap.put(test.getTestType(), testTypeCounter);
                 }
-
                 //manage concurrent test groups
                 List<AbstractQoSTask> tasks = null;
 
@@ -132,7 +132,6 @@ public class VoipTest extends QualityOfServiceTest implements Callable<QoSResult
                     tasks = new ArrayList<AbstractQoSTask>();
                     concurrentTasks.put(test.getConcurrencyGroup(), tasks);
                 }
-
                 if (tasks != null) {
                     tasks.add(test);
                 }
@@ -142,16 +141,14 @@ public class VoipTest extends QualityOfServiceTest implements Callable<QoSResult
                             nnTestSettings.isUseSsl(), test.getTaskDesc().getToken(),
                             test.getTaskDesc().getDuration(), test.getTaskDesc().getNumThreads(),
                             test.getTaskDesc().getNumPings(), test.getTaskDesc().getStartTime(), Config.SERVER_TYPE_QOS);
-                    controlConnectionMap.put(test.getTestServerAddr(), new QoSControlConnection(getRMBTClient(), params));
+                    controlConnectionMap.put(test.getTestServerAddr(), new QoSControlConnection(client, params));
                 }
-
                 //check if qos test need test server
                 if (test.needsQoSControlConnection()) {
                     test.setControlConnection(controlConnectionMap.get(test.getTestServerAddr()));
                     controlConnectionMap.get(test.getTestServerAddr()).getConcurrencyGroupSet().add(test.getConcurrencyGroup());
                 }
             }
-        }
 
         if (qoSTestSettings != null) {
             qoSTestSettings.dispatchTestProgressEvent(TestProgressListener.TestProgressEvent.ON_CREATED, null, this);

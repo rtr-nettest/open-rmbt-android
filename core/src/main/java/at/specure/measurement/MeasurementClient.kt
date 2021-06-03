@@ -15,6 +15,10 @@ interface MeasurementClient {
 
     fun onPingChanged(pingNanos: Long)
 
+    fun onJitterChanged(jitterNanos: Long)
+
+    fun onPacketLossPercentChanged(packetLossPercent: Int)
+
     fun onClientReady(testUUID: String, loopLocalUUID: String?)
 
     fun isQoSEnabled(enabled: Boolean)

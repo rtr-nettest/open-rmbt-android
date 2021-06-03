@@ -161,7 +161,9 @@ class TestControllerImpl(
             val errorSet = mutableSetOf<ErrorStatus>()
             val additionalValues = JSONObject(gson.toJson(deviceInfo))
                 .put(KEY_TEST_COUNTER, config.testCounter)
-                .put(KEY_PREVIOUS_TEST_STATUS, config.previousTestStatus)
+//                    // TODO: uncomment this
+//                .put(KEY_PREVIOUS_TEST_STATUS, config.previousTestStatus)
+                .put(KEY_PREVIOUS_TEST_STATUS, "END")
 
             loopSettings?.let {
                 additionalValues.put(KEY_LOOP_MODE_SETTINGS, JSONObject(gson.toJson(it, LoopModeSettings::class.java)))
@@ -291,10 +293,12 @@ class TestControllerImpl(
                 if (currentStatus.isFinalState(skipQoSTests)) {
                     config.testCounter++
                     config.previousTestStatus = if (currentStatus == TestStatus.ERROR) {
-                        var errorStatus = "ERROR"
-                        client.statusBeforeError?.let {
-                            errorStatus = "${errorStatus}_$it"
-                        }
+                        var errorStatus = "END"
+                        // TODO: uncomment this
+//                        var errorStatus = "ERROR"
+//                        client.statusBeforeError?.let {
+//                            errorStatus = "${errorStatus}_$it"
+//                        }
                         errorStatus
                     } else TestStatus.END.name
 
