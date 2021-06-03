@@ -361,5 +361,13 @@
         <item>Map</item>
     </string-array>
 
+    <string name="text_label_ipv6" translatable="false">Ipv6</string>
+    <string name="text_label_ipv4" translatable="false">Ipv4</string>
+    <string name="label_network_type">Network type</string>
+    <string name="label_network_name">Network name</string>
+    <string name="label_measurement_server">Measurement server</string>
+    <string name="label_change_test_server">Change Test Server</string>
+    <string name="text_server_distance_pattern" translatable="false">%d km</string>
+
 
 </resources>

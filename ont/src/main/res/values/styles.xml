@@ -12,7 +12,7 @@
   ~ limitations under the License.
   -->
 
-<resources xmlns:tools="http://schemas.android.com/tools">
+<resources>
 
     <!-- Base application theme. -->
 
@@ -199,6 +199,25 @@
 
     <style name="Text.ResultListHeader" parent="RobotoMediumStyle">
         <item name="android:textSize">12sp</item>
+        <item name="android:textColor">@android:color/black</item>
+    </style>
+
+    <style name="Text.NetworkInfoSlider.Title" parent="RobotoRegularStyle">
+        <item name="textAllCaps">true</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:alpha">0.25</item>
+        <item name="android:textSize">13sp</item>
+        <item name="android:letterSpacing">0.03</item>
+        <item name="android:textColor">@android:color/black</item>
+    </style>
+
+    <style name="Text.NetworkInfoSlider.Value" parent="RobotoMediumStyle.Medium">
+        <item name="android:textSize">13sp</item>
+        <item name="android:textColor">@android:color/black</item>
+    </style>
+
+    <style name="Text.NetworkInfoSlider.ServerValue" parent="RobotoRegularStyle">
+        <item name="android:textSize">14sp</item>
         <item name="android:textColor">@android:color/black</item>
     </style>
 

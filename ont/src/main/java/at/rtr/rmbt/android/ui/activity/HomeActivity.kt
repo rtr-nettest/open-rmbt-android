@@ -14,6 +14,7 @@
 
 package at.rtr.rmbt.android.ui.activity
 
+import android.animation.Animator
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
@@ -26,6 +27,7 @@ import at.rtr.rmbt.android.R
 import at.rtr.rmbt.android.databinding.ActivityHomeBinding
 import at.rtr.rmbt.android.di.viewModelLazy
 import at.rtr.rmbt.android.ui.dialog.ConfigCheckDialog
+import at.rtr.rmbt.android.ui.dialog.NetworkInfoDialog
 import at.rtr.rmbt.android.util.KeepStateNavigator
 import at.rtr.rmbt.android.util.listen
 import at.rtr.rmbt.android.viewmodel.ConfigCheckViewModel
@@ -49,6 +51,8 @@ class HomeActivity : BaseActivity() {
             HomeNavigationTarget.STATISTIC_FRAGMENT_TO_SHOW -> binding.navView.selectedItemId = R.id.navigation_statistics
             HomeNavigationTarget.MAP_FRAGMENT_TO_SHOW -> binding.navView.selectedItemId = R.id.navigation_map
         }
+        // todo show only on home
+//        binding.basicNetworkInfo.root.visibility = if (intent?.extras?.get(FRAGMENT_TO_START_BUNDLE_KEY) == HomeNavigationTarget.HOME_FRAGMENT_TO_SHOW) View.VISIBLE else View.GONE
     }
 
     @SuppressLint("RestrictedApi")
@@ -92,10 +96,34 @@ class HomeActivity : BaseActivity() {
                 HomeNavigationTarget.STATISTIC_FRAGMENT_TO_SHOW -> binding.navView.selectedItemId = R.id.navigation_statistics
                 HomeNavigationTarget.MAP_FRAGMENT_TO_SHOW -> binding.navView.selectedItemId = R.id.navigation_map
             }
+//            binding.basicNetworkInfo.root.visibility = if (intent?.extras?.get(FRAGMENT_TO_START_BUNDLE_KEY) == HomeNavigationTarget.HOME_FRAGMENT_TO_SHOW) View.VISIBLE else View.GONE
         }
 
         configCheckViewModel.incorrectValuesLiveData.listen(this) {
             ConfigCheckDialog.show(supportFragmentManager, it)
+        }
+
+
+        viewModel.activeNetworkLiveData.listen(this) { info ->
+            binding.textNetworkName.text = info.name
+            // todo type name
+            binding.textNetworkType.text = info.type.name
+        }
+
+        binding.basicNetworkInfo.setOnClickListener {
+            binding.basicNetworkInfo.animate().scaleX(1.0f).scaleY(1.2f).setListener(object : Animator.AnimatorListener {
+                override fun onAnimationStart(animation: Animator?) {
+                    NetworkInfoDialog.show(supportFragmentManager) { binding.basicNetworkInfo.animate().scaleX(0.9f).scaleY(1f).start() }
+                }
+
+                override fun onAnimationEnd(animation: Animator?) {
+                    binding.basicNetworkInfo.animate().setListener(null)
+                }
+
+                override fun onAnimationCancel(animation: Animator?) {}
+
+                override fun onAnimationRepeat(animation: Animator?) {}
+            })
         }
     }
 
@@ -105,6 +133,7 @@ class HomeActivity : BaseActivity() {
         } else {
             binding.navView.selectedItemId = R.id.navigation_home
         }
+//        binding.basicNetworkInfo.root.visibility = if (intent?.extras?.get(FRAGMENT_TO_START_BUNDLE_KEY) == HomeNavigationTarget.HOME_FRAGMENT_TO_SHOW) View.VISIBLE else View.GONE
     }
 
     override fun onStart() {
@@ -139,6 +168,10 @@ class HomeActivity : BaseActivity() {
         const val FRAGMENT_TO_START_BUNDLE_KEY = "FRAGMENT_TO_START_BUNDLE_KEY"
 
         private const val CODE_TERMS = 1
+
+        private const val SCALE_DEFAULT = 1f
+        private const val SCALE_X = 0.9f
+        private const val SCALE_Y = 1.2f
 
         fun start(context: Context) = context.startActivity(Intent(context, HomeActivity::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK
