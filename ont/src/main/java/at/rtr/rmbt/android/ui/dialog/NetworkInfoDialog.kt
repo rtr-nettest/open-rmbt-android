@@ -21,6 +21,7 @@ import at.rtr.rmbt.android.util.formatAgeString
 import at.rtr.rmbt.android.util.formatAltitude
 import at.rtr.rmbt.android.util.formatCoordinate
 import at.rtr.rmbt.android.util.listen
+import at.rtr.rmbt.android.util.setTechnologyIcon
 import at.specure.data.MeasurementServers
 import at.specure.info.cell.CellNetworkInfo
 import at.specure.info.ip.IpInfo
@@ -35,7 +36,7 @@ import at.specure.location.LocationInfo
 import at.specure.location.LocationWatcher
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
-import java.util.*
+import java.util.Locale
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
@@ -50,8 +51,6 @@ class NetworkInfoDialog(private val onDismiss: () -> Unit) : BottomSheetDialogFr
     @Inject
     lateinit var locationWatcher: LocationWatcher
 
-    private lateinit var binding: DialogNetworkInfoBinding
-
     @Inject
     lateinit var ipV4ChangeLiveData: IpV4ChangeLiveData
 
@@ -60,6 +59,8 @@ class NetworkInfoDialog(private val onDismiss: () -> Unit) : BottomSheetDialogFr
 
     @Inject
     lateinit var measurementServers: MeasurementServers
+
+    private lateinit var binding: DialogNetworkInfoBinding
 
     private var locationAge = 0L
     private val updateHandler = Handler()
@@ -71,7 +72,6 @@ class NetworkInfoDialog(private val onDismiss: () -> Unit) : BottomSheetDialogFr
             scheduleUpdate()
         }
     }
-
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -104,7 +104,8 @@ class NetworkInfoDialog(private val onDismiss: () -> Unit) : BottomSheetDialogFr
     }
 
     private fun observeMeasurementServers() {
-        binding.textServer.text = measurementServers.selectedMeasurementServer?.name ?: "-"
+        binding.textServer.text = measurementServers.selectedMeasurementServer?.name
+        binding.linkServer.visibility = if (!measurementServers.measurementServers.isNullOrEmpty()) View.VISIBLE else View.GONE
         binding.linkServer.setOnClickListener { startActivity(Intent(requireContext(), MeasurementServerSelectionActivity::class.java)) }
     }
 
@@ -173,8 +174,7 @@ class NetworkInfoDialog(private val onDismiss: () -> Unit) : BottomSheetDialogFr
     private fun observeActiveNetworkUpdates() {
         activeNetworkLiveData.listen(viewLifecycleOwner) { info ->
             binding.textNetworkName.text = info.name
-            // todo type name
-            binding.textNetworkType.text = info.type.name
+            binding.textNetworkType.setTechnologyIcon(info)
 
             var name: String? = null
             var number: String? = null

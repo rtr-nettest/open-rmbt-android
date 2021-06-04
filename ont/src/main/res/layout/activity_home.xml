@@ -78,8 +78,8 @@
                     android:id="@+id/text_network_type"
                     style="@style/Text.NetworkInfoSlider.Value"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textAllCaps="true"
+                    android:layout_height="24dp"
+                    android:gravity="center_vertical"
                     app:layout_constraintStart_toStartOf="@id/label_network_type"
                     app:layout_constraintTop_toBottomOf="@id/label_network_type"
                     tools:text="4g (lte)" />
@@ -98,8 +98,8 @@
                     android:id="@+id/text_network_name"
                     style="@style/Text.NetworkInfoSlider.Value"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textAllCaps="true"
+                    android:layout_height="24dp"
+                    android:gravity="center_vertical"
                     app:layout_constraintStart_toStartOf="@id/label_network_name"
                     app:layout_constraintTop_toBottomOf="@id/label_network_name"
                     tools:text="vodafone" />

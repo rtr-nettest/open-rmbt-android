@@ -7,12 +7,15 @@ import androidx.recyclerview.widget.RecyclerView
 import at.rmbt.client.control.Server
 import at.rtr.rmbt.android.R
 import at.rtr.rmbt.android.databinding.ItemMeasurementServerSelectionBinding
-import kotlin.random.Random
+import at.rtr.rmbt.android.viewmodel.ServerWithDistance
 
-class MeasurementServerSelectionAdapter(private val items: List<Server>, private val onSelect: (Server) -> Unit) :
+/**
+ * Used for Home Slider.
+ */
+class MeasurementServerSelectionAdapter(private val items: List<ServerWithDistance>, private val onSelect: (ServerWithDistance) -> Unit) :
     RecyclerView.Adapter<MeasurementServerSelectionAdapter.Holder>() {
 
-    var selected: Server? = null
+    var selected: ServerWithDistance? = null
         set(value) {
             field = value
             notifyDataSetChanged()
@@ -24,7 +27,7 @@ class MeasurementServerSelectionAdapter(private val items: List<Server>, private
     override fun onBindViewHolder(holder: Holder, position: Int) {
         holder.binding.run {
             val server = items[position]
-            distance.text = distance.context.getString(R.string.text_server_distance_pattern, Random.nextInt(0, 500))
+            distance.text = distance.context.getString(R.string.text_server_distance_pattern, server.distance)
             name.text = server.name
             check.visibility = if (selected?.uuid == server.uuid) View.VISIBLE else View.GONE
 
