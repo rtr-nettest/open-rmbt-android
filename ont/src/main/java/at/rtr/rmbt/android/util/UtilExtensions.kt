@@ -74,7 +74,6 @@ fun Long.timeString(): String {
     }
 }
 
-
 fun TextView.setTechnologyIcon(info: NetworkInfo) {
     val padding = 12
     when (info.type) {

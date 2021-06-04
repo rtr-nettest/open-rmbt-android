@@ -368,8 +368,8 @@
     <string name="label_measurement_server">Measurement server</string>
     <string name="label_change_test_server">Change Test Server</string>
     <string name="text_server_distance_pattern" translatable="false">%d km</string>
-    <string name="label_network_info_wifi">WiFi</string>
-    <string name="label_network_info_ethernet">Ethernet</string>
+    <string name="label_network_info_wifi" translatable="false">WiFi</string>
+    <string name="label_network_info_ethernet" translatable="false">Ethernet</string>
 
 
 </resources>

@@ -333,5 +333,10 @@
     <string name="title_loop_measurements"> Schleifenmessungen </string>
     <string name="text_link_history_empty"> Führen Sie Ihre erste Messung durch </string>
     <string name="text_history_empty"> Keine Ergebnisse angezeigt. </string>
+
+    <string name="label_network_type">Netzwerktyp</string>
+    <string name="label_network_name">Netzwerkname</string>
+    <string name="label_measurement_server">Messserver</string>
+    <string name="label_change_test_server">Testserver ändern</string>
 </resources>
 

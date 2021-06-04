@@ -4,7 +4,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-import at.rmbt.client.control.Server
 import at.rtr.rmbt.android.R
 import at.rtr.rmbt.android.databinding.ItemMeasurementServerSelectionBinding
 import at.rtr.rmbt.android.viewmodel.ServerWithDistance

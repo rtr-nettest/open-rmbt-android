@@ -106,7 +106,6 @@ class HomeActivity : BaseActivity() {
             ConfigCheckDialog.show(supportFragmentManager, it)
         }
 
-
         viewModel.activeNetworkLiveData.listenNonNull(this) { info ->
             binding.textNetworkName.text = info.name
             binding.textNetworkType.setTechnologyIcon(info)
@@ -168,7 +167,6 @@ class HomeActivity : BaseActivity() {
             binding.root.post {
                 if (info == null) {
                     binding.basicNetworkInfo.visibility = View.GONE
-
                 } else {
                     binding.basicNetworkInfo.visibility = if (binding.navView.selectedItemId == R.id.navigation_home) View.VISIBLE else View.GONE
                 }

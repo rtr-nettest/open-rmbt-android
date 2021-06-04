@@ -335,4 +335,9 @@
     <string name="title_loop_measurements"> Medidas de bucle </string>
     <string name="text_link_history_empty"> Realice su primera medición </string>
     <string name="text_history_empty"> No hay resultados para mostrar. </string>
+
+    <string name="label_network_type"> Tipo de red </string>
+    <string name="label_network_name"> Nombre de la red </string>
+    <string name="label_measurement_server"> Servidor de medición </string>
+    <string name="label_change_test_server"> Cambiar servidor de prueba </string>
 </resources>
