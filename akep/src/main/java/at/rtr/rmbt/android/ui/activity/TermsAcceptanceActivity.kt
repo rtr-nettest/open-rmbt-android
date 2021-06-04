@@ -3,11 +3,8 @@ package at.rtr.rmbt.android.ui.activity
 import android.app.Activity
 import android.content.Intent
 import android.graphics.Rect
-import android.net.Uri
 import android.os.Bundle
 import android.view.View
-import android.webkit.WebView
-import android.webkit.WebViewClient
 import at.rtr.rmbt.android.R
 import at.rtr.rmbt.android.databinding.ActivityTermsAcceptanceBinding
 import at.rtr.rmbt.android.di.viewModelLazy
@@ -16,22 +13,44 @@ import at.rtr.rmbt.android.util.ToolbarTheme
 import at.rtr.rmbt.android.util.changeStatusBarColor
 import at.rtr.rmbt.android.util.listen
 import at.rtr.rmbt.android.viewmodel.TermsAcceptanceViewModel
+import at.specure.util.MarkwonThemePlugin
 import at.specure.worker.WorkLauncher
+import io.noties.markwon.Markwon
+import io.noties.markwon.core.CorePlugin
+import io.noties.markwon.html.HtmlPlugin
+import io.noties.markwon.image.ImagesPlugin
+import io.noties.markwon.ext.strikethrough.StrikethroughPlugin
+import io.noties.markwon.ext.tables.TablePlugin
 
 class TermsAcceptanceActivity : BaseActivity() {
 
     private lateinit var binding: ActivityTermsAcceptanceBinding
     private val viewModel: TermsAcceptanceViewModel by viewModelLazy()
+    private lateinit var markwon: Markwon
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = bindContentView(R.layout.activity_terms_acceptance)
+        markwon = Markwon.builder(applicationContext)
+            .usePlugins(
+                listOf(
+                    CorePlugin.create(), HtmlPlugin.create(), ImagesPlugin.create(),
+                    StrikethroughPlugin.create(), TablePlugin.create(applicationContext),
+                    MarkwonThemePlugin()
+                )
+            )
+            .build()
         window?.changeStatusBarColor(ToolbarTheme.WHITE)
 
-        binding.content.webViewClient = TermsClient()
-        viewModel.tacContentLiveData.listen(this) {
-            it?.let {
-                binding.content.loadDataWithBaseURL(null, it, "text/html", "utf-8", null)
+        viewModel.tacContentLiveData.listen(this) { pageContent ->
+            if (!checkIsTelevision()) {
+                binding.buttonToBottom.show()
+            }
+            binding.scrollView.visibility = View.VISIBLE
+            binding.checkbox.requestFocus()
+
+            binding.contentTextView?.let { textView ->
+                markwon.setMarkdown(textView, pageContent)
             }
         }
 
@@ -85,28 +104,6 @@ class TermsAcceptanceActivity : BaseActivity() {
     override fun onResume() {
         super.onResume()
         binding.checkbox.requestFocus()
-    }
-
-    override fun onBackPressed() {}
-
-    inner class TermsClient : WebViewClient() {
-        override fun onPageFinished(view: WebView?, url: String?) {
-            super.onPageFinished(view, url)
-            if (!checkIsTelevision()) {
-                binding.buttonToBottom.show()
-            }
-            binding.scrollView.visibility = View.VISIBLE
-            binding.checkbox.requestFocus()
-        }
-
-        override fun shouldOverrideUrlLoading(view: WebView?, url: String?): Boolean {
-            // always open links in new intent on terms/conditions/privacy
-            Intent(Intent.ACTION_VIEW, Uri.parse(url)).apply {
-                startActivity(this)
-            }
-
-            return true
-        }
     }
 
     companion object {
