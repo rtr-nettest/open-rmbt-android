@@ -58,7 +58,7 @@
                 android:padding="16dp">
 
                 <androidx.constraintlayout.widget.Guideline
-                    android:id="@+id/guide_half"
+                    android:id="@+id/half"
                     android:layout_width="1dp"
                     android:layout_height="1dp"
                     android:orientation="vertical"
@@ -91,7 +91,7 @@
                     android:layout_height="wrap_content"
                     android:text="@string/label_network_name"
                     android:textAllCaps="true"
-                    app:layout_constraintStart_toStartOf="@id/guide_half"
+                    app:layout_constraintStart_toStartOf="@id/half"
                     app:layout_constraintTop_toTopOf="parent" />
 
                 <androidx.appcompat.widget.AppCompatTextView

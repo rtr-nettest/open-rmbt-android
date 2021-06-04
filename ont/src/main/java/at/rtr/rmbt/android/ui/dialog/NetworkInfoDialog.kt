@@ -1,5 +1,6 @@
 package at.rtr.rmbt.android.ui.dialog
 
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.graphics.Color
 import android.location.Geocoder
@@ -206,6 +207,7 @@ class NetworkInfoDialog(private val onDismiss: () -> Unit) : BottomSheetDialogFr
         }
     }
 
+    @SuppressLint("SetTextI18n")
     private fun observeSignalUpdates() {
         signalStrengthLiveData.listen(viewLifecycleOwner) { signal ->
             signal?.let {
