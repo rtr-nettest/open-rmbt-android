@@ -4,6 +4,8 @@ interface CMSEndpointProvider {
 
     val hostname: String
 
+    val getAboutUrl: String
+
     val getPrivacyPolicyUrl: String
 
     val getTermsOfUseUrl: String

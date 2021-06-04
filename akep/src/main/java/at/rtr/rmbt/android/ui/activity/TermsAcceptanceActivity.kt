@@ -13,14 +13,9 @@ import at.rtr.rmbt.android.util.ToolbarTheme
 import at.rtr.rmbt.android.util.changeStatusBarColor
 import at.rtr.rmbt.android.util.listen
 import at.rtr.rmbt.android.viewmodel.TermsAcceptanceViewModel
-import at.specure.util.MarkwonThemePlugin
+import at.specure.util.MarkwonBuilder
 import at.specure.worker.WorkLauncher
 import io.noties.markwon.Markwon
-import io.noties.markwon.core.CorePlugin
-import io.noties.markwon.html.HtmlPlugin
-import io.noties.markwon.image.ImagesPlugin
-import io.noties.markwon.ext.strikethrough.StrikethroughPlugin
-import io.noties.markwon.ext.tables.TablePlugin
 
 class TermsAcceptanceActivity : BaseActivity() {
 
@@ -31,15 +26,7 @@ class TermsAcceptanceActivity : BaseActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = bindContentView(R.layout.activity_terms_acceptance)
-        markwon = Markwon.builder(applicationContext)
-            .usePlugins(
-                listOf(
-                    CorePlugin.create(), HtmlPlugin.create(), ImagesPlugin.create(),
-                    StrikethroughPlugin.create(), TablePlugin.create(applicationContext),
-                    MarkwonThemePlugin()
-                )
-            )
-            .build()
+        markwon = MarkwonBuilder.build(applicationContext)
         window?.changeStatusBarColor(ToolbarTheme.WHITE)
 
         viewModel.tacContentLiveData.listen(this) { pageContent ->

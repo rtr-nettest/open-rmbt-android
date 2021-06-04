@@ -5,6 +5,8 @@ import at.rmbt.cms.client.CMSEndpointProvider
 class CMSEndpointProviderImpl : CMSEndpointProvider {
     override val hostname: String
         get() = "https://portal-api.nettest.org"
+    override val getAboutUrl: String
+        get() = "rreth"
     override val getPrivacyPolicyUrl: String
         get() = "politika-e-privatesise"
     override val getTermsOfUseUrl: String

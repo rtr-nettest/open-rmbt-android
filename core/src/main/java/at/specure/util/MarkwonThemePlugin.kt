@@ -6,6 +6,8 @@ import io.noties.markwon.core.MarkwonTheme
 class MarkwonThemePlugin : AbstractMarkwonPlugin() {
     override fun configureTheme(builder: MarkwonTheme.Builder) {
         super.configureTheme(builder)
-        builder.headingBreakHeight(0)
+        builder
+            .bulletWidth(14)
+            .headingBreakHeight(0)
     }
 }

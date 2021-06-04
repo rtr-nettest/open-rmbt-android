@@ -10,7 +10,7 @@ class PageRequestCallback(val liveData: MutableLiveData<String>) : Callback<Page
     override fun onResponse(call: Call<PageResponse>, response: Response<PageResponse>) {
         if (response.isSuccessful){
             response.body().let {
-                val translation = it!!.translations.findLast { t -> t.language!!.equals(Locale.getDefault()) }
+                val translation = it!!.translations.findLast { t -> t.language == Locale.getDefault().language }
                 if (translation != null) {
                     liveData.postValue(translation.content)
                 } else {

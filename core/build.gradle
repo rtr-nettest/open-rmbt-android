@@ -76,6 +76,7 @@ dependencies {
     api  "io.noties.markwon:ext-tables:$versions.markwon"
     api  "io.noties.markwon:html:$versions.markwon"
     api  "io.noties.markwon:image:$versions.markwon"
+    api  "io.noties.markwon:linkify:$versions.markwon"
 
     testImplementation "junit:junit:$versions.junit"
 
