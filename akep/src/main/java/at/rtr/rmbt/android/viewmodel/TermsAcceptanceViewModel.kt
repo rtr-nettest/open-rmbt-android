@@ -1,5 +1,6 @@
 package at.rtr.rmbt.android.viewmodel
 
+import android.content.Context
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import at.rmbt.cms.client.CMSApiClient
@@ -11,16 +12,16 @@ import javax.inject.Inject
 class TermsAcceptanceViewModel @Inject constructor(private val tac: TermsAndConditions) :
     BaseViewModel() {
 
-    private val _api = CMSApiClient(CMSEndpointProviderImpl())
     private val _tacContentLiveData = MutableLiveData<String>()
+    private val _api = CMSApiClient(CMSEndpointProviderImpl(), _tacContentLiveData)
 
     val tacContentLiveData: LiveData<String>
         get() {
             return _tacContentLiveData
         }
 
-    fun getTac() = launch {
-        _api.getTermsOfUse(_tacContentLiveData)
+    fun getTac(context: Context) = launch {
+        _api.getTermsOfUse(context)
     }
 
     fun updateTermsAcceptance(accepted: Boolean) {

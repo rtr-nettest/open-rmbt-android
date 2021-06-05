@@ -85,7 +85,7 @@ class TermsAcceptanceActivity : BaseActivity() {
         binding.decline.isFocusable = true
         binding.decline.isFocusableInTouchMode = false
 
-        viewModel.getTac()
+        viewModel.getTac(applicationContext)
     }
 
     override fun onResume() {

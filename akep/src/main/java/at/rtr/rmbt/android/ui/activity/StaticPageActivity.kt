@@ -50,7 +50,7 @@ class StaticPageActivity : BaseActivity() {
             markwon.setMarkdown(binding.textViewDataPrivacyAndTermsOfUse, pageContent)
         }
 
-        viewModel.getContent(intent.getStringExtra(KEY_DATA_PRIVACY_AND_TERMS_OF_USE_URL)!!)
+        viewModel.getContent(applicationContext, intent.getStringExtra(KEY_DATA_PRIVACY_AND_TERMS_OF_USE_URL)!!)
     }
 
     private fun setupToolbar() {
