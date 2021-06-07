@@ -37,7 +37,11 @@ class TermsAcceptanceActivity : BaseActivity() {
             binding.checkbox.requestFocus()
 
             binding.contentTextView?.let { textView ->
-                markwon.setMarkdown(textView, pageContent)
+                if (pageContent != null) {
+                    markwon.setMarkdown(textView, pageContent)
+                } else {
+                    markwon.setMarkdown(textView, getString(R.string.request_failure))
+                }
             }
         }
 
@@ -85,7 +89,7 @@ class TermsAcceptanceActivity : BaseActivity() {
         binding.decline.isFocusable = true
         binding.decline.isFocusableInTouchMode = false
 
-        viewModel.getTac(applicationContext)
+        viewModel.getTac()
     }
 
     override fun onResume() {

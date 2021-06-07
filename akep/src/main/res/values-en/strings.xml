@@ -38,6 +38,7 @@
     <string name="dialog_title_error">Error</string>
     <string name="error_unknown">Poor connection. Please try again later</string>
     <string name="no_internet_connection_not_load_data">No Internet connection. Could not load data.</string>
+    <string name="request_failure">An error occurred while retrieving the data.</string>
 
     <!-- Home screen -->
     <string name="home_attention">Attention</string>

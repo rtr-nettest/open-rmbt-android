@@ -47,10 +47,14 @@ class StaticPageActivity : BaseActivity() {
 
         viewModel.contentLiveData.listen(this) { pageContent ->
             binding.progressDataPrivacyAndTermsOfUse.visibility = View.GONE
-            markwon.setMarkdown(binding.textViewDataPrivacyAndTermsOfUse, pageContent)
+            if (pageContent != null) {
+                markwon.setMarkdown(binding.textViewDataPrivacyAndTermsOfUse, pageContent)
+            } else {
+                markwon.setMarkdown(binding.textViewDataPrivacyAndTermsOfUse, getString(R.string.request_failure))
+            }
         }
 
-        viewModel.getContent(applicationContext, intent.getStringExtra(KEY_DATA_PRIVACY_AND_TERMS_OF_USE_URL)!!)
+        viewModel.getContent(intent.getStringExtra(KEY_DATA_PRIVACY_AND_TERMS_OF_USE_URL)!!)
     }
 
     private fun setupToolbar() {
