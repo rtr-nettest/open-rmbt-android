@@ -161,7 +161,7 @@ class TestControllerImpl(
             val errorSet = mutableSetOf<ErrorStatus>()
             val additionalValues = JSONObject(gson.toJson(deviceInfo))
                 .put(KEY_TEST_COUNTER, config.testCounter)
-//                    // TODO: uncomment this
+//                    // TODO: uncomment this instead of line bellow when BE will be fixed
 //                .put(KEY_PREVIOUS_TEST_STATUS, config.previousTestStatus)
                 .put(KEY_PREVIOUS_TEST_STATUS, "END")
 
@@ -294,7 +294,7 @@ class TestControllerImpl(
                     config.testCounter++
                     config.previousTestStatus = if (currentStatus == TestStatus.ERROR) {
                         var errorStatus = "END"
-                        // TODO: uncomment this
+                        // TODO: uncomment this instead of line above when BE will be fixed
 //                        var errorStatus = "ERROR"
 //                        client.statusBeforeError?.let {
 //                            errorStatus = "${errorStatus}_$it"
