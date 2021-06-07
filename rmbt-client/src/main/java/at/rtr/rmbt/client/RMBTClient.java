@@ -136,7 +136,6 @@ public class RMBTClient implements RMBTClientCallback {
     public final static String TASK_TCP = "tcp";
     public final static String TASK_DNS = "dns";
     public final static String TASK_VOIP = "voip";
-    private long jitterDuration = 10000000000L;
     public final static String TASK_NON_TRANSPARENT_PROXY = "non_transparent_proxy";
     public final static String TASK_HTTP = "http_proxy";
     public final static String TASK_WEBSITE = "website";
@@ -151,6 +150,8 @@ public class RMBTClient implements RMBTClientCallback {
     private final AtomicReference<TestStatus> testStatus = new AtomicReference<TestStatus>(TestStatus.WAIT);
     private final AtomicReference<TestStatus> statusBeforeError = new AtomicReference<TestStatus>(null);
     private final AtomicLong statusChangeTime = new AtomicLong();
+    private final AtomicLong jitterTestStart = new AtomicLong();
+    private final AtomicLong jitterTestDurationNanos = new AtomicLong();
 
     private TrafficService trafficService;
     private File cacheDir = null; // cache file for jitter and packet loss
@@ -176,7 +177,7 @@ public class RMBTClient implements RMBTClientCallback {
         this.controlConnection = controlConnection;
         this.cacheDir = cacheDir;
         this.enabledJitterAndPacketLoss = enabledJitterAndPacketLoss;
-
+        this.jitterTestDurationNanos.set(10000000000L); // set default value
         planInactivityCheck();
 
         params.check();
@@ -668,6 +669,7 @@ public class RMBTClient implements RMBTClientCallback {
                     }
 
                     long callDuration = (Long) resultMap.get(VoipTask.RESULT_CALL_DURATION);
+                    jitterTestDurationNanos.set(callDuration);
                     long delay = (Long) resultMap.get(VoipTask.RESULT_DELAY);
                     long outPacketsNumber = (Long) resultMap.get(prefix_out + VoipTask.RESULT_NUM_PACKETS);
                     int inPacketsNumber = (Integer) resultMap.get(prefix_in + VoipTask.RESULT_NUM_PACKETS);
@@ -826,13 +828,21 @@ public class RMBTClient implements RMBTClientCallback {
                 iResult.progress = (float) diffTime / durationInitNano;
                 break;
 
-            case PING:
-                iResult.progress = getPingProgress();
+            case PACKET_LOSS_AND_JITTER:
+                iResult.jitter = jitter.get();
+                iResult.packetLossUp = packetLossUp.get();
+                iResult.packetLossDown = packetLossDown.get();
+                iResult.progress = getJitterProgress();
                 break;
 
-            case PACKET_LOSS_AND_JITTER:
-                //TODO: solve how to update progress
-//                iResult.progress = phasemaxPercentInit + phasemaxPercentPing + getJitterProgress() * phasemaxPercentPacketLoss;
+            case PING:
+                iResult.progress = getPingProgress();
+                // getting final result values
+                if (enabledJitterAndPacketLoss) {
+                    iResult.jitter = jitter.get();
+                    iResult.packetLossUp = packetLossUp.get();
+                    iResult.packetLossDown = packetLossDown.get();
+                }
                 break;
 
             case DOWN:
@@ -876,13 +886,15 @@ public class RMBTClient implements RMBTClientCallback {
 
     public float getJitterProgress() {
         if (jitter.get() != -1) {
+            Timber.d("JITTER PROGRESS " + 100 + "%");
             return 1;
         } else {
             long currentTime = System.nanoTime();
             long jitterStartTimeLong = jitterStartTime.get();
             float l = currentTime - jitterStartTimeLong;
-            Log.e("PROGRESS SEGMENTS:", "start:   " + jitterStartTimeLong + "              now:   " + currentTime + "            diff:   " + l + "   " + (float) (l / jitterDuration));
-            return l / jitterDuration;
+            Log.e("PROGRESS SEGMENTS:", "start:   " + jitterStartTimeLong + "              now:   " + currentTime + "            diff:   " + l + "   " + (float) (l / jitterTestDurationNanos.get()));
+            Timber.d("JITTER PROGRESS " + (l * 100) / jitterTestDurationNanos.get() + "%");
+            return l / jitterTestDurationNanos.get();
         }
     }
 
@@ -906,6 +918,8 @@ public class RMBTClient implements RMBTClientCallback {
         if (status == TestStatus.INIT) {
             jitterStartTime.set(-1);
         }
+
+        Timber.d("STATUS CHANGED TO: " + status.name());
 
         /**
          * JITTER PACKET LOSS

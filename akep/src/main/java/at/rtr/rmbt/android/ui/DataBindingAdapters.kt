@@ -473,20 +473,22 @@ fun SpeedLineChart.reset(measurementState: MeasurementState) {
     }
 }
 
-@BindingAdapter("app:percentage")
+@BindingAdapter("percentage")
 fun MeasurementProgressSquareView.setPercents(percentage: Int) {
     setProgress(percentage)
 }
 
 @BindingAdapter(
-    value = ["app:measurementPhase", "app:downloadSpeed", "app:uploadSpeed", "app:ping"],
+    value = ["measurementPhase", "downloadSpeed", "uploadSpeed", "ping", "jitter", "packetLoss"],
     requireAll = true
 )
 fun MeasurementProgressSquareView.setMeasurementPhase(
     state: MeasurementState,
     downloadSpeed: Long,
     uploadSpeed: Long,
-    ping: Long
+    ping: Long,
+    jitter: Long,
+    packetLoss: Integer
 ) {
     setMeasurementState(state)
     if (state == MeasurementState.PING) {
@@ -494,6 +496,7 @@ fun MeasurementProgressSquareView.setMeasurementPhase(
             setSpeed(ping / 1000000.0f)
         } else {
             setSpeed(-1.0f)
+            setSpeed(jitter / 1000000.0f)
         }
     }
     if (state == MeasurementState.UPLOAD) {
@@ -505,14 +508,16 @@ fun MeasurementProgressSquareView.setMeasurementPhase(
 }
 
 @BindingAdapter(
-    value = ["app:measurementPhase", "app:downloadSpeed", "app:uploadSpeed", "app:ping"],
+    value = ["measurementPhase", "downloadSpeed", "uploadSpeed", "ping", "jitter", "packetLoss"],
     requireAll = true
 )
 fun MeasurementMedianSquareView.setMeasurementPhase(
     state: MeasurementState,
     downloadSpeed: Long,
     uploadSpeed: Long,
-    ping: Long
+    ping: Long,
+    jitter: Long,
+    packetLoss: Integer
 ) {
     setMeasurementState(state)
     if (state == MeasurementState.PING) {
@@ -520,6 +525,7 @@ fun MeasurementMedianSquareView.setMeasurementPhase(
             setSpeed(ping / 1000000.0f)
         } else {
             setSpeed(-1.0f)
+            setSpeed(jitter / 1000000.0f)
         }
     }
     if (state == MeasurementState.UPLOAD) {

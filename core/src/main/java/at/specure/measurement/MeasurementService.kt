@@ -686,6 +686,8 @@ class MeasurementService : CustomLifecycleService() {
     private fun resetStates() {
         loopModeState = LoopModeState.IDLE
         testListener.onProgressChanged(MeasurementState.INIT, 0)
+        testListener.onJitterChanged(0)
+        testListener.onPacketLossChanged(0)
         testListener.onPingChanged(0)
         testListener.onDownloadSpeedChanged(0, 0)
         testListener.onUploadSpeedChanged(0, 0)
@@ -840,17 +842,12 @@ class MeasurementService : CustomLifecycleService() {
             clients.forEach {
                 it.onPingChanged(pingNanos)
             }
-            this@MeasurementService.jitterNanos = jitterNanos
-            clientAggregator.onJitterChanged(jitterNanos)
         }
 
         override fun onPacketLossPercentChanged(packetLossPercent: Int) {
             clients.forEach {
                 it.onPingChanged(pingNanos)
             }
-
-            this@MeasurementService.packetLossPercent = packetLossPercent
-            clientAggregator.onPacketLossPercentChanged(packetLossPercent)
         }
 
         override fun onClientReady(testUUID: String, loopLocalUUID: String?) {

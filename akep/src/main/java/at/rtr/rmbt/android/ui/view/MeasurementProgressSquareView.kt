@@ -33,13 +33,15 @@ class MeasurementProgressSquareView @JvmOverloads constructor(
         MeasurementState.PING to context.getString(R.string.text_phase_ping),
         MeasurementState.DOWNLOAD to context.getString(R.string.text_phase_download),
         MeasurementState.UPLOAD to context.getString(R.string.text_phase_upload),
+        MeasurementState.JITTER_AND_PACKET_LOSS to context.getString(R.string.test_bottom_test_status_jitter),
         MeasurementState.QOS to context.getString(R.string.text_phase_qos)
     )
 
     private val unitsNames = mapOf(
         MeasurementState.PING to context.getString(R.string.text_unit_ping),
         MeasurementState.DOWNLOAD to context.getString(R.string.text_unit_mbps),
-        MeasurementState.UPLOAD to context.getString(R.string.text_unit_mbps)
+        MeasurementState.UPLOAD to context.getString(R.string.text_unit_mbps),
+        MeasurementState.JITTER_AND_PACKET_LOSS to context.getString(R.string.text_unit_ping),
     )
 
     fun setMeasurementState(state: MeasurementState) {

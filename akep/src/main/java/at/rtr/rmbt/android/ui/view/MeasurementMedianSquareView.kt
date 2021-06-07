@@ -31,7 +31,8 @@ class MeasurementMedianSquareView @JvmOverloads constructor(
     private val unitsNames = mapOf(
         MeasurementState.PING to context.getString(R.string.text_unit_ping),
         MeasurementState.DOWNLOAD to context.getString(R.string.text_unit_mbps),
-        MeasurementState.UPLOAD to context.getString(R.string.text_unit_mbps)
+        MeasurementState.UPLOAD to context.getString(R.string.text_unit_mbps),
+        MeasurementState.JITTER_AND_PACKET_LOSS to context.getString(R.string.text_unit_ping)
     )
 
     fun setMeasurementState(state: MeasurementState) {
