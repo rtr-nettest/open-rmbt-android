@@ -46,10 +46,13 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
-            <WebView
-                android:id="@+id/webViewDataPrivacyAndTermsOfUse"
+            <TextView
+                android:id="@+id/textViewDataPrivacyAndTermsOfUse"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent" />
+                android:layout_height="match_parent"
+                android:padding="@dimen/margin_large"
+                android:textColor="@color/text_dark_gray"
+                />
 
             <androidx.core.widget.ContentLoadingProgressBar
                 android:id="@+id/progressDataPrivacyAndTermsOfUse"

@@ -39,6 +39,7 @@ android {
 }
 
 dependencies {
+    api project(path: ':cms_client')
     api project(path: ':control_client')
     api project(path: ':rmbt-client')
 
@@ -69,6 +70,13 @@ dependencies {
     implementation "com.jakewharton.timber:timber:$versions.timber"
 
     implementation "com.google.code.gson:gson:$versions.gson"
+
+    api  "io.noties.markwon:core:$versions.markwon"
+    api  "io.noties.markwon:ext-strikethrough:$versions.markwon"
+    api  "io.noties.markwon:ext-tables:$versions.markwon"
+    api  "io.noties.markwon:html:$versions.markwon"
+    api  "io.noties.markwon:image:$versions.markwon"
+    api  "io.noties.markwon:linkify:$versions.markwon"
 
     testImplementation "junit:junit:$versions.junit"
 
