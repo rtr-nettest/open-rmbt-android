@@ -71,8 +71,8 @@ class TestDataRepositoryImpl(db: CoreDatabase) : TestDataRepository {
             provider = location.provider,
             speed = location.speed,
             altitude = location.altitude,
-            timestampMillis = location.time,
-            timeRelativeNanos = location.systemNanoTime - testStartTimeNanos,
+            timestampMillis = location.time, // time of acquired information directly from android API
+            timeRelativeNanos = location.systemNanoTime - testStartTimeNanos, // relative time to the start of the test
             ageNanos = location.ageNanos,
             accuracy = location.accuracy,
             bearing = location.bearing,
