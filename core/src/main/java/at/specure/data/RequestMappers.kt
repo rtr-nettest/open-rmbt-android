@@ -20,6 +20,7 @@ import at.rmbt.client.control.SignalMeasurementRequestBody
 import at.rmbt.client.control.SpeedBody
 import at.rmbt.client.control.TestLocationBody
 import at.rmbt.client.control.TestResultBody
+import at.rtr.rmbt.client.helper.TestStatus
 import at.specure.config.Config
 import at.specure.data.RequestFilters.Companion.createRadioInfoBody
 import at.specure.data.RequestFilters.Companion.removeOldRedundantSignalValuesWithNegativeTimestamp
@@ -38,6 +39,8 @@ import at.specure.data.entity.SpeedRecord
 import at.specure.data.entity.TestRecord
 import at.specure.data.entity.TestTelephonyRecord
 import at.specure.data.entity.TestWlanRecord
+import at.specure.data.entity.VoipTestResultRecord
+import at.specure.data.entity.toRequest
 import at.specure.info.TransportType
 import at.specure.info.network.MobileNetworkType
 import at.specure.info.network.NRConnectionState
@@ -153,7 +156,8 @@ fun TestRecord.toRequest(
     signalList: List<SignalRecord>,
     speedInfoList: List<SpeedRecord>,
     cellLocationList: List<CellLocationRecord>,
-    permissions: List<PermissionStatusRecord>
+    permissions: List<PermissionStatusRecord>,
+    voipTestResultRecord: VoipTestResultRecord?
 ): TestResultBody {
 
     val geoLocations: List<TestLocationBody>? = if (locations.isEmpty()) {
@@ -260,6 +264,8 @@ fun TestRecord.toRequest(
         }
     }
 
+    val jpl: at.rmbt.client.control.VoipTestResult? = voipTestResultRecord?.toRequest()
+
     best5GTechnologyAchieved?.let {
         telephonyNRConnectionState = it.stringValue
     }
@@ -328,14 +334,15 @@ fun TestRecord.toRequest(
         wifiBssid = wlanInfo?.bssid,
         submissionRetryCount = submissionRetryCount,
         testStatus = testFinishReason?.ordinal.toString(),
-        lastClientStatus = lastClientStatus?.name,
+        lastClientStatus = TestStatus.END.name, // lastClientStatus?.name,
         testErrorCause = testErrorCause,
         lastQoSStatus = lastQoSStatus?.name,
         testTag = testTag,
         developerModeEnabled = developerModeEnabled,
         loopModeEnabled = loopModeEnabled,
         userServerSelectionEnabled = serverSelectionEnabled,
-        telephonyNRConnection = telephonyNRConnectionState
+        telephonyNRConnection = telephonyNRConnectionState,
+        jitterAndPacketLoss = jpl
     )
 }
 

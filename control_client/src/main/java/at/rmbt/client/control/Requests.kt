@@ -504,7 +504,13 @@ data class TestResultBody(
      * Test tag added to each test, can be set in the developer mode settings
      */
     @SerializedName("tag")
-    var testTag: String? = null
+    var testTag: String? = null,
+
+    /**
+     * results of the voip test for jitter and packet loss purpose
+     */
+    @SerializedName("jpl")
+    val jitterAndPacketLoss: at.rmbt.client.control.VoipTestResult?
 )
 
 @Keep
@@ -1109,4 +1115,217 @@ data class NetworkEventBody(
 
     @SerializedName("time_ns")
     val timeNanos: Long
+)
+
+@Keep
+data class VoipTestResult(
+
+    /*****************************/
+    /**         IN              **/
+    /*****************************/
+
+    /**
+     * Number of packets arrived in
+     */
+    @SerializedName("voip_result_in_num_packets")
+    private val resultInNumPackets: Int? = null,
+
+    /**
+     * Longest sequence of arrived packets in
+     */
+    @SerializedName("voip_result_in_long_seq")
+    private val resultInLongestSeqPackets: Int? = null,
+
+    /**
+     * Shortest sequence of arrived packets in
+     */
+    @SerializedName("voip_result_in_short_seq")
+    private val resultInShortestSeqPackets: Int? = null,
+
+    /**
+     * Mean jitter
+     */
+    @SerializedName("voip_result_in_mean_jitter")
+    private val resultInMeanJitter: Long? = null,
+
+    /**
+     * Max in jitter
+     */
+    @SerializedName("voip_result_in_max_jitter")
+    private val resultInMaxJitter: Long? = null,
+
+    /**
+     * Number of packets in incorrect order sequence
+     */
+    @SerializedName("voip_result_in_sequence_error")
+    private val resultInSeqError: Int? = null,
+
+    /**
+     * Skew in (nanoseconds)
+     */
+    @SerializedName("voip_result_in_skew")
+    private val resultInSkew: Long? = null,
+
+    /**
+     * Max delta in
+     */
+    @SerializedName("voip_result_in_max_delta")
+    private val resultInMaxDelta: Long? = null,
+
+
+    /*****************************/
+    /**         OUT             **/
+    /*****************************/
+
+    /**
+     * Skew out (nanoseconds)
+     */
+    @SerializedName("voip_result_out_skew")
+    private val resultOutSkew: Long? = null,
+
+    /**
+     * Max delta out
+     */
+    @SerializedName("voip_result_out_max_delta")
+    private val resultOutMaxDelta: Long? = null,
+
+    /**
+     * Number of packets in incorrect order sequence (out)
+     */
+    @SerializedName("voip_result_out_sequence_error")
+    private val resultOutSeqError: Long? = null,
+
+    /**
+     * Longest sequence of arrived packets out
+     */
+    @SerializedName("voip_result_out_long_seq")
+    private val resultOutLongestSeqPackets: Long? = null,
+
+    /**
+     * Shortest sequence of arrived packets out
+     */
+    @SerializedName("voip_result_out_short_seq")
+    private val resultOutShortestSeqPackets: Long? = null,
+
+    /**
+     * Mean jitter
+     */
+    @SerializedName("voip_result_out_mean_jitter")
+    private val resultOutMeanJitter: Long? = null,
+
+    /**
+     * Max in jitter
+     */
+    @SerializedName("voip_result_out_max_jitter")
+    private val resultOutMaxJitter: Long? = null,
+
+    /**
+     * Number of packets sent out
+     */
+    @SerializedName("voip_result_out_num_packets")
+    private val resultOutNumPackets: Long? = null,
+
+
+    /*****************************/
+    /**        OBJECTIVES       **/
+    /*****************************/
+
+    /**
+     * Bits per sample
+     */
+    @SerializedName("voip_objective_bits_per_sample")
+    private val objectiveBitsPerSample: Int = 8,
+
+    /**
+     * Port in
+     */
+    @SerializedName("voip_objective_in_port")
+    private val objectivePortIn: Int? = null,
+
+    /**
+     * Port out
+     */
+    @SerializedName("voip_objective_out_port")
+    private val objectivePortOut: Int? = null,
+
+    /**
+     * Delay between packets in ns, default: 20000000ns (=20ms)
+     */
+    @SerializedName("voip_objective_delay")
+    private val objectiveDelay: Long = 20000000L,
+
+    /**
+     * test timeout in nanoseconds, default: 3000000000ns (=3000ms)
+     */
+    @SerializedName("voip_objective_timeout")
+    private val objectiveTimeoutNS: Long = 3000000000L,
+
+
+    /**
+     * Payload type, as defined in RFC 3551 <<citation-2></citation-2>,[2]>>,
+     * supported payload types and their values can be found in the comment at the begining of this class.
+     * The relevant column is *"Payload type"*. The default value is: `0` (=PCMU)
+     */
+    @SerializedName("voip_objective_payload")
+    private val objectivePayload: Int = 0,
+
+    /**
+     * Call duration in nanoseconds
+     */
+    @SerializedName("voip_objective_call_duration")
+    private val objectiveCallDuration: Long = 1000000000L,
+
+    /**
+     * Sample rate
+     */
+    @SerializedName("voip_objective_sample_rate")
+    private val objectiveSampleRate: Int = 8000,
+
+
+    /*****************************/
+    /**         GENERAL         **/
+    /*****************************/
+
+    /**
+     * Duration of the test in nanoseconds
+     */
+    @SerializedName("duration_ns")
+    private val testDurationInNS: Long? = null,
+
+    /**
+     * Test start timestamp
+     */
+    @SerializedName("start_time_ns")
+    private val startTimeInNS: Long? = null,
+
+    /**
+     * General test result status string [OK, TIMEOUT, ERROR]
+     * defined in @[TestResultConst]}
+     */
+    @SerializedName("voip_result_status")
+    private val testResultStatus: String = "ERROR",
+
+    /**
+     * For values see:
+     *
+     * @{@link at.specure.android.util.Helperfunctions.getClassificationImage},
+     * @{@link at.specure.android.util.Helperfunctions.getClassificationColor}
+     */
+    @SerializedName("classification_packet_loss")
+    private val classificationPacketLoss: Int = -1,
+
+    /**
+     * For values see:
+     *
+     * @{@link at.specure.android.util.Helperfunctions.getClassificationImage},
+     * @{@link at.specure.android.util.Helperfunctions.getClassificationColor}
+     */
+    @SerializedName("classification_jitter")
+    private val classificationJitter: Int = -1,
+
+    @SerializedName("voip_result_packet_loss")
+    private val voipResultPacketLoss: String = "-",
+
+    @SerializedName("voip_result_jitter")
+    private val voipResultJitter: String = "-",
 )

@@ -664,7 +664,7 @@ public class RMBTClient implements RMBTClientCallback {
                     Long meanJitterIn = (Long) resultMap.get(prefix_in + RESULT_MEAN_JITTER);
                     if ((meanJitterIn != null) && (meanJitterOut != null)) {
                         Long meanJitter = (meanJitterIn + meanJitterOut) / 2;
-                        result.jitterMedian = meanJitter;
+                        result.jitterMeanNanos = meanJitter;
                         this.jitter.set(meanJitter);
                     }
 

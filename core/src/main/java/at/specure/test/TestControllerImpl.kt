@@ -333,8 +333,8 @@ class TestControllerImpl(
         client.getIntermediateResult(result)
         setState(MeasurementState.PING, (result.progress * 100).toInt())
         Timber.d("JITTER PROGRESS PING TCI: ${(result.progress * 100).toInt()}")
-        if (client.totalTestResult.jitterMedian > 0) {
-            _listener?.onJitterChanged(client.totalTestResult.jitterMedian)
+        if (client.totalTestResult.jitterMeanNanos > 0) {
+            _listener?.onJitterChanged(client.totalTestResult.jitterMeanNanos)
         }
         val packetLoss = ((client.totalTestResult.packetLossPercentDown + client.totalTestResult.packetLossPercentUp) / 2).toInt()
         if (packetLoss >= 0) {
@@ -362,8 +362,8 @@ class TestControllerImpl(
         Timber.d("JITTER PROGRESS TCI: $progress")
         setState(MeasurementState.JITTER_AND_PACKET_LOSS, progress)
 
-        if (client.totalTestResult.jitterMedian > 0) {
-            _listener?.onJitterChanged(client.totalTestResult.jitterMedian)
+        if (client.totalTestResult.jitterMeanNanos > 0) {
+            _listener?.onJitterChanged(client.totalTestResult.jitterMeanNanos)
         }
         val packetLoss = ((client.totalTestResult.packetLossPercentDown + client.totalTestResult.packetLossPercentUp) / 2).toInt()
         if (packetLoss >= 0) {

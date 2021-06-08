@@ -244,5 +244,15 @@ data class TestRecord(
     /**
      * version of the measurement server used during the test
      */
-    var clientVersion: String
+    var clientVersion: String,
+
+    /**
+     * Jitter in nanoseconds
+     */
+    var jitterNanos: Long? = null,
+
+    /**
+     * packet loss in % 99.3
+     */
+    var packetLossPercents: Float? = null
 )

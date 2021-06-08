@@ -20,6 +20,7 @@ import at.specure.data.entity.LoopModeRecord
 import at.specure.data.entity.LoopModeState
 import at.specure.data.entity.SignalRecord
 import at.specure.data.entity.TestRecord
+import at.specure.data.entity.toRecord
 import at.specure.data.repository.MeasurementRepository
 import at.specure.data.repository.TestDataRepository
 import at.specure.info.Network5GSimulator
@@ -184,7 +185,7 @@ class StateRecorder @Inject constructor(
             developerModeEnabled = config.developerModeIsEnabled,
             serverSelectionEnabled = config.expertModeEnabled,
             loopModeEnabled = config.loopModeEnabled,
-            clientVersion = ""
+            clientVersion = "",
         )
         if (config.shouldRunQosTest) {
             testRecord?.lastQoSStatus = TestStatus.WAIT
@@ -498,6 +499,15 @@ class StateRecorder @Inject constructor(
             uploadedBytesOnDownloadInterface = result.getTrafficByTestPart(TestStatus.DOWN, TrafficDirection.TX)
             downloadedBytesOnUploadInterface = result.getTrafficByTestPart(TestStatus.UP, TrafficDirection.RX)
             uploadedBytesOnUploadInterface = result.getTrafficByTestPart(TestStatus.UP, TrafficDirection.TX)
+
+            this.uuid.let {
+                if (config.performJitterAndPacketLossTest) {
+                    jitterNanos = result.jitterMeanNanos
+                    packetLossPercents = (result.packetLossPercentDown + result.packetLossPercentUp) / 2f
+                    val voipTestResultRecord = result.voipTestResult.toRecord(it)
+                    repository.saveVoipResult(voipTestResultRecord)
+                }
+            }
 
             val dlMeasurement = result.getTestMeasurementByTestPart(TestStatus.DOWN)
             dlMeasurement?.let {

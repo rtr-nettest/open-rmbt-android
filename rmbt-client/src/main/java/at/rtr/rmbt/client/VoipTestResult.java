@@ -18,6 +18,8 @@ package at.rtr.rmbt.client;
 
 import com.google.gson.annotations.SerializedName;
 
+import org.jetbrains.annotations.Nullable;
+
 import java.text.DecimalFormat;
 import java.text.Format;
 
@@ -323,10 +325,11 @@ public class VoipTestResult {
     public VoipTestResult() {
     }
 
-    public VoipTestResult(Integer classificationPacketLoss, Integer classificationJitter, Integer resultInNumPackets, Integer resultInLongestSeqPackets, Integer resultInShortestSeqPackets, Long resultInMeanJitter, Long resultInMaxJitter, Integer resultInSeqError, Long resultInSkew, Long resultInMaxDelta, Long resultOutSkew, Long resultOutMaxDelta, Long resultOutSeqError, Long resultOutLongestSeqPackets, Long resultOutShortestSeqPackets, Long resultOutMeanJitter, Long resultOutMaxJitter, Long resultOutNumPackets, Integer objectiveBitsPerSample, Integer objectivePortIn, Integer objectivePortOut, Long objectiveDelay, Long objectiveTimeoutNS, Integer objectivePayload, Long objectiveCallDuration, Integer objectiveSampleRate, Long testDurationInNS, Long startTimeInNS, String testResultStatus, String voipResultJitter, String voipResultPacketLoss) {
-        this.resultInNumPackets = resultInNumPackets;
+    public VoipTestResult(@Nullable Integer classificationPacketLoss, @Nullable Integer classificationJitter, @Nullable Integer resultInNumPackets, @Nullable Integer resultInLongestSeqPackets, @Nullable Integer resultInShortestSeqPackets, @Nullable Long resultInMeanJitter, @Nullable Long resultInMaxJitter, @Nullable Integer resultInSeqError, @Nullable Long resultInSkew, @Nullable Long resultInMaxDelta, @Nullable Long resultOutSkew, @Nullable Long resultOutMaxDelta, @Nullable Long resultOutSeqError, @Nullable Long resultOutLongestSeqPackets, @Nullable Long resultOutShortestSeqPackets, @Nullable Long resultOutMeanJitter, @Nullable Long resultOutMaxJitter, @Nullable Long resultOutNumPackets, @Nullable Integer objectiveBitsPerSample, @Nullable Integer objectivePortIn, @Nullable Integer objectivePortOut, @Nullable Long objectiveDelay, @Nullable Long objectiveTimeoutNS, @Nullable Integer objectivePayload, @Nullable Long objectiveCallDuration, @Nullable Integer objectiveSampleRate, @Nullable Long testDurationInNS, @Nullable Long startTimeInNS, @Nullable String testResultStatus, @Nullable String voipResultJitter, @Nullable String voipResultPacketLoss) {
+
         this.classificationPacketLoss = classificationPacketLoss;
         this.classificationJitter = classificationJitter;
+        this.resultInNumPackets = resultInNumPackets;
         this.resultInLongestSeqPackets = resultInLongestSeqPackets;
         this.resultInShortestSeqPackets = resultInShortestSeqPackets;
         this.resultInMeanJitter = resultInMeanJitter;

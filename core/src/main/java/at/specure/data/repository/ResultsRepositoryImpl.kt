@@ -23,7 +23,6 @@ import at.specure.info.network.MobileNetworkType
 import at.specure.test.DeviceInfo
 import at.specure.util.exception.DataMissingException
 import timber.log.Timber
-import timber.log.Timber.d
 import javax.inject.Inject
 
 class ResultsRepositoryImpl @Inject constructor(
@@ -43,6 +42,8 @@ class ResultsRepositoryImpl @Inject constructor(
         val testDao = db.testDao()
         val testRecord = testDao.get(testUUID) ?: throw DataMissingException("TestRecord not found uuid: $testUUID")
         val clientUUID = clientUUID.value ?: throw DataMissingException("ClientUUID is null")
+        val jplTestResultsDao = db.jplResultsDao()
+        val jplTestResultsRecord = jplTestResultsDao.get(testUUID)
 
         var finalResult: Maybe<Boolean> = Maybe(true)
         val qosRecord = testDao.getQoSRecord(testUUID)
@@ -78,7 +79,8 @@ class ResultsRepositoryImpl @Inject constructor(
                 signalList = signals,
                 speedInfoList = speeds,
                 cellLocationList = db.cellLocationDao().get(testUUID),
-                permissions = db.permissionStatusDao().get(testUUID)
+                permissions = db.permissionStatusDao().get(testUUID),
+                jplTestResultsRecord
             )
 
             // save results locally in every condition the test was successful, if result will be sent and obtained successfully, it overwrites the local results
