@@ -417,7 +417,41 @@ data class MeasurementItem(
      *  4 = dark green
      */
     @SerializedName("ping_classification")
-    val pingClass: Int
+    val pingClass: Int,
+
+    /**
+     * Mean jitter (single-trip time) in milliseconds
+     */
+    @SerializedName("jitter_ms")
+    val jitterMillis: BigDecimal?,
+
+    /**
+     * Classification value for assigning traffic-light-color
+     *  0 = not available (greyed out)
+     *  1 = red
+     *  2 = yellow
+     *  3 = green
+     *  4 = dark green
+     */
+    @SerializedName("jitter_classification")
+    val jitterClass: Int?,
+
+    /**
+     * Median ping (round-trip time) in milliseconds, measured on the server side. In previous versions (before June 3rd 2015) this was the minimum ping measured on the client side.
+     */
+    @SerializedName("packet_loss_percents")
+    val packetLossPercents: Double?,
+
+    /**
+     * Classification value for assigning traffic-light-color
+     *  0 = not available (greyed out)
+     *  1 = red
+     *  2 = yellow
+     *  3 = green
+     *  4 = dark green
+     */
+    @SerializedName("packet_loss_classification")
+    val packetLossClass: Int?
 )
 
 @Keep
@@ -556,7 +590,17 @@ data class HistoryItemResponse(
     val time: Long,
     @SerializedName("time_string")
     val timeString: String,
-    val timezone: String
+    val timezone: String,
+    @SerializedName("qos_result") // without % sign
+    val qosResultPercents: String?,
+    @SerializedName("jitter_millis")
+    val jitterMillisResult: String?, // "1.98"
+    @SerializedName("packet_loss_percents")
+    val packetLossPercents: String?, // "0.0"
+    @SerializedName("classification_jitter")
+    val classificationJitter: Int?,
+    @SerializedName("classification_packet_loss")
+    val classificationPacketLoss: Int?
 )
 
 @Keep

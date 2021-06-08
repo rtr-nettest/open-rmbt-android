@@ -17,6 +17,9 @@ import at.specure.data.entity.TestResultGraphItemRecord
 import at.specure.data.entity.TestResultRecord
 import at.specure.data.entity.TestTelephonyRecord
 import at.specure.data.entity.TestWlanRecord
+import at.specure.data.entity.VoipTestResultRecord
+import at.specure.data.entity.getJitter
+import at.specure.data.entity.getPacketLoss
 import at.specure.data.toRequest
 import at.specure.info.TransportType
 import at.specure.info.network.MobileNetworkType
@@ -85,7 +88,7 @@ class ResultsRepositoryImpl @Inject constructor(
 
             // save results locally in every condition the test was successful, if result will be sent and obtained successfully, it overwrites the local results
             if ((testRecord.status == TestStatus.SPEEDTEST_END) || (testRecord.status == TestStatus.QOS_END) || (testRecord.status == TestStatus.END)) {
-                saveLocalTestResults(body, testUUID, wlanInfo, speeds, pings, signals)
+                saveLocalTestResults(body, testUUID, wlanInfo, speeds, pings, signals, jplTestResultsRecord)
             }
 
             body.radioInfo?.cells?.forEach {
@@ -133,9 +136,13 @@ class ResultsRepositoryImpl @Inject constructor(
         wlanInfo: TestWlanRecord?,
         speeds: List<SpeedRecord>,
         pings: List<PingRecord>,
-        signals: List<SignalRecord>
+        signals: List<SignalRecord>,
+        jitterAndPacketLoss: VoipTestResultRecord?
     ) {
         val networkType = NetworkTypeCompat.fromResultIntType(body.networkType.toInt())
+
+        val jitterMean: Double? = jitterAndPacketLoss?.getJitter()
+        val packetLoss: Double? = jitterAndPacketLoss?.getPacketLoss()
 
         db.testResultDao().insert(
             TestResultRecord(
@@ -163,7 +170,11 @@ class ResultsRepositoryImpl @Inject constructor(
                 signalStrength = body.radioInfo?.signals?.get(0)?.signal ?: body.radioInfo?.signals?.get(0)?.lteRsrp,
                 pingClass = Classification.fromValue(0),
                 pingMillis = body.shortestPingNanos / 1000000.toDouble(),
-                isLocalOnly = true
+                isLocalOnly = true,
+                jitterMillis = jitterMean,
+                jitterClass = Classification.fromValue(0),
+                packetLossClass = Classification.fromValue(0),
+                packetLossPercents = packetLoss
             )
         )
 

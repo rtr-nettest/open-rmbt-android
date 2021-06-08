@@ -55,7 +55,11 @@ fun HistoryItemResponse.toModel() = History(
     signalClassification = signalClassification?.let { Classification.fromValue(it) } ?: Classification.NONE,
     time = time,
     timeString = timeString,
-    timezone = timezone
+    timezone = timezone,
+    jitterMillis = jitterMillisResult,
+    packetLossPercents = packetLossPercents,
+    packetLossClassification = classificationPacketLoss?.let { Classification.fromValue(it) },
+    jitterClassification = classificationJitter?.let { Classification.fromValue(it) }
 )
 
 fun ServerTestResultResponse.toModel(testUUID: String): TestResultRecord = resultItem.first().toModel(testUUID)
@@ -88,7 +92,11 @@ fun ServerTestResultItem.toModel(testUUID: String): TestResultRecord {
         networkName = networkItem.wifiNetworkSSID,
         networkProviderName = networkItem.providerName,
         networkTypeText = networkItem.networkTypeString,
-        networkType = NetworkTypeCompat.fromResultIntType(networkType)
+        networkType = NetworkTypeCompat.fromResultIntType(networkType),
+        jitterMillis = measurementItem.jitterMillis?.toDouble(),
+        packetLossPercents = measurementItem.packetLossPercents,
+        packetLossClass = measurementItem.packetLossClass?.let { Classification.fromValue(it) },
+        jitterClass = measurementItem.jitterClass?.let { Classification.fromValue(it) }
     )
 }
 

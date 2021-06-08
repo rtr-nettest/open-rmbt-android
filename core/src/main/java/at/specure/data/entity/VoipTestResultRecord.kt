@@ -125,3 +125,53 @@ fun VoipTestResult.toRecord(testUUID: String): VoipTestResultRecord {
         voipResultPacketLoss = voipResultPacketLoss
     )
 }
+
+/**
+ * Returns jitter in millis
+ */
+fun VoipTestResultRecord.getJitter(): Double? {
+    var meanJitter: Double? = null
+    if (this.resultInMeanJitter != null && this.resultOutMeanJitter != null) {
+        meanJitter = ((this.resultInMeanJitter!! + this.resultOutMeanJitter!!) / (2 * 1000000.toDouble()))
+    }
+    return meanJitter
+}
+
+/**
+ * Returns packet loss in percents
+ */
+fun VoipTestResultRecord.getPacketLoss(): Double? {
+    var packetLossPercent: Double? = null
+    if (this.objectiveCallDuration != null && this.objectiveDelay != null && this.resultInNumPackets != null && this.resultOutNumPackets != null) {
+        val total = (this.objectiveCallDuration!! / this.objectiveDelay!!)
+        val packetLossDown = (total - this.resultInNumPackets!!) / total
+        val packetLossUp = (total - this.resultOutNumPackets!!) / total
+        packetLossPercent = (packetLossDown + packetLossUp) / 2.toDouble()
+    }
+    return packetLossPercent
+}
+
+/**
+ * Returns jitter in millis
+ */
+fun at.rmbt.client.control.VoipTestResult.getJitter(): Double? {
+    var meanJitter: Double? = null
+    if (this.resultInMeanJitter != null && this.resultOutMeanJitter != null) {
+        meanJitter = ((this.resultInMeanJitter!! + this.resultOutMeanJitter!!) / (2 * 1000000.toDouble()))
+    }
+    return meanJitter
+}
+
+/**
+ * Returns packet loss in percents
+ */
+fun at.rmbt.client.control.VoipTestResult.getPacketLoss(): Double? {
+    var packetLossPercent: Double? = null
+    if (this.objectiveCallDuration != null && this.objectiveDelay != null && this.resultInNumPackets != null && this.resultOutNumPackets != null) {
+        val total = (this.objectiveCallDuration!! / this.objectiveDelay!!)
+        val packetLossDown = (total - this.resultInNumPackets!!) / total
+        val packetLossUp = (total - this.resultOutNumPackets!!) / total
+        packetLossPercent = (packetLossDown + packetLossUp) / 2.toDouble()
+    }
+    return packetLossPercent
+}

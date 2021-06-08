@@ -40,6 +40,8 @@ import at.specure.data.entity.TestRecord
 import at.specure.data.entity.TestTelephonyRecord
 import at.specure.data.entity.TestWlanRecord
 import at.specure.data.entity.VoipTestResultRecord
+import at.specure.data.entity.getJitter
+import at.specure.data.entity.getPacketLoss
 import at.specure.data.entity.toRequest
 import at.specure.info.TransportType
 import at.specure.info.network.MobileNetworkType
@@ -342,7 +344,9 @@ fun TestRecord.toRequest(
         loopModeEnabled = loopModeEnabled,
         userServerSelectionEnabled = serverSelectionEnabled,
         telephonyNRConnection = telephonyNRConnectionState,
-        jitterAndPacketLoss = jpl
+        jitterAndPacketLoss = jpl,
+        packetLoss = jpl?.getPacketLoss(),
+        jitterMillis = jpl?.getJitter()
     )
 }
 

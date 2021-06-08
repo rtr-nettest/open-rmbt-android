@@ -254,5 +254,5 @@ data class TestRecord(
     /**
      * packet loss in % 99.3
      */
-    var packetLossPercents: Float? = null
+    var packetLossPercents: Double? = null
 )
