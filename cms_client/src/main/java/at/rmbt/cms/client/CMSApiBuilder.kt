@@ -10,7 +10,7 @@ class CMSApiBuilder(val provider: CMSEndpointProvider) {
         .build()
 
     private val retrofit = Retrofit.Builder()
-        .baseUrl(provider.hostname)
+        .baseUrl(provider.baseUrl)
         .addConverterFactory(GsonConverterFactory.create())
         .client(client)
         .build()

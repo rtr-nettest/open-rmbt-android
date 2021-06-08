@@ -1,10 +1,11 @@
 package at.rtr.rmbt.android.config
 
 import at.rmbt.cms.client.CMSEndpointProvider
+import at.rtr.rmbt.android.BuildConfig
 
 class CMSEndpointProviderImpl : CMSEndpointProvider {
-    override val hostname: String
-        get() = "https://portal-api.nettest.org"
+    override val baseUrl: String
+        get() = BuildConfig.CMS_URL.value
     override val getAboutUrl: String
         get() = "rreth"
     override val getPrivacyPolicyUrl: String

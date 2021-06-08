@@ -2,7 +2,7 @@ package at.rmbt.cms.client
 
 interface CMSEndpointProvider {
 
-    val hostname: String
+    val baseUrl: String
 
     val getAboutUrl: String
 
