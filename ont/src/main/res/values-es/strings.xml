@@ -110,16 +110,12 @@
     <string name="location_dialog_label_age">Aktualidad</string>
     <string name="location_dialog_label_source">Fuente</string>
     <string name="location_dialog_label_altitude">Altura</string>
-    <string name="location_dialog_label_speed">Velocidad</string>
     <string name="location_dialog_label_satellites">Satélites</string>
-    <string name="location_dialog_label_location_progress_message">Actualizando localización. Por favor espere…</string>
     <string name="open_gps_setting_dialog_label_gps_not_enabled">Posición no disponible. Le gustaría modificar sus ajustes?</string>
     <string name="open_gps_setting_dialog_label_open_gps_setting">Cambiar ajustes</string>
     <string name="open_gps_setting_dialog_label_cancel">Cancelar</string>
-    <string name="location_dialog_not_available">No disponible</string>
     <string name="location_dialog_age">%1$s s</string>
     <string name="location_dialog_accuracy">%1$s m</string>
-    <string name="location_dialog_speed">%1$s km/h</string>
     <string name="location_location_direction_n">N %1$s</string>
     <string name="location_location_direction_e">E %1$s</string>
     <string name="location_location_direction_s">S %1$s</string>
@@ -274,14 +270,11 @@
     <string name="title_privacy_policy">Protección de datos</string>
 
     <string name="dialog_title_config_check">Por favor modifique los siguientes valores:</string>
-    <string name="label_ip_processing">Procesando…</string>
     <string name="radio_info_warning_title">Información de red móvil</string>
     <string name="radio_info_warning_message">Aviso: Modificar los ajustes avanzados de su conexión móvil puede afectar a la funcionalidad, estabilidad y rendimiento de su dispositivo o de su conexión móvil.</string>
     <string name="accept_risk">Entiendo los riesgos</string>
     <string name="preferences_connection_details_not_supported">Esta función no está soportada por su dispositivo</string>
 
-    <string name="dialog_signal_info_title">Señal</string>
-    <string name="dialog_signal_info_waiting">Espere por favor…</string>
     <string name="dialog_signal_info_band">Banda</string>
     <string name="dialog_signal_info_channel">Canal</string>
     <string name="dialog_signal_info_ta">TA</string>
@@ -335,4 +328,9 @@
     <string name="title_loop_measurements"> Medidas de bucle </string>
     <string name="text_link_history_empty"> Realice su primera medición </string>
     <string name="text_history_empty"> No hay resultados para mostrar. </string>
+
+    <string name="label_network_type"> Tipo de red </string>
+    <string name="label_network_name"> Nombre de la red </string>
+    <string name="label_measurement_server"> Servidor de medición </string>
+    <string name="label_change_test_server"> Cambiar servidor de prueba </string>
 </resources>

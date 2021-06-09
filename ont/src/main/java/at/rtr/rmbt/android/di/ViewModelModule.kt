@@ -10,6 +10,7 @@ import at.rtr.rmbt.android.viewmodel.LocationViewModel
 import at.rtr.rmbt.android.viewmodel.LoopConfigurationViewModel
 import at.rtr.rmbt.android.viewmodel.MapFiltersViewModel
 import at.rtr.rmbt.android.viewmodel.MapViewModel
+import at.rtr.rmbt.android.viewmodel.MeasurementServerSelectionViewModel
 import at.rtr.rmbt.android.viewmodel.MeasurementViewModel
 import at.rtr.rmbt.android.viewmodel.NetworkDetailsViewModel
 import at.rtr.rmbt.android.viewmodel.PermissionsViewModel
@@ -165,4 +166,9 @@ interface ViewModelModule {
     @IntoMap
     @ViewModelKey(ResultsListLoopViewModel::class)
     fun bindResultsListLoopViewModel(viewModel: ResultsListLoopViewModel): ViewModel
+
+    @Binds
+    @IntoMap
+    @ViewModelKey(MeasurementServerSelectionViewModel::class)
+    fun bindMeasurementServerSelectionViewModel(viewModel: MeasurementServerSelectionViewModel): ViewModel
 }
