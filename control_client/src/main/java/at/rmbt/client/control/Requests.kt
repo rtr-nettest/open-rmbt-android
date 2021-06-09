@@ -1339,5 +1339,5 @@ data class VoipTestResult(
     val voipResultPacketLoss: String = "-",
 
     @SerializedName("voip_result_jitter")
-    val voipResultJitter: String = "-",
+    val voipResultJitter: String = "-"
 )

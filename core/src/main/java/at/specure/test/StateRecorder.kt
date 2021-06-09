@@ -187,7 +187,7 @@ class StateRecorder @Inject constructor(
             developerModeEnabled = config.developerModeIsEnabled,
             serverSelectionEnabled = config.expertModeEnabled,
             loopModeEnabled = config.loopModeEnabled,
-            clientVersion = "",
+            clientVersion = ""
         )
         if (config.shouldRunQosTest) {
             testRecord?.lastQoSStatus = TestStatus.WAIT
