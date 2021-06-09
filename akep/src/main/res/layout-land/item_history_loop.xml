@@ -9,33 +9,38 @@
             name="item"
             type="at.specure.data.entity.History" />
 
+        <import type="at.specure.data.Classification" />
+
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="?listPreferredItemHeight"
+        android:layout_height="wrap_content"
         android:clickable="true"
         android:focusable="true"
-        android:orientation="horizontal">
+        android:paddingTop="@dimen/padding_large"
+        android:paddingBottom="@dimen/padding_large">
 
-        <at.rtr.rmbt.android.ui.view.ResultsTechnologyView
+        <ImageView
             android:id="@+id/imageSignal"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="@dimen/history_image_size"
+            android:layout_height="@dimen/history_image_size"
+            android:layout_gravity="center"
             android:layout_marginStart="16dp"
             android:contentDescription="@null"
+            android:scaleType="center"
+            android:src="@drawable/ic_history_loop"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:networkType="@{item.networkType}" />
+            app:layout_constraintTop_toTopOf="parent" />
 
         <androidx.appcompat.widget.AppCompatTextView
-            android:id="@+id/date"
             style="@style/Text.ResultListDate"
             android:layout_width="0dp"
             android:layout_height="24dp"
             android:layout_gravity="center_vertical"
             android:layout_marginStart="@dimen/margin_medium"
+            android:layout_weight="2"
             android:gravity="center_vertical"
             app:historyTime="@{item.time}"
             app:historyTimezone="@{item.timezone}"
@@ -50,16 +55,14 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            app:layout_constraintGuide_percent="0.40" />
+            app:layout_constraintGuide_percent="0.25" />
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/qos"
             style="@style/Text.ResultListValue"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_gravity="center"
             android:gravity="center"
-            android:text="@{item.qos}"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@id/download"
             app:layout_constraintStart_toEndOf="@id/guideline"
@@ -71,9 +74,7 @@
             style="@style/Text.ResultListValue"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_gravity="center"
             android:gravity="center"
-            android:text="@{item.speedDownload}"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@id/upload"
             app:layout_constraintStart_toEndOf="@id/qos"
@@ -85,9 +86,7 @@
             style="@style/Text.ResultListValue"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_gravity="center"
             android:gravity="center"
-            android:text="@{item.speedUpload}"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@id/ping"
             app:layout_constraintStart_toEndOf="@id/download"
@@ -99,11 +98,9 @@
             style="@style/Text.ResultListValue"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_gravity="center"
             android:gravity="center"
-            android:text="@{item.ping}"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/jitter"
             app:layout_constraintStart_toEndOf="@id/upload"
             app:layout_constraintTop_toTopOf="parent"
             tools:text="14" />
@@ -113,10 +110,8 @@
             style="@style/Text.ResultListValue"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_gravity="center"
             android:gravity="center"
             android:text="@{item.jitterMillis}"
-            android:visibility="gone"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/packetLoss"
             app:layout_constraintStart_toEndOf="@id/ping"
@@ -128,10 +123,8 @@
             style="@style/Text.ResultListValue"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_gravity="center"
             android:gravity="center"
             android:text="@{item.packetLossPercents}"
-            android:visibility="gone"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@id/jitter"

@@ -102,6 +102,7 @@
             app:percentage="@{state.measurementProgress}"
             app:ping="@{state.pingNanos}"
             app:jitter="@{state.jitterNanos}"
+            app:qos="@{state.qosProgressPercents}"
             app:packetLoss="@{state.packetLossPercent}"
             app:uploadSpeed="@{state.uploadSpeedBps}" />
 
@@ -119,6 +120,7 @@
             app:jitter="@{state.jitterNanosMedian}"
             app:packetLoss="@{state.packetLossPercentMedian}"
             app:ping="@{state.pingNanosMedian}"
+            app:qos="@{state.qosPercentsMedian}"
             app:uploadSpeed="@{state.uploadSpeedBpsMedian}" />
 
         <at.rtr.rmbt.android.ui.view.SpeedLineChart

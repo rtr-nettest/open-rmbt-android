@@ -35,6 +35,8 @@ private const val KEY_LAST_MEASUREMENT_SIGNAL = "KEY_LAST_MEASUREMENT_SIGNAL"
 private const val KEY_DOWNLOAD_MEDIAN = "KEY_DOWNLOAD_MEDIAN"
 private const val KEY_UPLOAD_MEDIAN = "KEY_UPLOAD_MEDIAN"
 private const val KEY_PING_MEDIAN = "KEY_PING_MEDIAN"
+private const val KEY_QOS_MEDIAN = "KEY_QOS_MEDIAN"
+private const val KEY_QOS_PROGRESS_PRECENTS = "KEY_QOS_PROGRESS_PRECENTS"
 private const val KEY_JITTER_MEDIAN = "KEY_JITTER_MEDIAN"
 private const val KEY_PACKET_LOSS_MEDIAN = "KEY_PACKET_LOSS_MEDIAN"
 
@@ -54,6 +56,7 @@ class MeasurementViewState(private val config: AppConfig) : ViewState {
     val networkInfo = ObservableField<NetworkInfo?>()
     val qosEnabled = ObservableBoolean()
     val qosTaskProgress = ObservableField<String>()
+    val qosProgressPercents = ObservableField<Int>()
     val loopCurrentProgress = ObservableInt()
     val loopTotalCount = ObservableInt()
     val loopLocalUUID = ObservableField<String>()
@@ -69,12 +72,14 @@ class MeasurementViewState(private val config: AppConfig) : ViewState {
     val pingNanosMedian = ObservableLong()
     val jitterNanosMedian = ObservableLong()
     val packetLossPercentMedian = ObservableInt()
+    val qosPercentsMedian = ObservableInt()
 
     val metersLeft = ObservableField<String>().apply { set(loopNextTestDistanceMeters.get()) }
     val locationAvailable = ObservableBoolean().apply { set(true) }
 
     fun setQoSTaskProgress(current: Int, total: Int) {
         qosTaskProgress.set("$current/$total")
+        qosProgressPercents.set(100 * current / total)
     }
 
     fun setLoopProgress(current: Int, total: Int) {
@@ -110,6 +115,7 @@ class MeasurementViewState(private val config: AppConfig) : ViewState {
             this.pingNanosMedian.set((historyLoopMedian.pingMedianMillis * 1000000f).toLong())
             this.jitterNanosMedian.set((historyLoopMedian.jitterMedianMillis * 1000000f).toLong())
             this.packetLossPercentMedian.set((historyLoopMedian.packetLossMedian).toInt())
+            this.qosPercentsMedian.set((historyLoopMedian.qosMedian)?.toInt() ?: 0)
         }
     }
 
@@ -158,6 +164,8 @@ class MeasurementViewState(private val config: AppConfig) : ViewState {
             pingNanosMedian.set(bundle.getLong(KEY_PING_MEDIAN, 0))
             jitterNanosMedian.set(bundle.getLong(KEY_JITTER_MEDIAN, 0))
             packetLossPercentMedian.set(bundle.getInt(KEY_PACKET_LOSS_MEDIAN, 0))
+            qosPercentsMedian.set(bundle.getInt(KEY_QOS_MEDIAN, 0))
+            qosProgressPercents.set(bundle.getInt(KEY_QOS_PROGRESS_PRECENTS, 0))
         }
     }
 
@@ -183,6 +191,8 @@ class MeasurementViewState(private val config: AppConfig) : ViewState {
             putLong(KEY_DOWNLOAD_MEDIAN, downloadSpeedBpsMedian.get())
             putLong(KEY_UPLOAD_MEDIAN, uploadSpeedBpsMedian.get())
             putLong(KEY_PING_MEDIAN, pingNanosMedian.get())
+            putInt(KEY_QOS_MEDIAN, qosPercentsMedian.get())
+            putInt(KEY_QOS_PROGRESS_PRECENTS, qosProgressPercents.get() ?: 0)
         }
     }
 

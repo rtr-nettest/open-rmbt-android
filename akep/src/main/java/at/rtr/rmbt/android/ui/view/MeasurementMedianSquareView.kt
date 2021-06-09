@@ -32,18 +32,19 @@ class MeasurementMedianSquareView @JvmOverloads constructor(
         MeasurementState.PING to context.getString(R.string.text_unit_ping),
         MeasurementState.DOWNLOAD to context.getString(R.string.text_unit_mbps),
         MeasurementState.UPLOAD to context.getString(R.string.text_unit_mbps),
-        MeasurementState.JITTER_AND_PACKET_LOSS to context.getString(R.string.text_unit_ping)
+        MeasurementState.JITTER_AND_PACKET_LOSS to context.getString(R.string.text_unit_ping),
+        MeasurementState.QOS to context.getString(R.string.unit_percents)
     )
 
     fun setMeasurementState(state: MeasurementState) {
         binding.root.visibility =
             if (state != MeasurementState.IDLE && state != MeasurementState.FINISH) VISIBLE else GONE
         binding.spinner.visibility =
-            if (state == MeasurementState.INIT || state == MeasurementState.QOS) VISIBLE else GONE
+            if (state == MeasurementState.INIT) VISIBLE else GONE
         binding.progressText.visibility =
-            if (state != MeasurementState.INIT && state != MeasurementState.QOS) VISIBLE else GONE
+            if (state != MeasurementState.INIT) VISIBLE else GONE
         binding.progressUnits.visibility =
-            if (state != MeasurementState.INIT && state != MeasurementState.QOS) VISIBLE else GONE
+            if (state != MeasurementState.INIT) VISIBLE else GONE
 
         binding.progressPhase.text = context.getString(R.string.median)
         binding.progressUnits.text = unitsNames[state]

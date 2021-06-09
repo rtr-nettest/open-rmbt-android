@@ -73,6 +73,9 @@ class HistoryLoopAdapter : PagedListAdapter<HistoryContainer, HistoryLoopAdapter
             binding.download.text = numberFormat.format(median(item.items.mapNotNull { it.speedDownload.toFloatOrNull() }))
             binding.upload.text = numberFormat.format(median(item.items.mapNotNull { it.speedUpload.toFloatOrNull() }))
             binding.ping.text = numberFormat.format(median(item.items.mapNotNull { it.ping.toFloatOrNull() }))
+            binding.qos.text = numberFormat.format(median(item.items.mapNotNull { it.qos?.toFloatOrNull() }))
+            binding.jitter.text = numberFormat.format(median(item.items.mapNotNull { it.jitterMillis?.toFloatOrNull() }))
+            binding.packetLoss.text = numberFormat.format(median(item.items.mapNotNull { it.packetLossPercents?.toFloatOrNull() }))
 
             binding.root.setOnClickListener {
                 item.items.first().loopUUID?.let(clickChannel::safeOffer)

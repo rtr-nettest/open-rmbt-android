@@ -56,6 +56,7 @@ fun HistoryItemResponse.toModel() = History(
     time = time,
     timeString = timeString,
     timezone = timezone,
+    qos = qosResultPercents,
     jitterMillis = jitterMillisResult,
     packetLossPercents = packetLossPercents,
     packetLossClassification = classificationPacketLoss?.let { Classification.fromValue(it) },

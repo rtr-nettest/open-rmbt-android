@@ -91,7 +91,7 @@ class HistoryRepositoryImpl(
         }
         val pingList = mutableListOf<Float>()
         val jitterList = mutableListOf<Float>()
-        val packetLoss = mutableListOf<Float>()
+        val packetLossList = mutableListOf<Float>()
         val downloadList = mutableListOf<Float>()
         val uploadList = mutableListOf<Float>()
         val qosList = mutableListOf<Float>()
@@ -99,13 +99,15 @@ class HistoryRepositoryImpl(
             historyItem.ping.toFloatOrNull()?.let { ping ->
                 pingList.add(ping)
             }
-//            todo: prepared for ONT CS
-//            historyItem.jitter.toFloatOrNull()?.let { jitter ->
-//                jitterList.add(jitter)
-//            }
-//            historyItem.packetLoss.toFloatOrNull()?.let { packetLoss ->
-//                packetLossList.add(packetLoss)
-//            }
+            historyItem.jitterMillis?.toFloatOrNull()?.let { jitter ->
+                jitterList.add(jitter)
+            }
+            historyItem.packetLossPercents?.toFloatOrNull()?.let { packetLoss ->
+                packetLossList.add(packetLoss)
+            }
+            historyItem.qos?.toFloatOrNull()?.let { qos ->
+                qosList.add(qos)
+            }
             historyItem.speedDownload.toFloatOrNull()?.let { downloadSpeed ->
                 downloadList.add(downloadSpeed)
             }
@@ -120,7 +122,7 @@ class HistoryRepositoryImpl(
             HistoryLoopMedian(
                 loopUuid = loopUuid,
                 pingMedianMillis = median(pingList),
-                packetLossMedian = median(packetLoss),
+                packetLossMedian = median(packetLossList),
                 jitterMedianMillis = median(jitterList),
                 downloadMedianMbps = median(downloadList),
                 uploadMedianMbps = median(uploadList),
