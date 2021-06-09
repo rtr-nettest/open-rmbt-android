@@ -471,13 +471,33 @@
                 bind:title="@{@string/preferences_developed_by}" />
 
             <include
+                android:id="@+id/designBy"
+                layout="@layout/item_setting_more_detail"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/developedBy"
+                bind:title="@{@string/preferences_design_by}" />
+
+            <include
+                android:id="@+id/networkBy"
+                layout="@layout/item_setting_more_detail"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/designBy"
+                bind:title="@{@string/preferences_network_info_by}" />
+
+            <include
                 android:id="@+id/version"
                 layout="@layout/item_setting_key_value"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/developedBy"
+                app:layout_constraintTop_toBottomOf="@+id/networkBy"
                 bind:title="@{@string/preferences_version}" />
 
             <include

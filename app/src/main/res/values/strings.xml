@@ -70,6 +70,10 @@
     <string name="preferences_data_protection">Privacy policy and terms of use</string>
     <string name="preferences_developed_by">Developed by Specure GmbH</string>
     <string name="preferences_developer_page" translatable="false">https://specure.com/</string>
+    <string name="preferences_design_by">Design by Feinblick</string>
+    <string name="preferences_design_page" translatable="false">https://www.feinblick.com</string>
+    <string name="preferences_network_info_by">Network information by NetMonster Core</string>
+    <string name="preferences_network_info_page" translatable="false">https://netmonster.app/</string>
     <string name="preferences_version">Version</string>
     <string name="preferences_commit_hash">Commit hash</string>
     <string name="preferences_enter_code">Please enter the code</string>
