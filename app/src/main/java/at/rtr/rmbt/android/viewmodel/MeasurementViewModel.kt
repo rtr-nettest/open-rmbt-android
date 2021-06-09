@@ -212,6 +212,14 @@ class MeasurementViewModel @Inject constructor(
         state.pingNanos.set(pingNanos)
     }
 
+    override fun onJitterChanged(jitterNanos: Long) {
+        // do nothing
+    }
+
+    override fun onPacketLossPercentChanged(packetLossPercent: Int) {
+        // do nothing
+    }
+
     override fun isQoSEnabled(enabled: Boolean) {
         state.qosEnabled.set(enabled)
     }
