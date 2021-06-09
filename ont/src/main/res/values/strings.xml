@@ -14,8 +14,6 @@
 
 <resources xmlns:tools="http://schemas.android.com/tools">
 
-    <string name="toolbar_title" translatable="false">Open Nettest</string>
-
     <string name="open_location_permission_dialog_label_location_not_permitted">Open Nettest is not allowed to use your location. Would you like to allow Open Nettest to use your location?</string>
     <string name="notification_test_title">Open nettest is running</string>
     <string name="notification_signal_test_text">Open Nettest signal measurement is running in the background</string>
@@ -29,12 +27,6 @@
     <string name="basic_result_title">Basic Result</string>
     <string name="test_bottom_test_status_jitter">Jitter</string>
     <string name="test_packet_loss">Packet loss</string>
-
-    <!-- Units -->
-    <string name="unit_mbps" translatable="false">Mbps</string>
-    <string name="unit_ms" translatable="false">ms</string>
-    <string name="unit_percents" translatable="false">%</string>
-
 
     <!-- Navigation menu titles -->
     <string name="menu_button_title_page">Home</string>
@@ -133,7 +125,6 @@
     <string name="location_dialog_age">%1$s s</string>
     <string name="location_dialog_accuracy">%1$s m</string>
     <string name="location_dialog_speed">%1$s km/h</string>
-    <string name="location_dialog_position" translatable="false">%1$s %2$s</string>
     <string name="location_location_direction_n">N %1$s</string>
     <string name="location_location_direction_e">E %1$s</string>
     <string name="location_location_direction_s">S %1$s</string>
@@ -177,8 +168,6 @@
         <item>1000</item>
     </string-array>
 
-    <string name="strength_signal_value" translatable="false">%d dBm</string>
-
     <string name="label_qos">QoS</string>
     <string name="label_upload">Upload</string>
     <string name="label_download">Download</string>
@@ -220,8 +209,6 @@
     <string name="results_network_provider">Provider</string>
     <string name="results_network_ssid">WLAN SSID</string>
     <string name="result_test_details">Test details</string>
-    <string name="qos_result_success_count" translatable="false">%1$d / %2$d</string>
-    <string name="qos_test_number" translatable="false"># %1$d</string>
     <string name="label_information">Information</string>
     <string name="label_tests">Tests</string>
     <string name="label_succeeded">SUCCEEDED</string>
@@ -345,10 +332,6 @@
     <string name="button_agree">Agree</string>
     <string name="title_permissions_uuid">Persistent Client UUID</string>
     <string name="text_permissions_uuid">Client UUID is a randomly generated ID that is saved with every measurement. Persistent Client UUID means that the ID is the same for your every measurement. It is needed to enable measurement history and synchronisation of the results between devices. You can change it later in settings.</string>
-    <string name="technology_2g" translatable="false">2G</string>
-    <string name="technology_4g" translatable="false">4G</string>
-    <string name="technology_3g" translatable="false">3G</string>
-    <string name="technology_5g" translatable="false">5G</string>
 
     <string name="title_result_filter_operators">Operators</string>
     <string name="label_results">Results</string>
@@ -360,6 +343,5 @@
         <item>List</item>
         <item>Map</item>
     </string-array>
-
 
 </resources>

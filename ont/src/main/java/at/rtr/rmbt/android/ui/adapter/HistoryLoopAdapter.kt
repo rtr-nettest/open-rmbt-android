@@ -26,9 +26,9 @@ import at.rtr.rmbt.android.databinding.ItemHistoryLoopBinding
 import at.rtr.rmbt.android.util.bindWith
 import at.rtr.rmbt.android.util.safeOffer
 import at.specure.data.entity.HistoryContainer
+import kotlinx.coroutines.channels.Channel
 import java.text.NumberFormat
 import kotlin.math.ceil
-import kotlinx.coroutines.channels.Channel
 
 private const val ITEM_LOOP = 0
 private const val ITEM_HISTORY = 1
@@ -73,6 +73,9 @@ class HistoryLoopAdapter : PagedListAdapter<HistoryContainer, HistoryLoopAdapter
             binding.download.text = numberFormat.format(median(item.items.mapNotNull { it.speedDownload.toFloatOrNull() }))
             binding.upload.text = numberFormat.format(median(item.items.mapNotNull { it.speedUpload.toFloatOrNull() }))
             binding.ping.text = numberFormat.format(median(item.items.mapNotNull { it.ping.toFloatOrNull() }))
+            binding.qos.text = numberFormat.format(median(item.items.mapNotNull { it.qos?.toFloatOrNull() }))
+            binding.jitter.text = numberFormat.format(median(item.items.mapNotNull { it.jitterMillis?.toFloatOrNull() }))
+            binding.packetLoss.text = numberFormat.format(median(item.items.mapNotNull { it.packetLossPercents?.toFloatOrNull() }))
 
             binding.root.setOnClickListener {
                 item.items.first().loopUUID?.let(clickChannel::safeOffer)

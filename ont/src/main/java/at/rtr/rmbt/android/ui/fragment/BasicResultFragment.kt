@@ -15,6 +15,7 @@ import at.specure.data.Classification
 import at.specure.data.NetworkTypeCompat
 import at.specure.data.entity.TestResultGraphItemRecord
 import at.specure.data.entity.TestResultRecord
+import at.specure.result.QoECategory
 import timber.log.Timber
 
 class BasicResultFragment : BaseFragment() {
@@ -56,6 +57,8 @@ class BasicResultFragment : BaseFragment() {
                                 uploadSpeedKbs = (result.uploadMedianMbps * 1000).toLong(),
                                 downloadSpeedKbs = (result.downloadMedianMbps * 1000).toLong(),
                                 pingMillis = result.pingMedianMillis.toDouble(),
+                                jitterMillis = result.jitterMedianMillis.toDouble(),
+                                packetLossPercents = result.packetLossMedian.toDouble(),
                                 clientOpenUUID = "",
                                 testOpenUUID = "",
                                 timezone = "",
@@ -69,6 +72,8 @@ class BasicResultFragment : BaseFragment() {
                                 downloadClass = Classification.NONE,
                                 signalClass = Classification.NONE,
                                 pingClass = Classification.NONE,
+                                packetLossClass = Classification.NONE,
+                                jitterClass = Classification.NONE,
                                 networkType = NetworkTypeCompat.TYPE_UNKNOWN,
                                 isLocalOnly = false,
                                 locationText = null,
@@ -92,6 +97,18 @@ class BasicResultFragment : BaseFragment() {
                 binding.textFailedToLoad.visibility = View.GONE
             }
         }
+
+        viewModel.qoeResultLiveData.listen(this) {
+            val qosResultItem = it.filter { qoeItem -> qoeItem.category == QoECategory.QOE_QOS }
+
+            if (qosResultItem.isEmpty()) {
+                binding.qosResultGroup.visibility = View.GONE
+            } else {
+                binding.qosResultGroup.visibility = View.VISIBLE
+                binding.textQos.text = qosResultItem[0].percentage.toInt().toString()
+            }
+        }
+
         Timber.d("history loading results from $this")
         viewModel.loadTestResults()
     }

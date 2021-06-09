@@ -241,6 +241,16 @@ class MeasurementViewModel @Inject constructor(
         state.pingNanos.set(pingNanos)
     }
 
+    override fun onJitterChanged(jitterNanos: Long) {
+        Timber.i("JPL jitter value from: $jitterNanos")
+        state.jitterNanos.set(jitterNanos)
+    }
+
+    override fun onPacketLossPercentChanged(packetLossPercent: Int) {
+        Timber.i("JPL packetLoss value from: $packetLossPercent")
+        state.packetLossPercent.set(packetLossPercent)
+    }
+
     override fun isQoSEnabled(enabled: Boolean) {
         state.qosEnabled.set(enabled)
     }
