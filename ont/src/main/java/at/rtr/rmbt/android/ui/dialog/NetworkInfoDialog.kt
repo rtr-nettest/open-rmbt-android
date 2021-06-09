@@ -43,12 +43,11 @@ import at.specure.location.LocationWatcher
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
-import java.util.*
+import java.util.Locale
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import timber.log.Timber
 import android.view.ViewTreeObserver.OnGlobalLayoutListener as OnGlobalLayoutListener1
-
 
 class NetworkInfoDialog : BottomSheetDialogFragment() {
 
