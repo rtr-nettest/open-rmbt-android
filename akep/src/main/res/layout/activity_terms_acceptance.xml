@@ -8,17 +8,6 @@
         android:layout_height="match_parent"
         tools:context="at.rtr.rmbt.android.ui.activity.TermsAcceptanceActivity">
 
-        <TextView
-            android:id="@+id/title"
-            style="@style/ScreenTitle"
-            android:layout_width="match_parent"
-            android:layout_height="?attr/actionBarSize"
-            android:background="@android:color/white"
-            android:elevation="@dimen/margin_small"
-            android:text="@string/title_privacy_policy"
-            app:layout_constraintTop_toTopOf="parent"
-            tools:text="Title" />
-
         <ScrollView
             android:id="@+id/scrollView"
             android:layout_width="match_parent"
@@ -26,20 +15,21 @@
             android:fillViewport="true"
             android:visibility="gone"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/title">
+            app:layout_constraintTop_toTopOf="parent">
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:id="@+id/scrollable"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
 
-                <WebView
-                    android:id="@+id/content"
+                <TextView
+                    android:id="@+id/contentTextView"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:background="@android:color/white"
+                    android:textColor="@color/text_dark_gray"
+                    android:padding="@dimen/margin_large"
                     app:layout_constraintTop_toTopOf="parent"
-                    tools:ignore="WebViewLayout" />
+                    tools:layout_editor_absoluteY="394dp" />
 
                 <CheckBox
                     android:id="@+id/checkbox"
@@ -62,7 +52,7 @@
                     android:textColor="@color/text_dark_gray"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toEndOf="@id/checkbox"
-                    app:layout_constraintTop_toBottomOf="@id/content" />
+                    app:layout_constraintTop_toBottomOf="@id/contentTextView" />
 
                 <androidx.appcompat.widget.AppCompatButton
                     android:id="@+id/accept"
@@ -107,7 +97,8 @@
             app:borderWidth="0dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent" />
+            app:layout_constraintStart_toStartOf="parent"
+            tools:ignore="ContentDescription" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

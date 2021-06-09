@@ -38,6 +38,7 @@
     <string name="dialog_title_error">Gabim</string>
     <string name="error_unknown">Lidhje e dobët. Ju lutemi provoni përsëri më vonë</string>
     <string name="no_internet_connection_not_load_data">Nuk ka lidhje interneti. Të dhënat nuk mund të ngarkohen.</string>
+    <string name="request_failure">Ndodhi një gabim gjatë marrjes së të dhënave.</string>
 
     <!-- Home screen -->
     <string name="home_attention">Vëmendje</string>
