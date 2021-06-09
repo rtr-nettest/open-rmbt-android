@@ -64,6 +64,13 @@
                     app:layout_constraintTop_toBottomOf="@id/label_network_name"
                     tools:text="vodafone" />
 
+                <androidx.constraintlayout.widget.Group
+                    android:id="@+id/group_server"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:constraint_referenced_ids="divider_first,label_server,text_server,link_server"
+                    tools:visibility="gone" />
+
                 <View
                     android:id="@+id/divider_first"
                     android:layout_width="match_parent"
@@ -148,7 +155,7 @@
                 <androidx.appcompat.widget.AppCompatTextView
                     android:id="@+id/labelSignal"
                     style="@style/Text.NetworkInfoSlider.Title"
-                    android:layout_width="0dp"
+                    android:layout_width="wrap_content"
                     android:layout_height="36dp"
                     android:layout_marginTop="8dp"
                     android:layout_marginEnd="@dimen/margin_medium"
@@ -160,7 +167,7 @@
                 <androidx.appcompat.widget.AppCompatTextView
                     android:id="@+id/textSignal"
                     style="@style/Text.NetworkInfoSlider.Value"
-                    android:layout_width="0dp"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="@dimen/margin_medium"
                     app:layout_constraintBottom_toBottomOf="@id/labelSignal"
@@ -171,7 +178,7 @@
                 <androidx.appcompat.widget.AppCompatTextView
                     android:id="@+id/labelChannelName"
                     style="@style/Text.NetworkInfoSlider.Title"
-                    android:layout_width="0dp"
+                    android:layout_width="wrap_content"
                     android:layout_height="36dp"
                     android:layout_marginEnd="@dimen/margin_medium"
                     android:gravity="end|center_vertical"
@@ -182,7 +189,7 @@
                 <androidx.appcompat.widget.AppCompatTextView
                     android:id="@+id/textChannelName"
                     style="@style/Text.NetworkInfoSlider.Value"
-                    android:layout_width="0dp"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="@dimen/margin_medium"
                     app:layout_constraintBottom_toBottomOf="@id/labelChannelName"
@@ -193,10 +200,10 @@
                 <androidx.appcompat.widget.AppCompatTextView
                     android:id="@+id/labelChannelNumber"
                     style="@style/Text.NetworkInfoSlider.Title"
-                    android:layout_width="0dp"
+                    android:layout_width="wrap_content"
                     android:layout_height="36dp"
                     android:layout_marginEnd="@dimen/margin_medium"
-                    android:gravity="end|center_vertical"
+                    android:gravity="center_vertical"
                     app:layout_constraintStart_toStartOf="@id/label_network_type"
                     app:layout_constraintTop_toBottomOf="@id/labelChannelName"
                     tools:text="EARFCN:" />
@@ -204,7 +211,7 @@
                 <androidx.appcompat.widget.AppCompatTextView
                     android:id="@+id/textChannelNumber"
                     style="@style/Text.NetworkInfoSlider.Value"
-                    android:layout_width="0dp"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="@dimen/margin_medium"
                     app:layout_constraintBottom_toBottomOf="@id/labelChannelNumber"
@@ -215,7 +222,7 @@
                 <androidx.appcompat.widget.AppCompatTextView
                     android:id="@+id/labelTimingAdvance"
                     style="@style/Text.NetworkInfoSlider.Title"
-                    android:layout_width="0dp"
+                    android:layout_width="wrap_content"
                     android:layout_height="36dp"
                     android:layout_marginEnd="@dimen/margin_medium"
                     android:gravity="end|center_vertical"
@@ -226,7 +233,7 @@
                 <androidx.appcompat.widget.AppCompatTextView
                     android:id="@+id/textTimingAdvance"
                     style="@style/Text.NetworkInfoSlider.Value"
-                    android:layout_width="0dp"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="@dimen/margin_medium"
                     app:layout_constraintBottom_toBottomOf="@id/labelTimingAdvance"
@@ -237,7 +244,7 @@
                 <androidx.appcompat.widget.AppCompatTextView
                     android:id="@+id/labelSignalStrengthExtra"
                     style="@style/Text.NetworkInfoSlider.Title"
-                    android:layout_width="0dp"
+                    android:layout_width="wrap_content"
                     android:layout_height="36dp"
                     android:layout_marginEnd="@dimen/margin_medium"
                     android:gravity="end|center_vertical"
@@ -248,7 +255,7 @@
                 <androidx.appcompat.widget.AppCompatTextView
                     android:id="@+id/textSignalStrengthExtra"
                     style="@style/Text.NetworkInfoSlider.Value"
-                    android:layout_width="0dp"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="@dimen/margin_medium"
                     app:layout_constraintBottom_toBottomOf="@id/labelSignalStrengthExtra"
@@ -267,7 +274,7 @@
                 <androidx.appcompat.widget.AppCompatTextView
                     android:id="@+id/labelLocationName"
                     style="@style/Text.NetworkInfoSlider.Title"
-                    android:layout_width="0dp"
+                    android:layout_width="wrap_content"
                     android:layout_height="36dp"
                     android:layout_marginTop="8dp"
                     android:layout_marginEnd="@dimen/margin_medium"
@@ -282,8 +289,6 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="@dimen/margin_large"
-                    android:ellipsize="start"
-                    android:singleLine="true"
                     android:gravity="end"
                     app:layout_constraintBottom_toBottomOf="@id/labelLocationName"
                     app:layout_constraintEnd_toEndOf="parent"
@@ -293,7 +298,7 @@
                 <androidx.appcompat.widget.AppCompatTextView
                     android:id="@+id/labelCoordinates"
                     style="@style/Text.NetworkInfoSlider.Title"
-                    android:layout_width="0dp"
+                    android:layout_width="wrap_content"
                     android:layout_height="36dp"
                     android:layout_marginEnd="@dimen/margin_medium"
                     android:gravity="end|center_vertical"
@@ -304,7 +309,7 @@
                 <androidx.appcompat.widget.AppCompatTextView
                     android:id="@+id/textCoordinates"
                     style="@style/Text.NetworkInfoSlider.Value"
-                    android:layout_width="0dp"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="@dimen/margin_medium"
                     app:layout_constraintBottom_toBottomOf="@id/labelCoordinates"
@@ -314,7 +319,7 @@
                 <androidx.appcompat.widget.AppCompatTextView
                     android:id="@+id/labelAccuracy"
                     style="@style/Text.NetworkInfoSlider.Title"
-                    android:layout_width="0dp"
+                    android:layout_width="wrap_content"
                     android:layout_height="36dp"
                     android:layout_marginEnd="@dimen/margin_medium"
                     android:gravity="end|center_vertical"
@@ -325,7 +330,7 @@
                 <androidx.appcompat.widget.AppCompatTextView
                     android:id="@+id/textAccuracy"
                     style="@style/Text.NetworkInfoSlider.Value"
-                    android:layout_width="0dp"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="@dimen/margin_medium"
                     app:layout_constraintBottom_toBottomOf="@id/labelAccuracy"
@@ -335,7 +340,7 @@
                 <androidx.appcompat.widget.AppCompatTextView
                     android:id="@+id/labelAge"
                     style="@style/Text.NetworkInfoSlider.Title"
-                    android:layout_width="0dp"
+                    android:layout_width="wrap_content"
                     android:layout_height="36dp"
                     android:layout_marginEnd="@dimen/margin_medium"
                     android:gravity="end|center_vertical"
@@ -346,7 +351,7 @@
                 <androidx.appcompat.widget.AppCompatTextView
                     android:id="@+id/textAge"
                     style="@style/Text.NetworkInfoSlider.Value"
-                    android:layout_width="0dp"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="@dimen/margin_medium"
                     app:layout_constraintBottom_toBottomOf="@id/labelAge"
@@ -356,7 +361,7 @@
                 <androidx.appcompat.widget.AppCompatTextView
                     android:id="@+id/labelSource"
                     style="@style/Text.NetworkInfoSlider.Title"
-                    android:layout_width="0dp"
+                    android:layout_width="wrap_content"
                     android:layout_height="36dp"
                     android:layout_marginEnd="@dimen/margin_medium"
                     android:gravity="end|center_vertical"
@@ -367,18 +372,19 @@
                 <androidx.appcompat.widget.AppCompatTextView
                     android:id="@+id/textSource"
                     style="@style/Text.NetworkInfoSlider.Value"
-                    android:layout_width="0dp"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="@dimen/margin_medium"
                     app:layout_constraintBottom_toBottomOf="@id/labelSource"
                     app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintTop_toTopOf="@id/labelSource" />
+                    app:layout_constraintTop_toTopOf="@id/labelSource"
+                    tools:text="gps" />
 
 
                 <androidx.appcompat.widget.AppCompatTextView
                     android:id="@+id/labelSatellites"
                     style="@style/Text.NetworkInfoSlider.Title"
-                    android:layout_width="0dp"
+                    android:layout_width="wrap_content"
                     android:layout_height="36dp"
                     android:layout_marginEnd="@dimen/margin_medium"
                     android:gravity="end|center_vertical"
@@ -389,7 +395,7 @@
                 <androidx.appcompat.widget.AppCompatTextView
                     android:id="@+id/textSatellites"
                     style="@style/Text.NetworkInfoSlider.Value"
-                    android:layout_width="0dp"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="@dimen/margin_medium"
                     app:layout_constraintBottom_toBottomOf="@id/labelSatellites"
@@ -399,7 +405,7 @@
                 <androidx.appcompat.widget.AppCompatTextView
                     android:id="@+id/labelAltitude"
                     style="@style/Text.NetworkInfoSlider.Title"
-                    android:layout_width="0dp"
+                    android:layout_width="wrap_content"
                     android:layout_height="36dp"
                     android:layout_marginEnd="@dimen/margin_medium"
                     android:gravity="end|center_vertical"
@@ -410,7 +416,7 @@
                 <androidx.appcompat.widget.AppCompatTextView
                     android:id="@+id/textAltitude"
                     style="@style/Text.NetworkInfoSlider.Value"
-                    android:layout_width="0dp"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="@dimen/margin_medium"
                     app:layout_constraintBottom_toBottomOf="@id/labelAltitude"

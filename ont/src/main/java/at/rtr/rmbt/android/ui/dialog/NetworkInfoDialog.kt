@@ -34,6 +34,7 @@ import at.specure.info.ip.IpStatus
 import at.specure.info.ip.IpV4ChangeLiveData
 import at.specure.info.ip.IpV6ChangeLiveData
 import at.specure.info.network.ActiveNetworkLiveData
+import at.specure.info.network.NetworkInfo
 import at.specure.info.network.WifiNetworkInfo
 import at.specure.info.strength.SignalStrengthInfoLte
 import at.specure.info.strength.SignalStrengthLiveData
@@ -45,6 +46,7 @@ import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import java.util.*
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
+import timber.log.Timber
 import android.view.ViewTreeObserver.OnGlobalLayoutListener as OnGlobalLayoutListener1
 
 
@@ -138,7 +140,7 @@ class NetworkInfoDialog : BottomSheetDialogFragment() {
 
     private fun observeMeasurementServers() {
         binding.textServer.text = measurementServers.selectedMeasurementServer?.name
-        binding.linkServer.visibility = if (!measurementServers.measurementServers.isNullOrEmpty()) View.VISIBLE else View.GONE
+        binding.groupServer.visibility = if (!measurementServers.measurementServers.isNullOrEmpty()) View.VISIBLE else View.GONE
         binding.linkServer.setOnClickListener { startActivity(Intent(requireContext(), MeasurementServerSelectionActivity::class.java)) }
     }
 
@@ -150,6 +152,8 @@ class NetworkInfoDialog : BottomSheetDialogFragment() {
 
             if (ipInfo != null && ipInfo.protocol == IpProtocol.V4 && ipInfo.publicAddress != null && ipInfo.ipStatus != IpStatus.NO_ADDRESS) {
                 binding.infoIpv4.textPublic.text = ipInfo.publicAddress
+                binding.infoIpv4.textPublic.visibility = View.VISIBLE
+                binding.infoIpv4.labelPublic.visibility = View.VISIBLE
             } else {
                 binding.infoIpv4.textPublic.visibility = View.GONE
                 binding.infoIpv4.labelPublic.visibility = View.GONE
@@ -157,6 +161,8 @@ class NetworkInfoDialog : BottomSheetDialogFragment() {
 
             if (ipInfo?.privateAddress != null && ipInfo.ipStatus != IpStatus.NO_ADDRESS) {
                 binding.infoIpv4.textPrivate.text = ipInfo.privateAddress
+                binding.infoIpv4.textPrivate.visibility = View.VISIBLE
+                binding.infoIpv4.labelPrivate.visibility = View.VISIBLE
             } else {
                 binding.infoIpv4.textPrivate.visibility = View.GONE
                 binding.infoIpv4.labelPrivate.visibility = View.GONE
@@ -164,6 +170,7 @@ class NetworkInfoDialog : BottomSheetDialogFragment() {
 
             binding.infoIpv4.textPublicV6.visibility = View.GONE
             binding.infoIpv4.labelPublicV6.visibility = View.GONE
+            binding.infoIpv4.executePendingBindings()
         }
 
         ipV6ChangeLiveData.listen(viewLifecycleOwner) { ipInfo ->
@@ -173,6 +180,8 @@ class NetworkInfoDialog : BottomSheetDialogFragment() {
 
             if (ipInfo != null && ipInfo.protocol == IpProtocol.V6 && ipInfo.publicAddress != null && ipInfo.ipStatus != IpStatus.NO_ADDRESS) {
                 binding.infoIpv6.textPublicV6.text = ipInfo.publicAddress
+                binding.infoIpv6.textPublicV6.visibility = View.VISIBLE
+                binding.infoIpv6.labelPublicV6.visibility = View.VISIBLE
             } else {
                 binding.infoIpv6.textPublicV6.visibility = View.GONE
                 binding.infoIpv6.labelPublicV6.visibility = View.GONE
@@ -205,44 +214,14 @@ class NetworkInfoDialog : BottomSheetDialogFragment() {
     }
 
     private fun observeActiveNetworkUpdates() {
-        activeNetworkLiveData.listenNonNull(viewLifecycleOwner) { info ->
-            binding.textNetworkName.text = info.name
-            binding.textNetworkType.setTechnologyIcon(info)
-
-            var name: String? = null
-            var number: String? = null
-            if (info is CellNetworkInfo && info.band != null) {
-                val band = info.band!!
-                number = band.channel.toString()
-                name = "${band.band} (${band.name})"
-                binding.labelChannelNumber.text = band.channelAttribution.name
-            } else if (info is WifiNetworkInfo) {
-                val band = info.band
-                number = "${band.channelNumber} (${band.frequency} MHz)"
-                name = band.informalName
-                binding.labelChannelNumber.text = getString(R.string.dialog_signal_info_channel)
-            }
-
-            name?.let {
-                binding.textChannelName.text = it
-            } ?: run {
-                binding.labelChannelName.visibility = View.GONE
-                binding.textChannelName.visibility = View.GONE
-            }
-
-            number?.let {
-                binding.textChannelNumber.text = it
-            } ?: run {
-                binding.labelChannelNumber.visibility = View.GONE
-                binding.textChannelNumber.visibility = View.GONE
-            }
-        }
+        activeNetworkLiveData.listenNonNull(viewLifecycleOwner, this::setNetworkInfo)
     }
 
     @SuppressLint("SetTextI18n")
     private fun observeSignalUpdates() {
         signalStrengthLiveData.listen(viewLifecycleOwner) { signal ->
             signal?.let {
+                it.networkInfo?.let { it1 -> setNetworkInfo(it1) }
                 binding.textSignal.text = getString(R.string.home_signal_value, it.signalStrengthInfo?.value)
             } ?: run {
                 binding.textSignal.visibility = View.GONE
@@ -266,9 +245,43 @@ class NetworkInfoDialog : BottomSheetDialogFragment() {
         }
     }
 
+    private fun setNetworkInfo(info: NetworkInfo) {
+        binding.textNetworkName.text = info.name
+        binding.textNetworkType.setTechnologyIcon(info)
+
+        var name: String? = null
+        var number: String? = null
+        if (info is CellNetworkInfo && info.band != null) {
+            val band = info.band!!
+            number = band.channel.toString()
+            name = "${band.band} (${band.name})"
+            binding.labelChannelNumber.text = band.channelAttribution.name
+        } else if (info is WifiNetworkInfo) {
+            val band = info.band
+            number = "${band.channelNumber} (${band.frequency} MHz)"
+            name = band.informalName
+            binding.labelChannelNumber.text = getString(R.string.dialog_signal_info_channel)
+        }
+
+        name?.let {
+            binding.textChannelName.text = it
+        } ?: run {
+            binding.labelChannelName.visibility = View.GONE
+            binding.textChannelName.visibility = View.GONE
+        }
+
+        number?.let {
+            binding.textChannelNumber.text = it
+        } ?: run {
+            binding.labelChannelNumber.visibility = View.GONE
+            binding.textChannelNumber.visibility = View.GONE
+        }
+    }
+
     private fun observeLocationUpdates() {
         locationWatcher.liveData.listen(viewLifecycleOwner) {
             it?.let { locationInfo ->
+                binding.groupLocation.visibility = View.VISIBLE
                 val latlng = LatLng(it.latitude, it.longitude)
                 val locationName = fetchLocationName(latlng)
                 locationName?.let {
@@ -309,8 +322,13 @@ class NetworkInfoDialog : BottomSheetDialogFragment() {
     }
 
     private fun fetchLocationName(latlng: LatLng): String? {
-        val addresses = Geocoder(requireContext(), Locale.getDefault()).getFromLocation(latlng.latitude, latlng.longitude, 1)
-        return if (addresses.isNotEmpty()) addresses[0].getAddressLine(0) else null
+        return try {
+            val addresses = Geocoder(requireContext(), Locale.getDefault()).getFromLocation(latlng.latitude, latlng.longitude, 1)
+            if (addresses.isNotEmpty()) addresses[0].getAddressLine(0) else null
+        } catch (ex: Exception) {
+            Timber.e("Geocoder exception")
+            null
+        }
     }
 
     private fun fetchLocationPosition(
