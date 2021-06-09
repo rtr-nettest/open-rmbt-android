@@ -284,6 +284,7 @@
                     android:layout_marginStart="@dimen/margin_large"
                     android:ellipsize="start"
                     android:singleLine="true"
+                    android:gravity="end"
                     app:layout_constraintBottom_toBottomOf="@id/labelLocationName"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toEndOf="@id/labelLocationName"

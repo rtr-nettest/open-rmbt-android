@@ -39,7 +39,7 @@ import at.specure.data.entity.LoopModeState
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import timber.log.Timber
 
-class HomeActivity : BaseActivity() {
+class HomeActivity : BaseActivity(), NetworkInfoDialog.Callback {
 
     private lateinit var binding: ActivityHomeBinding
 
@@ -117,10 +117,7 @@ class HomeActivity : BaseActivity() {
                 .scaleY(SCALE_BIG)
                 .setListener(object : Animator.AnimatorListener {
                     override fun onAnimationStart(animation: Animator?) {
-                        NetworkInfoDialog
-                            .show(supportFragmentManager) {
-                                binding.basicNetworkInfo.animate().scaleX(SCALE_DEFAULT).scaleY(SCALE_DEFAULT).start()
-                            }
+                        NetworkInfoDialog.show(supportFragmentManager)
                     }
 
                     override fun onAnimationEnd(animation: Animator?) {
@@ -172,6 +169,10 @@ class HomeActivity : BaseActivity() {
                 }
             }
         }
+    }
+
+    override fun onDismiss() {
+        binding.basicNetworkInfo.animate().scaleX(SCALE_DEFAULT).scaleY(SCALE_DEFAULT).start()
     }
 
     companion object {

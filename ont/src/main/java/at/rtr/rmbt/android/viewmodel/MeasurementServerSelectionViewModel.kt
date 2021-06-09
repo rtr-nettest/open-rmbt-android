@@ -33,7 +33,7 @@ class MeasurementServerSelectionViewModel @Inject constructor(private val server
         .sortedBy { it.distance }
 }
 
-// todo remove mocked server
+// todo remove mocked distance
 class ServerWithDistance(val name: String?, val uuid: String?, val distance: Int = Random.nextInt(0, 500)) {
     companion object {
         fun from(server: Server) = ServerWithDistance(server.name, server.uuid)
