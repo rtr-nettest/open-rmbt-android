@@ -1184,7 +1184,6 @@ data class VoipTestResult(
     @SerializedName("voip_result_in_max_delta")
     val resultInMaxDelta: Long? = null,
 
-
     /*****************************/
     /**         OUT             **/
     /*****************************/
@@ -1237,7 +1236,6 @@ data class VoipTestResult(
     @SerializedName("voip_result_out_num_packets")
     val resultOutNumPackets: Long? = null,
 
-
     /*****************************/
     /**        OBJECTIVES       **/
     /*****************************/
@@ -1272,7 +1270,6 @@ data class VoipTestResult(
     @SerializedName("voip_objective_timeout")
     val objectiveTimeoutNS: Long = 3000000000L,
 
-
     /**
      * Payload type, as defined in RFC 3551 <<citation-2></citation-2>,[2]>>,
      * supported payload types and their values can be found in the comment at the begining of this class.
@@ -1293,7 +1290,6 @@ data class VoipTestResult(
     @SerializedName("voip_objective_sample_rate")
     val objectiveSampleRate: Int = 8000,
 
-
     /*****************************/
     /**         GENERAL         **/
     /*****************************/
@@ -1312,7 +1308,7 @@ data class VoipTestResult(
 
     /**
      * General test result status string [OK, TIMEOUT, ERROR]
-     * defined in @[TestResultConst]}
+     * defined in @[TestResultConst]
      */
     @SerializedName("voip_result_status")
     val testResultStatus: String = "ERROR",
