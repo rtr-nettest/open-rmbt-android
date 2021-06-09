@@ -38,6 +38,7 @@
     <string name="dialog_title_error">Error</string>
     <string name="error_unknown">Poor connection. Please try again later</string>
     <string name="no_internet_connection_not_load_data">No Internet connection. Could not load data.</string>
+    <string name="request_failure">An error occurred while retrieving the data.</string>
 
     <!-- Home screen -->
     <string name="home_attention">Attention</string>
@@ -53,7 +54,7 @@
     <string name="preferences_information">Information</string>
     <string name="options">Settings</string>
     <string name="preferences_general_settings">General</string>
-    <string name="preferences_terms_of_service">Terms of Service</string>
+    <string name="preferences_terms_of_service">Terms of use</string>
     <string name="preferences_loop_test_count">Number of Measurements</string>
     <string name="loop_mode_clarification">When loop mode is enabled, new tests are automatically performed after the configured waiting time or when the device moves more than the configured distance.</string>
     <string name="preferences_privacy">Privacy</string>
