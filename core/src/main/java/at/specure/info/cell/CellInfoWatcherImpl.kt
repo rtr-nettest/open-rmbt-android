@@ -22,11 +22,7 @@ import at.rmbt.client.control.getCorrectDataTelephonyManager
 import at.rmbt.client.control.getCurrentDataSubscriptionId
 import at.rmbt.util.io
 import at.specure.info.strength.SignalStrengthInfo
-import at.specure.util.filterOnlyActiveDataCell
-import at.specure.util.isCoarseLocationPermitted
-import at.specure.util.isReadPhoneStatePermitted
-import at.specure.util.toCellNetworkInfo
-import at.specure.util.toSignalStrengthInfo
+import at.specure.util.*
 import cz.mroczis.netmonster.core.INetMonster
 import cz.mroczis.netmonster.core.factory.NetMonsterFactory
 import cz.mroczis.netmonster.core.feature.merge.CellSource
@@ -47,10 +43,14 @@ class CellInfoWatcherImpl(
 ) : CellInfoWatcher {
 
     private var _activeNetwork: CellNetworkInfo? = null
+    private var _secondaryNetwork: List<CellNetworkInfo?> = mutableListOf()
     private var _signalStrengthInfo: SignalStrengthInfo? = null
 
     override val activeNetwork: CellNetworkInfo?
         get() = _activeNetwork
+
+    override val secondaryNetwork: List<CellNetworkInfo?>
+        get() = _secondaryNetwork
 
     override val signalStrengthInfo: SignalStrengthInfo?
         get() = _signalStrengthInfo
