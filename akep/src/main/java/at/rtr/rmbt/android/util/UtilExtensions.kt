@@ -18,9 +18,13 @@ import android.Manifest
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Canvas
+import android.widget.TextView
 import androidx.core.content.ContextCompat
 import at.rmbt.util.exception.HandledException
 import at.rtr.rmbt.android.R
+import at.specure.info.TransportType
+import at.specure.info.cell.CellNetworkInfo
+import at.specure.info.network.NetworkInfo
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
@@ -70,6 +74,30 @@ fun Long.timeString(): String {
     }
 }
 
+fun TextView.setTechnologyIcon(info: NetworkInfo) {
+    val padding = 12
+    when (info.type) {
+        TransportType.WIFI -> {
+            text = context.getString(R.string.label_network_info_wifi)
+            setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_wifi, 0, 0, 0)
+            compoundDrawablePadding = padding
+        }
+        TransportType.CELLULAR -> {
+            val cellInfo = info as? CellNetworkInfo
+            text = cellInfo?.networkType?.displayName
+            setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_signal_cellular, 0, 0, 0)
+            compoundDrawablePadding = padding
+        }
+        TransportType.ETHERNET -> {
+            text = context.getString(R.string.label_network_info_ethernet)
+            setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_ethernet, 0, 0, 0)
+            compoundDrawablePadding = padding
+        }
+        else -> {
+        }
+    }
+}
+
 fun Array<out String>.hasLocationPermissions(): Boolean {
     forEach {
         if (it == Manifest.permission.ACCESS_COARSE_LOCATION ||
@@ -82,7 +110,7 @@ fun Array<out String>.hasLocationPermissions(): Boolean {
     return false
 }
 
-@OptIn(ExperimentalCoroutinesApi::class)
+@ExperimentalCoroutinesApi
 fun <T> Channel<T>.safeOffer(elem: T) {
     if (!isClosedForSend) {
         offer(elem)

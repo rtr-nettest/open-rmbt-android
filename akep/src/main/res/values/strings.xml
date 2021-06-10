@@ -347,4 +347,9 @@
         <item>Harta</item>
     </string-array>
 
+    <string name="label_network_type">Lloji i rrjetit </string>
+    <string name="label_network_name">Emri i rrjetit </string>
+    <string name="label_measurement_server">Serveri i matjes </string>
+    <string name="label_change_test_server">Ndrysho Serverin e Testit </string>
+
 </resources>

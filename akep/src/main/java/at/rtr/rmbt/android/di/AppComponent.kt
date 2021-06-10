@@ -6,8 +6,6 @@ import at.rtr.rmbt.android.App
 import at.rtr.rmbt.android.config.ConfigModule
 import at.rtr.rmbt.android.location.LocationModule
 import at.rtr.rmbt.android.ui.dialog.HistoryFiltersDialog
-import at.rtr.rmbt.android.ui.dialog.IpInfoDialog
-import at.rtr.rmbt.android.ui.dialog.LocationInfoDialog
 import at.rtr.rmbt.android.ui.dialog.NetworkInfoDialog
 import at.specure.di.CoreComponent
 import at.specure.di.CoreModule
@@ -34,10 +32,6 @@ import javax.inject.Singleton
 interface AppComponent : CoreComponent {
 
     fun viewModelFactory(): ViewModelFactory
-
-    fun inject(dialog: IpInfoDialog)
-
-    fun inject(dialog: LocationInfoDialog)
 
     fun inject(dialog: HistoryFiltersDialog)
 

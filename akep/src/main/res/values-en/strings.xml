@@ -347,5 +347,9 @@
         <item>Map</item>
     </string-array>
 
+    <string name="label_network_type">Network type</string>
+    <string name="label_network_name">Network name</string>
+    <string name="label_measurement_server">Measurement server</string>
+    <string name="label_change_test_server">Change Test Server</string>
 
 </resources>
