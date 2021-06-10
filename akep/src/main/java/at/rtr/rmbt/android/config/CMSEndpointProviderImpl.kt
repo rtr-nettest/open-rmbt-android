@@ -13,5 +13,5 @@ class CMSEndpointProviderImpl : CMSEndpointProvider {
     override val getTermsOfUseUrl: String
         get() = "kushtet-e-sherbimit"
     override val getNettestHeaderValue: String
-        get() = "al"
+        get() = BuildConfig.REQUEST_HEADER_VALUE.value
 }
