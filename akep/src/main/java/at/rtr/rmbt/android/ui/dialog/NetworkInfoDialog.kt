@@ -44,7 +44,7 @@ import at.specure.location.LocationWatcher
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
-import java.util.*
+import java.util.Locale
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import timber.log.Timber
@@ -95,7 +95,7 @@ class NetworkInfoDialog : BottomSheetDialogFragment() {
         super.onCreate(savedInstanceState)
         Injector.inject(this)
 
-        //bottom sheet round corners can be obtained but the while background appears to remove that we need to add this.
+        // bottom sheet round corners can be obtained but the while background appears to remove that we need to add this.
         setStyle(DialogFragment.STYLE_NO_FRAME, R.style.AppBottomSheetDialogTheme)
     }
 
