@@ -451,23 +451,13 @@
                 bind:title="@{@string/preferences_source_code}" />
 
             <include
-                android:id="@+id/dataPrivacyAndTerms"
-                layout="@layout/item_setting_more_detail"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/sourceCode"
-                bind:title="@{@string/preferences_data_protection}" />
-
-            <include
                 android:id="@+id/developedBy"
                 layout="@layout/item_setting_more_detail"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/dataPrivacyAndTerms"
+                app:layout_constraintTop_toBottomOf="@+id/sourceCode"
                 bind:title="@{@string/preferences_developed_by}" />
 
             <include
@@ -491,13 +481,23 @@
                 bind:title="@{@string/preferences_network_info_by}" />
 
             <include
+                android:id="@+id/dataPrivacyAndTerms"
+                layout="@layout/item_setting_more_detail"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/networkBy"
+                bind:title="@{@string/preferences_data_protection}" />
+
+            <include
                 android:id="@+id/version"
                 layout="@layout/item_setting_key_value"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/networkBy"
+                app:layout_constraintTop_toBottomOf="@+id/dataPrivacyAndTerms"
                 bind:title="@{@string/preferences_version}" />
 
             <include
