@@ -11,9 +11,9 @@ fun LocationInfo.formatAccuracy(): String? {
         String.format("+/-%.0f ", accuracy)
 }
 
-fun LocationInfo.formatCoordinate(coordinate: Double): String {
+fun Double.formatCoordinate(): String {
     var min = 0f
-    val rawStr = coordinate.let { Location.convert(it, Location.FORMAT_MINUTES) }
+    val rawStr = this.let { Location.convert(it, Location.FORMAT_MINUTES) }
     val split = rawStr?.split(":".toRegex())?.dropLastWhile { it.isEmpty() }?.toTypedArray()
     try {
         split?.set(1, split[1].replace(",", "."))

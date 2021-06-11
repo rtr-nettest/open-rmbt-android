@@ -81,7 +81,7 @@
             android:id="@+id/logo"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="100dp"
+            android:layout_marginBottom="120dp"
             android:src="@drawable/image_home"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"

@@ -28,9 +28,7 @@ class SplashActivity : BaseActivity() {
     private val viewModel: SplashViewModel by viewModelLazy()
 
     private val startHomeRunnable = Runnable {
-        // todo check if terms received from server
-//        val accepted = viewModel.isTacAccepted()
-        val accepted = true
+        val accepted = viewModel.isTacAccepted()
         if (!accepted) {
             termsIsShown = true
             TermsAcceptanceActivity.start(this, CODE_TERMS)

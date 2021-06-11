@@ -203,4 +203,30 @@
         <item name="android:textColor">@android:color/black</item>
     </style>
 
+    <style name="Text.NetworkInfoSlider.Title" parent="RobotoRegularStyle">
+        <item name="textAllCaps">true</item>
+        <item name="android:alpha">0.5</item>
+        <item name="android:textSize">13sp</item>
+        <item name="android:letterSpacing">0.03</item>
+        <item name="android:textColor">@android:color/black</item>
+    </style>
+
+    <style name="Text.NetworkInfoSlider.Value" parent="RobotoMediumStyle.Medium">
+        <item name="android:textSize">13sp</item>
+        <item name="android:textColor">@color/text_darkest_gray</item>
+    </style>
+
+    <style name="Text.NetworkInfoSlider.ServerValue" parent="RobotoRegularStyle">
+        <item name="android:textSize">14sp</item>
+        <item name="android:textColor">@android:color/black</item>
+    </style>
+
+    <style name="AppBottomSheetDialogTheme" parent="Theme.Design.Light.BottomSheetDialog">
+        <item name="bottomSheetStyle">@style/AppModalStyle</item>
+    </style>
+
+    <style name="AppModalStyle" parent="Widget.Design.BottomSheet.Modal">
+        <item name="android:background">@drawable/bg_corners_top</item>
+    </style>
+
 </resources>
