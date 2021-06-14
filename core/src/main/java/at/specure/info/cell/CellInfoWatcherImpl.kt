@@ -43,17 +43,21 @@ class CellInfoWatcherImpl(
 ) : CellInfoWatcher {
 
     private var _activeNetwork: CellNetworkInfo? = null
-    private var _secondaryNetwork: List<CellNetworkInfo?> = mutableListOf()
+    private var _secondaryNetworks: List<CellNetworkInfo?> = mutableListOf()
     private var _signalStrengthInfo: SignalStrengthInfo? = null
+    private var _secondarySignalStrengthInfos: List<SignalStrengthInfo?> = mutableListOf()
 
     override val activeNetwork: CellNetworkInfo?
         get() = _activeNetwork
 
-    override val secondaryNetwork: List<CellNetworkInfo?>
-        get() = _secondaryNetwork
+    override val secondaryNetworks: List<CellNetworkInfo?>
+        get() = _secondaryNetworks
 
     override val signalStrengthInfo: SignalStrengthInfo?
         get() = _signalStrengthInfo
+
+    override val secondarySignalStrengthInfos: List<SignalStrengthInfo?>
+        get() = _secondarySignalStrengthInfos
 
     override fun updateInfo() = io {
 
@@ -61,16 +65,23 @@ class CellInfoWatcherImpl(
             try {
                 var cells: List<ICell>? = null
 
-                cells = netMonster.getCells(CellSource.NEIGHBOURING_CELLS, CellSource.ALL_CELL_INFO, CellSource.CELL_LOCATION)
+                cells = netMonster.getCells(
+                    CellSource.NEIGHBOURING_CELLS,
+                    CellSource.ALL_CELL_INFO,
+                    CellSource.CELL_LOCATION
+                )
 
                 val dataSubscriptionId = subscriptionManager.getCurrentDataSubscriptionId()
 
-                val primaryCells = cells?.filterOnlyActiveDataCell(dataSubscriptionId)
+                val primaryCells = cells?.filterOnlyPrimaryActiveDataCell(dataSubscriptionId)
+                val secondaryCells = cells?.filterOnlySecondaryActiveDataCell(dataSubscriptionId)
+                val secondary5GCells = secondaryCells.filter5GCells()
 
                 when (primaryCells.size) {
                     0 -> {
                         _activeNetwork = null
                         _signalStrengthInfo = null
+                        _secondaryNetworks = mutableListOf()
                     }
                     1 -> {
                         _activeNetwork = primaryCells[0].toCellNetworkInfo(
@@ -79,7 +90,19 @@ class CellInfoWatcherImpl(
                             NetMonsterFactory.getTelephony(context, primaryCells[0].subscriptionId),
                             netMonster
                         )
-                        _signalStrengthInfo = primaryCells[0].signal?.toSignalStrengthInfo(System.nanoTime())
+                        _signalStrengthInfo =
+                            primaryCells[0].signal?.toSignalStrengthInfo(System.nanoTime())
+                        secondary5GCells.forEach {
+                            val cellInfo5G = it.toCellNetworkInfo(
+                                connectivityManager.activeNetworkInfo?.extraInfo,
+                                telephonyManager.getCorrectDataTelephonyManager(subscriptionManager),
+                                NetMonsterFactory.getTelephony(context, it.subscriptionId),
+                                netMonster
+                            )
+                            _secondaryNetworks.toMutableList().add(cellInfo5G)
+                            val signal5G = it.signal?.toSignalStrengthInfo(System.nanoTime())
+                            _secondarySignalStrengthInfos.toMutableList().add(signal5G)
+                        }
                     }
                     else -> {
                         // ignore, inconsistent state

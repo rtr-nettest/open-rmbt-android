@@ -14,12 +14,7 @@ import at.rtr.rmbt.client.helper.TestStatus
 import at.rtr.rmbt.client.v2.task.result.QoSResultCollector
 import at.rtr.rmbt.client.v2.task.service.TestMeasurement.TrafficDirection
 import at.specure.config.Config
-import at.specure.data.entity.CellInfoRecord
-import at.specure.data.entity.CellLocationRecord
-import at.specure.data.entity.LoopModeRecord
-import at.specure.data.entity.LoopModeState
-import at.specure.data.entity.SignalRecord
-import at.specure.data.entity.TestRecord
+import at.specure.data.entity.*
 import at.specure.data.repository.MeasurementRepository
 import at.specure.data.repository.TestDataRepository
 import at.specure.info.Network5GSimulator
@@ -37,20 +32,13 @@ import at.specure.location.LocationState
 import at.specure.location.LocationWatcher
 import at.specure.location.cell.CellLocationInfo
 import at.specure.location.cell.CellLocationWatcher
-import at.specure.util.filterOnlyActiveDataCell
-import at.specure.util.isCoarseLocationPermitted
-import at.specure.util.isReadPhoneStatePermitted
-import at.specure.util.mobileNetworkType
-import at.specure.util.toCellInfoRecord
-import at.specure.util.toCellLocation
-import at.specure.util.toSignalRecord
+import at.specure.util.*
 import cz.mroczis.netmonster.core.INetMonster
 import cz.mroczis.netmonster.core.feature.merge.CellSource
 import cz.mroczis.netmonster.core.model.cell.ICell
 import org.json.JSONArray
 import timber.log.Timber
-import java.util.Collections
-import java.util.UUID
+import java.util.*
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import kotlin.math.floor
@@ -333,7 +321,7 @@ class StateRecorder @Inject constructor(
 
                     val dataSubscriptionId = subscriptionManager.getCurrentDataSubscriptionId()
 
-                    val primaryCells = cells?.filterOnlyActiveDataCell(dataSubscriptionId)
+                    val primaryCells = cells?.filterOnlyPrimaryActiveDataCell(dataSubscriptionId)
 
                     val cellInfosToSave = mutableListOf<CellInfoRecord>()
                     val signalsToSave = mutableListOf<SignalRecord>()

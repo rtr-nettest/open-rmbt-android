@@ -11,13 +11,7 @@ import androidx.lifecycle.Observer
 import at.rmbt.client.control.getCurrentDataSubscriptionId
 import at.rmbt.util.exception.HandledException
 import at.rmbt.util.io
-import at.specure.data.entity.CellInfoRecord
-import at.specure.data.entity.CellLocationRecord
-import at.specure.data.entity.ConnectivityStateRecord
-import at.specure.data.entity.SignalMeasurementChunk
-import at.specure.data.entity.SignalMeasurementInfo
-import at.specure.data.entity.SignalMeasurementRecord
-import at.specure.data.entity.SignalRecord
+import at.specure.data.entity.*
 import at.specure.data.repository.MeasurementRepository
 import at.specure.data.repository.SignalMeasurementRepository
 import at.specure.data.repository.TestDataRepository
@@ -36,13 +30,7 @@ import at.specure.location.LocationWatcher
 import at.specure.location.cell.CellLocationInfo
 import at.specure.test.SignalMeasurementType
 import at.specure.test.toDeviceInfoLocation
-import at.specure.util.filterOnlyActiveDataCell
-import at.specure.util.isCoarseLocationPermitted
-import at.specure.util.isReadPhoneStatePermitted
-import at.specure.util.mobileNetworkType
-import at.specure.util.toCellInfoRecord
-import at.specure.util.toCellLocation
-import at.specure.util.toSignalRecord
+import at.specure.util.*
 import cz.mroczis.netmonster.core.INetMonster
 import cz.mroczis.netmonster.core.feature.merge.CellSource
 import cz.mroczis.netmonster.core.model.cell.ICell
@@ -54,8 +42,10 @@ import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.launch
 import timber.log.Timber
-import java.util.Timer
-import java.util.TimerTask
+import java.lang.Runnable
+import java.lang.SecurityException
+import java.lang.System
+import java.util.*
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -396,7 +386,7 @@ class SignalMeasurementProcessor @Inject constructor(
 
                 val dataSubscriptionId = subscriptionManager.getCurrentDataSubscriptionId()
 
-                val primaryCells = cells?.filterOnlyActiveDataCell(dataSubscriptionId)
+                val primaryCells = cells?.filterOnlyPrimaryActiveDataCell(dataSubscriptionId)
 
                 val cellInfosToSave = mutableListOf<CellInfoRecord>()
                 val signalsToSave = mutableListOf<SignalRecord>()

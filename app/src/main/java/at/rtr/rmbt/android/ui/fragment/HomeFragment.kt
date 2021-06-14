@@ -14,18 +14,8 @@ import at.rmbt.client.control.IpProtocol
 import at.rtr.rmbt.android.R
 import at.rtr.rmbt.android.databinding.FragmentHomeBinding
 import at.rtr.rmbt.android.di.viewModelLazy
-import at.rtr.rmbt.android.ui.activity.LoopConfigurationActivity
-import at.rtr.rmbt.android.ui.activity.LoopInstructionsActivity
-import at.rtr.rmbt.android.ui.activity.MeasurementActivity
-import at.rtr.rmbt.android.ui.activity.PreferenceActivity
-import at.rtr.rmbt.android.ui.activity.SignalMeasurementTermsActivity
-import at.rtr.rmbt.android.ui.dialog.IpInfoDialog
-import at.rtr.rmbt.android.ui.dialog.LocationInfoDialog
-import at.rtr.rmbt.android.ui.dialog.MessageDialog
-import at.rtr.rmbt.android.ui.dialog.NetworkInfoDialog
-import at.rtr.rmbt.android.ui.dialog.OpenGpsSettingDialog
-import at.rtr.rmbt.android.ui.dialog.OpenLocationPermissionDialog
-import at.rtr.rmbt.android.ui.dialog.SimpleDialog
+import at.rtr.rmbt.android.ui.activity.*
+import at.rtr.rmbt.android.ui.dialog.*
 import at.rtr.rmbt.android.util.InfoWindowStatus
 import at.rtr.rmbt.android.util.ToolbarTheme
 import at.rtr.rmbt.android.util.changeStatusBarColor
@@ -56,8 +46,6 @@ class HomeFragment : BaseFragment() {
         homeViewModel.signalStrengthLiveData.listen(this) {
             homeViewModel.state.signalStrength.set(it?.signalStrengthInfo)
             homeViewModel.state.activeNetworkInfo.set(it)
-            if (it?.networkInfo is CellNetworkInfo)
-                Timber.d("NM network type to display from SSLD: ${(it.networkInfo as CellNetworkInfo).networkType.displayName}")
         }
 
         homeViewModel.locationStateLiveData.listen(this) {

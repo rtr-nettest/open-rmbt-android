@@ -30,10 +30,14 @@ interface CellInfoWatcher {
     /**
      * list of all secondary cells available for current data subscription from which is active
      */
-    val secondaryNetwork: List<CellNetworkInfo?>
+    val secondaryNetworks: List<CellNetworkInfo?>
 
     val signalStrengthInfo: SignalStrengthInfo?
 
+    /**
+     * list of all signals from secondary cells available for current data subscription from which is active
+     */
+    val secondarySignalStrengthInfos: List<SignalStrengthInfo?>
 
     fun updateInfo()
 }
