@@ -21,7 +21,6 @@ import at.rtr.rmbt.android.util.ToolbarTheme
 import at.rtr.rmbt.android.util.changeStatusBarColor
 import at.rtr.rmbt.android.util.listen
 import at.rtr.rmbt.android.viewmodel.HomeViewModel
-import at.specure.info.cell.CellNetworkInfo
 import at.specure.location.LocationState
 import at.specure.measurement.MeasurementService
 import at.specure.util.toast
@@ -46,6 +45,21 @@ class HomeFragment : BaseFragment() {
         homeViewModel.signalStrengthLiveData.listen(this) {
             homeViewModel.state.signalStrength.set(it?.signalStrengthInfo)
             homeViewModel.state.activeNetworkInfo.set(it)
+            Timber.d("Simulated 5G ${it?.secondaryNetworks?.size}")
+            homeViewModel.state.secondaryActiveNetworkInfo.set(
+                if (it?.secondaryNetworks?.isNotEmpty() == true) {
+                    it.secondaryNetworks?.get(0)
+                } else {
+                    null
+                }
+            )
+            homeViewModel.state.secondarySignalStrength.set(
+                if (it?.secondarySignalStrengthInfos?.isNotEmpty() == true) {
+                    it.secondarySignalStrengthInfos?.get(0)
+                } else {
+                    null
+                }
+            )
         }
 
         homeViewModel.locationStateLiveData.listen(this) {
@@ -169,8 +183,22 @@ class HomeFragment : BaseFragment() {
         homeViewModel.signalStrengthLiveData.listen(this) {
             homeViewModel.state.signalStrength.set(it?.signalStrengthInfo)
             homeViewModel.state.activeNetworkInfo.set(it)
-            if (it?.networkInfo is CellNetworkInfo)
-                Timber.d("NM network type to display from SSLD OR: ${(it.networkInfo as CellNetworkInfo).networkType.displayName}")
+            Timber.d("Simulated 5G ${it?.secondaryNetworks?.size} ${it?.secondarySignalStrengthInfos?.size}")
+
+            homeViewModel.state.secondaryActiveNetworkInfo.set(
+                if (it?.secondaryNetworks?.isNotEmpty() == true) {
+                    it.secondaryNetworks?.get(0)
+                } else {
+                    null
+                }
+            )
+            homeViewModel.state.secondarySignalStrength.set(
+                if (it?.secondarySignalStrengthInfos?.isNotEmpty() == true) {
+                    it.secondarySignalStrengthInfos?.get(0)
+                } else {
+                    null
+                }
+            )
         }
     }
 

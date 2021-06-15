@@ -15,21 +15,7 @@
 package at.specure.info.cell
 
 import android.os.Build
-import android.telephony.CellIdentityCdma
-import android.telephony.CellIdentityGsm
-import android.telephony.CellIdentityLte
-import android.telephony.CellIdentityNr
-import android.telephony.CellIdentityTdscdma
-import android.telephony.CellIdentityWcdma
-import android.telephony.CellInfo
-import android.telephony.CellInfoCdma
-import android.telephony.CellInfoGsm
-import android.telephony.CellInfoLte
-import android.telephony.CellInfoNr
-import android.telephony.CellInfoTdscdma
-import android.telephony.CellInfoWcdma
-import android.telephony.CellSignalStrengthNr
-import android.telephony.SubscriptionInfo
+import android.telephony.*
 import androidx.annotation.RequiresApi
 import at.specure.info.Network5GSimulator
 import at.specure.info.TransportType
@@ -40,7 +26,7 @@ import at.specure.info.network.NetworkInfo
 import at.specure.info.strength.SignalSource
 import at.specure.info.strength.SignalStrengthInfo
 import timber.log.Timber
-import java.util.UUID
+import java.util.*
 
 /**
  * Cellular Network information
@@ -58,9 +44,14 @@ class CellNetworkInfo(
     val band: CellBand?,
 
     /**
-     * Detailed Cellular Network type
+     * Detailed Cellular Network type - it can be aggregated type for more cells like 5G NSA (which contains 5G and 4G cells)
      */
     val networkType: MobileNetworkType,
+
+    /**
+     * Detailed Cell type for the current network to know particular technology of the cell, if network uses more than one subtechnologies, as for 5G NSA it could be 5G and 4G cells together
+     */
+    val cellType: CellTechnology,
 
     val mnc: Int?,
 
@@ -137,8 +128,8 @@ class CellNetworkInfo(
         ): CellNetworkInfo {
             val providerName = subscriptionInfo?.carrierName?.toString() ?: ""
 
-            if (Network5GSimulator.isEnabled && info != null) {
-                return Network5GSimulator.fromInfo(info, isActive, isRoaming, apn)
+            if (Network5GSimulator.isEnabled) {
+                return Network5GSimulator.fromInfo(isActive, isRoaming, apn)
             }
 
             return when (networkType) {
@@ -253,6 +244,8 @@ class CellNetworkInfo(
                 providerName = providerName,
                 band = null,
                 networkType = networkType,
+                cellType = CellTechnology.fromMobileNetworkType(networkType)
+                    ?: CellTechnology.CONNECTION_UNKNOWN,
                 mcc = null,
                 mnc = null,
                 locationId = null,
@@ -291,6 +284,7 @@ class CellNetworkInfo(
                 providerName = providerName,
                 band = band,
                 networkType = networkType,
+                cellType = CellTechnology.CONNECTION_5G,
                 mcc = identity.mccCompat(),
                 mnc = identity.mncCompat(),
                 locationId = null,
@@ -327,6 +321,7 @@ class CellNetworkInfo(
                 providerName = providerName,
                 band = band,
                 networkType = networkType,
+                cellType = CellTechnology.CONNECTION_3G,
                 mcc = identity.mccCompat(),
                 mnc = identity.mncCompat(),
                 locationId = null,
@@ -364,6 +359,7 @@ class CellNetworkInfo(
                 providerName = providerName,
                 band = band,
                 networkType = networkType,
+                cellType = CellTechnology.CONNECTION_4G,
                 mcc = info.cellIdentity.mccCompat(),
                 mnc = info.cellIdentity.mncCompat(),
                 locationId = info.cellIdentity.ci.fixValue(),
@@ -399,6 +395,7 @@ class CellNetworkInfo(
             return CellNetworkInfo(
                 providerName = providerName,
                 band = band,
+                cellType = CellTechnology.CONNECTION_3G,
                 networkType = networkType,
                 mcc = info.cellIdentity.mccCompat(),
                 mnc = info.cellIdentity.mncCompat(),
@@ -438,6 +435,7 @@ class CellNetworkInfo(
                 providerName = providerName,
                 band = band,
                 networkType = networkType,
+                cellType = CellTechnology.CONNECTION_2G,
                 mcc = info.cellIdentity.mccCompat(),
                 mnc = info.cellIdentity.mncCompat(),
                 locationId = info.cellIdentity.cid.fixValue(),
@@ -468,6 +466,7 @@ class CellNetworkInfo(
             return CellNetworkInfo(
                 providerName = providerName,
                 band = null,
+                cellType = CellTechnology.CONNECTION_2G,
                 networkType = networkType,
                 mcc = null,
                 mnc = null,

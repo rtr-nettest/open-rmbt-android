@@ -283,9 +283,11 @@ fun ICell.toCellNetworkInfo(
     netMonster: INetMonster
 ): CellNetworkInfo {
     return CellNetworkInfo(
-        providerName = dataTelephonyManager?.networkOperatorName ?: telephonyManagerNetmonster.getNetworkOperator()?.toPlmn("-") ?: "",
+        providerName = dataTelephonyManager?.networkOperatorName
+            ?: telephonyManagerNetmonster.getNetworkOperator()?.toPlmn("-") ?: "",
         band = this.band?.toCellBand(),
         networkType = this.mobileNetworkType(netMonster),
+        cellType = this.toTechnologyClass(),
         mnc = this.network?.mnc?.toIntOrNull(),
         mcc = this.network?.mcc?.toIntOrNull(),
         locationId = this.locationId(),
@@ -473,6 +475,18 @@ fun ICell.mobileNetworkType(netMonster: INetMonster): MobileNetworkType {
         Timber.e("IllegalStateException: Not able to read network type")
     }
     return networkTypeFromNM?.mapToMobileNetworkType() ?: MobileNetworkType.UNKNOWN
+}
+
+fun ICell.toTechnologyClass(): CellTechnology {
+    return when (this) {
+        is CellNr -> CellTechnology.CONNECTION_5G
+        is CellLte -> CellTechnology.CONNECTION_4G
+        is CellWcdma -> CellTechnology.CONNECTION_3G
+        is CellTdscdma -> CellTechnology.CONNECTION_3G
+        is CellCdma -> CellTechnology.CONNECTION_2G
+        is CellGsm -> CellTechnology.CONNECTION_2G
+        else -> CellTechnology.CONNECTION_UNKNOWN
+    }
 }
 
 fun NetworkType.mapToMobileNetworkType(): MobileNetworkType {

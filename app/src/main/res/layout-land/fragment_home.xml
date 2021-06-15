@@ -320,6 +320,9 @@
             android:gravity="center"
             android:paddingBottom="@dimen/padding_large"
             android:text="@string/home_signal"
+            app:mainText="@{@string/home_signal}"
+            app:networkType="@{state.activeNetworkInfo.networkInfo}"
+            app:networkTypeSecondary="@{state.secondaryActiveNetworkInfo}"
             android:textColor="@color/text_gray_transparency_40"
             app:layout_constraintBottom_toTopOf="@+id/vBottomDivider"
             app:layout_constraintEnd_toStartOf="@+id/tvLblFrequency"
@@ -335,6 +338,9 @@
             android:text="@string/home_frequency"
             android:textColor="@color/text_gray_transparency_40"
             app:frequencyVisibility="@{state.activeNetworkInfo.networkInfo}"
+            app:mainText="@{@string/home_frequency}"
+            app:networkType="@{state.activeNetworkInfo.networkInfo}"
+            app:networkTypeSecondary="@{state.secondaryActiveNetworkInfo}"
             app:layout_constraintBottom_toTopOf="@+id/vBottomDivider"
             app:layout_constraintEnd_toEndOf="@id/vBottomDivider"
             app:layout_constraintStart_toEndOf="@+id/tvLblSignal" />
@@ -350,6 +356,8 @@
             app:layout_constraintEnd_toStartOf="@+id/tvFrequency"
             app:layout_constraintStart_toStartOf="@id/vBottomDivider"
             app:signal="@{state.signalStrength.value}"
+            app:signalNetworkInfo="@{state.activeNetworkInfo.networkInfo}"
+            app:signalSecondary="@{state.secondarySignalStrength.value}"
             tools:text="-10 db" />
 
         <androidx.appcompat.widget.AppCompatTextView
@@ -364,6 +372,7 @@
             app:layout_constraintBottom_toTopOf="@+id/tvLblSignal"
             app:layout_constraintEnd_toEndOf="@id/vBottomDivider"
             app:layout_constraintStart_toEndOf="@+id/tvSignal"
+            app:frequencySecondary="@{state.secondaryActiveNetworkInfo}"
             tools:text="-12 db" />
 
         <androidx.appcompat.widget.AppCompatImageButton

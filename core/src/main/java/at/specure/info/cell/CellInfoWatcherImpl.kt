@@ -21,6 +21,8 @@ import android.telephony.TelephonyManager
 import at.rmbt.client.control.getCorrectDataTelephonyManager
 import at.rmbt.client.control.getCurrentDataSubscriptionId
 import at.rmbt.util.io
+import at.specure.config.Config
+import at.specure.info.Network5GSimulator
 import at.specure.info.strength.SignalStrengthInfo
 import at.specure.util.*
 import cz.mroczis.netmonster.core.INetMonster
@@ -39,7 +41,8 @@ class CellInfoWatcherImpl(
     private val telephonyManager: TelephonyManager,
     private val connectivityManager: ConnectivityManager,
     private val netMonster: INetMonster,
-    private val subscriptionManager: SubscriptionManager
+    private val subscriptionManager: SubscriptionManager,
+    private val config: Config
 ) : CellInfoWatcher {
 
     private var _activeNetwork: CellNetworkInfo? = null
@@ -81,7 +84,8 @@ class CellInfoWatcherImpl(
                     0 -> {
                         _activeNetwork = null
                         _signalStrengthInfo = null
-                        _secondaryNetworks = mutableListOf()
+                        (_secondaryNetworks as MutableList).clear()
+                        (_secondarySignalStrengthInfos as MutableList).clear()
                     }
                     1 -> {
                         _activeNetwork = primaryCells[0].toCellNetworkInfo(
@@ -92,19 +96,39 @@ class CellInfoWatcherImpl(
                         )
                         _signalStrengthInfo =
                             primaryCells[0].signal?.toSignalStrengthInfo(System.nanoTime())
-                        secondary5GCells.forEach {
-                            val cellInfo5G = it.toCellNetworkInfo(
-                                connectivityManager.activeNetworkInfo?.extraInfo,
-                                telephonyManager.getCorrectDataTelephonyManager(subscriptionManager),
-                                NetMonsterFactory.getTelephony(context, it.subscriptionId),
-                                netMonster
-                            )
-                            _secondaryNetworks.toMutableList().add(cellInfo5G)
-                            val signal5G = it.signal?.toSignalStrengthInfo(System.nanoTime())
-                            _secondarySignalStrengthInfos.toMutableList().add(signal5G)
+
+                        (_secondaryNetworks as MutableList).clear()
+                        (_secondarySignalStrengthInfos as MutableList).clear()
+                        if (config.developer5GSimulationEnabled) {
+                            val cellInfo5G =
+                                Network5GSimulator.fromInfo(true, false, "5G simulator")
+
+                            (_secondaryNetworks as MutableList).add(cellInfo5G)
+                            _signalStrengthInfo?.let {
+                                val signalStrength5G =
+                                    Network5GSimulator.signalStrength(_signalStrengthInfo!!)
+                                (_secondarySignalStrengthInfos as MutableList).add(signalStrength5G)
+                            }
+                            Timber.d("Simulated 5G: ${cellInfo5G.providerName}  ${_secondaryNetworks.size} ${_secondarySignalStrengthInfos.size}")
+                        } else {
+                            secondary5GCells.forEach {
+                                val cellInfo5G = it.toCellNetworkInfo(
+                                    connectivityManager.activeNetworkInfo?.extraInfo,
+                                    telephonyManager.getCorrectDataTelephonyManager(
+                                        subscriptionManager
+                                    ),
+                                    NetMonsterFactory.getTelephony(context, it.subscriptionId),
+                                    netMonster
+                                )
+                                (_secondaryNetworks as MutableList).add(cellInfo5G)
+                                val signal5G = it.signal?.toSignalStrengthInfo(System.nanoTime())
+                                (_secondarySignalStrengthInfos as MutableList).add(signal5G)
+                            }
                         }
                     }
                     else -> {
+                        (_secondaryNetworks as MutableList).clear()
+                        (_secondarySignalStrengthInfos as MutableList).clear()
                         // ignore, inconsistent state
                     }
                 }
