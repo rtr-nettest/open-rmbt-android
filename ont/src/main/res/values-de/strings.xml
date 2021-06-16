@@ -331,5 +331,6 @@
     <string name="label_network_name">Netzwerkname</string>
     <string name="label_measurement_server">Messserver</string>
     <string name="label_change_test_server">Testserver ändern</string>
+    <string name="request_failure">Beim Abrufen der Daten ist ein Fehler aufgetreten.</string>
 </resources>
 

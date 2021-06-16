@@ -333,4 +333,5 @@
     <string name="label_network_name"> Nombre de la red </string>
     <string name="label_measurement_server"> Servidor de medición </string>
     <string name="label_change_test_server"> Cambiar servidor de prueba </string>
+    <string name="request_failure">Se produjo un error al recuperar los datos.</string>
 </resources>
