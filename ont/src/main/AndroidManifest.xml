@@ -84,7 +84,7 @@
             android:launchMode="singleTop"
             android:theme="@style/MeasurementTheme" />
         <activity
-            android:name=".ui.activity.DataPrivacyAndTermsOfUseActivity"
+            android:name=".ui.activity.StaticPageActivity"
             android:theme="@style/PreferenceTheme" />
         <activity android:name=".ui.activity.TermsAcceptanceActivity" />
         <activity android:name=".ui.activity.PermissionsActivity" />
