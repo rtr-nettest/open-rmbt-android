@@ -46,21 +46,30 @@ class CellInfoWatcherImpl(
 ) : CellInfoWatcher {
 
     private var _activeNetwork: CellNetworkInfo? = null
-    private var _secondaryNetworks: List<CellNetworkInfo?> = mutableListOf()
+    private var _secondaryActiveCellNetworks: List<CellNetworkInfo?> = mutableListOf()
+    private var _secondary5GActiveCellNetworks: List<CellNetworkInfo?> = mutableListOf()
     private var _signalStrengthInfo: SignalStrengthInfo? = null
-    private var _secondarySignalStrengthInfos: List<SignalStrengthInfo?> = mutableListOf()
+    private var _secondaryActiveCellSignalStrengthInfos: List<SignalStrengthInfo?> = mutableListOf()
+    private var _secondary5GActiveCellSignalStrengthInfos: List<SignalStrengthInfo?> =
+        mutableListOf()
 
     override val activeNetwork: CellNetworkInfo?
         get() = _activeNetwork
 
-    override val secondaryNetworks: List<CellNetworkInfo?>
-        get() = _secondaryNetworks
+    override val secondaryActiveCellNetworks: List<CellNetworkInfo?>
+        get() = _secondaryActiveCellNetworks
+
+    override val secondary5GActiveCellNetworks: List<CellNetworkInfo?>
+        get() = _secondary5GActiveCellNetworks
 
     override val signalStrengthInfo: SignalStrengthInfo?
         get() = _signalStrengthInfo
 
-    override val secondarySignalStrengthInfos: List<SignalStrengthInfo?>
-        get() = _secondarySignalStrengthInfos
+    override val secondaryActiveCellSignalStrengthInfos: List<SignalStrengthInfo?>
+        get() = _secondaryActiveCellSignalStrengthInfos
+
+    override val secondary5GActiveCellSignalStrengthInfos: List<SignalStrengthInfo?>
+        get() = _secondary5GActiveCellSignalStrengthInfos
 
     override fun updateInfo() = io {
 
@@ -84,8 +93,7 @@ class CellInfoWatcherImpl(
                     0 -> {
                         _activeNetwork = null
                         _signalStrengthInfo = null
-                        (_secondaryNetworks as MutableList).clear()
-                        (_secondarySignalStrengthInfos as MutableList).clear()
+                        clearLists()
                     }
                     1 -> {
                         _activeNetwork = primaryCells[0].toCellNetworkInfo(
@@ -97,19 +105,20 @@ class CellInfoWatcherImpl(
                         _signalStrengthInfo =
                             primaryCells[0].signal?.toSignalStrengthInfo(System.nanoTime())
 
-                        (_secondaryNetworks as MutableList).clear()
-                        (_secondarySignalStrengthInfos as MutableList).clear()
+                        clearLists()
                         if (config.developer5GSimulationEnabled) {
                             val cellInfo5G =
                                 Network5GSimulator.fromInfo(true, false, "5G simulator")
 
-                            (_secondaryNetworks as MutableList).add(cellInfo5G)
+                            (_secondary5GActiveCellNetworks as MutableList).add(cellInfo5G)
                             _signalStrengthInfo?.let {
                                 val signalStrength5G =
                                     Network5GSimulator.signalStrength(_signalStrengthInfo!!)
-                                (_secondarySignalStrengthInfos as MutableList).add(signalStrength5G)
+                                (_secondary5GActiveCellSignalStrengthInfos as MutableList).add(
+                                    signalStrength5G
+                                )
                             }
-                            Timber.d("Simulated 5G: ${cellInfo5G.providerName}  ${_secondaryNetworks.size} ${_secondarySignalStrengthInfos.size}")
+                            Timber.d("Simulated 5G: ${cellInfo5G.providerName}  ${_secondary5GActiveCellNetworks.size} ${_secondary5GActiveCellSignalStrengthInfos.size}")
                         } else {
                             secondary5GCells.forEach {
                                 val cellInfo5G = it.toCellNetworkInfo(
@@ -120,15 +129,31 @@ class CellInfoWatcherImpl(
                                     NetMonsterFactory.getTelephony(context, it.subscriptionId),
                                     netMonster
                                 )
-                                (_secondaryNetworks as MutableList).add(cellInfo5G)
+                                (_secondary5GActiveCellNetworks as MutableList).add(cellInfo5G)
                                 val signal5G = it.signal?.toSignalStrengthInfo(System.nanoTime())
-                                (_secondarySignalStrengthInfos as MutableList).add(signal5G)
+                                (_secondary5GActiveCellSignalStrengthInfos as MutableList).add(
+                                    signal5G
+                                )
                             }
+                        }
+                        secondaryCells.forEach {
+                            val cellInfoSecondary = it.toCellNetworkInfo(
+                                connectivityManager.activeNetworkInfo?.extraInfo,
+                                telephonyManager.getCorrectDataTelephonyManager(
+                                    subscriptionManager
+                                ),
+                                NetMonsterFactory.getTelephony(context, it.subscriptionId),
+                                netMonster
+                            )
+                            (_secondaryActiveCellNetworks as MutableList).add(cellInfoSecondary)
+                            val signalSecondary = it.signal?.toSignalStrengthInfo(System.nanoTime())
+                            (_secondaryActiveCellSignalStrengthInfos as MutableList).add(
+                                signalSecondary
+                            )
                         }
                     }
                     else -> {
-                        (_secondaryNetworks as MutableList).clear()
-                        (_secondarySignalStrengthInfos as MutableList).clear()
+                        clearLists()
                         // ignore, inconsistent state
                     }
                 }
@@ -140,5 +165,12 @@ class CellInfoWatcherImpl(
                 Timber.e("NullPointerException: Not able to read telephonyManager.allCellInfo from other reason")
             }
         }
+    }
+
+    private fun clearLists() {
+        (_secondary5GActiveCellNetworks as MutableList).clear()
+        (_secondary5GActiveCellSignalStrengthInfos as MutableList).clear()
+        (_secondaryActiveCellNetworks as MutableList).clear()
+        (_secondaryActiveCellSignalStrengthInfos as MutableList).clear()
     }
 }

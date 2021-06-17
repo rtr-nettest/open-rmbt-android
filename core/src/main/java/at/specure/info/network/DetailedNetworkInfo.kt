@@ -8,6 +8,20 @@ class DetailedNetworkInfo(
     val networkInfo: NetworkInfo?,
     val signalStrengthInfo: SignalStrengthInfo? = null,
     val cellInfos: List<CellInfo>? = null,
-    val secondaryNetworks: List<CellNetworkInfo?>? = null,
-    var secondarySignalStrengthInfos: List<SignalStrengthInfo?>? = null
+    /**
+     * Should contain all secondary cells available for primary data connection
+     */
+    val secondaryActiveCellNetworks: List<CellNetworkInfo?>? = null,
+    /**
+     * Should contain all secondary signals available for primary data connection
+     */
+    var secondaryActiveSignalStrengthInfos: List<SignalStrengthInfo?>? = null,
+    /**
+     * Should contain all 5G secondary cells available for primary data connection
+     */
+    val secondary5GActiveCellNetworks: List<CellNetworkInfo?>? = null,
+    /**
+     * Should contain all 5G secondary signals available for primary data connection
+     */
+    var secondary5GActiveSignalStrengthInfos: List<SignalStrengthInfo?>? = null
 )

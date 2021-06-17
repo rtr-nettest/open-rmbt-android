@@ -45,17 +45,16 @@ class HomeFragment : BaseFragment() {
         homeViewModel.signalStrengthLiveData.listen(this) {
             homeViewModel.state.signalStrength.set(it?.signalStrengthInfo)
             homeViewModel.state.activeNetworkInfo.set(it)
-            Timber.d("Simulated 5G ${it?.secondaryNetworks?.size}")
-            homeViewModel.state.secondaryActiveNetworkInfo.set(
-                if (it?.secondaryNetworks?.isNotEmpty() == true) {
-                    it.secondaryNetworks?.get(0)
+            homeViewModel.state.secondary5GActiveNetworkInfo.set(
+                if (it?.secondary5GActiveCellNetworks?.isNotEmpty() == true) {
+                    it.secondary5GActiveCellNetworks?.get(0)
                 } else {
                     null
                 }
             )
-            homeViewModel.state.secondarySignalStrength.set(
-                if (it?.secondarySignalStrengthInfos?.isNotEmpty() == true) {
-                    it.secondarySignalStrengthInfos?.get(0)
+            homeViewModel.state.secondary5GSignalStrength.set(
+                if (it?.secondary5GActiveSignalStrengthInfos?.isNotEmpty() == true) {
+                    it.secondary5GActiveSignalStrengthInfos?.get(0)
                 } else {
                     null
                 }
@@ -183,18 +182,16 @@ class HomeFragment : BaseFragment() {
         homeViewModel.signalStrengthLiveData.listen(this) {
             homeViewModel.state.signalStrength.set(it?.signalStrengthInfo)
             homeViewModel.state.activeNetworkInfo.set(it)
-            Timber.d("Simulated 5G ${it?.secondaryNetworks?.size} ${it?.secondarySignalStrengthInfos?.size}")
-
-            homeViewModel.state.secondaryActiveNetworkInfo.set(
-                if (it?.secondaryNetworks?.isNotEmpty() == true) {
-                    it.secondaryNetworks?.get(0)
+            homeViewModel.state.secondary5GActiveNetworkInfo.set(
+                if (it?.secondary5GActiveCellNetworks?.isNotEmpty() == true) {
+                    it.secondary5GActiveCellNetworks?.get(0)
                 } else {
                     null
                 }
             )
-            homeViewModel.state.secondarySignalStrength.set(
-                if (it?.secondarySignalStrengthInfos?.isNotEmpty() == true) {
-                    it.secondarySignalStrengthInfos?.get(0)
+            homeViewModel.state.secondary5GSignalStrength.set(
+                if (it?.secondary5GActiveSignalStrengthInfos?.isNotEmpty() == true) {
+                    it.secondary5GActiveSignalStrengthInfos?.get(0)
                 } else {
                     null
                 }

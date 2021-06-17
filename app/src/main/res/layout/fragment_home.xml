@@ -285,7 +285,7 @@
             app:layout_constraintStart_toStartOf="parent"
             app:signal="@{state.signalStrength.value}"
             app:signalNetworkInfo="@{state.activeNetworkInfo.networkInfo}"
-            app:signalSecondary="@{state.secondarySignalStrength.value}"
+            app:signalSecondary="@{state.secondary5GSignalStrength.value}"
             tools:text="-10 db" />
 
         <androidx.appcompat.widget.AppCompatTextView
@@ -296,7 +296,7 @@
             android:gravity="center"
             android:textColor="@color/text_gray"
             app:frequency="@{state.activeNetworkInfo.networkInfo}"
-            app:frequencySecondary="@{state.secondaryActiveNetworkInfo}"
+            app:frequencySecondary="@{state.secondary5GActiveNetworkInfo}"
             app:frequencyVisibility="@{state.activeNetworkInfo.networkInfo}"
             app:layout_constraintBottom_toTopOf="@+id/tvLblFrequency"
             app:layout_constraintEnd_toEndOf="parent"
@@ -312,7 +312,7 @@
             android:paddingBottom="@dimen/padding_large"
             app:mainText="@{@string/home_signal}"
             app:networkType="@{state.activeNetworkInfo.networkInfo}"
-            app:networkTypeSecondary="@{state.secondaryActiveNetworkInfo}"
+            app:networkTypeSecondary="@{state.secondary5GActiveNetworkInfo}"
             android:textColor="@color/text_gray_transparency_40"
             app:layout_constraintBottom_toTopOf="@+id/vBottomDivider"
             app:layout_constraintEnd_toStartOf="@+id/tvLblFrequency"
@@ -327,7 +327,7 @@
             android:paddingBottom="@dimen/padding_large"
             app:mainText="@{@string/home_frequency}"
             app:networkType="@{state.activeNetworkInfo.networkInfo}"
-            app:networkTypeSecondary="@{state.secondaryActiveNetworkInfo}"
+            app:networkTypeSecondary="@{state.secondary5GActiveNetworkInfo}"
             android:textColor="@color/text_gray_transparency_40"
             app:frequencyVisibility="@{state.activeNetworkInfo.networkInfo}"
             app:layout_constraintBottom_toTopOf="@+id/vBottomDivider"

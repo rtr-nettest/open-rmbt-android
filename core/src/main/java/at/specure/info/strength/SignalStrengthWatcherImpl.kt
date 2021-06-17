@@ -47,7 +47,8 @@ class SignalStrengthWatcherImpl(
     locationAccess: LocationAccess
 ) : SignalStrengthWatcher, LocationAccess.LocationAccessChangeListener {
 
-    private val listeners = Collections.synchronizedSet(mutableSetOf<SignalStrengthWatcher.SignalStrengthListener>())
+    private val listeners =
+        Collections.synchronizedSet(mutableSetOf<SignalStrengthWatcher.SignalStrengthListener>())
 
     private val handler = Looper.myLooper()?.let { Handler(it) }
 
@@ -55,10 +56,12 @@ class SignalStrengthWatcherImpl(
     private var cellListenerRegistered = false
 
     private var signalStrengthInfo: SignalStrengthInfo? = null
-    private var secondarySignalStrengthInfo: List<SignalStrengthInfo?>? = null
+    private var secondaryActiveSignalStrengthInfo: List<SignalStrengthInfo?>? = null
+    private var secondary5GActiveSignalStrengthInfo: List<SignalStrengthInfo?>? = null
 
     private var networkInfo: NetworkInfo? = null
-    private var secondaryNetworkInfo: List<CellNetworkInfo?>? = null
+    private var secondaryActiveNetworkInfo: List<CellNetworkInfo?>? = null
+    private var secondary5GActiveNetworkInfo: List<CellNetworkInfo?>? = null
 
     override val lastNetworkInfo: NetworkInfo?
         get() = networkInfo
@@ -100,8 +103,10 @@ class SignalStrengthWatcherImpl(
                 Timber.i("Network changed to NULL")
                 signalStrengthInfo = null
                 networkInfo = null
-                secondarySignalStrengthInfo = null
-                secondaryNetworkInfo = null
+                secondaryActiveSignalStrengthInfo = null
+                secondary5GActiveSignalStrengthInfo = null
+                secondaryActiveNetworkInfo = null
+                secondary5GActiveNetworkInfo = null
                 notifyInfoChanged()
                 return
             }
@@ -118,8 +123,10 @@ class SignalStrengthWatcherImpl(
                 unregisterWifiCallbacks()
                 unregisterCellCallbacks()
                 signalStrengthInfo = null
-                secondarySignalStrengthInfo = null
-                secondaryNetworkInfo = null
+                secondaryActiveSignalStrengthInfo = null
+                secondary5GActiveSignalStrengthInfo = null
+                secondaryActiveNetworkInfo = null
+                secondary5GActiveNetworkInfo = null
                 networkInfo = newNetworkInfo
                 notifyInfoChanged()
             }
@@ -137,8 +144,10 @@ class SignalStrengthWatcherImpl(
     }
 
     private fun handleWifiUpdate() {
-        secondarySignalStrengthInfo = null
-        secondaryNetworkInfo = null
+        secondaryActiveSignalStrengthInfo = null
+        secondary5GActiveSignalStrengthInfo = null
+        secondaryActiveNetworkInfo = null
+        secondary5GActiveNetworkInfo = null
         val wifiInfo = wifiInfoWatcher.activeWifiInfo
         if (wifiInfo != null) {
             signalStrengthInfo = SignalStrengthInfo.from(wifiInfo)
@@ -161,9 +170,11 @@ class SignalStrengthWatcherImpl(
         if (cellInfo != null) {
             networkInfo = cellInfo
         }
-
-        secondarySignalStrengthInfo = cellInfoWatcher.secondarySignalStrengthInfos
-        secondaryNetworkInfo = cellInfoWatcher.secondaryNetworks
+        secondaryActiveSignalStrengthInfo = cellInfoWatcher.secondaryActiveCellSignalStrengthInfos
+        secondary5GActiveSignalStrengthInfo =
+            cellInfoWatcher.secondary5GActiveCellSignalStrengthInfos
+        secondaryActiveNetworkInfo = cellInfoWatcher.secondaryActiveCellNetworks
+        secondary5GActiveNetworkInfo = cellInfoWatcher.secondary5GActiveCellNetworks
         notifyInfoChanged()
         scheduleCellUpdate()
     }
@@ -183,8 +194,10 @@ class SignalStrengthWatcherImpl(
                     networkInfo,
                     signalStrengthInfo,
                     null,
-                    secondaryNetworkInfo,
-                    secondarySignalStrengthInfo
+                    secondaryActiveNetworkInfo,
+                    secondaryActiveSignalStrengthInfo,
+                    secondary5GActiveNetworkInfo,
+                    secondary5GActiveSignalStrengthInfo
                 )
             )
         }
@@ -197,8 +210,10 @@ class SignalStrengthWatcherImpl(
                 networkInfo,
                 signalStrengthInfo,
                 null,
-                secondaryNetworkInfo,
-                secondarySignalStrengthInfo
+                secondaryActiveNetworkInfo,
+                secondaryActiveSignalStrengthInfo,
+                secondary5GActiveNetworkInfo,
+                secondary5GActiveSignalStrengthInfo
             )
         )
         if (listeners.size == 1) {

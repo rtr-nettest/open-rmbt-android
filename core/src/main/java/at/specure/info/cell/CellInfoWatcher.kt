@@ -27,17 +27,27 @@ interface CellInfoWatcher {
      */
     val activeNetwork: CellNetworkInfo?
 
+    val signalStrengthInfo: SignalStrengthInfo?
+
     /**
      * list of all secondary cells available for current data subscription from which is active
      */
-    val secondaryNetworks: List<CellNetworkInfo?>
+    val secondaryActiveCellNetworks: List<CellNetworkInfo?>
 
-    val signalStrengthInfo: SignalStrengthInfo?
+    /**
+     * list of all 5G cells from secondary cells available for current data subscription from which is active
+     */
+    val secondary5GActiveCellNetworks: List<CellNetworkInfo?>
 
     /**
      * list of all signals from secondary cells available for current data subscription from which is active
      */
-    val secondarySignalStrengthInfos: List<SignalStrengthInfo?>
+    val secondaryActiveCellSignalStrengthInfos: List<SignalStrengthInfo?>
+
+    /**
+     * list of all 5G signals from secondary cells available for current data subscription from which is active
+     */
+    val secondary5GActiveCellSignalStrengthInfos: List<SignalStrengthInfo?>
 
     fun updateInfo()
 }
