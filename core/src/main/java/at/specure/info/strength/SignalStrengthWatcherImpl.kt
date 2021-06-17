@@ -29,7 +29,7 @@ import at.specure.info.wifi.WifiInfoWatcher
 import at.specure.util.permission.LocationAccess
 import at.specure.util.synchronizedForEach
 import timber.log.Timber
-import java.util.*
+import java.util.Collections
 
 private const val WIFI_UPDATE_DELAY = 2000L
 private const val CELL_UPDATE_DELAY = 1000L

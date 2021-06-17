@@ -11,7 +11,7 @@ import at.specure.info.network.NRConnectionState
 import at.specure.info.strength.SignalSource
 import at.specure.info.strength.SignalStrengthInfo
 import at.specure.info.strength.SignalStrengthInfoNr
-import java.util.*
+import java.util.UUID
 import kotlin.random.Random
 
 private const val SPEED_IN_MAX = 65_000_000L

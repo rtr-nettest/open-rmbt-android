@@ -31,7 +31,11 @@ import at.specure.info.ip.CaptivePortal
 import at.specure.info.wifi.WifiInfoWatcher
 import at.specure.location.LocationState
 import at.specure.location.LocationStateWatcher
-import at.specure.util.*
+import at.specure.util.filterOnlyPrimaryActiveDataCell
+import at.specure.util.isCoarseLocationPermitted
+import at.specure.util.isReadPhoneStatePermitted
+import at.specure.util.synchronizedForEach
+import at.specure.util.toCellNetworkInfo
 import cz.mroczis.netmonster.core.INetMonster
 import cz.mroczis.netmonster.core.factory.NetMonsterFactory
 import cz.mroczis.netmonster.core.feature.merge.CellSource
@@ -39,7 +43,7 @@ import cz.mroczis.netmonster.core.model.cell.ICell
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import timber.log.Timber
-import java.util.*
+import java.util.Collections
 
 private const val CELL_UPDATE_DELAY = 1000L
 /**

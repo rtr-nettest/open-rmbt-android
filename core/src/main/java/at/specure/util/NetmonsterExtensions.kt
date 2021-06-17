@@ -16,7 +16,8 @@ import at.specure.info.cell.CellNetworkInfo
 import at.specure.info.cell.CellTechnology
 import at.specure.info.network.MobileNetworkType
 import at.specure.info.network.NRConnectionState
-import at.specure.info.strength.*
+import at.specure.info.strength.SignalSource
+import at.specure.info.strength.SignalStrengthInfo
 import at.specure.info.strength.SignalStrengthInfo.Companion.CELLULAR_SIGNAL_MAX
 import at.specure.info.strength.SignalStrengthInfo.Companion.CELLULAR_SIGNAL_MIN
 import at.specure.info.strength.SignalStrengthInfo.Companion.LTE_RSRP_SIGNAL_MAX
@@ -29,16 +30,37 @@ import at.specure.info.strength.SignalStrengthInfo.Companion.WCDMA_RSRP_SIGNAL_M
 import at.specure.info.strength.SignalStrengthInfo.Companion.WCDMA_RSRP_SIGNAL_MIN
 import at.specure.info.strength.SignalStrengthInfo.Companion.calculateCellSignalLevel
 import at.specure.info.strength.SignalStrengthInfo.Companion.calculateNRSignalLevel
+import at.specure.info.strength.SignalStrengthInfoCommon
+import at.specure.info.strength.SignalStrengthInfoGsm
+import at.specure.info.strength.SignalStrengthInfoLte
+import at.specure.info.strength.SignalStrengthInfoNr
 import cz.mroczis.netmonster.core.INetMonster
 import cz.mroczis.netmonster.core.db.model.NetworkType
-import cz.mroczis.netmonster.core.model.band.*
-import cz.mroczis.netmonster.core.model.cell.*
+import cz.mroczis.netmonster.core.model.band.BandGsm
+import cz.mroczis.netmonster.core.model.band.BandLte
+import cz.mroczis.netmonster.core.model.band.BandNr
+import cz.mroczis.netmonster.core.model.band.BandTdscdma
+import cz.mroczis.netmonster.core.model.band.BandWcdma
+import cz.mroczis.netmonster.core.model.band.IBand
+import cz.mroczis.netmonster.core.model.cell.CellCdma
+import cz.mroczis.netmonster.core.model.cell.CellGsm
+import cz.mroczis.netmonster.core.model.cell.CellLte
+import cz.mroczis.netmonster.core.model.cell.CellNr
+import cz.mroczis.netmonster.core.model.cell.CellTdscdma
+import cz.mroczis.netmonster.core.model.cell.CellWcdma
+import cz.mroczis.netmonster.core.model.cell.ICell
 import cz.mroczis.netmonster.core.model.connection.PrimaryConnection
 import cz.mroczis.netmonster.core.model.connection.SecondaryConnection
-import cz.mroczis.netmonster.core.model.signal.*
+import cz.mroczis.netmonster.core.model.signal.ISignal
+import cz.mroczis.netmonster.core.model.signal.SignalCdma
+import cz.mroczis.netmonster.core.model.signal.SignalGsm
+import cz.mroczis.netmonster.core.model.signal.SignalLte
+import cz.mroczis.netmonster.core.model.signal.SignalNr
+import cz.mroczis.netmonster.core.model.signal.SignalTdscdma
+import cz.mroczis.netmonster.core.model.signal.SignalWcdma
 import cz.mroczis.netmonster.core.telephony.ITelephonyManagerCompat
 import timber.log.Timber
-import java.util.*
+import java.util.UUID
 
 fun List<ICell>.filterOnlyPrimaryActiveDataCell(dataSubscriptionId: Int): List<ICell> {
     return this.filter {
