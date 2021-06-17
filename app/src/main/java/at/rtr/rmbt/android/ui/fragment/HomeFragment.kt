@@ -14,8 +14,18 @@ import at.rmbt.client.control.IpProtocol
 import at.rtr.rmbt.android.R
 import at.rtr.rmbt.android.databinding.FragmentHomeBinding
 import at.rtr.rmbt.android.di.viewModelLazy
-import at.rtr.rmbt.android.ui.activity.*
-import at.rtr.rmbt.android.ui.dialog.*
+import at.rtr.rmbt.android.ui.activity.LoopConfigurationActivity
+import at.rtr.rmbt.android.ui.activity.LoopInstructionsActivity
+import at.rtr.rmbt.android.ui.activity.MeasurementActivity
+import at.rtr.rmbt.android.ui.activity.PreferenceActivity
+import at.rtr.rmbt.android.ui.activity.SignalMeasurementTermsActivity
+import at.rtr.rmbt.android.ui.dialog.IpInfoDialog
+import at.rtr.rmbt.android.ui.dialog.LocationInfoDialog
+import at.rtr.rmbt.android.ui.dialog.OpenGpsSettingDialog
+import at.rtr.rmbt.android.ui.dialog.OpenLocationPermissionDialog
+import at.rtr.rmbt.android.ui.dialog.MessageDialog
+import at.rtr.rmbt.android.ui.dialog.NetworkInfoDialog
+import at.rtr.rmbt.android.ui.dialog.SimpleDialog
 import at.rtr.rmbt.android.util.InfoWindowStatus
 import at.rtr.rmbt.android.util.ToolbarTheme
 import at.rtr.rmbt.android.util.changeStatusBarColor
@@ -24,7 +34,6 @@ import at.rtr.rmbt.android.viewmodel.HomeViewModel
 import at.specure.location.LocationState
 import at.specure.measurement.MeasurementService
 import at.specure.util.toast
-import timber.log.Timber
 
 class HomeFragment : BaseFragment() {
 

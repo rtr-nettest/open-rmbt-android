@@ -28,7 +28,11 @@ import at.specure.info.cell.CellNetworkInfo
 import at.specure.info.cell.CellTechnology
 import at.specure.info.ip.IpInfo
 import at.specure.info.ip.IpStatus
-import at.specure.info.network.*
+import at.specure.info.network.NetworkInfo
+import at.specure.info.network.DetailedNetworkInfo
+import at.specure.info.network.EthernetNetworkInfo
+import at.specure.info.network.MobileNetworkType
+import at.specure.info.network.WifiNetworkInfo
 import at.specure.info.strength.SignalStrengthInfo
 import at.specure.measurement.MeasurementState
 import at.specure.result.QoECategory
