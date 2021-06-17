@@ -59,6 +59,8 @@ class IpClient @Inject constructor(
             writer.flush()
             writer.close()
 
+            val statusCode = connection.responseCode
+            Timber.d("IPv4 status code: $statusCode")
             val output = connection.inputStream.bufferedReader().readText()
             val response = gson.fromJson(output, IpInfoResponse::class.java)
             Maybe(response)

@@ -36,7 +36,7 @@ import at.specure.location.LocationWatcher
 import at.specure.location.cell.CellLocationInfo
 import at.specure.test.SignalMeasurementType
 import at.specure.test.toDeviceInfoLocation
-import at.specure.util.filterOnlyActiveDataCell
+import at.specure.util.filterOnlyPrimaryActiveDataCell
 import at.specure.util.isCoarseLocationPermitted
 import at.specure.util.isReadPhoneStatePermitted
 import at.specure.util.mobileNetworkType
@@ -54,6 +54,9 @@ import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.launch
 import timber.log.Timber
+import java.lang.Runnable
+import java.lang.SecurityException
+import java.lang.System
 import java.util.Timer
 import java.util.TimerTask
 import java.util.concurrent.TimeUnit
@@ -396,7 +399,7 @@ class SignalMeasurementProcessor @Inject constructor(
 
                 val dataSubscriptionId = subscriptionManager.getCurrentDataSubscriptionId()
 
-                val primaryCells = cells?.filterOnlyActiveDataCell(dataSubscriptionId)
+                val primaryCells = cells?.filterOnlyPrimaryActiveDataCell(dataSubscriptionId)
 
                 val cellInfosToSave = mutableListOf<CellInfoRecord>()
                 val signalsToSave = mutableListOf<SignalRecord>()

@@ -50,6 +50,7 @@ import cz.mroczis.netmonster.core.model.cell.CellTdscdma
 import cz.mroczis.netmonster.core.model.cell.CellWcdma
 import cz.mroczis.netmonster.core.model.cell.ICell
 import cz.mroczis.netmonster.core.model.connection.PrimaryConnection
+import cz.mroczis.netmonster.core.model.connection.SecondaryConnection
 import cz.mroczis.netmonster.core.model.signal.ISignal
 import cz.mroczis.netmonster.core.model.signal.SignalCdma
 import cz.mroczis.netmonster.core.model.signal.SignalGsm
@@ -61,12 +62,29 @@ import cz.mroczis.netmonster.core.telephony.ITelephonyManagerCompat
 import timber.log.Timber
 import java.util.UUID
 
-fun List<ICell>.filterOnlyActiveDataCell(dataSubscriptionId: Int): List<ICell> {
+fun List<ICell>.filterOnlyPrimaryActiveDataCell(dataSubscriptionId: Int): List<ICell> {
     return this.filter {
         // when there is -1 we will report both sims signal because we are unable to detect correct data subscription
-        val isFromDataSubscription = dataSubscriptionId == -1 || it.subscriptionId == dataSubscriptionId
+        val isFromDataSubscription =
+            dataSubscriptionId == -1 || it.subscriptionId == dataSubscriptionId
         val isPrimaryCell = it.connectionStatus is PrimaryConnection
         isFromDataSubscription && isPrimaryCell
+    }
+}
+
+fun List<ICell>.filterOnlySecondaryActiveDataCell(dataSubscriptionId: Int): List<ICell> {
+    return this.filter {
+        // when there is -1 we will report both sims signal because we are unable to detect correct data subscription
+        val isFromDataSubscription =
+            dataSubscriptionId == -1 || it.subscriptionId == dataSubscriptionId
+        val isSecondaryCell = it.connectionStatus is SecondaryConnection
+        isFromDataSubscription && isSecondaryCell
+    }
+}
+
+fun List<ICell>.filter5GCells(): List<ICell> {
+    return this.filter {
+        it is CellNr
     }
 }
 
@@ -287,9 +305,11 @@ fun ICell.toCellNetworkInfo(
     netMonster: INetMonster
 ): CellNetworkInfo {
     return CellNetworkInfo(
-        providerName = dataTelephonyManager?.networkOperatorName ?: telephonyManagerNetmonster.getNetworkOperator()?.toPlmn("-") ?: "",
+        providerName = dataTelephonyManager?.networkOperatorName
+            ?: telephonyManagerNetmonster.getNetworkOperator()?.toPlmn("-") ?: "",
         band = this.band?.toCellBand(),
         networkType = this.mobileNetworkType(netMonster),
+        cellType = this.toTechnologyClass(),
         mnc = this.network?.mnc?.toIntOrNull(),
         mcc = this.network?.mcc?.toIntOrNull(),
         locationId = this.locationId(),
@@ -477,6 +497,18 @@ fun ICell.mobileNetworkType(netMonster: INetMonster): MobileNetworkType {
         Timber.e("IllegalStateException: Not able to read network type")
     }
     return networkTypeFromNM?.mapToMobileNetworkType() ?: MobileNetworkType.UNKNOWN
+}
+
+fun ICell.toTechnologyClass(): CellTechnology {
+    return when (this) {
+        is CellNr -> CellTechnology.CONNECTION_5G
+        is CellLte -> CellTechnology.CONNECTION_4G
+        is CellWcdma -> CellTechnology.CONNECTION_3G
+        is CellTdscdma -> CellTechnology.CONNECTION_3G
+        is CellCdma -> CellTechnology.CONNECTION_2G
+        is CellGsm -> CellTechnology.CONNECTION_2G
+        else -> CellTechnology.CONNECTION_UNKNOWN
+    }
 }
 
 fun NetworkType.mapToMobileNetworkType(): MobileNetworkType {
