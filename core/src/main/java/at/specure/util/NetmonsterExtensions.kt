@@ -51,6 +51,7 @@ import cz.mroczis.netmonster.core.model.cell.CellWcdma
 import cz.mroczis.netmonster.core.model.cell.ICell
 import cz.mroczis.netmonster.core.model.connection.PrimaryConnection
 import cz.mroczis.netmonster.core.model.connection.SecondaryConnection
+import cz.mroczis.netmonster.core.model.nr.NrNsaState
 import cz.mroczis.netmonster.core.model.signal.ISignal
 import cz.mroczis.netmonster.core.model.signal.SignalCdma
 import cz.mroczis.netmonster.core.model.signal.SignalGsm
@@ -516,9 +517,23 @@ fun NetworkType.mapToMobileNetworkType(): MobileNetworkType {
         is NetworkType.Cdma,
         is NetworkType.Gsm,
         is NetworkType.Lte,
-        is NetworkType.Nr,
         is NetworkType.Tdscdma,
         is NetworkType.Wcdma -> MobileNetworkType.fromValue(this.technology)
+        is NetworkType.Nr -> {
+            when (this) {
+                is NetworkType.Nr.Nsa -> {
+                    if ((this.nrNsaState.nrAvailable) && (this.nrNsaState.connection != NrNsaState.Connection.Connected)) {
+                        return MobileNetworkType.NR_AVAILABLE
+                    } else {
+                        return MobileNetworkType.NR_NSA
+                    }
+                }
+                is NetworkType.Nr.Sa -> {
+                    return MobileNetworkType.NR
+                }
+                else -> return MobileNetworkType.NR_NSA // but this should not happen
+            }
+        }
         else -> MobileNetworkType.UNKNOWN
     }
 }
