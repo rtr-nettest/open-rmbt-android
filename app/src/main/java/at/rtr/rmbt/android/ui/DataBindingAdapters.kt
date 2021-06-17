@@ -39,7 +39,8 @@ import at.specure.result.QoECategory
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import timber.log.Timber
 import java.text.SimpleDateFormat
-import java.util.*
+import java.util.TimeZone
+import java.util.Calendar
 import kotlin.math.roundToInt
 import kotlin.math.roundToLong
 
