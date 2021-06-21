@@ -42,9 +42,7 @@ public class JitterTest extends VoipTest {
 
     @Override
     protected String getTestId() {
-//        TODO: return back when JITTER will be done
-//        return RMBTClient.TASK_JITTER;
-        return RMBTClient.TASK_VOIP;
+        return RMBTClient.TASK_JITTER;
     }
 
 

@@ -83,7 +83,6 @@ public class RMBTClient implements RMBTClientCallback {
     private final long durationInitNano = 2500000000L; // TODO
     private final long durationUpNano;
     private final long durationDownNano;
-//    public final static String TASK_JITTER = "jitter";
     private final boolean enabledJitterAndPacketLoss;
 
     private final AtomicLong pingNano = new AtomicLong(-1);
@@ -142,6 +141,7 @@ public class RMBTClient implements RMBTClientCallback {
     public final static String TASK_TRACEROUTE = "traceroute";
     public final static String TASK_TRACEROUTE_MASKED = "traceroute_masked";
 
+    public final static String TASK_JITTER = "jitter";  // Voip test to be performed in main test
 
     private List<TaskDesc> taskDescList;
 
@@ -652,8 +652,6 @@ public class RMBTClient implements RMBTClientCallback {
                     VoipTestResultHandler voipTestResultHandler = new VoipTestResultHandler();
                     VoipTestResult voipTestResult = voipTestResultHandler.convertResultsToObject(resultMap);
                     result.voipTestResult = voipTestResult;
-
-                    //TODO: save to shared pref to load to send them together with result
 
                     final String prefix_out = RESULT_VOIP_PREFIX + RESULT_OUTGOING_PREFIX;
                     final String prefix_in = RESULT_VOIP_PREFIX + RESULT_INCOMING_PREFIX;
