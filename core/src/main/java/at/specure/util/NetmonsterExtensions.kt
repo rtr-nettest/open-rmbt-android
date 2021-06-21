@@ -520,18 +520,18 @@ fun NetworkType.mapToMobileNetworkType(): MobileNetworkType {
         is NetworkType.Tdscdma,
         is NetworkType.Wcdma -> MobileNetworkType.fromValue(this.technology)
         is NetworkType.Nr -> {
-            when (this) {
+            return when (this) {
                 is NetworkType.Nr.Nsa -> {
                     if ((this.nrNsaState.nrAvailable) && (this.nrNsaState.connection != NrNsaState.Connection.Connected)) {
-                        return MobileNetworkType.NR_AVAILABLE
+                        MobileNetworkType.NR_AVAILABLE
                     } else {
-                        return MobileNetworkType.NR_NSA
+                        MobileNetworkType.NR_NSA
                     }
                 }
                 is NetworkType.Nr.Sa -> {
-                    return MobileNetworkType.NR
+                    MobileNetworkType.NR
                 }
-                else -> return MobileNetworkType.NR_NSA // but this should not happen
+                else -> MobileNetworkType.NR_NSA // but this should not happen
             }
         }
         else -> MobileNetworkType.UNKNOWN
