@@ -5,7 +5,6 @@ import android.app.Activity
 import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
-import android.net.Uri
 import android.os.Bundle
 import android.text.InputType
 import android.view.View
@@ -13,15 +12,16 @@ import android.widget.Toast
 import at.rmbt.client.control.Server
 import at.rtr.rmbt.android.BuildConfig
 import at.rtr.rmbt.android.R
+import at.rtr.rmbt.android.config.CMSEndpointProviderImpl
 import at.rtr.rmbt.android.databinding.FragmentSettingsBinding
 import at.rtr.rmbt.android.di.viewModelLazy
-import at.rtr.rmbt.android.ui.activity.DataPrivacyAndTermsOfUseActivity
 import at.rtr.rmbt.android.ui.activity.LoopInstructionsActivity
+import at.rtr.rmbt.android.ui.activity.StaticPageActivity
 import at.rtr.rmbt.android.ui.dialog.InputSettingDialog
-import at.rtr.rmbt.android.ui.dialog.OpenGpsSettingDialog
 import at.rtr.rmbt.android.ui.dialog.OpenLocationPermissionDialog
 import at.rtr.rmbt.android.ui.dialog.ServerSelectionDialog
 import at.rtr.rmbt.android.ui.dialog.SimpleDialog
+import at.rtr.rmbt.android.ui.dialog.OpenGpsSettingDialog
 import at.rtr.rmbt.android.util.addOnPropertyChanged
 import at.rtr.rmbt.android.util.listen
 import at.rtr.rmbt.android.viewmodel.SettingsViewModel
@@ -29,12 +29,12 @@ import at.specure.location.LocationState
 import at.specure.util.copyToClipboard
 import at.specure.util.openAppSettings
 import timber.log.Timber
-import java.util.Locale
 
 class SettingsFragment : BaseFragment(), InputSettingDialog.Callback, ServerSelectionDialog.Callback, SimpleDialog.Callback {
 
     private val settingsViewModel: SettingsViewModel by viewModelLazy()
     private val binding: FragmentSettingsBinding by bindingLazy()
+    private val cmsEndpoints = CMSEndpointProviderImpl()
 
     override val layoutResId = R.layout.fragment_settings
 
@@ -180,36 +180,30 @@ class SettingsFragment : BaseFragment(), InputSettingDialog.Callback, ServerSele
                 .show(activity)
         }
 
-        binding.version.value = "${BuildConfig.VERSION_NAME}"
+        binding.version.value = BuildConfig.VERSION_NAME
 
         binding.privacyPolicy.root.setOnClickListener {
-            settingsViewModel.state.dataPrivacyPolicyUrl.get()?.let { url ->
-                DataPrivacyAndTermsOfUseActivity.start(
-                    requireContext(),
-                    when (Locale.getDefault().language) {
-                        "de" -> String.format(url, "de")
-                        else -> String.format(url, "en")
-                    },
-                    getString(R.string.title_privacy_policy)
-                )
-            }
+            StaticPageActivity.start(
+                requireContext(),
+                cmsEndpoints.getPrivacyPolicyUrl,
+                getString(R.string.title_privacy_policy)
+            )
         }
 
         binding.about.root.setOnClickListener {
-            startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(settingsViewModel.state.webPageUrl.get())))
+            StaticPageActivity.start(
+                requireContext(),
+                cmsEndpoints.getAboutUrl,
+                "${getString(R.string.preferences_about)} ${getString(R.string.toolbar_title)}"
+            )
         }
 
         binding.terms.root.setOnClickListener {
-            settingsViewModel.state.termsUrl.get()?.let { url ->
-                DataPrivacyAndTermsOfUseActivity.start(
-                    requireContext(),
-                    when (Locale.getDefault().language) {
-                        "de" -> String.format(url, "de")
-                        else -> String.format(url, "en")
-                    },
-                    getString(R.string.preferences_terms_of_service)
-                )
-            }
+            StaticPageActivity.start(
+                requireContext(),
+                cmsEndpoints.getTermsOfUseUrl,
+                getString(R.string.preferences_terms_of_service)
+            )
         }
 
         binding.radioInfo.root.setOnClickListener {

@@ -21,21 +21,19 @@ import at.rtr.rmbt.android.ui.activity.PreferenceActivity
 import at.rtr.rmbt.android.ui.activity.SignalMeasurementTermsActivity
 import at.rtr.rmbt.android.ui.dialog.IpInfoDialog
 import at.rtr.rmbt.android.ui.dialog.LocationInfoDialog
-import at.rtr.rmbt.android.ui.dialog.MessageDialog
-import at.rtr.rmbt.android.ui.dialog.NetworkInfoDialog
 import at.rtr.rmbt.android.ui.dialog.OpenGpsSettingDialog
 import at.rtr.rmbt.android.ui.dialog.OpenLocationPermissionDialog
+import at.rtr.rmbt.android.ui.dialog.MessageDialog
+import at.rtr.rmbt.android.ui.dialog.NetworkInfoDialog
 import at.rtr.rmbt.android.ui.dialog.SimpleDialog
 import at.rtr.rmbt.android.util.InfoWindowStatus
 import at.rtr.rmbt.android.util.ToolbarTheme
 import at.rtr.rmbt.android.util.changeStatusBarColor
 import at.rtr.rmbt.android.util.listen
 import at.rtr.rmbt.android.viewmodel.HomeViewModel
-import at.specure.info.cell.CellNetworkInfo
 import at.specure.location.LocationState
 import at.specure.measurement.MeasurementService
 import at.specure.util.toast
-import timber.log.Timber
 
 class HomeFragment : BaseFragment() {
 
@@ -56,8 +54,20 @@ class HomeFragment : BaseFragment() {
         homeViewModel.signalStrengthLiveData.listen(this) {
             homeViewModel.state.signalStrength.set(it?.signalStrengthInfo)
             homeViewModel.state.activeNetworkInfo.set(it)
-            if (it?.networkInfo is CellNetworkInfo)
-                Timber.d("NM network type to display from SSLD: ${(it.networkInfo as CellNetworkInfo).networkType.displayName}")
+            homeViewModel.state.secondary5GActiveNetworkInfo.set(
+                if (it?.secondary5GActiveCellNetworks?.isNotEmpty() == true) {
+                    it.secondary5GActiveCellNetworks?.get(0)
+                } else {
+                    null
+                }
+            )
+            homeViewModel.state.secondary5GSignalStrength.set(
+                if (it?.secondary5GActiveSignalStrengthInfos?.isNotEmpty() == true) {
+                    it.secondary5GActiveSignalStrengthInfos?.get(0)
+                } else {
+                    null
+                }
+            )
         }
 
         homeViewModel.locationStateLiveData.listen(this) {
@@ -181,8 +191,20 @@ class HomeFragment : BaseFragment() {
         homeViewModel.signalStrengthLiveData.listen(this) {
             homeViewModel.state.signalStrength.set(it?.signalStrengthInfo)
             homeViewModel.state.activeNetworkInfo.set(it)
-            if (it?.networkInfo is CellNetworkInfo)
-                Timber.d("NM network type to display from SSLD OR: ${(it.networkInfo as CellNetworkInfo).networkType.displayName}")
+            homeViewModel.state.secondary5GActiveNetworkInfo.set(
+                if (it?.secondary5GActiveCellNetworks?.isNotEmpty() == true) {
+                    it.secondary5GActiveCellNetworks?.get(0)
+                } else {
+                    null
+                }
+            )
+            homeViewModel.state.secondary5GSignalStrength.set(
+                if (it?.secondary5GActiveSignalStrengthInfos?.isNotEmpty() == true) {
+                    it.secondary5GActiveSignalStrengthInfos?.get(0)
+                } else {
+                    null
+                }
+            )
         }
     }
 

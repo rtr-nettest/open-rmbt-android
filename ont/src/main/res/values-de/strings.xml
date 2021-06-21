@@ -111,16 +111,12 @@
     <string name="location_dialog_label_age">Aktualität</string>
     <string name="location_dialog_label_source">Quelle</string>
     <string name="location_dialog_label_altitude">Höhe</string>
-    <string name="location_dialog_label_speed">Geschwindigkeit</string>
     <string name="location_dialog_label_satellites">Satelliten</string>
-    <string name="location_dialog_label_location_progress_message">Der Standort wird bestimmt, bitte warten…</string>
     <string name="open_gps_setting_dialog_label_gps_not_enabled">Standort nicht verfügbar. Möchten Sie die Standorteinstellungen ändern?</string>
     <string name="open_gps_setting_dialog_label_open_gps_setting">Standort-Einstellungen öffnen</string>
     <string name="open_gps_setting_dialog_label_cancel">Abbrechen</string>
-    <string name="location_dialog_not_available">Nicht verfügbar</string>
     <string name="location_dialog_age">%1$s s</string>
     <string name="location_dialog_accuracy">%1$s m</string>
-    <string name="location_dialog_speed">%1$s km/h</string>
     <string name="location_location_direction_n">N %1$s</string>
     <string name="location_location_direction_e">E %1$s</string>
     <string name="location_location_direction_s">S %1$s</string>
@@ -273,14 +269,11 @@
     <string name="text_terms_agree_empty">Sie müssen den Datenschutzbestimmungen und Nutzungsbedingungen zustimmen, um fortsetzen zu können.</string>
 
     <string name="dialog_title_config_check">Bitte ändern Sie die folgenden Werte:</string>
-    <string name="label_ip_processing">Wird bearbeitet…</string>
     <string name="radio_info_warning_title">Mobilfunkinformation</string>
     <string name="radio_info_warning_message">Achtung: Änderungen in den erweiterten Einstellungen der Mobilfunkkonfiguration können Auswirkungen auf Funktion, Stabilität und Performance Ihres Gerätes haben.</string>
     <string name="accept_risk">Ich bin mir der Gefahren bewusst</string>
     <string name="preferences_connection_details_not_supported">Erweiterte Verbindungsdetails werden auf diesem Gerät nicht unterstützt</string>
 
-    <string name="dialog_signal_info_title">Signalinfo</string>
-    <string name="dialog_signal_info_waiting">Warten Sie mal…</string>
     <string name="dialog_signal_info_band">Band</string>
     <string name="dialog_signal_info_channel">Kanal</string>
     <string name="dialog_signal_info_ta">TA</string>
@@ -333,5 +326,11 @@
     <string name="title_loop_measurements"> Schleifenmessungen </string>
     <string name="text_link_history_empty"> Führen Sie Ihre erste Messung durch </string>
     <string name="text_history_empty"> Keine Ergebnisse angezeigt. </string>
+
+    <string name="label_network_type">Netzwerktyp</string>
+    <string name="label_network_name">Netzwerkname</string>
+    <string name="label_measurement_server">Messserver</string>
+    <string name="label_change_test_server">Testserver ändern</string>
+    <string name="request_failure">Beim Abrufen der Daten ist ein Fehler aufgetreten.</string>
 </resources>
 

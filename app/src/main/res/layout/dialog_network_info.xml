@@ -232,6 +232,8 @@
             app:layout_constraintStart_toEndOf="@+id/labelSignal"
             app:layout_constraintTop_toBottomOf="@+id/textSignalStrengthExtra"
             app:signal="@{signal.value}"
+            app:signalNetworkInfo="@{null}"
+            app:signalSecondary="@{null}"
             app:visibleOrGone="@{signal != null}"
             tools:text="-96 dBm" />
 

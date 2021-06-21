@@ -18,6 +18,7 @@ import at.specure.data.entity.GraphItemRecord
 import at.specure.data.entity.LoopModeRecord
 import at.specure.data.repository.HistoryRepository
 import at.specure.data.repository.TestDataRepository
+import at.specure.info.connectivity.ConnectivityInfoLiveData
 import at.specure.info.network.ActiveNetworkLiveData
 import at.specure.info.strength.SignalStrengthLiveData
 import at.specure.location.LocationState
@@ -36,6 +37,7 @@ class MeasurementViewModel @Inject constructor(
     private val locationWatcher: LocationWatcher,
     val signalStrengthLiveData: SignalStrengthLiveData,
     val activeNetworkLiveData: ActiveNetworkLiveData,
+    val connectivityInfoLiveData: ConnectivityInfoLiveData,
     val config: AppConfig,
     private val tac: TermsAndConditions
 ) : BaseViewModel(), MeasurementClient {

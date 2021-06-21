@@ -116,16 +116,12 @@
     <string name="location_dialog_label_age">Mosha</string>
     <string name="location_dialog_label_source">Burimi</string>
     <string name="location_dialog_label_altitude">Lartësi</string>
-    <string name="location_dialog_label_speed">Shpejtësia</string>
     <string name="location_dialog_label_satellites">Satelitë</string>
-    <string name="location_dialog_label_location_progress_message">Përcaktimi i vendndodhjes, ju lutemi prisni</string>
     <string name="open_gps_setting_dialog_label_gps_not_enabled">Shërbimet e vendndodhjes nuk janë aktivizuar. Dëshironi të modifikoni cilësimet e vendndodhjes?</string>
     <string name="open_gps_setting_dialog_label_open_gps_setting">Hapni cilësimet e vendndodhjes</string>
     <string name="open_gps_setting_dialog_label_cancel">Anulo</string>
-    <string name="location_dialog_not_available">I padisponueshem</string>
     <string name="location_dialog_age">%1$s s</string>
     <string name="location_dialog_accuracy">%1$s m</string>
-    <string name="location_dialog_speed">%1$s km / orë</string>
 
     <string name="location_location_direction_n">N %1$s</string>
     <string name="location_location_direction_e">E %1$s</string>
@@ -284,14 +280,11 @@
     <string name="text_terms_agree_empty">Ju duhet të bini dakord me politikën e privatësisë dhe kushtet e përdorimit për të vazhduar.</string>
 
     <string name="dialog_title_config_check">Ju lutemi ndryshoni vlerat e mëposhtme:</string>
-    <string name="label_ip_processing">Po përpunon</string>
     <string name="radio_info_warning_title">Cilësimet e radios</string>
     <string name="radio_info_warning_message">Kini kujdes: Ndryshimi i cilësimeve të përparuara të konfigurimit të radios mund të jetë i dëmshëm për stabilitetin dhe performancën e pajisjes tuaj.</string>
     <string name="accept_risk">Unë e pranoj rrezikun</string>
     <string name="preferences_connection_details_not_supported">Detajet e zgjatura të lidhjes nuk mbështeten në këtë pajisje</string>
 
-    <string name="dialog_signal_info_title">Informacioni i sinjalit</string>
-    <string name="dialog_signal_info_waiting">Te lutem prit…</string>
     <string name="dialog_signal_info_band">Bandë</string>
     <string name="dialog_signal_info_channel">Kanali</string>
     <string name="dialog_signal_info_ta">AT</string>
@@ -346,5 +339,10 @@
         <item>Listë</item>
         <item>Harta</item>
     </string-array>
+
+    <string name="label_network_type">Lloji i rrjetit </string>
+    <string name="label_network_name">Emri i rrjetit </string>
+    <string name="label_measurement_server">Serveri i matjes </string>
+    <string name="label_change_test_server">Ndrysho Serverin e Testit </string>
 
 </resources>

@@ -43,6 +43,7 @@ import at.rtr.rmbt.client.v2.task.service.TestMeasurement;
 import at.rtr.rmbt.client.v2.task.service.TestMeasurement.TrafficDirection;
 import at.rtr.rmbt.util.capability.Capabilities;
 import at.rtr.rmbt.util.model.shared.exception.ErrorStatus;
+import timber.log.Timber;
 
 public class ControlServerConnection {
 
@@ -176,7 +177,13 @@ public class ControlServerConnection {
         }
 
         // getting JSON string from URL
+
+        Long startTime = System.nanoTime();
+        // getting JSON string from URL
         final JSONObject response = JSONParser.sendJSONToUrl(hostUrl, regData, headerValue);
+        Long endTime = System.nanoTime();
+
+        Timber.d("REQUEST " + hostUrl.toString() + "  " + (endTime - startTime) + "ns");
 
         if (response != null)
             try {
@@ -290,8 +297,12 @@ public class ControlServerConnection {
             // e1.printStackTrace();
         }
 
+        Long startTime = System.nanoTime();
         // getting JSON string from URL
         final JSONObject response = JSONParser.sendJSONToUrl(hostUrl, regData, headerValue);
+        Long endTime = System.nanoTime();
+
+        Timber.d("REQUEST " + hostUrl.toString() + "  " + (endTime - startTime) + "ns");
 
         if (response != null)
             try {

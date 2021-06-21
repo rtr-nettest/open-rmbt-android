@@ -266,6 +266,11 @@
       "visible": true
     },
     {
+      "name": "CMS_URL",
+      "value": "",
+      "visible": false
+    },
+    {
       "line1": "=======================================",
       "_section": "MAP SETTINGS",
       "line2": "======================================="
