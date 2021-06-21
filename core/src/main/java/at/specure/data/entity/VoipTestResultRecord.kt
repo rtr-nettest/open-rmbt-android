@@ -52,43 +52,6 @@ data class VoipTestResultRecord(
     var voipResultPacketLoss: String?
 )
 
-fun VoipTestResultRecord.toRequest(): at.rmbt.client.control.VoipTestResult? {
-
-    return at.rmbt.client.control.VoipTestResult(
-        classificationPacketLoss = classificationPacketLoss ?: -1,
-        classificationJitter = classificationJitter ?: -1,
-        resultInNumPackets = resultInNumPackets,
-        resultInLongestSeqPackets = resultInLongestSeqPackets,
-        resultInShortestSeqPackets = resultInShortestSeqPackets,
-        resultInMeanJitter = resultInMeanJitter,
-        resultInMaxJitter = resultInMaxJitter,
-        resultInSeqError = resultInSeqError,
-        resultInSkew = resultInSkew,
-        resultInMaxDelta = resultInMaxDelta,
-        resultOutSkew = resultOutSkew,
-        resultOutMaxDelta = resultOutMaxDelta,
-        resultOutSeqError = resultOutSeqError,
-        resultOutLongestSeqPackets = resultOutLongestSeqPackets,
-        resultOutShortestSeqPackets = resultOutShortestSeqPackets,
-        resultOutMeanJitter = resultOutMeanJitter,
-        resultOutMaxJitter = resultOutMaxJitter,
-        resultOutNumPackets = resultOutNumPackets,
-        objectiveBitsPerSample = objectiveBitsPerSample ?: 8,
-        objectivePortIn = objectivePortIn,
-        objectivePortOut = objectivePortOut,
-        objectiveDelay = objectiveDelay ?: 20000000L,
-        objectiveTimeoutNS = objectiveTimeoutNS ?: 3000000000L,
-        objectivePayload = objectivePayload ?: 0,
-        objectiveCallDuration = objectiveCallDuration ?: 1000000000L,
-        objectiveSampleRate = objectiveSampleRate ?: 8000,
-        testDurationInNS = testDurationInNS,
-        startTimeInNS = startTimeInNS,
-        testResultStatus = testResultStatus ?: TestFinishReason.ERROR.name,
-        voipResultJitter = voipResultJitter ?: "-",
-        voipResultPacketLoss = voipResultPacketLoss ?: "-"
-    )
-}
-
 fun VoipTestResult.toRecord(testUUID: String): VoipTestResultRecord {
     return VoipTestResultRecord(
         testUUID = testUUID,
@@ -141,31 +104,6 @@ fun VoipTestResultRecord.getJitter(): Double? {
  * Returns packet loss in percents
  */
 fun VoipTestResultRecord.getPacketLoss(): Double? {
-    var packetLossPercent: Double? = null
-    if (this.objectiveCallDuration != null && this.objectiveDelay != null && this.resultInNumPackets != null && this.resultOutNumPackets != null) {
-        val total = (this.objectiveCallDuration!! / this.objectiveDelay!!)
-        val packetLossDown = (total - this.resultInNumPackets!!) / total
-        val packetLossUp = (total - this.resultOutNumPackets!!) / total
-        packetLossPercent = (packetLossDown + packetLossUp) / 2.toDouble()
-    }
-    return packetLossPercent
-}
-
-/**
- * Returns jitter in millis
- */
-fun at.rmbt.client.control.VoipTestResult.getJitter(): Double? {
-    var meanJitter: Double? = null
-    if (this.resultInMeanJitter != null && this.resultOutMeanJitter != null) {
-        meanJitter = ((this.resultInMeanJitter!! + this.resultOutMeanJitter!!) / (2 * 1000000.toDouble()))
-    }
-    return meanJitter
-}
-
-/**
- * Returns packet loss in percents
- */
-fun at.rmbt.client.control.VoipTestResult.getPacketLoss(): Double? {
     var packetLossPercent: Double? = null
     if (this.objectiveCallDuration != null && this.objectiveDelay != null && this.resultInNumPackets != null && this.resultOutNumPackets != null) {
         val total = (this.objectiveCallDuration!! / this.objectiveDelay!!)
