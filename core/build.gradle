@@ -39,7 +39,6 @@ android {
 }
 
 dependencies {
-    api project(path: ':cms_client')
     api project(path: ':control_client')
     api project(path: ':rmbt-client')
 
