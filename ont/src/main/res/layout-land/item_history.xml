@@ -64,6 +64,7 @@
             app:layout_constraintEnd_toStartOf="@id/download"
             app:layout_constraintStart_toEndOf="@id/guideline"
             app:layout_constraintTop_toTopOf="parent"
+            app:visibleOrGone="@{item.qos != null}"
             tools:text="99" />
 
         <androidx.appcompat.widget.AppCompatTextView

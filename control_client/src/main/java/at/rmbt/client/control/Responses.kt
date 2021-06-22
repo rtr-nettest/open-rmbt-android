@@ -19,6 +19,8 @@ import at.rmbt.client.control.data.ErrorStatus
 import com.google.gson.JsonObject
 import com.google.gson.annotations.SerializedName
 import java.math.BigDecimal
+import java.util.*
+import kotlin.collections.HashSet
 
 /**
  * Basic response class
@@ -560,6 +562,40 @@ data class HistoryFilterSettings(
 data class HistoryResponse(
     val history: List<HistoryItemResponse>?
 ) : BaseResponse()
+
+@Keep
+data class HistoryONTResponse(
+    val history: HistoryContent?
+) : BaseResponse()
+
+@Keep
+data class HistoryContent(
+    @SerializedName("content")
+    val historyList: List<HistoryItemONTResponse>?,
+    val size: Long,
+    val number: Long
+) : BaseResponse()
+
+@Keep
+data class HistoryItemONTResponse(
+    @SerializedName("network_type")
+    val networkType: String?,
+    val ping: Float,
+    @SerializedName("speed_download")
+    val speedDownload: Float,
+    @SerializedName("speed_upload")
+    val speedUpload: Float,
+    @SerializedName("test_uuid")
+    val testUUID: String,
+    @SerializedName("measurement_date")
+    val measurementDate: String,
+    @SerializedName("qos") // without % sign
+    val qosResultPercents: Float?,
+    @SerializedName("voip_result_jitter_millis")
+    val jitterMillisResult: Float?, // "1.98"
+    @SerializedName("voip_result_packet_loss_percents")
+    val packetLossPercents: Float?, // "0.0"
+)
 
 @Keep
 data class HistoryItemResponse(

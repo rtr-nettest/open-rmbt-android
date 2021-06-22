@@ -879,6 +879,16 @@ data class HistoryRequestBody(
 )
 
 @Keep
+data class HistoryONTRequestBody(
+    @SerializedName("uuid")
+    val clientUUID: String,
+    val page: Long,
+    val size: Long,
+    val devices: List<String>?,
+    val networks: List<String>?
+)
+
+@Keep
 data class QoSResultBody(
     @SerializedName("client_uuid")
     val clientUUID: String,

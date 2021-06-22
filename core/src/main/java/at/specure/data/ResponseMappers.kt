@@ -1,6 +1,8 @@
 package at.specure.data
 
+import at.rmbt.client.control.HistoryItemONTResponse
 import at.rmbt.client.control.HistoryItemResponse
+import at.rmbt.client.control.HistoryONTResponse
 import at.rmbt.client.control.HistoryResponse
 import at.rmbt.client.control.MapFilterObjectResponse
 import at.rmbt.client.control.MapFiltersResponse
@@ -34,7 +36,13 @@ import at.specure.data.entity.TestResultGraphItemRecord
 import at.specure.data.entity.TestResultRecord
 import at.specure.result.QoECategory
 import at.specure.result.QoSCategory
-import java.util.EnumMap
+import org.joda.time.DateTime
+import java.text.DateFormat
+import java.text.DecimalFormat
+import java.text.SimpleDateFormat
+import java.util.*
+import kotlin.collections.ArrayList
+import kotlin.math.roundToInt
 
 fun HistoryResponse.toModelList(): List<History> = history?.map { it.toModel() } ?: emptyList()
 
@@ -43,7 +51,9 @@ fun HistoryItemResponse.toModel() = History(
     loopUUID = loopUUID,
     referenceUUID = if (loopUUID == null) testUUID else loopUUID!!,
     model = model,
-    networkType = NetworkTypeCompat.fromString(networkType ?: ServerNetworkType.TYPE_UNKNOWN2.stringValue),
+    networkType = NetworkTypeCompat.fromString(
+        networkType ?: ServerNetworkType.TYPE_UNKNOWN2.stringValue
+    ),
     ping = ping,
     pingClassification = Classification.fromValue(pingClassification),
     pingShortest = pingShortest,
@@ -52,7 +62,8 @@ fun HistoryItemResponse.toModel() = History(
     speedDownloadClassification = Classification.fromValue(speedDownloadClassification),
     speedUpload = speedUpload,
     speedUploadClassification = Classification.fromValue(speedUploadClassification),
-    signalClassification = signalClassification?.let { Classification.fromValue(it) } ?: Classification.NONE,
+    signalClassification = signalClassification?.let { Classification.fromValue(it) }
+        ?: Classification.NONE,
     time = time,
     timeString = timeString,
     timezone = timezone,
@@ -63,7 +74,57 @@ fun HistoryItemResponse.toModel() = History(
     jitterClassification = classificationJitter?.let { Classification.fromValue(it) }
 )
 
-fun ServerTestResultResponse.toModel(testUUID: String): TestResultRecord = resultItem.first().toModel(testUUID)
+fun HistoryONTResponse.toModelList(): List<History> =
+    history?.historyList?.map { it.toModel() } ?: emptyList()
+
+fun HistoryItemONTResponse.toModel(): History {
+    val dateTime = DateTime(measurementDate)
+    return History(
+        testUUID = testUUID,
+        loopUUID = null,
+        referenceUUID = testUUID, // todo: change when loop uuid will be available
+        model = "",
+        networkType = NetworkTypeCompat.fromString(
+            networkType ?: ServerNetworkType.TYPE_UNKNOWN2.stringValue
+        ),
+        ping = ping.toFormattedPing(),
+        pingClassification = Classification.NONE,
+        pingShortest = ping.toFormattedPing(),
+        pingShortestClassification = Classification.NONE,
+        speedDownload = speedDownload.toSpeedValue(),
+        speedDownloadClassification = Classification.NONE,
+        speedUpload = speedUpload.toSpeedValue(),
+        speedUploadClassification = Classification.NONE,
+        signalClassification = Classification.NONE,
+        time = dateTime.millis,
+        timeString = SimpleDateFormat(
+            "dd.MM.yy, HH:mm:ss",
+            Locale.US
+        ).format(Date(dateTime.millis)),
+        timezone = "",
+        qos = qosResultPercents?.roundToInt().toString(),
+        jitterMillis = jitterMillisResult?.roundToInt().toString(),
+        packetLossPercents = packetLossPercents?.roundToInt().toString(),
+        packetLossClassification = Classification.NONE,
+        jitterClassification = Classification.NONE
+    )
+}
+
+private fun Float.toSpeedValue(): String {
+    return when {
+        this >= 10 -> this.roundToInt().toString()
+        this >= 1 -> DecimalFormat("0.#").format(this)
+        this >= 0.01 -> DecimalFormat("0.##").format(this)
+        else -> "0"
+    }
+}
+
+private fun Float.toFormattedPing(): String {
+    return this.roundToInt().toString()
+}
+
+fun ServerTestResultResponse.toModel(testUUID: String): TestResultRecord =
+    resultItem.first().toModel(testUUID)
 
 fun ServerTestResultItem.toModel(testUUID: String): TestResultRecord {
 

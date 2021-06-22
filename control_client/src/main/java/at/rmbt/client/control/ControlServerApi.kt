@@ -65,10 +65,19 @@ interface ControlServerApi {
     fun getHistory(@Url url: String, @Body body: HistoryRequestBody): Call<HistoryResponse>
 
     /**
+     * Get history for ONT based apps
+     */
+    @POST
+    fun getHistoryONT(@Url url: String, @Body body: HistoryONTRequestBody): Call<HistoryONTResponse>
+
+    /**
      * Request to get basic measurement results
      */
     @POST
-    fun getTestResult(@Url url: String, @Body body: ServerTestResultBody): Call<ServerTestResultResponse>
+    fun getTestResult(
+        @Url url: String,
+        @Body body: ServerTestResultBody
+    ): Call<ServerTestResultResponse>
 
     /**
      * Request to get detailed measurement results via opendata
