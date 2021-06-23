@@ -677,8 +677,7 @@ public class RMBTClient implements RMBTClientCallback {
                     int packetLossDown = (int) (100f * ((float) (total - inPacketsNumber) / (float) total));
                     int packetLossUp = (int) (100f * ((float) (total - outPacketsNumber) / (float) total));
 
-                    result.packetLossPercentDown = packetLossDown;
-                    result.packetLossPercentUp = packetLossUp;
+                    result.packetLossPercent = (packetLossDown + packetLossUp) / 2f;
 
                     this.packetLossDown.set(packetLossDown);
                     this.packetLossUp.set(packetLossUp);

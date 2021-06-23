@@ -332,7 +332,7 @@ class TestControllerImpl(
         if (client.totalTestResult.jitterMeanNanos > 0) {
             _listener?.onJitterChanged(client.totalTestResult.jitterMeanNanos)
         }
-        val packetLoss = ((client.totalTestResult.packetLossPercentDown + client.totalTestResult.packetLossPercentUp) / 2).toInt()
+        val packetLoss = client.totalTestResult.packetLossPercent.toInt()
         if (packetLoss >= 0) {
             _listener?.onPacketLossChanged(packetLoss)
         }
@@ -361,7 +361,7 @@ class TestControllerImpl(
         if (client.totalTestResult.jitterMeanNanos > 0) {
             _listener?.onJitterChanged(client.totalTestResult.jitterMeanNanos)
         }
-        val packetLoss = ((client.totalTestResult.packetLossPercentDown + client.totalTestResult.packetLossPercentUp) / 2).toInt()
+        val packetLoss = client.totalTestResult.packetLossPercent.toInt()
         if (packetLoss >= 0) {
             _listener?.onPacketLossChanged(packetLoss)
         }

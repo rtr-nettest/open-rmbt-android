@@ -39,8 +39,7 @@ public abstract class TestResult
     public VoipTestResult voipTestResult;
 
     public long jitterMeanNanos;
-    public long packetLossPercentUp;
-    public long packetLossPercentDown;
+    public float packetLossPercent;
 
     public static long getSpeedBitPerSec(final long bytes, final long nsec) {
         return Math.round((double) bytes / (double) nsec * 1e9 * 8.0);
