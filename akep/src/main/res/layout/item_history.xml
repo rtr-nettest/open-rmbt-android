@@ -60,7 +60,7 @@
             android:layout_gravity="center"
             android:gravity="center"
             android:text="@{item.qos}"
-            app:visibleOrGone="@{item.qos != null}"
+            app:visibleOrInvisible="@{item.qos != null}"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@id/download"
             app:layout_constraintStart_toEndOf="@id/guideline"

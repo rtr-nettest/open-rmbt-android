@@ -37,7 +37,6 @@ import at.specure.data.entity.TestResultRecord
 import at.specure.result.QoECategory
 import at.specure.result.QoSCategory
 import org.joda.time.DateTime
-import java.text.DateFormat
 import java.text.DecimalFormat
 import java.text.SimpleDateFormat
 import java.util.*
@@ -102,19 +101,32 @@ fun HistoryItemONTResponse.toModel(): History {
             Locale.US
         ).format(Date(dateTime.millis)),
         timezone = "",
-        qos = qosResultPercents?.roundToInt().toString(),
-        jitterMillis = jitterMillisResult?.roundToInt().toString(),
-        packetLossPercents = packetLossPercents?.roundToInt().toString(),
+        qos = if (qosResultPercents == null) {
+            null
+        } else {
+            qosResultPercents?.roundToInt().toString()
+        },
+        jitterMillis = if (jitterMillisResult == null) {
+            null
+        } else {
+            jitterMillisResult?.roundToInt().toString()
+        },
+        packetLossPercents = if (packetLossPercents == null) {
+            null
+        } else {
+            packetLossPercents?.roundToInt().toString()
+        },
         packetLossClassification = Classification.NONE,
         jitterClassification = Classification.NONE
     )
 }
 
 private fun Float.toSpeedValue(): String {
+    val value = this / 1000f // from kbps to Mbps
     return when {
-        this >= 10 -> this.roundToInt().toString()
-        this >= 1 -> DecimalFormat("0.#").format(this)
-        this >= 0.01 -> DecimalFormat("0.##").format(this)
+        value >= 10 -> value.roundToInt().toString()
+        value >= 1 -> DecimalFormat("0.#").format(value)
+        value >= 0.01 -> DecimalFormat("0.##").format(value)
         else -> "0"
     }
 }
