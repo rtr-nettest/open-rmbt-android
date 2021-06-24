@@ -3,7 +3,6 @@ package at.specure.data.entity
 import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
-import at.rmbt.client.control.data.TestFinishReason
 import at.rtr.rmbt.client.VoipTestResult
 import at.specure.data.Columns
 import at.specure.data.Tables

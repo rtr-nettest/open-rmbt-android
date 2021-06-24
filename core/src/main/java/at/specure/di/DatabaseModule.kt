@@ -107,7 +107,7 @@ class DatabaseModule {
         database: CoreDatabase,
         clientUUID: ClientUUID,
         controlServerClient: ControlServerClient,
-        config: Config,
+        config: Config
     ): TestResultsRepository =
         TestResultsRepositoryImpl(database, clientUUID, controlServerClient, config)
 

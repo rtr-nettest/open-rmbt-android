@@ -40,7 +40,7 @@ import at.specure.result.QoSCategory
 import org.joda.time.DateTime
 import java.text.DecimalFormat
 import java.text.SimpleDateFormat
-import java.util.*
+import java.util.EnumMap
 import kotlin.collections.ArrayList
 import kotlin.math.roundToInt
 

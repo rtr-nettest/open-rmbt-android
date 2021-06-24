@@ -626,7 +626,7 @@ data class HistoryItemONTResponse(
     @SerializedName("voip_result_jitter_millis")
     val jitterMillisResult: Float?, // "1.98"
     @SerializedName("voip_result_packet_loss_percents")
-    val packetLossPercents: Float?, // "0.0"
+    val packetLossPercents: Float? // "0.0"
 )
 
 @Keep
