@@ -19,7 +19,6 @@ import at.rmbt.client.control.data.ErrorStatus
 import com.google.gson.JsonObject
 import com.google.gson.annotations.SerializedName
 import java.math.BigDecimal
-import java.util.*
 import kotlin.collections.HashSet
 
 /**
