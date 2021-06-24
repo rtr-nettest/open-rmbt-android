@@ -6,8 +6,10 @@ import at.rmbt.client.control.CapabilitiesBody
 import at.rmbt.client.control.ControlServerClient
 import at.rmbt.client.control.QosTestResultDetailBody
 import at.rmbt.client.control.ServerTestResultBody
+import at.rmbt.client.control.SpeedGraphItemResponseONT
 import at.rmbt.client.control.TestResultDetailBody
 import at.rmbt.util.Maybe
+import at.specure.config.Config
 import at.specure.data.Classification
 import at.specure.data.ClientUUID
 import at.specure.data.CoreDatabase
@@ -33,7 +35,8 @@ import java.util.Locale
 class TestResultsRepositoryImpl(
     db: CoreDatabase,
     private val clientUUID: ClientUUID,
-    private val client: ControlServerClient
+    private val client: ControlServerClient,
+    private val config: Config
 ) : TestResultsRepository {
 
     private val qoeInfoDao = db.qoeInfoDao()
@@ -86,8 +89,17 @@ class TestResultsRepositoryImpl(
         }
     }
 
-    private fun loadOpenDataTestResults(openTestUUID: String, testUUID: String): Maybe<BaseResponse> {
-        val detailedTestResults = client.getDetailedTestResults(openTestUUID)
+    private fun loadOpenDataTestResults(openTestUUID: String, testUUID: String) {
+        val useONTApiVersion = config.headerValue.isNotEmpty()
+        if (useONTApiVersion) {
+            loadGraphResults(openTestUUID, testUUID)
+        } else {
+            loadOpendataResults(openTestUUID, testUUID)
+        }
+    }
+
+    private fun loadOpendataResults(openTestUUID: String, testUUID: String) {
+        val detailedTestResults = client.getDetailedTestResults(testUUID)
         detailedTestResults.onSuccess { response ->
             testResultGraphItemDao.clearInsertItems(response.speedCurve.download.map {
                 it.toModel(
@@ -103,11 +115,37 @@ class TestResultsRepositoryImpl(
                 )
             })
 
-            testResultGraphItemDao.clearInsertItems(response.speedCurve.ping.map { it.toModel(testUUID) })
+            testResultGraphItemDao.clearInsertItems(response.speedCurve.ping.map {
+                it.toModel(
+                    testUUID
+                )
+            })
 
-            testResultGraphItemDao.clearInsertItems(response.speedCurve.signal.map { it.toModel(testUUID) })
+            testResultGraphItemDao.clearInsertItems(response.speedCurve.signal.map {
+                it.toModel(
+                    testUUID
+                )
+            })
         }
-        return detailedTestResults
+    }
+
+    private fun loadGraphResults(openTestUUID: String, testUUID: String) {
+        val detailedTestResults = client.getTestResultGraphs(testUUID)
+        detailedTestResults.onSuccess { response ->
+            testResultGraphItemDao.clearInsertItems(response.speedCurve.download?.map {
+                it.toModel(
+                    testUUID,
+                    TestResultGraphItemRecord.Type.DOWNLOAD
+                )
+            })
+
+            testResultGraphItemDao.clearInsertItems(response.speedCurve.upload?.map {
+                it.toModel(
+                    testUUID,
+                    TestResultGraphItemRecord.Type.UPLOAD
+                )
+            })
+        }
     }
 
     override fun loadTestResults(testUUID: String): Flow<Boolean> = flow {

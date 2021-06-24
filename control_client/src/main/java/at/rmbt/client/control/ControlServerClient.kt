@@ -52,6 +52,14 @@ class ControlServerClient @Inject constructor(private val endpointProvider: Cont
             .exec()
     }
 
+    /**
+     * For ONT based apps to obtain graph data - basically optimized getDetailedTestResults, because only graphs were used from all that information received
+     */
+    fun getTestResultGraphs(testUUID: String): Maybe<SpeedCurveBodyResponseONT> {
+        return api.getTestResultGraphs(endpointProvider.getTestResultsOpenDataUrl + "/" + testUUID)
+            .exec()
+    }
+
     fun getTestResultDetail(body: TestResultDetailBody): Maybe<TestResultDetailResponse> {
         return api.getTestResultDetail(endpointProvider.getTestResultsDetailsUrl, body).exec()
     }

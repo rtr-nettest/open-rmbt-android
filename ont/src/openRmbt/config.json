@@ -357,7 +357,7 @@
     },
     {
       "name": "CONTROL_SERVER_GET_OPENDATA_RESULT_PATH",
-      "value": "opentests",
+      "value": "graphs",
       "visible": false
     },
     {

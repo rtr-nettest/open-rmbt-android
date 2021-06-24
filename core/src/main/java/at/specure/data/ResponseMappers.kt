@@ -21,6 +21,7 @@ import at.rmbt.client.control.ServerTestResultResponse
 import at.rmbt.client.control.SignalGraphItemResponse
 import at.rmbt.client.control.SignalMeasurementRequestResponse
 import at.rmbt.client.control.SpeedGraphItemResponse
+import at.rmbt.client.control.SpeedGraphItemResponseONT
 import at.rmbt.client.control.TestResultDetailItem
 import at.rmbt.client.control.TestResultDetailResponse
 import at.rmbt.client.control.data.MapFilterType
@@ -220,7 +221,20 @@ fun SpeedGraphItemResponse.toModel(testUUID: String, type: TestResultGraphItemRe
     )
 }
 
-fun TestResultDetailResponse.toModelList(testUUID: String): List<TestResultDetailsRecord> = details.map { it.toModel(testUUID) }
+fun SpeedGraphItemResponseONT.toModel(
+    testUUID: String,
+    type: TestResultGraphItemRecord.Type
+): TestResultGraphItemRecord {
+    return TestResultGraphItemRecord(
+        testUUID = testUUID,
+        time = timeNanos / 1000000,
+        value = bytes,
+        type = type
+    )
+}
+
+fun TestResultDetailResponse.toModelList(testUUID: String): List<TestResultDetailsRecord> =
+    details.map { it.toModel(testUUID) }
 
 fun TestResultDetailItem.toModel(testUUID: String): TestResultDetailsRecord =
     TestResultDetailsRecord(testUUID, openTestUUID, openUuid, time, timezone, title, value)

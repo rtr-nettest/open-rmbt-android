@@ -86,10 +86,19 @@ interface ControlServerApi {
     fun getTestResultOpenDetails(@Url url: String): Call<SpeedCurveBodyResponse>
 
     /**
+     * Request to get measurement graphs
+     */
+    @GET
+    fun getTestResultGraphs(@Url url: String): Call<SpeedCurveBodyResponseONT>
+
+    /**
      * Request to get test result details
      */
     @POST
-    fun getTestResultDetail(@Url url: String, @Body body: TestResultDetailBody): Call<TestResultDetailResponse>
+    fun getTestResultDetail(
+        @Url url: String,
+        @Body body: TestResultDetailBody
+    ): Call<TestResultDetailResponse>
 
     /**
      * Request to get QoS test result details

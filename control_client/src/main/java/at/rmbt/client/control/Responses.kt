@@ -120,6 +120,13 @@ data class SpeedCurveBodyResponse(
 ) : BaseResponse()
 
 @Keep
+data class SpeedCurveBodyResponseONT(
+    // a lot of fields are not important for us, so we will parse only those one we need
+    @SerializedName("speedCurve")
+    val speedCurve: SpeedCurveResponseONT
+) : BaseResponse()
+
+@Keep
 data class SpeedCurveResponse(
     @SerializedName("download")
     val download: List<SpeedGraphItemResponse>,
@@ -132,6 +139,15 @@ data class SpeedCurveResponse(
 
     @SerializedName("signal")
     val signal: List<SignalGraphItemResponse>
+)
+
+@Keep
+data class SpeedCurveResponseONT(
+    @SerializedName("download")
+    val download: List<SpeedGraphItemResponseONT>?,
+
+    @SerializedName("upload")
+    val upload: List<SpeedGraphItemResponseONT>?
 )
 
 @Keep
@@ -148,6 +164,22 @@ data class SpeedGraphItemResponse(
      */
     @SerializedName("time_elapsed")
     val timeMillis: Long
+)
+
+@Keep
+data class SpeedGraphItemResponseONT(
+
+    /**
+     * Total bytes transferred until the timestamp
+     */
+    @SerializedName("bytesTotal")
+    val bytes: Long,
+
+    /**
+     * Relative time in milliseconds form the start of the test
+     */
+    @SerializedName("timeElapsed")
+    val timeNanos: Long
 )
 
 @Keep
