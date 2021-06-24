@@ -1,6 +1,5 @@
 package at.rtr.rmbt.android.ui.fragment.results
 
-import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import androidx.core.content.ContextCompat
