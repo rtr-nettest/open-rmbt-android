@@ -39,8 +39,15 @@ class ControlServerClient @Inject constructor(private val endpointProvider: Cont
         return api.getHistory(endpointProvider.getHistoryUrl, body).exec()
     }
 
-    fun getHistoryONT(body: HistoryONTRequestBody): Maybe<HistoryONTResponse> {
-        return api.getHistoryONT(endpointProvider.getHistoryUrl, body).exec()
+    fun getHistoryONT(
+        body: HistoryONTRequestBody,
+        size: Long,
+        page: Long
+    ): Maybe<HistoryONTResponse> {
+        return api.getHistoryONT(
+            endpointProvider.getHistoryUrl + "?page=$page&size=$size&active=measurement_date&direction=desc",
+            body
+        ).exec()
     }
 
     fun getTestResult(body: ServerTestResultBody): Maybe<ServerTestResultResponse> {
