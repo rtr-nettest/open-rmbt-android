@@ -42,7 +42,7 @@ public class JitterTest extends VoipTest {
 
     @Override
     protected String getTestId() {
-        return RMBTClient.TASK_VOIP;
+        return RMBTClient.TASK_JITTER;
     }
 
 
