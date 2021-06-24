@@ -37,7 +37,7 @@ import at.specure.location.LocationState
 import at.specure.location.LocationWatcher
 import at.specure.location.cell.CellLocationInfo
 import at.specure.location.cell.CellLocationWatcher
-import at.specure.util.filterOnlyActiveDataCell
+import at.specure.util.filterOnlyPrimaryActiveDataCell
 import at.specure.util.isCoarseLocationPermitted
 import at.specure.util.isReadPhoneStatePermitted
 import at.specure.util.mobileNetworkType
@@ -333,7 +333,7 @@ class StateRecorder @Inject constructor(
 
                     val dataSubscriptionId = subscriptionManager.getCurrentDataSubscriptionId()
 
-                    val primaryCells = cells?.filterOnlyActiveDataCell(dataSubscriptionId)
+                    val primaryCells = cells?.filterOnlyPrimaryActiveDataCell(dataSubscriptionId)
 
                     val cellInfosToSave = mutableListOf<CellInfoRecord>()
                     val signalsToSave = mutableListOf<SignalRecord>()

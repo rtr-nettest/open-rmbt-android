@@ -7,6 +7,7 @@ import at.rtr.rmbt.android.config.AppConfig
 import at.rtr.rmbt.android.util.InfoWindowStatus
 import at.rtr.rmbt.android.util.addOnPropertyChanged
 import at.specure.data.MeasurementServers
+import at.specure.info.cell.CellNetworkInfo
 import at.specure.info.ip.IpInfo
 import at.specure.info.network.DetailedNetworkInfo
 import at.specure.info.strength.SignalStrengthInfo
@@ -20,7 +21,9 @@ class HomeViewState(
     val isConnected = ObservableField<Boolean?>()
     val isLocationEnabled = ObservableField<LocationState>()
     val signalStrength = ObservableField<SignalStrengthInfo>()
+    val secondary5GSignalStrength = ObservableField<SignalStrengthInfo>()
     val activeNetworkInfo = ObservableField<DetailedNetworkInfo?>()
+    val secondary5GActiveNetworkInfo = ObservableField<CellNetworkInfo?>()
     val infoWindowStatus = ObservableField(InfoWindowStatus.NONE)
     val ipV4Info = ObservableField<IpInfo?>()
     val ipV6Info = ObservableField<IpInfo?>()

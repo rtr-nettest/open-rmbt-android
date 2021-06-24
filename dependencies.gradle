@@ -47,7 +47,8 @@ buildscript {
 
                 test_runner         : "1.2.0",
                 espresso_core       : "3.2.0",
-                rules               : "1.2.0"
+                rules               : "1.2.0",
+                markwon             : "4.6.2"
         ]
     }
 }

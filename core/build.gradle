@@ -70,6 +70,13 @@ dependencies {
 
     implementation "com.google.code.gson:gson:$versions.gson"
 
+    api  "io.noties.markwon:core:$versions.markwon"
+    api  "io.noties.markwon:ext-strikethrough:$versions.markwon"
+    api  "io.noties.markwon:ext-tables:$versions.markwon"
+    api  "io.noties.markwon:html:$versions.markwon"
+    api  "io.noties.markwon:image:$versions.markwon"
+    api  "io.noties.markwon:linkify:$versions.markwon"
+
     testImplementation "junit:junit:$versions.junit"
 
     androidTestImplementation "androidx.test:runner:$versions.test_runner"
