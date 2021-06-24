@@ -885,6 +885,7 @@ data class HistoryONTRequestBody(
     val page: Long,
     val size: Long,
     val devices: List<String>?,
+    @SerializedName("network_types")
     val networks: List<String>?
 )
 
