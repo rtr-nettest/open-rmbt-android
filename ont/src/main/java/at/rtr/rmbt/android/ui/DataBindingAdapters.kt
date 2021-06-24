@@ -809,6 +809,30 @@ fun AppCompatTextView.setPingResult(pingResult: Double) {
     }
 }
 
+/**
+ * A binding adapter that is used for show jitter in results
+ */
+@BindingAdapter("jitterResult")
+fun AppCompatTextView.setJitterResult(jitterResult: Double) {
+    text = if (jitterResult >= 0) {
+        jitterResult.roundToInt().toString()
+    } else {
+        context.getString(R.string.measurement_dash)
+    }
+}
+
+/**
+ * A binding adapter that is used for show packet loss rate in results
+ */
+@BindingAdapter("packetLossResult")
+fun AppCompatTextView.setPacketLossResult(packetLossResult: Double) {
+    text = if (packetLossResult >= 0) {
+        (packetLossResult * 100f).roundToInt().toString()
+    } else {
+        context.getString(R.string.measurement_dash)
+    }
+}
+
 fun getPingClassificationIcon(pingClassification: Classification): Int {
     return when (pingClassification) {
         Classification.NONE -> {
