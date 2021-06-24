@@ -17,6 +17,7 @@ import at.specure.data.entity.TestResultGraphItemRecord
 import at.specure.data.entity.TestResultRecord
 import at.specure.result.QoECategory
 import timber.log.Timber
+import kotlin.math.roundToInt
 
 class BasicResultFragment : BaseFragment() {
 
@@ -105,7 +106,7 @@ class BasicResultFragment : BaseFragment() {
                 binding.qosResultGroup.visibility = View.GONE
             } else {
                 binding.qosResultGroup.visibility = View.VISIBLE
-                binding.textQos.text = qosResultItem[0].percentage.toInt().toString()
+                binding.textQos.text = (qosResultItem[0].percentage * 100).roundToInt().toString()
             }
         }
 

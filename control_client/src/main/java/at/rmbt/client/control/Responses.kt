@@ -456,8 +456,8 @@ data class MeasurementItem(
     /**
      * Mean jitter (single-trip time) in milliseconds
      */
-    @SerializedName("jitter_ms")
-    val jitterMillis: BigDecimal?,
+    @SerializedName("voip_result_jitter_millis")
+    val jitterMillis: String?,
 
     /**
      * Classification value for assigning traffic-light-color
@@ -473,8 +473,8 @@ data class MeasurementItem(
     /**
      * Median ping (round-trip time) in milliseconds, measured on the server side. In previous versions (before June 3rd 2015) this was the minimum ping measured on the client side.
      */
-    @SerializedName("packet_loss_percents")
-    val packetLossPercents: Double?,
+    @SerializedName("voip_result_packet_loss_percents")
+    val packetLossPercents: String?,
 
     /**
      * Classification value for assigning traffic-light-color

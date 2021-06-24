@@ -122,7 +122,7 @@ fun HistoryItemONTResponse.toModel(): History {
     )
 }
 
-private fun Float.toSpeedValue(): String {
+fun Float.toSpeedValue(): String {
     val value = this / 1000f // from kbps to Mbps
     return when {
         value >= 10 -> value.roundToInt().toString()
@@ -169,7 +169,7 @@ fun ServerTestResultItem.toModel(testUUID: String): TestResultRecord {
         networkTypeText = networkItem.networkTypeString,
         networkType = NetworkTypeCompat.fromResultIntType(networkType),
         jitterMillis = measurementItem.jitterMillis?.toDouble(),
-        packetLossPercents = measurementItem.packetLossPercents,
+        packetLossPercents = measurementItem.packetLossPercents?.toDouble(),
         packetLossClass = measurementItem.packetLossClass?.let { Classification.fromValue(it) },
         jitterClass = measurementItem.jitterClass?.let { Classification.fromValue(it) }
     )
