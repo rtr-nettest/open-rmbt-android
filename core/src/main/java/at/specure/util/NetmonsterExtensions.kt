@@ -432,20 +432,29 @@ fun ICell.isInformationCorrect(cellTechnology: CellTechnology): Boolean {
     return isCorrect
 }
 
-@Synchronized
-fun ICell.toCellInfoRecord(testUUID: String, netMonster: INetMonster): CellInfoRecord? {
-    val cellTechnologyFromNetworkType = CellTechnology.fromMobileNetworkType(this.mobileNetworkType(netMonster))
+fun ICell.toRecords(
+    testUUID: String, netMonster: INetMonster, mobileNetworkType: MobileNetworkType,
+    testStartTimeNanos: Long,
+    nrConnectionState: NRConnectionState
+): Map<CellInfoRecord?, SignalRecord?> {
+    val cellTechnologyFromNetworkType =
+        CellTechnology.fromMobileNetworkType(this.mobileNetworkType(netMonster))
     // for 4G cells we want to have it marked as 4G not 5G also in case when it is NR_NSA
-    val cellTechnology = if (this is CellLte && cellTechnologyFromNetworkType == CellTechnology.CONNECTION_5G) {
-        CellTechnology.CONNECTION_4G
-    } else {
-        cellTechnologyFromNetworkType
-    }
+    val cellTechnology =
+        if (this is CellLte && cellTechnologyFromNetworkType == CellTechnology.CONNECTION_5G) {
+            CellTechnology.CONNECTION_4G
+        } else {
+            cellTechnologyFromNetworkType
+        }
+    val map = HashMap<CellInfoRecord?, SignalRecord?>()
+    var cellInfoRecord: CellInfoRecord? = null
+    var signalRecord: SignalRecord? = null
     cellTechnology?.let {
+        val uuid = this.uuid()
         if (isInformationCorrect(cellTechnology)) {
-            val cellInfoRecord = CellInfoRecord(
+            cellInfoRecord = CellInfoRecord(
                 testUUID = testUUID,
-                uuid = this.uuid(),
+                uuid = uuid,
                 isActive = this.connectionStatus is PrimaryConnection,
                 cellTechnology = cellTechnology,
                 transportType = TransportType.CELLULAR,
@@ -459,10 +468,18 @@ fun ICell.toCellInfoRecord(testUUID: String, netMonster: INetMonster): CellInfoR
                 primaryScramblingCode = primaryScramblingCode(),
                 dualSimDetectionMethod = "NOT_AVAILABLE" // local purpose only
             )
-            return cellInfoRecord
+            signalRecord = this.signal?.toSignalRecord(
+                testUUID,
+                uuid,
+                mobileNetworkType,
+                testStartTimeNanos,
+                nrConnectionState
+            )
         }
+        map.put(cellInfoRecord, signalRecord)
+        return map
     }
-    return null
+    return map
 }
 
 fun ICell.channelNumber(): Int? {

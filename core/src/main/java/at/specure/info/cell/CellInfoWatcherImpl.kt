@@ -83,17 +83,18 @@ class CellInfoWatcherImpl(
             try {
                 var cells: List<ICell>? = null
 
-                cells = netMonster.getCells(
-                    CellSource.NEIGHBOURING_CELLS,
-                    CellSource.ALL_CELL_INFO,
-                    CellSource.CELL_LOCATION
-                )
+                cells = netMonster.getCells()
 
                 val dataSubscriptionId = subscriptionManager.getCurrentDataSubscriptionId()
 
                 val primaryCells = cells?.filterOnlyPrimaryActiveDataCell(dataSubscriptionId)
                 val secondaryCells = cells?.filterOnlySecondaryActiveDataCell(dataSubscriptionId)
                 val secondary5GCells = secondaryCells.filter5GCells()
+
+                Timber.d("size ${primaryCells.size}")
+                primaryCells.forEach {
+                    Timber.d("size ${primaryCells.size} primaryCells: ${it}}")
+                }
 
                 when (primaryCells.size) {
                     0 -> {

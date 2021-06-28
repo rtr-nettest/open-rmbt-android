@@ -125,7 +125,7 @@ class ActiveNetworkWatcher(
             try {
                 var cells: List<ICell>? = null
                 var activeCellNetwork: CellNetworkInfo? = null
-                cells = netMonster.getCells(CellSource.NEIGHBOURING_CELLS, CellSource.ALL_CELL_INFO, CellSource.CELL_LOCATION)
+                cells = netMonster.getCells()
 
                 val dataSubscriptionId = subscriptionManager.getCurrentDataSubscriptionId()
 
