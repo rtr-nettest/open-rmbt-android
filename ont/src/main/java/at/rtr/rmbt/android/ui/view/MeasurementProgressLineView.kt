@@ -37,7 +37,8 @@ class MeasurementProgressLineView(context: Context, attrs: AttributeSet? = null)
      */
     private var progressCoefficients = LinkedHashMap<MeasurementState, Float>().apply {
         put(MeasurementState.INIT, 0.2f)
-        put(MeasurementState.PING, 0.2f)
+        put(MeasurementState.JITTER_AND_PACKET_LOSS, 0.1f)
+        put(MeasurementState.PING, 0.1f)
         put(MeasurementState.DOWNLOAD, 0.3f)
         put(MeasurementState.UPLOAD, 0.3f)
         put(MeasurementState.FINISH, 0f)
@@ -47,8 +48,9 @@ class MeasurementProgressLineView(context: Context, attrs: AttributeSet? = null)
      * Defines coefficients to calculation progress value for each phase of measurement when QoS is enabled
      */
     private var progressCoefficientsQoS = LinkedHashMap<MeasurementState, Float>().apply {
-        put(MeasurementState.INIT, 0.15f)
-        put(MeasurementState.PING, 0.15f)
+        put(MeasurementState.INIT, 0.1f)
+        put(MeasurementState.JITTER_AND_PACKET_LOSS, 0.1f)
+        put(MeasurementState.PING, 0.1f)
         put(MeasurementState.DOWNLOAD, 0.2f)
         put(MeasurementState.UPLOAD, 0.24f)
         put(MeasurementState.QOS, 0.25f)
@@ -60,7 +62,8 @@ class MeasurementProgressLineView(context: Context, attrs: AttributeSet? = null)
      */
     private var progressOffsets = LinkedHashMap<MeasurementState, Float>().apply {
         put(MeasurementState.INIT, 0f)
-        put(MeasurementState.PING, 0.2f)
+        put(MeasurementState.JITTER_AND_PACKET_LOSS, 0.2f)
+        put(MeasurementState.PING, 0.3f)
         put(MeasurementState.DOWNLOAD, 0.4f)
         put(MeasurementState.UPLOAD, 0.7f)
         put(MeasurementState.FINISH, 1f)
@@ -71,7 +74,8 @@ class MeasurementProgressLineView(context: Context, attrs: AttributeSet? = null)
      */
     private var progressOffsetsQoS = LinkedHashMap<MeasurementState, Float>().apply {
         put(MeasurementState.INIT, 0f)
-        put(MeasurementState.PING, 0.15f)
+        put(MeasurementState.JITTER_AND_PACKET_LOSS, 0.1f)
+        put(MeasurementState.PING, 0.2f)
         put(MeasurementState.DOWNLOAD, 0.3f)
         put(MeasurementState.UPLOAD, 0.5f)
         put(MeasurementState.QOS, 0.75f)

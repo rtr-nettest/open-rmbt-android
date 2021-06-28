@@ -9,6 +9,10 @@ interface TestProgressListener {
 
     fun onPingChanged(pingNanos: Long)
 
+    fun onJitterChanged(jitterNanos: Long)
+
+    fun onPacketLossChanged(packetLossPercent: Int)
+
     fun onDownloadSpeedChanged(progress: Int, speedBps: Long)
 
     fun onUploadSpeedChanged(progress: Int, speedBps: Long)

@@ -101,6 +101,9 @@
             app:measurementPhase="@{state.measurementState}"
             app:percentage="@{state.measurementProgress}"
             app:ping="@{state.pingNanos}"
+            app:jitter="@{state.jitterNanos}"
+            app:qos="@{state.qosProgressPercents}"
+            app:packetLoss="@{state.packetLossPercent}"
             app:uploadSpeed="@{state.uploadSpeedBps}" />
 
         <at.rtr.rmbt.android.ui.view.MeasurementMedianSquareView
@@ -114,7 +117,10 @@
             app:layout_constraintStart_toEndOf="@+id/square"
             app:layout_constraintTop_toBottomOf="@id/progress"
             app:measurementPhase="@{state.measurementState}"
+            app:jitter="@{state.jitterNanosMedian}"
+            app:packetLoss="@{state.packetLossPercentMedian}"
             app:ping="@{state.pingNanosMedian}"
+            app:qos="@{state.qosPercentsMedian}"
             app:uploadSpeed="@{state.uploadSpeedBpsMedian}" />
 
         <at.rtr.rmbt.android.ui.view.SpeedLineChart

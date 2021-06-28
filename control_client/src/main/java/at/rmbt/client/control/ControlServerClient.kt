@@ -39,12 +39,32 @@ class ControlServerClient @Inject constructor(private val endpointProvider: Cont
         return api.getHistory(endpointProvider.getHistoryUrl, body).exec()
     }
 
+    fun getHistoryONT(
+        body: HistoryONTRequestBody,
+        size: Long,
+        page: Long
+    ): Maybe<HistoryONTResponse> {
+        return api.getHistoryONT(
+            endpointProvider.getHistoryUrl + "?page=$page&size=$size&active=measurement_date&direction=desc",
+            body
+        ).exec()
+    }
+
     fun getTestResult(body: ServerTestResultBody): Maybe<ServerTestResultResponse> {
         return api.getTestResult(endpointProvider.getTestResultsBasicUrl, body).exec()
     }
 
     fun getDetailedTestResults(openTestUUID: String): Maybe<SpeedCurveBodyResponse> {
-        return api.getTestResultOpenDetails(endpointProvider.getTestResultsOpenDataUrl + "/" + openTestUUID).exec()
+        return api.getTestResultOpenDetails(endpointProvider.getTestResultsOpenDataUrl + "/" + openTestUUID)
+            .exec()
+    }
+
+    /**
+     * For ONT based apps to obtain graph data - basically optimized getDetailedTestResults, because only graphs were used from all that information received
+     */
+    fun getTestResultGraphs(testUUID: String): Maybe<SpeedCurveBodyResponseONT> {
+        return api.getTestResultGraphs(endpointProvider.getTestResultsOpenDataUrl + "/" + testUUID)
+            .exec()
     }
 
     fun getTestResultDetail(body: TestResultDetailBody): Maybe<TestResultDetailResponse> {

@@ -20,6 +20,9 @@ import at.specure.data.entity.LoopModeRecord
 import at.specure.data.entity.LoopModeState
 import at.specure.data.entity.SignalRecord
 import at.specure.data.entity.TestRecord
+import at.specure.data.entity.getJitter
+import at.specure.data.entity.getPacketLoss
+import at.specure.data.entity.toRecord
 import at.specure.data.repository.MeasurementRepository
 import at.specure.data.repository.TestDataRepository
 import at.specure.info.Network5GSimulator
@@ -498,6 +501,15 @@ class StateRecorder @Inject constructor(
             uploadedBytesOnDownloadInterface = result.getTrafficByTestPart(TestStatus.DOWN, TrafficDirection.TX)
             downloadedBytesOnUploadInterface = result.getTrafficByTestPart(TestStatus.UP, TrafficDirection.RX)
             uploadedBytesOnUploadInterface = result.getTrafficByTestPart(TestStatus.UP, TrafficDirection.TX)
+
+            this.uuid.let {
+                if (config.performJitterAndPacketLossTest) {
+                    val voipTestResultRecord = result.voipTestResult.toRecord(it)
+                    jitterNanos = (voipTestResultRecord.getJitter()?.times(1000000))?.toLong()
+                    packetLossPercents = voipTestResultRecord.getPacketLoss()
+                    repository.saveVoipResult(voipTestResultRecord)
+                }
+            }
 
             val dlMeasurement = result.getTestMeasurementByTestPart(TestStatus.DOWN)
             dlMeasurement?.let {

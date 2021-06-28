@@ -7,6 +7,7 @@ import at.rmbt.util.io
 import at.rtr.rmbt.android.ui.viewstate.BasicResultViewState
 import at.rtr.rmbt.android.util.TestUuidType
 import at.specure.data.HistoryLoopMedian
+import at.specure.data.entity.QoeInfoRecord
 import at.specure.data.entity.TestResultGraphItemRecord
 import at.specure.data.entity.TestResultRecord
 import at.specure.data.repository.HistoryRepository
@@ -29,6 +30,9 @@ class BasicResultViewModel @Inject constructor(
 
     val testServerResultLiveData: LiveData<TestResultRecord?>
         get() = testResultsRepository.getServerTestResult(state.testUUID)
+
+    val qoeResultLiveData: LiveData<List<QoeInfoRecord>>
+        get() = testResultsRepository.getQoEItems(state.testUUID)
 
     val loopResultLiveData: LiveData<HistoryLoopMedian?>
         get() = _loopMedianValuesLiveData

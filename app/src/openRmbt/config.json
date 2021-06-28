@@ -404,6 +404,11 @@
       "name": "RMBT_CLIENT_REQUESTS_PATH_PREFIX",
       "value": "",
       "visible": false
+    },
+    {
+      "name": "ENABLED_JITTER_AND_PACKET_LOSS",
+      "value": "false",
+      "visible": false
     }
   ]
 }

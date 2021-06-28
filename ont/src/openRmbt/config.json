@@ -357,7 +357,7 @@
     },
     {
       "name": "CONTROL_SERVER_GET_OPENDATA_RESULT_PATH",
-      "value": "opentests",
+      "value": "graphs",
       "visible": false
     },
     {
@@ -403,6 +403,16 @@
     {
       "name": "RMBT_CLIENT_REQUESTS_PATH_PREFIX",
       "value": "",
+      "visible": false
+    },
+    {
+      "name": "ENABLED_JITTER_AND_PACKET_LOSS",
+      "value": "true",
+      "visible": false
+    },
+    {
+      "name": "ENABLED_JITTER_AND_PACKET_LOSS",
+      "value": "true",
       "visible": false
     }
   ]
