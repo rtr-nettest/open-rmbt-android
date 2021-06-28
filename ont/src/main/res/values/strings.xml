@@ -298,10 +298,6 @@
     <string name="text_unit_mbps">Mbps</string>
     <string name="text_unit_ping">ms</string>
     <string name="text_current_from_count">%1$d of %2$d</string>
-    <string name="loop_mode_next_test">Next measurement</string>
-    <string name="unit_minutes">min</string>
-    <string name="or">or</string>
-    <string name="unit_meter">m</string>
     <string name="median">Median</string>
 
     <string name="title_permissions_welcome">Welcome to Open Nettest</string>
@@ -348,4 +344,12 @@
     <string name="label_network_info_ethernet" translatable="false">Ethernet</string>
 
     <string name="request_failure">An error occurred while retrieving the data.</string>
+
+    <string name="measurement">Measurement</string>
+    <string name="label_measurement_ping_ms">Ping (ms)</string>
+    <string name="label_measurement_download_mbps">Download (Mbps)</string>
+    <string name="label_measurement_upload_mbps">Upload (Mbps)</string>
+    <string name="label_measurement_qos">QoS (%)</string>
+    <string name="label_measurement_time_to_next_test">Time to next test</string>
+    <string name="label_measurement_movement">Movement</string>
 </resources>

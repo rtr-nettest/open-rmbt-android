@@ -28,9 +28,9 @@ class MeasurementProgressLineView(context: Context, attrs: AttributeSet? = null)
         color = ResourcesCompat.getColor(resources, R.color.measurement_progress_empty, null)
     }
 
-    private var qosEnabled: Boolean = false
-    private var filledPercents: Int = 0
-    private var phase: MeasurementState = MeasurementState.IDLE
+    var qosEnabled: Boolean = false
+    var filledPercents: Int = 0
+    var phase: MeasurementState = MeasurementState.IDLE
 
     /**
      * Defines coefficients to calculation progress value for each phase of measurement when QoS is disabled

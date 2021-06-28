@@ -35,7 +35,7 @@ import javax.inject.Inject
 class HomeViewModel @Inject constructor(
     private val locationWatcher: LocationWatcher,
     val signalStrengthLiveData: SignalStrengthLiveData,
-    connectivityInfoLiveData: ConnectivityInfoLiveData,
+    val connectivityInfoLiveData: ConnectivityInfoLiveData,
     val activeNetworkLiveData: ActiveNetworkLiveData,
     val ipV4ChangeLiveData: IpV4ChangeLiveData,
     val ipV6ChangeLiveData: IpV6ChangeLiveData,

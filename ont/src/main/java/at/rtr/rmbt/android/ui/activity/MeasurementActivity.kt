@@ -107,7 +107,7 @@ class MeasurementActivity : BaseActivity(), SimpleDialog.Callback {
         }
 
         viewModel.timeToNextTestElapsedLiveData.listen(this) {
-            binding.textTimeNextMeasurement.text = it
+            binding.blockLoopWaiting.textNextTime.text = it
         }
 
         viewModel.locationStateLiveData.listen(this) {
@@ -165,7 +165,8 @@ class MeasurementActivity : BaseActivity(), SimpleDialog.Callback {
                 viewModel.config.loopModeNumberOfTests
             )
         }
-        binding.textDistanceNextMeasurement.text = viewModel.state.loopNextTestDistanceMeters.get()
+
+        binding.blockLoopWaiting.textNextDistance.text = viewModel.state.loopNextTestDistanceMeters.get()
         loopRecord?.status?.let { status ->
             when (status) {
                 LoopModeState.IDLE -> {
