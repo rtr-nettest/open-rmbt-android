@@ -346,7 +346,7 @@ fun BandNr.toCellBand(): CellBand {
         frequencyDL = this.downlinkFrequency.toDouble(),
         band = this.number ?: legacyCellBand?.band ?: -1,
         channel = this.channelNumber,
-        name = this.name,
+        name = this.name ?: (this.downlinkFrequency / 1000).toString(),
         channelAttribution = CellChannelAttribution.NRARFCN,
         frequencyUL = legacyCellBand?.frequencyUL ?: -1.0
     )
@@ -358,7 +358,7 @@ fun BandLte.toCellBand(): CellBand {
         frequencyDL = legacyCellBand?.frequencyDL ?: -1.0,
         band = this.number ?: -1,
         channel = this.channelNumber,
-        name = this.name,
+        name = this.name ?: legacyCellBand?.name ?: legacyCellBand?.frequencyDL.toString(),
         channelAttribution = CellChannelAttribution.EARFCN,
         frequencyUL = legacyCellBand?.frequencyUL ?: -1.0
     )
@@ -370,7 +370,7 @@ fun BandWcdma.toCellBand(): CellBand {
         frequencyDL = legacyCellBand?.frequencyDL ?: -1.0,
         band = this.number ?: -1,
         channel = this.channelNumber,
-        name = this.name,
+        name = this.name ?: legacyCellBand?.name ?: legacyCellBand?.frequencyDL.toString(),
         channelAttribution = CellChannelAttribution.UARFCN,
         frequencyUL = legacyCellBand?.frequencyUL ?: -1.0
     )
@@ -382,7 +382,7 @@ fun BandTdscdma.toCellBand(): CellBand {
         frequencyDL = legacyCellBand?.frequencyDL ?: -1.0,
         band = this.number ?: -1,
         channel = this.channelNumber,
-        name = this.name,
+        name = this.name ?: legacyCellBand?.name ?: legacyCellBand?.frequencyDL.toString(),
         channelAttribution = CellChannelAttribution.UARFCN,
         frequencyUL = legacyCellBand?.frequencyUL ?: -1.0
     )
@@ -394,7 +394,7 @@ fun BandGsm.toCellBand(): CellBand {
         frequencyDL = legacyCellBand?.frequencyDL ?: -1.0,
         band = this.number ?: -1,
         channel = this.channelNumber,
-        name = this.name,
+        name = this.name ?: legacyCellBand?.name ?: legacyCellBand?.frequencyDL.toString(),
         channelAttribution = CellChannelAttribution.ARFCN,
         frequencyUL = legacyCellBand?.frequencyUL ?: -1.0
     )
