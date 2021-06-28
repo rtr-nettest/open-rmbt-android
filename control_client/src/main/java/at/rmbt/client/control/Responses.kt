@@ -121,7 +121,7 @@ data class SpeedCurveBodyResponse(
 @Keep
 data class SpeedCurveBodyResponseONT(
     // a lot of fields are not important for us, so we will parse only those one we need
-    @SerializedName("speedCurve")
+    @SerializedName("speed_curve")
     val speedCurve: SpeedCurveResponseONT
 ) : BaseResponse()
 
@@ -171,14 +171,14 @@ data class SpeedGraphItemResponseONT(
     /**
      * Total bytes transferred until the timestamp
      */
-    @SerializedName("bytesTotal")
+    @SerializedName("bytes_total")
     val bytes: Long,
 
     /**
      * Relative time in milliseconds form the start of the test
      */
-    @SerializedName("timeElapsed")
-    val timeNanos: Long
+    @SerializedName("time_elapsed")
+    val timeMillis: Long
 )
 
 @Keep

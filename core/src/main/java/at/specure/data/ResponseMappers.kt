@@ -229,7 +229,7 @@ fun SpeedGraphItemResponseONT.toModel(
 ): TestResultGraphItemRecord {
     return TestResultGraphItemRecord(
         testUUID = testUUID,
-        time = timeNanos / 1000000,
+        time = timeMillis,
         value = bytes,
         type = type
     )
