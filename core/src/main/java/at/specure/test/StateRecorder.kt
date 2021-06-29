@@ -50,7 +50,8 @@ import cz.mroczis.netmonster.core.INetMonster
 import cz.mroczis.netmonster.core.model.cell.ICell
 import org.json.JSONArray
 import timber.log.Timber
-import java.util.*
+import java.util.UUID
+import java.util.Collections
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import kotlin.math.floor

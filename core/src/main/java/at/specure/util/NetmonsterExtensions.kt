@@ -433,7 +433,9 @@ fun ICell.isInformationCorrect(cellTechnology: CellTechnology): Boolean {
 }
 
 fun ICell.toRecords(
-    testUUID: String, netMonster: INetMonster, mobileNetworkType: MobileNetworkType,
+    testUUID: String,
+    netMonster: INetMonster,
+    mobileNetworkType: MobileNetworkType,
     testStartTimeNanos: Long,
     nrConnectionState: NRConnectionState
 ): Map<CellInfoRecord?, SignalRecord?> {

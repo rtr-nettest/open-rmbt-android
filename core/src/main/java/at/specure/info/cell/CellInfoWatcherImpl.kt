@@ -96,7 +96,7 @@ class CellInfoWatcherImpl(
 
                 Timber.d("size ${primaryCells.size}")
                 primaryCells.forEach {
-                    Timber.d("size ${primaryCells.size} primaryCells: ${it}}")
+                    Timber.d("size ${primaryCells.size} primaryCells: $it}")
                 }
 
                 // in some cases for 5G NSA there are 2 primary connections reported - 1. for 4G and 2. for 5G cell,
