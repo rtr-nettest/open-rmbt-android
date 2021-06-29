@@ -9,5 +9,6 @@ enum class MeasurementState {
     QOS,
     FINISH,
     ERROR,
-    ABORTED
+    ABORTED,
+    JITTER_AND_PACKET_LOSS
 }

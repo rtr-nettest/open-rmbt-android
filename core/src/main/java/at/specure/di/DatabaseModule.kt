@@ -106,9 +106,10 @@ class DatabaseModule {
     fun provideTestResultRepository(
         database: CoreDatabase,
         clientUUID: ClientUUID,
-        controlServerClient: ControlServerClient
+        controlServerClient: ControlServerClient,
+        config: Config
     ): TestResultsRepository =
-        TestResultsRepositoryImpl(database, clientUUID, controlServerClient)
+        TestResultsRepositoryImpl(database, clientUUID, controlServerClient, config)
 
     @Provides
     fun provideMapRepository(

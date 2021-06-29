@@ -23,17 +23,20 @@ import at.rmbt.client.control.getCurrentDataSubscriptionId
 import at.rmbt.util.io
 import at.specure.config.Config
 import at.specure.info.Network5GSimulator
+import at.specure.info.network.MobileNetworkType
 import at.specure.info.strength.SignalStrengthInfo
 import at.specure.util.filter5GCells
 import at.specure.util.filterOnlyPrimaryActiveDataCell
 import at.specure.util.filterOnlySecondaryActiveDataCell
 import at.specure.util.isCoarseLocationPermitted
 import at.specure.util.isReadPhoneStatePermitted
+import at.specure.util.mobileNetworkType
 import at.specure.util.toCellNetworkInfo
 import at.specure.util.toSignalStrengthInfo
 import cz.mroczis.netmonster.core.INetMonster
 import cz.mroczis.netmonster.core.factory.NetMonsterFactory
-import cz.mroczis.netmonster.core.feature.merge.CellSource
+import cz.mroczis.netmonster.core.model.cell.CellLte
+import cz.mroczis.netmonster.core.model.cell.CellNr
 import cz.mroczis.netmonster.core.model.cell.ICell
 import timber.log.Timber
 
@@ -83,11 +86,7 @@ class CellInfoWatcherImpl(
             try {
                 var cells: List<ICell>? = null
 
-                cells = netMonster.getCells(
-                    CellSource.NEIGHBOURING_CELLS,
-                    CellSource.ALL_CELL_INFO,
-                    CellSource.CELL_LOCATION
-                )
+                cells = netMonster.getCells()
 
                 val dataSubscriptionId = subscriptionManager.getCurrentDataSubscriptionId()
 
@@ -95,21 +94,60 @@ class CellInfoWatcherImpl(
                 val secondaryCells = cells?.filterOnlySecondaryActiveDataCell(dataSubscriptionId)
                 val secondary5GCells = secondaryCells.filter5GCells()
 
+                Timber.d("size ${primaryCells.size}")
+                primaryCells.forEach {
+                    Timber.d("size ${primaryCells.size} primaryCells: $it}")
+                }
+
+                // in some cases for 5G NSA there are 2 primary connections reported - 1. for 4G and 2. for 5G cell,
+                // so we need to move that 5G from primary connection to secondary list
+                var primaryCellsCorrected = mutableListOf<ICell>()
+                var secondaryCellsCorrected = mutableListOf<ICell>()
+                var secondary5GCellsCorrected = mutableListOf<ICell>()
                 when (primaryCells.size) {
+                    2 -> {
+                        if (primaryCells[0] is CellNr && primaryCells[0].mobileNetworkType(
+                                netMonster
+                            ) == MobileNetworkType.NR_NSA && primaryCells[1] is CellLte
+                        ) {
+                            secondary5GCellsCorrected = secondary5GCells as MutableList<ICell>
+                            secondary5GCellsCorrected.add(primaryCells[0])
+                            primaryCellsCorrected.add(primaryCells[1])
+                        } else if (primaryCells[1] is CellNr && primaryCells[1].mobileNetworkType(
+                                netMonster
+                            ) == MobileNetworkType.NR_NSA && primaryCells[0] is CellLte
+                        ) {
+                            secondary5GCellsCorrected = secondary5GCells as MutableList<ICell>
+                            secondary5GCellsCorrected.add(primaryCells[1])
+                            primaryCellsCorrected.add(primaryCells[0])
+                        }
+                        secondaryCellsCorrected = secondaryCells as MutableList<ICell>
+                    }
+                    else -> {
+                        primaryCellsCorrected = primaryCells as MutableList<ICell>
+                        secondaryCellsCorrected = secondaryCells as MutableList<ICell>
+                        secondary5GCellsCorrected = secondary5GCells as MutableList<ICell>
+                    }
+                }
+
+                when (primaryCellsCorrected.size) {
                     0 -> {
                         _activeNetwork = null
                         _signalStrengthInfo = null
                         clearLists()
                     }
                     1 -> {
-                        _activeNetwork = primaryCells[0].toCellNetworkInfo(
+                        _activeNetwork = primaryCellsCorrected[0].toCellNetworkInfo(
                             connectivityManager.activeNetworkInfo?.extraInfo,
                             telephonyManager.getCorrectDataTelephonyManager(subscriptionManager),
-                            NetMonsterFactory.getTelephony(context, primaryCells[0].subscriptionId),
+                            NetMonsterFactory.getTelephony(
+                                context,
+                                primaryCellsCorrected[0].subscriptionId
+                            ),
                             netMonster
                         )
                         _signalStrengthInfo =
-                            primaryCells[0].signal?.toSignalStrengthInfo(System.nanoTime())
+                            primaryCellsCorrected[0].signal?.toSignalStrengthInfo(System.nanoTime())
 
                         clearLists()
                         if (config.developer5GSimulationEnabled) {
@@ -126,7 +164,7 @@ class CellInfoWatcherImpl(
                             }
                             Timber.d("Simulated 5G: ${cellInfo5G.providerName}  ${_secondary5GActiveCellNetworks.size} ${_secondary5GActiveCellSignalStrengthInfos.size}")
                         } else {
-                            secondary5GCells.forEach {
+                            secondary5GCellsCorrected.forEach {
                                 val cellInfo5G = it.toCellNetworkInfo(
                                     connectivityManager.activeNetworkInfo?.extraInfo,
                                     telephonyManager.getCorrectDataTelephonyManager(
@@ -142,7 +180,7 @@ class CellInfoWatcherImpl(
                                 )
                             }
                         }
-                        secondaryCells.forEach {
+                        secondaryCellsCorrected.forEach {
                             val cellInfoSecondary = it.toCellNetworkInfo(
                                 connectivityManager.activeNetworkInfo?.extraInfo,
                                 telephonyManager.getCorrectDataTelephonyManager(

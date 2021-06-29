@@ -20,6 +20,9 @@ import at.specure.data.entity.LoopModeRecord
 import at.specure.data.entity.LoopModeState
 import at.specure.data.entity.SignalRecord
 import at.specure.data.entity.TestRecord
+import at.specure.data.entity.getJitter
+import at.specure.data.entity.getPacketLoss
+import at.specure.data.entity.toRecord
 import at.specure.data.repository.MeasurementRepository
 import at.specure.data.repository.TestDataRepository
 import at.specure.info.Network5GSimulator
@@ -41,16 +44,14 @@ import at.specure.util.filterOnlyPrimaryActiveDataCell
 import at.specure.util.isCoarseLocationPermitted
 import at.specure.util.isReadPhoneStatePermitted
 import at.specure.util.mobileNetworkType
-import at.specure.util.toCellInfoRecord
 import at.specure.util.toCellLocation
-import at.specure.util.toSignalRecord
+import at.specure.util.toRecords
 import cz.mroczis.netmonster.core.INetMonster
-import cz.mroczis.netmonster.core.feature.merge.CellSource
 import cz.mroczis.netmonster.core.model.cell.ICell
 import org.json.JSONArray
 import timber.log.Timber
-import java.util.Collections
 import java.util.UUID
+import java.util.Collections
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import kotlin.math.floor
@@ -329,7 +330,7 @@ class StateRecorder @Inject constructor(
                 try {
                     var cells: List<ICell>? = null
 
-                    cells = netmonster.getCells(CellSource.NEIGHBOURING_CELLS, CellSource.ALL_CELL_INFO, CellSource.CELL_LOCATION)
+                    cells = netmonster.getCells()
 
                     val dataSubscriptionId = subscriptionManager.getCurrentDataSubscriptionId()
 
@@ -344,28 +345,34 @@ class StateRecorder @Inject constructor(
                         primaryCells?.toList()?.let {
                             if (it.size == 1) {
                                 val iCell = it[0]
-                                val cellInfoRecord = iCell.toCellInfoRecord(uuid, netmonster)
-                                cellInfoRecord?.let {
-                                    if (cellInfoRecord.uuid.isNotEmpty()) {
-                                        iCell.signal?.let { iSignal ->
-                                            Timber.e("Signal saving time SCI: starting time: $testStartTimeNanos   current time: ${System.nanoTime()}")
-                                            Timber.d("valid signal directly")
-                                            val signalRecord = iSignal.toSignalRecord(
-                                                uuid,
-                                                cellInfoRecord.uuid,
-                                                iCell.mobileNetworkType(netmonster),
-                                                testStartTimeNanos,
-                                                NRConnectionState.NOT_AVAILABLE
-                                            )
-                                            signalsToSave.add(signalRecord)
+                                val map = iCell.toRecords(
+                                    uuid,
+                                    netmonster,
+                                    iCell.mobileNetworkType(netmonster),
+                                    testStartTimeNanos,
+                                    NRConnectionState.NOT_AVAILABLE
+                                )
+                                val cellInfoRecord = map.keys.iterator().next()
+                                if (map.keys.isNotEmpty()) {
+                                    val cell = map.keys.iterator().next()
+                                    cell?.let {
+                                        val signal = map.get(cell)
+
+                                        if (signal?.hasNonNullSignal() == true) {
+                                            signalsToSave.add(signal)
                                         }
+                                        val cellLocationRecord =
+                                            iCell.toCellLocation(
+                                                uuid,
+                                                System.currentTimeMillis(),
+                                                System.nanoTime(),
+                                                testStartTimeNanos
+                                            )
+                                        cellLocationRecord?.let {
+                                            cellLocationsToSave.add(cellLocationRecord)
+                                        }
+                                        cellInfosToSave.add(cell)
                                     }
-                                    val cellLocationRecord =
-                                        iCell.toCellLocation(uuid, System.currentTimeMillis(), System.nanoTime(), testStartTimeNanos)
-                                    cellLocationRecord?.let {
-                                        cellLocationsToSave.add(cellLocationRecord)
-                                    }
-                                    cellInfosToSave.add(cellInfoRecord)
                                 }
                             } else {
                                 // ignoring more than one primary cell for one subscription ID - not consistent state
@@ -498,6 +505,15 @@ class StateRecorder @Inject constructor(
             uploadedBytesOnDownloadInterface = result.getTrafficByTestPart(TestStatus.DOWN, TrafficDirection.TX)
             downloadedBytesOnUploadInterface = result.getTrafficByTestPart(TestStatus.UP, TrafficDirection.RX)
             uploadedBytesOnUploadInterface = result.getTrafficByTestPart(TestStatus.UP, TrafficDirection.TX)
+
+            this.uuid.let {
+                if (config.performJitterAndPacketLossTest) {
+                    val voipTestResultRecord = result.voipTestResult.toRecord(it)
+                    jitterNanos = (voipTestResultRecord.getJitter()?.times(1000000))?.toLong()
+                    packetLossPercents = voipTestResultRecord.getPacketLoss()
+                    repository.saveVoipResult(voipTestResultRecord)
+                }
+            }
 
             val dlMeasurement = result.getTestMeasurementByTestPart(TestStatus.DOWN)
             dlMeasurement?.let {

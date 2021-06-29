@@ -416,4 +416,9 @@ interface Config {
      * Path prefix for RMBTClient calls
      */
     var rmbtClientRequestsPathPrefix: String
+
+    /**
+     * If set to true, during the basic test will be voip test performed to determine jitter and packet loss
+     */
+    var performJitterAndPacketLossTest: Boolean
 }

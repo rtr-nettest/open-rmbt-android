@@ -17,5 +17,5 @@
 package at.rtr.rmbt.client.v2.task;
 
 public enum QoSTestEnum {
-	START, STOP, QOS_RUNNING, ERROR, QOS_FINISHED, NDT_RUNNING;
+    START, STOP, QOS_RUNNING, VOIP, ERROR, QOS_FINISHED, NDT_RUNNING;
 }

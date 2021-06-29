@@ -1,6 +1,7 @@
 package at.specure.data.repository
 
 import at.rmbt.client.control.ControlServerClient
+import at.rmbt.client.control.HistoryONTRequestBody
 import at.rmbt.client.control.HistoryRequestBody
 import at.rmbt.util.Maybe
 import at.rmbt.util.io
@@ -35,13 +36,31 @@ class HistoryRepositoryImpl(
 
     override val appliedFiltersLiveData = historyFilterOptions.appliedFiltersLiveData
 
-    override fun loadHistoryItems(offset: Int, limit: Int, ignoreFilters: Boolean): Maybe<List<History>> {
+    override fun loadHistoryItems(
+        offset: Int,
+        limit: Int,
+        ignoreFilters: Boolean
+    ): Maybe<List<History>> {
         val clientUUID = clientUUID.value
         if (clientUUID == null) {
             Timber.w("Unable to update history client uuid is null")
             return Maybe(emptyList())
         }
 
+        val useONTApiVersion = config.headerValue.isNotEmpty()
+        return if (useONTApiVersion) {
+            loadHistoryONT(clientUUID, offset, limit, ignoreFilters)
+        } else {
+            loadHistoryRTR(clientUUID, offset, limit, ignoreFilters)
+        }
+    }
+
+    private fun loadHistoryRTR(
+        clientUUID: String,
+        offset: Int,
+        limit: Int,
+        ignoreFilters: Boolean
+    ): Maybe<List<History>> {
         val body = HistoryRequestBody(
             clientUUID = clientUUID,
             offset = offset,
@@ -51,7 +70,6 @@ class HistoryRepositoryImpl(
             networks = if (ignoreFilters) null else historyFilterOptions.activeNetworks?.toList(),
             language = Locale.getDefault().language
         )
-
         val response = client.getHistory(body)
 
         return response.map {
@@ -62,6 +80,32 @@ class HistoryRepositoryImpl(
             }
             historyDao.insert(items)
             Timber.i("history offset: $offset limit: $limit loaded: ${it.history?.size}")
+            items
+        }
+    }
+
+    private fun loadHistoryONT(
+        clientUUID: String,
+        offset: Int,
+        limit: Int,
+        ignoreFilters: Boolean
+    ): Maybe<List<History>> {
+        val body = HistoryONTRequestBody(
+            clientUUID = clientUUID,
+            page = (offset / limit).toLong(),
+            size = limit.toLong(),
+            devices = if (ignoreFilters) null else historyFilterOptions.activeDevices?.toList(),
+            networks = if (ignoreFilters) null else historyFilterOptions.activeNetworks?.toList()
+        )
+        val response = client.getHistoryONT(body, limit.toLong(), (offset / limit).toLong())
+        return response.map {
+            val items = it.toModelList()
+            if (offset == 0) {
+                settingsRepository.refreshSettings()
+                historyDao.clear()
+            }
+            historyDao.insert(items)
+            Timber.i("history offset: $offset limit: $limit loaded: ${it.history?.historyList?.size}")
             items
         }
     }
@@ -91,7 +135,7 @@ class HistoryRepositoryImpl(
         }
         val pingList = mutableListOf<Float>()
         val jitterList = mutableListOf<Float>()
-        val packetLoss = mutableListOf<Float>()
+        val packetLossList = mutableListOf<Float>()
         val downloadList = mutableListOf<Float>()
         val uploadList = mutableListOf<Float>()
         val qosList = mutableListOf<Float>()
@@ -99,13 +143,15 @@ class HistoryRepositoryImpl(
             historyItem.ping.toFloatOrNull()?.let { ping ->
                 pingList.add(ping)
             }
-//            todo: prepared for ONT CS
-//            historyItem.jitter.toFloatOrNull()?.let { jitter ->
-//                jitterList.add(jitter)
-//            }
-//            historyItem.packetLoss.toFloatOrNull()?.let { packetLoss ->
-//                packetLossList.add(packetLoss)
-//            }
+            historyItem.jitterMillis?.toFloatOrNull()?.let { jitter ->
+                jitterList.add(jitter)
+            }
+            historyItem.packetLossPercents?.toFloatOrNull()?.let { packetLoss ->
+                packetLossList.add(packetLoss)
+            }
+            historyItem.qos?.toFloatOrNull()?.let { qos ->
+                qosList.add(qos)
+            }
             historyItem.speedDownload.toFloatOrNull()?.let { downloadSpeed ->
                 downloadList.add(downloadSpeed)
             }
@@ -120,7 +166,7 @@ class HistoryRepositoryImpl(
             HistoryLoopMedian(
                 loopUuid = loopUuid,
                 pingMedianMillis = median(pingList),
-                packetLossMedian = median(packetLoss),
+                packetLossMedian = median(packetLossList),
                 jitterMedianMillis = median(jitterList),
                 downloadMedianMbps = median(downloadList),
                 uploadMedianMbps = median(uploadList),
