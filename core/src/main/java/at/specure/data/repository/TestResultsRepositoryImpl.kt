@@ -4,6 +4,7 @@ import androidx.lifecycle.LiveData
 import at.rmbt.client.control.BaseResponse
 import at.rmbt.client.control.CapabilitiesBody
 import at.rmbt.client.control.ControlServerClient
+import at.rmbt.client.control.QosTestResult
 import at.rmbt.client.control.QosTestResultDetailBody
 import at.rmbt.client.control.ServerTestResultBody
 import at.rmbt.client.control.TestResultDetailBody
@@ -198,6 +199,32 @@ class TestResultsRepositoryImpl(
                 }
             }
 
+            val resultMap = hashMapOf<QoSCategory, MutableList<QosTestResult>>()
+            response.qosResultDetails.forEach { result ->
+                val category = QoSCategory.fromString(result.testType)
+                if (resultMap[category] == null) {
+                    resultMap[category] = mutableListOf<QosTestResult>()
+                }
+                resultMap[category]?.add(result)
+            }
+
+            val categoriesCount = resultMap.keys.size
+            var sum = 0f
+            resultMap.keys.forEach {
+                var categorySize = 0
+                var succeeded = 0
+                val resultList = resultMap[it]
+                resultList?.forEach { result ->
+                    if (result.failureCount == 0) {
+                        succeeded += result.successCount
+                    }
+                    categorySize++
+                }
+                if (categorySize > 0) {
+                    sum += succeeded.toFloat() / categorySize.toFloat()
+                }
+            }
+
             val qosModelPair = response.toModels(testUUID, Locale.getDefault().language)
             qosModelPair.first.forEach {
                 qosCategoryDao.clearQoSInsert(it)
@@ -205,7 +232,12 @@ class TestResultsRepositoryImpl(
             qosTestItemDao.clearQosItemsInsert(qosModelPair.second)
             qosTestGoalDao.clearQosGoalsInsert(qosModelPair.third)
 
-            val percentage: Float = (successCount.toFloat() / (successCount + failureCount).toFloat())
+            val percentage: Float = if (!config.headerValue.isNullOrEmpty()) {
+                sum / resultMap.keys.size.toFloat()
+            } else {
+                (successCount.toFloat() / (successCount + failureCount).toFloat())
+            }
+
             qoeInfoDao.clearQoSInsert(
                 QoeInfoRecord(
                     testUUID = testUUID,
