@@ -175,7 +175,7 @@
     </style>
 
     <style name="ResultMainItemMainValue" parent="RobotoMediumStyle.ExtraLarge">
-        <item name="android:textSize">30sp</item>
+        <item name="android:textSize">20sp</item>
         <item name="android:textColor">@android:color/black</item>
     </style>
 
@@ -228,6 +228,16 @@
 
     <style name="AppModalStyle" parent="Widget.Design.BottomSheet.Modal">
         <item name="android:background">@drawable/bg_corners_top</item>
+    </style>
+
+    <style name="MeasurementSectionLabel" parent="RobotoMediumStyle.Small">
+        <item name="android:textColor">@color/black_40</item>
+        <item name="textAllCaps">true</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="MeasurementValueLabel" parent="RobotoMediumStyle.Small">
+        <item name="android:textColor">@android:color/black</item>
     </style>
 
 </resources>

@@ -17,6 +17,7 @@
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
+        android:padding="@dimen/margin_large"
         android:layout_height="wrap_content">
 
         <TextView
@@ -52,12 +53,10 @@
             style="@style/ResultMainItemLabel"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/margin_large"
-            android:layout_marginTop="40dp"
+            app:layout_constraintHorizontal_weight="3"
             android:text="@string/label_download"
             app:layout_constraintEnd_toStartOf="@+id/labelResultBottomUpload"
-            app:layout_constraintHorizontal_weight="1"
-            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintStart_toEndOf="@id/labelResultBottomQos"
             app:layout_constraintTop_toBottomOf="@+id/localResultsMessage" />
 
         <androidx.appcompat.widget.AppCompatTextView
@@ -116,8 +115,8 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:text="@string/measurement_upload"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_weight="1"
+            app:layout_constraintHorizontal_weight="3"
+            app:layout_constraintEnd_toStartOf="@id/labelResultBottomPing"
             app:layout_constraintStart_toEndOf="@+id/labelResultBottomDownload"
             app:layout_constraintTop_toTopOf="@+id/labelResultBottomDownload" />
 
@@ -129,7 +128,6 @@
             android:drawablePadding="@dimen/padding_very_small"
             android:maxLines="2"
             app:layout_constraintHorizontal_bias="0.5"
-            app:layout_constraintHorizontal_weight="1"
             app:layout_constraintStart_toStartOf="@+id/labelResultBottomUpload"
             app:layout_constraintTop_toBottomOf="@+id/labelResultBottomUpload"
             app:speedUploadResult="@{state.testResult.uploadSpeedKbs}"
@@ -149,14 +147,12 @@
             android:id="@+id/labelResultBottomPing"
             style="@style/ResultMainItemLabel"
             android:layout_width="0dp"
-            android:lines="2"
             android:layout_height="wrap_content"
-            android:layout_marginTop="40dp"
             android:text="@string/measurement_ping"
-            app:layout_constraintEnd_toStartOf="@+id/labelResultBottomJitter"
             app:layout_constraintHorizontal_weight="2"
-            app:layout_constraintStart_toStartOf="@id/labelResultBottomDownload"
-            app:layout_constraintTop_toBottomOf="@id/download_chart" />
+            app:layout_constraintEnd_toStartOf="@+id/labelResultBottomJitter"
+            app:layout_constraintStart_toEndOf="@id/labelResultBottomUpload"
+            app:layout_constraintTop_toBottomOf="@id/localResultsMessage" />
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/textPing"
@@ -165,7 +161,6 @@
             android:layout_height="wrap_content"
             android:drawablePadding="@dimen/padding_very_small"
             android:maxLines="2"
-            app:layout_constraintHorizontal_weight="2"
             app:layout_constraintStart_toStartOf="@+id/labelResultBottomPing"
             app:layout_constraintTop_toBottomOf="@+id/labelResultBottomPing"
             app:pingResult="@{state.testResult.pingMillis}"
@@ -187,11 +182,10 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:text="@string/test_bottom_test_status_jitter"
-            android:lines="2"
-            app:layout_constraintEnd_toStartOf="@+id/labelResultBottomPacketLoss"
             app:layout_constraintHorizontal_weight="2"
+            app:layout_constraintEnd_toStartOf="@+id/labelResultBottomPacketLoss"
             app:layout_constraintStart_toEndOf="@+id/labelResultBottomPing"
-            app:layout_constraintTop_toTopOf="@+id/labelResultBottomPing" />
+            app:layout_constraintTop_toBottomOf="@id/localResultsMessage" />
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/textJitter"
@@ -202,7 +196,6 @@
             android:maxLines="2"
             android:text="@string/measurement_dash"
             app:jitterResult="@{state.testResult.jitterMillis}"
-            app:layout_constraintHorizontal_weight="2"
             app:layout_constraintStart_toStartOf="@+id/labelResultBottomJitter"
             app:layout_constraintTop_toBottomOf="@+id/labelResultBottomJitter" />
 
@@ -222,9 +215,8 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:text="@string/test_packet_loss"
-            android:lines="2"
-            app:layout_constraintEnd_toStartOf="@+id/labelResultBottomQos"
             app:layout_constraintHorizontal_weight="2"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@+id/labelResultBottomJitter"
             app:layout_constraintTop_toTopOf="@+id/labelResultBottomJitter" />
 
@@ -237,7 +229,6 @@
             android:maxLines="2"
             android:text="@string/measurement_dash"
             app:packetLossResult="@{state.testResult.packetLossPercents}"
-            app:layout_constraintHorizontal_weight="2"
             app:layout_constraintStart_toStartOf="@+id/labelResultBottomPacketLoss"
             app:layout_constraintTop_toBottomOf="@+id/labelResultBottomPacketLoss" />
 
@@ -257,12 +248,11 @@
             style="@style/ResultMainItemLabel"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:lines="2"
             android:text="@string/label_qos"
-            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_weight="2"
-            app:layout_constraintStart_toEndOf="@+id/labelResultBottomPacketLoss"
-            app:layout_constraintTop_toTopOf="@+id/labelResultBottomPacketLoss" />
+            app:layout_constraintEnd_toStartOf="@id/labelResultBottomDownload"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/localResultsMessage" />
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/textQos"
@@ -272,7 +262,6 @@
             android:drawablePadding="@dimen/padding_very_small"
             android:maxLines="2"
             android:text="@string/measurement_dash"
-            app:layout_constraintHorizontal_weight="2"
             app:layout_constraintStart_toStartOf="@id/labelResultBottomQos"
             app:layout_constraintTop_toBottomOf="@id/labelResultBottomQos" />
 
