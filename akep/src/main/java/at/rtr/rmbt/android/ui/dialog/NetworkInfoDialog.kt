@@ -120,7 +120,6 @@ class NetworkInfoDialog : BottomSheetDialogFragment() {
 
                     (dialog?.findViewById<View>(com.google.android.material.R.id.design_bottom_sheet) as? FrameLayout)?.let {
                         val behavior = BottomSheetBehavior.from(it)
-                        behavior.state = BottomSheetBehavior.STATE_EXPANDED
                         behavior.isGestureInsetBottomIgnored = true
                         behavior.peekHeight = (view.measuredHeight * 0.75).roundToInt()
                     }
