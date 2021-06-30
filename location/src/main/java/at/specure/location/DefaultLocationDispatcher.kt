@@ -31,10 +31,12 @@ class DefaultLocationDispatcher : LocationDispatcher {
                 }
 
                 newLocation?.let {
-                    if (location == null) {
-                        location = newLocation
-                    } else if (location?.accuracy ?: Float.MAX_VALUE > newLocation.accuracy) {
-                        location = newLocation
+                    if ((newLocation.time + LOCATION_MAX_AGE_MS * 2) >= System.currentTimeMillis()) {
+                        if (location == null) {
+                            location = newLocation
+                        } else if (location?.accuracy ?: Float.MAX_VALUE > newLocation.accuracy) {
+                            location = newLocation
+                        }
                     }
                 }
             }
