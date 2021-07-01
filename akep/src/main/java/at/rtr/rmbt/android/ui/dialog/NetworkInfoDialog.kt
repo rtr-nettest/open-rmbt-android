@@ -235,22 +235,25 @@ class NetworkInfoDialog : BottomSheetDialogFragment() {
         }
     }
 
-    private fun setNetworkInfo(info: NetworkInfo) {
-        binding.textNetworkName.text = info.name
-        binding.textNetworkType.setTechnologyIcon(info)
-
+    private fun setNetworkInfo(info: NetworkInfo?) {
         var name: String? = null
         var number: String? = null
-        if (info is CellNetworkInfo && info.band != null) {
-            val band = info.band!!
-            number = band.channel.toString()
-            name = "${band.band} (${band.name})"
-            binding.labelChannelNumber.text = band.channelAttribution.name
-        } else if (info is WifiNetworkInfo) {
-            val band = info.band
-            number = "${band.channelNumber} (${band.frequency} MHz)"
-            name = band.informalName
-            binding.labelChannelNumber.text = getString(R.string.dialog_signal_info_channel)
+
+        if (info != null) {
+            binding.textNetworkName.text = info.name
+            binding.textNetworkType.setTechnologyIcon(info)
+
+            if (info is CellNetworkInfo && info.band != null) {
+                val band = info.band!!
+                number = band.channel.toString()
+                name = "${band.band} (${band.name})"
+                binding.labelChannelNumber.text = band.channelAttribution.name
+            } else if (info is WifiNetworkInfo) {
+                val band = info.band
+                number = "${band.channelNumber} (${band.frequency} MHz)"
+                name = band.informalName
+                binding.labelChannelNumber.text = getString(R.string.dialog_signal_info_channel)
+            }
         }
 
         name?.let {
