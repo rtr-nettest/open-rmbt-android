@@ -254,6 +254,7 @@ class NetworkInfoDialog : BottomSheetDialogFragment() {
                 name = band.informalName
                 binding.labelChannelNumber.text = getString(R.string.dialog_signal_info_channel)
             }
+        }
 
         name?.let {
             binding.textChannelName.text = it
