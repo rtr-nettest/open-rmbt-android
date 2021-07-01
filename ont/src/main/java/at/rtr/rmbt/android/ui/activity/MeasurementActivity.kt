@@ -89,8 +89,13 @@ class MeasurementActivity : BaseActivity(), SimpleDialog.Callback {
         }
 
         viewModel.activeNetworkLiveData.listen(this) {
-            viewModel.state.networkInfo.set(it)
-            viewModel.state.isConnected.set(true)
+            if (it != null) {
+                viewModel.state.networkInfo.set(it)
+                viewModel.state.isConnected.set(true)
+            } else {
+                viewModel.state.networkInfo.set(null)
+                viewModel.state.isConnected.set(false)
+            }
         }
 
         viewModel.qosProgressLiveData.listen(this) {

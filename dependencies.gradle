@@ -8,8 +8,8 @@ buildscript {
                 minSdkVersion    : 23,
                 targetSdkVersion : 30,
                 buildToolsVersion: "29.0.2",
-                versionCode      : (project.hasProperty('buildVersionCode') ? Integer.parseInt(buildVersionCode) : 2),
-                versionName      : (project.hasProperty('buildVersionName') ? buildVersionName : '4.0.408')
+                versionCode      : (project.hasProperty('buildVersionCode') ? Integer.parseInt(buildVersionCode) : 3),
+                versionName      : (project.hasProperty('buildVersionName') ? buildVersionName : '4.0.415')
         ]
 
         // All project modules dependency versions should be in versions map
