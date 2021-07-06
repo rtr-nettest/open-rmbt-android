@@ -216,13 +216,14 @@ class TestResultsRepositoryImpl(
                 val resultList = resultMap[it]
                 resultList?.forEach { result ->
                     if (result.failureCount == 0) {
-                        succeeded += result.successCount
+                        succeeded++
                     }
                     categorySize++
                 }
                 if (categorySize > 0) {
                     sum += succeeded.toFloat() / categorySize.toFloat()
                 }
+                Timber.e("QOS: ${it.categoryName} success: $succeeded count: $categorySize sum: $sum")
             }
 
             val qosModelPair = response.toModels(testUUID, Locale.getDefault().language)
@@ -233,17 +234,25 @@ class TestResultsRepositoryImpl(
             qosTestGoalDao.clearQosGoalsInsert(qosModelPair.third)
 
             val percentage: Float = if (!config.headerValue.isNullOrEmpty()) {
+                Timber.e("QOS RESULT: ${sum / resultMap.keys.size.toFloat()}")
                 sum / resultMap.keys.size.toFloat()
             } else {
                 (successCount.toFloat() / (successCount + failureCount).toFloat())
             }
+
+            val info = if (!config.headerValue.isNullOrEmpty()) {
+                "${(percentage * 100).toInt()}%"
+            } else {
+                "${(percentage * 100).toInt()}% ($successCount/${successCount + failureCount})"
+            }
+
 
             qoeInfoDao.clearQoSInsert(
                 QoeInfoRecord(
                     testUUID = testUUID,
                     category = QoECategory.QOE_QOS,
                     percentage = percentage,
-                    info = "${(percentage * 100).toInt()}% ($successCount/${successCount + failureCount})",
+                    info = info,
                     classification = getQosClassification(percentage * 100f),
                     priority = -1
                 )
