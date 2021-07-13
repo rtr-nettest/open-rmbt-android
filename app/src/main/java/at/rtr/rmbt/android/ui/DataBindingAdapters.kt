@@ -1,6 +1,7 @@
 package at.rtr.rmbt.android.ui
 
 import android.annotation.SuppressLint
+import android.content.Context
 import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
@@ -59,16 +60,99 @@ fun View.setVisibleOrGone(show: Boolean) {
     visibility = if (show) View.VISIBLE else View.GONE
 }
 
+private fun AppCompatTextView.prepareSignalLabel(
+    mainText: String,
+    networkType: NetworkInfo?,
+    networkTypeSecondary: NetworkInfo?,
+    signal: Int?,
+    signalSecondary: Int?
+): StringBuilder {
+    val mainType = when (networkType) {
+        is CellNetworkInfo -> {
+            if (networkType.cellType == CellTechnology.CONNECTION_UNKNOWN) {
+                ""
+            } else {
+                networkType.cellType.displayName
+            }
+        }
+        else -> {
+            ""
+        }
+    }
+    val secondaryType = when (networkTypeSecondary) {
+        is CellNetworkInfo -> {
+            if (networkTypeSecondary.cellType == CellTechnology.CONNECTION_UNKNOWN) {
+                ""
+            } else {
+                networkTypeSecondary.cellType.displayName
+            }
+        }
+        else -> {
+            ""
+        }
+    }
+
+    val signalValues = extractSignalValues(this.context, signal, signalSecondary, networkType)
+
+    val builder = StringBuilder()
+    if (mainText.isNotEmpty()) {
+        builder.append(mainText)
+    }
+    if (networkType is CellNetworkInfo && networkType.networkType == MobileNetworkType.NR_NSA) {
+        if (mainType.isNotEmpty()) {
+            builder.append(" $mainType")
+        }
+        if (secondaryType.isNotEmpty() && signalValues.contains("/")) {
+            builder.append("/$secondaryType")
+        }
+    }
+    return builder
+}
+
+enum class HomeScreenLabelType(val value: String) {
+    SIGNAL("signal"),
+    FREQUENCY("frequency")
+}
+
 /**
  * A binding adapter that is used for show network technology
  */
 @SuppressLint("SetTextI18n")
-@BindingAdapter("mainText", "networkType", "networkTypeSecondary")
+@BindingAdapter(
+    value = ["mainText", "networkType", "networkTypeSecondary", "labelType", "signal", "signalSecondary"],
+    requireAll = true
+)
 fun AppCompatTextView.appendType(
     mainText: String,
     networkType: NetworkInfo?,
-    networkTypeSecondary: NetworkInfo?
+    networkTypeSecondary: NetworkInfo?,
+    labelType: String,
+    signal: Int?,
+    signalSecondary: Int?
 ) {
+    val builder = when (labelType) {
+        HomeScreenLabelType.FREQUENCY.value -> prepareFrequencyLabel(
+            mainText,
+            networkType,
+            networkTypeSecondary
+        )
+        HomeScreenLabelType.SIGNAL.value -> prepareSignalLabel(
+            mainText,
+            networkType,
+            networkTypeSecondary,
+            signal,
+            signalSecondary
+        )
+        else -> StringBuilder().append(mainText)
+    }
+    text = builder.toString()
+}
+
+private fun AppCompatTextView.prepareFrequencyLabel(
+    mainText: String,
+    networkType: NetworkInfo?,
+    networkTypeSecondary: NetworkInfo?
+): StringBuilder {
     val mainType = when (networkType) {
         is CellNetworkInfo -> {
             if (networkType.cellType == CellTechnology.CONNECTION_UNKNOWN) {
@@ -101,11 +185,18 @@ fun AppCompatTextView.appendType(
         if (mainType.isNotEmpty()) {
             builder.append(" $mainType")
         }
-        if (secondaryType.isNotEmpty()) {
-            builder.append("/$secondaryType")
+        if (extractFrequency(
+                networkType,
+                networkTypeSecondary,
+                this.context
+            )?.contains("/") == true
+        ) {
+            if (secondaryType.isNotEmpty()) {
+                builder.append("/$secondaryType")
+            }
         }
     }
-    text = builder.toString()
+    return builder
 }
 
 /**
@@ -117,20 +208,26 @@ fun AppCompatTextView.setSignal(
     signalSecondary: Int?,
     signalNetworkInfo: NetworkInfo?
 ) {
-
-    text =
-        if (signal != null && signalSecondary != null && signalNetworkInfo is CellNetworkInfo && signalNetworkInfo.networkType == MobileNetworkType.NR_NSA) {
-            String.format(
-                context.getString(R.string.home_signal_secondary_value),
-                signal,
-                signalSecondary
-            )
-        } else if (signal != null) {
-            String.format(context.getString(R.string.home_signal_value), signal)
-        } else {
-            "-"
-        }
+    text = extractSignalValues(this.context, signal, signalSecondary, signalNetworkInfo)
 }
+
+private fun extractSignalValues(
+    context: Context,
+    signal: Int?,
+    signalSecondary: Int?,
+    signalNetworkInfo: NetworkInfo?
+) =
+    if (signal != null && signalSecondary != null && signalNetworkInfo is CellNetworkInfo && signalNetworkInfo.networkType == MobileNetworkType.NR_NSA) {
+        String.format(
+            context.getString(R.string.home_signal_secondary_value),
+            signal,
+            signalSecondary
+        )
+    } else if (signal != null) {
+        String.format(context.getString(R.string.home_signal_value), signal)
+    } else {
+        "-"
+    }
 
 /**
  * A binding adapter that is used for show frequency
@@ -142,34 +239,42 @@ fun AppCompatTextView.setFrequency(networkInfo: NetworkInfo?, secondaryNetworkIn
         is WifiNetworkInfo -> networkInfo.band.name
         is CellNetworkInfo -> {
             // we display secondary signal only for NR_NSA type of the network
-            if (secondaryNetworkInfo == null || networkInfo.networkType != MobileNetworkType.NR_NSA) {
-                if (networkInfo.band?.name?.contains("MHz") == true) {
-                    networkInfo.band?.name?.removeSuffix("MHz")
-                } else {
-                    String.format(
-                        context.getString(R.string.home_frequency_value),
-                        networkInfo.band?.name
-                    )
-                }
-            } else {
-                val builder = StringBuilder()
-                if (networkInfo.band?.name?.contains("MHz") == true) {
-                    builder.append(networkInfo.band?.name?.removeSuffix("MHz"))
-                } else {
-                    builder.append(if (networkInfo.band?.name.isNullOrEmpty()) "-" else networkInfo.band?.name)
-                }
-                if ((secondaryNetworkInfo is CellNetworkInfo) && secondaryNetworkInfo.band?.name?.isNullOrEmpty() == false) {
-                    builder.append("/")
-                    if (secondaryNetworkInfo.band?.name?.contains("MHz") == true) {
-                        builder.append(secondaryNetworkInfo.band?.name?.removeSuffix("MHz"))
-                    } else {
-                        builder.append(if (secondaryNetworkInfo.band?.name.isNullOrEmpty()) "-" else secondaryNetworkInfo.band?.name)
-                    }
-                }
-                String.format(context.getString(R.string.home_frequency_value), builder.toString())
-            }
+            extractFrequency(networkInfo, secondaryNetworkInfo, this.context)
         }
         else -> "-"
+    }
+}
+
+private fun extractFrequency(
+    networkInfo: CellNetworkInfo,
+    secondaryNetworkInfo: NetworkInfo?,
+    context: Context
+): String? {
+    return if (secondaryNetworkInfo == null || networkInfo.networkType != MobileNetworkType.NR_NSA) {
+        if (networkInfo.band?.name?.contains("MHz") == true) {
+            networkInfo.band?.name?.removeSuffix("MHz")
+        } else {
+            String.format(
+                context.getString(R.string.home_frequency_value),
+                networkInfo.band?.name
+            )
+        }
+    } else {
+        val builder = StringBuilder()
+        if (networkInfo.band?.name?.contains("MHz") == true) {
+            builder.append(networkInfo.band?.name?.removeSuffix("MHz"))
+        } else {
+            builder.append(if (networkInfo.band?.name.isNullOrEmpty()) "-" else networkInfo.band?.name)
+        }
+        if ((secondaryNetworkInfo is CellNetworkInfo) && secondaryNetworkInfo.band?.name?.isNullOrEmpty() == false) {
+            builder.append("/")
+            if (secondaryNetworkInfo.band?.name?.contains("MHz") == true) {
+                builder.append(secondaryNetworkInfo.band?.name?.removeSuffix("MHz"))
+            } else {
+                builder.append(if (secondaryNetworkInfo.band?.name.isNullOrEmpty()) "-" else secondaryNetworkInfo.band?.name)
+            }
+        }
+        String.format(context.getString(R.string.home_frequency_value), builder.toString())
     }
 }
 
