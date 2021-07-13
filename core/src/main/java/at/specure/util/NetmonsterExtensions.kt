@@ -270,23 +270,25 @@ fun SignalLte.toSignalStrengthInfo(timestampNanos: Long): SignalStrengthInfo {
     )
 }
 
-fun SignalNr.toSignalStrengthInfo(timestampNanos: Long): SignalStrengthInfo {
-    return SignalStrengthInfoNr(
-        transport = TransportType.CELLULAR,
-        value = this.ssRsrp,
-        rsrq = null,
-        signalLevel = calculateNRSignalLevel(this.ssRsrp),
-        min = NR_RSRP_SIGNAL_MIN,
-        max = NR_RSRP_SIGNAL_MAX,
-        timestampNanos = timestampNanos,
-        source = SignalSource.NM_CELL_INFO,
-        csiRsrp = this.csiRsrp,
-        csiRsrq = this.csiRsrq,
-        csiSinr = this.csiSinr,
-        ssRsrp = this.ssRsrp,
-        ssRsrq = this.ssRsrq,
-        ssSinr = this.ssSinr
-    )
+fun SignalNr.toSignalStrengthInfo(timestampNanos: Long): SignalStrengthInfo? {
+    return if (this.ssRsrp != null && this.ssRsrp!! < NR_RSRP_SIGNAL_MAX && this.ssRsrp!! >= NR_RSRP_SIGNAL_MIN) {
+        SignalStrengthInfoNr(
+            transport = TransportType.CELLULAR,
+            value = this.ssRsrp,
+            rsrq = null,
+            signalLevel = calculateNRSignalLevel(this.ssRsrp),
+            min = NR_RSRP_SIGNAL_MIN,
+            max = NR_RSRP_SIGNAL_MAX,
+            timestampNanos = timestampNanos,
+            source = SignalSource.NM_CELL_INFO,
+            csiRsrp = this.csiRsrp,
+            csiRsrq = this.csiRsrq,
+            csiSinr = this.csiSinr,
+            ssRsrp = this.ssRsrp,
+            ssRsrq = this.ssRsrq,
+            ssSinr = this.ssSinr
+        )
+    } else null
 }
 
 fun ICell.toSignalStrengthInfo(timestampNanos: Long): SignalStrengthInfo? {
