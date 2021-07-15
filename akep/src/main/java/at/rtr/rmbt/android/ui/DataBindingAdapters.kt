@@ -12,6 +12,7 @@ import androidx.databinding.BindingAdapter
 import at.rmbt.client.control.IpProtocol
 import at.rtr.rmbt.android.R
 import at.rtr.rmbt.android.ui.view.MeasurementMedianSquareView
+import at.rtr.rmbt.android.ui.view.MeasurementProgressLineView
 import at.rtr.rmbt.android.ui.view.MeasurementProgressSquareView
 import at.rtr.rmbt.android.ui.view.ProgressBar
 import at.rtr.rmbt.android.ui.view.ResultBar
@@ -1034,7 +1035,7 @@ fun AppCompatTextView.setSignalStrengthMap(signalStrengthResult: String?, signal
 /**
  * A binding adapter that is used for show signal
  */
-@BindingAdapter("app:currentCount", "app:totalCount", requireAll = true)
+@BindingAdapter("currentCount", "totalCount", requireAll = true)
 fun AppCompatTextView.setProgress(currentCount: Int?, totalCount: Int?) {
 
     text = if ((currentCount != null) && (totalCount != null)) {
@@ -1042,4 +1043,22 @@ fun AppCompatTextView.setProgress(currentCount: Int?, totalCount: Int?) {
     } else {
         ""
     }
+}
+
+@BindingAdapter("percents")
+fun MeasurementProgressLineView.setPercents(percents: Int) {
+    this.filledPercents = percents
+    invalidate()
+}
+
+@BindingAdapter("phase")
+fun MeasurementProgressLineView.setMeasurementPhase(state: MeasurementState) {
+    this.phase = state
+    invalidate()
+}
+
+@BindingAdapter("qosEnabled")
+fun MeasurementProgressLineView.setQosEnabled(qosEnabled: Boolean) {
+    this.qosEnabled = qosEnabled
+    invalidate()
 }

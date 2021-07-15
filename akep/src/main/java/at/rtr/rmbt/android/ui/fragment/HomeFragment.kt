@@ -17,6 +17,7 @@ import at.rtr.rmbt.android.util.InfoWindowStatus
 import at.rtr.rmbt.android.util.ToolbarTheme
 import at.rtr.rmbt.android.util.changeStatusBarColor
 import at.rtr.rmbt.android.util.listen
+import at.rtr.rmbt.android.util.setTechnologyIcon
 import at.rtr.rmbt.android.viewmodel.HomeViewModel
 import at.specure.measurement.MeasurementService
 import at.specure.util.toast
@@ -26,7 +27,16 @@ class HomeFragment : BaseFragment() {
     private val homeViewModel: HomeViewModel by viewModelLazy()
     private val binding: FragmentHomeBinding by bindingLazy()
 
+    private var callback: NetworkInfoCallback? = null
+
     override val layoutResId = R.layout.fragment_home
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        if (activity is NetworkInfoCallback) {
+            callback = activity as NetworkInfoCallback
+        }
+    }
 
     @SuppressLint("ClickableViewAccessibility")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -40,6 +50,11 @@ class HomeFragment : BaseFragment() {
         homeViewModel.signalStrengthLiveData.listen(this) {
             homeViewModel.state.signalStrength.set(it?.signalStrengthInfo)
             homeViewModel.state.activeNetworkInfo.set(it?.networkInfo)
+
+            it?.networkInfo?.let { info ->
+                binding.panelNetworkDetails.textNetworkName.text = info.name
+                binding.panelNetworkDetails.textNetworkType.setTechnologyIcon(info)
+            }
         }
 
         homeViewModel.locationStateLiveData.listen(this) {
@@ -65,6 +80,10 @@ class HomeFragment : BaseFragment() {
             } else {
                 MessageDialog.instance(R.string.home_no_internet_connection).show(activity)
             }
+        }
+
+        binding.panelNetworkDetails.root.setOnClickListener {
+            callback?.showNetworkInfo()
         }
 
         binding.buttonLoop.setOnClickListener {
@@ -107,9 +126,15 @@ class HomeFragment : BaseFragment() {
 
     override fun onResume() {
         super.onResume()
+        checkBasicNetworkInfoVisibility()
         homeViewModel.signalStrengthLiveData.listen(this) {
             homeViewModel.state.signalStrength.set(it?.signalStrengthInfo)
             homeViewModel.state.activeNetworkInfo.set(it?.networkInfo)
+
+            it?.networkInfo?.let { info ->
+                binding.panelNetworkDetails.textNetworkName.text = info.name
+                binding.panelNetworkDetails.textNetworkType.setTechnologyIcon(info)
+            }
         }
     }
 
@@ -156,6 +181,22 @@ class HomeFragment : BaseFragment() {
                 homeViewModel.state.infoWindowStatus.set(InfoWindowStatus.VISIBLE)
             }
         }, INFO_WINDOW_TIME_MS)
+    }
+
+    private fun checkBasicNetworkInfoVisibility() {
+        homeViewModel.connectivityInfoLiveData.listen(this) { info ->
+            binding.root.post {
+                if (info == null) {
+                    binding.panelNetworkDetails.root.visibility = View.GONE
+                } else {
+                    binding.panelNetworkDetails.root.visibility = View.VISIBLE
+                }
+            }
+        }
+    }
+
+    interface NetworkInfoCallback {
+        fun showNetworkInfo()
     }
 
     companion object {

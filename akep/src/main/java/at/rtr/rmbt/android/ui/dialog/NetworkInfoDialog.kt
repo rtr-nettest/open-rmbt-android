@@ -1,9 +1,7 @@
 package at.rtr.rmbt.android.ui.dialog
 
 import android.annotation.SuppressLint
-import android.content.Context
 import android.content.Intent
-import android.content.res.Configuration
 import android.graphics.Color
 import android.location.Geocoder
 import android.os.Bundle
@@ -11,6 +9,7 @@ import android.os.Handler
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.ViewTreeObserver
 import android.widget.FrameLayout
 import android.widget.TextView
 import androidx.core.content.ContextCompat
@@ -47,8 +46,8 @@ import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import java.util.Locale
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
+import kotlin.math.roundToInt
 import timber.log.Timber
-import android.view.ViewTreeObserver.OnGlobalLayoutListener as OnGlobalLayoutListener1
 
 class NetworkInfoDialog : BottomSheetDialogFragment() {
 
@@ -71,7 +70,6 @@ class NetworkInfoDialog : BottomSheetDialogFragment() {
     lateinit var measurementServers: MeasurementServers
 
     private lateinit var binding: DialogNetworkInfoBinding
-    private lateinit var dismissCallback: Callback
 
     private var locationAge = 0L
     private val updateHandler = Handler()
@@ -81,13 +79,6 @@ class NetworkInfoDialog : BottomSheetDialogFragment() {
         if (isAdded) {
             binding.textAge.text = requireContext().getString(R.string.location_dialog_age, formatAge)
             scheduleUpdate()
-        }
-    }
-
-    override fun onAttach(context: Context) {
-        super.onAttach(context)
-        if (context is Callback) {
-            dismissCallback = context
         }
     }
 
@@ -109,7 +100,6 @@ class NetworkInfoDialog : BottomSheetDialogFragment() {
         super.onViewCreated(view, savedInstanceState)
 
         binding.close.setOnClickListener {
-            dismissCallback.onDismiss()
             dismiss()
         }
 
@@ -123,21 +113,18 @@ class NetworkInfoDialog : BottomSheetDialogFragment() {
         super.onStart()
         observeMeasurementServers()
 
-        if (resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE) {
-            view?.let { view ->
-                view.viewTreeObserver.addOnGlobalLayoutListener(object : OnGlobalLayoutListener1 {
-                    override fun onGlobalLayout() {
-                        view.viewTreeObserver.removeOnGlobalLayoutListener(this)
+        view?.let { view ->
+            view.viewTreeObserver.addOnGlobalLayoutListener(object : ViewTreeObserver.OnGlobalLayoutListener {
+                override fun onGlobalLayout() {
+                    view.viewTreeObserver.removeOnGlobalLayoutListener(this)
 
-                        (dialog?.findViewById<View>(com.google.android.material.R.id.design_bottom_sheet) as? FrameLayout)?.let {
-                            val behavior = BottomSheetBehavior.from(it)
-                            behavior.state = BottomSheetBehavior.STATE_EXPANDED
-                            behavior.isGestureInsetBottomIgnored = true
-                            behavior.peekHeight = view.measuredHeight / 2
-                        }
+                    (dialog?.findViewById<View>(com.google.android.material.R.id.design_bottom_sheet) as? FrameLayout)?.let {
+                        val behavior = BottomSheetBehavior.from(it)
+                        behavior.isGestureInsetBottomIgnored = true
+                        behavior.peekHeight = (view.measuredHeight * 0.75).roundToInt()
                     }
-                })
-            }
+                }
+            })
         }
     }
 
@@ -248,22 +235,25 @@ class NetworkInfoDialog : BottomSheetDialogFragment() {
         }
     }
 
-    private fun setNetworkInfo(info: NetworkInfo) {
-        binding.textNetworkName.text = info.name
-        binding.textNetworkType.setTechnologyIcon(info)
-
+    private fun setNetworkInfo(info: NetworkInfo?) {
         var name: String? = null
         var number: String? = null
-        if (info is CellNetworkInfo && info.band != null) {
-            val band = info.band!!
-            number = band.channel.toString()
-            name = "${band.band} (${band.name})"
-            binding.labelChannelNumber.text = band.channelAttribution.name
-        } else if (info is WifiNetworkInfo) {
-            val band = info.band
-            number = "${band.channelNumber} (${band.frequency} MHz)"
-            name = band.informalName
-            binding.labelChannelNumber.text = getString(R.string.dialog_signal_info_channel)
+
+        if (info != null) {
+            binding.textNetworkName.text = info.name
+            binding.textNetworkType.setTechnologyIcon(info)
+
+            if (info is CellNetworkInfo && info.band != null) {
+                val band = info.band!!
+                number = band.channel.toString()
+                name = "${band.band} (${band.name})"
+                binding.labelChannelNumber.text = band.channelAttribution.name
+            } else if (info is WifiNetworkInfo) {
+                val band = info.band
+                number = "${band.channelNumber} (${band.frequency} MHz)"
+                name = band.informalName
+                binding.labelChannelNumber.text = getString(R.string.dialog_signal_info_channel)
+            }
         }
 
         name?.let {
@@ -368,10 +358,6 @@ class NetworkInfoDialog : BottomSheetDialogFragment() {
     private fun scheduleUpdate() {
         updateHandler.removeCallbacks(ageUpdateRunnable)
         updateHandler.postDelayed(ageUpdateRunnable, 1000)
-    }
-
-    interface Callback {
-        fun onDismiss()
     }
 
     companion object {

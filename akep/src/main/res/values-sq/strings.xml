@@ -300,10 +300,6 @@
     <string name="text_unit_mbps">Mbps</string>
     <string name="text_unit_ping">Znj</string>
     <string name="text_current_from_count">%1$d e %2$d</string>
-    <string name="loop_mode_next_test">Matja tjetër</string>
-    <string name="unit_minutes">min</string>
-    <string name="or">ose</string>
-    <string name="unit_meter">m</string>
     <string name="median">Mesatare</string>
 
     <string name="title_permissions_welcome">Mirësevini në Akep Nettest</string>
@@ -344,5 +340,13 @@
     <string name="label_network_name">Emri i rrjetit </string>
     <string name="label_measurement_server">Serveri i matjes </string>
     <string name="label_change_test_server">Ndrysho Serverin e Testit </string>
+
+    <string name="measurement">Matja</string>
+    <string name="label_measurement_ping_ms">Ping (ms)</string>
+    <string name="label_measurement_download_mbps">Shkarkimi (Mbps)</string>
+    <string name="label_measurement_upload_mbps">Ngarko (Mbps)</string>
+    <string name="label_measurement_qos">QoS (%)</string>
+    <string name="label_measurement_time_to_next_test">Koha për provën tjetër</string>
+    <string name="label_measurement_movement">Lëvizja</string>
 
 </resources>

@@ -48,5 +48,5 @@
     <dimen name="home_loop_button_height">40dp</dimen>
 
     <dimen name="history_image_size">24dp</dimen>
-    <dimen name="size_progress_square">160dp</dimen>
+    <dimen name="size_progress_square">150dp</dimen>
 </resources>
