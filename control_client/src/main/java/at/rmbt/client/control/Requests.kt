@@ -504,7 +504,19 @@ data class TestResultBody(
      * Test tag added to each test, can be set in the developer mode settings
      */
     @SerializedName("tag")
-    var testTag: String? = null
+    var testTag: String? = null,
+
+    /**
+     * mean jitter in milliseconds
+     */
+    @SerializedName("voip_result_jitter_millis")
+    val jitterMillis: Double?,
+
+    /**
+     * packet loss in percents
+     */
+    @SerializedName("voip_result_packet_loss_percents")
+    val packetLoss: Double?
 )
 
 @Keep
@@ -864,6 +876,17 @@ data class HistoryRequestBody(
     val devices: List<String>?,
     val networks: List<String>?,
     val capabilities: CapabilitiesBody
+)
+
+@Keep
+data class HistoryONTRequestBody(
+    @SerializedName("uuid")
+    val clientUUID: String,
+    val page: Long,
+    val size: Long,
+    val devices: List<String>?,
+    @SerializedName("network_types")
+    val networks: List<String>?
 )
 
 @Keep

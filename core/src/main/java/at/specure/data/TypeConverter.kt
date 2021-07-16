@@ -89,10 +89,18 @@ class TypeConverter {
     fun valueToNetworkTypeCompat(value: String): NetworkTypeCompat = NetworkTypeCompat.fromString(value)
 
     @TypeConverter
-    fun classificationToValue(classification: Classification): Int = classification.intValue
+    fun classificationToValue(classification: Classification?): Int {
+        return classification?.intValue ?: Classification.NONE.intValue
+    }
 
     @TypeConverter
-    fun valueToClassification(value: Int): Classification = Classification.fromValue(value)
+    fun valueToClassification(value: Int?): Classification? {
+        return if (value == null) {
+            null
+        } else {
+            Classification.fromValue(value)
+        }
+    }
 
     @TypeConverter
     fun nrConnectionStateToValue(nrConnectionState: NRConnectionState): String = nrConnectionState.stringValue

@@ -34,5 +34,10 @@ data class History(
     val signalClassification: Classification,
     val time: Long,
     val timeString: String,
-    val timezone: String
+    val timezone: String,
+    val qos: String?,
+    val jitterMillis: String?,
+    val packetLossPercents: String?,
+    val packetLossClassification: Classification?,
+    val jitterClassification: Classification?
 )

@@ -202,7 +202,7 @@ public class RMBTClientRunner
             
             // standard mode with contact to control server
             client = RMBTClient.getInstance(host, null, port, encryption, geoInfo, uuid,
-                    "DESKTOP", Config.RMBT_CLIENT_NAME, Config.RMBT_VERSION_NUMBER, overrideParams, null, null, true);
+                    "DESKTOP", Config.RMBT_CLIENT_NAME, Config.RMBT_VERSION_NUMBER, overrideParams, null, null, null);
         }
         
         if (client != null)

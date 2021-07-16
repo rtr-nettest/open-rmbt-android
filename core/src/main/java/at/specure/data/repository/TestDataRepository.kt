@@ -10,6 +10,7 @@ import at.specure.data.entity.GraphItemRecord
 import at.specure.data.entity.LoopModeRecord
 import at.specure.data.entity.SignalRecord
 import at.specure.data.entity.TestRecord
+import at.specure.data.entity.VoipTestResultRecord
 import at.specure.info.cell.CellNetworkInfo
 import at.specure.info.network.MobileNetworkType
 import at.specure.info.network.NRConnectionState
@@ -97,4 +98,6 @@ interface TestDataRepository {
     fun saveConnectivityState(state: ConnectivityStateRecord)
 
     fun getLoopModeByLocal(loopUUID: String): LiveData<LoopModeRecord?>
+
+    fun saveVoipResult(voipTestResultRecord: VoipTestResultRecord)
 }

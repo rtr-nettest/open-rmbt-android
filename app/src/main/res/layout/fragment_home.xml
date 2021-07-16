@@ -19,6 +19,7 @@
     <data>
 
         <import type="at.specure.location.LocationState" />
+        <import type="at.rtr.rmbt.android.ui.HomeScreenLabelType" />
 
         <variable
             name="captiveState"
@@ -310,9 +311,12 @@
             android:layout_height="wrap_content"
             android:gravity="center"
             android:paddingBottom="@dimen/padding_large"
+            app:labelType="@{HomeScreenLabelType.SIGNAL.value}"
             app:mainText="@{@string/home_signal}"
             app:networkType="@{state.activeNetworkInfo.networkInfo}"
             app:networkTypeSecondary="@{state.secondary5GActiveNetworkInfo}"
+            app:signal="@{state.signalStrength.value}"
+            app:signalSecondary="@{state.secondary5GSignalStrength.value}"
             android:textColor="@color/text_gray_transparency_40"
             app:layout_constraintBottom_toTopOf="@+id/vBottomDivider"
             app:layout_constraintEnd_toStartOf="@+id/tvLblFrequency"
@@ -328,6 +332,9 @@
             app:mainText="@{@string/home_frequency}"
             app:networkType="@{state.activeNetworkInfo.networkInfo}"
             app:networkTypeSecondary="@{state.secondary5GActiveNetworkInfo}"
+            app:labelType="@{HomeScreenLabelType.FREQUENCY.value}"
+            app:signal="@{state.signalStrength.value}"
+            app:signalSecondary="@{state.secondary5GSignalStrength.value}"
             android:textColor="@color/text_gray_transparency_40"
             app:frequencyVisibility="@{state.activeNetworkInfo.networkInfo}"
             app:layout_constraintBottom_toTopOf="@+id/vBottomDivider"
