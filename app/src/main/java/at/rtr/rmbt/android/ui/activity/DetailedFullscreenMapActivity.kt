@@ -4,25 +4,30 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import androidx.core.content.ContextCompat
+import at.bluesource.choicesdk.maps.common.*
+import at.bluesource.choicesdk.maps.common.Map
+import at.bluesource.choicesdk.maps.common.options.MarkerOptions
+import at.bluesource.choicesdk.maps.common.shape.CircleOptions
 import at.rmbt.client.control.data.MapPresentationType
 import at.rmbt.client.control.data.MapStyleType
 import at.rtr.rmbt.android.R
 import at.rtr.rmbt.android.databinding.ActivityDetailedFullscreenMapBinding
-import at.rtr.rmbt.android.map.wrapper.LatLngW
-import at.rtr.rmbt.android.map.wrapper.MapWrapper
 import at.rtr.rmbt.android.ui.dialog.MapLayersDialog
 import at.rtr.rmbt.android.util.ToolbarTheme
 import at.rtr.rmbt.android.util.changeStatusBarColor
 import at.specure.data.NetworkTypeCompat
+import kotlinx.android.synthetic.main.fragment_map.*
 
 class DetailedFullscreenMapActivity : BaseActivity(), MapLayersDialog.Callback {
 
     private lateinit var binding: ActivityDetailedFullscreenMapBinding
 
-    private lateinit var latLng: LatLngW
+    private lateinit var latLng: LatLng
     private lateinit var networkType: NetworkTypeCompat
 
     private var currentMapStyle = MapStyleType.STANDARD
+
+    private var map: Map? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -34,32 +39,35 @@ class DetailedFullscreenMapActivity : BaseActivity(), MapLayersDialog.Callback {
         if (!intent.hasExtra(KEY_LATITUDE) || !intent.hasExtra(KEY_LONGITUDE) || !intent.hasExtra(KEY_NETWORK_TYPE)) {
             throw IllegalArgumentException("Should start with latitude and network type")
         }
-        latLng = LatLngW(intent.getDoubleExtra(KEY_LATITUDE, 0.0), intent.getDoubleExtra(KEY_LONGITUDE, 0.0))
+        latLng = LatLng(intent.getDoubleExtra(KEY_LATITUDE, 0.0), intent.getDoubleExtra(KEY_LONGITUDE, 0.0))
         networkType = NetworkTypeCompat.values()[intent.getIntExtra(KEY_NETWORK_TYPE, 0)]
 
-        binding.map.onCreate(savedInstanceState)
-        binding.map.loadMapAsync {
-            onMapReady()
+        val mapFragment: MapFragment = MapFragment.newInstance()
+        supportFragmentManager.beginTransaction().apply {
+            add(R.id.mapContainer, mapFragment)
+            commit()
+        }
+
+        mapFragment.getMapObservable().subscribe {
+            onMapReady(it)
         }
 
         binding.closeFab.setOnClickListener { finish() }
         binding.layersFab.setOnClickListener {
             MapLayersDialog.instance(
-                activeStyle = currentMapStyle.ordinal,
-                noSatelliteOrHybrid = !mapW().supportSatelliteAndHybridView()
+                activeStyle = currentMapStyle.ordinal
             ).show(this)
         }
     }
 
-    private fun mapW() : MapWrapper  = binding.map.mapWrapper
-
-    private fun onMapReady() {
-        mapW().addCircle(latLng,
-            ContextCompat.getColor(this@DetailedFullscreenMapActivity, R.color.map_circle_fill),
-            ContextCompat.getColor(this@DetailedFullscreenMapActivity, R.color.map_circle_stroke),
-            STROKE_WIDTH,
-            CIRCLE_RADIUS
-        )
+    private fun onMapReady(map : Map) {
+        this.map = map
+        map.addCircle(CircleOptions()
+            .center(latLng)
+            .fillColor(ContextCompat.getColor(this@DetailedFullscreenMapActivity, R.color.map_circle_fill))
+            .strokeColor(ContextCompat.getColor(this@DetailedFullscreenMapActivity, R.color.map_circle_stroke))
+            .strokeWidth(STROKE_WIDTH)
+            .radius(CIRCLE_RADIUS))
 
         val icon = when (networkType) {
             NetworkTypeCompat.TYPE_UNKNOWN -> R.drawable.ic_marker_empty
@@ -74,30 +82,18 @@ class DetailedFullscreenMapActivity : BaseActivity(), MapLayersDialog.Callback {
             NetworkTypeCompat.TYPE_5G -> R.drawable.ic_marker_5g
         }
 
-        mapW().run {
-            addMarker(this@DetailedFullscreenMapActivity, latLng, ANCHOR_U, ANCHOR_V, icon)
-            moveCamera(latLng, ZOOM_LEVEL)
+        map.run {
+            addMarker(MarkerOptions
+                .create()
+                .anchor(ANCHOR_U, ANCHOR_V)
+                .icon(BitmapDescriptorFactory.instance().fromResource(icon))
+                .position(latLng))
+
+            moveCamera(CameraUpdateFactory
+                .get()
+                .newLatLngZoom(latLng, ZOOM_LEVEL)
+            )
         }
-    }
-
-    override fun onStart() {
-        super.onStart()
-        binding.map.onStart()
-    }
-
-    override fun onResume() {
-        super.onResume()
-        binding.map.onResume()
-    }
-
-    override fun onStop() {
-        super.onStop()
-        binding.map.onStop()
-    }
-
-    override fun onPause() {
-        binding.map.onPause()
-        super.onPause()
     }
 
     companion object {
@@ -124,7 +120,7 @@ class DetailedFullscreenMapActivity : BaseActivity(), MapLayersDialog.Callback {
 
     override fun onStyleSelected(style: MapStyleType) {
         currentMapStyle = style
-        mapW().setMapStyleType(style)
+        map?.mapType = style.type
         when (style) {
             MapStyleType.HYBRID -> {
                 window.changeStatusBarColor(ToolbarTheme.BLUE)

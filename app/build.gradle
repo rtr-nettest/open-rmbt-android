@@ -82,7 +82,6 @@ dependencies {
     implementation "androidx.lifecycle:lifecycle-extensions:$versions.lifecycle_extensions"
     implementation "androidx.navigation:navigation-fragment-ktx:$versions.navigation_fragment"
     implementation "androidx.navigation:navigation-ui-ktx:$versions.navigation_fragment"
-    implementation "com.google.android.gms:play-services-maps:$versions.google_services"
 
     kapt "com.google.dagger:dagger-compiler:$versions.dagger"
     kapt "com.google.dagger:dagger-android-processor:$versions.dagger"
@@ -99,8 +98,10 @@ dependencies {
 
     debugImplementation "com.facebook.stetho:stetho:$versions.stetho"
 
-    implementation 'com.huawei.hms:maps:5.0.3.301'
-    implementation 'com.huawei.agconnect:agconnect-core:1.4.1.300'
+    def choicesdk_version = '0.2.0'
+    implementation "at.bluesource.choicesdk:choicesdk-maps:$choicesdk_version"
+    implementation 'com.google.android.gms:play-services-maps:17.0.0'
+    implementation 'com.huawei.hms:maps:5.0.5.301'
 
     testImplementation "junit:junit:$versions.junit"
     androidTestImplementation "androidx.test:runner:$versions.test_runner"

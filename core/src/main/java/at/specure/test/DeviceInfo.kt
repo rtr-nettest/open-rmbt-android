@@ -39,8 +39,8 @@ class DeviceInfo(context: Context, val location: Location? = null) {
         }
     }
 
-    val softwareVersionCode = BuildConfig.VERSION_CODE
-    val softwareVersionName = BuildConfig.VERSION_NAME
+    val softwareVersionCode = BuildConfig.GIT_VERSION_CODE
+    val softwareVersionName = BuildConfig.GIT_VERSION_NAME
 
     @SerializedName("type")
     val clientType = "MOBILE"
@@ -48,9 +48,9 @@ class DeviceInfo(context: Context, val location: Location? = null) {
     @Expose
     val clientName = "RMBT"
 
-    val clientVersionName = BuildConfig.VERSION_NAME
+    val clientVersionName = BuildConfig.GIT_VERSION_NAME
 
-    val clientVersionCode = BuildConfig.VERSION_CODE
+    val clientVersionCode = BuildConfig.GIT_VERSION_CODE
 
     val rmbtClientVersion = "1.2.1"
 

@@ -13,11 +13,10 @@
             android:layout_height="@dimen/size_height_status_bar"
             app:layout_constraintTop_toTopOf="parent" />
 
-        <at.rtr.rmbt.android.map.MapViewWrapperImpl
-            android:id="@+id/map"
+        <androidx.fragment.app.FragmentContainerView
+            android:id="@+id/mapFrameLayout"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            tools:context="at.rtr.rmbt.android.ui.activity.DetailedFullscreenMapActivity" />
+            android:layout_height="match_parent"/>
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/close_fab"

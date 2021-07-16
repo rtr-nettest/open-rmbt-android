@@ -226,7 +226,7 @@ class ResultsRepositoryImpl @Inject constructor(
                     if (dataTransferred[it]?.size!! > 0) dataTransferred[it]?.get(0) as SpeedRecord else null
             }
             // select item with minimum time
-            val minTime = currentValues.minWith(Comparator { o1, o2 ->
+            val minTime = currentValues.minWithOrNull { o1, o2 ->
                 if (o1?.value == null) {
                     1
                 } else {
@@ -236,7 +236,7 @@ class ResultsRepositoryImpl @Inject constructor(
                         o1.value?.timestampNanos?.compareTo(o2.value?.timestampNanos ?: 0) ?: 1
                     }
                 }
-            })
+            }
             if (minTime?.value != null) {
                 records.add(calculateSpeed(dataTransferred, minTime.value as SpeedRecord))
                 dataTransferred[minTime.key]?.remove(minTime.value as SpeedRecord)

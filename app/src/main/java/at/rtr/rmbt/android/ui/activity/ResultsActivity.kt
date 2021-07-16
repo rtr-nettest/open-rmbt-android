@@ -6,16 +6,20 @@ import android.os.Bundle
 import android.view.View
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.DividerItemDecoration
+import at.bluesource.choicesdk.core.MobileService
+import at.bluesource.choicesdk.maps.common.BitmapDescriptorFactory
+import at.bluesource.choicesdk.maps.common.CameraUpdateFactory
+import at.bluesource.choicesdk.maps.common.LatLng
+import at.bluesource.choicesdk.maps.common.Map
+import at.bluesource.choicesdk.maps.common.options.MarkerOptions
+import at.bluesource.choicesdk.maps.common.shape.CircleOptions
 import at.rtr.rmbt.android.R
 import at.rtr.rmbt.android.databinding.ActivityResultsBinding
 import at.rtr.rmbt.android.di.viewModelLazy
-import at.rtr.rmbt.android.map.wrapper.LatLngW
-import at.rtr.rmbt.android.map.wrapper.MapWrapper
 import at.rtr.rmbt.android.ui.adapter.QosResultAdapter
 import at.rtr.rmbt.android.ui.adapter.ResultChartFragmentPagerAdapter
 import at.rtr.rmbt.android.ui.adapter.ResultQoEAdapter
-import at.rtr.rmbt.android.util.isGmsAvailable
-import at.rtr.rmbt.android.util.isHmsAvailable
+import at.rtr.rmbt.android.ui.loadMapFragment
 import at.rtr.rmbt.android.util.listen
 import at.rtr.rmbt.android.viewmodel.ResultViewModel
 import at.specure.data.NetworkTypeCompat
@@ -37,9 +41,7 @@ class ResultsActivity : BaseActivity() {
         binding = bindContentView(R.layout.activity_results)
         binding.state = viewModel.state
 
-        viewModel.state.playServicesAvailable.set(isGmsAvailable() || isHmsAvailable())
-
-        binding.map.onCreate(savedInstanceState)
+        viewModel.state.playServicesAvailable.set(MobileService.GMS.isAvailable() || MobileService.HMS.isAvailable())
 
         val testUUID = intent.getStringExtra(KEY_TEST_UUID)
         check(!testUUID.isNullOrEmpty()) { "TestUUID was not passed to result activity" }
@@ -63,8 +65,8 @@ class ResultsActivity : BaseActivity() {
             result?.let {
                 if(!mapLoadRequested) {
                     mapLoadRequested = true
-                    binding.map.loadMapAsync {
-                        setUpMap(it)
+                    supportFragmentManager.loadMapFragment(R.id.mapFrameLayout) { m ->
+                        setUpMap(m, it)
                     }
                 }
             }
@@ -138,9 +140,9 @@ class ResultsActivity : BaseActivity() {
         refreshResults()
     }
 
-    private fun setUpMap(result : TestResultRecord) {
+    private fun setUpMap(map : Map, result : TestResultRecord) {
         if (result.latitude != null && result.longitude != null) {
-            val latLngW = LatLngW(result.latitude!!, result.longitude!!)
+            val latLng = LatLng(result.latitude!!, result.longitude!!)
 
             val icon = when (result.networkType) {
                 NetworkTypeCompat.TYPE_UNKNOWN -> R.drawable.ic_marker_empty
@@ -155,14 +157,21 @@ class ResultsActivity : BaseActivity() {
                 NetworkTypeCompat.TYPE_5G -> R.drawable.ic_marker_5g
             }
 
-            mapW().run {
-                addCircle(latLngW,
-                    ContextCompat.getColor(this@ResultsActivity, R.color.map_circle_fill),
-                    ContextCompat.getColor(this@ResultsActivity, R.color.map_circle_stroke),
-                    STROKE_WIDTH, CIRCLE_RADIUS
+            map.run {
+                addCircle(
+                    CircleOptions()
+                        .center(latLng)
+                        .fillColor(ContextCompat.getColor(this@ResultsActivity, R.color.map_circle_fill))
+                        .strokeColor(ContextCompat.getColor(this@ResultsActivity, R.color.map_circle_stroke))
+                        .strokeWidth(STROKE_WIDTH)
+                        .radius(CIRCLE_RADIUS)
                 )
-                addMarker(this@ResultsActivity, latLngW, ANCHOR_U, ANCHOR_V, icon)
-                moveCamera(latLngW, ZOOM_LEVEL)
+                addMarker(MarkerOptions.create()
+                    .position(latLng)
+                    .anchor(ANCHOR_U, ANCHOR_V)
+                    .icon(BitmapDescriptorFactory.instance().fromResource(icon))
+                )
+                moveCamera(CameraUpdateFactory.get().newLatLngZoom(latLng, ZOOM_LEVEL))
                 setOnMapClickListener {
                     DetailedFullscreenMapActivity.start(
                         this@ResultsActivity,
@@ -175,41 +184,9 @@ class ResultsActivity : BaseActivity() {
         }
     }
 
-    private fun mapW() : MapWrapper = binding.map.mapWrapper
-
     private fun refreshResults() {
         viewModel.loadTestResults()
         binding.swipeRefreshLayout.isRefreshing = true
-    }
-
-    override fun onStart() {
-        super.onStart()
-        binding.map.onStart()
-    }
-
-    override fun onResume() {
-        super.onResume()
-        binding.map.onResume()
-    }
-
-    override fun onStop() {
-        super.onStop()
-        binding.map.onStop()
-    }
-
-    override fun onPause() {
-        binding.map.onPause()
-        super.onPause()
-    }
-
-    override fun onSaveInstanceState(outState: Bundle) {
-        super.onSaveInstanceState(outState)
-        binding.map.onSaveInstanceState(outState)
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        binding.map.onDestroy()
     }
 
     override fun onBackPressed() {

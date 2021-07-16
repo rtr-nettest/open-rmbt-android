@@ -19,7 +19,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:visibility="gone"
-            app:constraint_referenced_ids="map, fab_layers, fab_search, fab_filters, fab_location"
+            app:constraint_referenced_ids="mapFrameLayout, fab_layers, fab_search, fab_filters, fab_location"
             app:visibleOrGone="@{state.playServicesAvailable}" />
 
         <WebView
@@ -32,8 +32,8 @@
             app:layout_constraintTop_toTopOf="parent"
             app:visibleOrGone="@{!state.playServicesAvailable}" />
 
-        <at.rtr.rmbt.android.map.MapViewWrapperImpl
-            android:id="@+id/map"
+        <androidx.fragment.app.FragmentContainerView
+            android:id="@+id/mapFrameLayout"
             android:layout_width="0dp"
             android:layout_height="0dp"
             app:layout_constraintBottom_toBottomOf="parent"

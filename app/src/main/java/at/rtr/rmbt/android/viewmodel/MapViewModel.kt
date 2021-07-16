@@ -3,18 +3,16 @@ package at.rtr.rmbt.android.viewmodel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Transformations
+import at.bluesource.choicesdk.maps.common.LatLng
+import at.bluesource.choicesdk.maps.common.Tile
+import at.bluesource.choicesdk.maps.common.TileProvider
 import at.rmbt.client.control.data.MapPresentationType
-import at.rtr.rmbt.android.map.wrapper.LatLngW
-import at.rtr.rmbt.android.map.wrapper.TileW
-import at.rtr.rmbt.android.map.wrapper.TileWrapperProvider
 import at.rtr.rmbt.android.ui.viewstate.MapViewState
 import at.specure.data.entity.MarkerMeasurementRecord
 import at.specure.data.repository.MapRepository
 import at.specure.location.LocationInfo
 import at.specure.location.LocationState
 import at.specure.location.LocationWatcher
-import com.huawei.hms.maps.model.Tile
-import com.huawei.hms.maps.model.TileProvider
 import javax.inject.Inject
 
 class MapViewModel @Inject constructor(
@@ -30,7 +28,7 @@ class MapViewModel @Inject constructor(
     val locationStateLiveData: LiveData<LocationState?>
         get() = locationWatcher.stateLiveData
 
-    var providerLiveData: MutableLiveData<RetrofitTileProvider> = MutableLiveData()
+    var providerLiveData: MutableLiveData<TileProvider> = MutableLiveData()
 
     var markersLiveData: LiveData<List<MarkerMeasurementRecord>> =
         Transformations.switchMap(state.coordinatesLiveData) { repository.getMarkers(it?.latitude, it?.longitude, state.zoom.toInt()) }
@@ -47,21 +45,21 @@ class MapViewModel @Inject constructor(
 
     fun loadMarkers(latitude: Double, longitude: Double, zoom: Int) {
         repository.loadMarkers(latitude, longitude, zoom) {
-            state.coordinatesLiveData.postValue(LatLngW(latitude, longitude))
+            state.coordinatesLiveData.postValue(LatLng(latitude, longitude))
         }
     }
 
     fun prepareDetailsLink(openUUID: String) = repository.prepareDetailsLink(openUUID)
 }
 
-class RetrofitTileProvider(private val repository: MapRepository, private val state: MapViewState) : TileWrapperProvider{
+class RetrofitTileProvider(private val repository: MapRepository, private val state: MapViewState) : TileProvider {
 
-    override fun getTileW(x: Int, y: Int, zoom: Int): TileW {
+    override fun getTile(x: Int, y: Int, zoom: Int): Tile {
         val type = state.type.get() ?: MapPresentationType.POINTS
         return if (type == MapPresentationType.AUTOMATIC && zoom > 10) {
-            TileW(TILE_SIZE, TILE_SIZE, repository.loadAutomaticTiles(x, y, zoom))
+            Tile.getFactory().create(TILE_SIZE, TILE_SIZE, repository.loadAutomaticTiles(x, y, zoom))
         } else {
-            TileW(TILE_SIZE, TILE_SIZE, repository.loadTiles(x, y, zoom, type))
+            Tile.getFactory().create(TILE_SIZE, TILE_SIZE, repository.loadTiles(x, y, zoom, type))
         }
     }
 

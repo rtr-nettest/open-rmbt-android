@@ -67,12 +67,12 @@ class PingChart @JvmOverloads constructor(
     private fun getYLabels(graphItems: List<TestResultGraphItemRecord>): Array<Int> {
 
         val gap = graphItems.let {
-            it.maxBy { it.value }?.let { item ->
+            it.maxByOrNull { it.value }?.let { item ->
                 (ceil(item.value * 5 / 100.0) * 5).toInt()
             }
         }
         val gapList = Array(5) { i -> if (gap != null) (i * gap) else 0 }
-        maxValue = gapList.maxBy { it }
+        maxValue = gapList.maxByOrNull { it }
         return gapList
     }
 

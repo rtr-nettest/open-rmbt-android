@@ -8,6 +8,7 @@ import android.view.ViewGroup
 import androidx.core.view.isVisible
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
+import at.bluesource.choicesdk.core.MobileServicesDetector
 import at.rmbt.client.control.data.MapPresentationType
 import at.rmbt.client.control.data.MapStyleType
 import at.rtr.rmbt.android.R
@@ -84,15 +85,14 @@ class MapLayersDialog : FullscreenDialog() {
         fun instance(fragment: Fragment? = null,
                      requestCode: Int? = NO_VALUE,
                      activeStyle: Int? = NO_VALUE,
-                     activeType: Int? = NO_VALUE,
-                     noSatelliteOrHybrid : Boolean = false): FullscreenDialog =
+                     activeType: Int? = NO_VALUE): FullscreenDialog =
             MapLayersDialog()
                 .apply {
                     requestCode?.let { setTargetFragment(fragment, it) }
                     args {
                         activeStyle?.let { putInt(KEY_STYLE, it) }
                         activeType?.let { putInt(KEY_TYPE, it) }
-                        putBoolean(KEY_NO_SATELLITE_OR_HYBRID, noSatelliteOrHybrid)
+                        putBoolean(KEY_NO_SATELLITE_OR_HYBRID, !MobileServicesDetector.isGmsAvailable()) //https://developer.huawei.com/consumer/en/doc/development/HMSCore-Guides/android-sdk-map-type-0000001062273642)
                     }
                 }
     }
