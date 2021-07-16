@@ -65,10 +65,10 @@ data class QosTestItemRecord(
     /**
      * duration in nanoseconds
      */
-    val durationNanos: Long,
+    val durationNanos: Long?,
 
     /**
      * start time nanoseconds, relative to start of the test
      */
-    val startTimeNanos: Long
+    val startTimeNanos: Long?
 )

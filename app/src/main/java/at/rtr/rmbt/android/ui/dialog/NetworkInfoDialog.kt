@@ -43,14 +43,14 @@ class NetworkInfoDialog : FullscreenDialog() {
         activeNetworkLiveData.listen(this) { info ->
             binding.info = info
 
-            if (info is CellNetworkInfo && info.band != null) {
-                val band = info.band!!
+            if (info is CellNetworkInfo && (info as CellNetworkInfo).band != null) {
+                val band = (info as CellNetworkInfo).band!!
                 binding.channelNumber = band.channel.toString()
                 binding.labelChannelNumber.text = band.channelAttribution.name
 
                 binding.channelName = "${band.band} (${band.name})"
             } else if (info is WifiNetworkInfo) {
-                val band = info.band
+                val band = (info as WifiNetworkInfo).band
                 binding.channelNumber = "${band.channelNumber} (${band.frequency} MHz)"
                 binding.labelChannelNumber.text = getString(R.string.dialog_signal_info_channel)
 
@@ -61,19 +61,19 @@ class NetworkInfoDialog : FullscreenDialog() {
         }
 
         signalStrengthLiveData.listen(this) { signal ->
-            binding.signal = signal
+            binding.signal = signal?.signalStrengthInfo
 
-            if (signal is SignalStrengthInfoLte && signal.timingAdvance != null) {
-                val ta = signal.timingAdvance!!
+            if (signal?.signalStrengthInfo is SignalStrengthInfoLte && (signal.signalStrengthInfo as SignalStrengthInfoLte).timingAdvance != null) {
+                val ta = (signal.signalStrengthInfo as SignalStrengthInfoLte).timingAdvance!!
                 binding.timingAdvance = "$ta ~(${ta * 78} m)"
             } else {
                 binding.timingAdvance = null
             }
 
-            if (signal?.rsrq == null) {
+            if (signal?.signalStrengthInfo?.rsrq == null) {
                 binding.quality = null
             } else {
-                binding.quality = "${signal.rsrq} dB"
+                binding.quality = "${signal.signalStrengthInfo?.rsrq} dB"
             }
         }
     }

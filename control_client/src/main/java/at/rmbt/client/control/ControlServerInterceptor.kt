@@ -20,13 +20,18 @@ import okhttp3.Response
 /**
  * Retrofit interceptor that adds request headers required by control server
  */
-class ControlServerInterceptor : Interceptor {
+class ControlServerInterceptor(val controlEndpointProvider: ControlEndpointProvider) : Interceptor {
 
     override fun intercept(chain: Interceptor.Chain): Response {
-        val request = chain.request().newBuilder()
+        val requestBuilder = chain.request().newBuilder()
             .addHeader("Content-Type", "application/json; charset=UTF-8")
             .addHeader("Accept", "application/json")
-            .build()
+
+        if (controlEndpointProvider.getNettestHeaderValue.isNotEmpty()) {
+            requestBuilder.addHeader("X-Nettest-Client", controlEndpointProvider.getNettestHeaderValue)
+        }
+
+        val request = requestBuilder.build()
 
         return chain.proceed(request)
     }

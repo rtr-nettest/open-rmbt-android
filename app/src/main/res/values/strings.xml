@@ -33,6 +33,7 @@
     <string name="home_no_internet_connection">No Internet connection!</string>
     <string name="home_no_internet_connection_details">No test is possible.</string>
     <string name="home_signal_value">%1$d dBm</string>
+    <string name="home_frequency_value" translatable="false">%1$s MHz</string>
     <string name="home_start_test_info">Press the button to start the test now!</string>
     <string name="home_wifi">WLAN</string>
     <string name="public_ip_address">Public address</string>
@@ -69,6 +70,10 @@
     <string name="preferences_data_protection">Privacy policy and terms of use</string>
     <string name="preferences_developed_by">Developed by Specure GmbH</string>
     <string name="preferences_developer_page" translatable="false">https://specure.com/</string>
+    <string name="preferences_design_by">Design by Feinblick</string>
+    <string name="preferences_design_page" translatable="false">https://www.feinblick.com</string>
+    <string name="preferences_network_info_by">Network information by NetMonster Core</string>
+    <string name="preferences_network_info_page" translatable="false">https://netmonster.app/</string>
     <string name="preferences_version">Version</string>
     <string name="preferences_commit_hash">Commit hash</string>
     <string name="preferences_enter_code">Please enter the code</string>
@@ -304,7 +309,7 @@
     <string name="loop_continue_to_results">Continue to the result</string>
     <string name="loop_run_again">Run again</string>
     <string name="title_privacy_policy">Privacy policy</string>
-    <string name="text_terms_agree">I agree with RTR’s privacy policyand terms of use for RTR-NetTest.</string>
+    <string name="text_terms_agree">I agree with RTR’s privacy policy and terms of use for RTR-NetTest.</string>
     <string name="text_terms_agree_empty">You have to agree to the privacy policy and terms of use to continue.</string>
 
     <string name="dialog_title_config_check">Please change the following values:</string>
@@ -323,5 +328,6 @@
     <string name="text_local_results">Local results only</string>
     <string name="signal_measurement_terms_title">Activation and usage</string>
     <string name="signal_measurement_terms_content">The signal-only loop mode option for technically interested users allows the automatic repetition of signal measurements - without any speed- or quality tests being carried out. The signal-only loop-modus can be stopped at any time respectively it stops automatically after 48 hours. The signal-only loop-modus is (only) intended for use within the EU and the EEA. The battery is quickly drained by the signal-only measurements. In the pauses between tests, the GPS and the display remain active and signal measurements continue, which means that the energy is used up much faster than in stand-by mode. The loop-modus should therefore only be used if an external power supply is available. It needs to be explicitly pointed out that due to the signal-only loop mode it cannot be excluded that the tester is identified.</string>
+    <string name="home_ethernet" translatable="false">Ethernet</string>
 
 </resources>

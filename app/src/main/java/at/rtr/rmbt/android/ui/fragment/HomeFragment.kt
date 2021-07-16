@@ -31,9 +31,11 @@ import at.rtr.rmbt.android.util.ToolbarTheme
 import at.rtr.rmbt.android.util.changeStatusBarColor
 import at.rtr.rmbt.android.util.listen
 import at.rtr.rmbt.android.viewmodel.HomeViewModel
+import at.specure.info.cell.CellNetworkInfo
 import at.specure.location.LocationState
 import at.specure.measurement.MeasurementService
 import at.specure.util.toast
+import timber.log.Timber
 
 class HomeFragment : BaseFragment() {
 
@@ -52,11 +54,10 @@ class HomeFragment : BaseFragment() {
         }
 
         homeViewModel.signalStrengthLiveData.listen(this) {
-            homeViewModel.state.signalStrength.set(it)
-        }
-
-        homeViewModel.activeNetworkLiveData.listen(this) {
+            homeViewModel.state.signalStrength.set(it?.signalStrengthInfo)
             homeViewModel.state.activeNetworkInfo.set(it)
+            if (it?.networkInfo is CellNetworkInfo)
+                Timber.d("NM network type to display from SSLD: ${(it.networkInfo as CellNetworkInfo).networkType.displayName}")
         }
 
         homeViewModel.locationStateLiveData.listen(this) {
@@ -71,22 +72,22 @@ class HomeFragment : BaseFragment() {
             homeViewModel.state.ipV6Info.set(it)
         }
 
-        binding.btnSetting.setOnClickListener {
+        binding.btnSetting?.setOnClickListener {
             startActivity(Intent(requireContext(), PreferenceActivity::class.java))
         }
-        binding.tvInfo.setOnClickListener {
+        binding.tvInfo?.setOnClickListener {
             homeViewModel.state.infoWindowStatus.set(InfoWindowStatus.GONE)
         }
 
-        binding.btnIpv4.setOnClickListener {
+        binding.btnIpv4?.setOnClickListener {
             IpInfoDialog.instance(IpProtocol.V4).show(activity)
         }
 
-        binding.btnIpv6.setOnClickListener {
+        binding.btnIpv6?.setOnClickListener {
             IpInfoDialog.instance(IpProtocol.V6).show(activity)
         }
 
-        binding.btnLocation.setOnClickListener {
+        binding.btnLocation?.setOnClickListener {
 
             context?.let {
                 homeViewModel.state.isLocationEnabled.get()?.let {
@@ -116,7 +117,7 @@ class HomeFragment : BaseFragment() {
             }
         }
 
-        binding.btnUpload.setOnClickListener {
+        binding.btnUpload?.setOnClickListener {
             homeViewModel.activeSignalMeasurementLiveData.value?.let { active ->
                 if (!active) {
                     val intent = SignalMeasurementTermsActivity.start(requireContext())
@@ -131,14 +132,14 @@ class HomeFragment : BaseFragment() {
             homeViewModel.state.isSignalMeasurementActive.set(it)
         }
 
-        binding.btnLoop.setOnClickListener {
+        binding.btnLoop?.setOnClickListener {
             if (this.isResumed) {
-                if (binding.btnLoop.isChecked) {
+                if (binding.btnLoop?.isChecked == true) {
                     val intent = LoopInstructionsActivity.start(requireContext())
                     startActivityForResult(intent, CODE_LOOP_INSTRUCTIONS)
                 } else {
                     homeViewModel.state.isLoopModeActive.set(false)
-                    binding.btnLoop.isChecked = false
+                    binding.btnLoop?.isChecked = false
                 }
             }
         }
@@ -162,14 +163,14 @@ class HomeFragment : BaseFragment() {
             }
         }
 
-        binding.tvFrequency.setOnClickListener {
-            if (homeViewModel.isExpertModeOn) {
+        binding.tvFrequency?.setOnClickListener {
+            if (homeViewModel.shouldDisplayNetworkDetails()) {
                 NetworkInfoDialog.show(childFragmentManager)
             }
         }
 
-        binding.tvSignal.setOnClickListener {
-            if (homeViewModel.isExpertModeOn) {
+        binding.tvSignal?.setOnClickListener {
+            if (homeViewModel.shouldDisplayNetworkDetails()) {
                 NetworkInfoDialog.show(childFragmentManager)
             }
         }
@@ -178,11 +179,10 @@ class HomeFragment : BaseFragment() {
     override fun onResume() {
         super.onResume()
         homeViewModel.signalStrengthLiveData.listen(this) {
-            homeViewModel.state.signalStrength.set(it)
-        }
-
-        homeViewModel.activeNetworkLiveData.listen(this) {
+            homeViewModel.state.signalStrength.set(it?.signalStrengthInfo)
             homeViewModel.state.activeNetworkInfo.set(it)
+            if (it?.networkInfo is CellNetworkInfo)
+                Timber.d("NM network type to display from SSLD OR: ${(it.networkInfo as CellNetworkInfo).networkType.displayName}")
         }
     }
 
@@ -193,10 +193,10 @@ class HomeFragment : BaseFragment() {
             CODE_LOOP_INSTRUCTIONS -> {
                 if (resultCode == Activity.RESULT_OK) {
                     homeViewModel.state.isLoopModeActive.set(true)
-                    binding.btnLoop.isChecked = true
+                    binding.btnLoop?.isChecked = true
                 } else {
                     homeViewModel.state.isLoopModeActive.set(false)
-                    binding.btnLoop.isChecked = false
+                    binding.btnLoop?.isChecked = false
                 }
             }
             CODE_SIGNAL_MEASUREMENT_TERMS -> {

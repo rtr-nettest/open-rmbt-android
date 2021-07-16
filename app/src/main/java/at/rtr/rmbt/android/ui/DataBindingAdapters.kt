@@ -7,6 +7,7 @@ import androidx.appcompat.widget.AppCompatImageButton
 import androidx.appcompat.widget.AppCompatImageView
 import androidx.appcompat.widget.AppCompatTextView
 import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.core.content.ContextCompat
 import androidx.databinding.BindingAdapter
 import at.rmbt.client.control.IpProtocol
 import at.rtr.rmbt.android.R
@@ -26,12 +27,15 @@ import at.specure.info.cell.CellNetworkInfo
 import at.specure.info.cell.CellTechnology
 import at.specure.info.ip.IpInfo
 import at.specure.info.ip.IpStatus
+import at.specure.info.network.DetailedNetworkInfo
+import at.specure.info.network.EthernetNetworkInfo
 import at.specure.info.network.NetworkInfo
 import at.specure.info.network.WifiNetworkInfo
 import at.specure.info.strength.SignalStrengthInfo
 import at.specure.measurement.MeasurementState
 import at.specure.result.QoECategory
 import com.google.android.material.bottomsheet.BottomSheetBehavior
+import timber.log.Timber
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
@@ -74,7 +78,13 @@ fun AppCompatTextView.setFrequency(networkInfo: NetworkInfo?) {
 
     text = when (networkInfo) {
         is WifiNetworkInfo -> networkInfo.band.name
-        is CellNetworkInfo -> networkInfo.band?.name
+        is CellNetworkInfo -> {
+            if (networkInfo.band?.name?.contains("MHz") == true) {
+                networkInfo.band?.name
+            } else {
+                String.format(context.getString(R.string.home_frequency_value), networkInfo.band?.name)
+            }
+        }
         else -> "-"
     }
 }
@@ -119,8 +129,8 @@ fun AppCompatTextView.showPopup(isConnected: Boolean, infoWindowStatus: InfoWind
  * A binding adapter that is used for show network icon based on network type (WIFI/MOBILE),
  * and signalLevel(0..4)
  */
-@BindingAdapter("signalLevel", "connected")
-fun AppCompatImageButton.setIcon(signalStrengthInfo: SignalStrengthInfo?, connected: Boolean) {
+@BindingAdapter("signalLevel", "connected", "networkTransportType")
+fun AppCompatImageButton.setIcon(signalStrengthInfo: SignalStrengthInfo?, connected: Boolean, networkTransportType: TransportType?) {
 
     if (signalStrengthInfo != null) {
 
@@ -155,7 +165,10 @@ fun AppCompatImageButton.setIcon(signalStrengthInfo: SignalStrengthInfo?, connec
         }
     } else {
         if (connected) {
-            setImageResource(R.drawable.ic_signal_unknown)
+            when (networkTransportType) {
+                TransportType.ETHERNET -> setImageResource(R.drawable.ic_ethernet_home)
+                else -> setImageResource(R.drawable.ic_signal_unknown)
+            }
         } else {
             setImageResource(R.drawable.ic_no_internet)
         }
@@ -166,22 +179,24 @@ fun AppCompatImageButton.setIcon(signalStrengthInfo: SignalStrengthInfo?, connec
  * A binding adapter that is used for show network type
  */
 @BindingAdapter("networkType")
-fun AppCompatTextView.setNetworkType(networkInfo: NetworkInfo?) {
+fun AppCompatTextView.setNetworkType(detailedNetworkInfo: DetailedNetworkInfo?) {
 
     /**
      *  display "LTE" (true) or "4G/LTE" (false)
      */
     val shortDisplayOfTechnology = true
 
-    text = when (networkInfo) {
+    text = when (detailedNetworkInfo?.networkInfo) {
+        is EthernetNetworkInfo -> context.getString(R.string.home_ethernet)
         is WifiNetworkInfo -> context.getString(R.string.home_wifi)
         is CellNetworkInfo -> {
             val technology =
-                CellTechnology.fromMobileNetworkType(networkInfo.networkType)?.displayName
+                CellTechnology.fromMobileNetworkType((detailedNetworkInfo.networkInfo as CellNetworkInfo).networkType)?.displayName
+            Timber.d("NM network type to display: ${(detailedNetworkInfo.networkInfo as CellNetworkInfo).networkType.displayName}")
             if (shortDisplayOfTechnology || technology == null) {
-                networkInfo.networkType.displayName
+                (detailedNetworkInfo.networkInfo as CellNetworkInfo).networkType.displayName
             } else {
-                "$technology/${networkInfo.networkType.displayName}"
+                "$technology/${(detailedNetworkInfo.networkInfo as CellNetworkInfo).networkType.displayName}"
             }
         }
         else -> context.getString(R.string.home_attention)
@@ -194,30 +209,35 @@ fun AppCompatTextView.setNetworkType(networkInfo: NetworkInfo?) {
 @BindingAdapter("technology")
 fun AppCompatImageView.setTechnologyIcon(networkInfo: NetworkInfo?) {
 
-    if (networkInfo is CellNetworkInfo) {
-        visibility = View.VISIBLE
-        when (CellTechnology.fromMobileNetworkType(networkInfo.networkType)) {
-            null -> {
-                setImageDrawable(null)
-            }
-            CellTechnology.CONNECTION_2G -> {
-                setImageResource(R.drawable.ic_2g)
-            }
-            CellTechnology.CONNECTION_3G -> {
-                setImageResource(R.drawable.ic_3g)
-            }
-            CellTechnology.CONNECTION_4G -> {
-                setImageResource(R.drawable.ic_4g)
-            }
-            CellTechnology.CONNECTION_4G_5G -> {
-                setImageResource(R.drawable.ic_5g_available)
-            }
-            CellTechnology.CONNECTION_5G -> {
-                setImageResource(R.drawable.ic_5g)
+    when (networkInfo) {
+        is CellNetworkInfo -> {
+            visibility = View.VISIBLE
+            when (CellTechnology.fromMobileNetworkType(networkInfo.networkType)) {
+                null -> {
+                    setImageDrawable(null)
+                }
+                CellTechnology.CONNECTION_2G -> {
+                    setImageResource(R.drawable.ic_2g)
+                }
+                CellTechnology.CONNECTION_3G -> {
+                    setImageResource(R.drawable.ic_3g)
+                }
+                CellTechnology.CONNECTION_4G -> {
+                    setImageResource(R.drawable.ic_4g)
+                }
+                CellTechnology.CONNECTION_4G_5G -> {
+                    setImageResource(R.drawable.ic_5g_available)
+                }
+                CellTechnology.CONNECTION_5G -> {
+                    setImageResource(R.drawable.ic_5g)
+                }
             }
         }
-    } else {
-        visibility = View.GONE
+        is EthernetNetworkInfo -> {
+            visibility = View.VISIBLE
+            setImageResource(R.drawable.ic_label_ethernet)
+        }
+        else -> visibility = View.GONE
     }
 }
 
@@ -311,7 +331,7 @@ fun AppCompatTextView.setPing(pingNanos: Long) {
     }
 }
 
-val THRESHOLD_DOWNLOAD = listOf(0L, 1000000L, 2000000L, 30000000L) // 0mb, 1mb, 2mb, 30mb
+val THRESHOLD_DOWNLOAD = listOf(0L, 5000000L, 10000000L, 100000000L) // 0mb, 5mb, 10mb, 100mb
 
 /**
  * A binding adapter that is used for show download speed
@@ -351,7 +371,7 @@ fun AppCompatTextView.setDownload(downloadSpeedBps: Long) {
     }
 }
 
-val THRESHOLD_UPLOAD = listOf(0L, 500000L, 1000000L, 10000000L) // 0mb, 0.5mb, 1mb, 10mb
+val THRESHOLD_UPLOAD = listOf(0L, 2500000L, 5000000L, 50000000L) // 0mb, 2.5mb, 5mb, 50mb
 
 /**
  * A binding adapter that is used for show upload speed
@@ -592,7 +612,9 @@ private fun getSignalImageResource(networkType: NetworkTypeCompat, signalStrengt
         NetworkTypeCompat.TYPE_UNKNOWN -> {
             R.drawable.ic_history_no_internet
         }
-        NetworkTypeCompat.TYPE_LAN,
+        NetworkTypeCompat.TYPE_LAN -> {
+            R.drawable.ic_ethernet
+        }
         NetworkTypeCompat.TYPE_BROWSER -> {
             R.drawable.ic_browser
         }
@@ -790,7 +812,8 @@ fun AppCompatTextView.setSignalStrength(signalStrengthResult: Int?, signalStreng
 @BindingAdapter("qoeIcon")
 fun AppCompatImageView.setQoEIcon(qoECategory: QoECategory) {
     setImageDrawable(
-        context.getDrawable(
+        ContextCompat.getDrawable(
+            context,
             when (qoECategory) {
                 QoECategory.QOE_UNKNOWN -> 0
                 QoECategory.QOE_AUDIO_STREAMING -> R.drawable.ic_qoe_music

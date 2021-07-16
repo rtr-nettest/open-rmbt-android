@@ -3,6 +3,9 @@ package at.specure.test
 import android.content.Context
 import android.net.ConnectivityManager
 import android.net.Network
+import android.net.NetworkCapabilities.TRANSPORT_CELLULAR
+import android.net.NetworkCapabilities.TRANSPORT_ETHERNET
+import android.net.NetworkCapabilities.TRANSPORT_WIFI
 import at.rtr.rmbt.client.QualityOfServiceTest
 import at.rtr.rmbt.client.RMBTClient
 import at.rtr.rmbt.client.RMBTClientCallback
@@ -38,6 +41,7 @@ private const val KEY_SERVER_SELECTION_ENABLED = "user_server_selection"
 private const val KEY_SERVER_PREFERRED = "prefer_server"
 private const val KEY_DEVELOPER_MODE_ENABLED = "developer_mode"
 private const val KEY_LOOP_MODE_ENABLED = "user_loop_mode"
+private const val KEY_MEASUREMENT_TYPE = "measurement_type_flag" // used on the control server to determine type for signal measurement
 
 private const val TEST_MAX_TIME = 3000
 private const val MAX_VALUE_UNFINISHED_TEST = 0.9f
@@ -160,7 +164,7 @@ class TestControllerImpl(
                 .put(KEY_PREVIOUS_TEST_STATUS, config.previousTestStatus)
 
             loopSettings?.let {
-                additionalValues.put(KEY_LOOP_MODE_SETTINGS, gson.toJson(it))
+                additionalValues.put(KEY_LOOP_MODE_SETTINGS, JSONObject(gson.toJson(it, LoopModeSettings::class.java)))
             }
 
             if (config.expertModeEnabled) {
@@ -176,11 +180,14 @@ class TestControllerImpl(
 
             if (config.loopModeEnabled) {
                 additionalValues.put(KEY_LOOP_MODE_ENABLED, true)
+                additionalValues.put(KEY_MEASUREMENT_TYPE, SignalMeasurementType.LOOP_ACTIVE.signalTypeName)
+            } else {
+                additionalValues.put(KEY_MEASUREMENT_TYPE, SignalMeasurementType.REGULAR.signalTypeName)
             }
 
             client = RMBTClient.getInstance(
                 config.controlServerHost,
-                null,
+                if (config.headerValue.isNullOrEmpty()) null else config.rmbtClientRequestsPathPrefix,
                 config.controlServerPort,
                 config.controlServerUseSSL,
                 geoInfo,
@@ -190,6 +197,8 @@ class TestControllerImpl(
                 deviceInfo.softwareVersionName,
                 null,
                 additionalValues,
+                config.headerValue,
+                config.shouldRunQosTest,
                 errorSet
             )
 
@@ -412,9 +421,35 @@ class TestControllerImpl(
     }
 
     private fun checkIllegalNetworkChange(client: RMBTClient) {
+        var newNetworkWifi = false
+        var newNetworkCellular = false
+        var newNetworkEthernet = false
+        var lastNetworkWifi = false
+        var lastNetworkCellular = false
+        var lastNetworkEthernet = false
+
         val activeNetwork = connectivityManager.activeNetwork
-        if (lastNetwork != null && activeNetwork != lastNetwork) {
+        activeNetwork?.let {
+            val newNetworkCapabilities = connectivityManager.getNetworkCapabilities(it)
+            newNetworkCapabilities?.let { nc ->
+                newNetworkCellular = nc.hasTransport(TRANSPORT_CELLULAR)
+                newNetworkWifi = nc.hasTransport(TRANSPORT_WIFI)
+                newNetworkEthernet = nc.hasTransport(TRANSPORT_ETHERNET)
+            }
+        }
+
+        lastNetwork?.let {
+            val lastNetworkCapabilities = connectivityManager.getNetworkCapabilities(it)
+            lastNetworkCapabilities?.let { nc ->
+                lastNetworkCellular = nc.hasTransport(TRANSPORT_CELLULAR)
+                lastNetworkWifi = nc.hasTransport(TRANSPORT_WIFI)
+                lastNetworkEthernet = nc.hasTransport(TRANSPORT_ETHERNET)
+            }
+        }
+
+        if (lastNetwork != null && ((lastNetworkCellular != newNetworkCellular) || (lastNetworkEthernet != newNetworkEthernet) || (lastNetworkWifi != newNetworkWifi))) {
             Timber.e("XDTE: Illegal network change detected \n last: $lastNetwork \n\n active: $activeNetwork")
+            Timber.e("XDTE: Illegal network change detected \n type last vs  new:\n cellular:   $lastNetworkCellular    vs  $newNetworkCellular\nwifi:   $lastNetworkWifi    vs  $newNetworkWifi\nethernet:   $lastNetworkEthernet    vs  $newNetworkEthernet\n")
             handleError(client)
             stop()
         } else {

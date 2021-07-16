@@ -6,6 +6,8 @@ import at.specure.config.Config
 import at.specure.info.cell.CellNetworkInfo
 import at.specure.info.cell.uuid
 import at.specure.info.network.MobileNetworkType
+import at.specure.info.network.NRConnectionState
+import at.specure.info.strength.SignalSource
 import at.specure.info.strength.SignalStrengthInfo
 import at.specure.info.strength.SignalStrengthInfoNr
 import kotlin.random.Random
@@ -42,7 +44,8 @@ object Network5GSimulator {
             isRoaming = isRoaming,
             apn = apn,
             signalStrength = null,
-            dualSimDetectionMethod = null
+            dualSimDetectionMethod = null,
+            nrConnectionState = NRConnectionState.SA
         )
     }
 
@@ -66,7 +69,8 @@ object Network5GSimulator {
             ssRsrp = Random.nextInt(-140, -44),
             ssRsrq = Random.nextInt(-20, -3),
             ssSinr = Random.nextInt(-23, 40),
-            rsrq = info.rsrq
+            rsrq = info.rsrq,
+            source = SignalSource.NOT_AVAILABLE
         )
     }
 

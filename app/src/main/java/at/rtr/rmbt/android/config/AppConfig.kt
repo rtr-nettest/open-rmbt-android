@@ -29,6 +29,8 @@ private const val KEY_MEASUREMENT_TAG = "MEASUREMENT_TAG"
 private const val KEY_LAST_QOS_TEST_PERFORMED_TIMESTAMP_MILLIS = "LAST_QOS_TEST_PERFORMED_TIMESTAMP_MILLIS"
 private const val KEY_LAST_PERMISSIONS_ASKED_TIMESTAMP_MILLIS = "LAST_PERMISSIONS_ASKED_TIMESTAMP_MILLIS"
 private const val KEY_LAST_BACKGROUND_PERMISSIONS_ASKED_TIMESTAMP_MILLIS = "LAST_BACKGROUND_PERMISSIONS_ASKED_TIMESTAMP_MILLIS"
+private const val KEY_PERSISTENT_CLIENT_UUID_ENABLED = "PERSISTENT_CLIENT_UUID_ENABLED"
+private const val KEY_ANALYTICS_ENABLED = "ANALYTICS_ENABLED"
 
 class AppConfig @Inject constructor(context: Context, private val serverSettings: ControlServerSettings) : Config {
 
@@ -412,4 +414,24 @@ class AppConfig @Inject constructor(context: Context, private val serverSettings
         set(value) = preferences.edit()
             .putLong(KEY_LAST_BACKGROUND_PERMISSIONS_ASKED_TIMESTAMP_MILLIS, value)
             .apply()
+
+    override var persistentClientUUIDEnabled: Boolean
+        get() = preferences.getBoolean(KEY_PERSISTENT_CLIENT_UUID_ENABLED, true)
+        set(value) = preferences.edit()
+            .putBoolean(KEY_PERSISTENT_CLIENT_UUID_ENABLED, value)
+            .apply()
+
+    override var analyticsEnabled: Boolean
+        get() = preferences.getBoolean(KEY_ANALYTICS_ENABLED, true)
+        set(value) = preferences.edit()
+            .putBoolean(KEY_ANALYTICS_ENABLED, value)
+            .apply()
+
+    override var headerValue: String
+        get() = getString(BuildConfig.REQUEST_HEADER_VALUE)
+        set(value) {}
+
+    override var rmbtClientRequestsPathPrefix: String
+        get() = getString(BuildConfig.RMBT_CLIENT_REQUESTS_PATH_PREFIX)
+        set(value) {}
 }

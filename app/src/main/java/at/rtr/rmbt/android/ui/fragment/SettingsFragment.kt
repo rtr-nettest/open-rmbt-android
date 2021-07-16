@@ -44,7 +44,6 @@ class SettingsFragment : BaseFragment(), InputSettingDialog.Callback, ServerSele
         binding.state = settingsViewModel.state
 
         binding.loopModeWaitingTime.frameLayoutRoot.setOnClickListener {
-
             InputSettingDialog.instance(
                 getString(R.string.preferences_loop_mode_min_delay),
                 binding.loopModeWaitingTime.value.toString(), this,
@@ -179,6 +178,12 @@ class SettingsFragment : BaseFragment(), InputSettingDialog.Callback, ServerSele
         }
         binding.developedBy.root.setOnClickListener {
             startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(getString(R.string.preferences_developer_page))))
+        }
+        binding.designBy.root.setOnClickListener {
+            startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(getString(R.string.preferences_design_page))))
+        }
+        binding.networkBy.root.setOnClickListener {
+            startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(getString(R.string.preferences_network_info_page))))
         }
         binding.goToWebsite.root.setOnClickListener {
             startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(settingsViewModel.state.webPageUrl.get())))

@@ -33,8 +33,6 @@ import at.specure.data.repository.NewsRepositoryImpl
 import at.specure.data.repository.SettingsRepository
 import at.specure.data.repository.SettingsRepositoryImpl
 import at.specure.data.repository.TestDataRepository
-import at.specure.info.cell.ActiveDataCellInfoExtractor
-import at.specure.info.cell.ActiveDataCellInfoExtractorImpl
 import at.specure.info.cell.CellInfoWatcher
 import at.specure.info.cell.CellInfoWatcherImpl
 import at.specure.info.connectivity.ConnectivityWatcher
@@ -57,6 +55,8 @@ import at.specure.util.permission.LocationAccessImpl
 import at.specure.util.permission.PermissionsWatcher
 import at.specure.util.permission.PhoneStateAccess
 import at.specure.util.permission.PhoneStateAccessImpl
+import cz.mroczis.netmonster.core.INetMonster
+import cz.mroczis.netmonster.core.factory.NetMonsterFactory
 import dagger.Module
 import dagger.Provides
 import javax.inject.Singleton
@@ -70,29 +70,25 @@ class CoreModule {
     @Provides
     @Singleton
     fun provideSignalStrengthWatcher(
-        context: Context,
-        subscriptionManager: SubscriptionManager,
-        telephonyManager: TelephonyManager,
         activeNetworkWatcher: ActiveNetworkWatcher,
         wifiInfoWatcher: WifiInfoWatcher,
-        locationAccess: LocationAccess,
         cellInfoWatcher: CellInfoWatcher,
-        activeDataCellInfoExtractor: ActiveDataCellInfoExtractor
+        locationAccess: LocationAccess
     ): SignalStrengthWatcher =
         SignalStrengthWatcherImpl(
-            context,
-            subscriptionManager,
-            telephonyManager,
             activeNetworkWatcher,
             wifiInfoWatcher,
             cellInfoWatcher,
-            activeDataCellInfoExtractor,
             locationAccess
         )
 
     @Provides
     @Singleton
     fun provideConnectivityWatcher(connectivityManager: ConnectivityManager): ConnectivityWatcher = ConnectivityWatcherImpl(connectivityManager)
+
+    @Provides
+    @Singleton
+    fun provideNetmonster(context: Context): INetMonster = NetMonsterFactory.get(context)
 
     @Provides
     @Singleton
@@ -110,24 +106,20 @@ class CoreModule {
 
     @Provides
     @Singleton
-    fun provideActiveDataCellInfoExtractor(
-        context: Context,
-        telephonyManager: TelephonyManager,
-        subscriptionManager: SubscriptionManager,
-        connectivityManager: ConnectivityManager
-    ): ActiveDataCellInfoExtractor = ActiveDataCellInfoExtractorImpl(context, telephonyManager, subscriptionManager, connectivityManager)
-
-    @Provides
-    @Singleton
     fun provideCellInfoWatcher(
         context: Context,
         telephonyManager: TelephonyManager,
-        locationAccess: LocationAccess,
-        phoneStateAccess: PhoneStateAccess,
         connectivityManager: ConnectivityManager,
-        activeDataCellInfoExtractor: ActiveDataCellInfoExtractor
+        netmonster: INetMonster,
+        subscriptionManager: SubscriptionManager
     ): CellInfoWatcher =
-        CellInfoWatcherImpl(context, telephonyManager, locationAccess, phoneStateAccess, connectivityManager, activeDataCellInfoExtractor)
+        CellInfoWatcherImpl(
+            context,
+            telephonyManager,
+            connectivityManager,
+            netmonster,
+            subscriptionManager
+        )
 
     @Provides
     @Singleton
@@ -136,13 +128,27 @@ class CoreModule {
     @Provides
     @Singleton
     fun provideActiveNetworkWatcher(
+        context: Context,
+        netmonster: INetMonster,
+        subscriptionManager: SubscriptionManager,
+        telephonyManager: TelephonyManager,
+        connectivityManager: ConnectivityManager,
         connectivityWatcher: ConnectivityWatcher,
         wifiInfoWatcher: WifiInfoWatcher,
-        cellInfoWatcher: CellInfoWatcher,
         locationWatcher: LocationWatcher,
         captivePortal: CaptivePortal
     ): ActiveNetworkWatcher =
-        ActiveNetworkWatcher(connectivityWatcher, wifiInfoWatcher, cellInfoWatcher, locationWatcher.stateWatcher, captivePortal)
+        ActiveNetworkWatcher(
+            context,
+            netmonster,
+            subscriptionManager,
+            telephonyManager,
+            connectivityManager,
+            connectivityWatcher,
+            wifiInfoWatcher,
+            locationWatcher.stateWatcher,
+            captivePortal
+        )
 
     @Provides
     @Singleton
@@ -223,8 +229,12 @@ class CoreModule {
 
     @Provides
     @Singleton
-    fun provideCellLocationWatcher(context: Context, telephonyManager: TelephonyManager): CellLocationWatcher =
-        CellLocationWatcherImpl(context, telephonyManager)
+    fun provideCellLocationWatcher(
+        context: Context,
+        telephonyManager: TelephonyManager,
+        subscriptionManager: SubscriptionManager
+    ): CellLocationWatcher =
+        CellLocationWatcherImpl(context, telephonyManager, subscriptionManager)
 
     @Provides
     fun provideDeviceSyncRepository(

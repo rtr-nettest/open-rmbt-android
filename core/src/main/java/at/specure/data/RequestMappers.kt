@@ -21,6 +21,8 @@ import at.rmbt.client.control.SpeedBody
 import at.rmbt.client.control.TestLocationBody
 import at.rmbt.client.control.TestResultBody
 import at.specure.config.Config
+import at.specure.data.RequestFilters.Companion.createRadioInfoBody
+import at.specure.data.RequestFilters.Companion.removeOldRedundantSignalValuesWithNegativeTimestamp
 import at.specure.data.entity.CapabilitiesRecord
 import at.specure.data.entity.CellInfoRecord
 import at.specure.data.entity.CellLocationRecord
@@ -49,31 +51,31 @@ import com.google.gson.JsonArray
 import com.google.gson.JsonParser
 import timber.log.Timber
 import java.util.UUID
-import kotlin.math.abs
 
-fun DeviceInfo.toSettingsRequest(clientUUID: ClientUUID, clientUUIDLegacy: ClientUUIDLegacy, config: Config, tac: TermsAndConditions) = SettingsRequestBody(
-    type = clientType,
-    name = clientName,
-    language = language,
-    platform = platform,
-    osVersion = osVersion,
-    apiLevel = apiLevel,
-    device = device,
-    model = model,
-    product = product,
-    timezone = timezone,
-    softwareVersionName = softwareVersionName,
-    softwareVersionCode = softwareVersionCode.toString(),
-    softwareRevision = softwareRevision,
-    versionName = clientVersionName,
-    versionCode = clientVersionCode.toString(),
-    uuid = clientUUID.value ?: "",
-    userServerSelectionEnabled = config.expertModeEnabled,
-    tacVersion = tac.tacVersion ?: 0,
-    tacAccepted = tac.tacAccepted,
-    capabilities = config.toCapabilitiesBody(),
-    uuidLegacy = clientUUIDLegacy.value
-)
+fun DeviceInfo.toSettingsRequest(clientUUID: ClientUUID, clientUUIDLegacy: ClientUUIDLegacy, config: Config, tac: TermsAndConditions) =
+    SettingsRequestBody(
+        type = clientType,
+        name = clientName,
+        language = language,
+        platform = platform,
+        osVersion = osVersion,
+        apiLevel = apiLevel,
+        device = device,
+        model = model,
+        product = product,
+        timezone = timezone,
+        softwareVersionName = softwareVersionName,
+        softwareVersionCode = softwareVersionCode.toString(),
+        softwareRevision = softwareRevision,
+        versionName = clientVersionName,
+        versionCode = clientVersionCode.toString(),
+        uuid = clientUUID.value ?: "",
+        userServerSelectionEnabled = config.expertModeEnabled,
+        tacVersion = tac.tacVersion ?: 0,
+        tacAccepted = tac.tacAccepted,
+        capabilities = config.toCapabilitiesBody(),
+        uuidLegacy = clientUUIDLegacy.value
+    )
 
 fun DeviceInfo.toIpRequest(clientUUID: String?, location: LocationInfo?, signalStrengthInfo: SignalStrengthInfo?, capabilities: CapabilitiesBody) =
     IpRequestBody(
@@ -178,11 +180,12 @@ fun TestRecord.toRequest(
                 if (it.isActive) {
                     dualSimDetectionMethod = it.dualSimDetectionMethod
                 }
+                Timber.d("valid cell to send: ${it.uuid} mapped to ${map[it.uuid]?.uuid}")
             }
             if (map.isEmpty()) null else map
         }
 
-        val signals: List<SignalBody>? = if (signalList.isEmpty()) {
+        var signals: List<SignalBody>? = if (signalList.isEmpty()) {
             null
         } else {
             val list = mutableListOf<SignalBody>()
@@ -198,6 +201,8 @@ fun TestRecord.toRequest(
                 if (list.isEmpty()) null else list
             }
         }
+
+        signals = removeOldRedundantSignalValuesWithNegativeTimestamp(signals)?.distinctBy { listOf(it.timeNanos, it.networkTypeId) }
 
         RadioInfoBody(cells?.entries?.map { it.value }, signals)
     }
@@ -230,13 +235,33 @@ fun TestRecord.toRequest(
         it.mobileNetworkType == MobileNetworkType.NR_AVAILABLE || it.mobileNetworkType == MobileNetworkType.NR_NSA || it.mobileNetworkType == MobileNetworkType.NR
     }
 
-    if (signals5G.isNotEmpty()) {
-        telephonyNRConnectionState = when (signals5G[0].mobileNetworkType) {
-            MobileNetworkType.NR -> NRConnectionState.SA.toString()
-            MobileNetworkType.NR_NSA -> NRConnectionState.NSA.toString()
-            MobileNetworkType.NR_AVAILABLE -> NRConnectionState.AVAILABLE.toString()
-            else -> null
+    var best5GTechnologyAchieved: NRConnectionState? = null
+
+    signals5G.forEach() {
+        Timber.d("5G technology: MNT: ${it.mobileNetworkType?.displayName} NRstate: ${it.nrConnectionState.name}")
+        var current5GTechnology =
+            when {
+                (it.mobileNetworkType == MobileNetworkType.NR && it.nrConnectionState != NRConnectionState.NSA) -> NRConnectionState.SA
+                (it.mobileNetworkType == MobileNetworkType.NR && it.nrConnectionState == NRConnectionState.NSA) -> NRConnectionState.NSA
+                (it.mobileNetworkType == MobileNetworkType.NR_NSA) -> NRConnectionState.NSA
+                (it.mobileNetworkType == MobileNetworkType.NR_AVAILABLE) -> NRConnectionState.AVAILABLE
+                else -> null
+            }
+        when (current5GTechnology) {
+            NRConnectionState.SA -> if (best5GTechnologyAchieved == null || best5GTechnologyAchieved == NRConnectionState.NSA || best5GTechnologyAchieved == NRConnectionState.AVAILABLE) {
+                best5GTechnologyAchieved = NRConnectionState.SA
+            }
+            NRConnectionState.NSA -> if (best5GTechnologyAchieved == null || best5GTechnologyAchieved == NRConnectionState.AVAILABLE) {
+                best5GTechnologyAchieved = NRConnectionState.NSA
+            }
+            NRConnectionState.AVAILABLE -> if (best5GTechnologyAchieved == null) {
+                best5GTechnologyAchieved = NRConnectionState.AVAILABLE
+            }
         }
+    }
+
+    best5GTechnologyAchieved?.let {
+        telephonyNRConnectionState = it.stringValue
     }
 
     return TestResultBody(
@@ -356,7 +381,11 @@ fun CellInfoRecord.toRequest() = CellInfoBody(
 
 fun SignalRecord.toRequest(cellUUID: String, ignoreNetworkId: Boolean, signalMeasurementStartTimeNs: Long?) = SignalBody(
     cellUuid = cellUUID,
-    networkTypeId = if (ignoreNetworkId) null else transportType.toRequestIntValue(mobileNetworkType),
+    networkTypeId = if (ignoreNetworkId) null else if (transportType.toRequestIntValue(mobileNetworkType) == MobileNetworkType.NR.intValue) {
+        MobileNetworkType.NR_NSA.intValue
+    } else {
+        transportType.toRequestIntValue(mobileNetworkType)
+    },
     signal = signal.checkSignalValue(),
     bitErrorRate = bitErrorRate.checkSignalValue(),
     wifiLinkSpeed = wifiLinkSpeed.checkSignalValue(),
@@ -369,10 +398,11 @@ fun SignalRecord.toRequest(cellUUID: String, ignoreNetworkId: Boolean, signalMea
     timeLastNanos = timeNanosLast,
     nrCsiRsrp = nrCsiRsrp,
     nrCsiRsrq = nrCsiRsrq,
-    nrCsiSinr = nrSsSinr,
+    nrCsiSinr = nrCsiSinr,
     nrSsRsrp = nrSsRsrp,
     nrSsRsrq = nrSsRsrq,
-    nrSsSinr = nrSsSinr
+    nrSsSinr = nrSsSinr,
+    signalSource = source.stringValue
 )
 
 private fun Int?.checkSignalValue(): Int? = if (this == null || this == Int.MAX_VALUE || this == Int.MAX_VALUE) {
@@ -435,6 +465,7 @@ fun SignalMeasurementRecord.toRequest(clientUUID: String, deviceInfo: DeviceInfo
     time = startTimeMillis,
     timezone = deviceInfo.timezone,
     clientUUID = clientUUID,
+    measurementTypeFlag = signalMeasurementType.signalTypeName,
     location = location?.toRequest()
 )
 
@@ -474,63 +505,7 @@ fun SignalMeasurementRecord.toRequest(
         locations.map { it.toRequest() }
     }
 
-    var radioInfo: RadioInfoBody? = if (cellInfoList.isEmpty() && signalList.isEmpty()) {
-        null
-    } else {
-        val cells: Map<String, CellInfoBody>? = if (cellInfoList.isEmpty()) {
-            null
-        } else {
-            val map = mutableMapOf<String, CellInfoBody>()
-            cellInfoList.forEach {
-                map[it.uuid] = it.toRequest()
-            }
-            if (map.isEmpty()) null else map
-        }
-
-        var signals: List<SignalBody>? = if (signalList.isEmpty()) {
-            null
-        } else {
-            val list = mutableListOf<SignalBody>()
-            if (cells == null) {
-                null
-            } else {
-                signalList.forEach {
-                    val cell = cells[it.cellUuid]
-                    if (cell != null) {
-                        if (it.timeNanos > 0) { // to filter out previous values
-                            list.add(it.toRequest(cell.uuid, false, null))
-                        }
-                    }
-                }
-                if (list.isEmpty()) null else list
-            }
-        }
-        Timber.i("Old list size: ${signals?.size}")
-        // remove last signal from previous chunk
-        if (signals != null && (signals.size > 1) && (chunk.sequenceNumber > 0)) {
-            signals = signals.filterIndexed { index, it ->
-                if (index == signals?.lastIndex) {
-                    true
-                } else {
-                    val newValueUnder60s = abs(signals!![index + 1].timeNanos) - abs(it.timeNanos) <= 60000000000
-                    if (newValueUnder60s) {
-                        true
-                    } else {
-                        Timber.i("Filtered out: $it")
-                        false
-                    }
-                }
-            }
-            // remove previous last entry which is added by getLastSignal
-            signals = signals.filterIndexed { index, _ ->
-                Timber.i("index checking list size: $index")
-                index != 0
-            }
-        }
-        Timber.i("New list size: ${signals?.size} + last time: ")
-
-        RadioInfoBody(cells?.entries?.map { it.value }, signals)
-    }
+    var radioInfo: RadioInfoBody? = createRadioInfoBody(cellInfoList, signalList, chunk)
 
     if (radioInfo?.cells.isNullOrEmpty() && radioInfo?.signals.isNullOrEmpty()) {
         radioInfo = null

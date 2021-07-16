@@ -36,6 +36,16 @@
       "visible": false
     },
     {
+      "name": "CONTROL_SERVER_NEW_HOST",
+      "value": "api-test.example.org",
+      "visible": false
+    },
+    {
+      "name": "CONTROL_SERVER_NEW_ROUTE",
+      "value": "rtr",
+      "visible": false
+    },
+    {
       "name": "CONTROL_SERVER_PORT",
       "value": "443",
       "visible": false
@@ -378,6 +388,16 @@
     {
       "name": "CONTROL_SERVER_GET_NEWS_ENDPOINT",
       "value": "news",
+      "visible": false
+    },
+    {
+      "name": "REQUEST_HEADER_VALUE",
+      "value": "",
+      "visible": false
+    },
+    {
+      "name": "RMBT_CLIENT_REQUESTS_PATH_PREFIX",
+      "value": "",
       "visible": false
     }
   ]

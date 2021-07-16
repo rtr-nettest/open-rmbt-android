@@ -13,10 +13,10 @@ import at.rmbt.client.control.data.MapStyleType
 import at.rtr.rmbt.android.R
 import at.rtr.rmbt.android.databinding.ActivityDetailedFullscreenMapBinding
 import at.rtr.rmbt.android.ui.dialog.MapLayersDialog
+import at.rtr.rmbt.android.ui.loadMapFragment
 import at.rtr.rmbt.android.util.ToolbarTheme
 import at.rtr.rmbt.android.util.changeStatusBarColor
 import at.specure.data.NetworkTypeCompat
-import kotlinx.android.synthetic.main.fragment_map.*
 
 class DetailedFullscreenMapActivity : BaseActivity(), MapLayersDialog.Callback {
 
@@ -42,13 +42,8 @@ class DetailedFullscreenMapActivity : BaseActivity(), MapLayersDialog.Callback {
         latLng = LatLng(intent.getDoubleExtra(KEY_LATITUDE, 0.0), intent.getDoubleExtra(KEY_LONGITUDE, 0.0))
         networkType = NetworkTypeCompat.values()[intent.getIntExtra(KEY_NETWORK_TYPE, 0)]
 
-        val mapFragment: MapFragment = MapFragment.newInstance()
-        supportFragmentManager.beginTransaction().apply {
-            add(R.id.mapContainer, mapFragment)
-            commit()
-        }
-
-        mapFragment.getMapObservable().subscribe {
+        supportFragmentManager.loadMapFragment(R.id.mapContainer) {
+            this.map = it
             onMapReady(it)
         }
 
@@ -60,39 +55,37 @@ class DetailedFullscreenMapActivity : BaseActivity(), MapLayersDialog.Callback {
         }
     }
 
-    private fun onMapReady(map : Map) {
-        this.map = map
-        map.addCircle(CircleOptions()
-            .center(latLng)
-            .fillColor(ContextCompat.getColor(this@DetailedFullscreenMapActivity, R.color.map_circle_fill))
-            .strokeColor(ContextCompat.getColor(this@DetailedFullscreenMapActivity, R.color.map_circle_stroke))
-            .strokeWidth(STROKE_WIDTH)
-            .radius(CIRCLE_RADIUS))
+    private fun onMapReady(map: Map) {
+        with(latLng) {
+            map.addCircle(
+                CircleOptions()
+                    .center(this)
+                    .fillColor(ContextCompat.getColor(this@DetailedFullscreenMapActivity, R.color.map_circle_fill))
+                    .strokeColor(ContextCompat.getColor(this@DetailedFullscreenMapActivity, R.color.map_circle_stroke))
+                    .strokeWidth(STROKE_WIDTH)
+                    .radius(CIRCLE_RADIUS)
+            )
 
-        val icon = when (networkType) {
-            NetworkTypeCompat.TYPE_UNKNOWN -> R.drawable.ic_marker_empty
-            NetworkTypeCompat.TYPE_LAN,
-            NetworkTypeCompat.TYPE_BROWSER -> R.drawable.ic_marker_browser
-            NetworkTypeCompat.TYPE_WLAN -> R.drawable.ic_marker_wifi
-            NetworkTypeCompat.TYPE_5G_AVAILABLE,
-            NetworkTypeCompat.TYPE_4G -> R.drawable.ic_marker_4g
-            NetworkTypeCompat.TYPE_3G -> R.drawable.ic_marker_3g
-            NetworkTypeCompat.TYPE_2G -> R.drawable.ic_marker_2g
-            NetworkTypeCompat.TYPE_5G_NSA,
-            NetworkTypeCompat.TYPE_5G -> R.drawable.ic_marker_5g
-        }
+            val icon = when (networkType) {
+                NetworkTypeCompat.TYPE_UNKNOWN -> R.drawable.ic_marker_empty
+                NetworkTypeCompat.TYPE_LAN -> R.drawable.ic_marker_ethernet
+                NetworkTypeCompat.TYPE_BROWSER -> R.drawable.ic_marker_browser
+                NetworkTypeCompat.TYPE_WLAN -> R.drawable.ic_marker_wifi
+                NetworkTypeCompat.TYPE_5G_AVAILABLE,
+                NetworkTypeCompat.TYPE_4G -> R.drawable.ic_marker_4g
+                NetworkTypeCompat.TYPE_3G -> R.drawable.ic_marker_3g
+                NetworkTypeCompat.TYPE_2G -> R.drawable.ic_marker_2g
+                NetworkTypeCompat.TYPE_5G_NSA,
+                NetworkTypeCompat.TYPE_5G -> R.drawable.ic_marker_5g
+            }
 
-        map.run {
-            addMarker(MarkerOptions
-                .create()
+            map.addMarker(MarkerOptions.create()
+                .position(this)
                 .anchor(ANCHOR_U, ANCHOR_V)
                 .icon(BitmapDescriptorFactory.instance().fromResource(icon))
-                .position(latLng))
-
-            moveCamera(CameraUpdateFactory
-                .get()
-                .newLatLngZoom(latLng, ZOOM_LEVEL)
             )
+            map.moveCamera(CameraUpdateFactory.get().newLatLngZoom(this, ZOOM_LEVEL))
+            map.setOnMarkerClickListener { true }
         }
     }
 

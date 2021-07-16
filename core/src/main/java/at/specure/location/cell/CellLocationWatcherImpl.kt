@@ -4,14 +4,20 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.telephony.CellLocation
 import android.telephony.PhoneStateListener
+import android.telephony.SubscriptionManager
 import android.telephony.TelephonyManager
 import android.telephony.gsm.GsmCellLocation
+import at.rmbt.client.control.getCorrectDataTelephonyManager
 import at.specure.info.cell.fixValue
 import at.specure.util.hasPermission
 import java.util.Collections
 import javax.inject.Inject
 
-class CellLocationWatcherImpl @Inject constructor(private val context: Context, private val telephonyManager: TelephonyManager) :
+class CellLocationWatcherImpl @Inject constructor(
+    private val context: Context,
+    private val telephonyManager: TelephonyManager,
+    private val subscriptionManager: SubscriptionManager
+) :
     CellLocationWatcher {
 
     private val listeners = Collections.synchronizedSet(mutableSetOf<CellLocationWatcher.CellLocationChangeListener>())
@@ -49,14 +55,14 @@ class CellLocationWatcherImpl @Inject constructor(private val context: Context, 
         listeners.add(listener)
         listener.onCellLocationChanged(_latestLocation)
         if (needToRegister && context.hasPermission(android.Manifest.permission.ACCESS_FINE_LOCATION)) {
-            telephonyManager.listen(locationListener, PhoneStateListener.LISTEN_CELL_LOCATION)
+            telephonyManager.getCorrectDataTelephonyManager(subscriptionManager).listen(locationListener, PhoneStateListener.LISTEN_CELL_LOCATION)
         }
     }
 
     @SuppressLint("MissingPermission")
     override fun getCellLocationFromTelephony(): CellLocationInfo? {
         if (context.hasPermission(android.Manifest.permission.ACCESS_FINE_LOCATION)) {
-            val cellLocation = telephonyManager.cellLocation
+            val cellLocation = telephonyManager.getCorrectDataTelephonyManager(subscriptionManager).cellLocation
             _latestLocation = when (cellLocation) {
                 is GsmCellLocation -> {
                     CellLocationInfo(
@@ -78,7 +84,7 @@ class CellLocationWatcherImpl @Inject constructor(private val context: Context, 
     override fun removeListener(listener: CellLocationWatcher.CellLocationChangeListener) {
         listeners.remove(listener)
         if (listeners.isEmpty()) {
-            telephonyManager.listen(locationListener, PhoneStateListener.LISTEN_NONE)
+            telephonyManager.getCorrectDataTelephonyManager(subscriptionManager).listen(locationListener, PhoneStateListener.LISTEN_NONE)
         }
     }
 }

@@ -41,7 +41,7 @@ distribution:init:
   only:
     - develop
 
-check:app:
+check:app-rtr:
   stage: check
   script:
     - ./gradlew :app:ktlint
@@ -51,6 +51,7 @@ check:app:
       - /fix\/.*/
       - /feature\/.*/
       - /hotfix\/.*/
+      - /update\/.*/
       - /test\/.*/
 
 check:core:
@@ -63,6 +64,7 @@ check:core:
       - /fix\/.*/
       - /feature\/.*/
       - /hotfix\/.*/
+      - /update\/.*/
       - /test\/.*/
 
 check:controlClient:
@@ -75,19 +77,21 @@ check:controlClient:
       - /fix\/.*/
       - /feature\/.*/
       - /hotfix\/.*/
+      - /update\/.*/
       - /test\/.*/
 
 check:openRMBTBuild:
   stage: check
   script:
     - rm -rf private
-    - ./gradlew clean
-    - ./gradlew assembleOpenRmbtDebug
+    - ./gradlew app:clean
+    - ./gradlew app:assembleOpenRmbtDebug
   only:
     refs:
       - /fix\/.*/
       - /feature\/.*/
       - /hotfix\/.*/
+      - /update\/.*/
       - /test\/.*/
 
 .check:uiTests:
@@ -107,15 +111,15 @@ check:openRMBTBuild:
     refs:
       - develop
 
-distribution:build:
+distribution:build-rtr:
   stage: distribution
   interruptible: true
   script:
     - echo "version ${VERSION_NAME}(${VERSION_CODE})"
-    - ./gradlew assembleLocalStageDebug -PbuildVersionCode=${VERSION_CODE} -PbuildVersionName=${VERSION_NAME} -PreleaseNotes="${RELEASE_NOTES}"
-    - ./gradlew appDistributionUploadLocalStageDebug -PbuildVersionCode=${VERSION_CODE} -PbuildVersionName=${VERSION_NAME} -PreleaseNotes="${RELEASE_NOTES}"
-    - ./gradlew assembleLocalDemoRelease -PbuildVersionCode=${VERSION_CODE} -PbuildVersionName=${VERSION_NAME} -PreleaseNotes="${RELEASE_NOTES}"
-    - ./gradlew appDistributionUploadLocalDemoRelease -PbuildVersionCode=${VERSION_CODE} -PbuildVersionName=${VERSION_NAME} -PreleaseNotes="${RELEASE_NOTES}"
+    - ./gradlew app:assembleLocalStageDebug -PbuildVersionCode=${VERSION_CODE} -PbuildVersionName=${VERSION_NAME} -PreleaseNotes="${RELEASE_NOTES}"
+    - ./gradlew app:appDistributionUploadLocalStageDebug -PbuildVersionCode=${VERSION_CODE} -PbuildVersionName=${VERSION_NAME} -PreleaseNotes="${RELEASE_NOTES}"
+    - ./gradlew app:assembleLocalDemoRelease -PbuildVersionCode=${VERSION_CODE} -PbuildVersionName=${VERSION_NAME} -PreleaseNotes="${RELEASE_NOTES}"
+    - ./gradlew app:appDistributionUploadLocalDemoRelease -PbuildVersionCode=${VERSION_CODE} -PbuildVersionName=${VERSION_NAME} -PreleaseNotes="${RELEASE_NOTES}"
   only:
     - develop
   artifacts:

@@ -9,11 +9,14 @@ import at.specure.info.TransportType
 import at.specure.info.cell.CellTechnology
 import at.specure.info.connectivity.ConnectivityState
 import at.specure.info.network.MobileNetworkType
+import at.specure.info.network.NRConnectionState
+import at.specure.info.strength.SignalSource
 import at.specure.measurement.MeasurementState
 import at.specure.measurement.signal.SignalMeasurementState
 import at.specure.result.QoECategory
 import at.specure.result.QoSCategory
 import at.specure.test.DeviceInfo
+import at.specure.test.SignalMeasurementType
 import com.google.gson.Gson
 import com.google.gson.JsonObject
 import com.google.gson.JsonParser
@@ -74,6 +77,12 @@ class TypeConverter {
     }
 
     @TypeConverter
+    fun signalMeasurementTypeToValue(type: SignalMeasurementType): String = type.signalTypeName
+
+    @TypeConverter
+    fun valueToSignalMeasurementType(value: String): SignalMeasurementType = SignalMeasurementType.fromString(value)
+
+    @TypeConverter
     fun networkTypeCompatToValue(type: NetworkTypeCompat): String = type.stringValue
 
     @TypeConverter
@@ -84,6 +93,18 @@ class TypeConverter {
 
     @TypeConverter
     fun valueToClassification(value: Int): Classification = Classification.fromValue(value)
+
+    @TypeConverter
+    fun nrConnectionStateToValue(nrConnectionState: NRConnectionState): String = nrConnectionState.stringValue
+
+    @TypeConverter
+    fun valueToNrConnectionState(value: String): NRConnectionState = NRConnectionState.fromString(value)
+
+    @TypeConverter
+    fun signalSourceToValue(signalSource: SignalSource): String = signalSource.stringValue
+
+    @TypeConverter
+    fun valueToSignalSource(value: String): SignalSource = SignalSource.fromString(value)
 
     @TypeConverter
     fun jsonObjectToValue(jsonObject: JsonObject): String = jsonObject.toString()

@@ -2,7 +2,7 @@ package at.specure.info.strength
 
 import android.os.Parcelable
 import at.specure.info.TransportType
-import kotlinx.android.parcel.Parcelize
+import kotlinx.parcelize.Parcelize
 
 @Parcelize
 class SignalStrengthInfoWiFi(
@@ -13,6 +13,7 @@ class SignalStrengthInfoWiFi(
     override val min: Int,
     override val max: Int,
     override val timestampNanos: Long,
+    override val source: SignalSource = SignalSource.NOT_AVAILABLE,
 
     /**
      * The current link speed in Mbps.

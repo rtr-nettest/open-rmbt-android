@@ -24,7 +24,7 @@ import java.util.concurrent.TimeUnit
 import javax.inject.Singleton
 
 private const val CONNECTION_TIMEOUT_SEC = 30L
-private const val READ_TIMEOUT_SEC = 8L
+private const val READ_TIMEOUT_SEC = 10L
 
 /**
  * Temporary module for providing Retrofit instance
@@ -58,15 +58,15 @@ class ControlServerModule {
                 ).create()
             )
         )
-        .client(createOkHttpClient())
+        .client(createOkHttpClient(controlEndpointProvider))
         .build()
 
-    fun createOkHttpClient(): OkHttpClient {
+    fun createOkHttpClient(controlEndpointProvider: ControlEndpointProvider): OkHttpClient {
         val builder = OkHttpClient.Builder()
             .connectTimeout(CONNECTION_TIMEOUT_SEC, TimeUnit.SECONDS)
             .readTimeout(READ_TIMEOUT_SEC, TimeUnit.SECONDS)
             .writeTimeout(CONNECTION_TIMEOUT_SEC, TimeUnit.SECONDS)
-            .addInterceptor(ControlServerInterceptor())
+            .addInterceptor(ControlServerInterceptor(controlEndpointProvider))
 
         return setupOkHttpClient(builder).build()
     }

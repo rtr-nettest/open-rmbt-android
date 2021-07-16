@@ -395,4 +395,25 @@ interface Config {
      * Timestamp of last asked for background location permission System.currentTimeMillis()
      */
     val lastBackgroundPermissionAskedTimestampMillis: Long
+
+    /**
+     * When this flag is set to true, new client UUID is generated before each test execution (no test history no synced results),
+     * when this flag is set to false, user has one permanent client uuid and ability to sync history and see results history
+     */
+    var persistentClientUUIDEnabled: Boolean
+
+    /**
+     * When this flag is set to true, analytics and crash reports are enabled for the app, when it is set to false, no reports are sent
+     */
+    var analyticsEnabled: Boolean
+
+    /**
+     * Value for the request header for nettest family apps
+     */
+    var headerValue: String
+
+    /**
+     * Path prefix for RMBTClient calls
+     */
+    var rmbtClientRequestsPathPrefix: String
 }

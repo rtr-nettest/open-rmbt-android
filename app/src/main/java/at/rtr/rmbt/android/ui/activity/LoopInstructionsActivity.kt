@@ -1,24 +1,31 @@
 package at.rtr.rmbt.android.ui.activity
 
+import android.Manifest
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.app.ActivityCompat
 import androidx.viewpager.widget.PagerAdapter
 import at.rtr.rmbt.android.R
 import at.rtr.rmbt.android.databinding.ActivityLoopInstructionsBinding
 import at.rtr.rmbt.android.databinding.ViewLoopModeInstructionBinding
+import at.rtr.rmbt.android.di.viewModelLazy
 import at.rtr.rmbt.android.util.ToolbarTheme
 import at.rtr.rmbt.android.util.changeStatusBarColor
+import at.rtr.rmbt.android.viewmodel.LoopConfigurationViewModel
 
 private const val PAGE_COUNT = 2
 
 class LoopInstructionsActivity : BaseActivity(), Callback {
 
     private lateinit var binding: ActivityLoopInstructionsBinding
+    private val viewModel: LoopConfigurationViewModel by viewModelLazy()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -43,7 +50,45 @@ class LoopInstructionsActivity : BaseActivity(), Callback {
 
     override fun onSecondPageAccepted() {
         setResult(Activity.RESULT_OK)
+        checkBackgroundLocationPermission()
         finish()
+    }
+
+    //@TODO: De-duplicate from LoopConfigurationActivity
+    private fun checkBackgroundLocationPermission() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            val hasForegroundLocationPermission =
+                ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
+            if (hasForegroundLocationPermission) {
+                val hasBackgroundLocationPermission = ActivityCompat.checkSelfPermission(
+                    this,
+                    Manifest.permission.ACCESS_BACKGROUND_LOCATION
+                ) == PackageManager.PERMISSION_GRANTED
+                if (hasBackgroundLocationPermission) {
+                    // handle location update
+                } else {
+                    if (viewModel.shouldAskForBackgroundPermission()) {
+                        ActivityCompat.requestPermissions(
+                            this,
+                            arrayOf(Manifest.permission.ACCESS_BACKGROUND_LOCATION),
+                            LoopInstructionsActivity.REQUEST_CODE_BACKGROUND
+                        )
+                        viewModel.backgroundPermissionsWereAsked()
+                    }
+                }
+            } else {
+                if (viewModel.shouldAskForPermission()) {
+                    ActivityCompat.requestPermissions(
+                        this,
+                        arrayOf(
+                            Manifest.permission.ACCESS_FINE_LOCATION,
+                            Manifest.permission.ACCESS_BACKGROUND_LOCATION
+                        ), LoopInstructionsActivity.REQUEST_CODE_BACKGROUND
+                    )
+                    viewModel.backgroundPermissionsWereAsked()
+                }
+            }
+        }
     }
 
     inner class InstructionsAdapter(context: Context, private val callback: Callback) : PagerAdapter() {
@@ -71,6 +116,7 @@ class LoopInstructionsActivity : BaseActivity(), Callback {
 
     companion object {
         fun start(context: Context): Intent = Intent(context, LoopInstructionsActivity::class.java)
+        private const val REQUEST_CODE_BACKGROUND = 1
     }
 }
 

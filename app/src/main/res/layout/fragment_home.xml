@@ -192,6 +192,7 @@
             app:layout_constraintEnd_toEndOf="@+id/viewCircleShape"
             app:layout_constraintStart_toStartOf="@+id/viewCircleShape"
             app:layout_constraintTop_toTopOf="@+id/viewCircleShape"
+            app:networkTransportType="@{state.activeNetworkInfo.networkInfo.type}"
             app:connected="@{state.isConnected}"
             app:signalLevel="@{state.signalStrength}" />
 
@@ -199,12 +200,13 @@
             android:id="@+id/ivTechnology"
             android:layout_width="0dp"
             android:layout_height="0dp"
+            android:scaleType="centerInside"
             app:layout_constraintEnd_toEndOf="@+id/viewCircleShape"
             app:layout_constraintHeight_percent="0.035"
             app:layout_constraintStart_toStartOf="@+id/viewCircleShape"
             app:layout_constraintTop_toTopOf="@+id/viewCircleShape"
-            app:technology="@{state.activeNetworkInfo}"
-            tools:src="@drawable/ic_4g" />
+            app:technology="@{state.activeNetworkInfo.networkInfo}"
+            tools:src="@drawable/ic_label_ethernet" />
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/tvNetworkType"
@@ -226,7 +228,7 @@
             style="@style/RobotoMediumStyle.Large"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@{state.isConnected ? state.activeNetworkInfo.name : @string/home_no_internet_connection}"
+            android:text="@{state.isConnected ? state.activeNetworkInfo.networkInfo.name : @string/home_no_internet_connection}"
             android:textColor="@{state.isConnected ? @android:color/white : @color/text_dark_gray}"
             app:layout_constraintBottom_toTopOf="@+id/tvLblNoConnection"
             app:layout_constraintEnd_toEndOf="parent"
@@ -291,8 +293,8 @@
             android:layout_height="wrap_content"
             android:gravity="center"
             android:textColor="@color/text_gray"
-            app:frequency="@{state.activeNetworkInfo}"
-            app:frequencyVisibility="@{state.activeNetworkInfo}"
+            app:frequency="@{state.activeNetworkInfo.networkInfo}"
+            app:frequencyVisibility="@{state.activeNetworkInfo.networkInfo}"
             app:layout_constraintBottom_toTopOf="@+id/tvLblSignal"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@+id/tvSignal"
@@ -320,7 +322,7 @@
             android:paddingBottom="@dimen/padding_large"
             android:text="@string/home_frequency"
             android:textColor="@color/text_gray_transparency_40"
-            app:frequencyVisibility="@{state.activeNetworkInfo}"
+            app:frequencyVisibility="@{state.activeNetworkInfo.networkInfo}"
             app:layout_constraintBottom_toTopOf="@+id/vBottomDivider"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@+id/tvLblSignal" />

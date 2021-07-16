@@ -35,6 +35,7 @@ class ResultsActivity : BaseActivity() {
     private lateinit var resultChartFragmentPagerAdapter: ResultChartFragmentPagerAdapter
 
     private var mapLoadRequested : Boolean = false
+    private var map : Map? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -42,6 +43,12 @@ class ResultsActivity : BaseActivity() {
         binding.state = viewModel.state
 
         viewModel.state.playServicesAvailable.set(MobileService.GMS.isAvailable() || MobileService.HMS.isAvailable())
+        if(!mapLoadRequested) {
+            mapLoadRequested = true
+            supportFragmentManager.loadMapFragment(R.id.mapFrameLayout) { m ->
+                this.map = m
+            }
+        }
 
         val testUUID = intent.getStringExtra(KEY_TEST_UUID)
         check(!testUUID.isNullOrEmpty()) { "TestUUID was not passed to result activity" }
@@ -49,8 +56,10 @@ class ResultsActivity : BaseActivity() {
         val returnPoint = intent.getStringExtra(KEY_RETURN_POINT)
         check(!testUUID.isNullOrEmpty()) { "ReturnPoint was not passed to result activity" }
 
-        binding.viewPagerCharts.offscreenPageLimit = 3
-        binding.tabLayoutCharts.setupWithViewPager(binding.viewPagerCharts, true)
+        binding.viewPagerCharts?.offscreenPageLimit = 3
+        binding.viewPagerCharts?.let { viewPagerCharts ->
+            binding.tabLayoutCharts?.setupWithViewPager(viewPagerCharts, true)
+        }
 
         viewModel.state.testUUID = testUUID
         viewModel.state.returnPoint = returnPoint?.let { ReturnPoint.valueOf(returnPoint) } ?: ReturnPoint.HOME
@@ -59,15 +68,12 @@ class ResultsActivity : BaseActivity() {
 
             result?.testOpenUUID?.let {
                 resultChartFragmentPagerAdapter = ResultChartFragmentPagerAdapter(supportFragmentManager, testUUID, result.networkType)
-                binding.viewPagerCharts.adapter = resultChartFragmentPagerAdapter
+                binding.viewPagerCharts?.adapter = resultChartFragmentPagerAdapter
             }
 
-            result?.let {
-                if(!mapLoadRequested) {
-                    mapLoadRequested = true
-                    supportFragmentManager.loadMapFragment(R.id.mapFrameLayout) { m ->
-                        setUpMap(m, it)
-                    }
+            if (result?.latitude != null && result.longitude != null) {
+                map?.let {
+                    setUpMap(it, result)
                 }
             }
         }
@@ -81,14 +87,14 @@ class ResultsActivity : BaseActivity() {
             adapter.submitList(it)
         }
 
-        binding.qoeResultsRecyclerView.adapter = adapter
+        binding.qoeResultsRecyclerView?.adapter = adapter
 
-        binding.qoeResultsRecyclerView.apply {
+        binding.qoeResultsRecyclerView?.apply {
             val itemDecoration = DividerItemDecoration(context, DividerItemDecoration.VERTICAL)
             ContextCompat.getDrawable(context, R.drawable.history_item_divider)?.let {
                 itemDecoration.setDrawable(it)
             }
-            binding.qoeResultsRecyclerView.addItemDecoration(itemDecoration)
+            binding.qoeResultsRecyclerView?.addItemDecoration(itemDecoration)
         }
         binding.buttonBack.setOnClickListener {
             onBackPressed()
@@ -115,17 +121,17 @@ class ResultsActivity : BaseActivity() {
             }
         }
 
-        binding.labelTestResultDetail.setOnClickListener {
+        binding.labelTestResultDetail?.setOnClickListener {
             TestResultDetailActivity.start(this, viewModel.state.testUUID)
         }
 
-        binding.qosResultsRecyclerView.apply {
+        binding.qosResultsRecyclerView?.apply {
             adapter = qosAdapter
             val itemDecoration = DividerItemDecoration(context, DividerItemDecoration.VERTICAL)
             ContextCompat.getDrawable(context, R.drawable.history_item_divider)?.let {
                 itemDecoration.setDrawable(it)
             }
-            binding.qosResultsRecyclerView.addItemDecoration(itemDecoration)
+            binding.qosResultsRecyclerView?.addItemDecoration(itemDecoration)
         }
 
         viewModel.qosCategoryResultLiveData.listen(this) {

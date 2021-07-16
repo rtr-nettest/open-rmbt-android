@@ -15,6 +15,7 @@ import at.specure.data.ClientUUID
 import at.specure.data.MeasurementServers
 import at.specure.data.repository.NewsRepository
 import at.specure.data.repository.SettingsRepository
+import at.specure.info.TransportType
 import at.specure.info.connectivity.ConnectivityInfoLiveData
 import at.specure.info.ip.IpV4ChangeLiveData
 import at.specure.info.ip.IpV6ChangeLiveData
@@ -24,6 +25,7 @@ import at.specure.location.LocationState
 import at.specure.location.LocationWatcher
 import at.specure.measurement.signal.SignalMeasurementProducer
 import at.specure.measurement.signal.SignalMeasurementService
+import at.specure.test.SignalMeasurementType
 import at.specure.util.permission.PermissionsWatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collect
@@ -133,7 +135,7 @@ class HomeViewModel @Inject constructor(
                 if (it.isActive) {
                     it.stopMeasurement(false)
                 } else {
-                    it.startMeasurement(false)
+                    it.startMeasurement(false, SignalMeasurementType.DEDICATED)
                     it.setEndAlarm()
                 }
             }
@@ -153,8 +155,8 @@ class HomeViewModel @Inject constructor(
             }
     }
 
-    fun startSignalMeasurement() {
-        producer?.startMeasurement(false)
+    fun startSignalMeasurement(signalMeasurementType: SignalMeasurementType) {
+        producer?.startMeasurement(false, signalMeasurementType)
     }
 
     fun stopSignalMeasurement() {
@@ -192,5 +194,9 @@ class HomeViewModel @Inject constructor(
 
     fun permissionsWereAsked() {
         appConfig.lastPermissionAskedTimestampMillis = System.currentTimeMillis()
+    }
+
+    fun shouldDisplayNetworkDetails(): Boolean {
+        return ((isExpertModeOn) && (state.activeNetworkInfo.get()?.networkInfo?.type == TransportType.WIFI || state.activeNetworkInfo.get()?.networkInfo?.type == TransportType.CELLULAR))
     }
 }
