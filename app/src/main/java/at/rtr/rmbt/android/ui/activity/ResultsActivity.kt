@@ -24,6 +24,7 @@ import at.rtr.rmbt.android.util.listen
 import at.rtr.rmbt.android.viewmodel.ResultViewModel
 import at.specure.data.NetworkTypeCompat
 import at.specure.data.entity.TestResultRecord
+import io.reactivex.rxjava3.disposables.Disposable
 import timber.log.Timber
 
 class ResultsActivity : BaseActivity() {
@@ -34,8 +35,8 @@ class ResultsActivity : BaseActivity() {
     private val qosAdapter: QosResultAdapter by lazy { QosResultAdapter() }
     private lateinit var resultChartFragmentPagerAdapter: ResultChartFragmentPagerAdapter
 
-    private var mapLoadRequested : Boolean = false
-    private var map : Map? = null
+    private var mapLoadRequested: Boolean = false
+    private var loadMapDisposable : Disposable? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -43,12 +44,6 @@ class ResultsActivity : BaseActivity() {
         binding.state = viewModel.state
 
         viewModel.state.playServicesAvailable.set(MobileService.GMS.isAvailable() || MobileService.HMS.isAvailable())
-        if(!mapLoadRequested) {
-            mapLoadRequested = true
-            supportFragmentManager.loadMapFragment(R.id.mapFrameLayout) { m ->
-                this.map = m
-            }
-        }
 
         val testUUID = intent.getStringExtra(KEY_TEST_UUID)
         check(!testUUID.isNullOrEmpty()) { "TestUUID was not passed to result activity" }
@@ -62,19 +57,27 @@ class ResultsActivity : BaseActivity() {
         }
 
         viewModel.state.testUUID = testUUID
-        viewModel.state.returnPoint = returnPoint?.let { ReturnPoint.valueOf(returnPoint) } ?: ReturnPoint.HOME
+        viewModel.state.returnPoint =
+            returnPoint?.let { ReturnPoint.valueOf(returnPoint) } ?: ReturnPoint.HOME
         viewModel.testServerResultLiveData.listen(this) { result ->
             viewModel.state.testResult.set(result)
 
-            result?.testOpenUUID?.let {
-                resultChartFragmentPagerAdapter = ResultChartFragmentPagerAdapter(supportFragmentManager, testUUID, result.networkType)
-                binding.viewPagerCharts?.adapter = resultChartFragmentPagerAdapter
+            if (!mapLoadRequested) {
+                mapLoadRequested = true
+                result?.let {
+                    supportFragmentManager.loadMapFragment(R.id.mapFrameLayout) { m ->
+                        setUpMap(m, it)
+                    }
+                }
             }
 
-            if (result?.latitude != null && result.longitude != null) {
-                map?.let {
-                    setUpMap(it, result)
-                }
+            result?.testOpenUUID?.let {
+                resultChartFragmentPagerAdapter = ResultChartFragmentPagerAdapter(
+                    supportFragmentManager,
+                    testUUID,
+                    result.networkType
+                )
+                binding.viewPagerCharts?.adapter = resultChartFragmentPagerAdapter
             }
         }
         viewModel.testResultDetailsLiveData.listen(this) {
@@ -146,7 +149,14 @@ class ResultsActivity : BaseActivity() {
         refreshResults()
     }
 
-    private fun setUpMap(map : Map, result : TestResultRecord) {
+    private fun setUpMap(map: Map, result: TestResultRecord) {
+        with(map.getUiSettings()) {
+            isRotateGesturesEnabled = false
+            isCompassEnabled = false
+            isZoomGesturesEnabled = false
+            isScrollGesturesEnabled = false
+        }
+
         if (result.latitude != null && result.longitude != null) {
             val latLng = LatLng(result.latitude!!, result.longitude!!)
 
@@ -167,15 +177,26 @@ class ResultsActivity : BaseActivity() {
                 addCircle(
                     CircleOptions()
                         .center(latLng)
-                        .fillColor(ContextCompat.getColor(this@ResultsActivity, R.color.map_circle_fill))
-                        .strokeColor(ContextCompat.getColor(this@ResultsActivity, R.color.map_circle_stroke))
+                        .fillColor(
+                            ContextCompat.getColor(
+                                this@ResultsActivity,
+                                R.color.map_circle_fill
+                            )
+                        )
+                        .strokeColor(
+                            ContextCompat.getColor(
+                                this@ResultsActivity,
+                                R.color.map_circle_stroke
+                            )
+                        )
                         .strokeWidth(STROKE_WIDTH)
                         .radius(CIRCLE_RADIUS)
                 )
-                addMarker(MarkerOptions.create()
-                    .position(latLng)
-                    .anchor(ANCHOR_U, ANCHOR_V)
-                    .icon(BitmapDescriptorFactory.instance().fromResource(icon))
+                addMarker(
+                    MarkerOptions.create()
+                        .position(latLng)
+                        .anchor(ANCHOR_U, ANCHOR_V)
+                        .icon(BitmapDescriptorFactory.instance().fromResource(icon))
                 )
                 moveCamera(CameraUpdateFactory.get().newLatLngZoom(latLng, ZOOM_LEVEL))
                 setOnMapClickListener {
@@ -190,6 +211,11 @@ class ResultsActivity : BaseActivity() {
         }
     }
 
+    override fun onDestroy() {
+        super.onDestroy()
+        loadMapDisposable?.dispose()
+    }
+
     private fun refreshResults() {
         viewModel.loadTestResults()
         binding.swipeRefreshLayout.isRefreshing = true
@@ -198,8 +224,14 @@ class ResultsActivity : BaseActivity() {
     override fun onBackPressed() {
         super.onBackPressed()
         when (viewModel.state.returnPoint) {
-            ReturnPoint.HOME -> HomeActivity.startWithFragment(this, HomeActivity.Companion.HomeNavigationTarget.HOME_FRAGMENT_TO_SHOW)
-            ReturnPoint.HISTORY -> HomeActivity.startWithFragment(this, HomeActivity.Companion.HomeNavigationTarget.HISTORY_FRAGMENT_TO_SHOW)
+            ReturnPoint.HOME -> HomeActivity.startWithFragment(
+                this,
+                HomeActivity.Companion.HomeNavigationTarget.HOME_FRAGMENT_TO_SHOW
+            )
+            ReturnPoint.HISTORY -> HomeActivity.startWithFragment(
+                this,
+                HomeActivity.Companion.HomeNavigationTarget.HISTORY_FRAGMENT_TO_SHOW
+            )
         }
     }
 

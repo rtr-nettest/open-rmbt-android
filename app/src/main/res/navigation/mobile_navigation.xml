@@ -27,7 +27,7 @@
         android:id="@+id/navigation_map"
         android:name="at.rtr.rmbt.android.ui.fragment.MapFragment"
         android:label="@string/menu_button_map"
-        tools:layout="@layout/fragment_map" />
+        tools:layout="@layout/fragment_map_wrapper" />
 
     <keep_state_fragment
         android:id="@+id/navigation_network_info"

@@ -17,6 +17,7 @@ import at.rtr.rmbt.android.ui.loadMapFragment
 import at.rtr.rmbt.android.util.ToolbarTheme
 import at.rtr.rmbt.android.util.changeStatusBarColor
 import at.specure.data.NetworkTypeCompat
+import io.reactivex.rxjava3.disposables.Disposable
 
 class DetailedFullscreenMapActivity : BaseActivity(), MapLayersDialog.Callback {
 
@@ -28,6 +29,7 @@ class DetailedFullscreenMapActivity : BaseActivity(), MapLayersDialog.Callback {
     private var currentMapStyle = MapStyleType.STANDARD
 
     private var map: Map? = null
+    private var loadMapDisposable : Disposable? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -42,7 +44,7 @@ class DetailedFullscreenMapActivity : BaseActivity(), MapLayersDialog.Callback {
         latLng = LatLng(intent.getDoubleExtra(KEY_LATITUDE, 0.0), intent.getDoubleExtra(KEY_LONGITUDE, 0.0))
         networkType = NetworkTypeCompat.values()[intent.getIntExtra(KEY_NETWORK_TYPE, 0)]
 
-        supportFragmentManager.loadMapFragment(R.id.mapContainer) {
+        supportFragmentManager.loadMapFragment(R.id.mapFrameLayout) {
             this.map = it
             onMapReady(it)
         }
@@ -55,7 +57,17 @@ class DetailedFullscreenMapActivity : BaseActivity(), MapLayersDialog.Callback {
         }
     }
 
+    override fun onDestroy() {
+        super.onDestroy()
+        loadMapDisposable?.dispose()
+    }
+
     private fun onMapReady(map: Map) {
+        with(map.getUiSettings()) {
+            isRotateGesturesEnabled = true
+            isCompassEnabled = true
+        }
+
         with(latLng) {
             map.addCircle(
                 CircleOptions()

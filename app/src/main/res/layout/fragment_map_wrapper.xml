@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- MUST NOT be called fragment_map, since it will conflicts with Choice SDK layout which is called the same -->
 <layout>
 
     <data>

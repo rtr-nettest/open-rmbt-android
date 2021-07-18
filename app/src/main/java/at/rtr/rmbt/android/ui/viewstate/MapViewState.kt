@@ -11,7 +11,7 @@ import at.rtr.rmbt.android.ui.fragment.START_ZOOM_LEVEL
 
 private const val KEY_TYPE = "KEY_TYPE"
 private const val KEY_STYLE = "KEY_STYLE"
-private const val KEY_PLAY_SERVICES = "KEY_PLAY_SERVICES"
+private const val KEY_SERVICES = "KEY_PLAY_SERVICES"
 
 private const val KEY_ZOOM = "KEY_ZOOM"
 
@@ -39,7 +39,7 @@ class MapViewState : ViewState {
             type.set(MapPresentationType.values()[getInt(KEY_TYPE)])
             style.set(MapStyleType.values()[getInt(KEY_STYLE)])
             coordinatesLiveData.postValue(LatLng(getDouble(KEY_LATITUDE), getDouble(KEY_LONGITUDE)))
-            playServicesAvailable.set(getBoolean(KEY_PLAY_SERVICES))
+            playServicesAvailable.set(getBoolean(KEY_SERVICES))
             zoom = getFloat(KEY_ZOOM)
             locationChanged.set(getBoolean(KEY_LOCATION_CHANGED))
             cameraPositionLiveData.postValue(LatLng(getDouble(KEY_CAMERA_POSITION_LAT), getDouble(KEY_CAMERA_POSITION_LON)))
@@ -53,7 +53,7 @@ class MapViewState : ViewState {
             coordinatesLiveData.value?.latitude?.let { putDouble(KEY_LATITUDE, it) }
             coordinatesLiveData.value?.longitude?.let { putDouble(KEY_LONGITUDE, it) }
             putFloat(KEY_ZOOM, zoom)
-            putBoolean(KEY_PLAY_SERVICES, playServicesAvailable.get())
+            putBoolean(KEY_SERVICES, playServicesAvailable.get())
             putBoolean(KEY_LOCATION_CHANGED, locationChanged.get())
             cameraPositionLiveData.value?.longitude?.let { putDouble(KEY_CAMERA_POSITION_LON, it) }
             cameraPositionLiveData.value?.latitude?.let { putDouble(KEY_CAMERA_POSITION_LAT, it) }

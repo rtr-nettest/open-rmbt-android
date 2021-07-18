@@ -107,7 +107,7 @@ dependencies {
     def choicesdk_version = '0.2.0'
     implementation "at.bluesource.choicesdk:choicesdk-maps:$choicesdk_version"
     implementation 'com.google.android.gms:play-services-maps:17.0.0'
-    implementation 'com.huawei.hms:maps:5.0.5.301'
+    implementation 'com.huawei.hms:maps:6.0.0.301'
 
     testImplementation "junit:junit:$versions.junit"
     androidTestImplementation "androidx.test:runner:$versions.test_runner"

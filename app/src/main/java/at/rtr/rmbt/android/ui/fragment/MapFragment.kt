@@ -18,11 +18,10 @@ import at.bluesource.choicesdk.maps.common.*
 import at.bluesource.choicesdk.maps.common.Map
 import at.bluesource.choicesdk.maps.common.options.MarkerOptions
 import at.bluesource.choicesdk.maps.common.options.TileOverlay
-import at.bluesource.choicesdk.maps.common.options.TileOverlayOptions
 import at.rmbt.client.control.data.MapPresentationType
 import at.rmbt.client.control.data.MapStyleType
 import at.rtr.rmbt.android.R
-import at.rtr.rmbt.android.databinding.FragmentMapBinding
+import at.rtr.rmbt.android.databinding.FragmentMapWrapperBinding
 import at.rtr.rmbt.android.di.viewModelLazy
 import at.rtr.rmbt.android.ui.activity.ShowWebViewActivity
 import at.rtr.rmbt.android.ui.adapter.MapMarkerDetailsAdapter
@@ -37,6 +36,7 @@ import at.specure.data.NetworkTypeCompat
 import at.specure.data.ServerNetworkType
 import at.specure.data.entity.MarkerMeasurementRecord
 import at.specure.location.LocationState
+import io.reactivex.rxjava3.disposables.Disposable
 import timber.log.Timber
 import kotlin.math.abs
 
@@ -63,9 +63,9 @@ class MapFragment : BaseFragment(), MapMarkerDetailsAdapter.MarkerDetailsCallbac
     MapFiltersDialog.Callback, MapSearchDialog.Callback {
 
     private val mapViewModel: MapViewModel by viewModelLazy()
-    private val binding: FragmentMapBinding by bindingLazy()
+    private val binding: FragmentMapWrapperBinding by bindingLazy()
 
-    override val layoutResId = R.layout.fragment_map
+    override val layoutResId = R.layout.fragment_map_wrapper
 
     private var currentOverlay: TileOverlay? = null
     private var currentLocation: LatLng? = null
@@ -74,6 +74,7 @@ class MapFragment : BaseFragment(), MapMarkerDetailsAdapter.MarkerDetailsCallbac
     private var snapHelper: SnapHelper? = null
 
     private var map : Map? = null
+    private var loadMapDisposable : Disposable? = null
 
     private var adapter: MapMarkerDetailsAdapter = MapMarkerDetailsAdapter(this)
 
@@ -190,6 +191,11 @@ class MapFragment : BaseFragment(), MapMarkerDetailsAdapter.MarkerDetailsCallbac
             binding.webMap.visibility = View.VISIBLE
             binding.playServicesAvailableUi.visibility = View.GONE
         }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        loadMapDisposable?.dispose()
     }
 
     override fun onCloseMarkerDetails() {
@@ -365,6 +371,11 @@ class MapFragment : BaseFragment(), MapMarkerDetailsAdapter.MarkerDetailsCallbac
                     ) == PackageManager.PERMISSION_GRANTED
                 ) {
                     map?.isMyLocationEnabled = state == LocationState.ENABLED
+                    try {
+                        map?.getUiSettings()?.isMyLocationButtonEnabled = false //need to disable location button after isMyLocationEnabled is called
+                    }catch (e : Exception) {
+                        //TODO need to find out why null pointer is produced here
+                    }
                 }
             }
 
