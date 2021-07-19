@@ -180,85 +180,85 @@ class TestResultsRepositoryImpl(
     }
 
     private fun loadQosTestResults(testUUID: String, clientUUID: String): Maybe<BaseResponse> {
-        val qosTestResults = client.getQosTestResultDetail(
-            QosTestResultDetailBody(
-                testUUID = testUUID,
-                clientUUID = clientUUID,
-                language = Locale.getDefault().language,
-                capabilities = CapabilitiesBody()
-            )
-        )
-        qosTestResults.onSuccess { response ->
-            var failureCount = 0
-            var successCount = 0
-            response.qosResultDetails.forEach { result ->
-                if (result.failureCount > 0) {
-                    failureCount++
-                } else {
-                    successCount++
-                }
-            }
+        val isONTBasedApp = !config.headerValue.isNullOrEmpty()
 
-            val resultMap = hashMapOf<QoSCategory, MutableList<QosTestResult>>()
-            response.qosResultDetails.forEach { result ->
-                val category = QoSCategory.fromString(result.testType)
-                if (resultMap[category] == null) {
-                    resultMap[category] = mutableListOf<QosTestResult>()
-                }
-                resultMap[category]?.add(result)
-            }
-
-            val categoriesCount = resultMap.keys.size
-            var sum = 0f
-            resultMap.keys.forEach {
-                var categorySize = 0
-                var succeeded = 0
-                val resultList = resultMap[it]
-                resultList?.forEach { result ->
-                    if (result.failureCount == 0) {
-                        succeeded++
-                    }
-                    categorySize++
-                }
-                if (categorySize > 0) {
-                    sum += succeeded.toFloat() / categorySize.toFloat()
-                }
-                Timber.e("QOS: ${it.categoryName} success: $succeeded count: $categorySize sum: $sum")
-            }
-
-            val qosModelPair = response.toModels(testUUID, Locale.getDefault().language)
-            qosModelPair.first.forEach {
-                qosCategoryDao.clearQoSInsert(it)
-            }
-            qosTestItemDao.clearQosItemsInsert(qosModelPair.second)
-            qosTestGoalDao.clearQosGoalsInsert(qosModelPair.third)
-
-            val percentage: Float = if (!config.headerValue.isNullOrEmpty()) {
-                Timber.e("QOS RESULT: ${sum / resultMap.keys.size.toFloat()}")
-                sum / resultMap.keys.size.toFloat()
-            } else {
-                (successCount.toFloat() / (successCount + failureCount).toFloat())
-            }
-
-            val info = if (!config.headerValue.isNullOrEmpty()) {
-                "${(percentage * 100).toInt()}%"
-            } else {
-                "${(percentage * 100).toInt()}% ($successCount/${successCount + failureCount})"
-            }
-
-
-            qoeInfoDao.clearQoSInsert(
+        if (isONTBasedApp) {
+            val qosTestResults = client.getTestResultDetailONT(testUUID)
+            val overallQosPercentage = qosTestResults.success.overallQosPercentage
+            val partialQosResults = qosTestResults.success.partialQosResults
+            qoeInfoDao.insert(
                 QoeInfoRecord(
-                    testUUID = testUUID,
+                    testUUID = qosTestResults.success.testUUID,
                     category = QoECategory.QOE_QOS,
-                    percentage = percentage,
-                    info = info,
-                    classification = getQosClassification(percentage * 100f),
-                    priority = -1
+                    percentage = overallQosPercentage ?: 0f,
+                    classification = Classification.NONE,
+                    priority = -1,
+                    info = "${overallQosPercentage ?: 0}%"
                 )
             )
+            partialQosResults.forEach { qosResultItem ->
+                qosCategoryDao.insert(
+                    QosCategoryRecord(
+                        testUUID = qosTestResults.success.testUUID,
+                        category = qosResultItem.testType?.let { QoSCategory.fromString(it) }
+                            ?: QoSCategory.QOS_UNKNOWN,
+                        categoryName = "",
+                        categoryDescription = "",
+                        language = "",
+                        failedCount = qosResultItem.totalCount?.let {
+                            it - (qosResultItem.successCount ?: 0)
+                        } ?: 0,
+                        successCount = qosResultItem.successCount ?: 0
+                    )
+                )
+            }
+            return qosTestResults
+        } else {
+            val qosTestResults = client.getQosTestResultDetail(
+                QosTestResultDetailBody(
+                    testUUID = testUUID,
+                    clientUUID = clientUUID,
+                    language = Locale.getDefault().language,
+                    capabilities = CapabilitiesBody()
+                )
+            )
+            qosTestResults.onSuccess { response ->
+                var failureCount = 0
+                var successCount = 0
+                response.qosResultDetails.forEach { result ->
+                    if (result.failureCount > 0) {
+                        failureCount++
+                    } else {
+                        successCount++
+                    }
+                }
+
+                val qosModelPair = response.toModels(testUUID, Locale.getDefault().language)
+                qosModelPair.first.forEach {
+                    qosCategoryDao.clearQoSInsert(it)
+                }
+                qosTestItemDao.clearQosItemsInsert(qosModelPair.second)
+                qosTestGoalDao.clearQosGoalsInsert(qosModelPair.third)
+
+                val percentage: Float =
+                    (successCount.toFloat() / (successCount + failureCount).toFloat())
+
+                val info =
+                    "${(percentage * 100).toInt()}% ($successCount/${successCount + failureCount})"
+
+                qoeInfoDao.clearQoSInsert(
+                    QoeInfoRecord(
+                        testUUID = testUUID,
+                        category = QoECategory.QOE_QOS,
+                        percentage = percentage,
+                        info = info,
+                        classification = getQosClassification(percentage * 100f),
+                        priority = -1
+                    )
+                )
+            }
+            return qosTestResults
         }
-        return qosTestResults
     }
 
     private fun getQosClassification(percentage: Float): Classification {

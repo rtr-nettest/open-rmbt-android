@@ -15,6 +15,10 @@
 package at.rmbt.client.control
 
 import at.rmbt.util.Maybe
+import retrofit2.Call
+import retrofit2.http.Body
+import retrofit2.http.POST
+import retrofit2.http.Url
 import javax.inject.Inject
 
 class ControlServerClient @Inject constructor(private val endpointProvider: ControlEndpointProvider, private val api: ControlServerApi) {
@@ -33,6 +37,10 @@ class ControlServerClient @Inject constructor(private val endpointProvider: Cont
 
     fun sendQoSTestResults(body: QoSResultBody): Maybe<BaseResponse> {
         return api.sendQoSTestResult(endpointProvider.sendQoSTestResultsUrl, body).exec()
+    }
+
+    fun sendQoSTestResultsONT(body: QoSResultBody): Maybe<QosResultResponse> {
+        return api.sendQoSTestResultONT(endpointProvider.sendQoSTestResultsUrl, body).exec()
     }
 
     fun getHistory(body: HistoryRequestBody): Maybe<HistoryResponse> {
@@ -73,6 +81,14 @@ class ControlServerClient @Inject constructor(private val endpointProvider: Cont
 
     fun getQosTestResultDetail(body: QosTestResultDetailBody): Maybe<QosTestResultDetailResponse> {
         return api.getQosTestResultDetail(endpointProvider.getQosResultDetailsUrl, body).exec()
+    }
+
+    /**
+     * Suitable to get all necessary results in ONT based apps
+     */
+    fun getTestResultDetailONT(testUUID: String): Maybe<ResultDetailONTResponse> {
+        return api.getResultDetailONT(endpointProvider.getQosResultDetailsUrl + "/" + testUUID)
+            .exec()
     }
 
     fun getDeviceSyncCode(body: GetSyncCodeBody): Maybe<GetSyncCodeResponse> {

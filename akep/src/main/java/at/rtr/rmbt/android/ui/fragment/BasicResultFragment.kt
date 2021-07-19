@@ -19,7 +19,8 @@ import at.specure.result.QoECategory
 import timber.log.Timber
 import kotlin.math.roundToInt
 
-class BasicResultFragment : BaseFragment() {
+class
+BasicResultFragment : BaseFragment() {
 
     private val viewModel: BasicResultViewModel by viewModelLazy()
     private val binding: FragmentBasicResultBinding by bindingLazy()
@@ -106,7 +107,7 @@ class BasicResultFragment : BaseFragment() {
                 binding.qosResultGroup.visibility = View.GONE
             } else {
                 binding.qosResultGroup.visibility = View.VISIBLE
-                binding.textQos.text = (qosResultItem[0].percentage * 100).roundToInt().toString()
+                binding.textQos.text = (qosResultItem[0].percentage).roundToInt().toString()
             }
         }
 

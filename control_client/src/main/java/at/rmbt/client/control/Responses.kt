@@ -689,6 +689,28 @@ data class TestResultDetailResponse(
 ) : BaseResponse()
 
 @Keep
+data class ResultDetailONTResponse(
+    @SerializedName("test_uuid")
+    val testUUID: String,
+    @SerializedName("speed_upload")
+    val speedUploadKbps: Long?,
+    @SerializedName("speed_download")
+    val speedDownloadKbps: Long?,
+    @SerializedName("ping")
+    val pingMillis: Float?,
+    @SerializedName("voip_result_jitter_millis")
+    val jitterMillis: Float?,
+    @SerializedName("voip_result_packet_loss_percents")
+    val packetLossPercents: Float?,
+    @SerializedName("network_type")
+    val networkType: String?,
+    @SerializedName("qos")
+    val overallQosPercentage: Float?,
+    @SerializedName("qosTestResultCounters")
+    val partialQosResults: List<QosResultItem>
+) : BaseResponse()
+
+@Keep
 data class QosTestResultDetailResponse(
 
     /**
@@ -903,3 +925,21 @@ data class SignalMeasurementRequestResponse(
     @SerializedName("provider")
     val provider: String?
 ) : BaseResponse()
+
+@Keep
+data class QosResultResponse(
+    @SerializedName("overallQos")
+    val overallQosPercentage: Float?,
+    @SerializedName("qosTestResultCounters")
+    val partialQosResults: List<QosResultItem>
+) : BaseResponse()
+
+@Keep
+data class QosResultItem(
+    @SerializedName("successCount")
+    val successCount: Int?,
+    @SerializedName("totalCount")
+    val totalCount: Int?,
+    @SerializedName("testType")
+    val testType: String?,
+)
