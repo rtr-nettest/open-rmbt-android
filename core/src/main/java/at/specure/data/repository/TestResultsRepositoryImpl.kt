@@ -4,7 +4,6 @@ import androidx.lifecycle.LiveData
 import at.rmbt.client.control.BaseResponse
 import at.rmbt.client.control.CapabilitiesBody
 import at.rmbt.client.control.ControlServerClient
-import at.rmbt.client.control.QosTestResult
 import at.rmbt.client.control.QosTestResultDetailBody
 import at.rmbt.client.control.ServerTestResultBody
 import at.rmbt.client.control.TestResultDetailBody

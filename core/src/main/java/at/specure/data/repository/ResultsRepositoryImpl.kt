@@ -163,7 +163,6 @@ class ResultsRepositoryImpl @Inject constructor(
                             )
                         )
                     }
-
                 }
 
                 finalResult = result.map { result.ok }
