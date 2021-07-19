@@ -61,6 +61,12 @@ interface ControlServerApi {
     @POST
     fun sendQoSTestResult(@Url url: String, @Body body: QoSResultBody): Call<BaseResponse>
 
+    /**
+     * Request to send QoS test results for ONT based apps
+     */
+    @POST
+    fun sendQoSTestResultONT(@Url url: String, @Body body: QoSResultBody): Call<QosResultResponse>
+
     @POST
     fun getHistory(@Url url: String, @Body body: HistoryRequestBody): Call<HistoryResponse>
 
@@ -104,7 +110,16 @@ interface ControlServerApi {
      * Request to get QoS test result details
      */
     @POST
-    fun getQosTestResultDetail(@Url url: String, @Body body: QosTestResultDetailBody): Call<QosTestResultDetailResponse>
+    fun getQosTestResultDetail(
+        @Url url: String,
+        @Body body: QosTestResultDetailBody
+    ): Call<QosTestResultDetailResponse>
+
+    /**
+     * Request to get QoS test result details
+     */
+    @GET
+    fun getResultDetailONT(@Url url: String): Call<ResultDetailONTResponse>
 
     /**
      * Request to get sync code for current device
