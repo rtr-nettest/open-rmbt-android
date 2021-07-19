@@ -15,10 +15,6 @@
 package at.rmbt.client.control
 
 import at.rmbt.util.Maybe
-import retrofit2.Call
-import retrofit2.http.Body
-import retrofit2.http.POST
-import retrofit2.http.Url
 import javax.inject.Inject
 
 class ControlServerClient @Inject constructor(private val endpointProvider: ControlEndpointProvider, private val api: ControlServerApi) {

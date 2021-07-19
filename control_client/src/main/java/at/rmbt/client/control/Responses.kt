@@ -941,5 +941,5 @@ data class QosResultItem(
     @SerializedName("totalCount")
     val totalCount: Int?,
     @SerializedName("testType")
-    val testType: String?,
+    val testType: String?
 )
