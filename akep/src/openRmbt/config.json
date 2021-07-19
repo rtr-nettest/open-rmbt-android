@@ -367,7 +367,7 @@
     },
     {
       "name": "CONTROL_SERVER_GET_QOS_TEST_RESULT_ENDPOINT",
-      "value": "qosTestResult?api=2",
+      "value": "history",
       "visible": false
     },
     {
