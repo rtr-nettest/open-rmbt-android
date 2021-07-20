@@ -349,4 +349,15 @@
     <string name="label_measurement_time_to_next_test">Koha për provën tjetër</string>
     <string name="label_measurement_movement">Lëvizja</string>
 
+    <string name="label_location_access_disabled">Hyrja në vendndodhje është çaktivizuar</string>
+    <string name="label_location_access_disabled_explanation">Shko te cilësimet e vendndodhjes për të mundësuar hyrjen në vendndodhje.</string>
+    <string name="label_some_permission_denied">Mungojnë lejet e aplikacionit</string>
+    <string name="label_some_permission_denied_explanation">Shko te Cilësimet e aplikacionit për të zgjidhur lejet e munguara të aplikacionit.</string>
+    <string name="title_open_nettest_accuracy">Saktësia Akep Nettest</string>
+    <string name="subtitle_open_nettest_accuracy">Akep Nettest ka nevojë për funksionalitete të caktuara për të funksionuar si duhet.</string>
+    <string name="phone_permission_title">1. Lejet e telefonit</string>
+    <string name="location_permission_title">2. Lejet e vendndodhjes</string>
+    <string name="phone_permission_explanation">Ne kurrë nuk do të bëjmë ose menaxhojmë telefonata. Ne përdorim lejet e telefonit për të identifikuar operatorin celular të përdorur për testim.</string>
+    <string name="location_permission_explanation">Vendndodhja juaj identifikon serverat e afërt dhe lidhjen celulare të pajisjes tuaj në mënyrë që të konfiguroni siç duhet Akep Nettest.</string>
+
 </resources>
