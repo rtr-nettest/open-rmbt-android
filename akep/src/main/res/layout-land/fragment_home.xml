@@ -19,6 +19,8 @@
 
         <import type="at.specure.location.LocationState" />
 
+        <import type="at.rtr.rmbt.android.util.InformationAccessProblem" />
+
         <variable
             name="captiveState"
             type="at.specure.info.ip.CaptivePortal.CaptivePortalStatus" />
@@ -107,6 +109,7 @@
             android:layout_marginEnd="32dp"
             android:layout_marginTop="24dp"
             app:layout_constraintWidth_percent="0.45"
+            app:visibleOrGone="@{state.informationAccessProblem == InformationAccessProblem.NO_PROBLEM}"
             android:layout_height="wrap_content"
             android:id="@+id/panel_network_details" />
 
@@ -118,6 +121,7 @@
             android:layout_marginTop="24dp"
             android:layout_marginEnd="32dp"
             app:layout_constraintEnd_toEndOf="parent"
+            app:visibleOrGone="@{state.informationAccessProblem != InformationAccessProblem.NO_PROBLEM}"
             app:layout_constraintTop_toBottomOf="@id/buttonLoop"
             app:layout_constraintWidth_percent="0.45" />
 
