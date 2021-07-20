@@ -9,6 +9,7 @@ import android.os.Bundle
 import android.os.Handler
 import android.provider.Settings
 import android.view.View
+import androidx.databinding.ObservableField
 import at.rtr.rmbt.android.R
 import at.rtr.rmbt.android.databinding.FragmentHomeBinding
 import at.rtr.rmbt.android.di.viewModelLazy
@@ -142,35 +143,39 @@ class HomeFragment : BaseFragment() {
         }
 
         homeViewModel.state.informationAccessProblem.addOnPropertyChanged { problem ->
-            if (problem.get() != InformationAccessProblem.NO_PROBLEM) {
-                binding.panelPermissionsProblems.labelPermissionDisabled.text = problem.get()?.let {
-                    requireContext().getText(
-                        it.titleID
+            problem.get()?.let { updateProblemUI(it) }
+        }
+    }
+
+    private fun updateProblemUI(problem: InformationAccessProblem) {
+        if (this.isAdded && problem != InformationAccessProblem.NO_PROBLEM) {
+            binding.panelPermissionsProblems.labelPermissionDisabled.text = problem.let {
+                this.getText(
+                    it.titleID
+                )
+            }
+            binding.panelPermissionsProblems.textPermissionExplanation.text =
+                problem.let {
+                    this.getText(
+                        it.descriptionId
                     )
                 }
-                binding.panelPermissionsProblems.textPermissionExplanation.text =
-                    problem.get()?.let {
-                        requireContext().getText(
-                            it.descriptionId
-                        )
-                    }
+        }
+        when (problem) {
+            InformationAccessProblem.MISSING_LOCATION_ENABLED -> {
+                binding.panelPermissionsProblems.cardPP.setOnClickListener {
+                    startActivity(Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS))
+                }
             }
-            when (problem.get()) {
-                InformationAccessProblem.MISSING_LOCATION_ENABLED -> {
-                    binding.panelPermissionsProblems.cardPP.setOnClickListener {
-                        startActivity(Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS))
-                    }
+            InformationAccessProblem.MISSING_LOCATION_PERMISSION,
+            InformationAccessProblem.MISSING_READ_PHONE_STATE_PERMISSION,
+            InformationAccessProblem.MISSING_BACKGROUND_LOCATION_PERMISSION -> {
+                binding.panelPermissionsProblems.cardPP.setOnClickListener {
+                    requireContext().openAppSettings()
                 }
-                InformationAccessProblem.MISSING_LOCATION_PERMISSION,
-                InformationAccessProblem.MISSING_READ_PHONE_STATE_PERMISSION,
-                InformationAccessProblem.MISSING_BACKGROUND_LOCATION_PERMISSION -> {
-                    binding.panelPermissionsProblems.cardPP.setOnClickListener {
-                        requireContext().openAppSettings()
-                    }
-                }
-                InformationAccessProblem.NO_PROBLEM -> {
-                    // do nothing
-                }
+            }
+            InformationAccessProblem.NO_PROBLEM -> {
+                // do nothing
             }
         }
     }
@@ -188,6 +193,7 @@ class HomeFragment : BaseFragment() {
             }
         }
         checkInformationAvailability()
+        homeViewModel.state.informationAccessProblem.get()?.let { updateProblemUI(it) }
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {

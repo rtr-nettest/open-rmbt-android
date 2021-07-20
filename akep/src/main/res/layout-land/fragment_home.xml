@@ -109,7 +109,7 @@
             android:layout_marginEnd="32dp"
             android:layout_marginTop="24dp"
             app:layout_constraintWidth_percent="0.45"
-            app:visibleOrGone="@{state.informationAccessProblem == InformationAccessProblem.NO_PROBLEM}"
+            app:visibleOrInvisible="@{state.informationAccessProblem == InformationAccessProblem.NO_PROBLEM}"
             android:layout_height="wrap_content"
             android:id="@+id/panel_network_details" />
 
