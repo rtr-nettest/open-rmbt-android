@@ -10,6 +10,7 @@ import at.rtr.rmbt.android.R
 import at.rtr.rmbt.android.databinding.FragmentHomeBinding
 import at.rtr.rmbt.android.di.viewModelLazy
 import at.rtr.rmbt.android.ui.activity.MeasurementActivity
+import at.rtr.rmbt.android.ui.activity.PermissionsExplanationActivity
 import at.rtr.rmbt.android.ui.activity.PreferenceActivity
 import at.rtr.rmbt.android.ui.dialog.MessageDialog
 import at.rtr.rmbt.android.ui.dialog.SimpleDialog
@@ -94,6 +95,9 @@ class HomeFragment : BaseFragment() {
                     homeViewModel.state.isLoopModeActive.set(true)
                 }
             }
+        }
+        binding.logo.setOnClickListener {
+            PermissionsExplanationActivity.start(this)
         }
 
         binding.buttonSettings.setOnClickListener {
