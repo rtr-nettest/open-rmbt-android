@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/cardPP"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:theme="@style/Theme.MaterialComponents.Light"
+        app:cardCornerRadius="12dp"
+        app:cardElevation="8dp"
+        app:cardUseCompatPadding="true"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/basicPP"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:padding="16dp">
+
+            <ImageView
+                android:id="@+id/drawable_warning"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:src="@drawable/ic_no_gps"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/label_permission_disabled" />
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/label_permission_disabled"
+                style="@style/Text.NetworkInfoSlider.Title"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:textAllCaps="true"
+                app:layout_constraintEnd_toStartOf="@+id/drawable_help"
+                app:layout_constraintStart_toEndOf="@+id/drawable_warning"
+                app:layout_constraintTop_toTopOf="parent"
+                tools:text="@string/label_some_permission_denied" />
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/text_permission_explanation"
+                style="@style/Text.NetworkInfoSlider.Value"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                app:layout_constraintEnd_toStartOf="@+id/drawable_help"
+                app:layout_constraintStart_toEndOf="@+id/drawable_warning"
+                app:layout_constraintTop_toBottomOf="@id/label_permission_disabled"
+                tools:text="@string/label_some_permission_denied_explanation" />
+
+            <ImageView
+                android:id="@+id/drawable_help"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/ic_round_help"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@+id/text_permission_explanation"
+                app:layout_constraintTop_toTopOf="parent" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </com.google.android.material.card.MaterialCardView>
+</layout>
