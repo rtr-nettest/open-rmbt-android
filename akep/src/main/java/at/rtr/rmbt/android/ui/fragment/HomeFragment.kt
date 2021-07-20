@@ -165,9 +165,8 @@ class HomeFragment : BaseFragment() {
                 InformationAccessProblem.MISSING_READ_PHONE_STATE_PERMISSION,
                 InformationAccessProblem.MISSING_BACKGROUND_LOCATION_PERMISSION -> {
                     binding.panelPermissionsProblems.cardPP.setOnClickListener {
-                        startActivity(Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS))
+                        requireContext().openAppSettings()
                     }
-                    requireContext().openAppSettings()
                 }
                 InformationAccessProblem.NO_PROBLEM -> {
                     // do nothing
