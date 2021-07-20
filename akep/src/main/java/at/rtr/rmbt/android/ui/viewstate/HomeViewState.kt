@@ -5,6 +5,7 @@ import androidx.databinding.ObservableBoolean
 import androidx.databinding.ObservableField
 import at.rtr.rmbt.android.config.AppConfig
 import at.rtr.rmbt.android.util.InfoWindowStatus
+import at.rtr.rmbt.android.util.InformationAccessProblem
 import at.rtr.rmbt.android.util.addOnPropertyChanged
 import at.specure.data.MeasurementServers
 import at.specure.info.ip.IpInfo
@@ -29,6 +30,9 @@ class HomeViewState(
     val expertModeIsEnabled = ObservableField(config.expertModeEnabled)
     val developerModeIsEnabled = ObservableField(config.developerModeIsEnabled)
     val selectedMeasurementServer = ObservableField(measurementServers.selectedMeasurementServer)
+    val informationAccessProblem =
+        ObservableField<InformationAccessProblem>(InformationAccessProblem.NO_PROBLEM)
+
 
     init {
         isLoopModeActive.addOnPropertyChanged {
