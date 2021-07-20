@@ -889,36 +889,6 @@ fun AppCompatTextView.setSignalStrength(signalStrengthResult: Int?, signalStreng
 }
 
 /**
- * A binding adapter that is used for show correct icon for qoe item in the results
- */
-@BindingAdapter("qoeIcon")
-fun AppCompatImageView.setQoEIcon(qoECategory: QoECategory) {
-    setImageDrawable(
-        ContextCompat.getDrawable(
-            context,
-            when (qoECategory) {
-                QoECategory.QOE_UNKNOWN -> 0
-                QoECategory.QOE_AUDIO_STREAMING -> R.drawable.ic_qoe_music
-                QoECategory.QOE_VIDEO_SD -> R.drawable.ic_qoe_video
-                QoECategory.QOE_VIDEO_HD -> R.drawable.ic_qoe_video
-                QoECategory.QOE_VIDEO_UHD -> R.drawable.ic_qoe_video
-                QoECategory.QOE_GAMING -> R.drawable.ic_qoe_game
-                QoECategory.QOE_GAMING_CLOUD -> R.drawable.ic_qoe_game
-                QoECategory.QOE_GAMING_STREAMING -> R.drawable.ic_qoe_game
-                QoECategory.QOE_GAMING_DOWNLOAD -> R.drawable.ic_qoe_game
-                QoECategory.QOE_VOIP -> R.drawable.ic_qoe_voip
-                QoECategory.QOE_VIDEO_TELEPHONY -> R.drawable.ic_qoe_voip
-                QoECategory.QOE_VIDEO_CONFERENCING -> R.drawable.ic_qoe_voip
-                QoECategory.QOE_MESSAGING -> R.drawable.ic_qoe_image
-                QoECategory.QOE_WEB -> R.drawable.ic_qoe_image
-                QoECategory.QOE_CLOUD -> R.drawable.ic_qoe_image
-                QoECategory.QOE_QOS -> R.drawable.ic_qoe_qos
-            }
-        )
-    )
-}
-
-/**
  * A binding adapter that is used for show name for qoe item in the results
  */
 @BindingAdapter("qoeName")
