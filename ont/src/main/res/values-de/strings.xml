@@ -200,12 +200,6 @@
     <string name="results_network_provider">Betreiber</string>
     <string name="results_network_ssid">WLAN SSID</string>
     <string name="result_test_details">Test Details</string>
-    <string name="label_information">Informationen</string>
-    <string name="label_tests">Tests</string>
-    <string name="label_succeeded">ERFOLGREICH</string>
-    <string name="label_failed">GESCHEITERT</string>
-    <string name="label_description">BESCHREIBUNG</string>
-    <string name="label_detail">DETAILS</string>
 
     <!-- Map -->
     <string name="map_layer_communities">Gemeinden</string>

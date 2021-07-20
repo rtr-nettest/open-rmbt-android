@@ -202,12 +202,6 @@
     <string name="results_network_provider">Operador</string>
     <string name="results_network_ssid">WLAN SSID</string>
     <string name="result_test_details">Detalles</string>
-    <string name="label_information">Información</string>
-    <string name="label_tests">Pruebas</string>
-    <string name="label_succeeded">CON ÉXITO</string>
-    <string name="label_failed">CON ERROR</string>
-    <string name="label_description">DESCRIPCIÓN</string>
-    <string name="label_detail">DETALLE</string>
 
     <!-- Map -->
     <string name="map_layer_communities">PLZ</string>

@@ -22,8 +22,6 @@
     <string name="unit_percents" translatable="false">%</string>
     <string name="location_dialog_position" translatable="false">%1$s %2$s</string>
     <string name="strength_signal_value" translatable="false">%d dBm</string>
-    <string name="qos_result_success_count" translatable="false">%1$d / %2$d</string>
-    <string name="qos_test_number" translatable="false"># %1$d</string>
     <string name="technology_2g" translatable="false">2G</string>
     <string name="technology_4g" translatable="false">4G</string>
     <string name="technology_3g" translatable="false">3G</string>
