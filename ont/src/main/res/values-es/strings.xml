@@ -338,4 +338,16 @@
     <string name="label_measurement_qos">QoS (%)</string>
     <string name="label_measurement_time_to_next_test">Tiempo hasta la próxima prueba</string>
     <string name="label_measurement_movement">Movimiento</string>
+
+    <string name="label_location_access_disabled">Acceso a la ubicación inhabilitado</string>
+    <string name="label_location_access_disabled_explanation">Vaya a la configuración de ubicación para habilitar el acceso a la ubicación.</string>
+    <string name="label_some_permission_denied">Faltan los permisos de la aplicación</string>
+    <string name="label_some_permission_denied_explanation">Vaya a la configuración de la aplicación para resolver los permisos de la aplicación que faltan.</string>
+    <string name="title_open_nettest_accuracy">Exactitud neta abierta</string>
+    <string name="subtitle_open_nettest_accuracy">Open Nettest necesita cierta funcionalidad para funcionar correctamente.</string>
+    <string name="phone_permission_title">1. Permisos telefónicos</string>
+    <string name="location_permission_title">2. Permisos de ubicación</string>
+    <string name="phone_permission_explanation">Nunca haremos ni administraremos llamadas telefónicas. Usamos permisos telefónicos para identificar el operador de telefonía móvil utilizado para las pruebas.</string>
+    <string name="location_permission_explanation">Su ubicación identifica los servidores cercanos y la conexión celular de su dispositivo para configurar correctamente Open Nettest.</string>
+
 </resources>

@@ -106,9 +106,6 @@ class HomeFragment : BaseFragment() {
             }
             checkInformationAvailability()
         }
-        binding.logo.setOnClickListener {
-            PermissionsExplanationActivity.start(this)
-        }
 
         binding.buttonSettings.setOnClickListener {
             startActivity(Intent(requireContext(), PreferenceActivity::class.java))
