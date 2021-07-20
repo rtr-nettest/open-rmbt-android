@@ -9,7 +9,6 @@ import android.os.Bundle
 import android.os.Handler
 import android.provider.Settings
 import android.view.View
-import androidx.databinding.ObservableField
 import at.rtr.rmbt.android.R
 import at.rtr.rmbt.android.databinding.FragmentHomeBinding
 import at.rtr.rmbt.android.di.viewModelLazy
