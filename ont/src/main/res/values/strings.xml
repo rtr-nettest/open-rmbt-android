@@ -205,12 +205,6 @@
     <string name="results_network_provider">Provider</string>
     <string name="results_network_ssid">WLAN SSID</string>
     <string name="result_test_details">Test details</string>
-    <string name="label_information">Information</string>
-    <string name="label_tests">Tests</string>
-    <string name="label_succeeded">SUCCEEDED</string>
-    <string name="label_failed">FAILED</string>
-    <string name="label_description">DESCRIPTION</string>
-    <string name="label_detail">DETAILS</string>
 
     <!-- Map -->
     <string name="map_layer_communities">Communities</string>
@@ -352,4 +346,16 @@
     <string name="label_measurement_qos">QoS (%)</string>
     <string name="label_measurement_time_to_next_test">Time to next test</string>
     <string name="label_measurement_movement">Movement</string>
+
+    <string name="label_location_access_disabled">Location access disabled</string>
+    <string name="label_location_access_disabled_explanation">Go to Location settings to enable location access.</string>
+    <string name="label_some_permission_denied">App permissions missing</string>
+    <string name="label_some_permission_denied_explanation">Go to App settings to resolve missing app permissions.</string>
+    <string name="title_open_nettest_accuracy">Open Nettest Accuracy</string>
+    <string name="subtitle_open_nettest_accuracy">Open Nettest needs certain functionality to operate correctly.</string>
+    <string name="phone_permission_title">1. Phone Permissions</string>
+    <string name="location_permission_title">2. Location Permissions</string>
+    <string name="phone_permission_explanation">We will never make or manage phone calls. We use phone permissions to identify the mobile operator used for testing.</string>
+    <string name="location_permission_explanation">Your location identifies nearby servers and your device`s cellular connection in order to properly configure Open Nettest.</string>
+
 </resources>

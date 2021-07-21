@@ -92,6 +92,7 @@
         <activity android:name=".ui.activity.SyncActivity" />
         <activity android:name=".ui.activity.LoopMeasurementResultsActivity" />
         <activity android:name=".ui.activity.MeasurementServerSelectionActivity" />
+        <activity android:name=".ui.activity.PermissionsExplanationActivity" />
     </application>
 
 </manifest>
