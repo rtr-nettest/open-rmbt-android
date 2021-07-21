@@ -305,7 +305,7 @@ class TestDataRepositoryImpl(db: CoreDatabase) : TestDataRepository {
             testUUID = testUUID,
             uuid = cellUUID,
             isActive = isActive,
-            cellTechnology = CellTechnology.fromMobileNetworkType(networkType),
+            cellTechnology = cellType,
             transportType = type,
             registered = isRegistered,
             areaCode = areaCode,

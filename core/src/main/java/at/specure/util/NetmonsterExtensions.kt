@@ -460,7 +460,7 @@ fun ICell.toRecords(
                 testUUID = testUUID,
                 uuid = uuid,
                 isActive = this.connectionStatus is PrimaryConnection,
-                cellTechnology = cellTechnology,
+                cellTechnology = toTechnologyClass(),
                 transportType = TransportType.CELLULAR,
                 registered = this.connectionStatus is PrimaryConnection,
                 areaCode = areaCode(),
