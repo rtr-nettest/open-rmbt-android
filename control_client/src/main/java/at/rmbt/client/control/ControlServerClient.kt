@@ -35,6 +35,10 @@ class ControlServerClient @Inject constructor(private val endpointProvider: Cont
         return api.sendQoSTestResult(endpointProvider.sendQoSTestResultsUrl, body).exec()
     }
 
+    fun sendQoSTestResultsONT(body: QoSResultBody): Maybe<QosResultResponse> {
+        return api.sendQoSTestResultONT(endpointProvider.sendQoSTestResultsUrl, body).exec()
+    }
+
     fun getHistory(body: HistoryRequestBody): Maybe<HistoryResponse> {
         return api.getHistory(endpointProvider.getHistoryUrl, body).exec()
     }
@@ -73,6 +77,14 @@ class ControlServerClient @Inject constructor(private val endpointProvider: Cont
 
     fun getQosTestResultDetail(body: QosTestResultDetailBody): Maybe<QosTestResultDetailResponse> {
         return api.getQosTestResultDetail(endpointProvider.getQosResultDetailsUrl, body).exec()
+    }
+
+    /**
+     * Suitable to get all necessary results in ONT based apps
+     */
+    fun getTestResultDetailONT(testUUID: String): Maybe<ResultDetailONTResponse> {
+        return api.getResultDetailONT(endpointProvider.getQosResultDetailsUrl + "/" + testUUID)
+            .exec()
     }
 
     fun getDeviceSyncCode(body: GetSyncCodeBody): Maybe<GetSyncCodeResponse> {
