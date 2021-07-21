@@ -98,7 +98,7 @@ class TestResultsRepositoryImpl(
     }
 
     private fun loadOpendataResults(openTestUUID: String, testUUID: String) {
-        val detailedTestResults = client.getDetailedTestResults(testUUID)
+        val detailedTestResults = client.getDetailedTestResults(openTestUUID)
         detailedTestResults.onSuccess { response ->
             testResultGraphItemDao.clearInsertItems(response.speedCurve.download.map {
                 it.toModel(
