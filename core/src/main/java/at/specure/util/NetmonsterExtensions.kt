@@ -544,7 +544,13 @@ fun NetworkType.mapToMobileNetworkType(): MobileNetworkType {
             return when (this) {
                 is NetworkType.Nr.Nsa -> {
                     if ((this.nrNsaState.nrAvailable) && (this.nrNsaState.connection != NrNsaState.Connection.Connected)) {
-                        MobileNetworkType.NR_AVAILABLE
+                        when (this.nrNsaState.connection) {
+                            // special case discovered, when operator has 5G network, but not enabled for the used SIM, so it is LTE only
+                            // TODO: LTE-CA modification
+                            is NrNsaState.Connection.Rejected -> MobileNetworkType.LTE
+                            is NrNsaState.Connection.Disconnected -> MobileNetworkType.NR_AVAILABLE
+                            else -> MobileNetworkType.NR_AVAILABLE
+                        }
                     } else {
                         MobileNetworkType.NR_NSA
                     }
