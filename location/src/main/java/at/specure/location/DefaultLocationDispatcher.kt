@@ -31,11 +31,15 @@ class DefaultLocationDispatcher : LocationDispatcher {
                 }
 
                 newLocation?.let {
-                    if ((newLocation.time + LOCATION_MAX_AGE_MS * 2) >= System.currentTimeMillis()) {
-                        if (location == null) {
-                            location = newLocation
-                        } else if (location?.accuracy ?: Float.MAX_VALUE > newLocation.accuracy) {
-                            location = newLocation
+                    if (location == null) {
+                        location = newLocation
+                        location?.let {
+                            Timber.d("LOCU: LOCATION UPDATE 1 ageNanos:  ${it.ageNanos} in seconds: ${it.ageNanos / 1000000000}")
+                        }
+                    } else if (location?.accuracy ?: Float.MAX_VALUE > newLocation.accuracy) {
+                        location = newLocation
+                        location?.let {
+                            Timber.d("LOCU: LOCATION UPDATE 2 ageNanos:  ${it.ageNanos} in seconds: ${it.ageNanos / 1000000000}")
                         }
                     }
                 }
@@ -65,8 +69,16 @@ class DefaultLocationDispatcher : LocationDispatcher {
     }
 
     override fun onLocationInfoChanged(source: LocationSource, location: LocationInfo?): LocationDispatcher.Decision {
-        Timber.i("location update: new location came: ${source::class.java.simpleName} ${location?.provider} ${location?.accuracy}")
         val timestamp = System.currentTimeMillis()
+        location?.let {
+            Timber.i(
+                "LOCU: location update: new location came: ${source::class.java.simpleName} ${location.provider} ${location.accuracy} ${
+                    location.ageNanos.div(
+                        1000000000
+                    )
+                } ${((location.time.plus(LOCATION_MAX_AGE_MS * 2)) >= System.currentTimeMillis())}  ${location.time} $timestamp ${timestamp - location.time} $location"
+            )
+        }
         if (location == null) {
             return if (lastSource == source) {
                 LocationDispatcher.Decision(null, true)
@@ -93,10 +105,17 @@ class DefaultLocationDispatcher : LocationDispatcher {
         }
     }
 
-    private fun updateLastLocation(location: LocationInfo?, timestamp: Long, source: LocationSource): LocationDispatcher.Decision {
+    private fun updateLastLocation(
+        location: LocationInfo?,
+        timestamp: Long,
+        source: LocationSource
+    ): LocationDispatcher.Decision {
         lastLocation = location
         lastTimestamp = timestamp
         lastSource = source
+        location?.let {
+            Timber.d("LOCU: LOCATION UPDATE ageNanos:  ${it.ageNanos} in seconds: ${it.ageNanos / 1000000000}")
+        }
         return LocationDispatcher.Decision(location, true)
     }
 }

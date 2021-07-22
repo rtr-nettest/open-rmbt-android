@@ -80,30 +80,10 @@ object Network5GSimulator {
     }
 
     fun downBitPerSec(value: Long): Long {
-        return if (config.developer5GSimulationEnabled) {
-            if (value == 0L) {
-                0L
-            } else {
-                val input = if (value < SPEED_IN_MAX) value else SPEED_IN_MAX
-                val noise = Random.nextLong(100000)
-                ((input / SPEED_IN_MAX.toDouble()) * SPEED_OUT_MAX).toLong() - noise
-            }
-        } else {
-            value
-        }
+        return value
     }
 
     fun upBitPerSec(value: Long): Long {
-        return if (config.developer5GSimulationEnabled) {
-            if (value == 0L) {
-                0L
-            } else {
-                val input = if (value < SPEED_IN_MAX) value else SPEED_IN_MAX
-                val noise = Random.nextLong(100000)
-                ((input / SPEED_IN_MAX.toDouble()) * SPEED_OUT_MAX).toLong() - noise
-            }
-        } else {
-            value
-        }
+        return value
     }
 }
