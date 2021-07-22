@@ -59,7 +59,14 @@ class TestDataRepositoryImpl(db: CoreDatabase) : TestDataRepository {
         if (filterOldValues) {
             val timeDiff = TimeUnit.MINUTES.toMillis(1)
             val locationAgeDiff = System.currentTimeMillis() - location.time
-            if (timeDiff < locationAgeDiff) {
+
+            val ageAcceptable = TimeUnit.MINUTES.toNanos(1)
+            val locationAge = location.ageNanos
+
+            val locationTimeIsOutOfBounds = timeDiff < locationAgeDiff
+            val locationAgeIsOutOfBounds = locationAge > ageAcceptable
+
+            if (locationTimeIsOutOfBounds && locationAgeIsOutOfBounds) {
                 return@io
             }
         }
