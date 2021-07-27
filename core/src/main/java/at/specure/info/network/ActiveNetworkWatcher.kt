@@ -151,6 +151,9 @@ class ActiveNetworkWatcher(
                             ) == MobileNetworkType.NR_NSA && primaryCells[0] is CellLte
                         ) {
                             primaryCellsCorrected.add(primaryCells[0])
+                        } else {
+                            // situation when there are 2 primary cells sent from netmonster library so we must choose one
+                            primaryCellsCorrected.add(primaryCells[0])
                         }
                     }
                     else -> {
@@ -168,8 +171,18 @@ class ActiveNetworkWatcher(
                         ),
                         netMonster
                     )
-                    // more than one primary cell for data subscription
+                    // more than one primary cell for data subscription - we just took the one from first position
                 } else {
+                    activeCellNetwork = primaryCellsCorrected[0].toCellNetworkInfo(
+                        connectivityManager.activeNetworkInfo?.extraInfo,
+                        telephonyManager.getCorrectDataTelephonyManager(subscriptionManager),
+                        NetMonsterFactory.getTelephony(
+                            context,
+                            primaryCellsCorrected[0].subscriptionId
+                        ),
+                        netMonster
+                    )
+                    scheduleUpdate() // we want to update the state because it is weird state with 2 primary connections, we need to test if it will not result in some unwanted behavior
                     Timber.e("NM network type unable to detect because of more than 1 primary cells for subscription")
                 }
 
