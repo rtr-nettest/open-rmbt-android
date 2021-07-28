@@ -295,11 +295,8 @@
     <string name="accept_risk">Entiendo los riesgos</string>
     <string name="preferences_connection_details_not_supported">Esta función no está soportada por su dispositivo</string>
 
-    <string name="dialog_signal_info_title">Señal</string>
-    <string name="dialog_signal_info_waiting">Espere por favor…</string>
     <string name="dialog_signal_info_band">Banda</string>
     <string name="dialog_signal_info_channel">Canal</string>
-    <string name="dialog_signal_info_ta">TA</string>
     <string name="dialog_signal_info_quality">Calidad</string>
     <string name="text_local_results">Sólo resultados locales</string>
     <string name="signal_measurement_terms_title">Medidas de señal: Condiciones de uso</string>
