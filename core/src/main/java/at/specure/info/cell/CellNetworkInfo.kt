@@ -39,6 +39,7 @@ import android.telephony.CellInfoTdscdma
 import android.telephony.CellInfoWcdma
 import android.telephony.CellSignalStrengthNr
 import android.telephony.SubscriptionInfo
+import cz.mroczis.netmonster.core.model.cell.ICell
 import java.util.UUID
 import timber.log.Timber
 
@@ -97,7 +98,12 @@ class CellNetworkInfo(
     /**
      * Random generated cell UUID
      */
-    cellUUID: String
+    cellUUID: String,
+
+    /**
+     * Raw cellinfo provided by netmonster library
+     */
+    val rawCellInfo: ICell?
 ) :
     NetworkInfo(TransportType.CELLULAR, cellUUID) {
 
@@ -272,7 +278,8 @@ class CellNetworkInfo(
                 apn = apn,
                 signalStrength = null,
                 dualSimDetectionMethod = dualSimDetectionMethod,
-                nrConnectionState = nrConnectionState
+                nrConnectionState = nrConnectionState,
+                rawCellInfo = null
             )
         }
 
@@ -311,7 +318,8 @@ class CellNetworkInfo(
                 apn = apn,
                 signalStrength = SignalStrengthInfo.from(info.cellSignalStrength as CellSignalStrengthNr, SignalSource.CELL_INFO),
                 dualSimDetectionMethod = dualSimDetectionMethod,
-                nrConnectionState = nrConnectionState
+                nrConnectionState = nrConnectionState,
+                rawCellInfo = null
             )
         }
 
@@ -348,7 +356,8 @@ class CellNetworkInfo(
                 apn = apn,
                 signalStrength = SignalStrengthInfo.from(info.cellSignalStrength, SignalSource.CELL_INFO),
                 dualSimDetectionMethod = dualSimDetectionMethod,
-                nrConnectionState = nrConnectionState
+                nrConnectionState = nrConnectionState,
+                rawCellInfo = null
             )
         }
 
@@ -386,7 +395,8 @@ class CellNetworkInfo(
                 apn = apn,
                 signalStrength = SignalStrengthInfo.from(info.cellSignalStrength, SignalSource.CELL_INFO),
                 dualSimDetectionMethod = dualSimDetectionMethod,
-                nrConnectionState = nrConnectionState
+                nrConnectionState = nrConnectionState,
+                rawCellInfo = null
             )
         }
 
@@ -423,7 +433,8 @@ class CellNetworkInfo(
                 apn = apn,
                 signalStrength = SignalStrengthInfo.from(info.cellSignalStrength, SignalSource.CELL_INFO),
                 dualSimDetectionMethod = dualSimDetectionMethod,
-                nrConnectionState = nrConnectionState
+                nrConnectionState = nrConnectionState,
+                rawCellInfo = null
             )
         }
 
@@ -462,7 +473,8 @@ class CellNetworkInfo(
                 apn = apn,
                 signalStrength = SignalStrengthInfo.from(info.cellSignalStrength, SignalSource.CELL_INFO),
                 dualSimDetectionMethod = dualSimDetectionMethod,
-                nrConnectionState = nrConnectionState
+                nrConnectionState = nrConnectionState,
+                rawCellInfo = null
             )
         }
 
@@ -494,7 +506,8 @@ class CellNetworkInfo(
                 apn = apn,
                 signalStrength = SignalStrengthInfo.from(info.cellSignalStrength, SignalSource.CELL_INFO),
                 dualSimDetectionMethod = dualSimDetectionMethod,
-                nrConnectionState = nrConnectionState
+                nrConnectionState = nrConnectionState,
+                rawCellInfo = null
             )
         }
     }

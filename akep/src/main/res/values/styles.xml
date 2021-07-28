@@ -197,7 +197,7 @@
     </style>
 
     <style name="Text.ResultListDate" parent="RobotoMediumStyle">
-        <item name="android:textSize">12sp</item>
+        <item name="android:textSize">11sp</item>
         <item name="android:textAllCaps">true</item>
         <item name="android:textColor">@android:color/black</item>
     </style>

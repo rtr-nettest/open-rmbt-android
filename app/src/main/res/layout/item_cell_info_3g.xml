@@ -1,0 +1,439 @@
+<?xml version="1.0" encoding="utf-8"?><!--
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~ http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <variable
+            name="ci3g"
+            type="String" />
+
+        <variable
+            name="rnc3g"
+            type="String" />
+
+        <variable
+            name="cid3g"
+            type="String" />
+
+        <variable
+            name="lac3g"
+            type="String" />
+
+        <variable
+            name="psc3g"
+            type="String" />
+
+        <variable
+            name="bw3g"
+            type="String" />
+
+        <variable
+            name="uarfcn3g"
+            type="String" />
+
+        <variable
+            name="rssi3g"
+            type="String" />
+
+        <variable
+            name="rscp3g"
+            type="String" />
+
+        <variable
+            name="band3g"
+            type="String" />
+
+        <variable
+            name="networkType3g"
+            type="String" />
+
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:animateLayoutChanges="true"
+        android:padding="@dimen/margin_large">
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/cellTitle"
+            style="@style/RobotoBoldStyle.Medium"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:text="@{networkType3g}"
+            android:textColor="@color/text_black_transparency_60"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="3G" />
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guide_one_quarter"
+            android:layout_width="1dp"
+            android:layout_height="1dp"
+            android:orientation="vertical"
+            app:layout_constraintGuide_percent="0.15" />
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guide_half"
+            android:layout_width="1dp"
+            android:layout_height="1dp"
+            android:orientation="vertical"
+            app:layout_constraintGuide_percent="0.45" />
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guide_three_quarter"
+            android:layout_width="1dp"
+            android:layout_height="1dp"
+            android:orientation="vertical"
+            app:layout_constraintGuide_percent="0.70" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/labelCI"
+            style="@style/RobotoMediumStyle.Small"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="@dimen/margin_medium"
+            android:gravity="end|center_vertical"
+            android:text="@string/cell_info_ci"
+            android:textColor="@color/text_gray_transparency_55"
+            app:layout_constraintEnd_toStartOf="@+id/guide_one_quarter"
+            app:layout_constraintHorizontal_weight="3"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/cellTitle"
+            app:visibleOrGone="@{ci3g != null}" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/labelRNC"
+            style="@style/RobotoMediumStyle.Small"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="@dimen/margin_medium"
+            android:gravity="end|center_vertical"
+            android:text="@string/cell_info_rnc"
+            android:textColor="@color/text_gray_transparency_55"
+            app:layout_constraintEnd_toStartOf="@+id/guide_one_quarter"
+            app:layout_constraintHorizontal_weight="3"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/labelCI"
+            app:visibleOrGone="@{rnc3g != null}" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/labelCID"
+            style="@style/RobotoMediumStyle.Small"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="@dimen/margin_medium"
+            android:gravity="end|center_vertical"
+            android:text="@string/cell_info_cid"
+            android:textColor="@color/text_gray_transparency_55"
+            app:layout_constraintEnd_toStartOf="@+id/guide_one_quarter"
+            app:layout_constraintHorizontal_weight="3"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/labelRNC"
+            app:visibleOrGone="@{cid3g != null}" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/labelLAC"
+            style="@style/RobotoMediumStyle.Small"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="@dimen/margin_medium"
+            android:gravity="end|center_vertical"
+            android:text="@string/cell_info_lac"
+            android:textColor="@color/text_gray_transparency_55"
+            app:layout_constraintEnd_toStartOf="@+id/guide_one_quarter"
+            app:layout_constraintHorizontal_weight="3"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/labelCID"
+            app:visibleOrGone="@{lac3g != null}" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/labelPSC"
+            style="@style/RobotoMediumStyle.Small"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="@dimen/margin_medium"
+            android:gravity="end|center_vertical"
+            android:text="@string/cell_info_psc"
+            android:textColor="@color/text_gray_transparency_55"
+            app:layout_constraintEnd_toStartOf="@+id/guide_one_quarter"
+            app:layout_constraintHorizontal_weight="3"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/labelLAC"
+            app:visibleOrGone="@{psc3g != null}" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/labelBW"
+            style="@style/RobotoMediumStyle.Small"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="@dimen/margin_medium"
+            android:gravity="end|center_vertical"
+            android:text="@string/cell_info_bw"
+            android:textColor="@color/text_gray_transparency_55"
+            app:layout_constraintEnd_toStartOf="@+id/guide_one_quarter"
+            app:layout_constraintHorizontal_weight="3"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/labelPSC"
+            app:visibleOrGone="@{bw3g != null}" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/textCI"
+            style="@style/RobotoRegularStyle.Small"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/margin_medium"
+            android:layout_marginTop="@dimen/margin_large"
+            android:gravity="start|center_vertical"
+            android:text="@{ci3g}"
+            android:textColor="@color/text_black_transparency_60"
+            app:layout_constraintBaseline_toBaselineOf="@+id/labelCI"
+            app:layout_constraintEnd_toStartOf="@+id/guide_half"
+            app:layout_constraintHorizontal_weight="7"
+            app:layout_constraintStart_toEndOf="@+id/labelCI"
+            app:layout_constraintStart_toStartOf="@+id/guide_one_quarter"
+            app:visibleOrGone="@{ci3g != null}"
+            tools:text="-96 dBm" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/textRNC"
+            style="@style/RobotoRegularStyle.Small"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/margin_medium"
+            android:layout_marginTop="@dimen/margin_large"
+            android:gravity="start|center_vertical"
+            android:text="@{rnc3g}"
+            android:textColor="@color/text_black_transparency_60"
+            app:layout_constraintBaseline_toBaselineOf="@+id/labelRNC"
+            app:layout_constraintEnd_toStartOf="@+id/guide_half"
+            app:layout_constraintHorizontal_weight="7"
+            app:layout_constraintStart_toEndOf="@+id/labelRNC"
+            app:layout_constraintStart_toStartOf="@+id/guide_one_quarter"
+            app:visibleOrGone="@{rnc3g != null}"
+            tools:text="-96 dBm" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/textCID"
+            style="@style/RobotoRegularStyle.Small"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/margin_medium"
+            android:layout_marginTop="@dimen/margin_large"
+            android:gravity="start|center_vertical"
+            android:text="@{cid3g}"
+            android:textColor="@color/text_black_transparency_60"
+            app:layout_constraintBaseline_toBaselineOf="@+id/labelCID"
+            app:layout_constraintEnd_toStartOf="@+id/guide_half"
+            app:layout_constraintHorizontal_weight="7"
+            app:layout_constraintStart_toEndOf="@+id/labelCID"
+            app:layout_constraintStart_toStartOf="@+id/guide_one_quarter"
+            app:visibleOrGone="@{cid3g != null}"
+            tools:text="-96 dBm" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/textTAC"
+            style="@style/RobotoRegularStyle.Small"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/margin_medium"
+            android:layout_marginTop="@dimen/margin_large"
+            android:gravity="start|center_vertical"
+            android:text="@{lac3g}"
+            android:textColor="@color/text_black_transparency_60"
+            app:layout_constraintBaseline_toBaselineOf="@+id/labelLAC"
+            app:layout_constraintEnd_toStartOf="@+id/guide_half"
+            app:layout_constraintHorizontal_weight="7"
+            app:layout_constraintStart_toEndOf="@+id/labelLAC"
+            app:layout_constraintStart_toStartOf="@+id/guide_one_quarter"
+            app:visibleOrGone="@{lac3g != null}"
+            tools:text="-96 dBm" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/textPSC"
+            style="@style/RobotoRegularStyle.Small"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/margin_medium"
+            android:layout_marginTop="@dimen/margin_large"
+            android:gravity="start|center_vertical"
+            android:text="@{psc3g}"
+            android:textColor="@color/text_black_transparency_60"
+            app:layout_constraintBaseline_toBaselineOf="@+id/labelPSC"
+            app:layout_constraintEnd_toStartOf="@+id/guide_half"
+            app:layout_constraintHorizontal_weight="7"
+            app:layout_constraintStart_toEndOf="@+id/labelPSC"
+            app:layout_constraintStart_toStartOf="@+id/guide_one_quarter"
+            app:visibleOrGone="@{psc3g != null}"
+            tools:text="-96 dBm" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/textBW"
+            style="@style/RobotoRegularStyle.Small"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/margin_medium"
+            android:layout_marginTop="@dimen/margin_large"
+            android:gravity="start|center_vertical"
+            android:text="@{bw3g}"
+            android:textColor="@color/text_black_transparency_60"
+            app:layout_constraintBaseline_toBaselineOf="@+id/labelBW"
+            app:layout_constraintEnd_toStartOf="@+id/guide_half"
+            app:layout_constraintHorizontal_weight="7"
+            app:layout_constraintStart_toEndOf="@+id/labelBW"
+            app:layout_constraintStart_toStartOf="@+id/guide_one_quarter"
+            app:visibleOrGone="@{bw3g != null}"
+            tools:text="-96 dBm" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/labelUARFCN"
+            style="@style/RobotoMediumStyle.Small"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="@dimen/margin_medium"
+            android:gravity="end|center_vertical"
+            android:text="@string/cell_info_uarfcn"
+            android:textColor="@color/text_gray_transparency_55"
+            app:layout_constraintEnd_toStartOf="@+id/guide_three_quarter"
+            app:layout_constraintHorizontal_weight="3"
+            app:layout_constraintStart_toStartOf="@+id/guide_half"
+            app:layout_constraintTop_toBottomOf="@+id/cellTitle"
+            app:visibleOrGone="@{uarfcn3g != null}" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/labelRSSI"
+            style="@style/RobotoMediumStyle.Small"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="@dimen/margin_medium"
+            android:gravity="end|center_vertical"
+            android:text="@string/cell_info_rssi"
+            android:textColor="@color/text_gray_transparency_55"
+            app:layout_constraintEnd_toStartOf="@+id/guide_three_quarter"
+            app:layout_constraintHorizontal_weight="3"
+            app:layout_constraintStart_toStartOf="@+id/guide_half"
+            app:layout_constraintTop_toBottomOf="@+id/labelUARFCN"
+            app:visibleOrGone="@{rssi3g != null}" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/labelRSCP"
+            style="@style/RobotoMediumStyle.Small"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="@dimen/margin_medium"
+            android:gravity="end|center_vertical"
+            android:text="@string/cell_info_rscp"
+            android:textColor="@color/text_gray_transparency_55"
+            app:layout_constraintEnd_toStartOf="@+id/guide_three_quarter"
+            app:layout_constraintHorizontal_weight="3"
+            app:layout_constraintStart_toStartOf="@+id/guide_half"
+            app:layout_constraintTop_toBottomOf="@+id/labelRSSI"
+            app:visibleOrGone="@{rscp3g != null}" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/labelBand"
+            style="@style/RobotoMediumStyle.Small"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="@dimen/margin_medium"
+            android:gravity="end|center_vertical"
+            android:text="@string/dialog_signal_info_band"
+            android:textColor="@color/text_gray_transparency_55"
+            app:layout_constraintEnd_toStartOf="@+id/guide_three_quarter"
+            app:layout_constraintHorizontal_weight="3"
+            app:layout_constraintStart_toStartOf="@+id/guide_half"
+            app:layout_constraintTop_toBottomOf="@+id/labelRSCP"
+            app:textAllCaps="true"
+            app:visibleOrGone="@{band3g != null}" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/textUARFCN"
+            style="@style/RobotoRegularStyle.Small"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/margin_medium"
+            android:layout_marginTop="@dimen/margin_large"
+            android:gravity="start|center_vertical"
+            android:text="@{uarfcn3g}"
+            android:textColor="@color/text_black_transparency_60"
+            app:layout_constraintBaseline_toBaselineOf="@+id/labelUARFCN"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_weight="7"
+            app:layout_constraintStart_toEndOf="@+id/labelUARFCN"
+            app:layout_constraintStart_toStartOf="@+id/guide_three_quarter"
+            app:visibleOrGone="@{uarfcn3g != null}"
+            tools:text="-96 dBm" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/textRSSI"
+            style="@style/RobotoRegularStyle.Small"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/margin_medium"
+            android:layout_marginTop="@dimen/margin_large"
+            android:gravity="start|center_vertical"
+            android:text="@{rssi3g}"
+            android:textColor="@color/text_black_transparency_60"
+            app:layout_constraintBaseline_toBaselineOf="@+id/labelRSSI"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_weight="7"
+            app:layout_constraintStart_toEndOf="@+id/labelRSSI"
+            app:layout_constraintStart_toStartOf="@+id/guide_three_quarter"
+            app:visibleOrGone="@{rssi3g != null}"
+            tools:text="-96 dBm" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/textRSCP"
+            style="@style/RobotoRegularStyle.Small"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/margin_medium"
+            android:layout_marginTop="@dimen/margin_large"
+            android:gravity="start|center_vertical"
+            android:text="@{rscp3g}"
+            android:textColor="@color/text_black_transparency_60"
+            app:layout_constraintBaseline_toBaselineOf="@+id/labelRSCP"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_weight="7"
+            app:layout_constraintStart_toEndOf="@+id/labelRSCP"
+            app:layout_constraintStart_toStartOf="@+id/guide_three_quarter"
+            app:visibleOrGone="@{rscp3g != null}"
+            tools:text="-96 dBm" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/textBand"
+            style="@style/RobotoRegularStyle.Small"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/margin_medium"
+            android:layout_marginTop="@dimen/margin_large"
+            android:gravity="start|center_vertical"
+            android:text="@{band3g}"
+            android:textColor="@color/text_black_transparency_60"
+            app:layout_constraintBaseline_toBaselineOf="@+id/labelBand"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_weight="7"
+            app:layout_constraintStart_toEndOf="@+id/labelBand"
+            app:layout_constraintStart_toStartOf="@+id/guide_three_quarter"
+            app:visibleOrGone="@{band3g != null}"
+            tools:text="1800" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

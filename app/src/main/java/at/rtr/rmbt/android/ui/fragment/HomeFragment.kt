@@ -31,6 +31,7 @@ import at.rtr.rmbt.android.util.ToolbarTheme
 import at.rtr.rmbt.android.util.changeStatusBarColor
 import at.rtr.rmbt.android.util.listen
 import at.rtr.rmbt.android.viewmodel.HomeViewModel
+import at.specure.info.network.WifiNetworkInfo
 import at.specure.location.LocationState
 import at.specure.measurement.MeasurementService
 import at.specure.util.toast
@@ -68,6 +69,9 @@ class HomeFragment : BaseFragment() {
                     null
                 }
             )
+            if (it?.networkInfo is WifiNetworkInfo) {
+                (it.networkInfo as WifiNetworkInfo).signal = it.signalStrengthInfo?.value
+            }
         }
 
         homeViewModel.locationStateLiveData.listen(this) {

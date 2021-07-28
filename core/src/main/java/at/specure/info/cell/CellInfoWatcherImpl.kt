@@ -26,6 +26,7 @@ import at.specure.info.Network5GSimulator
 import at.specure.info.network.MobileNetworkType
 import at.specure.info.strength.SignalStrengthInfo
 import at.specure.util.filter5GCells
+import at.specure.util.filterOnlyNoneConnectionDataCell
 import at.specure.util.filterOnlyPrimaryActiveDataCell
 import at.specure.util.filterOnlySecondaryActiveDataCell
 import at.specure.util.isCoarseLocationPermitted
@@ -56,6 +57,7 @@ class CellInfoWatcherImpl(
 
     private var _activeNetwork: CellNetworkInfo? = null
     private var _secondaryActiveCellNetworks: List<CellNetworkInfo?> = mutableListOf()
+    private var _inactiveCellNetworks: List<CellNetworkInfo?> = mutableListOf()
     private var _secondary5GActiveCellNetworks: List<CellNetworkInfo?> = mutableListOf()
     private var _signalStrengthInfo: SignalStrengthInfo? = null
     private var _secondaryActiveCellSignalStrengthInfos: List<SignalStrengthInfo?> = mutableListOf()
@@ -67,6 +69,9 @@ class CellInfoWatcherImpl(
 
     override val secondaryActiveCellNetworks: List<CellNetworkInfo?>
         get() = _secondaryActiveCellNetworks
+
+    override val inactiveCellNetworks: List<CellNetworkInfo?>
+        get() = _inactiveCellNetworks
 
     override val secondary5GActiveCellNetworks: List<CellNetworkInfo?>
         get() = _secondary5GActiveCellNetworks
@@ -92,6 +97,7 @@ class CellInfoWatcherImpl(
 
                 val primaryCells = cells?.filterOnlyPrimaryActiveDataCell(dataSubscriptionId)
                 val secondaryCells = cells?.filterOnlySecondaryActiveDataCell(dataSubscriptionId)
+                val inactiveCells = cells?.filterOnlyNoneConnectionDataCell(dataSubscriptionId)
                 val secondary5GCells = secondaryCells.filter5GCells()
 
                 Timber.d("size ${primaryCells.size}")
@@ -104,14 +110,17 @@ class CellInfoWatcherImpl(
                 var primaryCellsCorrected = mutableListOf<ICell>()
                 var secondaryCellsCorrected = mutableListOf<ICell>()
                 var secondary5GCellsCorrected = mutableListOf<ICell>()
+
                 when (primaryCells.size) {
                     2 -> {
+                        secondaryCellsCorrected = secondaryCells as MutableList<ICell>
                         if (primaryCells[0] is CellNr && primaryCells[0].mobileNetworkType(
                                 netMonster
                             ) == MobileNetworkType.NR_NSA && primaryCells[1] is CellLte
                         ) {
                             secondary5GCellsCorrected = secondary5GCells as MutableList<ICell>
                             secondary5GCellsCorrected.add(primaryCells[0])
+                            secondaryCellsCorrected.add(primaryCells[0])
                             primaryCellsCorrected.add(primaryCells[1])
                         } else if (primaryCells[1] is CellNr && primaryCells[1].mobileNetworkType(
                                 netMonster
@@ -119,9 +128,9 @@ class CellInfoWatcherImpl(
                         ) {
                             secondary5GCellsCorrected = secondary5GCells as MutableList<ICell>
                             secondary5GCellsCorrected.add(primaryCells[1])
+                            secondaryCellsCorrected.add(primaryCells[1])
                             primaryCellsCorrected.add(primaryCells[0])
                         }
-                        secondaryCellsCorrected = secondaryCells as MutableList<ICell>
                     }
                     else -> {
                         primaryCellsCorrected = primaryCells as MutableList<ICell>
@@ -137,6 +146,19 @@ class CellInfoWatcherImpl(
                         clearLists()
                     }
                     1 -> {
+                        inactiveCells.forEach {
+                            val inactiveCell = it.toCellNetworkInfo(
+                                connectivityManager.activeNetworkInfo?.extraInfo,
+                                telephonyManager.getCorrectDataTelephonyManager(subscriptionManager),
+                                NetMonsterFactory.getTelephony(
+                                    context,
+                                    primaryCellsCorrected[0].subscriptionId
+                                ),
+                                netMonster
+                            )
+                            (_inactiveCellNetworks as MutableList).add(inactiveCell)
+                        }
+
                         _activeNetwork = primaryCellsCorrected[0].toCellNetworkInfo(
                             connectivityManager.activeNetworkInfo?.extraInfo,
                             telephonyManager.getCorrectDataTelephonyManager(subscriptionManager),
@@ -216,5 +238,6 @@ class CellInfoWatcherImpl(
         (_secondary5GActiveCellSignalStrengthInfos as MutableList).clear()
         (_secondaryActiveCellNetworks as MutableList).clear()
         (_secondaryActiveCellSignalStrengthInfos as MutableList).clear()
+        (_inactiveCellNetworks as MutableList).clear()
     }
 }
