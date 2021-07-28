@@ -60,6 +60,7 @@ class SignalStrengthWatcherImpl(
     private var secondary5GActiveSignalStrengthInfo: List<SignalStrengthInfo?>? = null
 
     private var networkInfo: NetworkInfo? = null
+    private var inactiveNetworkInfo: List<CellNetworkInfo?>? = null
     private var secondaryActiveNetworkInfo: List<CellNetworkInfo?>? = null
     private var secondary5GActiveNetworkInfo: List<CellNetworkInfo?>? = null
 
@@ -106,6 +107,7 @@ class SignalStrengthWatcherImpl(
                 secondaryActiveSignalStrengthInfo = null
                 secondary5GActiveSignalStrengthInfo = null
                 secondaryActiveNetworkInfo = null
+                inactiveNetworkInfo = null
                 secondary5GActiveNetworkInfo = null
                 notifyInfoChanged()
                 return
@@ -126,6 +128,7 @@ class SignalStrengthWatcherImpl(
                 secondaryActiveSignalStrengthInfo = null
                 secondary5GActiveSignalStrengthInfo = null
                 secondaryActiveNetworkInfo = null
+                inactiveNetworkInfo = null
                 secondary5GActiveNetworkInfo = null
                 networkInfo = newNetworkInfo
                 notifyInfoChanged()
@@ -147,6 +150,7 @@ class SignalStrengthWatcherImpl(
         secondaryActiveSignalStrengthInfo = null
         secondary5GActiveSignalStrengthInfo = null
         secondaryActiveNetworkInfo = null
+        inactiveNetworkInfo = null
         secondary5GActiveNetworkInfo = null
         val wifiInfo = wifiInfoWatcher.activeWifiInfo
         if (wifiInfo != null) {
@@ -174,6 +178,7 @@ class SignalStrengthWatcherImpl(
         secondary5GActiveSignalStrengthInfo =
             cellInfoWatcher.secondary5GActiveCellSignalStrengthInfos
         secondaryActiveNetworkInfo = cellInfoWatcher.secondaryActiveCellNetworks
+        inactiveNetworkInfo = cellInfoWatcher.inactiveCellNetworks
         secondary5GActiveNetworkInfo = cellInfoWatcher.secondary5GActiveCellNetworks
         notifyInfoChanged()
         scheduleCellUpdate()
@@ -193,7 +198,7 @@ class SignalStrengthWatcherImpl(
                 DetailedNetworkInfo(
                     networkInfo,
                     signalStrengthInfo,
-                    null,
+                    inactiveNetworkInfo,
                     secondaryActiveNetworkInfo,
                     secondaryActiveSignalStrengthInfo,
                     secondary5GActiveNetworkInfo,
@@ -209,7 +214,7 @@ class SignalStrengthWatcherImpl(
             DetailedNetworkInfo(
                 networkInfo,
                 signalStrengthInfo,
-                null,
+                inactiveNetworkInfo,
                 secondaryActiveNetworkInfo,
                 secondaryActiveSignalStrengthInfo,
                 secondary5GActiveNetworkInfo,

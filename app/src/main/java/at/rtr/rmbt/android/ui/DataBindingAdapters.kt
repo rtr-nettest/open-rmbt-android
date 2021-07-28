@@ -202,6 +202,20 @@ private fun AppCompatTextView.prepareFrequencyLabel(
 /**
  * A binding adapter that is used for show signal
  */
+@BindingAdapter("simpleSignal")
+fun AppCompatTextView.setSignal(
+    signal: Int?
+) {
+    text = if (signal != null) {
+        String.format(context.getString(R.string.home_signal_value), signal)
+    } else {
+        "-"
+    }
+}
+
+/**
+ * A binding adapter that is used for show signal
+ */
 @BindingAdapter("signal", "signalSecondary", "signalNetworkInfo")
 fun AppCompatTextView.setSignal(
     signal: Int?,

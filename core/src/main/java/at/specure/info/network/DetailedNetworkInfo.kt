@@ -7,7 +7,10 @@ import at.specure.info.strength.SignalStrengthInfo
 class DetailedNetworkInfo(
     val networkInfo: NetworkInfo?,
     val signalStrengthInfo: SignalStrengthInfo? = null,
-    val cellInfos: List<CellInfo>? = null,
+    /**
+     * Should contain all inactive cells available for primary data connection
+     */
+    val inactiveCellInfos: List<CellNetworkInfo?>? = null,
     /**
      * Should contain all secondary cells available for primary data connection
      */

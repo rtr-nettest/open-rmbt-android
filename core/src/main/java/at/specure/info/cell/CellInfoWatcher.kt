@@ -35,6 +35,11 @@ interface CellInfoWatcher {
     val secondaryActiveCellNetworks: List<CellNetworkInfo?>
 
     /**
+     * list of all inactive cells available for current data subscription from which is active
+     */
+    val inactiveCellNetworks: List<CellNetworkInfo?>
+
+    /**
      * list of all 5G cells from secondary cells available for current data subscription from which is active
      */
     val secondary5GActiveCellNetworks: List<CellNetworkInfo?>
