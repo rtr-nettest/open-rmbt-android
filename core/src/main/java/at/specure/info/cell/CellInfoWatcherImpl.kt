@@ -159,7 +159,6 @@ class CellInfoWatcherImpl(
                             (_inactiveCellNetworks as MutableList).add(inactiveCell)
                         }
 
-
                         _activeNetwork = primaryCellsCorrected[0].toCellNetworkInfo(
                             connectivityManager.activeNetworkInfo?.extraInfo,
                             telephonyManager.getCorrectDataTelephonyManager(subscriptionManager),
