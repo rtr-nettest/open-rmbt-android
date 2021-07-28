@@ -15,7 +15,6 @@ import at.specure.info.cell.CellNetworkInfo
 import at.specure.info.cell.CellTechnology
 import at.specure.info.network.NetworkInfo
 import at.specure.info.network.WifiNetworkInfo
-import cz.mroczis.netmonster.core.model.band.BandNr
 import cz.mroczis.netmonster.core.model.cell.CellCdma
 import cz.mroczis.netmonster.core.model.cell.CellGsm
 import cz.mroczis.netmonster.core.model.cell.CellLte
@@ -135,9 +134,7 @@ class NetworkInfoAdapter : RecyclerView.Adapter<NetworkInfoAdapter.Holder>() {
                     rawCellInfo.signal.rssi?.let {
                         binding.rssi3g = "$it dBm"
                     }
-
                     binding.rnc3g = rawCellInfo.rnc?.toString()
-
                 } else if (item.rawCellInfo is CellTdscdma) {
                     val rawCellInfo = item.rawCellInfo as CellTdscdma
 //                    binding.bw3g = rawCellInfo.band?.toString()
@@ -152,7 +149,6 @@ class NetworkInfoAdapter : RecyclerView.Adapter<NetworkInfoAdapter.Holder>() {
                     }
 
                     binding.rnc3g = rawCellInfo.rnc?.toString()
-
                 }
             }
         }

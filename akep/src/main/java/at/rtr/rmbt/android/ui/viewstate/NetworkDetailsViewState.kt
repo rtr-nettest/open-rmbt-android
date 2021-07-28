@@ -1,7 +1,6 @@
 package at.rtr.rmbt.android.ui.viewstate
 
 import android.os.Build
-import android.telephony.CellInfo
 import android.text.Html
 import android.text.Spanned
 import androidx.databinding.ObservableField

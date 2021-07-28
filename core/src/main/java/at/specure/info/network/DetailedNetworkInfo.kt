@@ -1,6 +1,5 @@
 package at.specure.info.network
 
-import android.telephony.CellInfo
 import at.specure.info.cell.CellNetworkInfo
 import at.specure.info.strength.SignalStrengthInfo
 

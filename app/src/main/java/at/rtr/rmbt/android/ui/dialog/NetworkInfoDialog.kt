@@ -9,13 +9,11 @@ import androidx.fragment.app.FragmentManager
 import at.rtr.rmbt.android.R
 import at.rtr.rmbt.android.databinding.DialogNetworkInfoBindingImpl
 import at.rtr.rmbt.android.di.Injector
-import at.rtr.rmbt.android.ui.adapter.HistoryLoopAdapter
 import at.rtr.rmbt.android.ui.adapter.NetworkInfoAdapter
 import at.rtr.rmbt.android.util.listen
 import at.specure.info.cell.CellNetworkInfo
 import at.specure.info.network.ActiveNetworkLiveData
 import at.specure.info.network.WifiNetworkInfo
-import at.specure.info.strength.SignalStrengthInfoLte
 import at.specure.info.strength.SignalStrengthLiveData
 import timber.log.Timber
 import javax.inject.Inject
