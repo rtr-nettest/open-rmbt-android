@@ -84,7 +84,7 @@ class NetworkDetailsViewState : ViewState {
             is CellNetworkInfo -> {
                 extractCellNetworkInfo(
                     detailedNetworkInfo.networkInfo as CellNetworkInfo,
-                    detailedNetworkInfo.cellInfos
+                    detailedNetworkInfo.secondaryActiveCellNetworks
                 )
             }
             else -> "Not Implemented"
@@ -122,7 +122,7 @@ class NetworkDetailsViewState : ViewState {
         bold("supplicantState: ").append(info.supplicantState).newLine()
     }
 
-    private fun extractCellNetworkInfo(info: CellNetworkInfo, rawCellInfos: List<CellInfo>?): String =
+    private fun extractCellNetworkInfo(info: CellNetworkInfo, rawCellInfos: List<CellNetworkInfo?>?): String =
         buildString {
             bold("name: ").append(info.name).newLine()
             bold("band: ").append(info.band).newLine()
