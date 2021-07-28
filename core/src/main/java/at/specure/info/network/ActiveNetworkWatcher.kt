@@ -171,19 +171,9 @@ class ActiveNetworkWatcher(
                         ),
                         netMonster
                     )
-                    // more than one primary cell for data subscription - we just took the one from first position
+                    // more than one primary cell for data subscription
                 } else {
-                    activeCellNetwork = primaryCellsCorrected[0].toCellNetworkInfo(
-                        connectivityManager.activeNetworkInfo?.extraInfo,
-                        telephonyManager.getCorrectDataTelephonyManager(subscriptionManager),
-                        NetMonsterFactory.getTelephony(
-                            context,
-                            primaryCellsCorrected[0].subscriptionId
-                        ),
-                        netMonster
-                    )
-                    scheduleUpdate() // we want to update the state because it is weird state with 2 primary connections, we need to test if it will not result in some unwanted behavior
-                    Timber.e("NM network type unable to detect because of more than 1 primary cells for subscription")
+                    Timber.e("NM network type unable to detect because of ${primaryCellsCorrected.size} primary cells for subscription")
                 }
 
                 if (activeCellNetwork == null) {
