@@ -371,11 +371,7 @@ class MapFragment : BaseFragment(), MapMarkerDetailsAdapter.MarkerDetailsCallbac
                     ) == PackageManager.PERMISSION_GRANTED
                 ) {
                     map?.isMyLocationEnabled = state == LocationState.ENABLED
-                    try {
-                        map?.getUiSettings()?.isMyLocationButtonEnabled = false //need to disable location button after isMyLocationEnabled is called
-                    }catch (e : Exception) {
-                        //TODO need to find out why null pointer is produced here
-                    }
+                    map?.getUiSettings()?.isMyLocationButtonEnabled = false //need to disable location button after isMyLocationEnabled is called
                 }
             }
 
