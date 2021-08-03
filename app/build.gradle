@@ -104,7 +104,7 @@ dependencies {
 
     debugImplementation "com.facebook.stetho:stetho:$versions.stetho"
 
-    def choicesdk_version = '0.2.0'
+    def choicesdk_version = '0.3.0'
     implementation "at.bluesource.choicesdk:choicesdk-maps:$choicesdk_version"
     implementation 'com.google.android.gms:play-services-maps:17.0.0'
     implementation 'com.huawei.hms:maps:6.0.0.301'

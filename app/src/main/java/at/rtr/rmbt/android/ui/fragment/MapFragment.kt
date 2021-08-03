@@ -21,11 +21,11 @@ import at.bluesource.choicesdk.maps.common.options.TileOverlay
 import at.rmbt.client.control.data.MapPresentationType
 import at.rmbt.client.control.data.MapStyleType
 import at.rtr.rmbt.android.R
-import at.rtr.rmbt.android.databinding.FragmentMapWrapperBinding
+import at.rtr.rmbt.android.databinding.FragmentMapBinding
 import at.rtr.rmbt.android.di.viewModelLazy
 import at.rtr.rmbt.android.ui.activity.ShowWebViewActivity
 import at.rtr.rmbt.android.ui.adapter.MapMarkerDetailsAdapter
-import at.rtr.rmbt.android.ui.addTileOverlayPatched
+import at.rtr.rmbt.android.ui.addTileOverlayExt
 import at.rtr.rmbt.android.ui.dialog.MapFiltersDialog
 import at.rtr.rmbt.android.ui.dialog.MapLayersDialog
 import at.rtr.rmbt.android.ui.dialog.MapSearchDialog
@@ -63,9 +63,9 @@ class MapFragment : BaseFragment(), MapMarkerDetailsAdapter.MarkerDetailsCallbac
     MapFiltersDialog.Callback, MapSearchDialog.Callback {
 
     private val mapViewModel: MapViewModel by viewModelLazy()
-    private val binding: FragmentMapWrapperBinding by bindingLazy()
+    private val binding: FragmentMapBinding by bindingLazy()
 
-    override val layoutResId = R.layout.fragment_map_wrapper
+    override val layoutResId = R.layout.fragment_map
 
     private var currentOverlay: TileOverlay? = null
     private var currentLocation: LatLng? = null
@@ -136,7 +136,7 @@ class MapFragment : BaseFragment(), MapMarkerDetailsAdapter.MarkerDetailsCallbac
         currentOverlay?.remove()
         mapViewModel.state.type.set(type)
         currentOverlay = mapViewModel.providerLiveData.value?.let {
-            map?.addTileOverlayPatched(it)
+            map?.addTileOverlayExt(it)
         }
     }
 
@@ -218,7 +218,7 @@ class MapFragment : BaseFragment(), MapMarkerDetailsAdapter.MarkerDetailsCallbac
     override fun onFiltersUpdated() {
         currentOverlay?.remove()
         currentOverlay = mapViewModel.providerLiveData.value?.let {
-            map?.addTileOverlayPatched(it)
+            map?.addTileOverlayExt(it)
         }
     }
 
@@ -291,12 +291,12 @@ class MapFragment : BaseFragment(), MapMarkerDetailsAdapter.MarkerDetailsCallbac
         if(providerData == null) {
             mapViewModel.providerLiveData.listen(this) {
                 currentOverlay = mapViewModel.providerLiveData.value?.let {
-                    map?.addTileOverlayPatched(it)
+                    map?.addTileOverlayExt(it)
                 }
             }
         } else {
             currentOverlay = mapViewModel.providerLiveData.value?.let {
-                map?.addTileOverlayPatched(it)
+                map?.addTileOverlayExt(it)
             }
         }
 
@@ -321,7 +321,7 @@ class MapFragment : BaseFragment(), MapMarkerDetailsAdapter.MarkerDetailsCallbac
             if (map?.cameraPosition?.zoom != mapViewModel.state.zoom) {
                 currentOverlay?.remove()
                 currentOverlay = mapViewModel.providerLiveData.value?.let {
-                    map?.addTileOverlayPatched(it)
+                    map?.addTileOverlayExt(it)
                 }
             }
             mapViewModel.state.zoom = map?.cameraPosition?.zoom ?: 1f
