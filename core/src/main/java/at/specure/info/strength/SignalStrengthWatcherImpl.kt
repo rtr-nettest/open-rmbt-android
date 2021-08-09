@@ -28,6 +28,7 @@ import at.specure.info.network.NetworkInfo
 import at.specure.info.wifi.WifiInfoWatcher
 import at.specure.util.permission.LocationAccess
 import at.specure.util.synchronizedForEach
+import cz.mroczis.netmonster.core.model.cell.ICell
 import timber.log.Timber
 import java.util.Collections
 
@@ -60,7 +61,7 @@ class SignalStrengthWatcherImpl(
     private var secondary5GActiveSignalStrengthInfo: List<SignalStrengthInfo?>? = null
 
     private var networkInfo: NetworkInfo? = null
-    private var inactiveNetworkInfo: List<CellNetworkInfo?>? = null
+    private var inactiveNetworkInfo: List<ICell?>? = null
     private var secondaryActiveNetworkInfo: List<CellNetworkInfo?>? = null
     private var secondary5GActiveNetworkInfo: List<CellNetworkInfo?>? = null
 
@@ -178,7 +179,7 @@ class SignalStrengthWatcherImpl(
         secondary5GActiveSignalStrengthInfo =
             cellInfoWatcher.secondary5GActiveCellSignalStrengthInfos
         secondaryActiveNetworkInfo = cellInfoWatcher.secondaryActiveCellNetworks
-        inactiveNetworkInfo = cellInfoWatcher.inactiveCellNetworks
+        inactiveNetworkInfo = cellInfoWatcher.allCellInfos
         secondary5GActiveNetworkInfo = cellInfoWatcher.secondary5GActiveCellNetworks
         notifyInfoChanged()
         scheduleCellUpdate()

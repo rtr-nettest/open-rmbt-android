@@ -9,12 +9,14 @@ import androidx.fragment.app.FragmentManager
 import at.rtr.rmbt.android.R
 import at.rtr.rmbt.android.databinding.DialogNetworkInfoBindingImpl
 import at.rtr.rmbt.android.di.Injector
+import at.rtr.rmbt.android.ui.adapter.ICellAdapter
 import at.rtr.rmbt.android.ui.adapter.NetworkInfoAdapter
 import at.rtr.rmbt.android.util.listen
 import at.specure.info.cell.CellNetworkInfo
 import at.specure.info.network.ActiveNetworkLiveData
 import at.specure.info.network.WifiNetworkInfo
 import at.specure.info.strength.SignalStrengthLiveData
+import cz.mroczis.netmonster.core.model.cell.ICell
 import timber.log.Timber
 import javax.inject.Inject
 
@@ -26,7 +28,8 @@ class NetworkInfoDialog : FullscreenDialog() {
     @Inject
     lateinit var signalStrengthLiveData: SignalStrengthLiveData
 
-    private val adapter: NetworkInfoAdapter by lazy { NetworkInfoAdapter() }
+    private val adapterWifi: NetworkInfoAdapter by lazy { NetworkInfoAdapter() }
+    private val adapterMobile: ICellAdapter by lazy { ICellAdapter() }
     private lateinit var binding: DialogNetworkInfoBindingImpl
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -42,30 +45,30 @@ class NetworkInfoDialog : FullscreenDialog() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        binding.recyclerViewCells.adapter = adapter
-
         signalStrengthLiveData.listen(this) { signal ->
 
             val networkInfo = signal?.networkInfo
             when (networkInfo) {
                 is WifiNetworkInfo -> {
+                    binding.recyclerViewCells.adapter = adapterWifi
                     networkInfo.signal = signal.signalStrengthInfo?.value
-                    adapter.items = listOf(networkInfo)
+                    adapterWifi.items = listOf(networkInfo)
                 }
                 is CellNetworkInfo -> {
-                    val cells = mutableListOf<CellNetworkInfo>()
-                    if (signal.networkInfo != null && signal.networkInfo is CellNetworkInfo) {
-                        cells.add(signal.networkInfo as CellNetworkInfo)
-                    }
-                    signal.secondaryActiveCellNetworks?.let {
-                        Timber.d("Secondary Cell Count: ${it.size}")
-                        it.forEach { cellNetworkInfo ->
-                            if (cellNetworkInfo != null) {
-                                cells.add(cellNetworkInfo)
-                            }
-                        }
-                    }
-                    signal.inactiveCellInfos?.let {
+                    binding.recyclerViewCells.adapter = adapterMobile
+                    val cells = mutableListOf<ICell>()
+//                    if (signal.networkInfo != null && signal.networkInfo is CellNetworkInfo) {
+//                        cells.add(signal.networkInfo as CellNetworkInfo)
+//                    }
+//                    signal.secondaryActiveCellNetworks?.let {
+//                        Timber.d("Secondary Cell Count: ${it.size}")
+//                        it.forEach { cellNetworkInfo ->
+//                            if (cellNetworkInfo != null) {
+//                                cells.add(cellNetworkInfo)
+//                            }
+//                        }
+//                    }
+                    signal.allCellInfos?.let {
                         Timber.d("Inactive Cell Count: ${it.size}")
                         it.forEach { cellNetworkInfo ->
                             if (cellNetworkInfo != null) {
@@ -74,7 +77,7 @@ class NetworkInfoDialog : FullscreenDialog() {
                         }
                     }
                     Timber.d("Total Cell Count: ${cells.size}")
-                    adapter.items = cells
+                    adapterMobile.items = cells
                 }
             }
         }
