@@ -26,7 +26,6 @@ import at.specure.info.Network5GSimulator
 import at.specure.info.network.MobileNetworkType
 import at.specure.info.strength.SignalStrengthInfo
 import at.specure.util.filter5GCells
-import at.specure.util.filterOnlyNoneConnectionDataCell
 import at.specure.util.filterOnlyPrimaryActiveDataCell
 import at.specure.util.filterOnlySecondaryActiveDataCell
 import at.specure.util.isCoarseLocationPermitted
@@ -111,8 +110,6 @@ class CellInfoWatcherImpl(
                 var primaryCellsCorrected = mutableListOf<ICell>()
                 var secondaryCellsCorrected = mutableListOf<ICell>()
                 var secondary5GCellsCorrected = mutableListOf<ICell>()
-
-
 
                 when (primaryCells.size) {
                     2 -> {
