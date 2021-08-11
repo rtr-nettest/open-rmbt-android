@@ -57,7 +57,7 @@ class CellInfoWatcherImpl(
 
     private var _activeNetwork: CellNetworkInfo? = null
     private var _secondaryActiveCellNetworks: List<CellNetworkInfo?> = mutableListOf()
-    private var _inactiveCellNetworks: List<ICell?> = mutableListOf()
+    private var _inactiveCellNetworks: List<ICell> = mutableListOf()
     private var _secondary5GActiveCellNetworks: List<CellNetworkInfo?> = mutableListOf()
     private var _signalStrengthInfo: SignalStrengthInfo? = null
     private var _secondaryActiveCellSignalStrengthInfos: List<SignalStrengthInfo?> = mutableListOf()
@@ -70,7 +70,7 @@ class CellInfoWatcherImpl(
     override val secondaryActiveCellNetworks: List<CellNetworkInfo?>
         get() = _secondaryActiveCellNetworks
 
-    override val allCellInfos: List<ICell?>
+    override val allCellInfos: List<ICell>
         get() = _inactiveCellNetworks
 
     override val secondary5GActiveCellNetworks: List<CellNetworkInfo?>
@@ -93,7 +93,7 @@ class CellInfoWatcherImpl(
 
                 cells = netMonster.getCells()
                 _inactiveCellNetworks = cells
-
+                Timber.d("Total Cell Count: ${_inactiveCellNetworks.size}")
                 val dataSubscriptionId = subscriptionManager.getCurrentDataSubscriptionId()
 
                 val primaryCells = cells?.filterOnlyPrimaryActiveDataCell(dataSubscriptionId)
@@ -241,6 +241,6 @@ class CellInfoWatcherImpl(
         (_secondary5GActiveCellSignalStrengthInfos as MutableList).clear()
         (_secondaryActiveCellNetworks as MutableList).clear()
         (_secondaryActiveCellSignalStrengthInfos as MutableList).clear()
-        (_inactiveCellNetworks as MutableList).clear()
+//        (_inactiveCellNetworks as MutableList).clear()
     }
 }

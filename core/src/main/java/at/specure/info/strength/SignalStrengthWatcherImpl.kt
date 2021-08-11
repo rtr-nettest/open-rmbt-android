@@ -33,7 +33,7 @@ import timber.log.Timber
 import java.util.Collections
 
 private const val WIFI_UPDATE_DELAY = 2000L
-private const val CELL_UPDATE_DELAY = 1000L
+private const val CELL_UPDATE_DELAY = 2000L
 private const val WIFI_MESSAGE_ID = 1
 private const val CELL_MESSAGE_ID = 2
 
@@ -61,7 +61,7 @@ class SignalStrengthWatcherImpl(
     private var secondary5GActiveSignalStrengthInfo: List<SignalStrengthInfo?>? = null
 
     private var networkInfo: NetworkInfo? = null
-    private var inactiveNetworkInfo: List<ICell?>? = null
+    private var inactiveNetworkInfo: List<ICell>? = null
     private var secondaryActiveNetworkInfo: List<CellNetworkInfo?>? = null
     private var secondary5GActiveNetworkInfo: List<CellNetworkInfo?>? = null
 
@@ -170,6 +170,7 @@ class SignalStrengthWatcherImpl(
     }
 
     private fun handleCellUpdate() {
+        Timber.d("Total Cell Count: ${cellInfoWatcher.allCellInfos.size}")
         val cellInfo = cellInfoWatcher.activeNetwork
         signalStrengthInfo = cellInfoWatcher.signalStrengthInfo
         if (cellInfo != null) {
@@ -195,6 +196,7 @@ class SignalStrengthWatcherImpl(
 
     private fun notifyInfoChanged() {
         listeners.synchronizedForEach {
+            Timber.d("Total Cell Count: ${inactiveNetworkInfo?.size}")
             it.onSignalStrengthChanged(
                 DetailedNetworkInfo(
                     networkInfo,

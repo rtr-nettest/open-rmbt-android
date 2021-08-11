@@ -38,7 +38,7 @@ interface CellInfoWatcher {
     /**
      * list of all cells available for all subscriptions
      */
-    val allCellInfos: List<ICell?>
+    val allCellInfos: List<ICell>
 
     /**
      * list of all 5G cells from secondary cells available for current data subscription from which is active

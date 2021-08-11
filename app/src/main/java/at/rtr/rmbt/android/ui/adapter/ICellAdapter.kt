@@ -15,6 +15,7 @@ import at.specure.info.cell.CellNetworkInfo
 import at.specure.info.cell.CellTechnology
 import at.specure.info.network.NetworkInfo
 import at.specure.info.network.WifiNetworkInfo
+import at.specure.util.toTechnologyClass
 import cz.mroczis.netmonster.core.model.cell.CellCdma
 import cz.mroczis.netmonster.core.model.cell.CellGsm
 import cz.mroczis.netmonster.core.model.cell.CellLte
@@ -22,6 +23,7 @@ import cz.mroczis.netmonster.core.model.cell.CellNr
 import cz.mroczis.netmonster.core.model.cell.CellTdscdma
 import cz.mroczis.netmonster.core.model.cell.CellWcdma
 import cz.mroczis.netmonster.core.model.cell.ICell
+import timber.log.Timber
 
 private const val WIFI_NETWORK_INFO_TYPE = 0
 private const val CELL_NR_NETWORK_INFO_TYPE = 1
@@ -31,23 +33,38 @@ private const val CELL_2G_NETWORK_INFO_TYPE = 4
 
 class ICellAdapter : RecyclerView.Adapter<ICellAdapter.Holder>() {
 
-    private val _items = mutableListOf<ICell?>()
+//    private val _items = mutableListOf<ICell?>()
 
-    var items: List<ICell?>
-        get() = _items
+    var items: List<ICell> = emptyList()
+        //        get() = _items
         set(value) {
-            _items.clear()
-            _items.addAll(value)
-            notifyDataSetChanged()
+//            val previousValues = field
+            field = value
+//            value.forEachIndexed { index, iCell ->
+//                if (index < previousValues.size) {
+//                    if (iCell != previousValues[index]) {
+//                        notifyItemChanged(index)
+//                        Timber.d("List item has changed: $index")
+//                    }
+//                }
+//            }
+//            if (previousValues.size > field.size) {
+//                notifyItemRangeRemoved(field.size, previousValues.size - field.size)
+//                Timber.d("List item range removed: ${field.size} count: ${previousValues.size - field.size}")
+//            } else {
+//                notifyItemRangeInserted(previousValues.size, field.size - previousValues.size)
+//                Timber.d("List item range inserted: ${previousValues.size} count: ${field.size - previousValues.size}")
+//            }
         }
 
-    override fun getItemCount() = _items.size
+    override fun getItemCount() = items.size
 
     override fun getItemViewType(position: Int): Int {
         return when (items[position]) {
 //            is WifiNetworkInfo -> WIFI_NETWORK_INFO_TYPE
             is ICell -> {
-                when ((items[position] as CellNetworkInfo).cellType) {
+                val itemTechnology = items[position]?.toTechnologyClass()
+                when (itemTechnology) {
                     CellTechnology.CONNECTION_5G -> CELL_NR_NETWORK_INFO_TYPE
                     CellTechnology.CONNECTION_4G -> CELL_LTE_NETWORK_INFO_TYPE
                     CellTechnology.CONNECTION_3G -> CELL_3G_NETWORK_INFO_TYPE
@@ -62,7 +79,6 @@ class ICellAdapter : RecyclerView.Adapter<ICellAdapter.Holder>() {
         return when (viewType) {
             CELL_NR_NETWORK_INFO_TYPE -> CellNrHolder(parent.bindWith(R.layout.item_cell_info_nr))
             CELL_LTE_NETWORK_INFO_TYPE -> CellLteHolder(parent.bindWith(R.layout.item_cell_info_lte))
-            // TODO: fix for 3G and 2G and unknown
             CELL_3G_NETWORK_INFO_TYPE -> Cell3GHolder(parent.bindWith(R.layout.item_cell_info_3g))
             CELL_2G_NETWORK_INFO_TYPE -> Cell2GHolder(parent.bindWith(R.layout.item_cell_info_2g))
             else -> Cell2GHolder(parent.bindWith(R.layout.item_cell_info_2g))
@@ -70,7 +86,7 @@ class ICellAdapter : RecyclerView.Adapter<ICellAdapter.Holder>() {
     }
 
     override fun onBindViewHolder(holder: Holder, position: Int) {
-        val item = _items[position]
+        val item = items[position]
         holder.bind(position, item)
     }
 

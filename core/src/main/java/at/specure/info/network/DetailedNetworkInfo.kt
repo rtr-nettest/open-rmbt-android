@@ -11,7 +11,7 @@ class DetailedNetworkInfo(
      * Should contain all inactive cells available for primary data connection
      */
 
-    val allCellInfos: List<ICell?>? = null,
+    val allCellInfos: List<ICell>? = null,
     /**
      * Should contain all secondary cells available for primary data connection
      */

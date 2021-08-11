@@ -50,12 +50,16 @@ class NetworkInfoDialog : FullscreenDialog() {
             val networkInfo = signal?.networkInfo
             when (networkInfo) {
                 is WifiNetworkInfo -> {
-                    binding.recyclerViewCells.adapter = adapterWifi
+                    if (binding.recyclerViewCells.adapter is NetworkInfoAdapter == false) {
+                        binding.recyclerViewCells.adapter = adapterWifi
+                    }
                     networkInfo.signal = signal.signalStrengthInfo?.value
                     adapterWifi.items = listOf(networkInfo)
                 }
                 is CellNetworkInfo -> {
-                    binding.recyclerViewCells.adapter = adapterMobile
+                    if (binding.recyclerViewCells.adapter is ICellAdapter == false) {
+                        binding.recyclerViewCells.adapter = adapterMobile
+                    }
                     val cells = mutableListOf<ICell>()
 //                    if (signal.networkInfo != null && signal.networkInfo is CellNetworkInfo) {
 //                        cells.add(signal.networkInfo as CellNetworkInfo)
@@ -70,14 +74,16 @@ class NetworkInfoDialog : FullscreenDialog() {
 //                    }
                     signal.allCellInfos?.let {
                         Timber.d("Inactive Cell Count: ${it.size}")
-                        it.forEach { cellNetworkInfo ->
-                            if (cellNetworkInfo != null) {
-                                cells.add(cellNetworkInfo)
-                            }
-                        }
+//                        it.forEach { cellNetworkInfo ->
+//                            if (cellNetworkInfo != null) {
+//                                cells.add(cellNetworkInfo)
+//                            }
+//                        }
+                        Timber.d("Total Cell Count: ${cells.size}")
+                        adapterMobile.items = it
                     }
-                    Timber.d("Total Cell Count: ${cells.size}")
-                    adapterMobile.items = cells
+//                    Timber.d("Total Cell Count: ${cells.size}")
+//                    adapterMobile.items = cells
                 }
             }
         }
