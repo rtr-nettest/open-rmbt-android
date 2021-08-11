@@ -8,13 +8,9 @@ import at.rtr.rmbt.android.databinding.ItemCellInfo2gBinding
 import at.rtr.rmbt.android.databinding.ItemCellInfo3gBinding
 import at.rtr.rmbt.android.databinding.ItemCellInfoLteBinding
 import at.rtr.rmbt.android.databinding.ItemCellInfoNrBinding
-import at.rtr.rmbt.android.databinding.ItemCellInfoWifiBinding
 import at.rtr.rmbt.android.databinding.ItemHistoryBinding
 import at.rtr.rmbt.android.util.bindWith
-import at.specure.info.cell.CellNetworkInfo
 import at.specure.info.cell.CellTechnology
-import at.specure.info.network.NetworkInfo
-import at.specure.info.network.WifiNetworkInfo
 import at.specure.util.toTechnologyClass
 import cz.mroczis.netmonster.core.model.cell.CellCdma
 import cz.mroczis.netmonster.core.model.cell.CellGsm
@@ -23,9 +19,7 @@ import cz.mroczis.netmonster.core.model.cell.CellNr
 import cz.mroczis.netmonster.core.model.cell.CellTdscdma
 import cz.mroczis.netmonster.core.model.cell.CellWcdma
 import cz.mroczis.netmonster.core.model.cell.ICell
-import timber.log.Timber
 
-private const val WIFI_NETWORK_INFO_TYPE = 0
 private const val CELL_NR_NETWORK_INFO_TYPE = 1
 private const val CELL_LTE_NETWORK_INFO_TYPE = 2
 private const val CELL_3G_NETWORK_INFO_TYPE = 3
@@ -33,44 +27,20 @@ private const val CELL_2G_NETWORK_INFO_TYPE = 4
 
 class ICellAdapter : RecyclerView.Adapter<ICellAdapter.Holder>() {
 
-//    private val _items = mutableListOf<ICell?>()
-
     var items: List<ICell> = emptyList()
-        //        get() = _items
         set(value) {
-//            val previousValues = field
             field = value
-//            value.forEachIndexed { index, iCell ->
-//                if (index < previousValues.size) {
-//                    if (iCell != previousValues[index]) {
-//                        notifyItemChanged(index)
-//                        Timber.d("List item has changed: $index")
-//                    }
-//                }
-//            }
-//            if (previousValues.size > field.size) {
-//                notifyItemRangeRemoved(field.size, previousValues.size - field.size)
-//                Timber.d("List item range removed: ${field.size} count: ${previousValues.size - field.size}")
-//            } else {
-//                notifyItemRangeInserted(previousValues.size, field.size - previousValues.size)
-//                Timber.d("List item range inserted: ${previousValues.size} count: ${field.size - previousValues.size}")
-//            }
+            notifyDataSetChanged()
         }
 
     override fun getItemCount() = items.size
 
     override fun getItemViewType(position: Int): Int {
-        return when (items[position]) {
-//            is WifiNetworkInfo -> WIFI_NETWORK_INFO_TYPE
-            is ICell -> {
-                val itemTechnology = items[position]?.toTechnologyClass()
-                when (itemTechnology) {
-                    CellTechnology.CONNECTION_5G -> CELL_NR_NETWORK_INFO_TYPE
-                    CellTechnology.CONNECTION_4G -> CELL_LTE_NETWORK_INFO_TYPE
-                    CellTechnology.CONNECTION_3G -> CELL_3G_NETWORK_INFO_TYPE
-                    else -> CELL_2G_NETWORK_INFO_TYPE
-                }
-            }
+        val itemTechnology = items[position].toTechnologyClass()
+        return when (itemTechnology) {
+            CellTechnology.CONNECTION_5G -> CELL_NR_NETWORK_INFO_TYPE
+            CellTechnology.CONNECTION_4G -> CELL_LTE_NETWORK_INFO_TYPE
+            CellTechnology.CONNECTION_3G -> CELL_3G_NETWORK_INFO_TYPE
             else -> CELL_2G_NETWORK_INFO_TYPE
         }
     }
@@ -97,7 +67,7 @@ class ICellAdapter : RecyclerView.Adapter<ICellAdapter.Holder>() {
             item: ICell?
         ) {
             if (item is ICell) {
-//                binding.networkType2g = "${item.cellType.displayName} (${item.networkType.displayName})"
+                binding.subscriptionId2g = item.subscriptionId.toString() + " (${item.network?.toPlmn("-")})"
                 binding.band2g = item.band?.name ?: ""
                 binding.arfcn2g = item.band?.channelNumber?.toString()
 
@@ -133,7 +103,7 @@ class ICellAdapter : RecyclerView.Adapter<ICellAdapter.Holder>() {
             item: ICell?
         ) {
             if (item is ICell) {
-//                binding.networkType3g = "${item.displayName}"
+                binding.subscriptionId3g = item.subscriptionId.toString() + " (${item.network?.toPlmn("-")})"
                 binding.band3g = item.band?.name ?: ""
                 binding.uarfcn3g = item.band?.channelNumber?.toString()
                 binding.subscriptionId3g = item.subscriptionId.toString()
@@ -141,7 +111,6 @@ class ICellAdapter : RecyclerView.Adapter<ICellAdapter.Holder>() {
                 if (item is CellWcdma) {
                     binding.networkType3g = "3G (W-CDMA)"
                     val rawCellInfo = item as CellWcdma
-//                    binding.bw3g = rawCellInfo.band?.toString()
                     binding.ci3g = rawCellInfo.ci?.toString()
                     binding.cid3g = rawCellInfo.cid?.toString()
                     binding.lac3g = rawCellInfo.lac?.toString()
@@ -156,7 +125,6 @@ class ICellAdapter : RecyclerView.Adapter<ICellAdapter.Holder>() {
                 } else if (item is CellTdscdma) {
                     val rawCellInfo = item as CellTdscdma
                     binding.networkType3g = "3G (TDS-CDMA)"
-//                    binding.bw3g = rawCellInfo.band?.toString()
                     binding.ci3g = rawCellInfo.ci?.toString()
                     binding.cid3g = rawCellInfo.cid?.toString()
                     binding.lac3g = rawCellInfo.lac?.toString()
@@ -180,10 +148,9 @@ class ICellAdapter : RecyclerView.Adapter<ICellAdapter.Holder>() {
             item: ICell?
         ) {
             if (item is ICell) {
-//                binding.networkTypeLTE = "${item.cellType.displayName} (${item.networkType.displayName})"
+                binding.subscriptionId4g = item.subscriptionId.toString() + " (${item.network?.toPlmn("-")})"
                 binding.bandLTE = item.band?.name ?: ""
                 binding.earfcnLTE = item.band?.channelNumber?.toString()
-                binding.subscriptionId4g = item.subscriptionId.toString()
                 binding.networkTypeLTE = "4G (LTE)"
 
                 if (item is CellLte) {
@@ -232,8 +199,7 @@ class ICellAdapter : RecyclerView.Adapter<ICellAdapter.Holder>() {
             if (item is ICell) {
                 binding.bandNameNr = item.band?.name ?: ""
                 binding.frequencyNr = item.band?.channelNumber?.toString()
-                binding.subscriptionId5g = item.subscriptionId.toString()
-//                binding.networkTypeNR = "${item.cellType.displayName} (${item.networkType.displayName})"
+                binding.subscriptionId5g = item.subscriptionId.toString() + " (${item.network?.toPlmn("-")})"
                 binding.networkTypeNR = "5G (NR)"
 
                 if (item is CellNr) {
