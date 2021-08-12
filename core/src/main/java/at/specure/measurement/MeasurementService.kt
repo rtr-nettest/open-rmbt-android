@@ -34,6 +34,7 @@ import at.specure.location.LocationWatcher
 import at.specure.measurement.signal.SignalMeasurementProducer
 import at.specure.measurement.signal.SignalMeasurementService
 import at.specure.test.DeviceInfo
+import at.specure.test.SignalMeasurementType
 import at.specure.test.StateRecorder
 import at.specure.test.TestController
 import at.specure.test.TestProgressListener
@@ -120,6 +121,8 @@ class MeasurementService : CustomLifecycleService() {
 
     private var measurementProgress = 0
     private var pingNanos = 0L
+    private var jitterNanos = 0L
+    private var packetLossPercent = 0
     private var downloadSpeedBps = 0L
     private var uploadSpeedBps = 0L
     private var hasErrors = false
@@ -141,10 +144,15 @@ class MeasurementService : CustomLifecycleService() {
     private val signalMeasurementConnection = object : ServiceConnection {
 
         override fun onServiceDisconnected(name: ComponentName?) {
+            Timber.d("Signal measurement disconnected")
             signalMeasurementProducer = null
         }
 
+        /**
+         * When Measurement service is connected we need to pause signal measurement
+         */
         override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
+            Timber.d("Signal measurement connected: pause required: $signalMeasurementPauseRequired")
             signalMeasurementProducer = service as SignalMeasurementProducer
             if (signalMeasurementPauseRequired) {
                 signalMeasurementProducer?.pauseMeasurement(true)
@@ -204,6 +212,16 @@ class MeasurementService : CustomLifecycleService() {
             clientAggregator.onPingChanged(pingNanos)
         }
 
+        override fun onJitterChanged(jitterNanos: Long) {
+            this@MeasurementService.jitterNanos = jitterNanos
+            clientAggregator.onJitterChanged(jitterNanos)
+        }
+
+        override fun onPacketLossChanged(packetLossPercent: Int) {
+            this@MeasurementService.packetLossPercent = packetLossPercent
+            clientAggregator.onPacketLossPercentChanged(packetLossPercent)
+        }
+
         override fun onDownloadSpeedChanged(progress: Int, speedBps: Long) {
             downloadSpeedBps = speedBps
             stateRecorder.onDownloadSpeedChanged(progress, speedBps)
@@ -235,7 +253,11 @@ class MeasurementService : CustomLifecycleService() {
                 unlock()
                 resumeSignalMeasurement(false)
             } else {
-                resumeSignalMeasurement(true)
+                if ((config.loopModeEnabled) && (stateRecorder.loopTestCount < config.loopModeNumberOfTests) && (stateRecorder.loopModeRecord?.status != LoopModeState.CANCELLED) && (stateRecorder.loopModeRecord?.status != LoopModeState.FINISHED)) {
+                    startSignalMeasurement(SignalMeasurementType.LOOP_WAITING)
+                } else {
+                    resumeSignalMeasurement(false)
+                }
             }
         }
 
@@ -256,7 +278,7 @@ class MeasurementService : CustomLifecycleService() {
         override fun onError() {
             removeInactivityCheck()
             if (config.loopModeEnabled && stateRecorder.loopModeRecord?.status != LoopModeState.CANCELLED && (stateRecorder.loopTestCount < config.loopModeNumberOfTests || (config.loopModeNumberOfTests == 0 && config.developerModeIsEnabled))) {
-                resumeSignalMeasurement(true)
+                startSignalMeasurement(SignalMeasurementType.LOOP_WAITING)
             } else {
                 resumeSignalMeasurement(false)
             }
@@ -349,9 +371,10 @@ class MeasurementService : CustomLifecycleService() {
                         if (shouldShowResults) {
                             clientAggregator.onSubmitted()
                         }
+                        clientAggregator.onResultSubmitted()
                     }
-
                     it.onFailure { ex ->
+
                         if (shouldShowResults) {
                             clientAggregator.onSubmitted()
                         }
@@ -359,6 +382,7 @@ class MeasurementService : CustomLifecycleService() {
                             Timber.d("Delayed submission work created")
                             WorkLauncher.enqueueDelayedDataSaveRequest(applicationContext, testUUID)
                         }
+                        clientAggregator.onResultSubmitted()
                     }
                 }
             }
@@ -386,13 +410,27 @@ class MeasurementService : CustomLifecycleService() {
     }
 
     private fun resumeSignalMeasurement(unstoppable: Boolean) {
+        Timber.d("Signal measurement resumed")
         signalMeasurementPauseRequired = false
         signalMeasurementProducer?.resumeMeasurement(unstoppable)
     }
 
     private fun pauseSignalMeasurement() {
+        Timber.d("Signal measurement paused")
         signalMeasurementPauseRequired = true // in case when service connection wasn't established before test started
         signalMeasurementProducer?.pauseMeasurement(true)
+    }
+
+    private fun stopSignalMeasurement() {
+        Timber.d("Signal measurement stopped")
+        signalMeasurementPauseRequired = false
+        signalMeasurementProducer?.stopMeasurement(false)
+    }
+
+    private fun startSignalMeasurement(signalMeasurementType: SignalMeasurementType) {
+        Timber.d("Signal measurement starting with type: ${signalMeasurementType.signalTypeName}")
+        signalMeasurementPauseRequired = true // in case when service connection wasn't established before test started
+        signalMeasurementProducer?.startMeasurement(false, signalMeasurementType)
     }
 
     override fun onCreate() {
@@ -554,14 +592,15 @@ class MeasurementService : CustomLifecycleService() {
         startPendingTest = false
         if (config.loopModeEnabled && stateRecorder.loopModeRecord?.status != LoopModeState.CANCELLED && (stateRecorder.loopTestCount < config.loopModeNumberOfTests || (config.loopModeNumberOfTests == 0 && config.developerModeIsEnabled))) {
             scheduleNextLoopTest()
+            stopSignalMeasurement()
+        } else {
+            pauseSignalMeasurement()
         }
 
         Timber.d("LOOP MODE: runner is running: ${runner.isRunning}")
         if (!runner.isRunning) {
             resetStates()
         }
-
-        pauseSignalMeasurement()
 
         var location: DeviceInfo.Location? = null
 
@@ -622,6 +661,7 @@ class MeasurementService : CustomLifecycleService() {
         // stop foreground does not hide notification about test running during loop mode sometimes
         notificationManager.cancel(NOTIFICATION_ID)
         notificationManager.cancel(NOTIFICATION_LOOP_FINISHED_ID)
+        val previousLoopModeState = loopModeState
         loopModeState = LoopModeState.CANCELLED
         stateRecorder.onLoopTestStatusChanged(loopModeState)
         runner.stop()
@@ -633,7 +673,12 @@ class MeasurementService : CustomLifecycleService() {
         stateRecorder.finish()
         clientAggregator.onMeasurementCancelled()
         clientAggregator.onProgressChanged(measurementState, 0)
-        resumeSignalMeasurement(false)
+        if (config.loopModeEnabled) {
+            Timber.d("Signal measurement stopping: Loop mode state: ${previousLoopModeState.name}")
+            stopSignalMeasurement()
+        } else {
+            resumeSignalMeasurement(false)
+        }
         stopForeground(true)
         unlock()
     }
@@ -641,6 +686,8 @@ class MeasurementService : CustomLifecycleService() {
     private fun resetStates() {
         loopModeState = LoopModeState.IDLE
         testListener.onProgressChanged(MeasurementState.INIT, 0)
+        testListener.onJitterChanged(0)
+        testListener.onPacketLossChanged(0)
         testListener.onPingChanged(0)
         testListener.onDownloadSpeedChanged(0, 0)
         testListener.onUploadSpeedChanged(0, 0)
@@ -791,6 +838,18 @@ class MeasurementService : CustomLifecycleService() {
             }
         }
 
+        override fun onJitterChanged(jitterNanos: Long) {
+            clients.forEach {
+                it.onPingChanged(pingNanos)
+            }
+        }
+
+        override fun onPacketLossPercentChanged(packetLossPercent: Int) {
+            clients.forEach {
+                it.onPingChanged(pingNanos)
+            }
+        }
+
         override fun onClientReady(testUUID: String, loopLocalUUID: String?) {
             clients.forEach {
                 it.onClientReady(testUUID, loopLocalUUID)
@@ -803,6 +862,9 @@ class MeasurementService : CustomLifecycleService() {
             }
         }
 
+        /**
+         * This should inform about event when results were sent, but only if client should display them
+         */
         override fun onSubmitted() {
             if (config.loopModeEnabled) {
                 if (stateRecorder.loopTestCount >= config.loopModeNumberOfTests && config.loopModeNumberOfTests != 0) {
@@ -814,6 +876,15 @@ class MeasurementService : CustomLifecycleService() {
                 clients.forEach {
                     it.onSubmitted()
                 }
+            }
+        }
+
+        /**
+         * This should inform about event when results were sent, no matter if client should display them or not
+         */
+        override fun onResultSubmitted() {
+            clients.forEach {
+                it.onResultSubmitted()
             }
         }
 

@@ -1,0 +1,347 @@
+<!--
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~ http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <string name="open_location_permission_dialog_label_location_not_permitted">Posición no disponible. Desea permitir que Open Nettest acceda a la posición de su dispositivo?</string>
+    <string name="text_loop_instruction_1"> El modo bucle permite a Open Nettest repetir las pruebas de forma automática.\n\nLa primera prueba comienza inmediatamente al iniciar el modo bucle. Las siguientes pruebas se iniciarán cuando se cumpla el tiempo de espera elegido (por defecto 30 minutos) o cuando se haya recorrido la distancia elegida (por defecto 250 metros). Estos valores se pueden modificar en los "Ajustes" del modo bucle. Las pruebas continuarán hasta que se alcance el número máximo de pruebas elegido (por defecto 10 pruebas). El modo bucle se desactiva automáticamente después de 2 días. Las pruebas se pueden detener en cualquier momento.\n\nPor favor tenga en cuenta que no se descarta la posibilidad de que debido al uso del modo bucle se pueda rastrear a la persona ejecutando las pruebas.</string>
+    <string name="text_terms_agree">Acepto la política de privacidad y condiciones de uso de Specure para Open Nettest.</string>
+    <string name="text_terms_agree_empty">Debe aceptar la política de privacidad y condiciones de uso de Specure para poder continuar utilizando Open Nettest.</string>
+
+    <string name="text_home_run">Ejecutar medición de velocidad</string>
+    <string name="text_basic_measurement">Medición de velocidad</string>
+
+    <string name="basic_result_title">Resultados Básicos</string>
+    <string name="test_bottom_test_status_jitter">Estar nervioso</string>
+    <string name="test_packet_loss">Paquete perdido</string>
+
+    <!-- Navigation menu titles -->
+    <string name="menu_button_title_page">Home</string>
+    <string name="menu_button_history">Historial</string>
+    <string name="menu_button_statistics">Estadísticas</string>
+    <string name="menu_button_map">Mapa</string>
+
+    <!-- Error dialog messages -->
+    <string name="error_unknown">"Se ha producido un error. Por favor, inténtelo de nuevo más tarde."</string>
+    <string name="dialog_title_error">Error</string>
+    <string name="no_internet_connection_not_load_data">Sin conexión a Internet: No se pudieron cargar los datos.</string>
+
+    <!-- Home screen -->
+    <string name="home_attention">Aviso</string>
+    <string name="home_no_internet_connection">No hay conexión a Internet!</string>
+    <string name="home_no_internet_connection_details" />
+    <string name="home_signal_value">%1$d dBm</string>
+    <string name="home_wifi">WLAN</string>
+    <string name="public_ip_address">Dirección pública</string>
+    <string name="private_ip_address">Dirección privada</string>
+
+    <!-- Preference titles -->
+    <string name="options">Ajustes</string>
+    <string name="preferences_information">Información</string>
+    <string name="preferences_general_settings">Globales</string>
+    <string name="preferences_terms_of_service">Condiciones de servicio</string>
+    <string name="preferences_loop_test_count">Número de mediciones</string>
+    <string name="loop_mode_clarification">Cuando el modo de bucle está habilitado, las nuevas pruebas se realizan automáticamente después del tiempo de espera configurado o cuando el dispositivo se mueve más que la distancia configurada.</string>
+    <string name="preferences_privacy">Privacidad</string>
+    <string name="preferences_persistent_clientUUID">UUID de cliente persistente</string>
+    <string name="preferences_persistent_clientUUID_summary">Se necesita el UUID de cliente persistente para habilitar el historial de medición y la sincronización de los resultados entre dispositivos</string>
+    <string name="preferences_analytics">Analytics</string>
+    <string name="preferences_analytics_summary">Habilite el análisis y envíenos los seguimientos de fallas</string>
+    <string name="preferences_location_summary">Administra los permisos relacionados con el seguimiento de la ubicación</string>
+    <string name="preferences_loop_test_number">Seleccione el número de pruebas</string>
+
+    <string name="preferences_qos_measurement">Prueba de QoS</string>
+    <string name="preferences_location">Localización</string>
+    <string name="preferences_loop_mode">Modo bucle</string>
+    <string name="preferences_loop_mode_summary">Nueva prueba después de cada intervalo o después de recorrer la distancia. Máx. 2 días</string>
+    <string name="preferences_loop_mode_min_delay">Intervalo (en minutos)</string>
+    <string name="preferences_loop_mode_max_movement">Distancia (en metros)</string>
+    <string name="preferences_expert_mode">Modo experto</string>
+    <string name="preferences_expert_mode_summary">Ajustes adicionales e información</string>
+    <string name="preferences_ipv4_only">Sólo IPv4</string>
+    <string name="preferences_ipv4_only_sum">No utilizar IPv6</string>
+    <string name="preferences_radio_info">Informacion de conexión móvil</string>
+    <string name="preferences_radio_info_sum">Detalles sobre la configuración de red móvil</string>
+    <string name="preferences_client_uuid">UUID de cliente</string>
+    <string name="preferences_about">Sobre nosotros</string>
+    <string name="preferences_data_protection">Protección de datos</string>
+    <string name="preferences_version">Versión</string>
+    <string name="preferences_enter_code">Por favor, introduzca su código</string>
+    <string name="preferences_developer_control_server">Servidor de control</string>
+    <string name="preferences_override_control_server">Sobreescribir servidor de control</string>
+    <string name="preferences_override_control_server_sum">Activar los siguientes ajustes para el servidor de control</string>
+    <string name="preferences_override_control_server_host">Control Host</string>
+    <string name="preferences_override_control_server_port">Puerto de Control</string>
+    <string name="preferences_override_control_server_ssl">SSL al servidor de control</string>
+    <string name="preferences_override_control_server_ssl_sum">Utilizar SSL en la conexión al servidor de control</string>
+    <string name="preferences_developer_options_disabled">Desactivra opciones del modo desarrollador</string>
+    <string name="preferences_developer_options_available">Opciones del modo desarrollador activadas</string>
+    <string name="preferences_developer_try_again">Intentar de nuevo!</string>
+    <string name="preferences_developer_map_server">Servidor de mapa</string>
+    <string name="preferences_developer_map_override">Sobreescribir servidor de mapa</string>
+    <string name="preferences_developer_map_override_sum">Activar los siguientes ajustes para el servidor de mapa</string>
+    <string name="preferences_developer_map_host">Map Host</string>
+    <string name="preferences_developer_map_port">Puerto del Mapa</string>
+    <string name="preferences_developer_map_ssl">SSL al servidor de mapa</string>
+    <string name="preferences_developer_map_ssl_sum">Utilizar SSL en la conexión al servidor de mapa</string>
+    <string name="preferences_category_developer_qos_server">Servidor de QoS</string>
+    <string name="preferences_developer_qos_ssl">SSL al servidor de QoS</string>
+    <string name="preferences_developer_qos_ssl_sum">Utilizar SSL en la conexión al servidor de QoS</string>
+    <string name="preferences_all_disabled">Desactivar.</string>
+    <string name="preferences_server_selection">Seleccionar servidor</string>
+    <string name="preferences_default_server_selection">Default</string>
+    <string name="label_server_selection">Elegir servidor</string>
+    <string name="preferences_tag">Etiqueta</string>
+
+    <!-- Location Dialog -->
+    <string name="location_dialog_label_title">Localización</string>
+    <string name="location_dialog_label_position">Posición</string>
+    <string name="location_dialog_label_accuracy">Precisión</string>
+    <string name="location_dialog_label_age">Aktualidad</string>
+    <string name="location_dialog_label_source">Fuente</string>
+    <string name="location_dialog_label_altitude">Altura</string>
+    <string name="location_dialog_label_satellites">Satélites</string>
+    <string name="open_gps_setting_dialog_label_gps_not_enabled">Posición no disponible. Le gustaría modificar sus ajustes?</string>
+    <string name="open_gps_setting_dialog_label_open_gps_setting">Cambiar ajustes</string>
+    <string name="open_gps_setting_dialog_label_cancel">Cancelar</string>
+    <string name="location_dialog_age">%1$s s</string>
+    <string name="location_dialog_accuracy">%1$s m</string>
+    <string name="location_location_direction_n">N %1$s</string>
+    <string name="location_location_direction_e">E %1$s</string>
+    <string name="location_location_direction_s">S %1$s</string>
+    <string name="location_location_direction_w">O %1$s</string>
+
+    <string name="text_ip_address_not_available">Dirección no disponible</string>
+    <string name="open_location_permission_dialog_label_open_permission_setting">Cambiar ajustes</string>
+
+    <string name="input_setting_dialog_ok">OK</string>
+    <string name="input_setting_dialog_cancel">Cancelar</string>
+    <string name="loop_mode_max_delay_invalid" tools:ignore="PluralsCandidate">Por favor elija un valor entre %1$d y %2$d.</string>
+    <string name="about_client_uuid_copied">UUID de cliente copiado al portapapeles.</string>
+    <string name="client_not_registered">Cliente no registrado. Por favor, inténtelo de nuevo más tarde.</string>
+
+    <!-- Measurement screen -->
+    <string name="measurement_ping_value">%1$s ms</string>
+    <string name="measurement_ping_value_1f">%1$.1f ms</string>
+    <string name="measurement_download_upload_speed">%1$s Mbit/s</string>
+    <string name="measurement_download">Descarga</string>
+    <string name="measurement_upload">Subida</string>
+    <string name="measurement_dash">-</string>
+    <string name="measurement_speed_chart_x_label_min">0s</string>
+    <string name="measurement_speed_chart_x_label_max">8s</string>
+    <string name="measurement_ping">Ping</string>
+    <string name="measurement_down">Descarga</string>
+    <string name="measurement_up">Subida</string>
+    <string name="measurement_qos">Calidad de servicio (QoS)</string>
+    <string name="measurement_qos_web_site">Web</string>
+    <string name="measurement_qos_transparent_connection">Conexión transparente</string>
+    <string name="measurement_qos_dns">DNS</string>
+    <string name="measurement_qos_tcp_ports">Puertos TCP</string>
+    <string name="measurement_qos_udp_ports">Puertos UDP</string>
+    <string name="measurement_qos_unmodified_content">Modificación de contenido</string>
+    <string name="measurement_qos_traceroute">Traceroute</string>
+    <string name="measurement_qos_voip">VoIP</string>
+
+    <string-array name="measurement_speed_chart_y_labels">
+        <item>1</item>
+        <item>10</item>
+        <item>100</item>
+        <item>1000</item>
+    </string-array>
+
+    <string name="label_qos">QoS</string>
+    <string name="label_upload">Subida</string>
+    <string name="label_download">Descarga</string>
+    <string name="label_ping">Ping</string>
+    <string name="label_init">Init</string>
+    <string name="label_signal_strength">Señal</string>
+    <string name="network_label">Red</string>
+
+    <string name="title_cancel_measurement">Desea realmente cancelar la prueba en marcha?</string>
+    <string name="text_continue_measurement">Continuar prueba</string>
+    <string name="text_cancel_measurement">Cancelar prueba</string>
+    <string name="text_stop_measurement">Terminar prueba</string>
+
+    <string name="notification_test_title">Open-RMBT en marcha</string>
+
+    <string name="test_dialog_error_text">Algo ha ido mal. Por favor, inténtelo de nuevo más tarde.</string>
+
+    <!-- History -->
+    <string name="history_item_header_down">Descarge</string>
+    <string name="history_item_header_up">Subida</string>
+    <string name="history_item_header_ping">Ping</string>
+    <string name="history_no_data">No hay datos disponibles.</string>
+
+    <!-- Results -->
+    <string name="results_qoe_audio_streaming">Streaming de audio</string>
+    <string name="results_qoe_cloud">Cloud</string>
+    <string name="results_qoe_gaming">Juegos</string>
+    <string name="results_qoe_gaming_cloud">Juegos Cloud</string>
+    <string name="results_qoe_gaming_download">Juegos de descarga</string>
+    <string name="results_qoe_gaming_streaming">Juegos en línea</string>
+    <string name="results_qoe_messaging">Mensajería</string>
+    <string name="results_qoe_video_conferencing">Videoconferencia</string>
+    <string name="results_qoe_video_telephony">Videotelefonía</string>
+    <string name="results_qoe_videos_hd">Videos HD</string>
+    <string name="results_qoe_videos_sd">Videos SD</string>
+    <string name="results_qoe_videos_uhd">Videos UHD</string>
+    <string name="results_qoe_voip">VoIP</string>
+    <string name="results_qoe_web">Red</string>
+    <string name="results_qoe_qos">QoS</string>
+    <string name="results_network_type">Red de acceso</string>
+    <string name="results_network_provider">Operador</string>
+    <string name="results_network_ssid">WLAN SSID</string>
+    <string name="result_test_details">Detalles</string>
+
+    <!-- Map -->
+    <string name="map_layer_communities">PLZ</string>
+    <string name="map_layer_points">Puntos</string>
+    <string name="map_layer_automatic">Automático</string>
+    <string name="map_label_overlay_type">Tipo</string>
+    <string name="map_label_map_appearance">Vista</string>
+    <string name="title_marker_item_details">Más detalles</string>
+
+    <string name="map_search_location_dialog_title">Buscar</string>
+    <string name="map_search_location_dialog_info">Buscar una dirección o ciudad:</string>
+    <string name="map_search_location_dialog_not_found">Dirección no encontrada.</string>
+    <string name="map_search_location_not_supported">Función no soportada por su dispositivo.</string>
+
+    <string name="text_failed_to_load_results">No se pudo acceder a sus datos.\nPara actualizar, por favor pulse y desplace hacia abajo.</string>
+
+    <string name="title_sync">Sincronizar</string>
+    <string name="text_sync_info">Es posible mostrar los resultados de sus otros dispositivos. Para ellos debe introducir so código de sincronización si ya lo tiene, o solicitar uno nuevo.</string>
+    <string name="button_sync_request_code">Solicitar código</string>
+    <string name="button_sync_enter_code">Introducir código</string>
+    <string name="text_sync_code_received">Por favor, introduzca el código en su otro dispositivo para sincronizar sus resultados.</string>
+    <string name="text_sync_enter_code_desc">Por favor, introduzca el código que ha recibido en su otro dispositivo.</string>
+    <string name="button_close">Cerrar</string>
+    <string name="hint_sync_code">Código</string>
+    <string name="error_sync_code_short">El código debe tener 12 caracteres</string>
+
+    <string name="notification_signal_test_title">Medida de señal en marcha</string>
+    <string name="notification_signal_test_text">Open-RTMB medida de señal activa en segundo plano</string>
+
+    <string name="notification_loop_mode_finished_title">El modo bucle ha terminado</string>
+
+    <string name="toast_signal_measurement_enabled">Comenzar medida de señal</string>
+    <string name="error_no_connection">No hay conexión a Internet: No se pudo cargar sus datos.</string>
+
+    <string name="label_map_filters">Ajustes</string>
+    <string name="text_filter_confirm">Confirmar</string>
+    <string name="text_filter_continue">Continuar</string>
+    <string name="title_filters_type">Tipo</string>
+    <string name="title_filters_subtype">Ajustes</string>
+
+    <string name="graph_signal_value">-%1$s dBm</string>
+    <string name="notification_loop_mode_title_active">Modo bucle activado</string>
+    <string name="notification_loop_mode_title_running">Modo bucle en marcha (%1$d/%2$d)</string>
+
+    <string name="title_loop_mode">Modo bucle</string>
+    <string name="text_button_decline">Cancelar</string>
+    <string name="text_button_accept">Aceptar</string>
+    <string name="text_loop_instruction_2">En caso de alta demanda o de la ocurrencia de un elevado número de pruebas en un área determinada, es posible que el sistema rechace las pruebas en bucle para evitar la sobrecarga. Es importante destacar que el modo bucle está (únicamente) diseñado para su uso en los países que forman parte de la EU y EFTA.\n\nTenga en cuenta que el modo bucle puede utilizar una gran cantidad de datos. En las conexiones más rápidas, 10 pruebas pueden consumir 1 GB o más datos. Por ello, le recomendamos encarecidamente que utilice el modo bucle sólo en caso de disponer de una tarifa plana, de modo que el consumo de datos no origine costes adicionales. \n\nEl modo bucle puede consumir rápidamente la batería de su dispositivo. En los intervalos de pausa entre las pruebas del modo bucle, la pantalla y la conexión GPS permancen activos, por lo que se utiliza mayor energía que en modo descanso. Por lo tanto, se recomienda utilizar el modo bucle cuando sea posible conectar su dispositivo a una fuente de energía.</string>
+    <string name="title_loop_instruction_1">Modo bucle: Activación</string>
+    <string name="title_loop_instruction_2">Uso</string>
+
+    <string name="text_filter_devices">Dispositivo</string>
+    <string name="text_filter_networks">Red de acceso</string>
+    <string name="label_filter_options">Ajustes</string>
+    <string name="label_filter">Filtros</string>
+
+    <string name="loop_mode_finished">Bucle terminado!</string>
+    <string name="loop_continue_to_results">Ver resultados</string>
+    <string name="loop_run_again">Empezar de nuevo</string>
+    <string name="title_privacy_policy">Protección de datos</string>
+
+    <string name="dialog_title_config_check">Por favor modifique los siguientes valores:</string>
+    <string name="radio_info_warning_title">Información de red móvil</string>
+    <string name="radio_info_warning_message">Aviso: Modificar los ajustes avanzados de su conexión móvil puede afectar a la funcionalidad, estabilidad y rendimiento de su dispositivo o de su conexión móvil.</string>
+    <string name="accept_risk">Entiendo los riesgos</string>
+    <string name="preferences_connection_details_not_supported">Esta función no está soportada por su dispositivo</string>
+
+    <string name="dialog_signal_info_band">Banda</string>
+    <string name="dialog_signal_info_channel">Canal</string>
+    <string name="dialog_signal_info_ta">TA</string>
+    <string name="dialog_signal_info_quality">Calidad</string>
+    <string name="text_local_results">Sólo resultados locales</string>
+    <string name="signal_measurement_terms_title">Medidas de señal: Condiciones de uso</string>
+    <string name="signal_measurement_terms_content">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec at nisl ornare, mattis libero vel, ornare orci. Integer aliquet massa at erat semper, non suscipit metus condimentum. Proin felis quam, posuere nec auctor ac, gravida in est. Phasellus dui lectus, lobortis eget mauris non, mattis sollicitudin turpis. Donec auctor leo vel ligula feugiat suscipit. Nulla eleifend nec eros at tincidunt. Nunc tincidunt sapien in sapien facilisis commodo. Duis faucibus, diam in facilisis viverra, lacus leo ultrices elit, vitae luctus nisl purus at velit. Nulla vitae aliquam massa. Mauris viverra magna elementum augue lacinia, ut aliquam odio pretium.  Duis congue velit sed vestibulum porttitor. Donec aliquet lectus eu ex porttitor tristique. Curabitur nulla ipsum, imperdiet ut enim vitae, congue posuere velit. Nullam accumsan, mi vitae ultrices tristique, est risus tempus velit, at tincidunt nunc ipsum sit amet orci. Nulla eget sapien tortor. Interdum et malesuada fames ac ante ipsum primis in faucibus. Fusce nec blandit nisi, et tristique erat. Donec tristique arcu purus, et blandit justo auctor sed. Vivamus semper lorem sit amet condimentum efficitur. Duis ut enim libero. Morbi at ante sed nisi feugiat lobortis. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec at nisl ornare, mattis libero vel, ornare orci. Integer aliquet massa at erat semper, non suscipit metus condimentum. Proin felis quam, posuere nec auctor ac, gravida in est. Phasellus dui lectus, lobortis eget mauris non, mattis sollicitudin turpis. Donec auctor leo vel ligula feugiat suscipit. Nulla eleifend nec eros at tincidunt. Nunc tincidunt sapien in sapien facilisis commodo. Duis faucibus, diam in facilisis viverra, lacus leo ultrices elit, vitae luctus nisl purus at velit. Nulla vitae aliquam massa. Mauris viverra magna elementum augue lacinia, ut aliquam odio pretium.  Duis congue velit sed vestibulum porttitor. Donec aliquet lectus eu ex porttitor tristique. Curabitur nulla ipsum, imperdiet ut enim vitae, congue posuere velit. Nullam accumsan, mi vitae ultrices tristique, est risus tempus velit, at tincidunt nunc ipsum sit amet orci. Nulla eget sapien tortor. Interdum et malesuada fames ac ante ipsum primis in faucibus. Fusce nec blandit nisi, et tristique erat. Donec tristique arcu purus, et blandit justo auctor sed. Vivamus semper lorem sit amet condimentum efficitur. Duis ut enim libero. Morbi at ante sed nisi feugiat lobortis.</string>
+
+    <!--    todo add translates-->
+    <string name="text_phase_init">Initialization</string>
+    <string name="text_phase_qos">Quality of Service</string>
+    <string name="text_phase_upload">Upload</string>
+    <string name="text_phase_download">Download</string>
+    <string name="text_phase_ping">Ping</string>
+    <string name="text_unit_mbps">Mbps</string>
+    <string name="text_unit_ping">ms</string>
+    <string name="title_loop_measurement">Medida bucle</string>
+    <string name="text_current_from_count">"%1$d de %2$d "</string>
+    <string name="title_loop_waiting">"Bucle esperando "</string>
+    <string name="median">Mediano</string>
+
+    <string name="title_permissions_welcome"> Bienvenido a Open Nettest </string>
+    <string name="text_permissions_welcome"> Revisemos sus opciones de privacidad </string>
+    <string name="button_next"> Siguiente </string>
+    <string name="title_permissions_accuracy"> Abrir precisión nettest </string>
+    <string name="text_permissions_accuracy"> Open Nettest necesita cierta funcionalidad para funcionar correctamente. </string>
+    <string name="text_permissions_accuracy_phone"> Nunca haremos ni administraremos llamadas telefónicas. Usamos permisos telefónicos para identificar el operador de telefonía móvil utilizado para las pruebas. </string>
+    <string name="title_permissions_accuracy_phone"> Permisos telefónicos </string>
+    <string name="title_permissions_accuracy_location"> Permisos de ubicación </string>
+    <string name="text_permissions_accuracy_location"> Su ubicación identifica los servidores cercanos y la conexión celular de su dispositivo para configurar correctamente Open Nettest </string>
+    <string name="button_continue"> Continuar </string>
+    <string name="title_permissions_signal"> Permitir el escaneo de señales de red </string>
+    <string name="text_permissions_signal"> Open Nettest desea verificar periódicamente la cobertura móvil, la calidad y los datos de ubicación para proporcionarle mapas de cobertura del operador. Estos datos también se recopilan cuando la aplicación está cerrada o no está en uso para crear el mapa más preciso posible. Usamos permisos telefónicos para identificar el operador de telefonía móvil utilizado para las pruebas. </string>
+    <string name="text_permissions_signal_coverage"> Los datos de cobertura anonimizados pueden compartirse con los operadores para ayudarlos a mejorar sus redes. Más información </string>
+    <string name="button_not_allow"> No permitir </string>
+    <string name="button_allow"> Permitir </string>
+    <string name="title_permissions_analytics"> Ayúdenos a mejorar Open Nettest </string>
+    <string name="text_permissions_analytics"> Open Nettest puede usar servicios de terceros para recopilar datos sobre su dispositivo y su uso de Open Nettest y usarlos para mejorar la experiencia y la estabilidad de la aplicación. </string>
+    <string name="text_permissions_analytics_coverage"> ¿Permitir que Open Nettest recopile análisis e informes de fallos? </string>
+    <string name="button_agree"> Estoy de acuerdo </string>
+    <string name="title_permissions_uuid"> UUID de cliente persistente </string>
+    <string name="text_permissions_uuid"> El UUID del cliente es un ID generado aleatoriamente que se guarda con cada medición. UUID de cliente persistente significa que el ID es el mismo para todas sus mediciones. Es necesario para habilitar el historial de mediciones y la sincronización de los resultados entre dispositivos. Puedes cambiarlo más tarde en la configuración. </string>
+
+    <string name="title_result_filter_operators">Operadores</string>
+    <string name="label_results">Resultados</string>
+
+    <string name="title_loop_measurements"> Medidas de bucle </string>
+    <string name="text_link_history_empty"> Realice su primera medición </string>
+    <string name="text_history_empty"> No hay resultados para mostrar. </string>
+
+    <string name="label_network_type"> Tipo de red </string>
+    <string name="label_network_name"> Nombre de la red </string>
+    <string name="label_measurement_server"> Servidor de medición </string>
+    <string name="label_change_test_server"> Cambiar servidor de prueba </string>
+    <string name="request_failure">Se produjo un error al recuperar los datos.</string>
+
+    <string name="measurement">Medida</string>
+    <string name="label_measurement_ping_ms">Ping (ms)</string>
+    <string name="label_measurement_download_mbps">Descargar (Mbps)</string>
+    <string name="label_measurement_upload_mbps">Subir (Mbps)</string>
+    <string name="label_measurement_qos">QoS (%)</string>
+    <string name="label_measurement_time_to_next_test">Tiempo hasta la próxima prueba</string>
+    <string name="label_measurement_movement">Movimiento</string>
+
+    <string name="label_location_access_disabled">Acceso a la ubicación inhabilitado</string>
+    <string name="label_location_access_disabled_explanation">Vaya a la configuración de ubicación para habilitar el acceso a la ubicación.</string>
+    <string name="label_some_permission_denied">Faltan los permisos de la aplicación</string>
+    <string name="label_some_permission_denied_explanation">Vaya a la configuración de la aplicación para resolver los permisos de la aplicación que faltan.</string>
+    <string name="title_open_nettest_accuracy">Exactitud neta abierta</string>
+    <string name="subtitle_open_nettest_accuracy">Open Nettest necesita cierta funcionalidad para funcionar correctamente.</string>
+    <string name="phone_permission_title">1. Permisos telefónicos</string>
+    <string name="location_permission_title">2. Permisos de ubicación</string>
+    <string name="phone_permission_explanation">Nunca haremos ni administraremos llamadas telefónicas. Usamos permisos telefónicos para identificar el operador de telefonía móvil utilizado para las pruebas.</string>
+    <string name="location_permission_explanation">Su ubicación identifica los servidores cercanos y la conexión celular de su dispositivo para configurar correctamente Open Nettest.</string>
+
+</resources>

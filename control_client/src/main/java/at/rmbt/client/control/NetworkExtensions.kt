@@ -14,6 +14,10 @@
 
 package at.rmbt.client.control
 
+import android.os.Build
+import android.telephony.SubscriptionManager
+import android.telephony.SubscriptionManager.INVALID_SUBSCRIPTION_ID
+import android.telephony.TelephonyManager
 import at.rmbt.util.Maybe
 import at.rmbt.util.exception.HandledException
 import retrofit2.Call
@@ -54,5 +58,61 @@ fun <T : BaseResponse> Call<T>.exec(silentError: Boolean = false): Maybe<T> {
             Timber.w(t)
         }
         Maybe(HandledException.from(t))
+    }
+}
+
+/**
+ * Returns correct telephony manager for data connection or if it fails it returns null.
+ */
+fun TelephonyManager.getTelephonyManagerForSubscription(dataSubscriptionId: Int): TelephonyManager? {
+    return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+        try {
+            if (dataSubscriptionId != INVALID_SUBSCRIPTION_ID) {
+                this.createForSubscriptionId(dataSubscriptionId)
+            } else {
+                null
+            }
+        } catch (e: Exception) {
+            Timber.e("problem to obtain correct telephony manager for data subscription")
+            null
+        }
+    } else {
+        null
+    }
+}
+
+/**
+ * Returns correct telephony manager for data connection or if it fails it returns default one.
+ */
+fun TelephonyManager.getCorrectDataTelephonyManager(subscriptionManager: SubscriptionManager): TelephonyManager {
+    return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+        try {
+            val dataSubscriptionId = subscriptionManager.getCurrentDataSubscriptionId()
+            if (dataSubscriptionId != INVALID_SUBSCRIPTION_ID) {
+                this.createForSubscriptionId(dataSubscriptionId)
+            } else {
+                this
+            }
+        } catch (e: Exception) {
+            Timber.e("problem to obtain correct telephony manager for data subscription")
+            this
+        }
+    } else {
+        this
+    }
+}
+
+fun SubscriptionManager.getCurrentDataSubscriptionId(): Int {
+    return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+        SubscriptionManager.getDefaultDataSubscriptionId()
+    } else {
+        val clazz = this::class.java
+        try {
+            val method = clazz.getMethod("getDefaultDataSubId")
+            method.invoke(this) as Int
+        } catch (ex: Throwable) {
+            Timber.e(ex)
+            -1
+        }
     }
 }

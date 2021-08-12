@@ -20,6 +20,7 @@ import at.specure.info.network.MobileNetworkType
  * Mobile network technology generations
  */
 enum class CellTechnology(val displayName: String) {
+    CONNECTION_UNKNOWN(""),
     CONNECTION_2G("2G"),
     CONNECTION_3G("3G"),
     CONNECTION_4G("4G"),
@@ -30,7 +31,6 @@ enum class CellTechnology(val displayName: String) {
         fun fromMobileNetworkType(type: MobileNetworkType) = when (type) {
             MobileNetworkType.GPRS,
             MobileNetworkType.EDGE,
-            MobileNetworkType.UMTS,
             MobileNetworkType.CDMA,
             MobileNetworkType.EVDO_0,
             MobileNetworkType.EVDO_A,
@@ -40,6 +40,7 @@ enum class CellTechnology(val displayName: String) {
             MobileNetworkType._1xRTT,
             MobileNetworkType.GSM -> CONNECTION_2G
             MobileNetworkType.TD_SCDMA,
+            MobileNetworkType.UMTS,
             MobileNetworkType.HSDPA,
             MobileNetworkType.HSUPA,
             MobileNetworkType.HSPA,

@@ -15,11 +15,23 @@ interface MeasurementClient {
 
     fun onPingChanged(pingNanos: Long)
 
+    fun onJitterChanged(jitterNanos: Long)
+
+    fun onPacketLossPercentChanged(packetLossPercent: Int)
+
     fun onClientReady(testUUID: String, loopLocalUUID: String?)
 
     fun isQoSEnabled(enabled: Boolean)
 
+    /**
+     * This should inform about event when results were sent, but only if client should display them
+     */
     fun onSubmitted()
+
+    /**
+     * This should inform about event when results were sent, no matter if client should display them
+     */
+    fun onResultSubmitted()
 
     fun onSubmissionError(exception: HandledException)
 

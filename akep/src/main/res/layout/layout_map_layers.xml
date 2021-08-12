@@ -1,0 +1,346 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <data>
+
+        <variable
+            name="mapStyle"
+            type="at.rmbt.client.control.data.MapStyleType" />
+
+        <variable
+            name="mapType"
+            type="at.rmbt.client.control.data.MapPresentationType" />
+
+        <import type="at.rmbt.client.control.data.MapStyleType" />
+
+        <import type="at.rmbt.client.control.data.MapPresentationType" />
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/bg_map_action_sheet"
+        android:paddingBottom="@dimen/padding_extra_large">
+
+        <TextView
+            android:id="@+id/label_style"
+            style="@style/RobotoMediumStyle.Medium"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="@dimen/margin_large"
+            android:text="@string/map_label_map_appearance"
+            android:textColor="@color/navigation_gray"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <LinearLayout
+            android:id="@+id/styles"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:baselineAligned="false"
+            android:orientation="horizontal"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/label_style">
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/standard"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1">
+
+                <ImageView
+                    android:id="@+id/bg_standard"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:background="@{mapStyle == MapStyleType.STANDARD ? @drawable/bg_map_layers_selection_green : @drawable/bg_map_layers_selection_white}"
+                    app:layout_constraintBottom_toTopOf="@id/label_standard"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <ImageView
+                    android:id="@+id/icon_standard"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:src="@{mapStyle == MapStyleType.STANDARD ? @drawable/ic_map_standard_white : @drawable/ic_map_standard_gray}"
+                    app:layout_constraintBottom_toBottomOf="@id/bg_standard"
+                    app:layout_constraintEnd_toEndOf="@id/bg_standard"
+                    app:layout_constraintStart_toStartOf="@id/bg_standard"
+                    app:layout_constraintTop_toTopOf="@id/bg_standard" />
+
+                <TextView
+                    android:id="@+id/label_standard"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/margin_medium"
+                    android:text="@string/map_style_standard"
+                    android:textColor="@{mapStyle == MapStyleType.STANDARD ? @color/navigation_green : @color/navigation_gray}"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/bg_standard" />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/satellite"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1">
+
+                <ImageView
+                    android:id="@+id/bg_satellite"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:background="@{mapStyle == MapStyleType.SATELLITE ? @drawable/bg_map_layers_selection_green : @drawable/bg_map_layers_selection_white}"
+                    app:layout_constraintBottom_toTopOf="@id/label_satellite"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <ImageView
+                    android:id="@+id/icon_satellite"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:src="@{mapStyle == MapStyleType.SATELLITE ? @drawable/ic_map_satellite_white : @drawable/ic_map_satellite_gray}"
+                    app:layout_constraintBottom_toBottomOf="@id/bg_satellite"
+                    app:layout_constraintEnd_toEndOf="@id/bg_satellite"
+                    app:layout_constraintStart_toStartOf="@id/bg_satellite"
+                    app:layout_constraintTop_toTopOf="@id/bg_satellite" />
+
+                <TextView
+                    android:id="@+id/label_satellite"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/margin_medium"
+                    android:text="@string/map_style_satellite"
+                    android:textColor="@{mapStyle == MapStyleType.SATELLITE ? @color/navigation_green : @color/navigation_gray}"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/bg_satellite" />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/hybrid"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1">
+
+                <ImageView
+                    android:id="@+id/bg_hybrid"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:background="@{mapStyle == MapStyleType.HYBRID ? @drawable/bg_map_layers_selection_green : @drawable/bg_map_layers_selection_white}"
+                    app:layout_constraintBottom_toTopOf="@id/label_hybrid"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <ImageView
+                    android:id="@+id/icon_hybrid"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:src="@{mapStyle == MapStyleType.HYBRID ? @drawable/ic_map_hybrid_white : @drawable/ic_map_hybrid_gray}"
+                    app:layout_constraintBottom_toBottomOf="@id/bg_hybrid"
+                    app:layout_constraintEnd_toEndOf="@id/bg_hybrid"
+                    app:layout_constraintStart_toStartOf="@id/bg_hybrid"
+                    app:layout_constraintTop_toTopOf="@id/bg_hybrid" />
+
+                <TextView
+                    android:id="@+id/label_hybrid"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/margin_medium"
+                    android:text="@string/map_style_hybrid"
+                    android:textColor="@{mapStyle == MapStyleType.HYBRID ? @color/navigation_green : @color/navigation_gray}"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/bg_hybrid" />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+        </LinearLayout>
+
+        <View
+            android:id="@+id/provider_divider"
+            android:layout_width="0dp"
+            android:layout_height="@dimen/size_divider_height"
+            android:layout_marginStart="@dimen/padding_large"
+            android:layout_marginTop="@dimen/padding_medium"
+            android:layout_marginEnd="@dimen/padding_large"
+            android:background="@color/horizontal_divider"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/styles" />
+
+        <TextView
+            android:id="@+id/label_type"
+            style="@style/RobotoMediumStyle.Medium"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="@dimen/margin_large"
+            android:text="@string/map_label_overlay_type"
+            android:textColor="@color/navigation_gray"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/styles" />
+
+        <LinearLayout
+            android:id="@+id/types"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:baselineAligned="false"
+            android:orientation="horizontal"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/label_type">
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/heatmap"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1">
+
+                <ImageView
+                    android:id="@+id/bg_heatmap"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:background="@{mapType == MapPresentationType.AUTOMATIC ? @drawable/bg_map_layers_selection_green : @drawable/bg_map_layers_selection_white}"
+                    app:layout_constraintBottom_toTopOf="@id/label_heatmap"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <ImageView
+                    android:id="@+id/icon_heatmap"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:src="@{mapType == MapPresentationType.AUTOMATIC ? @drawable/ic_map_heatmap_white : @drawable/ic_map_heatmap_gray}"
+                    app:layout_constraintBottom_toBottomOf="@id/bg_heatmap"
+                    app:layout_constraintEnd_toEndOf="@id/bg_heatmap"
+                    app:layout_constraintStart_toStartOf="@id/bg_heatmap"
+                    app:layout_constraintTop_toTopOf="@id/bg_heatmap" />
+
+                <TextView
+                    android:id="@+id/label_heatmap"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/margin_medium"
+                    android:text="@string/map_layer_automatic"
+                    android:textColor="@{mapType == MapPresentationType.AUTOMATIC ? @color/navigation_green : @color/navigation_gray}"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/bg_heatmap" />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/points"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1">
+
+                <ImageView
+                    android:id="@+id/bg_points"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:background="@{mapType == MapPresentationType.POINTS ? @drawable/bg_map_layers_selection_green : @drawable/bg_map_layers_selection_white}"
+                    app:layout_constraintBottom_toTopOf="@id/label_points"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <ImageView
+                    android:id="@+id/icon_points"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:src="@{mapType == MapPresentationType.POINTS ? @drawable/ic_map_points_white : @drawable/ic_map_points_gray}"
+                    app:layout_constraintBottom_toBottomOf="@id/bg_points"
+                    app:layout_constraintEnd_toEndOf="@id/bg_points"
+                    app:layout_constraintStart_toStartOf="@id/bg_points"
+                    app:layout_constraintTop_toTopOf="@id/bg_points" />
+
+                <TextView
+                    android:id="@+id/label_points"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/margin_medium"
+                    android:text="@string/map_layer_points"
+                    android:textColor="@{mapType == MapPresentationType.POINTS ? @color/navigation_green : @color/navigation_gray}"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/bg_points" />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/community"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1">
+
+                <ImageView
+                    android:id="@+id/bg_community"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:background="@{mapType == MapPresentationType.COMMUNITIES ? @drawable/bg_map_layers_selection_green : @drawable/bg_map_layers_selection_white}"
+                    app:layout_constraintBottom_toTopOf="@id/label_community"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <ImageView
+                    android:id="@+id/icon_community"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:src="@{mapType == MapPresentationType.COMMUNITIES ? @drawable/ic_map_community_white : @drawable/ic_map_community_gray}"
+                    app:layout_constraintBottom_toBottomOf="@id/bg_community"
+                    app:layout_constraintEnd_toEndOf="@id/bg_community"
+                    app:layout_constraintStart_toStartOf="@id/bg_community"
+                    app:layout_constraintTop_toTopOf="@id/bg_community" />
+
+                <TextView
+                    android:id="@+id/label_community"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/margin_medium"
+                    android:text="@string/map_layer_communities"
+                    android:textColor="@{mapType == MapPresentationType.COMMUNITIES ? @color/navigation_green : @color/navigation_gray}"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/bg_community" />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+        </LinearLayout>
+
+        <ImageView
+            android:id="@+id/icon_close"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="@dimen/padding_large"
+            android:src="@drawable/ic_map_dialog_close"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <androidx.constraintlayout.widget.Group
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:constraint_referenced_ids="label_type,types"
+            app:visibleOrGone="@{mapType != null}" />
+
+        <androidx.constraintlayout.widget.Group
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:constraint_referenced_ids="label_style,styles"
+            app:visibleOrGone="@{mapStyle != null}" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</layout>

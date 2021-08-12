@@ -1,43 +1,104 @@
 import groovy.json.JsonSlurper
 
-def verbose = false
+import java.util.regex.Matcher
+import java.util.regex.Pattern
 
-android.applicationVariants.all { variant ->
+android {
+    def projectName
 
-    def name = variant.getName()
-    def buildType
-    if (name.contains("Debug")) {
-        buildType = "Debug"
-    } else if (name.contains("Release")) {
-        buildType = "Release"
-    } else {
-        throw "An unknown build variant is using. Please add it in tools/config-reader.gradle file"
-    }
+    /**
+     * Checks that private files are available
+     */
+    isPrivate = file("$project.rootDir/private/project-dependencies.gradle").exists()
 
-    def flavorDimension = name - buildType
-    println("flavorDimension: ${flavorDimension}")
+    task getCurrentFlavor() {
+        Gradle gradle = getGradle()
+        String tskReqStr = gradle.getStartParameter().getTaskRequests().toString()
 
-    def jsonFile
-    if (isPrivate) {
-        jsonFile = file("$project.rootDir/private/app/src/${flavorDimension}/config.json")
-    } else {
-        jsonFile = file("$project.rootDir/app/src/${flavorDimension}/config.json")
-    }
+        Pattern pattern
 
-    def parsedJson = new JsonSlurper().parseText(jsonFile.text)
+        println "-----------TASK:   ${tskReqStr}-----------------"
+        println "-----------PRIVATE:    ${isPrivate}-----------------"
 
-    if (verbose) {
-        println "-------------${flavorDimension}--------------"
-    }
+        if (tskReqStr.contains("clean")) {
+            projectName = "openRmbtDebug"
+            // fix for openRMBT build because there is clean command before assembling which makes trouble because of null flavor
+            return
+        } else if (tskReqStr.contains("LocalStageDebug")) {
+            projectName = "localStageDebug"
+            // fix for distribution build
+            return
+        } else if (tskReqStr.contains("LocalDemoRelease")) {
+            projectName = "localDemoRelease"
+            // fix for distribution build
+            return
+        } else if (tskReqStr.contains("assemble")) {
+            pattern = Pattern.compile("assemble(\\w+)")
+        } else if (tskReqStr.contains("generate")) {
+            pattern = Pattern.compile("generate(\\w+)")
+        } else {
+            pattern = Pattern.compile("lint(\\w+)")
+        }
 
-    def configClass = "at.rtr.rmbt.android.util.ConfigValue"
+        Matcher matcher = pattern.matcher(tskReqStr)
 
-    parsedJson.config.each {
-        if (it._section == null) {
-            if (verbose) {
-                println "${it.name} ${it.value} ${it.visible}"
-            }
-            buildConfigField("$configClass", it.name, "new ${configClass}(\"${it.name}\", \"${it.value}\", ${it.visible})")
+        if (matcher.find()) {
+            println "MATCH FOUND ${matcher.group(1)}"
+            projectName = matcher.group(1) // Changing to 2 will return build type, 1 provides product flavor
+        } else {
+            println "NO MATCH FOUND"
         }
     }
+
+    task myTask(type: Copy) {
+        dependsOn getCurrentFlavor
+        println "flavor name is $projectName"
+
+        def verbose = false
+        def flavorDimension = projectName
+        def buildType = ""
+
+        if (flavorDimension != null) {
+            if ((flavorDimension as String).contains("debug")) {
+                buildType = "debug"
+            } else if ((flavorDimension as String).contains("Debug")) {
+                buildType = "Debug"
+            } else if ((flavorDimension as String).contains("release")) {
+                buildType = "release"
+            } else if ((flavorDimension as String).contains("Release")) {
+                buildType = "Release"
+            } else {
+                throw new IllegalArgumentException("An unknown build variant is using. Please add it in tools/config-reader.gradle file")
+            }
+
+            flavorDimension = flavorDimension - buildType
+            println("flavorDimension: ${flavorDimension}")
+            flavorDimension = flavorDimension.substring(0,1).toLowerCase() + flavorDimension.substring(1, flavorDimension.length())
+            println("flavorDimension: ${flavorDimension}")
+
+    def jsonFile
+    if ((isPrivate) && (flavorDimension != "openRmbt")) {
+        jsonFile = file("$project.rootDir/private/$project.name/src/${flavorDimension}/config.json")
+    } else {
+        jsonFile = file("$project.rootDir/$project.name/src/${flavorDimension}/config.json")
+    }
+
+            def parsedJson = new JsonSlurper().parseText(jsonFile.text)
+
+            println "-------------${flavorDimension}--------------"
+            println "----------------${isPrivate}-----------------"
+
+            def configClass = "at.rtr.rmbt.android.util.ConfigValue"
+
+            parsedJson.config.each {
+                if (it._section == null) {
+                    if (verbose) {
+                        println "${it.name} ${it.value} ${it.visible}"
+                    }
+                    android.defaultConfig.buildConfigField "$configClass", it.name, "new ${configClass}(\"${it.name}\", \"${it.value}\", ${it.visible})"
+                }
+            }
+        }
+    }
+    preBuild.dependsOn myTask
 }

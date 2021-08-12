@@ -7,6 +7,7 @@ import androidx.room.Query
 import androidx.room.Transaction
 import at.specure.data.Tables
 import at.specure.data.entity.CellInfoRecord
+import at.specure.info.TransportType
 
 @Dao
 abstract class CellInfoDao {
@@ -18,11 +19,18 @@ abstract class CellInfoDao {
     abstract fun insert(cellInfo: List<CellInfoRecord>)
 
     @Query("DELETE FROM ${Tables.CELL_INFO} WHERE testUUID=:testUUID")
-    abstract fun removeCellInfo(testUUID: String)
+    abstract fun removeAllCellInfo(testUUID: String)
+
+    @Query("DELETE FROM ${Tables.CELL_INFO} WHERE testUUID=:testUUID AND uuid==:cellInfoUUID")
+    abstract fun removeSingleCellInfo(testUUID: String, cellInfoUUID: String)
 
     @Transaction
     open fun clearInsert(testUUID: String, cellInfo: List<CellInfoRecord>) {
-        removeCellInfo(testUUID)
-        insert(cellInfo)
+        val filteredCellInfo = cellInfo.filter { it.cellTechnology != null || it.transportType == TransportType.WIFI }
+        filteredCellInfo.forEach {
+            if (it.cellTechnology != null || it.transportType == TransportType.WIFI) removeSingleCellInfo(testUUID, it.uuid)
+        }
+
+        insert(filteredCellInfo)
     }
 }

@@ -16,10 +16,13 @@
  ******************************************************************************/
 package at.rtr.rmbt.client;
 
+import android.util.Log;
+
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.json.JSONObject;
 
+import java.io.File;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
@@ -58,11 +61,19 @@ import at.rtr.rmbt.client.helper.IntermediateResult;
 import at.rtr.rmbt.client.helper.RMBTOutputCallback;
 import at.rtr.rmbt.client.helper.TestStatus;
 import at.rtr.rmbt.client.v2.task.TaskDesc;
+import at.rtr.rmbt.client.v2.task.VoipTask;
 import at.rtr.rmbt.client.v2.task.result.QoSResultCollector;
+import at.rtr.rmbt.client.v2.task.result.QoSTestResult;
 import at.rtr.rmbt.client.v2.task.service.TestMeasurement;
+import at.rtr.rmbt.client.v2.task.service.TestSettings;
 import at.rtr.rmbt.client.v2.task.service.TrafficService;
 import at.rtr.rmbt.util.model.shared.exception.ErrorStatus;
 import timber.log.Timber;
+
+import static at.rtr.rmbt.client.v2.task.VoipTask.RESULT_INCOMING_PREFIX;
+import static at.rtr.rmbt.client.v2.task.VoipTask.RESULT_MEAN_JITTER;
+import static at.rtr.rmbt.client.v2.task.VoipTask.RESULT_OUTGOING_PREFIX;
+import static at.rtr.rmbt.client.v2.task.VoipTask.RESULT_VOIP_PREFIX;
 
 public class RMBTClient implements RMBTClientCallback {
     private static final ExecutorService COMMON_THREAD_POOL = Executors.newCachedThreadPool();
@@ -72,10 +83,15 @@ public class RMBTClient implements RMBTClientCallback {
     private final long durationInitNano = 2500000000L; // TODO
     private final long durationUpNano;
     private final long durationDownNano;
+    private final boolean enabledJitterAndPacketLoss;
 
     private final AtomicLong pingNano = new AtomicLong(-1);
     private final AtomicLong downBitPerSec = new AtomicLong(-1);
     private final AtomicLong upBitPerSec = new AtomicLong(-1);
+    private final AtomicLong jitter = new AtomicLong(-1);
+    private final AtomicLong jitterStartTime = new AtomicLong(-1);
+    private final AtomicLong packetLossUp = new AtomicLong(-1);
+    private final AtomicLong packetLossDown = new AtomicLong(-1);
 
     /* ping status */
     private final AtomicLong pingTsStart = new AtomicLong(-1);
@@ -96,6 +112,8 @@ public class RMBTClient implements RMBTClientCallback {
     private TotalTestResult result;
 
     private SSLSocketFactory sslSocketFactory;
+
+    private final AtomicReference<QualityOfServiceTest> voipReference = new AtomicReference<QualityOfServiceTest>();
 
     private RMBTOutputCallback outputCallback;
     private final boolean outputToStdout = true;
@@ -123,6 +141,7 @@ public class RMBTClient implements RMBTClientCallback {
     public final static String TASK_TRACEROUTE = "traceroute";
     public final static String TASK_TRACEROUTE_MASKED = "traceroute_masked";
 
+    public final static String TASK_JITTER = "jitter";  // Voip test to be performed in main test
 
     private List<TaskDesc> taskDescList;
 
@@ -131,8 +150,11 @@ public class RMBTClient implements RMBTClientCallback {
     private final AtomicReference<TestStatus> testStatus = new AtomicReference<TestStatus>(TestStatus.WAIT);
     private final AtomicReference<TestStatus> statusBeforeError = new AtomicReference<TestStatus>(null);
     private final AtomicLong statusChangeTime = new AtomicLong();
+    private final AtomicLong jitterTestStart = new AtomicLong();
+    private final AtomicLong jitterTestDurationNanos = new AtomicLong();
 
     private TrafficService trafficService;
+    private File cacheDir = null; // cache file for jitter and packet loss
 
     public static ExecutorService getCommonThreadPool() {
         return COMMON_THREAD_POOL;
@@ -145,10 +167,17 @@ public class RMBTClient implements RMBTClientCallback {
     private Long measurementLastUpdate = System.currentTimeMillis();
     private Timer inactivityTimer = new Timer();
 
+
     RMBTClient(final RMBTTestParameter params, final ControlServerConnection controlConnection) {
+        this(params, controlConnection, null, false);
+    }
+
+    RMBTClient(final RMBTTestParameter params, final ControlServerConnection controlConnection, File cacheDir, boolean enabledJitterAndPacketLoss) {
         this.params = params;
         this.controlConnection = controlConnection;
-
+        this.cacheDir = cacheDir;
+        this.enabledJitterAndPacketLoss = enabledJitterAndPacketLoss;
+        this.jitterTestDurationNanos.set(10000000000L); // set default value
         planInactivityCheck();
 
         params.check();
@@ -180,6 +209,14 @@ public class RMBTClient implements RMBTClientCallback {
         return (clientLastResponseDurationMillis < TimeUnit.SECONDS.toMillis(MEASUREMENT_INACTIVITY_THRESHOLD_SECONDS));
     }
 
+    public static RMBTClient getInstance(final String host, final String pathPrefix, final int port,
+                                         final boolean encryption, final ArrayList<String> geoInfo, final String uuid, final String clientType,
+                                         final String clientName, final String clientVersion, final RMBTTestParameter overrideParams,
+                                         final JSONObject additionalValues, final String headerValue, final File cacheDir) {
+        return getInstance(host, pathPrefix, port, encryption, geoInfo, uuid, clientType,
+                clientName, clientVersion, overrideParams, additionalValues, headerValue, cacheDir, null, false);
+    }
+
     private void planInactivityCheck() {
         synchronized (this) {
             inactivityTimer.cancel();
@@ -205,14 +242,6 @@ public class RMBTClient implements RMBTClientCallback {
         }
     }
 
-    public static RMBTClient getInstance(final String host, final String pathPrefix, final int port,
-                                         final boolean encryption, final ArrayList<String> geoInfo, final String uuid, final String clientType,
-                                         final String clientName, final String clientVersion, final RMBTTestParameter overrideParams,
-                                         final JSONObject additionalValues) {
-        return getInstance(host, pathPrefix, port, encryption, geoInfo, uuid, clientType,
-                clientName, clientVersion, overrideParams, additionalValues, null);
-    }
-
     /**
      * Gets a new instance of RMBTClient or
      * "null", if the connection to the given ControlServer cannot be established
@@ -220,11 +249,11 @@ public class RMBTClient implements RMBTClientCallback {
     public static RMBTClient getInstance(final String host, final String pathPrefix, final int port,
                                          final boolean encryption, final ArrayList<String> geoInfo, final String uuid, final String clientType,
                                          final String clientName, final String clientVersion, final RMBTTestParameter overrideParams,
-                                         final JSONObject additionalValues, final Set<ErrorStatus> errorSet) {
+                                         final JSONObject additionalValues, final String headerValue, final File cacheDir, final Set<ErrorStatus> errorSet, boolean enabledJitterAndPacketLoss) {
         final ControlServerConnection controlConnection = new ControlServerConnection();
 
         final String error = controlConnection.requestNewTestConnection(host, pathPrefix, port, encryption, geoInfo,
-                uuid, clientType, clientName, clientVersion, additionalValues);
+                uuid, clientType, clientName, clientVersion, additionalValues, headerValue);
 
         if (controlConnection.getLastErrorList() != null && errorSet != null) {
             errorSet.addAll(controlConnection.getLastErrorList());
@@ -235,9 +264,8 @@ public class RMBTClient implements RMBTClientCallback {
             return null;
         }
 
-        //TODO: simple and fast solution; make it better
         final String errorNewTest = controlConnection.requestQoSTestParameters(host, pathPrefix, port, encryption, geoInfo,
-                uuid, clientType, clientName, clientVersion, additionalValues);
+                uuid, clientType, clientName, clientVersion, additionalValues, headerValue);
 
         if (errorNewTest != null) {
             System.out.println(errorNewTest);
@@ -246,7 +274,11 @@ public class RMBTClient implements RMBTClientCallback {
 
         final RMBTTestParameter params = controlConnection.getTestParameter(overrideParams);
 
-        return new RMBTClient(params, controlConnection);
+        return new RMBTClient(params, controlConnection, cacheDir, enabledJitterAndPacketLoss);
+    }
+
+    public boolean isEnabledJitterAndPacketLossTest() {
+        return enabledJitterAndPacketLoss;
     }
 
     public static RMBTClient getInstance(final RMBTTestParameter params) {
@@ -587,6 +619,80 @@ public class RMBTClient implements RMBTClientCallback {
         }
     }
 
+    private File getCacheDir() {
+        return this.cacheDir;
+    }
+
+
+    public void performVoipTest() {
+        VoipTest voipTest;
+        if (!aborted.get()) {
+            try {
+                QoSResultCollector voipResult;
+                //Implementation for Jitter and Packet loss
+                TestSettings qosTestSettings = new TestSettings();
+                qosTestSettings.setCacheFolder(getCacheDir());
+                qosTestSettings.setTrafficService(new TrafficServiceImpl());
+                qosTestSettings.setTracerouteServiceClazz(TracerouteAndroidImpl.class);
+                qosTestSettings.setStartTimeNs(getControlConnection().getStartTimeNs());
+                qosTestSettings.setUseSsl(params.isEncryption());
+
+                boolean onlyVoipTest = true;
+                //noinspection ConstantConditions
+                voipTest = new JitterTest(this, qosTestSettings);
+                voipReference.set(voipTest);
+                setStatus(TestStatus.PACKET_LOSS_AND_JITTER);
+                voipResult = voipTest.call();
+
+                List<QoSTestResult> voipTestRsults = voipResult.getResults();
+                if ((voipTestRsults != null) && (!voipTestRsults.isEmpty())) {
+                    QoSTestResult qoSTestResult = voipTestRsults.get(0);
+                    HashMap<String, Object> resultMap = qoSTestResult.getResultMap();
+
+                    VoipTestResultHandler voipTestResultHandler = new VoipTestResultHandler();
+                    VoipTestResult voipTestResult = voipTestResultHandler.convertResultsToObject(resultMap);
+                    result.voipTestResult = voipTestResult;
+
+                    final String prefix_out = RESULT_VOIP_PREFIX + RESULT_OUTGOING_PREFIX;
+                    final String prefix_in = RESULT_VOIP_PREFIX + RESULT_INCOMING_PREFIX;
+
+                    String format;
+
+                    Long meanJitterOut = (Long) resultMap.get(prefix_out + RESULT_MEAN_JITTER);
+                    Long meanJitterIn = (Long) resultMap.get(prefix_in + RESULT_MEAN_JITTER);
+                    if ((meanJitterIn != null) && (meanJitterOut != null)) {
+                        Long meanJitter = (meanJitterIn + meanJitterOut) / 2;
+                        result.jitterMeanNanos = meanJitter;
+                        this.jitter.set(meanJitter);
+                    }
+
+                    long callDuration = (Long) resultMap.get(VoipTask.RESULT_CALL_DURATION);
+                    jitterTestDurationNanos.set(callDuration);
+                    long delay = (Long) resultMap.get(VoipTask.RESULT_DELAY);
+                    long outPacketsNumber = (Long) resultMap.get(prefix_out + VoipTask.RESULT_NUM_PACKETS);
+                    int inPacketsNumber = (Integer) resultMap.get(prefix_in + VoipTask.RESULT_NUM_PACKETS);
+
+                    int total = ((int) callDuration / (int) delay);
+
+                    int packetLossDown = (int) (100f * ((float) (total - inPacketsNumber) / (float) total));
+                    int packetLossUp = (int) (100f * ((float) (total - outPacketsNumber) / (float) total));
+
+                    result.packetLossPercent = (packetLossDown + packetLossUp) / 2f;
+
+                    this.packetLossDown.set(packetLossDown);
+                    this.packetLossUp.set(packetLossUp);
+
+                    Timber.e("JITTER: %s, PL_DOWN: %s, PL_UP: %s", jitter, packetLossDown, packetLossUp);
+                }
+
+            } catch (Exception e) {
+                e.printStackTrace();
+                Timber.e("JITTER ERROR %s", e.getMessage());
+                log(e);
+            }
+        }
+    }
+
     public boolean abortTest(final boolean error) {
         System.out.println("RMBTClient stopTest");
 
@@ -719,8 +825,21 @@ public class RMBTClient implements RMBTClientCallback {
                 iResult.progress = (float) diffTime / durationInitNano;
                 break;
 
+            case PACKET_LOSS_AND_JITTER:
+                iResult.jitter = jitter.get();
+                iResult.packetLossUp = packetLossUp.get();
+                iResult.packetLossDown = packetLossDown.get();
+                iResult.progress = getJitterProgress();
+                break;
+
             case PING:
                 iResult.progress = getPingProgress();
+                // getting final result values
+                if (enabledJitterAndPacketLoss) {
+                    iResult.jitter = jitter.get();
+                    iResult.packetLossUp = packetLossUp.get();
+                    iResult.packetLossDown = packetLossDown.get();
+                }
                 break;
 
             case DOWN:
@@ -753,10 +872,27 @@ public class RMBTClient implements RMBTClientCallback {
         iResult.pingNano = pingNano.get();
         iResult.downBitPerSec = downBitPerSec.get();
         iResult.upBitPerSec = upBitPerSec.get();
+        iResult.jitter = jitter.get();
+        iResult.packetLossUp = packetLossUp.get();
+        iResult.packetLossDown = packetLossDown.get();
 
         iResult.setLogValues();
 
         return iResult;
+    }
+
+    public float getJitterProgress() {
+        if (jitter.get() != -1) {
+            Timber.d("JITTER PROGRESS " + 100 + "%");
+            return 1;
+        } else {
+            long currentTime = System.nanoTime();
+            long jitterStartTimeLong = jitterStartTime.get();
+            float l = currentTime - jitterStartTimeLong;
+            Log.e("PROGRESS SEGMENTS:", "start:   " + jitterStartTimeLong + "              now:   " + currentTime + "            diff:   " + l + "   " + (float) (l / jitterTestDurationNanos.get()));
+            Timber.d("JITTER PROGRESS " + (l * 100) / jitterTestDurationNanos.get() + "%");
+            return l / jitterTestDurationNanos.get();
+        }
     }
 
     public TestStatus getStatus() {
@@ -774,6 +910,21 @@ public class RMBTClient implements RMBTClientCallback {
             // DOWN is finished
             downBitPerSec.set(Math.round(getTotalSpeed()));
             resetSpeed();
+        }
+
+        if (status == TestStatus.INIT) {
+            jitterStartTime.set(-1);
+        }
+
+        Timber.d("STATUS CHANGED TO: " + status.name());
+
+        /**
+         * JITTER PACKET LOSS
+         */
+        if (status == TestStatus.PACKET_LOSS_AND_JITTER) {
+            if (jitterStartTime.get() == -1) {
+                jitterStartTime.set(System.nanoTime());
+            }
         }
     }
 
@@ -803,9 +954,9 @@ public class RMBTClient implements RMBTClientCallback {
         return errorMsg;
     }
 
-    public void sendResult(final JSONObject additionalValues) {
+    public void sendResult(final JSONObject additionalValues, final String headerValue) {
         if (controlConnection != null) {
-            final String errorMsg = controlConnection.sendTestResult(result, additionalValues);
+            final String errorMsg = controlConnection.sendTestResult(result, additionalValues, headerValue);
             if (errorMsg != null) {
                 setErrorStatus();
                 log("Error sending Result...");
@@ -814,9 +965,9 @@ public class RMBTClient implements RMBTClientCallback {
         }
     }
 
-    public void sendQoSResult(final QoSResultCollector qosResult) {
+    public void sendQoSResult(final QoSResultCollector qosResult, final String headerValue) {
         if (controlConnection != null) {
-            final String errorMsg = controlConnection.sendQoSResult(result, qosResult.toJson());
+            final String errorMsg = controlConnection.sendQoSResult(result, qosResult.toJson(), headerValue);
             if (errorMsg != null) {
                 setErrorStatus();
                 log("Error sending QoS Result...");

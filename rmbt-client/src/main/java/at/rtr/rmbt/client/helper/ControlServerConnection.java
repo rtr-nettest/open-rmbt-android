@@ -43,6 +43,7 @@ import at.rtr.rmbt.client.v2.task.service.TestMeasurement;
 import at.rtr.rmbt.client.v2.task.service.TestMeasurement.TrafficDirection;
 import at.rtr.rmbt.util.capability.Capabilities;
 import at.rtr.rmbt.util.model.shared.exception.ErrorStatus;
+import timber.log.Timber;
 
 public class ControlServerConnection {
 
@@ -94,11 +95,11 @@ public class ControlServerConnection {
     private long startTimeNs = 0;
 
     private static URL getUrl(final boolean encryption, final String host, final String pathPrefix, final int port,
-                              final String path) {
+                              final String path, final String headerValue) {
         try {
             final String protocol = encryption ? "https" : "http";
             final int defaultPort = encryption ? 443 : 80;
-            final String totalPath = (pathPrefix != null ? pathPrefix : "") + Config.RMBT_CONTROL_PATH + path;
+            final String totalPath = (headerValue != null && !headerValue.isEmpty()) ? (pathPrefix != null ? pathPrefix : "") + path : (pathPrefix != null ? pathPrefix : "") + Config.RMBT_CONTROL_PATH + path;
 
             if (defaultPort == port)
                 return new URL(protocol, host, totalPath);
@@ -132,11 +133,11 @@ public class ControlServerConnection {
      */
     public String requestQoSTestParameters(final String host, final String pathPrefix, final int port,
                                            final boolean encryption, final ArrayList<String> geoInfo, final String uuid, final String clientType,
-                                           final String clientName, final String clientVersion, final JSONObject additionalValues) {
+                                           final String clientName, final String clientVersion, final JSONObject additionalValues, final String headerValue) {
         resetErrors();
         clientUUID = uuid;
 
-        hostUrl = getUrl(encryption, host, pathPrefix, port, Config.RMBT_QOS_TEST_REQUEST);
+        hostUrl = getUrl(encryption, host, pathPrefix, port, Config.RMBT_QOS_TEST_REQUEST, headerValue);
 
         System.out.println("Connection to " + hostUrl);
 
@@ -176,7 +177,13 @@ public class ControlServerConnection {
         }
 
         // getting JSON string from URL
-        final JSONObject response = JSONParser.sendJSONToUrl(hostUrl, regData);
+
+        Long startTime = System.nanoTime();
+        // getting JSON string from URL
+        final JSONObject response = JSONParser.sendJSONToUrl(hostUrl, regData, headerValue);
+        Long endTime = System.nanoTime();
+
+        Timber.d("REQUEST " + hostUrl.toString() + "  " + (endTime - startTime) + "ns");
 
         if (response != null)
             try {
@@ -243,14 +250,14 @@ public class ControlServerConnection {
 
     public String requestNewTestConnection(final String host, final String pathPrefix, final int port,
                                            final boolean encryption, final ArrayList<String> geoInfo, final String uuid, final String clientType,
-                                           final String clientName, final String clientVersion, final JSONObject additionalValues) {
+                                           final String clientName, final String clientVersion, final JSONObject additionalValues, final String headerValue) {
         resetErrors();
         String errorMsg = null;
         // url to make request to
 
         clientUUID = uuid;
 
-        hostUrl = getUrl(encryption, host, pathPrefix, port, Config.RMBT_TEST_SETTINGS_REQUEST);
+        hostUrl = getUrl(encryption, host, pathPrefix, port, Config.RMBT_TEST_SETTINGS_REQUEST, headerValue);
 
         System.out.println("Connection to " + hostUrl);
 
@@ -290,8 +297,12 @@ public class ControlServerConnection {
             // e1.printStackTrace();
         }
 
+        Long startTime = System.nanoTime();
         // getting JSON string from URL
-        final JSONObject response = JSONParser.sendJSONToUrl(hostUrl, regData);
+        final JSONObject response = JSONParser.sendJSONToUrl(hostUrl, regData, headerValue);
+        Long endTime = System.nanoTime();
+
+        Timber.d("REQUEST " + hostUrl.toString() + "  " + (endTime - startTime) + "ns");
 
         if (response != null)
             try {
@@ -370,7 +381,7 @@ public class ControlServerConnection {
         }
     }
 
-    public String sendTestResult(TotalTestResult result, JSONObject additionalValues) {
+    public String sendTestResult(TotalTestResult result, JSONObject additionalValues, String headerValue) {
         String errorMsg = null;
         lastTestResult = null;
 
@@ -459,13 +470,13 @@ public class ControlServerConnection {
             }
 
             // getting JSON string from URL
-            JSONObject response = JSONParser.sendJSONToUrl(resultURL, testData);
+            JSONObject response = JSONParser.sendJSONToUrl(resultURL, testData, headerValue);
 
             for (int i = 0; response == null && i < 4; i++) {
                 //try again
                 int connectTimeout = JSONParser.CONNECT_TIMEOUT + (int) Math.round(Math.pow(3, i) * 1000);
                 System.out.println("Submitting the results failed, trying again with " + connectTimeout + " ms timeout");
-                response = JSONParser.sendJSONToUrl(resultURL, testData, connectTimeout);
+                response = JSONParser.sendJSONToUrl(resultURL, testData, connectTimeout, headerValue);
             }
 
             if (response != null) {
@@ -505,7 +516,7 @@ public class ControlServerConnection {
      * @param qosTestResult
      * @return
      */
-    public String sendQoSResult(final TotalTestResult result, final JSONArray qosTestResult) {
+    public String sendQoSResult(final TotalTestResult result, final JSONArray qosTestResult, final String headerValue) {
         String errorMsg = null;
         System.out.println("sending qos results to " + resultQoSURI);
         if (resultQoSURI != null) {
@@ -529,7 +540,7 @@ public class ControlServerConnection {
             }
 
             // getting JSON string from URL
-            final JSONObject response = JSONParser.sendJSONToUrl(resultQoSURI, testData);
+            final JSONObject response = JSONParser.sendJSONToUrl(resultQoSURI, testData, headerValue);
 
             if (response != null)
                 try {
@@ -561,13 +572,13 @@ public class ControlServerConnection {
     }
 
     public void sendNDTResult(final String host, final String pathPrefix, final int port, final boolean encryption,
-                              final String clientUUID, final UiServicesAdapter data, final String testUuid) {
-        hostUrl = getUrl(encryption, host, pathPrefix, port, Config.RMBT_TEST_SETTINGS_REQUEST);
+                              final String clientUUID, final UiServicesAdapter data, final String testUuid, final String headerValue) {
+        hostUrl = getUrl(encryption, host, pathPrefix, port, Config.RMBT_TEST_SETTINGS_REQUEST, headerValue);
         this.clientUUID = clientUUID;
-        sendNDTResult(data, testUuid);
+        sendNDTResult(data, testUuid, headerValue);
     }
 
-    public void sendNDTResult(final UiServicesAdapter data, final String testUuid) {
+    public void sendNDTResult(final UiServicesAdapter data, final String testUuid, final String headerValue) {
         final JSONObject testData = new JSONObject();
 
         try {
@@ -586,7 +597,7 @@ public class ControlServerConnection {
             testData.put("time_ns", data.getStartTimeNs() - startTimeNs);
             testData.put("time_end_ns", data.getStopTimeNs() - startTimeNs);
 
-            JSONParser.sendJSONToUrl(hostUrl.toURI().resolve(Config.RMBT_CONTROL_NDT_RESULT_URL).toURL(), testData);
+            JSONParser.sendJSONToUrl(hostUrl.toURI().resolve(Config.RMBT_CONTROL_NDT_RESULT_URL).toURL(), testData, headerValue);
 
             System.out.println(testData);
         } catch (final JSONException e) {

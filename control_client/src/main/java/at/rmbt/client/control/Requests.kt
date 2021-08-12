@@ -504,7 +504,19 @@ data class TestResultBody(
      * Test tag added to each test, can be set in the developer mode settings
      */
     @SerializedName("tag")
-    var testTag: String? = null
+    var testTag: String? = null,
+
+    /**
+     * mean jitter in milliseconds
+     */
+    @SerializedName("voip_result_jitter_millis")
+    val jitterMillis: Double?,
+
+    /**
+     * packet loss in percents
+     */
+    @SerializedName("voip_result_packet_loss_percents")
+    val packetLoss: Double?
 )
 
 @Keep
@@ -708,7 +720,11 @@ data class SignalBody(
     val nrSsRsrq: Int?,
 
     @SerializedName("nr_ss_sinr")
-    val nrSsSinr: Int?
+    val nrSsSinr: Int?,
+
+    // debug only to know from which source is signal obtained
+    @SerializedName("signal_source")
+    val signalSource: String
 )
 
 @Keep
@@ -863,6 +879,17 @@ data class HistoryRequestBody(
 )
 
 @Keep
+data class HistoryONTRequestBody(
+    @SerializedName("uuid")
+    val clientUUID: String,
+    val page: Long,
+    val size: Long,
+    val devices: List<String>?,
+    @SerializedName("network_types")
+    val networks: List<String>?
+)
+
+@Keep
 data class QoSResultBody(
     @SerializedName("client_uuid")
     val clientUUID: String,
@@ -917,7 +944,8 @@ data class QosTestResultDetailBody(
     /**
      * 2 character language code
      */
-    val language: String
+    val language: String,
+    val capabilities: CapabilitiesBody?
 )
 
 @Keep
@@ -949,6 +977,9 @@ data class SignalMeasurementRequestBody(
     val softwareVersion: String,
     val time: Long,
     val timezone: String,
+
+    @SerializedName("measurement_type_flag")
+    val measurementTypeFlag: String,
 
     @SerializedName("uuid")
     val clientUUID: String,

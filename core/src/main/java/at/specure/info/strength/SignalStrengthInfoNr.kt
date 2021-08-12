@@ -2,7 +2,7 @@ package at.specure.info.strength
 
 import android.os.Parcelable
 import at.specure.info.TransportType
-import kotlinx.android.parcel.Parcelize
+import kotlinx.parcelize.Parcelize
 
 @Parcelize
 class SignalStrengthInfoNr(
@@ -13,6 +13,7 @@ class SignalStrengthInfoNr(
     override val min: Int,
     override val max: Int,
     override val timestampNanos: Long,
+    override val source: SignalSource,
 
     /**
      * Reference: 3GPP TS 38.215.

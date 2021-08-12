@@ -99,4 +99,9 @@ interface ControlEndpointProvider {
      * Endpoint to get news
      */
     val getNewsUrl: String
+
+    /**
+     * Value for X-Nettest-Client header, do not include header if empty
+     */
+    val getNettestHeaderValue: String
 }

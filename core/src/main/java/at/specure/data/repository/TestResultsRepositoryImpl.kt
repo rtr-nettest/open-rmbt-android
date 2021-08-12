@@ -8,6 +8,7 @@ import at.rmbt.client.control.QosTestResultDetailBody
 import at.rmbt.client.control.ServerTestResultBody
 import at.rmbt.client.control.TestResultDetailBody
 import at.rmbt.util.Maybe
+import at.specure.config.Config
 import at.specure.data.Classification
 import at.specure.data.ClientUUID
 import at.specure.data.CoreDatabase
@@ -33,7 +34,8 @@ import java.util.Locale
 class TestResultsRepositoryImpl(
     db: CoreDatabase,
     private val clientUUID: ClientUUID,
-    private val client: ControlServerClient
+    private val client: ControlServerClient,
+    private val config: Config
 ) : TestResultsRepository {
 
     private val qoeInfoDao = db.qoeInfoDao()
@@ -86,7 +88,16 @@ class TestResultsRepositoryImpl(
         }
     }
 
-    private fun loadOpenDataTestResults(openTestUUID: String, testUUID: String): Maybe<BaseResponse> {
+    private fun loadOpenDataTestResults(openTestUUID: String, testUUID: String) {
+        val useONTApiVersion = config.headerValue.isNotEmpty()
+        if (useONTApiVersion) {
+            loadGraphResults(openTestUUID, testUUID)
+        } else {
+            loadOpendataResults(openTestUUID, testUUID)
+        }
+    }
+
+    private fun loadOpendataResults(openTestUUID: String, testUUID: String) {
         val detailedTestResults = client.getDetailedTestResults(openTestUUID)
         detailedTestResults.onSuccess { response ->
             testResultGraphItemDao.clearInsertItems(response.speedCurve.download.map {
@@ -103,11 +114,37 @@ class TestResultsRepositoryImpl(
                 )
             })
 
-            testResultGraphItemDao.clearInsertItems(response.speedCurve.ping.map { it.toModel(testUUID) })
+            testResultGraphItemDao.clearInsertItems(response.speedCurve.ping.map {
+                it.toModel(
+                    testUUID
+                )
+            })
 
-            testResultGraphItemDao.clearInsertItems(response.speedCurve.signal.map { it.toModel(testUUID) })
+            testResultGraphItemDao.clearInsertItems(response.speedCurve.signal.map {
+                it.toModel(
+                    testUUID
+                )
+            })
         }
-        return detailedTestResults
+    }
+
+    private fun loadGraphResults(openTestUUID: String, testUUID: String) {
+        val detailedTestResults = client.getTestResultGraphs(testUUID)
+        detailedTestResults.onSuccess { response ->
+            testResultGraphItemDao.clearInsertItems(response.speedCurve.download?.map {
+                it.toModel(
+                    testUUID,
+                    TestResultGraphItemRecord.Type.DOWNLOAD
+                )
+            })
+
+            testResultGraphItemDao.clearInsertItems(response.speedCurve.upload?.map {
+                it.toModel(
+                    testUUID,
+                    TestResultGraphItemRecord.Type.UPLOAD
+                )
+            })
+        }
     }
 
     override fun loadTestResults(testUUID: String): Flow<Boolean> = flow {
@@ -142,44 +179,85 @@ class TestResultsRepositoryImpl(
     }
 
     private fun loadQosTestResults(testUUID: String, clientUUID: String): Maybe<BaseResponse> {
-        val qosTestResults = client.getQosTestResultDetail(
-            QosTestResultDetailBody(
-                testUUID = testUUID,
-                clientUUID = clientUUID,
-                language = Locale.getDefault().language
-            )
-        )
-        qosTestResults.onSuccess { response ->
-            var failureCount = 0
-            var successCount = 0
-            response.qosResultDetails.forEach { result ->
-                if (result.failureCount > 0) {
-                    failureCount++
-                } else {
-                    successCount++
-                }
-            }
+        val isONTBasedApp = !config.headerValue.isNullOrEmpty()
 
-            val qosModelPair = response.toModels(testUUID, Locale.getDefault().language)
-            qosModelPair.first.forEach {
-                qosCategoryDao.clearQoSInsert(it)
-            }
-            qosTestItemDao.clearQosItemsInsert(qosModelPair.second)
-            qosTestGoalDao.clearQosGoalsInsert(qosModelPair.third)
-
-            val percentage: Float = (successCount.toFloat() / (successCount + failureCount).toFloat())
-            qoeInfoDao.clearQoSInsert(
+        if (isONTBasedApp) {
+            val qosTestResults = client.getTestResultDetailONT(testUUID)
+            val overallQosPercentage = qosTestResults.success.overallQosPercentage
+            val partialQosResults = qosTestResults.success.partialQosResults
+            qoeInfoDao.insert(
                 QoeInfoRecord(
-                    testUUID = testUUID,
+                    testUUID = qosTestResults.success.testUUID,
                     category = QoECategory.QOE_QOS,
-                    percentage = percentage,
-                    info = "${(percentage * 100).toInt()}% ($successCount/${successCount + failureCount})",
-                    classification = getQosClassification(percentage * 100f),
-                    priority = -1
+                    percentage = overallQosPercentage ?: 0f,
+                    classification = Classification.NONE,
+                    priority = -1,
+                    info = "${overallQosPercentage ?: 0}%"
                 )
             )
+            partialQosResults.forEach { qosResultItem ->
+                qosCategoryDao.insert(
+                    QosCategoryRecord(
+                        testUUID = qosTestResults.success.testUUID,
+                        category = qosResultItem.testType?.let { QoSCategory.fromString(it) }
+                            ?: QoSCategory.QOS_UNKNOWN,
+                        categoryName = "",
+                        categoryDescription = "",
+                        language = "",
+                        failedCount = qosResultItem.totalCount?.let {
+                            it - (qosResultItem.successCount ?: 0)
+                        } ?: 0,
+                        successCount = qosResultItem.successCount ?: 0
+                    )
+                )
+            }
+            return qosTestResults
+        } else {
+            val qosTestResults = client.getQosTestResultDetail(
+                QosTestResultDetailBody(
+                    testUUID = testUUID,
+                    clientUUID = clientUUID,
+                    language = Locale.getDefault().language,
+                    capabilities = CapabilitiesBody()
+                )
+            )
+            qosTestResults.onSuccess { response ->
+                var failureCount = 0
+                var successCount = 0
+                response.qosResultDetails.forEach { result ->
+                    if (result.failureCount > 0) {
+                        failureCount++
+                    } else {
+                        successCount++
+                    }
+                }
+
+                val qosModelPair = response.toModels(testUUID, Locale.getDefault().language)
+                qosModelPair.first.forEach {
+                    qosCategoryDao.clearQoSInsert(it)
+                }
+                qosTestItemDao.clearQosItemsInsert(qosModelPair.second)
+                qosTestGoalDao.clearQosGoalsInsert(qosModelPair.third)
+
+                val percentage: Float =
+                    (successCount.toFloat() / (successCount + failureCount).toFloat())
+
+                val info =
+                    "${(percentage * 100).toInt()}% ($successCount/${successCount + failureCount})"
+
+                qoeInfoDao.clearQoSInsert(
+                    QoeInfoRecord(
+                        testUUID = testUUID,
+                        category = QoECategory.QOE_QOS,
+                        percentage = percentage,
+                        info = info,
+                        classification = getQosClassification(percentage * 100f),
+                        priority = -1
+                    )
+                )
+            }
+            return qosTestResults
         }
-        return qosTestResults
     }
 
     private fun getQosClassification(percentage: Float): Classification {

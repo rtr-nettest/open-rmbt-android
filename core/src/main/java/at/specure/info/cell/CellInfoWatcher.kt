@@ -14,8 +14,8 @@
 
 package at.specure.info.cell
 
-import android.telephony.CellInfo
-import at.specure.info.network.NRConnectionState
+import at.specure.info.strength.SignalStrengthInfo
+import cz.mroczis.netmonster.core.model.cell.ICell
 
 /**
  * Watcher that is responsible for tracking cellular connection info
@@ -28,39 +28,32 @@ interface CellInfoWatcher {
      */
     val activeNetwork: CellNetworkInfo?
 
-    val cellInfo: CellInfo?
-
-    val allCellInfo: List<CellNetworkInfo>
+    val signalStrengthInfo: SignalStrengthInfo?
 
     /**
-     * NR connection type default should be [NRConnectionState.NOT_AVAILABLE]
+     * list of all secondary cells available for current data subscription from which is active
      */
-    val nrConnectionState: NRConnectionState
+    val secondaryActiveCellNetworks: List<CellNetworkInfo?>
 
     /**
-     * Add listener to observe cell network changes
+     * list of all cells available for all subscriptions
      */
-    fun addListener(listener: CellInfoChangeListener)
+    val allCellInfos: List<ICell>
 
     /**
-     * Remove listener from observing cell network changes
+     * list of all 5G cells from secondary cells available for current data subscription from which is active
      */
-    fun removeListener(listener: CellInfoChangeListener)
+    val secondary5GActiveCellNetworks: List<CellNetworkInfo?>
 
     /**
-     * Try update cellular network info without callbacks
+     * list of all signals from secondary cells available for current data subscription from which is active
      */
-    fun forceUpdate()
+    val secondaryActiveCellSignalStrengthInfos: List<SignalStrengthInfo?>
 
     /**
-     * Callback that is used to observe cellular network changes tracked by [CellInfoWatcher]
+     * list of all 5G signals from secondary cells available for current data subscription from which is active
      */
-    interface CellInfoChangeListener {
+    val secondary5GActiveCellSignalStrengthInfos: List<SignalStrengthInfo?>
 
-        /**
-         * When cellular network change is detected this callback will be triggered
-         * if no active network or cell network is available null will be returned
-         */
-        fun onCellInfoChanged(activeNetwork: CellNetworkInfo?)
-    }
+    fun updateInfo()
 }

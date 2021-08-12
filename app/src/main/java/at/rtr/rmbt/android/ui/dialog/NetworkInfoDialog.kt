@@ -9,12 +9,15 @@ import androidx.fragment.app.FragmentManager
 import at.rtr.rmbt.android.R
 import at.rtr.rmbt.android.databinding.DialogNetworkInfoBindingImpl
 import at.rtr.rmbt.android.di.Injector
+import at.rtr.rmbt.android.ui.adapter.ICellAdapter
+import at.rtr.rmbt.android.ui.adapter.NetworkInfoAdapter
 import at.rtr.rmbt.android.util.listen
 import at.specure.info.cell.CellNetworkInfo
 import at.specure.info.network.ActiveNetworkLiveData
 import at.specure.info.network.WifiNetworkInfo
-import at.specure.info.strength.SignalStrengthInfoLte
 import at.specure.info.strength.SignalStrengthLiveData
+import cz.mroczis.netmonster.core.model.cell.ICell
+import timber.log.Timber
 import javax.inject.Inject
 
 class NetworkInfoDialog : FullscreenDialog() {
@@ -25,6 +28,8 @@ class NetworkInfoDialog : FullscreenDialog() {
     @Inject
     lateinit var signalStrengthLiveData: SignalStrengthLiveData
 
+    private val adapterWifi: NetworkInfoAdapter by lazy { NetworkInfoAdapter() }
+    private val adapterMobile: ICellAdapter by lazy { ICellAdapter() }
     private lateinit var binding: DialogNetworkInfoBindingImpl
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -40,40 +45,46 @@ class NetworkInfoDialog : FullscreenDialog() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        activeNetworkLiveData.listen(this) { info ->
-            binding.info = info
-
-            if (info is CellNetworkInfo && info.band != null) {
-                val band = info.band!!
-                binding.channelNumber = band.channel.toString()
-                binding.labelChannelNumber.text = band.channelAttribution.name
-
-                binding.channelName = "${band.band} (${band.name})"
-            } else if (info is WifiNetworkInfo) {
-                val band = info.band
-                binding.channelNumber = "${band.channelNumber} (${band.frequency} MHz)"
-                binding.labelChannelNumber.text = getString(R.string.dialog_signal_info_channel)
-
-                binding.channelName = band.informalName
-            } else {
-                binding.channelNumber = null
-            }
-        }
-
         signalStrengthLiveData.listen(this) { signal ->
-            binding.signal = signal
 
-            if (signal is SignalStrengthInfoLte && signal.timingAdvance != null) {
-                val ta = signal.timingAdvance!!
-                binding.timingAdvance = "$ta ~(${ta * 78} m)"
-            } else {
-                binding.timingAdvance = null
-            }
-
-            if (signal?.rsrq == null) {
-                binding.quality = null
-            } else {
-                binding.quality = "${signal.rsrq} dB"
+            val networkInfo = signal?.networkInfo
+            when (networkInfo) {
+                is WifiNetworkInfo -> {
+                    if (binding.recyclerViewCells.adapter is NetworkInfoAdapter == false) {
+                        binding.recyclerViewCells.adapter = adapterWifi
+                    }
+                    networkInfo.signal = signal.signalStrengthInfo?.value
+                    adapterWifi.items = listOf(networkInfo)
+                }
+                is CellNetworkInfo -> {
+                    if (binding.recyclerViewCells.adapter is ICellAdapter == false) {
+                        binding.recyclerViewCells.adapter = adapterMobile
+                    }
+                    val cells = mutableListOf<ICell>()
+//                    if (signal.networkInfo != null && signal.networkInfo is CellNetworkInfo) {
+//                        cells.add(signal.networkInfo as CellNetworkInfo)
+//                    }
+//                    signal.secondaryActiveCellNetworks?.let {
+//                        Timber.d("Secondary Cell Count: ${it.size}")
+//                        it.forEach { cellNetworkInfo ->
+//                            if (cellNetworkInfo != null) {
+//                                cells.add(cellNetworkInfo)
+//                            }
+//                        }
+//                    }
+                    signal.allCellInfos?.let {
+                        Timber.d("Inactive Cell Count: ${it.size}")
+//                        it.forEach { cellNetworkInfo ->
+//                            if (cellNetworkInfo != null) {
+//                                cells.add(cellNetworkInfo)
+//                            }
+//                        }
+                        Timber.d("Total Cell Count: ${cells.size}")
+                        adapterMobile.items = it
+                    }
+//                    Timber.d("Total Cell Count: ${cells.size}")
+//                    adapterMobile.items = cells
+                }
             }
         }
     }

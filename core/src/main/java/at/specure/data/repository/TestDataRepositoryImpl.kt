@@ -20,12 +20,15 @@ import at.specure.data.entity.SpeedRecord
 import at.specure.data.entity.TestRecord
 import at.specure.data.entity.TestTelephonyRecord
 import at.specure.data.entity.TestWlanRecord
+import at.specure.data.entity.VoipTestResultRecord
 import at.specure.info.cell.CellNetworkInfo
 import at.specure.info.cell.CellTechnology
 import at.specure.info.network.MobileNetworkType
+import at.specure.info.network.NRConnectionState
 import at.specure.info.network.NetworkInfo
 import at.specure.info.network.WifiNetworkInfo
 import at.specure.info.strength.SignalStrengthInfo
+import at.specure.info.strength.SignalStrengthInfoCommon
 import at.specure.info.strength.SignalStrengthInfoGsm
 import at.specure.info.strength.SignalStrengthInfoLte
 import at.specure.info.strength.SignalStrengthInfoNr
@@ -49,13 +52,21 @@ class TestDataRepositoryImpl(db: CoreDatabase) : TestDataRepository {
     private val cellLocationDao = db.cellLocationDao()
     private val pingDao = db.pingDao()
     private val testDao = db.testDao()
+    private val voipResultsDao = db.jplResultsDao()
     private val connectivityStateDao = db.connectivityStateDao()
 
     override fun saveGeoLocation(testUUID: String, location: LocationInfo, testStartTimeNanos: Long, filterOldValues: Boolean) = io {
         if (filterOldValues) {
             val timeDiff = TimeUnit.MINUTES.toMillis(1)
             val locationAgeDiff = System.currentTimeMillis() - location.time
-            if (timeDiff < locationAgeDiff) {
+
+            val ageAcceptable = TimeUnit.MINUTES.toNanos(1)
+            val locationAge = location.ageNanos
+
+            val locationTimeIsOutOfBounds = timeDiff < locationAgeDiff
+            val locationAgeIsOutOfBounds = locationAge > ageAcceptable
+
+            if (locationTimeIsOutOfBounds && locationAgeIsOutOfBounds) {
                 return@io
             }
         }
@@ -67,8 +78,8 @@ class TestDataRepositoryImpl(db: CoreDatabase) : TestDataRepository {
             provider = location.provider,
             speed = location.speed,
             altitude = location.altitude,
-            timestampMillis = location.time,
-            timeRelativeNanos = location.systemNanoTime - testStartTimeNanos,
+            timestampMillis = location.time, // time of acquired information directly from android API
+            timeRelativeNanos = location.systemNanoTime - testStartTimeNanos, // relative time to the start of the test
             ageNanos = location.ageNanos,
             accuracy = location.accuracy,
             bearing = location.bearing,
@@ -117,14 +128,37 @@ class TestDataRepositoryImpl(db: CoreDatabase) : TestDataRepository {
         speedDao.insert(record)
     }
 
+    override fun validateSignalStrengthInfo(mobileNetworkType: MobileNetworkType?, info: SignalStrengthInfo, cellUUID: String): Boolean {
+        if (cellUUID.isEmpty()) return false
+
+        val technologyClass = CellTechnology.fromMobileNetworkType(mobileNetworkType ?: MobileNetworkType.UNKNOWN)
+
+        val isSignalValid = when {
+            (info is SignalStrengthInfoLte && (technologyClass == CellTechnology.CONNECTION_4G || technologyClass == CellTechnology.CONNECTION_4G_5G)) -> true
+            (info is SignalStrengthInfoLte && (technologyClass == CellTechnology.CONNECTION_3G || technologyClass == CellTechnology.CONNECTION_2G || technologyClass == CellTechnology.CONNECTION_5G)) -> false
+            (info is SignalStrengthInfoNr && technologyClass == CellTechnology.CONNECTION_5G) -> true
+            (info is SignalStrengthInfoNr && (technologyClass == CellTechnology.CONNECTION_4G_5G || technologyClass == CellTechnology.CONNECTION_4G || technologyClass == CellTechnology.CONNECTION_3G || technologyClass == CellTechnology.CONNECTION_2G)) -> false
+            (info is SignalStrengthInfoGsm && (technologyClass == CellTechnology.CONNECTION_2G || technologyClass == CellTechnology.CONNECTION_3G)) -> true
+            (info is SignalStrengthInfoGsm && (technologyClass == CellTechnology.CONNECTION_5G || technologyClass == CellTechnology.CONNECTION_4G_5G || technologyClass == CellTechnology.CONNECTION_4G)) -> false
+            (info is SignalStrengthInfoCommon && (technologyClass == CellTechnology.CONNECTION_2G || technologyClass == CellTechnology.CONNECTION_3G)) -> true // this might be TDSCDMA, WCDMA, CDMA or some unknown type
+            (info is SignalStrengthInfoCommon && (technologyClass == CellTechnology.CONNECTION_5G || technologyClass == CellTechnology.CONNECTION_4G_5G || technologyClass == CellTechnology.CONNECTION_4G)) -> false
+            (info is SignalStrengthInfoWiFi) -> true // accepting all wifi signals as valid
+            (mobileNetworkType == null || mobileNetworkType == MobileNetworkType.UNKNOWN) -> true
+            else -> false
+        }
+        Timber.d("Signal valid?  ${mobileNetworkType?.displayName}  ${info.transport}   ${info::class.java.name}    $cellUUID   $technologyClass    $isSignalValid")
+        return isSignalValid
+    }
+
     override fun saveSignalStrength(
         testUUID: String,
         cellUUID: String,
         mobileNetworkType: MobileNetworkType?,
         info: SignalStrengthInfo,
-        testStartTimeNanos: Long
+        testStartTimeNanos: Long,
+        nrConnectionState: NRConnectionState
     ) = io {
-        saveSignalStrengthDirectly(testUUID, cellUUID, mobileNetworkType, info, testStartTimeNanos)
+        saveSignalStrengthDirectly(testUUID, cellUUID, mobileNetworkType, info, testStartTimeNanos, nrConnectionState)
     }
 
     private fun saveSignalStrengthDirectly(
@@ -132,7 +166,8 @@ class TestDataRepositoryImpl(db: CoreDatabase) : TestDataRepository {
         cellUUID: String,
         mobileNetworkType: MobileNetworkType?,
         info: SignalStrengthInfo,
-        testStartTimeNanos: Long
+        testStartTimeNanos: Long,
+        nrConnectionState: NRConnectionState
     ) {
         var signal = info.value
         var wifiLinkSpeed: Int? = null
@@ -201,14 +236,34 @@ class TestDataRepositoryImpl(db: CoreDatabase) : TestDataRepository {
             timingAdvance = timingAdvance,
             mobileNetworkType = mobileNetworkType,
             transportType = info.transport,
+            nrConnectionState = nrConnectionState,
             nrCsiRsrp = nrCsiRsrp,
             nrCsiRsrq = nrCsiRsrq,
             nrCsiSinr = nrCsiSinr,
             nrSsRsrp = nrSsRsrp,
             nrSsRsrq = nrSsRsrq,
-            nrSsSinr = nrSsSinr
+            nrSsSinr = nrSsSinr,
+            source = info.source
         )
         signalDao.insert(item)
+    }
+
+    override fun saveCellInfoRecord(cellInfoRecordList: List<CellInfoRecord>) = io {
+        if (cellInfoRecordList.isNotEmpty()) {
+            cellInfoDao.clearInsert(cellInfoRecordList[0].testUUID, cellInfoRecordList)
+        }
+    }
+
+    override fun saveSignalRecord(signalRecordList: List<SignalRecord>) = io {
+        signalRecordList.forEach {
+            signalDao.insert(it)
+        }
+    }
+
+    override fun saveCellLocationRecord(cellLocationRecordList: List<CellLocationRecord>) = io {
+        if (cellLocationRecordList.isNotEmpty()) {
+            cellLocationDao.insertNew(cellLocationRecordList[0].testUUID, cellLocationRecordList)
+        }
     }
 
     override fun saveCellInfo(testUUID: String, infoList: List<NetworkInfo>, testStartTimeNanos: Long) = io {
@@ -219,13 +274,18 @@ class TestDataRepositoryImpl(db: CoreDatabase) : TestDataRepository {
                 is CellNetworkInfo -> {
                     info.signalStrength?.let {
                         Timber.e("Signal saving time SCI: starting time: $testStartTimeNanos   current time: ${System.nanoTime()}")
-                        saveSignalStrengthDirectly(testUUID, info.cellUUID, info.networkType, it, testStartTimeNanos)
+                        Timber.d("valid signal directly")
+                        if (info.cellUUID.isNotEmpty() && validateSignalStrengthInfo(info.networkType, it, info.cellUUID)) {
+                            saveSignalStrengthDirectly(testUUID, info.cellUUID, info.networkType, it, testStartTimeNanos, info.nrConnectionState)
+                        }
                     }
                     info.toCellInfoRecord(testUUID)
                 }
                 else -> throw IllegalArgumentException("Don't know how to save ${info.javaClass.simpleName} info into db")
             }
-            cellInfo.add(mapped)
+            if (mapped.uuid.isNotEmpty()) {
+                cellInfo.add(mapped)
+            }
         }
         cellInfoDao.clearInsert(testUUID, cellInfo)
     }
@@ -247,22 +307,26 @@ class TestDataRepositoryImpl(db: CoreDatabase) : TestDataRepository {
         dualSimDetectionMethod = null
     )
 
-    private fun CellNetworkInfo.toCellInfoRecord(testUUID: String) = CellInfoRecord(
-        testUUID = testUUID,
-        uuid = cellUUID,
-        isActive = isActive,
-        cellTechnology = CellTechnology.fromMobileNetworkType(networkType),
-        transportType = type,
-        registered = isRegistered,
-        areaCode = areaCode,
-        channelNumber = band?.channel,
-        frequency = band?.frequencyDL,
-        locationId = locationId,
-        mcc = mcc,
-        mnc = mnc,
-        primaryScramblingCode = scramblingCode,
-        dualSimDetectionMethod = dualSimDetectionMethod
-    )
+    private fun CellNetworkInfo.toCellInfoRecord(testUUID: String): CellInfoRecord {
+        val cellInfoRecord = CellInfoRecord(
+            testUUID = testUUID,
+            uuid = cellUUID,
+            isActive = isActive,
+            cellTechnology = cellType,
+            transportType = type,
+            registered = isRegistered,
+            areaCode = areaCode,
+            channelNumber = band?.channel,
+            frequency = band?.frequencyDL,
+            locationId = locationId,
+            mcc = mcc,
+            mnc = mnc,
+            primaryScramblingCode = scramblingCode,
+            dualSimDetectionMethod = dualSimDetectionMethod
+        )
+        Timber.d("Saving CellInfo Record TDR with uuid: ${cellInfoRecord.uuid} and cellTechnology: ${cellInfoRecord.cellTechnology?.name} and channel number: ${cellInfoRecord.channelNumber}")
+        return cellInfoRecord
+    }
 
     override fun savePermissionStatus(testUUID: String, permission: String, granted: Boolean) = io {
         val permissionStatus = PermissionStatusRecord(testUUID = testUUID, permissionName = permission, status = granted)
@@ -385,5 +449,9 @@ class TestDataRepositoryImpl(db: CoreDatabase) : TestDataRepository {
 
     override fun getLoopModeByLocal(loopUUID: String): LiveData<LoopModeRecord?> {
         return testDao.getLoopModeRecord(loopUUID)
+    }
+
+    override fun saveVoipResult(voipTestResultRecord: VoipTestResultRecord) {
+        return voipResultsDao.insert(voipTestResultRecord)
     }
 }

@@ -2,33 +2,44 @@ package at.specure.data.repository
 
 import android.content.Context
 import at.rmbt.client.control.ControlServerClient
+import at.rmbt.client.control.QosResultResponse
 import at.rmbt.client.control.TestResultBody
 import at.rmbt.util.Maybe
 import at.rmbt.util.io
 import at.rtr.rmbt.client.helper.TestStatus
+import at.specure.config.Config
 import at.specure.data.Classification
 import at.specure.data.ClientUUID
 import at.specure.data.CoreDatabase
 import at.specure.data.NetworkTypeCompat
 import at.specure.data.entity.PingRecord
+import at.specure.data.entity.QoeInfoRecord
+import at.specure.data.entity.QosCategoryRecord
 import at.specure.data.entity.SignalRecord
 import at.specure.data.entity.SpeedRecord
 import at.specure.data.entity.TestResultGraphItemRecord
 import at.specure.data.entity.TestResultRecord
 import at.specure.data.entity.TestTelephonyRecord
 import at.specure.data.entity.TestWlanRecord
+import at.specure.data.entity.VoipTestResultRecord
+import at.specure.data.entity.getJitter
+import at.specure.data.entity.getPacketLoss
 import at.specure.data.toRequest
 import at.specure.info.TransportType
 import at.specure.info.network.MobileNetworkType
+import at.specure.result.QoECategory
+import at.specure.result.QoSCategory
 import at.specure.test.DeviceInfo
 import at.specure.util.exception.DataMissingException
+import timber.log.Timber
 import javax.inject.Inject
 
 class ResultsRepositoryImpl @Inject constructor(
     context: Context,
     private val db: CoreDatabase,
     private val clientUUID: ClientUUID,
-    private val client: ControlServerClient
+    private val client: ControlServerClient,
+    private val config: Config
 ) : ResultsRepository {
 
     private val deviceInfo = DeviceInfo(context)
@@ -41,6 +52,8 @@ class ResultsRepositoryImpl @Inject constructor(
         val testDao = db.testDao()
         val testRecord = testDao.get(testUUID) ?: throw DataMissingException("TestRecord not found uuid: $testUUID")
         val clientUUID = clientUUID.value ?: throw DataMissingException("ClientUUID is null")
+        val jplTestResultsDao = db.jplResultsDao()
+        val jplTestResultsRecord = jplTestResultsDao.get(testUUID)
 
         var finalResult: Maybe<Boolean> = Maybe(true)
         val qosRecord = testDao.getQoSRecord(testUUID)
@@ -76,12 +89,17 @@ class ResultsRepositoryImpl @Inject constructor(
                 signalList = signals,
                 speedInfoList = speeds,
                 cellLocationList = db.cellLocationDao().get(testUUID),
-                permissions = db.permissionStatusDao().get(testUUID)
+                permissions = db.permissionStatusDao().get(testUUID),
+                jplTestResultsRecord
             )
 
             // save results locally in every condition the test was successful, if result will be sent and obtained successfully, it overwrites the local results
             if ((testRecord.status == TestStatus.SPEEDTEST_END) || (testRecord.status == TestStatus.QOS_END) || (testRecord.status == TestStatus.END)) {
-                saveLocalTestResults(body, testUUID, wlanInfo, speeds, pings, signals)
+                saveLocalTestResults(body, testUUID, wlanInfo, speeds, pings, signals, jplTestResultsRecord)
+            }
+
+            body.radioInfo?.cells?.forEach {
+                Timber.d("valid cells: ${it.uuid}   technology: ${it.technology}")
             }
 
             val result = client.sendTestResults(body)
@@ -104,10 +122,47 @@ class ResultsRepositoryImpl @Inject constructor(
             if (qosRecord != null) {
                 val body = qosRecord.toRequest(clientUUID, deviceInfo)
 
-                val result = client.sendQoSTestResults(body)
+                val isONTApp = !config.headerValue.isNullOrEmpty()
+
+                val result = if (isONTApp) {
+                    client.sendQoSTestResultsONT(body)
+                } else {
+                    client.sendQoSTestResults(body)
+                }
+
                 result.onSuccess {
                     db.testDao().updateQoSTestIsSubmitted(testUUID)
                     db.historyDao().clear()
+                }
+
+                if (isONTApp) {
+                    val qosResult = (result.success as QosResultResponse)
+                    db.qoeInfoDao().insert(
+                        QoeInfoRecord(
+                            testUUID = qosRecord.uuid,
+                            category = QoECategory.QOE_QOS,
+                            percentage = qosResult.overallQosPercentage ?: 0f,
+                            classification = Classification.NONE,
+                            priority = -1,
+                            info = "${qosResult.overallQosPercentage ?: 0}%"
+                        )
+                    )
+                    qosResult.partialQosResults.forEach { qosResultItem ->
+                        db.qosCategoryDao().insert(
+                            QosCategoryRecord(
+                                testUUID = qosRecord.uuid,
+                                category = qosResultItem.testType?.let { QoSCategory.fromString(it) }
+                                    ?: QoSCategory.QOS_UNKNOWN,
+                                categoryName = "",
+                                categoryDescription = "",
+                                language = "",
+                                failedCount = qosResultItem.totalCount?.let {
+                                    it - (qosResultItem.successCount ?: 0)
+                                } ?: 0,
+                                successCount = qosResultItem.successCount ?: 0
+                            )
+                        )
+                    }
                 }
 
                 finalResult = result.map { result.ok }
@@ -125,9 +180,13 @@ class ResultsRepositoryImpl @Inject constructor(
         wlanInfo: TestWlanRecord?,
         speeds: List<SpeedRecord>,
         pings: List<PingRecord>,
-        signals: List<SignalRecord>
+        signals: List<SignalRecord>,
+        jitterAndPacketLoss: VoipTestResultRecord?
     ) {
         val networkType = NetworkTypeCompat.fromResultIntType(body.networkType.toInt())
+
+        val jitterMean: Double? = jitterAndPacketLoss?.getJitter()
+        val packetLoss: Double? = jitterAndPacketLoss?.getPacketLoss()
 
         db.testResultDao().insert(
             TestResultRecord(
@@ -155,7 +214,11 @@ class ResultsRepositoryImpl @Inject constructor(
                 signalStrength = body.radioInfo?.signals?.get(0)?.signal ?: body.radioInfo?.signals?.get(0)?.lteRsrp,
                 pingClass = Classification.fromValue(0),
                 pingMillis = body.shortestPingNanos / 1000000.toDouble(),
-                isLocalOnly = true
+                isLocalOnly = true,
+                jitterMillis = jitterMean,
+                jitterClass = Classification.fromValue(0),
+                packetLossClass = Classification.fromValue(0),
+                packetLossPercents = packetLoss
             )
         )
 

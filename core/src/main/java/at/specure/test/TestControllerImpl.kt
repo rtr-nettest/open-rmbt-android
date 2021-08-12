@@ -41,6 +41,7 @@ private const val KEY_SERVER_SELECTION_ENABLED = "user_server_selection"
 private const val KEY_SERVER_PREFERRED = "prefer_server"
 private const val KEY_DEVELOPER_MODE_ENABLED = "developer_mode"
 private const val KEY_LOOP_MODE_ENABLED = "user_loop_mode"
+private const val KEY_MEASUREMENT_TYPE = "measurement_type_flag" // used on the control server to determine type for signal measurement
 
 private const val TEST_MAX_TIME = 3000
 private const val MAX_VALUE_UNFINISHED_TEST = 0.9f
@@ -163,7 +164,7 @@ class TestControllerImpl(
                 .put(KEY_PREVIOUS_TEST_STATUS, config.previousTestStatus)
 
             loopSettings?.let {
-                additionalValues.put(KEY_LOOP_MODE_SETTINGS, gson.toJson(it))
+                additionalValues.put(KEY_LOOP_MODE_SETTINGS, JSONObject(gson.toJson(it, LoopModeSettings::class.java)))
             }
 
             if (config.expertModeEnabled) {
@@ -179,11 +180,14 @@ class TestControllerImpl(
 
             if (config.loopModeEnabled) {
                 additionalValues.put(KEY_LOOP_MODE_ENABLED, true)
+                additionalValues.put(KEY_MEASUREMENT_TYPE, SignalMeasurementType.LOOP_ACTIVE.signalTypeName)
+            } else {
+                additionalValues.put(KEY_MEASUREMENT_TYPE, SignalMeasurementType.REGULAR.signalTypeName)
             }
 
             client = RMBTClient.getInstance(
                 config.controlServerHost,
-                null,
+                if (config.headerValue.isNullOrEmpty()) null else config.rmbtClientRequestsPathPrefix,
                 config.controlServerPort,
                 config.controlServerUseSSL,
                 geoInfo,
@@ -193,7 +197,10 @@ class TestControllerImpl(
                 deviceInfo.softwareVersionName,
                 null,
                 additionalValues,
-                errorSet
+                config.headerValue,
+                context.cacheDir,
+                errorSet,
+                config.performJitterAndPacketLossTest
             )
 
             val client = client
@@ -270,6 +277,7 @@ class TestControllerImpl(
                     TestStatus.INIT -> handleInit(client)
                     TestStatus.PING -> handlePing(client)
                     TestStatus.DOWN -> handleDown(client)
+                    TestStatus.PACKET_LOSS_AND_JITTER -> handleJitterAndPacketLoss(client)
                     TestStatus.INIT_UP -> handleInitUp()
                     TestStatus.UP -> handleUp(client)
                     TestStatus.SPEEDTEST_END -> handleSpeedTestEnd(skipQoSTests)
@@ -320,6 +328,14 @@ class TestControllerImpl(
     private fun handlePing(client: RMBTClient) {
         client.getIntermediateResult(result)
         setState(MeasurementState.PING, (result.progress * 100).toInt())
+        Timber.d("JITTER PROGRESS PING TCI: ${(result.progress * 100).toInt()}")
+        if (client.totalTestResult.jitterMeanNanos > 0) {
+            _listener?.onJitterChanged(client.totalTestResult.jitterMeanNanos)
+        }
+        val packetLoss = client.totalTestResult.packetLossPercent.toInt()
+        if (packetLoss >= 0) {
+            _listener?.onPacketLossChanged(packetLoss)
+        }
     }
 
     private fun handleDown(client: RMBTClient) {
@@ -333,6 +349,21 @@ class TestControllerImpl(
             val value = Network5GSimulator.downBitPerSec(result.downBitPerSec)
             _listener?.onDownloadSpeedChanged(progress, value)
             previousDownloadProgress = progress
+        }
+    }
+
+    private fun handleJitterAndPacketLoss(client: RMBTClient) {
+        client.getIntermediateResult(result)
+        val progress = (result.progress * 100).toInt()
+        Timber.d("JITTER PROGRESS TCI: $progress")
+        setState(MeasurementState.JITTER_AND_PACKET_LOSS, progress)
+
+        if (client.totalTestResult.jitterMeanNanos > 0) {
+            _listener?.onJitterChanged(client.totalTestResult.jitterMeanNanos)
+        }
+        val packetLoss = client.totalTestResult.packetLossPercent.toInt()
+        if (packetLoss >= 0) {
+            _listener?.onPacketLossChanged(packetLoss)
         }
     }
 

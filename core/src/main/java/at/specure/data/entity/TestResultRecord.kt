@@ -132,5 +132,13 @@ data class TestResultRecord(
 
     val networkType: NetworkTypeCompat,
 
-    val isLocalOnly: Boolean = false
+    val isLocalOnly: Boolean = false,
+
+    val jitterMillis: Double?,
+
+    val packetLossPercents: Double?,
+
+    val jitterClass: Classification?,
+
+    val packetLossClass: Classification?
 )

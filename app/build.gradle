@@ -1,6 +1,5 @@
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
-apply plugin: 'kotlin-android-extensions'
 apply plugin: 'kotlin-kapt'
 apply plugin: 'com.huawei.agconnect'
 
@@ -26,19 +25,26 @@ android {
         targetSdkVersion config.targetSdkVersion
         versionCode config.versionCode
         versionName config.versionName
+        compileSdkVersion config.targetSdkVersion
+        buildToolsVersion config.buildToolsVersion
 
         testInstrumentationRunner "androidx.text.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary = true
 
         buildConfigField "java.util.Date", "BUILD_TIME", "new java.util.Date(" + System.currentTimeMillis() + "L)"
         buildConfigField "String", "COMMIT_HASH", "\"${getGitHash()}\""
+        buildConfigField "int", "VERSION_CODE", "${versionCode}"
+        buildConfigField "String", "VERSION_NAME", "\"${versionName}\""
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
-    dataBinding {
-        enabled = true
+    buildFeatures {
+        dataBinding true
+        viewBinding true
     }
+
+    kapt { correctErrorTypes = true }
 
     buildTypes {
         release {
@@ -77,8 +83,8 @@ dependencies {
     implementation "androidx.constraintlayout:constraintlayout:$versions.constraint_layout"
     implementation "androidx.swiperefreshlayout:swiperefreshlayout:$versions.swiperefresh_layout"
     implementation "androidx.vectordrawable:vectordrawable:$versions.vectordrawable"
-    implementation "androidx.navigation:navigation-fragment:$versions.navigation_fragment"
-    implementation "androidx.navigation:navigation-ui:$versions.navigation_ui"
+    implementation "androidx.navigation:navigation-fragment-ktx:$versions.navigation_fragment"
+    implementation "androidx.navigation:navigation-ui-ktx:$versions.navigation_ui"
     implementation "androidx.lifecycle:lifecycle-extensions:$versions.lifecycle_extensions"
     implementation "androidx.navigation:navigation-fragment-ktx:$versions.navigation_fragment"
     implementation "androidx.navigation:navigation-ui-ktx:$versions.navigation_fragment"

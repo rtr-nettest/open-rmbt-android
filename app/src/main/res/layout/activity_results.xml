@@ -102,7 +102,7 @@
                         style="@style/TextAppearance.AppCompat.Menu"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:drawableStart="@drawable/ic_no_gps"
+                        app:drawableStartCompat="@drawable/ic_no_gps"
                         android:drawablePadding="@dimen/inset_small"
                         android:gravity="center_horizontal"
                         android:padding="@dimen/padding_large"

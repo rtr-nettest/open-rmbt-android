@@ -41,7 +41,7 @@ distribution:init:
   only:
     - develop
 
-check:app:
+check:app-rtr:
   stage: check
   script:
     - ./gradlew :app:ktlint
@@ -51,6 +51,33 @@ check:app:
       - /fix\/.*/
       - /feature\/.*/
       - /hotfix\/.*/
+      - /update\/.*/
+      - /test\/.*/
+
+check:app-ont:
+  stage: check
+  script:
+    - ./gradlew :ont:ktlint
+    - ./gradlew :ont:lintLocalStageDebug
+  only:
+    refs:
+      - /fix\/.*/
+      - /feature\/.*/
+      - /hotfix\/.*/
+      - /update\/.*/
+      - /test\/.*/
+
+check:app-akep:
+  stage: check
+  script:
+    - ./gradlew :akep:ktlint
+    - ./gradlew :akep:lintLocalStageDebug
+  only:
+    refs:
+      - /fix\/.*/
+      - /feature\/.*/
+      - /hotfix\/.*/
+      - /update\/.*/
       - /test\/.*/
 
 check:core:
@@ -63,6 +90,7 @@ check:core:
       - /fix\/.*/
       - /feature\/.*/
       - /hotfix\/.*/
+      - /update\/.*/
       - /test\/.*/
 
 check:controlClient:
@@ -75,19 +103,21 @@ check:controlClient:
       - /fix\/.*/
       - /feature\/.*/
       - /hotfix\/.*/
+      - /update\/.*/
       - /test\/.*/
 
 check:openRMBTBuild:
   stage: check
   script:
     - rm -rf private
-    - ./gradlew clean
-    - ./gradlew assembleOpenRmbtDebug
+    - ./gradlew app:clean
+    - ./gradlew app:assembleOpenRmbtDebug
   only:
     refs:
       - /fix\/.*/
       - /feature\/.*/
       - /hotfix\/.*/
+      - /update\/.*/
       - /test\/.*/
 
 .check:uiTests:
@@ -107,19 +137,51 @@ check:openRMBTBuild:
     refs:
       - develop
 
-distribution:build:
+distribution:build-rtr:
   stage: distribution
   interruptible: true
   script:
     - echo "version ${VERSION_NAME}(${VERSION_CODE})"
-    - ./gradlew assembleLocalStageDebug -PbuildVersionCode=${VERSION_CODE} -PbuildVersionName=${VERSION_NAME} -PreleaseNotes="${RELEASE_NOTES}"
-    - ./gradlew appDistributionUploadLocalStageDebug -PbuildVersionCode=${VERSION_CODE} -PbuildVersionName=${VERSION_NAME} -PreleaseNotes="${RELEASE_NOTES}"
-    - ./gradlew assembleLocalDemoRelease -PbuildVersionCode=${VERSION_CODE} -PbuildVersionName=${VERSION_NAME} -PreleaseNotes="${RELEASE_NOTES}"
-    - ./gradlew appDistributionUploadLocalDemoRelease -PbuildVersionCode=${VERSION_CODE} -PbuildVersionName=${VERSION_NAME} -PreleaseNotes="${RELEASE_NOTES}"
+    - ./gradlew app:assembleLocalStageDebug -PbuildVersionCode=${VERSION_CODE} -PbuildVersionName=${VERSION_NAME} -PreleaseNotes="${RELEASE_NOTES}"
+    - ./gradlew app:appDistributionUploadLocalStageDebug -PbuildVersionCode=${VERSION_CODE} -PbuildVersionName=${VERSION_NAME} -PreleaseNotes="${RELEASE_NOTES}"
+    - ./gradlew app:assembleLocalDemoRelease -PbuildVersionCode=${VERSION_CODE} -PbuildVersionName=${VERSION_NAME} -PreleaseNotes="${RELEASE_NOTES}"
+    - ./gradlew app:appDistributionUploadLocalDemoRelease -PbuildVersionCode=${VERSION_CODE} -PbuildVersionName=${VERSION_NAME} -PreleaseNotes="${RELEASE_NOTES}"
   only:
     - develop
   artifacts:
     name: "local-$VERSION_NAME-$CI_COMMIT_REF_SLUG-$CI_COMMIT_SHORT_SHA"
+    paths:
+      - app/build/outputs
+
+distribution:build-ont:
+  stage: distribution
+  interruptible: true
+  script:
+    - echo "version ${VERSION_NAME}(${VERSION_CODE})"
+    - ./gradlew ont:assembleLocalStageDebug -PbuildVersionCode=${VERSION_CODE} -PbuildVersionName=${VERSION_NAME} -PreleaseNotes="${RELEASE_NOTES}"
+    - ./gradlew ont:appDistributionUploadLocalStageDebug -PbuildVersionCode=${VERSION_CODE} -PbuildVersionName=${VERSION_NAME} -PreleaseNotes="${RELEASE_NOTES}"
+    - ./gradlew ont:assembleLocalDemoRelease -PbuildVersionCode=${VERSION_CODE} -PbuildVersionName=${VERSION_NAME} -PreleaseNotes="${RELEASE_NOTES}"
+    - ./gradlew ont:appDistributionUploadLocalDemoRelease -PbuildVersionCode=${VERSION_CODE} -PbuildVersionName=${VERSION_NAME} -PreleaseNotes="${RELEASE_NOTES}"
+  only:
+    - develop
+  artifacts:
+    name: "ont-$VERSION_NAME-$CI_COMMIT_REF_SLUG-$CI_COMMIT_SHORT_SHA"
+    paths:
+      - app/build/outputs
+
+distribution:build-akep:
+  stage: distribution
+  interruptible: true
+  script:
+    - echo "version ${VERSION_NAME}(${VERSION_CODE})"
+    - ./gradlew akep:assembleLocalStageDebug -PbuildVersionCode=${VERSION_CODE} -PbuildVersionName=${VERSION_NAME} -PreleaseNotes="${RELEASE_NOTES}"
+    - ./gradlew akep:appDistributionUploadLocalStageDebug -PbuildVersionCode=${VERSION_CODE} -PbuildVersionName=${VERSION_NAME} -PreleaseNotes="${RELEASE_NOTES}"
+    - ./gradlew akep:assembleLocalDemoRelease -PbuildVersionCode=${VERSION_CODE} -PbuildVersionName=${VERSION_NAME} -PreleaseNotes="${RELEASE_NOTES}"
+    - ./gradlew akep:appDistributionUploadLocalDemoRelease -PbuildVersionCode=${VERSION_CODE} -PbuildVersionName=${VERSION_NAME} -PreleaseNotes="${RELEASE_NOTES}"
+  only:
+    - develop
+  artifacts:
+    name: "akep-$VERSION_NAME-$CI_COMMIT_REF_SLUG-$CI_COMMIT_SHORT_SHA"
     paths:
       - app/build/outputs
 

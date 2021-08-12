@@ -16,7 +16,6 @@ import at.specure.data.TermsAndConditions
 import at.specure.data.entity.GraphItemRecord
 import at.specure.data.entity.LoopModeRecord
 import at.specure.data.repository.TestDataRepository
-import at.specure.info.network.ActiveNetworkLiveData
 import at.specure.info.strength.SignalStrengthLiveData
 import at.specure.location.LocationState
 import at.specure.location.LocationWatcher
@@ -31,7 +30,6 @@ class MeasurementViewModel @Inject constructor(
     private val testDataRepository: TestDataRepository,
     private val locationWatcher: LocationWatcher,
     val signalStrengthLiveData: SignalStrengthLiveData,
-    val activeNetworkLiveData: ActiveNetworkLiveData,
     val config: AppConfig,
     private val tac: TermsAndConditions
 ) : BaseViewModel(), MeasurementClient {
@@ -214,6 +212,14 @@ class MeasurementViewModel @Inject constructor(
         state.pingNanos.set(pingNanos)
     }
 
+    override fun onJitterChanged(jitterNanos: Long) {
+        // do nothing
+    }
+
+    override fun onPacketLossPercentChanged(packetLossPercent: Int) {
+        // do nothing
+    }
+
     override fun isQoSEnabled(enabled: Boolean) {
         state.qosEnabled.set(enabled)
     }
@@ -221,6 +227,10 @@ class MeasurementViewModel @Inject constructor(
     override fun onSubmitted() {
         Timber.d("Test Data sent")
         _measurementFinishLiveData.postValue(true)
+    }
+
+    override fun onResultSubmitted() {
+        // do nothing, because it is done in onSubmitted
     }
 
     override fun onSubmissionError(exception: HandledException) {

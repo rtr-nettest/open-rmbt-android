@@ -62,7 +62,8 @@ class WifiInfoWatcherImpl(private val wifiManager: WifiManager) : WifiInfoWatche
                 signalLevel = WifiManager.calculateSignalLevel(info.rssi, 5),
                 ssid = ssid,
                 supplicantState = (info.supplicantState ?: SupplicantState.UNINITIALIZED).name,
-                supplicantDetailedState = (WifiInfo.getDetailedStateOf(info.supplicantState) ?: android.net.NetworkInfo.DetailedState.IDLE).name
+                supplicantDetailedState = (WifiInfo.getDetailedStateOf(info.supplicantState) ?: android.net.NetworkInfo.DetailedState.IDLE).name,
+                signal = null
             )
         }
 
