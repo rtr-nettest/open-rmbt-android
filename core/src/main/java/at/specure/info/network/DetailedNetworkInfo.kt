@@ -2,6 +2,7 @@ package at.specure.info.network
 
 import at.specure.info.cell.CellNetworkInfo
 import at.specure.info.strength.SignalStrengthInfo
+import cz.mroczis.netmonster.core.model.cell.ICell
 
 class DetailedNetworkInfo(
     val networkInfo: NetworkInfo?,
@@ -9,7 +10,8 @@ class DetailedNetworkInfo(
     /**
      * Should contain all inactive cells available for primary data connection
      */
-    val inactiveCellInfos: List<CellNetworkInfo?>? = null,
+
+    val allCellInfos: List<ICell>? = null,
     /**
      * Should contain all secondary cells available for primary data connection
      */

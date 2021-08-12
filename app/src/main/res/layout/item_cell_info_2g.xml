@@ -54,6 +54,10 @@
             name="networkType2g"
             type="String" />
 
+        <variable
+            name="subscriptionId2g"
+            type="String" />
+
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -97,6 +101,20 @@
             app:layout_constraintGuide_percent="0.70" />
 
         <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/subscriptionId"
+            style="@style/RobotoMediumStyle.Small"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="@dimen/margin_small"
+            android:gravity="end|center_vertical"
+            android:text="@string/cell_info_subscriptionId"
+            android:textColor="@color/text_gray_transparency_55"
+            app:layout_constraintEnd_toStartOf="@+id/guide_one_quarter"
+            app:layout_constraintHorizontal_weight="3"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/cellTitle" />
+
+        <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/labelCID"
             style="@style/RobotoMediumStyle.Small"
             android:layout_width="0dp"
@@ -108,8 +126,7 @@
             app:layout_constraintEnd_toStartOf="@+id/guide_one_quarter"
             app:layout_constraintHorizontal_weight="3"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/cellTitle"
-            app:visibleOrGone="@{cid2g != null}" />
+            app:layout_constraintTop_toBottomOf="@+id/subscriptionId" />
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/labelBSIC"
@@ -123,8 +140,7 @@
             app:layout_constraintEnd_toStartOf="@+id/guide_one_quarter"
             app:layout_constraintHorizontal_weight="3"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/labelCID"
-            app:visibleOrGone="@{bsic2g != null}" />
+            app:layout_constraintTop_toBottomOf="@+id/labelCID" />
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/labelLAC"
@@ -138,8 +154,7 @@
             app:layout_constraintEnd_toStartOf="@+id/guide_one_quarter"
             app:layout_constraintHorizontal_weight="3"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/labelBSIC"
-            app:visibleOrGone="@{lac2g != null}" />
+            app:layout_constraintTop_toBottomOf="@+id/labelBSIC" />
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/labelBW"
@@ -153,8 +168,24 @@
             app:layout_constraintEnd_toStartOf="@+id/guide_one_quarter"
             app:layout_constraintHorizontal_weight="3"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/labelLAC"
-            app:visibleOrGone="@{bw2g != null}" />
+            app:layout_constraintTop_toBottomOf="@+id/labelLAC" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/textSubscriptionId"
+            style="@style/RobotoRegularStyle.Small"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/margin_medium"
+            android:layout_marginTop="@dimen/margin_large"
+            android:gravity="start|center_vertical"
+            android:text="@{subscriptionId2g}"
+            android:textColor="@color/text_black_transparency_60"
+            app:layout_constraintBaseline_toBaselineOf="@+id/subscriptionId"
+            app:layout_constraintEnd_toStartOf="@+id/guide_half"
+            app:layout_constraintHorizontal_weight="7"
+            app:layout_constraintStart_toEndOf="@+id/subscriptionId"
+            app:layout_constraintStart_toStartOf="@+id/guide_one_quarter"
+            tools:text="-96 dBm" />
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/textCID"
@@ -171,7 +202,6 @@
             app:layout_constraintHorizontal_weight="7"
             app:layout_constraintStart_toEndOf="@+id/labelCID"
             app:layout_constraintStart_toStartOf="@+id/guide_one_quarter"
-            app:visibleOrGone="@{cid2g != null}"
             tools:text="-96 dBm" />
 
 
@@ -190,7 +220,6 @@
             app:layout_constraintHorizontal_weight="7"
             app:layout_constraintStart_toEndOf="@+id/labelBSIC"
             app:layout_constraintStart_toStartOf="@+id/guide_one_quarter"
-            app:visibleOrGone="@{bsic2g != null}"
             tools:text="-96 dBm" />
 
         <androidx.appcompat.widget.AppCompatTextView
@@ -208,7 +237,6 @@
             app:layout_constraintHorizontal_weight="7"
             app:layout_constraintStart_toEndOf="@+id/labelLAC"
             app:layout_constraintStart_toStartOf="@+id/guide_one_quarter"
-            app:visibleOrGone="@{lac2g != null}"
             tools:text="-96 dBm" />
 
 
@@ -227,7 +255,6 @@
             app:layout_constraintHorizontal_weight="7"
             app:layout_constraintStart_toEndOf="@+id/labelBW"
             app:layout_constraintStart_toStartOf="@+id/guide_one_quarter"
-            app:visibleOrGone="@{bw2g != null}"
             tools:text="-96 dBm" />
 
         <androidx.appcompat.widget.AppCompatTextView
@@ -242,8 +269,7 @@
             app:layout_constraintEnd_toStartOf="@+id/guide_three_quarter"
             app:layout_constraintHorizontal_weight="3"
             app:layout_constraintStart_toStartOf="@+id/guide_half"
-            app:layout_constraintTop_toBottomOf="@+id/cellTitle"
-            app:visibleOrGone="@{arfcn2g != null}" />
+            app:layout_constraintTop_toBottomOf="@+id/cellTitle" />
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/labelRXL"
@@ -257,8 +283,7 @@
             app:layout_constraintEnd_toStartOf="@+id/guide_three_quarter"
             app:layout_constraintHorizontal_weight="3"
             app:layout_constraintStart_toStartOf="@+id/guide_half"
-            app:layout_constraintTop_toBottomOf="@+id/labelARFCN"
-            app:visibleOrGone="@{rxl2g != null}" />
+            app:layout_constraintTop_toBottomOf="@+id/labelARFCN" />
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/labelTA"
@@ -272,8 +297,7 @@
             app:layout_constraintEnd_toStartOf="@+id/guide_three_quarter"
             app:layout_constraintHorizontal_weight="3"
             app:layout_constraintStart_toStartOf="@+id/guide_half"
-            app:layout_constraintTop_toBottomOf="@+id/labelRXL"
-            app:visibleOrGone="@{ta2g != null}" />
+            app:layout_constraintTop_toBottomOf="@+id/labelRXL" />
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/labelBand"
@@ -288,8 +312,7 @@
             app:layout_constraintHorizontal_weight="3"
             app:layout_constraintStart_toStartOf="@+id/guide_half"
             app:layout_constraintTop_toBottomOf="@+id/labelTA"
-            app:textAllCaps="true"
-            app:visibleOrGone="@{band2g != null}" />
+            app:textAllCaps="true" />
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/textAARFCN"
@@ -306,7 +329,6 @@
             app:layout_constraintHorizontal_weight="7"
             app:layout_constraintStart_toEndOf="@+id/labelARFCN"
             app:layout_constraintStart_toStartOf="@+id/guide_three_quarter"
-            app:visibleOrGone="@{arfcn2g != null}"
             tools:text="-96 dBm" />
 
         <androidx.appcompat.widget.AppCompatTextView
@@ -324,7 +346,6 @@
             app:layout_constraintHorizontal_weight="7"
             app:layout_constraintStart_toEndOf="@+id/labelRXL"
             app:layout_constraintStart_toStartOf="@+id/guide_three_quarter"
-            app:visibleOrGone="@{rxl2g != null}"
             tools:text="-96 dBm" />
 
         <androidx.appcompat.widget.AppCompatTextView
@@ -342,7 +363,6 @@
             app:layout_constraintHorizontal_weight="7"
             app:layout_constraintStart_toEndOf="@+id/labelTA"
             app:layout_constraintStart_toStartOf="@+id/guide_three_quarter"
-            app:visibleOrGone="@{ta2g != null}"
             tools:text="-96 dBm" />
 
         <androidx.appcompat.widget.AppCompatTextView
@@ -360,7 +380,6 @@
             app:layout_constraintHorizontal_weight="7"
             app:layout_constraintStart_toEndOf="@+id/labelBand"
             app:layout_constraintStart_toStartOf="@+id/guide_three_quarter"
-            app:visibleOrGone="@{band2g != null}"
             tools:text="1800" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>

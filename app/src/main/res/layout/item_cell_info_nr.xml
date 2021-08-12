@@ -38,6 +38,10 @@
             name="frequencyNr"
             type="String" />
 
+        <variable
+            name="subscriptionId5g"
+            type="String" />
+
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -81,6 +85,20 @@
             app:layout_constraintGuide_percent="0.70" />
 
         <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/labelSubscriptionId"
+            style="@style/RobotoMediumStyle.Small"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="@dimen/margin_medium"
+            android:gravity="end|center_vertical"
+            android:text="@string/cell_info_ssrsrp"
+            android:textColor="@color/text_gray_transparency_55"
+            app:layout_constraintEnd_toStartOf="@+id/guide_one_quarter"
+            app:layout_constraintHorizontal_weight="3"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/cellTitle" />
+
+        <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/labelSSRSRP"
             style="@style/RobotoMediumStyle.Small"
             android:layout_width="0dp"
@@ -92,8 +110,7 @@
             app:layout_constraintEnd_toStartOf="@+id/guide_one_quarter"
             app:layout_constraintHorizontal_weight="3"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/cellTitle"
-            app:visibleOrGone="@{signalSsrsrpNr != null}" />
+            app:layout_constraintTop_toBottomOf="@+id/labelSubscriptionId" />
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/labelFrequency"
@@ -108,8 +125,24 @@
             app:layout_constraintHorizontal_weight="3"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/labelSSRSRP"
-            app:textAllCaps="true"
-            app:visibleOrGone="@{frequencyNr != null}" />
+            app:textAllCaps="true" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/textSubscriptionId"
+            style="@style/RobotoRegularStyle.Small"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/margin_medium"
+            android:layout_marginTop="@dimen/margin_large"
+            android:gravity="start|center_vertical"
+            android:text="@{subscriptionId5g}"
+            android:textColor="@color/text_black_transparency_60"
+            app:layout_constraintBaseline_toBaselineOf="@+id/labelSSRSRP"
+            app:layout_constraintEnd_toStartOf="@+id/guide_half"
+            app:layout_constraintHorizontal_weight="7"
+            app:layout_constraintStart_toEndOf="@+id/labelSSRSRP"
+            app:layout_constraintStart_toStartOf="@+id/guide_one_quarter"
+            tools:text="-96 dBm" />
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/textSSRSRP"
@@ -126,7 +159,6 @@
             app:layout_constraintHorizontal_weight="7"
             app:layout_constraintStart_toEndOf="@+id/labelSSRSRP"
             app:layout_constraintStart_toStartOf="@+id/guide_one_quarter"
-            app:visibleOrGone="@{signalSsrsrpNr != null}"
             tools:text="-96 dBm" />
 
         <androidx.appcompat.widget.AppCompatTextView
@@ -144,7 +176,6 @@
             app:layout_constraintHorizontal_weight="7"
             app:layout_constraintStart_toEndOf="@+id/labelFrequency"
             app:layout_constraintStart_toStartOf="@+id/guide_one_quarter"
-            app:visibleOrGone="@{frequencyNr != null}"
             tools:text="-96 dBm" />
 
         <androidx.appcompat.widget.AppCompatTextView
@@ -159,8 +190,7 @@
             app:layout_constraintEnd_toStartOf="@+id/guide_three_quarter"
             app:layout_constraintHorizontal_weight="3"
             app:layout_constraintStart_toStartOf="@+id/guide_half"
-            app:layout_constraintTop_toBottomOf="@+id/cellTitle"
-            app:visibleOrGone="@{signalSsrsrqNr != null}" />
+            app:layout_constraintTop_toBottomOf="@+id/cellTitle" />
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/labelBand"
@@ -175,8 +205,7 @@
             app:layout_constraintHorizontal_weight="3"
             app:layout_constraintStart_toStartOf="@+id/guide_half"
             app:layout_constraintTop_toBottomOf="@+id/labelSSRSRQ"
-            app:textAllCaps="true"
-            app:visibleOrGone="@{bandNameNr != null}" />
+            app:textAllCaps="true" />
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/textSSRSRQ"
@@ -193,7 +222,6 @@
             app:layout_constraintHorizontal_weight="7"
             app:layout_constraintStart_toEndOf="@+id/labelSSRSRQ"
             app:layout_constraintStart_toStartOf="@+id/guide_three_quarter"
-            app:visibleOrGone="@{signalSsrsrqNr != null}"
             tools:text="-96 dBm" />
 
         <androidx.appcompat.widget.AppCompatTextView
@@ -211,7 +239,6 @@
             app:layout_constraintHorizontal_weight="7"
             app:layout_constraintStart_toEndOf="@+id/labelBand"
             app:layout_constraintStart_toStartOf="@+id/guide_three_quarter"
-            app:visibleOrGone="@{bandNameNr != null}"
             tools:text="1800" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>

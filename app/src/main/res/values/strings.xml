@@ -327,6 +327,7 @@
     <string name="cell_info_ssrsrq" translatable="false">SSRSRQ</string>
     <string name="cell_info_earfcn" translatable="false">EARFCN</string>
     <string name="cell_info_ci" translatable="false">CI</string>
+    <string name="cell_info_subscriptionId" translatable="false">SubId</string>
     <string name="cell_info_eNB" translatable="false">eNB</string>
     <string name="cell_info_cid" translatable="false">CID</string>
     <string name="cell_info_tac" translatable="false">TAC</string>
