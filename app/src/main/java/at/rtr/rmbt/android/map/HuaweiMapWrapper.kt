@@ -109,5 +109,4 @@ class HuaweiMapWrapper(private val huaweiMap: HuaweiMap) : MapWrapper {
     override fun supportSatelliteAndHybridView(): Boolean {
         return false
     }
-
 }

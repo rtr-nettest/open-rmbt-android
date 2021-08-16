@@ -59,7 +59,6 @@ class EmptyMapWrapper : MapWrapper {
     }
 
     override fun animateCamera(latLngW: LatLngW) {
-
     }
 
     override fun animateCamera(latLngW: LatLngW, zoom: Float) {

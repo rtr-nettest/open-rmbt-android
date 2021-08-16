@@ -104,5 +104,4 @@ class GoogleMapWrapper(private val googleMap: GoogleMap) : MapWrapper {
     override fun supportSatelliteAndHybridView(): Boolean {
         return true
     }
-
 }
