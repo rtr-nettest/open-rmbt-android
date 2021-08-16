@@ -333,7 +333,7 @@ fun TestRecord.toRequest(
         wifiBssid = wlanInfo?.bssid,
         submissionRetryCount = submissionRetryCount,
         testStatus = testFinishReason?.ordinal.toString(),
-        lastClientStatus = TestStatus.END.name, // lastClientStatus?.name,
+        lastClientStatus = lastClientStatus?.name,
         testErrorCause = testErrorCause,
         lastQoSStatus = lastQoSStatus?.name,
         testTag = testTag,
