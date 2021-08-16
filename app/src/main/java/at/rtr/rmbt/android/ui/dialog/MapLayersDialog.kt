@@ -51,7 +51,7 @@ class MapLayersDialog : FullscreenDialog() {
         binding.satellite.setOnClickListener { processSelectedStyleOption(MapStyleType.SATELLITE) }
         binding.hybrid.setOnClickListener { processSelectedStyleOption(MapStyleType.HYBRID) }
 
-        if(arguments?.getBoolean(KEY_NO_SATELLITE_OR_HYBRID) == true) {
+        if (arguments?.getBoolean(KEY_NO_SATELLITE_OR_HYBRID) == true) {
             binding.satellite.isVisible = false
             binding.hybrid.isVisible = false
         }
@@ -81,11 +81,13 @@ class MapLayersDialog : FullscreenDialog() {
 
         private const val NO_VALUE = -1
 
-        fun instance(fragment: Fragment? = null,
-                     requestCode: Int? = NO_VALUE,
-                     activeStyle: Int? = NO_VALUE,
-                     activeType: Int? = NO_VALUE,
-                     noSatelliteOrHybrid : Boolean = false): FullscreenDialog =
+        fun instance(
+            fragment: Fragment? = null,
+            requestCode: Int? = NO_VALUE,
+            activeStyle: Int? = NO_VALUE,
+            activeType: Int? = NO_VALUE,
+            noSatelliteOrHybrid: Boolean = false
+        ): FullscreenDialog =
             MapLayersDialog()
                 .apply {
                     requestCode?.let { setTargetFragment(fragment, it) }

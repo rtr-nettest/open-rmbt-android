@@ -7,36 +7,36 @@ import at.rmbt.client.control.data.MapStyleType
 
 interface MapWrapper {
 
-    fun moveCamera(latLngW : LatLngW, zoom : Float)
+    fun moveCamera(latLngW: LatLngW, zoom: Float)
 
-    fun animateCamera(latLngW : LatLngW)
+    fun animateCamera(latLngW: LatLngW)
 
-    fun animateCamera(latLngW : LatLngW, zoom: Float)
+    fun animateCamera(latLngW: LatLngW, zoom: Float)
 
-    fun addTileOverlay(tileWProvider : TileWrapperProvider) : TileOverlayWrapper
+    fun addTileOverlay(tileWProvider: TileWrapperProvider): TileOverlayWrapper
 
-    fun addMarker(context: Context, latLngW : LatLngW, anchorU : Float, anchorV : Float, @DrawableRes iconId : Int) : MarkerWrapper
+    fun addMarker(context: Context, latLngW: LatLngW, anchorU: Float, anchorV: Float, @DrawableRes iconId: Int): MarkerWrapper
 
-    fun setMyLocationEnabled(enabled : Boolean)
+    fun setMyLocationEnabled(enabled: Boolean)
 
-    fun currentCameraZoom() : Float
+    fun currentCameraZoom(): Float
 
-    fun setOnMapClickListener(listener : (latlngW : LatLngW) -> Unit)
+    fun setOnMapClickListener(listener: (latlngW: LatLngW) -> Unit)
 
-    fun setOnCameraChangeListener(listener : (latlngW : LatLngW, currentZoom : Float) -> Unit)
+    fun setOnCameraChangeListener(listener: (latlngW: LatLngW, currentZoom: Float) -> Unit)
 
-    fun setMapStyleType(style : MapStyleType)
+    fun setMapStyleType(style: MapStyleType)
 
-    fun addCircle(latLngW: LatLngW, fillColor : Int, strokeColor : Int, strokeWidth : Float, circleRadius : Double)
+    fun addCircle(latLngW: LatLngW, fillColor: Int, strokeColor: Int, strokeWidth: Float, circleRadius: Double)
 
-    fun supportSatelliteAndHybridView() : Boolean
+    fun supportSatelliteAndHybridView(): Boolean
 }
 
 interface MapViewWrapper {
 
-    val mapWrapper : MapWrapper
+    val mapWrapper: MapWrapper
 
-    fun onCreate(savedInstanceState : Bundle?)
+    fun onCreate(savedInstanceState: Bundle?)
 
     fun onResume()
 
@@ -50,7 +50,7 @@ interface MapViewWrapper {
 
     fun onDestroy()
 
-    fun loadMapAsync(mapLoaded : () -> Unit)
+    fun loadMapAsync(mapLoaded: () -> Unit)
 }
 
 class EmptyMapWrapper : MapWrapper {
@@ -102,10 +102,9 @@ class EmptyMapWrapper : MapWrapper {
         strokeWidth: Float,
         circleRadius: Double
     ) {
-
     }
 
-    override fun supportSatelliteAndHybridView() : Boolean {
+    override fun supportSatelliteAndHybridView(): Boolean {
         return false
     }
 }

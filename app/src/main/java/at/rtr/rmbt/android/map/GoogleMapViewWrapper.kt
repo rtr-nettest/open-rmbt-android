@@ -6,13 +6,13 @@ import at.rtr.rmbt.android.map.wrapper.MapViewWrapper
 import at.rtr.rmbt.android.map.wrapper.MapWrapper
 import com.google.android.gms.maps.MapView
 
-class GoogleMapViewWrapper(private val mapView : MapView) : MapViewWrapper {
+class GoogleMapViewWrapper(private val mapView: MapView) : MapViewWrapper {
 
     private lateinit var wrapper: MapWrapper
 
     override val mapWrapper: MapWrapper
         get() {
-            return if(!this::wrapper.isInitialized) {
+            return if (!this::wrapper.isInitialized) {
                 EmptyMapWrapper()
             } else {
                 wrapper

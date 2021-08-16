@@ -17,7 +17,5 @@ class GMSOverlayWrapper(private val tileOverlay: com.google.android.gms.maps.mod
 }
 
 class EmptyTileOverlay : TileOverlayWrapper {
-    override fun remove() {
-
-    }
+    override fun remove() {}
 }

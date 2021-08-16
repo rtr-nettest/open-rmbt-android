@@ -3,7 +3,13 @@ package at.rtr.rmbt.android.map
 import android.annotation.SuppressLint
 import android.content.Context
 import at.rmbt.client.control.data.MapStyleType
-import at.rtr.rmbt.android.map.wrapper.*
+import at.rtr.rmbt.android.map.wrapper.GMSMarker
+import at.rtr.rmbt.android.map.wrapper.GMSOverlayWrapper
+import at.rtr.rmbt.android.map.wrapper.LatLngW
+import at.rtr.rmbt.android.map.wrapper.MapWrapper
+import at.rtr.rmbt.android.map.wrapper.MarkerWrapper
+import at.rtr.rmbt.android.map.wrapper.TileOverlayWrapper
+import at.rtr.rmbt.android.map.wrapper.TileWrapperProvider
 import at.rtr.rmbt.android.util.iconFromVector
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
@@ -27,7 +33,7 @@ class GoogleMapWrapper(private val googleMap: GoogleMap) : MapWrapper {
 
     override fun addTileOverlay(tileWProvider: TileWrapperProvider): TileOverlayWrapper {
         val overlay = googleMap.addTileOverlay(TileOverlayOptions().tileProvider { x, y, zoom ->
-            tileWProvider.getTileW(x,y,zoom).toGMSTile()
+            tileWProvider.getTileW(x, y, zoom).toGMSTile()
         })
         return GMSOverlayWrapper(overlay)
     }
@@ -71,7 +77,7 @@ class GoogleMapWrapper(private val googleMap: GoogleMap) : MapWrapper {
     }
 
     override fun setMapStyleType(style: MapStyleType) {
-        googleMap.mapType = when(style) {
+        googleMap.mapType = when (style) {
             MapStyleType.STANDARD -> GoogleMap.MAP_TYPE_NORMAL
             MapStyleType.SATELLITE -> GoogleMap.MAP_TYPE_SATELLITE
             MapStyleType.HYBRID -> GoogleMap.MAP_TYPE_HYBRID
@@ -85,12 +91,13 @@ class GoogleMapWrapper(private val googleMap: GoogleMap) : MapWrapper {
         strokeWidth: Float,
         circleRadius: Double
     ) {
-        googleMap.addCircle(CircleOptions()
-            .center(latLngW.toGMSLatLng())
-            .fillColor(fillColor)
-            .strokeColor(strokeColor)
-            .strokeWidth(strokeWidth)
-            .radius(circleRadius)
+        googleMap.addCircle(
+            CircleOptions()
+                .center(latLngW.toGMSLatLng())
+                .fillColor(fillColor)
+                .strokeColor(strokeColor)
+                .strokeWidth(strokeWidth)
+                .radius(circleRadius)
         )
     }
 

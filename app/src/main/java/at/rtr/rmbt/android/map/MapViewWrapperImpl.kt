@@ -13,7 +13,9 @@ import at.rtr.rmbt.android.util.isHmsAvailable
 import com.google.android.gms.maps.MapView
 
 class MapViewWrapperImpl @JvmOverloads constructor(
-    context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
+    context: Context,
+    attrs: AttributeSet? = null,
+    defStyleAttr: Int = 0
 ) : FrameLayout(context, attrs, defStyleAttr), MapViewWrapper {
 
     private val mapViewWrapper: MapViewWrapper
@@ -65,8 +67,7 @@ class MapViewWrapperImpl @JvmOverloads constructor(
         mapViewWrapper.onDestroy()
     }
 
-    override fun loadMapAsync(mapLoaded : () -> Unit) {
+    override fun loadMapAsync(mapLoaded: () -> Unit) {
         mapViewWrapper.loadMapAsync(mapLoaded)
     }
-
 }

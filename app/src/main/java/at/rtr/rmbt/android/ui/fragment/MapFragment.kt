@@ -18,13 +18,21 @@ import at.rmbt.client.control.data.MapStyleType
 import at.rtr.rmbt.android.R
 import at.rtr.rmbt.android.databinding.FragmentMapBinding
 import at.rtr.rmbt.android.di.viewModelLazy
-import at.rtr.rmbt.android.map.wrapper.*
+import at.rtr.rmbt.android.map.wrapper.LatLngW
+import at.rtr.rmbt.android.map.wrapper.MapWrapper
+import at.rtr.rmbt.android.map.wrapper.MarkerWrapper
+import at.rtr.rmbt.android.map.wrapper.TileOverlayWrapper
 import at.rtr.rmbt.android.ui.activity.ShowWebViewActivity
 import at.rtr.rmbt.android.ui.adapter.MapMarkerDetailsAdapter
 import at.rtr.rmbt.android.ui.dialog.MapFiltersDialog
 import at.rtr.rmbt.android.ui.dialog.MapLayersDialog
 import at.rtr.rmbt.android.ui.dialog.MapSearchDialog
-import at.rtr.rmbt.android.util.*
+import at.rtr.rmbt.android.util.ToolbarTheme
+import at.rtr.rmbt.android.util.changeStatusBarColor
+import at.rtr.rmbt.android.util.isGmsAvailable
+import at.rtr.rmbt.android.util.isHmsAvailable
+import at.rtr.rmbt.android.util.listen
+import at.rtr.rmbt.android.util.singleResult
 import at.rtr.rmbt.android.viewmodel.MapViewModel
 import at.specure.data.NetworkTypeCompat
 import at.specure.data.ServerNetworkType
@@ -117,7 +125,7 @@ class MapFragment : BaseFragment(), MapMarkerDetailsAdapter.MarkerDetailsCallbac
         }
     }
 
-    private fun mapW() : MapWrapper {
+    private fun mapW(): MapWrapper {
         return binding.map.mapWrapper
     }
 
@@ -299,7 +307,7 @@ class MapFragment : BaseFragment(), MapMarkerDetailsAdapter.MarkerDetailsCallbac
     private fun setTiles() {
         val providerData = mapViewModel.providerLiveData.value
 
-        if(providerData == null) {
+        if (providerData == null) {
             mapViewModel.providerLiveData.listen(this) {
                 currentOverlay = mapViewModel.providerLiveData.value?.let {
                     mapW().addTileOverlay(it)

@@ -30,7 +30,7 @@ class ResultsActivity : BaseActivity() {
     private val qosAdapter: QosResultAdapter by lazy { QosResultAdapter() }
     private lateinit var resultChartFragmentPagerAdapter: ResultChartFragmentPagerAdapter
 
-    private var mapLoadRequested : Boolean = false
+    private var mapLoadRequested: Boolean = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -63,7 +63,7 @@ class ResultsActivity : BaseActivity() {
             }
 
             result?.let {
-                if(!mapLoadRequested) {
+                if (!mapLoadRequested) {
                     mapLoadRequested = true
                     binding.map.loadMapAsync {
                         setUpMap(it)
@@ -140,7 +140,7 @@ class ResultsActivity : BaseActivity() {
         refreshResults()
     }
 
-    private fun setUpMap(result : TestResultRecord) {
+    private fun setUpMap(result: TestResultRecord) {
         if (result.latitude != null && result.longitude != null) {
             val latLngW = LatLngW(result.latitude!!, result.longitude!!)
 
@@ -158,7 +158,8 @@ class ResultsActivity : BaseActivity() {
             }
 
             mapW().run {
-                addCircle(latLngW,
+                addCircle(
+                    latLngW,
                     ContextCompat.getColor(this@ResultsActivity, R.color.map_circle_fill),
                     ContextCompat.getColor(this@ResultsActivity, R.color.map_circle_stroke),
                     STROKE_WIDTH, CIRCLE_RADIUS
@@ -177,7 +178,7 @@ class ResultsActivity : BaseActivity() {
         }
     }
 
-    private fun mapW() : MapWrapper = binding.map.mapWrapper
+    private fun mapW(): MapWrapper = binding.map.mapWrapper
 
     private fun refreshResults() {
         viewModel.loadTestResults()

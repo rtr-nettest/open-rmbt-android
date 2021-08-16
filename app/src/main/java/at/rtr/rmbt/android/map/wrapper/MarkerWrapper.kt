@@ -9,7 +9,7 @@ interface MarkerWrapper {
 
     fun remove()
 
-    fun setVectorIcon(context: Context, @DrawableRes iconResId : Int)
+    fun setVectorIcon(context: Context, @DrawableRes iconResId: Int)
 }
 
 class HMSMarker(private val marker: Marker) : MarkerWrapper {

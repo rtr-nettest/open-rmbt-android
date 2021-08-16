@@ -66,7 +66,7 @@ class MapSearchDialog : FullscreenDialog() {
     private fun startSearch() {
         val searchText: String = binding.editTextValue.text.toString()
         if (searchText.isNotEmpty()) {
-            val searchValue = if(!searchText.contains("Austria")) {
+            val searchValue = if (!searchText.contains("Austria")) {
                 "$searchText Austria"
             } else {
                 searchText
