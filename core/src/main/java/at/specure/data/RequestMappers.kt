@@ -20,7 +20,6 @@ import at.rmbt.client.control.SignalMeasurementRequestBody
 import at.rmbt.client.control.SpeedBody
 import at.rmbt.client.control.TestLocationBody
 import at.rmbt.client.control.TestResultBody
-import at.rtr.rmbt.client.helper.TestStatus
 import at.specure.config.Config
 import at.specure.data.RequestFilters.Companion.createRadioInfoBody
 import at.specure.data.RequestFilters.Companion.removeOldRedundantSignalValuesWithNegativeTimestamp
@@ -333,7 +332,7 @@ fun TestRecord.toRequest(
         wifiBssid = wlanInfo?.bssid,
         submissionRetryCount = submissionRetryCount,
         testStatus = testFinishReason?.ordinal.toString(),
-        lastClientStatus = TestStatus.END.name, // lastClientStatus?.name,
+        lastClientStatus = lastClientStatus?.name,
         testErrorCause = testErrorCause,
         lastQoSStatus = lastQoSStatus?.name,
         testTag = testTag,
