@@ -20,7 +20,6 @@ import at.rmbt.client.control.SignalMeasurementRequestBody
 import at.rmbt.client.control.SpeedBody
 import at.rmbt.client.control.TestLocationBody
 import at.rmbt.client.control.TestResultBody
-import at.rtr.rmbt.client.helper.TestStatus
 import at.specure.config.Config
 import at.specure.data.RequestFilters.Companion.createRadioInfoBody
 import at.specure.data.RequestFilters.Companion.removeOldRedundantSignalValuesWithNegativeTimestamp
