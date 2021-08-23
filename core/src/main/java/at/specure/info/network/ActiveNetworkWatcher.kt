@@ -151,6 +151,9 @@ class ActiveNetworkWatcher(
                             ) == MobileNetworkType.NR_NSA && primaryCells[0] is CellLte
                         ) {
                             primaryCellsCorrected.add(primaryCells[0])
+                        } else {
+                            // situation when there are 2 primary cells sent from netmonster library so we must choose one
+                            primaryCellsCorrected.add(primaryCells[0])
                         }
                     }
                     else -> {
@@ -170,7 +173,7 @@ class ActiveNetworkWatcher(
                     )
                     // more than one primary cell for data subscription
                 } else {
-                    Timber.e("NM network type unable to detect because of more than 1 primary cells for subscription")
+                    Timber.e("NM network type unable to detect because of ${primaryCellsCorrected.size} primary cells for subscription")
                 }
 
                 if (activeCellNetwork == null) {

@@ -47,7 +47,8 @@ object Network5GSimulator {
             apn = apn,
             signalStrength = null,
             dualSimDetectionMethod = null,
-            nrConnectionState = NRConnectionState.SA
+            nrConnectionState = NRConnectionState.SA,
+            rawCellInfo = null
         )
     }
 

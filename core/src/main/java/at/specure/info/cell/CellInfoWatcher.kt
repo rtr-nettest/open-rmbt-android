@@ -15,6 +15,7 @@
 package at.specure.info.cell
 
 import at.specure.info.strength.SignalStrengthInfo
+import cz.mroczis.netmonster.core.model.cell.ICell
 
 /**
  * Watcher that is responsible for tracking cellular connection info
@@ -33,6 +34,11 @@ interface CellInfoWatcher {
      * list of all secondary cells available for current data subscription from which is active
      */
     val secondaryActiveCellNetworks: List<CellNetworkInfo?>
+
+    /**
+     * list of all cells available for all subscriptions
+     */
+    val allCellInfos: List<ICell>
 
     /**
      * list of all 5G cells from secondary cells available for current data subscription from which is active

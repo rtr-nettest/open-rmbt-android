@@ -1,13 +1,17 @@
 package at.specure.info.network
 
-import android.telephony.CellInfo
 import at.specure.info.cell.CellNetworkInfo
 import at.specure.info.strength.SignalStrengthInfo
+import cz.mroczis.netmonster.core.model.cell.ICell
 
 class DetailedNetworkInfo(
     val networkInfo: NetworkInfo?,
     val signalStrengthInfo: SignalStrengthInfo? = null,
-    val cellInfos: List<CellInfo>? = null,
+    /**
+     * Should contain all inactive cells available for primary data connection
+     */
+
+    val allCellInfos: List<ICell>? = null,
     /**
      * Should contain all secondary cells available for primary data connection
      */

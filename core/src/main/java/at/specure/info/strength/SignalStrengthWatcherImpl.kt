@@ -28,11 +28,12 @@ import at.specure.info.network.NetworkInfo
 import at.specure.info.wifi.WifiInfoWatcher
 import at.specure.util.permission.LocationAccess
 import at.specure.util.synchronizedForEach
+import cz.mroczis.netmonster.core.model.cell.ICell
 import timber.log.Timber
 import java.util.Collections
 
 private const val WIFI_UPDATE_DELAY = 2000L
-private const val CELL_UPDATE_DELAY = 1000L
+private const val CELL_UPDATE_DELAY = 2000L
 private const val WIFI_MESSAGE_ID = 1
 private const val CELL_MESSAGE_ID = 2
 
@@ -60,6 +61,7 @@ class SignalStrengthWatcherImpl(
     private var secondary5GActiveSignalStrengthInfo: List<SignalStrengthInfo?>? = null
 
     private var networkInfo: NetworkInfo? = null
+    private var inactiveNetworkInfo: List<ICell>? = null
     private var secondaryActiveNetworkInfo: List<CellNetworkInfo?>? = null
     private var secondary5GActiveNetworkInfo: List<CellNetworkInfo?>? = null
 
@@ -106,6 +108,7 @@ class SignalStrengthWatcherImpl(
                 secondaryActiveSignalStrengthInfo = null
                 secondary5GActiveSignalStrengthInfo = null
                 secondaryActiveNetworkInfo = null
+                inactiveNetworkInfo = null
                 secondary5GActiveNetworkInfo = null
                 notifyInfoChanged()
                 return
@@ -126,6 +129,7 @@ class SignalStrengthWatcherImpl(
                 secondaryActiveSignalStrengthInfo = null
                 secondary5GActiveSignalStrengthInfo = null
                 secondaryActiveNetworkInfo = null
+                inactiveNetworkInfo = null
                 secondary5GActiveNetworkInfo = null
                 networkInfo = newNetworkInfo
                 notifyInfoChanged()
@@ -147,6 +151,7 @@ class SignalStrengthWatcherImpl(
         secondaryActiveSignalStrengthInfo = null
         secondary5GActiveSignalStrengthInfo = null
         secondaryActiveNetworkInfo = null
+        inactiveNetworkInfo = null
         secondary5GActiveNetworkInfo = null
         val wifiInfo = wifiInfoWatcher.activeWifiInfo
         if (wifiInfo != null) {
@@ -165,6 +170,7 @@ class SignalStrengthWatcherImpl(
     }
 
     private fun handleCellUpdate() {
+        Timber.d("Total Cell Count: ${cellInfoWatcher.allCellInfos.size}")
         val cellInfo = cellInfoWatcher.activeNetwork
         signalStrengthInfo = cellInfoWatcher.signalStrengthInfo
         if (cellInfo != null) {
@@ -174,6 +180,7 @@ class SignalStrengthWatcherImpl(
         secondary5GActiveSignalStrengthInfo =
             cellInfoWatcher.secondary5GActiveCellSignalStrengthInfos
         secondaryActiveNetworkInfo = cellInfoWatcher.secondaryActiveCellNetworks
+        inactiveNetworkInfo = cellInfoWatcher.allCellInfos
         secondary5GActiveNetworkInfo = cellInfoWatcher.secondary5GActiveCellNetworks
         notifyInfoChanged()
         scheduleCellUpdate()
@@ -189,11 +196,12 @@ class SignalStrengthWatcherImpl(
 
     private fun notifyInfoChanged() {
         listeners.synchronizedForEach {
+            Timber.d("Total Cell Count: ${inactiveNetworkInfo?.size}")
             it.onSignalStrengthChanged(
                 DetailedNetworkInfo(
                     networkInfo,
                     signalStrengthInfo,
-                    null,
+                    inactiveNetworkInfo,
                     secondaryActiveNetworkInfo,
                     secondaryActiveSignalStrengthInfo,
                     secondary5GActiveNetworkInfo,
@@ -209,7 +217,7 @@ class SignalStrengthWatcherImpl(
             DetailedNetworkInfo(
                 networkInfo,
                 signalStrengthInfo,
-                null,
+                inactiveNetworkInfo,
                 secondaryActiveNetworkInfo,
                 secondaryActiveSignalStrengthInfo,
                 secondary5GActiveNetworkInfo,

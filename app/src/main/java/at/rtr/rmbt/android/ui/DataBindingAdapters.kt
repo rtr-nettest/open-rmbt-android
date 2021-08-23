@@ -202,6 +202,20 @@ private fun AppCompatTextView.prepareFrequencyLabel(
 /**
  * A binding adapter that is used for show signal
  */
+@BindingAdapter("simpleSignal")
+fun AppCompatTextView.setSignal(
+    signal: Int?
+) {
+    text = if (signal != null) {
+        String.format(context.getString(R.string.home_signal_value), signal)
+    } else {
+        "-"
+    }
+}
+
+/**
+ * A binding adapter that is used for show signal
+ */
 @BindingAdapter("signal", "signalSecondary", "signalNetworkInfo")
 fun AppCompatTextView.setSignal(
     signal: Int?,
@@ -646,7 +660,7 @@ fun AppCompatImageView.setSmallIcon(signalStrengthInfo: SignalStrengthInfo?, con
             }
         }
     } else {
-        setImageResource(R.drawable.ic_small_no_internet)
+        setImageResource(R.drawable.ic_signal_unknown_small)
     }
 }
 
@@ -759,15 +773,15 @@ fun ImageView.setSignalIcon(networkType: NetworkTypeCompat?, signalStrength: Cla
     networkType?.let { setImageResource(getSignalImageResource(it, signalStrength)) }
 }
 
-private fun getSignalImageResource(networkType: NetworkTypeCompat, signalStrength: Classification): Int =
-    when (networkType) {
+private fun getSignalImageResource(networkType: NetworkTypeCompat, signalStrength: Classification): Int {
+    return when (networkType) {
         NetworkTypeCompat.TYPE_2G -> {
             when (signalStrength) {
                 Classification.BAD -> R.drawable.ic_history_2g_1
                 Classification.NORMAL -> R.drawable.ic_history_2g_2
                 Classification.GOOD -> R.drawable.ic_history_2g_3
                 Classification.EXCELLENT -> R.drawable.ic_history_2g_4
-                Classification.NONE -> R.drawable.ic_history_no_internet
+                Classification.NONE -> R.drawable.ic_signal_unknown_small
             }
         }
         NetworkTypeCompat.TYPE_3G -> {
@@ -776,7 +790,7 @@ private fun getSignalImageResource(networkType: NetworkTypeCompat, signalStrengt
                 Classification.NORMAL -> R.drawable.ic_history_3g_2
                 Classification.GOOD -> R.drawable.ic_history_3g_3
                 Classification.EXCELLENT -> R.drawable.ic_history_3g_4
-                Classification.NONE -> R.drawable.ic_history_no_internet
+                Classification.NONE -> R.drawable.ic_signal_unknown_small
             }
         }
         NetworkTypeCompat.TYPE_5G_AVAILABLE,
@@ -786,7 +800,7 @@ private fun getSignalImageResource(networkType: NetworkTypeCompat, signalStrengt
                 Classification.NORMAL -> R.drawable.ic_history_4g_2
                 Classification.GOOD -> R.drawable.ic_history_4g_3
                 Classification.EXCELLENT -> R.drawable.ic_history_4g_4
-                Classification.NONE -> R.drawable.ic_history_no_internet
+                Classification.NONE -> R.drawable.ic_signal_unknown_small
             }
         }
         NetworkTypeCompat.TYPE_WLAN -> {
@@ -795,11 +809,11 @@ private fun getSignalImageResource(networkType: NetworkTypeCompat, signalStrengt
                 Classification.NORMAL -> R.drawable.ic_history_wifi_2
                 Classification.GOOD -> R.drawable.ic_history_wifi_3
                 Classification.EXCELLENT -> R.drawable.ic_history_wifi_4
-                Classification.NONE -> R.drawable.ic_no_wifi
+                Classification.NONE -> R.drawable.ic_signal_unknown_small
             }
         }
         NetworkTypeCompat.TYPE_UNKNOWN -> {
-            R.drawable.ic_history_no_internet
+            R.drawable.ic_signal_unknown_small
         }
         NetworkTypeCompat.TYPE_LAN -> {
             R.drawable.ic_ethernet
@@ -814,10 +828,11 @@ private fun getSignalImageResource(networkType: NetworkTypeCompat, signalStrengt
                 Classification.NORMAL -> R.drawable.ic_history_5g_2
                 Classification.GOOD -> R.drawable.ic_history_5g_3
                 Classification.EXCELLENT -> R.drawable.ic_history_5g_4
-                Classification.NONE -> R.drawable.ic_history_5g_0
+                Classification.NONE -> R.drawable.ic_signal_unknown_small
             }
         }
     }
+}
 
 /**
  * A binding adapter that is used for show date and time in result details

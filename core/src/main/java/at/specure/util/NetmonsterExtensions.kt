@@ -49,6 +49,7 @@ import cz.mroczis.netmonster.core.model.cell.CellNr
 import cz.mroczis.netmonster.core.model.cell.CellTdscdma
 import cz.mroczis.netmonster.core.model.cell.CellWcdma
 import cz.mroczis.netmonster.core.model.cell.ICell
+import cz.mroczis.netmonster.core.model.connection.NoneConnection
 import cz.mroczis.netmonster.core.model.connection.PrimaryConnection
 import cz.mroczis.netmonster.core.model.connection.SecondaryConnection
 import cz.mroczis.netmonster.core.model.nr.NrNsaState
@@ -69,7 +70,8 @@ fun List<ICell>.filterOnlyPrimaryActiveDataCell(dataSubscriptionId: Int): List<I
         val isFromDataSubscription =
             dataSubscriptionId == -1 || it.subscriptionId == dataSubscriptionId
         val isPrimaryCell = it.connectionStatus is PrimaryConnection
-        isFromDataSubscription && isPrimaryCell
+        val hasValidTimestamp = it.timestamp != null
+        isFromDataSubscription && isPrimaryCell && hasValidTimestamp
     }
 }
 
@@ -79,7 +81,19 @@ fun List<ICell>.filterOnlySecondaryActiveDataCell(dataSubscriptionId: Int): List
         val isFromDataSubscription =
             dataSubscriptionId == -1 || it.subscriptionId == dataSubscriptionId
         val isSecondaryCell = it.connectionStatus is SecondaryConnection
-        isFromDataSubscription && isSecondaryCell
+        val hasValidTimestamp = it.timestamp != null
+        isFromDataSubscription && isSecondaryCell && hasValidTimestamp
+    }
+}
+
+fun List<ICell>.filterOnlyNoneConnectionDataCell(dataSubscriptionId: Int): List<ICell> {
+    return this.filter {
+        // when there is -1 we will report both sims signal because we are unable to detect correct data subscription
+        val isFromDataSubscription =
+            dataSubscriptionId == -1 || it.subscriptionId == dataSubscriptionId
+        val isNotConnected = it.connectionStatus is NoneConnection
+        val hasValidTimestamp = it.timestamp != null
+        isFromDataSubscription && isNotConnected && hasValidTimestamp
     }
 }
 
@@ -327,7 +341,8 @@ fun ICell.toCellNetworkInfo(
             NRConnectionState.getNRConnectionState(dataTelephonyManager)
         } else NRConnectionState.NOT_AVAILABLE,
         dualSimDetectionMethod = null,
-        cellUUID = this.uuid()
+        cellUUID = this.uuid(),
+        rawCellInfo = this
     )
 }
 

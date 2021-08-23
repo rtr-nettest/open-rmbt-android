@@ -2,7 +2,6 @@ package at.rtr.rmbt.android.ui.activity
 
 import android.content.Context
 import android.content.Intent
-import android.os.Build
 import android.os.Bundle
 import android.view.View
 import androidx.core.content.ContextCompat
@@ -10,24 +9,20 @@ import androidx.recyclerview.widget.DividerItemDecoration
 import at.rtr.rmbt.android.R
 import at.rtr.rmbt.android.databinding.ActivityResultsBinding
 import at.rtr.rmbt.android.di.viewModelLazy
+import at.rtr.rmbt.android.map.wrapper.LatLngW
+import at.rtr.rmbt.android.map.wrapper.MapWrapper
 import at.rtr.rmbt.android.ui.adapter.QosResultAdapter
 import at.rtr.rmbt.android.ui.adapter.ResultChartFragmentPagerAdapter
 import at.rtr.rmbt.android.ui.adapter.ResultQoEAdapter
-import at.rtr.rmbt.android.util.iconFromVector
+import at.rtr.rmbt.android.util.isGmsAvailable
+import at.rtr.rmbt.android.util.isHmsAvailable
 import at.rtr.rmbt.android.util.listen
 import at.rtr.rmbt.android.viewmodel.ResultViewModel
 import at.specure.data.NetworkTypeCompat
-import com.google.android.gms.common.ConnectionResult
-import com.google.android.gms.common.GoogleApiAvailability
-import com.google.android.gms.maps.CameraUpdateFactory
-import com.google.android.gms.maps.GoogleMap
-import com.google.android.gms.maps.OnMapReadyCallback
-import com.google.android.gms.maps.model.CircleOptions
-import com.google.android.gms.maps.model.LatLng
-import com.google.android.gms.maps.model.MarkerOptions
+import at.specure.data.entity.TestResultRecord
 import timber.log.Timber
 
-class ResultsActivity : BaseActivity(), OnMapReadyCallback {
+class ResultsActivity : BaseActivity() {
 
     private val viewModel: ResultViewModel by viewModelLazy()
     private lateinit var binding: ActivityResultsBinding
@@ -35,17 +30,16 @@ class ResultsActivity : BaseActivity(), OnMapReadyCallback {
     private val qosAdapter: QosResultAdapter by lazy { QosResultAdapter() }
     private lateinit var resultChartFragmentPagerAdapter: ResultChartFragmentPagerAdapter
 
-    private var googleMap: GoogleMap? = null
+    private var mapLoadRequested: Boolean = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = bindContentView(R.layout.activity_results)
         binding.state = viewModel.state
 
-        viewModel.state.playServicesAvailable.set(checkPlayServices())
+        viewModel.state.playServicesAvailable.set(isGmsAvailable() || isHmsAvailable())
 
-        binding.map?.onCreate(savedInstanceState)
-        binding.map?.getMapAsync(this)
+        binding.map.onCreate(savedInstanceState)
 
         val testUUID = intent.getStringExtra(KEY_TEST_UUID)
         check(!testUUID.isNullOrEmpty()) { "TestUUID was not passed to result activity" }
@@ -68,41 +62,12 @@ class ResultsActivity : BaseActivity(), OnMapReadyCallback {
                 binding.viewPagerCharts?.adapter = resultChartFragmentPagerAdapter
             }
 
-            if (result?.latitude != null && result.longitude != null) {
-                with(LatLng(result.latitude!!, result.longitude!!)) {
-                    googleMap?.addCircle(
-                        CircleOptions()
-                            .center(this)
-                            .fillColor(ContextCompat.getColor(this@ResultsActivity, R.color.map_circle_fill))
-                            .strokeColor(ContextCompat.getColor(this@ResultsActivity, R.color.map_circle_stroke))
-                            .strokeWidth(STROKE_WIDTH)
-                            .radius(CIRCLE_RADIUS)
-                    )
-
-                    val icon = when (result.networkType) {
-                        NetworkTypeCompat.TYPE_UNKNOWN -> R.drawable.ic_marker_empty
-                        NetworkTypeCompat.TYPE_LAN -> R.drawable.ic_marker_ethernet
-                        NetworkTypeCompat.TYPE_BROWSER -> R.drawable.ic_marker_browser
-                        NetworkTypeCompat.TYPE_WLAN -> R.drawable.ic_marker_wifi
-                        NetworkTypeCompat.TYPE_5G_AVAILABLE,
-                        NetworkTypeCompat.TYPE_4G -> R.drawable.ic_marker_4g
-                        NetworkTypeCompat.TYPE_3G -> R.drawable.ic_marker_3g
-                        NetworkTypeCompat.TYPE_2G -> R.drawable.ic_marker_2g
-                        NetworkTypeCompat.TYPE_5G_NSA,
-                        NetworkTypeCompat.TYPE_5G -> R.drawable.ic_marker_5g
+            result?.let {
+                if (!mapLoadRequested) {
+                    mapLoadRequested = true
+                    binding.map.loadMapAsync {
+                        setUpMap(it)
                     }
-
-                    googleMap?.addMarker(MarkerOptions().position(this).anchor(ANCHOR_U, ANCHOR_V).iconFromVector(this@ResultsActivity, icon))
-                    googleMap?.moveCamera(CameraUpdateFactory.newLatLngZoom(this, ZOOM_LEVEL))
-                    googleMap?.setOnMapClickListener {
-                        DetailedFullscreenMapActivity.start(
-                            this@ResultsActivity,
-                            latitude,
-                            longitude,
-                            result.networkType
-                        )
-                    }
-                    googleMap?.setOnMarkerClickListener { true }
                 }
             }
         }
@@ -175,28 +140,49 @@ class ResultsActivity : BaseActivity(), OnMapReadyCallback {
         refreshResults()
     }
 
+    private fun setUpMap(result: TestResultRecord) {
+        if (result.latitude != null && result.longitude != null) {
+            val latLngW = LatLngW(result.latitude!!, result.longitude!!)
+
+            val icon = when (result.networkType) {
+                NetworkTypeCompat.TYPE_UNKNOWN -> R.drawable.ic_marker_empty
+                NetworkTypeCompat.TYPE_LAN -> R.drawable.ic_marker_ethernet
+                NetworkTypeCompat.TYPE_BROWSER -> R.drawable.ic_marker_browser
+                NetworkTypeCompat.TYPE_WLAN -> R.drawable.ic_marker_wifi
+                NetworkTypeCompat.TYPE_5G_AVAILABLE,
+                NetworkTypeCompat.TYPE_4G -> R.drawable.ic_marker_4g
+                NetworkTypeCompat.TYPE_3G -> R.drawable.ic_marker_3g
+                NetworkTypeCompat.TYPE_2G -> R.drawable.ic_marker_2g
+                NetworkTypeCompat.TYPE_5G_NSA,
+                NetworkTypeCompat.TYPE_5G -> R.drawable.ic_marker_5g
+            }
+
+            mapW().run {
+                addCircle(
+                    latLngW,
+                    ContextCompat.getColor(this@ResultsActivity, R.color.map_circle_fill),
+                    ContextCompat.getColor(this@ResultsActivity, R.color.map_circle_stroke),
+                    STROKE_WIDTH, CIRCLE_RADIUS
+                )
+                addMarker(this@ResultsActivity, latLngW, ANCHOR_U, ANCHOR_V, icon)
+                moveCamera(latLngW, ZOOM_LEVEL)
+                setOnMapClickListener {
+                    DetailedFullscreenMapActivity.start(
+                        this@ResultsActivity,
+                        it.latitude,
+                        it.longitude,
+                        result.networkType
+                    )
+                }
+            }
+        }
+    }
+
+    private fun mapW(): MapWrapper = binding.map.mapWrapper
+
     private fun refreshResults() {
         viewModel.loadTestResults()
         binding.swipeRefreshLayout.isRefreshing = true
-    }
-
-    private fun checkPlayServices(): Boolean {
-        if (Build.MANUFACTURER.compareTo("Amazon", true) == 0) {
-            return false
-        }
-        val gApi: GoogleApiAvailability = GoogleApiAvailability.getInstance()
-        val resultCode: Int = gApi.isGooglePlayServicesAvailable(this)
-        if (resultCode != ConnectionResult.SUCCESS) {
-            return false
-        }
-        return true
-    }
-
-    override fun onMapReady(map: GoogleMap?) {
-        googleMap = map
-        googleMap?.uiSettings?.isScrollGesturesEnabled = false
-        googleMap?.uiSettings?.isZoomGesturesEnabled = false
-        googleMap?.uiSettings?.isRotateGesturesEnabled = false
     }
 
     override fun onStart() {
@@ -217,6 +203,16 @@ class ResultsActivity : BaseActivity(), OnMapReadyCallback {
     override fun onPause() {
         binding.map?.onPause()
         super.onPause()
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        binding.map.onSaveInstanceState(outState)
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        binding.map.onDestroy()
     }
 
     override fun onBackPressed() {
