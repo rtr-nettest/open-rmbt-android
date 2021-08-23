@@ -4,12 +4,12 @@ buildscript {
 
         // All project module configs should be in config map
         config = [
-                applicationId    : "at.alladin.rmbt.android.prod",
+                applicationId    : "at.alladin.rmbt.android",
                 minSdkVersion    : 23,
                 targetSdkVersion : 30,
                 buildToolsVersion: "29.0.2",
-                versionCode      : (project.hasProperty('buildVersionCode') ? Integer.parseInt(buildVersionCode) : 40502),
-                versionName      : (project.hasProperty('buildVersionName') ? buildVersionName : '4.5.2')
+                versionCode      : (project.hasProperty('buildVersionCode') ? Integer.parseInt(buildVersionCode) : 40503),
+                versionName      : (project.hasProperty('buildVersionName') ? buildVersionName : '4.5.3')
         ]
 
         // All project modules dependency versions should be in versions map
