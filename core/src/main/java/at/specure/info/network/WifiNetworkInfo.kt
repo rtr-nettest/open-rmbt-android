@@ -89,7 +89,12 @@ open class WifiNetworkInfo(
      */
     val supplicantDetailedState: String,
 
-    var locationEnabled: Boolean = false
+    var locationEnabled: Boolean = false,
+
+    /**
+     * Raw signal assigned later when onSignalStrength change will trigger update
+     */
+    var signal: Int?
 
 ) : NetworkInfo(TransportType.WIFI, UUID.nameUUIDFromBytes((ssid ?: "").toByteArray()).toString()) {
 

@@ -35,8 +35,23 @@ class ControlServerClient @Inject constructor(private val endpointProvider: Cont
         return api.sendQoSTestResult(endpointProvider.sendQoSTestResultsUrl, body).exec()
     }
 
+    fun sendQoSTestResultsONT(body: QoSResultBody): Maybe<QosResultResponse> {
+        return api.sendQoSTestResultONT(endpointProvider.sendQoSTestResultsUrl, body).exec()
+    }
+
     fun getHistory(body: HistoryRequestBody): Maybe<HistoryResponse> {
         return api.getHistory(endpointProvider.getHistoryUrl, body).exec()
+    }
+
+    fun getHistoryONT(
+        body: HistoryONTRequestBody,
+        size: Long,
+        page: Long
+    ): Maybe<HistoryONTResponse> {
+        return api.getHistoryONT(
+            endpointProvider.getHistoryUrl + "?page=$page&size=$size&active=measurement_date&direction=desc",
+            body
+        ).exec()
     }
 
     fun getTestResult(body: ServerTestResultBody): Maybe<ServerTestResultResponse> {
@@ -44,7 +59,16 @@ class ControlServerClient @Inject constructor(private val endpointProvider: Cont
     }
 
     fun getDetailedTestResults(openTestUUID: String): Maybe<SpeedCurveBodyResponse> {
-        return api.getTestResultOpenDetails(endpointProvider.getTestResultsOpenDataUrl + "/" + openTestUUID).exec()
+        return api.getTestResultOpenDetails(endpointProvider.getTestResultsOpenDataUrl + "/" + openTestUUID)
+            .exec()
+    }
+
+    /**
+     * For ONT based apps to obtain graph data - basically optimized getDetailedTestResults, because only graphs were used from all that information received
+     */
+    fun getTestResultGraphs(testUUID: String): Maybe<SpeedCurveBodyResponseONT> {
+        return api.getTestResultGraphs(endpointProvider.getTestResultsOpenDataUrl + "/" + testUUID)
+            .exec()
     }
 
     fun getTestResultDetail(body: TestResultDetailBody): Maybe<TestResultDetailResponse> {
@@ -53,6 +77,14 @@ class ControlServerClient @Inject constructor(private val endpointProvider: Cont
 
     fun getQosTestResultDetail(body: QosTestResultDetailBody): Maybe<QosTestResultDetailResponse> {
         return api.getQosTestResultDetail(endpointProvider.getQosResultDetailsUrl, body).exec()
+    }
+
+    /**
+     * Suitable to get all necessary results in ONT based apps
+     */
+    fun getTestResultDetailONT(testUUID: String): Maybe<ResultDetailONTResponse> {
+        return api.getResultDetailONT(endpointProvider.getQosResultDetailsUrl + "/" + testUUID)
+            .exec()
     }
 
     fun getDeviceSyncCode(body: GetSyncCodeBody): Maybe<GetSyncCodeResponse> {

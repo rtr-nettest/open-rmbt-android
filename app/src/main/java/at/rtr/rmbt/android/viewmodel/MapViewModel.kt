@@ -4,15 +4,15 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Transformations
 import at.rmbt.client.control.data.MapPresentationType
+import at.rtr.rmbt.android.map.wrapper.LatLngW
+import at.rtr.rmbt.android.map.wrapper.TileW
+import at.rtr.rmbt.android.map.wrapper.TileWrapperProvider
 import at.rtr.rmbt.android.ui.viewstate.MapViewState
 import at.specure.data.entity.MarkerMeasurementRecord
 import at.specure.data.repository.MapRepository
 import at.specure.location.LocationInfo
 import at.specure.location.LocationState
 import at.specure.location.LocationWatcher
-import com.google.android.gms.maps.model.LatLng
-import com.google.android.gms.maps.model.Tile
-import com.google.android.gms.maps.model.TileProvider
 import javax.inject.Inject
 
 class MapViewModel @Inject constructor(
@@ -45,21 +45,21 @@ class MapViewModel @Inject constructor(
 
     fun loadMarkers(latitude: Double, longitude: Double, zoom: Int) {
         repository.loadMarkers(latitude, longitude, zoom) {
-            state.coordinatesLiveData.postValue(LatLng(latitude, longitude))
+            state.coordinatesLiveData.postValue(LatLngW(latitude, longitude))
         }
     }
 
     fun prepareDetailsLink(openUUID: String) = repository.prepareDetailsLink(openUUID)
 }
 
-class RetrofitTileProvider(private val repository: MapRepository, private val state: MapViewState) : TileProvider {
+class RetrofitTileProvider(private val repository: MapRepository, private val state: MapViewState) : TileWrapperProvider {
 
-    override fun getTile(x: Int, y: Int, zoom: Int): Tile {
+    override fun getTileW(x: Int, y: Int, zoom: Int): TileW {
         val type = state.type.get() ?: MapPresentationType.POINTS
         return if (type == MapPresentationType.AUTOMATIC && zoom > 10) {
-            Tile(TILE_SIZE, TILE_SIZE, repository.loadAutomaticTiles(x, y, zoom))
+            TileW(TILE_SIZE, TILE_SIZE, repository.loadAutomaticTiles(x, y, zoom))
         } else {
-            Tile(TILE_SIZE, TILE_SIZE, repository.loadTiles(x, y, zoom, type))
+            TileW(TILE_SIZE, TILE_SIZE, repository.loadTiles(x, y, zoom, type))
         }
     }
 

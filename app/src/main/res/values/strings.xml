@@ -33,6 +33,7 @@
     <string name="home_no_internet_connection">No Internet connection!</string>
     <string name="home_no_internet_connection_details">No test is possible.</string>
     <string name="home_signal_value">%1$d dBm</string>
+    <string name="home_signal_secondary_value" translatable="false">%1$d/%2$d dBm</string>
     <string name="home_frequency_value" translatable="false">%1$s MHz</string>
     <string name="home_start_test_info">Press the button to start the test now!</string>
     <string name="home_wifi">WLAN</string>
@@ -315,15 +316,36 @@
     <string name="accept_risk">I accept the risk</string>
     <string name="preferences_connection_details_not_supported">Extended connection details are not supported on this device</string>
 
-    <string name="dialog_signal_info_title">Signal info</string>
-    <string name="dialog_signal_info_waiting">Please wait…</string>
     <string name="dialog_signal_info_band">Band</string>
     <string name="dialog_signal_info_channel">Channel</string>
-    <string name="dialog_signal_info_ta">TA</string>
-    <string name="dialog_signal_info_quality">Quality</string>
     <string name="text_local_results">Local results only</string>
     <string name="signal_measurement_terms_title">Activation and usage</string>
     <string name="signal_measurement_terms_content">The signal-only loop mode option for technically interested users allows the automatic repetition of signal measurements - without any speed- or quality tests being carried out. The signal-only loop-modus can be stopped at any time respectively it stops automatically after 48 hours. The signal-only loop-modus is (only) intended for use within the EU and the EEA. The battery is quickly drained by the signal-only measurements. In the pauses between tests, the GPS and the display remain active and signal measurements continue, which means that the energy is used up much faster than in stand-by mode. The loop-modus should therefore only be used if an external power supply is available. It needs to be explicitly pointed out that due to the signal-only loop mode it cannot be excluded that the tester is identified.</string>
     <string name="home_ethernet" translatable="false">Ethernet</string>
 
+    <string name="cell_info_ssrsrp" translatable="false">SSRSRP</string>
+    <string name="cell_info_ssrsrq" translatable="false">SSRSRQ</string>
+    <string name="cell_info_earfcn" translatable="false">EARFCN</string>
+    <string name="cell_info_ci" translatable="false">CI</string>
+    <string name="cell_info_subscriptionId" translatable="false">SubId</string>
+    <string name="cell_info_eNB" translatable="false">eNB</string>
+    <string name="cell_info_cid" translatable="false">CID</string>
+    <string name="cell_info_tac" translatable="false">TAC</string>
+    <string name="cell_info_pci" translatable="false">PCI</string>
+    <string name="cell_info_bw" translatable="false">BW</string>
+    <string name="cell_info_rssi" translatable="false">RSSI</string>
+    <string name="cell_info_rsrp" translatable="false">RSRP</string>
+    <string name="cell_info_rsrq" translatable="false">RSRQ</string>
+    <string name="cell_info_snr" translatable="false">SNR</string>
+    <string name="cell_info_ta" translatable="false">TA</string>
+
+    <string name="cell_info_rnc" translatable="false">RNC</string>
+    <string name="cell_info_psc" translatable="false">PSC</string>
+    <string name="cell_info_lac" translatable="false">LAC</string>
+    <string name="cell_info_uarfcn" translatable="false">UARFCN</string>
+    <string name="cell_info_rscp" translatable="false">RSCP</string>
+
+    <string name="cell_info_bsic" translatable="false">BSIC</string>
+    <string name="cell_info_arfcn" translatable="false">ARFCN</string>
+    <string name="cell_info_rxl" translatable="false">RXL</string>
 </resources>

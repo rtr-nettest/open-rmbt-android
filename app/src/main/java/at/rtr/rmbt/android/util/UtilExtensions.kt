@@ -47,12 +47,30 @@ fun MarkerOptions.iconFromVector(context: Context, vectorResId: Int): MarkerOpti
     })
 }
 
+fun com.huawei.hms.maps.model.MarkerOptions.iconFromVector(context: Context, vectorResId: Int): com.huawei.hms.maps.model.MarkerOptions {
+    return this.icon(ContextCompat.getDrawable(context, vectorResId)?.run {
+        setBounds(0, 0, intrinsicWidth, intrinsicHeight)
+        val bitmap = Bitmap.createBitmap(intrinsicWidth, intrinsicHeight, Bitmap.Config.ARGB_8888)
+        draw(Canvas(bitmap))
+        com.huawei.hms.maps.model.BitmapDescriptorFactory.fromBitmap(bitmap)
+    })
+}
+
 fun Marker.iconFromVector(context: Context, vectorResId: Int) {
     return setIcon(ContextCompat.getDrawable(context, vectorResId)?.run {
         setBounds(0, 0, intrinsicWidth, intrinsicHeight)
         val bitmap = Bitmap.createBitmap(intrinsicWidth, intrinsicHeight, Bitmap.Config.ARGB_8888)
         draw(Canvas(bitmap))
         BitmapDescriptorFactory.fromBitmap(bitmap)
+    })
+}
+
+fun com.huawei.hms.maps.model.Marker.iconFromVector(context: Context, vectorResId: Int) {
+    return setIcon(ContextCompat.getDrawable(context, vectorResId)?.run {
+        setBounds(0, 0, intrinsicWidth, intrinsicHeight)
+        val bitmap = Bitmap.createBitmap(intrinsicWidth, intrinsicHeight, Bitmap.Config.ARGB_8888)
+        draw(Canvas(bitmap))
+        com.huawei.hms.maps.model.BitmapDescriptorFactory.fromBitmap(bitmap)
     })
 }
 

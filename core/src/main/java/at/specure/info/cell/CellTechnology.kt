@@ -20,6 +20,7 @@ import at.specure.info.network.MobileNetworkType
  * Mobile network technology generations
  */
 enum class CellTechnology(val displayName: String) {
+    CONNECTION_UNKNOWN(""),
     CONNECTION_2G("2G"),
     CONNECTION_3G("3G"),
     CONNECTION_4G("4G"),

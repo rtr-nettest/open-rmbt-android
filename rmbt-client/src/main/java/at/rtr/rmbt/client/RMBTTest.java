@@ -45,7 +45,6 @@ import javax.net.ssl.SSLSocket;
 
 import at.rtr.rmbt.client.helper.Config;
 import at.rtr.rmbt.client.helper.TestStatus;
-import timber.log.Timber;
 
 public class RMBTTest extends AbstractRMBTTest implements Callable<ThreadTestResult> {
     private static final long nsecsL = 1000000000L;
@@ -377,6 +376,13 @@ public class RMBTTest extends AbstractRMBTTest implements Callable<ThreadTestRes
                     fallbackToOneThread.set(true);
             }
             /*********************/
+
+            if (client.isEnabledJitterAndPacketLossTest()) {
+                if (threadId == 0) {
+                    client.performVoipTest();
+                }
+                barrier.await();
+            }
 
             boolean _fallbackToOneThread;
             setStatus(TestStatus.PING);

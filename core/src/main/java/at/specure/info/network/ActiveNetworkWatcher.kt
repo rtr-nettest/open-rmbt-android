@@ -31,14 +31,16 @@ import at.specure.info.ip.CaptivePortal
 import at.specure.info.wifi.WifiInfoWatcher
 import at.specure.location.LocationState
 import at.specure.location.LocationStateWatcher
-import at.specure.util.filterOnlyActiveDataCell
+import at.specure.util.filterOnlyPrimaryActiveDataCell
 import at.specure.util.isCoarseLocationPermitted
 import at.specure.util.isReadPhoneStatePermitted
+import at.specure.util.mobileNetworkType
 import at.specure.util.synchronizedForEach
 import at.specure.util.toCellNetworkInfo
 import cz.mroczis.netmonster.core.INetMonster
 import cz.mroczis.netmonster.core.factory.NetMonsterFactory
-import cz.mroczis.netmonster.core.feature.merge.CellSource
+import cz.mroczis.netmonster.core.model.cell.CellLte
+import cz.mroczis.netmonster.core.model.cell.CellNr
 import cz.mroczis.netmonster.core.model.cell.ICell
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -125,22 +127,53 @@ class ActiveNetworkWatcher(
             try {
                 var cells: List<ICell>? = null
                 var activeCellNetwork: CellNetworkInfo? = null
-                cells = netMonster.getCells(CellSource.NEIGHBOURING_CELLS, CellSource.ALL_CELL_INFO, CellSource.CELL_LOCATION)
+                cells = netMonster.getCells()
 
                 val dataSubscriptionId = subscriptionManager.getCurrentDataSubscriptionId()
 
-                val primaryCells = cells?.filterOnlyActiveDataCell(dataSubscriptionId)
+                val primaryCells = cells?.filterOnlyPrimaryActiveDataCell(dataSubscriptionId)
 
-                if (primaryCells.size == 1) {
-                    activeCellNetwork = primaryCells[0].toCellNetworkInfo(
+                // changed to check if it is not empty because some devices report more than one
+                // PrimaryConnection cells but with same operator details, only with different
+                // technology e.g. in case of 5G NSA there is 5G and 4G cell for some devices/networks, but
+                // in some cases for 5G NSA there are 2 primary connections reported - 1. for 4G and 2. for 5G cell,
+                // so we need to move that 5G from primary connection to secondary list
+                var primaryCellsCorrected = mutableListOf<ICell>()
+                when (primaryCells.size) {
+                    2 -> {
+                        if (primaryCells[0] is CellNr && primaryCells[0].mobileNetworkType(
+                                netMonster
+                            ) == MobileNetworkType.NR_NSA && primaryCells[1] is CellLte
+                        ) {
+                            primaryCellsCorrected.add(primaryCells[1])
+                        } else if (primaryCells[1] is CellNr && primaryCells[1].mobileNetworkType(
+                                netMonster
+                            ) == MobileNetworkType.NR_NSA && primaryCells[0] is CellLte
+                        ) {
+                            primaryCellsCorrected.add(primaryCells[0])
+                        } else {
+                            // situation when there are 2 primary cells sent from netmonster library so we must choose one
+                            primaryCellsCorrected.add(primaryCells[0])
+                        }
+                    }
+                    else -> {
+                        primaryCellsCorrected = primaryCells as MutableList<ICell>
+                    }
+                }
+
+                if (primaryCellsCorrected.isNotEmpty()) {
+                    activeCellNetwork = primaryCellsCorrected[0].toCellNetworkInfo(
                         connectivityManager.activeNetworkInfo?.extraInfo,
                         telephonyManager.getCorrectDataTelephonyManager(subscriptionManager),
-                        NetMonsterFactory.getTelephony(context, primaryCells[0].subscriptionId),
+                        NetMonsterFactory.getTelephony(
+                            context,
+                            primaryCellsCorrected[0].subscriptionId
+                        ),
                         netMonster
                     )
                     // more than one primary cell for data subscription
                 } else {
-                    Timber.e("NM network type unable to detect because of more than 1 primary cells for subscription")
+                    Timber.e("NM network type unable to detect because of ${primaryCellsCorrected.size} primary cells for subscription")
                 }
 
                 if (activeCellNetwork == null) {

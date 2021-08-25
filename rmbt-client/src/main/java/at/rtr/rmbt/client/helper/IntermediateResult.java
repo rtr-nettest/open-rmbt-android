@@ -16,8 +16,7 @@
  ******************************************************************************/
 package at.rtr.rmbt.client.helper;
 
-public class IntermediateResult
-{
+public class IntermediateResult {
     public long pingNano;
     public long downBitPerSec;
     public long upBitPerSec;
@@ -26,15 +25,16 @@ public class IntermediateResult
     public double downBitPerSecLog;
     public double upBitPerSecLog;
     public long remainingWait;
-    
-    public void setLogValues()
-    {
+    public long jitter;
+    public long packetLossUp;
+    public long packetLossDown;
+
+    public void setLogValues() {
         downBitPerSecLog = toLog(downBitPerSec);
         upBitPerSecLog = toLog(upBitPerSec);
     }
-    
-    public static double toLog(final long value)
-    {
+
+    public static double toLog(final long value) {
         if (value < 1e5)
             return 0;
         return (2d + Math.log10(value / 1e7)) / 4d;

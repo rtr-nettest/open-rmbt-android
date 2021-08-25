@@ -10,6 +10,7 @@ import at.specure.data.dao.ConnectivityStateDao
 import at.specure.data.dao.GeoLocationDao
 import at.specure.data.dao.GraphItemDao
 import at.specure.data.dao.HistoryDao
+import at.specure.data.dao.JplResultsDao
 import at.specure.data.dao.MapDao
 import at.specure.data.dao.PermissionStatusDao
 import at.specure.data.dao.PingDao
@@ -54,6 +55,7 @@ import at.specure.data.entity.TestResultGraphItemRecord
 import at.specure.data.entity.TestResultRecord
 import at.specure.data.entity.TestTelephonyRecord
 import at.specure.data.entity.TestWlanRecord
+import at.specure.data.entity.VoipTestResultRecord
 
 @Database(
     entities = [CapabilitiesRecord::class,
@@ -62,6 +64,7 @@ import at.specure.data.entity.TestWlanRecord
         GeoLocationRecord::class,
         GraphItemRecord::class,
         History::class,
+        VoipTestResultRecord::class,
         PermissionStatusRecord::class,
         PingRecord::class,
         QoeInfoRecord::class,
@@ -85,7 +88,7 @@ import at.specure.data.entity.TestWlanRecord
         SignalMeasurementChunk::class,
         ConnectivityStateRecord::class,
         HistoryReference::class],
-    version = 91
+    version = 97
 )
 @TypeConverters(TypeConverter::class)
 abstract class CoreDatabase : RoomDatabase() {
@@ -96,6 +99,7 @@ abstract class CoreDatabase : RoomDatabase() {
     abstract fun geoLocationDao(): GeoLocationDao
     abstract fun graphItemsDao(): GraphItemDao
     abstract fun historyDao(): HistoryDao
+    abstract fun jplResultsDao(): JplResultsDao
     abstract fun permissionStatusDao(): PermissionStatusDao
     abstract fun pingDao(): PingDao
     abstract fun qoeInfoDao(): QoeInfoDao
