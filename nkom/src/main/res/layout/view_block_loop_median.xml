@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout>
+
+    <data>
+
+        <variable
+            name="state"
+            type="at.rtr.rmbt.android.ui.viewstate.MeasurementViewState" />
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:paddingStart="32dp"
+        android:paddingEnd="32dp">
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/label_measurement"
+            style="@style/MeasurementSectionLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingBottom="32dp"
+            android:text="@string/measurement"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/label_median"
+            style="@style/MeasurementSectionLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingBottom="32dp"
+            android:text="@string/median"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/label_ping"
+            style="@style/MeasurementValueLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/label_measurement_ping_ms"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/label_measurement" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/text_ping"
+            style="@style/MeasurementValueLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@{String.valueOf(state.pingNanosMedian)}"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/label_median" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/label_download"
+            style="@style/MeasurementValueLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/label_measurement_download_mbps"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/label_ping" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/text_download"
+            style="@style/MeasurementValueLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@{String.valueOf(state.downloadSpeedBpsMedian)}"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/label_ping" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/label_upload"
+            style="@style/MeasurementValueLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/label_measurement_upload_mbps"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/label_download" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/text_upload"
+            style="@style/MeasurementValueLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@{String.valueOf(state.uploadSpeedBpsMedian)}"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/label_download" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/label_qos"
+            style="@style/MeasurementValueLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/label_measurement_qos"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/label_upload" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/text_qos"
+            style="@style/MeasurementValueLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@{String.valueOf(state.qosPercentsMedian)}"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/label_upload" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

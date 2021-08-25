@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <variable
+            name="item"
+            type="at.specure.data.entity.QosTestItemRecord" />
+
+
+    </data>
+
+    <androidx.appcompat.widget.LinearLayoutCompat
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="@dimen/padding_large">
+
+        <androidx.appcompat.widget.AppCompatImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:src="@{item.success ? @drawable/ic_qos_test_success : @drawable/ic_qos_test_fail}" />
+
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/textTestSummary"
+            style="@style/RobotoRegularStyle.VerySmall"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:layout_marginStart="@dimen/margin_medium"
+            android:drawableEnd="@drawable/ic_right"
+            android:drawablePadding="@dimen/padding_medium"
+            android:gravity="center_vertical"
+            android:text='@{String.format("%s %s", String.format(@string/qos_test_number, item.testNumber), item.testSummary)}'
+            android:textColor="@color/text_dark_gray"
+            tools:text="Test Summary" />
+    </androidx.appcompat.widget.LinearLayoutCompat>
+
+</layout>
