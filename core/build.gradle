@@ -11,7 +11,6 @@ apply from: "$project.rootDir/tools/utils.gradle"
 android {
 
     compileSdkVersion config.targetSdkVersion
-    buildToolsVersion config.buildToolsVersion
 
     defaultConfig {
         minSdkVersion config.minSdkVersion

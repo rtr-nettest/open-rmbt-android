@@ -16,7 +16,6 @@ applyPrivate "nkom/flavor-config.gradle"
 android {
 
     compileSdkVersion config.targetSdkVersion
-    buildToolsVersion config.buildToolsVersion
 
     defaultConfig {
         applicationId config.applicationId
@@ -25,7 +24,6 @@ android {
         versionCode config.versionCode
         versionName config.versionName
         compileSdkVersion config.targetSdkVersion
-        buildToolsVersion config.buildToolsVersion
 
         testInstrumentationRunner "androidx.text.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary = true

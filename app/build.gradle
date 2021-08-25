@@ -17,7 +17,6 @@ applyPrivate "app/flavor-config.gradle"
 android {
 
     compileSdkVersion config.targetSdkVersion
-    buildToolsVersion config.buildToolsVersion
 
     defaultConfig {
         applicationId config.applicationId
@@ -26,7 +25,6 @@ android {
         versionCode config.versionCode
         versionName config.versionName
         compileSdkVersion config.targetSdkVersion
-        buildToolsVersion config.buildToolsVersion
 
         testInstrumentationRunner "androidx.text.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary = true
@@ -112,4 +110,8 @@ dependencies {
     androidTestImplementation "androidx.test:runner:$versions.test_runner"
     androidTestImplementation "androidx.test.espresso:espresso-core:$versions.espresso_core"
     androidTestImplementation "androidx.test:rules:$versions.rules"
+}
+
+tasks.withType( JavaCompile ).configureEach {
+    options.forkOptions.jvmArgs.addAll( ['--add-opens', 'jdk.compiler/com.sun.tools.javac.code=ALL-UNNAMED'] )
 }

@@ -45,6 +45,7 @@
         <activity
             android:name=".ui.activity.SplashActivity"
             android:theme="@style/SplashNoActionBarTheme"
+            android:exported="true"
             android:windowSoftInputMode="stateAlwaysHidden">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

@@ -6,7 +6,6 @@ apply from: "$project.rootDir/tools/script-ktlint.gradle"
 
 android {
     compileSdkVersion config.targetSdkVersion
-    buildToolsVersion config.buildToolsVersion
 
     defaultConfig {
         minSdkVersion config.minSdkVersion
