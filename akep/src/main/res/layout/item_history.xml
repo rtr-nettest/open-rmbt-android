@@ -50,7 +50,22 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            app:layout_constraintGuide_percent="0.45" />
+            app:layout_constraintGuide_percent="0.40" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/qos"
+            style="@style/Text.ResultListValue"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:text="@{item.qos}"
+            app:visibleOrInvisible="@{item.qos != null}"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/download"
+            app:layout_constraintStart_toEndOf="@id/guideline"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="99" />
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/download"
@@ -62,7 +77,7 @@
             android:text="@{item.speedDownload}"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@id/upload"
-            app:layout_constraintStart_toEndOf="@id/guideline"
+            app:layout_constraintStart_toEndOf="@id/qos"
             app:layout_constraintTop_toTopOf="parent"
             tools:text="79" />
 
@@ -91,6 +106,36 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@id/upload"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="14" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/jitter"
+            style="@style/Text.ResultListValue"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:text="@{item.jitterMillis}"
+            android:visibility="gone"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/packetLoss"
+            app:layout_constraintStart_toEndOf="@id/ping"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="14" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/packetLoss"
+            style="@style/Text.ResultListValue"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:text="@{item.packetLossPercents}"
+            android:visibility="gone"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/jitter"
             app:layout_constraintTop_toTopOf="parent"
             tools:text="14" />
 

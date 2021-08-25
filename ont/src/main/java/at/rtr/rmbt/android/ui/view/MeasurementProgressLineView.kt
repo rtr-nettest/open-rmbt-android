@@ -13,12 +13,10 @@ import android.graphics.drawable.Drawable
 import android.util.AttributeSet
 import androidx.appcompat.widget.AppCompatImageView
 import androidx.core.content.res.ResourcesCompat
-import androidx.databinding.BindingAdapter
 import at.rtr.rmbt.android.R
 import at.specure.measurement.MeasurementState
 
-@SuppressLint("ViewConstructor")
-class MeasurementProgressLineView(context: Context, attrs: AttributeSet? = null) :
+class MeasurementProgressLineView @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null) :
     AppCompatImageView(context, attrs) {
 
     private val paintFilled = Paint(Paint.ANTI_ALIAS_FLAG).apply {
@@ -28,16 +26,17 @@ class MeasurementProgressLineView(context: Context, attrs: AttributeSet? = null)
         color = ResourcesCompat.getColor(resources, R.color.measurement_progress_empty, null)
     }
 
-    private var qosEnabled: Boolean = false
-    private var filledPercents: Int = 0
-    private var phase: MeasurementState = MeasurementState.IDLE
+    var qosEnabled: Boolean = false
+    var filledPercents: Int = 0
+    var phase: MeasurementState = MeasurementState.IDLE
 
     /**
      * Defines coefficients to calculation progress value for each phase of measurement when QoS is disabled
      */
     private var progressCoefficients = LinkedHashMap<MeasurementState, Float>().apply {
         put(MeasurementState.INIT, 0.2f)
-        put(MeasurementState.PING, 0.2f)
+        put(MeasurementState.JITTER_AND_PACKET_LOSS, 0.1f)
+        put(MeasurementState.PING, 0.1f)
         put(MeasurementState.DOWNLOAD, 0.3f)
         put(MeasurementState.UPLOAD, 0.3f)
         put(MeasurementState.FINISH, 0f)
@@ -47,8 +46,9 @@ class MeasurementProgressLineView(context: Context, attrs: AttributeSet? = null)
      * Defines coefficients to calculation progress value for each phase of measurement when QoS is enabled
      */
     private var progressCoefficientsQoS = LinkedHashMap<MeasurementState, Float>().apply {
-        put(MeasurementState.INIT, 0.15f)
-        put(MeasurementState.PING, 0.15f)
+        put(MeasurementState.INIT, 0.1f)
+        put(MeasurementState.JITTER_AND_PACKET_LOSS, 0.1f)
+        put(MeasurementState.PING, 0.1f)
         put(MeasurementState.DOWNLOAD, 0.2f)
         put(MeasurementState.UPLOAD, 0.24f)
         put(MeasurementState.QOS, 0.25f)
@@ -60,7 +60,8 @@ class MeasurementProgressLineView(context: Context, attrs: AttributeSet? = null)
      */
     private var progressOffsets = LinkedHashMap<MeasurementState, Float>().apply {
         put(MeasurementState.INIT, 0f)
-        put(MeasurementState.PING, 0.2f)
+        put(MeasurementState.JITTER_AND_PACKET_LOSS, 0.2f)
+        put(MeasurementState.PING, 0.3f)
         put(MeasurementState.DOWNLOAD, 0.4f)
         put(MeasurementState.UPLOAD, 0.7f)
         put(MeasurementState.FINISH, 1f)
@@ -71,7 +72,8 @@ class MeasurementProgressLineView(context: Context, attrs: AttributeSet? = null)
      */
     private var progressOffsetsQoS = LinkedHashMap<MeasurementState, Float>().apply {
         put(MeasurementState.INIT, 0f)
-        put(MeasurementState.PING, 0.15f)
+        put(MeasurementState.JITTER_AND_PACKET_LOSS, 0.1f)
+        put(MeasurementState.PING, 0.2f)
         put(MeasurementState.DOWNLOAD, 0.3f)
         put(MeasurementState.UPLOAD, 0.5f)
         put(MeasurementState.QOS, 0.75f)
@@ -115,28 +117,5 @@ class MeasurementProgressLineView(context: Context, attrs: AttributeSet? = null)
         drawable.setBounds(0, 0, widthPixels, heightPixels)
         drawable.draw(canvas)
         return mutableBitmap
-    }
-
-    companion object {
-        @JvmStatic
-        @BindingAdapter("app:percentage")
-        fun setPercents(lineView: MeasurementProgressLineView, percents: Int) {
-            lineView.filledPercents = percents
-            lineView.invalidate()
-        }
-
-        @JvmStatic
-        @BindingAdapter("app:phase")
-        fun setMeasurementPhase(lineView: MeasurementProgressLineView, state: MeasurementState) {
-            lineView.phase = state
-            lineView.invalidate()
-        }
-
-        @JvmStatic
-        @BindingAdapter("app:qosEnabled")
-        fun setQosEnabled(lineView: MeasurementProgressLineView, qosEnabled: Boolean) {
-            lineView.qosEnabled = qosEnabled
-            lineView.invalidate()
-        }
     }
 }

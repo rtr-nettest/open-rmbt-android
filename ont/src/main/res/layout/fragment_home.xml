@@ -19,6 +19,8 @@
 
         <import type="at.specure.location.LocationState" />
 
+        <import type="at.rtr.rmbt.android.util.InformationAccessProblem" />
+
         <variable
             name="captiveState"
             type="at.specure.info.ip.CaptivePortal.CaptivePortalStatus" />
@@ -46,12 +48,12 @@
             android:paddingTop="20dp"
             android:paddingEnd="40dp"
             android:paddingBottom="20dp"
+            android:stateListAnimator="@null"
             android:text="@string/text_home_run"
             android:textAllCaps="false"
             android:textColor="@android:color/white"
-            app:layout_constraintBottom_toTopOf="@id/logo"
-            android:stateListAnimator="@null"
             android:translationZ="0dp"
+            app:layout_constraintBottom_toTopOf="@id/logo"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/buttonSettings"
@@ -81,11 +83,33 @@
             android:id="@+id/logo"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="100dp"
+            android:layout_marginBottom="120dp"
             android:src="@drawable/image_home"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent" />
+
+        <include
+            layout="@layout/view_network_details"
+            android:layout_width="0dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            android:layout_margin="@dimen/margin_large"
+            android:layout_height="wrap_content"
+            android:id="@+id/panel_network_details"
+            app:visibleOrGone="@{state.informationAccessProblem == InformationAccessProblem.NO_PROBLEM}" />
+
+        <include
+            android:id="@+id/panel_permissions_problems"
+            layout="@layout/view_permissions_problems"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/margin_large"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:visibleOrGone="@{state.informationAccessProblem != InformationAccessProblem.NO_PROBLEM}" />
 
         <androidx.appcompat.widget.AppCompatImageView
             android:id="@+id/buttonSettings"
@@ -94,10 +118,10 @@
             android:layout_marginEnd="20dp"
             android:padding="8dp"
             android:src="@drawable/ic_settings"
-            app:tint="@color/main_color"
             app:layout_constraintBottom_toBottomOf="@id/app_logo"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="@id/app_logo" />
+            app:layout_constraintTop_toTopOf="@id/app_logo"
+            app:tint="@color/main_color" />
 
         <androidx.appcompat.widget.AppCompatImageView
             android:id="@+id/ivLoopStatusIcon"
@@ -116,11 +140,12 @@
 
         <androidx.appcompat.widget.AppCompatImageView
             android:id="@+id/app_logo"
-            android:layout_width="wrap_content"
+            android:layout_width="100dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="20dp"
             android:layout_marginTop="48dp"
             android:padding="8dp"
+            android:scaleType="centerInside"
             android:src="@drawable/img_header"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />

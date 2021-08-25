@@ -12,6 +12,7 @@ import androidx.databinding.BindingAdapter
 import at.rmbt.client.control.IpProtocol
 import at.rtr.rmbt.android.R
 import at.rtr.rmbt.android.ui.view.MeasurementMedianSquareView
+import at.rtr.rmbt.android.ui.view.MeasurementProgressLineView
 import at.rtr.rmbt.android.ui.view.MeasurementProgressSquareView
 import at.rtr.rmbt.android.ui.view.ProgressBar
 import at.rtr.rmbt.android.ui.view.ResultBar
@@ -473,20 +474,23 @@ fun SpeedLineChart.reset(measurementState: MeasurementState) {
     }
 }
 
-@BindingAdapter("app:percentage")
+@BindingAdapter("percentage")
 fun MeasurementProgressSquareView.setPercents(percentage: Int) {
     setProgress(percentage)
 }
 
 @BindingAdapter(
-    value = ["app:measurementPhase", "app:downloadSpeed", "app:uploadSpeed", "app:ping"],
+    value = ["measurementPhase", "downloadSpeed", "uploadSpeed", "ping", "jitter", "packetLoss", "qos"],
     requireAll = true
 )
 fun MeasurementProgressSquareView.setMeasurementPhase(
     state: MeasurementState,
     downloadSpeed: Long,
     uploadSpeed: Long,
-    ping: Long
+    ping: Long,
+    jitter: Long,
+    packetLoss: Integer,
+    qos: Integer?
 ) {
     setMeasurementState(state)
     if (state == MeasurementState.PING) {
@@ -494,6 +498,7 @@ fun MeasurementProgressSquareView.setMeasurementPhase(
             setSpeed(ping / 1000000.0f)
         } else {
             setSpeed(-1.0f)
+            setSpeed(jitter / 1000000.0f)
         }
     }
     if (state == MeasurementState.UPLOAD) {
@@ -502,17 +507,23 @@ fun MeasurementProgressSquareView.setMeasurementPhase(
     if (state == MeasurementState.DOWNLOAD) {
         setSpeed(downloadSpeed / 1000000.0f)
     }
+    if (state == MeasurementState.QOS) {
+        setSpeed(qos?.toFloat() ?: 0f)
+    }
 }
 
 @BindingAdapter(
-    value = ["app:measurementPhase", "app:downloadSpeed", "app:uploadSpeed", "app:ping"],
+    value = ["measurementPhase", "downloadSpeed", "uploadSpeed", "ping", "jitter", "packetLoss", "qos"],
     requireAll = true
 )
 fun MeasurementMedianSquareView.setMeasurementPhase(
     state: MeasurementState,
     downloadSpeed: Long,
     uploadSpeed: Long,
-    ping: Long
+    ping: Long,
+    jitter: Long,
+    packetLoss: Integer,
+    qos: Integer?
 ) {
     setMeasurementState(state)
     if (state == MeasurementState.PING) {
@@ -520,6 +531,7 @@ fun MeasurementMedianSquareView.setMeasurementPhase(
             setSpeed(ping / 1000000.0f)
         } else {
             setSpeed(-1.0f)
+            setSpeed(jitter / 1000000.0f)
         }
     }
     if (state == MeasurementState.UPLOAD) {
@@ -527,6 +539,9 @@ fun MeasurementMedianSquareView.setMeasurementPhase(
     }
     if (state == MeasurementState.DOWNLOAD) {
         setSpeed(downloadSpeed / 1000000.0f)
+    }
+    if (state == MeasurementState.QOS) {
+        setSpeed(qos?.toFloat() ?: 0f)
     }
 }
 
@@ -795,6 +810,30 @@ fun AppCompatTextView.setPingResult(pingResult: Double) {
     }
 }
 
+/**
+ * A binding adapter that is used for show jitter in results
+ */
+@BindingAdapter("jitterResult")
+fun AppCompatTextView.setJitterResult(jitterResult: Double) {
+    text = if (jitterResult >= 0) {
+        jitterResult.roundToInt().toString()
+    } else {
+        context.getString(R.string.measurement_dash)
+    }
+}
+
+/**
+ * A binding adapter that is used for show packet loss rate in results
+ */
+@BindingAdapter("packetLossResult")
+fun AppCompatTextView.setPacketLossResult(packetLossResult: Double) {
+    text = if (packetLossResult >= 0) {
+        (packetLossResult * 100f).roundToInt().toString()
+    } else {
+        context.getString(R.string.measurement_dash)
+    }
+}
+
 fun getPingClassificationIcon(pingClassification: Classification): Int {
     return when (pingClassification) {
         Classification.NONE -> {
@@ -996,7 +1035,7 @@ fun AppCompatTextView.setSignalStrengthMap(signalStrengthResult: String?, signal
 /**
  * A binding adapter that is used for show signal
  */
-@BindingAdapter("app:currentCount", "app:totalCount", requireAll = true)
+@BindingAdapter("currentCount", "totalCount", requireAll = true)
 fun AppCompatTextView.setProgress(currentCount: Int?, totalCount: Int?) {
 
     text = if ((currentCount != null) && (totalCount != null)) {
@@ -1004,4 +1043,22 @@ fun AppCompatTextView.setProgress(currentCount: Int?, totalCount: Int?) {
     } else {
         ""
     }
+}
+
+@BindingAdapter("percents")
+fun MeasurementProgressLineView.setPercents(percents: Int) {
+    this.filledPercents = percents
+    invalidate()
+}
+
+@BindingAdapter("phase")
+fun MeasurementProgressLineView.setMeasurementPhase(state: MeasurementState) {
+    this.phase = state
+    invalidate()
+}
+
+@BindingAdapter("qosEnabled")
+fun MeasurementProgressLineView.setQosEnabled(qosEnabled: Boolean) {
+    this.qosEnabled = qosEnabled
+    invalidate()
 }

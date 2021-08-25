@@ -14,48 +14,62 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            app:layout_constraintGuide_percent="0.45" />
+            app:layout_constraintGuide_percent="0.40" />
 
-            <androidx.appcompat.widget.AppCompatTextView
-                style="@style/Text.ResultListHeader"
-                android:id="@+id/download"
-                android:layout_width="0dp"
-                android:gravity="center"
-                android:orientation="vertical"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toStartOf="@id/upload"
-                app:layout_constraintStart_toEndOf="@id/guideline"
-                app:layout_constraintTop_toTopOf="parent"
-                android:layout_height="wrap_content"
-                android:maxLines="1"
-                android:text="@string/history_item_header_down"/>
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/qos"
+            style="@style/Text.ResultListHeader"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:maxLines="1"
+            android:orientation="vertical"
+            android:text="@string/label_qos"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/download"
+            app:layout_constraintStart_toEndOf="@id/guideline"
+            app:layout_constraintTop_toTopOf="parent" />
 
-            <androidx.appcompat.widget.AppCompatTextView
-                android:id="@+id/upload"
-                style="@style/Text.ResultListHeader"
-                android:layout_width="0dp"
-                android:gravity="center"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toStartOf="@id/ping"
-                app:layout_constraintStart_toEndOf="@id/download"
-                app:layout_constraintTop_toTopOf="parent"
-                android:layout_height="wrap_content"
-                android:maxLines="1"
-                android:text="@string/history_item_header_up" />
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/download"
+            style="@style/Text.ResultListHeader"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:maxLines="1"
+            android:orientation="vertical"
+            android:text="@string/history_item_header_down"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/upload"
+            app:layout_constraintStart_toEndOf="@id/qos"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/upload"
+            style="@style/Text.ResultListHeader"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:maxLines="1"
+            android:text="@string/history_item_header_up"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/ping"
+            app:layout_constraintStart_toEndOf="@id/download"
+            app:layout_constraintTop_toTopOf="parent" />
 
 
-            <androidx.appcompat.widget.AppCompatTextView
-                android:id="@+id/ping"
-                style="@style/Text.ResultListHeader"
-                android:layout_width="0dp"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toEndOf="@id/upload"
-                app:layout_constraintTop_toTopOf="parent"
-                android:gravity="center"
-                android:layout_height="wrap_content"
-                android:maxLines="1"
-                android:text="@string/history_item_header_ping" />
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/ping"
+            style="@style/Text.ResultListHeader"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:maxLines="1"
+            android:text="@string/history_item_header_ping"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/upload"
+            app:layout_constraintTop_toTopOf="parent" />
 
 
     </androidx.constraintlayout.widget.ConstraintLayout>

@@ -1,6 +1,8 @@
 package at.specure.data
 
+import at.rmbt.client.control.HistoryItemONTResponse
 import at.rmbt.client.control.HistoryItemResponse
+import at.rmbt.client.control.HistoryONTResponse
 import at.rmbt.client.control.HistoryResponse
 import at.rmbt.client.control.MapFilterObjectResponse
 import at.rmbt.client.control.MapFiltersResponse
@@ -19,6 +21,7 @@ import at.rmbt.client.control.ServerTestResultResponse
 import at.rmbt.client.control.SignalGraphItemResponse
 import at.rmbt.client.control.SignalMeasurementRequestResponse
 import at.rmbt.client.control.SpeedGraphItemResponse
+import at.rmbt.client.control.SpeedGraphItemResponseONT
 import at.rmbt.client.control.TestResultDetailItem
 import at.rmbt.client.control.TestResultDetailResponse
 import at.rmbt.client.control.data.MapFilterType
@@ -34,7 +37,14 @@ import at.specure.data.entity.TestResultGraphItemRecord
 import at.specure.data.entity.TestResultRecord
 import at.specure.result.QoECategory
 import at.specure.result.QoSCategory
+import org.joda.time.DateTime
+import java.text.DecimalFormat
+import java.text.SimpleDateFormat
 import java.util.EnumMap
+import java.util.Locale
+import java.util.Date
+import kotlin.collections.ArrayList
+import kotlin.math.roundToInt
 
 fun HistoryResponse.toModelList(): List<History> = history?.map { it.toModel() } ?: emptyList()
 
@@ -43,7 +53,9 @@ fun HistoryItemResponse.toModel() = History(
     loopUUID = loopUUID,
     referenceUUID = if (loopUUID == null) testUUID else loopUUID!!,
     model = model,
-    networkType = NetworkTypeCompat.fromString(networkType ?: ServerNetworkType.TYPE_UNKNOWN2.stringValue),
+    networkType = NetworkTypeCompat.fromString(
+        networkType ?: ServerNetworkType.TYPE_UNKNOWN2.stringValue
+    ),
     ping = ping,
     pingClassification = Classification.fromValue(pingClassification),
     pingShortest = pingShortest,
@@ -52,13 +64,82 @@ fun HistoryItemResponse.toModel() = History(
     speedDownloadClassification = Classification.fromValue(speedDownloadClassification),
     speedUpload = speedUpload,
     speedUploadClassification = Classification.fromValue(speedUploadClassification),
-    signalClassification = signalClassification?.let { Classification.fromValue(it) } ?: Classification.NONE,
+    signalClassification = signalClassification?.let { Classification.fromValue(it) }
+        ?: Classification.NONE,
     time = time,
     timeString = timeString,
-    timezone = timezone
+    timezone = timezone,
+    qos = qosResultPercents,
+    jitterMillis = jitterMillisResult,
+    packetLossPercents = packetLossPercents,
+    packetLossClassification = classificationPacketLoss?.let { Classification.fromValue(it) },
+    jitterClassification = classificationJitter?.let { Classification.fromValue(it) }
 )
 
-fun ServerTestResultResponse.toModel(testUUID: String): TestResultRecord = resultItem.first().toModel(testUUID)
+fun HistoryONTResponse.toModelList(): List<History> =
+    history?.historyList?.map { it.toModel() } ?: emptyList()
+
+fun HistoryItemONTResponse.toModel(): History {
+    val dateTime = DateTime(measurementDate)
+    return History(
+        testUUID = testUUID,
+        loopUUID = null,
+        referenceUUID = testUUID, // todo: change when loop uuid will be available
+        model = "",
+        networkType = NetworkTypeCompat.fromString(
+            networkType ?: ServerNetworkType.TYPE_UNKNOWN2.stringValue
+        ),
+        ping = ping.toFormattedPing(),
+        pingClassification = Classification.NONE,
+        pingShortest = ping.toFormattedPing(),
+        pingShortestClassification = Classification.NONE,
+        speedDownload = speedDownload.toSpeedValue(),
+        speedDownloadClassification = Classification.NONE,
+        speedUpload = speedUpload.toSpeedValue(),
+        speedUploadClassification = Classification.NONE,
+        signalClassification = Classification.NONE,
+        time = dateTime.millis,
+        timeString = SimpleDateFormat(
+            "dd.MM.yy, HH:mm:ss",
+            Locale.US
+        ).format(Date(dateTime.millis)),
+        timezone = "",
+        qos = if (qosResultPercents == null) {
+            null
+        } else {
+            qosResultPercents?.roundToInt().toString()
+        },
+        jitterMillis = if (jitterMillisResult == null) {
+            null
+        } else {
+            jitterMillisResult?.roundToInt().toString()
+        },
+        packetLossPercents = if (packetLossPercents == null) {
+            null
+        } else {
+            packetLossPercents?.roundToInt().toString()
+        },
+        packetLossClassification = Classification.NONE,
+        jitterClassification = Classification.NONE
+    )
+}
+
+fun Float.toSpeedValue(): String {
+    val value = this / 1000f // from kbps to Mbps
+    return when {
+        value >= 10 -> value.roundToInt().toString()
+        value >= 1 -> DecimalFormat("0.#").format(value)
+        value >= 0.01 -> DecimalFormat("0.##").format(value)
+        else -> "0"
+    }
+}
+
+private fun Float.toFormattedPing(): String {
+    return this.roundToInt().toString()
+}
+
+fun ServerTestResultResponse.toModel(testUUID: String): TestResultRecord =
+    resultItem.first().toModel(testUUID)
 
 fun ServerTestResultItem.toModel(testUUID: String): TestResultRecord {
 
@@ -88,7 +169,11 @@ fun ServerTestResultItem.toModel(testUUID: String): TestResultRecord {
         networkName = networkItem.wifiNetworkSSID,
         networkProviderName = networkItem.providerName,
         networkTypeText = networkItem.networkTypeString,
-        networkType = NetworkTypeCompat.fromResultIntType(networkType)
+        networkType = NetworkTypeCompat.fromResultIntType(networkType),
+        jitterMillis = measurementItem.jitterMillis?.toDoubleOrNull(),
+        packetLossPercents = measurementItem.packetLossPercents?.toDoubleOrNull(),
+        packetLossClass = measurementItem.packetLossClass?.let { Classification.fromValue(it) },
+        jitterClass = measurementItem.jitterClass?.let { Classification.fromValue(it) }
     )
 }
 
@@ -138,7 +223,20 @@ fun SpeedGraphItemResponse.toModel(testUUID: String, type: TestResultGraphItemRe
     )
 }
 
-fun TestResultDetailResponse.toModelList(testUUID: String): List<TestResultDetailsRecord> = details.map { it.toModel(testUUID) }
+fun SpeedGraphItemResponseONT.toModel(
+    testUUID: String,
+    type: TestResultGraphItemRecord.Type
+): TestResultGraphItemRecord {
+    return TestResultGraphItemRecord(
+        testUUID = testUUID,
+        time = timeMillis,
+        value = bytes,
+        type = type
+    )
+}
+
+fun TestResultDetailResponse.toModelList(testUUID: String): List<TestResultDetailsRecord> =
+    details.map { it.toModel(testUUID) }
 
 fun TestResultDetailItem.toModel(testUUID: String): TestResultDetailsRecord =
     TestResultDetailsRecord(testUUID, openTestUUID, openUuid, time, timezone, title, value)

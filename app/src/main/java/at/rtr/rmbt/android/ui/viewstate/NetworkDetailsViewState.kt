@@ -1,7 +1,6 @@
 package at.rtr.rmbt.android.ui.viewstate
 
 import android.os.Build
-import android.telephony.CellInfo
 import android.text.Html
 import android.text.Spanned
 import androidx.databinding.ObservableField
@@ -85,8 +84,7 @@ class NetworkDetailsViewState : ViewState {
             is WifiNetworkInfo -> extractWifiNetworkInfo(detailedNetworkInfo.networkInfo as WifiNetworkInfo)
             is CellNetworkInfo -> {
                 extractCellNetworkInfo(
-                    detailedNetworkInfo.networkInfo as CellNetworkInfo,
-                    detailedNetworkInfo.cellInfos
+                    detailedNetworkInfo.networkInfo as CellNetworkInfo, detailedNetworkInfo.secondaryActiveCellNetworks
                 )
             }
             else -> "Not Implemented"
@@ -130,7 +128,7 @@ class NetworkDetailsViewState : ViewState {
         bold("network type: ").append(info.type.name).newLine()
     }
 
-    private fun extractCellNetworkInfo(info: CellNetworkInfo, rawCellInfos: List<CellInfo>?): String =
+    private fun extractCellNetworkInfo(info: CellNetworkInfo, rawCellInfos: List<CellNetworkInfo?>?): String =
         buildString {
             bold("name: ").append(info.name).newLine()
             bold("band: ").append(info.band).newLine()

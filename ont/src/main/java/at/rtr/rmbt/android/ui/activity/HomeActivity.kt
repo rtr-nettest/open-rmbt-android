@@ -26,15 +26,18 @@ import at.rtr.rmbt.android.R
 import at.rtr.rmbt.android.databinding.ActivityHomeBinding
 import at.rtr.rmbt.android.di.viewModelLazy
 import at.rtr.rmbt.android.ui.dialog.ConfigCheckDialog
+import at.rtr.rmbt.android.ui.dialog.NetworkInfoDialog
+import at.rtr.rmbt.android.ui.fragment.HomeFragment
 import at.rtr.rmbt.android.util.KeepStateNavigator
 import at.rtr.rmbt.android.util.listen
+import at.rtr.rmbt.android.util.listenNonNull
 import at.rtr.rmbt.android.viewmodel.ConfigCheckViewModel
 import at.rtr.rmbt.android.viewmodel.MeasurementViewModel
 import at.specure.data.entity.LoopModeState
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import timber.log.Timber
 
-class HomeActivity : BaseActivity() {
+class HomeActivity : BaseActivity(), HomeFragment.NetworkInfoCallback {
 
     private lateinit var binding: ActivityHomeBinding
 
@@ -94,7 +97,7 @@ class HomeActivity : BaseActivity() {
             }
         }
 
-        configCheckViewModel.incorrectValuesLiveData.listen(this) {
+        configCheckViewModel.incorrectValuesLiveData.listenNonNull(this) {
             ConfigCheckDialog.show(supportFragmentManager, it)
         }
     }
@@ -125,6 +128,10 @@ class HomeActivity : BaseActivity() {
                 finish()
             }
         }
+    }
+
+    override fun showNetworkInfo() {
+        NetworkInfoDialog.show(supportFragmentManager)
     }
 
     companion object {

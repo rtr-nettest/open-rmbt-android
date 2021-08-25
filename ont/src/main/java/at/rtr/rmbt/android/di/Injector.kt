@@ -2,8 +2,6 @@ package at.rtr.rmbt.android.di
 
 import at.rtr.rmbt.android.App
 import at.rtr.rmbt.android.ui.dialog.HistoryFiltersDialog
-import at.rtr.rmbt.android.ui.dialog.IpInfoDialog
-import at.rtr.rmbt.android.ui.dialog.LocationInfoDialog
 import at.rtr.rmbt.android.ui.dialog.NetworkInfoDialog
 import at.specure.measurement.MeasurementService
 import at.specure.measurement.signal.SignalMeasurementService
@@ -20,10 +18,6 @@ object Injector : AppComponent {
     lateinit var component: AppComponent
 
     override fun viewModelFactory() = component.viewModelFactory()
-
-    override fun inject(dialog: IpInfoDialog) = component.inject(dialog)
-
-    override fun inject(dialog: LocationInfoDialog) = component.inject(dialog)
 
     override fun inject(settingsWorker: SettingsWorker) = component.inject(settingsWorker)
 

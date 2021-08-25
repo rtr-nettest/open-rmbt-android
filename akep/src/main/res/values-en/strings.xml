@@ -38,6 +38,7 @@
     <string name="dialog_title_error">Error</string>
     <string name="error_unknown">Poor connection. Please try again later</string>
     <string name="no_internet_connection_not_load_data">No Internet connection. Could not load data.</string>
+    <string name="request_failure">An error occurred while retrieving the data.</string>
 
     <!-- Home screen -->
     <string name="home_attention">Attention</string>
@@ -53,7 +54,7 @@
     <string name="preferences_information">Information</string>
     <string name="options">Settings</string>
     <string name="preferences_general_settings">General</string>
-    <string name="preferences_terms_of_service">Terms of Service</string>
+    <string name="preferences_terms_of_service">Terms of use</string>
     <string name="preferences_loop_test_count">Number of Measurements</string>
     <string name="loop_mode_clarification">When loop mode is enabled, new tests are automatically performed after the configured waiting time or when the device moves more than the configured distance.</string>
     <string name="preferences_privacy">Privacy</string>
@@ -115,16 +116,12 @@
     <string name="location_dialog_label_age">Age</string>
     <string name="location_dialog_label_source">Source</string>
     <string name="location_dialog_label_altitude">Altitude</string>
-    <string name="location_dialog_label_speed">Speed</string>
     <string name="location_dialog_label_satellites">Satellites</string>
-    <string name="location_dialog_label_location_progress_message">Determining location, please wait…</string>
     <string name="open_gps_setting_dialog_label_gps_not_enabled">Location services are not enabled. Would you like to modify location settings?</string>
     <string name="open_gps_setting_dialog_label_open_gps_setting">Open location settings</string>
     <string name="open_gps_setting_dialog_label_cancel">Cancel</string>
-    <string name="location_dialog_not_available">Not available</string>
     <string name="location_dialog_age">%1$s s</string>
     <string name="location_dialog_accuracy">%1$s m</string>
-    <string name="location_dialog_speed">%1$s km/h</string>
 
     <string name="location_location_direction_n">N %1$s</string>
     <string name="location_location_direction_e">E %1$s</string>
@@ -283,14 +280,11 @@
     <string name="text_terms_agree_empty">You have to agree to the privacy policy and terms of use to continue.</string>
 
     <string name="dialog_title_config_check">Please change the following values:</string>
-    <string name="label_ip_processing">Processing…</string>
     <string name="radio_info_warning_title">Radio settings</string>
     <string name="radio_info_warning_message">Be careful: Changing advanced settings of your radio configuration might be harmful to the stability and performance of your device.</string>
     <string name="accept_risk">I accept the risk</string>
     <string name="preferences_connection_details_not_supported">Extended connection details are not supported on this device</string>
 
-    <string name="dialog_signal_info_title">Signal info</string>
-    <string name="dialog_signal_info_waiting">Please wait…</string>
     <string name="dialog_signal_info_band">Band</string>
     <string name="dialog_signal_info_channel">Channel</string>
     <string name="dialog_signal_info_ta">TA</string>
@@ -306,10 +300,6 @@
     <string name="text_unit_mbps">Mbps</string>
     <string name="text_unit_ping">ms</string>
     <string name="text_current_from_count">%1$d of %2$d</string>
-    <string name="loop_mode_next_test">Next measurement</string>
-    <string name="unit_minutes">min</string>
-    <string name="or">or</string>
-    <string name="unit_meter">m</string>
     <string name="median">Median</string>
 
     <string name="title_permissions_welcome">Welcome to Akep Nettest</string>
@@ -346,5 +336,28 @@
         <item>Map</item>
     </string-array>
 
+    <string name="label_network_type">Network type</string>
+    <string name="label_network_name">Network name</string>
+    <string name="label_measurement_server">Measurement server</string>
+    <string name="label_change_test_server">Change Test Server</string>
+
+    <string name="measurement">Measurement</string>
+    <string name="label_measurement_ping_ms">Ping (ms)</string>
+    <string name="label_measurement_download_mbps">Download (Mbps)</string>
+    <string name="label_measurement_upload_mbps">Upload (Mbps)</string>
+    <string name="label_measurement_qos">QoS (%)</string>
+    <string name="label_measurement_time_to_next_test">Time to next test</string>
+    <string name="label_measurement_movement">Movement</string>
+
+    <string name="label_location_access_disabled">Location access disabled</string>
+    <string name="label_location_access_disabled_explanation">Go to Location settings to enable location access.</string>
+    <string name="label_some_permission_denied">App permissions missing</string>
+    <string name="label_some_permission_denied_explanation">Go to App settings to resolve missing app permissions.</string>
+    <string name="title_open_nettest_accuracy">Akep Nettest Accuracy</string>
+    <string name="subtitle_open_nettest_accuracy">Akep Nettest needs certain functionality to operate correctly.</string>
+    <string name="phone_permission_title">1. Phone Permissions</string>
+    <string name="location_permission_title">2. Location Permissions</string>
+    <string name="phone_permission_explanation">We will never make or manage phone calls. We use phone permissions to identify the mobile operator used for testing.</string>
+    <string name="location_permission_explanation">Your location identifies nearby servers and your device`s cellular connection in order to properly configure Akep Nettest.</string>
 
 </resources>

@@ -136,6 +136,10 @@
         <item name="android:textSize">24sp</item>
     </style>
 
+    <style name="RobotoMediumStyle.ExtraLarge.Dark" parent="RobotoMediumStyle.ExtraLarge">
+        <item name="android:textColor">@color/text_dark_gray</item>
+    </style>
+
     <style name="FullScreenDialogStyle" parent="Theme.AppCompat.Dialog">
         <item name="android:windowNoTitle">true</item>
         <item name="android:windowIsFloating">true</item>
@@ -175,7 +179,7 @@
     </style>
 
     <style name="ResultMainItemMainValue" parent="RobotoMediumStyle.ExtraLarge">
-        <item name="android:textSize">30sp</item>
+        <item name="android:textSize">20sp</item>
         <item name="android:textColor">@android:color/black</item>
     </style>
 
@@ -193,13 +197,50 @@
     </style>
 
     <style name="Text.ResultListDate" parent="RobotoMediumStyle">
-        <item name="android:textSize">12sp</item>
+        <item name="android:textSize">11sp</item>
         <item name="android:textAllCaps">true</item>
         <item name="android:textColor">@android:color/black</item>
     </style>
 
     <style name="Text.ResultListHeader" parent="RobotoMediumStyle">
         <item name="android:textSize">12sp</item>
+        <item name="android:textColor">@android:color/black</item>
+    </style>
+
+    <style name="Text.NetworkInfoSlider.Title" parent="RobotoRegularStyle">
+        <item name="textAllCaps">true</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:alpha">0.25</item>
+        <item name="android:textSize">13sp</item>
+        <item name="android:letterSpacing">0.03</item>
+        <item name="android:textColor">@android:color/black</item>
+    </style>
+
+    <style name="Text.NetworkInfoSlider.Value" parent="RobotoMediumStyle.Medium">
+        <item name="android:textSize">13sp</item>
+        <item name="android:textColor">@android:color/black</item>
+    </style>
+
+    <style name="Text.NetworkInfoSlider.ServerValue" parent="RobotoRegularStyle">
+        <item name="android:textSize">14sp</item>
+        <item name="android:textColor">@android:color/black</item>
+    </style>
+
+    <style name="AppBottomSheetDialogTheme" parent="Theme.Design.Light.BottomSheetDialog">
+        <item name="bottomSheetStyle">@style/AppModalStyle</item>
+    </style>
+
+    <style name="AppModalStyle" parent="Widget.Design.BottomSheet.Modal">
+        <item name="android:background">@drawable/bg_corners_top</item>
+    </style>
+
+    <style name="MeasurementSectionLabel" parent="RobotoMediumStyle.Small">
+        <item name="android:textColor">@color/black_40</item>
+        <item name="textAllCaps">true</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="MeasurementValueLabel" parent="RobotoMediumStyle.Small">
         <item name="android:textColor">@android:color/black</item>
     </style>
 

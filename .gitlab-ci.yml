@@ -80,6 +80,19 @@ check:app-akep:
       - /update\/.*/
       - /test\/.*/
 
+check:app-nkom:
+  stage: check
+  script:
+    - ./gradlew :nkom:ktlint
+    - ./gradlew :nkom:lintLocalStageDebug
+  only:
+    refs:
+      - /fix\/.*/
+      - /feature\/.*/
+      - /hotfix\/.*/
+      - /update\/.*/
+      - /test\/.*/
+
 check:core:
   stage: check
   script:
@@ -182,6 +195,22 @@ distribution:build-akep:
     - develop
   artifacts:
     name: "akep-$VERSION_NAME-$CI_COMMIT_REF_SLUG-$CI_COMMIT_SHORT_SHA"
+    paths:
+      - app/build/outputs
+
+distribution:build-nkom:
+  stage: distribution
+  interruptible: true
+  script:
+    - echo "version ${VERSION_NAME}(${VERSION_CODE})"
+    - ./gradlew nkom:assembleLocalStageDebug -PbuildVersionCode=${VERSION_CODE} -PbuildVersionName=${VERSION_NAME} -PreleaseNotes="${RELEASE_NOTES}"
+    - ./gradlew nkom:appDistributionUploadLocalStageDebug -PbuildVersionCode=${VERSION_CODE} -PbuildVersionName=${VERSION_NAME} -PreleaseNotes="${RELEASE_NOTES}"
+    - ./gradlew nkom:assembleLocalDemoRelease -PbuildVersionCode=${VERSION_CODE} -PbuildVersionName=${VERSION_NAME} -PreleaseNotes="${RELEASE_NOTES}"
+    - ./gradlew nkom:appDistributionUploadLocalDemoRelease -PbuildVersionCode=${VERSION_CODE} -PbuildVersionName=${VERSION_NAME} -PreleaseNotes="${RELEASE_NOTES}"
+  only:
+    - develop
+  artifacts:
+    name: "nkom-$VERSION_NAME-$CI_COMMIT_REF_SLUG-$CI_COMMIT_SHORT_SHA"
     paths:
       - app/build/outputs
 

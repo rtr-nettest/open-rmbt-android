@@ -111,16 +111,12 @@
     <string name="location_dialog_label_age">Aktualität</string>
     <string name="location_dialog_label_source">Quelle</string>
     <string name="location_dialog_label_altitude">Höhe</string>
-    <string name="location_dialog_label_speed">Geschwindigkeit</string>
     <string name="location_dialog_label_satellites">Satelliten</string>
-    <string name="location_dialog_label_location_progress_message">Der Standort wird bestimmt, bitte warten…</string>
     <string name="open_gps_setting_dialog_label_gps_not_enabled">Standort nicht verfügbar. Möchten Sie die Standorteinstellungen ändern?</string>
     <string name="open_gps_setting_dialog_label_open_gps_setting">Standort-Einstellungen öffnen</string>
     <string name="open_gps_setting_dialog_label_cancel">Abbrechen</string>
-    <string name="location_dialog_not_available">Nicht verfügbar</string>
     <string name="location_dialog_age">%1$s s</string>
     <string name="location_dialog_accuracy">%1$s m</string>
-    <string name="location_dialog_speed">%1$s km/h</string>
     <string name="location_location_direction_n">N %1$s</string>
     <string name="location_location_direction_e">E %1$s</string>
     <string name="location_location_direction_s">S %1$s</string>
@@ -204,12 +200,6 @@
     <string name="results_network_provider">Betreiber</string>
     <string name="results_network_ssid">WLAN SSID</string>
     <string name="result_test_details">Test Details</string>
-    <string name="label_information">Informationen</string>
-    <string name="label_tests">Tests</string>
-    <string name="label_succeeded">ERFOLGREICH</string>
-    <string name="label_failed">GESCHEITERT</string>
-    <string name="label_description">BESCHREIBUNG</string>
-    <string name="label_detail">DETAILS</string>
 
     <!-- Map -->
     <string name="map_layer_communities">Gemeinden</string>
@@ -273,14 +263,11 @@
     <string name="text_terms_agree_empty">Sie müssen den Datenschutzbestimmungen und Nutzungsbedingungen zustimmen, um fortsetzen zu können.</string>
 
     <string name="dialog_title_config_check">Bitte ändern Sie die folgenden Werte:</string>
-    <string name="label_ip_processing">Wird bearbeitet…</string>
     <string name="radio_info_warning_title">Mobilfunkinformation</string>
     <string name="radio_info_warning_message">Achtung: Änderungen in den erweiterten Einstellungen der Mobilfunkkonfiguration können Auswirkungen auf Funktion, Stabilität und Performance Ihres Gerätes haben.</string>
     <string name="accept_risk">Ich bin mir der Gefahren bewusst</string>
     <string name="preferences_connection_details_not_supported">Erweiterte Verbindungsdetails werden auf diesem Gerät nicht unterstützt</string>
 
-    <string name="dialog_signal_info_title">Signalinfo</string>
-    <string name="dialog_signal_info_waiting">Warten Sie mal…</string>
     <string name="dialog_signal_info_band">Band</string>
     <string name="dialog_signal_info_channel">Kanal</string>
     <string name="dialog_signal_info_ta">TA</string>
@@ -299,11 +286,7 @@
     <string name="text_unit_ping">ms</string>
     <string name="title_loop_measurement">Wiederholungsmessung</string>
     <string name="text_current_from_count">"%1$d  von %2$d "</string>
-    <string name="unit_minutes">min</string>
-    <string name="or">or</string>
-    <string name="unit_meter">m</string>
     <string name="title_loop_waiting">Schleife warten</string>
-    <string name="loop_mode_next_test">Nächste Messung</string>
     <string name="median">Median</string>
 
     <string name="title_permissions_welcome"> Willkommen bei Open Nettest </string>
@@ -333,5 +316,31 @@
     <string name="title_loop_measurements"> Schleifenmessungen </string>
     <string name="text_link_history_empty"> Führen Sie Ihre erste Messung durch </string>
     <string name="text_history_empty"> Keine Ergebnisse angezeigt. </string>
+
+    <string name="label_network_type">Netzwerktyp</string>
+    <string name="label_network_name">Netzwerkname</string>
+    <string name="label_measurement_server">Messserver</string>
+    <string name="label_change_test_server">Testserver ändern</string>
+    <string name="request_failure">Beim Abrufen der Daten ist ein Fehler aufgetreten.</string>
+
+    <string name="measurement">Messung</string>
+    <string name="label_measurement_ping_ms">Ping (ms)</string>
+    <string name="label_measurement_download_mbps">Herunterladen (Mbit/s)</string>
+    <string name="label_measurement_upload_mbps">Hochladen (Mbit/s)</string>
+    <string name="label_measurement_qos">QoS (%)</string>
+    <string name="label_measurement_time_to_next_test">Zeit bis zum nächsten Test</string>
+    <string name="label_measurement_movement">Bewegung</string>
+
+    <string name="label_location_access_disabled">Standortzugriff deaktiviert</string>
+    <string name="label_location_access_disabled_explanation">Gehe zu den Standorteinstellungen, um den Standortzugriff zu aktivieren.</string>
+    <string name="label_some_permission_denied">App-Berechtigungen fehlen</string>
+    <string name="label_some_permission_denied_explanation">Gehe zu den App-Einstellungen, um fehlende App-Berechtigungen zu beheben.</string>
+    <string name="title_open_nettest_accuracy">Öffne Nettest Accuracy</string>
+    <string name="subtitle_open_nettest_accuracy">Open Nettest benötigt bestimmte Funktionen, um korrekt zu funktionieren.</string>
+    <string name="phone_permission_title">1. Telefonberechtigungen</string>
+    <string name="location_permission_title">2. Standortberechtigungen</string>
+    <string name="phone_permission_explanation">Wir werden niemals Anrufe tätigen oder verwalten. Wir verwenden Telefonberechtigungen, um den zum Testen verwendeten Mobilfunkanbieter zu identifizieren.</string>
+    <string name="location_permission_explanation">Ihr Standort identifiziert Server in der Nähe und die Mobilfunkverbindung Ihres Geräts, um Open Nettest richtig zu konfigurieren.</string>
+
 </resources>
 

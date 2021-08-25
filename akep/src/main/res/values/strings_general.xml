@@ -28,5 +28,10 @@
     <string name="technology_4g" translatable="false">4G</string>
     <string name="technology_3g" translatable="false">3G</string>
     <string name="technology_5g" translatable="false">5G</string>
+    <string name="text_label_ipv6" translatable="false">Ipv6</string>
+    <string name="text_label_ipv4" translatable="false">Ipv4</string>
+    <string name="text_server_distance_pattern" translatable="false">%d km</string>
+    <string name="label_network_info_wifi" translatable="false">WiFi</string>
+    <string name="label_network_info_ethernet" translatable="false">Ethernet</string>
 
 </resources>

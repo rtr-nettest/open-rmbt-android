@@ -1,15 +1,17 @@
 package at.specure.info
 
 import android.os.SystemClock
-import android.telephony.CellInfo
 import at.specure.config.Config
+import at.specure.info.band.CellBand
+import at.specure.info.cell.CellChannelAttribution
 import at.specure.info.cell.CellNetworkInfo
-import at.specure.info.cell.uuid
+import at.specure.info.cell.CellTechnology
 import at.specure.info.network.MobileNetworkType
 import at.specure.info.network.NRConnectionState
 import at.specure.info.strength.SignalSource
 import at.specure.info.strength.SignalStrengthInfo
 import at.specure.info.strength.SignalStrengthInfoNr
+import java.util.UUID
 import kotlin.random.Random
 
 private const val SPEED_IN_MAX = 65_000_000L
@@ -23,7 +25,6 @@ object Network5GSimulator {
         get() = config.developer5GSimulationEnabled
 
     fun fromInfo(
-        info: CellInfo,
         isActive: Boolean,
         isRoaming: Boolean,
         apn: String?
@@ -31,27 +32,32 @@ object Network5GSimulator {
 
         return CellNetworkInfo(
             providerName = "5G Simulation",
-            band = null,
+            band = CellBand(5000, CellChannelAttribution.NRARFCN, 5000, "5000", 5000.0, 5000.0),
             networkType = MobileNetworkType.NR,
+            cellType = CellTechnology.CONNECTION_5G,
             mcc = null,
             mnc = null,
             locationId = null,
             areaCode = 1,
             scramblingCode = null,
-            cellUUID = info.uuid(),
+            cellUUID = UUID.nameUUIDFromBytes("5G simulator".toByteArray()).toString(),
             isActive = isActive,
-            isRegistered = info.isRegistered,
+            isRegistered = true,
             isRoaming = isRoaming,
             apn = apn,
             signalStrength = null,
             dualSimDetectionMethod = null,
-            nrConnectionState = NRConnectionState.SA
+            nrConnectionState = NRConnectionState.SA,
+            rawCellInfo = null
         )
     }
 
     fun signalStrength(info: SignalStrengthInfo): SignalStrengthInfoNr {
         val value = when {
-            info.value == null -> Random.nextInt(SignalStrengthInfo.NR_RSRP_SIGNAL_MIN, SignalStrengthInfo.NR_RSRP_SIGNAL_MIN)
+            info.value == null -> Random.nextInt(
+                SignalStrengthInfo.NR_RSRP_SIGNAL_MIN,
+                SignalStrengthInfo.NR_RSRP_SIGNAL_MAX
+            )
             info.value!! < SignalStrengthInfo.NR_RSRP_SIGNAL_MIN -> SignalStrengthInfo.NR_RSRP_SIGNAL_MIN
             info.value!! > SignalStrengthInfo.NR_RSRP_SIGNAL_MAX -> SignalStrengthInfo.NR_RSRP_SIGNAL_MAX
             else -> info.value
@@ -75,30 +81,10 @@ object Network5GSimulator {
     }
 
     fun downBitPerSec(value: Long): Long {
-        return if (config.developer5GSimulationEnabled) {
-            if (value == 0L) {
-                0L
-            } else {
-                val input = if (value < SPEED_IN_MAX) value else SPEED_IN_MAX
-                val noise = Random.nextLong(100000)
-                ((input / SPEED_IN_MAX.toDouble()) * SPEED_OUT_MAX).toLong() - noise
-            }
-        } else {
-            value
-        }
+        return value
     }
 
     fun upBitPerSec(value: Long): Long {
-        return if (config.developer5GSimulationEnabled) {
-            if (value == 0L) {
-                0L
-            } else {
-                val input = if (value < SPEED_IN_MAX) value else SPEED_IN_MAX
-                val noise = Random.nextLong(100000)
-                ((input / SPEED_IN_MAX.toDouble()) * SPEED_OUT_MAX).toLong() - noise
-            }
-        } else {
-            value
-        }
+        return value
     }
 }

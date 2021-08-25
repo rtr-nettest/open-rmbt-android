@@ -198,8 +198,9 @@ class TestControllerImpl(
                 null,
                 additionalValues,
                 config.headerValue,
-                config.shouldRunQosTest,
-                errorSet
+                context.cacheDir,
+                errorSet,
+                config.performJitterAndPacketLossTest
             )
 
             val client = client
@@ -276,6 +277,7 @@ class TestControllerImpl(
                     TestStatus.INIT -> handleInit(client)
                     TestStatus.PING -> handlePing(client)
                     TestStatus.DOWN -> handleDown(client)
+                    TestStatus.PACKET_LOSS_AND_JITTER -> handleJitterAndPacketLoss(client)
                     TestStatus.INIT_UP -> handleInitUp()
                     TestStatus.UP -> handleUp(client)
                     TestStatus.SPEEDTEST_END -> handleSpeedTestEnd(skipQoSTests)
@@ -326,6 +328,14 @@ class TestControllerImpl(
     private fun handlePing(client: RMBTClient) {
         client.getIntermediateResult(result)
         setState(MeasurementState.PING, (result.progress * 100).toInt())
+        Timber.d("JITTER PROGRESS PING TCI: ${(result.progress * 100).toInt()}")
+        if (client.totalTestResult.jitterMeanNanos > 0) {
+            _listener?.onJitterChanged(client.totalTestResult.jitterMeanNanos)
+        }
+        val packetLoss = client.totalTestResult.packetLossPercent.toInt()
+        if (packetLoss >= 0) {
+            _listener?.onPacketLossChanged(packetLoss)
+        }
     }
 
     private fun handleDown(client: RMBTClient) {
@@ -339,6 +349,21 @@ class TestControllerImpl(
             val value = Network5GSimulator.downBitPerSec(result.downBitPerSec)
             _listener?.onDownloadSpeedChanged(progress, value)
             previousDownloadProgress = progress
+        }
+    }
+
+    private fun handleJitterAndPacketLoss(client: RMBTClient) {
+        client.getIntermediateResult(result)
+        val progress = (result.progress * 100).toInt()
+        Timber.d("JITTER PROGRESS TCI: $progress")
+        setState(MeasurementState.JITTER_AND_PACKET_LOSS, progress)
+
+        if (client.totalTestResult.jitterMeanNanos > 0) {
+            _listener?.onJitterChanged(client.totalTestResult.jitterMeanNanos)
+        }
+        val packetLoss = client.totalTestResult.packetLossPercent.toInt()
+        if (packetLoss >= 0) {
+            _listener?.onPacketLossChanged(packetLoss)
         }
     }
 

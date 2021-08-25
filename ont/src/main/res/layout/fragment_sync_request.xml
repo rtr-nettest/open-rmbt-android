@@ -63,7 +63,7 @@
             tools:text="a1b2c3d4e5" />
 
         <ProgressBar
-            android:id="@+id/progress"
+            android:id="@+id/progress_line"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="32dp"

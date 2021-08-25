@@ -121,6 +121,8 @@ class MeasurementService : CustomLifecycleService() {
 
     private var measurementProgress = 0
     private var pingNanos = 0L
+    private var jitterNanos = 0L
+    private var packetLossPercent = 0
     private var downloadSpeedBps = 0L
     private var uploadSpeedBps = 0L
     private var hasErrors = false
@@ -208,6 +210,16 @@ class MeasurementService : CustomLifecycleService() {
         override fun onPingChanged(pingNanos: Long) {
             this@MeasurementService.pingNanos = pingNanos
             clientAggregator.onPingChanged(pingNanos)
+        }
+
+        override fun onJitterChanged(jitterNanos: Long) {
+            this@MeasurementService.jitterNanos = jitterNanos
+            clientAggregator.onJitterChanged(jitterNanos)
+        }
+
+        override fun onPacketLossChanged(packetLossPercent: Int) {
+            this@MeasurementService.packetLossPercent = packetLossPercent
+            clientAggregator.onPacketLossPercentChanged(packetLossPercent)
         }
 
         override fun onDownloadSpeedChanged(progress: Int, speedBps: Long) {
@@ -674,6 +686,8 @@ class MeasurementService : CustomLifecycleService() {
     private fun resetStates() {
         loopModeState = LoopModeState.IDLE
         testListener.onProgressChanged(MeasurementState.INIT, 0)
+        testListener.onJitterChanged(0)
+        testListener.onPacketLossChanged(0)
         testListener.onPingChanged(0)
         testListener.onDownloadSpeedChanged(0, 0)
         testListener.onUploadSpeedChanged(0, 0)
@@ -819,6 +833,18 @@ class MeasurementService : CustomLifecycleService() {
         }
 
         override fun onPingChanged(pingNanos: Long) {
+            clients.forEach {
+                it.onPingChanged(pingNanos)
+            }
+        }
+
+        override fun onJitterChanged(jitterNanos: Long) {
+            clients.forEach {
+                it.onPingChanged(pingNanos)
+            }
+        }
+
+        override fun onPacketLossPercentChanged(packetLossPercent: Int) {
             clients.forEach {
                 it.onPingChanged(pingNanos)
             }

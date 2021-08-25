@@ -70,9 +70,10 @@ class DatabaseModule {
         context: Context,
         database: CoreDatabase,
         clientUUID: ClientUUID,
-        client: ControlServerClient
+        client: ControlServerClient,
+        config: Config
     ): ResultsRepository =
-        ResultsRepositoryImpl(context, database, clientUUID, client)
+        ResultsRepositoryImpl(context, database, clientUUID, client, config)
 
     @Provides
     fun provideIpCheckRepository(
@@ -106,9 +107,10 @@ class DatabaseModule {
     fun provideTestResultRepository(
         database: CoreDatabase,
         clientUUID: ClientUUID,
-        controlServerClient: ControlServerClient
+        controlServerClient: ControlServerClient,
+        config: Config
     ): TestResultsRepository =
-        TestResultsRepositoryImpl(database, clientUUID, controlServerClient)
+        TestResultsRepositoryImpl(database, clientUUID, controlServerClient, config)
 
     @Provides
     fun provideMapRepository(

@@ -18,6 +18,7 @@ import at.specure.data.entity.GraphItemRecord
 import at.specure.data.entity.LoopModeRecord
 import at.specure.data.repository.HistoryRepository
 import at.specure.data.repository.TestDataRepository
+import at.specure.info.connectivity.ConnectivityInfoLiveData
 import at.specure.info.network.ActiveNetworkLiveData
 import at.specure.info.strength.SignalStrengthLiveData
 import at.specure.location.LocationState
@@ -26,9 +27,9 @@ import at.specure.measurement.MeasurementClient
 import at.specure.measurement.MeasurementProducer
 import at.specure.measurement.MeasurementService
 import at.specure.measurement.MeasurementState
+import javax.inject.Inject
 import kotlinx.coroutines.flow.collect
 import timber.log.Timber
-import javax.inject.Inject
 
 class MeasurementViewModel @Inject constructor(
     private val testDataRepository: TestDataRepository,
@@ -36,6 +37,7 @@ class MeasurementViewModel @Inject constructor(
     private val locationWatcher: LocationWatcher,
     val signalStrengthLiveData: SignalStrengthLiveData,
     val activeNetworkLiveData: ActiveNetworkLiveData,
+    val connectivityInfoLiveData: ConnectivityInfoLiveData,
     val config: AppConfig,
     private val tac: TermsAndConditions
 ) : BaseViewModel(), MeasurementClient {
@@ -239,6 +241,16 @@ class MeasurementViewModel @Inject constructor(
 //        _measurementResultShownLiveData.value = false
         Timber.i("Ping value from: $pingNanos")
         state.pingNanos.set(pingNanos)
+    }
+
+    override fun onJitterChanged(jitterNanos: Long) {
+        Timber.i("JPL jitter value from: $jitterNanos")
+        state.jitterNanos.set(jitterNanos)
+    }
+
+    override fun onPacketLossPercentChanged(packetLossPercent: Int) {
+        Timber.i("JPL packetLoss value from: $packetLossPercent")
+        state.packetLossPercent.set(packetLossPercent)
     }
 
     override fun isQoSEnabled(enabled: Boolean) {

@@ -20,6 +20,7 @@ object Tables {
     const val CELL_LOCATION = "cell_location"
     const val GEO_LOCATION = "geo_location"
     const val HISTORY = "history"
+    const val JPL = "jpl"
     const val PERMISSIONS_STATUS = "permission_status"
     const val PING = "ping"
     const val QOE = "qoe"

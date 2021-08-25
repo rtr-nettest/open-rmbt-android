@@ -38,6 +38,7 @@
     <string name="dialog_title_error">Gabim</string>
     <string name="error_unknown">Lidhje e dobët. Ju lutemi provoni përsëri më vonë</string>
     <string name="no_internet_connection_not_load_data">Nuk ka lidhje interneti. Të dhënat nuk mund të ngarkohen.</string>
+    <string name="request_failure">Ndodhi një gabim gjatë marrjes së të dhënave.</string>
 
     <!-- Home screen -->
     <string name="home_attention">Vëmendje</string>
@@ -115,16 +116,12 @@
     <string name="location_dialog_label_age">Mosha</string>
     <string name="location_dialog_label_source">Burimi</string>
     <string name="location_dialog_label_altitude">Lartësi</string>
-    <string name="location_dialog_label_speed">Shpejtësia</string>
     <string name="location_dialog_label_satellites">Satelitë</string>
-    <string name="location_dialog_label_location_progress_message">Përcaktimi i vendndodhjes, ju lutemi prisni</string>
     <string name="open_gps_setting_dialog_label_gps_not_enabled">Shërbimet e vendndodhjes nuk janë aktivizuar. Dëshironi të modifikoni cilësimet e vendndodhjes?</string>
     <string name="open_gps_setting_dialog_label_open_gps_setting">Hapni cilësimet e vendndodhjes</string>
     <string name="open_gps_setting_dialog_label_cancel">Anulo</string>
-    <string name="location_dialog_not_available">I padisponueshem</string>
     <string name="location_dialog_age">%1$s s</string>
     <string name="location_dialog_accuracy">%1$s m</string>
-    <string name="location_dialog_speed">%1$s km / orë</string>
 
     <string name="location_location_direction_n">N %1$s</string>
     <string name="location_location_direction_e">E %1$s</string>
@@ -283,14 +280,11 @@
     <string name="text_terms_agree_empty">Ju duhet të bini dakord me politikën e privatësisë dhe kushtet e përdorimit për të vazhduar.</string>
 
     <string name="dialog_title_config_check">Ju lutemi ndryshoni vlerat e mëposhtme:</string>
-    <string name="label_ip_processing">Po përpunon</string>
     <string name="radio_info_warning_title">Cilësimet e radios</string>
     <string name="radio_info_warning_message">Kini kujdes: Ndryshimi i cilësimeve të përparuara të konfigurimit të radios mund të jetë i dëmshëm për stabilitetin dhe performancën e pajisjes tuaj.</string>
     <string name="accept_risk">Unë e pranoj rrezikun</string>
     <string name="preferences_connection_details_not_supported">Detajet e zgjatura të lidhjes nuk mbështeten në këtë pajisje</string>
 
-    <string name="dialog_signal_info_title">Informacioni i sinjalit</string>
-    <string name="dialog_signal_info_waiting">Te lutem prit…</string>
     <string name="dialog_signal_info_band">Bandë</string>
     <string name="dialog_signal_info_channel">Kanali</string>
     <string name="dialog_signal_info_ta">AT</string>
@@ -306,10 +300,6 @@
     <string name="text_unit_mbps">Mbps</string>
     <string name="text_unit_ping">Znj</string>
     <string name="text_current_from_count">%1$d e %2$d</string>
-    <string name="loop_mode_next_test">Matja tjetër</string>
-    <string name="unit_minutes">min</string>
-    <string name="or">ose</string>
-    <string name="unit_meter">m</string>
     <string name="median">Mesatare</string>
 
     <string name="title_permissions_welcome">Mirësevini në Akep Nettest</string>
@@ -345,5 +335,29 @@
         <item>Listë</item>
         <item>Harta</item>
     </string-array>
+
+    <string name="label_network_type">Lloji i rrjetit </string>
+    <string name="label_network_name">Emri i rrjetit </string>
+    <string name="label_measurement_server">Serveri i matjes </string>
+    <string name="label_change_test_server">Ndrysho Serverin e Testit </string>
+
+    <string name="measurement">Matja</string>
+    <string name="label_measurement_ping_ms">Ping (ms)</string>
+    <string name="label_measurement_download_mbps">Shkarkimi (Mbps)</string>
+    <string name="label_measurement_upload_mbps">Ngarko (Mbps)</string>
+    <string name="label_measurement_qos">QoS (%)</string>
+    <string name="label_measurement_time_to_next_test">Koha për provën tjetër</string>
+    <string name="label_measurement_movement">Lëvizja</string>
+
+    <string name="label_location_access_disabled">Hyrja në vendndodhje është çaktivizuar</string>
+    <string name="label_location_access_disabled_explanation">Shko te cilësimet e vendndodhjes për të mundësuar hyrjen në vendndodhje.</string>
+    <string name="label_some_permission_denied">Mungojnë lejet e aplikacionit</string>
+    <string name="label_some_permission_denied_explanation">Shko te Cilësimet e aplikacionit për të zgjidhur lejet e munguara të aplikacionit.</string>
+    <string name="title_open_nettest_accuracy">Saktësia Akep Nettest</string>
+    <string name="subtitle_open_nettest_accuracy">Akep Nettest ka nevojë për funksionalitete të caktuara për të funksionuar si duhet.</string>
+    <string name="phone_permission_title">1. Lejet e telefonit</string>
+    <string name="location_permission_title">2. Lejet e vendndodhjes</string>
+    <string name="phone_permission_explanation">Ne kurrë nuk do të bëjmë ose menaxhojmë telefonata. Ne përdorim lejet e telefonit për të identifikuar operatorin celular të përdorur për testim.</string>
+    <string name="location_permission_explanation">Vendndodhja juaj identifikon serverat e afërt dhe lidhjen celulare të pajisjes tuaj në mënyrë që të konfiguroni siç duhet Akep Nettest.</string>
 
 </resources>
