@@ -38,6 +38,9 @@ import at.specure.data.entity.SpeedRecord
 import at.specure.data.entity.TestRecord
 import at.specure.data.entity.TestTelephonyRecord
 import at.specure.data.entity.TestWlanRecord
+import at.specure.data.entity.VoipTestResultRecord
+import at.specure.data.entity.getJitter
+import at.specure.data.entity.getPacketLoss
 import at.specure.info.TransportType
 import at.specure.info.network.MobileNetworkType
 import at.specure.info.network.NRConnectionState
@@ -153,7 +156,8 @@ fun TestRecord.toRequest(
     signalList: List<SignalRecord>,
     speedInfoList: List<SpeedRecord>,
     cellLocationList: List<CellLocationRecord>,
-    permissions: List<PermissionStatusRecord>
+    permissions: List<PermissionStatusRecord>,
+    voipTestResultRecord: VoipTestResultRecord?
 ): TestResultBody {
 
     val geoLocations: List<TestLocationBody>? = if (locations.isEmpty()) {
@@ -335,7 +339,9 @@ fun TestRecord.toRequest(
         developerModeEnabled = developerModeEnabled,
         loopModeEnabled = loopModeEnabled,
         userServerSelectionEnabled = serverSelectionEnabled,
-        telephonyNRConnection = telephonyNRConnectionState
+        telephonyNRConnection = telephonyNRConnectionState,
+        packetLoss = voipTestResultRecord?.getPacketLoss(),
+        jitterMillis = voipTestResultRecord?.getJitter()
     )
 }
 

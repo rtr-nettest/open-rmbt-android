@@ -1,0 +1,245 @@
+<?xml version="1.0" encoding="utf-8"?><!--
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~ http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <variable
+            name="networkTypeNR"
+            type="String" />
+
+        <variable
+            name="signalSsrsrpNr"
+            type="String" />
+
+        <variable
+            name="signalSsrsrqNr"
+            type="String" />
+
+        <variable
+            name="bandNameNr"
+            type="String" />
+
+        <variable
+            name="frequencyNr"
+            type="String" />
+
+        <variable
+            name="subscriptionId5g"
+            type="String" />
+
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:animateLayoutChanges="true"
+        android:padding="@dimen/margin_large">
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/cellTitle"
+            style="@style/RobotoBoldStyle.Medium"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:text="@{networkTypeNR}"
+            android:textColor="@color/text_black_transparency_60"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="5G (NSA)" />
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guide_one_quarter"
+            android:layout_width="1dp"
+            android:layout_height="1dp"
+            android:orientation="vertical"
+            app:layout_constraintGuide_percent="0.25" />
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guide_half"
+            android:layout_width="1dp"
+            android:layout_height="1dp"
+            android:orientation="vertical"
+            app:layout_constraintGuide_percent="0.45" />
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guide_three_quarter"
+            android:layout_width="1dp"
+            android:layout_height="1dp"
+            android:orientation="vertical"
+            app:layout_constraintGuide_percent="0.70" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/labelSubscriptionId"
+            style="@style/RobotoMediumStyle.Small"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="@dimen/margin_medium"
+            android:gravity="end|center_vertical"
+            android:text="@string/cell_info_ssrsrp"
+            android:textColor="@color/text_gray_transparency_55"
+            app:layout_constraintEnd_toStartOf="@+id/guide_one_quarter"
+            app:layout_constraintHorizontal_weight="3"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/cellTitle" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/labelSSRSRP"
+            style="@style/RobotoMediumStyle.Small"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="@dimen/margin_medium"
+            android:gravity="end|center_vertical"
+            android:text="@string/cell_info_ssrsrp"
+            android:textColor="@color/text_gray_transparency_55"
+            app:layout_constraintEnd_toStartOf="@+id/guide_one_quarter"
+            app:layout_constraintHorizontal_weight="3"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/labelSubscriptionId" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/labelFrequency"
+            style="@style/RobotoMediumStyle.Small"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="@dimen/margin_medium"
+            android:gravity="end|center_vertical"
+            android:text="@string/home_frequency"
+            android:textColor="@color/text_gray_transparency_55"
+            app:layout_constraintEnd_toStartOf="@+id/guide_one_quarter"
+            app:layout_constraintHorizontal_weight="3"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/labelSSRSRP"
+            app:textAllCaps="true" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/textSubscriptionId"
+            style="@style/RobotoRegularStyle.Small"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/margin_medium"
+            android:layout_marginTop="@dimen/margin_large"
+            android:gravity="start|center_vertical"
+            android:text="@{subscriptionId5g}"
+            android:textColor="@color/text_black_transparency_60"
+            app:layout_constraintBaseline_toBaselineOf="@+id/labelSSRSRP"
+            app:layout_constraintEnd_toStartOf="@+id/guide_half"
+            app:layout_constraintHorizontal_weight="7"
+            app:layout_constraintStart_toEndOf="@+id/labelSSRSRP"
+            app:layout_constraintStart_toStartOf="@+id/guide_one_quarter"
+            tools:text="-96 dBm" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/textSSRSRP"
+            style="@style/RobotoRegularStyle.Small"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/margin_medium"
+            android:layout_marginTop="@dimen/margin_large"
+            android:gravity="start|center_vertical"
+            android:text="@{signalSsrsrpNr}"
+            android:textColor="@color/text_black_transparency_60"
+            app:layout_constraintBaseline_toBaselineOf="@+id/labelSSRSRP"
+            app:layout_constraintEnd_toStartOf="@+id/guide_half"
+            app:layout_constraintHorizontal_weight="7"
+            app:layout_constraintStart_toEndOf="@+id/labelSSRSRP"
+            app:layout_constraintStart_toStartOf="@+id/guide_one_quarter"
+            tools:text="-96 dBm" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/textFrequency"
+            style="@style/RobotoRegularStyle.Small"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/margin_medium"
+            android:layout_marginTop="@dimen/margin_large"
+            android:gravity="start|center_vertical"
+            android:text="@{frequencyNr}"
+            android:textColor="@color/text_black_transparency_60"
+            app:layout_constraintBaseline_toBaselineOf="@+id/labelFrequency"
+            app:layout_constraintEnd_toStartOf="@+id/guide_half"
+            app:layout_constraintHorizontal_weight="7"
+            app:layout_constraintStart_toEndOf="@+id/labelFrequency"
+            app:layout_constraintStart_toStartOf="@+id/guide_one_quarter"
+            tools:text="-96 dBm" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/labelSSRSRQ"
+            style="@style/RobotoMediumStyle.Small"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="@dimen/margin_medium"
+            android:gravity="end|center_vertical"
+            android:text="@string/cell_info_ssrsrq"
+            android:textColor="@color/text_gray_transparency_55"
+            app:layout_constraintEnd_toStartOf="@+id/guide_three_quarter"
+            app:layout_constraintHorizontal_weight="3"
+            app:layout_constraintStart_toStartOf="@+id/guide_half"
+            app:layout_constraintTop_toBottomOf="@+id/cellTitle" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/labelBand"
+            style="@style/RobotoMediumStyle.Small"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="@dimen/margin_medium"
+            android:gravity="end|center_vertical"
+            android:text="@string/dialog_signal_info_band"
+            android:textColor="@color/text_gray_transparency_55"
+            app:layout_constraintEnd_toStartOf="@+id/guide_three_quarter"
+            app:layout_constraintHorizontal_weight="3"
+            app:layout_constraintStart_toStartOf="@+id/guide_half"
+            app:layout_constraintTop_toBottomOf="@+id/labelSSRSRQ"
+            app:textAllCaps="true" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/textSSRSRQ"
+            style="@style/RobotoRegularStyle.Small"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/margin_medium"
+            android:layout_marginTop="@dimen/margin_large"
+            android:gravity="start|center_vertical"
+            android:text="@{signalSsrsrqNr}"
+            android:textColor="@color/text_black_transparency_60"
+            app:layout_constraintBaseline_toBaselineOf="@+id/labelSSRSRQ"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_weight="7"
+            app:layout_constraintStart_toEndOf="@+id/labelSSRSRQ"
+            app:layout_constraintStart_toStartOf="@+id/guide_three_quarter"
+            tools:text="-96 dBm" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/textBand"
+            style="@style/RobotoRegularStyle.Small"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/margin_medium"
+            android:layout_marginTop="@dimen/margin_large"
+            android:gravity="start|center_vertical"
+            android:text="@{bandNameNr}"
+            android:textColor="@color/text_black_transparency_60"
+            app:layout_constraintBaseline_toBaselineOf="@+id/labelBand"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_weight="7"
+            app:layout_constraintStart_toEndOf="@+id/labelBand"
+            app:layout_constraintStart_toStartOf="@+id/guide_three_quarter"
+            tools:text="1800" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

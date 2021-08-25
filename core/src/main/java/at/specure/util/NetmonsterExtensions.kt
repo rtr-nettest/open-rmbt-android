@@ -49,7 +49,10 @@ import cz.mroczis.netmonster.core.model.cell.CellNr
 import cz.mroczis.netmonster.core.model.cell.CellTdscdma
 import cz.mroczis.netmonster.core.model.cell.CellWcdma
 import cz.mroczis.netmonster.core.model.cell.ICell
+import cz.mroczis.netmonster.core.model.connection.NoneConnection
 import cz.mroczis.netmonster.core.model.connection.PrimaryConnection
+import cz.mroczis.netmonster.core.model.connection.SecondaryConnection
+import cz.mroczis.netmonster.core.model.nr.NrNsaState
 import cz.mroczis.netmonster.core.model.signal.ISignal
 import cz.mroczis.netmonster.core.model.signal.SignalCdma
 import cz.mroczis.netmonster.core.model.signal.SignalGsm
@@ -61,12 +64,42 @@ import cz.mroczis.netmonster.core.telephony.ITelephonyManagerCompat
 import timber.log.Timber
 import java.util.UUID
 
-fun List<ICell>.filterOnlyActiveDataCell(dataSubscriptionId: Int): List<ICell> {
+fun List<ICell>.filterOnlyPrimaryActiveDataCell(dataSubscriptionId: Int): List<ICell> {
     return this.filter {
         // when there is -1 we will report both sims signal because we are unable to detect correct data subscription
-        val isFromDataSubscription = dataSubscriptionId == -1 || it.subscriptionId == dataSubscriptionId
+        val isFromDataSubscription =
+            dataSubscriptionId == -1 || it.subscriptionId == dataSubscriptionId
         val isPrimaryCell = it.connectionStatus is PrimaryConnection
-        isFromDataSubscription && isPrimaryCell
+        val hasValidTimestamp = it.timestamp != null
+        isFromDataSubscription && isPrimaryCell && hasValidTimestamp
+    }
+}
+
+fun List<ICell>.filterOnlySecondaryActiveDataCell(dataSubscriptionId: Int): List<ICell> {
+    return this.filter {
+        // when there is -1 we will report both sims signal because we are unable to detect correct data subscription
+        val isFromDataSubscription =
+            dataSubscriptionId == -1 || it.subscriptionId == dataSubscriptionId
+        val isSecondaryCell = it.connectionStatus is SecondaryConnection
+        val hasValidTimestamp = it.timestamp != null
+        isFromDataSubscription && isSecondaryCell && hasValidTimestamp
+    }
+}
+
+fun List<ICell>.filterOnlyNoneConnectionDataCell(dataSubscriptionId: Int): List<ICell> {
+    return this.filter {
+        // when there is -1 we will report both sims signal because we are unable to detect correct data subscription
+        val isFromDataSubscription =
+            dataSubscriptionId == -1 || it.subscriptionId == dataSubscriptionId
+        val isNotConnected = it.connectionStatus is NoneConnection
+        val hasValidTimestamp = it.timestamp != null
+        isFromDataSubscription && isNotConnected && hasValidTimestamp
+    }
+}
+
+fun List<ICell>.filter5GCells(): List<ICell> {
+    return this.filter {
+        it is CellNr
     }
 }
 
@@ -251,23 +284,25 @@ fun SignalLte.toSignalStrengthInfo(timestampNanos: Long): SignalStrengthInfo {
     )
 }
 
-fun SignalNr.toSignalStrengthInfo(timestampNanos: Long): SignalStrengthInfo {
-    return SignalStrengthInfoNr(
-        transport = TransportType.CELLULAR,
-        value = this.ssRsrp,
-        rsrq = null,
-        signalLevel = calculateNRSignalLevel(this.ssRsrp),
-        min = NR_RSRP_SIGNAL_MIN,
-        max = NR_RSRP_SIGNAL_MAX,
-        timestampNanos = timestampNanos,
-        source = SignalSource.NM_CELL_INFO,
-        csiRsrp = this.csiRsrp,
-        csiRsrq = this.csiRsrq,
-        csiSinr = this.csiSinr,
-        ssRsrp = this.ssRsrp,
-        ssRsrq = this.ssRsrq,
-        ssSinr = this.ssSinr
-    )
+fun SignalNr.toSignalStrengthInfo(timestampNanos: Long): SignalStrengthInfo? {
+    return if (this.ssRsrp != null && this.ssRsrp!! < NR_RSRP_SIGNAL_MAX && this.ssRsrp!! >= NR_RSRP_SIGNAL_MIN) {
+        SignalStrengthInfoNr(
+            transport = TransportType.CELLULAR,
+            value = this.ssRsrp,
+            rsrq = null,
+            signalLevel = calculateNRSignalLevel(this.ssRsrp),
+            min = NR_RSRP_SIGNAL_MIN,
+            max = NR_RSRP_SIGNAL_MAX,
+            timestampNanos = timestampNanos,
+            source = SignalSource.NM_CELL_INFO,
+            csiRsrp = this.csiRsrp,
+            csiRsrq = this.csiRsrq,
+            csiSinr = this.csiSinr,
+            ssRsrp = this.ssRsrp,
+            ssRsrq = this.ssRsrq,
+            ssSinr = this.ssSinr
+        )
+    } else null
 }
 
 fun ICell.toSignalStrengthInfo(timestampNanos: Long): SignalStrengthInfo? {
@@ -287,9 +322,11 @@ fun ICell.toCellNetworkInfo(
     netMonster: INetMonster
 ): CellNetworkInfo {
     return CellNetworkInfo(
-        providerName = dataTelephonyManager?.networkOperatorName ?: telephonyManagerNetmonster.getNetworkOperator()?.toPlmn("-") ?: "",
+        providerName = dataTelephonyManager?.networkOperatorName
+            ?: telephonyManagerNetmonster.getNetworkOperator()?.toPlmn("-") ?: "",
         band = this.band?.toCellBand(),
         networkType = this.mobileNetworkType(netMonster),
+        cellType = this.toTechnologyClass(),
         mnc = this.network?.mnc?.toIntOrNull(),
         mcc = this.network?.mcc?.toIntOrNull(),
         locationId = this.locationId(),
@@ -304,7 +341,8 @@ fun ICell.toCellNetworkInfo(
             NRConnectionState.getNRConnectionState(dataTelephonyManager)
         } else NRConnectionState.NOT_AVAILABLE,
         dualSimDetectionMethod = null,
-        cellUUID = this.uuid()
+        cellUUID = this.uuid(),
+        rawCellInfo = this
     )
 }
 
@@ -325,7 +363,7 @@ fun BandNr.toCellBand(): CellBand {
         frequencyDL = this.downlinkFrequency.toDouble(),
         band = this.number ?: legacyCellBand?.band ?: -1,
         channel = this.channelNumber,
-        name = this.name,
+        name = this.name ?: (this.downlinkFrequency / 1000).toString(),
         channelAttribution = CellChannelAttribution.NRARFCN,
         frequencyUL = legacyCellBand?.frequencyUL ?: -1.0
     )
@@ -337,7 +375,7 @@ fun BandLte.toCellBand(): CellBand {
         frequencyDL = legacyCellBand?.frequencyDL ?: -1.0,
         band = this.number ?: -1,
         channel = this.channelNumber,
-        name = this.name,
+        name = this.name ?: legacyCellBand?.name ?: legacyCellBand?.frequencyDL.toString(),
         channelAttribution = CellChannelAttribution.EARFCN,
         frequencyUL = legacyCellBand?.frequencyUL ?: -1.0
     )
@@ -349,7 +387,7 @@ fun BandWcdma.toCellBand(): CellBand {
         frequencyDL = legacyCellBand?.frequencyDL ?: -1.0,
         band = this.number ?: -1,
         channel = this.channelNumber,
-        name = this.name,
+        name = this.name ?: legacyCellBand?.name ?: legacyCellBand?.frequencyDL.toString(),
         channelAttribution = CellChannelAttribution.UARFCN,
         frequencyUL = legacyCellBand?.frequencyUL ?: -1.0
     )
@@ -361,7 +399,7 @@ fun BandTdscdma.toCellBand(): CellBand {
         frequencyDL = legacyCellBand?.frequencyDL ?: -1.0,
         band = this.number ?: -1,
         channel = this.channelNumber,
-        name = this.name,
+        name = this.name ?: legacyCellBand?.name ?: legacyCellBand?.frequencyDL.toString(),
         channelAttribution = CellChannelAttribution.UARFCN,
         frequencyUL = legacyCellBand?.frequencyUL ?: -1.0
     )
@@ -373,7 +411,7 @@ fun BandGsm.toCellBand(): CellBand {
         frequencyDL = legacyCellBand?.frequencyDL ?: -1.0,
         band = this.number ?: -1,
         channel = this.channelNumber,
-        name = this.name,
+        name = this.name ?: legacyCellBand?.name ?: legacyCellBand?.frequencyDL.toString(),
         channelAttribution = CellChannelAttribution.ARFCN,
         frequencyUL = legacyCellBand?.frequencyUL ?: -1.0
     )
@@ -411,22 +449,33 @@ fun ICell.isInformationCorrect(cellTechnology: CellTechnology): Boolean {
     return isCorrect
 }
 
-@Synchronized
-fun ICell.toCellInfoRecord(testUUID: String, netMonster: INetMonster): CellInfoRecord? {
-    val cellTechnologyFromNetworkType = CellTechnology.fromMobileNetworkType(this.mobileNetworkType(netMonster))
+fun ICell.toRecords(
+    testUUID: String,
+    netMonster: INetMonster,
+    mobileNetworkType: MobileNetworkType,
+    testStartTimeNanos: Long,
+    nrConnectionState: NRConnectionState
+): Map<CellInfoRecord?, SignalRecord?> {
+    val cellTechnologyFromNetworkType =
+        CellTechnology.fromMobileNetworkType(this.mobileNetworkType(netMonster))
     // for 4G cells we want to have it marked as 4G not 5G also in case when it is NR_NSA
-    val cellTechnology = if (this is CellLte && cellTechnologyFromNetworkType == CellTechnology.CONNECTION_5G) {
-        CellTechnology.CONNECTION_4G
-    } else {
-        cellTechnologyFromNetworkType
-    }
+    val cellTechnology =
+        if (this is CellLte && cellTechnologyFromNetworkType == CellTechnology.CONNECTION_5G) {
+            CellTechnology.CONNECTION_4G
+        } else {
+            cellTechnologyFromNetworkType
+        }
+    val map = HashMap<CellInfoRecord?, SignalRecord?>()
+    var cellInfoRecord: CellInfoRecord? = null
+    var signalRecord: SignalRecord? = null
     cellTechnology?.let {
+        val uuid = this.uuid()
         if (isInformationCorrect(cellTechnology)) {
-            val cellInfoRecord = CellInfoRecord(
+            cellInfoRecord = CellInfoRecord(
                 testUUID = testUUID,
-                uuid = this.uuid(),
+                uuid = uuid,
                 isActive = this.connectionStatus is PrimaryConnection,
-                cellTechnology = cellTechnology,
+                cellTechnology = toTechnologyClass(),
                 transportType = TransportType.CELLULAR,
                 registered = this.connectionStatus is PrimaryConnection,
                 areaCode = areaCode(),
@@ -438,10 +487,18 @@ fun ICell.toCellInfoRecord(testUUID: String, netMonster: INetMonster): CellInfoR
                 primaryScramblingCode = primaryScramblingCode(),
                 dualSimDetectionMethod = "NOT_AVAILABLE" // local purpose only
             )
-            return cellInfoRecord
+            signalRecord = this.signal?.toSignalRecord(
+                testUUID,
+                uuid,
+                mobileNetworkType,
+                testStartTimeNanos,
+                nrConnectionState
+            )
         }
+        map.put(cellInfoRecord, signalRecord)
+        return map
     }
-    return null
+    return map
 }
 
 fun ICell.channelNumber(): Int? {
@@ -479,14 +536,46 @@ fun ICell.mobileNetworkType(netMonster: INetMonster): MobileNetworkType {
     return networkTypeFromNM?.mapToMobileNetworkType() ?: MobileNetworkType.UNKNOWN
 }
 
+fun ICell.toTechnologyClass(): CellTechnology {
+    return when (this) {
+        is CellNr -> CellTechnology.CONNECTION_5G
+        is CellLte -> CellTechnology.CONNECTION_4G
+        is CellWcdma -> CellTechnology.CONNECTION_3G
+        is CellTdscdma -> CellTechnology.CONNECTION_3G
+        is CellCdma -> CellTechnology.CONNECTION_2G
+        is CellGsm -> CellTechnology.CONNECTION_2G
+        else -> CellTechnology.CONNECTION_UNKNOWN
+    }
+}
+
 fun NetworkType.mapToMobileNetworkType(): MobileNetworkType {
     return when (this) {
         is NetworkType.Cdma,
         is NetworkType.Gsm,
         is NetworkType.Lte,
-        is NetworkType.Nr,
         is NetworkType.Tdscdma,
         is NetworkType.Wcdma -> MobileNetworkType.fromValue(this.technology)
+        is NetworkType.Nr -> {
+            return when (this) {
+                is NetworkType.Nr.Nsa -> {
+                    if ((this.nrNsaState.nrAvailable) && (this.nrNsaState.connection != NrNsaState.Connection.Connected)) {
+                        when (this.nrNsaState.connection) {
+                            // special case discovered, when operator has 5G network, but not enabled for the used SIM, so it is LTE only
+                            // TODO: LTE-CA modification
+                            is NrNsaState.Connection.Rejected -> MobileNetworkType.LTE
+                            is NrNsaState.Connection.Disconnected -> MobileNetworkType.NR_AVAILABLE
+                            else -> MobileNetworkType.NR_AVAILABLE
+                        }
+                    } else {
+                        MobileNetworkType.NR_NSA
+                    }
+                }
+                is NetworkType.Nr.Sa -> {
+                    MobileNetworkType.NR
+                }
+                else -> MobileNetworkType.NR_NSA // but this should not happen
+            }
+        }
         else -> MobileNetworkType.UNKNOWN
     }
 }

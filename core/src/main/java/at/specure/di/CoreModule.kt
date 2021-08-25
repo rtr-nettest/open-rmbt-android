@@ -111,14 +111,16 @@ class CoreModule {
         telephonyManager: TelephonyManager,
         connectivityManager: ConnectivityManager,
         netmonster: INetMonster,
-        subscriptionManager: SubscriptionManager
+        subscriptionManager: SubscriptionManager,
+        config: Config
     ): CellInfoWatcher =
         CellInfoWatcherImpl(
             context,
             telephonyManager,
             connectivityManager,
             netmonster,
-            subscriptionManager
+            subscriptionManager,
+            config
         )
 
     @Provides

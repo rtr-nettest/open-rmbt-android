@@ -1,5 +1,7 @@
 package at.rtr.rmbt.android.ui
 
+import android.annotation.SuppressLint
+import android.content.Context
 import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
@@ -27,9 +29,10 @@ import at.specure.info.cell.CellNetworkInfo
 import at.specure.info.cell.CellTechnology
 import at.specure.info.ip.IpInfo
 import at.specure.info.ip.IpStatus
+import at.specure.info.network.NetworkInfo
 import at.specure.info.network.DetailedNetworkInfo
 import at.specure.info.network.EthernetNetworkInfo
-import at.specure.info.network.NetworkInfo
+import at.specure.info.network.MobileNetworkType
 import at.specure.info.network.WifiNetworkInfo
 import at.specure.info.strength.SignalStrengthInfo
 import at.specure.measurement.MeasurementState
@@ -37,10 +40,10 @@ import at.specure.result.QoECategory
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import timber.log.Timber
 import java.text.SimpleDateFormat
-import java.util.Calendar
-import java.util.Date
-import java.util.Locale
 import java.util.TimeZone
+import java.util.Calendar
+import java.util.Locale
+import java.util.Date
 import kotlin.math.roundToInt
 import kotlin.math.roundToLong
 
@@ -57,12 +60,152 @@ fun View.setVisibleOrGone(show: Boolean) {
     visibility = if (show) View.VISIBLE else View.GONE
 }
 
+private fun AppCompatTextView.prepareSignalLabel(
+    mainText: String,
+    networkType: NetworkInfo?,
+    networkTypeSecondary: NetworkInfo?,
+    signal: Int?,
+    signalSecondary: Int?
+): StringBuilder {
+    val mainType = when (networkType) {
+        is CellNetworkInfo -> {
+            if (networkType.cellType == CellTechnology.CONNECTION_UNKNOWN) {
+                ""
+            } else {
+                networkType.cellType.displayName
+            }
+        }
+        else -> {
+            ""
+        }
+    }
+    val secondaryType = when (networkTypeSecondary) {
+        is CellNetworkInfo -> {
+            if (networkTypeSecondary.cellType == CellTechnology.CONNECTION_UNKNOWN) {
+                ""
+            } else {
+                networkTypeSecondary.cellType.displayName
+            }
+        }
+        else -> {
+            ""
+        }
+    }
+
+    val signalValues = extractSignalValues(this.context, signal, signalSecondary, networkType)
+
+    val builder = StringBuilder()
+    if (mainText.isNotEmpty()) {
+        builder.append(mainText)
+    }
+    if (networkType is CellNetworkInfo && networkType.networkType == MobileNetworkType.NR_NSA) {
+        if (mainType.isNotEmpty()) {
+            builder.append(" $mainType")
+        }
+        if (secondaryType.isNotEmpty() && signalValues.contains("/")) {
+            builder.append("/$secondaryType")
+        }
+    }
+    return builder
+}
+
+enum class HomeScreenLabelType(val value: String) {
+    SIGNAL("signal"),
+    FREQUENCY("frequency")
+}
+
+/**
+ * A binding adapter that is used for show network technology
+ */
+@SuppressLint("SetTextI18n")
+@BindingAdapter(
+    value = ["mainText", "networkType", "networkTypeSecondary", "labelType", "signal", "signalSecondary"],
+    requireAll = true
+)
+fun AppCompatTextView.appendType(
+    mainText: String,
+    networkType: NetworkInfo?,
+    networkTypeSecondary: NetworkInfo?,
+    labelType: String,
+    signal: Int?,
+    signalSecondary: Int?
+) {
+    val builder = when (labelType) {
+        HomeScreenLabelType.FREQUENCY.value -> prepareFrequencyLabel(
+            mainText,
+            networkType,
+            networkTypeSecondary
+        )
+        HomeScreenLabelType.SIGNAL.value -> prepareSignalLabel(
+            mainText,
+            networkType,
+            networkTypeSecondary,
+            signal,
+            signalSecondary
+        )
+        else -> StringBuilder().append(mainText)
+    }
+    text = builder.toString()
+}
+
+private fun AppCompatTextView.prepareFrequencyLabel(
+    mainText: String,
+    networkType: NetworkInfo?,
+    networkTypeSecondary: NetworkInfo?
+): StringBuilder {
+    val mainType = when (networkType) {
+        is CellNetworkInfo -> {
+            if (networkType.cellType == CellTechnology.CONNECTION_UNKNOWN) {
+                ""
+            } else {
+                networkType.cellType.displayName
+            }
+        }
+        else -> {
+            ""
+        }
+    }
+    val secondaryType = when (networkTypeSecondary) {
+        is CellNetworkInfo -> {
+            if (networkTypeSecondary.cellType == CellTechnology.CONNECTION_UNKNOWN) {
+                ""
+            } else {
+                networkTypeSecondary.cellType.displayName
+            }
+        }
+        else -> {
+            ""
+        }
+    }
+    val builder = StringBuilder()
+    if (mainText.isNotEmpty()) {
+        builder.append(mainText)
+    }
+    if (networkType is CellNetworkInfo && networkType.networkType == MobileNetworkType.NR_NSA) {
+        if (mainType.isNotEmpty()) {
+            builder.append(" $mainType")
+        }
+        if (extractFrequency(
+                networkType,
+                networkTypeSecondary,
+                this.context
+            )?.contains("/") == true
+        ) {
+            if (secondaryType.isNotEmpty()) {
+                builder.append("/$secondaryType")
+            }
+        }
+    }
+    return builder
+}
+
 /**
  * A binding adapter that is used for show signal
  */
-@BindingAdapter("signal")
-fun AppCompatTextView.setSignal(signal: Int?) {
-
+@BindingAdapter("simpleSignal")
+fun AppCompatTextView.setSignal(
+    signal: Int?
+) {
     text = if (signal != null) {
         String.format(context.getString(R.string.home_signal_value), signal)
     } else {
@@ -71,21 +214,81 @@ fun AppCompatTextView.setSignal(signal: Int?) {
 }
 
 /**
+ * A binding adapter that is used for show signal
+ */
+@BindingAdapter("signal", "signalSecondary", "signalNetworkInfo")
+fun AppCompatTextView.setSignal(
+    signal: Int?,
+    signalSecondary: Int?,
+    signalNetworkInfo: NetworkInfo?
+) {
+    text = extractSignalValues(this.context, signal, signalSecondary, signalNetworkInfo)
+}
+
+private fun extractSignalValues(
+    context: Context,
+    signal: Int?,
+    signalSecondary: Int?,
+    signalNetworkInfo: NetworkInfo?
+) =
+    if (signal != null && signalSecondary != null && signalNetworkInfo is CellNetworkInfo && signalNetworkInfo.networkType == MobileNetworkType.NR_NSA) {
+        String.format(
+            context.getString(R.string.home_signal_secondary_value),
+            signal,
+            signalSecondary
+        )
+    } else if (signal != null) {
+        String.format(context.getString(R.string.home_signal_value), signal)
+    } else {
+        "-"
+    }
+
+/**
  * A binding adapter that is used for show frequency
  */
-@BindingAdapter("frequency")
-fun AppCompatTextView.setFrequency(networkInfo: NetworkInfo?) {
+@BindingAdapter("frequency", "frequencySecondary")
+fun AppCompatTextView.setFrequency(networkInfo: NetworkInfo?, secondaryNetworkInfo: NetworkInfo?) {
 
     text = when (networkInfo) {
         is WifiNetworkInfo -> networkInfo.band.name
         is CellNetworkInfo -> {
-            if (networkInfo.band?.name?.contains("MHz") == true) {
-                networkInfo.band?.name
-            } else {
-                String.format(context.getString(R.string.home_frequency_value), networkInfo.band?.name)
-            }
+            // we display secondary signal only for NR_NSA type of the network
+            extractFrequency(networkInfo, secondaryNetworkInfo, this.context)
         }
         else -> "-"
+    }
+}
+
+private fun extractFrequency(
+    networkInfo: CellNetworkInfo,
+    secondaryNetworkInfo: NetworkInfo?,
+    context: Context
+): String? {
+    return if (secondaryNetworkInfo == null || networkInfo.networkType != MobileNetworkType.NR_NSA) {
+        if (networkInfo.band?.name?.contains("MHz") == true) {
+            networkInfo.band?.name?.removeSuffix("MHz")
+        } else {
+            String.format(
+                context.getString(R.string.home_frequency_value),
+                networkInfo.band?.name
+            )
+        }
+    } else {
+        val builder = StringBuilder()
+        if (networkInfo.band?.name?.contains("MHz") == true) {
+            builder.append(networkInfo.band?.name?.removeSuffix("MHz"))
+        } else {
+            builder.append(if (networkInfo.band?.name.isNullOrEmpty()) "-" else networkInfo.band?.name)
+        }
+        if ((secondaryNetworkInfo is CellNetworkInfo) && secondaryNetworkInfo.band?.name?.isNullOrEmpty() == false) {
+            builder.append("/")
+            if (secondaryNetworkInfo.band?.name?.contains("MHz") == true) {
+                builder.append(secondaryNetworkInfo.band?.name?.removeSuffix("MHz"))
+            } else {
+                builder.append(if (secondaryNetworkInfo.band?.name.isNullOrEmpty()) "-" else secondaryNetworkInfo.band?.name)
+            }
+        }
+        String.format(context.getString(R.string.home_frequency_value), builder.toString())
     }
 }
 
@@ -457,7 +660,7 @@ fun AppCompatImageView.setSmallIcon(signalStrengthInfo: SignalStrengthInfo?, con
             }
         }
     } else {
-        setImageResource(R.drawable.ic_small_no_internet)
+        setImageResource(R.drawable.ic_signal_unknown_small)
     }
 }
 
@@ -570,15 +773,15 @@ fun ImageView.setSignalIcon(networkType: NetworkTypeCompat?, signalStrength: Cla
     networkType?.let { setImageResource(getSignalImageResource(it, signalStrength)) }
 }
 
-private fun getSignalImageResource(networkType: NetworkTypeCompat, signalStrength: Classification): Int =
-    when (networkType) {
+private fun getSignalImageResource(networkType: NetworkTypeCompat, signalStrength: Classification): Int {
+    return when (networkType) {
         NetworkTypeCompat.TYPE_2G -> {
             when (signalStrength) {
                 Classification.BAD -> R.drawable.ic_history_2g_1
                 Classification.NORMAL -> R.drawable.ic_history_2g_2
                 Classification.GOOD -> R.drawable.ic_history_2g_3
                 Classification.EXCELLENT -> R.drawable.ic_history_2g_4
-                Classification.NONE -> R.drawable.ic_history_no_internet
+                Classification.NONE -> R.drawable.ic_signal_unknown_small
             }
         }
         NetworkTypeCompat.TYPE_3G -> {
@@ -587,7 +790,7 @@ private fun getSignalImageResource(networkType: NetworkTypeCompat, signalStrengt
                 Classification.NORMAL -> R.drawable.ic_history_3g_2
                 Classification.GOOD -> R.drawable.ic_history_3g_3
                 Classification.EXCELLENT -> R.drawable.ic_history_3g_4
-                Classification.NONE -> R.drawable.ic_history_no_internet
+                Classification.NONE -> R.drawable.ic_signal_unknown_small
             }
         }
         NetworkTypeCompat.TYPE_5G_AVAILABLE,
@@ -597,7 +800,7 @@ private fun getSignalImageResource(networkType: NetworkTypeCompat, signalStrengt
                 Classification.NORMAL -> R.drawable.ic_history_4g_2
                 Classification.GOOD -> R.drawable.ic_history_4g_3
                 Classification.EXCELLENT -> R.drawable.ic_history_4g_4
-                Classification.NONE -> R.drawable.ic_history_no_internet
+                Classification.NONE -> R.drawable.ic_signal_unknown_small
             }
         }
         NetworkTypeCompat.TYPE_WLAN -> {
@@ -606,11 +809,11 @@ private fun getSignalImageResource(networkType: NetworkTypeCompat, signalStrengt
                 Classification.NORMAL -> R.drawable.ic_history_wifi_2
                 Classification.GOOD -> R.drawable.ic_history_wifi_3
                 Classification.EXCELLENT -> R.drawable.ic_history_wifi_4
-                Classification.NONE -> R.drawable.ic_no_wifi
+                Classification.NONE -> R.drawable.ic_signal_unknown_small
             }
         }
         NetworkTypeCompat.TYPE_UNKNOWN -> {
-            R.drawable.ic_history_no_internet
+            R.drawable.ic_signal_unknown_small
         }
         NetworkTypeCompat.TYPE_LAN -> {
             R.drawable.ic_ethernet
@@ -625,10 +828,11 @@ private fun getSignalImageResource(networkType: NetworkTypeCompat, signalStrengt
                 Classification.NORMAL -> R.drawable.ic_history_5g_2
                 Classification.GOOD -> R.drawable.ic_history_5g_3
                 Classification.EXCELLENT -> R.drawable.ic_history_5g_4
-                Classification.NONE -> R.drawable.ic_history_5g_0
+                Classification.NONE -> R.drawable.ic_signal_unknown_small
             }
         }
     }
+}
 
 /**
  * A binding adapter that is used for show date and time in result details

@@ -60,12 +60,12 @@ class HistoryLoader @Inject constructor(
             isLoading = true
 
             val count = historyDao.getItemsCount()
-            val result = historyRepository.loadHistoryItems(count, LIMIT)
-
-            result.onFailure {
-                errorChannel?.send(it)
+            if (count % LIMIT == 0) {
+                val result = historyRepository.loadHistoryItems(count, LIMIT)
+                result.onFailure {
+                    errorChannel?.send(it)
+                }
             }
-
             isLoading = false
         }
     }

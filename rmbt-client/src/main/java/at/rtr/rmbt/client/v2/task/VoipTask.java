@@ -141,38 +141,46 @@ public class VoipTask extends AbstractQoSTask {
 	public final static String RESULT_LONG_SEQUENTIAL = "long_seq";
 	
 	public final static String RESULT_MAX_JITTER = "max_jitter";
-	
+
 	public final static String RESULT_MEAN_JITTER = "mean_jitter";
-	
+
 	public final static String RESULT_MAX_DELTA = "max_delta";
-	
+
 	public final static String RESULT_SKEW = "skew";
-	
+
 	public final static String RESULT_NUM_PACKETS = "num_packets";
-	
+
 	public final static String RESULT_SEQUENCE_ERRORS = "sequence_error";
-	
+
+	private final boolean ignoreErrors;
+
 	/**
-	 * 
 	 * @param taskDesc
 	 */
-	public VoipTask(QualityOfServiceTest nnTest, TaskDesc taskDesc, int threadId) {
+	public VoipTask(QualityOfServiceTest nnTest, TaskDesc taskDesc, int threadId, Long customTimeout, boolean ignoreErrors) {
 		super(nnTest, taskDesc, threadId, threadId);
+
+		this.ignoreErrors = ignoreErrors;
+
 		String value = (String) taskDesc.getParams().get(PARAM_DURATION);
 		this.callDuration = value != null ? Long.valueOf(value) : DEFAULT_CALL_DURATION;
-		
+
 		value = (String) taskDesc.getParams().get(PARAM_PORT);
 		this.incomingPort = value != null ? Integer.valueOf(value) : null;
 
 		value = (String) taskDesc.getParams().get(PARAM_PORT_OUT);
 		this.outgoingPort = value != null ? Integer.valueOf(value) : null;
-		
-		value = (String) taskDesc.getParams().get(PARAM_TIMEOUT);
-		this.timeout = value != null ? Long.valueOf(value) : DEFAULT_TIMEOUT;
-		
+
+		if (customTimeout == null) {
+			value = (String) taskDesc.getParams().get(PARAM_TIMEOUT);
+			this.timeout = value != null ? Long.valueOf(value) : DEFAULT_TIMEOUT;
+		} else {
+			this.timeout = customTimeout;
+		}
+
 		value = (String) taskDesc.getParams().get(PARAM_DELAY);
 		this.delay = value != null ? Long.valueOf(value) : DEFAULT_DELAY;
-		
+
 		value = (String) taskDesc.getParams().get(PARAM_BITS_PER_SAMLE);
 		this.bitsPerSample = value != null ? Integer.valueOf(value) : DEFAULT_BITS_PER_SAMPLE;
 
@@ -250,16 +258,22 @@ public class VoipTask extends AbstractQoSTask {
 										TimeUnit.MILLISECONDS.convert(timeout, TimeUnit.NANOSECONDS), true, receiveCallback);
 							} 
 							catch (InterruptedException e) {
-								result.getResultMap().put(RESULT_STATUS, "TIMEOUT");
-								e.printStackTrace();
+								if (!ignoreErrors) {
+									result.getResultMap().put(RESULT_STATUS, "TIMEOUT");
+									e.printStackTrace();
+								}
 							} 
 							catch (TimeoutException e) {
-								result.getResultMap().put(RESULT_STATUS, "TIMEOUT");
-								e.printStackTrace();
+								if (!ignoreErrors) {
+									result.getResultMap().put(RESULT_STATUS, "TIMEOUT");
+									e.printStackTrace();
+								}
 							} 
 							catch (Exception e) {
-								result.getResultMap().put(RESULT_STATUS, "ERROR");
-								e.printStackTrace();
+								if (!ignoreErrors) {
+									result.getResultMap().put(RESULT_STATUS, "ERROR");
+									e.printStackTrace();
+								}
 							} 
 							finally {
 								if (dgsock != null && !dgsock.isClosed()) {
@@ -269,7 +283,9 @@ public class VoipTask extends AbstractQoSTask {
 						}
 					}
 					else {
-						result.getResultMap().put(RESULT_STATUS, "ERROR");
+						if (!ignoreErrors) {
+							result.getResultMap().put(RESULT_STATUS, "ERROR");
+						}
 					}
 					
 					latch.countDown();

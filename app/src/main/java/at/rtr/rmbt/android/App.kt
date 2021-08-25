@@ -9,6 +9,8 @@ import at.specure.di.CoreComponent
 import at.specure.di.CoreInjector
 import at.specure.info.Network5GSimulator
 import at.specure.worker.WorkLauncher
+import com.huawei.agconnect.config.AGConnectServicesConfig
+import com.huawei.hms.maps.MapsInitializer
 import java.io.File
 import javax.inject.Inject
 
@@ -53,5 +55,8 @@ class App : CoreApp() {
             }
         } catch (exception: Exception) {
         }
+
+        val config = AGConnectServicesConfig.fromContext(this)
+        MapsInitializer.setApiKey(config.getString("client/api_key"))
     }
 }

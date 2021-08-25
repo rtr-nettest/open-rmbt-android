@@ -19,6 +19,7 @@
     <data>
 
         <import type="at.specure.location.LocationState" />
+        <import type="at.rtr.rmbt.android.ui.HomeScreenLabelType" />
 
         <variable
             name="captiveState"
@@ -284,6 +285,8 @@
             app:layout_constraintEnd_toStartOf="@+id/tvFrequency"
             app:layout_constraintStart_toStartOf="parent"
             app:signal="@{state.signalStrength.value}"
+            app:signalNetworkInfo="@{state.activeNetworkInfo.networkInfo}"
+            app:signalSecondary="@{state.secondary5GSignalStrength.value}"
             tools:text="-10 db" />
 
         <androidx.appcompat.widget.AppCompatTextView
@@ -294,8 +297,9 @@
             android:gravity="center"
             android:textColor="@color/text_gray"
             app:frequency="@{state.activeNetworkInfo.networkInfo}"
+            app:frequencySecondary="@{state.secondary5GActiveNetworkInfo}"
             app:frequencyVisibility="@{state.activeNetworkInfo.networkInfo}"
-            app:layout_constraintBottom_toTopOf="@+id/tvLblSignal"
+            app:layout_constraintBottom_toTopOf="@+id/tvLblFrequency"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@+id/tvSignal"
             tools:text="-11 db" />
@@ -307,7 +311,12 @@
             android:layout_height="wrap_content"
             android:gravity="center"
             android:paddingBottom="@dimen/padding_large"
-            android:text="@string/home_signal"
+            app:labelType="@{HomeScreenLabelType.SIGNAL.value}"
+            app:mainText="@{@string/home_signal}"
+            app:networkType="@{state.activeNetworkInfo.networkInfo}"
+            app:networkTypeSecondary="@{state.secondary5GActiveNetworkInfo}"
+            app:signal="@{state.signalStrength.value}"
+            app:signalSecondary="@{state.secondary5GSignalStrength.value}"
             android:textColor="@color/text_gray_transparency_40"
             app:layout_constraintBottom_toTopOf="@+id/vBottomDivider"
             app:layout_constraintEnd_toStartOf="@+id/tvLblFrequency"
@@ -320,7 +329,12 @@
             android:layout_height="wrap_content"
             android:gravity="center"
             android:paddingBottom="@dimen/padding_large"
-            android:text="@string/home_frequency"
+            app:mainText="@{@string/home_frequency}"
+            app:networkType="@{state.activeNetworkInfo.networkInfo}"
+            app:networkTypeSecondary="@{state.secondary5GActiveNetworkInfo}"
+            app:labelType="@{HomeScreenLabelType.FREQUENCY.value}"
+            app:signal="@{state.signalStrength.value}"
+            app:signalSecondary="@{state.secondary5GSignalStrength.value}"
             android:textColor="@color/text_gray_transparency_40"
             app:frequencyVisibility="@{state.activeNetworkInfo.networkInfo}"
             app:layout_constraintBottom_toTopOf="@+id/vBottomDivider"

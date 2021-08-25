@@ -36,15 +36,13 @@ import at.specure.location.LocationWatcher
 import at.specure.location.cell.CellLocationInfo
 import at.specure.test.SignalMeasurementType
 import at.specure.test.toDeviceInfoLocation
-import at.specure.util.filterOnlyActiveDataCell
+import at.specure.util.filterOnlyPrimaryActiveDataCell
 import at.specure.util.isCoarseLocationPermitted
 import at.specure.util.isReadPhoneStatePermitted
 import at.specure.util.mobileNetworkType
-import at.specure.util.toCellInfoRecord
 import at.specure.util.toCellLocation
-import at.specure.util.toSignalRecord
+import at.specure.util.toRecords
 import cz.mroczis.netmonster.core.INetMonster
-import cz.mroczis.netmonster.core.feature.merge.CellSource
 import cz.mroczis.netmonster.core.model.cell.ICell
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
@@ -54,6 +52,9 @@ import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.launch
 import timber.log.Timber
+import java.lang.Runnable
+import java.lang.SecurityException
+import java.lang.System
 import java.util.Timer
 import java.util.TimerTask
 import java.util.concurrent.TimeUnit
@@ -77,7 +78,8 @@ class SignalMeasurementProcessor @Inject constructor(
     private val signalRepository: SignalMeasurementRepository,
     private val connectivityWatcher: ConnectivityWatcher,
     private val measurementRepository: MeasurementRepository
-) : Binder(), SignalMeasurementProducer, CoroutineScope, SignalMeasurementChunkResultCallback, SignalMeasurementChunkReadyCallback {
+) : Binder(), SignalMeasurementProducer, CoroutineScope, SignalMeasurementChunkResultCallback,
+    SignalMeasurementChunkReadyCallback {
 
     private var isUnstoppable = false
     private var _isActive = false
@@ -392,11 +394,11 @@ class SignalMeasurementProcessor @Inject constructor(
         var cells: List<ICell>? = null
         if (context.isCoarseLocationPermitted() && context.isReadPhoneStatePermitted()) {
             try {
-                cells = netmonster.getCells(CellSource.NEIGHBOURING_CELLS, CellSource.ALL_CELL_INFO, CellSource.CELL_LOCATION)
+                cells = netmonster.getCells()
 
                 val dataSubscriptionId = subscriptionManager.getCurrentDataSubscriptionId()
 
-                val primaryCells = cells?.filterOnlyActiveDataCell(dataSubscriptionId)
+                val primaryCells = cells?.filterOnlyPrimaryActiveDataCell(dataSubscriptionId)
 
                 val cellInfosToSave = mutableListOf<CellInfoRecord>()
                 val signalsToSave = mutableListOf<SignalRecord>()
@@ -405,44 +407,14 @@ class SignalMeasurementProcessor @Inject constructor(
                 if (uuid != null) {
                     val testStartTimeNanos = record?.startTimeNanos ?: 0
                     primaryCells?.toList()?.let {
-                        if (it.size == 1) {
-                            val iCell = it[0]
-
-                            val cellInfoRecord = iCell.toCellInfoRecord(uuid, netmonster)
-
-                            cellInfoRecord?.let {
-                                if (cellInfoRecord.uuid.isNotEmpty()) {
-                                    iCell.signal?.let { iSignal ->
-                                        Timber.e("Signal saving time SCI: starting time: $testStartTimeNanos   current time: ${System.nanoTime()}")
-                                        Timber.d("valid signal directly")
-                                        val signalRecord = iSignal.toSignalRecord(
-                                            uuid,
-                                            cellInfoRecord.uuid,
-                                            iCell.mobileNetworkType(netmonster),
-                                            testStartTimeNanos,
-                                            NRConnectionState.NOT_AVAILABLE
-                                        )
-                                        if (signalRecord.hasNonNullSignal()) {
-                                            signalsToSave.add(signalRecord)
-                                        }
-                                    }
-                                }
-
-                                val cellLocationRecord = iCell.toCellLocation(uuid, System.currentTimeMillis(), System.nanoTime(), testStartTimeNanos)
-                                cellLocationRecord?.let {
-                                    cellLocationsToSave.add(cellLocationRecord)
-                                }
-                                cellInfosToSave.add(cellInfoRecord)
-                            }
-                        }
-                        repository.saveCellLocationRecord(cellLocationsToSave)
-                        repository.saveCellInfoRecord(cellInfosToSave)
-                        repository.saveSignalRecord(signalsToSave)
-                        chunkDataSize += signalsToSave.size
-                        if (chunkDataSize >= MAX_SIGNAL_COUNT_PER_CHUNK) {
-                            Timber.v("Chunk max size reached: $chunkDataSize")
-                            commitChunkData(ValidChunkPostProcessing.CREATE_NEW_CHUNK)
-                        }
+                        saveCellAndSignalInfo(
+                            it,
+                            uuid,
+                            testStartTimeNanos,
+                            signalsToSave,
+                            cellLocationsToSave,
+                            cellInfosToSave
+                        )
                     }
                 }
             } catch (e: SecurityException) {
@@ -455,6 +427,56 @@ class SignalMeasurementProcessor @Inject constructor(
         }
     }
 
+    private fun saveCellAndSignalInfo(
+        it: List<ICell>,
+        uuid: String?,
+        testStartTimeNanos: Long,
+        signalsToSave: MutableList<SignalRecord>,
+        cellLocationsToSave: MutableList<CellLocationRecord>,
+        cellInfosToSave: MutableList<CellInfoRecord>
+    ) {
+        if (it.size == 1 && uuid != null) {
+            val iCell = it[0]
+
+            val map = iCell.toRecords(
+                uuid,
+                netmonster,
+                iCell.mobileNetworkType(netmonster),
+                testStartTimeNanos,
+                NRConnectionState.NOT_AVAILABLE
+            )
+            if (map.keys.isNotEmpty()) {
+                val cell = map.keys.iterator().next()
+                cell?.let {
+                    val signal = map.get(cell)
+
+                    if (signal?.hasNonNullSignal() == true) {
+                        signalsToSave.add(signal)
+                    }
+                    val cellLocationRecord = iCell.toCellLocation(
+                        uuid,
+                        System.currentTimeMillis(),
+                        System.nanoTime(),
+                        testStartTimeNanos
+                    )
+                    cellLocationRecord?.let {
+                        cellLocationsToSave.add(cellLocationRecord)
+                    }
+                    cellInfosToSave.add(cell)
+                    Timber.d("CIT: CellInfoRecord: ${cell.cellTechnology?.displayName} ${signalsToSave[0].mobileNetworkType?.displayName}")
+                }
+            }
+        }
+        repository.saveCellLocationRecord(cellLocationsToSave)
+        repository.saveCellInfoRecord(cellInfosToSave)
+        repository.saveSignalRecord(signalsToSave)
+        chunkDataSize += signalsToSave.size
+        if (chunkDataSize >= MAX_SIGNAL_COUNT_PER_CHUNK) {
+            Timber.v("Chunk max size reached: $chunkDataSize")
+            commitChunkData(ValidChunkPostProcessing.CREATE_NEW_CHUNK)
+        }
+    }
+
     private fun saveCapabilities() {
         chunk?.id?.let { measurementRepository.saveCapabilities(it) }
     }
@@ -464,7 +486,7 @@ class SignalMeasurementProcessor @Inject constructor(
         val location = locationInfo
         Timber.d("Saving location:  UUID:$uuid  ${location.toDeviceInfoLocation()} ")
         if (uuid != null && location != null && locationWatcher.state == LocationState.ENABLED) {
-            repository.saveGeoLocation(uuid, location, record?.startTimeNanos ?: 0, false)
+            repository.saveGeoLocation(uuid, location, record?.startTimeNanos ?: 0, true)
         }
     }
 

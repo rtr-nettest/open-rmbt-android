@@ -64,13 +64,18 @@ class MapSearchDialog : FullscreenDialog() {
     }
 
     private fun startSearch() {
-        val value: String = binding.editTextValue.text.toString()
-        if (value.isNotEmpty()) {
+        val searchText: String = binding.editTextValue.text.toString()
+        if (searchText.isNotEmpty()) {
+            val searchValue = if (!searchText.contains("Austria")) {
+                "$searchText Austria"
+            } else {
+                searchText
+            }
             binding.buttonSearch.visibility = View.INVISIBLE
             binding.progressbar.visibility = View.VISIBLE
             searchJob?.cancel()
             searchJob = coroutineScope.launch {
-                loadResults(value) {
+                loadResults(searchValue) {
                     callback?.onAddressResult(it)
                     binding.buttonSearch.visibility = View.VISIBLE
                     binding.progressbar.visibility = View.GONE

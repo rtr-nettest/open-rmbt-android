@@ -61,14 +61,29 @@ interface ControlServerApi {
     @POST
     fun sendQoSTestResult(@Url url: String, @Body body: QoSResultBody): Call<BaseResponse>
 
+    /**
+     * Request to send QoS test results for ONT based apps
+     */
+    @POST
+    fun sendQoSTestResultONT(@Url url: String, @Body body: QoSResultBody): Call<QosResultResponse>
+
     @POST
     fun getHistory(@Url url: String, @Body body: HistoryRequestBody): Call<HistoryResponse>
+
+    /**
+     * Get history for ONT based apps
+     */
+    @POST
+    fun getHistoryONT(@Url url: String, @Body body: HistoryONTRequestBody): Call<HistoryONTResponse>
 
     /**
      * Request to get basic measurement results
      */
     @POST
-    fun getTestResult(@Url url: String, @Body body: ServerTestResultBody): Call<ServerTestResultResponse>
+    fun getTestResult(
+        @Url url: String,
+        @Body body: ServerTestResultBody
+    ): Call<ServerTestResultResponse>
 
     /**
      * Request to get detailed measurement results via opendata
@@ -77,16 +92,34 @@ interface ControlServerApi {
     fun getTestResultOpenDetails(@Url url: String): Call<SpeedCurveBodyResponse>
 
     /**
+     * Request to get measurement graphs
+     */
+    @GET
+    fun getTestResultGraphs(@Url url: String): Call<SpeedCurveBodyResponseONT>
+
+    /**
      * Request to get test result details
      */
     @POST
-    fun getTestResultDetail(@Url url: String, @Body body: TestResultDetailBody): Call<TestResultDetailResponse>
+    fun getTestResultDetail(
+        @Url url: String,
+        @Body body: TestResultDetailBody
+    ): Call<TestResultDetailResponse>
 
     /**
      * Request to get QoS test result details
      */
     @POST
-    fun getQosTestResultDetail(@Url url: String, @Body body: QosTestResultDetailBody): Call<QosTestResultDetailResponse>
+    fun getQosTestResultDetail(
+        @Url url: String,
+        @Body body: QosTestResultDetailBody
+    ): Call<QosTestResultDetailResponse>
+
+    /**
+     * Request to get QoS test result details
+     */
+    @GET
+    fun getResultDetailONT(@Url url: String): Call<ResultDetailONTResponse>
 
     /**
      * Request to get sync code for current device

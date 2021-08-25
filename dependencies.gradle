@@ -8,8 +8,8 @@ buildscript {
                 minSdkVersion    : 23,
                 targetSdkVersion : 30,
                 buildToolsVersion: "29.0.2",
-                versionCode      : (project.hasProperty('buildVersionCode') ? Integer.parseInt(buildVersionCode) : 40116),
-                versionName      : (project.hasProperty('buildVersionName') ? buildVersionName : '4.1.16')
+                versionCode      : (project.hasProperty('buildVersionCode') ? Integer.parseInt(buildVersionCode) : 5),
+                versionName      : (project.hasProperty('buildVersionName') ? buildVersionName : '4.0.423')
         ]
 
         // All project modules dependency versions should be in versions map
@@ -42,12 +42,14 @@ buildscript {
                 jopt_simple         : '5.0.4',
                 paging              : '2.1.2',
                 guava               : '28.1-android',
+                joda_time           : '2.10.9.1',
 
                 junit               : '4.12',
 
                 test_runner         : "1.2.0",
                 espresso_core       : "3.2.0",
-                rules               : "1.2.0"
+                rules               : "1.2.0",
+                markwon             : "4.6.2"
         ]
     }
 }

@@ -19,6 +19,7 @@ import at.rmbt.client.control.data.ErrorStatus
 import com.google.gson.JsonObject
 import com.google.gson.annotations.SerializedName
 import java.math.BigDecimal
+import kotlin.collections.HashSet
 
 /**
  * Basic response class
@@ -118,6 +119,13 @@ data class SpeedCurveBodyResponse(
 ) : BaseResponse()
 
 @Keep
+data class SpeedCurveBodyResponseONT(
+    // a lot of fields are not important for us, so we will parse only those one we need
+    @SerializedName("speed_curve")
+    val speedCurve: SpeedCurveResponseONT
+) : BaseResponse()
+
+@Keep
 data class SpeedCurveResponse(
     @SerializedName("download")
     val download: List<SpeedGraphItemResponse>,
@@ -133,7 +141,32 @@ data class SpeedCurveResponse(
 )
 
 @Keep
+data class SpeedCurveResponseONT(
+    @SerializedName("download")
+    val download: List<SpeedGraphItemResponseONT>?,
+
+    @SerializedName("upload")
+    val upload: List<SpeedGraphItemResponseONT>?
+)
+
+@Keep
 data class SpeedGraphItemResponse(
+
+    /**
+     * Total bytes transferred until the timestamp
+     */
+    @SerializedName("bytes_total")
+    val bytes: Long,
+
+    /**
+     * Relative time in milliseconds form the start of the test
+     */
+    @SerializedName("time_elapsed")
+    val timeMillis: Long
+)
+
+@Keep
+data class SpeedGraphItemResponseONT(
 
     /**
      * Total bytes transferred until the timestamp
@@ -417,7 +450,41 @@ data class MeasurementItem(
      *  4 = dark green
      */
     @SerializedName("ping_classification")
-    val pingClass: Int
+    val pingClass: Int,
+
+    /**
+     * Mean jitter (single-trip time) in milliseconds
+     */
+    @SerializedName("voip_result_jitter_millis")
+    val jitterMillis: String?,
+
+    /**
+     * Classification value for assigning traffic-light-color
+     *  0 = not available (greyed out)
+     *  1 = red
+     *  2 = yellow
+     *  3 = green
+     *  4 = dark green
+     */
+    @SerializedName("jitter_classification")
+    val jitterClass: Int?,
+
+    /**
+     * Median ping (round-trip time) in milliseconds, measured on the server side. In previous versions (before June 3rd 2015) this was the minimum ping measured on the client side.
+     */
+    @SerializedName("voip_result_packet_loss_percents")
+    val packetLossPercents: String?,
+
+    /**
+     * Classification value for assigning traffic-light-color
+     *  0 = not available (greyed out)
+     *  1 = red
+     *  2 = yellow
+     *  3 = green
+     *  4 = dark green
+     */
+    @SerializedName("packet_loss_classification")
+    val packetLossClass: Int?
 )
 
 @Keep
@@ -528,6 +595,40 @@ data class HistoryResponse(
 ) : BaseResponse()
 
 @Keep
+data class HistoryONTResponse(
+    val history: HistoryContent?
+) : BaseResponse()
+
+@Keep
+data class HistoryContent(
+    @SerializedName("content")
+    val historyList: List<HistoryItemONTResponse>?,
+    val size: Long,
+    val number: Long
+) : BaseResponse()
+
+@Keep
+data class HistoryItemONTResponse(
+    @SerializedName("network_type")
+    val networkType: String?,
+    val ping: Float,
+    @SerializedName("speed_download")
+    val speedDownload: Float,
+    @SerializedName("speed_upload")
+    val speedUpload: Float,
+    @SerializedName("test_uuid")
+    val testUUID: String,
+    @SerializedName("measurement_date")
+    val measurementDate: String,
+    @SerializedName("qos") // without % sign
+    val qosResultPercents: Float?,
+    @SerializedName("voip_result_jitter_millis")
+    val jitterMillisResult: Float?, // "1.98"
+    @SerializedName("voip_result_packet_loss_percents")
+    val packetLossPercents: Float? // "0.0"
+)
+
+@Keep
 data class HistoryItemResponse(
     val model: String,
     @SerializedName("network_type")
@@ -556,7 +657,17 @@ data class HistoryItemResponse(
     val time: Long,
     @SerializedName("time_string")
     val timeString: String,
-    val timezone: String
+    val timezone: String,
+    @SerializedName("qos_result") // without % sign
+    val qosResultPercents: String?,
+    @SerializedName("jitter_millis")
+    val jitterMillisResult: String?, // "1.98"
+    @SerializedName("packet_loss_percents")
+    val packetLossPercents: String?, // "0.0"
+    @SerializedName("classification_jitter")
+    val classificationJitter: Int?,
+    @SerializedName("classification_packet_loss")
+    val classificationPacketLoss: Int?
 )
 
 @Keep
@@ -575,6 +686,28 @@ data class TestResultDetailItem(
 data class TestResultDetailResponse(
     @SerializedName("testresultdetail")
     val details: List<TestResultDetailItem>
+) : BaseResponse()
+
+@Keep
+data class ResultDetailONTResponse(
+    @SerializedName("test_uuid")
+    val testUUID: String,
+    @SerializedName("speed_upload")
+    val speedUploadKbps: Long?,
+    @SerializedName("speed_download")
+    val speedDownloadKbps: Long?,
+    @SerializedName("ping")
+    val pingMillis: Float?,
+    @SerializedName("voip_result_jitter_millis")
+    val jitterMillis: Float?,
+    @SerializedName("voip_result_packet_loss_percents")
+    val packetLossPercents: Float?,
+    @SerializedName("network_type")
+    val networkType: String?,
+    @SerializedName("qos")
+    val overallQosPercentage: Float?,
+    @SerializedName("qosTestResultCounters")
+    val partialQosResults: List<QosResultItem>
 ) : BaseResponse()
 
 @Keep
@@ -792,3 +925,21 @@ data class SignalMeasurementRequestResponse(
     @SerializedName("provider")
     val provider: String?
 ) : BaseResponse()
+
+@Keep
+data class QosResultResponse(
+    @SerializedName("overallQos")
+    val overallQosPercentage: Float?,
+    @SerializedName("qosTestResultCounters")
+    val partialQosResults: List<QosResultItem>
+) : BaseResponse()
+
+@Keep
+data class QosResultItem(
+    @SerializedName("successCount")
+    val successCount: Int?,
+    @SerializedName("totalCount")
+    val totalCount: Int?,
+    @SerializedName("testType")
+    val testType: String?
+)

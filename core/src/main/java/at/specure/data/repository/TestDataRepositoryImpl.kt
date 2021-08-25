@@ -20,6 +20,7 @@ import at.specure.data.entity.SpeedRecord
 import at.specure.data.entity.TestRecord
 import at.specure.data.entity.TestTelephonyRecord
 import at.specure.data.entity.TestWlanRecord
+import at.specure.data.entity.VoipTestResultRecord
 import at.specure.info.cell.CellNetworkInfo
 import at.specure.info.cell.CellTechnology
 import at.specure.info.network.MobileNetworkType
@@ -51,13 +52,21 @@ class TestDataRepositoryImpl(db: CoreDatabase) : TestDataRepository {
     private val cellLocationDao = db.cellLocationDao()
     private val pingDao = db.pingDao()
     private val testDao = db.testDao()
+    private val voipResultsDao = db.jplResultsDao()
     private val connectivityStateDao = db.connectivityStateDao()
 
     override fun saveGeoLocation(testUUID: String, location: LocationInfo, testStartTimeNanos: Long, filterOldValues: Boolean) = io {
         if (filterOldValues) {
             val timeDiff = TimeUnit.MINUTES.toMillis(1)
             val locationAgeDiff = System.currentTimeMillis() - location.time
-            if (timeDiff < locationAgeDiff) {
+
+            val ageAcceptable = TimeUnit.MINUTES.toNanos(1)
+            val locationAge = location.ageNanos
+
+            val locationTimeIsOutOfBounds = timeDiff < locationAgeDiff
+            val locationAgeIsOutOfBounds = locationAge > ageAcceptable
+
+            if (locationTimeIsOutOfBounds && locationAgeIsOutOfBounds) {
                 return@io
             }
         }
@@ -69,8 +78,8 @@ class TestDataRepositoryImpl(db: CoreDatabase) : TestDataRepository {
             provider = location.provider,
             speed = location.speed,
             altitude = location.altitude,
-            timestampMillis = location.time,
-            timeRelativeNanos = location.systemNanoTime - testStartTimeNanos,
+            timestampMillis = location.time, // time of acquired information directly from android API
+            timeRelativeNanos = location.systemNanoTime - testStartTimeNanos, // relative time to the start of the test
             ageNanos = location.ageNanos,
             accuracy = location.accuracy,
             bearing = location.bearing,
@@ -303,7 +312,7 @@ class TestDataRepositoryImpl(db: CoreDatabase) : TestDataRepository {
             testUUID = testUUID,
             uuid = cellUUID,
             isActive = isActive,
-            cellTechnology = CellTechnology.fromMobileNetworkType(networkType),
+            cellTechnology = cellType,
             transportType = type,
             registered = isRegistered,
             areaCode = areaCode,
@@ -440,5 +449,9 @@ class TestDataRepositoryImpl(db: CoreDatabase) : TestDataRepository {
 
     override fun getLoopModeByLocal(loopUUID: String): LiveData<LoopModeRecord?> {
         return testDao.getLoopModeRecord(loopUUID)
+    }
+
+    override fun saveVoipResult(voipTestResultRecord: VoipTestResultRecord) {
+        return voipResultsDao.insert(voipTestResultRecord)
     }
 }
