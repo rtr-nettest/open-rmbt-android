@@ -343,5 +343,5 @@
 
     <string name="technology">Tecnología</string>
     <string name="primary_connection">Principal</string>
-    <string name="secundaria_conexión">Secundaria</string>
+    <string name="secondary_connection">Secundaria</string>
 </resources>
