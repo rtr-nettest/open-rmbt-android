@@ -286,9 +286,6 @@
     <string name="preferences_connection_details_not_supported">Utvidede tilkoblingsdetaljer støttes ikke på denne enheten</string>
 
     <string name="dialog_signal_info_band">Bånd</string>
-    <string name="dialog_signal_info_channel">Kanal</string>
-    <string name="dialog_signal_info_ta">TA</string>
-    <string name="dialog_signal_info_quality">Kvalitet</string>
     <string name="text_local_results">Bare lokale resultater</string>
     <string name="signal_measurement_terms_title">Aktivering og bruk</string>
     <string name="signal_measurement_terms_content">Alternativet signal-bare sløyfemodus for teknisk interesserte brukere tillater automatisk gjentagelse av signalmålinger- uten at det blir utført hastighets- eller kvalitetstester. Signal-bare loop-modus kan stoppes når som helst, henholdsvis stopper den automatisk etter 48 timer. Signal-bare loop-modus er (bare) beregnet for bruk i EU og EØS. Batteriet tømmes raskt av signal-bare målingene. I pausene mellom testene forblir GPS og displayet aktive og signalmålinger fortsetter, noe som betyr at energien blir brukt opp mye raskere enn i standby-modus. Sløyfemodus bør derfor bare brukes hvis ekstern strømforsyning er tilgjengelig. Det må eksplisitt påpekes at på grunn av signal-bare sløyfemodus kan det ikke utelukkes at testeren er identifisert.</string>
