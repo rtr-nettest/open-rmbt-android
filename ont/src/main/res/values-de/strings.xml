@@ -342,5 +342,9 @@
     <string name="phone_permission_explanation">Wir werden niemals Anrufe tätigen oder verwalten. Wir verwenden Telefonberechtigungen, um den zum Testen verwendeten Mobilfunkanbieter zu identifizieren.</string>
     <string name="location_permission_explanation">Ihr Standort identifiziert Server in der Nähe und die Mobilfunkverbindung Ihres Geräts, um Open Nettest richtig zu konfigurieren.</string>
 
+    <string name="technology">Technologie</string>
+    <string name="primary_connection">Primär</string>
+    <string name="secondary_connection">Sekundär</string>
+
 </resources>
 

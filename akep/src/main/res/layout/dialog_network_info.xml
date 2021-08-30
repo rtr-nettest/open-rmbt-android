@@ -71,6 +71,20 @@
                     app:constraint_referenced_ids="divider_first,label_server,text_server,link_server"
                     tools:visibility="gone" />
 
+                <androidx.constraintlayout.widget.Group
+                    android:id="@+id/group_network"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:constraint_referenced_ids="text_network_name, text_network_type"
+                    tools:visibility="gone" />
+
+                <androidx.constraintlayout.widget.Group
+                    android:id="@+id/group_cellInfo"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:constraint_referenced_ids="labelSignal, labelTechnology, labelBand, recyclerViewCells, divider_4"
+                    tools:visibility="gone" />
+
                 <View
                     android:id="@+id/divider_first"
                     android:layout_width="match_parent"
@@ -206,8 +220,8 @@
                     android:id="@+id/recyclerViewCells"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    app:layout_constraintStart_toStartOf="@id/label_network_type"
                     app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                    app:layout_constraintStart_toStartOf="@id/label_network_type"
                     app:layout_constraintTop_toBottomOf="@id/labelSignal"
                     tools:listitem="@layout/item_cell_info" />
 

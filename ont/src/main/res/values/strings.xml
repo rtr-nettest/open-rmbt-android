@@ -358,4 +358,8 @@
     <string name="phone_permission_explanation">We will never make or manage phone calls. We use phone permissions to identify the mobile operator used for testing.</string>
     <string name="location_permission_explanation">Your location identifies nearby servers and your device`s cellular connection in order to properly configure Open Nettest.</string>
 
+    <string name="technology">Technology</string>
+    <string name="primary_connection">Primary</string>
+    <string name="secondary_connection">Secondary</string>
+
 </resources>

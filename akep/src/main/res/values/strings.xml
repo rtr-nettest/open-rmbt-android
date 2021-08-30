@@ -361,4 +361,7 @@
     <string name="location_permission_explanation">Vendndodhja juaj identifikon serverat e afërt dhe lidhjen celulare të pajisjes tuaj në mënyrë që të konfiguroni siç duhet Akep Nettest.</string>
 
     <string name="technology">Teknologji</string>
+
+    <string name="primary_connection">Primare</string>
+    <string name="secondary_connection">Sekondare</string>
 </resources>

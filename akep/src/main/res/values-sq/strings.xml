@@ -362,4 +362,6 @@
 
     <string name="technology">Teknologji</string>
 
+    <string name="primary_connection">Primare</string>
+    <string name="secondary_connection">Sekondare</string>
 </resources>

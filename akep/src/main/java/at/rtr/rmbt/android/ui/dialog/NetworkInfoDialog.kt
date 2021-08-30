@@ -32,6 +32,8 @@ import at.rtr.rmbt.android.util.setTechnologyIcon
 import at.specure.data.MeasurementServers
 import at.specure.info.TransportType
 import at.specure.info.cell.CellNetworkInfo
+import at.specure.info.connectivity.ConnectivityInfo
+import at.specure.info.connectivity.ConnectivityInfoLiveData
 import at.specure.info.ip.IpInfo
 import at.specure.info.ip.IpStatus
 import at.specure.info.ip.IpV4ChangeLiveData
@@ -58,6 +60,9 @@ class NetworkInfoDialog : BottomSheetDialogFragment() {
 
     @Inject
     lateinit var activeNetworkLiveData: ActiveNetworkLiveData
+
+    @Inject
+    lateinit var connectivityInfoLiveData: ConnectivityInfoLiveData
 
     @Inject
     lateinit var signalStrengthLiveData: SignalStrengthLiveData
@@ -110,6 +115,7 @@ class NetworkInfoDialog : BottomSheetDialogFragment() {
 
         observeIp()
         observeActiveNetworkUpdates()
+        observeActiveConnectionUpdates()
         observeSignalUpdates()
         observeLocationUpdates()
     }
@@ -209,7 +215,22 @@ class NetworkInfoDialog : BottomSheetDialogFragment() {
     }
 
     private fun observeActiveNetworkUpdates() {
-        activeNetworkLiveData.listenNonNull(viewLifecycleOwner, this::setNetworkInfo)
+        activeNetworkLiveData.listen(viewLifecycleOwner, this::setNetworkInfo)
+    }
+
+    private fun observeActiveConnectionUpdates() {
+        connectivityInfoLiveData.listen(viewLifecycleOwner, this::showConnectionInfo)
+    }
+
+    private fun showConnectionInfo(info: ConnectivityInfo?) {
+
+        if (info == null) {
+            binding.groupNetwork?.visibility = View.INVISIBLE
+            binding.groupCellInfo?.visibility = View.GONE
+        } else {
+            binding.groupNetwork?.visibility = View.VISIBLE
+            binding.groupCellInfo?.visibility = View.VISIBLE
+        }
     }
 
     @SuppressLint("SetTextI18n")
@@ -218,16 +239,17 @@ class NetworkInfoDialog : BottomSheetDialogFragment() {
 
             when (activeNetworkLiveData.value?.type) {
                 TransportType.CELLULAR -> {
-                    var primaryOr5gCells = signal?.allCellInfos?.filter { cell -> cell.connectionStatus is PrimaryConnection || cell is CellNr }
+                    var primaryOr5gCells = signal?.allCellInfos
                     if (binding.recyclerViewCells?.adapter == null || binding.recyclerViewCells?.adapter !is ICellAdapter) {
                         binding.recyclerViewCells?.adapter = ICellAdapter()
                     }
                     primaryOr5gCells?.let {
+                        binding.groupCellInfo?.visibility = View.VISIBLE
                         (binding.recyclerViewCells?.adapter as ICellAdapter).items = primaryOr5gCells
                     }
-                }
-                TransportType.WIFI -> {
-
+                    if (primaryOr5gCells.isNullOrEmpty()) {
+                        binding.groupCellInfo?.visibility = View.GONE
+                    }
                 }
             }
         }
@@ -238,15 +260,21 @@ class NetworkInfoDialog : BottomSheetDialogFragment() {
         var number: String? = null
 
         if (info != null) {
+            binding.groupNetwork?.visibility = View.VISIBLE
+
             binding.textNetworkName.text = info.name
             binding.textNetworkType.setTechnologyIcon(info)
 
             if (info is WifiNetworkInfo) {
+                binding.groupCellInfo?.visibility = View.VISIBLE
                 if (binding.recyclerViewCells?.adapter == null || binding.recyclerViewCells?.adapter !is WifiAdapter) {
                     binding.recyclerViewCells?.adapter = WifiAdapter()
                 }
                 (binding.recyclerViewCells?.adapter as WifiAdapter).items = listOf(info)
             }
+        } else {
+            binding.groupNetwork?.visibility = View.INVISIBLE
+            binding.groupCellInfo?.visibility = View.GONE
         }
     }
 

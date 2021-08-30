@@ -360,4 +360,7 @@
     <string name="phone_permission_explanation">Vi vil aldri foreta eller administrere telefonsamtaler. Vi bruker telefontillatelser for å identifisere mobiloperatøren som brukes til testing.</string>
     <string name="location_permission_explanation">Posisjonen din identifiserer nærliggende servere og enhetens mobilforbindelse for å konfigurere Nkom Nettfart på riktig måte.</string>
 
+    <string name="technology">Teknologi</string>
+    <string name="primary_connection">Primær</string>
+    <string name="secondary_connection">Sekundær</string>
 </resources>

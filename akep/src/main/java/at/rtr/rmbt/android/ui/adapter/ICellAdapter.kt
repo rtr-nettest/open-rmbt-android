@@ -1,5 +1,6 @@
 package at.rtr.rmbt.android.ui.adapter
 
+import android.content.Context
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
@@ -16,6 +17,8 @@ import cz.mroczis.netmonster.core.model.cell.CellNr
 import cz.mroczis.netmonster.core.model.cell.CellTdscdma
 import cz.mroczis.netmonster.core.model.cell.CellWcdma
 import cz.mroczis.netmonster.core.model.cell.ICell
+import cz.mroczis.netmonster.core.model.connection.PrimaryConnection
+import cz.mroczis.netmonster.core.model.connection.SecondaryConnection
 
 private const val CELL_NR_NETWORK_INFO_TYPE = 1
 private const val CELL_LTE_NETWORK_INFO_TYPE = 2
@@ -64,7 +67,11 @@ class ICellAdapter : RecyclerView.Adapter<ICellAdapter.Holder>() {
             item: ICell?
         ) {
             if (item is ICell) {
-                binding.band = "${item.band?.name ?: ""} (${item.band?.channelNumber?.toString()})"
+                binding.band = if (item.band?.name.isNullOrEmpty()) {
+                    "-"
+                } else {
+                    "${item.band?.name} MHz ${getConnectionType(item, binding.bandValue.context)}"
+                }
 
                 if (item is CellCdma) {
                     val rawCellInfo = item as CellCdma
@@ -90,7 +97,11 @@ class ICellAdapter : RecyclerView.Adapter<ICellAdapter.Holder>() {
             item: ICell?
         ) {
             if (item is ICell) {
-                binding.band = "${item.band?.name ?: ""} (${item.band?.channelNumber?.toString()})"
+                binding.band = if (item.band?.name.isNullOrEmpty()) {
+                    "-"
+                } else {
+                    "${item.band?.name} MHz ${getConnectionType(item, binding.bandValue.context)}"
+                }
 
                 if (item is CellWcdma) {
                     binding.technology = "3G (W-CDMA)"
@@ -116,7 +127,11 @@ class ICellAdapter : RecyclerView.Adapter<ICellAdapter.Holder>() {
             item: ICell?
         ) {
             if (item is ICell) {
-                binding.band = "${item.band?.name ?: ""} (${item.band?.channelNumber?.toString()})"
+                binding.band = if (item.band?.name.isNullOrEmpty()) {
+                    "-"
+                } else {
+                    "${item.band?.name} MHz ${getConnectionType(item, binding.bandValue.context)}"
+                }
                 binding.technology = "4G (LTE)"
 
                 if (item is CellLte) {
@@ -136,7 +151,11 @@ class ICellAdapter : RecyclerView.Adapter<ICellAdapter.Holder>() {
             item: ICell?
         ) {
             if (item is ICell) {
-                binding.band = "${(item.band?.name ?: "")} (${item.band?.channelNumber?.toString()})"
+                binding.band = if (item.band?.name.isNullOrEmpty()) {
+                    "-"
+                } else {
+                    "${item.band?.name} MHz ${getConnectionType(item, binding.bandValue.context)}"
+                }
                 binding.technology = "5G (NR)"
 
                 if (item is CellNr) {
@@ -150,6 +169,14 @@ class ICellAdapter : RecyclerView.Adapter<ICellAdapter.Holder>() {
     }
 
     abstract class Holder(view: View) : RecyclerView.ViewHolder(view) {
+
+        fun getConnectionType(cell: ICell?, context: Context): String {
+            return when (cell?.connectionStatus) {
+                is PrimaryConnection -> "(${context.getString(R.string.primary_connection)})"
+                is SecondaryConnection -> "(${context.getString(R.string.secondary_connection)})"
+                else -> ""
+            }
+        }
 
         abstract fun bind(
             position: Int,

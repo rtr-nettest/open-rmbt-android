@@ -344,4 +344,7 @@
     <string name="phone_permission_explanation">Nunca haremos ni administraremos llamadas telefónicas. Usamos permisos telefónicos para identificar el operador de telefonía móvil utilizado para las pruebas.</string>
     <string name="location_permission_explanation">Su ubicación identifica los servidores cercanos y la conexión celular de su dispositivo para configurar correctamente Open Nettest.</string>
 
+    <string name="technology">Tecnología</string>
+    <string name="primary_connection">Principal</string>
+    <string name="secundaria_conexión">Secundaria</string>
 </resources>
