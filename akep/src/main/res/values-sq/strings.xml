@@ -360,4 +360,6 @@
     <string name="phone_permission_explanation">Ne kurrë nuk do të bëjmë ose menaxhojmë telefonata. Ne përdorim lejet e telefonit për të identifikuar operatorin celular të përdorur për testim.</string>
     <string name="location_permission_explanation">Vendndodhja juaj identifikon serverat e afërt dhe lidhjen celulare të pajisjes tuaj në mënyrë që të konfiguroni siç duhet Akep Nettest.</string>
 
+    <string name="technology">Teknologji</string>
+
 </resources>
