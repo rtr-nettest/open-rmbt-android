@@ -180,6 +180,34 @@
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@id/info_ipv4" />
 
+                <androidx.constraintlayout.widget.Group
+                    android:id="@+id/group_network"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:constraint_referenced_ids="text_network_name, text_network_type"
+                    tools:visibility="gone" />
+
+                <androidx.constraintlayout.widget.Group
+                    android:id="@+id/group_cellInfo"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:constraint_referenced_ids="labelSignal, labelTechnology, labelBand, recyclerViewCells, divider_4"
+                    tools:visibility="gone" />
+
+                <androidx.constraintlayout.widget.Guideline
+                    android:id="@+id/guide_one_quarter"
+                    android:layout_width="1dp"
+                    android:layout_height="1dp"
+                    android:orientation="vertical"
+                    app:layout_constraintGuide_percent="0.12" />
+
+                <androidx.constraintlayout.widget.Guideline
+                    android:id="@+id/guide_twothirds"
+                    android:layout_width="1dp"
+                    android:layout_height="1dp"
+                    android:orientation="vertical"
+                    app:layout_constraintGuide_percent="0.33" />
+
                 <androidx.appcompat.widget.AppCompatTextView
                     android:id="@+id/labelSignal"
                     style="@style/Text.NetworkInfoSlider.Title"
@@ -193,108 +221,38 @@
                     app:layout_constraintTop_toBottomOf="@id/divider_4" />
 
                 <androidx.appcompat.widget.AppCompatTextView
-                    android:id="@+id/textSignal"
-                    style="@style/Text.NetworkInfoSlider.Value"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="@dimen/margin_medium"
-                    android:layout_marginEnd="16dp"
-                    app:layout_constraintBottom_toBottomOf="@id/labelSignal"
-                    app:layout_constraintEnd_toEndOf="@id/guide_half"
-                    app:layout_constraintTop_toTopOf="@id/labelSignal"
-                    tools:text="-96 dBm" />
-
-                <androidx.appcompat.widget.AppCompatTextView
-                    android:id="@+id/labelChannelName"
+                    android:id="@+id/labelBand"
                     style="@style/Text.NetworkInfoSlider.Title"
                     android:layout_width="wrap_content"
                     android:layout_height="36dp"
+                    android:layout_marginTop="8dp"
                     android:layout_marginEnd="@dimen/margin_medium"
                     android:gravity="end|center_vertical"
                     android:text="@string/dialog_signal_info_band"
-                    app:layout_constraintStart_toStartOf="@id/label_network_type"
-                    app:layout_constraintTop_toBottomOf="@id/labelSignal" />
+                    app:layout_constraintStart_toStartOf="@id/guide_one_quarter"
+                    app:layout_constraintTop_toBottomOf="@id/divider_4" />
 
                 <androidx.appcompat.widget.AppCompatTextView
-                    android:id="@+id/textChannelName"
-                    style="@style/Text.NetworkInfoSlider.Value"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="@dimen/margin_medium"
-                    android:layout_marginEnd="16dp"
-                    app:layout_constraintBottom_toBottomOf="@id/labelChannelName"
-                    app:layout_constraintEnd_toEndOf="@id/guide_half"
-                    app:layout_constraintTop_toTopOf="@id/labelChannelName"
-                    tools:text="7 (2600)" />
-
-                <androidx.appcompat.widget.AppCompatTextView
-                    android:id="@+id/labelChannelNumber"
+                    android:id="@+id/labelTechnology"
                     style="@style/Text.NetworkInfoSlider.Title"
                     android:layout_width="wrap_content"
                     android:layout_height="36dp"
-                    android:layout_marginEnd="@dimen/margin_medium"
-                    android:gravity="center_vertical"
-                    app:layout_constraintStart_toStartOf="@id/label_network_type"
-                    app:layout_constraintTop_toBottomOf="@id/labelChannelName"
-                    tools:text="EARFCN:" />
-
-                <androidx.appcompat.widget.AppCompatTextView
-                    android:id="@+id/textChannelNumber"
-                    style="@style/Text.NetworkInfoSlider.Value"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="@dimen/margin_medium"
-                    android:layout_marginEnd="16dp"
-                    app:layout_constraintBottom_toBottomOf="@id/labelChannelNumber"
-                    app:layout_constraintEnd_toEndOf="@id/guide_half"
-                    app:layout_constraintTop_toTopOf="@id/labelChannelNumber"
-                    tools:text="3025" />
-
-                <androidx.appcompat.widget.AppCompatTextView
-                    android:id="@+id/labelTimingAdvance"
-                    style="@style/Text.NetworkInfoSlider.Title"
-                    android:layout_width="wrap_content"
-                    android:layout_height="36dp"
+                    android:layout_marginTop="8dp"
                     android:layout_marginEnd="@dimen/margin_medium"
                     android:gravity="end|center_vertical"
-                    android:text="@string/dialog_signal_info_ta"
+                    android:text="@string/technology"
+                    app:layout_constraintStart_toStartOf="@id/guide_twothirds"
+                    app:layout_constraintTop_toBottomOf="@id/divider_4" />
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/recyclerViewCells"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
                     app:layout_constraintStart_toStartOf="@id/label_network_type"
-                    app:layout_constraintTop_toBottomOf="@id/labelChannelNumber" />
-
-                <androidx.appcompat.widget.AppCompatTextView
-                    android:id="@+id/textTimingAdvance"
-                    style="@style/Text.NetworkInfoSlider.Value"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="@dimen/margin_medium"
-                    android:layout_marginEnd="16dp"
-                    app:layout_constraintBottom_toBottomOf="@id/labelTimingAdvance"
-                    app:layout_constraintEnd_toEndOf="@id/guide_half"
-                    app:layout_constraintTop_toTopOf="@id/labelTimingAdvance"
-                    tools:text="2 (~156m)" />
-
-                <androidx.appcompat.widget.AppCompatTextView
-                    android:id="@+id/labelSignalStrengthExtra"
-                    style="@style/Text.NetworkInfoSlider.Title"
-                    android:layout_width="wrap_content"
-                    android:layout_height="36dp"
-                    android:layout_marginEnd="@dimen/margin_medium"
-                    android:gravity="end|center_vertical"
-                    android:text="@string/dialog_signal_info_quality"
-                    app:layout_constraintStart_toStartOf="@id/label_network_type"
-                    app:layout_constraintTop_toBottomOf="@id/labelTimingAdvance" />
-
-                <androidx.appcompat.widget.AppCompatTextView
-                    android:id="@+id/textSignalStrengthExtra"
-                    style="@style/Text.NetworkInfoSlider.Value"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="@dimen/margin_medium"
-                    android:layout_marginEnd="16dp"
-                    app:layout_constraintBottom_toBottomOf="@id/labelSignalStrengthExtra"
-                    app:layout_constraintEnd_toEndOf="@id/guide_half"
-                    app:layout_constraintTop_toTopOf="@id/labelSignalStrengthExtra"
-                    tools:text="-11dB" />
+                    app:layout_constraintEnd_toStartOf="@id/guide_half"
+                    app:layout_constraintTop_toBottomOf="@id/labelSignal"
+                    tools:listitem="@layout/item_cell_info" />
 
                 <androidx.appcompat.widget.AppCompatTextView
                     android:id="@+id/labelLocationName"

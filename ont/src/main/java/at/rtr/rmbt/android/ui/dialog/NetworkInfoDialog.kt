@@ -20,15 +20,18 @@ import at.rtr.rmbt.android.R
 import at.rtr.rmbt.android.databinding.DialogNetworkInfoBinding
 import at.rtr.rmbt.android.di.Injector
 import at.rtr.rmbt.android.ui.activity.MeasurementServerSelectionActivity
+import at.rtr.rmbt.android.ui.adapter.ICellAdapter
+import at.rtr.rmbt.android.ui.adapter.WifiAdapter
 import at.rtr.rmbt.android.util.formatAccuracy
 import at.rtr.rmbt.android.util.formatAgeString
 import at.rtr.rmbt.android.util.formatAltitude
 import at.rtr.rmbt.android.util.formatCoordinate
 import at.rtr.rmbt.android.util.listen
-import at.rtr.rmbt.android.util.listenNonNull
 import at.rtr.rmbt.android.util.setTechnologyIcon
 import at.specure.data.MeasurementServers
-import at.specure.info.cell.CellNetworkInfo
+import at.specure.info.TransportType
+import at.specure.info.connectivity.ConnectivityInfo
+import at.specure.info.connectivity.ConnectivityInfoLiveData
 import at.specure.info.ip.IpInfo
 import at.specure.info.ip.IpStatus
 import at.specure.info.ip.IpV4ChangeLiveData
@@ -36,23 +39,25 @@ import at.specure.info.ip.IpV6ChangeLiveData
 import at.specure.info.network.ActiveNetworkLiveData
 import at.specure.info.network.NetworkInfo
 import at.specure.info.network.WifiNetworkInfo
-import at.specure.info.strength.SignalStrengthInfoLte
 import at.specure.info.strength.SignalStrengthLiveData
 import at.specure.location.LocationInfo
 import at.specure.location.LocationWatcher
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
+import timber.log.Timber
 import java.util.Locale
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import kotlin.math.roundToInt
-import timber.log.Timber
 
 class NetworkInfoDialog : BottomSheetDialogFragment() {
 
     @Inject
     lateinit var activeNetworkLiveData: ActiveNetworkLiveData
+
+    @Inject
+    lateinit var connectivityInfoLiveData: ConnectivityInfoLiveData
 
     @Inject
     lateinit var signalStrengthLiveData: SignalStrengthLiveData
@@ -105,6 +110,7 @@ class NetworkInfoDialog : BottomSheetDialogFragment() {
 
         observeIp()
         observeActiveNetworkUpdates()
+        observeActiveConnectionUpdates()
         observeSignalUpdates()
         observeLocationUpdates()
     }
@@ -204,33 +210,42 @@ class NetworkInfoDialog : BottomSheetDialogFragment() {
     }
 
     private fun observeActiveNetworkUpdates() {
-        activeNetworkLiveData.listenNonNull(viewLifecycleOwner, this::setNetworkInfo)
+        activeNetworkLiveData.listen(viewLifecycleOwner, this::setNetworkInfo)
+    }
+
+    private fun observeActiveConnectionUpdates() {
+        connectivityInfoLiveData.listen(viewLifecycleOwner, this::showConnectionInfo)
+    }
+
+    private fun showConnectionInfo(info: ConnectivityInfo?) {
+
+        if (info == null) {
+            binding.groupNetwork?.visibility = View.INVISIBLE
+            binding.groupCellInfo?.visibility = View.GONE
+        } else {
+            binding.groupNetwork?.visibility = View.VISIBLE
+            binding.groupCellInfo?.visibility = View.VISIBLE
+        }
     }
 
     @SuppressLint("SetTextI18n")
     private fun observeSignalUpdates() {
         signalStrengthLiveData.listen(viewLifecycleOwner) { signal ->
-            signal?.let {
-                it.networkInfo?.let { it1 -> setNetworkInfo(it1) }
-                binding.textSignal.text = getString(R.string.home_signal_value, it.signalStrengthInfo?.value)
-            } ?: run {
-                binding.textSignal.visibility = View.GONE
-                binding.labelSignal.visibility = View.GONE
-            }
 
-            if (signal?.signalStrengthInfo is SignalStrengthInfoLte && (signal.signalStrengthInfo as SignalStrengthInfoLte).timingAdvance != null) {
-                val ta = (signal.signalStrengthInfo as SignalStrengthInfoLte).timingAdvance!!
-                binding.textTimingAdvance.text = "$ta ~(${ta * 78} m)"
-            } else {
-                binding.textTimingAdvance.visibility = View.GONE
-                binding.labelTimingAdvance.visibility = View.GONE
-            }
-
-            signal?.signalStrengthInfo?.rsrq?.let {
-                binding.textSignalStrengthExtra.text = "${signal.signalStrengthInfo?.rsrq} dB"
-            } ?: run {
-                binding.textSignalStrengthExtra.visibility = View.GONE
-                binding.labelSignalStrengthExtra.visibility = View.GONE
+            when (activeNetworkLiveData.value?.type) {
+                TransportType.CELLULAR -> {
+                    var primaryOr5gCells = signal?.allCellInfos
+                    if (binding.recyclerViewCells?.adapter == null || binding.recyclerViewCells?.adapter !is ICellAdapter) {
+                        binding.recyclerViewCells?.adapter = ICellAdapter()
+                    }
+                    primaryOr5gCells?.let {
+                        binding.groupCellInfo?.visibility = View.VISIBLE
+                        (binding.recyclerViewCells?.adapter as ICellAdapter).items = primaryOr5gCells
+                    }
+                    if (primaryOr5gCells.isNullOrEmpty()) {
+                        binding.groupCellInfo?.visibility = View.GONE
+                    }
+                }
             }
         }
     }
@@ -240,34 +255,21 @@ class NetworkInfoDialog : BottomSheetDialogFragment() {
         var number: String? = null
 
         if (info != null) {
+            binding.groupNetwork?.visibility = View.VISIBLE
+
             binding.textNetworkName.text = info.name
             binding.textNetworkType.setTechnologyIcon(info)
 
-            if (info is CellNetworkInfo && info.band != null) {
-                val band = info.band!!
-                number = band.channel.toString()
-                name = "${band.band} (${band.name})"
-                binding.labelChannelNumber.text = band.channelAttribution.name
-            } else if (info is WifiNetworkInfo) {
-                val band = info.band
-                number = "${band.channelNumber} (${band.frequency} MHz)"
-                name = band.informalName
-                binding.labelChannelNumber.text = getString(R.string.dialog_signal_info_channel)
+            if (info is WifiNetworkInfo) {
+                binding.groupCellInfo?.visibility = View.VISIBLE
+                if (binding.recyclerViewCells?.adapter == null || binding.recyclerViewCells?.adapter !is WifiAdapter) {
+                    binding.recyclerViewCells?.adapter = WifiAdapter()
+                }
+                (binding.recyclerViewCells?.adapter as WifiAdapter).items = listOf(info)
             }
-        }
-
-        name?.let {
-            binding.textChannelName.text = it
-        } ?: run {
-            binding.labelChannelName.visibility = View.GONE
-            binding.textChannelName.visibility = View.GONE
-        }
-
-        number?.let {
-            binding.textChannelNumber.text = it
-        } ?: run {
-            binding.labelChannelNumber.visibility = View.GONE
-            binding.textChannelNumber.visibility = View.GONE
+        } else {
+            binding.groupNetwork?.visibility = View.INVISIBLE
+            binding.groupCellInfo?.visibility = View.GONE
         }
     }
 
