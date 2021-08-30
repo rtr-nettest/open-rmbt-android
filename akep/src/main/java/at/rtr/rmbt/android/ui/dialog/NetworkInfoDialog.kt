@@ -27,11 +27,9 @@ import at.rtr.rmbt.android.util.formatAgeString
 import at.rtr.rmbt.android.util.formatAltitude
 import at.rtr.rmbt.android.util.formatCoordinate
 import at.rtr.rmbt.android.util.listen
-import at.rtr.rmbt.android.util.listenNonNull
 import at.rtr.rmbt.android.util.setTechnologyIcon
 import at.specure.data.MeasurementServers
 import at.specure.info.TransportType
-import at.specure.info.cell.CellNetworkInfo
 import at.specure.info.connectivity.ConnectivityInfo
 import at.specure.info.connectivity.ConnectivityInfoLiveData
 import at.specure.info.ip.IpInfo
@@ -41,20 +39,17 @@ import at.specure.info.ip.IpV6ChangeLiveData
 import at.specure.info.network.ActiveNetworkLiveData
 import at.specure.info.network.NetworkInfo
 import at.specure.info.network.WifiNetworkInfo
-import at.specure.info.strength.SignalStrengthInfoLte
 import at.specure.info.strength.SignalStrengthLiveData
 import at.specure.location.LocationInfo
 import at.specure.location.LocationWatcher
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
-import cz.mroczis.netmonster.core.model.cell.CellNr
-import cz.mroczis.netmonster.core.model.connection.PrimaryConnection
-import java.util.Locale
+import timber.log.Timber
+import java.util.*
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import kotlin.math.roundToInt
-import timber.log.Timber
 
 class NetworkInfoDialog : BottomSheetDialogFragment() {
 

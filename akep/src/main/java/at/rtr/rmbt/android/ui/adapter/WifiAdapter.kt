@@ -5,19 +5,9 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import at.rtr.rmbt.android.R
 import at.rtr.rmbt.android.databinding.ItemCellInfoBinding
-import at.rtr.rmbt.android.databinding.ItemHistoryBinding
 import at.rtr.rmbt.android.util.bindWith
 import at.specure.info.TransportType
-import at.specure.info.cell.CellTechnology
 import at.specure.info.network.WifiNetworkInfo
-import at.specure.util.toTechnologyClass
-import cz.mroczis.netmonster.core.model.cell.CellCdma
-import cz.mroczis.netmonster.core.model.cell.CellGsm
-import cz.mroczis.netmonster.core.model.cell.CellLte
-import cz.mroczis.netmonster.core.model.cell.CellNr
-import cz.mroczis.netmonster.core.model.cell.CellTdscdma
-import cz.mroczis.netmonster.core.model.cell.CellWcdma
-import cz.mroczis.netmonster.core.model.cell.ICell
 
 private const val WIFI_NETWORK_TYPE = 1
 
