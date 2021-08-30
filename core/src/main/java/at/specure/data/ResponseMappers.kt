@@ -170,8 +170,8 @@ fun ServerTestResultItem.toModel(testUUID: String): TestResultRecord {
         networkProviderName = networkItem.providerName,
         networkTypeText = networkItem.networkTypeString,
         networkType = NetworkTypeCompat.fromResultIntType(networkType),
-        jitterMillis = measurementItem.jitterMillis?.toDouble(),
-        packetLossPercents = measurementItem.packetLossPercents?.toDouble(),
+        jitterMillis = measurementItem.jitterMillis?.toDoubleOrNull(),
+        packetLossPercents = measurementItem.packetLossPercents?.toDoubleOrNull(),
         packetLossClass = measurementItem.packetLossClass?.let { Classification.fromValue(it) },
         jitterClass = measurementItem.jitterClass?.let { Classification.fromValue(it) }
     )
