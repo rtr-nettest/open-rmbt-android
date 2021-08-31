@@ -1,0 +1,227 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <import type="at.specure.measurement.MeasurementState" />
+
+        <import type="at.specure.data.entity.LoopModeState" />
+
+        <variable
+            name="state"
+            type="at.rtr.rmbt.android.ui.viewstate.MeasurementViewState" />
+    </data>
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:fillViewport="true">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:id="@+id/screen_title"
+                style="@style/ResultMainItemValue"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="48dp"
+                android:text="@{state.isLoopModeActive ? (state.loopModeRecord.status == LoopModeState.IDLE &amp;&amp; state.measurementState == MeasurementState.FINISH ? @string/title_loop_waiting : @string/title_loop_measurement) : @string/text_basic_measurement}"
+                app:layout_constraintEnd_toStartOf="@+id/screen_title_loop_progress"
+                app:layout_constraintHorizontal_chainStyle="packed"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                tools:text="Loop measurement" />
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/screen_title_loop_progress"
+                style="@style/ResultMainItemValue"
+                visibleOrGone="@{state.isLoopModeActive}"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="@dimen/margin_small"
+                app:currentCount="@{state.loopCurrentProgress}"
+                app:layout_constraintBaseline_toBaselineOf="@+id/screen_title"
+                app:layout_constraintEnd_toStartOf="@+id/ivLoopStatusIcon"
+                app:layout_constraintHorizontal_chainStyle="packed"
+                app:layout_constraintStart_toEndOf="@+id/screen_title"
+                app:totalCount="@{state.loopTotalCount}"
+                tools:text="2 of 100" />
+
+            <androidx.appcompat.widget.AppCompatImageView
+                android:id="@+id/ivLoopStatusIcon"
+                visibleOrGone="@{state.isLoopModeActive}"
+                android:layout_width="@dimen/history_image_size"
+                android:layout_height="@dimen/history_image_size"
+                android:background="@drawable/bg_loop_active"
+                android:padding="@dimen/padding_small"
+                android:scaleType="centerInside"
+                android:src="@drawable/ic_loop_24"
+                android:translationZ="@dimen/cardview_default_elevation"
+                app:layout_constraintBottom_toBottomOf="@+id/screen_title"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_chainStyle="packed"
+                app:layout_constraintStart_toEndOf="@+id/screen_title_loop_progress"
+                app:layout_constraintTop_toTopOf="@+id/screen_title"
+                tools:layout_editor_absoluteY="-3dp" />
+
+            <at.rtr.rmbt.android.ui.view.MeasurementProgressLineView
+                android:id="@+id/progress_line"
+                android:layout_width="0dp"
+                android:layout_height="2dp"
+                android:layout_margin="20dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/screen_title"
+                app:percents="@{state.measurementProgress}"
+                app:phase="@{state.measurementState}"
+                app:qosEnabled="@{state.qosEnabled}" />
+
+            <ImageView
+                android:id="@+id/buttonCancel"
+                android:layout_width="@dimen/toolbar_button_size"
+                android:layout_height="@dimen/toolbar_button_size"
+                android:layout_marginTop="@dimen/margin_small"
+                android:layout_marginEnd="@dimen/margin_small"
+                android:contentDescription="@null"
+                android:scaleType="center"
+                android:src="@drawable/ic_close"
+                app:layout_constraintBottom_toBottomOf="@id/screen_title"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="@id/screen_title" />
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/squares"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/size_progress_square"
+                android:layout_marginTop="36dp"
+                android:paddingStart="32dp"
+                android:paddingEnd="32dp"
+                app:layout_constraintBottom_toTopOf="@id/speed_line"
+                app:layout_constraintTop_toBottomOf="@id/progress_line">
+
+                <at.rtr.rmbt.android.ui.view.MeasurementProgressSquareView
+                    android:id="@+id/progress_square"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    app:downloadSpeed="@{state.downloadSpeedBps}"
+                    app:jitter="@{state.jitterNanos}"
+                    app:layout_constraintDimensionRatio="H,1:1"
+                    app:layout_constraintEnd_toStartOf="@id/median_square"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:measurementPhase="@{state.measurementState}"
+                    app:packetLoss="@{state.packetLossPercent}"
+                    app:percentage="@{state.measurementProgress}"
+                    app:ping="@{state.pingNanos}"
+                    app:qos="@{state.qosProgressPercents}"
+                    app:uploadSpeed="@{state.uploadSpeedBps}" />
+
+                <at.rtr.rmbt.android.ui.view.MeasurementMedianSquareView
+                    android:id="@+id/median_square"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    app:downloadSpeed="@{state.downloadSpeedBpsMedian}"
+                    app:jitter="@{state.jitterNanosMedian}"
+                    app:layout_constraintDimensionRatio="H,1:1"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toEndOf="@+id/progress_square"
+                    app:measurementPhase="@{state.measurementState}"
+                    app:packetLoss="@{state.packetLossPercentMedian}"
+                    app:ping="@{state.pingNanosMedian}"
+                    app:qos="@{state.qosPercentsMedian}"
+                    app:uploadSpeed="@{state.uploadSpeedBpsMedian}"
+                    app:visibleOrGone="@{state.isLoopModeActive == true &amp;&amp; state.loopCurrentProgress > 1 &amp;&amp; state.loopModeRecord.status == LoopModeState.RUNNING &amp;&amp; state.measurementState != MeasurementState.INIT}" />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <at.rtr.rmbt.android.ui.view.SpeedLineChart
+                android:id="@+id/speed_line"
+                android:layout_width="match_parent"
+                android:layout_height="80dp"
+                android:layout_marginStart="40dp"
+                android:layout_marginTop="24dp"
+                android:layout_marginEnd="40dp"
+                android:layout_marginBottom="20dp"
+                android:paddingBottom="2dp"
+                app:grid_color="@android:color/transparent"
+                app:grid_row="4"
+                app:layout_constraintBottom_toTopOf="@id/image"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/squares"
+                app:visibleOrInvisible="@{state.measurementState == MeasurementState.DOWNLOAD || state.measurementState == MeasurementState.UPLOAD}"
+                app:xlabel_text_size="0dp"
+                app:ylabel_text_size="0dp" />
+
+            <androidx.appcompat.widget.AppCompatImageView
+                android:id="@+id/image"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="24dp"
+                android:src="@drawable/image_basic"
+                app:layout_constraintBottom_toTopOf="@id/block_loop_waiting"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/speed_line" />
+
+            <include
+                android:id="@+id/block_loop_waiting"
+                layout="@layout/view_block_loop_waiting"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:layout_constraintBottom_toTopOf="@id/block_loop_median"
+                app:layout_constraintTop_toBottomOf="@id/image"
+                app:visibleOrGone="@{state.isLoopModeActive }" />
+
+            <include
+                android:id="@+id/block_loop_median"
+                layout="@layout/view_block_loop_median"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:layout_constraintBottom_toTopOf="@id/resultContainer"
+                app:layout_constraintTop_toBottomOf="@id/block_loop_waiting"
+                app:state="@{state}"
+                app:visibleOrGone="@{state.isLoopModeActive &amp;&amp; state.loopCurrentProgress > 1}" />
+
+            <FrameLayout
+                android:id="@+id/resultContainer"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                app:layout_constraintBottom_toTopOf="@id/resultListContainer"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/block_loop_median" />
+
+            <FrameLayout
+                android:id="@+id/resultListContainer"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_marginTop="@dimen/margin_large"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/resultContainer"
+                app:layout_constraintVertical_weight="1" />
+
+            <androidx.constraintlayout.widget.Group
+                android:id="@+id/loop_waiting_phase_group"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:visibility="gone"
+                app:constraint_referenced_ids="block_loop_waiting,block_loop_median"
+                app:visibleOrGone="@{state.isLoopModeActive &amp;&amp; (state.loopCurrentProgress > 1 || state.measurementState == MeasurementState.FINISH)}" />
+
+            <androidx.constraintlayout.widget.Group
+                android:id="@+id/loop_measurement_phase_group"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:constraint_referenced_ids="image, progress_line, squares"
+                app:visibleOrGone="@{state.isLoopModeActive == false || (state.isLoopModeActive == true &amp;&amp; state.measurementState != MeasurementState.FINISH)}" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </ScrollView>
+
+</layout>

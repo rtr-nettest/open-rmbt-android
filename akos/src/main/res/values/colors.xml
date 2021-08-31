@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="utf-8"?><!--
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~ http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <color name="colorPrimary">@android:color/white</color>
+    <color name="colorPrimaryDark">@android:color/white</color>
+    <color name="colorAccent">@color/main_color</color>
+
+    <!-- Theme colors -->
+    <color name="toolbar_blue">#034782</color>
+    <color name="toolbar_gray">#F2F3F5</color>
+
+    <!-- Font colors -->
+    <color name="black_40">#40000000</color>
+    <color name="black_10">#b4b6b1</color>
+
+    <color name="main_inactive_color">#1A000000</color>
+    <color name="main_color">#0971CE</color>
+
+    <color name="measurement_progress_empty">@color/main_inactive_color</color>
+    <color name="measurement_progress_start">@color/main_color</color>
+    <color name="measurement_progress_center" tools:ignore="UnusedResources">@color/toolbar_blue
+    </color>
+    <color name="measurement_progress_end" tools:ignore="UnusedResources">@color/toolbar_blue
+    </color>
+
+    <!-- Bottom navigation icon colors -->
+    <color name="navigation_green">@color/colorAccent</color>
+    <color name="navigation_gray">#5f6368</color>
+
+    <!-- Ripple effect color  -->
+    <color name="greenRipple">#4259b200</color>
+    <color name="blackRipple">#26000000</color>
+
+    <!--  White color with transparency -->
+    <color name="text_white_transparency_40">#66FFFFFF</color>
+
+    <!-- Text colors -->
+    <color name="text_lightest_gray">#EFEFEF</color>
+    <color name="text_light_gray">#908E8E</color>
+    <color name="text_gray">#545454</color>
+    <color name="text_dark_gray">#424242</color>
+    <color name="text_darkest_gray">#212121</color>
+
+    <!-- Horizontal line divider color -->
+    <color name="horizontal_divider">#eeeeee</color>
+    <color name="horizontal_divider_white_10">#1AFFFFFF</color>
+
+    <!-- Use in setting screen. Preference category title color -->
+    <color name="text_gray_transparency_55">#8C5F6368</color>
+    <!-- Use in setting screen, Preference item summary text color -->
+    <color name="text_gray_transparency_60">#99424242</color>
+    <!-- Use in IPInfoDialog, ip address value text color -->
+    <color name="text_black_transparency_60">#99000000</color>
+    <color name="text_black_transparency_20">#33000000</color>
+
+    <color name="wave_primary">@android:color/white</color>
+    <color name="wave_secondary">#33FFFFFF</color>
+
+    <!-- Chart colors -->
+    <color name="chart_labels_color">#8CFFFFFF</color>
+    <color name="chart_grid_line_color">#3D3D3D</color>
+
+    <!-- Measurement screen -->
+    <color name="measurement_bottom_background">#282828</color>
+    <color name="measurement_scale">#3a3a3a</color>
+    <color name="measurement_not_progressed">#7a7a7a</color>
+    <color name="measurement_median_background">#0D000000</color>
+    <color name="measurement_median_text">#80000000</color>
+
+    <color name="classification_green_dark">#007C0E</color>
+    <color name="classification_green">#59B200</color>
+    <color name="classification_yellow">#FFBA00</color>
+    <color name="classification_red">#F5001C</color>
+    <color name="classification_undefined">#F2F3F5</color>
+
+    <color name="map_circle_fill">#56AD00</color>
+    <color name="map_circle_stroke">#007C0E</color>
+
+    <color name="ping_bar_color">#4D78Ed03</color>
+
+    <color name="speed_graph_gradient_fill_start">#26004394</color>
+    <color name="speed_graph_gradient_fill_end">#0Df2f6fa</color>
+    <color name="text_color_welcome">#212222</color>
+
+    <color name="loop_mode_icon_background">#FFE57F</color>
+    <color name="loop_mode_icon_background_disabled">#11000000</color>
+
+</resources>

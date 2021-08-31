@@ -67,6 +67,19 @@ check:app-ont:
       - /update\/.*/
       - /test\/.*/
 
+check:app-akos:
+  stage: check
+  script:
+    - ./gradlew :akos:ktlint
+    - ./gradlew :akos:lintLocalStageDebug
+  only:
+    refs:
+      - /fix\/.*/
+      - /feature\/.*/
+      - /hotfix\/.*/
+      - /update\/.*/
+      - /test\/.*/
+
 check:app-akep:
   stage: check
   script:
@@ -195,6 +208,22 @@ distribution:build-akep:
     - develop
   artifacts:
     name: "akep-$VERSION_NAME-$CI_COMMIT_REF_SLUG-$CI_COMMIT_SHORT_SHA"
+    paths:
+      - app/build/outputs
+
+distribution:build-akos:
+  stage: distribution
+  interruptible: true
+  script:
+    - echo "version ${VERSION_NAME}(${VERSION_CODE})"
+    - ./gradlew akos:assembleLocalStageDebug -PbuildVersionCode=${VERSION_CODE} -PbuildVersionName=${VERSION_NAME} -PreleaseNotes="${RELEASE_NOTES}"
+    - ./gradlew akos:appDistributionUploadLocalStageDebug -PbuildVersionCode=${VERSION_CODE} -PbuildVersionName=${VERSION_NAME} -PreleaseNotes="${RELEASE_NOTES}"
+    - ./gradlew akos:assembleLocalDemoRelease -PbuildVersionCode=${VERSION_CODE} -PbuildVersionName=${VERSION_NAME} -PreleaseNotes="${RELEASE_NOTES}"
+    - ./gradlew akos:appDistributionUploadLocalDemoRelease -PbuildVersionCode=${VERSION_CODE} -PbuildVersionName=${VERSION_NAME} -PreleaseNotes="${RELEASE_NOTES}"
+  only:
+    - develop
+  artifacts:
+    name: "akos-$VERSION_NAME-$CI_COMMIT_REF_SLUG-$CI_COMMIT_SHORT_SHA"
     paths:
       - app/build/outputs
 
