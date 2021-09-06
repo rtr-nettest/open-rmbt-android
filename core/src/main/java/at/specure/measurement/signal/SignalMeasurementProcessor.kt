@@ -22,9 +22,12 @@ import at.specure.data.repository.MeasurementRepository
 import at.specure.data.repository.SignalMeasurementRepository
 import at.specure.data.repository.TestDataRepository
 import at.specure.info.TransportType
+import at.specure.info.cell.CellInfoWatcher
 import at.specure.info.cell.CellNetworkInfo
 import at.specure.info.connectivity.ConnectivityStateBundle
 import at.specure.info.connectivity.ConnectivityWatcher
+import at.specure.info.network.DetailedNetworkInfo
+import at.specure.info.network.MobileNetworkType
 import at.specure.info.network.NRConnectionState
 import at.specure.info.network.NetworkInfo
 import at.specure.info.strength.SignalStrengthInfo
@@ -77,7 +80,8 @@ class SignalMeasurementProcessor @Inject constructor(
     private val subscriptionManager: SubscriptionManager,
     private val signalRepository: SignalMeasurementRepository,
     private val connectivityWatcher: ConnectivityWatcher,
-    private val measurementRepository: MeasurementRepository
+    private val measurementRepository: MeasurementRepository,
+    private val cellInfoWatcher: CellInfoWatcher
 ) : Binder(), SignalMeasurementProducer, CoroutineScope, SignalMeasurementChunkResultCallback,
     SignalMeasurementChunkReadyCallback {
 
@@ -199,7 +203,7 @@ class SignalMeasurementProcessor @Inject constructor(
             signalStrengthInfo = info?.signalStrengthInfo
             if (isActive && !isPaused) {
                 handleNewNetwork(info?.networkInfo)
-                saveCellInfo()
+                saveCellInfo(info)
             }
         })
 
@@ -360,7 +364,18 @@ class SignalMeasurementProcessor @Inject constructor(
                 saveWlanInfo()
             }
             if (chunk?.sequenceNumber == 0) {
-                saveCellInfo()
+                saveCellInfo(
+                    DetailedNetworkInfo(
+                        cellInfoWatcher.activeNetwork,
+                        cellInfoWatcher.signalStrengthInfo,
+                        cellInfoWatcher.networkTypes,
+                        cellInfoWatcher.allCellInfos,
+                        cellInfoWatcher.secondaryActiveCellNetworks,
+                        cellInfoWatcher.secondaryActiveCellSignalStrengthInfos,
+                        cellInfoWatcher.secondary5GActiveCellNetworks,
+                        cellInfoWatcher.secondary5GActiveCellSignalStrengthInfos
+                    )
+                )
                 Timber.i("Saving signal New chunk created chunkID = ${chunk?.id} sequence: ${chunk?.sequenceNumber}")
                 saveLocationInfo()
             }
@@ -389,7 +404,7 @@ class SignalMeasurementProcessor @Inject constructor(
         }
     }
 
-    private fun saveCellInfo() = io {
+    private fun saveCellInfo(detailedNetworkInfo: DetailedNetworkInfo?) = io {
         val uuid = chunk?.id
         var cells: List<ICell>? = null
         if (context.isCoarseLocationPermitted() && context.isReadPhoneStatePermitted()) {
@@ -410,6 +425,7 @@ class SignalMeasurementProcessor @Inject constructor(
                         saveCellAndSignalInfo(
                             it,
                             uuid,
+                            detailedNetworkInfo,
                             testStartTimeNanos,
                             signalsToSave,
                             cellLocationsToSave,
@@ -430,6 +446,7 @@ class SignalMeasurementProcessor @Inject constructor(
     private fun saveCellAndSignalInfo(
         it: List<ICell>,
         uuid: String?,
+        detailedNetworkInfo: DetailedNetworkInfo?,
         testStartTimeNanos: Long,
         signalsToSave: MutableList<SignalRecord>,
         cellLocationsToSave: MutableList<CellLocationRecord>,
@@ -440,8 +457,7 @@ class SignalMeasurementProcessor @Inject constructor(
 
             val map = iCell.toRecords(
                 uuid,
-                netmonster,
-                iCell.mobileNetworkType(netmonster),
+                detailedNetworkInfo?.networkTypes?.get(iCell.subscriptionId) ?: MobileNetworkType.UNKNOWN,
                 testStartTimeNanos,
                 NRConnectionState.NOT_AVAILABLE
             )

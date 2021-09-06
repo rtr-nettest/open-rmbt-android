@@ -319,13 +319,13 @@ fun ICell.toCellNetworkInfo(
     apn: String?,
     dataTelephonyManager: TelephonyManager?,
     telephonyManagerNetmonster: ITelephonyManagerCompat,
-    netMonster: INetMonster
+    mobileNetworkType: MobileNetworkType
 ): CellNetworkInfo {
     return CellNetworkInfo(
         providerName = dataTelephonyManager?.networkOperatorName
             ?: telephonyManagerNetmonster.getNetworkOperator()?.toPlmn("-") ?: "",
         band = this.band?.toCellBand(),
-        networkType = this.mobileNetworkType(netMonster),
+        networkType = mobileNetworkType,
         cellType = this.toTechnologyClass(),
         mnc = this.network?.mnc?.toIntOrNull(),
         mcc = this.network?.mcc?.toIntOrNull(),
@@ -451,13 +451,12 @@ fun ICell.isInformationCorrect(cellTechnology: CellTechnology): Boolean {
 
 fun ICell.toRecords(
     testUUID: String,
-    netMonster: INetMonster,
     mobileNetworkType: MobileNetworkType,
     testStartTimeNanos: Long,
     nrConnectionState: NRConnectionState
 ): Map<CellInfoRecord?, SignalRecord?> {
     val cellTechnologyFromNetworkType =
-        CellTechnology.fromMobileNetworkType(this.mobileNetworkType(netMonster))
+        CellTechnology.fromMobileNetworkType(mobileNetworkType)
     // for 4G cells we want to have it marked as 4G not 5G also in case when it is NR_NSA
     val cellTechnology =
         if (this is CellLte && cellTechnologyFromNetworkType == CellTechnology.CONNECTION_5G) {

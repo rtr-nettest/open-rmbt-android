@@ -254,9 +254,12 @@ class TestDataRepositoryImpl(db: CoreDatabase) : TestDataRepository {
         }
     }
 
+    @Synchronized
     override fun saveSignalRecord(signalRecordList: List<SignalRecord>) = io {
-        signalRecordList.forEach {
-            signalDao.insert(it)
+        synchronized(signalRecordList) {
+            signalRecordList.forEach {
+                signalDao.insert(it)
+            }
         }
     }
 

@@ -192,6 +192,7 @@ class SignalStrengthWatcherImpl(
         detailedNetworkInfo = DetailedNetworkInfo(
             networkInfo,
             signalStrengthInfo,
+            cellInfoWatcher.networkTypes,
             inactiveNetworkInfo,
             secondaryActiveNetworkInfo,
             secondaryActiveSignalStrengthInfo,
@@ -217,6 +218,7 @@ class SignalStrengthWatcherImpl(
                 DetailedNetworkInfo(
                     networkInfo,
                     signalStrengthInfo,
+                    cellInfoWatcher.networkTypes,
                     inactiveNetworkInfo,
                     secondaryActiveNetworkInfo,
                     secondaryActiveSignalStrengthInfo,
@@ -233,6 +235,7 @@ class SignalStrengthWatcherImpl(
             DetailedNetworkInfo(
                 networkInfo,
                 signalStrengthInfo,
+                cellInfoWatcher.networkTypes,
                 inactiveNetworkInfo,
                 secondaryActiveNetworkInfo,
                 secondaryActiveSignalStrengthInfo,
