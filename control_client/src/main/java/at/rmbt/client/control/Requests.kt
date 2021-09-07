@@ -624,7 +624,13 @@ data class CellInfoBody(
     /**
      * true if it is connected cell, same as active ???
      */
-    val registered: Boolean
+    val registered: Boolean,
+
+    /**
+     * true if the cell is used by primary data connection subscription
+     */
+    @SerializedName("primary_data_subscription")
+    val isPrimaryDataSubscription: Boolean?
 )
 
 @Keep

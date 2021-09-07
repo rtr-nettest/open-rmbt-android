@@ -61,5 +61,10 @@ interface CellInfoWatcher {
      */
     val secondary5GActiveCellSignalStrengthInfos: List<SignalStrengthInfo?>
 
+    /**
+     * ID of primary data subscription, -1 in case we are not able to obtain it for some reason (wrong api, permissions)
+     */
+    val dataSubscriptionId: Int
+
     fun updateInfo()
 }

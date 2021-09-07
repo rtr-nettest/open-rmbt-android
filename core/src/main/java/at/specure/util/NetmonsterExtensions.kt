@@ -12,6 +12,7 @@ import at.specure.info.TransportType
 import at.specure.info.band.CellBand
 import at.specure.info.band.CellBand.Companion.fromChannelNumber
 import at.specure.info.cell.CellChannelAttribution
+import at.specure.info.cell.CellInfoWatcherImpl
 import at.specure.info.cell.CellNetworkInfo
 import at.specure.info.cell.CellTechnology
 import at.specure.info.network.MobileNetworkType
@@ -319,7 +320,8 @@ fun ICell.toCellNetworkInfo(
     apn: String?,
     dataTelephonyManager: TelephonyManager?,
     telephonyManagerNetmonster: ITelephonyManagerCompat,
-    mobileNetworkType: MobileNetworkType
+    mobileNetworkType: MobileNetworkType,
+    dataSubscriptionId: Int
 ): CellNetworkInfo {
     return CellNetworkInfo(
         providerName = dataTelephonyManager?.networkOperatorName
@@ -342,7 +344,8 @@ fun ICell.toCellNetworkInfo(
         } else NRConnectionState.NOT_AVAILABLE,
         dualSimDetectionMethod = null,
         cellUUID = this.uuid(),
-        rawCellInfo = this
+        rawCellInfo = this,
+        isPrimaryDataSubscription = dataSubscriptionId != CellInfoWatcherImpl.INVALID_SUBSCRIPTION_ID && dataSubscriptionId == this.subscriptionId
     )
 }
 
@@ -453,6 +456,7 @@ fun ICell.toRecords(
     testUUID: String,
     mobileNetworkType: MobileNetworkType,
     testStartTimeNanos: Long,
+    dataSubscriptionId: Int,
     nrConnectionState: NRConnectionState
 ): Map<CellInfoRecord?, SignalRecord?> {
     val cellTechnologyFromNetworkType =
@@ -484,6 +488,7 @@ fun ICell.toRecords(
                 mcc = this.network?.mcc?.toIntOrNull(),
                 mnc = this.network?.mnc?.toIntOrNull(),
                 primaryScramblingCode = primaryScramblingCode(),
+                isPrimaryDataSubscription = dataSubscriptionId != CellInfoWatcherImpl.INVALID_SUBSCRIPTION_ID && dataSubscriptionId == this.subscriptionId,
                 dualSimDetectionMethod = "NOT_AVAILABLE" // local purpose only
             )
             signalRecord = this.signal?.toSignalRecord(

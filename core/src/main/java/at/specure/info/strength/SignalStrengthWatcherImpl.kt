@@ -197,7 +197,8 @@ class SignalStrengthWatcherImpl(
             secondaryActiveNetworkInfo,
             secondaryActiveSignalStrengthInfo,
             secondary5GActiveNetworkInfo,
-            secondary5GActiveSignalStrengthInfo
+            secondary5GActiveSignalStrengthInfo,
+            cellInfoWatcher.dataSubscriptionId
         )
         notifyInfoChanged()
         scheduleCellUpdate()
@@ -223,7 +224,8 @@ class SignalStrengthWatcherImpl(
                     secondaryActiveNetworkInfo,
                     secondaryActiveSignalStrengthInfo,
                     secondary5GActiveNetworkInfo,
-                    secondary5GActiveSignalStrengthInfo
+                    secondary5GActiveSignalStrengthInfo,
+                    cellInfoWatcher.dataSubscriptionId
                 )
             )
         }
@@ -240,7 +242,8 @@ class SignalStrengthWatcherImpl(
                 secondaryActiveNetworkInfo,
                 secondaryActiveSignalStrengthInfo,
                 secondary5GActiveNetworkInfo,
-                secondary5GActiveSignalStrengthInfo
+                secondary5GActiveSignalStrengthInfo,
+                cellInfoWatcher.dataSubscriptionId
             )
         )
         if (listeners.size == 1) {

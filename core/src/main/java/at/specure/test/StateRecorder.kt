@@ -27,6 +27,7 @@ import at.specure.data.repository.MeasurementRepository
 import at.specure.data.repository.TestDataRepository
 import at.specure.info.Network5GSimulator
 import at.specure.info.TransportType
+import at.specure.info.cell.CellInfoWatcherImpl
 import at.specure.info.cell.CellNetworkInfo
 import at.specure.info.network.MobileNetworkType
 import at.specure.info.network.NRConnectionState
@@ -328,8 +329,6 @@ class StateRecorder @Inject constructor(
         if (networkInfo?.type == TransportType.CELLULAR) {
             if (context.isCoarseLocationPermitted() && context.isReadPhoneStatePermitted()) {
                 try {
-                    var cells: List<ICell>? = null
-
                     val detailedNetworkInfo = signalStrengthWatcher.lastDetailedNetworkInfo
                     detailedNetworkInfo?.let {
 
@@ -348,7 +347,9 @@ class StateRecorder @Inject constructor(
                             saveNetworkInformation(cellNetworkInfo, detailedNetworkInfo.secondary5GActiveSignalStrengthInfos?.get(index), uuid, testStartTimeNanos)
                         }
 
-                        saveOtherCellInfo(otherCells, uuid, testStartTimeNanos, detailedNetworkInfo.networkTypes)
+                        if (config.headerValue.isNullOrEmpty()) {
+                            saveOtherCellInfo(otherCells, uuid, testStartTimeNanos, detailedNetworkInfo.networkTypes, detailedNetworkInfo.dataSubscriptionId)
+                        }
                     }
 
                 } catch (e: SecurityException) {
@@ -387,64 +388,52 @@ class StateRecorder @Inject constructor(
         }
     }
 
-    @Synchronized
-    private fun saveOtherCellInfo(cells: List<ICell>?, testUUID: String?, testStartTimeNanos: Long, mobileNetworkTypes: HashMap<Int, MobileNetworkType>) {
-        val dataSubscriptionId = subscriptionManager.getCurrentDataSubscriptionId()
+    private fun saveOtherCellInfo(cells: List<ICell>?, testUUID: String?, testStartTimeNanos: Long, mobileNetworkTypes: HashMap<Int, MobileNetworkType>, dataSubscriptionId: Int) {
+        val cellInfosToSave = mutableListOf<CellInfoRecord>()
+        val signalsToSave = mutableListOf<SignalRecord>()
+        val cellLocationsToSave = mutableListOf<CellLocationRecord>()
 
-        synchronized(this) {
-            val cellInfosToSave = mutableListOf<CellInfoRecord>()
-            val signalsToSave = mutableListOf<SignalRecord>()
-            val cellLocationsToSave = mutableListOf<CellLocationRecord>()
+        if (testUUID != null) {
+            cells?.forEach {
+                val iCell = it
+                val map = iCell.toRecords(
+                    testUUID,
+                    mobileNetworkTypes[iCell.subscriptionId] ?: MobileNetworkType.UNKNOWN,
+                    testStartTimeNanos,
+                    dataSubscriptionId,
+                    NRConnectionState.NOT_AVAILABLE
+                )
+                if (map.keys.isNotEmpty()) {
+                    val cell = map.keys.iterator().next()
+                    cell?.let {
+                        val signal = map.get(cell)
 
-            if (testUUID != null) {
-                cells?.forEach {
-                    val iCell = it
-                    val map = iCell.toRecords(
-                        testUUID,
-                        mobileNetworkTypes[iCell.subscriptionId] ?: MobileNetworkType.UNKNOWN,
-                        testStartTimeNanos,
-                        NRConnectionState.NOT_AVAILABLE
-                    )
-                    if (map.keys.isNotEmpty()) {
-                        val cell = map.keys.iterator().next()
-                        cell?.let {
-                            val signal = map.get(cell)
-
-                            if (signal?.hasNonNullSignal() == true) {
-                                signalsToSave.add(signal)
-                            }
-                            val cellLocationRecord =
-                                iCell.toCellLocation(
-                                    testUUID,
-                                    System.currentTimeMillis(),
-                                    System.nanoTime(),
-                                    testStartTimeNanos
-                                )
-                            cellLocationRecord?.let {
-                                cellLocationsToSave.add(cellLocationRecord)
-                            }
-                            cellInfosToSave.add(cell)
+                        if (signal?.hasNonNullSignal() == true) {
+                            signalsToSave.add(signal)
                         }
-                    }
-                    synchronized(cellLocationsToSave) {
-                        repository.saveCellLocationRecord(cellLocationsToSave.toMutableList())
-                    }
-                    synchronized(cellInfosToSave) {
-                        repository.saveCellInfoRecord(cellInfosToSave.toMutableList())
-                    }
-                    synchronized(signalsToSave) {
-                        repository.saveSignalRecord(signalsToSave.toMutableList())
+                        val cellLocationRecord =
+                            iCell.toCellLocation(
+                                testUUID,
+                                System.currentTimeMillis(),
+                                System.nanoTime(),
+                                testStartTimeNanos
+                            )
+                        cellLocationRecord?.let {
+                            cellLocationsToSave.add(cellLocationRecord)
+                        }
+                        cellInfosToSave.add(cell)
                     }
                 }
             }
         }
+        repository.saveCellLocationRecord(cellLocationsToSave.toMutableList())
+        repository.saveCellInfoRecord(cellInfosToSave.toMutableList())
+        repository.saveSignalRecord(signalsToSave.toMutableList())
     }
 
     private fun saveNetworkInformation(cellNetworkInfo: NetworkInfo?, signalStrengthInfo: SignalStrengthInfo?, testUUID: String?, testStartTimeNanos: Long) {
         if (cellNetworkInfo is CellNetworkInfo) {
             if (testUUID != null) {
-
-                val dataSubscriptionId = subscriptionManager.getCurrentDataSubscriptionId()
 
                 val cellInfoRecord = CellInfoRecord(
                     testUUID = testUUID,
@@ -460,19 +449,22 @@ class StateRecorder @Inject constructor(
                     mcc = cellNetworkInfo.mcc,
                     mnc = cellNetworkInfo.mnc,
                     primaryScramblingCode = cellNetworkInfo.scramblingCode,
-                    dualSimDetectionMethod = cellNetworkInfo.dualSimDetectionMethod
+                    dualSimDetectionMethod = cellNetworkInfo.dualSimDetectionMethod,
+                    isPrimaryDataSubscription = cellNetworkInfo.isPrimaryDataSubscription
                 )
                 repository.saveCellInfoRecord(listOf(cellInfoRecord))
 
                 signalStrengthInfo?.let {
-                    repository.saveSignalStrength(
-                        testUUID,
-                        cellNetworkInfo.cellUUID,
-                        cellNetworkInfo.networkType,
-                        it,
-                        testStartTimeNanos,
-                        NRConnectionState.NOT_AVAILABLE
-                    )
+                    if (cellNetworkInfo.networkType != MobileNetworkType.UNKNOWN) {
+                        repository.saveSignalStrength(
+                            testUUID,
+                            cellNetworkInfo.cellUUID,
+                            cellNetworkInfo.networkType,
+                            it,
+                            testStartTimeNanos,
+                            NRConnectionState.NOT_AVAILABLE
+                        )
+                    }
                 }
 
                 val cellLocationInfo = CellLocationInfo(

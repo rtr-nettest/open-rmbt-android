@@ -27,7 +27,7 @@ object Network5GSimulator {
     fun fromInfo(
         isActive: Boolean,
         isRoaming: Boolean,
-        apn: String?
+        apn: String?,
     ): CellNetworkInfo {
 
         return CellNetworkInfo(
@@ -48,7 +48,8 @@ object Network5GSimulator {
             signalStrength = null,
             dualSimDetectionMethod = null,
             nrConnectionState = NRConnectionState.SA,
-            rawCellInfo = null
+            rawCellInfo = null,
+            isPrimaryDataSubscription = true // we listen only for primary data subscription sim
         )
     }
 

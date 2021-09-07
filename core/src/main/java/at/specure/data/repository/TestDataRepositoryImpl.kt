@@ -307,7 +307,8 @@ class TestDataRepositoryImpl(db: CoreDatabase) : TestDataRepository {
         mcc = null,
         mnc = null,
         primaryScramblingCode = null,
-        dualSimDetectionMethod = null
+        dualSimDetectionMethod = null,
+        isPrimaryDataSubscription = null
     )
 
     private fun CellNetworkInfo.toCellInfoRecord(testUUID: String): CellInfoRecord {
@@ -325,7 +326,8 @@ class TestDataRepositoryImpl(db: CoreDatabase) : TestDataRepository {
             mcc = mcc,
             mnc = mnc,
             primaryScramblingCode = scramblingCode,
-            dualSimDetectionMethod = dualSimDetectionMethod
+            dualSimDetectionMethod = dualSimDetectionMethod,
+            isPrimaryDataSubscription = isPrimaryDataSubscription
         )
         Timber.d("Saving CellInfo Record TDR with uuid: ${cellInfoRecord.uuid} and cellTechnology: ${cellInfoRecord.cellTechnology?.name} and channel number: ${cellInfoRecord.channelNumber}")
         return cellInfoRecord
