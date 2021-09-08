@@ -255,11 +255,54 @@ class TestDataRepositoryImpl(db: CoreDatabase) : TestDataRepository {
     }
 
     @Synchronized
-    override fun saveSignalRecord(signalRecordList: List<SignalRecord>) = io {
+    override fun saveSignalRecord(signalRecordList: List<SignalRecord>, filterOldValues: Boolean) = io {
         synchronized(signalRecordList) {
             signalRecordList.forEach {
-                signalDao.insert(it)
+                if (filterOldValues) {
+                    val lastSignal: SignalRecord? = signalDao.getLatestForCell(it.testUUID, it.cellUuid)
+                    if (lastSignal != null) {
+                        val distinct = isSignalSignificantlyDistinct(it, lastSignal)
+                        Timber.d("Distinct Signal Values $distinct: $it and $lastSignal")
+                        if (distinct) {
+                            signalDao.insert(it)
+                        }
+                    } else {
+                        Timber.d("Distinct Signal Values true because of non previous signal")
+                        signalDao.insert(it)
+                    }
+                } else {
+                    signalDao.insert(it)
+                }
             }
+        }
+    }
+
+    private fun isSignalSignificantlyDistinct(signalRecord: SignalRecord, lastSignal: SignalRecord): Boolean {
+        return (isValueSignificantlyDifferent(signalRecord.lteRsrp, lastSignal.lteRsrp) &&
+                isValueSignificantlyDifferent(signalRecord.bitErrorRate, lastSignal.bitErrorRate) &&
+                isValueSignificantlyDifferent(signalRecord.lteCqi, lastSignal.lteCqi) &&
+                isValueSignificantlyDifferent(signalRecord.lteRsrq, lastSignal.lteRsrq) &&
+                isValueSignificantlyDifferent(signalRecord.lteRssnr, lastSignal.lteRssnr) &&
+                isValueSignificantlyDifferent(signalRecord.nrCsiRsrp, lastSignal.nrCsiRsrp) &&
+                isValueSignificantlyDifferent(signalRecord.nrCsiRsrq, lastSignal.nrCsiRsrq) &&
+                isValueSignificantlyDifferent(signalRecord.nrCsiSinr, lastSignal.nrCsiSinr) &&
+                isValueSignificantlyDifferent(signalRecord.nrSsRsrp, lastSignal.nrSsRsrp) &&
+                isValueSignificantlyDifferent(signalRecord.nrSsRsrq, lastSignal.nrSsRsrq) &&
+                isValueSignificantlyDifferent(signalRecord.nrSsSinr, lastSignal.nrSsSinr) &&
+                isValueSignificantlyDifferent(signalRecord.signal, lastSignal.signal) &&
+                isValueSignificantlyDifferent(signalRecord.timingAdvance, lastSignal.timingAdvance) &&
+                isValueSignificantlyDifferent(signalRecord.wifiLinkSpeed, lastSignal.wifiLinkSpeed))
+    }
+
+    private fun isValueSignificantlyDifferent(first: Int?, second: Int?): Boolean {
+        if ((first != null && second == null) || (first == null && second != null)) {
+            return true;
+        } else if (first == null && second == null) {
+            return false
+        } else {
+            val range = (second?.minus(1))!!..(second.plus(1)!!)
+            val inRange = first in range
+            return !inRange
         }
     }
 

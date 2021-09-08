@@ -428,7 +428,7 @@ class StateRecorder @Inject constructor(
         }
         repository.saveCellLocationRecord(cellLocationsToSave.toMutableList())
         repository.saveCellInfoRecord(cellInfosToSave.toMutableList())
-        repository.saveSignalRecord(signalsToSave.toMutableList())
+        repository.saveSignalRecord(signalsToSave.toMutableList(), config.headerValue.isNullOrEmpty())
     }
 
     private fun saveNetworkInformation(cellNetworkInfo: NetworkInfo?, signalStrengthInfo: SignalStrengthInfo?, testUUID: String?, testStartTimeNanos: Long) {

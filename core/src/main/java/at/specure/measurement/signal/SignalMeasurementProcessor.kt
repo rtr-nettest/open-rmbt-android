@@ -516,7 +516,7 @@ class SignalMeasurementProcessor @Inject constructor(
 
             repository.saveCellLocationRecord(cellLocationsToSave.toMutableList())
             repository.saveCellInfoRecord(cellInfosToSave.toMutableList())
-            repository.saveSignalRecord(signalsToSaveTmp)
+            repository.saveSignalRecord(signalsToSaveTmp, false)
             saveMobileSignalsCount += signalsToSaveTmp.size
         }
         return saveMobileSignalsCount
