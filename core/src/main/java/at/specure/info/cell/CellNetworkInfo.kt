@@ -15,15 +15,6 @@
 package at.specure.info.cell
 
 import android.os.Build
-import androidx.annotation.RequiresApi
-import at.specure.info.Network5GSimulator
-import at.specure.info.TransportType
-import at.specure.info.band.CellBand
-import at.specure.info.network.MobileNetworkType
-import at.specure.info.network.NRConnectionState
-import at.specure.info.network.NetworkInfo
-import at.specure.info.strength.SignalSource
-import at.specure.info.strength.SignalStrengthInfo
 import android.telephony.CellIdentityCdma
 import android.telephony.CellIdentityGsm
 import android.telephony.CellIdentityLte
@@ -39,9 +30,18 @@ import android.telephony.CellInfoTdscdma
 import android.telephony.CellInfoWcdma
 import android.telephony.CellSignalStrengthNr
 import android.telephony.SubscriptionInfo
+import androidx.annotation.RequiresApi
+import at.specure.info.Network5GSimulator
+import at.specure.info.TransportType
+import at.specure.info.band.CellBand
+import at.specure.info.network.MobileNetworkType
+import at.specure.info.network.NRConnectionState
+import at.specure.info.network.NetworkInfo
+import at.specure.info.strength.SignalSource
+import at.specure.info.strength.SignalStrengthInfo
 import cz.mroczis.netmonster.core.model.cell.ICell
-import java.util.UUID
 import timber.log.Timber
+import java.util.UUID
 
 /**
  * Cellular Network information
