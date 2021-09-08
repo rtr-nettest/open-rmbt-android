@@ -295,14 +295,14 @@ class TestDataRepositoryImpl(db: CoreDatabase) : TestDataRepository {
     }
 
     private fun isValueSignificantlyDifferent(first: Int?, second: Int?): Boolean {
-        if ((first != null && second == null) || (first == null && second != null)) {
-            return true;
+        return if ((first != null && second == null) || (first == null && second != null)) {
+            true
         } else if (first == null && second == null) {
-            return false
+            false
         } else {
             val range = (second?.minus(1))!!..(second.plus(1)!!)
             val inRange = first in range
-            return !inRange
+            !inRange
         }
     }
 

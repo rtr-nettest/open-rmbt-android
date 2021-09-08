@@ -336,7 +336,7 @@ class CellNetworkInfo(
             isRoaming: Boolean,
             apn: String?,
             dualSimDetectionMethod: String?,
-            nrConnectionState: NRConnectionState,
+            nrConnectionState: NRConnectionState
         ): CellNetworkInfo {
 
             val identity = info.cellIdentity as CellIdentityTdscdma

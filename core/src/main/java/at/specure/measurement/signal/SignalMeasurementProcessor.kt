@@ -416,7 +416,7 @@ class SignalMeasurementProcessor @Inject constructor(
                     saveCellAndSignalInfo(
                         uuid,
                         detailedNetworkInfo,
-                        testStartTimeNanos,
+                        testStartTimeNanos
                     )
                 }
             } catch (e: SecurityException) {

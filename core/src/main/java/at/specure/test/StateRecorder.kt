@@ -2,11 +2,9 @@ package at.specure.test
 
 import android.content.Context
 import android.location.Location
-import android.telephony.SubscriptionManager
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.Observer
 import at.rmbt.client.control.data.TestFinishReason
-import at.rmbt.client.control.getCurrentDataSubscriptionId
 import at.rmbt.util.io
 import at.rtr.rmbt.client.RMBTClientCallback
 import at.rtr.rmbt.client.TotalTestResult
@@ -27,7 +25,6 @@ import at.specure.data.repository.MeasurementRepository
 import at.specure.data.repository.TestDataRepository
 import at.specure.info.Network5GSimulator
 import at.specure.info.TransportType
-import at.specure.info.cell.CellInfoWatcherImpl
 import at.specure.info.cell.CellNetworkInfo
 import at.specure.info.network.MobileNetworkType
 import at.specure.info.network.NRConnectionState
@@ -41,13 +38,10 @@ import at.specure.location.LocationState
 import at.specure.location.LocationWatcher
 import at.specure.location.cell.CellLocationInfo
 import at.specure.location.cell.CellLocationWatcher
-import at.specure.util.filterOnlyPrimaryActiveDataCell
 import at.specure.util.isCoarseLocationPermitted
 import at.specure.util.isReadPhoneStatePermitted
-import at.specure.util.mobileNetworkType
 import at.specure.util.toCellLocation
 import at.specure.util.toRecords
-import cz.mroczis.netmonster.core.INetMonster
 import cz.mroczis.netmonster.core.model.cell.ICell
 import org.json.JSONArray
 import timber.log.Timber
@@ -59,13 +53,11 @@ import kotlin.math.floor
 
 class StateRecorder @Inject constructor(
     private val context: Context,
-    private val netmonster: INetMonster,
     private val repository: TestDataRepository,
     private val locationWatcher: LocationWatcher,
     private val signalStrengthLiveData: SignalStrengthLiveData,
     private val signalStrengthWatcher: SignalStrengthWatcher,
     private val config: Config,
-    private val subscriptionManager: SubscriptionManager,
     private val cellLocationWatcher: CellLocationWatcher,
     private val measurementRepository: MeasurementRepository
 ) : RMBTClientCallback {
@@ -351,7 +343,6 @@ class StateRecorder @Inject constructor(
                             saveOtherCellInfo(otherCells, uuid, testStartTimeNanos, detailedNetworkInfo.networkTypes, detailedNetworkInfo.dataSubscriptionId)
                         }
                     }
-
                 } catch (e: SecurityException) {
                     Timber.e("SecurityException: Not able to read telephonyManager.allCellInfo")
                 } catch (e: IllegalStateException) {

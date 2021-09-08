@@ -27,7 +27,7 @@ object Network5GSimulator {
     fun fromInfo(
         isActive: Boolean,
         isRoaming: Boolean,
-        apn: String?,
+        apn: String?
     ): CellNetworkInfo {
 
         return CellNetworkInfo(
