@@ -10,9 +10,7 @@ import at.specure.data.repository.MapRepository
 import at.specure.location.LocationInfo
 import at.specure.location.LocationState
 import at.specure.location.LocationWatcher
-import com.google.android.gms.maps.model.LatLng
-import com.google.android.gms.maps.model.Tile
-import com.google.android.gms.maps.model.TileProvider
+import com.mapbox.mapboxsdk.geometry.LatLng
 import javax.inject.Inject
 
 class MapViewModel @Inject constructor(
@@ -28,7 +26,7 @@ class MapViewModel @Inject constructor(
     val locationStateLiveData: LiveData<LocationState?>
         get() = locationWatcher.stateLiveData
 
-    var providerLiveData: MutableLiveData<RetrofitTileProvider> = MutableLiveData()
+//    var providerLiveData: MutableLiveData<RetrofitTileProvider> = MutableLiveData()
 
     var markersLiveData: LiveData<List<MarkerMeasurementRecord>> =
         Transformations.switchMap(state.coordinatesLiveData) { repository.getMarkers(it?.latitude, it?.longitude, state.zoom.toInt()) }
@@ -38,9 +36,7 @@ class MapViewModel @Inject constructor(
     }
 
     fun obtainFilters() {
-        repository.obtainFilters {
-            providerLiveData.postValue(RetrofitTileProvider(repository, state))
-        }
+        // TODO:
     }
 
     fun loadMarkers(latitude: Double, longitude: Double, zoom: Int) {
@@ -50,20 +46,4 @@ class MapViewModel @Inject constructor(
     }
 
     fun prepareDetailsLink(openUUID: String) = repository.prepareDetailsLink(openUUID)
-}
-
-class RetrofitTileProvider(private val repository: MapRepository, private val state: MapViewState) : TileProvider {
-
-    override fun getTile(x: Int, y: Int, zoom: Int): Tile {
-        val type = state.type.get() ?: MapPresentationType.POINTS
-        return if (type == MapPresentationType.AUTOMATIC && zoom > 10) {
-            Tile(TILE_SIZE, TILE_SIZE, repository.loadAutomaticTiles(x, y, zoom))
-        } else {
-            Tile(TILE_SIZE, TILE_SIZE, repository.loadTiles(x, y, zoom, type))
-        }
-    }
-
-    companion object {
-        private const val TILE_SIZE = 256
-    }
 }

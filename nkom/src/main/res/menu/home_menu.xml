@@ -18,12 +18,18 @@
         android:id="@+id/navigation_home"
         android:icon="@drawable/ic_menu_home"
         android:title="@string/menu_button_title_page"
-        app:showAsAction="ifRoom" />
+        app:showAsAction="ifRoom|withText" />
 
     <item
         android:id="@+id/navigation_history"
         android:icon="@drawable/ic_menu_history"
         android:title="@string/menu_button_history"
-        app:showAsAction="ifRoom" />
+        app:showAsAction="ifRoom|withText" />
+
+    <item
+        android:id="@+id/navigation_map"
+        android:icon="@drawable/ic_menu_map"
+        android:title="@string/menu_button_map"
+        app:showAsAction="ifRoom|withText" />
 
 </menu>

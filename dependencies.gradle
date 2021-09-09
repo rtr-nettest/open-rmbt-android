@@ -43,6 +43,8 @@ buildscript {
                 paging              : '2.1.2',
                 guava               : '28.1-android',
                 joda_time           : '2.10.9.1',
+                mapbox              : '9.6.2',
+                mapbox_anotations   : '0.9.0',
 
                 junit               : '4.12',
 

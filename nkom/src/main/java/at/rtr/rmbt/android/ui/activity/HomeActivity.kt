@@ -34,7 +34,9 @@ import at.rtr.rmbt.android.util.listenNonNull
 import at.rtr.rmbt.android.viewmodel.ConfigCheckViewModel
 import at.rtr.rmbt.android.viewmodel.MeasurementViewModel
 import at.specure.data.entity.LoopModeState
+import com.google.android.material.bottomnavigation.LabelVisibilityMode
 import com.google.firebase.crashlytics.FirebaseCrashlytics
+import com.mapbox.mapboxsdk.Mapbox
 import timber.log.Timber
 
 class HomeActivity : BaseActivity(), HomeFragment.NetworkInfoCallback {
@@ -58,6 +60,8 @@ class HomeActivity : BaseActivity(), HomeFragment.NetworkInfoCallback {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = bindContentView(R.layout.activity_home)
+
+        Mapbox.getInstance(this.applicationContext, getString(R.string.mapbox_public_key))
 
         if (viewModel.config.analyticsEnabled) {
             FirebaseCrashlytics.getInstance().setCrashlyticsCollectionEnabled(true)

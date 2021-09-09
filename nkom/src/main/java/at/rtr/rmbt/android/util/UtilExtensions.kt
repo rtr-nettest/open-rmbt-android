@@ -26,6 +26,7 @@ import at.specure.info.TransportType
 import at.specure.info.cell.CellNetworkInfo
 import at.specure.info.network.NetworkInfo
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
+import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -60,6 +61,10 @@ fun Marker.iconFromVector(context: Context, vectorResId: Int) {
         draw(Canvas(bitmap))
         BitmapDescriptorFactory.fromBitmap(bitmap)
     })
+}
+
+fun LatLng.toMapBoxLatLng(): com.mapbox.mapboxsdk.geometry.LatLng {
+    return com.mapbox.mapboxsdk.geometry.LatLng(this.latitude, this.longitude)
 }
 
 fun Long.timeString(): String {
