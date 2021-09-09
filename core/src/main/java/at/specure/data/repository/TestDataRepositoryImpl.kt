@@ -404,7 +404,7 @@ class TestDataRepositoryImpl(db: CoreDatabase) : TestDataRepository {
             timestampNanos = info.timestampNanos - startTimeNanos,
             timestampMillis = info.timestampMillis
         )
-        cellLocationDao.insert(record)
+        cellLocationDao.insertNew(testUUID, listOf(record))
     }
 
     override fun saveAllPingValues(testUUID: String, clientPing: Long, serverPing: Long, timeNs: Long) {
