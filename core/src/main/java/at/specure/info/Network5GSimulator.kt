@@ -6,6 +6,7 @@ import at.specure.info.band.CellBand
 import at.specure.info.cell.CellChannelAttribution
 import at.specure.info.cell.CellNetworkInfo
 import at.specure.info.cell.CellTechnology
+import at.specure.info.cell.PrimaryDataSubscription
 import at.specure.info.network.MobileNetworkType
 import at.specure.info.network.NRConnectionState
 import at.specure.info.strength.SignalSource
@@ -49,7 +50,7 @@ object Network5GSimulator {
             dualSimDetectionMethod = null,
             nrConnectionState = NRConnectionState.SA,
             rawCellInfo = null,
-            isPrimaryDataSubscription = true // we listen only for primary data subscription sim
+            isPrimaryDataSubscription = PrimaryDataSubscription.TRUE // we listen only for primary data subscription sim
         )
     }
 

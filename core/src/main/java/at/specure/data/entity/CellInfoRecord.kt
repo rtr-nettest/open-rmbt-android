@@ -33,5 +33,5 @@ data class CellInfoRecord(
     val mnc: Int?,
     val primaryScramblingCode: Int?,
     val dualSimDetectionMethod: String?,
-    val isPrimaryDataSubscription: Boolean?
+    val isPrimaryDataSubscription: String?
 )
