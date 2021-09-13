@@ -34,7 +34,6 @@ import at.rtr.rmbt.android.util.listenNonNull
 import at.rtr.rmbt.android.viewmodel.ConfigCheckViewModel
 import at.rtr.rmbt.android.viewmodel.MeasurementViewModel
 import at.specure.data.entity.LoopModeState
-import com.google.android.material.bottomnavigation.LabelVisibilityMode
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.mapbox.mapboxsdk.Mapbox
 import timber.log.Timber
