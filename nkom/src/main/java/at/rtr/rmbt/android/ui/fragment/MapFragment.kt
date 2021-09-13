@@ -5,7 +5,6 @@ import android.annotation.SuppressLint
 import android.content.pm.PackageManager
 import android.location.Address
 import android.location.Geocoder
-import android.os.Build
 import android.os.Bundle
 import android.view.View
 import android.widget.Toast
@@ -24,9 +23,6 @@ import at.rtr.rmbt.android.ui.adapter.MapMarkerDetailsAdapter
 import at.rtr.rmbt.android.ui.dialog.MapFiltersDialog
 import at.rtr.rmbt.android.ui.dialog.MapLayersDialog
 import at.rtr.rmbt.android.ui.dialog.MapSearchDialog
-import at.rtr.rmbt.android.util.ToolbarTheme
-import at.rtr.rmbt.android.util.changeStatusBarColor
-import at.rtr.rmbt.android.util.iconFromVector
 import at.rtr.rmbt.android.util.listen
 import at.rtr.rmbt.android.util.singleResult
 import at.rtr.rmbt.android.viewmodel.MapViewModel
@@ -35,16 +31,15 @@ import at.specure.data.ServerNetworkType
 import at.specure.data.entity.MarkerMeasurementRecord
 import at.specure.location.LocationState
 import at.specure.util.isCoarseLocationPermitted
-import com.mapbox.mapboxsdk.Mapbox
 import com.mapbox.mapboxsdk.annotations.Marker
-import com.mapbox.mapboxsdk.annotations.MarkerOptions
 import com.mapbox.mapboxsdk.camera.CameraUpdateFactory
 import com.mapbox.mapboxsdk.geometry.LatLng
-import com.mapbox.mapboxsdk.location.LocationComponentActivationOptions
 import com.mapbox.mapboxsdk.maps.MapboxMap
 import com.mapbox.mapboxsdk.maps.MapboxMap.OnMapClickListener
 import com.mapbox.mapboxsdk.maps.OnMapReadyCallback
 import com.mapbox.mapboxsdk.maps.Style
+import com.mapbox.mapboxsdk.style.layers.Property.VISIBLE
+import com.mapbox.mapboxsdk.style.layers.PropertyFactory.visibility
 import timber.log.Timber
 import kotlin.math.abs
 
@@ -57,13 +52,13 @@ private const val ANCHOR_U = 0.5f
 private const val ANCHOR_V = 0.865f
 
 // default map position and zoom when no location information is available
-// focus to Austria based on boundary box 'AT': ('Austria', (9.47996951665, 46.4318173285, 16.9796667823, 49.0390742051))
-// derived from Github/graydon/country-bounding-boxes.py
+// focus to Norway: ('Austria', (69.38, 19.89, 3F))
+// Could be derived from Github/graydon/country-bounding-boxes.py
 // extracted from http//www.naturalearthdata.com/download/110m/cultural/ne_110m_admin_0_countries.zip
 // under public domain terms
-private const val DEFAULT_LAT = (49.0390742051F + 46.4318173285F) / 2F
-private const val DEFAULT_LONG = (16.9796667823F + 9.47996951665F) / 2F
-private const val DEFAULT_ZOOM_LEVEL = 6F
+private const val DEFAULT_LAT = 69.38
+private const val DEFAULT_LONG = 19.89
+private const val DEFAULT_ZOOM_LEVEL = 3.1F
 private val DEFAULT_PRESENTATION_TYPE = MapPresentationType.AUTOMATIC
 
 class MapFragment : BaseFragment(), OnMapReadyCallback, MapMarkerDetailsAdapter.MarkerDetailsCallback, MapLayersDialog.Callback,
@@ -274,10 +269,25 @@ class MapFragment : BaseFragment(), OnMapReadyCallback, MapMarkerDetailsAdapter.
     }
 
     private fun updateMapStyle() {
-        googleMap?.setStyle(Style.MAPBOX_STREETS)
-//        with(mapViewModel.state.style.get()) {
-//                TODO:
-//        }
+        val onStyleLoaded = Style.OnStyleLoaded {
+            initializeStyles(it)
+        }
+        googleMap?.setStyle(Style.Builder().fromUri(mapViewModel.provideStyle()), onStyleLoaded)
+    }
+
+    private fun initializeStyles(style: Style) {
+        val layers = mapViewModel.buildCurrentLayersName()
+        layers.forEach {
+            val layer = style.getLayer(it)
+            layer?.let {
+                layer.setProperties(visibility(VISIBLE))
+//                if (VISIBLE == (layer.visibility.getValue())) {
+//                    layer.setProperties(visibility(NONE));
+//                } else {
+//                    layer.setProperties(visibility(VISIBLE));
+//                }
+            }
+        }
     }
 
     private fun setTiles() {
