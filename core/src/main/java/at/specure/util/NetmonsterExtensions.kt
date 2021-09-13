@@ -15,6 +15,7 @@ import at.specure.info.cell.CellChannelAttribution
 import at.specure.info.cell.CellInfoWatcherImpl
 import at.specure.info.cell.CellNetworkInfo
 import at.specure.info.cell.CellTechnology
+import at.specure.info.cell.PrimaryDataSubscription
 import at.specure.info.network.MobileNetworkType
 import at.specure.info.network.NRConnectionState
 import at.specure.info.strength.SignalSource
@@ -345,7 +346,7 @@ fun ICell.toCellNetworkInfo(
         dualSimDetectionMethod = null,
         cellUUID = this.uuid(),
         rawCellInfo = this,
-        isPrimaryDataSubscription = dataSubscriptionId != CellInfoWatcherImpl.INVALID_SUBSCRIPTION_ID && dataSubscriptionId == this.subscriptionId
+        isPrimaryDataSubscription = PrimaryDataSubscription.resolvePrimaryDataSubscriptionID(dataSubscriptionId, this.subscriptionId)
     )
 }
 
@@ -488,7 +489,7 @@ fun ICell.toRecords(
                 mcc = this.network?.mcc?.toIntOrNull(),
                 mnc = this.network?.mnc?.toIntOrNull(),
                 primaryScramblingCode = primaryScramblingCode(),
-                isPrimaryDataSubscription = dataSubscriptionId != CellInfoWatcherImpl.INVALID_SUBSCRIPTION_ID && dataSubscriptionId == this.subscriptionId,
+                isPrimaryDataSubscription = PrimaryDataSubscription.resolvePrimaryDataSubscriptionID(dataSubscriptionId, this.subscriptionId).value,
                 dualSimDetectionMethod = "NOT_AVAILABLE" // local purpose only
             )
             signalRecord = this.signal?.toSignalRecord(

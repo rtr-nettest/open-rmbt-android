@@ -25,6 +25,7 @@ import at.specure.info.TransportType
 import at.specure.info.cell.CellInfoWatcher
 import at.specure.info.cell.CellInfoWatcherImpl
 import at.specure.info.cell.CellNetworkInfo
+import at.specure.info.cell.PrimaryDataSubscription
 import at.specure.info.connectivity.ConnectivityStateBundle
 import at.specure.info.connectivity.ConnectivityWatcher
 import at.specure.info.network.DetailedNetworkInfo
@@ -527,7 +528,7 @@ class SignalMeasurementProcessor @Inject constructor(
                     cellTechnology = cellNetworkInfo.cellType,
                     transportType = TransportType.CELLULAR,
                     registered = cellNetworkInfo.isRegistered,
-                    isPrimaryDataSubscription = dataSubscriptionId != CellInfoWatcherImpl.INVALID_SUBSCRIPTION_ID && cellNetworkInfo.rawCellInfo?.subscriptionId == dataSubscriptionId,
+                    isPrimaryDataSubscription = PrimaryDataSubscription.resolvePrimaryDataSubscriptionID(dataSubscriptionId, cellNetworkInfo.rawCellInfo?.subscriptionId).value,
                     areaCode = cellNetworkInfo.areaCode,
                     channelNumber = cellNetworkInfo.band?.channel,
                     frequency = cellNetworkInfo.band?.frequencyDL,

@@ -105,7 +105,7 @@ class CellNetworkInfo(
      */
     val rawCellInfo: ICell?,
 
-    val isPrimaryDataSubscription: Boolean
+    val isPrimaryDataSubscription: PrimaryDataSubscription?
 ) :
     NetworkInfo(TransportType.CELLULAR, cellUUID) {
 
@@ -282,7 +282,7 @@ class CellNetworkInfo(
                 dualSimDetectionMethod = dualSimDetectionMethod,
                 nrConnectionState = nrConnectionState,
                 rawCellInfo = null,
-                isPrimaryDataSubscription = true // we listen only for primary data subscription sim
+                isPrimaryDataSubscription = PrimaryDataSubscription.TRUE // we listen only for primary data subscription sim
             )
         }
 
@@ -323,7 +323,7 @@ class CellNetworkInfo(
                 dualSimDetectionMethod = dualSimDetectionMethod,
                 nrConnectionState = nrConnectionState,
                 rawCellInfo = null,
-                isPrimaryDataSubscription = true // we listen only for primary data subscription sim
+                isPrimaryDataSubscription = PrimaryDataSubscription.TRUE // we listen only for primary data subscription sim
             )
         }
 
@@ -362,7 +362,7 @@ class CellNetworkInfo(
                 dualSimDetectionMethod = dualSimDetectionMethod,
                 nrConnectionState = nrConnectionState,
                 rawCellInfo = null,
-                isPrimaryDataSubscription = true // we listen only for primary data subscription sim
+                isPrimaryDataSubscription = PrimaryDataSubscription.TRUE // we listen only for primary data subscription sim
             )
         }
 
@@ -402,7 +402,7 @@ class CellNetworkInfo(
                 dualSimDetectionMethod = dualSimDetectionMethod,
                 nrConnectionState = nrConnectionState,
                 rawCellInfo = null,
-                isPrimaryDataSubscription = true // we listen only for primary data subscription sim
+                isPrimaryDataSubscription = PrimaryDataSubscription.TRUE // we listen only for primary data subscription sim
             )
         }
 
@@ -441,7 +441,7 @@ class CellNetworkInfo(
                 dualSimDetectionMethod = dualSimDetectionMethod,
                 nrConnectionState = nrConnectionState,
                 rawCellInfo = null,
-                isPrimaryDataSubscription = true // we listen only for primary data subscription sim
+                isPrimaryDataSubscription = PrimaryDataSubscription.TRUE // we listen only for primary data subscription sim
             )
         }
 
@@ -482,7 +482,7 @@ class CellNetworkInfo(
                 dualSimDetectionMethod = dualSimDetectionMethod,
                 nrConnectionState = nrConnectionState,
                 rawCellInfo = null,
-                isPrimaryDataSubscription = true // we listen only for primary data subscription sim
+                isPrimaryDataSubscription = PrimaryDataSubscription.TRUE // we listen only for primary data subscription sim
             )
         }
 
@@ -516,7 +516,7 @@ class CellNetworkInfo(
                 dualSimDetectionMethod = dualSimDetectionMethod,
                 nrConnectionState = nrConnectionState,
                 rawCellInfo = null,
-                isPrimaryDataSubscription = true // we listen only for primary data subscription sim
+                isPrimaryDataSubscription = PrimaryDataSubscription.TRUE // we listen only for primary data subscription sim
             )
         }
     }

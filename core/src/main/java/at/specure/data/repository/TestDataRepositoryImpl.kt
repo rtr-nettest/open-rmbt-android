@@ -370,7 +370,7 @@ class TestDataRepositoryImpl(db: CoreDatabase) : TestDataRepository {
             mnc = mnc,
             primaryScramblingCode = scramblingCode,
             dualSimDetectionMethod = dualSimDetectionMethod,
-            isPrimaryDataSubscription = isPrimaryDataSubscription
+            isPrimaryDataSubscription = isPrimaryDataSubscription?.value
         )
         Timber.d("Saving CellInfo Record TDR with uuid: ${cellInfoRecord.uuid} and cellTechnology: ${cellInfoRecord.cellTechnology?.name} and channel number: ${cellInfoRecord.channelNumber}")
         return cellInfoRecord
