@@ -69,9 +69,8 @@ class MapFragment : BaseFragment(), OnMapReadyCallback, MapMarkerDetailsAdapter.
 
     override val layoutResId = R.layout.fragment_map
 
-    private var googleMap: MapboxMap? = null
+    private var mapboxMap: MapboxMap? = null
 
-    //    private var currentOverlay: TileOverlay? = null
     private var currentLocation: LatLng? = null
     private var currentMarker: Marker? = null
     private var visiblePosition: Int? = null
@@ -87,9 +86,7 @@ class MapFragment : BaseFragment(), OnMapReadyCallback, MapMarkerDetailsAdapter.
 
         binding.map.onCreate(savedInstanceState)
         mapViewModel.obtainFilters()
-//        mapViewModel.providerLiveData.listen(this) {
-            binding.map.getMapAsync(this)
-//        }
+        binding.map.getMapAsync(this)
 
         binding.fabLayers.setOnClickListener {
             MapLayersDialog.instance(this, CODE_LAYERS_DIALOG, mapViewModel.state.style.get()!!.ordinal, mapViewModel.state.type.get()!!.ordinal)
@@ -123,14 +120,12 @@ class MapFragment : BaseFragment(), OnMapReadyCallback, MapMarkerDetailsAdapter.
     }
 
     override fun onTypeSelected(type: MapPresentationType) {
-//        currentOverlay?.remove()
         mapViewModel.state.type.set(type)
-//        currentOverlay = googleMap?.addTileOverlay(TileOverlayOptions().tileProvider(mapViewModel.providerLiveData.value))
     }
 
     override fun onAddressResult(address: Address?) {
         if (address != null) {
-            googleMap?.moveCamera(
+            mapboxMap?.moveCamera(
                 CameraUpdateFactory.newLatLngZoom(
                     LatLng(address.latitude, address.longitude), 8.0
                 )
@@ -142,15 +137,13 @@ class MapFragment : BaseFragment(), OnMapReadyCallback, MapMarkerDetailsAdapter.
 
     @SuppressLint("MissingPermission")
     override fun onMapReady(map: MapboxMap) {
-        googleMap = map
+        mapboxMap = map
         checkLocationAndSetCurrent()
         updateMapStyle()
         setTiles()
         map.uiSettings.isRotateGesturesEnabled = false
         if (this.context?.isCoarseLocationPermitted() == true) {
-//            map.locationComponent.activateLocationComponent()
-//            map.locationComponent.isLocationComponentEnabled = false
-
+            // todo: show current location
         }
         updateLocationPermissionRelatedUi()
 
@@ -163,7 +156,7 @@ class MapFragment : BaseFragment(), OnMapReadyCallback, MapMarkerDetailsAdapter.
                 if (currentLocation != latlng) {
                     currentLocation = latlng
                     Timber.d("Position markersLiveData to : $latlng")
-                    googleMap?.animateCamera(CameraUpdateFactory.newLatLng(latlng))
+                    mapboxMap?.animateCamera(CameraUpdateFactory.newLatLng(latlng))
                 }
                 binding.markerItems.visibility = View.VISIBLE
                 binding.fabsGroup?.visibility = View.GONE
@@ -217,7 +210,6 @@ class MapFragment : BaseFragment(), OnMapReadyCallback, MapMarkerDetailsAdapter.
         binding.markerItems.visibility = View.GONE
         currentMarker?.remove()
         currentMarker = null
-//        adapter.items = mutableListOf()
         binding.fabsGroup?.visibility = View.VISIBLE
     }
 
@@ -237,7 +229,7 @@ class MapFragment : BaseFragment(), OnMapReadyCallback, MapMarkerDetailsAdapter.
         if (mapViewModel.state.cameraPositionLiveData.value == null || mapViewModel.state.cameraPositionLiveData.value?.latitude == 0.0 && mapViewModel.state.cameraPositionLiveData.value?.longitude == 0.0) {
             val defaultPosition = LatLng(DEFAULT_LAT.toDouble(), DEFAULT_LONG.toDouble())
             Timber.d("Position default to : ${defaultPosition.latitude} ${defaultPosition.longitude}")
-            googleMap?.animateCamera(CameraUpdateFactory.newLatLngZoom(defaultPosition, DEFAULT_ZOOM_LEVEL.toDouble()))
+            mapboxMap?.animateCamera(CameraUpdateFactory.newLatLngZoom(defaultPosition, DEFAULT_ZOOM_LEVEL.toDouble()))
             mapViewModel.state.type.set(DEFAULT_PRESENTATION_TYPE)
         }
     }
@@ -272,7 +264,7 @@ class MapFragment : BaseFragment(), OnMapReadyCallback, MapMarkerDetailsAdapter.
         val onStyleLoaded = Style.OnStyleLoaded {
             initializeStyles(it)
         }
-        googleMap?.setStyle(Style.Builder().fromUri(mapViewModel.provideStyle()), onStyleLoaded)
+        mapboxMap?.setStyle(Style.Builder().fromUri(mapViewModel.provideStyle()), onStyleLoaded)
     }
 
     private fun initializeStyles(style: Style) {
@@ -281,18 +273,12 @@ class MapFragment : BaseFragment(), OnMapReadyCallback, MapMarkerDetailsAdapter.
             val layer = style.getLayer(it)
             layer?.let {
                 layer.setProperties(visibility(VISIBLE))
-//                if (VISIBLE == (layer.visibility.getValue())) {
-//                    layer.setProperties(visibility(NONE));
-//                } else {
-//                    layer.setProperties(visibility(VISIBLE));
-//                }
             }
         }
     }
 
     private fun setTiles() {
-//        currentOverlay = googleMap?.addTileOverlay(TileOverlayOptions().tileProvider(mapViewModel.providerLiveData.value))
-        googleMap?.addOnMapClickListener(object : OnMapClickListener {
+        mapboxMap?.addOnMapClickListener(object : OnMapClickListener {
 
             override fun onMapClick(latlng: LatLng): Boolean {
                 mapViewModel.state.locationChanged.set(true)
@@ -300,22 +286,16 @@ class MapFragment : BaseFragment(), OnMapReadyCallback, MapMarkerDetailsAdapter.
                 mapViewModel.state.cameraPositionLiveData.postValue(latlng)
                 onCloseMarkerDetails()
                 if (isMarkersAvailable()) {
-                    mapViewModel.loadMarkers(latlng.latitude, latlng.longitude, googleMap!!.cameraPosition.zoom.toInt())
+                    mapViewModel.loadMarkers(latlng.latitude, latlng.longitude, mapboxMap!!.cameraPosition.zoom.toInt())
                 }
                 return true
             }
         })
-        googleMap?.setOnMarkerClickListener { true }
+        mapboxMap?.setOnMarkerClickListener { true }
 
-        googleMap?.addOnCameraMoveStartedListener {
+        mapboxMap?.addOnCameraMoveStartedListener {
             mapViewModel.state.locationChanged.set(true)
             mapViewModel.locationLiveData.removeObservers(this)
-//            mapViewModel.state.cameraPositionLiveData.postValue(it.target)
-//            if (it.zoom != mapViewModel.state.zoom) {
-//                currentOverlay?.remove()
-//                currentOverlay = googleMap?.addTileOverlay(TileOverlayOptions().tileProvider(mapViewModel.providerLiveData.value))
-//            }
-//            mapViewModel.state.zoom = it.zoom
         }
     }
 
@@ -326,19 +306,19 @@ class MapFragment : BaseFragment(), OnMapReadyCallback, MapMarkerDetailsAdapter.
                     with(LatLng(it.latitude, it.longitude)) {
                         mapViewModel.state.cameraPositionLiveData.postValue(this)
                         mapViewModel.state.coordinatesLiveData.postValue(this)
-                        googleMap?.moveCamera(CameraUpdateFactory.newLatLngZoom(this, mapViewModel.state.zoom.toDouble()))
+                        mapboxMap?.moveCamera(CameraUpdateFactory.newLatLngZoom(this, mapViewModel.state.zoom.toDouble()))
                         mapViewModel.locationLiveData.removeObservers(this@MapFragment)
                     }
                 }
             }
         } else {
             mapViewModel.state.cameraPositionLiveData.value?.let {
-                googleMap?.moveCamera(CameraUpdateFactory.newLatLngZoom(it, mapViewModel.state.zoom.toDouble()))
+                mapboxMap?.moveCamera(CameraUpdateFactory.newLatLngZoom(it, mapViewModel.state.zoom.toDouble()))
                 visiblePosition = RecyclerView.NO_POSITION
                 onCloseMarkerDetails()
                 if (isMarkersAvailable()) {
                     mapViewModel.state.coordinatesLiveData.value?.let {
-                        mapViewModel.loadMarkers(it.latitude, it.longitude, googleMap!!.cameraPosition.zoom.toInt())
+                        mapViewModel.loadMarkers(it.latitude, it.longitude, mapboxMap!!.cameraPosition.zoom.toInt())
                     }
                 }
             }
@@ -357,7 +337,7 @@ class MapFragment : BaseFragment(), OnMapReadyCallback, MapMarkerDetailsAdapter.
                         Manifest.permission.ACCESS_COARSE_LOCATION
                     ) == PackageManager.PERMISSION_GRANTED
                 ) {
-//                    googleMap?.locationComponent?.isLocationComponentEnabled = state == LocationState.ENABLED
+//                    mapboxMap?.locationComponent?.isLocationComponentEnabled = state == LocationState.ENABLED
                 }
             }
 
@@ -366,7 +346,7 @@ class MapFragment : BaseFragment(), OnMapReadyCallback, MapMarkerDetailsAdapter.
                     mapViewModel.locationLiveData.listen(this) { info ->
                         if (info != null) {
                             mapViewModel.locationLiveData.removeObservers(this)
-                            googleMap?.animateCamera(CameraUpdateFactory.newLatLng(LatLng(info.latitude, info.longitude)))
+                            mapboxMap?.animateCamera(CameraUpdateFactory.newLatLng(LatLng(info.latitude, info.longitude)))
                             Timber.d("Position locationLiveData to : ${info.latitude} ${info.longitude}")
                         }
                     }
@@ -390,8 +370,8 @@ class MapFragment : BaseFragment(), OnMapReadyCallback, MapMarkerDetailsAdapter.
 
     private fun isMarkersAvailable(): Boolean =
         mapViewModel.state.type.get() == MapPresentationType.POINTS ||
-                (mapViewModel.state.type.get() == MapPresentationType.AUTOMATIC && googleMap?.cameraPosition != null &&
-                        googleMap?.cameraPosition!!.zoom >= 10)
+                (mapViewModel.state.type.get() == MapPresentationType.AUTOMATIC && mapboxMap?.cameraPosition != null &&
+                        mapboxMap?.cameraPosition!!.zoom >= 10)
 
     private fun showSearchDialog() {
         if (!Geocoder.isPresent()) {
