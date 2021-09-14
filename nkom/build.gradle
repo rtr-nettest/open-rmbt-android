@@ -56,6 +56,9 @@ android {
                 obfuscate false
                 optimizeCode false
             }
+            ndk {
+                abiFilters 'armeabi-v7a','arm64-v8a','x86_64', 'x86'
+            }
         }
         debug {
             signingConfig signingConfigs.debug
@@ -95,6 +98,8 @@ dependencies {
     implementation "androidx.navigation:navigation-fragment-ktx:$versions.navigation_fragment"
     implementation "androidx.navigation:navigation-ui-ktx:$versions.navigation_fragment"
     implementation "com.google.android.gms:play-services-maps:$versions.google_services"
+    implementation "com.mapbox.mapboxsdk:mapbox-android-sdk:$versions.mapbox"
+    implementation "com.mapbox.mapboxsdk:mapbox-android-plugin-annotation-v9:$versions.mapbox_anotations"
 
     kapt "com.google.dagger:dagger-compiler:$versions.dagger"
     kapt "com.google.dagger:dagger-android-processor:$versions.dagger"

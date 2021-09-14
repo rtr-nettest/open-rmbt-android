@@ -5,7 +5,6 @@ import android.annotation.SuppressLint
 import android.content.pm.PackageManager
 import android.location.Address
 import android.location.Geocoder
-import android.os.Build
 import android.os.Bundle
 import android.view.View
 import android.widget.Toast
@@ -24,9 +23,6 @@ import at.rtr.rmbt.android.ui.adapter.MapMarkerDetailsAdapter
 import at.rtr.rmbt.android.ui.dialog.MapFiltersDialog
 import at.rtr.rmbt.android.ui.dialog.MapLayersDialog
 import at.rtr.rmbt.android.ui.dialog.MapSearchDialog
-import at.rtr.rmbt.android.util.ToolbarTheme
-import at.rtr.rmbt.android.util.changeStatusBarColor
-import at.rtr.rmbt.android.util.iconFromVector
 import at.rtr.rmbt.android.util.listen
 import at.rtr.rmbt.android.util.singleResult
 import at.rtr.rmbt.android.viewmodel.MapViewModel
@@ -34,16 +30,16 @@ import at.specure.data.NetworkTypeCompat
 import at.specure.data.ServerNetworkType
 import at.specure.data.entity.MarkerMeasurementRecord
 import at.specure.location.LocationState
-import com.google.android.gms.common.ConnectionResult
-import com.google.android.gms.common.GoogleApiAvailability
-import com.google.android.gms.maps.CameraUpdateFactory
-import com.google.android.gms.maps.GoogleMap
-import com.google.android.gms.maps.OnMapReadyCallback
-import com.google.android.gms.maps.model.LatLng
-import com.google.android.gms.maps.model.Marker
-import com.google.android.gms.maps.model.MarkerOptions
-import com.google.android.gms.maps.model.TileOverlay
-import com.google.android.gms.maps.model.TileOverlayOptions
+import at.specure.util.isCoarseLocationPermitted
+import com.mapbox.mapboxsdk.annotations.Marker
+import com.mapbox.mapboxsdk.camera.CameraUpdateFactory
+import com.mapbox.mapboxsdk.geometry.LatLng
+import com.mapbox.mapboxsdk.maps.MapboxMap
+import com.mapbox.mapboxsdk.maps.MapboxMap.OnMapClickListener
+import com.mapbox.mapboxsdk.maps.OnMapReadyCallback
+import com.mapbox.mapboxsdk.maps.Style
+import com.mapbox.mapboxsdk.style.layers.Property.VISIBLE
+import com.mapbox.mapboxsdk.style.layers.PropertyFactory.visibility
 import timber.log.Timber
 import kotlin.math.abs
 
@@ -56,13 +52,13 @@ private const val ANCHOR_U = 0.5f
 private const val ANCHOR_V = 0.865f
 
 // default map position and zoom when no location information is available
-// focus to Austria based on boundary box 'AT': ('Austria', (9.47996951665, 46.4318173285, 16.9796667823, 49.0390742051))
-// derived from Github/graydon/country-bounding-boxes.py
+// focus to Norway: ('Austria', (69.38, 19.89, 3F))
+// Could be derived from Github/graydon/country-bounding-boxes.py
 // extracted from http//www.naturalearthdata.com/download/110m/cultural/ne_110m_admin_0_countries.zip
 // under public domain terms
-private const val DEFAULT_LAT = (49.0390742051F + 46.4318173285F) / 2F
-private const val DEFAULT_LONG = (16.9796667823F + 9.47996951665F) / 2F
-private const val DEFAULT_ZOOM_LEVEL = 6F
+private const val DEFAULT_LAT = 69.38
+private const val DEFAULT_LONG = 19.89
+private const val DEFAULT_ZOOM_LEVEL = 3.1F
 private val DEFAULT_PRESENTATION_TYPE = MapPresentationType.AUTOMATIC
 
 class MapFragment : BaseFragment(), OnMapReadyCallback, MapMarkerDetailsAdapter.MarkerDetailsCallback, MapLayersDialog.Callback,
@@ -73,8 +69,8 @@ class MapFragment : BaseFragment(), OnMapReadyCallback, MapMarkerDetailsAdapter.
 
     override val layoutResId = R.layout.fragment_map
 
-    private var googleMap: GoogleMap? = null
-    private var currentOverlay: TileOverlay? = null
+    private var mapboxMap: MapboxMap? = null
+
     private var currentLocation: LatLng? = null
     private var currentMarker: Marker? = null
     private var visiblePosition: Int? = null
@@ -85,14 +81,12 @@ class MapFragment : BaseFragment(), OnMapReadyCallback, MapMarkerDetailsAdapter.
     @SuppressLint("SetJavaScriptEnabled")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
         binding.state = mapViewModel.state
 
         binding.map.onCreate(savedInstanceState)
-        mapViewModel.state.playServicesAvailable.set(checkPlayServices())
         mapViewModel.obtainFilters()
-        mapViewModel.providerLiveData.listen(this) {
-            binding.map.getMapAsync(this)
-        }
+        binding.map.getMapAsync(this)
 
         binding.fabLayers.setOnClickListener {
             MapLayersDialog.instance(this, CODE_LAYERS_DIALOG, mapViewModel.state.style.get()!!.ordinal, mapViewModel.state.type.get()!!.ordinal)
@@ -118,11 +112,6 @@ class MapFragment : BaseFragment(), OnMapReadyCallback, MapMarkerDetailsAdapter.
         binding.fabSearch.setOnClickListener {
             showSearchDialog()
         }
-
-        if (!mapViewModel.state.playServicesAvailable.get()) {
-            binding.webMap.settings.javaScriptEnabled = true
-            binding.webMap.loadUrl("https://www.netztest.at/en/Karte")
-        }
     }
 
     override fun onStyleSelected(style: MapStyleType) {
@@ -131,16 +120,14 @@ class MapFragment : BaseFragment(), OnMapReadyCallback, MapMarkerDetailsAdapter.
     }
 
     override fun onTypeSelected(type: MapPresentationType) {
-        currentOverlay?.remove()
         mapViewModel.state.type.set(type)
-        currentOverlay = googleMap?.addTileOverlay(TileOverlayOptions().tileProvider(mapViewModel.providerLiveData.value))
     }
 
     override fun onAddressResult(address: Address?) {
         if (address != null) {
-            googleMap?.moveCamera(
+            mapboxMap?.moveCamera(
                 CameraUpdateFactory.newLatLngZoom(
-                    LatLng(address.latitude, address.longitude), 8f
+                    LatLng(address.latitude, address.longitude), 8.0
                 )
             )
         } else {
@@ -148,29 +135,15 @@ class MapFragment : BaseFragment(), OnMapReadyCallback, MapMarkerDetailsAdapter.
         }
     }
 
-    private fun checkPlayServices(): Boolean {
-
-        if (Build.MANUFACTURER.compareTo("Amazon", true) == 0) {
-            return false
-        }
-        val gApi: GoogleApiAvailability = GoogleApiAvailability.getInstance()
-        val resultCode: Int = gApi.isGooglePlayServicesAvailable(this.context)
-        if (resultCode != ConnectionResult.SUCCESS) {
-            return false
-        }
-        return true
-    }
-
-    override fun onMapReady(map: GoogleMap?) {
-        googleMap = map
+    @SuppressLint("MissingPermission")
+    override fun onMapReady(map: MapboxMap) {
+        mapboxMap = map
         checkLocationAndSetCurrent()
         updateMapStyle()
         setTiles()
-        map?.let {
-            with(map.uiSettings) {
-                isRotateGesturesEnabled = false
-                isMyLocationButtonEnabled = false
-            }
+        map.uiSettings.isRotateGesturesEnabled = false
+        if (this.context?.isCoarseLocationPermitted() == true) {
+            // todo: show current location
         }
         updateLocationPermissionRelatedUi()
 
@@ -183,7 +156,7 @@ class MapFragment : BaseFragment(), OnMapReadyCallback, MapMarkerDetailsAdapter.
                 if (currentLocation != latlng) {
                     currentLocation = latlng
                     Timber.d("Position markersLiveData to : $latlng")
-                    googleMap?.animateCamera(CameraUpdateFactory.newLatLng(latlng))
+                    mapboxMap?.animateCamera(CameraUpdateFactory.newLatLng(latlng))
                 }
                 binding.markerItems.visibility = View.VISIBLE
                 binding.fabsGroup?.visibility = View.GONE
@@ -204,11 +177,8 @@ class MapFragment : BaseFragment(), OnMapReadyCallback, MapMarkerDetailsAdapter.
         super.onResume()
         binding.map.onResume()
         updateLocationPermissionRelatedUi()
-        if (!checkPlayServices()) {
-            binding.fabsGroup.visibility = View.GONE
-            binding.webMap.visibility = View.VISIBLE
-            binding.playServicesAvailableUi.visibility = View.GONE
-        }
+        binding.fabsGroup.visibility = View.GONE
+        binding.playServicesAvailableUi.visibility = View.GONE
     }
 
     override fun onStop() {
@@ -221,14 +191,26 @@ class MapFragment : BaseFragment(), OnMapReadyCallback, MapMarkerDetailsAdapter.
         super.onPause()
     }
 
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        binding.map.onSaveInstanceState(outState)
+    }
+
+    override fun onLowMemory() {
+        super.onLowMemory()
+        binding.map.onLowMemory()
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        binding.map.onDestroy()
+    }
+
     override fun onCloseMarkerDetails() {
         binding.markerItems.visibility = View.GONE
         currentMarker?.remove()
         currentMarker = null
-//        adapter.items = mutableListOf()
-        if (mapViewModel.state.playServicesAvailable.get()) {
-            binding.fabsGroup?.visibility = View.VISIBLE
-        }
+        binding.fabsGroup?.visibility = View.VISIBLE
     }
 
     override fun onMoreDetailsClicked(openTestUUID: String) {
@@ -239,8 +221,7 @@ class MapFragment : BaseFragment(), OnMapReadyCallback, MapMarkerDetailsAdapter.
     }
 
     override fun onFiltersUpdated() {
-        currentOverlay?.remove()
-        currentOverlay = googleMap?.addTileOverlay(TileOverlayOptions().tileProvider(mapViewModel.providerLiveData.value))
+        // TODO:
     }
 
     private fun setDefaultMapPosition() {
@@ -248,7 +229,7 @@ class MapFragment : BaseFragment(), OnMapReadyCallback, MapMarkerDetailsAdapter.
         if (mapViewModel.state.cameraPositionLiveData.value == null || mapViewModel.state.cameraPositionLiveData.value?.latitude == 0.0 && mapViewModel.state.cameraPositionLiveData.value?.longitude == 0.0) {
             val defaultPosition = LatLng(DEFAULT_LAT.toDouble(), DEFAULT_LONG.toDouble())
             Timber.d("Position default to : ${defaultPosition.latitude} ${defaultPosition.longitude}")
-            googleMap?.animateCamera(CameraUpdateFactory.newLatLngZoom(defaultPosition, DEFAULT_ZOOM_LEVEL))
+            mapboxMap?.animateCamera(CameraUpdateFactory.newLatLngZoom(defaultPosition, DEFAULT_ZOOM_LEVEL.toDouble()))
             mapViewModel.state.type.set(DEFAULT_PRESENTATION_TYPE)
         }
     }
@@ -276,58 +257,45 @@ class MapFragment : BaseFragment(), OnMapReadyCallback, MapMarkerDetailsAdapter.
     }
 
     private fun addMarkerWithIcon(@DrawableRes icon: Int) {
-        currentLocation?.let { latlng ->
-            if (currentMarker == null) {
-                currentMarker = googleMap?.addMarker(
-                    MarkerOptions().position(latlng).anchor(ANCHOR_U, ANCHOR_V).iconFromVector(requireContext(), icon)
-                )
-            } else {
-                currentMarker?.iconFromVector(requireContext(), icon)
-            }
-        }
+        // TODO:
     }
 
     private fun updateMapStyle() {
-        with(mapViewModel.state.style.get()) {
-            googleMap?.mapType = when (this) {
-                MapStyleType.HYBRID -> {
-                    activity?.window?.changeStatusBarColor(ToolbarTheme.BLUE)
-                    GoogleMap.MAP_TYPE_HYBRID
-                }
-                MapStyleType.SATELLITE -> {
-                    activity?.window?.changeStatusBarColor(ToolbarTheme.BLUE)
-                    GoogleMap.MAP_TYPE_SATELLITE
-                }
-                else -> {
-                    activity?.window?.changeStatusBarColor(ToolbarTheme.WHITE)
-                    GoogleMap.MAP_TYPE_NORMAL
-                }
+        val onStyleLoaded = Style.OnStyleLoaded {
+            initializeStyles(it)
+        }
+        mapboxMap?.setStyle(Style.Builder().fromUri(mapViewModel.provideStyle()), onStyleLoaded)
+    }
+
+    private fun initializeStyles(style: Style) {
+        val layers = mapViewModel.buildCurrentLayersName()
+        layers.forEach {
+            val layer = style.getLayer(it)
+            layer?.let {
+                layer.setProperties(visibility(VISIBLE))
             }
         }
     }
 
     private fun setTiles() {
-        currentOverlay = googleMap?.addTileOverlay(TileOverlayOptions().tileProvider(mapViewModel.providerLiveData.value))
-        googleMap?.setOnMapClickListener { latlng ->
-            mapViewModel.state.locationChanged.set(true)
-            mapViewModel.locationLiveData.removeObservers(this)
-            mapViewModel.state.cameraPositionLiveData.postValue(latlng)
-            onCloseMarkerDetails()
-            if (isMarkersAvailable()) {
-                mapViewModel.loadMarkers(latlng.latitude, latlng.longitude, googleMap!!.cameraPosition.zoom.toInt())
-            }
-        }
-        googleMap?.setOnMarkerClickListener { true }
+        mapboxMap?.addOnMapClickListener(object : OnMapClickListener {
 
-        googleMap?.setOnCameraChangeListener {
+            override fun onMapClick(latlng: LatLng): Boolean {
+                mapViewModel.state.locationChanged.set(true)
+                mapViewModel.locationLiveData.removeObservers(this@MapFragment)
+                mapViewModel.state.cameraPositionLiveData.postValue(latlng)
+                onCloseMarkerDetails()
+                if (isMarkersAvailable()) {
+                    mapViewModel.loadMarkers(latlng.latitude, latlng.longitude, mapboxMap!!.cameraPosition.zoom.toInt())
+                }
+                return true
+            }
+        })
+        mapboxMap?.setOnMarkerClickListener { true }
+
+        mapboxMap?.addOnCameraMoveStartedListener {
             mapViewModel.state.locationChanged.set(true)
             mapViewModel.locationLiveData.removeObservers(this)
-            mapViewModel.state.cameraPositionLiveData.postValue(it.target)
-            if (it.zoom != mapViewModel.state.zoom) {
-                currentOverlay?.remove()
-                currentOverlay = googleMap?.addTileOverlay(TileOverlayOptions().tileProvider(mapViewModel.providerLiveData.value))
-            }
-            mapViewModel.state.zoom = it.zoom
         }
     }
 
@@ -338,18 +306,20 @@ class MapFragment : BaseFragment(), OnMapReadyCallback, MapMarkerDetailsAdapter.
                     with(LatLng(it.latitude, it.longitude)) {
                         mapViewModel.state.cameraPositionLiveData.postValue(this)
                         mapViewModel.state.coordinatesLiveData.postValue(this)
-                        googleMap?.moveCamera(CameraUpdateFactory.newLatLngZoom(this, mapViewModel.state.zoom))
+                        mapboxMap?.moveCamera(CameraUpdateFactory.newLatLngZoom(this, mapViewModel.state.zoom.toDouble()))
                         mapViewModel.locationLiveData.removeObservers(this@MapFragment)
                     }
                 }
             }
         } else {
-            googleMap?.moveCamera(CameraUpdateFactory.newLatLngZoom(mapViewModel.state.cameraPositionLiveData.value, mapViewModel.state.zoom))
-            visiblePosition = RecyclerView.NO_POSITION
-            onCloseMarkerDetails()
-            if (isMarkersAvailable()) {
-                mapViewModel.state.coordinatesLiveData.value?.let {
-                    mapViewModel.loadMarkers(it.latitude, it.longitude, googleMap!!.cameraPosition.zoom.toInt())
+            mapViewModel.state.cameraPositionLiveData.value?.let {
+                mapboxMap?.moveCamera(CameraUpdateFactory.newLatLngZoom(it, mapViewModel.state.zoom.toDouble()))
+                visiblePosition = RecyclerView.NO_POSITION
+                onCloseMarkerDetails()
+                if (isMarkersAvailable()) {
+                    mapViewModel.state.coordinatesLiveData.value?.let {
+                        mapViewModel.loadMarkers(it.latitude, it.longitude, mapboxMap!!.cameraPosition.zoom.toInt())
+                    }
                 }
             }
         }
@@ -367,7 +337,7 @@ class MapFragment : BaseFragment(), OnMapReadyCallback, MapMarkerDetailsAdapter.
                         Manifest.permission.ACCESS_COARSE_LOCATION
                     ) == PackageManager.PERMISSION_GRANTED
                 ) {
-                    googleMap?.isMyLocationEnabled = state == LocationState.ENABLED
+//                    mapboxMap?.locationComponent?.isLocationComponentEnabled = state == LocationState.ENABLED
                 }
             }
 
@@ -376,7 +346,7 @@ class MapFragment : BaseFragment(), OnMapReadyCallback, MapMarkerDetailsAdapter.
                     mapViewModel.locationLiveData.listen(this) { info ->
                         if (info != null) {
                             mapViewModel.locationLiveData.removeObservers(this)
-                            googleMap?.animateCamera(CameraUpdateFactory.newLatLng(LatLng(info.latitude, info.longitude)))
+                            mapboxMap?.animateCamera(CameraUpdateFactory.newLatLng(LatLng(info.latitude, info.longitude)))
                             Timber.d("Position locationLiveData to : ${info.latitude} ${info.longitude}")
                         }
                     }
@@ -400,8 +370,8 @@ class MapFragment : BaseFragment(), OnMapReadyCallback, MapMarkerDetailsAdapter.
 
     private fun isMarkersAvailable(): Boolean =
         mapViewModel.state.type.get() == MapPresentationType.POINTS ||
-                (mapViewModel.state.type.get() == MapPresentationType.AUTOMATIC && googleMap?.cameraPosition != null &&
-                        googleMap?.cameraPosition!!.zoom >= 10)
+                (mapViewModel.state.type.get() == MapPresentationType.AUTOMATIC && mapboxMap?.cameraPosition != null &&
+                        mapboxMap?.cameraPosition!!.zoom >= 10)
 
     private fun showSearchDialog() {
         if (!Geocoder.isPresent()) {
