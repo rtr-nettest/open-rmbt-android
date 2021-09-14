@@ -67,4 +67,3 @@ class MapViewModel @Inject constructor(
         )
     }
 }
-
