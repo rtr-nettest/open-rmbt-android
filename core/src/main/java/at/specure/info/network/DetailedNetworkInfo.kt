@@ -8,9 +8,12 @@ class DetailedNetworkInfo(
     val networkInfo: NetworkInfo?,
     val signalStrengthInfo: SignalStrengthInfo? = null,
     /**
+     * Contains network types for subscriptionId to optimize requests to netmonster lib (determining for each ICell is costly)
+     */
+    val networkTypes: HashMap<Int, MobileNetworkType> = HashMap(),
+    /**
      * Should contain all inactive cells available for primary data connection
      */
-
     val allCellInfos: List<ICell>? = null,
     /**
      * Should contain all secondary cells available for primary data connection
@@ -27,5 +30,10 @@ class DetailedNetworkInfo(
     /**
      * Should contain all 5G secondary signals available for primary data connection
      */
-    var secondary5GActiveSignalStrengthInfos: List<SignalStrengthInfo?>? = null
+    var secondary5GActiveSignalStrengthInfos: List<SignalStrengthInfo?>? = null,
+
+    /**
+     * Current primary data subscription ID, -1 when unknown for some reason (wrong API, denied permissions)
+     */
+    val dataSubscriptionId: Int
 )
