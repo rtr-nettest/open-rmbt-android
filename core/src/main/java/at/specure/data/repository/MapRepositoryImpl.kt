@@ -210,7 +210,7 @@ class MapRepositoryImpl @Inject constructor(
                     createCleanFilterMap<FilterPeriodOptionResponse>(),
                     technology,
                     createCleanFilterMap<FilterOperatorOptionResponse>(),
-                    createCleanFilterMap<FilterProviderOptionResponse>(),
+                    createCleanFilterMap<FilterProviderOptionResponse>()
                 )
             }
             markTypeAsSelected(storage.findType(active.type))
@@ -282,14 +282,14 @@ class MapRepositoryImpl @Inject constructor(
         }
         return filters
     }
-}
 
-private fun List<ProviderStatistics>?.toProviderNameList(): List<FilterProviderOptionResponse> {
-    var providerList = mutableListOf<FilterProviderOptionResponse>()
-    this?.forEach {
-        it.providerName?.let { providerName ->
-            providerList.add(FilterProviderOptionResponse(providerName))
+    private fun List<ProviderStatistics>?.toProviderNameList(): List<FilterProviderOptionResponse> {
+        var providerList = mutableListOf<FilterProviderOptionResponse>()
+        this?.forEach {
+            it.providerName?.let { providerName ->
+                providerList.add(FilterProviderOptionResponse(providerName))
+            }
         }
+        return providerList
     }
-    return providerList
 }
