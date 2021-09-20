@@ -360,5 +360,8 @@
     <string name="technology">Technology</string>
     <string name="primary_connection">Primary</string>
     <string name="secondary_connection">Secondary</string>
+    <string name="search_tooltip">Search by address, municipality…</string>
+    <string name="filter_technology_all">All</string>
+    <string name="map_disclaimer">The map shows measurements done through the Nettfart apps. It is not a coverage map.</string>
 
 </resources>

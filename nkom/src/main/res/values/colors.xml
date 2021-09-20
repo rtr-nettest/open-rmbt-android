@@ -97,4 +97,10 @@
     <color name="loop_mode_icon_background">#FFE57F</color>
     <color name="loop_mode_icon_background_disabled">#11000000</color>
 
+    <color name="map_filter_technology_2G">#f7b502</color>
+    <color name="map_filter_technology_3G">#6DD400</color>
+    <color name="map_filter_technology_4G">#44D7B6</color>
+    <color name="map_filter_technology_5G">#6236FF</color>
+    <color name="map_filter_technology_ALL">#345FED</color>
+
 </resources>

@@ -17,9 +17,11 @@ import at.rmbt.client.control.MapOptions
 import at.rmbt.client.control.MapServerClient
 import at.rmbt.client.control.MapTypeOptionsResponse
 import at.rmbt.client.control.MarkersRequestBody
+import at.rmbt.client.control.ProviderStatistics
 import at.rmbt.client.control.data.MapFilterType
 import at.rmbt.client.control.data.MapPresentationType
 import at.rmbt.util.io
+import at.specure.config.Config
 import at.specure.data.ControlServerSettings
 import at.specure.data.CoreDatabase
 import at.specure.data.entity.MarkerMeasurementRecord
@@ -40,7 +42,8 @@ class MapRepositoryImpl @Inject constructor(
     private val db: CoreDatabase,
     override val storage: FilterValuesStorage,
     override val active: ActiveFilter,
-    private val controlServerSettings: ControlServerSettings
+    private val controlServerSettings: ControlServerSettings,
+    private val config: Config
 ) : MapRepository {
 
     override val subtypesLiveData: FilterOptionLiveData<MapTypeOptionsResponse> = MutableLiveData()
@@ -111,32 +114,119 @@ class MapRepositoryImpl @Inject constructor(
     }
 
     override fun obtainFilters(callback: (List<String>) -> Unit) = io {
-        val result = client.obtainMapFiltersInfo(FilterLanguageRequestBody(Locale.getDefault().language))
 
-        result.onSuccess {
-            val types = LinkedHashMap<String, MapFilterType>()
-            with(it.filter.mapTypes) {
-                types[get(0).title] = MapFilterType.MOBILE
-                types[get(1).title] = MapFilterType.WLAN
-                types[get(2).title] = MapFilterType.BROWSER
-                types[get(3).title] = MapFilterType.ALL
-            }
+        if (config.headerValue.isNullOrEmpty()) {
 
-            val subTypes = it.filter.toSubtypesMap(types) as MutableMap<MapFilterType, List<MapTypeOptionsResponse>>
-            with(it.filter.mapFilters) {
-                storage.apply {
-                    init(types, subTypes, toMap(), toMap(), toMap(), toMap(), toMap())
-                    titleStatistics = getTypeTitle<FilterStatisticOptionResponse>()
-                    titlePeriod = getTypeTitle<FilterPeriodOptionResponse>()
-                    titleOperator = getTypeTitle<FilterOperatorOptionResponse>()
-                    titleProvider = getTypeTitle<FilterProviderOptionResponse>()
-                    titleTechnology = getTypeTitle<FilterTechnologyOptionResponse>()
+            val result = client.obtainMapFiltersInfo(FilterLanguageRequestBody(Locale.getDefault().language))
+
+            result.onSuccess {
+                val types = LinkedHashMap<String, MapFilterType>()
+                with(it.filter.mapTypes) {
+                    types[get(0).title] = MapFilterType.MOBILE
+                    types[get(1).title] = MapFilterType.WLAN
+                    types[get(2).title] = MapFilterType.BROWSER
+                    types[get(3).title] = MapFilterType.ALL
                 }
-                markTypeAsSelected(storage.findType(active.type))
+
+                val subTypes = it.filter.toSubtypesMap(types) as MutableMap<MapFilterType, List<MapTypeOptionsResponse>>
+                with(it.filter.mapFilters) {
+                    storage.apply {
+                        init(types, subTypes, toMap(), toMap(), toMap(), toMap(), toMap())
+                        titleStatistics = getTypeTitle<FilterStatisticOptionResponse>()
+                        titlePeriod = getTypeTitle<FilterPeriodOptionResponse>()
+                        titleOperator = getTypeTitle<FilterOperatorOptionResponse>()
+                        titleProvider = getTypeTitle<FilterProviderOptionResponse>()
+                        titleTechnology = getTypeTitle<FilterTechnologyOptionResponse>()
+                    }
+                    markTypeAsSelected(storage.findType(active.type))
+                }
+                callback.invoke(types.keys.toMutableList())
             }
+        } else {
+            val types = LinkedHashMap<String, MapFilterType>()
+            types[MapFilterType.MOBILE.name] = MapFilterType.MOBILE
+            types[MapFilterType.WLAN.name] = MapFilterType.WLAN
+            types[MapFilterType.BROWSER.name] = MapFilterType.BROWSER
+            types[MapFilterType.ALL.name] = MapFilterType.ALL
+
+            val subTypes = createCleanFilterMap<MapTypeOptionsResponse>()
+
+            val technologyList = listOf(
+                FilterTechnologyOptionResponse("ALL").apply {
+                    title = "ALL"
+                    default = true
+                },
+                FilterTechnologyOptionResponse("2G").apply {
+                    title = "2G"
+                },
+                FilterTechnologyOptionResponse("3G").apply {
+                    title = "3G"
+                },
+                FilterTechnologyOptionResponse("4G").apply {
+                    title = "4G"
+                },
+                FilterTechnologyOptionResponse("5G").apply {
+                    title = "5G"
+                }
+            )
+
+            val technology = createCleanFilterMap<FilterTechnologyOptionResponse>()
+            technology[MapFilterType.MOBILE] = technologyList
+            technology[MapFilterType.WLAN] = emptyList()
+            technology[MapFilterType.BROWSER] = technologyList
+            technology[MapFilterType.ALL] = technologyList
+
+//            val result = client.obtainNationalTable()
+//
+//            result.onSuccess {
+//
+//                val providerFilterOptions = it.providerStats.toProviderNameList()
+//
+//                val providers = createCleanFilterMap<FilterProviderOptionResponse>()
+//                providers[MapFilterType.MOBILE] = providerFilterOptions
+//                providers[MapFilterType.WLAN] = providerFilterOptions
+//                providers[MapFilterType.BROWSER] = providerFilterOptions
+//                providers[MapFilterType.ALL] = providerFilterOptions
+//
+//                storage.apply {
+//                    init(types,
+//                        subTypes,
+//                        createCleanFilterMap<FilterStatisticOptionResponse>(),
+//                        createCleanFilterMap<FilterPeriodOptionResponse>(),
+//                        technology,
+//                        createCleanFilterMap<FilterOperatorOptionResponse>(),
+//                        providers,
+//                    )
+//                }
+//                markTypeAsSelected(storage.findType(active.type))
+//                callback.invoke(types.keys.toMutableList())
+//            }
+//            result.onFailure {
+            storage.apply {
+                init(
+                    types,
+                    subTypes,
+                    createCleanFilterMap<FilterStatisticOptionResponse>(),
+                    createCleanFilterMap<FilterPeriodOptionResponse>(),
+                    technology,
+                    createCleanFilterMap<FilterOperatorOptionResponse>(),
+                    createCleanFilterMap<FilterProviderOptionResponse>(),
+                )
+            }
+            markTypeAsSelected(storage.findType(active.type))
             callback.invoke(types.keys.toMutableList())
+//            }
         }
         // todo: add error handling
+    }
+
+    private fun <T> createCleanFilterMap(): MutableMap<MapFilterType, List<T>> {
+        val subTypes = mutableMapOf<MapFilterType, List<T>>()
+        subTypes[MapFilterType.MOBILE] = mutableListOf<T>()
+        subTypes[MapFilterType.WLAN] = mutableListOf<T>()
+        subTypes[MapFilterType.BROWSER] = mutableListOf<T>()
+        subTypes[MapFilterType.ALL] = mutableListOf<T>()
+        return subTypes
     }
 
     override fun markTypeAsSelected(value: String) {
@@ -192,4 +282,14 @@ class MapRepositoryImpl @Inject constructor(
         }
         return filters
     }
+}
+
+private fun List<ProviderStatistics>?.toProviderNameList(): List<FilterProviderOptionResponse> {
+    var providerList = mutableListOf<FilterProviderOptionResponse>()
+    this?.forEach {
+        it.providerName?.let { providerName ->
+            providerList.add(FilterProviderOptionResponse(providerName))
+        }
+    }
+    return providerList
 }
