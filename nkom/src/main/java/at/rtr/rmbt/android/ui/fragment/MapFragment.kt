@@ -143,10 +143,10 @@ class MapFragment : BaseFragment(), OnMapReadyCallback, MapMarkerDetailsAdapter.
         mapViewModel.setTechnologyFilter(filterType)
         technologyFilterList.forEach { view ->
             view.backgroundTintList = ContextCompat.getColorStateList(requireContext(), R.color.text_lightest_gray)
-            view.setTextColor(ContextCompat.getColor(requireContext(), R.color.text_black_transparency_60));
+            view.setTextColor(ContextCompat.getColor(requireContext(), R.color.text_black_transparency_60))
         }
         selectedView.backgroundTintList = ContextCompat.getColorStateList(requireContext(), filterType.colorId)
-        (selectedView as TextView).setTextColor(ContextCompat.getColor(requireContext(), R.color.text_lightest_gray));
+        (selectedView as TextView).setTextColor(ContextCompat.getColor(requireContext(), R.color.text_lightest_gray))
         updateMapStyle()
     }
 
