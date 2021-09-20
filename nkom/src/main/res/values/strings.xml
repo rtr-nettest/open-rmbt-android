@@ -360,4 +360,7 @@
     <string name="technology">Teknologi</string>
     <string name="primary_connection">Primær</string>
     <string name="secondary_connection">Sekundær</string>
+    <string name="search_tooltip">Søk etter adresse…</string>
+    <string name="filter_technology_all">Alle</string>
+    <string name="map_disclaimer">Kartet viser resultater fra Nettfart mobilapp. Det er ikke et dekningskart.</string>
 </resources>

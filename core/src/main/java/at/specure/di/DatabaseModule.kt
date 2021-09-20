@@ -118,9 +118,10 @@ class DatabaseModule {
         database: CoreDatabase,
         filterValuesStorage: FilterValuesStorage,
         activeFilter: ActiveFilter,
-        controlServerSettings: ControlServerSettings
+        controlServerSettings: ControlServerSettings,
+        config: Config
     ): MapRepository =
-        MapRepositoryImpl(client, database, filterValuesStorage, activeFilter, controlServerSettings)
+        MapRepositoryImpl(client, database, filterValuesStorage, activeFilter, controlServerSettings, config)
 
     @Provides
     fun provideSignalMeasurementRepository(

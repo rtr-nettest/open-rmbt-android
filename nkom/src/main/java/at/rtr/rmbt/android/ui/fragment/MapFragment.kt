@@ -7,9 +7,11 @@ import android.location.Address
 import android.location.Geocoder
 import android.os.Bundle
 import android.view.View
+import android.widget.TextView
 import android.widget.Toast
 import androidx.annotation.DrawableRes
 import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.LinearSnapHelper
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.SnapHelper
@@ -26,10 +28,10 @@ import at.rtr.rmbt.android.ui.dialog.MapSearchDialog
 import at.rtr.rmbt.android.util.listen
 import at.rtr.rmbt.android.util.singleResult
 import at.rtr.rmbt.android.viewmodel.MapViewModel
+import at.rtr.rmbt.android.viewmodel.TechnologyFilter
 import at.specure.data.NetworkTypeCompat
 import at.specure.data.ServerNetworkType
 import at.specure.data.entity.MarkerMeasurementRecord
-import at.specure.location.LocationState
 import at.specure.util.isCoarseLocationPermitted
 import com.mapbox.mapboxsdk.annotations.Marker
 import com.mapbox.mapboxsdk.camera.CameraUpdateFactory
@@ -40,14 +42,16 @@ import com.mapbox.mapboxsdk.maps.OnMapReadyCallback
 import com.mapbox.mapboxsdk.maps.Style
 import com.mapbox.mapboxsdk.style.layers.Property.VISIBLE
 import com.mapbox.mapboxsdk.style.layers.PropertyFactory.visibility
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
 import timber.log.Timber
+import java.io.IOException
 import kotlin.math.abs
 
 const val START_ZOOM_LEVEL = 12f
 
-private const val CODE_LAYERS_DIALOG = 1
-private const val CODE_FILTERS_DIALOG = 2
-private const val CODE_SEARCH_DIALOG = 3
 private const val ANCHOR_U = 0.5f
 private const val ANCHOR_V = 0.865f
 
@@ -77,25 +81,18 @@ class MapFragment : BaseFragment(), OnMapReadyCallback, MapMarkerDetailsAdapter.
     private var snapHelper: SnapHelper? = null
 
     private var adapter: MapMarkerDetailsAdapter = MapMarkerDetailsAdapter(this)
+    private val coroutineScope: CoroutineScope = CoroutineScope(Dispatchers.Main)
+    private var searchJob: Job? = null
 
     @SuppressLint("SetJavaScriptEnabled")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
         binding.state = mapViewModel.state
+        mapViewModel.obtainFiltersFromServer()
 
         binding.map.onCreate(savedInstanceState)
-        mapViewModel.obtainFilters()
         binding.map.getMapAsync(this)
-
-        binding.fabLayers.setOnClickListener {
-            MapLayersDialog.instance(this, CODE_LAYERS_DIALOG, mapViewModel.state.style.get()!!.ordinal, mapViewModel.state.type.get()!!.ordinal)
-                .show(fragmentManager)
-        }
-
-        binding.fabFilters.setOnClickListener {
-            MapFiltersDialog.instance(this, CODE_FILTERS_DIALOG).show(fragmentManager)
-        }
 
         snapHelper = LinearSnapHelper().apply { attachToRecyclerView(binding.markerItems) }
         binding.markerItems.adapter = adapter
@@ -109,9 +106,48 @@ class MapFragment : BaseFragment(), OnMapReadyCallback, MapMarkerDetailsAdapter.
                 }
             }
         })
-        binding.fabSearch.setOnClickListener {
+        binding.searchButton.setOnClickListener {
             showSearchDialog()
         }
+        binding.searchCancelButton.setOnClickListener {
+            searchJob?.cancel()
+            binding.searchCancelButton.visibility = View.GONE
+            binding.searchButton.visibility = View.VISIBLE
+        }
+        val technologyFilterList: List<TextView> = listOf(
+            binding.filterTechAll,
+            binding.filterTech2g,
+            binding.filterTech3g,
+            binding.filterTech4g,
+            binding.filterTech5g
+        )
+        binding.filterTechAll.setOnClickListener {
+            setTechnologySelected(technologyFilterList, it, TechnologyFilter.FILTER_ALL)
+        }
+        binding.filterTech2g.setOnClickListener {
+            setTechnologySelected(technologyFilterList, it, TechnologyFilter.FILTER_2G)
+        }
+        binding.filterTech3g.setOnClickListener {
+            setTechnologySelected(technologyFilterList, it, TechnologyFilter.FILTER_3G)
+        }
+        binding.filterTech4g.setOnClickListener {
+            setTechnologySelected(technologyFilterList, it, TechnologyFilter.FILTER_4G)
+        }
+        binding.filterTech5g.setOnClickListener {
+            setTechnologySelected(technologyFilterList, it, TechnologyFilter.FILTER_5G)
+        }
+        setTechnologySelected(technologyFilterList, binding.filterTechAll, TechnologyFilter.FILTER_ALL)
+    }
+
+    private fun setTechnologySelected(technologyFilterList: List<TextView>, selectedView: View, filterType: TechnologyFilter) {
+        mapViewModel.setTechnologyFilter(filterType)
+        technologyFilterList.forEach { view ->
+            view.backgroundTintList = ContextCompat.getColorStateList(requireContext(), R.color.text_lightest_gray)
+            view.setTextColor(ContextCompat.getColor(requireContext(), R.color.text_black_transparency_60))
+        }
+        selectedView.backgroundTintList = ContextCompat.getColorStateList(requireContext(), filterType.colorId)
+        (selectedView as TextView).setTextColor(ContextCompat.getColor(requireContext(), R.color.text_lightest_gray))
+        updateMapStyle()
     }
 
     override fun onStyleSelected(style: MapStyleType) {
@@ -148,7 +184,6 @@ class MapFragment : BaseFragment(), OnMapReadyCallback, MapMarkerDetailsAdapter.
         updateLocationPermissionRelatedUi()
 
         setDefaultMapPosition()
-
         mapViewModel.markersLiveData.listen(this) {
             adapter.items = it as MutableList<MarkerMeasurementRecord>
             if (it.isNotEmpty()) {
@@ -159,7 +194,6 @@ class MapFragment : BaseFragment(), OnMapReadyCallback, MapMarkerDetailsAdapter.
                     mapboxMap?.animateCamera(CameraUpdateFactory.newLatLng(latlng))
                 }
                 binding.markerItems.visibility = View.VISIBLE
-                binding.fabsGroup?.visibility = View.GONE
                 visiblePosition = 0
                 drawMarker(it.first())
             } else {
@@ -177,8 +211,6 @@ class MapFragment : BaseFragment(), OnMapReadyCallback, MapMarkerDetailsAdapter.
         super.onResume()
         binding.map.onResume()
         updateLocationPermissionRelatedUi()
-        binding.fabsGroup.visibility = View.GONE
-        binding.playServicesAvailableUi.visibility = View.GONE
     }
 
     override fun onStop() {
@@ -210,7 +242,6 @@ class MapFragment : BaseFragment(), OnMapReadyCallback, MapMarkerDetailsAdapter.
         binding.markerItems.visibility = View.GONE
         currentMarker?.remove()
         currentMarker = null
-        binding.fabsGroup?.visibility = View.VISIBLE
     }
 
     override fun onMoreDetailsClicked(openTestUUID: String) {
@@ -340,18 +371,6 @@ class MapFragment : BaseFragment(), OnMapReadyCallback, MapMarkerDetailsAdapter.
 //                    mapboxMap?.locationComponent?.isLocationComponentEnabled = state == LocationState.ENABLED
                 }
             }
-
-            binding.fabLocation.setOnClickListener {
-                if (state == LocationState.ENABLED) {
-                    mapViewModel.locationLiveData.listen(this) { info ->
-                        if (info != null) {
-                            mapViewModel.locationLiveData.removeObservers(this)
-                            mapboxMap?.animateCamera(CameraUpdateFactory.newLatLng(LatLng(info.latitude, info.longitude)))
-                            Timber.d("Position locationLiveData to : ${info.latitude} ${info.longitude}")
-                        }
-                    }
-                }
-            }
         }
     }
 
@@ -378,6 +397,38 @@ class MapFragment : BaseFragment(), OnMapReadyCallback, MapMarkerDetailsAdapter.
             Toast.makeText(activity, R.string.map_search_location_not_supported, Toast.LENGTH_SHORT).show()
             return
         }
-        MapSearchDialog.instance(this, CODE_SEARCH_DIALOG).show(fragmentManager)
+        startSearch()
+    }
+
+    private fun loadResults(value: String, found: (Address?) -> Unit) {
+        val geocoder = Geocoder(requireContext())
+        val addressList: List<Address>?
+        try {
+            addressList = geocoder.getFromLocationName(value, 1)
+            if (!addressList.isNullOrEmpty()) {
+                found.invoke(addressList[0])
+            } else {
+                found.invoke(null)
+            }
+        } catch (e: IOException) {
+            e.printStackTrace()
+            found.invoke(null)
+        }
+    }
+
+    private fun startSearch() {
+        val value: String = binding.searchInput.text.toString()
+        if (value.isNotEmpty()) {
+            binding.searchButton.visibility = View.GONE
+            binding.searchCancelButton.visibility = View.VISIBLE
+            searchJob?.cancel()
+            searchJob = coroutineScope.launch {
+                loadResults(value) {
+                    onAddressResult(it)
+                    binding.searchButton.visibility = View.VISIBLE
+                    binding.searchCancelButton.visibility = View.GONE
+                }
+            }
+        }
     }
 }
