@@ -50,7 +50,7 @@ class SignalMeasurementService : CustomLifecycleService() {
 
         val powerManager = applicationContext.getSystemService(Context.POWER_SERVICE) as PowerManager
         wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "$packageName:RMBTSignalWakeLock")
-        alarmStopPendingIntent = PendingIntent.getService(this, 0, alarmStopIntent(this), 0)
+        alarmStopPendingIntent = PendingIntent.getService(this, 0, alarmStopIntent(this), PendingIntent.FLAG_IMMUTABLE)
         processor.bind(this)
     }
 
