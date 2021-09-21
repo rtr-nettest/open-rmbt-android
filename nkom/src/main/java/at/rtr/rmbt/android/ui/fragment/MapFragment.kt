@@ -312,13 +312,6 @@ class MapFragment : BaseFragment(), OnMapReadyCallback, MapMarkerDetailsAdapter.
         mapboxMap?.addOnMapClickListener(object : OnMapClickListener {
 
             override fun onMapClick(latlng: LatLng): Boolean {
-                mapViewModel.state.locationChanged.set(true)
-                mapViewModel.locationLiveData.removeObservers(this@MapFragment)
-                mapViewModel.state.cameraPositionLiveData.postValue(latlng)
-                onCloseMarkerDetails()
-                if (isMarkersAvailable()) {
-                    mapViewModel.loadMarkers(latlng.latitude, latlng.longitude, mapboxMap!!.cameraPosition.zoom.toInt())
-                }
                 return true
             }
         })
