@@ -1,5 +1,6 @@
 package at.rtr.rmbt.android.ui.viewstate
 
+import android.os.Bundle
 import androidx.databinding.ObservableField
 import androidx.databinding.ObservableInt
 import at.rmbt.util.io
@@ -12,6 +13,8 @@ import at.specure.data.MeasurementServers
 import at.specure.data.repository.SettingsRepository
 import at.specure.location.LocationState
 
+private val KEY_PERMISSIONS_MODE: String = "KEY_PERMISSIONS_MODE"
+
 class SettingsViewState constructor(
     val appConfig: AppConfig,
     val clientUUID: ClientUUID,
@@ -20,6 +23,7 @@ class SettingsViewState constructor(
     private val settingsRepository: SettingsRepository
 ) : ViewState {
 
+    var showPermissionsOnly: Boolean = false
     val qosMeasurement = ObservableField(!appConfig.skipQoSTests)
     val canManageLocationSettings = ObservableField(appConfig.canManageLocationSettings)
     val loopModeEnabled = ObservableField(appConfig.loopModeEnabled)
@@ -197,6 +201,20 @@ class SettingsViewState constructor(
             value.get().let {
                 measurementServers.selectedMeasurementServer = it
             }
+        }
+    }
+
+    override fun onSaveState(bundle: Bundle?) {
+        super.onSaveState(bundle)
+        bundle?.apply {
+            putBoolean(KEY_PERMISSIONS_MODE, showPermissionsOnly)
+        }
+    }
+
+    override fun onRestoreState(bundle: Bundle?) {
+        super.onRestoreState(bundle)
+        bundle?.let {
+            showPermissionsOnly = it.getBoolean(KEY_PERMISSIONS_MODE, false)
         }
     }
 }

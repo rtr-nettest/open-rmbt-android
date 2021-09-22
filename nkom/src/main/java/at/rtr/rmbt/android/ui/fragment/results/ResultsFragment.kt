@@ -70,7 +70,7 @@ class ResultsFragment : BaseFragment() {
         }
 
         binding.noClientUuidLink.setOnClickListener {
-            startActivityForResult(Intent(requireContext(), PreferenceActivity::class.java), SETTINGS_ACTIVITY_REQUEST_CODE)
+            startActivityForResult(PreferenceActivity.getIntent(requireContext(), true), SETTINGS_ACTIVITY_REQUEST_CODE)
         }
 
         binding.isPersistentClientUUID = historyViewModel.state.isPersistentClientUUID
