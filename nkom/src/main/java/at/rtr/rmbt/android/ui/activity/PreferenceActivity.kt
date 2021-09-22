@@ -39,6 +39,14 @@ class PreferenceActivity : BaseActivity() {
                 .commitNow()
         }
 
+        binding.tvToolbarTitle.text = getText(
+            if (permissionsOnly) {
+                R.string.permissions
+            } else {
+                R.string.options
+            }
+        )
+
         binding.btnClose.setOnClickListener {
             finish()
         }

@@ -365,4 +365,5 @@
     <string name="map_disclaimer">Kartet viser resultater fra Nettfart mobilapp. Det er ikke et dekningskart.</string>
     <string name="text_no_persistent_client_uuid">Nettfart trenger visse tillatelser for å fungere korrekt.</string>
     <string name="text_link_no_persistent_client_uuid">Gå til personverntillatelser</string>
+    <string name="permissions">Tillatelser</string>
 </resources>
