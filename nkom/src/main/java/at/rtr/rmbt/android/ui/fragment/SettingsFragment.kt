@@ -95,6 +95,15 @@ class SettingsFragment : BaseFragment(), InputSettingDialog.Callback, ServerSele
             binding.clientUUIDvalue.text = if (it.isNullOrEmpty()) "" else "U$it"
         }
 
+        binding.switchPersistentClientUUID.switchButton.isClickable = false
+        binding.switchPersistentClientUUID.rootView.setOnClickListener {
+            if (binding.switchPersistentClientUUID.switchButton.isChecked) {
+                settingsViewModel.state.persistentClientUUIDEnabled.set(false)
+            } else {
+                settingsViewModel.state.persistentClientUUIDEnabled.set(true)
+            }
+        }
+
         settingsViewModel.locationStateLiveData.listen(this) {
             settingsViewModel.state.isLocationEnabled.set(it)
             settingsViewModel.state.canManageLocationSettings.set(it == LocationState.ENABLED)

@@ -95,6 +95,14 @@ class SettingsViewState constructor(
                 appConfig.loopModeEnabled = it
             }
         }
+        persistentClientUUIDEnabled.addOnPropertyChanged { value ->
+            value.get()?.let {
+                appConfig.persistentClientUUIDEnabled = it
+                if (!it) {
+                    refreshSettings()
+                }
+            }
+        }
         expertModeEnabled.addOnPropertyChanged { value ->
             value.get()?.let {
                 appConfig.expertModeEnabled = it
