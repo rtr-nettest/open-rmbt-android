@@ -41,7 +41,6 @@ class ResultsFragment : BaseFragment() {
 
         childFragmentManager.beginTransaction().add(binding.pager.id, HistoryFragment()).commitAllowingStateLoss()
 
-
         binding.tabLayout.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
             override fun onTabSelected(tab: TabLayout.Tab?) {
                 childFragmentManager.beginTransaction().replace(binding.pager.id, fragments[tab?.position ?: 0])
