@@ -124,7 +124,6 @@
                 app:layout_constraintTop_toBottomOf="@+id/switchSkipQosTests"
                 bind:title="@{@string/preferences_loop_mode}" />
 
-
             <include
                 android:id="@+id/switchLoopModeEnabled"
                 layout="@layout/item_setting_switch"
@@ -137,7 +136,6 @@
                 bind:summary="@{@string/preferences_loop_mode_summary}"
                 bind:title="@{@string/preferences_loop_mode}"
                 bind:value="@{state.loopModeEnabled}" />
-
 
             <include
                 android:id="@+id/loopModeWaitingTime"
@@ -459,6 +457,77 @@
                 app:layout_constraintTop_toBottomOf="@+id/switchQosServerOverride"
                 bind:title="@{@string/preferences_tag}"
                 bind:value="@{state.developerModeTag}" />
+
+            <androidx.constraintlayout.widget.Group
+                android:id="@+id/content_developer_mode_and_build_manage_location"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:constraint_referenced_ids="switchLocations"
+                app:visibleOrGone="@{BuildConfig.CAN_MANAGE_LOCATION_SETTINGS.visible &amp;&amp; !state.showPermissionsOnly}" />
+
+            <androidx.constraintlayout.widget.Group
+                android:id="@+id/content_developer_mode_and_build_config_skip_QOS"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:constraint_referenced_ids="switchSkipQosTests"
+                app:visibleOrGone="@{BuildConfig.SKIP_QOS_TESTS.visible &amp;&amp; !state.showPermissionsOnly}" />
+
+            <androidx.constraintlayout.widget.Group
+                android:id="@+id/content_developer_mode_and_build_config_loop_mode"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:constraint_referenced_ids="switchLoopModeEnabled"
+                app:visibleOrGone="@{BuildConfig.LOOP_MODE_ENABLED.visible &amp;&amp; !state.showPermissionsOnly}" />
+
+            <androidx.constraintlayout.widget.Group
+                android:id="@+id/content_developer_mode_and_loop_mode"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:constraint_referenced_ids="loopModeMeasurementCount,loopModeDistanceMeters,loopModeWaitingTime"
+                app:visibleOrGone="@{state.loopModeEnabled &amp;&amp; !state.showPermissionsOnly}" />
+
+            <androidx.constraintlayout.widget.Group
+                android:id="@+id/content_developer_mode_and_state_expert_mode"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:constraint_referenced_ids="radioInfo"
+                app:visibleOrGone="@{state.expertModeEnabled &amp;&amp; !state.showPermissionsOnly}" />
+
+            <androidx.constraintlayout.widget.Group
+                android:id="@+id/content_developer_mode_and_build_expert_mode"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:constraint_referenced_ids="switchExpertModeEnabled"
+                app:visibleOrGone="@{BuildConfig.EXPERT_MODE_ENABLED.visible &amp;&amp; !state.showPermissionsOnly}" />
+
+            <androidx.constraintlayout.widget.Group
+                android:id="@+id/content_developer_mode_and_control"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:constraint_referenced_ids="switchDeveloperControlServerSSL, developerControlServerPort, developerControlServerHost"
+                app:visibleOrGone="@{state.developerModeIsEnabled &amp;&amp; state.controlServerOverrideEnabled &amp;&amp; !state.showPermissionsOnly}" />
+
+            <androidx.constraintlayout.widget.Group
+                android:id="@+id/content_developer_mode_and_map"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:constraint_referenced_ids="switchDeveloperMapServerSSL, developerMapServerPort, developerMapServerHost"
+                app:visibleOrGone="@{state.developerModeIsEnabled &amp;&amp; state.mapServerOverrideEnabled &amp;&amp; !state.showPermissionsOnly}" />
+
+
+            <androidx.constraintlayout.widget.Group
+                android:id="@+id/content_developer_mode"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:constraint_referenced_ids="userServerSelection, labelDeveloperMapServer, developerTag, switchQosServerOverride, labelQosServer, switchDeveloperControlServerOverride, labelDeveloperControlServer"
+                app:visibleOrGone="@{state.developerModeIsEnabled &amp;&amp; !state.showPermissionsOnly}" />
+
+            <androidx.constraintlayout.widget.Group
+                android:id="@+id/content"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:constraint_referenced_ids="labelInformation,about,terms,version,labelGeneralSettings, switchExpertModeIPV4Only, labelLoopMode, labelLoopModeClarification, switchAnalytics, privacy_policy"
+                app:visibleOrGone="@{!state.showPermissionsOnly}" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.core.widget.NestedScrollView>

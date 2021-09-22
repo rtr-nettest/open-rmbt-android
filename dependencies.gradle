@@ -33,7 +33,7 @@ buildscript {
                 google_services     : '17.0.0',
                 crashlytics         : '17.3.1',
                 retrofit            : '2.6.2',
-                stetho              : '1.5.1',
+                stetho              : '1.6.0',
                 logging_interceptor : '4.2.1',
                 work_manager        : '2.5.0',
                 room                : '2.2.5',

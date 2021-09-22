@@ -39,7 +39,8 @@ class ResultsRepositoryImpl @Inject constructor(
     private val db: CoreDatabase,
     private val clientUUID: ClientUUID,
     private val client: ControlServerClient,
-    private val config: Config
+    private val config: Config,
+    private val settingsRepository: SettingsRepository
 ) : ResultsRepository {
 
     private val deviceInfo = DeviceInfo(context)
@@ -169,6 +170,9 @@ class ResultsRepositoryImpl @Inject constructor(
             } else {
                 db.historyDao().clear()
             }
+        }
+        if (!config.persistentClientUUIDEnabled) {
+            settingsRepository.refreshSettings()
         }
 
         return finalResult

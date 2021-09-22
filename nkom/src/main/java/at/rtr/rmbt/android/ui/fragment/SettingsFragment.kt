@@ -43,6 +43,8 @@ class SettingsFragment : BaseFragment(), InputSettingDialog.Callback, ServerSele
         super.onViewCreated(view, savedInstanceState)
         binding.state = settingsViewModel.state
 
+        settingsViewModel.state.showPermissionsOnly = arguments?.getBoolean(KEY_PERMISSIONS_ONLY, false) == true
+
         binding.loopModeWaitingTime.frameLayoutRoot.setOnClickListener {
             InputSettingDialog.instance(
                 getString(R.string.preferences_loop_mode_min_delay),
@@ -93,6 +95,15 @@ class SettingsFragment : BaseFragment(), InputSettingDialog.Callback, ServerSele
 
         settingsViewModel.state.clientUUID.liveData.listen(this) {
             binding.clientUUIDvalue.text = if (it.isNullOrEmpty()) "" else "U$it"
+        }
+
+        binding.switchPersistentClientUUID.switchButton.isClickable = false
+        binding.switchPersistentClientUUID.rootView.setOnClickListener {
+            if (binding.switchPersistentClientUUID.switchButton.isChecked) {
+                settingsViewModel.state.persistentClientUUIDEnabled.set(false)
+            } else {
+                settingsViewModel.state.persistentClientUUIDEnabled.set(true)
+            }
         }
 
         settingsViewModel.locationStateLiveData.listen(this) {
@@ -386,11 +397,20 @@ class SettingsFragment : BaseFragment(), InputSettingDialog.Callback, ServerSele
         private const val KEY_RADIO_INFO_CODE: Int = 8
         private const val KEY_DEVELOPER_TAG_CODE: Int = 9
         private const val KEY_REQUEST_CODE_LOOP_MODE_TEST_COUNT: Int = 10
+        private const val KEY_PERMISSIONS_ONLY = "KEY_PERMISSIONS_ONLY"
 
         private const val CODE_LOOP_INSTRUCTIONS = 13
         private const val CODE_DIALOG_INVALID = 14
 
-        fun newInstance() = SettingsFragment()
+        fun newInstance(permissionsOnly: Boolean): SettingsFragment {
+            Bundle().apply {
+
+                putBoolean(KEY_PERMISSIONS_ONLY, permissionsOnly)
+                val fragment = SettingsFragment()
+                fragment.arguments = this
+                return fragment
+            }
+        }
     }
 
     override fun onDialogPositiveClicked(code: Int) {

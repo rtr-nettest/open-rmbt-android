@@ -71,9 +71,10 @@ class DatabaseModule {
         database: CoreDatabase,
         clientUUID: ClientUUID,
         client: ControlServerClient,
-        config: Config
+        config: Config,
+        settingsRepository: SettingsRepository
     ): ResultsRepository =
-        ResultsRepositoryImpl(context, database, clientUUID, client, config)
+        ResultsRepositoryImpl(context, database, clientUUID, client, config, settingsRepository)
 
     @Provides
     fun provideIpCheckRepository(
