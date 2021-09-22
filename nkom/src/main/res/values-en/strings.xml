@@ -363,5 +363,7 @@
     <string name="search_tooltip">Search by address, municipality…</string>
     <string name="filter_technology_all">All</string>
     <string name="map_disclaimer">The map shows measurements done through the Nettfart apps. It is not a coverage map.</string>
+    <string name="text_no_persistent_client_uuid">Nettfart needs certain permissions to operate correctly</string>
+    <string name="text_link_no_persistent_client_uuid">Go to privacy permissions</string>
 
 </resources>
