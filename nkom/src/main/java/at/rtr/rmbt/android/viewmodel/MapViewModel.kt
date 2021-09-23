@@ -9,7 +9,6 @@ import at.specure.data.repository.MapRepository
 import at.specure.location.LocationInfo
 import at.specure.location.LocationState
 import at.specure.location.LocationWatcher
-import com.mapbox.mapboxsdk.geometry.LatLng
 import timber.log.Timber
 import java.text.SimpleDateFormat
 import java.util.Calendar
@@ -22,6 +21,7 @@ class MapViewModel @Inject constructor(
 ) : BaseViewModel() {
 
     private var filterTechnology: TechnologyFilter = TechnologyFilter.FILTER_ALL
+    private var filterCurrentMonthAndYear: TechnologyFilter = TechnologyFilter.FILTER_ALL
     val state = MapViewState()
 
     val locationLiveData: LiveData<LocationInfo?>
@@ -51,12 +51,6 @@ class MapViewModel @Inject constructor(
             Timber.e("Unable to load set map filters: ${e.localizedMessage}")
         }
         return filterList
-    }
-
-    fun loadMarkers(latitude: Double, longitude: Double, zoom: Int) {
-        repository.loadMarkers(latitude, longitude, zoom) {
-            state.coordinatesLiveData.postValue(LatLng(latitude, longitude))
-        }
     }
 
     fun prepareDetailsLink(openUUID: String) = repository.prepareDetailsLink(openUUID)
