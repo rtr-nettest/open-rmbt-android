@@ -252,8 +252,6 @@
     <string name="label_map_filters">Kartinnstillinger</string>
     <string name="text_filter_confirm">Aksepterer</string>
     <string name="text_filter_continue">Fortsette</string>
-    <string name="title_filters_type">Karttype</string>
-    <string name="title_filters_subtype">Skriv alternativer</string>
 
     <string name="graph_signal_value">-%1$s dBm</string>
 
