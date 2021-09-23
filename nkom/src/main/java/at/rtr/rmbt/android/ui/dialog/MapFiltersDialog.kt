@@ -100,7 +100,6 @@ class MapFiltersDialog : FullscreenDialog(), MapFiltersConfirmationDialog.Callba
     }
 
     override fun onOptionSelected(code: Int, value: String) {
-
     }
 
     override fun onDismiss(dialog: DialogInterface) {
