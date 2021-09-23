@@ -6,16 +6,20 @@ import androidx.room.PrimaryKey
 import at.specure.data.Columns
 import at.specure.data.Tables
 
-@Entity(tableName = Tables.TEST_RESULT_GRAPH_ITEM)
+@Entity(
+    tableName = Tables.TEST_RESULT_GRAPH_ITEM,
+    foreignKeys = [
+        ForeignKey(
+            entity = TestResultRecord::class,
+            parentColumns = [Columns.TEST_UUID_PARENT_COLUMN],
+            childColumns = ["testUUID"],
+            onDelete = ForeignKey.CASCADE
+        )
+    ]
+)
 data class TestResultGraphItemRecord(
     @PrimaryKey(autoGenerate = true)
     val id: Long = 0,
-    @ForeignKey(
-        entity = TestResultRecord::class,
-        parentColumns = [Columns.TEST_UUID_PARENT_COLUMN],
-        childColumns = ["testUUID"],
-        onDelete = ForeignKey.CASCADE
-    )
     val testUUID: String,
 
     /**
