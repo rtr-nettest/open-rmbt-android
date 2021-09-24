@@ -37,6 +37,8 @@ interface MapRepository {
 
     fun obtainFilters(callback: (List<String>) -> Unit)
 
+    fun obtainProviders(callback: (MutableList<String>) -> Unit)
+
     fun markTypeAsSelected(value: String)
 
     fun markSubtypeAsSelected(value: String)

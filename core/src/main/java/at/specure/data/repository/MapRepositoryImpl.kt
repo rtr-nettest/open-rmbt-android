@@ -33,6 +33,7 @@ import at.specure.util.ActiveFilter
 import at.specure.util.FilterValuesStorage
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
 import java.io.ByteArrayOutputStream
 import java.util.Locale
 import javax.inject.Inject
@@ -218,6 +219,14 @@ class MapRepositoryImpl @Inject constructor(
 //            }
         }
         // todo: add error handling
+    }
+
+    override fun obtainProviders(callback: (MutableList<String>) -> Unit) = io {
+        var providers: MutableList<String> = arrayListOf()
+        client.obtainNationalTable().onSuccess {
+            providers = it.providerStats!!.map { provider -> provider.providerName ?: "" }.toMutableList()
+        }
+        callback(providers)
     }
 
     private fun <T> createCleanFilterMap(): MutableMap<MapFilterType, List<T>> {

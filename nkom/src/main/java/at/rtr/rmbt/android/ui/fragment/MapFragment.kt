@@ -7,6 +7,8 @@ import android.location.Address
 import android.location.Geocoder
 import android.os.Bundle
 import android.view.View
+import android.widget.AdapterView
+import android.widget.ArrayAdapter
 import android.widget.TextView
 import android.widget.Toast
 import androidx.annotation.DrawableRes
@@ -93,6 +95,27 @@ class MapFragment : BaseFragment(), OnMapReadyCallback, MapMarkerDetailsAdapter.
 
         binding.map.onCreate(savedInstanceState)
         binding.map.getMapAsync(this)
+
+        mapViewModel.providersSpinnerAdapter = ArrayAdapter(requireContext(), R.layout.item_provider)
+        binding.providersSpinner?.adapter = mapViewModel.providersSpinnerAdapter
+        mapViewModel.providersLiveData.listen(this) {
+            mapViewModel.providersSpinnerAdapter.clear()
+            mapViewModel.providersSpinnerAdapter.addAll(it)
+            mapViewModel.providersSpinnerAdapter.notifyDataSetChanged()
+        }
+        binding.providersSpinner?.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(
+                parent: AdapterView<*>?,
+                view: View?,
+                position: Int,
+                id: Long
+            ) {
+                mapViewModel.setProvider(position)
+                updateMapStyle()
+            }
+
+            override fun onNothingSelected(parent: AdapterView<*>?) {}
+        }
 
         snapHelper = LinearSnapHelper().apply { attachToRecyclerView(binding.markerItems) }
         binding.markerItems.adapter = adapter

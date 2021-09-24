@@ -31,5 +31,5 @@ class MapServerClient @Inject constructor(
 
     fun obtainMapFiltersInfo(body: FilterLanguageRequestBody): Maybe<MapFilterResponse> = api.getFilters(endpointProvider.mapFilterInfoUrl, body).exec()
 
-    fun obtainNationalTable(): Maybe<NationalTableResponse> = api.loadOperators(endpointProvider.nettestHeader, endpointProvider.mapFilterInfoUrl).exec()
+    fun obtainNationalTable(): Maybe<NationalTableResponse> = api.loadOperators(endpointProvider.nettestHeader, endpointProvider.getNationalTableUrl).exec()
 }
