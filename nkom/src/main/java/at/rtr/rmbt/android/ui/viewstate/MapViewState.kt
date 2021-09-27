@@ -8,6 +8,9 @@ import at.rmbt.client.control.data.MapPresentationType
 import at.rmbt.client.control.data.MapStyleType
 import at.rtr.rmbt.android.ui.fragment.START_ZOOM_LEVEL
 import com.mapbox.mapboxsdk.geometry.LatLng
+import java.text.SimpleDateFormat
+import java.util.Calendar
+import java.util.Locale
 
 private const val KEY_TYPE = "KEY_TYPE"
 private const val KEY_STYLE = "KEY_STYLE"
@@ -25,6 +28,13 @@ class MapViewState : ViewState {
 
     var coordinatesLiveData: MutableLiveData<LatLng> = MutableLiveData()
     var cameraPositionLiveData: MutableLiveData<LatLng> = MutableLiveData()
+    val filterCurrentMonthAndYear: String
+        get() {
+            val calendar = Calendar.getInstance()
+            calendar.add(Calendar.MONTH, -1)
+            val date = SimpleDateFormat("MMMM yyyy", Locale.getDefault()).format(calendar.time)
+            return date
+        }
 
     val type = ObservableField<MapPresentationType>(MapPresentationType.AUTOMATIC)
     val style = ObservableField<MapStyleType>(MapStyleType.STANDARD)

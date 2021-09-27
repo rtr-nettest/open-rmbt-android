@@ -12,7 +12,6 @@ import androidx.lifecycle.ViewModelProviders
 import at.rtr.rmbt.android.R
 import at.rtr.rmbt.android.databinding.DialogFiltersBinding
 import at.rtr.rmbt.android.di.Injector
-import at.rtr.rmbt.android.util.listen
 import at.rtr.rmbt.android.viewmodel.MapFiltersViewModel
 
 class MapFiltersDialog : FullscreenDialog(), MapFiltersConfirmationDialog.Callback {
@@ -37,7 +36,6 @@ class MapFiltersDialog : FullscreenDialog(), MapFiltersConfirmationDialog.Callba
         if (savedInstanceState == null || !::viewModel.isInitialized) {
             val provider = ViewModelProviders.of(this, Injector.component.viewModelFactory())
             viewModel = provider.get(MapFiltersViewModel::class.java)
-            viewModel.obtain()
         } else {
             viewModel.onRestoreState(savedInstanceState)
         }
@@ -52,84 +50,43 @@ class MapFiltersDialog : FullscreenDialog(), MapFiltersConfirmationDialog.Callba
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        binding.type.setOnClickListener {
-            viewModel.typesLiveData.listen(this) {
-                viewModel.typesLiveData.removeObservers(this)
-                MapFiltersConfirmationDialog.instance(
-                    this,
-                    CODE_TYPE,
-                    getString(R.string.title_filters_type),
-                    it as ArrayList<String>,
-                    it.indexOf(it.find { it == viewModel.state.type.get() })
-                ).show(parentFragmentManager)
+        binding.monthPicker.apply {
+            displayedValues = viewModel.monthDisplayForYearHashMap[viewModel.yearList[viewModel.yearList.size - 1]]?.toTypedArray() ?: listOf<String>().toTypedArray()
+            minValue = viewModel.monthNumbersForYearHashMap[viewModel.yearList[viewModel.yearList.size - 1]]!![0]
+            maxValue =
+                viewModel.monthNumbersForYearHashMap[viewModel.yearList[viewModel.yearList.size - 1]]!![viewModel.monthNumbersForYearHashMap[viewModel.yearList[viewModel.yearList.size - 1]]!!.size - 1]
+            wrapSelectorWheel = false
+            value = viewModel.currentMonthNumber
+        }
+
+        binding.yearPicker.apply {
+            displayedValues = viewModel.yearDisplayNames.toTypedArray()
+            minValue = viewModel.yearList[0]
+            maxValue = viewModel.yearList[viewModel.yearList.size - 1]
+            wrapSelectorWheel = false
+            value = viewModel.yearList[viewModel.yearList.size - 1]
+        }
+
+        binding.yearPicker.setOnValueChangedListener { picker, oldVal, newVal ->
+            if (oldVal != newVal) {
+                updateMonthPickerList(newVal)
             }
         }
 
-        binding.statistic.setOnClickListener {
-            viewModel.statisticsLiveData.value?.let {
-                MapFiltersConfirmationDialog.instance(
-                    this,
-                    CODE_STATISTICS,
-                    it.first,
-                    it.second.map { it.title } as ArrayList<String>,
-                    it.second.indexOf(it.second.find { it == viewModel.state.statistical.get() })
-                ).show(parentFragmentManager)
-            }
-        }
+        binding.close.setOnClickListener { dismiss() }
+    }
 
-        binding.period.setOnClickListener {
-            viewModel.periodLiveData.value?.let {
-                MapFiltersConfirmationDialog.instance(
-                    this,
-                    CODE_PERIOD,
-                    it.first,
-                    it.second.map { it.title } as ArrayList<String>,
-                    it.second.indexOf(it.second.find { it == viewModel.state.timeRange.get() })
-                ).show(parentFragmentManager)
-            }
+    private fun updateMonthPickerList(newVal: Int) {
+        val selectedMonth = binding.monthPicker.value
+        binding.monthPicker.apply {
+            displayedValues = viewModel.monthDisplayForYearHashMap[viewModel.yearList[newVal]]?.toTypedArray() ?: listOf<String>().toTypedArray()
+            minValue = viewModel.monthNumbersForYearHashMap[viewModel.yearList[newVal]]!![0]
+            maxValue = viewModel.monthNumbersForYearHashMap[viewModel.yearList[newVal]]!![viewModel.monthNumbersForYearHashMap[viewModel.yearList[newVal]]!!.size - 1]
+            wrapSelectorWheel = false
+            value = if (selectedMonth in minValue..maxValue) {
+                selectedMonth
+            } else maxValue
         }
-
-        binding.operator.setOnClickListener {
-            viewModel.operatorLiveData.value?.let {
-                if (it.second.isNotEmpty()) {
-                    MapFiltersConfirmationDialog.instance(
-                        this,
-                        CODE_OPERATOR,
-                        it.first,
-                        it.second.map { it.title } as ArrayList<String>,
-                        it.second.indexOf(it.second.find { it == viewModel.state.operator.get() })
-                    ).show(parentFragmentManager)
-                }
-            }
-        }
-
-        binding.provider.setOnClickListener {
-            viewModel.providerLiveData.value?.let {
-                if (it.second.isNotEmpty()) {
-                    MapFiltersConfirmationDialog.instance(
-                        this,
-                        CODE_PROVIDER,
-                        it.first,
-                        it.second.map { it.title } as ArrayList<String>,
-                        it.second.indexOf(it.second.find { it == viewModel.state.provider.get() })
-                    ).show(parentFragmentManager)
-                }
-            }
-        }
-
-        binding.technology.setOnClickListener {
-            viewModel.technologyData.value?.let {
-                MapFiltersConfirmationDialog.instance(
-                    this,
-                    CODE_TECHNOLOGY,
-                    it.first,
-                    it.second.map { it.title } as ArrayList<String>,
-                    it.second.indexOf(it.second.find { it == viewModel.state.technology.get() })
-                ).show(parentFragmentManager)
-            }
-        }
-
-        binding.iconClose.setOnClickListener { dismiss() }
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
@@ -143,32 +100,6 @@ class MapFiltersDialog : FullscreenDialog(), MapFiltersConfirmationDialog.Callba
     }
 
     override fun onOptionSelected(code: Int, value: String) {
-        when (code) {
-            CODE_TYPE -> {
-                viewModel.markTypeAsSelected(value)
-                viewModel.subtypesLiveData.listen(this) {
-                    if (it.first == value) {
-                        viewModel.subtypesLiveData.removeObservers(this)
-                        MapFiltersConfirmationDialog.instance(
-                            this,
-                            CODE_SUBTYPE,
-                            getString(R.string.title_filters_subtype),
-                            it.second.map { it.title } as ArrayList<String>,
-                            it.second.indexOf(it.second.find { it.title == viewModel.state.subtype.get()?.title } ?: 0)
-                        ).show(parentFragmentManager)
-                    }
-                }
-            }
-            CODE_SUBTYPE -> viewModel.markSubtypeAsSelected(value)
-            CODE_STATISTICS -> viewModel.markStatisticsAsSelected(value)
-            CODE_PERIOD -> viewModel.markPeriodAsSelected(value)
-            CODE_OPERATOR -> viewModel.markOperatorAsSelected(value)
-            CODE_TECHNOLOGY -> viewModel.markTechnologyAsSelected(value)
-            CODE_PROVIDER -> viewModel.markProviderAsSelected(value)
-        }
-        if (code != CODE_TYPE) {
-            callback?.onFiltersUpdated()
-        }
     }
 
     override fun onDismiss(dialog: DialogInterface) {

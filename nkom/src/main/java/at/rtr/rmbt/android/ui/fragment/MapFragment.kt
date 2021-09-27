@@ -35,7 +35,6 @@ import at.specure.data.NetworkTypeCompat
 import at.specure.data.ServerNetworkType
 import at.specure.data.entity.MarkerMeasurementRecord
 import at.specure.util.isCoarseLocationPermitted
-import com.mapbox.mapboxsdk.annotations.Marker
 import com.mapbox.mapboxsdk.camera.CameraUpdateFactory
 import com.mapbox.mapboxsdk.geometry.LatLng
 import com.mapbox.mapboxsdk.maps.MapboxMap
@@ -50,7 +49,6 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import java.io.IOException
-import kotlin.math.abs
 
 const val START_ZOOM_LEVEL = 12f
 
@@ -66,6 +64,7 @@ private const val DEFAULT_LAT = 69.38
 private const val DEFAULT_LONG = 19.89
 private const val DEFAULT_ZOOM_LEVEL = 3.1F
 private val DEFAULT_PRESENTATION_TYPE = MapPresentationType.AUTOMATIC
+private const val CODE_FILTERS_DIALOG = 2
 
 class MapFragment : BaseFragment(), OnMapReadyCallback, MapMarkerDetailsAdapter.MarkerDetailsCallback, MapLayersDialog.Callback,
     MapFiltersDialog.Callback, MapSearchDialog.Callback {
@@ -77,8 +76,6 @@ class MapFragment : BaseFragment(), OnMapReadyCallback, MapMarkerDetailsAdapter.
 
     private var mapboxMap: MapboxMap? = null
 
-    private var currentLocation: LatLng? = null
-    private var currentMarker: Marker? = null
     private var visiblePosition: Int? = null
     private var snapHelper: SnapHelper? = null
 
@@ -121,14 +118,6 @@ class MapFragment : BaseFragment(), OnMapReadyCallback, MapMarkerDetailsAdapter.
         binding.markerItems.adapter = adapter
         binding.markerItems.itemAnimator?.changeDuration = 0
 
-        binding.markerItems.addOnScrollListener(object : RecyclerView.OnScrollListener() {
-            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
-                super.onScrolled(recyclerView, dx, dy)
-                if (abs(dx) > 0) {
-                    drawCurrentMarker()
-                }
-            }
-        })
         binding.searchButton.setOnClickListener {
             showSearchDialog()
         }
@@ -160,6 +149,10 @@ class MapFragment : BaseFragment(), OnMapReadyCallback, MapMarkerDetailsAdapter.
             setTechnologySelected(technologyFilterList, it, TechnologyFilter.FILTER_5G)
         }
         setTechnologySelected(technologyFilterList, binding.filterTechAll, TechnologyFilter.FILTER_ALL)
+
+        binding.cardTimeline.setOnClickListener {
+//            MapFiltersDialog.instance(this, CODE_FILTERS_DIALOG).show(fragmentManager)
+        }
     }
 
     private fun setTechnologySelected(technologyFilterList: List<TextView>, selectedView: View, filterType: TechnologyFilter) {
@@ -207,22 +200,6 @@ class MapFragment : BaseFragment(), OnMapReadyCallback, MapMarkerDetailsAdapter.
         updateLocationPermissionRelatedUi()
 
         setDefaultMapPosition()
-        mapViewModel.markersLiveData.listen(this) {
-            adapter.items = it as MutableList<MarkerMeasurementRecord>
-            if (it.isNotEmpty()) {
-                val latlng = LatLng(it.first().latitude, it.first().longitude)
-                if (currentLocation != latlng) {
-                    currentLocation = latlng
-                    Timber.d("Position markersLiveData to : $latlng")
-                    mapboxMap?.animateCamera(CameraUpdateFactory.newLatLng(latlng))
-                }
-                binding.markerItems.visibility = View.VISIBLE
-                visiblePosition = 0
-                drawMarker(it.first())
-            } else {
-                onCloseMarkerDetails()
-            }
-        }
     }
 
     override fun onStart() {
@@ -263,8 +240,6 @@ class MapFragment : BaseFragment(), OnMapReadyCallback, MapMarkerDetailsAdapter.
 
     override fun onCloseMarkerDetails() {
         binding.markerItems.visibility = View.GONE
-        currentMarker?.remove()
-        currentMarker = null
     }
 
     override fun onMoreDetailsClicked(openTestUUID: String) {
@@ -362,12 +337,6 @@ class MapFragment : BaseFragment(), OnMapReadyCallback, MapMarkerDetailsAdapter.
             mapViewModel.state.cameraPositionLiveData.value?.let {
                 mapboxMap?.moveCamera(CameraUpdateFactory.newLatLngZoom(it, mapViewModel.state.zoom.toDouble()))
                 visiblePosition = RecyclerView.NO_POSITION
-                onCloseMarkerDetails()
-                if (isMarkersAvailable()) {
-                    mapViewModel.state.coordinatesLiveData.value?.let {
-                        mapViewModel.loadMarkers(it.latitude, it.longitude, mapboxMap!!.cameraPosition.zoom.toInt())
-                    }
-                }
             }
         }
     }
@@ -389,24 +358,6 @@ class MapFragment : BaseFragment(), OnMapReadyCallback, MapMarkerDetailsAdapter.
             }
         }
     }
-
-    private fun drawCurrentMarker() {
-        snapHelper?.findSnapView(binding.markerItems.layoutManager)?.let { view ->
-            binding.markerItems.layoutManager?.getPosition(view)?.let {
-                if (it >= 0) {
-                    if (visiblePosition != it) {
-                        visiblePosition = it
-                        drawMarker(adapter.getItem(it))
-                    }
-                }
-            }
-        }
-    }
-
-    private fun isMarkersAvailable(): Boolean =
-        mapViewModel.state.type.get() == MapPresentationType.POINTS ||
-                (mapViewModel.state.type.get() == MapPresentationType.AUTOMATIC && mapboxMap?.cameraPosition != null &&
-                        mapboxMap?.cameraPosition!!.zoom >= 10)
 
     private fun showSearchDialog() {
         if (!Geocoder.isPresent()) {
