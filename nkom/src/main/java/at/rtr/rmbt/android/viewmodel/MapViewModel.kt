@@ -44,7 +44,6 @@ class MapViewModel @Inject constructor(
             }
             filterCurrentMonthAndYear
             filterList[FilterTypeCode.CODE_TIME.ordinal] = repository.active.time.formatForFilter()
-
         } catch (e: Exception) {
             Timber.e("Unable to load set map filters: ${e.localizedMessage}")
         }
