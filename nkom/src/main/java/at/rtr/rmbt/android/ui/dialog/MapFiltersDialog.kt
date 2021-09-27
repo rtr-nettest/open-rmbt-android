@@ -64,10 +64,10 @@ class MapFiltersDialog : FullscreenDialog(), MapFiltersConfirmationDialog.Callba
 
         binding.yearPicker.apply {
             displayedValues = viewModel.yearDisplayNames.toTypedArray()
-            minValue = viewModel.yearList[viewModel.yearList.size - 1]
-            maxValue = viewModel.yearList[0]
+            maxValue = viewModel.yearList.size - 1
+            minValue = 0
             wrapSelectorWheel = false
-            value = viewModel.yearList[viewModel.yearList.size - 1]
+            value = minValue
         }
 
         binding.yearPicker.setOnValueChangedListener { picker, oldVal, newVal ->
@@ -81,14 +81,17 @@ class MapFiltersDialog : FullscreenDialog(), MapFiltersConfirmationDialog.Callba
 
     private fun updateMonthPickerList(newVal: Int) {
         val selectedMonth = binding.monthPicker.value
+        val selectedYear = viewModel.yearList[newVal]
         binding.monthPicker.apply {
-            displayedValues = viewModel.monthDisplayForYearHashMap[newVal]?.toTypedArray() ?: listOf<String>().toTypedArray()
-            maxValue = 0
-            minValue = viewModel.monthNumbersForYearHashMap[newVal]!!.size - 1
+            value = minValue
+            displayedValues = viewModel.monthDisplayForYearHashMap[selectedYear]?.toTypedArray() ?: listOf<String>().toTypedArray()
+            maxValue = viewModel.monthNumbersForYearHashMap[selectedYear]!!.size - 1
+            minValue = 0
             wrapSelectorWheel = false
-            value = if (selectedMonth in maxValue..minValue) {
-                selectedMonth
-            } else maxValue
+//            value = if (selectedMonth in minValue..maxValue) {
+//                selectedMonth
+//            } else minValue
+
         }
     }
 

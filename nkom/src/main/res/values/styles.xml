@@ -48,7 +48,7 @@
     </style>
 
     <style name="AppTheme.Picker" parent="Theme.AppCompat.Light.NoActionBar">
-        <item name="android:textColorPrimary">@color/black_40</item>
+        <item name="android:textColorPrimary">@color/colorAccent</item>
     </style>
 
     <!--  Splash screen theme -->
