@@ -33,7 +33,6 @@ import at.specure.util.ActiveFilter
 import at.specure.util.FilterValuesStorage
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.withContext
 import java.io.ByteArrayOutputStream
 import java.util.Locale
 import javax.inject.Inject

@@ -18,7 +18,7 @@ import at.specure.result.QoSCategory
             onDelete = ForeignKey.CASCADE
         )
     ],
-    indices = [ Index(value=["qosTestId"], unique = true) ]
+    indices = [ Index(value = ["qosTestId"], unique = true) ]
 )
 data class QosTestItemRecord(
 
