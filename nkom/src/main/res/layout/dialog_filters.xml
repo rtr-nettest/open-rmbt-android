@@ -33,21 +33,23 @@
 
             <TextView
                 android:id="@+id/label"
-                style="@style/RobotoMediumStyle.Medium"
+                style="@style/RobotoRegularStyle.MediumSmall"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:padding="@dimen/margin_large"
                 android:text="@string/menu_button_history"
+                android:textAllCaps="true"
                 android:textColor="@color/navigation_gray"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
+                app:layout_constraintTop_toTopOf="parent"
+                tools:ignore="TextViewEdits" />
 
             <ImageView
                 android:id="@+id/close"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:padding="@dimen/padding_large"
-                android:src="@drawable/ic_map_dialog_close"
+                android:src="@drawable/ic_close"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 
@@ -58,9 +60,9 @@
                 android:layout_marginStart="@dimen/padding_large"
                 android:layout_marginEnd="@dimen/padding_large"
                 android:background="@color/horizontal_divider"
+                android:visibility="gone"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                android:visibility="gone"
                 app:layout_constraintTop_toBottomOf="@+id/monthPicker" />
 
             <NumberPicker
@@ -68,18 +70,24 @@
                 android:layout_height="wrap_content"
                 android:layout_width="wrap_content"
                 android:orientation="vertical"
-                android:selectionDividerHeight="0dp"
                 android:theme="@style/AppTheme.Picker"
                 app:layout_constraintEnd_toEndOf="@+id/half"
                 app:layout_constraintTop_toBottomOf="@+id/label" />
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@color/black_40"
+                app:layout_constraintBottom_toBottomOf="@+id/yearPicker"
+                app:layout_constraintTop_toTopOf="@+id/yearPicker"
+                app:layout_constraintVertical_bias="0.635"
+                tools:layout_editor_absoluteX="16dp" />
 
             <NumberPicker
                 android:id="@+id/monthPicker"
                 android:layout_height="wrap_content"
                 android:layout_width="wrap_content"
                 android:orientation="vertical"
-                style="@style/RobotoMediumStyle.Medium"
-                android:selectionDividerHeight="0dp"
                 android:theme="@style/AppTheme.Picker"
                 app:layout_constraintStart_toStartOf="@+id/half"
                 app:layout_constraintTop_toBottomOf="@+id/label" />

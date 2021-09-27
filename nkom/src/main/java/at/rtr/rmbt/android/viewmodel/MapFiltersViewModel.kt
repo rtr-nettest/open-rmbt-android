@@ -11,19 +11,25 @@ class MapFiltersViewModel @Inject constructor(private val repository: MapReposit
     val state = MapFilterViewState()
     val calendar = Calendar.getInstance()
     val currentMonthNumber = calendar.get(Calendar.MONTH)
-    val currentMonthNumberToDisplay: Int
-        get() {
-            val calendar = Calendar.getInstance()
-            calendar.add(Calendar.MONTH, -1)
-            return calendar.get(Calendar.MONTH)
-        }
+    val currentMonthNumberToDisplay: Int // 1 based -> 1 - january, 2 - february, ...
+    val currentYearToDisplay: Int
     val yearList: List<Int>
     val yearDisplayNames: List<String>
     val monthNumbersForYearHashMap: HashMap<Int, List<Int>> = HashMap()
+
+    /**
+     * !!! zero based months - 0 - january, 1 - february
+     */
     val monthDisplayForYearHashMap: HashMap<Int, List<String>> = HashMap()
+
+    var filterSelectedYear: Int = calendar.get(Calendar.YEAR)
+    var filterSelectedMonth: Int = currentMonthNumber
 
     init {
         addStateSaveHandler(state)
+        val currentSetMonthYear = repository.getTimeSelected()
+        currentMonthNumberToDisplay = currentSetMonthYear.second
+        currentYearToDisplay = currentSetMonthYear.first
 
         yearList = if (currentMonthNumber == Calendar.DECEMBER) {
             listOf(calendar.get(Calendar.YEAR), (calendar.get(Calendar.YEAR) - 1))

@@ -50,6 +50,10 @@ interface MapRepository {
     fun markOperatorAsSelected(value: String)
 
     fun markTechnologyAsSelected(value: String)
+
+    fun setTimeSelected(year: Int, month: Int)
+
+    fun getTimeSelected(): Pair<Int, Int>
 }
 
 typealias FilterOptionLiveData<T> = MutableLiveData<Pair<String, List<T>>>

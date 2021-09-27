@@ -1,16 +1,15 @@
 package at.rtr.rmbt.android.viewmodel
 
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.Transformations
 import at.rtr.rmbt.android.R
 import at.rtr.rmbt.android.ui.viewstate.MapViewState
-import at.specure.data.entity.MarkerMeasurementRecord
 import at.specure.data.repository.MapRepository
 import at.specure.location.LocationInfo
 import at.specure.location.LocationState
 import at.specure.location.LocationWatcher
+import at.specure.util.formatForFilter
+import at.specure.util.getCurrentLatestFinishedMonth
 import timber.log.Timber
-import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
 import javax.inject.Inject
@@ -21,7 +20,8 @@ class MapViewModel @Inject constructor(
 ) : BaseViewModel() {
 
     private var filterTechnology: TechnologyFilter = TechnologyFilter.FILTER_ALL
-    private var filterCurrentMonthAndYear: TechnologyFilter = TechnologyFilter.FILTER_ALL
+    private var filterCurrentMonthAndYear: String = Calendar.getInstance().getCurrentLatestFinishedMonth().formatForFilter()
+
     val state = MapViewState()
 
     val locationLiveData: LiveData<LocationInfo?>
@@ -30,23 +30,21 @@ class MapViewModel @Inject constructor(
     val locationStateLiveData: LiveData<LocationState?>
         get() = locationWatcher.stateLiveData
 
-//    var providerLiveData: MutableLiveData<RetrofitTileProvider> = MutableLiveData()
-
-    var markersLiveData: LiveData<List<MarkerMeasurementRecord>> =
-        Transformations.switchMap(state.coordinatesLiveData) { repository.getMarkers(it?.latitude, it?.longitude, state.zoom.toInt()) }
-
     init {
         addStateSaveHandler(state)
     }
 
     private fun obtainFilters(): List<String?> {
-        val filterList = mutableListOf(null, null, null, TechnologyFilter.FILTER_ALL.filterValue, null, null, null)
+        val filterList = mutableListOf(null, null, null, TechnologyFilter.FILTER_ALL.filterValue, null, null, null, Calendar.getInstance().getCurrentLatestFinishedMonth().formatForFilter())
         filterTechnology = TechnologyFilter.FILTER_ALL
         try {
             val technologyFilter = repository.active.technology
             if (technologyFilter != null) {
                 filterList[FilterTypeCode.CODE_TECHNOLOGY.ordinal] = technologyFilter.technology
             }
+            filterCurrentMonthAndYear
+            filterList[FilterTypeCode.CODE_TIME.ordinal] = repository.active.time.formatForFilter()
+
         } catch (e: Exception) {
             Timber.e("Unable to load set map filters: ${e.localizedMessage}")
         }
@@ -61,13 +59,11 @@ class MapViewModel @Inject constructor(
 
     fun buildCurrentLayersName(): List<String> {
         val filterList = obtainFilters()
-        val calendar = Calendar.getInstance()
-        calendar.add(Calendar.MONTH, -1)
-        val date = SimpleDateFormat("yyyyMM", Locale.US).format(calendar.time)
 
         val technology = filterList[FilterTypeCode.CODE_TECHNOLOGY.ordinal]?.toUpperCase(Locale.US) ?: TechnologyFilter.FILTER_ALL.filterValue.toUpperCase(Locale.US)
+        val date = filterList[FilterTypeCode.CODE_TIME.ordinal]
 
-        return listOf(
+        val filteredLayers = listOf(
             "C-$date-$technology-ALL",
             "M-$date-$technology-ALL",
             "H10-$date-$technology-ALL",
@@ -75,6 +71,9 @@ class MapViewModel @Inject constructor(
             "H01-$date-$technology-ALL",
             "H001-$date-$technology-ALL"
         )
+
+        filteredLayers.forEach { Timber.d("LAYER: $it") }
+        return filteredLayers
     }
 
     fun setTechnologyFilter(filterValue: TechnologyFilter) {
@@ -89,6 +88,11 @@ class MapViewModel @Inject constructor(
         repository.obtainFilters {
             obtainFilters()
         }
+    }
+
+    fun setTimeFilter(year: Int, month: Int) {
+        state.setTimeFilterValue(year, month)
+        repository.setTimeSelected(year, month)
     }
 }
 
@@ -108,4 +112,5 @@ enum class FilterTypeCode {
     CODE_OPERATOR, // operator (mobile networks)
     CODE_PERIOD, // period
     CODE_PROVIDER, // wlan, browser
+    CODE_TIME, // year and month to display data
 }

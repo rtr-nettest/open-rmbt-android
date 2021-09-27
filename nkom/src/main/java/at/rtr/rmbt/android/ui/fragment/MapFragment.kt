@@ -22,7 +22,7 @@ import at.rtr.rmbt.android.databinding.FragmentMapBinding
 import at.rtr.rmbt.android.di.viewModelLazy
 import at.rtr.rmbt.android.ui.activity.ShowWebViewActivity
 import at.rtr.rmbt.android.ui.adapter.MapMarkerDetailsAdapter
-import at.rtr.rmbt.android.ui.dialog.MapFiltersDialog
+import at.rtr.rmbt.android.ui.dialog.MapTimelineFilterDialog
 import at.rtr.rmbt.android.ui.dialog.MapLayersDialog
 import at.rtr.rmbt.android.ui.dialog.MapSearchDialog
 import at.rtr.rmbt.android.util.listen
@@ -65,7 +65,7 @@ private val DEFAULT_PRESENTATION_TYPE = MapPresentationType.AUTOMATIC
 private const val CODE_FILTERS_DIALOG = 2
 
 class MapFragment : BaseFragment(), OnMapReadyCallback, MapMarkerDetailsAdapter.MarkerDetailsCallback, MapLayersDialog.Callback,
-    MapFiltersDialog.Callback, MapSearchDialog.Callback {
+    MapTimelineFilterDialog.Callback, MapSearchDialog.Callback {
 
     private val mapViewModel: MapViewModel by viewModelLazy()
     private val binding: FragmentMapBinding by bindingLazy()
@@ -128,7 +128,7 @@ class MapFragment : BaseFragment(), OnMapReadyCallback, MapMarkerDetailsAdapter.
         setTechnologySelected(technologyFilterList, binding.filterTechAll, TechnologyFilter.FILTER_ALL)
 
         binding.cardTimeline.setOnClickListener {
-            MapFiltersDialog.instance(this, CODE_FILTERS_DIALOG).show(fragmentManager)
+            MapTimelineFilterDialog.instance(this, CODE_FILTERS_DIALOG).show(fragmentManager)
         }
     }
 
@@ -226,8 +226,9 @@ class MapFragment : BaseFragment(), OnMapReadyCallback, MapMarkerDetailsAdapter.
         }
     }
 
-    override fun onFiltersUpdated() {
-        // TODO:
+    override fun onTimeFilterUpdated(filterYear: Int, filterMonth: Int) {
+        mapViewModel.setTimeFilter(filterYear, filterMonth)
+        updateMapStyle()
     }
 
     private fun setDefaultMapPosition() {

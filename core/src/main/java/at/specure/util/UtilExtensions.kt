@@ -15,6 +15,9 @@
 package at.specure.util
 
 import android.net.Network
+import java.text.SimpleDateFormat
+import java.util.Calendar
+import java.util.Locale
 
 /**
  * Returns network id from netId variable that is hidden in Android API but returns in toString method
@@ -28,4 +31,28 @@ inline fun <T> Iterable<T>.synchronizedForEach(action: (T) -> Unit) {
     synchronized(this) {
         for (element in this) action(element)
     }
+}
+
+fun Calendar.getCurrentLatestFinishedMonth(): Pair<Int, Int> {
+    val currentMonth = this.get(Calendar.MONTH)
+    return if (currentMonth == Calendar.JANUARY) {
+        Pair(Calendar.DECEMBER + 1, this.get(Calendar.YEAR) - 1)
+    } else {
+        Pair(currentMonth + 1, this.get(Calendar.YEAR))
+    }
+}
+
+fun Pair<Int, Int>.formatForFilter(): String {
+    return if (second < 10) {
+        "${first}0${second}"
+    } else {
+        "${first}${second}"
+    }
+}
+
+fun Pair<Int, Int>.formatYearMonthForDisplay(): String {
+    val calendar = Calendar.getInstance()
+    calendar.set(Calendar.MONTH, first - 1)
+    calendar.set(Calendar.YEAR, second)
+    return SimpleDateFormat("MMMM yyyy", Locale.getDefault()).format(calendar.time)
 }

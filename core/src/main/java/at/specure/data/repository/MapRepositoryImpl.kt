@@ -31,9 +31,11 @@ import at.specure.data.toModelList
 import at.specure.data.toSubtypesMap
 import at.specure.util.ActiveFilter
 import at.specure.util.FilterValuesStorage
+import at.specure.util.getCurrentLatestFinishedMonth
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import java.io.ByteArrayOutputStream
+import java.util.Calendar
 import java.util.Locale
 import javax.inject.Inject
 
@@ -131,7 +133,7 @@ class MapRepositoryImpl @Inject constructor(
                 val subTypes = it.filter.toSubtypesMap(types) as MutableMap<MapFilterType, List<MapTypeOptionsResponse>>
                 with(it.filter.mapFilters) {
                     storage.apply {
-                        init(types, subTypes, toMap(), toMap(), toMap(), toMap(), toMap())
+                        init(types, subTypes, toMap(), toMap(), toMap(), toMap(), toMap(), Calendar.getInstance().getCurrentLatestFinishedMonth())
                         titleStatistics = getTypeTitle<FilterStatisticOptionResponse>()
                         titlePeriod = getTypeTitle<FilterPeriodOptionResponse>()
                         titleOperator = getTypeTitle<FilterOperatorOptionResponse>()
@@ -210,7 +212,8 @@ class MapRepositoryImpl @Inject constructor(
                     createCleanFilterMap<FilterPeriodOptionResponse>(),
                     technology,
                     createCleanFilterMap<FilterOperatorOptionResponse>(),
-                    createCleanFilterMap<FilterProviderOptionResponse>()
+                    createCleanFilterMap<FilterProviderOptionResponse>(),
+                    Calendar.getInstance().getCurrentLatestFinishedMonth()
                 )
             }
             markTypeAsSelected(storage.findType(active.type))
@@ -266,6 +269,15 @@ class MapRepositoryImpl @Inject constructor(
 
     override fun markTechnologyAsSelected(value: String) {
         active.technology = storage.findTechnology(value, active.type)
+    }
+
+    override fun setTimeSelected(year: Int, month: Int) {
+        val selectedTime = Pair<Int, Int>(year, month)
+        active.time = selectedTime
+    }
+
+    override fun getTimeSelected(): Pair<Int, Int> {
+        return active.time
     }
 
     private fun prepareFilters(): Map<String, String> {
