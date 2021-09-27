@@ -44,9 +44,9 @@ fun Calendar.getCurrentLatestFinishedMonth(): Pair<Int, Int> {
 
 fun Pair<Int, Int>.formatForFilter(): String {
     return if (second < 10)
-        "${first}0${second}"
+        "${first}0$second"
     else
-        "${first}${second}"
+        "$first$second"
 }
 
 fun Pair<Int, Int>.formatYearMonthForDisplay(): String {
