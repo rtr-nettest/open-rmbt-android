@@ -47,6 +47,10 @@
         <item name="android:statusBarColor">@color/colorPrimary</item>
     </style>
 
+    <style name="AppTheme.Picker" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="android:textColorPrimary">@color/black_40</item>
+    </style>
+
     <!--  Splash screen theme -->
 
     <style name="SplashNoActionBarTheme" parent="AppTheme.NoActionBar">

@@ -128,7 +128,7 @@ class MapFragment : BaseFragment(), OnMapReadyCallback, MapMarkerDetailsAdapter.
         setTechnologySelected(technologyFilterList, binding.filterTechAll, TechnologyFilter.FILTER_ALL)
 
         binding.cardTimeline.setOnClickListener {
-//            MapFiltersDialog.instance(this, CODE_FILTERS_DIALOG).show(fragmentManager)
+            MapFiltersDialog.instance(this, CODE_FILTERS_DIALOG).show(fragmentManager)
         }
     }
 

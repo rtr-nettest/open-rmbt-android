@@ -68,6 +68,8 @@
                 android:layout_height="wrap_content"
                 android:layout_width="wrap_content"
                 android:orientation="vertical"
+                android:selectionDividerHeight="0dp"
+                android:theme="@style/AppTheme.Picker"
                 app:layout_constraintEnd_toEndOf="@+id/half"
                 app:layout_constraintTop_toBottomOf="@+id/label" />
 
@@ -76,6 +78,10 @@
                 android:layout_height="wrap_content"
                 android:layout_width="wrap_content"
                 android:orientation="vertical"
+                style="@style/RobotoMediumStyle.Medium"
+                android:selectionDividerHeight="0dp"
+                android:textColor="@color/navigation_gray"
+                android:theme="@style/AppTheme.Picker"
                 app:layout_constraintStart_toStartOf="@+id/half"
                 app:layout_constraintTop_toBottomOf="@+id/label" />
 

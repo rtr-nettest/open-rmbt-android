@@ -50,19 +50,22 @@ class MapFiltersDialog : FullscreenDialog(), MapFiltersConfirmationDialog.Callba
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        val displayedValuesT = viewModel.monthDisplayForYearHashMap[viewModel.yearList[0]]?.toTypedArray() ?: listOf<String>().toTypedArray()
+        val currentYearMonths = viewModel.monthNumbersForYearHashMap[viewModel.yearList[0]]
+        val maxValueT = currentYearMonths!!.size - 1
+
         binding.monthPicker.apply {
-            displayedValues = viewModel.monthDisplayForYearHashMap[viewModel.yearList[viewModel.yearList.size - 1]]?.toTypedArray() ?: listOf<String>().toTypedArray()
-            minValue = viewModel.monthNumbersForYearHashMap[viewModel.yearList[viewModel.yearList.size - 1]]!![0]
-            maxValue =
-                viewModel.monthNumbersForYearHashMap[viewModel.yearList[viewModel.yearList.size - 1]]!![viewModel.monthNumbersForYearHashMap[viewModel.yearList[viewModel.yearList.size - 1]]!!.size - 1]
+            displayedValues = displayedValuesT
+            maxValue = maxValueT
+            minValue = 0
             wrapSelectorWheel = false
-            value = viewModel.currentMonthNumber
+            value = currentYearMonths!!.size - viewModel.currentMonthNumberToDisplay - 1
         }
 
         binding.yearPicker.apply {
             displayedValues = viewModel.yearDisplayNames.toTypedArray()
-            minValue = viewModel.yearList[0]
-            maxValue = viewModel.yearList[viewModel.yearList.size - 1]
+            minValue = viewModel.yearList[viewModel.yearList.size - 1]
+            maxValue = viewModel.yearList[0]
             wrapSelectorWheel = false
             value = viewModel.yearList[viewModel.yearList.size - 1]
         }
@@ -79,11 +82,11 @@ class MapFiltersDialog : FullscreenDialog(), MapFiltersConfirmationDialog.Callba
     private fun updateMonthPickerList(newVal: Int) {
         val selectedMonth = binding.monthPicker.value
         binding.monthPicker.apply {
-            displayedValues = viewModel.monthDisplayForYearHashMap[viewModel.yearList[newVal]]?.toTypedArray() ?: listOf<String>().toTypedArray()
-            minValue = viewModel.monthNumbersForYearHashMap[viewModel.yearList[newVal]]!![0]
-            maxValue = viewModel.monthNumbersForYearHashMap[viewModel.yearList[newVal]]!![viewModel.monthNumbersForYearHashMap[viewModel.yearList[newVal]]!!.size - 1]
+            displayedValues = viewModel.monthDisplayForYearHashMap[newVal]?.toTypedArray() ?: listOf<String>().toTypedArray()
+            maxValue = 0
+            minValue = viewModel.monthNumbersForYearHashMap[newVal]!!.size - 1
             wrapSelectorWheel = false
-            value = if (selectedMonth in minValue..maxValue) {
+            value = if (selectedMonth in maxValue..minValue) {
                 selectedMonth
             } else maxValue
         }

@@ -11,6 +11,12 @@ class MapFiltersViewModel @Inject constructor(private val repository: MapReposit
     val state = MapFilterViewState()
     val calendar = Calendar.getInstance()
     val currentMonthNumber = calendar.get(Calendar.MONTH)
+    val currentMonthNumberToDisplay: Int
+        get() {
+            val calendar = Calendar.getInstance()
+            calendar.add(Calendar.MONTH, -1)
+            return calendar.get(Calendar.MONTH)
+        }
     val yearList: List<Int>
     val yearDisplayNames: List<String>
     val monthNumbersForYearHashMap: HashMap<Int, List<Int>> = HashMap()
@@ -20,9 +26,9 @@ class MapFiltersViewModel @Inject constructor(private val repository: MapReposit
         addStateSaveHandler(state)
 
         yearList = if (currentMonthNumber == Calendar.DECEMBER) {
-            listOf(calendar.get(Calendar.YEAR) - 1, calendar.get(Calendar.YEAR))
+            listOf(calendar.get(Calendar.YEAR), (calendar.get(Calendar.YEAR) - 1))
         } else {
-            listOf(calendar.get(Calendar.YEAR) - 2, calendar.get(Calendar.YEAR) - 1, calendar.get(Calendar.YEAR))
+            listOf(calendar.get(Calendar.YEAR), calendar.get(Calendar.YEAR) - 1, calendar.get(Calendar.YEAR) - 2)
         }
 
         yearDisplayNames = yearList.map {
@@ -31,13 +37,13 @@ class MapFiltersViewModel @Inject constructor(private val repository: MapReposit
 
         yearList.forEachIndexed { index, it ->
             if (index == 0 && (currentMonthNumber != Calendar.DECEMBER)) {
-                monthNumbersForYearHashMap[it] = (currentMonthNumber..Calendar.DECEMBER).toList()
+                monthNumbersForYearHashMap[it] = (Calendar.JANUARY..currentMonthNumber).reversed().toList()
                 monthDisplayForYearHashMap[it] = monthNumbersForYearHashMap[it]?.map { DateFormatSymbols().months[it] }!!
             } else if (index == yearList.size - 1 && (currentMonthNumber != Calendar.DECEMBER)) {
-                monthNumbersForYearHashMap[it] = (Calendar.JANUARY..currentMonthNumber).toList()
+                monthNumbersForYearHashMap[it] = (currentMonthNumber + 1..Calendar.DECEMBER).reversed().toList()
                 monthDisplayForYearHashMap[it] = monthNumbersForYearHashMap[it]?.map { DateFormatSymbols().months[it] }!!
             } else {
-                monthNumbersForYearHashMap[it] = (Calendar.JANUARY..Calendar.DECEMBER).toList()
+                monthNumbersForYearHashMap[it] = (Calendar.JANUARY..Calendar.DECEMBER).reversed().toList()
                 monthDisplayForYearHashMap[it] = monthNumbersForYearHashMap[it]?.map { DateFormatSymbols().months[it] }!!
             }
         }
