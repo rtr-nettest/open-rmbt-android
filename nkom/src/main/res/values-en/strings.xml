@@ -13,6 +13,11 @@
   -->
 
 <resources xmlns:tools="http://schemas.android.com/tools">
+    <string name="measurements">Measurements</string>
+    <string name="total_measurements">Total Measurements</string>
+    <string name="average_down">Average Down</string>
+    <string name="average_up">Average Up</string>
+    <string name="average_latency">Average Latency</string>
 
     <string name="open_location_permission_dialog_label_location_not_permitted">Nkom Nettfart is not allowed to use your location. Would you like to allow Nkom Nettfart to use your location?</string>
     <string name="notification_test_title">Nkom Nettfart is running</string>

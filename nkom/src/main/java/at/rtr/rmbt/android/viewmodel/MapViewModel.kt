@@ -37,6 +37,26 @@ class MapViewModel @Inject constructor(
     private val basicProviderList = arrayListOf("All")
     val providersLiveData: MutableLiveData<List<String>> = MutableLiveData(basicProviderList)
 
+    var currentLayers: List<String> = emptyList()
+        get() {
+            val filterList = obtainFilters()
+            val calendar = Calendar.getInstance()
+            calendar.add(Calendar.MONTH, -1)
+            val date = SimpleDateFormat("yyyyMM", Locale.US).format(calendar.time)
+
+            val technology = filterList[FilterTypeCode.CODE_TECHNOLOGY.ordinal]?.toUpperCase(Locale.US) ?: TechnologyFilter.FILTER_ALL.filterValue.toUpperCase(Locale.US)
+
+            currentLayers = listOf(
+                "C-$date-$technology-${currentProvider.toUpperCase(Locale.US)}",
+                "M-$date-$technology-${currentProvider.toUpperCase(Locale.US)}",
+                "H10-$date-$technology-${currentProvider.toUpperCase(Locale.US)}",
+                "H1-$date-$technology-${currentProvider.toUpperCase(Locale.US)}",
+                "H01-$date-$technology-${currentProvider.toUpperCase(Locale.US)}",
+                "H001-$date-$technology-${currentProvider.toUpperCase(Locale.US)}"
+            )
+            return field
+        }
+
     var markersLiveData: LiveData<List<MarkerMeasurementRecord>> =
         Transformations.switchMap(state.coordinatesLiveData) { repository.getMarkers(it?.latitude, it?.longitude, state.zoom.toInt()) }
 
@@ -70,24 +90,6 @@ class MapViewModel @Inject constructor(
 
     fun provideStyle(): String {
         return "mapbox://styles/specure/ckgqqcmvg51fj19qlisdg0vde"
-    }
-
-    fun buildCurrentLayersName(): List<String> {
-        val filterList = obtainFilters()
-        val calendar = Calendar.getInstance()
-        calendar.add(Calendar.MONTH, -1)
-        val date = SimpleDateFormat("yyyyMM", Locale.US).format(calendar.time)
-
-        val technology = filterList[FilterTypeCode.CODE_TECHNOLOGY.ordinal]?.toUpperCase(Locale.US) ?: TechnologyFilter.FILTER_ALL.filterValue.toUpperCase(Locale.US)
-
-        return listOf(
-            "C-$date-$technology-${currentProvider.toUpperCase(Locale.US)}",
-            "M-$date-$technology-${currentProvider.toUpperCase(Locale.US)}",
-            "H10-$date-$technology-${currentProvider.toUpperCase(Locale.US)}",
-            "H1-$date-$technology-${currentProvider.toUpperCase(Locale.US)}",
-            "H01-$date-$technology-${currentProvider.toUpperCase(Locale.US)}",
-            "H001-$date-$technology-${currentProvider.toUpperCase(Locale.US)}"
-        )
     }
 
     fun setTechnologyFilter(filterValue: TechnologyFilter) {

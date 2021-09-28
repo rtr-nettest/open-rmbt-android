@@ -7,10 +7,7 @@ import android.location.Address
 import android.location.Geocoder
 import android.os.Bundle
 import android.view.View
-import android.widget.AdapterView
-import android.widget.ArrayAdapter
-import android.widget.TextView
-import android.widget.Toast
+import android.widget.*
 import androidx.annotation.DrawableRes
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -35,10 +32,11 @@ import at.specure.data.NetworkTypeCompat
 import at.specure.data.ServerNetworkType
 import at.specure.data.entity.MarkerMeasurementRecord
 import at.specure.util.isCoarseLocationPermitted
+import com.google.android.material.bottomsheet.BottomSheetDialog
+import com.mapbox.geojson.Feature
 import com.mapbox.mapboxsdk.camera.CameraUpdateFactory
 import com.mapbox.mapboxsdk.geometry.LatLng
 import com.mapbox.mapboxsdk.maps.MapboxMap
-import com.mapbox.mapboxsdk.maps.MapboxMap.OnMapClickListener
 import com.mapbox.mapboxsdk.maps.OnMapReadyCallback
 import com.mapbox.mapboxsdk.maps.Style
 import com.mapbox.mapboxsdk.style.layers.Property.VISIBLE
@@ -49,6 +47,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import java.io.IOException
+import kotlin.math.roundToInt
 
 const val START_ZOOM_LEVEL = 12f
 
@@ -192,6 +191,7 @@ class MapFragment : BaseFragment(), OnMapReadyCallback, MapMarkerDetailsAdapter.
         mapboxMap = map
         checkLocationAndSetCurrent()
         updateMapStyle()
+        addOnMapClickListener()
         setTiles()
         map.uiSettings.isRotateGesturesEnabled = false
         if (this.context?.isCoarseLocationPermitted() == true) {
@@ -200,6 +200,58 @@ class MapFragment : BaseFragment(), OnMapReadyCallback, MapMarkerDetailsAdapter.
         updateLocationPermissionRelatedUi()
 
         setDefaultMapPosition()
+    }
+
+    private fun addOnMapClickListener() {
+        mapboxMap?.addOnMapClickListener { latLng ->
+            val currentLayerName = when {
+                mapboxMap!!.cameraPosition.zoom <= 5 -> {
+                    mapViewModel.currentLayers.find { it.startsWith("C") }
+                }
+                mapboxMap!!.cameraPosition.zoom <= 7.5 -> {
+                    mapViewModel.currentLayers.find { it.startsWith("M") }
+                }
+                mapboxMap!!.cameraPosition.zoom <= 10 -> {
+                    mapViewModel.currentLayers.find { it.startsWith("H10") }
+                }
+                mapboxMap!!.cameraPosition.zoom <= 12 -> {
+                    mapViewModel.currentLayers.find { it.startsWith("H1") }
+                }
+                mapboxMap!!.cameraPosition.zoom <= 14 -> {
+                    mapViewModel.currentLayers.find { it.startsWith("H01") }
+                }
+                else -> {
+                    mapViewModel.currentLayers.find { it.startsWith("H001") }
+                }
+            }
+            val feature = mapboxMap!!.queryRenderedFeatures(
+                mapboxMap!!.projection.toScreenLocation(latLng), currentLayerName)[0]
+            val currentLayerPrefix = currentLayerName
+                ?.removeRange(0, currentLayerName.indexOf('-') + 1)
+            showBottomSheetPopup(feature, currentLayerPrefix)
+            true
+        }
+    }
+
+    private fun showBottomSheetPopup(feature: Feature, currentLayerPrefix: String?) {
+        val regionType = if (mapboxMap!!.cameraPosition.zoom <= 5) "County" else "Municipality"
+        val bottomSheetDialog = BottomSheetDialog(requireContext())
+        bottomSheetDialog.setContentView(R.layout.bottomsheet_dialog_map_popup)
+        bottomSheetDialog.findViewById<TextView>(R.id.regionType)?.text = regionType
+        bottomSheetDialog.findViewById<TextView>(R.id.name)?.text =
+            feature.getProperty("NAME").asString
+        bottomSheetDialog.findViewById<TextView>(R.id.totalMeasurements)?.text =
+            feature.getProperty("$currentLayerPrefix-COUNT").toString()
+        bottomSheetDialog.findViewById<TextView>(R.id.averageDown)?.text =
+            String.format("%d Mbps", feature.getProperty("$currentLayerPrefix-DOWNLOAD").asDouble.roundToInt())
+        bottomSheetDialog.findViewById<TextView>(R.id.averageUp)?.text =
+            String.format("%d Mbps", feature.getProperty("$currentLayerPrefix-UPLOAD").asDouble.roundToInt())
+        bottomSheetDialog.findViewById<TextView>(R.id.averageLatency)?.text =
+            String.format("%d Mbps", feature.getProperty("$currentLayerPrefix-PING").asDouble.roundToInt())
+        bottomSheetDialog.findViewById<ImageButton>(R.id.closeButton)?.setOnClickListener {
+            bottomSheetDialog.dismiss()
+        }
+        bottomSheetDialog.show()
     }
 
     override fun onStart() {
@@ -297,8 +349,7 @@ class MapFragment : BaseFragment(), OnMapReadyCallback, MapMarkerDetailsAdapter.
     }
 
     private fun initializeStyles(style: Style) {
-        val layers = mapViewModel.buildCurrentLayersName()
-        layers.forEach {
+        mapViewModel.currentLayers.forEach {
             val layer = style.getLayer(it)
             layer?.let {
                 layer.setProperties(visibility(VISIBLE))
@@ -307,12 +358,6 @@ class MapFragment : BaseFragment(), OnMapReadyCallback, MapMarkerDetailsAdapter.
     }
 
     private fun setTiles() {
-        mapboxMap?.addOnMapClickListener(object : OnMapClickListener {
-
-            override fun onMapClick(latlng: LatLng): Boolean {
-                return true
-            }
-        })
         mapboxMap?.setOnMarkerClickListener { true }
 
         mapboxMap?.addOnCameraMoveStartedListener {
