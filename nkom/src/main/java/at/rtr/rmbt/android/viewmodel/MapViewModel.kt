@@ -23,7 +23,6 @@ class MapViewModel @Inject constructor(
 
     private var filterTechnology: TechnologyFilter = TechnologyFilter.FILTER_ALL
     private var currentProvider: String
-    private var filterCurrentMonthAndYear: String = Calendar.getInstance().getCurrentLatestFinishedMonth().formatForFilter()
 
     val state = MapViewState()
 
