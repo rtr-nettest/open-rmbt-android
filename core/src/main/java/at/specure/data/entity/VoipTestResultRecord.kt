@@ -7,20 +7,16 @@ import at.rtr.rmbt.client.VoipTestResult
 import at.specure.data.Columns
 import at.specure.data.Tables
 
-@Entity(
-    tableName = Tables.JPL,
-    foreignKeys = [
-        ForeignKey(
-            entity = TestRecord::class,
-            parentColumns = [Columns.TEST_UUID_PARENT_COLUMN],
-            childColumns = ["testUUID"],
-            onDelete = ForeignKey.CASCADE
-        )
-    ]
-)
+@Entity(tableName = Tables.JPL)
 data class VoipTestResultRecord(
 
     @PrimaryKey
+    @ForeignKey(
+        entity = TestRecord::class,
+        parentColumns = [Columns.TEST_UUID_PARENT_COLUMN],
+        childColumns = ["testUUID"],
+        onDelete = ForeignKey.CASCADE
+    )
     val testUUID: String,
     var classificationPacketLoss: Int?,
     var classificationJitter: Int?,
