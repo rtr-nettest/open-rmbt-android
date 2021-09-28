@@ -220,6 +220,14 @@ class MapRepositoryImpl @Inject constructor(
         // todo: add error handling
     }
 
+    override fun obtainProviders(callback: (MutableList<String>) -> Unit) = io {
+        var providers: MutableList<String> = arrayListOf()
+        client.obtainNationalTable().onSuccess {
+            providers = it.providerStats!!.map { provider -> provider.providerName ?: "" }.toMutableList()
+        }
+        callback(providers)
+    }
+
     private fun <T> createCleanFilterMap(): MutableMap<MapFilterType, List<T>> {
         val subTypes = mutableMapOf<MapFilterType, List<T>>()
         subTypes[MapFilterType.MOBILE] = mutableListOf<T>()
