@@ -31,8 +31,8 @@ abstract class HistoryDao {
         val references = history.map {
             HistoryReference(it.referenceUUID, it.time)
         }
-        saveHistory(history)
         saveReferences(references)
+        saveHistory(history)
     }
 
     @Query("DELETE FROM ${Tables.HISTORY_REFERENCE}")
