@@ -224,11 +224,14 @@ class MapFragment : BaseFragment(), OnMapReadyCallback, MapMarkerDetailsAdapter.
                     mapViewModel.currentLayers.find { it.startsWith("H001") }
                 }
             }
-            val feature = mapboxMap!!.queryRenderedFeatures(
-                mapboxMap!!.projection.toScreenLocation(latLng), currentLayerName)[0]
+            val features = mapboxMap!!.queryRenderedFeatures(
+                mapboxMap!!.projection.toScreenLocation(latLng), currentLayerName)
+            val feature = if (features.isNotEmpty()) features[0] else null
             val currentLayerPrefix = currentLayerName
                 ?.removeRange(0, currentLayerName.indexOf('-') + 1)
-            showBottomSheetPopup(feature, currentLayerPrefix)
+            if (feature != null) {
+                showBottomSheetPopup(feature, currentLayerPrefix)
+            }
             true
         }
     }
@@ -239,15 +242,15 @@ class MapFragment : BaseFragment(), OnMapReadyCallback, MapMarkerDetailsAdapter.
         bottomSheetDialog.setContentView(R.layout.bottomsheet_dialog_map_popup)
         bottomSheetDialog.findViewById<TextView>(R.id.regionType)?.text = regionType
         bottomSheetDialog.findViewById<TextView>(R.id.name)?.text =
-            feature.getProperty("NAME").asString
+            feature.getProperty("NAME")?.asString
         bottomSheetDialog.findViewById<TextView>(R.id.totalMeasurements)?.text =
-            feature.getProperty("$currentLayerPrefix-COUNT").toString()
-        bottomSheetDialog.findViewById<TextView>(R.id.averageDown)?.text =
-            String.format("%d Mbps", feature.getProperty("$currentLayerPrefix-DOWNLOAD").asDouble.roundToInt())
-        bottomSheetDialog.findViewById<TextView>(R.id.averageUp)?.text =
-            String.format("%d Mbps", feature.getProperty("$currentLayerPrefix-UPLOAD").asDouble.roundToInt())
-        bottomSheetDialog.findViewById<TextView>(R.id.averageLatency)?.text =
-            String.format("%d Mbps", feature.getProperty("$currentLayerPrefix-PING").asDouble.roundToInt())
+            feature.getProperty("$currentLayerPrefix-COUNT")?.toString() ?: "0"
+        bottomSheetDialog.findViewById<TextView>(R.id.averageDown)?.text = String.format(
+            "%d Mbps", feature.getProperty("$currentLayerPrefix-DOWNLOAD")?.asDouble?.roundToInt() ?: 0)
+        bottomSheetDialog.findViewById<TextView>(R.id.averageUp)?.text = String.format(
+            "%d Mbps", feature.getProperty("$currentLayerPrefix-UPLOAD")?.asDouble?.roundToInt() ?: 0)
+        bottomSheetDialog.findViewById<TextView>(R.id.averageLatency)?.text = String.format(
+            "%d Mbps", feature.getProperty("$currentLayerPrefix-PING")?.asDouble?.roundToInt() ?: 0)
         bottomSheetDialog.findViewById<ImageButton>(R.id.closeButton)?.setOnClickListener {
             bottomSheetDialog.dismiss()
         }
