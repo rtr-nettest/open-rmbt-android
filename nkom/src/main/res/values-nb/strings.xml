@@ -13,6 +13,11 @@
   -->
 
 <resources xmlns:tools="http://schemas.android.com/tools">
+    <string name="measurements">Måling</string>
+    <string name="total_measurements">Totalt Antall Målinger</string>
+    <string name="average_down">Gjennomsnittlig Last Ned</string>
+    <string name="average_up">Gjennomsnittlig Laste Opp</string>
+    <string name="average_latency">Gjennomsnittlig Ventetid</string>
 
     <string name="open_location_permission_dialog_label_location_not_permitted">Nkom Nettfart har ikke lov til å bruke posisjonen din. Vil du la Nkom Nettfart bruke posisjonen din?</string>
     <string name="notification_test_title">Nkom Nettfart kjører</string>
