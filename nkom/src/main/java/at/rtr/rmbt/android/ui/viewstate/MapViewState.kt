@@ -39,11 +39,7 @@ class MapViewState : ViewState {
     var zoom: Float = START_ZOOM_LEVEL
 
     fun setTimeFilterValue(year: Int, month: Int) {
-        val calendar = Calendar.getInstance()
-        calendar.set(Calendar.MONTH, month - 1)
-        calendar.set(Calendar.YEAR, year)
-        val date = SimpleDateFormat("MMMM yyyy", Locale.getDefault()).format(calendar.time)
-        filterCurrentMonthAndYear.set(date)
+        filterCurrentMonthAndYear.set(Pair(month, year).formatYearMonthForDisplay())
     }
 
     override fun onRestoreState(bundle: Bundle?) {

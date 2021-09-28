@@ -95,6 +95,9 @@ class FilterValuesStorage @Inject constructor() {
         return time
     }
 
+    /**
+     * Month-Year (month is 1 - based)
+     */
     fun findTimeDefault(): String {
         val currentMonth = Calendar.getInstance().getCurrentLatestFinishedMonth()
         return "${currentMonth.first}-${currentMonth.second}"

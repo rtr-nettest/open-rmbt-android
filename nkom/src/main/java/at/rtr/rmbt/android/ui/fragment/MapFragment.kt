@@ -94,13 +94,13 @@ class MapFragment : BaseFragment(), OnMapReadyCallback, MapMarkerDetailsAdapter.
         binding.map.getMapAsync(this)
 
         mapViewModel.providersSpinnerAdapter = ArrayAdapter(requireContext(), R.layout.item_provider)
-        binding.providersSpinner?.adapter = mapViewModel.providersSpinnerAdapter
+        binding.providersSpinner.adapter = mapViewModel.providersSpinnerAdapter
         mapViewModel.providersLiveData.listen(this) {
             mapViewModel.providersSpinnerAdapter.clear()
             mapViewModel.providersSpinnerAdapter.addAll(it)
             mapViewModel.providersSpinnerAdapter.notifyDataSetChanged()
         }
-        binding.providersSpinner?.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+        binding.providersSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(
                 parent: AdapterView<*>?,
                 view: View?,
@@ -250,6 +250,7 @@ class MapFragment : BaseFragment(), OnMapReadyCallback, MapMarkerDetailsAdapter.
     }
 
     override fun onTimeFilterUpdated(filterYear: Int, filterMonth: Int) {
+        Timber.d("Active timeline on map filter: $filterMonth $filterYear")
         mapViewModel.setTimeFilter(filterYear, filterMonth)
         updateMapStyle()
     }
@@ -262,32 +263,6 @@ class MapFragment : BaseFragment(), OnMapReadyCallback, MapMarkerDetailsAdapter.
             mapboxMap?.animateCamera(CameraUpdateFactory.newLatLngZoom(defaultPosition, DEFAULT_ZOOM_LEVEL.toDouble()))
             mapViewModel.state.type.set(DEFAULT_PRESENTATION_TYPE)
         }
-    }
-
-    private fun drawMarker(record: MarkerMeasurementRecord) {
-        if (record.networkTypeLabel != ServerNetworkType.TYPE_UNKNOWN.stringValue) {
-            record.networkTypeLabel?.let {
-                val icon = when (NetworkTypeCompat.fromString(it)) {
-                    NetworkTypeCompat.TYPE_UNKNOWN -> R.drawable.ic_marker_empty
-                    NetworkTypeCompat.TYPE_LAN,
-                    NetworkTypeCompat.TYPE_BROWSER -> R.drawable.ic_marker_browser
-                    NetworkTypeCompat.TYPE_WLAN -> R.drawable.ic_marker_wifi
-                    NetworkTypeCompat.TYPE_4G -> R.drawable.ic_marker_4g
-                    NetworkTypeCompat.TYPE_3G -> R.drawable.ic_marker_3g
-                    NetworkTypeCompat.TYPE_2G -> R.drawable.ic_marker_2g
-                    NetworkTypeCompat.TYPE_5G -> R.drawable.ic_marker_5g
-                    NetworkTypeCompat.TYPE_5G_NSA -> R.drawable.ic_marker_5g
-                    NetworkTypeCompat.TYPE_5G_AVAILABLE -> R.drawable.ic_marker_4g
-                }
-                addMarkerWithIcon(icon)
-            }
-        } else { // empty pin to prevent crash
-            addMarkerWithIcon(R.drawable.ic_marker_empty)
-        }
-    }
-
-    private fun addMarkerWithIcon(@DrawableRes icon: Int) {
-        // TODO:
     }
 
     private fun updateMapStyle() {

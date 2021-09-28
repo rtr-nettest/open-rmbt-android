@@ -55,12 +55,15 @@ class ActiveFilter @Inject constructor(context: Context, private val valuesStora
         get() = valuesStorage.findTechnology(preferences.getString(KEY_TECHNOLOGY, valuesStorage.findTechnologyDefault(type)), type)
         set(value) = preferences.edit().putString(KEY_TECHNOLOGY, value.title).apply()
 
+    /**
+     *  <month (1-based), year>
+     */
     var time: Pair<Int, Int>
         get() {
             val currentMonthYear = preferences.getString(KEY_TIME, valuesStorage.findTimeDefault())
-            val parsedYear = currentMonthYear?.split("-")?.get(0)?.toInt() ?: 0
-            val parsedMonth = currentMonthYear?.split("-")?.get(1)?.toInt() ?: 0
-            return Pair<Int, Int>(parsedYear, parsedMonth)
+            val parsedYear = currentMonthYear?.split("-")?.get(1)?.toInt() ?: 0
+            val parsedMonth = currentMonthYear?.split("-")?.get(0)?.toInt() ?: 0
+            return Pair<Int, Int>(parsedMonth, parsedYear)
         }
         set(value) = preferences.edit().putString(KEY_TIME, "${value.first}-${value.second}").apply()
 }

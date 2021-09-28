@@ -70,6 +70,9 @@ class MapTimelineFilterDialog : FullscreenDialog(), MapFiltersConfirmationDialog
             }
         }
 
+        viewModel.filterSelectedYear = viewModel.yearList[0]
+        viewModel.filterSelectedMonth = viewModel.monthNumbersForYearHashMap[viewModel.filterSelectedYear]!![0] + 1
+
         binding.monthPicker.apply {
             displayedValues = displayedValuesT
             maxValue = maxValueT

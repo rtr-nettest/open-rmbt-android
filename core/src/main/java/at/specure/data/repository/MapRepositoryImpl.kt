@@ -280,7 +280,7 @@ class MapRepositoryImpl @Inject constructor(
     }
 
     override fun setTimeSelected(year: Int, month: Int) {
-        val selectedTime = Pair<Int, Int>(year, month)
+        val selectedTime = Pair<Int, Int>(month, year)
         active.time = selectedTime
     }
 

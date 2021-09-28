@@ -33,22 +33,28 @@ inline fun <T> Iterable<T>.synchronizedForEach(action: (T) -> Unit) {
     }
 }
 
+/**
+ * 1 based months -> 1 - january <month, year>
+ */
 fun Calendar.getCurrentLatestFinishedMonth(): Pair<Int, Int> {
     val currentMonth = this.get(Calendar.MONTH)
     return if (currentMonth == Calendar.JANUARY) {
         Pair(Calendar.DECEMBER + 1, this.get(Calendar.YEAR) - 1)
     } else {
-        Pair(currentMonth + 1, this.get(Calendar.YEAR))
+        Pair(currentMonth, this.get(Calendar.YEAR))
     }
 }
 
 fun Pair<Int, Int>.formatForFilter(): String {
-    return if (second < 10)
-        "${first}0$second"
+    return if (first < 10)
+        "${second}0$first"
     else
-        "$first$second"
+        "$second$first"
 }
 
+/**
+ * 1 based months -> 1 - january so we need do -1 to apply it to calendar
+ */
 fun Pair<Int, Int>.formatYearMonthForDisplay(): String {
     val calendar = Calendar.getInstance()
     calendar.set(Calendar.MONTH, first - 1)

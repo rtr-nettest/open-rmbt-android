@@ -57,7 +57,6 @@ class MapViewModel @Inject constructor(
             if (technologyFilter != null) {
                 filterList[FilterTypeCode.CODE_TECHNOLOGY.ordinal] = technologyFilter.technology
             }
-            filterCurrentMonthAndYear
             filterList[FilterTypeCode.CODE_TIME.ordinal] = repository.active.time.formatForFilter()
         } catch (e: Exception) {
             Timber.e("Unable to load set map filters: ${e.localizedMessage}")
@@ -76,6 +75,8 @@ class MapViewModel @Inject constructor(
 
         val technology = filterList[FilterTypeCode.CODE_TECHNOLOGY.ordinal]?.toUpperCase(Locale.US) ?: TechnologyFilter.FILTER_ALL.filterValue.toUpperCase(Locale.US)
         val date = filterList[FilterTypeCode.CODE_TIME.ordinal]
+
+        Timber.d("Filter $date")
 
         return listOf(
             "C-$date-$technology-${currentProvider.toUpperCase(Locale.US)}",

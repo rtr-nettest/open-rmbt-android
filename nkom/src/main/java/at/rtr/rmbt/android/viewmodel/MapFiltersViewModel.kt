@@ -2,6 +2,7 @@ package at.rtr.rmbt.android.viewmodel
 
 import at.rtr.rmbt.android.ui.viewstate.MapFilterViewState
 import at.specure.data.repository.MapRepository
+import timber.log.Timber
 import java.text.DateFormatSymbols
 import java.util.Calendar
 import javax.inject.Inject
@@ -28,8 +29,10 @@ class MapFiltersViewModel @Inject constructor(private val repository: MapReposit
     init {
         addStateSaveHandler(state)
         val currentSetMonthYear = repository.getTimeSelected()
-        currentMonthNumberToDisplay = currentSetMonthYear.second
-        currentYearToDisplay = currentSetMonthYear.first
+        currentMonthNumberToDisplay = currentSetMonthYear.first
+        currentYearToDisplay = currentSetMonthYear.second
+
+        Timber.d("Active timeline repo: $currentMonthNumberToDisplay $currentYearToDisplay")
 
         yearList = if (currentMonthNumber == Calendar.DECEMBER) {
             listOf(calendar.get(Calendar.YEAR), (calendar.get(Calendar.YEAR) - 1))
