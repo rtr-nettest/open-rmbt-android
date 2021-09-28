@@ -1,6 +1,8 @@
 package at.rtr.rmbt.android.viewmodel
 
+import android.widget.ArrayAdapter
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import at.rtr.rmbt.android.R
 import at.rtr.rmbt.android.ui.viewstate.MapViewState
 import at.specure.data.repository.MapRepository
@@ -20,6 +22,7 @@ class MapViewModel @Inject constructor(
 ) : BaseViewModel() {
 
     private var filterTechnology: TechnologyFilter = TechnologyFilter.FILTER_ALL
+    private var currentProvider: String
     private var filterCurrentMonthAndYear: String = Calendar.getInstance().getCurrentLatestFinishedMonth().formatForFilter()
 
     val state = MapViewState()
@@ -30,8 +33,20 @@ class MapViewModel @Inject constructor(
     val locationStateLiveData: LiveData<LocationState?>
         get() = locationWatcher.stateLiveData
 
+    lateinit var providersSpinnerAdapter: ArrayAdapter<String>
+    private val basicProviderList = arrayListOf("All")
+    val providersLiveData: MutableLiveData<List<String>> = MutableLiveData(basicProviderList)
+
     init {
+        currentProvider = basicProviderList[0]
         addStateSaveHandler(state)
+        obtainProviders()
+    }
+
+    private fun obtainProviders() {
+        repository.obtainProviders {
+            providersLiveData.postValue(it.apply { it.addAll(0, basicProviderList) })
+        }
     }
 
     private fun obtainFilters(): List<String?> {
@@ -62,25 +77,22 @@ class MapViewModel @Inject constructor(
         val technology = filterList[FilterTypeCode.CODE_TECHNOLOGY.ordinal]?.toUpperCase(Locale.US) ?: TechnologyFilter.FILTER_ALL.filterValue.toUpperCase(Locale.US)
         val date = filterList[FilterTypeCode.CODE_TIME.ordinal]
 
-        val filteredLayers = listOf(
-            "C-$date-$technology-ALL",
-            "M-$date-$technology-ALL",
-            "H10-$date-$technology-ALL",
-            "H1-$date-$technology-ALL",
-            "H01-$date-$technology-ALL",
-            "H001-$date-$technology-ALL"
+        return listOf(
+            "C-$date-$technology-${currentProvider.toUpperCase(Locale.US)}",
+            "M-$date-$technology-${currentProvider.toUpperCase(Locale.US)}",
+            "H10-$date-$technology-${currentProvider.toUpperCase(Locale.US)}",
+            "H1-$date-$technology-${currentProvider.toUpperCase(Locale.US)}",
+            "H01-$date-$technology-${currentProvider.toUpperCase(Locale.US)}",
+            "H001-$date-$technology-${currentProvider.toUpperCase(Locale.US)}"
         )
-
-        filteredLayers.forEach { Timber.d("LAYER: $it") }
-        return filteredLayers
     }
 
     fun setTechnologyFilter(filterValue: TechnologyFilter) {
         repository.markTechnologyAsSelected(filterValue.filterValue)
     }
 
-    fun setProviderFilter(filterValue: String) {
-        repository.markTechnologyAsSelected(filterValue)
+    fun setProvider(index: Int) {
+        currentProvider = providersLiveData.value!![index]
     }
 
     fun obtainFiltersFromServer() {

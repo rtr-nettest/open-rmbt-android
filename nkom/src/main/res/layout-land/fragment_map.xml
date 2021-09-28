@@ -91,7 +91,6 @@
             android:layout_marginStart="@dimen/padding_large"
             android:layout_marginTop="@dimen/padding_medium"
             android:layout_marginEnd="@dimen/padding_large"
-            android:layout_marginBottom="@dimen/padding_medium"
             android:theme="@style/Theme.MaterialComponents.Light"
             app:cardCornerRadius="20dp"
             app:cardElevation="8dp"
@@ -112,6 +111,7 @@
                     android:layout_margin="@dimen/padding_very_small"
                     android:background="@drawable/filter_tech_disabled"
                     android:gravity="center"
+                    android:maxLines="1"
                     android:paddingStart="@dimen/padding_large"
                     android:paddingTop="@dimen/padding_medium"
                     android:paddingEnd="@dimen/padding_large"
@@ -128,6 +128,7 @@
                     android:layout_margin="@dimen/padding_very_small"
                     android:background="@drawable/filter_tech_disabled"
                     android:gravity="center"
+                    android:maxLines="1"
                     android:paddingStart="@dimen/padding_large"
                     android:paddingTop="@dimen/padding_medium"
                     android:paddingEnd="@dimen/padding_large"
@@ -144,6 +145,7 @@
                     android:layout_margin="@dimen/padding_very_small"
                     android:background="@drawable/filter_tech_disabled"
                     android:gravity="center"
+                    android:maxLines="1"
                     android:paddingStart="@dimen/padding_large"
                     android:paddingTop="@dimen/padding_medium"
                     android:paddingEnd="@dimen/padding_large"
@@ -160,6 +162,7 @@
                     android:layout_margin="@dimen/padding_very_small"
                     android:background="@drawable/filter_tech_disabled"
                     android:gravity="center"
+                    android:maxLines="1"
                     android:paddingStart="@dimen/padding_large"
                     android:paddingTop="@dimen/padding_medium"
                     android:paddingEnd="@dimen/padding_large"
@@ -176,6 +179,7 @@
                     android:layout_margin="@dimen/padding_very_small"
                     android:background="@drawable/filter_tech_disabled"
                     android:gravity="center"
+                    android:maxLines="1"
                     android:paddingStart="@dimen/padding_large"
                     android:paddingTop="@dimen/padding_medium"
                     android:paddingEnd="@dimen/padding_large"
@@ -185,17 +189,26 @@
                     app:layout_constraintStart_toEndOf="@+id/filter_tech_4g"
                     app:layout_constraintTop_toTopOf="parent" />
 
+                <Spinner
+                    android:id="@+id/providers_spinner"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="24dp"
+                    android:background="@drawable/spinner_background"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/filter_tech_all" />
+
                 <TextView
                     android:id="@+id/map_disclaimer"
                     style="@style/ResultMainItemUnit"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="@dimen/margin_large"
+                    android:layout_marginTop="16dp"
                     android:text="@string/map_disclaimer"
                     android:textSize="@dimen/chart_label_text_size"
-                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/filter_tech_all" />
+                    app:layout_constraintTop_toBottomOf="@id/providers_spinner" />
 
             </androidx.constraintlayout.widget.ConstraintLayout>
 
