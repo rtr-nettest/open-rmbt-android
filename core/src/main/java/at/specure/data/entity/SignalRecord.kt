@@ -11,17 +11,15 @@ import at.specure.info.strength.SignalSource
 
 @Entity(
     tableName = Tables.SIGNAL,
-    primaryKeys = ["timeNanos", "testUUID", "cellUuid"],
-    foreignKeys = [
-        ForeignKey(
-            entity = TestRecord::class,
-            parentColumns = [Columns.TEST_UUID_PARENT_COLUMN],
-            childColumns = ["testUUID"],
-            onDelete = ForeignKey.CASCADE
-        )
-    ]
+    primaryKeys = ["timeNanos", "testUUID", "cellUuid"]
 )
 data class SignalRecord(
+    @ForeignKey(
+        entity = TestRecord::class,
+        parentColumns = [Columns.TEST_UUID_PARENT_COLUMN],
+        childColumns = ["testUUID"],
+        onDelete = ForeignKey.CASCADE
+    )
     val testUUID: String,
     val cellUuid: String,
     /**

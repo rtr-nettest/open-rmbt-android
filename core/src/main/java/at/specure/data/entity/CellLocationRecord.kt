@@ -6,22 +6,18 @@ import androidx.room.PrimaryKey
 import at.specure.data.Columns
 import at.specure.data.Tables
 
-@Entity(
-    tableName = Tables.CELL_LOCATION,
-    foreignKeys = [
-        ForeignKey(
-            entity = TestRecord::class,
-            parentColumns = [Columns.TEST_UUID_PARENT_COLUMN],
-            childColumns = ["testUUID"],
-            onDelete = ForeignKey.CASCADE
-        )
-    ]
-)
+@Entity(tableName = Tables.CELL_LOCATION)
 data class CellLocationRecord(
 
     @PrimaryKey(autoGenerate = true)
     val id: Long = 0,
 
+    @ForeignKey(
+        entity = TestRecord::class,
+        parentColumns = [Columns.TEST_UUID_PARENT_COLUMN],
+        childColumns = ["testUUID"],
+        onDelete = ForeignKey.CASCADE
+    )
     val testUUID: String,
 
     val scramblingCode: Int,
