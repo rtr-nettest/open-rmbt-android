@@ -10,9 +10,7 @@ import at.rtr.rmbt.android.ui.fragment.START_ZOOM_LEVEL
 import at.specure.util.formatYearMonthForDisplay
 import at.specure.util.getCurrentLatestFinishedMonth
 import com.mapbox.mapboxsdk.geometry.LatLng
-import java.text.SimpleDateFormat
 import java.util.Calendar
-import java.util.Locale
 
 private const val KEY_TYPE = "KEY_TYPE"
 private const val KEY_STYLE = "KEY_STYLE"

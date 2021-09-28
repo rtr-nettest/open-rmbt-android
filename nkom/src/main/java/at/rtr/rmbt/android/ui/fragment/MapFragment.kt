@@ -11,7 +11,6 @@ import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.TextView
 import android.widget.Toast
-import androidx.annotation.DrawableRes
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.LinearSnapHelper
@@ -31,9 +30,6 @@ import at.rtr.rmbt.android.util.listen
 import at.rtr.rmbt.android.util.singleResult
 import at.rtr.rmbt.android.viewmodel.MapViewModel
 import at.rtr.rmbt.android.viewmodel.TechnologyFilter
-import at.specure.data.NetworkTypeCompat
-import at.specure.data.ServerNetworkType
-import at.specure.data.entity.MarkerMeasurementRecord
 import at.specure.util.isCoarseLocationPermitted
 import com.mapbox.mapboxsdk.camera.CameraUpdateFactory
 import com.mapbox.mapboxsdk.geometry.LatLng
