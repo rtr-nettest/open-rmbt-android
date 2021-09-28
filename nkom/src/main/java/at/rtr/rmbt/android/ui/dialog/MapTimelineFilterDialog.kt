@@ -6,6 +6,7 @@ import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.LinearLayout.SHOW_DIVIDER_NONE
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProviders
@@ -14,7 +15,7 @@ import at.rtr.rmbt.android.databinding.DialogFiltersBinding
 import at.rtr.rmbt.android.di.Injector
 import at.rtr.rmbt.android.viewmodel.MapFiltersViewModel
 
-class MapFiltersDialog : FullscreenDialog(), MapFiltersConfirmationDialog.Callback {
+class MapTimelineFilterDialog : FullscreenDialog(), MapFiltersConfirmationDialog.Callback {
 
     override val gravity: Int = Gravity.BOTTOM
 
@@ -50,42 +51,72 @@ class MapFiltersDialog : FullscreenDialog(), MapFiltersConfirmationDialog.Callba
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        var currentSelectedYearIndex = 0
+        var currentSelectedMonthIndex = 0
+
+        viewModel.yearList.forEachIndexed { index, i ->
+            if (i == viewModel.currentYearToDisplay) {
+                currentSelectedYearIndex = index
+            }
+        }
+
+        val displayedValuesT = viewModel.monthDisplayForYearHashMap[viewModel.yearList[currentSelectedYearIndex]]?.toTypedArray() ?: listOf<String>().toTypedArray()
+        val currentYearMonths = viewModel.monthNumbersForYearHashMap[viewModel.yearList[currentSelectedYearIndex]]
+        val maxValueT = currentYearMonths!!.size - 1
+
+        currentYearMonths.forEachIndexed { index, i ->
+            if (i == viewModel.currentMonthNumberToDisplay - 1) {
+                currentSelectedMonthIndex = index
+            }
+        }
+
+        viewModel.filterSelectedYear = viewModel.yearList[0]
+        viewModel.filterSelectedMonth = viewModel.monthNumbersForYearHashMap[viewModel.filterSelectedYear]!![0] + 1
+
         binding.monthPicker.apply {
-            displayedValues = viewModel.monthDisplayForYearHashMap[viewModel.yearList[viewModel.yearList.size - 1]]?.toTypedArray() ?: listOf<String>().toTypedArray()
-            minValue = viewModel.monthNumbersForYearHashMap[viewModel.yearList[viewModel.yearList.size - 1]]!![0]
-            maxValue =
-                viewModel.monthNumbersForYearHashMap[viewModel.yearList[viewModel.yearList.size - 1]]!![viewModel.monthNumbersForYearHashMap[viewModel.yearList[viewModel.yearList.size - 1]]!!.size - 1]
+            displayedValues = displayedValuesT
+            maxValue = maxValueT
+            minValue = 0
             wrapSelectorWheel = false
-            value = viewModel.currentMonthNumber
+            showDividers = SHOW_DIVIDER_NONE
+            value = currentSelectedMonthIndex
         }
 
         binding.yearPicker.apply {
             displayedValues = viewModel.yearDisplayNames.toTypedArray()
-            minValue = viewModel.yearList[0]
-            maxValue = viewModel.yearList[viewModel.yearList.size - 1]
+            maxValue = viewModel.yearList.size - 1
+            minValue = 0
             wrapSelectorWheel = false
-            value = viewModel.yearList[viewModel.yearList.size - 1]
+            value = currentSelectedYearIndex
         }
 
         binding.yearPicker.setOnValueChangedListener { picker, oldVal, newVal ->
             if (oldVal != newVal) {
                 updateMonthPickerList(newVal)
+                viewModel.filterSelectedYear = viewModel.yearList[newVal]
+                viewModel.filterSelectedMonth = viewModel.monthNumbersForYearHashMap[viewModel.filterSelectedYear]!![0] + 1
             }
+        }
+
+        viewModel.filterSelectedYear = viewModel.currentYearToDisplay
+        viewModel.filterSelectedMonth = viewModel.currentMonthNumberToDisplay
+
+        binding.monthPicker.setOnValueChangedListener { picker, oldVal, newVal ->
+            viewModel.filterSelectedMonth = viewModel.monthNumbersForYearHashMap[viewModel.filterSelectedYear]!![newVal] + 1
         }
 
         binding.close.setOnClickListener { dismiss() }
     }
 
     private fun updateMonthPickerList(newVal: Int) {
-        val selectedMonth = binding.monthPicker.value
+        val selectedYear = viewModel.yearList[newVal]
         binding.monthPicker.apply {
-            displayedValues = viewModel.monthDisplayForYearHashMap[viewModel.yearList[newVal]]?.toTypedArray() ?: listOf<String>().toTypedArray()
-            minValue = viewModel.monthNumbersForYearHashMap[viewModel.yearList[newVal]]!![0]
-            maxValue = viewModel.monthNumbersForYearHashMap[viewModel.yearList[newVal]]!![viewModel.monthNumbersForYearHashMap[viewModel.yearList[newVal]]!!.size - 1]
+            value = minValue
+            displayedValues = viewModel.monthDisplayForYearHashMap[selectedYear]?.toTypedArray() ?: listOf<String>().toTypedArray()
+            maxValue = viewModel.monthNumbersForYearHashMap[selectedYear]!!.size - 1
+            minValue = 0
             wrapSelectorWheel = false
-            value = if (selectedMonth in minValue..maxValue) {
-                selectedMonth
-            } else maxValue
+            showDividers = SHOW_DIVIDER_NONE
         }
     }
 
@@ -104,7 +135,7 @@ class MapFiltersDialog : FullscreenDialog(), MapFiltersConfirmationDialog.Callba
 
     override fun onDismiss(dialog: DialogInterface) {
         super.onDismiss(dialog)
-        callback?.onFiltersUpdated()
+        callback?.onTimeFilterUpdated(viewModel.filterSelectedYear, viewModel.filterSelectedMonth)
     }
 
     companion object {
@@ -117,10 +148,14 @@ class MapFiltersDialog : FullscreenDialog(), MapFiltersConfirmationDialog.Callba
         const val CODE_PERIOD = 5
         const val CODE_PROVIDER = 6
 
-        fun instance(fragment: Fragment, requestCode: Int): FullscreenDialog = MapFiltersDialog().apply { setTargetFragment(fragment, requestCode) }
+        fun instance(fragment: Fragment, requestCode: Int): FullscreenDialog = MapTimelineFilterDialog().apply { setTargetFragment(fragment, requestCode) }
     }
 
     interface Callback {
-        fun onFiltersUpdated()
+
+        /**
+         * update of a time filter as a year integer (current year) and month 1-based (1 - january, 2 - february, ...)
+         */
+        fun onTimeFilterUpdated(year: Int, month: Int)
     }
 }

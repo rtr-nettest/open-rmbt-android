@@ -44,7 +44,7 @@ class MapFiltersConfirmationDialog : FullscreenDialog() {
         arguments?.getInt(ARG_POSITION)?.let { adapter.selected = it }
         val title = arguments?.getString(ARG_TITLE)
         binding.buttonText =
-            getString(if (targetRequestCode == MapFiltersDialog.CODE_TYPE) R.string.text_filter_continue else R.string.text_filter_confirm)
+            getString(if (targetRequestCode == MapTimelineFilterDialog.CODE_TYPE) R.string.text_filter_continue else R.string.text_filter_confirm)
 
         binding.label.text = title
         binding.items.adapter = adapter

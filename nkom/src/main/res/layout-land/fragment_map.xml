@@ -230,7 +230,7 @@
             <androidx.appcompat.widget.AppCompatTextView
                 android:id="@+id/timeline"
                 style="@style/ResultMainItemUnit"
-                android:layout_width="match_parent"
+                android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:backgroundTint="@android:color/white"
                 android:padding="@dimen/padding_medium"

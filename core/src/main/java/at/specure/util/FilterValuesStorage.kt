@@ -8,6 +8,7 @@ import at.rmbt.client.control.FilterStatisticOptionResponse
 import at.rmbt.client.control.FilterTechnologyOptionResponse
 import at.rmbt.client.control.MapTypeOptionsResponse
 import at.rmbt.client.control.data.MapFilterType
+import java.util.Calendar
 import java.util.EnumMap
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -22,6 +23,7 @@ class FilterValuesStorage @Inject constructor() {
     private var technology: Map<MapFilterType, List<FilterTechnologyOptionResponse>> = EnumMap(MapFilterType::class.java)
     private var operator: Map<MapFilterType, List<FilterOperatorOptionResponse>> = EnumMap(MapFilterType::class.java)
     private var provider: Map<MapFilterType, List<FilterProviderOptionResponse>> = EnumMap(MapFilterType::class.java)
+    private var time: Pair<Int, Int> = Calendar.getInstance().getCurrentLatestFinishedMonth()
 
     var titleSubtype: String = ""
     var titleStatistics: String = ""
@@ -37,7 +39,8 @@ class FilterValuesStorage @Inject constructor() {
         period: Map<MapFilterType, List<FilterPeriodOptionResponse>>,
         technology: Map<MapFilterType, List<FilterTechnologyOptionResponse>>,
         operator: Map<MapFilterType, List<FilterOperatorOptionResponse>>,
-        provider: Map<MapFilterType, List<FilterProviderOptionResponse>>
+        provider: Map<MapFilterType, List<FilterProviderOptionResponse>>,
+        time: Pair<Int, Int>
     ) {
         this.types = types
         this.subTypes = subTypes
@@ -46,6 +49,7 @@ class FilterValuesStorage @Inject constructor() {
         this.technology = technology
         this.operator = operator
         this.provider = provider
+        this.time = time
     }
 
     fun findStatisticalList(type: MapFilterType) = statistics[type]
@@ -86,6 +90,18 @@ class FilterValuesStorage @Inject constructor() {
     fun findProviderDefault(type: MapFilterType) = findDefaultOption(type, provider).title
 
     fun findOperatorDefault(type: MapFilterType) = findDefaultOption(type, operator).title
+
+    fun findTime(): Pair<Int, Int> {
+        return time
+    }
+
+    /**
+     * Month-Year (month is 1 - based)
+     */
+    fun findTimeDefault(): String {
+        val currentMonth = Calendar.getInstance().getCurrentLatestFinishedMonth()
+        return "${currentMonth.first}-${currentMonth.second}"
+    }
 
     private fun findOption(value: String?, type: MapFilterType, data: Map<MapFilterType, List<FilterBaseOptionResponse>>) =
         data[type]?.find { it.title == value } ?: findDefaultOption(type, data)
