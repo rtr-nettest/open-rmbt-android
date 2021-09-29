@@ -196,7 +196,7 @@
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/textJitter"
             style="@style/ResultMainItemMainValue"
-            android:layout_width="0dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:drawablePadding="@dimen/padding_very_small"
             android:maxLines="2"
@@ -231,7 +231,7 @@
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/textPacketLoss"
             style="@style/ResultMainItemMainValue"
-            android:layout_width="0dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:drawablePadding="@dimen/padding_very_small"
             android:maxLines="2"

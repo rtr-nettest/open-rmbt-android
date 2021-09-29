@@ -177,10 +177,10 @@ class MeasurementViewModel @Inject constructor(
             this.state.signalStrengthInfoResult.set(producer?.lastMeasurementSignalInfo)
             if (state == MeasurementState.INIT) {
                 _resultWaitingToBeSentLiveData.postValue(true)
-                loadMedianValues(this.state.loopModeRecord.get()?.uuid)
+//                loadMedianValues(this.state.loopModeRecord.get()?.uuid)
             } else {
                 if (this.loopUuidLiveData.value != null && this.loopProgressLiveData.value != null && this.loopProgressLiveData.value?.testsPerformed!! > 0 && this.state.pingNanos.get() == 0L || this.state.pingNanosMedian.get() == 0L) {
-                    loadMedianValues(this.state.loopModeRecord.get()?.uuid)
+//                    loadMedianValues(this.state.loopModeRecord.get()?.uuid)
                 }
             }
         }
@@ -189,6 +189,7 @@ class MeasurementViewModel @Inject constructor(
     private fun loadMedianValues(loopUUID: String?) {
         loopUUID?.let { loopUuid ->
             io {
+                Timber.d("LoadMedianValues 1")
                 historyRepository.loadLoopMedianValues(loopUuid).collect { medians ->
                     this@MeasurementViewModel.state.setMedianValues(medians)
                 }
@@ -311,6 +312,7 @@ class MeasurementViewModel @Inject constructor(
         if (loopLocalUUID != null) {
             Timber.d("Loop UUID not null")
             loopProgressLiveData = testDataRepository.getLoopModeByLocal(loopLocalUUID)
+            Timber.d("Loop UUID to load median values: ${loopProgressLiveData.value?.uuid}")
             loadMedianValues(loopProgressLiveData.value?.uuid)
             _loopUUIDLiveData.postValue(loopLocalUUID)
             this.state.loopLocalUUID.set(loopLocalUUID)

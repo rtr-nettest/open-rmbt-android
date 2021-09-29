@@ -162,7 +162,6 @@
                 android:layout_height="wrap_content"
                 android:layout_margin="24dp"
                 android:src="@drawable/image_basic"
-                app:layout_constraintBottom_toTopOf="@id/block_loop_waiting"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/speed_line" />
@@ -172,19 +171,9 @@
                 layout="@layout/view_block_loop_waiting"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                app:layout_constraintBottom_toTopOf="@id/block_loop_median"
-                app:layout_constraintTop_toBottomOf="@id/image"
-                app:visibleOrGone="@{state.isLoopModeActive }" />
-
-            <include
-                android:id="@+id/block_loop_median"
-                layout="@layout/view_block_loop_median"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
                 app:layout_constraintBottom_toTopOf="@id/resultContainer"
-                app:layout_constraintTop_toBottomOf="@id/block_loop_waiting"
-                app:state="@{state}"
-                app:visibleOrGone="@{state.isLoopModeActive &amp;&amp; state.loopCurrentProgress > 1}" />
+                app:layout_constraintTop_toBottomOf="@id/buttonCancel"
+                app:visibleOrGone="@{state.isLoopModeActive }" />
 
             <FrameLayout
                 android:id="@+id/resultContainer"
@@ -193,7 +182,7 @@
                 app:layout_constraintBottom_toTopOf="@id/resultListContainer"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/block_loop_median" />
+                app:layout_constraintTop_toBottomOf="@+id/block_loop_waiting" />
 
             <FrameLayout
                 android:id="@+id/resultListContainer"
@@ -211,8 +200,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:visibility="gone"
-                app:constraint_referenced_ids="block_loop_waiting,block_loop_median"
-                app:visibleOrGone="@{state.isLoopModeActive &amp;&amp; (state.loopCurrentProgress > 1 || state.measurementState == MeasurementState.FINISH)}" />
+                app:constraint_referenced_ids="block_loop_waiting, resultContainer, resultListContainer"
+                app:visibleOrGone="@{state.isLoopModeActive &amp;&amp; (state.measurementState == MeasurementState.FINISH)}" />
 
             <androidx.constraintlayout.widget.Group
                 android:id="@+id/loop_measurement_phase_group"

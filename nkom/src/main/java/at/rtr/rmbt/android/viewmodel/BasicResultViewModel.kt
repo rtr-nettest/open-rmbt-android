@@ -19,6 +19,7 @@ import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.onCompletion
 import kotlinx.coroutines.flow.zip
 import kotlinx.coroutines.launch
+import timber.log.Timber
 import javax.inject.Inject
 
 class BasicResultViewModel @Inject constructor(
@@ -76,6 +77,7 @@ class BasicResultViewModel @Inject constructor(
                 io {
                     if (state.useLatestResults) {
                         historyRepository.loadHistoryItems(0, 100, true).onSuccess {
+                            Timber.d("History Successfuly loaded: ${it[0].loopUUID} ${it[0].speedDownload}  from size: ${it.size}")
                             historyRepository.loadLoopMedianValues(state.testUUID).onCompletion {
                                 _loadingLiveData.postValue(true)
                             }.collect {
