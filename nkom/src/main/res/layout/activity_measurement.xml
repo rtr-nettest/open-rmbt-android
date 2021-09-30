@@ -166,23 +166,36 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/speed_line" />
 
-            <include
-                android:id="@+id/block_loop_waiting"
-                layout="@layout/view_block_loop_waiting"
-                android:layout_width="match_parent"
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/resultTitle"
+                style="@style/ResultMainItemUnit"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                app:layout_constraintBottom_toTopOf="@id/resultContainer"
-                app:layout_constraintTop_toBottomOf="@id/buttonCancel"
-                app:visibleOrGone="@{state.isLoopModeActive }" />
+                android:paddingStart="@dimen/padding_large"
+                android:paddingEnd="@dimen/padding_large"
+                android:text="@string/median_values"
+                android:textSize="14sp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/buttonCancel" />
 
             <FrameLayout
                 android:id="@+id/resultContainer"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                app:layout_constraintBottom_toTopOf="@id/resultListContainer"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/block_loop_waiting" />
+                app:layout_constraintTop_toBottomOf="@+id/resultTitle" />
+
+            <include
+                android:id="@+id/block_loop_waiting"
+                layout="@layout/view_block_loop_waiting"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/resultContainer"
+                app:visibleOrGone="@{state.isLoopModeActive }" />
 
             <FrameLayout
                 android:id="@+id/resultListContainer"
@@ -192,7 +205,7 @@
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/resultContainer"
+                app:layout_constraintTop_toBottomOf="@+id/block_loop_waiting"
                 app:layout_constraintVertical_weight="1" />
 
             <androidx.constraintlayout.widget.Group
@@ -200,7 +213,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:visibility="gone"
-                app:constraint_referenced_ids="block_loop_waiting, resultContainer, resultListContainer"
+                app:constraint_referenced_ids="block_loop_waiting, resultContainer, resultListContainer, resultTitle"
                 app:visibleOrGone="@{state.isLoopModeActive &amp;&amp; (state.measurementState == MeasurementState.FINISH)}" />
 
             <androidx.constraintlayout.widget.Group
