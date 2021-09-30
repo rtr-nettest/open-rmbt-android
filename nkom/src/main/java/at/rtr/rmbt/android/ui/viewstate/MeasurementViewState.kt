@@ -110,7 +110,7 @@ class MeasurementViewState(private val config: AppConfig) : ViewState {
 
     fun setMedianValues(historyLoopMedian: HistoryLoopMedian?) {
         historyLoopMedian?.let {
-            Timber.d("Loop Medians values = ${it}")
+            Timber.d("Loop Medians values = $it")
             this.downloadSpeedBpsMedian.set((historyLoopMedian.downloadMedianMbps * 1000000f).toLong())
             this.uploadSpeedBpsMedian.set((historyLoopMedian.uploadMedianMbps * 1000000f).toLong())
             this.pingNanosMedian.set((historyLoopMedian.pingMedianMillis * 1000000f).toLong())

@@ -9,15 +9,12 @@ import at.rtr.rmbt.android.databinding.ActivityLoopMeasurementResultsBinding
 import at.rtr.rmbt.android.di.viewModelLazy
 import at.rtr.rmbt.android.ui.adapter.LoopMeasurementAdapter
 import at.rtr.rmbt.android.ui.fragment.BasicResultFragment
-import at.rtr.rmbt.android.ui.fragment.SimpleResultsListFragment
 import at.rtr.rmbt.android.util.TestUuidType
 import at.rtr.rmbt.android.util.ToolbarTheme
 import at.rtr.rmbt.android.util.changeStatusBarColor
 import at.rtr.rmbt.android.viewmodel.ResultsListLoopViewModel
-import at.specure.data.entity.LoopModeState
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
-import timber.log.Timber
 
 class LoopMeasurementResultsActivity : BaseActivity() {
 

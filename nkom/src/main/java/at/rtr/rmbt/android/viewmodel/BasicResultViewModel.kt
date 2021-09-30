@@ -90,7 +90,6 @@ class BasicResultViewModel @Inject constructor(
                     if (state.useLatestResults) {
                         historyRepository.loadHistoryItems(0, 100, true).onSuccess {
                             Timber.d("History Successfuly loaded: ${it[0].loopUUID} ${it[0].speedDownload}  from size: ${it.size}")
-                            Timber.d("History X 1")
                             historyRepository.loadLoopMedianValues(state.testUUID).onCompletion {
                                 _loadingLiveData.postValue(true)
                             }.collect {
@@ -111,11 +110,23 @@ class BasicResultViewModel @Inject constructor(
                             }
                         }
                     } else {
-                        Timber.d("History X 2")
                         historyRepository.loadLoopMedianValues(state.testUUID).onCompletion {
                             _loadingLiveData.postValue(true)
                         }.collect {
                             _loopMedianValuesLiveData.postValue(it)
+                            it?.qosMedian?.let { qosMedian ->
+                                val qoeqos = listOf(
+                                    QoeInfoRecord(
+                                        testUUID = state.testUUID,
+                                        category = QoECategory.QOE_QOS,
+                                        classification = Classification.NONE,
+                                        percentage = qosMedian,
+                                        info = null,
+                                        priority = 0
+                                    )
+                                )
+                                qoeLoopResultLiveData.postValue(qoeqos)
+                            }
                         }
                     }
                 }

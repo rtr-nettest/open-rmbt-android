@@ -82,7 +82,7 @@ BasicResultFragment : BaseFragment() {
                             latitude = null,
                             networkProviderName = null,
                             networkName = null,
-                            signalStrength = null,
+                            signalStrength = null
                         )
                         viewModel.state.testResult.set(testResultMedian)
                         onDataLoadedListener?.onDataLoaded()
