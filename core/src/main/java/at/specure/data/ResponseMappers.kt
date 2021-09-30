@@ -84,7 +84,7 @@ fun HistoryItemONTResponse.toModel(): History {
     return History(
         testUUID = testUUID,
         loopUUID = loopUUID,
-        referenceUUID = testUUID, // todo: change when loop uuid will be available
+        referenceUUID = loopUUID ?: testUUID,
         model = "",
         networkType = NetworkTypeCompat.fromString(
             networkType ?: ServerNetworkType.TYPE_UNKNOWN2.stringValue
