@@ -103,10 +103,32 @@ BasicResultFragment : BaseFragment() {
             val qosResultItem = it.filter { qoeItem -> qoeItem.category == QoECategory.QOE_QOS }
 
             if (qosResultItem.isEmpty()) {
-                binding.qosResultGroup.visibility = View.GONE
+                binding.qosResultGroup.visibility = View.INVISIBLE
             } else {
                 binding.qosResultGroup.visibility = View.VISIBLE
                 binding.textQos.text = (qosResultItem[0].percentage).roundToInt().toString()
+            }
+        }
+
+        viewModel.qoeLoopResultLiveData.listen(this) {
+            when {
+                viewModel.qoeSingleResultLiveData.value?.get(0) != null -> {
+                    viewModel._qoeResultLiveData.postValue(viewModel.qoeSingleResultLiveData.value)
+                }
+                it.isNotEmpty() -> {
+                    viewModel._qoeResultLiveData.postValue(it)
+                }
+            }
+        }
+
+        viewModel.qoeSingleResultLiveData.listen(this) {
+            when {
+                viewModel.qoeLoopResultLiveData.value?.get(0) != null -> {
+                    viewModel._qoeResultLiveData.postValue(viewModel.qoeLoopResultLiveData.value)
+                }
+                it.isNotEmpty() -> {
+                    viewModel._qoeResultLiveData.postValue(it)
+                }
             }
         }
 

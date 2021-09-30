@@ -368,4 +368,5 @@
     <string name="text_no_persistent_client_uuid">Nettfart trenger visse tillatelser for å fungere korrekt.</string>
     <string name="text_link_no_persistent_client_uuid">Gå til personverntillatelser</string>
     <string name="permissions">Tillatelser</string>
+    <string name="median_values">Medianverdier</string>
 </resources>

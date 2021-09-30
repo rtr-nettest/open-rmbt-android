@@ -161,6 +161,7 @@
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/textPing"
             style="@style/ResultMainItemMainValue"
+            android:textSize="14sp"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:drawablePadding="@dimen/padding_very_small"
@@ -196,6 +197,7 @@
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/textJitter"
             style="@style/ResultMainItemMainValue"
+            android:textSize="14sp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:drawablePadding="@dimen/padding_very_small"
@@ -231,6 +233,7 @@
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/textPacketLoss"
             style="@style/ResultMainItemMainValue"
+            android:textSize="14sp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:drawablePadding="@dimen/padding_very_small"
@@ -267,7 +270,8 @@
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/textQos"
             style="@style/ResultMainItemMainValue"
-            android:layout_width="0dp"
+            android:layout_width="wrap_content"
+            android:textSize="14sp"
             android:layout_height="wrap_content"
             android:drawablePadding="@dimen/padding_very_small"
             android:maxLines="2"
@@ -290,7 +294,7 @@
             android:id="@+id/qosResultGroup"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:visibility="gone"
+            android:visibility="invisible"
             app:constraint_referenced_ids="textQosUnit, textQos, labelResultBottomQos" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>

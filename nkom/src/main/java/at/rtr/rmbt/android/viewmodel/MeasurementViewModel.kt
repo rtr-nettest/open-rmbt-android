@@ -189,7 +189,7 @@ class MeasurementViewModel @Inject constructor(
     private fun loadMedianValues(loopUUID: String?) {
         loopUUID?.let { loopUuid ->
             io {
-                Timber.d("LoadMedianValues 1")
+                Timber.d("History X 3")
                 historyRepository.loadLoopMedianValues(loopUuid).collect { medians ->
                     this@MeasurementViewModel.state.setMedianValues(medians)
                 }
