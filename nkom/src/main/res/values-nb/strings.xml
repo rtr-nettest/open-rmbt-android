@@ -340,11 +340,6 @@
     <string name="label_measurement_server">Måleserver</string>
     <string name="label_change_test_server">Endre testserver</string>
 
-    <string name="measurement">Mål</string>
-    <string name="label_measurement_ping_ms">Ping (ms)</string>
-    <string name="label_measurement_download_mbps">Last ned (Mbps)</string>
-    <string name="label_measurement_upload_mbps">Last opp (Mbps)</string>
-    <string name="label_measurement_qos">QoS (%)</string>
     <string name="label_measurement_time_to_next_test">På tide med neste test</string>
     <string name="label_measurement_movement">Bevegelse</string>
 
