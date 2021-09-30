@@ -49,7 +49,7 @@ class ControlServerClient @Inject constructor(private val endpointProvider: Cont
         page: Long
     ): Maybe<HistoryONTResponse> {
         return api.getHistoryONT(
-            endpointProvider.getHistoryUrl + "?page=$page&size=$size&active=measurement_date&direction=desc",
+            endpointProvider.getHistoryUrl + "?page=$page&size=$size&sort=measurementDate,desc",
             body
         ).exec()
     }
