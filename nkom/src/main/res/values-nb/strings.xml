@@ -333,7 +333,6 @@
 
     <string-array name="title_results_tabs">
         <item>Liste</item>
-        <item>Kart</item>
     </string-array>
 
     <string name="label_network_type">Nettverkstype</string>
@@ -341,11 +340,6 @@
     <string name="label_measurement_server">Måleserver</string>
     <string name="label_change_test_server">Endre testserver</string>
 
-    <string name="measurement">Mål</string>
-    <string name="label_measurement_ping_ms">Ping (ms)</string>
-    <string name="label_measurement_download_mbps">Last ned (Mbps)</string>
-    <string name="label_measurement_upload_mbps">Last opp (Mbps)</string>
-    <string name="label_measurement_qos">QoS (%)</string>
     <string name="label_measurement_time_to_next_test">På tide med neste test</string>
     <string name="label_measurement_movement">Bevegelse</string>
 
@@ -369,4 +363,5 @@
     <string name="text_no_persistent_client_uuid">Nettfart trenger visse tillatelser for å fungere korrekt.</string>
     <string name="text_link_no_persistent_client_uuid">Gå til personverntillatelser</string>
     <string name="permissions">Tillatelser</string>
+    <string name="median_values">Medianverdier</string>
 </resources>

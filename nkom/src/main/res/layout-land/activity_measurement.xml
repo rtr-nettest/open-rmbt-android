@@ -170,39 +170,38 @@
             app:layout_constraintEnd_toStartOf="@id/guide_half"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/progress_line"
-            app:visibleOrGone="@{!state.isLoopModeActive || (state.loopCurrentProgress == 1 &amp;&amp; state.measurementState != MeasurementState.FINISH)}" />
+            app:visibleOrGone="@{(state.measurementState != MeasurementState.FINISH)}" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/resultWaitTitle"
+            style="@style/ResultMainItemUnit"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:paddingStart="@dimen/padding_large"
+            android:paddingEnd="@dimen/padding_large"
+            android:text="@string/median_values"
+            android:textSize="14sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/buttonCancel" />
 
         <include
             android:id="@+id/block_loop_waiting"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
             layout="@layout/view_block_loop_waiting"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            app:layout_constraintBottom_toTopOf="@id/block_loop_median"
-            app:layout_constraintEnd_toStartOf="@id/guide_half"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/progress_line"
+            app:layout_constraintTop_toBottomOf="@id/resultContainer"
             app:visibleOrGone="@{state.isLoopModeActive }" />
-
-        <include
-            android:id="@+id/block_loop_median"
-            layout="@layout/view_block_loop_median"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            app:layout_constraintBottom_toTopOf="@id/resultContainer"
-            app:layout_constraintEnd_toStartOf="@id/guide_half"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/block_loop_waiting"
-            app:state="@{state}"
-            app:visibleOrGone="@{state.isLoopModeActive &amp;&amp; state.loopCurrentProgress > 1}" />
 
         <FrameLayout
             android:id="@+id/resultContainer"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            app:layout_constraintBottom_toTopOf="@id/resultListContainer"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/speed_line" />
+            app:layout_constraintTop_toBottomOf="@id/resultWaitTitle" />
 
         <FrameLayout
             android:id="@+id/resultListContainer"
@@ -212,16 +211,15 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/resultContainer"
+            app:layout_constraintTop_toBottomOf="@+id/block_loop_waiting"
             app:layout_constraintVertical_weight="1" />
 
         <androidx.constraintlayout.widget.Group
             android:id="@+id/loop_waiting_phase_group"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:visibility="gone"
-            app:constraint_referenced_ids="block_loop_waiting,block_loop_median"
-            app:visibleOrGone="@{state.isLoopModeActive &amp;&amp; (state.loopCurrentProgress > 1 || state.measurementState == MeasurementState.FINISH)}" />
+            app:constraint_referenced_ids="block_loop_waiting, resultContainer, resultListContainer, resultWaitTitle"
+            app:visibleOrGone="@{state.isLoopModeActive &amp;&amp; (state.measurementState == MeasurementState.FINISH)}" />
 
         <androidx.constraintlayout.widget.Group
             android:id="@+id/loop_measurement_phase_group"

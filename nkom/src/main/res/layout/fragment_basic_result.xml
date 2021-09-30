@@ -110,6 +110,18 @@
             app:xlabel_text_size="0dp"
             app:ylabel_text_size="0dp" />
 
+        <View
+            android:id="@+id/firstDivider"
+            style="@style/ResultMainItemLabel"
+            android:layout_width="0dp"
+            android:layout_height="1dp"
+            android:layout_margin="@dimen/margin_large"
+            android:background="@color/horizontal_divider"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_weight="1"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/upload_chart" />
+
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/labelResultBottomUpload"
             style="@style/ResultMainItemLabel"
@@ -150,17 +162,18 @@
             style="@style/ResultMainItemLabel"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginTop="40dp"
+            android:layout_marginTop="20dp"
             android:lines="2"
             android:text="@string/measurement_ping"
             app:layout_constraintEnd_toStartOf="@+id/labelResultBottomJitter"
             app:layout_constraintHorizontal_weight="2"
             app:layout_constraintStart_toStartOf="@id/labelResultBottomDownload"
-            app:layout_constraintTop_toBottomOf="@id/download_chart" />
+            app:layout_constraintTop_toBottomOf="@id/firstDivider" />
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/textPing"
             style="@style/ResultMainItemMainValue"
+            android:textSize="14sp"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:drawablePadding="@dimen/padding_very_small"
@@ -196,7 +209,8 @@
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/textJitter"
             style="@style/ResultMainItemMainValue"
-            android:layout_width="0dp"
+            android:textSize="14sp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:drawablePadding="@dimen/padding_very_small"
             android:maxLines="2"
@@ -231,7 +245,8 @@
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/textPacketLoss"
             style="@style/ResultMainItemMainValue"
-            android:layout_width="0dp"
+            android:textSize="14sp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:drawablePadding="@dimen/padding_very_small"
             android:maxLines="2"
@@ -267,7 +282,8 @@
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/textQos"
             style="@style/ResultMainItemMainValue"
-            android:layout_width="0dp"
+            android:layout_width="wrap_content"
+            android:textSize="14sp"
             android:layout_height="wrap_content"
             android:drawablePadding="@dimen/padding_very_small"
             android:maxLines="2"
@@ -290,8 +306,20 @@
             android:id="@+id/qosResultGroup"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:visibility="gone"
+            android:visibility="invisible"
             app:constraint_referenced_ids="textQosUnit, textQos, labelResultBottomQos" />
+
+        <View
+            android:id="@+id/secondDivider"
+            style="@style/ResultMainItemLabel"
+            android:layout_width="0dp"
+            android:layout_height="1dp"
+            android:layout_margin="@dimen/margin_large"
+            android:background="@color/horizontal_divider"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_weight="1"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/textPing" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

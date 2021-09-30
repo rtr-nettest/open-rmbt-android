@@ -333,7 +333,6 @@
 
     <string-array name="title_results_tabs">
         <item>List</item>
-        <item>Map</item>
     </string-array>
 
     <string name="label_network_type">Network type</string>
@@ -341,11 +340,6 @@
     <string name="label_measurement_server">Measurement server</string>
     <string name="label_change_test_server">Change Test Server</string>
 
-    <string name="measurement">Measurement</string>
-    <string name="label_measurement_ping_ms">Ping (ms)</string>
-    <string name="label_measurement_download_mbps">Download (Mbps)</string>
-    <string name="label_measurement_upload_mbps">Upload (Mbps)</string>
-    <string name="label_measurement_qos">QoS (%)</string>
     <string name="label_measurement_time_to_next_test">Time to next test</string>
     <string name="label_measurement_movement">Movement</string>
 
@@ -369,5 +363,6 @@
     <string name="text_no_persistent_client_uuid">Nettfart needs certain permissions to operate correctly</string>
     <string name="text_link_no_persistent_client_uuid">Go to privacy permissions</string>
     <string name="permissions">Permissions</string>
+    <string name="median_values">Median values</string>
 
 </resources>
