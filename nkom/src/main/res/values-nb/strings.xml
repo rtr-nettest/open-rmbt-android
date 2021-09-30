@@ -333,7 +333,6 @@
 
     <string-array name="title_results_tabs">
         <item>Liste</item>
-        <item>Kart</item>
     </string-array>
 
     <string name="label_network_type">Nettverkstype</string>
