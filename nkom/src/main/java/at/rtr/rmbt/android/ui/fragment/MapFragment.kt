@@ -280,7 +280,11 @@ class MapFragment : BaseFragment(), OnMapReadyCallback, MapMarkerDetailsAdapter.
 
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
-        binding.map.onSaveInstanceState(outState)
+        try {
+            binding.map.onSaveInstanceState(outState)
+        } catch (exception: UninitializedPropertyAccessException) {
+            Timber.e(exception.localizedMessage)
+        }
     }
 
     override fun onLowMemory() {
