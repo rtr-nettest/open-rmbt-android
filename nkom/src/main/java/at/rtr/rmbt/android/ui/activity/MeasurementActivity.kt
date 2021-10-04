@@ -195,8 +195,6 @@ class MeasurementActivity : BaseActivity(), SimpleDialog.Callback {
         if (loopRecord?.status == LoopModeState.FINISHED || loopRecord?.status == LoopModeState.CANCELLED) {
             finishActivity(true)
         }
-
-
     }
 
     private fun showBasicResultsFragment() {
