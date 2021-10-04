@@ -44,6 +44,7 @@ class MeasurementActivity : BaseActivity(), SimpleDialog.Callback {
     private val viewModel: MeasurementViewModel by viewModelLazy()
     private lateinit var binding: ActivityMeasurementBinding
     private var resultFragment: BasicResultFragment? = null
+    var loopMedianValuesReloadNeeded = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -185,6 +186,12 @@ class MeasurementActivity : BaseActivity(), SimpleDialog.Callback {
             }
         }
 
+        if (loopRecord?.testsPerformed != null && loopRecord.testsPerformed >= 2 && loopMedianValuesReloadNeeded) {
+            Timber.d("Loading median values on Loop record changed")
+            loopMedianValuesReloadNeeded = false
+            viewModel.initializeLoopData(loopRecord.localUuid)
+        }
+
         if (loopRecord?.status == LoopModeState.FINISHED || loopRecord?.status == LoopModeState.CANCELLED) {
             finishActivity(true)
         }
@@ -237,6 +244,7 @@ class MeasurementActivity : BaseActivity(), SimpleDialog.Callback {
 
     override fun onResume() {
         super.onResume()
+        loopMedianValuesReloadNeeded = true
         Timber.d("MeasurementViewModel RESUME")
     }
 

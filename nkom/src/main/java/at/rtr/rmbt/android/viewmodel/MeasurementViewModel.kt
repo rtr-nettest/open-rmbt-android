@@ -306,16 +306,19 @@ class MeasurementViewModel @Inject constructor(
         }
     }
 
-    private fun initializeLoopData(loopLocalUUID: String?) {
+    fun initializeLoopData(loopLocalUUID: String?) {
         _resultWaitingToBeSentLiveData.postValue(false)
         if (loopLocalUUID != null) {
             Timber.d("Loop UUID not null")
             loopProgressLiveData = testDataRepository.getLoopModeByLocal(loopLocalUUID)
-            Timber.d("Loop UUID to load median values: ${loopProgressLiveData.value?.uuid}")
-            loadMedianValues(loopProgressLiveData.value?.uuid)
+            Timber.d("Loop UUID to load median values (Loaded from DB): ${loopProgressLiveData.value?.uuid}")
+
             _loopUUIDLiveData.postValue(loopLocalUUID)
             this.state.loopLocalUUID.set(loopLocalUUID)
         }
+        val loopUUID = this.state.loopModeRecord.get()?.uuid
+        Timber.d("Loop UUID to load median values (already loaded): $loopUUID")
+        loadMedianValues(loopUUID)
     }
 
     override fun onQoSTestProgressUpdated(tasksPassed: Int, tasksTotal: Int, progressMap: Map<QoSTestResultEnum, Int>) {
