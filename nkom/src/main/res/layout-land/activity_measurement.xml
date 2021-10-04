@@ -162,8 +162,8 @@
 
         <androidx.appcompat.widget.AppCompatImageView
             android:id="@+id/image"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
             android:layout_margin="24dp"
             android:src="@drawable/image_basic"
             app:layout_constraintBottom_toBottomOf="parent"
@@ -210,8 +210,10 @@
             android:layout_marginTop="@dimen/margin_large"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/block_loop_waiting"
+            app:layout_constraintVertical_bias="0.0"
             app:layout_constraintVertical_weight="1" />
 
         <androidx.constraintlayout.widget.Group
