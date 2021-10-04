@@ -311,8 +311,10 @@ class MeasurementViewModel @Inject constructor(
         if (loopLocalUUID != null) {
             Timber.d("Loop UUID not null")
             loopProgressLiveData = testDataRepository.getLoopModeByLocal(loopLocalUUID)
-            Timber.d("Loop UUID to load median values: ${loopProgressLiveData.value?.uuid}")
-            loadMedianValues(loopProgressLiveData.value?.uuid)
+            val loopUUID = this.state.loopModeRecord.get()?.uuid
+            Timber.d("Loop UUID to load median values (Loaded from DB): ${loopProgressLiveData.value?.uuid}")
+            Timber.d("Loop UUID to load median values (already loaded): $loopUUID")
+            loadMedianValues(loopUUID)
             _loopUUIDLiveData.postValue(loopLocalUUID)
             this.state.loopLocalUUID.set(loopLocalUUID)
         }
