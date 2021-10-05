@@ -26,7 +26,7 @@
     <string name="loop_mode_finished">Nkom Nettfart loop -modus ferdig!</string>
     <string name="text_terms_agree">Jeg er enig med Specures personvernerklæring og vilkår for bruk for Nkom Nettfart.</string>
 
-    <string name="text_home_run">Kjør hastighetsmåling</string>
+    <string name="text_home_run">Start Testen</string>
     <string name="text_basic_measurement">Hastighetsmåling</string>
 
     <string name="basic_result_title">Grunnleggende resultat</string>
