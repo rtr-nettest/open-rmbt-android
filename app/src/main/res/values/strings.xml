@@ -180,6 +180,7 @@
     <string name="measurement_progress_units" translatable="false">%</string>
     <string name="label_signal_strength">Signal</string>
     <string name="network_label">Network</string>
+    <string name="technology_label">Technology</string>
 
     <string name="speed_progress_units" translatable="false">Mbit/s</string>
     <string name="title_cancel_measurement">Do you really want to cancel the ongoing measurement?</string>
