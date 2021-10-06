@@ -3,23 +3,32 @@ package at.rtr.rmbt.android.viewmodel
 import android.widget.ArrayAdapter
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import at.rmbt.util.io
 import at.rtr.rmbt.android.R
+import at.rtr.rmbt.android.ui.adapter.MapSearchResultAdapter
 import at.rtr.rmbt.android.ui.viewstate.MapViewState
+import at.rtr.rmbt.android.util.model.MapSearchResult
 import at.specure.data.repository.MapRepository
 import at.specure.location.LocationInfo
 import at.specure.location.LocationState
 import at.specure.location.LocationWatcher
 import at.specure.util.formatForFilter
 import at.specure.util.getCurrentLatestFinishedMonth
+import com.google.gson.JsonParser
+import com.mapbox.mapboxsdk.geometry.LatLng
+import com.mapbox.mapboxsdk.geometry.LatLngBounds
+import okhttp3.*
 import timber.log.Timber
-import java.util.Calendar
-import java.util.Locale
+import java.io.IOException
+import java.util.*
 import javax.inject.Inject
 
 class MapViewModel @Inject constructor(
     private val repository: MapRepository,
     private val locationWatcher: LocationWatcher
 ) : BaseViewModel() {
+
+    val mapSearchResultAdapter: MapSearchResultAdapter = MapSearchResultAdapter()
 
     private var filterTechnology: TechnologyFilter = TechnologyFilter.FILTER_ALL
     private var currentProvider: String
@@ -103,6 +112,42 @@ class MapViewModel @Inject constructor(
     fun setTimeFilter(year: Int, month: Int) {
         state.setTimeFilterValue(year, month)
         repository.setTimeSelected(year, month)
+    }
+
+    fun loadSearchResults(query: String, latLng: LatLng, found: (List<MapSearchResult>) -> Unit) = io {
+        val token = "" //TODO: Add token
+        val limit = 10
+        val queryParameters = "?q=$query&at=${latLng.latitude},${latLng.longitude}&in=countryCode:NOR&limit=$limit&apiKey=$token"
+        val request = Request.Builder()
+            .url("https://geocode.search.hereapi.com/v1/geocode$queryParameters")
+            .build()
+        OkHttpClient().newCall(request).enqueue(object : Callback {
+            override fun onFailure(call: Call, e: IOException) {
+                e.printStackTrace()
+            }
+
+            override fun onResponse(call: Call, response: Response) {
+                response.use { res ->
+                    val jsonElement = JsonParser.parseString(res.body!!.string())
+                    val results = jsonElement.asJsonObject.getAsJsonArray("items").map {
+                        val item = it.asJsonObject
+                        MapSearchResult(
+                            item.get("title").asString,
+                            item.get("address").asJsonObject.get("label").asString,
+                            item.get("position").asJsonObject.get("lat").asDouble,
+                            item.get("position").asJsonObject.get("lng").asDouble,
+                            LatLngBounds.from(
+                                item.get("mapView").asJsonObject.get("north").asDouble,
+                                item.get("mapView").asJsonObject.get("east").asDouble,
+                                item.get("mapView").asJsonObject.get("south").asDouble,
+                                item.get("mapView").asJsonObject.get("west").asDouble
+                            )
+                        )
+                    }
+                    found.invoke(results)
+                }
+            }
+        })
     }
 }
 
