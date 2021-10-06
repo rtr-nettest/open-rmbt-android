@@ -250,7 +250,8 @@ class MapFragment : BaseFragment(), OnMapReadyCallback, MapMarkerDetailsAdapter.
         bottomSheetDialog.findViewById<TextView>(R.id.averageUp)?.text = String.format(
             "%d Mbps", feature.getProperty("$currentLayerPrefix-UPLOAD")?.asDouble?.roundToInt() ?: 0)
         bottomSheetDialog.findViewById<TextView>(R.id.averageLatency)?.text = String.format(
-            "%d Mbps", feature.getProperty("$currentLayerPrefix-PING")?.asDouble?.roundToInt() ?: 0)
+            "%d ms", feature.getProperty("$currentLayerPrefix-PING")?.asDouble?.roundToInt() ?: 0
+        )
         bottomSheetDialog.findViewById<ImageButton>(R.id.closeButton)?.setOnClickListener {
             bottomSheetDialog.dismiss()
         }
