@@ -23,6 +23,13 @@
         android:layout_height="match_parent"
         android:background="@color/measurement_dark_gray">
 
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/verticalHalf"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            app:layout_constraintGuide_percent="0.75" />
+
         <at.rtr.rmbt.android.ui.view.curve.MeasurementCurveLayout
             android:id="@+id/curve_layout"
             android:layout_width="0dp"
@@ -71,6 +78,31 @@
             android:textStyle="bold"
             app:layout_constraintStart_toStartOf="@id/measurementBottomView"
             app:layout_constraintTop_toBottomOf="@id/network_name_label" />
+
+        <TextView
+            android:id="@+id/network_tech_label"
+            android:layout_width="wrap_content"
+            android:layout_height="0dp"
+            android:layout_marginTop="@dimen/padding_medium"
+            android:layout_marginEnd="@dimen/padding_large"
+            android:text="@string/technology_label"
+            android:textColor="@color/text_white_transparency_40"
+            android:textSize="@dimen/network_label_size"
+            android:textStyle="bold"
+            app:layout_constraintStart_toStartOf="@+id/verticalHalf"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/technology_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="@dimen/padding_large"
+            android:textColor="@android:color/background_light"
+            android:textSize="@dimen/network_name_size"
+            android:textStyle="bold"
+            app:layout_constraintStart_toStartOf="@+id/network_tech_label"
+            app:layout_constraintTop_toBottomOf="@id/network_tech_label"
+            app:networkTypeDetailed="@{state.detailedNetworkInfo}" />
 
         <include
             android:id="@+id/measurementBottomView"

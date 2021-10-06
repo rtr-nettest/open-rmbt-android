@@ -8,6 +8,7 @@ import androidx.databinding.ObservableLong
 import at.rtr.rmbt.android.config.AppConfig
 import at.specure.data.entity.LoopModeRecord
 import at.specure.data.entity.LoopModeState
+import at.specure.info.network.DetailedNetworkInfo
 import at.specure.info.network.NetworkInfo
 import at.specure.info.strength.SignalStrengthInfo
 import at.specure.measurement.MeasurementState
@@ -43,6 +44,7 @@ class MeasurementViewState(private val config: AppConfig) : ViewState {
     val signalStrengthInfo = ObservableField<SignalStrengthInfo?>()
     val signalStrengthInfoResult = ObservableField<SignalStrengthInfo?>()
     val networkInfo = ObservableField<NetworkInfo?>()
+    val detailedNetworkInfo = ObservableField<DetailedNetworkInfo?>()
     val qosEnabled = ObservableBoolean()
     val qosTaskProgress = ObservableField<String>()
     val loopProgress = ObservableField<String>()
