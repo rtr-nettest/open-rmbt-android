@@ -28,7 +28,7 @@
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:orientation="vertical"
-            app:layout_constraintGuide_percent="0.75" />
+            app:layout_constraintGuide_percent="0.80" />
 
         <at.rtr.rmbt.android.ui.view.curve.MeasurementCurveLayout
             android:id="@+id/curve_layout"
