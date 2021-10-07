@@ -34,6 +34,7 @@ android {
         buildConfigField "String", "COMMIT_HASH", "\"${getGitHash()}\""
         buildConfigField "int", "VERSION_CODE", "${versionCode}"
         buildConfigField "String", "VERSION_NAME", "\"${versionName}\""
+        buildConfigField "String", "HERE_API_KEY", HERE_API_KEY
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
