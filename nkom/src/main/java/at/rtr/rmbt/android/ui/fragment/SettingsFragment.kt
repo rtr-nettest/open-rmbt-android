@@ -106,6 +106,15 @@ class SettingsFragment : BaseFragment(), InputSettingDialog.Callback, ServerSele
             }
         }
 
+        binding.switchAnalytics.switchButton.isClickable = false
+        binding.switchAnalytics.rootView.setOnClickListener {
+            if (binding.switchAnalytics.switchButton.isChecked) {
+                settingsViewModel.state.analyticsEnabled.set(false)
+            } else {
+                settingsViewModel.state.analyticsEnabled.set(true)
+            }
+        }
+
         settingsViewModel.locationStateLiveData.listen(this) {
             settingsViewModel.state.isLocationEnabled.set(it)
             settingsViewModel.state.canManageLocationSettings.set(it == LocationState.ENABLED)
