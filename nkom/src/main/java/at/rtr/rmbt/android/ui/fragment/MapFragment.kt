@@ -3,17 +3,15 @@ package at.rtr.rmbt.android.ui.fragment
 import android.Manifest
 import android.annotation.SuppressLint
 import android.content.pm.PackageManager
-import android.location.Address
-import android.location.Geocoder
 import android.os.Bundle
 import android.view.View
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.ImageButton
 import android.widget.TextView
-import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.core.widget.addTextChangedListener
 import androidx.recyclerview.widget.LinearSnapHelper
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.SnapHelper
@@ -24,10 +22,11 @@ import at.rtr.rmbt.android.databinding.FragmentMapBinding
 import at.rtr.rmbt.android.di.viewModelLazy
 import at.rtr.rmbt.android.ui.activity.ShowWebViewActivity
 import at.rtr.rmbt.android.ui.adapter.MapMarkerDetailsAdapter
+import at.rtr.rmbt.android.ui.decorator.DividerDecorator
 import at.rtr.rmbt.android.ui.dialog.MapTimelineFilterDialog
 import at.rtr.rmbt.android.ui.dialog.MapLayersDialog
-import at.rtr.rmbt.android.ui.dialog.MapSearchDialog
 import at.rtr.rmbt.android.util.listen
+import at.rtr.rmbt.android.util.model.MapSearchResult
 import at.rtr.rmbt.android.util.singleResult
 import at.rtr.rmbt.android.viewmodel.MapViewModel
 import at.rtr.rmbt.android.viewmodel.TechnologyFilter
@@ -36,6 +35,7 @@ import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.mapbox.geojson.Feature
 import com.mapbox.mapboxsdk.camera.CameraUpdateFactory
 import com.mapbox.mapboxsdk.geometry.LatLng
+import com.mapbox.mapboxsdk.geometry.LatLngBounds
 import com.mapbox.mapboxsdk.maps.MapboxMap
 import com.mapbox.mapboxsdk.maps.OnMapReadyCallback
 import com.mapbox.mapboxsdk.maps.Style
@@ -45,8 +45,8 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.delay
 import timber.log.Timber
-import java.io.IOException
 import kotlin.math.roundToInt
 
 const val START_ZOOM_LEVEL = 12f
@@ -65,8 +65,8 @@ private const val DEFAULT_ZOOM_LEVEL = 3.1F
 private val DEFAULT_PRESENTATION_TYPE = MapPresentationType.AUTOMATIC
 private const val CODE_FILTERS_DIALOG = 2
 
-class MapFragment : BaseFragment(), OnMapReadyCallback, MapMarkerDetailsAdapter.MarkerDetailsCallback, MapLayersDialog.Callback,
-    MapTimelineFilterDialog.Callback, MapSearchDialog.Callback {
+class MapFragment : BaseFragment(), OnMapReadyCallback, MapMarkerDetailsAdapter.MarkerDetailsCallback,
+    MapLayersDialog.Callback, MapTimelineFilterDialog.Callback {
 
     private val mapViewModel: MapViewModel by viewModelLazy()
     private val binding: FragmentMapBinding by bindingLazy()
@@ -82,11 +82,12 @@ class MapFragment : BaseFragment(), OnMapReadyCallback, MapMarkerDetailsAdapter.
     private val coroutineScope: CoroutineScope = CoroutineScope(Dispatchers.Main)
     private var searchJob: Job? = null
 
-    @SuppressLint("SetJavaScriptEnabled")
+    @SuppressLint("SetJavaScriptEnabled", "ClickableViewAccessibility")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
         binding.state = mapViewModel.state
+        binding.adapter = mapViewModel.mapSearchResultAdapter
         mapViewModel.obtainFiltersFromServer()
 
         binding.map.onCreate(savedInstanceState)
@@ -117,13 +118,21 @@ class MapFragment : BaseFragment(), OnMapReadyCallback, MapMarkerDetailsAdapter.
         binding.markerItems.adapter = adapter
         binding.markerItems.itemAnimator?.changeDuration = 0
 
+        binding.searchResultsRecyclerview?.addItemDecoration(DividerDecorator(requireContext()))
+
         binding.searchButton.setOnClickListener {
-            showSearchDialog()
+            setSearchActive(true)
         }
         binding.searchCancelButton.setOnClickListener {
             searchJob?.cancel()
-            binding.searchCancelButton.visibility = View.GONE
-            binding.searchButton.visibility = View.VISIBLE
+            setSearchActive(false)
+        }
+        binding.searchInput.setOnTouchListener { _, _ ->
+            setSearchActive(true)
+            false
+        }
+        binding.searchInput.addTextChangedListener {
+            onSearchInputEdit()
         }
         val technologyFilterList: List<TextView> = listOf(
             binding.filterTechAll,
@@ -154,6 +163,17 @@ class MapFragment : BaseFragment(), OnMapReadyCallback, MapMarkerDetailsAdapter.
         }
     }
 
+    private fun setSearchActive(active: Boolean) {
+        binding.cardFilters.visibility = if (active) View.GONE else View.VISIBLE
+        binding.searchCancelButton.visibility = if (active) View.VISIBLE else View.GONE
+        binding.searchButton.visibility = if (active) View.GONE else View.VISIBLE
+        if (!active) {
+            binding.searchInput.text.clear()
+            mapViewModel.mapSearchResultAdapter.items.clear()
+            binding.cardSearchResult?.visibility = View.GONE
+        }
+    }
+
     private fun setTechnologySelected(technologyFilterList: List<TextView>, selectedView: View, filterType: TechnologyFilter) {
         mapViewModel.setTechnologyFilter(filterType)
         technologyFilterList.forEach { view ->
@@ -172,18 +192,6 @@ class MapFragment : BaseFragment(), OnMapReadyCallback, MapMarkerDetailsAdapter.
 
     override fun onTypeSelected(type: MapPresentationType) {
         mapViewModel.state.type.set(type)
-    }
-
-    override fun onAddressResult(address: Address?) {
-        if (address != null) {
-            mapboxMap?.moveCamera(
-                CameraUpdateFactory.newLatLngZoom(
-                    LatLng(address.latitude, address.longitude), 8.0
-                )
-            )
-        } else {
-            Toast.makeText(activity, R.string.map_search_location_dialog_not_found, Toast.LENGTH_SHORT).show()
-        }
     }
 
     @SuppressLint("MissingPermission")
@@ -250,8 +258,7 @@ class MapFragment : BaseFragment(), OnMapReadyCallback, MapMarkerDetailsAdapter.
         bottomSheetDialog.findViewById<TextView>(R.id.averageUp)?.text = String.format(
             "%d Mbps", feature.getProperty("$currentLayerPrefix-UPLOAD")?.asDouble?.roundToInt() ?: 0)
         bottomSheetDialog.findViewById<TextView>(R.id.averageLatency)?.text = String.format(
-            "%d ms", feature.getProperty("$currentLayerPrefix-PING")?.asDouble?.roundToInt() ?: 0
-        )
+            "%d ms", feature.getProperty("$currentLayerPrefix-PING")?.asDouble?.roundToInt() ?: 0)
         bottomSheetDialog.findViewById<ImageButton>(R.id.closeButton)?.setOnClickListener {
             bottomSheetDialog.dismiss()
         }
@@ -388,41 +395,31 @@ class MapFragment : BaseFragment(), OnMapReadyCallback, MapMarkerDetailsAdapter.
         }
     }
 
-    private fun showSearchDialog() {
-        if (!Geocoder.isPresent()) {
-            Toast.makeText(activity, R.string.map_search_location_not_supported, Toast.LENGTH_SHORT).show()
-            return
-        }
-        startSearch()
+    private fun onSearchResultSelect(item: MapSearchResult) {
+        mapboxMap?.animateCamera(
+            CameraUpdateFactory.newLatLngBounds(LatLngBounds.from(
+                item.bounds.north,
+                item.bounds.east,
+                item.bounds.south,
+                item.bounds.west
+            ), 0)
+        )
     }
 
-    private fun loadResults(value: String, found: (Address?) -> Unit) {
-        val geocoder = Geocoder(requireContext())
-        val addressList: List<Address>?
-        try {
-            addressList = geocoder.getFromLocationName(value, 1)
-            if (!addressList.isNullOrEmpty()) {
-                found.invoke(addressList[0])
-            } else {
-                found.invoke(null)
-            }
-        } catch (e: IOException) {
-            e.printStackTrace()
-            found.invoke(null)
-        }
-    }
-
-    private fun startSearch() {
+    private fun onSearchInputEdit() {
         val value: String = binding.searchInput.text.toString()
         if (value.isNotEmpty()) {
-            binding.searchButton.visibility = View.GONE
-            binding.searchCancelButton.visibility = View.VISIBLE
             searchJob?.cancel()
             searchJob = coroutineScope.launch {
-                loadResults(value) {
-                    onAddressResult(it)
-                    binding.searchButton.visibility = View.VISIBLE
-                    binding.searchCancelButton.visibility = View.GONE
+                delay(500)
+                mapViewModel.loadSearchResults(value, LatLng(DEFAULT_LAT, DEFAULT_LONG)) {
+                    activity?.runOnUiThread {
+                        binding.cardSearchResult?.visibility = View.VISIBLE
+                        mapViewModel.mapSearchResultAdapter.items = it.toMutableList()
+                        mapViewModel.mapSearchResultAdapter.actionCallback = { item ->
+                            onSearchResultSelect(item)
+                        }
+                    }
                 }
             }
         }
