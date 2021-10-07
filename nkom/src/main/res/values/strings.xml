@@ -230,8 +230,6 @@
     <string name="map_label_map_appearance">Map appearance</string>
     <string name="title_marker_item_details">Show more details</string>
 
-    <string name="map_search_location_dialog_title">Search</string>
-    <string name="map_search_location_dialog_info">Search for an address or city:</string>
     <string name="map_search_location_dialog_not_found">Address not found.</string>
     <string name="map_search_location_not_supported">Sorry, this function is not supported by your device.</string>
 
