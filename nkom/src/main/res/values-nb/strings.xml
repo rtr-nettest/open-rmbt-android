@@ -230,9 +230,6 @@
     <string name="map_label_map_appearance">Kartets utseende</string>
     <string name="title_marker_item_details">Vis flere detaljer</string>
 
-    <string name="map_search_location_dialog_not_found">Adressen ble ikke funnet.</string>
-    <string name="map_search_location_not_supported">Beklager, denne funksjonen støttes ikke av enheten din.</string>
-
     <string name="text_failed_to_load_results">Kunne ikke laste inn data. \ NTrekk ned for å oppdatere.</string>
 
     <string name="title_sync">Synkronisering</string>
