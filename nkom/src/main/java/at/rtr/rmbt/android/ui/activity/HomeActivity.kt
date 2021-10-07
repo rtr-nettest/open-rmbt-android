@@ -62,11 +62,6 @@ class HomeActivity : BaseActivity(), HomeFragment.NetworkInfoCallback {
 
         Mapbox.getInstance(this.applicationContext, getString(R.string.mapbox_public_key))
 
-        if (viewModel.config.analyticsEnabled) {
-            FirebaseCrashlytics.getInstance().setCrashlyticsCollectionEnabled(true)
-        } else {
-            FirebaseCrashlytics.getInstance().setCrashlyticsCollectionEnabled(false)
-        }
         Timber.d("Firebase crashlytics enabled: ${viewModel.config.analyticsEnabled}")
 
         setTransparentStatusBar()
@@ -115,8 +110,14 @@ class HomeActivity : BaseActivity(), HomeFragment.NetworkInfoCallback {
 
     override fun onStart() {
         super.onStart()
+        Timber.d("onStart")
         viewModel.attach(this)
         configCheckViewModel.checkConfig()
+        if (viewModel.config.analyticsEnabled) {
+            FirebaseCrashlytics.getInstance().setCrashlyticsCollectionEnabled(true)
+        } else {
+            FirebaseCrashlytics.getInstance().setCrashlyticsCollectionEnabled(false)
+        }
     }
 
     override fun onStop() {

@@ -107,6 +107,14 @@ class SettingsViewState constructor(
                 }
             }
         }
+        analyticsEnabled.addOnPropertyChanged { value ->
+            value.get()?.let {
+                appConfig.analyticsEnabled = it
+                if (!it) {
+                    refreshSettings()
+                }
+            }
+        }
         expertModeEnabled.addOnPropertyChanged { value ->
             value.get()?.let {
                 appConfig.expertModeEnabled = it
