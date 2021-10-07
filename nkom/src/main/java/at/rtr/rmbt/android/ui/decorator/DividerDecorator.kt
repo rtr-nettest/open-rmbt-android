@@ -26,5 +26,4 @@ class DividerDecorator(context: Context) : RecyclerView.ItemDecoration() {
             divider.draw(c)
         }
     }
-
 }
