@@ -15,13 +15,18 @@ import at.specure.location.LocationState
 import at.specure.location.LocationWatcher
 import at.specure.util.formatForFilter
 import at.specure.util.getCurrentLatestFinishedMonth
+import com.google.gson.Gson
 import com.google.gson.JsonParser
 import com.mapbox.mapboxsdk.geometry.LatLng
-import com.mapbox.mapboxsdk.geometry.LatLngBounds
-import okhttp3.*
+import okhttp3.Callback
+import okhttp3.Call
+import okhttp3.Response
+import okhttp3.OkHttpClient
+import okhttp3.Request
 import timber.log.Timber
 import java.io.IOException
-import java.util.*
+import java.util.Locale
+import java.util.Calendar
 import javax.inject.Inject
 
 class MapViewModel @Inject constructor(
@@ -131,19 +136,7 @@ class MapViewModel @Inject constructor(
                 response.use { res ->
                     val jsonElement = JsonParser.parseString(res.body!!.string())
                     val results = jsonElement.asJsonObject.getAsJsonArray("items").map {
-                        val item = it.asJsonObject
-                        MapSearchResult(
-                            item.get("title").asString,
-                            item.get("address").asJsonObject.get("label").asString,
-                            item.get("position").asJsonObject.get("lat").asDouble,
-                            item.get("position").asJsonObject.get("lng").asDouble,
-                            LatLngBounds.from(
-                                item.get("mapView").asJsonObject.get("north").asDouble,
-                                item.get("mapView").asJsonObject.get("east").asDouble,
-                                item.get("mapView").asJsonObject.get("south").asDouble,
-                                item.get("mapView").asJsonObject.get("west").asDouble
-                            )
-                        )
+                        Gson().fromJson(it, MapSearchResult::class.java)
                     }
                     found.invoke(results)
                 }

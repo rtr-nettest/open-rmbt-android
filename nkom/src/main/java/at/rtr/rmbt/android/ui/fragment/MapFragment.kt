@@ -35,12 +35,17 @@ import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.mapbox.geojson.Feature
 import com.mapbox.mapboxsdk.camera.CameraUpdateFactory
 import com.mapbox.mapboxsdk.geometry.LatLng
+import com.mapbox.mapboxsdk.geometry.LatLngBounds
 import com.mapbox.mapboxsdk.maps.MapboxMap
 import com.mapbox.mapboxsdk.maps.OnMapReadyCallback
 import com.mapbox.mapboxsdk.maps.Style
 import com.mapbox.mapboxsdk.style.layers.Property.VISIBLE
 import com.mapbox.mapboxsdk.style.layers.PropertyFactory.visibility
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.delay
 import timber.log.Timber
 import kotlin.math.roundToInt
 
@@ -392,7 +397,12 @@ class MapFragment : BaseFragment(), OnMapReadyCallback, MapMarkerDetailsAdapter.
 
     private fun onSearchResultSelect(item: MapSearchResult) {
         mapboxMap?.animateCamera(
-            CameraUpdateFactory.newLatLngBounds(item.bounds, 0)
+            CameraUpdateFactory.newLatLngBounds(LatLngBounds.from(
+                item.bounds.north,
+                item.bounds.east,
+                item.bounds.south,
+                item.bounds.west
+            ), 0)
         )
     }
 
