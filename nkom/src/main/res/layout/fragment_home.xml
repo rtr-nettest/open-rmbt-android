@@ -157,7 +157,7 @@
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/tvLblNoConnection"
-            style="@style/RobotoRegularStyle.Medium"
+            style="@style/AttenNewRegularStyle.Medium"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="48dp"
@@ -172,7 +172,7 @@
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/tvTextNoConnection"
-            style="@style/RobotoRegularStyle.Medium"
+            style="@style/AttenNewRegularStyle.Medium"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:gravity="center"

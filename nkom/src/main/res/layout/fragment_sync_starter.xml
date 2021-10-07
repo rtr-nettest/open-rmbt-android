@@ -10,7 +10,7 @@
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/title"
-            style="@style/RobotoMediumStyle.Large"
+            style="@style/AttenNewMediumStyle.Large"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="60dp"
@@ -35,7 +35,7 @@
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/text"
-            style="@style/RobotoRegularStyle.Medium"
+            style="@style/AttenNewRegularStyle.Medium"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"

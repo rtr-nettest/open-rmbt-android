@@ -19,7 +19,7 @@
 
         <TextView
             android:id="@+id/label"
-            style="@style/RobotoMediumStyle.Medium"
+            style="@style/AttenNewMediumStyle.Medium"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:padding="@dimen/margin_large"
@@ -49,7 +49,7 @@
 
         <TextView
             android:id="@+id/label_devices"
-            style="@style/RobotoRegularStyle.Medium"
+            style="@style/AttenNewRegularStyle.Medium"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/padding_large"
@@ -61,7 +61,7 @@
 
         <TextView
             android:id="@+id/text_devices"
-            style="@style/RobotoRegularStyle.VerySmall"
+            style="@style/AttenNewRegularStyle.VerySmall"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/margin_large"
@@ -99,7 +99,7 @@
 
         <TextView
             android:id="@+id/label_networks"
-            style="@style/RobotoRegularStyle.Medium"
+            style="@style/AttenNewRegularStyle.Medium"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/padding_large"
@@ -111,7 +111,7 @@
 
         <TextView
             android:id="@+id/text_networks"
-            style="@style/RobotoRegularStyle.VerySmall"
+            style="@style/AttenNewRegularStyle.VerySmall"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/margin_large"

@@ -57,7 +57,7 @@
             app:tabMaxWidth="100dp"
             app:tabMinWidth="100dp"
             app:tabSelectedTextColor="@color/colorAccent"
-            app:tabTextAppearance="@style/RobotoMediumStyle.Medium"
+            app:tabTextAppearance="@style/AttenNewMediumStyle.Medium"
             app:tabTextColor="@android:color/black" />
 
         <androidx.appcompat.widget.AppCompatImageView

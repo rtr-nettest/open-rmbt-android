@@ -21,7 +21,7 @@
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/textTitle"
-            style="@style/RobotoRegularStyle.Medium"
+            style="@style/AttenNewRegularStyle.Medium"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
@@ -32,7 +32,7 @@
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/textValue"
-            style="@style/RobotoRegularStyle.VerySmall"
+            style="@style/AttenNewRegularStyle.VerySmall"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"

@@ -18,7 +18,7 @@
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/labelInformation"
-            style="@style/RobotoMediumStyle.Medium"
+            style="@style/AttenNewMediumStyle.Medium"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:padding="@dimen/padding_large"
@@ -27,7 +27,7 @@
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/textInformation"
-            style="@style/RobotoRegularStyle.Small"
+            style="@style/AttenNewRegularStyle.Small"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:padding="@dimen/padding_large"
@@ -37,7 +37,7 @@
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/labelTests"
-            style="@style/RobotoMediumStyle.Medium"
+            style="@style/AttenNewMediumStyle.Medium"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:padding="@dimen/padding_large"

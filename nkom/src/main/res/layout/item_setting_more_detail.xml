@@ -12,7 +12,7 @@
 
     <androidx.appcompat.widget.AppCompatTextView
         android:id="@+id/titleTVISMD"
-        style="@style/RobotoRegularStyle.MediumSmall"
+        style="@style/AttenNewRegularStyle.MediumSmall"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@drawable/settings_item_divider_bg"

@@ -36,7 +36,7 @@
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/label_accuracy"
-            style="@style/RobotoRegularStyle.Medium"
+            style="@style/AttenNewRegularStyle.Medium"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="24dp"
@@ -51,7 +51,7 @@
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/text_accuracy"
-            style="@style/RobotoRegularStyle.Medium"
+            style="@style/AttenNewRegularStyle.Medium"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:alpha="0.5"
@@ -75,7 +75,7 @@
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/label_accuracy_phone"
-            style="@style/RobotoRegularStyle.Medium"
+            style="@style/AttenNewRegularStyle.Medium"
             android:layout_width="0dp"
             android:layout_height="32dp"
             android:layout_marginStart="24dp"
@@ -90,7 +90,7 @@
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/text_accuracy_phone"
-            style="@style/RobotoRegularStyle.Medium"
+            style="@style/AttenNewRegularStyle.Medium"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:alpha="0.5"
@@ -115,7 +115,7 @@
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/label_accuracy_location"
-            style="@style/RobotoRegularStyle.Medium"
+            style="@style/AttenNewRegularStyle.Medium"
             android:layout_width="0dp"
             android:layout_height="32dp"
             android:layout_marginStart="24dp"
@@ -131,7 +131,7 @@
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/text_accuracy_location"
-            style="@style/RobotoRegularStyle.Medium"
+            style="@style/AttenNewRegularStyle.Medium"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:alpha="0.5"

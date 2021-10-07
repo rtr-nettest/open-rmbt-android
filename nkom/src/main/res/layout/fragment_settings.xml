@@ -196,7 +196,7 @@
 
             <androidx.appcompat.widget.AppCompatTextView
                 android:id="@+id/clientUUIDtitle"
-                style="@style/RobotoRegularStyle.MediumSmall"
+                style="@style/AttenNewRegularStyle.MediumSmall"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:ellipsize="marquee"
@@ -213,7 +213,7 @@
 
             <androidx.appcompat.widget.AppCompatTextView
                 android:id="@+id/clientUUIDvalue"
-                style="@style/RobotoRegularStyle.SmallSmall"
+                style="@style/AttenNewRegularStyle.SmallSmall"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:background="@drawable/settings_item_divider_bg"
