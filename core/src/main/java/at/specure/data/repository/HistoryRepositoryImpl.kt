@@ -10,6 +10,7 @@ import at.specure.data.ClientUUID
 import at.specure.data.HistoryFilterOptions
 import at.specure.data.HistoryLoopMedian
 import at.specure.data.dao.HistoryDao
+import at.specure.data.dao.QoeInfoDao
 import at.specure.data.entity.History
 import at.specure.data.toCapabilitiesBody
 import at.specure.data.toModelList
@@ -25,7 +26,8 @@ class HistoryRepositoryImpl(
     private val clientUUID: ClientUUID,
     private val client: ControlServerClient,
     private val settingsRepository: SettingsRepository,
-    private val historyFilterOptions: HistoryFilterOptions
+    private val historyFilterOptions: HistoryFilterOptions,
+    private val qoeInfoDao: QoeInfoDao
 ) : HistoryRepository {
 
     override val activeNetworksLiveData = historyFilterOptions.activeNetworksLiveData

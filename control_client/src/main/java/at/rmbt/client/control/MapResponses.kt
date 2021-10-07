@@ -78,6 +78,41 @@ data class MapFilterObjectResponse(val mapFilters: MapFiltersResponse, val mapTy
 data class MapTypeResponse(val options: List<MapTypeOptionsResponse>, val title: String)
 
 @Keep
+data class NationalTableResponse(
+    @SerializedName("statsByProvider")
+    val providerStats: List<ProviderStatistics>?,
+
+    @SerializedName("averageUpload")
+    val averageUploadKbps: String?,
+
+    @SerializedName("averageDownload")
+    val averageDownloadKbps: String?,
+
+    @SerializedName("averageLatency")
+    val averageLatencyMillis: String?,
+
+    @SerializedName("allMeasurements")
+    val allMeasurementsCount: String?
+) : BaseResponse()
+
+@Keep
+data class ProviderStatistics(
+    val providerName: String?,
+
+    @SerializedName("upload")
+    val averageUploadKbps: String?,
+
+    @SerializedName("download")
+    val averageDownloadKbps: String?,
+
+    @SerializedName("latency")
+    val averageLatencyMillis: String?,
+
+    @SerializedName("measurements")
+    val allMeasurementsCount: String?
+)
+
+@Keep
 @Parcelize
 data class MapTypeOptionsResponse(
     @SerializedName("map_options")
@@ -116,7 +151,7 @@ data class FilterOperatorOptionResponse(val operator: String) : FilterBaseOption
 
 @Keep
 @Parcelize
-open class FilterBaseOptionResponse(val default: Boolean = false, val summary: String = "", val title: String = "") : Parcelable
+open class FilterBaseOptionResponse(var default: Boolean = false, var summary: String = "", var title: String = "") : Parcelable
 
 @Keep
 data class TypeOptionsResponse(val options: List<FilterBaseOptionResponse>, val title: String)

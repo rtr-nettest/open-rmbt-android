@@ -83,8 +83,8 @@ fun HistoryItemONTResponse.toModel(): History {
     val dateTime = DateTime(measurementDate)
     return History(
         testUUID = testUUID,
-        loopUUID = null,
-        referenceUUID = testUUID, // todo: change when loop uuid will be available
+        loopUUID = loopUUID,
+        referenceUUID = loopUUID ?: testUUID,
         model = "",
         networkType = NetworkTypeCompat.fromString(
             networkType ?: ServerNetworkType.TYPE_UNKNOWN2.stringValue

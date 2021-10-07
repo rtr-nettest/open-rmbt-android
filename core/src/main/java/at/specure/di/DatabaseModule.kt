@@ -71,9 +71,10 @@ class DatabaseModule {
         database: CoreDatabase,
         clientUUID: ClientUUID,
         client: ControlServerClient,
-        config: Config
+        config: Config,
+        settingsRepository: SettingsRepository
     ): ResultsRepository =
-        ResultsRepositoryImpl(context, database, clientUUID, client, config)
+        ResultsRepositoryImpl(context, database, clientUUID, client, config, settingsRepository)
 
     @Provides
     fun provideIpCheckRepository(
@@ -101,7 +102,7 @@ class DatabaseModule {
         settingsRepository: SettingsRepository,
         filterOptions: HistoryFilterOptions
     ): HistoryRepository =
-        HistoryRepositoryImpl(database.historyDao(), config, clientUUID, controlServerClient, settingsRepository, filterOptions)
+        HistoryRepositoryImpl(database.historyDao(), config, clientUUID, controlServerClient, settingsRepository, filterOptions, database.qoeInfoDao())
 
     @Provides
     fun provideTestResultRepository(
@@ -118,9 +119,10 @@ class DatabaseModule {
         database: CoreDatabase,
         filterValuesStorage: FilterValuesStorage,
         activeFilter: ActiveFilter,
-        controlServerSettings: ControlServerSettings
+        controlServerSettings: ControlServerSettings,
+        config: Config
     ): MapRepository =
-        MapRepositoryImpl(client, database, filterValuesStorage, activeFilter, controlServerSettings)
+        MapRepositoryImpl(client, database, filterValuesStorage, activeFilter, controlServerSettings, config)
 
     @Provides
     fun provideSignalMeasurementRepository(

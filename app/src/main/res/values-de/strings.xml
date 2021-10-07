@@ -165,6 +165,7 @@
     <string name="label_init">Init</string>
     <string name="label_signal_strength">Signal</string>
     <string name="network_label">Netz</string>
+    <string name="technology_label">Technologie</string>
 
     <string name="title_cancel_measurement">Wollen Sie wirklich die laufende Messung abbrechen?</string>
     <string name="text_continue_measurement">Messung fortführen</string>
