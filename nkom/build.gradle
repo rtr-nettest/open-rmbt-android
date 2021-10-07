@@ -87,6 +87,7 @@ dependencies {
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:$versions.coroutines"
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:$versions.coroutines"
 
+    implementation "com.squareup.okhttp3:okhttp:$versions.logging_interceptor"
     implementation "androidx.appcompat:appcompat:$versions.appcompat"
     implementation "androidx.core:core-ktx:$versions.androidx_core"
     implementation "com.google.android.material:material:$versions.material"
