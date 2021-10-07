@@ -166,6 +166,7 @@
     <string name="label_init">Init</string>
     <string name="label_signal_strength">Señal</string>
     <string name="network_label">Red</string>
+    <string name="technology_label">Tecnología</string>
 
     <string name="title_cancel_measurement">Desea realmente cancelar la prueba en marcha?</string>
     <string name="text_continue_measurement">Continuar prueba</string>
