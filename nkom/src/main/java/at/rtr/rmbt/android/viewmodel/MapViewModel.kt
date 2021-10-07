@@ -4,6 +4,7 @@ import android.widget.ArrayAdapter
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import at.rmbt.util.io
+import at.rtr.rmbt.android.BuildConfig
 import at.rtr.rmbt.android.R
 import at.rtr.rmbt.android.ui.adapter.MapSearchResultAdapter
 import at.rtr.rmbt.android.ui.viewstate.MapViewState
@@ -115,7 +116,7 @@ class MapViewModel @Inject constructor(
     }
 
     fun loadSearchResults(query: String, latLng: LatLng, found: (List<MapSearchResult>) -> Unit) = io {
-        val token = "" //TODO: Add token
+        val token = BuildConfig.HERE_API_KEY
         val limit = 10
         val queryParameters = "?q=$query&at=${latLng.latitude},${latLng.longitude}&in=countryCode:NOR&limit=$limit&apiKey=$token"
         val request = Request.Builder()
