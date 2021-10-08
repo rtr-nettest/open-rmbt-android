@@ -28,7 +28,7 @@
         <item name="colorAccent">@color/colorAccent</item>
         <item name="android:statusBarColor">@android:color/transparent</item>
         <item name="android:windowBackground">@color/colorPrimary</item>
-        <item name="colorControlHighlight">@color/greenRipple</item>
+        <item name="colorControlHighlight">@color/primaryRipple</item>
         <item name="android:windowDrawsSystemBarBackgrounds">false</item>
         <item name="fontFamily">@font/atten_new_regular</item>
         <item name="android:fontFamily">@font/atten_new_regular</item>
@@ -41,7 +41,7 @@
         <item name="android:windowBackground">@color/colorPrimary</item>
         <item name="android:windowLightStatusBar">true</item>
         <item name="android:statusBarColor">@android:color/transparent</item>
-        <item name="colorControlHighlight">@color/greenRipple</item>
+        <item name="colorControlHighlight">@color/primaryRipple</item>
         <item name="fontFamily">@font/atten_new_regular</item>
         <item name="android:fontFamily">@font/atten_new_regular</item>
     </style>
@@ -158,7 +158,7 @@
         <item name="android:windowNoTitle">true</item>
         <item name="android:windowIsFloating">true</item>
         <item name="android:windowBackground">@null</item>
-        <item name="colorControlHighlight">@color/greenRipple</item>
+        <item name="colorControlHighlight">@color/primaryRipple</item>
         <item name="fontFamily">@font/atten_new_regular</item>
         <item name="android:fontFamily">@font/atten_new_regular</item>
     </style>
@@ -176,12 +176,12 @@
         <item name="android:textSize">14sp</item>
         <item name="android:textAllCaps">true</item>
         <item name="android:textStyle">bold</item>
-        <item name="android:textColor">@color/main_color</item>
+        <item name="android:textColor">@color/dark</item>
     </style>
 
     <style name="Text.MeasurementProgress.Units" parent="AttenNewMediumStyle">
         <item name="android:textSize">12sp</item>
-        <item name="android:textColor">@color/main_color</item>
+        <item name="android:textColor">@color/dark</item>
     </style>
 
     <style name="ResultMainItemLabel" parent="AttenNewMediumStyle.VerySmall">
@@ -209,7 +209,7 @@
 
     <style name="Text.ResultListValue" parent="AttenNewRegularStyle">
         <item name="android:textSize">18sp</item>
-        <item name="android:textColor">@color/colorAccent</item>
+        <item name="android:textColor">@color/primary</item>
     </style>
 
     <style name="Text.ResultListDate" parent="AttenNewMediumStyle">

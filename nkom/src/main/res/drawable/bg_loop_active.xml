@@ -5,5 +5,5 @@
         android:width="24dp"
         android:height="24dp" />
     <corners android:radius="12dp" />
-    <solid android:color="@color/loop_mode_icon_background" />
+    <solid android:color="@color/tertiary" />
 </shape>

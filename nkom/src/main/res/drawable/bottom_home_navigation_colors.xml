@@ -1,4 +1,4 @@
 <selector xmlns:android="http://schemas.android.com/apk/res/android">
-    <item android:color="@color/navigation_green" android:state_checked="true" />
-    <item android:color="@color/navigation_gray" android:state_checked="false" />
+    <item android:color="@color/navigation_active" android:state_checked="true" />
+    <item android:color="@color/navigation_inactive" android:state_checked="false" />
 </selector>

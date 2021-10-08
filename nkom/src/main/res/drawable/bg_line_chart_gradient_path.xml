@@ -2,9 +2,9 @@
 <shape xmlns:android="http://schemas.android.com/apk/res/android">
     <gradient
         android:angle="0"
-        android:centerColor="@color/measurement_progress_center"
+        android:centerColor="@color/dark"
         android:centerX="50"
-        android:endColor="@color/measurement_progress_end"
-        android:startColor="@color/measurement_progress_start"
+        android:endColor="@color/dark"
+        android:startColor="@color/dark"
         android:type="linear" />
 </shape>

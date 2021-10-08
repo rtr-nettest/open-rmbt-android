@@ -1,19 +1,14 @@
 <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
     <item>
         <shape android:shape="rectangle">
-            <gradient
-                android:angle="45"
-                android:centerColor="@color/measurement_progress_center"
-                android:centerX="5"
-                android:endColor="@color/measurement_progress_end"
-                android:startColor="@color/measurement_progress_start" />
+            <solid android:color="@color/dark"/>
         </shape>
     </item>
     <item
-        android:bottom="2dp"
-        android:left="2dp"
-        android:right="2dp"
-        android:top="2dp">
+        android:bottom="1dp"
+        android:left="1dp"
+        android:right="1dp"
+        android:top="1dp">
         <shape android:shape="rectangle">
             <solid android:color="#fff" />
         </shape>
