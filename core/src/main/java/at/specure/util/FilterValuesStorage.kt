@@ -8,6 +8,7 @@ import at.rmbt.client.control.FilterStatisticOptionResponse
 import at.rmbt.client.control.FilterTechnologyOptionResponse
 import at.rmbt.client.control.MapTypeOptionsResponse
 import at.rmbt.client.control.data.MapFilterType
+import timber.log.Timber
 import java.util.Calendar
 import java.util.EnumMap
 import javax.inject.Inject
@@ -106,6 +107,12 @@ class FilterValuesStorage @Inject constructor() {
     private fun findOption(value: String?, type: MapFilterType, data: Map<MapFilterType, List<FilterBaseOptionResponse>>) =
         data[type]?.find { it.title == value } ?: findDefaultOption(type, data)
 
-    private fun findDefaultOption(type: MapFilterType, data: Map<MapFilterType, List<FilterBaseOptionResponse>>) =
-        (data[type] ?: data.values.first()).first { it.default }
+    private fun findDefaultOption(type: MapFilterType, data: Map<MapFilterType, List<FilterBaseOptionResponse>>): FilterBaseOptionResponse {
+        return try {
+            (data[type] ?: data.values.first()).first { it.default }
+        } catch (e: NoSuchElementException) {
+            Timber.e(e.localizedMessage)
+            FilterBaseOptionResponse()
+        }
+    }
 }
