@@ -67,10 +67,24 @@ class FilterValuesStorage @Inject constructor() {
 
     fun findType(value: String) = types[value]
 
-    fun findType(value: MapFilterType) = types.filterValues { it == value }.keys.first()
+    fun findType(value: MapFilterType): String {
+        return try {
+            types.filterValues { it == value }.keys.first()
+        } catch (e: Exception) {
+            Timber.e(e.localizedMessage)
+            MapFilterType.ALL.value
+        }
+    }
 
-    fun findSubtype(value: String?, type: MapFilterType) =
-        subTypes.getValue(type).firstOrNull { it.title == value } ?: subTypes.getValue(type).first()
+    fun findSubtype(value: String?, type: MapFilterType): MapTypeOptionsResponse {
+        return try {
+            subTypes.getValue(type).firstOrNull { it.title == value } ?: subTypes.getValue(type).first()
+        } catch (e: Exception) {
+            Timber.e(e.localizedMessage)
+            MapTypeOptionsResponse(MapFilterType.ALL.value, MapFilterType.ALL.value, MapFilterType.ALL.value)
+        }
+    }
+
 
     fun findStatistical(value: String?, type: MapFilterType) = findOption(value, type, statistics) as FilterStatisticOptionResponse
 
