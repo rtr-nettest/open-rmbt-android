@@ -218,7 +218,11 @@ class MapFragment : BaseFragment(), MapMarkerDetailsAdapter.MarkerDetailsCallbac
 
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
-        binding.map.onSaveInstanceState(outState)
+        try {
+            binding.map.onSaveInstanceState(outState)
+        } catch (e: UninitializedPropertyAccessException) {
+            Timber.e(e.localizedMessage)
+        }
     }
 
     override fun onCloseMarkerDetails() {
