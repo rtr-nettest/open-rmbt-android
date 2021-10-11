@@ -85,7 +85,6 @@ class FilterValuesStorage @Inject constructor() {
         }
     }
 
-
     fun findStatistical(value: String?, type: MapFilterType) = findOption(value, type, statistics) as FilterStatisticOptionResponse
 
     fun findPeriod(value: String?, type: MapFilterType) = findOption(value, type, period) as FilterPeriodOptionResponse
