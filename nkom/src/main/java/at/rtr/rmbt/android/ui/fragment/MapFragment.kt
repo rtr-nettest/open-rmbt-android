@@ -2,9 +2,11 @@ package at.rtr.rmbt.android.ui.fragment
 
 import android.Manifest
 import android.annotation.SuppressLint
+import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.view.View
+import android.view.inputmethod.InputMethodManager
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.ImageButton
@@ -81,6 +83,7 @@ class MapFragment : BaseFragment(), OnMapReadyCallback, MapMarkerDetailsAdapter.
     private var adapter: MapMarkerDetailsAdapter = MapMarkerDetailsAdapter(this)
     private val coroutineScope: CoroutineScope = CoroutineScope(Dispatchers.Main)
     private var searchJob: Job? = null
+    private var showSearch = false
 
     @SuppressLint("SetJavaScriptEnabled", "ClickableViewAccessibility")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -121,16 +124,22 @@ class MapFragment : BaseFragment(), OnMapReadyCallback, MapMarkerDetailsAdapter.
         binding.searchResultsRecyclerview?.addItemDecoration(DividerDecorator(requireContext()))
 
         binding.searchButton.setOnClickListener {
-            setSearchActive(true)
+            showSearch = true
+            setSearchActive(showSearch)
         }
         binding.searchCancelButton.setOnClickListener {
             searchJob?.cancel()
-            setSearchActive(false)
+            showSearch = false
+            setSearchActive(showSearch)
         }
-        binding.searchInput.setOnTouchListener { _, _ ->
-            setSearchActive(true)
-            false
+
+        binding.searchInput.setOnFocusChangeListener { _, hasFocus ->
+            if (hasFocus) {
+                showSearch = hasFocus
+                setSearchActive(showSearch)
+            }
         }
+
         binding.searchInput.addTextChangedListener {
             onSearchInputEdit()
         }
@@ -171,7 +180,27 @@ class MapFragment : BaseFragment(), OnMapReadyCallback, MapMarkerDetailsAdapter.
             binding.searchInput.text.clear()
             mapViewModel.mapSearchResultAdapter.items.clear()
             binding.cardSearchResult?.visibility = View.GONE
+            binding.searchInput.hideKeyboard()
+            binding.map.isFocusable = true
+            binding.map.isFocusableInTouchMode = true
+            binding.map.requestFocus()
+        } else {
+            binding.searchInput.isFocusable = true
+            binding.searchInput.isFocusableInTouchMode = true
+            binding.searchInput.requestFocus()
+            binding.searchInput.showKeyboard()
         }
+    }
+
+    fun View.showKeyboard() {
+        this.requestFocus()
+        val inputMethodManager = context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+        inputMethodManager.showSoftInput(this, InputMethodManager.SHOW_IMPLICIT)
+    }
+
+    fun View.hideKeyboard() {
+        val inputMethodManager = context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+        inputMethodManager.hideSoftInputFromWindow(windowToken, 0)
     }
 
     private fun setTechnologySelected(technologyFilterList: List<TextView>, selectedView: View, filterType: TechnologyFilter) {
@@ -302,7 +331,11 @@ class MapFragment : BaseFragment(), OnMapReadyCallback, MapMarkerDetailsAdapter.
 
     override fun onDestroyView() {
         super.onDestroyView()
-        binding.map.onDestroy()
+        try {
+            binding.map.onDestroy()
+        } catch (exception: UninitializedPropertyAccessException) {
+            Timber.e(exception.localizedMessage)
+        }
     }
 
     override fun onCloseMarkerDetails() {
@@ -414,10 +447,12 @@ class MapFragment : BaseFragment(), OnMapReadyCallback, MapMarkerDetailsAdapter.
                 delay(500)
                 mapViewModel.loadSearchResults(value, LatLng(DEFAULT_LAT, DEFAULT_LONG)) {
                     activity?.runOnUiThread {
-                        binding.cardSearchResult?.visibility = View.VISIBLE
-                        mapViewModel.mapSearchResultAdapter.items = it.toMutableList()
-                        mapViewModel.mapSearchResultAdapter.actionCallback = { item ->
-                            onSearchResultSelect(item)
+                        if (showSearch) {
+                            binding.cardSearchResult?.visibility = View.VISIBLE
+                            mapViewModel.mapSearchResultAdapter.items = it.toMutableList()
+                            mapViewModel.mapSearchResultAdapter.actionCallback = { item ->
+                                onSearchResultSelect(item)
+                            }
                         }
                     }
                 }
