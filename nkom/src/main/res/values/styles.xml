@@ -61,7 +61,6 @@
     <!--  Splash screen theme -->
 
     <style name="SplashNoActionBarTheme" parent="AppTheme.NoActionBar">
-        <item name="android:windowBackground">@drawable/splash_background</item>
         <item name="android:windowFullscreen">true</item>
         <item name="android:windowContentOverlay">@null</item>
         <item name="fontFamily">@font/atten_new_regular</item>

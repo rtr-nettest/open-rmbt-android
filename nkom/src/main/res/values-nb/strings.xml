@@ -19,6 +19,8 @@
     <string name="average_up">Gjennomsnittlig Opplasting</string>
     <string name="average_latency">Gjennomsnittlig Ventetid</string>
 
+    <string name="splash_text">Test hastigheten på din internett</string>
+
     <string name="open_location_permission_dialog_label_location_not_permitted">Nkom Nettfart har ikke lov til å bruke posisjonen din. Vil du la Nkom Nettfart bruke posisjonen din?</string>
     <string name="notification_test_title">Nkom Nettfart kjører</string>
     <string name="notification_signal_test_text">Nkom Nettfart -signalmåling kjører i bakgrunnen</string>
@@ -47,8 +49,8 @@
 
     <!-- Home screen -->
     <string name="home_attention">Merk følgende</string>
-    <string name="home_no_internet_connection">Ingen Internett -tilkobling!</string>
-    <string name="home_no_internet_connection_details">Ingen test er mulig.</string>
+    <string name="home_no_internet_connection">Ingen Internett -tilkobling</string>
+    <string name="home_no_internet_connection_details">Ingen test er mulig</string>
     <string name="home_signal_value">%1$d dBm</string>
     <string name="home_wifi">WLAN</string>
     <string name="public_ip_address">Offentlig adresse</string>

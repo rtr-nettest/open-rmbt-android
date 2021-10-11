@@ -19,6 +19,8 @@
     <string name="average_up">Average Up</string>
     <string name="average_latency">Average Latency</string>
 
+    <string name="splash_text">Test the speed of your internet.</string>
+
     <string name="open_location_permission_dialog_label_location_not_permitted">Nkom Nettfart is not allowed to use your location. Would you like to allow Nkom Nettfart to use your location?</string>
     <string name="notification_test_title">Nkom Nettfart is running</string>
     <string name="notification_signal_test_text">Nkom Nettfart signal measurement is running in the background</string>
@@ -47,8 +49,8 @@
 
     <!-- Home screen -->
     <string name="home_attention">Attention</string>
-    <string name="home_no_internet_connection">No Internet connection!</string>
-    <string name="home_no_internet_connection_details">No test is possible.</string>
+    <string name="home_no_internet_connection">No internet connection</string>
+    <string name="home_no_internet_connection_details">No test is possible</string>
     <string name="home_signal_value">%1$d dBm</string>
     <string name="home_wifi">WLAN</string>
     <string name="public_ip_address">Public address</string>
