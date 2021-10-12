@@ -94,7 +94,7 @@
             android:id="@+id/empty_image"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:src="@drawable/image_basic"
+            android:src="@drawable/image_home_cellular"
             app:layout_constraintBottom_toTopOf="@id/empty_text"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
