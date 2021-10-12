@@ -38,7 +38,6 @@ import at.specure.data.entity.TestResultRecord
 import at.specure.result.QoECategory
 import at.specure.result.QoSCategory
 import org.joda.time.DateTime
-import java.text.DecimalFormat
 import java.text.SimpleDateFormat
 import java.util.EnumMap
 import java.util.Locale
