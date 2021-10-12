@@ -430,14 +430,20 @@ class MapFragment : BaseFragment(), OnMapReadyCallback, MapMarkerDetailsAdapter.
     }
 
     private fun onSearchResultSelect(item: MapSearchResult) {
-        mapboxMap?.animateCamera(
-            CameraUpdateFactory.newLatLngBounds(LatLngBounds.from(
-                item.bounds.north,
-                item.bounds.east,
-                item.bounds.south,
-                item.bounds.west
-            ), 0)
-        )
+        if (item.bounds?.north != null) {
+            mapboxMap?.animateCamera(
+                CameraUpdateFactory.newLatLngBounds(
+                    LatLngBounds.from(
+                        item.bounds.north,
+                        item.bounds.east,
+                        item.bounds.south,
+                        item.bounds.west
+                    ), 0
+                )
+            )
+        } else if ((item.position != null) && (item.position.latitude != null) && (item.position.longitude != null)) {
+            mapboxMap?.animateCamera(CameraUpdateFactory.newLatLngZoom(LatLng(item.position.latitude, item.position.longitude), START_ZOOM_LEVEL.toDouble()))
+        }
     }
 
     private fun onSearchInputEdit() {
