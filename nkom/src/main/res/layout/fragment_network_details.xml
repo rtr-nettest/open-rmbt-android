@@ -31,7 +31,7 @@
 
             <TextView
                 android:id="@+id/labelConnectivityInfo"
-                style="@style/RobotoMediumStyle"
+                style="@style/AttenNewMediumStyle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Connectivity Info:"
@@ -42,7 +42,7 @@
 
             <TextView
                 android:id="@+id/textConnectivityInfo"
-                style="@style/RobotoRegularStyle"
+                style="@style/AttenNewRegularStyle"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/margin_medium"
@@ -55,7 +55,7 @@
 
             <TextView
                 android:id="@+id/labelActiveNetworkInfo"
-                style="@style/RobotoMediumStyle"
+                style="@style/AttenNewMediumStyle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/margin_large"
@@ -67,7 +67,7 @@
 
             <TextView
                 android:id="@+id/textActiveNetworkInfoInfo"
-                style="@style/RobotoRegularStyle"
+                style="@style/AttenNewRegularStyle"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/margin_medium"
@@ -80,7 +80,7 @@
 
             <TextView
                 android:id="@+id/labelSignalStrengthInfo"
-                style="@style/RobotoMediumStyle"
+                style="@style/AttenNewMediumStyle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/margin_large"
@@ -92,7 +92,7 @@
 
             <TextView
                 android:id="@+id/textSignalStrengthInfo"
-                style="@style/RobotoRegularStyle"
+                style="@style/AttenNewRegularStyle"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/margin_medium"
@@ -105,7 +105,7 @@
 
             <TextView
                 android:id="@+id/labelIPv4Info"
-                style="@style/RobotoMediumStyle"
+                style="@style/AttenNewMediumStyle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/margin_large"
@@ -117,7 +117,7 @@
 
             <TextView
                 android:id="@+id/textIPv4Info"
-                style="@style/RobotoRegularStyle"
+                style="@style/AttenNewRegularStyle"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/margin_medium"
@@ -130,7 +130,7 @@
 
             <TextView
                 android:id="@+id/labelIPv6Info"
-                style="@style/RobotoMediumStyle"
+                style="@style/AttenNewMediumStyle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/margin_large"
@@ -142,7 +142,7 @@
 
             <TextView
                 android:id="@+id/textIPv6Info"
-                style="@style/RobotoRegularStyle"
+                style="@style/AttenNewRegularStyle"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/margin_medium"
@@ -155,7 +155,7 @@
 
             <TextView
                 android:id="@+id/labelLocationInfo"
-                style="@style/RobotoMediumStyle"
+                style="@style/AttenNewMediumStyle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/margin_large"
@@ -167,7 +167,7 @@
 
             <TextView
                 android:id="@+id/textLocationState"
-                style="@style/RobotoRegularStyle"
+                style="@style/AttenNewRegularStyle"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/margin_medium"
@@ -180,7 +180,7 @@
 
             <TextView
                 android:id="@+id/textLocationInfo"
-                style="@style/RobotoRegularStyle"
+                style="@style/AttenNewRegularStyle"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/margin_medium"

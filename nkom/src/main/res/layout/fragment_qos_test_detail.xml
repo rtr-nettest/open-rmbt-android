@@ -21,7 +21,7 @@
 
             <androidx.appcompat.widget.AppCompatTextView
                 android:id="@+id/labelDescription"
-                style="@style/RobotoMediumStyle.Medium"
+                style="@style/AttenNewMediumStyle.Medium"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:padding="@dimen/padding_large"
@@ -31,7 +31,7 @@
 
             <androidx.appcompat.widget.AppCompatTextView
                 android:id="@+id/textDescription"
-                style="@style/RobotoRegularStyle.Small"
+                style="@style/AttenNewRegularStyle.Small"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:padding="@dimen/padding_large"
@@ -41,7 +41,7 @@
 
             <androidx.appcompat.widget.AppCompatTextView
                 android:id="@+id/labelTestStatus"
-                style="@style/RobotoMediumStyle.Medium"
+                style="@style/AttenNewMediumStyle.Medium"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:padding="@dimen/padding_large"
@@ -57,7 +57,7 @@
 
             <androidx.appcompat.widget.AppCompatTextView
                 android:id="@+id/labelDetail"
-                style="@style/RobotoMediumStyle.Medium"
+                style="@style/AttenNewMediumStyle.Medium"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:padding="@dimen/padding_large"
@@ -67,7 +67,7 @@
 
             <androidx.appcompat.widget.AppCompatTextView
                 android:id="@+id/textDetail"
-                style="@style/RobotoRegularStyle.Small"
+                style="@style/AttenNewRegularStyle.Small"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:padding="@dimen/padding_large"

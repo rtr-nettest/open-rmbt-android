@@ -260,6 +260,7 @@ distribution:tag:
   stage: gitTag
   interruptible: true
   script:
+    - export GIT_SSL_NO_VERIFY=1
     - git tag "${VERSION_NAME}"
     - git push origin --tags
   only:

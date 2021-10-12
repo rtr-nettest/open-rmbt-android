@@ -13,7 +13,7 @@
 
     <androidx.appcompat.widget.AppCompatTextView
         android:id="@+id/titleTVISH"
-        style="@style/RobotoMediumStyle.VerySmall"
+        style="@style/AttenNewMediumStyle.VerySmall"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@color/text_lightest_gray"

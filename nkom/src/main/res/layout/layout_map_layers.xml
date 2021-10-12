@@ -25,12 +25,12 @@
 
         <TextView
             android:id="@+id/label_style"
-            style="@style/RobotoMediumStyle.Medium"
+            style="@style/AttenNewMediumStyle.Medium"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:padding="@dimen/margin_large"
             android:text="@string/map_label_map_appearance"
-            android:textColor="@color/navigation_gray"
+            android:textColor="@color/navigation_inactive"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
@@ -75,7 +75,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="@dimen/margin_medium"
                     android:text="@string/map_style_standard"
-                    android:textColor="@{mapStyle == MapStyleType.STANDARD ? @color/navigation_green : @color/navigation_gray}"
+                    android:textColor="@{mapStyle == MapStyleType.STANDARD ? @color/navigation_active : @color/navigation_inactive}"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
@@ -115,7 +115,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="@dimen/margin_medium"
                     android:text="@string/map_style_satellite"
-                    android:textColor="@{mapStyle == MapStyleType.SATELLITE ? @color/navigation_green : @color/navigation_gray}"
+                    android:textColor="@{mapStyle == MapStyleType.SATELLITE ? @color/navigation_active : @color/navigation_inactive}"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
@@ -155,7 +155,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="@dimen/margin_medium"
                     android:text="@string/map_style_hybrid"
-                    android:textColor="@{mapStyle == MapStyleType.HYBRID ? @color/navigation_green : @color/navigation_gray}"
+                    android:textColor="@{mapStyle == MapStyleType.HYBRID ? @color/navigation_active : @color/navigation_inactive}"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
@@ -180,12 +180,12 @@
 
         <TextView
             android:id="@+id/label_type"
-            style="@style/RobotoMediumStyle.Medium"
+            style="@style/AttenNewMediumStyle.Medium"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:padding="@dimen/margin_large"
             android:text="@string/map_label_overlay_type"
-            android:textColor="@color/navigation_gray"
+            android:textColor="@color/navigation_inactive"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/styles" />
 
@@ -230,7 +230,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="@dimen/margin_medium"
                     android:text="@string/map_layer_automatic"
-                    android:textColor="@{mapType == MapPresentationType.AUTOMATIC ? @color/navigation_green : @color/navigation_gray}"
+                    android:textColor="@{mapType == MapPresentationType.AUTOMATIC ? @color/navigation_active : @color/navigation_inactive}"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
@@ -270,7 +270,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="@dimen/margin_medium"
                     android:text="@string/map_layer_points"
-                    android:textColor="@{mapType == MapPresentationType.POINTS ? @color/navigation_green : @color/navigation_gray}"
+                    android:textColor="@{mapType == MapPresentationType.POINTS ? @color/navigation_active : @color/navigation_inactive}"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
@@ -310,7 +310,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="@dimen/margin_medium"
                     android:text="@string/map_layer_communities"
-                    android:textColor="@{mapType == MapPresentationType.COMMUNITIES ? @color/navigation_green : @color/navigation_gray}"
+                    android:textColor="@{mapType == MapPresentationType.COMMUNITIES ? @color/navigation_active : @color/navigation_inactive}"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"

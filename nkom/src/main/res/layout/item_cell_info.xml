@@ -53,7 +53,7 @@
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/signalValue"
-            style="@style/RobotoMediumStyle.Small"
+            style="@style/AttenNewMediumStyle.Small"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginEnd="@dimen/margin_small"
@@ -67,7 +67,7 @@
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/bandValue"
-            style="@style/RobotoMediumStyle.Small"
+            style="@style/AttenNewMediumStyle.Small"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/margin_large"
@@ -83,7 +83,7 @@
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/technologyValue"
-            style="@style/RobotoMediumStyle.Small"
+            style="@style/AttenNewMediumStyle.Small"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/margin_medium"

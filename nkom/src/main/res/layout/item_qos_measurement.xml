@@ -13,7 +13,7 @@
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/textQosTitle"
-            style="@style/RobotoRegularStyle.Small"
+            style="@style/AttenNewRegularStyle.Small"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:textColor="@android:color/white"

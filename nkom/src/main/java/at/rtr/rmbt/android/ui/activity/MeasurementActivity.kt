@@ -20,6 +20,7 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.view.WindowManager
+import androidx.core.content.res.ResourcesCompat
 import at.rtr.rmbt.android.R
 import at.rtr.rmbt.android.databinding.ActivityMeasurementBinding
 import at.rtr.rmbt.android.di.viewModelLazy
@@ -32,6 +33,7 @@ import at.rtr.rmbt.android.util.listen
 import at.rtr.rmbt.android.viewmodel.MeasurementViewModel
 import at.specure.data.entity.LoopModeRecord
 import at.specure.data.entity.LoopModeState
+import at.specure.info.TransportType
 import at.specure.location.LocationState
 import at.specure.measurement.MeasurementState
 import timber.log.Timber
@@ -54,6 +56,17 @@ class MeasurementActivity : BaseActivity(), SimpleDialog.Callback {
         setContentView(view)
 
         binding.state = viewModel.state
+
+        viewModel.connectivityInfoLiveData.listen(this) {
+            val imageDrawableId = when (it?.transportType) {
+                TransportType.WIFI -> R.drawable.image_home_wifi
+                TransportType.CELLULAR -> R.drawable.image_home_cellular
+                TransportType.ETHERNET -> R.drawable.image_home_ethernet
+                else -> R.drawable.image_home
+            }
+            binding.image.setImageDrawable(ResourcesCompat
+                .getDrawable(resources, imageDrawableId, applicationContext.theme))
+        }
 
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
 

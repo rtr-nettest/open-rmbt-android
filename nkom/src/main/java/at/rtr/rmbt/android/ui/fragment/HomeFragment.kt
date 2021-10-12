@@ -9,6 +9,7 @@ import android.os.Bundle
 import android.os.Handler
 import android.provider.Settings
 import android.view.View
+import androidx.core.content.res.ResourcesCompat
 import at.rtr.rmbt.android.R
 import at.rtr.rmbt.android.databinding.FragmentHomeBinding
 import at.rtr.rmbt.android.di.viewModelLazy
@@ -25,6 +26,7 @@ import at.rtr.rmbt.android.util.changeStatusBarColor
 import at.rtr.rmbt.android.util.listen
 import at.rtr.rmbt.android.util.setTechnologyIcon
 import at.rtr.rmbt.android.viewmodel.HomeViewModel
+import at.specure.info.TransportType
 import at.specure.location.LocationState
 import at.specure.measurement.MeasurementService
 import at.specure.util.hasPermission
@@ -54,6 +56,10 @@ class HomeFragment : BaseFragment() {
 
         homeViewModel.isConnected.listen(this) {
             activity?.window?.changeStatusBarColor(ToolbarTheme.WHITE)
+            if (it) {
+                binding.logo.setImageDrawable(ResourcesCompat
+                    .getDrawable(resources, R.drawable.image_home, requireContext().theme))
+            }
         }
 
         homeViewModel.signalStrengthLiveData.listen(this) {
@@ -186,6 +192,14 @@ class HomeFragment : BaseFragment() {
             it?.networkInfo?.let { info ->
                 binding.panelNetworkDetails.textNetworkName.text = info.name
                 binding.panelNetworkDetails.textNetworkType.setTechnologyIcon(info)
+                val imageDrawableId = when (info.type) {
+                    TransportType.WIFI -> R.drawable.image_home_wifi
+                    TransportType.CELLULAR -> R.drawable.image_home_cellular
+                    TransportType.ETHERNET -> R.drawable.image_home_ethernet
+                    else -> R.drawable.image_home
+                }
+                binding.logo.setImageDrawable(ResourcesCompat
+                    .getDrawable(resources, imageDrawableId, requireContext().theme))
             }
         }
         checkInformationAvailability()

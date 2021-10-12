@@ -157,12 +157,12 @@
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/tvLblNoConnection"
-            style="@style/RobotoRegularStyle.Medium"
+            style="@style/AttenNewRegularStyle.Medium"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="48dp"
             android:text="@string/home_no_internet_connection"
-            android:textColor="@color/text_gray"
+            android:textAlignment="center"
+            android:textColor="@color/text_color_welcome"
             android:textSize="24sp"
             app:layout_constraintBottom_toTopOf="@id/logo"
             app:layout_constraintEnd_toEndOf="parent"
@@ -172,12 +172,14 @@
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/tvTextNoConnection"
-            style="@style/RobotoRegularStyle.Medium"
+            style="@style/AttenNewRegularStyle.Medium"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:gravity="center"
             android:text="@string/home_no_internet_connection_details"
+            android:textAlignment="center"
             android:textColor="@color/text_gray"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="@id/tvLblNoConnection"
             app:layout_constraintTop_toBottomOf="@+id/tvLblNoConnection"
             app:visibleOrGone="@{!state.isConnected}" />

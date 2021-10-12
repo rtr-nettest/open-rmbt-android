@@ -4,14 +4,14 @@
         <shape android:shape="rectangle">
             <size android:height="40dp" />
             <corners android:radius="20dp" />
-            <solid android:color="@color/loop_mode_icon_background" />
+            <solid android:color="@color/tertiary" />
         </shape>
     </item>
     <item android:state_selected="true">
         <shape android:shape="rectangle">
             <size android:height="40dp" />
             <corners android:radius="20dp" />
-            <gradient android:endColor="@color/loop_mode_icon_background" android:startColor="@android:color/white" />
+            <gradient android:endColor="@color/tertiary" android:startColor="@android:color/white" />
         </shape>
     </item>
 </selector>

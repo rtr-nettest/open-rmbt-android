@@ -22,7 +22,7 @@ class MeasurementProgressSquareView @JvmOverloads constructor(
         .also { addView(it.root) }
         .also {
             it.background.setBackgroundResource(R.drawable.bg_progress_square_empty)
-            val color = ContextCompat.getColor(context, R.color.main_color)
+            val color = ContextCompat.getColor(context, R.color.dark)
             it.progressUnits.setTextColor(color)
             it.progressPhase.setTextColor(color)
             it.progressText.setTextColor(color)
@@ -68,7 +68,7 @@ class MeasurementProgressSquareView @JvmOverloads constructor(
             setTextColor(android.R.color.white)
         } else if (percents >= 0) {
             binding.background.setBackgroundResource(R.drawable.bg_progress_square_empty)
-            setTextColor(R.color.main_color)
+            setTextColor(R.color.dark)
         }
 
         binding.root.requestLayout()
