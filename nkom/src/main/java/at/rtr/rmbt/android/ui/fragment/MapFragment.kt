@@ -51,7 +51,6 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.delay
 import timber.log.Timber
-import kotlin.math.roundToInt
 
 const val START_ZOOM_LEVEL = 12f
 
