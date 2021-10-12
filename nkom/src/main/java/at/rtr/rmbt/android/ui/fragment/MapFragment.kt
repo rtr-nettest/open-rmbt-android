@@ -27,6 +27,8 @@ import at.rtr.rmbt.android.ui.adapter.MapMarkerDetailsAdapter
 import at.rtr.rmbt.android.ui.decorator.DividerDecorator
 import at.rtr.rmbt.android.ui.dialog.MapTimelineFilterDialog
 import at.rtr.rmbt.android.ui.dialog.MapLayersDialog
+import at.rtr.rmbt.android.util.formatMbps
+import at.rtr.rmbt.android.util.formatMs
 import at.rtr.rmbt.android.util.listen
 import at.rtr.rmbt.android.util.model.MapSearchResult
 import at.rtr.rmbt.android.util.singleResult
@@ -283,11 +285,11 @@ class MapFragment : BaseFragment(), OnMapReadyCallback, MapMarkerDetailsAdapter.
         bottomSheetDialog.findViewById<TextView>(R.id.totalMeasurements)?.text =
             feature.getProperty("$currentLayerPrefix-COUNT")?.toString() ?: "0"
         bottomSheetDialog.findViewById<TextView>(R.id.averageDown)?.text = String.format(
-            "%d Mbps", feature.getProperty("$currentLayerPrefix-DOWNLOAD")?.asDouble?.roundToInt() ?: 0)
+            "%s Mbps", feature.getProperty("$currentLayerPrefix-DOWNLOAD")?.asFloat?.formatMbps() ?: "-")
         bottomSheetDialog.findViewById<TextView>(R.id.averageUp)?.text = String.format(
-            "%d Mbps", feature.getProperty("$currentLayerPrefix-UPLOAD")?.asDouble?.roundToInt() ?: 0)
+            "%s Mbps", feature.getProperty("$currentLayerPrefix-UPLOAD")?.asFloat?.formatMbps() ?: "-")
         bottomSheetDialog.findViewById<TextView>(R.id.averageLatency)?.text = String.format(
-            "%d ms", feature.getProperty("$currentLayerPrefix-PING")?.asDouble?.roundToInt() ?: 0)
+            "%s ms", feature.getProperty("$currentLayerPrefix-PING")?.asFloat?.formatMs() ?: "-")
         bottomSheetDialog.findViewById<ImageButton>(R.id.closeButton)?.setOnClickListener {
             bottomSheetDialog.dismiss()
         }

@@ -35,9 +35,29 @@ import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
 import java.util.concurrent.TimeUnit
+import kotlin.math.roundToInt
 
 fun HandledException.getStringTitle(context: Context): String {
     return getTitle(context) ?: context.getString(R.string.dialog_title_error)
+}
+
+fun Float.formatMbps(): String {
+    return when {
+        this <= 0 -> this.roundToInt().toString()
+        this < 1 -> String.format("%.3f", this)
+        this < 10 -> String.format("%.2f", this)
+        this < 100 -> String.format("%.1f", this)
+        else -> this.roundToInt().toString()
+    }
+}
+
+fun Float.formatMs(): String {
+    return when {
+        this <= 0 -> this.roundToInt().toString()
+        this < 10 && this > 0 -> String.format("%.2f", this)
+        this < 100 -> String.format("%.1f", this)
+        else -> this.roundToInt().toString()
+    }
 }
 
 fun Calendar.format(pattern: String): String {
