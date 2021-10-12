@@ -27,6 +27,8 @@ import at.rtr.rmbt.android.ui.adapter.MapMarkerDetailsAdapter
 import at.rtr.rmbt.android.ui.decorator.DividerDecorator
 import at.rtr.rmbt.android.ui.dialog.MapTimelineFilterDialog
 import at.rtr.rmbt.android.ui.dialog.MapLayersDialog
+import at.rtr.rmbt.android.util.formatMbps
+import at.rtr.rmbt.android.util.formatMs
 import at.rtr.rmbt.android.util.listen
 import at.rtr.rmbt.android.util.model.MapSearchResult
 import at.rtr.rmbt.android.util.singleResult
@@ -49,7 +51,6 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.delay
 import timber.log.Timber
-import kotlin.math.roundToInt
 
 const val START_ZOOM_LEVEL = 12f
 
@@ -283,11 +284,11 @@ class MapFragment : BaseFragment(), OnMapReadyCallback, MapMarkerDetailsAdapter.
         bottomSheetDialog.findViewById<TextView>(R.id.totalMeasurements)?.text =
             feature.getProperty("$currentLayerPrefix-COUNT")?.toString() ?: "0"
         bottomSheetDialog.findViewById<TextView>(R.id.averageDown)?.text = String.format(
-            "%d Mbps", feature.getProperty("$currentLayerPrefix-DOWNLOAD")?.asDouble?.roundToInt() ?: 0)
+            "%s Mbps", feature.getProperty("$currentLayerPrefix-DOWNLOAD")?.asFloat?.formatMbps() ?: "-")
         bottomSheetDialog.findViewById<TextView>(R.id.averageUp)?.text = String.format(
-            "%d Mbps", feature.getProperty("$currentLayerPrefix-UPLOAD")?.asDouble?.roundToInt() ?: 0)
+            "%s Mbps", feature.getProperty("$currentLayerPrefix-UPLOAD")?.asFloat?.formatMbps() ?: "-")
         bottomSheetDialog.findViewById<TextView>(R.id.averageLatency)?.text = String.format(
-            "%d ms", feature.getProperty("$currentLayerPrefix-PING")?.asDouble?.roundToInt() ?: 0)
+            "%s ms", feature.getProperty("$currentLayerPrefix-PING")?.asFloat?.formatMs() ?: "-")
         bottomSheetDialog.findViewById<ImageButton>(R.id.closeButton)?.setOnClickListener {
             bottomSheetDialog.dismiss()
         }
@@ -429,14 +430,20 @@ class MapFragment : BaseFragment(), OnMapReadyCallback, MapMarkerDetailsAdapter.
     }
 
     private fun onSearchResultSelect(item: MapSearchResult) {
-        mapboxMap?.animateCamera(
-            CameraUpdateFactory.newLatLngBounds(LatLngBounds.from(
-                item.bounds.north,
-                item.bounds.east,
-                item.bounds.south,
-                item.bounds.west
-            ), 0)
-        )
+        if (item.bounds?.north != null) {
+            mapboxMap?.animateCamera(
+                CameraUpdateFactory.newLatLngBounds(
+                    LatLngBounds.from(
+                        item.bounds.north,
+                        item.bounds.east,
+                        item.bounds.south,
+                        item.bounds.west
+                    ), 0
+                )
+            )
+        } else if ((item.position != null) && (item.position.latitude != null) && (item.position.longitude != null)) {
+            mapboxMap?.animateCamera(CameraUpdateFactory.newLatLngZoom(LatLng(item.position.latitude, item.position.longitude), START_ZOOM_LEVEL.toDouble()))
+        }
     }
 
     private fun onSearchInputEdit() {
