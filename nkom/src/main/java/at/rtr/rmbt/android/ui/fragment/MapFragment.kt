@@ -440,6 +440,8 @@ class MapFragment : BaseFragment(), OnMapReadyCallback, MapMarkerDetailsAdapter.
                     ), 0
                 )
             )
+        } else if ((item.position != null) && (item.position.latitude != null) && (item.position.longitude != null)) {
+            mapboxMap?.animateCamera(CameraUpdateFactory.newLatLngZoom(LatLng(item.position.latitude, item.position.longitude), START_ZOOM_LEVEL.toDouble()))
         }
     }
 
