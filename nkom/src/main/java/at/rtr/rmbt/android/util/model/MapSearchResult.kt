@@ -10,7 +10,7 @@ data class MapSearchResult(
     @SerializedName("position")
     val position: Position,
     @SerializedName("mapView")
-    val bounds: Bounds
+    val bounds: Bounds?
 )
 
 data class Address(
