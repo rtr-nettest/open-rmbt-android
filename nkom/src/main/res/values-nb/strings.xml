@@ -19,7 +19,7 @@
     <string name="average_up">Gjennomsnittlig Opplasting</string>
     <string name="average_latency">Gjennomsnittlig Ventetid</string>
 
-    <string name="splash_text">Test hastigheten på din internett</string>
+    <string name="splash_text">Test hastigheten på din Internett</string>
 
     <string name="open_location_permission_dialog_label_location_not_permitted">Nkom Nettfart har ikke lov til å bruke posisjonen din. Vil du la Nkom Nettfart bruke posisjonen din?</string>
     <string name="notification_test_title">Nkom Nettfart kjører</string>
