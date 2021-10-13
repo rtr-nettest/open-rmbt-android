@@ -66,6 +66,10 @@ class SettingsRepositoryImpl(
             clientUUID.value = clientUUIDLegacy.value
         }
 
+        if (!config.persistentClientUUIDEnabled) {
+            clientUUID.value = null
+        }
+
         val body = deviceInfo.toSettingsRequest(clientUUID, clientUUIDLegacy, config, termsAndConditions)
         // we must remove ipv4 url before we want to check settings, because settings request should go to the original URL
         controlServerSettings.controlServerV4Url = null

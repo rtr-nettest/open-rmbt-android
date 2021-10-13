@@ -534,6 +534,9 @@ fun MeasurementMedianSquareView.setMeasurementPhase(
             setSpeed(jitter / 1000000.0f)
         }
     }
+    if (state == MeasurementState.JITTER_AND_PACKET_LOSS) {
+        setSpeed(jitter / 1000000.0f)
+    }
     if (state == MeasurementState.UPLOAD) {
         setSpeed(uploadSpeed / 1000000.0f)
     }

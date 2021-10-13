@@ -286,9 +286,6 @@
     <string name="preferences_connection_details_not_supported">Detajet e zgjatura të lidhjes nuk mbështeten në këtë pajisje</string>
 
     <string name="dialog_signal_info_band">Bandë</string>
-    <string name="dialog_signal_info_channel">Kanali</string>
-    <string name="dialog_signal_info_ta">AT</string>
-    <string name="dialog_signal_info_quality">Cilësia</string>
     <string name="text_local_results">Vetëm rezultatet lokale</string>
     <string name="signal_measurement_terms_title">Aktivizimi dhe përdorimi</string>
     <string name="signal_measurement_terms_content">Opsioni i modalitetit të lakut vetëm për sinjalin për përdoruesit e interesuar teknikisht lejon përsëritjen automatike të matjeve të sinjalit - pa u kryer ndonjë provë shpejtësie ose cilësie. Moduli i lakut vetëm për sinjal mund të ndalet në çdo kohë, përkatësisht ndalet automatikisht pas 48 orësh. Moduli i lakut vetëm të sinjalit është (vetëm) i destinuar për përdorim brenda BE-së dhe ZEE-së. Bateria thahet shpejt nga matjet vetëm të sinjalit. Në pauzat ndërmjet provave, GPS dhe ekrani mbeten aktivë dhe matjet e sinjalit vazhdojnë, që do të thotë se energjia harxhohet shumë më shpejt sesa në modalitetin e gatishmërisë. Moduli i lakut duhet të përdoret vetëm nëse është në dispozicion një furnizim i jashtëm i energjisë. Duhet theksuar qartë se për shkak të mënyrës së lakut vetëm për sinjal nuk mund të përjashtohet që testuesi të identifikohet.</string>
@@ -360,4 +357,8 @@
     <string name="phone_permission_explanation">Ne kurrë nuk do të bëjmë ose menaxhojmë telefonata. Ne përdorim lejet e telefonit për të identifikuar operatorin celular të përdorur për testim.</string>
     <string name="location_permission_explanation">Vendndodhja juaj identifikon serverat e afërt dhe lidhjen celulare të pajisjes tuaj në mënyrë që të konfiguroni siç duhet Akep Nettest.</string>
 
+    <string name="technology">Teknologji</string>
+
+    <string name="primary_connection">Primare</string>
+    <string name="secondary_connection">Sekondare</string>
 </resources>

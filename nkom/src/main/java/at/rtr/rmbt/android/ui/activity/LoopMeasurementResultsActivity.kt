@@ -8,6 +8,8 @@ import at.rtr.rmbt.android.R
 import at.rtr.rmbt.android.databinding.ActivityLoopMeasurementResultsBinding
 import at.rtr.rmbt.android.di.viewModelLazy
 import at.rtr.rmbt.android.ui.adapter.LoopMeasurementAdapter
+import at.rtr.rmbt.android.ui.fragment.BasicResultFragment
+import at.rtr.rmbt.android.util.TestUuidType
 import at.rtr.rmbt.android.util.ToolbarTheme
 import at.rtr.rmbt.android.util.changeStatusBarColor
 import at.rtr.rmbt.android.viewmodel.ResultsListLoopViewModel
@@ -18,6 +20,7 @@ class LoopMeasurementResultsActivity : BaseActivity() {
 
     private lateinit var binding: ActivityLoopMeasurementResultsBinding
     private val viewModel: ResultsListLoopViewModel by viewModelLazy()
+    private var resultFragment: BasicResultFragment? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -38,6 +41,7 @@ class LoopMeasurementResultsActivity : BaseActivity() {
         viewModel.loadLoopMeasurements(loopId).onEach {
             adapter.submitList(it)
         }.launchIn(lifecycleScope)
+        showBasicResultsFragment(loopId)
     }
 
     companion object {
@@ -45,5 +49,10 @@ class LoopMeasurementResultsActivity : BaseActivity() {
 
         fun start(context: Context, loopId: String) =
             context.startActivity(Intent(context, LoopMeasurementResultsActivity::class.java).apply { putExtra(KEY_LOOP_ID, loopId) })
+    }
+
+    private fun showBasicResultsFragment(loopId: String) {
+        resultFragment = BasicResultFragment.newInstance(loopId, TestUuidType.LOOP_UUID, false)
+        supportFragmentManager.beginTransaction().replace(binding.resultContainer.id, resultFragment as BasicResultFragment).commitNow()
     }
 }

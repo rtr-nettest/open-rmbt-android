@@ -95,13 +95,16 @@
                     <ImageView
                         android:id="@+id/logo"
                         android:layout_width="0dp"
-                        android:layout_height="wrap_content"
+                        android:layout_height="0dp"
                         android:layout_marginStart="@dimen/margin_large"
                         android:layout_marginTop="80dp"
                         android:layout_marginEnd="@dimen/margin_large"
                         android:src="@drawable/image_home"
+                        android:adjustViewBounds="true"
+                        app:layout_constraintBottom_toTopOf="@+id/labelConnection"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintHeight_percent="0.33"
                         app:layout_constraintTop_toBottomOf="@+id/basic_result_container" />
 
                     <androidx.constraintlayout.widget.Group

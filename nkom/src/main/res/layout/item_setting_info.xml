@@ -29,7 +29,7 @@
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/titleTVISI"
-            style="@style/RobotoRegularStyle.Medium"
+            style="@style/AttenNewRegularStyle.Medium"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:ellipsize="marquee"
@@ -40,7 +40,7 @@
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/summaryTVISI"
-            style="@style/RobotoRegularStyle.VerySmall"
+            style="@style/AttenNewRegularStyle.VerySmall"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:maxLines="2"

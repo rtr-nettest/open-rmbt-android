@@ -17,12 +17,12 @@
 
         <TextView
             android:id="@+id/label"
-            style="@style/RobotoMediumStyle.Medium"
+            style="@style/AttenNewMediumStyle.Medium"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:padding="@dimen/margin_large"
             android:text="@string/label_map_filters"
-            android:textColor="@color/navigation_gray"
+            android:textColor="@color/navigation_inactive"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 

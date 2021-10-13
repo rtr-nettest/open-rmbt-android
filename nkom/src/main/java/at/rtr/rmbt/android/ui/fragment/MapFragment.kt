@@ -2,15 +2,18 @@ package at.rtr.rmbt.android.ui.fragment
 
 import android.Manifest
 import android.annotation.SuppressLint
+import android.content.Context
 import android.content.pm.PackageManager
-import android.location.Address
-import android.location.Geocoder
-import android.os.Build
 import android.os.Bundle
 import android.view.View
-import android.widget.Toast
-import androidx.annotation.DrawableRes
+import android.view.inputmethod.InputMethodManager
+import android.widget.AdapterView
+import android.widget.ArrayAdapter
+import android.widget.ImageButton
+import android.widget.TextView
 import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
+import androidx.core.widget.addTextChangedListener
 import androidx.recyclerview.widget.LinearSnapHelper
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.SnapHelper
@@ -21,108 +24,195 @@ import at.rtr.rmbt.android.databinding.FragmentMapBinding
 import at.rtr.rmbt.android.di.viewModelLazy
 import at.rtr.rmbt.android.ui.activity.ShowWebViewActivity
 import at.rtr.rmbt.android.ui.adapter.MapMarkerDetailsAdapter
-import at.rtr.rmbt.android.ui.dialog.MapFiltersDialog
+import at.rtr.rmbt.android.ui.decorator.DividerDecorator
+import at.rtr.rmbt.android.ui.dialog.MapTimelineFilterDialog
 import at.rtr.rmbt.android.ui.dialog.MapLayersDialog
-import at.rtr.rmbt.android.ui.dialog.MapSearchDialog
-import at.rtr.rmbt.android.util.ToolbarTheme
-import at.rtr.rmbt.android.util.changeStatusBarColor
-import at.rtr.rmbt.android.util.iconFromVector
+import at.rtr.rmbt.android.util.formatMbps
+import at.rtr.rmbt.android.util.formatMs
 import at.rtr.rmbt.android.util.listen
+import at.rtr.rmbt.android.util.model.MapSearchResult
 import at.rtr.rmbt.android.util.singleResult
 import at.rtr.rmbt.android.viewmodel.MapViewModel
-import at.specure.data.NetworkTypeCompat
-import at.specure.data.ServerNetworkType
-import at.specure.data.entity.MarkerMeasurementRecord
-import at.specure.location.LocationState
-import com.google.android.gms.common.ConnectionResult
-import com.google.android.gms.common.GoogleApiAvailability
-import com.google.android.gms.maps.CameraUpdateFactory
-import com.google.android.gms.maps.GoogleMap
-import com.google.android.gms.maps.OnMapReadyCallback
-import com.google.android.gms.maps.model.LatLng
-import com.google.android.gms.maps.model.Marker
-import com.google.android.gms.maps.model.MarkerOptions
-import com.google.android.gms.maps.model.TileOverlay
-import com.google.android.gms.maps.model.TileOverlayOptions
+import at.rtr.rmbt.android.viewmodel.TechnologyFilter
+import at.specure.util.isCoarseLocationPermitted
+import com.google.android.material.bottomsheet.BottomSheetDialog
+import com.mapbox.geojson.Feature
+import com.mapbox.mapboxsdk.camera.CameraUpdateFactory
+import com.mapbox.mapboxsdk.geometry.LatLng
+import com.mapbox.mapboxsdk.geometry.LatLngBounds
+import com.mapbox.mapboxsdk.maps.MapboxMap
+import com.mapbox.mapboxsdk.maps.OnMapReadyCallback
+import com.mapbox.mapboxsdk.maps.Style
+import com.mapbox.mapboxsdk.style.layers.Property.VISIBLE
+import com.mapbox.mapboxsdk.style.layers.PropertyFactory.visibility
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.delay
 import timber.log.Timber
-import kotlin.math.abs
 
 const val START_ZOOM_LEVEL = 12f
 
-private const val CODE_LAYERS_DIALOG = 1
-private const val CODE_FILTERS_DIALOG = 2
-private const val CODE_SEARCH_DIALOG = 3
 private const val ANCHOR_U = 0.5f
 private const val ANCHOR_V = 0.865f
 
 // default map position and zoom when no location information is available
-// focus to Austria based on boundary box 'AT': ('Austria', (9.47996951665, 46.4318173285, 16.9796667823, 49.0390742051))
-// derived from Github/graydon/country-bounding-boxes.py
+// focus to Norway: ('Austria', (69.38, 19.89, 3F))
+// Could be derived from Github/graydon/country-bounding-boxes.py
 // extracted from http//www.naturalearthdata.com/download/110m/cultural/ne_110m_admin_0_countries.zip
 // under public domain terms
-private const val DEFAULT_LAT = (49.0390742051F + 46.4318173285F) / 2F
-private const val DEFAULT_LONG = (16.9796667823F + 9.47996951665F) / 2F
-private const val DEFAULT_ZOOM_LEVEL = 6F
+private const val DEFAULT_LAT = 69.38
+private const val DEFAULT_LONG = 19.89
+private const val DEFAULT_ZOOM_LEVEL = 3.1F
 private val DEFAULT_PRESENTATION_TYPE = MapPresentationType.AUTOMATIC
+private const val CODE_FILTERS_DIALOG = 2
 
-class MapFragment : BaseFragment(), OnMapReadyCallback, MapMarkerDetailsAdapter.MarkerDetailsCallback, MapLayersDialog.Callback,
-    MapFiltersDialog.Callback, MapSearchDialog.Callback {
+class MapFragment : BaseFragment(), OnMapReadyCallback, MapMarkerDetailsAdapter.MarkerDetailsCallback,
+    MapLayersDialog.Callback, MapTimelineFilterDialog.Callback {
 
     private val mapViewModel: MapViewModel by viewModelLazy()
     private val binding: FragmentMapBinding by bindingLazy()
 
     override val layoutResId = R.layout.fragment_map
 
-    private var googleMap: GoogleMap? = null
-    private var currentOverlay: TileOverlay? = null
-    private var currentLocation: LatLng? = null
-    private var currentMarker: Marker? = null
+    private var mapboxMap: MapboxMap? = null
+
     private var visiblePosition: Int? = null
     private var snapHelper: SnapHelper? = null
 
     private var adapter: MapMarkerDetailsAdapter = MapMarkerDetailsAdapter(this)
+    private val coroutineScope: CoroutineScope = CoroutineScope(Dispatchers.Main)
+    private var searchJob: Job? = null
+    private var showSearch = false
 
-    @SuppressLint("SetJavaScriptEnabled")
+    @SuppressLint("SetJavaScriptEnabled", "ClickableViewAccessibility")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
         binding.state = mapViewModel.state
+        binding.adapter = mapViewModel.mapSearchResultAdapter
+        mapViewModel.obtainFiltersFromServer()
 
         binding.map.onCreate(savedInstanceState)
-        mapViewModel.state.playServicesAvailable.set(checkPlayServices())
-        mapViewModel.obtainFilters()
-        mapViewModel.providerLiveData.listen(this) {
-            binding.map.getMapAsync(this)
-        }
+        binding.map.getMapAsync(this)
 
-        binding.fabLayers.setOnClickListener {
-            MapLayersDialog.instance(this, CODE_LAYERS_DIALOG, mapViewModel.state.style.get()!!.ordinal, mapViewModel.state.type.get()!!.ordinal)
-                .show(fragmentManager)
+        mapViewModel.providersSpinnerAdapter = ArrayAdapter(requireContext(), R.layout.item_provider)
+        binding.providersSpinner.adapter = mapViewModel.providersSpinnerAdapter
+        mapViewModel.providersLiveData.listen(this) {
+            mapViewModel.providersSpinnerAdapter.clear()
+            mapViewModel.providersSpinnerAdapter.addAll(it)
+            mapViewModel.providersSpinnerAdapter.notifyDataSetChanged()
         }
+        binding.providersSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(
+                parent: AdapterView<*>?,
+                view: View?,
+                position: Int,
+                id: Long
+            ) {
+                mapViewModel.setProvider(position)
+                updateMapStyle()
+            }
 
-        binding.fabFilters.setOnClickListener {
-            MapFiltersDialog.instance(this, CODE_FILTERS_DIALOG).show(fragmentManager)
+            override fun onNothingSelected(parent: AdapterView<*>?) {}
         }
 
         snapHelper = LinearSnapHelper().apply { attachToRecyclerView(binding.markerItems) }
         binding.markerItems.adapter = adapter
         binding.markerItems.itemAnimator?.changeDuration = 0
 
-        binding.markerItems.addOnScrollListener(object : RecyclerView.OnScrollListener() {
-            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
-                super.onScrolled(recyclerView, dx, dy)
-                if (abs(dx) > 0) {
-                    drawCurrentMarker()
-                }
-            }
-        })
-        binding.fabSearch.setOnClickListener {
-            showSearchDialog()
+        binding.searchResultsRecyclerview?.addItemDecoration(DividerDecorator(requireContext()))
+
+        binding.searchButton.setOnClickListener {
+            showSearch = true
+            setSearchActive(showSearch)
+        }
+        binding.searchCancelButton.setOnClickListener {
+            searchJob?.cancel()
+            showSearch = false
+            setSearchActive(showSearch)
         }
 
-        if (!mapViewModel.state.playServicesAvailable.get()) {
-            binding.webMap.settings.javaScriptEnabled = true
-            binding.webMap.loadUrl("https://www.netztest.at/en/Karte")
+        binding.searchInput.setOnFocusChangeListener { _, hasFocus ->
+            if (hasFocus) {
+                showSearch = hasFocus
+                setSearchActive(showSearch)
+            }
         }
+
+        binding.searchInput.addTextChangedListener {
+            onSearchInputEdit()
+        }
+        val technologyFilterList: List<TextView> = listOf(
+            binding.filterTechAll,
+            binding.filterTech2g,
+            binding.filterTech3g,
+            binding.filterTech4g,
+            binding.filterTech5g
+        )
+        binding.filterTechAll.setOnClickListener {
+            setTechnologySelected(technologyFilterList, it, TechnologyFilter.FILTER_ALL)
+        }
+        binding.filterTech2g.setOnClickListener {
+            setTechnologySelected(technologyFilterList, it, TechnologyFilter.FILTER_2G)
+        }
+        binding.filterTech3g.setOnClickListener {
+            setTechnologySelected(technologyFilterList, it, TechnologyFilter.FILTER_3G)
+        }
+        binding.filterTech4g.setOnClickListener {
+            setTechnologySelected(technologyFilterList, it, TechnologyFilter.FILTER_4G)
+        }
+        binding.filterTech5g.setOnClickListener {
+            setTechnologySelected(technologyFilterList, it, TechnologyFilter.FILTER_5G)
+        }
+        setTechnologySelected(technologyFilterList, binding.filterTechAll, TechnologyFilter.FILTER_ALL)
+
+        binding.cardTimeline.setOnClickListener {
+            MapTimelineFilterDialog.instance(this, CODE_FILTERS_DIALOG).show(fragmentManager)
+        }
+    }
+
+    private fun setSearchActive(active: Boolean) {
+        binding.cardFilters.visibility = if (active) View.GONE else View.VISIBLE
+        binding.searchCancelButton.visibility = if (active) View.VISIBLE else View.GONE
+        binding.searchButton.visibility = if (active) View.GONE else View.VISIBLE
+        if (!active) {
+            binding.searchInput.text.clear()
+            mapViewModel.mapSearchResultAdapter.items.clear()
+            binding.cardSearchResult?.visibility = View.GONE
+            binding.searchInput.hideKeyboard()
+            binding.map.isFocusable = true
+            binding.map.isFocusableInTouchMode = true
+            binding.map.requestFocus()
+        } else {
+            binding.searchInput.isFocusable = true
+            binding.searchInput.isFocusableInTouchMode = true
+            binding.searchInput.requestFocus()
+            binding.searchInput.showKeyboard()
+        }
+    }
+
+    fun View.showKeyboard() {
+        this.requestFocus()
+        val inputMethodManager = context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+        inputMethodManager.showSoftInput(this, InputMethodManager.SHOW_IMPLICIT)
+    }
+
+    fun View.hideKeyboard() {
+        val inputMethodManager = context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+        inputMethodManager.hideSoftInputFromWindow(windowToken, 0)
+    }
+
+    private fun setTechnologySelected(technologyFilterList: List<TextView>, selectedView: View, filterType: TechnologyFilter) {
+        mapViewModel.setTechnologyFilter(filterType)
+        technologyFilterList.forEach { view ->
+            view.backgroundTintList = ContextCompat.getColorStateList(requireContext(), R.color.text_lightest_gray)
+            view.setTextColor(ContextCompat.getColor(requireContext(), R.color.text_black_transparency_60))
+        }
+        selectedView.backgroundTintList = ContextCompat.getColorStateList(requireContext(), filterType.colorId)
+        (selectedView as TextView).setTextColor(ContextCompat.getColor(requireContext(), R.color.text_lightest_gray))
+        updateMapStyle()
     }
 
     override fun onStyleSelected(style: MapStyleType) {
@@ -131,68 +221,78 @@ class MapFragment : BaseFragment(), OnMapReadyCallback, MapMarkerDetailsAdapter.
     }
 
     override fun onTypeSelected(type: MapPresentationType) {
-        currentOverlay?.remove()
         mapViewModel.state.type.set(type)
-        currentOverlay = googleMap?.addTileOverlay(TileOverlayOptions().tileProvider(mapViewModel.providerLiveData.value))
     }
 
-    override fun onAddressResult(address: Address?) {
-        if (address != null) {
-            googleMap?.moveCamera(
-                CameraUpdateFactory.newLatLngZoom(
-                    LatLng(address.latitude, address.longitude), 8f
-                )
-            )
-        } else {
-            Toast.makeText(activity, R.string.map_search_location_dialog_not_found, Toast.LENGTH_SHORT).show()
-        }
-    }
-
-    private fun checkPlayServices(): Boolean {
-
-        if (Build.MANUFACTURER.compareTo("Amazon", true) == 0) {
-            return false
-        }
-        val gApi: GoogleApiAvailability = GoogleApiAvailability.getInstance()
-        val resultCode: Int = gApi.isGooglePlayServicesAvailable(this.context)
-        if (resultCode != ConnectionResult.SUCCESS) {
-            return false
-        }
-        return true
-    }
-
-    override fun onMapReady(map: GoogleMap?) {
-        googleMap = map
+    @SuppressLint("MissingPermission")
+    override fun onMapReady(map: MapboxMap) {
+        mapboxMap = map
         checkLocationAndSetCurrent()
         updateMapStyle()
+        addOnMapClickListener()
         setTiles()
-        map?.let {
-            with(map.uiSettings) {
-                isRotateGesturesEnabled = false
-                isMyLocationButtonEnabled = false
-            }
+        map.uiSettings.isRotateGesturesEnabled = false
+        if (this.context?.isCoarseLocationPermitted() == true) {
+            // todo: show current location
         }
         updateLocationPermissionRelatedUi()
 
         setDefaultMapPosition()
+    }
 
-        mapViewModel.markersLiveData.listen(this) {
-            adapter.items = it as MutableList<MarkerMeasurementRecord>
-            if (it.isNotEmpty()) {
-                val latlng = LatLng(it.first().latitude, it.first().longitude)
-                if (currentLocation != latlng) {
-                    currentLocation = latlng
-                    Timber.d("Position markersLiveData to : $latlng")
-                    googleMap?.animateCamera(CameraUpdateFactory.newLatLng(latlng))
+    private fun addOnMapClickListener() {
+        mapboxMap?.addOnMapClickListener { latLng ->
+            val currentLayerName = when {
+                mapboxMap!!.cameraPosition.zoom <= 5 -> {
+                    mapViewModel.currentLayers.find { it.startsWith("C") }
                 }
-                binding.markerItems.visibility = View.VISIBLE
-                binding.fabsGroup?.visibility = View.GONE
-                visiblePosition = 0
-                drawMarker(it.first())
-            } else {
-                onCloseMarkerDetails()
+                mapboxMap!!.cameraPosition.zoom <= 7.5 -> {
+                    mapViewModel.currentLayers.find { it.startsWith("M") }
+                }
+                mapboxMap!!.cameraPosition.zoom <= 10 -> {
+                    mapViewModel.currentLayers.find { it.startsWith("H10") }
+                }
+                mapboxMap!!.cameraPosition.zoom <= 12 -> {
+                    mapViewModel.currentLayers.find { it.startsWith("H1") }
+                }
+                mapboxMap!!.cameraPosition.zoom <= 14 -> {
+                    mapViewModel.currentLayers.find { it.startsWith("H01") }
+                }
+                else -> {
+                    mapViewModel.currentLayers.find { it.startsWith("H001") }
+                }
             }
+            val features = mapboxMap!!.queryRenderedFeatures(
+                mapboxMap!!.projection.toScreenLocation(latLng), currentLayerName)
+            val feature = if (features.isNotEmpty()) features[0] else null
+            val currentLayerPrefix = currentLayerName
+                ?.removeRange(0, currentLayerName.indexOf('-') + 1)
+            if (feature != null) {
+                showBottomSheetPopup(feature, currentLayerPrefix)
+            }
+            true
         }
+    }
+
+    private fun showBottomSheetPopup(feature: Feature, currentLayerPrefix: String?) {
+        val regionType = if (mapboxMap!!.cameraPosition.zoom <= 5) "County" else "Municipality"
+        val bottomSheetDialog = BottomSheetDialog(requireContext())
+        bottomSheetDialog.setContentView(R.layout.bottomsheet_dialog_map_popup)
+        bottomSheetDialog.findViewById<TextView>(R.id.regionType)?.text = regionType
+        bottomSheetDialog.findViewById<TextView>(R.id.name)?.text =
+            feature.getProperty("NAME")?.asString
+        bottomSheetDialog.findViewById<TextView>(R.id.totalMeasurements)?.text =
+            feature.getProperty("$currentLayerPrefix-COUNT")?.toString() ?: "0"
+        bottomSheetDialog.findViewById<TextView>(R.id.averageDown)?.text = String.format(
+            "%s Mbps", feature.getProperty("$currentLayerPrefix-DOWNLOAD")?.asFloat?.formatMbps() ?: "-")
+        bottomSheetDialog.findViewById<TextView>(R.id.averageUp)?.text = String.format(
+            "%s Mbps", feature.getProperty("$currentLayerPrefix-UPLOAD")?.asFloat?.formatMbps() ?: "-")
+        bottomSheetDialog.findViewById<TextView>(R.id.averageLatency)?.text = String.format(
+            "%s ms", feature.getProperty("$currentLayerPrefix-PING")?.asFloat?.formatMs() ?: "-")
+        bottomSheetDialog.findViewById<ImageButton>(R.id.closeButton)?.setOnClickListener {
+            bottomSheetDialog.dismiss()
+        }
+        bottomSheetDialog.show()
     }
 
     override fun onStart() {
@@ -204,11 +304,6 @@ class MapFragment : BaseFragment(), OnMapReadyCallback, MapMarkerDetailsAdapter.
         super.onResume()
         binding.map.onResume()
         updateLocationPermissionRelatedUi()
-        if (!checkPlayServices()) {
-            binding.fabsGroup.visibility = View.GONE
-            binding.webMap.visibility = View.VISIBLE
-            binding.playServicesAvailableUi.visibility = View.GONE
-        }
     }
 
     override fun onStop() {
@@ -221,14 +316,31 @@ class MapFragment : BaseFragment(), OnMapReadyCallback, MapMarkerDetailsAdapter.
         super.onPause()
     }
 
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        try {
+            binding.map.onSaveInstanceState(outState)
+        } catch (exception: UninitializedPropertyAccessException) {
+            Timber.e(exception.localizedMessage)
+        }
+    }
+
+    override fun onLowMemory() {
+        super.onLowMemory()
+        binding.map.onLowMemory()
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        try {
+            binding.map.onDestroy()
+        } catch (exception: UninitializedPropertyAccessException) {
+            Timber.e(exception.localizedMessage)
+        }
+    }
+
     override fun onCloseMarkerDetails() {
         binding.markerItems.visibility = View.GONE
-        currentMarker?.remove()
-        currentMarker = null
-//        adapter.items = mutableListOf()
-        if (mapViewModel.state.playServicesAvailable.get()) {
-            binding.fabsGroup?.visibility = View.VISIBLE
-        }
     }
 
     override fun onMoreDetailsClicked(openTestUUID: String) {
@@ -238,9 +350,10 @@ class MapFragment : BaseFragment(), OnMapReadyCallback, MapMarkerDetailsAdapter.
         }
     }
 
-    override fun onFiltersUpdated() {
-        currentOverlay?.remove()
-        currentOverlay = googleMap?.addTileOverlay(TileOverlayOptions().tileProvider(mapViewModel.providerLiveData.value))
+    override fun onTimeFilterUpdated(filterYear: Int, filterMonth: Int) {
+        Timber.d("Active timeline on map filter: $filterMonth $filterYear")
+        mapViewModel.setTimeFilter(filterYear, filterMonth)
+        updateMapStyle()
     }
 
     private fun setDefaultMapPosition() {
@@ -248,86 +361,33 @@ class MapFragment : BaseFragment(), OnMapReadyCallback, MapMarkerDetailsAdapter.
         if (mapViewModel.state.cameraPositionLiveData.value == null || mapViewModel.state.cameraPositionLiveData.value?.latitude == 0.0 && mapViewModel.state.cameraPositionLiveData.value?.longitude == 0.0) {
             val defaultPosition = LatLng(DEFAULT_LAT.toDouble(), DEFAULT_LONG.toDouble())
             Timber.d("Position default to : ${defaultPosition.latitude} ${defaultPosition.longitude}")
-            googleMap?.animateCamera(CameraUpdateFactory.newLatLngZoom(defaultPosition, DEFAULT_ZOOM_LEVEL))
+            mapboxMap?.animateCamera(CameraUpdateFactory.newLatLngZoom(defaultPosition, DEFAULT_ZOOM_LEVEL.toDouble()))
             mapViewModel.state.type.set(DEFAULT_PRESENTATION_TYPE)
         }
     }
 
-    private fun drawMarker(record: MarkerMeasurementRecord) {
-        if (record.networkTypeLabel != ServerNetworkType.TYPE_UNKNOWN.stringValue) {
-            record.networkTypeLabel?.let {
-                val icon = when (NetworkTypeCompat.fromString(it)) {
-                    NetworkTypeCompat.TYPE_UNKNOWN -> R.drawable.ic_marker_empty
-                    NetworkTypeCompat.TYPE_LAN,
-                    NetworkTypeCompat.TYPE_BROWSER -> R.drawable.ic_marker_browser
-                    NetworkTypeCompat.TYPE_WLAN -> R.drawable.ic_marker_wifi
-                    NetworkTypeCompat.TYPE_4G -> R.drawable.ic_marker_4g
-                    NetworkTypeCompat.TYPE_3G -> R.drawable.ic_marker_3g
-                    NetworkTypeCompat.TYPE_2G -> R.drawable.ic_marker_2g
-                    NetworkTypeCompat.TYPE_5G -> R.drawable.ic_marker_5g
-                    NetworkTypeCompat.TYPE_5G_NSA -> R.drawable.ic_marker_5g
-                    NetworkTypeCompat.TYPE_5G_AVAILABLE -> R.drawable.ic_marker_4g
-                }
-                addMarkerWithIcon(icon)
-            }
-        } else { // empty pin to prevent crash
-            addMarkerWithIcon(R.drawable.ic_marker_empty)
-        }
-    }
-
-    private fun addMarkerWithIcon(@DrawableRes icon: Int) {
-        currentLocation?.let { latlng ->
-            if (currentMarker == null) {
-                currentMarker = googleMap?.addMarker(
-                    MarkerOptions().position(latlng).anchor(ANCHOR_U, ANCHOR_V).iconFromVector(requireContext(), icon)
-                )
-            } else {
-                currentMarker?.iconFromVector(requireContext(), icon)
-            }
-        }
-    }
-
     private fun updateMapStyle() {
-        with(mapViewModel.state.style.get()) {
-            googleMap?.mapType = when (this) {
-                MapStyleType.HYBRID -> {
-                    activity?.window?.changeStatusBarColor(ToolbarTheme.BLUE)
-                    GoogleMap.MAP_TYPE_HYBRID
-                }
-                MapStyleType.SATELLITE -> {
-                    activity?.window?.changeStatusBarColor(ToolbarTheme.BLUE)
-                    GoogleMap.MAP_TYPE_SATELLITE
-                }
-                else -> {
-                    activity?.window?.changeStatusBarColor(ToolbarTheme.WHITE)
-                    GoogleMap.MAP_TYPE_NORMAL
-                }
+        val onStyleLoaded = Style.OnStyleLoaded {
+            initializeStyles(it)
+        }
+        mapboxMap?.setStyle(Style.Builder().fromUri(mapViewModel.provideStyle()), onStyleLoaded)
+    }
+
+    private fun initializeStyles(style: Style) {
+        mapViewModel.currentLayers.forEach {
+            val layer = style.getLayer(it)
+            layer?.let {
+                layer.setProperties(visibility(VISIBLE))
             }
         }
     }
 
     private fun setTiles() {
-        currentOverlay = googleMap?.addTileOverlay(TileOverlayOptions().tileProvider(mapViewModel.providerLiveData.value))
-        googleMap?.setOnMapClickListener { latlng ->
-            mapViewModel.state.locationChanged.set(true)
-            mapViewModel.locationLiveData.removeObservers(this)
-            mapViewModel.state.cameraPositionLiveData.postValue(latlng)
-            onCloseMarkerDetails()
-            if (isMarkersAvailable()) {
-                mapViewModel.loadMarkers(latlng.latitude, latlng.longitude, googleMap!!.cameraPosition.zoom.toInt())
-            }
-        }
-        googleMap?.setOnMarkerClickListener { true }
+        mapboxMap?.setOnMarkerClickListener { true }
 
-        googleMap?.setOnCameraChangeListener {
+        mapboxMap?.addOnCameraMoveStartedListener {
             mapViewModel.state.locationChanged.set(true)
             mapViewModel.locationLiveData.removeObservers(this)
-            mapViewModel.state.cameraPositionLiveData.postValue(it.target)
-            if (it.zoom != mapViewModel.state.zoom) {
-                currentOverlay?.remove()
-                currentOverlay = googleMap?.addTileOverlay(TileOverlayOptions().tileProvider(mapViewModel.providerLiveData.value))
-            }
-            mapViewModel.state.zoom = it.zoom
         }
     }
 
@@ -338,19 +398,15 @@ class MapFragment : BaseFragment(), OnMapReadyCallback, MapMarkerDetailsAdapter.
                     with(LatLng(it.latitude, it.longitude)) {
                         mapViewModel.state.cameraPositionLiveData.postValue(this)
                         mapViewModel.state.coordinatesLiveData.postValue(this)
-                        googleMap?.moveCamera(CameraUpdateFactory.newLatLngZoom(this, mapViewModel.state.zoom))
+                        mapboxMap?.moveCamera(CameraUpdateFactory.newLatLngZoom(this, mapViewModel.state.zoom.toDouble()))
                         mapViewModel.locationLiveData.removeObservers(this@MapFragment)
                     }
                 }
             }
         } else {
-            googleMap?.moveCamera(CameraUpdateFactory.newLatLngZoom(mapViewModel.state.cameraPositionLiveData.value, mapViewModel.state.zoom))
-            visiblePosition = RecyclerView.NO_POSITION
-            onCloseMarkerDetails()
-            if (isMarkersAvailable()) {
-                mapViewModel.state.coordinatesLiveData.value?.let {
-                    mapViewModel.loadMarkers(it.latitude, it.longitude, googleMap!!.cameraPosition.zoom.toInt())
-                }
+            mapViewModel.state.cameraPositionLiveData.value?.let {
+                mapboxMap?.moveCamera(CameraUpdateFactory.newLatLngZoom(it, mapViewModel.state.zoom.toDouble()))
+                visiblePosition = RecyclerView.NO_POSITION
             }
         }
     }
@@ -367,47 +423,47 @@ class MapFragment : BaseFragment(), OnMapReadyCallback, MapMarkerDetailsAdapter.
                         Manifest.permission.ACCESS_COARSE_LOCATION
                     ) == PackageManager.PERMISSION_GRANTED
                 ) {
-                    googleMap?.isMyLocationEnabled = state == LocationState.ENABLED
+//                    mapboxMap?.locationComponent?.isLocationComponentEnabled = state == LocationState.ENABLED
                 }
             }
+        }
+    }
 
-            binding.fabLocation.setOnClickListener {
-                if (state == LocationState.ENABLED) {
-                    mapViewModel.locationLiveData.listen(this) { info ->
-                        if (info != null) {
-                            mapViewModel.locationLiveData.removeObservers(this)
-                            googleMap?.animateCamera(CameraUpdateFactory.newLatLng(LatLng(info.latitude, info.longitude)))
-                            Timber.d("Position locationLiveData to : ${info.latitude} ${info.longitude}")
+    private fun onSearchResultSelect(item: MapSearchResult) {
+        if (item.bounds?.north != null) {
+            mapboxMap?.animateCamera(
+                CameraUpdateFactory.newLatLngBounds(
+                    LatLngBounds.from(
+                        item.bounds.north,
+                        item.bounds.east,
+                        item.bounds.south,
+                        item.bounds.west
+                    ), 0
+                )
+            )
+        } else if ((item.position != null) && (item.position.latitude != null) && (item.position.longitude != null)) {
+            mapboxMap?.animateCamera(CameraUpdateFactory.newLatLngZoom(LatLng(item.position.latitude, item.position.longitude), START_ZOOM_LEVEL.toDouble()))
+        }
+    }
+
+    private fun onSearchInputEdit() {
+        val value: String = binding.searchInput.text.toString()
+        if (value.isNotEmpty()) {
+            searchJob?.cancel()
+            searchJob = coroutineScope.launch {
+                delay(500)
+                mapViewModel.loadSearchResults(value, LatLng(DEFAULT_LAT, DEFAULT_LONG)) {
+                    activity?.runOnUiThread {
+                        if (showSearch) {
+                            binding.cardSearchResult?.visibility = View.VISIBLE
+                            mapViewModel.mapSearchResultAdapter.items = it.toMutableList()
+                            mapViewModel.mapSearchResultAdapter.actionCallback = { item ->
+                                onSearchResultSelect(item)
+                            }
                         }
                     }
                 }
             }
         }
-    }
-
-    private fun drawCurrentMarker() {
-        snapHelper?.findSnapView(binding.markerItems.layoutManager)?.let { view ->
-            binding.markerItems.layoutManager?.getPosition(view)?.let {
-                if (it >= 0) {
-                    if (visiblePosition != it) {
-                        visiblePosition = it
-                        drawMarker(adapter.getItem(it))
-                    }
-                }
-            }
-        }
-    }
-
-    private fun isMarkersAvailable(): Boolean =
-        mapViewModel.state.type.get() == MapPresentationType.POINTS ||
-                (mapViewModel.state.type.get() == MapPresentationType.AUTOMATIC && googleMap?.cameraPosition != null &&
-                        googleMap?.cameraPosition!!.zoom >= 10)
-
-    private fun showSearchDialog() {
-        if (!Geocoder.isPresent()) {
-            Toast.makeText(activity, R.string.map_search_location_not_supported, Toast.LENGTH_SHORT).show()
-            return
-        }
-        MapSearchDialog.instance(this, CODE_SEARCH_DIALOG).show(fragmentManager)
     }
 }

@@ -53,39 +53,38 @@ BasicResultFragment : BaseFragment() {
                 binding.uploadChart.visibility = View.GONE
                 viewModel.loopResultLiveData.listen(this) { result ->
                     result?.let {
-                        viewModel.state.testResult.set(
-                            TestResultRecord(
-                                uuid = result.loopUuid,
-                                uploadSpeedKbs = (result.uploadMedianMbps * 1000).toLong(),
-                                downloadSpeedKbs = (result.downloadMedianMbps * 1000).toLong(),
-                                pingMillis = result.pingMedianMillis.toDouble(),
-                                jitterMillis = result.jitterMedianMillis.toDouble(),
-                                packetLossPercents = result.packetLossMedian.toDouble(),
-                                clientOpenUUID = "",
-                                testOpenUUID = "",
-                                timezone = "",
-                                shareText = "",
-                                shareTitle = "",
-                                timestamp = 0L,
-                                timeText = "",
-                                networkTypeRaw = 0,
-                                networkTypeText = "",
-                                uploadClass = Classification.NONE,
-                                downloadClass = Classification.NONE,
-                                signalClass = Classification.NONE,
-                                pingClass = Classification.NONE,
-                                packetLossClass = Classification.NONE,
-                                jitterClass = Classification.NONE,
-                                networkType = NetworkTypeCompat.TYPE_UNKNOWN,
-                                isLocalOnly = false,
-                                locationText = null,
-                                longitude = null,
-                                latitude = null,
-                                networkProviderName = null,
-                                networkName = null,
-                                signalStrength = null
-                            )
+                        val testResultMedian = TestResultRecord(
+                            uuid = result.loopUuid,
+                            uploadSpeedKbs = (result.uploadMedianMbps * 1000).toLong(),
+                            downloadSpeedKbs = (result.downloadMedianMbps * 1000).toLong(),
+                            pingMillis = result.pingMedianMillis.toDouble(),
+                            jitterMillis = result.jitterMedianMillis.toDouble(),
+                            packetLossPercents = result.packetLossMedian.toDouble(),
+                            clientOpenUUID = "",
+                            testOpenUUID = "",
+                            timezone = "",
+                            shareText = "",
+                            shareTitle = "",
+                            timestamp = 0L,
+                            timeText = "",
+                            networkTypeRaw = 0,
+                            networkTypeText = "",
+                            uploadClass = Classification.NONE,
+                            downloadClass = Classification.NONE,
+                            signalClass = Classification.NONE,
+                            pingClass = Classification.NONE,
+                            packetLossClass = Classification.NONE,
+                            jitterClass = Classification.NONE,
+                            networkType = NetworkTypeCompat.TYPE_UNKNOWN,
+                            isLocalOnly = false,
+                            locationText = null,
+                            longitude = null,
+                            latitude = null,
+                            networkProviderName = null,
+                            networkName = null,
+                            signalStrength = null
                         )
+                        viewModel.state.testResult.set(testResultMedian)
                         onDataLoadedListener?.onDataLoaded()
                     }
                 }
@@ -104,10 +103,32 @@ BasicResultFragment : BaseFragment() {
             val qosResultItem = it.filter { qoeItem -> qoeItem.category == QoECategory.QOE_QOS }
 
             if (qosResultItem.isEmpty()) {
-                binding.qosResultGroup.visibility = View.GONE
+                binding.qosResultGroup.visibility = View.INVISIBLE
             } else {
                 binding.qosResultGroup.visibility = View.VISIBLE
                 binding.textQos.text = (qosResultItem[0].percentage).roundToInt().toString()
+            }
+        }
+
+        viewModel.qoeLoopResultLiveData.listen(this) {
+            when {
+                viewModel.qoeSingleResultLiveData.value?.get(0) != null -> {
+                    viewModel._qoeResultLiveData.postValue(viewModel.qoeSingleResultLiveData.value)
+                }
+                it.isNotEmpty() -> {
+                    viewModel._qoeResultLiveData.postValue(it)
+                }
+            }
+        }
+
+        viewModel.qoeSingleResultLiveData.listen(this) {
+            when {
+                viewModel.qoeLoopResultLiveData.value?.get(0) != null -> {
+                    viewModel._qoeResultLiveData.postValue(viewModel.qoeLoopResultLiveData.value)
+                }
+                it.isNotEmpty() -> {
+                    viewModel._qoeResultLiveData.postValue(it)
+                }
             }
         }
 

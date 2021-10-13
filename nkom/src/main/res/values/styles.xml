@@ -28,8 +28,10 @@
         <item name="colorAccent">@color/colorAccent</item>
         <item name="android:statusBarColor">@android:color/transparent</item>
         <item name="android:windowBackground">@color/colorPrimary</item>
-        <item name="colorControlHighlight">@color/greenRipple</item>
+        <item name="colorControlHighlight">@color/primaryRipple</item>
         <item name="android:windowDrawsSystemBarBackgrounds">false</item>
+        <item name="fontFamily">@font/atten_new_regular</item>
+        <item name="android:fontFamily">@font/atten_new_regular</item>
     </style>
 
     <style name="PreferenceTheme" parent="Theme.AppCompat.Light.NoActionBar">
@@ -39,7 +41,9 @@
         <item name="android:windowBackground">@color/colorPrimary</item>
         <item name="android:windowLightStatusBar">true</item>
         <item name="android:statusBarColor">@android:color/transparent</item>
-        <item name="colorControlHighlight">@color/greenRipple</item>
+        <item name="colorControlHighlight">@color/primaryRipple</item>
+        <item name="fontFamily">@font/atten_new_regular</item>
+        <item name="android:fontFamily">@font/atten_new_regular</item>
     </style>
 
     <style name="MeasurementTheme" parent="AppTheme">
@@ -47,12 +51,20 @@
         <item name="android:statusBarColor">@color/colorPrimary</item>
     </style>
 
+    <style name="AppTheme.Picker" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="android:textColorPrimary">@color/colorAccent</item>
+        <item name="colorControlNormal">#00000000</item>
+        <item name="fontFamily">@font/atten_new_regular</item>
+        <item name="android:fontFamily">@font/atten_new_regular</item>
+    </style>
+
     <!--  Splash screen theme -->
 
     <style name="SplashNoActionBarTheme" parent="AppTheme.NoActionBar">
-        <item name="android:windowBackground">@drawable/splash_background</item>
         <item name="android:windowFullscreen">true</item>
         <item name="android:windowContentOverlay">@null</item>
+        <item name="fontFamily">@font/atten_new_regular</item>
+        <item name="android:fontFamily">@font/atten_new_regular</item>
     </style>
 
     <style name="NavigationButtonStyle">
@@ -61,82 +73,83 @@
         <item name="android:minHeight">?attr/actionBarSize</item>
         <item name="android:scaleType">center</item>
         <item name="android:background">?selectableItemBackgroundBorderless</item>
-
+        <item name="fontFamily">@font/atten_new_regular</item>
+        <item name="android:fontFamily">@font/atten_new_regular</item>
     </style>
 
     <style name="ItemBackground" parent="android:Widget">
         <item name="colorControlHighlight">@color/blackRipple</item>
     </style>
 
-    <!-- Roboto font style -->
-    <style name="RobotoRegularStyle">
-        <item name="android:fontFamily">@font/roboto_regular</item>
-        <item name="fontFamily">@font/roboto_regular</item>
+    <!-- Atten New font style -->
+    <style name="AttenNewRegularStyle">
+        <item name="fontFamily">@font/atten_new_regular</item>
+        <item name="android:fontFamily">@font/atten_new_regular</item>
     </style>
 
-    <style name="RobotoMediumStyle">
-        <item name="android:fontFamily">@font/roboto_medium</item>
-        <item name="fontFamily">@font/roboto_medium</item>
+    <style name="AttenNewMediumStyle">
+        <item name="fontFamily">@font/atten_new_medium</item>
+        <item name="android:fontFamily">@font/atten_new_medium</item>
     </style>
 
-    <style name="RobotoBoldStyle">
-        <item name="android:fontFamily">@font/roboto_bold</item>
-        <item name="fontFamily">@font/roboto_bold</item>
+    <style name="AttenNewBoldStyle">
+        <item name="fontFamily">@font/atten_new_bold</item>
+        <item name="android:fontFamily">@font/atten_new_bold</item>
     </style>
 
-    <style name="RobotoRegularStyle.VerySmall">
+    <style name="AttenNewRegularStyle.VerySmall">
         <item name="android:textSize">12sp</item>
     </style>
 
-    <style name="RobotoRegularStyle.SmallSmall">
+    <style name="AttenNewRegularStyle.SmallSmall">
         <item name="android:textSize">13sp</item>
     </style>
 
-    <style name="RobotoRegularStyle.Small">
+    <style name="AttenNewRegularStyle.Small">
         <item name="android:textSize">14sp</item>
     </style>
 
-    <style name="RobotoRegularStyle.MediumSmall">
+    <style name="AttenNewRegularStyle.MediumSmall">
         <item name="android:textSize">15sp</item>
     </style>
 
-    <style name="RobotoRegularStyle.Medium">
+    <style name="AttenNewRegularStyle.Medium">
         <item name="android:textSize">16sp</item>
     </style>
 
-    <style name="RobotoBoldStyle.Medium">
+    <style name="AttenNewBoldStyle.Medium">
         <item name="android:textSize">16sp</item>
     </style>
 
-    <!--<style name="RobotoRegularStyle.Large">
+    <!--<style name="AttenNewBoldStyle.Large">
         <item name="android:textSize">20sp</item>
     </style>-->
 
-    <!--<style name="RobotoRegularStyle.ExtraLarge">
+    <!--<style name="AttenNewBoldStyle.ExtraLarge">
         <item name="android:textSize">24sp</item>
     </style>-->
 
-    <style name="RobotoMediumStyle.VerySmall">
+    <style name="AttenNewMediumStyle.VerySmall">
         <item name="android:textSize">12sp</item>
     </style>
 
-    <style name="RobotoMediumStyle.Small">
+    <style name="AttenNewMediumStyle.Small">
         <item name="android:textSize">14sp</item>
     </style>
 
-    <style name="RobotoMediumStyle.Medium">
+    <style name="AttenNewMediumStyle.Medium">
         <item name="android:textSize">16sp</item>
     </style>
 
-    <style name="RobotoMediumStyle.Large">
+    <style name="AttenNewMediumStyle.Large">
         <item name="android:textSize">20sp</item>
     </style>
 
-    <style name="RobotoMediumStyle.ExtraLarge">
+    <style name="AttenNewMediumStyle.ExtraLarge">
         <item name="android:textSize">24sp</item>
     </style>
 
-    <style name="RobotoMediumStyle.ExtraLarge.Dark" parent="RobotoMediumStyle.ExtraLarge">
+    <style name="RobotoMediumStyle.ExtraLarge.Dark" parent="AttenNewMediumStyle.ExtraLarge">
         <item name="android:textColor">@color/text_dark_gray</item>
     </style>
 
@@ -144,70 +157,72 @@
         <item name="android:windowNoTitle">true</item>
         <item name="android:windowIsFloating">true</item>
         <item name="android:windowBackground">@null</item>
-        <item name="colorControlHighlight">@color/greenRipple</item>
+        <item name="colorControlHighlight">@color/primaryRipple</item>
+        <item name="fontFamily">@font/atten_new_regular</item>
+        <item name="android:fontFamily">@font/atten_new_regular</item>
     </style>
 
     <style name="TextInputTheme" parent="AppTheme">
         <item name="colorPrimary">@android:color/holo_green_dark</item>
     </style>
 
-    <style name="Text.MeasurementProgress" parent="RobotoRegularStyle">
+    <style name="Text.MeasurementProgress" parent="AttenNewRegularStyle">
         <item name="android:textSize">44sp</item>
         <item name="android:fontFamily">sans-serif-light</item>
     </style>
 
-    <style name="Text.MeasurementProgress.Phase" parent="RobotoMediumStyle">
+    <style name="Text.MeasurementProgress.Phase" parent="AttenNewMediumStyle">
         <item name="android:textSize">14sp</item>
         <item name="android:textAllCaps">true</item>
         <item name="android:textStyle">bold</item>
-        <item name="android:textColor">@color/main_color</item>
+        <item name="android:textColor">@color/dark</item>
     </style>
 
-    <style name="Text.MeasurementProgress.Units" parent="RobotoMediumStyle">
+    <style name="Text.MeasurementProgress.Units" parent="AttenNewMediumStyle">
         <item name="android:textSize">12sp</item>
-        <item name="android:textColor">@color/main_color</item>
+        <item name="android:textColor">@color/dark</item>
     </style>
 
-    <style name="ResultMainItemLabel" parent="RobotoMediumStyle.VerySmall">
+    <style name="ResultMainItemLabel" parent="AttenNewMediumStyle.VerySmall">
         <item name="android:textColor">@color/black_40</item>
         <item name="textAllCaps">true</item>
     </style>
 
-    <style name="ScreenTitle" parent="RobotoMediumStyle.Medium">
+    <style name="ScreenTitle" parent="AttenNewMediumStyle.Medium">
         <item name="android:textColor">@color/text_dark_gray</item>
         <item name="android:gravity">center</item>
     </style>
 
-    <style name="ResultMainItemMainValue" parent="RobotoMediumStyle.ExtraLarge">
+    <style name="ResultMainItemMainValue" parent="AttenNewMediumStyle.ExtraLarge">
         <item name="android:textSize">30sp</item>
         <item name="android:textColor">@android:color/black</item>
     </style>
 
-    <style name="ResultMainItemValue" parent="RobotoMediumStyle.Medium">
+    <style name="ResultMainItemValue" parent="AttenNewMediumStyle.Medium">
         <item name="android:textColor">@android:color/black</item>
     </style>
 
-    <style name="ResultMainItemUnit" parent="RobotoMediumStyle.Small">
+    <style name="ResultMainItemUnit" parent="AttenNewMediumStyle.Small">
         <item name="android:textColor">@android:color/black</item>
     </style>
 
-    <style name="Text.ResultListValue" parent="RobotoRegularStyle">
+    <style name="Text.ResultListValue" parent="AttenNewRegularStyle">
         <item name="android:textSize">18sp</item>
-        <item name="android:textColor">@color/colorAccent</item>
+        <item name="android:textColor">@color/primary</item>
     </style>
 
-    <style name="Text.ResultListDate" parent="RobotoMediumStyle">
+    <style name="Text.ResultListDate" parent="AttenNewMediumStyle">
         <item name="android:textSize">11sp</item>
         <item name="android:textAllCaps">true</item>
         <item name="android:textColor">@android:color/black</item>
     </style>
 
-    <style name="Text.ResultListHeader" parent="RobotoMediumStyle">
+    <style name="Text.ResultListHeader" parent="AttenNewMediumStyle">
         <item name="android:textSize">12sp</item>
         <item name="android:textColor">@android:color/black</item>
     </style>
 
-    <style name="Text.NetworkInfoSlider.Title" parent="RobotoRegularStyle">
+    <style name="Text.NetworkInfoSlider.Title" parent="AttenNewRegularStyle">
         <item name="textAllCaps">true</item>
         <item name="android:alpha">0.5</item>
         <item name="android:textSize">13sp</item>
@@ -215,12 +230,12 @@
         <item name="android:textColor">@android:color/black</item>
     </style>
 
-    <style name="Text.NetworkInfoSlider.Value" parent="RobotoMediumStyle.Medium">
+    <style name="Text.NetworkInfoSlider.Value" parent="AttenNewMediumStyle.Medium">
         <item name="android:textSize">13sp</item>
         <item name="android:textColor">@color/text_darkest_gray</item>
     </style>
 
-    <style name="Text.NetworkInfoSlider.ServerValue" parent="RobotoRegularStyle">
+    <style name="Text.NetworkInfoSlider.ServerValue" parent="AttenNewRegularStyle">
         <item name="android:textSize">14sp</item>
         <item name="android:textColor">@android:color/black</item>
     </style>
@@ -233,13 +248,7 @@
         <item name="android:background">@drawable/bg_corners_top</item>
     </style>
 
-    <style name="MeasurementSectionLabel" parent="RobotoMediumStyle.Small">
-        <item name="android:textColor">@color/black_40</item>
-        <item name="textAllCaps">true</item>
-        <item name="android:textStyle">bold</item>
-    </style>
-
-    <style name="MeasurementValueLabel" parent="RobotoMediumStyle.Small">
+    <style name="MeasurementValueLabel" parent="AttenNewMediumStyle.Small">
         <item name="android:textColor">@android:color/black</item>
     </style>
 

@@ -35,6 +35,7 @@ import at.rtr.rmbt.android.viewmodel.ConfigCheckViewModel
 import at.rtr.rmbt.android.viewmodel.MeasurementViewModel
 import at.specure.data.entity.LoopModeState
 import com.google.firebase.crashlytics.FirebaseCrashlytics
+import com.mapbox.mapboxsdk.Mapbox
 import timber.log.Timber
 
 class HomeActivity : BaseActivity(), HomeFragment.NetworkInfoCallback {
@@ -59,11 +60,8 @@ class HomeActivity : BaseActivity(), HomeFragment.NetworkInfoCallback {
         super.onCreate(savedInstanceState)
         binding = bindContentView(R.layout.activity_home)
 
-        if (viewModel.config.analyticsEnabled) {
-            FirebaseCrashlytics.getInstance().setCrashlyticsCollectionEnabled(true)
-        } else {
-            FirebaseCrashlytics.getInstance().setCrashlyticsCollectionEnabled(false)
-        }
+        Mapbox.getInstance(this.applicationContext, getString(R.string.mapbox_public_key))
+
         Timber.d("Firebase crashlytics enabled: ${viewModel.config.analyticsEnabled}")
 
         setTransparentStatusBar()
@@ -112,8 +110,14 @@ class HomeActivity : BaseActivity(), HomeFragment.NetworkInfoCallback {
 
     override fun onStart() {
         super.onStart()
+        Timber.d("onStart")
         viewModel.attach(this)
         configCheckViewModel.checkConfig()
+        if (viewModel.config.analyticsEnabled) {
+            FirebaseCrashlytics.getInstance().setCrashlyticsCollectionEnabled(true)
+        } else {
+            FirebaseCrashlytics.getInstance().setCrashlyticsCollectionEnabled(false)
+        }
     }
 
     override fun onStop() {

@@ -6,6 +6,10 @@
         <variable
             name="empty"
             type="boolean" />
+
+        <variable
+            name="isPersistentClientUUID"
+            type="boolean" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
@@ -27,15 +31,22 @@
             android:id="@+id/content"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            app:constraint_referenced_ids="tab_layout,icon_filter,icon_sync,pager"
-            app:visibleOrGone="@{!empty}" />
+            app:constraint_referenced_ids="tab_layout,icon_filter,pager"
+            app:visibleOrGone="@{!empty &amp;&amp; isPersistentClientUUID}" />
 
         <androidx.constraintlayout.widget.Group
             android:id="@+id/placeholder"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             app:constraint_referenced_ids="empty_image, empty_link, empty_text"
-            app:visibleOrGone="@{empty}" />
+            app:visibleOrGone="@{empty &amp;&amp; isPersistentClientUUID}" />
+
+        <androidx.constraintlayout.widget.Group
+            android:id="@+id/noClientUuidPlaceholder"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:constraint_referenced_ids="noClientUuidImage, noClientUuidLink, noClientUuidText"
+            app:visibleOrGone="@{!isPersistentClientUUID}" />
 
         <com.google.android.material.tabs.TabLayout
             android:id="@+id/tab_layout"
@@ -46,7 +57,7 @@
             app:tabMaxWidth="100dp"
             app:tabMinWidth="100dp"
             app:tabSelectedTextColor="@color/colorAccent"
-            app:tabTextAppearance="@style/RobotoMediumStyle.Medium"
+            app:tabTextAppearance="@style/AttenNewMediumStyle.Medium"
             app:tabTextColor="@android:color/black" />
 
         <androidx.appcompat.widget.AppCompatImageView
@@ -54,6 +65,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:padding="16dp"
+            android:visibility="gone"
             android:src="@drawable/ic_sync_devices"
             app:layout_constraintBottom_toBottomOf="@id/tab_layout"
             app:layout_constraintEnd_toEndOf="parent"
@@ -82,7 +94,7 @@
             android:id="@+id/empty_image"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:src="@drawable/image_basic"
+            android:src="@drawable/image_home_cellular"
             app:layout_constraintBottom_toTopOf="@id/empty_text"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -114,6 +126,44 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/empty_text" />
+
+        <ImageView
+            android:id="@+id/noClientUuidImage"
+            android:layout_width="56dp"
+            android:layout_height="56dp"
+            android:src="@drawable/ic_no_gps"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/noClientUuidText"
+            style="@style/ResultMainItemValue"
+            android:layout_width="230dp"
+            android:layout_height="?attr/actionBarSize"
+            android:layout_marginTop="@dimen/margin_52"
+            android:layout_marginBottom="100dp"
+            android:gravity="center"
+            android:text="@string/text_no_persistent_client_uuid"
+            android:textSize="14sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/noClientUuidImage" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/noClientUuidLink"
+            style="@style/ResultMainItemValue"
+            android:layout_width="0dp"
+            android:layout_height="?attr/actionBarSize"
+            android:gravity="center"
+            android:text="@string/text_link_no_persistent_client_uuid"
+            android:textColor="@color/colorAccent"
+            android:textSize="14sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/noClientUuidText" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

@@ -13,6 +13,13 @@
   -->
 
 <resources xmlns:tools="http://schemas.android.com/tools">
+    <string name="measurements">Measurements</string>
+    <string name="total_measurements">Total Measurements</string>
+    <string name="average_down">Average Down</string>
+    <string name="average_up">Average Up</string>
+    <string name="average_latency">Average Latency</string>
+
+    <string name="splash_text">Test the speed of your internet.</string>
 
     <string name="open_location_permission_dialog_label_location_not_permitted">Nkom Nettfart is not allowed to use your location. Would you like to allow Nkom Nettfart to use your location?</string>
     <string name="notification_test_title">Nkom Nettfart is running</string>
@@ -42,8 +49,8 @@
 
     <!-- Home screen -->
     <string name="home_attention">Attention</string>
-    <string name="home_no_internet_connection">No Internet connection!</string>
-    <string name="home_no_internet_connection_details">No test is possible.</string>
+    <string name="home_no_internet_connection">No internet connection</string>
+    <string name="home_no_internet_connection_details">No test is possible</string>
     <string name="home_signal_value">%1$d dBm</string>
     <string name="home_wifi">WLAN</string>
     <string name="public_ip_address">Public address</string>
@@ -225,11 +232,6 @@
     <string name="map_label_map_appearance">Map appearance</string>
     <string name="title_marker_item_details">Show more details</string>
 
-    <string name="map_search_location_dialog_title">Search</string>
-    <string name="map_search_location_dialog_info">Search for an address or city:</string>
-    <string name="map_search_location_dialog_not_found">Address not found.</string>
-    <string name="map_search_location_not_supported">Sorry, this function is not supported by your device.</string>
-
     <string name="text_failed_to_load_results">Failed to load data.\nPlease pull down to refresh.</string>
 
     <string name="title_sync">Synchronization</string>
@@ -252,8 +254,6 @@
     <string name="label_map_filters">Map settings</string>
     <string name="text_filter_confirm">Accept</string>
     <string name="text_filter_continue">Continue</string>
-    <string name="title_filters_type">Map type</string>
-    <string name="title_filters_subtype">Type options</string>
 
     <string name="graph_signal_value">-%1$s dBm</string>
 
@@ -286,14 +286,11 @@
     <string name="preferences_connection_details_not_supported">Extended connection details are not supported on this device</string>
 
     <string name="dialog_signal_info_band">Band</string>
-    <string name="dialog_signal_info_channel">Channel</string>
-    <string name="dialog_signal_info_ta">TA</string>
-    <string name="dialog_signal_info_quality">Quality</string>
     <string name="text_local_results">Local results only</string>
     <string name="signal_measurement_terms_title">Activation and usage</string>
     <string name="signal_measurement_terms_content">The signal-only loop mode option for technically interested users allows the automatic repetition of signal measurements - without any speed- or quality tests being carried out. The signal-only loop-modus can be stopped at any time respectively it stops automatically after 48 hours. The signal-only loop-modus is (only) intended for use within the EU and the EEA. The battery is quickly drained by the signal-only measurements. In the pauses between tests, the GPS and the display remain active and signal measurements continue, which means that the energy is used up much faster than in stand-by mode. The loop-modus should therefore only be used if an external power supply is available. It needs to be explicitly pointed out that due to the signal-only loop mode it cannot be excluded that the tester is identified.</string>
     <string name="text_phase_init">Initialization</string>
-    <string name="text_phase_qos">Quality of Service</string>
+    <string name="text_phase_qos">QoS</string>
     <string name="text_phase_upload">Upload</string>
     <string name="text_phase_download">Download</string>
     <string name="text_phase_ping">Ping</string>
@@ -333,7 +330,6 @@
 
     <string-array name="title_results_tabs">
         <item>List</item>
-        <item>Map</item>
     </string-array>
 
     <string name="label_network_type">Network type</string>
@@ -341,11 +337,6 @@
     <string name="label_measurement_server">Measurement server</string>
     <string name="label_change_test_server">Change Test Server</string>
 
-    <string name="measurement">Measurement</string>
-    <string name="label_measurement_ping_ms">Ping (ms)</string>
-    <string name="label_measurement_download_mbps">Download (Mbps)</string>
-    <string name="label_measurement_upload_mbps">Upload (Mbps)</string>
-    <string name="label_measurement_qos">QoS (%)</string>
     <string name="label_measurement_time_to_next_test">Time to next test</string>
     <string name="label_measurement_movement">Movement</string>
 
@@ -359,5 +350,16 @@
     <string name="location_permission_title">2. Location Permissions</string>
     <string name="phone_permission_explanation">We will never make or manage phone calls. We use phone permissions to identify the mobile operator used for testing.</string>
     <string name="location_permission_explanation">Your location identifies nearby servers and your device`s cellular connection in order to properly configure Nkom Nettfart.</string>
+
+    <string name="technology">Technology</string>
+    <string name="primary_connection">Primary</string>
+    <string name="secondary_connection">Secondary</string>
+    <string name="search_tooltip">Search by address, municipality…</string>
+    <string name="filter_technology_all">All</string>
+    <string name="map_disclaimer">The map shows measurements done through the Nettfart apps. It is not a coverage map.</string>
+    <string name="text_no_persistent_client_uuid">Nettfart needs certain permissions to operate correctly</string>
+    <string name="text_link_no_persistent_client_uuid">Go to privacy permissions</string>
+    <string name="permissions">Permissions</string>
+    <string name="median_values">Median values</string>
 
 </resources>

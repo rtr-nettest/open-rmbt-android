@@ -213,12 +213,20 @@ class MapFragment : BaseFragment(), MapMarkerDetailsAdapter.MarkerDetailsCallbac
 
     override fun onDestroy() {
         super.onDestroy()
-        binding.map.onDestroy()
+        try {
+            binding.map.onDestroy()
+        } catch (e: UninitializedPropertyAccessException) {
+            Timber.e(e.localizedMessage)
+        }
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
-        binding.map.onSaveInstanceState(outState)
+        try {
+            binding.map.onSaveInstanceState(outState)
+        } catch (e: UninitializedPropertyAccessException) {
+            Timber.e(e.localizedMessage)
+        }
     }
 
     override fun onCloseMarkerDetails() {

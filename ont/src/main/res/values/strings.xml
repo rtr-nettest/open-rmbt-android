@@ -278,9 +278,6 @@
     <string name="preferences_connection_details_not_supported">Extended connection details are not supported on this device</string>
 
     <string name="dialog_signal_info_band">Band</string>
-    <string name="dialog_signal_info_channel">Channel</string>
-    <string name="dialog_signal_info_ta">TA</string>
-    <string name="dialog_signal_info_quality">Quality</string>
     <string name="text_local_results">Local results only</string>
     <string name="signal_measurement_terms_title">Activation and usage</string>
     <string name="signal_measurement_terms_content">The signal-only loop mode option for technically interested users allows the automatic repetition of signal measurements - without any speed- or quality tests being carried out. The signal-only loop-modus can be stopped at any time respectively it stops automatically after 48 hours. The signal-only loop-modus is (only) intended for use within the EU and the EEA. The battery is quickly drained by the signal-only measurements. In the pauses between tests, the GPS and the display remain active and signal measurements continue, which means that the energy is used up much faster than in stand-by mode. The loop-modus should therefore only be used if an external power supply is available. It needs to be explicitly pointed out that due to the signal-only loop mode it cannot be excluded that the tester is identified.</string>
@@ -357,5 +354,9 @@
     <string name="location_permission_title">2. Location Permissions</string>
     <string name="phone_permission_explanation">We will never make or manage phone calls. We use phone permissions to identify the mobile operator used for testing.</string>
     <string name="location_permission_explanation">Your location identifies nearby servers and your device`s cellular connection in order to properly configure Open Nettest.</string>
+
+    <string name="technology">Technology</string>
+    <string name="primary_connection">Primary</string>
+    <string name="secondary_connection">Secondary</string>
 
 </resources>

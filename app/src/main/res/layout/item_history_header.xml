@@ -14,7 +14,8 @@
             style="@style/RobotoRegularStyle.VerySmall"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="3"
+            android:layout_marginStart="@dimen/margin_24"
+            android:layout_weight="2"
             android:text="@string/history_item_header_test"
             android:textColor="@color/text_gray_transparency_60" />
 
@@ -22,6 +23,8 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
+            android:paddingStart="@dimen/padding_medium"
+            android:paddingEnd="@dimen/padding_medium"
             android:orientation="vertical">
 
             <androidx.appcompat.widget.AppCompatTextView
@@ -46,6 +49,9 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
+            android:layout_marginStart="@dimen/margin_small"
+            android:paddingStart="@dimen/padding_medium"
+            android:paddingEnd="@dimen/padding_medium"
             android:orientation="vertical">
 
             <androidx.appcompat.widget.AppCompatTextView
@@ -68,6 +74,9 @@
 
         <androidx.appcompat.widget.LinearLayoutCompat
             android:layout_width="0dp"
+            android:layout_marginStart="@dimen/margin_small"
+            android:paddingStart="@dimen/padding_medium"
+            android:paddingEnd="@dimen/padding_medium"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:orientation="vertical">

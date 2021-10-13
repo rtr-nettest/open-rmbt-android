@@ -13,6 +13,13 @@
   -->
 
 <resources xmlns:tools="http://schemas.android.com/tools">
+    <string name="measurements">Måling</string>
+    <string name="total_measurements">Totalt Antall Målinger</string>
+    <string name="average_down">Gjennomsnittlig Nedlasting</string>
+    <string name="average_up">Gjennomsnittlig Opplasting</string>
+    <string name="average_latency">Gjennomsnittlig Ventetid</string>
+
+    <string name="splash_text">Test hastigheten på din Internett</string>
 
     <string name="open_location_permission_dialog_label_location_not_permitted">Nkom Nettfart har ikke lov til å bruke posisjonen din. Vil du la Nkom Nettfart bruke posisjonen din?</string>
     <string name="notification_test_title">Nkom Nettfart kjører</string>
@@ -21,7 +28,7 @@
     <string name="loop_mode_finished">Nkom Nettfart loop -modus ferdig!</string>
     <string name="text_terms_agree">Jeg er enig med Specures personvernerklæring og vilkår for bruk for Nkom Nettfart.</string>
 
-    <string name="text_home_run">Kjør hastighetsmåling</string>
+    <string name="text_home_run">Start Testen</string>
     <string name="text_basic_measurement">Hastighetsmåling</string>
 
     <string name="basic_result_title">Grunnleggende resultat</string>
@@ -42,8 +49,8 @@
 
     <!-- Home screen -->
     <string name="home_attention">Merk følgende</string>
-    <string name="home_no_internet_connection">Ingen Internett -tilkobling!</string>
-    <string name="home_no_internet_connection_details">Ingen test er mulig.</string>
+    <string name="home_no_internet_connection">Ingen Internett -tilkobling</string>
+    <string name="home_no_internet_connection_details">Ingen test er mulig</string>
     <string name="home_signal_value">%1$d dBm</string>
     <string name="home_wifi">WLAN</string>
     <string name="public_ip_address">Offentlig adresse</string>
@@ -100,9 +107,9 @@
     <string name="preferences_developer_map_port">Kartport</string>
     <string name="preferences_developer_map_ssl">Kart server SSL</string>
     <string name="preferences_developer_map_ssl_sum">Bruk kryptert tilkobling til kartserver</string>
-    <string name="preferences_category_developer_qos_server">QoS -server</string>
-    <string name="preferences_developer_qos_ssl">QoS -server SSL</string>
-    <string name="preferences_developer_qos_ssl_sum">Bruk kryptert tilkobling til QoS -server</string>
+    <string name="preferences_category_developer_qos_server">QoS-server</string>
+    <string name="preferences_developer_qos_ssl">QoS-server SSL</string>
+    <string name="preferences_developer_qos_ssl_sum">Bruk kryptert tilkobling til QoS-server</string>
     <string name="preferences_all_disabled">Deaktivert.</string>
     <string name="preferences_server_selection">Servervalg</string>
     <string name="preferences_default_server_selection" />
@@ -141,20 +148,20 @@
     <string name="measurement_ping_value">%1$s</string>
     <string name="measurement_ping_value_1f">%1$.1f</string>
     <string name="measurement_download_upload_speed">%1$s</string>
-    <string name="measurement_download">nedlasting</string>
-    <string name="measurement_upload">Laste opp</string>
+    <string name="measurement_download">Nedlasting</string>
+    <string name="measurement_upload">Opplasting</string>
     <string name="measurement_dash">-</string>
     <string name="measurement_speed_chart_x_label_min">0s</string>
     <string name="measurement_speed_chart_x_label_max">8s</string>
-    <string name="measurement_ping">Ping</string>
+    <string name="measurement_ping">Fors</string>
     <string name="measurement_down">Ned</string>
     <string name="measurement_up">Opp</string>
     <string name="measurement_qos">Kvalitet på tjenesten (QoS)</string>
     <string name="measurement_qos_web_site">Nettsted</string>
     <string name="measurement_qos_transparent_connection">Gjennomsiktig tilkobling</string>
     <string name="measurement_qos_dns">DNS</string>
-    <string name="measurement_qos_tcp_ports">TCP -porter</string>
-    <string name="measurement_qos_udp_ports">UDP -porter</string>
+    <string name="measurement_qos_tcp_ports">TCP-porter</string>
+    <string name="measurement_qos_udp_ports">UDP-porter</string>
     <string name="measurement_qos_unmodified_content">Uendret innhold</string>
     <string name="measurement_qos_traceroute">Traceroute</string>
     <string name="measurement_qos_voip">VoIP</string>
@@ -167,9 +174,9 @@
     </string-array>
 
     <string name="label_qos">QoS</string>
-    <string name="label_upload">Laste opp</string>
-    <string name="label_download">nedlasting</string>
-    <string name="label_ping">Ping</string>
+    <string name="label_upload">Opplasting</string>
+    <string name="label_download">Nedlasting</string>
+    <string name="label_ping">Forsinkelse</string>
     <string name="label_init">I det</string>
     <string name="label_signal_strength">Signal</string>
     <string name="network_label">Nettverk</string>
@@ -182,9 +189,9 @@
     <string name="test_dialog_error_text">Test mislyktes. Prøv igjen senere.</string>
 
     <!-- History -->
-    <string name="history_item_header_down">nedlasting</string>
-    <string name="history_item_header_up">Laste opp</string>
-    <string name="history_item_header_ping">Ping</string>
+    <string name="history_item_header_down">Ned</string>
+    <string name="history_item_header_up">Opp</string>
+    <string name="history_item_header_ping">Fors</string>
     <string name="history_no_data">Ingen data tilgjengelig.</string>
 
     <!-- Results -->
@@ -225,11 +232,6 @@
     <string name="map_label_map_appearance">Kartets utseende</string>
     <string name="title_marker_item_details">Vis flere detaljer</string>
 
-    <string name="map_search_location_dialog_title">Søk</string>
-    <string name="map_search_location_dialog_info">Søk etter en adresse eller by:</string>
-    <string name="map_search_location_dialog_not_found">Adressen ble ikke funnet.</string>
-    <string name="map_search_location_not_supported">Beklager, denne funksjonen støttes ikke av enheten din.</string>
-
     <string name="text_failed_to_load_results">Kunne ikke laste inn data. \ NTrekk ned for å oppdatere.</string>
 
     <string name="title_sync">Synkronisering</string>
@@ -252,8 +254,6 @@
     <string name="label_map_filters">Kartinnstillinger</string>
     <string name="text_filter_confirm">Aksepterer</string>
     <string name="text_filter_continue">Fortsette</string>
-    <string name="title_filters_type">Karttype</string>
-    <string name="title_filters_subtype">Skriv alternativer</string>
 
     <string name="graph_signal_value">-%1$s dBm</string>
 
@@ -286,17 +286,14 @@
     <string name="preferences_connection_details_not_supported">Utvidede tilkoblingsdetaljer støttes ikke på denne enheten</string>
 
     <string name="dialog_signal_info_band">Bånd</string>
-    <string name="dialog_signal_info_channel">Kanal</string>
-    <string name="dialog_signal_info_ta">TA</string>
-    <string name="dialog_signal_info_quality">Kvalitet</string>
     <string name="text_local_results">Bare lokale resultater</string>
     <string name="signal_measurement_terms_title">Aktivering og bruk</string>
     <string name="signal_measurement_terms_content">Alternativet signal-bare sløyfemodus for teknisk interesserte brukere tillater automatisk gjentagelse av signalmålinger- uten at det blir utført hastighets- eller kvalitetstester. Signal-bare loop-modus kan stoppes når som helst, henholdsvis stopper den automatisk etter 48 timer. Signal-bare loop-modus er (bare) beregnet for bruk i EU og EØS. Batteriet tømmes raskt av signal-bare målingene. I pausene mellom testene forblir GPS og displayet aktive og signalmålinger fortsetter, noe som betyr at energien blir brukt opp mye raskere enn i standby-modus. Sløyfemodus bør derfor bare brukes hvis ekstern strømforsyning er tilgjengelig. Det må eksplisitt påpekes at på grunn av signal-bare sløyfemodus kan det ikke utelukkes at testeren er identifisert.</string>
     <string name="text_phase_init">Initialisering</string>
-    <string name="text_phase_qos">Tjenestekvalitet</string>
-    <string name="text_phase_upload">Laste opp</string>
-    <string name="text_phase_download">nedlasting</string>
-    <string name="text_phase_ping">Ping</string>
+    <string name="text_phase_qos">QoS</string>
+    <string name="text_phase_upload">Opplasting</string>
+    <string name="text_phase_download">Nedlasting</string>
+    <string name="text_phase_ping">Forsinkelse</string>
     <string name="text_unit_mbps">Mbps</string>
     <string name="text_unit_ping">ms</string>
     <string name="text_current_from_count">%1$d av %2$d</string>
@@ -333,7 +330,6 @@
 
     <string-array name="title_results_tabs">
         <item>Liste</item>
-        <item>Kart</item>
     </string-array>
 
     <string name="label_network_type">Nettverkstype</string>
@@ -341,11 +337,6 @@
     <string name="label_measurement_server">Måleserver</string>
     <string name="label_change_test_server">Endre testserver</string>
 
-    <string name="measurement">Mål</string>
-    <string name="label_measurement_ping_ms">Ping (ms)</string>
-    <string name="label_measurement_download_mbps">Last ned (Mbps)</string>
-    <string name="label_measurement_upload_mbps">Last opp (Mbps)</string>
-    <string name="label_measurement_qos">QoS (%)</string>
     <string name="label_measurement_time_to_next_test">På tide med neste test</string>
     <string name="label_measurement_movement">Bevegelse</string>
 
@@ -360,4 +351,14 @@
     <string name="phone_permission_explanation">Vi vil aldri foreta eller administrere telefonsamtaler. Vi bruker telefontillatelser for å identifisere mobiloperatøren som brukes til testing.</string>
     <string name="location_permission_explanation">Posisjonen din identifiserer nærliggende servere og enhetens mobilforbindelse for å konfigurere Nkom Nettfart på riktig måte.</string>
 
+    <string name="technology">Teknologi</string>
+    <string name="primary_connection">Primær</string>
+    <string name="secondary_connection">Sekundær</string>
+    <string name="search_tooltip">Søk etter adresse…</string>
+    <string name="filter_technology_all">Alle</string>
+    <string name="map_disclaimer">Kartet viser resultater fra Nettfart mobilapp.Det er ikke et dekningskart.</string>
+    <string name="text_no_persistent_client_uuid">Nettfart trenger visse tillatelser for å fungere korrekt.</string>
+    <string name="text_link_no_persistent_client_uuid">Gå til personverntillatelser</string>
+    <string name="permissions">Tillatelser</string>
+    <string name="median_values">Medianverdier</string>
 </resources>

@@ -56,7 +56,7 @@
             app:layout_constraintBottom_toTopOf="@id/logo"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/buttonSettings"
+            app:layout_constraintTop_toBottomOf="@id/app_logo"
             app:visibleOrGone="@{state.isConnected}" />
 
         <androidx.appcompat.widget.AppCompatButton
@@ -75,6 +75,7 @@
             android:text="@string/title_loop_mode"
             android:textAllCaps="false"
             android:translationZ="@dimen/cardview_default_elevation"
+            visibleOrGone="{state.isConnected}"
             app:layout_constraintBottom_toBottomOf="@id/app_logo"
             app:layout_constraintEnd_toStartOf="@+id/buttonSettings"
             app:layout_constraintTop_toTopOf="@id/app_logo" />
@@ -82,10 +83,14 @@
         <androidx.appcompat.widget.AppCompatImageView
             android:id="@+id/logo"
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="120dp"
+            android:layout_height="0dp"
+            android:layout_marginStart="@dimen/margin_52"
             android:src="@drawable/image_home"
-            app:layout_constraintBottom_toBottomOf="parent"
+            android:layout_marginEnd="@dimen/margin_52"
+            android:layout_marginBottom="@dimen/margin_large"
+            android:adjustViewBounds="true"
+            app:layout_constraintBottom_toTopOf="@+id/panel_network_details"
+            app:layout_constraintHeight_percent="0.30"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent" />
 
@@ -98,7 +103,7 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:visibleOrGone="@{state.informationAccessProblem == InformationAccessProblem.NO_PROBLEM}" />
+            app:visibleOrInvisible="@{state.informationAccessProblem == InformationAccessProblem.NO_PROBLEM}" />
 
         <include
             android:id="@+id/panel_permissions_problems"
@@ -125,7 +130,7 @@
 
         <androidx.appcompat.widget.AppCompatImageView
             android:id="@+id/ivLoopStatusIcon"
-            visibleOrGone="@{state.isLoopModeActive}"
+            visibleOrGone="@{state.isLoopModeActive &amp;&amp; state.isConnected}"
             android:layout_width="@dimen/history_image_size"
             android:layout_height="@dimen/history_image_size"
             android:layout_marginEnd="@dimen/margin_medium"
@@ -152,12 +157,12 @@
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/tvLblNoConnection"
-            style="@style/RobotoRegularStyle.Medium"
+            style="@style/AttenNewRegularStyle.Medium"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="48dp"
             android:text="@string/home_no_internet_connection"
-            android:textColor="@color/text_gray"
+            android:textAlignment="center"
+            android:textColor="@color/text_color_welcome"
             android:textSize="24sp"
             app:layout_constraintBottom_toTopOf="@id/logo"
             app:layout_constraintEnd_toEndOf="parent"
@@ -167,12 +172,14 @@
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/tvTextNoConnection"
-            style="@style/RobotoRegularStyle.Medium"
+            style="@style/AttenNewRegularStyle.Medium"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:gravity="center"
             android:text="@string/home_no_internet_connection_details"
+            android:textAlignment="center"
             android:textColor="@color/text_gray"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="@id/tvLblNoConnection"
             app:layout_constraintTop_toBottomOf="@+id/tvLblNoConnection"
             app:visibleOrGone="@{!state.isConnected}" />

@@ -33,7 +33,7 @@
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/titleTVISS"
-            style="@style/RobotoRegularStyle.MediumSmall"
+            style="@style/AttenNewRegularStyle.MediumSmall"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_toStartOf="@+id/switchButton"
@@ -45,7 +45,7 @@
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/summaryTVISS"
-            style="@style/RobotoRegularStyle.SmallSmall"
+            style="@style/AttenNewRegularStyle.SmallSmall"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_below="@id/titleTVISS"

@@ -109,6 +109,19 @@
             app:xlabel_text_size="0dp"
             app:ylabel_text_size="0dp" />
 
+        <View
+            android:id="@+id/divider"
+            style="@style/ResultMainItemLabel"
+            android:layout_width="0dp"
+            android:layout_height="1dp"
+            android:layout_marginTop="@dimen/margin_medium"
+            android:layout_marginBottom="@dimen/margin_medium"
+            android:background="@color/horizontal_divider"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_weight="1"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/download_chart" />
+
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/labelResultBottomUpload"
             style="@style/ResultMainItemLabel"
@@ -190,7 +203,7 @@
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/textJitter"
             style="@style/ResultMainItemMainValue"
-            android:layout_width="0dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:drawablePadding="@dimen/padding_very_small"
             android:maxLines="2"
@@ -223,7 +236,7 @@
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/textPacketLoss"
             style="@style/ResultMainItemMainValue"
-            android:layout_width="0dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:drawablePadding="@dimen/padding_very_small"
             android:maxLines="2"
@@ -257,7 +270,7 @@
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/textQos"
             style="@style/ResultMainItemMainValue"
-            android:layout_width="0dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:drawablePadding="@dimen/padding_very_small"
             android:maxLines="2"

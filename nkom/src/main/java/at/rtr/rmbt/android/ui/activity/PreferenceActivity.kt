@@ -14,6 +14,8 @@
 
 package at.rtr.rmbt.android.ui.activity
 
+import android.content.Context
+import android.content.Intent
 import android.os.Bundle
 import at.rtr.rmbt.android.R
 import at.rtr.rmbt.android.databinding.ActivityPreferenceBinding
@@ -29,14 +31,32 @@ class PreferenceActivity : BaseActivity() {
 
         setTransparentStatusBar()
 
+        val permissionsOnly = intent?.getBooleanExtra(KEY_PERMISSIONS_ONLY, false) ?: false
+
         if (savedInstanceState == null) {
             supportFragmentManager.beginTransaction()
-                .replace(R.id.fragment_content, SettingsFragment.newInstance())
+                .replace(R.id.fragment_content, SettingsFragment.newInstance(permissionsOnly))
                 .commitNow()
         }
 
+        binding.tvToolbarTitle.text = getText(
+            if (permissionsOnly) {
+                R.string.permissions
+            } else {
+                R.string.options
+            }
+        )
+
         binding.btnClose.setOnClickListener {
             finish()
+        }
+    }
+
+    companion object {
+        private const val KEY_PERMISSIONS_ONLY = "key_permissions_only"
+
+        fun getIntent(context: Context, permissionsOnly: Boolean): Intent {
+            return Intent(context, PreferenceActivity::class.java).apply { putExtra(KEY_PERMISSIONS_ONLY, permissionsOnly) }
         }
     }
 }

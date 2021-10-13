@@ -54,8 +54,8 @@ class SpeedLineChart @JvmOverloads constructor(
                 ?.let { convertToBitmap(it, right - left, bottom - top) }
             paintStroke.shader = lineGradientBitmap?.let { BitmapShader(it, Shader.TileMode.CLAMP, Shader.TileMode.CLAMP) }
             val colors = intArrayOf(
-                ContextCompat.getColor(context, R.color.speed_graph_gradient_fill_start),
-                ContextCompat.getColor(context, R.color.speed_graph_gradient_fill_end)
+                ContextCompat.getColor(context, R.color.dark),
+                ContextCompat.getColor(context, R.color.dark)
             )
             paintFill.shader = LinearGradient(0f, 0f, 0f, getChartHeight(), colors, floatArrayOf(0.2f, 1f), Shader.TileMode.CLAMP)
         }

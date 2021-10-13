@@ -26,6 +26,7 @@ import at.specure.info.TransportType
 import at.specure.info.cell.CellNetworkInfo
 import at.specure.info.network.NetworkInfo
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
+import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -34,9 +35,29 @@ import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
 import java.util.concurrent.TimeUnit
+import kotlin.math.roundToInt
 
 fun HandledException.getStringTitle(context: Context): String {
     return getTitle(context) ?: context.getString(R.string.dialog_title_error)
+}
+
+fun Float.formatMbps(): String {
+    return when {
+        this <= 0 -> this.roundToInt().toString()
+        this < 1 -> String.format("%.3f", this)
+        this < 10 -> String.format("%.2f", this)
+        this < 100 -> String.format("%.1f", this)
+        else -> this.roundToInt().toString()
+    }
+}
+
+fun Float.formatMs(): String {
+    return when {
+        this <= 0 -> this.roundToInt().toString()
+        this < 10 && this > 0 -> String.format("%.2f", this)
+        this < 100 -> String.format("%.1f", this)
+        else -> this.roundToInt().toString()
+    }
 }
 
 fun Calendar.format(pattern: String): String {
@@ -60,6 +81,10 @@ fun Marker.iconFromVector(context: Context, vectorResId: Int) {
         draw(Canvas(bitmap))
         BitmapDescriptorFactory.fromBitmap(bitmap)
     })
+}
+
+fun LatLng.toMapBoxLatLng(): com.mapbox.mapboxsdk.geometry.LatLng {
+    return com.mapbox.mapboxsdk.geometry.LatLng(this.latitude, this.longitude)
 }
 
 fun Long.timeString(): String {

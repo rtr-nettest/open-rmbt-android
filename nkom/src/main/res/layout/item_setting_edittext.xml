@@ -25,7 +25,7 @@
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/titleTVISET"
-            style="@style/RobotoRegularStyle.MediumSmall"
+            style="@style/AttenNewRegularStyle.MediumSmall"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerVertical="true"
@@ -37,7 +37,7 @@
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/summaryTVISET"
-            style="@style/RobotoRegularStyle.MediumSmall"
+            style="@style/AttenNewRegularStyle.MediumSmall"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_centerVertical="true"

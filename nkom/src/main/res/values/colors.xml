@@ -15,9 +15,14 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <color name="colorPrimary">@android:color/white</color>
     <color name="colorPrimaryDark">@android:color/white</color>
-    <color name="colorAccent">@color/main_color</color>
+    <color name="colorAccent">@color/primary</color>
 
     <!-- Theme colors -->
+    <color name="primary">#345FED</color>
+    <color name="tertiary">#F9D649</color>
+    <color name="dark">#3028AA</color>
+
+    <!-- Toolbar colors -->
     <color name="toolbar_blue">#F90097</color>
     <color name="toolbar_gray">#F2F3F5</color>
 
@@ -26,7 +31,7 @@
     <color name="black_10">#b4b6b1</color>
 
     <color name="main_inactive_color">#1A000000</color>
-    <color name="main_color">#011C60</color>
+    <color name="main_color">@color/primary</color>
 
     <color name="measurement_progress_empty">@color/main_inactive_color</color>
     <color name="measurement_progress_start">@color/main_color</color>
@@ -36,11 +41,11 @@
     </color>
 
     <!-- Bottom navigation icon colors -->
-    <color name="navigation_green">@color/colorAccent</color>
-    <color name="navigation_gray">#5f6368</color>
+    <color name="navigation_active">@color/primary</color>
+    <color name="navigation_inactive">#5f6368</color>
 
     <!-- Ripple effect color  -->
-    <color name="greenRipple">#4259b200</color>
+    <color name="primaryRipple">@color/primary</color>
     <color name="blackRipple">#26000000</color>
 
     <!--  White color with transparency -->
@@ -90,11 +95,14 @@
 
     <color name="ping_bar_color">#4D78Ed03</color>
 
-    <color name="speed_graph_gradient_fill_start">#26004394</color>
-    <color name="speed_graph_gradient_fill_end">#0Df2f6fa</color>
     <color name="text_color_welcome">#212222</color>
 
-    <color name="loop_mode_icon_background">#FFE57F</color>
     <color name="loop_mode_icon_background_disabled">#11000000</color>
+
+    <color name="map_filter_technology_2G">#F9D649</color>
+    <color name="map_filter_technology_3G">#F15B0A</color>
+    <color name="map_filter_technology_4G">#DB2481</color>
+    <color name="map_filter_technology_5G">#3028AA</color>
+    <color name="map_filter_technology_ALL">#345FED</color>
 
 </resources>
