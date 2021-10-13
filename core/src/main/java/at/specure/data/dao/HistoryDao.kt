@@ -31,8 +31,8 @@ abstract class HistoryDao {
         val references = history.map {
             HistoryReference(it.referenceUUID, it.time)
         }
-        saveHistory(history)
         saveReferences(references)
+        saveHistory(history)
     }
 
     @Query("DELETE FROM ${Tables.HISTORY_REFERENCE}")
@@ -54,9 +54,9 @@ abstract class HistoryDao {
         clearHistory()
     }
 
-    @Query("SELECT * FROM ${Tables.HISTORY} WHERE testUUID =:testUUID")
+    @Query("SELECT * FROM ${Tables.HISTORY} WHERE testUUID =:testUUID ORDER BY time DESC")
     abstract fun getItemByUUID(testUUID: String): History?
 
-    @Query("SELECT * FROM ${Tables.HISTORY} WHERE loopUUID =:loopUuid")
+    @Query("SELECT * FROM ${Tables.HISTORY} WHERE loopUUID =:loopUuid ORDER BY time DESC")
     abstract fun getItemByLoopUUID(loopUuid: String): List<History>
 }

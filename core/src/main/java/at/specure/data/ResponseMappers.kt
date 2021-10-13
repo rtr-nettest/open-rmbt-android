@@ -38,7 +38,6 @@ import at.specure.data.entity.TestResultRecord
 import at.specure.result.QoECategory
 import at.specure.result.QoSCategory
 import org.joda.time.DateTime
-import java.text.DecimalFormat
 import java.text.SimpleDateFormat
 import java.util.EnumMap
 import java.util.Locale
@@ -83,8 +82,8 @@ fun HistoryItemONTResponse.toModel(): History {
     val dateTime = DateTime(measurementDate)
     return History(
         testUUID = testUUID,
-        loopUUID = null,
-        referenceUUID = testUUID, // todo: change when loop uuid will be available
+        loopUUID = loopUUID,
+        referenceUUID = loopUUID ?: testUUID,
         model = "",
         networkType = NetworkTypeCompat.fromString(
             networkType ?: ServerNetworkType.TYPE_UNKNOWN2.stringValue
@@ -127,15 +126,21 @@ fun HistoryItemONTResponse.toModel(): History {
 fun Float.toSpeedValue(): String {
     val value = this / 1000f // from kbps to Mbps
     return when {
-        value >= 10 -> value.roundToInt().toString()
-        value >= 1 -> DecimalFormat("0.#").format(value)
-        value >= 0.01 -> DecimalFormat("0.##").format(value)
-        else -> "0"
+        value <= 0 -> value.roundToInt().toString()
+        value < 1 -> String.format("%.3f", value)
+        value < 10 -> String.format("%.2f", value)
+        value < 100 -> String.format("%.1f", value)
+        else -> value.roundToInt().toString()
     }
 }
 
 private fun Float.toFormattedPing(): String {
-    return this.roundToInt().toString()
+    return when {
+        this <= 0 -> this.roundToInt().toString()
+        this < 10 -> String.format("%.2f", this)
+        this < 100 -> String.format("%.1f", this)
+        else -> this.roundToInt().toString()
+    }
 }
 
 fun ServerTestResultResponse.toModel(testUUID: String): TestResultRecord =

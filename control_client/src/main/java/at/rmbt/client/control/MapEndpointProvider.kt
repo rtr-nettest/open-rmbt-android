@@ -37,4 +37,11 @@ interface MapEndpointProvider {
      * Link suffix to obtain map filters data, example "RMBTMapServer/tiles/info
      */
     val mapFilterInfoUrl: String
+
+    /**
+     * List of operators for map filters
+     */
+    val getNationalTableUrl: String
+
+    val nettestHeader: String?
 }

@@ -37,6 +37,8 @@ interface MapRepository {
 
     fun obtainFilters(callback: (List<String>) -> Unit)
 
+    fun obtainProviders(callback: (MutableList<String>) -> Unit)
+
     fun markTypeAsSelected(value: String)
 
     fun markSubtypeAsSelected(value: String)
@@ -50,6 +52,10 @@ interface MapRepository {
     fun markOperatorAsSelected(value: String)
 
     fun markTechnologyAsSelected(value: String)
+
+    fun setTimeSelected(year: Int, month: Int)
+
+    fun getTimeSelected(): Pair<Int, Int>
 }
 
 typealias FilterOptionLiveData<T> = MutableLiveData<Pair<String, List<T>>>

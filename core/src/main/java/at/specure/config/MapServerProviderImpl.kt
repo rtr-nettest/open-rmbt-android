@@ -28,4 +28,11 @@ class MapServerProviderImpl @Inject constructor(private val config: Config) : Ma
 
     override val mapFilterInfoUrl: String
         get() = "$host/$route/${config.mapFilterInfoEndpoint}"
+
+    override val getNationalTableUrl: String
+        //        get() = "$protocol${config.controlServerHost}:${config.controlServerPort}/${config.controlServerRoute}/nationalTable"
+        get() = "$protocol${config.controlServerHost}:${config.controlServerPort}/nationalTable"
+
+    override val nettestHeader: String?
+        get() = config.headerValue
 }

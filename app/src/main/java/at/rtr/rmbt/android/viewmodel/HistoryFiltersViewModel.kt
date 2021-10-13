@@ -28,7 +28,13 @@ class HistoryFiltersViewModel @Inject constructor(private val repository: Histor
 
     fun displayStringSet(data: Set<String>?, defaultData: Set<String>? = null): String {
         return when {
-            data == null || data.isEmpty() -> displayStringSet(defaultData)
+            data == null || data.isEmpty() -> {
+                if (!defaultData.isNullOrEmpty()) {
+                    displayStringSet(defaultData)
+                } else {
+                    ""
+                }
+            }
             data.size == 1 -> data.first()
             else -> {
                 buildString {

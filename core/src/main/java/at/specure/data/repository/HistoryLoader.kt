@@ -10,6 +10,7 @@ import at.specure.data.CoreDatabase
 import at.specure.data.entity.HistoryContainer
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.runBlocking
+import timber.log.Timber
 import javax.inject.Inject
 
 private const val LIMIT = 100
@@ -20,6 +21,7 @@ class HistoryLoader @Inject constructor(
 ) :
     PagedList.BoundaryCallback<HistoryContainer>() {
 
+    var latestLoadedPage = 0
     var isLoadingChannel: Channel<Boolean>? = null
     var errorChannel: Channel<HandledException>? = null
 
@@ -55,15 +57,20 @@ class HistoryLoader @Inject constructor(
         loadItems()
     }
 
+    @Synchronized
     private fun loadItems() = io {
         if (!isLoading) {
             isLoading = true
 
             val count = historyDao.getItemsCount()
-            if (count % LIMIT == 0) {
+            Timber.d("HistoryItemsCount: $count")
+            if ((count % LIMIT == 0) && (count / LIMIT != latestLoadedPage)) {
                 val result = historyRepository.loadHistoryItems(count, LIMIT)
                 result.onFailure {
                     errorChannel?.send(it)
+                }
+                result.onSuccess {
+                    latestLoadedPage = count / LIMIT
                 }
             }
             isLoading = false
