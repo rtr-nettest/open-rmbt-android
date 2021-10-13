@@ -389,21 +389,26 @@ fun AppCompatTextView.setNetworkType(detailedNetworkInfo: DetailedNetworkInfo?) 
      */
     val shortDisplayOfTechnology = true
 
-    text = when (detailedNetworkInfo?.networkInfo) {
-        is EthernetNetworkInfo -> context.getString(R.string.home_ethernet)
-        is WifiNetworkInfo -> context.getString(R.string.home_wifi)
-        is CellNetworkInfo -> {
-            val technology =
-                CellTechnology.fromMobileNetworkType((detailedNetworkInfo.networkInfo as CellNetworkInfo).networkType)?.displayName
-            Timber.d("NM network type to display: ${(detailedNetworkInfo.networkInfo as CellNetworkInfo).networkType.displayName}")
-            if (shortDisplayOfTechnology || technology == null) {
-                (detailedNetworkInfo.networkInfo as CellNetworkInfo).networkType.displayName
-            } else {
-                "$technology/${(detailedNetworkInfo.networkInfo as CellNetworkInfo).networkType.displayName}"
-            }
+    text = extractTechnologyString(detailedNetworkInfo, shortDisplayOfTechnology)
+}
+
+private fun AppCompatTextView.extractTechnologyString(
+    detailedNetworkInfo: DetailedNetworkInfo?,
+    shortDisplayOfTechnology: Boolean
+) = when (detailedNetworkInfo?.networkInfo) {
+    is EthernetNetworkInfo -> context.getString(R.string.home_ethernet)
+    is WifiNetworkInfo -> context.getString(R.string.home_wifi)
+    is CellNetworkInfo -> {
+        val technology =
+            CellTechnology.fromMobileNetworkType((detailedNetworkInfo.networkInfo as CellNetworkInfo).networkType)?.displayName
+        Timber.d("NM network type to display: ${(detailedNetworkInfo.networkInfo as CellNetworkInfo).networkType.displayName}")
+        if (shortDisplayOfTechnology || technology == null) {
+            (detailedNetworkInfo.networkInfo as CellNetworkInfo).networkType.displayName
+        } else {
+            "$technology/${(detailedNetworkInfo.networkInfo as CellNetworkInfo).networkType.displayName}"
         }
-        else -> context.getString(R.string.home_attention)
     }
+    else -> context.getString(R.string.home_attention)
 }
 
 /**
@@ -1152,4 +1157,18 @@ fun AppCompatTextView.setSignalStrengthMap(signalStrengthResult: String?, signal
             }
         }, 0, 0, 0
     )
+}
+
+/**
+ * A binding adapter that is used for show network type
+ */
+@BindingAdapter("networkTypeDetailed")
+fun AppCompatTextView.setDetailedNetworkType(networkTypeDetailed: DetailedNetworkInfo?) {
+
+    /**
+     *  display "LTE" (true) or "4G/LTE" (false)
+     */
+    val shortDisplayOfTechnology = false
+
+    text = extractTechnologyString(networkTypeDetailed, shortDisplayOfTechnology)
 }
