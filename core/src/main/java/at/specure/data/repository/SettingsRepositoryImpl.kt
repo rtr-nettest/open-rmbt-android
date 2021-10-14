@@ -65,16 +65,24 @@ class SettingsRepositoryImpl(
         if (clientUUID.value == null && clientUUIDLegacy.value != null) {
             clientUUID.value = clientUUIDLegacy.value
         }
+//        Log.e("CLIENTUUID SR", "CLIENTUUID = ${clientUUID.value} vs CLIENTUUID LEGACY = ${clientUUIDLegacy.value}")
+        Timber.e("CLIENTUUID = ${clientUUID.value} vs ${clientUUIDLegacy.value}")
 
         if (!config.persistentClientUUIDEnabled) {
             clientUUID.value = null
+        } else if ((clientUUIDLegacy.value != null) && !config.headerValue.isNullOrEmpty()) {
+            // migrating old uuid to new uuid and get rid of legacy one to prevent repeated migrating of old uuid in case of not persistent uuid option chosen
+            clientUUID.value = clientUUIDLegacy.value
+            clientUUIDLegacy.value = null
         }
 
         val body = deviceInfo.toSettingsRequest(clientUUID, clientUUIDLegacy, config, termsAndConditions)
         // we must remove ipv4 url before we want to check settings, because settings request should go to the original URL
         controlServerSettings.controlServerV4Url = null
         controlServerSettings.controlServerV6Url = null
+//        Log.e("CLIENTUUID SR SETTINGS WHOLE REQUEST", "${body}}")
         val settings = controlServerClient.getSettings(body)
+//        Log.e("CLIENTUUID SR SETTINGS WHOLE RESPONSE", "${settings.success.settings}}")
         return settings
     }
 
@@ -84,6 +92,7 @@ class SettingsRepositoryImpl(
         val uuid = settingsResponse.settings.first().uuid
         if (uuid != null && uuid.isNotBlank()) {
             clientUUID.value = uuid
+//            Log.e("CLIENTUUID SR SETTINGS RESPONSE", "$uuid}")
         }
 
         controlServerSettings.filterDevices = settingsResponse.settings.first().history?.devices ?: listOf()
