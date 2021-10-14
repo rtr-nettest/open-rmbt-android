@@ -8,6 +8,7 @@ import at.rmbt.client.control.FilterStatisticOptionResponse
 import at.rmbt.client.control.FilterTechnologyOptionResponse
 import at.rmbt.client.control.MapTypeOptionsResponse
 import at.rmbt.client.control.data.MapFilterType
+import timber.log.Timber
 import java.util.Calendar
 import java.util.EnumMap
 import javax.inject.Inject
@@ -66,10 +67,23 @@ class FilterValuesStorage @Inject constructor() {
 
     fun findType(value: String) = types[value]
 
-    fun findType(value: MapFilterType) = types.filterValues { it == value }.keys.first()
+    fun findType(value: MapFilterType): String {
+        return try {
+            types.filterValues { it == value }.keys.first()
+        } catch (e: Exception) {
+            Timber.e(e.localizedMessage)
+            MapFilterType.ALL.value
+        }
+    }
 
-    fun findSubtype(value: String?, type: MapFilterType) =
-        subTypes.getValue(type).firstOrNull { it.title == value } ?: subTypes.getValue(type).first()
+    fun findSubtype(value: String?, type: MapFilterType): MapTypeOptionsResponse {
+        return try {
+            subTypes.getValue(type).firstOrNull { it.title == value } ?: subTypes.getValue(type).first()
+        } catch (e: Exception) {
+            Timber.e(e.localizedMessage)
+            MapTypeOptionsResponse(MapFilterType.ALL.value, MapFilterType.ALL.value, MapFilterType.ALL.value)
+        }
+    }
 
     fun findStatistical(value: String?, type: MapFilterType) = findOption(value, type, statistics) as FilterStatisticOptionResponse
 
@@ -106,6 +120,12 @@ class FilterValuesStorage @Inject constructor() {
     private fun findOption(value: String?, type: MapFilterType, data: Map<MapFilterType, List<FilterBaseOptionResponse>>) =
         data[type]?.find { it.title == value } ?: findDefaultOption(type, data)
 
-    private fun findDefaultOption(type: MapFilterType, data: Map<MapFilterType, List<FilterBaseOptionResponse>>) =
-        (data[type] ?: data.values.first()).first { it.default }
+    private fun findDefaultOption(type: MapFilterType, data: Map<MapFilterType, List<FilterBaseOptionResponse>>): FilterBaseOptionResponse {
+        return try {
+            (data[type] ?: data.values.first()).first { it.default }
+        } catch (e: NoSuchElementException) {
+            Timber.e(e.localizedMessage)
+            FilterBaseOptionResponse()
+        }
+    }
 }
