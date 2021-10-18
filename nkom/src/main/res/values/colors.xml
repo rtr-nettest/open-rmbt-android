@@ -107,4 +107,7 @@
     <color name="map_filter_technology_5G">#3028AA</color>
     <color name="map_filter_technology_ALL">#345FED</color>
 
+    <color name="graph_background">#19000000</color>
+    <color name="shade_50">#7F000000</color>
+
 </resources>
