@@ -42,7 +42,9 @@
 
     <!-- Bottom navigation icon colors -->
     <color name="navigation_active">@color/primary</color>
-    <color name="navigation_inactive">#5f6368</color>
+    <color name="navigation_inactive">@android:color/black</color>
+
+    <color name="text_gray_2">#5f6368</color>
 
     <!-- Ripple effect color  -->
     <color name="primaryRipple">@color/primary</color>
