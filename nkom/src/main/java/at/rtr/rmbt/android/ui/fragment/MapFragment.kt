@@ -207,11 +207,13 @@ class MapFragment : BaseFragment(), OnMapReadyCallback, MapMarkerDetailsAdapter.
     private fun setTechnologySelected(technologyFilterList: List<TextView>, selectedView: View, filterType: TechnologyFilter) {
         mapViewModel.setTechnologyFilter(filterType)
         technologyFilterList.forEach { view ->
+            view.setBackgroundResource(R.drawable.filter_tech_disabled)
             view.backgroundTintList = ContextCompat.getColorStateList(requireContext(), R.color.text_lightest_gray)
-            view.setTextColor(ContextCompat.getColor(requireContext(), R.color.text_black_transparency_60))
+            view.setTextColor(ContextCompat.getColor(requireContext(), android.R.color.black))
         }
+        selectedView.setBackgroundResource(R.drawable.filter_tech_enabled)
         selectedView.backgroundTintList = ContextCompat.getColorStateList(requireContext(), filterType.colorId)
-        (selectedView as TextView).setTextColor(ContextCompat.getColor(requireContext(), R.color.text_lightest_gray))
+        (selectedView as TextView).setTextColor(ContextCompat.getColor(requireContext(), android.R.color.black))
         updateMapStyle()
     }
 
