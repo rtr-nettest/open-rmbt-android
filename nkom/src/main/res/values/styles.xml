@@ -184,7 +184,7 @@
     </style>
 
     <style name="ResultMainItemLabel" parent="AttenNewMediumStyle.VerySmall">
-        <item name="android:textColor">@color/black_40</item>
+        <item name="android:textColor">@color/shade_50</item>
         <item name="textAllCaps">true</item>
     </style>
 
