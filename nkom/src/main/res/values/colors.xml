@@ -42,7 +42,9 @@
 
     <!-- Bottom navigation icon colors -->
     <color name="navigation_active">@color/primary</color>
-    <color name="navigation_inactive">#5f6368</color>
+    <color name="navigation_inactive">@android:color/black</color>
+
+    <color name="text_gray_2">#5f6368</color>
 
     <!-- Ripple effect color  -->
     <color name="primaryRipple">@color/primary</color>
@@ -100,9 +102,12 @@
     <color name="loop_mode_icon_background_disabled">#11000000</color>
 
     <color name="map_filter_technology_2G">#F9D649</color>
-    <color name="map_filter_technology_3G">#F15B0A</color>
-    <color name="map_filter_technology_4G">#DB2481</color>
+    <color name="map_filter_technology_3G">#6DD400</color>
+    <color name="map_filter_technology_4G">#44D7B6</color>
     <color name="map_filter_technology_5G">#3028AA</color>
-    <color name="map_filter_technology_ALL">#345FED</color>
+    <color name="map_filter_technology_ALL">@color/primary</color>
+
+    <color name="graph_background">#19000000</color>
+    <color name="shade_50">#7F000000</color>
 
 </resources>

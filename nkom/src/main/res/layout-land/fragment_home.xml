@@ -85,6 +85,7 @@
 
         <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/buttonLoop"
+            visibleOrGone="{state.isConnected}"
             android:layout_width="wrap_content"
             android:layout_height="@dimen/home_loop_button_height"
             android:layout_marginEnd="@dimen/margin_medium"
@@ -98,8 +99,8 @@
             android:paddingBottom="@dimen/padding_medium"
             android:text="@string/title_loop_mode"
             android:textAllCaps="false"
+            android:textColor="@android:color/black"
             android:translationZ="@dimen/cardview_default_elevation"
-            visibleOrGone="{state.isConnected}"
             app:layout_constraintBottom_toBottomOf="@id/app_logo"
             app:layout_constraintEnd_toStartOf="@+id/buttonSettings"
             app:layout_constraintTop_toTopOf="@id/app_logo" />

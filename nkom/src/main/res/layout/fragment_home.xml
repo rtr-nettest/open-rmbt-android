@@ -74,6 +74,7 @@
             android:paddingBottom="@dimen/padding_medium"
             android:text="@string/title_loop_mode"
             android:textAllCaps="false"
+            android:textColor="@android:color/black"
             android:translationZ="@dimen/cardview_default_elevation"
             visibleOrGone="{state.isConnected}"
             app:layout_constraintBottom_toBottomOf="@id/app_logo"

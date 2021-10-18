@@ -22,7 +22,7 @@
             android:layout_height="wrap_content"
             android:padding="@dimen/margin_large"
             android:text="@string/label_map_filters"
-            android:textColor="@color/navigation_inactive"
+            android:textColor="@color/text_gray_2"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
