@@ -211,6 +211,8 @@ class MapFragment : BaseFragment(), OnMapReadyCallback, MapMarkerDetailsAdapter.
             view.backgroundTintList = ContextCompat.getColorStateList(requireContext(), R.color.text_lightest_gray)
             view.setTextColor(ContextCompat.getColor(requireContext(), android.R.color.black))
         }
+        selectedView.backgroundTintList = null
+        selectedView.backgroundTintList = ContextCompat.getColorStateList(requireContext(), android.R.color.white)
         selectedView.setBackgroundResource(R.drawable.filter_tech_enabled)
         selectedView.backgroundTintList = ContextCompat.getColorStateList(requireContext(), filterType.colorId)
         (selectedView as TextView).setTextColor(ContextCompat.getColor(requireContext(), android.R.color.black))
