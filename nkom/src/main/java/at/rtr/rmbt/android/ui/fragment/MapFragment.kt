@@ -217,6 +217,10 @@ class MapFragment : BaseFragment(), OnMapReadyCallback, MapMarkerDetailsAdapter.
         selectedView.backgroundTintList = ContextCompat.getColorStateList(requireContext(), filterType.colorId)
         (selectedView as TextView).setTextColor(ContextCompat.getColor(requireContext(), android.R.color.black))
         updateMapStyle()
+        when (filterType) {
+            TechnologyFilter.FILTER_ALL,
+            TechnologyFilter.FILTER_5G -> (selectedView as TextView).setTextColor(ContextCompat.getColor(requireContext(), R.color.text_lightest_gray))
+        }
     }
 
     override fun onStyleSelected(style: MapStyleType) {
