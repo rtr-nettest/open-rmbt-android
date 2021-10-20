@@ -33,11 +33,6 @@ interface SignalStrengthWatcher {
     val lastNetworkInfo: NetworkInfo?
 
     /**
-     * The last received detailedNetworkInfo
-     */
-    val lastDetailedNetworkInfo: DetailedNetworkInfo?
-
-    /**
      * Add listener to start receiving updates of [SignalStrengthInfo]
      */
     fun addListener(listener: SignalStrengthListener)

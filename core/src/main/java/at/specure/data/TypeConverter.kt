@@ -7,7 +7,6 @@ import at.specure.data.entity.LoopModeState
 import at.specure.data.entity.TestResultGraphItemRecord
 import at.specure.info.TransportType
 import at.specure.info.cell.CellTechnology
-import at.specure.info.cell.PrimaryDataSubscription
 import at.specure.info.connectivity.ConnectivityState
 import at.specure.info.network.MobileNetworkType
 import at.specure.info.network.NRConnectionState
@@ -187,10 +186,4 @@ class TypeConverter {
 
     @TypeConverter
     fun valueToConnectivityState(value: Int): ConnectivityState = ConnectivityState.values()[value]
-
-    @TypeConverter
-    fun primaryDataSubscriptionToValue(primaryDataSubscription: PrimaryDataSubscription): String = primaryDataSubscription.value
-
-    @TypeConverter
-    fun valueToPrimaryDataSubscription(value: String): PrimaryDataSubscription = PrimaryDataSubscription.fromString(value)
 }

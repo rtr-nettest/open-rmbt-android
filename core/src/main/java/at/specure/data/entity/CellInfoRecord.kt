@@ -32,6 +32,5 @@ data class CellInfoRecord(
     val mcc: Int?,
     val mnc: Int?,
     val primaryScramblingCode: Int?,
-    val dualSimDetectionMethod: String?,
-    val isPrimaryDataSubscription: String?
+    val dualSimDetectionMethod: String?
 )

@@ -54,7 +54,7 @@ interface TestDataRepository {
 
     fun saveCellInfoRecord(cellInfoRecordList: List<CellInfoRecord>)
 
-    fun saveSignalRecord(signalRecordList: List<SignalRecord>, filterSimilarValues: Boolean)
+    fun saveSignalRecord(signalRecordList: List<SignalRecord>)
 
     fun saveCellLocationRecord(cellLocationRecordList: List<CellLocationRecord>)
 
