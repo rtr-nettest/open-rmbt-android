@@ -92,21 +92,6 @@
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toTopOf="parent" />
 
-                    <ImageView
-                        android:id="@+id/logo"
-                        android:layout_width="0dp"
-                        android:layout_height="0dp"
-                        android:layout_marginStart="@dimen/margin_large"
-                        android:layout_marginTop="80dp"
-                        android:layout_marginEnd="@dimen/margin_large"
-                        android:src="@drawable/image_home"
-                        android:adjustViewBounds="true"
-                        app:layout_constraintBottom_toTopOf="@+id/labelConnection"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintHeight_percent="0.33"
-                        app:layout_constraintTop_toBottomOf="@+id/basic_result_container" />
-
                     <androidx.constraintlayout.widget.Group
                         android:id="@+id/networkTypeGroup"
                         visibleOrGone="@{state.testResult != null}"
@@ -133,7 +118,7 @@
                         app:layout_constraintHorizontal_bias="0.5"
                         app:layout_constraintHorizontal_weight="1"
                         app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toBottomOf="@+id/logo"
+                        app:layout_constraintTop_toBottomOf="@+id/basic_result_container"
                         app:visibleOrGone="@{state.testResult != null &amp;&amp; state.testResult.networkTypeText != null}"
                         tools:text="Connection" />
 
