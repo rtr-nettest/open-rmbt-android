@@ -25,7 +25,6 @@ import at.rmbt.client.control.getCorrectDataTelephonyManager
 import at.rmbt.client.control.getCurrentDataSubscriptionId
 import at.specure.info.TransportType
 import at.specure.info.cell.CellNetworkInfo
-import at.specure.info.cell.CellTechnology
 import at.specure.info.connectivity.ConnectivityInfo
 import at.specure.info.connectivity.ConnectivityWatcher
 import at.specure.info.ip.CaptivePortal
