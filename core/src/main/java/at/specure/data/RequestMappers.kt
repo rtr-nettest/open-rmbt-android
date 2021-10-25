@@ -1,5 +1,6 @@
 package at.specure.data
 
+import android.telephony.TelephonyManager
 import at.rmbt.client.control.CapabilitiesBody
 import at.rmbt.client.control.CellInfoBody
 import at.rmbt.client.control.CellLocationBody
@@ -439,7 +440,7 @@ fun PermissionStatusRecord.toRequest() = PermissionStatusBody(
 
 fun TransportType.toRequestIntValue(mobileNetworkType: MobileNetworkType?): Int {
     return when (this) {
-        TransportType.CELLULAR -> mobileNetworkType?.intValue ?: Int.MAX_VALUE
+        TransportType.CELLULAR -> mobileNetworkType?.intValue ?: TelephonyManager.NETWORK_TYPE_UNKNOWN
         TransportType.BLUETOOTH -> NetworkTypeCompat.TYPE_BLUETOOTH_VALUE
         TransportType.ETHERNET -> NetworkTypeCompat.TYPE_ETHERNET_VALUE
         TransportType.WIFI -> NetworkTypeCompat.TYPE_WIFI_VALUE

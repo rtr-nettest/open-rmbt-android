@@ -25,6 +25,7 @@ import at.rmbt.client.control.getCorrectDataTelephonyManager
 import at.rmbt.client.control.getCurrentDataSubscriptionId
 import at.specure.info.TransportType
 import at.specure.info.cell.CellNetworkInfo
+import at.specure.info.cell.CellTechnology
 import at.specure.info.connectivity.ConnectivityInfo
 import at.specure.info.connectivity.ConnectivityWatcher
 import at.specure.info.ip.CaptivePortal
@@ -48,6 +49,7 @@ import timber.log.Timber
 import java.util.Collections
 
 private const val CELL_UPDATE_DELAY = 1000L
+
 /**
  * Active network watcher that is aggregates all network watchers
  * to detect which one is currently active and get its data
@@ -187,6 +189,10 @@ class ActiveNetworkWatcher(
             } catch (e: NullPointerException) {
                 Timber.e("NullPointerException: Not able to read telephonyManager.allCellInfo from other reason")
             }
+        } else {
+            // when we are not able to detect more than there is cellular connection (we have no permission granted to read more details)
+            scheduleUpdate()
+            return CellNetworkInfo(cellUUID = "")
         }
         scheduleUpdate()
         return null

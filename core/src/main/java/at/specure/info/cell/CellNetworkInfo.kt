@@ -106,6 +106,28 @@ class CellNetworkInfo(
     val rawCellInfo: ICell?
 ) :
     NetworkInfo(TransportType.CELLULAR, cellUUID) {
+    constructor(
+        cellUUID: String
+    ) : this(
+        mcc = null,
+        mnc = null,
+        providerName = "",
+        band = null,
+        networkType = MobileNetworkType.UNKNOWN,
+        cellType = CellTechnology.CONNECTION_UNKNOWN,
+        isRegistered = false,
+        isActive = false,
+        isRoaming = false,
+        nrConnectionState = NRConnectionState.NOT_AVAILABLE,
+        scramblingCode = null,
+        apn = null,
+        signalStrength = null,
+        dualSimDetectionMethod = null,
+        rawCellInfo = null,
+        cellUUID = cellUUID,
+        locationId = null,
+        areaCode = null
+    )
 
     override val name: String?
         get() = providerName
