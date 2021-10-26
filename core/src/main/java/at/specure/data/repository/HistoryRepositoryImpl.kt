@@ -167,19 +167,19 @@ class HistoryRepositoryImpl(
         emit(
             HistoryLoopMedian(
                 loopUuid = loopUuid,
-                pingMedianMillis = median(pingList),
-                packetLossMedian = median(packetLossList),
-                jitterMedianMillis = median(jitterList),
-                downloadMedianMbps = median(downloadList),
-                uploadMedianMbps = median(uploadList),
+                pingMedianMillis = median(pingList) ?: -1f,
+                packetLossMedian = median(packetLossList) ?: -1f,
+                jitterMedianMillis = median(jitterList) ?: -1f,
+                downloadMedianMbps = median(downloadList) ?: -1f,
+                uploadMedianMbps = median(uploadList) ?: -1f,
                 qosMedian = median(qosList)
             )
         )
     }
 
-    private fun median(floatList: List<Float>): Float {
+    private fun median(floatList: List<Float>): Float? {
         if (floatList.isEmpty()) {
-            return 0f
+            return null
         }
 
         val sortedFloatList = floatList.sorted()
