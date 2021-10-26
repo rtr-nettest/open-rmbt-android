@@ -73,7 +73,10 @@ class HistoryLoopAdapter : PagedListAdapter<HistoryContainer, HistoryLoopAdapter
             binding.download.text = numberFormat.format(median(item.items.mapNotNull { it.speedDownload.toFloatOrNull() }))
             binding.upload.text = numberFormat.format(median(item.items.mapNotNull { it.speedUpload.toFloatOrNull() }))
             binding.ping.text = numberFormat.format(median(item.items.mapNotNull { it.ping.toFloatOrNull() }))
-            binding.qos.text = numberFormat.format(median(item.items.mapNotNull { it.qos?.toFloatOrNull() }))
+            val qosMedian = median(item.items.mapNotNull { it.qos?.toFloatOrNull() })
+            qosMedian?.let {
+                binding.qos.text = numberFormat.format(qosMedian)
+            }
             binding.jitter.text = numberFormat.format(median(item.items.mapNotNull { it.jitterMillis?.toFloatOrNull() }))
             binding.packetLoss.text = numberFormat.format(median(item.items.mapNotNull { it.packetLossPercents?.toFloatOrNull() }))
 
@@ -82,9 +85,9 @@ class HistoryLoopAdapter : PagedListAdapter<HistoryContainer, HistoryLoopAdapter
             }
         }
 
-        private fun median(floatList: List<Float>): Float {
+        private fun median(floatList: List<Float>): Float? {
             if (floatList.isEmpty()) {
-                return 0f
+                return null
             }
 
             val sortedFloatList = floatList.sorted()

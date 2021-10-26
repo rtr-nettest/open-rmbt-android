@@ -131,7 +131,7 @@
                     app:measurementPhase="@{state.measurementState}"
                     app:packetLoss="@{state.packetLossPercentMedian}"
                     app:ping="@{state.pingNanosMedian}"
-                    app:qos="@{state.qosPercentsMedian}"
+                    app:qos="@{state.qosPercentsMedian.intValue()}"
                     app:uploadSpeed="@{state.uploadSpeedBpsMedian}"
                     app:visibleOrGone="@{state.isLoopModeActive == true &amp;&amp; state.loopCurrentProgress > 1 &amp;&amp; state.loopModeRecord.status == LoopModeState.RUNNING &amp;&amp; state.measurementState != MeasurementState.INIT}" />
 
