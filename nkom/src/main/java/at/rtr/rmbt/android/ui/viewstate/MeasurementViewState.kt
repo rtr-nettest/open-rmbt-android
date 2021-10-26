@@ -72,7 +72,7 @@ class MeasurementViewState(private val config: AppConfig) : ViewState {
     val pingNanosMedian = ObservableLong()
     val jitterNanosMedian = ObservableLong()
     val packetLossPercentMedian = ObservableInt()
-    val qosPercentsMedian = ObservableInt()
+    val qosPercentsMedian = ObservableField<Int?>()
 
     val metersLeft = ObservableField<String>().apply { set(loopNextTestDistanceMeters.get()) }
     val locationAvailable = ObservableBoolean().apply { set(true) }
@@ -116,7 +116,7 @@ class MeasurementViewState(private val config: AppConfig) : ViewState {
             this.pingNanosMedian.set((historyLoopMedian.pingMedianMillis * 1000000f).toLong())
             this.jitterNanosMedian.set((historyLoopMedian.jitterMedianMillis * 1000000f).toLong())
             this.packetLossPercentMedian.set((historyLoopMedian.packetLossMedian).toInt())
-            this.qosPercentsMedian.set((historyLoopMedian.qosMedian)?.toInt() ?: 0)
+            this.qosPercentsMedian.set((historyLoopMedian.qosMedian)?.toInt())
         }
     }
 
@@ -165,7 +165,10 @@ class MeasurementViewState(private val config: AppConfig) : ViewState {
             pingNanosMedian.set(bundle.getLong(KEY_PING_MEDIAN, 0))
             jitterNanosMedian.set(bundle.getLong(KEY_JITTER_MEDIAN, 0))
             packetLossPercentMedian.set(bundle.getInt(KEY_PACKET_LOSS_MEDIAN, 0))
-            qosPercentsMedian.set(bundle.getInt(KEY_QOS_MEDIAN, 0))
+            val qosMedian = bundle.getInt(KEY_QOS_MEDIAN, -1)
+            if (qosMedian != -1) {
+                qosPercentsMedian.set(qosMedian)
+            }
             qosProgressPercents.set(bundle.getInt(KEY_QOS_PROGRESS_PRECENTS, 0))
         }
     }
@@ -192,7 +195,7 @@ class MeasurementViewState(private val config: AppConfig) : ViewState {
             putLong(KEY_DOWNLOAD_MEDIAN, downloadSpeedBpsMedian.get())
             putLong(KEY_UPLOAD_MEDIAN, uploadSpeedBpsMedian.get())
             putLong(KEY_PING_MEDIAN, pingNanosMedian.get())
-            putInt(KEY_QOS_MEDIAN, qosPercentsMedian.get())
+            putInt(KEY_QOS_MEDIAN, qosPercentsMedian.get() ?: -1)
             putInt(KEY_QOS_PROGRESS_PRECENTS, qosProgressPercents.get() ?: 0)
         }
     }

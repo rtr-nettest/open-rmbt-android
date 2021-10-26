@@ -64,8 +64,10 @@ class MeasurementActivity : BaseActivity(), SimpleDialog.Callback {
                 TransportType.ETHERNET -> R.drawable.image_home_ethernet
                 else -> R.drawable.image_home
             }
-            binding.image.setImageDrawable(ResourcesCompat
-                .getDrawable(resources, imageDrawableId, applicationContext.theme))
+            binding.image.setImageDrawable(
+                ResourcesCompat
+                    .getDrawable(resources, imageDrawableId, applicationContext.theme)
+            )
         }
 
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
@@ -148,10 +150,13 @@ class MeasurementActivity : BaseActivity(), SimpleDialog.Callback {
 
     private fun finishActivity(measurementFinished: Boolean) {
         if (measurementFinished) {
-            finish()
             if (viewModel.state.isLoopModeActive.get()) {
-                LoopFinishedActivity.start(this)
+                if (viewModel.state.loopModeRecord.get()?.testsPerformed!! >= viewModel.config.loopModeNumberOfTests && (viewModel.state.loopModeRecord.get()?.status == LoopModeState.FINISHED || viewModel.state.loopModeRecord.get()?.status == LoopModeState.CANCELLED)) {
+                    finish()
+                    LoopFinishedActivity.start(this)
+                }
             } else {
+                finish()
                 viewModel.testUUID?.let {
                     if (viewModel.state.measurementState.get() == MeasurementState.FINISH)
                         ResultsActivity.start(this, it, ResultsActivity.ReturnPoint.HOME)
@@ -162,7 +167,9 @@ class MeasurementActivity : BaseActivity(), SimpleDialog.Callback {
 
     private fun cancelMeasurement() {
         if (viewModel.state.isLoopModeActive.get()) {
-            LoopFinishedActivity.start(this)
+            if (viewModel.state.loopModeRecord.get()?.status == LoopModeState.FINISHED || viewModel.state.loopModeRecord.get()?.status == LoopModeState.CANCELLED) {
+                LoopFinishedActivity.start(this)
+            }
         } else {
             finishAffinity()
             HomeActivity.startWithFragment(
