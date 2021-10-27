@@ -70,15 +70,30 @@ class HistoryLoopAdapter : PagedListAdapter<HistoryContainer, HistoryLoopAdapter
             }
             binding.item = item.items.last()
             val numberFormat = NumberFormat.getInstance()
-            binding.download.text = numberFormat.format(median(item.items.mapNotNull { it.speedDownload.toFloatOrNull() }))
-            binding.upload.text = numberFormat.format(median(item.items.mapNotNull { it.speedUpload.toFloatOrNull() }))
-            binding.ping.text = numberFormat.format(median(item.items.mapNotNull { it.ping.toFloatOrNull() }))
+            val downloadSpeedMedian = median(item.items.mapNotNull { it.speedDownload.toFloatOrNull() })
+            downloadSpeedMedian?.let {
+                binding.download.text = numberFormat.format(it)
+            }
+            val uploadSpeedMedian = median(item.items.mapNotNull { it.speedUpload.toFloatOrNull() })
+            uploadSpeedMedian?.let {
+                binding.upload.text = numberFormat.format(it)
+            }
+            val pingMedian = median(item.items.mapNotNull { it.ping.toFloatOrNull() })
+            pingMedian?.let {
+                binding.ping.text = numberFormat.format(it)
+            }
             val qosMedian = median(item.items.mapNotNull { it.qos?.toFloatOrNull() })
             qosMedian?.let {
-                binding.qos.text = numberFormat.format(qosMedian)
+                binding.qos.text = numberFormat.format(it)
             }
-            binding.jitter.text = numberFormat.format(median(item.items.mapNotNull { it.jitterMillis?.toFloatOrNull() }))
-            binding.packetLoss.text = numberFormat.format(median(item.items.mapNotNull { it.packetLossPercents?.toFloatOrNull() }))
+            val jitterMedian = median(item.items.mapNotNull { it.jitterMillis?.toFloatOrNull() })
+            jitterMedian?.let {
+                binding.jitter.text = numberFormat.format(it)
+            }
+            val packetLossMedian = median(item.items.mapNotNull { it.packetLossPercents?.toFloatOrNull() })
+            packetLossMedian?.let {
+                binding.packetLoss.text = numberFormat.format(it)
+            }
 
             binding.root.setOnClickListener {
                 item.items.first().loopUUID?.let(clickChannel::safeOffer)
