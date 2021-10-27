@@ -65,8 +65,7 @@ class MeasurementActivity : BaseActivity(), SimpleDialog.Callback {
                 else -> R.drawable.image_home
             }
             binding.image.setImageDrawable(
-                ResourcesCompat
-                    .getDrawable(resources, imageDrawableId, applicationContext.theme)
+                ResourcesCompat.getDrawable(resources, imageDrawableId, applicationContext.theme)
             )
         }
 
@@ -151,7 +150,7 @@ class MeasurementActivity : BaseActivity(), SimpleDialog.Callback {
     private fun finishActivity(measurementFinished: Boolean) {
         if (measurementFinished) {
             if (viewModel.state.isLoopModeActive.get()) {
-                if (viewModel.state.loopModeRecord.get()?.testsPerformed!! >= viewModel.config.loopModeNumberOfTests && (viewModel.state.loopModeRecord.get()?.status == LoopModeState.FINISHED || viewModel.state.loopModeRecord.get()?.status == LoopModeState.CANCELLED)) {
+                if (viewModel.state.loopModeRecord.get()?.status == LoopModeState.FINISHED || viewModel.state.loopModeRecord.get()?.status == LoopModeState.CANCELLED) {
                     finish()
                     LoopFinishedActivity.start(this)
                 }
