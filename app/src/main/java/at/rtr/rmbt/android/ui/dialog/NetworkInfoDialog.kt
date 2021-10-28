@@ -45,6 +45,10 @@ class NetworkInfoDialog : FullscreenDialog() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        binding.iconClose.setOnClickListener {
+            this.dismiss()
+        }
+
         signalStrengthLiveData.listen(this) { signal ->
 
             val networkInfo = signal?.networkInfo
