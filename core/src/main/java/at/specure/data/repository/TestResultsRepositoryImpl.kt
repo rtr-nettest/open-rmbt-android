@@ -185,16 +185,19 @@ class TestResultsRepositoryImpl(
             val qosTestResults = client.getTestResultDetailONT(testUUID)
             val overallQosPercentage = qosTestResults.success.overallQosPercentage
             val partialQosResults = qosTestResults.success.partialQosResults
-            qoeInfoDao.insert(
-                QoeInfoRecord(
-                    testUUID = qosTestResults.success.testUUID,
-                    category = QoECategory.QOE_QOS,
-                    percentage = overallQosPercentage ?: 0f,
-                    classification = Classification.NONE,
-                    priority = -1,
-                    info = "${overallQosPercentage ?: 0}%"
+            overallQosPercentage?.let {
+                qoeInfoDao.insert(
+                    QoeInfoRecord(
+                        testUUID = qosTestResults.success.testUUID,
+                        category = QoECategory.QOE_QOS,
+                        percentage = overallQosPercentage ?: 0f,
+                        classification = Classification.NONE,
+                        priority = -1,
+                        info = "${overallQosPercentage ?: 0}%"
+                    )
                 )
-            )
+            }
+
             partialQosResults.forEach { qosResultItem ->
                 qosCategoryDao.insert(
                     QosCategoryRecord(
