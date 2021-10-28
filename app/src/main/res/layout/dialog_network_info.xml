@@ -30,5 +30,13 @@
             app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
             tools:listitem="@layout/item_cell_info_lte" />
 
+        <ImageView
+            android:id="@+id/icon_close"
+            android:layout_width="?attr/actionBarSize"
+            android:layout_height="?attr/actionBarSize"
+            android:layout_gravity="end|top"
+            android:padding="@dimen/margin_large"
+            android:src="@drawable/ic_close" />
+
     </FrameLayout>
 </layout>
