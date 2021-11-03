@@ -14,6 +14,7 @@ import at.specure.data.dao.QoeInfoDao
 import at.specure.data.entity.History
 import at.specure.data.toCapabilitiesBody
 import at.specure.data.toModelList
+import at.specure.util.extractFloatValue
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import timber.log.Timber
@@ -142,22 +143,22 @@ class HistoryRepositoryImpl(
         val uploadList = mutableListOf<Float>()
         val qosList = mutableListOf<Float>()
         historyItems.forEach { historyItem ->
-            historyItem.ping.toFloatOrNull()?.let { ping ->
+            historyItem.ping.extractFloatValue()?.let { ping ->
                 pingList.add(ping)
             }
-            historyItem.jitterMillis?.toFloatOrNull()?.let { jitter ->
+            historyItem.jitterMillis?.extractFloatValue()?.let { jitter ->
                 jitterList.add(jitter)
             }
-            historyItem.packetLossPercents?.toFloatOrNull()?.let { packetLoss ->
+            historyItem.packetLossPercents?.extractFloatValue()?.let { packetLoss ->
                 packetLossList.add(packetLoss)
             }
-            historyItem.qos?.toFloatOrNull()?.let { qos ->
+            historyItem.qos?.extractFloatValue()?.let { qos ->
                 qosList.add(qos)
             }
-            historyItem.speedDownload.toFloatOrNull()?.let { downloadSpeed ->
+            historyItem.speedDownload.extractFloatValue()?.let { downloadSpeed ->
                 downloadList.add(downloadSpeed)
             }
-            historyItem.speedUpload.toFloatOrNull()?.let { uploadSpeed ->
+            historyItem.speedUpload.extractFloatValue()?.let { uploadSpeed ->
                 uploadList.add(uploadSpeed)
             }
         }

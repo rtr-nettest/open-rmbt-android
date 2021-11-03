@@ -61,3 +61,5 @@ fun Pair<Int, Int>.formatYearMonthForDisplay(): String {
     calendar.set(Calendar.YEAR, second)
     return SimpleDateFormat("MMMM yyyy", Locale.getDefault()).format(calendar.time)
 }
+
+fun String?.extractFloatValue() = this?.replace(',', '.')?.toFloatOrNull()

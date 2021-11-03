@@ -42,7 +42,7 @@ class ResultsActivity : BaseActivity(), OnMapReadyCallback {
             viewModel.state.testResult.set(result)
         }
 
-        val fragment = BasicResultFragment.newInstance(testUUID, TestUuidType.TEST_UUID)
+        val fragment = BasicResultFragment.newInstance(testUUID, TestUuidType.TEST_UUID, viewModel.state.returnPoint == ReturnPoint.HOME)
         supportFragmentManager.beginTransaction().replace(binding.basicResultContainer.id, fragment).commit()
 
         binding.buttonBack.setOnClickListener {
