@@ -20,12 +20,17 @@ import android.util.Log
 import at.rmbt.client.control.data.TestFinishReason
 import at.rmbt.util.exception.HandledException
 import at.rmbt.util.exception.NoConnectionException
+import at.rmbt.util.io
 import at.rtr.rmbt.client.v2.task.result.QoSTestResultEnum
 import at.rtr.rmbt.util.IllegalNetworkChangeException
 import at.specure.config.Config
+import at.specure.data.Classification
 import at.specure.data.entity.LoopModeState
+import at.specure.data.entity.QoeInfoRecord
+import at.specure.data.repository.HistoryRepository
 import at.specure.data.repository.ResultsRepository
 import at.specure.data.repository.TestDataRepository
+import at.specure.data.repository.TestResultsRepository
 import at.specure.di.CoreInjector
 import at.specure.di.NotificationProvider
 import at.specure.info.strength.SignalStrengthInfo
@@ -33,21 +38,35 @@ import at.specure.location.LocationState
 import at.specure.location.LocationWatcher
 import at.specure.measurement.signal.SignalMeasurementProducer
 import at.specure.measurement.signal.SignalMeasurementService
+import at.specure.result.QoECategory
 import at.specure.test.DeviceInfo
 import at.specure.test.SignalMeasurementType
 import at.specure.test.StateRecorder
 import at.specure.test.TestController
 import at.specure.test.TestProgressListener
+import at.specure.test.TestUuidType
 import at.specure.test.toDeviceInfoLocation
 import at.specure.util.CustomLifecycleService
 import at.specure.worker.WorkLauncher
+import kotlinx.coroutines.CoroutineExceptionHandler
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.onCompletion
+import kotlinx.coroutines.flow.zip
+import kotlinx.coroutines.launch
 import timber.log.Timber
 import java.util.Timer
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import kotlin.concurrent.timerTask
+import kotlin.coroutines.CoroutineContext
+import kotlin.coroutines.EmptyCoroutineContext
 
-class MeasurementService : CustomLifecycleService() {
+class MeasurementService : CustomLifecycleService(), CoroutineScope {
 
     private var measurementLastUpdate: Long = System.currentTimeMillis()
     private var lastNotifiedState: MeasurementState = MeasurementState.FINISH
@@ -105,6 +124,12 @@ class MeasurementService : CustomLifecycleService() {
 
     @Inject
     lateinit var resultRepository: ResultsRepository
+
+    @Inject
+    lateinit var testResultsRepository: TestResultsRepository
+
+    @Inject
+    lateinit var historyRepository: HistoryRepository
 
     @Inject
     lateinit var connectivityManager: ConnectivityManager
@@ -721,6 +746,47 @@ class MeasurementService : CustomLifecycleService() {
         }
     }
 
+    fun loadTestResults(testUUIDType: TestUuidType, testUUID: String) {
+        when (testUUIDType) {
+            TestUuidType.TEST_UUID -> launch {
+                testResultsRepository.loadTestResults(testUUID).zip(
+                    testResultsRepository.loadTestDetailsResult(testUUID)
+                ) { a, b -> a && b }
+                    .flowOn(Dispatchers.IO)
+                    .catch {
+                    }
+                    .collect {
+//                        _loadingLiveData.postValue(it)
+                    }
+            }
+            TestUuidType.LOOP_UUID ->
+                io {
+                    delay(500) // added because of BE QOS part processing performance issue
+                    historyRepository.loadHistoryItems(0, 100, true).onSuccess {
+                        Timber.d("History Successfully loaded: ${it[0].loopUUID} ${it[0].speedDownload}  from size: ${it.size}")
+                        historyRepository.loadLoopMedianValues(testUUID).onCompletion {
+//                            _loadingLiveData.postValue(true)
+                        }.collect {
+//                            _loopMedianValuesLiveData.postValue(it)
+                            it?.qosMedian?.let { qosMedian ->
+                                val qoeqos = listOf(
+                                    QoeInfoRecord(
+                                        testUUID = testUUID,
+                                        category = QoECategory.QOE_QOS,
+                                        classification = Classification.NONE,
+                                        percentage = qosMedian,
+                                        info = null,
+                                        priority = 0
+                                    )
+                                )
+//                                qoeLoopResultLiveData.postValue(qoeqos)
+                            }
+                        }
+                    }
+                }
+        }
+    }
+
     /**
      * Binder, creates a bound to listeners - in this case MeasurementViewModel
      */
@@ -955,4 +1021,14 @@ class MeasurementService : CustomLifecycleService() {
 
         fun intent(context: Context) = Intent(context, MeasurementService::class.java)
     }
+
+    private val coroutineExceptionHandler = CoroutineExceptionHandler { _, e ->
+        if (e is HandledException) {
+            // do nothing
+        } else {
+            throw e
+        }
+    }
+
+    override val coroutineContext = EmptyCoroutineContext + coroutineExceptionHandler
 }

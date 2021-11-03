@@ -8,7 +8,7 @@ import androidx.lifecycle.LiveData
 import at.rtr.rmbt.android.R
 import at.rtr.rmbt.android.databinding.FragmentBasicResultBinding
 import at.rtr.rmbt.android.di.viewModelLazy
-import at.rtr.rmbt.android.util.TestUuidType
+import at.specure.test.TestUuidType
 import at.rtr.rmbt.android.util.listen
 import at.rtr.rmbt.android.viewmodel.BasicResultViewModel
 import at.specure.data.Classification

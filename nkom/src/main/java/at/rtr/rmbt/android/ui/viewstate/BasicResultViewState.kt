@@ -3,7 +3,7 @@ package at.rtr.rmbt.android.ui.viewstate
 import android.os.Bundle
 import androidx.databinding.ObservableBoolean
 import androidx.databinding.ObservableField
-import at.rtr.rmbt.android.util.TestUuidType
+import at.specure.test.TestUuidType
 import at.specure.data.entity.TestResultGraphItemRecord
 import at.specure.data.entity.TestResultRecord
 

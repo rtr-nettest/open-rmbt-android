@@ -5,7 +5,7 @@ import androidx.lifecycle.MutableLiveData
 import at.rmbt.util.exception.HandledException
 import at.rmbt.util.io
 import at.rtr.rmbt.android.ui.viewstate.BasicResultViewState
-import at.rtr.rmbt.android.util.TestUuidType
+import at.specure.test.TestUuidType
 import at.specure.data.Classification
 import at.specure.data.HistoryLoopMedian
 import at.specure.data.entity.QoeInfoRecord

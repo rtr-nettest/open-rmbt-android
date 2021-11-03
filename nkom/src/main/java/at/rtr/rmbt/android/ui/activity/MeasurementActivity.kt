@@ -28,7 +28,7 @@ import at.rtr.rmbt.android.ui.dialog.SimpleDialog
 import at.rtr.rmbt.android.ui.fragment.BasicResultFragment
 import at.rtr.rmbt.android.ui.fragment.BasicResultFragment.DataLoadedListener
 import at.rtr.rmbt.android.ui.fragment.SimpleResultsListFragment
-import at.rtr.rmbt.android.util.TestUuidType
+import at.specure.test.TestUuidType
 import at.rtr.rmbt.android.util.listen
 import at.rtr.rmbt.android.viewmodel.MeasurementViewModel
 import at.specure.data.entity.LoopModeRecord

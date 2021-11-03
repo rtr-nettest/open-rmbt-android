@@ -178,6 +178,21 @@ class TestResultsRepositoryImpl(
         }
     }
 
+    override fun saveOverallQosItem(overallQosPercentage: Float?, testUUID: String) {
+        overallQosPercentage?.let {
+            qoeInfoDao.insert(
+                QoeInfoRecord(
+                    testUUID = testUUID,
+                    category = QoECategory.QOE_QOS,
+                    percentage = overallQosPercentage ?: 0f,
+                    classification = Classification.NONE,
+                    priority = -1,
+                    info = "${overallQosPercentage ?: 0}%"
+                )
+            )
+        }
+    }
+
     private fun loadQosTestResults(testUUID: String, clientUUID: String): Maybe<BaseResponse> {
         val isONTBasedApp = !config.headerValue.isNullOrEmpty()
 
@@ -185,18 +200,7 @@ class TestResultsRepositoryImpl(
             val qosTestResults = client.getTestResultDetailONT(testUUID)
             val overallQosPercentage = qosTestResults.success.overallQosPercentage
             val partialQosResults = qosTestResults.success.partialQosResults
-            overallQosPercentage?.let {
-                qoeInfoDao.insert(
-                    QoeInfoRecord(
-                        testUUID = qosTestResults.success.testUUID,
-                        category = QoECategory.QOE_QOS,
-                        percentage = overallQosPercentage ?: 0f,
-                        classification = Classification.NONE,
-                        priority = -1,
-                        info = "${overallQosPercentage ?: 0}%"
-                    )
-                )
-            }
+            saveOverallQosItem(overallQosPercentage, qosTestResults.success.testUUID)
 
             partialQosResults.forEach { qosResultItem ->
                 qosCategoryDao.insert(
