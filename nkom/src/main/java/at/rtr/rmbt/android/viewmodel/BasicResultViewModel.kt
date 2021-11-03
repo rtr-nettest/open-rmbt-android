@@ -68,6 +68,9 @@ class BasicResultViewModel @Inject constructor(
     fun loadTestResults() {
         when (state.uuidType) {
             TestUuidType.TEST_UUID -> launch {
+                if (state.useLatestResults) {
+                    delay(750)
+                } // in case of currently finished test we need to wait for BE to prepare qos results to be sent back
                 testResultsRepository.loadTestResults(state.testUUID).zip(
                     testResultsRepository.loadTestDetailsResult(state.testUUID)
                 ) { a, b -> a && b }
@@ -86,10 +89,10 @@ class BasicResultViewModel @Inject constructor(
             }
             TestUuidType.LOOP_UUID ->
                 io {
-                    delay(500) // added because of BE QOS part processing performance issue
                     if (state.useLatestResults) {
+                        delay(750) // added because of BE QOS part processing performance issue
                         historyRepository.loadHistoryItems(0, 100, true).onSuccess {
-                            Timber.d("History Successfuly loaded: ${it[0].loopUUID} ${it[0].speedDownload}  from size: ${it.size}")
+                            Timber.d("History Successfully loaded: ${it[0].loopUUID} ${it[0].speedDownload}  from size: ${it.size}")
                             historyRepository.loadLoopMedianValues(state.testUUID).onCompletion {
                                 _loadingLiveData.postValue(true)
                             }.collect {

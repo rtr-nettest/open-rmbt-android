@@ -26,6 +26,7 @@ import at.rtr.rmbt.android.databinding.ItemHistoryLoopBinding
 import at.rtr.rmbt.android.util.bindWith
 import at.rtr.rmbt.android.util.safeOffer
 import at.specure.data.entity.HistoryContainer
+import at.specure.util.extractFloatValue
 import kotlinx.coroutines.channels.Channel
 import java.text.NumberFormat
 import kotlin.math.ceil
@@ -70,27 +71,27 @@ class HistoryLoopAdapter : PagedListAdapter<HistoryContainer, HistoryLoopAdapter
             }
             binding.item = item.items.last()
             val numberFormat = NumberFormat.getInstance()
-            val downloadSpeedMedian = median(item.items.mapNotNull { it.speedDownload.toFloatOrNull() })
+            val downloadSpeedMedian = median(item.items.mapNotNull { it.speedDownload.extractFloatValue() })
             downloadSpeedMedian?.let {
                 binding.download.text = numberFormat.format(it)
             }
-            val uploadSpeedMedian = median(item.items.mapNotNull { it.speedUpload.toFloatOrNull() })
+            val uploadSpeedMedian = median(item.items.mapNotNull { it.speedUpload.extractFloatValue() })
             uploadSpeedMedian?.let {
                 binding.upload.text = numberFormat.format(it)
             }
-            val pingMedian = median(item.items.mapNotNull { it.ping.toFloatOrNull() })
+            val pingMedian = median(item.items.mapNotNull { it.ping.extractFloatValue() })
             pingMedian?.let {
                 binding.ping.text = numberFormat.format(it)
             }
-            val qosMedian = median(item.items.mapNotNull { it.qos?.toFloatOrNull() })
+            val qosMedian = median(item.items.mapNotNull { it.qos?.extractFloatValue() })
             qosMedian?.let {
                 binding.qos.text = numberFormat.format(it)
             }
-            val jitterMedian = median(item.items.mapNotNull { it.jitterMillis?.toFloatOrNull() })
+            val jitterMedian = median(item.items.mapNotNull { it.jitterMillis?.extractFloatValue() })
             jitterMedian?.let {
                 binding.jitter.text = numberFormat.format(it)
             }
-            val packetLossMedian = median(item.items.mapNotNull { it.packetLossPercents?.toFloatOrNull() })
+            val packetLossMedian = median(item.items.mapNotNull { it.packetLossPercents?.extractFloatValue() })
             packetLossMedian?.let {
                 binding.packetLoss.text = numberFormat.format(it)
             }
