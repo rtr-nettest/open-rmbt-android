@@ -57,8 +57,6 @@ class BasicResultViewModel @Inject constructor(
         get() = _loadingLiveData
 
     private val _loadingLiveData = MutableLiveData<Boolean>()
-    private val _loopMedianValuesLiveData = MutableLiveData<HistoryLoopMedian>()
-    private val _qoeLoopResultLiveData = MutableLiveData<List<QoeInfoRecord>>()
     val _qoeResultLiveData = MutableLiveData<List<QoeInfoRecord>>()
 
     init {
@@ -94,9 +92,6 @@ class BasicResultViewModel @Inject constructor(
             }
             TestUuidType.LOOP_UUID ->
                 io {
-                    val loopMedianValues = historyRepository.getLoopMedianValues(state.testUUID)
-                    val loopHistoryItems = historyRepository.getLoopHistoryItems(state.testUUID)
-                    val qoeLoop = testResultsRepository.getQoEItems(state.testUUID)
 
 //                    historyRepository.getLoopMedianValues(state.testUUID).onCompletion {
 //                        _loadingLiveData.postValue(true)

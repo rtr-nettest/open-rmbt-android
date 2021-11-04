@@ -207,6 +207,19 @@ class MeasurementActivity : BaseActivity(), SimpleDialog.Callback {
             Timber.d("Loading median values on Loop record changed")
             loopMedianValuesReloadNeeded = false
             viewModel.initializeLoopData(loopRecord.localUuid)
+            val loopUUID = viewModel.state.loopModeRecord.get()?.uuid
+            Timber.d("Loop UUID to load median values (already loaded): $loopUUID")
+            loopUUID?.let {
+                viewModel.loadMedianValues(it)
+                if (!viewModel.medianLiveData.hasObservers()) {
+                    viewModel.medianLiveData.observe(this) { medians ->
+                        if (medians != null) {
+                            viewModel.state.setMedianValues(medians)
+                            Timber.d("median values: $medians")
+                        }
+                    }
+                }
+            }
         }
 
         if (loopRecord?.status == LoopModeState.FINISHED || loopRecord?.status == LoopModeState.CANCELLED) {
@@ -252,6 +265,7 @@ class MeasurementActivity : BaseActivity(), SimpleDialog.Callback {
 
     override fun onStop() {
         super.onStop()
+        viewModel.medianLiveData.removeObservers(this)
         viewModel.detach(this)
     }
 
@@ -262,6 +276,8 @@ class MeasurementActivity : BaseActivity(), SimpleDialog.Callback {
     override fun onResume() {
         super.onResume()
         loopMedianValuesReloadNeeded = true
+        viewModel.loadMedianValues(viewModel.state.loopModeRecord.get()?.uuid)
+        Timber.d("Loop median uuid: ${viewModel.state.loopModeRecord.get()?.uuid}")
         Timber.d("MeasurementViewModel RESUME")
     }
 

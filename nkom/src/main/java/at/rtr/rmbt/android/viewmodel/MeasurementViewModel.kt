@@ -10,11 +10,14 @@ import at.rmbt.util.exception.HandledException
 import at.rmbt.util.io
 import at.rtr.rmbt.android.config.AppConfig
 import at.rtr.rmbt.android.ui.viewstate.MeasurementViewState
+import at.rtr.rmbt.android.util.listenNonNull
 import at.rtr.rmbt.android.util.plusAssign
 import at.rtr.rmbt.android.util.timeString
 import at.rtr.rmbt.client.v2.task.result.QoSTestResultEnum
+import at.specure.data.HistoryLoopMedian
 import at.specure.data.TermsAndConditions
 import at.specure.data.entity.GraphItemRecord
+import at.specure.data.entity.History
 import at.specure.data.entity.LoopModeRecord
 import at.specure.data.repository.HistoryRepository
 import at.specure.data.repository.TestDataRepository
@@ -96,6 +99,8 @@ class MeasurementViewModel @Inject constructor(
 
     val qosProgressLiveData: LiveData<Map<QoSTestResultEnum, Int>>
         get() = _qosProgressLiveData
+
+    lateinit var medianLiveData: LiveData<HistoryLoopMedian?>
 
     val isTacAccepted: Boolean
         get() = tac.tacAccepted
@@ -186,13 +191,9 @@ class MeasurementViewModel @Inject constructor(
         }
     }
 
-    private fun loadMedianValues(loopUUID: String?) {
+    fun loadMedianValues(loopUUID: String?) {
         loopUUID?.let { loopUuid ->
-            io {
-                historyRepository.loadLoopMedianValues(loopUuid).collect { medians ->
-                    this@MeasurementViewModel.state.setMedianValues(medians)
-                }
-            }
+            medianLiveData = historyRepository.getLoopMedianValues(loopUuid)
         }
     }
 
@@ -318,7 +319,7 @@ class MeasurementViewModel @Inject constructor(
         }
         val loopUUID = this.state.loopModeRecord.get()?.uuid
         Timber.d("Loop UUID to load median values (already loaded): $loopUUID")
-        loadMedianValues(loopUUID)
+//        loadMedianValues(loopUUID)
     }
 
     override fun onQoSTestProgressUpdated(tasksPassed: Int, tasksTotal: Int, progressMap: Map<QoSTestResultEnum, Int>) {
