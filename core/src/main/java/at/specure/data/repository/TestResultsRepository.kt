@@ -32,4 +32,6 @@ interface TestResultsRepository {
     fun getQosGoalsResult(testUUID: String, testItemId: Long): LiveData<List<QosTestGoalRecord>>
 
     fun saveOverallQosItem(overallQosPercentage: Float?, testUUID: String)
+
+    fun getOverallQosItem(testUUID: String): LiveData<List<QoeInfoRecord>>
 }

@@ -39,7 +39,9 @@ class LoopMeasurementResultsActivity : BaseActivity() {
         val loopId = intent?.getStringExtra(KEY_LOOP_ID)
         checkNotNull(loopId)
         viewModel.loadLoopMeasurements(loopId).onEach {
-            adapter.submitList(it)
+            it?.let {
+                adapter.submitList(it)
+            }
         }.launchIn(lifecycleScope)
         showBasicResultsFragment(loopId)
     }

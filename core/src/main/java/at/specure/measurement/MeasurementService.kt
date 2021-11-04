@@ -397,6 +397,13 @@ class MeasurementService : CustomLifecycleService(), CoroutineScope {
                             clientAggregator.onSubmitted()
                         }
                         clientAggregator.onResultSubmitted()
+                        loadTestResults(
+                            if (loopUUID == null) {
+                                TestUuidType.TEST_UUID
+                            } else {
+                                TestUuidType.LOOP_UUID
+                            }, loopUUID ?: testUUID
+                        )
                     }
                     it.onFailure { ex ->
 
@@ -749,6 +756,7 @@ class MeasurementService : CustomLifecycleService(), CoroutineScope {
     fun loadTestResults(testUUIDType: TestUuidType, testUUID: String) {
         when (testUUIDType) {
             TestUuidType.TEST_UUID -> launch {
+                delay(750)
                 testResultsRepository.loadTestResults(testUUID).zip(
                     testResultsRepository.loadTestDetailsResult(testUUID)
                 ) { a, b -> a && b }
@@ -761,7 +769,7 @@ class MeasurementService : CustomLifecycleService(), CoroutineScope {
             }
             TestUuidType.LOOP_UUID ->
                 io {
-                    delay(500) // added because of BE QOS part processing performance issue
+                    delay(750) // added because of BE QOS part processing performance issue
                     historyRepository.loadHistoryItems(0, 100, true).onSuccess {
                         Timber.d("History Successfully loaded: ${it[0].loopUUID} ${it[0].speedDownload}  from size: ${it.size}")
                         historyRepository.loadLoopMedianValues(testUUID).onCompletion {
@@ -769,16 +777,7 @@ class MeasurementService : CustomLifecycleService(), CoroutineScope {
                         }.collect {
 //                            _loopMedianValuesLiveData.postValue(it)
                             it?.qosMedian?.let { qosMedian ->
-                                val qoeqos = listOf(
-                                    QoeInfoRecord(
-                                        testUUID = testUUID,
-                                        category = QoECategory.QOE_QOS,
-                                        classification = Classification.NONE,
-                                        percentage = qosMedian,
-                                        info = null,
-                                        priority = 0
-                                    )
-                                )
+                                testResultsRepository.saveOverallQosItem(qosMedian, testUUID)
 //                                qoeLoopResultLiveData.postValue(qoeqos)
                             }
                         }

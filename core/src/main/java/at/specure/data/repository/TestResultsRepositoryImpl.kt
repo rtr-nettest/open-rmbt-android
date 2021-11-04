@@ -193,6 +193,10 @@ class TestResultsRepositoryImpl(
         }
     }
 
+    override fun getOverallQosItem(testUUID: String): LiveData<List<QoeInfoRecord>> {
+        return qoeInfoDao.get(testUUID)
+    }
+
     private fun loadQosTestResults(testUUID: String, clientUUID: String): Maybe<BaseResponse> {
         val isONTBasedApp = !config.headerValue.isNullOrEmpty()
 

@@ -1,6 +1,11 @@
 package at.specure.data
 
+import androidx.room.Entity
+import androidx.room.PrimaryKey
+
+@Entity(tableName = Tables.HISTORY_MEDIAN)
 data class HistoryLoopMedian(
+    @PrimaryKey
     val loopUuid: String,
     val pingMedianMillis: Float,
     val jitterMedianMillis: Float,

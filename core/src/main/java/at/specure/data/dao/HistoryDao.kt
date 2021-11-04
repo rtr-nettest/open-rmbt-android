@@ -1,5 +1,6 @@
 package at.specure.data.dao
 
+import androidx.lifecycle.LiveData
 import androidx.paging.DataSource
 import androidx.room.Dao
 import androidx.room.Insert
@@ -59,4 +60,7 @@ abstract class HistoryDao {
 
     @Query("SELECT * FROM ${Tables.HISTORY} WHERE loopUUID =:loopUuid ORDER BY time DESC")
     abstract fun getItemByLoopUUID(loopUuid: String): List<History>
+
+    @Query("SELECT * FROM ${Tables.HISTORY} WHERE loopUUID =:loopUuid ORDER BY time DESC")
+    abstract fun getItemByLoopUUIDLiveData(loopUuid: String): LiveData<List<History>?>
 }
