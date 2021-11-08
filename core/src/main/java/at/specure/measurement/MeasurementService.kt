@@ -24,9 +24,7 @@ import at.rmbt.util.io
 import at.rtr.rmbt.client.v2.task.result.QoSTestResultEnum
 import at.rtr.rmbt.util.IllegalNetworkChangeException
 import at.specure.config.Config
-import at.specure.data.Classification
 import at.specure.data.entity.LoopModeState
-import at.specure.data.entity.QoeInfoRecord
 import at.specure.data.repository.HistoryRepository
 import at.specure.data.repository.ResultsRepository
 import at.specure.data.repository.TestDataRepository
@@ -38,7 +36,6 @@ import at.specure.location.LocationState
 import at.specure.location.LocationWatcher
 import at.specure.measurement.signal.SignalMeasurementProducer
 import at.specure.measurement.signal.SignalMeasurementService
-import at.specure.result.QoECategory
 import at.specure.test.DeviceInfo
 import at.specure.test.SignalMeasurementType
 import at.specure.test.StateRecorder
@@ -52,7 +49,6 @@ import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.onCompletion
@@ -63,7 +59,6 @@ import java.util.Timer
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import kotlin.concurrent.timerTask
-import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
 
 class MeasurementService : CustomLifecycleService(), CoroutineScope {

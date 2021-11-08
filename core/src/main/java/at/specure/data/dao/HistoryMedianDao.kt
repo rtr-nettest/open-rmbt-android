@@ -8,7 +8,6 @@ import androidx.room.Query
 import androidx.room.Transaction
 import at.specure.data.HistoryLoopMedian
 import at.specure.data.Tables
-import at.specure.data.entity.History
 
 @Dao
 abstract class HistoryMedianDao {

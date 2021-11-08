@@ -208,7 +208,7 @@ class HistoryRepositoryImpl(
                     category = QoECategory.QOE_QOS,
                     classification = Classification.NONE,
                     percentage = it,
-                    info = "${it}%",
+                    info = "$it%",
                     priority = -1
                 )
             )
