@@ -408,7 +408,7 @@ private fun AppCompatTextView.extractTechnologyString(
             "$technology/${(detailedNetworkInfo.networkInfo as CellNetworkInfo).networkType.displayName}"
         }
     }
-    else -> context.getString(R.string.home_attention)
+    else -> ""
 }
 
 /**
