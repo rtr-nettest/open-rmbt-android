@@ -1,4 +1,4 @@
-package at.rtr.rmbt.android.util
+package at.specure.test
 
 enum class TestUuidType {
     TEST_UUID,

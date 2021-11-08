@@ -4,15 +4,16 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.ServiceConnection
 import android.os.IBinder
+import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import at.rmbt.util.exception.HandledException
-import at.rmbt.util.io
 import at.rtr.rmbt.android.config.AppConfig
 import at.rtr.rmbt.android.ui.viewstate.MeasurementViewState
 import at.rtr.rmbt.android.util.plusAssign
 import at.rtr.rmbt.android.util.timeString
 import at.rtr.rmbt.client.v2.task.result.QoSTestResultEnum
+import at.specure.data.HistoryLoopMedian
 import at.specure.data.TermsAndConditions
 import at.specure.data.entity.GraphItemRecord
 import at.specure.data.entity.LoopModeRecord
@@ -27,7 +28,6 @@ import at.specure.measurement.MeasurementClient
 import at.specure.measurement.MeasurementProducer
 import at.specure.measurement.MeasurementService
 import at.specure.measurement.MeasurementState
-import kotlinx.coroutines.flow.collect
 import timber.log.Timber
 import javax.inject.Inject
 
@@ -53,6 +53,7 @@ class MeasurementViewModel @Inject constructor(
     private val _loopUUIDLiveData = MutableLiveData<String>()
     private val _timeToNextTestElapsedLiveData = MutableLiveData<String>()
     private val _timeProgressPercentsLiveData = MutableLiveData<Int>()
+    private var _medianLiveData = MutableLiveData<HistoryLoopMedian?>()
 
     private var producer: MeasurementProducer? = null
 
@@ -99,6 +100,9 @@ class MeasurementViewModel @Inject constructor(
 
     val isTacAccepted: Boolean
         get() = tac.tacAccepted
+
+    val medianLiveData: LiveData<HistoryLoopMedian?>
+        get() = _medianLiveData
 
     lateinit var loopProgressLiveData: LiveData<LoopModeRecord?>
 
@@ -155,6 +159,7 @@ class MeasurementViewModel @Inject constructor(
 
     init {
         addStateSaveHandler(state)
+        _medianLiveData = MutableLiveData<HistoryLoopMedian?>(null)
     }
 
     fun attach(context: Context) {
@@ -186,12 +191,11 @@ class MeasurementViewModel @Inject constructor(
         }
     }
 
-    private fun loadMedianValues(loopUUID: String?) {
+    fun loadMedianValues(loopUUID: String?, owner: LifecycleOwner) {
         loopUUID?.let { loopUuid ->
-            io {
-                historyRepository.loadLoopMedianValues(loopUuid).collect { medians ->
-                    this@MeasurementViewModel.state.setMedianValues(medians)
-                }
+            val loopMedianValues = historyRepository.getLoopMedianValues(loopUuid)
+            loopMedianValues.observe(owner) {
+                _medianLiveData.postValue(it)
             }
         }
     }
@@ -318,7 +322,6 @@ class MeasurementViewModel @Inject constructor(
         }
         val loopUUID = this.state.loopModeRecord.get()?.uuid
         Timber.d("Loop UUID to load median values (already loaded): $loopUUID")
-        loadMedianValues(loopUUID)
     }
 
     override fun onQoSTestProgressUpdated(tasksPassed: Int, tasksTotal: Int, progressMap: Map<QoSTestResultEnum, Int>) {

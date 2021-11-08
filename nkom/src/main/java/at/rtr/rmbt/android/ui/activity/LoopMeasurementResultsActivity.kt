@@ -9,7 +9,7 @@ import at.rtr.rmbt.android.databinding.ActivityLoopMeasurementResultsBinding
 import at.rtr.rmbt.android.di.viewModelLazy
 import at.rtr.rmbt.android.ui.adapter.LoopMeasurementAdapter
 import at.rtr.rmbt.android.ui.fragment.BasicResultFragment
-import at.rtr.rmbt.android.util.TestUuidType
+import at.specure.test.TestUuidType
 import at.rtr.rmbt.android.util.ToolbarTheme
 import at.rtr.rmbt.android.util.changeStatusBarColor
 import at.rtr.rmbt.android.viewmodel.ResultsListLoopViewModel
@@ -39,7 +39,9 @@ class LoopMeasurementResultsActivity : BaseActivity() {
         val loopId = intent?.getStringExtra(KEY_LOOP_ID)
         checkNotNull(loopId)
         viewModel.loadLoopMeasurements(loopId).onEach {
-            adapter.submitList(it)
+            it?.let {
+                adapter.submitList(it)
+            }
         }.launchIn(lifecycleScope)
         showBasicResultsFragment(loopId)
     }
