@@ -756,33 +756,34 @@ class MeasurementService : CustomLifecycleService(), CoroutineScope {
     fun loadTestResults(testUUIDType: TestUuidType, testUUID: String) {
         when (testUUIDType) {
             TestUuidType.TEST_UUID -> launch {
-                delay(750)
+                delay(1000)
                 testResultsRepository.loadTestResults(testUUID).zip(
                     testResultsRepository.loadTestDetailsResult(testUUID)
                 ) { a, b -> a && b }
                     .flowOn(Dispatchers.IO)
-                    .catch {
-                    }
-                    .collect {
-//                        _loadingLiveData.postValue(it)
-                    }
             }
-            TestUuidType.LOOP_UUID ->
+            TestUuidType.LOOP_UUID -> {
+                Timber.d("Starting to load Median values")
                 io {
-                    delay(750) // added because of BE QOS part processing performance issue
+                    delay(1000) // added because of BE QOS part processing performance issue
                     historyRepository.loadHistoryItems(0, 100, true).onSuccess {
-                        Timber.d("History Successfully loaded: ${it[0].loopUUID} ${it[0].speedDownload}  from size: ${it.size}")
+                        if (it.isNotEmpty()) {
+                            Timber.d("History Successfully loaded: ${it[0].loopUUID} ${it[0].speedDownload}  from size: ${it.size}")
+                        } else {
+                            Timber.d("History is empty")
+                        }
                         historyRepository.loadLoopMedianValues(testUUID).onCompletion {
-//                            _loadingLiveData.postValue(true)
                         }.collect {
-//                            _loopMedianValuesLiveData.postValue(it)
+                            Timber.d("Median values median values? $it")
+                            Timber.d("Median values median qosMedian? $it?.qosMedian")
                             it?.qosMedian?.let { qosMedian ->
+                                Timber.d("Median values $qosMedian")
                                 testResultsRepository.saveOverallQosItem(qosMedian, testUUID)
-//                                qoeLoopResultLiveData.postValue(qoeqos)
                             }
                         }
                     }
                 }
+            }
         }
     }
 

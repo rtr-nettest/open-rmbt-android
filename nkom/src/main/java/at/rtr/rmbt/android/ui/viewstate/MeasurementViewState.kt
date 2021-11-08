@@ -73,7 +73,6 @@ class MeasurementViewState(private val config: AppConfig) : ViewState {
     val jitterNanosMedian = ObservableLong()
     val packetLossPercentMedian = ObservableInt()
     val qosPercentsMedian = ObservableField<Int?>()
-    val medianValues = ObservableField<HistoryLoopMedian?>()
 
     val metersLeft = ObservableField<String>().apply { set(loopNextTestDistanceMeters.get()) }
     val locationAvailable = ObservableBoolean().apply { set(true) }
