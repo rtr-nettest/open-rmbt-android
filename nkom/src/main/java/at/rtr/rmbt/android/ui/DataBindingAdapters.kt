@@ -504,6 +504,13 @@ fun MeasurementProgressSquareView.setMeasurementPhase(
             setSpeed(phaseProgress.toFloat())
         }
     }
+    if (state == MeasurementState.JITTER_AND_PACKET_LOSS) {
+        if (jitter > 0) {
+            setSpeed(jitter / 1000000.0f)
+        } else {
+            setSpeed(phaseProgress.toFloat())
+        }
+    }
     if (state == MeasurementState.UPLOAD) {
         setSpeed(uploadSpeed / 1000000.0f)
     }

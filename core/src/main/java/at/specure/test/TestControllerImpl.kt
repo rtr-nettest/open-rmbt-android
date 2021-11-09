@@ -339,6 +339,7 @@ class TestControllerImpl(
         val progress = (result.progress * 100).toInt()
         if (progress < 10) {
             if (client.totalTestResult.jitterMeanNanos > 0) {
+                Timber.d("Jitter result nanos: ${client.totalTestResult.jitterMeanNanos}")
                 setState(MeasurementState.JITTER_AND_PACKET_LOSS, 100)
                 _listener?.onJitterChanged(client.totalTestResult.jitterMeanNanos)
                 val packetLoss = client.totalTestResult.packetLossPercent.toInt()

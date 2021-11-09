@@ -901,13 +901,13 @@ class MeasurementService : CustomLifecycleService(), CoroutineScope {
 
         override fun onJitterChanged(jitterNanos: Long) {
             clients.forEach {
-                it.onPingChanged(pingNanos)
+                it.onJitterChanged(jitterNanos)
             }
         }
 
         override fun onPacketLossPercentChanged(packetLossPercent: Int) {
             clients.forEach {
-                it.onPingChanged(pingNanos)
+                it.onPacketLossPercentChanged(packetLossPercent)
             }
         }
 
