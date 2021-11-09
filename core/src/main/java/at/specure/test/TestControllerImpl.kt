@@ -388,7 +388,6 @@ class TestControllerImpl(
                 previousJitterProgress = progress
             }
         }
-
     }
 
     private fun handleInitUp() {
