@@ -113,6 +113,7 @@
                     app:layout_constraintEnd_toStartOf="@id/median_square"
                     app:layout_constraintStart_toStartOf="parent"
                     app:measurementPhase="@{state.measurementState}"
+                    app:measurementProgressPhase="@{state.measurementState}"
                     app:packetLoss="@{state.packetLossPercent}"
                     app:percentage="@{state.measurementProgress}"
                     app:ping="@{state.pingNanos}"

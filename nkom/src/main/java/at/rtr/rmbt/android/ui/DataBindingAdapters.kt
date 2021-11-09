@@ -474,9 +474,12 @@ fun SpeedLineChart.reset(measurementState: MeasurementState) {
     }
 }
 
-@BindingAdapter("percentage")
-fun MeasurementProgressSquareView.setPercents(percentage: Int) {
-    setProgress(percentage)
+@BindingAdapter(
+    value = ["percentage", "measurementProgressPhase"],
+    requireAll = true
+)
+fun MeasurementProgressSquareView.setPercents(percentage: Int, measurementProgressPhase: MeasurementState) {
+    setProgress(percentage, measurementProgressPhase)
 }
 
 @BindingAdapter(

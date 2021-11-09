@@ -118,6 +118,7 @@
                 app:layout_constraintDimensionRatio="H,1:1"
                 app:layout_constraintEnd_toStartOf="@id/median_square"
                 app:layout_constraintStart_toStartOf="parent"
+                app:measurementProgressPhase="@{state.measurementState}"
                 app:measurementPhase="@{state.measurementState}"
                 app:packetLoss="@{state.packetLossPercent}"
                 app:percentage="@{state.measurementProgress}"
