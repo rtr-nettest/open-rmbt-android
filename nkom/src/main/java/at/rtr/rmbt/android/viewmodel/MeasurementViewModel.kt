@@ -178,6 +178,7 @@ class MeasurementViewModel @Inject constructor(
     override fun onProgressChanged(state: MeasurementState, progress: Int) {
         this.state.measurementState.set(state)
         this.state.measurementProgress.set(progress)
+        Timber.d("MP progress: $progress state: $state")
         if (config.loopModeEnabled) {
             this.state.signalStrengthInfoResult.set(producer?.lastMeasurementSignalInfo)
             if (state == MeasurementState.INIT) {
