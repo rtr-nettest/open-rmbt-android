@@ -116,6 +116,7 @@
                     app:measurementProgressPhase="@{state.measurementState}"
                     app:packetLoss="@{state.packetLossPercent}"
                     app:percentage="@{state.measurementProgress}"
+                    app:phaseProgress="@{state.measurementProgress}"
                     app:ping="@{state.pingNanos}"
                     app:qos="@{state.qosProgressPercents}"
                     app:uploadSpeed="@{state.uploadSpeedBps}" />

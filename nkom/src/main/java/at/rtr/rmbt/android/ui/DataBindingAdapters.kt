@@ -483,7 +483,7 @@ fun MeasurementProgressSquareView.setPercents(percentage: Int, measurementProgre
 }
 
 @BindingAdapter(
-    value = ["measurementPhase", "downloadSpeed", "uploadSpeed", "ping", "jitter", "packetLoss", "qos"],
+    value = ["measurementPhase", "downloadSpeed", "uploadSpeed", "ping", "jitter", "packetLoss", "phaseProgress", "qos"],
     requireAll = true
 )
 fun MeasurementProgressSquareView.setMeasurementPhase(
@@ -493,6 +493,7 @@ fun MeasurementProgressSquareView.setMeasurementPhase(
     ping: Long,
     jitter: Long,
     packetLoss: Integer,
+    phaseProgress: Integer,
     qos: Integer?
 ) {
     setMeasurementState(state)
@@ -500,8 +501,7 @@ fun MeasurementProgressSquareView.setMeasurementPhase(
         if (ping > 0) {
             setSpeed(ping / 1000000.0f)
         } else {
-            setSpeed(-1.0f)
-            setSpeed(jitter / 1000000.0f)
+            setSpeed(phaseProgress.toFloat())
         }
     }
     if (state == MeasurementState.UPLOAD) {
