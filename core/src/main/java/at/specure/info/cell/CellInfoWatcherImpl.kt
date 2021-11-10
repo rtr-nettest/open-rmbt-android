@@ -230,6 +230,9 @@ class CellInfoWatcherImpl(
             } catch (e: NullPointerException) {
                 Timber.e("NullPointerException: Not able to read telephonyManager.allCellInfo from other reason")
             }
+        } else {
+            // when we are not able to detect more than there is cellular connection (we have no permission granted to read more details)
+            _activeNetwork = CellNetworkInfo("")
         }
     }
 

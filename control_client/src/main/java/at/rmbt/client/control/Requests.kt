@@ -1022,9 +1022,6 @@ data class SignalMeasurementChunkBody(
     @SerializedName("client_uuid")
     val clientUUID: String,
 
-    @SerializedName("client_version")
-    val clientVersion: String,
-
     @SerializedName("client_language")
     val clientLanguage: String,
 
