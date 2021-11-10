@@ -10,6 +10,7 @@ import at.specure.data.dao.ConnectivityStateDao
 import at.specure.data.dao.GeoLocationDao
 import at.specure.data.dao.GraphItemDao
 import at.specure.data.dao.HistoryDao
+import at.specure.data.dao.HistoryMedianDao
 import at.specure.data.dao.JplResultsDao
 import at.specure.data.dao.MapDao
 import at.specure.data.dao.PermissionStatusDao
@@ -64,6 +65,7 @@ import at.specure.data.entity.VoipTestResultRecord
         GeoLocationRecord::class,
         GraphItemRecord::class,
         History::class,
+        HistoryLoopMedian::class,
         VoipTestResultRecord::class,
         PermissionStatusRecord::class,
         PingRecord::class,
@@ -88,7 +90,7 @@ import at.specure.data.entity.VoipTestResultRecord
         SignalMeasurementChunk::class,
         ConnectivityStateRecord::class,
         HistoryReference::class],
-    version = 100
+    version = 111
 )
 @TypeConverters(TypeConverter::class)
 abstract class CoreDatabase : RoomDatabase() {
@@ -99,6 +101,7 @@ abstract class CoreDatabase : RoomDatabase() {
     abstract fun geoLocationDao(): GeoLocationDao
     abstract fun graphItemsDao(): GraphItemDao
     abstract fun historyDao(): HistoryDao
+    abstract fun historyMedianDao(): HistoryMedianDao
     abstract fun jplResultsDao(): JplResultsDao
     abstract fun permissionStatusDao(): PermissionStatusDao
     abstract fun pingDao(): PingDao

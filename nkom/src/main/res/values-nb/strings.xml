@@ -13,22 +13,22 @@
   -->
 
 <resources xmlns:tools="http://schemas.android.com/tools">
-    <string name="measurements">Måling</string>
-    <string name="total_measurements">Totalt Antall Målinger</string>
-    <string name="average_down">Gjennomsnittlig Nedlasting</string>
-    <string name="average_up">Gjennomsnittlig Opplasting</string>
-    <string name="average_latency">Gjennomsnittlig Ventetid</string>
+    <string name="measurements">Målinger</string>
+    <string name="total_measurements">Totalt antall målinger</string>
+    <string name="average_down">Gjennomsnittlig nedlasting</string>
+    <string name="average_up">Gjennomsnittlig opplasting</string>
+    <string name="average_latency">Gjennomsnittlig svartid</string>
 
-    <string name="splash_text">Test hastigheten på din Internett</string>
+    <string name="splash_text">Test hastigheten på din tilkobling.</string>
 
-    <string name="open_location_permission_dialog_label_location_not_permitted">Nkom Nettfart har ikke lov til å bruke posisjonen din. Vil du la Nkom Nettfart bruke posisjonen din?</string>
+    <string name="open_location_permission_dialog_label_location_not_permitted">Nkom Nettfart har ikke lov til å bruke posisjonen din. Vil du tillate dette?</string>
     <string name="notification_test_title">Nkom Nettfart kjører</string>
-    <string name="notification_signal_test_text">Nkom Nettfart -signalmåling kjører i bakgrunnen</string>
-    <string name="text_loop_instruction_1">Sløyfemodusalternativet for teknisk interesserte brukere tillater automatisk gjentagelse av Nkom Nettfart. Den første testen starter rett etter aktivering av loop-modus; ytterligere tester utføres når enten ventetiden har gått eller den angitte distansen er tilbakelagt. Tester vil bli utført til det konfigurerte antallet tester er nådd. Signalstyrken måles kontinuerlig, også mellom to tester. Sløyfemodusen kan stoppes når som helst, henholdsvis når den stopper etter 48 timer. Det må eksplisitt påpekes at på grunn av sløyfemodus kan det ikke utelukkes at testeren er identifisert.</string>
-    <string name="loop_mode_finished">Nkom Nettfart loop -modus ferdig!</string>
-    <string name="text_terms_agree">Jeg er enig med Specures personvernerklæring og vilkår for bruk for Nkom Nettfart.</string>
+    <string name="notification_signal_test_text">Nkom Nettfart signalmåling kjører i bakgrunnen</string>
+    <string name="text_loop_instruction_1">Sløyfemodus tillater gjentagende målinger i Nkom Nettfart. Den første testen starter rett etter aktivering av sløyfemodus; ytterligere tester utføres når enten ventetiden er ute eller den angitte distansen er tilbakelagt. Tester vil bli utført til det konfigurerte antallet tester er nådd. Signalstyrken måles kontinuerlig, også mellom to tester. Sløyfemodus kan stoppes når som helst, men uansett stopper den etter 48 timer. Det påpekes at når sløyfemodus er aktiv, kan det ikke utelukkes at brukeren lettere kan bli identifisert.</string>
+    <string name="loop_mode_finished">Nkom Nettfart sløyfemodus er ferdig!</string>
+    <string name="text_terms_agree">Jeg er enig med Nkoms personvernerklæring og vilkår for bruk for Nkom Nettfart.</string>
 
-    <string name="text_home_run">Start Testen</string>
+    <string name="text_home_run">Start testen</string>
     <string name="text_basic_measurement">Hastighetsmåling</string>
 
     <string name="basic_result_title">Grunnleggende resultat</string>
@@ -37,20 +37,20 @@
 
     <!-- Navigation menu titles -->
     <string name="menu_button_title_page">Hjem</string>
-    <string name="menu_button_history">Historie</string>
+    <string name="menu_button_history">Historikk</string>
     <string name="menu_button_statistics">Statistikk</string>
     <string name="menu_button_map">Kart</string>
 
     <!-- Error dialog messages -->
     <string name="dialog_title_error">Feil</string>
     <string name="error_unknown">Dårlig tilkobling. Prøv igjen senere</string>
-    <string name="no_internet_connection_not_load_data">Ingen Internett -tilkobling. Kunne ikke laste inn data.</string>
+    <string name="no_internet_connection_not_load_data">Ingen Internettilkobling. Kunne ikke laste inn data.</string>
     <string name="request_failure">Det oppstod en feil under henting av dataene.</string>
 
     <!-- Home screen -->
     <string name="home_attention">Merk følgende</string>
-    <string name="home_no_internet_connection">Ingen Internett -tilkobling</string>
-    <string name="home_no_internet_connection_details">Ingen test er mulig</string>
+    <string name="home_no_internet_connection">Ingen Internettilkobling</string>
+    <string name="home_no_internet_connection_details">Testing er ikke mulig</string>
     <string name="home_signal_value">%1$d dBm</string>
     <string name="home_wifi">WLAN</string>
     <string name="public_ip_address">Offentlig adresse</string>
@@ -67,15 +67,15 @@
     <string name="preferences_privacy">Personvern</string>
     <string name="preferences_persistent_clientUUID">Vedvarende klient UUID</string>
     <string name="preferences_persistent_clientUUID_summary">Vedvarende klient UUID er nødvendig for å muliggjøre målehistorikk og synkronisering av resultatene mellom enheter</string>
-    <string name="preferences_analytics">Analytics</string>
-    <string name="preferences_analytics_summary">Aktiver analyse og send krasjspor til oss</string>
+    <string name="preferences_analytics">Analyse</string>
+    <string name="preferences_analytics_summary">Aktiver analyse og send feil-logg til oss</string>
     <string name="preferences_location_summary">Administrer tillatelsene for posisjonssporing</string>
     <string name="preferences_loop_test_number">Velg antall tester</string>
 
     <string name="preferences_version">Versjon</string>
 
     <string name="preferences_qos_measurement">QoS måling</string>
-    <string name="preferences_location">plassering</string>
+    <string name="preferences_location">Plassering</string>
     <string name="preferences_loop_mode">Sløyfemodus</string>
     <string name="preferences_loop_mode_summary">Ny test etter ventetid eller tilbakelagt distanse. Maks. 2 dager</string>
     <string name="preferences_loop_mode_min_delay">Ventetid (i minutter)</string>
@@ -84,7 +84,7 @@
     <string name="preferences_expert_mode_summary">Vis avanserte innstillinger og informasjon</string>
     <string name="preferences_ipv4_only">Bare IPv4</string>
     <string name="preferences_ipv4_only_sum">Ikke bruk IPv6</string>
-    <string name="preferences_radio_info">Radio info</string>
+    <string name="preferences_radio_info">Radioinfo</string>
     <string name="preferences_radio_info_sum">Detaljer om radiokonfigurasjon</string>
     <string name="preferences_client_uuid">Klient UUID</string>
     <string name="preferences_about">Om</string>
@@ -100,7 +100,7 @@
     <string name="preferences_developer_options_disabled">Utvikleralternativer deaktivert</string>
     <string name="preferences_developer_options_available">Utvikleralternativer tilgjengelig</string>
     <string name="preferences_developer_try_again">Prøv igjen!</string>
-    <string name="preferences_developer_map_server">Kartserver</string>
+    <string name="preferences_developer_map_server">Karttjener</string>
     <string name="preferences_developer_map_override">Overstyr karttjeneren</string>
     <string name="preferences_developer_map_override_sum">Aktiver tilpassede kartserverinnstillinger</string>
     <string name="preferences_developer_map_host">Kartvert</string>
@@ -117,7 +117,7 @@
     <string name="preferences_tag">stikkord</string>
 
     <!-- Location Dialog -->
-    <string name="location_dialog_label_title">plassering</string>
+    <string name="location_dialog_label_title">Plassering</string>
     <string name="location_dialog_label_position">Posisjon</string>
     <string name="location_dialog_label_accuracy">Nøyaktighet</string>
     <string name="location_dialog_label_age">Alder</string>
@@ -153,7 +153,7 @@
     <string name="measurement_dash">-</string>
     <string name="measurement_speed_chart_x_label_min">0s</string>
     <string name="measurement_speed_chart_x_label_max">8s</string>
-    <string name="measurement_ping">Fors</string>
+    <string name="measurement_ping">Ping</string>
     <string name="measurement_down">Ned</string>
     <string name="measurement_up">Opp</string>
     <string name="measurement_qos">Kvalitet på tjenesten (QoS)</string>
@@ -176,8 +176,8 @@
     <string name="label_qos">QoS</string>
     <string name="label_upload">Opplasting</string>
     <string name="label_download">Nedlasting</string>
-    <string name="label_ping">Forsinkelse</string>
-    <string name="label_init">I det</string>
+    <string name="label_ping">Ping</string>
+    <string name="label_init">Starter…</string>
     <string name="label_signal_strength">Signal</string>
     <string name="network_label">Nettverk</string>
 
@@ -191,7 +191,7 @@
     <!-- History -->
     <string name="history_item_header_down">Ned</string>
     <string name="history_item_header_up">Opp</string>
-    <string name="history_item_header_ping">Fors</string>
+    <string name="history_item_header_ping">Ping</string>
     <string name="history_no_data">Ingen data tilgjengelig.</string>
 
     <!-- Results -->
@@ -211,13 +211,13 @@
     <string name="results_qoe_cloud">Sky</string>
     <string name="results_qoe_qos">QoS tester</string>
     <string name="results_network_type">Type</string>
-    <string name="results_network_provider">Forsørger</string>
+    <string name="results_network_provider">Tilbyder</string>
     <string name="results_network_ssid">WLAN SSID</string>
     <string name="result_test_details">Testdetaljer</string>
     <string name="label_information">Informasjon</string>
     <string name="label_tests">Tester</string>
-    <string name="label_succeeded">LYST</string>
-    <string name="label_failed">FEILSATT</string>
+    <string name="label_succeeded">VELLYKKET</string>
+    <string name="label_failed">AVBRUTT</string>
     <string name="label_description">BESKRIVELSE</string>
     <string name="label_detail">DETALJER</string>
 
@@ -225,20 +225,20 @@
     <string name="map_layer_communities">Fellesskap</string>
     <string name="map_layer_points">Poeng</string>
     <string name="map_layer_automatic">Automatisk</string>
-    <string name="map_label_overlay_type">Overleggstype</string>
+    <string name="map_label_overlay_type">Type lag</string>
     <string name="map_style_hybrid">Hybrid</string>
     <string name="map_style_satellite">Satellitt</string>
     <string name="map_style_standard">Standard</string>
     <string name="map_label_map_appearance">Kartets utseende</string>
     <string name="title_marker_item_details">Vis flere detaljer</string>
 
-    <string name="text_failed_to_load_results">Kunne ikke laste inn data. \ NTrekk ned for å oppdatere.</string>
+    <string name="text_failed_to_load_results">Kunne ikke laste inn data. Trekk ned for å oppdatere.</string>
 
     <string name="title_sync">Synkronisering</string>
-    <string name="text_sync_info">Du har muligheten til å bli med på resultater fra forskjellige enheter. For å gjøre dette må du skrive inn en allerede forespurt synkroniseringskode eller be om en ny.</string>
-    <string name="button_sync_request_code">Forespørselskode</string>
+    <string name="text_sync_info">Du har muligheten til å slå sammen resultater fra forskjellige enheter. For å gjøre dette må du skrive inn en allerede forespurt synkroniseringskode eller be om en ny.</string>
+    <string name="button_sync_request_code">Forespør kode</string>
     <string name="button_sync_enter_code">Skriv inn kode</string>
-    <string name="text_sync_code_received">Skriv inn koden som vises nedenfor på den andre enheten for å synkronisere resultatene.</string>
+    <string name="text_sync_code_received">Skriv inn koden som vises nedenfor, på den andre enheten for å synkronisere resultatene.</string>
     <string name="text_sync_enter_code_desc">Skriv inn koden du mottok på den andre enheten.</string>
     <string name="button_close">Lukk</string>
     <string name="hint_sync_code">Kode</string>
@@ -249,7 +249,7 @@
     <string name="notification_loop_mode_finished_title">Sløyfemodus ferdig</string>
 
     <string name="toast_signal_measurement_enabled">Signalmåling startet.</string>
-    <string name="error_no_connection">Ingen Internett -tilkobling. Kunne ikke laste inn data.</string>
+    <string name="error_no_connection">Ingen Internettilkobling. Kunne ikke laste inn data.</string>
 
     <string name="label_map_filters">Kartinnstillinger</string>
     <string name="text_filter_confirm">Aksepterer</string>
@@ -265,7 +265,7 @@
     <string name="title_loop_waiting">Sløyfe venter</string>
     <string name="text_button_decline">Avslå</string>
     <string name="text_button_accept">Aksepterer</string>
-    <string name="text_loop_instruction_2">Ved stor etterspørsel eller svært høyt antall tester i et bestemt område, kan sløyfemodus avvises av testsystemet for å unngå overbelastning. Vær oppmerksom på at loop-modus (bare) er beregnet for bruk i EU og EØS. Loop-modus bruker en stor mengde data. Med raske tilkoblinger kan 10 tester forbruke 1 GB eller mer data. Det anbefales derfor på det sterkeste at loop-modus bare brukes med virkelige faste takster, der ekstra datavolum ikke medfører ekstra kostnader. Loop-modus tapper batteriet raskt. I pausene mellom testene forblir GPS og displayet aktive og signalmålinger fortsetter, noe som betyr at energien blir brukt opp mye raskere enn i standby-modus. Sløyfemodus bør derfor bare brukes hvis ekstern strømforsyning er tilgjengelig.</string>
+    <string name="text_loop_instruction_2">Ved stor etterspørsel eller svært høyt antall tester i et bestemt område, kan sløyfemodus avvises av testsystemet for å unngå overbelastning. Vær oppmerksom på at loop-modus (bare) er beregnet for bruk i EU og EØS. Sløyfemodus bruker en stor mengde data. Ved raske tilkoblinger kan 10 tester forbruke 1 GB data eller mer. Det anbefales derfor på det sterkeste at sløyfemodus bare brukes via abonnement uten databegrensning (fri data, ubegrenset volum etc.). Sløyfemodus tapper batteriet raskere enn normalt. I pausene mellom testene forblir GPS og skjerm aktive og signalmålinger fortsetter, noe som betyr at batteribruken er høyere enn i hvilemodus. Sløyfemodus bør derfor bare brukes hvis ekstern strømforsyning er tilgjengelig.</string>
     <string name="title_loop_instruction_1">Aktivering</string>
     <string name="title_loop_instruction_2">Bruk</string>
 
@@ -288,12 +288,12 @@
     <string name="dialog_signal_info_band">Bånd</string>
     <string name="text_local_results">Bare lokale resultater</string>
     <string name="signal_measurement_terms_title">Aktivering og bruk</string>
-    <string name="signal_measurement_terms_content">Alternativet signal-bare sløyfemodus for teknisk interesserte brukere tillater automatisk gjentagelse av signalmålinger- uten at det blir utført hastighets- eller kvalitetstester. Signal-bare loop-modus kan stoppes når som helst, henholdsvis stopper den automatisk etter 48 timer. Signal-bare loop-modus er (bare) beregnet for bruk i EU og EØS. Batteriet tømmes raskt av signal-bare målingene. I pausene mellom testene forblir GPS og displayet aktive og signalmålinger fortsetter, noe som betyr at energien blir brukt opp mye raskere enn i standby-modus. Sløyfemodus bør derfor bare brukes hvis ekstern strømforsyning er tilgjengelig. Det må eksplisitt påpekes at på grunn av signal-bare sløyfemodus kan det ikke utelukkes at testeren er identifisert.</string>
+    <string name="signal_measurement_terms_content">Alternativet signal-sløyfemodus tillater automatisk gjentagelse av signalmålinger - uten at det blir utført hastighets- eller kvalitetstester. Signal-sløyfemodus kan stoppes når som helst, men stopper uansett automatisk etter 48 timer. Signal-sløyfemodus er (bare) beregnet for bruk i EU og EØS. Batteriet kan tømmes raskt av disse målingene. I pausene mellom testene forblir GPS og skjerm aktive og signalmålinger fortsetter, noe som betyr at batteriet tømmes raskere enn i hvilemodus. Signal-sløyfemodus bør derfor bare brukes hvis ekstern strømforsyning er tilgjengelig. Det påpekes at når sløyfemodus er aktiv, kan det ikke utelukkes at brukeren lettere kan bli identifisert.</string>
     <string name="text_phase_init">Initialisering</string>
     <string name="text_phase_qos">QoS</string>
     <string name="text_phase_upload">Opplasting</string>
     <string name="text_phase_download">Nedlasting</string>
-    <string name="text_phase_ping">Forsinkelse</string>
+    <string name="text_phase_ping">Ping</string>
     <string name="text_unit_mbps">Mbps</string>
     <string name="text_unit_ping">ms</string>
     <string name="text_current_from_count">%1$d av %2$d</string>
@@ -302,10 +302,10 @@
     <string name="title_permissions_welcome">Velkommen til Nkom Nettfart</string>
     <string name="text_permissions_welcome">La oss se gjennom personvernalternativene dine</string>
     <string name="button_next">Neste</string>
-    <string name="title_permissions_accuracy">Nkom Nettfart Presisjon</string>
+    <string name="title_permissions_accuracy">Nkom Nettfart presisjon</string>
     <string name="text_permissions_accuracy">Nkom Nettfart trenger visse funksjoner for å fungere korrekt.</string>
     <string name="text_permissions_accuracy_phone">Vi vil aldri foreta eller administrere telefonsamtaler. Vi bruker telefontillatelser for å identifisere mobiloperatøren som brukes til testing.</string>
-    <string name="title_permissions_accuracy_phone">Telefon Tillatelser</string>
+    <string name="title_permissions_accuracy_phone">Telefon tillatelser</string>
     <string name="title_permissions_accuracy_location">Plasseringstillatelser</string>
     <string name="text_permissions_accuracy_location">Posisjonen din identifiserer nærliggende servere og enhetens mobilforbindelse for å konfigurere Nkom Nettfart på riktig måte</string>
     <string name="button_continue">Fortsette</string>
@@ -317,12 +317,12 @@
     <string name="title_permissions_analytics">Hjelp oss med å forbedre Nkom Nettfart</string>
     <string name="text_permissions_analytics">Nkom Nettfart kan bruke tredjepartstjenester til å samle inn data om enheten din og din bruk av Nkom Nettfart og bruke den til å forbedre applikasjonsopplevelsen og stabiliteten.</string>
     <string name="text_permissions_analytics_coverage">Tillate Nkom Nettfart å samle inn analyser og krasjrapporter?</string>
-    <string name="button_agree">Bli enige</string>
+    <string name="button_agree">Enig</string>
     <string name="title_permissions_uuid">Vedvarende klient UUID</string>
-    <string name="text_permissions_uuid">Klient UUID er en tilfeldig generert ID som lagres for hver måling. Vedvarende klient UUID betyr at ID -en er den samme for hver måling. Det er nødvendig for å muliggjøre målehistorikk og synkronisering av resultatene mellom enheter. Du kan endre det senere i innstillingene.</string>
+    <string name="text_permissions_uuid">Klient UUID er en tilfeldig generert ID som lagres for hver måling. Vedvarende klient UUID betyr at ID-en er den samme for hver måling. Det er nødvendig for å muliggjøre målehistorikk og synkronisering av resultatene mellom enheter. Du kan endre det senere i innstillingene.</string>
 
 
-    <string name="title_result_filter_operators">Operatører</string>
+    <string name="title_result_filter_operators">Tilbydere</string>
     <string name="label_results">Resultater</string>
     <string name="title_loop_measurements">Sløyfemålinger</string>
     <string name="text_link_history_empty">Gjør din første måling</string>
@@ -337,14 +337,14 @@
     <string name="label_measurement_server">Måleserver</string>
     <string name="label_change_test_server">Endre testserver</string>
 
-    <string name="label_measurement_time_to_next_test">På tide med neste test</string>
+    <string name="label_measurement_time_to_next_test">Tid til neste test</string>
     <string name="label_measurement_movement">Bevegelse</string>
 
     <string name="label_location_access_disabled">Posisjonstilgang deaktivert</string>
     <string name="label_location_access_disabled_explanation">Gå til Posisjonsinnstillinger for å aktivere posisjonstilgang.</string>
     <string name="label_some_permission_denied">Apptillatelser mangler</string>
-    <string name="label_some_permission_denied_explanation">Gå til appinnstillinger for å løse manglende apptillatelser.</string>
-    <string name="title_open_nettest_accuracy">Nkom Nettfart Presisjon</string>
+    <string name="label_some_permission_denied_explanation">Gå til appinnstillinger for å ordne manglende apptillatelser.</string>
+    <string name="title_open_nettest_accuracy">Nkom Nettfart presisjon</string>
     <string name="subtitle_open_nettest_accuracy">Nkom Nettfart trenger visse funksjoner for å fungere korrekt.</string>
     <string name="phone_permission_title">1. Telefontillatelser</string>
     <string name="location_permission_title">2. Plasseringstillatelser</string>
@@ -356,9 +356,10 @@
     <string name="secondary_connection">Sekundær</string>
     <string name="search_tooltip">Søk etter adresse…</string>
     <string name="filter_technology_all">Alle</string>
-    <string name="map_disclaimer">Kartet viser resultater fra Nettfart mobilapp.Det er ikke et dekningskart.</string>
+    <string name="map_disclaimer">Kartet viser resultater fra Nettfart mobilapp. Det er ikke et dekningskart.</string>
     <string name="text_no_persistent_client_uuid">Nettfart trenger visse tillatelser for å fungere korrekt.</string>
     <string name="text_link_no_persistent_client_uuid">Gå til personverntillatelser</string>
     <string name="permissions">Tillatelser</string>
     <string name="median_values">Medianverdier</string>
+
 </resources>

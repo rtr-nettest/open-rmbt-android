@@ -1,5 +1,6 @@
 package at.specure.data.repository
 
+import androidx.lifecycle.LiveData
 import at.rmbt.util.Maybe
 import at.specure.data.HistoryLoopMedian
 import at.specure.data.entity.History
@@ -34,9 +35,13 @@ interface HistoryRepository {
 
     fun loadHistoryItems(offset: Int, limit: Int, ignoreFilters: Boolean): Maybe<List<History>>
 
-    fun loadLoopHistoryItems(loopUuid: String): Flow<List<History>>
+    fun loadLoopHistoryItems(loopUuid: String): Flow<List<History>?>
 
     fun loadLoopMedianValues(loopUuid: String): Flow<HistoryLoopMedian?>
+
+    fun getLoopMedianValues(loopUuid: String): LiveData<HistoryLoopMedian?>
+
+    fun getLoopHistoryItems(loopUuid: String): LiveData<List<History>?>
 
     fun cleanHistory()
 }

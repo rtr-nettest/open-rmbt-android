@@ -20,12 +20,15 @@ import android.util.Log
 import at.rmbt.client.control.data.TestFinishReason
 import at.rmbt.util.exception.HandledException
 import at.rmbt.util.exception.NoConnectionException
+import at.rmbt.util.io
 import at.rtr.rmbt.client.v2.task.result.QoSTestResultEnum
 import at.rtr.rmbt.util.IllegalNetworkChangeException
 import at.specure.config.Config
 import at.specure.data.entity.LoopModeState
+import at.specure.data.repository.HistoryRepository
 import at.specure.data.repository.ResultsRepository
 import at.specure.data.repository.TestDataRepository
+import at.specure.data.repository.TestResultsRepository
 import at.specure.di.CoreInjector
 import at.specure.di.NotificationProvider
 import at.specure.info.strength.SignalStrengthInfo
@@ -38,16 +41,27 @@ import at.specure.test.SignalMeasurementType
 import at.specure.test.StateRecorder
 import at.specure.test.TestController
 import at.specure.test.TestProgressListener
+import at.specure.test.TestUuidType
 import at.specure.test.toDeviceInfoLocation
 import at.specure.util.CustomLifecycleService
 import at.specure.worker.WorkLauncher
+import kotlinx.coroutines.CoroutineExceptionHandler
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.onCompletion
+import kotlinx.coroutines.flow.zip
+import kotlinx.coroutines.launch
 import timber.log.Timber
 import java.util.Timer
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import kotlin.concurrent.timerTask
+import kotlin.coroutines.EmptyCoroutineContext
 
-class MeasurementService : CustomLifecycleService() {
+class MeasurementService : CustomLifecycleService(), CoroutineScope {
 
     private var measurementLastUpdate: Long = System.currentTimeMillis()
     private var lastNotifiedState: MeasurementState = MeasurementState.FINISH
@@ -105,6 +119,12 @@ class MeasurementService : CustomLifecycleService() {
 
     @Inject
     lateinit var resultRepository: ResultsRepository
+
+    @Inject
+    lateinit var testResultsRepository: TestResultsRepository
+
+    @Inject
+    lateinit var historyRepository: HistoryRepository
 
     @Inject
     lateinit var connectivityManager: ConnectivityManager
@@ -372,6 +392,13 @@ class MeasurementService : CustomLifecycleService() {
                             clientAggregator.onSubmitted()
                         }
                         clientAggregator.onResultSubmitted()
+                        loadTestResults(
+                            if (loopUUID == null) {
+                                TestUuidType.TEST_UUID
+                            } else {
+                                TestUuidType.LOOP_UUID
+                            }, loopUUID ?: testUUID
+                        )
                     }
                     it.onFailure { ex ->
 
@@ -721,6 +748,40 @@ class MeasurementService : CustomLifecycleService() {
         }
     }
 
+    fun loadTestResults(testUUIDType: TestUuidType, testUUID: String) {
+        when (testUUIDType) {
+            TestUuidType.TEST_UUID -> launch {
+                delay(1000)
+                testResultsRepository.loadTestResults(testUUID).zip(
+                    testResultsRepository.loadTestDetailsResult(testUUID)
+                ) { a, b -> a && b }
+                    .flowOn(Dispatchers.IO)
+            }
+            TestUuidType.LOOP_UUID -> {
+                Timber.d("Starting to load Median values")
+                io {
+                    delay(1000) // added because of BE QOS part processing performance issue
+                    historyRepository.loadHistoryItems(0, 100, true).onSuccess {
+                        if (it.isNotEmpty()) {
+                            Timber.d("History Successfully loaded: ${it[0].loopUUID} ${it[0].speedDownload}  from size: ${it.size}")
+                        } else {
+                            Timber.d("History is empty")
+                        }
+                        historyRepository.loadLoopMedianValues(testUUID).onCompletion {
+                        }.collect {
+                            Timber.d("Median values median values? $it")
+                            Timber.d("Median values median qosMedian? $it?.qosMedian")
+                            it?.qosMedian?.let { qosMedian ->
+                                Timber.d("Median values $qosMedian")
+                                testResultsRepository.saveOverallQosItem(qosMedian, testUUID)
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     /**
      * Binder, creates a bound to listeners - in this case MeasurementViewModel
      */
@@ -840,13 +901,13 @@ class MeasurementService : CustomLifecycleService() {
 
         override fun onJitterChanged(jitterNanos: Long) {
             clients.forEach {
-                it.onPingChanged(pingNanos)
+                it.onJitterChanged(jitterNanos)
             }
         }
 
         override fun onPacketLossPercentChanged(packetLossPercent: Int) {
             clients.forEach {
-                it.onPingChanged(pingNanos)
+                it.onPacketLossPercentChanged(packetLossPercent)
             }
         }
 
@@ -955,4 +1016,14 @@ class MeasurementService : CustomLifecycleService() {
 
         fun intent(context: Context) = Intent(context, MeasurementService::class.java)
     }
+
+    private val coroutineExceptionHandler = CoroutineExceptionHandler { _, e ->
+        if (e is HandledException) {
+            // do nothing
+        } else {
+            throw e
+        }
+    }
+
+    override val coroutineContext = EmptyCoroutineContext + coroutineExceptionHandler
 }

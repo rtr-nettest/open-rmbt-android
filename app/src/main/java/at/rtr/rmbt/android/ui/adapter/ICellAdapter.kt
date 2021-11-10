@@ -71,6 +71,13 @@ class ICellAdapter : RecyclerView.Adapter<ICellAdapter.Holder>() {
                 binding.band2g = item.band?.name ?: ""
                 binding.arfcn2g = item.band?.channelNumber?.toString()
 
+                binding.cid2g = null
+                binding.networkType2g = null
+                binding.rxl2g = null
+                binding.bsic2g = null
+                binding.lac2g = null
+                binding.ta2g = null
+
                 if (item is CellCdma) {
                     val rawCellInfo = item as CellCdma
                     binding.cid2g = rawCellInfo.bid?.toString()
@@ -107,6 +114,15 @@ class ICellAdapter : RecyclerView.Adapter<ICellAdapter.Holder>() {
                 binding.band3g = item.band?.name ?: ""
                 binding.uarfcn3g = item.band?.channelNumber?.toString()
                 binding.subscriptionId3g = item.subscriptionId.toString()
+
+                binding.networkType3g = null
+                binding.ci3g = null
+                binding.cid3g = null
+                binding.lac3g = null
+                binding.psc3g = null
+                binding.rscp3g = null
+                binding.rssi3g = null
+                binding.rnc3g = null
 
                 if (item is CellWcdma) {
                     binding.networkType3g = "3G (W-CDMA)"
@@ -152,6 +168,18 @@ class ICellAdapter : RecyclerView.Adapter<ICellAdapter.Holder>() {
                 binding.bandLTE = item.band?.name ?: ""
                 binding.earfcnLTE = item.band?.channelNumber?.toString()
                 binding.networkTypeLTE = "4G (LTE)"
+
+                binding.bwLTE = null
+                binding.ciLTE = null
+                binding.cidLTE = null
+                binding.enbLTE = null
+                binding.pciLTE = null
+                binding.rsrpLTE = null
+                binding.rsrqLTE = null
+                binding.rssiLTE = null
+                binding.snrLTE = null
+                binding.taLTE = null
+                binding.tacLTE = null
 
                 if (item is CellLte) {
                     val rawCellInfo = item as CellLte
@@ -201,6 +229,9 @@ class ICellAdapter : RecyclerView.Adapter<ICellAdapter.Holder>() {
                 binding.frequencyNr = item.band?.channelNumber?.toString()
                 binding.subscriptionId5g = item.subscriptionId.toString() + " (${item.network?.toPlmn("-")})"
                 binding.networkTypeNR = "5G (NR)"
+
+                binding.signalSsrsrpNr = null
+                binding.signalSsrsrqNr = null
 
                 if (item is CellNr) {
                     val rawCellInfo = item as CellNr

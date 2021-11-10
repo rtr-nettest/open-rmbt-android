@@ -377,13 +377,6 @@ public class RMBTTest extends AbstractRMBTTest implements Callable<ThreadTestRes
             }
             /*********************/
 
-            if (client.isEnabledJitterAndPacketLossTest()) {
-                if (threadId == 0) {
-                    client.performVoipTest();
-                }
-                barrier.await();
-            }
-
             boolean _fallbackToOneThread;
             setStatus(TestStatus.PING);
             /***** ping *****/
@@ -437,6 +430,14 @@ public class RMBTTest extends AbstractRMBTTest implements Callable<ThreadTestRes
             }
             /*********************/
 
+            /***** jitter and packet loss *****/
+            if (client.isEnabledJitterAndPacketLossTest()) {
+                if (threadId == 0) {
+                    client.performVoipTest();
+                }
+                barrier.await();
+            }
+            /*********************/
 
             if (doDownload) {
                 final int duration = params.getDuration();

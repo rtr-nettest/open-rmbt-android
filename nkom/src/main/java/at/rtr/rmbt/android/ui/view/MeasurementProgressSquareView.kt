@@ -37,11 +37,19 @@ class MeasurementProgressSquareView @JvmOverloads constructor(
         MeasurementState.QOS to context.getString(R.string.text_phase_qos)
     )
 
-    private val unitsNames = mapOf(
+    private val resultUnitsNames = mapOf(
         MeasurementState.PING to context.getString(R.string.text_unit_ping),
         MeasurementState.DOWNLOAD to context.getString(R.string.text_unit_mbps),
         MeasurementState.UPLOAD to context.getString(R.string.text_unit_mbps),
         MeasurementState.JITTER_AND_PACKET_LOSS to context.getString(R.string.text_unit_ping),
+        MeasurementState.QOS to context.getString(R.string.unit_percents)
+    )
+
+    private val progressUnitsNames = mapOf(
+        MeasurementState.PING to context.getString(R.string.unit_percents),
+        MeasurementState.DOWNLOAD to context.getString(R.string.text_unit_mbps),
+        MeasurementState.UPLOAD to context.getString(R.string.text_unit_mbps),
+        MeasurementState.JITTER_AND_PACKET_LOSS to context.getString(R.string.unit_percents),
         MeasurementState.QOS to context.getString(R.string.unit_percents)
     )
 
@@ -56,17 +64,19 @@ class MeasurementProgressSquareView @JvmOverloads constructor(
             if (state != MeasurementState.INIT) VISIBLE else GONE
 
         binding.progressPhase.text = phaseNames[state]
-        binding.progressUnits.text = unitsNames[state]
-        setProgress(-1)
+        binding.progressUnits.text = progressUnitsNames[state]
+        setProgress(-1, state)
         setSpeed(-1f)
     }
 
-    fun setProgress(percents: Int) {
+    fun setProgress(percents: Int, state: MeasurementState) {
         if (percents == 100) {
             binding.spinner.visibility = GONE
+            binding.progressUnits.text = resultUnitsNames[state]
             binding.background.setBackgroundResource(R.drawable.bg_progress_square)
             setTextColor(android.R.color.white)
         } else if (percents >= 0) {
+            binding.progressUnits.text = progressUnitsNames[state]
             binding.background.setBackgroundResource(R.drawable.bg_progress_square_empty)
             setTextColor(R.color.dark)
         }

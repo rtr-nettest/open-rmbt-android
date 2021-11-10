@@ -118,9 +118,11 @@
                 app:layout_constraintDimensionRatio="H,1:1"
                 app:layout_constraintEnd_toStartOf="@id/median_square"
                 app:layout_constraintStart_toStartOf="parent"
+                app:measurementProgressPhase="@{state.measurementState}"
                 app:measurementPhase="@{state.measurementState}"
                 app:packetLoss="@{state.packetLossPercent}"
                 app:percentage="@{state.measurementProgress}"
+                app:phaseProgress="@{state.measurementProgress}"
                 app:ping="@{state.pingNanos}"
                 app:qos="@{state.qosProgressPercents}"
                 app:uploadSpeed="@{state.uploadSpeedBps}" />
@@ -137,7 +139,7 @@
                 app:measurementPhase="@{state.measurementState}"
                 app:packetLoss="@{state.packetLossPercentMedian}"
                 app:ping="@{state.pingNanosMedian}"
-                app:qos="@{state.qosPercentsMedian}"
+                app:qos="@{state.qosPercentsMedian.intValue()}"
                 app:uploadSpeed="@{state.uploadSpeedBpsMedian}"
                 app:visibleOrGone="@{state.isLoopModeActive == true &amp;&amp; state.loopCurrentProgress > 1 &amp;&amp; state.loopModeRecord.status == LoopModeState.RUNNING &amp;&amp; state.measurementState != MeasurementState.INIT}" />
 
