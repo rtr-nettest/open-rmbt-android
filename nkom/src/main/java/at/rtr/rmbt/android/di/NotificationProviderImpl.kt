@@ -77,17 +77,21 @@ class NotificationProviderImpl(private val context: Context) : NotificationProvi
                 textResource = R.string.label_ping
                 100
             }
+            MeasurementState.JITTER_AND_PACKET_LOSS -> {
+                textResource = R.string.test_bottom_test_status_jitter
+                200
+            }
             MeasurementState.DOWNLOAD -> {
                 textResource = R.string.label_download
-                200
+                300
             }
             MeasurementState.UPLOAD -> {
                 textResource = R.string.label_upload
-                300
+                400
             }
             MeasurementState.QOS -> {
                 textResource = R.string.label_qos
-                400
+                500
             }
             else -> {
                 textResource = R.string.label_init
@@ -95,7 +99,7 @@ class NotificationProviderImpl(private val context: Context) : NotificationProvi
             }
         }
 
-        val totalProgress = if (skipQoSTests) 400 else 500
+        val totalProgress = if (skipQoSTests) 500 else 600
         val progressIntermediate = ((stateProgress + progress) / totalProgress.toFloat()) * 100
 
         val intent = PendingIntent.getActivity(context, 0, Intent(context, MeasurementActivity::class.java), 0)
