@@ -131,5 +131,5 @@ enum class ServerNetworkType(
     TYPE_BLUETOOTH(107, "Bluetooth", null, TransportType.BLUETOOTH, null),
     TYPE_UNKNOWN(-1, "UNKNOWN", null, null, null),
     TYPE_UNKNOWN2(Int.MAX_VALUE, "UNKNOWN", null, null, null),
-    TYPE_UNKNOWN_BACKEND(0, "UNKNOWN", null, null, null)
+    TYPE_UNKNOWN_BACKEND(0, "MOBILE", null, null, null) // used for mobile connection but unknown type of it
 }
