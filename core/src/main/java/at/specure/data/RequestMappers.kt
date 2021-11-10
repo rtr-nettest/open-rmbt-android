@@ -51,6 +51,7 @@ import at.specure.info.strength.SignalStrengthInfoLte
 import at.specure.info.strength.SignalStrengthInfoWiFi
 import at.specure.location.LocationInfo
 import at.specure.test.DeviceInfo
+import at.specure.test.RMBT_CLIENT_VERSION
 import com.google.gson.JsonArray
 import com.google.gson.JsonParser
 import timber.log.Timber
@@ -456,7 +457,7 @@ fun QoSResultRecord.toRequest(clientUUID: String, deviceInfo: DeviceInfo): QoSRe
     return QoSResultBody(
         clientUUID = clientUUID,
         clientName = deviceInfo.clientName,
-        clientVersion = deviceInfo.rmbtClientVersion,
+        clientVersion = RMBT_CLIENT_VERSION,
         clientLanguage = deviceInfo.language,
         qosResult = qosResult,
         testToken = testToken,
@@ -534,7 +535,6 @@ fun SignalMeasurementRecord.toRequest(
         uuid = measurementInfoUUID,
         platform = deviceInfo.platform,
         clientUUID = clientUUID,
-        clientVersion = deviceInfo.rmbtClientVersion,
         clientLanguage = deviceInfo.language,
         product = deviceInfo.product,
         osVersion = deviceInfo.osVersion,

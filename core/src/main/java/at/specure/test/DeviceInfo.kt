@@ -12,6 +12,8 @@ import com.google.gson.annotations.SerializedName
 import java.util.Locale
 import java.util.TimeZone
 
+const val RMBT_CLIENT_VERSION = "1.2.1"
+
 @Keep
 class DeviceInfo(context: Context, val location: Location? = null) {
 
@@ -51,8 +53,6 @@ class DeviceInfo(context: Context, val location: Location? = null) {
     val clientVersionName = BuildConfig.VERSION_NAME
 
     val clientVersionCode = BuildConfig.VERSION_CODE
-
-    val rmbtClientVersion = "1.2.1"
 
     @SerializedName("android_permission_status")
     val permissionsStatus: List<PermissionStatusBody> = mutableListOf<PermissionStatusBody>().apply {
