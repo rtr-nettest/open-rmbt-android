@@ -12,8 +12,10 @@ import at.specure.info.TransportType
 import at.specure.info.band.CellBand
 import at.specure.info.band.CellBand.Companion.fromChannelNumber
 import at.specure.info.cell.CellChannelAttribution
+import at.specure.info.cell.CellInfoWatcherImpl
 import at.specure.info.cell.CellNetworkInfo
 import at.specure.info.cell.CellTechnology
+import at.specure.info.cell.PrimaryDataSubscription
 import at.specure.info.network.MobileNetworkType
 import at.specure.info.network.NRConnectionState
 import at.specure.info.strength.SignalSource
@@ -319,13 +321,14 @@ fun ICell.toCellNetworkInfo(
     apn: String?,
     dataTelephonyManager: TelephonyManager?,
     telephonyManagerNetmonster: ITelephonyManagerCompat,
-    netMonster: INetMonster
+    mobileNetworkType: MobileNetworkType,
+    dataSubscriptionId: Int
 ): CellNetworkInfo {
     return CellNetworkInfo(
         providerName = dataTelephonyManager?.networkOperatorName
             ?: telephonyManagerNetmonster.getNetworkOperator()?.toPlmn("-") ?: "",
         band = this.band?.toCellBand(),
-        networkType = this.mobileNetworkType(netMonster),
+        networkType = mobileNetworkType,
         cellType = this.toTechnologyClass(),
         mnc = this.network?.mnc?.toIntOrNull(),
         mcc = this.network?.mcc?.toIntOrNull(),
@@ -342,7 +345,8 @@ fun ICell.toCellNetworkInfo(
         } else NRConnectionState.NOT_AVAILABLE,
         dualSimDetectionMethod = null,
         cellUUID = this.uuid(),
-        rawCellInfo = this
+        rawCellInfo = this,
+        isPrimaryDataSubscription = PrimaryDataSubscription.resolvePrimaryDataSubscriptionID(dataSubscriptionId, this.subscriptionId)
     )
 }
 
@@ -350,6 +354,7 @@ fun IBand.toCellBand(): CellBand? {
     return when (this) {
         is BandNr -> this.toCellBand()
         is BandTdscdma -> this.toCellBand()
+        is BandLte -> this.toCellBand()
         is BandLte -> this.toCellBand()
         is BandWcdma -> this.toCellBand()
         is BandGsm -> this.toCellBand()
@@ -451,13 +456,13 @@ fun ICell.isInformationCorrect(cellTechnology: CellTechnology): Boolean {
 
 fun ICell.toRecords(
     testUUID: String,
-    netMonster: INetMonster,
     mobileNetworkType: MobileNetworkType,
     testStartTimeNanos: Long,
+    dataSubscriptionId: Int,
     nrConnectionState: NRConnectionState
 ): Map<CellInfoRecord?, SignalRecord?> {
     val cellTechnologyFromNetworkType =
-        CellTechnology.fromMobileNetworkType(this.mobileNetworkType(netMonster))
+        CellTechnology.fromMobileNetworkType(mobileNetworkType)
     // for 4G cells we want to have it marked as 4G not 5G also in case when it is NR_NSA
     val cellTechnology =
         if (this is CellLte && cellTechnologyFromNetworkType == CellTechnology.CONNECTION_5G) {
@@ -485,6 +490,7 @@ fun ICell.toRecords(
                 mcc = this.network?.mcc?.toIntOrNull(),
                 mnc = this.network?.mnc?.toIntOrNull(),
                 primaryScramblingCode = primaryScramblingCode(),
+                isPrimaryDataSubscription = PrimaryDataSubscription.resolvePrimaryDataSubscriptionID(dataSubscriptionId, this.subscriptionId).value,
                 dualSimDetectionMethod = "NOT_AVAILABLE" // local purpose only
             )
             signalRecord = this.signal?.toSignalRecord(

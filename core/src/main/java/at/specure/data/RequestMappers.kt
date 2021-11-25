@@ -384,7 +384,8 @@ fun CellInfoRecord.toRequest() = CellInfoBody(
     mcc = mcc,
     primaryScramblingCode = primaryScramblingCode,
     technology = NetworkTypeCompat.fromType(transportType, cellTechnology)?.stringValue,
-    registered = registered
+    registered = registered,
+    isPrimaryDataSubscription = isPrimaryDataSubscription
 )
 
 fun SignalRecord.toRequest(cellUUID: String, ignoreNetworkId: Boolean, signalMeasurementStartTimeNs: Long?) = SignalBody(

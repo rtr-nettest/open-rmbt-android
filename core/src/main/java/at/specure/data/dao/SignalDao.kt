@@ -13,6 +13,9 @@ interface SignalDao {
     @Query("SELECT * from ${Tables.SIGNAL} WHERE testUUID == :testUUID ORDER BY timeNanos")
     fun get(testUUID: String): List<SignalRecord>
 
+    @Query("SELECT * from ${Tables.SIGNAL} WHERE testUUID == :testUUID AND cellUuid == :cellUUID ORDER BY timeNanos LIMIT 1")
+    fun getLatestForCell(testUUID: String, cellUUID: String): SignalRecord
+
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     fun insert(signal: SignalRecord)
 

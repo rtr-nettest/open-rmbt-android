@@ -1,5 +1,7 @@
 package at.rtr.rmbt.android.ui.adapter
 
+import android.os.Handler
+import android.os.Looper
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
@@ -29,8 +31,11 @@ class ICellAdapter : RecyclerView.Adapter<ICellAdapter.Holder>() {
 
     var items: List<ICell> = emptyList()
         set(value) {
-            field = value
-            notifyDataSetChanged()
+            Handler(Looper.getMainLooper())
+                .post {
+                    field = value
+                    notifyDataSetChanged()
+                }
         }
 
     override fun getItemCount() = items.size

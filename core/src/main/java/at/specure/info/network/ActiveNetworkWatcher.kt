@@ -170,7 +170,8 @@ class ActiveNetworkWatcher(
                             context,
                             primaryCellsCorrected[0].subscriptionId
                         ),
-                        netMonster
+                        primaryCellsCorrected[0].mobileNetworkType(netMonster),
+                        dataSubscriptionId
                     )
                     // more than one primary cell for data subscription
                 } else {
