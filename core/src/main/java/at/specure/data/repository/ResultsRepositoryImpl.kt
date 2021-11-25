@@ -293,7 +293,7 @@ class ResultsRepositoryImpl @Inject constructor(
                     if (dataTransferred[it]?.size!! > 0) dataTransferred[it]?.get(0) as SpeedRecord else null
             }
             // select item with minimum time
-            val minTime = currentValues.minWith(Comparator { o1, o2 ->
+            val minTime = currentValues.minWithOrNull(Comparator { o1, o2 ->
                 if (o1?.value == null) {
                     1
                 } else {
