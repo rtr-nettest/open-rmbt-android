@@ -526,7 +526,6 @@ public class ControlServerConnection {
             try {
                 testData.put("client_uuid", clientUUID);
                 testData.put("client_name", Config.RMBT_CLIENT_NAME);
-                testData.put("client_version", Config.RMBT_VERSION_NUMBER);
                 testData.put("client_language", Locale.getDefault().getLanguage());
 
                 testData.put("time", System.currentTimeMillis());

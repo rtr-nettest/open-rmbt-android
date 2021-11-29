@@ -38,8 +38,8 @@ class SignalBarChartView @JvmOverloads constructor(
     /**
      * value of X-axis at bottom of the graph
      */
-    private var minValue: Int = labelsYAxis.minBy { it }!!
-    private var maxValue: Int = labelsYAxis.maxBy { it }!!
+    private var minValue: Int = labelsYAxis.minByOrNull { it }!!
+    private var maxValue: Int = labelsYAxis.maxByOrNull { it }!!
     private var strokePath: Path = Path()
     private var fillPath: Path = Path()
     private var widthMultiplier: Float = 0f

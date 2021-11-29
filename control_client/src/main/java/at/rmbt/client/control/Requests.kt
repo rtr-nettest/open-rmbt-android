@@ -624,7 +624,16 @@ data class CellInfoBody(
     /**
      * true if it is connected cell, same as active ???
      */
-    val registered: Boolean
+    val registered: Boolean,
+
+    /**
+     *  null        - if we are not able to tell if it is primary subscription ID or not
+     *  "true"      - if the cell is used by primary data connection subscription (primary data subscription ID != -1 && primary data subscription ID == subscription ID)
+     *  "false"     - if the cell is used by primary data connection subscription (primary data subscription ID != -1 && primary data subscription ID != subscription ID)
+     *  "UNKNOWN"   - if (primary data subscription ID == -1 || subscription ID == -1)
+     */
+    @SerializedName("primary_data_subscription")
+    val isPrimaryDataSubscription: String?
 )
 
 @Keep
@@ -1021,9 +1030,6 @@ data class SignalMeasurementChunkBody(
 
     @SerializedName("client_uuid")
     val clientUUID: String,
-
-    @SerializedName("client_version")
-    val clientVersion: String,
 
     @SerializedName("client_language")
     val clientLanguage: String,

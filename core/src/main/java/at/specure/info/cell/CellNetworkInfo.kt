@@ -103,9 +103,34 @@ class CellNetworkInfo(
     /**
      * Raw cellinfo provided by netmonster library
      */
-    val rawCellInfo: ICell?
+    val rawCellInfo: ICell?,
+
+    val isPrimaryDataSubscription: PrimaryDataSubscription?
 ) :
     NetworkInfo(TransportType.CELLULAR, cellUUID) {
+    constructor(
+        cellUUID: String
+    ) : this(
+        mcc = null,
+        mnc = null,
+        providerName = "",
+        band = null,
+        networkType = MobileNetworkType.UNKNOWN,
+        cellType = CellTechnology.CONNECTION_UNKNOWN,
+        isRegistered = false,
+        isActive = false,
+        isRoaming = false,
+        nrConnectionState = NRConnectionState.NOT_AVAILABLE,
+        scramblingCode = null,
+        apn = null,
+        signalStrength = null,
+        dualSimDetectionMethod = null,
+        rawCellInfo = null,
+        cellUUID = cellUUID,
+        locationId = null,
+        areaCode = null,
+        isPrimaryDataSubscription = PrimaryDataSubscription.UNKNOWN
+    )
 
     override val name: String?
         get() = providerName
@@ -279,7 +304,8 @@ class CellNetworkInfo(
                 signalStrength = null,
                 dualSimDetectionMethod = dualSimDetectionMethod,
                 nrConnectionState = nrConnectionState,
-                rawCellInfo = null
+                rawCellInfo = null,
+                isPrimaryDataSubscription = PrimaryDataSubscription.TRUE // we listen only for primary data subscription sim
             )
         }
 
@@ -319,7 +345,8 @@ class CellNetworkInfo(
                 signalStrength = SignalStrengthInfo.from(info.cellSignalStrength as CellSignalStrengthNr, SignalSource.CELL_INFO),
                 dualSimDetectionMethod = dualSimDetectionMethod,
                 nrConnectionState = nrConnectionState,
-                rawCellInfo = null
+                rawCellInfo = null,
+                isPrimaryDataSubscription = PrimaryDataSubscription.TRUE // we listen only for primary data subscription sim
             )
         }
 
@@ -357,7 +384,8 @@ class CellNetworkInfo(
                 signalStrength = SignalStrengthInfo.from(info.cellSignalStrength, SignalSource.CELL_INFO),
                 dualSimDetectionMethod = dualSimDetectionMethod,
                 nrConnectionState = nrConnectionState,
-                rawCellInfo = null
+                rawCellInfo = null,
+                isPrimaryDataSubscription = PrimaryDataSubscription.TRUE // we listen only for primary data subscription sim
             )
         }
 
@@ -396,7 +424,8 @@ class CellNetworkInfo(
                 signalStrength = SignalStrengthInfo.from(info.cellSignalStrength, SignalSource.CELL_INFO),
                 dualSimDetectionMethod = dualSimDetectionMethod,
                 nrConnectionState = nrConnectionState,
-                rawCellInfo = null
+                rawCellInfo = null,
+                isPrimaryDataSubscription = PrimaryDataSubscription.TRUE // we listen only for primary data subscription sim
             )
         }
 
@@ -434,7 +463,8 @@ class CellNetworkInfo(
                 signalStrength = SignalStrengthInfo.from(info.cellSignalStrength, SignalSource.CELL_INFO),
                 dualSimDetectionMethod = dualSimDetectionMethod,
                 nrConnectionState = nrConnectionState,
-                rawCellInfo = null
+                rawCellInfo = null,
+                isPrimaryDataSubscription = PrimaryDataSubscription.TRUE // we listen only for primary data subscription sim
             )
         }
 
@@ -474,7 +504,8 @@ class CellNetworkInfo(
                 signalStrength = SignalStrengthInfo.from(info.cellSignalStrength, SignalSource.CELL_INFO),
                 dualSimDetectionMethod = dualSimDetectionMethod,
                 nrConnectionState = nrConnectionState,
-                rawCellInfo = null
+                rawCellInfo = null,
+                isPrimaryDataSubscription = PrimaryDataSubscription.TRUE // we listen only for primary data subscription sim
             )
         }
 
@@ -507,7 +538,8 @@ class CellNetworkInfo(
                 signalStrength = SignalStrengthInfo.from(info.cellSignalStrength, SignalSource.CELL_INFO),
                 dualSimDetectionMethod = dualSimDetectionMethod,
                 nrConnectionState = nrConnectionState,
-                rawCellInfo = null
+                rawCellInfo = null,
+                isPrimaryDataSubscription = PrimaryDataSubscription.TRUE // we listen only for primary data subscription sim
             )
         }
     }

@@ -102,7 +102,7 @@ class DatabaseModule {
         settingsRepository: SettingsRepository,
         filterOptions: HistoryFilterOptions
     ): HistoryRepository =
-        HistoryRepositoryImpl(database.historyDao(), config, clientUUID, controlServerClient, settingsRepository, filterOptions, database.qoeInfoDao())
+        HistoryRepositoryImpl(database.historyDao(), database.historyMedianDao(), config, clientUUID, controlServerClient, settingsRepository, filterOptions, database.qoeInfoDao())
 
     @Provides
     fun provideTestResultRepository(

@@ -1,5 +1,6 @@
 package at.specure.data
 
+import android.telephony.TelephonyManager
 import at.rmbt.client.control.CapabilitiesBody
 import at.rmbt.client.control.CellInfoBody
 import at.rmbt.client.control.CellLocationBody
@@ -50,6 +51,7 @@ import at.specure.info.strength.SignalStrengthInfoLte
 import at.specure.info.strength.SignalStrengthInfoWiFi
 import at.specure.location.LocationInfo
 import at.specure.test.DeviceInfo
+import at.specure.test.RMBT_CLIENT_VERSION
 import com.google.gson.JsonArray
 import com.google.gson.JsonParser
 import timber.log.Timber
@@ -382,7 +384,8 @@ fun CellInfoRecord.toRequest() = CellInfoBody(
     mcc = mcc,
     primaryScramblingCode = primaryScramblingCode,
     technology = NetworkTypeCompat.fromType(transportType, cellTechnology)?.stringValue,
-    registered = registered
+    registered = registered,
+    isPrimaryDataSubscription = isPrimaryDataSubscription
 )
 
 fun SignalRecord.toRequest(cellUUID: String, ignoreNetworkId: Boolean, signalMeasurementStartTimeNs: Long?) = SignalBody(
@@ -439,7 +442,7 @@ fun PermissionStatusRecord.toRequest() = PermissionStatusBody(
 
 fun TransportType.toRequestIntValue(mobileNetworkType: MobileNetworkType?): Int {
     return when (this) {
-        TransportType.CELLULAR -> mobileNetworkType?.intValue ?: Int.MAX_VALUE
+        TransportType.CELLULAR -> mobileNetworkType?.intValue ?: TelephonyManager.NETWORK_TYPE_UNKNOWN
         TransportType.BLUETOOTH -> NetworkTypeCompat.TYPE_BLUETOOTH_VALUE
         TransportType.ETHERNET -> NetworkTypeCompat.TYPE_ETHERNET_VALUE
         TransportType.WIFI -> NetworkTypeCompat.TYPE_WIFI_VALUE
@@ -455,7 +458,7 @@ fun QoSResultRecord.toRequest(clientUUID: String, deviceInfo: DeviceInfo): QoSRe
     return QoSResultBody(
         clientUUID = clientUUID,
         clientName = deviceInfo.clientName,
-        clientVersion = deviceInfo.rmbtClientVersion,
+        clientVersion = RMBT_CLIENT_VERSION,
         clientLanguage = deviceInfo.language,
         qosResult = qosResult,
         testToken = testToken,
@@ -533,7 +536,6 @@ fun SignalMeasurementRecord.toRequest(
         uuid = measurementInfoUUID,
         platform = deviceInfo.platform,
         clientUUID = clientUUID,
-        clientVersion = deviceInfo.rmbtClientVersion,
         clientLanguage = deviceInfo.language,
         product = deviceInfo.product,
         osVersion = deviceInfo.osVersion,

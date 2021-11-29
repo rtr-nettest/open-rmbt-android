@@ -20,6 +20,7 @@ object Tables {
     const val CELL_LOCATION = "cell_location"
     const val GEO_LOCATION = "geo_location"
     const val HISTORY = "history"
+    const val HISTORY_MEDIAN = "history_median"
     const val JPL = "jpl"
     const val PERMISSIONS_STATUS = "permission_status"
     const val PING = "ping"
@@ -45,4 +46,5 @@ object Tables {
     const val SIGNAL_MEASUREMENT_CHUNK = "signal_measurement_chunk"
     const val CONNECTIVITY_STATE = "connectivity_state"
     const val HISTORY_REFERENCE = "history_reference"
+    const val HISTORY_MEDIAN_REFERENCE = "history_median_reference"
 }

@@ -14,6 +14,7 @@
 
 package at.specure.info.cell
 
+import at.specure.info.network.MobileNetworkType
 import at.specure.info.strength.SignalStrengthInfo
 import cz.mroczis.netmonster.core.model.cell.ICell
 
@@ -29,6 +30,11 @@ interface CellInfoWatcher {
     val activeNetwork: CellNetworkInfo?
 
     val signalStrengthInfo: SignalStrengthInfo?
+
+    /**
+     * Contains network types for subscriptionId to optimize requests to netmonster lib (determining for each ICell is costly)
+     */
+    val networkTypes: HashMap<Int, MobileNetworkType>
 
     /**
      * list of all secondary cells available for current data subscription from which is active
@@ -54,6 +60,11 @@ interface CellInfoWatcher {
      * list of all 5G signals from secondary cells available for current data subscription from which is active
      */
     val secondary5GActiveCellSignalStrengthInfos: List<SignalStrengthInfo?>
+
+    /**
+     * ID of primary data subscription, -1 in case we are not able to obtain it for some reason (wrong api, permissions)
+     */
+    val dataSubscriptionId: Int
 
     fun updateInfo()
 }
