@@ -40,8 +40,6 @@ import cz.mroczis.netmonster.core.model.cell.CellNr
 import cz.mroczis.netmonster.core.model.cell.ICell
 import timber.log.Timber
 
-private const val INVALID_SUBSCRIPTION_ID = -1
-
 /**
  * Default implementation of [CellInfoWatcher] that is using to track Cellular network information
  */
@@ -62,6 +60,14 @@ class CellInfoWatcherImpl(
     private var _secondaryActiveCellSignalStrengthInfos: List<SignalStrengthInfo?> = mutableListOf()
     private var _secondary5GActiveCellSignalStrengthInfos: List<SignalStrengthInfo?> =
         mutableListOf()
+    private var _networkTypes: HashMap<Int, MobileNetworkType> = HashMap()
+    private var _dataSubscriptionId: Int = INVALID_SUBSCRIPTION_ID
+
+    /**
+     * Contains network types for subscriptionId to optimize requests to netmonster lib (determining for each ICell is costly)
+     */
+    override val networkTypes: HashMap<Int, MobileNetworkType>
+        get() = _networkTypes
 
     override val activeNetwork: CellNetworkInfo?
         get() = _activeNetwork
@@ -84,16 +90,31 @@ class CellInfoWatcherImpl(
     override val secondary5GActiveCellSignalStrengthInfos: List<SignalStrengthInfo?>
         get() = _secondary5GActiveCellSignalStrengthInfos
 
+    override val dataSubscriptionId: Int
+        get() = _dataSubscriptionId
+
     override fun updateInfo() = io {
+
+        Timber.d("Updating cellInfo")
 
         if (context.isCoarseLocationPermitted() && context.isReadPhoneStatePermitted()) {
             try {
                 var cells: List<ICell>? = null
 
                 cells = netMonster.getCells()
-                _inactiveCellNetworks = cells
+                if (_inactiveCellNetworks.isNullOrEmpty()) {
+                    _inactiveCellNetworks = cells.toList()
+                }
+
+                _networkTypes.clear()
+                var distinctSubsIdCell = cells.distinctBy { it.subscriptionId }
+                distinctSubsIdCell.forEach {
+                    _networkTypes[it.subscriptionId] = it.mobileNetworkType(netMonster)
+                }
+
                 Timber.d("Total Cell Count: ${_inactiveCellNetworks.size}")
                 val dataSubscriptionId = subscriptionManager.getCurrentDataSubscriptionId()
+                _dataSubscriptionId = dataSubscriptionId
 
                 val primaryCells = cells?.filterOnlyPrimaryActiveDataCell(dataSubscriptionId)
                 val secondaryCells = cells?.filterOnlySecondaryActiveDataCell(dataSubscriptionId)
@@ -114,17 +135,13 @@ class CellInfoWatcherImpl(
                 when (primaryCells.size) {
                     2 -> {
                         secondaryCellsCorrected = secondaryCells as MutableList<ICell>
-                        if (primaryCells[0] is CellNr && primaryCells[0].mobileNetworkType(
-                                netMonster
-                            ) == MobileNetworkType.NR_NSA && primaryCells[1] is CellLte
+                        if (primaryCells[0] is CellNr && _networkTypes[primaryCells[0].subscriptionId] == MobileNetworkType.NR_NSA && primaryCells[1] is CellLte
                         ) {
                             secondary5GCellsCorrected = secondary5GCells as MutableList<ICell>
                             secondary5GCellsCorrected.add(primaryCells[0])
                             secondaryCellsCorrected.add(primaryCells[0])
                             primaryCellsCorrected.add(primaryCells[1])
-                        } else if (primaryCells[1] is CellNr && primaryCells[1].mobileNetworkType(
-                                netMonster
-                            ) == MobileNetworkType.NR_NSA && primaryCells[0] is CellLte
+                        } else if (primaryCells[1] is CellNr && _networkTypes[primaryCells[1].subscriptionId] == MobileNetworkType.NR_NSA && primaryCells[0] is CellLte
                         ) {
                             secondary5GCellsCorrected = secondary5GCells as MutableList<ICell>
                             secondary5GCellsCorrected.add(primaryCells[1])
@@ -166,7 +183,8 @@ class CellInfoWatcherImpl(
                                 context,
                                 primaryCellsCorrected[0].subscriptionId
                             ),
-                            netMonster
+                            _networkTypes[primaryCellsCorrected[0].subscriptionId] ?: MobileNetworkType.UNKNOWN,
+                            dataSubscriptionId
                         )
                         _signalStrengthInfo =
                             primaryCellsCorrected[0].signal?.toSignalStrengthInfo(System.nanoTime())
@@ -193,7 +211,8 @@ class CellInfoWatcherImpl(
                                         subscriptionManager
                                     ),
                                     NetMonsterFactory.getTelephony(context, it.subscriptionId),
-                                    netMonster
+                                    _networkTypes[it.subscriptionId] ?: MobileNetworkType.UNKNOWN,
+                                    dataSubscriptionId
                                 )
                                 (_secondary5GActiveCellNetworks as MutableList).add(cellInfo5G)
                                 val signal5G = it.signal?.toSignalStrengthInfo(System.nanoTime())
@@ -209,7 +228,8 @@ class CellInfoWatcherImpl(
                                     subscriptionManager
                                 ),
                                 NetMonsterFactory.getTelephony(context, it.subscriptionId),
-                                netMonster
+                                _networkTypes[it.subscriptionId] ?: MobileNetworkType.UNKNOWN,
+                                dataSubscriptionId
                             )
                             (_secondaryActiveCellNetworks as MutableList).add(cellInfoSecondary)
                             val signalSecondary = it.signal?.toSignalStrengthInfo(System.nanoTime())
@@ -230,6 +250,9 @@ class CellInfoWatcherImpl(
             } catch (e: NullPointerException) {
                 Timber.e("NullPointerException: Not able to read telephonyManager.allCellInfo from other reason")
             }
+        } else {
+            // when we are not able to detect more than there is cellular connection (we have no permission granted to read more details)
+            _activeNetwork = CellNetworkInfo("")
         }
     }
 
@@ -239,5 +262,9 @@ class CellInfoWatcherImpl(
         (_secondaryActiveCellNetworks as MutableList).clear()
         (_secondaryActiveCellSignalStrengthInfos as MutableList).clear()
 //        (_inactiveCellNetworks as MutableList).clear()
+    }
+
+    companion object {
+        const val INVALID_SUBSCRIPTION_ID = -1
     }
 }

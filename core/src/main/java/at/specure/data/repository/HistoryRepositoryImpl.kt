@@ -1,19 +1,25 @@
 package at.specure.data.repository
 
+import androidx.lifecycle.LiveData
 import at.rmbt.client.control.ControlServerClient
 import at.rmbt.client.control.HistoryONTRequestBody
 import at.rmbt.client.control.HistoryRequestBody
 import at.rmbt.util.Maybe
 import at.rmbt.util.io
 import at.specure.config.Config
+import at.specure.data.Classification
 import at.specure.data.ClientUUID
 import at.specure.data.HistoryFilterOptions
 import at.specure.data.HistoryLoopMedian
 import at.specure.data.dao.HistoryDao
+import at.specure.data.dao.HistoryMedianDao
 import at.specure.data.dao.QoeInfoDao
 import at.specure.data.entity.History
+import at.specure.data.entity.QoeInfoRecord
 import at.specure.data.toCapabilitiesBody
 import at.specure.data.toModelList
+import at.specure.result.QoECategory
+import at.specure.util.extractFloatValue
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import timber.log.Timber
@@ -22,6 +28,7 @@ import kotlin.math.ceil
 
 class HistoryRepositoryImpl(
     private val historyDao: HistoryDao,
+    private val historyMedianDao: HistoryMedianDao,
     private val config: Config,
     private val clientUUID: ClientUUID,
     private val client: ControlServerClient,
@@ -107,6 +114,20 @@ class HistoryRepositoryImpl(
                 historyDao.clear()
             }
             historyDao.insert(items)
+            val loopMeasurementsMap = mutableMapOf<String, MutableList<History>?>()
+            items.forEach { historyItem ->
+                if (historyItem.loopUUID != null) {
+                    var currentList: MutableList<History>? = loopMeasurementsMap[historyItem.loopUUID]
+                    if (currentList == null) {
+                        currentList = mutableListOf<History>()
+                    }
+                    currentList.add(historyItem)
+                    loopMeasurementsMap[historyItem.loopUUID] = currentList
+                }
+            }
+            loopMeasurementsMap.forEach { loopList ->
+                extractLoopMedianValues(loopList.value, loopList.key)
+            }
             Timber.i("history offset: $offset limit: $limit loaded: ${it.history?.historyList?.size}")
             items
         }
@@ -119,7 +140,7 @@ class HistoryRepositoryImpl(
     /**
      * load loop history items present in the history table (watch out for filters)
      */
-    override fun loadLoopHistoryItems(loopUuid: String): Flow<List<History>> = flow {
+    override fun loadLoopHistoryItems(loopUuid: String): Flow<List<History>?> = flow {
         val loopItems = historyDao.getItemByLoopUUID(loopUuid)
         Timber.i("history loaded: ${loopItems.size}")
         emit(loopItems)
@@ -131,55 +152,85 @@ class HistoryRepositoryImpl(
     override fun loadLoopMedianValues(loopUuid: String): Flow<HistoryLoopMedian?> = flow {
         val historyItems = historyDao.getItemByLoopUUID(loopUuid)
         Timber.d("history items: for $loopUuid")
-        if (historyItems.isEmpty()) {
+        if (historyItems.isEmpty() == true) {
             emit(null)
             Timber.e("history items: No loop items")
         }
+        extractLoopMedianValues(historyItems, loopUuid)
+    }
+
+    private fun extractLoopMedianValues(historyItems: List<History>?, loopUuid: String) {
         val pingList = mutableListOf<Float>()
         val jitterList = mutableListOf<Float>()
         val packetLossList = mutableListOf<Float>()
         val downloadList = mutableListOf<Float>()
         val uploadList = mutableListOf<Float>()
         val qosList = mutableListOf<Float>()
-        historyItems.forEach { historyItem ->
-            historyItem.ping.toFloatOrNull()?.let { ping ->
+        historyItems?.forEach { historyItem ->
+            historyItem.ping.extractFloatValue()?.let { ping ->
                 pingList.add(ping)
             }
-            historyItem.jitterMillis?.toFloatOrNull()?.let { jitter ->
+            historyItem.jitterMillis?.extractFloatValue()?.let { jitter ->
                 jitterList.add(jitter)
             }
-            historyItem.packetLossPercents?.toFloatOrNull()?.let { packetLoss ->
+            historyItem.packetLossPercents?.extractFloatValue()?.let { packetLoss ->
                 packetLossList.add(packetLoss)
             }
-            historyItem.qos?.toFloatOrNull()?.let { qos ->
+            historyItem.qos?.extractFloatValue()?.let { qos ->
                 qosList.add(qos)
             }
-            historyItem.speedDownload.toFloatOrNull()?.let { downloadSpeed ->
+            historyItem.speedDownload.extractFloatValue()?.let { downloadSpeed ->
                 downloadList.add(downloadSpeed)
             }
-            historyItem.speedUpload.toFloatOrNull()?.let { uploadSpeed ->
+            historyItem.speedUpload.extractFloatValue()?.let { uploadSpeed ->
                 uploadList.add(uploadSpeed)
             }
         }
-        Timber.d("history items: ${historyItems.size}")
-        historyItems.forEach { Timber.d("history item from ${it.timeString} with ${it.ping}, ${it.speedDownload}, ${it.speedUpload}") }
+        Timber.d("history items: ${historyItems?.size}")
+        historyItems?.forEach { Timber.d("history item from ${it.timeString} with ${it.ping}, ${it.speedDownload}, ${it.speedUpload}") }
         Timber.d("history median: ${median(pingList)}, ${median(downloadList)}, ${median(uploadList)}")
-        emit(
+        val medianQos = median(qosList)
+        historyMedianDao.insert(
             HistoryLoopMedian(
                 loopUuid = loopUuid,
-                pingMedianMillis = median(pingList),
-                packetLossMedian = median(packetLossList),
-                jitterMedianMillis = median(jitterList),
-                downloadMedianMbps = median(downloadList),
-                uploadMedianMbps = median(uploadList),
+                pingMedianMillis = median(pingList) ?: -1f,
+                packetLossMedian = median(packetLossList) ?: -1f,
+                jitterMedianMillis = median(jitterList) ?: -1f,
+                downloadMedianMbps = median(downloadList) ?: -1f,
+                uploadMedianMbps = median(uploadList) ?: -1f,
                 qosMedian = median(qosList)
             )
         )
+        medianQos?.let {
+            qoeInfoDao.clearQoSInsert(
+                QoeInfoRecord(
+                    testUUID = loopUuid,
+                    category = QoECategory.QOE_QOS,
+                    classification = Classification.NONE,
+                    percentage = it,
+                    info = "$it%",
+                    priority = -1
+                )
+            )
+        }
     }
 
-    private fun median(floatList: List<Float>): Float {
+    override fun getLoopMedianValues(loopUuid: String): LiveData<HistoryLoopMedian?> {
+        return historyMedianDao.getItemByLoopUUID(loopUuid)
+    }
+
+    /**
+     * load loop history items present in the history table (watch out for filters)
+     */
+    override fun getLoopHistoryItems(loopUuid: String): LiveData<List<History>?> {
+        val loopItems: LiveData<List<History>?> = historyDao.getItemByLoopUUIDLiveData(loopUuid)
+        Timber.i("history loaded: ${loopItems.value?.size}")
+        return loopItems
+    }
+
+    private fun median(floatList: List<Float>): Float? {
         if (floatList.isEmpty()) {
-            return 0f
+            return null
         }
 
         val sortedFloatList = floatList.sorted()

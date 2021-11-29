@@ -111,7 +111,7 @@ class SpeedLineChart @JvmOverloads constructor(
 
             chartPoints = ArrayList()
 
-            val maxValue = items.maxBy { it.time }?.time
+            val maxValue = items.maxByOrNull { it.time }?.time
             if (maxValue != null) {
 
                 if (((items[0].time / maxValue.toFloat()) * 100.0f) > 0) {

@@ -64,6 +64,10 @@ class SignalStrengthWatcherImpl(
     private var inactiveNetworkInfo: List<ICell>? = null
     private var secondaryActiveNetworkInfo: List<CellNetworkInfo?>? = null
     private var secondary5GActiveNetworkInfo: List<CellNetworkInfo?>? = null
+    private var detailedNetworkInfo: DetailedNetworkInfo? = null
+
+    override val lastDetailedNetworkInfo: DetailedNetworkInfo?
+        get() = detailedNetworkInfo
 
     override val lastNetworkInfo: NetworkInfo?
         get() = networkInfo
@@ -110,6 +114,7 @@ class SignalStrengthWatcherImpl(
                 secondaryActiveNetworkInfo = null
                 inactiveNetworkInfo = null
                 secondary5GActiveNetworkInfo = null
+                detailedNetworkInfo = null
                 notifyInfoChanged()
                 return
             }
@@ -132,6 +137,7 @@ class SignalStrengthWatcherImpl(
                 inactiveNetworkInfo = null
                 secondary5GActiveNetworkInfo = null
                 networkInfo = newNetworkInfo
+                detailedNetworkInfo = null
                 notifyInfoChanged()
             }
         }
@@ -158,6 +164,7 @@ class SignalStrengthWatcherImpl(
             signalStrengthInfo = SignalStrengthInfo.from(wifiInfo)
             networkInfo = wifiInfo
         }
+        detailedNetworkInfo = null
         notifyInfoChanged()
         scheduleWifiUpdate()
     }
@@ -180,8 +187,19 @@ class SignalStrengthWatcherImpl(
         secondary5GActiveSignalStrengthInfo =
             cellInfoWatcher.secondary5GActiveCellSignalStrengthInfos
         secondaryActiveNetworkInfo = cellInfoWatcher.secondaryActiveCellNetworks
-        inactiveNetworkInfo = cellInfoWatcher.allCellInfos
+        inactiveNetworkInfo = cellInfoWatcher.allCellInfos.toList()
         secondary5GActiveNetworkInfo = cellInfoWatcher.secondary5GActiveCellNetworks
+        detailedNetworkInfo = DetailedNetworkInfo(
+            networkInfo,
+            signalStrengthInfo,
+            cellInfoWatcher.networkTypes,
+            inactiveNetworkInfo,
+            secondaryActiveNetworkInfo,
+            secondaryActiveSignalStrengthInfo,
+            secondary5GActiveNetworkInfo,
+            secondary5GActiveSignalStrengthInfo,
+            cellInfoWatcher.dataSubscriptionId
+        )
         notifyInfoChanged()
         scheduleCellUpdate()
     }
@@ -201,11 +219,13 @@ class SignalStrengthWatcherImpl(
                 DetailedNetworkInfo(
                     networkInfo,
                     signalStrengthInfo,
+                    cellInfoWatcher.networkTypes,
                     inactiveNetworkInfo,
                     secondaryActiveNetworkInfo,
                     secondaryActiveSignalStrengthInfo,
                     secondary5GActiveNetworkInfo,
-                    secondary5GActiveSignalStrengthInfo
+                    secondary5GActiveSignalStrengthInfo,
+                    cellInfoWatcher.dataSubscriptionId
                 )
             )
         }
@@ -217,11 +237,13 @@ class SignalStrengthWatcherImpl(
             DetailedNetworkInfo(
                 networkInfo,
                 signalStrengthInfo,
+                cellInfoWatcher.networkTypes,
                 inactiveNetworkInfo,
                 secondaryActiveNetworkInfo,
                 secondaryActiveSignalStrengthInfo,
                 secondary5GActiveNetworkInfo,
-                secondary5GActiveSignalStrengthInfo
+                secondary5GActiveSignalStrengthInfo,
+                cellInfoWatcher.dataSubscriptionId
             )
         )
         if (listeners.size == 1) {

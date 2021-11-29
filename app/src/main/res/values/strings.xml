@@ -29,7 +29,6 @@
     <!-- Home screen -->
     <string name="home_signal">Signal</string>
     <string name="home_frequency">Frequency</string>
-    <string name="home_attention">Attention</string>
     <string name="home_no_internet_connection">No Internet connection!</string>
     <string name="home_no_internet_connection_details">No test is possible.</string>
     <string name="home_signal_value">%1$d dBm</string>

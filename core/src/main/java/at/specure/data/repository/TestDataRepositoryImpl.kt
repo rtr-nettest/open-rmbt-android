@@ -254,9 +254,55 @@ class TestDataRepositoryImpl(db: CoreDatabase) : TestDataRepository {
         }
     }
 
-    override fun saveSignalRecord(signalRecordList: List<SignalRecord>) = io {
-        signalRecordList.forEach {
-            signalDao.insert(it)
+    @Synchronized
+    override fun saveSignalRecord(signalRecordList: List<SignalRecord>, filterOldValues: Boolean) = io {
+        synchronized(signalRecordList) {
+            signalRecordList.forEach {
+                if (filterOldValues) {
+                    val lastSignal: SignalRecord? = signalDao.getLatestForCell(it.testUUID, it.cellUuid)
+                    if (lastSignal != null) {
+                        val distinct = isSignalSignificantlyDistinct(it, lastSignal)
+                        Timber.d("Distinct Signal Values $distinct: $it and $lastSignal")
+                        if (distinct) {
+                            signalDao.insert(it)
+                        }
+                    } else {
+                        Timber.d("Distinct Signal Values true because of non previous signal")
+                        signalDao.insert(it)
+                    }
+                } else {
+                    signalDao.insert(it)
+                }
+            }
+        }
+    }
+
+    private fun isSignalSignificantlyDistinct(signalRecord: SignalRecord, lastSignal: SignalRecord): Boolean {
+        return (isValueSignificantlyDifferent(signalRecord.lteRsrp, lastSignal.lteRsrp) &&
+                isValueSignificantlyDifferent(signalRecord.bitErrorRate, lastSignal.bitErrorRate) &&
+                isValueSignificantlyDifferent(signalRecord.lteCqi, lastSignal.lteCqi) &&
+                isValueSignificantlyDifferent(signalRecord.lteRsrq, lastSignal.lteRsrq) &&
+                isValueSignificantlyDifferent(signalRecord.lteRssnr, lastSignal.lteRssnr) &&
+                isValueSignificantlyDifferent(signalRecord.nrCsiRsrp, lastSignal.nrCsiRsrp) &&
+                isValueSignificantlyDifferent(signalRecord.nrCsiRsrq, lastSignal.nrCsiRsrq) &&
+                isValueSignificantlyDifferent(signalRecord.nrCsiSinr, lastSignal.nrCsiSinr) &&
+                isValueSignificantlyDifferent(signalRecord.nrSsRsrp, lastSignal.nrSsRsrp) &&
+                isValueSignificantlyDifferent(signalRecord.nrSsRsrq, lastSignal.nrSsRsrq) &&
+                isValueSignificantlyDifferent(signalRecord.nrSsSinr, lastSignal.nrSsSinr) &&
+                isValueSignificantlyDifferent(signalRecord.signal, lastSignal.signal) &&
+                isValueSignificantlyDifferent(signalRecord.timingAdvance, lastSignal.timingAdvance) &&
+                isValueSignificantlyDifferent(signalRecord.wifiLinkSpeed, lastSignal.wifiLinkSpeed))
+    }
+
+    private fun isValueSignificantlyDifferent(first: Int?, second: Int?): Boolean {
+        return if ((first != null && second == null) || (first == null && second != null)) {
+            true
+        } else if (first == null && second == null) {
+            false
+        } else {
+            val range = (second?.minus(1))!!..(second.plus(1)!!)
+            val inRange = first in range
+            !inRange
         }
     }
 
@@ -304,7 +350,8 @@ class TestDataRepositoryImpl(db: CoreDatabase) : TestDataRepository {
         mcc = null,
         mnc = null,
         primaryScramblingCode = null,
-        dualSimDetectionMethod = null
+        dualSimDetectionMethod = null,
+        isPrimaryDataSubscription = null
     )
 
     private fun CellNetworkInfo.toCellInfoRecord(testUUID: String): CellInfoRecord {
@@ -322,7 +369,8 @@ class TestDataRepositoryImpl(db: CoreDatabase) : TestDataRepository {
             mcc = mcc,
             mnc = mnc,
             primaryScramblingCode = scramblingCode,
-            dualSimDetectionMethod = dualSimDetectionMethod
+            dualSimDetectionMethod = dualSimDetectionMethod,
+            isPrimaryDataSubscription = isPrimaryDataSubscription?.value
         )
         Timber.d("Saving CellInfo Record TDR with uuid: ${cellInfoRecord.uuid} and cellTechnology: ${cellInfoRecord.cellTechnology?.name} and channel number: ${cellInfoRecord.channelNumber}")
         return cellInfoRecord
@@ -356,7 +404,7 @@ class TestDataRepositoryImpl(db: CoreDatabase) : TestDataRepository {
             timestampNanos = info.timestampNanos - startTimeNanos,
             timestampMillis = info.timestampMillis
         )
-        cellLocationDao.insert(record)
+        cellLocationDao.insertNew(testUUID, listOf(record))
     }
 
     override fun saveAllPingValues(testUUID: String, clientPing: Long, serverPing: Long, timeNs: Long) {

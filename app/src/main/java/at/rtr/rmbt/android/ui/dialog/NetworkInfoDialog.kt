@@ -45,6 +45,10 @@ class NetworkInfoDialog : FullscreenDialog() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        binding.iconClose.setOnClickListener {
+            this.dismiss()
+        }
+
         signalStrengthLiveData.listen(this) { signal ->
 
             val networkInfo = signal?.networkInfo
@@ -58,7 +62,9 @@ class NetworkInfoDialog : FullscreenDialog() {
                 }
                 is CellNetworkInfo -> {
                     if (binding.recyclerViewCells.adapter is ICellAdapter == false) {
-                        binding.recyclerViewCells.adapter = adapterMobile
+                        binding.recyclerViewCells.adapter = adapterMobile.also {
+                            it.setHasStableIds(false)
+                        }
                     }
                     val cells = mutableListOf<ICell>()
 //                    if (signal.networkInfo != null && signal.networkInfo is CellNetworkInfo) {
