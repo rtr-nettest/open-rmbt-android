@@ -54,7 +54,7 @@ class CellInfoWatcherImpl(
 
     private var _activeNetwork: CellNetworkInfo? = null
     private var _secondaryActiveCellNetworks: List<CellNetworkInfo?> = mutableListOf()
-    private var _inactiveCellNetworks: List<ICell> = mutableListOf()
+    private var _inactiveCellNetworks: List<ICell> = listOf()
     private var _secondary5GActiveCellNetworks: List<CellNetworkInfo?> = mutableListOf()
     private var _signalStrengthInfo: SignalStrengthInfo? = null
     private var _secondaryActiveCellSignalStrengthInfos: List<SignalStrengthInfo?> = mutableListOf()
@@ -96,6 +96,7 @@ class CellInfoWatcherImpl(
     override fun updateInfo() = io {
 
         Timber.d("Updating cellInfo")
+        clearLists()
 
         if (context.isCoarseLocationPermitted() && context.isReadPhoneStatePermitted()) {
             try {
@@ -189,7 +190,6 @@ class CellInfoWatcherImpl(
                         _signalStrengthInfo =
                             primaryCellsCorrected[0].signal?.toSignalStrengthInfo(System.nanoTime())
 
-                        clearLists()
                         if (config.developer5GSimulationEnabled) {
                             val cellInfo5G =
                                 Network5GSimulator.fromInfo(true, false, "5G simulator")
@@ -261,7 +261,7 @@ class CellInfoWatcherImpl(
         (_secondary5GActiveCellSignalStrengthInfos as MutableList).clear()
         (_secondaryActiveCellNetworks as MutableList).clear()
         (_secondaryActiveCellSignalStrengthInfos as MutableList).clear()
-//        (_inactiveCellNetworks as MutableList).clear()
+        _inactiveCellNetworks = listOf()
     }
 
     companion object {
