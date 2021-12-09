@@ -6,7 +6,6 @@ import android.telephony.SubscriptionManager
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.Observer
 import at.rmbt.client.control.data.TestFinishReason
-import at.rmbt.client.control.getCurrentDataSubscriptionId
 import at.rmbt.util.io
 import at.rtr.rmbt.client.RMBTClientCallback
 import at.rtr.rmbt.client.TotalTestResult
@@ -40,10 +39,8 @@ import at.specure.location.LocationState
 import at.specure.location.LocationWatcher
 import at.specure.location.cell.CellLocationInfo
 import at.specure.location.cell.CellLocationWatcher
-import at.specure.util.filterOnlyPrimaryActiveDataCell
 import at.specure.util.isCoarseLocationPermitted
 import at.specure.util.isReadPhoneStatePermitted
-import at.specure.util.mobileNetworkType
 import at.specure.util.toCellLocation
 import at.specure.util.toRecords
 import cz.mroczis.netmonster.core.INetMonster
@@ -333,16 +330,16 @@ class StateRecorder @Inject constructor(
 
                         val cellNetworkInfo = detailedNetworkInfo.networkInfo
                         val active5GNetworkInfos = detailedNetworkInfo.secondary5GActiveCellNetworks
-                        val otherCells = detailedNetworkInfo.allCellInfos as MutableList
+                        val otherCells = detailedNetworkInfo.allCellInfos?.toMutableList()
                         val testStartTimeNanos = testStartTimeNanos ?: 0
 
                         if (detailedNetworkInfo.networkInfo is CellNetworkInfo) {
-                            otherCells.remove(detailedNetworkInfo.networkInfo.rawCellInfo)
+                            otherCells?.remove(detailedNetworkInfo.networkInfo.rawCellInfo)
                         }
 
                         saveNetworkInformation(cellNetworkInfo, detailedNetworkInfo.signalStrengthInfo, uuid, testStartTimeNanos)
                         active5GNetworkInfos?.forEachIndexed { index, cellNetworkInfo ->
-                            otherCells.remove(cellNetworkInfo?.rawCellInfo)
+                            otherCells?.remove(cellNetworkInfo?.rawCellInfo)
                             saveNetworkInformation(cellNetworkInfo, detailedNetworkInfo.secondary5GActiveSignalStrengthInfos?.get(index), uuid, testStartTimeNanos)
                         }
 
