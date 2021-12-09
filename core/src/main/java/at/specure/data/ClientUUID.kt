@@ -16,6 +16,7 @@ package at.specure.data
 
 import android.content.Context
 import androidx.lifecycle.LiveData
+import at.specure.config.Config
 import at.specure.util.StringPreferenceLiveData
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -23,23 +24,42 @@ import javax.inject.Singleton
 private const val KEY_CLIENT_UUID = "KEY_CLIENT_UUID"
 
 @Singleton
-class ClientUUID @Inject constructor(context: Context) {
+class ClientUUID @Inject constructor(context: Context, val config: Config) {
 
     private val preferences = context.getSharedPreferences("client_uuid.pref", Context.MODE_PRIVATE)
 
     val liveData: LiveData<String?>
         get() {
-            return StringPreferenceLiveData(preferences, KEY_CLIENT_UUID, null)
-                .also {
-                    it.postValue(preferences.getString(KEY_CLIENT_UUID, null))
-                }
+            return if (config.expertModeEnabled && config.controlServerOverrideEnabled) {
+                StringPreferenceLiveData(preferences, KEY_CLIENT_UUID + config.controlServerHost, null)
+                    .also {
+                        it.postValue(preferences.getString(KEY_CLIENT_UUID + config.controlServerHost, null))
+                    }
+            } else {
+                StringPreferenceLiveData(preferences, KEY_CLIENT_UUID, null)
+                    .also {
+                        it.postValue(preferences.getString(KEY_CLIENT_UUID, null))
+                    }
+            }
         }
 
     var value: String?
-        get() = _value
+        get() {
+            return if (config.expertModeEnabled && config.controlServerOverrideEnabled) {
+                preferences.getString(KEY_CLIENT_UUID + config.controlServerHost , _value)
+            } else {
+                _value
+            }
+        }
         set(a) {
             _value = a
-            preferences.edit().putString(KEY_CLIENT_UUID, _value).apply()
+            if (config.expertModeEnabled && config.controlServerOverrideEnabled) {
+                preferences.edit().putString(KEY_CLIENT_UUID + config.controlServerHost, _value).apply()
+            } else {
+                preferences.edit().putString(KEY_CLIENT_UUID, _value).apply()
+            }
+
+
         }
 
     private var _value: String? = null
