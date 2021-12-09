@@ -99,7 +99,7 @@
     <string name="preferences_developer_qos_ssl_sum">Use encrypted connection to QoS server</string>
     <string name="preferences_all_disabled">Deactivated.</string>
     <string name="preferences_server_selection">Server selection</string>
-    <string name="preferences_default_server_selection"/>
+    <string name="preferences_default_server_selection">Default</string>
     <string name="preferences_5g_simulation_title">xG network debug(experimental)</string>
     <string name="preferences_5g_simulation">Simulate xG</string>
     <string name="preferences_5g_simulation_sum">Replaces networks with xG simulation</string>

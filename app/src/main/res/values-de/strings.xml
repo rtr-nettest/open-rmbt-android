@@ -90,7 +90,7 @@
     <string name="preferences_developer_qos_ssl_sum" >Verwende verschlüsselte Verbindung zum QoS-Server</string>
     <string name="preferences_all_disabled">Deaktiviert.</string>
     <string name="preferences_server_selection">Serverauswahl</string>
-    <string name="preferences_default_server_selection"/>
+    <string name="preferences_default_server_selection">Standard</string>
     <string name="preferences_5g_simulation_title">xG-Netzwerk Debug (experimentell)</string>
     <string name="preferences_5g_simulation">Simulieren Sie 5x</string>
     <string name="preferences_5g_simulation_sum">Ersetzt Mobilfunknetze durch xG-Simulation</string>
