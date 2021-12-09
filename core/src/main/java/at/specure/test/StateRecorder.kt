@@ -182,7 +182,8 @@ class StateRecorder @Inject constructor(
             developerModeEnabled = config.developerModeIsEnabled,
             serverSelectionEnabled = config.expertModeEnabled,
             loopModeEnabled = config.loopModeEnabled,
-            clientVersion = ""
+            transportType = networkInfo?.type,
+            clientVersion = RMBT_CLIENT_VERSION
         )
         if (config.shouldRunQosTest) {
             testRecord?.lastQoSStatus = TestStatus.WAIT
