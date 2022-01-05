@@ -1017,6 +1017,11 @@ public class RMBTClient implements RMBTClientCallback {
         final long now = System.nanoTime();
 
         final int numPings = params.getNumPings();
+        final long pingDurationMs = params.getDoPingIntervalMilliseconds();
+        if (pingDurationMs > 0) {
+            final long elapsedMs = (now - pingTsStart.get()) / 1000000;
+            return Math.min(1,Math.max(0,(elapsedMs / (float) pingDurationMs)));
+        }
 
         if (numPings <= 0) // nothing to do
             return 1;

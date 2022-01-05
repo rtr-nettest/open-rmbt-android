@@ -22,7 +22,8 @@ import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.net.InetAddress;
 import java.net.Socket;
-import java.util.Arrays;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.InputMismatchException;
 import java.util.List;
 import java.util.Locale;
@@ -393,7 +394,7 @@ public class RMBTTest extends AbstractRMBTTest implements Callable<ThreadTestRes
                 final int NUMPINGS = params.getNumPings();
                 long shortestPing = Long.MAX_VALUE;
                 long medianPing = Long.MAX_VALUE;
-                long[] pings = new long[NUMPINGS];
+                List<Long> pings = new ArrayList<>();
                 final long timeStart = System.nanoTime();
                 if (threadId == 0) // only one thread pings!
                 {
@@ -402,24 +403,30 @@ public class RMBTTest extends AbstractRMBTTest implements Callable<ThreadTestRes
                         if (ping != null) {
                             client.updatePingStatus(timeStart, i + 1, System.nanoTime());
 
-                            pings[i] = ping.server;
+                            pings.add(ping.server);
                             if (ping.client < shortestPing)
                                 shortestPing = ping.client;
 
                             client.onPingDataChanged(ping.client, ping.server, ping.timeNs);
                             testResult.pings.add(ping);
+
+                            final long timeElapsed = (System.nanoTime() - timeStart) / 1000000;
+                            if (params.getDoPingIntervalMilliseconds() > timeElapsed) {
+                                i--;
+                            }
                         }
                     }
 
                     // median
-                    Arrays.sort(pings);
-                    int middle = ((pings.length) / 2);
-                    if (pings.length % 2 == 0) {
-                        long medianA = pings[middle];
-                        long medianB = pings[middle - 1];
+                    Collections.sort(pings);
+                    //Arrays.sort(pings);
+                    int middle = ((pings.size()) / 2);
+                    if (pings.size() % 2 == 0) {
+                        long medianA = pings.get(middle);
+                        long medianB = pings.get(middle - 1);
                         medianPing = (medianA + medianB) / 2;
                     } else {
-                        medianPing = pings[middle + 1];
+                        medianPing = pings.get(middle + 1);
                     }
                     // display median ping
                     client.setPing(medianPing);
