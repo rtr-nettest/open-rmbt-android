@@ -411,7 +411,7 @@ public class RMBTTest extends AbstractRMBTTest implements Callable<ThreadTestRes
                             testResult.pings.add(ping);
 
                             final long timeElapsed = (System.nanoTime() - timeStart) / 1000000;
-                            if (params.getDoPingIntervalMilliseconds() > timeElapsed) {
+                            if (params.getDoPingIntervalMilliseconds() > timeElapsed && i >= (NUMPINGS-1)) {
                                 i--;
                             }
                         }
