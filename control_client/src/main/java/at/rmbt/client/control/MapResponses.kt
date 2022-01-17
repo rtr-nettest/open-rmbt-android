@@ -2,7 +2,6 @@ package at.rmbt.client.control
 
 import android.os.Parcelable
 import androidx.annotation.Keep
-import at.rmbt.client.control.data.MapFilterType
 import com.google.gson.annotations.SerializedName
 import kotlinx.parcelize.Parcelize
 
@@ -70,7 +69,7 @@ data class TestResultNetworkInfoItem(
 )
 
 @Keep
-data class MapFilterResponse(@SerializedName("mapfilter") val filter: MapFilterObjectResponse) : BaseResponse()
+data class MapFilterResponse(@SerializedName("map_filters") val filters: List<MapFilterItemV2>) : BaseResponse()
 
 @Keep
 data class MapFilterObjectResponse(val mapFilters: MapFiltersResponse, val mapTypes: List<MapTypeResponse>)
@@ -159,175 +158,47 @@ data class TypeOptionsResponse(val options: List<FilterBaseOptionResponse>, val 
 
 @Keep
 data class MapFiltersResponseV2(
-    val mapFilters: List<MFTBaseResponseV2>,
+    val mapFilters: List<MapFilterItemV2>,
 )
 
 @Keep
-@Parcelize
 // MapFilterTypeClass.MAP_FILTER_STATISTIC.stringValue is default value because statistic has no "icon" field filled in API
-open class MFTBaseResponseV2(
+data class MapFilterItemV2(
+    val options: List<FilterBaseOptionResponseV2>,
     val title: String,
-    val icon: String = MapFilterTypeClass.MAP_FILTER_STATISTIC.stringValue,
+    val icon: String? = MapFilterTypeClass.MAP_FILTER_STATISTIC.serverValue,
     @SerializedName("depends_on")
-    val default: Boolean = false) : Parcelable
+    val dependsOn: MapFilterDependsOnV2?,
+    val functions: List<FilterBaseFunctionResponseV2>?,
+    val default: Boolean = false)
 
 @Keep
 @Parcelize
 open class FilterBaseOptionResponseV2(
     var default: Boolean = false,
-    var summary: String = "",
-    var title: String = ""
-//    var functions: List<FilterBaseFunctionResponseV2>?,
-//    var options: List<FilterBaseOptionResponseV2>?
+    var summary: String? = "",
+    var title: String = "",
+    var params: FilterBasePeriodParamsV2?,
+    var functions: List<FilterBaseFunctionResponseV2>?,
+    val options: List<FilterBaseOptionResponseV2>?
 ) : Parcelable
 
 @Keep
 @Parcelize
-open class MapFilterBaseParamsV2(
-) : Parcelable
-
-@Keep
-@Parcelize
-open class MapFilterStatisticTypeResponseV2(
-    var options: List<MFStatisticalOptionsResponseV2>
-) : MFTBaseResponseV2(icon = MapFilterTypeClass.MAP_FILTER_STATISTIC.stringValue, title = "")
-
-@Keep
-@Parcelize
-open class MFStatisticalOptionsResponseV2(
-    var params: MapFilterStatisticalParamsV2?,
-): FilterBaseOptionResponseV2()
-
-@Keep
-@Parcelize
-open class MapFilterStatisticalParamsV2(
+open class FilterBasePeriodParamsV2(
+    val period: Int?, // for @MapFilterTypeClass.MAP_FILTER_PERIOD
     @SerializedName("statistical_method")
-    val statisticalMethod: Double? // for @MapFilterTypeClass.MAP_FILTER_STATISTIC
-) : MapFilterBaseParamsV2()
-
-@Keep
-@Parcelize
-open class MapFilterPeriodTypeResponseV2(
-    var options: List<MFPeriodOptionsResponseV2>
-) : MFTBaseResponseV2(icon = MapFilterTypeClass.MAP_FILTER_PERIOD.stringValue, title = "")
-
-@Keep
-@Parcelize
-open class MFPeriodOptionsResponseV2(
-    var params: MapFilterPeriodParamsV2?,
-): FilterBaseOptionResponseV2()
-
-@Keep
-@Parcelize
-open class MapFilterPeriodParamsV2(
-    val period: Int
-) : MapFilterBaseParamsV2()
-
-@Keep
-@Parcelize
-open class MapFilterOverlayTypeResponseV2(
-    var options: List<MFOverlayOptionsResponseV2>
-) : MFTBaseResponseV2(icon = MapFilterTypeClass.MAP_OVERLAY_TYPE.stringValue, title = "")
-
-@Keep
-@Parcelize
-open class MFOverlayOptionsResponseV2(
-    var functions: MapFilterOverlayFunctionsV2
-): FilterBaseOptionResponseV2()
-
-@Keep
-@Parcelize
-open class MapFilterOverlayFunctionsV2(
-    @SerializedName("func_name")
-    val functionName: String,
-    @SerializedName("func_params")
-    val functionParams: FilterOverlayFunctionParamsV2
-) : MapFilterBaseParamsV2()
-
-@Keep
-@Parcelize
-open class FilterOverlayFunctionParamsV2(
-    val path: String?,
-    @SerializedName("z_index")
-    val zIndex: Int?,
-    @SerializedName("tile_size")
-    val tileSize: Int?
-): FilterBaseFunctionParamV2(type = "")
-
-
-@Keep
-@Parcelize
-open class MapFilterAppearanceTypeResponseV2(
-    var options: List<FilterBaseFunctionResponseV2>
-) : MFTBaseResponseV2(icon = MapFilterTypeClass.MAP_FILTER_APPEARANCE.stringValue, title = "")
-
-@Keep
-@Parcelize
-open class MapFilterCarrierTypeResponseV2(
-    var options: List<MFCarrierOptionsResponseV2>,
-    @SerializedName("depends_on")
-    val dependsOn: MapFilterDependsOnV2
-) : MFTBaseResponseV2(icon = MapFilterTypeClass.MAP_FILTER_CARRIER.stringValue, title = "")
-
-@Keep
-@Parcelize
-open class MFCarrierOptionsResponseV2(
-    var params: MapFilterCarrierParamsV2
-): FilterBaseOptionResponseV2()
-
-@Keep
-@Parcelize
-open class MapFilterCarrierParamsV2(
-    @SerializedName("provider")
-    var providerId: String
-): MapFilterBaseParamsV2()
-
-@Keep
-@Parcelize
-open class MapFilterTechnologyTypeResponseV2(
-    var options: List<MFTechnologyOptionsResponseV2>,
-    @SerializedName("depends_on")
-    val dependsOn: MapFilterDependsOnV2
-) : MFTBaseResponseV2(icon = MapFilterTypeClass.MAP_FILTER_CARRIER.stringValue, title = "")
-
-@Keep
-@Parcelize
-open class MFTechnologyOptionsResponseV2(
-    var params: MapFilterTechnologyParamsV2
-): FilterBaseOptionResponseV2()
-
-@Keep
-@Parcelize
-open class MapFilterTechnologyParamsV2(
-    val technology: String
-): MapFilterBaseParamsV2()
-
-@Keep
-@Parcelize
-open class MapFilterMapTypeResponseV2(
-    var options: List<MFMapTypeOptionsResponseV2>,
-    @SerializedName("depends_on")
-    val functions: List<MFMapTypeFunctionsV2>
-) : MFTBaseResponseV2(icon = MapFilterTypeClass.MAP_FILTER_CARRIER.stringValue, title = "")
-
-@Keep
-@Parcelize
-open class MFMapTypeFunctionsV2(
-    var params: MapFilterTechnologyParamsV2
-): FilterBaseFunctionResponseV2()
-
-@Keep
-@Parcelize
-open class MFMapTypeOptionsResponseV2(
-    var params: MapFilterTechnologyParamsV2
-): FilterBaseOptionResponseV2()
-
-@Keep
-@Parcelize
-open class MapFilterTechnologyParamsV2(
-    val technology: String
-): MapFilterBaseParamsV2()
-
+    val statisticalMethod: Double?, // for @MapFilterTypeClass.MAP_FILTER_STATISTIC
+    val provider: String?, // provider number or ""
+    val operator: String?, // operator number or ""
+    val technology: String?,
+    @SerializedName("map_type_is_mobile") // ???
+    val mapTypeIsMobile: Boolean?,
+    @SerializedName("map_options")
+    val mapOptions: String?,
+    @SerializedName("overlay_type")
+    val overlayType: String?,
+) : Parcelable
 
 @Keep
 @Parcelize
@@ -341,11 +212,13 @@ open class FilterBaseFunctionResponseV2(
 @Keep
 @Parcelize
 open class FilterBaseFunctionParamV2(
-    val type: String
-//    val provider: String?, // provider number or ""
-//    val operator: String?, // operator number or ""
-//    val technology: String?,
-//    val key: String?
+    val type: String,
+    val path: String?,
+    @SerializedName("z_index")
+    val zIndex: Int?,
+    @SerializedName("tile_size")
+    val tileSize: Int?,
+    val key: String?
 ) : Parcelable
 
 @Keep

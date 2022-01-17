@@ -17,12 +17,23 @@ package at.rmbt.client.control
 /**
  * Describes IP protocol types
  */
-enum class MapFilterTypeClass(val stringValue: String) {
+enum class MapFilterTypeClass(val serverValue: String) {
     MAP_TYPE("MAP_TYPE"),
     MAP_FILTER_TECHNOLOGY("MAP_FILTER_TECHNOLOGY"),
     MAP_FILTER_CARRIER("MAP_FILTER_CARRIER"),
     MAP_FILTER_APPEARANCE("MAP_FILTER_APPEARANCE"),
     MAP_OVERLAY_TYPE("OVERLAY_TYPE"),
     MAP_FILTER_PERIOD("MAP_FILTER_PERIOD"),
-    MAP_FILTER_STATISTIC("MAP_FILTER_STATISTIC") // this value is not in API
+    MAP_FILTER_STATISTIC("MAP_FILTER_STATISTIC"); // this value is not in API
+
+    companion object {
+        fun fromServerString(type: String): MapFilterTypeClass? {
+            MapFilterTypeClass.values().forEach { x ->
+                if (x.serverValue.contentEquals(type, true)) {
+                    return x
+                }
+            }
+            return MAP_FILTER_STATISTIC //  because that one has no icon filled in API
+        }
+    }
 }
