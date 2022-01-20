@@ -1036,19 +1036,20 @@ public class RMBTClient implements RMBTClientCallback {
         if (factorLastPing > 1)
             factorLastPing = 1;
 
-        final float result = base + factorLastPing * factorPerPing;
+        float result = base + factorLastPing * factorPerPing;
+        final long pingDurationMs = params.getDoPingIntervalMilliseconds();
+        if (pingDurationMs > 0) {
+            final long elapsedMs = (now - pingTsStart.get()) / 1000000;
+            final float progressBasedOnDuration = Math.min(1,Math.max(0,(elapsedMs / (float) pingDurationMs)));
+            result =  Math.min(result, progressBasedOnDuration);
+        }
+
         if (result < 0)
             return 0;
         if (result > 1)
             return 1;
 
 //        System.out.println("atpp: " + approxTimePerPing + "; flp:" + factorLastPing+ "; res:" +result);
-        final long pingDurationMs = params.getDoPingIntervalMilliseconds();
-        if (pingDurationMs > 0) {
-            final long elapsedMs = (now - pingTsStart.get()) / 1000000;
-            final float progressBasedOnDuration = Math.min(1,Math.max(0,(elapsedMs / (float) pingDurationMs)));
-            return Math.min(result, progressBasedOnDuration);
-        }
 
         return result;
     }
