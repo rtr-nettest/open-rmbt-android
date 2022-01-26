@@ -177,7 +177,7 @@
     <string name="test_dialog_error_text">Algo ha ido mal. Por favor, inténtelo de nuevo más tarde.</string>
 
     <!-- History -->
-    <string name="history_item_header_test">Prueba</string>
+    <string name="history_item_header_test">Fecha</string>
     <string name="history_item_header_down">Descarge</string>
     <string name="history_item_header_up">Subida</string>
     <string name="history_item_header_ping">Ping</string>

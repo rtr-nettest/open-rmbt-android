@@ -192,7 +192,7 @@
     <string name="test_dialog_error_text">Test failed. Please try again later.</string>
 
     <!-- History -->
-    <string name="history_item_header_test">Test</string>
+    <string name="history_item_header_test">Date</string>
     <string name="history_item_header_down">Down</string>
     <string name="history_item_header_up">Up</string>
     <string name="history_item_header_ping">Ping</string>
