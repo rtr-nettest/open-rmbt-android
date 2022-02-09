@@ -171,6 +171,11 @@ data class TestRecord(
     var status: TestStatus? = null,
 
     /**
+     * raw network capabilities obtained thru android api non-modified (except known cell networks - there is artificially generated)
+     */
+    var networkCapabilitiesRaw: String? = null,
+
+    /**
      * Type of the network
      */
     var transportType: TransportType? = null,

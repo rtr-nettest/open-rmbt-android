@@ -14,6 +14,7 @@
 
 package at.specure.info.cell
 
+import android.net.NetworkCapabilities
 import android.os.Build
 import androidx.annotation.RequiresApi
 import at.specure.info.Network5GSimulator
@@ -105,9 +106,11 @@ class CellNetworkInfo(
      */
     val rawCellInfo: ICell?,
 
-    val isPrimaryDataSubscription: PrimaryDataSubscription?
+    val isPrimaryDataSubscription: PrimaryDataSubscription?,
+
+    override val capabilitiesRaw: String?
 ) :
-    NetworkInfo(TransportType.CELLULAR, cellUUID) {
+    NetworkInfo(TransportType.CELLULAR, cellUUID, capabilitiesRaw) {
     constructor(
         cellUUID: String
     ) : this(
@@ -129,7 +132,8 @@ class CellNetworkInfo(
         cellUUID = cellUUID,
         locationId = null,
         areaCode = null,
-        isPrimaryDataSubscription = PrimaryDataSubscription.UNKNOWN
+        isPrimaryDataSubscription = PrimaryDataSubscription.UNKNOWN,
+        capabilitiesRaw = "HARD ${NetworkCapabilities.TRANSPORT_CELLULAR}"
     )
 
     override val name: String?
@@ -305,7 +309,8 @@ class CellNetworkInfo(
                 dualSimDetectionMethod = dualSimDetectionMethod,
                 nrConnectionState = nrConnectionState,
                 rawCellInfo = null,
-                isPrimaryDataSubscription = PrimaryDataSubscription.TRUE // we listen only for primary data subscription sim
+                isPrimaryDataSubscription = PrimaryDataSubscription.TRUE, // we listen only for primary data subscription sim
+                capabilitiesRaw = "HARD ${NetworkCapabilities.TRANSPORT_CELLULAR}"
             )
         }
 
@@ -346,7 +351,8 @@ class CellNetworkInfo(
                 dualSimDetectionMethod = dualSimDetectionMethod,
                 nrConnectionState = nrConnectionState,
                 rawCellInfo = null,
-                isPrimaryDataSubscription = PrimaryDataSubscription.TRUE // we listen only for primary data subscription sim
+                isPrimaryDataSubscription = PrimaryDataSubscription.TRUE, // we listen only for primary data subscription sim
+                capabilitiesRaw = "HARD ${NetworkCapabilities.TRANSPORT_CELLULAR}"
             )
         }
 
@@ -385,7 +391,8 @@ class CellNetworkInfo(
                 dualSimDetectionMethod = dualSimDetectionMethod,
                 nrConnectionState = nrConnectionState,
                 rawCellInfo = null,
-                isPrimaryDataSubscription = PrimaryDataSubscription.TRUE // we listen only for primary data subscription sim
+                isPrimaryDataSubscription = PrimaryDataSubscription.TRUE, // we listen only for primary data subscription sim
+                capabilitiesRaw = "HARD ${NetworkCapabilities.TRANSPORT_CELLULAR}"
             )
         }
 
@@ -425,7 +432,8 @@ class CellNetworkInfo(
                 dualSimDetectionMethod = dualSimDetectionMethod,
                 nrConnectionState = nrConnectionState,
                 rawCellInfo = null,
-                isPrimaryDataSubscription = PrimaryDataSubscription.TRUE // we listen only for primary data subscription sim
+                isPrimaryDataSubscription = PrimaryDataSubscription.TRUE, // we listen only for primary data subscription sim
+                capabilitiesRaw = "HARD ${NetworkCapabilities.TRANSPORT_CELLULAR}"
             )
         }
 
@@ -464,7 +472,8 @@ class CellNetworkInfo(
                 dualSimDetectionMethod = dualSimDetectionMethod,
                 nrConnectionState = nrConnectionState,
                 rawCellInfo = null,
-                isPrimaryDataSubscription = PrimaryDataSubscription.TRUE // we listen only for primary data subscription sim
+                isPrimaryDataSubscription = PrimaryDataSubscription.TRUE, // we listen only for primary data subscription sim
+                capabilitiesRaw = "HARD ${NetworkCapabilities.TRANSPORT_CELLULAR}"
             )
         }
 
@@ -505,7 +514,8 @@ class CellNetworkInfo(
                 dualSimDetectionMethod = dualSimDetectionMethod,
                 nrConnectionState = nrConnectionState,
                 rawCellInfo = null,
-                isPrimaryDataSubscription = PrimaryDataSubscription.TRUE // we listen only for primary data subscription sim
+                isPrimaryDataSubscription = PrimaryDataSubscription.TRUE, // we listen only for primary data subscription sim
+                capabilitiesRaw = "HARD ${NetworkCapabilities.TRANSPORT_CELLULAR}"
             )
         }
 
@@ -539,7 +549,8 @@ class CellNetworkInfo(
                 dualSimDetectionMethod = dualSimDetectionMethod,
                 nrConnectionState = nrConnectionState,
                 rawCellInfo = null,
-                isPrimaryDataSubscription = PrimaryDataSubscription.TRUE // we listen only for primary data subscription sim
+                isPrimaryDataSubscription = PrimaryDataSubscription.TRUE, // we listen only for primary data subscription sim
+                capabilitiesRaw = "HARD ${NetworkCapabilities.TRANSPORT_CELLULAR}"
             )
         }
     }
