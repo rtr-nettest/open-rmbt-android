@@ -229,11 +229,13 @@ fun TestRecord.toRequest(
         cellLocationList.map { it.toRequest() }
     }
 
-    val permissionStatuses: List<PermissionStatusBody>? = if (permissions.isEmpty()) {
+    var permissionStatuses: List<PermissionStatusBody>? = if (permissions.isEmpty()) {
         null
     } else {
         permissions.map { it.toRequest() }
     }
+
+    permissionStatuses = addDebugCapabilities(permissionStatuses, this.networkCapabilitiesRaw)
 
     var telephonyNRConnectionState: String? = null
 
@@ -520,11 +522,13 @@ fun SignalMeasurementRecord.toRequest(
         radioInfo = null
     }
 
-    val permissionStatuses: List<PermissionStatusBody>? = if (permissions.isEmpty()) {
+    var permissionStatuses: List<PermissionStatusBody>? = if (permissions.isEmpty()) {
         null
     } else {
         permissions.map { it.toRequest() }
     }
+
+    permissionStatuses = addDebugCapabilities(permissionStatuses, this.rawCapabilitiesRecord)
 
     val cellLocations: List<CellLocationBody>? = if (cellLocationList.isEmpty()) {
         null
@@ -572,6 +576,17 @@ fun SignalMeasurementRecord.toRequest(
         networkEvents = networkEvents,
         cellLocations = cellLocations
     )
+}
+
+private fun addDebugCapabilities(permissionStatuses: List<PermissionStatusBody>?, capabilitiesString: String?): List<PermissionStatusBody>? {
+    var permissionStatusesWithDebugInfo = permissionStatuses
+    if (permissionStatusesWithDebugInfo == null) {
+        permissionStatusesWithDebugInfo = mutableListOf()
+    }
+
+    permissionStatusesWithDebugInfo = permissionStatusesWithDebugInfo.toMutableList()
+    permissionStatusesWithDebugInfo.add(PermissionStatusBody("current network capabilities $capabilitiesString", false))
+    return permissionStatusesWithDebugInfo
 }
 
 fun convertLocalNetworkTypeToServerType(transportType: TransportType?, mobileNetworkType: MobileNetworkType?): String {

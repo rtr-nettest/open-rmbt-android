@@ -1,5 +1,6 @@
 package at.specure.info
 
+import android.net.NetworkCapabilities
 import android.os.SystemClock
 import at.specure.config.Config
 import at.specure.info.band.CellBand
@@ -50,7 +51,8 @@ object Network5GSimulator {
             dualSimDetectionMethod = null,
             nrConnectionState = NRConnectionState.SA,
             rawCellInfo = null,
-            isPrimaryDataSubscription = PrimaryDataSubscription.TRUE // we listen only for primary data subscription sim
+            isPrimaryDataSubscription = PrimaryDataSubscription.TRUE, // we listen only for primary data subscription sim
+            capabilitiesRaw = "HARD ${NetworkCapabilities.TRANSPORT_CELLULAR}"
         )
     }
 

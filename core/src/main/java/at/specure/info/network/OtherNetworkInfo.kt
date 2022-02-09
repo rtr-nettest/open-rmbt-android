@@ -14,13 +14,15 @@
 
 package at.specure.info.network
 
+import android.net.NetworkCapabilities
+import at.specure.info.NetworkCapability
 import at.specure.info.TransportType
 import java.util.UUID
 
 /**
  * Data object that contains information about WiFi network
  */
-open class EthernetNetworkInfo(
+open class OtherNetworkInfo(
 
     /**
      * The current link speed in Mbps.
@@ -39,4 +41,4 @@ open class EthernetNetworkInfo(
 
     override val capabilitiesRaw: String?
 
-) : NetworkInfo(TransportType.ETHERNET, UUID.nameUUIDFromBytes(("").toByteArray()).toString(), capabilitiesRaw)
+) : NetworkInfo(TransportType.UNKNOWN, UUID.nameUUIDFromBytes(("").toByteArray()).toString(), capabilitiesRaw)

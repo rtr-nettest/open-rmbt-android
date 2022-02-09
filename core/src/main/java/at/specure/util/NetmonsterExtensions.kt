@@ -1,6 +1,7 @@
 package at.specure.util
 
 import android.Manifest
+import android.net.NetworkCapabilities
 import android.os.SystemClock
 import android.telephony.TelephonyManager
 import androidx.annotation.RequiresPermission
@@ -346,7 +347,8 @@ fun ICell.toCellNetworkInfo(
         dualSimDetectionMethod = null,
         cellUUID = this.uuid(),
         rawCellInfo = this,
-        isPrimaryDataSubscription = PrimaryDataSubscription.resolvePrimaryDataSubscriptionID(dataSubscriptionId, this.subscriptionId)
+        isPrimaryDataSubscription = PrimaryDataSubscription.resolvePrimaryDataSubscriptionID(dataSubscriptionId, this.subscriptionId),
+        capabilitiesRaw = "HARD ${NetworkCapabilities.TRANSPORT_CELLULAR}"
     )
 }
 

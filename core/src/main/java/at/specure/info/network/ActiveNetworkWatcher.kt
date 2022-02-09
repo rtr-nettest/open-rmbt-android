@@ -98,13 +98,14 @@ class ActiveNetworkWatcher(
 
         override fun onConnectivityChanged(connectivityInfo: ConnectivityInfo?, network: Network?) {
             lastConnectivityInfo = connectivityInfo
+            Timber.d("NIFU: \n\n $connectivityInfo \n\n $network")
             handler?.removeCallbacks(signalUpdateRunnable)
             _currentNetworkInfo = if (connectivityInfo == null) {
                 null
             } else {
                 when (connectivityInfo.transportType) {
                     TransportType.ETHERNET -> {
-                        EthernetNetworkInfo(connectivityInfo.linkDownstreamBandwidthKbps, connectivityInfo.netId, null)
+                        EthernetNetworkInfo(connectivityInfo.linkDownstreamBandwidthKbps, connectivityInfo.netId, null, connectivityInfo.capabilitiesRaw.toString())
                     }
                     TransportType.WIFI -> wifiInfoWatcher.activeWifiInfo.apply {
                         this?.locationEnabled = locationStateWatcher.state == LocationState.ENABLED
@@ -112,7 +113,10 @@ class ActiveNetworkWatcher(
                     TransportType.CELLULAR -> {
                         updateCellNetworkInfo()
                     }
-                    else -> null
+                    else -> {
+                        Timber.d("NIFU creating OtherNetworkInfo: \n\n $connectivityInfo")
+                        OtherNetworkInfo(connectivityInfo.linkDownstreamBandwidthKbps, connectivityInfo.netId, null, connectivityInfo.capabilitiesRaw.toString())
+                    }
                 }
             }
             GlobalScope.launch {

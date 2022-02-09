@@ -14,6 +14,7 @@
 
 package at.specure.info.connectivity
 
+import android.net.NetworkCapabilities
 import at.specure.info.NetworkCapability
 import at.specure.info.TransportType
 
@@ -36,6 +37,11 @@ data class ConnectivityInfo(
      * Contains all the capabilities of the network
      */
     val capabilities: List<NetworkCapability>,
+
+    /**
+     * Contains all raw capabilities of the network
+     */
+    val capabilitiesRaw: NetworkCapabilities?,
 
     /**
      * Retrieves the downstream bandwidth for this network in Kbps.  This always only refers to

@@ -46,6 +46,11 @@ data class SignalMeasurementRecord(
     var transportType: TransportType?,
 
     /**
+     * network capabilies obtained from android api - not modified
+     */
+    var rawCapabilitiesRecord: String?,
+
+    /**
      * Type of the signal measurement [LOOP_WAITING, DEDICATED]
      */
     var signalMeasurementType: SignalMeasurementType
