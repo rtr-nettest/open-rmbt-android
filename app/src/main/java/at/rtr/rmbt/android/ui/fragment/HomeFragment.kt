@@ -163,14 +163,12 @@ class HomeFragment : BaseFragment() {
                 val latestNewsShown: Long = homeViewModel.getLatestNewsShown() ?: -1
                 newItem.text?.let { text ->
                     newItem.title?.let { title ->
-                        if (newItem.uid ?: -1 > latestNewsShown) {
-                            SimpleDialog.Builder()
-                                .messageText(text)
-                                .titleText(title)
-                                .positiveText(android.R.string.ok)
-                                .cancelable(false)
-                                .show(this.childFragmentManager, CODE_DIALOG_NEWS)
-                        }
+                        SimpleDialog.Builder()
+                            .messageText(text)
+                            .titleText(title)
+                            .positiveText(android.R.string.ok)
+                            .cancelable(false)
+                            .show(this.childFragmentManager, CODE_DIALOG_NEWS)
                     }
                 }
                 homeViewModel.setNewsShown(newItem)
