@@ -101,7 +101,7 @@ class ICellAdapter : RecyclerView.Adapter<ICellAdapter.Holder>() {
                         binding.rxl2g = "$it dBm"
                     }
                     rawCellInfo.signal.timingAdvance?.let {
-                        binding.ta2g = "$it ~(${it * 554}m)"
+                        binding.ta2g = "$it (~${it * 554}m)"
                     }
                 }
             }
@@ -130,7 +130,7 @@ class ICellAdapter : RecyclerView.Adapter<ICellAdapter.Holder>() {
                 binding.rnc3g = null
 
                 if (item is CellWcdma) {
-                    binding.networkType3g = "3G (W-CDMA)"
+                    binding.networkType3g = "3G (UMTS)"
                     val rawCellInfo = item as CellWcdma
                     binding.ci3g = rawCellInfo.ci?.toString()
                     binding.cid3g = rawCellInfo.cid?.toString()
@@ -213,7 +213,7 @@ class ICellAdapter : RecyclerView.Adapter<ICellAdapter.Holder>() {
 
                     rawCellInfo.signal.timingAdvance?.let {
                         if (it > 0) {
-                            binding.taLTE = "$it ~(${it * 78}m)"
+                            binding.taLTE = "$it (~${it * 78}m)"
                         }
                     }
 
