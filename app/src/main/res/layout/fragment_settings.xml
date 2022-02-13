@@ -295,29 +295,7 @@
                 bind:title="@{@string/preferences_developer_map_port}"
                 bind:value="@{String.valueOf(state.mapServerPort)}" />
 
-            <include
-                android:id="@+id/labelDeveloperSimulate5G"
-                layout="@layout/item_setting_header"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:visibility="@{state.developerModeIsEnabled &amp;&amp; state.developer5GSimulationAvailable ? View.VISIBLE : View.GONE}"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/developerMapServerPort"
-                bind:title="@{@string/preferences_5g_simulation_title}" />
 
-            <include
-                android:id="@+id/switchDeveloper5GSimulation"
-                layout="@layout/item_setting_switch"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:visibility="@{state.developerModeIsEnabled &amp;&amp; state.developer5GSimulationAvailable ? View.VISIBLE : View.GONE}"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/labelDeveloperSimulate5G"
-                bind:summary="@{@string/preferences_5g_simulation_sum}"
-                bind:title="@{@string/preferences_5g_simulation}"
-                bind:value="@{state.developer5GSimulationEnabled}" />
 
             <include
                 android:id="@+id/switchDeveloperMapServerSSL"
@@ -327,7 +305,7 @@
                 android:visibility="@{state.developerModeIsEnabled  &amp;&amp; state.mapServerOverrideEnabled ? View.VISIBLE : View.GONE}"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/switchDeveloper5GSimulation"
+                app:layout_constraintTop_toBottomOf="@+id/developerMapServerPort"
                 bind:summary="@{@string/preferences_developer_map_ssl_sum}"
                 bind:title="@{@string/preferences_developer_map_ssl}"
                 bind:value="@{state.mapServerUseSSL}" />
