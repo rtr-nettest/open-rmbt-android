@@ -1,6 +1,7 @@
 package at.rtr.rmbt.android.ui.activity
 
 import android.os.Bundle
+import android.view.WindowManager
 import at.rtr.rmbt.android.R
 import at.rtr.rmbt.android.databinding.ActivitySignalMeasurementBinding
 import at.rtr.rmbt.android.di.viewModelLazy
@@ -18,6 +19,8 @@ class SignalMeasurementActivity : BaseActivity() {
         binding = bindContentView(R.layout.activity_signal_measurement)
         binding.isActive = false
         binding.isPaused = false
+
+        window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
 
         viewModel.activeSignalMeasurementLiveData.listen(this) {
             binding.isActive = it
