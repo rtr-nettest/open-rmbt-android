@@ -89,9 +89,6 @@
     <string name="preferences_developer_qos_ssl_sum">Utilizar SSL en la conexión al servidor de QoS</string>
     <string name="preferences_all_disabled">Desactivar.</string>
     <string name="preferences_server_selection">Seleccionar servidor</string>
-    <string name="preferences_5g_simulation_title">5G (experimental)</string>
-    <string name="preferences_5g_simulation">Simular conexión 5G</string>
-    <string name="preferences_5g_simulation_sum">Reemplazar red móvil para simulación de 5G</string>
     <string name="label_server_selection">Elegir servidor</string>
     <string name="preferences_tag">Etiqueta</string>
 

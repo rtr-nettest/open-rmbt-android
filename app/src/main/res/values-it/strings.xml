@@ -87,10 +87,7 @@
     <string name="preferences_developer_qos_ssl_sum">Usa connessione crittografata al server QoS</string>
     <string name="preferences_all_disabled">Disattivato.</string>
     <string name="preferences_server_selection">Selezione server</string>
-    <string name="preferences_default_server_selection"></string>
-    <string name="preferences_5g_simulation_title">Debug (sperimentale) di rete xG</string>
-    <string name="preferences_5g_simulation">Simula xG</string>
-    <string name="preferences_5g_simulation_sum">Sostituisce le reti con simulazione xG</string>
+    <string name="preferences_default_server_selection">Default</string>
     <string name="label_server_selection">Selezione del server</string>
     <string name="preferences_tag">Etichetta</string>
     <!-- Location Dialog -->

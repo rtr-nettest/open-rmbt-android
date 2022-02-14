@@ -93,9 +93,6 @@
     <string name="preferences_all_disabled">Kikapcsolva</string>
     <string name="preferences_server_selection">Szerver kiválasztás</string>
     <string name="preferences_default_server_selection"/>
-    <string name="preferences_5g_simulation_title">xG hálózat hibakeresés (kísérleti  mód)</string>
-    <string name="preferences_5g_simulation">xG szimuláció</string>
-    <string name="preferences_5g_simulation_sum">Hálózatok helyettesítése xG szimulációval</string>
     <string name="label_server_selection">Szerver kiválasztás</string>
     <string name="preferences_tag">Címke</string>
 
