@@ -16,7 +16,6 @@ package at.specure.info.cell
 
 import android.os.Build
 import androidx.annotation.RequiresApi
-import at.specure.info.Network5GSimulator
 import at.specure.info.TransportType
 import at.specure.info.band.CellBand
 import at.specure.info.network.MobileNetworkType
@@ -172,10 +171,6 @@ class CellNetworkInfo(
             nrConnectionState: NRConnectionState
         ): CellNetworkInfo {
             val providerName = subscriptionInfo?.carrierName?.toString() ?: ""
-
-            if (Network5GSimulator.isEnabled) {
-                return Network5GSimulator.fromInfo(isActive, isRoaming, apn)
-            }
 
             return when (networkType) {
                 MobileNetworkType.NR,

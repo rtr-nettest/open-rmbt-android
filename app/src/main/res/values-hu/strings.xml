@@ -1,0 +1,304 @@
+<!--
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~ http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <string name="toolbar_title">RTR-NetTest</string>
+
+    <!-- Navigation menu titles -->
+    <string name="menu_button_title_page">Kezdőlap</string>
+    <string name="menu_button_history">Korábbiak</string>
+    <string name="menu_button_statistics">Statisztika</string>
+    <string name="menu_button_map">Térkép</string>
+
+    <!-- Error dialog messages -->
+    <string name="dialog_title_error">Hiba</string>
+    <string name="error_unknown">Poor connection. Please try again later</string>
+    <string name="no_internet_connection_not_load_data">Nincs kapcsolat, adatletöltés hiba!</string>
+
+    <!-- Home screen -->
+    <string name="home_signal">Jelerősség</string>
+    <string name="home_frequency">Frekvencia</string>
+    <string name="home_no_internet_connection">Nincs internet kapcsolat!</string>
+    <string name="home_no_internet_connection_details">Mérés nem lehetséges</string>
+    <string name="home_signal_value">%1$d dBm</string>
+    <string name="home_start_test_info">Nyomja meg a gombot a méréshez!</string>
+    <string name="home_wifi">WLAN</string>
+    <string name="public_ip_address">Publikus IP cím</string>
+    <string name="private_ip_address">Privát IP cím</string>
+
+
+    <!-- Preference titles -->
+    <string name="options">Lehetőségek</string>
+    <string name="preferences_general_settings">Általános beállítások</string>
+    <string name="preferences_ndt">NDT</string>
+    <string name="preferences_qos_measurement">QoS mérés</string>
+    <string name="preferences_qos_measurement_only_after_some_time">Próbálja 2 óra múlva</string>
+    <string name="preferences_qos_measurement_only_after_some_time_summary">Ne végezzen újabb QoS méréseket, ha az utolsó óta nem telt el legalább 2 óra.</string>
+    <string name="preferences_location">Helyszín</string>
+    <string name="preferences_loop_mode">Ismétlődő mérés</string>
+    <string name="preferences_advanced_settings">Speciális beállítások</string>
+    <string name="preferences_loop_mode_summary">Új mérés a várakozási idő elteltével vagy ___or covering the distance___. Legfeljebb 2 nap</string>
+    <string name="preferences_loop_mode_min_delay">Várakozási idő (perc)</string>
+    <string name="preferences_loop_mode_max_movement">Elmozdulás (méter)</string>
+    <string name="preferences_expert_mode">Szakértői mode</string>
+    <string name="preferences_expert_mode_summary">Mutassa a részletes beállításokat és adatokat.</string>
+    <string name="preferences_ipv4_only">csak IPv4</string>
+    <string name="preferences_ipv4_only_sum">Ne használjon IPv6-ot</string>
+    <string name="preferences_radio_info">Rádiós adatok</string>
+    <string name="preferences_radio_info_sum">A rádiós beállítások részletei</string>
+    <string name="preferences_contact">Kapcsolat</string>
+    <string name="preferences_go_to_website">Weboldal felkeresése</string>
+    <string name="preferences_contact_us">Lépjen kapcsolatba velünk!</string>
+    <string name="preferences_additional_Information">További információk</string>
+    <string name="preferences_client_uuid">Mérőazonosító (UUID)</string>
+    <string name="preferences_test_cases">Elvégzett mérések száma</string>
+    <string name="preferences_about">Információk</string>
+    <string name="preferences_source_code">Forráskód</string>
+    <string name="preferences_data_protection">Adatkezelési és felhasználási feltételek</string>
+    <string name="preferences_developed_by">Fejlesztő: Specure GmbH</string>
+    <string name="preferences_version">Verzió</string>
+    <string name="preferences_commit_hash">programverzió digitális lenyomata</string>
+    <string name="preferences_enter_code">Kérem, adja meg a kódot!</string>
+    <string name="preferences_developer_control_server">Vezérlőszerver</string>
+    <string name="preferences_override_control_server">Eltérő vezérlőszerver megadása</string>
+    <string name="preferences_override_control_server_sum">Egyedi vezérlő szerver beállítások aktiválása</string>
+    <string name="preferences_override_control_server_host">Vezérlő szerver domain név</string>
+    <string name="preferences_override_control_server_port">Vezérlő szerver port</string>
+    <string name="preferences_override_control_server_ssl">Vezérlő szerver SSL</string>
+    <string name="preferences_override_control_server_ssl_sum">Titkosított kapcsolat a vezérlő szerverrel</string>
+    <string name="preferences_developer_options_disabled">Fejlesztői beállítások letiltva</string>
+    <string name="preferences_developer_options_available">Fejlesztői beállítások engedélyezve</string>
+    <string name="preferences_developer_try_again">Próbálja újra!</string>
+    <string name="preferences_developer_map_server">Térkép szerver</string>
+    <string name="preferences_developer_map_override">Egyedi szerver beállítása</string>
+    <string name="preferences_developer_map_override_sum">Egyedi térkép szerver beállítások aktiválása</string>
+    <string name="preferences_developer_map_host">Térkép szerver domain név</string>
+    <string name="preferences_developer_map_port">Térkép szerver port</string>
+    <string name="preferences_developer_map_ssl">Térkép szerver server SSL</string>
+    <string name="preferences_developer_map_ssl_sum">Titkosított kapcsolat a térkép szerverrel</string>
+    <string name="preferences_category_developer_qos_server">QoS szerver domain név</string>
+    <string name="preferences_developer_qos_ssl">QoS szerver SSL</string>
+    <string name="preferences_developer_qos_ssl_sum">Titkosított kapcsolat a QoS szerverrel</string>
+    <string name="preferences_all_disabled">Kikapcsolva</string>
+    <string name="preferences_server_selection">Szerver kiválasztás</string>
+    <string name="preferences_default_server_selection"/>
+    <string name="label_server_selection">Szerver kiválasztás</string>
+    <string name="preferences_tag">Címke</string>
+
+    <!-- Location Dialog -->
+    <string name="location_dialog_label_title">Helyszín</string>
+    <string name="location_dialog_label_position">Pozíció</string>
+    <string name="location_dialog_label_accuracy">Pontosság</string>
+    <string name="location_dialog_label_age">Adatrögzítés ideje</string>
+    <string name="location_dialog_label_source">Forrás</string>
+    <string name="location_dialog_label_altitude">Magasság</string>
+    <string name="location_dialog_label_speed">Sebesség</string>
+    <string name="location_dialog_label_satellites">Műholdak</string>
+    <string name="location_dialog_label_location_progress_message">Helymeghatározás folyamatban, kérem, várjon!</string>
+    <string name="open_gps_setting_dialog_label_gps_not_enabled">Helymeghatározási szolgáltatás nem elérhető, kívánja engedélyezni?</string>
+    <string name="open_gps_setting_dialog_label_open_gps_setting">Helymeghatározási beállítások megnyitása </string>
+    <string name="open_gps_setting_dialog_label_cancel">Mégse</string>
+    <string name="location_dialog_not_available">Nem elérhető</string>
+    <string name="location_dialog_age">%1$s s</string>
+    <string name="location_dialog_accuracy">%1$s m</string>
+    <string name="location_dialog_speed">%1$s km/h</string>
+    <string name="location_location_direction_n">É %1$s</string>
+    <string name="location_location_direction_e">K %1$s</string>
+    <string name="location_location_direction_s">D %1$s</string>
+    <string name="location_location_direction_w">Ny %1$s</string>
+    <string name="open_location_permission_dialog_label_location_not_permitted">Az RTR-NetTest nem fér hozzá a helyadatokhoz. Szeretné engedélyezni az RTR-NetTest részére a helyadatok elérését?</string>
+    <string name="open_location_permission_dialog_label_open_permission_setting">Alkalmazás beállítások megnyitása</string>
+
+
+    <string name="text_ip_address_not_available">IP cím nem elérhető</string>
+    <string name="input_setting_dialog_ok">OK</string>
+    <string name="input_setting_dialog_cancel">Mégse</string>
+    <string name="loop_mode_max_delay_invalid" tools:ignore="PluralsCandidate">Kérem, válasszon egy számot %1$d és %2$d között.</string>
+    <string name="about_client_uuid_copied">Mérőazonosító (UUID) a vágólapra másolva.</string>
+    <string name="client_not_registered">Az alkalmazás nincs regisztrálva próbálja újra később!</string>
+
+    <!-- Measurement screen -->
+    <string name="measurement_ping_value">%1$s ms</string>
+    <string name="measurement_ping_value_1f">%1$.1f ms</string>
+    <string name="measurement_download_upload_speed">%1$s Mbit/s</string>
+    <string name="measurement_download">Letöltés</string>
+    <string name="measurement_upload">Feltöltés</string>
+    <string name="measurement_dash">-</string>
+    <string name="measurement_speed_chart_x_label_min">0s</string>
+    <string name="measurement_speed_chart_x_label_max">8s</string>
+    <string name="measurement_ping">Ping</string>
+    <string name="measurement_down">Le</string>
+    <string name="measurement_up">Fel</string>
+    <string name="measurement_qos">QoS</string>
+    <string name="measurement_qos_web_site">Weboldal</string>
+    <string name="measurement_qos_transparent_connection">Transzparens összeköttetés</string>
+    <string name="measurement_qos_dns">DNS</string>
+    <string name="measurement_qos_tcp_ports">TCP portok</string>
+    <string name="measurement_qos_udp_ports">UDP portok</string>
+    <string name="measurement_qos_unmodified_content">Változatlan tartalom</string>
+    <string name="measurement_qos_traceroute">Traceroute</string>
+    <string name="measurement_qos_voip">VoIP</string>
+
+    <string-array name="measurement_speed_chart_y_labels">
+        <item>1</item>
+        <item>10</item>
+        <item>100</item>
+        <item>1000</item>
+    </string-array>
+
+    <string name="label_qos">QoS</string>
+    <string name="label_upload">Feltöltés</string>
+    <string name="label_download">Letöltés</string>
+    <string name="label_ping">Ping</string>
+    <string name="label_init">Inicializálás</string>
+    <string name="label_signal_strength">Jelszint</string>
+    <string name="network_label">Hálózat</string>
+    <string name="technology_label">Technológia</string>
+
+    <string name="title_cancel_measurement">Valóban meg kívánja szakítani a folyamatban lévő mérést?</string>
+    <string name="text_continue_measurement">Mérés folytatása</string>
+    <string name="text_cancel_measurement">Mérés leállítása</string>
+    <string name="text_stop_measurement">Mérés megszakítása</string>
+
+    <string name="notification_test_title">RTR-NetTest mérés folyamatban</string>
+
+    <string name="test_dialog_error_text">Mérési hiba. Kérjük, próbálja később.</string>
+
+    <!-- History -->
+    <string name="history_item_header_test">Teszt</string>
+    <string name="history_item_header_down">Le</string>
+    <string name="history_item_header_up">Fel</string>
+    <string name="history_item_header_ping">Ping</string>
+    <string name="history_item_header_ms">ms</string>
+    <string name="history_no_data">Nincs elérhető adat.</string>
+
+    <!-- Results -->
+    <string name="results_other_details">További részletek</string>
+    <string name="results_qoe_videos_sd">SD videók</string>
+    <string name="results_qoe_videos_hd">HD videók</string>
+    <string name="results_qoe_videos_uhd">UHD videók</string>
+    <string name="results_qoe_gaming">Játék</string>
+    <string name="results_qoe_gaming_cloud">Játék - felhő</string>
+    <string name="results_qoe_gaming_streaming">Játék - közvetítés (streaming)</string>
+    <string name="results_qoe_gaming_download">Játék - letöltés</string>
+    <string name="results_qoe_audio_streaming">Beszéd közvetítés (streaming)</string>
+    <string name="results_qoe_voip">VoIP telefon</string>
+    <string name="results_qoe_video_telephony">Videótelefon</string>
+    <string name="results_qoe_video_conferencing">Videókonferencia</string>
+    <string name="results_qoe_messaging">Üzenetküldés</string>
+    <string name="results_qoe_web">Böngésző forgalom</string>
+    <string name="results_qoe_cloud">Adatfelhő forgalom</string>
+    <string name="results_qoe_qos">QoS méréssek</string>
+    <string name="results_quality">Minőség</string>
+    <string name="results_network_type">Típus</string>
+    <string name="results_network_provider">Szolgáltató</string>
+    <string name="results_network_ssid">WLAN SSID</string>
+    <string name="result_test_details">Mérés részletek</string>
+    <string name="label_information">Információ</string>
+    <string name="label_tests">Tesztek</string>
+    <string name="label_succeeded">SIKERES</string>
+    <string name="label_failed">SIKERTELEN</string>
+    <string name="label_description">LEÍRÁS</string>
+    <string name="label_detail">RÉSZLETEK</string>
+
+    <!-- Map -->
+    <string name="map_layer_communities">Közösségek</string>
+    <string name="map_layer_points">Pontok</string>
+    <string name="map_layer_automatic">Automatikus</string>
+    <string name="map_label_overlay_type">Információs fólia mód</string>
+    <string name="map_label_map_appearance">Térké megjelenítési mód</string>
+    <string name="title_marker_item_details">További részletek mutatása</string>
+
+    <string name="map_search_location_dialog_title">Keresés</string>
+    <string name="map_search_location_dialog_info">Cím vagy város keresése:</string>
+    <string name="map_search_location_dialog_not_found">Cím nem található.</string>
+    <string name="map_search_location_not_supported">Sajnos ezt a funkciót nem támogatja a készülék.</string>
+
+    <string name="text_failed_to_load_results">Adatbetöltés sikertelen.\nA frissítéshez érintse meg és húzza le a mezőt.</string>
+
+    <string name="title_sync">Szinkronizálás</string>
+    <string name="text_sync_info">Lehetőség van több eszközön elvégzett mérési eredményeinek az összesítésére. Ehhez adja meg a korábban igényelt szinkronizációs kódot, vagy igényeljen egy újat.</string>
+    <string name="button_sync_request_code">Kód kérése</string>
+    <string name="button_sync_enter_code">Adja meg a kódot</string>
+    <string name="text_sync_code_received">A mérési eredmények szinkronizálása érdekében kérjük, írja be az alábbi kódot a másik készüléken.</string>
+    <string name="text_sync_enter_code_desc">Kérjük, adja meg a másik eszközön kapott kódot.</string>
+    <string name="button_close">Bezárás</string>
+    <string name="toast_sync_code_copied_to_clipboard">Másolás megtörtént</string>
+    <string name="hint_sync_code">Kód</string>
+    <string name="error_sync_code_short">A kód 12 karakter hosszúságú!</string>
+
+    <string name="notification_signal_test_title">Jelszint mérés folyamatban</string>
+    <string name="notification_signal_test_text">RTR-NetTest szélessáv mérés fut a háttérben</string>
+
+    <string name="notification_loop_mode_finished_title">Ismétlődő mérési mód befejeződött</string>
+
+    <string name="toast_signal_measurement_enabled">Jelszint mérés elkezdődött.</string>
+    <string name="error_no_connection">Nincs internet kapcsolat. Adatok betöltése sikertelen.</string>
+
+    <string name="label_map_filters">Térkép beállítások</string>
+    <string name="text_filter_confirm">Elfogadás</string>
+    <string name="text_filter_continue">Tovább</string>
+    <string name="title_filters_type">Térkép típus</string>
+    <string name="title_filters_subtype">Típus beállítási lehetőségek</string>
+
+    <string name="about_email_subject">Támogatás kérése</string>
+    <string name="about_email_sending">email küldése…</string>
+
+    <string name="graph_signal_value">-%1$s dBm</string>
+
+    <string name="notification_loop_mode_title_active">Ismétlődő mérési mód bekapcsolva</string>
+    <string name="notification_loop_mode_title_running">Ismétlődő mérés aktív (%1$d/%2$d)</string>
+
+    <string name="title_loop_mode">Ismétlődő mérés</string>
+    <string name="title_loop_count">Adja meg a mérések számát</string>
+    <string name="text_loop_start">Mérés indítása</string>
+    <string name="text_loop_mode">Új mérés az ismétlési idő leteltét vagy a mérési pont elmozdulását követően. Maximum 2 nap</string>
+    <string name="text_button_decline">Nem fogadom el</string>
+    <string name="text_button_accept">Elfogadom</string>
+    <string name="text_loop_instruction_1">Az ismétlődő mérés opció a műszaki érdeklődésű felhasználók számára lehetővé teszi az RTR-NetTest mérés folyamatos megismétlését. Az első mérésre az ismétlődő mérési mód bekapcsolását követően azonnnal sor kerül. A további mérések a meghatározott várakozási idő elteltét követően vagy a mérési pontnak a beállított távolságot meghaladó mértékű elmozdulása esetén kerül sor. A mérések addig ismétlődnek, amíg számuk el nem éri a beállított értéket. A jelerősség mérése folyamatosan történik, az ismétlődő mérések között is. Az ismétlődő mérés mód bármikor leálllítható, de 48 óra elteltével automatikusan is leáll. Felhívjuk a figyelmet arra, hogy az ismétlődő mérési módban nem zárható ki a tesztelést végző azonosítása.</string>
+    <string name="text_loop_instruction_2">Amennyiben egy területen túl sok egyidejű folyamatos mérési igény jelentkezik, a túlterhelés elkerülése érdekében a rendszer a folyamatos mérési igényeket visszautasíthatja. Kérjük, vegye figyelembe, hogy a folyamatos mérési funkció kizárólag az EU tagállamokban, illetve az EU gazdasági térség országaiban történő használatra készült. A folyamatos mérés nagy mennyiségű adatforgalmat generál. Nagy sebességű hálózat esetén 10 mérés elvégzése 1 GB vagy ennél nagyobb adatforgalmat is jelenthet. Erre tekintettel, nyomatékosan javasoljuk, hogy a folyamatos mérési mód beállítását kizárólag ténylegesen rögzített díjszabás esetén végezze el, amely esetén a mérés miatt megnövekedett adatforgalom nem jár többletköltségekkel. A folyamatos mérés gyorsan az akkumulátor lemerülésével járhat. A mérések szüneteiben a GPS és a képernyő bekapcsolva marad, ami jelentős többlet energiafogyasztást eredményez az energiatakarékos üzemmódhoz képest. Erre tekintettel a folyamatos mérés csak külső tápegység csatlakoztatása mellett javasolt.</string>
+    <string name="title_loop_instruction_1">Aktiválás</string>
+    <string name="title_loop_instruction_2">Használat</string>
+
+    <string name="text_filter_devices">Készülékek</string>
+    <string name="text_filter_networks">Hálózatok</string>
+    <string name="label_filter_options">Választási lehetőségek</string>
+    <string name="label_filter">Szűrő</string>
+
+    <string name="loop_mode_next_test">Következő mérés</string>
+    <string name="loop_mode_minutes">Eltelt idő</string>
+    <string name="loop_mode_meters">Távolság</string>
+    <string name="loop_mode_no_gps">Nincs GPS</string>
+    <string name="or">or</string>
+    <string name="loop_mode_finished">RTR-NetTest folyamatos mérés befejeződött!</string>
+    <string name="loop_continue_to_results">Továbblépés az eredményekhez</string>
+    <string name="loop_run_again">Újraindít</string>
+    <string name="title_privacy_policy">Adatkezelési szabályzat</string>
+    <string name="text_terms_agree">Elfogadom az RTR adatvédelmi szabályzatát és az RTR-NetTest felhasználási feltételeit.</string>
+    <string name="text_terms_agree_empty">El kell fogadnia az adatkezelési szabályzatot és a felhasználási feltételeket a továbblépéshez.</string>
+
+    <string name="dialog_title_config_check">Kérem, változtassa meg a következő beállításokat:</string>
+    <string name="label_ip_processing">Feldolgozás folyamatban…</string>
+    <string name="radio_info_warning_title">Rádiófrekvenciás beállítások</string>
+    <string name="radio_info_warning_message">Figyelmeztetés: A szakértői módban elérhető rádiófrekvenciás beállítások megváltoztatása a készülék stabilitását és teljesítményét ronthatja.</string>
+    <string name="accept_risk">I accept the risk</string>
+    <string name="preferences_connection_details_not_supported">Részletes kapcsolati jellemzők megjelenítését nem támogatja a készülék</string>
+
+    <string name="dialog_signal_info_band">Sáv</string>
+    <string name="dialog_signal_info_channel">Csatorna</string>
+    <string name="text_local_results">Csak helyi eredmények</string>
+    <string name="signal_measurement_terms_title">Aktiválás és használat</string>
+    <string name="signal_measurement_terms_content">A folyamatos jelszintmérés opció a műszaki érdeklődésű felhasználók számára lehetővé teszi a jelszintmérés automatikus megismétlését - a sebesség és QoS mérések elvégzése nélkül. A folyamatos jelszintmérés bármikor leállítható, de 48 óra elteltével automatikusan is leáll. A folyamatos jelszintmérés funkció kizárólag az EU tagállamokban, illetve az EU gazdasági térség országaiban történő használatra készült. A folyamatos jelszintmérés gyorsan az akkumulátor lemerülésével járhat. A mérések szüneteiben a GPS és a képernyő bekapcsolva marad, ami jelentős többlet energiafogyasztást eredményez az energiatakarékos üzemmódhoz képest. Erre tekintettel a folyamatos jelszintmérés csak külső tápegység csatlakoztatása mellett javasolt. Felhívjuk a figyelmet arra, hogy a folyamatos jelszintmérés módban nem zárható ki a tesztelést végző azonosítása.</string>
+
+</resources>

@@ -377,16 +377,6 @@ interface Config {
     var secretCodeAllModesOff: String
 
     /**
-     * Allows to simulate 5G network in the developer mode
-     */
-    var developer5GSimulationEnabled: Boolean
-
-    /**
-     * This flag makes simulate 5G network visible in the developer mode or not
-     */
-    val developer5GSimulationAvailable: Boolean
-
-    /**
      * Timestamp of last asked permissions System.currentTimeMillis()
      */
     val lastPermissionAskedTimestampMillis: Long

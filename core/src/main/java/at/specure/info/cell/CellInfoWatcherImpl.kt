@@ -22,7 +22,6 @@ import at.rmbt.client.control.getCorrectDataTelephonyManager
 import at.rmbt.client.control.getCurrentDataSubscriptionId
 import at.rmbt.util.io
 import at.specure.config.Config
-import at.specure.info.Network5GSimulator
 import at.specure.info.network.MobileNetworkType
 import at.specure.info.strength.SignalStrengthInfo
 import at.specure.util.filter5GCells
@@ -190,37 +189,24 @@ class CellInfoWatcherImpl(
                         _signalStrengthInfo =
                             primaryCellsCorrected[0].signal?.toSignalStrengthInfo(System.nanoTime())
 
-                        if (config.developer5GSimulationEnabled) {
-                            val cellInfo5G =
-                                Network5GSimulator.fromInfo(true, false, "5G simulator")
 
+                        secondary5GCellsCorrected.forEach {
+                            val cellInfo5G = it.toCellNetworkInfo(
+                                connectivityManager.activeNetworkInfo?.extraInfo,
+                                telephonyManager.getCorrectDataTelephonyManager(
+                                    subscriptionManager
+                                ),
+                                NetMonsterFactory.getTelephony(context, it.subscriptionId),
+                                _networkTypes[it.subscriptionId] ?: MobileNetworkType.UNKNOWN,
+                                dataSubscriptionId
+                            )
                             (_secondary5GActiveCellNetworks as MutableList).add(cellInfo5G)
-                            _signalStrengthInfo?.let {
-                                val signalStrength5G =
-                                    Network5GSimulator.signalStrength(_signalStrengthInfo!!)
-                                (_secondary5GActiveCellSignalStrengthInfos as MutableList).add(
-                                    signalStrength5G
-                                )
-                            }
-                            Timber.d("Simulated 5G: ${cellInfo5G.providerName}  ${_secondary5GActiveCellNetworks.size} ${_secondary5GActiveCellSignalStrengthInfos.size}")
-                        } else {
-                            secondary5GCellsCorrected.forEach {
-                                val cellInfo5G = it.toCellNetworkInfo(
-                                    connectivityManager.activeNetworkInfo?.extraInfo,
-                                    telephonyManager.getCorrectDataTelephonyManager(
-                                        subscriptionManager
-                                    ),
-                                    NetMonsterFactory.getTelephony(context, it.subscriptionId),
-                                    _networkTypes[it.subscriptionId] ?: MobileNetworkType.UNKNOWN,
-                                    dataSubscriptionId
-                                )
-                                (_secondary5GActiveCellNetworks as MutableList).add(cellInfo5G)
-                                val signal5G = it.signal?.toSignalStrengthInfo(System.nanoTime())
-                                (_secondary5GActiveCellSignalStrengthInfos as MutableList).add(
-                                    signal5G
-                                )
-                            }
+                            val signal5G = it.signal?.toSignalStrengthInfo(System.nanoTime())
+                            (_secondary5GActiveCellSignalStrengthInfos as MutableList).add(
+                                signal5G
+                            )
                         }
+
                         secondaryCellsCorrected.forEach {
                             val cellInfoSecondary = it.toCellNetworkInfo(
                                 connectivityManager.activeNetworkInfo?.extraInfo,
