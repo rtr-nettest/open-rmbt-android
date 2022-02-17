@@ -54,7 +54,7 @@ class CellInfoWatcherImpl(
 
     private var _activeNetwork: CellNetworkInfo? = null
     private var _secondaryActiveCellNetworks: List<CellNetworkInfo?> = mutableListOf()
-    private var _inactiveCellNetworks: List<ICell> = listOf()
+    private var _inactiveCellNetworks: List<ICell> = mutableListOf()
     private var _secondary5GActiveCellNetworks: List<CellNetworkInfo?> = mutableListOf()
     private var _signalStrengthInfo: SignalStrengthInfo? = null
     private var _secondaryActiveCellSignalStrengthInfos: List<SignalStrengthInfo?> = mutableListOf()
@@ -104,7 +104,7 @@ class CellInfoWatcherImpl(
 
                 cells = netMonster.getCells()
                 if (_inactiveCellNetworks.isNullOrEmpty()) {
-                    _inactiveCellNetworks = cells.toList()
+                    _inactiveCellNetworks = cells.toMutableList()
                 }
 
                 _networkTypes.clear()
@@ -252,7 +252,7 @@ class CellInfoWatcherImpl(
         (_secondary5GActiveCellSignalStrengthInfos as MutableList).clear()
         (_secondaryActiveCellNetworks as MutableList).clear()
         (_secondaryActiveCellSignalStrengthInfos as MutableList).clear()
-        _inactiveCellNetworks = listOf()
+        _inactiveCellNetworks = mutableListOf()
     }
 
     companion object {
