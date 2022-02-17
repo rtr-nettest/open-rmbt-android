@@ -94,9 +94,11 @@ open class WifiNetworkInfo(
     /**
      * Raw signal assigned later when onSignalStrength change will trigger update
      */
-    var signal: Int?
+    var signal: Int?,
 
-) : NetworkInfo(TransportType.WIFI, UUID.nameUUIDFromBytes((ssid ?: "").toByteArray()).toString()) {
+    override val capabilitiesRaw: String?
+
+) : NetworkInfo(TransportType.WIFI, UUID.nameUUIDFromBytes((ssid ?: "").toByteArray()).toString(), capabilitiesRaw) {
 
     override val name: String?
         get() = ssid

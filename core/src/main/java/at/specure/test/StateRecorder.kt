@@ -182,6 +182,7 @@ class StateRecorder @Inject constructor(
             serverSelectionEnabled = config.expertModeEnabled,
             loopModeEnabled = config.loopModeEnabled,
             transportType = networkInfo?.type,
+            networkCapabilitiesRaw = networkInfo?.capabilitiesRaw ?: "networkInfo: null",
             clientVersion = RMBT_CLIENT_VERSION
         )
         if (config.shouldRunQosTest) {

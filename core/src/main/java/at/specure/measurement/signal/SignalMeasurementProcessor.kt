@@ -8,17 +8,10 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
-import at.rmbt.client.control.getCurrentDataSubscriptionId
 import at.rmbt.util.exception.HandledException
 import at.rmbt.util.io
 import at.specure.config.Config
-import at.specure.data.entity.CellInfoRecord
-import at.specure.data.entity.CellLocationRecord
-import at.specure.data.entity.ConnectivityStateRecord
-import at.specure.data.entity.SignalMeasurementChunk
-import at.specure.data.entity.SignalMeasurementInfo
-import at.specure.data.entity.SignalMeasurementRecord
-import at.specure.data.entity.SignalRecord
+import at.specure.data.entity.*
 import at.specure.data.repository.MeasurementRepository
 import at.specure.data.repository.SignalMeasurementRepository
 import at.specure.data.repository.TestDataRepository
@@ -41,13 +34,10 @@ import at.specure.location.LocationWatcher
 import at.specure.location.cell.CellLocationInfo
 import at.specure.test.SignalMeasurementType
 import at.specure.test.toDeviceInfoLocation
-import at.specure.util.filterOnlyPrimaryActiveDataCell
 import at.specure.util.isCoarseLocationPermitted
 import at.specure.util.isReadPhoneStatePermitted
-import at.specure.util.mobileNetworkType
 import at.specure.util.toCellLocation
 import at.specure.util.toRecords
-import cz.mroczis.netmonster.core.INetMonster
 import cz.mroczis.netmonster.core.model.cell.ICell
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
@@ -305,7 +295,8 @@ class SignalMeasurementProcessor @Inject constructor(
             signalMeasurementType = lastSignalMeasurementType,
             networkUUID = networkInfo.cellUUID,
             transportType = networkInfo.type,
-            location = locationInfo.toDeviceInfoLocation()
+            location = locationInfo.toDeviceInfoLocation(),
+            rawCapabilitiesRecord = networkInfo.capabilitiesRaw
         ).also {
             signalRepository.saveAndRegisterRecord(it)
         }
@@ -318,7 +309,8 @@ class SignalMeasurementProcessor @Inject constructor(
             signalMeasurementType = lastSignalMeasurementType,
             networkUUID = networkInfo.cellUUID,
             transportType = networkInfo.type,
-            location = locationInfo.toDeviceInfoLocation()
+            location = locationInfo.toDeviceInfoLocation(),
+            rawCapabilitiesRecord = networkInfo.capabilitiesRaw
         ).also {
             signalRepository.saveAndUpdateRegisteredRecord(it, newUUID, info)
         }

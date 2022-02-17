@@ -14,6 +14,7 @@
 
 package at.specure.info.wifi
 
+import android.net.NetworkCapabilities
 import android.net.wifi.SupplicantState
 import android.net.wifi.WifiInfo
 import android.net.wifi.WifiManager
@@ -63,7 +64,8 @@ class WifiInfoWatcherImpl(private val wifiManager: WifiManager) : WifiInfoWatche
                 ssid = ssid,
                 supplicantState = (info.supplicantState ?: SupplicantState.UNINITIALIZED).name,
                 supplicantDetailedState = (WifiInfo.getDetailedStateOf(info.supplicantState) ?: android.net.NetworkInfo.DetailedState.IDLE).name,
-                signal = null
+                signal = null,
+                capabilitiesRaw = "HARD ${NetworkCapabilities.TRANSPORT_WIFI}"
             )
         }
 
