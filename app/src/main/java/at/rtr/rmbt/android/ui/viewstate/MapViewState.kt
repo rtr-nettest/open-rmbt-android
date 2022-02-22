@@ -22,8 +22,11 @@ private const val KEY_LOCATION_CHANGED = "KEY_LOCATION_CHANGED"
 private const val KEY_CAMERA_POSITION_LAT = "KEY_CAMERA_POSITION_LAT"
 private const val KEY_CAMERA_POSITION_LON = "KEY_CAMERA_POSITION_LON"
 
+private const val KEY_FILTERS_LOADED = "KEY_FILTERS_LOADED"
+
 class MapViewState : ViewState {
 
+    var isFilterLoaded = ObservableBoolean(false)
     var playServicesAvailable = ObservableBoolean(false)
     var coordinatesLiveData: MutableLiveData<LatLngW> = MutableLiveData()
     var cameraPositionLiveData: MutableLiveData<LatLngW> = MutableLiveData()
@@ -41,6 +44,7 @@ class MapViewState : ViewState {
             coordinatesLiveData.postValue(LatLngW(getDouble(KEY_LATITUDE), getDouble(KEY_LONGITUDE)))
             playServicesAvailable.set(getBoolean(KEY_PLAY_SERVICES))
             zoom = getFloat(KEY_ZOOM)
+            isFilterLoaded.set(getBoolean(KEY_FILTERS_LOADED, false))
             locationChanged.set(getBoolean(KEY_LOCATION_CHANGED))
             cameraPositionLiveData.postValue(LatLngW(getDouble(KEY_CAMERA_POSITION_LAT), getDouble(KEY_CAMERA_POSITION_LON)))
         }
@@ -53,6 +57,7 @@ class MapViewState : ViewState {
             coordinatesLiveData.value?.latitude?.let { putDouble(KEY_LATITUDE, it) }
             coordinatesLiveData.value?.longitude?.let { putDouble(KEY_LONGITUDE, it) }
             putFloat(KEY_ZOOM, zoom)
+            putBoolean(KEY_FILTERS_LOADED, isFilterLoaded.get())
             putBoolean(KEY_PLAY_SERVICES, playServicesAvailable.get())
             putBoolean(KEY_LOCATION_CHANGED, locationChanged.get())
             cameraPositionLiveData.value?.longitude?.let { putDouble(KEY_CAMERA_POSITION_LON, it) }
