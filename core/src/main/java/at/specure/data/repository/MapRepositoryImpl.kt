@@ -126,7 +126,7 @@ class MapRepositoryImpl @Inject constructor(
                 val types = LinkedHashMap<String, MapFilterType>()
                 val subTypes: MutableMap<MapFilterType, List<MapTypeOptionsResponse>> = hashMapOf()
 
-                val mapTypes = it.filters.firstOrNull { item -> item.icon == MapFilterTypeClass.MAP_TYPE.serverValue }
+                val mapTypes = it.filters?.firstOrNull { item -> item.icon == MapFilterTypeClass.MAP_TYPE.serverValue }
 
                 mapTypes?.options?.forEach {
                     MapFilterType.fromServerString(it.title)?.let { filterType ->
@@ -137,15 +137,14 @@ class MapRepositoryImpl @Inject constructor(
                     }
                 }
 
-
-                val otherFilters = it.filters.filter { item -> item.icon != MapFilterTypeClass.MAP_TYPE.serverValue }
+                val otherFilters = it.filters?.filter { item -> item.icon != MapFilterTypeClass.MAP_TYPE.serverValue }
                 var statistics: Map<MapFilterType, List<FilterStatisticOptionResponse>> = hashMapOf<MapFilterType, List<FilterStatisticOptionResponse>>()
                 var period: Map<MapFilterType, List<FilterPeriodOptionResponse>> = hashMapOf<MapFilterType, List<FilterPeriodOptionResponse>>()
                 var technology: Map<MapFilterType, List<FilterTechnologyOptionResponse>> = hashMapOf<MapFilterType, List<FilterTechnologyOptionResponse>>()
                 var operator: Map<MapFilterType, List<FilterOperatorOptionResponse>> = hashMapOf<MapFilterType, List<FilterOperatorOptionResponse>>()
                 var provider: Map<MapFilterType, List<FilterProviderOptionResponse>> = hashMapOf<MapFilterType, List<FilterProviderOptionResponse>>()
 
-                otherFilters.forEach {
+                otherFilters?.forEach {
                     MapFilterTypeClass.fromServerString(it.icon ?: MapFilterTypeClass.MAP_FILTER_STATISTIC.serverValue)?.let { filterType ->
                         when (filterType) {
                             MapFilterTypeClass.MAP_FILTER_TECHNOLOGY -> {

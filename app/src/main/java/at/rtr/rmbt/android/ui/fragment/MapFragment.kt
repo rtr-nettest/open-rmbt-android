@@ -6,6 +6,8 @@ import android.content.pm.PackageManager
 import android.location.Address
 import android.location.Geocoder
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.view.View
 import android.widget.Toast
 import androidx.annotation.DrawableRes
@@ -27,12 +29,7 @@ import at.rtr.rmbt.android.ui.adapter.MapMarkerDetailsAdapter
 import at.rtr.rmbt.android.ui.dialog.MapFiltersDialog
 import at.rtr.rmbt.android.ui.dialog.MapLayersDialog
 import at.rtr.rmbt.android.ui.dialog.MapSearchDialog
-import at.rtr.rmbt.android.util.ToolbarTheme
-import at.rtr.rmbt.android.util.changeStatusBarColor
-import at.rtr.rmbt.android.util.isGmsAvailable
-import at.rtr.rmbt.android.util.isHmsAvailable
-import at.rtr.rmbt.android.util.listen
-import at.rtr.rmbt.android.util.singleResult
+import at.rtr.rmbt.android.util.*
 import at.rtr.rmbt.android.viewmodel.MapViewModel
 import at.specure.data.NetworkTypeCompat
 import at.specure.data.ServerNetworkType
@@ -80,8 +77,11 @@ class MapFragment : BaseFragment(), MapMarkerDetailsAdapter.MarkerDetailsCallbac
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         binding.state = mapViewModel.state
-
+        mapViewModel.state.isFilterLoaded.addOnPropertyChanged {
+            updateFiltersVisibility()
+        }
         binding.map.onCreate(savedInstanceState)
+        updateFiltersVisibility()
         mapViewModel.state.playServicesAvailable.set(checkServices())
         mapViewModel.obtainFilters()
         binding.map.loadMapAsync {
@@ -158,6 +158,24 @@ class MapFragment : BaseFragment(), MapMarkerDetailsAdapter.MarkerDetailsCallbac
         return requireContext().isGmsAvailable() || requireContext().isHmsAvailable()
     }
 
+    private fun updateFiltersVisibility() {
+        Handler(Looper.getMainLooper()).post {
+            val markerDetailsHidden = binding.markerItems.visibility == View.GONE
+            val mapServicesAvailable = checkServices()
+            val isMapFilterLoaded = mapViewModel.isFilterLoaded()
+            Timber.d("Marker detail hidden: $markerDetailsHidden")
+            Timber.d("Map services available: $mapServicesAvailable")
+            Timber.d("Map filter loaded: $isMapFilterLoaded")
+            if (markerDetailsHidden && mapServicesAvailable && isMapFilterLoaded) {
+                binding.fabFilters.show()
+                Timber.d("SHOWING MAP FILTER BUTTON")
+            } else {
+                binding.fabFilters.hide()
+                Timber.d("HIDING MAP FILTER BUTTON")
+            }
+        }
+    }
+
     private fun onMapReady() {
         checkLocationAndSetCurrent()
         updateMapStyle()
@@ -176,9 +194,10 @@ class MapFragment : BaseFragment(), MapMarkerDetailsAdapter.MarkerDetailsCallbac
                     mapW().animateCamera(latlng)
                 }
                 binding.markerItems.visibility = View.VISIBLE
-                binding.fabsGroup.visibility = View.GONE
+                binding.fabLocation.visibility = View.GONE
                 visiblePosition = 0
                 drawMarker(it.first())
+                updateFiltersVisibility()
             } else {
                 onCloseMarkerDetails()
             }
@@ -195,9 +214,10 @@ class MapFragment : BaseFragment(), MapMarkerDetailsAdapter.MarkerDetailsCallbac
         binding.map.onResume()
         updateLocationPermissionRelatedUi()
         if (!checkServices()) {
-            binding.fabsGroup.visibility = View.GONE
+            binding.fabLocation.visibility = View.GONE
             binding.webMap.visibility = View.VISIBLE
             binding.playServicesAvailableUi.visibility = View.GONE
+            updateFiltersVisibility()
         }
     }
 
@@ -235,7 +255,8 @@ class MapFragment : BaseFragment(), MapMarkerDetailsAdapter.MarkerDetailsCallbac
         currentMarker = null
 //        adapter.items = mutableListOf()
         if (mapViewModel.state.playServicesAvailable.get()) {
-            binding.fabsGroup?.visibility = View.VISIBLE
+            binding.fabLocation.visibility = View.VISIBLE
+            updateFiltersVisibility()
         }
     }
 

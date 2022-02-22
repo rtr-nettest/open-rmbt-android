@@ -69,7 +69,7 @@ data class TestResultNetworkInfoItem(
 )
 
 @Keep
-data class MapFilterResponse(@SerializedName("map_filters") val filters: List<MapFilterItemV2>) : BaseResponse()
+data class MapFilterResponse(@SerializedName("map_filters") val filters: List<MapFilterItemV2>?) : BaseResponse()
 
 @Keep
 data class MapFilterObjectResponse(val mapFilters: MapFiltersResponse, val mapTypes: List<MapTypeResponse>)
