@@ -13,7 +13,6 @@ import at.specure.info.TransportType
 import at.specure.info.band.CellBand
 import at.specure.info.band.CellBand.Companion.fromChannelNumber
 import at.specure.info.cell.CellChannelAttribution
-import at.specure.info.cell.CellInfoWatcherImpl
 import at.specure.info.cell.CellNetworkInfo
 import at.specure.info.cell.CellTechnology
 import at.specure.info.cell.PrimaryDataSubscription
@@ -38,6 +37,7 @@ import at.specure.info.strength.SignalStrengthInfoGsm
 import at.specure.info.strength.SignalStrengthInfoLte
 import at.specure.info.strength.SignalStrengthInfoNr
 import cz.mroczis.netmonster.core.INetMonster
+import cz.mroczis.netmonster.core.db.model.IBandEntity
 import cz.mroczis.netmonster.core.db.model.NetworkType
 import cz.mroczis.netmonster.core.model.band.BandGsm
 import cz.mroczis.netmonster.core.model.band.BandLte
@@ -354,7 +354,7 @@ fun ICell.toCellNetworkInfo(
 
 fun IBand.toCellBand(): CellBand? {
     return when (this) {
-        is BandNr -> this.toCellBand()
+        is BandNr -> this.getEuBand()?.toCellBand()
         is BandTdscdma -> this.toCellBand()
         is BandLte -> this.toCellBand()
         is BandLte -> this.toCellBand()
@@ -362,6 +362,18 @@ fun IBand.toCellBand(): CellBand? {
         is BandGsm -> this.toCellBand()
         else -> null
     }
+}
+
+fun BandNrEU.toCellBand(): CellBand {
+    val legacyCellBand = fromChannelNumber(this.channelNumber, CellChannelAttribution.NRARFCN)
+    return CellBand(
+        frequencyDL = this.downlinkFrequency.toDouble(),
+        band = this.number ?: legacyCellBand?.band ?: -1,
+        channel = this.channelNumber,
+        name = this.name ?: (this.downlinkFrequency / 1000).toString(),
+        channelAttribution = CellChannelAttribution.NRARFCN,
+        frequencyUL = legacyCellBand?.frequencyUL ?: -1.0
+    )
 }
 
 fun BandNr.toCellBand(): CellBand {
@@ -511,18 +523,18 @@ fun ICell.toRecords(
 
 fun ICell.channelNumber(): Int? {
     return when (band) {
-        is BandNr,
         is BandGsm,
         is BandLte,
         is BandTdscdma,
         is BandWcdma -> band?.channelNumber
+        is BandNr -> band?.let {(band as BandNr).getEuBand()?.channelNumber }
         else -> null
     }
 }
 
 fun ICell.frequency(): Double? {
     return when (band) {
-        is BandNr -> (band as BandNr).downlinkFrequency.toDouble()
+        is BandNr -> (band as BandNr).getEuBand()?.downlinkFrequency?.toDouble()
         is BandGsm -> BandCalculationUtil.getBandFromArfcn((band as BandGsm).arfcn)?.frequencyDL
         is BandLte -> BandCalculationUtil.getBandFromEarfcn((band as BandLte).downlinkEarfcn)?.frequencyDL
         is BandTdscdma -> BandCalculationUtil.getBandFromUarfcn((band as BandTdscdma).downlinkUarfcn)?.frequencyDL
@@ -687,3 +699,145 @@ fun CellCdma.uuid(): String {
     }.toByteArray()
     return UUID.nameUUIDFromBytes(id).toString()
 }
+
+
+fun CellNr.getEuBand(): BandNrEU? {
+    return this.band?.getEuBand()
+}
+
+class BandNrEU(
+    val downlinkArfcn: Int,
+    val downlinkFrequency: Int,
+    override val channelNumber: Int,
+    override val number: Int?,
+    override val name: String?
+) : IBand
+
+data class BandEuNrIdentity(
+    override val channelRange: IntRange,
+    override val name: String,
+    override val number: Int?,
+    val priority: Int = 0
+) : IBandEntity
+
+fun BandEuNrIdentity.mapToBandNrEU(arfcn: Int): BandNrEU? {
+    return BandNrEU(
+        downlinkArfcn = arfcn,
+        downlinkFrequency = this.getDownlinkFrequency(arfcn),
+        channelNumber = arfcn,
+        number = this.number,
+        name = this.name
+    )
+}
+
+/**
+ * Calculates frequency from arfcn.
+ *
+ * Taken from 3GPP 38.101-1 / 5.4.2.1 NR-ARFCN and channel raster
+ * @return downlink in kHz
+ */
+fun BandEuNrIdentity.getDownlinkFrequency(arfcn: Int): Int {
+    return if (arfcn <= 600_000) {
+        5 * arfcn
+    } else {
+        3_000_000 + 15 * (arfcn - 600_000)
+    }
+}
+
+fun BandNr.getEuBand(): BandNrEU? {
+    val SMALLEST_BANDWIDTH = 5_000 // kHz
+
+    /** Array 1-1 for original BandTableNr class **/
+    val bandsEU = arrayOf(
+        BandEuNrIdentity(123_400..130_400, "600", 71, 0),
+        BandEuNrIdentity(143_400..145_600, "700", 29, 0),
+        BandEuNrIdentity(145_800..149_200, "700", 12, 0),
+        BandEuNrIdentity(151_600..160_600, "700", 28, 1),
+        BandEuNrIdentity(151_600..153_600, "700", 14, 0),
+        BandEuNrIdentity(158_200..164_200, "800", 20, 1),
+        BandEuNrIdentity(171_800..178_800, "850", 26, 0),
+        BandEuNrIdentity(172_000..175_000, "800", 18, 0),
+        BandEuNrIdentity(173_800..178_800, "850", 5, 0),
+        BandEuNrIdentity(185_000..192_000, "900", 8, 1),
+        BandEuNrIdentity(285_400..286_400, "1500", 51, 0),
+        BandEuNrIdentity(285_400..286_400, "1500", 76, 0),
+        BandEuNrIdentity(285_400..286_400, "1500", 93, 0),
+        BandEuNrIdentity(285_400..286_400, "1500", 91, 0),
+        BandEuNrIdentity(286_400..303_400, "1500", 50, 0),
+        BandEuNrIdentity(286_400..303_400, "1500", 75, 0),
+        BandEuNrIdentity(286_400..303_400, "1500", 92, 0),
+        BandEuNrIdentity(286_400..303_400, "1500", 94, 0),
+        BandEuNrIdentity(295_000..303_600, "1500", 74, 0),
+        BandEuNrIdentity(361_000..376_000, "1800", 3, 1),
+        BandEuNrIdentity(376_000..384_000, "1900", 39, 0),
+        BandEuNrIdentity(386_000..398_000, "1900", 2, 0),
+        BandEuNrIdentity(386_000..399_000, "1900", 25, 0),
+        BandEuNrIdentity(399_000..404_000, "2000", 70, 0),
+        BandEuNrIdentity(402_000..405_000, "2000", 34, 0),
+        BandEuNrIdentity(422_000..440_000, "2100", 66, 0),
+        BandEuNrIdentity(422_000..434_000, "2100", 1, 1),
+        BandEuNrIdentity(422_000..440_000, "2100", 65, 0),
+        BandEuNrIdentity(460_000..480_000, "2300", 40, 0),
+        BandEuNrIdentity(470_000..472_000, "2300", 30, 0),
+        BandEuNrIdentity(496_700..499_000, "2500", 53, 0),
+        BandEuNrIdentity(499_200..537_999, "2600", 41, 0),
+        BandEuNrIdentity(499_200..538_000, "2600", 90, 0),
+        BandEuNrIdentity(514_000..524_000, "2600", 38, 0),
+        BandEuNrIdentity(524_000..538_000, "2600", 7, 0),
+        BandEuNrIdentity(620_000..680_000, "3700", 77, 0),
+        BandEuNrIdentity(620_000..653_333, "3500", 78, 1),
+        BandEuNrIdentity(636_667..646_666, "3600", 48, 0),
+        BandEuNrIdentity(693_334..733_333, "4500", 79, 0)
+    )
+    val candidates = bandsEU.filter { it.channelRange.contains(downlinkArfcn) }
+    return when {
+        candidates.isEmpty() -> return null
+        candidates.size == 1 -> return candidates[0].mapToBandNrEU(this.downlinkArfcn)
+        else -> {
+            // return the candidate with highest priority, if priority has a unique highest candidate
+            val sortedCandidates = candidates.sortedByDescending { candidate -> candidate.priority }
+            if (sortedCandidates[0].priority != sortedCandidates[1].priority) {
+                return sortedCandidates[0].mapToBandNrEU(this.downlinkArfcn)
+            }
+
+            // Multiple bands can contain specified arfcn.
+            // Let's try find proper one using several small hacks.
+            val filtered = candidates.filter { candidate ->
+                // In this snippet we assume 5 MHz as smallest bandwidth
+                // Note that not all bands do support 5 MHz BW but it's the smallest possible value
+                // Also we assume that there are no gaps non-5 MHz between blocks and 1st assigned one's
+                // arfcn is the lowest possible for given band
+                val startFrequency = candidate.getDownlinkFrequency(candidate.channelRange.last)
+                val frequency = candidate.getDownlinkFrequency(downlinkArfcn)
+
+                (startFrequency - frequency).rem(SMALLEST_BANDWIDTH) == 0
+            }
+            return if (filtered.isEmpty()) {
+                val uniqueName = candidates.distinctBy { it.name }
+                if (uniqueName.size == 1) {
+                    // Safest bounds when it comes to bands - take min from start max from end
+                    val min = candidates.minOf { it.channelRange.first }
+                    val max = candidates.maxOf { it.channelRange.last }
+                    uniqueName[0].copy(
+                        channelRange = min..max,
+                        number = null
+                    ).mapToBandNrEU(downlinkArfcn)
+                } else {
+                    null
+                }
+            } else if (filtered.size == 1) {
+                filtered[0].mapToBandNrEU(downlinkArfcn)
+            } else {
+                // Multiple bands do fit - generally this can happen in real world
+                // If at least names of all bands match we'll return a bit accurate data...
+                val uniqueName = filtered.distinctBy { it.name }
+                if (uniqueName.size == 1) {
+                    uniqueName[0].copy(number = null).mapToBandNrEU(downlinkArfcn)
+                } else {
+                    null
+                }
+            }
+        }
+    }
+}
+
