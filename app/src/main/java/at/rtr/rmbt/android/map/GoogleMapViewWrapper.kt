@@ -40,7 +40,9 @@ class GoogleMapViewWrapper(private val mapView: MapView) : MapViewWrapper {
     }
 
     override fun onSaveInstanceState(savedInstanceState: Bundle?) {
-        mapView.onSaveInstanceState(savedInstanceState)
+        savedInstanceState?.let{
+            mapView.onSaveInstanceState(savedInstanceState)
+        }
     }
 
     override fun onDestroy() {
