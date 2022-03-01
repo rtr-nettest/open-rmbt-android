@@ -13,6 +13,7 @@ import at.rtr.rmbt.android.databinding.ItemCellInfoNrBinding
 import at.rtr.rmbt.android.databinding.ItemHistoryBinding
 import at.rtr.rmbt.android.util.bindWith
 import at.specure.info.cell.CellTechnology
+import at.specure.util.getEuBand
 import at.specure.util.toTechnologyClass
 import cz.mroczis.netmonster.core.model.cell.CellCdma
 import cz.mroczis.netmonster.core.model.cell.CellGsm
@@ -229,23 +230,22 @@ class ICellAdapter : RecyclerView.Adapter<ICellAdapter.Holder>() {
             position: Int,
             item: ICell?
         ) {
-            if (item is ICell) {
-                binding.bandNameNr = item.band?.name ?: ""
-                binding.frequencyNr = item.band?.channelNumber?.toString()
+            if (item is CellNr) {
+                val bandNrEu = item.getEuBand()
+                binding.bandNameNr = bandNrEu?.name ?: ""
+                binding.frequencyNr = bandNrEu?.channelNumber?.toString()
                 binding.subscriptionId5g = item.subscriptionId.toString() + " (${item.network?.toPlmn("-")})"
                 binding.networkTypeNR = "5G (NR)"
 
                 binding.signalSsrsrpNr = null
                 binding.signalSsrsrqNr = null
 
-                if (item is CellNr) {
-                    val rawCellInfo = item as CellNr
-                    rawCellInfo.signal.ssRsrp?.let {
-                        binding.signalSsrsrpNr = "$it dBm"
-                    }
-                    rawCellInfo.signal.ssRsrq?.let {
-                        binding.signalSsrsrqNr = "$it dB"
-                    }
+                val rawCellInfo = item as CellNr
+                rawCellInfo.signal.ssRsrp?.let {
+                    binding.signalSsrsrpNr = "$it dBm"
+                }
+                rawCellInfo.signal.ssRsrq?.let {
+                    binding.signalSsrsrqNr = "$it dB"
                 }
             }
         }
