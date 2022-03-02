@@ -6,6 +6,7 @@ import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.text.InputType
 import android.view.View
@@ -374,7 +375,11 @@ class SettingsFragment : BaseFragment(), InputSettingDialog.Callback, ServerSele
         when (code) {
             KEY_RADIO_INFO_CODE -> {
                 val i = Intent(Intent.ACTION_VIEW)
-                i.setClassName("com.android.settings", "com.android.settings.RadioInfo")
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                    i.setClassName("com.android.phone", "com.android.phone.settings.RadioInfo")
+                } else {
+                    i.setClassName("com.android.settings", "com.android.settings.RadioInfo")
+                }
                 try {
                     startActivity(i)
                 } catch (e: ActivityNotFoundException) {

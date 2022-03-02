@@ -12,25 +12,25 @@ interface MarkerWrapper {
     fun setVectorIcon(context: Context, @DrawableRes iconResId: Int)
 }
 
-class HMSMarker(private val marker: Marker) : MarkerWrapper {
+class HMSMarker(private val marker: Marker?) : MarkerWrapper {
 
     override fun remove() {
-        marker.remove()
+        marker?.remove()
     }
 
     override fun setVectorIcon(context: Context, iconResId: Int) {
-        marker.iconFromVector(context, iconResId)
+        marker?.iconFromVector(context, iconResId)
     }
 }
 
-class GMSMarker(private val marker: com.google.android.gms.maps.model.Marker) : MarkerWrapper {
+class GMSMarker(private val marker: com.google.android.gms.maps.model.Marker?) : MarkerWrapper {
 
     override fun remove() {
-        marker.remove()
+        marker?.remove()
     }
 
     override fun setVectorIcon(context: Context, iconResId: Int) {
-        marker.iconFromVector(context, iconResId)
+        marker?.iconFromVector(context, iconResId)
     }
 }
 
