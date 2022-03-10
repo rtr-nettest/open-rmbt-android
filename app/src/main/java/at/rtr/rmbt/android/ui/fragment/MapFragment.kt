@@ -99,9 +99,7 @@ class MapFragment : BaseFragment(), MapMarkerDetailsAdapter.MarkerDetailsCallbac
                 .show(fragmentManager)
         }
 
-        binding.fabFilters.setOnClickListener {
-            MapFiltersDialog.instance(this, CODE_FILTERS_DIALOG).show(fragmentManager)
-        }
+        setFiltersOnClickListener()
 
         snapHelper = LinearSnapHelper().apply { attachToRecyclerView(binding.markerItems) }
         binding.markerItems.adapter = adapter
@@ -123,6 +121,16 @@ class MapFragment : BaseFragment(), MapMarkerDetailsAdapter.MarkerDetailsCallbac
             binding.webMap.settings.javaScriptEnabled = true
             binding.webMap.loadUrl("https://www.netztest.at/en/Karte")
         }
+    }
+
+    private fun setFiltersOnClickListener() {
+        binding.fabFilters.setOnClickListener {
+            MapFiltersDialog.instance(this, CODE_FILTERS_DIALOG).show(fragmentManager)
+        }
+    }
+
+    private fun removeFiltersOnClickListener() {
+        binding.fabFilters.setOnClickListener { }
     }
 
     private fun mapW(): MapWrapper {
@@ -167,10 +175,11 @@ class MapFragment : BaseFragment(), MapMarkerDetailsAdapter.MarkerDetailsCallbac
             Timber.d("Map services available: $mapServicesAvailable")
             Timber.d("Map filter loaded: $isMapFilterLoaded")
             if (markerDetailsHidden && mapServicesAvailable && isMapFilterLoaded) {
-                binding.fabFilters.show()
+                setFiltersOnClickListener()
                 Timber.d("SHOWING MAP FILTER BUTTON")
             } else {
                 binding.fabFilters.hide()
+                removeFiltersOnClickListener()
                 Timber.d("HIDING MAP FILTER BUTTON")
             }
         }
