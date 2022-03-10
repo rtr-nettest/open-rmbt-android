@@ -166,21 +166,35 @@ class MapFragment : BaseFragment(), MapMarkerDetailsAdapter.MarkerDetailsCallbac
         return requireContext().isGmsAvailable() || requireContext().isHmsAvailable()
     }
 
+    private fun hideFilters() {
+        binding.fabFilters.show()
+        binding.fabFilters.hide()
+        binding.fabLocation.show()
+        binding.fabLocation.hide()
+        removeFiltersOnClickListener()
+        Timber.d("HIDING MAP FILTER BUTTON")
+    }
+
     private fun updateFiltersVisibility() {
         Handler(Looper.getMainLooper()).post {
-            val markerDetailsHidden = binding.markerItems.visibility == View.GONE
             val mapServicesAvailable = checkServices()
             val isMapFilterLoaded = mapViewModel.isFilterLoaded()
-            Timber.d("Marker detail hidden: $markerDetailsHidden")
             Timber.d("Map services available: $mapServicesAvailable")
             Timber.d("Map filter loaded: $isMapFilterLoaded")
-            if (markerDetailsHidden && mapServicesAvailable && isMapFilterLoaded) {
+            if (mapServicesAvailable && isMapFilterLoaded) {
+                binding.fabFilters.hide()
+                binding.fabFilters.show()
                 setFiltersOnClickListener()
                 Timber.d("SHOWING MAP FILTER BUTTON")
             } else {
-                binding.fabFilters.hide()
-                removeFiltersOnClickListener()
-                Timber.d("HIDING MAP FILTER BUTTON")
+                hideFilters()
+            }
+            if (mapServicesAvailable) {
+                binding.fabLocation.hide()
+                binding.fabLocation.show()
+            } else {
+                binding.fabLocation.show()
+                binding.fabLocation.hide()
             }
         }
     }
@@ -203,10 +217,10 @@ class MapFragment : BaseFragment(), MapMarkerDetailsAdapter.MarkerDetailsCallbac
                     mapW().animateCamera(latlng)
                 }
                 binding.markerItems.visibility = View.VISIBLE
-                binding.fabLocation.visibility = View.GONE
+                binding.fabLocation.hide()
                 visiblePosition = 0
                 drawMarker(it.first())
-                updateFiltersVisibility()
+                hideFilters()
             } else {
                 onCloseMarkerDetails()
             }
@@ -264,7 +278,7 @@ class MapFragment : BaseFragment(), MapMarkerDetailsAdapter.MarkerDetailsCallbac
         currentMarker = null
 //        adapter.items = mutableListOf()
         if (mapViewModel.state.playServicesAvailable.get()) {
-            binding.fabLocation.visibility = View.VISIBLE
+            binding.fabLocation.show()
             updateFiltersVisibility()
         }
     }

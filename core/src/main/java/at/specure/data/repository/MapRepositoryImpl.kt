@@ -121,63 +121,64 @@ class MapRepositoryImpl @Inject constructor(
 
             val result = client.obtainMapFiltersInfo(FilterLanguageRequestBody(Locale.getDefault().language))
 
-            result.onSuccess {
-                it.filters
-                val types = LinkedHashMap<String, MapFilterType>()
-                val subTypes: MutableMap<MapFilterType, List<MapTypeOptionsResponse>> = hashMapOf()
+            result.onSuccess { mapFilterResponse ->
+                mapFilterResponse.filters?.let {
+                    val types = LinkedHashMap<String, MapFilterType>()
+                    val subTypes: MutableMap<MapFilterType, List<MapTypeOptionsResponse>> = hashMapOf()
 
-                val mapTypes = it.filters?.firstOrNull { item -> item.icon == MapFilterTypeClass.MAP_TYPE.serverValue }
+                    val mapTypes = mapFilterResponse.filters?.firstOrNull { item -> item.icon == MapFilterTypeClass.MAP_TYPE.serverValue }
 
-                mapTypes?.options?.forEach {
-                    MapFilterType.fromServerString(it.title)?.let { filterType ->
-                        types[it.title] = filterType
-                        it.options?.let { mapTypesOptions ->
-                            subTypes[filterType] = mapTypesOptions.toV1MapOptions()
+                    mapTypes?.options?.forEach { mapTypeOptions ->
+                        MapFilterType.fromServerString(mapTypeOptions.title)?.let { filterType ->
+                            types[mapTypeOptions.title] = filterType
+                            mapTypeOptions.options?.let { mapTypesOptions ->
+                                subTypes[filterType] = mapTypesOptions.toV1MapOptions()
+                            }
                         }
                     }
-                }
 
-                val otherFilters = it.filters?.filter { item -> item.icon != MapFilterTypeClass.MAP_TYPE.serverValue }
-                var statistics: Map<MapFilterType, List<FilterStatisticOptionResponse>> = hashMapOf<MapFilterType, List<FilterStatisticOptionResponse>>()
-                var period: Map<MapFilterType, List<FilterPeriodOptionResponse>> = hashMapOf<MapFilterType, List<FilterPeriodOptionResponse>>()
-                var technology: Map<MapFilterType, List<FilterTechnologyOptionResponse>> = hashMapOf<MapFilterType, List<FilterTechnologyOptionResponse>>()
-                var operator: Map<MapFilterType, List<FilterOperatorOptionResponse>> = hashMapOf<MapFilterType, List<FilterOperatorOptionResponse>>()
-                var provider: Map<MapFilterType, List<FilterProviderOptionResponse>> = hashMapOf<MapFilterType, List<FilterProviderOptionResponse>>()
+                    val otherFilters = mapFilterResponse.filters?.filter { item -> item.icon != MapFilterTypeClass.MAP_TYPE.serverValue }
+                    var statistics: Map<MapFilterType, List<FilterStatisticOptionResponse>> = hashMapOf<MapFilterType, List<FilterStatisticOptionResponse>>()
+                    var period: Map<MapFilterType, List<FilterPeriodOptionResponse>> = hashMapOf<MapFilterType, List<FilterPeriodOptionResponse>>()
+                    var technology: Map<MapFilterType, List<FilterTechnologyOptionResponse>> = hashMapOf<MapFilterType, List<FilterTechnologyOptionResponse>>()
+                    var operator: Map<MapFilterType, List<FilterOperatorOptionResponse>> = hashMapOf<MapFilterType, List<FilterOperatorOptionResponse>>()
+                    var provider: Map<MapFilterType, List<FilterProviderOptionResponse>> = hashMapOf<MapFilterType, List<FilterProviderOptionResponse>>()
 
-                otherFilters?.forEach {
-                    MapFilterTypeClass.fromServerString(it.icon ?: MapFilterTypeClass.MAP_FILTER_STATISTIC.serverValue)?.let { filterType ->
-                        when (filterType) {
-                            MapFilterTypeClass.MAP_FILTER_TECHNOLOGY -> {
-                                storage.titleTechnology = it.title
-                                technology = it.toTechnologyMap()
-                            }
-                            MapFilterTypeClass.MAP_FILTER_CARRIER -> {
-                                if (it.dependsOn?.mapTypeIsMobile == true) {
-                                    storage.titleOperator = it.title
-                                    operator = it.toOperatorMap()
-                                } else {
-                                    storage.titleProvider = it.title
-                                    provider = it.toProviderMap()
+                    otherFilters?.forEach { filterItem ->
+                        MapFilterTypeClass.fromServerString(filterItem.icon ?: MapFilterTypeClass.MAP_FILTER_STATISTIC.serverValue)?.let { filterType ->
+                            when (filterType) {
+                                MapFilterTypeClass.MAP_FILTER_TECHNOLOGY -> {
+                                    storage.titleTechnology = filterItem.title
+                                    technology = filterItem.toTechnologyMap()
+                                }
+                                MapFilterTypeClass.MAP_FILTER_CARRIER -> {
+                                    if (filterItem.dependsOn?.mapTypeIsMobile == true) {
+                                        storage.titleOperator = filterItem.title
+                                        operator = filterItem.toOperatorMap()
+                                    } else {
+                                        storage.titleProvider = filterItem.title
+                                        provider = filterItem.toProviderMap()
+                                    }
+                                }
+                                MapFilterTypeClass.MAP_FILTER_PERIOD -> {
+                                    storage.titlePeriod = filterItem.title
+                                    period = filterItem.toPeriodMap()
+                                }
+                                MapFilterTypeClass.MAP_FILTER_STATISTIC -> {
+                                    storage.titleStatistics = filterItem.title
+                                    statistics = filterItem.toStatisticMap()
                                 }
                             }
-                            MapFilterTypeClass.MAP_FILTER_PERIOD -> {
-                                storage.titlePeriod = it.title
-                                period = it.toPeriodMap()
-                            }
-                            MapFilterTypeClass.MAP_FILTER_STATISTIC -> {
-                                storage.titleStatistics = it.title
-                                statistics = it.toStatisticMap()
-                            }
                         }
                     }
-                }
 
-                storage.apply {
-                    init(types, subTypes, statistics, period, technology, operator, provider, Calendar.getInstance().getCurrentLatestFinishedMonth())
-                }
-                markTypeAsSelected(storage.findType(active.type))
+                    storage.apply {
+                        init(types, subTypes, statistics, period, technology, operator, provider, Calendar.getInstance().getCurrentLatestFinishedMonth())
+                    }
+                    markTypeAsSelected(storage.findType(active.type))
 
-                callback.invoke(types.keys.toMutableList())
+                    callback.invoke(types.keys.toMutableList())
+                }
             }
         } else {
             val types = LinkedHashMap<String, MapFilterType>()
