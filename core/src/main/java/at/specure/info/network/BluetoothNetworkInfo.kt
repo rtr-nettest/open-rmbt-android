@@ -18,9 +18,9 @@ import at.specure.info.TransportType
 import java.util.UUID
 
 /**
- * Data object that contains information about other network
+ * Data object that contains information about WiFi network
  */
-open class OtherNetworkInfo(
+open class BluetoothNetworkInfo(
 
     /**
      * The current link speed in Mbps.
@@ -39,4 +39,4 @@ open class OtherNetworkInfo(
 
     override val capabilitiesRaw: String?
 
-) : NetworkInfo(TransportType.UNKNOWN, UUID.nameUUIDFromBytes(("").toByteArray()).toString(), capabilitiesRaw)
+) : NetworkInfo(TransportType.BLUETOOTH, UUID.nameUUIDFromBytes(("").toByteArray()).toString(), capabilitiesRaw)

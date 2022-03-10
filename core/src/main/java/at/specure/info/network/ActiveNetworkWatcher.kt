@@ -113,6 +113,12 @@ class ActiveNetworkWatcher(
                     TransportType.CELLULAR -> {
                         updateCellNetworkInfo()
                     }
+                    TransportType.BLUETOOTH -> {
+                        BluetoothNetworkInfo(connectivityInfo.linkDownstreamBandwidthKbps, connectivityInfo.netId, null, connectivityInfo.capabilitiesRaw.toString())
+                    }
+                    TransportType.VPN -> {
+                        VpnNetworkInfo(connectivityInfo.linkDownstreamBandwidthKbps, connectivityInfo.netId, null, connectivityInfo.capabilitiesRaw.toString())
+                    }
                     else -> {
                         Timber.d("NIFU creating OtherNetworkInfo: \n\n $connectivityInfo")
                         OtherNetworkInfo(connectivityInfo.linkDownstreamBandwidthKbps, connectivityInfo.netId, null, connectivityInfo.capabilitiesRaw.toString())

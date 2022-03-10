@@ -11,7 +11,9 @@ enum class MapFilterType(
     ALL("all", "All"),
     BROWSER("browser", "Browser"),
     MOBILE("mobile", "Mobile"),
-    WLAN("wifi", "WLAN (App)");
+    WLAN("wifi", "WLAN (App)"),
+    BLUETOOTH("bluetooth", "Bluetooth"),
+    VPN("vpn", "VPN");
 
     companion object {
         fun fromServerString(type: String): MapFilterType? {

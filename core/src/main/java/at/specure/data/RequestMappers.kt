@@ -448,6 +448,7 @@ fun TransportType.toRequestIntValue(mobileNetworkType: MobileNetworkType?): Int 
         TransportType.BLUETOOTH -> NetworkTypeCompat.TYPE_BLUETOOTH_VALUE
         TransportType.ETHERNET -> NetworkTypeCompat.TYPE_ETHERNET_VALUE
         TransportType.WIFI -> NetworkTypeCompat.TYPE_WIFI_VALUE
+        TransportType.VPN -> NetworkTypeCompat.TYPE_VPN_VALUE
         else -> Int.MAX_VALUE
     }
 }
