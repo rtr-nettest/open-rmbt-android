@@ -22,5 +22,14 @@ enum class MapFilterType(
             }
             return null
         }
+
+        fun fromFilterString(type: String): MapFilterType? {
+            MapFilterType.values().forEach { x ->
+                if (x.value.contentEquals(type, true)) {
+                    return x
+                }
+            }
+            return null
+        }
     }
 }

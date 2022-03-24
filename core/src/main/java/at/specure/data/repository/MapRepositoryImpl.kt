@@ -129,10 +129,14 @@ class MapRepositoryImpl @Inject constructor(
                     val mapTypes = mapFilterResponse.filters?.firstOrNull { item -> item.icon == MapFilterTypeClass.MAP_TYPE.serverValue }
 
                     mapTypes?.options?.forEach { mapTypeOptions ->
-                        MapFilterType.fromServerString(mapTypeOptions.title)?.let { filterType ->
-                            types[mapTypeOptions.title] = filterType
-                            mapTypeOptions.options?.let { mapTypesOptions ->
-                                subTypes[filterType] = mapTypesOptions.toV1MapOptions()
+                        val filterType =
+                            mapTypeOptions.options?.get(0)?.params?.mapOptions?.split('/')?.get(0) ?: "all"
+                        filterType?.let {
+                            MapFilterType.fromFilterString(it)?.let { filterType ->
+                                types[it] = filterType
+                                mapTypeOptions.options?.let { mapTypesOptions ->
+                                    subTypes[filterType] = mapTypesOptions.toV1MapOptions()
+                                }
                             }
                         }
                     }
