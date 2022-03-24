@@ -133,7 +133,7 @@ class MapRepositoryImpl @Inject constructor(
                             mapTypeOptions.options?.get(0)?.params?.mapOptions?.split('/')?.get(0) ?: "all"
                         filterType?.let {
                             MapFilterType.fromFilterString(it)?.let { filterType ->
-                                types[it] = filterType
+                                types[mapTypeOptions.title] = filterType
                                 mapTypeOptions.options?.let { mapTypesOptions ->
                                     subTypes[filterType] = mapTypesOptions.toV1MapOptions()
                                 }
