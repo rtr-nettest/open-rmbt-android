@@ -473,8 +473,8 @@ class MapFragment : BaseFragment(), MapMarkerDetailsAdapter.MarkerDetailsCallbac
     }
 
     private fun isMarkersAvailable(): Boolean =
-        mapViewModel.state.type.get() == MapPresentationType.POINTS ||
-                (mapViewModel.state.type.get() == MapPresentationType.AUTOMATIC && mapW().currentCameraZoom() >= 10)
+        mapViewModel.isFilterLoaded() && (mapViewModel.state.type.get() == MapPresentationType.POINTS ||
+                (mapViewModel.state.type.get() == MapPresentationType.AUTOMATIC && mapW().currentCameraZoom() >= 10))
 
     private fun showSearchDialog() {
         if (!Geocoder.isPresent()) {
