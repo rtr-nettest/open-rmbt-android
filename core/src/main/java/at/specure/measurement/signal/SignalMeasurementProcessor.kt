@@ -34,7 +34,8 @@ import at.specure.location.LocationWatcher
 import at.specure.location.cell.CellLocationInfo
 import at.specure.test.SignalMeasurementType
 import at.specure.test.toDeviceInfoLocation
-import at.specure.util.isCoarseLocationPermitted
+import at.specure.util.isFineLocationPermitted
+import at.specure.util.isLocationServiceEnabled
 import at.specure.util.isReadPhoneStatePermitted
 import at.specure.util.toCellLocation
 import at.specure.util.toRecords
@@ -401,7 +402,7 @@ class SignalMeasurementProcessor @Inject constructor(
 
     private fun saveCellInfo(detailedNetworkInfo: DetailedNetworkInfo?) = io {
         val uuid = chunk?.id
-        if (context.isCoarseLocationPermitted() && context.isReadPhoneStatePermitted()) {
+        if (context.isLocationServiceEnabled() && context.isFineLocationPermitted() && context.isReadPhoneStatePermitted()) {
             try {
                 if (uuid != null && detailedNetworkInfo != null) {
                     val testStartTimeNanos = record?.startTimeNanos ?: 0

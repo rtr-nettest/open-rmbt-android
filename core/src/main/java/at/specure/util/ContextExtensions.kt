@@ -6,6 +6,7 @@ import android.content.ClipboardManager
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.location.LocationManager
 import android.net.Uri
 import android.provider.Settings
 import android.telephony.SubscriptionManager
@@ -13,6 +14,32 @@ import android.telephony.TelephonyManager
 import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.core.content.PermissionChecker
+import timber.log.Timber
+
+/**
+ * @return true if location services are enabled, false otherwise
+ */
+fun Context.isLocationServiceEnabled(): Boolean {
+    lateinit var lm: LocationManager
+    var gpsEnabled = false
+    var networkEnabled = false
+
+    try {
+        lm = this.getSystemService(Context.LOCATION_SERVICE) as LocationManager
+        gpsEnabled = lm.isProviderEnabled(LocationManager.GPS_PROVIDER)
+        networkEnabled = lm.isProviderEnabled(LocationManager.NETWORK_PROVIDER)
+    } catch (e: Exception) {
+        Timber.e(e)
+    }
+    return gpsEnabled || networkEnabled
+}
+
+/**
+ * @return true if [Manifest.permission.ACCESS_FINE_LOCATION] permissions
+ * are granted
+ */
+fun Context.isFineLocationPermitted() =
+    ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
 
 /**
  * @return true if [Manifest.permission.ACCESS_FINE_LOCATION] or [Manifest.permission.ACCESS_COARSE_LOCATION] permissions
