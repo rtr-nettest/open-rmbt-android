@@ -28,7 +28,8 @@ import at.specure.info.strength.SignalStrengthInfo
 import at.specure.util.filter5GCells
 import at.specure.util.filterOnlyPrimaryActiveDataCell
 import at.specure.util.filterOnlySecondaryActiveDataCell
-import at.specure.util.isCoarseLocationPermitted
+import at.specure.util.isFineLocationPermitted
+import at.specure.util.isLocationServiceEnabled
 import at.specure.util.isReadPhoneStatePermitted
 import at.specure.util.mobileNetworkType
 import at.specure.util.toCellNetworkInfo
@@ -98,7 +99,7 @@ class CellInfoWatcherImpl(
         Timber.d("Updating cellInfo")
         clearLists()
 
-        if (context.isCoarseLocationPermitted() && context.isReadPhoneStatePermitted()) {
+        if (context.isLocationServiceEnabled() && context.isFineLocationPermitted() && context.isReadPhoneStatePermitted()) {
             try {
                 var cells: List<ICell>? = null
 
