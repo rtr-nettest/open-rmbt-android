@@ -29,11 +29,7 @@ import at.specure.info.cell.CellNetworkInfo
 import at.specure.info.cell.CellTechnology
 import at.specure.info.ip.IpInfo
 import at.specure.info.ip.IpStatus
-import at.specure.info.network.NetworkInfo
-import at.specure.info.network.DetailedNetworkInfo
-import at.specure.info.network.EthernetNetworkInfo
-import at.specure.info.network.MobileNetworkType
-import at.specure.info.network.WifiNetworkInfo
+import at.specure.info.network.*
 import at.specure.info.strength.SignalStrengthInfo
 import at.specure.measurement.MeasurementState
 import at.specure.result.QoECategory
@@ -398,6 +394,8 @@ private fun AppCompatTextView.extractTechnologyString(
 ) = when (detailedNetworkInfo?.networkInfo) {
     is EthernetNetworkInfo -> context.getString(R.string.home_ethernet)
     is WifiNetworkInfo -> context.getString(R.string.home_wifi)
+    is VpnNetworkInfo -> context.getString(R.string.home_vpn)
+    is BluetoothNetworkInfo -> context.getString(R.string.home_bluetooth)
     is CellNetworkInfo -> {
         val technology =
             CellTechnology.fromMobileNetworkType((detailedNetworkInfo.networkInfo as CellNetworkInfo).networkType)?.displayName
@@ -445,6 +443,7 @@ fun AppCompatImageView.setTechnologyIcon(networkInfo: NetworkInfo?) {
             visibility = View.VISIBLE
             setImageResource(R.drawable.ic_label_ethernet)
         }
+        // todo: add resources for VPN and Bluetooth
         else -> visibility = View.GONE
     }
 }
@@ -820,6 +819,12 @@ private fun getSignalImageResource(networkType: NetworkTypeCompat, signalStrengt
         NetworkTypeCompat.TYPE_UNKNOWN -> {
             R.drawable.ic_signal_unknown_small
         }
+        NetworkTypeCompat.TYPE_BLUETOOTH -> {
+            R.drawable.ic_bluetooth
+        }
+        NetworkTypeCompat.TYPE_VPN -> {
+            R.drawable.ic_vpn
+        }
         NetworkTypeCompat.TYPE_LAN -> {
             R.drawable.ic_ethernet
         }
@@ -1102,6 +1107,12 @@ fun ImageView.setNetworkType(networkType: String, signalStrength: Classification
                 }
                 NetworkTypeCompat.TYPE_UNKNOWN -> {
                     R.drawable.ic_history_no_internet
+                }
+                NetworkTypeCompat.TYPE_BLUETOOTH -> {
+                    R.drawable.ic_bluetooth
+                }
+                NetworkTypeCompat.TYPE_VPN -> {
+                    R.drawable.ic_vpn
                 }
                 NetworkTypeCompat.TYPE_LAN,
                 NetworkTypeCompat.TYPE_BROWSER -> {

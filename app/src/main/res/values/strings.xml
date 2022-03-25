@@ -36,6 +36,8 @@
     <string name="home_frequency_value" translatable="false">%1$s MHz</string>
     <string name="home_start_test_info">Press the button to start the test now!</string>
     <string name="home_wifi">WLAN</string>
+    <string name="home_vpn" translatable="false">VPN</string>
+    <string name="home_bluetooth" translatable="false">Bluetooth</string>
     <string name="public_ip_address">Public address</string>
     <string name="private_ip_address">Private address</string>
 

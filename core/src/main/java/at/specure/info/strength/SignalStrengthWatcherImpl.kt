@@ -26,6 +26,8 @@ import at.specure.info.network.ActiveNetworkWatcher
 import at.specure.info.network.DetailedNetworkInfo
 import at.specure.info.network.NetworkInfo
 import at.specure.info.network.OtherNetworkInfo
+import at.specure.info.network.BluetoothNetworkInfo
+import at.specure.info.network.VpnNetworkInfo
 import at.specure.info.wifi.WifiInfoWatcher
 import at.specure.util.permission.LocationAccess
 import at.specure.util.synchronizedForEach
@@ -121,18 +123,22 @@ class SignalStrengthWatcherImpl(
                 return
             }
 
-            if (newNetworkInfo is OtherNetworkInfo) {
-                unregisterWifiCallbacks()
-                unregisterCellCallbacks()
-                signalStrengthInfo = null
-                secondaryActiveSignalStrengthInfo = null
-                secondary5GActiveSignalStrengthInfo = null
-                secondaryActiveNetworkInfo = null
-                inactiveNetworkInfo = null
-                secondary5GActiveNetworkInfo = null
-                networkInfo = newNetworkInfo
-                detailedNetworkInfo = null
-                notifyInfoChanged()
+            when (newNetworkInfo) {
+                is BluetoothNetworkInfo,
+                is VpnNetworkInfo,
+                is OtherNetworkInfo -> {
+                    unregisterWifiCallbacks()
+                    unregisterCellCallbacks()
+                    signalStrengthInfo = null
+                    secondaryActiveSignalStrengthInfo = null
+                    secondary5GActiveSignalStrengthInfo = null
+                    secondaryActiveNetworkInfo = null
+                    inactiveNetworkInfo = null
+                    secondary5GActiveNetworkInfo = null
+                    networkInfo = newNetworkInfo
+                    detailedNetworkInfo = null
+                    notifyInfoChanged()
+                }
             }
 
             if (newNetworkInfo.type == TransportType.CELLULAR) {
