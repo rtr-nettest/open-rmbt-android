@@ -15,7 +15,6 @@ import at.rtr.rmbt.android.ui.adapter.QosResultAdapter
 import at.rtr.rmbt.android.ui.adapter.ResultChartFragmentPagerAdapter
 import at.rtr.rmbt.android.ui.adapter.ResultQoEAdapter
 import at.rtr.rmbt.android.util.isGmsAvailable
-import at.rtr.rmbt.android.util.isHmsAvailable
 import at.rtr.rmbt.android.util.listen
 import at.rtr.rmbt.android.viewmodel.ResultViewModel
 import at.specure.data.NetworkTypeCompat
@@ -37,7 +36,7 @@ class ResultsActivity : BaseActivity() {
         binding = bindContentView(R.layout.activity_results)
         binding.state = viewModel.state
 
-        viewModel.state.playServicesAvailable.set(isGmsAvailable() || isHmsAvailable())
+        viewModel.state.playServicesAvailable.set(isGmsAvailable())
 
         binding.map.onCreate(savedInstanceState)
 

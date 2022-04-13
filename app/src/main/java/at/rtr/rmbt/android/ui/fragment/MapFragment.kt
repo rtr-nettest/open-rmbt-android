@@ -163,7 +163,7 @@ class MapFragment : BaseFragment(), MapMarkerDetailsAdapter.MarkerDetailsCallbac
     }
 
     private fun checkServices(): Boolean {
-        return requireContext().isGmsAvailable() || requireContext().isHmsAvailable()
+        return requireContext().isGmsAvailable()
     }
 
     private fun hideFilters() {
