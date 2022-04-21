@@ -439,11 +439,11 @@ class SignalMeasurementProcessor @Inject constructor(
                 val otherCells = if (detailedNetworkInfo.allCellInfos.isNullOrEmpty()) {
                     mutableListOf<ICell>()
                 } else {
-                    detailedNetworkInfo.allCellInfos as MutableList
+                    detailedNetworkInfo.allCellInfos.toMutableList()
                 }
                 val testStartTimeNanos = testStartTimeNanos ?: 0
 
-                if (detailedNetworkInfo.networkInfo is CellNetworkInfo) {
+                if (detailedNetworkInfo.networkInfo != null && detailedNetworkInfo.networkInfo is CellNetworkInfo) {
                     otherCells.remove(detailedNetworkInfo.networkInfo.rawCellInfo)
                 }
 
