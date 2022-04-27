@@ -28,10 +28,12 @@ import at.specure.measurement.MeasurementState
 import at.specure.util.hasPermission
 import at.specure.util.permission.PermissionsWatcher
 import com.google.gson.Gson
+import com.google.gson.JsonArray
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
 import kotlinx.coroutines.delay
+import org.json.JSONArray
 import org.json.JSONObject
 import timber.log.Timber
 import java.net.InetAddress
@@ -183,10 +185,11 @@ class TestControllerImpl(
                 addDebugCapabilities(permissionStatuses, "Active network is null")
             }
 
+            val permissionStatusesJson = gson.toJson(permissionStatuses)
             val additionalValues = JSONObject(gson.toJson(deviceInfo))
                 .put(KEY_TEST_COUNTER, config.testCounter)
                 .put(KEY_PREVIOUS_TEST_STATUS, config.previousTestStatus)
-                .put(KEY_PERMISSIONS_STATUS, permissionStatuses)
+                .put(KEY_PERMISSIONS_STATUS, JSONArray(permissionStatusesJson))
 
             loopSettings?.let {
                 additionalValues.put(KEY_LOOP_MODE_SETTINGS, JSONObject(gson.toJson(it, LoopModeSettings::class.java)))
