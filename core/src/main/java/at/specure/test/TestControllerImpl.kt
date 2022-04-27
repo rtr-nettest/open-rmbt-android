@@ -6,6 +6,7 @@ import android.net.Network
 import android.net.NetworkCapabilities.TRANSPORT_CELLULAR
 import android.net.NetworkCapabilities.TRANSPORT_ETHERNET
 import android.net.NetworkCapabilities.TRANSPORT_WIFI
+import at.rmbt.client.control.PermissionStatusBody
 import at.rtr.rmbt.client.QualityOfServiceTest
 import at.rtr.rmbt.client.RMBTClient
 import at.rtr.rmbt.client.RMBTClientCallback
@@ -21,7 +22,11 @@ import at.rtr.rmbt.util.model.shared.exception.ErrorStatus
 import at.specure.config.Config
 import at.specure.data.ClientUUID
 import at.specure.data.MeasurementServers
+import at.specure.data.addDebugCapabilities
+import at.specure.data.toRequest
 import at.specure.measurement.MeasurementState
+import at.specure.util.hasPermission
+import at.specure.util.permission.PermissionsWatcher
 import com.google.gson.Gson
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.Job
@@ -35,6 +40,7 @@ import kotlin.math.floor
 
 private const val KEY_TEST_COUNTER = "testCounter"
 private const val KEY_PREVIOUS_TEST_STATUS = "previousTestStatus"
+private const val KEY_PERMISSIONS_STATUS = "android_permission_status"
 private const val KEY_LOOP_MODE_SETTINGS = "loopmode_info"
 private const val KEY_SERVER_SELECTION_ENABLED = "user_server_selection"
 private const val KEY_SERVER_PREFERRED = "prefer_server"
@@ -50,7 +56,8 @@ class TestControllerImpl(
     private val config: Config,
     private val clientUUID: ClientUUID,
     private val connectivityManager: ConnectivityManager,
-    private val measurementServer: MeasurementServers
+    private val measurementServer: MeasurementServers,
+    private val permissionsWatcher: PermissionsWatcher
 ) : TestController {
 
     private var lastNetwork: Network? = null
@@ -159,9 +166,27 @@ class TestControllerImpl(
 
             val gson = Gson()
             val errorSet = mutableSetOf<ErrorStatus>()
+
+            val permissions = permissionsWatcher.allPermissions
+            var permissionStatuses: List<PermissionStatusBody> = permissions.map { permission ->
+                val permissionGranted = context.hasPermission(permission)
+                PermissionStatusBody(
+                    permission = permission,
+                    status = permissionGranted
+                )
+            }
+            val activeNetwork = connectivityManager.activeNetwork
+            permissionStatuses = if (activeNetwork != null) {
+                val newNetworkCapabilities = connectivityManager.getNetworkCapabilities(activeNetwork)
+                addDebugCapabilities(permissionStatuses, "Network capabilities from start of the test = $newNetworkCapabilities")
+            } else {
+                addDebugCapabilities(permissionStatuses, "Active network is null")
+            }
+
             val additionalValues = JSONObject(gson.toJson(deviceInfo))
                 .put(KEY_TEST_COUNTER, config.testCounter)
                 .put(KEY_PREVIOUS_TEST_STATUS, config.previousTestStatus)
+                .put(KEY_PERMISSIONS_STATUS, permissionStatuses)
 
             loopSettings?.let {
                 additionalValues.put(KEY_LOOP_MODE_SETTINGS, JSONObject(gson.toJson(it, LoopModeSettings::class.java)))

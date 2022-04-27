@@ -578,7 +578,7 @@ fun SignalMeasurementRecord.toRequest(
     )
 }
 
-private fun addDebugCapabilities(permissionStatuses: List<PermissionStatusBody>?, capabilitiesString: String?): List<PermissionStatusBody>? {
+fun addDebugCapabilities(permissionStatuses: List<PermissionStatusBody>?, capabilitiesString: String?): List<PermissionStatusBody> {
     var permissionStatusesWithDebugInfo = permissionStatuses
     if (permissionStatusesWithDebugInfo == null) {
         permissionStatusesWithDebugInfo = mutableListOf()

@@ -220,9 +220,10 @@ class CoreModule {
         config: Config,
         clientUUID: ClientUUID,
         measurementServers: MeasurementServers,
-        connectivityManager: ConnectivityManager
+        connectivityManager: ConnectivityManager,
+        permissionsWatcher: PermissionsWatcher
     ): TestController =
-        TestControllerImpl(context, config, clientUUID, connectivityManager, measurementServers)
+        TestControllerImpl(context, config, clientUUID, connectivityManager, measurementServers, permissionsWatcher)
 
     @Provides
     @Singleton
