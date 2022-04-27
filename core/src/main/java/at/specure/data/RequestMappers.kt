@@ -590,7 +590,16 @@ private fun addDebugCapabilities(permissionStatuses: List<PermissionStatusBody>?
 }
 
 fun convertLocalNetworkTypeToServerType(transportType: TransportType?, mobileNetworkType: MobileNetworkType?): String {
-    return (transportType?.toRequestIntValue(mobileNetworkType) ?: Int.MAX_VALUE).toString()
+    val primaryNetworkType = (transportType?.toRequestIntValue(mobileNetworkType) ?: Int.MAX_VALUE)
+    val secondaryNetworkType = mobileNetworkType?.intValue
+    if (primaryNetworkType == Int.MAX_VALUE) {
+        if (secondaryNetworkType != null) {
+            return secondaryNetworkType.toString()
+        }
+    } else {
+        return primaryNetworkType.toString()
+    }
+    return primaryNetworkType.toString()
 }
 
 fun List<ConnectivityStateRecord>.toRequest(): List<NetworkEventBody>? {
