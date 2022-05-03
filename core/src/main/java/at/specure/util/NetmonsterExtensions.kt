@@ -348,7 +348,7 @@ fun ICell.toCellNetworkInfo(
         cellUUID = this.uuid(),
         rawCellInfo = this,
         isPrimaryDataSubscription = PrimaryDataSubscription.resolvePrimaryDataSubscriptionID(dataSubscriptionId, this.subscriptionId),
-        capabilitiesRaw = "HARD ${NetworkCapabilities.TRANSPORT_CELLULAR}"
+        capabilitiesRaw = "HARDCODED Capabilities netmonster ${NetworkCapabilities.TRANSPORT_CELLULAR} networkType = $mobileNetworkType"
     )
 }
 
