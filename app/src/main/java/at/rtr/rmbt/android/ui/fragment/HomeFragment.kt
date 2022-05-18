@@ -35,6 +35,8 @@ import at.specure.info.network.WifiNetworkInfo
 import at.specure.location.LocationState
 import at.specure.measurement.MeasurementService
 import at.specure.util.toast
+import timber.log.Timber
+import java.lang.IndexOutOfBoundsException
 
 class HomeFragment : BaseFragment() {
 
@@ -191,19 +193,30 @@ class HomeFragment : BaseFragment() {
     override fun onResume() {
         super.onResume()
         homeViewModel.signalStrengthLiveData.listen(this) {
-            homeViewModel.state.signalStrength.set(it?.signalStrengthInfo)
-            homeViewModel.state.activeNetworkInfo.set(it)
+            val networkInfo = it?.copy()
+            homeViewModel.state.signalStrength.set(networkInfo?.signalStrengthInfo)
+            homeViewModel.state.activeNetworkInfo.set(networkInfo)
             homeViewModel.state.secondary5GActiveNetworkInfo.set(
-                if (it?.secondary5GActiveCellNetworks?.isNotEmpty() == true) {
-                    it.secondary5GActiveCellNetworks?.get(0)
-                } else {
+                try {
+                    if (networkInfo?.secondary5GActiveCellNetworks?.isNotEmpty() == true) {
+                        networkInfo.secondary5GActiveCellNetworks?.get(0)
+                    } else {
+                        null
+                    }
+                } catch (ex: IndexOutOfBoundsException) {
+                    Timber.e(ex)
                     null
                 }
             )
             homeViewModel.state.secondary5GSignalStrength.set(
-                if (it?.secondary5GActiveSignalStrengthInfos?.isNotEmpty() == true) {
-                    it.secondary5GActiveSignalStrengthInfos?.get(0)
-                } else {
+                try{
+                    if (networkInfo?.secondary5GActiveSignalStrengthInfos?.isNotEmpty() == true) {
+                        networkInfo.secondary5GActiveSignalStrengthInfos?.get(0)
+                    } else {
+                        null
+                    }
+                } catch (ex: IndexOutOfBoundsException) {
+                    Timber.e(ex)
                     null
                 }
             )
