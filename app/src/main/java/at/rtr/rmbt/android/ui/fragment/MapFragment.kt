@@ -177,24 +177,26 @@ class MapFragment : BaseFragment(), MapMarkerDetailsAdapter.MarkerDetailsCallbac
 
     private fun updateFiltersVisibility() {
         Handler(Looper.getMainLooper()).post {
-            val mapServicesAvailable = checkServices()
-            val isMapFilterLoaded = mapViewModel.isFilterLoaded()
-            Timber.d("Map services available: $mapServicesAvailable")
-            Timber.d("Map filter loaded: $isMapFilterLoaded")
-            if (mapServicesAvailable && isMapFilterLoaded) {
-                binding.fabFilters.hide()
-                binding.fabFilters.show()
-                setFiltersOnClickListener()
-                Timber.d("SHOWING MAP FILTER BUTTON")
-            } else {
-                hideFilters()
-            }
-            if (mapServicesAvailable) {
-                binding.fabLocation.hide()
-                binding.fabLocation.show()
-            } else {
-                binding.fabLocation.show()
-                binding.fabLocation.hide()
+            if (this.isAdded) {
+                val mapServicesAvailable = checkServices()
+                val isMapFilterLoaded = mapViewModel.isFilterLoaded()
+                Timber.d("Map services available: $mapServicesAvailable")
+                Timber.d("Map filter loaded: $isMapFilterLoaded")
+                if (mapServicesAvailable && isMapFilterLoaded) {
+                    binding.fabFilters.hide()
+                    binding.fabFilters.show()
+                    setFiltersOnClickListener()
+                    Timber.d("SHOWING MAP FILTER BUTTON")
+                } else {
+                    hideFilters()
+                }
+                if (mapServicesAvailable) {
+                    binding.fabLocation.hide()
+                    binding.fabLocation.show()
+                } else {
+                    binding.fabLocation.show()
+                    binding.fabLocation.hide()
+                }
             }
         }
     }
