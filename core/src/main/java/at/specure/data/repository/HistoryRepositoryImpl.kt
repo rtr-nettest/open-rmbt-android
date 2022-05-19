@@ -49,7 +49,7 @@ class HistoryRepositoryImpl(
         offset: Int,
         limit: Int,
         ignoreFilters: Boolean
-    ): Maybe<List<History>> {
+    ): Maybe<List<History?>> {
         val clientUUID = clientUUID.value
         if (clientUUID == null) {
             Timber.w("Unable to update history client uuid is null")
@@ -69,7 +69,7 @@ class HistoryRepositoryImpl(
         offset: Int,
         limit: Int,
         ignoreFilters: Boolean
-    ): Maybe<List<History>> {
+    ): Maybe<List<History?>> {
         val body = HistoryRequestBody(
             clientUUID = clientUUID,
             offset = offset,
@@ -82,7 +82,7 @@ class HistoryRepositoryImpl(
         val response = client.getHistory(body)
 
         return response.map {
-            val items = it.toModelList()
+            val items = it?.toModelList()
             if (offset == 0) {
                 settingsRepository.refreshSettings()
                 historyDao.clear()
@@ -133,7 +133,7 @@ class HistoryRepositoryImpl(
         }
     }
 
-    override fun loadHistoryItems(offset: Int, limit: Int): Maybe<List<History>> {
+    override fun loadHistoryItems(offset: Int, limit: Int): Maybe<List<History?>> {
         return loadHistoryItems(offset, limit, false)
     }
 
