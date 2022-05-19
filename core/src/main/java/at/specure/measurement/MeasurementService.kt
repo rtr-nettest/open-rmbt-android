@@ -263,6 +263,7 @@ class MeasurementService : CustomLifecycleService(), CoroutineScope {
             if (!config.loopModeEnabled || (config.loopModeEnabled && (stateRecorder.loopTestCount >= config.loopModeNumberOfTests || stateRecorder.loopModeRecord?.status == LoopModeState.CANCELLED))) {
                 loopCountdownTimer?.cancel()
                 Timber.d("TIMER: cancelling 3: ${loopCountdownTimer?.hashCode()}")
+                loopCountdownTimer = null
 
                 if (config.loopModeEnabled) {
                     notificationManager.notify(NOTIFICATION_LOOP_FINISHED_ID, notificationProvider.loopModeFinishedNotification())
@@ -326,6 +327,7 @@ class MeasurementService : CustomLifecycleService(), CoroutineScope {
                 if (stateRecorder.loopLocalUuid == null) {
                     loopCountdownTimer?.cancel()
                     Timber.d("TIMER: cancelling 4: ${loopCountdownTimer?.hashCode()}")
+                    loopCountdownTimer = null
                     hasErrors = true
                     notificationManager.cancel(NOTIFICATION_ID)
                     clientAggregator.onMeasurementError()
@@ -340,6 +342,7 @@ class MeasurementService : CustomLifecycleService(), CoroutineScope {
             if (config.loopModeEnabled && (stateRecorder.loopTestCount >= config.loopModeNumberOfTests || (config.loopModeNumberOfTests == 0 && config.developerModeIsEnabled))) {
                 loopCountdownTimer?.cancel()
                 Timber.d("TIMER: cancelling 8: ${loopCountdownTimer?.hashCode()}")
+                loopCountdownTimer = null
                 hasErrors = true
                 notificationManager.cancel(NOTIFICATION_ID)
                 clientAggregator.onMeasurementError()
@@ -373,6 +376,7 @@ class MeasurementService : CustomLifecycleService(), CoroutineScope {
                         notificationManager.cancel(NOTIFICATION_ID)
                         clientAggregator.onMeasurementError()
                     }
+                    loopCountdownTimer = null
                     hasErrors = true
                     stateRecorder.finish()
                     unlock()
@@ -694,6 +698,7 @@ class MeasurementService : CustomLifecycleService(), CoroutineScope {
         runner.stop()
         Timber.d("TIMER: cancelling 2: ${loopCountdownTimer?.hashCode()}")
         loopCountdownTimer?.cancel()
+        loopCountdownTimer = null
         config.previousTestStatus = TestFinishReason.ABORTED.name // cannot be handled in TestController
         stateRecorder.onUnsuccessTest(TestFinishReason.ABORTED)
         measurementState = MeasurementState.ABORTED
@@ -835,6 +840,11 @@ class MeasurementService : CustomLifecycleService(), CoroutineScope {
 
         override val isTestsRunning: Boolean
             get() = !((!config.loopModeEnabled && (this.measurementState == MeasurementState.IDLE || this.measurementState == MeasurementState.ERROR || this.measurementState == MeasurementState.ABORTED || this.measurementState == MeasurementState.FINISH)) || (config.loopModeEnabled && ((this.loopModeState == LoopModeState.IDLE && this.loopLocalUUID == null) || this.loopModeState == LoopModeState.FINISHED || this.loopModeState == LoopModeState.CANCELLED)))
+
+        override val isLoopModeRunning: Boolean
+            get() {
+                return loopCountdownTimer != null
+            }
 
         override val testUUID: String?
             get() = runner.testUUID

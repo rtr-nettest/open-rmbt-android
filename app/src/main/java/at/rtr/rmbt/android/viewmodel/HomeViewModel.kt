@@ -120,6 +120,16 @@ class HomeViewModel @Inject constructor(
             _activeMeasurementSource = null
             _pausedMeasurementSource = null
         }
+
+        override fun onBindingDied(name: ComponentName?) {
+            super.onBindingDied(name)
+            Timber.e("Binding died $name")
+        }
+
+        override fun onNullBinding(name: ComponentName?) {
+            super.onNullBinding(name)
+            Timber.e("Binding null $name")
+        }
     }
 
     init {

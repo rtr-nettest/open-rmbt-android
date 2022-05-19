@@ -23,6 +23,9 @@ interface MeasurementProducer {
 
     val isTestsRunning: Boolean
 
+    /** checks active alarms which count time to next test **/
+    val isLoopModeRunning: Boolean
+
     val testUUID: String?
 
     val lastMeasurementSignalInfo: SignalStrengthInfo?

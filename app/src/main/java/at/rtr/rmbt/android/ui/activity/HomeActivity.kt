@@ -65,12 +65,12 @@ class HomeActivity : BaseActivity() {
         binding.navView.setupWithNavController(navController)
 
         viewModel.isTestsRunningLiveData.listen(this) { isRunning ->
-            if (isRunning) {
-                if (viewModel.config.loopModeEnabled) {
-                    if (viewModel.state.loopModeRecord.get()?.status != LoopModeState.FINISHED && viewModel.state.loopModeRecord.get()?.status != LoopModeState.CANCELLED && viewModel.state.loopLocalUUID.get() != null && (viewModel.state.loopModeRecord.get()?.testsPerformed != viewModel.config.loopModeNumberOfTests)) {
-                        MeasurementActivity.start(this)
-                    }
-                } else {
+            if (viewModel.config.loopModeEnabled) {
+                if (viewModel.isLoopModeRunningLiveData.value == true || (viewModel.state.loopModeRecord.get() != null && viewModel.state.loopModeRecord.get()?.status != LoopModeState.FINISHED && viewModel.state.loopModeRecord.get()?.status != LoopModeState.CANCELLED && viewModel.state.loopLocalUUID.get() != null && (viewModel.state.loopModeRecord.get()?.testsPerformed != viewModel.config.loopModeNumberOfTests))) {
+                    MeasurementActivity.start(this)
+                }
+            } else {
+                if (isRunning) {
                     MeasurementActivity.start(this)
                 }
             }

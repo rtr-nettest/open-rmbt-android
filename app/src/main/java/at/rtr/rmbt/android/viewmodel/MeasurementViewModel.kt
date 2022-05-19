@@ -37,6 +37,7 @@ class MeasurementViewModel @Inject constructor(
     private val _measurementFinishLiveData = MutableLiveData<Boolean>()
     private val _measurementCancelledLiveData = MutableLiveData<Boolean>()
     private val _isTestsRunningLiveData = MutableLiveData<Boolean>()
+    private val _isLoopModeRunningLiveData = MutableLiveData<Boolean>()
     private val _measurementErrorLiveData = MutableLiveData<Boolean>()
     private val _downloadGraphLiveData = MutableLiveData<List<GraphItemRecord>>()
     private val _uploadGraphLiveData = MutableLiveData<List<GraphItemRecord>>()
@@ -72,6 +73,9 @@ class MeasurementViewModel @Inject constructor(
 
     val isTestsRunningLiveData: LiveData<Boolean>
         get() = _isTestsRunningLiveData
+
+    val isLoopModeRunningLiveData: LiveData<Boolean>
+        get() = _isLoopModeRunningLiveData
 
     val measurementErrorLiveData: LiveData<Boolean>
         get() = _measurementErrorLiveData
@@ -124,6 +128,9 @@ class MeasurementViewModel @Inject constructor(
             val finished = producer?.isTestsRunning != true
             Timber.d("FINISHED?: $finished")
 
+            val isLoopModeRunning = producer?.isLoopModeRunning == true
+
+            _isLoopModeRunningLiveData.postValue(isLoopModeRunning)
             _isTestsRunningLiveData.postValue(!finished) // to notify new opened home activity
             _measurementFinishLiveData.postValue(finished) // to notify recreated measurement activity to show results
         }
