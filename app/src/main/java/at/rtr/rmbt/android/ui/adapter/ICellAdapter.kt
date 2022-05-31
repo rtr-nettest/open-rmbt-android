@@ -13,6 +13,7 @@ import at.rtr.rmbt.android.databinding.ItemCellInfoNrBinding
 import at.rtr.rmbt.android.databinding.ItemHistoryBinding
 import at.rtr.rmbt.android.util.bindWith
 import at.specure.info.cell.CellTechnology
+import at.specure.util.getEuBand
 import at.specure.util.toTechnologyClass
 import cz.mroczis.netmonster.core.model.cell.CellCdma
 import cz.mroczis.netmonster.core.model.cell.CellGsm
@@ -101,7 +102,7 @@ class ICellAdapter : RecyclerView.Adapter<ICellAdapter.Holder>() {
                         binding.rxl2g = "$it dBm"
                     }
                     rawCellInfo.signal.timingAdvance?.let {
-                        binding.ta2g = "$it ~(${it * 554}m)"
+                        binding.ta2g = "$it (~${it * 554}m)"
                     }
                 }
             }
@@ -130,7 +131,7 @@ class ICellAdapter : RecyclerView.Adapter<ICellAdapter.Holder>() {
                 binding.rnc3g = null
 
                 if (item is CellWcdma) {
-                    binding.networkType3g = "3G (W-CDMA)"
+                    binding.networkType3g = "3G (UMTS)"
                     val rawCellInfo = item as CellWcdma
                     binding.ci3g = rawCellInfo.ci?.toString()
                     binding.cid3g = rawCellInfo.cid?.toString()
@@ -213,7 +214,7 @@ class ICellAdapter : RecyclerView.Adapter<ICellAdapter.Holder>() {
 
                     rawCellInfo.signal.timingAdvance?.let {
                         if (it > 0) {
-                            binding.taLTE = "$it ~(${it * 78}m)"
+                            binding.taLTE = "$it (~${it * 78}m)"
                         }
                     }
 
@@ -229,23 +230,22 @@ class ICellAdapter : RecyclerView.Adapter<ICellAdapter.Holder>() {
             position: Int,
             item: ICell?
         ) {
-            if (item is ICell) {
-                binding.bandNameNr = item.band?.name ?: ""
-                binding.frequencyNr = item.band?.channelNumber?.toString()
+            if (item is CellNr) {
+                val bandNrEu = item.getEuBand()
+                binding.bandNameNr = bandNrEu?.name ?: ""
+                binding.frequencyNr = bandNrEu?.channelNumber?.toString()
                 binding.subscriptionId5g = item.subscriptionId.toString() + " (${item.network?.toPlmn("-")})"
                 binding.networkTypeNR = "5G (NR)"
 
                 binding.signalSsrsrpNr = null
                 binding.signalSsrsrqNr = null
 
-                if (item is CellNr) {
-                    val rawCellInfo = item as CellNr
-                    rawCellInfo.signal.ssRsrp?.let {
-                        binding.signalSsrsrpNr = "$it dBm"
-                    }
-                    rawCellInfo.signal.ssRsrq?.let {
-                        binding.signalSsrsrqNr = "$it dB"
-                    }
+                val rawCellInfo = item as CellNr
+                rawCellInfo.signal.ssRsrp?.let {
+                    binding.signalSsrsrpNr = "$it dBm"
+                }
+                rawCellInfo.signal.ssRsrq?.let {
+                    binding.signalSsrsrqNr = "$it dB"
                 }
             }
         }

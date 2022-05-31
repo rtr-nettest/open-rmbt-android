@@ -65,7 +65,12 @@ enum class TransportType(
     @TargetApi(Build.VERSION_CODES.O_MR1)
     LOWPAN(NetworkCapabilities.TRANSPORT_LOWPAN),
 
-    BROWSER(ServerNetworkType.TYPE_UNKNOWN.intValue);
+    BROWSER(ServerNetworkType.TYPE_UNKNOWN.intValue),
+
+    /**
+     * for non-processed network types
+     */
+    UNKNOWN(ServerNetworkType.TYPE_UNKNOWN.intValue);
 
     companion object {
 

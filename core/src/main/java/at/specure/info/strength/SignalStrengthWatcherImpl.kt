@@ -25,6 +25,7 @@ import at.specure.info.cell.CellNetworkInfo
 import at.specure.info.network.ActiveNetworkWatcher
 import at.specure.info.network.DetailedNetworkInfo
 import at.specure.info.network.NetworkInfo
+import at.specure.info.network.OtherNetworkInfo
 import at.specure.info.wifi.WifiInfoWatcher
 import at.specure.util.permission.LocationAccess
 import at.specure.util.synchronizedForEach
@@ -102,6 +103,7 @@ class SignalStrengthWatcherImpl(
     private val activeNetworkListener = object : ActiveNetworkWatcher.NetworkChangeListener {
 
         override fun onActiveNetworkChanged(newNetworkInfo: NetworkInfo?) {
+            Timber.d("NIFU: Network info $newNetworkInfo")
             if (newNetworkInfo == null) {
                 unregisterWifiCallbacks()
                 unregisterCellCallbacks()
@@ -117,6 +119,20 @@ class SignalStrengthWatcherImpl(
                 detailedNetworkInfo = null
                 notifyInfoChanged()
                 return
+            }
+
+            if (newNetworkInfo is OtherNetworkInfo) {
+                unregisterWifiCallbacks()
+                unregisterCellCallbacks()
+                signalStrengthInfo = null
+                secondaryActiveSignalStrengthInfo = null
+                secondary5GActiveSignalStrengthInfo = null
+                secondaryActiveNetworkInfo = null
+                inactiveNetworkInfo = null
+                secondary5GActiveNetworkInfo = null
+                networkInfo = newNetworkInfo
+                detailedNetworkInfo = null
+                notifyInfoChanged()
             }
 
             if (newNetworkInfo.type == TransportType.CELLULAR) {

@@ -32,7 +32,8 @@ import at.specure.info.wifi.WifiInfoWatcher
 import at.specure.location.LocationState
 import at.specure.location.LocationStateWatcher
 import at.specure.util.filterOnlyPrimaryActiveDataCell
-import at.specure.util.isCoarseLocationPermitted
+import at.specure.util.isFineLocationPermitted
+import at.specure.util.isLocationServiceEnabled
 import at.specure.util.isReadPhoneStatePermitted
 import at.specure.util.mobileNetworkType
 import at.specure.util.synchronizedForEach
@@ -98,13 +99,14 @@ class ActiveNetworkWatcher(
 
         override fun onConnectivityChanged(connectivityInfo: ConnectivityInfo?, network: Network?) {
             lastConnectivityInfo = connectivityInfo
+            Timber.d("NIFU: \n\n $connectivityInfo \n\n $network")
             handler?.removeCallbacks(signalUpdateRunnable)
             _currentNetworkInfo = if (connectivityInfo == null) {
                 null
             } else {
                 when (connectivityInfo.transportType) {
                     TransportType.ETHERNET -> {
-                        EthernetNetworkInfo(connectivityInfo.linkDownstreamBandwidthKbps, connectivityInfo.netId, null)
+                        EthernetNetworkInfo(connectivityInfo.linkDownstreamBandwidthKbps, connectivityInfo.netId, null, connectivityInfo.capabilitiesRaw.toString())
                     }
                     TransportType.WIFI -> wifiInfoWatcher.activeWifiInfo.apply {
                         this?.locationEnabled = locationStateWatcher.state == LocationState.ENABLED
@@ -112,7 +114,10 @@ class ActiveNetworkWatcher(
                     TransportType.CELLULAR -> {
                         updateCellNetworkInfo()
                     }
-                    else -> null
+                    else -> {
+                        Timber.d("NIFU creating OtherNetworkInfo: \n\n $connectivityInfo")
+                        OtherNetworkInfo(connectivityInfo.linkDownstreamBandwidthKbps, connectivityInfo.netId, null, connectivityInfo.capabilitiesRaw.toString())
+                    }
                 }
             }
             GlobalScope.launch {
@@ -124,7 +129,7 @@ class ActiveNetworkWatcher(
 
     fun updateCellNetworkInfo(): CellNetworkInfo? {
 
-        if (context.isCoarseLocationPermitted() && context.isReadPhoneStatePermitted()) {
+        if (context.isLocationServiceEnabled() &&  context.isFineLocationPermitted() && context.isReadPhoneStatePermitted()) {
             try {
                 var cells: List<ICell>? = null
                 var activeCellNetwork: CellNetworkInfo? = null

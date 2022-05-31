@@ -60,6 +60,7 @@ class ConnectivityWatcherImpl(private val connectivityManager: ConnectivityManag
                     netId = network.id(),
                     transportType = TransportType.fromNetworkCapability(networkCapabilities),
                     capabilities = NetworkCapability.fromNetworkCapability(networkCapabilities),
+                    capabilitiesRaw = networkCapabilities,
                     linkDownstreamBandwidthKbps = networkCapabilities.linkDownstreamBandwidthKbps,
                     linkUpstreamBandwidthKbps = networkCapabilities.linkUpstreamBandwidthKbps
                 )
@@ -112,6 +113,7 @@ class ConnectivityWatcherImpl(private val connectivityManager: ConnectivityManag
                             netId = network.id(),
                             transportType = transportType,
                             capabilities = listOf(),
+                            capabilitiesRaw = null,
                             linkDownstreamBandwidthKbps = 0,
                             linkUpstreamBandwidthKbps = 0
                         )

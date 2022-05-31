@@ -28,12 +28,16 @@ abstract class HistoryDao {
     abstract fun saveReferences(history: List<HistoryReference>)
 
     @Transaction
-    open fun insert(history: List<History>) {
+    open fun insert(history: List<History?>) {
         val references = history.map {
-            HistoryReference(it.referenceUUID, it.time)
+            it?.let {
+                HistoryReference(it.referenceUUID, it.time)
+            }
         }
-        saveReferences(references)
-        saveHistory(history)
+        val referencesNonNull = references.filterNotNull()
+        val historyNonNull = history.filterNotNull()
+        saveReferences(referencesNonNull)
+        saveHistory(historyNonNull)
     }
 
     @Query("DELETE FROM ${Tables.HISTORY_REFERENCE}")

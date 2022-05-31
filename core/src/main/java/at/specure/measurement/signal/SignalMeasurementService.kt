@@ -1,5 +1,6 @@
 package at.specure.measurement.signal
 
+import at.specure.config.Config
 import android.app.AlarmManager
 import android.app.PendingIntent
 import android.content.Context
@@ -11,7 +12,6 @@ import android.os.PowerManager
 import androidx.lifecycle.LiveData
 import at.specure.di.CoreInjector
 import at.specure.di.NotificationProvider
-import at.specure.info.Network5GSimulator.config
 import at.specure.test.SignalMeasurementType
 import at.specure.util.CustomLifecycleService
 import timber.log.Timber
@@ -22,6 +22,9 @@ import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
 class SignalMeasurementService : CustomLifecycleService() {
+
+    @Inject
+    lateinit var config: Config
 
     @Inject
     lateinit var notificationProvider: NotificationProvider

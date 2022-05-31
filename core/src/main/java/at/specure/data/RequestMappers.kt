@@ -229,11 +229,13 @@ fun TestRecord.toRequest(
         cellLocationList.map { it.toRequest() }
     }
 
-    val permissionStatuses: List<PermissionStatusBody>? = if (permissions.isEmpty()) {
+    var permissionStatuses: List<PermissionStatusBody>? = if (permissions.isEmpty()) {
         null
     } else {
         permissions.map { it.toRequest() }
     }
+
+    permissionStatuses = addDebugCapabilities(permissionStatuses, this.networkCapabilitiesRaw)
 
     var telephonyNRConnectionState: String? = null
 
@@ -520,11 +522,13 @@ fun SignalMeasurementRecord.toRequest(
         radioInfo = null
     }
 
-    val permissionStatuses: List<PermissionStatusBody>? = if (permissions.isEmpty()) {
+    var permissionStatuses: List<PermissionStatusBody>? = if (permissions.isEmpty()) {
         null
     } else {
         permissions.map { it.toRequest() }
     }
+
+    permissionStatuses = addDebugCapabilities(permissionStatuses, this.rawCapabilitiesRecord)
 
     val cellLocations: List<CellLocationBody>? = if (cellLocationList.isEmpty()) {
         null
@@ -574,8 +578,28 @@ fun SignalMeasurementRecord.toRequest(
     )
 }
 
+private fun addDebugCapabilities(permissionStatuses: List<PermissionStatusBody>?, capabilitiesString: String?): List<PermissionStatusBody>? {
+    var permissionStatusesWithDebugInfo = permissionStatuses
+    if (permissionStatusesWithDebugInfo == null) {
+        permissionStatusesWithDebugInfo = mutableListOf()
+    }
+
+    permissionStatusesWithDebugInfo = permissionStatusesWithDebugInfo.toMutableList()
+    permissionStatusesWithDebugInfo.add(PermissionStatusBody("current network capabilities $capabilitiesString", false))
+    return permissionStatusesWithDebugInfo
+}
+
 fun convertLocalNetworkTypeToServerType(transportType: TransportType?, mobileNetworkType: MobileNetworkType?): String {
-    return (transportType?.toRequestIntValue(mobileNetworkType) ?: Int.MAX_VALUE).toString()
+    val primaryNetworkType = (transportType?.toRequestIntValue(mobileNetworkType) ?: Int.MAX_VALUE)
+    val secondaryNetworkType = mobileNetworkType?.intValue
+    if (primaryNetworkType == Int.MAX_VALUE) {
+        if (secondaryNetworkType != null) {
+            return secondaryNetworkType.toString()
+        }
+    } else {
+        return primaryNetworkType.toString()
+    }
+    return primaryNetworkType.toString()
 }
 
 fun List<ConnectivityStateRecord>.toRequest(): List<NetworkEventBody>? {

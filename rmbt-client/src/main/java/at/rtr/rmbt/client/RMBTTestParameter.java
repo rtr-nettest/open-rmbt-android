@@ -33,6 +33,7 @@ public class RMBTTestParameter
     private final int numPings;
     private final long startTime;
     private final String serverType;
+    private final int doPingIntervalMilliseconds = 1000; //TODO: Configure with server
 
     //RMBT
     public RMBTTestParameter(final String host, final int port, final boolean encryption, final String token,
@@ -123,6 +124,10 @@ public class RMBTTestParameter
 
     public String getServerType() {
         return serverType;
+    }
+
+    public int getDoPingIntervalMilliseconds() {
+        return doPingIntervalMilliseconds;
     }
 
     public void check() throws IllegalArgumentException

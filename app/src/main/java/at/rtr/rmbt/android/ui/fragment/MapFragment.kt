@@ -6,6 +6,8 @@ import android.content.pm.PackageManager
 import android.location.Address
 import android.location.Geocoder
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.view.View
 import android.widget.Toast
 import androidx.annotation.DrawableRes
@@ -27,12 +29,7 @@ import at.rtr.rmbt.android.ui.adapter.MapMarkerDetailsAdapter
 import at.rtr.rmbt.android.ui.dialog.MapFiltersDialog
 import at.rtr.rmbt.android.ui.dialog.MapLayersDialog
 import at.rtr.rmbt.android.ui.dialog.MapSearchDialog
-import at.rtr.rmbt.android.util.ToolbarTheme
-import at.rtr.rmbt.android.util.changeStatusBarColor
-import at.rtr.rmbt.android.util.isGmsAvailable
-import at.rtr.rmbt.android.util.isHmsAvailable
-import at.rtr.rmbt.android.util.listen
-import at.rtr.rmbt.android.util.singleResult
+import at.rtr.rmbt.android.util.*
 import at.rtr.rmbt.android.viewmodel.MapViewModel
 import at.specure.data.NetworkTypeCompat
 import at.specure.data.ServerNetworkType
@@ -80,8 +77,11 @@ class MapFragment : BaseFragment(), MapMarkerDetailsAdapter.MarkerDetailsCallbac
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         binding.state = mapViewModel.state
-
+        mapViewModel.state.isFilterLoaded.addOnPropertyChanged {
+            updateFiltersVisibility()
+        }
         binding.map.onCreate(savedInstanceState)
+        updateFiltersVisibility()
         mapViewModel.state.playServicesAvailable.set(checkServices())
         mapViewModel.obtainFilters()
         binding.map.loadMapAsync {
@@ -99,9 +99,7 @@ class MapFragment : BaseFragment(), MapMarkerDetailsAdapter.MarkerDetailsCallbac
                 .show(fragmentManager)
         }
 
-        binding.fabFilters.setOnClickListener {
-            MapFiltersDialog.instance(this, CODE_FILTERS_DIALOG).show(fragmentManager)
-        }
+        setFiltersOnClickListener()
 
         snapHelper = LinearSnapHelper().apply { attachToRecyclerView(binding.markerItems) }
         binding.markerItems.adapter = adapter
@@ -123,6 +121,16 @@ class MapFragment : BaseFragment(), MapMarkerDetailsAdapter.MarkerDetailsCallbac
             binding.webMap.settings.javaScriptEnabled = true
             binding.webMap.loadUrl("https://www.netztest.at/en/Karte")
         }
+    }
+
+    private fun setFiltersOnClickListener() {
+        binding.fabFilters.setOnClickListener {
+            MapFiltersDialog.instance(this, CODE_FILTERS_DIALOG).show(fragmentManager)
+        }
+    }
+
+    private fun removeFiltersOnClickListener() {
+        binding.fabFilters.setOnClickListener { }
     }
 
     private fun mapW(): MapWrapper {
@@ -155,7 +163,42 @@ class MapFragment : BaseFragment(), MapMarkerDetailsAdapter.MarkerDetailsCallbac
     }
 
     private fun checkServices(): Boolean {
-        return requireContext().isGmsAvailable() || requireContext().isHmsAvailable()
+        return requireContext().isGmsAvailable()
+    }
+
+    private fun hideFilters() {
+        binding.fabFilters.show()
+        binding.fabFilters.hide()
+        binding.fabLocation.show()
+        binding.fabLocation.hide()
+        removeFiltersOnClickListener()
+        Timber.d("HIDING MAP FILTER BUTTON")
+    }
+
+    private fun updateFiltersVisibility() {
+        Handler(Looper.getMainLooper()).post {
+            if (this.isAdded) {
+                val mapServicesAvailable = checkServices()
+                val isMapFilterLoaded = mapViewModel.isFilterLoaded()
+                Timber.d("Map services available: $mapServicesAvailable")
+                Timber.d("Map filter loaded: $isMapFilterLoaded")
+                if (mapServicesAvailable && isMapFilterLoaded) {
+                    binding.fabFilters.hide()
+                    binding.fabFilters.show()
+                    setFiltersOnClickListener()
+                    Timber.d("SHOWING MAP FILTER BUTTON")
+                } else {
+                    hideFilters()
+                }
+                if (mapServicesAvailable) {
+                    binding.fabLocation.hide()
+                    binding.fabLocation.show()
+                } else {
+                    binding.fabLocation.show()
+                    binding.fabLocation.hide()
+                }
+            }
+        }
     }
 
     private fun onMapReady() {
@@ -176,9 +219,10 @@ class MapFragment : BaseFragment(), MapMarkerDetailsAdapter.MarkerDetailsCallbac
                     mapW().animateCamera(latlng)
                 }
                 binding.markerItems.visibility = View.VISIBLE
-                binding.fabsGroup.visibility = View.GONE
+                binding.fabLocation.hide()
                 visiblePosition = 0
                 drawMarker(it.first())
+                hideFilters()
             } else {
                 onCloseMarkerDetails()
             }
@@ -195,9 +239,10 @@ class MapFragment : BaseFragment(), MapMarkerDetailsAdapter.MarkerDetailsCallbac
         binding.map.onResume()
         updateLocationPermissionRelatedUi()
         if (!checkServices()) {
-            binding.fabsGroup.visibility = View.GONE
+            binding.fabLocation.visibility = View.GONE
             binding.webMap.visibility = View.VISIBLE
             binding.playServicesAvailableUi.visibility = View.GONE
+            updateFiltersVisibility()
         }
     }
 
@@ -235,7 +280,8 @@ class MapFragment : BaseFragment(), MapMarkerDetailsAdapter.MarkerDetailsCallbac
         currentMarker = null
 //        adapter.items = mutableListOf()
         if (mapViewModel.state.playServicesAvailable.get()) {
-            binding.fabsGroup?.visibility = View.VISIBLE
+            binding.fabLocation.show()
+            updateFiltersVisibility()
         }
     }
 
@@ -429,8 +475,8 @@ class MapFragment : BaseFragment(), MapMarkerDetailsAdapter.MarkerDetailsCallbac
     }
 
     private fun isMarkersAvailable(): Boolean =
-        mapViewModel.state.type.get() == MapPresentationType.POINTS ||
-                (mapViewModel.state.type.get() == MapPresentationType.AUTOMATIC && mapW().currentCameraZoom() >= 10)
+        mapViewModel.isFilterLoaded() && (mapViewModel.state.type.get() == MapPresentationType.POINTS ||
+                (mapViewModel.state.type.get() == MapPresentationType.AUTOMATIC && mapW().currentCameraZoom() >= 10))
 
     private fun showSearchDialog() {
         if (!Geocoder.isPresent()) {

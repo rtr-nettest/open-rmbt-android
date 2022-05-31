@@ -4,7 +4,7 @@ import at.specure.info.cell.CellNetworkInfo
 import at.specure.info.strength.SignalStrengthInfo
 import cz.mroczis.netmonster.core.model.cell.ICell
 
-class DetailedNetworkInfo(
+data class DetailedNetworkInfo(
     val networkInfo: NetworkInfo?,
     val signalStrengthInfo: SignalStrengthInfo? = null,
     /**

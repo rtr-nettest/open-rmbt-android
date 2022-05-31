@@ -19,7 +19,7 @@ import at.specure.info.TransportType
 /**
  * Base class that represents network information
  */
-abstract class NetworkInfo(val type: TransportType, val cellUUID: String) {
+abstract class NetworkInfo(val type: TransportType, val cellUUID: String, open val capabilitiesRaw: String?) {
 
     /**
      * Name of network

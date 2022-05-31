@@ -300,5 +300,7 @@
     <string name="signal_measurement_terms_title">Aktivierung und Nutzung</string>
     <string name="signal_measurement_terms_content">Die Nur-Signalmessung für technisch Interessierte ermöglicht, dass die Signalstärke automatisiert wiederholt gemessen wird – ohne, dass dabei Geschwindigkeits- oder Qualitätstests durchgeführt werden. Die Nur-Signalmessung kann jederzeit gestoppt werden bzw endet automatisch nach 48 Stunden. Sie ist (nur) zur Nutzung innerhalb der EU- und des EWR gedacht ist. Während der Signalmessung bleiben GPS und die Anzeige aktiv, deshalb wird die Batterie schnell entleert. Daher sollte sie nur genutzt werden, wenn externe Stromversorgung zur Verfügung steht. Es wird ausdrücklich darauf hingewiesen, dass aufgrund der Nur-Signalmessung ein Rückschluss auf die testende Person nicht ausgeschlossen ist.\n Damit Messungen stattfinden und einem Standort zugeordnet werden können, wenn sich die Anwendung im Hintergrund befindet, ist die Systemberechtigung zum Erfassen des Standorts bei Hintergrundnutzung notwendig. Diese Standortberechtigung wird verwendet, um den erfolgten Messungen Standorte zuzuordnen.</string>
     <string name="preferences_developed_by">Entwickelt von Specure GmbH</string>
+    <string name="preferences_design_by">Design von Feinblick</string>
+    <string name="preferences_network_info_by">Netzinformation von NetMonster Core</string>
 </resources>
 

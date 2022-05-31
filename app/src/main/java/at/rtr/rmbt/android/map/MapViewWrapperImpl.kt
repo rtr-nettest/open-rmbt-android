@@ -9,7 +9,6 @@ import at.rtr.rmbt.android.map.wrapper.EmptyMapViewWrapper
 import at.rtr.rmbt.android.map.wrapper.MapViewWrapper
 import at.rtr.rmbt.android.map.wrapper.MapWrapper
 import at.rtr.rmbt.android.util.isGmsAvailable
-import at.rtr.rmbt.android.util.isHmsAvailable
 import com.google.android.gms.maps.MapView
 
 class MapViewWrapperImpl @JvmOverloads constructor(
@@ -26,11 +25,6 @@ class MapViewWrapperImpl @JvmOverloads constructor(
                 val mapView = MapView(context)
                 addView(mapView, LayoutParams(MATCH_PARENT, MATCH_PARENT))
                 GoogleMapViewWrapper(mapView)
-            }
-            context.isHmsAvailable() -> {
-                val mapView = com.huawei.hms.maps.MapView(context)
-                addView(mapView, LayoutParams(MATCH_PARENT, MATCH_PARENT))
-                HuaweiMapViewWrapper(mapView)
             }
             else -> EmptyMapViewWrapper()
         }

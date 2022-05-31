@@ -45,7 +45,7 @@ import java.util.Date
 import kotlin.collections.ArrayList
 import kotlin.math.roundToInt
 
-fun HistoryResponse.toModelList(): List<History> = history?.map { it.toModel() } ?: emptyList()
+fun HistoryResponse.toModelList(): List<History?> = history?.map { it?.toModel() } ?: emptyList()
 
 fun HistoryItemResponse.toModel() = History(
     testUUID = testUUID,
