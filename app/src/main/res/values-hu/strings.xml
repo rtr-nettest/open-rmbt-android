@@ -92,7 +92,7 @@
     <string name="preferences_developer_qos_ssl_sum">Titkosított kapcsolat a QoS szerverrel</string>
     <string name="preferences_all_disabled">Kikapcsolva</string>
     <string name="preferences_server_selection">Szerver kiválasztás</string>
-    <string name="preferences_default_server_selection"/>
+    <string name="preferences_default_server_selection">Alapértelmezett</string>
     <string name="label_server_selection">Szerver kiválasztás</string>
     <string name="preferences_tag">Címke</string>
 
@@ -300,5 +300,7 @@
     <string name="text_local_results">Csak helyi eredmények</string>
     <string name="signal_measurement_terms_title">Aktiválás és használat</string>
     <string name="signal_measurement_terms_content">A folyamatos jelszintmérés opció a műszaki érdeklődésű felhasználók számára lehetővé teszi a jelszintmérés automatikus megismétlését - a sebesség és QoS mérések elvégzése nélkül. A folyamatos jelszintmérés bármikor leállítható, de 48 óra elteltével automatikusan is leáll. A folyamatos jelszintmérés funkció kizárólag az EU tagállamokban, illetve az EU gazdasági térség országaiban történő használatra készült. A folyamatos jelszintmérés gyorsan az akkumulátor lemerülésével járhat. A mérések szüneteiben a GPS és a képernyő bekapcsolva marad, ami jelentős többlet energiafogyasztást eredményez az energiatakarékos üzemmódhoz képest. Erre tekintettel a folyamatos jelszintmérés csak külső tápegység csatlakoztatása mellett javasolt. Felhívjuk a figyelmet arra, hogy a folyamatos jelszintmérés módban nem zárható ki a tesztelést végző azonosítása.</string>
+    <string name="preferences_design_by">Feinblick tervezése</string>
+    <string name="preferences_network_info_by">Hálózati információk a NetMonster Core-tól</string>
 
 </resources>

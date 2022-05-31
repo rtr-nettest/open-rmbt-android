@@ -88,9 +88,6 @@
     <string name="preferences_all_disabled">Disattivato.</string>
     <string name="preferences_server_selection">Selezione server</string>
     <string name="preferences_default_server_selection">Default</string>
-    <string name="preferences_5g_simulation_title">Debug (sperimentale) di rete xG</string>
-    <string name="preferences_5g_simulation">Simula xG</string>
-    <string name="preferences_5g_simulation_sum">Sostituisce le reti con simulazione xG</string>
     <string name="label_server_selection">Selezione del server</string>
     <string name="preferences_tag">Etichetta</string>
     <!-- Location Dialog -->
@@ -270,4 +267,8 @@
     <string name="text_local_results">Solo risultati locali</string>
     <string name="signal_measurement_terms_title">Attivazione e utilizzo</string>
     <string name="signal_measurement_terms_content">La modalità loop solo segnale per gli utenti tecnicamente interessati, consente la ripetizione automatica delle misurazioni del segnale senza l\'esecuzione alcuna test di velocità o di qualità. La modalità loop del segnale può essere interrotta in qualsiasi momento e si ferma automaticamente dopo 48 oreLa modalità loop del segnale è solamente destinata all\'utilizzo all\'interno dell\'UE e del SEE. La batteria viene rapidamente scaricata dalle misurazioni del solo segnale. Nelle pause tra le prove, il GPS e il display rimangono attivi e le misurazioni del segnale continuano, il che significa che l\'energia viene utilizzata molto più velocemente che in modalità stand-by. La modalità loop dovrebbe pertanto essere utilizzato solo se è disponibile un alimentatore esterno. Va sottolineato esplicitamente che, a causa della modalità loop solo segnale, non si può escludere che il tester sia identificato.</string>
+
+    <string name="preferences_design_by">Design von Feinblick</string>
+    <string name="preferences_network_info_by">Informazioni di rete da NetMonster Core</string>
+    <string name="technology_label">Tecnología</string>
 </resources>
