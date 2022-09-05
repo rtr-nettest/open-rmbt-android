@@ -15,7 +15,7 @@ import java.util.TimeZone
 const val RMBT_CLIENT_VERSION = "1.2.1"
 
 @Keep
-class DeviceInfo(context: Context, val location: Location? = null) {
+class DeviceInfo(context: Context, val location: Location? = null, val temperature: Float? = null) {
 
     @SerializedName("plattform")
     val platform = "Android"
