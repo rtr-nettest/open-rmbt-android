@@ -32,6 +32,7 @@ jobs:
       run: |
           mv private/signing.sample private/signing
           ./gradlew :app:assembleLocalProductionRelease
+          tree -d app
     - uses: ilharp/sign-android-release@v1 # Or use @nightly
       name: Sign app APK
       id: sign_app
