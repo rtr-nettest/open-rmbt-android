@@ -17,28 +17,28 @@ jobs:
     runs-on: ubuntu-22.04
     steps:
     - name: Add private key for open-rmbt-android-private
-        # https://stackoverflow.com/questions/57612428/cloning-private-github-repository-within-organisation-in-actions
-        run: |
-          eval `ssh-agent -s`
-          ssh-add - <<< '${{ secrets.PRIVATE_SSH_KEY }}'
-          pip install -r requirements.txt
+      # https://stackoverflow.com/questions/57612428/cloning-private-github-repository-within-organisation-in-actions
+      run: |
+        eval `ssh-agent -s`
+        ssh-add - <<< '${{ secrets.PRIVATE_SSH_KEY }}'
+        pip install -r requirements.txt
     - name: Initialize submodule
-        run: |
-          git submodule init
-          git submodule update
+      run: |
+        git submodule init
+        git submodule update
     - name: Build APK
-      - run: |
+      run: |
           ./gradlew :app:assembleLocalProductionRelease
     - uses: ilharp/sign-android-release@v1 # Or use @nightly
-        name: Sign app APK
-        id: sign_app
-        with:
-          releaseDir: app/localProduction/release
-          signingKey: ${{ secrets.SIGNING_KEY_GITHUB }}
-          keyAlias: github
-          keyStorePassword: netztest
-          keyPassword: netztest
-          buildToolsVersion: 33.0.0
+      name: Sign app APK
+      id: sign_app
+      with:
+        releaseDir: app/localProduction/release
+        signingKey: ${{ secrets.SIGNING_KEY_GITHUB }}
+        keyAlias: github
+        keyStorePassword: netztest
+        keyPassword: netztest
+        buildToolsVersion: 33.0.0
 
     # Upload your signed file if you want
     - uses: actions/upload-artifact@v2
