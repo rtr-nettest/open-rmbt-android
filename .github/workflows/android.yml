@@ -33,11 +33,12 @@ jobs:
           mv private/signing.sample private/signing
           ./gradlew :app:assembleLocalProductionRelease
           tree -d app
+          ls -lah app/build/outputs/apk/localProduction/release
     - uses: ilharp/sign-android-release@v1 # Or use @nightly
       name: Sign app APK
       id: sign_app
       with:
-        releaseDir: app/localProduction/release
+        releaseDir: app/build/outputs/apk/localProduction/release
         signingKey: ${{ secrets.SIGNING_KEY_GITHUB }}
         keyAlias: github
         keyStorePassword: netztest
