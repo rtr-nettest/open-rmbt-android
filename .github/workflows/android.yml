@@ -16,6 +16,9 @@ jobs:
     # The type of runner that the job will run on
     runs-on: ubuntu-22.04
     steps:
+    - uses: actions/checkout@v2
+      with:
+        persist-credentials: false
     - name: Add private key for open-rmbt-android-private
       # https://stackoverflow.com/questions/57612428/cloning-private-github-repository-within-organisation-in-actions
       run: |
