@@ -21,7 +21,7 @@ jobs:
         persist-credentials: false  
     - uses: webfactory/ssh-agent@v0.5.4
       with:
-          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+          ssh-private-key: ${{ secrets.PRIVATE_SSH_KEY }}
     - name: Initialize submodule, add private key
       # # https://stackoverflow.com/questions/57612428/cloning-private-github-repository-within-organisation-in-actions
       run: |
