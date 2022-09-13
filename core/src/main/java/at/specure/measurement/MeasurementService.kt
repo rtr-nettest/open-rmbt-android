@@ -5,12 +5,15 @@ import android.app.NotificationManager
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
+import android.content.BroadcastReceiver
 import android.content.ServiceConnection
 import android.net.ConnectivityManager
 import android.net.Network
 import android.net.wifi.WifiManager
 import android.os.Binder
 import android.os.Build
+import android.os.BatteryManager
 import android.os.CountDownTimer
 import android.os.Handler
 import android.os.IBinder
@@ -68,6 +71,7 @@ class MeasurementService : CustomLifecycleService(), CoroutineScope {
     private var elapsedTime: Long = 0
     private var startTime: Long = 0
     private var inactivityTimer: Timer = Timer()
+    private var batteryInfo = BatteryInfoReceiver()
 
     private fun isRMBTClientResponding(): Boolean {
         val clientLastResponseDurationMillis = System.currentTimeMillis() - measurementLastUpdate
@@ -466,6 +470,7 @@ class MeasurementService : CustomLifecycleService(), CoroutineScope {
 
         stateRecorder.bind(this)
 
+        registerBatteryInfoReceiver(batteryInfo)
         val wifiManager = applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager
         wifiLock = wifiManager.createWifiLock(WifiManager.WIFI_MODE_FULL_HIGH_PERF, "$packageName:RMBTWifiLock")
         val powerManager = applicationContext.getSystemService(Context.POWER_SERVICE) as PowerManager
@@ -517,6 +522,7 @@ class MeasurementService : CustomLifecycleService(), CoroutineScope {
 
     override fun onDestroy() {
         resumeSignalMeasurement(false)
+        unregisterBatteryInfoReceiver(batteryInfo)
         signalMeasurementConnection.onServiceDisconnected(null)
         unbindService(signalMeasurementConnection)
         super.onDestroy()
@@ -645,7 +651,8 @@ class MeasurementService : CustomLifecycleService(), CoroutineScope {
 
         val deviceInfo = DeviceInfo(
             context = this,
-            location = location
+            location = location,
+            temperature = batteryInfo.getTemp()
         )
 
         qosTasksPassed = 0
@@ -1026,4 +1033,42 @@ class MeasurementService : CustomLifecycleService(), CoroutineScope {
     }
 
     override val coroutineContext = EmptyCoroutineContext + coroutineExceptionHandler
+
+    private fun registerBatteryInfoReceiver(batteryInfoReceiver: BatteryInfoReceiver) {
+        Timber.d("REGISTERING TEMPERATURE")
+        this.registerReceiver(
+            batteryInfoReceiver,
+            IntentFilter(Intent.ACTION_BATTERY_CHANGED)
+        )
+    }
+
+    private fun unregisterBatteryInfoReceiver(batteryInfoReceiver: BatteryInfoReceiver) {
+        try {
+            Timber.d("UNREGISTERING TEMPERATURE")
+            this.unregisterReceiver(
+                batteryInfoReceiver
+            )
+        } catch (e: java.lang.Exception) {
+            Timber.e("Error during unregistering battery info receiver: ${e.localizedMessage}")
+        }
+    }
+
+    class BatteryInfoReceiver : BroadcastReceiver() {
+        // temperature in Celzius units in XXY format as XX.Y
+        private var temp: Int? = null
+
+        /**
+         * temperature in Celzius or null if not acquired yet
+         */
+        fun getTemp(): Float? {
+            temp?.let { temperature ->
+                return (temperature.toFloat() / 10f)
+            }
+            return null
+        }
+
+        override fun onReceive(arg0: Context?, intent: Intent) {
+            temp = intent.getIntExtra(BatteryManager.EXTRA_TEMPERATURE, 0)
+        }
+    }
 }
