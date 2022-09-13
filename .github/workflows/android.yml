@@ -27,7 +27,7 @@ jobs:
     - name: Initialize submodule
       run: |
         git submodule init
-        git submodule set-url private ssh://git@github.com:rtr-nettest/open-rmbt-android-private.git
+        git submodule set-url private git@github.com:rtr-nettest/open-rmbt-android-private.git
         git submodule update
     - name: Build APK
       run: |
