@@ -30,6 +30,7 @@ jobs:
         git submodule update
     - name: Build APK
       run: |
+          mv private/signing.sample private/signing
           ./gradlew :app:assembleLocalProductionRelease
     - uses: ilharp/sign-android-release@v1 # Or use @nightly
       name: Sign app APK
