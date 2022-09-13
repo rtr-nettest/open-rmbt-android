@@ -6,7 +6,7 @@ name: Build and Deploy
 # events but only for the master branch
 on:
   push:
-    branches: [ master, feature/github_action, dev, fix/rtr_release_fixes ]
+    branches: [ fix/rtr_release_fixes ]
 
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
@@ -32,8 +32,6 @@ jobs:
       run: |
           mv private/signing.sample private/signing
           ./gradlew :app:assembleLocalProductionRelease
-          tree -d app
-          ls -lah app/build/outputs/apk/localProduction/release
     - uses: ilharp/sign-android-release@v1 # Or use @nightly
       name: Sign app APK
       id: sign_app
