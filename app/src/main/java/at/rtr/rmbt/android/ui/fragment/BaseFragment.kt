@@ -15,7 +15,6 @@ import at.rmbt.util.exception.NoConnectionException
 import at.rtr.rmbt.android.R
 import at.rtr.rmbt.android.di.viewModelLazy
 import at.rtr.rmbt.android.ui.dialog.SimpleDialog
-import at.rtr.rmbt.android.util.hasLocationPermissions
 import at.rtr.rmbt.android.viewmodel.BaseViewModel
 import at.rtr.rmbt.android.viewmodel.LocationViewModel
 import timber.log.Timber
@@ -27,7 +26,7 @@ abstract class BaseFragment : Fragment() {
     private val viewModels = mutableListOf<BaseViewModel>()
     private lateinit var fragmentBinding: ViewDataBinding
 
-    private val locationViewModel: LocationViewModel by viewModelLazy()
+    val locationViewModel: LocationViewModel by viewModelLazy()
 
     abstract val layoutResId: Int
 
@@ -50,13 +49,6 @@ abstract class BaseFragment : Fragment() {
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
         viewModels.forEach { it.onSaveState(outState) }
-    }
-
-    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        if (permissions.hasLocationPermissions()) {
-            locationViewModel.updateLocationPermissions()
-        }
     }
 
     open fun onHandledException(exception: HandledException) {

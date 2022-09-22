@@ -4,11 +4,13 @@ import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
+import androidx.activity.result.contract.ActivityResultContracts
 import at.rtr.rmbt.android.R
 import at.rtr.rmbt.android.databinding.FragmentNetworkDetailsBinding
 import at.rtr.rmbt.android.di.viewModelLazy
 import at.rtr.rmbt.android.ui.activity.SignalMeasurementActivity
 import at.rtr.rmbt.android.ui.viewstate.NetworkDetailsViewState
+import at.rtr.rmbt.android.util.hasLocationPermissions
 import at.rtr.rmbt.android.util.listen
 import at.rtr.rmbt.android.viewmodel.NetworkDetailsViewModel
 
@@ -21,6 +23,13 @@ class NetworkDetailsFragment : BaseFragment() {
 
     private val state: NetworkDetailsViewState
         get() = viewModel.state
+
+    private val resultRequestPermissions = registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) {
+        if (it.hasLocationPermissions()) {
+            locationViewModel.updateLocationPermissions()
+        }
+        viewModel.permissionsWatcher.notifyPermissionsUpdated()
+    }
 
     @SuppressLint("SetTextI18n")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -57,15 +66,10 @@ class NetworkDetailsFragment : BaseFragment() {
         }
     }
 
-    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        viewModel.permissionsWatcher.notifyPermissionsUpdated()
-    }
-
     override fun onStart() {
         super.onStart()
         if (viewModel.permissionsWatcher.requiredPermissions.isNotEmpty()) { // for development, dont follow this style
-            requestPermissions(viewModel.permissionsWatcher.requiredPermissions, 10)
+            resultRequestPermissions.launch(viewModel.permissionsWatcher.requiredPermissions)
         }
     }
 }
