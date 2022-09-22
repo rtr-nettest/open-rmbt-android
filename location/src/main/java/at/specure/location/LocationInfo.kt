@@ -153,8 +153,8 @@ class LocationInfo {
 
         satellites = formatSatellites(location.extras)
 
-        provider = location.provider
-        providerRaw = location.provider
+        provider = location.provider ?: "UNKNOWN"
+        providerRaw = location.provider ?: "UNKNOWN"
         locationIsMocked = location.isFromMockProvider
 
         hasAltitude = location.hasAltitude()
