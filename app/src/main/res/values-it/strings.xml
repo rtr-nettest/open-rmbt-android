@@ -267,4 +267,16 @@
     <string name="text_local_results">Solo risultati locali</string>
     <string name="signal_measurement_terms_title">Attivazione e utilizzo</string>
     <string name="signal_measurement_terms_content">La modalità loop solo segnale per gli utenti tecnicamente interessati, consente la ripetizione automatica delle misurazioni del segnale senza l\'esecuzione alcuna test di velocità o di qualità. La modalità loop del segnale può essere interrotta in qualsiasi momento e si ferma automaticamente dopo 48 oreLa modalità loop del segnale è solamente destinata all\'utilizzo all\'interno dell\'UE e del SEE. La batteria viene rapidamente scaricata dalle misurazioni del solo segnale. Nelle pause tra le prove, il GPS e il display rimangono attivi e le misurazioni del segnale continuano, il che significa che l\'energia viene utilizzata molto più velocemente che in modalità stand-by. La modalità loop dovrebbe pertanto essere utilizzato solo se è disponibile un alimentatore esterno. Va sottolineato esplicitamente che, a causa della modalità loop solo segnale, non si può escludere che il tester sia identificato.</string>
+
+    <string name="label_location_access_disabled">Accesso alla posizione disabilitato</string>
+    <string name="label_location_access_disabled_explanation">Vai a Impostazioni posizione per abilitare l\'accesso alla posizione.</string>
+    <string name="label_some_permission_denied">Autorizzazioni app mancanti</string>
+    <string name="label_some_permission_denied_explanation">Vai alle impostazioni dell\'app per risolvere le autorizzazioni dell\'app mancanti.</string>
+    <string name="title_open_nettest_accuracy">Precisione RTR-NetTest</string>
+    <string name="subtitle_open_nettest_accuracy">RTR-NetTest necessita di alcune funzionalità per funzionare correttamente.</string>
+    <string name="phone_permission_title">1. Autorizzazioni telefoniche</string>
+    <string name="location_permission_title">2. Permessi di posizione</string>
+    <string name="phone_permission_explanation">Non effettueremo né gestiremo mai telefonate. Utilizziamo le autorizzazioni del telefono per identificare l\'operatore di telefonia mobile utilizzato per il test.</string>
+    <string name="location_permission_explanation">La tua posizione identifica i server vicini e la connessione cellulare del tuo dispositivo per configurare correttamente RTR-NetTest.</string>
+    <string name="location_permissions_disclaimer">RTR-NetTest mobile raccoglie i dati sulla posizione per abilitare i metadati sulla posizione relativi a una singola misurazione o a una serie di misurazioni in modalità loop anche quando l\'app è chiusa o non in uso.</string>
 </resources>

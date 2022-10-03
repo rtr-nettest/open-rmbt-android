@@ -341,6 +341,18 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@+id/tvLblSignal" />
 
+        <include
+            android:id="@+id/panel_permissions_problems"
+            layout="@layout/view_permissions_problems"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            app:layout_constraintBottom_toTopOf="@+id/vBottomDivider"
+            app:layout_constraintTop_toBottomOf="@+id/waveView"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            android:layout_marginBottom="24dp"
+            app:visibleOrGone="@{state.informationAccessProblem != InformationAccessProblem.NO_PROBLEM}" />
+
         <View
             android:id="@+id/vBottomDivider"
             android:layout_width="match_parent"

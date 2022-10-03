@@ -301,4 +301,15 @@
     <string name="signal_measurement_terms_title">Aktiválás és használat</string>
     <string name="signal_measurement_terms_content">A folyamatos jelszintmérés opció a műszaki érdeklődésű felhasználók számára lehetővé teszi a jelszintmérés automatikus megismétlését - a sebesség és QoS mérések elvégzése nélkül. A folyamatos jelszintmérés bármikor leállítható, de 48 óra elteltével automatikusan is leáll. A folyamatos jelszintmérés funkció kizárólag az EU tagállamokban, illetve az EU gazdasági térség országaiban történő használatra készült. A folyamatos jelszintmérés gyorsan az akkumulátor lemerülésével járhat. A mérések szüneteiben a GPS és a képernyő bekapcsolva marad, ami jelentős többlet energiafogyasztást eredményez az energiatakarékos üzemmódhoz képest. Erre tekintettel a folyamatos jelszintmérés csak külső tápegység csatlakoztatása mellett javasolt. Felhívjuk a figyelmet arra, hogy a folyamatos jelszintmérés módban nem zárható ki a tesztelést végző azonosítása.</string>
 
+    <string name="label_location_access_disabled">A helyhozzáférés letiltva</string>
+    <string name="label_location_access_disabled_explanation">A helybeállítások engedélyezéséhez lépjen a Helybeállításokhoz.</string>
+    <string name="label_some_permission_denied">Hiányzó alkalmazásengedélyek</string>
+    <string name="label_some_permission_denied_explanation">Nyissa meg az Alkalmazásbeállításokat a hiányzó alkalmazásengedélyek megoldásához.</string>
+    <string name="title_open_nettest_accuracy">RTR-NetTest pontossága</string>
+    <string name="subtitle_open_nettest_accuracy">Az RTR-NetTestnek szüksége van bizonyos funkciókra a megfelelő működéshez.</string>
+    <string name="phone_permission_title">1. Telefonengedélyek</string>
+    <string name="location_permission_title">2. Helyengedélyek</string>
+    <string name="phone_permission_explanation">Soha nem kezdeményezünk és kezelünk telefonhívásokat. Telefonengedélyeket használunk a teszteléshez használt mobilszolgáltató azonosítására.</string>
+    <string name="location_permission_explanation">Az Ön helye azonosítja a közeli szervereket és az eszköz mobilkapcsolatát az RTR-NetTest megfelelő konfigurálása érdekében.</string>
+    <string name="location_permissions_disclaimer">Az RTR-NetTest mobil helyadatokat gyűjt, hogy lehetővé tegye egy méréshez vagy egy méréssorozathoz kapcsolódó hely metaadatokat hurokmódban még akkor is, ha az alkalmazás be van zárva vagy nincs használatban.</string>
 </resources>

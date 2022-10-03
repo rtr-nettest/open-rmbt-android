@@ -8,17 +8,14 @@ import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
 import android.os.Handler
+import android.provider.Settings
 import android.view.View
 import androidx.core.content.ContextCompat.checkSelfPermission
 import at.rmbt.client.control.IpProtocol
 import at.rtr.rmbt.android.R
 import at.rtr.rmbt.android.databinding.FragmentHomeBinding
 import at.rtr.rmbt.android.di.viewModelLazy
-import at.rtr.rmbt.android.ui.activity.LoopConfigurationActivity
-import at.rtr.rmbt.android.ui.activity.LoopInstructionsActivity
-import at.rtr.rmbt.android.ui.activity.MeasurementActivity
-import at.rtr.rmbt.android.ui.activity.PreferenceActivity
-import at.rtr.rmbt.android.ui.activity.SignalMeasurementTermsActivity
+import at.rtr.rmbt.android.ui.activity.*
 import at.rtr.rmbt.android.ui.dialog.IpInfoDialog
 import at.rtr.rmbt.android.ui.dialog.LocationInfoDialog
 import at.rtr.rmbt.android.ui.dialog.OpenGpsSettingDialog
@@ -26,14 +23,13 @@ import at.rtr.rmbt.android.ui.dialog.OpenLocationPermissionDialog
 import at.rtr.rmbt.android.ui.dialog.MessageDialog
 import at.rtr.rmbt.android.ui.dialog.NetworkInfoDialog
 import at.rtr.rmbt.android.ui.dialog.SimpleDialog
-import at.rtr.rmbt.android.util.InfoWindowStatus
-import at.rtr.rmbt.android.util.ToolbarTheme
-import at.rtr.rmbt.android.util.changeStatusBarColor
-import at.rtr.rmbt.android.util.listen
+import at.rtr.rmbt.android.util.*
 import at.rtr.rmbt.android.viewmodel.HomeViewModel
 import at.specure.info.network.WifiNetworkInfo
 import at.specure.location.LocationState
 import at.specure.measurement.MeasurementService
+import at.specure.util.hasPermission
+import at.specure.util.openAppSettings
 import at.specure.util.toast
 import timber.log.Timber
 import java.lang.IndexOutOfBoundsException
@@ -78,6 +74,7 @@ class HomeFragment : BaseFragment() {
 
         homeViewModel.locationStateLiveData.listen(this) {
             homeViewModel.state.isLocationEnabled.set(it)
+            checkInformationAvailability()
         }
 
         homeViewModel.ipV4ChangeLiveData.listen(this) {
@@ -146,6 +143,7 @@ class HomeFragment : BaseFragment() {
 
         homeViewModel.activeSignalMeasurementLiveData.listen(this) {
             homeViewModel.state.isSignalMeasurementActive.set(it)
+            checkInformationAvailability()
         }
 
         binding.btnLoop?.setOnClickListener {
@@ -158,6 +156,7 @@ class HomeFragment : BaseFragment() {
                     binding.btnLoop?.isChecked = false
                 }
             }
+            checkInformationAvailability()
         }
 
         homeViewModel.newsLiveData.listen(this) {
@@ -187,6 +186,14 @@ class HomeFragment : BaseFragment() {
             if (homeViewModel.shouldDisplayNetworkDetails()) {
                 NetworkInfoDialog.show(childFragmentManager)
             }
+        }
+
+        binding.panelPermissionsProblems.drawableHelp.setOnClickListener {
+            PermissionsExplanationActivity.start(this)
+        }
+
+        homeViewModel.state.informationAccessProblem.addOnPropertyChanged { problem ->
+            problem.get()?.let { updateProblemUI(it) }
         }
     }
 
@@ -220,6 +227,73 @@ class HomeFragment : BaseFragment() {
                     null
                 }
             )
+        }
+        checkInformationAvailability()
+        homeViewModel.state.informationAccessProblem.get()?.let { updateProblemUI(it) }
+    }
+
+    private fun checkInformationAvailability() {
+        val phonePermissionsGranted =
+            context?.hasPermission(Manifest.permission.READ_PHONE_STATE) == true
+        val locationPermissionsGranted =
+            context?.hasPermission(Manifest.permission.ACCESS_FINE_LOCATION) == true || context?.hasPermission(
+                Manifest.permission.ACCESS_COARSE_LOCATION
+            ) == true
+        val backgroundLocationPermissionsGranted =
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                context?.hasPermission(Manifest.permission.ACCESS_BACKGROUND_LOCATION) == true
+            } else {
+                true
+            }
+        val problem = when {
+            homeViewModel.state.isLocationEnabled.get() == LocationState.DISABLED_DEVICE -> {
+                homeViewModel.state.informationAccessProblem.set(InformationAccessProblem.MISSING_LOCATION_ENABLED)
+            }
+            !locationPermissionsGranted -> {
+                homeViewModel.state.informationAccessProblem.set(InformationAccessProblem.MISSING_LOCATION_PERMISSION)
+            }
+            !phonePermissionsGranted -> {
+                homeViewModel.state.informationAccessProblem.set(InformationAccessProblem.MISSING_READ_PHONE_STATE_PERMISSION)
+            }
+            (!backgroundLocationPermissionsGranted) && (homeViewModel.state.isLoopModeActive.get() || homeViewModel.activeSignalMeasurementLiveData.value == true) -> {
+                homeViewModel.state.informationAccessProblem.set(
+                    InformationAccessProblem.MISSING_BACKGROUND_LOCATION_PERMISSION
+                )
+            }
+            else -> homeViewModel.state.informationAccessProblem.set(InformationAccessProblem.NO_PROBLEM)
+        }
+    }
+
+    private fun updateProblemUI(problem: InformationAccessProblem) {
+        if (this.isAdded && problem != InformationAccessProblem.NO_PROBLEM) {
+            binding.panelPermissionsProblems.labelPermissionDisabled.text = problem.let {
+                this.getText(
+                    it.titleID
+                )
+            }
+            binding.panelPermissionsProblems.textPermissionExplanation.text =
+                problem.let {
+                    this.getText(
+                        it.descriptionId
+                    )
+                }
+        }
+        when (problem) {
+            InformationAccessProblem.MISSING_LOCATION_ENABLED -> {
+                binding.panelPermissionsProblems.cardPP.setOnClickListener {
+                    startActivity(Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS))
+                }
+            }
+            InformationAccessProblem.MISSING_LOCATION_PERMISSION,
+            InformationAccessProblem.MISSING_READ_PHONE_STATE_PERMISSION,
+            InformationAccessProblem.MISSING_BACKGROUND_LOCATION_PERMISSION -> {
+                binding.panelPermissionsProblems.cardPP.setOnClickListener {
+                    requireContext().openAppSettings()
+                }
+            }
+            InformationAccessProblem.NO_PROBLEM -> {
+                // do nothing
+            }
         }
     }
 

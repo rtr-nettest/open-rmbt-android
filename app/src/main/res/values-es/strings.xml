@@ -13,7 +13,7 @@
   -->
 
 <resources xmlns:tools="http://schemas.android.com/tools">
-    <string name="toolbar_title">RTR-Netztest</string>
+    <string name="toolbar_title">RTR-NetTest</string>
 
     <!-- Navigation menu titles -->
     <string name="menu_button_title_page">Home</string>
@@ -299,4 +299,16 @@
     <string name="preferences_developed_by">Desarrollado por Specure GmbH</string>
     <string name="preferences_design_by">Diseño de Feinblick</string>
     <string name="preferences_network_info_by">Información de red por NetMonster Core</string>
+
+    <string name="label_location_access_disabled">Acceso a la ubicación deshabilitado</string>
+    <string name="label_location_access_disabled_explanation">Ir a Configuración de ubicación para habilitar el acceso a la ubicación.</string>
+    <string name="label_some_permission_denied">Faltan permisos de la aplicación</string>
+    <string name="label_some_permission_denied_explanation">Vaya a la configuración de la aplicación para resolver los permisos de la aplicación que faltan.</string>
+    <string name="title_open_nettest_accuracy">Precisión RTR-NetTest</string>
+    <string name="subtitle_open_nettest_accuracy">RTR-NetTest necesita ciertas funciones para funcionar correctamente.</string>
+    <string name="phone_permission_title">1. Permisos de teléfono</string>
+    <string name="location_permission_title">2. Permisos de ubicación</string>
+    <string name="phone_permission_explanation">Nunca realizaremos ni administraremos llamadas telefónicas. Usamos permisos telefónicos para identificar el operador móvil utilizado para la prueba.</string>
+    <string name="location_permission_explanation">Su ubicación identifica los servidores cercanos y la conexión celular de su dispositivo para configurar correctamente RTR-NetTest.</string>
+    <string name="location_permissions_disclaimer">RTR-NetTest móvil recopila datos de ubicación para habilitar los metadatos de ubicación relacionados con una sola medición o una serie de mediciones en modo de bucle, incluso cuando la aplicación está cerrada o no está en uso.</string>
 </resources>
