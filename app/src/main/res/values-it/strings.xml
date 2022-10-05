@@ -271,4 +271,16 @@
     <string name="preferences_design_by">Design von Feinblick</string>
     <string name="preferences_network_info_by">Informazioni di rete da NetMonster Core</string>
     <string name="technology_label">Tecnología</string>
+
+    <string name="label_location_access_disabled">Accesso alla posizione disabilitato</string>
+    <string name="label_location_access_disabled_explanation">Vai a Impostazioni posizione per abilitare l\'accesso alla posizione.</string>
+    <string name="label_some_permission_denied">Autorizzazioni app mancanti</string>
+    <string name="label_some_permission_denied_explanation">Vai alle impostazioni dell\'app per risolvere le autorizzazioni dell\'app mancanti.</string>
+    <string name="title_open_nettest_accuracy">Precisione RTR-NetTest</string>
+    <string name="subtitle_open_nettest_accuracy">RTR-NetTest necessita di alcune funzionalità per funzionare correttamente.</string>
+    <string name="phone_permission_title">1. Autorizzazioni telefoniche</string>
+    <string name="location_permission_title">2. Permessi di posizione</string>
+    <string name="phone_permission_explanation">Non effettueremo né gestiremo mai telefonate. Utilizziamo le autorizzazioni del telefono per identificare l\'operatore di telefonia mobile utilizzato per il test.</string>
+    <string name="location_permission_explanation">La tua posizione identifica i server vicini e la connessione cellulare del tuo dispositivo per configurare correttamente RTR-NetTest.</string>
+    <string name="location_permissions_disclaimer">RTR-NetTest mobile raccoglie i dati sulla posizione per abilitare i metadati sulla posizione relativi a una singola misurazione o a una serie di misurazioni in modalità loop anche quando l\'app è chiusa o non in uso.</string>
 </resources>

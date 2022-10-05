@@ -299,5 +299,17 @@
     <string name="preferences_developed_by">Entwickelt von Specure GmbH</string>
     <string name="preferences_design_by">Design von Feinblick</string>
     <string name="preferences_network_info_by">Netzinformation von NetMonster Core</string>
+
+    <string name="label_location_access_disabled">Standortzugriff deaktiviert</string>
+    <string name="label_location_access_disabled_explanation">Gehe zu den Standorteinstellungen, um den Standortzugriff zu aktivieren.</string>
+    <string name="label_some_permission_denied">App-Berechtigungen fehlen</string>
+    <string name="label_some_permission_denied_explanation">Gehe zu den App-Einstellungen, um fehlende App-Berechtigungen zu beheben.</string>
+    <string name="title_open_nettest_accuracy">RTR-Netztest-Genauigkeit</string>
+    <string name="subtitle_open_nettest_accuracy">RTR-Netztest benötigt bestimmte Funktionen, um korrekt zu funktionieren.</string>
+    <string name="phone_permission_title">1. Telefonberechtigungen</string>
+    <string name="location_permission_title">2. Standortberechtigungen</string>
+    <string name="phone_permission_explanation">Wir werden niemals Telefonanrufe tätigen oder verwalten. Wir verwenden Telefonberechtigungen, um den Mobilfunkanbieter zu identifizieren, der zum Testen verwendet wurde.</string>
+    <string name="location_permission_explanation">Dein Standort identifiziert Server in der Nähe und die Mobilfunkverbindung deines Geräts, um RTR-Netztest richtig zu konfigurieren.</string>
+    <string name="location_permissions_disclaimer">RTR-Netztest mobile sammelt Standortdaten, um Standortmetadaten in Bezug auf eine einzelne Messung oder eine Reihe von Messungen in einem Schleifenmodus zu aktivieren, selbst wenn die App geschlossen oder nicht verwendet wird.</string>
 </resources>
 

@@ -108,6 +108,8 @@
 
         <activity android:name=".ui.activity.TermsAcceptanceActivity"/>
 
+        <activity android:name=".ui.activity.PermissionsExplanationActivity"/>
+
         <meta-data
             android:name="com.google.android.geo.API_KEY"
             android:value="${googleMapsApiKey}" />

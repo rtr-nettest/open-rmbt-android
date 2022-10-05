@@ -170,8 +170,8 @@ class ResultsActivity : BaseActivity() {
                 setOnMapClickListener {
                     DetailedFullscreenMapActivity.start(
                         this@ResultsActivity,
-                        it.latitude,
-                        it.longitude,
+                        latLngW.latitude,
+                        latLngW.longitude,
                         result.networkType
                     )
                 }
