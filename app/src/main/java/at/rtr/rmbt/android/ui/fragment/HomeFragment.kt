@@ -10,6 +10,7 @@ import android.os.Bundle
 import android.os.Handler
 import android.provider.Settings
 import android.view.View
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat.checkSelfPermission
 import at.rmbt.client.control.IpProtocol
 import at.rtr.rmbt.android.R
@@ -40,6 +41,27 @@ class HomeFragment : BaseFragment() {
     private val binding: FragmentHomeBinding by bindingLazy()
 
     override val layoutResId = R.layout.fragment_home
+
+    private val getSignalMeasurementResult =
+        registerForActivityResult(
+            ActivityResultContracts.StartActivityForResult()) {
+            if (it.resultCode == Activity.RESULT_OK) {
+                homeViewModel.toggleSignalMeasurementService()
+                requireContext().toast(R.string.toast_signal_measurement_enabled)
+            }
+        }
+
+    private val getLoopModeInstructionsResult =
+        registerForActivityResult(
+            ActivityResultContracts.StartActivityForResult()) {
+            if (it.resultCode == Activity.RESULT_OK) {
+                homeViewModel.state.isLoopModeActive.set(true)
+                binding.btnLoop.isChecked = true
+            } else {
+                homeViewModel.state.isLoopModeActive.set(false)
+                binding.btnLoop.isChecked = false
+            }
+        }
 
     @SuppressLint("ClickableViewAccessibility")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -85,22 +107,22 @@ class HomeFragment : BaseFragment() {
             homeViewModel.state.ipV6Info.set(it)
         }
 
-        binding.btnSetting?.setOnClickListener {
+        binding.btnSetting.setOnClickListener {
             startActivity(Intent(requireContext(), PreferenceActivity::class.java))
         }
-        binding.tvInfo?.setOnClickListener {
+        binding.tvInfo.setOnClickListener {
             homeViewModel.state.infoWindowStatus.set(InfoWindowStatus.GONE)
         }
 
-        binding.btnIpv4?.setOnClickListener {
+        binding.btnIpv4.setOnClickListener {
             IpInfoDialog.instance(IpProtocol.V4).show(activity)
         }
 
-        binding.btnIpv6?.setOnClickListener {
+        binding.btnIpv6.setOnClickListener {
             IpInfoDialog.instance(IpProtocol.V6).show(activity)
         }
 
-        binding.btnLocation?.setOnClickListener {
+        binding.btnLocation.setOnClickListener {
 
             context?.let {
                 homeViewModel.state.isLocationEnabled.get()?.let {
@@ -130,11 +152,11 @@ class HomeFragment : BaseFragment() {
             }
         }
 
-        binding.btnUpload?.setOnClickListener {
+        binding.btnUpload.setOnClickListener {
             homeViewModel.activeSignalMeasurementLiveData.value?.let { active ->
                 if (!active) {
                     val intent = SignalMeasurementTermsActivity.start(requireContext())
-                    startActivityForResult(intent, CODE_SIGNAL_MEASUREMENT_TERMS)
+                    getSignalMeasurementResult.launch(intent)
                 } else {
                     homeViewModel.toggleSignalMeasurementService()
                 }
@@ -146,14 +168,14 @@ class HomeFragment : BaseFragment() {
             checkInformationAvailability()
         }
 
-        binding.btnLoop?.setOnClickListener {
+        binding.btnLoop.setOnClickListener {
             if (this.isResumed) {
-                if (binding.btnLoop?.isChecked == true) {
+                if (binding.btnLoop.isChecked) {
                     val intent = LoopInstructionsActivity.start(requireContext())
-                    startActivityForResult(intent, CODE_LOOP_INSTRUCTIONS)
+                    getLoopModeInstructionsResult.launch(intent)
                 } else {
                     homeViewModel.state.isLoopModeActive.set(false)
-                    binding.btnLoop?.isChecked = false
+                    binding.btnLoop.isChecked = false
                 }
             }
             checkInformationAvailability()
@@ -176,13 +198,13 @@ class HomeFragment : BaseFragment() {
             }
         }
 
-        binding.tvFrequency?.setOnClickListener {
+        binding.tvFrequency.setOnClickListener {
             if (homeViewModel.shouldDisplayNetworkDetails()) {
                 NetworkInfoDialog.show(childFragmentManager)
             }
         }
 
-        binding.tvSignal?.setOnClickListener {
+        binding.tvSignal.setOnClickListener {
             if (homeViewModel.shouldDisplayNetworkDetails()) {
                 NetworkInfoDialog.show(childFragmentManager)
             }
@@ -297,38 +319,6 @@ class HomeFragment : BaseFragment() {
         }
     }
 
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-
-        when (requestCode) {
-            CODE_LOOP_INSTRUCTIONS -> {
-                if (resultCode == Activity.RESULT_OK) {
-                    homeViewModel.state.isLoopModeActive.set(true)
-                    binding.btnLoop?.isChecked = true
-                } else {
-                    homeViewModel.state.isLoopModeActive.set(false)
-                    binding.btnLoop?.isChecked = false
-                }
-            }
-            CODE_SIGNAL_MEASUREMENT_TERMS -> {
-                if (resultCode == Activity.RESULT_OK) {
-                    homeViewModel.toggleSignalMeasurementService()
-                    requireContext().toast(R.string.toast_signal_measurement_enabled)
-                }
-            }
-        }
-    }
-
-    override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<out String>,
-        grantResults: IntArray
-    ) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        homeViewModel.permissionsWatcher.notifyPermissionsUpdated()
-        homeViewModel.getNews() // displaying news after permissions were/were not granted
-    }
-
     override fun onStart() {
         super.onStart()
         homeViewModel.attach(requireContext())
@@ -355,12 +345,28 @@ class HomeFragment : BaseFragment() {
             }
         }
 
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            val hasPostNotificationPermission =
+                checkSelfPermission(requireContext(), Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED
+            if (!hasPostNotificationPermission) {
+                permissions.add(Manifest.permission.POST_NOTIFICATIONS)
+            }
+        }
+
         if (permissions.isNotEmpty() && homeViewModel.shouldAskForPermission()) {
-            requestPermissions(permissions.toTypedArray(), PERMISSIONS_REQUEST_CODE)
+            resultRequestPermissions.launch(permissions.toTypedArray())
             homeViewModel.permissionsWereAsked()
         } else {
             homeViewModel.getNews()
         }
+    }
+
+    private val resultRequestPermissions = registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) {
+        homeViewModel.permissionsWatcher.notifyPermissionsUpdated()
+        if (it.hasLocationPermissions()) {
+            locationViewModel.updateLocationPermissions()
+        }
+        homeViewModel.getNews() // displaying news after permissions were/were not granted
     }
 
     override fun onStop() {
@@ -372,7 +378,7 @@ class HomeFragment : BaseFragment() {
      * If user not doing any action within 2 second, information window display
      */
     private fun startTimerForInfoWindow() {
-        Handler().postDelayed({
+        Handler(Looper.getMainLooper()).postDelayed({
 
             if (homeViewModel.state.infoWindowStatus.get() == InfoWindowStatus.NONE) {
                 homeViewModel.state.infoWindowStatus.set(InfoWindowStatus.VISIBLE)
@@ -381,10 +387,7 @@ class HomeFragment : BaseFragment() {
     }
 
     companion object {
-        private const val PERMISSIONS_REQUEST_CODE: Int = 10
         private const val INFO_WINDOW_TIME_MS: Long = 2000
-        private const val CODE_SIGNAL_MEASUREMENT_TERMS = 12
-        private const val CODE_LOOP_INSTRUCTIONS = 13
         private const val CODE_DIALOG_NEWS = 14
     }
 }

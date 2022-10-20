@@ -1,5 +1,6 @@
 package at.specure.location
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.location.Location
 import android.os.HandlerThread
@@ -30,6 +31,7 @@ class FusedLocationSource(context: Context) : LocationSource {
     private var handlerThread: HandlerThread? = null
 
     private val fetchedLocation: LocationInfo?
+        @SuppressLint("MissingPermission") // should be called only after permission is granted
         get() {
             var location: Location? = null
             synchronized(lastLocationMonitor) {
@@ -55,8 +57,8 @@ class FusedLocationSource(context: Context) : LocationSource {
     }
 
     private val locationCallback = object : LocationCallback() {
-        override fun onLocationResult(result: LocationResult?) {
-            val location = result?.let { LocationInfo(result.lastLocation) }
+        override fun onLocationResult(result: LocationResult) {
+            val location = result.lastLocation?.let { LocationInfo(it) }
             latestLocation = location
 
             Timber.d("location update: fused location result ${result.toString()}")
@@ -74,6 +76,7 @@ class FusedLocationSource(context: Context) : LocationSource {
             }
         }
 
+    @SuppressLint("MissingPermission") // should be called only after permission is granted
     override fun start(listener: LocationSource.Listener) {
         Timber.d("location update: request start")
         this.listener = listener

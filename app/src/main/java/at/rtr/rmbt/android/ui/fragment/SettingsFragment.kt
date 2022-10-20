@@ -11,6 +11,7 @@ import android.os.Bundle
 import android.text.InputType
 import android.view.View
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult
 import at.rmbt.client.control.Server
 import at.rtr.rmbt.android.BuildConfig
 import at.rtr.rmbt.android.R
@@ -38,6 +39,14 @@ class SettingsFragment : BaseFragment(), InputSettingDialog.Callback, ServerSele
     private val binding: FragmentSettingsBinding by bindingLazy()
 
     override val layoutResId = R.layout.fragment_settings
+
+    private val startLoopModeInstructionForResult = registerForActivityResult(StartActivityForResult()) {
+        if (it.resultCode == Activity.RESULT_OK) {
+            settingsViewModel.state.loopModeEnabled.set(true)
+        } else {
+            settingsViewModel.state.loopModeEnabled.set(false)
+        }
+    }
 
     @SuppressLint("ClickableViewAccessibility")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -69,7 +78,7 @@ class SettingsFragment : BaseFragment(), InputSettingDialog.Callback, ServerSele
 
             if (!binding.switchLoopModeEnabled.switchButton.isChecked) {
                 val intent = LoopInstructionsActivity.start(requireContext())
-                startActivityForResult(intent, CODE_LOOP_INSTRUCTIONS)
+                startLoopModeInstructionForResult.launch(intent)
             } else {
                 settingsViewModel.state.loopModeEnabled.set(false)
             }
@@ -336,18 +345,6 @@ class SettingsFragment : BaseFragment(), InputSettingDialog.Callback, ServerSele
         }
     }
 
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-
-        if (requestCode == CODE_LOOP_INSTRUCTIONS) {
-            if (resultCode == Activity.RESULT_OK) {
-                settingsViewModel.state.loopModeEnabled.set(true)
-            } else {
-                settingsViewModel.state.loopModeEnabled.set(false)
-            }
-        }
-    }
-
     companion object {
         private const val KEY_REQUEST_CODE_LOOP_MODE_WAITING_TIME: Int = 1
         private const val KEY_REQUEST_CODE_LOOP_MODE_DISTANCE: Int = 2
@@ -359,7 +356,6 @@ class SettingsFragment : BaseFragment(), InputSettingDialog.Callback, ServerSele
         private const val KEY_RADIO_INFO_CODE: Int = 8
         private const val KEY_DEVELOPER_TAG_CODE: Int = 9
 
-        private const val CODE_LOOP_INSTRUCTIONS = 13
         private const val CODE_DIALOG_INVALID = 14
 
         fun newInstance() = SettingsFragment()

@@ -6,7 +6,7 @@ buildscript {
         config = [
                 applicationId    : "at.alladin.rmbt.android.prod",
                 minSdkVersion    : 23,
-                targetSdkVersion : 31,
+                targetSdkVersion : 33,
                 versionCode      : (project.hasProperty('buildVersionCode') ? Integer.parseInt(buildVersionCode) : 48),
                 versionName      : (project.hasProperty('buildVersionName') ? buildVersionName : '4.0.458')
         ]
@@ -29,7 +29,8 @@ buildscript {
                 dagger              : '2.35.1',
                 timber              : '4.7.1',
                 switch_button       : '0.0.3@aar',
-                google_services     : '18.0.2',
+                google_services     : '18.1.0',
+                location_services   : '20.0.0',
                 crashlytics         : '17.3.1',
                 retrofit            : '2.6.2',
                 stetho              : '1.6.0',
