@@ -39,7 +39,7 @@
     <string name="home_vpn" translatable="false">VPN</string>
     <string name="home_bluetooth" translatable="false">Bluetooth</string>
     <string name="public_ip_address">Public address</string>
-    <string name="private_ip_address">Private address</string>
+    <string name="private_ip_address">Local address</string>
 
 
     <!-- Preference titles -->
