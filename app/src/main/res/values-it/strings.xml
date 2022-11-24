@@ -62,6 +62,8 @@
     <string name="preferences_source_code">Codice sorgente</string>
     <string name="preferences_data_protection">Informativa sulla privacy e termini di utilizzo</string>
     <string name="preferences_developed_by">Sviluppato da Specure GmbH</string>
+    <string name="preferences_design_by">Design von Feinblick</string>
+    <string name="preferences_network_info_by">Informazioni di rete da NetMonster Core</string>
     <string name="preferences_version">Versione</string>
     <string name="preferences_commit_hash">Hash di commit</string>
     <string name="preferences_enter_code">Per favore inserisci il codice</string>
@@ -153,6 +155,7 @@
     <string name="label_init">Inizializzazione</string>
     <string name="label_signal_strength">Segnale</string>
     <string name="network_label">Rete</string>
+    <string name="technology_label">Tecnología</string>
     <string name="title_cancel_measurement">Vuoi davvero annullare la misurazione in corso?</string>
     <string name="text_continue_measurement">Continua la misurazione</string>
     <string name="text_cancel_measurement">Annulla la misurazione</string>
@@ -267,11 +270,7 @@
     <string name="text_local_results">Solo risultati locali</string>
     <string name="signal_measurement_terms_title">Attivazione e utilizzo</string>
     <string name="signal_measurement_terms_content">La modalità loop solo segnale per gli utenti tecnicamente interessati, consente la ripetizione automatica delle misurazioni del segnale senza l\'esecuzione alcuna test di velocità o di qualità. La modalità loop del segnale può essere interrotta in qualsiasi momento e si ferma automaticamente dopo 48 oreLa modalità loop del segnale è solamente destinata all\'utilizzo all\'interno dell\'UE e del SEE. La batteria viene rapidamente scaricata dalle misurazioni del solo segnale. Nelle pause tra le prove, il GPS e il display rimangono attivi e le misurazioni del segnale continuano, il che significa che l\'energia viene utilizzata molto più velocemente che in modalità stand-by. La modalità loop dovrebbe pertanto essere utilizzato solo se è disponibile un alimentatore esterno. Va sottolineato esplicitamente che, a causa della modalità loop solo segnale, non si può escludere che il tester sia identificato.</string>
-
-    <string name="preferences_design_by">Design von Feinblick</string>
-    <string name="preferences_network_info_by">Informazioni di rete da NetMonster Core</string>
-    <string name="technology_label">Tecnología</string>
-
+    <!-- Signal details -->
     <string name="label_location_access_disabled">Location permission missing</string>
     <string name="label_location_access_disabled_explanation">Grant location permission in settings.</string>
     <string name="label_some_permission_denied">App permissions missing</string>
