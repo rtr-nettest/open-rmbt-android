@@ -62,6 +62,8 @@
     <string name="preferences_source_code">Codice sorgente</string>
     <string name="preferences_data_protection">Informativa sulla privacy e termini di utilizzo</string>
     <string name="preferences_developed_by">Sviluppato da Specure GmbH</string>
+    <string name="preferences_design_by">Design von Feinblick</string>
+    <string name="preferences_network_info_by">Informazioni di rete da NetMonster Core</string>
     <string name="preferences_version">Versione</string>
     <string name="preferences_commit_hash">Hash di commit</string>
     <string name="preferences_enter_code">Per favore inserisci il codice</string>
@@ -87,7 +89,7 @@
     <string name="preferences_developer_qos_ssl_sum">Usa connessione crittografata al server QoS</string>
     <string name="preferences_all_disabled">Disattivato.</string>
     <string name="preferences_server_selection">Selezione server</string>
-    <string name="preferences_default_server_selection">Default</string>
+    <string name="preferences_default_server_selection">Predefinito</string>
     <string name="label_server_selection">Selezione del server</string>
     <string name="preferences_tag">Etichetta</string>
     <!-- Location Dialog -->
@@ -153,6 +155,7 @@
     <string name="label_init">Inizializzazione</string>
     <string name="label_signal_strength">Segnale</string>
     <string name="network_label">Rete</string>
+    <string name="technology_label">Tecnología</string>
     <string name="title_cancel_measurement">Vuoi davvero annullare la misurazione in corso?</string>
     <string name="text_continue_measurement">Continua la misurazione</string>
     <string name="text_cancel_measurement">Annulla la misurazione</string>
@@ -171,7 +174,7 @@
     <string name="results_qoe_videos_sd">Video SD</string>
     <string name="results_qoe_videos_hd">Video HD</string>
     <string name="results_qoe_videos_uhd">Video UHD</string>
-    <string name="results_qoe_gaming">Gaming</string>
+    <string name="results_qoe_gaming">Gioco</string>
     <string name="results_qoe_gaming_cloud">Cloud Gaming</string>
     <string name="results_qoe_gaming_streaming">Streaming Gaming</string>
     <string name="results_qoe_gaming_download">Download Gaming</string>
@@ -267,20 +270,16 @@
     <string name="text_local_results">Solo risultati locali</string>
     <string name="signal_measurement_terms_title">Attivazione e utilizzo</string>
     <string name="signal_measurement_terms_content">La modalità loop solo segnale per gli utenti tecnicamente interessati, consente la ripetizione automatica delle misurazioni del segnale senza l\'esecuzione alcuna test di velocità o di qualità. La modalità loop del segnale può essere interrotta in qualsiasi momento e si ferma automaticamente dopo 48 oreLa modalità loop del segnale è solamente destinata all\'utilizzo all\'interno dell\'UE e del SEE. La batteria viene rapidamente scaricata dalle misurazioni del solo segnale. Nelle pause tra le prove, il GPS e il display rimangono attivi e le misurazioni del segnale continuano, il che significa che l\'energia viene utilizzata molto più velocemente che in modalità stand-by. La modalità loop dovrebbe pertanto essere utilizzato solo se è disponibile un alimentatore esterno. Va sottolineato esplicitamente che, a causa della modalità loop solo segnale, non si può escludere che il tester sia identificato.</string>
-
-    <string name="preferences_design_by">Design von Feinblick</string>
-    <string name="preferences_network_info_by">Informazioni di rete da NetMonster Core</string>
-    <string name="technology_label">Tecnología</string>
-
-    <string name="label_location_access_disabled">Location permission missing</string>
-    <string name="label_location_access_disabled_explanation">Grant location permission in settings.</string>
-    <string name="label_some_permission_denied">App permissions missing</string>
-    <string name="label_some_permission_denied_explanation">Grant permissions in settings.</string>
-    <string name="title_open_nettest_accuracy">Permissions for RTR-Netztest</string>
-    <string name="subtitle_open_nettest_accuracy">RTR-NetTest requires certain permissions to work.</string>
-    <string name="phone_permission_title">1. Phone permission</string>
-    <string name="location_permission_title">2. Location permission</string>
-    <string name="phone_permission_explanation">RTR-NetTest does not make phone calls. The telephone permission is necessary to identify the provider.</string>
-    <string name="location_permission_explanation">The location permission is necessary to identify the measurement location and to display it on the map. Without location permission, signal strength is unavailable on many devices. Use of loop mode while on the move is only possible with location permission.</string>
-    <string name="location_permissions_disclaimer">RTR-NetTest uses the location permission only during the measurement, the background permission is required to allow to run the loop mode in background.</string>
+    <!-- Signal details -->
+    <string name="label_location_access_disabled">Autorizzazione alla posizione mancante</string>
+    <string name="label_location_access_disabled_explanation">Concedi il permesso alla localizzazione nelle impostazioni.</string>
+    <string name="label_some_permission_denied">Autorizzazioni dell\'app mancanti</string>
+    <string name="label_some_permission_denied_explanation">Concedi i permessi nelle impostazioni.</string>
+    <string name="title_open_nettest_accuracy">Permessi per RTR-Netztest</string>
+    <string name="subtitle_open_nettest_accuracy">RTR-NetTest richiede alcune autorizzazioni per funzionare.</string>
+    <string name="phone_permission_title">1. Autorizzazione al telefono</string>
+    <string name="location_permission_title">2. Autorizzazione alla posizione</string>
+    <string name="phone_permission_explanation">RTR-NetTest non effettua chiamate. L\'autorizzazione al telefono è necessaria per identificare il fornitore del servizio.</string>
+    <string name="location_permission_explanation">Il permesso alla localizzazione è necessario per identificare la posizione di misurazione e per visualizzarla sulla mappa. Senza il permesso alla localizzazione, l\'intensità del segnale non è disponibile su molti dispositivi. L\'uso della modalità loop mentre in movimento è possibile solo con il permesso alla localizzazione.</string>
+    <string name="location_permissions_disclaimer">RTR-NetTest utilizza il permesso alla localizzazione solo durante la misurazione, il permesso all\'accesso in background è necessario per consentire l\'esecuzione della modalità loop in background.</string>
 </resources>
