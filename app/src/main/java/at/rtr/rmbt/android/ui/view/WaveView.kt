@@ -118,17 +118,17 @@ class WaveView @JvmOverloads constructor(
 
     private inner class AnimationRepeater(val child: View, val delay: Long) : Animator.AnimatorListener {
 
-        override fun onAnimationRepeat(p0: Animator?) {}
+        override fun onAnimationRepeat(p0: Animator) {}
 
-        override fun onAnimationEnd(p0: Animator?) {
+        override fun onAnimationEnd(p0: Animator) {
             child.translationX = 0f
             child.translationY = 0f
             start()
         }
 
-        override fun onAnimationCancel(p0: Animator?) {}
+        override fun onAnimationCancel(p0: Animator) {}
 
-        override fun onAnimationStart(p0: Animator?) {}
+        override fun onAnimationStart(p0: Animator) {}
 
         fun start() {
             child.clearAnimation()

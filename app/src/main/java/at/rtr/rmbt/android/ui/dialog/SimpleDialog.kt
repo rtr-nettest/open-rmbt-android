@@ -118,15 +118,15 @@ class SimpleDialog : FullscreenDialog() {
             code = parcel.readInt()
         }
 
-        override fun writeToParcel(dest: Parcel?, flags: Int) {
-            dest?.writeString(messageTitleText)
-            dest?.writeInt(messageTitleTextRes)
-            dest?.writeString(messageText)
-            dest?.writeInt(messageTextRes)
-            dest?.writeInt(positiveTextRes)
-            dest?.writeInt(negativeTextRes)
-            dest?.writeInt(if (cancelable) 1 else 0)
-            dest?.writeInt(code)
+        override fun writeToParcel(dest: Parcel, flags: Int) {
+            dest.writeString(messageTitleText)
+            dest.writeInt(messageTitleTextRes)
+            dest.writeString(messageText)
+            dest.writeInt(messageTextRes)
+            dest.writeInt(positiveTextRes)
+            dest.writeInt(negativeTextRes)
+            dest.writeInt(if (cancelable) 1 else 0)
+            dest.writeInt(code)
         }
 
         override fun describeContents() = 0
