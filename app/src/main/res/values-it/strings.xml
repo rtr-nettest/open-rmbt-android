@@ -89,7 +89,7 @@
     <string name="preferences_developer_qos_ssl_sum">Usa connessione crittografata al server QoS</string>
     <string name="preferences_all_disabled">Disattivato.</string>
     <string name="preferences_server_selection">Selezione server</string>
-    <string name="preferences_default_server_selection">Default</string>
+    <string name="preferences_default_server_selection">Predefinito</string>
     <string name="label_server_selection">Selezione del server</string>
     <string name="preferences_tag">Etichetta</string>
     <!-- Location Dialog -->
@@ -174,7 +174,7 @@
     <string name="results_qoe_videos_sd">Video SD</string>
     <string name="results_qoe_videos_hd">Video HD</string>
     <string name="results_qoe_videos_uhd">Video UHD</string>
-    <string name="results_qoe_gaming">Gaming</string>
+    <string name="results_qoe_gaming">Gioco</string>
     <string name="results_qoe_gaming_cloud">Cloud Gaming</string>
     <string name="results_qoe_gaming_streaming">Streaming Gaming</string>
     <string name="results_qoe_gaming_download">Download Gaming</string>
@@ -271,11 +271,11 @@
     <string name="signal_measurement_terms_title">Attivazione e utilizzo</string>
     <string name="signal_measurement_terms_content">La modalità loop solo segnale per gli utenti tecnicamente interessati, consente la ripetizione automatica delle misurazioni del segnale senza l\'esecuzione alcuna test di velocità o di qualità. La modalità loop del segnale può essere interrotta in qualsiasi momento e si ferma automaticamente dopo 48 oreLa modalità loop del segnale è solamente destinata all\'utilizzo all\'interno dell\'UE e del SEE. La batteria viene rapidamente scaricata dalle misurazioni del solo segnale. Nelle pause tra le prove, il GPS e il display rimangono attivi e le misurazioni del segnale continuano, il che significa che l\'energia viene utilizzata molto più velocemente che in modalità stand-by. La modalità loop dovrebbe pertanto essere utilizzato solo se è disponibile un alimentatore esterno. Va sottolineato esplicitamente che, a causa della modalità loop solo segnale, non si può escludere che il tester sia identificato.</string>
     <!-- Signal details -->
-    <string name="label_location_access_disabled">Location permission missing</string>
-    <string name="label_location_access_disabled_explanation">Grant location permission in settings.</string>
-    <string name="label_some_permission_denied">App permissions missing</string>
-    <string name="label_some_permission_denied_explanation">Grant permissions in settings.</string>
-    <string name="title_open_nettest_accuracy">Permissions for RTR-Netztest</string>
+    <string name="label_location_access_disabled">Autorizzazione alla posizione mancante</string>
+    <string name="label_location_access_disabled_explanation">Concedi il permesso alla localizzazione nelle impostazioni.</string>
+    <string name="label_some_permission_denied">Autorizzazioni dell\'app mancanti</string>
+    <string name="label_some_permission_denied_explanation">Concedi i permessi nelle impostazioni.</string>
+    <string name="title_open_nettest_accuracy">Permessi per RTR-Netztest</string>
     <string name="subtitle_open_nettest_accuracy">RTR-NetTest requires certain permissions to work.</string>
     <string name="phone_permission_title">1. Phone permission</string>
     <string name="location_permission_title">2. Location permission</string>
