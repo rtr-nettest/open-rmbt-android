@@ -276,10 +276,10 @@
     <string name="label_some_permission_denied">Autorizzazioni dell\'app mancanti</string>
     <string name="label_some_permission_denied_explanation">Concedi i permessi nelle impostazioni.</string>
     <string name="title_open_nettest_accuracy">Permessi per RTR-Netztest</string>
-    <string name="subtitle_open_nettest_accuracy">RTR-NetTest requires certain permissions to work.</string>
-    <string name="phone_permission_title">1. Phone permission</string>
-    <string name="location_permission_title">2. Location permission</string>
-    <string name="phone_permission_explanation">RTR-NetTest does not make phone calls. The telephone permission is necessary to identify the provider.</string>
-    <string name="location_permission_explanation">The location permission is necessary to identify the measurement location and to display it on the map. Without location permission, signal strength is unavailable on many devices. Use of loop mode while on the move is only possible with location permission.</string>
-    <string name="location_permissions_disclaimer">RTR-NetTest uses the location permission only during the measurement, the background permission is required to allow to run the loop mode in background.</string>
+    <string name="subtitle_open_nettest_accuracy">RTR-NetTest richiede alcune autorizzazioni per funzionare.</string>
+    <string name="phone_permission_title">1. Autorizzazione al telefono</string>
+    <string name="location_permission_title">2. Autorizzazione alla posizione</string>
+    <string name="phone_permission_explanation">RTR-NetTest non effettua chiamate. L\'autorizzazione al telefono è necessaria per identificare il fornitore del servizio.</string>
+    <string name="location_permission_explanation">Il permesso alla localizzazione è necessario per identificare la posizione di misurazione e per visualizzarla sulla mappa. Senza il permesso alla localizzazione, l\'intensità del segnale non è disponibile su molti dispositivi. L\'uso della modalità loop mentre in movimento è possibile solo con il permesso alla localizzazione.</string>
+    <string name="location_permissions_disclaimer">RTR-NetTest utilizza il permesso alla localizzazione solo durante la misurazione, il permesso all\'accesso in background è necessario per consentire l\'esecuzione della modalità loop in background.</string>
 </resources>
