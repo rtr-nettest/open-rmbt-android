@@ -32,7 +32,7 @@
     <string name="home_start_test_info">Drücken Sie den Knopf, um den Test jetzt zu starten!</string>
     <string name="home_wifi">WLAN</string>
     <string name="public_ip_address">Öffentliche Adresse</string>
-    <string name="private_ip_address">Local address</string>
+    <string name="private_ip_address">Lokale Adresse</string>
     <!-- Preference titles -->
     <string name="options">Optionen</string>
     <string name="preferences_general_settings">Allgemeine Einstellungen</string>
