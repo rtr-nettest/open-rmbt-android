@@ -32,7 +32,7 @@
     <string name="home_start_test_info">Nyomja meg a gombot a méréshez!</string>
     <string name="home_wifi">WLAN</string>
     <string name="public_ip_address">Publikus IP cím</string>
-    <string name="private_ip_address">Privát IP cím</string>
+    <string name="private_ip_address">Local address</string>
     <!-- Preference titles -->
     <string name="options">Lehetőségek</string>
     <string name="preferences_general_settings">Általános beállítások</string>
