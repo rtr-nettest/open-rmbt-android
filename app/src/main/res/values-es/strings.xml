@@ -301,15 +301,14 @@
     <string name="preferences_network_info_by">Información de red por NetMonster Core</string>\
     <string name="preferences_default_server_selection">Predeterminado</string>
 
-    <string name="label_location_access_disabled">Location permission missing</string>
-    <string name="label_location_access_disabled_explanation">Grant location permission in settings.</string>
-    <string name="label_some_permission_denied">App permissions missing</string>
-    <string name="label_some_permission_denied_explanation">Grant permissions in settings.</string>
-    <string name="title_open_nettest_accuracy">Permissions for RTR-Netztest</string>
-    <string name="subtitle_open_nettest_accuracy">RTR-NetTest requires certain permissions to work.</string>
-    <string name="phone_permission_title">1. Phone permission</string>
-    <string name="location_permission_title">2. Location permission</string>
-    <string name="phone_permission_explanation">RTR-NetTest does not make phone calls. The telephone permission is necessary to identify the provider.</string>
-    <string name="location_permission_explanation">The location permission is necessary to identify the measurement location and to display it on the map. Without precise location permission, signal strength is unavailable on many devices. Use of loop mode while on the move is only possible with location permission.</string>
-    <string name="location_permissions_disclaimer">RTR-NetTest uses the location permission only during the measurement, the background permission is required to allow to run the loop mode in background.</string>
-</resources>
+    <string name="label_location_access_disabled">Falta el permiso de ubicación</string>
+    <string name="label_location_access_disabled_explanation">Otorgar permiso de ubicación en la configuración.</string>
+    <string name="label_some_permission_denied">Faltan permisos de la aplicación</string>
+    <string name="label_some_permission_denied_explanation">Otorgar permisos en la configuración.</string>
+    <string name="title_open_nettest_accuracy">Permisos para RTR-Netztest</string>
+    <string name="subtitle_open_nettest_accuracy">RTR-NetTest requiere ciertos permisos para funcionar.</string>
+    <string name="phone_permission_title">1. Permiso de teléfono</string>
+    <string name="location_permission_title">2. Permiso de ubicación</string>
+    <string name="phone_permission_explanation">RTR-NetTest no realiza llamadas telefónicas. El permiso telefónico es necesario para identificar al proveedor.</string>
+    <string name="location_permission_explanation">El permiso de ubicación es necesario para identificar la ubicación de medición y mostrarla en el mapa. Sin un permiso de ubicación preciso, la intensidad de la señal no está disponible en muchos dispositivos. El uso del modo de bucle en movimiento solo es posible con permiso de ubicación.</string>
+    <string name="location_permissions_disclaimer">RTR-NetTest usa el permiso de ubicación solo durante la medición, se requiere el permiso de fondo para permitir ejecutar el modo de bucle en segundo plano.</string></resources>
