@@ -350,4 +350,17 @@
     <string name="cell_info_bsic" translatable="false">BSIC</string>
     <string name="cell_info_arfcn" translatable="false">ARFCN</string>
     <string name="cell_info_rxl" translatable="false">RXL</string>
+
+    <string name="label_location_access_disabled">Location permission missing</string>
+    <string name="label_location_access_disabled_explanation">Grant location permission in settings.</string>
+    <string name="label_some_permission_denied">App permissions missing</string>
+    <string name="label_some_permission_denied_explanation">Grant permissions in settings.</string>
+    <string name="title_open_nettest_accuracy">Permissions for RTR-Netztest</string>
+    <string name="subtitle_open_nettest_accuracy">RTR-NetTest requires certain permissions to work.</string>
+    <string name="phone_permission_title">1. Phone permission</string>
+    <string name="location_permission_title">2. Location permission</string>
+    <string name="phone_permission_explanation">RTR-NetTest does not make phone calls. The telephone permission is necessary to identify the provider.</string>
+    <string name="location_permission_explanation">The location permission is necessary to identify the measurement location and to display it on the map. Without precise location permission, signal strength is unavailable on many devices. Use of loop mode while on the move is only possible with location permission.</string>
+    <string name="location_permissions_disclaimer">RTR-NetTest uses the location permission only during the measurement, the background permission is required to allow to run the loop mode in background.</string>
+
 </resources>

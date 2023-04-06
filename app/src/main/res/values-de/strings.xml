@@ -299,5 +299,17 @@
     <string name="preferences_developed_by">Entwickelt von Specure GmbH</string>
     <string name="preferences_design_by">Design von Feinblick</string>
     <string name="preferences_network_info_by">Netzinformation von NetMonster Core</string>
+
+    <string name="label_location_access_disabled">Standortberechtigung fehlt</string>
+    <string name="label_location_access_disabled_explanation">Erteilen Sie die Standortberechtigung in den Einstellungen.</string>
+    <string name="label_some_permission_denied">App-Berechtigungen fehlen</string>
+    <string name="label_some_permission_denied_explanation">Erteilen Sie die Berechtigungen in den Einstellungen.</string>
+    <string name="title_open_nettest_accuracy">Berechtigungen für den RTR-Netztest</string>
+    <string name="subtitle_open_nettest_accuracy">Der RTR-Netztest benötigt bestimmte Berechtigungen, um zu funktionieren.</string>
+    <string name="phone_permission_title">1. Telefonberechtigung</string>
+    <string name="location_permission_title">2. Standortberechtigung</string>
+    <string name="phone_permission_explanation">Der RTR-Netztest tätigt keine Telefonanrufe. Die Telefonberechtigung ist jedoch notwendig, um die Messung einem Anbieter zuzuordnen.</string>
+    <string name="location_permission_explanation">Die Standortberechtigung wird benötigt, um die Messung einem bestimmten Standort zuzuordnen und diesen auf der Karte darzustellen. Ohne genaue Standortberechtigung ist bei vielen Geräten Signalstärke nicht verfügbar.         Die Nutzung des Wiederholungsmodus in Bewegung ist nur mit Standortberechtigung möglich.</string>
+    <string name="location_permissions_disclaimer">Der RTR-Netztest verwendet die Standortberechtigung nur während der Messung, die Hintergrundberechtigung ist beim Wiederholungsmodus notwendig um diesen auch im Hintergrund ausführen zu können.</string>
 </resources>
 

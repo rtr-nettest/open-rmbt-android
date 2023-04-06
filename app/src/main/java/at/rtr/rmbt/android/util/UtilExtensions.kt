@@ -68,14 +68,12 @@ fun Long.timeString(): String {
     }
 }
 
-fun Array<out String>.hasLocationPermissions(): Boolean {
-    forEach {
-        if (it == Manifest.permission.ACCESS_COARSE_LOCATION ||
-            it == Manifest.permission.ACCESS_FINE_LOCATION ||
-            it == Manifest.permission.ACCESS_BACKGROUND_LOCATION
-        ) {
-            return true
-        }
+fun Map<String, Boolean>.hasLocationPermissions(): Boolean {
+    if (this[Manifest.permission.ACCESS_COARSE_LOCATION] == true ||
+        this[Manifest.permission.ACCESS_FINE_LOCATION] == true ||
+        this[Manifest.permission.ACCESS_BACKGROUND_LOCATION] == true
+    ) {
+        return true
     }
     return false
 }

@@ -20,6 +20,8 @@
 
         <import type="at.specure.location.LocationState" />
 
+        <import type="at.rtr.rmbt.android.util.InformationAccessProblem" />
+
         <variable
             name="captiveState"
             type="at.specure.info.ip.CaptivePortal.CaptivePortalStatus" />
@@ -380,6 +382,18 @@
             app:layout_constraintStart_toEndOf="@+id/tvSignal"
             app:frequencySecondary="@{state.secondary5GActiveNetworkInfo}"
             tools:text="-12 db" />
+
+        <include
+            android:id="@+id/panel_permissions_problems"
+            layout="@layout/view_permissions_problems"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            app:layout_constraintBottom_toTopOf="@+id/vBottomDivider"
+            android:layout_marginBottom="24dp"
+            app:layout_constraintTop_toTopOf="@+id/tvSignal"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="@+id/vBottomDivider"
+            app:visibleOrGone="@{state.informationAccessProblem != InformationAccessProblem.NO_PROBLEM}" />
 
         <androidx.appcompat.widget.AppCompatImageButton
             android:id="@+id/btnIpv4"

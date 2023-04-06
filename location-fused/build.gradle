@@ -39,6 +39,6 @@ dependencies {
     api project(path: ':location')
 
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
-    implementation "com.google.android.gms:play-services-location:$versions.google_services"
+    implementation "com.google.android.gms:play-services-location:$versions.location_services"
     implementation "com.jakewharton.timber:timber:$versions.timber"
 }
