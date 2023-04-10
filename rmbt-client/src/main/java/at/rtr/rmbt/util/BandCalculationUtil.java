@@ -51,7 +51,7 @@ public class BandCalculationUtil {
         put(3, new NRBand(3, 1710, 1785, 1805, 1880, "1800 MHz"));
         put(8, new NRBand(8, 880, 915, 925, 960, "900 MHz"));
         put(7, new NRBand(7, 2500, 2570, 2620, 2690, "2600 MHz"));
-        put(78, new NRBand(78, 3300, 3800, 3300, 3800, "3500 MHz"));
+        put(78, new NRBand(78, 3300, 3800, 3300, 3800, "3400 MHz"));
         put(75, new NRBand(75, 0, 0, 1432, 1517, "1500 MHz"));
         put(258, new NRBand(258, 24250, 27500, 24250, 27500, "26 GHz"));
         put(20, new NRBand(20, 832, 862, 791, 821, "800 MHz"));
@@ -213,12 +213,12 @@ public class BandCalculationUtil {
         put(42, new LTEBand(42, 3400, 3600, 3400, 3600, 41590, 43589, 0, "3,4-3,6 GHz"));
         put(43, new LTEBand(43, 3600, 3800, 3600, 3800, 43590, 45589, 0, "3.6-3,8 GHz"));
         put(44, new LTEBand(44, 703, 803, 703, 803, 45590, 46589, 0, "700 MHz APT TDD"));
-        put(45, new LTEBand(45, 1447, 1467, 1447, 1467, 46590, 46789, 0, "1500 MHZ"));
+        put(45, new LTEBand(45, 1447, 1467, 1447, 1467, 46590, 46789, 0, "1500 MHz"));
         put(46, new LTEBand(46, 5150, 5925, 5150, 5925, 46790, 54539, 0, "TD Unlicensed"));
-        put(47, new LTEBand(47, 5855, 5925, 5855, 5925, 54540, 55239, 0, "Vehicle to Everything (V2X) TDD"));
+        put(47, new LTEBand(47, 5855, 5925, 5855, 5925, 54540, 55239, 0, "V2X TDD"));
         put(65, new LTEBand(65, 1920, 2010, 2110, 2200, 131072, 131971, 65536, "Extended IMT 2100"));
         put(66, new LTEBand(66, 1710, 1780, 2110, 2200, 131972, 132671, 65536, "AWS-3"));
-        put(67, new LTEBand(67, 0, 0, 738, 758, 0, 0, -67336, "700 EU (Suppl. DL)"));
+        put(67, new LTEBand(67, 0, 0, 738, 758, 0, 0, -67336, "700 EU SDL"));
         put(68, new LTEBand(68, 698, 728, 753, 783, 132672, 132971, 65136, "700 ME"));
         put(69, new LTEBand(69, 0, 0, 2570, 2620, 0, 0, -67836, "IMT-E FDD CA"));
         put(70, new LTEBand(70, 1695, 1710, 1995, 2020, 132972, 133121, 64636, "AWS-4"));
