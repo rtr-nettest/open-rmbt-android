@@ -102,7 +102,7 @@ class NetworkInfoAdapter : RecyclerView.Adapter<NetworkInfoAdapter.Holder>() {
                         binding.rxl2g = "$it dBm"
                     }
                     rawCellInfo.signal.timingAdvance?.let {
-                        binding.ta2g = "$it (~${it * 554}m)"
+                        binding.ta2g = "$it (${it * 554}m)"
                     }
                 }
             }
@@ -171,7 +171,6 @@ class NetworkInfoAdapter : RecyclerView.Adapter<NetworkInfoAdapter.Holder>() {
                     binding.ciLTE = rawCellInfo.eci?.toString()
                     binding.cidLTE = rawCellInfo.cid?.toString()
                     binding.enbLTE = rawCellInfo.enb?.toString()
-
                     binding.pciLTE = rawCellInfo.pci?.toString()
 
                     rawCellInfo.signal.rsrp?.let {
@@ -192,7 +191,7 @@ class NetworkInfoAdapter : RecyclerView.Adapter<NetworkInfoAdapter.Holder>() {
 
                     rawCellInfo.signal.timingAdvance?.let {
                         if (it > 0) {
-                            binding.taLTE = "$it (~${it * 78}m)"
+                            binding.taLTE = "$it (${it * 78}m)"
                         }
                     }
 

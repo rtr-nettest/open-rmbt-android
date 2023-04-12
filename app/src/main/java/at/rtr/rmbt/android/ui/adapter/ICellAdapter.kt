@@ -102,7 +102,7 @@ class ICellAdapter : RecyclerView.Adapter<ICellAdapter.Holder>() {
                         binding.rxl2g = "$it dBm"
                     }
                     rawCellInfo.signal.timingAdvance?.let {
-                        binding.ta2g = "$it (~${it * 554}m)"
+                        binding.ta2g = "$it (${it * 554}m)"
                     }
                 }
             }
@@ -214,7 +214,7 @@ class ICellAdapter : RecyclerView.Adapter<ICellAdapter.Holder>() {
 
                     rawCellInfo.signal.timingAdvance?.let {
                         if (it > 0) {
-                            binding.taLTE = "$it (~${it * 78}m)"
+                            binding.taLTE = "$it (${it * 78}m)"
                         }
                     }
 
