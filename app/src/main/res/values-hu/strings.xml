@@ -280,6 +280,6 @@
     <string name="phone_permission_title">1. Hozzáférés a telefon adataihoz</string>
     <string name="location_permission_title">2. Hozzáférés a helyadatokhoz</string>
     <string name="phone_permission_explanation">Az RTR-NetTest alkalmazás nem kezdeményez hívásokat. A telefon adatokhoz történő hozzáférés a mobilszolgáltató azonosítása érdekében szükséges.</string>
-    <string name="location_permission_explanation">A helyadatokhoz történő hozzáférés a mérés helyének az azonosításához, illetve annak a térképen történő megjelenítéséhez szükséges. A helyadatokhoz történő hozzáférés engedélyezése nélkül az alkalmazás számos eszközön nem tud hozzáférni a mobil jelerősség adatokhoz. Mozgásban lévő készülékkel mérési sorozat kizárólag a helyadatokhoz történő hozzáférés engedélyezése esetén indítható.</string>
+    <string name="location_permission_explanation">The location permission is necessary to identify the measurement location and to display it on the map. Without precise location permission, signal strength is unavailable on many devices. Use of loop mode while on the move is only possible with location permission.</string>
     <string name="location_permissions_disclaimer">Az RTR-NetTest alkalmazás kizárólag a mérés ideje alatt használja a helyadatokhoz történő hozzáférési engedélyt, a háttérben történő futtatásra vonatkozó engedély a mérési sorozat háttérben történő elvégzéséhez szükséges.</string>
 </resources>
