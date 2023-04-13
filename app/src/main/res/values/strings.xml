@@ -320,6 +320,7 @@
     <string name="preferences_connection_details_not_supported">Extended connection details are not supported on this device</string>
 
     <string name="dialog_signal_info_band">Band</string>
+    <string name="dialog_signal_info_connection_status" translatable="false">Status</string>
     <string name="dialog_signal_info_channel">Channel</string>
     <string name="text_local_results">Local results only</string>
     <string name="signal_measurement_terms_title">Activation and usage</string>
@@ -363,7 +364,7 @@
     <string name="phone_permission_title">1. Phone permission</string>
     <string name="location_permission_title">2. Location permission</string>
     <string name="phone_permission_explanation">RTR-NetTest does not make phone calls. The telephone permission is necessary to identify the provider.</string>
-    <string name="location_permission_explanation">The location permission is necessary to identify the measurement location and to display it on the map. Without location permission, signal strength is unavailable on many devices. Use of loop mode while on the move is only possible with location permission.</string>
+    <string name="location_permission_explanation">The location permission is necessary to identify the measurement location and to display it on the map. Without precise location permission, signal strength is unavailable on many devices. Use of loop mode while on the move is only possible with location permission.</string>
     <string name="location_permissions_disclaimer">RTR-NetTest uses the location permission only during the measurement, the background permission is required to allow to run the loop mode in background.</string>
 
 </resources>

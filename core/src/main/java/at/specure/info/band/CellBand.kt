@@ -275,6 +275,9 @@ private fun MutableSet<CellBandData>.add(
 
 /**
  * Table of NR Band channels, European channels are on the top
+ * taken from the 3gpp 38.101-1 standard
+ * https://www.3gpp.org/ftp/Specs/archive/38_series/38.101-1
+ * latest update V18.1.0 (2023-03)
  */
 private val nrBands: Set<CellBandData> = mutableSetOf<CellBandData>().apply {
     add(1, 1920.0, 1980.0, 2110.0, 2170.0, 0.0, 0.0, 0.0, "2100 MHz")
@@ -319,10 +322,10 @@ private val nrBands: Set<CellBandData> = mutableSetOf<CellBandData>().apply {
 }
 
 /**
- * Static list of all LTE Bands
+ * Static list of LTE Bands
  * taken from the 3gpp 36.101 standard
- * http://www.3gpp.org/ftp//Specs/archive/36_series/36.101/
- * latest update e30 (2017-03-28)
+ * https://www.3gpp.org/ftp//Specs/archive/36_series/36.101/
+ * latest update V18.1.0 (2023-03)
  */
 private val lteBands: Set<CellBandData> = mutableSetOf<CellBandData>().apply {
     add(1, 1920.0, 1980.0, 2110.0, 2170.0, 18000.0, 18599.0, 18000.0, "2100 MHz")

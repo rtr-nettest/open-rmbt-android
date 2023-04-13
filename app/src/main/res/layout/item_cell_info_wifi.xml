@@ -30,6 +30,22 @@
             name="wifiFrequency"
             type="String" />
 
+        <variable
+            name="wifiSsid"
+            type="String" />
+
+        <variable
+            name="wifiBssid"
+            type="String" />
+
+        <variable
+            name="wifiRxLinkSpeed"
+            type="String" />
+
+        <variable
+            name="wifiTxLinkSpeed"
+            type="String" />
+
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -59,10 +75,10 @@
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/labelChannel"
-            style="@style/RobotoMediumStyle.Small"
+            style="@style/RobotoMediumStyle.VerySmall"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="@dimen/margin_medium"
+            android:layout_marginEnd="@dimen/margin_small"
             android:gravity="end|center_vertical"
             android:text="@string/dialog_signal_info_channel"
             android:textColor="@color/text_gray_transparency_55"
@@ -73,10 +89,10 @@
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/labelBand"
-            style="@style/RobotoMediumStyle.Small"
+            style="@style/RobotoMediumStyle.VerySmall"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="@dimen/margin_medium"
+            android:layout_marginEnd="@dimen/margin_small"
             android:gravity="end|center_vertical"
             android:text="@string/dialog_signal_info_band"
             android:textColor="@color/text_gray_transparency_55"
@@ -88,10 +104,10 @@
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/labelSignal"
-            style="@style/RobotoMediumStyle.Small"
+            style="@style/RobotoMediumStyle.VerySmall"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="@dimen/margin_medium"
+            android:layout_marginEnd="@dimen/margin_small"
             android:gravity="end|center_vertical"
             android:text="@string/home_signal"
             android:textColor="@color/text_gray_transparency_55"
@@ -101,11 +117,71 @@
             app:layout_constraintTop_toBottomOf="@+id/labelBand" />
 
         <androidx.appcompat.widget.AppCompatTextView
-            android:id="@+id/textChannel"
-            style="@style/RobotoRegularStyle.Small"
+            android:id="@+id/labelbssid"
+            style="@style/RobotoMediumStyle.VerySmall"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/margin_medium"
+            android:layout_marginEnd="@dimen/margin_small"
+            android:gravity="end|center_vertical"
+            android:text="BSSID"
+            android:textColor="@color/text_gray_transparency_55"
+            app:layout_constraintEnd_toStartOf="@+id/guide_one_third"
+            app:layout_constraintHorizontal_weight="3"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/labelSignal"
+            tools:ignore="HardcodedText" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/labelssid"
+            style="@style/RobotoMediumStyle.VerySmall"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="@dimen/margin_small"
+            android:gravity="end|center_vertical"
+            android:text="SSID"
+            android:textColor="@color/text_gray_transparency_55"
+            app:layout_constraintEnd_toStartOf="@+id/guide_one_third"
+            app:layout_constraintHorizontal_weight="3"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/labelbssid"
+            tools:ignore="HardcodedText" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/labelrxlinkspeed"
+            style="@style/RobotoMediumStyle.VerySmall"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="@dimen/margin_small"
+            android:gravity="end|center_vertical"
+            android:text="Downlink speed"
+            android:textColor="@color/text_gray_transparency_55"
+            app:layout_constraintEnd_toStartOf="@+id/guide_one_third"
+            app:layout_constraintHorizontal_weight="3"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/labelssid"
+            tools:ignore="HardcodedText" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/labeltxlinkspeed"
+            style="@style/RobotoMediumStyle.VerySmall"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="@dimen/margin_small"
+            android:gravity="end|center_vertical"
+            android:text="Uplink speed"
+            android:textColor="@color/text_gray_transparency_55"
+            app:layout_constraintEnd_toStartOf="@+id/guide_one_third"
+            app:layout_constraintHorizontal_weight="3"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/labelrxlinkspeed"
+            tools:ignore="HardcodedText" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/textChannel"
+            style="@style/RobotoRegularStyle.VerySmall"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/margin_small"
             android:layout_marginTop="@dimen/margin_large"
             android:gravity="start|center_vertical"
             android:text="@{wifiFrequency}"
@@ -119,11 +195,10 @@
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/textBand"
-            style="@style/RobotoRegularStyle.Small"
+            style="@style/RobotoRegularStyle.VerySmall"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/margin_medium"
-            android:layout_marginTop="@dimen/margin_large"
+            android:layout_marginStart="@dimen/margin_small"
             android:gravity="start|center_vertical"
             android:text="@{wifiBandName}"
             android:textColor="@color/text_black_transparency_60"
@@ -136,11 +211,10 @@
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/textSignal"
-            style="@style/RobotoRegularStyle.Small"
+            style="@style/RobotoRegularStyle.VerySmall"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/margin_medium"
-            android:layout_marginTop="@dimen/margin_large"
+            android:layout_marginStart="@dimen/margin_small"
             android:gravity="start|center_vertical"
             android:textColor="@color/text_black_transparency_60"
             app:layout_constraintBaseline_toBaselineOf="@+id/labelSignal"
@@ -151,6 +225,70 @@
             app:simpleSignal="@{wifiSignal}"
             app:visibleOrGone="@{wifiSignal != null}"
             tools:text="-96 dBm" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/textbssid"
+            style="@style/RobotoRegularStyle.VerySmall"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/margin_small"
+            android:gravity="start|center_vertical"
+            android:text="@{wifiBssid}"
+            android:textColor="@color/text_black_transparency_60"
+            app:layout_constraintBaseline_toBaselineOf="@+id/labelbssid"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_weight="7"
+            app:layout_constraintStart_toEndOf="@+id/labelbssid"
+            app:layout_constraintStart_toStartOf="@+id/guide_one_third"
+            tools:text="12:34:45:67:78:AB" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/textssid"
+            style="@style/RobotoRegularStyle.VerySmall"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/margin_small"
+            android:gravity="start|center_vertical"
+            android:text="@{wifiSsid}"
+            android:textColor="@color/text_black_transparency_60"
+            app:layout_constraintBaseline_toBaselineOf="@+id/labelssid"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_weight="7"
+            app:layout_constraintStart_toEndOf="@+id/labelssid"
+            app:layout_constraintStart_toStartOf="@+id/guide_one_third"
+            tools:text="AnyWifi" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/textrxlinkspeed"
+            style="@style/RobotoRegularStyle.VerySmall"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/margin_small"
+            android:gravity="start|center_vertical"
+            android:text="@{wifiRxLinkSpeed}"
+            android:textColor="@color/text_black_transparency_60"
+            app:layout_constraintBaseline_toBaselineOf="@+id/labelrxlinkspeed"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_weight="7"
+            app:layout_constraintStart_toEndOf="@+id/labelrxlinkspeed"
+            app:layout_constraintStart_toStartOf="@+id/guide_one_third"
+            tools:text="567 MBit/s" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/texttxlinkspeed"
+            style="@style/RobotoRegularStyle.VerySmall"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/margin_small"
+            android:gravity="start|center_vertical"
+            android:text="@{wifiTxLinkSpeed}"
+            android:textColor="@color/text_black_transparency_60"
+            app:layout_constraintBaseline_toBaselineOf="@+id/labeltxlinkspeed"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_weight="7"
+            app:layout_constraintStart_toEndOf="@+id/labeltxlinkspeed"
+            app:layout_constraintStart_toStartOf="@+id/guide_one_third"
+            tools:text="567 MBit/s" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>
