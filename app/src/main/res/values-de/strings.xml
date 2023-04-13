@@ -56,7 +56,7 @@
     <string name="preferences_go_to_website">Website besuchen</string>
     <string name="preferences_contact_us">E-Mail schreiben</string>
     <string name="preferences_additional_Information">Weitere Informationen</string>
-    <string name="preferences_client_uuid">Client UUID</string>
+    <string name="preferences_client_uuid">Client-UUID</string>
     <string name="preferences_test_cases">Durchgeführte Tests</string>
     <string name="preferences_about">Über die App</string>
     <string name="preferences_source_code">Source Code</string>
@@ -65,14 +65,14 @@
     <string name="preferences_design_by">Design von Feinblick</string>
     <string name="preferences_network_info_by">Netzinformation von NetMonster Core</string>
     <string name="preferences_version">Version</string>
-    <string name="preferences_commit_hash">Commit hash</string>
+    <string name="preferences_commit_hash">Commit-Hash</string>
     <string name="preferences_enter_code">Bitte geben Sie den Code ein</string>
     <string name="preferences_developer_control_server">Control-Server</string>
     <string name="preferences_override_control_server">Control-Server überschreiben</string>
     <string name="preferences_override_control_server_sum">Aktiviert die folgenden Einstellungen für den Control-Server</string>
     <string name="preferences_override_control_server_host">Control Host</string>
     <string name="preferences_override_control_server_port">Control Port</string>
-    <string name="preferences_override_control_server_ssl">Control SSL</string>
+    <string name="preferences_override_control_server_ssl">Control-SSL</string>
     <string name="preferences_override_control_server_ssl_sum">Verschlüsselte Verbindung zum Control-Server</string>
     <string name="preferences_developer_options_disabled">Entwickleroptionen deaktiviert</string>
     <string name="preferences_developer_options_available">Entwickleroptionen verfügbar</string>
@@ -94,7 +94,7 @@
     <string name="preferences_tag">Kennzeichen</string>
     <!-- Location Dialog -->
     <string name="location_dialog_label_title">Standort</string>
-    <string name="location_dialog_label_position">Position</string>
+    <string name="location_dialog_label_position">Standort</string>
     <string name="location_dialog_label_accuracy">Genauigkeit</string>
     <string name="location_dialog_label_age">Aktualität</string>
     <string name="location_dialog_label_source">Quelle</string>
@@ -178,7 +178,7 @@
     <string name="results_qoe_gaming_cloud">Spiele Cloud</string>
     <string name="results_qoe_gaming_streaming">Spiele Streaming</string>
     <string name="results_qoe_gaming_download">Spiele Download</string>
-    <string name="results_qoe_audio_streaming">Audio Streaming</string>
+    <string name="results_qoe_audio_streaming">Audio-Streaming</string>
     <string name="results_qoe_voip">VoIP</string>
     <string name="results_qoe_video_telephony">Videotelefonie</string>
     <string name="results_qoe_video_conferencing">Videokonferenzen</string>
@@ -189,7 +189,7 @@
     <string name="results_quality">Qualität</string>
     <string name="results_network_type">Zugang</string>
     <string name="results_network_provider">Betreiber</string>
-    <string name="results_network_ssid">WLAN SSID</string>
+    <string name="results_network_ssid">WLAN-SSID</string>
     <string name="result_test_details">Test Details</string>
     <string name="label_information">Informationen</string>
     <string name="label_tests">Tests</string>
