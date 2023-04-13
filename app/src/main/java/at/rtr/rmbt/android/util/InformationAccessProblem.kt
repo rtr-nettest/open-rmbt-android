@@ -15,6 +15,10 @@ enum class InformationAccessProblem(val titleID: Int, val descriptionId: Int) {
         R.string.label_some_permission_denied,
         R.string.label_some_permission_denied_explanation
     ),
+    MISSING_PRECISE_LOCATION_PERMISSION(
+        R.string.label_some_permission_denied,
+        R.string.label_some_permission_denied_explanation
+    ),
     MISSING_BACKGROUND_LOCATION_PERMISSION(
         R.string.label_some_permission_denied,
         R.string.label_some_permission_denied_explanation

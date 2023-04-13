@@ -262,6 +262,7 @@ class HomeFragment : BaseFragment() {
             context?.hasPermission(Manifest.permission.ACCESS_FINE_LOCATION) == true || context?.hasPermission(
                 Manifest.permission.ACCESS_COARSE_LOCATION
             ) == true
+        val precisePermissionsGranted = context?.hasPermission(Manifest.permission.ACCESS_FINE_LOCATION) == true
         val backgroundLocationPermissionsGranted =
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                 context?.hasPermission(Manifest.permission.ACCESS_BACKGROUND_LOCATION) == true
@@ -277,6 +278,10 @@ class HomeFragment : BaseFragment() {
             }
             !phonePermissionsGranted -> {
                 homeViewModel.state.informationAccessProblem.set(InformationAccessProblem.MISSING_READ_PHONE_STATE_PERMISSION)
+            }
+            !precisePermissionsGranted -> {
+                homeViewModel.state.informationAccessProblem.set(InformationAccessProblem.MISSING_PRECISE_LOCATION_PERMISSION)
+                Timber.e("MISSING_PRECISE_LOCATION_PERMISSION")
             }
             (!backgroundLocationPermissionsGranted) && (homeViewModel.state.isLoopModeActive.get() || homeViewModel.activeSignalMeasurementLiveData.value == true) -> {
                 homeViewModel.state.informationAccessProblem.set(
@@ -309,6 +314,7 @@ class HomeFragment : BaseFragment() {
             }
             InformationAccessProblem.MISSING_LOCATION_PERMISSION,
             InformationAccessProblem.MISSING_READ_PHONE_STATE_PERMISSION,
+            InformationAccessProblem.MISSING_PRECISE_LOCATION_PERMISSION,
             InformationAccessProblem.MISSING_BACKGROUND_LOCATION_PERMISSION -> {
                 binding.panelPermissionsProblems.cardPP.setOnClickListener {
                     requireContext().openAppSettings()
