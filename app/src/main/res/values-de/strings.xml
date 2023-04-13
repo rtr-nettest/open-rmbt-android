@@ -110,7 +110,7 @@
     <string name="location_dialog_accuracy">%1$s m</string>
     <string name="location_dialog_speed">%1$s km/h</string>
     <string name="location_location_direction_n">N %1$s</string>
-    <string name="location_location_direction_e">E %1$s</string>
+    <string name="location_location_direction_e">O %1$s</string>
     <string name="location_location_direction_s">S %1$s</string>
     <string name="location_location_direction_w">W %1$s</string>
     <string name="open_location_permission_dialog_label_location_not_permitted">Standort nicht verfügbar. Zulassen, dass RTR-Netztest auf den Standort Ihres Geräts zugreift?</string>
@@ -280,6 +280,6 @@
     <string name="phone_permission_title">1. Telefonberechtigung</string>
     <string name="location_permission_title">2. Standortberechtigung</string>
     <string name="phone_permission_explanation">Der RTR-Netztest tätigt keine Telefonanrufe. Die Telefonberechtigung ist jedoch notwendig, um die Messung einem Anbieter zuzuordnen.</string>
-    <string name="location_permission_explanation">The location permission is necessary to identify the measurement location and to display it on the map. Without precise location permission, signal strength is unavailable on many devices. Use of loop mode while on the move is only possible with location permission.</string>
+    <string name="location_permission_explanation">Die Standortberechtigung wird für die Bestimmung des Mess-Standorts und zur Darstellung auf der Karte benötigt. Ohne Berechtigung für den genauen Standort kann die Signalstärke auf vielen Geräten nicht angezeigt werden. Die Verwendung des Wiederholungsmodus in Bewegung ist nur mit Standortberechtigung möglich.</string>
     <string name="location_permissions_disclaimer">Der RTR-Netztest verwendet die Standortberechtigung nur während der Messung, die Hintergrundberechtigung ist beim Wiederholungsmodus notwendig um diesen auch im Hintergrund ausführen zu können.</string>
 </resources>
