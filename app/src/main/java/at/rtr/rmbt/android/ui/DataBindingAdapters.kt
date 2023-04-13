@@ -205,7 +205,7 @@ fun AppCompatTextView.setSignal(
     text = if (signal != null) {
         String.format(context.getString(R.string.home_signal_value), signal)
     } else {
-        "-"
+        ""
     }
 }
 
@@ -236,7 +236,7 @@ private fun extractSignalValues(
     } else if (signal != null) {
         String.format(context.getString(R.string.home_signal_value), signal)
     } else {
-        "-"
+        ""
     }
 
 /**
@@ -251,7 +251,7 @@ fun AppCompatTextView.setFrequency(networkInfo: NetworkInfo?, secondaryNetworkIn
             // we display secondary signal only for NR_NSA type of the network
             extractFrequency(networkInfo, secondaryNetworkInfo, this.context)
         }
-        else -> "-"
+        else -> ""
     }
 }
 
@@ -274,14 +274,14 @@ private fun extractFrequency(
         if (networkInfo.band?.name?.contains("MHz") == true) {
             builder.append(networkInfo.band?.name?.removeSuffix("MHz"))
         } else {
-            builder.append(if (networkInfo.band?.name.isNullOrEmpty()) "-" else networkInfo.band?.name)
+            builder.append(if (networkInfo.band?.name.isNullOrEmpty()) "" else networkInfo.band?.name)
         }
         if ((secondaryNetworkInfo is CellNetworkInfo) && secondaryNetworkInfo.band?.name?.isNullOrEmpty() == false) {
             builder.append("/")
             if (secondaryNetworkInfo.band?.name?.contains("MHz") == true) {
                 builder.append(secondaryNetworkInfo.band?.name?.removeSuffix("MHz"))
             } else {
-                builder.append(if (secondaryNetworkInfo.band?.name.isNullOrEmpty()) "-" else secondaryNetworkInfo.band?.name)
+                builder.append(if (secondaryNetworkInfo.band?.name.isNullOrEmpty()) "" else secondaryNetworkInfo.band?.name)
             }
         }
         String.format(context.getString(R.string.home_frequency_value), builder.toString())
