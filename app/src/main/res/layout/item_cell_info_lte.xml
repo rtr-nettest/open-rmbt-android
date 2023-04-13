@@ -66,8 +66,13 @@
             name="taLTE"
             type="String" />
 
+        <!--bandLTE is not used-->
         <variable
             name="bandLTE"
+            type="String" />
+
+        <variable
+            name="connectionStatusLTE"
             type="String" />
 
         <variable
@@ -97,7 +102,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            tools:text="4G (LTE)" />
+            tools:text="LTE" />
 
         <androidx.constraintlayout.widget.Guideline
             android:id="@+id/guide_one_quarter"
@@ -122,10 +127,10 @@
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/labelSubscriptionId"
-            style="@style/RobotoMediumStyle.Small"
+            style="@style/RobotoMediumStyle.VerySmall"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="@dimen/margin_medium"
+            android:layout_marginEnd="@dimen/margin_small"
             android:gravity="end|center_vertical"
             android:text="@string/cell_info_subscriptionId"
             android:textColor="@color/text_gray_transparency_55"
@@ -136,10 +141,10 @@
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/labelCI"
-            style="@style/RobotoMediumStyle.Small"
+            style="@style/RobotoMediumStyle.VerySmall"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="@dimen/margin_medium"
+            android:layout_marginEnd="@dimen/margin_small"
             android:gravity="end|center_vertical"
             android:text="@string/cell_info_ci"
             android:textColor="@color/text_gray_transparency_55"
@@ -150,10 +155,10 @@
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/labelENB"
-            style="@style/RobotoMediumStyle.Small"
+            style="@style/RobotoMediumStyle.VerySmall"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="@dimen/margin_medium"
+            android:layout_marginEnd="@dimen/margin_small"
             android:gravity="end|center_vertical"
             android:text="@string/cell_info_eNB"
             android:textColor="@color/text_gray_transparency_55"
@@ -164,10 +169,10 @@
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/labelCID"
-            style="@style/RobotoMediumStyle.Small"
+            style="@style/RobotoMediumStyle.VerySmall"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="@dimen/margin_medium"
+            android:layout_marginEnd="@dimen/margin_small"
             android:gravity="end|center_vertical"
             android:text="@string/cell_info_cid"
             android:textColor="@color/text_gray_transparency_55"
@@ -178,10 +183,10 @@
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/labelTAC"
-            style="@style/RobotoMediumStyle.Small"
+            style="@style/RobotoMediumStyle.VerySmall"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="@dimen/margin_medium"
+            android:layout_marginEnd="@dimen/margin_small"
             android:gravity="end|center_vertical"
             android:text="@string/cell_info_tac"
             android:textColor="@color/text_gray_transparency_55"
@@ -192,10 +197,10 @@
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/labelPCI"
-            style="@style/RobotoMediumStyle.Small"
+            style="@style/RobotoMediumStyle.VerySmall"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="@dimen/margin_medium"
+            android:layout_marginEnd="@dimen/margin_small"
             android:gravity="end|center_vertical"
             android:text="@string/cell_info_pci"
             android:textColor="@color/text_gray_transparency_55"
@@ -206,24 +211,25 @@
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/labelBW"
-            style="@style/RobotoMediumStyle.Small"
+            style="@style/RobotoMediumStyle.VerySmall"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="@dimen/margin_medium"
+            android:layout_marginEnd="@dimen/margin_small"
             android:gravity="end|center_vertical"
             android:text="@string/cell_info_bw"
             android:textColor="@color/text_gray_transparency_55"
             app:layout_constraintEnd_toStartOf="@+id/guide_one_quarter"
+            app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintHorizontal_weight="3"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/labelPCI" />
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/textSubscriptionId"
-            style="@style/RobotoRegularStyle.Small"
+            style="@style/RobotoRegularStyle.VerySmall"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/margin_medium"
+            android:layout_marginStart="@dimen/margin_small"
             android:layout_marginTop="@dimen/margin_large"
             android:gravity="start|center_vertical"
             android:text="@{subscriptionId4g}"
@@ -237,10 +243,10 @@
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/textCI"
-            style="@style/RobotoRegularStyle.Small"
+            style="@style/RobotoRegularStyle.VerySmall"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/margin_medium"
+            android:layout_marginStart="@dimen/margin_small"
             android:layout_marginTop="@dimen/margin_large"
             android:gravity="start|center_vertical"
             android:text="@{ciLTE}"
@@ -254,10 +260,10 @@
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/textENB"
-            style="@style/RobotoRegularStyle.Small"
+            style="@style/RobotoRegularStyle.VerySmall"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/margin_medium"
+            android:layout_marginStart="@dimen/margin_small"
             android:layout_marginTop="@dimen/margin_large"
             android:gravity="start|center_vertical"
             android:text="@{enbLTE}"
@@ -271,10 +277,10 @@
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/textCID"
-            style="@style/RobotoRegularStyle.Small"
+            style="@style/RobotoRegularStyle.VerySmall"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/margin_medium"
+            android:layout_marginStart="@dimen/margin_small"
             android:layout_marginTop="@dimen/margin_large"
             android:gravity="start|center_vertical"
             android:text="@{cidLTE}"
@@ -288,10 +294,10 @@
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/textTAC"
-            style="@style/RobotoRegularStyle.Small"
+            style="@style/RobotoRegularStyle.VerySmall"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/margin_medium"
+            android:layout_marginStart="@dimen/margin_small"
             android:layout_marginTop="@dimen/margin_large"
             android:gravity="start|center_vertical"
             android:text="@{tacLTE}"
@@ -305,10 +311,10 @@
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/textPCI"
-            style="@style/RobotoRegularStyle.Small"
+            style="@style/RobotoRegularStyle.VerySmall"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/margin_medium"
+            android:layout_marginStart="@dimen/margin_small"
             android:layout_marginTop="@dimen/margin_large"
             android:gravity="start|center_vertical"
             android:text="@{pciLTE}"
@@ -322,10 +328,10 @@
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/textBW"
-            style="@style/RobotoRegularStyle.Small"
+            style="@style/RobotoRegularStyle.VerySmall"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/margin_medium"
+            android:layout_marginStart="@dimen/margin_small"
             android:layout_marginTop="@dimen/margin_large"
             android:gravity="start|center_vertical"
             android:text="@{bwLTE}"
@@ -339,10 +345,10 @@
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/labelEARFCN"
-            style="@style/RobotoMediumStyle.Small"
+            style="@style/RobotoMediumStyle.VerySmall"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="@dimen/margin_medium"
+            android:layout_marginEnd="@dimen/margin_small"
             android:gravity="end|center_vertical"
             android:text="@string/cell_info_earfcn"
             android:textColor="@color/text_gray_transparency_55"
@@ -353,10 +359,10 @@
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/labelRSSI"
-            style="@style/RobotoMediumStyle.Small"
+            style="@style/RobotoMediumStyle.VerySmall"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="@dimen/margin_medium"
+            android:layout_marginEnd="@dimen/margin_small"
             android:gravity="end|center_vertical"
             android:text="@string/cell_info_rssi"
             android:textColor="@color/text_gray_transparency_55"
@@ -367,10 +373,10 @@
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/labelRSRP"
-            style="@style/RobotoMediumStyle.Small"
+            style="@style/RobotoMediumStyle.VerySmall"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="@dimen/margin_medium"
+            android:layout_marginEnd="@dimen/margin_small"
             android:gravity="end|center_vertical"
             android:text="@string/cell_info_rsrp"
             android:textColor="@color/text_gray_transparency_55"
@@ -381,10 +387,10 @@
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/labelRSRQ"
-            style="@style/RobotoMediumStyle.Small"
+            style="@style/RobotoMediumStyle.VerySmall"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="@dimen/margin_medium"
+            android:layout_marginEnd="@dimen/margin_small"
             android:gravity="end|center_vertical"
             android:text="@string/cell_info_rsrq"
             android:textColor="@color/text_gray_transparency_55"
@@ -395,10 +401,10 @@
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/labelSNR"
-            style="@style/RobotoMediumStyle.Small"
+            style="@style/RobotoMediumStyle.VerySmall"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="@dimen/margin_medium"
+            android:layout_marginEnd="@dimen/margin_small"
             android:gravity="end|center_vertical"
             android:text="@string/cell_info_snr"
             android:textColor="@color/text_gray_transparency_55"
@@ -409,10 +415,10 @@
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/labelTA"
-            style="@style/RobotoMediumStyle.Small"
+            style="@style/RobotoMediumStyle.VerySmall"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="@dimen/margin_medium"
+            android:layout_marginEnd="@dimen/margin_small"
             android:gravity="end|center_vertical"
             android:text="@string/cell_info_ta"
             android:textColor="@color/text_gray_transparency_55"
@@ -422,13 +428,13 @@
             app:layout_constraintTop_toBottomOf="@+id/labelSNR" />
 
         <androidx.appcompat.widget.AppCompatTextView
-            android:id="@+id/labelBand"
-            style="@style/RobotoMediumStyle.Small"
+            android:id="@+id/labelConnectionStatus"
+            style="@style/RobotoMediumStyle.VerySmall"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="@dimen/margin_medium"
+            android:layout_marginEnd="@dimen/margin_small"
             android:gravity="end|center_vertical"
-            android:text="@string/dialog_signal_info_band"
+            android:text="@string/dialog_signal_info_connection_status"
             android:textColor="@color/text_gray_transparency_55"
             app:layout_constraintEnd_toStartOf="@+id/guide_three_quarter"
             app:layout_constraintHorizontal_weight="3"
@@ -438,10 +444,10 @@
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/textEARFCN"
-            style="@style/RobotoRegularStyle.Small"
+            style="@style/RobotoRegularStyle.VerySmall"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/margin_medium"
+            android:layout_marginStart="@dimen/margin_small"
             android:layout_marginTop="@dimen/margin_large"
             android:gravity="start|center_vertical"
             android:text="@{earfcnLTE}"
@@ -455,10 +461,10 @@
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/textRSSI"
-            style="@style/RobotoRegularStyle.Small"
+            style="@style/RobotoRegularStyle.VerySmall"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/margin_medium"
+            android:layout_marginStart="@dimen/margin_small"
             android:layout_marginTop="@dimen/margin_large"
             android:gravity="start|center_vertical"
             android:text="@{rssiLTE}"
@@ -472,10 +478,10 @@
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/textRSRP"
-            style="@style/RobotoRegularStyle.Small"
+            style="@style/RobotoRegularStyle.VerySmall"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/margin_medium"
+            android:layout_marginStart="@dimen/margin_small"
             android:layout_marginTop="@dimen/margin_large"
             android:gravity="start|center_vertical"
             android:text="@{rsrpLTE}"
@@ -489,10 +495,10 @@
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/textRSRQ"
-            style="@style/RobotoRegularStyle.Small"
+            style="@style/RobotoRegularStyle.VerySmall"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/margin_medium"
+            android:layout_marginStart="@dimen/margin_small"
             android:layout_marginTop="@dimen/margin_large"
             android:gravity="start|center_vertical"
             android:text="@{rsrqLTE}"
@@ -506,10 +512,10 @@
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/textSNR"
-            style="@style/RobotoRegularStyle.Small"
+            style="@style/RobotoRegularStyle.VerySmall"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/margin_medium"
+            android:layout_marginStart="@dimen/margin_small"
             android:layout_marginTop="@dimen/margin_large"
             android:gravity="start|center_vertical"
             android:text="@{snrLTE}"
@@ -523,10 +529,10 @@
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/textTA"
-            style="@style/RobotoRegularStyle.Small"
+            style="@style/RobotoRegularStyle.VerySmall"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/margin_medium"
+            android:layout_marginStart="@dimen/margin_small"
             android:layout_marginTop="@dimen/margin_large"
             android:gravity="start|center_vertical"
             android:text="@{taLTE}"
@@ -539,21 +545,21 @@
             tools:text="-96 dBm" />
 
         <androidx.appcompat.widget.AppCompatTextView
-            android:id="@+id/textBand"
-            style="@style/RobotoRegularStyle.Small"
+            android:id="@+id/textConnectionStatus"
+            style="@style/RobotoRegularStyle.VerySmall"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/margin_medium"
+            android:layout_marginStart="@dimen/margin_small"
             android:layout_marginTop="@dimen/margin_large"
             android:gravity="start|center_vertical"
-            android:text="@{bandLTE}"
+            android:text="@{connectionStatusLTE}"
             android:textColor="@color/text_black_transparency_60"
-            app:layout_constraintBaseline_toBaselineOf="@+id/labelBand"
+            app:layout_constraintBaseline_toBaselineOf="@+id/labelConnectionStatus"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_weight="7"
-            app:layout_constraintStart_toEndOf="@+id/labelBand"
+            app:layout_constraintStart_toEndOf="@+id/labelConnectionStatus"
             app:layout_constraintStart_toStartOf="@+id/guide_three_quarter"
-            tools:text="1800" />
+            tools:text="Primary" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

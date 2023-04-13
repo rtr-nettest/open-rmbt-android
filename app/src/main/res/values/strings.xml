@@ -320,6 +320,7 @@
     <string name="preferences_connection_details_not_supported">Extended connection details are not supported on this device</string>
 
     <string name="dialog_signal_info_band">Band</string>
+    <string name="dialog_signal_info_connection_status" translatable="false">Status</string>
     <string name="dialog_signal_info_channel">Channel</string>
     <string name="text_local_results">Local results only</string>
     <string name="signal_measurement_terms_title">Activation and usage</string>
