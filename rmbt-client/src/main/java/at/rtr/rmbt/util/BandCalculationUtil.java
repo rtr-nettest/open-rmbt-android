@@ -51,7 +51,7 @@ public class BandCalculationUtil {
         put(3, new NRBand(3, 1710, 1785, 1805, 1880, "1800 MHz"));
         put(8, new NRBand(8, 880, 915, 925, 960, "900 MHz"));
         put(7, new NRBand(7, 2500, 2570, 2620, 2690, "2600 MHz"));
-        put(78, new NRBand(78, 3300, 3800, 3300, 3800, "3500 MHz"));
+        put(78, new NRBand(78, 3300, 3800, 3300, 3800, "3600 MHz"));
         put(75, new NRBand(75, 0, 0, 1432, 1517, "1500 MHz"));
         put(258, new NRBand(258, 24250, 27500, 24250, 27500, "26 GHz"));
         put(20, new NRBand(20, 832, 862, 791, 821, "800 MHz"));
@@ -73,7 +73,7 @@ public class BandCalculationUtil {
         put(74, new NRBand(74, 1427, 1470, 1475, 1518, "L-Band"));
         put(76, new NRBand(76, 0, 0, 1427, 1432, "500 MHz -"));
 
-        put(77, new NRBand(77, 3300, 4200, 3300, 4200, "3500 MHz +"));
+        put(77, new NRBand(77, 3300, 4200, 3300, 4200, "3600 MHz+"));
         put(79, new NRBand(79, 4400, 5000, 4400, 5000, "4500 MHz"));
 
         put(80, new NRBand(80, 1710, 1785, 0, 0, "SUL 1800 MHz+"));
