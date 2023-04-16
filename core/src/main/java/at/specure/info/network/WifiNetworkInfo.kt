@@ -14,7 +14,6 @@
 
 package at.specure.info.network
 
-import android.net.MacAddress
 import at.specure.info.TransportType
 import at.specure.info.band.WifiBand
 import java.util.UUID
@@ -60,11 +59,6 @@ open class WifiNetworkInfo(
      * The current TX link speed in Mbps.
      */
     val txlinkSpeed: Int,
-
-    /**
-     * The MAC of the Wifi adapter
-     */
-    val macAddress: String,
 
     /**
      * Each configured network has a unique small integer ID, used to identify

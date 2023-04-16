@@ -18,13 +18,11 @@
 
     <data>
 
+        <!-- NCI - NR cell identity 36 bits -->
         <variable
             name="nciNR"
             type="String" />
 
-        <variable
-            name="enbNR"
-            type="String" />
 
         <variable
             name="cidNR"
@@ -140,6 +138,7 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/cellTitle" />
 
+        <!-- TODO translate -->
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/labelCI"
             style="@style/RobotoMediumStyle.VerySmall"
@@ -147,26 +146,13 @@
             android:layout_height="wrap_content"
             android:layout_marginEnd="@dimen/margin_small"
             android:gravity="end|center_vertical"
-            android:text="@string/cell_info_ci"
+            android:text="NCI"
             android:textColor="@color/text_gray_transparency_55"
             app:layout_constraintEnd_toStartOf="@+id/guide_one_quarter"
             app:layout_constraintHorizontal_weight="3"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/labelSubscriptionId" />
-
-        <androidx.appcompat.widget.AppCompatTextView
-            android:id="@+id/labelENB"
-            style="@style/RobotoMediumStyle.VerySmall"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="@dimen/margin_small"
-            android:gravity="end|center_vertical"
-            android:text="@string/cell_info_eNB"
-            android:textColor="@color/text_gray_transparency_55"
-            app:layout_constraintEnd_toStartOf="@+id/guide_one_quarter"
-            app:layout_constraintHorizontal_weight="3"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/labelCI" />
+            app:layout_constraintTop_toBottomOf="@+id/labelSubscriptionId"
+            tools:ignore="HardcodedText" />
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/labelCID"
@@ -180,7 +166,7 @@
             app:layout_constraintEnd_toStartOf="@+id/guide_one_quarter"
             app:layout_constraintHorizontal_weight="3"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/labelENB" />
+            app:layout_constraintTop_toBottomOf="@+id/labelCI" />
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/labelTAC"
@@ -259,22 +245,6 @@
             app:layout_constraintStart_toStartOf="@+id/guide_one_quarter"
             tools:text="-96 dBm" />
 
-        <androidx.appcompat.widget.AppCompatTextView
-            android:id="@+id/textENB"
-            style="@style/RobotoRegularStyle.VerySmall"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/margin_small"
-            android:layout_marginTop="@dimen/margin_large"
-            android:gravity="start|center_vertical"
-            android:text="@{enbNR}"
-            android:textColor="@color/text_black_transparency_60"
-            app:layout_constraintBaseline_toBaselineOf="@+id/labelENB"
-            app:layout_constraintEnd_toStartOf="@+id/guide_half"
-            app:layout_constraintHorizontal_weight="7"
-            app:layout_constraintStart_toEndOf="@+id/labelENB"
-            app:layout_constraintStart_toStartOf="@+id/guide_one_quarter"
-            tools:text="-96 dBm" />
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/textCID"
@@ -543,7 +513,7 @@
             app:layout_constraintHorizontal_weight="7"
             app:layout_constraintStart_toEndOf="@+id/labelTA"
             app:layout_constraintStart_toStartOf="@+id/guide_three_quarter"
-            tools:text="-96 dBm" />
+            tools:text="123 µs" />
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/textConnectionStatus"

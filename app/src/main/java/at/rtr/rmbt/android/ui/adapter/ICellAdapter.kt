@@ -310,9 +310,6 @@ class ICellAdapter : RecyclerView.Adapter<ICellAdapter.Holder>() {
                         }
                     }
 
-                    //TODO remove hack
-                    // binding.taLTE = rawCellInfo.aggregatedBands.joinToString()
-
                     binding.tacLTE = rawCellInfo.tac?.toString()
 
                     rawCellInfo.aggregatedBands.toString()
@@ -332,7 +329,17 @@ class ICellAdapter : RecyclerView.Adapter<ICellAdapter.Holder>() {
             if (item is CellNr) {
                 val bandNrEu = item.getEuBand()
                 binding.bandNR = bandNrEu?.name ?: null
-                binding.arfcnNR = bandNrEu?.channelNumber?.toString()
+                val arfcnNR = bandNrEu?.channelNumber
+                binding.arfcnNR = arfcnNR?.toString()
+
+                // workaround for N78 if band is not recognised by bandNREu
+                // NR 78 - 620000 to 653333
+                if (arfcnNR != null) {
+                    if ((binding.bandNR == null) && (binding.arfcnNR != null) && (arfcnNR >= 620000) and (arfcnNR <= 653333)) {
+                        binding.bandNR = "3600"
+                    }
+                }
+
 
                 // display PLMN ID if available
                 if (item.network != null) {
@@ -365,14 +372,7 @@ class ICellAdapter : RecyclerView.Adapter<ICellAdapter.Holder>() {
                 else
                     binding.tacNR = null
 
-                //TODO
-                // item.network
-
-                // TODO
-                //  item.timestamp
-
-
-                if (item.band != null) {
+                if (item.band?.name != null) {
                     binding.networkTypeNR = "NR "+item.band?.name
                 }
                 else
@@ -409,6 +409,10 @@ class ICellAdapter : RecyclerView.Adapter<ICellAdapter.Holder>() {
                     binding.connectionStatusNR = "Neighbor"
                 else
                     binding.connectionStatusNR = item.connectionStatus.toString()
+
+                // TODO implement NR timing advance
+                // https://developer.android.com/reference/android/telephony/CellSignalStrengthNr#getTimingAdvanceMicros()
+                // binding.taNR = ...
 
             }
         }

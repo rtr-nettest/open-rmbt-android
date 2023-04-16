@@ -64,7 +64,6 @@ class WifiInfoWatcherImpl(private val wifiManager: WifiManager) : WifiInfoWatche
                     linkSpeed = info.linkSpeed,
                     rxlinkSpeed = info.rxLinkSpeedMbps,
                     txlinkSpeed = info.txLinkSpeedMbps,
-                    macAddress = info.macAddress,
                     networkId = if (info.bssid == DUMMY_MAC_ADDRESS || info.networkId == -1) null else info.networkId,
                     rssi = info.rssi,
                     signalLevel = WifiManager.calculateSignalLevel(info.rssi, 5),
@@ -86,7 +85,6 @@ class WifiInfoWatcherImpl(private val wifiManager: WifiManager) : WifiInfoWatche
                     rxlinkSpeed = info.linkSpeed,
                     txlinkSpeed = info.linkSpeed,
 
-                    macAddress = info.macAddress,
                     networkId = if (info.bssid == DUMMY_MAC_ADDRESS || info.networkId == -1) null else info.networkId,
                     rssi = info.rssi,
                     signalLevel = WifiManager.calculateSignalLevel(info.rssi, 5),
