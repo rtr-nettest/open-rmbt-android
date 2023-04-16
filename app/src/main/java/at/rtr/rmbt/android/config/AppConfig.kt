@@ -415,7 +415,7 @@ class AppConfig @Inject constructor(context: Context, private val serverSettings
             .apply()
 
     override var analyticsEnabled: Boolean
-        get() = preferences.getBoolean(KEY_ANALYTICS_ENABLED, true)
+        get() = preferences.getBoolean(KEY_ANALYTICS_ENABLED, false)
         set(value) = preferences.edit()
             .putBoolean(KEY_ANALYTICS_ENABLED, value)
             .apply()
@@ -430,5 +430,9 @@ class AppConfig @Inject constructor(context: Context, private val serverSettings
 
     override var performJitterAndPacketLossTest: Boolean
         get() = getBoolean(BuildConfig.ENABLED_JITTER_AND_PACKET_LOSS)
+        set(value) {}
+
+    override var alwaysAllowCellInfos: Boolean
+        get() = getBoolean(BuildConfig.ALWAYS_ALLOW_CELL_INFOS,true)
         set(value) {}
 }

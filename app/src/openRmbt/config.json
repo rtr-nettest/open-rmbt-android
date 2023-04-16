@@ -409,6 +409,11 @@
       "name": "ENABLED_JITTER_AND_PACKET_LOSS",
       "value": "false",
       "visible": false
+    },
+    {
+      "name": "ALWAYS_ALLOW_CELL_INFOS",
+      "value": "false",
+      "visible": false
     }
   ]
 }
