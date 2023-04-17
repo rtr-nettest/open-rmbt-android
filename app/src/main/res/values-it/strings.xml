@@ -143,10 +143,10 @@
     <string name="measurement_qos_traceroute">Traceroute</string>
     <string name="measurement_qos_voip">VoIP</string>
     <string-array name="measurement_speed_chart_y_labels">
-        <item>1</item>
-        <item>10</item>
-        <item>100</item>
-        <item>1000</item>
+        <item>1M</item>
+        <item>10M</item>
+        <item>100M</item>
+        <item>1G</item>
     </string-array>
     <string name="label_qos">QoS</string>
     <string name="label_upload">Upload</string>
