@@ -161,18 +161,18 @@
     <string name="measurement_qos_voip">VoIP</string>
 
     <string-array name="measurement_speed_chart_y_labels">
-        <item>1</item>
-        <item>10</item>
-        <item>100</item>
-        <item>1000</item>
+        <item>1M</item>
+        <item>10M</item>
+        <item>100M</item>
+        <item>1G</item>
     </string-array>
 
     <string name="strength_signal_value" translatable="false">%d dBm</string>
-    <string name="scale_value_1000" translatable="false">1000</string>
-    <string name="scale_value_100" translatable="false">100</string>
-    <string name="scale_value_10" translatable="false">10</string>
-    <string name="scale_value_1" translatable="false">1</string>
-    <string name="scale_value_0_1" translatable="false">0.1</string>
+    <string name="scale_value_1000" translatable="false">1G</string>
+    <string name="scale_value_100" translatable="false">100M</string>
+    <string name="scale_value_10" translatable="false">10M</string>
+    <string name="scale_value_1" translatable="false">1M</string>
+    <string name="scale_value_0_1" translatable="false">0</string>
 
     <string name="label_qos">QoS</string>
     <string name="label_upload">Upload</string>

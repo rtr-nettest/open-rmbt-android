@@ -12,7 +12,8 @@ import android.graphics.Rect
 import androidx.core.content.ContextCompat
 import at.rtr.rmbt.android.R
 import at.specure.measurement.MeasurementState
-import kotlin.math.roundToInt
+import kotlin.math.log
+
 
 class BottomCurvePart(context: Context) : CurvePart() {
 
@@ -59,7 +60,7 @@ class BottomCurvePart(context: Context) : CurvePart() {
     override var sections = listOf(
         CurveSection(17, context.getString(R.string.scale_value_1000), false),
         CurveSection(17, context.getString(R.string.scale_value_100), false),
-        CurveSection(17, context.getString(R.string.scale_value_10), true),
+        CurveSection(17, context.getString(R.string.scale_value_10), false),
         CurveSection(17, context.getString(R.string.scale_value_1), true),
         CurveSection(0, context.getString(R.string.scale_value_0_1), true)
     )
@@ -207,28 +208,28 @@ class BottomCurvePart(context: Context) : CurvePart() {
         }
     }
 
-    private fun calculateProgressAngle(currentProgress: Int): Float {
-        var angle = 0f
+    private fun calculateProgressAngle(currentSpeedKbps: Int): Float {
+        var angle : Float
+        val minAngle : Float = ANGLE_STEP_MULTIPLIER
+        val maxAngle : Float = sections[0].startAngle - sections[3].endAngle
+
         when {
-            currentProgress < 1e3 -> { // up to 1 mbit
-                val sectionAngle = sections[3].startAngle - sections[3].endAngle
-                val kbits = currentProgress - 100
-                angle = 0.1f * kbits * sectionAngle / 100
+            (currentSpeedKbps <= 0) -> { // start of measurement (init, ping) should not show anything
+                // show empty scale (not even a single segment visible)
+                angle = 0F
             }
-            currentProgress < 1e4 -> { // up to 10 mbit
-                val sectionAngle = sections[2].startAngle - sections[2].endAngle
-                val mbits = (currentProgress / 1e3).roundToInt() - 1
-                angle = (sections[2].endAngle - sections[3].endAngle) + 10 * mbits * sectionAngle / 100
+            (currentSpeedKbps <= 1e6) -> {
+                // scale from 0-100% on 0.1M to 1G
+                val percent : Double = (log(currentSpeedKbps.toDouble(),10.0) - 2F)/4F
+                angle = (percent * maxAngle).toFloat()-minAngle
+                // make sure at least a single segment is visible
+                if (angle < minAngle) {
+                    angle = minAngle
+                }
             }
-            currentProgress < 1e5 -> { // up to 100 mbit
-                val sectionAngle = sections[1].startAngle - sections[1].endAngle
-                val mbits = (currentProgress / 1e3).roundToInt() - 10
-                angle = (sections[1].endAngle - sections[3].endAngle) + mbits * sectionAngle / 100
-            }
-            else -> { // up to 1000 mbit
-                val sectionAngle = sections[0].startAngle - sections[0].endAngle
-                val mbits = (currentProgress / 1e3).roundToInt()
-                angle = (sections[0].endAngle - sections[3].endAngle) + 0.1f * mbits * sectionAngle / 100
+            else -> { // overflow, above 1G
+                // show full scale
+                angle = maxAngle
             }
         }
         return angle
