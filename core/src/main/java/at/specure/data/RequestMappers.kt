@@ -240,7 +240,7 @@ fun TestRecord.toRequest(
     var telephonyNRConnectionState: String? = null
 
     val signals5G = signalList.filter {
-        it.mobileNetworkType == MobileNetworkType.NR_AVAILABLE || it.mobileNetworkType == MobileNetworkType.NR_NSA || it.mobileNetworkType == MobileNetworkType.NR
+        it.mobileNetworkType == MobileNetworkType.NR_AVAILABLE || it.mobileNetworkType == MobileNetworkType.NR_NSA || it.mobileNetworkType == MobileNetworkType.NR_SA
     }
 
     var best5GTechnologyAchieved: NRConnectionState? = null
@@ -249,8 +249,8 @@ fun TestRecord.toRequest(
         Timber.d("5G technology: MNT: ${it.mobileNetworkType?.displayName} NRstate: ${it.nrConnectionState.name}")
         var current5GTechnology =
             when {
-                (it.mobileNetworkType == MobileNetworkType.NR && it.nrConnectionState != NRConnectionState.NSA) -> NRConnectionState.SA
-                (it.mobileNetworkType == MobileNetworkType.NR && it.nrConnectionState == NRConnectionState.NSA) -> NRConnectionState.NSA
+                (it.mobileNetworkType == MobileNetworkType.NR_SA && it.nrConnectionState != NRConnectionState.NSA) -> NRConnectionState.SA
+                (it.mobileNetworkType == MobileNetworkType.NR_SA && it.nrConnectionState == NRConnectionState.NSA) -> NRConnectionState.NSA
                 (it.mobileNetworkType == MobileNetworkType.NR_NSA) -> NRConnectionState.NSA
                 (it.mobileNetworkType == MobileNetworkType.NR_AVAILABLE) -> NRConnectionState.AVAILABLE
                 else -> null
@@ -392,7 +392,7 @@ fun CellInfoRecord.toRequest() = CellInfoBody(
 
 fun SignalRecord.toRequest(cellUUID: String, ignoreNetworkId: Boolean, signalMeasurementStartTimeNs: Long?) = SignalBody(
     cellUuid = cellUUID,
-    networkTypeId = if (ignoreNetworkId) null else if (transportType.toRequestIntValue(mobileNetworkType) == MobileNetworkType.NR.intValue) {
+    networkTypeId = if (ignoreNetworkId) null else if (transportType.toRequestIntValue(mobileNetworkType) == MobileNetworkType.NR_SA.intValue) {
         MobileNetworkType.NR_NSA.intValue
     } else {
         transportType.toRequestIntValue(mobileNetworkType)

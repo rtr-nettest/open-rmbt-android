@@ -154,7 +154,7 @@ class CellNetworkInfo(
                 info is CellInfoWcdma -> MobileNetworkType.HSPAP
                 info is CellInfoCdma -> MobileNetworkType.CDMA
                 info is CellInfoGsm -> MobileNetworkType.GSM
-                Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q && info is CellInfoNr -> MobileNetworkType.NR
+                Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q && info is CellInfoNr -> MobileNetworkType.NR_SA
                 Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q && info is CellInfoTdscdma -> MobileNetworkType.TD_SCDMA
                 else -> throw IllegalArgumentException("Unknown cell info cannot be extracted ${info::class.java.name}")
             }
@@ -177,7 +177,7 @@ class CellNetworkInfo(
             val providerName = subscriptionInfo?.carrierName?.toString() ?: ""
 
             return when (networkType) {
-                MobileNetworkType.NR,
+                MobileNetworkType.NR_SA,
                 MobileNetworkType.NR_NSA ->
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q && info is CellInfoNr) {
                         fromNr(

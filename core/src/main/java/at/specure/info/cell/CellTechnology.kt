@@ -49,7 +49,7 @@ enum class CellTechnology(val displayName: String) {
             MobileNetworkType.LTE -> CONNECTION_4G
             MobileNetworkType.NR_AVAILABLE -> CONNECTION_4G_5G
             MobileNetworkType.NR_NSA,
-            MobileNetworkType.NR -> CONNECTION_5G
+            MobileNetworkType.NR_SA -> CONNECTION_5G
             MobileNetworkType.IWLAN,
             MobileNetworkType.UNKNOWN -> null
         }

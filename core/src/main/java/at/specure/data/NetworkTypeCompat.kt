@@ -123,7 +123,7 @@ enum class ServerNetworkType(
     TYPE_2G_EHRPD(14, "2G (EHRPD)", NetworkTypeCompat.TYPE_2G, TransportType.CELLULAR, MobileNetworkType.EHRPD),
     TYPE_3G_HSPA_P(15, "3G (HSPA+)", NetworkTypeCompat.TYPE_3G, TransportType.CELLULAR, MobileNetworkType.HSPAP),
     TYPE_4G_LTE_CA(19, "4G (LTE CA)", NetworkTypeCompat.TYPE_4G, TransportType.CELLULAR, MobileNetworkType.LTE_CA),
-    TYPE_5G_NR(20, "5G (NR)", NetworkTypeCompat.TYPE_5G, TransportType.CELLULAR, MobileNetworkType.NR),
+    TYPE_5G_NR(20, "5G (NR)", NetworkTypeCompat.TYPE_5G, TransportType.CELLULAR, MobileNetworkType.NR_SA),
     TYPE_5G_NR_NSA(41, "5G (NSA)", NetworkTypeCompat.TYPE_5G_NSA, TransportType.CELLULAR, MobileNetworkType.NR_NSA),
     TYPE_5G_NR_AVAILABLE(40, "4G+(5G)", NetworkTypeCompat.TYPE_5G_NSA, TransportType.CELLULAR, MobileNetworkType.NR_AVAILABLE),
     TYPE_CLI(97, "CLI", null, null, null),

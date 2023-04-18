@@ -591,9 +591,9 @@ fun NetworkType.mapToMobileNetworkType(): MobileNetworkType {
                     }
                 }
                 is NetworkType.Nr.Sa -> {
-                    MobileNetworkType.NR
+                    MobileNetworkType.NR_SA
                 }
-                else -> MobileNetworkType.NR_NSA // but this should not happen
+                else -> MobileNetworkType.NR_SA // default to NR SA if neither NSA nor SA are detected
             }
         }
         else -> MobileNetworkType.UNKNOWN
