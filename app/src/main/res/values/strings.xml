@@ -38,6 +38,7 @@
     <string name="home_wifi">WLAN</string>
     <string name="home_vpn" translatable="false">VPN</string>
     <string name="home_bluetooth" translatable="false">Bluetooth</string>
+    <string name="home_coverage_mode">Coverage mode</string>
     <string name="public_ip_address">Public address</string>
     <string name="private_ip_address">Local address</string>
 
@@ -88,6 +89,8 @@
     <string name="preferences_override_control_server_ssl_sum">Use encrypted connection to control server</string>
     <string name="preferences_developer_options_disabled">Developer options disabled</string>
     <string name="preferences_developer_options_available">Developer options available</string>
+    <string name="preferences_coverage_mode_disabled">Coverage mode disabled</string>
+    <string name="preferences_coverage_mode_available">Coverage mode enabled</string>
     <string name="preferences_developer_try_again">Try again!</string>
     <string name="preferences_developer_map_server">Map server</string>
     <string name="preferences_developer_map_override">Override map server</string>
@@ -99,7 +102,7 @@
     <string name="preferences_category_developer_qos_server">QoS server</string>
     <string name="preferences_developer_qos_ssl">QoS server SSL</string>
     <string name="preferences_developer_qos_ssl_sum">Use encrypted connection to QoS server</string>
-    <string name="preferences_all_disabled">Deactivated.</string>
+    <string name="preferences_all_disabled">All deactivated.</string>
     <string name="preferences_server_selection">Server selection</string>
     <string name="preferences_default_server_selection">Default</string>
     <string name="label_server_selection">Server selection</string>

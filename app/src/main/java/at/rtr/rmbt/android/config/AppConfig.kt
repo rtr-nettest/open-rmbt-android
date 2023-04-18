@@ -369,6 +369,18 @@ class AppConfig @Inject constructor(context: Context, private val serverSettings
         set(value) {
             // this value cannot be changed
         }
+    override var secretCodeCoverageModeOn: String
+        get() = getString(BuildConfig.COVERAGE_ACTIVATE_CODE)
+        set(value) {
+            // this value cannot be changed
+        }
+
+    override var secretCodeCoverageModeOff: String
+        get() = getString(BuildConfig.COVERAGE_DEACTIVATE_CODE)
+        set(value) {
+            // this value cannot be changed
+        }
+
 
     override var secretCodeAllModesOff: String
         get() = getString(BuildConfig.ALL_DEACTIVATE_CODE)
@@ -435,4 +447,11 @@ class AppConfig @Inject constructor(context: Context, private val serverSettings
     override var alwaysAllowCellInfos: Boolean
         get() = getBoolean(BuildConfig.ALWAYS_ALLOW_CELL_INFOS,true)
         set(value) {}
+
+    override var coverageModeEnabled: Boolean
+        get() = getBoolean(BuildConfig.COVERAGE_MODE_ENABLED)
+        set(value) = setBoolean(BuildConfig.COVERAGE_MODE_ENABLED, value)
+
+
+
 }

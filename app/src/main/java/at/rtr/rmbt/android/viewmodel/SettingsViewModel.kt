@@ -40,7 +40,8 @@ class SettingsViewModel @Inject constructor(
 
     fun isLoopModeWaitingTimeValid(value: Int, minValue: Int, maxValue: Int): Boolean {
 
-        if (value in minValue..maxValue || state.developerModeIsEnabled.get() == true) {
+        // allow any time interval to coverage mode and developer mode
+        if (value in minValue..maxValue || (state.developerModeIsEnabled.get() == true) || (state.coverageModeEnabled.get() == true )) {
             state.loopModeWaitingTimeMin.set(value)
             return true
         }
@@ -79,8 +80,17 @@ class SettingsViewModel @Inject constructor(
                     state.developerModeIsEnabled.set(false)
                     R.string.preferences_developer_options_disabled
                 }
+                appConfig.secretCodeCoverageModeOn -> {
+                    state.coverageModeEnabled.set(true)
+                    R.string.preferences_coverage_mode_available
+                }
+                appConfig.secretCodeCoverageModeOff -> {
+                    state.coverageModeEnabled.set(false)
+                    R.string.preferences_coverage_mode_disabled
+                }
                 appConfig.secretCodeAllModesOff -> {
                     state.developerModeIsEnabled.set(false)
+                    state.coverageModeEnabled.set(false)
                     R.string.preferences_all_disabled
                 }
                 else -> {
