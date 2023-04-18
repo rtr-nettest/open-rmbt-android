@@ -31,6 +31,7 @@
     <string name="home_signal_value">%1$d dBm</string>
     <string name="home_start_test_info">Premi il pulsante per iniziare il test ora!</string>
     <string name="home_wifi">WLAN</string>
+    <string name="home_coverage_mode">Coverage mode</string>
     <string name="public_ip_address">Indirizzo pubblico</string>
     <string name="private_ip_address">Indirizzo privato</string>
     <!-- Preference titles -->
@@ -76,6 +77,8 @@
     <string name="preferences_override_control_server_ssl_sum">Usa la connessione crittografata per il server di controllo</string>
     <string name="preferences_developer_options_disabled">Opzioni sviluppatore disabilitate</string>
     <string name="preferences_developer_options_available">Opzioni sviluppatore disponibili</string>
+    <string name="preferences_coverage_mode_disabled">Coverage mode disabled</string>
+    <string name="preferences_coverage_mode_available">Coverage mode enabled</string>
     <string name="preferences_developer_try_again">Riprova!</string>
     <string name="preferences_developer_map_server">Server mappe</string>
     <string name="preferences_developer_map_override">Sovrascrivi server mappe</string>
@@ -87,7 +90,7 @@
     <string name="preferences_category_developer_qos_server">Server QoS</string>
     <string name="preferences_developer_qos_ssl">SSL del server QoS</string>
     <string name="preferences_developer_qos_ssl_sum">Usa connessione crittografata al server QoS</string>
-    <string name="preferences_all_disabled">Disattivato.</string>
+    <string name="preferences_all_disabled">All deactivated.</string>
     <string name="preferences_server_selection">Selezione server</string>
     <string name="preferences_default_server_selection">Predefinito</string>
     <string name="label_server_selection">Selezione del server</string>
