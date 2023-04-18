@@ -31,6 +31,7 @@
     <string name="home_signal_value">%1$d dBm</string>
     <string name="home_start_test_info">Nyomja meg a gombot a méréshez!</string>
     <string name="home_wifi">WLAN</string>
+    <string name="home_coverage_mode">Coverage mode</string>
     <string name="public_ip_address">Publikus IP cím</string>
     <string name="private_ip_address">Privát IP cím</string>
     <!-- Preference titles -->
@@ -76,6 +77,8 @@
     <string name="preferences_override_control_server_ssl_sum">Titkosított kapcsolat a vezérlő szerverrel</string>
     <string name="preferences_developer_options_disabled">Fejlesztői beállítások letiltva</string>
     <string name="preferences_developer_options_available">Fejlesztői beállítások engedélyezve</string>
+    <string name="preferences_coverage_mode_disabled">Coverage mode disabled</string>
+    <string name="preferences_coverage_mode_available">Coverage mode enabled</string>
     <string name="preferences_developer_try_again">Próbálja újra!</string>
     <string name="preferences_developer_map_server">Térkép szerver</string>
     <string name="preferences_developer_map_override">Egyedi szerver beállítása</string>
@@ -87,7 +90,7 @@
     <string name="preferences_category_developer_qos_server">QoS szerver domain név</string>
     <string name="preferences_developer_qos_ssl">QoS szerver SSL</string>
     <string name="preferences_developer_qos_ssl_sum">Titkosított kapcsolat a QoS szerverrel</string>
-    <string name="preferences_all_disabled">Kikapcsolva</string>
+    <string name="preferences_all_disabled">All deactivated.</string>
     <string name="preferences_server_selection">Szerver kiválasztás</string>
     <string name="preferences_default_server_selection">Alapértelmezett</string>
     <string name="label_server_selection">Szerver kiválasztás</string>
