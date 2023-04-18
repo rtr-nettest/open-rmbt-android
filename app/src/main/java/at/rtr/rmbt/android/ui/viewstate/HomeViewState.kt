@@ -34,6 +34,7 @@ class HomeViewState(
     val isLoopModeActive = ObservableBoolean(config.loopModeEnabled)
     val expertModeIsEnabled = ObservableField(config.expertModeEnabled)
     val developerModeIsEnabled = ObservableField(config.developerModeIsEnabled)
+    val coverageModeIsEnabled = ObservableField(config.coverageModeEnabled)
     val selectedMeasurementServer = ObservableField(measurementServers.selectedMeasurementServer)
     val informationAccessProblem = ObservableField(InformationAccessProblem.NO_PROBLEM)
 
@@ -59,6 +60,7 @@ class HomeViewState(
     fun checkConfig() {
         isLoopModeActive.set(config.loopModeEnabled)
         developerModeIsEnabled.set(config.developerModeIsEnabled)
+        coverageModeIsEnabled.set(config.coverageModeEnabled)
         selectedMeasurementServer.set(measurementServers.selectedMeasurementServer)
         expertModeIsEnabled.set(config.expertModeEnabled)
     }
