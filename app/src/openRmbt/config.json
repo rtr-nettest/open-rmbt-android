@@ -417,7 +417,7 @@
     },
     {
       "name": "COVERAGE_MODE_ENABLED",
-      "value": "true",
+      "value": "false",
       "visible": false
     }
   ]
