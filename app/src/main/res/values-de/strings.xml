@@ -31,6 +31,7 @@
     <string name="home_signal_value">%1$d dBm</string>
     <string name="home_start_test_info">Drücken Sie den Knopf, um den Test jetzt zu starten!</string>
     <string name="home_wifi">WLAN</string>
+    <string name="home_coverage_mode">Coverage mode</string>
     <string name="public_ip_address">Öffentliche Adresse</string>
     <string name="private_ip_address">Lokale Adresse</string>
     <!-- Preference titles -->
@@ -56,7 +57,7 @@
     <string name="preferences_go_to_website">Website besuchen</string>
     <string name="preferences_contact_us">E-Mail schreiben</string>
     <string name="preferences_additional_Information">Weitere Informationen</string>
-    <string name="preferences_client_uuid">Client UUID</string>
+    <string name="preferences_client_uuid">Client-UUID</string>
     <string name="preferences_test_cases">Durchgeführte Tests</string>
     <string name="preferences_about">Über die App</string>
     <string name="preferences_source_code">Source Code</string>
@@ -65,17 +66,19 @@
     <string name="preferences_design_by">Design von Feinblick</string>
     <string name="preferences_network_info_by">Netzinformation von NetMonster Core</string>
     <string name="preferences_version">Version</string>
-    <string name="preferences_commit_hash">Commit hash</string>
+    <string name="preferences_commit_hash">Commit-Hash</string>
     <string name="preferences_enter_code">Bitte geben Sie den Code ein</string>
     <string name="preferences_developer_control_server">Control-Server</string>
     <string name="preferences_override_control_server">Control-Server überschreiben</string>
     <string name="preferences_override_control_server_sum">Aktiviert die folgenden Einstellungen für den Control-Server</string>
     <string name="preferences_override_control_server_host">Control Host</string>
     <string name="preferences_override_control_server_port">Control Port</string>
-    <string name="preferences_override_control_server_ssl">Control SSL</string>
+    <string name="preferences_override_control_server_ssl">Control-SSL</string>
     <string name="preferences_override_control_server_ssl_sum">Verschlüsselte Verbindung zum Control-Server</string>
     <string name="preferences_developer_options_disabled">Entwickleroptionen deaktiviert</string>
     <string name="preferences_developer_options_available">Entwickleroptionen verfügbar</string>
+    <string name="preferences_coverage_mode_disabled">Coverage mode disabled</string>
+    <string name="preferences_coverage_mode_available">Coverage mode enabled</string>
     <string name="preferences_developer_try_again">Versuchen Sie es nochmals!</string>
     <string name="preferences_developer_map_server">Map-Server</string>
     <string name="preferences_developer_map_override">Map-Server überschreiben</string>
@@ -87,14 +90,14 @@
     <string name="preferences_category_developer_qos_server">QoS-Server</string>
     <string name="preferences_developer_qos_ssl">QoS-Server SSL</string>
     <string name="preferences_developer_qos_ssl_sum">Verwende verschlüsselte Verbindung zum QoS-Server</string>
-    <string name="preferences_all_disabled">Deaktiviert.</string>
+    <string name="preferences_all_disabled">All deactivated.</string>
     <string name="preferences_server_selection">Serverauswahl</string>
     <string name="preferences_default_server_selection">Standard</string>
     <string name="label_server_selection">Serverauswahl</string>
     <string name="preferences_tag">Kennzeichen</string>
     <!-- Location Dialog -->
     <string name="location_dialog_label_title">Standort</string>
-    <string name="location_dialog_label_position">Position</string>
+    <string name="location_dialog_label_position">Standort</string>
     <string name="location_dialog_label_accuracy">Genauigkeit</string>
     <string name="location_dialog_label_age">Aktualität</string>
     <string name="location_dialog_label_source">Quelle</string>
@@ -110,7 +113,7 @@
     <string name="location_dialog_accuracy">%1$s m</string>
     <string name="location_dialog_speed">%1$s km/h</string>
     <string name="location_location_direction_n">N %1$s</string>
-    <string name="location_location_direction_e">E %1$s</string>
+    <string name="location_location_direction_e">O %1$s</string>
     <string name="location_location_direction_s">S %1$s</string>
     <string name="location_location_direction_w">W %1$s</string>
     <string name="open_location_permission_dialog_label_location_not_permitted">Standort nicht verfügbar. Zulassen, dass RTR-Netztest auf den Standort Ihres Geräts zugreift?</string>
@@ -143,10 +146,10 @@
     <string name="measurement_qos_traceroute">Traceroute</string>
     <string name="measurement_qos_voip">VoIP</string>
     <string-array name="measurement_speed_chart_y_labels">
-        <item>1</item>
-        <item>10</item>
-        <item>100</item>
-        <item>1000</item>
+        <item>1M</item>
+        <item>10M</item>
+        <item>100M</item>
+        <item>1G</item>
     </string-array>
     <string name="label_qos">QoS</string>
     <string name="label_upload">Upload</string>
@@ -178,7 +181,7 @@
     <string name="results_qoe_gaming_cloud">Spiele Cloud</string>
     <string name="results_qoe_gaming_streaming">Spiele Streaming</string>
     <string name="results_qoe_gaming_download">Spiele Download</string>
-    <string name="results_qoe_audio_streaming">Audio Streaming</string>
+    <string name="results_qoe_audio_streaming">Audio-Streaming</string>
     <string name="results_qoe_voip">VoIP</string>
     <string name="results_qoe_video_telephony">Videotelefonie</string>
     <string name="results_qoe_video_conferencing">Videokonferenzen</string>
@@ -189,7 +192,7 @@
     <string name="results_quality">Qualität</string>
     <string name="results_network_type">Zugang</string>
     <string name="results_network_provider">Betreiber</string>
-    <string name="results_network_ssid">WLAN SSID</string>
+    <string name="results_network_ssid">WLAN-SSID</string>
     <string name="result_test_details">Test Details</string>
     <string name="label_information">Informationen</string>
     <string name="label_tests">Tests</string>
@@ -280,6 +283,6 @@
     <string name="phone_permission_title">1. Telefonberechtigung</string>
     <string name="location_permission_title">2. Standortberechtigung</string>
     <string name="phone_permission_explanation">Der RTR-Netztest tätigt keine Telefonanrufe. Die Telefonberechtigung ist jedoch notwendig, um die Messung einem Anbieter zuzuordnen.</string>
-    <string name="location_permission_explanation">Die Standortberechtigung wird benötigt, um die Messung einem bestimmten Standort zuzuordnen und diesen auf der Karte darzustellen. Ohne genaue Standortberechtigung ist bei vielen Geräten Signalstärke nicht verfügbar.         Die Nutzung des Wiederholungsmodus in Bewegung ist nur mit Standortberechtigung möglich.</string>
+    <string name="location_permission_explanation">Die Standortberechtigung wird für die Bestimmung des Mess-Standorts und zur Darstellung auf der Karte benötigt. Ohne Berechtigung für den genauen Standort kann die Signalstärke auf vielen Geräten nicht angezeigt werden. Die Verwendung des Wiederholungsmodus in Bewegung ist nur mit Standortberechtigung möglich.</string>
     <string name="location_permissions_disclaimer">Der RTR-Netztest verwendet die Standortberechtigung nur während der Messung, die Hintergrundberechtigung ist beim Wiederholungsmodus notwendig um diesen auch im Hintergrund ausführen zu können.</string>
 </resources>
