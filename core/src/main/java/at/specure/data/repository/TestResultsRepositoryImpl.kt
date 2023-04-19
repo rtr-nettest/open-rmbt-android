@@ -224,6 +224,7 @@ class TestResultsRepositoryImpl(
             }
             return qosTestResults
         } else {
+            Timber.d("QOS RESULT - STARTING TO LOAD: clientUUID: $clientUUID, testUUID: $testUUID")
             val qosTestResults = client.getQosTestResultDetail(
                 QosTestResultDetailBody(
                     testUUID = testUUID,
@@ -233,6 +234,7 @@ class TestResultsRepositoryImpl(
                 )
             )
             qosTestResults.onSuccess { response ->
+                Timber.d("QOS RESULT - SUCCESSFULLY LOADED:${response}")
                 var failureCount = 0
                 var successCount = 0
                 response.qosResultDetails.forEach { result ->
@@ -266,6 +268,9 @@ class TestResultsRepositoryImpl(
                         priority = -1
                     )
                 )
+            }
+            qosTestResults.onFailure { exception ->
+                Timber.e("QOS RESULT - FAILED TO BE LOADED: ${exception.msg}")
             }
             return qosTestResults
         }

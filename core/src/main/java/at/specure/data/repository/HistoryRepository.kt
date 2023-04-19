@@ -31,9 +31,9 @@ interface HistoryRepository {
 
     fun getDevices(): Set<String>?
 
-    fun loadHistoryItems(offset: Int, limit: Int): Maybe<List<History?>>
+    fun loadHistoryItems(offset: Int, limit: Int): Maybe<List<History?>?>
 
-    fun loadHistoryItems(offset: Int, limit: Int, ignoreFilters: Boolean): Maybe<List<History?>>
+    fun loadHistoryItems(offset: Int, limit: Int, ignoreFilters: Boolean): Maybe<List<History?>?>
 
     fun loadLoopHistoryItems(loopUuid: String): Flow<List<History>?>
 

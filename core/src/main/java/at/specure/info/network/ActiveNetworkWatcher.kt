@@ -151,7 +151,7 @@ class ActiveNetworkWatcher(
                 // in some cases for 5G NSA there are 2 primary connections reported - 1. for 4G and 2. for 5G cell,
                 // so we need to move that 5G from primary connection to secondary list
                 var primaryCellsCorrected = mutableListOf<ICell>()
-                when (primaryCells.size) {
+                when (primaryCells?.size) {
                     2 -> {
                         if (primaryCells[0] is CellNr && primaryCells[0].mobileNetworkType(
                                 netMonster

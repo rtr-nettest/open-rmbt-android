@@ -769,7 +769,7 @@ class MeasurementService : CustomLifecycleService(), CoroutineScope {
                 io {
                     delay(1000) // added because of BE QOS part processing performance issue
                     historyRepository.loadHistoryItems(0, 100, true).onSuccess {
-                        if (it.isNotEmpty()) {
+                        if (it?.isNotEmpty() == true) {
                             Timber.d("History Successfully loaded: ${it[0]?.loopUUID} ${it[0]?.speedDownload}  from size: ${it.size}")
                         } else {
                             Timber.d("History is empty")
