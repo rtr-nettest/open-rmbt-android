@@ -12,8 +12,6 @@ android {
 
         minSdkVersion config.minSdkVersion
         targetSdkVersion config.targetSdkVersion
-        versionCode config.versionCode
-        versionName config.versionName
     }
 
     buildTypes {

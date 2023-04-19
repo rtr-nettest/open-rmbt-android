@@ -121,10 +121,10 @@ class CellInfoWatcherImpl(
                 val primaryCells = cells?.filterOnlyPrimaryActiveDataCell(dataSubscriptionId)
                 val secondaryCells = cells?.filterOnlySecondaryActiveDataCell(dataSubscriptionId)
 //                val inactiveCells = cells?.filterOnlyNoneConnectionDataCell(dataSubscriptionId)
-                val secondary5GCells = secondaryCells.filter5GCells()
+                val secondary5GCells = secondaryCells?.filter5GCells()
 
-                Timber.d("size ${primaryCells.size}")
-                primaryCells.forEach {
+                Timber.d("size ${primaryCells?.size}")
+                primaryCells?.forEach {
                     Timber.d("size ${primaryCells.size} primaryCells: $it}")
                 }
 
@@ -134,7 +134,7 @@ class CellInfoWatcherImpl(
                 var secondaryCellsCorrected = mutableListOf<ICell>()
                 var secondary5GCellsCorrected = mutableListOf<ICell>()
 
-                when (primaryCells.size) {
+                when (primaryCells?.size) {
                     2 -> {
                         secondaryCellsCorrected = secondaryCells as MutableList<ICell>
                         if (primaryCells[0] is CellNr && _networkTypes[primaryCells[0].subscriptionId] == MobileNetworkType.NR_NSA && primaryCells[1] is CellLte

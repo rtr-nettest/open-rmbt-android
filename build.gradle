@@ -10,14 +10,13 @@ buildscript {
     repositories {
         mavenLocal()
         mavenCentral()
-        jcenter()
         maven { url "https://maven.google.com" }
         google()
     }
 
     dependencies {
-        classpath 'com.android.tools.build:gradle:4.2.1'
-        classpath 'com.google.android.gms:oss-licenses-plugin:0.10.2'
+        classpath 'com.android.tools.build:gradle:7.4.2'
+        classpath 'com.google.android.gms:oss-licenses-plugin:0.10.6'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$versions.kotlin"
         applyDependencies({ this })
     }
@@ -30,7 +29,6 @@ plugins {
 
 allprojects {
     repositories {
-        jcenter()
         google()
         mavenCentral()
         maven {
