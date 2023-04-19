@@ -12,5 +12,4 @@
   ~ limitations under the License.
   -->
 
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="at.rmbt.util" />
+<manifest xmlns:android="http://schemas.android.com/apk/res/android" />

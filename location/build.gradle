@@ -32,6 +32,15 @@ android {
     kotlinOptions {
         jvmTarget = "1.8"
     }
+    namespace 'at.specure.location'
+    lint {
+        abortOnError true
+        htmlOutput file("$rootDir/build_results/lint-result.html")
+        lintConfig file("$rootDir/tools/rules-lint.xml")
+        warningsAsErrors true
+        xmlOutput file("$rootDir/build_results/lint-result.xml")
+        xmlReport true
+    }
 }
 
 dependencies {
