@@ -12,7 +12,7 @@
   ~ limitations under the License.
   -->
 
-<manifest package="at.rmbt.client.control">
+<manifest>
 
     <application />
 </manifest>
