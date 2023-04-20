@@ -90,7 +90,6 @@ dependencies {
     implementation "androidx.vectordrawable:vectordrawable:$versions.vectordrawable"
     implementation "androidx.navigation:navigation-fragment-ktx:$versions.navigation_fragment"
     implementation "androidx.navigation:navigation-ui-ktx:$versions.navigation_ui"
-    implementation "androidx.lifecycle:lifecycle-extensions:$versions.lifecycle_extensions"
     implementation "androidx.navigation:navigation-fragment-ktx:$versions.navigation_fragment"
     implementation "androidx.navigation:navigation-ui-ktx:$versions.navigation_fragment"
     implementation "com.google.android.gms:play-services-maps:$versions.google_services"

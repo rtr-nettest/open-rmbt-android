@@ -2,7 +2,7 @@ package at.rtr.rmbt.android.viewmodel
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.Transformations
+import androidx.lifecycle.switchMap
 import at.rmbt.client.control.data.MapPresentationType
 import at.rtr.rmbt.android.map.wrapper.LatLngW
 import at.rtr.rmbt.android.map.wrapper.TileW
@@ -31,7 +31,7 @@ class MapViewModel @Inject constructor(
     var providerLiveData: MutableLiveData<RetrofitTileProvider> = MutableLiveData()
 
     var markersLiveData: LiveData<List<MarkerMeasurementRecord>> =
-        Transformations.switchMap(state.coordinatesLiveData) { repository.getMarkers(it?.latitude, it?.longitude, state.zoom.toInt()) }
+        state.coordinatesLiveData.switchMap { repository.getMarkers(it?.latitude, it?.longitude, state.zoom.toInt()) }
 
     init {
         addStateSaveHandler(state)

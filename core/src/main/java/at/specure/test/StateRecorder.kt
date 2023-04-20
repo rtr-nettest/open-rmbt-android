@@ -45,6 +45,10 @@ import at.specure.util.toCellLocation
 import at.specure.util.toRecords
 import cz.mroczis.netmonster.core.INetMonster
 import cz.mroczis.netmonster.core.model.cell.ICell
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.runBlocking
 import org.json.JSONArray
 import timber.log.Timber
 import java.util.UUID
@@ -148,8 +152,15 @@ class StateRecorder @Inject constructor(
         this.testToken = testToken
         this.testStartTimeNanos = testStartTimeNanos
         qosRunning = false
-        Timber.e("Signal saving time OCR: starting time: $testStartTimeNanos   current time: ${System.nanoTime()}")
-        saveTestInitialTestData(testUUID, loopUUID, testToken, testStartTimeNanos, threadNumber)
+        Timber.d("Signal saving time OCR: starting time: $testStartTimeNanos   current time: ${System.nanoTime()}")
+        runBlocking {
+            val tasks = listOf(
+                async(Dispatchers.IO) {
+                    saveTestInitialTestData(testUUID, loopUUID, testToken, testStartTimeNanos, threadNumber)
+                                      },
+            )
+            tasks.awaitAll()
+        }
         cellLocation = cellLocationWatcher.getCellLocationFromTelephony()
         saveCellLocation()
         saveLocationInfo()
@@ -169,7 +180,7 @@ class StateRecorder @Inject constructor(
         qosRunning = false
     }
 
-    private fun saveTestInitialTestData(testUUID: String, loopUUID: String?, testToken: String, testStartTimeNanos: Long, threadNumber: Int) {
+    private fun saveTestInitialTestData(testUUID: String, loopUUID: String?, testToken: String, testStartTimeNanos: Long, threadNumber: Int): Unit {
         Timber.d("testUUID $testUUID, loopUUId $loopUUID, testToken: $testToken, start: $testStartTimeNanos, threadNumber $threadNumber")
         testRecord = TestRecord(
             uuid = testUUID,
@@ -194,7 +205,7 @@ class StateRecorder @Inject constructor(
         }
 
         testRecord?.loopModeTestOrder = loopTestCount
-        repository.saveTest(testRecord!!)
+        return repository.saveTest(testRecord!!)
     }
 
     fun initializeLoopModeData(loopUUID: String?) {

@@ -8,17 +8,19 @@ import at.specure.data.Tables
 import at.specure.info.TransportType
 import at.specure.info.cell.CellTechnology
 
-@Entity(tableName = Tables.CELL_INFO)
-data class CellInfoRecord(
-    @PrimaryKey(autoGenerate = true)
-    val id: Long = 0,
-    @ForeignKey(
+@Entity(
+    tableName = Tables.CELL_INFO,
+    foreignKeys = [ForeignKey(
         entity = TestRecord::class,
         parentColumns = [Columns.TEST_UUID_PARENT_COLUMN],
         childColumns = ["testUUID"],
         onDelete = ForeignKey.CASCADE
-    )
-    val testUUID: String,
+    )]
+)
+data class CellInfoRecord(
+    @PrimaryKey(autoGenerate = true)
+    val id: Long = 0,
+val testUUID: String,
     val isActive: Boolean,
     val uuid: String,
     val channelNumber: Int?,

@@ -1,7 +1,6 @@
 package at.rtr.rmbt.android.di
 
 import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.ViewModelProviders
 import at.rtr.rmbt.android.ui.activity.BaseActivity
 import at.rtr.rmbt.android.ui.fragment.BaseFragment
 import at.rtr.rmbt.android.util.listenNonNull
@@ -14,7 +13,7 @@ inline fun <reified T : BaseViewModel> BaseActivity.viewModelLazy(): Lazy<T> = A
 class FragmentViewModelLazy<T : BaseViewModel>(private val fragment: BaseFragment, modelClass: Class<T>) : ViewModelLazy<T>(modelClass) {
 
     override val viewModelProvider: ViewModelProvider
-        get() = ViewModelProviders.of(fragment, Injector.component.viewModelFactory())
+        get() = ViewModelProvider(fragment, Injector.component.viewModelFactory())
 
     override fun subscribeOnError(viewModel: BaseViewModel) {
         viewModel.errorLiveData.listenNonNull(fragment) {
@@ -28,7 +27,7 @@ class FragmentViewModelLazy<T : BaseViewModel>(private val fragment: BaseFragmen
 class ActivityViewModelLazy<T : BaseViewModel>(private val activity: BaseActivity, modelClass: Class<T>) : ViewModelLazy<T>(modelClass) {
 
     override val viewModelProvider: ViewModelProvider
-        get() = ViewModelProviders.of(activity, Injector.component.viewModelFactory())
+        get() = ViewModelProvider(activity, Injector.component.viewModelFactory())
 
     override fun subscribeOnError(viewModel: BaseViewModel) {
         viewModel.errorLiveData.listenNonNull(activity) {

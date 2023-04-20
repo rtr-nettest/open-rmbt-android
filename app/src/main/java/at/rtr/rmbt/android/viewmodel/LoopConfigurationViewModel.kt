@@ -1,9 +1,9 @@
 package at.rtr.rmbt.android.viewmodel
 
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.map
 import at.rtr.rmbt.android.config.AppConfig
 import at.rtr.rmbt.android.ui.viewstate.LoopConfigurationViewState
-import at.rtr.rmbt.android.util.map
 import at.specure.info.connectivity.ConnectivityInfoLiveData
 import javax.inject.Inject
 

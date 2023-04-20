@@ -187,7 +187,7 @@ public class Dig {
 					break;
 
 				case 'd':
-					res.setEDNS(0, 0, ExtendedFlags.DO, null);
+					res.setEDNS(0, 0, ExtendedFlags.DO);
 					break;
 
 				case 'q':

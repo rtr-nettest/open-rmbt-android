@@ -459,8 +459,8 @@ class TestDataRepositoryImpl(db: CoreDatabase) : TestDataRepository {
         testDao.insert(record)
     }
 
-    override fun saveTest(test: TestRecord) = io {
-        testDao.insert(test)
+    override fun saveTest(test: TestRecord): Unit {
+        return testDao.insert(test)
     }
 
     override fun update(testRecord: TestRecord, onUpdated: () -> Unit) = io {

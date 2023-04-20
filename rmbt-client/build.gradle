@@ -26,5 +26,5 @@ dependencies {
     implementation "com.google.code.gson:gson:$versions.gson"
     implementation "com.google.guava:guava:$versions.guava"
     implementation "com.jakewharton.timber:timber:$versions.timber"
-    implementation 'androidx.annotation:annotation:1.2.0'
+    implementation 'androidx.annotation:annotation:1.6.0'
 }
