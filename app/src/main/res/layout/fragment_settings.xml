@@ -38,6 +38,20 @@
 
 
             <include
+                android:id="@+id/developerTag"
+                layout="@layout/item_setting_edittext"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:visibility="@{(state.developerModeIsEnabled || state.coverageModeEnabled) ? View.VISIBLE : View.GONE}"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/labelGeneralSettings"
+                bind:title="@{@string/preferences_tag}"
+                bind:value="@{state.developerModeTag}" />
+
+
+
+            <include
                 android:id="@+id/switchNDT"
                 layout="@layout/item_setting_switch"
                 android:layout_width="0dp"
@@ -45,7 +59,7 @@
                 android:visibility="@{BuildConfig.NDT_ENABLED.visible ? View.VISIBLE : View.GONE}"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/labelGeneralSettings"
+                app:layout_constraintTop_toBottomOf="@+id/developerTag"
                 bind:title="@{@string/preferences_ndt}"
                 bind:value="@{state.isNDTEnabled}" />
 
@@ -335,25 +349,13 @@
                 bind:value="@{state.qosSSL}" />
 
             <include
-                android:id="@+id/developerTag"
-                layout="@layout/item_setting_edittext"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:visibility="@{state.developerModeIsEnabled ? View.VISIBLE : View.GONE}"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/switchQosServerOverride"
-                bind:title="@{@string/preferences_tag}"
-                bind:value="@{state.developerModeTag}" />
-
-            <include
                 android:id="@+id/labelContact"
                 layout="@layout/item_setting_header"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/developerTag"
+                app:layout_constraintTop_toBottomOf="@+id/switchQosServerOverride"
                 bind:title="@{@string/preferences_contact}" />
 
             <include

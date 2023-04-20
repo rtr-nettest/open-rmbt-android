@@ -84,15 +84,18 @@ class SettingsViewModel @Inject constructor(
                     state.coverageModeEnabled.set(true)
                     // disable qos measurement when coverage mode is activated
                     state.qosMeasurement.set(false)
+                    state.developerModeTag.set("{Cov}")
                     R.string.preferences_coverage_mode_available
                 }
                 appConfig.secretCodeCoverageModeOff -> {
                     state.coverageModeEnabled.set(false)
+                    state.developerModeTag.set(null)
                     R.string.preferences_coverage_mode_disabled
                 }
                 appConfig.secretCodeAllModesOff -> {
                     state.developerModeIsEnabled.set(false)
                     state.coverageModeEnabled.set(false)
+                    state.developerModeTag.set(null)
                     R.string.preferences_all_disabled
                 }
                 else -> {
