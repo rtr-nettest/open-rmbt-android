@@ -33,7 +33,6 @@ class SettingsViewState constructor(
     val developerModeIsAvailable = appConfig.developerModeIsAvailable
     val developerModeIsEnabled = ObservableField(appConfig.developerModeIsEnabled)
     val coverageModeEnabled = ObservableField(appConfig.coverageModeEnabled)
-    //TOD val coverageModeIsEnabled = ObservableField(appConfig.coverageModeIsEnabled)
     val developerModeTag = ObservableField(appConfig.measurementTag)
     val controlServerOverrideEnabled = ObservableField(appConfig.controlServerOverrideEnabled)
     val controlServerHost = ObservableField(controlServerSettings.controlServerOverrideUrl)

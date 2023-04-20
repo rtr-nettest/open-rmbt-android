@@ -54,7 +54,7 @@
                 layout="@layout/item_setting_switch"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:visibility="@{BuildConfig.SKIP_QOS_TESTS.visible ? View.VISIBLE : View.GONE}"
+                android:visibility="@{(BuildConfig.SKIP_QOS_TESTS.visible &amp;&amp; ! state.coverageModeEnabled) ? View.VISIBLE : View.GONE}"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/switchNDT"
