@@ -124,13 +124,12 @@
             android:layout_height="wrap_content"
             android:layout_marginEnd="@dimen/margin_small"
             android:gravity="end|center_vertical"
-            android:text="BSSID"
+            android:text="@string/cell_info_BSSID"
             android:textColor="@color/text_gray_transparency_55"
             app:layout_constraintEnd_toStartOf="@+id/guide_one_third"
             app:layout_constraintHorizontal_weight="3"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/labelSignal"
-            tools:ignore="HardcodedText" />
+            app:layout_constraintTop_toBottomOf="@+id/labelSignal" />
 
         <!-- TODO translate -->
         <androidx.appcompat.widget.AppCompatTextView
@@ -140,13 +139,12 @@
             android:layout_height="wrap_content"
             android:layout_marginEnd="@dimen/margin_small"
             android:gravity="end|center_vertical"
-            android:text="SSID"
+            android:text="@string/cell_info_SSID"
             android:textColor="@color/text_gray_transparency_55"
             app:layout_constraintEnd_toStartOf="@+id/guide_one_third"
             app:layout_constraintHorizontal_weight="3"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/labelbssid"
-            tools:ignore="HardcodedText" />
+            app:layout_constraintTop_toBottomOf="@+id/labelbssid" />
 
         <!-- TODO translate -->
         <androidx.appcompat.widget.AppCompatTextView
@@ -156,13 +154,12 @@
             android:layout_height="wrap_content"
             android:layout_marginEnd="@dimen/margin_small"
             android:gravity="end|center_vertical"
-            android:text="Downlink speed"
+            android:text="@string/measurement_down"
             android:textColor="@color/text_gray_transparency_55"
             app:layout_constraintEnd_toStartOf="@+id/guide_one_third"
             app:layout_constraintHorizontal_weight="3"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/labelssid"
-            tools:ignore="HardcodedText" />
+            app:layout_constraintTop_toBottomOf="@+id/labelssid" />
 
         <!-- TODO translate -->
         <androidx.appcompat.widget.AppCompatTextView
@@ -172,13 +169,12 @@
             android:layout_height="wrap_content"
             android:layout_marginEnd="@dimen/margin_small"
             android:gravity="end|center_vertical"
-            android:text="Uplink speed"
+            android:text="@string/measurement_up"
             android:textColor="@color/text_gray_transparency_55"
             app:layout_constraintEnd_toStartOf="@+id/guide_one_third"
             app:layout_constraintHorizontal_weight="3"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/labelrxlinkspeed"
-            tools:ignore="HardcodedText" />
+            app:layout_constraintTop_toBottomOf="@+id/labelrxlinkspeed" />
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/textChannel"

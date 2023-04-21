@@ -358,6 +358,10 @@
     <string name="cell_info_arfcn" translatable="false">ARFCN</string>
     <string name="cell_info_rxl" translatable="false">RXL</string>
 
+    <string name="cell_info_BSSID" translatable="false">BSSID</string>
+    <string name="cell_info_SSID" translatable="false">SSID</string>
+    <string name="cell_info_NCI" translatable="false">NCI</string>
+    
     <string name="label_location_access_disabled">Location permission missing</string>
     <string name="label_location_access_disabled_explanation">Grant location permission in settings.</string>
     <string name="label_some_permission_denied">App permissions missing</string>
