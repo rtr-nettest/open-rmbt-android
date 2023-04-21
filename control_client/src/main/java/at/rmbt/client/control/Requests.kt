@@ -18,6 +18,7 @@ import androidx.annotation.Keep
 import com.google.gson.JsonArray
 import com.google.gson.annotations.Expose
 import com.google.gson.annotations.SerializedName
+import java.util.UUID
 
 // TODO Remove mocked values
 @Keep
@@ -195,6 +196,12 @@ data class TestResultBody(
      */
     @SerializedName("test_token")
     val token: String,
+
+    /**
+     * Test UUID
+     */
+    @SerializedName("test_uuid")
+    val testUUID: String,
 
     /**
      * Port of the test server the test was performed on

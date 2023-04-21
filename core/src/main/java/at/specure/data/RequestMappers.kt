@@ -346,7 +346,8 @@ fun TestRecord.toRequest(
         userServerSelectionEnabled = serverSelectionEnabled,
         telephonyNRConnection = telephonyNRConnectionState,
         packetLoss = voipTestResultRecord?.getPacketLoss(),
-        jitterMillis = voipTestResultRecord?.getJitter()
+        jitterMillis = voipTestResultRecord?.getJitter(),
+        testUUID = uuid
     )
 }
 
