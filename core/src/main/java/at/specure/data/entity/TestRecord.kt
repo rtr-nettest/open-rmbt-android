@@ -232,6 +232,11 @@ data class TestRecord(
     var testTag: String? = null,
 
     /**
+     * true if coverage mode is enabled, false otherwise
+     */
+    var coverage: Boolean? = null,
+
+    /**
      * true if developer mode is enabled, false otherwise
      */
     val developerModeEnabled: Boolean,

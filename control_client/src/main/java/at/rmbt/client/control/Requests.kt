@@ -117,7 +117,12 @@ data class TestRequestRequestBody(
     val language: String? = "en",
     val capabilities: CapabilitiesBody = CapabilitiesBody(),
     @SerializedName("loopmode_info")
-    val loopModeInfo: LoopModeInfo
+    val loopModeInfo: LoopModeInfo,
+        /**
+     * Flag, true if coverage mode is active
+     */
+    @SerializedName("coverage")
+    var coverage: Boolean? = null,
 )
 
 @Keep
@@ -505,6 +510,12 @@ data class TestResultBody(
      */
     @SerializedName("tag")
     var testTag: String? = null,
+
+    /**
+     * Flag, true if coverage mode is active
+     */
+    @SerializedName("coverage")
+    var coverage: Boolean? = null,
 
     /**
      * mean jitter in milliseconds

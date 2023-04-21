@@ -178,6 +178,7 @@ class StateRecorder @Inject constructor(
             testStartTimeMillis = TimeUnit.NANOSECONDS.toMillis(testStartTimeNanos),
             threadCount = threadNumber,
             testTag = config.measurementTag,
+            coverage = config.coverageModeEnabled,
             developerModeEnabled = config.developerModeIsEnabled,
             serverSelectionEnabled = config.expertModeEnabled,
             loopModeEnabled = config.loopModeEnabled,
