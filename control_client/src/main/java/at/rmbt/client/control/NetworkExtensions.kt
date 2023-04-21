@@ -46,10 +46,14 @@ fun <T : BaseResponse> Call<T>.exec(silentError: Boolean = false): Maybe<T> {
                     Maybe(body)
                 }
             } else {
-                return Maybe(HandledException("Server Returned an empty response"))
+                return Maybe(HandledException("Server returned an empty response"))
             }
-        } else {
-            Maybe(HandledException("Server connection error ${result.code()}"))
+        } else if  (result.code() == 400)
+            // Add specific message for the case that results are not found (server responds with 'bad request' (400)
+            Maybe(HandledException("Data not available (Status: (${result.code()})"))
+
+        else {
+            Maybe(HandledException("Server connection error (Status: ${result.code()})"))
         }
     } catch (t: Throwable) {
         if (silentError) {
@@ -73,7 +77,7 @@ fun TelephonyManager.getTelephonyManagerForSubscription(dataSubscriptionId: Int)
                 null
             }
         } catch (e: Exception) {
-            Timber.e("problem to obtain correct telephony manager for data subscription")
+            Timber.e("Problem to obtain correct telephony manager for data subscription")
             null
         }
     } else {

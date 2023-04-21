@@ -252,7 +252,7 @@
     <string name="map_search_location_dialog_not_found">Address not found.</string>
     <string name="map_search_location_not_supported">Sorry, this function is not supported by your device.</string>
 
-    <string name="text_failed_to_load_results">Failed to load data.\nPlease pull down to refresh.</string>
+    <string name="text_failed_to_load_results">The results are not yet available.\nPlease pull down to refresh.</string>
 
     <string name="title_sync">Synchronization</string>
     <string name="text_sync_info">You have the possibility to join results from different devices. To do so, you have to enter an already requested synchronisation code or request a new one.</string>

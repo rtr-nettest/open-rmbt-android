@@ -22,7 +22,7 @@
     <!-- Error dialog messages -->
     <string name="dialog_title_error">Fehler</string>
     <string name="error_unknown">Die Verbindung ist unzureichend. Bitte versuchen Sie es später noch einmal</string>
-    <string name="no_internet_connection_not_load_data">Keine Netzwerksverbindung: Die Datenkonnten nicht geladen werden.</string>
+    <string name="no_internet_connection_not_load_data">Keine Netzwerksverbindung: Die Daten konnten nicht geladen werden.</string>
     <!-- Home screen -->
     <string name="home_signal">Signal</string>
     <string name="home_frequency">Frequenz</string>
@@ -211,7 +211,7 @@
     <string name="map_search_location_dialog_info">Suche nach einer Adresse oder Stadt:</string>
     <string name="map_search_location_dialog_not_found">Adresse nicht gefunden.</string>
     <string name="map_search_location_not_supported">Ihr Gerät unterstützt diese Funktion nicht.</string>
-    <string name="text_failed_to_load_results">Daten konnten nicht geladen werden.\nZur Aktualisierung bitte nach unten ziehen.</string>
+    <string name="text_failed_to_load_results">Die Ergebnisse sind noch nicht verfügbar.\nZur Aktualisierung bitte nach unten ziehen.</string>
     <string name="title_sync">Synchronisieren</string>
     <string name="text_sync_info">Es besteht die Möglichkeit, Messergebnisse von anderen Endgeräten zusammenzuführen. Dazu müssen Sie einen bereits erhaltenen Synchronisations-Code eingeben oder einen neuen anfordern.</string>
     <string name="button_sync_request_code">Code anfordern</string>
