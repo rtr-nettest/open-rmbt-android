@@ -50,7 +50,7 @@ fun <T : BaseResponse> Call<T>.exec(silentError: Boolean = false): Maybe<T> {
             }
         } else if  (result.code() == 400)
             // Add specific message for the case that results are not found (server responds with 'bad request' (400)
-            Maybe(HandledException("Data not available (Status: (${result.code()})"))
+            Maybe(HandledException("Data not available (Status: ${result.code()})"))
 
         else {
             Maybe(HandledException("Server connection error (Status: ${result.code()})"))
