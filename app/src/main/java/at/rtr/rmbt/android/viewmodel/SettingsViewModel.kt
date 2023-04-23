@@ -78,6 +78,8 @@ class SettingsViewModel @Inject constructor(
                 }
                 appConfig.secretCodeDeveloperModeOff -> {
                     state.developerModeIsEnabled.set(false)
+                    state.controlServerOverrideEnabled.set(false)
+                    state.mapServerOverrideEnabled.set(false)
                     R.string.preferences_developer_options_disabled
                 }
                 appConfig.secretCodeCoverageModeOn -> {
@@ -96,6 +98,8 @@ class SettingsViewModel @Inject constructor(
                     state.developerModeIsEnabled.set(false)
                     state.coverageModeEnabled.set(false)
                     state.developerModeTag.set(null)
+                    state.controlServerOverrideEnabled.set(false)
+                    state.mapServerOverrideEnabled.set(false)
                     R.string.preferences_all_disabled
                 }
                 else -> {

@@ -179,13 +179,7 @@ class AppConfig @Inject constructor(context: Context, private val serverSettings
         set(value) = setString(BuildConfig.CONTROL_SERVER_HOST, value)
 
     override var measurementTag: String?
-        get() {
-            return if (developerModeIsEnabled && developerModeIsAvailable) {
-                preferences.getString(KEY_MEASUREMENT_TAG, null)
-            } else {
-                return null
-            }
-        }
+        get() = preferences.getString(KEY_MEASUREMENT_TAG, null)
         set(value) = preferences.edit()
             .putString(KEY_MEASUREMENT_TAG, value)
             .apply()
