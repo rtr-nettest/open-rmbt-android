@@ -447,7 +447,8 @@ class StateRecorder @Inject constructor(
                     mnc = cellNetworkInfo.mnc,
                     primaryScramblingCode = cellNetworkInfo.scramblingCode,
                     dualSimDetectionMethod = cellNetworkInfo.dualSimDetectionMethod,
-                    isPrimaryDataSubscription = cellNetworkInfo.isPrimaryDataSubscription?.value
+                    isPrimaryDataSubscription = cellNetworkInfo.isPrimaryDataSubscription?.value,
+                    cellState = cellNetworkInfo.cellState
                 )
                 repository.saveCellInfoRecord(listOf(cellInfoRecord))
 

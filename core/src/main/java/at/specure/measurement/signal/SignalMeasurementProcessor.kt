@@ -539,7 +539,8 @@ class SignalMeasurementProcessor @Inject constructor(
                     mcc = cellNetworkInfo.mcc,
                     mnc = cellNetworkInfo.mnc,
                     primaryScramblingCode = cellNetworkInfo.scramblingCode,
-                    dualSimDetectionMethod = cellNetworkInfo.dualSimDetectionMethod
+                    dualSimDetectionMethod = cellNetworkInfo.dualSimDetectionMethod,
+                    cellState = cellNetworkInfo.cellState
                 )
                 repository.saveCellInfoRecord(listOf(cellInfoRecord))
 

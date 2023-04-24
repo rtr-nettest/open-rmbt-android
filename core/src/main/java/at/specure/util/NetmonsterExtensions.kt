@@ -348,7 +348,8 @@ fun ICell.toCellNetworkInfo(
         cellUUID = this.uuid(),
         rawCellInfo = this,
         isPrimaryDataSubscription = PrimaryDataSubscription.resolvePrimaryDataSubscriptionID(dataSubscriptionId, this.subscriptionId),
-        capabilitiesRaw = "HARDCODED Capabilities netmonster ${NetworkCapabilities.TRANSPORT_CELLULAR} networkType = $mobileNetworkType"
+        capabilitiesRaw = "HARDCODED Capabilities netmonster ${NetworkCapabilities.TRANSPORT_CELLULAR} networkType = $mobileNetworkType",
+        cellState = resolveConnectionState()
     )
 }
 
@@ -505,7 +506,8 @@ fun ICell.toRecords(
                 mnc = this.network?.mnc?.toIntOrNull(),
                 primaryScramblingCode = primaryScramblingCode(),
                 isPrimaryDataSubscription = PrimaryDataSubscription.resolvePrimaryDataSubscriptionID(dataSubscriptionId, this.subscriptionId).value,
-                dualSimDetectionMethod = "NOT_AVAILABLE" // local purpose only
+                dualSimDetectionMethod = "NOT_AVAILABLE", // local purpose only
+                cellState = resolveConnectionState()
             )
             signalRecord = this.signal?.toSignalRecord(
                 testUUID,
@@ -519,6 +521,15 @@ fun ICell.toRecords(
         return map
     }
     return map
+}
+
+fun ICell.resolveConnectionState(): String? {
+    return when (this.connectionStatus) {
+        is PrimaryConnection -> "primary"
+        is SecondaryConnection -> "secondary"
+        is NoneConnection -> "none"
+        else -> null
+    }
 }
 
 fun ICell.channelNumber(): Int? {

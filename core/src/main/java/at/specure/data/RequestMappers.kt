@@ -389,13 +389,14 @@ fun CellInfoRecord.toRequest() = CellInfoBody(
     primaryScramblingCode = primaryScramblingCode,
     technology = NetworkTypeCompat.fromType(transportType, cellTechnology)?.stringValue,
     registered = registered,
-    isPrimaryDataSubscription = isPrimaryDataSubscription
+    isPrimaryDataSubscription = isPrimaryDataSubscription,
+    cellState = cellState
 )
 
 fun SignalRecord.toRequest(cellUUID: String, ignoreNetworkId: Boolean, signalMeasurementStartTimeNs: Long?) = SignalBody(
     cellUuid = cellUUID,
     networkTypeId = transportType.toRequestIntValue(mobileNetworkType),
-    signal = signal.checkSignalValue(),
+    signal = if (lteRsrp == null && nrCsiRsrp == null && nrSsRsrp == null) signal.checkSignalValue() else null,
     bitErrorRate = bitErrorRate.checkSignalValue(),
     wifiLinkSpeed = wifiLinkSpeed.checkSignalValue(),
     lteRsrp = lteRsrp.checkSignalValue(),
@@ -410,8 +411,7 @@ fun SignalRecord.toRequest(cellUUID: String, ignoreNetworkId: Boolean, signalMea
     nrCsiSinr = nrCsiSinr,
     nrSsRsrp = nrSsRsrp,
     nrSsRsrq = nrSsRsrq,
-    nrSsSinr = nrSsSinr,
-    signalSource = source.stringValue
+    nrSsSinr = nrSsSinr
 )
 
 private fun Int?.checkSignalValue(): Int? = if (this == null || this == Int.MAX_VALUE || this == Int.MAX_VALUE) {

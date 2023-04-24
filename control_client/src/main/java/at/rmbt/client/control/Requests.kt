@@ -651,7 +651,10 @@ data class CellInfoBody(
      *  "UNKNOWN"   - if (primary data subscription ID == -1 || subscription ID == -1)
      */
     @SerializedName("primary_data_subscription")
-    val isPrimaryDataSubscription: String?
+    val isPrimaryDataSubscription: String?,
+
+    @SerializedName("cell_state")
+    val cellState: String?
 )
 
 @Keep
@@ -670,7 +673,7 @@ data class SignalBody(
     val networkTypeId: Int?,
 
     /**
-     * Only for non 4G signal types
+     * Only for 2G, 3G and WIFI
      */
     val signal: Int?,
 
@@ -747,11 +750,7 @@ data class SignalBody(
     val nrSsRsrq: Int?,
 
     @SerializedName("nr_ss_sinr")
-    val nrSsSinr: Int?,
-
-    // debug only to know from which source is signal obtained
-    @SerializedName("signal_source")
-    val signalSource: String
+    val nrSsSinr: Int?
 )
 
 @Keep

@@ -107,6 +107,8 @@ class CellNetworkInfo(
 
     val isPrimaryDataSubscription: PrimaryDataSubscription?,
 
+    val cellState: String?,
+
     override val capabilitiesRaw: String?
 ) :
     NetworkInfo(TransportType.CELLULAR, cellUUID, capabilitiesRaw) {
@@ -132,7 +134,8 @@ class CellNetworkInfo(
         locationId = null,
         areaCode = null,
         isPrimaryDataSubscription = PrimaryDataSubscription.UNKNOWN,
-        capabilitiesRaw = "HARDCODED Capabilities 1: ${NetworkCapabilities.TRANSPORT_CELLULAR} networkType = ${MobileNetworkType.UNKNOWN}"
+        capabilitiesRaw = "HARDCODED Capabilities 1: ${NetworkCapabilities.TRANSPORT_CELLULAR} networkType = ${MobileNetworkType.UNKNOWN}",
+        cellState = null
     )
 
     override val name: String?
@@ -305,7 +308,8 @@ class CellNetworkInfo(
                 nrConnectionState = nrConnectionState,
                 rawCellInfo = null,
                 isPrimaryDataSubscription = PrimaryDataSubscription.TRUE, // we listen only for primary data subscription sim
-                capabilitiesRaw = "HARDCODED Capabilities fromUnknown: ${NetworkCapabilities.TRANSPORT_CELLULAR} networkType = $networkType"
+                capabilitiesRaw = "HARDCODED Capabilities fromUnknown: ${NetworkCapabilities.TRANSPORT_CELLULAR} networkType = $networkType",
+                cellState = null
             )
         }
 
@@ -347,7 +351,8 @@ class CellNetworkInfo(
                 nrConnectionState = nrConnectionState,
                 rawCellInfo = null,
                 isPrimaryDataSubscription = PrimaryDataSubscription.TRUE, // we listen only for primary data subscription sim
-                capabilitiesRaw = "HARDCODED Capabilities fromNr: ${NetworkCapabilities.TRANSPORT_CELLULAR} networkType = $networkType"
+                capabilitiesRaw = "HARDCODED Capabilities fromNr: ${NetworkCapabilities.TRANSPORT_CELLULAR} networkType = $networkType",
+                cellState = null
             )
         }
 
@@ -387,7 +392,8 @@ class CellNetworkInfo(
                 nrConnectionState = nrConnectionState,
                 rawCellInfo = null,
                 isPrimaryDataSubscription = PrimaryDataSubscription.TRUE, // we listen only for primary data subscription sim
-                capabilitiesRaw = "HARDCODED Capabilities fromTdscdma: ${NetworkCapabilities.TRANSPORT_CELLULAR} networkType = $networkType"
+                capabilitiesRaw = "HARDCODED Capabilities fromTdscdma: ${NetworkCapabilities.TRANSPORT_CELLULAR} networkType = $networkType",
+                cellState = null
             )
         }
 
@@ -428,7 +434,8 @@ class CellNetworkInfo(
                 nrConnectionState = nrConnectionState,
                 rawCellInfo = null,
                 isPrimaryDataSubscription = PrimaryDataSubscription.TRUE, // we listen only for primary data subscription sim
-                capabilitiesRaw = "HARDCODED Capabilities fromLte: ${NetworkCapabilities.TRANSPORT_CELLULAR} networkType = $networkType"
+                capabilitiesRaw = "HARDCODED Capabilities fromLte: ${NetworkCapabilities.TRANSPORT_CELLULAR} networkType = $networkType",
+                cellState = null
             )
         }
 
@@ -468,7 +475,8 @@ class CellNetworkInfo(
                 nrConnectionState = nrConnectionState,
                 rawCellInfo = null,
                 isPrimaryDataSubscription = PrimaryDataSubscription.TRUE, // we listen only for primary data subscription sim
-                capabilitiesRaw = "HARDCODED Capabilities fromWcdma: ${NetworkCapabilities.TRANSPORT_CELLULAR} networkType = $networkType"
+                capabilitiesRaw = "HARDCODED Capabilities fromWcdma: ${NetworkCapabilities.TRANSPORT_CELLULAR} networkType = $networkType",
+                cellState = null
             )
         }
 
@@ -510,7 +518,8 @@ class CellNetworkInfo(
                 nrConnectionState = nrConnectionState,
                 rawCellInfo = null,
                 isPrimaryDataSubscription = PrimaryDataSubscription.TRUE, // we listen only for primary data subscription sim
-                capabilitiesRaw = "HARDCODED Capabilities fromGsm: ${NetworkCapabilities.TRANSPORT_CELLULAR} networkType = $networkType"
+                capabilitiesRaw = "HARDCODED Capabilities fromGsm: ${NetworkCapabilities.TRANSPORT_CELLULAR} networkType = $networkType",
+                cellState = null
             )
         }
 
@@ -545,7 +554,8 @@ class CellNetworkInfo(
                 nrConnectionState = nrConnectionState,
                 rawCellInfo = null,
                 isPrimaryDataSubscription = PrimaryDataSubscription.TRUE, // we listen only for primary data subscription sim
-                capabilitiesRaw = "HARDCODED Capabilities fromCdma: ${NetworkCapabilities.TRANSPORT_CELLULAR} networkType = $networkType"
+                capabilitiesRaw = "HARDCODED Capabilities fromCdma: ${NetworkCapabilities.TRANSPORT_CELLULAR} networkType = $networkType",
+                cellState = null
             )
         }
     }
