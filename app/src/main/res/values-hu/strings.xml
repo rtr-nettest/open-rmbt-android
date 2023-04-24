@@ -211,7 +211,7 @@
     <string name="map_search_location_dialog_info">Cím vagy város keresése:</string>
     <string name="map_search_location_dialog_not_found">Cím nem található.</string>
     <string name="map_search_location_not_supported">Sajnos ezt a funkciót nem támogatja a készülék.</string>
-    <string name="text_failed_to_load_results">Failed to load data.\nPlease pull down to refresh.</string>
+    <string name="text_failed_to_load_results">The results are not yet available.\nPlease pull down to refresh.</string>
     <string name="title_sync">Szinkronizálás</string>
     <string name="text_sync_info">Lehetőség van több eszközön elvégzett mérési eredményeinek az összesítésére. Ehhez adja meg a korábban igényelt szinkronizációs kódot, vagy igényeljen egy újat.</string>
     <string name="button_sync_request_code">Kód kérése</string>
