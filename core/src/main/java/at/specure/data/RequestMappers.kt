@@ -394,11 +394,7 @@ fun CellInfoRecord.toRequest() = CellInfoBody(
 
 fun SignalRecord.toRequest(cellUUID: String, ignoreNetworkId: Boolean, signalMeasurementStartTimeNs: Long?) = SignalBody(
     cellUuid = cellUUID,
-    networkTypeId = if (ignoreNetworkId) null else if (transportType.toRequestIntValue(mobileNetworkType) == MobileNetworkType.NR_SA.intValue) {
-        MobileNetworkType.NR_NSA.intValue
-    } else {
-        transportType.toRequestIntValue(mobileNetworkType)
-    },
+    networkTypeId = transportType.toRequestIntValue(mobileNetworkType),
     signal = signal.checkSignalValue(),
     bitErrorRate = bitErrorRate.checkSignalValue(),
     wifiLinkSpeed = wifiLinkSpeed.checkSignalValue(),
