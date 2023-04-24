@@ -37,11 +37,9 @@ import android.telephony.CellInfoLte
 import android.telephony.CellInfoNr
 import android.telephony.CellInfoTdscdma
 import android.telephony.CellInfoWcdma
-import android.telephony.CellSignalStrengthNr
 import android.telephony.SubscriptionInfo
 import cz.mroczis.netmonster.core.model.cell.ICell
 import java.util.UUID
-import timber.log.Timber
 
 /**
  * Cellular Network information
