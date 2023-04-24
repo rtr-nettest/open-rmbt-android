@@ -18,7 +18,6 @@ import androidx.annotation.Keep
 import com.google.gson.JsonArray
 import com.google.gson.annotations.Expose
 import com.google.gson.annotations.SerializedName
-import java.util.UUID
 
 // TODO Remove mocked values
 @Keep
@@ -616,7 +615,7 @@ data class CellInfoBody(
      * Id of the location, mobile only
      */
     @SerializedName("location_id")
-    val locationId: Int?,
+    val locationId: Long?,
 
     /**
      * Code of the country of the operator, mobile only
@@ -826,7 +825,7 @@ data class CellLocationBody(
      * id of the location
      */
     @SerializedName("location_id")
-    val locationId: Int?,
+    val locationId: Long?,
 
     @SerializedName("area_code")
     val areaCode: Int?,

@@ -22,7 +22,7 @@ data class CellLocationRecord(
 
     val scramblingCode: Int,
     val areaCode: Int?,
-    val locationId: Int?,
+    val locationId: Long?,
     val timestampMillis: Long,
     val timestampNanos: Long
 )
