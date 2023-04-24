@@ -106,8 +106,8 @@ abstract class SignalStrengthInfo : Parcelable {
         const val TDSCDMA_RSRP_SIGNAL_MIN = -120
         const val TDSCDMA_RSRP_SIGNAL_MAX = -24
 
-        const val NR_RSRP_SIGNAL_MIN = -140 // dbm
-        const val NR_RSRP_SIGNAL_MAX = -44 // values taken from CellSignalStrengthNr
+        const val NR_RSRP_SIGNAL_MIN = -130 // dbm
+        const val NR_RSRP_SIGNAL_MAX = -70
 
         const val NR_RSRQ_SIGNAL_MIN = -20 // dbm
         const val NR_RSRQ_SIGNAL_MAX = -3 // values taken from CellSignalStrengthNr
@@ -118,12 +118,10 @@ abstract class SignalStrengthInfo : Parcelable {
         // Lifted from Default carrier configs and max range of SSRSRP from
         // mSsRsrpThresholds array
         // Boundaries: [-140 dB, -44 dB]
-        const val SSRSRP_SIGNAL_STRENGTH_NONE = -140
+        const val SSRSRP_SIGNAL_STRENGTH_NONE = -130
         const val SSRSRP_SIGNAL_STRENGTH_POOR = -110
         const val SSRSRP_SIGNAL_STRENGTH_MODERATE = -90
-        const val SSRSRP_SIGNAL_STRENGTH_GOOD = -80
-        const val SSRSRP_SIGNAL_STRENGTH_FULL = -65
-        const val SSRSRP_SIGNAL_STRENGTH_MAX = -44
+        const val SSRSRP_SIGNAL_STRENGTH_GOOD = -70
 
         @SuppressLint("BinaryOperationInTimber")
         @RequiresApi(Build.VERSION_CODES.Q)
@@ -136,7 +134,7 @@ abstract class SignalStrengthInfo : Parcelable {
                 transport = TransportType.CELLULAR,
                 value = signal.extractSignalValue()?.fixNrRsrp(),
                 rsrq = signal.extractSignalQualityValue()?.fixNrRsrq(),
-                signalLevel = calculateNRCellSignalLevel(signal),
+                signalLevel = calculateCellSignalLevel(signal.ssRsrp, NR_RSRP_SIGNAL_MIN, NR_RSRP_SIGNAL_MAX),
                 min = NR_RSRP_SIGNAL_MIN,
                 max = NR_RSRP_SIGNAL_MAX,
                 timestampNanos = System.nanoTime(),
@@ -761,19 +759,6 @@ abstract class SignalStrengthInfo : Parcelable {
                 relativeSignal < 0.75 -> 3
                 else -> 4
             }
-        }
-
-        /**
-         * Count level of the 5G signal only from ssrsrp field value according to NR ssrsrp thresholds
-         * 0 - NONE
-         * 1
-         * 2
-         * 3
-         * 4 - HIGHEST
-         */
-        private fun calculateNRCellSignalLevel(signal: CellSignalStrengthNr): Int {
-            val signalValue = signal.extractSignalValue().fixNrRsrp()
-            return calculateNRSignalLevel(signalValue)
         }
 
         fun calculateNRSignalLevel(signalValue: Int?): Int {
