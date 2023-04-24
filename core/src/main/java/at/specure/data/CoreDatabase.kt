@@ -90,7 +90,7 @@ import at.specure.data.entity.VoipTestResultRecord
         SignalMeasurementChunk::class,
         ConnectivityStateRecord::class,
         HistoryReference::class],
-    version = 114
+    version = 117
 )
 @TypeConverters(TypeConverter::class)
 abstract class CoreDatabase : RoomDatabase() {

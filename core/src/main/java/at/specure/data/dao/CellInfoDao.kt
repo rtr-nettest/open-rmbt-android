@@ -22,10 +22,10 @@ abstract class CellInfoDao {
     abstract fun removeAllCellInfo(testUUID: String)
 
     @Query("DELETE FROM ${Tables.CELL_INFO} WHERE testUUID=:testUUID AND uuid==:cellInfoUUID")
-    abstract fun removeSingleCellInfo(testUUID: String, cellInfoUUID: String)
+    abstract fun removeSingleCellInfo(testUUID: String?, cellInfoUUID: String)
 
     @Transaction
-    open fun clearInsert(testUUID: String, cellInfo: List<CellInfoRecord>) {
+    open fun clearInsert(testUUID: String?, cellInfo: List<CellInfoRecord>) {
         val filteredCellInfo = cellInfo.filter { it.cellTechnology != null || it.transportType == TransportType.WIFI }
         filteredCellInfo.forEach {
             if (it.cellTechnology != null || it.transportType == TransportType.WIFI) removeSingleCellInfo(testUUID, it.uuid)

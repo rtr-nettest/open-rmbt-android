@@ -44,7 +44,6 @@ import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.launch
 import timber.log.Timber
@@ -470,18 +469,19 @@ class SignalMeasurementProcessor @Inject constructor(
         }
     }
 
-    private fun saveOtherCellInfo(cells: List<ICell>?, testUUID: String?, testStartTimeNanos: Long, mobileNetworkTypes: HashMap<Int, MobileNetworkType>, dataSubscriptionId: Int): Int {
+    private fun saveOtherCellInfo(cells: List<ICell>?, signalChunkId: String?, testStartTimeNanos: Long, mobileNetworkTypes: HashMap<Int, MobileNetworkType>, dataSubscriptionId: Int): Int {
         var saveMobileSignalsCount = 0
 
         val cellInfosToSave = mutableListOf<CellInfoRecord>()
         val signalsToSave = mutableListOf<SignalRecord>()
         val cellLocationsToSave = mutableListOf<CellLocationRecord>()
 
-        if (testUUID != null) {
+        if (signalChunkId != null) {
             cells?.forEach {
                 val iCell = it
                 val map = iCell.toRecords(
-                    testUUID,
+                    null,
+                    signalChunkId,
                     mobileNetworkTypes[iCell.subscriptionId] ?: MobileNetworkType.UNKNOWN,
                     testStartTimeNanos,
                     dataSubscriptionId,
@@ -497,7 +497,8 @@ class SignalMeasurementProcessor @Inject constructor(
                         }
                         val cellLocationRecord =
                             iCell.toCellLocation(
-                                testUUID,
+                                null,
+                                signalChunkId,
                                 System.currentTimeMillis(),
                                 System.nanoTime(),
                                 testStartTimeNanos
@@ -519,13 +520,13 @@ class SignalMeasurementProcessor @Inject constructor(
         return saveMobileSignalsCount
     }
 
-    private fun saveNetworkInformation(cellNetworkInfo: NetworkInfo?, signalStrengthInfo: SignalStrengthInfo?, testUUID: String?, dataSubscriptionId: Int, testStartTimeNanos: Long): Int {
+    private fun saveNetworkInformation(cellNetworkInfo: NetworkInfo?, signalStrengthInfo: SignalStrengthInfo?, signalChunkId: String?, dataSubscriptionId: Int, testStartTimeNanos: Long): Int {
         var saveMobileSignalsCount = 0
         if (cellNetworkInfo is CellNetworkInfo) {
-            if (testUUID != null) {
+            if (signalChunkId != null) {
 
                 val cellInfoRecord = CellInfoRecord(
-                    testUUID = testUUID,
+                    testUUID = null,
                     uuid = cellNetworkInfo.cellUUID,
                     isActive = cellNetworkInfo.isActive,
                     cellTechnology = cellNetworkInfo.cellType,
@@ -539,14 +540,16 @@ class SignalMeasurementProcessor @Inject constructor(
                     mcc = cellNetworkInfo.mcc,
                     mnc = cellNetworkInfo.mnc,
                     primaryScramblingCode = cellNetworkInfo.scramblingCode,
-                    dualSimDetectionMethod = cellNetworkInfo.dualSimDetectionMethod
+                    dualSimDetectionMethod = cellNetworkInfo.dualSimDetectionMethod,
+                    signalChunkId = signalChunkId
                 )
                 repository.saveCellInfoRecord(listOf(cellInfoRecord))
 
                 signalStrengthInfo?.let {
                     if (cellNetworkInfo.networkType != MobileNetworkType.UNKNOWN) {
                         repository.saveSignalStrength(
-                            testUUID,
+                            null,
+                            signalChunkId,
                             cellNetworkInfo.cellUUID,
                             cellNetworkInfo.networkType,
                             it,
@@ -566,7 +569,8 @@ class SignalMeasurementProcessor @Inject constructor(
                 )
 
                 repository.saveCellLocation(
-                    testUUID,
+                    null,
+                    signalChunkId,
                     cellLocationInfo,
                     testStartTimeNanos
                 )

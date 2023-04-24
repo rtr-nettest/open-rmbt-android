@@ -14,6 +14,12 @@ import at.specure.data.Tables
             parentColumns = [Columns.TEST_UUID_PARENT_COLUMN],
             childColumns = ["testUUID"],
             onDelete = ForeignKey.CASCADE
+        ),
+        ForeignKey(
+            entity = SignalMeasurementChunk::class,
+            parentColumns = [Columns.SIGNAL_MEASUREMENT_ID_PARENT_COLUMN],
+            childColumns = ["signalChunkId"],
+            onDelete = ForeignKey.CASCADE
         )
     ]
 )
@@ -21,8 +27,8 @@ data class CellLocationRecord(
 
     @PrimaryKey(autoGenerate = true)
     val id: Long = 0,
-    val testUUID: String,
-
+    val testUUID: String?,
+    val signalChunkId: String?,
     val scramblingCode: Int,
     val areaCode: Int?,
     val locationId: Int?,

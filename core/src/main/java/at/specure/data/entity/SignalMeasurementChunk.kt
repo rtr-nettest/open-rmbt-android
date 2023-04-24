@@ -1,8 +1,10 @@
 package at.specure.data.entity
 
 import androidx.annotation.Keep
+import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import at.specure.data.Columns
 import at.specure.data.Tables
 import at.specure.measurement.signal.SignalMeasurementState
 import java.util.UUID
@@ -12,6 +14,7 @@ import java.util.UUID
 data class SignalMeasurementChunk(
 
     @PrimaryKey
+    @ColumnInfo(name = Columns.SIGNAL_MEASUREMENT_ID_PARENT_COLUMN)
     val id: String = UUID.randomUUID().toString(),
 
     val measurementId: String,

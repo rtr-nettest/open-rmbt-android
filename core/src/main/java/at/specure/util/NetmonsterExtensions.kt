@@ -107,7 +107,8 @@ fun List<ICell>.filter5GCells(): List<ICell> {
 }
 
 fun ISignal.toSignalRecord(
-    testUUID: String,
+    testUUID: String?,
+    signalChunkId: String?,
     cellUUID: String,
     mobileNetworkType: MobileNetworkType,
     testStartTimeNanos: Long,
@@ -166,6 +167,7 @@ fun ISignal.toSignalRecord(
 
     return SignalRecord(
         testUUID = testUUID,
+        signalChunkId = signalChunkId,
         cellUuid = cellUUID,
         signal = signal,
         wifiLinkSpeed = wifiLinkSpeed,
@@ -436,10 +438,11 @@ fun BandGsm.toCellBand(): CellBand {
     )
 }
 
-fun ICell.toCellLocation(testUUID: String, timestampMillis: Long, timestampNanos: Long, startTimeNanos: Long): CellLocationRecord? {
+fun ICell.toCellLocation(testUUID: String?, signalChunkId: String?, timestampMillis: Long, timestampNanos: Long, startTimeNanos: Long): CellLocationRecord? {
     primaryScramblingCode()?.let {
         return CellLocationRecord(
             testUUID = testUUID,
+            signalChunkId = signalChunkId,
             scramblingCode = it,
             areaCode = this.areaCode(),
             locationId = this.locationId(),
@@ -469,7 +472,8 @@ fun ICell.isInformationCorrect(cellTechnology: CellTechnology): Boolean {
 }
 
 fun ICell.toRecords(
-    testUUID: String,
+    testUUID: String?,
+    signalChunkId: String?,
     mobileNetworkType: MobileNetworkType,
     testStartTimeNanos: Long,
     dataSubscriptionId: Int,
@@ -492,6 +496,7 @@ fun ICell.toRecords(
         if (isInformationCorrect(cellTechnology)) {
             cellInfoRecord = CellInfoRecord(
                 testUUID = testUUID,
+                signalChunkId = signalChunkId,
                 uuid = uuid,
                 isActive = this.connectionStatus is PrimaryConnection,
                 cellTechnology = toTechnologyClass(),
@@ -509,6 +514,7 @@ fun ICell.toRecords(
             )
             signalRecord = this.signal?.toSignalRecord(
                 testUUID,
+                signalChunkId,
                 uuid,
                 mobileNetworkType,
                 testStartTimeNanos,

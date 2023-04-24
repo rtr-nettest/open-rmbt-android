@@ -19,7 +19,6 @@ import at.rtr.rmbt.android.util.showKeyboard
 import at.rtr.rmbt.android.viewmodel.SyncDevicesViewModel
 import at.specure.util.copyToClipboard
 import at.specure.util.toast
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
