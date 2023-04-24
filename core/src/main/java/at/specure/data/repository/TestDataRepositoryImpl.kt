@@ -151,18 +151,20 @@ class TestDataRepositoryImpl(db: CoreDatabase) : TestDataRepository {
     }
 
     override fun saveSignalStrength(
-        testUUID: String,
+        testUUID: String?,
+        signalChunkId: String?,
         cellUUID: String,
         mobileNetworkType: MobileNetworkType?,
         info: SignalStrengthInfo,
         testStartTimeNanos: Long,
         nrConnectionState: NRConnectionState
     ) = io {
-        saveSignalStrengthDirectly(testUUID, cellUUID, mobileNetworkType, info, testStartTimeNanos, nrConnectionState)
+        saveSignalStrengthDirectly(testUUID, signalChunkId, cellUUID, mobileNetworkType, info, testStartTimeNanos, nrConnectionState)
     }
 
     private fun saveSignalStrengthDirectly(
-        testUUID: String,
+        testUUID: String?,
+        signalChunkId: String?,
         cellUUID: String,
         mobileNetworkType: MobileNetworkType?,
         info: SignalStrengthInfo,
@@ -243,7 +245,8 @@ class TestDataRepositoryImpl(db: CoreDatabase) : TestDataRepository {
             nrSsRsrp = nrSsRsrp,
             nrSsRsrq = nrSsRsrq,
             nrSsSinr = nrSsSinr,
-            source = info.source
+            source = info.source,
+            signalChunkId = signalChunkId
         )
         signalDao.insert(item)
     }
@@ -259,7 +262,8 @@ class TestDataRepositoryImpl(db: CoreDatabase) : TestDataRepository {
         synchronized(signalRecordList) {
             signalRecordList.forEach {
                 if (filterOldValues) {
-                    val lastSignal: SignalRecord? = signalDao.getLatestForCell(it.testUUID, it.cellUuid)
+                    val lastSignal: SignalRecord? =
+                        it.testUUID?.let { testUUID -> signalDao.getLatestForCell(testUUID, it.cellUuid) }
                     if (lastSignal != null) {
                         val distinct = isSignalSignificantlyDistinct(it, lastSignal)
                         Timber.d("Distinct Signal Values $distinct: $it and $lastSignal")
@@ -308,24 +312,24 @@ class TestDataRepositoryImpl(db: CoreDatabase) : TestDataRepository {
 
     override fun saveCellLocationRecord(cellLocationRecordList: List<CellLocationRecord>) = io {
         if (cellLocationRecordList.isNotEmpty()) {
-            cellLocationDao.insertNew(cellLocationRecordList[0].testUUID, cellLocationRecordList)
+            cellLocationDao.insertNew(cellLocationRecordList[0].testUUID, cellLocationRecordList[0].signalChunkId, cellLocationRecordList)
         }
     }
 
-    override fun saveCellInfo(testUUID: String, infoList: List<NetworkInfo>, testStartTimeNanos: Long) = io {
+    override fun saveCellInfo(testUUID: String?, signalChunkId: String?, infoList: List<NetworkInfo>, testStartTimeNanos: Long) = io {
         val cellInfo = mutableListOf<CellInfoRecord>()
         infoList.forEach { info ->
             val mapped = when (info) {
-                is WifiNetworkInfo -> info.toCellInfoRecord(testUUID)
+                is WifiNetworkInfo -> info.toCellInfoRecord(testUUID, signalChunkId)
                 is CellNetworkInfo -> {
                     info.signalStrength?.let {
                         Timber.e("Signal saving time SCI: starting time: $testStartTimeNanos   current time: ${System.nanoTime()}")
                         Timber.d("valid signal directly")
                         if (info.cellUUID.isNotEmpty() && validateSignalStrengthInfo(info.networkType, it, info.cellUUID)) {
-                            saveSignalStrengthDirectly(testUUID, info.cellUUID, info.networkType, it, testStartTimeNanos, info.nrConnectionState)
+                            saveSignalStrengthDirectly(testUUID, signalChunkId, info.cellUUID, info.networkType, it, testStartTimeNanos, info.nrConnectionState)
                         }
                     }
-                    info.toCellInfoRecord(testUUID)
+                    info.toCellInfoRecord(testUUID, signalChunkId)
                 }
                 else -> throw IllegalArgumentException("Don't know how to save ${info.javaClass.simpleName} info into db")
             }
@@ -336,7 +340,7 @@ class TestDataRepositoryImpl(db: CoreDatabase) : TestDataRepository {
         cellInfoDao.clearInsert(testUUID, cellInfo)
     }
 
-    private fun WifiNetworkInfo.toCellInfoRecord(testUUID: String) = CellInfoRecord(
+    private fun WifiNetworkInfo.toCellInfoRecord(testUUID: String?, signalChunkId: String?) = CellInfoRecord(
         testUUID = testUUID,
         uuid = cellUUID,
         isActive = true,
@@ -352,12 +356,14 @@ class TestDataRepositoryImpl(db: CoreDatabase) : TestDataRepository {
         primaryScramblingCode = null,
         dualSimDetectionMethod = null,
         isPrimaryDataSubscription = null,
+        signalChunkId = signalChunkId,
         cellState = null
     )
 
-    private fun CellNetworkInfo.toCellInfoRecord(testUUID: String): CellInfoRecord {
+    private fun CellNetworkInfo.toCellInfoRecord(testUUID: String?, signalChunkId: String?): CellInfoRecord {
         val cellInfoRecord = CellInfoRecord(
             testUUID = testUUID,
+            signalChunkId = signalChunkId,
             uuid = cellUUID,
             isActive = isActive,
             cellTechnology = cellType,
@@ -397,16 +403,17 @@ class TestDataRepositoryImpl(db: CoreDatabase) : TestDataRepository {
         capabilitiesDao.insert(capabilities)
     }
 
-    override fun saveCellLocation(testUUID: String, info: CellLocationInfo, startTimeNanos: Long) = io {
+    override fun saveCellLocation(testUUID: String?, signalChunkId: String?,  info: CellLocationInfo, startTimeNanos: Long) = io {
         val record = CellLocationRecord(
             testUUID = testUUID,
+            signalChunkId = signalChunkId,
             scramblingCode = info.scramblingCode,
             areaCode = info.areaCode,
             locationId = info.locationId,
             timestampNanos = info.timestampNanos - startTimeNanos,
             timestampMillis = info.timestampMillis
         )
-        cellLocationDao.insertNew(testUUID, listOf(record))
+        cellLocationDao.insertNew(testUUID, signalChunkId, listOf(record))
     }
 
     override fun saveAllPingValues(testUUID: String, clientPing: Long, serverPing: Long, timeNs: Long) {
@@ -461,8 +468,8 @@ class TestDataRepositoryImpl(db: CoreDatabase) : TestDataRepository {
         testDao.insert(record)
     }
 
-    override fun saveTest(test: TestRecord) = io {
-        testDao.insert(test)
+    override fun saveTest(test: TestRecord): Unit {
+        return testDao.insert(test)
     }
 
     override fun update(testRecord: TestRecord, onUpdated: () -> Unit) = io {

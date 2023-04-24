@@ -8,17 +8,28 @@ import at.specure.data.Tables
 import at.specure.info.TransportType
 import at.specure.info.cell.CellTechnology
 
-@Entity(tableName = Tables.CELL_INFO)
+@Entity(
+    tableName = Tables.CELL_INFO,
+    foreignKeys = [
+        ForeignKey(
+            entity = TestRecord::class,
+            parentColumns = [Columns.TEST_UUID_PARENT_COLUMN],
+            childColumns = ["testUUID"],
+            onDelete = ForeignKey.CASCADE
+        ),
+        ForeignKey(
+            entity = SignalMeasurementChunk::class,
+            parentColumns = [Columns.SIGNAL_MEASUREMENT_ID_PARENT_COLUMN],
+            childColumns = ["signalChunkId"],
+            onDelete = ForeignKey.CASCADE
+        )
+    ]
+)
 data class CellInfoRecord(
     @PrimaryKey(autoGenerate = true)
     val id: Long = 0,
-    @ForeignKey(
-        entity = TestRecord::class,
-        parentColumns = [Columns.TEST_UUID_PARENT_COLUMN],
-        childColumns = ["testUUID"],
-        onDelete = ForeignKey.CASCADE
-    )
-    val testUUID: String,
+    val testUUID: String?,
+    val signalChunkId: String?,
     val isActive: Boolean,
     val uuid: String,
     val channelNumber: Int?,

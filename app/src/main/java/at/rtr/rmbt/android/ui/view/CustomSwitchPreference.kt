@@ -42,19 +42,18 @@ class CustomSwitchPreference @JvmOverloads constructor(
             view.isChecked = getPersistedBoolean(false)
             view.setOnCheckedChangeListener { _, isChecked ->
                 if (getPersistedBoolean(false) != isChecked) {
-                    if (onPreferenceChangeListener != null)
-                        onPreferenceChangeListener.onPreferenceChange(
-                            this@CustomSwitchPreference,
-                            isChecked
-                        )
+                    onPreferenceChangeListener?.onPreferenceChange(
+                        this@CustomSwitchPreference,
+                        isChecked
+                    )
                     persistBoolean(isChecked)
                 }
             }
         }
     }
 
-    override fun onBindViewHolder(holder: PreferenceViewHolder?) {
+    override fun onBindViewHolder(holder: PreferenceViewHolder) {
         super.onBindViewHolder(holder)
-        holder?.let { bindSwitch(it) }
+        holder.let { bindSwitch(it) }
     }
 }

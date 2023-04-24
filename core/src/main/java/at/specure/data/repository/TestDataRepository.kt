@@ -42,7 +42,8 @@ interface TestDataRepository {
     fun validateSignalStrengthInfo(mobileNetworkType: MobileNetworkType?, info: SignalStrengthInfo, cellUUID: String): Boolean
 
     fun saveSignalStrength(
-        testUUID: String,
+        testUUID: String?,
+        signalChunkId: String?,
         cellUUID: String,
         mobileNetworkType: MobileNetworkType?,
         info: SignalStrengthInfo,
@@ -50,7 +51,7 @@ interface TestDataRepository {
         nrConnectionState: NRConnectionState
     )
 
-    fun saveCellInfo(testUUID: String, infoList: List<NetworkInfo>, testStartTimeNanos: Long)
+    fun saveCellInfo(testUUID: String?, signalChunkId: String?, infoList: List<NetworkInfo>, testStartTimeNanos: Long)
 
     fun saveCellInfoRecord(cellInfoRecordList: List<CellInfoRecord>)
 
@@ -64,7 +65,7 @@ interface TestDataRepository {
 
     fun savePermissionStatus(testUUID: String, permission: String, granted: Boolean)
 
-    fun saveCellLocation(testUUID: String, info: CellLocationInfo, startTimeNanos: Long)
+    fun saveCellLocation(testUUID: String?, signalChunkId: String?, info: CellLocationInfo, startTimeNanos: Long)
 
     fun saveAllPingValues(testUUID: String, clientPing: Long, serverPing: Long, timeNs: Long)
 

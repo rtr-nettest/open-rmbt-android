@@ -19,7 +19,6 @@ import at.rtr.rmbt.android.util.showKeyboard
 import at.rtr.rmbt.android.viewmodel.SyncDevicesViewModel
 import at.specure.util.copyToClipboard
 import at.specure.util.toast
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -123,10 +122,12 @@ class SyncDevicesDialog : FullscreenDialog() {
         }
 
         viewModel.errorLiveData.listen(this) {
-            SimpleDialog.Builder()
-                .messageText(it.getText(requireContext()))
-                .positiveText(R.string.button_close)
-                .show(parentFragmentManager, 0)
+            it?.let {
+                SimpleDialog.Builder()
+                    .messageText(it.getText(requireContext()))
+                    .positiveText(R.string.button_close)
+                    .show(parentFragmentManager, 0)
+            }
         }
     }
 

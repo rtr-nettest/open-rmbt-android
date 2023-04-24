@@ -39,18 +39,20 @@ abstract class BaseActivity : AppCompatActivity() {
     fun <T : ViewDataBinding> bindContentView(@LayoutRes layoutRes: Int): T =
         DataBindingUtil.setContentView(this, layoutRes)
 
-    open fun onHandledException(exception: HandledException) {
-        val message = if (exception is NoConnectionException) {
-            getString(R.string.error_no_connection)
-        } else {
-            exception.getText(this)
-        }
+    open fun onHandledException(exception: HandledException?) {
+        exception?.let { handledException ->
+            val message = if (handledException is NoConnectionException) {
+                getString(R.string.error_no_connection)
+            } else {
+                handledException.getText(this)
+            }
 
-        SimpleDialog.Builder()
-            .messageText(message)
-            .positiveText(android.R.string.ok)
-            .cancelable(false)
-            .show(supportFragmentManager, DIALOG_DEFAULT_OK)
+            SimpleDialog.Builder()
+                .messageText(message)
+                .positiveText(android.R.string.ok)
+                .cancelable(false)
+                .show(supportFragmentManager, DIALOG_DEFAULT_OK)
+        }
     }
 
     /**

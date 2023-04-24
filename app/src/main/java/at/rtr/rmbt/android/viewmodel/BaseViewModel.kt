@@ -15,10 +15,10 @@ import java.util.concurrent.TimeUnit
 open class BaseViewModel : ViewModel(), CoroutineScope {
 
     private val viewStates = mutableSetOf<ViewState>()
-    private val _errorLiveData = MutableLiveData<HandledException>()
+    private val _errorLiveData = MutableLiveData<HandledException?>()
     val askPermissionsAgainTimesMillis = TimeUnit.DAYS.toMillis(1)
 
-    val errorLiveData: LiveData<HandledException>
+    val errorLiveData: LiveData<HandledException?>
         get() = _errorLiveData
 
     fun clearErrorMessages() {

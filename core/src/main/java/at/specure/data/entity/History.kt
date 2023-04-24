@@ -8,18 +8,21 @@ import at.specure.data.Columns
 import at.specure.data.NetworkTypeCompat
 import at.specure.data.Tables
 
-@Entity(tableName = Tables.HISTORY)
+@Entity(
+    tableName = Tables.HISTORY,
+    foreignKeys = [
+        ForeignKey(
+            entity = HistoryReference::class,
+            parentColumns = [Columns.TEST_UUID_PARENT_COLUMN],
+            childColumns = ["referenceUUID"],
+            onDelete = ForeignKey.CASCADE
+        )
+    ]
+)
 data class History(
     @PrimaryKey
     val testUUID: String,
     val loopUUID: String?,
-
-    @ForeignKey(
-        entity = HistoryReference::class,
-        parentColumns = [Columns.TEST_UUID_PARENT_COLUMN],
-        childColumns = ["referenceUUID"],
-        onDelete = ForeignKey.CASCADE
-    )
     val referenceUUID: String,
     val model: String,
     val networkType: NetworkTypeCompat,

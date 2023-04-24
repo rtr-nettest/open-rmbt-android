@@ -22,4 +22,7 @@ object Columns {
     const val TEST_DETAILS_TEST_UUID = "testUUID"
     const val TEST_DETAILS_TITLE = "title"
     const val TEST_DETAILS_VALUE = "value"
+
+    const val SIGNAL_MEASUREMENT_ID_PARENT_COLUMN = "id"
+
 }

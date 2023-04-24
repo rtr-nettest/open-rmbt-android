@@ -8,7 +8,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModelProviders
+import androidx.lifecycle.ViewModelProvider
 import at.rtr.rmbt.android.R
 import at.rtr.rmbt.android.databinding.DialogFiltersBinding
 import at.rtr.rmbt.android.di.Injector
@@ -35,8 +35,8 @@ class MapFiltersDialog : FullscreenDialog(), MapFiltersConfirmationDialog.Callba
         super.onCreate(savedInstanceState)
 
         if (savedInstanceState == null || !::viewModel.isInitialized) {
-            val provider = ViewModelProviders.of(this, Injector.component.viewModelFactory())
-            viewModel = provider.get(MapFiltersViewModel::class.java)
+            val provider = ViewModelProvider(this, Injector.component.viewModelFactory())
+            viewModel = provider[MapFiltersViewModel::class.java]
             viewModel.obtain()
         } else {
             viewModel.onRestoreState(savedInstanceState)

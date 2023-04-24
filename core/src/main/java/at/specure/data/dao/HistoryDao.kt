@@ -7,6 +7,7 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Transaction
+import androidx.room.Upsert
 import at.specure.data.Tables
 import at.specure.data.entity.History
 import at.specure.data.entity.HistoryContainer
@@ -24,7 +25,7 @@ abstract class HistoryDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     abstract fun saveHistory(history: List<History>)
 
-    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    @Upsert
     abstract fun saveReferences(history: List<HistoryReference>)
 
     @Transaction

@@ -9,7 +9,7 @@ dependencies {
 task ktlint(type: JavaExec, group: "verification") {
     description = "Check Kotlin code style."
     classpath = configurations.ktlint
-    main = "com.github.shyiko.ktlint.Main"
+    mainClass.set("com.github.shyiko.ktlint.Main")
     args "src/**/*.kt", "--reporter=plain", "--reporter=checkstyle,output=${project.rootDir}/build_results/ktlint.xml"
 }
 
@@ -18,6 +18,6 @@ check.dependsOn ktlint
 task ktlintFormat(type: JavaExec, group: "formatting") {
     description = "Fix Kotlin code style deviations."
     classpath = configurations.ktlint
-    main = "com.github.shyiko.ktlint.Main"
+    mainClass.set("com.github.shyiko.ktlint.Main")
     args "-F", "src/**/*.kt"
 }

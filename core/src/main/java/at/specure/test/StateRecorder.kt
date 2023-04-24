@@ -45,6 +45,10 @@ import at.specure.util.toCellLocation
 import at.specure.util.toRecords
 import cz.mroczis.netmonster.core.INetMonster
 import cz.mroczis.netmonster.core.model.cell.ICell
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.runBlocking
 import org.json.JSONArray
 import timber.log.Timber
 import java.util.UUID
@@ -148,8 +152,15 @@ class StateRecorder @Inject constructor(
         this.testToken = testToken
         this.testStartTimeNanos = testStartTimeNanos
         qosRunning = false
-        Timber.e("Signal saving time OCR: starting time: $testStartTimeNanos   current time: ${System.nanoTime()}")
-        saveTestInitialTestData(testUUID, loopUUID, testToken, testStartTimeNanos, threadNumber)
+        Timber.d("Signal saving time OCR: starting time: $testStartTimeNanos   current time: ${System.nanoTime()}")
+        runBlocking {
+            val tasks = listOf(
+                async(Dispatchers.IO) {
+                    saveTestInitialTestData(testUUID, loopUUID, testToken, testStartTimeNanos, threadNumber)
+                                      },
+            )
+            tasks.awaitAll()
+        }
         cellLocation = cellLocationWatcher.getCellLocationFromTelephony()
         saveCellLocation()
         saveLocationInfo()
@@ -169,7 +180,7 @@ class StateRecorder @Inject constructor(
         qosRunning = false
     }
 
-    private fun saveTestInitialTestData(testUUID: String, loopUUID: String?, testToken: String, testStartTimeNanos: Long, threadNumber: Int) {
+    private fun saveTestInitialTestData(testUUID: String, loopUUID: String?, testToken: String, testStartTimeNanos: Long, threadNumber: Int): Unit {
         Timber.d("testUUID $testUUID, loopUUId $loopUUID, testToken: $testToken, start: $testStartTimeNanos, threadNumber $threadNumber")
         testRecord = TestRecord(
             uuid = testUUID,
@@ -195,7 +206,7 @@ class StateRecorder @Inject constructor(
         }
 
         testRecord?.loopModeTestOrder = loopTestCount
-        repository.saveTest(testRecord!!)
+        return repository.saveTest(testRecord!!)
     }
 
     fun initializeLoopModeData(loopUUID: String?) {
@@ -315,7 +326,7 @@ class StateRecorder @Inject constructor(
             // saving only valid signal with associated cell (wifi and mobile connections)
             if (cellUUID.isNotEmpty() && isSignalValid) {
                 Timber.e("Signal saving time SR: starting time: $testStartTimeNanos   current time: ${System.nanoTime()}")
-                repository.saveSignalStrength(uuid, cellUUID, mobileNetworkType, info, testStartTimeNanos, nrConnectionState)
+                repository.saveSignalStrength(uuid, null, cellUUID, mobileNetworkType, info, testStartTimeNanos, nrConnectionState)
             }
         }
     }
@@ -375,7 +386,7 @@ class StateRecorder @Inject constructor(
                     }
                 })
 
-                repository.saveCellInfo(uuid, onlyActiveCellInfoList.toList(), testStartTimeNanos)
+                repository.saveCellInfo(uuid, null, onlyActiveCellInfoList.toList(), testStartTimeNanos)
                 onlyActiveCellInfoList.toList().forEach {
                     if (it is CellNetworkInfo) {
                         saveSignalStrength(uuid, it.signalStrength)
@@ -395,6 +406,7 @@ class StateRecorder @Inject constructor(
                 val iCell = it
                 val map = iCell.toRecords(
                     testUUID,
+                    null,
                     mobileNetworkTypes[iCell.subscriptionId] ?: MobileNetworkType.UNKNOWN,
                     testStartTimeNanos,
                     dataSubscriptionId,
@@ -411,6 +423,7 @@ class StateRecorder @Inject constructor(
                         val cellLocationRecord =
                             iCell.toCellLocation(
                                 testUUID,
+                                null,
                                 System.currentTimeMillis(),
                                 System.nanoTime(),
                                 testStartTimeNanos
@@ -448,6 +461,7 @@ class StateRecorder @Inject constructor(
                     primaryScramblingCode = cellNetworkInfo.scramblingCode,
                     dualSimDetectionMethod = cellNetworkInfo.dualSimDetectionMethod,
                     isPrimaryDataSubscription = cellNetworkInfo.isPrimaryDataSubscription?.value,
+                    signalChunkId = null,
                     cellState = cellNetworkInfo.cellState
                 )
                 repository.saveCellInfoRecord(listOf(cellInfoRecord))
@@ -456,6 +470,7 @@ class StateRecorder @Inject constructor(
                     if (cellNetworkInfo.networkType != MobileNetworkType.UNKNOWN) {
                         repository.saveSignalStrength(
                             testUUID,
+                            null,
                             cellNetworkInfo.cellUUID,
                             cellNetworkInfo.networkType,
                             it,
@@ -475,6 +490,7 @@ class StateRecorder @Inject constructor(
 
                 repository.saveCellLocation(
                     testUUID,
+                    null,
                     cellLocationInfo,
                     testStartTimeNanos
                 )
@@ -494,7 +510,7 @@ class StateRecorder @Inject constructor(
         val uuid = testUUID
         val location = cellLocation
         if (uuid != null && location != null) {
-            repository.saveCellLocation(uuid, location, testStartTimeNanos)
+            repository.saveCellLocation(uuid, null, location, testStartTimeNanos)
         }
     }
 
