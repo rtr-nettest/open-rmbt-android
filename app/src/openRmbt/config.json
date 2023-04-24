@@ -221,18 +221,18 @@
       "visible": false
     },
     {
+      "name": "COVERAGE_ACTIVATE_CODE",
+      "value": "qwerty",
+      "visible": false
+    },
+    {
+      "name": "COVERAGE_DEACTIVATE_CODE",
+      "value": "1111",
+      "visible": false
+    },
+    {
       "name": "ALL_DEACTIVATE_CODE",
       "value": "0000",
-      "visible": false
-    },
-    {
-      "name": "DEV_SIMULATE_5G_NETWORK",
-      "value": "false",
-      "visible": false
-    },
-    {
-      "name": "DEV_SIMULATE_5G_NETWORK_IS_AVAILABLE",
-      "value": "false",
       "visible": false
     },
     {
@@ -407,6 +407,16 @@
     },
     {
       "name": "ENABLED_JITTER_AND_PACKET_LOSS",
+      "value": "false",
+      "visible": false
+    },
+    {
+      "name": "ALWAYS_ALLOW_CELL_INFOS",
+      "value": "false",
+      "visible": false
+    },
+    {
+      "name": "COVERAGE_MODE_ENABLED",
       "value": "false",
       "visible": false
     }

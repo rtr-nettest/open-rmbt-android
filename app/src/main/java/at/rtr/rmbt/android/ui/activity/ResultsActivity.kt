@@ -144,6 +144,8 @@ class ResultsActivity : BaseActivity() {
             val latLngW = LatLngW(result.latitude!!, result.longitude!!)
 
             val icon = when (result.networkType) {
+                NetworkTypeCompat.TYPE_BLUETOOTH,
+                NetworkTypeCompat.TYPE_VPN,
                 NetworkTypeCompat.TYPE_UNKNOWN -> R.drawable.ic_marker_empty
                 NetworkTypeCompat.TYPE_LAN -> R.drawable.ic_marker_ethernet
                 NetworkTypeCompat.TYPE_BROWSER -> R.drawable.ic_marker_browser

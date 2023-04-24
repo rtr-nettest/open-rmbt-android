@@ -372,6 +372,16 @@ interface Config {
     var secretCodeDeveloperModeOff: String
 
     /**
+     * Secret code to enable coverage mode
+     */
+    var secretCodeCoverageModeOn: String
+
+    /**
+     * Secret code to disable coverage mode
+     */
+    var secretCodeCoverageModeOff: String
+
+    /**
      * Secret code to disable all special modes
      */
     var secretCodeAllModesOff: String
@@ -411,4 +421,14 @@ interface Config {
      * If set to true, during the basic test will be voip test performed to determine jitter and packet loss
      */
     var performJitterAndPacketLossTest: Boolean
+
+    /**
+     * When this flag is set to true, cell infos on home screen are always enabled, else only for experts
+     */
+    var alwaysAllowCellInfos: Boolean
+
+    /**
+     * When this flag is set to true, coverage mode is enabled
+     */
+    var coverageModeEnabled: Boolean
 }

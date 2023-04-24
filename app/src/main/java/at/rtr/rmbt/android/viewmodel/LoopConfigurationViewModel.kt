@@ -20,7 +20,7 @@ class LoopConfigurationViewModel @Inject constructor(val config: AppConfig, conn
     }
 
     fun isWaitingTimeValid(value: Int, minValue: Int, maxValue: Int) =
-        if (value in minValue..maxValue || config.developerModeIsEnabled) {
+        if (value in minValue..maxValue || config.developerModeIsEnabled || config.coverageModeEnabled) {
             state.waitingTime.set(value)
             true
         } else false

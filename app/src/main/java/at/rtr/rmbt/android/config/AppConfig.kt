@@ -179,13 +179,7 @@ class AppConfig @Inject constructor(context: Context, private val serverSettings
         set(value) = setString(BuildConfig.CONTROL_SERVER_HOST, value)
 
     override var measurementTag: String?
-        get() {
-            return if (developerModeIsEnabled && developerModeIsAvailable) {
-                preferences.getString(KEY_MEASUREMENT_TAG, null)
-            } else {
-                return null
-            }
-        }
+        get() = preferences.getString(KEY_MEASUREMENT_TAG, null)
         set(value) = preferences.edit()
             .putString(KEY_MEASUREMENT_TAG, value)
             .apply()
@@ -369,6 +363,18 @@ class AppConfig @Inject constructor(context: Context, private val serverSettings
         set(value) {
             // this value cannot be changed
         }
+    override var secretCodeCoverageModeOn: String
+        get() = getString(BuildConfig.COVERAGE_ACTIVATE_CODE)
+        set(value) {
+            // this value cannot be changed
+        }
+
+    override var secretCodeCoverageModeOff: String
+        get() = getString(BuildConfig.COVERAGE_DEACTIVATE_CODE)
+        set(value) {
+            // this value cannot be changed
+        }
+
 
     override var secretCodeAllModesOff: String
         get() = getString(BuildConfig.ALL_DEACTIVATE_CODE)
@@ -415,7 +421,7 @@ class AppConfig @Inject constructor(context: Context, private val serverSettings
             .apply()
 
     override var analyticsEnabled: Boolean
-        get() = preferences.getBoolean(KEY_ANALYTICS_ENABLED, true)
+        get() = preferences.getBoolean(KEY_ANALYTICS_ENABLED, false)
         set(value) = preferences.edit()
             .putBoolean(KEY_ANALYTICS_ENABLED, value)
             .apply()
@@ -431,4 +437,15 @@ class AppConfig @Inject constructor(context: Context, private val serverSettings
     override var performJitterAndPacketLossTest: Boolean
         get() = getBoolean(BuildConfig.ENABLED_JITTER_AND_PACKET_LOSS)
         set(value) {}
+
+    override var alwaysAllowCellInfos: Boolean
+        get() = getBoolean(BuildConfig.ALWAYS_ALLOW_CELL_INFOS,true)
+        set(value) {}
+
+    override var coverageModeEnabled: Boolean
+        get() = getBoolean(BuildConfig.COVERAGE_MODE_ENABLED)
+        set(value) = setBoolean(BuildConfig.COVERAGE_MODE_ENABLED, value)
+
+
+
 }

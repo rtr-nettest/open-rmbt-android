@@ -32,6 +32,7 @@ class SettingsViewState constructor(
     val loopModeNumberOfTests = ObservableInt(appConfig.loopModeNumberOfTests)
     val developerModeIsAvailable = appConfig.developerModeIsAvailable
     val developerModeIsEnabled = ObservableField(appConfig.developerModeIsEnabled)
+    val coverageModeEnabled = ObservableField(appConfig.coverageModeEnabled)
     val developerModeTag = ObservableField(appConfig.measurementTag)
     val controlServerOverrideEnabled = ObservableField(appConfig.controlServerOverrideEnabled)
     val controlServerHost = ObservableField(controlServerSettings.controlServerOverrideUrl)
@@ -110,6 +111,14 @@ class SettingsViewState constructor(
         expertModeEnabled.addOnPropertyChanged { value ->
             value.get()?.let {
                 appConfig.expertModeEnabled = it
+                if (it) {
+                    refreshSettings()
+                }
+            }
+        }
+        coverageModeEnabled.addOnPropertyChanged { value ->
+            value.get()?.let {
+                appConfig.coverageModeEnabled = it
                 if (it) {
                     refreshSettings()
                 }

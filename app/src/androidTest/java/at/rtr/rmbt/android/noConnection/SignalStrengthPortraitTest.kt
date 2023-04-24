@@ -45,7 +45,7 @@ open class SignalStrengthPortraitTest : BaseHomeActivityTest() {
 
     @Test
     fun checkSignalStrengthIsNull() {
-        val signalStrength = "-"
+        val signalStrength = ""
         Espresso.onView(ViewMatchers.withId(R.id.tvSignal))
             .check(ViewAssertions.matches(ViewMatchers.withText(signalStrength)))
     }

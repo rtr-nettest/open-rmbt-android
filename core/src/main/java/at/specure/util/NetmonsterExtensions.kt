@@ -350,7 +350,8 @@ fun ICell.toCellNetworkInfo(
         cellUUID = this.uuid(),
         rawCellInfo = this,
         isPrimaryDataSubscription = PrimaryDataSubscription.resolvePrimaryDataSubscriptionID(dataSubscriptionId, this.subscriptionId),
-        capabilitiesRaw = "HARDCODED Capabilities netmonster ${NetworkCapabilities.TRANSPORT_CELLULAR} networkType = $mobileNetworkType"
+        capabilitiesRaw = "HARDCODED Capabilities netmonster ${NetworkCapabilities.TRANSPORT_CELLULAR} networkType = $mobileNetworkType",
+        cellState = resolveConnectionState()
     )
 }
 
@@ -510,7 +511,8 @@ fun ICell.toRecords(
                 mnc = this.network?.mnc?.toIntOrNull(),
                 primaryScramblingCode = primaryScramblingCode(),
                 isPrimaryDataSubscription = PrimaryDataSubscription.resolvePrimaryDataSubscriptionID(dataSubscriptionId, this.subscriptionId).value,
-                dualSimDetectionMethod = "NOT_AVAILABLE" // local purpose only
+                dualSimDetectionMethod = "NOT_AVAILABLE", // local purpose only
+                cellState = resolveConnectionState()
             )
             signalRecord = this.signal?.toSignalRecord(
                 testUUID,
@@ -525,6 +527,15 @@ fun ICell.toRecords(
         return map
     }
     return map
+}
+
+fun ICell.resolveConnectionState(): String? {
+    return when (this.connectionStatus) {
+        is PrimaryConnection -> "primary"
+        is SecondaryConnection -> "secondary"
+        is NoneConnection -> "none"
+        else -> null
+    }
 }
 
 fun ICell.channelNumber(): Int? {
@@ -597,9 +608,9 @@ fun NetworkType.mapToMobileNetworkType(): MobileNetworkType {
                     }
                 }
                 is NetworkType.Nr.Sa -> {
-                    MobileNetworkType.NR
+                    MobileNetworkType.NR_SA
                 }
-                else -> MobileNetworkType.NR_NSA // but this should not happen
+                else -> MobileNetworkType.NR_SA // default to NR SA if neither NSA nor SA are detected
             }
         }
         else -> MobileNetworkType.UNKNOWN
@@ -791,7 +802,7 @@ fun BandNr.getEuBand(): BandNrEU? {
         BandEuNrIdentity(514_000..524_000, "2600", 38, 0),
         BandEuNrIdentity(524_000..538_000, "2600", 7, 0),
         BandEuNrIdentity(620_000..680_000, "3700", 77, 0),
-        BandEuNrIdentity(620_000..653_333, "3500", 78, 1),
+        BandEuNrIdentity(620_000..653_333, "3600", 78, 1),
         BandEuNrIdentity(636_667..646_666, "3600", 48, 0),
         BandEuNrIdentity(693_334..733_333, "4500", 79, 0)
     )

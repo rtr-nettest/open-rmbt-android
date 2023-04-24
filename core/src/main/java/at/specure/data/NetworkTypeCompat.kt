@@ -17,7 +17,9 @@ enum class NetworkTypeCompat(val stringValue: String, val minSignalValue: Int, v
     TYPE_WLAN("WLAN", SignalStrengthInfo.WIFI_MIN_SIGNAL_VALUE, SignalStrengthInfo.WIFI_MAX_SIGNAL_VALUE),
     TYPE_LAN("ETHERNET", Int.MIN_VALUE, Int.MIN_VALUE),
     TYPE_BROWSER("BROWSER", Int.MIN_VALUE, Int.MIN_VALUE),
-    TYPE_UNKNOWN("UNKNOWN", Int.MIN_VALUE, Int.MIN_VALUE);
+    TYPE_UNKNOWN("UNKNOWN", Int.MIN_VALUE, Int.MIN_VALUE),
+    TYPE_BLUETOOTH("BLUETOOTH", Int.MIN_VALUE, Int.MIN_VALUE),
+    TYPE_VPN("VPN", Int.MIN_VALUE, Int.MIN_VALUE);
 
     companion object {
 
@@ -34,6 +36,8 @@ enum class NetworkTypeCompat(val stringValue: String, val minSignalValue: Int, v
                     TYPE_ETHERNET_VALUE -> TransportType.ETHERNET
                     TYPE_WIFI_VALUE -> TransportType.WIFI
                     TYPE_BROWSER_VALUE -> TransportType.BROWSER
+                    TYPE_BLUETOOTH_VALUE -> TransportType.BLUETOOTH
+                    TYPE_VPN_VALUE -> TransportType.VPN
                     else -> {
                         Timber.e("Unsupported type $value")
                         null
@@ -66,6 +70,8 @@ enum class NetworkTypeCompat(val stringValue: String, val minSignalValue: Int, v
                 TransportType.BROWSER -> TYPE_BROWSER
                 TransportType.ETHERNET -> TYPE_LAN
                 TransportType.WIFI -> TYPE_WLAN
+                TransportType.BLUETOOTH -> TYPE_BLUETOOTH
+                TransportType.VPN -> TYPE_VPN
                 TransportType.CELLULAR -> {
                     when (cellTechnology) {
                         CellTechnology.CONNECTION_2G -> TYPE_2G
@@ -86,6 +92,7 @@ enum class NetworkTypeCompat(val stringValue: String, val minSignalValue: Int, v
             }
         }
 
+        const val TYPE_VPN_VALUE = 108
         const val TYPE_BLUETOOTH_VALUE = 107
         const val TYPE_ETHERNET_VALUE = 106
         const val TYPE_WIFI_VALUE = 99
@@ -116,7 +123,7 @@ enum class ServerNetworkType(
     TYPE_2G_EHRPD(14, "2G (EHRPD)", NetworkTypeCompat.TYPE_2G, TransportType.CELLULAR, MobileNetworkType.EHRPD),
     TYPE_3G_HSPA_P(15, "3G (HSPA+)", NetworkTypeCompat.TYPE_3G, TransportType.CELLULAR, MobileNetworkType.HSPAP),
     TYPE_4G_LTE_CA(19, "4G (LTE CA)", NetworkTypeCompat.TYPE_4G, TransportType.CELLULAR, MobileNetworkType.LTE_CA),
-    TYPE_5G_NR(20, "5G (NR)", NetworkTypeCompat.TYPE_5G, TransportType.CELLULAR, MobileNetworkType.NR),
+    TYPE_5G_NR(20, "5G (NR)", NetworkTypeCompat.TYPE_5G, TransportType.CELLULAR, MobileNetworkType.NR_SA),
     TYPE_5G_NR_NSA(41, "5G (NSA)", NetworkTypeCompat.TYPE_5G_NSA, TransportType.CELLULAR, MobileNetworkType.NR_NSA),
     TYPE_5G_NR_AVAILABLE(40, "4G+(5G)", NetworkTypeCompat.TYPE_5G_NSA, TransportType.CELLULAR, MobileNetworkType.NR_AVAILABLE),
     TYPE_CLI(97, "CLI", null, null, null),
@@ -129,6 +136,7 @@ enum class ServerNetworkType(
     TYPE_MOBILE(105, "MOBILE", NetworkTypeCompat.TYPE_3G, TransportType.CELLULAR, MobileNetworkType.HSUPA),
     TYPE_ETHERNET(106, "Ethernet", NetworkTypeCompat.TYPE_LAN, TransportType.ETHERNET, null),
     TYPE_BLUETOOTH(107, "Bluetooth", null, TransportType.BLUETOOTH, null),
+    TYPE_VPN(108, "VPN", null, TransportType.VPN, null),
     TYPE_UNKNOWN(-1, "UNKNOWN", null, null, null),
     TYPE_UNKNOWN2(Int.MAX_VALUE, "UNKNOWN", null, null, null),
     TYPE_UNKNOWN_BACKEND(0, "MOBILE", null, null, null) // used for mobile connection but unknown type of it

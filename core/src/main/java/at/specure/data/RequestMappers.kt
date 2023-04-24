@@ -240,7 +240,7 @@ fun TestRecord.toRequest(
     var telephonyNRConnectionState: String? = null
 
     val signals5G = signalList.filter {
-        it.mobileNetworkType == MobileNetworkType.NR_AVAILABLE || it.mobileNetworkType == MobileNetworkType.NR_NSA || it.mobileNetworkType == MobileNetworkType.NR
+        it.mobileNetworkType == MobileNetworkType.NR_AVAILABLE || it.mobileNetworkType == MobileNetworkType.NR_NSA || it.mobileNetworkType == MobileNetworkType.NR_SA
     }
 
     var best5GTechnologyAchieved: NRConnectionState? = null
@@ -249,8 +249,8 @@ fun TestRecord.toRequest(
         Timber.d("5G technology: MNT: ${it.mobileNetworkType?.displayName} NRstate: ${it.nrConnectionState.name}")
         var current5GTechnology =
             when {
-                (it.mobileNetworkType == MobileNetworkType.NR && it.nrConnectionState != NRConnectionState.NSA) -> NRConnectionState.SA
-                (it.mobileNetworkType == MobileNetworkType.NR && it.nrConnectionState == NRConnectionState.NSA) -> NRConnectionState.NSA
+                (it.mobileNetworkType == MobileNetworkType.NR_SA && it.nrConnectionState != NRConnectionState.NSA) -> NRConnectionState.SA
+                (it.mobileNetworkType == MobileNetworkType.NR_SA && it.nrConnectionState == NRConnectionState.NSA) -> NRConnectionState.NSA
                 (it.mobileNetworkType == MobileNetworkType.NR_NSA) -> NRConnectionState.NSA
                 (it.mobileNetworkType == MobileNetworkType.NR_AVAILABLE) -> NRConnectionState.AVAILABLE
                 else -> null
@@ -346,7 +346,8 @@ fun TestRecord.toRequest(
         userServerSelectionEnabled = serverSelectionEnabled,
         telephonyNRConnection = telephonyNRConnectionState,
         packetLoss = voipTestResultRecord?.getPacketLoss(),
-        jitterMillis = voipTestResultRecord?.getJitter()
+        jitterMillis = voipTestResultRecord?.getJitter(),
+        testUUID = uuid
     )
 }
 
@@ -388,17 +389,14 @@ fun CellInfoRecord.toRequest() = CellInfoBody(
     primaryScramblingCode = primaryScramblingCode,
     technology = NetworkTypeCompat.fromType(transportType, cellTechnology)?.stringValue,
     registered = registered,
-    isPrimaryDataSubscription = isPrimaryDataSubscription
+    isPrimaryDataSubscription = isPrimaryDataSubscription,
+    cellState = cellState
 )
 
 fun SignalRecord.toRequest(cellUUID: String, ignoreNetworkId: Boolean, signalMeasurementStartTimeNs: Long?) = SignalBody(
     cellUuid = cellUUID,
-    networkTypeId = if (ignoreNetworkId) null else if (transportType.toRequestIntValue(mobileNetworkType) == MobileNetworkType.NR.intValue) {
-        MobileNetworkType.NR_NSA.intValue
-    } else {
-        transportType.toRequestIntValue(mobileNetworkType)
-    },
-    signal = signal.checkSignalValue(),
+    networkTypeId = transportType.toRequestIntValue(mobileNetworkType),
+    signal = if (lteRsrp == null && nrCsiRsrp == null && nrSsRsrp == null) signal.checkSignalValue() else null,
     bitErrorRate = bitErrorRate.checkSignalValue(),
     wifiLinkSpeed = wifiLinkSpeed.checkSignalValue(),
     lteRsrp = lteRsrp.checkSignalValue(),
@@ -413,8 +411,7 @@ fun SignalRecord.toRequest(cellUUID: String, ignoreNetworkId: Boolean, signalMea
     nrCsiSinr = nrCsiSinr,
     nrSsRsrp = nrSsRsrp,
     nrSsRsrq = nrSsRsrq,
-    nrSsSinr = nrSsSinr,
-    signalSource = source.stringValue
+    nrSsSinr = nrSsSinr
 )
 
 private fun Int?.checkSignalValue(): Int? = if (this == null || this == Int.MAX_VALUE || this == Int.MAX_VALUE) {
@@ -449,6 +446,7 @@ fun TransportType.toRequestIntValue(mobileNetworkType: MobileNetworkType?): Int 
         TransportType.BLUETOOTH -> NetworkTypeCompat.TYPE_BLUETOOTH_VALUE
         TransportType.ETHERNET -> NetworkTypeCompat.TYPE_ETHERNET_VALUE
         TransportType.WIFI -> NetworkTypeCompat.TYPE_WIFI_VALUE
+        TransportType.VPN -> NetworkTypeCompat.TYPE_VPN_VALUE
         else -> Int.MAX_VALUE
     }
 }

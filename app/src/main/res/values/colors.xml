@@ -40,6 +40,7 @@
     <!-- Text colors -->
     <color name="text_gray">#545454</color>
     <color name="text_dark_gray">#424242</color>
+    <color name="text_green">#52d301</color>
 
     <!-- Horizontal line divider color -->
     <color name="horizontal_divider">#eeeeee</color>

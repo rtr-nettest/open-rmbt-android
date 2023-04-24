@@ -118,6 +118,68 @@ data class WifiBand(
             it[4980] = 196
         }
 
+        private val band_6GHz: Map<Int, Int> = mutableMapOf<Int, Int>().also {
+            it[5955]  =  1
+            it[5975]  =  2
+            it[5995]  =  3
+            it[6015]  =  4
+            it[6035]  =  5
+            it[6055]  =  6
+            it[6075]  =  7
+            it[6095]  =  8
+            it[6115]  =  9
+            it[6135]  =  10
+            it[6155]  =  11
+            it[6175]  =  12
+            it[6195]  =  13
+            it[6215]  =  14
+            it[6235]  =  15
+            it[6255]  =  16
+            it[6275]  =  17
+            it[6295]  =  18
+            it[6315]  =  19
+            it[6335]  =  20
+            it[6355]  =  21
+            it[6375]  =  22
+            it[6395]  =  23
+            it[6415]  =  24
+            it[6435]  =  25
+            it[6455]  =  26
+            it[6475]  =  27
+            it[6495]  =  28
+            it[6515]  =  29
+            it[6535]  =  30
+            it[6555]  =  31
+            it[6575]  =  32
+            it[6595]  =  33
+            it[6615]  =  34
+            it[6635]  =  35
+            it[6655]  =  36
+            it[6675]  =  37
+            it[6695]  =  38
+            it[6715]  =  39
+            it[6735]  =  40
+            it[6755]  =  41
+            it[6775]  =  42
+            it[6795]  =  43
+            it[6815]  =  44
+            it[6835]  =  45
+            it[6855]  =  46
+            it[6875]  =  47
+            it[6895]  =  48
+            it[6915]  =  49
+            it[6935]  =  50
+            it[6955]  =  51
+            it[6975]  =  52
+            it[6995]  =  53
+            it[7015]  =  54
+            it[7035]  =  55
+            it[7055]  =  56
+            it[7075]  =  57
+            it[7095]  =  58
+            it[7115]  =  59
+        }
+
         private val band_60GHz: Map<Int, Int> = mutableMapOf<Int, Int>().also {
             it[58320] = 1
             it[60480] = 2
@@ -134,6 +196,7 @@ data class WifiBand(
             return when {
                 band_2_4GHz.containsKey(frequency) -> WifiBand(frequency, band_2_4GHz[frequency] ?: error("$frequency not found"), "2.4 GHz")
                 band_5GHz.containsKey(frequency) -> WifiBand(frequency, band_5GHz[frequency] ?: error("$frequency not found"), "5 GHz")
+                band_6GHz.containsKey(frequency) -> WifiBand(frequency, band_6GHz[frequency] ?: error("$frequency not found"), "5 GHz")
                 band_60GHz.containsKey(frequency) -> WifiBand(frequency, band_60GHz[frequency] ?: error("$frequency not found"), "60 GHz")
                 else -> WifiBand(frequency, -1, "$frequency")
 //                else -> throw IllegalArgumentException("Wifi band not found for $frequency frequency")

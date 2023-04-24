@@ -95,7 +95,7 @@ class SpeedLineChart @JvmOverloads constructor(
                 val x = graphItems[index].progress / 100.0f
                 val y = toLog(graphItems[index].value)
 
-                Timber.d("speedtest speed ${graphItems[index].value}")
+                //Timber.d("speedtest speed ${graphItems[index].value}")
                 chartPoints.add(PointF(x, y))
             }
         }

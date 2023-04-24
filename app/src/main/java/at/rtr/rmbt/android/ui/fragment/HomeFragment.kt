@@ -382,7 +382,7 @@ class HomeFragment : BaseFragment() {
     }
 
     /**
-     * If user not doing any action within 2 second, information window display
+     * If user not doing any action within 5 seconds, information window display
      */
     private fun startTimerForInfoWindow() {
         Handler(Looper.getMainLooper()).postDelayed({

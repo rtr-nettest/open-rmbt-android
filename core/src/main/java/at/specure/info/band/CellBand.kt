@@ -275,13 +275,16 @@ private fun MutableSet<CellBandData>.add(
 
 /**
  * Table of NR Band channels, European channels are on the top
+ * taken from the 3gpp 38.101-1 standard
+ * https://www.3gpp.org/ftp/Specs/archive/38_series/38.101-1
+ * latest update V18.1.0 (2023-03)
  */
 private val nrBands: Set<CellBandData> = mutableSetOf<CellBandData>().apply {
     add(1, 1920.0, 1980.0, 2110.0, 2170.0, 0.0, 0.0, 0.0, "2100 MHz")
     add(3, 1710.0, 1785.0, 1805.0, 1880.0, 0.0, 0.0, 0.0, "1800 MHz")
     add(8, 880.0, 915.0, 925.0, 960.0, 0.0, 0.0, 0.0, "900 MHz")
     add(7, 2500.0, 2570.0, 2620.0, 2690.0, 0.0, 0.0, 0.0, "2600 MHz")
-    add(78, 3300.0, 3800.0, 3300.0, 3800.0, 0.0, 0.0, 0.0, "3500 MHz")
+    add(78, 3300.0, 3800.0, 3300.0, 3800.0, 0.0, 0.0, 0.0, "3600 MHz")
     add(75, 0.0, 0.0, 1432.0, 1517.0, 0.0, 0.0, 0.0, "1500 MHz")
     add(258, 24250.0, 27500.0, 24250.0, 27500.0, 0.0, 0.0, 0.0, "26 GHz")
     add(20, 832.0, 862.0, 791.0, 821.0, 0.0, 0.0, 0.0, "800 MHz")
@@ -303,7 +306,7 @@ private val nrBands: Set<CellBandData> = mutableSetOf<CellBandData>().apply {
     add(74, 1427.0, 1470.0, 1475.0, 1518.0, 0.0, 0.0, 0.0, "L-Band")
     add(76, 0.0, 0.0, 1427.0, 1432.0, 0.0, 0.0, 0.0, "500 MHz -")
 
-    add(77, 3300.0, 4200.0, 3300.0, 4200.0, 0.0, 0.0, 0.0, "3500 MHz +")
+    add(77, 3300.0, 4200.0, 3300.0, 4200.0, 0.0, 0.0, 0.0, "3600 MHz+")
     add(79, 4400.0, 5000.0, 4400.0, 5000.0, 0.0, 0.0, 0.0, "4500 MHz")
 
     add(80, 1710.0, 1785.0, 0.0, 0.0, 0.0, 0.0, 0.0, "SUL 1800 MHz+")
@@ -319,10 +322,10 @@ private val nrBands: Set<CellBandData> = mutableSetOf<CellBandData>().apply {
 }
 
 /**
- * Static list of all LTE Bands
+ * Static list of LTE Bands
  * taken from the 3gpp 36.101 standard
- * http://www.3gpp.org/ftp//Specs/archive/36_series/36.101/
- * latest update e30 (2017-03-28)
+ * https://www.3gpp.org/ftp//Specs/archive/36_series/36.101/
+ * latest update V18.1.0 (2023-03)
  */
 private val lteBands: Set<CellBandData> = mutableSetOf<CellBandData>().apply {
     add(1, 1920.0, 1980.0, 2110.0, 2170.0, 18000.0, 18599.0, 18000.0, "2100 MHz")

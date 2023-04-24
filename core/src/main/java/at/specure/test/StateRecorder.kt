@@ -189,6 +189,7 @@ class StateRecorder @Inject constructor(
             testStartTimeMillis = TimeUnit.NANOSECONDS.toMillis(testStartTimeNanos),
             threadCount = threadNumber,
             testTag = config.measurementTag,
+            coverage = config.coverageModeEnabled,
             developerModeEnabled = config.developerModeIsEnabled,
             serverSelectionEnabled = config.expertModeEnabled,
             loopModeEnabled = config.loopModeEnabled,
@@ -460,7 +461,8 @@ class StateRecorder @Inject constructor(
                     primaryScramblingCode = cellNetworkInfo.scramblingCode,
                     dualSimDetectionMethod = cellNetworkInfo.dualSimDetectionMethod,
                     isPrimaryDataSubscription = cellNetworkInfo.isPrimaryDataSubscription?.value,
-                    signalChunkId = null
+                    signalChunkId = null,
+                    cellState = cellNetworkInfo.cellState
                 )
                 repository.saveCellInfoRecord(listOf(cellInfoRecord))
 

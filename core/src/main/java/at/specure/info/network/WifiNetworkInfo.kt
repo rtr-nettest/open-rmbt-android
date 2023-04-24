@@ -51,6 +51,16 @@ open class WifiNetworkInfo(
     val linkSpeed: Int,
 
     /**
+     * The current RX link speed in Mbps.
+     */
+    val rxlinkSpeed: Int,
+
+    /**
+     * The current TX link speed in Mbps.
+     */
+    val txlinkSpeed: Int,
+
+    /**
      * Each configured network has a unique small integer ID, used to identify
      * the network when performing operations on the supplicant. This method
      * returns the ID for the currently connected network.

@@ -14,10 +14,12 @@
 
 package at.specure.info.wifi
 
+import android.annotation.SuppressLint
 import android.net.NetworkCapabilities
 import android.net.wifi.SupplicantState
 import android.net.wifi.WifiInfo
 import android.net.wifi.WifiManager
+import android.os.Build
 import at.specure.info.band.WifiBand
 import at.specure.info.network.WifiNetworkInfo
 import java.net.InetAddress
@@ -32,6 +34,7 @@ private const val DUMMY_MAC_ADDRESS = "02:00:00:00:00:00"
 class WifiInfoWatcherImpl(private val wifiManager: WifiManager) : WifiInfoWatcher {
 
     override val activeWifiInfo: WifiNetworkInfo?
+        @SuppressLint("HardwareIds")
         get() {
             val info = wifiManager.connectionInfo ?: return null
 
@@ -52,21 +55,46 @@ class WifiInfoWatcherImpl(private val wifiManager: WifiManager) : WifiInfoWatche
                 info.ssid.removeQuotation() ?: ""
             }
 
-            return WifiNetworkInfo(
-                bssid = if (info.bssid == DUMMY_MAC_ADDRESS || info.networkId == -1) null else info.bssid,
-                band = WifiBand.fromFrequency(info.frequency),
-                isSSIDHidden = info.hiddenSSID,
-                ipAddress = address,
-                linkSpeed = info.linkSpeed,
-                networkId = if (info.bssid == DUMMY_MAC_ADDRESS || info.networkId == -1) null else info.networkId,
-                rssi = info.rssi,
-                signalLevel = WifiManager.calculateSignalLevel(info.rssi, 5),
-                ssid = ssid,
-                supplicantState = (info.supplicantState ?: SupplicantState.UNINITIALIZED).name,
-                supplicantDetailedState = (WifiInfo.getDetailedStateOf(info.supplicantState) ?: android.net.NetworkInfo.DetailedState.IDLE).name,
-                signal = null,
-                capabilitiesRaw = "HARD ${NetworkCapabilities.TRANSPORT_WIFI}"
-            )
+            return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                WifiNetworkInfo(
+                    bssid = if (info.bssid == DUMMY_MAC_ADDRESS || info.networkId == -1) null else info.bssid,
+                    band = WifiBand.fromFrequency(info.frequency),
+                    isSSIDHidden = info.hiddenSSID,
+                    ipAddress = address,
+                    linkSpeed = info.linkSpeed,
+                    rxlinkSpeed = info.rxLinkSpeedMbps,
+                    txlinkSpeed = info.txLinkSpeedMbps,
+                    networkId = if (info.bssid == DUMMY_MAC_ADDRESS || info.networkId == -1) null else info.networkId,
+                    rssi = info.rssi,
+                    signalLevel = WifiManager.calculateSignalLevel(info.rssi, 5),
+                    ssid = ssid,
+                    supplicantState = (info.supplicantState ?: SupplicantState.UNINITIALIZED).name,
+                    supplicantDetailedState = (WifiInfo.getDetailedStateOf(info.supplicantState) ?: android.net.NetworkInfo.DetailedState.IDLE).name,
+                    signal = null,
+                    capabilitiesRaw = "HARD ${NetworkCapabilities.TRANSPORT_WIFI}"
+                )
+            } else {
+                WifiNetworkInfo(
+                    bssid = if (info.bssid == DUMMY_MAC_ADDRESS || info.networkId == -1) null else info.bssid,
+                    band = WifiBand.fromFrequency(info.frequency),
+                    isSSIDHidden = info.hiddenSSID,
+                    ipAddress = address,
+                    linkSpeed = info.linkSpeed,
+
+                    // fallback to linkSpeed
+                    rxlinkSpeed = info.linkSpeed,
+                    txlinkSpeed = info.linkSpeed,
+
+                    networkId = if (info.bssid == DUMMY_MAC_ADDRESS || info.networkId == -1) null else info.networkId,
+                    rssi = info.rssi,
+                    signalLevel = WifiManager.calculateSignalLevel(info.rssi, 5),
+                    ssid = ssid,
+                    supplicantState = (info.supplicantState ?: SupplicantState.UNINITIALIZED).name,
+                    supplicantDetailedState = (WifiInfo.getDetailedStateOf(info.supplicantState) ?: android.net.NetworkInfo.DetailedState.IDLE).name,
+                    signal = null,
+                    capabilitiesRaw = "HARD ${NetworkCapabilities.TRANSPORT_WIFI}"
+                )
+            }
         }
 
     private fun String?.removeQuotation(): String? {

@@ -51,7 +51,7 @@ public class BandCalculationUtil {
         put(3, new NRBand(3, 1710, 1785, 1805, 1880, "1800 MHz"));
         put(8, new NRBand(8, 880, 915, 925, 960, "900 MHz"));
         put(7, new NRBand(7, 2500, 2570, 2620, 2690, "2600 MHz"));
-        put(78, new NRBand(78, 3300, 3800, 3300, 3800, "3500 MHz"));
+        put(78, new NRBand(78, 3300, 3800, 3300, 3800, "3600 MHz"));
         put(75, new NRBand(75, 0, 0, 1432, 1517, "1500 MHz"));
         put(258, new NRBand(258, 24250, 27500, 24250, 27500, "26 GHz"));
         put(20, new NRBand(20, 832, 862, 791, 821, "800 MHz"));
@@ -73,7 +73,7 @@ public class BandCalculationUtil {
         put(74, new NRBand(74, 1427, 1470, 1475, 1518, "L-Band"));
         put(76, new NRBand(76, 0, 0, 1427, 1432, "500 MHz -"));
 
-        put(77, new NRBand(77, 3300, 4200, 3300, 4200, "3500 MHz +"));
+        put(77, new NRBand(77, 3300, 4200, 3300, 4200, "3600 MHz+"));
         put(79, new NRBand(79, 4400, 5000, 4400, 5000, "4500 MHz"));
 
         put(80, new NRBand(80, 1710, 1785, 0, 0, "SUL 1800 MHz+"));
@@ -213,12 +213,12 @@ public class BandCalculationUtil {
         put(42, new LTEBand(42, 3400, 3600, 3400, 3600, 41590, 43589, 0, "3,4-3,6 GHz"));
         put(43, new LTEBand(43, 3600, 3800, 3600, 3800, 43590, 45589, 0, "3.6-3,8 GHz"));
         put(44, new LTEBand(44, 703, 803, 703, 803, 45590, 46589, 0, "700 MHz APT TDD"));
-        put(45, new LTEBand(45, 1447, 1467, 1447, 1467, 46590, 46789, 0, "1500 MHZ"));
+        put(45, new LTEBand(45, 1447, 1467, 1447, 1467, 46590, 46789, 0, "1500 MHz"));
         put(46, new LTEBand(46, 5150, 5925, 5150, 5925, 46790, 54539, 0, "TD Unlicensed"));
-        put(47, new LTEBand(47, 5855, 5925, 5855, 5925, 54540, 55239, 0, "Vehicle to Everything (V2X) TDD"));
+        put(47, new LTEBand(47, 5855, 5925, 5855, 5925, 54540, 55239, 0, "V2X TDD"));
         put(65, new LTEBand(65, 1920, 2010, 2110, 2200, 131072, 131971, 65536, "Extended IMT 2100"));
         put(66, new LTEBand(66, 1710, 1780, 2110, 2200, 131972, 132671, 65536, "AWS-3"));
-        put(67, new LTEBand(67, 0, 0, 738, 758, 0, 0, -67336, "700 EU (Suppl. DL)"));
+        put(67, new LTEBand(67, 0, 0, 738, 758, 0, 0, -67336, "700 EU SDL"));
         put(68, new LTEBand(68, 698, 728, 753, 783, 132672, 132971, 65136, "700 ME"));
         put(69, new LTEBand(69, 0, 0, 2570, 2620, 0, 0, -67836, "IMT-E FDD CA"));
         put(70, new LTEBand(70, 1695, 1710, 1995, 2020, 132972, 133121, 64636, "AWS-4"));
@@ -289,7 +289,7 @@ public class BandCalculationUtil {
      * http://www.3gpp.org/ftp/Specs/archive/45_series/45.005/45005-e10.zip
      * latest update 2017-06
      *
-     * order by priority (if one uarfcn is contained in multiple bands)
+     * order by priority (if one arfcn is contained in multiple bands)
      */
     private static List<GSMBand> gsmBands = new ArrayList<GSMBand>() {{
         add(new GSMBand(5, 824.2, 848.8, 869.2, 893.8, 128, 251, 0, "GSM 850"));
@@ -303,6 +303,7 @@ public class BandCalculationUtil {
     }};
 
     private static HashMap<Integer, WifiBand> wifiBands = new HashMap<Integer, WifiBand>() {{
+        // 2,4 GHz
         put(2412, new WifiBand(2412, 1, "2.4 GHz"));
         put(2417, new WifiBand(2417, 2, "2.4 GHz"));
         put(2422, new WifiBand(2422, 3, "2.4 GHz"));
@@ -317,6 +318,7 @@ public class BandCalculationUtil {
         put(2467, new WifiBand(2467, 12, "2.4 GHz"));
         put(2472, new WifiBand(2472, 13, "2.4 GHz"));
         put(2484, new WifiBand(2484, 14, "2.4 GHz"));
+        // 5 GHz
         put(5160, new WifiBand(5160, 32, "5 GHz"));
         put(5170, new WifiBand(5170, 34, "5 GHz"));
         put(5180, new WifiBand(5180, 36, "5 GHz"));
@@ -376,6 +378,67 @@ public class BandCalculationUtil {
         put(4945, new WifiBand(4945, 189, "5 GHz"));
         put(4960, new WifiBand(4960, 192, "5 GHz"));
         put(4980, new WifiBand(4980, 196, "5 GHz"));
+        // 6 GHz - 6425-7125 MHz, EU: 5945 - 6425 MHz
+        put(5955, new WifiBand(5955,1, "6 GHz"));
+        put(5975, new WifiBand(5975,2, "6 GHz"));
+        put(5995, new WifiBand(5995,3, "6 GHz"));
+        put(6015, new WifiBand(6015,4, "6 GHz"));
+        put(6035, new WifiBand(6035,5, "6 GHz"));
+        put(6055, new WifiBand(6055,6, "6 GHz"));
+        put(6075, new WifiBand(6075,7, "6 GHz"));
+        put(6095, new WifiBand(6095,8, "6 GHz"));
+        put(6115, new WifiBand(6115,9, "6 GHz"));
+        put(6135, new WifiBand(6135,10, "6 GHz"));
+        put(6155, new WifiBand(6155,11, "6 GHz"));
+        put(6175, new WifiBand(6175,12, "6 GHz"));
+        put(6195, new WifiBand(6195,13, "6 GHz"));
+        put(6215, new WifiBand(6215,14, "6 GHz"));
+        put(6235, new WifiBand(6235,15, "6 GHz"));
+        put(6255, new WifiBand(6255,16, "6 GHz"));
+        put(6275, new WifiBand(6275,17, "6 GHz"));
+        put(6295, new WifiBand(6295,18, "6 GHz"));
+        put(6315, new WifiBand(6315,19, "6 GHz"));
+        put(6335, new WifiBand(6335,20, "6 GHz"));
+        put(6355, new WifiBand(6355,21, "6 GHz"));
+        put(6375, new WifiBand(6375,22, "6 GHz"));
+        put(6395, new WifiBand(6395,23, "6 GHz"));
+        put(6415, new WifiBand(6415,24, "6 GHz"));
+        put(6435, new WifiBand(6435,25, "6 GHz"));
+        put(6455, new WifiBand(6455,26, "6 GHz"));
+        put(6475, new WifiBand(6475,27, "6 GHz"));
+        put(6495, new WifiBand(6495,28, "6 GHz"));
+        put(6515, new WifiBand(6515,29, "6 GHz"));
+        put(6535, new WifiBand(6535,30, "6 GHz"));
+        put(6555, new WifiBand(6555,31, "6 GHz"));
+        put(6575, new WifiBand(6575,32, "6 GHz"));
+        put(6595, new WifiBand(6595,33, "6 GHz"));
+        put(6615, new WifiBand(6615,34, "6 GHz"));
+        put(6635, new WifiBand(6635,35, "6 GHz"));
+        put(6655, new WifiBand(6655,36, "6 GHz"));
+        put(6675, new WifiBand(6675,37, "6 GHz"));
+        put(6695, new WifiBand(6695,38, "6 GHz"));
+        put(6715, new WifiBand(6715,39, "6 GHz"));
+        put(6735, new WifiBand(6735,40, "6 GHz"));
+        put(6755, new WifiBand(6755,41, "6 GHz"));
+        put(6775, new WifiBand(6775,42, "6 GHz"));
+        put(6795, new WifiBand(6795,43, "6 GHz"));
+        put(6815, new WifiBand(6815,44, "6 GHz"));
+        put(6835, new WifiBand(6835,45, "6 GHz"));
+        put(6855, new WifiBand(6855,46, "6 GHz"));
+        put(6875, new WifiBand(6875,47, "6 GHz"));
+        put(6895, new WifiBand(6895,48, "6 GHz"));
+        put(6915, new WifiBand(6915,49, "6 GHz"));
+        put(6935, new WifiBand(6935,50, "6 GHz"));
+        put(6955, new WifiBand(6955,51, "6 GHz"));
+        put(6975, new WifiBand(6975,52, "6 GHz"));
+        put(6995, new WifiBand(6995,53, "6 GHz"));
+        put(7015, new WifiBand(7015,54, "6 GHz"));
+        put(7035, new WifiBand(7035,55, "6 GHz"));
+        put(7055, new WifiBand(7055,56, "6 GHz"));
+        put(7075, new WifiBand(7075,57, "6 GHz"));
+        put(7095, new WifiBand(7095,58, "6 GHz"));
+        put(7115, new WifiBand(7115,59, "6 GHz"));
+        // 60 GHz
         put(58320, new WifiBand(58320, 1, "60 GHz"));
         put(60480, new WifiBand(60480, 2, "60 GHz"));
         put(62640, new WifiBand(62640, 3, "60 GHz"));
@@ -385,7 +448,7 @@ public class BandCalculationUtil {
     }};
 
     public static class WifiBand {
-        private String informal_name; //e.g. 2.4 GHz; 5 GHz; 60 GHz
+        private String informal_name; //e.g. 2.4 GHz; 5 GHz; 6 GHz; 60 GHz
         private int channel_number;
         private int frequency;
 

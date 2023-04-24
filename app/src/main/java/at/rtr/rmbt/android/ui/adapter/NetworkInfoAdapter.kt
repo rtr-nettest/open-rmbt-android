@@ -1,5 +1,6 @@
 package at.rtr.rmbt.android.ui.adapter
 
+import android.annotation.SuppressLint
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
@@ -34,6 +35,7 @@ class NetworkInfoAdapter : RecyclerView.Adapter<NetworkInfoAdapter.Holder>() {
 
     var items: List<NetworkInfo?>
         get() = _items
+        @SuppressLint("NotifyDataSetChanged")
         set(value) {
             _items.clear()
             _items.addAll(value)
@@ -91,7 +93,7 @@ class NetworkInfoAdapter : RecyclerView.Adapter<NetworkInfoAdapter.Holder>() {
                     binding.cid2g = rawCellInfo.bid?.toString()
 
                     rawCellInfo.signal.cdmaRssi?.let {
-                        binding.rxl2g = "$it dBm"
+                        binding.rssi2g = "$it dBm"
                     }
                 } else if (item.rawCellInfo is CellGsm) {
                     val rawCellInfo = item.rawCellInfo as CellGsm
@@ -99,10 +101,10 @@ class NetworkInfoAdapter : RecyclerView.Adapter<NetworkInfoAdapter.Holder>() {
                     binding.cid2g = rawCellInfo.cid?.toString()
                     binding.lac2g = rawCellInfo.lac?.toString()
                     rawCellInfo.signal.rssi?.let {
-                        binding.rxl2g = "$it dBm"
+                        binding.rssi2g = "$it dBm"
                     }
                     rawCellInfo.signal.timingAdvance?.let {
-                        binding.ta2g = "$it (~${it * 554}m)"
+                        binding.ta2g = "$it (${it * 554}m)"
                     }
                 }
             }
@@ -171,7 +173,6 @@ class NetworkInfoAdapter : RecyclerView.Adapter<NetworkInfoAdapter.Holder>() {
                     binding.ciLTE = rawCellInfo.eci?.toString()
                     binding.cidLTE = rawCellInfo.cid?.toString()
                     binding.enbLTE = rawCellInfo.enb?.toString()
-
                     binding.pciLTE = rawCellInfo.pci?.toString()
 
                     rawCellInfo.signal.rsrp?.let {
@@ -192,7 +193,7 @@ class NetworkInfoAdapter : RecyclerView.Adapter<NetworkInfoAdapter.Holder>() {
 
                     rawCellInfo.signal.timingAdvance?.let {
                         if (it > 0) {
-                            binding.taLTE = "$it (~${it * 78}m)"
+                            binding.taLTE = "$it (${it * 78}m)"
                         }
                     }
 
@@ -209,19 +210,10 @@ class NetworkInfoAdapter : RecyclerView.Adapter<NetworkInfoAdapter.Holder>() {
             item: NetworkInfo?
         ) {
             if (item is CellNetworkInfo) {
-                binding.bandNameNr = item.band?.name ?: item.band?.informalName
-                binding.frequencyNr = item.band?.frequencyDL?.toInt().toString()
+                binding.bandNR = item.band?.name ?: item.band?.informalName
+                binding.arfcnNR = item.band?.frequencyDL?.toInt().toString()
                 binding.networkTypeNR = "${item.cellType.displayName} (${item.networkType.displayName})"
 
-                if (item.rawCellInfo is CellNr) {
-                    val rawCellInfo = item.rawCellInfo as CellNr
-                    rawCellInfo.signal.ssRsrp?.let {
-                        binding.signalSsrsrpNr = "$it dBm"
-                    }
-                    rawCellInfo.signal.ssRsrq?.let {
-                        binding.signalSsrsrqNr = "$it dB"
-                    }
-                }
             }
         }
     }
@@ -237,6 +229,20 @@ class NetworkInfoAdapter : RecyclerView.Adapter<NetworkInfoAdapter.Holder>() {
                 binding.wifiFrequency = "${band.channelNumber} (${band.frequency} MHz)"
                 binding.wifiBandName = band.informalName
                 binding.wifiSignal = item.signal
+                binding.wifiBssid = item.bssid
+                binding.wifiSsid = item.ssid
+
+                if (item.rxlinkSpeed != null) {
+                    binding.wifiRxLinkSpeed = item.rxlinkSpeed.toString() + " MBit/s"
+                }
+                else
+                    binding.wifiRxLinkSpeed = null
+
+                if (item.txlinkSpeed != null) {
+                    binding.wifiTxLinkSpeed = item.txlinkSpeed.toString() + " MBit/s"
+                }
+                else
+                    binding.wifiTxLinkSpeed = null
             }
         }
     }

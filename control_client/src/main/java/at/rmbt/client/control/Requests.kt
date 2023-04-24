@@ -18,6 +18,7 @@ import androidx.annotation.Keep
 import com.google.gson.JsonArray
 import com.google.gson.annotations.Expose
 import com.google.gson.annotations.SerializedName
+import java.util.UUID
 
 // TODO Remove mocked values
 @Keep
@@ -117,7 +118,12 @@ data class TestRequestRequestBody(
     val language: String? = "en",
     val capabilities: CapabilitiesBody = CapabilitiesBody(),
     @SerializedName("loopmode_info")
-    val loopModeInfo: LoopModeInfo
+    val loopModeInfo: LoopModeInfo,
+        /**
+     * Flag, true if coverage mode is active
+     */
+    @SerializedName("coverage")
+    var coverage: Boolean? = null,
 )
 
 @Keep
@@ -190,6 +196,12 @@ data class TestResultBody(
      */
     @SerializedName("test_token")
     val token: String,
+
+    /**
+     * Test UUID
+     */
+    @SerializedName("test_uuid")
+    val testUUID: String,
 
     /**
      * Port of the test server the test was performed on
@@ -507,6 +519,12 @@ data class TestResultBody(
     var testTag: String? = null,
 
     /**
+     * Flag, true if coverage mode is active
+     */
+    @SerializedName("coverage")
+    var coverage: Boolean? = null,
+
+    /**
      * mean jitter in milliseconds
      */
     @SerializedName("voip_result_jitter_millis")
@@ -633,7 +651,10 @@ data class CellInfoBody(
      *  "UNKNOWN"   - if (primary data subscription ID == -1 || subscription ID == -1)
      */
     @SerializedName("primary_data_subscription")
-    val isPrimaryDataSubscription: String?
+    val isPrimaryDataSubscription: String?,
+
+    @SerializedName("cell_state")
+    val cellState: String?
 )
 
 @Keep
@@ -652,7 +673,7 @@ data class SignalBody(
     val networkTypeId: Int?,
 
     /**
-     * Only for non 4G signal types
+     * Only for 2G, 3G and WIFI
      */
     val signal: Int?,
 
@@ -729,11 +750,7 @@ data class SignalBody(
     val nrSsRsrq: Int?,
 
     @SerializedName("nr_ss_sinr")
-    val nrSsSinr: Int?,
-
-    // debug only to know from which source is signal obtained
-    @SerializedName("signal_source")
-    val signalSource: String
+    val nrSsSinr: Int?
 )
 
 @Keep

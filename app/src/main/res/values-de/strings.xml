@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
 <!--
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -11,21 +12,17 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   -->
-
 <resources xmlns:tools="http://schemas.android.com/tools">
     <string name="toolbar_title">RTR-Netztest</string>
-
     <!-- Navigation menu titles -->
     <string name="menu_button_title_page">Start</string>
     <string name="menu_button_history">Verlauf</string>
     <string name="menu_button_statistics">Statistik</string>
     <string name="menu_button_map">Karte</string>
-
     <!-- Error dialog messages -->
-    <string name="error_unknown">"Die Verbindung ist unzureichend. Bitte versuchen Sie es später noch einmal"</string>
     <string name="dialog_title_error">Fehler</string>
-    <string name="no_internet_connection_not_load_data">Keine Netzwerksverbindung: Die Datenkonnten nicht geladen werden.</string>
-
+    <string name="error_unknown">Die Verbindung ist unzureichend. Bitte versuchen Sie es später noch einmal</string>
+    <string name="no_internet_connection_not_load_data">Keine Netzwerksverbindung: Die Daten konnten nicht geladen werden.</string>
     <!-- Home screen -->
     <string name="home_signal">Signal</string>
     <string name="home_frequency">Frequenz</string>
@@ -34,9 +31,9 @@
     <string name="home_signal_value">%1$d dBm</string>
     <string name="home_start_test_info">Drücken Sie den Knopf, um den Test jetzt zu starten!</string>
     <string name="home_wifi">WLAN</string>
+    <string name="home_coverage_mode">Coverage mode</string>
     <string name="public_ip_address">Öffentliche Adresse</string>
     <string name="private_ip_address">Lokale Adresse</string>
-
     <!-- Preference titles -->
     <string name="options">Optionen</string>
     <string name="preferences_general_settings">Allgemeine Einstellungen</string>
@@ -60,23 +57,28 @@
     <string name="preferences_go_to_website">Website besuchen</string>
     <string name="preferences_contact_us">E-Mail schreiben</string>
     <string name="preferences_additional_Information">Weitere Informationen</string>
-    <string name="preferences_client_uuid">Client UUID</string>
+    <string name="preferences_client_uuid">Client-UUID</string>
     <string name="preferences_test_cases">Durchgeführte Tests</string>
     <string name="preferences_about">Über die App</string>
     <string name="preferences_source_code">Source Code</string>
     <string name="preferences_data_protection">Datenschutzerklärung und Nutzungsbedingungen</string>
+    <string name="preferences_developed_by">Entwickelt von Specure GmbH</string>
+    <string name="preferences_design_by">Design von Feinblick</string>
+    <string name="preferences_network_info_by">Netzinformation von NetMonster Core</string>
     <string name="preferences_version">Version</string>
-    <string name="preferences_commit_hash">Commit hash</string>
+    <string name="preferences_commit_hash">Commit-Hash</string>
     <string name="preferences_enter_code">Bitte geben Sie den Code ein</string>
     <string name="preferences_developer_control_server">Control-Server</string>
     <string name="preferences_override_control_server">Control-Server überschreiben</string>
     <string name="preferences_override_control_server_sum">Aktiviert die folgenden Einstellungen für den Control-Server</string>
     <string name="preferences_override_control_server_host">Control Host</string>
     <string name="preferences_override_control_server_port">Control Port</string>
-    <string name="preferences_override_control_server_ssl">Control SSL</string>
+    <string name="preferences_override_control_server_ssl">Control-SSL</string>
     <string name="preferences_override_control_server_ssl_sum">Verschlüsselte Verbindung zum Control-Server</string>
     <string name="preferences_developer_options_disabled">Entwickleroptionen deaktiviert</string>
     <string name="preferences_developer_options_available">Entwickleroptionen verfügbar</string>
+    <string name="preferences_coverage_mode_disabled">Coverage mode disabled</string>
+    <string name="preferences_coverage_mode_available">Coverage mode enabled</string>
     <string name="preferences_developer_try_again">Versuchen Sie es nochmals!</string>
     <string name="preferences_developer_map_server">Map-Server</string>
     <string name="preferences_developer_map_override">Map-Server überschreiben</string>
@@ -86,17 +88,16 @@
     <string name="preferences_developer_map_ssl">Map SSL</string>
     <string name="preferences_developer_map_ssl_sum">Verschlüsselte Verbindung zum Map-Server</string>
     <string name="preferences_category_developer_qos_server">QoS-Server</string>
-    <string name="preferences_developer_qos_ssl" >QoS-Server SSL</string>
-    <string name="preferences_developer_qos_ssl_sum" >Verwende verschlüsselte Verbindung zum QoS-Server</string>
-    <string name="preferences_all_disabled">Deaktiviert.</string>
+    <string name="preferences_developer_qos_ssl">QoS-Server SSL</string>
+    <string name="preferences_developer_qos_ssl_sum">Verwende verschlüsselte Verbindung zum QoS-Server</string>
+    <string name="preferences_all_disabled">All deactivated.</string>
     <string name="preferences_server_selection">Serverauswahl</string>
     <string name="preferences_default_server_selection">Standard</string>
     <string name="label_server_selection">Serverauswahl</string>
     <string name="preferences_tag">Kennzeichen</string>
-
     <!-- Location Dialog -->
     <string name="location_dialog_label_title">Standort</string>
-    <string name="location_dialog_label_position">Position</string>
+    <string name="location_dialog_label_position">Standort</string>
     <string name="location_dialog_label_accuracy">Genauigkeit</string>
     <string name="location_dialog_label_age">Aktualität</string>
     <string name="location_dialog_label_source">Quelle</string>
@@ -112,19 +113,17 @@
     <string name="location_dialog_accuracy">%1$s m</string>
     <string name="location_dialog_speed">%1$s km/h</string>
     <string name="location_location_direction_n">N %1$s</string>
-    <string name="location_location_direction_e">E %1$s</string>
+    <string name="location_location_direction_e">O %1$s</string>
     <string name="location_location_direction_s">S %1$s</string>
     <string name="location_location_direction_w">W %1$s</string>
     <string name="open_location_permission_dialog_label_location_not_permitted">Standort nicht verfügbar. Zulassen, dass RTR-Netztest auf den Standort Ihres Geräts zugreift?</string>
     <string name="open_location_permission_dialog_label_open_permission_setting">Einstellungen öffnen</string>
-
     <string name="text_ip_address_not_available">Die Adresse nicht verfügbar</string>
     <string name="input_setting_dialog_ok">OK</string>
     <string name="input_setting_dialog_cancel">Abbrechen</string>
     <string name="loop_mode_max_delay_invalid" tools:ignore="PluralsCandidate">Bitte wählen Sie einen Wert zwischen %1$d und %2$d.</string>
     <string name="about_client_uuid_copied">Die Client-UUID wurde in die Zwischenablage kopiert.</string>
     <string name="client_not_registered">Die App ist nicht registriert. Versuchen Sie es später erneut.</string>
-
     <!-- Measurement screen -->
     <string name="measurement_ping_value">%1$s ms</string>
     <string name="measurement_ping_value_1f">%1$.1f ms</string>
@@ -146,14 +145,12 @@
     <string name="measurement_qos_unmodified_content">Unveränderter Inhalt</string>
     <string name="measurement_qos_traceroute">Traceroute</string>
     <string name="measurement_qos_voip">VoIP</string>
-
     <string-array name="measurement_speed_chart_y_labels">
-        <item>1</item>
-        <item>10</item>
-        <item>100</item>
-        <item>1000</item>
+        <item>1M</item>
+        <item>10M</item>
+        <item>100M</item>
+        <item>1G</item>
     </string-array>
-
     <string name="label_qos">QoS</string>
     <string name="label_upload">Upload</string>
     <string name="label_download">Download</string>
@@ -162,24 +159,19 @@
     <string name="label_signal_strength">Signal</string>
     <string name="network_label">Netz</string>
     <string name="technology_label">Technologie</string>
-
     <string name="title_cancel_measurement">Wollen Sie wirklich die laufende Messung abbrechen?</string>
     <string name="text_continue_measurement">Messung fortführen</string>
     <string name="text_cancel_measurement">Messung abbrechen</string>
     <string name="text_stop_measurement">Messung beenden</string>
-
     <string name="notification_test_title">Der RTR-Netztest läuft</string>
-
     <string name="test_dialog_error_text">Der Test schlug fehl. Bitte versuchen Sie es später noch einmal.</string>
-
     <!-- History -->
-    <string name="history_item_header_test">Test</string>
+    <string name="history_item_header_test">Datum</string>
     <string name="history_item_header_down">Down</string>
     <string name="history_item_header_up">Up</string>
     <string name="history_item_header_ping">Ping</string>
     <string name="history_item_header_ms">ms</string>
     <string name="history_no_data">Keine Daten verfügbar.</string>
-
     <!-- Results -->
     <string name="results_other_details">Weitere Details</string>
     <string name="results_qoe_videos_sd">Video SD</string>
@@ -187,9 +179,9 @@
     <string name="results_qoe_videos_uhd">Video UHD</string>
     <string name="results_qoe_gaming">Spiele</string>
     <string name="results_qoe_gaming_cloud">Spiele Cloud</string>
-    <string name="results_qoe_gaming_download">Spiele Download</string>
     <string name="results_qoe_gaming_streaming">Spiele Streaming</string>
-    <string name="results_qoe_audio_streaming">Audio Streaming</string>
+    <string name="results_qoe_gaming_download">Spiele Download</string>
+    <string name="results_qoe_audio_streaming">Audio-Streaming</string>
     <string name="results_qoe_voip">VoIP</string>
     <string name="results_qoe_video_telephony">Videotelefonie</string>
     <string name="results_qoe_video_conferencing">Videokonferenzen</string>
@@ -200,7 +192,7 @@
     <string name="results_quality">Qualität</string>
     <string name="results_network_type">Zugang</string>
     <string name="results_network_provider">Betreiber</string>
-    <string name="results_network_ssid">WLAN SSID</string>
+    <string name="results_network_ssid">WLAN-SSID</string>
     <string name="result_test_details">Test Details</string>
     <string name="label_information">Informationen</string>
     <string name="label_tests">Tests</string>
@@ -208,7 +200,6 @@
     <string name="label_failed">GESCHEITERT</string>
     <string name="label_description">BESCHREIBUNG</string>
     <string name="label_detail">DETAILS</string>
-
     <!-- Map -->
     <string name="map_layer_communities">Gemeinden</string>
     <string name="map_layer_points">Punkte</string>
@@ -216,14 +207,11 @@
     <string name="map_label_overlay_type">Kartendetails</string>
     <string name="map_label_map_appearance">Kartenansicht</string>
     <string name="title_marker_item_details">Mehr Details anzeigen</string>
-
     <string name="map_search_location_dialog_title">Suche</string>
     <string name="map_search_location_dialog_info">Suche nach einer Adresse oder Stadt:</string>
     <string name="map_search_location_dialog_not_found">Adresse nicht gefunden.</string>
     <string name="map_search_location_not_supported">Ihr Gerät unterstützt diese Funktion nicht.</string>
-
-    <string name="text_failed_to_load_results">Daten konnten nicht geladen werden.\nZur Aktualisierung bitte nach unten ziehen.</string>
-
+    <string name="text_failed_to_load_results">Die Ergebnisse sind noch nicht verfügbar.\nZur Aktualisierung bitte nach unten ziehen.</string>
     <string name="title_sync">Synchronisieren</string>
     <string name="text_sync_info">Es besteht die Möglichkeit, Messergebnisse von anderen Endgeräten zusammenzuführen. Dazu müssen Sie einen bereits erhaltenen Synchronisations-Code eingeben oder einen neuen anfordern.</string>
     <string name="button_sync_request_code">Code anfordern</string>
@@ -234,28 +222,21 @@
     <string name="toast_sync_code_copied_to_clipboard">Kopiert</string>
     <string name="hint_sync_code">Code</string>
     <string name="error_sync_code_short">Der Code muss aus zwölf Zeichen bestehen</string>
-
     <string name="notification_signal_test_title">Die Signalmessung läuft</string>
     <string name="notification_signal_test_text">RTR-Netztest Signalmessung läuft im Hintergrund</string>
-
     <string name="notification_loop_mode_finished_title">Der Wiederholungsmodus ist beendet</string>
-
     <string name="toast_signal_measurement_enabled">Die Signalmessung wurde gestartet.</string>
     <string name="error_no_connection">Keine Netzwerksverbindung: Einträge konnten nicht geladen werden.</string>
-
     <string name="label_map_filters">Karten-Einstellugen</string>
     <string name="text_filter_confirm">übernehmen</string>
     <string name="text_filter_continue">Fortsetzen</string>
     <string name="title_filters_type">Kartentyp</string>
     <string name="title_filters_subtype">Einstellungen</string>
-
-    <string name="about_email_sending">E-Mail senden…</string>
     <string name="about_email_subject">Supportanfrage</string>
-
+    <string name="about_email_sending">E-Mail senden…</string>
     <string name="graph_signal_value">-%1$s dBm</string>
     <string name="notification_loop_mode_title_active">Der Wiederholungsmodus ist aktiv</string>
     <string name="notification_loop_mode_title_running">Der Wiederholungsmodus läuft (%1$d/%2$d)</string>
-
     <string name="title_loop_mode">Wiederholungsmodus</string>
     <string name="title_loop_count">Wählen Sie die Anzahl der Tests</string>
     <string name="text_loop_start">Tests starten</string>
@@ -266,12 +247,10 @@
     <string name="text_loop_instruction_2">Der Wiederholungsmodus verbraucht eine große Menge an Daten. Mit schnellen Verbindungen können 10 Tests 1 GB oder mehr an Daten verbrauchen. Er sollte nur mit echten Flatrate Tarifen genutzt werden. In den Pausen zwischen den Tests bleiben GPS und die Anzeige aktiv und es werden weiter Signalmessungen durchgeführt, deshalb wird die Batterie schnell entleert. Daher sollte der Wiederholungsmodus nur genutzt werden, wenn externe Stromversorgung zur Verfügung steht.\n Damit Messungen stattfinden und einem Standort zugeordnet werden können, wenn sich die Anwendung im Hintergrund befindet, ist die Systemberechtigung zum Erfassen des Standorts bei Hintergrundnutzung notwendig. Diese Standortberechtigung wird verwendet, um den erfolgten Messungen Standorte zuzuordnen.</string>
     <string name="title_loop_instruction_1">Aktivierung</string>
     <string name="title_loop_instruction_2">Nutzung</string>
-
     <string name="text_filter_devices">Gerät</string>
     <string name="text_filter_networks">Zugang</string>
     <string name="label_filter_options">Einstellungen</string>
     <string name="label_filter">Filter</string>
-
     <string name="loop_mode_next_test">Nächster Test</string>
     <string name="loop_mode_minutes">Minuten</string>
     <string name="loop_mode_meters">Meter</string>
@@ -283,23 +262,18 @@
     <string name="title_privacy_policy">Datenschutzerklärung</string>
     <string name="text_terms_agree">Ich stimme der Datenschutzerklärung und den Nutzungsbedingungen zu.</string>
     <string name="text_terms_agree_empty">Sie müssen den Datenschutzbestimmungen und Nutzungsbedingungen zustimmen, um fortsetzen zu können.</string>
-
     <string name="dialog_title_config_check">Bitte ändern Sie die folgenden Werte:</string>
     <string name="label_ip_processing">Wird bearbeitet…</string>
     <string name="radio_info_warning_title">Mobilfunkinformation</string>
     <string name="radio_info_warning_message">Achtung: Änderungen in den erweiterten Einstellungen der Mobilfunkkonfiguration können Auswirkungen auf Funktion, Stabilität und Performance Ihres Gerätes haben.</string>
     <string name="accept_risk">Ich bin mir der Gefahren bewusst</string>
     <string name="preferences_connection_details_not_supported">Erweiterte Verbindungsdetails werden auf diesem Gerät nicht unterstützt</string>
-
     <string name="dialog_signal_info_band">Band</string>
     <string name="dialog_signal_info_channel">Kanal</string>
     <string name="text_local_results">Nur lokale Ergebnisse</string>
     <string name="signal_measurement_terms_title">Aktivierung und Nutzung</string>
     <string name="signal_measurement_terms_content">Die Nur-Signalmessung für technisch Interessierte ermöglicht, dass die Signalstärke automatisiert wiederholt gemessen wird – ohne, dass dabei Geschwindigkeits- oder Qualitätstests durchgeführt werden. Die Nur-Signalmessung kann jederzeit gestoppt werden bzw endet automatisch nach 48 Stunden. Sie ist (nur) zur Nutzung innerhalb der EU- und des EWR gedacht ist. Während der Signalmessung bleiben GPS und die Anzeige aktiv, deshalb wird die Batterie schnell entleert. Daher sollte sie nur genutzt werden, wenn externe Stromversorgung zur Verfügung steht. Es wird ausdrücklich darauf hingewiesen, dass aufgrund der Nur-Signalmessung ein Rückschluss auf die testende Person nicht ausgeschlossen ist.\n Damit Messungen stattfinden und einem Standort zugeordnet werden können, wenn sich die Anwendung im Hintergrund befindet, ist die Systemberechtigung zum Erfassen des Standorts bei Hintergrundnutzung notwendig. Diese Standortberechtigung wird verwendet, um den erfolgten Messungen Standorte zuzuordnen.</string>
-    <string name="preferences_developed_by">Entwickelt von Specure GmbH</string>
-    <string name="preferences_design_by">Design von Feinblick</string>
-    <string name="preferences_network_info_by">Netzinformation von NetMonster Core</string>
-
+    <!-- Signal details -->
     <string name="label_location_access_disabled">Standortberechtigung fehlt</string>
     <string name="label_location_access_disabled_explanation">Erteilen Sie die Standortberechtigung in den Einstellungen.</string>
     <string name="label_some_permission_denied">App-Berechtigungen fehlen</string>
@@ -309,7 +283,6 @@
     <string name="phone_permission_title">1. Telefonberechtigung</string>
     <string name="location_permission_title">2. Standortberechtigung</string>
     <string name="phone_permission_explanation">Der RTR-Netztest tätigt keine Telefonanrufe. Die Telefonberechtigung ist jedoch notwendig, um die Messung einem Anbieter zuzuordnen.</string>
-    <string name="location_permission_explanation">Die Standortberechtigung wird benötigt, um die Messung einem bestimmten Standort zuzuordnen und diesen auf der Karte darzustellen. Ohne genaue Standortberechtigung ist bei vielen Geräten Signalstärke nicht verfügbar.         Die Nutzung des Wiederholungsmodus in Bewegung ist nur mit Standortberechtigung möglich.</string>
+    <string name="location_permission_explanation">Die Standortberechtigung wird für die Bestimmung des Mess-Standorts und zur Darstellung auf der Karte benötigt. Ohne Berechtigung für den genauen Standort kann die Signalstärke auf vielen Geräten nicht angezeigt werden. Die Verwendung des Wiederholungsmodus in Bewegung ist nur mit Standortberechtigung möglich.</string>
     <string name="location_permissions_disclaimer">Der RTR-Netztest verwendet die Standortberechtigung nur während der Messung, die Hintergrundberechtigung ist beim Wiederholungsmodus notwendig um diesen auch im Hintergrund ausführen zu können.</string>
 </resources>
-

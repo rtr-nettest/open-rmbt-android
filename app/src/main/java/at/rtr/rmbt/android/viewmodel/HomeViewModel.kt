@@ -81,6 +81,9 @@ class HomeViewModel @Inject constructor(
     val isExpertModeOn: Boolean
         get() = appConfig.expertModeEnabled
 
+    val isalwaysAllowCellInfosOn: Boolean
+        get() = appConfig.alwaysAllowCellInfos
+
     private val serviceConnection = object : ServiceConnection {
 
         override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
@@ -196,6 +199,7 @@ class HomeViewModel @Inject constructor(
     }
 
     fun shouldDisplayNetworkDetails(): Boolean {
-        return ((isExpertModeOn) && (state.activeNetworkInfo.get()?.networkInfo?.type == TransportType.WIFI || state.activeNetworkInfo.get()?.networkInfo?.type == TransportType.CELLULAR))
+        // allow cell infos is expert mode is enabled or if always enabled by configuration
+        return ((isExpertModeOn || isalwaysAllowCellInfosOn ) && (state.activeNetworkInfo.get()?.networkInfo?.type == TransportType.WIFI || state.activeNetworkInfo.get()?.networkInfo?.type == TransportType.CELLULAR))
     }
 }

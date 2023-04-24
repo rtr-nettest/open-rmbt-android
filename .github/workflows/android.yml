@@ -1,0 +1,50 @@
+# This is a basic workflow to help you get started with Actions
+
+name: Build and Deploy
+
+# Controls when the action will run. Triggers the workflow on push or pull request
+# events but only for the master branch
+on:
+  push:
+    branches: [ fix/rtr_release_fixes ]
+
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  # This workflow contains a single job called "build"
+  build-app:
+    # The type of runner that the job will run on
+    runs-on: ubuntu-22.04
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        persist-credentials: false  
+    - uses: webfactory/ssh-agent@v0.5.4
+      with:
+          ssh-private-key: ${{ secrets.PRIVATE_SSH_KEY }}
+    - name: Initialize submodule, add private key
+      # # https://stackoverflow.com/questions/57612428/cloning-private-github-repository-within-organisation-in-actions
+      run: |
+        git submodule init
+        git submodule set-url private git@github.com:rtr-nettest/open-rmbt-android-private.git
+        git submodule update
+    - name: Build APK
+      run: |
+          mv private/signing.sample private/signing
+          ./gradlew :app:assembleLocalProductionRelease
+    - uses: ilharp/sign-android-release@v1 # Or use @nightly
+      name: Sign app APK
+      id: sign_app
+      with:
+        releaseDir: app/build/outputs/apk/localProduction/release
+        signingKey: ${{ secrets.SIGNING_KEY_GITHUB }}
+        keyAlias: github
+        keyStorePassword: netztest
+        keyPassword: netztest
+        buildToolsVersion: 33.0.0
+
+    # Upload your signed file if you want
+    - uses: actions/upload-artifact@v2
+      with:
+        name: Signed app bundle
+        path: ${{steps.sign_app.outputs.signedFile}}

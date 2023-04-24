@@ -36,8 +36,11 @@
     <string name="home_frequency_value" translatable="false">%1$s MHz</string>
     <string name="home_start_test_info">Press the button to start the test now!</string>
     <string name="home_wifi">WLAN</string>
+    <string name="home_vpn" translatable="false">VPN</string>
+    <string name="home_bluetooth" translatable="false">Bluetooth</string>
+    <string name="home_coverage_mode">Coverage mode</string>
     <string name="public_ip_address">Public address</string>
-    <string name="private_ip_address">Private address</string>
+    <string name="private_ip_address">Local address</string>
 
 
     <!-- Preference titles -->
@@ -70,6 +73,10 @@
     <string name="preferences_data_protection">Privacy policy and terms of use</string>
     <string name="preferences_developed_by">Developed by Specure GmbH</string>
     <string name="preferences_developer_page" translatable="false">https://specure.com/</string>
+    <string name="preferences_design_by">Design by Feinblick</string>
+    <string name="preferences_design_page" translatable="false">https://www.feinblick.com</string>
+    <string name="preferences_network_info_by">Network information by NetMonster Core</string>
+    <string name="preferences_network_info_page" translatable="false">https://netmonster.app/</string>
     <string name="preferences_version">Version</string>
     <string name="preferences_commit_hash">Commit hash</string>
     <string name="preferences_enter_code">Please enter the code</string>
@@ -82,6 +89,8 @@
     <string name="preferences_override_control_server_ssl_sum">Use encrypted connection to control server</string>
     <string name="preferences_developer_options_disabled">Developer options disabled</string>
     <string name="preferences_developer_options_available">Developer options available</string>
+    <string name="preferences_coverage_mode_disabled">Coverage mode disabled</string>
+    <string name="preferences_coverage_mode_available">Coverage mode enabled</string>
     <string name="preferences_developer_try_again">Try again!</string>
     <string name="preferences_developer_map_server">Map server</string>
     <string name="preferences_developer_map_override">Override map server</string>
@@ -93,12 +102,9 @@
     <string name="preferences_category_developer_qos_server">QoS server</string>
     <string name="preferences_developer_qos_ssl">QoS server SSL</string>
     <string name="preferences_developer_qos_ssl_sum">Use encrypted connection to QoS server</string>
-    <string name="preferences_all_disabled">Deactivated.</string>
+    <string name="preferences_all_disabled">All deactivated.</string>
     <string name="preferences_server_selection">Server selection</string>
-    <string name="preferences_default_server_selection"/>
-    <string name="preferences_5g_simulation_title">xG network debug(experimental)</string>
-    <string name="preferences_5g_simulation">Simulate xG</string>
-    <string name="preferences_5g_simulation_sum">Replaces networks with xG simulation</string>
+    <string name="preferences_default_server_selection">Default</string>
     <string name="label_server_selection">Server selection</string>
     <string name="preferences_tag">Tag</string>
 
@@ -158,18 +164,18 @@
     <string name="measurement_qos_voip">VoIP</string>
 
     <string-array name="measurement_speed_chart_y_labels">
-        <item>1</item>
-        <item>10</item>
-        <item>100</item>
-        <item>1000</item>
+        <item>1M</item>
+        <item>10M</item>
+        <item>100M</item>
+        <item>1G</item>
     </string-array>
 
     <string name="strength_signal_value" translatable="false">%d dBm</string>
-    <string name="scale_value_1000" translatable="false">1000</string>
-    <string name="scale_value_100" translatable="false">100</string>
-    <string name="scale_value_10" translatable="false">10</string>
-    <string name="scale_value_1" translatable="false">1</string>
-    <string name="scale_value_0_1" translatable="false">0.1</string>
+    <string name="scale_value_1000" translatable="false">1G</string>
+    <string name="scale_value_100" translatable="false">100M</string>
+    <string name="scale_value_10" translatable="false">10M</string>
+    <string name="scale_value_1" translatable="false">1M</string>
+    <string name="scale_value_0_1" translatable="false">0</string>
 
     <string name="label_qos">QoS</string>
     <string name="label_upload">Upload</string>
@@ -246,7 +252,7 @@
     <string name="map_search_location_dialog_not_found">Address not found.</string>
     <string name="map_search_location_not_supported">Sorry, this function is not supported by your device.</string>
 
-    <string name="text_failed_to_load_results">Failed to load data.\nPlease pull down to refresh.</string>
+    <string name="text_failed_to_load_results">The results are not yet available.\nPlease pull down to refresh.</string>
 
     <string name="title_sync">Synchronization</string>
     <string name="text_sync_info">You have the possibility to join results from different devices. To do so, you have to enter an already requested synchronisation code or request a new one.</string>
@@ -317,6 +323,7 @@
     <string name="preferences_connection_details_not_supported">Extended connection details are not supported on this device</string>
 
     <string name="dialog_signal_info_band">Band</string>
+    <string name="dialog_signal_info_connection_status" translatable="false">Status</string>
     <string name="dialog_signal_info_channel">Channel</string>
     <string name="text_local_results">Local results only</string>
     <string name="signal_measurement_terms_title">Activation and usage</string>
@@ -351,6 +358,10 @@
     <string name="cell_info_arfcn" translatable="false">ARFCN</string>
     <string name="cell_info_rxl" translatable="false">RXL</string>
 
+    <string name="cell_info_BSSID" translatable="false">BSSID</string>
+    <string name="cell_info_SSID" translatable="false">SSID</string>
+    <string name="cell_info_NCI" translatable="false">NCI</string>
+    
     <string name="label_location_access_disabled">Location permission missing</string>
     <string name="label_location_access_disabled_explanation">Grant location permission in settings.</string>
     <string name="label_some_permission_denied">App permissions missing</string>

@@ -9,9 +9,7 @@ import at.specure.info.cell.CellNetworkInfo
 import at.specure.info.cell.CellTechnology
 import at.specure.info.connectivity.ConnectivityInfo
 import at.specure.info.ip.IpInfo
-import at.specure.info.network.DetailedNetworkInfo
-import at.specure.info.network.EthernetNetworkInfo
-import at.specure.info.network.WifiNetworkInfo
+import at.specure.info.network.*
 import at.specure.info.strength.SignalStrengthInfo
 import at.specure.location.LocationInfo
 
@@ -82,6 +80,8 @@ class NetworkDetailsViewState : ViewState {
             null -> "Disconnected"
             is EthernetNetworkInfo -> extractEthernetNetworkInfo(detailedNetworkInfo.networkInfo as EthernetNetworkInfo)
             is WifiNetworkInfo -> extractWifiNetworkInfo(detailedNetworkInfo.networkInfo as WifiNetworkInfo)
+            is VpnNetworkInfo -> extractVpnNetworkInfo(detailedNetworkInfo.networkInfo as VpnNetworkInfo)
+            is BluetoothNetworkInfo -> extractBluetoothNetworkInfo(detailedNetworkInfo.networkInfo as BluetoothNetworkInfo)
             is CellNetworkInfo -> {
                 extractCellNetworkInfo(
                     detailedNetworkInfo.networkInfo as CellNetworkInfo, detailedNetworkInfo.secondaryActiveCellNetworks
@@ -120,12 +120,28 @@ class NetworkDetailsViewState : ViewState {
         bold("signalLevel: ").append(info.signalLevel).newLine()
         bold("ssid: ").append(info.ssid).newLine()
         bold("supplicantState: ").append(info.supplicantState).newLine()
+        bold("capabilities: ").append(info.capabilitiesRaw).newLine()
     }
 
     private fun extractEthernetNetworkInfo(info: EthernetNetworkInfo): String = buildString {
         bold("linkSpeed: ").append(info.linkSpeed).newLine()
         bold("networkId: ").append(info.networkId).newLine()
         bold("network type: ").append(info.type.name).newLine()
+        bold("capabilities: ").append(info.capabilitiesRaw).newLine()
+    }
+
+    private fun extractVpnNetworkInfo(info:VpnNetworkInfo): String = buildString {
+        bold("linkSpeed: ").append(info.linkSpeed).newLine()
+        bold("networkId: ").append(info.networkId).newLine()
+        bold("network type: ").append(info.type.name).newLine()
+        bold("capabilities: ").append(info.capabilitiesRaw).newLine()
+    }
+
+    private fun extractBluetoothNetworkInfo(info: BluetoothNetworkInfo): String = buildString {
+        bold("linkSpeed: ").append(info.linkSpeed).newLine()
+        bold("networkId: ").append(info.networkId).newLine()
+        bold("network type: ").append(info.type.name).newLine()
+        bold("capabilities: ").append(info.capabilitiesRaw).newLine()
     }
 
     private fun extractCellNetworkInfo(info: CellNetworkInfo, rawCellInfos: List<CellNetworkInfo?>?): String =
@@ -136,6 +152,7 @@ class NetworkDetailsViewState : ViewState {
             bold("provider name: ").append(info.providerName).newLine()
             bold("network type: ").append(info.networkType.name).newLine()
             bold("cell infos: ").append(rawCellInfos).newLine()
+            bold("capabilities: ").append(info.capabilitiesRaw).newLine()
         }
 
     @Suppress("DEPRECATION")

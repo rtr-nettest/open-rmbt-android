@@ -39,10 +39,6 @@
             type="String" />
 
         <variable
-            name="bw3g"
-            type="String" />
-
-        <variable
             name="uarfcn3g"
             type="String" />
 
@@ -63,6 +59,10 @@
             type="String" />
 
         <variable
+            name="connectionStatus3g"
+            type="String" />
+
+        <variable
             name="subscriptionId3g"
             type="String" />
 
@@ -72,7 +72,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:animateLayoutChanges="true"
-        android:padding="@dimen/margin_large">
+        android:padding="0dp">
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/cellTitle"
@@ -85,7 +85,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            tools:text="3G" />
+            tools:text="UMTS" />
 
         <androidx.constraintlayout.widget.Guideline
             android:id="@+id/guide_one_quarter"
@@ -110,10 +110,10 @@
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/subscriptionId"
-            style="@style/RobotoMediumStyle.Small"
+            style="@style/RobotoMediumStyle.VerySmall"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="@dimen/margin_medium"
+            android:layout_marginEnd="@dimen/margin_small"
             android:gravity="end|center_vertical"
             android:text="@string/cell_info_subscriptionId"
             android:textColor="@color/text_gray_transparency_55"
@@ -125,10 +125,10 @@
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/labelCI"
-            style="@style/RobotoMediumStyle.Small"
+            style="@style/RobotoMediumStyle.VerySmall"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="@dimen/margin_medium"
+            android:layout_marginEnd="@dimen/margin_small"
             android:gravity="end|center_vertical"
             android:text="@string/cell_info_ci"
             android:textColor="@color/text_gray_transparency_55"
@@ -139,10 +139,10 @@
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/labelRNC"
-            style="@style/RobotoMediumStyle.Small"
+            style="@style/RobotoMediumStyle.VerySmall"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="@dimen/margin_medium"
+            android:layout_marginEnd="@dimen/margin_small"
             android:gravity="end|center_vertical"
             android:text="@string/cell_info_rnc"
             android:textColor="@color/text_gray_transparency_55"
@@ -153,10 +153,10 @@
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/labelCID"
-            style="@style/RobotoMediumStyle.Small"
+            style="@style/RobotoMediumStyle.VerySmall"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="@dimen/margin_medium"
+            android:layout_marginEnd="@dimen/margin_small"
             android:gravity="end|center_vertical"
             android:text="@string/cell_info_cid"
             android:textColor="@color/text_gray_transparency_55"
@@ -167,10 +167,10 @@
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/labelLAC"
-            style="@style/RobotoMediumStyle.Small"
+            style="@style/RobotoMediumStyle.VerySmall"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="@dimen/margin_medium"
+            android:layout_marginEnd="@dimen/margin_small"
             android:gravity="end|center_vertical"
             android:text="@string/cell_info_lac"
             android:textColor="@color/text_gray_transparency_55"
@@ -181,10 +181,10 @@
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/labelPSC"
-            style="@style/RobotoMediumStyle.Small"
+            style="@style/RobotoMediumStyle.VerySmall"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="@dimen/margin_medium"
+            android:layout_marginEnd="@dimen/margin_small"
             android:gravity="end|center_vertical"
             android:text="@string/cell_info_psc"
             android:textColor="@color/text_gray_transparency_55"
@@ -193,26 +193,13 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/labelLAC" />
 
-        <androidx.appcompat.widget.AppCompatTextView
-            android:id="@+id/labelBW"
-            style="@style/RobotoMediumStyle.Small"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="@dimen/margin_medium"
-            android:gravity="end|center_vertical"
-            android:text="@string/cell_info_bw"
-            android:textColor="@color/text_gray_transparency_55"
-            app:layout_constraintEnd_toStartOf="@+id/guide_one_quarter"
-            app:layout_constraintHorizontal_weight="3"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/labelPSC" />
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/textSubscriptionId"
-            style="@style/RobotoRegularStyle.Small"
+            style="@style/RobotoRegularStyle.VerySmall"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/margin_medium"
+            android:layout_marginStart="@dimen/margin_small"
             android:layout_marginTop="@dimen/margin_large"
             android:gravity="start|center_vertical"
             android:text="@{subscriptionId3g}"
@@ -226,10 +213,10 @@
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/textCI"
-            style="@style/RobotoRegularStyle.Small"
+            style="@style/RobotoRegularStyle.VerySmall"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/margin_medium"
+            android:layout_marginStart="@dimen/margin_small"
             android:layout_marginTop="@dimen/margin_large"
             android:gravity="start|center_vertical"
             android:text="@{ci3g}"
@@ -243,10 +230,10 @@
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/textRNC"
-            style="@style/RobotoRegularStyle.Small"
+            style="@style/RobotoRegularStyle.VerySmall"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/margin_medium"
+            android:layout_marginStart="@dimen/margin_small"
             android:layout_marginTop="@dimen/margin_large"
             android:gravity="start|center_vertical"
             android:text="@{rnc3g}"
@@ -260,10 +247,10 @@
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/textCID"
-            style="@style/RobotoRegularStyle.Small"
+            style="@style/RobotoRegularStyle.VerySmall"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/margin_medium"
+            android:layout_marginStart="@dimen/margin_small"
             android:layout_marginTop="@dimen/margin_large"
             android:gravity="start|center_vertical"
             android:text="@{cid3g}"
@@ -277,10 +264,10 @@
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/textTAC"
-            style="@style/RobotoRegularStyle.Small"
+            style="@style/RobotoRegularStyle.VerySmall"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/margin_medium"
+            android:layout_marginStart="@dimen/margin_small"
             android:layout_marginTop="@dimen/margin_large"
             android:gravity="start|center_vertical"
             android:text="@{lac3g}"
@@ -294,10 +281,10 @@
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/textPSC"
-            style="@style/RobotoRegularStyle.Small"
+            style="@style/RobotoRegularStyle.VerySmall"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/margin_medium"
+            android:layout_marginStart="@dimen/margin_small"
             android:layout_marginTop="@dimen/margin_large"
             android:gravity="start|center_vertical"
             android:text="@{psc3g}"
@@ -309,29 +296,13 @@
             app:layout_constraintStart_toStartOf="@+id/guide_one_quarter"
             tools:text="-96 dBm" />
 
-        <androidx.appcompat.widget.AppCompatTextView
-            android:id="@+id/textBW"
-            style="@style/RobotoRegularStyle.Small"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/margin_medium"
-            android:layout_marginTop="@dimen/margin_large"
-            android:gravity="start|center_vertical"
-            android:text="@{bw3g}"
-            android:textColor="@color/text_black_transparency_60"
-            app:layout_constraintBaseline_toBaselineOf="@+id/labelBW"
-            app:layout_constraintEnd_toStartOf="@+id/guide_half"
-            app:layout_constraintHorizontal_weight="7"
-            app:layout_constraintStart_toEndOf="@+id/labelBW"
-            app:layout_constraintStart_toStartOf="@+id/guide_one_quarter"
-            tools:text="-96 dBm" />
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/labelUARFCN"
-            style="@style/RobotoMediumStyle.Small"
+            style="@style/RobotoMediumStyle.VerySmall"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="@dimen/margin_medium"
+            android:layout_marginEnd="@dimen/margin_small"
             android:gravity="end|center_vertical"
             android:text="@string/cell_info_uarfcn"
             android:textColor="@color/text_gray_transparency_55"
@@ -342,10 +313,10 @@
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/labelRSSI"
-            style="@style/RobotoMediumStyle.Small"
+            style="@style/RobotoMediumStyle.VerySmall"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="@dimen/margin_medium"
+            android:layout_marginEnd="@dimen/margin_small"
             android:gravity="end|center_vertical"
             android:text="@string/cell_info_rssi"
             android:textColor="@color/text_gray_transparency_55"
@@ -356,10 +327,10 @@
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/labelRSCP"
-            style="@style/RobotoMediumStyle.Small"
+            style="@style/RobotoMediumStyle.VerySmall"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="@dimen/margin_medium"
+            android:layout_marginEnd="@dimen/margin_small"
             android:gravity="end|center_vertical"
             android:text="@string/cell_info_rscp"
             android:textColor="@color/text_gray_transparency_55"
@@ -369,13 +340,13 @@
             app:layout_constraintTop_toBottomOf="@+id/labelRSSI" />
 
         <androidx.appcompat.widget.AppCompatTextView
-            android:id="@+id/labelBand"
-            style="@style/RobotoMediumStyle.Small"
+            android:id="@+id/labelConnectionStatus"
+            style="@style/RobotoMediumStyle.VerySmall"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="@dimen/margin_medium"
+            android:layout_marginEnd="@dimen/margin_small"
             android:gravity="end|center_vertical"
-            android:text="@string/dialog_signal_info_band"
+            android:text="@string/dialog_signal_info_connection_status"
             android:textColor="@color/text_gray_transparency_55"
             app:layout_constraintEnd_toStartOf="@+id/guide_three_quarter"
             app:layout_constraintHorizontal_weight="3"
@@ -385,10 +356,10 @@
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/textUARFCN"
-            style="@style/RobotoRegularStyle.Small"
+            style="@style/RobotoRegularStyle.VerySmall"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/margin_medium"
+            android:layout_marginStart="@dimen/margin_small"
             android:layout_marginTop="@dimen/margin_large"
             android:gravity="start|center_vertical"
             android:text="@{uarfcn3g}"
@@ -402,10 +373,10 @@
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/textRSSI"
-            style="@style/RobotoRegularStyle.Small"
+            style="@style/RobotoRegularStyle.VerySmall"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/margin_medium"
+            android:layout_marginStart="@dimen/margin_small"
             android:layout_marginTop="@dimen/margin_large"
             android:gravity="start|center_vertical"
             android:text="@{rssi3g}"
@@ -419,10 +390,10 @@
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/textRSCP"
-            style="@style/RobotoRegularStyle.Small"
+            style="@style/RobotoRegularStyle.VerySmall"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/margin_medium"
+            android:layout_marginStart="@dimen/margin_small"
             android:layout_marginTop="@dimen/margin_large"
             android:gravity="start|center_vertical"
             android:text="@{rscp3g}"
@@ -435,21 +406,21 @@
             tools:text="-96 dBm" />
 
         <androidx.appcompat.widget.AppCompatTextView
-            android:id="@+id/textBand"
-            style="@style/RobotoRegularStyle.Small"
+            android:id="@+id/textConnectionStatus"
+            style="@style/RobotoRegularStyle.VerySmall"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/margin_medium"
+            android:layout_marginStart="@dimen/margin_small"
             android:layout_marginTop="@dimen/margin_large"
             android:gravity="start|center_vertical"
-            android:text="@{band3g}"
+            android:text="@{connectionStatus3g}"
             android:textColor="@color/text_black_transparency_60"
-            app:layout_constraintBaseline_toBaselineOf="@+id/labelBand"
+            app:layout_constraintBaseline_toBaselineOf="@+id/labelConnectionStatus"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_weight="7"
-            app:layout_constraintStart_toEndOf="@+id/labelBand"
+            app:layout_constraintStart_toEndOf="@+id/labelConnectionStatus"
             app:layout_constraintStart_toStartOf="@+id/guide_three_quarter"
-            tools:text="1800" />
+            tools:text="Primary" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

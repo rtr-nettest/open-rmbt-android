@@ -254,6 +254,20 @@
             app:layout_constraintTop_toBottomOf="@+id/tvNetworkName"
             app:visibleOrGone="@{!state.isConnected}" />
 
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/tvLblCoverageMode"
+            style="@style/RobotoRegularStyle.Medium"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:text="@string/home_coverage_mode"
+            android:textColor="@color/text_green"
+            app:layout_constraintBottom_toTopOf="@+id/waveView"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/tvLblNoConnection"
+            app:visibleOrGone="@{state.coverageModeIsEnabled}" />
+
         <at.rtr.rmbt.android.ui.view.WaveView
             android:id="@+id/waveView"
             android:layout_width="0dp"
@@ -411,7 +425,7 @@
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toEndOf="@+id/btnLocation"
-                tools:src="@drawable/ic_upload_enabled" android:visibility="@{state.developerModeIsEnabled ? View.VISIBLE : View.GONE}"/>
+                tools:src="@drawable/ic_upload_enabled" android:visibility="@{state.expertModeIsEnabled ? View.VISIBLE : View.GONE}"/>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

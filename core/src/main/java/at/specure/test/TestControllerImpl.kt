@@ -42,6 +42,7 @@ private const val KEY_DEVELOPER_MODE_ENABLED = "developer_mode"
 private const val KEY_LOOP_MODE_ENABLED = "user_loop_mode"
 private const val KEY_MEASUREMENT_TYPE = "measurement_type_flag" // used on the control server to determine type for signal measurement
 private const val KEY_TEMPERATURE = "temperature"
+private const val KEY_COVERAGE = "coverage"
 
 private const val TEST_MAX_TIME = 3000
 private const val MAX_VALUE_UNFINISHED_TEST = 0.9f
@@ -165,6 +166,11 @@ class TestControllerImpl(
                 .put(KEY_PREVIOUS_TEST_STATUS, config.previousTestStatus)
 
             additionalValues.put(KEY_TEMPERATURE, deviceInfo.temperature)
+
+            //add flag for coverage mode only when it is enabled
+            if (config.coverageModeEnabled == true) {
+                additionalValues.put(KEY_COVERAGE, config.coverageModeEnabled)
+            }
 
             loopSettings?.let {
                 additionalValues.put(KEY_LOOP_MODE_SETTINGS, JSONObject(gson.toJson(it, LoopModeSettings::class.java)))
