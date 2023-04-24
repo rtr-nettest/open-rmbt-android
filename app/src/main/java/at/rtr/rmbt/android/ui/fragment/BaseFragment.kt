@@ -51,18 +51,20 @@ abstract class BaseFragment : Fragment() {
         viewModels.forEach { it.onSaveState(outState) }
     }
 
-    open fun onHandledException(exception: HandledException) {
-        val message = if (exception is NoConnectionException) {
-            getString(R.string.error_no_connection)
-        } else {
-            exception.getText(requireContext())
-        }
+    open fun onHandledException(exception: HandledException?) {
+        exception?.let { handledException ->
+            val message = if (handledException is NoConnectionException) {
+                getString(R.string.error_no_connection)
+            } else {
+                handledException.getText(requireContext())
+            }
 
-        SimpleDialog.Builder()
-            .messageText(message)
-            .positiveText(android.R.string.ok)
-            .cancelable(false)
-            .show(parentFragmentManager, DIALOG_DEFAULT_OK)
+            SimpleDialog.Builder()
+                .messageText(message)
+                .positiveText(android.R.string.ok)
+                .cancelable(false)
+                .show(parentFragmentManager, DIALOG_DEFAULT_OK)
+        }
     }
 
     /**

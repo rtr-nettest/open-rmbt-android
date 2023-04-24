@@ -123,10 +123,12 @@ class SyncDevicesDialog : FullscreenDialog() {
         }
 
         viewModel.errorLiveData.listen(this) {
-            SimpleDialog.Builder()
-                .messageText(it.getText(requireContext()))
-                .positiveText(R.string.button_close)
-                .show(parentFragmentManager, 0)
+            it?.let {
+                SimpleDialog.Builder()
+                    .messageText(it.getText(requireContext()))
+                    .positiveText(R.string.button_close)
+                    .show(parentFragmentManager, 0)
+            }
         }
     }
 
