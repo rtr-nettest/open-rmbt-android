@@ -598,7 +598,7 @@ data class CellInfoBody(
      * Id of the location, mobile only
      */
     @SerializedName("location_id")
-    val locationId: Int?,
+    val locationId: Long?,
 
     /**
      * Code of the country of the operator, mobile only
@@ -809,7 +809,7 @@ data class CellLocationBody(
      * id of the location
      */
     @SerializedName("location_id")
-    val locationId: Int?,
+    val locationId: Long?,
 
     @SerializedName("area_code")
     val areaCode: Int?,

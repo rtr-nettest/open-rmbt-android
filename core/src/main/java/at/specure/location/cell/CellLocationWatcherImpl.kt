@@ -31,7 +31,7 @@ class CellLocationWatcherImpl @Inject constructor(
                     CellLocationInfo(
                         timestampMillis = System.currentTimeMillis(),
                         timestampNanos = System.nanoTime(),
-                        locationId = location.cid.fixValue(),
+                        locationId = location.cid.fixValue()?.toLong(),
                         areaCode = location.lac.fixValue(),
                         scramblingCode = location.psc
                     )
@@ -68,7 +68,7 @@ class CellLocationWatcherImpl @Inject constructor(
                     CellLocationInfo(
                         timestampMillis = System.currentTimeMillis(),
                         timestampNanos = System.nanoTime(),
-                        locationId = cellLocation.cid.fixValue(),
+                        locationId = cellLocation.cid.fixValue()?.toLong(),
                         areaCode = cellLocation.lac.fixValue(),
                         scramblingCode = cellLocation.psc
                     )

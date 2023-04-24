@@ -630,14 +630,14 @@ fun ICell.primaryScramblingCode(): Int? {
     }
 }
 
-fun ICell.locationId(): Int? {
+fun ICell.locationId(): Long? {
     return when (this) {
-        is CellNr -> null
-        is CellTdscdma -> this.cid
-        is CellLte -> this.eci
-        is CellCdma -> this.bid
-        is CellWcdma -> this.ci
-        is CellGsm -> this.cid
+        is CellNr -> this.nci
+        is CellTdscdma -> this.cid?.toLong()
+        is CellLte -> this.eci?.toLong()
+        is CellCdma -> this.bid?.toLong()
+        is CellWcdma -> this.ci?.toLong()
+        is CellGsm -> this.cid?.toLong()
         else -> null
     }
 }

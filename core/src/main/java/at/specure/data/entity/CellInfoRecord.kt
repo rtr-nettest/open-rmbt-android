@@ -39,7 +39,7 @@ data class CellInfoRecord(
     // another more for mobile cell
     val cellTechnology: CellTechnology?,
     val areaCode: Int?,
-    val locationId: Int?,
+    val locationId: Long?,
     val mcc: Int?,
     val mnc: Int?,
     val primaryScramblingCode: Int?,
