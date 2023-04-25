@@ -85,13 +85,13 @@
                     android:layout_height="wrap_content">
 
                     <TextView
-                        android:id="@+id/textFailedToLoad"
+                        android:id="@+id/textWaitLoading"
                         style="@style/TextAppearance.AppCompat.Body1"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:gravity="center_horizontal"
-                        android:text="@string/text_failed_to_load_results"
-                        app:visibleOrGone="@{state.testResult == null}"
+                        android:text="@string/text_wait_loading"
+                        app:visibleOrGone="@{false}"
                         app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintStart_toStartOf="parent"

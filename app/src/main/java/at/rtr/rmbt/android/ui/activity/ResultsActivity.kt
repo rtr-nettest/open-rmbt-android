@@ -121,9 +121,9 @@ class ResultsActivity : BaseActivity() {
         viewModel.loadingLiveData.listen(this) {
             binding.swipeRefreshLayout.isRefreshing = false
             if (viewModel.state.testResult.get() == null) {
-                binding.textFailedToLoad.visibility = if (it) View.GONE else View.VISIBLE
+                binding.textWaitLoading.visibility = if (it) View.GONE else View.VISIBLE
             } else {
-                binding.textFailedToLoad.visibility = View.GONE
+                binding.textWaitLoading.visibility = View.GONE
             }
         }
 

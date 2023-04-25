@@ -211,7 +211,7 @@
     <string name="map_search_location_dialog_info">Cerca un indirizzo o una città:</string>
     <string name="map_search_location_dialog_not_found">Indirizzo non trovato.</string>
     <string name="map_search_location_not_supported">Spiacenti, questa funzione non è supportata dal tuo dispositivo.</string>
-    <string name="text_failed_to_load_results">Impossibile caricare i dati.\nTira giù per aggiornare.</string>
+    <string name="text_wait_loading">Loading results</string>
     <string name="title_sync">Sincronizzazione</string>
     <string name="text_sync_info">Hai la possibilità di unire i risultati da diversi dispositivi. Per farlo, è necessario inserire un codice di sincronizzazione già richiesto o richiederne uno nuovo.</string>
     <string name="button_sync_request_code">Richiedere un codice</string>
