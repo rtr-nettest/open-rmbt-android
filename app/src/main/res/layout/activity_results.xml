@@ -91,7 +91,7 @@
                         android:layout_height="wrap_content"
                         android:gravity="center_horizontal"
                         android:text="@string/text_failed_to_load_results"
-                        android:visibility="gone"
+                        app:visibleOrGone="@{state.testResult == null}"
                         app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintStart_toStartOf="parent"
@@ -110,7 +110,7 @@
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toTopOf="parent"
-                        app:visibleOrGone="@{false}" />
+                        app:visibleOrGone="@{state.testResult != null &amp;&amp; state.testResult.localOnly}" />
 
                     <androidx.cardview.widget.CardView
                         android:id="@+id/mapContainer"
@@ -334,7 +334,8 @@
                         android:orientation="vertical"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toBottomOf="@+id/textDownloadSpeed">
+                        app:layout_constraintTop_toBottomOf="@+id/textDownloadSpeed"
+                        app:visibleOrGone="@{state.testResult != null}">
 
                         <androidx.viewpager.widget.ViewPager
                             android:id="@+id/viewPagerCharts"

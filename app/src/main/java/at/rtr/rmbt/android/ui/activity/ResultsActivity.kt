@@ -3,6 +3,7 @@ package at.rtr.rmbt.android.ui.activity
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.os.Handler
 import android.view.View
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.DividerItemDecoration
@@ -21,6 +22,8 @@ import at.rtr.rmbt.android.viewmodel.ResultViewModel
 import at.specure.data.NetworkTypeCompat
 import at.specure.data.entity.TestResultRecord
 import timber.log.Timber
+import java.util.Timer
+import kotlin.concurrent.timerTask
 
 class ResultsActivity : BaseActivity() {
 
@@ -31,6 +34,7 @@ class ResultsActivity : BaseActivity() {
     private lateinit var resultChartFragmentPagerAdapter: ResultChartFragmentPagerAdapter
 
     private var mapLoadRequested: Boolean = false
+    private val timer = Timer()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -55,7 +59,15 @@ class ResultsActivity : BaseActivity() {
         viewModel.state.testUUID = testUUID
         viewModel.state.returnPoint = returnPoint?.let { ReturnPoint.valueOf(returnPoint) } ?: ReturnPoint.HOME
         viewModel.testServerResultLiveData.listen(this) { result ->
-            viewModel.state.testResult.set(result)
+
+            if (result?.isLocalOnly == true) {
+                timer.schedule(timerTask {
+                    viewModel.state.testResult.set(result)
+                }, 1000)
+            } else {
+                timer.cancel()
+                viewModel.state.testResult.set(result)
+            }
 
             result?.testOpenUUID?.let {
                 resultChartFragmentPagerAdapter = ResultChartFragmentPagerAdapter(supportFragmentManager, testUUID, result.networkType)
