@@ -10,12 +10,12 @@ import at.specure.data.entity.CapabilitiesRecord
 @Dao
 interface CapabilitiesDao {
 
-    @Query("SELECT * from ${Tables.CAPABILITIES} WHERE ((testUUID IS :testUUID) OR (signalChunkId IS :signalChunkId)) LIMIT 1")
+    @Query("SELECT * from ${Tables.CAPABILITIES} WHERE ((testUUID IS :testUUID) AND (signalChunkId IS :signalChunkId)) LIMIT 1")
     fun get(testUUID: String?, signalChunkId: String?): CapabilitiesRecord
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     fun insert(capabilities: CapabilitiesRecord)
 
-    @Query("DELETE FROM ${Tables.CAPABILITIES} WHERE ((testUUID IS :testUUID) OR (signalChunkId IS :signalChunkId))")
+    @Query("DELETE FROM ${Tables.CAPABILITIES} WHERE ((testUUID IS :testUUID) AND (signalChunkId IS :signalChunkId))")
     fun remove(testUUID: String?, signalChunkId: String?)
 }
