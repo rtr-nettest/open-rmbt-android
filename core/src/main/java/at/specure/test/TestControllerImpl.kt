@@ -249,7 +249,7 @@ class TestControllerImpl(
                     finalUploadValuePosted = true
                 }
 
-                clientCallback.onTestCompleted(result, !skipQoSTests)
+                // clientCallback.onTestCompleted(result, !skipQoSTests)
                 if (!skipQoSTests) { // needs to prevent calling onTestCompleted and finishing before unimplemented QoS phase
                     val qosTestSettings = TestSettings()
                     qosTestSettings.cacheFolder = context.cacheDir
@@ -289,11 +289,11 @@ class TestControllerImpl(
                     TestStatus.PACKET_LOSS_AND_JITTER -> handleJitterAndPacketLoss(client)
                     TestStatus.INIT_UP -> handleInitUp()
                     TestStatus.UP -> handleUp(client)
-                    TestStatus.SPEEDTEST_END -> handleSpeedTestEnd(skipQoSTests)
+                    TestStatus.SPEEDTEST_END -> handleSpeedTestEnd(client, clientCallback, skipQoSTests)
                     TestStatus.QOS_TEST_RUNNING -> handleQoSRunning(qosTest)
-                    TestStatus.QOS_END -> handleQoSEnd()
+                    TestStatus.QOS_END -> handleQoSEnd(client, clientCallback)
                     TestStatus.ERROR -> handleError(client)
-                    TestStatus.END -> handleEnd()
+                    TestStatus.END -> handleEnd(client, clientCallback)
                     TestStatus.ABORTED -> handleAbort(client)
                 }
 
@@ -424,9 +424,10 @@ class TestControllerImpl(
         }
     }
 
-    private fun handleSpeedTestEnd(skipQoSTest: Boolean) {
+    private fun handleSpeedTestEnd(client: RMBTClient, callback: RMBTClientCallback, skipQoSTest: Boolean) {
         if (skipQoSTest) {
             setState(MeasurementState.FINISH, 0)
+            callback.onTestCompleted(client.totalTestResult, false)
         }
     }
 
@@ -513,8 +514,9 @@ class TestControllerImpl(
         }
     }
 
-    private fun handleQoSEnd() {
+    private fun handleQoSEnd(client: RMBTClient, clientCallback: RMBTClientCallback) {
         setState(MeasurementState.FINISH, 0)
+        clientCallback.onTestCompleted(client.totalTestResult, true)
         _testUUID = null
     }
 
@@ -529,8 +531,9 @@ class TestControllerImpl(
         _testUUID = null
     }
 
-    private fun handleEnd() {
+    private fun handleEnd(client: RMBTClient, clientCallback: RMBTClientCallback) {
         setState(MeasurementState.FINISH, 0)
+        clientCallback.onTestCompleted(client.totalTestResult, false)
         _testUUID = null
     }
 

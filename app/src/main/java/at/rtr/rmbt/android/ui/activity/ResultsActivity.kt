@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.view.View
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.DividerItemDecoration
+import at.rmbt.util.exception.HandledException
 import at.rtr.rmbt.android.R
 import at.rtr.rmbt.android.databinding.ActivityResultsBinding
 import at.rtr.rmbt.android.di.viewModelLazy
@@ -185,6 +186,8 @@ class ResultsActivity : BaseActivity() {
         viewModel.loadTestResults()
         binding.swipeRefreshLayout.isRefreshing = true
     }
+
+    override fun onHandledException(exception: HandledException?) { }
 
     override fun onStart() {
         super.onStart()

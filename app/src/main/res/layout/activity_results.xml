@@ -110,7 +110,7 @@
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toTopOf="parent"
-                        app:visibleOrGone="@{state.testResult != null &amp;&amp; state.testResult.localOnly}" />
+                        app:visibleOrGone="@{false}" />
 
                     <androidx.cardview.widget.CardView
                         android:id="@+id/mapContainer"
