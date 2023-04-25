@@ -11,16 +11,16 @@ import timber.log.Timber
 @Dao
 interface CellLocationDao {
 
-    @Query("SELECT * from ${Tables.CELL_LOCATION} WHERE ((testUUID IS :testUUID) OR (signalChunkId IS :signalChunkId))")
+    @Query("SELECT * from ${Tables.CELL_LOCATION} WHERE ((testUUID IS :testUUID) AND (signalChunkId IS :signalChunkId))")
     fun get(testUUID: String?, signalChunkId: String?): List<CellLocationRecord>
 
     @Upsert
     fun insert(cellLocation: CellLocationRecord): Long
 
-    @Query("DELETE FROM ${Tables.CELL_LOCATION} WHERE ((testUUID IS :testUUID) OR (signalChunkId IS :signalChunkId))")
+    @Query("DELETE FROM ${Tables.CELL_LOCATION} WHERE ((testUUID IS :testUUID) AND (signalChunkId IS :signalChunkId))")
     fun remove(testUUID: String?, signalChunkId: String?)
 
-    @Query("SELECT * FROM ${Tables.CELL_LOCATION} WHERE ((testUUID IS :testUUID) OR (signalChunkId IS :signalChunkId)) AND scramblingCode==:scramblingCode")
+    @Query("SELECT * FROM ${Tables.CELL_LOCATION} WHERE ((testUUID IS :testUUID) AND (signalChunkId IS :signalChunkId)) AND scramblingCode==:scramblingCode")
     fun getSingleCellLocation(testUUID: String?, signalChunkId: String?, scramblingCode: Int): List<CellLocationRecord>
 
     @Transaction

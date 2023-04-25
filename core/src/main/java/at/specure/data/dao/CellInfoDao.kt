@@ -11,16 +11,16 @@ import at.specure.info.TransportType
 @Dao
 abstract class CellInfoDao {
 
-    @Query("SELECT * FROM ${Tables.CELL_INFO} WHERE ((testUUID IS :testUUID) OR (signalChunkId IS :signalChunkId))")
+    @Query("SELECT * FROM ${Tables.CELL_INFO} WHERE ((testUUID IS :testUUID) AND (signalChunkId IS :signalChunkId))")
     abstract fun get(testUUID: String?, signalChunkId: String?): List<CellInfoRecord>
 
     @Upsert
     abstract fun insert(cellInfo: List<CellInfoRecord>)
 
-    @Query("DELETE FROM ${Tables.CELL_INFO} WHERE ((testUUID IS :testUUID) OR (signalChunkId IS :signalChunkId))")
+    @Query("DELETE FROM ${Tables.CELL_INFO} WHERE ((testUUID IS :testUUID) AND (signalChunkId IS :signalChunkId))")
     abstract fun removeAllCellInfo(testUUID: String?, signalChunkId: String?)
 
-    @Query("DELETE FROM ${Tables.CELL_INFO} WHERE ((testUUID IS :testUUID) OR (signalChunkId IS :signalChunkId)) AND uuid==:cellInfoUUID")
+    @Query("DELETE FROM ${Tables.CELL_INFO} WHERE ((testUUID IS :testUUID) AND (signalChunkId IS :signalChunkId)) AND uuid==:cellInfoUUID")
     abstract fun removeSingleCellInfo(testUUID: String?, signalChunkId: String?, cellInfoUUID: String)
 
     @Transaction

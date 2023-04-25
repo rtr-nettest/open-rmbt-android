@@ -10,12 +10,12 @@ import at.specure.data.entity.PermissionStatusRecord
 @Dao
 interface PermissionStatusDao {
 
-    @Query("SELECT * from ${Tables.PERMISSIONS_STATUS} WHERE ((testUUID IS :testUUID) OR (signalChunkId IS :signalChunkId))")
+    @Query("SELECT * from ${Tables.PERMISSIONS_STATUS} WHERE ((testUUID IS :testUUID) AND (signalChunkId IS :signalChunkId))")
     fun get(testUUID: String?, signalChunkId: String?): List<PermissionStatusRecord>
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     fun insert(permissionStatus: PermissionStatusRecord)
 
-    @Query("DELETE FROM ${Tables.PERMISSIONS_STATUS} WHERE ((testUUID IS :testUUID) OR (signalChunkId IS :signalChunkId))")
+    @Query("DELETE FROM ${Tables.PERMISSIONS_STATUS} WHERE ((testUUID IS :testUUID) AND (signalChunkId IS :signalChunkId))")
     fun remove(testUUID: String?, signalChunkId: String?)
 }
