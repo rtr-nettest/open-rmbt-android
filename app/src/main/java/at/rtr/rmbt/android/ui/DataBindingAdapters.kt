@@ -873,7 +873,7 @@ fun AppCompatTextView.setDownload(speedDownloadClassification: Classification) {
 fun AppCompatTextView.speedDownloadResult(speedDownloadResult: Long, speedDownloadClassificationResult: Classification) {
 
     text = if (speedDownloadResult > 0) {
-        context.getString(R.string.measurement_download_upload_speed, ((speedDownloadResult.toFloat() / 1000f)))//.format()))
+        context.getString(R.string.measurement_download_upload_speed, ((speedDownloadResult.toFloat() / 1000f).format()))
     } else {
         context.getString(R.string.measurement_dash)
     }
