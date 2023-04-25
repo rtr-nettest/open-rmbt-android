@@ -20,7 +20,8 @@ import at.specure.data.Tables
 data class GeoLocationRecord(
     @PrimaryKey(autoGenerate = true)
     val id: Long = 0,
-    val testUUID: String,
+    val testUUID: String?,
+    val signalChunkId: String?,
     val latitude: Double,
     val longitude: Double,
     val provider: String,

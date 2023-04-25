@@ -20,7 +20,8 @@ import at.specure.data.Tables
 data class CapabilitiesRecord(
     @PrimaryKey(autoGenerate = true)
     val id: Long = 0,
-    val testUUID: String,
+    val testUUID: String?,
+    val signalChunkId: String?,
     val classificationCount: Int,
     val qosSupportInfo: Boolean,
     val rmbtHttpStatus: Boolean

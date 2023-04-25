@@ -581,20 +581,20 @@ class SignalMeasurementProcessor @Inject constructor(
     }
 
     private fun saveCapabilities() {
-        chunk?.id?.let { measurementRepository.saveCapabilities(it) }
+        chunk?.id?.let { measurementRepository.saveCapabilities(null, it) }
     }
 
     private fun saveLocationInfo() {
-        val uuid = chunk?.id
+        val signalChunkId = chunk?.id
         val location = locationInfo
-        Timber.d("Saving location:  UUID:$uuid  ${location.toDeviceInfoLocation()} ")
-        if (uuid != null && location != null && locationWatcher.state == LocationState.ENABLED) {
-            repository.saveGeoLocation(uuid, location, record?.startTimeNanos ?: 0, true)
+        Timber.d("Saving location:  UUID:$signalChunkId  ${location.toDeviceInfoLocation()} ")
+        if (signalChunkId != null && location != null && locationWatcher.state == LocationState.ENABLED) {
+            repository.saveGeoLocation(null, signalChunkId, location, record?.startTimeNanos ?: 0, true)
         }
     }
 
     private fun savePermissionsStatus() {
-        chunk?.id?.let { measurementRepository.savePermissionsStatus(it) }
+        chunk?.id?.let { measurementRepository.savePermissionsStatus(null, it) }
     }
 
     private fun saveWlanInfo() {

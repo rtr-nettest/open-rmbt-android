@@ -13,9 +13,9 @@ interface ConnectivityStateDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun saveState(record: ConnectivityStateRecord)
 
-    @Query("SELECT * FROM ${Tables.CONNECTIVITY_STATE} WHERE uuid=:uuid")
+    @Query("SELECT * FROM ${Tables.CONNECTIVITY_STATE} WHERE uuid==:uuid")
     fun getStates(uuid: String): List<ConnectivityStateRecord>
 
-    @Query("DELETE FROM ${Tables.CONNECTIVITY_STATE} WHERE uuid=:testUUID")
+    @Query("DELETE FROM ${Tables.CONNECTIVITY_STATE} WHERE uuid==:testUUID")
     fun remove(testUUID: String)
 }

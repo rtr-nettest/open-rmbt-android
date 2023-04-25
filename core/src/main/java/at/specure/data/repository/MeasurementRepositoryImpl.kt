@@ -36,17 +36,18 @@ class MeasurementRepositoryImpl @Inject constructor(
     private val permissionsWatcher: PermissionsWatcher
 ) : MeasurementRepository {
 
-    override fun savePermissionsStatus(uuid: String) {
+    override fun savePermissionsStatus(uuid: String?, signalChunkId: String?) {
         val permissions = permissionsWatcher.allPermissions
         permissions.forEach { permission ->
             val permissionGranted = context.hasPermission(permission)
-            repository.savePermissionStatus(uuid, permission, permissionGranted)
+            repository.savePermissionStatus(uuid, signalChunkId, permission, permissionGranted)
         }
     }
 
-    override fun saveCapabilities(uuid: String) {
+    override fun saveCapabilities(uuid: String?, signalChunkId: String?) {
         repository.saveCapabilities(
             uuid,
+            signalChunkId,
             config.capabilitiesRmbtHttp,
             config.capabilitiesQosSupportsInfo,
             config.capabilitiesClassificationCount

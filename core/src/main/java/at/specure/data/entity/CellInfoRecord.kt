@@ -16,12 +16,6 @@ import at.specure.info.cell.CellTechnology
             parentColumns = [Columns.TEST_UUID_PARENT_COLUMN],
             childColumns = ["testUUID"],
             onDelete = ForeignKey.CASCADE
-        ),
-        ForeignKey(
-            entity = SignalMeasurementChunk::class,
-            parentColumns = [Columns.SIGNAL_MEASUREMENT_ID_PARENT_COLUMN],
-            childColumns = ["signalChunkId"],
-            onDelete = ForeignKey.CASCADE
         )
     ]
 )

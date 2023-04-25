@@ -25,7 +25,6 @@ import at.specure.util.exception.DataMissingException
 import at.specure.worker.WorkLauncher
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.flow
 import timber.log.Timber
 
@@ -130,7 +129,7 @@ class SignalMeasurementRepositoryImpl(
         postProcessing: ValidChunkPostProcessing,
         callback: SignalMeasurementChunkReadyCallback
     ) = io {
-        val valid = validateMeasurementChunk(db.cellInfoDao().get(chunk.id), db.signalDao().get(chunk.id), chunk)
+        val valid = validateMeasurementChunk(db.cellInfoDao().get(null, chunk.id), db.signalDao().get(null, chunk.id), chunk)
         callback.onSignalMeasurementChunkReadyCheckResult(valid, chunk, postProcessing)
     }
 
@@ -191,42 +190,50 @@ class SignalMeasurementRepositoryImpl(
              Timber.i("update chunk sequence id send chunk Before = $chunkId, chunkID = ${chunk.id} sequence: ${chunk.sequenceNumber}")
              dao.updateSignalMeasurementRecord(record)
          }*/
+        val capabilities = db.capabilitiesDao().get(null, chunkId)
 
-        val body = record.toRequest(
-            measurementInfoUUID = info?.uuid,
-            clientUUID = clientUUID,
-            chunk = chunk,
-            deviceInfo = deviceInfo,
-            telephonyInfo = telephonyInfo,
-            wlanInfo = wlanInfo,
-            locations = db.geoLocationDao().get(chunkId),
-            capabilities = db.capabilitiesDao().get(chunkId),
-            cellInfoList = db.cellInfoDao().get(chunkId),
-            signalList = db.signalDao().get(chunkId),
-            permissions = db.permissionStatusDao().get(chunkId),
-            networkEvents = db.connectivityStateDao().getStates(chunkId).toRequest(),
-            cellLocationList = db.cellLocationDao().get(chunkId)
-        )
+        capabilities?.let {
 
-        val result = client.signalResult(body)
+            val body = record.toRequest(
+                measurementInfoUUID = info?.uuid,
+                clientUUID = clientUUID,
+                chunk = chunk,
+                deviceInfo = deviceInfo,
+                telephonyInfo = telephonyInfo,
+                wlanInfo = wlanInfo,
+                locations = db.geoLocationDao().get(null, chunkId),
+                capabilities = it,
+                cellInfoList = db.cellInfoDao().get(null, chunkId),
+                signalList = db.signalDao().get(null, chunkId),
+                permissions = db.permissionStatusDao().get(null, chunkId),
+                networkEvents = db.connectivityStateDao().getStates(chunkId).toRequest(),
+                cellLocationList = db.cellLocationDao().get(null, chunkId)
+            )
 
-        if (result.ok) {
-            Timber.d("SM Chunk OK responded with uuid: ${result.success.uuid}   before: ${info?.uuid}")
-            if (info == null) {
-                info = SignalMeasurementInfo(
-                    measurementId = record.id,
-                    uuid = result.success.uuid,
-                    clientRemoteIp = "", // TODO need to fill that field
-                    resultUrl = "", // TODO need to fill that field
-                    provider = "" // TODO need to fill that field
-                )
-                dao.saveSignalMeasurementInfo(info)
-            } else {
-                if (result.success.uuid.isNotEmpty() && result.success.uuid != info.uuid) {
-                    Timber.d("SM Chunk creating new chunk with uuid: ${result.success.uuid}   before: ${info.uuid}")
-                    callback.newUUIDSent(result.success.uuid, info)
+            val result = client.signalResult(body)
 
-                    /*
+            if (result.ok) {
+                Timber.d("SM Chunk OK responded with uuid: ${result.success.uuid}   before: ${info?.uuid}")
+                if (info == null) {
+                    info = SignalMeasurementInfo(
+                        measurementId = record.id,
+                        uuid = result.success.uuid,
+                        clientRemoteIp = "", // TODO need to fill that field
+                        resultUrl = "", // TODO need to fill that field
+                        provider = "" // TODO need to fill that field
+                    )
+                    info?.let{ signalMeasurementInfo ->
+                        dao.saveSignalMeasurementInfo(signalMeasurementInfo)
+                    }
+
+                } else {
+                    if (result.success.uuid.isNotEmpty() && result.success.uuid != info?.uuid) {
+                        Timber.d("SM Chunk creating new chunk with uuid: ${result.success.uuid}   before: ${info?.uuid}")
+                        info?.let { signalMeasurementInfo ->
+                            callback.newUUIDSent(result.success.uuid, signalMeasurementInfo)
+                        }
+
+                        /*
                     info = SignalMeasurementInfo(
                         measurementId = record.id,
                         uuid = result.success.uuid,
@@ -246,27 +253,28 @@ class SignalMeasurementRepositoryImpl(
                         dao.updateSignalMeasurementRecord(it)
                         Timber.d("SM Chunk updating record to reset chunk sequence number")
                     }*/
+                    }
                 }
-            }
 
-            testDao.removeTelephonyInfo(chunkId)
-            testDao.removeWlanRecord(chunkId)
-            db.geoLocationDao().remove(chunkId)
-            db.capabilitiesDao().remove(chunkId)
-            db.cellInfoDao().removeAllCellInfo(chunkId)
-            db.signalDao().remove(chunkId)
-            db.permissionStatusDao().remove(chunkId)
-            db.connectivityStateDao().remove(chunkId)
-            db.cellLocationDao().remove(chunkId)
-        } else {
-            chunk.submissionRetryCount++
-            Timber.d("SM Chunk FAILED responded: ${info?.uuid}")
-            if (result.failure !is NoConnectionException) {
-                chunk.testErrorCause = result.failure.message
-            }
+                testDao.removeTelephonyInfo(chunkId)
+                testDao.removeWlanRecord(chunkId)
+                db.geoLocationDao().remove(null, chunkId)
+                db.capabilitiesDao().remove(null, chunkId)
+                db.cellInfoDao().removeAllCellInfo(null, chunkId)
+                db.signalDao().remove(null, chunkId)
+                db.permissionStatusDao().remove(null, chunkId)
+                db.connectivityStateDao().remove(chunkId)
+                db.cellLocationDao().remove(null, chunkId)
 
-            dao.saveSignalMeasurementChunk(chunk)
-            throw result.failure
+            } else {
+                chunk.submissionRetryCount++
+                Timber.d("SM Chunk FAILED responded: ${info?.uuid}")
+                if (result.failure !is NoConnectionException) {
+                    chunk.testErrorCause = result.failure.message
+                }
+                dao.saveSignalMeasurementChunk(chunk)
+                throw result.failure
+            }
         }
     }
 }

@@ -55,7 +55,7 @@ class TestDataRepositoryImpl(db: CoreDatabase) : TestDataRepository {
     private val voipResultsDao = db.jplResultsDao()
     private val connectivityStateDao = db.connectivityStateDao()
 
-    override fun saveGeoLocation(testUUID: String, location: LocationInfo, testStartTimeNanos: Long, filterOldValues: Boolean) = io {
+    override fun saveGeoLocation(testUUID: String?, signalChunkId: String?, location: LocationInfo, testStartTimeNanos: Long, filterOldValues: Boolean) = io {
         if (filterOldValues) {
             val timeDiff = TimeUnit.MINUTES.toMillis(1)
             val locationAgeDiff = System.currentTimeMillis() - location.time
@@ -73,6 +73,7 @@ class TestDataRepositoryImpl(db: CoreDatabase) : TestDataRepository {
 
         val geoLocation = GeoLocationRecord(
             testUUID = testUUID,
+            signalChunkId = signalChunkId,
             latitude = location.latitude,
             longitude = location.longitude,
             provider = location.provider,
@@ -253,7 +254,7 @@ class TestDataRepositoryImpl(db: CoreDatabase) : TestDataRepository {
 
     override fun saveCellInfoRecord(cellInfoRecordList: List<CellInfoRecord>) = io {
         if (cellInfoRecordList.isNotEmpty()) {
-            cellInfoDao.clearInsert(cellInfoRecordList[0].testUUID, cellInfoRecordList)
+            cellInfoDao.clearInsert(cellInfoRecordList[0].testUUID, cellInfoRecordList[0].signalChunkId, cellInfoRecordList)
         }
     }
 
@@ -262,8 +263,7 @@ class TestDataRepositoryImpl(db: CoreDatabase) : TestDataRepository {
         synchronized(signalRecordList) {
             signalRecordList.forEach {
                 if (filterOldValues) {
-                    val lastSignal: SignalRecord? =
-                        it.testUUID?.let { testUUID -> signalDao.getLatestForCell(testUUID, it.cellUuid) }
+                    val lastSignal: SignalRecord? = signalDao.getLatestForCell(it.testUUID, it.signalChunkId, it.cellUuid)
                     if (lastSignal != null) {
                         val distinct = isSignalSignificantlyDistinct(it, lastSignal)
                         Timber.d("Distinct Signal Values $distinct: $it and $lastSignal")
@@ -337,7 +337,7 @@ class TestDataRepositoryImpl(db: CoreDatabase) : TestDataRepository {
                 cellInfo.add(mapped)
             }
         }
-        cellInfoDao.clearInsert(testUUID, cellInfo)
+        cellInfoDao.clearInsert(testUUID, signalChunkId, cellInfo)
     }
 
     private fun WifiNetworkInfo.toCellInfoRecord(testUUID: String?, signalChunkId: String?) = CellInfoRecord(
@@ -384,18 +384,19 @@ class TestDataRepositoryImpl(db: CoreDatabase) : TestDataRepository {
         return cellInfoRecord
     }
 
-    override fun savePermissionStatus(testUUID: String, permission: String, granted: Boolean) = io {
-        val permissionStatus = PermissionStatusRecord(testUUID = testUUID, permissionName = permission, status = granted)
+    override fun savePermissionStatus(testUUID: String?, signalChunkId: String?, permission: String, granted: Boolean) = io {
+        val permissionStatus = PermissionStatusRecord(testUUID = testUUID, signalChunkId = signalChunkId, permissionName = permission, status = granted)
         permissionStatusDao.insert(permissionStatus)
     }
 
-    override fun getCapabilities(testUUID: String): CapabilitiesRecord {
-        return capabilitiesDao.get(testUUID)
+    override fun getCapabilities(testUUID: String?, signalChunkId: String?): CapabilitiesRecord {
+        return capabilitiesDao.get(testUUID, signalChunkId)
     }
 
-    override fun saveCapabilities(testUUID: String, rmbtHttp: Boolean, qosSupportsInfo: Boolean, classificationCount: Int) = io {
+    override fun saveCapabilities(testUUID: String?, signalChunkId: String?, rmbtHttp: Boolean, qosSupportsInfo: Boolean, classificationCount: Int) = io {
         val capabilities = CapabilitiesRecord(
             testUUID = testUUID,
+            signalChunkId = signalChunkId,
             rmbtHttpStatus = rmbtHttp,
             qosSupportInfo = qosSupportsInfo,
             classificationCount = classificationCount

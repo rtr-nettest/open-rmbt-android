@@ -39,6 +39,6 @@ abstract class HistoryMedianDao {
         clearHistory()
     }
 
-    @Query("SELECT * FROM ${Tables.HISTORY_MEDIAN} WHERE loopUUID =:loopUuid")
+    @Query("SELECT * FROM ${Tables.HISTORY_MEDIAN} WHERE loopUUID ==:loopUuid")
     abstract fun getItemByLoopUUID(loopUuid: String): LiveData<HistoryLoopMedian?>
 }
