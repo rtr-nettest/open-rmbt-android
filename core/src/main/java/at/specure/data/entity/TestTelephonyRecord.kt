@@ -8,14 +8,6 @@ import at.specure.data.Tables
 
 @Entity(
     tableName = Tables.TEST_TELEPHONY_RECORD,
-    foreignKeys = [
-        ForeignKey(
-            entity = TestRecord::class,
-            parentColumns = [Columns.TEST_UUID_PARENT_COLUMN],
-            childColumns = ["testUUID"],
-            onDelete = ForeignKey.CASCADE
-        )
-    ]
 )
 data class TestTelephonyRecord(
     @PrimaryKey

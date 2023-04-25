@@ -10,12 +10,12 @@ import at.specure.data.entity.GeoLocationRecord
 @Dao
 interface GeoLocationDao {
 
-    @Query("SELECT * from ${Tables.GEO_LOCATION} WHERE testUUID == :testUUID")
-    fun get(testUUID: String): List<GeoLocationRecord>
+    @Query("SELECT * from ${Tables.GEO_LOCATION} WHERE ((testUUID IS :testUUID) OR (signalChunkId IS :signalChunkId))")
+    fun get(testUUID: String?, signalChunkId: String?): List<GeoLocationRecord>
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     fun insert(geoLocations: GeoLocationRecord): Long
 
-    @Query("DELETE FROM ${Tables.GEO_LOCATION} WHERE testUUID=:testUUID")
-    fun remove(testUUID: String)
+    @Query("DELETE FROM ${Tables.GEO_LOCATION} WHERE ((testUUID IS :testUUID) OR (signalChunkId IS :signalChunkId))")
+    fun remove(testUUID: String?, signalChunkId: String?)
 }

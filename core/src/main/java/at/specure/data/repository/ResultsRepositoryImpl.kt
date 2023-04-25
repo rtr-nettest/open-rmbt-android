@@ -76,21 +76,21 @@ class ResultsRepositoryImpl @Inject constructor(
 
             val pings: List<PingRecord> = db.pingDao().get(testUUID)
             val speeds: List<SpeedRecord> = db.speedDao().get(testUUID)
-            val signals: List<SignalRecord> = db.signalDao().get(testUUID)
+            val signals: List<SignalRecord> = db.signalDao().get(testUUID, null)
 
             val body = testRecord.toRequest(
                 clientUUID = clientUUID,
                 deviceInfo = deviceInfo,
                 telephonyInfo = telephonyInfo,
                 wlanInfo = wlanInfo,
-                locations = db.geoLocationDao().get(testUUID),
-                capabilities = db.capabilitiesDao().get(testUUID),
+                locations = db.geoLocationDao().get(testUUID, null),
+                capabilities = db.capabilitiesDao().get(testUUID, null),
                 pingList = pings,
-                cellInfoList = db.cellInfoDao().get(testUUID),
+                cellInfoList = db.cellInfoDao().get(testUUID, null),
                 signalList = signals,
                 speedInfoList = speeds,
-                cellLocationList = db.cellLocationDao().get(testUUID),
-                permissions = db.permissionStatusDao().get(testUUID),
+                cellLocationList = db.cellLocationDao().get(testUUID, null),
+                permissions = db.permissionStatusDao().get(testUUID, null),
                 jplTestResultsRecord
             )
 

@@ -60,12 +60,12 @@ abstract class HistoryDao {
         clearHistory()
     }
 
-    @Query("SELECT * FROM ${Tables.HISTORY} WHERE testUUID =:testUUID ORDER BY time DESC")
+    @Query("SELECT * FROM ${Tables.HISTORY} WHERE testUUID ==:testUUID ORDER BY time DESC")
     abstract fun getItemByUUID(testUUID: String): History?
 
-    @Query("SELECT * FROM ${Tables.HISTORY} WHERE loopUUID =:loopUuid ORDER BY time DESC")
+    @Query("SELECT * FROM ${Tables.HISTORY} WHERE loopUUID ==:loopUuid ORDER BY time DESC")
     abstract fun getItemByLoopUUID(loopUuid: String): List<History>
 
-    @Query("SELECT * FROM ${Tables.HISTORY} WHERE loopUUID =:loopUuid ORDER BY time DESC")
+    @Query("SELECT * FROM ${Tables.HISTORY} WHERE loopUUID ==:loopUuid ORDER BY time DESC")
     abstract fun getItemByLoopUUIDLiveData(loopUuid: String): LiveData<List<History>?>
 }

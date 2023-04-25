@@ -16,6 +16,6 @@ interface JplResultsDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insert(voipTestResultRecord: VoipTestResultRecord)
 
-    @Query("DELETE FROM ${Tables.JPL} WHERE testUUID=:testUUID")
+    @Query("DELETE FROM ${Tables.JPL} WHERE testUUID==:testUUID")
     fun remove(testUUID: String)
 }

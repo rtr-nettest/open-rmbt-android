@@ -6,7 +6,7 @@ interface MeasurementRepository {
 
     fun saveWlanInfo(uuid: String)
 
-    fun saveCapabilities(uuid: String)
+    fun saveCapabilities(uuid: String?, signalChunkId: String?)
 
-    fun savePermissionsStatus(uuid: String)
+    fun savePermissionsStatus(uuid: String?, signalChunkId: String?)
 }

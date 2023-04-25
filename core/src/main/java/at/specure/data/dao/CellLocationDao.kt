@@ -1,10 +1,9 @@
 package at.specure.data.dao
 
 import androidx.room.Dao
-import androidx.room.Insert
-import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Transaction
+import androidx.room.Upsert
 import at.specure.data.Tables
 import at.specure.data.entity.CellLocationRecord
 import timber.log.Timber
@@ -12,16 +11,16 @@ import timber.log.Timber
 @Dao
 interface CellLocationDao {
 
-    @Query("SELECT * from ${Tables.CELL_LOCATION} WHERE testUUID == :testUUID")
-    fun get(testUUID: String): List<CellLocationRecord>
+    @Query("SELECT * from ${Tables.CELL_LOCATION} WHERE ((testUUID IS :testUUID) OR (signalChunkId IS :signalChunkId))")
+    fun get(testUUID: String?, signalChunkId: String?): List<CellLocationRecord>
 
-    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    @Upsert
     fun insert(cellLocation: CellLocationRecord): Long
 
-    @Query("DELETE FROM ${Tables.CELL_LOCATION} WHERE testUUID=:testUUID")
-    fun remove(testUUID: String)
+    @Query("DELETE FROM ${Tables.CELL_LOCATION} WHERE ((testUUID IS :testUUID) OR (signalChunkId IS :signalChunkId))")
+    fun remove(testUUID: String?, signalChunkId: String?)
 
-    @Query("SELECT * FROM ${Tables.CELL_LOCATION} WHERE ((:testUUID!=null AND testUUID=:testUUID) OR (:signalChunkId!=null AND signalChunkId=:signalChunkId)) AND scramblingCode==:scramblingCode")
+    @Query("SELECT * FROM ${Tables.CELL_LOCATION} WHERE ((testUUID IS :testUUID) OR (signalChunkId IS :signalChunkId)) AND scramblingCode==:scramblingCode")
     fun getSingleCellLocation(testUUID: String?, signalChunkId: String?, scramblingCode: Int): List<CellLocationRecord>
 
     @Transaction

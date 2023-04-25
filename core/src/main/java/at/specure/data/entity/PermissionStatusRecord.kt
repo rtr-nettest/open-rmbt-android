@@ -20,7 +20,8 @@ import at.specure.data.Tables
 data class PermissionStatusRecord(
     @PrimaryKey(autoGenerate = true)
     val id: Long = 0,
-    val testUUID: String,
+    val testUUID: String?,
+    val signalChunkId: String?,
     val permissionName: String,
     val status: Boolean
 )
