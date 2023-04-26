@@ -41,7 +41,7 @@ class MeasurementViewModel @Inject constructor(
     private val _downloadGraphLiveData = MutableLiveData<List<GraphItemRecord>>()
     private val _uploadGraphLiveData = MutableLiveData<List<GraphItemRecord>>()
     private val _qosProgressLiveData = MutableLiveData<Map<QoSTestResultEnum, Int>>()
-    private val _loopUUIDLiveData = MutableLiveData<String>()
+    private val _loopUUIDLiveData = MutableLiveData<String?>()
     private val _timeToNextTestElapsedLiveData = MutableLiveData<String>()
     private val _timeProgressPercentsLiveData = MutableLiveData<Int>()
 
