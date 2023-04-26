@@ -19,6 +19,7 @@ import at.rtr.rmbt.android.ui.view.SpeedLineChart
 import at.rtr.rmbt.android.ui.view.WaveView
 import at.rtr.rmbt.android.ui.view.curve.MeasurementCurveLayout
 import at.rtr.rmbt.android.util.InfoWindowStatus
+import at.rtr.rmbt.android.util.expertFormat
 import at.rtr.rmbt.android.util.format
 import at.specure.data.Classification
 import at.specure.data.NetworkTypeCompat
@@ -876,7 +877,7 @@ fun AppCompatTextView.speedDownloadResult(speedDownloadResult: Long, speedDownlo
         if (isExpert) { //do not format for experts
             context.getString(
                 R.string.measurement_download_upload_speed,
-                ((speedDownloadResult.toFloat() / 1000f).toString())
+                ((speedDownloadResult.toFloat() / 1000f).expertFormat())
             )
         } else
             context.getString(
@@ -918,7 +919,7 @@ fun AppCompatTextView.speedUploadResult(speedUploadResult: Long, speedUploadClas
         if (isExpert) { //do not format for experts
             context.getString(
                 R.string.measurement_download_upload_speed,
-                ((speedUploadResult.toFloat() / 1000f).toString())
+                ((speedUploadResult.toFloat() / 1000f).expertFormat())
             )
         } else
             context.getString(
