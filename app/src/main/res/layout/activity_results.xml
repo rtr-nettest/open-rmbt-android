@@ -265,6 +265,7 @@
                         app:layout_constraintTop_toBottomOf="@+id/labelResultBottomDownload"
                         app:speedDownloadClassificationResult="@{state.testResult.downloadClass == null ? Classification.NONE : state.testResult.downloadClass}"
                         app:speedDownloadResult="@{state.testResult.downloadSpeedKbs}"
+                        app:isExpert="@{(state.expertModeEnabled != null &amp;&amp; state.expertModeEnabled == true) || (state.coverageModeEnabled != null &amp;&amp; state.coverageModeEnabled == true)}"
                         tools:drawableStart="@drawable/ic_small_download_light_green"
                         tools:text="24.12 Mbit/s" />
 
@@ -282,6 +283,7 @@
                         app:layout_constraintTop_toBottomOf="@+id/labelResultBottomUpload"
                         app:speedUploadClassificationResult="@{state.testResult.uploadClass == null ? Classification.NONE : state.testResult.uploadClass}"
                         app:speedUploadResult="@{state.testResult.uploadSpeedKbs}"
+                        app:isExpert="@{(state.expertModeEnabled != null &amp;&amp; state.expertModeEnabled == true) || (state.coverageModeEnabled != null &amp;&amp; state.coverageModeEnabled == true)}"
                         tools:drawableStart="@drawable/ic_small_upload_gray"
                         tools:text="135 Mbit/s" />
 

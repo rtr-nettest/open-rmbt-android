@@ -869,11 +869,20 @@ fun AppCompatTextView.setDownload(speedDownloadClassification: Classification) {
 /**
  * A binding adapter that is used for show download speed with classification icon in results
  */
-@BindingAdapter("speedDownloadResult", "speedDownloadClassificationResult", requireAll = true)
-fun AppCompatTextView.speedDownloadResult(speedDownloadResult: Long, speedDownloadClassificationResult: Classification) {
+@BindingAdapter("speedDownloadResult", "speedDownloadClassificationResult","isExpert", requireAll = true)
+fun AppCompatTextView.speedDownloadResult(speedDownloadResult: Long, speedDownloadClassificationResult: Classification,isExpert: Boolean) {
 
     text = if (speedDownloadResult > 0) {
-        context.getString(R.string.measurement_download_upload_speed, ((speedDownloadResult.toFloat() / 1000f).format()))
+        if (isExpert) { //do not format for experts
+            context.getString(
+                R.string.measurement_download_upload_speed,
+                ((speedDownloadResult.toFloat() / 1000f).toString())
+            )
+        } else
+            context.getString(
+                R.string.measurement_download_upload_speed,
+                ((speedDownloadResult.toFloat() / 1000f).format())
+            )
     } else {
         context.getString(R.string.measurement_dash)
     }
@@ -903,10 +912,33 @@ fun getSpeedDownloadClassification(speedDownloadClassification: Classification):
 /**
  * A binding adapter that is used for show upload speed with classification icon in results
  */
-@BindingAdapter("speedUploadResult", "speedUploadClassificationResult", requireAll = true)
-fun AppCompatTextView.speedUploadResult(speedUploadResult: Long, speedUploadClassificationResult: Classification) {
+@BindingAdapter("speedUploadResult", "speedUploadClassificationResult","isExpert", requireAll = true)
+fun AppCompatTextView.speedUploadResult(speedUploadResult: Long, speedUploadClassificationResult: Classification, isExpert: Boolean) {
     text = if (speedUploadResult > 0) {
-        context.getString(R.string.measurement_download_upload_speed, ((speedUploadResult.toFloat() / 1000f).format()))
+        if (isExpert) { //do not format for experts
+            context.getString(
+                R.string.measurement_download_upload_speed,
+                ((speedUploadResult.toFloat() / 1000f).toString())
+            )
+        } else
+            context.getString(
+                R.string.measurement_download_upload_speed,
+                ((speedUploadResult.toFloat() / 1000f).format())
+            )
+    } else {
+        context.getString(R.string.measurement_dash)
+    }
+    setCompoundDrawablesWithIntrinsicBounds(getSpeedUploadClassificationIcon(speedUploadClassificationResult), 0, 0, 0)
+}
+
+/**
+ * A binding adapter that is used to show expert upload speed with classification icon in results
+ */
+
+@BindingAdapter("expertSpeedUploadResult", "expertSpeedUploadClassificationResult", requireAll = true)
+fun AppCompatTextView.expertSpeedUploadResult(speedUploadResult: Long, speedUploadClassificationResult: Classification) {
+    text = if (speedUploadResult > 0) {
+        context.getString(R.string.measurement_download_upload_speed, ((speedUploadResult.toFloat() / 1000f)).toString())
     } else {
         context.getString(R.string.measurement_dash)
     }

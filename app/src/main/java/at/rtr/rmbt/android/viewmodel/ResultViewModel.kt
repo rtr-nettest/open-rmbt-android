@@ -3,6 +3,7 @@ package at.rtr.rmbt.android.viewmodel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import at.rmbt.util.exception.HandledException
+import at.rtr.rmbt.android.config.AppConfig
 import at.rtr.rmbt.android.ui.viewstate.ResultViewState
 import at.specure.data.entity.QoeInfoRecord
 import at.specure.data.entity.QosCategoryRecord
@@ -18,10 +19,11 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 class ResultViewModel @Inject constructor(
+    private val appConfig: AppConfig,
     private val testResultsRepository: TestResultsRepository
 ) : BaseViewModel() {
 
-    val state = ResultViewState()
+    val state = ResultViewState(appConfig)
 
     val testServerResultLiveData: LiveData<TestResultRecord?>
         get() = testResultsRepository.getServerTestResult(state.testUUID)
