@@ -516,7 +516,7 @@ class TestControllerImpl(
 
     private fun handleQoSEnd(client: RMBTClient, clientCallback: RMBTClientCallback) {
         setState(MeasurementState.FINISH, 0)
-        clientCallback.onTestCompleted(client.totalTestResult, true)
+        clientCallback.onTestCompleted(client.totalTestResult, false)
         _testUUID = null
     }
 
