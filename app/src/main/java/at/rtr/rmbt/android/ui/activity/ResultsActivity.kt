@@ -60,10 +60,11 @@ class ResultsActivity : BaseActivity() {
         viewModel.state.returnPoint = returnPoint?.let { ReturnPoint.valueOf(returnPoint) } ?: ReturnPoint.HOME
         viewModel.testServerResultLiveData.listen(this) { result ->
 
-            if (result?.isLocalOnly == true) {
+            // show local results if no results from server after 2000 ms
+             if (result?.isLocalOnly == true) {
                 timer.schedule(timerTask {
                     viewModel.state.testResult.set(result)
-                }, 1000)
+                }, 2000)
             } else {
                 timer.cancel()
                 viewModel.state.testResult.set(result)
