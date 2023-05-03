@@ -700,8 +700,12 @@ class MeasurementService : CustomLifecycleService(), CoroutineScope {
         runner.stop()
         Timber.d("TIMER: cancelling 2: ${loopCountdownTimer?.hashCode()}")
         loopCountdownTimer?.cancel()
-        //config.previousTestStatus = TestFinishReason.ABORTED.name // cannot be handled in TestController
-        //stateRecorder.onUnsuccessTest(TestFinishReason.ABORTED)
+        Timber.e("LOOP_MODE_STATE: $previousLoopModeState measurement state: $measurementState" )
+        if (measurementState != MeasurementState.FINISH) {
+            config.previousTestStatus =
+                TestFinishReason.ABORTED.name // cannot be handled in TestController
+            stateRecorder.onUnsuccessTest(TestFinishReason.ABORTED)
+        }
         measurementState = MeasurementState.ABORTED
         stateRecorder.finish()
         clientAggregator.onMeasurementCancelled()
