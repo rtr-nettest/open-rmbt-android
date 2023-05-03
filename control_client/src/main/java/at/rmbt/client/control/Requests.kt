@@ -487,7 +487,7 @@ data class TestResultBody(
     var submissionRetryCount: Int,
 
     /**
-     * Reason of the test finishing, provided as int value, example - "0" for Success
+     * Reason of the test finishing, provided as int value, example - "0" for Success, "1" for Error, "2" for Aborted
      */
     @SerializedName("test_status")
     var testStatus: String,
