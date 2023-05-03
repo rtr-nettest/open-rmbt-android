@@ -24,12 +24,12 @@ android {
             projectName = "openRmbtDebug"
             // fix for openRMBT build because there is clean command before assembling which makes trouble because of null flavor
             return
-        } else if (tskReqStr.contains("RmbtProductionDebug")) {
-            projectName = "rmbtProductionDebug"
+        } else if (tskReqStr.contains("RmbtDebug") && !tskReqStr.contains("Open")) {
+            projectName = "rmbtDebug"
             // fix for production build
             return
-        } else if (tskReqStr.contains("RmbtProductionRelease")) {
-            projectName = "rmbtProductionRelease"
+        } else if (tskReqStr.contains("RmbtRelease") && !tskReqStr.contains("Open")) {
+            projectName = "rmbtRelease"
             // fix for production build
             return
         } else if (tskReqStr.contains("assemble")) {
