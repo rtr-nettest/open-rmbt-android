@@ -16,24 +16,28 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
         android:id="@+id/navigation_home"
+        android:contentDescription="@{@string/home_home}"
         android:icon="@drawable/ic_menu_home"
         android:title="@string/menu_button_title_page"
         app:showAsAction="ifRoom" />
 
     <item
         android:id="@+id/navigation_history"
+        android:contentDescription="@{@string/home_history}"
         android:icon="@drawable/ic_menu_history"
         android:title="@string/menu_button_history"
         app:showAsAction="ifRoom" />
 
     <item
         android:id="@+id/navigation_statistics"
+        android:contentDescription="@{@string/home_statistics}"
         android:icon="@drawable/ic_menu_statistics"
         android:title="@string/menu_button_statistics"
         app:showAsAction="ifRoom" />
 
     <item
         android:id="@+id/navigation_map"
+        android:contentDescription="@{@string/home_map}"
         android:icon="@drawable/ic_menu_map"
         android:title="@string/menu_button_map"
         app:showAsAction="ifRoom" />

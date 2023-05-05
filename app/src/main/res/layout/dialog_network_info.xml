@@ -32,6 +32,7 @@
 
         <ImageView
             android:id="@+id/icon_close"
+            android:contentDescription="@{@string/content_label_close}"
             android:layout_width="?attr/actionBarSize"
             android:layout_height="?attr/actionBarSize"
             android:layout_gravity="end|top"
