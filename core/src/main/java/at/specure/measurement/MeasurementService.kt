@@ -481,7 +481,7 @@ class MeasurementService : CustomLifecycleService(), CoroutineScope {
             loopCountdownTimer?.cancel()
 
             if (((stateRecorder.loopTestCount < config.loopModeNumberOfTests) || config.loopModeNumberOfTests == 0 && config.developerModeIsEnabled) && stateRecorder.loopModeRecord?.status != LoopModeState.CANCELLED) {
-                if (runner.isRunning || startPendingTest) {
+                if (runner.isRunning) {
                     startPendingTest = true
                     Timber.d("LOOP STARTING PENDING TEST set to true onCreate due to distance")
                 } else {
@@ -558,7 +558,7 @@ class MeasurementService : CustomLifecycleService(), CoroutineScope {
 
                     override fun onFinish() {
                         Timber.i("CountDownTimer finished - ${this.hashCode()}")
-                        if (runner.isRunning || startPendingTest) {
+                        if (runner.isRunning) {
                             Timber.d("LOOP STARTING PENDING TEST set to true")
                             startPendingTest = true
                         } else {
@@ -621,6 +621,13 @@ class MeasurementService : CustomLifecycleService(), CoroutineScope {
 
     private fun runTest() {
         notificationManager.cancel(NOTIFICATION_LOOP_FINISHED_ID)
+        startPendingTest = false
+        if (config.loopModeEnabled && stateRecorder.loopModeRecord?.status != LoopModeState.CANCELLED && (stateRecorder.loopTestCount < config.loopModeNumberOfTests || (config.loopModeNumberOfTests == 0 && config.developerModeIsEnabled))) {
+            scheduleNextLoopTest()
+            stopSignalMeasurement()
+        } else {
+            pauseSignalMeasurement()
+        }
 
         Timber.d("LOOP MODE: runner is running: ${runner.isRunning}")
         if (!runner.isRunning) {
@@ -661,15 +668,6 @@ class MeasurementService : CustomLifecycleService(), CoroutineScope {
             testListener,
             stateRecorder
         )
-
-        Timber.d("RUNNER IS RUNNING: ${runner.isRunning}")
-        startPendingTest = false
-        if (config.loopModeEnabled && stateRecorder.loopModeRecord?.status != LoopModeState.CANCELLED && (stateRecorder.loopTestCount < config.loopModeNumberOfTests || (config.loopModeNumberOfTests == 0 && config.developerModeIsEnabled))) {
-            scheduleNextLoopTest()
-            stopSignalMeasurement()
-        } else {
-            pauseSignalMeasurement()
-        }
     }
 
     private fun attachToForeground() {
