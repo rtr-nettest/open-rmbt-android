@@ -304,4 +304,5 @@
     <string name="home_map">Karte</string>
     <string name="home_statistics">Statistik</string>
     <string name="home_history">Verlauf</string>
+    <string name="home_loop_mode_active">Wiederholungsmodus aktiv</string>
 </resources>
