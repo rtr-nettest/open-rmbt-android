@@ -24,6 +24,7 @@
     <string name="error_unknown">Poor connection. Please try again later</string>
     <string name="no_internet_connection_not_load_data">Nincs kapcsolat, adatletöltés hiba!</string>
     <!-- Home screen -->
+    <string name="tc_tobottom">Scroll down</string>
     <string name="home_signal">Jelerősség</string>
     <string name="home_frequency">Frekvencia</string>
     <string name="home_no_internet_connection">Nincs internet kapcsolat!</string>
@@ -35,6 +36,10 @@
     <string name="public_ip_address">Publikus IP cím</string>
     <string name="private_ip_address">Privát IP cím</string>
     <!-- Preference titles -->
+    <string name="home_ipv4">IPv4 address</string>
+    <string name="home_ipv6">IPv6 address</string>
+    <string name="home_location">Location</string>
+    <string name="home_settings">Settings</string>
     <string name="options">Lehetőségek</string>
     <string name="preferences_general_settings">Általános beállítások</string>
     <string name="preferences_ndt">NDT</string>
@@ -166,6 +171,7 @@
     <string name="notification_test_title">RTR-NetTest mérés folyamatban</string>
     <string name="test_dialog_error_text">Mérési hiba. Kérjük, próbálja később.</string>
     <!-- History -->
+    <string name="measurement_cancel">Cancel</string>
     <string name="history_item_header_test">Teszt</string>
     <string name="history_item_header_down">Le</string>
     <string name="history_item_header_up">Fel</string>
@@ -173,6 +179,9 @@
     <string name="history_item_header_ms">ms</string>
     <string name="history_no_data">Nincs elérhető adat.</string>
     <!-- Results -->
+    <string name="history_settings">Settings</string>
+    <string name="history_sync">Sync</string>
+    <string name="history_items">History items</string>
     <string name="results_other_details">További részletek</string>
     <string name="results_qoe_videos_sd">SD videók</string>
     <string name="results_qoe_videos_hd">HD videók</string>
@@ -211,6 +220,10 @@
     <string name="map_search_location_dialog_info">Cím vagy város keresése:</string>
     <string name="map_search_location_dialog_not_found">Cím nem található.</string>
     <string name="map_search_location_not_supported">Sajnos ezt a funkciót nem támogatja a készülék.</string>
+    <string name="map_filters">Map filter</string>
+    <string name="map_layers">Change layer</string>
+    <string name="map_location">Center on current location</string>
+    <string name="map_search">Search location</string>
     <string name="text_wait_loading">Loading results</string>
     <string name="title_sync">Szinkronizálás</string>
     <string name="text_sync_info">Lehetőség van több eszközön elvégzett mérési eredményeinek az összesítésére. Ehhez adja meg a korábban igényelt szinkronizációs kódot, vagy igényeljen egy újat.</string>
@@ -274,6 +287,8 @@
     <string name="signal_measurement_terms_title">Aktiválás és használat</string>
     <string name="signal_measurement_terms_content">A folyamatos jelszintmérés opció a műszaki érdeklődésű felhasználók számára lehetővé teszi a jelszintmérés automatikus megismétlését - a sebesség és QoS mérések elvégzése nélkül. A folyamatos jelszintmérés bármikor leállítható, de 48 óra elteltével automatikusan is leáll. A folyamatos jelszintmérés funkció kizárólag az EU tagállamokban, illetve az EU gazdasági térség országaiban történő használatra készült. A folyamatos jelszintmérés gyorsan az akkumulátor lemerülésével járhat. A mérések szüneteiben a GPS és a képernyő bekapcsolva marad, ami jelentős többlet energiafogyasztást eredményez az energiatakarékos üzemmódhoz képest. Erre tekintettel a folyamatos jelszintmérés csak külső tápegység csatlakoztatása mellett javasolt. Felhívjuk a figyelmet arra, hogy a folyamatos jelszintmérés módban nem zárható ki a tesztelést végző azonosítása.</string>
     <!-- Signal details -->
+    <string name="content_label_close">Close</string>
+    <string name="ip_info_ip_address">IP address</string>
     <string name="label_location_access_disabled">Az alkalmazás számára nem engedélyezett a hozzáférés a helyadatokhoz.</string>
     <string name="label_location_access_disabled_explanation">Engedélyezze a helyadatokhoz történő hozzáférést a telefon beállításai menüben.</string>
     <string name="label_some_permission_denied">Az alkalmazás nem rendelkezik a működéséhez szükséges engedéllyel.</string>
@@ -285,4 +300,8 @@
     <string name="phone_permission_explanation">Az RTR-NetTest alkalmazás nem kezdeményez hívásokat. A telefon adatokhoz történő hozzáférés a mobilszolgáltató azonosítása érdekében szükséges.</string>
     <string name="location_permission_explanation">The location permission is necessary to identify the measurement location and to display it on the map. Without precise location permission, signal strength is unavailable on many devices. Use of loop mode while on the move is only possible with location permission.</string>
     <string name="location_permissions_disclaimer">Az RTR-NetTest alkalmazás kizárólag a mérés ideje alatt használja a helyadatokhoz történő hozzáférési engedélyt, a háttérben történő futtatásra vonatkozó engedély a mérési sorozat háttérben történő elvégzéséhez szükséges.</string>
+    <string name="home_home">Home</string>
+    <string name="home_map">Map</string>
+    <string name="home_statistics">Statistics</string>
+    <string name="home_history">History</string>
 </resources>

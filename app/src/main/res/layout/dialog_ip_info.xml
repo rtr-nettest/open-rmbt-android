@@ -36,6 +36,9 @@
 
         <androidx.appcompat.widget.AppCompatImageView
             android:id="@+id/ivIPIcon"
+            android:contentDescription="@{@string/ip_info_ip_address}"
+            android:minWidth="48dp"
+            android:minHeight="48dp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             app:IpIcon="@{ipInfo}"

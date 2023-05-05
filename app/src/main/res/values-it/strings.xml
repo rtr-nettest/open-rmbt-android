@@ -24,6 +24,7 @@
     <string name="error_unknown">Scarsa connessione. Riprova più tardi</string>
     <string name="no_internet_connection_not_load_data">Nessuna connessione Internet. Impossibile caricare i dati.</string>
     <!-- Home screen -->
+    <string name="tc_tobottom">Scroll down</string>
     <string name="home_signal">Segnale</string>
     <string name="home_frequency">Frequenza</string>
     <string name="home_no_internet_connection">Nessuna connessione a Internet!</string>
@@ -35,6 +36,10 @@
     <string name="public_ip_address">Indirizzo pubblico</string>
     <string name="private_ip_address">Indirizzo privato</string>
     <!-- Preference titles -->
+    <string name="home_ipv4">IPv4 address</string>
+    <string name="home_ipv6">IPv6 address</string>
+    <string name="home_location">Location</string>
+    <string name="home_settings">Settings</string>
     <string name="options">Opzioni</string>
     <string name="preferences_general_settings">Impostazioni generali</string>
     <string name="preferences_ndt">NDT</string>
@@ -166,6 +171,7 @@
     <string name="notification_test_title">RTR-NetTest è in esecuzione</string>
     <string name="test_dialog_error_text">Test fallito. Riprova più tardi.</string>
     <!-- History -->
+    <string name="measurement_cancel">Cancel</string>
     <string name="history_item_header_test">Test</string>
     <string name="history_item_header_down">Down</string>
     <string name="history_item_header_up">Up</string>
@@ -173,6 +179,9 @@
     <string name="history_item_header_ms">ms</string>
     <string name="history_no_data">Nessun dato disponibile.</string>
     <!-- Results -->
+    <string name="history_settings">Settings</string>
+    <string name="history_sync">Sync</string>
+    <string name="history_items">History items</string>
     <string name="results_other_details">Maggiori dettagli</string>
     <string name="results_qoe_videos_sd">Video SD</string>
     <string name="results_qoe_videos_hd">Video HD</string>
@@ -211,6 +220,10 @@
     <string name="map_search_location_dialog_info">Cerca un indirizzo o una città:</string>
     <string name="map_search_location_dialog_not_found">Indirizzo non trovato.</string>
     <string name="map_search_location_not_supported">Spiacenti, questa funzione non è supportata dal tuo dispositivo.</string>
+    <string name="map_filters">Map filter</string>
+    <string name="map_layers">Change layer</string>
+    <string name="map_location">Center on current location</string>
+    <string name="map_search">Search location</string>
     <string name="text_wait_loading">Loading results</string>
     <string name="title_sync">Sincronizzazione</string>
     <string name="text_sync_info">Hai la possibilità di unire i risultati da diversi dispositivi. Per farlo, è necessario inserire un codice di sincronizzazione già richiesto o richiederne uno nuovo.</string>
@@ -274,6 +287,8 @@
     <string name="signal_measurement_terms_title">Attivazione e utilizzo</string>
     <string name="signal_measurement_terms_content">La modalità loop solo segnale per gli utenti tecnicamente interessati, consente la ripetizione automatica delle misurazioni del segnale senza l\'esecuzione alcuna test di velocità o di qualità. La modalità loop del segnale può essere interrotta in qualsiasi momento e si ferma automaticamente dopo 48 oreLa modalità loop del segnale è solamente destinata all\'utilizzo all\'interno dell\'UE e del SEE. La batteria viene rapidamente scaricata dalle misurazioni del solo segnale. Nelle pause tra le prove, il GPS e il display rimangono attivi e le misurazioni del segnale continuano, il che significa che l\'energia viene utilizzata molto più velocemente che in modalità stand-by. La modalità loop dovrebbe pertanto essere utilizzato solo se è disponibile un alimentatore esterno. Va sottolineato esplicitamente che, a causa della modalità loop solo segnale, non si può escludere che il tester sia identificato.</string>
     <!-- Signal details -->
+    <string name="content_label_close">Close</string>
+    <string name="ip_info_ip_address">IP address</string>
     <string name="label_location_access_disabled">Autorizzazione alla posizione mancante</string>
     <string name="label_location_access_disabled_explanation">Concedi il permesso alla localizzazione nelle impostazioni.</string>
     <string name="label_some_permission_denied">Autorizzazioni dell\'app mancanti</string>
@@ -285,4 +300,8 @@
     <string name="phone_permission_explanation">RTR-NetTest non effettua chiamate. L\'autorizzazione al telefono è necessaria per identificare il fornitore del servizio.</string>
     <string name="location_permission_explanation">The location permission is necessary to identify the measurement location and to display it on the map. Without precise location permission, signal strength is unavailable on many devices. Use of loop mode while on the move is only possible with location permission.</string>
     <string name="location_permissions_disclaimer">RTR-NetTest utilizza il permesso alla localizzazione solo durante la misurazione, il permesso all\'accesso in background è necessario per consentire l\'esecuzione della modalità loop in background.</string>
+    <string name="home_home">Home</string>
+    <string name="home_map">Map</string>
+    <string name="home_statistics">Statistics</string>
+    <string name="home_history">History</string>
 </resources>

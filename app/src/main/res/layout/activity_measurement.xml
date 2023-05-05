@@ -114,11 +114,11 @@
 
             <ImageView
                 android:id="@+id/buttonCancel"
+                android:contentDescription="@{@string/measurement_cancel}"
                 android:layout_width="@dimen/toolbar_button_size"
                 android:layout_height="@dimen/toolbar_button_size"
                 android:layout_marginTop="@dimen/margin_small"
                 android:layout_marginEnd="@dimen/margin_small"
-                android:contentDescription="@null"
                 android:scaleType="center"
                 android:src="@drawable/ic_cancel"
                 app:layout_constraintEnd_toEndOf="parent"

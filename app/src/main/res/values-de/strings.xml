@@ -24,6 +24,7 @@
     <string name="error_unknown">Die Verbindung ist unzureichend. Bitte versuchen Sie es später noch einmal</string>
     <string name="no_internet_connection_not_load_data">Keine Netzwerksverbindung: Die Daten konnten nicht geladen werden.</string>
     <!-- Home screen -->
+    <string name="tc_tobottom">Nach unten scrollen</string>
     <string name="home_signal">Signal</string>
     <string name="home_frequency">Frequenz</string>
     <string name="home_no_internet_connection">Keine Internetverbindung!</string>
@@ -35,6 +36,10 @@
     <string name="public_ip_address">Öffentliche Adresse</string>
     <string name="private_ip_address">Lokale Adresse</string>
     <!-- Preference titles -->
+    <string name="home_ipv4">IPv4-Adresse</string>
+    <string name="home_ipv6">IPv6-Adresse</string>
+    <string name="home_location">Standort</string>
+    <string name="home_settings">Einstellungen</string>
     <string name="options">Optionen</string>
     <string name="preferences_general_settings">Allgemeine Einstellungen</string>
     <string name="preferences_ndt">NDT</string>
@@ -166,6 +171,7 @@
     <string name="notification_test_title">Der RTR-Netztest läuft</string>
     <string name="test_dialog_error_text">Der Test schlug fehl. Bitte versuchen Sie es später noch einmal.</string>
     <!-- History -->
+    <string name="measurement_cancel">Abbrechen</string>
     <string name="history_item_header_test">Datum</string>
     <string name="history_item_header_down">Down</string>
     <string name="history_item_header_up">Up</string>
@@ -173,6 +179,9 @@
     <string name="history_item_header_ms">ms</string>
     <string name="history_no_data">Keine Daten verfügbar.</string>
     <!-- Results -->
+    <string name="history_settings">Einstellungen</string>
+    <string name="history_sync">Synchronisieren</string>
+    <string name="history_items">Einträge des Verlaufs</string>
     <string name="results_other_details">Weitere Details</string>
     <string name="results_qoe_videos_sd">Video SD</string>
     <string name="results_qoe_videos_hd">Video HD</string>
@@ -211,6 +220,10 @@
     <string name="map_search_location_dialog_info">Suche nach einer Adresse oder Stadt:</string>
     <string name="map_search_location_dialog_not_found">Adresse nicht gefunden.</string>
     <string name="map_search_location_not_supported">Ihr Gerät unterstützt diese Funktion nicht.</string>
+    <string name="map_filters">Kartenfilter</string>
+    <string name="map_layers">Ebene wechseln</string>
+    <string name="map_location">Karte auf aktuellen Standort zentrieren</string>
+    <string name="map_search">Adress-Suche</string>
     <string name="text_wait_loading">Die Ergebnisse werden geladen</string>
     <string name="title_sync">Synchronisieren</string>
     <string name="text_sync_info">Es besteht die Möglichkeit, Messergebnisse von anderen Endgeräten zusammenzuführen. Dazu müssen Sie einen bereits erhaltenen Synchronisations-Code eingeben oder einen neuen anfordern.</string>
@@ -274,6 +287,8 @@
     <string name="signal_measurement_terms_title">Aktivierung und Nutzung</string>
     <string name="signal_measurement_terms_content">Die Nur-Signalmessung für technisch Interessierte ermöglicht, dass die Signalstärke automatisiert wiederholt gemessen wird – ohne, dass dabei Geschwindigkeits- oder Qualitätstests durchgeführt werden. Die Nur-Signalmessung kann jederzeit gestoppt werden bzw endet automatisch nach 48 Stunden. Sie ist (nur) zur Nutzung innerhalb der EU- und des EWR gedacht ist. Während der Signalmessung bleiben GPS und die Anzeige aktiv, deshalb wird die Batterie schnell entleert. Daher sollte sie nur genutzt werden, wenn externe Stromversorgung zur Verfügung steht. Es wird ausdrücklich darauf hingewiesen, dass aufgrund der Nur-Signalmessung ein Rückschluss auf die testende Person nicht ausgeschlossen ist.\n Damit Messungen stattfinden und einem Standort zugeordnet werden können, wenn sich die Anwendung im Hintergrund befindet, ist die Systemberechtigung zum Erfassen des Standorts bei Hintergrundnutzung notwendig. Diese Standortberechtigung wird verwendet, um den erfolgten Messungen Standorte zuzuordnen.</string>
     <!-- Signal details -->
+    <string name="content_label_close">Schließen</string>
+    <string name="ip_info_ip_address">IP-Adresse</string>
     <string name="label_location_access_disabled">Standortberechtigung fehlt</string>
     <string name="label_location_access_disabled_explanation">Erteilen Sie die Standortberechtigung in den Einstellungen.</string>
     <string name="label_some_permission_denied">App-Berechtigungen fehlen</string>
@@ -285,4 +300,8 @@
     <string name="phone_permission_explanation">Der RTR-Netztest tätigt keine Telefonanrufe. Die Telefonberechtigung ist jedoch notwendig, um die Messung einem Anbieter zuzuordnen.</string>
     <string name="location_permission_explanation">Die Standortberechtigung wird für die Bestimmung des Mess-Standorts und zur Darstellung auf der Karte benötigt. Ohne Berechtigung für den genauen Standort kann die Signalstärke auf vielen Geräten nicht angezeigt werden. Die Verwendung des Wiederholungsmodus in Bewegung ist nur mit Standortberechtigung möglich.</string>
     <string name="location_permissions_disclaimer">Der RTR-Netztest verwendet die Standortberechtigung nur während der Messung, die Hintergrundberechtigung ist beim Wiederholungsmodus notwendig um diesen auch im Hintergrund ausführen zu können.</string>
+    <string name="home_home">Home</string>
+    <string name="home_map">Karte</string>
+    <string name="home_statistics">Statistik</string>
+    <string name="home_history">Verlauf</string>
 </resources>

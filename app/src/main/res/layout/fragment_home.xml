@@ -68,6 +68,7 @@
 
         <androidx.appcompat.widget.AppCompatImageButton
             android:id="@+id/btnSetting"
+            android:contentDescription="@{@string/home_settings}"
             style="@style/NavigationButtonStyle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -184,6 +185,7 @@
 
         <androidx.appcompat.widget.AppCompatImageButton
             android:id="@+id/ivSignalLevel"
+            android:contentDescription="@{@string/home_signal}"
             android:layout_width="0dp"
             android:layout_height="0dp"
             android:src="@drawable/ic_mobile_3"
@@ -290,6 +292,7 @@
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/tvSignal"
+            android:minHeight="48dp"
             style="@style/RobotoMediumStyle.ExtraLarge"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
@@ -305,6 +308,7 @@
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/tvFrequency"
+            android:minHeight="48dp"
             style="@style/RobotoMediumStyle.ExtraLarge"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
@@ -380,6 +384,7 @@
 
         <androidx.appcompat.widget.AppCompatImageButton
             android:id="@+id/btnIpv4"
+            android:contentDescription="@{@string/home_ipv4}"
             android:layout_width="0dp"
             android:layout_height="?android:attr/actionBarSize"
             android:background="?android:attr/selectableItemBackground"
@@ -392,6 +397,7 @@
 
         <androidx.appcompat.widget.AppCompatImageButton
             android:id="@+id/btnIpv6"
+            android:contentDescription="@{@string/home_ipv6}"
             android:layout_width="0dp"
             android:layout_height="?android:attr/actionBarSize"
             android:background="?android:attr/selectableItemBackground"
@@ -404,6 +410,7 @@
 
         <androidx.appcompat.widget.AppCompatImageButton
             android:id="@+id/btnLocation"
+            android:contentDescription="@{@string/home_location}"
             android:layout_width="0dp"
             android:layout_height="?android:attr/actionBarSize"
             android:background="?android:attr/selectableItemBackground"
