@@ -54,6 +54,7 @@
     <string name="home_map">Map</string>
     <string name="home_statistics">Statistics</string>
     <string name="home_history">History</string>
+    <string name="home_loop_mode_active">Loop mode enabled</string>
 
 
     <!-- Preference titles -->

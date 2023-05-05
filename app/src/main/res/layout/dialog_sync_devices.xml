@@ -76,6 +76,7 @@
             style="@style/RobotoMediumStyle.ExtraLarge"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:minWidth="48dp"
             android:layout_marginTop="@dimen/margin_24"
             android:paddingTop="@dimen/padding_medium"
             android:text="@{state.currentDeviceSyncCode}"

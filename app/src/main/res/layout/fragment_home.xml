@@ -129,6 +129,7 @@
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/icon_loop_mode"
+            android:contentDescription="@{@string/home_loop_mode_active}"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:backgroundTint="@android:color/white"
@@ -167,6 +168,7 @@
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/tv_info"
+            android:minHeight="48dp"
             style="@style/RobotoRegularStyle.Medium"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

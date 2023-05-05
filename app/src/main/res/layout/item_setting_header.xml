@@ -24,7 +24,7 @@
         android:padding="@dimen/padding_large"
         android:singleLine="true"
         android:text="@{title}"
-        android:textColor="@color/text_gray_transparency_55"
+        android:textColor="@color/text_gray_transparency_60"
         tools:text="Title" />
 
 </layout>
