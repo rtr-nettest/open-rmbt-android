@@ -20,7 +20,6 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.view.WindowManager
-import androidx.lifecycle.observe
 import at.rtr.rmbt.android.R
 import at.rtr.rmbt.android.databinding.ActivityMeasurementBinding
 import at.rtr.rmbt.android.di.viewModelLazy
@@ -136,10 +135,12 @@ class MeasurementActivity : BaseActivity(), SimpleDialog.Callback {
 
     private fun finishActivity(measurementFinished: Boolean) {
         if (measurementFinished) {
-            finish()
             if (viewModel.state.isLoopModeActive.get()) {
-                LoopFinishedActivity.start(this)
+                if (viewModel.state.loopModeRecord.get()?.status == LoopModeState.FINISHED) {
+                    LoopFinishedActivity.start(this)
+                }
             } else {
+                finish()
                 viewModel.testUUID?.let {
                     if (viewModel.state.measurementState.get() == MeasurementState.FINISH)
                         ResultsActivity.start(this, it, ResultsActivity.ReturnPoint.HOME)
@@ -194,6 +195,7 @@ class MeasurementActivity : BaseActivity(), SimpleDialog.Callback {
         }
         // finish activity for in both cases
         finish()
+        HomeActivity.startWithFragment(this, HomeActivity.Companion.HomeNavigationTarget.HOME_FRAGMENT_TO_SHOW)
     }
 
     override fun onDialogNegativeClicked(code: Int) {
@@ -233,6 +235,7 @@ class MeasurementActivity : BaseActivity(), SimpleDialog.Callback {
 
         fun start(context: Context) {
             val intent = Intent(context, MeasurementActivity::class.java)
+            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
             context.startActivity(intent)
         }
     }
