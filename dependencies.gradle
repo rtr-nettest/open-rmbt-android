@@ -42,6 +42,7 @@ buildscript {
                 paging              : '3.1.1',
                 guava               : '28.1-android',
                 joda_time           : '2.12.5',
+                splash_screen       : '1.0.1',
 
                 junit               : '4.13.2',
 

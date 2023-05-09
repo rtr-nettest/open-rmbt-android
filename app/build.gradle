@@ -107,6 +107,8 @@ dependencies {
     implementation "androidx.preference:preference-ktx:$versions.androidx_preference"
     implementation "com.github.zcweng:switch-button:$versions.switch_button"
 
+    implementation "androidx.core:core-splashscreen:$versions.splash_screen"
+
     debugImplementation "com.facebook.stetho:stetho:$versions.stetho"
 
     testImplementation "junit:junit:$versions.junit"

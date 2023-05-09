@@ -53,8 +53,8 @@ class TermsAcceptanceActivity : BaseActivity() {
             if (binding.checkbox.isChecked) {
                 viewModel.updateTermsAcceptance(true)
                 WorkLauncher.enqueueSettingsRequest(this)
-                setResult(Activity.RESULT_OK)
-                finish()
+                finishAffinity()
+                HomeActivity.start(this)
             } else {
                 SimpleDialog.Builder()
                     .messageText(R.string.text_terms_agree_empty)
@@ -111,6 +111,6 @@ class TermsAcceptanceActivity : BaseActivity() {
 
         private const val CODE_DIALOG = 12
 
-        fun start(activity: Activity, code: Int) = activity.startActivityForResult(Intent(activity, TermsAcceptanceActivity::class.java), code)
+        fun start(activity: Activity) = activity.startActivity(Intent(activity, TermsAcceptanceActivity::class.java))
     }
 }

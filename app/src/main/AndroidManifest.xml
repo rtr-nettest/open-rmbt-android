@@ -45,9 +45,10 @@
         tools:ignore="AllowBackup,GoogleAppIndexingWarning,UnusedAttribute">
 
         <activity
-            android:name=".ui.activity.SplashActivity"
-            android:theme="@style/SplashNoActionBarTheme"
+            android:name=".ui.activity.HomeActivity"
+            android:theme="@style/Theme.Netztest.Splash"
             android:exported="true"
+            android:launchMode="singleTask"
             android:windowSoftInputMode="stateAlwaysHidden">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -56,11 +57,6 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
-        <activity
-            android:name="at.rtr.rmbt.android.ui.activity.HomeActivity"
-            android:launchMode="singleTask"
-            android:windowSoftInputMode="stateAlwaysHidden" />
 
         <activity
             android:name="at.rtr.rmbt.android.ui.activity.PreferenceActivity"

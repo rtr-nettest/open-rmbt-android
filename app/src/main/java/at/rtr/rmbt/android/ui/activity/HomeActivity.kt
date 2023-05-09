@@ -19,6 +19,7 @@ import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.plusAssign
 import androidx.navigation.ui.setupWithNavController
@@ -38,7 +39,16 @@ class HomeActivity : BaseActivity() {
 
     private val viewModel: MeasurementViewModel by viewModelLazy()
     private val configCheckViewModel: ConfigCheckViewModel by viewModelLazy()
+    private var termsIsShown: Boolean = false
 
+    private fun startHomeRunnable() {
+        val accepted = viewModel.isTacAccepted
+        if (!accepted) {
+            termsIsShown = true
+            finish()
+            TermsAcceptanceActivity.start(this)
+        }
+    }
     override fun onNewIntent(intent: Intent?) {
         super.onNewIntent(intent)
         when (intent?.extras?.get(FRAGMENT_TO_START_BUNDLE_KEY) ?: HomeNavigationTarget.HOME_FRAGMENT_TO_SHOW) {
@@ -51,6 +61,8 @@ class HomeActivity : BaseActivity() {
 
     @SuppressLint("RestrictedApi")
     override fun onCreate(savedInstanceState: Bundle?) {
+        installSplashScreen()
+        startHomeRunnable()
         super.onCreate(savedInstanceState)
         binding = bindContentView(R.layout.activity_home)
 
