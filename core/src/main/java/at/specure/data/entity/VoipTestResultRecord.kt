@@ -1,22 +1,12 @@
 package at.specure.data.entity
 
 import androidx.room.Entity
-import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
 import at.rtr.rmbt.client.VoipTestResult
-import at.specure.data.Columns
 import at.specure.data.Tables
 
 @Entity(
-    tableName = Tables.JPL,
-    foreignKeys = [
-        ForeignKey(
-            entity = TestRecord::class,
-            parentColumns = [Columns.TEST_UUID_PARENT_COLUMN],
-            childColumns = ["testUUID"],
-            onDelete = ForeignKey.CASCADE
-        )
-    ]
+    tableName = Tables.JPL
 )
 data class VoipTestResultRecord(
 

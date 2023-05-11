@@ -1,23 +1,13 @@
 package at.specure.data.entity
 
 import androidx.room.Entity
-import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
 import at.specure.data.Classification
-import at.specure.data.Columns
 import at.specure.data.NetworkTypeCompat
 import at.specure.data.Tables
 
 @Entity(
-    tableName = Tables.HISTORY,
-    foreignKeys = [
-        ForeignKey(
-            entity = HistoryReference::class,
-            parentColumns = [Columns.TEST_UUID_PARENT_COLUMN],
-            childColumns = ["referenceUUID"],
-            onDelete = ForeignKey.CASCADE
-        )
-    ]
+    tableName = Tables.HISTORY
 )
 data class History(
     @PrimaryKey
