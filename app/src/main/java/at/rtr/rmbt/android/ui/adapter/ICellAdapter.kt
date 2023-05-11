@@ -34,6 +34,7 @@ private const val CELL_2G_NETWORK_INFO_TYPE = 4
 
 class ICellAdapter : RecyclerView.Adapter<ICellAdapter.Holder>() {
 
+    var primaryDataSubscriptionId = -1
     var items: List<ICell> = emptyList()
         @SuppressLint("NotifyDataSetChanged")
         set(value) {
@@ -68,14 +69,15 @@ class ICellAdapter : RecyclerView.Adapter<ICellAdapter.Holder>() {
 
     override fun onBindViewHolder(holder: Holder, position: Int) {
         val item = items[position]
-        holder.bind(position, item)
+        holder.bind(position, item, primaryDataSubscriptionId)
     }
 
     class Cell2GHolder(val binding: ItemCellInfo2gBinding) : Holder(binding.root) {
 
         override fun bind(
             position: Int,
-            item: ICell?
+            item: ICell?,
+            primaryDataSubscriptionId: Int
         ) {
             if (item is ICell) {
                 // display PLMN ID if available
@@ -84,6 +86,10 @@ class ICellAdapter : RecyclerView.Adapter<ICellAdapter.Holder>() {
                 }
                 else
                     binding.subscriptionId2g = item.subscriptionId.toString()
+
+                if (item.subscriptionId == primaryDataSubscriptionId && primaryDataSubscriptionId != -1) {
+                    binding.subscriptionId2g += '*'
+                }
 
                 binding.band2g = item.band?.name ?: null
                 binding.arfcn2g = item.band?.channelNumber?.toString()
@@ -140,7 +146,8 @@ class ICellAdapter : RecyclerView.Adapter<ICellAdapter.Holder>() {
 
         override fun bind(
             position: Int,
-            item: ICell?
+            item: ICell?,
+            primaryDataSubscriptionId: Int
         ) {
             if (item is ICell) {
                 // display PLMN ID if available
@@ -150,6 +157,10 @@ class ICellAdapter : RecyclerView.Adapter<ICellAdapter.Holder>() {
                 }
                 else
                     binding.subscriptionId3g = item.subscriptionId.toString()
+
+                if (item.subscriptionId == primaryDataSubscriptionId && primaryDataSubscriptionId != -1) {
+                    binding.subscriptionId3g += '*'
+                }
 
                 binding.band3g = item.band?.name ?: null
 
@@ -231,7 +242,8 @@ class ICellAdapter : RecyclerView.Adapter<ICellAdapter.Holder>() {
 
         override fun bind(
             position: Int,
-            item: ICell?
+            item: ICell?,
+            primaryDataSubscriptionId: Int
         ) {
             if (item is ICell) {
 
@@ -241,6 +253,10 @@ class ICellAdapter : RecyclerView.Adapter<ICellAdapter.Holder>() {
                 }
                 else
                     binding.subscriptionId4g = item.subscriptionId.toString()
+
+                if (item.subscriptionId == primaryDataSubscriptionId && primaryDataSubscriptionId != -1) {
+                    binding.subscriptionId4g += '*'
+                }
 
                 // cell connection status
                 if (item.connectionStatus is PrimaryConnection)
@@ -324,7 +340,8 @@ class ICellAdapter : RecyclerView.Adapter<ICellAdapter.Holder>() {
 
         override fun bind(
             position: Int,
-            item: ICell?
+            item: ICell?,
+            primaryDataSubscriptionId: Int
         ) {
             if (item is CellNr) {
                 val bandNrEu = item.getEuBand()
@@ -348,6 +365,9 @@ class ICellAdapter : RecyclerView.Adapter<ICellAdapter.Holder>() {
                 else
                     binding.subscriptionId5g = item.subscriptionId.toString()
 
+                if (item.subscriptionId == primaryDataSubscriptionId && primaryDataSubscriptionId != -1) {
+                    binding.subscriptionId5g += '*'
+                }
 
                 //binding.arfcnNR = item.band?.channelNumber?.toString()
 
@@ -422,7 +442,8 @@ class ICellAdapter : RecyclerView.Adapter<ICellAdapter.Holder>() {
 
         abstract fun bind(
             position: Int,
-            item: ICell?
+            item: ICell?,
+            primaryDataSubscriptionId: Int
         )
     }
 
