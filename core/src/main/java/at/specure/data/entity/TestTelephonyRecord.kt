@@ -1,13 +1,11 @@
 package at.specure.data.entity
 
 import androidx.room.Entity
-import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
-import at.specure.data.Columns
 import at.specure.data.Tables
 
 @Entity(
-    tableName = Tables.TEST_TELEPHONY_RECORD,
+    tableName = Tables.TEST_TELEPHONY_RECORD
 )
 data class TestTelephonyRecord(
     @PrimaryKey
