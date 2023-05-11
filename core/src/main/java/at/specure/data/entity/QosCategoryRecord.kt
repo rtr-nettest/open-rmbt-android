@@ -1,22 +1,12 @@
 package at.specure.data.entity
 
 import androidx.room.Entity
-import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
-import at.specure.data.Columns
 import at.specure.data.Tables
 import at.specure.result.QoSCategory
 
 @Entity(
-    tableName = Tables.QOS_CATEGORY,
-    foreignKeys = [
-        ForeignKey(
-            entity = TestResultRecord::class,
-            parentColumns = [Columns.TEST_UUID_PARENT_COLUMN],
-            childColumns = ["testUUID"],
-            onDelete = ForeignKey.CASCADE
-        )
-    ]
+    tableName = Tables.QOS_CATEGORY
 )
 data class QosCategoryRecord(
 
