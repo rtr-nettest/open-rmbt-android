@@ -196,7 +196,7 @@ data class WifiBand(
             return when {
                 band_2_4GHz.containsKey(frequency) -> WifiBand(frequency, band_2_4GHz[frequency] ?: error("$frequency not found"), "2.4 GHz")
                 band_5GHz.containsKey(frequency) -> WifiBand(frequency, band_5GHz[frequency] ?: error("$frequency not found"), "5 GHz")
-                band_6GHz.containsKey(frequency) -> WifiBand(frequency, band_6GHz[frequency] ?: error("$frequency not found"), "5 GHz")
+                band_6GHz.containsKey(frequency) -> WifiBand(frequency, band_6GHz[frequency] ?: error("$frequency not found"), "6 GHz")
                 band_60GHz.containsKey(frequency) -> WifiBand(frequency, band_60GHz[frequency] ?: error("$frequency not found"), "60 GHz")
                 else -> WifiBand(frequency, -1, "$frequency")
 //                else -> throw IllegalArgumentException("Wifi band not found for $frequency frequency")
