@@ -235,7 +235,7 @@ class StateRecorder @Inject constructor(
 
     fun onLoopTestFinished() {
         _loopModeRecord?.let {
-            if (it.testsPerformed >= config.loopModeNumberOfTests) {
+            if (it.testsPerformed >= config.loopModeNumberOfTests && config.loopModeNumberOfTests > 0) {
                 it.status = LoopModeState.FINISHED
             } else {
                 it.status = LoopModeState.IDLE

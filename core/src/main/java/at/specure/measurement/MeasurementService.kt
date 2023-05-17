@@ -263,7 +263,7 @@ class MeasurementService : CustomLifecycleService(), CoroutineScope {
 
             stateRecorder.onLoopTestFinished()
 
-            if (!config.loopModeEnabled || (config.loopModeEnabled && (stateRecorder.loopTestCount >= config.loopModeNumberOfTests || stateRecorder.loopModeRecord?.status == LoopModeState.CANCELLED))) {
+            if (!config.loopModeEnabled || (config.loopModeEnabled && ((stateRecorder.loopTestCount >= config.loopModeNumberOfTests && config.loopModeNumberOfTests > 0) || stateRecorder.loopModeRecord?.status == LoopModeState.CANCELLED))) {
                 loopCountdownTimer?.cancel()
                 Timber.d("TIMER: cancelling 3: ${loopCountdownTimer?.hashCode()}")
 
@@ -276,7 +276,7 @@ class MeasurementService : CustomLifecycleService(), CoroutineScope {
                 unlock()
                 resumeSignalMeasurement(false)
             } else {
-                if ((config.loopModeEnabled) && (stateRecorder.loopTestCount < config.loopModeNumberOfTests) && (stateRecorder.loopModeRecord?.status != LoopModeState.CANCELLED) && (stateRecorder.loopModeRecord?.status != LoopModeState.FINISHED)) {
+                if ((config.loopModeEnabled) && (stateRecorder.loopTestCount < config.loopModeNumberOfTests || config.loopModeNumberOfTests == 0) && (stateRecorder.loopModeRecord?.status != LoopModeState.CANCELLED) && (stateRecorder.loopModeRecord?.status != LoopModeState.FINISHED)) {
                     startSignalMeasurement(SignalMeasurementType.LOOP_WAITING)
                 } else {
                     resumeSignalMeasurement(false)

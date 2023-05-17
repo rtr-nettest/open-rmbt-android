@@ -79,7 +79,13 @@ class HomeActivity : BaseActivity() {
         viewModel.isTestsRunningLiveData.listen(this) { isRunning ->
             if (isRunning) {
                 if (viewModel.config.loopModeEnabled) {
-                    if (viewModel.state.loopModeRecord.get()?.status != LoopModeState.FINISHED && viewModel.state.loopModeRecord.get()?.status != LoopModeState.CANCELLED && viewModel.state.loopLocalUUID.get() != null && (viewModel.state.loopModeRecord.get()?.testsPerformed != viewModel.config.loopModeNumberOfTests)) {
+                    if (viewModel.state.loopModeRecord.get()?.status != LoopModeState.FINISHED
+                        && viewModel.state.loopModeRecord.get()?.status != LoopModeState.CANCELLED
+                        && viewModel.state.loopLocalUUID.get() != null
+                        && (((viewModel.state.loopModeRecord.get()?.testsPerformed
+                            ?: 0) <= viewModel.config.loopModeNumberOfTests && viewModel.config.loopModeNumberOfTests != 0) || viewModel.config.loopModeNumberOfTests == 0)
+                    ) {
+                        Timber.d("Starting measurement activity because loop measurement is running")
                         MeasurementActivity.start(this)
                     }
                 } else {
