@@ -109,7 +109,10 @@ class ResultsRepositoryImpl @Inject constructor(
             val result = client.sendTestResults(body)
 
             result.onSuccess {
-                db.testDao().updateTestIsSubmitted(testUUID)
+                val count = db.testDao().updateTestIsSubmitted(testUUID)
+                if (count == 0) {
+                    Timber.e("Failed to update test is submitted")
+                }
             }
 
             result.onFailure {
@@ -135,7 +138,10 @@ class ResultsRepositoryImpl @Inject constructor(
                 }
 
                 result.onSuccess {
-                    db.testDao().updateQoSTestIsSubmitted(testUUID)
+                    val count = db.testDao().updateQoSTestIsSubmitted(testUUID)
+                    if (count == 0) {
+                        Timber.e("DB: failed to updated qos test is submitted")
+                    }
                     db.historyDao().clear()
                 }
 
@@ -339,6 +345,9 @@ class ResultsRepositoryImpl @Inject constructor(
     }
 
     override fun updateSubmissionsCounter(testUUID: String) {
-        db.testDao().updateSubmissionsRetryCounter(testUUID)
+        val count = db.testDao().updateSubmissionsRetryCounter(testUUID)
+        if (count == 0) {
+            Timber.e("DB: failed to update submission retry count")
+        }
     }
 }

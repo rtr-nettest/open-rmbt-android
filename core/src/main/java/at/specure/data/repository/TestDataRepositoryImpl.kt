@@ -469,12 +469,15 @@ class TestDataRepositoryImpl(db: CoreDatabase) : TestDataRepository {
         testDao.insert(record)
     }
 
-    override fun saveTest(test: TestRecord): Unit {
+    override fun saveTest(test: TestRecord) {
         return testDao.insert(test)
     }
 
     override fun update(testRecord: TestRecord, onUpdated: () -> Unit) = io {
-        testDao.update(testRecord)
+        val count = testDao.update(testRecord)
+        if (count == 0) {
+            Timber.e("DB: Failed to update test record")
+        }
         onUpdated.invoke()
     }
 
@@ -490,7 +493,10 @@ class TestDataRepositoryImpl(db: CoreDatabase) : TestDataRepository {
     }
 
     override fun updateQoSTestStatus(testUUID: String, status: TestStatus?) = io {
-        testDao.updateQoSTestStatus(testUUID, status?.ordinal)
+        val count = testDao.updateQoSTestStatus(testUUID, status?.ordinal)
+        if (count == 0) {
+            Timber.e("DB: failed to update QOS test status to: ${status?.ordinal}")
+        }
     }
 
     override fun saveLoopMode(loopModeRecord: LoopModeRecord) = io {
@@ -498,7 +504,10 @@ class TestDataRepositoryImpl(db: CoreDatabase) : TestDataRepository {
     }
 
     override fun updateLoopMode(loopModeRecord: LoopModeRecord) = io {
-        testDao.updateLoopModeRecord(loopModeRecord)
+        val count = testDao.updateLoopModeRecord(loopModeRecord)
+        if (count == 0) {
+            Timber.e("DB: failed to update loopModeRecord")
+        }
     }
 
     override fun saveConnectivityState(state: ConnectivityStateRecord) = io {

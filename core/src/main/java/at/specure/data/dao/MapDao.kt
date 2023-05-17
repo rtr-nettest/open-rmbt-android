@@ -15,7 +15,7 @@ interface MapDao {
     fun insert(items: List<MarkerMeasurementRecord>)
 
     @Query("DELETE FROM ${Tables.MAP_MARKER_MEASUREMENTS}")
-    fun clear()
+    fun clear(): Int
 
     @Query("SELECT * FROM ${Tables.MAP_MARKER_MEASUREMENTS}")
     fun get(): LiveData<List<MarkerMeasurementRecord>>

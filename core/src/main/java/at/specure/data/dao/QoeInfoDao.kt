@@ -23,10 +23,10 @@ abstract class QoeInfoDao {
     abstract fun insert(qoeInfo: QoeInfoRecord)
 
     @Query("DELETE FROM ${Tables.QOE} WHERE testUUID == :testUUID")
-    abstract fun clear(testUUID: String)
+    abstract fun clear(testUUID: String): Int
 
     @Query("DELETE FROM ${Tables.QOE} WHERE testUUID == :testUUID AND category == :category")
-    abstract fun clearQoeCategory(testUUID: String, category: QoECategory)
+    abstract fun clearQoeCategory(testUUID: String, category: QoECategory): Int
 
     @Transaction
     open fun clearInsert(qoe: List<QoeInfoRecord>) {

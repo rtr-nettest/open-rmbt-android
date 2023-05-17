@@ -19,7 +19,7 @@ abstract class QosTestItemDao {
     abstract fun insert(qosTestItems: List<QosTestItemRecord>)
 
     @Query("DELETE FROM ${Tables.QOS_TEST_RESULT_ITEM} WHERE testUUID == :testUUID")
-    abstract fun clearQosItemsForTest(testUUID: String)
+    abstract fun clearQosItemsForTest(testUUID: String): Int
 
     @Transaction
     open fun clearQosItemsInsert(qosCategory: List<QosTestItemRecord>) {

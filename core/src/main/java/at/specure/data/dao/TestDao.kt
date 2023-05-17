@@ -15,6 +15,7 @@ import at.specure.data.entity.QoSResultRecord
 import at.specure.data.entity.TestRecord
 import at.specure.data.entity.TestTelephonyRecord
 import at.specure.data.entity.TestWlanRecord
+import timber.log.Timber
 
 @Dao
 interface TestDao {
@@ -32,13 +33,19 @@ interface TestDao {
     fun insert(qosResult: QoSResultRecord)
 
     @Update
-    fun update(test: TestRecord)
+    fun update(test: TestRecord):Int
 
     @Transaction
     fun deleteAll() {
-        deleteAllTest()
-        deleteAllWLAN()
-        deleteAllTelephony()
+        val generalTestCount = deleteAllTest()
+        Timber.d("DB: Deleted all tests: $generalTestCount")
+        val wlanCount = deleteAllWLAN()
+        Timber.d("DB: Deleted all wlan tests: $wlanCount")
+        val mobileCount = deleteAllTelephony()
+        Timber.d("DB: Deleted all mobile tests: $mobileCount")
+        if (mobileCount + wlanCount != generalTestCount) {
+            Timber.e("DB: Counts of deleted all tests does not match!!!")
+        }
     }
     @Query("DELETE FROM ${Tables.TEST}")
     fun deleteAllTest(): Int
@@ -51,9 +58,15 @@ interface TestDao {
 
     @Transaction
     fun deleteTest(test: TestRecord) {
-        deleteTestRecord(test)
-        removeWlanRecord(test.uuid)
-        removeTelephonyInfo(test.uuid)
+        val generalTest = deleteTestRecord(test)
+        Timber.d("DB: Deleted test: $generalTest")
+        val wlanTest = removeWlanRecord(test.uuid)
+        Timber.d("DB: Deleted wlan test: $wlanTest")
+        val mobileTest = removeTelephonyInfo(test.uuid)
+        Timber.d("DB: Deleted mobile test: $mobileTest")
+        if (mobileTest + wlanTest != generalTest) {
+            Timber.e("Counts of deleted all tests does not match!!!")
+        }
     }
     @Delete
     fun deleteTestRecord(test: TestRecord): Int
@@ -68,34 +81,34 @@ interface TestDao {
     fun getTelephonyRecord(uuid: String): TestTelephonyRecord?
 
     @Query("DELETE FROM ${Tables.TEST_TELEPHONY_RECORD} WHERE testUUID=:uuid")
-    fun removeTelephonyInfo(uuid: String)
+    fun removeTelephonyInfo(uuid: String): Int
 
     @Query("SELECT * from ${Tables.TEST_WLAN_RECORD} WHERE testUUID == :uuid")
     fun getWlanRecord(uuid: String): TestWlanRecord?
 
     @Query("DELETE FROM ${Tables.TEST_WLAN_RECORD} WHERE testUUID=:uuid")
-    fun removeWlanRecord(uuid: String)
+    fun removeWlanRecord(uuid: String): Int
 
     @Query("SELECT submissionRetryCount FROM ${Tables.TEST} WHERE uuid == :uuid")
     fun getSubmissionsRetryCount(uuid: String): Int?
 
     @Query("UPDATE ${Tables.TEST} SET submissionRetryCount = submissionRetryCount + 1 WHERE uuid == :uuid")
-    fun updateSubmissionsRetryCounter(uuid: String)
+    fun updateSubmissionsRetryCounter(uuid: String): Int
 
     @Query("UPDATE ${Tables.TEST} SET isSubmitted = 1 WHERE uuid == :uuid")
-    fun updateTestIsSubmitted(uuid: String)
+    fun updateTestIsSubmitted(uuid: String): Int
 
     @Query("UPDATE ${Tables.QOS_RESULT} SET isSubmitted = 1 WHERE uuid == :uuid")
-    fun updateQoSTestIsSubmitted(uuid: String)
+    fun updateQoSTestIsSubmitted(uuid: String): Int
 
     @Query("UPDATE ${Tables.TEST} SET lastQoSStatus=:status WHERE uuid == :uuid")
-    fun updateQoSTestStatus(uuid: String, status: Int?)
+    fun updateQoSTestStatus(uuid: String, status: Int?): Int
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun saveLoopModeRecord(loopModeRecord: LoopModeRecord)
 
     @Update
-    fun updateLoopModeRecord(loopModeRecord: LoopModeRecord)
+    fun updateLoopModeRecord(loopModeRecord: LoopModeRecord): Int
 
     @Query("SELECT * FROM ${Tables.LOOP_MODE} WHERE localUuid == :localUuid")
     fun getLoopModeRecord(localUuid: String): LiveData<LoopModeRecord?>
