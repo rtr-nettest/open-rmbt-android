@@ -17,7 +17,7 @@ interface SignalMeasurementDao {
     fun saveSignalMeasurementRecord(record: SignalMeasurementRecord)
 
     @Update
-    fun updateSignalMeasurementRecord(record: SignalMeasurementRecord)
+    fun updateSignalMeasurementRecord(record: SignalMeasurementRecord): Int
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun saveSignalMeasurementInfo(info: SignalMeasurementInfo)

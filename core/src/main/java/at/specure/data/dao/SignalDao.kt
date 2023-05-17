@@ -20,5 +20,5 @@ interface SignalDao {
     fun insert(signal: SignalRecord)
 
     @Query("DELETE FROM ${Tables.SIGNAL} WHERE ((testUUID IS :testUUID) AND (signalChunkId IS :signalChunkId))")
-    fun remove(testUUID: String?, signalChunkId: String?)
+    fun remove(testUUID: String?, signalChunkId: String?): Int
 }
