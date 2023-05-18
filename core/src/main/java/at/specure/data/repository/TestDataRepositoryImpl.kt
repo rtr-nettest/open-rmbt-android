@@ -216,7 +216,7 @@ class TestDataRepositoryImpl(db: CoreDatabase) : TestDataRepository {
             }
         }
 
-        Timber.e("Signal saving time 1: ${info.timestampNanos}  starting time: $testStartTimeNanos   current time: ${System.nanoTime()}")
+//        Timber.d("Signal saving time 1: ${info.timestampNanos}  starting time: $testStartTimeNanos   current time: ${System.nanoTime()}")
         val startTimestampNsSinceBoot = testStartTimeNanos + (SystemClock.elapsedRealtimeNanos() - System.nanoTime())
         val timeNanos = info.timestampNanos - testStartTimeNanos
         var timeNanosLast = if (info.timestampNanos < startTimestampNsSinceBoot) info.timestampNanos - startTimestampNsSinceBoot else null
@@ -323,8 +323,8 @@ class TestDataRepositoryImpl(db: CoreDatabase) : TestDataRepository {
                 is WifiNetworkInfo -> info.toCellInfoRecord(testUUID, signalChunkId)
                 is CellNetworkInfo -> {
                     info.signalStrength?.let {
-                        Timber.e("Signal saving time SCI: starting time: $testStartTimeNanos   current time: ${System.nanoTime()}")
-                        Timber.d("valid signal directly")
+//                        Timber.d("Signal saving time SCI: starting time: $testStartTimeNanos   current time: ${System.nanoTime()}")
+//                        Timber.d("valid signal directly")
                         if (info.cellUUID.isNotEmpty() && validateSignalStrengthInfo(info.networkType, it, info.cellUUID)) {
                             saveSignalStrengthDirectly(testUUID, signalChunkId, info.cellUUID, info.networkType, it, testStartTimeNanos, info.nrConnectionState)
                         }

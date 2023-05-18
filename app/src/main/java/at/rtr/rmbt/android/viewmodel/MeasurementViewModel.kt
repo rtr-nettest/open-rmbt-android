@@ -130,13 +130,13 @@ class MeasurementViewModel @Inject constructor(
 
         override fun onNullBinding(name: ComponentName?) {
             super.onNullBinding(name)
-            Timber.d("Measurement binding null")
+            Timber.e("Measurement binding null")
             _measurementFinishLiveData.postValue(true)
         }
 
         override fun onBindingDied(name: ComponentName?) {
             super.onBindingDied(name)
-            Timber.d("Measurement binding died")
+            Timber.e("Measurement service binding died")
             _measurementFinishLiveData.postValue(true)
         }
     }
@@ -147,13 +147,15 @@ class MeasurementViewModel @Inject constructor(
 
     fun attach(context: Context) {
         val bound = context.bindService(MeasurementService.intent(context), serviceConnection, Context.BIND_AUTO_CREATE)
-        Timber.d("Measurement binding success: $bound")
+        Timber.d("Measurement service binding success: $bound")
+        // if the bound is not successful then we treat it like no measurement is running
         if (!bound) {
             _measurementFinishLiveData.postValue(true)
         }
     }
 
     fun detach(context: Context) {
+        Timber.d("Measurement service detached")
         producer?.removeClient(this)
         context.unbindService(serviceConnection)
     }

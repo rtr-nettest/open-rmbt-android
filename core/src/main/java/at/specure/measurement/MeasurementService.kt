@@ -167,7 +167,7 @@ class MeasurementService : CustomLifecycleService(), CoroutineScope {
     private val signalMeasurementConnection = object : ServiceConnection {
 
         override fun onServiceDisconnected(name: ComponentName?) {
-            Timber.d("Signal measurement disconnected")
+            Timber.d("Signal measurement disconnected from MeasurementService")
             signalMeasurementProducer = null
         }
 
@@ -175,7 +175,7 @@ class MeasurementService : CustomLifecycleService(), CoroutineScope {
          * When Measurement service is connected we need to pause signal measurement
          */
         override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
-            Timber.d("Signal measurement connected: pause required: $signalMeasurementPauseRequired")
+            Timber.d("Signal measurement connected to MeasurementService: pause required: $signalMeasurementPauseRequired")
             signalMeasurementProducer = service as SignalMeasurementProducer
             if (signalMeasurementPauseRequired) {
                 signalMeasurementProducer?.pauseMeasurement(true)
@@ -558,6 +558,8 @@ class MeasurementService : CustomLifecycleService(), CoroutineScope {
 
                     override fun onFinish() {
                         Timber.i("CountDownTimer finished - ${this.hashCode()}")
+                        // If test is planned before the previous test is finished then we only set flag startPendingTest to true and test will be started from onPostFinish()
+                        // otherwise we can start two test simultaneously or cancel currently running test
                         if (runner.isRunning || startPendingTest) {
                             Timber.d("LOOP STARTING PENDING TEST set to true")
                             startPendingTest = true
@@ -571,7 +573,9 @@ class MeasurementService : CustomLifecycleService(), CoroutineScope {
                     }
 
                     override fun onTick(millisUntilFinished: Long) {
-                        if (stateRecorder.loopModeRecord?.status == LoopModeState.FINISHED || stateRecorder.loopModeRecord?.status == LoopModeState.CANCELLED || stateRecorder.loopModeRecord?.testsPerformed ?: 0 >= config.loopModeNumberOfTests) {
+                        Timber.d("LoopModeRecord status: ${stateRecorder.loopModeRecord?.status}, executed tests:  ${stateRecorder.loopModeRecord?.testsPerformed}")
+                        if (stateRecorder.loopModeRecord?.status == LoopModeState.FINISHED || stateRecorder.loopModeRecord?.status == LoopModeState.CANCELLED || (stateRecorder.loopModeRecord?.testsPerformed ?: 0 >= config.loopModeNumberOfTests && config.loopModeNumberOfTests > 0)) {
+                            Timber.d("CountDownTimer cancelled according to conditions.")
                             this.cancel()
                         }
                         Timber.d("CountDownTimer tick $millisUntilFinished - ${this.hashCode()}")

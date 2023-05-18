@@ -114,7 +114,7 @@ class CellInfoWatcherImpl(
                     _networkTypes[it.subscriptionId] = it.mobileNetworkType(netMonster)
                 }
 
-                Timber.d("Total Cell Count: ${_inactiveCellNetworks.size}")
+//                Timber.d("Total Cell Count: ${_inactiveCellNetworks.size}")
                 val dataSubscriptionId = subscriptionManager.getCurrentDataSubscriptionId()
                 _dataSubscriptionId = dataSubscriptionId
 
