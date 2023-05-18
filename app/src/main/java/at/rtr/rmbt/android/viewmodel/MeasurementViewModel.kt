@@ -167,7 +167,9 @@ class MeasurementViewModel @Inject constructor(
     }
 
     override fun onMeasurementError() {
-        _measurementErrorLiveData.postValue(true)
+        if (!config.loopModeEnabled) {
+            _measurementErrorLiveData.postValue(true)
+        }
     }
 
     override fun onDownloadSpeedChanged(progress: Int, speedBps: Long) {

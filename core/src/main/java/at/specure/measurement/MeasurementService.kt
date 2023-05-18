@@ -340,7 +340,7 @@ class MeasurementService : CustomLifecycleService(), CoroutineScope {
 
             measurementState = MeasurementState.ERROR
             onProgressChanged(measurementState, 0)
-            if (config.loopModeEnabled && (stateRecorder.loopTestCount >= config.loopModeNumberOfTests || (config.loopModeNumberOfTests == 0 && config.developerModeIsEnabled))) {
+            if (config.loopModeEnabled && (stateRecorder.loopTestCount >= config.loopModeNumberOfTests && config.loopModeNumberOfTests != 0)) {
                 loopCountdownTimer?.cancel()
                 Timber.d("TIMER: cancelling 8: ${loopCountdownTimer?.hashCode()}")
                 hasErrors = true
@@ -363,7 +363,7 @@ class MeasurementService : CustomLifecycleService(), CoroutineScope {
                 runTest()
             } else {
                 Timber.d("TEST ERROR HANDLING - NOT PENDING")
-                if (!config.loopModeEnabled || (config.loopModeEnabled && (stateRecorder.loopTestCount >= config.loopModeNumberOfTests))) {
+                if (!config.loopModeEnabled || (config.loopModeEnabled && (stateRecorder.loopTestCount >= config.loopModeNumberOfTests && config.loopModeNumberOfTests != 0))) {
                     Timber.d("TIMER: cancelling 5: ${loopCountdownTimer?.hashCode()}")
                     loopCountdownTimer?.cancel()
                     Timber.d("TEST ERROR HANDLING - NOT PENDING LOOP DISABLED")
