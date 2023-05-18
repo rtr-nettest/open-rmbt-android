@@ -121,7 +121,7 @@ class MeasurementViewModel @Inject constructor(
             }
             Timber.d("On service connected:\n test running:  ${producer?.isTestsRunning} \n measurement state:  ${producer?.measurementState} \n loop state: ${producer?.loopModeState} \nloop local uuid: ${producer?.loopLocalUUID} \n")
 
-            val finished = producer?.isTestsRunning != true
+            val finished = producer?.isTestsRunning != true || producer?.measurementState == MeasurementState.ABORTED
             Timber.d("FINISHED?: $finished")
 
             _isTestsRunningLiveData.postValue(!finished) // to notify new opened home activity
