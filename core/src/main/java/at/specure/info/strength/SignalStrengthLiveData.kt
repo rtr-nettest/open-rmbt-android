@@ -35,13 +35,13 @@ class SignalStrengthLiveData @Inject constructor(private val signalStrengthWatch
     }
 
     override fun onSignalStrengthChanged(signalInfo: DetailedNetworkInfo?) {
-        var message = ""
-        message = if (signalInfo == null) {
-            "SSP NOTIFY - SignalStrength: null"
-        } else {
-            "SSP NOTIFY - SignalStrength: value: ${signalInfo.signalStrengthInfo?.value} \nmax: ${signalInfo.signalStrengthInfo?.max} \nmin: ${signalInfo.signalStrengthInfo?.min} \nrsrq: ${signalInfo.signalStrengthInfo?.rsrq} \ntransportType: ${signalInfo.signalStrengthInfo?.transport?.name} \nsignal level: ${signalInfo.signalStrengthInfo?.signalLevel} \n "
-        }
-        Timber.v(message)
+//        var message = ""
+//        message = if (signalInfo == null) {
+//            "SSP NOTIFY - SignalStrength: null"
+//        } else {
+//            "SSP NOTIFY - SignalStrength: value: ${signalInfo.signalStrengthInfo?.value} \nmax: ${signalInfo.signalStrengthInfo?.max} \nmin: ${signalInfo.signalStrengthInfo?.min} \nrsrq: ${signalInfo.signalStrengthInfo?.rsrq} \ntransportType: ${signalInfo.signalStrengthInfo?.transport?.name} \nsignal level: ${signalInfo.signalStrengthInfo?.signalLevel} \n "
+//        }
+//        Timber.v(message)
         postValue(signalInfo)
     }
 }
