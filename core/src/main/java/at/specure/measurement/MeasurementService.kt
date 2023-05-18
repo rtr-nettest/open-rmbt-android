@@ -622,6 +622,12 @@ class MeasurementService : CustomLifecycleService(), CoroutineScope {
     private fun runTest() {
         notificationManager.cancel(NOTIFICATION_LOOP_FINISHED_ID)
 
+        if (isBetweenTwoLoopTests()) {
+            stopSignalMeasurement()
+        } else {
+            pauseSignalMeasurement()
+        }
+
         Timber.d("LOOP MODE: runner is running: ${runner.isRunning}")
         if (!runner.isRunning) {
             resetStates()
@@ -664,15 +670,12 @@ class MeasurementService : CustomLifecycleService(), CoroutineScope {
         startPendingTest = false
         if (isBetweenTwoLoopTests()) {
             scheduleNextLoopTest()
-            stopSignalMeasurement()
-        } else {
-            pauseSignalMeasurement()
         }
         Timber.d("RUNNER IS RUNNING: ${runner.isRunning}")
     }
 
     private fun isBetweenTwoLoopTests() : Boolean {
-        return (config.loopModeEnabled && stateRecorder.loopModeRecord?.status != LoopModeState.CANCELLED && (stateRecorder.loopTestCount < config.loopModeNumberOfTests || (config.loopModeNumberOfTests == 0 && config.developerModeIsEnabled)))
+        return (config.loopModeEnabled && (stateRecorder.loopModeRecord?.status != LoopModeState.CANCELLED || stateRecorder.loopModeRecord?.status != LoopModeState.FINISHED) && (stateRecorder.loopTestCount < config.loopModeNumberOfTests || config.loopModeNumberOfTests == 0))
     }
 
     private fun attachToForeground() {
