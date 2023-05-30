@@ -15,7 +15,6 @@ package at.specure.info.strength
 
 import androidx.lifecycle.LiveData
 import at.specure.info.network.DetailedNetworkInfo
-import timber.log.Timber
 import javax.inject.Inject
 
 /**

@@ -16,7 +16,6 @@ package at.specure.info.cell
 
 import android.content.Context
 import android.net.ConnectivityManager
-import android.net.NetworkCapabilities
 import android.telephony.SubscriptionManager
 import android.telephony.TelephonyManager
 import at.rmbt.client.control.getCorrectDataTelephonyManager
