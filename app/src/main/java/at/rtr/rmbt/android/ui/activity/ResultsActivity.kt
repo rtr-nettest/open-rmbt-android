@@ -3,7 +3,6 @@ package at.rtr.rmbt.android.ui.activity
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import android.os.Handler
 import android.view.View
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.DividerItemDecoration
@@ -22,6 +21,7 @@ import at.rtr.rmbt.android.viewmodel.ResultViewModel
 import at.specure.data.NetworkTypeCompat
 import at.specure.data.entity.TestResultRecord
 import timber.log.Timber
+import java.lang.IllegalStateException
 import java.util.Timer
 import kotlin.concurrent.timerTask
 
@@ -34,7 +34,7 @@ class ResultsActivity : BaseActivity() {
     private lateinit var resultChartFragmentPagerAdapter: ResultChartFragmentPagerAdapter
 
     private var mapLoadRequested: Boolean = false
-    private val timer = Timer()
+    private var timer: Timer? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -62,11 +62,13 @@ class ResultsActivity : BaseActivity() {
 
             // show local results if no results from server after 2000 ms
              if (result?.isLocalOnly == true) {
-                timer.schedule(timerTask {
+                cancelAnyPreviouslyRunningTimer()
+                timer = Timer()
+                timer?.schedule(timerTask {
                     viewModel.state.testResult.set(result)
                 }, 2000)
             } else {
-                timer.cancel()
+                cancelAnyPreviouslyRunningTimer()
                 viewModel.state.testResult.set(result)
             }
 
@@ -151,6 +153,14 @@ class ResultsActivity : BaseActivity() {
             QosTestsSummaryActivity.start(this, it)
         }
         refreshResults()
+    }
+
+    private fun cancelAnyPreviouslyRunningTimer() {
+        try {
+            this.timer?.cancel()
+        } catch (e: IllegalStateException) {
+            Timber.e(e.localizedMessage)
+        }
     }
 
     private fun setUpMap(result: TestResultRecord) {
