@@ -41,11 +41,7 @@
             text-align: justify;
         }
 
-        .tc_border {
-            border-style: solid;
-            border-width: 2px;
-            padding: 0px 0.5em;
-        }
+
 
         body {
             color: #424242;
@@ -89,10 +85,12 @@
                 test call)*
             </li>
             <li>Test parameters (test method, test progress, test server, test configuration [eg test duration])*</li>
+            <li>Environmental conditions of the measurement (temperature, utilization of the measurement device including
+                CPU load)*</li>
             <li>Randomly generated client ID (Client UUID)</li>
             <li>Evidence of acceptance of the Privacy Policy and Terms of Use</li>
             <li>Public client ID*</li>
-            <li>Client sync code and client sync group</li>
+            <li>Client sync code and client sync group as well as language settings of the client</li>
             <li>Test time*</li>
             <li>Client location (if known) / time zone*</li>
             <li>Meta information for the client location (eg location accuracy, method of location fix, covered distance)*
@@ -101,10 +99,10 @@
             <li>NAT Yes/No (direct Internet access or private address used)*</li>
             <li>Roaming status (national, international roaming)*</li>
             <li>IP version*</li>
-            <li>IP address</li>
+            <li>IP address (including host name)</li>
             <li>IP network (autonomous system, AS) and anonymised IP address*</li>
             <li>WLAN network ID (SSID) and numerical WLAN ID (BSSID)</li>
-            <li>Mobile network (eg home network, network used, type of connection [GSM, UMTS, LTE, etc], name of the mobile
+            <li>Mobile network (eg home network, network used, type of connection [GSM, UMTS, LTE, NR etc], name of the mobile
                 network, used frequency, frequency band, base station identification)*
             </li>
         </ul>
@@ -113,16 +111,16 @@
                     title="Link to Open Data" target="_blank"
                     rel="noopener noreferrer">https://www.netztest.at/en/Opendata</a>)
             for information, use, dissemination and other applications.</p>
-        <p>Note: After consent to the privacy policy is given the authorization "Allow RTR-NetTest to start and manage calls"
-            appears for devices that can have multiple SIM cards. This is specified by the operating system of the device. In
+        <p>Note: After consent to the privacy policy is given the authorisation "Allow RTR-NetTest to start and manage calls"
+            appears for devices that have multiple SIM cards. This is specified by the operating system of the device. In
             the context of RTR-NetTest the identification of the SIM card, which is used for data traffic, is thus enabled. No
-            other possible functions based on this authorization are used by RTR-NetTest. </p>
+            other possible functions based on this authorisation are used by RTR-NetTest. </p>
         <h3>1.2.2. Loop-mode option</h3>
         <p>
             The loop-mode option for technically interested users allows the automatic repetition of RTR-NetTest. The first
             test starts right after activation of the loop-modus; further tests are carried out when either the waiting time
-            (default 30 minutes) has elapsed or the specified distance (default 250 meters) has been covered. Tests will be
-            performed until the configured number of tests (default 10 tests) has been reached. The signal strength is measured
+            has elapsed or the specified distance has been covered. Tests will be
+            performed until the configured number of tests has been reached. The signal strength is measured
             continuously, also between two tests. The loop-modus can be stopped at any time respectively it stops after 48
             hours. It needs to be explicitly pointed out that due to the loop modus it cannot be excluded that the tester is
             identified.
@@ -156,7 +154,7 @@
         <p>the following personal data are processed in the course of the RTR-NetTest, the option loop-modus and the option signal-only loop-mode:
             (1) the <strong>Client UUID</strong>, (2) the <strong>WLAN network ID (SSID) and numerical WLAN ID (BSSID)</strong>
             as well as (3) the <strong>IP address</strong>.</p>
-        <p>Purposes for processing</p>
+        <h3>Purposes for processing</h3>
         <ul>
             <li>in respect to the <strong>Client UUID</strong>: possibility of compiling a test result history for the user;
                 identifying associated tests to identify improper use or malfunctions; Percipience of the rights of the uses
@@ -285,6 +283,6 @@
             provisions applicable in the individual case, liability shall be limited to gross negligence and malicious
             intent.</p>
 
-        <p>Version 2021-11-01</p>
+        <p>Version 2023-06-04</p>
     </body>
 </html>
