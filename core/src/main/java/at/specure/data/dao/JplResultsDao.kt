@@ -17,5 +17,5 @@ interface JplResultsDao {
     fun insert(voipTestResultRecord: VoipTestResultRecord)
 
     @Query("DELETE FROM ${Tables.JPL} WHERE testUUID==:testUUID")
-    fun remove(testUUID: String)
+    fun remove(testUUID: String): Int
 }

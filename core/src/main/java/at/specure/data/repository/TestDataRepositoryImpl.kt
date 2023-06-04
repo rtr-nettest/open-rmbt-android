@@ -216,7 +216,7 @@ class TestDataRepositoryImpl(db: CoreDatabase) : TestDataRepository {
             }
         }
 
-        Timber.e("Signal saving time 1: ${info.timestampNanos}  starting time: $testStartTimeNanos   current time: ${System.nanoTime()}")
+//        Timber.d("Signal saving time 1: ${info.timestampNanos}  starting time: $testStartTimeNanos   current time: ${System.nanoTime()}")
         val startTimestampNsSinceBoot = testStartTimeNanos + (SystemClock.elapsedRealtimeNanos() - System.nanoTime())
         val timeNanos = info.timestampNanos - testStartTimeNanos
         var timeNanosLast = if (info.timestampNanos < startTimestampNsSinceBoot) info.timestampNanos - startTimestampNsSinceBoot else null
@@ -323,8 +323,8 @@ class TestDataRepositoryImpl(db: CoreDatabase) : TestDataRepository {
                 is WifiNetworkInfo -> info.toCellInfoRecord(testUUID, signalChunkId)
                 is CellNetworkInfo -> {
                     info.signalStrength?.let {
-                        Timber.e("Signal saving time SCI: starting time: $testStartTimeNanos   current time: ${System.nanoTime()}")
-                        Timber.d("valid signal directly")
+//                        Timber.d("Signal saving time SCI: starting time: $testStartTimeNanos   current time: ${System.nanoTime()}")
+//                        Timber.d("valid signal directly")
                         if (info.cellUUID.isNotEmpty() && validateSignalStrengthInfo(info.networkType, it, info.cellUUID)) {
                             saveSignalStrengthDirectly(testUUID, signalChunkId, info.cellUUID, info.networkType, it, testStartTimeNanos, info.nrConnectionState)
                         }
@@ -469,12 +469,15 @@ class TestDataRepositoryImpl(db: CoreDatabase) : TestDataRepository {
         testDao.insert(record)
     }
 
-    override fun saveTest(test: TestRecord): Unit {
+    override fun saveTest(test: TestRecord) {
         return testDao.insert(test)
     }
 
     override fun update(testRecord: TestRecord, onUpdated: () -> Unit) = io {
-        testDao.update(testRecord)
+        val count = testDao.update(testRecord)
+        if (count == 0) {
+            Timber.e("DB: Failed to update test record")
+        }
         onUpdated.invoke()
     }
 
@@ -490,7 +493,10 @@ class TestDataRepositoryImpl(db: CoreDatabase) : TestDataRepository {
     }
 
     override fun updateQoSTestStatus(testUUID: String, status: TestStatus?) = io {
-        testDao.updateQoSTestStatus(testUUID, status?.ordinal)
+        val count = testDao.updateQoSTestStatus(testUUID, status?.ordinal)
+        if (count == 0) {
+            Timber.e("DB: failed to update QOS test status to: ${status?.ordinal}")
+        }
     }
 
     override fun saveLoopMode(loopModeRecord: LoopModeRecord) = io {
@@ -498,7 +504,10 @@ class TestDataRepositoryImpl(db: CoreDatabase) : TestDataRepository {
     }
 
     override fun updateLoopMode(loopModeRecord: LoopModeRecord) = io {
-        testDao.updateLoopModeRecord(loopModeRecord)
+        val count = testDao.updateLoopModeRecord(loopModeRecord)
+        if (count == 0) {
+            Timber.e("DB: failed to update loopModeRecord")
+        }
     }
 
     override fun saveConnectivityState(state: ConnectivityStateRecord) = io {

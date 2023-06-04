@@ -20,7 +20,7 @@ abstract class QosCategoryDao {
     abstract fun insert(qosCategory: QosCategoryRecord)
 
     @Query("DELETE FROM ${Tables.QOS_CATEGORY} WHERE testUUID == :testUUID AND category == :category")
-    abstract fun clearQosCategory(testUUID: String, category: QoSCategory)
+    abstract fun clearQosCategory(testUUID: String, category: QoSCategory): Int
 
     @Transaction
     open fun clearQoSInsert(qosCategory: QosCategoryRecord) {

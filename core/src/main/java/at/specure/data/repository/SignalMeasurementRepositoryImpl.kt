@@ -72,7 +72,10 @@ class SignalMeasurementRepositoryImpl(
     }
 
     override fun updateSignalMeasurementRecord(record: SignalMeasurementRecord) = io {
-        dao.updateSignalMeasurementRecord(record)
+        val count = dao.updateSignalMeasurementRecord(record)
+        if (count == 0) {
+            Timber.e("DB: failed to update signal measurement record")
+        }
     }
 
     override fun registerMeasurement(measurementId: String): Flow<Boolean> = flow {

@@ -7,6 +7,7 @@ import androidx.room.Query
 import androidx.room.Transaction
 import at.specure.data.Tables
 import at.specure.data.entity.TacRecord
+import timber.log.Timber
 
 @Dao
 abstract class TacDao {
@@ -18,11 +19,12 @@ abstract class TacDao {
     abstract fun loadTermsAndConditions(url: String): TacRecord?
 
     @Query("DELETE FROM ${Tables.TAC} WHERE url == :url")
-    abstract fun deleteTermsAndCondition(url: String)
+    abstract fun deleteTermsAndCondition(url: String) : Int
 
     @Transaction
     open fun clearInsertItems(tac: TacRecord) {
-        deleteTermsAndCondition(tac.url)
+        val countTAC = deleteTermsAndCondition(tac.url)
+        Timber.d("DB: Deleting TaC: $countTAC")
         saveTermsAndConditions(tac)
     }
 }

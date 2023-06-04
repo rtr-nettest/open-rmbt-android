@@ -157,7 +157,7 @@ fun ISignal.toSignalRecord(
         }
     }
 
-    Timber.e("Signal saving time 1: $currentTime  starting time: $testStartTimeNanos   current time: ${System.nanoTime()}")
+//    Timber.d("Signal saving time 1: $currentTime  starting time: $testStartTimeNanos   current time: ${System.nanoTime()}")
     val startTimestampNsSinceBoot = testStartTimeNanos + (SystemClock.elapsedRealtimeNanos() - System.nanoTime())
     val timeNanos = currentTime - testStartTimeNanos
     var timeNanosLast = if (currentTime < startTimestampNsSinceBoot) currentTime - startTimestampNsSinceBoot else null

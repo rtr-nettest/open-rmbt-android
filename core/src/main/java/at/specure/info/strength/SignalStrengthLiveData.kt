@@ -15,7 +15,6 @@ package at.specure.info.strength
 
 import androidx.lifecycle.LiveData
 import at.specure.info.network.DetailedNetworkInfo
-import timber.log.Timber
 import javax.inject.Inject
 
 /**
@@ -35,13 +34,13 @@ class SignalStrengthLiveData @Inject constructor(private val signalStrengthWatch
     }
 
     override fun onSignalStrengthChanged(signalInfo: DetailedNetworkInfo?) {
-        var message = ""
-        message = if (signalInfo == null) {
-            "SSP NOTIFY - SignalStrength: null"
-        } else {
-            "SSP NOTIFY - SignalStrength: value: ${signalInfo.signalStrengthInfo?.value} \nmax: ${signalInfo.signalStrengthInfo?.max} \nmin: ${signalInfo.signalStrengthInfo?.min} \nrsrq: ${signalInfo.signalStrengthInfo?.rsrq} \ntransportType: ${signalInfo.signalStrengthInfo?.transport?.name} \nsignal level: ${signalInfo.signalStrengthInfo?.signalLevel} \n "
-        }
-        Timber.v(message)
+//        var message = ""
+//        message = if (signalInfo == null) {
+//            "SSP NOTIFY - SignalStrength: null"
+//        } else {
+//            "SSP NOTIFY - SignalStrength: value: ${signalInfo.signalStrengthInfo?.value} \nmax: ${signalInfo.signalStrengthInfo?.max} \nmin: ${signalInfo.signalStrengthInfo?.min} \nrsrq: ${signalInfo.signalStrengthInfo?.rsrq} \ntransportType: ${signalInfo.signalStrengthInfo?.transport?.name} \nsignal level: ${signalInfo.signalStrengthInfo?.signalLevel} \n "
+//        }
+//        Timber.v(message)
         postValue(signalInfo)
     }
 }
