@@ -41,12 +41,6 @@
             text-align: justify;
         }
 
-        .tc_border {
-            border-style: solid;
-            border-width: 2px;
-            padding: 0px 0.5em;
-        }
-
         body {
             color: #424242;
             font-size: 80%;
@@ -59,15 +53,15 @@
         <h1>1. Datenschutzerklärung</h1>
         <h2>1.1. Allgemeines</h2>
         <p>Die Verwendung der RTR-Netztest-App ist erst nach ausdrücklicher Zustimmung zur Datenschutzerklärung sowie den
-            Nutzungsbedingungen des RTR-Netztests möglich. Unter 14-Jährige Personen können den RTR-Netztest nur mit
+            Nutzungsbedingungen des RTR-Netztests möglich. Unter 14-jährige Personen können den RTR-Netztest nur mit
             Einwilligung der bzw des Obsorgeberechtigten nutzen. Es wird darauf hingewiesen, dass die IP-Adresse übermittelt
             wird, ua auch in Drittländer (= außerhalb der Europäischen Union, EU, und des Europäischen Wirtschaftsraums, EWR)
-            für die es keinen Angemessenheitsbeschluss und keine geeigneten Garantien gibt. Siehe dazu unter 4.
+            für die es keinen Angemessenheitsbeschluss und keine geeigneten Garantien gibt. Siehe dazu unter 1.4.
         </p>
         <p>
             Der RTR-Netztest der RTR-GmbH bietet Nutzerinnen und Nutzern die Möglichkeit, Informationen über die aktuelle
             Dienstequalität (ua Upload, Download, Ping) ihres Internetzugangs zu beziehen. Für technisch Interessierte bietet
-            der RTR-Netztest zwei weitere Optionen an: Einerseits einen Wiederholungsmodus (Loop), der ermöglicht, dass der
+            der RTR-Netztest weitere Optionen an: Einerseits einen Wiederholungsmodus (Loop), der ermöglicht, dass der
             RTR-Netztest automatisiert wiederholt durchgeführt wird; andererseits besteht mit der Option Nur-Signalmessung
             Wiederholungsmodus die Möglichkeit, dass ausschließlich Signalmessungen wiederholt durchgeführt werden - ohne, dass
             dabei Geschwindigkeits- oder Qualitätstests durchgeführt werden.
@@ -76,7 +70,7 @@
                 rel="noopener noreferrer" class="external-link">§&nbsp;46 Abs&nbsp;5 und Abs&nbsp;6 sowie §&nbsp;48 Telekommunikationsgesetz 2021</a> sowie <a href="https://eur-lex.europa.eu/legal-content/DE/TXT/?uri=celex:32015R2120"
                 title="Link to TSM Regulation" target="_blank"
                 class="external-link">Art 4 Abs 4 und Art 5 Abs 1 Verordnung (EU) 2015/2120</a>.
-            Um diese Aufgabe erfüllen zu können und der Nutzerin bzw dem Nutzer – unter Achtung der Privatsphäre – größtmögliche
+            Um diese Aufgabe erfüllen zu können und der Nutzer:innen – unter Achtung der Privatsphäre – größtmögliche
             Transparenz und ausführliche Information zu bieten, basiert der RTR-Netztest auf dem Open Source- und Open
             Data-Prinzip.</p>
         <h2>1.2. Welche Daten werden verarbeitet?</h2>
@@ -90,10 +84,11 @@
                 von Domain Name System-Servern, Traceroute, VoIP-Testverbindung)*
             </li>
             <li>Testparameter (Testmethode, Testfortschritt, Testserver, Testkonfiguration [zB Testdauer])*</li>
+            <li>Umweltbedingungen zur Messung (Temperatur, Auslastung des Messgeräts inkl CPU-Last)*</li>
             <li>zufällig erzeugte ID des Clients (Client UUID)</li>
             <li>Zustimmungsnachweis zur Datenschutzerklärung und zu den Nutzungsbedingungen</li>
             <li>öffentliche ID des Clients*</li>
-            <li>Sync-Code und –Gruppe des Clients</li>
+            <li>Sync-Code und –Gruppe sowie Spracheinstellungen des Clients</li>
             <li>Testzeitpunkt*</li>
             <li>Standort des Clients (sofern bekannt) / Zeitzone*</li>
             <li>Metainformationen zum Standort des Clients (zB Standortgenauigkeit, Methode der Standortbestimmung,
@@ -103,10 +98,10 @@
             <li>NAT ja/nein (wird ein direkter Internetzugang oder eine private Adresse verwendet)*</li>
             <li>Roaming-Status (nationales, internationales Roaming)*</li>
             <li>IP-Version*</li>
-            <li>IP-Adresse</li>
-            <li>IP-Netzwerk (autonomes System, AS) bzw. anonymisierte IP-Adresse*</li>
+            <li>IP-Adresse (inkl Hostname)</li>
+            <li>IP-Netzwerk (autonomes System, AS) bzw anonymisierte IP-Adresse*</li>
             <li>Kennung WLAN-Netzwerk (SSID) und numerische WLAN-Kennung (BSSID)</li>
-            <li>Mobilfunknetz (zB Heimatnetz, eingebuchtes Netzwerk, Typ der Verbindung [GSM, UMTS, LTE etc], Name des
+            <li>Mobilfunknetz (zB Heimatnetz, eingebuchtes Netzwerk, Typ der Verbindung [GSM, UMTS, LTE, NR etc], Name des
                 Mobilfunknetzwerks, verwendete Frequenz, Frequenzband, eindeutige Nummer der Basisstation)*
             </li>
         </ul>
@@ -114,20 +109,20 @@
             der Allgemeinheit als Open Data (<a href="https://www.netztest.at/de/Opendata" target="_blank"
                     rel="noopener noreferrer">https://www.netztest.at/de/Opendata</a>) zur
             Information, Nutzung, Weiterverbreitung und Weiterverwendung frei zugänglich gemacht.</p>
-        <p>Hinweis: Die Berechtigung „Zulassen, dass der RTR-Netztest Anrufe startet und verwaltet“, die nach Zustimmung zur
-            Datenschutzerklärung, bei Endgeräten, die mehrere SIM-Karten haben können, abgefragt wird, ist durch das
-            Betriebssystem des jeweiligen Endgeräts vorgegeben. Diese Zustimmung ist dann notwendig, wenn mehrere SIM-Karten
-            verwendet werden können. Im Rahmen des RTR-Netztest wird aufgrund dieser Zustimmung erkannt, welche SIM eines
-            Betreibers für Datenverkehr genutzt wird. Die sonstigen Berechtigungen aufgrund dieser Zustimmung werden im Rahmen
-            des RTR-Netztest nicht verwendet.</p>
+        <p>Hinweis: Bei Endgeräten, die mehrere SIM-Karten haben können wird nach Zustimmung zur Datenschutzerklärung
+            die Berechtigung "Zulassen, dass der RTR-Netztest Anrufe startet und verwaltet", abgefragt.
+            Die Abfrage ist durch das Betriebssystem des jeweiligen Endgeräts vorgegeben. Im Rahmen des RTR-Netztests
+            wird aufgrund dieser Zustimmung erkannt, welche SIM
+            für Datenverkehr genutzt wird. Die sonstigen Berechtigungen aufgrund dieser Zustimmung werden im Rahmen
+            des RTR-Netztests nicht verwendet.</p>
         <h3>1.2.2 Option Wiederholungsmodus (Loop)</h3>
         <p>Die Option Wiederholungsmodus (Loop) für technisch Interessierte ermöglicht, dass der RTR-Netztest automatisiert
             wiederholt durchgeführt wird.
         </p>
         <p> Der erste Test wird unmittelbar nach dem Start des Wiederholungsmodus gestartet. Weitere Tests werden, sobald
-            entweder die Wartezeit (Voreinstellung 30 Minuten) abgelaufen ist oder die festgelegte Distanz (Voreinstellung 250
-            Meter) zurückgelegt wurde, gestartet. Tests werden durchgeführt bis die eingestellte Testanzahl (Voreinstellung 10
-            Tests) erreicht ist. Zwischen zwei Tests wird die Signalstärke weiter gemessen. Der Wiederholungsmodus kann jederzeit gestoppt werden bzw wird er
+            entweder die Wartezeit abgelaufen ist oder die festgelegte Distanz zurückgelegt wurde, gestartet.
+            Tests werden durchgeführt bis die eingestellte Testanzahl erreicht ist. Zwischen zwei Tests wird die
+            Signalstärke weiter gemessen. Der Wiederholungsmodus kann jederzeit gestoppt werden bzw wird er
             automatisch nach 48 Stunden gestoppt. Es wird ausdrücklich darauf hingewiesen,
             dass aufgrund des Wiederholungsmodus ein Rückschluss auf die testende Person nicht ausgeschlossen ist.
         </p>
@@ -135,13 +130,13 @@
             der RTR-Netztest-Website und in der RTR-Netztest-App veröffentlicht und der Allgemeinheit als Open Data
             ( <a href="https://www.netztest.at/de/Opendata"
                     title="Link to TSM Regulation" target="_blank"
-                    class="external-link">https://www.netztest.at/de/Opendata</a>) zur Information, Nutzung, Weiterverbreitung und Weiterverwendung frei
-            zugänglich gemacht.
+                    class="external-link">https://www.netztest.at/de/Opendata</a>) zur Information, Nutzung, Weiterverbreitung
+            und Weiterverwendung frei zugänglich gemacht.
         </p>
 
         <h3>1.2.3 Option Nur-Signalmessung Wiederholungsmodus</h3>
         <p>
-            Mit dieser weiteren Option für technisch Interessierte wird die Signalstärke automatisiert wiederholt gemessen –
+            Mit dieser Option für technisch Interessierte wird die Signalstärke automatisiert wiederholt gemessen –
             ohne, dass dabei Geschwindigkeits- oder Qualitätstests durchgeführt werden. Der Nur-Signalmessung Wiederholungsmodus
             kann jederzeit gestoppt werden bzw wird er  automatisch nach 48 Stunden gestoppt. Es wird ausdrücklich darauf
             hingewiesen, dass aufgrund der Nur-Signalmessung ein Rückschluss auf die testende Person nicht ausgeschlossen ist.
@@ -163,19 +158,19 @@
             Nur-Signalmessung Wiederholungsmodus verarbeitet: (1) die Client UUID, (2) die Kennung WLAN-Netzwerk (SSID) und
             numerische WLAN-Kennung (BSSID) sowie (3) die IP-Adresse.
         </p>
-        <p>Zweck der Verarbeitung:</p>
+        <h3>Zweck der Verarbeitung:</h3>
         <ul>
             <li>bei der <strong>Client UUID</strong>: Ermöglichung von Verlauf für Nutzerin bzw. Nutzer; Identifikation
                 zusammenhängender Tests insbesondere im Zusammenhang mit missbräuchlicher Nutzung oder Fehlfunktionen;
                 Wahrnehmung der Rechte durch die Nutzerin bzw den Nutzer unter 1.6.
             </li>
             <li>bei der <strong>Kennung WLAN-Netzwerk (SSID)</strong> und <strong>numerische WLAN-Kennung (BSSID)</strong>:
-                Darstellung in Verlauf für Nutzerin bzw. Nutzer; Identifikation zusammenhängender Tests insbesondere im
+                Darstellung in Verlauf für Nutzer:innen; Identifikation zusammenhängender Tests insbesondere im
                 Zusammenhang mit missbräuchlicher Nutzung oder Fehlfunktionen.
             </li>
             <li>bei der <strong>IP-Adresse</strong>: Technische Ermöglichung des RTR-Netztests und Gewährleistung des
-                vollständigen Funktionsumfangs, insbesondere Kartendarstellung und Qualitätsmessungen; Zuordnung des Tests zu
-                Betreiber (über Routinginformation [AS] bzw Hostnamen); Erkennung von missbräuchlicher Nutzung und
+                vollständigen Funktionsumfangs, insbesondere Kartendarstellung und Qualitätsmessungen; Zuordnung des Tests zum
+                Anbieter bzw Betreiber (über Routinginformation [AS] bzw Hostnamen); Erkennung von missbräuchlicher Nutzung und
                 Fehlfunktionen.
             </li>
         </ul>
@@ -308,6 +303,6 @@
             Informationen bzw durch die Nutzung fehlerhafter und unvollständiger Informationen verursacht wurden, sind
             grundsätzlich ausgeschlossen. Sofern ein gänzlicher Haftungsausschluss der RTR-GmbH aufgrund der jeweils
             anzuwendenden Gesetzeslage nicht möglich ist, wird die Haftung auf Vorsatz und grobe Fahrlässigkeit begrenzt.</p>
-        <p>Version 2021-11-01</p>
+        <p>Version 2023-06-04</p>
     </body>
 </html>

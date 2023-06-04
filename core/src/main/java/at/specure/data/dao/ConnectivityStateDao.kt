@@ -11,7 +11,7 @@ import at.specure.data.entity.ConnectivityStateRecord
 interface ConnectivityStateDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun saveState(record: ConnectivityStateRecord)
+    fun saveState(record: ConnectivityStateRecord): Long
 
     @Query("SELECT * FROM ${Tables.CONNECTIVITY_STATE} WHERE uuid==:uuid")
     fun getStates(uuid: String): List<ConnectivityStateRecord>

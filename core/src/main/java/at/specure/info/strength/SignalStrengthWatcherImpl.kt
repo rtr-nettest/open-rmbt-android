@@ -199,7 +199,7 @@ class SignalStrengthWatcherImpl(
     }
 
     private fun handleCellUpdate() {
-        Timber.d("Total Cell Count: ${cellInfoWatcher.allCellInfos.size}")
+//        Timber.d("Total Cell Count: ${cellInfoWatcher.allCellInfos.size}")
         val cellInfo = cellInfoWatcher.activeNetwork
         signalStrengthInfo = cellInfoWatcher.signalStrengthInfo
         if (cellInfo != null) {
@@ -236,7 +236,7 @@ class SignalStrengthWatcherImpl(
 
     private fun notifyInfoChanged() {
         listeners.synchronizedForEach {
-            Timber.d("Total Cell Count: ${inactiveNetworkInfo?.size}")
+//            Timber.d("Total Cell Count: ${inactiveNetworkInfo?.size}")
             it.onSignalStrengthChanged(
                 DetailedNetworkInfo(
                     networkInfo,

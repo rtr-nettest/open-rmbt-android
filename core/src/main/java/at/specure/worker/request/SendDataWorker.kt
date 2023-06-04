@@ -23,22 +23,23 @@ class SendDataWorker(appContext: Context, workerParams: WorkerParameters) : Work
     override fun doWork(): Result {
         CoreInjector.inject(this)
 
-        Timber.d("Delayed submission start")
+
         val testUUID = inputData.getString(KEY_TEST_UUID) ?: throw DataMissingException("No testUUID passed")
+        Timber.d("Delayed submission start of UUD $testUUID")
 
         repository.updateSubmissionsCounter(testUUID)
         val response = repository.sendTestResults(testUUID)
         with(response) {
             return if (ok) {
-                Timber.d("Delayed submission success")
+                Timber.d("Delayed submission success $testUUID")
                 Result.success()
             } else {
                 val submissionsCount = db.testDao().getSubmissionsRetryCount(testUUID)
                 if (submissionsCount != null && submissionsCount < ATTEMPTS_LIMIT) {
-                    Timber.d("Delayed submission retry")
+                    Timber.d("Delayed submission retry of UUID $testUUID")
                     Result.retry()
                 } else {
-                    Timber.d("Delayed submission failure after $submissionsCount attempts")
+                    Timber.d("Delayed submission failure of UUID $testUUID after $submissionsCount attempts")
                     Result.failure()
                 }
             }

@@ -31,6 +31,7 @@ import at.rtr.rmbt.android.util.listen
 import at.rtr.rmbt.android.viewmodel.ConfigCheckViewModel
 import at.rtr.rmbt.android.viewmodel.MeasurementViewModel
 import at.specure.data.entity.LoopModeState
+import timber.log.Timber
 
 class HomeActivity : BaseActivity() {
 
@@ -65,12 +66,14 @@ class HomeActivity : BaseActivity() {
         binding.navView.setupWithNavController(navController)
 
         viewModel.isTestsRunningLiveData.listen(this) { isRunning ->
+            Timber.d("Test is running: $isRunning,  Loop mode enabled: ${viewModel.config.loopModeEnabled} Loop mode record status: ${viewModel.state.loopModeRecord.get()?.status}, performed: ${viewModel.state.loopModeRecord.get()?.testsPerformed}")
             if (isRunning) {
                 if (viewModel.config.loopModeEnabled) {
                     if (viewModel.state.loopModeRecord.get()?.status != LoopModeState.FINISHED && viewModel.state.loopModeRecord.get()?.status != LoopModeState.CANCELLED && viewModel.state.loopLocalUUID.get() != null && (viewModel.state.loopModeRecord.get()?.testsPerformed != viewModel.config.loopModeNumberOfTests)) {
                         MeasurementActivity.start(this)
                     }
                 } else {
+                    Timber.d("Starting measurement activity because measurement is running")
                     MeasurementActivity.start(this)
                 }
             }

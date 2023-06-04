@@ -17,5 +17,5 @@ interface PermissionStatusDao {
     fun insert(permissionStatus: PermissionStatusRecord)
 
     @Query("DELETE FROM ${Tables.PERMISSIONS_STATUS} WHERE ((testUUID IS :testUUID) AND (signalChunkId IS :signalChunkId))")
-    fun remove(testUUID: String?, signalChunkId: String?)
+    fun remove(testUUID: String?, signalChunkId: String?): Int
 }

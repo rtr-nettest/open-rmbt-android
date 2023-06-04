@@ -132,7 +132,7 @@ class StateRecorder @Inject constructor(
                 lastMeasurementSignalStrength = signalStrengthInfo
             }
             signalStrengthInfo = info?.signalStrengthInfo
-            Timber.e("Signal saving time OBSERVER: starting time: $testStartTimeNanos   current time: ${System.nanoTime()}")
+//            Timber.d("Signal saving time OBSERVER: starting time: $testStartTimeNanos   current time: ${System.nanoTime()}")
             if (networkInfo?.type != TransportType.CELLULAR) {
                 saveSignalStrength(testUUID, signalStrengthInfo)
             }
@@ -325,7 +325,7 @@ class StateRecorder @Inject constructor(
 
             // saving only valid signal with associated cell (wifi and mobile connections)
             if (cellUUID.isNotEmpty() && isSignalValid) {
-                Timber.e("Signal saving time SR: starting time: $testStartTimeNanos   current time: ${System.nanoTime()}")
+//                Timber.d("Signal saving time SR: starting time: $testStartTimeNanos   current time: ${System.nanoTime()}")
                 repository.saveSignalStrength(uuid, null, cellUUID, mobileNetworkType, info, testStartTimeNanos, nrConnectionState)
             }
         }

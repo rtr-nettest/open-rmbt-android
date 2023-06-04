@@ -34,6 +34,7 @@ import at.specure.util.FilterValuesStorage
 import at.specure.util.getCurrentLatestFinishedMonth
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
+import timber.log.Timber
 import java.io.ByteArrayOutputStream
 import java.util.Calendar
 import java.util.Locale
@@ -70,7 +71,10 @@ class MapRepositoryImpl @Inject constructor(
         )
         val result = client.getMarkers(body)
         result.onSuccess {
-            db.mapDao().clear()
+            val clearCount = db.mapDao().clear()
+            if (clearCount == 0) {
+                Timber.e("DB: failed to clear map markers")
+            }
             db.mapDao().insert(it.toModelList())
         }
         loaded.invoke(result.ok)

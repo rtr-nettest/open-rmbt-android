@@ -260,11 +260,11 @@ class SignalMeasurementProcessor @Inject constructor(
             newNetworkInfo != null && currentInfo == null -> {
                 Timber.i("Network appeared")
                 networkInfo = newNetworkInfo
-                if ((lastSeenNetworkInfo != null) && (lastSeenNetworkInfo?.type == newNetworkInfo.type) && (lastSeenNetworkTimestampMillis?.plus(
+                if ((lastSeenNetworkInfo != null) && (lastSeenNetworkInfo?.type == newNetworkInfo.type) && ((lastSeenNetworkTimestampMillis?.plus(
                         TimeUnit.SECONDS.toMillis(
                             MAX_TIME_NETWORK_UNREACHABLE_SECONDS
                         )
-                    ) ?: -1 >= System.currentTimeMillis())
+                    ) ?: -1) >= System.currentTimeMillis())
                 ) {
                     networkInfo = lastSeenNetworkInfo
                     record = lastSeenNetworkRecord
@@ -279,13 +279,13 @@ class SignalMeasurementProcessor @Inject constructor(
             }
             // it must be started like new chunk on different type of the network because network type is common for entire chunk
             newNetworkInfo != null && currentInfo != null && currentInfo.type != newNetworkInfo.type -> {
-                Timber.i("Network changed")
+//                Timber.i("Network changed")
                 networkInfo = newNetworkInfo
                 commitChunkData(ValidChunkPostProcessing.NOTHING)
                 createNewRecord(newNetworkInfo)
             }
             else -> {
-                Timber.i("New network other case -> new: ${newNetworkInfo?.cellUUID} old ${currentInfo?.cellUUID}")
+//                Timber.i("New network other case -> new: ${newNetworkInfo?.cellUUID} old ${currentInfo?.cellUUID}")
             }
         }
     }
@@ -587,7 +587,7 @@ class SignalMeasurementProcessor @Inject constructor(
     private fun saveLocationInfo() {
         val signalChunkId = chunk?.id
         val location = locationInfo
-        Timber.d("Saving location:  UUID:$signalChunkId  ${location.toDeviceInfoLocation()} ")
+//        Timber.d("Saving location:  UUID:$signalChunkId  ${location.toDeviceInfoLocation()} ")
         if (signalChunkId != null && location != null && locationWatcher.state == LocationState.ENABLED) {
             repository.saveGeoLocation(null, signalChunkId, location, record?.startTimeNanos ?: 0, true)
         }

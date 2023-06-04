@@ -8,6 +8,7 @@ import androidx.room.Query
 import androidx.room.Transaction
 import at.specure.data.Tables
 import at.specure.data.entity.TestResultGraphItemRecord
+import timber.log.Timber
 
 @Dao
 abstract class TestResultGraphItemDao {
@@ -16,13 +17,15 @@ abstract class TestResultGraphItemDao {
     abstract fun getGraphDataLiveData(testUUID: String, typeValue: Int): LiveData<List<TestResultGraphItemRecord>>
 
     @Query("DELETE FROM ${Tables.TEST_RESULT_GRAPH_ITEM} WHERE (testUUID == :testOpenUUID AND type == :typeValue)")
-    abstract fun removeGraphItem(testOpenUUID: String, typeValue: Int)
+    abstract fun removeGraphItem(testOpenUUID: String, typeValue: Int): Int
 
     @Transaction
     open fun clearInsertItems(graphItems: List<TestResultGraphItemRecord>?) {
         if (!graphItems.isNullOrEmpty()) {
-            removeGraphItem(graphItems.first().testUUID, graphItems.first().type.typeValue)
-            insertItem(graphItems)
+            val removedCount = removeGraphItem(graphItems.first().testUUID, graphItems.first().type.typeValue)
+            Timber.d("DB: clearing graph items:  $removedCount for uuid: ${graphItems.first().testUUID}, type: ${graphItems.first().type.typeValue}")
+            val inserted = insertItem(graphItems)
+            Timber.d("DB: inserted graph items:  $inserted for uuid: ${graphItems.first().testUUID}, type: ${graphItems.first().type.typeValue}")
         }
     }
 

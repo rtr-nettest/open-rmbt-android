@@ -16,7 +16,6 @@ package at.specure.info.cell
 
 import android.content.Context
 import android.net.ConnectivityManager
-import android.net.NetworkCapabilities
 import android.telephony.SubscriptionManager
 import android.telephony.TelephonyManager
 import at.rmbt.client.control.getCorrectDataTelephonyManager
@@ -114,7 +113,7 @@ class CellInfoWatcherImpl(
                     _networkTypes[it.subscriptionId] = it.mobileNetworkType(netMonster)
                 }
 
-                Timber.d("Total Cell Count: ${_inactiveCellNetworks.size}")
+//                Timber.d("Total Cell Count: ${_inactiveCellNetworks.size}")
                 val dataSubscriptionId = subscriptionManager.getCurrentDataSubscriptionId()
                 _dataSubscriptionId = dataSubscriptionId
 

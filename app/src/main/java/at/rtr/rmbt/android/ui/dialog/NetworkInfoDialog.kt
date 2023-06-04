@@ -1,11 +1,14 @@
 package at.rtr.rmbt.android.ui.dialog
 
+import android.content.Context
 import android.os.Bundle
+import android.telephony.SubscriptionManager
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.FragmentManager
+import at.rmbt.client.control.getCurrentDataSubscriptionId
 import at.rtr.rmbt.android.R
 import at.rtr.rmbt.android.databinding.DialogNetworkInfoBindingImpl
 import at.rtr.rmbt.android.di.Injector
@@ -61,6 +64,10 @@ class NetworkInfoDialog : FullscreenDialog() {
                     adapterWifi.items = listOf(networkInfo)
                 }
                 is CellNetworkInfo -> {
+
+                    var subscriptionManager = context?.getSystemService(Context.TELEPHONY_SUBSCRIPTION_SERVICE) as SubscriptionManager
+                    var primaryDataSubscription = subscriptionManager.getCurrentDataSubscriptionId()
+
                     if (binding.recyclerViewCells.adapter is ICellAdapter == false) {
                         binding.recyclerViewCells.adapter = adapterMobile.also {
                             it.setHasStableIds(false)
@@ -86,6 +93,7 @@ class NetworkInfoDialog : FullscreenDialog() {
 //                            }
 //                        }
                         Timber.d("Total Cell Count: ${cells.size}")
+                        adapterMobile.primaryDataSubscriptionId = primaryDataSubscription
                         adapterMobile.items = it
                     }
 //                    Timber.d("Total Cell Count: ${cells.size}")

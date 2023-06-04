@@ -1,23 +1,13 @@
 package at.specure.data.entity
 
 import androidx.room.Entity
-import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
-import at.specure.data.Columns
 import at.specure.data.Tables
 import at.specure.info.TransportType
 import at.specure.info.cell.CellTechnology
 
 @Entity(
-    tableName = Tables.CELL_INFO,
-    foreignKeys = [
-        ForeignKey(
-            entity = TestRecord::class,
-            parentColumns = [Columns.TEST_UUID_PARENT_COLUMN],
-            childColumns = ["testUUID"],
-            onDelete = ForeignKey.CASCADE
-        )
-    ]
+    tableName = Tables.CELL_INFO
 )
 data class CellInfoRecord(
     @PrimaryKey(autoGenerate = true)
