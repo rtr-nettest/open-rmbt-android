@@ -298,6 +298,10 @@ class MeasurementService : CustomLifecycleService(), CoroutineScope {
             }
         }
 
+        /***
+         * We need to handle situation when we are starting the test but because of some error, the test is not started
+         * e.g. some of the requests are not responded and because of that client remains null.
+         */
         override fun onError() {
             removeInactivityCheck()
             if (config.loopModeEnabled && stateRecorder.loopModeRecord?.status != LoopModeState.CANCELLED && (stateRecorder.loopTestCount < config.loopModeNumberOfTests || (config.loopModeNumberOfTests == 0 && config.developerModeIsEnabled))) {

@@ -216,9 +216,9 @@ class TestControllerImpl(
 
             if (client == null || errorSet.isNotEmpty()) {
                 Timber.w("Client has errors")
-                _listener?.onError()
                 job?.cancel()
                 job = null
+                _listener?.onError()
                 return@async
             }
 
