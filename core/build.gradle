@@ -15,8 +15,6 @@ android {
     defaultConfig {
         minSdkVersion config.minSdkVersion
         targetSdkVersion config.targetSdkVersion
-        versionCode = config.versionCode
-        versionName = config.versionName
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
@@ -25,8 +23,12 @@ android {
         buildConfigField "String", "GIT_FULL_HASH", "\"${gitFullHash()}\""
         buildConfigField "int", "GIT_VERSION_CODE", gitVersionCode()
         buildConfigField "boolean", "GIT_IS_DIRTY", gitIsDirty()
-        buildConfigField "int", "VERSION_CODE", "${versionCode}"
+        buildConfigField "int", "VERSION_CODE", "${versionCode ?: 1}"
         buildConfigField "String", "VERSION_NAME", "\"${versionName}\""
+    }
+
+    buildFeatures {
+        buildConfig true
     }
 
     buildTypes {
@@ -43,6 +45,13 @@ android {
         warningsAsErrors true
         xmlOutput file("$rootDir/build_results/lint-result.xml")
         xmlReport true
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+    kotlinOptions {
+        jvmTarget = "17"
     }
 }
 
