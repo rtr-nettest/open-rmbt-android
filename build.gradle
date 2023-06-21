@@ -15,9 +15,7 @@ buildscript {
     }
 
     dependencies {
-//        classpath 'com.android.tools.build:gradle:8.1.0-beta05'
         classpath 'com.google.android.gms:oss-licenses-plugin:0.10.6'
-//        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$versions.kotlin"
         applyDependencies({ this })
     }
 }
