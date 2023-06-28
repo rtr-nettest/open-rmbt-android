@@ -237,7 +237,11 @@ class TestControllerImpl(
 
             _listener?.onClientReady(_testUUID!!, connection.loopUuid, loopLocalUUID, _testStartTimeNanos)
 
-            val skipQoSTests = !config.shouldRunQosTest
+            var skipQoSTests = !config.shouldRunQosTest
+
+            if (client.taskDescList == null || client.taskDescList.isEmpty()) {
+                skipQoSTests = true
+            }
 
             clientJob = GlobalScope.async {
                 @Suppress("BlockingMethodInNonBlockingContext")

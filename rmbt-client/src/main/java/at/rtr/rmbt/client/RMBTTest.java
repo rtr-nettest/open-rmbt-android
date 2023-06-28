@@ -438,7 +438,7 @@ public class RMBTTest extends AbstractRMBTTest implements Callable<ThreadTestRes
             /*********************/
 
             /***** jitter and packet loss *****/
-            if (client.isEnabledJitterAndPacketLossTest()) {
+            if (client.isEnabledJitterAndPacketLossTest() && client.getTaskDescList() != null && !client.getTaskDescList().isEmpty()) { // todo: add check for presence of jitter test configuration in the map
                 if (threadId == 0) {
                     client.performVoipTest();
                 }
