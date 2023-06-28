@@ -303,6 +303,14 @@ class MeasurementService : CustomLifecycleService(), CoroutineScope {
          * e.g. some of the requests are not responded and because of that client remains null.
          */
         override fun onError() {
+            if (!config.loopModeEnabled) {
+                hasErrors = true
+                notificationManager.cancel(NOTIFICATION_ID)
+                clientAggregator.onMeasurementError()
+                stateRecorder.finish()
+                unlock()
+                stopForeground(true)
+            }
             removeInactivityCheck()
             if (config.loopModeEnabled && stateRecorder.loopModeRecord?.status != LoopModeState.CANCELLED && (stateRecorder.loopTestCount < config.loopModeNumberOfTests || (config.loopModeNumberOfTests == 0 && config.developerModeIsEnabled))) {
                 startSignalMeasurement(SignalMeasurementType.LOOP_WAITING)

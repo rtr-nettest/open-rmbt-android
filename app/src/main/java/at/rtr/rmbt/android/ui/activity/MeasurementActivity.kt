@@ -138,20 +138,25 @@ class MeasurementActivity : BaseActivity(), SimpleDialog.Callback {
         if (measurementFinished) {
             if (viewModel.state.isLoopModeActive.get()) {
                 if (viewModel.state.loopModeRecord.get()?.status == LoopModeState.FINISHED) {
+                    this.finishAffinity()
                     LoopFinishedActivity.start(this)
                 }
             } else {
                 finish()
                 viewModel.testUUID?.let {
-                    if (viewModel.state.measurementState.get() == MeasurementState.FINISH)
+                    if (viewModel.state.measurementState.get() == MeasurementState.FINISH) {
                         ResultsActivity.start(this, it, ResultsActivity.ReturnPoint.HOME)
+                        return
+                    }
                 }
+                HomeActivity.start(this)
             }
         }
     }
 
     private fun cancelMeasurement() {
         if (viewModel.state.isLoopModeActive.get()) {
+            finishAffinity()
             LoopFinishedActivity.start(this)
         } else {
             finishAffinity()
