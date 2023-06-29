@@ -71,6 +71,7 @@
         <activity
             android:name=".ui.activity.ResultsActivity"
             android:theme="@style/PreferenceTheme"
+            android:launchMode="singleTask"
             android:windowSoftInputMode="stateAlwaysHidden" />
 
         <activity android:name=".ui.activity.DetailedFullscreenMapActivity" />
