@@ -148,6 +148,16 @@ class CellInfoWatcherImpl(
                             secondary5GCellsCorrected.add(primaryCells[1])
                             secondaryCellsCorrected.add(primaryCells[1])
                             primaryCellsCorrected.add(primaryCells[0])
+                        } else {
+                            val signalSecondPrimaryCell = primaryCells[1].signal?.toSignalStrengthInfo(0)?.value
+                            val signalFirstPrimaryCell = primaryCells[0].signal?.toSignalStrengthInfo(0)?.value
+                            if (signalSecondPrimaryCell != null && signalFirstPrimaryCell != null && (signalSecondPrimaryCell > signalFirstPrimaryCell)) {
+                                primaryCellsCorrected.add(primaryCells[1])
+                                secondaryCellsCorrected.add(primaryCells[0])
+                            } else {
+                                primaryCellsCorrected.add(primaryCells[0])
+                                secondaryCellsCorrected.add(primaryCells[1])
+                            }
                         }
                     }
                     else -> {
@@ -177,6 +187,10 @@ class CellInfoWatcherImpl(
 //                            (_inactiveCellNetworks as MutableList).add(_inactiveCellNetworks)
 //                        }
 
+                        val networkTypeNM = primaryCellsCorrected[0].mobileNetworkType(netMonster)
+                        val networkType = _networkTypes[primaryCellsCorrected[0].subscriptionId] ?: MobileNetworkType.UNKNOWN
+                        Timber.d("NETWORK TYPE: NM: $networkTypeNM vs: $networkType")
+
                         _activeNetwork = primaryCellsCorrected[0].toCellNetworkInfo(
                             connectivityManager.activeNetworkInfo?.extraInfo,
                             telephonyManager.getCorrectDataTelephonyManager(subscriptionManager),
@@ -184,6 +198,7 @@ class CellInfoWatcherImpl(
                                 context,
                                 primaryCellsCorrected[0].subscriptionId
                             ),
+//                            primaryCellsCorrected[0].mobileNetworkType(netMonster)
                             _networkTypes[primaryCellsCorrected[0].subscriptionId] ?: MobileNetworkType.UNKNOWN,
                             dataSubscriptionId
                         )

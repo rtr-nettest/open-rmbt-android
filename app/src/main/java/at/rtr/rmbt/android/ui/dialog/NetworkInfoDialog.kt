@@ -19,6 +19,7 @@ import at.specure.info.cell.CellNetworkInfo
 import at.specure.info.network.ActiveNetworkLiveData
 import at.specure.info.network.WifiNetworkInfo
 import at.specure.info.strength.SignalStrengthLiveData
+import cz.mroczis.netmonster.core.factory.NetMonsterFactory
 import cz.mroczis.netmonster.core.model.cell.ICell
 import timber.log.Timber
 import javax.inject.Inject
@@ -54,6 +55,7 @@ class NetworkInfoDialog : FullscreenDialog() {
 
         signalStrengthLiveData.listen(this) { signal ->
 
+
             val networkInfo = signal?.networkInfo
             when (networkInfo) {
                 is WifiNetworkInfo -> {
@@ -67,6 +69,12 @@ class NetworkInfoDialog : FullscreenDialog() {
 
                     var subscriptionManager = context?.getSystemService(Context.TELEPHONY_SUBSCRIPTION_SERVICE) as SubscriptionManager
                     var primaryDataSubscription = subscriptionManager.getCurrentDataSubscriptionId()
+
+                    context?.let {
+                        val netmonster = NetMonsterFactory.get(it)
+                        val networkType = netmonster.getNetworkType(primaryDataSubscription)
+                        binding.networktype.setText("SubID: $primaryDataSubscription Type: $networkType")
+                    }
 
                     if (binding.recyclerViewCells.adapter is ICellAdapter == false) {
                         binding.recyclerViewCells.adapter = adapterMobile.also {
