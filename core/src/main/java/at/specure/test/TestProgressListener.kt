@@ -13,9 +13,9 @@ interface TestProgressListener {
 
     fun onPacketLossChanged(packetLossPercent: Int)
 
-    fun onDownloadSpeedChanged(progress: Int, speedBps: Long)
+    fun onDownloadSpeedChanged(progress: Int, speedBitPerSec: Long)
 
-    fun onUploadSpeedChanged(progress: Int, speedBps: Long)
+    fun onUploadSpeedChanged(progress: Int, speedBitPerSec: Long)
 
     fun onFinish()
 

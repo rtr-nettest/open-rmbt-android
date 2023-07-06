@@ -245,16 +245,16 @@ class MeasurementService : CustomLifecycleService(), CoroutineScope {
             clientAggregator.onPacketLossPercentChanged(packetLossPercent)
         }
 
-        override fun onDownloadSpeedChanged(progress: Int, speedBps: Long) {
-            downloadSpeedBps = speedBps
-            stateRecorder.onDownloadSpeedChanged(progress, speedBps)
-            clientAggregator.onDownloadSpeedChanged(progress, speedBps)
+        override fun onDownloadSpeedChanged(progress: Int, speedBitPerSec: Long) {
+            downloadSpeedBps = speedBitPerSec
+            stateRecorder.onDownloadSpeedChanged(progress, speedBitPerSec)
+            clientAggregator.onDownloadSpeedChanged(progress, speedBitPerSec)
         }
 
-        override fun onUploadSpeedChanged(progress: Int, speedBps: Long) {
-            uploadSpeedBps = speedBps
-            stateRecorder.onUploadSpeedChanged(progress, speedBps)
-            clientAggregator.onUploadSpeedChanged(progress, speedBps)
+        override fun onUploadSpeedChanged(progress: Int, speedBitPerSec: Long) {
+            uploadSpeedBps = speedBitPerSec
+            stateRecorder.onUploadSpeedChanged(progress, speedBitPerSec)
+            clientAggregator.onUploadSpeedChanged(progress, speedBitPerSec)
         }
 
         override fun onFinish() {
