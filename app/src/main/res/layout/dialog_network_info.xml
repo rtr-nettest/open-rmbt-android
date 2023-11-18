@@ -23,16 +23,8 @@
         android:animateLayoutChanges="false"
         android:padding="@dimen/margin_large">
 
-        <TextView
-            android:id="@+id/networktype"
-            android:layout_width="match_parent"
-            android:textColor="@color/cardview_dark_background"
-            android:layout_height="74dp"/>
-
-
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/recyclerViewCells"
-            android:layout_marginTop="92dp"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"

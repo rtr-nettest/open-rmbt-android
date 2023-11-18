@@ -70,11 +70,12 @@ class NetworkInfoDialog : FullscreenDialog() {
                     var subscriptionManager = context?.getSystemService(Context.TELEPHONY_SUBSCRIPTION_SERVICE) as SubscriptionManager
                     var primaryDataSubscription = subscriptionManager.getCurrentDataSubscriptionId()
 
-                    context?.let {
-                        val netmonster = NetMonsterFactory.get(it)
-                        val networkType = netmonster.getNetworkType(primaryDataSubscription)
-                        binding.networktype.setText("SubID: $primaryDataSubscription Type: $networkType")
-                    }
+//                   // add debug logging to NetworkInfo (aka Cell info page)
+//                    context?.let {
+//                        val netmonster = NetMonsterFactory.get(it)
+//                        val networkType = netmonster.getNetworkType(primaryDataSubscription)
+//                        binding.networktype.setText("SubID: $primaryDataSubscription Type: $networkType")
+//                    }
 
                     if (binding.recyclerViewCells.adapter is ICellAdapter == false) {
                         binding.recyclerViewCells.adapter = adapterMobile.also {
