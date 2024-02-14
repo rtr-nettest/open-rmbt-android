@@ -607,9 +607,7 @@ class StateRecorder @Inject constructor(
 
         testRecord?.let {
             repository.update(it) {
-                if (!waitQosResults) {
-                    onReadyToSubmit?.invoke(true)
-                }
+                onReadyToSubmit?.invoke(true)
             }
         }
 
@@ -630,7 +628,7 @@ class StateRecorder @Inject constructor(
             repository.updateQoSTestStatus(uuid, TestStatus.QOS_END)
             Timber.d("QOSLOG: ${TestStatus.QOS_END}")
             repository.saveQoSResults(uuid, token, data) {
-                onReadyToSubmit?.invoke(true)
+                Timber.d("QOS test complete loaded")
             }
         }
         testUUID = null
