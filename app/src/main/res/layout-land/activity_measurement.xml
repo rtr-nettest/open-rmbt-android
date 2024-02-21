@@ -70,13 +70,14 @@
 
         <TextView
             android:id="@+id/network_name"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:text="@{(state.networkInfo.type == TransportType.ETHERNET) ? @string/home_ethernet : state.networkInfo.name}"
             android:textColor="@android:color/background_light"
             android:textSize="@dimen/network_name_size"
             android:textStyle="bold"
             app:layout_constraintStart_toStartOf="@id/measurementBottomView"
+            app:layout_constraintEnd_toStartOf="@+id/technology_name"
             app:layout_constraintTop_toBottomOf="@id/network_name_label" />
 
         <TextView
