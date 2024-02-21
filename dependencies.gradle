@@ -35,7 +35,7 @@ buildscript {
                 stetho              : '1.6.0',
                 logging_interceptor : '5.0.0-alpha.11',
                 work_manager        : '2.8.1',
-                room                : '2.5.0',
+                room                : '2.5.2',
                 gson                : '2.10.1',
                 dnsjava             : '3.5.2',
                 jopt_simple         : '5.0.4',
