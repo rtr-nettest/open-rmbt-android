@@ -84,7 +84,7 @@ class MapRepositoryImpl @Inject constructor(
 
     override fun loadTiles(x: Int, y: Int, zoom: Int, type: MapPresentationType): ByteArray? = runBlocking(Dispatchers.IO) {
         val result = client.loadTiles(x, y, zoom, type, prepareFilters())
-        if (result.isSuccessful) {
+        if (result?.isSuccessful == true) {
             with(result.body()) {
                 this?.let {
                     return@runBlocking bytes()
