@@ -295,9 +295,9 @@ class TestControllerImpl(
                     TestStatus.UP -> handleUp(client)
                     TestStatus.SPEEDTEST_END -> handleSpeedTestEnd(client, clientCallback, skipQoSTests)
                     TestStatus.QOS_TEST_RUNNING -> handleQoSRunning(qosTest)
-                    TestStatus.QOS_END -> handleQoSEnd(client, clientCallback)
+                    TestStatus.QOS_END -> handleQoSEnd(client, clientCallback, !skipQoSTests)
                     TestStatus.ERROR -> handleError(client)
-                    TestStatus.END -> handleEnd(client, clientCallback)
+                    TestStatus.END -> handleEnd(client, clientCallback, !skipQoSTests)
                     TestStatus.ABORTED -> handleAbort(client)
                 }
 
@@ -518,9 +518,9 @@ class TestControllerImpl(
         }
     }
 
-    private fun handleQoSEnd(client: RMBTClient, clientCallback: RMBTClientCallback) {
+    private fun handleQoSEnd(client: RMBTClient, clientCallback: RMBTClientCallback, waitForQosTestResult: Boolean) {
         setState(MeasurementState.FINISH, 0)
-        clientCallback.onTestCompleted(client.totalTestResult, false)
+        clientCallback.onTestCompleted(client.totalTestResult, waitForQosTestResult)
         _testUUID = null
     }
 
@@ -535,9 +535,9 @@ class TestControllerImpl(
         _testUUID = null
     }
 
-    private fun handleEnd(client: RMBTClient, clientCallback: RMBTClientCallback) {
+    private fun handleEnd(client: RMBTClient, clientCallback: RMBTClientCallback, waitForQosTestResult: Boolean) {
         setState(MeasurementState.FINISH, 0)
-        clientCallback.onTestCompleted(client.totalTestResult, false)
+        clientCallback.onTestCompleted(client.totalTestResult, waitForQosTestResult)
         _testUUID = null
     }
 
