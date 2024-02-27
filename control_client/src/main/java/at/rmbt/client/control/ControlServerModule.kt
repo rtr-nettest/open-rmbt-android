@@ -17,6 +17,7 @@ package at.rmbt.client.control
 import com.google.gson.GsonBuilder
 import dagger.Module
 import dagger.Provides
+import okhttp3.ConnectionPool
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
@@ -66,6 +67,7 @@ class ControlServerModule {
             .connectTimeout(CONNECTION_TIMEOUT_SEC, TimeUnit.SECONDS)
             .readTimeout(READ_TIMEOUT_SEC, TimeUnit.SECONDS)
             .writeTimeout(CONNECTION_TIMEOUT_SEC, TimeUnit.SECONDS)
+            .connectionPool(ConnectionPool(0, 5, TimeUnit.MINUTES))
             .addInterceptor(ControlServerInterceptor(controlEndpointProvider))
 
         return setupOkHttpClient(builder).build()

@@ -715,6 +715,7 @@ class MeasurementService : CustomLifecycleService(), CoroutineScope {
 
     private fun stopTests() {
         Timber.d("Stop tests")
+        removeInactivityCheck()
         // stop foreground does not hide notification about test running during loop mode sometimes
         notificationManager.cancel(NOTIFICATION_ID)
         notificationManager.cancel(NOTIFICATION_LOOP_FINISHED_ID)
