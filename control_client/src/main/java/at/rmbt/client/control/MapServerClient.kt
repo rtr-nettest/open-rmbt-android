@@ -6,6 +6,7 @@ import at.rmbt.client.control.data.MapPresentationType
 import at.rmbt.util.Maybe
 import okhttp3.ResponseBody
 import retrofit2.Response
+import timber.log.Timber
 import javax.inject.Inject
 
 class MapServerClient @Inject constructor(
@@ -17,13 +18,18 @@ class MapServerClient @Inject constructor(
         return api.getMarkers(endpointProvider.getMapMarkersUrl, body).exec()
     }
 
-    fun loadTiles(x: Int, y: Int, zoom: Int, type: MapPresentationType, filters: Map<String, String> = HashMap()): Response<ResponseBody> {
-        val url = String.format(endpointProvider.getMapTilesUrl, type.value, zoom, x, y)
-        val uriBuilder = Uri.parse(url).buildUpon()
-        for (entry in filters.entries) {
-            uriBuilder.appendQueryParameter(entry.key, entry.value)
+    fun loadTiles(x: Int, y: Int, zoom: Int, type: MapPresentationType, filters: Map<String, String> = HashMap()): Response<ResponseBody>? {
+        return try {
+            val url = String.format(endpointProvider.getMapTilesUrl, type.value, zoom, x, y)
+            val uriBuilder = Uri.parse(url).buildUpon()
+            for (entry in filters.entries) {
+                uriBuilder.appendQueryParameter(entry.key, entry.value)
+            }
+            api.loadTiles(uriBuilder.build().toString()).execute()
+        } catch(e: Exception) {
+            Timber.e("Map tiles loading exception ${e.localizedMessage}")
+            null
         }
-        return api.loadTiles(uriBuilder.build().toString()).execute()
     }
 
     fun prepareDetailsLink(openUUID: String) =
