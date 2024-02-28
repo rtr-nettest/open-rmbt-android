@@ -72,12 +72,12 @@
     },
     {
       "name": "SKIP_QOS_TESTS",
-      "value": "false",
+      "value": "true",
       "visible": true
     },
     {
       "name": "SKIP_QOS_TESTS_FOR_PERIOD",
-      "value": "true",
+      "value": "false",
       "visible": true
     },
     {
