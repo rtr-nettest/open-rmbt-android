@@ -51,6 +51,7 @@ import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.runBlocking
 import org.json.JSONArray
 import timber.log.Timber
+import java.lang.Exception
 import java.util.UUID
 import java.util.Collections
 import java.util.concurrent.TimeUnit
@@ -159,7 +160,12 @@ class StateRecorder @Inject constructor(
                     saveTestInitialTestData(testUUID, loopUUID, testToken, testStartTimeNanos, threadNumber)
                                       },
             )
-            tasks.awaitAll()
+            try {
+                tasks.awaitAll()
+            } catch (e: Exception) {
+                Timber.e(e.localizedMessage)
+            }
+
         }
         cellLocation = cellLocationWatcher.getCellLocationFromTelephony()
         saveCellLocation()
