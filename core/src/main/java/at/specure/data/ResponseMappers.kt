@@ -383,7 +383,7 @@ fun QosTestResultDetailResponse.toModels(
         }
         successfulTests.clear()
 
-        if (failureCount != successCount && qosTestCategoryDescription != null) {
+        if ((successCount != 0 || failureCount != 0) && qosTestCategoryDescription != null) {
             categories.add(
                 QosCategoryRecord(
                     testUUID = testUUID,

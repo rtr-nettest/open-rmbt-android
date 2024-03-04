@@ -17,7 +17,7 @@ enum class QoSCategory(val categoryName: String) {
     companion object {
         fun fromString(type: String): QoSCategory {
             QoSCategory.values().forEach { x ->
-                if (x.categoryName.contentEquals(type.toUpperCase(Locale.ROOT))) {
+                if (x.categoryName.contentEquals(type.uppercase(Locale.ROOT))) {
                     return x
                 }
             }
