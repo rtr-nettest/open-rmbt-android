@@ -58,7 +58,7 @@ class ResultsRepositoryImpl @Inject constructor(
 
         var finalResult: Maybe<Boolean> = Maybe(true)
         val qosRecord = testDao.getQoSRecord(testUUID)
-
+        val clientVersion = testRecord.clientVersion
         if (!testRecord.isSubmitted) {
 
             val telephonyInfo: TestTelephonyRecord? =
@@ -127,7 +127,7 @@ class ResultsRepositoryImpl @Inject constructor(
 
         if (finalResult.ok) {
             if (qosRecord != null) {
-                val body = qosRecord.toRequest(clientUUID, deviceInfo)
+                val body = qosRecord.toRequest(clientUUID, deviceInfo, clientVersion)
 
                 val isONTApp = !config.headerValue.isNullOrEmpty()
 
