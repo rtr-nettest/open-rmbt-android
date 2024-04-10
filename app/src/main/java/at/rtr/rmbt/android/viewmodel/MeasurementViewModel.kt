@@ -253,6 +253,8 @@ class MeasurementViewModel @Inject constructor(
 
     override fun onMeasurementCancelled() {
         _measurementCancelledLiveData.postValue(false)
+        this.testUUID = null
+        _loopUUIDLiveData.postValue(null)
     }
 
     override fun onClientReady(testUUID: String, loopLocalUUID: String?) {
