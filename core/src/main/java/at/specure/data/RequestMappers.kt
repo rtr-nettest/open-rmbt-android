@@ -451,7 +451,7 @@ fun TransportType.toRequestIntValue(mobileNetworkType: MobileNetworkType?): Int 
     }
 }
 
-fun QoSResultRecord.toRequest(clientUUID: String, deviceInfo: DeviceInfo): QoSResultBody {
+fun QoSResultRecord.toRequest(clientUUID: String, deviceInfo: DeviceInfo, clientVersion: String): QoSResultBody {
 
     val parser = JsonParser()
     val qosResult = parser.parse(results.toString()) as JsonArray
@@ -459,7 +459,7 @@ fun QoSResultRecord.toRequest(clientUUID: String, deviceInfo: DeviceInfo): QoSRe
     return QoSResultBody(
         clientUUID = clientUUID,
         clientName = deviceInfo.clientName,
-        clientVersion = RMBT_CLIENT_VERSION,
+        clientVersion = clientVersion,
         clientLanguage = deviceInfo.language,
         qosResult = qosResult,
         testToken = testToken,

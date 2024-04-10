@@ -184,6 +184,7 @@ class StateRecorder @Inject constructor(
         testUUID = null
         testToken = null
         qosRunning = false
+        testRecord = null
     }
 
     private fun saveTestInitialTestData(testUUID: String, loopUUID: String?, testToken: String, testStartTimeNanos: Long, threadNumber: Int): Unit {
