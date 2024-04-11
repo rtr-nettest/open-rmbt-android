@@ -513,6 +513,17 @@
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toBottomOf="@+id/qosResultsRecyclerView" />
 
+                    <TextView
+                        android:id="@+id/downloadFileSectionTitle"
+                        android:layout_width="wrap_content"
+                        visibleOrGone="@{state.testResult != null &amp;&amp; state.testResult.testOpenUUID != null}"
+                        android:text="@string/label_download"
+                        android:layout_height="wrap_content"
+                        android:paddingHorizontal="@dimen/padding_large"
+                        android:paddingVertical="@dimen/padding_medium"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@+id/labelTestResultDetail" />
+
                     <LinearLayout
                         android:id="@+id/file_buttons"
                         visibleOrGone="@{state.testResult != null &amp;&amp; state.testResult.testOpenUUID != null}"
@@ -520,8 +531,9 @@
                         android:layout_height="wrap_content"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintStart_toStartOf="parent"
-                        android:padding="8dp"
-                        app:layout_constraintTop_toBottomOf="@+id/labelTestResultDetail">
+                        android:paddingHorizontal="@dimen/padding_large"
+                        android:paddingVertical="@dimen/padding_large"
+                        app:layout_constraintTop_toBottomOf="@+id/downloadFileSectionTitle">
                         <Button
                             android:id="@+id/buttonDownloadPdf"
                             android:layout_width="0dp"
