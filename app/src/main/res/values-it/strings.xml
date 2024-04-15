@@ -305,4 +305,8 @@
     <string name="home_statistics">Statistics</string>
     <string name="home_history">History</string>
     <string name="home_loop_mode_active">Loop mode</string>
+    <string name="error_during_download">Errore di download</string>
+    <string name="error_opening_file">Errore nell\'apertura del file</string>
+    <string name="download_complete">Download completato</string>
+    <string name="download_complete_description">Il file %1$s è stato scaricato con successo. Tocca per aprirlo.</string>
 </resources>

@@ -305,4 +305,8 @@
     <string name="home_statistics">Statistics</string>
     <string name="home_history">History</string>
     <string name="home_loop_mode_active">Loop mode</string>
+    <string name="error_during_download">Letöltési hiba</string>
+    <string name="error_opening_file">Hiba a fájl megnyitásakor</string>
+    <string name="download_complete">A letöltés befejeződött</string>
+    <string name="download_complete_description">A %1$s fájl sikeresen letöltve. Koppintson a megnyitásához.</string>
 </resources>
