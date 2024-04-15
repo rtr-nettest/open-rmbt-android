@@ -14,6 +14,7 @@
 
 package at.specure.di
 
+import android.app.NotificationManager
 import android.content.Context
 import android.net.ConnectivityManager
 import android.net.wifi.WifiManager
@@ -41,4 +42,8 @@ class SystemModule {
     @Provides
     fun provideSubscriptionManager(context: Context): SubscriptionManager =
         context.applicationContext.getSystemService(Context.TELEPHONY_SUBSCRIPTION_SERVICE) as SubscriptionManager
+
+    @Provides
+    fun provideNotificationManager(context: Context): NotificationManager =
+        context.applicationContext.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 }

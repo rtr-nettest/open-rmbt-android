@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
+import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.DividerItemDecoration
 import at.rmbt.util.exception.HandledException
@@ -152,7 +153,46 @@ class ResultsActivity : BaseActivity() {
 
             QosTestsSummaryActivity.start(this, it)
         }
+
+        binding.buttonDownloadPdf.setOnClickListener {
+            downloadFile("pdf")
+        }
+
+        binding.buttonDownloadXlsx.setOnClickListener {
+            downloadFile("xlsx")
+        }
+
+        binding.buttonDownloadCsv.setOnClickListener {
+            downloadFile("csv")
+        }
+
+        viewModel.downloadFileLiveData.listen(this) {
+            if (it.error != null) {
+                binding.buttonDownloadCsv.isEnabled = true
+                binding.buttonDownloadXlsx.isEnabled = true
+                binding.buttonDownloadPdf.isEnabled = true
+                if (it.error == "ERROR_DOWNLOAD") {
+                    Toast.makeText(this, R.string.error_during_download, Toast.LENGTH_SHORT).show()
+                } else {
+                    Toast.makeText(this, R.string.error_opening_file, Toast.LENGTH_SHORT).show()
+                }
+            }
+            if (it.progress != null && it.file == null) {
+                binding.buttonDownloadCsv.isEnabled = false
+                binding.buttonDownloadXlsx.isEnabled = false
+                binding.buttonDownloadPdf.isEnabled = false
+            } else {
+                binding.buttonDownloadCsv.isEnabled = true
+                binding.buttonDownloadXlsx.isEnabled = true
+                binding.buttonDownloadPdf.isEnabled = true
+            }
+        }
+
         refreshResults()
+    }
+
+    private fun downloadFile(format: String) {
+        viewModel.downloadFile(format)
     }
 
     private fun cancelAnyPreviouslyRunningTimer() {

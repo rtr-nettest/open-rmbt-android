@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name" translatable="false">Core</string>
+    <string name="download_complete_description">download %1$s</string>
+    <string name="download_complete">download</string>
 </resources>
