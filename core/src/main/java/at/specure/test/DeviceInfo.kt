@@ -12,7 +12,8 @@ import com.google.gson.annotations.SerializedName
 import java.util.Locale
 import java.util.TimeZone
 
-const val RMBT_CLIENT_VERSION = "1.2.1"
+// this is the default version overwritten by the version received from the server
+const val RMBT_CLIENT_VERSION = "0.0.0"
 
 @Keep
 class DeviceInfo(context: Context, val location: Location? = null, val temperature: Float? = null) {
