@@ -18,6 +18,7 @@ import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.zip
 import kotlinx.coroutines.launch
+import java.util.Locale
 import javax.inject.Inject
 
 class ResultViewModel @Inject constructor(
@@ -124,8 +125,9 @@ class ResultViewModel @Inject constructor(
     }
 
     fun downloadFile(format: String) {
+        val languageCode = Locale.getDefault().toLanguageTag().split("-")[0]
         val url =
-            if (format == "pdf") "https://m-cloud.netztest.at/RMBTStatisticServer/export/pdf/de"
+            if (format == "pdf") "https://m-cloud.netztest.at/RMBTStatisticServer/export/pdf/$languageCode"
             else "https://m-cloud.netztest.at/RMBTStatisticServer/opentests/search"
         this.testServerResultLiveData.value?.testOpenUUID?.let { openUUID ->
             viewModelScope.launch {
