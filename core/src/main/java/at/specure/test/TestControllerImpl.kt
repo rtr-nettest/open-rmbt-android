@@ -403,7 +403,7 @@ class TestControllerImpl(
     }
 
     private fun handleInitUp() {
-        setState(MeasurementState.UPLOAD, 0)
+        setState(MeasurementState.DOWNLOAD, 100)
     }
 
     private fun handleUp(client: RMBTClient) {
