@@ -12,6 +12,7 @@ import at.specure.data.Tables
 data class History(
     @PrimaryKey
     val testUUID: String,
+    val openTestUUID: String?,
     val loopUUID: String?,
     val referenceUUID: String,
     val model: String,

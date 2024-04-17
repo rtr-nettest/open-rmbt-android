@@ -49,17 +49,22 @@ class FileDownloader @Inject constructor(
         object Error : DownloadState()
     }
 
-    suspend fun downloadFile(urlString: String, openUuid: String, format: String) {
+    suspend fun downloadFile(urlString: String, openUuid: String, format: String, fileName: String? = null) {
         withContext(Dispatchers.IO) {
+            val name = if (fileName != null) {
+                "$fileName.$format"
+            } else {
+                "$openUuid.$format"
+            }
             val outputFile = if (Build.VERSION_CODES.Q >= Build.VERSION.SDK_INT) {
                 File(
                     context.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS),
-                    "$openUuid.$format"
+                    name
                 )
             } else {
                 File(
                     Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS),
-                    "$openUuid.$format"
+                    name
                 )
             }
 

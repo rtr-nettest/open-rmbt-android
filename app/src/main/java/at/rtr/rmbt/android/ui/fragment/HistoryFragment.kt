@@ -2,6 +2,7 @@ package at.rtr.rmbt.android.ui.fragment
 
 import android.os.Bundle
 import android.view.View
+import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.transition.ChangeBounds
@@ -97,12 +98,50 @@ class HistoryFragment : BaseFragment(), SyncDevicesDialog.Callback, HistoryFilte
             binding.swipeRefreshLayoutHistoryItems.isRefreshing = it
         }
 
+        binding.buttonDownloadPdf.setOnClickListener {
+            downloadFile("pdf")
+        }
+
+        binding.buttonDownloadXlsx.setOnClickListener {
+            downloadFile("xlsx")
+        }
+
+        binding.buttonDownloadCsv.setOnClickListener {
+            downloadFile("csv")
+        }
+
+        historyViewModel.downloadFileLiveData.listen(this) {
+            if (it.error != null) {
+                binding.buttonDownloadCsv.isEnabled = true
+                binding.buttonDownloadXlsx.isEnabled = true
+                binding.buttonDownloadPdf.isEnabled = true
+                if (it.error == "ERROR_DOWNLOAD") {
+                    Toast.makeText(this.context, R.string.error_during_download, Toast.LENGTH_SHORT).show()
+                } else {
+                    Toast.makeText(this.context, R.string.error_opening_file, Toast.LENGTH_SHORT).show()
+                }
+            }
+            if (it.progress != null && it.file == null) {
+                binding.buttonDownloadCsv.isEnabled = false
+                binding.buttonDownloadXlsx.isEnabled = false
+                binding.buttonDownloadPdf.isEnabled = false
+            } else {
+                binding.buttonDownloadCsv.isEnabled = true
+                binding.buttonDownloadXlsx.isEnabled = true
+                binding.buttonDownloadPdf.isEnabled = true
+            }
+        }
+
         refreshHistory()
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
         adapter.onSaveInstanceState(outState)
         super.onSaveInstanceState(outState)
+    }
+
+    private fun downloadFile(format: String) {
+        historyViewModel.downloadFile(format)
     }
 
     private fun refreshHistory() {

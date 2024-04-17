@@ -654,6 +654,8 @@ data class HistoryItemResponse(
     val signalClassification: Int?,
     @SerializedName("test_uuid")
     val testUUID: String,
+    @SerializedName("open_test_uuid")
+    val openTestUUID: String,
     @SerializedName("loop_uuid")
     val loopUUID: String?,
     val time: Long,
