@@ -26,6 +26,8 @@ import java.net.URL
 import java.util.regex.Pattern
 import javax.inject.Inject
 
+private const val NOTIFICATION_PROGRESS_UPDATE_STEP_PERCENT = 20
+
 class FileDownloader @Inject constructor(
     private val context: Context,
     private val notificationManager: NotificationManager
@@ -49,26 +51,32 @@ class FileDownloader @Inject constructor(
         object Error : DownloadState()
     }
 
-    suspend fun downloadFile(urlString: String, openUuid: String, format: String, fileName: String? = null) {
+    suspend fun downloadFile(
+        urlString: String,
+        openUuid: String,
+        format: String,
+        fileName: String? = null
+    ) {
         withContext(Dispatchers.IO) {
-            val name = if (fileName != null) {
-                "$fileName.$format"
-            } else {
-                "$openUuid.$format"
-            }
-            val outputFile = if (Build.VERSION_CODES.Q >= Build.VERSION.SDK_INT) {
-                File(
-                    context.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS),
-                    name
-                )
-            } else {
-                File(
-                    Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS),
-                    name
-                )
-            }
-
             try {
+                _downloadStateFlow.value = DownloadState.Downloading(1)
+                updateNotificationProgress(1)
+                val name = if (fileName != null) {
+                    "$fileName.$format"
+                } else {
+                    "$openUuid.$format"
+                }
+                val outputFile = if (Build.VERSION_CODES.Q >= Build.VERSION.SDK_INT) {
+                    File(
+                        context.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS),
+                        name
+                    )
+                } else {
+                    File(
+                        Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS),
+                        name
+                    )
+                }
                 val url = URL(urlString)
                 val connection = url.openConnection() as HttpURLConnection
                 connection.requestMethod = "POST"
@@ -89,6 +97,7 @@ class FileDownloader @Inject constructor(
 
                     val inputStream = BufferedInputStream(connection.inputStream)
                     val outputStream = FileOutputStream(outputFile)
+                    var oldProgress = 0
 
                     inputStream.use { input ->
                         outputStream.use { output ->
@@ -99,7 +108,12 @@ class FileDownloader @Inject constructor(
                                 downloadedSize += bytesRead
                                 val progress = (downloadedSize * 100) / totalSize
                                 _downloadStateFlow.value = DownloadState.Downloading(progress)
-                                updateNotificationProgress(progress)
+
+                                // logic to prevent system of stopping updating notification because of updates happening too often
+                                if (progress > oldProgress + NOTIFICATION_PROGRESS_UPDATE_STEP_PERCENT || progress == 100) {
+                                    updateNotificationProgress(progress)
+                                    oldProgress = progress
+                                }
                             }
                         }
                     }
@@ -217,7 +231,7 @@ class FileDownloader @Inject constructor(
             }
             val pendingIntent = PendingIntent.getActivity(
                 context, 0, intent,
-                PendingIntent.FLAG_ONE_SHOT or PendingIntent.FLAG_IMMUTABLE
+                PendingIntent.FLAG_ONE_SHOT or PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
             )
 
             val filename = file.path.getFileNameWithExtFromUriOrDefault()
