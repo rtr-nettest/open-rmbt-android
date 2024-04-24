@@ -416,7 +416,8 @@
     <string name="error_opening_file">Error opening file</string>
     <string name="download_complete">Download completed</string>
     <string name="download_complete_description">File %1$s downloaded successfully. Tap to open it.</string>
-
+    <string name="downloading">Downloading</string>
+    <string name="download_progress">Downloaded %1$d%%</string>
     <!-- Signal details - content labeling -->
 
 

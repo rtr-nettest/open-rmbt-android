@@ -135,7 +135,6 @@ class FileDownloader @Inject constructor(
     fun openFile(file: File, onError: (e: Exception) -> Unit) {
         val parsedUri = convertUriForUseInIntent(file.path)
         parsedUri?.let { fileUri ->
-            // Open the downloaded file
             val intent = if (Build.VERSION_CODES.Q >= Build.VERSION.SDK_INT) {
                 createOpenFileIntentV29(fileUri)
             } else {
@@ -211,8 +210,8 @@ class FileDownloader @Inject constructor(
 
     private fun updateNotificationProgress(progress: Int) {
         val notification = NotificationCompat.Builder(context, channelId)
-            .setContentTitle("Downloading")
-            .setContentText("Downloaded $progress%")
+            .setContentTitle(context.getString(R.string.download_complete))
+            .setContentText(context.getString(R.string.download_progress, progress))
             .setSmallIcon(R.drawable.ic_download_24)
             .setProgress(100, progress, false)
             .build()

@@ -309,4 +309,6 @@
     <string name="error_opening_file">Fehler beim Öffnen der Datei</string>
     <string name="download_complete">Download abgeschlossen</string>
     <string name="download_complete_description">Datei %1$s wurde erfolgreich heruntergeladen. Tippen Sie, um es zu öffnen.</string>
+    <string name="downloading">Herunterladen</string>
+    <string name="download_progress">%1$d%% heruntergeladen</string>
 </resources>

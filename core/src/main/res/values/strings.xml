@@ -2,4 +2,6 @@
     <string name="app_name" translatable="false">Core</string>
     <string name="download_complete_description">download %1$s</string>
     <string name="download_complete">download</string>
+    <string name="downloading">Downloading</string>
+    <string name="download_progress">Downloaded %1$d%%</string>
 </resources>
