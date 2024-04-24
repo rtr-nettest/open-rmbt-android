@@ -107,6 +107,7 @@ class SettingsRepositoryImpl(
             controlServerSettings.openDataPrefix = urls.openDataPrefixUrl
             controlServerSettings.shareUrl = urls.shareUrl
             controlServerSettings.statisticsUrl = urls.statisticsUrl
+            controlServerSettings.statisticsMasterServerUrl = urls.statisticsMasterServerUrl
         }
         val mapServer = settingsResponse.settings.first().mapServerSettings
         if (mapServer != null && !config.mapServerOverrideEnabled) {

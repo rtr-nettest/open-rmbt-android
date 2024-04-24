@@ -28,6 +28,7 @@ private const val KEY_CONTROL_IPV4_CHECK_URL = "CONTROL_IPV4_CHECK_URL"
 private const val KEY_CONTROL_IPV6_CHECK_URL = "CONTROL_IPV6_CHECK_URL"
 private const val KEY_OPEN_DATA_PREFIX = "OPEN_DATA_PREFIX"
 private const val KEY_STATISTIC_URL = "STATISTIC_URL"
+private const val KEY_STATISTIC_MASTER_URL = "STATISTIC_MASTER_URL"
 private const val KEY_SHARE_URL = "SHARE_URL"
 private const val KEY_CONTROL_SERVER_VERSION = "KEY_CONTROL_SERVER_VERSION"
 private const val KEY_FILTER_NETWORK_TYPE = "FILTER_NETWORK_TYPE"
@@ -93,6 +94,12 @@ class ControlServerSettings @Inject constructor(context: Context) {
         set(value) {
             field = value
             preferences.edit().putString(KEY_STATISTIC_URL, value).apply()
+        }
+
+    var statisticsMasterServerUrl: String? = null
+        set(value) {
+            field = value
+            preferences.edit().putString(KEY_STATISTIC_MASTER_URL, value).apply()
         }
 
     var shareUrl: String? = null

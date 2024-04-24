@@ -554,7 +554,9 @@ data class Urls(
     @SerializedName("url_map_server")
     val mapServerUrl: String?,
     @SerializedName("statistics")
-    val statisticsUrl: String?
+    val statisticsUrl: String?,
+    @SerializedName("url_statistic_server")
+    val statisticsMasterServerUrl: String?
 )
 
 @Keep
