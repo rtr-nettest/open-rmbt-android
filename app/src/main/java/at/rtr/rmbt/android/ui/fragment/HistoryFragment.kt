@@ -14,6 +14,7 @@ import at.rtr.rmbt.android.di.viewModelLazy
 import at.rtr.rmbt.android.ui.activity.ResultsActivity
 import at.rtr.rmbt.android.ui.adapter.FilterLabelAdapter
 import at.rtr.rmbt.android.ui.adapter.HistoryLoopAdapter
+import at.rtr.rmbt.android.ui.dialog.HistoryDownloadDialog
 import at.rtr.rmbt.android.ui.dialog.HistoryFiltersDialog
 import at.rtr.rmbt.android.ui.dialog.SyncDevicesDialog
 import at.rtr.rmbt.android.util.ToolbarTheme
@@ -22,6 +23,7 @@ import at.rtr.rmbt.android.util.listen
 import at.rtr.rmbt.android.viewmodel.HistoryViewModel
 
 private const val CODE_FILTERS = 13
+private const val CODE_DOWNLOAD = 14
 
 class HistoryFragment : BaseFragment(), SyncDevicesDialog.Callback, HistoryFiltersDialog.Callback {
 
@@ -61,9 +63,9 @@ class HistoryFragment : BaseFragment(), SyncDevicesDialog.Callback, HistoryFilte
 
         historyViewModel.historyLiveData.listen(this) {
             historyViewModel.state.isHistoryEmpty.set(it.isEmpty())
-
             adapter.submitList(it)
         }
+
 
         historyViewModel.isLoadingLiveData.listen(this) {
             historyViewModel.state.isLoadingLiveData.set(it)
@@ -77,6 +79,13 @@ class HistoryFragment : BaseFragment(), SyncDevicesDialog.Callback, HistoryFilte
         binding.buttonSync.setOnClickListener {
             SyncDevicesDialog.show(childFragmentManager)
         }
+
+        binding.buttonDownload.setOnClickListener {
+            if (adapter.itemCount > 0) {
+                HistoryDownloadDialog.instance(this, CODE_DOWNLOAD).show(parentFragmentManager)
+            }
+        }
+
 
         binding.buttonMenu.setOnClickListener {
             if (adapter.itemCount > 0) {
@@ -98,40 +107,6 @@ class HistoryFragment : BaseFragment(), SyncDevicesDialog.Callback, HistoryFilte
             binding.swipeRefreshLayoutHistoryItems.isRefreshing = it
         }
 
-        binding.buttonDownloadPdf.setOnClickListener {
-            downloadFile("pdf")
-        }
-
-        binding.buttonDownloadXlsx.setOnClickListener {
-            downloadFile("xlsx")
-        }
-
-        binding.buttonDownloadCsv.setOnClickListener {
-            downloadFile("csv")
-        }
-
-        historyViewModel.downloadFileLiveData.listen(this) {
-            if (it.error != null) {
-                binding.buttonDownloadCsv.isEnabled = true
-                binding.buttonDownloadXlsx.isEnabled = true
-                binding.buttonDownloadPdf.isEnabled = true
-                if (it.error == "ERROR_DOWNLOAD") {
-                    Toast.makeText(this.context, R.string.error_during_download, Toast.LENGTH_SHORT).show()
-                } else {
-                    Toast.makeText(this.context, R.string.error_opening_file, Toast.LENGTH_SHORT).show()
-                }
-            }
-            if (it.progress != null && it.file == null) {
-                binding.buttonDownloadCsv.isEnabled = false
-                binding.buttonDownloadXlsx.isEnabled = false
-                binding.buttonDownloadPdf.isEnabled = false
-            } else {
-                binding.buttonDownloadCsv.isEnabled = true
-                binding.buttonDownloadXlsx.isEnabled = true
-                binding.buttonDownloadPdf.isEnabled = true
-            }
-        }
-
         refreshHistory()
     }
 
@@ -140,9 +115,6 @@ class HistoryFragment : BaseFragment(), SyncDevicesDialog.Callback, HistoryFilte
         super.onSaveInstanceState(outState)
     }
 
-    private fun downloadFile(format: String) {
-        historyViewModel.downloadFile(format)
-    }
 
     private fun refreshHistory() {
         historyViewModel.refreshHistory()

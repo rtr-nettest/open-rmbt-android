@@ -31,6 +31,8 @@ interface HistoryRepository {
 
     fun getDevices(): Set<String>?
 
+    fun getLoadedHistoryItems(limit: Int): LiveData<List<History>?>
+
     fun loadHistoryItems(offset: Int, limit: Int): Maybe<List<History?>?>
 
     fun loadHistoryItems(offset: Int, limit: Int, ignoreFilters: Boolean): Maybe<List<History?>?>

@@ -1,15 +1,13 @@
 package at.rtr.rmbt.android.viewmodel
 
-import androidx.core.content.ContextCompat
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
-import androidx.paging.PagedList
 import at.rmbt.util.exception.HandledException
-import at.rtr.rmbt.android.ui.viewstate.HistoryViewState
+import at.rmbt.util.io
+import at.rtr.rmbt.android.ui.viewstate.HistoryDownloadViewState
 import at.specure.data.ControlServerSettings
-import at.specure.data.entity.HistoryContainer
-import at.specure.data.repository.HistoryLoader
+import at.specure.data.entity.History
 import at.specure.data.repository.HistoryRepository
 import at.specure.util.download.FileDownloadData
 import at.specure.util.download.FileDownloader
@@ -20,77 +18,55 @@ import kotlinx.coroutines.launch
 import java.util.Locale
 import javax.inject.Inject
 
-class HistoryViewModel @Inject constructor(
+class HistoryDownloadViewModel @Inject constructor(
     private val fileDownloader: FileDownloader,
     private val repository: HistoryRepository,
-    private val loader: HistoryLoader,
     private val controlServerSettings: ControlServerSettings,
 ) : BaseViewModel() {
 
-    private val _isLoadingLiveData = MutableLiveData<Boolean>()
-    private var _historyLiveData: LiveData<PagedList<HistoryContainer>> = MutableLiveData<PagedList<HistoryContainer>>()
+    val state = HistoryDownloadViewState()
 
-    val state = HistoryViewState()
-
-    val isLoadingLiveData: LiveData<Boolean>
-        get() = _isLoadingLiveData
-
-    val historyLiveData: LiveData<PagedList<HistoryContainer>>
-        get() {
-            _historyLiveData = loader.historyLiveData
-            return _historyLiveData
-        }
+    val historyItemsLiveData: LiveData<List<History>?> = repository.getLoadedHistoryItems(100)
 
     val downloadFileLiveData: LiveData<FileDownloadData>
         get() = _downloadFileLiveData
 
     private val _downloadFileLiveData = MutableLiveData<FileDownloadData>()
+
     init {
         addStateSaveHandler(state)
 
-        val isLoadingChannel = Channel<Boolean>()
-        launch {
-            isLoadingChannel.consumeAsFlow()
-                .debounce(200)
-                .collect {
-                    _isLoadingLiveData.postValue(it)
-                }
-        }
-
-        val errorChannel = Channel<HandledException>()
-        launch {
-            errorChannel.consumeAsFlow()
-                .collect {
-                    postError(it)
-                }
-        }
+        loadData()
 
         this.viewModelScope.launch {
-            fileDownloader.downloadStateFlow.collect { state ->
-                when (state) {
+            fileDownloader.downloadStateFlow.collect { downloadState ->
+                when (downloadState) {
                     is FileDownloader.DownloadState.Initial -> {
+                        state.isDownloadingLiveData.set(false)
                         _downloadFileLiveData.postValue(FileDownloadData(null, null, null))
                     }
 
                     is FileDownloader.DownloadState.Downloading -> {
+                        state.isDownloadingLiveData.set(true)
                         _downloadFileLiveData.postValue(
                             FileDownloadData(
                                 null,
-                                state.progress,
+                                downloadState.progress,
                                 null
                             )
                         )
                     }
 
                     is FileDownloader.DownloadState.Success -> {
+                        state.isDownloadingLiveData.set(false)
                         // Download completed successfully
-                        val downloadedFile = state.file
+                        val downloadedFile = downloadState.file
                         // Open the downloaded PDF file
-                        _downloadFileLiveData.postValue(FileDownloadData(state.file, 100, null))
+                        _downloadFileLiveData.postValue(FileDownloadData(downloadState.file, 100, null))
                         fileDownloader.openFile(downloadedFile) { exception ->
                             _downloadFileLiveData.postValue(
                                 FileDownloadData(
-                                    state.file,
+                                    downloadState.file,
                                     100,
                                     exception.message
                                 )
@@ -99,6 +75,7 @@ class HistoryViewModel @Inject constructor(
                     }
 
                     is FileDownloader.DownloadState.Error -> {
+                        state.isDownloadingLiveData.set(false)
                         _downloadFileLiveData.postValue(
                             FileDownloadData(
                                 null,
@@ -110,41 +87,27 @@ class HistoryViewModel @Inject constructor(
                 }
             }
         }
-
-        loader.isLoadingChannel = isLoadingChannel
-        loader.errorChannel = errorChannel
     }
 
-    val activeFiltersLiveData = repository.appliedFiltersLiveData
-
-    init {
-        addStateSaveHandler(state)
+    private fun loadData() = io {
+        state.isHistoryEmpty.set(historyItemsLiveData.value.isNullOrEmpty())
     }
-
-    fun refreshHistory() {
-        loader.refresh()
-    }
-
-    fun removeFromFilters(value: String) {
-        repository.removeFromFilters(value)
-        refreshHistory()
-    }
-
     fun downloadFile(format: String) {
-        val openUuids = if (historyLiveData.value.isNullOrEmpty()) {
-            emptyList<String>()
-        } else {
-            historyLiveData.value?.flatMap { historyContainer ->
-                    historyContainer.items.map { it.openTestUUID }
+        viewModelScope.launch {
+            val openUuids = if (historyItemsLiveData.value.isNullOrEmpty()) {
+                emptyList<String>()
+            } else {
+                historyItemsLiveData.value?.map { historyItems ->
+                    historyItems.openTestUUID
+                }
             }
-        }
-        val languageCode = Locale.getDefault().toLanguageTag().split("-")[0]
-        val statisticServerUrl = controlServerSettings.statisticsMasterServerUrl ?: "https://m-cloud.netztest.at/RMBTStatisticServer"
-        val url =
-            if (format == "pdf") "$statisticServerUrl/export/pdf/$languageCode"
-            else "$statisticServerUrl/opentests/search"
-        openUuids?.let { openUuids ->
-            viewModelScope.launch {
+            val languageCode = Locale.getDefault().toLanguageTag().split("-")[0]
+            val statisticServerUrl = controlServerSettings.statisticsMasterServerUrl
+                ?: "https://m-cloud.netztest.at/RMBTStatisticServer"
+            val url =
+                if (format == "pdf") "$statisticServerUrl/export/pdf/$languageCode"
+                else "$statisticServerUrl/opentests/search"
+            openUuids?.let { openUuids ->
                 fileDownloader.downloadFile(
                     urlString = url,
                     openUuid = openUuids.joinToString(","),
@@ -154,4 +117,6 @@ class HistoryViewModel @Inject constructor(
             }
         }
     }
+
+
 }

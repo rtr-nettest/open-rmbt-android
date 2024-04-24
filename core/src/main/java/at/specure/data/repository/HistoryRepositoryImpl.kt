@@ -285,6 +285,10 @@ class HistoryRepositoryImpl(
 
     override fun getDevices(): Set<String>? = historyFilterOptions.devices
 
+    override fun getLoadedHistoryItems(limit: Int): LiveData<List<History>?> {
+        return historyDao.getLoadedItemsLiveData(limit)
+    }
+
     private fun updateAppliedFilters() {
         historyFilterOptions.appliedFilters = mutableSetOf<String>().apply {
             historyFilterOptions.activeDevices?.let { addAll(it) }

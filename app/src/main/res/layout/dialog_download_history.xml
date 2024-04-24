@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="utf-8"?><!--
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~ http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <variable
+            name="state"
+            type="at.rtr.rmbt.android.ui.viewstate.HistoryDownloadViewState" />
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/bg_map_action_sheet"
+        android:padding="@dimen/padding_large">
+
+        <ImageView
+            android:id="@+id/icon_close"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="@dimen/padding_large"
+            android:src="@drawable/ic_map_dialog_close"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/downloadFileSectionTitle"
+            style="@style/RobotoMediumStyle.Medium"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="@dimen/margin_large"
+            android:text="@string/label_download"
+            android:textColor="@color/navigation_gray"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <LinearLayout
+            android:id="@+id/file_buttons"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            android:paddingHorizontal="@dimen/padding_large"
+            android:paddingVertical="@dimen/padding_large"
+            app:layout_constraintTop_toBottomOf="@+id/downloadFileSectionTitle">
+            <Button
+                android:id="@+id/buttonDownloadPdf"
+                android:layout_width="0dp"
+                android:layout_height="40dp"
+                android:padding="6dp"
+                android:enabled="@{state.isHistoryEmpty() == false &amp;&amp; state.isDownloadingLiveData() == false}"
+                android:layout_weight="1"
+                android:textColor="@color/text_black_transparency_60"
+                android:text="@string/PDF"
+                android:drawableStart="@drawable/filetype_pdf_icon_24"
+                android:background="@drawable/download_button_selector"
+                style="?android:attr/buttonBarButtonStyle" />
+            <Space
+                android:layout_width="16dp"
+                android:layout_height="0dp"/>
+            <Button
+                android:id="@+id/buttonDownloadXlsx"
+                android:layout_width="0dp"
+                android:layout_height="40dp"
+                android:padding="6dp"
+                android:enabled="@{state.isHistoryEmpty() == false &amp;&amp; state.isDownloadingLiveData() == false}"
+                android:layout_weight="1"
+                android:text="@string/XLSX"
+                android:drawableStart="@drawable/filetype_xlsx_icon_24"
+                android:textColor="@color/text_black_transparency_60"
+                android:background="@drawable/download_button_selector"
+                style="?android:attr/buttonBarButtonStyle"/>
+            <Space
+                android:layout_width="16dp"
+                android:layout_height="0dp"/>
+            <Button
+                android:id="@+id/buttonDownloadCsv"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:enabled="@{state.isHistoryEmpty() == false &amp;&amp; state.isDownloadingLiveData() == false}"
+                android:layout_height="40dp"
+                android:padding="6dp"
+                android:text="@string/CSV"
+                android:textColor="@color/text_black_transparency_60"
+                android:drawableStart="@drawable/filetype_csv_icon_24"
+                android:background="@drawable/download_button_selector"
+                style="?android:attr/buttonBarButtonStyle"/>
+            <Space
+                android:layout_width="16dp"
+                android:layout_height="0dp"/>
+            <androidx.core.widget.ContentLoadingProgressBar
+                android:id="@+id/progressStatistics"
+                style="?android:attr/progressBarStyle"
+                android:layout_weight="1"
+                android:layout_width="0dp"
+                android:layout_height="40dp"
+                android:indeterminateTint="@color/colorAccent"
+                visibleOrGone="@{state.isDownloadingLiveData() == true}" />
+            <Space
+                android:layout_weight="1"
+                android:layout_width="0dp"
+                visibleOrGone="@{state.isDownloadingLiveData() == false}"
+                android:layout_height="40dp"/>
+        </LinearLayout>
+
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</layout>

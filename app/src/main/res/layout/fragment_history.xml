@@ -20,10 +20,11 @@
             style="@style/RobotoMediumStyle.Large"
             android:layout_width="0dp"
             android:layout_height="?attr/actionBarSize"
-            android:gravity="center"
+            android:gravity="start|center_vertical"
             android:text="@string/menu_button_history"
             android:textColor="@color/text_dark_gray"
             app:layout_constraintEnd_toEndOf="parent"
+            android:paddingStart="@dimen/padding_large"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
@@ -40,6 +41,22 @@
             android:src="@drawable/ic_history_menu"
             app:layout_constraintBottom_toBottomOf="@+id/labelTitle"
             app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/labelTitle" />
+
+        <androidx.appcompat.widget.AppCompatImageButton
+            android:id="@+id/buttonDownload"
+            android:contentDescription="@{@string/label_download}"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="?selectableItemBackgroundBorderless"
+            android:paddingStart="@dimen/padding_large"
+            android:paddingTop="@dimen/padding_large"
+            android:paddingEnd="@dimen/padding_medium"
+            android:paddingBottom="@dimen/padding_large"
+            android:src="@drawable/ic_download_24"
+            visibleOrGone="@{state.isHistoryEmpty() == false}"
+            app:layout_constraintBottom_toBottomOf="@+id/labelTitle"
+            app:layout_constraintEnd_toStartOf="@+id/buttonSync"
             app:layout_constraintTop_toTopOf="@+id/labelTitle" />
 
         <androidx.appcompat.widget.AppCompatImageButton
@@ -106,72 +123,6 @@
             app:layout_constraintTop_toBottomOf="@id/active_filters"
             app:visibleOrGone="@{!state.isActiveFiltersEmpty}" />
 
-        <TextView
-            android:id="@+id/downloadFileSectionTitle"
-            android:layout_width="wrap_content"
-            visibleOrGone="@{state.isHistoryEmpty() == false}"
-            android:text="@string/label_download"
-            android:layout_height="wrap_content"
-            android:paddingHorizontal="@dimen/padding_large"
-            android:paddingVertical="@dimen/padding_medium"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/filterDivider" />
-
-        <LinearLayout
-            android:id="@+id/file_buttons"
-            visibleOrGone="@{state.isHistoryEmpty() == false}"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            android:paddingHorizontal="@dimen/padding_large"
-            android:paddingVertical="@dimen/padding_large"
-            app:layout_constraintTop_toBottomOf="@+id/downloadFileSectionTitle">
-            <Button
-                android:id="@+id/buttonDownloadPdf"
-                android:layout_width="0dp"
-                android:layout_height="40dp"
-                android:padding="6dp"
-                android:layout_weight="1"
-                android:textColor="@color/text_black_transparency_60"
-                android:text="@string/PDF"
-                android:drawableStart="@drawable/filetype_pdf_icon_24"
-                android:background="@drawable/download_button_selector"
-                style="?android:attr/buttonBarButtonStyle" />
-            <Space
-                android:layout_width="16dp"
-                android:layout_height="0dp"/>
-            <Button
-                android:id="@+id/buttonDownloadXlsx"
-                android:layout_width="0dp"
-                android:layout_height="40dp"
-                android:padding="6dp"
-                android:layout_weight="1"
-                android:text="@string/XLSX"
-                android:drawableStart="@drawable/filetype_xlsx_icon_24"
-                android:textColor="@color/text_black_transparency_60"
-                android:background="@drawable/download_button_selector"
-                style="?android:attr/buttonBarButtonStyle"/>
-            <Space
-                android:layout_width="16dp"
-                android:layout_height="0dp"/>
-            <Button
-                android:id="@+id/buttonDownloadCsv"
-                android:layout_width="0dp"
-                android:layout_weight="1"
-                android:layout_height="40dp"
-                android:padding="6dp"
-                android:text="@string/CSV"
-                android:textColor="@color/text_black_transparency_60"
-                android:drawableStart="@drawable/filetype_csv_icon_24"
-                android:background="@drawable/download_button_selector"
-                style="?android:attr/buttonBarButtonStyle"/>
-            <Space
-                android:layout_width="0dp"
-                android:layout_weight="1"
-                android:layout_height="0dp"/>
-        </LinearLayout>
-
         <include
             android:id="@+id/view_history_header"
             layout="@layout/item_history_header"
@@ -180,7 +131,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/file_buttons" />
+            app:layout_constraintTop_toBottomOf="@+id/filterDivider" />
 
         <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
             android:id="@+id/swipeRefreshLayoutHistoryItems"

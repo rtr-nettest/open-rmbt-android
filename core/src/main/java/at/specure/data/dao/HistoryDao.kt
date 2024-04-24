@@ -68,4 +68,7 @@ abstract class HistoryDao {
 
     @Query("SELECT * FROM ${Tables.HISTORY} WHERE loopUUID ==:loopUuid ORDER BY time DESC")
     abstract fun getItemByLoopUUIDLiveData(loopUuid: String): LiveData<List<History>?>
+
+    @Query("SELECT * FROM ${Tables.HISTORY} ORDER BY time DESC LIMIT :limit")
+    abstract fun getLoadedItemsLiveData(limit: Int): LiveData<List<History>?>
 }
