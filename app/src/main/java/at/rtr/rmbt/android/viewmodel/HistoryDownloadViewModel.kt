@@ -1,28 +1,29 @@
 package at.rtr.rmbt.android.viewmodel
 
+import android.content.Context
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
-import at.rmbt.util.exception.HandledException
 import at.rmbt.util.io
+import at.rtr.rmbt.android.R
 import at.rtr.rmbt.android.ui.viewstate.HistoryDownloadViewState
 import at.specure.data.ControlServerSettings
 import at.specure.data.entity.History
 import at.specure.data.repository.HistoryRepository
 import at.specure.util.download.FileDownloadData
 import at.specure.util.download.FileDownloader
-import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.flow.consumeAsFlow
-import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.launch
 import java.util.Locale
 import javax.inject.Inject
 
 class HistoryDownloadViewModel @Inject constructor(
+    context: Context,
     private val fileDownloader: FileDownloader,
     private val repository: HistoryRepository,
     private val controlServerSettings: ControlServerSettings,
 ) : BaseViewModel() {
+
+    private val fileName = context.getString(R.string.history_filename)
 
     val state = HistoryDownloadViewState()
 
@@ -112,7 +113,7 @@ class HistoryDownloadViewModel @Inject constructor(
                     urlString = url,
                     openUuid = openUuids.joinToString(","),
                     format = format,
-                    fileName = "NetztestHistoryExport"
+                    fileName = fileName
                 )
             }
         }

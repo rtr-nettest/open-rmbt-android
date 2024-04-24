@@ -418,6 +418,7 @@
     <string name="download_complete_description">File %1$s downloaded successfully. Tap to open it.</string>
     <string name="downloading">Downloading</string>
     <string name="download_progress">Downloaded %1$d%%</string>
+    <string name="history_filename">NetztestHistoryExport</string>
     <!-- Signal details - content labeling -->
 
 
