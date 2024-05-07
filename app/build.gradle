@@ -90,8 +90,6 @@ dependencies {
     implementation "androidx.swiperefreshlayout:swiperefreshlayout:$versions.swiperefresh_layout"
     implementation "androidx.vectordrawable:vectordrawable:$versions.vectordrawable"
     implementation "androidx.navigation:navigation-fragment-ktx:$versions.navigation_fragment"
-    implementation "androidx.navigation:navigation-ui-ktx:$versions.navigation_ui"
-    implementation "androidx.navigation:navigation-fragment-ktx:$versions.navigation_fragment"
     implementation "androidx.navigation:navigation-ui-ktx:$versions.navigation_fragment"
     implementation "com.google.android.gms:play-services-maps:$versions.google_services"
 
