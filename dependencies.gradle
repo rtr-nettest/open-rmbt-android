@@ -6,7 +6,7 @@ buildscript {
         config = [
                 applicationId    : "at.alladin.rmbt.android.prod",
                 minSdkVersion    : 23,
-                targetSdkVersion : 33,
+                targetSdkVersion : 34,
                 versionCode      : (project.hasProperty('buildVersionCode') ? Integer.parseInt(buildVersionCode) : 41001),
                 versionName      : (project.hasProperty('buildVersionName') ? buildVersionName : '4.10.1')
         ]
@@ -45,6 +45,7 @@ buildscript {
                 splash_screen       : '1.0.1',
 
                 junit               : '4.13.2',
+                kotlin_junit        : '1.1.5',
 
                 test_runner         : "1.5.2",
                 espresso_core       : "3.5.1",

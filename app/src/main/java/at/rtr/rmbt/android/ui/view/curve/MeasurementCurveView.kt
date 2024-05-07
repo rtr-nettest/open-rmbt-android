@@ -50,10 +50,10 @@ class MeasurementCurveView @JvmOverloads constructor(context: Context, attrs: At
         }
     }
 
-    override fun onDraw(canvas: Canvas?) {
+    override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
 
-        canvas?.let {
+        canvas.let {
             canvas.drawColor(Color.TRANSPARENT, PorterDuff.Mode.CLEAR)
             canvas.drawBitmap(bottomPart.bitmap, bottomPart.getLeftOffset(), bottomPart.getTopOffset(), bitmapOverlapPaint)
             canvas.drawBitmap(topPart.bitmap, topPart.getLeftOffset(), topPart.getTopOffset(), bitmapOverlapPaint)
