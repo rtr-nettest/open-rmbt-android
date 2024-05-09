@@ -72,6 +72,8 @@ class StrengthSignalBar @JvmOverloads constructor(context: Context, attrs: Attri
     private var minValue: Int = 0
     private var maxValue: Int = 0
     private var currentValue: Int = 0
+    private var viewWidth: Int = 0
+    private var viewHeight: Int = 0
 
     private var topMargin = resources.getDimension(R.dimen.margin_medium)
 
@@ -82,11 +84,12 @@ class StrengthSignalBar @JvmOverloads constructor(context: Context, attrs: Attri
         }
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
-        val viewWidth = MeasureSpec.getSize(min(widthMeasureSpec, heightMeasureSpec))
+        viewWidth = MeasureSpec.getSize(min(widthMeasureSpec, heightMeasureSpec))
+        viewHeight = (SQUARE_MULTIPLIER * squareSize * (verticalCount + 1) + topMargin).toInt()
         textPaint.textSize = resources.getDimension(R.dimen.signal_bar_scale_value)
         super.onMeasure(
             MeasureSpec.makeMeasureSpec(viewWidth, MeasureSpec.AT_MOST),
-            MeasureSpec.makeMeasureSpec((SQUARE_MULTIPLIER * squareSize * (verticalCount + 1) + topMargin).toInt(), MeasureSpec.AT_MOST)
+            MeasureSpec.makeMeasureSpec(viewHeight, MeasureSpec.AT_MOST)
         )
     }
 
@@ -94,8 +97,17 @@ class StrengthSignalBar @JvmOverloads constructor(context: Context, attrs: Attri
         super.onLayout(changed, left, top, right, bottom)
 
         if (changed) {
+            recalculateViewHeight()
             createBitmap()
         }
+    }
+
+    private fun recalculateViewHeight() {
+        viewHeight = (SQUARE_MULTIPLIER * squareSize * (verticalCount + 1) + topMargin).toInt()
+        measure(
+            MeasureSpec.makeMeasureSpec(viewWidth, MeasureSpec.AT_MOST),
+            MeasureSpec.makeMeasureSpec(viewHeight, MeasureSpec.AT_MOST)
+        )
     }
 
     override fun onDraw(canvas: Canvas) {
