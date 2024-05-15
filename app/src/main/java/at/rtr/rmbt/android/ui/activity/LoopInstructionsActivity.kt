@@ -50,8 +50,52 @@ class LoopInstructionsActivity : BaseActivity(), Callback {
 
     override fun onSecondPageAccepted() {
         setResult(Activity.RESULT_OK)
-        checkBackgroundLocationPermission()
-        finish()
+        if (isNeedToAskForNotificationPermission()) {
+            checkNotificationPermission()
+        } else {
+            checkBackgroundLocationPermission()
+            finish()
+        }
+    }
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if (requestCode == REQUEST_CODE_NOTIFICATION) {
+            checkBackgroundLocationPermission()
+            finish()
+        }
+    }
+
+    private fun isNeedToAskForNotificationPermission(): Boolean {
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            val hasNotificationPermission = ActivityCompat.checkSelfPermission(
+                this,
+                Manifest.permission.POST_NOTIFICATIONS
+            ) == PackageManager.PERMISSION_GRANTED
+            if (hasNotificationPermission) {
+                false
+            } else {
+                viewModel.shouldAskForNotificationPermission()
+            }
+        } else {
+            false
+        }
+    }
+    private fun checkNotificationPermission() {
+        if (isNeedToAskForNotificationPermission() && Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (viewModel.shouldAskForNotificationPermission()) {
+                ActivityCompat.requestPermissions(
+                    this,
+                    arrayOf(Manifest.permission.POST_NOTIFICATIONS),
+                    REQUEST_CODE_NOTIFICATION
+                )
+                viewModel.notificationPermissionsWereAsked()
+            }
+        }
     }
 
     //@TODO: De-duplicate from LoopConfigurationActivity
@@ -71,7 +115,7 @@ class LoopInstructionsActivity : BaseActivity(), Callback {
                         ActivityCompat.requestPermissions(
                             this,
                             arrayOf(Manifest.permission.ACCESS_BACKGROUND_LOCATION),
-                            LoopInstructionsActivity.REQUEST_CODE_BACKGROUND
+                            REQUEST_CODE_BACKGROUND
                         )
                         viewModel.backgroundPermissionsWereAsked()
                     }
@@ -83,7 +127,7 @@ class LoopInstructionsActivity : BaseActivity(), Callback {
                         arrayOf(
                             Manifest.permission.ACCESS_FINE_LOCATION,
                             Manifest.permission.ACCESS_BACKGROUND_LOCATION
-                        ), LoopInstructionsActivity.REQUEST_CODE_BACKGROUND
+                        ), REQUEST_CODE_BACKGROUND
                     )
                     viewModel.backgroundPermissionsWereAsked()
                 }
@@ -117,6 +161,7 @@ class LoopInstructionsActivity : BaseActivity(), Callback {
     companion object {
         fun start(context: Context): Intent = Intent(context, LoopInstructionsActivity::class.java)
         private const val REQUEST_CODE_BACKGROUND = 1
+        private const val REQUEST_CODE_NOTIFICATION = 2
     }
 }
 
