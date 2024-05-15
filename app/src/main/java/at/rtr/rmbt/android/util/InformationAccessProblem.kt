@@ -26,5 +26,10 @@ enum class InformationAccessProblem(val titleID: Int, val descriptionId: Int) {
     MISSING_LOCATION_ENABLED(
         R.string.label_location_access_disabled,
         R.string.label_location_access_disabled_explanation
-    )
+    ),
+    MISSING_NOTIFICATION_PERMISSION(
+        R.string.label_some_permission_denied,
+        R.string.label_some_permission_denied_explanation
+    ),
+
 }
