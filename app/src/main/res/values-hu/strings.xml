@@ -311,4 +311,6 @@
     <string name="download_complete_description">A %1$s fájl sikeresen letöltve. Koppintson a megnyitásához.</string>
     <string name="downloading">Letöltés</string>
     <string name="download_progress">%1$d%% letöltve</string>
+    <string name="notification_permission_title">3. Értesítési engedély</string>
+    <string name="notification_permission_explanation">Az értesítési engedély szükséges ahhoz, hogy az alkalmazás életben maradjon a háttérben végzett mérések során. Értesítési engedély nélkül nem tudja nyomon követni a mérés előrehaladását, ha az alkalmazás a háttérben működik. Az értesítési engedély szükséges ahhoz, hogy a hurok mód a háttérben futhasson.</string>
 </resources>

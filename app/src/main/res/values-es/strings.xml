@@ -311,4 +311,6 @@
     <string name="download_complete_description">El archivo %1$s se descargó correctamente. Toca para abrirlo.</string>
     <string name="downloading">Descargando</string>
     <string name="download_progress">Descargado %1$d%%</string>
+    <string name="notification_permission_title">3. Permiso de notificación</string>
+    <string name="notification_permission_explanation">El permiso de notificación es necesario para mantener activa la aplicación durante las mediciones ejecutadas en segundo plano. Sin permiso de notificación, no podrá realizar un seguimiento del progreso de la medición cuando la aplicación esté en segundo plano. Se requiere el permiso de notificación para permitir que el modo de bucle se ejecute en segundo plano.</string>
 </resources>
