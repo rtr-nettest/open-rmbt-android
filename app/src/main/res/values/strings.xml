@@ -421,5 +421,7 @@
     <string name="history_filename">NetztestHistoryExport</string>
     <!-- Signal details - content labeling -->
 
+    <string name="notification_permission_title">3. Notification permission</string>
+    <string name="notification_permission_explanation">The notification permission is necessary to keep app alive during measurements executed on the background. Without notification permission, you will be not able to track measurement progress when app is on the background. The notification permission is required to allow to run the loop mode in background.</string>
 
 </resources>

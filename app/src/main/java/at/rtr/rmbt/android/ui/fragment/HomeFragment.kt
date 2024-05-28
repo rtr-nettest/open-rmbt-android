@@ -269,6 +269,12 @@ class HomeFragment : BaseFragment() {
             } else {
                 true
             }
+        val notificationPermissionsGranted =
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                context?.hasPermission(Manifest.permission.POST_NOTIFICATIONS) == true
+            } else {
+                true
+            }
         val problem = when {
             homeViewModel.state.isLocationEnabled.get() == LocationState.DISABLED_DEVICE -> {
                 homeViewModel.state.informationAccessProblem.set(InformationAccessProblem.MISSING_LOCATION_ENABLED)
@@ -286,6 +292,11 @@ class HomeFragment : BaseFragment() {
             (!backgroundLocationPermissionsGranted) && (homeViewModel.state.isLoopModeActive.get() || homeViewModel.activeSignalMeasurementLiveData.value == true) -> {
                 homeViewModel.state.informationAccessProblem.set(
                     InformationAccessProblem.MISSING_BACKGROUND_LOCATION_PERMISSION
+                )
+            }
+            (!notificationPermissionsGranted) && (homeViewModel.state.isLoopModeActive.get() || homeViewModel.activeSignalMeasurementLiveData.value == true) -> {
+                homeViewModel.state.informationAccessProblem.set(
+                    InformationAccessProblem.MISSING_NOTIFICATION_PERMISSION
                 )
             }
             else -> homeViewModel.state.informationAccessProblem.set(InformationAccessProblem.NO_PROBLEM)
@@ -315,6 +326,7 @@ class HomeFragment : BaseFragment() {
             InformationAccessProblem.MISSING_LOCATION_PERMISSION,
             InformationAccessProblem.MISSING_READ_PHONE_STATE_PERMISSION,
             InformationAccessProblem.MISSING_PRECISE_LOCATION_PERMISSION,
+            InformationAccessProblem.MISSING_NOTIFICATION_PERMISSION,
             InformationAccessProblem.MISSING_BACKGROUND_LOCATION_PERMISSION -> {
                 binding.panelPermissionsProblems.cardPP.setOnClickListener {
                     requireContext().openAppSettings()

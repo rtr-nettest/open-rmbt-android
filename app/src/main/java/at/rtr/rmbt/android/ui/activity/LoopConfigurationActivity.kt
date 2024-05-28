@@ -76,7 +76,50 @@ class LoopConfigurationActivity : BaseActivity(), InputSettingDialog.Callback {
             Timber.i("Has connection: $it")
         }
 
-        checkBackgroundLocationPermission()
+        if (isNeedToAskForNotificationPermission()) {
+            checkNotificationPermission()
+        } else {
+            checkBackgroundLocationPermission()
+        }
+    }
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if (requestCode == REQUEST_CODE_NOTIFICATION) {
+            checkBackgroundLocationPermission()
+        }
+    }
+
+    private fun isNeedToAskForNotificationPermission(): Boolean {
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            val hasNotificationPermission = ActivityCompat.checkSelfPermission(
+                this,
+                Manifest.permission.POST_NOTIFICATIONS
+            ) == PackageManager.PERMISSION_GRANTED
+            if (hasNotificationPermission) {
+                false
+            } else {
+                viewModel.shouldAskForNotificationPermission()
+            }
+        } else {
+            false
+        }
+    }
+    private fun checkNotificationPermission() {
+        if (isNeedToAskForNotificationPermission() && Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (viewModel.shouldAskForNotificationPermission()) {
+                ActivityCompat.requestPermissions(
+                    this,
+                    arrayOf(Manifest.permission.POST_NOTIFICATIONS),
+                    REQUEST_CODE_NOTIFICATION
+                )
+                viewModel.notificationPermissionsWereAsked()
+            }
+        }
     }
 
     private fun checkBackgroundLocationPermission() {
@@ -188,6 +231,7 @@ class LoopConfigurationActivity : BaseActivity(), InputSettingDialog.Callback {
         private const val CODE_DISTANCE: Int = 2
         private const val CODE_DIALOG_INVALID = 3
         private const val REQUEST_CODE_BACKGROUND = 1
+        private const val REQUEST_CODE_NOTIFICATION = 2
 
         fun start(context: Context) = context.startActivity(Intent(context, LoopConfigurationActivity::class.java))
     }

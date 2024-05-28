@@ -41,6 +41,10 @@ class LoopConfigurationViewModel @Inject constructor(val config: AppConfig, conn
         return (config.lastPermissionAskedTimestampMillis + askPermissionsAgainTimesMillis) < System.currentTimeMillis()
     }
 
+    fun shouldAskForNotificationPermission(): Boolean {
+        return (config.lastNotificationPermissionAskedTimestampMillis + askPermissionsAgainTimesMillis) < System.currentTimeMillis()
+    }
+
     fun shouldAskForBackgroundPermission(): Boolean {
         return (config.lastBackgroundPermissionAskedTimestampMillis + askPermissionsAgainTimesMillis) < System.currentTimeMillis()
     }
@@ -51,5 +55,9 @@ class LoopConfigurationViewModel @Inject constructor(val config: AppConfig, conn
 
     fun backgroundPermissionsWereAsked() {
         config.lastBackgroundPermissionAskedTimestampMillis = System.currentTimeMillis()
+    }
+
+    fun notificationPermissionsWereAsked() {
+        config.lastNotificationPermissionAskedTimestampMillis = System.currentTimeMillis()
     }
 }

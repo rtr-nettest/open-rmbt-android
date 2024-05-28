@@ -41,6 +41,7 @@
                 app:layout_constraintEnd_toStartOf="@+id/drawable_help"
                 app:layout_constraintStart_toEndOf="@+id/drawable_warning"
                 app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toTopOf="@+id/text_permission_explanation"
                 tools:text="@string/label_some_permission_denied" />
 
             <androidx.appcompat.widget.AppCompatTextView

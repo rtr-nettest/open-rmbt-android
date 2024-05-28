@@ -311,4 +311,6 @@
     <string name="download_complete_description">Il file %1$s è stato scaricato con successo. Tocca per aprirlo.</string>
     <string name="downloading">Scaricamento in corso</string>
     <string name="download_progress">Scaricati %1$d%%</string>
+    <string name="notification_permission_title">3. Autorizzazione di notifica</string>
+    <string name="notification_permission_explanation">Il permesso di notifica è necessario per mantenere attiva l\'app durante le misurazioni eseguite in background. Senza l\'autorizzazione alle notifiche, non sarai in grado di monitorare l\'avanzamento della misurazione quando l\'app è in background. L\'autorizzazione alla notifica è necessaria per consentire l\'esecuzione della modalità loop in background.</string>
 </resources>
