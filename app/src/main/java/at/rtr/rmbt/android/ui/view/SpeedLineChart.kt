@@ -61,16 +61,16 @@ class SpeedLineChart @JvmOverloads constructor(
         typedArray.recycle()
     }
 
-    override fun onDraw(canvas: Canvas?) {
+    override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
 
         if (pathStroke.isEmpty && chartPoints.isNotEmpty()) {
             calculatePath()
         }
-        canvas?.drawPath(pathStroke, paintStroke)
-        canvas?.drawPath(pathFill, paintFill)
+        canvas.drawPath(pathStroke, paintStroke)
+        canvas.drawPath(pathFill, paintFill)
         circlePoint?.let {
-            canvas?.drawCircle(
+            canvas.drawCircle(
                 getChartWidth() * it.x - STROKE_WIDTH / 2.0f,
                 getChartHeight() - (getChartHeight() * it.y),
                 STROKE_WIDTH / 2,

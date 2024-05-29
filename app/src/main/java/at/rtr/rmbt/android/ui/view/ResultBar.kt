@@ -153,6 +153,7 @@ class ResultBar @JvmOverloads constructor(
             }
         )
         progress = percentage
+        createBitmap()
     }
 
     companion object {

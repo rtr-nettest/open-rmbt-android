@@ -98,7 +98,7 @@ open class PingChartView @JvmOverloads constructor(
         invalidate()
     }
 
-    override fun onDraw(canvas: Canvas?) {
+    override fun onDraw(canvas: Canvas) {
 
         val endX = width - endPadding
         val endY = height.toFloat()
@@ -108,13 +108,13 @@ open class PingChartView @JvmOverloads constructor(
         for (index in 0..numberOfRows) {
 
             val positionY = endY - rowHeight * index
-            canvas?.drawLine(startPadding, positionY, endX, positionY, gridPaint)
+            canvas.drawLine(startPadding, positionY, endX, positionY, gridPaint)
         }
 
         // Draw vertical dotted line
         gridDottedLinePath.moveTo(endX, 0.0f)
         gridDottedLinePath.lineTo(endX, endY)
-        canvas?.drawPath(gridDottedLinePath, gridDottedLinePaint)
+        canvas.drawPath(gridDottedLinePath, gridDottedLinePaint)
 
         // Draw Y Labels text
 
@@ -132,7 +132,7 @@ open class PingChartView @JvmOverloads constructor(
                         (endY - rowHeight * index) + (textHeight / 2)
                     }
                 }
-                canvas?.drawText(
+                canvas.drawText(
                     context.getString(chartValueResource, it[index]), endX + endPadding / 8,
                     positionY, yLabelPaint
                 )

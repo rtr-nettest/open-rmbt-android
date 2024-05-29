@@ -32,7 +32,7 @@ class PingChart @JvmOverloads constructor(
         typedArray.recycle()
     }
 
-    override fun onDraw(canvas: Canvas?) {
+    override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
 
         graphItems?.let { items ->
@@ -47,7 +47,7 @@ class PingChart @JvmOverloads constructor(
                     val top = getChartHeight() * (1.0f - (items[index].value.toFloat() / it.toFloat()))
                     val bottom = getChartHeight()
 
-                    canvas?.drawRect(left, top, right, bottom, paintFill)
+                    canvas.drawRect(left, top, right, bottom, paintFill)
                 }
             }
         }

@@ -39,6 +39,7 @@ android {
     buildFeatures {
         dataBinding true
         viewBinding true
+        buildConfig true
     }
 
     kapt { correctErrorTypes = true }
@@ -55,12 +56,12 @@ android {
     }
 
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
     }
 
     kotlinOptions {
-        jvmTarget = "1.8"
+        jvmTarget = "17"
     }
     namespace 'at.rtr.rmbt.android'
     lint {
@@ -88,8 +89,6 @@ dependencies {
     implementation "androidx.constraintlayout:constraintlayout:$versions.constraint_layout"
     implementation "androidx.swiperefreshlayout:swiperefreshlayout:$versions.swiperefresh_layout"
     implementation "androidx.vectordrawable:vectordrawable:$versions.vectordrawable"
-    implementation "androidx.navigation:navigation-fragment-ktx:$versions.navigation_fragment"
-    implementation "androidx.navigation:navigation-ui-ktx:$versions.navigation_ui"
     implementation "androidx.navigation:navigation-fragment-ktx:$versions.navigation_fragment"
     implementation "androidx.navigation:navigation-ui-ktx:$versions.navigation_fragment"
     implementation "com.google.android.gms:play-services-maps:$versions.google_services"

@@ -5,35 +5,36 @@
     android:id="@+id/mobile_navigation"
     app:startDestination="@+id/navigation_home">
 
-    <keep_state_fragment
+    <fragment
         android:id="@+id/navigation_home"
         android:contentDescription="@{@string/home_home}"
         android:name="at.rtr.rmbt.android.ui.fragment.HomeFragment"
         android:label="@string/menu_button_title_page"
-        tools:layout="@layout/fragment_home" />
+        tools:layout="@layout/fragment_home" >
+    </fragment>
 
-    <keep_state_fragment
+    <fragment
         android:id="@+id/navigation_history"
         android:contentDescription="@{@string/home_history}"
         android:name="at.rtr.rmbt.android.ui.fragment.HistoryFragment"
         android:label="@string/menu_button_history"
         tools:layout="@layout/fragment_history" />
 
-    <keep_state_fragment
+    <fragment
         android:id="@+id/navigation_statistics"
         android:contentDescription="@{@string/home_statistics}"
         android:name="at.rtr.rmbt.android.ui.fragment.StatisticsFragment"
         android:label="@string/menu_button_statistics"
         tools:layout="@layout/fragment_statistics" />
 
-    <keep_state_fragment
+    <fragment
         android:id="@+id/navigation_map"
         android:contentDescription="@{@string/home_map}"
         android:name="at.rtr.rmbt.android.ui.fragment.MapFragment"
         android:label="@string/menu_button_map"
         tools:layout="@layout/fragment_map" />
 
-    <keep_state_fragment
+    <fragment
         android:id="@+id/navigation_network_info"
         android:name="at.rtr.rmbt.android.ui.fragment.NetworkDetailsFragment"
         android:label="Network Details"
