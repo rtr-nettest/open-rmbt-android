@@ -49,6 +49,7 @@ import at.specure.test.TestUuidType
 import at.specure.test.toDeviceInfoLocation
 import at.specure.util.CustomLifecycleService
 import at.specure.worker.WorkLauncher
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -624,6 +625,9 @@ class MeasurementService : CustomLifecycleService(), CoroutineScope {
             Timber.d("CountDownTimer scheduled")
         } catch (ex: Exception) {
             Timber.e(ex, "CountDownTimer")
+            if (ex is CancellationException) {
+                throw ex
+            }
         }
     }
 

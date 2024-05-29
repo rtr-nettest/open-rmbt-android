@@ -54,6 +54,7 @@ import timber.log.Timber
 import java.lang.Exception
 import java.util.UUID
 import java.util.Collections
+import java.util.concurrent.CancellationException
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import kotlin.math.floor
@@ -163,7 +164,11 @@ class StateRecorder @Inject constructor(
             try {
                 tasks.awaitAll()
             } catch (e: Exception) {
-                Timber.e(e.localizedMessage)
+                if (e is CancellationException) {
+                    throw e
+                } else {
+                    Timber.e(e.localizedMessage)
+                }
             }
 
         }
