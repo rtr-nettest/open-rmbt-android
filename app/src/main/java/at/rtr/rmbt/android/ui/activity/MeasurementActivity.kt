@@ -142,13 +142,14 @@ class MeasurementActivity : BaseActivity(), SimpleDialog.Callback {
                     LoopFinishedActivity.start(this)
                 }
             } else {
-                finish()
                 viewModel.testUUID?.let {
                     if (viewModel.state.measurementState.get() == MeasurementState.FINISH) {
                         ResultsActivity.start(this, it, ResultsActivity.ReturnPoint.HOME)
+                        finish()
                         return
                     }
                 }
+                finish()
                 HomeActivity.start(this)
             }
         }
