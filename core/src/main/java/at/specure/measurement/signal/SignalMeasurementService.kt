@@ -5,6 +5,7 @@ import android.app.AlarmManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
+import android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE
 import android.os.Binder
 import android.os.Build
 import android.os.IBinder
@@ -110,7 +111,11 @@ class SignalMeasurementService : CustomLifecycleService() {
         shouldEndAfterLoopMode = false
         isUnstoppable = false
 
-        startForeground(NOTIFICATION_ID, notificationProvider.signalMeasurementService(stopIntent(this))) // TODO
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            startForeground(NOTIFICATION_ID, notificationProvider.signalMeasurementService(stopIntent(this)), FOREGROUND_SERVICE_TYPE_SPECIAL_USE)
+        } else {
+            startForeground(NOTIFICATION_ID, notificationProvider.signalMeasurementService(stopIntent(this)))
+        }
     }
 
     private fun stopMeasurement() {
