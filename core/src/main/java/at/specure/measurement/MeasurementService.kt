@@ -710,11 +710,11 @@ class MeasurementService : CustomLifecycleService(), CoroutineScope {
             stopTestsIntent(this@MeasurementService)
         )
 
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
+        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.TIRAMISU) {
             startForeground(NOTIFICATION_ID, notification)
         } else {
             startForeground(NOTIFICATION_ID, notification,
-                ServiceInfo.FOREGROUND_SERVICE_TYPE_LOCATION)
+                ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE)
         }
 
         if (!producer.isTestsRunning) {

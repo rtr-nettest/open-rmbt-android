@@ -5,21 +5,30 @@
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
     <uses-permission
-        android:name="android.permission.FOREGROUND_SERVICE_LOCATION"
+        android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE"
         android:minSdkVersion="34" />
 
     <application>
 
         <service
             android:name="at.specure.measurement.MeasurementService"
-            android:foregroundServiceType="location"
-            android:exported="false" />
+            android:foregroundServiceType="specialUse"
+            android:permission="android.permission.FOREGROUND_SERVICE"
+            android:exported="false">
+        <property android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
+            android:value="Service constantly monitor network changes constantly, log network details, do network transfer to measure speed, log location only if it is granted"/>
+        </service>
 
         <service
             android:name="at.specure.measurement.signal.SignalMeasurementService"
-            android:foregroundServiceType="location"
-            android:exported="false" />
+            android:foregroundServiceType="specialUse"
+            android:permission="android.permission.FOREGROUND_SERVICE"
+            android:exported="false" >
+            <property android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
+                android:value="Service monitor network changes constantly, log network details, do network transfer to collect data, log location if it is granted"/>
+        </service>
 
         <provider
             android:name="at.specure.util.download.CoreFileProvider"
