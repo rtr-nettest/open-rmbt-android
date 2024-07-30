@@ -186,6 +186,7 @@
     </string-array>
 
     <string name="strength_signal_value" translatable="false">%d dBm</string>
+    <string name="scale_value_10000" translatable="false">10G</string>
     <string name="scale_value_1000" translatable="false">1G</string>
     <string name="scale_value_100" translatable="false">100M</string>
     <string name="scale_value_10" translatable="false">10M</string>
