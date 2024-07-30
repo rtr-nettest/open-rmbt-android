@@ -182,6 +182,7 @@
         <item>10M</item>
         <item>100M</item>
         <item>1G</item>
+        <item>10G</item>
     </string-array>
 
     <string name="strength_signal_value" translatable="false">%d dBm</string>
