@@ -1,5 +1,6 @@
 package at.rtr.rmbt.android.ui.view
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Canvas
 import android.graphics.Paint
@@ -17,6 +18,7 @@ import kotlin.math.min
 import kotlin.math.pow
 import kotlin.math.sqrt
 
+@SuppressLint("CustomViewStyleable")
 class SpeedLineChart @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null
@@ -33,10 +35,18 @@ class SpeedLineChart @JvmOverloads constructor(
 
     private var chartPoints: ArrayList<PointF> = ArrayList()
 
+    private var rowCount = DEFAULT_NUMBER_OF_ROWS_IN_GRID
     init {
 
         val typedArray = context.obtainStyledAttributes(attrs, R.styleable.SpeedLineChart)
 
+        val lineChartTypedArray = context.obtainStyledAttributes(attrs, R.styleable.LineChart)
+        try {
+            // Access LineChart specific attributes
+            rowCount = lineChartTypedArray.getInt(R.styleable.LineChart_grid_row, DEFAULT_NUMBER_OF_ROWS_IN_GRID)  // default value is 0
+        } finally {
+            lineChartTypedArray.recycle()
+        }
         paintStroke.color = typedArray.getColor(
             R.styleable.SpeedLineChart_progress_line_color,
             context.getColor(R.color.colorAccent)
@@ -187,7 +197,7 @@ class SpeedLineChart @JvmOverloads constructor(
      * This function is used for convert download and upload speed into graph Y value
      */
     private fun toLog(value: Long): Float {
-        return (if (value < 1e5) 0.0 else (2.0 + log10(value / 1e7)) / 4.0).toFloat()
+        return (if (value < 1e5) 0.0 else (2.0 + log10(value / 1e7)) / rowCount).toFloat()
     }
 
     override fun onDetachedFromWindow() {

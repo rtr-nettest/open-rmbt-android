@@ -155,6 +155,7 @@
         <item>10M</item>
         <item>100M</item>
         <item>1G</item>
+        <item>10G</item>
     </string-array>
     <string name="label_qos">QoS</string>
     <string name="label_upload">Feltöltés</string>

@@ -144,7 +144,7 @@ open class LineChart @JvmOverloads constructor(
 
     companion object {
 
-        private const val DEFAULT_NUMBER_OF_ROWS_IN_GRID: Int = 4
+        public const val DEFAULT_NUMBER_OF_ROWS_IN_GRID: Int = 4
         private const val DEFAULT_Y_LABEL_TEXT: String = "100000"
     }
 }
