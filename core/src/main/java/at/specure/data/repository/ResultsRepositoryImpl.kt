@@ -51,81 +51,95 @@ class ResultsRepositoryImpl @Inject constructor(
 
     override fun sendTestResults(testUUID: String): Maybe<Boolean> {
         val testDao = db.testDao()
-        val testRecord = testDao.get(testUUID) ?: throw DataMissingException("TestRecord not found uuid: $testUUID")
-        val clientUUID = clientUUID.value ?: throw DataMissingException("ClientUUID is null")
-        val jplTestResultsDao = db.jplResultsDao()
-        val jplTestResultsRecord = jplTestResultsDao.get(testUUID)
-
-        var finalResult: Maybe<Boolean> = Maybe(true)
+        val loadedTestRecord = testDao.get(testUUID)
         val qosRecord = testDao.getQoSRecord(testUUID)
-        val clientVersion = testRecord.clientVersion
-        if (!testRecord.isSubmitted) {
+        val clientVersion = loadedTestRecord?.clientVersion
+        val clientUUID = clientUUID.value ?: throw DataMissingException("ClientUUID is null")
 
-            val telephonyInfo: TestTelephonyRecord? =
-                if (testRecord.transportType == TransportType.CELLULAR) {
-                    db.testDao().getTelephonyRecord(testUUID)
+        var finalResult: Maybe<Boolean> = Maybe(false)
+        loadedTestRecord?.let { testRecord ->
+            val jplTestResultsDao = db.jplResultsDao()
+            val jplTestResultsRecord = jplTestResultsDao.get(testUUID)
+
+            if (!testRecord.isSubmitted) {
+
+                val telephonyInfo: TestTelephonyRecord? =
+                    if (testRecord.transportType == TransportType.CELLULAR) {
+                        db.testDao().getTelephonyRecord(testUUID)
+                    } else {
+                        null
+                    }
+
+                val wlanInfo: TestWlanRecord? = if (testRecord.transportType == TransportType.WIFI) {
+                    db.testDao().getWlanRecord(testUUID)
                 } else {
                     null
                 }
 
-            val wlanInfo: TestWlanRecord? = if (testRecord.transportType == TransportType.WIFI) {
-                db.testDao().getWlanRecord(testUUID)
-            } else {
-                null
-            }
+                val pings: List<PingRecord> = db.pingDao().get(testUUID)
+                val speeds: List<SpeedRecord> = db.speedDao().get(testUUID)
+                val signals: List<SignalRecord> = db.signalDao().get(testUUID, null)
 
-            val pings: List<PingRecord> = db.pingDao().get(testUUID)
-            val speeds: List<SpeedRecord> = db.speedDao().get(testUUID)
-            val signals: List<SignalRecord> = db.signalDao().get(testUUID, null)
+                val body = testRecord.toRequest(
+                    clientUUID = clientUUID,
+                    deviceInfo = deviceInfo,
+                    telephonyInfo = telephonyInfo,
+                    wlanInfo = wlanInfo,
+                    locations = db.geoLocationDao().get(testUUID, null),
+                    capabilities = db.capabilitiesDao().get(testUUID, null),
+                    pingList = pings,
+                    cellInfoList = db.cellInfoDao().get(testUUID, null),
+                    signalList = signals,
+                    speedInfoList = speeds,
+                    cellLocationList = db.cellLocationDao().get(testUUID, null),
+                    permissions = db.permissionStatusDao().get(testUUID, null),
+                    jplTestResultsRecord
+                )
 
-            val body = testRecord.toRequest(
-                clientUUID = clientUUID,
-                deviceInfo = deviceInfo,
-                telephonyInfo = telephonyInfo,
-                wlanInfo = wlanInfo,
-                locations = db.geoLocationDao().get(testUUID, null),
-                capabilities = db.capabilitiesDao().get(testUUID, null),
-                pingList = pings,
-                cellInfoList = db.cellInfoDao().get(testUUID, null),
-                signalList = signals,
-                speedInfoList = speeds,
-                cellLocationList = db.cellLocationDao().get(testUUID, null),
-                permissions = db.permissionStatusDao().get(testUUID, null),
-                jplTestResultsRecord
-            )
-
-            // save results locally in every condition the test was successful, if result will be sent and obtained successfully, it overwrites the local results
-            if ((testRecord.status == TestStatus.SPEEDTEST_END) || (testRecord.status == TestStatus.QOS_END) || (testRecord.status == TestStatus.END)) { // || testRecord.status == TestStatus.UP) {
-                saveLocalTestResults(body, testUUID, wlanInfo, speeds, pings, signals, jplTestResultsRecord)
-                Timber.d("Result was saved with UUID: $testUUID")
-            } else {
-                Timber.d("Result $testUUID was not saved because of status: ${testRecord.status}")
-            }
-
-            body.radioInfo?.cells?.forEach {
-                Timber.d("valid cells: ${it.uuid}   technology: ${it.technology}")
-            }
-
-            val result = client.sendTestResults(body)
-
-            result.onSuccess {
-                val count = db.testDao().updateTestIsSubmitted(testUUID)
-                if (count == 0) {
-                    Timber.e("Failed to update test is submitted")
+                // save results locally in every condition the test was successful, if result will be sent and obtained successfully, it overwrites the local results
+                if ((testRecord.status == TestStatus.SPEEDTEST_END) || (testRecord.status == TestStatus.QOS_END) || (testRecord.status == TestStatus.END)) { // || testRecord.status == TestStatus.UP) {
+                    saveLocalTestResults(body, testUUID, wlanInfo, speeds, pings, signals, jplTestResultsRecord)
+                    Timber.d("Result was saved with UUID: $testUUID")
+                } else {
+                    Timber.d("Result $testUUID was not saved because of status: ${testRecord.status}")
                 }
-            }
 
-            result.onFailure {
-
-                if ((testRecord.status != TestStatus.SPEEDTEST_END) || (testRecord.status != TestStatus.QOS_END) || (testRecord.status != TestStatus.END)) {
-                    return@onFailure
+                body.radioInfo?.cells?.forEach {
+                    Timber.d("valid cells: ${it.uuid}   technology: ${it.technology}")
                 }
-            }
 
-            finalResult = result.map { result.ok }
+                val result = client.sendTestResults(body)
+                Timber.d("TRS sending result with UUID ${body.testUUID} download speed: ${body.downloadSpeedKbs}")
+
+                result.onSuccess {
+                    val count = db.testDao().updateTestIsSubmitted(testUUID)
+                    if (count == 0) {
+                        Timber.e("Failed to update test is submitted")
+                    }
+                }
+
+//            val result = if (body.submissionRetryCount > 2) client.sendTestResults(body) else Maybe(exception = HandledException("test"))
+//
+//            result.onSuccess {
+//                if (body.submissionRetryCount > 2) {
+//                    var updatedCount = db.testDao().updateTestIsSubmitted(testUUID)
+//                    Timber.d("RESULT UPDATED AS SUBMITTED   $testUUID $updatedCount")
+//                    finalResult = result.map { result.ok }
+//                }
+//            }
+//
+                result.onFailure {
+
+                    if ((testRecord.status != TestStatus.SPEEDTEST_END) || (testRecord.status != TestStatus.QOS_END) || (testRecord.status != TestStatus.END)) {
+                        return@onFailure
+                    }
+                }
+
+                finalResult = result.map { result.ok }
+            }
         }
 
-        if (finalResult.ok) {
+        if (finalResult.ok && clientVersion != null) {
             if (qosRecord != null) {
                 val body = qosRecord.toRequest(clientUUID, deviceInfo, clientVersion)
 

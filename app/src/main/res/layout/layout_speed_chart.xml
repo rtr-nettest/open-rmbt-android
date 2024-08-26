@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="@dimen/speed_chart_height"
     app:grid_color="@color/result_chart_grid_line_color"
-    app:grid_row="4"
+    app:grid_row="5"
     app:progress_fill_color="@color/speed_chart_progress_fill_color"
     app:progress_line_color="@color/colorAccent"
     app:xlabel_color="@color/text_gray"

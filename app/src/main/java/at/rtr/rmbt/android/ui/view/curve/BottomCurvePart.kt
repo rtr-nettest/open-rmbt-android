@@ -58,10 +58,11 @@ class BottomCurvePart(context: Context) : CurvePart() {
     }
 
     override var sections = listOf(
-        CurveSection(17, context.getString(R.string.scale_value_1000), false),
-        CurveSection(17, context.getString(R.string.scale_value_100), false),
-        CurveSection(17, context.getString(R.string.scale_value_10), false),
-        CurveSection(17, context.getString(R.string.scale_value_1), true),
+        CurveSection(13, context.getString(R.string.scale_value_10000), false),
+        CurveSection(13, context.getString(R.string.scale_value_1000), false),
+        CurveSection(13, context.getString(R.string.scale_value_100), false),
+        CurveSection(13, context.getString(R.string.scale_value_10), false),
+        CurveSection(13, context.getString(R.string.scale_value_1), true),
         CurveSection(0, context.getString(R.string.scale_value_0_1), true)
     )
 
@@ -211,23 +212,23 @@ class BottomCurvePart(context: Context) : CurvePart() {
     private fun calculateProgressAngle(currentSpeedKbps: Int): Float {
         var angle : Float
         val minAngle : Float = ANGLE_STEP_MULTIPLIER
-        val maxAngle : Float = sections[0].startAngle - sections[3].endAngle
+        val maxAngle : Float = sections[0].startAngle - sections[SECTIONS_COUNT].endAngle
 
         when {
             (currentSpeedKbps <= 0) -> { // start of measurement (init, ping) should not show anything
                 // show empty scale (not even a single segment visible)
                 angle = 0F
             }
-            (currentSpeedKbps <= 1e6) -> {
-                // scale from 0-100% on 0.1M to 1G
-                val percent : Double = (log(currentSpeedKbps.toDouble(),10.0) - 2F)/4F
+            (currentSpeedKbps <= 1e7) -> {
+                // scale from 0-100% on 0.1M to 10G
+                val percent : Double = (log(currentSpeedKbps.toDouble(),10.0) - 2F)/SECTIONS_COUNT.toFloat()
                 angle = (percent * maxAngle).toFloat()-minAngle
                 // make sure at least a single segment is visible
                 if (angle < minAngle) {
                     angle = minAngle
                 }
             }
-            else -> { // overflow, above 1G
+            else -> { // overflow, above 10G
                 // show full scale
                 angle = maxAngle
             }
@@ -239,5 +240,6 @@ class BottomCurvePart(context: Context) : CurvePart() {
         private const val SMALL_SCALE_ANGLE = 1f
         private const val SCALE_RADIUS_COEF = 0.8f
         private const val SCALE_OFFSET_COEF = 1.4f
+        private const val SECTIONS_COUNT = 5
     }
 }
