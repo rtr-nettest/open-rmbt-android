@@ -33,7 +33,7 @@
             android:id="@+id/icon_close"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:padding="@dimen/padding_large"
+            android:paddingVertical="@dimen/padding_large"
             android:src="@drawable/ic_map_dialog_close"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
@@ -43,7 +43,7 @@
             style="@style/RobotoMediumStyle.Medium"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:padding="@dimen/margin_large"
+            android:paddingVertical="@dimen/margin_large"
             android:text="@string/label_download"
             android:textColor="@color/navigation_gray"
             app:layout_constraintStart_toStartOf="parent"
@@ -55,7 +55,6 @@
             android:layout_height="wrap_content"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            android:paddingHorizontal="@dimen/padding_large"
             android:paddingVertical="@dimen/padding_large"
             app:layout_constraintTop_toBottomOf="@+id/downloadFileSectionTitle">
             <Button
