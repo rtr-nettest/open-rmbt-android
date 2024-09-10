@@ -97,9 +97,7 @@ class SignalMeasurementService : CustomLifecycleService() {
     }
 
     private fun startMeasurement(signalMeasurementType: SignalMeasurementType) {
-        if (!wakeLock.isHeld) {
-            wakeLock.acquire(TimeUnit.MINUTES.toMillis(config.signalMeasurementDurationMin.toLong()))
-        }
+        acquireWakeLock()
         processor.startMeasurement(false, signalMeasurementType)
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -119,10 +117,7 @@ class SignalMeasurementService : CustomLifecycleService() {
     }
 
     private fun stopMeasurement() {
-        if (wakeLock.isHeld) {
-            wakeLock.release()
-        }
-
+        releaseWakeLock()
         cancelSignalMeasurementStopAlarm()
         Timber.i("Signal measurement stopped")
         processor.stopMeasurement(false)
@@ -145,6 +140,18 @@ class SignalMeasurementService : CustomLifecycleService() {
                 Timber.i("Signal measurement will end by alarm at: $dateString")
                 alarmManager?.set(AlarmManager.RTC_WAKEUP, endTime!!, alarmStopPendingIntent)
             }
+        }
+    }
+
+    private fun acquireWakeLock() {
+        if (!wakeLock.isHeld) {
+            wakeLock.acquire(TimeUnit.MINUTES.toMillis(config.signalMeasurementDurationMin.toLong()))
+        }
+    }
+
+    private fun releaseWakeLock() {
+        if (wakeLock.isHeld) {
+            wakeLock.release()
         }
     }
 
