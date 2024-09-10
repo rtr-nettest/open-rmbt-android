@@ -13,9 +13,9 @@ buildscript {
 
         // All project modules dependency versions should be in versions map
         versions = [
-                kotlin              : '1.9.20',
+                kotlin              : '1.9.23',
                 coroutines          : '1.8.0',
-                appcompat           : '1.6.1',
+                appcompat           : '1.7.0',
                 androidx_core       : '1.13.1',
                 androidx_preference : '1.2.1',
                 material            : '1.8.0',
