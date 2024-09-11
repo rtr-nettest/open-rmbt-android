@@ -27,16 +27,18 @@
             android:id="@+id/recyclerViewCells"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:layout_marginEnd="56dp"
             app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
             tools:listitem="@layout/item_cell_info_3g" />
 
-        <ImageView
+        <ImageButton
             android:id="@+id/icon_close"
             android:contentDescription="@{@string/content_label_close}"
             android:layout_width="?attr/actionBarSize"
             android:layout_height="?attr/actionBarSize"
             android:layout_gravity="end|top"
             android:padding="@dimen/margin_large"
+            android:background="@drawable/bg_selection"
             android:src="@drawable/ic_close" />
 
     </FrameLayout>
