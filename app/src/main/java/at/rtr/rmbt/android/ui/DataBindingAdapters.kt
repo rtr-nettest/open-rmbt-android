@@ -776,7 +776,10 @@ fun AppCompatTextView.setHistoryTime(historyTime: Long, historyTimezone: String)
 
 @BindingAdapter("networkType", "historySignalStrength", requireAll = true)
 fun ImageView.setSignalIcon(networkType: NetworkTypeCompat?, signalStrength: Classification) {
-    networkType?.let { setImageResource(getSignalImageResource(it, signalStrength)) }
+    networkType?.let {
+        setImageResource(getSignalImageResource(it, signalStrength))
+        setContentDescription(getSignalImageContentDescription(it, signalStrength, this.context))
+    }
 }
 
 private fun getSignalImageResource(networkType: NetworkTypeCompat, signalStrength: Classification): Int {
@@ -846,6 +849,72 @@ private fun getSignalImageResource(networkType: NetworkTypeCompat, signalStrengt
     }
 }
 
+private fun getSignalImageContentDescription(networkType: NetworkTypeCompat, signalStrength: Classification, context: Context): String {
+    return when (networkType) {
+        NetworkTypeCompat.TYPE_2G -> {
+            when (signalStrength) {
+                Classification.BAD -> ContextCompat.getString(context, R.string.bad_signal_2g)
+                Classification.NORMAL -> ContextCompat.getString(context, R.string.normal_signal_2g)
+                Classification.GOOD -> ContextCompat.getString(context, R.string.good_signal_2g)
+                Classification.EXCELLENT -> ContextCompat.getString(context, R.string.excellent_signal_2g)
+                Classification.NONE -> ContextCompat.getString(context, R.string.unknown_signal_2G)
+            }
+        }
+        NetworkTypeCompat.TYPE_3G -> {
+            when (signalStrength) {
+                Classification.BAD -> ContextCompat.getString(context, R.string.bad_signal_3g)
+                Classification.NORMAL -> ContextCompat.getString(context, R.string.normal_signal_3g)
+                Classification.GOOD -> ContextCompat.getString(context, R.string.good_signal_3g)
+                Classification.EXCELLENT -> ContextCompat.getString(context, R.string.excellent_signal_3g)
+                Classification.NONE -> ContextCompat.getString(context, R.string.unknown_signal_3G)
+            }
+        }
+        NetworkTypeCompat.TYPE_5G_AVAILABLE,
+        NetworkTypeCompat.TYPE_4G -> {
+            when (signalStrength) {
+                Classification.BAD -> ContextCompat.getString(context, R.string.bad_signal_4g)
+                Classification.NORMAL -> ContextCompat.getString(context, R.string.normal_signal_4g)
+                Classification.GOOD -> ContextCompat.getString(context, R.string.good_signal_4g)
+                Classification.EXCELLENT -> ContextCompat.getString(context, R.string.excellent_signal_4g)
+                Classification.NONE -> ContextCompat.getString(context, R.string.unknown_signal_4G)
+            }
+        }
+        NetworkTypeCompat.TYPE_WLAN -> {
+            when (signalStrength) {
+                Classification.BAD -> ContextCompat.getString(context, R.string.bad_signal_wifi)
+                Classification.NORMAL -> ContextCompat.getString(context, R.string.normal_signal_wifi)
+                Classification.GOOD -> ContextCompat.getString(context, R.string.good_signal_wifi)
+                Classification.EXCELLENT -> ContextCompat.getString(context, R.string.excellent_signal_wifi)
+                Classification.NONE -> ContextCompat.getString(context, R.string.unknown_signal_wifi)
+            }
+        }
+        NetworkTypeCompat.TYPE_UNKNOWN -> {
+            ContextCompat.getString(context, R.string.unknown_network_type)
+        }
+        NetworkTypeCompat.TYPE_BLUETOOTH -> {
+            ContextCompat.getString(context, R.string.network_type_bluetooth)
+        }
+        NetworkTypeCompat.TYPE_VPN -> {
+            ContextCompat.getString(context, R.string.network_type_vpn)
+        }
+        NetworkTypeCompat.TYPE_LAN -> {
+            ContextCompat.getString(context, R.string.network_type_lan)
+        }
+        NetworkTypeCompat.TYPE_BROWSER -> {
+            ContextCompat.getString(context, R.string.network_type_browser)
+        }
+        NetworkTypeCompat.TYPE_5G_NSA,
+        NetworkTypeCompat.TYPE_5G -> {
+            when (signalStrength) {
+                Classification.BAD -> ContextCompat.getString(context, R.string.bad_signal_5g)
+                Classification.NORMAL -> ContextCompat.getString(context, R.string.normal_signal_5g)
+                Classification.GOOD -> ContextCompat.getString(context, R.string.good_signal_5g)
+                Classification.EXCELLENT -> ContextCompat.getString(context, R.string.excellent_signal_5g)
+                Classification.NONE -> ContextCompat.getString(context, R.string.unknown_signal_5G)
+            }
+        }
+    }
+}
 /**
  * A binding adapter that is used for show date and time in result details
  */

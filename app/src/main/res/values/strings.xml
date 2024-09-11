@@ -426,5 +426,42 @@
 
     <string name="notification_permission_title">3. Notification permission</string>
     <string name="notification_permission_explanation">The notification permission is necessary to keep app alive during measurements executed on the background. Without notification permission, you will be not able to track measurement progress when app is on the background. The notification permission is required to allow to run the loop mode in background.</string>
+    
+    <string name="unknown_signal_mobile">Unknown signal mobile</string>
+    <string name="unknown_signal_2G">Unknown signal 2G</string>
+    <string name="unknown_signal_3G">Unknown signal 3G</string>
+    <string name="unknown_signal_4G">Unknown signal 4G</string>
+    <string name="unknown_signal_5G">Unknown signal 5G</string>
+    <string name="unknown_signal_wifi">Unknown signal WIFI</string>
+    <string name="unknown_network_type">Unknown network type</string>
 
+    <string name="bad_signal_2g">"2G bad signal "</string>
+    <string name="normal_signal_2g">2G normal signal</string>
+    <string name="good_signal_2g">2G good signal</string>
+    <string name="excellent_signal_2g">2G excellent signal</string>
+
+    <string name="bad_signal_3g">"3G bad signal "</string>
+    <string name="normal_signal_3g">3G normal signal</string>
+    <string name="good_signal_3g">3G good signal</string>
+    <string name="excellent_signal_3g">3G excellent signal</string>
+
+    <string name="bad_signal_4g">"4G bad signal "</string>
+    <string name="normal_signal_4g">4G normal signal</string>
+    <string name="good_signal_4g">4G good signal</string>
+    <string name="excellent_signal_4g">4G excellent signal</string>
+
+    <string name="bad_signal_5g">"5G bad signal "</string>
+    <string name="normal_signal_5g">5G normal signal</string>
+    <string name="good_signal_5g">5G good signal</string>
+    <string name="excellent_signal_5g">5G excellent signal</string>
+
+    <string name="bad_signal_wifi">"WIFI bad signal "</string>
+    <string name="normal_signal_wifi">WIFI normal signal</string>
+    <string name="good_signal_wifi">WIFI good signal</string>
+    <string name="excellent_signal_wifi">WIFI excellent signal</string>
+
+    <string name="network_type_bluetooth">Bluetooth network type</string>
+    <string name="network_type_vpn">VPN network type</string>
+    <string name="network_type_lan">LAN network type</string>
+    <string name="network_type_browser">Browser network type</string>
 </resources>
