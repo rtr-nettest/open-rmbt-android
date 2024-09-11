@@ -52,6 +52,7 @@
             android:thumb="@null"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
+            android:contentDescription="@string/toggle_loop_mode"
             tools:checked="false" />
 
         <androidx.appcompat.widget.AppCompatTextView

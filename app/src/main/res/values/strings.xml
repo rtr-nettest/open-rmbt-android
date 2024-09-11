@@ -464,4 +464,6 @@
     <string name="network_type_vpn">VPN network type</string>
     <string name="network_type_lan">LAN network type</string>
     <string name="network_type_browser">Browser network type</string>
+
+    <string name="toggle_loop_mode">Toggle loop mode</string>
 </resources>
