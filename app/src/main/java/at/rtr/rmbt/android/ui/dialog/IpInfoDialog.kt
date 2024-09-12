@@ -54,6 +54,10 @@ class IpInfoDialog : FullscreenDialog() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        binding.iconClose.setOnClickListener {
+            this@IpInfoDialog.dismiss()
+        }
+
         protocol = arguments?.getSerializable(KEY_IP_PROTOCOL) as IpProtocol
 
         when (protocol) {

@@ -34,6 +34,19 @@
         android:background="@drawable/dialog_background"
         android:padding="@dimen/margin_large">
 
+        <ImageButton
+            android:id="@+id/icon_close"
+            android:contentDescription="@{@string/content_label_close}"
+            android:layout_width="?attr/actionBarSize"
+            android:layout_height="?attr/actionBarSize"
+            android:layout_gravity="end|top"
+            android:padding="@dimen/margin_large"
+            android:background="@drawable/bg_selection"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toTopOf="@+id/tvPrivateIPLbl"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:src="@drawable/ic_close" />
+
         <androidx.appcompat.widget.AppCompatImageView
             android:id="@+id/ivIPIcon"
             android:contentDescription="@{@string/ip_info_ip_address}"
@@ -44,7 +57,7 @@
             app:IpIcon="@{ipInfo}"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/icon_close"
             tools:src="@drawable/ic_ipv4_green" />
 
         <androidx.appcompat.widget.AppCompatTextView
@@ -58,7 +71,7 @@
             app:layout_constraintEnd_toStartOf="@+id/tvPublicIPV4Lbl"
             app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintStart_toEndOf="@+id/ivIPIcon"
-            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/icon_close"
             app:visibleOrGone="@{ipInfo != null &amp;&amp; ipInfo.privateAddress != null &amp;&amp; ipInfo.ipStatus != IpStatus.NO_ADDRESS}" />
 
 
@@ -72,7 +85,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintStart_toEndOf="@+id/tvPrivateIPLbl"
-            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/icon_close"
             app:visibleOrGone="@{ipInfo != null &amp;&amp; ipInfo.protocol == IpProtocol.V4 &amp;&amp; ipInfo.publicAddress != null &amp;&amp; ipInfo.ipStatus != IpStatus.NO_ADDRESS}" />
 
 
@@ -148,7 +161,7 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@+id/ivIPIcon"
-            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/icon_close"
             app:visibleOrGone="@{ipInfo != null &amp;&amp; ipInfo.ipStatus == IpStatus.NO_ADDRESS}"
             tools:visibility="gone" />
 
@@ -162,7 +175,7 @@
             android:textColor="@color/text_black_transparency_60"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toEndOf="@+id/ivIPIcon"
-            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/icon_close"
             app:visibleOrGone="@{ipInfo != null &amp;&amp; ipInfo.ipStatus == IpStatus.NO_INFO}"
             tools:visibility="gone" />
 
