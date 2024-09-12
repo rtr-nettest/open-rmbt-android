@@ -51,6 +51,10 @@ class LocationInfoDialog : FullscreenDialog() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        binding.iconClose.setOnClickListener {
+            this@LocationInfoDialog.dismiss()
+        }
+
         locationWatcher.stateLiveData.listen(this) {
             if (it != LocationState.ENABLED) dismiss()
         }

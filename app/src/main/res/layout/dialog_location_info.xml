@@ -36,10 +36,23 @@
             android:layout_height="wrap_content"
             android:gravity="center"
             android:text="@string/location_dialog_label_title"
+            android:layout_marginStart="?attr/actionBarSize"
             android:textColor="@color/text_black_transparency_60"
-            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/icon_close"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
+
+        <ImageButton
+            android:id="@+id/icon_close"
+            android:contentDescription="@{@string/content_label_close}"
+            android:layout_width="?attr/actionBarSize"
+            android:layout_height="?attr/actionBarSize"
+            android:layout_gravity="end|top"
+            android:padding="@dimen/margin_large"
+            android:background="@drawable/bg_selection"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:src="@drawable/ic_close" />
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/editTextValue"
@@ -52,7 +65,7 @@
             android:textColor="@color/text_black_transparency_60"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/labelTitle"
+            app:layout_constraintTop_toBottomOf="@+id/icon_close"
             app:visibleOrGone="@{locationInfo == null}" />
 
         <androidx.appcompat.widget.AppCompatTextView
