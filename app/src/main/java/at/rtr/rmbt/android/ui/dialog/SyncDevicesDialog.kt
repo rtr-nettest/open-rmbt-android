@@ -60,6 +60,10 @@ class SyncDevicesDialog : FullscreenDialog() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        binding.iconClose.setOnClickListener {
+            this@SyncDevicesDialog.dismiss()
+        }
+
         binding.buttonRequestCode.setOnClickListener {
             viewModel.getSyncCode()
         }
