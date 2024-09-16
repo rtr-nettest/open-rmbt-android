@@ -44,13 +44,15 @@
             <androidx.appcompat.widget.AppCompatTextView
                 android:id="@+id/testTime"
                 style="@style/TextAppearance.AppCompat.Title"
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/padding_large"
                 android:layout_marginVertical="8dp"
                 android:textColor="@color/text_dark_gray"
                 app:layout_constraintStart_toEndOf="@id/icon_previous"
                 app:layout_constraintTop_toTopOf="parent"
+                android:maxLines="2"
+                app:layout_constraintEnd_toStartOf="@+id/icon_next"
                 app:timeString="@{item.time}"
                 tools:text="20.11.18, 12:00:45" />
 
@@ -65,6 +67,7 @@
                 android:background="@drawable/bg_selection"
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintStart_toEndOf="@+id/testTime"
+                app:layout_constraintEnd_toStartOf="@+id/icon_close"
                 android:rotation="180"
                 android:src="@drawable/ic_back" />
 
