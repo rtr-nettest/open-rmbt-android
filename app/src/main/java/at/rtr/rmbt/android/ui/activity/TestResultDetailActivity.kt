@@ -17,7 +17,6 @@ package at.rtr.rmbt.android.ui.activity
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import androidx.appcompat.widget.Toolbar
 import at.rtr.rmbt.android.R
 import at.rtr.rmbt.android.databinding.ActivityTestResultDetailBinding
 import at.rtr.rmbt.android.ui.fragment.TestResultDetailFragment
@@ -43,12 +42,8 @@ class TestResultDetailActivity : BaseActivity() {
         }
     }
     private fun setupToolbar() {
-        val toolbar: Toolbar = binding.toolbar
-        setSupportActionBar(toolbar)
-        supportActionBar?.setDisplayShowTitleEnabled(false)
-        toolbar.setNavigationIcon(R.drawable.ic_back)
-        binding.tvToolbarTitle.text = getString(R.string.result_test_details)
-        toolbar.setNavigationOnClickListener {
+        binding.title.text = getString(R.string.result_test_details)
+        binding.buttonBack.setOnClickListener {
             finish()
         }
     }
