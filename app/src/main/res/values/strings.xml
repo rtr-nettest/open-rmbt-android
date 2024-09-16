@@ -474,5 +474,13 @@
     <string name="download_history_as_xlsx">Download history as XLSX</string>
     <string name="download_history_as_csv">Download history as CSV</string>
 
+    <string name="history_list_header_date">History list header: date</string>
+    <string name="history_list_header_download_speed">History list header: download speed</string>
+    <string name="history_list_header_download_speed_units">History list header: download speed units: Mbit/s </string>
+    <string name="history_list_header_upload_speed">History list header: upload speed</string>
+    <string name="history_list_header_upload_speed_units">History list header: upload speed units: Mbit/s </string>
+    <string name="history_list_header_ping">History list header: ping</string>
+    <string name="history_list_header_ping_units">History list header: ping units: milliseconds </string>
+
 
 </resources>
