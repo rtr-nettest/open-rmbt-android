@@ -12,7 +12,9 @@
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="50dp">
+        android:minHeight="50dp"
+        android:layout_height="wrap_content"
+        android:paddingVertical="4dp">
 
         <androidx.appcompat.widget.AppCompatImageView
             android:id="@+id/qoeIcon"
@@ -48,10 +50,11 @@
             android:text='@{item.info == null ? "" : item.info}'
             android:textColor="@color/text_gray_transparency_60"
             app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/qoeClassification"
             app:layout_constraintStart_toEndOf="@+id/qoeName"
             app:layout_constraintTop_toTopOf="parent"
             tools:src="@drawable/ic_qoe_game"
-            tools:text="Gaming" />
+            tools:text="Superlong description of the item so it does not fit in one line" />
 
         <at.rtr.rmbt.android.ui.view.ResultBar
             android:id="@+id/qoeClassification"
