@@ -1,5 +1,6 @@
 package at.rtr.rmbt.android.ui.adapter
 
+import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import at.rtr.rmbt.android.R
@@ -20,17 +21,30 @@ class MapMarkerDetailsAdapter(private val callback: MarkerDetailsCallback) : Rec
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): Holder {
         val binding: ItemMarkerDetailsBinding = parent.bindWith(R.layout.item_marker_details)
         binding.root.layoutParams.width = (parent.measuredWidth * WIDTH_COEF).toInt()
+        if (viewType == TYPE_ONLY) {
+            (binding.root.layoutParams as? ViewGroup.MarginLayoutParams)?.marginStart = (parent.measuredWidth * (1 - WIDTH_COEF) / 2).toInt()
+            binding.iconPrevious.visibility = View.GONE
+            binding.iconNext.visibility = View.GONE
+        }
         if (viewType == TYPE_FIRST) {
             (binding.root.layoutParams as? ViewGroup.MarginLayoutParams)?.marginStart = (parent.measuredWidth * (1 - WIDTH_COEF) / 2).toInt()
+            binding.iconPrevious.visibility = View.GONE
+            binding.iconNext.visibility = View.VISIBLE
         }
         if (viewType == TYPE_LAST) {
             (binding.root.layoutParams as? ViewGroup.MarginLayoutParams)?.marginEnd = (parent.measuredWidth * (1 - WIDTH_COEF) / 2).toInt()
+            binding.iconNext.visibility = View.GONE
+            binding.iconPrevious.visibility = View.VISIBLE
+        }
+        if (viewType == TYPE_REGULAR) {
+            binding.iconPrevious.visibility = View.VISIBLE
+            binding.iconNext.visibility = View.VISIBLE
         }
         return Holder(binding)
     }
 
     override fun getItemViewType(position: Int): Int {
-        if (itemCount <= 1) return TYPE_FIRST
+        if (itemCount <= 1) return TYPE_ONLY
         return when (position) {
             0 -> TYPE_FIRST
             itemCount - 1 -> TYPE_LAST
@@ -41,6 +55,12 @@ class MapMarkerDetailsAdapter(private val callback: MarkerDetailsCallback) : Rec
     override fun onBindViewHolder(holder: Holder, position: Int) {
         holder.binding.item = _items[position]
         holder.binding.iconClose.setOnClickListener { callback.onCloseMarkerDetails() }
+        holder.binding.iconNext.setOnClickListener {
+            callback.moveToItem((position + 1).coerceAtMost(_items.size - 1))
+        }
+        holder.binding.iconPrevious.setOnClickListener {
+            callback.moveToItem((position - 1).coerceAtLeast(0))
+        }
         holder.binding.moreDetails.setOnClickListener { callback.onMoreDetailsClicked(_items[position].openTestUUID) }
     }
 
@@ -56,10 +76,12 @@ class MapMarkerDetailsAdapter(private val callback: MarkerDetailsCallback) : Rec
         const val TYPE_FIRST = 0
         const val TYPE_REGULAR = 1
         const val TYPE_LAST = 2
+        const val TYPE_ONLY = 3
     }
 
     interface MarkerDetailsCallback {
         fun onCloseMarkerDetails()
+        fun moveToItem(childIndex: Int)
         fun onMoreDetailsClicked(openTestUUID: String)
     }
 }

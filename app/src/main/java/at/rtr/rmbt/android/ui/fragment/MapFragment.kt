@@ -12,6 +12,7 @@ import android.view.View
 import android.widget.Toast
 import androidx.annotation.DrawableRes
 import androidx.core.app.ActivityCompat
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearSnapHelper
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.SnapHelper
@@ -35,6 +36,7 @@ import at.specure.data.NetworkTypeCompat
 import at.specure.data.ServerNetworkType
 import at.specure.data.entity.MarkerMeasurementRecord
 import at.specure.location.LocationState
+import kotlinx.coroutines.launch
 import timber.log.Timber
 import kotlin.math.abs
 
@@ -282,6 +284,12 @@ class MapFragment : BaseFragment(), MapMarkerDetailsAdapter.MarkerDetailsCallbac
         if (mapViewModel.state.playServicesAvailable.get()) {
             binding.fabLocation.show()
             updateFiltersVisibility()
+        }
+    }
+
+    override fun moveToItem(index: Int) {
+        lifecycleScope.launch {
+                binding.markerItems.smoothScrollToPosition(index)
         }
     }
 
