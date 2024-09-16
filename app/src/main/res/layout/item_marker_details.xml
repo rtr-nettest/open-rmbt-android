@@ -29,47 +29,47 @@
 
             <ImageButton
                 android:id="@+id/icon_previous"
-                android:contentDescription="@{@string/previous_result}"
                 android:layout_width="?attr/actionBarSize"
                 android:layout_height="?attr/actionBarSize"
                 android:layout_gravity="end|top"
-                android:padding="@dimen/margin_large"
                 android:background="@drawable/bg_selection"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
+                android:contentDescription="@{@string/previous_result}"
+                android:padding="@dimen/margin_large"
+                android:src="@drawable/ic_back"
                 app:layout_constraintBottom_toTopOf="@id/time_divider"
+                app:layout_constraintStart_toStartOf="parent"
 
-                android:src="@drawable/ic_back" />
+                app:layout_constraintTop_toTopOf="parent" />
 
             <androidx.appcompat.widget.AppCompatTextView
                 android:id="@+id/testTime"
                 style="@style/TextAppearance.AppCompat.Title"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="@dimen/padding_large"
                 android:layout_marginVertical="8dp"
+                android:layout_marginStart="@dimen/padding_large"
+                android:maxLines="2"
                 android:textColor="@color/text_dark_gray"
+                app:layout_constraintEnd_toStartOf="@+id/icon_next"
                 app:layout_constraintStart_toEndOf="@id/icon_previous"
                 app:layout_constraintTop_toTopOf="parent"
-                android:maxLines="2"
-                app:layout_constraintEnd_toStartOf="@+id/icon_next"
                 app:timeString="@{item.time}"
                 tools:text="20.11.18, 12:00:45" />
 
             <ImageButton
                 android:id="@+id/icon_next"
-                android:contentDescription="@{@string/next_result}"
                 android:layout_width="?attr/actionBarSize"
                 android:layout_height="?attr/actionBarSize"
                 android:layout_gravity="end|top"
-                app:layout_constraintBottom_toTopOf="@id/time_divider"
-                android:padding="@dimen/margin_large"
                 android:background="@drawable/bg_selection"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintStart_toEndOf="@+id/testTime"
-                app:layout_constraintEnd_toStartOf="@+id/icon_close"
+                android:contentDescription="@{@string/next_result}"
+                android:padding="@dimen/margin_large"
                 android:rotation="180"
-                android:src="@drawable/ic_back" />
+                android:src="@drawable/ic_back"
+                app:layout_constraintBottom_toTopOf="@id/time_divider"
+                app:layout_constraintEnd_toStartOf="@+id/icon_close"
+                app:layout_constraintStart_toEndOf="@+id/testTime"
+                app:layout_constraintTop_toTopOf="parent" />
 
             <View
                 android:id="@+id/time_divider"
@@ -105,8 +105,8 @@
                 app:layout_constraintBottom_toBottomOf="@id/labelResultBottomDownload"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="@id/textDownloadSpeed"
-                app:signalStrength="@{item.signalClass ?? Classification.NONE}"
-                app:networkType="@{item.networkTypeLabel}" />
+                app:networkType="@{item.networkTypeLabel}"
+                app:signalStrength="@{item.signalClass ?? Classification.NONE}" />
 
             <androidx.appcompat.widget.AppCompatTextView
                 android:id="@+id/labelResultBottomDownload"
@@ -285,81 +285,106 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="@+id/labelConnection" />
 
-            <androidx.appcompat.widget.AppCompatTextView
-                android:id="@+id/labelProvider"
-                style="@style/RobotoRegularStyle.Small"
-                android:layout_width="wrap_content"
+            <LinearLayout
+                android:id="@+id/providerContainer"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/margin_large"
+                android:layout_marginEnd="@dimen/margin_large"
                 android:drawablePadding="@dimen/padding_very_small"
+                android:orientation="horizontal"
                 android:paddingTop="@dimen/padding_very_small"
                 android:paddingBottom="@dimen/padding_very_small"
-                android:text="@string/results_network_provider"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/type_divider"
-                tools:text="Provider" />
+                app:layout_constraintTop_toBottomOf="@+id/type_divider">
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:id="@+id/labelProvider"
+                    style="@style/RobotoRegularStyle.Small"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="start|center_vertical"
+                    android:layout_weight="1"
+                    android:gravity="start|center_vertical"
+                    android:text="@string/results_network_provider"
+                    tools:text="Provider" />
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:id="@+id/textProvider"
+                    style="@style/RobotoRegularStyle.Small"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="end|center_vertical"
+                    android:layout_weight="1"
+                    android:drawablePadding="@dimen/padding_very_small"
+                    android:gravity="end|center_vertical"
+                    android:text="@{item.providerName}"
+                    tools:text="Long Provider name which does not fit into single line for sure" />
+            </LinearLayout>
 
             <View
                 android:id="@+id/provider_divider"
                 android:layout_width="0dp"
                 android:layout_height="@dimen/size_divider_height"
                 android:background="@color/horizontal_divider"
-                app:layout_constraintEnd_toEndOf="@id/textProvider"
-                app:layout_constraintStart_toStartOf="@id/labelProvider"
-                app:layout_constraintTop_toBottomOf="@id/labelProvider" />
+                app:layout_constraintEnd_toEndOf="@id/providerContainer"
+                app:layout_constraintStart_toStartOf="@id/providerContainer"
+                app:layout_constraintTop_toBottomOf="@id/providerContainer" />
 
-            <androidx.appcompat.widget.AppCompatTextView
-                android:id="@+id/textProvider"
-                style="@style/RobotoRegularStyle.Small"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginEnd="@dimen/margin_large"
-                android:drawablePadding="@dimen/padding_very_small"
-                android:text="@{item.providerName}"
-                app:layout_constraintBottom_toBottomOf="@+id/labelProvider"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="@+id/labelProvider" />
-
-            <androidx.appcompat.widget.AppCompatTextView
-                android:id="@+id/labelNetworkName"
-                style="@style/RobotoRegularStyle.Small"
-                android:layout_width="wrap_content"
+            <LinearLayout
+                android:id="@+id/wlanContainer"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/margin_large"
-                android:drawablePadding="@dimen/padding_very_small"
-                android:paddingTop="@dimen/padding_very_small"
-                android:paddingBottom="@dimen/padding_very_small"
-                android:text="@string/results_network_ssid"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/provider_divider"
-                tools:text="WLAN SSID" />
-
-            <androidx.appcompat.widget.AppCompatTextView
-                android:id="@+id/textNetworkName"
-                style="@style/RobotoRegularStyle.Small"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
                 android:layout_marginEnd="@dimen/margin_large"
                 android:drawablePadding="@dimen/padding_very_small"
-                android:text="@{item.wifiSSID}"
-                app:layout_constraintBottom_toBottomOf="@+id/labelNetworkName"
+                android:orientation="horizontal"
+                android:paddingTop="@dimen/padding_very_small"
+                android:paddingBottom="@dimen/padding_very_small"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="@+id/labelNetworkName" />
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/provider_divider">
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:id="@+id/labelNetworkName"
+                    style="@style/RobotoRegularStyle.Small"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="start|center_vertical"
+                    android:layout_weight="1"
+                    android:drawablePadding="@dimen/padding_very_small"
+                    android:gravity="start|center_vertical"
+                    android:text="@string/results_network_ssid"
+                    tools:text="WLAN SSID" />
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:id="@+id/textNetworkName"
+                    style="@style/RobotoRegularStyle.Small"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="end|center_vertical"
+                    android:layout_weight="1"
+                    android:drawablePadding="@dimen/padding_very_small"
+                    android:gravity="end|center_vertical"
+                    android:text="@{item.wifiSSID}"
+                    tools:text="Long WLAN SSID name which does not fit into single line for sure" />
+
+            </LinearLayout>
 
             <androidx.constraintlayout.widget.Group
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:visibility="@{item.wifiSSID != null ? View.VISIBLE : View.INVISIBLE}"
-                app:constraint_referenced_ids="labelNetworkName,textNetworkName,wlan_divider" />
+                app:constraint_referenced_ids="wlanContainer,wlan_divider" />
 
             <View
                 android:id="@+id/wlan_divider"
                 android:layout_width="0dp"
                 android:layout_height="@dimen/size_divider_height"
                 android:background="@color/horizontal_divider"
-                app:layout_constraintEnd_toEndOf="@id/textProvider"
-                app:layout_constraintStart_toStartOf="@id/labelProvider"
-                app:layout_constraintTop_toBottomOf="@id/labelNetworkName" />
+                app:layout_constraintEnd_toEndOf="@id/providerContainer"
+                app:layout_constraintStart_toStartOf="@id/providerContainer"
+                app:layout_constraintTop_toBottomOf="@id/wlanContainer" />
 
             <TextView
                 android:id="@+id/moreDetails"
@@ -373,7 +398,7 @@
                 android:textColor="@color/colorAccent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/labelNetworkName" />
+                app:layout_constraintTop_toBottomOf="@id/wlanContainer" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.cardview.widget.CardView>
