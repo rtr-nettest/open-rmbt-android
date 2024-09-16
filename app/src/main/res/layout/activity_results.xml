@@ -524,11 +524,12 @@
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toBottomOf="@+id/labelTestResultDetail" />
 
-                    <LinearLayout
+                    <GridLayout
                         android:id="@+id/file_buttons"
                         visibleOrGone="@{state.testResult != null &amp;&amp; state.testResult.testOpenUUID != null}"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        android:useDefaultMargins="true"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintStart_toStartOf="parent"
                         android:paddingHorizontal="@dimen/padding_large"
@@ -536,8 +537,9 @@
                         app:layout_constraintTop_toBottomOf="@+id/downloadFileSectionTitle">
                         <Button
                             android:id="@+id/buttonDownloadPdf"
-                            android:layout_width="0dp"
-                            android:layout_height="40dp"
+                            android:contentDescription="@string/download_history_as_pdf"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
                             android:padding="6dp"
                             android:layout_weight="1"
                             android:textColor="@color/text_black_transparency_60"
@@ -545,13 +547,12 @@
                             android:drawableStart="@drawable/filetype_pdf_icon_24"
                             android:background="@drawable/download_button_selector"
                             style="?android:attr/buttonBarButtonStyle" />
-                        <Space
-                            android:layout_width="16dp"
-                            android:layout_height="0dp"/>
+
                         <Button
                             android:id="@+id/buttonDownloadXlsx"
-                            android:layout_width="0dp"
-                            android:layout_height="40dp"
+                            android:contentDescription="@string/download_history_as_xlsx"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
                             android:padding="6dp"
                             android:layout_weight="1"
                             android:text="@string/XLSX"
@@ -559,25 +560,21 @@
                             android:textColor="@color/text_black_transparency_60"
                             android:background="@drawable/download_button_selector"
                             style="?android:attr/buttonBarButtonStyle"/>
-                        <Space
-                            android:layout_width="16dp"
-                            android:layout_height="0dp"/>
+
                         <Button
                             android:id="@+id/buttonDownloadCsv"
-                            android:layout_width="0dp"
+                            android:contentDescription="@string/download_history_as_csv"
+                            android:layout_width="wrap_content"
                             android:layout_weight="1"
-                            android:layout_height="40dp"
+                            android:layout_height="wrap_content"
                             android:padding="6dp"
                             android:text="@string/CSV"
                             android:textColor="@color/text_black_transparency_60"
                             android:drawableStart="@drawable/filetype_csv_icon_24"
                             android:background="@drawable/download_button_selector"
                             style="?android:attr/buttonBarButtonStyle"/>
-                        <Space
-                            android:layout_width="0dp"
-                            android:layout_weight="1"
-                            android:layout_height="0dp"/>
-                    </LinearLayout>
+
+                    </GridLayout>
 
                 </androidx.constraintlayout.widget.ConstraintLayout>
             </androidx.core.widget.NestedScrollView>

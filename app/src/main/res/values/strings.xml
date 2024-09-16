@@ -470,5 +470,9 @@
     <string name="previous_result">Previous result</string>
     <string name="next_result">Next result</string>
 
+    <string name="download_history_as_pdf">Download history as PDF</string>
+    <string name="download_history_as_xlsx">Download history as XLSX</string>
+    <string name="download_history_as_csv">Download history as CSV</string>
+
 
 </resources>

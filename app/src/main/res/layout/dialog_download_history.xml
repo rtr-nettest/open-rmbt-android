@@ -49,73 +49,62 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
-        <LinearLayout
+        <GridLayout
             android:id="@+id/file_buttons"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:columnCount="4"
+            android:useDefaultMargins="true"
+            android:rowCount="1"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             android:paddingVertical="@dimen/padding_large"
             app:layout_constraintTop_toBottomOf="@+id/downloadFileSectionTitle">
             <Button
                 android:id="@+id/buttonDownloadPdf"
-                android:layout_width="0dp"
-                android:layout_height="40dp"
+                android:layout_width="wrap_content"
+                android:contentDescription="@string/download_history_as_pdf"
+                android:layout_height="wrap_content"
                 android:padding="6dp"
                 android:enabled="@{state.isHistoryEmpty() == false &amp;&amp; state.isDownloadingLiveData() == false}"
-                android:layout_weight="1"
                 android:textColor="@color/text_black_transparency_60"
                 android:text="@string/PDF"
                 android:drawableStart="@drawable/filetype_pdf_icon_24"
                 android:background="@drawable/download_button_selector"
                 style="?android:attr/buttonBarButtonStyle" />
-            <Space
-                android:layout_width="16dp"
-                android:layout_height="0dp"/>
             <Button
                 android:id="@+id/buttonDownloadXlsx"
-                android:layout_width="0dp"
-                android:layout_height="40dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
                 android:padding="6dp"
                 android:enabled="@{state.isHistoryEmpty() == false &amp;&amp; state.isDownloadingLiveData() == false}"
-                android:layout_weight="1"
                 android:text="@string/XLSX"
+                android:contentDescription="@string/download_history_as_xlsx"
                 android:drawableStart="@drawable/filetype_xlsx_icon_24"
                 android:textColor="@color/text_black_transparency_60"
                 android:background="@drawable/download_button_selector"
                 style="?android:attr/buttonBarButtonStyle"/>
-            <Space
-                android:layout_width="16dp"
-                android:layout_height="0dp"/>
             <Button
                 android:id="@+id/buttonDownloadCsv"
-                android:layout_width="0dp"
-                android:layout_weight="1"
+                android:contentDescription="@string/download_history_as_csv"
+                android:layout_width="wrap_content"
                 android:enabled="@{state.isHistoryEmpty() == false &amp;&amp; state.isDownloadingLiveData() == false}"
-                android:layout_height="40dp"
+                android:layout_height="wrap_content"
                 android:padding="6dp"
                 android:text="@string/CSV"
                 android:textColor="@color/text_black_transparency_60"
                 android:drawableStart="@drawable/filetype_csv_icon_24"
                 android:background="@drawable/download_button_selector"
                 style="?android:attr/buttonBarButtonStyle"/>
-            <Space
-                android:layout_width="16dp"
-                android:layout_height="0dp"/>
             <androidx.core.widget.ContentLoadingProgressBar
                 android:id="@+id/progressStatistics"
                 style="?android:attr/progressBarStyle"
-                android:layout_weight="1"
-                android:layout_width="0dp"
-                android:layout_height="40dp"
+                android:layout_width="wrap_content"
+                android:layout_gravity="center"
+                android:layout_height="wrap_content"
                 android:indeterminateTint="@color/colorAccent"
                 visibleOrGone="@{state.isDownloadingLiveData() == true}" />
-            <Space
-                android:layout_weight="1"
-                android:layout_width="0dp"
-                visibleOrGone="@{state.isDownloadingLiveData() == false}"
-                android:layout_height="40dp"/>
-        </LinearLayout>
+        </GridLayout>
 
 
     </androidx.constraintlayout.widget.ConstraintLayout>
