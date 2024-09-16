@@ -44,41 +44,55 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 
-            <ImageView
-                android:id="@+id/icon_map_type"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="@dimen/padding_large"
-                android:src="@drawable/ic_filter_map_type"
+            <LinearLayout
+                android:id="@+id/map_type_container"
                 app:layout_constraintBottom_toBottomOf="@id/type"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="@id/type" />
-
-            <TextView
-                android:id="@+id/label_map_type"
-                style="@style/RobotoRegularStyle.Medium"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="@dimen/padding_large"
-                android:text="@string/title_filters_type"
-                android:textColor="@color/navigation_gray"
-                app:layout_constraintBottom_toBottomOf="@id/type"
-                app:layout_constraintStart_toEndOf="@id/icon_map_type"
-                app:layout_constraintTop_toTopOf="@id/type" />
-
-            <TextView
-                android:id="@+id/text_map_type"
-                style="@style/RobotoRegularStyle.VerySmall"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginEnd="@dimen/padding_large"
-                android:alpha="0.56"
-                android:text='@{state.displayType}'
-                android:textColor="@color/navigation_gray"
-                app:layout_constraintBottom_toBottomOf="@id/type"
-                app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="@id/type"
-                tools:text="Mobile, Download" />
+                app:layout_constraintEnd_toEndOf="parent"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <ImageView
+                    android:id="@+id/icon_map_type"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/padding_large"
+                    android:layout_gravity="center_vertical|start"
+                    android:src="@drawable/ic_filter_map_type"
+                    app:layout_constraintBottom_toBottomOf="@id/type"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="@id/type" />
+
+                <TextView
+                    android:id="@+id/label_map_type"
+                    style="@style/RobotoRegularStyle.Medium"
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical|start"
+                    android:gravity="center_vertical|start"
+                    android:layout_marginStart="@dimen/padding_large"
+                    android:text="@string/title_filters_type"
+                    android:textColor="@color/navigation_gray"
+                    />
+
+                <TextView
+                    android:id="@+id/text_map_type"
+                    style="@style/RobotoRegularStyle.VerySmall"
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="@dimen/padding_large"
+                    android:alpha="0.56"
+                    android:layout_gravity="center_vertical|end"
+                    android:gravity="center_vertical|end"
+                    android:text='@{state.displayType}'
+                    android:textColor="@color/navigation_gray"
+                    tools:text="Mobile, Download" />
+
+            </LinearLayout>
+
+
 
             <View
                 android:id="@+id/map_type_divider"
