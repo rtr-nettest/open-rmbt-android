@@ -509,9 +509,22 @@
                         android:drawableEnd="@drawable/ic_right"
                         android:padding="@dimen/padding_large"
                         android:text="@string/result_test_details"
+                        android:nextFocusDown="@+id/buttonDownloadPdf"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toBottomOf="@+id/qosResultsRecyclerView" />
+
+                    <View
+                        android:id="@+id/viewDivider"
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:layout_marginStart="@dimen/margin_large"
+                        android:layout_marginEnd="@dimen/margin_large"
+                        android:background="@color/horizontal_divider"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@+id/labelTestResultDetail"
+                        app:layout_constraintBottom_toTopOf="@+id/downloadFileSectionTitle"/>
 
                     <TextView
                         android:id="@+id/downloadFileSectionTitle"
@@ -541,7 +554,6 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:padding="6dp"
-                            android:layout_weight="1"
                             android:textColor="@color/text_black_transparency_60"
                             android:text="@string/PDF"
                             android:drawableStart="@drawable/filetype_pdf_icon_24"
@@ -554,7 +566,6 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:padding="6dp"
-                            android:layout_weight="1"
                             android:text="@string/XLSX"
                             android:drawableStart="@drawable/filetype_xlsx_icon_24"
                             android:textColor="@color/text_black_transparency_60"
@@ -565,7 +576,6 @@
                             android:id="@+id/buttonDownloadCsv"
                             android:contentDescription="@string/download_history_as_csv"
                             android:layout_width="wrap_content"
-                            android:layout_weight="1"
                             android:layout_height="wrap_content"
                             android:padding="6dp"
                             android:text="@string/CSV"
