@@ -42,6 +42,7 @@
             android:id="@+id/items"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:maxHeight="400dp"
             app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
             app:layout_constraintBottom_toTopOf="@id/accept"
             app:layout_constraintTop_toBottomOf="@id/divider" />
