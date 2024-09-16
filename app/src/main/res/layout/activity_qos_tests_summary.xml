@@ -25,7 +25,8 @@
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/titleBar"
             android:layout_width="match_parent"
-            android:layout_height="?attr/actionBarSize"
+            android:minHeight="?attr/actionBarSize"
+            android:layout_height="wrap_content"
             android:background="@android:color/white"
             android:elevation="2dp"
             app:layout_constraintEnd_toEndOf="parent"
