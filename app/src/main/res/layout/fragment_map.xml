@@ -28,6 +28,11 @@
             android:layout_height="0dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
+            android:focusableInTouchMode="false"
+            android:defaultFocusHighlightEnabled="false"
+            android:focusable="false"
+            android:importantForAccessibility="no"
+            android:nextFocusRight="@id/fab_search"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:visibleOrGone="@{!state.playServicesAvailable}" />
@@ -36,6 +41,11 @@
             android:id="@+id/map"
             android:layout_width="0dp"
             android:layout_height="0dp"
+            android:focusableInTouchMode="false"
+            android:defaultFocusHighlightEnabled="false"
+            android:focusable="false"
+            android:importantForAccessibility="no"
+            android:nextFocusRight="@id/fab_search"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -64,6 +74,7 @@
             android:backgroundTint="@android:color/white"
             android:src="@drawable/ic_map_search"
             app:borderWidth="0dp"
+            android:focusedByDefault="true"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
