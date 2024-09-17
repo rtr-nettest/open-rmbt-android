@@ -32,6 +32,7 @@
             android:ellipsize="marquee"
             android:singleLine="true"
             android:text="@{title}"
+            android:accessibilityTraversalBefore="@+id/summaryTVISET"
             android:textColor="@color/text_dark_gray"
             tools:text="Title" />
 
@@ -44,7 +45,9 @@
             android:layout_toEndOf="@android:id/title"
             android:maxLines="2"
             android:gravity="end"
+
             android:text="@{value}"
+            android:accessibilityTraversalAfter="@+id/titleTVISET"
             android:textColor="@color/colorAccent"
             tools:text="10" />
 
