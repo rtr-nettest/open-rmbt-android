@@ -38,6 +38,7 @@
             android:text="@string/location_dialog_label_title"
             android:layout_marginStart="?attr/actionBarSize"
             android:textColor="@color/text_black_transparency_60"
+            android:accessibilityTraversalBefore="@id/icon_close"
             app:layout_constraintEnd_toStartOf="@id/icon_close"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />

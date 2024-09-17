@@ -60,6 +60,7 @@
             style="@style/RobotoMediumStyle.Large"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:contentDescription="@string/title_app_name"
             android:text="@string/toolbar_title"
             android:textColor="@{state.isConnected ? @android:color/white : @color/text_dark_gray}"
             app:layout_constraintBottom_toBottomOf="@+id/btnLoop"
@@ -85,6 +86,8 @@
             android:layout_height="wrap_content"
             android:paddingBottom="@dimen/margin_medium"
             android:text="@string/title_loop_mode"
+            android:accessibilityTraversalAfter="@id/btnSetting"
+            android:contentDescription="@string/home_loop_mode_active"
             android:textColor="@{state.isConnected ? @android:color/white : @color/text_dark_gray}"
             android:visibility="@{state.isLoopModeActive ? View.VISIBLE : View.INVISIBLE}"
             app:layout_constraintEnd_toEndOf="parent"
@@ -294,38 +297,6 @@
             app:layout_constraintTop_toTopOf="@+id/tvSignal" />
 
         <androidx.appcompat.widget.AppCompatTextView
-            android:id="@+id/tvSignal"
-            android:minHeight="48dp"
-            style="@style/RobotoMediumStyle.ExtraLarge"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:gravity="center"
-            android:textColor="@color/text_gray"
-            app:layout_constraintBottom_toTopOf="@+id/tvLblSignal"
-            app:layout_constraintEnd_toStartOf="@+id/tvFrequency"
-            app:layout_constraintStart_toStartOf="parent"
-            app:signal="@{state.signalStrength.value}"
-            app:signalNetworkInfo="@{state.activeNetworkInfo.networkInfo}"
-            app:signalSecondary="@{state.secondary5GSignalStrength.value}"
-            tools:text="-10 db" />
-
-        <androidx.appcompat.widget.AppCompatTextView
-            android:id="@+id/tvFrequency"
-            android:minHeight="48dp"
-            style="@style/RobotoMediumStyle.ExtraLarge"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:gravity="center"
-            android:textColor="@color/text_gray"
-            app:frequency="@{state.activeNetworkInfo.networkInfo}"
-            app:frequencySecondary="@{state.secondary5GActiveNetworkInfo}"
-            app:frequencyVisibility="@{state.activeNetworkInfo.networkInfo}"
-            app:layout_constraintBottom_toTopOf="@+id/tvLblFrequency"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@+id/tvSignal"
-            tools:text="-11 db" />
-
-        <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/tvLblSignal"
             style="@style/RobotoRegularStyle.VerySmall"
             android:layout_width="0dp"
@@ -339,9 +310,29 @@
             app:signal="@{state.signalStrength.value}"
             app:signalSecondary="@{state.secondary5GSignalStrength.value}"
             android:textColor="@color/text_gray_transparency_40"
+            android:accessibilityTraversalBefore="@id/tvSignal"
+            android:nextFocusUp="@id/tvSignal"
             app:layout_constraintBottom_toTopOf="@+id/vBottomDivider"
             app:layout_constraintEnd_toStartOf="@+id/tvLblFrequency"
+            android:importantForAccessibility="yes"
             app:layout_constraintStart_toStartOf="parent" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/tvSignal"
+            android:minHeight="48dp"
+            style="@style/RobotoMediumStyle.ExtraLarge"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:nextFocusDown="@id/tvLblSignal"
+            android:textColor="@color/text_gray"
+            app:layout_constraintBottom_toTopOf="@+id/tvLblSignal"
+            app:layout_constraintEnd_toStartOf="@+id/tvFrequency"
+            app:layout_constraintStart_toStartOf="parent"
+            app:signal="@{state.signalStrength.value}"
+            app:signalNetworkInfo="@{state.activeNetworkInfo.networkInfo}"
+            app:signalSecondary="@{state.secondary5GSignalStrength.value}"
+            tools:text="-10 db" />
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/tvLblFrequency"
@@ -360,7 +351,27 @@
             app:frequencyVisibility="@{state.activeNetworkInfo.networkInfo}"
             app:layout_constraintBottom_toTopOf="@+id/vBottomDivider"
             app:layout_constraintEnd_toEndOf="parent"
+            android:nextFocusUp="@id/tvFrequency"
+            android:importantForAccessibility="yes"
+            android:accessibilityTraversalBefore="@id/tvFrequency"
             app:layout_constraintStart_toEndOf="@+id/tvLblSignal" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/tvFrequency"
+            android:minHeight="48dp"
+            style="@style/RobotoMediumStyle.ExtraLarge"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:textColor="@color/text_gray"
+            app:frequency="@{state.activeNetworkInfo.networkInfo}"
+            app:frequencySecondary="@{state.secondary5GActiveNetworkInfo}"
+            app:frequencyVisibility="@{state.activeNetworkInfo.networkInfo}"
+            android:nextFocusDown="@id/tvLblFrequency"
+            app:layout_constraintBottom_toTopOf="@+id/tvLblFrequency"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/tvSignal"
+            tools:text="-11 db" />
 
         <include
             android:id="@+id/panel_permissions_problems"
@@ -427,6 +438,7 @@
         <androidx.appcompat.widget.AppCompatImageButton
                 android:id="@+id/btnUpload"
                 android:layout_width="0dp"
+                android:contentDescription="@{state.isSignalMeasurementActive ? @string/home_signal_measurement_toggle_on : @string/home_signal_measurement_toggle_off}"
                 android:layout_height="?android:attr/actionBarSize"
                 android:background="?android:attr/selectableItemBackground"
                 android:clickable="@{state.isConnected || state.isSignalMeasurementActive}"

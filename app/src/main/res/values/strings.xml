@@ -482,5 +482,11 @@
     <string name="history_list_header_ping_units">History list header: ping units: milliseconds </string>
 
     <string name="home_start_measurement">Start measurement</string>
+    <string name="title_app_name">Title: RTR-Netztest</string>
+
+    <string name="home_signal_measurement_toggle_on">Signal measurement toggle on</string>
+    <string name="home_signal_measurement_toggle_off">Signal measurement toggle off</string>
+
+
 
 </resources>
