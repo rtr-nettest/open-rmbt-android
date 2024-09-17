@@ -86,6 +86,7 @@
             app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintStart_toEndOf="@+id/tvPrivateIPLbl"
             app:layout_constraintTop_toBottomOf="@+id/icon_close"
+            android:accessibilityTraversalBefore="@id/tvPublicIPV4"
             app:visibleOrGone="@{ipInfo != null &amp;&amp; ipInfo.protocol == IpProtocol.V4 &amp;&amp; ipInfo.publicAddress != null &amp;&amp; ipInfo.ipStatus != IpStatus.NO_ADDRESS}" />
 
 
@@ -100,6 +101,7 @@
             app:layout_constraintEnd_toStartOf="@+id/tvPublicIPV4"
             app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintStart_toEndOf="@+id/ivIPIcon"
+            android:accessibilityTraversalAfter="@id/tvPrivateIPLbl"
             app:layout_constraintTop_toBottomOf="@+id/tvPrivateIPLbl"
             app:visibleOrGone="@{ipInfo != null &amp;&amp; ipInfo.privateAddress != null &amp;&amp; ipInfo.ipStatus != IpStatus.NO_ADDRESS}"
             tools:text="192.168.1.0" />
@@ -130,6 +132,7 @@
             android:text="@string/public_ip_address"
             android:textColor="@color/text_gray_transparency_60"
             app:layout_constraintEnd_toEndOf="parent"
+            android:accessibilityTraversalBefore="@id/tvPublicIPV6"
             app:layout_constraintStart_toEndOf="@+id/ivIPIcon"
             app:layout_constraintTop_toBottomOf="@+id/tvPrivateIP"
             app:visibleOrGone="@{ipInfo != null &amp;&amp; ipInfo.protocol == IpProtocol.V6 &amp;&amp; ipInfo.publicAddress != null &amp;&amp; ipInfo.ipStatus != IpStatus.NO_ADDRESS}" />
