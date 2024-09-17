@@ -59,6 +59,7 @@
             style="@style/RobotoMediumStyle.Large"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:contentDescription="@string/title_app_name"
             android:text="@string/toolbar_title"
             android:textColor="@{state.isConnected ? @android:color/white : @color/text_dark_gray}"
             app:layout_constraintBottom_toBottomOf="@+id/btnLoop"
@@ -73,6 +74,8 @@
             android:layout_height="wrap_content"
             android:paddingBottom="@dimen/margin_medium"
             android:text="@string/title_loop_mode"
+            android:accessibilityTraversalAfter="@id/btnSetting"
+            android:contentDescription="@string/home_loop_mode_active"
             android:textColor="@{state.isConnected ? @android:color/white : @color/text_dark_gray}"
             android:visibility="@{state.isLoopModeActive ? View.VISIBLE : View.INVISIBLE}"
             app:layout_constraintEnd_toEndOf="parent"
@@ -168,6 +171,7 @@
             android:id="@+id/ivSignalLevel"
             android:contentDescription="@{@string/home_start_measurement}"
             android:layout_width="0dp"
+            android:accessibilityTraversalAfter="@id/loop_mode_title"
             android:layout_height="0dp"
             android:src="@drawable/ic_mobile_1"
             android:background="@drawable/bg_selection"
@@ -275,11 +279,14 @@
             app:layout_constraintStart_toStartOf="@+id/leftView"
             app:layout_constraintTop_toBottomOf="@+id/ivIsConnectedCircle"
             app:networkType="@{state.activeNetworkInfo}"
+            android:accessibilityTraversalAfter="@id/ivSignalLevel"
             tools:text="4G/LTE"
             tools:textColor="@color/text_white_transparency_40" />
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/tvNetworkName"
+            android:accessibilityTraversalAfter="@id/tvNetworkType"
+            android:contentDescription="@{@string/network_label + ' ' + (state.isConnected ? state.activeNetworkInfo.networkInfo.name : @string/home_no_internet_connection)}"
             style="@style/RobotoMediumStyle.Large"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -333,6 +340,10 @@
             app:signal="@{state.signalStrength.value}"
             app:signalSecondary="@{state.secondary5GSignalStrength.value}"
             android:textColor="@color/text_gray_transparency_40"
+            android:accessibilityTraversalAfter="@id/tvNetworkName"
+            android:accessibilityTraversalBefore="@id/tvSignal"
+            android:nextFocusUp="@id/tvSignal"
+            android:importantForAccessibility="yes"
             app:layout_constraintBottom_toTopOf="@+id/vBottomDivider"
             app:layout_constraintEnd_toStartOf="@+id/tvLblFrequency"
             app:layout_constraintStart_toStartOf="@id/vBottomDivider" />
@@ -355,6 +366,9 @@
             app:signalSecondary="@{state.secondary5GSignalStrength.value}"
             app:layout_constraintBottom_toTopOf="@+id/vBottomDivider"
             app:layout_constraintEnd_toEndOf="@id/vBottomDivider"
+            android:nextFocusUp="@id/tvFrequency"
+            android:importantForAccessibility="yes"
+            android:accessibilityTraversalBefore="@id/tvFrequency"
             app:layout_constraintStart_toEndOf="@+id/tvLblSignal" />
 
         <androidx.appcompat.widget.AppCompatTextView
@@ -367,6 +381,7 @@
             app:layout_constraintBottom_toTopOf="@+id/tvLblSignal"
             app:layout_constraintEnd_toStartOf="@+id/tvFrequency"
             app:layout_constraintStart_toStartOf="@id/vBottomDivider"
+            android:contentDescription="@string/home_signal_subtitle"
             app:signal="@{state.signalStrength.value}"
             app:signalNetworkInfo="@{state.activeNetworkInfo.networkInfo}"
             app:signalSecondary="@{state.secondary5GSignalStrength.value}"
@@ -384,6 +399,7 @@
             app:layout_constraintBottom_toTopOf="@+id/tvLblSignal"
             app:layout_constraintEnd_toEndOf="@id/vBottomDivider"
             app:layout_constraintStart_toEndOf="@+id/tvSignal"
+            android:contentDescription="@string/home_frequency_subtitle"
             app:frequencySecondary="@{state.secondary5GActiveNetworkInfo}"
             tools:text="-12 db" />
 
@@ -407,6 +423,7 @@
             android:gravity="center"
             app:IpIcon="@{state.ipV4Info}"
             app:layout_constraintEnd_toStartOf="@+id/btnIpv6"
+            android:accessibilityTraversalAfter="@id/tvFrequency"
             app:layout_constraintStart_toStartOf="@+id/vBottomDivider"
             app:layout_constraintTop_toBottomOf="@+id/vBottomDivider"
             tools:src="@drawable/ic_ipv4_red" />
@@ -442,6 +459,8 @@
                 android:background="?android:attr/selectableItemBackground"
                 android:clickable="@{state.isConnected}"
                 android:gravity="center"
+                android:accessibilityTraversalAfter="@id/btnLocation"
+                android:contentDescription="@{state.isSignalMeasurementActive ? @string/home_signal_measurement_toggle_on : @string/home_signal_measurement_toggle_off}"
                 android:src="@{state.isSignalMeasurementActive() ? @drawable/ic_upload_enabled : (state.isConnected ? @drawable/ic_upload_disabled : @drawable/ic_upload_not_available)}"
                 app:layout_constraintEnd_toEndOf="@+id/vBottomDivider"
                 app:layout_constraintStart_toEndOf="@+id/btnLocation"
