@@ -28,6 +28,7 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
+            android:contentDescription="@string/bottom_navigation_area"
             app:menu="@menu/home_menu">
 
         </com.google.android.material.bottomnavigation.BottomNavigationView>

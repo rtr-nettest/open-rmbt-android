@@ -497,6 +497,7 @@
     <string name="ipv6">IP version 6: NAT</string>
     <string name="home_signal_subtitle">Subtitle: Signal</string>
     <string name="home_frequency_subtitle">Subtitle: Frequency</string>
+    <string name="bottom_navigation_area">Bottom navigation area</string>
 
 
 </resources>
