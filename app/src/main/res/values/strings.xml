@@ -487,6 +487,14 @@
     <string name="home_signal_measurement_toggle_on">Signal measurement toggle on</string>
     <string name="home_signal_measurement_toggle_off">Signal measurement toggle off</string>
 
+    <string name="ipv4_no_info">IP version 4: no information</string>
+    <string name="ipv4_no_address">IP version 4: no address</string>
+    <string name="ipv4_no_nat">IP version 4: no NAT</string>
+    <string name="ipv4">IP version 4: NAT</string>
+    <string name="ipv6_no_info">IP version 6: no information</string>
+    <string name="ipv6_no_address">IP version 6: no address</string>
+    <string name="ipv6_no_nat">IP version 6: no NAT</string>
+    <string name="ipv6">IP version 6: NAT</string>
 
 
 </resources>

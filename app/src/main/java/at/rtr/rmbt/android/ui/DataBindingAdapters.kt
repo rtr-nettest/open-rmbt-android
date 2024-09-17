@@ -480,7 +480,30 @@ fun ImageView.setIPAddressIcon(ipInfo: IpInfo?) {
                 if (isIPV4) R.drawable.ic_ipv4_yellow else R.drawable.ic_ipv6_yellow
             }
         }
+        val contentDescription = when (it.ipStatus) {
+            IpStatus.NO_INFO -> {
+                isClickable = false
+                alpha = 0.25f
+                if (isIPV4) R.string.ipv4_no_info else R.string.ipv6_no_info
+            }
+            IpStatus.NO_ADDRESS -> {
+                isClickable = true
+                alpha = 1f
+                if (isIPV4) R.string.ipv4_no_address else R.string.ipv6_no_address
+            }
+            IpStatus.NO_NAT -> {
+                isClickable = true
+                alpha = 1f
+                if (isIPV4) R.string.ipv4_no_nat else R.string.ipv6_no_nat
+            }
+            else -> {
+                isClickable = true
+                alpha = 1f
+                if (isIPV4) R.string.ipv4 else R.string.ipv6
+            }
+        }
         setImageResource(res)
+        setContentDescription(context.getString(contentDescription))
     }
 }
 
