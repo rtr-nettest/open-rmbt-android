@@ -301,10 +301,10 @@
     <string name="phone_permission_explanation">RTR-NetTest non effettua chiamate. L\'autorizzazione al telefono è necessaria per identificare il fornitore del servizio.</string>
     <string name="location_permission_explanation">The location permission is necessary to identify the measurement location and to display it on the map. Without precise location permission, signal strength is unavailable on many devices. Use of loop mode while on the move is only possible with location permission.</string>
     <string name="location_permissions_disclaimer">RTR-NetTest utilizza il permesso alla localizzazione solo durante la misurazione, il permesso all\'accesso in background è necessario per consentire l\'esecuzione della modalità loop in background.</string>
-    <string name="home_home">Home</string>
-    <string name="home_map">Map</string>
-    <string name="home_statistics">Statistics</string>
-    <string name="home_history">History</string>
+    <string name="home_home">Navigazione principale: Home</string>
+    <string name="home_map">Navigazione principale: Mappa</string>
+    <string name="home_statistics">Navigazione principale: Statistiche</string>
+    <string name="home_history">Navigazione principale: Cronologia</string>
     <string name="home_loop_mode_active">Loop mode</string>
     <string name="error_during_download">Errore di download</string>
     <string name="error_opening_file">Errore nell\'apertura del file</string>

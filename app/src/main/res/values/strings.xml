@@ -50,12 +50,11 @@
     <string name="home_ipv6">IPv6 address</string>
     <string name="home_location">Location</string>
     <string name="home_settings">Settings</string>
-    <string name="home_home">Home</string>
-    <string name="home_map">Map</string>
-    <string name="home_statistics">Statistics</string>
-    <string name="home_history">History</string>
+    <string name="home_home">Main navigation: Home</string>
+    <string name="home_map">Main navigation: Map</string>
+    <string name="home_statistics">Main navigation: Statistics</string>
+    <string name="home_history">Main navigation: History</string>
     <string name="home_loop_mode_active">Loop mode enabled</string>
-    <string name="home_start_measurement">Start measurement</string>
 
 
     <!-- Preference titles -->
@@ -482,5 +481,6 @@
     <string name="history_list_header_ping">History list header: ping</string>
     <string name="history_list_header_ping_units">History list header: ping units: milliseconds </string>
 
+    <string name="home_start_measurement">Start measurement</string>
 
 </resources>
