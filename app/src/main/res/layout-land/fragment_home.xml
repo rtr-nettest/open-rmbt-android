@@ -332,6 +332,7 @@
             android:layout_height="wrap_content"
             android:gravity="center"
             android:paddingBottom="@dimen/padding_large"
+            android:contentDescription="@string/home_signal_subtitle"
             android:text="@string/home_signal"
             app:mainText="@{@string/home_signal}"
             app:networkType="@{state.activeNetworkInfo.networkInfo}"
@@ -367,6 +368,7 @@
             app:layout_constraintBottom_toTopOf="@+id/vBottomDivider"
             app:layout_constraintEnd_toEndOf="@id/vBottomDivider"
             android:nextFocusUp="@id/tvFrequency"
+            android:contentDescription="@string/home_frequency_subtitle"
             android:importantForAccessibility="yes"
             android:accessibilityTraversalBefore="@id/tvFrequency"
             app:layout_constraintStart_toEndOf="@+id/tvLblSignal" />
@@ -381,7 +383,6 @@
             app:layout_constraintBottom_toTopOf="@+id/tvLblSignal"
             app:layout_constraintEnd_toStartOf="@+id/tvFrequency"
             app:layout_constraintStart_toStartOf="@id/vBottomDivider"
-            android:contentDescription="@string/home_signal_subtitle"
             app:signal="@{state.signalStrength.value}"
             app:signalNetworkInfo="@{state.activeNetworkInfo.networkInfo}"
             app:signalSecondary="@{state.secondary5GSignalStrength.value}"
@@ -399,7 +400,6 @@
             app:layout_constraintBottom_toTopOf="@+id/tvLblSignal"
             app:layout_constraintEnd_toEndOf="@id/vBottomDivider"
             app:layout_constraintStart_toEndOf="@+id/tvSignal"
-            android:contentDescription="@string/home_frequency_subtitle"
             app:frequencySecondary="@{state.secondary5GActiveNetworkInfo}"
             tools:text="-12 db" />
 
