@@ -53,6 +53,7 @@
             android:drawablePadding="@dimen/padding_very_small"
             android:text="@{item.speedDownload}"
             android:textColor="@color/text_dark_gray"
+            android:contentDescription="@{@string/measurement_download + ' ' + item.speedDownload + ' ' + @string/speed_progress_units }"
             app:speedDownloadClassification="@{item.speedDownloadClassification}"
             tools:drawableStart="@drawable/ic_small_download_light_green"
             tools:text="79" />
@@ -65,6 +66,7 @@
             android:drawablePadding="@dimen/padding_very_small"
             android:text="@{item.speedUpload}"
             android:textColor="@color/text_dark_gray"
+            android:contentDescription="@{@string/measurement_upload + ' ' + item.speedUpload + ' ' + @string/speed_progress_units }"
             app:speedUploadClassification="@{item.speedUploadClassification}"
             tools:drawableStart="@drawable/ic_small_upload_light_green"
             tools:text="12" />
@@ -76,6 +78,7 @@
             android:layout_weight="1"
             android:drawablePadding="@dimen/padding_very_small"
             android:text="@{item.ping}"
+            android:contentDescription="@{@string/measurement_ping + ' ' + item.ping + ' ' + @string/history_item_header_ms }"
             android:textColor="@color/text_dark_gray"
             app:pingClassification="@{item.pingClassification}"
             tools:drawableStart="@drawable/ic_small_ping_yellow"
