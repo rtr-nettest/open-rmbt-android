@@ -26,6 +26,7 @@
             android:textColor="@color/text_dark_gray"
             app:layout_constraintEnd_toEndOf="parent"
             android:paddingStart="@dimen/padding_large"
+            android:contentDescription="@string/history_title"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
@@ -94,6 +95,7 @@
             android:layout_marginStart="@dimen/margin_large"
             android:layout_marginTop="@dimen/margin_medium"
             android:text="@string/label_filter"
+            android:contentDescription="@string/history_subtitle_filter"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/viewDivider"
             app:visibleOrGone="@{!state.isActiveFiltersEmpty}" />
@@ -104,6 +106,7 @@
             android:layout_height="wrap_content"
             android:layout_margin="@dimen/margin_medium"
             android:orientation="horizontal"
+            android:contentDescription="@string/active_history_filters_container"
             tools:listitem="@layout/item_filter_label"
             app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
             app:layout_constraintEnd_toEndOf="parent"

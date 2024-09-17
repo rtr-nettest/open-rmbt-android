@@ -498,6 +498,10 @@
     <string name="home_signal_subtitle">Subtitle: Signal</string>
     <string name="home_frequency_subtitle">Subtitle: Frequency</string>
     <string name="bottom_navigation_area">Bottom navigation area</string>
+    <string name="history_title">Title: History</string>
+    <string name="history_subtitle_filter">Subtitle: History filter</string>
+    <string name="active_history_filters_container">History filters container</string>
+    <string name="history_list_header_container">History list header container</string>
 
 
 </resources>
