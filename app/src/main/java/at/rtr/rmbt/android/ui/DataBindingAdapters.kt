@@ -386,7 +386,10 @@ fun AppCompatTextView.setNetworkType(detailedNetworkInfo: DetailedNetworkInfo?) 
      */
     val shortDisplayOfTechnology = true
 
-    text = extractTechnologyString(detailedNetworkInfo, shortDisplayOfTechnology)
+    val technology = extractTechnologyString(detailedNetworkInfo, shortDisplayOfTechnology)
+
+    text = technology
+    contentDescription = "${context.getString(R.string.technology_label)} $technology"
 }
 
 private fun AppCompatTextView.extractTechnologyString(

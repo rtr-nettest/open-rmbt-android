@@ -495,6 +495,8 @@
     <string name="ipv6_no_address">IP version 6: no address</string>
     <string name="ipv6_no_nat">IP version 6: no NAT</string>
     <string name="ipv6">IP version 6: NAT</string>
+    <string name="home_signal_subtitle">Subtitle: Signal</string>
+    <string name="home_frequency_subtitle">Subtitle: Frequency</string>
 
 
 </resources>
