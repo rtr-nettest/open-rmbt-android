@@ -96,7 +96,7 @@
                 android:layout_height="wrap_content"
                 android:text="@string/history_item_header_ms"
                 android:textColor="@color/text_gray_transparency_60"
-                android:contentDescription="@string/history_list_header_download_ping_units"
+                android:contentDescription="@string/history_list_header_ping_units"
                 android:textSize="@dimen/history_label_text_size" />
         </androidx.appcompat.widget.LinearLayoutCompat>
 
