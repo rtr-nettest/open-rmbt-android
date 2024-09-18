@@ -53,6 +53,7 @@
             android:contentDescription="@null"
             android:scaleType="center"
             android:src="@drawable/ic_cancel"
+            android:accessibilityTraversalAfter="@id/technology_name"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
@@ -76,6 +77,7 @@
             android:textColor="@android:color/background_light"
             android:textSize="@dimen/network_name_size"
             android:textStyle="bold"
+            android:accessibilityTraversalAfter="@id/network_name_label"
             app:layout_constraintStart_toStartOf="@id/measurementBottomView"
             app:layout_constraintEnd_toStartOf="@+id/technology_name"
             app:layout_constraintTop_toBottomOf="@id/network_name_label" />
@@ -101,6 +103,7 @@
             android:textColor="@android:color/background_light"
             android:textSize="@dimen/network_name_size"
             android:textStyle="bold"
+            android:accessibilityTraversalAfter="@id/network_tech_label"
             app:layout_constraintStart_toStartOf="@+id/network_tech_label"
             app:layout_constraintTop_toBottomOf="@id/network_tech_label"
             app:networkTypeDetailed="@{state.detailedNetworkInfo}" />

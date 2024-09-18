@@ -84,116 +84,124 @@
             app:layout_constraintBottom_toBottomOf="@+id/loop_measurement_title"
             app:layout_constraintStart_toStartOf="parent" />
 
-        <View
+        <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/viewHeader"
             android:layout_width="match_parent"
-            android:layout_height="@dimen/measurement_bottom_header_height"
+            android:minHeight="@dimen/measurement_bottom_header_height"
+            android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/margin_small"
             android:background="@drawable/measurement_bottom_header_background"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/loop_header_bottom_line" />
+            app:layout_constraintTop_toBottomOf="@id/loop_header_bottom_line" >
 
-        <androidx.appcompat.widget.AppCompatImageView
-            android:id="@+id/imageViewSignalLevel"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/margin_large"
-            app:layout_constraintBottom_toBottomOf="@+id/viewHeader"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/loop_header_bottom_line"
-            app:measurementSignalLevel="@{state.signalStrengthInfoResult}"
-            app:connected="@{state.isConnected}"
-            tools:src="@drawable/ic_small_wifi_1" />
+            <androidx.appcompat.widget.AppCompatImageView
+                android:id="@+id/imageViewSignalLevel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/margin_large"
+                app:layout_constraintBottom_toBottomOf="@+id/viewHeader"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:measurementSignalLevel="@{state.signalStrengthInfoResult}"
+                app:connected="@{state.isConnected}"
+                tools:src="@drawable/ic_small_wifi_1" />
 
-        <androidx.appcompat.widget.AppCompatTextView
-            android:id="@+id/labelMeasurementBottomPing"
-            style="@style/RobotoRegularStyle.Small"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/margin_large"
-            android:layout_marginTop="@dimen/margin_small"
-            android:text="@string/measurement_ping"
-            android:textColor="@color/text_white_transparency_50"
-            app:layout_constraintEnd_toStartOf="@+id/labelMeasurementBottomDownload"
-            app:layout_constraintHorizontal_bias="0.5"
-            app:layout_constraintStart_toEndOf="@+id/imageViewSignalLevel"
-            app:layout_constraintTop_toBottomOf="@id/loop_header_bottom_line" />
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/labelMeasurementBottomPing"
+                style="@style/RobotoRegularStyle.Small"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/margin_large"
+                android:layout_marginTop="@dimen/margin_small"
+                android:text="@string/measurement_ping"
+                android:textColor="@color/text_white_transparency_50"
+                app:layout_constraintEnd_toStartOf="@+id/labelMeasurementBottomDownload"
+                app:layout_constraintHorizontal_bias="0.5"
+                app:layout_constraintStart_toEndOf="@+id/imageViewSignalLevel"
+                app:layout_constraintTop_toTopOf="parent" />
 
-        <androidx.appcompat.widget.AppCompatTextView
-            android:id="@+id/labelMeasurementBottomDownload"
-            style="@style/RobotoRegularStyle.Small"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/margin_small"
-            android:text="@string/measurement_down"
-            android:textColor="@color/text_white_transparency_50"
-            app:layout_constraintEnd_toStartOf="@+id/labelMeasurementBottomUpload"
-            app:layout_constraintHorizontal_bias="0.5"
-            app:layout_constraintStart_toEndOf="@+id/labelMeasurementBottomPing"
-            app:layout_constraintTop_toBottomOf="@id/loop_header_bottom_line" />
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/labelMeasurementBottomDownload"
+                style="@style/RobotoRegularStyle.Small"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/margin_small"
+                android:text="@string/measurement_down"
+                android:textColor="@color/text_white_transparency_50"
+                app:layout_constraintEnd_toStartOf="@+id/labelMeasurementBottomUpload"
+                app:layout_constraintHorizontal_bias="0.5"
+                app:layout_constraintStart_toEndOf="@+id/labelMeasurementBottomPing"
+                app:layout_constraintTop_toTopOf="parent" />
 
-        <androidx.appcompat.widget.AppCompatTextView
-            android:id="@+id/labelMeasurementBottomUpload"
-            style="@style/RobotoRegularStyle.Small"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/margin_small"
-            android:text="@string/measurement_up"
-            android:textColor="@color/text_white_transparency_50"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.5"
-            app:layout_constraintStart_toEndOf="@+id/labelMeasurementBottomDownload"
-            app:layout_constraintTop_toBottomOf="@id/loop_header_bottom_line" />
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/labelMeasurementBottomUpload"
+                style="@style/RobotoRegularStyle.Small"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/margin_small"
+                android:text="@string/measurement_up"
+                android:textColor="@color/text_white_transparency_50"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.5"
+                app:layout_constraintStart_toEndOf="@+id/labelMeasurementBottomDownload"
+                app:layout_constraintTop_toTopOf="parent" />
 
-        <androidx.appcompat.widget.AppCompatTextView
-            android:id="@+id/appCompatImageView1"
-            style="@style/RobotoMediumStyle.VerySmall"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/margin_large"
-            android:drawablePadding="@dimen/padding_very_small"
-            android:maxLines="2"
-            app:layout_constraintEnd_toStartOf="@+id/textDownloadSpeed"
-            app:layout_constraintHorizontal_bias="0.5"
-            app:layout_constraintStart_toEndOf="@+id/imageViewSignalLevel"
-            app:layout_constraintTop_toBottomOf="@+id/labelMeasurementBottomPing"
-            app:pingMs="@{state.pingNanos}"
-            tools:drawableStart="@drawable/ic_small_ping_yellow"
-            tools:text="14 ms"
-            tools:textColor="@android:color/white" />
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/appCompatImageView1"
+                style="@style/RobotoMediumStyle.VerySmall"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:accessibilityTraversalAfter="@id/labelMeasurementBottomPing"
+                android:layout_marginStart="@dimen/margin_large"
+                android:drawablePadding="@dimen/padding_very_small"
+                android:maxLines="2"
+                app:layout_constraintEnd_toStartOf="@+id/textDownloadSpeed"
+                app:layout_constraintHorizontal_bias="0.5"
+                app:layout_constraintStart_toEndOf="@+id/imageViewSignalLevel"
+                app:layout_constraintTop_toBottomOf="@+id/labelMeasurementBottomPing"
+                app:pingMs="@{state.pingNanos}"
+                tools:drawableStart="@drawable/ic_small_ping_yellow"
+                tools:text="14 ms"
+                tools:textColor="@android:color/white" />
 
-        <androidx.appcompat.widget.AppCompatTextView
-            android:id="@+id/textDownloadSpeed"
-            style="@style/RobotoMediumStyle.VerySmall"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:drawablePadding="@dimen/padding_very_small"
-            android:maxLines="2"
-            app:downloadSpeedBps="@{state.downloadSpeedBps}"
-            app:layout_constraintEnd_toStartOf="@+id/textUploadSpeed"
-            app:layout_constraintHorizontal_bias="0.5"
-            app:layout_constraintStart_toEndOf="@+id/appCompatImageView1"
-            app:layout_constraintTop_toBottomOf="@+id/labelMeasurementBottomDownload"
-            tools:drawableStart="@drawable/ic_small_download_light_green"
-            tools:text="24.12 Mbit/s"
-            tools:textColor="@android:color/white" />
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/textDownloadSpeed"
+                style="@style/RobotoMediumStyle.VerySmall"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:drawablePadding="@dimen/padding_very_small"
+                android:maxLines="2"
+                app:downloadSpeedBps="@{state.downloadSpeedBps}"
+                app:layout_constraintEnd_toStartOf="@+id/textUploadSpeed"
+                app:layout_constraintHorizontal_bias="0.5"
+                app:layout_constraintStart_toEndOf="@+id/appCompatImageView1"
+                app:layout_constraintTop_toBottomOf="@+id/labelMeasurementBottomDownload"
+                tools:drawableStart="@drawable/ic_small_download_light_green"
+                android:accessibilityTraversalAfter="@id/labelMeasurementBottomDownload"
+                tools:text="24.12 Mbit/s"
+                tools:textColor="@android:color/white" />
 
-        <androidx.appcompat.widget.AppCompatTextView
-            android:id="@+id/textUploadSpeed"
-            style="@style/RobotoMediumStyle.VerySmall"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:drawablePadding="@dimen/padding_very_small"
-            android:maxLines="2"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.5"
-            app:layout_constraintStart_toEndOf="@+id/textDownloadSpeed"
-            app:layout_constraintTop_toBottomOf="@+id/labelMeasurementBottomUpload"
-            app:uploadSpeedBps="@{state.uploadSpeedBps}"
-            tools:drawableStart="@drawable/ic_small_upload_gray"
-            tools:text="1000.0 Mbit/s"
-            tools:textColor="@android:color/white" />
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/textUploadSpeed"
+                style="@style/RobotoMediumStyle.VerySmall"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:drawablePadding="@dimen/padding_very_small"
+                android:maxLines="2"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.5"
+                app:layout_constraintStart_toEndOf="@+id/textDownloadSpeed"
+                app:layout_constraintTop_toBottomOf="@+id/labelMeasurementBottomUpload"
+                app:uploadSpeedBps="@{state.uploadSpeedBps}"
+                tools:drawableStart="@drawable/ic_small_upload_gray"
+                android:accessibilityTraversalAfter="@id/labelMeasurementBottomUpload"
+                tools:text="1000.0 Mbit/s"
+                tools:textColor="@android:color/white" />
+
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
 
         <androidx.constraintlayout.widget.Group
             android:id="@+id/loop_next_measurement_group"
