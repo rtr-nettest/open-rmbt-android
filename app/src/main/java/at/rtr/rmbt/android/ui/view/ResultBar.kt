@@ -152,7 +152,18 @@ class ResultBar @JvmOverloads constructor(
                 else -> R.color.classification_undefined
             }
         )
+        contentDescription = ContextCompat.getString(
+            context, when (classification) {
+                Classification.NONE -> R.string.classification_undefined
+                Classification.BAD -> R.string.classification_bad
+                Classification.NORMAL -> R.string.classification_normal
+                Classification.GOOD -> R.string.classification_good
+                Classification.EXCELLENT -> R.string.classification_excellent
+                else -> R.string.classification_undefined
+            }
+        )
         progress = percentage
+
         createBitmap()
     }
 

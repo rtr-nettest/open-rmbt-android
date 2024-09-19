@@ -951,6 +951,7 @@ fun AppCompatTextView.setResultTime(resultTime: Long?, resultTimezone: String?) 
         calendar.timeInMillis = resultTime
         calendar.timeZone = TimeZone.getTimeZone(resultTimezone)
         text = calendar.format("dd.MM.yy, HH:mm:ss")
+        contentDescription = "${context.getString(R.string.test_result_from)} $text"
     }
 }
 
