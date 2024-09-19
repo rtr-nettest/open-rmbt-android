@@ -514,5 +514,6 @@
     <string name="classification_normal">Classification: normal</string>
     <string name="classification_good">Classification: good</string>
     <string name="classification_excellent">Classification: excellent</string>
+    <string name="title_test_details">Test details</string>
 
 </resources>
