@@ -26,6 +26,7 @@
                 android:layout_height="wrap_content"
                 android:padding="@dimen/padding_large"
                 android:text="@string/label_description"
+                android:contentDescription="@string/content_subtitle_description"
                 android:textColor="@color/text_dark_gray"
                 tools:text="@string/label_description" />
 
@@ -45,6 +46,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:padding="@dimen/padding_large"
+                android:contentDescription="@{@string/test_result_status_subtitle + ' ' + (state.testSuccess ? @string/label_succeeded : @string/label_failed)}"
                 android:text="@{state.testSuccess ? @string/label_succeeded : @string/label_failed}"
                 android:textColor="@{state.testSuccess ? @color/classification_green : @color/classification_red}" />
 
@@ -61,6 +63,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:padding="@dimen/padding_large"
+                android:contentDescription="@string/content_subtitle_further_details"
                 android:text="@string/label_detail"
                 android:textColor="@color/text_dark_gray"
                 tools:text="@string/label_detail" />

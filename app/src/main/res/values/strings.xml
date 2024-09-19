@@ -516,4 +516,10 @@
     <string name="classification_excellent">Classification: excellent</string>
     <string name="title_test_details">Test details</string>
 
+    <string name="title">Title:</string>
+    <string name="content_subtitle_information">Subtitle: Information</string>
+    <string name="content_subtitle_tests">Subtitle: Tests</string>
+    <string name="content_subtitle_description">Subtitle: Description</string>
+    <string name="test_result_status_subtitle">Subtitle: Test result status:</string>
+
 </resources>

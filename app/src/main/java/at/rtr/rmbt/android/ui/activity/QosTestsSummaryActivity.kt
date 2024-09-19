@@ -18,6 +18,7 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.view.KeyEvent
+import androidx.core.content.ContextCompat
 import at.rtr.rmbt.android.R
 import at.rtr.rmbt.android.databinding.ActivityQosTestsSummaryBinding
 import at.rtr.rmbt.android.ui.fragment.QosTestsSummaryFragment
@@ -51,6 +52,7 @@ class QosTestsSummaryActivity : BaseActivity() {
 
     private fun setupToolbar(toolbarTitle: String?) {
         binding.title.text = toolbarTitle
+        binding.title.contentDescription = "${ContextCompat.getString(this.applicationContext, R.string.title)} $toolbarTitle"
         binding.buttonBack.setOnClickListener {
             onBackPressed()
         }
