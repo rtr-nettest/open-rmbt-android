@@ -235,7 +235,12 @@ class TestControllerImpl(
             _testStartTimeNanos = connection?.startTimeNs ?: 0
             _testUUID = connection.testUuid
 
-            _listener?.onClientReady(_testUUID!!, connection.loopUuid, loopLocalUUID, _testStartTimeNanos)
+            val loopUUIDFromBackend = if (connection.loopUuid == "null") {
+                null
+            } else {
+                connection.loopUuid
+            }
+            _listener?.onClientReady(_testUUID!!, loopUUIDFromBackend, loopLocalUUID, _testStartTimeNanos)
 
             var skipQoSTests = !config.shouldRunQosTest
 
