@@ -910,7 +910,7 @@ class MeasurementService : CustomLifecycleService(), CoroutineScope {
         }
 
         fun removeClient(client: MeasurementClient) {
-            clients.add(client)
+            clients.remove(client)
         }
 
         override fun onProgressChanged(state: MeasurementState, progress: Int) {
