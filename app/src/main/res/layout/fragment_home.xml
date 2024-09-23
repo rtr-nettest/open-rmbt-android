@@ -60,7 +60,7 @@
             style="@style/RobotoMediumStyle.Large"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:contentDescription="@string/title_app_name"
+            android:contentDescription="@{@string/title + @string/toolbar_title}"
             android:text="@string/toolbar_title"
             android:textColor="@{state.isConnected ? @android:color/white : @color/text_dark_gray}"
             app:layout_constraintBottom_toBottomOf="@+id/btnLoop"
@@ -316,7 +316,7 @@
             app:layout_constraintBottom_toTopOf="@+id/vBottomDivider"
             app:layout_constraintEnd_toStartOf="@+id/tvLblFrequency"
             android:importantForAccessibility="yes"
-            android:contentDescription="@string/home_signal_subtitle"
+            android:contentDescription="@{@string/subtitle + @string/home_signal}"
             app:layout_constraintStart_toStartOf="parent" />
 
         <androidx.appcompat.widget.AppCompatTextView
@@ -355,7 +355,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             android:nextFocusUp="@id/tvFrequency"
             android:importantForAccessibility="yes"
-            android:contentDescription="@string/home_frequency_subtitle"
+            android:contentDescription="@{@string/subtitle + @string/home_frequency}"
             android:accessibilityTraversalBefore="@id/tvFrequency"
             app:layout_constraintStart_toEndOf="@+id/tvLblSignal" />
 

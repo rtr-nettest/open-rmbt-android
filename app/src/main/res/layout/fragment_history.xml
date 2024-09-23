@@ -26,7 +26,7 @@
             android:textColor="@color/text_dark_gray"
             app:layout_constraintEnd_toEndOf="parent"
             android:paddingStart="@dimen/padding_large"
-            android:contentDescription="@string/history_title"
+            android:contentDescription="@{@string/title + @string/menu_button_history}"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
@@ -95,7 +95,7 @@
             android:layout_marginStart="@dimen/margin_large"
             android:layout_marginTop="@dimen/margin_medium"
             android:text="@string/label_filter"
-            android:contentDescription="@string/history_subtitle_filter"
+            android:contentDescription="@{@string/subtitle + @string/label_filter}"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/viewDivider"
             app:visibleOrGone="@{!state.isActiveFiltersEmpty}" />

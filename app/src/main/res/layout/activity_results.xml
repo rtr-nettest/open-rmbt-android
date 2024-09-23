@@ -376,7 +376,7 @@
                         android:paddingStart="@dimen/margin_large"
                         android:paddingEnd="@dimen/margin_large"
                         android:text="@string/results_other_details"
-                        android:contentDescription="@string/content_subtitle_further_details"
+                        android:contentDescription="@{@string/subtitle + @string/results_other_details}"
                         android:textColor="@color/text_gray_transparency_60"
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toBottomOf="@+id/graphContainer"

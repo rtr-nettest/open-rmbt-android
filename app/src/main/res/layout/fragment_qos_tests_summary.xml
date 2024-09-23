@@ -24,7 +24,7 @@
             android:layout_height="wrap_content"
             android:textColor="@color/text_dark_gray"
             android:padding="@dimen/padding_large"
-            android:contentDescription="@string/content_subtitle_information"
+            android:contentDescription="@{@string/subtitle + @string/label_information}"
             android:text="@string/label_information"
             />
 
@@ -44,7 +44,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textColor="@color/text_dark_gray"
-            android:contentDescription="@string/content_subtitle_tests"
+            android:contentDescription="@{@string/subtitle + @string/label_tests}"
             android:padding="@dimen/padding_large"
             android:text="@string/label_tests"
              />

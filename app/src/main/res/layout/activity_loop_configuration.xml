@@ -32,7 +32,7 @@
             android:layout_height="wrap_content"
             android:gravity="center"
             android:text="@string/title_loop_mode"
-            android:contentDescription="@string/title_loop_mode_content_desc"
+            android:contentDescription="@{@string/title + @string/title_loop_mode}"
             android:textColor="@color/text_dark_gray"
             app:layout_constraintBottom_toBottomOf="@id/icon_close"
             app:layout_constraintEnd_toEndOf="parent"

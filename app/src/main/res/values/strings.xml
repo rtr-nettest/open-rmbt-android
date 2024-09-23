@@ -482,7 +482,8 @@
     <string name="history_list_header_ping_units">History list header: ping units: milliseconds </string>
 
     <string name="home_start_measurement">Start measurement</string>
-    <string name="title_app_name">Title: RTR-Netztest</string>
+    <string name="title">Title: </string>
+    <string name="subtitle">Subtitle: </string>
 
     <string name="home_signal_measurement_toggle_on">Signal measurement toggle on</string>
     <string name="home_signal_measurement_toggle_off">Signal measurement toggle off</string>
@@ -496,19 +497,14 @@
     <string name="ipv6_no_nat">IP version 6: no NAT</string>
     <string name="ipv6">IP version 6: NAT</string>
 
-    <string name="home_signal_subtitle">Subtitle: Signal</string>
-    <string name="home_frequency_subtitle">Subtitle: Frequency</string>
     <string name="bottom_navigation_area">Bottom navigation area</string>
-    <string name="history_title">Title: History</string>
-    <string name="history_subtitle_filter">Subtitle: History filter</string>
     <string name="active_history_filters_container">History filters container</string>
     <string name="history_list_header_container">History list header container</string>
     <string name="remove_filter">Remove filter</string>
 
-    <string name="title_loop_mode_content_desc">Title: Loop mode</string>
     <string name="share_result">Share result</string>
-    <string name="test_result_from">"Title: Test result from: "</string>
-    <string name="content_subtitle_further_details">Subtitle: Further details</string>
+    <string name="test_result_from">"Test result from: "</string>
+
     <string name="classification_undefined">Classification: none</string>
     <string name="classification_bad">Classification: bad</string>
     <string name="classification_normal">Classification: normal</string>
@@ -516,10 +512,5 @@
     <string name="classification_excellent">Classification: excellent</string>
     <string name="title_test_details">Test details</string>
 
-    <string name="title">Title:</string>
-    <string name="content_subtitle_information">Subtitle: Information</string>
-    <string name="content_subtitle_tests">Subtitle: Tests</string>
-    <string name="content_subtitle_description">Subtitle: Description</string>
-    <string name="test_result_status_subtitle">Subtitle: Test result status:</string>
-
+    <string name="test_result_status">Test result status:</string>
 </resources>
