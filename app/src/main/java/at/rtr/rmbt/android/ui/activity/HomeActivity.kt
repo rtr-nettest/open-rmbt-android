@@ -105,6 +105,11 @@ class HomeActivity : BaseActivity() {
             }
         }
 
+        binding.navView.menu.findItem(R.id.navigation_home).setContentDescription(getString(R.string.home_home))
+        binding.navView.menu.findItem(R.id.navigation_history).setContentDescription(getString(R.string.home_history))
+        binding.navView.menu.findItem(R.id.navigation_statistics).setContentDescription(getString(R.string.home_statistics))
+        binding.navView.menu.findItem(R.id.navigation_map).setContentDescription(getString(R.string.home_map))
+
         configCheckViewModel.incorrectValuesLiveData.listen(this) {
             ConfigCheckDialog.show(supportFragmentManager, it)
         }
