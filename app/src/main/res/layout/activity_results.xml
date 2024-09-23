@@ -123,10 +123,12 @@
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toBottomOf="@+id/localResultsMessage"
+                        android:nextFocusRight="@id/fullscreen_fab"
                         app:visibleOrGone="@{state.testResult.longitude != null &amp;&amp; state.testResult.latitude != null &amp;&amp; state.playServicesAvailable == true}">
 
                         <at.rtr.rmbt.android.map.MapViewWrapperImpl
                             android:id="@+id/map"
+                            android:nextFocusRight="@id/fullscreen_fab"
                             android:layout_width="match_parent"
                             android:layout_height="match_parent" />
 
@@ -138,7 +140,7 @@
                             android:layout_marginTop="@dimen/padding_medium"
                             android:layout_marginEnd="@dimen/padding_medium"
                             android:backgroundTint="@android:color/white"
-                            android:contentDescription="@null"
+                            android:accessibilityTraversalAfter="@id/map"
                             android:src="@drawable/ic_map_fullscreen"
                             app:borderWidth="0dp"
                             app:fabSize="mini" />
