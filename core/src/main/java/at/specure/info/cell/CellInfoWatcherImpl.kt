@@ -200,7 +200,8 @@ class CellInfoWatcherImpl(
                             ),
 //                            primaryCellsCorrected[0].mobileNetworkType(netMonster)
                             _networkTypes[primaryCellsCorrected[0].subscriptionId] ?: MobileNetworkType.UNKNOWN,
-                            dataSubscriptionId
+                            dataSubscriptionId,
+                            subscriptionsCount = subscriptionManager.activeSubscriptionInfoCount
                         )
                         _signalStrengthInfo =
                             primaryCellsCorrected[0].signal?.toSignalStrengthInfo(System.nanoTime())
@@ -214,7 +215,8 @@ class CellInfoWatcherImpl(
                                 ),
                                 NetMonsterFactory.getTelephony(context, it.subscriptionId),
                                 _networkTypes[it.subscriptionId] ?: MobileNetworkType.UNKNOWN,
-                                dataSubscriptionId
+                                dataSubscriptionId,
+                                subscriptionsCount = subscriptionManager.activeSubscriptionInfoCount
                             )
                             (_secondary5GActiveCellNetworks as MutableList).add(cellInfo5G)
                             val signal5G = it.signal?.toSignalStrengthInfo(System.nanoTime())
@@ -231,7 +233,8 @@ class CellInfoWatcherImpl(
                                 ),
                                 NetMonsterFactory.getTelephony(context, it.subscriptionId),
                                 _networkTypes[it.subscriptionId] ?: MobileNetworkType.UNKNOWN,
-                                dataSubscriptionId
+                                dataSubscriptionId,
+                                subscriptionsCount = subscriptionManager.activeSubscriptionInfoCount
                             )
                             (_secondaryActiveCellNetworks as MutableList).add(cellInfoSecondary)
                             val signalSecondary = it.signal?.toSignalStrengthInfo(System.nanoTime())

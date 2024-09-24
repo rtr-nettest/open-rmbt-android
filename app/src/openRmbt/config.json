@@ -419,6 +419,11 @@
       "name": "COVERAGE_MODE_ENABLED",
       "value": "false",
       "visible": false
+    },
+    {
+      "name": "SHOULD_CHECK_ACTIVE_SIMS_COUNT",
+      "value": "true",
+      "visible": false
     }
   ]
 }

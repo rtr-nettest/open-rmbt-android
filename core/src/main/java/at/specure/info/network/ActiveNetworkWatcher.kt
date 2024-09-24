@@ -32,6 +32,7 @@ import at.specure.info.wifi.WifiInfoWatcher
 import at.specure.location.LocationState
 import at.specure.location.LocationStateWatcher
 import at.specure.util.filterOnlyPrimaryActiveDataCell
+import at.specure.util.isDualSim
 import at.specure.util.isFineLocationPermitted
 import at.specure.util.isLocationServiceEnabled
 import at.specure.util.isReadPhoneStatePermitted
@@ -99,6 +100,9 @@ class ActiveNetworkWatcher(
     private val connectivityCallback = object : ConnectivityWatcher.ConnectivityChangeListener {
 
         override fun onConnectivityChanged(connectivityInfo: ConnectivityInfo?, network: Network?) {
+
+
+
             lastConnectivityInfo = connectivityInfo
             Timber.d("NIFU: \n\n $connectivityInfo \n\n $network")
             handler?.removeCallbacks(signalUpdateRunnable)
@@ -141,6 +145,16 @@ class ActiveNetworkWatcher(
                 var cells: List<ICell>? = null
                 var activeCellNetwork: CellNetworkInfo? = null
                 cells = netMonster.getCells()
+
+
+                Timber.d("telephonyManager - supportedModemCount: ${telephonyManager.supportedModemCount}")
+                Timber.d("telephonyManager - ActiveModemCount: ${telephonyManager.activeModemCount}")
+                Timber.d("subscription manager - active subscriptions count Max: ${subscriptionManager.activeSubscriptionInfoCountMax}")
+
+                // all of the methods above returns 2 on samsung dual sim no matter of how many sims are activated or inserted so only this is viable but it can return 1 when signal is lost
+                Timber.d("subscription manager - active subscriptions count: ${subscriptionManager.activeSubscriptionInfoCount}")
+
+                val simCount = subscriptionManager.activeSubscriptionInfoCount
 
                 val dataSubscriptionId = subscriptionManager.getCurrentDataSubscriptionId()
 
@@ -189,7 +203,8 @@ class ActiveNetworkWatcher(
                             primaryCellsCorrected[0].subscriptionId
                         ),
                         primaryCellsCorrected[0].mobileNetworkType(netMonster),
-                        dataSubscriptionId
+                        dataSubscriptionId,
+                        simCount
                     )
                     // more than one primary cell for data subscription
                 } else {

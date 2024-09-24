@@ -436,4 +436,10 @@ interface Config {
      * When this flag is set to true, coverage mode is enabled
      */
     var coverageModeEnabled: Boolean
+
+    /**
+     * When this flag is set to true, app checks if only one sim is active before signal measurement is activated
+     */
+    var shouldCheckActiveSimsCount: Boolean
+
 }

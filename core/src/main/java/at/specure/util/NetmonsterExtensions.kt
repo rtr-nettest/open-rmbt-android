@@ -331,7 +331,8 @@ fun ICell.toCellNetworkInfo(
     dataTelephonyManager: TelephonyManager?,
     telephonyManagerNetmonster: ITelephonyManagerCompat,
     mobileNetworkType: MobileNetworkType,
-    dataSubscriptionId: Int
+    dataSubscriptionId: Int,
+    subscriptionsCount: Int
 ): CellNetworkInfo {
     return CellNetworkInfo(
         providerName = dataTelephonyManager?.networkOperatorName
@@ -357,7 +358,8 @@ fun ICell.toCellNetworkInfo(
         rawCellInfo = this,
         isPrimaryDataSubscription = PrimaryDataSubscription.resolvePrimaryDataSubscriptionID(dataSubscriptionId, this.subscriptionId),
         capabilitiesRaw = "HARDCODED Capabilities netmonster ${NetworkCapabilities.TRANSPORT_CELLULAR} networkType = $mobileNetworkType",
-        cellState = resolveConnectionState()
+        cellState = resolveConnectionState(),
+        subscriptionsCount = subscriptionsCount
     )
 }
 

@@ -513,4 +513,9 @@
     <string name="title_test_details">Test details</string>
 
     <string name="test_result_status">Test result status:</string>
+    <string name="more_sims_active_dialog_title">Dual SIM active</string>
+    <string name="more_sims_active_dialog_text">Signal measurement only supports single SIM. Please deactivate second SIM.</string>
+    <string name="confirm">Confirm</string>
+    <string name="wrong_network_type_active_dialog_title">Not on mobile</string>
+    <string name="wrong_network_type_active_dialog_text">Please deactivate Wifi (or some other non-mobile connection)</string>
 </resources>
