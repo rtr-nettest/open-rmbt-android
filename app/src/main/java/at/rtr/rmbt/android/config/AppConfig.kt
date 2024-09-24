@@ -452,6 +452,8 @@ class AppConfig @Inject constructor(context: Context, private val serverSettings
         get() = getBoolean(BuildConfig.COVERAGE_MODE_ENABLED)
         set(value) = setBoolean(BuildConfig.COVERAGE_MODE_ENABLED, value)
 
-
+    override var shouldCheckActiveSimsCount: Boolean
+        get() = getBoolean(BuildConfig.SHOULD_CHECK_ACTIVE_SIMS_COUNT)
+        set(value) = setBoolean(BuildConfig.SHOULD_CHECK_ACTIVE_SIMS_COUNT, value)
 
 }

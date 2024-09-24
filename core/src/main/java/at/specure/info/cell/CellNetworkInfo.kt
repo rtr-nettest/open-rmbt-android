@@ -106,6 +106,8 @@ class CellNetworkInfo(
 
     val cellState: String?,
 
+    val subscriptionsCount: Int,
+
     override val capabilitiesRaw: String?
 ) :
     NetworkInfo(TransportType.CELLULAR, cellUUID, capabilitiesRaw) {
@@ -132,7 +134,8 @@ class CellNetworkInfo(
         areaCode = null,
         isPrimaryDataSubscription = PrimaryDataSubscription.UNKNOWN,
         capabilitiesRaw = "HARDCODED Capabilities 1: ${NetworkCapabilities.TRANSPORT_CELLULAR} networkType = ${MobileNetworkType.UNKNOWN}",
-        cellState = null
+        cellState = null,
+        subscriptionsCount = 0
     )
 
     override val name: String?

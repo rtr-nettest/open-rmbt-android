@@ -16,6 +16,7 @@ import at.specure.data.MeasurementServers
 import at.specure.data.repository.NewsRepository
 import at.specure.data.repository.SettingsRepository
 import at.specure.info.TransportType
+import at.specure.info.cell.CellNetworkInfo
 import at.specure.info.connectivity.ConnectivityInfoLiveData
 import at.specure.info.ip.IpV4ChangeLiveData
 import at.specure.info.ip.IpV6ChangeLiveData
@@ -202,4 +203,17 @@ class HomeViewModel @Inject constructor(
         // allow cell infos is expert mode is enabled or if always enabled by configuration
         return ((isExpertModeOn || isalwaysAllowCellInfosOn ) && (state.activeNetworkInfo.get()?.networkInfo?.type == TransportType.WIFI || state.activeNetworkInfo.get()?.networkInfo?.type == TransportType.CELLULAR))
     }
+
+    fun isMobileNetworkActive(): Boolean {
+        return state.activeNetworkInfo.get()?.networkInfo?.type == TransportType.CELLULAR
+    }
+
+    fun isOnlyOneSimActive(): Boolean {
+        return if (state.activeNetworkInfo.get()?.networkInfo is CellNetworkInfo && appConfig.shouldCheckActiveSimsCount) {
+            (state.activeNetworkInfo.get()?.networkInfo as CellNetworkInfo).subscriptionsCount <= 1
+        } else {
+            false
+        }
+    }
+
 }

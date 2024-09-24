@@ -326,6 +326,7 @@
             android:layout_height="wrap_content"
             android:padding="@dimen/padding_large"
             android:src="@drawable/ic_map_dialog_close"
+            android:contentDescription="@string/content_label_close"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 

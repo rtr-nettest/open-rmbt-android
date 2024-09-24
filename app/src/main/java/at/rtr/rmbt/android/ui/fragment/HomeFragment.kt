@@ -12,6 +12,7 @@ import android.os.Looper
 import android.provider.Settings
 import android.view.View
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.content.ContextCompat
 import androidx.core.content.ContextCompat.checkSelfPermission
 import at.rmbt.client.control.IpProtocol
 import at.rtr.rmbt.android.R
@@ -125,15 +126,11 @@ class HomeFragment : BaseFragment() {
 
         binding.btnLocation.setOnClickListener {
 
-            context?.let {
-                homeViewModel.state.isLocationEnabled.get()?.let {
-                    when (it) {
-                        LocationState.ENABLED -> LocationInfoDialog.instance().show(activity)
-                        LocationState.DISABLED_APP -> OpenLocationPermissionDialog.instance().show(activity)
-                        LocationState.DISABLED_DEVICE -> OpenGpsSettingDialog.instance().show(activity)
-                    }
-                }
+            val action = {
+                LocationInfoDialog.instance().show(activity)
             }
+
+            doGPSRelatedActionOrShowProblemDialog(action)
         }
 
         binding.ivSignalLevel.setOnClickListener {
@@ -156,8 +153,11 @@ class HomeFragment : BaseFragment() {
         binding.btnUpload.setOnClickListener {
             homeViewModel.activeSignalMeasurementLiveData.value?.let { active ->
                 if (!active) {
-                    val intent = SignalMeasurementTermsActivity.start(requireContext())
-                    getSignalMeasurementResult.launch(intent)
+                    val checksPassed = isSignalMeasurementPrechecksPassed()
+                    if (checksPassed) {
+                        val intent = SignalMeasurementTermsActivity.start(requireContext())
+                        getSignalMeasurementResult.launch(intent)
+                    }
                 } else {
                     homeViewModel.toggleSignalMeasurementService()
                 }
@@ -220,6 +220,30 @@ class HomeFragment : BaseFragment() {
         }
     }
 
+    private fun doGPSRelatedActionOrShowProblemDialog(action: () -> Unit): Boolean {
+        context?.let {
+            homeViewModel.state.isLocationEnabled.get()?.let {
+                when (it) {
+                    LocationState.ENABLED -> {
+                        action
+                        return true
+                    }
+                    LocationState.DISABLED_APP -> {
+                        OpenLocationPermissionDialog.instance()
+                            .show(activity)
+                        return false
+                    }
+
+                    LocationState.DISABLED_DEVICE -> {
+                        OpenGpsSettingDialog.instance().show(activity)
+                        return false
+                    }
+                }
+            }
+        }
+        return false
+    }
+
     override fun onResume() {
         super.onResume()
         homeViewModel.signalStrengthLiveData.listen(this) {
@@ -253,6 +277,55 @@ class HomeFragment : BaseFragment() {
         }
         checkInformationAvailability()
         homeViewModel.state.informationAccessProblem.get()?.let { updateProblemUI(it) }
+    }
+
+    private fun isSignalMeasurementPrechecksPassed(): Boolean {
+        val isMobileNetworkActive = homeViewModel.isMobileNetworkActive()
+        val isOnlyOneSimActive = homeViewModel.isOnlyOneSimActive()
+        val isGPSEnabledAndPermitted = doGPSRelatedActionOrShowProblemDialog {}
+
+        if (!isGPSEnabledAndPermitted) {
+            return false
+        }
+
+        if (!isMobileNetworkActive) {
+            showWrongNetworkTypeDialog()
+            return false
+        }
+
+        if (!isOnlyOneSimActive) {
+            showMoreSimsActiveDialog()
+            return false
+        }
+
+        return true
+    }
+
+    private fun showMoreSimsActiveDialog() {
+        context?.let {
+            val title = ContextCompat.getString(it, R.string.more_sims_active_dialog_title)
+            val text = ContextCompat.getString(it, R.string.more_sims_active_dialog_text)
+            SimpleDialog.Builder()
+                .messageText(text)
+                .titleText(title)
+                .positiveText(R.string.confirm)
+                .cancelable(false)
+                .show(this.childFragmentManager, CODE_DIALOG_MORE_SIMS)
+        }
+    }
+
+    private fun showWrongNetworkTypeDialog() {
+        context?.let {
+            val title = ContextCompat.getString(it, R.string.wrong_network_type_active_dialog_title)
+            val text = ContextCompat.getString(it, R.string.wrong_network_type_active_dialog_text)
+            SimpleDialog.Builder()
+                .messageText(text)
+                .titleText(title)
+                .positiveText(R.string.confirm)
+                .cancelable(false)
+                .show(this.childFragmentManager, CODE_DIALOG_MORE_SIMS)
+        }
+
     }
 
     private fun checkInformationAvailability() {
@@ -408,5 +481,6 @@ class HomeFragment : BaseFragment() {
     companion object {
         private const val INFO_WINDOW_TIME_MS: Long = 2000
         private const val CODE_DIALOG_NEWS = 14
+        private const val CODE_DIALOG_MORE_SIMS = 15
     }
 }
