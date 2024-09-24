@@ -20,6 +20,7 @@
             android:layout_width="0dp"
             android:layout_height="?attr/actionBarSize"
             android:padding="@dimen/margin_large"
+            android:contentDescription="@string/content_label_close"
             android:src="@drawable/ic_close"
             app:layout_constraintDimensionRatio="H,1:1"
             app:layout_constraintStart_toStartOf="parent"
