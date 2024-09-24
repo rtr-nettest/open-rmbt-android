@@ -168,7 +168,15 @@ class ActiveNetworkWatcher(
                 var primaryCellsCorrected = mutableListOf<ICell>()
                 when (primaryCells?.size) {
                     2 -> {
-                        if (primaryCells[0] is CellNr && primaryCells[0].mobileNetworkType(
+                        if (primaryCells[0] is CellNr && (primaryCells[0].mobileNetworkType(
+                                netMonster
+                            ) == MobileNetworkType.NR_SA)) {
+                            primaryCellsCorrected.add(primaryCells[0])
+                        } else if (primaryCells[1] is CellNr && (primaryCells[1].mobileNetworkType(
+                                netMonster
+                            ) == MobileNetworkType.NR_SA)) {
+                            primaryCellsCorrected.add(primaryCells[1])
+                        } else if (primaryCells[0] is CellNr && primaryCells[0].mobileNetworkType(
                                 netMonster
                             ) == MobileNetworkType.NR_NSA && primaryCells[1] is CellLte
                         ) {
