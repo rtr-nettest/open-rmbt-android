@@ -27,7 +27,7 @@ buildscript {
                 dagger              : '2.51.1',
                 timber              : '5.0.1',
                 switch_button       : '0.0.3@aar',
-                google_services     : '18.2.0',
+                google_services     : '19.0.0',
                 location_services   : '21.2.0',
                 crashlytics         : '18.6.4',
                 retrofit            : '2.11.0',

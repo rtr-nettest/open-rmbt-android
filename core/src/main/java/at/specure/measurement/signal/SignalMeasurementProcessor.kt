@@ -54,6 +54,7 @@ import java.util.Timer
 import java.util.TimerTask
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
+import javax.inject.Named
 import javax.inject.Singleton
 import kotlin.coroutines.EmptyCoroutineContext
 
@@ -66,7 +67,7 @@ class SignalMeasurementProcessor @Inject constructor(
     private val context: Context,
     private val config: Config,
     private val repository: TestDataRepository,
-    private val locationWatcher: LocationWatcher,
+    @Named("GPSAndFusedLocationProvider") private val locationWatcher: LocationWatcher,
     private val signalStrengthLiveData: SignalStrengthLiveData,
     private val signalStrengthWatcher: SignalStrengthWatcher,
     private val subscriptionManager: SubscriptionManager,

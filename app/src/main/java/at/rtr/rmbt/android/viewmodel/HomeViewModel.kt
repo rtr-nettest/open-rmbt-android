@@ -22,6 +22,7 @@ import at.specure.info.ip.IpV4ChangeLiveData
 import at.specure.info.ip.IpV6ChangeLiveData
 import at.specure.info.network.ActiveNetworkLiveData
 import at.specure.info.strength.SignalStrengthLiveData
+import at.specure.location.LocationInfo
 import at.specure.location.LocationState
 import at.specure.location.LocationWatcher
 import at.specure.measurement.signal.SignalMeasurementProducer
@@ -33,9 +34,10 @@ import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import javax.inject.Inject
+import javax.inject.Named
 
 class HomeViewModel @Inject constructor(
-    private val locationWatcher: LocationWatcher,
+    @Named("GPSAndFusedLocationProvider") private val locationWatcher: LocationWatcher,
     val signalStrengthLiveData: SignalStrengthLiveData,
     connectivityInfoLiveData: ConnectivityInfoLiveData,
     val activeNetworkLiveData: ActiveNetworkLiveData,
@@ -59,6 +61,9 @@ class HomeViewModel @Inject constructor(
 
     val locationStateLiveData: LiveData<LocationState?>
         get() = locationWatcher.stateLiveData
+
+    val locationLiveData: LiveData<LocationInfo?>
+        get() = locationWatcher.liveData
 
     private var producer: SignalMeasurementProducer? = null
     private var _activeMeasurementSource: LiveData<Boolean>? = null

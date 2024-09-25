@@ -59,6 +59,7 @@ import cz.mroczis.netmonster.core.INetMonster
 import cz.mroczis.netmonster.core.factory.NetMonsterFactory
 import dagger.Module
 import dagger.Provides
+import javax.inject.Named
 import javax.inject.Singleton
 
 /**
@@ -137,7 +138,7 @@ class CoreModule {
         connectivityManager: ConnectivityManager,
         connectivityWatcher: ConnectivityWatcher,
         wifiInfoWatcher: WifiInfoWatcher,
-        locationWatcher: LocationWatcher,
+        @Named("GPSAndNetworkLocationProvider") locationWatcher: LocationWatcher,
         captivePortal: CaptivePortal
     ): ActiveNetworkWatcher =
         ActiveNetworkWatcher(

@@ -3,7 +3,10 @@ package at.rtr.rmbt.android.ui.viewstate
 import android.os.Bundle
 import androidx.databinding.ObservableBoolean
 import androidx.databinding.ObservableField
+import androidx.lifecycle.MutableLiveData
 import at.rtr.rmbt.android.config.AppConfig
+import at.rtr.rmbt.android.map.wrapper.LatLngW
+import at.rtr.rmbt.android.ui.fragment.START_ZOOM_LEVEL
 import at.rtr.rmbt.android.util.InfoWindowStatus
 import at.rtr.rmbt.android.util.InformationAccessProblem
 import at.rtr.rmbt.android.util.addOnPropertyChanged
@@ -13,8 +16,17 @@ import at.specure.info.ip.IpInfo
 import at.specure.info.network.DetailedNetworkInfo
 import at.specure.info.strength.SignalStrengthInfo
 import at.specure.location.LocationState
+import java.lang.Boolean.getBoolean
 
 private const val KEY_IAP = "KEY_IAP"
+private const val KEY_ZOOM = "KEY_ZOOM"
+
+private const val KEY_LATITUDE = "KEY_LATITUDE"
+private const val KEY_LONGITUDE = "KEY_LONGITUDE"
+
+private const val KEY_LOCATION_CHANGED = "KEY_LOCATION_CHANGED"
+private const val KEY_CAMERA_POSITION_LAT = "KEY_CAMERA_POSITION_LAT"
+private const val KEY_CAMERA_POSITION_LON = "KEY_CAMERA_POSITION_LON"
 
 class HomeViewState(
     private val config: AppConfig,
@@ -37,6 +49,10 @@ class HomeViewState(
     val coverageModeIsEnabled = ObservableField(config.coverageModeEnabled)
     val selectedMeasurementServer = ObservableField(measurementServers.selectedMeasurementServer)
     val informationAccessProblem = ObservableField(InformationAccessProblem.NO_PROBLEM)
+    val locationChanged = ObservableBoolean(false)
+    var coordinatesLiveData: MutableLiveData<LatLngW> = MutableLiveData()
+    var cameraPositionLiveData: MutableLiveData<LatLngW> = MutableLiveData()
+    var zoom: Float = START_ZOOM_LEVEL
 
     init {
         isLoopModeActive.addOnPropertyChanged {
@@ -45,16 +61,25 @@ class HomeViewState(
     }
 
     override fun onRestoreState(bundle: Bundle?) {
-        bundle?.let {
-            informationAccessProblem.set(InformationAccessProblem.values()[(it.getInt(KEY_IAP))])
+        bundle?.run {
+            informationAccessProblem.set(InformationAccessProblem.values()[(getInt(KEY_IAP))])
+            locationChanged.set(getBoolean(KEY_LOCATION_CHANGED))
+            coordinatesLiveData.postValue(LatLngW(getDouble(KEY_LATITUDE), getDouble(KEY_LONGITUDE)))
+            zoom = getFloat(KEY_ZOOM)
+            cameraPositionLiveData.postValue(LatLngW(getDouble(KEY_CAMERA_POSITION_LAT), getDouble(KEY_CAMERA_POSITION_LON)))
         }
     }
 
     override fun onSaveState(bundle: Bundle?) {
-        bundle?.putInt(
-            KEY_IAP,
-            informationAccessProblem.get()?.ordinal ?: InformationAccessProblem.NO_PROBLEM.ordinal
-        )
+        bundle?.apply {
+            putInt(KEY_IAP, informationAccessProblem.get()?.ordinal ?: InformationAccessProblem.NO_PROBLEM.ordinal)
+            putBoolean(KEY_LOCATION_CHANGED, locationChanged.get())
+            coordinatesLiveData.value?.latitude?.let { putDouble(KEY_LATITUDE, it) }
+            coordinatesLiveData.value?.longitude?.let { putDouble(KEY_LONGITUDE, it) }
+            putFloat(KEY_ZOOM, zoom)
+            cameraPositionLiveData.value?.longitude?.let { putDouble(KEY_CAMERA_POSITION_LON, it) }
+            cameraPositionLiveData.value?.latitude?.let { putDouble(KEY_CAMERA_POSITION_LAT, it) }
+        }
     }
 
     fun checkConfig() {

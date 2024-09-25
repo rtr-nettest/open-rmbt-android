@@ -62,6 +62,7 @@ import timber.log.Timber
 import java.util.Timer
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
+import javax.inject.Named
 import kotlin.concurrent.timerTask
 import kotlin.coroutines.EmptyCoroutineContext
 
@@ -135,6 +136,7 @@ class MeasurementService : CustomLifecycleService(), CoroutineScope {
     lateinit var connectivityManager: ConnectivityManager
 
     @Inject
+    @Named("GPSAndNetworkLocationProvider")
     lateinit var locationWatcher: LocationWatcher
 
     private val producer: Producer by lazy { Producer() }

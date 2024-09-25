@@ -45,6 +45,7 @@ import at.specure.util.ActiveFilter
 import at.specure.util.FilterValuesStorage
 import dagger.Module
 import dagger.Provides
+import javax.inject.Named
 import javax.inject.Singleton
 
 /**
@@ -81,7 +82,7 @@ class DatabaseModule {
         context: Context,
         config: Config,
         clientUUID: ClientUUID,
-        locationWatcher: LocationWatcher,
+        @Named("GPSAndNetworkLocationProvider") locationWatcher: LocationWatcher,
         signalStrengthWatcher: SignalStrengthWatcher,
         client: IpClient
     ): IpCheckRepository = IpCheckRepositoryImpl(

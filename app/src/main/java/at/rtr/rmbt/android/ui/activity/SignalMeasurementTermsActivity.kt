@@ -25,6 +25,7 @@ class SignalMeasurementTermsActivity : BaseActivity() {
 
         binding.accept.setOnClickListener {
             setResult(Activity.RESULT_OK)
+            startActivity(Intent(this, SignalMeasurementActivity::class.java))
             finish()
         }
     }

@@ -9,6 +9,7 @@ import at.specure.info.strength.SignalStrengthLiveData
 import at.specure.location.LocationWatcher
 import at.specure.util.permission.PermissionsWatcher
 import javax.inject.Inject
+import javax.inject.Named
 
 class NetworkDetailsViewModel @Inject constructor(
     val connectivityInfoLiveData: ConnectivityInfoLiveData,
@@ -17,7 +18,7 @@ class NetworkDetailsViewModel @Inject constructor(
     val signalStrengthLiveData: SignalStrengthLiveData,
     val ipV4ChangeLiveData: IpV4ChangeLiveData,
     val ipV6ChangeLiveData: IpV6ChangeLiveData,
-    val locationProducer: LocationWatcher
+    @Named("GPSAndNetworkLocationProvider") val locationProducer: LocationWatcher
 ) : BaseViewModel() {
 
     val state = NetworkDetailsViewState()

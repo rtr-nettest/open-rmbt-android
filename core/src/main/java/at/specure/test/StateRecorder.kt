@@ -57,13 +57,14 @@ import java.util.Collections
 import java.util.concurrent.CancellationException
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
+import javax.inject.Named
 import kotlin.math.floor
 
 class StateRecorder @Inject constructor(
     private val context: Context,
     private val netmonster: INetMonster,
     private val repository: TestDataRepository,
-    private val locationWatcher: LocationWatcher,
+    @Named("GPSAndFusedLocationProvider") private val locationWatcher: LocationWatcher,
     private val signalStrengthLiveData: SignalStrengthLiveData,
     private val signalStrengthWatcher: SignalStrengthWatcher,
     private val config: Config,

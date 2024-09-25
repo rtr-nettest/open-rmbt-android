@@ -48,8 +48,8 @@ class HomeFragment : BaseFragment() {
         registerForActivityResult(
             ActivityResultContracts.StartActivityForResult()) {
             if (it.resultCode == Activity.RESULT_OK) {
-                homeViewModel.toggleSignalMeasurementService()
-                requireContext().toast(R.string.toast_signal_measurement_enabled)
+//                homeViewModel.toggleSignalMeasurementService()
+//                requireContext().toast(R.string.toast_signal_measurement_enabled)
             }
         }
 
