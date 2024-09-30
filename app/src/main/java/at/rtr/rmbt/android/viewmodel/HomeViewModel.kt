@@ -99,6 +99,7 @@ class HomeViewModel @Inject constructor(
     private val serviceConnection = object : ServiceConnection {
 
         override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
+            Timber.d("Signal measurement service connected")
             producer = service as SignalMeasurementProducer
 
             if (producer != null && toggleService) {
@@ -122,6 +123,7 @@ class HomeViewModel @Inject constructor(
         }
 
         override fun onServiceDisconnected(name: ComponentName?) {
+            Timber.d("Signal measurement service disconnected")
             _activeMeasurementSource?.let {
                 _activeMeasurementMediator.removeSource(it)
             }

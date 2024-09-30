@@ -125,9 +125,6 @@ class SignalMeasurementActivity : BaseActivity(), OnMapReadyCallback {
                 }
             }
         }
-
-        // TODO: start signal measurement
-        viewModel.startSignalMeasurement(SignalMeasurementType.DEDICATED)
     }
 
     private fun showWarningButton() {
@@ -168,6 +165,12 @@ class SignalMeasurementActivity : BaseActivity(), OnMapReadyCallback {
     override fun onStart() {
         super.onStart()
         viewModel.attach(this)
+        lifecycleScope.launch {
+            // TODO: maybe a little improve and instead of delay add state variable which listens on onServiceConnected in homeViewModel and start it there, but drawback is that we need to know when we want to continue there
+            delay(1000)
+            Timber.d("Starting signal measurement")
+            viewModel.startSignalMeasurement(SignalMeasurementType.DEDICATED)
+        }
     }
 
     override fun onStop() {
