@@ -1,7 +1,9 @@
 package at.specure.data.repository
 
+import androidx.lifecycle.LiveData
 import at.specure.data.entity.SignalMeasurementChunk
 import at.specure.data.entity.SignalMeasurementInfo
+import at.specure.data.entity.SignalMeasurementPointRecord
 import at.specure.data.entity.SignalMeasurementRecord
 import at.specure.measurement.signal.SignalMeasurementChunkReadyCallback
 import at.specure.measurement.signal.SignalMeasurementChunkResultCallback
@@ -46,4 +48,8 @@ interface SignalMeasurementRepository {
      * string -> result was sent successfully and we have uuid to compare wih old one. If it is different we must use new uuid with signal chunks.
      */
     fun sendMeasurementChunk(chunkId: String, callback: SignalMeasurementChunkResultCallback): Flow<String?>
+
+    fun saveMeasurementPointRecord(point: SignalMeasurementPointRecord)
+
+    fun loadSignalMeasurementPointRecordsForMeasurement(measurementId: String): LiveData<List<SignalMeasurementPointRecord>>
 }

@@ -1,6 +1,7 @@
 package at.specure.data.repository
 
 import android.content.Context
+import androidx.lifecycle.LiveData
 import at.rmbt.client.control.ControlServerClient
 import at.rmbt.util.exception.NoConnectionException
 import at.rmbt.util.io
@@ -10,6 +11,7 @@ import at.specure.data.RequestFilters.Companion.createRadioInfoBody
 import at.specure.data.entity.CellInfoRecord
 import at.specure.data.entity.SignalMeasurementChunk
 import at.specure.data.entity.SignalMeasurementInfo
+import at.specure.data.entity.SignalMeasurementPointRecord
 import at.specure.data.entity.SignalMeasurementRecord
 import at.specure.data.entity.SignalRecord
 import at.specure.data.entity.TestTelephonyRecord
@@ -117,6 +119,14 @@ class SignalMeasurementRepositoryImpl(
             }*/
         }
         emit(chunk)
+    }
+
+    override fun saveMeasurementPointRecord(point: SignalMeasurementPointRecord) = io {
+        dao.saveSignalMeasurementPoint(point)
+    }
+
+    override fun loadSignalMeasurementPointRecordsForMeasurement(measurementId: String): LiveData<List<SignalMeasurementPointRecord>> {
+        return dao.getSignalMeasurementPoints(measurementId)
     }
 
     override fun saveMeasurementChunk(chunk: SignalMeasurementChunk) = io {

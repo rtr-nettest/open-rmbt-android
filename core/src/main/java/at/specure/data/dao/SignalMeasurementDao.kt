@@ -1,5 +1,6 @@
 package at.specure.data.dao
 
+import androidx.lifecycle.LiveData
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
@@ -8,6 +9,7 @@ import androidx.room.Update
 import at.specure.data.Tables
 import at.specure.data.entity.SignalMeasurementChunk
 import at.specure.data.entity.SignalMeasurementInfo
+import at.specure.data.entity.SignalMeasurementPointRecord
 import at.specure.data.entity.SignalMeasurementRecord
 
 @Dao
@@ -33,4 +35,10 @@ interface SignalMeasurementDao {
 
     @Query("SELECT * FROM ${Tables.SIGNAL_MEASUREMENT_INFO} WHERE measurementId=:measurementId")
     fun getSignalMeasurementInfo(measurementId: String): SignalMeasurementInfo?
+
+    @Query("SELECT * FROM ${Tables.SIGNAL_MEASUREMENT_POINT} WHERE measurementId=:measurementId ORDER BY sequenceNumber ASC")
+    fun getSignalMeasurementPoints(measurementId: String): LiveData<List<SignalMeasurementPointRecord>>
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    fun saveSignalMeasurementPoint(point: SignalMeasurementPointRecord)
 }

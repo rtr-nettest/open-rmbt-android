@@ -24,5 +24,6 @@ object Columns {
     const val TEST_DETAILS_VALUE = "value"
 
     const val SIGNAL_MEASUREMENT_ID_PARENT_COLUMN = "id"
+    const val SIGNAL_MEASUREMENT_POINT_ID_PARENT_COLUMN = "id"
 
 }
