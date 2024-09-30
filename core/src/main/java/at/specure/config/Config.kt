@@ -442,4 +442,9 @@ interface Config {
      */
     var shouldCheckActiveSimsCount: Boolean
 
+    /**
+     * Minimum distance between latest two dots on map during the signal measurement
+     */
+    var minDistanceMetersToLogNewLocationOnMapDuringSignalMeasurement: Int
+
 }

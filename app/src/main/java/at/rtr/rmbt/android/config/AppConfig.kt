@@ -456,4 +456,8 @@ class AppConfig @Inject constructor(context: Context, private val serverSettings
         get() = getBoolean(BuildConfig.SHOULD_CHECK_ACTIVE_SIMS_COUNT)
         set(value) = setBoolean(BuildConfig.SHOULD_CHECK_ACTIVE_SIMS_COUNT, value)
 
+    override var minDistanceMetersToLogNewLocationOnMapDuringSignalMeasurement: Int
+        get() = getInt(BuildConfig.MIN_LOCATION_DISTANCE_METERS_SIGNAL_MEASUREMENT)
+        set(value) = setInt(BuildConfig.MIN_LOCATION_DISTANCE_METERS_SIGNAL_MEASUREMENT, value)
+
 }

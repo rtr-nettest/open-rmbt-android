@@ -424,6 +424,11 @@
       "name": "SHOULD_CHECK_ACTIVE_SIMS_COUNT",
       "value": "true",
       "visible": false
+    },
+    {
+      "name": "MIN_LOCATION_DISTANCE_METERS_SIGNAL_MEASUREMENT",
+      "value": "20",
+      "visible": false
     }
   ]
 }
