@@ -5,6 +5,7 @@ import timber.log.Timber
 import javax.inject.Inject
 
 private const val KEY_SIGNAL_MEASUREMENT_RUNNING = "KEY_SIGNAL_MEASUREMENT_RUNNING"
+private const val KEY_SIGNAL_MEASUREMENT_CONTINUE_LAST_SESSION = "KEY_SIGNAL_MEASUREMENT_CONTINUE_LAST_SESSION"
 
 class SignalMeasurementSettings @Inject constructor(context: Context) {
 
@@ -21,5 +22,16 @@ class SignalMeasurementSettings @Inject constructor(context: Context) {
         set(value) {
             Timber.d("Signal measurement is running set to: $value")
             preferences.edit().putBoolean(KEY_SIGNAL_MEASUREMENT_RUNNING, value).apply()
+        }
+
+    var signalMeasurementShouldContinueInLastSession: Boolean
+        get() {
+            val shouldContinue = preferences.getBoolean(KEY_SIGNAL_MEASUREMENT_CONTINUE_LAST_SESSION, false)
+            Timber.d("Signal measurement should continue in last session: $shouldContinue")
+            return shouldContinue
+        }
+        set(value) {
+            Timber.d("Signal measurement should continue in last session set to: $value")
+            preferences.edit().putBoolean(KEY_SIGNAL_MEASUREMENT_CONTINUE_LAST_SESSION, value).apply()
         }
 }

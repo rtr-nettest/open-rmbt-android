@@ -1,6 +1,8 @@
 package at.rtr.rmbt.android.ui.activity
 
 import android.Manifest
+import android.content.Context
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Color
 import android.os.Build
@@ -123,6 +125,9 @@ class SignalMeasurementActivity : BaseActivity(), OnMapReadyCallback {
                 }
             }
         }
+
+        // TODO: start signal measurement
+        viewModel.startSignalMeasurement(SignalMeasurementType.DEDICATED)
     }
 
     private fun showWarningButton() {
@@ -280,4 +285,8 @@ class SignalMeasurementActivity : BaseActivity(), OnMapReadyCallback {
         }
     }
 
+    companion object {
+
+        fun start(context: Context) = context.startActivity(Intent(context, SignalMeasurementActivity::class.java))
+    }
 }

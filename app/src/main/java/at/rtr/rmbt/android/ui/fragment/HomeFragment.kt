@@ -33,7 +33,6 @@ import at.specure.location.LocationState
 import at.specure.measurement.MeasurementService
 import at.specure.util.hasPermission
 import at.specure.util.openAppSettings
-import at.specure.util.toast
 import timber.log.Timber
 import java.lang.IndexOutOfBoundsException
 
@@ -155,8 +154,7 @@ class HomeFragment : BaseFragment() {
                 if (!active) {
                     val checksPassed = isSignalMeasurementPrechecksPassed()
                     if (checksPassed) {
-                        val intent = SignalMeasurementTermsActivity.start(requireContext())
-                        getSignalMeasurementResult.launch(intent)
+                        openSignalMeasurementTermsActivity()
                     }
                 } else {
                     homeViewModel.toggleSignalMeasurementService()
@@ -218,6 +216,21 @@ class HomeFragment : BaseFragment() {
         homeViewModel.state.informationAccessProblem.addOnPropertyChanged { problem ->
             problem.get()?.let { updateProblemUI(it) }
         }
+
+        if (homeViewModel.shouldOpenSignalMeasurementScreen()) {
+
+            homeViewModel.setSignalMeasurementShouldContinueInLastSession(true)
+            openSignalMeasurementActivity()
+        }
+    }
+
+    private fun openSignalMeasurementTermsActivity() {
+        val intent = SignalMeasurementTermsActivity.start(requireContext())
+        getSignalMeasurementResult.launch(intent)
+    }
+
+    private fun openSignalMeasurementActivity() {
+        SignalMeasurementActivity.start(requireContext())
     }
 
     private fun doGPSRelatedActionOrShowProblemDialog(action: () -> Unit): Boolean {

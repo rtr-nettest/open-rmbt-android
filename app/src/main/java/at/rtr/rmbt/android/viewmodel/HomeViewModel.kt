@@ -253,4 +253,16 @@ class HomeViewModel @Inject constructor(
         return accuracy != null && accuracy <= LOCATION_ACCURACY_THRESHOLD_METERS
     }
 
+    fun shouldOpenSignalMeasurementScreen(): Boolean {
+        return signalMeasurementSettings.signalMeasurementIsRunning
+    }
+
+    fun setSignalMeasurementShouldContinueInLastSession(shouldContinueInLastSession: Boolean) {
+        signalMeasurementSettings.signalMeasurementShouldContinueInLastSession = shouldContinueInLastSession
+    }
+
+    fun shouldSignalMeasurementContinueInLastSession(): Boolean {
+        return signalMeasurementSettings.signalMeasurementShouldContinueInLastSession
+    }
+
 }
