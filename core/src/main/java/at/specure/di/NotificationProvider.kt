@@ -16,7 +16,7 @@ interface NotificationProvider {
      * [loopModeTestsCount] count of tests that should be performed during the loop measurement
      * [stopMeasurementIntent] - intent that should be called to stop signal measurement
      */
-    fun signalMeasurementService(stopMeasurementIntent: Intent): Notification
+    fun signalMeasurementService(stopMeasurementIntent: Intent?): Notification
 
     fun measurementServiceNotification(
         progress: Int,

@@ -216,12 +216,6 @@ class HomeFragment : BaseFragment() {
         homeViewModel.state.informationAccessProblem.addOnPropertyChanged { problem ->
             problem.get()?.let { updateProblemUI(it) }
         }
-
-        if (homeViewModel.shouldOpenSignalMeasurementScreen()) {
-
-            homeViewModel.setSignalMeasurementShouldContinueInLastSession(true)
-            openSignalMeasurementActivity()
-        }
     }
 
     private fun openSignalMeasurementTermsActivity() {
@@ -290,6 +284,16 @@ class HomeFragment : BaseFragment() {
         }
         checkInformationAvailability()
         homeViewModel.state.informationAccessProblem.get()?.let { updateProblemUI(it) }
+
+        continueInSignalMeasurementIfShould()
+    }
+
+    private fun continueInSignalMeasurementIfShould() {
+        if (homeViewModel.shouldOpenSignalMeasurementScreen()) {
+
+            homeViewModel.setSignalMeasurementShouldContinueInLastSession(true)
+            openSignalMeasurementActivity()
+        }
     }
 
     private fun isSignalMeasurementPrechecksPassed(): Boolean {

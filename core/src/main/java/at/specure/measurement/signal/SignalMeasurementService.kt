@@ -110,9 +110,9 @@ class SignalMeasurementService : CustomLifecycleService() {
         isUnstoppable = false
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            startForeground(NOTIFICATION_ID, notificationProvider.signalMeasurementService(stopIntent(this)), FOREGROUND_SERVICE_TYPE_SPECIAL_USE)
+            startForeground(NOTIFICATION_ID, notificationProvider.signalMeasurementService(null), FOREGROUND_SERVICE_TYPE_SPECIAL_USE)
         } else {
-            startForeground(NOTIFICATION_ID, notificationProvider.signalMeasurementService(stopIntent(this)))
+            startForeground(NOTIFICATION_ID, notificationProvider.signalMeasurementService(null))
         }
     }
 

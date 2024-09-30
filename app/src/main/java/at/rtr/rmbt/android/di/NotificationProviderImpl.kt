@@ -172,10 +172,12 @@ class NotificationProviderImpl(private val context: Context) : NotificationProvi
         return loopCountdownNotification?.build()!!
     }
 
-    override fun signalMeasurementService(stopMeasurementIntent: Intent): Notification {
+    override fun signalMeasurementService(stopMeasurementIntent: Intent?): Notification {
         val intent = PendingIntent.getActivity(context, 0, Intent(context, HomeActivity::class.java), PendingIntent.FLAG_IMMUTABLE)
-        val actionIntent = PendingIntent.getService(context, 0, stopMeasurementIntent, PendingIntent.FLAG_IMMUTABLE)
-        val action = NotificationCompat.Action.Builder(0, context.getString(R.string.text_stop_measurement), actionIntent).build()
+        val action = stopMeasurementIntent?.let {
+            val actionIntent = PendingIntent.getService(context, 0, stopMeasurementIntent, PendingIntent.FLAG_IMMUTABLE)
+            NotificationCompat.Action.Builder(0, context.getString(R.string.text_stop_measurement), actionIntent).build()
+        }
 
         return NotificationCompat.Builder(context, measurementChannelId())
             .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
