@@ -13,6 +13,7 @@ import at.rtr.rmbt.android.config.AppConfig
 import at.rtr.rmbt.android.ui.viewstate.HomeViewState
 import at.specure.data.ClientUUID
 import at.specure.data.MeasurementServers
+import at.specure.data.SignalMeasurementSettings
 import at.specure.data.repository.NewsRepository
 import at.specure.data.repository.SettingsRepository
 import at.specure.info.TransportType
@@ -30,11 +31,15 @@ import at.specure.measurement.signal.SignalMeasurementService
 import at.specure.test.SignalMeasurementType
 import at.specure.util.permission.PermissionsWatcher
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import javax.inject.Inject
 import javax.inject.Named
+
+const val LOCATION_ACCURACY_THRESHOLD_METERS = 7f
+const val LOCATION_ACCURACY_WARNING_DIALOG_SILENCED_TIME_MILLIS = 60_000L
 
 class HomeViewModel @Inject constructor(
     @Named("GPSAndFusedLocationProvider") private val locationWatcher: LocationWatcher,
@@ -48,7 +53,8 @@ class HomeViewModel @Inject constructor(
     private val appConfig: AppConfig,
     private val newsRepository: NewsRepository,
     private val settingsRepository: SettingsRepository,
-    measurementServers: MeasurementServers
+    measurementServers: MeasurementServers,
+    private val signalMeasurementSettings: SignalMeasurementSettings
 ) : BaseViewModel() {
 
     val state = HomeViewState(appConfig, measurementServers)
@@ -164,18 +170,22 @@ class HomeViewModel @Inject constructor(
     }
 
     fun startSignalMeasurement(signalMeasurementType: SignalMeasurementType) {
+        signalMeasurementSettings.signalMeasurementIsRunning = true
         producer?.startMeasurement(false, signalMeasurementType)
     }
 
     fun stopSignalMeasurement() {
+        signalMeasurementSettings.signalMeasurementIsRunning = false
         producer?.stopMeasurement(false)
     }
 
     fun pauseSignalMeasurement() {
+        signalMeasurementSettings.signalMeasurementIsRunning = false
         producer?.pauseMeasurement(false)
     }
 
     fun resumeSignalMeasurement() {
+        signalMeasurementSettings.signalMeasurementIsRunning = true
         producer?.resumeMeasurement(false)
     }
 
@@ -219,6 +229,28 @@ class HomeViewModel @Inject constructor(
         } else {
             false
         }
+    }
+
+    fun setIsCloseDialogShown(isShown: Boolean) {
+        state.closeDialogDisplayed.set(isShown)
+    }
+
+    fun silenceLocationDialogWarning() {
+        state.locationWarningDialogSilenced.set(true)
+        launch {
+            delay(LOCATION_ACCURACY_WARNING_DIALOG_SILENCED_TIME_MILLIS)
+            state.locationWarningDialogSilenced.set(false)
+        }
+    }
+
+    fun isLocationInfoMeetingQualityCriteria(): Boolean {
+        val isNotNull = locationLiveData.value != null
+        return isNotNull && isLocationAccuracyGoodEnough()
+    }
+
+    private fun isLocationAccuracyGoodEnough(): Boolean {
+        val accuracy = locationLiveData.value?.accuracy
+        return accuracy != null && accuracy <= LOCATION_ACCURACY_THRESHOLD_METERS
     }
 
 }

@@ -518,4 +518,7 @@
     <string name="confirm">Confirm</string>
     <string name="wrong_network_type_active_dialog_title">Not on mobile</string>
     <string name="wrong_network_type_active_dialog_text">Please deactivate Wifi (or some other non-mobile connection)</string>
+    <string name="stop_signal_measurement_title">End signal measurement</string>
+    <string name="stop_signal_measurement_text">Do you want to end the measurement?</string>
+    <string name="no_gps_or_insufficient_precision">No GPS signal or GPS quality is insufficient. Please move outdoors.</string>
 </resources>
