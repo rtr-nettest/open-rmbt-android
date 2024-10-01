@@ -41,7 +41,8 @@
             android:accessibilityTraversalBefore="@id/icon_close"
             app:layout_constraintEnd_toStartOf="@id/icon_close"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintBottom_toBottomOf="@id/icon_close"
+            app:layout_constraintTop_toTopOf="@id/icon_close" />
 
         <ImageButton
             android:id="@+id/icon_close"

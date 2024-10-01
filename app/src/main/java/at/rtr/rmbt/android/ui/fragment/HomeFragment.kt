@@ -225,7 +225,7 @@ class HomeFragment : BaseFragment() {
             homeViewModel.state.isLocationEnabled.get()?.let {
                 when (it) {
                     LocationState.ENABLED -> {
-                        action
+                        action()
                         return true
                     }
                     LocationState.DISABLED_APP -> {
