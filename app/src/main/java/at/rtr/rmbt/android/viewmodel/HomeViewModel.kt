@@ -16,6 +16,7 @@ import at.specure.data.MeasurementServers
 import at.specure.data.SignalMeasurementSettings
 import at.specure.data.repository.NewsRepository
 import at.specure.data.repository.SettingsRepository
+import at.specure.data.repository.SignalMeasurementRepository
 import at.specure.info.TransportType
 import at.specure.info.cell.CellNetworkInfo
 import at.specure.info.connectivity.ConnectivityInfoLiveData
@@ -53,6 +54,7 @@ class HomeViewModel @Inject constructor(
     private val appConfig: AppConfig,
     private val newsRepository: NewsRepository,
     private val settingsRepository: SettingsRepository,
+    private val signalMeasurementRepository: SignalMeasurementRepository,
     measurementServers: MeasurementServers,
     private val signalMeasurementSettings: SignalMeasurementSettings
 ) : BaseViewModel() {
