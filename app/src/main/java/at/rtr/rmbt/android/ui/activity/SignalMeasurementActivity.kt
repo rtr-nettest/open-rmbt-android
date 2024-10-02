@@ -10,6 +10,7 @@ import android.os.Bundle
 import android.view.View
 import android.view.WindowInsets
 import android.view.WindowManager
+import androidx.activity.OnBackPressedCallback
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
@@ -62,6 +63,14 @@ class SignalMeasurementActivity : BaseActivity(), OnMapReadyCallback {
         binding.isPaused = false
 
         setFullscreen()
+
+        onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                if (shouldAllowBackPress()) {
+                    showStopDialog()
+                }
+            }
+        })
 
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
 
@@ -155,6 +164,10 @@ class SignalMeasurementActivity : BaseActivity(), OnMapReadyCallback {
         }
     }
 
+    private fun shouldAllowBackPress(): Boolean {
+        return false
+    }
+
     // Get a handle to the GoogleMap object and display marker.
     override fun onMapReady(googleMap: GoogleMap) {
         map = googleMap
@@ -181,6 +194,13 @@ class SignalMeasurementActivity : BaseActivity(), OnMapReadyCallback {
     override fun onDestroy() {
         super.onDestroy()
         map = null
+    }
+
+    @Deprecated("This is for android bellow 33 (android 12 and bellow)")
+    override fun onBackPressed() {
+        if (shouldAllowBackPress()) {
+            super.onBackPressed()
+        }
     }
 
     private fun checkLocationAndSetCurrent() {
