@@ -14,6 +14,7 @@ import at.rtr.rmbt.android.ui.viewstate.HomeViewState
 import at.specure.data.ClientUUID
 import at.specure.data.MeasurementServers
 import at.specure.data.SignalMeasurementSettings
+import at.specure.data.entity.SignalMeasurementPointRecord
 import at.specure.data.repository.NewsRepository
 import at.specure.data.repository.SettingsRepository
 import at.specure.data.repository.SignalMeasurementRepository
@@ -79,9 +80,13 @@ class HomeViewModel @Inject constructor(
 
     private var _pausedMeasurementSource: LiveData<Boolean>? = null
     private var _pausedMeasurementMediator = MediatorLiveData<Boolean>()
+    private var _currentSignalMeasurementMapPointsLiveData: LiveData<List<SignalMeasurementPointRecord>>? = null
     private var toggleService: Boolean = false
 
     private var _getNewsLiveData = MutableLiveData<List<NewsItem>?>()
+
+    val currentSignalMeasurementMapPointsLiveData: LiveData<List<SignalMeasurementPointRecord>>?
+        get() = _currentSignalMeasurementMapPointsLiveData
 
     val activeSignalMeasurementLiveData: LiveData<Boolean>
         get() = _activeMeasurementMediator

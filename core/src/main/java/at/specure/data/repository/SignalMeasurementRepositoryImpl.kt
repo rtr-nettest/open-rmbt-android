@@ -13,6 +13,7 @@ import at.specure.data.entity.SignalMeasurementChunk
 import at.specure.data.entity.SignalMeasurementInfo
 import at.specure.data.entity.SignalMeasurementPointRecord
 import at.specure.data.entity.SignalMeasurementRecord
+import at.specure.data.entity.SignalMeasurementSession
 import at.specure.data.entity.SignalRecord
 import at.specure.data.entity.TestTelephonyRecord
 import at.specure.data.entity.TestWlanRecord
@@ -119,6 +120,14 @@ class SignalMeasurementRepositoryImpl(
             }*/
         }
         emit(chunk)
+    }
+
+    override fun saveDedicatedMeasurementSession(session: SignalMeasurementSession) {
+        dao.saveDedicatedSignalMeasurementSession(session)
+    }
+
+    override fun getDedicatedMeasurementSession(sessionId: String): SignalMeasurementSession? {
+        return dao.getDedicatedSignalMeasurementSession(sessionId)
     }
 
     override fun saveMeasurementPointRecord(point: SignalMeasurementPointRecord) = io {

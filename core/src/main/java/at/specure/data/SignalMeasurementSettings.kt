@@ -38,9 +38,9 @@ class SignalMeasurementSettings @Inject constructor(context: Context) {
 
     var signalMeasurementLastSessionId: String?
         get() {
-            val measurementId = preferences.getString(KEY_SIGNAL_MEASUREMENT_LAST_SESSION_ID, null)
-            Timber.d("Signal measurement last session ID $measurementId")
-            return measurementId
+            val sessionId = preferences.getString(KEY_SIGNAL_MEASUREMENT_LAST_SESSION_ID, null)
+            Timber.d("Signal measurement last session ID $sessionId")
+            return sessionId
         }
         set(value) {
             Timber.d("Signal measurement last session ID set to: $value")

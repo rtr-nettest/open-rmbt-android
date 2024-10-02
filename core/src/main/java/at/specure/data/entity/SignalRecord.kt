@@ -6,12 +6,14 @@ import at.specure.info.TransportType
 import at.specure.info.network.MobileNetworkType
 import at.specure.info.network.NRConnectionState
 import at.specure.info.strength.SignalSource
+import java.util.UUID
 
 @Entity(
     tableName = Tables.SIGNAL,
     primaryKeys = ["timeNanos", "cellUuid"],
 )
 data class SignalRecord(
+    val id: String = UUID.randomUUID().toString(),
     val testUUID: String?,
     val signalChunkId: String?,
     val cellUuid: String,
