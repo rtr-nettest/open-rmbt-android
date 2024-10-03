@@ -1,5 +1,6 @@
 package at.specure.measurement.signal
 
+import androidx.lifecycle.asFlow
 import at.rmbt.util.exception.HandledException
 import at.rmbt.util.io
 import at.specure.config.Config
@@ -15,6 +16,9 @@ import at.specure.test.toDeviceInfoLocation
 import at.specure.test.toLocation
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import javax.inject.Inject
@@ -26,7 +30,7 @@ class DedicatedSignalMeasurementProcessor @Inject constructor(
     private val signalMeasurementSettings: SignalMeasurementSettings,
     private val signalMeasurementRepository: SignalMeasurementRepository,
     private val config: Config,
-): CoroutineScope {
+) : CoroutineScope {
 
     private val coroutineExceptionHandler = CoroutineExceptionHandler { _, e ->
         if (e is HandledException) {
@@ -36,12 +40,14 @@ class DedicatedSignalMeasurementProcessor @Inject constructor(
         }
     }
 
+    private var loadingPointsJob: Job? = null
+
     override val coroutineContext = EmptyCoroutineContext + coroutineExceptionHandler
 
     private var dedicatedSignalMeasurementData: DedicatedSignalMeasurementData? = null
 
-
     fun initializeDedicatedMeasurementSession() {
+        loadingPointsJob?.cancel()
         val lastSignalMeasurementSessionId =
             signalMeasurementSettings.signalMeasurementLastSessionId
         val shouldContinueInPreviousDedicatedMeasurement =
@@ -49,10 +55,10 @@ class DedicatedSignalMeasurementProcessor @Inject constructor(
         val continueInPreviousSession =
             (shouldContinueInPreviousDedicatedMeasurement && lastSignalMeasurementSessionId != null)
         val onSessionReady: (SignalMeasurementSession) -> Unit = { session ->
+            loadingPointsJob = loadPoints(session.sessionId)
             dedicatedSignalMeasurementData = DedicatedSignalMeasurementData(
                 signalMeasurementSession = session,
                 signalMeasurementSettings = signalMeasurementSettings,
-
             )
         }
         Timber.d("Continue?: $shouldContinueInPreviousDedicatedMeasurement && has id?: $lastSignalMeasurementSessionId")
@@ -105,18 +111,32 @@ class DedicatedSignalMeasurementProcessor @Inject constructor(
         }
     }
 
-    fun getNextSequenceNumber(): Int {
-        val lastPointNumber = (dedicatedSignalMeasurementData?.points?.lastOrNull()?.sequenceNumber ?: -1)
+    private fun getNextSequenceNumber(): Int {
+        val lastPointNumber =
+            (dedicatedSignalMeasurementData?.points?.lastOrNull()?.sequenceNumber ?: -1)
         val nextPointNumber = lastPointNumber + 1
         return nextPointNumber
     }
 
     fun onMeasurementStop() {
-        dedicatedSignalMeasurementData = null
-        signalMeasurementSettings.signalMeasurementLastSessionId = null
+        Timber.d("On Measurement Stop called")
+        cleanData()
     }
 
-    private fun loadDedicatedMeasurementSession(sessionId: String, onSessionReadyCallback: (SignalMeasurementSession) -> Unit) = launch {
+    private fun loadPoints(sessionId: String) = launch {
+        val points =
+            signalMeasurementRepository.loadSignalMeasurementPointRecordsForMeasurement(sessionId)
+        points.asFlow().flowOn(Dispatchers.IO).collect { loadedPoints ->
+            dedicatedSignalMeasurementData = dedicatedSignalMeasurementData?.copy(
+                points = loadedPoints
+            )
+            Timber.d("New points loaded ${loadedPoints.size}")
+        }
+    }
+
+    private fun loadDedicatedMeasurementSession(
+        sessionId: String, onSessionReadyCallback: (SignalMeasurementSession) -> Unit
+    ) = launch {
         val loadedSession = signalMeasurementRepository.getDedicatedMeasurementSession(
             sessionId
         )
@@ -128,11 +148,18 @@ class DedicatedSignalMeasurementProcessor @Inject constructor(
         }
     }
 
-    private fun createNewDedicatedMeasurementSession(onSessionReadyCallback: (SignalMeasurementSession) -> Unit) = launch {
-        val session = SignalMeasurementSession()
-        signalMeasurementRepository.saveDedicatedMeasurementSession(session)
-        Timber.d("Newly created session id: ${session.sessionId}")
-        signalMeasurementSettings.signalMeasurementLastSessionId = session.sessionId
-        onSessionReadyCallback(session)
+    private fun createNewDedicatedMeasurementSession(onSessionReadyCallback: (SignalMeasurementSession) -> Unit) =
+        launch {
+            val session = SignalMeasurementSession()
+            signalMeasurementRepository.saveDedicatedMeasurementSession(session)
+            Timber.d("Newly created session id: ${session.sessionId}")
+            signalMeasurementSettings.signalMeasurementLastSessionId = session.sessionId
+            onSessionReadyCallback(session)
+        }
+
+    private fun cleanData() {
+        loadingPointsJob?.cancel()
+        dedicatedSignalMeasurementData = null
+        signalMeasurementSettings.signalMeasurementLastSessionId = null
     }
 }
