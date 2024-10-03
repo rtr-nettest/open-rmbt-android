@@ -25,7 +25,7 @@ data class SignalMeasurementPointRecord(
     /**
      * FK for SignalRecord.id
      */
-    val signalRecordId: String,
+    val signalRecordId: String?,
 
     /**
      * Order in which it was logged during the measurement
@@ -40,5 +40,5 @@ data class SignalMeasurementPointRecord(
     /**
      * Timestamp of information obtained
      */
-    val timestamp: Long
+    val timestamp: Long = System.currentTimeMillis()
 )

@@ -1,6 +1,7 @@
 package at.specure.test
 
 import android.content.Context
+import android.location.Location
 import android.os.Build
 import androidx.annotation.Keep
 import at.rmbt.client.control.PermissionStatusBody
@@ -117,4 +118,34 @@ fun LocationInfo?.toDeviceInfoLocation(): DeviceInfo.Location? = if (this == nul
         altitude = altitude,
         satellites = satellites
     )
+}
+
+fun DeviceInfo.Location.toLocation(): Location {
+    val location = Location(this.provider)
+    location.latitude = this.lat
+    location.longitude = this.long
+    location.speed = this.speed
+    location.bearing = this.bearing
+    location.time = this.time
+    location.accuracy = this.accuracy
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+        location.isMock = this.mock_location
+    }
+    location.altitude = this.altitude
+    return location
+}
+
+fun LocationInfo.toLocation(): Location {
+    val location = Location(this.provider)
+    location.latitude = this.latitude
+    location.longitude = this.longitude
+    location.speed = this.speed
+    location.bearing = this.bearing
+    location.time = this.time
+    location.accuracy = this.accuracy
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+        location.isMock = this.locationIsMocked
+    }
+    location.altitude = this.altitude
+    return location
 }

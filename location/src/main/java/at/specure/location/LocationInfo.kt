@@ -281,3 +281,9 @@ class LocationInfo {
         WEST
     }
 }
+
+const val LOCATION_ACCURACY_THRESHOLD_METERS = 7f
+fun LocationInfo?.isAccuracyEnoughForSignalMeasurement(): Boolean {
+    return if (this == null) false
+    else this.accuracy != null && this.accuracy <= LOCATION_ACCURACY_THRESHOLD_METERS
+}

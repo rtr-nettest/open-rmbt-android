@@ -48,7 +48,8 @@ interface TestDataRepository {
         mobileNetworkType: MobileNetworkType?,
         info: SignalStrengthInfo,
         testStartTimeNanos: Long,
-        nrConnectionState: NRConnectionState
+        nrConnectionState: NRConnectionState,
+        signalSavedCallback: ((signalRecord: SignalRecord) -> Unit)? = null,
     )
 
     fun saveCellInfo(testUUID: String?, signalChunkId: String?, infoList: List<NetworkInfo>, testStartTimeNanos: Long)

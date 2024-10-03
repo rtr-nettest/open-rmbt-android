@@ -158,9 +158,10 @@ class TestDataRepositoryImpl(db: CoreDatabase) : TestDataRepository {
         mobileNetworkType: MobileNetworkType?,
         info: SignalStrengthInfo,
         testStartTimeNanos: Long,
-        nrConnectionState: NRConnectionState
+        nrConnectionState: NRConnectionState,
+        signalSavedCallback: ((signalRecord: SignalRecord) -> Unit)?
     ) = io {
-        saveSignalStrengthDirectly(testUUID, signalChunkId, cellUUID, mobileNetworkType, info, testStartTimeNanos, nrConnectionState)
+        saveSignalStrengthDirectly(testUUID, signalChunkId, cellUUID, mobileNetworkType, info, testStartTimeNanos, nrConnectionState, signalSavedCallback)
     }
 
     private fun saveSignalStrengthDirectly(
@@ -170,7 +171,8 @@ class TestDataRepositoryImpl(db: CoreDatabase) : TestDataRepository {
         mobileNetworkType: MobileNetworkType?,
         info: SignalStrengthInfo,
         testStartTimeNanos: Long,
-        nrConnectionState: NRConnectionState
+        nrConnectionState: NRConnectionState,
+        signalSavedCallback: ((signalRecord: SignalRecord) -> Unit)? = null
     ) {
         var signal = info.value
         var wifiLinkSpeed: Int? = null
@@ -250,6 +252,7 @@ class TestDataRepositoryImpl(db: CoreDatabase) : TestDataRepository {
             signalChunkId = signalChunkId
         )
         signalDao.insert(item)
+        signalSavedCallback?.invoke(item)
     }
 
     override fun saveCellInfoRecord(cellInfoRecordList: List<CellInfoRecord>) = io {

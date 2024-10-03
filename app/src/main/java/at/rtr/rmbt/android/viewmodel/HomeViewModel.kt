@@ -28,6 +28,7 @@ import at.specure.info.strength.SignalStrengthLiveData
 import at.specure.location.LocationInfo
 import at.specure.location.LocationState
 import at.specure.location.LocationWatcher
+import at.specure.location.isAccuracyEnoughForSignalMeasurement
 import at.specure.measurement.signal.SignalMeasurementProducer
 import at.specure.measurement.signal.SignalMeasurementService
 import at.specure.test.SignalMeasurementType
@@ -40,7 +41,6 @@ import timber.log.Timber
 import javax.inject.Inject
 import javax.inject.Named
 
-const val LOCATION_ACCURACY_THRESHOLD_METERS = 7f
 const val LOCATION_ACCURACY_WARNING_DIALOG_SILENCED_TIME_MILLIS = 60_000L
 
 class HomeViewModel @Inject constructor(
@@ -258,8 +258,7 @@ class HomeViewModel @Inject constructor(
     }
 
     private fun isLocationAccuracyGoodEnough(): Boolean {
-        val accuracy = locationLiveData.value?.accuracy
-        return accuracy != null && accuracy <= LOCATION_ACCURACY_THRESHOLD_METERS
+        return locationLiveData.value?.isAccuracyEnoughForSignalMeasurement() ?: false
     }
 
     fun shouldOpenSignalMeasurementScreen(): Boolean {

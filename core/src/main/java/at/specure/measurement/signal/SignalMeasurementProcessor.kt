@@ -52,6 +52,7 @@ import java.lang.SecurityException
 import java.lang.System
 import java.util.Timer
 import java.util.TimerTask
+import java.util.UUID
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import javax.inject.Named
@@ -79,6 +80,7 @@ class SignalMeasurementProcessor @Inject constructor(
 ) : Binder(), SignalMeasurementProducer, CoroutineScope, SignalMeasurementChunkResultCallback,
     SignalMeasurementChunkReadyCallback {
 
+    private var lastSignalRecord: SignalRecord? = null
     private var isUnstoppable = false
     private var _isActive = false
     private var _isPaused = false
@@ -267,6 +269,7 @@ class SignalMeasurementProcessor @Inject constructor(
         lastSeenNetworkInfo = null
         lastSeenNetworkRecord = null
         lastSeenNetworkTimestampMillis = null
+        lastSignalRecord = null
     }
 
     private fun handleNewNetwork(newInfo: NetworkInfo?) {
@@ -582,6 +585,11 @@ class SignalMeasurementProcessor @Inject constructor(
         return saveMobileSignalsCount
     }
 
+    private val onSignalInfoSaved: (signalRecord: SignalRecord) -> Unit = { signalRecord ->
+        Timber.d("Last saved signal record: $signalRecord")
+        lastSignalRecord = signalRecord
+    }
+
     private fun saveNetworkInformation(
         cellNetworkInfo: NetworkInfo?,
         signalStrengthInfo: SignalStrengthInfo?,
@@ -626,7 +634,8 @@ class SignalMeasurementProcessor @Inject constructor(
                             cellNetworkInfo.networkType,
                             it,
                             testStartTimeNanos,
-                            NRConnectionState.NOT_AVAILABLE
+                            NRConnectionState.NOT_AVAILABLE,
+                            if (cellNetworkInfo.isActive) onSignalInfoSaved else null
                         )
                         saveMobileSignalsCount++
                     }
@@ -667,6 +676,11 @@ class SignalMeasurementProcessor @Inject constructor(
                 record?.startTimeNanos ?: 0,
                 true
             )
+            locationInfo?.let { location ->
+                if (lastSignalMeasurementType == SignalMeasurementType.DEDICATED){
+                    dedicatedSignalMeasurementProcessor.onNewLocation(location, lastSignalRecord)
+                }
+            }
         }
     }
 

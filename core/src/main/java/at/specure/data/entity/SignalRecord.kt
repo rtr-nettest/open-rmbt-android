@@ -10,10 +10,10 @@ import java.util.UUID
 
 @Entity(
     tableName = Tables.SIGNAL,
-    primaryKeys = ["timeNanos", "cellUuid"],
+    primaryKeys = ["signalMeasurementPointId", "timeNanos", "cellUuid"],
 )
 data class SignalRecord(
-    val id: String = UUID.randomUUID().toString(),
+    val signalMeasurementPointId: String = UUID.randomUUID().toString(),
     val testUUID: String?,
     val signalChunkId: String?,
     val cellUuid: String,
