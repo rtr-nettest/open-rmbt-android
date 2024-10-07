@@ -235,6 +235,7 @@ class SignalMeasurementActivity : BaseActivity(), OnMapReadyCallback {
         map = googleMap
         checkLocationAndSetCurrent()
         updateLocationPermissionRelatedUi()
+        map?.uiSettings?.isMyLocationButtonEnabled = false
     }
 
     override fun onStart() {
