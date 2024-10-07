@@ -1,6 +1,9 @@
 package at.specure.measurement.signal
 
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.asFlow
+import androidx.lifecycle.asLiveData
 import at.rmbt.util.exception.HandledException
 import at.rmbt.util.io
 import at.specure.config.Config
@@ -32,6 +35,9 @@ class DedicatedSignalMeasurementProcessor @Inject constructor(
     private val config: Config,
 ) : CoroutineScope {
 
+    private val _signalPoints: MutableLiveData<List<SignalMeasurementPointRecord>> = MutableLiveData()
+    val signalPoints: LiveData<List<SignalMeasurementPointRecord>> = _signalPoints
+
     private val coroutineExceptionHandler = CoroutineExceptionHandler { _, e ->
         if (e is HandledException) {
             // do nothing
@@ -45,6 +51,7 @@ class DedicatedSignalMeasurementProcessor @Inject constructor(
     override val coroutineContext = EmptyCoroutineContext + coroutineExceptionHandler
 
     private var dedicatedSignalMeasurementData: DedicatedSignalMeasurementData? = null
+
 
     fun initializeDedicatedMeasurementSession(sessionCreated: ((sessionId: String) -> Unit)?) {
         loadingPointsJob?.cancel()
@@ -131,6 +138,7 @@ class DedicatedSignalMeasurementProcessor @Inject constructor(
             dedicatedSignalMeasurementData = dedicatedSignalMeasurementData?.copy(
                 points = loadedPoints
             )
+            _signalPoints.postValue(loadedPoints)
             Timber.d("New points loaded ${loadedPoints.size}")
         }
     }

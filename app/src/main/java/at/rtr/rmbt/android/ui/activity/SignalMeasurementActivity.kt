@@ -115,12 +115,14 @@ class SignalMeasurementActivity : BaseActivity(), OnMapReadyCallback {
         }
 
         viewModel.dedicatedSignalMeasurementSessionIdLiveData.listen(this) { sessionId ->
+            Timber.d("SessionId loaded: $sessionId")
             sessionId?.let {
                 viewModel.loadSessionPoints(it)
             }
         }
 
         viewModel.currentSignalMeasurementMapPointsLiveData.listen(this) { points ->
+            Timber.d("Points in activity: $points")
             map?.let { currentMap ->
                 points.forEach { point ->
                     val latLng = point.location.toLatLng()

@@ -30,6 +30,7 @@ import at.specure.location.LocationInfo
 import at.specure.location.LocationState
 import at.specure.location.LocationWatcher
 import at.specure.location.isAccuracyEnoughForSignalMeasurement
+import at.specure.measurement.signal.DedicatedSignalMeasurementProcessor
 import at.specure.measurement.signal.SignalMeasurementProducer
 import at.specure.measurement.signal.SignalMeasurementService
 import at.specure.test.SignalMeasurementType
@@ -59,6 +60,7 @@ class HomeViewModel @Inject constructor(
     private val newsRepository: NewsRepository,
     private val settingsRepository: SettingsRepository,
     private val signalMeasurementRepository: SignalMeasurementRepository,
+    private val dedicatedSignalMeasurementProcessor: DedicatedSignalMeasurementProcessor,
     measurementServers: MeasurementServers,
     private val signalMeasurementSettings: SignalMeasurementSettings
 ) : BaseViewModel() {
@@ -99,7 +101,7 @@ class HomeViewModel @Inject constructor(
         get() = _dedicatedSignalMeasurementSessionIdLiveData
 
     val currentSignalMeasurementMapPointsLiveData: LiveData<List<SignalMeasurementPointRecord>>
-        get() = _pointsLiveData
+        get() = dedicatedSignalMeasurementProcessor.signalPoints // _pointsLiveData
 
     val activeSignalMeasurementLiveData: LiveData<Boolean>
         get() = _activeMeasurementMediator
