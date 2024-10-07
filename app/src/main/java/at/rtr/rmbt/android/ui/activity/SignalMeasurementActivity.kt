@@ -185,7 +185,7 @@ class SignalMeasurementActivity : BaseActivity(), OnMapReadyCallback {
             map?.let { gMap ->
                 location?.let { latestLocation ->
                     if (!viewModel.state.markerDetailsDisplayed.get()) {
-                        gMap.moveCamera(
+                        gMap.animateCamera(
                             CameraUpdateFactory.newLatLngZoom(
                                 latestLocation.toLatLng(),
                                 DEFAULT_POSITION_TRACKING_ZOOM_LEVEL
