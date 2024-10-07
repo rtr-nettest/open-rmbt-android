@@ -30,6 +30,7 @@ import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.LocationSource
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
+import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
 import kotlinx.coroutines.delay
@@ -57,6 +58,20 @@ class SignalMeasurementActivity : BaseActivity(), OnMapReadyCallback {
             listener?.onLocationChanged(latestLocation)
         }
     }
+
+    val colors = listOf(
+    BitmapDescriptorFactory.HUE_RED,
+    BitmapDescriptorFactory.HUE_AZURE,
+    BitmapDescriptorFactory.HUE_BLUE,
+    BitmapDescriptorFactory.HUE_CYAN,
+    BitmapDescriptorFactory.HUE_GREEN,
+    BitmapDescriptorFactory.HUE_MAGENTA,
+    BitmapDescriptorFactory.HUE_ORANGE,
+    BitmapDescriptorFactory.HUE_ROSE,
+    BitmapDescriptorFactory.HUE_VIOLET,
+    BitmapDescriptorFactory.HUE_YELLOW
+    )
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -127,7 +142,9 @@ class SignalMeasurementActivity : BaseActivity(), OnMapReadyCallback {
                 points.forEach { point ->
                     val latLng = point.location.toLatLng()
                     latLng?.let { markerLatLng ->
-                        val options = MarkerOptions().position(markerLatLng)
+                        val options = MarkerOptions()
+                            .position(markerLatLng)
+                            .icon(BitmapDescriptorFactory.defaultMarker(colors.random()))
                         currentMap.addMarker(options)
                     }
                 }
