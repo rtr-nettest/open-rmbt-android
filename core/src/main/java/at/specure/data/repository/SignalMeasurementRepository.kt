@@ -59,5 +59,5 @@ interface SignalMeasurementRepository {
 
     fun loadSignalMeasurementPointRecordsForMeasurement(measurementId: String): LiveData<List<SignalMeasurementPointRecord>>
 
-    fun getSignalMeasurementRecord(id: String?): LiveData<SignalRecord?>
+    suspend fun getSignalMeasurementRecord(id: String?): SignalRecord?
 }

@@ -138,7 +138,7 @@ class SignalMeasurementRepositoryImpl(
         return dao.getSignalMeasurementPoints(measurementId)
     }
 
-    override fun getSignalMeasurementRecord(id: String?): LiveData<SignalRecord?> {
+    override suspend fun getSignalMeasurementRecord(id: String?): SignalRecord? {
         return dao.getSignalRecordNullable(id)
     }
 

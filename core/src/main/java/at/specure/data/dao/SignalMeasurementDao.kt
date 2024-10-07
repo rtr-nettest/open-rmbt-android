@@ -52,11 +52,11 @@ interface SignalMeasurementDao {
     fun getDedicatedSignalMeasurementSession(sessionId: String): SignalMeasurementSession?
 
     @Query("SELECT * FROM ${Tables.SIGNAL} WHERE signalMeasurementPointId=:id LIMIT 1")
-    fun getSignalRecord(id: String): LiveData<SignalRecord?>
+    suspend fun getSignalRecord(id: String): SignalRecord?
 
-    fun getSignalRecordNullable(id: String?): LiveData<SignalRecord?> {
+    suspend fun getSignalRecordNullable(id: String?): SignalRecord? {
         return if (id == null) {
-            liveData { null }
+            null
         } else {
             getSignalRecord(id)
         }

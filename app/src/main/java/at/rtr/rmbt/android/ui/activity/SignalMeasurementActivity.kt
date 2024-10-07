@@ -135,14 +135,19 @@ class SignalMeasurementActivity : BaseActivity(), OnMapReadyCallback {
                     val latLng = point.location.toLatLng()
                     latLng?.let { markerLatLng ->
                         lifecycleScope.launch {
-                            viewModel.getSignalData(point.signalRecordId).observe(this@SignalMeasurementActivity) { signalData ->
-                                val options = MarkerOptions()
-                                    .position(markerLatLng)
-                                    .icon(BitmapDescriptorFactory.defaultMarker(Random.nextFloat() * 360))
-                                    .title(signalData?.mobileNetworkType.toString() ?: getString(R.string.noSignal))
-
-                                currentMap.addMarker(options)
+                            // Fetch signal data on IO thread to avoid main thread blocking
+                            val signalData = withContext(Dispatchers.IO) {
+                                point.signalRecordId?.let { viewModel.getSignalData(it) }
                             }
+
+                            // Now we're back on the Main thread, and signalData is ready
+                            val options = MarkerOptions()
+                                .position(markerLatLng)
+                                .icon(BitmapDescriptorFactory.defaultMarker(Random.nextFloat() * 360))
+                                .title(signalData?.mobileNetworkType?.toString() ?: getString(R.string.noSignal))
+
+                            // Add the marker to the map on the UI thread
+                            currentMap.addMarker(options)
                         }
                     }
                 }

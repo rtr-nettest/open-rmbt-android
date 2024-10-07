@@ -318,8 +318,9 @@ class HomeViewModel @Inject constructor(
         return signalMeasurementSettings.signalMeasurementShouldContinueInLastSession
     }
 
-    fun getSignalData(id: String?): LiveData<SignalRecord?> {
-        return signalMeasurementRepository.getSignalMeasurementRecord(id)
+    suspend fun getSignalData(id: String?): SignalRecord? {
+        val record = signalMeasurementRepository.getSignalMeasurementRecord(id)
+        return record
     }
 
 }
