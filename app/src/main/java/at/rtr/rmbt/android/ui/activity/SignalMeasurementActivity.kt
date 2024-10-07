@@ -151,9 +151,13 @@ class SignalMeasurementActivity : BaseActivity(), OnMapReadyCallback {
                         }
                     }
                 }
-//                currentMap.setOnMarkerClickListener { marker ->
-//                    marker.ti
-//                }
+                currentMap.setOnMarkerClickListener { marker ->
+                    viewModel.state.markerDetailsDisplayed.set(true)
+                    return@setOnMarkerClickListener false
+                }
+                currentMap.setOnMapClickListener {
+                    viewModel.state.markerDetailsDisplayed.set(false)
+                }
             }
         }
 
@@ -180,7 +184,14 @@ class SignalMeasurementActivity : BaseActivity(), OnMapReadyCallback {
             }
             map?.let { gMap ->
                 location?.let { latestLocation ->
-                    gMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latestLocation.toLatLng(), DEFAULT_POSITION_TRACKING_ZOOM_LEVEL))
+                    if (!viewModel.state.markerDetailsDisplayed.get()) {
+                        gMap.moveCamera(
+                            CameraUpdateFactory.newLatLngZoom(
+                                latestLocation.toLatLng(),
+                                DEFAULT_POSITION_TRACKING_ZOOM_LEVEL
+                            )
+                        )
+                    }
                 }
             }
 //            centerMapOnLocation()
