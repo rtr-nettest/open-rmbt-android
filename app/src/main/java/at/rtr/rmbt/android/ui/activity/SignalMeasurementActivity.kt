@@ -33,11 +33,15 @@ import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import timber.log.Timber
-import java.lang.Math.random
 import kotlin.random.Random
+
+const val DEFAULT_POSITION_TRACKING_ZOOM_LEVEL = 18f
+const val DEFAULT_POINT_CLICKED_ZOOM_LEVEL = 16f
 
 class SignalMeasurementActivity : BaseActivity(), OnMapReadyCallback {
 
@@ -130,12 +134,21 @@ class SignalMeasurementActivity : BaseActivity(), OnMapReadyCallback {
                 points.forEach { point ->
                     val latLng = point.location.toLatLng()
                     latLng?.let { markerLatLng ->
-                        val options = MarkerOptions()
-                            .position(markerLatLng)
-                            .icon(BitmapDescriptorFactory.defaultMarker(Random.nextFloat() * 360))
-                        currentMap.addMarker(options)
+                        lifecycleScope.launch {
+                            viewModel.getSignalData(point.signalRecordId).observe(this@SignalMeasurementActivity) { signalData ->
+                                val options = MarkerOptions()
+                                    .position(markerLatLng)
+                                    .icon(BitmapDescriptorFactory.defaultMarker(Random.nextFloat() * 360))
+                                    .title(signalData?.mobileNetworkType.toString() ?: getString(R.string.noSignal))
+
+                                currentMap.addMarker(options)
+                            }
+                        }
                     }
                 }
+//                currentMap.setOnMarkerClickListener { marker ->
+//                    marker.ti
+//                }
             }
         }
 
@@ -160,6 +173,12 @@ class SignalMeasurementActivity : BaseActivity(), OnMapReadyCallback {
                     )
                 }
             }
+            map?.let { gMap ->
+                location?.let { latestLocation ->
+                    gMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latestLocation.toLatLng(), DEFAULT_POSITION_TRACKING_ZOOM_LEVEL))
+                }
+            }
+//            centerMapOnLocation()
         }
     }
 

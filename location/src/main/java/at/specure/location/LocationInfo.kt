@@ -8,6 +8,7 @@ import at.specure.location.LocationInfo.LocationCardinalDirections.EAST
 import at.specure.location.LocationInfo.LocationCardinalDirections.NORTH
 import at.specure.location.LocationInfo.LocationCardinalDirections.SOUTH
 import at.specure.location.LocationInfo.LocationCardinalDirections.WEST
+import com.google.android.gms.maps.model.LatLng
 
 /**
  * Class suitable to display information for user, information are in human-readable form
@@ -272,6 +273,13 @@ class LocationInfo {
             longitude >= 0 -> EAST
             else -> WEST
         }
+    }
+
+    fun toLatLng(): LatLng {
+        return LatLng(
+            this.latitude,
+            this.longitude
+        )
     }
 
     enum class LocationCardinalDirections {

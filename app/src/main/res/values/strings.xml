@@ -521,4 +521,5 @@
     <string name="stop_signal_measurement_title">End signal measurement</string>
     <string name="stop_signal_measurement_text">Do you want to end the measurement?</string>
     <string name="no_gps_or_insufficient_precision">No GPS signal or GPS quality is insufficient. Please move outdoors.</string>
+    <string name="noSignal">No signal</string>
 </resources>

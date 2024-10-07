@@ -9,6 +9,7 @@ import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.asFlow
 import androidx.lifecycle.map
+import androidx.lifecycle.viewModelScope
 import at.rmbt.client.control.NewsItem
 import at.rtr.rmbt.android.config.AppConfig
 import at.rtr.rmbt.android.ui.viewstate.HomeViewState
@@ -16,6 +17,7 @@ import at.specure.data.ClientUUID
 import at.specure.data.MeasurementServers
 import at.specure.data.SignalMeasurementSettings
 import at.specure.data.entity.SignalMeasurementPointRecord
+import at.specure.data.entity.SignalRecord
 import at.specure.data.repository.NewsRepository
 import at.specure.data.repository.SettingsRepository
 import at.specure.data.repository.SignalMeasurementRepository
@@ -36,8 +38,10 @@ import at.specure.measurement.signal.SignalMeasurementService
 import at.specure.test.SignalMeasurementType
 import at.specure.util.StringPreferenceLiveData
 import at.specure.util.permission.PermissionsWatcher
+import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.async
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.launch
@@ -312,6 +316,10 @@ class HomeViewModel @Inject constructor(
 
     fun shouldSignalMeasurementContinueInLastSession(): Boolean {
         return signalMeasurementSettings.signalMeasurementShouldContinueInLastSession
+    }
+
+    fun getSignalData(id: String?): LiveData<SignalRecord?> {
+        return signalMeasurementRepository.getSignalMeasurementRecord(id)
     }
 
 }

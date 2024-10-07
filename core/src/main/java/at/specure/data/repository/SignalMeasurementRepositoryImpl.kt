@@ -138,6 +138,10 @@ class SignalMeasurementRepositoryImpl(
         return dao.getSignalMeasurementPoints(measurementId)
     }
 
+    override fun getSignalMeasurementRecord(id: String?): LiveData<SignalRecord?> {
+        return dao.getSignalRecordNullable(id)
+    }
+
     override fun saveMeasurementChunk(chunk: SignalMeasurementChunk) = io {
         dao.saveSignalMeasurementChunk(chunk)
     }

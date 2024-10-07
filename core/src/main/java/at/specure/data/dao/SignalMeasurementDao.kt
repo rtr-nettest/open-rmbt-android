@@ -1,6 +1,7 @@
 package at.specure.data.dao
 
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.liveData
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
@@ -12,7 +13,7 @@ import at.specure.data.entity.SignalMeasurementInfo
 import at.specure.data.entity.SignalMeasurementPointRecord
 import at.specure.data.entity.SignalMeasurementRecord
 import at.specure.data.entity.SignalMeasurementSession
-import kotlinx.coroutines.flow.Flow
+import at.specure.data.entity.SignalRecord
 
 @Dao
 interface SignalMeasurementDao {
@@ -49,4 +50,15 @@ interface SignalMeasurementDao {
 
     @Query("SELECT * FROM ${Tables.SIGNAL_MEASUREMENT_SESSION} WHERE sessionId=:sessionId LIMIT 1")
     fun getDedicatedSignalMeasurementSession(sessionId: String): SignalMeasurementSession?
+
+    @Query("SELECT * FROM ${Tables.SIGNAL} WHERE signalMeasurementPointId=:id LIMIT 1")
+    fun getSignalRecord(id: String): LiveData<SignalRecord?>
+
+    fun getSignalRecordNullable(id: String?): LiveData<SignalRecord?> {
+        return if (id == null) {
+            liveData { null }
+        } else {
+            getSignalRecord(id)
+        }
+    }
 }

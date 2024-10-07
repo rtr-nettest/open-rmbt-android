@@ -6,6 +6,7 @@ import at.specure.data.entity.SignalMeasurementInfo
 import at.specure.data.entity.SignalMeasurementPointRecord
 import at.specure.data.entity.SignalMeasurementRecord
 import at.specure.data.entity.SignalMeasurementSession
+import at.specure.data.entity.SignalRecord
 import at.specure.measurement.signal.SignalMeasurementChunkReadyCallback
 import at.specure.measurement.signal.SignalMeasurementChunkResultCallback
 import at.specure.measurement.signal.ValidChunkPostProcessing
@@ -57,4 +58,6 @@ interface SignalMeasurementRepository {
     fun saveMeasurementPointRecord(point: SignalMeasurementPointRecord)
 
     fun loadSignalMeasurementPointRecordsForMeasurement(measurementId: String): LiveData<List<SignalMeasurementPointRecord>>
+
+    fun getSignalMeasurementRecord(id: String?): LiveData<SignalRecord?>
 }
