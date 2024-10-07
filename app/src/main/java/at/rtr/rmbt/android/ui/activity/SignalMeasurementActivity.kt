@@ -36,6 +36,8 @@ import com.google.android.gms.maps.model.MarkerOptions
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import timber.log.Timber
+import java.lang.Math.random
+import kotlin.random.Random
 
 class SignalMeasurementActivity : BaseActivity(), OnMapReadyCallback {
 
@@ -58,20 +60,6 @@ class SignalMeasurementActivity : BaseActivity(), OnMapReadyCallback {
             listener?.onLocationChanged(latestLocation)
         }
     }
-
-    val colors = listOf(
-    BitmapDescriptorFactory.HUE_RED,
-    BitmapDescriptorFactory.HUE_AZURE,
-    BitmapDescriptorFactory.HUE_BLUE,
-    BitmapDescriptorFactory.HUE_CYAN,
-    BitmapDescriptorFactory.HUE_GREEN,
-    BitmapDescriptorFactory.HUE_MAGENTA,
-    BitmapDescriptorFactory.HUE_ORANGE,
-    BitmapDescriptorFactory.HUE_ROSE,
-    BitmapDescriptorFactory.HUE_VIOLET,
-    BitmapDescriptorFactory.HUE_YELLOW
-    )
-
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -144,7 +132,7 @@ class SignalMeasurementActivity : BaseActivity(), OnMapReadyCallback {
                     latLng?.let { markerLatLng ->
                         val options = MarkerOptions()
                             .position(markerLatLng)
-                            .icon(BitmapDescriptorFactory.defaultMarker(colors.random()))
+                            .icon(BitmapDescriptorFactory.defaultMarker(Random.nextFloat() * 360))
                         currentMap.addMarker(options)
                     }
                 }
