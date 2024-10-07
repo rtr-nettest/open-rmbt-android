@@ -176,6 +176,9 @@ class SignalMeasurementService : CustomLifecycleService() {
         override val pausedStateLiveData: LiveData<Boolean>
             get() = processor.pausedStateLiveData
 
+        override val signalMeasurementSessionIdLiveData: LiveData<String?>
+            get() = processor.signalMeasurementSessionIdLiveData
+
         override fun startMeasurement(unstoppable: Boolean, signalMeasurementType: SignalMeasurementType) {
             this@SignalMeasurementService.isUnstoppable = unstoppable
             Timber.i("Signal measurement start unstoppable: $unstoppable")

@@ -46,7 +46,7 @@ class DedicatedSignalMeasurementProcessor @Inject constructor(
 
     private var dedicatedSignalMeasurementData: DedicatedSignalMeasurementData? = null
 
-    fun initializeDedicatedMeasurementSession() {
+    fun initializeDedicatedMeasurementSession(sessionCreated: ((sessionId: String) -> Unit)?) {
         loadingPointsJob?.cancel()
         val lastSignalMeasurementSessionId =
             signalMeasurementSettings.signalMeasurementLastSessionId
@@ -55,6 +55,7 @@ class DedicatedSignalMeasurementProcessor @Inject constructor(
         val continueInPreviousSession =
             (shouldContinueInPreviousDedicatedMeasurement && lastSignalMeasurementSessionId != null)
         val onSessionReady: (SignalMeasurementSession) -> Unit = { session ->
+            sessionCreated?.invoke(session.sessionId)
             loadingPointsJob = loadPoints(session.sessionId)
             dedicatedSignalMeasurementData = DedicatedSignalMeasurementData(
                 signalMeasurementSession = session,

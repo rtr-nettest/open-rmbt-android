@@ -86,6 +86,7 @@ class SignalMeasurementProcessor @Inject constructor(
     private var _isPaused = false
     private val _activeStateLiveData = MutableLiveData<Boolean>()
     private val _pausedStateLiveData = MutableLiveData<Boolean>()
+    private val _signalMeasurementSessionIdLiveData = MutableLiveData<String?>()
 
     private var networkInfo: NetworkInfo? = null
     private var record: SignalMeasurementRecord? = null
@@ -131,8 +132,15 @@ class SignalMeasurementProcessor @Inject constructor(
     override val pausedStateLiveData: LiveData<Boolean>
         get() = _pausedStateLiveData
 
+    override val signalMeasurementSessionIdLiveData: LiveData<String?>
+        get() = _signalMeasurementSessionIdLiveData
+
     override fun setEndAlarm() {
         // not necessary to implement here
+    }
+
+    val measurementSessionInitializedCallback: (sessionId: String?) -> Unit = { sessionId ->
+        _signalMeasurementSessionIdLiveData.postValue(sessionId)
     }
 
     override fun startMeasurement(
@@ -146,7 +154,7 @@ class SignalMeasurementProcessor @Inject constructor(
         lastSignalMeasurementType = signalMeasurementType
 
         if (lastSignalMeasurementType == SignalMeasurementType.DEDICATED) {
-            dedicatedSignalMeasurementProcessor.initializeDedicatedMeasurementSession()
+            dedicatedSignalMeasurementProcessor.initializeDedicatedMeasurementSession(measurementSessionInitializedCallback)
         }
 
         if (isSignalMeasurementRunning()) {

@@ -17,19 +17,21 @@ import androidx.lifecycle.lifecycleScope
 import at.rtr.rmbt.android.R
 import at.rtr.rmbt.android.databinding.ActivitySignalMeasurementBinding
 import at.rtr.rmbt.android.di.viewModelLazy
-import at.rtr.rmbt.android.location.mappers.toLocation
 import at.rtr.rmbt.android.map.wrapper.LatLngW
 import at.rtr.rmbt.android.util.listen
 import at.rtr.rmbt.android.viewmodel.HomeViewModel
 import at.specure.location.LocationInfo
 import at.specure.location.LocationState
+import at.specure.test.DeviceInfo
 import at.specure.test.SignalMeasurementType
+import at.specure.test.toLocation
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.LocationSource
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.MarkerOptions
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import timber.log.Timber
@@ -110,6 +112,24 @@ class SignalMeasurementActivity : BaseActivity(), OnMapReadyCallback {
 
         binding.fabWarning.setOnClickListener {
             showLocationProblemDialog()
+        }
+
+        viewModel.dedicatedSignalMeasurementSessionIdLiveData.listen(this) { sessionId ->
+            sessionId?.let {
+                viewModel.loadSessionPoints(it)
+            }
+        }
+
+        viewModel.currentSignalMeasurementMapPointsLiveData.listen(this) { points ->
+            map?.let { currentMap ->
+                points.forEach { point ->
+                    val latLng = point.location.toLatLng()
+                    latLng?.let { markerLatLng ->
+                        val options = MarkerOptions().position(markerLatLng)
+                        currentMap.addMarker(options)
+                    }
+                }
+            }
         }
 
         viewModel.locationLiveData.listen(this) { location ->
@@ -312,4 +332,11 @@ class SignalMeasurementActivity : BaseActivity(), OnMapReadyCallback {
 
         fun start(context: Context) = context.startActivity(Intent(context, SignalMeasurementActivity::class.java))
     }
+}
+
+private fun DeviceInfo.Location?.toLatLng(): LatLng? {
+    this?.let {
+        return LatLng(it.lat, it.long)
+    }
+    return null
 }

@@ -136,16 +136,18 @@ fun DeviceInfo.Location.toLocation(): Location {
 }
 
 fun LocationInfo.toLocation(): Location {
-    val location = Location(this.provider)
-    location.latitude = this.latitude
-    location.longitude = this.longitude
-    location.speed = this.speed
-    location.bearing = this.bearing
-    location.time = this.time
-    location.accuracy = this.accuracy
+    val location = Location(provider)
+    location.latitude = latitude
+    location.longitude = longitude
+    location.time = time
+    location.accuracy = accuracy
+    location.bearing = bearing
+    location.bearingAccuracyDegrees = bearingAccuracy
+    location.elapsedRealtimeNanos = elapsedRealtimeNanos
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
         location.isMock = this.locationIsMocked
     }
+    location.speed = speed
     location.altitude = this.altitude
     return location
 }

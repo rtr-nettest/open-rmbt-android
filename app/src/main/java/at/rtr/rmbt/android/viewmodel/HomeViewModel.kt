@@ -7,6 +7,7 @@ import android.os.IBinder
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.asFlow
 import androidx.lifecycle.map
 import at.rmbt.client.control.NewsItem
 import at.rtr.rmbt.android.config.AppConfig
@@ -32,8 +33,10 @@ import at.specure.location.isAccuracyEnoughForSignalMeasurement
 import at.specure.measurement.signal.SignalMeasurementProducer
 import at.specure.measurement.signal.SignalMeasurementService
 import at.specure.test.SignalMeasurementType
+import at.specure.util.StringPreferenceLiveData
 import at.specure.util.permission.PermissionsWatcher
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.launch
@@ -68,11 +71,16 @@ class HomeViewModel @Inject constructor(
         it != null
     }
 
+    private var loadPointJob: Job? = null
+
     val locationStateLiveData: LiveData<LocationState?>
         get() = locationWatcher.stateLiveData
 
     val locationLiveData: LiveData<LocationInfo?>
         get() = locationWatcher.liveData
+
+    private var _pointsLiveData = MutableLiveData<List<SignalMeasurementPointRecord>>()
+    private var _dedicatedSignalMeasurementSessionIdLiveData : LiveData<String?> = MutableLiveData<String>(null)
 
     private var producer: SignalMeasurementProducer? = null
     private var _activeMeasurementSource: LiveData<Boolean>? = null
@@ -83,10 +91,15 @@ class HomeViewModel @Inject constructor(
     private var _currentSignalMeasurementMapPointsLiveData: LiveData<List<SignalMeasurementPointRecord>>? = null
     private var toggleService: Boolean = false
 
+
+
     private var _getNewsLiveData = MutableLiveData<List<NewsItem>?>()
 
-    val currentSignalMeasurementMapPointsLiveData: LiveData<List<SignalMeasurementPointRecord>>?
-        get() = _currentSignalMeasurementMapPointsLiveData
+    val dedicatedSignalMeasurementSessionIdLiveData : LiveData<String?>
+        get() = _dedicatedSignalMeasurementSessionIdLiveData
+
+    val currentSignalMeasurementMapPointsLiveData: LiveData<List<SignalMeasurementPointRecord>>
+        get() = _pointsLiveData
 
     val activeSignalMeasurementLiveData: LiveData<Boolean>
         get() = _activeMeasurementMediator
@@ -114,6 +127,7 @@ class HomeViewModel @Inject constructor(
                 toggleSignalMeasurementService()
             }
 
+
             _activeMeasurementSource = producer?.activeStateLiveData
             _activeMeasurementSource?.let { lv ->
                 _activeMeasurementMediator.addSource(lv) {
@@ -126,6 +140,10 @@ class HomeViewModel @Inject constructor(
                 _pausedMeasurementMediator.addSource(lv) {
                     _pausedMeasurementMediator.postValue(it)
                 }
+            }
+
+            producer?.let {
+                _dedicatedSignalMeasurementSessionIdLiveData = it.signalMeasurementSessionIdLiveData
             }
         }
 
@@ -148,6 +166,22 @@ class HomeViewModel @Inject constructor(
     init {
         addStateSaveHandler(state)
         _activeMeasurementMediator.postValue(false)
+        signalMeasurementSettings.signalMeasurementLastSessionId?.let {
+            loadSessionPoints(it)
+        }
+    }
+
+    fun loadSessionPoints(sessionId: String) {
+        loadPointJob = loadPoints(sessionId)
+    }
+
+    private fun loadPoints(sessionId: String) = launch {
+        val points =
+            signalMeasurementRepository.loadSignalMeasurementPointRecordsForMeasurement(sessionId)
+        points.asFlow().flowOn(Dispatchers.IO).collect { loadedPoints ->
+            _pointsLiveData.postValue(loadedPoints)
+            Timber.d("New points loaded ${loadedPoints.size}")
+        }
     }
 
     fun toggleSignalMeasurementService() {
@@ -250,6 +284,11 @@ class HomeViewModel @Inject constructor(
             delay(LOCATION_ACCURACY_WARNING_DIALOG_SILENCED_TIME_MILLIS)
             state.locationWarningDialogSilenced.set(false)
         }
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        loadPointJob?.cancel()
     }
 
     fun isLocationInfoMeetingQualityCriteria(): Boolean {
