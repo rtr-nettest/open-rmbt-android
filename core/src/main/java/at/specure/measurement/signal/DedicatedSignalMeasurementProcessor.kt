@@ -28,6 +28,8 @@ import javax.inject.Inject
 import javax.inject.Singleton
 import kotlin.coroutines.EmptyCoroutineContext
 
+const val SAME_LOCATION_DISTANCE_METERS = 3
+
 @Singleton
 class DedicatedSignalMeasurementProcessor @Inject constructor(
     private val signalMeasurementSettings: SignalMeasurementSettings,
@@ -80,8 +82,8 @@ class DedicatedSignalMeasurementProcessor @Inject constructor(
     }
 
     fun onNewLocation(location: LocationInfo, signalRecord: SignalRecord?) {
-        // TODO: check how old is signal information
-        if (signalRecord?.transportType == TransportType.CELLULAR) {
+        // TODO: check how old is signal information + also handle no signal record in SignalMeasurementProcessor
+        if (signalRecord == null || signalRecord.transportType == TransportType.CELLULAR) {
             if (isDistanceToLastSignalPointLocationEnough(location)) {
                 val sessionId = dedicatedSignalMeasurementData?.signalMeasurementSession?.sessionId
                     ?: throw Exception("Session not initialized - sessionId missing")
@@ -90,15 +92,51 @@ class DedicatedSignalMeasurementProcessor @Inject constructor(
                     sessionId = sessionId,
                     sequenceNumber = getNextSequenceNumber(),
                     location = location.toDeviceInfoLocation(),
-                    signalRecordId = signalRecord.signalMeasurementPointId
+                    signalRecordId = signalRecord?.signalMeasurementPointId
                 )
                 saveDedicatedSignalMeasurementPoint(point)
+            } else if (isTheSameLocation(location)) {
+                val lastPoint = dedicatedSignalMeasurementData?.points?.lastOrNull()
+                lastPoint?.let { point ->
+                    updatePointAndSave(point, signalRecord)
+                }
             }
+        }
+    }
+
+    /**
+     * Location is kept from original point as we could end in the cascade of updates with drifting
+     * original location to even few tenth of meters
+     */
+    private fun updatePointAndSave(
+        lastPoint: SignalMeasurementPointRecord?,
+        signalRecord: SignalRecord?
+    ) = io {
+        val updatedPoint = lastPoint?.copy(
+            signalRecordId = signalRecord?.signalMeasurementPointId,
+            timestamp = System.currentTimeMillis()
+        )
+        updatedPoint?.let {
+            signalMeasurementRepository.updateSignalMeasurementPoint(updatedPoint)
         }
     }
 
     private fun saveDedicatedSignalMeasurementPoint(point: SignalMeasurementPointRecord) = io {
         signalMeasurementRepository.saveMeasurementPointRecord(point)
+    }
+
+    private fun isTheSameLocation(location: LocationInfo): Boolean {
+        if (!location.isAccuracyEnoughForSignalMeasurement()) {
+            return false
+        }
+        val lastPoint = dedicatedSignalMeasurementData?.points?.lastOrNull()
+        val lastLocation = lastPoint?.location
+        return if (lastLocation != null) {
+            val distance = location.toLocation().distanceTo(lastLocation.toLocation())
+            (distance < SAME_LOCATION_DISTANCE_METERS)
+        } else {
+            false
+        }
     }
 
     private fun isDistanceToLastSignalPointLocationEnough(location: LocationInfo): Boolean {

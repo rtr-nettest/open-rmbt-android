@@ -61,4 +61,7 @@ interface SignalMeasurementDao {
             getSignalRecord(id)
         }
     }
+
+    @Update
+    fun updateSignalMeasurementPoint(updatedPoint: SignalMeasurementPointRecord)
 }

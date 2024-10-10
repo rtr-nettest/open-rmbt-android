@@ -142,6 +142,10 @@ class SignalMeasurementRepositoryImpl(
         return dao.getSignalRecordNullable(id)
     }
 
+    override fun updateSignalMeasurementPoint(updatedPoint: SignalMeasurementPointRecord) {
+        dao.updateSignalMeasurementPoint(updatedPoint)
+    }
+
     override fun saveMeasurementChunk(chunk: SignalMeasurementChunk) = io {
         dao.saveSignalMeasurementChunk(chunk)
     }
