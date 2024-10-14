@@ -224,9 +224,12 @@ class MapFragment : BaseFragment(), MapMarkerDetailsAdapter.MarkerDetailsCallbac
             if (this.isAdded) {
                 val mapServicesAvailable = checkServices()
                 val isMapFilterLoaded = mapViewModel.isFilterLoaded()
-                val isMarkerDetailOpened = binding.markerItems.visibility == View.VISIBLE
+                val isMarkerDetailOpened =
+                    binding.markerItems.visibility == View.VISIBLE && (binding.markerItems.adapter?.itemCount
+                        ?: 0) > 0
                 Timber.d("Map services available: $mapServicesAvailable")
                 Timber.d("Map filter loaded: $isMapFilterLoaded")
+                Timber.d("Map Marker opened: $isMarkerDetailOpened")
                 if (mapServicesAvailable && isMapFilterLoaded && !isMarkerDetailOpened) {
                     showFilters()
                 } else {
