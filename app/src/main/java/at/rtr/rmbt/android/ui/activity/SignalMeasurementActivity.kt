@@ -1,6 +1,7 @@
 package at.rtr.rmbt.android.ui.activity
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -40,7 +41,7 @@ import kotlinx.coroutines.withContext
 import timber.log.Timber
 import kotlin.random.Random
 
-const val DEFAULT_POSITION_TRACKING_ZOOM_LEVEL = 18f
+const val DEFAULT_POSITION_TRACKING_ZOOM_LEVEL = 16.2f
 const val DEFAULT_POINT_CLICKED_ZOOM_LEVEL = 16f
 
 class SignalMeasurementActivity : BaseActivity(), OnMapReadyCallback {
@@ -65,6 +66,7 @@ class SignalMeasurementActivity : BaseActivity(), OnMapReadyCallback {
         }
     }
 
+    @SuppressLint("SetTextI18n")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = bindContentView(R.layout.activity_signal_measurement)
@@ -135,18 +137,15 @@ class SignalMeasurementActivity : BaseActivity(), OnMapReadyCallback {
                     val latLng = point.location.toLatLng()
                     latLng?.let { markerLatLng ->
                         lifecycleScope.launch {
-                            // Fetch signal data on IO thread to avoid main thread blocking
                             val signalData = withContext(Dispatchers.IO) {
                                 point.signalRecordId?.let { viewModel.getSignalData(it) }
                             }
 
-                            // Now we're back on the Main thread, and signalData is ready
                             val options = MarkerOptions()
                                 .position(markerLatLng)
                                 .icon(BitmapDescriptorFactory.defaultMarker(Random.nextFloat() * 360))
                                 .title(signalData?.mobileNetworkType?.toString() ?: getString(R.string.noSignal))
 
-                            // Add the marker to the map on the UI thread
                             currentMap.addMarker(options)
                         }
                     }
@@ -208,6 +207,7 @@ class SignalMeasurementActivity : BaseActivity(), OnMapReadyCallback {
         binding.fabWarning.hide()
     }
 
+    @SuppressLint("ObsoleteSdkInt")
     private fun setFullscreen() {
         window.statusBarColor = Color.TRANSPARENT
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
@@ -215,6 +215,7 @@ class SignalMeasurementActivity : BaseActivity(), OnMapReadyCallback {
             window.insetsController?.hide(WindowInsets.Type.navigationBars())
             window.insetsController?.hide(WindowInsets.Type.displayCutout())
         } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            @Suppress("DEPRECATION")
             window.decorView.systemUiVisibility = (
                     View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
                             or View.SYSTEM_UI_FLAG_FULLSCREEN
