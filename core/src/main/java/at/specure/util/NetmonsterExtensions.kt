@@ -577,7 +577,7 @@ fun ICell.mobileNetworkType(netMonster: INetMonster): MobileNetworkType {
             DetectorLteAdvancedCellInfo(),
             DetectorAosp() // best to keep last when all other strategies fail
         ) ?: NetworkTypeTable.get(NetworkType.UNKNOWN)
-//        Timber.d("NM network type direct: ${networkTypeFromNM.technology}")
+        Timber.d("Debug session NM network type direct: ${networkTypeFromNM.technology}")
     } catch (e: SecurityException) {
         Timber.e("SecurityException: Not able to read network type")
     } catch (e: IllegalStateException) {
