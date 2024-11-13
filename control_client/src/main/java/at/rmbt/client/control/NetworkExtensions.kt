@@ -92,13 +92,14 @@ fun TelephonyManager.getCorrectDataTelephonyManager(subscriptionManager: Subscri
     return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
         try {
             val dataSubscriptionId = subscriptionManager.getCurrentDataSubscriptionId()
+            Timber.d("Debug session data subscription id: $dataSubscriptionId")
             if (dataSubscriptionId != INVALID_SUBSCRIPTION_ID) {
                 this.createForSubscriptionId(dataSubscriptionId)
             } else {
                 this
             }
         } catch (e: Exception) {
-            Timber.e("problem to obtain correct telephony manager for data subscription")
+            Timber.e("Debug session problem to obtain correct telephony manager for data subscription")
             this
         }
     } else {
