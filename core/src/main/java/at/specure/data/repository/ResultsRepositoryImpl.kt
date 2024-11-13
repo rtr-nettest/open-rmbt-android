@@ -112,6 +112,7 @@ class ResultsRepositoryImpl @Inject constructor(
                 Timber.d("TRS sending result with UUID ${body.testUUID} download speed: ${body.downloadSpeedKbs}")
 
                 result.onSuccess {
+                    Timber.d("Sending result successfully finished")
                     val count = db.testDao().updateTestIsSubmitted(testUUID)
                     if (count == 0) {
                         Timber.e("Failed to update test is submitted")
@@ -130,6 +131,7 @@ class ResultsRepositoryImpl @Inject constructor(
 //
                 result.onFailure {
 
+                    Timber.d("Sending result failed")
                     if ((testRecord.status != TestStatus.SPEEDTEST_END) || (testRecord.status != TestStatus.QOS_END) || (testRecord.status != TestStatus.END)) {
                         return@onFailure
                     }
@@ -141,6 +143,7 @@ class ResultsRepositoryImpl @Inject constructor(
 
         if (finalResult.ok && clientVersion != null) {
             if (qosRecord != null) {
+                Timber.d("Sending QOS results")
                 val body = qosRecord.toRequest(clientUUID, deviceInfo, clientVersion)
 
                 val isONTApp = !config.headerValue.isNullOrEmpty()
@@ -151,7 +154,9 @@ class ResultsRepositoryImpl @Inject constructor(
                     client.sendQoSTestResults(body)
                 }
 
+
                 result.onSuccess {
+                    Timber.d("Sending QOS results succeeded.")
                     val count = db.testDao().updateQoSTestIsSubmitted(testUUID)
                     if (count == 0) {
                         Timber.e("DB: failed to updated qos test is submitted")
