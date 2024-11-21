@@ -365,7 +365,15 @@ class StateRecorder @Inject constructor(
                         saveNetworkInformation(cellNetworkInfo, detailedNetworkInfo.signalStrengthInfo, uuid, testStartTimeNanos)
                         active5GNetworkInfos?.forEachIndexed { index, cellNetworkInfo ->
                             otherCells?.remove(cellNetworkInfo?.rawCellInfo)
-                            saveNetworkInformation(cellNetworkInfo, detailedNetworkInfo.secondary5GActiveSignalStrengthInfos?.get(index), uuid, testStartTimeNanos)
+                            // sometimes we are not getting the signal for NR cells as their are only neighbouring cells so there is empty list
+                            val signals5GisNullOrEmpty = detailedNetworkInfo.secondary5GActiveSignalStrengthInfos.isNullOrEmpty()
+                            val signalsIndexIsOutOfBound = index > (detailedNetworkInfo.secondary5GActiveSignalStrengthInfos?.lastIndex ?: -1)
+                            val signalStrengthInfo = if (signals5GisNullOrEmpty || signalsIndexIsOutOfBound) {
+                                null
+                            } else {
+                                detailedNetworkInfo.secondary5GActiveSignalStrengthInfos?.get(index)
+                            }
+                            saveNetworkInformation(cellNetworkInfo, signalStrengthInfo, uuid, testStartTimeNanos)
                         }
 
                         if (config.headerValue.isNullOrEmpty()) {
