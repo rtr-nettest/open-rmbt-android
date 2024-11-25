@@ -79,7 +79,7 @@ class TermsAcceptanceActivity : BaseActivity() {
                 viewModel.updateTermsAcceptance(true)
                 WorkLauncher.enqueueSettingsRequest(this)
                 finishAffinity()
-                HomeActivity.start(this)
+                PermissionsActivity.start(this)
             } else {
                 SimpleDialog.Builder()
                     .messageText(R.string.text_terms_agree_empty)

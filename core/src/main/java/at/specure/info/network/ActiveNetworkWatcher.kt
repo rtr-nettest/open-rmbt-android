@@ -146,11 +146,6 @@ class ActiveNetworkWatcher(
                 var activeCellNetwork: CellNetworkInfo? = null
                 cells = netMonster.getCells()
 
-
-                Timber.d("telephonyManager - supportedModemCount: ${telephonyManager.supportedModemCount}")
-                Timber.d("telephonyManager - ActiveModemCount: ${telephonyManager.activeModemCount}")
-                Timber.d("subscription manager - active subscriptions count Max: ${subscriptionManager.activeSubscriptionInfoCountMax}")
-
                 // all of the methods above returns 2 on samsung dual sim no matter of how many sims are activated or inserted so only this is viable but it can return 1 when signal is lost
                 Timber.d("subscription manager - active subscriptions count: ${subscriptionManager.activeSubscriptionInfoCount}")
 

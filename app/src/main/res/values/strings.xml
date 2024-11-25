@@ -329,8 +329,10 @@
     <string name="text_button_accept">Accept</string>
     <string name="text_loop_instruction_1">The loop mode option for technically interested users allows the automatic repetition of RTR-NetTest. The first test starts right after activation of the loop-modus; further tests are carried out when either the waiting time has elapsed or the specified distance has been covered. Tests will be performed until the configured number of tests has been reached. The signal strength is measured continuously, also between two tests. The loop-modus can be stopped at any time respectively it stops after 48 hours. It needs to be explicitly pointed out that due to the loop mode it cannot be excluded that the tester is identified.</string>
     <string name="text_loop_instruction_2">In the event of a great demand or very high number of tests in a specific area, the loop mode can be rejected by the test system in order to avoid overload. Please note that the loop-modus is (only) intended for use within the EU and the EEA. The loop-modus consumes a large amount of data. With fast connections, 10 tests can consume 1 GB or more of data. It is therefore strongly recommended that the loop-modus is only used with real flat rate tariffs, where additional data volume does not cause additional costs. The loop-modus drains the battery quickly. In pauses between the tests, the GPS and the display remain active and signal measurements continue, which means that the energy is used up much faster than during stand-by mode. The loop-modus should therefore only be used if an external power supply is available.</string>
+    <string name="text_loop_instruction_3">@string/location_permissions_disclaimer</string>
     <string name="title_loop_instruction_1">Activation</string>
     <string name="title_loop_instruction_2">Usage</string>
+    <string name="title_loop_instruction_3">Permissions</string>
 
     <string name="text_filter_devices">Devices</string>
     <string name="text_filter_networks">Networks</string>
@@ -355,6 +357,7 @@
     <string name="radio_info_warning_message">Be careful: Changing advanced settings of your radio configuration might be harmful to the stability and performance of your device.</string>
     <string name="accept_risk">I accept the risk</string>
     <string name="preferences_connection_details_not_supported">Extended connection details are not supported on this device</string>
+    <string name="preferences_unable_to_find_browser_app">Unable to open default browser application.</string>
 
     <string name="dialog_signal_info_band">Band</string>
     <string name="dialog_signal_info_connection_status" translatable="false">Status</string>
