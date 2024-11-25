@@ -314,4 +314,6 @@
     <string name="download_progress">%1$d%% heruntergeladen</string>
     <string name="notification_permission_title">3. Benachrichtigungsberechtigung</string>
     <string name="notification_permission_explanation">Die Benachrichtigungsberechtigung ist erforderlich, um die App während im Hintergrund ausgeführter Messungen am Leben zu halten. Ohne Benachrichtigungsberechtigung können Sie den Messfortschritt nicht verfolgen, wenn die App im Hintergrund läuft. Die Benachrichtigungsberechtigung ist erforderlich, damit der Schleifenmodus im Hintergrund ausgeführt werden kann.</string>
+    <string name="preferences_unable_to_find_browser_app">Unable to open default browser application.</string>
+    <string name="title_loop_instruction_3">Permissions</string>
 </resources>
