@@ -191,44 +191,64 @@ class SettingsFragment : BaseFragment(), InputSettingDialog.Callback,
         binding.version.value = "${BuildConfig.VERSION_NAME} (${BuildConfig.BUILD_TIME})"
         binding.commitHash.value = BuildConfig.COMMIT_HASH
         binding.sourceCode.root.setOnClickListener {
-            startActivity(
-                Intent(
-                    Intent.ACTION_VIEW,
-                    Uri.parse(settingsViewModel.state.githubRepositoryUrl.get())
+            try {
+                startActivity(
+                    Intent(
+                        Intent.ACTION_VIEW,
+                        Uri.parse(settingsViewModel.state.githubRepositoryUrl.get())
+                    )
                 )
-            )
+            } catch (e: ActivityNotFoundException) {
+                showUnableToFindBrowserAppToast()
+            }
         }
         binding.developedBy.root.setOnClickListener {
-            startActivity(
-                Intent(
-                    Intent.ACTION_VIEW,
-                    Uri.parse(getString(R.string.preferences_developer_page))
+            try {
+                startActivity(
+                    Intent(
+                        Intent.ACTION_VIEW,
+                        Uri.parse(getString(R.string.preferences_developer_page))
+                    )
                 )
-            )
+            } catch (e: ActivityNotFoundException) {
+                showUnableToFindBrowserAppToast()
+            }
         }
         binding.designBy.root.setOnClickListener {
-            startActivity(
-                Intent(
-                    Intent.ACTION_VIEW,
-                    Uri.parse(getString(R.string.preferences_design_page))
+            try {
+                startActivity(
+                    Intent(
+                        Intent.ACTION_VIEW,
+                        Uri.parse(getString(R.string.preferences_design_page))
+                    )
                 )
-            )
+            } catch (e: ActivityNotFoundException) {
+                showUnableToFindBrowserAppToast()
+            }
         }
         binding.networkBy.root.setOnClickListener {
-            startActivity(
-                Intent(
-                    Intent.ACTION_VIEW,
-                    Uri.parse(getString(R.string.preferences_network_info_page))
+            try {
+                startActivity(
+                    Intent(
+                        Intent.ACTION_VIEW,
+                        Uri.parse(getString(R.string.preferences_network_info_page))
+                    )
                 )
-            )
+            } catch (e: ActivityNotFoundException) {
+                showUnableToFindBrowserAppToast()
+            }
         }
         binding.goToWebsite.root.setOnClickListener {
-            startActivity(
-                Intent(
-                    Intent.ACTION_VIEW,
-                    Uri.parse(settingsViewModel.state.webPageUrl.get())
+            try {
+                startActivity(
+                    Intent(
+                        Intent.ACTION_VIEW,
+                        Uri.parse(settingsViewModel.state.webPageUrl.get())
+                    )
                 )
-            )
+            } catch (e: ActivityNotFoundException) {
+                showUnableToFindBrowserAppToast()
+            }
         }
         binding.contactUs.root.setOnClickListener {
             val emailIntent = Intent(Intent.ACTION_SEND)
@@ -463,6 +483,14 @@ class SettingsFragment : BaseFragment(), InputSettingDialog.Callback,
         Toast.makeText(
             activity,
             R.string.preferences_connection_details_not_supported,
+            Toast.LENGTH_SHORT
+        ).show()
+    }
+
+    private fun showUnableToFindBrowserAppToast() {
+        Toast.makeText(
+            activity,
+            R.string.preferences_unable_to_find_browser_app,
             Toast.LENGTH_SHORT
         ).show()
     }
