@@ -9,7 +9,9 @@ import at.rmbt.util.Maybe
 import at.rmbt.util.exception.HandledException
 import at.rtr.rmbt.android.ui.viewstate.ViewState
 import kotlinx.coroutines.CoroutineExceptionHandler
+import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.CoroutineScope
+import timber.log.Timber
 import java.util.concurrent.TimeUnit
 
 open class BaseViewModel : ViewModel(), CoroutineScope {
@@ -59,10 +61,11 @@ open class BaseViewModel : ViewModel(), CoroutineScope {
         viewStates.forEach { it.onSaveState(bundle) }
     }
 
-    private val coroutineExceptionHandler = CoroutineExceptionHandler { _, e ->
+    private val coroutineExceptionHandler = CoroutineExceptionHandler { context, e ->
         if (e is HandledException) {
             postError(e)
         } else {
+            Timber.e("My viewModel coroutine named: ${context[CoroutineName]} has crashed with: ${e.message}")
             throw e
         }
     }
