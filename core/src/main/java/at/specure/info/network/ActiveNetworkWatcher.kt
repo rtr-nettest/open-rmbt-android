@@ -45,6 +45,7 @@ import cz.mroczis.netmonster.core.factory.NetMonsterFactory
 import cz.mroczis.netmonster.core.model.cell.CellLte
 import cz.mroczis.netmonster.core.model.cell.CellNr
 import cz.mroczis.netmonster.core.model.cell.ICell
+import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import timber.log.Timber
@@ -131,7 +132,7 @@ class ActiveNetworkWatcher(
                     }
                 }
             }
-            GlobalScope.launch {
+            GlobalScope.launch((CoroutineName("captivePortalChecks"))) {
                 captivePortal.resetCaptivePortalStatus()
                 captivePortal.checkForCaptivePortal()
             }

@@ -4,6 +4,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import at.specure.data.TermsAndConditions
 import at.specure.data.repository.SettingsRepository
+import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.flowOn
@@ -20,7 +21,7 @@ class TermsAcceptanceViewModel @Inject constructor(private val tac: TermsAndCond
             return _tacContentLiveData
         }
 
-    fun getTac() = launch {
+    fun getTac() = launch(CoroutineName("getTAC")) {
         settingsRepository.getTermsAndConditions()
             .flowOn(Dispatchers.IO)
             .collect {

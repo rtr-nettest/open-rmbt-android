@@ -51,6 +51,7 @@ import at.specure.util.CustomLifecycleService
 import at.specure.worker.WorkLauncher
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineExceptionHandler
+import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -1061,10 +1062,11 @@ class MeasurementService : CustomLifecycleService(), CoroutineScope {
         fun intent(context: Context) = Intent(context, MeasurementService::class.java)
     }
 
-    private val coroutineExceptionHandler = CoroutineExceptionHandler { _, e ->
+    private val coroutineExceptionHandler = CoroutineExceptionHandler { context, e ->
         if (e is HandledException) {
             // do nothing
         } else {
+            Timber.e("My MeasurementService coroutine named: ${context[CoroutineName]} has crashed with: ${e.message}")
             throw e
         }
     }
