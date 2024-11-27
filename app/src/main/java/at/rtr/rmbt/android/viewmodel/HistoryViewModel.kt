@@ -8,6 +8,7 @@ import at.rtr.rmbt.android.ui.viewstate.HistoryViewState
 import at.specure.data.entity.HistoryContainer
 import at.specure.data.repository.HistoryLoader
 import at.specure.data.repository.HistoryRepository
+import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.consumeAsFlow
 import kotlinx.coroutines.flow.debounce
@@ -37,7 +38,7 @@ class HistoryViewModel @Inject constructor(
         addStateSaveHandler(state)
 
         val isLoadingChannel = Channel<Boolean>()
-        launch {
+        launch(CoroutineName("HistoryViewModelInit1")) {
             isLoadingChannel.consumeAsFlow()
                 .debounce(200)
                 .collect {
@@ -46,7 +47,7 @@ class HistoryViewModel @Inject constructor(
         }
 
         val errorChannel = Channel<HandledException>()
-        launch {
+        launch(CoroutineName("HistoryViewModelInit2")) {
             errorChannel.consumeAsFlow()
                 .collect {
                     postError(it)

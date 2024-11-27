@@ -23,6 +23,7 @@ import at.specure.data.repository.IpCheckRepository
 import at.specure.info.connectivity.ConnectivityInfo
 import at.specure.info.connectivity.ConnectivityWatcher
 import at.specure.util.synchronizedForEach
+import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import timber.log.Timber
@@ -77,8 +78,8 @@ class IpChangeWatcherImpl @Inject constructor(
                 var privateIp4: Maybe<IpInfoResponse>? = null
 
                 coroutineScope {
-                    launch { publicIp4 = ipCheckRepository.getPublicIpV4Address(network) }
-                    launch { privateIp4 = ipCheckRepository.getPrivateIpV4Address() }
+                    launch(CoroutineName("getPublicIPv4Address")) { publicIp4 = ipCheckRepository.getPublicIpV4Address(network) }
+                    launch(CoroutineName("getPrivateIPv4Address")) { privateIp4 = ipCheckRepository.getPrivateIpV4Address() }
                 }
 
                 val privateAddress: String? = if (privateIp4?.ok == true) privateIp4!!.success.ipAddress else null
@@ -105,8 +106,8 @@ class IpChangeWatcherImpl @Inject constructor(
                 var privateIp6: Maybe<IpInfoResponse>? = null
 
                 coroutineScope {
-                    launch { publicIp6 = ipCheckRepository.getPublicIpV6Address(network) }
-                    launch { privateIp6 = ipCheckRepository.getPrivateIpV6Address() }
+                    launch(CoroutineName("getPublicIPv6Address")) { publicIp6 = ipCheckRepository.getPublicIpV6Address(network) }
+                    launch(CoroutineName("getPublicIPv6Address")) { privateIp6 = ipCheckRepository.getPrivateIpV6Address() }
                 }
 
                 val privateAddress: String? = if (privateIp6?.ok == true) privateIp6!!.success.ipAddress else null

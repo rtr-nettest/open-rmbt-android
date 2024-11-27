@@ -28,6 +28,7 @@ import at.specure.measurement.signal.SignalMeasurementProducer
 import at.specure.measurement.signal.SignalMeasurementService
 import at.specure.test.SignalMeasurementType
 import at.specure.util.permission.PermissionsWatcher
+import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.launch
@@ -145,7 +146,7 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    fun getNews() = launch {
+    fun getNews() = launch(CoroutineName("HomeViewModelGetNews")) {
         settingsRepository.refreshSettingsByFlow()
             .flowOn(Dispatchers.IO)
             .collect {

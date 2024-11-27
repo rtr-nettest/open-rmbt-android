@@ -12,6 +12,7 @@ import at.specure.data.entity.History
 import at.specure.data.repository.HistoryRepository
 import at.specure.util.download.FileDownloadData
 import at.specure.util.download.FileDownloader
+import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.launch
 import java.util.Locale
 import javax.inject.Inject
@@ -39,7 +40,7 @@ class HistoryDownloadViewModel @Inject constructor(
 
         loadData()
 
-        this.viewModelScope.launch {
+        this.viewModelScope.launch((CoroutineName("HistoryDownloadViewModelInit"))) {
             fileDownloader.downloadStateFlow.collect { downloadState ->
                 when (downloadState) {
                     is FileDownloader.DownloadState.Initial -> {

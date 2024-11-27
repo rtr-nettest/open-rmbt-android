@@ -14,6 +14,7 @@ import at.rtr.rmbt.android.R
 import at.rtr.rmbt.android.databinding.DialogInputSettingBinding
 import at.rtr.rmbt.android.util.args
 import at.rtr.rmbt.android.util.onTextChanged
+import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 
@@ -63,7 +64,7 @@ class InputSettingDialog : FullscreenDialog() {
 
         val isEmptyInputAllowed = arguments?.getBoolean(KEY_IS_ALLOWED_EMPTY_INPUT, false) ?: false
 
-        launch {
+        launch(CoroutineName("InputSettingsDialog")) {
             binding.editTextValue.onTextChanged().collect {
                 if (isEmptyInputAllowed) {
                     binding.buttonOkay.isEnabled = true

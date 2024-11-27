@@ -13,6 +13,7 @@ import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import at.rtr.rmbt.android.R
 import at.rtr.rmbt.android.databinding.DialogMapSearchBinding
+import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -74,7 +75,7 @@ class MapSearchDialog : FullscreenDialog() {
             binding.buttonSearch.visibility = View.INVISIBLE
             binding.progressbar.visibility = View.VISIBLE
             searchJob?.cancel()
-            searchJob = coroutineScope.launch {
+            searchJob = coroutineScope.launch(CoroutineName("mapSearchDialog search job")) {
                 loadResults(searchValue) {
                     callback?.onAddressResult(it)
                     binding.buttonSearch.visibility = View.VISIBLE

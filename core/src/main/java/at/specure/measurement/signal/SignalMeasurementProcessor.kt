@@ -328,7 +328,7 @@ class SignalMeasurementProcessor @Inject constructor(
     }
 
     @ExperimentalCoroutinesApi
-    private fun updateChunkInfo(chunkId: String) = launch {
+    private fun updateChunkInfo(chunkId: String) = launch(CoroutineName("updateChunkInfo")) {
         signalRepository.getSignalMeasurementChunk(chunkId)
             .flowOn(Dispatchers.IO)
             .collect { smr ->

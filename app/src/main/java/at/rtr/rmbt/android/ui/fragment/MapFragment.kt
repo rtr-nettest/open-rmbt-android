@@ -37,6 +37,7 @@ import at.specure.data.NetworkTypeCompat
 import at.specure.data.ServerNetworkType
 import at.specure.data.entity.MarkerMeasurementRecord
 import at.specure.location.LocationState
+import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import kotlin.math.abs
@@ -338,7 +339,7 @@ class MapFragment : BaseFragment(), MapMarkerDetailsAdapter.MarkerDetailsCallbac
     }
 
     override fun moveToItem(index: Int) {
-        lifecycleScope.launch {
+        lifecycleScope.launch(CoroutineName("MapFragmentMoveToItem")) {
                 binding.markerItems.smoothScrollToPosition(index)
         }
     }
