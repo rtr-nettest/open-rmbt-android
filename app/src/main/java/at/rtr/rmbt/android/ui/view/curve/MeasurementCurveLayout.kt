@@ -11,6 +11,8 @@ import at.rtr.rmbt.android.databinding.LayoutDashBinding
 import at.rtr.rmbt.android.databinding.LayoutMeasurementCurveBinding
 import at.rtr.rmbt.android.databinding.LayoutPercentageBinding
 import at.rtr.rmbt.android.databinding.LayoutSpeedBinding
+import at.rtr.rmbt.android.ui.getBigDownloadIconAccordingToSpeed
+import at.rtr.rmbt.android.ui.getBigUploadIconAccordingToSpeed
 import at.rtr.rmbt.android.util.format
 import at.specure.data.entity.LoopModeState
 import at.specure.info.strength.SignalStrengthInfo
@@ -215,9 +217,14 @@ class MeasurementCurveLayout @JvmOverloads constructor(context: Context, attrs: 
     fun setBottomProgress(progress: Long) {
         if (phase == MeasurementState.DOWNLOAD || phase == MeasurementState.UPLOAD) {
             currentBottomProgress = progress
-            speedLayout.icon.setImageResource(if (phase == MeasurementState.DOWNLOAD) R.drawable.ic_speed_download else R.drawable.ic_speed_upload)
             curveBinding.curveView.setBottomProgress(phase, (progress * 1e-3).toInt(), isQoSEnabled)
             val progressInMbps: Float = progress / 1000000.0f
+            speedLayout.icon.setImageResource(
+                if (phase == MeasurementState.DOWNLOAD)
+                    getDownloadSpeedIconResId(progressInMbps)
+                else
+                    getUploadSpeedIconResId(progressInMbps)
+            )
             speedLayout.value.text = progressInMbps.format()
             speedLayout.units.text = context.getString(R.string.speed_progress_units)
             if (progress != 0L) {
@@ -229,6 +236,14 @@ class MeasurementCurveLayout @JvmOverloads constructor(context: Context, attrs: 
             speedLayout.units.text = ""
             curveBinding.curveView.setBottomProgress(phase, 0, isQoSEnabled)
         }
+    }
+
+    fun getUploadSpeedIconResId(progressInMbps: Float): Int {
+        return getBigUploadIconAccordingToSpeed((progressInMbps * 1_000_000L).toLong())
+    }
+
+    fun getDownloadSpeedIconResId(progressInMbps: Float): Int {
+        return getBigDownloadIconAccordingToSpeed((progressInMbps * 1_000_000L).toLong())
     }
 
     /**
