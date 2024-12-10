@@ -23,6 +23,8 @@ import kotlin.math.min
 class MeasurementCurveLayout @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) :
     FrameLayout(context, attrs, defStyleAttr) {
 
+    private var downloadAlreadyMeasured: Boolean = false
+    private var uploadAlreadyMeasured: Boolean = false
     private lateinit var speedLayout: LayoutSpeedBinding
     private lateinit var percentageLayout: LayoutPercentageBinding
     private lateinit var dashUpperLayout: LayoutDashBinding
@@ -211,6 +213,24 @@ class MeasurementCurveLayout @JvmOverloads constructor(context: Context, attrs: 
             (progressOffsets[phase] ?: 0) + ((progressCoefficients[phase] ?: 0f) * progress).toInt()
         }
 
+    private fun getDownloadSpeedIconOrUnknown(progressInMbps: Float): Int {
+        downloadAlreadyMeasured = (downloadAlreadyMeasured || progressInMbps > 0f)
+        return if (downloadAlreadyMeasured) {
+            getDownloadSpeedIconResId(progressInMbps)
+        } else {
+            R.drawable.ic_speed_download_gray
+        }
+    }
+
+    private fun getUploadSpeedIconOrUnknown(progressInMbps: Float): Int {
+        uploadAlreadyMeasured = (uploadAlreadyMeasured || progressInMbps > 0f)
+        return if (uploadAlreadyMeasured) {
+            getUploadSpeedIconResId(progressInMbps)
+        } else {
+            R.drawable.ic_speed_upload_gray
+        }
+    }
+
     /**
      * Update the bottom part UI according to progress changing
      */
@@ -221,9 +241,10 @@ class MeasurementCurveLayout @JvmOverloads constructor(context: Context, attrs: 
             val progressInMbps: Float = progress / 1000000.0f
             speedLayout.icon.setImageResource(
                 if (phase == MeasurementState.DOWNLOAD)
-                    getDownloadSpeedIconResId(progressInMbps)
-                else
-                    getUploadSpeedIconResId(progressInMbps)
+                    getDownloadSpeedIconOrUnknown(progressInMbps)
+                else {
+                    getUploadSpeedIconOrUnknown(progressInMbps)
+                }
             )
             speedLayout.value.text = progressInMbps.format()
             speedLayout.units.text = context.getString(R.string.speed_progress_units)
