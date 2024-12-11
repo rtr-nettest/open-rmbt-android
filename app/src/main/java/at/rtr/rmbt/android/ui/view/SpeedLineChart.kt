@@ -89,23 +89,53 @@ class SpeedLineChart @JvmOverloads constructor(
         }
     }
 
+    private fun removeLeadingZeroValues(graphItems: List<GraphItemRecord>?): List<GraphItemRecord>? {
+        var foundNonZero = false
+        return graphItems?.filter { graphItem ->
+            if (foundNonZero) {
+                true
+            } else if (graphItem.value != 0L) {
+                foundNonZero = true
+                true
+            } else {
+                false
+            }
+        }
+    }
+
+    private fun removeLeadingZeroValuesForResult(graphItems: List<TestResultGraphItemRecord>?): List<TestResultGraphItemRecord>? {
+        var foundNonZero = false
+        return graphItems?.filter { graphItem ->
+            if (foundNonZero) {
+                true
+            } else if (graphItem.value != 0L) {
+                foundNonZero = true
+                true
+            } else {
+                false
+            }
+        }
+    }
+
     fun addGraphItems(graphItems: List<GraphItemRecord>?) {
 
         pathStroke.rewind()
         pathFill.rewind()
-        if (graphItems != null && graphItems.isNotEmpty()) {
+
+        val filteredGraphItems = removeLeadingZeroValues(graphItems)
+        Timber.d("Filtered item: ${(graphItems?.count() ?: 0) - (filteredGraphItems?.count() ?: 0)}")
+        if (!filteredGraphItems.isNullOrEmpty()) {
 
             chartPoints = ArrayList()
 
-            if (graphItems[0].progress > 0) {
-                chartPoints.add(PointF(0.0f, toLog(graphItems[0].value)))
+            if (filteredGraphItems[0].progress > 0) {
+                chartPoints.add(PointF(0.0f, toLog(filteredGraphItems[0].value)))
             }
-            for (index in graphItems.indices) {
+            for (index in filteredGraphItems.indices) {
 
-                val x = graphItems[index].progress / 100.0f
-                val y = toLog(graphItems[index].value)
+                val x = filteredGraphItems[index].progress / 100.0f
+                val y = toLog(filteredGraphItems[index].value)
 
-                //Timber.d("speedtest speed ${graphItems[index].value}")
                 chartPoints.add(PointF(x, y))
             }
         }
@@ -117,20 +147,21 @@ class SpeedLineChart @JvmOverloads constructor(
         pathStroke.rewind()
         pathFill.rewind()
 
-        graphItems?.let { items ->
+        val filteredGraphItems = removeLeadingZeroValuesForResult(graphItems)
+        filteredGraphItems.let { items ->
 
             chartPoints = ArrayList()
 
-            val maxValue = items.maxByOrNull { it.time }?.time
+            val maxValue = items?.maxByOrNull { it.time }?.time
             if (maxValue != null) {
 
                 if (((items[0].time / maxValue.toFloat()) * 100.0f) > 0) {
-                    chartPoints.add(PointF(0.0f, toLog(graphItems[0].value * 8000 / graphItems[0].time)))
+                    chartPoints.add(PointF(0.0f, toLog(items[0].value * 8000 / items[0].time)))
                 }
 
                 for (index in items.indices) {
                     val x = items[index].time / maxValue.toFloat()
-                    val y = toLog(graphItems[index].value * 8000 / graphItems[index].time)
+                    val y = toLog(items[index].value * 8000 / items[index].time)
                     chartPoints.add(PointF(x, y))
                     Timber.d("itemsdisplaytest x $x y $y width ${getChartWidth()} height ${getChartHeight()}")
                 }
