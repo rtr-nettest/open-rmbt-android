@@ -91,7 +91,7 @@ class MapRepositoryImpl @Inject constructor(
                 }
             }
         }
-        return@runBlocking null
+        return@runBlocking byteArrayOf()
     }
 
     override fun loadAutomaticTiles(x: Int, y: Int, zoom: Int): ByteArray? {
