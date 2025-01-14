@@ -1,14 +1,13 @@
 package at.rtr.rmbt.android.ui.dialog
 
+import android.os.Build
 import android.os.Bundle
-import android.util.DisplayMetrics
 import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
-import androidx.recyclerview.widget.RecyclerView
 import at.rtr.rmbt.android.R
 import at.rtr.rmbt.android.databinding.DialogFiltersConfirmationBinding
 import at.rtr.rmbt.android.ui.adapter.FilterConfirmationAdapter
@@ -58,18 +57,25 @@ class MapFiltersConfirmationDialog : FullscreenDialog() {
     }
 
     private fun setMaxHeightOfView(view: View, partOfScreenHeight: Float) {
-        val window = dialog?.window
-        val windowManager = window?.windowManager
-        val metrics = windowManager?.currentWindowMetrics;
-        val height = metrics?.bounds?.height()
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            val window = dialog?.window
+            val windowManager = window?.windowManager
+            val metrics = windowManager?.currentWindowMetrics
+            val height = metrics?.bounds?.height()
 
-        height?.let { screenHeight ->
-            val maxHeight = (screenHeight * partOfScreenHeight).toInt()
-            view.post {
-                if (view.height > maxHeight) {
-                    view.layoutParams.height = maxHeight
-                    view.requestLayout()
+            height?.let { screenHeight ->
+                val maxHeight = (screenHeight * partOfScreenHeight).toInt()
+                view.post {
+                    if (view.height > maxHeight) {
+                        view.layoutParams.height = maxHeight
+                        view.requestLayout()
+                    }
                 }
+            }
+        } else {
+            binding.items.post {
+                binding.items.layoutParams.height = min((binding.root.measuredHeight * partOfScreenHeight).toInt(), binding.items.measuredHeight)
+                binding.root.requestLayout()
             }
         }
     }
