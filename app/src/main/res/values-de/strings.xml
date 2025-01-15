@@ -137,7 +137,7 @@
     <string name="measurement_upload">Upload</string>
     <string name="measurement_dash">-</string>
     <string name="measurement_speed_chart_x_label_min">0s</string>
-    <string name="measurement_speed_chart_x_label_max">8s</string>
+    <string name="measurement_speed_chart_x_label_max">7s</string>
     <string name="measurement_ping">Ping</string>
     <string name="measurement_down">Down</string>
     <string name="measurement_up">Up</string>

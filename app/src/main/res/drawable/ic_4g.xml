@@ -5,14 +5,14 @@
     android:viewportHeight="24">
   <path
       android:pathData="M23,17v-6L18.5,11v3L20,14v3L17,17v-9h6v-3L17,5a3,3 0,0 0,-3 3v9a3,3 0,0 0,3 3h3a3,3 0,0 0,3 -3"
-      android:fillColor="#59b200"/>
+      android:fillColor="#45C317"/>
   <path
       android:pathData="M8,5h3v15h-3z"
-      android:fillColor="#59b200"/>
+      android:fillColor="#45C317"/>
   <path
       android:pathData="M2,12h8v3h-8z"
-      android:fillColor="#59b200"/>
+      android:fillColor="#45C317"/>
   <path
       android:pathData="M2,5h3v7h-3z"
-      android:fillColor="#59b200"/>
+      android:fillColor="#45C317"/>
 </vector>

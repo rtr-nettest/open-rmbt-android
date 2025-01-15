@@ -568,6 +568,40 @@ fun AppCompatTextView.setPing(pingNanos: Long) {
 
 val THRESHOLD_DOWNLOAD = listOf(0L, 5000000L, 10000000L, 100000000L) // 0mb, 5mb, 10mb, 100mb
 
+fun getBigDownloadIconAccordingToSpeed(downloadSpeedBps: Long): Int {
+    return when (downloadSpeedBps) {
+        in THRESHOLD_DOWNLOAD[0] until THRESHOLD_DOWNLOAD[1] -> {
+            R.drawable.ic_speed_download_red
+        }
+        in THRESHOLD_DOWNLOAD[1] until THRESHOLD_DOWNLOAD[2] -> {
+            R.drawable.ic_speed_download_yellow
+        }
+        in THRESHOLD_DOWNLOAD[2] until THRESHOLD_DOWNLOAD[3] -> {
+            R.drawable.ic_speed_download_light_green
+        }
+        else -> {
+            R.drawable.ic_speed_download_dark_green
+        }
+    }
+}
+
+fun getDownloadIconAccordingToSpeed(downloadSpeedBps: Long): Int {
+    return when (downloadSpeedBps) {
+        in THRESHOLD_DOWNLOAD[0] until THRESHOLD_DOWNLOAD[1] -> {
+            R.drawable.ic_small_download_red
+        }
+        in THRESHOLD_DOWNLOAD[1] until THRESHOLD_DOWNLOAD[2] -> {
+            R.drawable.ic_small_download_yellow
+        }
+        in THRESHOLD_DOWNLOAD[2] until THRESHOLD_DOWNLOAD[3] -> {
+            R.drawable.ic_small_download_light_green
+        }
+        else -> {
+            R.drawable.ic_small_download_dark_green
+        }
+    }
+}
+
 /**
  * A binding adapter that is used for show download speed
  */
@@ -579,20 +613,7 @@ fun AppCompatTextView.setDownload(downloadSpeedBps: Long) {
 
         setCompoundDrawablesWithIntrinsicBounds(
 
-            when (downloadSpeedBps) {
-                in THRESHOLD_DOWNLOAD[0] until THRESHOLD_DOWNLOAD[1] -> {
-                    R.drawable.ic_small_download_red
-                }
-                in THRESHOLD_DOWNLOAD[1] until THRESHOLD_DOWNLOAD[2] -> {
-                    R.drawable.ic_small_download_yellow
-                }
-                in THRESHOLD_DOWNLOAD[2] until THRESHOLD_DOWNLOAD[3] -> {
-                    R.drawable.ic_small_download_light_green
-                }
-                else -> {
-                    R.drawable.ic_small_download_dark_green
-                }
-            }, 0, 0, 0
+            getDownloadIconAccordingToSpeed(downloadSpeedBps), 0, 0, 0
         )
         text = context.getString(
             R.string.measurement_download_upload_speed,
@@ -608,6 +629,40 @@ fun AppCompatTextView.setDownload(downloadSpeedBps: Long) {
 
 val THRESHOLD_UPLOAD = listOf(0L, 2500000L, 5000000L, 50000000L) // 0mb, 2.5mb, 5mb, 50mb
 
+fun getBigUploadIconAccordingToSpeed(uploadSpeedBps: Long): Int {
+    return when (uploadSpeedBps) {
+        in THRESHOLD_UPLOAD[0] until THRESHOLD_UPLOAD[1] -> {
+            R.drawable.ic_speed_upload_red
+        }
+        in THRESHOLD_UPLOAD[1] until THRESHOLD_UPLOAD[2] -> {
+            R.drawable.ic_speed_upload_yellow
+        }
+        in THRESHOLD_UPLOAD[2] until THRESHOLD_UPLOAD[3] -> {
+            R.drawable.ic_speed_upload_light_green
+        }
+        else -> {
+            R.drawable.ic_speed_upload_dark_green
+        }
+    }
+}
+
+fun getUploadIconAccordingToSpeed(uploadSpeedBps: Long): Int {
+    return when (uploadSpeedBps) {
+        in THRESHOLD_UPLOAD[0] until THRESHOLD_UPLOAD[1] -> {
+            R.drawable.ic_small_upload_red
+        }
+        in THRESHOLD_UPLOAD[1] until THRESHOLD_UPLOAD[2] -> {
+            R.drawable.ic_small_upload_yellow
+        }
+        in THRESHOLD_UPLOAD[2] until THRESHOLD_UPLOAD[3] -> {
+            R.drawable.ic_small_upload_light_green
+        }
+        else -> {
+            R.drawable.ic_small_upload_dark_green
+        }
+    }
+}
+
 /**
  * A binding adapter that is used for show upload speed
  */
@@ -619,20 +674,7 @@ fun AppCompatTextView.setUpload(uploadSpeedBps: Long) {
 
         setCompoundDrawablesWithIntrinsicBounds(
 
-            when (uploadSpeedBps) {
-                in THRESHOLD_UPLOAD[0] until THRESHOLD_UPLOAD[1] -> {
-                    R.drawable.ic_small_upload_red
-                }
-                in THRESHOLD_UPLOAD[1] until THRESHOLD_UPLOAD[2] -> {
-                    R.drawable.ic_small_upload_yellow
-                }
-                in THRESHOLD_UPLOAD[2] until THRESHOLD_UPLOAD[3] -> {
-                    R.drawable.ic_small_upload_light_green
-                }
-                else -> {
-                    R.drawable.ic_small_upload_dark_green
-                }
-            }, 0, 0, 0
+            getUploadIconAccordingToSpeed(uploadSpeedBps), 0, 0, 0
         )
         text = context.getString(
             R.string.measurement_download_upload_speed,
