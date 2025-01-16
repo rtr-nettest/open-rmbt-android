@@ -40,7 +40,9 @@ class ICellAdapter : RecyclerView.Adapter<ICellAdapter.Holder>() {
         set(value) {
             Handler(Looper.getMainLooper())
                 .post {
-                    field = value
+                    field = value.sortedByDescending {
+                        it.toTechnologyClass().ordinal
+                    }
                     notifyDataSetChanged()
                 }
         }
