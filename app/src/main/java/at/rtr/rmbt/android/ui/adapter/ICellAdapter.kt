@@ -40,9 +40,15 @@ class ICellAdapter : RecyclerView.Adapter<ICellAdapter.Holder>() {
         set(value) {
             Handler(Looper.getMainLooper())
                 .post {
-                    field = value.sortedByDescending {
-                        it.toTechnologyClass().ordinal
-                    }
+                    val primaryConnectionFirstWithNrSecondaryAfterPrimaryOnes = value
+                        .sortedByDescending {
+                            it.toTechnologyClass().ordinal
+                        }.sortedByDescending {
+                            it.connectionStatus is PrimaryConnection
+                        }.sortedByDescending {
+                            it.subscriptionId == primaryDataSubscriptionId
+                        }
+                    field = primaryConnectionFirstWithNrSecondaryAfterPrimaryOnes
                     notifyDataSetChanged()
                 }
         }
