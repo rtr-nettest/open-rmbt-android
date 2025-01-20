@@ -100,10 +100,10 @@ class ControlServerClient @Inject constructor(private val endpointProvider: Cont
     }
 
     fun signalRequest(body: SignalMeasurementRequestBody): Maybe<SignalMeasurementRequestResponse> {
-        return api.signalRequest(endpointProvider.signalRequestUrl, body).exec()
+        return api.signalRequest(endpointProvider.signalRequestUrl, body).exec(true)
     }
 
     fun signalResult(body: SignalMeasurementChunkBody): Maybe<SignalMeasurementChunkResultResponse> {
-        return api.signalResult(endpointProvider.signalResultUrl, body).exec()
+        return api.signalResult(endpointProvider.signalResultUrl, body).exec(true)
     }
 }
