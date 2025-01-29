@@ -86,15 +86,19 @@ class DedicatedSignalMeasurementProcessor @Inject constructor(
         if (signalRecord == null || signalRecord.transportType == TransportType.CELLULAR) {
             if (isDistanceToLastSignalPointLocationEnough(location)) {
                 val sessionId = dedicatedSignalMeasurementData?.signalMeasurementSession?.sessionId
-                    ?: throw Exception("Session not initialized - sessionId missing")
-                Timber.d("Creating point with signal record: $signalRecord")
-                val point = SignalMeasurementPointRecord(
-                    sessionId = sessionId,
-                    sequenceNumber = getNextSequenceNumber(),
-                    location = location.toDeviceInfoLocation(),
-                    signalRecordId = signalRecord?.signalMeasurementPointId
-                )
-                saveDedicatedSignalMeasurementPoint(point)
+                if (sessionId == null) {
+                    Timber.e("Signal measurement Session not initialized yet - sessionId missing")
+                }
+                sessionId?.let {
+                    Timber.d("Creating point with signal record: $signalRecord")
+                    val point = SignalMeasurementPointRecord(
+                        sessionId = sessionId,
+                        sequenceNumber = getNextSequenceNumber(),
+                        location = location.toDeviceInfoLocation(),
+                        signalRecordId = signalRecord?.signalMeasurementPointId
+                    )
+                    saveDedicatedSignalMeasurementPoint(point)
+                }
             } else if (isTheSameLocation(location)) {
                 val lastPoint = dedicatedSignalMeasurementData?.points?.lastOrNull()
                 lastPoint?.let { point ->
