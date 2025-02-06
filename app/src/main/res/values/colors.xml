@@ -26,7 +26,7 @@
 
     <!-- Bottom navigation icon colors -->
     <color name="navigation_green">@color/colorAccent</color>
-    <color name="navigation_gray">#5f6368</color>
+    <color name="navigation_gray">#545454</color>
 
     <!-- Ripple effect color  -->
     <color name="greenRipple">#4259b200</color>
@@ -78,11 +78,11 @@
     <color name="measurement_green">#52d301</color>
     <color name="measurement_green_dark">#38a300</color>
 
-    <color name="classification_green_dark">#007C0E</color>
-    <color name="classification_green">#59B200</color>
-    <color name="classification_yellow">#FFBA00</color>
-    <color name="classification_red">#F5001C</color>
-    <color name="classification_undefined">#F2F3F5</color>
+    <color name="classification_green_dark">#2F5F00</color>
+    <color name="classification_green">#45C317</color>
+    <color name="classification_yellow">#FFBD0C</color>
+    <color name="classification_red">#cf0c0c</color>
+    <color name="classification_undefined">#AEACAC</color>
 
     <color name="map_circle_fill">#56AD00</color>
     <color name="map_circle_stroke">#007C0E</color>

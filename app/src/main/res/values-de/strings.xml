@@ -137,7 +137,7 @@
     <string name="measurement_upload">Upload</string>
     <string name="measurement_dash">-</string>
     <string name="measurement_speed_chart_x_label_min">0s</string>
-    <string name="measurement_speed_chart_x_label_max">8s</string>
+    <string name="measurement_speed_chart_x_label_max">7s</string>
     <string name="measurement_ping">Ping</string>
     <string name="measurement_down">Down</string>
     <string name="measurement_up">Up</string>
@@ -257,6 +257,7 @@
     <string name="text_button_accept">Akzeptieren</string>
     <string name="text_loop_instruction_1">Der Wiederholungsmodus (Loop-Mode) für technisch Interessierte ermöglicht, dass der RTR-Netztest automatisiert wiederholt durchgeführt wird. Der erste Test wird unmittelbar nach dem Start des Wiederholungsmodus gestartet; weitere Tests sobald entweder die Wartezeit abgelaufen ist oder die festgelegte Distanz zurückgelegt wurde. Tests werden durchgeführt bis die eingestellte Testanzahl erreicht ist. Zwischen zwei Tests wird die Signalstärke weiter gemessen. Der Wiederholungsmodus kann jederzeit gestoppt werden bzw endet automatisch nach 48 Stunden.\nEs wird ausdrücklich darauf hingewiesen, dass aufgrund des Wiederholungsmodus ein Rückschluss auf die testende Person nicht ausgeschlossen ist. Es wird darauf hingewiesen, dass er (nur) zur Nutzung innerhalb der EU- und des EWR gedacht ist.</string>
     <string name="text_loop_instruction_2">Der Wiederholungsmodus verbraucht eine große Menge an Daten. Mit schnellen Verbindungen können 10 Tests 1 GB oder mehr an Daten verbrauchen. Er sollte nur mit echten Flatrate Tarifen genutzt werden. In den Pausen zwischen den Tests bleiben GPS und die Anzeige aktiv und es werden weiter Signalmessungen durchgeführt, deshalb wird die Batterie schnell entleert. Daher sollte der Wiederholungsmodus nur genutzt werden, wenn externe Stromversorgung zur Verfügung steht.\n Damit Messungen stattfinden und einem Standort zugeordnet werden können, wenn sich die Anwendung im Hintergrund befindet, ist die Systemberechtigung zum Erfassen des Standorts bei Hintergrundnutzung notwendig. Diese Standortberechtigung wird verwendet, um den erfolgten Messungen Standorte zuzuordnen.</string>
+    <string name="text_loop_instruction_3">Der RTR-Netztest verwendet die Standortberechtigung nur während der Messung, die Hintergrundberechtigung ist beim Wiederholungsmodus notwendig um diesen auch im Hintergrund ausführen zu können.\n\nRTR-Netztest sammelt Standortdaten, um den Standort einer Messung im Wiederholungsmodus aufzuzeichnen, auch wenn die App im Hintergrund läuft.</string>
     <string name="title_loop_instruction_1">Aktivierung</string>
     <string name="title_loop_instruction_2">Nutzung</string>
     <string name="text_filter_devices">Gerät</string>
@@ -312,6 +313,8 @@
     <string name="download_progress">%1$d%% heruntergeladen</string>
     <string name="notification_permission_title">3. Benachrichtigungsberechtigung</string>
     <string name="notification_permission_explanation">Die Benachrichtigungsberechtigung ist erforderlich, um die App während im Hintergrund ausgeführter Messungen am Leben zu halten. Ohne Benachrichtigungsberechtigung können Sie den Messfortschritt nicht verfolgen, wenn die App im Hintergrund läuft. Die Benachrichtigungsberechtigung ist erforderlich, damit der Schleifenmodus im Hintergrund ausgeführt werden kann.</string>
+    <string name="preferences_unable_to_find_browser_app">Der Standard-Web-Browser ist nicht verfügbar.</string>
+    <string name="title_loop_instruction_3">Berechtigungen</string>
     <string name="more_sims_active_dialog_text">Coverage measurement only supports single SIM. Please deactivate second SIM.</string>
     <string name="home_signal_measurement_toggle_on">Coverage measurement toggle on</string>
     <string name="home_signal_measurement_toggle_off">Coverage measurement toggle off</string>

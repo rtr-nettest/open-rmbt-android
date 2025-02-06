@@ -41,6 +41,7 @@ import at.specure.util.toCellLocation
 import at.specure.util.toRecords
 import cz.mroczis.netmonster.core.model.cell.ICell
 import kotlinx.coroutines.CoroutineExceptionHandler
+import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -110,10 +111,11 @@ class SignalMeasurementProcessor @Inject constructor(
     private var cellLocation: CellLocationInfo? = null
     private val saveWlanInfo = false
 
-    private val coroutineExceptionHandler = CoroutineExceptionHandler { _, e ->
+    private val coroutineExceptionHandler = CoroutineExceptionHandler { context, e ->
         if (e is HandledException) {
             // do nothing
         } else {
+            Timber.e("My SignalMeasurementProcessor coroutine named: ${context[CoroutineName]} has crashed with: ${e.message}")
             throw e
         }
     }
@@ -372,7 +374,7 @@ class SignalMeasurementProcessor @Inject constructor(
     }
 
     @ExperimentalCoroutinesApi
-    private fun updateChunkInfo(chunkId: String) = launch {
+    private fun updateChunkInfo(chunkId: String) = launch(CoroutineName("updateChunkInfo")) {
         signalRepository.getSignalMeasurementChunk(chunkId)
             .flowOn(Dispatchers.IO)
             .collect { smr ->

@@ -38,6 +38,7 @@ import at.specure.measurement.signal.SignalMeasurementService
 import at.specure.test.SignalMeasurementType
 import at.specure.util.StringPreferenceLiveData
 import at.specure.util.permission.PermissionsWatcher
+import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -96,8 +97,6 @@ class HomeViewModel @Inject constructor(
     private var _pausedMeasurementMediator = MediatorLiveData<Boolean>()
     private var _currentSignalMeasurementMapPointsLiveData: LiveData<List<SignalMeasurementPointRecord>>? = null
     private var toggleService: Boolean = false
-
-
 
     private var _getNewsLiveData = MutableLiveData<List<NewsItem>?>()
 
@@ -205,7 +204,7 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    fun getNews() = launch {
+    fun getNews() = launch(CoroutineName("HomeViewModelGetNews")) {
         settingsRepository.refreshSettingsByFlow()
             .flowOn(Dispatchers.IO)
             .collect {

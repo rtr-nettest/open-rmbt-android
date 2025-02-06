@@ -13,13 +13,13 @@
             <path
                 android:pathData="M2 1H20A1 1 0 0 1 21 2V14A1 1 0 0 1 20 15H2A1 1 0 0 1 1 14V2A1 1 0 0 1 2 1Z"
                 android:strokeWidth="2"
-                android:strokeColor="#5F6368" />
+                android:strokeColor="#545454" />
         </group>
         <group
             android:translateX="5008"
             android:translateY="1309">
             <path
-                android:fillColor="#5F6368"
+                android:fillColor="#545454"
                 android:pathData="M9 10v8l7 -4Z" />
         </group>
         <group
@@ -28,7 +28,7 @@
             <path
                 android:pathData="M0 0L13 0"
                 android:strokeWidth="1"
-                android:strokeColor="#5F6368"
+                android:strokeColor="#545454"
                 android:strokeLineCap="round" />
         </group>
     </group>

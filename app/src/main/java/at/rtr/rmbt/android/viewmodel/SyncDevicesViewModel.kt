@@ -5,6 +5,7 @@ import androidx.lifecycle.MutableLiveData
 import at.rmbt.util.exception.HandledException
 import at.rtr.rmbt.android.ui.viewstate.SyncDeviceViewState
 import at.specure.data.repository.DeviceSyncRepository
+import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collect
@@ -31,7 +32,7 @@ class SyncDevicesViewModel @Inject constructor(private val repository: DeviceSyn
     val getSyncCodeLiveData: LiveData<String>
         get() = _getSyncCodeLiveData
 
-    fun getSyncCode() = launch {
+    fun getSyncCode() = launch(CoroutineName("SyncDevicesGetSyncCode")) {
         _loadingLiveData.postValue(true)
         repository.getDeviceSyncCode()
             .flowOn(Dispatchers.IO)
@@ -50,7 +51,7 @@ class SyncDevicesViewModel @Inject constructor(private val repository: DeviceSyn
             }
     }
 
-    fun syncDevices() = launch {
+    fun syncDevices() = launch(CoroutineName("SyncDevicesSyncDevices")) {
         _loadingLiveData.postValue(true)
         repository.syncDevices(state.otherDeviceSyncCode.get()!!)
             .flowOn(Dispatchers.IO)

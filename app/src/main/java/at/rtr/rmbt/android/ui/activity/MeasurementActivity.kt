@@ -138,7 +138,7 @@ class MeasurementActivity : BaseActivity(), SimpleDialog.Callback {
         if (measurementFinished) {
             if (viewModel.state.isLoopModeActive.get()) {
                 if (viewModel.state.loopModeRecord.get()?.status == LoopModeState.FINISHED) {
-                    this.finishAffinity()
+                    this.finish()
                     LoopFinishedActivity.start(this)
                 }
             } else {
@@ -157,11 +157,10 @@ class MeasurementActivity : BaseActivity(), SimpleDialog.Callback {
 
     private fun cancelMeasurement() {
         if (viewModel.state.isLoopModeActive.get()) {
-            finishAffinity()
+            finish()
             LoopFinishedActivity.start(this)
         } else {
-            finishAffinity()
-            HomeActivity.startWithFragment(this, HomeActivity.Companion.HomeNavigationTarget.HOME_FRAGMENT_TO_SHOW)
+            finish()
         }
     }
 

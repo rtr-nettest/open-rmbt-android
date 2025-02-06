@@ -45,6 +45,7 @@ import cz.mroczis.netmonster.core.factory.NetMonsterFactory
 import cz.mroczis.netmonster.core.model.cell.CellLte
 import cz.mroczis.netmonster.core.model.cell.CellNr
 import cz.mroczis.netmonster.core.model.cell.ICell
+import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import timber.log.Timber
@@ -131,7 +132,7 @@ class ActiveNetworkWatcher(
                     }
                 }
             }
-            GlobalScope.launch {
+            GlobalScope.launch((CoroutineName("captivePortalChecks"))) {
                 captivePortal.resetCaptivePortalStatus()
                 captivePortal.checkForCaptivePortal()
             }
@@ -145,11 +146,6 @@ class ActiveNetworkWatcher(
                 var cells: List<ICell>? = null
                 var activeCellNetwork: CellNetworkInfo? = null
                 cells = netMonster.getCells()
-
-
-                Timber.d("telephonyManager - supportedModemCount: ${telephonyManager.supportedModemCount}")
-                Timber.d("telephonyManager - ActiveModemCount: ${telephonyManager.activeModemCount}")
-                Timber.d("subscription manager - active subscriptions count Max: ${subscriptionManager.activeSubscriptionInfoCountMax}")
 
                 // all of the methods above returns 2 on samsung dual sim no matter of how many sims are activated or inserted so only this is viable but it can return 1 when signal is lost
                 Timber.d("subscription manager - active subscriptions count: ${subscriptionManager.activeSubscriptionInfoCount}")

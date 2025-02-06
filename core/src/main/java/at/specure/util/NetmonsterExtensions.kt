@@ -573,11 +573,12 @@ fun ICell.mobileNetworkType(netMonster: INetMonster): MobileNetworkType {
     try {
         networkTypeFromNM = netMonster.getNetworkType(this.subscriptionId,
             DetectorLteAdvancedNrServiceState(),
-            DetectorLteAdvancedPhysicalChannel(),
-            DetectorLteAdvancedCellInfo(),
+            // These detectors must be disabled until NM lib resolves problem with dual sim NR and LTE mixing
+            // DetectorLteAdvancedPhysicalChannel(),
+            // DetectorLteAdvancedCellInfo(),
             DetectorAosp() // best to keep last when all other strategies fail
         ) ?: NetworkTypeTable.get(NetworkType.UNKNOWN)
-//        Timber.d("NM network type direct: ${networkTypeFromNM.technology}")
+        Timber.d("Debug session NM network type direct: ${this.subscriptionId} ${this.channelNumber()} ${networkTypeFromNM.technology}")
     } catch (e: SecurityException) {
         Timber.e("SecurityException: Not able to read network type")
     } catch (e: IllegalStateException) {

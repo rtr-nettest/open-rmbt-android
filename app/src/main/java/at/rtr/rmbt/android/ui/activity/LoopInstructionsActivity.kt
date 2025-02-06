@@ -20,8 +20,6 @@ import at.rtr.rmbt.android.util.ToolbarTheme
 import at.rtr.rmbt.android.util.changeStatusBarColor
 import at.rtr.rmbt.android.viewmodel.LoopConfigurationViewModel
 
-private const val PAGE_COUNT = 2
-
 class LoopInstructionsActivity : BaseActivity(), Callback {
 
     private lateinit var binding: ActivityLoopInstructionsBinding
@@ -49,6 +47,11 @@ class LoopInstructionsActivity : BaseActivity(), Callback {
     }
 
     override fun onSecondPageAccepted() {
+        binding.title.text = getString(R.string.title_loop_instruction_3)
+        binding.pager.setCurrentItem(2, true)
+    }
+
+    override fun onThirdPageAccepted() {
         setResult(Activity.RESULT_OK)
         if (isNeedToAskForNotificationPermission()) {
             checkNotificationPermission()
@@ -137,10 +140,14 @@ class LoopInstructionsActivity : BaseActivity(), Callback {
 
     inner class InstructionsAdapter(context: Context, private val callback: Callback) : PagerAdapter() {
 
-        private var items = listOf(context.getString(R.string.text_loop_instruction_1), context.getString(R.string.text_loop_instruction_2))
+        private var items = listOf(
+            context.getString(R.string.text_loop_instruction_1),
+            context.getString(R.string.text_loop_instruction_2),
+            context.getString(R.string.text_loop_instruction_3),
+        )
 
         override fun isViewFromObject(view: View, o: Any) = view == o
-        override fun getCount() = PAGE_COUNT
+        override fun getCount() = items.size
 
         override fun instantiateItem(container: ViewGroup, position: Int): Any {
             val binding = ViewLoopModeInstructionBinding.inflate(LayoutInflater.from(container.context))
@@ -148,7 +155,13 @@ class LoopInstructionsActivity : BaseActivity(), Callback {
             binding.content.text = items[position]
 
             binding.decline.setOnClickListener { callback.onDeclined() }
-            binding.accept.setOnClickListener { if (position == PAGE_COUNT - 1) callback.onSecondPageAccepted() else callback.onFirstPageAccepted() }
+            binding.accept.setOnClickListener {
+                when (position) {
+                    0 -> callback.onFirstPageAccepted()
+                    1 -> callback.onSecondPageAccepted()
+                    else -> callback.onThirdPageAccepted()
+                }
+            }
             container.addView(binding.root)
             return binding.root
         }
@@ -169,4 +182,5 @@ interface Callback {
     fun onDeclined()
     fun onFirstPageAccepted()
     fun onSecondPageAccepted()
+    fun onThirdPageAccepted()
 }
