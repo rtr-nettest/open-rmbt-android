@@ -19,6 +19,8 @@ import android.net.NetworkCapabilities
 import android.os.Build
 import at.specure.data.ServerNetworkType
 
+private const val UNKNOWN_VALUE = -1
+
 /**
  * Enum that represents [android.net.NetworkCapabilities] constants for transport types
  */
@@ -65,12 +67,12 @@ enum class TransportType(
     @TargetApi(Build.VERSION_CODES.O_MR1)
     LOWPAN(NetworkCapabilities.TRANSPORT_LOWPAN),
 
-    BROWSER(ServerNetworkType.TYPE_UNKNOWN.intValue),
+    BROWSER(UNKNOWN_VALUE),
 
     /**
      * for non-processed network types
      */
-    UNKNOWN(ServerNetworkType.TYPE_UNKNOWN.intValue);
+    UNKNOWN(UNKNOWN_VALUE);
 
     companion object {
 
