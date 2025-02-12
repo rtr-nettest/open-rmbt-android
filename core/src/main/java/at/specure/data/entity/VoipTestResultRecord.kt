@@ -87,8 +87,10 @@ fun VoipTestResult.toRecord(testUUID: String): VoipTestResultRecord {
  */
 fun VoipTestResultRecord.getJitter(): Double? {
     var meanJitter: Double? = null
-    if (this.resultInMeanJitter != null && this.resultOutMeanJitter != null) {
-        meanJitter = ((this.resultInMeanJitter!! + this.resultOutMeanJitter!!) / (2 * 1000000.toDouble()))
+    this.resultInMeanJitter?.let { resultInMeanJitterLocal ->
+        this.resultOutMeanJitter?.let { resultOutMeanJitterLocal ->
+            meanJitter = ((resultInMeanJitterLocal + resultOutMeanJitterLocal) / (2 * 1000000.toDouble()))
+        }
     }
     return meanJitter
 }
@@ -98,11 +100,17 @@ fun VoipTestResultRecord.getJitter(): Double? {
  */
 fun VoipTestResultRecord.getPacketLoss(): Double? {
     var packetLossPercent: Double? = null
-    if (this.objectiveCallDuration != null && this.objectiveDelay != null && this.resultInNumPackets != null && this.resultOutNumPackets != null) {
-        val total = (this.objectiveCallDuration!! / this.objectiveDelay!!)
-        val packetLossDown = (total - this.resultInNumPackets!!) / total
-        val packetLossUp = (total - this.resultOutNumPackets!!) / total
-        packetLossPercent = (packetLossDown + packetLossUp) / 2.toDouble()
+    this.objectiveCallDuration?.let { objectiveCallDurationLocal ->
+        this.objectiveDelay?.let { objectiveDelayLocal ->
+            this.resultInNumPackets?.let { resultInNumPacketsLocal ->
+                this.resultOutNumPackets?.let { resultOutNumPacketsLocal ->
+                    val total = (objectiveCallDurationLocal / objectiveDelayLocal)
+                    val packetLossDown = (total - resultInNumPacketsLocal) / total
+                    val packetLossUp = (total - resultOutNumPacketsLocal) / total
+                    packetLossPercent = (packetLossDown + packetLossUp) / 2.toDouble()
+                }
+            }
+        }
     }
     return packetLossPercent
 }
