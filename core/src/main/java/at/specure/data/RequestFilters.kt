@@ -41,7 +41,7 @@ class RequestFilters {
                         signalList.forEach {
                             val cell = cells[it.cellUuid]
                             if (cell != null) {
-                                list.add(it.toRequest(cell.uuid, false, null))
+                                list.add(it.toRequest(cell.uuid,  null))
                             }
 //                            else {
 //                                list.add(it.toRequest("", false, null))
@@ -79,11 +79,11 @@ class RequestFilters {
 
         fun removeOldRedundantSignalValuesWithNegativeTimestamp(signals: List<SignalBody>?): List<SignalBody>? {
             // remove values with negative timestamp and keep only last one
-            var signals = signals
+            var signalsLocal = signals
             var lastSignalWithNegativeTime: SignalBody? = null
-            Timber.d("Previous list size: ${signals?.size} + last time: ")
-            if (signals != null && (signals.size > 1)) {
-                signals = signals.filter {
+            Timber.d("Previous list size: ${signalsLocal?.size} + last time: ")
+            if (signalsLocal != null && (signalsLocal.size > 1)) {
+                signalsLocal = signalsLocal.filter {
                     if (it.timeNanos < 0) {
                         lastSignalWithNegativeTime = it
                         false
@@ -92,12 +92,12 @@ class RequestFilters {
                     }
                 }
             }
-            Timber.d("Previous list size filtered negative: ${signals?.size} + last time: ")
+            Timber.d("Previous list size filtered negative: ${signalsLocal?.size} + last time: ")
             // add back previously removed last value with time < 0
             lastSignalWithNegativeTime?.let {
-                (signals as MutableList<SignalBody>).add(0, it)
+                (signalsLocal as MutableList<SignalBody>).add(0, it)
             }
-            return signals
+            return signalsLocal
         }
     }
 }
