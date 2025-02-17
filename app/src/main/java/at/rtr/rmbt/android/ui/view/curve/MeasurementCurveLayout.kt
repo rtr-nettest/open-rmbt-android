@@ -23,6 +23,7 @@ import kotlin.math.min
 class MeasurementCurveLayout @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) :
     FrameLayout(context, attrs, defStyleAttr) {
 
+    private var lastSignalStrength: SignalStrengthInfo? = null
     private var downloadAlreadyMeasured: Boolean = false
     private var uploadAlreadyMeasured: Boolean = false
     private lateinit var speedLayout: LayoutSpeedBinding
@@ -179,6 +180,7 @@ class MeasurementCurveLayout @JvmOverloads constructor(context: Context, attrs: 
      */
     fun setTopProgress(currentProgress: Int) {
         if (topCenterX != 0 && topCenterY != 0) {
+            setSignalStrength(lastSignalStrength)
             currentTopProgress = currentProgress
             val progress = prepareProgressValueByPhase(currentProgress)
             curveBinding.curveView.setTopProgress(phase, currentProgress, isQoSEnabled)
@@ -271,6 +273,7 @@ class MeasurementCurveLayout @JvmOverloads constructor(context: Context, attrs: 
      * Update the signal strength bar UI according to progress changing
      */
     fun setSignalStrength(signalStrengthInfo: SignalStrengthInfo?) {
+        lastSignalStrength = signalStrengthInfo
         if (signalStrengthInfo?.value != null && signalStrengthInfo.value != 0 && signalStrengthInfo.min != signalStrengthInfo.max) {
             with(curveBinding.layoutStrength) {
                 root.visibility = View.VISIBLE
@@ -280,6 +283,9 @@ class MeasurementCurveLayout @JvmOverloads constructor(context: Context, attrs: 
         } else {
             with(curveBinding.layoutStrength) {
                 root.visibility = View.INVISIBLE
+                strength.setSignalData(-140, -140, -60)
+                strengthValue.text = context.getString(R.string.strength_signal_value, -60)
+                root.requestLayout()
             }
         }
     }
