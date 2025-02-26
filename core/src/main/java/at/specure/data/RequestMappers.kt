@@ -56,18 +56,20 @@ import com.google.gson.JsonArray
 import com.google.gson.JsonParser
 import java.util.UUID
 
+const val UNKNOWN = "UNKNOWN"
+
 fun DeviceInfo.toSettingsRequest(clientUUID: ClientUUID, clientUUIDLegacy: ClientUUIDLegacy, config: Config, tac: TermsAndConditions) =
     SettingsRequestBody(
         type = clientType,
         name = clientName,
-        language = language,
+        language = language ?: UNKNOWN,
         platform = platform,
         osVersion = osVersion,
         apiLevel = apiLevel,
-        device = device,
-        model = model,
-        product = product,
-        timezone = timezone,
+        device = device ?: UNKNOWN,
+        model = model ?: UNKNOWN,
+        product = product ?: UNKNOWN,
+        timezone = timezone ?: UNKNOWN,
         softwareVersionName = softwareVersionName,
         softwareVersionCode = softwareVersionCode.toString(),
         softwareRevision = softwareRevision,
@@ -86,11 +88,11 @@ fun DeviceInfo.toIpRequest(clientUUID: String?, location: LocationInfo?, signalS
         platform = platform,
         osVersion = osVersion,
         apiLevel = apiLevel,
-        device = device,
-        model = model,
-        product = product,
-        language = language,
-        timezone = timezone,
+        device = device ?: UNKNOWN,
+        model = model ?: UNKNOWN,
+        product = product ?: UNKNOWN,
+        language = language ?: UNKNOWN,
+        timezone = timezone ?: UNKNOWN,
         softwareRevision = softwareRevision,
         softwareVersionCode = softwareVersionCode.toString(),
         softwareVersionName = softwareVersionName,
@@ -161,6 +163,7 @@ fun TestRecord.toRequest(
     voipTestResultRecord: VoipTestResultRecord?
 ): TestResultBody {
 
+    if (this == null) throw DataMissingException("TestRecord is null for request")
     if (clientUUID == null) throw DataMissingException("ClientUUID is null for request")
     if (deviceInfo == null) throw DataMissingException("DeviceInfo is null for request")
     val geoLocations: List<TestLocationBody>? = mapLocationsToRequest(locations)
@@ -184,7 +187,7 @@ fun TestRecord.toRequest(
         clientUUID = clientUUID,
         clientName = deviceInfo.clientName,
         clientVersion = clientVersion,
-        clientLanguage = deviceInfo.language,
+        clientLanguage = deviceInfo.language ?: UNKNOWN,
         timeMillis = testTimeMillis,
         token = token,
         portRemote = portRemote,
@@ -209,11 +212,11 @@ fun TestRecord.toRequest(
         uploadedBytesOnUploadInterface = uploadedBytesOnUploadInterface,
         timeDownloadOffsetNanos = timeDownloadOffsetNanos,
         timeUploadOffsetNanos = timeUploadOffsetNanos,
-        product = deviceInfo.product,
+        product = deviceInfo.product ?: UNKNOWN,
         osVersion = deviceInfo.osVersion,
         apiLevel = deviceInfo.apiLevel,
-        device = deviceInfo.device,
-        model = deviceInfo.model,
+        device = deviceInfo.device ?: UNKNOWN,
+        model = deviceInfo.model ?: UNKNOWN,
         clientSoftwareVersion = deviceInfo.clientVersionName,
         networkType = convertLocalNetworkTypeToServerType(transportType, mobileNetworkType),
         geoLocations = geoLocations,
@@ -466,7 +469,7 @@ fun QoSResultRecord.toRequest(clientUUID: String, deviceInfo: DeviceInfo, client
         clientUUID = clientUUID,
         clientName = deviceInfo.clientName,
         clientVersion = clientVersion,
-        clientLanguage = deviceInfo.language,
+        clientLanguage = deviceInfo.language ?: UNKNOWN,
         qosResult = qosResult,
         testToken = testToken,
         timeMillis = timeMillis
@@ -479,7 +482,7 @@ fun SignalMeasurementRecord.toRequest(clientUUID: String, deviceInfo: DeviceInfo
     softwareRevision = deviceInfo.softwareRevision,
     softwareVersion = deviceInfo.softwareRevision,
     time = startTimeMillis,
-    timezone = deviceInfo.timezone,
+    timezone = deviceInfo.timezone ?: UNKNOWN,
     clientUUID = clientUUID,
     measurementTypeFlag = signalMeasurementType.signalTypeName,
     location = location?.toRequest()
@@ -529,13 +532,13 @@ fun SignalMeasurementRecord.toRequest(
         uuid = measurementInfoUUID,
         platform = deviceInfo.platform,
         clientUUID = clientUUID,
-        clientLanguage = deviceInfo.language,
-        product = deviceInfo.product,
+        clientLanguage = deviceInfo.language ?: UNKNOWN,
+        product = deviceInfo.product ?: UNKNOWN,
         osVersion = deviceInfo.osVersion,
         apiLevel = deviceInfo.apiLevel,
-        device = deviceInfo.device,
-        model = deviceInfo.model,
-        timezone = deviceInfo.timezone,
+        device = deviceInfo.device ?: UNKNOWN,
+        model = deviceInfo.model ?: UNKNOWN,
+        timezone = deviceInfo.timezone ?: UNKNOWN,
         clientSoftwareVersion = deviceInfo.clientVersionName,
         networkType = convertLocalNetworkTypeToServerType(transportType, mobileNetworkType),
         geoLocations = geoLocations,

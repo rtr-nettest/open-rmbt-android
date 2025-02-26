@@ -26,11 +26,11 @@ class DeviceInfo(context: Context, val location: Location? = null, val temperatu
 
     @SerializedName("api_level")
     val apiLevel = Build.VERSION.SDK_INT.toString()
-    val device = Build.DEVICE
-    val model = Build.MODEL
-    val product = Build.PRODUCT
-    val language = Locale.getDefault().language
-    val timezone = TimeZone.getDefault().id
+    val device: String? = Build.DEVICE
+    val model: String? = Build.MODEL
+    val product: String? = Build.PRODUCT
+    val language: String? = Locale.getDefault().language
+    val timezone: String? = TimeZone.getDefault().id
 
     val softwareRevision = buildString {
         append(BuildConfig.GIT_BRANCH_NAME)
