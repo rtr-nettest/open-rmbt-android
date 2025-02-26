@@ -56,26 +56,30 @@ open class FullscreenDialog : DialogFragment(), CoroutineScope {
     fun show(activity: FragmentActivity?) {
 
         val supportFragmentManager = activity?.supportFragmentManager
-        supportFragmentManager?.beginTransaction()?.let {
-            val prev = supportFragmentManager.findFragmentByTag("dialog")
-            if (prev != null) {
-                it.remove(prev)
+        if (this.isAdded) {
+            supportFragmentManager?.beginTransaction()?.let {
+                val prev = supportFragmentManager.findFragmentByTag("dialog")
+                if (prev != null) {
+                    it.remove(prev)
+                }
+                it.addToBackStack(null)
+                show(it, "dialog")
+                dialog?.show()
             }
-            it.addToBackStack(null)
-            show(it, "dialog")
-            dialog?.show()
         }
     }
 
     fun show(fragmentManager: FragmentManager?) {
-        fragmentManager?.beginTransaction()?.let {
-            val prev = fragmentManager.findFragmentByTag("dialog")
-            if (prev != null) {
-                it.remove(prev)
+        if (this.isAdded) {
+            fragmentManager?.beginTransaction()?.let {
+                val prev = fragmentManager.findFragmentByTag("dialog")
+                if (prev != null) {
+                    it.remove(prev)
+                }
+                it.addToBackStack(null)
+                show(it, "dialog")
+                dialog?.show()
             }
-            it.addToBackStack(null)
-            show(it, "dialog")
-            dialog?.show()
         }
     }
 
