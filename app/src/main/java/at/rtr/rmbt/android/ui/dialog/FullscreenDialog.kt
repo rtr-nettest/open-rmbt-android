@@ -56,7 +56,7 @@ open class FullscreenDialog : DialogFragment(), CoroutineScope {
     fun show(activity: FragmentActivity?) {
 
         val supportFragmentManager = activity?.supportFragmentManager
-        if (this.isAdded) {
+        if (!this.isDetached) {
             supportFragmentManager?.beginTransaction()?.let {
                 val prev = supportFragmentManager.findFragmentByTag("dialog")
                 if (prev != null) {
@@ -70,7 +70,7 @@ open class FullscreenDialog : DialogFragment(), CoroutineScope {
     }
 
     fun show(fragmentManager: FragmentManager?) {
-        if (this.isAdded) {
+        if (!this.isDetached) {
             fragmentManager?.beginTransaction()?.let {
                 val prev = fragmentManager.findFragmentByTag("dialog")
                 if (prev != null) {
