@@ -355,7 +355,7 @@ class StateRecorder @Inject constructor(
                     detailedNetworkInfo?.let {
 
                         val cellNetworkInfo = detailedNetworkInfo.networkInfo
-                        val active5GNetworkInfos = detailedNetworkInfo.secondary5GActiveCellNetworks
+                        val active5GNetworkInfos = detailedNetworkInfo.secondary5GActiveCellNetworks?.toList()
                         val otherCells = detailedNetworkInfo.allCellInfos?.toMutableList()
                         val testStartTimeNanos = testStartTimeNanos ?: 0
 
