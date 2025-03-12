@@ -3,4 +3,4 @@
 	url = ../open-rmbt-android-private.git
 [submodule "netmonster_core"]
 	path = netmonster_core
-	url = https://github.com/mroczis/netmonster-core.git
+	url = https://github.com/rtr-nettest/netmonster-core.git
