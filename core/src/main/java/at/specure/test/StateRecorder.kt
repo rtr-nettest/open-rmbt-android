@@ -356,6 +356,7 @@ class StateRecorder @Inject constructor(
 
                         val cellNetworkInfo = detailedNetworkInfo.networkInfo
                         val active5GNetworkInfos = detailedNetworkInfo.secondary5GActiveCellNetworks?.toList()
+                        val active5GSignals = detailedNetworkInfo.secondary5GActiveSignalStrengthInfos?.toList()
                         val otherCells = detailedNetworkInfo.allCellInfos?.toMutableList()
                         val testStartTimeNanos = testStartTimeNanos ?: 0
 
@@ -367,17 +368,21 @@ class StateRecorder @Inject constructor(
                         active5GNetworkInfos?.forEachIndexed { index, cellNetworkInfoInner ->
                             otherCells?.remove(cellNetworkInfoInner?.rawCellInfo)
                             // sometimes we are not getting the signal for NR cells as their are only neighbouring cells so there is empty list
-                            val signals5GisNullOrEmpty = detailedNetworkInfo.secondary5GActiveSignalStrengthInfos.isNullOrEmpty()
-                            val signalsIndexIsOutOfBound = index > (detailedNetworkInfo.secondary5GActiveSignalStrengthInfos?.lastIndex ?: -1)
+                            val signals5GisNullOrEmpty = active5GSignals.isNullOrEmpty()
+                            val signalsIndexIsOutOfBound = index > (active5GSignals?.lastIndex ?: -1)
                             val signalStrengthInfo = if (signals5GisNullOrEmpty || signalsIndexIsOutOfBound) {
                                 null
                             } else {
-                                detailedNetworkInfo.secondary5GActiveSignalStrengthInfos?.get(index)
+                                try {
+                                    active5GSignals?.get(index)
+                                } catch (e: IndexOutOfBoundsException) {
+                                    null
+                                }
                             }
                             saveNetworkInformation(cellNetworkInfoInner, signalStrengthInfo, uuid, testStartTimeNanos)
                         }
 
-                        if (config.headerValue.isNullOrEmpty()) {
+                        if (config.headerValue.isEmpty()) {
                             saveOtherCellInfo(otherCells, uuid, testStartTimeNanos, detailedNetworkInfo.networkTypes, detailedNetworkInfo.dataSubscriptionId)
                         }
                     }
@@ -459,7 +464,7 @@ class StateRecorder @Inject constructor(
         }
         repository.saveCellLocationRecord(cellLocationsToSave.toMutableList())
         repository.saveCellInfoRecord(cellInfosToSave.toMutableList())
-        repository.saveSignalRecord(signalsToSave.toMutableList(), config.headerValue.isNullOrEmpty())
+        repository.saveSignalRecord(signalsToSave.toMutableList(), config.headerValue.isEmpty())
     }
 
     private fun saveNetworkInformation(cellNetworkInfo: NetworkInfo?, signalStrengthInfo: SignalStrengthInfo?, testUUID: String?, testStartTimeNanos: Long) {
