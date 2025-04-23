@@ -69,6 +69,7 @@ class ControlServerModule {
             .writeTimeout(CONNECTION_TIMEOUT_SEC, TimeUnit.SECONDS)
             .connectionPool(ConnectionPool(0, 5, TimeUnit.MINUTES))
             .addInterceptor(ControlServerInterceptor(controlEndpointProvider))
+            .addInterceptor(RetryInterceptor(3))
 
         return setupOkHttpClient(builder).build()
     }
