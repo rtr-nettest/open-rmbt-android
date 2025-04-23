@@ -64,7 +64,9 @@ class CellInfoWatcherImpl(
     private var _dataSubscriptionId: Int = INVALID_SUBSCRIPTION_ID
 
     /**
-     * Contains network types for subscriptionId to optimize requests to netmonster lib (determining for each ICell is costly)
+     * Contains netmonster network types for subscriptionId to optimize requests to netmonster lib (determining for each ICell is costly)
+     *
+     * WARNING - these network types are not post-processed
      */
     override val networkTypes: HashMap<Int, MobileNetworkType>
         get() = _networkTypes
@@ -101,8 +103,8 @@ class CellInfoWatcherImpl(
         if (context.isLocationServiceEnabled() && context.isFineLocationPermitted() && context.isReadPhoneStatePermitted()) {
             try {
                 var cells: List<ICell>? = null
-
                 cells = netMonster.getCells()
+
                 if (_inactiveCellNetworks.isNullOrEmpty()) {
                     _inactiveCellNetworks = cells.toMutableList()
                 }
@@ -122,9 +124,9 @@ class CellInfoWatcherImpl(
 //                val inactiveCells = cells?.filterOnlyNoneConnectionDataCell(dataSubscriptionId)
                 val secondary5GCells = secondaryCells?.filter5GCells()
 
-                Timber.d("size ${primaryCells?.size}")
+                Timber.d("Primary cells size ${primaryCells?.size}")
                 primaryCells?.forEach {
-                    Timber.d("size ${primaryCells.size} primaryCells: $it}")
+                    Timber.d("Primary cells size ${primaryCells.size} primaryCells: $it}")
                 }
 
                 // in some cases for 5G NSA there are 2 primary connections reported - 1. for 4G and 2. for 5G cell,

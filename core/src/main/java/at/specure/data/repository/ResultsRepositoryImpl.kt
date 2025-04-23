@@ -12,7 +12,6 @@ import at.specure.data.Classification
 import at.specure.data.ClientUUID
 import at.specure.data.CoreDatabase
 import at.specure.data.NetworkTypeCompat
-import at.specure.data.entity.CapabilitiesRecord
 import at.specure.data.entity.PingRecord
 import at.specure.data.entity.QoeInfoRecord
 import at.specure.data.entity.QosCategoryRecord

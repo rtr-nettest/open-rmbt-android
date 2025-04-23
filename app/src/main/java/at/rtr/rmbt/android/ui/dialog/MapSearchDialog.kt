@@ -2,7 +2,10 @@ package at.rtr.rmbt.android.ui.dialog
 
 import android.location.Address
 import android.location.Geocoder
+import android.os.Build
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
@@ -77,10 +80,13 @@ class MapSearchDialog : FullscreenDialog() {
             searchJob?.cancel()
             searchJob = coroutineScope.launch(CoroutineName("mapSearchDialog search job")) {
                 loadResults(searchValue) {
-                    callback?.onAddressResult(it)
-                    binding.buttonSearch.visibility = View.VISIBLE
-                    binding.progressbar.visibility = View.GONE
-                    dismiss()
+                    val mainThreadHandler = Handler(Looper.getMainLooper())
+                    mainThreadHandler.post {
+                        callback?.onAddressResult(it)
+                        binding.buttonSearch.visibility = View.VISIBLE
+                        binding.progressbar.visibility = View.GONE
+                        dismiss()
+                    }
                 }
             }
         }
@@ -88,18 +94,33 @@ class MapSearchDialog : FullscreenDialog() {
 
     private fun loadResults(value: String, found: (Address?) -> Unit) {
         val geocoder = Geocoder(requireContext())
-        val addressList: List<Address>?
         try {
-            addressList = geocoder.getFromLocationName(value, 1)
-            if (!addressList.isNullOrEmpty()) {
-                found.invoke(addressList[0])
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                geocoder.getFromLocationName(value, 1) { addressList ->
+                    if (addressList.isNotEmpty()) {
+                        found.invoke(addressList[0])
+                    } else {
+                        found.invoke(null)
+                    }
+                }
             } else {
-                found.invoke(null)
+                val addressList: List<Address>? = geocoder.getFromLocationName(value, 1)
+                if (!addressList.isNullOrEmpty()) {
+                    found.invoke(addressList[0])
+                } else {
+                    found.invoke(null)
+                }
             }
         } catch (e: IOException) {
-            e.printStackTrace()
-            found.invoke(null)
+            handleMapSearchException(e, found)
+        } catch (e: IllegalArgumentException) {
+            handleMapSearchException(e, found)
         }
+    }
+
+    private fun handleMapSearchException(e: Exception, found: (Address?) -> Unit) {
+        e.printStackTrace()
+        found.invoke(null)
     }
 
     override fun onStart() {
