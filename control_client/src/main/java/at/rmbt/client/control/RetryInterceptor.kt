@@ -17,7 +17,6 @@ class RetryInterceptor(private val maxRetryCount: Int = 3) : Interceptor {
         while (!response.isSuccessful && retryCount < maxRetryCount) {
             retryCount++
             response.close()
-            println("Retry: $retryCount, request failed with code: ${response.code}")
             Thread.sleep(1000 * retryCount.toLong())
             response = try {
                 chain.proceed(request)
@@ -26,7 +25,7 @@ class RetryInterceptor(private val maxRetryCount: Int = 3) : Interceptor {
             }
         }
         if (!response.isSuccessful){
-            throw IOException("Request failed after $retryCount attempts, with code: ${response.code}")
+            throw IOException("Request failed after $retryCount attempts")
         }
         return response
     }
