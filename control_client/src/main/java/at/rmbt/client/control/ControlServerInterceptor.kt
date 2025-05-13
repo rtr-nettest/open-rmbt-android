@@ -23,9 +23,15 @@ import okhttp3.Response
 class ControlServerInterceptor(val controlEndpointProvider: ControlEndpointProvider) : Interceptor {
 
     override fun intercept(chain: Interceptor.Chain): Response {
+        val acceptHeader = chain.request().header("Accept")
+        val hasPngAccept = acceptHeader?.contains("image/png", ignoreCase = true) == true
         val requestBuilder = chain.request().newBuilder()
-            .addHeader("Content-Type", "application/json; charset=UTF-8")
-            .addHeader("Accept", "application/json")
+
+        if (hasPngAccept.not()) {
+            requestBuilder
+                .addHeader("Content-Type", "application/json; charset=UTF-8")
+                .addHeader("Accept", "application/json")
+        }
 
         if (controlEndpointProvider.getNettestHeaderValue.isNotEmpty()) {
             requestBuilder.addHeader("X-Nettest-Client", controlEndpointProvider.getNettestHeaderValue)
