@@ -23,7 +23,9 @@ class MapServerClient @Inject constructor(
             val url = String.format(endpointProvider.getMapTilesUrl, type.value, zoom, x, y)
             val uriBuilder = url.toUri().buildUpon()
             for (entry in filters.entries) {
-                uriBuilder.appendQueryParameter(entry.key, entry.value)
+                if (entry.value.isEmpty().not()) {
+                    uriBuilder.appendQueryParameter(entry.key, entry.value)
+                }
             }
             api.loadTiles(uriBuilder.build().toString()).execute()
         } catch(e: Exception) {
