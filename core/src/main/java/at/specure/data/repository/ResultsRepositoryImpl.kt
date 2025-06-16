@@ -81,18 +81,18 @@ class ResultsRepositoryImpl @Inject constructor(
                 val signals: List<SignalRecord> = db.signalDao().get(testUUID, null)
 
                 val body = testRecord.toRequest(
-                    clientUUID = clientUUID,
-                    deviceInfo = deviceInfo,
+                    clientUUID = clientUUID ?: throw DataMissingException("ClientUUID is null"),
+                    deviceInfo = deviceInfo ?: throw DataMissingException("DeviceInfo is null"),
                     telephonyInfo = telephonyInfo,
                     wlanInfo = wlanInfo,
-                    locations = db.geoLocationDao().get(testUUID, null),
-                    capabilities = db.capabilitiesDao().get(testUUID, null),
-                    pingList = pings,
-                    cellInfoList = db.cellInfoDao().get(testUUID, null),
-                    signalList = signals,
-                    speedInfoList = speeds,
-                    cellLocationList = db.cellLocationDao().get(testUUID, null),
-                    permissions = db.permissionStatusDao().get(testUUID, null),
+                    locations = db.geoLocationDao().get(testUUID, null) ?: throw DataMissingException("locations are null"),
+                    capabilities = db.capabilitiesDao().get(testUUID, null) ?: throw DataMissingException("capabilities are null"),
+                    pingList = pings ?: throw DataMissingException("pings are null"),
+                    cellInfoList = db.cellInfoDao().get(testUUID, null) ?: throw DataMissingException("cellInfoList are null"),
+                    signalList = signals ?: throw DataMissingException("signalList are null"),
+                    speedInfoList = speeds ?: throw DataMissingException("speedInfoList are null"),
+                    cellLocationList = db.cellLocationDao().get(testUUID, null) ?: throw DataMissingException("cellLocationList are null"),
+                    permissions = db.permissionStatusDao().get(testUUID, null) ?: throw DataMissingException("permissions are null"),
                     jplTestResultsRecord
                 )
 

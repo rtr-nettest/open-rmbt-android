@@ -41,6 +41,7 @@ import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import kotlin.math.abs
+import androidx.core.view.isVisible
 
 const val START_ZOOM_LEVEL = 12f
 
@@ -226,7 +227,7 @@ class MapFragment : BaseFragment(), MapMarkerDetailsAdapter.MarkerDetailsCallbac
                 val mapServicesAvailable = checkServices()
                 val isMapFilterLoaded = mapViewModel.isFilterLoaded()
                 val isMarkerDetailOpened =
-                    binding.markerItems.visibility == View.VISIBLE && (binding.markerItems.adapter?.itemCount
+                    binding.markerItems.isVisible && (binding.markerItems.adapter?.itemCount
                         ?: 0) > 0
                 Timber.d("Map services available: $mapServicesAvailable")
                 Timber.d("Map filter loaded: $isMapFilterLoaded")
@@ -338,9 +339,9 @@ class MapFragment : BaseFragment(), MapMarkerDetailsAdapter.MarkerDetailsCallbac
         }
     }
 
-    override fun moveToItem(index: Int) {
+    override fun moveToItem(childIndex: Int) {
         lifecycleScope.launch(CoroutineName("MapFragmentMoveToItem")) {
-                binding.markerItems.smoothScrollToPosition(index)
+                binding.markerItems.smoothScrollToPosition(childIndex)
         }
     }
 

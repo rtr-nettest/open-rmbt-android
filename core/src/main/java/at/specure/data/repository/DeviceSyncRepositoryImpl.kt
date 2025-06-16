@@ -20,6 +20,8 @@ class DeviceSyncRepositoryImpl(
     private val historyItemLoader: HistoryLoader
 ) : DeviceSyncRepository {
 
+    private val DEFAULT_LANGUAGE = "en"
+
     override fun getDeviceSyncCode(): Flow<String> = flow {
         val uuid = clientUUID.value
         if (uuid == null) {
@@ -27,7 +29,7 @@ class DeviceSyncRepositoryImpl(
             throw DataMissingException("ClientUUID is null")
         }
         val deviceInfo = DeviceInfo(context)
-        val result = client.getDeviceSyncCode(GetSyncCodeBody(uuid, deviceInfo.language))
+        val result = client.getDeviceSyncCode(GetSyncCodeBody(uuid, deviceInfo.language ?: DEFAULT_LANGUAGE))
         result.onSuccess {
             if (it.sync.isNotEmpty()) {
                 emit(it.sync.first().syncCode)
@@ -47,7 +49,7 @@ class DeviceSyncRepositoryImpl(
         }
 
         val deviceInfo = DeviceInfo(context)
-        val result = client.syncDevices(SyncDevicesBody(uuid, deviceInfo.language, otherDeviceSyncCode))
+        val result = client.syncDevices(SyncDevicesBody(uuid, deviceInfo.language ?: DEFAULT_LANGUAGE, otherDeviceSyncCode))
 
         result.onSuccess {
             if (it.sync.isNotEmpty()) {
