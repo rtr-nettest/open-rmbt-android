@@ -79,7 +79,7 @@ class MeasurementRepositoryImpl @Inject constructor(
             if (cellInfoWatcher.activeNetwork != null && cellInfoWatcher.activeNetwork is CellNetworkInfo) cellInfoWatcher.activeNetwork as CellNetworkInfo else null
 
         if (context.isReadPhoneStatePermitted() && isDualByMobile) {
-            val subscription = subscriptionManager.activeSubscriptionInfoList.firstOrNull()
+            val subscription = subscriptionManager.activeSubscriptionInfoList?.firstOrNull()
             simCount = if (subscription != null) subscriptionManager.activeSubscriptionInfoCount else 2
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
@@ -89,7 +89,7 @@ class MeasurementRepositoryImpl @Inject constructor(
                     operatorName = activeNetworkWatcher.currentNetworkInfo?.name
                     networkSimOperator = localTelephonyManager.simOperator.fixOperatorName()
 
-                    subscriptionManager.activeSubscriptionInfoList.forEach {
+                    subscriptionManager.activeSubscriptionInfoList?.forEach {
                         val checkNetworkSimOperator = when {
                             it.mccCompat() == null -> null
                             it.mncCompat() == null -> null
@@ -117,7 +117,7 @@ class MeasurementRepositoryImpl @Inject constructor(
                 operatorName = activeNetworkWatcher.currentNetworkInfo?.name
                 networkSimOperator = localTelephonyManager.simOperator.fixOperatorName()
 
-                subscriptionManager.activeSubscriptionInfoList.forEach {
+                subscriptionManager.activeSubscriptionInfoList?.forEach {
                     val checkNetworkSimOperator = when {
                         it.mccCompat() == null -> null
                         it.mncCompat() == null -> null

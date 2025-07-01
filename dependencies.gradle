@@ -6,7 +6,7 @@ buildscript {
         config = [
                 applicationId    : "at.alladin.rmbt.android.prod",
                 minSdkVersion    : 26,
-                targetSdkVersion : 34,
+                targetSdkVersion : 35,
                 versionCode      : (project.hasProperty('buildVersionCode') ? Integer.parseInt(buildVersionCode) : 41302),
                 versionName      : (project.hasProperty('buildVersionName') ? buildVersionName : '4.13.2')
         ]
