@@ -5,7 +5,10 @@ import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.isVisible
+import androidx.core.view.updateLayoutParams
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import at.rmbt.client.control.data.MapPresentationType
@@ -41,6 +44,25 @@ class MapLayersDialog : FullscreenDialog() {
                 binding.mapType = MapPresentationType.values()[this]
             }
         }
+
+        ViewCompat.setOnApplyWindowInsetsListener(binding.root) { v, windowInsets ->
+            val insetsSystemBars = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
+            val insetsDisplayCutout = windowInsets.getInsets(WindowInsetsCompat.Type.displayCutout())
+            val insetsTouch = windowInsets.getInsets(WindowInsetsCompat.Type.tappableElement())
+
+            val topSafeMargin = maxOf(insetsSystemBars.top, insetsDisplayCutout.top, insetsTouch.top)
+            val lefSafetMargin = maxOf(insetsSystemBars.left, insetsDisplayCutout.left, insetsTouch.left)
+            val rightSafeMargin = maxOf(insetsSystemBars.right, insetsDisplayCutout.right, insetsTouch.right)
+
+            binding.root.updateLayoutParams<ViewGroup.MarginLayoutParams> {
+                topMargin = topSafeMargin
+                leftMargin = lefSafetMargin
+                rightMargin = rightSafeMargin
+            }
+
+            WindowInsetsCompat.CONSUMED
+        }
+
         return binding.root
     }
 

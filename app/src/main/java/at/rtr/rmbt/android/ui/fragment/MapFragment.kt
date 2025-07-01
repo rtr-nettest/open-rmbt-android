@@ -10,6 +10,7 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.view.View
+import android.view.ViewGroup
 import android.widget.Toast
 import androidx.annotation.DrawableRes
 import androidx.core.app.ActivityCompat
@@ -44,6 +45,10 @@ import kotlinx.coroutines.launch
 import timber.log.Timber
 import kotlin.math.abs
 import androidx.core.view.isVisible
+import androidx.core.view.marginLeft
+import androidx.core.view.marginRight
+import androidx.core.view.marginTop
+import androidx.core.view.updateLayoutParams
 import androidx.core.view.updatePadding
 import kotlin.math.max
 
@@ -89,12 +94,39 @@ class MapFragment : BaseFragment(), MapMarkerDetailsAdapter.MarkerDetailsCallbac
         ViewCompat.setOnApplyWindowInsetsListener(binding.root) { v, windowInsets ->
             val insetsSystemBars = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
             val insetsDisplayCutout = windowInsets.getInsets(WindowInsetsCompat.Type.displayCutout())
-            v.updatePadding(
-                top = max(insetsSystemBars.top, insetsDisplayCutout.top),
-                left = max(insetsSystemBars.left, insetsDisplayCutout.left),
-                right = max(insetsSystemBars.right, insetsDisplayCutout.right),
+            val insetsTouch = windowInsets.getInsets(WindowInsetsCompat.Type.tappableElement())
+
+            val topSafeMargin = maxOf(insetsSystemBars.top, insetsDisplayCutout.top, insetsTouch.top)
+            val lefSafetMargin = 16 + maxOf(insetsSystemBars.left, insetsDisplayCutout.left, insetsTouch.left)
+            val rightSafeMargin = 16 + maxOf(insetsSystemBars.right, insetsDisplayCutout.right, insetsTouch.right)
+
+            binding.fabSearch.updateLayoutParams<ViewGroup.MarginLayoutParams> {
+                topMargin = topSafeMargin
+                leftMargin = lefSafetMargin
+                rightMargin = rightSafeMargin
+            }
+
+            binding.fabFilters.updateLayoutParams<ViewGroup.MarginLayoutParams> {
+                leftMargin = lefSafetMargin
+                rightMargin = rightSafeMargin
+            }
+
+            binding.fabLocation.updateLayoutParams<ViewGroup.MarginLayoutParams> {
+                leftMargin = lefSafetMargin
+                rightMargin = rightSafeMargin
+            }
+
+            binding.fabLayers.updateLayoutParams<ViewGroup.MarginLayoutParams> {
+                leftMargin = lefSafetMargin
+                rightMargin = rightSafeMargin
+            }
+
+            binding.markerItems.updatePadding(
+                left = lefSafetMargin,
+                right = rightSafeMargin
             )
-            WindowInsetsCompat.CONSUMED
+
+            windowInsets
         }
 
         binding.state = mapViewModel.state
