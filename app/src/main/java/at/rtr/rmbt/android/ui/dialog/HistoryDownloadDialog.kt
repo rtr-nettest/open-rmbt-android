@@ -5,7 +5,11 @@ import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.ViewGroup.MarginLayoutParams
 import android.widget.Toast
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.updateLayoutParams
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import at.rtr.rmbt.android.R
@@ -15,6 +19,7 @@ import at.rtr.rmbt.android.di.Injector
 import at.rtr.rmbt.android.util.listen
 import at.rtr.rmbt.android.viewmodel.HistoryDownloadViewModel
 import javax.inject.Inject
+import kotlin.math.max
 
 class HistoryDownloadDialog : FullscreenDialog() {
 
@@ -46,6 +51,21 @@ class HistoryDownloadDialog : FullscreenDialog() {
         binding =
             DataBindingUtil.inflate(inflater, R.layout.dialog_download_history, container, false)
         binding.state = viewModel.state
+        ViewCompat.setOnApplyWindowInsetsListener(binding.root) { v, windowInsets ->
+            val insetsSystemBars = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
+            val insetsDisplayCutout = windowInsets.getInsets(WindowInsetsCompat.Type.displayCutout())
+            val topSafe = max(insetsSystemBars.top, insetsDisplayCutout.top)
+            val leftSafe = max(insetsSystemBars.left, insetsDisplayCutout.left)
+            val rightSafe = max(insetsSystemBars.right, insetsDisplayCutout.right)
+            val bottomSafe = max(insetsSystemBars.bottom, insetsDisplayCutout.bottom)
+            v.updateLayoutParams<MarginLayoutParams> {
+                topMargin = topSafe
+                leftMargin = leftSafe
+                rightMargin = rightSafe
+                bottomMargin = bottomSafe
+            }
+            WindowInsetsCompat.CONSUMED
+        }
         return binding.root
     }
 

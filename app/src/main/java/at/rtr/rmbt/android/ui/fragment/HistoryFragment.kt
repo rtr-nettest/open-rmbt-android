@@ -2,9 +2,11 @@ package at.rtr.rmbt.android.ui.fragment
 
 import android.os.Bundle
 import android.view.View
+import android.view.ViewGroup.MarginLayoutParams
 import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.updateLayoutParams
 import androidx.core.view.updatePadding
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.transition.ChangeBounds
@@ -48,7 +50,7 @@ class HistoryFragment : BaseFragment(), SyncDevicesDialog.Callback, HistoryFilte
                 left = max(insetsSystemBars.left, insetsDisplayCutout.left),
                 right = max(insetsSystemBars.right, insetsDisplayCutout.right),
             )
-            WindowInsetsCompat.CONSUMED
+            windowInsets
         }
 
         savedInstanceState?.let {
