@@ -11,11 +11,13 @@ import android.os.Handler
 import android.os.Looper
 import android.provider.Settings
 import android.view.View
+import android.view.ViewGroup
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
 import androidx.core.content.ContextCompat.checkSelfPermission
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.updateLayoutParams
 import androidx.core.view.updatePadding
 import at.rmbt.client.control.IpProtocol
 import at.rtr.rmbt.android.R
@@ -69,21 +71,49 @@ class HomeFragment : BaseFragment() {
             }
         }
 
+
+    private fun recalculateInsets() {
+        ViewCompat.setOnApplyWindowInsetsListener(binding.root) { v, windowInsets ->
+            val insetsSystemBars = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
+            val insetsDisplayCutout = windowInsets.getInsets(WindowInsetsCompat.Type.displayCutout())
+            val topSafe = max(insetsSystemBars.top, insetsDisplayCutout.top)
+            val leftSafe = max(insetsSystemBars.left, insetsDisplayCutout.left)
+            val rightSafe = max(insetsSystemBars.right, insetsDisplayCutout.right)
+
+            binding.rightGuideline?.updateLayoutParams<ViewGroup.MarginLayoutParams> {
+                rightMargin = rightSafe
+            }
+
+            binding.tvTitle.updateLayoutParams<ViewGroup.MarginLayoutParams> {
+                topMargin = topSafe
+                leftMargin = leftSafe
+                rightMargin = rightSafe
+            }
+            binding.loopModeTitle.updateLayoutParams<ViewGroup.MarginLayoutParams> {
+                leftMargin = leftSafe
+                rightMargin = rightSafe
+            }
+            binding.btnLoop.updateLayoutParams<ViewGroup.MarginLayoutParams> {
+                topMargin = topSafe
+                leftMargin = leftSafe
+                rightMargin = rightSafe
+            }
+            binding.btnSetting.updateLayoutParams<ViewGroup.MarginLayoutParams> {
+                topMargin = topSafe
+                leftMargin = leftSafe
+                rightMargin = rightSafe
+            }
+
+            windowInsets
+        }
+    }
+
     @SuppressLint("ClickableViewAccessibility")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         binding.state = homeViewModel.state
 
-        ViewCompat.setOnApplyWindowInsetsListener(binding.root) { v, windowInsets ->
-            val insetsSystemBars = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
-            val insetsDisplayCutout = windowInsets.getInsets(WindowInsetsCompat.Type.displayCutout())
-            v.updatePadding(
-                top = max(insetsSystemBars.top, insetsDisplayCutout.top),
-                left = max(insetsSystemBars.left, insetsDisplayCutout.left),
-                right = max(insetsSystemBars.right, insetsDisplayCutout.right),
-            )
-            WindowInsetsCompat.CONSUMED
-        }
+        recalculateInsets()
 
         homeViewModel.isConnected.listen(this) {
             activity?.window?.changeStatusBarColor(if (it) ToolbarTheme.BLUE else ToolbarTheme.GRAY)

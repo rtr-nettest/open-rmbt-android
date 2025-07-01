@@ -5,6 +5,10 @@ import android.os.Handler
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.updateLayoutParams
+import androidx.core.view.updatePadding
 import androidx.databinding.DataBindingUtil
 import at.rtr.rmbt.android.R
 import at.rtr.rmbt.android.databinding.DialogLocationInfoBinding
@@ -14,6 +18,7 @@ import at.specure.location.LocationState
 import at.specure.location.LocationWatcher
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
+import kotlin.math.max
 
 class LocationInfoDialog : FullscreenDialog() {
 
@@ -44,6 +49,24 @@ class LocationInfoDialog : FullscreenDialog() {
         savedInstanceState: Bundle?
     ): View? {
         binding = DataBindingUtil.inflate(inflater, R.layout.dialog_location_info, container, false)
+
+        ViewCompat.setOnApplyWindowInsetsListener(binding.root) { v, windowInsets ->
+            val insetsSystemBars = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
+            val insetsDisplayCutout = windowInsets.getInsets(WindowInsetsCompat.Type.displayCutout())
+            val topSafe = max(insetsSystemBars.top, insetsDisplayCutout.top)
+            val leftSafe = max(insetsSystemBars.left, insetsDisplayCutout.left)
+            val rightSafe = max(insetsSystemBars.right, insetsDisplayCutout.right)
+            val bottomSafe = max(insetsSystemBars.bottom, insetsDisplayCutout.bottom)
+
+            v.updateLayoutParams<ViewGroup.MarginLayoutParams> {
+                rightMargin = rightSafe
+                leftMargin = leftSafe
+                topMargin = topSafe
+                bottomMargin = bottomSafe
+            }
+            WindowInsetsCompat.CONSUMED
+        }
+
         return binding.root
     }
 
