@@ -14,6 +14,9 @@ import android.view.View
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
 import androidx.core.content.ContextCompat.checkSelfPermission
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.updatePadding
 import at.rmbt.client.control.IpProtocol
 import at.rtr.rmbt.android.R
 import at.rtr.rmbt.android.databinding.FragmentHomeBinding
@@ -36,6 +39,7 @@ import at.specure.util.openAppSettings
 import at.specure.util.toast
 import timber.log.Timber
 import java.lang.IndexOutOfBoundsException
+import kotlin.math.max
 
 class HomeFragment : BaseFragment() {
 
@@ -69,6 +73,17 @@ class HomeFragment : BaseFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         binding.state = homeViewModel.state
+
+        ViewCompat.setOnApplyWindowInsetsListener(binding.root) { v, windowInsets ->
+            val insetsSystemBars = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
+            val insetsDisplayCutout = windowInsets.getInsets(WindowInsetsCompat.Type.displayCutout())
+            v.updatePadding(
+                top = max(insetsSystemBars.top, insetsDisplayCutout.top),
+                left = max(insetsSystemBars.left, insetsDisplayCutout.left),
+                right = max(insetsSystemBars.right, insetsDisplayCutout.right),
+            )
+            WindowInsetsCompat.CONSUMED
+        }
 
         homeViewModel.isConnected.listen(this) {
             activity?.window?.changeStatusBarColor(if (it) ToolbarTheme.BLUE else ToolbarTheme.GRAY)

@@ -13,6 +13,8 @@ import android.view.View
 import android.widget.Toast
 import androidx.annotation.DrawableRes
 import androidx.core.app.ActivityCompat
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearSnapHelper
 import androidx.recyclerview.widget.RecyclerView
@@ -42,6 +44,8 @@ import kotlinx.coroutines.launch
 import timber.log.Timber
 import kotlin.math.abs
 import androidx.core.view.isVisible
+import androidx.core.view.updatePadding
+import kotlin.math.max
 
 const val START_ZOOM_LEVEL = 12f
 
@@ -81,6 +85,18 @@ class MapFragment : BaseFragment(), MapMarkerDetailsAdapter.MarkerDetailsCallbac
     @SuppressLint("SetJavaScriptEnabled")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        ViewCompat.setOnApplyWindowInsetsListener(binding.root) { v, windowInsets ->
+            val insetsSystemBars = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
+            val insetsDisplayCutout = windowInsets.getInsets(WindowInsetsCompat.Type.displayCutout())
+            v.updatePadding(
+                top = max(insetsSystemBars.top, insetsDisplayCutout.top),
+                left = max(insetsSystemBars.left, insetsDisplayCutout.left),
+                right = max(insetsSystemBars.right, insetsDisplayCutout.right),
+            )
+            WindowInsetsCompat.CONSUMED
+        }
+
         binding.state = mapViewModel.state
         mapViewModel.state.isFilterLoaded.addOnPropertyChanged {
             updateFabButtonsVisibility()

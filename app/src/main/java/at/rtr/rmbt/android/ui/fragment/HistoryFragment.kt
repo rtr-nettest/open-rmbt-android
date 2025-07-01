@@ -3,6 +3,9 @@ package at.rtr.rmbt.android.ui.fragment
 import android.os.Bundle
 import android.view.View
 import androidx.core.content.ContextCompat
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.updatePadding
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.transition.ChangeBounds
 import androidx.transition.TransitionManager
@@ -20,6 +23,7 @@ import at.rtr.rmbt.android.util.ToolbarTheme
 import at.rtr.rmbt.android.util.changeStatusBarColor
 import at.rtr.rmbt.android.util.listen
 import at.rtr.rmbt.android.viewmodel.HistoryViewModel
+import kotlin.math.max
 
 private const val CODE_FILTERS = 13
 private const val CODE_DOWNLOAD = 14
@@ -35,6 +39,17 @@ class HistoryFragment : BaseFragment(), SyncDevicesDialog.Callback, HistoryFilte
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        ViewCompat.setOnApplyWindowInsetsListener(binding.root) { v, windowInsets ->
+            val insetsSystemBars = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
+            val insetsDisplayCutout = windowInsets.getInsets(WindowInsetsCompat.Type.displayCutout())
+            v.updatePadding(
+                top = max(insetsSystemBars.top, insetsDisplayCutout.top),
+                left = max(insetsSystemBars.left, insetsDisplayCutout.left),
+                right = max(insetsSystemBars.right, insetsDisplayCutout.right),
+            )
+            WindowInsetsCompat.CONSUMED
+        }
 
         savedInstanceState?.let {
             adapter.onRestoreState(it)
