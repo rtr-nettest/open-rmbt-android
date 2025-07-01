@@ -19,11 +19,15 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.KeyEvent
 import androidx.core.content.ContextCompat
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.updatePadding
 import at.rtr.rmbt.android.R
 import at.rtr.rmbt.android.databinding.ActivityQosTestsSummaryBinding
 import at.rtr.rmbt.android.ui.fragment.QosTestsSummaryFragment
 import at.specure.data.entity.QosCategoryRecord
 import at.specure.result.QoSCategory
+import kotlin.math.max
 
 class QosTestsSummaryActivity : BaseActivity() {
 
@@ -45,6 +49,22 @@ class QosTestsSummaryActivity : BaseActivity() {
             supportFragmentManager.beginTransaction()
                 .replace(R.id.fragment_content, QosTestsSummaryFragment.newInstance(testUUID, categoryDescription, category, categoryName))
                 .commitNow()
+        }
+        ViewCompat.setOnApplyWindowInsetsListener(binding.root) { v, windowInsets ->
+            val insetsSystemBars = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
+            val insetsDisplayCutout = windowInsets.getInsets(WindowInsetsCompat.Type.displayCutout())
+            val topSafe = max(insetsSystemBars.top, insetsDisplayCutout.top)
+            val leftSafe = max(insetsSystemBars.left, insetsDisplayCutout.left)
+            val rightSafe = max(insetsSystemBars.right, insetsDisplayCutout.right)
+            val bottomSafe = max(insetsSystemBars.bottom, insetsDisplayCutout.bottom)
+
+            v.updatePadding(
+                right = rightSafe,
+                left = leftSafe,
+                top = topSafe,
+                bottom = bottomSafe
+            )
+            WindowInsetsCompat.CONSUMED
         }
 
         setupToolbar(categoryName)

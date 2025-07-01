@@ -3,7 +3,12 @@ package at.rtr.rmbt.android.ui.activity
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.view.ViewGroup.MarginLayoutParams
 import androidx.core.content.ContextCompat
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.updateLayoutParams
+import androidx.core.view.updatePadding
 import at.rmbt.client.control.data.MapPresentationType
 import at.rmbt.client.control.data.MapStyleType
 import at.rtr.rmbt.android.R
@@ -14,6 +19,7 @@ import at.rtr.rmbt.android.ui.dialog.MapLayersDialog
 import at.rtr.rmbt.android.util.ToolbarTheme
 import at.rtr.rmbt.android.util.changeStatusBarColor
 import at.specure.data.NetworkTypeCompat
+import kotlin.math.max
 
 class DetailedFullscreenMapActivity : BaseActivity(), MapLayersDialog.Callback {
 
@@ -27,6 +33,28 @@ class DetailedFullscreenMapActivity : BaseActivity(), MapLayersDialog.Callback {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = bindContentView(R.layout.activity_detailed_fullscreen_map)
+
+        ViewCompat.setOnApplyWindowInsetsListener(binding.root) { v, windowInsets ->
+            val insetsSystemBars = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
+            val insetsDisplayCutout = windowInsets.getInsets(WindowInsetsCompat.Type.displayCutout())
+            val insetsTouch = windowInsets.getInsets(WindowInsetsCompat.Type.tappableElement())
+
+            val topSafeMargin = maxOf(insetsSystemBars.top, insetsDisplayCutout.top, insetsTouch.top)
+            val lefSafetMargin = 16 + maxOf(insetsSystemBars.left, insetsDisplayCutout.left, insetsTouch.left)
+            val rightSafeMargin = 16 + maxOf(insetsSystemBars.right, insetsDisplayCutout.right, insetsTouch.right)
+
+            binding.closeFab.updateLayoutParams<MarginLayoutParams> {
+                rightMargin = rightSafeMargin
+                leftMargin = lefSafetMargin
+                topMargin = topSafeMargin
+            }
+
+            binding.layersFab.updateLayoutParams<MarginLayoutParams> {
+                rightMargin = rightSafeMargin
+                leftMargin = lefSafetMargin
+            }
+            windowInsets
+        }
 
         setTransparentStatusBar()
         window.changeStatusBarColor(ToolbarTheme.WHITE)
