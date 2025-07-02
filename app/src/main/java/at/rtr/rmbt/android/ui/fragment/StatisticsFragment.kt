@@ -2,6 +2,7 @@ package at.rtr.rmbt.android.ui.fragment
 
 import android.annotation.SuppressLint
 import android.graphics.Bitmap
+import android.os.Build
 import android.os.Bundle
 import android.view.KeyEvent
 import android.view.LayoutInflater
@@ -12,12 +13,16 @@ import android.webkit.WebResourceRequest
 import android.webkit.WebResourceResponse
 import android.webkit.WebView
 import android.webkit.WebViewClient
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.updatePadding
 import at.rtr.rmbt.android.R
 import at.rtr.rmbt.android.databinding.FragmentStatisticsBinding
 import at.rtr.rmbt.android.di.viewModelLazy
 import at.rtr.rmbt.android.util.ToolbarTheme
 import at.rtr.rmbt.android.util.changeStatusBarColor
 import at.rtr.rmbt.android.viewmodel.StatisticsViewModel
+import kotlin.math.max
 
 @SuppressLint("SetJavaScriptEnabled")
 class StatisticsFragment : BaseFragment() {
@@ -30,6 +35,18 @@ class StatisticsFragment : BaseFragment() {
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         _binding = FragmentStatisticsBinding.inflate(inflater, container, false)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
+            ViewCompat.setOnApplyWindowInsetsListener(binding.root) { v, windowInsets ->
+                val insetsSystemBars = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
+                val insetsDisplayCutout = windowInsets.getInsets(WindowInsetsCompat.Type.displayCutout())
+                v.updatePadding(
+                    top = max(insetsSystemBars.top, insetsDisplayCutout.top),
+                    left = max(insetsSystemBars.left, insetsDisplayCutout.left),
+                    right = max(insetsSystemBars.right, insetsDisplayCutout.right),
+                )
+                WindowInsetsCompat.CONSUMED
+            }
+        }
         return binding.root
     }
 

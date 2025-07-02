@@ -4,7 +4,7 @@ buildscript {
     apply from: "$project.rootDir/dependencies.gradle"
     apply from: "$project.rootDir/tools/utils.gradle"
     ext {
-        kotlin_version = '1.9.20'
+        kotlin_version = '1.9.24'
     }
 
     repositories {
@@ -15,7 +15,7 @@ buildscript {
     }
 
     dependencies {
-        classpath 'com.android.tools.build:gradle:8.3.2'
+        classpath 'com.android.tools.build:gradle:8.8.0'
         classpath 'com.google.android.gms:oss-licenses-plugin:0.10.6'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$versions.kotlin"
         applyDependencies({ this })
