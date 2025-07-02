@@ -6,6 +6,7 @@ import android.content.pm.PackageManager
 import android.content.res.Configuration
 import android.location.Address
 import android.location.Geocoder
+import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -91,42 +92,44 @@ class MapFragment : BaseFragment(), MapMarkerDetailsAdapter.MarkerDetailsCallbac
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        ViewCompat.setOnApplyWindowInsetsListener(binding.root) { v, windowInsets ->
-            val insetsSystemBars = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
-            val insetsDisplayCutout = windowInsets.getInsets(WindowInsetsCompat.Type.displayCutout())
-            val insetsTouch = windowInsets.getInsets(WindowInsetsCompat.Type.tappableElement())
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
+            ViewCompat.setOnApplyWindowInsetsListener(binding.root) { v, windowInsets ->
+                val insetsSystemBars = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
+                val insetsDisplayCutout = windowInsets.getInsets(WindowInsetsCompat.Type.displayCutout())
+                val insetsTouch = windowInsets.getInsets(WindowInsetsCompat.Type.tappableElement())
 
-            val topSafeMargin = maxOf(insetsSystemBars.top, insetsDisplayCutout.top, insetsTouch.top)
-            val lefSafetMargin = 16 + maxOf(insetsSystemBars.left, insetsDisplayCutout.left, insetsTouch.left)
-            val rightSafeMargin = 16 + maxOf(insetsSystemBars.right, insetsDisplayCutout.right, insetsTouch.right)
+                val topSafeMargin = maxOf(insetsSystemBars.top, insetsDisplayCutout.top, insetsTouch.top)
+                val lefSafetMargin = 16 + maxOf(insetsSystemBars.left, insetsDisplayCutout.left, insetsTouch.left)
+                val rightSafeMargin = 16 + maxOf(insetsSystemBars.right, insetsDisplayCutout.right, insetsTouch.right)
 
-            binding.fabSearch.updateLayoutParams<ViewGroup.MarginLayoutParams> {
-                topMargin = topSafeMargin
-                leftMargin = lefSafetMargin
-                rightMargin = rightSafeMargin
+                binding.fabSearch.updateLayoutParams<ViewGroup.MarginLayoutParams> {
+                    topMargin = topSafeMargin
+                    leftMargin = lefSafetMargin
+                    rightMargin = rightSafeMargin
+                }
+
+                binding.fabFilters.updateLayoutParams<ViewGroup.MarginLayoutParams> {
+                    leftMargin = lefSafetMargin
+                    rightMargin = rightSafeMargin
+                }
+
+                binding.fabLocation.updateLayoutParams<ViewGroup.MarginLayoutParams> {
+                    leftMargin = lefSafetMargin
+                    rightMargin = rightSafeMargin
+                }
+
+                binding.fabLayers.updateLayoutParams<ViewGroup.MarginLayoutParams> {
+                    leftMargin = lefSafetMargin
+                    rightMargin = rightSafeMargin
+                }
+
+                binding.markerItems.updatePadding(
+                    left = lefSafetMargin,
+                    right = rightSafeMargin
+                )
+
+                windowInsets
             }
-
-            binding.fabFilters.updateLayoutParams<ViewGroup.MarginLayoutParams> {
-                leftMargin = lefSafetMargin
-                rightMargin = rightSafeMargin
-            }
-
-            binding.fabLocation.updateLayoutParams<ViewGroup.MarginLayoutParams> {
-                leftMargin = lefSafetMargin
-                rightMargin = rightSafeMargin
-            }
-
-            binding.fabLayers.updateLayoutParams<ViewGroup.MarginLayoutParams> {
-                leftMargin = lefSafetMargin
-                rightMargin = rightSafeMargin
-            }
-
-            binding.markerItems.updatePadding(
-                left = lefSafetMargin,
-                right = rightSafeMargin
-            )
-
-            windowInsets
         }
 
         binding.state = mapViewModel.state

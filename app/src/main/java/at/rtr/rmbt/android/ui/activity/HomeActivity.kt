@@ -18,6 +18,7 @@ import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
+import android.os.Build
 import android.os.Bundle
 import android.view.ViewGroup
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
@@ -118,12 +119,13 @@ class HomeActivity : BaseActivity() {
         configCheckViewModel.incorrectValuesLiveData.listen(this) {
             ConfigCheckDialog.show(supportFragmentManager, it)
         }
-
-        ViewCompat.setOnApplyWindowInsetsListener(binding.root) { v, windowInsets ->
-            val insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
-            binding.navView.updatePadding(bottom = insets.bottom)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
+            ViewCompat.setOnApplyWindowInsetsListener(binding.root) { v, windowInsets ->
+                val insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
+                binding.navView.updatePadding(bottom = insets.bottom)
 //            WindowInsetsCompat.CONSUMED
-            windowInsets
+                windowInsets
+            }
         }
     }
 

@@ -1,5 +1,6 @@
 package at.rtr.rmbt.android.ui.fragment
 
+import android.os.Build
 import android.os.Bundle
 import android.view.View
 import android.view.ViewGroup.MarginLayoutParams
@@ -41,16 +42,17 @@ class HistoryFragment : BaseFragment(), SyncDevicesDialog.Callback, HistoryFilte
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
-        ViewCompat.setOnApplyWindowInsetsListener(binding.root) { v, windowInsets ->
-            val insetsSystemBars = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
-            val insetsDisplayCutout = windowInsets.getInsets(WindowInsetsCompat.Type.displayCutout())
-            v.updatePadding(
-                top = max(insetsSystemBars.top, insetsDisplayCutout.top),
-                left = max(insetsSystemBars.left, insetsDisplayCutout.left),
-                right = max(insetsSystemBars.right, insetsDisplayCutout.right),
-            )
-            windowInsets
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
+            ViewCompat.setOnApplyWindowInsetsListener(binding.root) { v, windowInsets ->
+                val insetsSystemBars = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
+                val insetsDisplayCutout = windowInsets.getInsets(WindowInsetsCompat.Type.displayCutout())
+                v.updatePadding(
+                    top = max(insetsSystemBars.top, insetsDisplayCutout.top),
+                    left = max(insetsSystemBars.left, insetsDisplayCutout.left),
+                    right = max(insetsSystemBars.right, insetsDisplayCutout.right),
+                )
+                windowInsets
+            }
         }
 
         savedInstanceState?.let {

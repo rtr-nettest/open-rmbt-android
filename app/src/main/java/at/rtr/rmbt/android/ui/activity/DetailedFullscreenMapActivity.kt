@@ -2,6 +2,7 @@ package at.rtr.rmbt.android.ui.activity
 
 import android.content.Context
 import android.content.Intent
+import android.os.Build
 import android.os.Bundle
 import android.view.ViewGroup.MarginLayoutParams
 import androidx.core.content.ContextCompat
@@ -34,26 +35,28 @@ class DetailedFullscreenMapActivity : BaseActivity(), MapLayersDialog.Callback {
         super.onCreate(savedInstanceState)
         binding = bindContentView(R.layout.activity_detailed_fullscreen_map)
 
-        ViewCompat.setOnApplyWindowInsetsListener(binding.root) { v, windowInsets ->
-            val insetsSystemBars = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
-            val insetsDisplayCutout = windowInsets.getInsets(WindowInsetsCompat.Type.displayCutout())
-            val insetsTouch = windowInsets.getInsets(WindowInsetsCompat.Type.tappableElement())
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
+            ViewCompat.setOnApplyWindowInsetsListener(binding.root) { v, windowInsets ->
+                val insetsSystemBars = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
+                val insetsDisplayCutout = windowInsets.getInsets(WindowInsetsCompat.Type.displayCutout())
+                val insetsTouch = windowInsets.getInsets(WindowInsetsCompat.Type.tappableElement())
 
-            val topSafeMargin = maxOf(insetsSystemBars.top, insetsDisplayCutout.top, insetsTouch.top)
-            val lefSafetMargin = 16 + maxOf(insetsSystemBars.left, insetsDisplayCutout.left, insetsTouch.left)
-            val rightSafeMargin = 16 + maxOf(insetsSystemBars.right, insetsDisplayCutout.right, insetsTouch.right)
+                val topSafeMargin = maxOf(insetsSystemBars.top, insetsDisplayCutout.top, insetsTouch.top)
+                val lefSafetMargin = 16 + maxOf(insetsSystemBars.left, insetsDisplayCutout.left, insetsTouch.left)
+                val rightSafeMargin = 16 + maxOf(insetsSystemBars.right, insetsDisplayCutout.right, insetsTouch.right)
 
-            binding.closeFab.updateLayoutParams<MarginLayoutParams> {
-                rightMargin = rightSafeMargin
-                leftMargin = lefSafetMargin
-                topMargin = topSafeMargin
+                binding.closeFab.updateLayoutParams<MarginLayoutParams> {
+                    rightMargin = rightSafeMargin
+                    leftMargin = lefSafetMargin
+                    topMargin = topSafeMargin
+                }
+
+                binding.layersFab.updateLayoutParams<MarginLayoutParams> {
+                    rightMargin = rightSafeMargin
+                    leftMargin = lefSafetMargin
+                }
+                windowInsets
             }
-
-            binding.layersFab.updateLayoutParams<MarginLayoutParams> {
-                rightMargin = rightSafeMargin
-                leftMargin = lefSafetMargin
-            }
-            windowInsets
         }
 
         setTransparentStatusBar()

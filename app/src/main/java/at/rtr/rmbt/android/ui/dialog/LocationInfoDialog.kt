@@ -1,5 +1,6 @@
 package at.rtr.rmbt.android.ui.dialog
 
+import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.view.LayoutInflater
@@ -49,22 +50,23 @@ class LocationInfoDialog : FullscreenDialog() {
         savedInstanceState: Bundle?
     ): View? {
         binding = DataBindingUtil.inflate(inflater, R.layout.dialog_location_info, container, false)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
+            ViewCompat.setOnApplyWindowInsetsListener(binding.root) { v, windowInsets ->
+                val insetsSystemBars = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
+                val insetsDisplayCutout = windowInsets.getInsets(WindowInsetsCompat.Type.displayCutout())
+                val topSafe = max(insetsSystemBars.top, insetsDisplayCutout.top)
+                val leftSafe = max(insetsSystemBars.left, insetsDisplayCutout.left)
+                val rightSafe = max(insetsSystemBars.right, insetsDisplayCutout.right)
+                val bottomSafe = max(insetsSystemBars.bottom, insetsDisplayCutout.bottom)
 
-        ViewCompat.setOnApplyWindowInsetsListener(binding.root) { v, windowInsets ->
-            val insetsSystemBars = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
-            val insetsDisplayCutout = windowInsets.getInsets(WindowInsetsCompat.Type.displayCutout())
-            val topSafe = max(insetsSystemBars.top, insetsDisplayCutout.top)
-            val leftSafe = max(insetsSystemBars.left, insetsDisplayCutout.left)
-            val rightSafe = max(insetsSystemBars.right, insetsDisplayCutout.right)
-            val bottomSafe = max(insetsSystemBars.bottom, insetsDisplayCutout.bottom)
-
-            v.updateLayoutParams<ViewGroup.MarginLayoutParams> {
-                rightMargin = rightSafe
-                leftMargin = leftSafe
-                topMargin = topSafe
-                bottomMargin = bottomSafe
+                v.updateLayoutParams<ViewGroup.MarginLayoutParams> {
+                    rightMargin = rightSafe
+                    leftMargin = leftSafe
+                    topMargin = topSafe
+                    bottomMargin = bottomSafe
+                }
+                WindowInsetsCompat.CONSUMED
             }
-            WindowInsetsCompat.CONSUMED
         }
 
         return binding.root

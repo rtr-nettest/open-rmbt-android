@@ -2,6 +2,7 @@ package at.rtr.rmbt.android.ui.activity
 
 import android.content.Context
 import android.content.Intent
+import android.os.Build
 import android.os.Bundle
 import android.view.View
 import android.widget.Toast
@@ -46,21 +47,23 @@ class ResultsActivity : BaseActivity() {
         binding = bindContentView(R.layout.activity_results)
         binding.state = viewModel.state
 
-        ViewCompat.setOnApplyWindowInsetsListener(binding.root) { v, windowInsets ->
-            val insetsSystemBars = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
-            val insetsDisplayCutout = windowInsets.getInsets(WindowInsetsCompat.Type.displayCutout())
-            val topSafe = max(insetsSystemBars.top, insetsDisplayCutout.top)
-            val leftSafe = max(insetsSystemBars.left, insetsDisplayCutout.left)
-            val rightSafe = max(insetsSystemBars.right, insetsDisplayCutout.right)
-            val bottomSafe = max(insetsSystemBars.bottom, insetsDisplayCutout.bottom)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
+            ViewCompat.setOnApplyWindowInsetsListener(binding.root) { v, windowInsets ->
+                val insetsSystemBars = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
+                val insetsDisplayCutout = windowInsets.getInsets(WindowInsetsCompat.Type.displayCutout())
+                val topSafe = max(insetsSystemBars.top, insetsDisplayCutout.top)
+                val leftSafe = max(insetsSystemBars.left, insetsDisplayCutout.left)
+                val rightSafe = max(insetsSystemBars.right, insetsDisplayCutout.right)
+                val bottomSafe = max(insetsSystemBars.bottom, insetsDisplayCutout.bottom)
 
-            v.updatePadding(
-                right = rightSafe,
-                left = leftSafe,
-                top = topSafe,
-                bottom = bottomSafe
-            )
-            windowInsets
+                v.updatePadding(
+                    right = rightSafe,
+                    left = leftSafe,
+                    top = topSafe,
+                    bottom = bottomSafe
+                )
+                windowInsets
+            }
         }
 
         viewModel.state.playServicesAvailable.set(isGmsAvailable())

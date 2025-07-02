@@ -45,22 +45,24 @@ class MapSearchDialog : FullscreenDialog() {
         savedInstanceState: Bundle?
     ): View? {
         binding = DataBindingUtil.inflate(inflater, R.layout.dialog_map_search, container, false)
-        ViewCompat.setOnApplyWindowInsetsListener(binding.root) { v, windowInsets ->
-            val insetsSystemBars = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
-            val insetsDisplayCutout = windowInsets.getInsets(WindowInsetsCompat.Type.displayCutout())
-            val insetsTouch = windowInsets.getInsets(WindowInsetsCompat.Type.tappableElement())
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
+            ViewCompat.setOnApplyWindowInsetsListener(binding.root) { v, windowInsets ->
+                val insetsSystemBars = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
+                val insetsDisplayCutout = windowInsets.getInsets(WindowInsetsCompat.Type.displayCutout())
+                val insetsTouch = windowInsets.getInsets(WindowInsetsCompat.Type.tappableElement())
 
-            val topSafeMargin = maxOf(insetsSystemBars.top, insetsDisplayCutout.top, insetsTouch.top)
-            val lefSafetMargin = maxOf(insetsSystemBars.left, insetsDisplayCutout.left, insetsTouch.left)
-            val rightSafeMargin = maxOf(insetsSystemBars.right, insetsDisplayCutout.right, insetsTouch.right)
+                val topSafeMargin = maxOf(insetsSystemBars.top, insetsDisplayCutout.top, insetsTouch.top)
+                val lefSafetMargin = maxOf(insetsSystemBars.left, insetsDisplayCutout.left, insetsTouch.left)
+                val rightSafeMargin = maxOf(insetsSystemBars.right, insetsDisplayCutout.right, insetsTouch.right)
 
-            binding.root.updateLayoutParams<ViewGroup.MarginLayoutParams> {
-                topMargin = topSafeMargin
-                leftMargin = lefSafetMargin
-                rightMargin = rightSafeMargin
+                binding.root.updateLayoutParams<ViewGroup.MarginLayoutParams> {
+                    topMargin = topSafeMargin
+                    leftMargin = lefSafetMargin
+                    rightMargin = rightSafeMargin
+                }
+
+                WindowInsetsCompat.CONSUMED
             }
-
-            WindowInsetsCompat.CONSUMED
         }
         return binding.root
     }

@@ -73,38 +73,40 @@ class HomeFragment : BaseFragment() {
 
 
     private fun recalculateInsets() {
-        ViewCompat.setOnApplyWindowInsetsListener(binding.root) { v, windowInsets ->
-            val insetsSystemBars = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
-            val insetsDisplayCutout = windowInsets.getInsets(WindowInsetsCompat.Type.displayCutout())
-            val topSafe = max(insetsSystemBars.top, insetsDisplayCutout.top)
-            val leftSafe = max(insetsSystemBars.left, insetsDisplayCutout.left)
-            val rightSafe = max(insetsSystemBars.right, insetsDisplayCutout.right)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
+            ViewCompat.setOnApplyWindowInsetsListener(binding.root) { v, windowInsets ->
+                val insetsSystemBars = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
+                val insetsDisplayCutout = windowInsets.getInsets(WindowInsetsCompat.Type.displayCutout())
+                val topSafe = max(insetsSystemBars.top, insetsDisplayCutout.top)
+                val leftSafe = max(insetsSystemBars.left, insetsDisplayCutout.left)
+                val rightSafe = max(insetsSystemBars.right, insetsDisplayCutout.right)
 
-            binding.rightGuideline?.updateLayoutParams<ViewGroup.MarginLayoutParams> {
-                rightMargin = rightSafe
-            }
+                binding.rightGuideline?.updateLayoutParams<ViewGroup.MarginLayoutParams> {
+                    rightMargin = rightSafe
+                }
 
-            binding.tvTitle.updateLayoutParams<ViewGroup.MarginLayoutParams> {
-                topMargin = topSafe
-                leftMargin = leftSafe
-                rightMargin = rightSafe
-            }
-            binding.loopModeTitle.updateLayoutParams<ViewGroup.MarginLayoutParams> {
-                leftMargin = leftSafe
-                rightMargin = rightSafe
-            }
-            binding.btnLoop.updateLayoutParams<ViewGroup.MarginLayoutParams> {
-                topMargin = topSafe
-                leftMargin = leftSafe
-                rightMargin = rightSafe
-            }
-            binding.btnSetting.updateLayoutParams<ViewGroup.MarginLayoutParams> {
-                topMargin = topSafe
-                leftMargin = leftSafe
-                rightMargin = rightSafe
-            }
+                binding.tvTitle.updateLayoutParams<ViewGroup.MarginLayoutParams> {
+                    topMargin = topSafe
+                    leftMargin = leftSafe
+                    rightMargin = rightSafe
+                }
+                binding.loopModeTitle.updateLayoutParams<ViewGroup.MarginLayoutParams> {
+                    leftMargin = leftSafe
+                    rightMargin = rightSafe
+                }
+                binding.btnLoop.updateLayoutParams<ViewGroup.MarginLayoutParams> {
+                    topMargin = topSafe
+                    leftMargin = leftSafe
+                    rightMargin = rightSafe
+                }
+                binding.btnSetting.updateLayoutParams<ViewGroup.MarginLayoutParams> {
+                    topMargin = topSafe
+                    leftMargin = leftSafe
+                    rightMargin = rightSafe
+                }
 
-            windowInsets
+                windowInsets
+            }
         }
     }
 

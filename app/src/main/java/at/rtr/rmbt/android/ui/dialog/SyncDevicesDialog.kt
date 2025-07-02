@@ -1,5 +1,6 @@
 package at.rtr.rmbt.android.ui.dialog
 
+import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.view.Gravity
@@ -61,20 +62,22 @@ class SyncDevicesDialog : FullscreenDialog() {
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         binding = DataBindingUtil.inflate(inflater, R.layout.dialog_sync_devices, container, false)
         binding.state = viewModel.state
-        ViewCompat.setOnApplyWindowInsetsListener(binding.root) { v, windowInsets ->
-            val insetsSystemBars = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
-            val insetsDisplayCutout = windowInsets.getInsets(WindowInsetsCompat.Type.displayCutout())
-            val topSafe = max(insetsSystemBars.top, insetsDisplayCutout.top)
-            val leftSafe = max(insetsSystemBars.left, insetsDisplayCutout.left)
-            val rightSafe = max(insetsSystemBars.right, insetsDisplayCutout.right)
-            val bottomSafe = max(insetsSystemBars.bottom, insetsDisplayCutout.bottom)
-            v.updateLayoutParams<MarginLayoutParams> {
-                topMargin = topSafe
-                leftMargin = leftSafe
-                rightMargin = rightSafe
-                bottomMargin = bottomSafe
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
+            ViewCompat.setOnApplyWindowInsetsListener(binding.root) { v, windowInsets ->
+                val insetsSystemBars = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
+                val insetsDisplayCutout = windowInsets.getInsets(WindowInsetsCompat.Type.displayCutout())
+                val topSafe = max(insetsSystemBars.top, insetsDisplayCutout.top)
+                val leftSafe = max(insetsSystemBars.left, insetsDisplayCutout.left)
+                val rightSafe = max(insetsSystemBars.right, insetsDisplayCutout.right)
+                val bottomSafe = max(insetsSystemBars.bottom, insetsDisplayCutout.bottom)
+                v.updateLayoutParams<MarginLayoutParams> {
+                    topMargin = topSafe
+                    leftMargin = leftSafe
+                    rightMargin = rightSafe
+                    bottomMargin = bottomSafe
+                }
+                WindowInsetsCompat.CONSUMED
             }
-            WindowInsetsCompat.CONSUMED
         }
         return binding.root
     }

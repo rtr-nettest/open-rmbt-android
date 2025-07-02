@@ -11,6 +11,9 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.app.ActivityCompat
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.updatePadding
 import androidx.viewpager.widget.PagerAdapter
 import at.rtr.rmbt.android.R
 import at.rtr.rmbt.android.databinding.ActivityLoopInstructionsBinding
@@ -19,6 +22,7 @@ import at.rtr.rmbt.android.di.viewModelLazy
 import at.rtr.rmbt.android.util.ToolbarTheme
 import at.rtr.rmbt.android.util.changeStatusBarColor
 import at.rtr.rmbt.android.viewmodel.LoopConfigurationViewModel
+import kotlin.math.max
 
 class LoopInstructionsActivity : BaseActivity(), Callback {
 
@@ -28,6 +32,25 @@ class LoopInstructionsActivity : BaseActivity(), Callback {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = bindContentView(R.layout.activity_loop_instructions)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
+            ViewCompat.setOnApplyWindowInsetsListener(binding.root) { v, windowInsets ->
+                val insetsSystemBars = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
+                val insetsDisplayCutout = windowInsets.getInsets(WindowInsetsCompat.Type.displayCutout())
+                val topSafe = max(insetsSystemBars.top, insetsDisplayCutout.top)
+                val leftSafe = max(insetsSystemBars.left, insetsDisplayCutout.left)
+                val rightSafe = max(insetsSystemBars.right, insetsDisplayCutout.right)
+                val bottomSafe = max(insetsSystemBars.bottom, insetsDisplayCutout.bottom)
+
+                v.updatePadding(
+                    right = rightSafe,
+                    left = leftSafe,
+                    top = topSafe,
+                    bottom = bottomSafe
+                )
+                WindowInsetsCompat.CONSUMED
+            }
+        }
+
         window?.changeStatusBarColor(ToolbarTheme.WHITE)
 
         binding.title.text = getString(R.string.title_loop_instruction_1)
