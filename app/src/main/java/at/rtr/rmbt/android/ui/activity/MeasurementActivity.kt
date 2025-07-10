@@ -66,7 +66,17 @@ class MeasurementActivity : BaseActivity(), SimpleDialog.Callback {
                     top = topSafe,
                     bottom = bottomSafe
                 )
-                WindowInsetsCompat.CONSUMED
+                windowInsets
+            }
+            ViewCompat.setOnApplyWindowInsetsListener(binding.measurementBottomView.root) { v, windowInsets ->
+                val insetsSystemBars = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
+                val insetsDisplayCutout = windowInsets.getInsets(WindowInsetsCompat.Type.displayCutout())
+                val bottomSafe = max(insetsSystemBars.bottom, insetsDisplayCutout.bottom)
+
+                v.updatePadding(
+                    bottom = bottomSafe
+                )
+                windowInsets
             }
         }
 

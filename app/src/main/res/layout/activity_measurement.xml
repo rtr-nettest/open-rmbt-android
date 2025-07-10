@@ -19,10 +19,6 @@
             type="at.rtr.rmbt.android.ui.viewstate.MeasurementViewState" />
     </data>
 
-    <androidx.coordinatorlayout.widget.CoordinatorLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
-
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent">
@@ -135,13 +131,28 @@
                 android:orientation="horizontal"
                 app:layout_constraintGuide_percent="0.60" />
 
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/guideline">
+
+                <include
+                    android:id="@+id/measurementBottomView"
+                    layout="@layout/measurement_bottom_view"
+                    android:layout_height="wrap_content"
+                    android:layout_width="match_parent"
+                    android:layout_gravity="bottom"
+                    bind:state="@{state}" />
+
+            </FrameLayout>
+
+
         </androidx.constraintlayout.widget.ConstraintLayout>
 
-        <include
-            android:id="@+id/measurementBottomView"
-            layout="@layout/measurement_bottom_view"
-            bind:state="@{state}" />
-    </androidx.coordinatorlayout.widget.CoordinatorLayout>
+
 
 
 </layout>
