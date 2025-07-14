@@ -80,8 +80,6 @@ class SignalStrengthWatcherImpl(
                 secondary5GActiveCellNetworks = original.secondary5GActiveCellNetworks?.toList(),
                 secondary5GActiveSignalStrengthInfos = original.secondary5GActiveSignalStrengthInfos?.toList(),
             )
-            println("DNI orig ${detailedNetworkInfo?.allCellInfos?.size} ${System.identityHashCode(detailedNetworkInfo?.allCellInfos)}")
-            println("DNI copy ${copy?.allCellInfos?.size} ${System.identityHashCode(copy?.allCellInfos)}")
             return copy
         }
 
