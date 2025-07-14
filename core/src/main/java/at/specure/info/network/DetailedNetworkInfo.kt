@@ -23,7 +23,7 @@ data class DetailedNetworkInfo(
     /**
      * Should contain all secondary signals available for primary data connection
      */
-    var secondaryActiveSignalStrengthInfos: List<SignalStrengthInfo?>? = null,
+    val secondaryActiveSignalStrengthInfos: List<SignalStrengthInfo?>? = null,
     /**
      * Should contain all 5G secondary cells available for primary data connection
      */
@@ -31,7 +31,7 @@ data class DetailedNetworkInfo(
     /**
      * Should contain all 5G secondary signals available for primary data connection
      */
-    var secondary5GActiveSignalStrengthInfos: List<SignalStrengthInfo?>? = null,
+    val secondary5GActiveSignalStrengthInfos: List<SignalStrengthInfo?>? = null,
 
     /**
      * Current primary data subscription ID, -1 when unknown for some reason (wrong API, denied permissions)
