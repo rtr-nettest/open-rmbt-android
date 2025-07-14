@@ -259,7 +259,9 @@ class MeasurementActivity : BaseActivity(), SimpleDialog.Callback {
         viewModel.detach(this)
     }
 
+    @Deprecated("Deprecated in Java")
     override fun onBackPressed() {
+        super.onBackPressed()
         onCrossIconClicked()
     }
 

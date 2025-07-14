@@ -160,6 +160,7 @@ class StateRecorder @Inject constructor(
             val tasks = listOf(
                 async(Dispatchers.IO) {
                     saveTestInitialTestData(testUUID, loopUUID, testToken, testStartTimeNanos, threadNumber)
+                    saveCapabilities()
                                       },
             )
             try {
@@ -180,7 +181,6 @@ class StateRecorder @Inject constructor(
             saveSignalStrength(testUUID, signalStrengthInfo)
         }
         saveCellInfo()
-        saveCapabilities()
         savePermissionsStatus()
         saveTelephonyInfo()
         saveWlanInfo()

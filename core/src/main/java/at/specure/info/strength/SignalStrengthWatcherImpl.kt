@@ -70,7 +70,18 @@ class SignalStrengthWatcherImpl(
     private var detailedNetworkInfo: DetailedNetworkInfo? = null
 
     override val lastDetailedNetworkInfo: DetailedNetworkInfo?
-        get() = detailedNetworkInfo
+        get()  {
+            val original = detailedNetworkInfo
+            val copy = original?.copy(
+                networkTypes = HashMap(original.networkTypes),
+                allCellInfos = original.allCellInfos?.toList(),
+                secondaryActiveCellNetworks = original.secondaryActiveCellNetworks?.toList(),
+                secondaryActiveSignalStrengthInfos = original.secondaryActiveSignalStrengthInfos?.toList(),
+                secondary5GActiveCellNetworks = original.secondary5GActiveCellNetworks?.toList(),
+                secondary5GActiveSignalStrengthInfos = original.secondary5GActiveSignalStrengthInfos?.toList(),
+            )
+            return copy
+        }
 
     override val lastNetworkInfo: NetworkInfo?
         get() = networkInfo
@@ -205,12 +216,12 @@ class SignalStrengthWatcherImpl(
         if (cellInfo != null) {
             networkInfo = cellInfo
         }
-        secondaryActiveSignalStrengthInfo = cellInfoWatcher.secondaryActiveCellSignalStrengthInfos
+        secondaryActiveSignalStrengthInfo = cellInfoWatcher.secondaryActiveCellSignalStrengthInfos.toList()
         secondary5GActiveSignalStrengthInfo =
-            cellInfoWatcher.secondary5GActiveCellSignalStrengthInfos
-        secondaryActiveNetworkInfo = cellInfoWatcher.secondaryActiveCellNetworks
+            cellInfoWatcher.secondary5GActiveCellSignalStrengthInfos.toList()
+        secondaryActiveNetworkInfo = cellInfoWatcher.secondaryActiveCellNetworks.toList()
         inactiveNetworkInfo = cellInfoWatcher.allCellInfos.toList()
-        secondary5GActiveNetworkInfo = cellInfoWatcher.secondary5GActiveCellNetworks
+        secondary5GActiveNetworkInfo = cellInfoWatcher.secondary5GActiveCellNetworks.toList()
         detailedNetworkInfo = DetailedNetworkInfo(
             networkInfo,
             signalStrengthInfo,
@@ -242,11 +253,11 @@ class SignalStrengthWatcherImpl(
                     networkInfo,
                     signalStrengthInfo,
                     cellInfoWatcher.networkTypes,
-                    inactiveNetworkInfo,
-                    secondaryActiveNetworkInfo,
-                    secondaryActiveSignalStrengthInfo,
-                    secondary5GActiveNetworkInfo,
-                    secondary5GActiveSignalStrengthInfo,
+                    inactiveNetworkInfo?.toList(),
+                    secondaryActiveNetworkInfo?.toList(),
+                    secondaryActiveSignalStrengthInfo?.toList(),
+                    secondary5GActiveNetworkInfo?.toList(),
+                    secondary5GActiveSignalStrengthInfo?.toList(),
                     cellInfoWatcher.dataSubscriptionId
                 )
             )
@@ -260,11 +271,11 @@ class SignalStrengthWatcherImpl(
                 networkInfo,
                 signalStrengthInfo,
                 cellInfoWatcher.networkTypes,
-                inactiveNetworkInfo,
-                secondaryActiveNetworkInfo,
-                secondaryActiveSignalStrengthInfo,
-                secondary5GActiveNetworkInfo,
-                secondary5GActiveSignalStrengthInfo,
+                inactiveNetworkInfo?.toList(),
+                secondaryActiveNetworkInfo?.toList(),
+                secondaryActiveSignalStrengthInfo?.toList(),
+                secondary5GActiveNetworkInfo?.toList(),
+                secondary5GActiveSignalStrengthInfo?.toList(),
                 cellInfoWatcher.dataSubscriptionId
             )
         )
