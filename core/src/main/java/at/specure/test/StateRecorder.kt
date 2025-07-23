@@ -348,42 +348,40 @@ class StateRecorder @Inject constructor(
     private fun saveCellInfo() = io {
         val uuid = testUUID
         val info = networkInfo
-        if (networkInfo?.type == TransportType.CELLULAR) {
+        if (info?.type == TransportType.CELLULAR) {
             if (context.isLocationServiceEnabled() && context.isFineLocationPermitted() && context.isReadPhoneStatePermitted()) {
                 try {
                     val detailedNetworkInfo = signalStrengthWatcher.lastDetailedNetworkInfo
                     detailedNetworkInfo?.let {
-
-                        val cellNetworkInfo = detailedNetworkInfo.networkInfo
-                        val active5GNetworkInfos = detailedNetworkInfo.secondary5GActiveCellNetworks?.toList()
-                        val active5GSignals = detailedNetworkInfo.secondary5GActiveSignalStrengthInfos?.toList()
-                        val otherCells = detailedNetworkInfo.allCellInfos?.toMutableList()
+                        val cellNetworkInfo = it.networkInfo
+                        val active5GNetworkInfos = it.secondary5GActiveCellNetworks?.toList() ?: emptyList()
+                        val active5GSignals = it.secondary5GActiveSignalStrengthInfos?.toList() ?: emptyList()
+                        val otherCells = it.allCellInfos?.toMutableList()
                         val testStartTimeNanos = testStartTimeNanos ?: 0
 
-                        if (detailedNetworkInfo.networkInfo is CellNetworkInfo) {
-                            otherCells?.remove(detailedNetworkInfo.networkInfo.rawCellInfo)
+                        if (cellNetworkInfo is CellNetworkInfo) {
+                            otherCells?.remove(cellNetworkInfo.rawCellInfo)
                         }
 
-                        saveNetworkInformation(cellNetworkInfo, detailedNetworkInfo.signalStrengthInfo, uuid, testStartTimeNanos)
-                        active5GNetworkInfos?.forEachIndexed { index, cellNetworkInfoInner ->
-                            otherCells?.remove(cellNetworkInfoInner?.rawCellInfo)
-                            // sometimes we are not getting the signal for NR cells as their are only neighbouring cells so there is empty list
-                            val signals5GisNullOrEmpty = active5GSignals.isNullOrEmpty()
-                            val signalsIndexIsOutOfBound = index > (active5GSignals?.lastIndex ?: -1)
-                            val signalStrengthInfo = if (signals5GisNullOrEmpty || signalsIndexIsOutOfBound) {
-                                null
-                            } else {
-                                try {
-                                    active5GSignals?.get(index)
-                                } catch (e: IndexOutOfBoundsException) {
-                                    null
-                                }
+                        // Save primary cell info
+                        saveNetworkInformation(cellNetworkInfo, it.signalStrengthInfo, uuid, testStartTimeNanos)
+
+                        // Save 5G secondary cell info safely using zip to fill missing values with null
+                        active5GNetworkInfos
+                            .zip(active5GSignals + List(active5GNetworkInfos.size - active5GSignals.size) { null })
+                            .forEach { (cellNetworkInfoInner, signalStrengthInfo) ->
+                                otherCells?.remove(cellNetworkInfoInner?.rawCellInfo)
+                                saveNetworkInformation(cellNetworkInfoInner, signalStrengthInfo, uuid, testStartTimeNanos)
                             }
-                            saveNetworkInformation(cellNetworkInfoInner, signalStrengthInfo, uuid, testStartTimeNanos)
-                        }
 
                         if (config.headerValue.isEmpty()) {
-                            saveOtherCellInfo(otherCells, uuid, testStartTimeNanos, detailedNetworkInfo.networkTypes, detailedNetworkInfo.dataSubscriptionId)
+                            saveOtherCellInfo(
+                                otherCells,
+                                uuid,
+                                testStartTimeNanos,
+                                it.networkTypes,
+                                it.dataSubscriptionId
+                            )
                         }
                     }
                 } catch (e: SecurityException) {
@@ -394,28 +392,22 @@ class StateRecorder @Inject constructor(
                     Timber.e("NullPointerException: Not able to read telephonyManager.allCellInfo from other reason")
                 }
             }
-        } else if (networkInfo?.type == TransportType.WIFI) {
-            if (uuid != null && info != null) {
+        } else if (info?.type == TransportType.WIFI) {
+            uuid?.let { id ->
                 val infoList: List<NetworkInfo> = when (info) {
                     is WifiNetworkInfo -> listOf(info)
-                    is CellNetworkInfo -> listOf<NetworkInfo>()
+                    is CellNetworkInfo -> emptyList()
                     else -> throw IllegalArgumentException("Unknown cell info ${info.javaClass.simpleName}")
                 }
 
-                val copyInfoList = Collections.synchronizedList(infoList.toMutableList())
+                val onlyActiveCellInfoList = infoList.filter {
+                    it !is CellNetworkInfo || it.isActive
+                }
 
-                val onlyActiveCellInfoList = Collections.synchronizedList(copyInfoList.filter {
+                repository.saveCellInfo(id, null, onlyActiveCellInfoList, testStartTimeNanos ?: 0)
+                onlyActiveCellInfoList.forEach {
                     if (it is CellNetworkInfo) {
-                        it.isActive
-                    } else {
-                        true
-                    }
-                })
-
-                repository.saveCellInfo(uuid, null, onlyActiveCellInfoList.toList(), testStartTimeNanos)
-                onlyActiveCellInfoList.toList().forEach {
-                    if (it is CellNetworkInfo) {
-                        saveSignalStrength(uuid, it.signalStrength)
+                        saveSignalStrength(id, it.signalStrength)
                     }
                 }
             }
