@@ -185,9 +185,8 @@ class SignalMeasurementActivity : BaseActivity(), OnMapReadyCallback {
                 location?.let { latestLocation ->
                     if (!viewModel.state.markerDetailsDisplayed.get()) {
                         gMap.animateCamera(
-                            CameraUpdateFactory.newLatLngZoom(
-                                latestLocation.toLatLng(),
-                                DEFAULT_POSITION_TRACKING_ZOOM_LEVEL
+                            CameraUpdateFactory.newLatLng(
+                                latestLocation.toLatLng()
                             )
                         )
                     }
@@ -273,12 +272,12 @@ class SignalMeasurementActivity : BaseActivity(), OnMapReadyCallback {
                 with(LatLngW(it.latitude, it.longitude)) {
                     viewModel.state.cameraPositionLiveData.postValue(this)
                     viewModel.state.coordinatesLiveData.postValue(this)
-                    map?.moveCamera(CameraUpdateFactory.newLatLngZoom(LatLng(it.latitude, it.longitude), viewModel.state.zoom))
+                    map?.moveCamera(CameraUpdateFactory.newLatLngZoom(LatLng(it.latitude, it.longitude), DEFAULT_POSITION_TRACKING_ZOOM_LEVEL))
                 }
             }
         } else {
             viewModel.state.cameraPositionLiveData.value?.let {
-                map?.moveCamera(CameraUpdateFactory.newLatLngZoom(LatLng(it.latitude, it.longitude), viewModel.state.zoom))
+                map?.moveCamera(CameraUpdateFactory.newLatLngZoom(LatLng(it.latitude, it.longitude), DEFAULT_POSITION_TRACKING_ZOOM_LEVEL))
             }
 //            visiblePosition = RecyclerView.NO_POSITION
 //            onCloseMarkerDetails()
