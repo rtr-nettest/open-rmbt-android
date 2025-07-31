@@ -14,10 +14,14 @@
 
 package at.rtr.rmbt.android.ui.dialog
 
+import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.updateLayoutParams
 import androidx.databinding.DataBindingUtil
 import at.rmbt.client.control.IpProtocol
 import at.rtr.rmbt.android.R
@@ -28,6 +32,7 @@ import at.rtr.rmbt.android.util.listen
 import at.specure.info.ip.IpV4ChangeLiveData
 import at.specure.info.ip.IpV6ChangeLiveData
 import javax.inject.Inject
+import kotlin.math.max
 
 class IpInfoDialog : FullscreenDialog() {
 
@@ -48,6 +53,24 @@ class IpInfoDialog : FullscreenDialog() {
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         binding = DataBindingUtil.inflate(inflater, R.layout.dialog_ip_info, container, false)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
+            ViewCompat.setOnApplyWindowInsetsListener(binding.root) { v, windowInsets ->
+                val insetsSystemBars = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
+                val insetsDisplayCutout = windowInsets.getInsets(WindowInsetsCompat.Type.displayCutout())
+                val topSafe = max(insetsSystemBars.top, insetsDisplayCutout.top)
+                val leftSafe = max(insetsSystemBars.left, insetsDisplayCutout.left)
+                val rightSafe = max(insetsSystemBars.right, insetsDisplayCutout.right)
+                val bottomSafe = max(insetsSystemBars.bottom, insetsDisplayCutout.bottom)
+
+                v.updateLayoutParams<ViewGroup.MarginLayoutParams> {
+                    rightMargin = rightSafe
+                    leftMargin = leftSafe
+                    topMargin = topSafe
+                    bottomMargin = bottomSafe
+                }
+                WindowInsetsCompat.CONSUMED
+            }
+        }
         return binding.root
     }
 

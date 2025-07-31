@@ -7,6 +7,9 @@ import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
 import androidx.core.app.ActivityCompat
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.updatePadding
 import at.rtr.rmbt.android.R
 import at.rtr.rmbt.android.databinding.ActivityLoopConfigurationBinding
 import at.rtr.rmbt.android.di.viewModelLazy
@@ -21,6 +24,7 @@ import at.rtr.rmbt.android.util.onTextChanged
 import at.rtr.rmbt.android.viewmodel.LoopConfigurationViewModel
 import at.specure.measurement.MeasurementService
 import timber.log.Timber
+import kotlin.math.max
 
 class LoopConfigurationActivity : BaseActivity(), InputSettingDialog.Callback {
 
@@ -30,6 +34,26 @@ class LoopConfigurationActivity : BaseActivity(), InputSettingDialog.Callback {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = bindContentView(R.layout.activity_loop_configuration)
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
+            ViewCompat.setOnApplyWindowInsetsListener(binding.root) { v, windowInsets ->
+                val insetsSystemBars = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
+                val insetsDisplayCutout = windowInsets.getInsets(WindowInsetsCompat.Type.displayCutout())
+                val topSafe = max(insetsSystemBars.top, insetsDisplayCutout.top)
+                val leftSafe = max(insetsSystemBars.left, insetsDisplayCutout.left)
+                val rightSafe = max(insetsSystemBars.right, insetsDisplayCutout.right)
+                val bottomSafe = max(insetsSystemBars.bottom, insetsDisplayCutout.bottom)
+
+                v.updatePadding(
+                    right = rightSafe,
+                    left = leftSafe,
+                    top = topSafe,
+                    bottom = bottomSafe
+                )
+                WindowInsetsCompat.CONSUMED
+            }
+        }
+
         binding.state = viewModel.state
         window.changeStatusBarColor(ToolbarTheme.WHITE)
 

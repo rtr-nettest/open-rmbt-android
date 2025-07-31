@@ -96,13 +96,17 @@
 
         <activity
             android:name=".ui.activity.LoopConfigurationActivity"
+            android:theme="@style/PreferenceTheme"
             android:windowSoftInputMode="adjustResize" />
 
-        <activity android:name=".ui.activity.LoopInstructionsActivity" />
+        <activity android:name=".ui.activity.LoopInstructionsActivity"
+            android:theme="@style/PreferenceTheme"/>
 
-        <activity android:name=".ui.activity.SignalMeasurementTermsActivity" />
+        <activity android:name=".ui.activity.SignalMeasurementTermsActivity"
+            android:theme="@style/PreferenceTheme"/>
 
-        <activity android:name=".ui.activity.SignalMeasurementActivity" />
+        <activity android:name=".ui.activity.SignalMeasurementActivity"
+            android:theme="@style/PreferenceTheme"/>
 
         <activity
             android:name=".ui.activity.LoopFinishedActivity"
@@ -113,11 +117,14 @@
             android:name="at.rtr.rmbt.android.ui.activity.DataPrivacyAndTermsOfUseActivity"
             android:theme="@style/PreferenceTheme" />
 
-        <activity android:name=".ui.activity.TermsAcceptanceActivity"/>
+        <activity android:name=".ui.activity.TermsAcceptanceActivity"
+            android:theme="@style/PreferenceTheme"/>
 
-        <activity android:name=".ui.activity.PermissionsActivity"/>
+        <activity android:name=".ui.activity.PermissionsActivity"
+            android:theme="@style/PreferenceTheme"/>
 
-        <activity android:name=".ui.activity.PermissionsExplanationActivity"/>
+        <activity android:name=".ui.activity.PermissionsExplanationActivity"
+            android:theme="@style/PreferenceTheme"/>
 
         <meta-data
             android:name="com.google.android.geo.API_KEY"

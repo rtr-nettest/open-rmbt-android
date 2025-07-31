@@ -12,6 +12,7 @@ import at.specure.data.Classification
 import at.specure.data.ClientUUID
 import at.specure.data.CoreDatabase
 import at.specure.data.NetworkTypeCompat
+import at.specure.data.entity.CapabilitiesRecord
 import at.specure.data.entity.PingRecord
 import at.specure.data.entity.QoeInfoRecord
 import at.specure.data.entity.QosCategoryRecord
@@ -86,7 +87,7 @@ class ResultsRepositoryImpl @Inject constructor(
                     telephonyInfo = telephonyInfo,
                     wlanInfo = wlanInfo,
                     locations = db.geoLocationDao().get(testUUID, null) ?: throw DataMissingException("locations are null"),
-                    capabilities = db.capabilitiesDao().get(testUUID, null) ?: throw DataMissingException("capabilities are null"),
+                    capabilities = db.capabilitiesDao().get(testUUID, null) ?: CapabilitiesRecord(0, testUUID, null, classificationCount = 5, qosSupportInfo = true, rmbtHttpStatus = false), // ?: throw DataMissingException("capabilities are null"),
                     pingList = pings ?: throw DataMissingException("pings are null"),
                     cellInfoList = db.cellInfoDao().get(testUUID, null) ?: throw DataMissingException("cellInfoList are null"),
                     signalList = signals ?: throw DataMissingException("signalList are null"),

@@ -411,11 +411,11 @@ class SignalMeasurementProcessor @Inject constructor(
                         cellInfoWatcher.activeNetwork,
                         cellInfoWatcher.signalStrengthInfo,
                         cellInfoWatcher.networkTypes,
-                        cellInfoWatcher.allCellInfos,
-                        cellInfoWatcher.secondaryActiveCellNetworks,
-                        cellInfoWatcher.secondaryActiveCellSignalStrengthInfos,
-                        cellInfoWatcher.secondary5GActiveCellNetworks,
-                        cellInfoWatcher.secondary5GActiveCellSignalStrengthInfos,
+                        cellInfoWatcher.allCellInfos.toList(),
+                        cellInfoWatcher.secondaryActiveCellNetworks.toList(),
+                        cellInfoWatcher.secondaryActiveCellSignalStrengthInfos.toList(),
+                        cellInfoWatcher.secondary5GActiveCellNetworks.toList(),
+                        cellInfoWatcher.secondary5GActiveCellSignalStrengthInfos.toList(),
                         cellInfoWatcher.dataSubscriptionId
                     )
                 )

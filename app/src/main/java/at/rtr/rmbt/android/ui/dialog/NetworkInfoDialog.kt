@@ -1,11 +1,15 @@
 package at.rtr.rmbt.android.ui.dialog
 
 import android.content.Context
+import android.os.Build
 import android.os.Bundle
 import android.telephony.SubscriptionManager
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.updateLayoutParams
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.FragmentManager
 import at.rmbt.client.control.getCurrentDataSubscriptionId
@@ -23,6 +27,7 @@ import cz.mroczis.netmonster.core.factory.NetMonsterFactory
 import cz.mroczis.netmonster.core.model.cell.ICell
 import timber.log.Timber
 import javax.inject.Inject
+import kotlin.math.max
 
 class NetworkInfoDialog : FullscreenDialog() {
 
@@ -43,6 +48,24 @@ class NetworkInfoDialog : FullscreenDialog() {
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         binding = DataBindingUtil.inflate(inflater, R.layout.dialog_network_info, container, false)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
+            ViewCompat.setOnApplyWindowInsetsListener(binding.root) { v, windowInsets ->
+                val insetsSystemBars = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
+                val insetsDisplayCutout = windowInsets.getInsets(WindowInsetsCompat.Type.displayCutout())
+                val topSafe = max(insetsSystemBars.top, insetsDisplayCutout.top)
+                val leftSafe = max(insetsSystemBars.left, insetsDisplayCutout.left)
+                val rightSafe = max(insetsSystemBars.right, insetsDisplayCutout.right)
+                val bottomSafe = max(insetsSystemBars.bottom, insetsDisplayCutout.bottom)
+
+                v.updateLayoutParams<ViewGroup.MarginLayoutParams> {
+                    rightMargin = rightSafe
+                    leftMargin = leftSafe
+                    topMargin = topSafe
+                    bottomMargin = bottomSafe
+                }
+                WindowInsetsCompat.CONSUMED
+            }
+        }
         return binding.root
     }
 

@@ -1,6 +1,7 @@
 package at.specure.data.repository
 
 import android.graphics.Bitmap
+import android.graphics.Bitmap.createBitmap
 import android.graphics.BitmapFactory
 import android.graphics.Canvas
 import androidx.lifecycle.LiveData
@@ -101,13 +102,16 @@ class MapRepositoryImpl @Inject constructor(
         val heatmapBitmap = BitmapFactory.decodeByteArray(heatmapBytes, 0, heatmapBytes?.size ?: 0)
         val pointsBitmap = BitmapFactory.decodeByteArray(pointsBytes, 0, pointsBytes?.size ?: 0)
 
-        val result = Bitmap.createBitmap(heatmapBitmap.width, heatmapBitmap.height, heatmapBitmap.config)
-        val canvas = Canvas(result)
-        canvas.drawBitmap(heatmapBitmap, 0f, 0f, null)
-        canvas.drawBitmap(pointsBitmap, 0f, 0f, null)
-
         val stream = ByteArrayOutputStream()
-        result.compress(Bitmap.CompressFormat.PNG, 100, stream)
+
+        heatmapBitmap.config?.let {
+            val result = createBitmap(heatmapBitmap.width, heatmapBitmap.height, it)
+            val canvas = Canvas(result)
+            canvas.drawBitmap(heatmapBitmap, 0f, 0f, null)
+            canvas.drawBitmap(pointsBitmap, 0f, 0f, null)
+            result.compress(Bitmap.CompressFormat.PNG, 100, stream)
+        }
+
         return stream.toByteArray()
     }
 
