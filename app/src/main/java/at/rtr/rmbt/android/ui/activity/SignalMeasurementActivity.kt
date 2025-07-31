@@ -42,6 +42,9 @@ import timber.log.Timber
 import kotlin.random.Random
 
 const val DEFAULT_POSITION_TRACKING_ZOOM_LEVEL = 16.2f
+private const val DEFAULT_LAT: Double = ((49.0390742051F + 46.4318173285F) / 2F).toDouble()
+private const val DEFAULT_LONG: Double = ((16.9796667823F + 9.47996951665F) / 2F).toDouble()
+private const val DEFAULT_ZOOM_LEVEL = 6F
 const val DEFAULT_POINT_CLICKED_ZOOM_LEVEL = 16f
 
 class SignalMeasurementActivity : BaseActivity(), OnMapReadyCallback {
@@ -274,11 +277,21 @@ class SignalMeasurementActivity : BaseActivity(), OnMapReadyCallback {
                     viewModel.state.coordinatesLiveData.postValue(this)
                     map?.moveCamera(CameraUpdateFactory.newLatLngZoom(LatLng(it.latitude, it.longitude), DEFAULT_POSITION_TRACKING_ZOOM_LEVEL))
                 }
+                return
             }
         } else {
+            var latitude = DEFAULT_LAT
+            var longitude = DEFAULT_LONG
+            var zoomLevel = DEFAULT_ZOOM_LEVEL
             viewModel.state.cameraPositionLiveData.value?.let {
-                map?.moveCamera(CameraUpdateFactory.newLatLngZoom(LatLng(it.latitude, it.longitude), DEFAULT_POSITION_TRACKING_ZOOM_LEVEL))
+                latitude = it.latitude
+                longitude = it.longitude
+                if (latitude != 0.0 || longitude != 0.0) {
+                    zoomLevel = DEFAULT_POSITION_TRACKING_ZOOM_LEVEL
+                }
             }
+            map?.moveCamera(CameraUpdateFactory.newLatLngZoom(LatLng(latitude, longitude), zoomLevel))
+
 //            visiblePosition = RecyclerView.NO_POSITION
 //            onCloseMarkerDetails()
 //            if (isMarkersAvailable()) {
@@ -290,7 +303,12 @@ class SignalMeasurementActivity : BaseActivity(), OnMapReadyCallback {
 //                    )
 //                }
 //            }
+            return
         }
+        val latitude = DEFAULT_LAT
+        val longitude = DEFAULT_LONG
+        val zoomLevel = DEFAULT_ZOOM_LEVEL
+        map?.moveCamera(CameraUpdateFactory.newLatLngZoom(LatLng(latitude, longitude), zoomLevel))
     }
     private fun showLocationProblemDialogIfNotSilenced() {
         if (!viewModel.state.locationWarningDialogSilenced.get()) {
