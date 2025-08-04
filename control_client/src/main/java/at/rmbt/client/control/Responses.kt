@@ -316,7 +316,7 @@ data class ServerTestResultItem(
      * Object holding all basic network information
      */
     @SerializedName("network_info")
-    val networkItem: NetworkItem,
+    val networkItem: NetworkItem?,
 
     /**
      * Server type of the network
