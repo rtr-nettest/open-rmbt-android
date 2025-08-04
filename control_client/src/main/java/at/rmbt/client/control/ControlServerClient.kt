@@ -106,4 +106,12 @@ class ControlServerClient @Inject constructor(private val endpointProvider: Cont
     fun signalResult(body: SignalMeasurementChunkBody): Maybe<SignalMeasurementChunkResultResponse> {
         return api.signalResult(endpointProvider.signalResultUrl, body).exec(true)
     }
+
+    fun coverageRequest(body: CoverageRequestBody): Maybe<CoverageRequestResponse> {
+        return api.coverageRequest(endpointProvider.coverageRequestUrl, body).exec(true)
+    }
+
+    fun coverageResult(body: CoverageResultRequestBody): Maybe<CoverageResultResponse> {
+        return api.coverageResult(endpointProvider.coverageResultUrl, body).exec(true)
+    }
 }

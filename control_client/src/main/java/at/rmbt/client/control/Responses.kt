@@ -917,6 +917,48 @@ class SyncDeviceResponseItem(
 )
 
 @Keep
+data class RequestResponse(
+
+    @SerializedName("client_remote_ip")
+    val clientRemoteIp: String,
+
+    @SerializedName("test_uuid")
+    val testUUID: String,
+
+    @SerializedName("result_url")
+    val resultUrl: String,
+
+    @SerializedName("provider")
+    val provider: String?
+) : BaseResponse()
+
+@Keep
+data class CoverageResultResponse(
+    @SerializedName("test_uuid")
+    val testUUID: String,
+) : BaseResponse()
+
+@Keep
+data class CoverageRequestResponse( // CoverageSettingsResponse
+
+    @SerializedName("client_remote_ip")
+    val clientRemoteIp: String,
+    @SerializedName("provider")
+    val provider: String?,
+    @SerializedName("test_uuid")
+    val testUUID: String,
+    @SerializedName("ping_token")
+    val pingToken: String,
+    @SerializedName("ping_host")
+    val pingHost: String,
+    @SerializedName("ping_port")
+    val pingPort: String,
+    @SerializedName("ip_version")
+    val ipVersion: Int,
+
+) : BaseResponse()
+
+@Keep
 data class SignalMeasurementRequestResponse(
 
     @SerializedName("client_remote_ip")

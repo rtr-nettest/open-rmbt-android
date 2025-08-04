@@ -353,6 +353,14 @@ class AppConfig @Inject constructor(context: Context, private val serverSettings
         get() = getString(BuildConfig.CONTROL_SERVER_SIGNAL_RESULT_ROUTE)
         set(value) = setString(BuildConfig.CONTROL_SERVER_SIGNAL_RESULT_ROUTE, value)
 
+    override var coverageRequestRoute: String
+        get() = getString(BuildConfig.CONTROL_SERVER_COVERAGE_REQUEST_ROUTE)
+        set(value) = setString(BuildConfig.CONTROL_SERVER_COVERAGE_REQUEST_ROUTE, value)
+
+    override var coverageResultRoute: String
+        get() = getString(BuildConfig.CONTROL_SERVER_COVERAGE_RESULT_ROUTE)
+        set(value) = setString(BuildConfig.CONTROL_SERVER_COVERAGE_RESULT_ROUTE, value)
+
     override var secretCodeDeveloperModeOn: String
         get() = getString(BuildConfig.DEVELOPER_ACTIVATE_CODE)
         set(value) {

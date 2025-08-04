@@ -381,6 +381,16 @@
       "visible": false
     },
     {
+      "name": "CONTROL_SERVER_COVERAGE_REQUEST_ROUTE",
+      "value": "coverageRequest",
+      "visible": false
+    },
+    {
+      "name": "CONTROL_SERVER_COVERAGE_RESULT_ROUTE",
+      "value": "coverageResult",
+      "visible": false
+    },
+    {
       "name": "CONTROL_SERVER_GET_SYNC_CODE_ROUTE",
       "value": "sync",
       "visible": false
