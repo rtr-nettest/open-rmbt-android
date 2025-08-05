@@ -130,6 +130,7 @@ class DatabaseModule {
         database: CoreDatabase,
         context: Context,
         clientUUID: ClientUUID,
-        client: ControlServerClient
-    ): SignalMeasurementRepository = SignalMeasurementRepositoryImpl(database, context, clientUUID, client)
+        client: ControlServerClient,
+        config: Config
+    ): SignalMeasurementRepository = SignalMeasurementRepositoryImpl(database, context, clientUUID, client, config)
 }

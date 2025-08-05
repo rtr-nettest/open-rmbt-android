@@ -27,6 +27,9 @@ interface SignalMeasurementRepository {
      */
     fun saveAndUpdateRegisteredRecord(record: SignalMeasurementRecord, newUuid: String, oldInfo: SignalMeasurementInfo)
 
+    @Deprecated(
+        message = "replaced by registerCoverageMeasurement"
+    )
     fun registerMeasurement(measurementId: String): Flow<Boolean>
 
     fun saveMeasurementRecord(record: SignalMeasurementRecord)
@@ -62,4 +65,6 @@ interface SignalMeasurementRepository {
     suspend fun getSignalMeasurementRecord(id: String?): SignalRecord?
 
     fun updateSignalMeasurementPoint(updatedPoint: SignalMeasurementPointRecord)
+
+    fun registerCoverageMeasurement(coverageSessionId: String): Flow<Boolean>
 }

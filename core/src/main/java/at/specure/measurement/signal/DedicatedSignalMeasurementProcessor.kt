@@ -54,6 +54,8 @@ class DedicatedSignalMeasurementProcessor @Inject constructor(
 
     private var dedicatedSignalMeasurementData: DedicatedSignalMeasurementData? = null
 
+    val currentSessionId: String?
+        get() = dedicatedSignalMeasurementData?.signalMeasurementSession?.sessionId
 
     fun initializeDedicatedMeasurementSession(sessionCreated: ((sessionId: String) -> Unit)?) {
         loadingPointsJob?.cancel()
@@ -64,12 +66,13 @@ class DedicatedSignalMeasurementProcessor @Inject constructor(
         val continueInPreviousSession =
             (shouldContinueInPreviousDedicatedMeasurement && lastSignalMeasurementSessionId != null)
         val onSessionReady: (SignalMeasurementSession) -> Unit = { session ->
-            sessionCreated?.invoke(session.sessionId)
             loadingPointsJob = loadPoints(session.sessionId)
             dedicatedSignalMeasurementData = DedicatedSignalMeasurementData(
                 signalMeasurementSession = session,
                 signalMeasurementSettings = signalMeasurementSettings,
             )
+            Timber.d("Session created: ${session.sessionId} invoking callback")
+            sessionCreated?.invoke(session.sessionId)
         }
         Timber.d("Continue?: $shouldContinueInPreviousDedicatedMeasurement && has id?: $lastSignalMeasurementSessionId")
         if (continueInPreviousSession) {

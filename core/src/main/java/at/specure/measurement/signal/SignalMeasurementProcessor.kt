@@ -32,8 +32,9 @@ import at.specure.location.LocationInfo
 import at.specure.location.LocationState
 import at.specure.location.LocationWatcher
 import at.specure.location.cell.CellLocationInfo
-import at.specure.test.SignalMeasurementType
+import at.rmbt.client.control.data.SignalMeasurementType
 import at.specure.test.toDeviceInfoLocation
+import at.specure.util.exception.DataMissingException
 import at.specure.util.isFineLocationPermitted
 import at.specure.util.isLocationServiceEnabled
 import at.specure.util.isReadPhoneStatePermitted
@@ -53,7 +54,6 @@ import java.lang.SecurityException
 import java.lang.System
 import java.util.Timer
 import java.util.TimerTask
-import java.util.UUID
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import javax.inject.Named

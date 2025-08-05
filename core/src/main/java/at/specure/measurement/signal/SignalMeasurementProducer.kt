@@ -1,7 +1,7 @@
 package at.specure.measurement.signal
 
 import androidx.lifecycle.LiveData
-import at.specure.test.SignalMeasurementType
+import at.rmbt.client.control.data.SignalMeasurementType
 
 interface SignalMeasurementProducer {
 

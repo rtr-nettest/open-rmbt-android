@@ -17,7 +17,7 @@ import at.specure.measurement.signal.SignalMeasurementState
 import at.specure.result.QoECategory
 import at.specure.result.QoSCategory
 import at.specure.test.DeviceInfo
-import at.specure.test.SignalMeasurementType
+import at.rmbt.client.control.data.SignalMeasurementType
 import com.google.gson.Gson
 import com.google.gson.JsonObject
 import com.google.gson.JsonParser

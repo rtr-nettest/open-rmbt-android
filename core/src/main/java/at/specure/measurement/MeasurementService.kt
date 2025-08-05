@@ -41,7 +41,7 @@ import at.specure.location.LocationWatcher
 import at.specure.measurement.signal.SignalMeasurementProducer
 import at.specure.measurement.signal.SignalMeasurementService
 import at.specure.test.DeviceInfo
-import at.specure.test.SignalMeasurementType
+import at.rmbt.client.control.data.SignalMeasurementType
 import at.specure.test.StateRecorder
 import at.specure.test.TestController
 import at.specure.test.TestProgressListener

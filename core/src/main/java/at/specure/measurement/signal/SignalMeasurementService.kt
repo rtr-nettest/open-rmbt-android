@@ -13,7 +13,7 @@ import android.os.PowerManager
 import androidx.lifecycle.LiveData
 import at.specure.di.CoreInjector
 import at.specure.di.NotificationProvider
-import at.specure.test.SignalMeasurementType
+import at.rmbt.client.control.data.SignalMeasurementType
 import at.specure.util.CustomLifecycleService
 import timber.log.Timber
 import java.text.SimpleDateFormat

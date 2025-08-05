@@ -6,7 +6,7 @@ import at.specure.data.Tables
 import at.specure.info.TransportType
 import at.specure.info.network.MobileNetworkType
 import at.specure.test.DeviceInfo
-import at.specure.test.SignalMeasurementType
+import at.rmbt.client.control.data.SignalMeasurementType
 import java.util.UUID
 
 @Entity(tableName = Tables.SIGNAL_MEASUREMENT)

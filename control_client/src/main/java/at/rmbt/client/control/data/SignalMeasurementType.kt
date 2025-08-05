@@ -1,4 +1,4 @@
-package at.specure.test
+package at.rmbt.client.control.data
 
 enum class SignalMeasurementType(val signalTypeName: String) {
     /**

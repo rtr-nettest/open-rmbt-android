@@ -15,6 +15,7 @@
 package at.rmbt.client.control
 
 import androidx.annotation.Keep
+import at.rmbt.client.control.data.SignalMeasurementType
 import com.google.gson.JsonArray
 import com.google.gson.annotations.Expose
 import com.google.gson.annotations.SerializedName
@@ -998,25 +999,25 @@ data class CoverageRequestBody(
     @SerializedName("client_uuid")
     val clientUUID: String,
     @SerializedName("client_language") // language code
-    val languageCode: String,
-    val softwareRevision: String, // git branch and hash of the client software revision
-    val model: String,
+    val languageCode: String?,
+    val softwareRevision: String?, // git branch and hash of the client software revision
+    val model: String?,
     @SerializedName("os_version")
-    val osVersion: String,
+    val osVersion: String?,
     @SerializedName("client_name")
-    val clientName: String,  // RMBT
+    val clientName: String?,  // RMBT
     @SerializedName("client_software_version")
-    val softwareVersion: String,
-    val device: String,     // device type
-    val platform: String, // Android
-    val time: Long,
-    val timezone: String,
+    val softwareVersion: String?,
+    val device: String?,     // device type
+    val platform: String?, // Android
+    val time: Long?,
+    val timezone: String?,
     @SerializedName("measurement_type_flag")
-    val measurementTypeFlag: String, // DEDICATED, ...
-    val signal: Boolean,
-    val capabilities: CapabilitiesBody,
-    val softwareVersionCode: Int,
-    val version: String,
+    val measurementTypeFlag: String? = SignalMeasurementType.DEDICATED.signalTypeName, // DEDICATED, ...
+    val signal: Boolean? = true,
+    val capabilities: CapabilitiesBody?,
+    val softwareVersionCode: Int?,
+    val version: String?,
 )
 
 

@@ -10,13 +10,43 @@ data class SignalMeasurementSession(
 
 
     /**
-     * id of a signal measurement session
+     * internal id of a signal measurement session
      */
     @PrimaryKey
     val sessionId: String = UUID.randomUUID().toString(),
 
     /**
-     * Timestamp of the signal measurement start
+     * server generated id of a signal measurement session, result will be sent with this UUID, also when loop - then it needs to be updated from coverageResultResponse
      */
-    val timestamp: Long = System.currentTimeMillis()
+    val serverSessionId: String? = null,
+
+    /**
+     * server serverSessionLoopId id of a signal measurement loop session
+     */
+    val serverSessionLoopId: String? = null,
+
+    val pingServerHost: String? = null,
+
+    val pingServerPort: Int? = null,
+
+    val pingServerToken: String? = null,
+
+    val ipVersion: Int? = null,
+
+    /**
+     * IP address of the client
+     */
+    val remoteIpAddress: String? = null,
+
+    val provider: String? = null,
+
+    /**
+     * Local Timestamp of the signal measurement start
+     */
+    val startTimeMillis: Long = System.currentTimeMillis(),
+
+    /**
+     * Local Timestamp of the signal measurement response received from server to count relative time for fences (points)
+     */
+    val startResponseReceivedMillis: Long = System.currentTimeMillis()
 )

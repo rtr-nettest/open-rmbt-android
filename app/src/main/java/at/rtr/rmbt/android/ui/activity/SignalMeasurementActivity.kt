@@ -24,7 +24,7 @@ import at.rtr.rmbt.android.viewmodel.HomeViewModel
 import at.specure.location.LocationInfo
 import at.specure.location.LocationState
 import at.specure.test.DeviceInfo
-import at.specure.test.SignalMeasurementType
+import at.rmbt.client.control.data.SignalMeasurementType
 import at.specure.test.toLocation
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap

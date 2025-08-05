@@ -9,7 +9,6 @@ import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.asFlow
 import androidx.lifecycle.map
-import androidx.lifecycle.viewModelScope
 import at.rmbt.client.control.NewsItem
 import at.rtr.rmbt.android.config.AppConfig
 import at.rtr.rmbt.android.ui.viewstate.HomeViewState
@@ -35,14 +34,11 @@ import at.specure.location.isAccuracyEnoughForSignalMeasurement
 import at.specure.measurement.signal.DedicatedSignalMeasurementProcessor
 import at.specure.measurement.signal.SignalMeasurementProducer
 import at.specure.measurement.signal.SignalMeasurementService
-import at.specure.test.SignalMeasurementType
-import at.specure.util.StringPreferenceLiveData
+import at.rmbt.client.control.data.SignalMeasurementType
 import at.specure.util.permission.PermissionsWatcher
 import kotlinx.coroutines.CoroutineName
-import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.async
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.launch

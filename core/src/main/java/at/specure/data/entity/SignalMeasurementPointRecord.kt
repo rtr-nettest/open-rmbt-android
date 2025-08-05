@@ -9,6 +9,9 @@ import at.specure.data.Tables
 import at.specure.test.DeviceInfo
 import java.util.UUID
 
+/**
+ * AKA Fence
+ */
 @Keep
 @Entity(tableName = Tables.SIGNAL_MEASUREMENT_POINT)
 data class SignalMeasurementPointRecord(

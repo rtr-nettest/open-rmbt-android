@@ -3,8 +3,10 @@ package at.specure.data.repository
 import android.content.Context
 import androidx.lifecycle.LiveData
 import at.rmbt.client.control.ControlServerClient
+import at.rmbt.client.control.CoverageRequestBody
 import at.rmbt.util.exception.NoConnectionException
 import at.rmbt.util.io
+import at.specure.config.Config
 import at.specure.data.ClientUUID
 import at.specure.data.CoreDatabase
 import at.specure.data.RequestFilters.Companion.createRadioInfoBody
@@ -17,6 +19,7 @@ import at.specure.data.entity.SignalMeasurementSession
 import at.specure.data.entity.SignalRecord
 import at.specure.data.entity.TestTelephonyRecord
 import at.specure.data.entity.TestWlanRecord
+import at.specure.data.toCoverageRequest
 import at.specure.data.toModel
 import at.specure.data.toRequest
 import at.specure.info.TransportType
@@ -35,7 +38,8 @@ class SignalMeasurementRepositoryImpl(
     private val db: CoreDatabase,
     private val context: Context,
     private val clientUUID: ClientUUID,
-    private val client: ControlServerClient
+    private val client: ControlServerClient,
+    private val config: Config
 ) : SignalMeasurementRepository {
 
     private val deviceInfo = DeviceInfo(context)
@@ -144,6 +148,45 @@ class SignalMeasurementRepositoryImpl(
 
     override fun updateSignalMeasurementPoint(updatedPoint: SignalMeasurementPointRecord) {
         dao.updateSignalMeasurementPoint(updatedPoint)
+    }
+
+    /**
+     * Do not use this method outside a worker as we need to perform it when connection is back
+     */
+    override fun registerCoverageMeasurement(coverageSessionId: String): Flow<Boolean> = flow {
+
+        val clientUUID = clientUUID.value ?: throw DataMissingException("Missing client UUID")
+        val coverageSession = dao.getDedicatedSignalMeasurementSession(coverageSessionId) ?: throw DataMissingException("Coverage Session was not created yet with id: $coverageSessionId is missing")
+        val deviceInfo = deviceInfo ?: throw DataMissingException("Missing device info")
+        val body = coverageSession.toCoverageRequest(clientUUID, deviceInfo, config)
+
+        val response = client.coverageRequest(body)
+        Timber.d("Coverage response: ${response}")
+        response.onSuccess {
+            Timber.d("$it")
+            dao.updateDedicatedSignalMeasurementSession(
+                session = SignalMeasurementSession(
+                    sessionId = coverageSessionId,
+                    serverSessionId = it.testUUID,
+                    serverSessionLoopId = "it.loopUUID will be done", // TODO:
+                    pingServerHost = it.pingHost,
+                    pingServerPort = it.pingPort.toIntOrNull() ?: -1,
+                    pingServerToken = it.pingToken,
+                    ipVersion = it.ipVersion,
+                    remoteIpAddress = it.clientRemoteIp,
+                    provider = it.provider,
+                    startTimeMillis = coverageSession.startTimeMillis,
+                    startResponseReceivedMillis = System.currentTimeMillis(),
+                )
+            )
+        }
+
+        if (response.ok) {
+            emit(true)
+        } else {
+            throw response.failure
+        }
+
     }
 
     override fun saveMeasurementChunk(chunk: SignalMeasurementChunk) = io {

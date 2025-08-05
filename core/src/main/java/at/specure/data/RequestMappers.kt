@@ -1,10 +1,12 @@
 package at.specure.data
 
 import android.telephony.TelephonyManager
+import at.rmbt.client.control.Capabilities
 import at.rmbt.client.control.CapabilitiesBody
 import at.rmbt.client.control.CellInfoBody
 import at.rmbt.client.control.CellLocationBody
 import at.rmbt.client.control.ClassificationBody
+import at.rmbt.client.control.CoverageRequestBody
 import at.rmbt.client.control.IpRequestBody
 import at.rmbt.client.control.NetworkEventBody
 import at.rmbt.client.control.PermissionStatusBody
@@ -21,6 +23,7 @@ import at.rmbt.client.control.SignalMeasurementRequestBody
 import at.rmbt.client.control.SpeedBody
 import at.rmbt.client.control.TestLocationBody
 import at.rmbt.client.control.TestResultBody
+import at.rmbt.client.control.data.SignalMeasurementType
 import at.specure.config.Config
 import at.specure.data.RequestFilters.Companion.createRadioInfoBody
 import at.specure.data.RequestFilters.Companion.removeOldRedundantSignalValuesWithNegativeTimestamp
@@ -34,6 +37,7 @@ import at.specure.data.entity.PingRecord
 import at.specure.data.entity.QoSResultRecord
 import at.specure.data.entity.SignalMeasurementChunk
 import at.specure.data.entity.SignalMeasurementRecord
+import at.specure.data.entity.SignalMeasurementSession
 import at.specure.data.entity.SignalRecord
 import at.specure.data.entity.SpeedRecord
 import at.specure.data.entity.TestRecord
@@ -487,6 +491,30 @@ fun SignalMeasurementRecord.toRequest(clientUUID: String, deviceInfo: DeviceInfo
     measurementTypeFlag = signalMeasurementType.signalTypeName,
     location = location?.toRequest()
 )
+
+fun SignalMeasurementSession.toCoverageRequest(clientUUID: String, deviceInfo: DeviceInfo, config: Config) = CoverageRequestBody(
+    clientUUID = clientUUID,
+    platform = deviceInfo.platform,
+    softwareVersionCode = deviceInfo.softwareVersionCode,
+    softwareRevision = deviceInfo.softwareRevision,
+    softwareVersion = deviceInfo.softwareRevision,
+    timezone = deviceInfo.timezone ?: UNKNOWN,
+    time = startTimeMillis,
+    measurementTypeFlag = SignalMeasurementType.DEDICATED.signalTypeName,
+    languageCode = deviceInfo.language,
+    model = deviceInfo.model,
+    osVersion = deviceInfo.osVersion,
+    clientName = deviceInfo.clientName,
+    device = deviceInfo.device,
+    signal = true,
+    capabilities = CapabilitiesBody(
+        classification = ClassificationBody(config.capabilitiesClassificationCount),
+        qos = QoSBody(config.capabilitiesQosSupportsInfo),
+        rmbtHttpStatus = config.capabilitiesRmbtHttp
+    ),
+    version = deviceInfo.clientVersionName,
+)
+
 
 fun DeviceInfo.Location.toRequest() = SignalMeasurementLocationBody(
     lat = lat,

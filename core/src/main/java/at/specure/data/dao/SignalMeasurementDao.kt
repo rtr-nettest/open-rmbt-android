@@ -48,6 +48,9 @@ interface SignalMeasurementDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun saveDedicatedSignalMeasurementSession(session: SignalMeasurementSession)
 
+    @Update
+    fun updateDedicatedSignalMeasurementSession(session: SignalMeasurementSession)
+
     @Query("SELECT * FROM ${Tables.SIGNAL_MEASUREMENT_SESSION} WHERE sessionId=:sessionId LIMIT 1")
     fun getDedicatedSignalMeasurementSession(sessionId: String): SignalMeasurementSession?
 
