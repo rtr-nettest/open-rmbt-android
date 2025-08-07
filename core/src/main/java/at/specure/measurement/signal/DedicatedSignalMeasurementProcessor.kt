@@ -7,7 +7,6 @@ import at.rmbt.util.exception.HandledException
 import at.rmbt.util.io
 import at.specure.PingClientConfiguration
 import at.specure.PingResult
-import at.specure.UdpPingClient
 import at.specure.UdpPingFlow
 import at.specure.config.Config
 import at.specure.data.SignalMeasurementSettings
@@ -134,14 +133,6 @@ class DedicatedSignalMeasurementProcessor @Inject constructor(
                     is PingResult.ServerError -> Timber.d("❌ Ping ${result.sequenceNumber} - Server error")
                 }
             }
-
-
-            /*CoroutineScope(Dispatchers.IO).launch {
-                UdpPingClient(configuration).start().collect {
-                    Timber.d("Ping result: $it")
-                }
-
-            }*/
         }
     }
 
