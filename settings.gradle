@@ -1,3 +1,4 @@
 include ':app', ':core', ':control_client', ':util', ':location', ':rmbt-client'
 include ':netmonster_core:library'
 include ':location-fused'
+include ':pingClient'

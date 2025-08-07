@@ -46,6 +46,7 @@ class SignalMeasurementRepositoryImpl(
     private val dao = db.signalMeasurementDao()
     private val testDao = db.testDao()
 
+    // TODO: we should perform a new request for session
     override fun saveAndUpdateRegisteredRecord(record: SignalMeasurementRecord, newUuid: String, oldInfo: SignalMeasurementInfo) = io {
         dao.saveSignalMeasurementRecord(record)
         SignalMeasurementInfo(
@@ -85,6 +86,7 @@ class SignalMeasurementRepositoryImpl(
         }
     }
 
+    @Deprecated("replaced by registerCoverageMeasurement")
     override fun registerMeasurement(measurementId: String): Flow<Boolean> = flow {
 
         val uuid = clientUUID.value ?: throw DataMissingException("Missing client UUID")
@@ -156,7 +158,8 @@ class SignalMeasurementRepositoryImpl(
     override fun registerCoverageMeasurement(coverageSessionId: String): Flow<Boolean> = flow {
 
         val clientUUID = clientUUID.value ?: throw DataMissingException("Missing client UUID")
-        val coverageSession = dao.getDedicatedSignalMeasurementSession(coverageSessionId) ?: throw DataMissingException("Coverage Session was not created yet with id: $coverageSessionId is missing")
+        val coverageSession = dao.getDedicatedSignalMeasurementSession(coverageSessionId)
+            ?: throw DataMissingException("Coverage Session was not created yet with id: $coverageSessionId is missing")
         val deviceInfo = deviceInfo ?: throw DataMissingException("Missing device info")
         val body = coverageSession.toCoverageRequest(clientUUID, deviceInfo, config)
 
@@ -295,7 +298,7 @@ class SignalMeasurementRepositoryImpl(
                         resultUrl = "", // TODO need to fill that field
                         provider = "" // TODO need to fill that field
                     )
-                    info?.let{ signalMeasurementInfo ->
+                    info?.let { signalMeasurementInfo ->
                         dao.saveSignalMeasurementInfo(signalMeasurementInfo)
                     }
 

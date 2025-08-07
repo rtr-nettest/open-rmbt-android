@@ -3,9 +3,12 @@ package at.specure.measurement.signal
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.asFlow
-import androidx.lifecycle.asLiveData
 import at.rmbt.util.exception.HandledException
 import at.rmbt.util.io
+import at.specure.PingClientConfiguration
+import at.specure.PingResult
+import at.specure.UdpPingClient
+import at.specure.UdpPingFlow
 import at.specure.config.Config
 import at.specure.data.SignalMeasurementSettings
 import at.specure.data.entity.SignalMeasurementPointRecord
@@ -21,14 +24,22 @@ import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlin.coroutines.EmptyCoroutineContext
 
-const val SAME_LOCATION_DISTANCE_METERS = 3
+private const val SAME_LOCATION_DISTANCE_METERS = 3
+private const val PING_INTERVAL_MILLIS: Long = 100
+private const val PING_TIMEOUT_MILLIS: Long = 2000
+private const val PING_PROTOCOL_HEADER: String = "RP01"
+private const val PING_PROTOCOL_SUCCESS_RESPONSE_HEADER: String = "RR01"
+private const val PING_PROTOCOL_ERROR_RESPONSE_HEADER: String = "RE01"
 
 @Singleton
 class DedicatedSignalMeasurementProcessor @Inject constructor(
@@ -49,9 +60,7 @@ class DedicatedSignalMeasurementProcessor @Inject constructor(
     }
 
     private var loadingPointsJob: Job? = null
-
     override val coroutineContext = EmptyCoroutineContext + coroutineExceptionHandler
-
     private var dedicatedSignalMeasurementData: DedicatedSignalMeasurementData? = null
 
     val currentSessionId: String?
@@ -73,6 +82,19 @@ class DedicatedSignalMeasurementProcessor @Inject constructor(
             )
             Timber.d("Session created: ${session.sessionId} invoking callback")
             sessionCreated?.invoke(session.sessionId)
+            val isSessionRegistered = session.serverSessionId != null
+            if (isSessionRegistered.not()) {
+                val pingJob = CoroutineScope(Dispatchers.IO).launch {
+                    val isRegistered = signalMeasurementRepository.registerCoverageMeasurement(coverageSessionId = session.sessionId).firstOrNull()
+                    if (isRegistered == true) {
+                        startPingClient(session)
+                    }
+                    joinAll()
+                }
+            } else {
+                startPingClient(session)
+            }
+
         }
         Timber.d("Continue?: $shouldContinueInPreviousDedicatedMeasurement && has id?: $lastSignalMeasurementSessionId")
         if (continueInPreviousSession) {
@@ -84,8 +106,65 @@ class DedicatedSignalMeasurementProcessor @Inject constructor(
         }
     }
 
+    private fun startPingClient(signalMeasurementSession: SignalMeasurementSession) {
+        val pingHost = signalMeasurementSession.pingServerHost
+        val pingPort = signalMeasurementSession.pingServerPort
+        val pingToken = signalMeasurementSession.pingServerToken
+
+        if (pingHost != null && pingPort != null && pingToken != null) {
+
+            if (job?.isActive == true) return // Already running
+            val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
+            val configuration = PingClientConfiguration(
+                host = pingHost,
+                port = pingPort,
+                token = pingToken,
+                protocolId = PING_PROTOCOL_HEADER,
+                pingIntervalMillis = PING_INTERVAL_MILLIS,
+                pingTimeoutMillis = PING_TIMEOUT_MILLIS,
+                successResponseHeader = PING_PROTOCOL_SUCCESS_RESPONSE_HEADER,
+                errorResponseHeader = PING_PROTOCOL_ERROR_RESPONSE_HEADER
+            )
+            Timber.d("Starting ping client: $configuration")
+            start(scope, configuration) { result ->
+                when (result) {
+                    is PingResult.Success -> Timber.d("✅ Ping ${result.sequenceNumber} - RTT: ${result.rttMillis} ms")
+                    is PingResult.Lost -> Timber.d("⚠️  Ping ${result.sequenceNumber} - Timeout")
+                    is PingResult.ClientError -> Timber.d("❌ Ping ${result.sequenceNumber} - ${result.exception}")
+                    is PingResult.ServerError -> Timber.d("❌ Ping ${result.sequenceNumber} - Server error")
+                }
+            }
+
+
+            /*CoroutineScope(Dispatchers.IO).launch {
+                UdpPingClient(configuration).start().collect {
+                    Timber.d("Ping result: $it")
+                }
+
+            }*/
+        }
+    }
+
+    private var job: Job? = null
+    fun start(scope: CoroutineScope, configuration: PingClientConfiguration, onResult: (PingResult) -> Unit) {
+        if (job?.isActive == true) return // Already running
+
+        val pinger = UdpPingFlow(configuration)
+        job = scope.launch {
+            pinger.pingFlow()
+                .collect { result ->
+                    onResult(result)
+                }
+        }
+    }
+    fun stop() {
+        job?.cancel()
+        job = null
+    }
+
     fun onNewLocation(location: LocationInfo, signalRecord: SignalRecord?) {
         // TODO: check how old is signal information + also handle no signal record in SignalMeasurementProcessor
+        // TODO: check if airplane mode is enabled or not, check if mobile data are enabled
         if (signalRecord == null || signalRecord.transportType == TransportType.CELLULAR) {
             if (isDistanceToLastSignalPointLocationEnough(location)) {
                 val sessionId = dedicatedSignalMeasurementData?.signalMeasurementSession?.sessionId
@@ -173,7 +252,12 @@ class DedicatedSignalMeasurementProcessor @Inject constructor(
 
     fun onMeasurementStop() {
         Timber.d("On Measurement Stop called")
+        // todo: send points
         cleanData()
+    }
+
+    fun onNetworkChanged() {
+        // todo: what to do on a new network
     }
 
     private fun loadPoints(sessionId: String) = launch {

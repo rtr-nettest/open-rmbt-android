@@ -13,6 +13,7 @@ import kotlinx.coroutines.flow.collect
 import timber.log.Timber
 import javax.inject.Inject
 
+@Deprecated(message = "Should be replaced by CoverageMeasurementWorker by its functionality")
 class SignalMeasurementInfoWorker(appContext: Context, workerParams: WorkerParameters) : CoroutineWorker(appContext, workerParams) {
 
     @Inject
