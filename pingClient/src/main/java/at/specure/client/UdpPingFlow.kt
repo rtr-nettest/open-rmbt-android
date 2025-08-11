@@ -1,4 +1,4 @@
-package at.specure
+package at.specure.client
 
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.TimeoutCancellationException

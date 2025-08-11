@@ -1,4 +1,4 @@
-package at.specure
+package at.specure.client
 
 sealed class PingResult {
     data class Success(val sequenceNumber: Int, val rttMillis: Long) : PingResult()

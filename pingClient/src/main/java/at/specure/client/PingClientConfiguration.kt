@@ -1,4 +1,4 @@
-package at.specure
+package at.specure.client
 
 data class PingClientConfiguration(
     val host: String,

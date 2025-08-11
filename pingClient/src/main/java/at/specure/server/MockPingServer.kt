@@ -1,4 +1,4 @@
-package at.specure
+package at.specure.server
 
 import java.net.DatagramPacket
 import java.net.DatagramSocket

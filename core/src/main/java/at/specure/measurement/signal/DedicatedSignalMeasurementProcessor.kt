@@ -5,9 +5,9 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.asFlow
 import at.rmbt.util.exception.HandledException
 import at.rmbt.util.io
-import at.specure.PingClientConfiguration
-import at.specure.PingResult
-import at.specure.UdpPingFlow
+import at.specure.client.PingClientConfiguration
+import at.specure.client.PingResult
+import at.specure.client.UdpPingFlow
 import at.specure.config.Config
 import at.specure.data.SignalMeasurementSettings
 import at.specure.data.entity.SignalMeasurementPointRecord
