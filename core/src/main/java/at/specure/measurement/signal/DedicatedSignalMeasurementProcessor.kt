@@ -6,7 +6,6 @@ import androidx.lifecycle.asFlow
 import at.rmbt.util.exception.HandledException
 import at.rmbt.util.io
 import at.specure.client.PingClientConfiguration
-import at.specure.client.PingResult
 import at.specure.client.UdpPingFlow
 import at.specure.config.Config
 import at.specure.data.SignalMeasurementSettings
@@ -24,7 +23,6 @@ import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.joinAll
@@ -115,8 +113,6 @@ class DedicatedSignalMeasurementProcessor @Inject constructor(
 
         if (pingHost != null && pingPort != null && pingToken != null) {
 
-            /*if (job?.isActive == true) return // Already running*/
-            val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
             val configuration = PingClientConfiguration(
                 host = pingHost,
                 port = pingPort,
@@ -130,34 +126,9 @@ class DedicatedSignalMeasurementProcessor @Inject constructor(
             Timber.d("Starting ping client: $configuration")
             val evaluator = PingEvaluator(UdpPingFlow(configuration).pingFlow())
             evaluator.start()
-            /*start(scope, configuration) { result ->
-                when (result) {
-                    is PingResult.Success -> Timber.d("✅ Ping ${result.sequenceNumber} - RTT: ${result.rttMillis} ms")
-                    is PingResult.Lost -> Timber.d("⚠️  Ping ${result.sequenceNumber} - Timeout")
-                    is PingResult.ClientError -> Timber.d("❌ Ping ${result.sequenceNumber} - ${result.exception}")
-                    is PingResult.ServerError -> Timber.d("❌ Ping ${result.sequenceNumber} - Server error")
-                }
-            }*/
         }
     }
 
-    /*private var job: Job? = null
-    fun start(scope: CoroutineScope, configuration: PingClientConfiguration, onResult: (PingResult) -> Unit) {
-        if (job?.isActive == true) return // Already running
-
-        val pinger = UdpPingFlow(configuration)
-        job = scope.launch {
-            pinger.pingFlow()
-                .collect { result ->
-                    onResult(result)
-                }
-        }
-    }
-    fun stop() {
-        job?.cancel()
-        job = null
-    }
-*/
     fun onNewLocation(location: LocationInfo, signalRecord: SignalRecord?) {
         // TODO: check how old is signal information + also handle no signal record in SignalMeasurementProcessor
         // TODO: check if airplane mode is enabled or not, check if mobile data are enabled
