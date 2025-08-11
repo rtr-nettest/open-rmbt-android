@@ -14,6 +14,7 @@ import at.specure.data.entity.SignalMeasurementPointRecord
 import at.specure.data.entity.SignalMeasurementSession
 import at.specure.data.entity.SignalRecord
 import at.specure.data.repository.SignalMeasurementRepository
+import at.specure.eval.PingEvaluator
 import at.specure.info.TransportType
 import at.specure.location.LocationInfo
 import at.specure.location.isAccuracyEnoughForSignalMeasurement
@@ -86,11 +87,13 @@ class DedicatedSignalMeasurementProcessor @Inject constructor(
                 val pingJob = CoroutineScope(Dispatchers.IO).launch {
                     val isRegistered = signalMeasurementRepository.registerCoverageMeasurement(coverageSessionId = session.sessionId).firstOrNull()
                     if (isRegistered == true) {
+                        Timber.d("Starting ping client after registration a new measurement")
                         startPingClient(session)
                     }
                     joinAll()
                 }
             } else {
+                Timber.d("Starting ping client as continue from previous")
                 startPingClient(session)
             }
 
@@ -112,7 +115,7 @@ class DedicatedSignalMeasurementProcessor @Inject constructor(
 
         if (pingHost != null && pingPort != null && pingToken != null) {
 
-            if (job?.isActive == true) return // Already running
+            /*if (job?.isActive == true) return // Already running*/
             val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
             val configuration = PingClientConfiguration(
                 host = pingHost,
@@ -125,18 +128,20 @@ class DedicatedSignalMeasurementProcessor @Inject constructor(
                 errorResponseHeader = PING_PROTOCOL_ERROR_RESPONSE_HEADER
             )
             Timber.d("Starting ping client: $configuration")
-            start(scope, configuration) { result ->
+            val evaluator = PingEvaluator(UdpPingFlow(configuration).pingFlow())
+            evaluator.start()
+            /*start(scope, configuration) { result ->
                 when (result) {
                     is PingResult.Success -> Timber.d("✅ Ping ${result.sequenceNumber} - RTT: ${result.rttMillis} ms")
                     is PingResult.Lost -> Timber.d("⚠️  Ping ${result.sequenceNumber} - Timeout")
                     is PingResult.ClientError -> Timber.d("❌ Ping ${result.sequenceNumber} - ${result.exception}")
                     is PingResult.ServerError -> Timber.d("❌ Ping ${result.sequenceNumber} - Server error")
                 }
-            }
+            }*/
         }
     }
 
-    private var job: Job? = null
+    /*private var job: Job? = null
     fun start(scope: CoroutineScope, configuration: PingClientConfiguration, onResult: (PingResult) -> Unit) {
         if (job?.isActive == true) return // Already running
 
@@ -152,7 +157,7 @@ class DedicatedSignalMeasurementProcessor @Inject constructor(
         job?.cancel()
         job = null
     }
-
+*/
     fun onNewLocation(location: LocationInfo, signalRecord: SignalRecord?) {
         // TODO: check how old is signal information + also handle no signal record in SignalMeasurementProcessor
         // TODO: check if airplane mode is enabled or not, check if mobile data are enabled

@@ -36,14 +36,14 @@ class UdpPingFlow(
             val encoding = Charsets.US_ASCII
             val standardEncoding = StandardCharsets.US_ASCII
             val buffer = ByteBuffer.allocate(configuration.protocolId.toByteArray(encoding).size + Int.SIZE_BYTES + configuration.token.toByteArray(encoding).size)
-            println("Buffer size: ${buffer.capacity()}")
+            println("Ping flow buffer size: ${buffer.capacity()}")
             buffer.put(configuration.protocolId.toByteArray(encoding))
             buffer.putInt(currentSeq)
             buffer.put(configuration.token.toByteArray(encoding))
             val data = buffer.array()
 
             val packet = DatagramPacket(data, data.size, address, configuration.port)
-            println("Sending: ${String(packet.data, encoding)}")
+            println("Ping sending: ${String(packet.data, encoding)}")
             try {
                 val startTime = System.currentTimeMillis()
                 socket.send(packet)
@@ -65,7 +65,7 @@ class UdpPingFlow(
 
                    // Read next 4 bytes as Int (big-endian)
                    val sequenceNumber = byteBuffer.int
-                    println("Response received for sequence number: $sequenceNumber...")
+                    println("Ping response received for sequence number: $sequenceNumber...")
                    if (header == configuration.successResponseHeader) {
                        val rtt = System.currentTimeMillis() - startTime
                        emit(PingResult.Success(currentSeq, rtt))
@@ -83,6 +83,8 @@ class UdpPingFlow(
 
             delay(intervalMs)
         }
+
+        println("Ping flow ended")
 
         socket.close()
     }.flowOn(Dispatchers.IO)
