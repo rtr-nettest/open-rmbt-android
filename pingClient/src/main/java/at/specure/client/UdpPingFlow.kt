@@ -14,6 +14,7 @@ import java.net.DatagramSocket
 import java.net.InetAddress
 import java.net.SocketTimeoutException
 import java.nio.ByteBuffer
+import java.nio.ByteOrder
 import java.nio.charset.StandardCharsets
 import kotlin.random.Random
 
@@ -35,13 +36,15 @@ class UdpPingFlow(
 
             val encoding = Charsets.US_ASCII
             val standardEncoding = StandardCharsets.US_ASCII
-            val buffer = ByteBuffer.allocate(configuration.protocolId.toByteArray(encoding).size + Int.SIZE_BYTES + configuration.token.toByteArray(encoding).size)
+            val buffer = ByteBuffer.allocate(configuration.protocolId.toByteArray(encoding).size + Int.SIZE_BYTES + (configuration.token?.toByteArray(encoding)?.size ?: 0))
+            buffer.order(ByteOrder.BIG_ENDIAN)
             println("Ping flow buffer size: ${buffer.capacity()}")
             buffer.put(configuration.protocolId.toByteArray(encoding))
             buffer.putInt(currentSeq)
-            buffer.put(configuration.token.toByteArray(encoding))
+            buffer.put(configuration.token?.toByteArray(encoding))
             val data = buffer.array()
-
+            println("Sending Ping packet:")
+            println(data)
             val packet = DatagramPacket(data, data.size, address, configuration.port)
             println("Ping sending: ${String(packet.data, encoding)}")
             try {
@@ -68,7 +71,7 @@ class UdpPingFlow(
                     println("Ping response received for sequence number: $sequenceNumber...")
                    if (header == configuration.successResponseHeader) {
                        val rtt = System.currentTimeMillis() - startTime
-                       emit(PingResult.Success(currentSeq, rtt))
+                       emit(PingResult.Success(currentSeq, rtt.toDouble()))
                    } else {
                        emit(PingResult.ServerError(currentSeq))
                    }

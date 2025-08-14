@@ -2,13 +2,13 @@ package at.specure.client
 
 sealed class PingResult {
 
-    open fun getRTTMillis(): Long? {
+    open fun getRTTMillis(): Double? {
         return null
     }
 
-    data class Success(val sequenceNumber: Int, val rttMillis: Long) : PingResult() {
+    data class Success(val sequenceNumber: Int, val rttMillis: Double) : PingResult() {
 
-        override fun getRTTMillis(): Long? {
+        override fun getRTTMillis(): Double? {
             return rttMillis
         }
 

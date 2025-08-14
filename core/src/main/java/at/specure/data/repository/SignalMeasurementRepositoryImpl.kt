@@ -3,7 +3,6 @@ package at.specure.data.repository
 import android.content.Context
 import androidx.lifecycle.LiveData
 import at.rmbt.client.control.ControlServerClient
-import at.rmbt.client.control.CoverageRequestBody
 import at.rmbt.util.exception.NoConnectionException
 import at.rmbt.util.io
 import at.specure.config.Config
@@ -164,7 +163,6 @@ class SignalMeasurementRepositoryImpl(
         val body = coverageSession.toCoverageRequest(clientUUID, deviceInfo, config)
 
         val response = client.coverageRequest(body)
-        Timber.d("Coverage response: ${response}")
         response.onSuccess {
             Timber.d("$it")
             dao.updateDedicatedSignalMeasurementSession(

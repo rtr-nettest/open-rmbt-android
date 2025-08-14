@@ -9,7 +9,6 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
-import kotlin.math.roundToLong
 
 /**
  * Collects results to a list and when evaluateAndReset is called it returns statistic and clears the list for the next list of ping values
@@ -18,7 +17,7 @@ class PingEvaluator(private val pingFlow: Flow<PingResult>) {
     private val scope = CoroutineScope(Dispatchers.Default)
     private var job: Job? = null
 
-    private val results = mutableListOf<Long?>()
+    private val results = mutableListOf<Double?>()
     private val mutex = Mutex()
 
     /**
@@ -56,7 +55,7 @@ class PingEvaluator(private val pingFlow: Flow<PingResult>) {
      * Evaluates collected results and clears them for new measurements.
      */
     suspend fun evaluateAndReset(): PingStats {
-        val snapshot: List<Long?> = mutex.withLock {
+        val snapshot: List<Double?> = mutex.withLock {
             val copy = results.toList()
             results.clear()
             copy
@@ -69,7 +68,7 @@ class PingEvaluator(private val pingFlow: Flow<PingResult>) {
      */
     suspend fun evaluateAndStop(): PingStats {
         job?.cancelAndJoin()
-        val snapshot: List<Long?> = mutex.withLock {
+        val snapshot: List<Double?> = mutex.withLock {
             val copy = results.toList()
             results.clear()
             copy
@@ -80,20 +79,20 @@ class PingEvaluator(private val pingFlow: Flow<PingResult>) {
     /**
      * Calculate all stats from the given list of values.
      */
-    private fun calculateStats(values: List<Long?>): PingStats {
+    private fun calculateStats(values: List<Double?>): PingStats {
         if (values.isEmpty()) return PingStats(average = null, median = null, totalCountWithoutNulls = 0, totalCountWithNulls = 0)
 
         val numericValues = values.filterNotNull()
 
         val average = if (numericValues.isEmpty()) null
-        else numericValues.average().roundToLong()
+        else numericValues.average()
 
         val median = if (numericValues.isEmpty()) null
         else {
             val sorted = numericValues.sorted()
             val mid = sorted.size / 2
             if (sorted.size % 2 == 0) {
-                ((sorted[mid - 1] + sorted[mid]) / 2.0).roundToLong()
+                ((sorted[mid - 1] + sorted[mid]) / 2.0)
             } else {
                 sorted[mid]
             }

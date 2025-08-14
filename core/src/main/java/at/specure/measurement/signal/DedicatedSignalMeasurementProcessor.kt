@@ -6,6 +6,7 @@ import androidx.lifecycle.asFlow
 import at.rmbt.util.exception.HandledException
 import at.rmbt.util.io
 import at.specure.client.PingClientConfiguration
+import at.specure.client.UdpHmacPingFlow
 import at.specure.client.UdpPingFlow
 import at.specure.config.Config
 import at.specure.data.SignalMeasurementSettings
@@ -23,6 +24,8 @@ import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.joinAll
@@ -39,6 +42,8 @@ private const val PING_PROTOCOL_HEADER: String = "RP01"
 private const val PING_PROTOCOL_SUCCESS_RESPONSE_HEADER: String = "RR01"
 private const val PING_PROTOCOL_ERROR_RESPONSE_HEADER: String = "RE01"
 
+// TODO: resolve problems with signal uuids and coverage uuids, send coverage results, new coverage request on network change and response
+
 @Singleton
 class DedicatedSignalMeasurementProcessor @Inject constructor(
     private val signalMeasurementSettings: SignalMeasurementSettings,
@@ -48,6 +53,8 @@ class DedicatedSignalMeasurementProcessor @Inject constructor(
 
     private val _signalPoints: MutableLiveData<List<SignalMeasurementPointRecord>> = MutableLiveData()
     val signalPoints: LiveData<List<SignalMeasurementPointRecord>> = _signalPoints
+    private var pingEvaluator: PingEvaluator? = null
+    private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
 
     private val coroutineExceptionHandler = CoroutineExceptionHandler { _, e ->
         if (e is HandledException) {
@@ -82,13 +89,19 @@ class DedicatedSignalMeasurementProcessor @Inject constructor(
             sessionCreated?.invoke(session.sessionId)
             val isSessionRegistered = session.serverSessionId != null
             if (isSessionRegistered.not()) {
-                val pingJob = CoroutineScope(Dispatchers.IO).launch {
-                    val isRegistered = signalMeasurementRepository.registerCoverageMeasurement(coverageSessionId = session.sessionId).firstOrNull()
-                    if (isRegistered == true) {
-                        Timber.d("Starting ping client after registration a new measurement")
-                        startPingClient(session)
+                scope.launch(Dispatchers.IO) {
+                    val isRegistered = signalMeasurementRepository.registerCoverageMeasurement(coverageSessionId = session.sessionId).collect { isRegistered ->
+                        if (isRegistered) {
+                            val registeredSession = signalMeasurementRepository.getDedicatedMeasurementSession(
+                                session.sessionId
+                            )
+                            // TODO: implement retry mechanism when it was not able to register session
+                            Timber.d("Starting ping client after registration a new measurement with session: $registeredSession")
+                            registeredSession?.let {
+                                startPingClient(registeredSession)
+                            }
+                        }
                     }
-                    joinAll()
                 }
             } else {
                 Timber.d("Starting ping client as continue from previous")
@@ -124,8 +137,9 @@ class DedicatedSignalMeasurementProcessor @Inject constructor(
                 errorResponseHeader = PING_PROTOCOL_ERROR_RESPONSE_HEADER
             )
             Timber.d("Starting ping client: $configuration")
-            val evaluator = PingEvaluator(UdpPingFlow(configuration).pingFlow())
-            evaluator.start()
+//            val evaluator = PingEvaluator(UdpPingFlow(configuration).pingFlow())
+            pingEvaluator = PingEvaluator(UdpHmacPingFlow(configuration).pingFlow())
+            pingEvaluator?.start()
         }
     }
 
@@ -219,15 +233,21 @@ class DedicatedSignalMeasurementProcessor @Inject constructor(
 
     fun onMeasurementStop() {
         Timber.d("On Measurement Stop called")
-        // todo: send points
-        cleanData()
+        CoroutineScope(Dispatchers.IO).launch {
+            try {
+                pingEvaluator?.evaluateAndStop()
+            } finally {
+                // todo: send points
+                cleanData()
+            }
+        }
     }
 
     fun onNetworkChanged() {
         // todo: what to do on a new network
     }
 
-    private fun loadPoints(sessionId: String) = launch {
+    private fun loadPoints(sessionId: String) = scope.launch(Dispatchers.IO) {
         val points =
             signalMeasurementRepository.loadSignalMeasurementPointRecordsForMeasurement(sessionId)
         points.asFlow().flowOn(Dispatchers.IO).collect { loadedPoints ->

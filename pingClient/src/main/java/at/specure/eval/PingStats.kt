@@ -1,8 +1,8 @@
 package at.specure.eval
 
 data class PingStats(
-    val average: Long?, // ms
-    val median: Long?,  // ms
+    val average: Double?, // ms
+    val median: Double?,  // ms
     val totalCountWithNulls: Int,
     val totalCountWithoutNulls: Int
 )
