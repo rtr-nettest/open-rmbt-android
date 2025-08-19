@@ -668,69 +668,8 @@ fun ICell.locationId(): Long? {
 }
 
 fun ICell.uuid(): String {
-    return when (this) {
-        is CellNr -> this.uuid()
-        is CellTdscdma -> this.uuid()
-        is CellLte -> this.uuid()
-        is CellCdma -> this.uuid()
-        is CellWcdma -> this.uuid()
-        is CellGsm -> this.uuid()
-        else -> ""
-    }
+    return UUID.randomUUID().toString()
 }
-
-fun CellNr.uuid(): String {
-    val id = buildString {
-        append("nr")
-        append(nci)
-        append(pci)
-    }.toByteArray()
-    return UUID.nameUUIDFromBytes(id).toString()
-}
-
-fun CellTdscdma.uuid(): String {
-    val id = buildString {
-        append("tdscdma")
-        append(cid)
-        append(cpid)
-    }.toByteArray()
-    return UUID.nameUUIDFromBytes(id).toString()
-}
-
-fun CellLte.uuid(): String {
-    val id = buildString {
-        append("lte")
-        append(eci)
-        append(pci)
-    }.toByteArray()
-    return UUID.nameUUIDFromBytes(id).toString()
-}
-
-fun CellWcdma.uuid(): String {
-    val id = buildString {
-        append("wcdma")
-        append(cid)
-    }.toByteArray()
-    return UUID.nameUUIDFromBytes(id).toString()
-}
-
-fun CellGsm.uuid(): String {
-    val id = buildString {
-        append("gsm")
-        append(cid)
-    }.toByteArray()
-    return UUID.nameUUIDFromBytes(id).toString()
-}
-
-fun CellCdma.uuid(): String {
-    val id = buildString {
-        append("cdma")
-        append(bid)
-        append(sid)
-    }.toByteArray()
-    return UUID.nameUUIDFromBytes(id).toString()
-}
-
 
 fun CellNr.getEuBand(): BandNrEU? {
     return this.band?.getEuBand()
