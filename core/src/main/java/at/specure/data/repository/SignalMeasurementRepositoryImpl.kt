@@ -12,7 +12,7 @@ import at.specure.data.RequestFilters.Companion.createRadioInfoBody
 import at.specure.data.entity.CellInfoRecord
 import at.specure.data.entity.SignalMeasurementChunk
 import at.specure.data.entity.SignalMeasurementInfo
-import at.specure.data.entity.SignalMeasurementPointRecord
+import at.specure.data.entity.SignalMeasurementFenceRecord
 import at.specure.data.entity.SignalMeasurementRecord
 import at.specure.data.entity.SignalMeasurementSession
 import at.specure.data.entity.SignalRecord
@@ -135,11 +135,11 @@ class SignalMeasurementRepositoryImpl(
         return dao.getDedicatedSignalMeasurementSession(sessionId)
     }
 
-    override fun saveMeasurementPointRecord(point: SignalMeasurementPointRecord) = io {
+    override fun saveMeasurementPointRecord(point: SignalMeasurementFenceRecord) = io {
         dao.saveSignalMeasurementPoint(point)
     }
 
-    override fun loadSignalMeasurementPointRecordsForMeasurement(measurementId: String): LiveData<List<SignalMeasurementPointRecord>> {
+    override fun loadSignalMeasurementPointRecordsForMeasurement(measurementId: String): LiveData<List<SignalMeasurementFenceRecord>> {
         return dao.getSignalMeasurementPoints(measurementId)
     }
 
@@ -147,7 +147,7 @@ class SignalMeasurementRepositoryImpl(
         return dao.getSignalRecordNullable(id)
     }
 
-    override fun updateSignalMeasurementPoint(updatedPoint: SignalMeasurementPointRecord) {
+    override fun updateSignalMeasurementPoint(updatedPoint: SignalMeasurementFenceRecord) {
         dao.updateSignalMeasurementPoint(updatedPoint)
     }
 

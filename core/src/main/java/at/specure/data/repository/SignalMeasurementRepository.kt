@@ -3,7 +3,7 @@ package at.specure.data.repository
 import androidx.lifecycle.LiveData
 import at.specure.data.entity.SignalMeasurementChunk
 import at.specure.data.entity.SignalMeasurementInfo
-import at.specure.data.entity.SignalMeasurementPointRecord
+import at.specure.data.entity.SignalMeasurementFenceRecord
 import at.specure.data.entity.SignalMeasurementRecord
 import at.specure.data.entity.SignalMeasurementSession
 import at.specure.data.entity.SignalRecord
@@ -58,13 +58,13 @@ interface SignalMeasurementRepository {
 
     fun getDedicatedMeasurementSession(sessionId: String): SignalMeasurementSession?
 
-    fun saveMeasurementPointRecord(point: SignalMeasurementPointRecord)
+    fun saveMeasurementPointRecord(point: SignalMeasurementFenceRecord)
 
-    fun loadSignalMeasurementPointRecordsForMeasurement(measurementId: String): LiveData<List<SignalMeasurementPointRecord>>
+    fun loadSignalMeasurementPointRecordsForMeasurement(measurementId: String): LiveData<List<SignalMeasurementFenceRecord>>
 
     suspend fun getSignalMeasurementRecord(id: String?): SignalRecord?
 
-    fun updateSignalMeasurementPoint(updatedPoint: SignalMeasurementPointRecord)
+    fun updateSignalMeasurementPoint(updatedPoint: SignalMeasurementFenceRecord)
 
     fun registerCoverageMeasurement(coverageSessionId: String): Flow<Boolean>
 }

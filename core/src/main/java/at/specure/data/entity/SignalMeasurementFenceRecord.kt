@@ -9,15 +9,12 @@ import at.specure.data.Tables
 import at.specure.test.DeviceInfo
 import java.util.UUID
 
-/**
- * AKA Fence
- */
 @Keep
-@Entity(tableName = Tables.SIGNAL_MEASUREMENT_POINT)
-data class SignalMeasurementPointRecord(
+@Entity(tableName = Tables.SIGNAL_MEASUREMENT_FENCE)
+data class SignalMeasurementFenceRecord(
 
     @PrimaryKey
-    @ColumnInfo(name = Columns.SIGNAL_MEASUREMENT_POINT_ID_PARENT_COLUMN)
+    @ColumnInfo(name = Columns.SIGNAL_MEASUREMENT_FENCE_ID_PARENT_COLUMN)
     val id: String = UUID.randomUUID().toString(),
 
     /**
@@ -41,7 +38,28 @@ data class SignalMeasurementPointRecord(
     var location: DeviceInfo.Location?,
 
     /**
-     * Timestamp of information obtained
+     * Timestamp of creating a fence entry (center of the fence)
      */
-    val timestamp: Long = System.currentTimeMillis()
+    val entryTimestampMillis: Long,
+
+    /**
+     * Timestamp of leaving the area of the fence (when other new fence is created)
+     */
+    val leaveTimestampMillis: Long,
+
+    /**
+     * Radius in meters of the fence set in the app
+     */
+    val radiusMeters: Int,
+
+    /**
+     * Technology ID of the mobile network (for further details check MobileNetworkType.kt) from signal record)
+     */
+    val technologyId: Int?,
+
+    /**
+     * Average ping in milliseconds
+     */
+    val avgPingMillis: Double?,
+
 )

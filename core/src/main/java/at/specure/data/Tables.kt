@@ -44,7 +44,7 @@ object Tables {
     const val SIGNAL_MEASUREMENT = "signal_measurement"
     const val SIGNAL_MEASUREMENT_INFO = "signal_measurement_info"
     const val SIGNAL_MEASUREMENT_CHUNK = "signal_measurement_chunk"
-    const val SIGNAL_MEASUREMENT_POINT = "signal_measurement_point"
+    const val SIGNAL_MEASUREMENT_FENCE = "signal_measurement_point"
     const val SIGNAL_MEASUREMENT_SESSION = "signal_measurement_session"
     const val CONNECTIVITY_STATE = "connectivity_state"
     const val HISTORY_REFERENCE = "history_reference"

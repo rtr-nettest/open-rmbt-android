@@ -15,7 +15,7 @@ import at.rtr.rmbt.android.ui.viewstate.HomeViewState
 import at.specure.data.ClientUUID
 import at.specure.data.MeasurementServers
 import at.specure.data.SignalMeasurementSettings
-import at.specure.data.entity.SignalMeasurementPointRecord
+import at.specure.data.entity.SignalMeasurementFenceRecord
 import at.specure.data.entity.SignalRecord
 import at.specure.data.repository.NewsRepository
 import at.specure.data.repository.SettingsRepository
@@ -82,7 +82,7 @@ class HomeViewModel @Inject constructor(
     val locationLiveData: LiveData<LocationInfo?>
         get() = locationWatcher.liveData
 
-    private var _pointsLiveData = MutableLiveData<List<SignalMeasurementPointRecord>>()
+    private var _pointsLiveData = MutableLiveData<List<SignalMeasurementFenceRecord>>()
     private var _dedicatedSignalMeasurementSessionIdLiveData : LiveData<String?> = MutableLiveData<String>(null)
 
     private var producer: SignalMeasurementProducer? = null
@@ -91,7 +91,7 @@ class HomeViewModel @Inject constructor(
 
     private var _pausedMeasurementSource: LiveData<Boolean>? = null
     private var _pausedMeasurementMediator = MediatorLiveData<Boolean>()
-    private var _currentSignalMeasurementMapPointsLiveData: LiveData<List<SignalMeasurementPointRecord>>? = null
+    private var _currentSignalMeasurementMapPointsLiveData: LiveData<List<SignalMeasurementFenceRecord>>? = null
     private var toggleService: Boolean = false
 
     private var _getNewsLiveData = MutableLiveData<List<NewsItem>?>()
@@ -99,7 +99,7 @@ class HomeViewModel @Inject constructor(
     val dedicatedSignalMeasurementSessionIdLiveData : LiveData<String?>
         get() = _dedicatedSignalMeasurementSessionIdLiveData
 
-    val currentSignalMeasurementMapPointsLiveData: LiveData<List<SignalMeasurementPointRecord>>
+    val currentSignalMeasurementMapPointsLiveData: LiveData<List<SignalMeasurementFenceRecord>>
         get() = dedicatedSignalMeasurementProcessor.signalPoints // _pointsLiveData
 
     val activeSignalMeasurementLiveData: LiveData<Boolean>

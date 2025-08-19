@@ -9,7 +9,7 @@ import androidx.room.Update
 import at.specure.data.Tables
 import at.specure.data.entity.SignalMeasurementChunk
 import at.specure.data.entity.SignalMeasurementInfo
-import at.specure.data.entity.SignalMeasurementPointRecord
+import at.specure.data.entity.SignalMeasurementFenceRecord
 import at.specure.data.entity.SignalMeasurementRecord
 import at.specure.data.entity.SignalMeasurementSession
 import at.specure.data.entity.SignalRecord
@@ -38,11 +38,11 @@ interface SignalMeasurementDao {
     @Query("SELECT * FROM ${Tables.SIGNAL_MEASUREMENT_INFO} WHERE measurementId=:measurementId")
     fun getSignalMeasurementInfo(measurementId: String): SignalMeasurementInfo?
 
-    @Query("SELECT * FROM ${Tables.SIGNAL_MEASUREMENT_POINT} WHERE sessionId=:sessionId ORDER BY sequenceNumber ASC")
-    fun getSignalMeasurementPoints(sessionId: String): LiveData<List<SignalMeasurementPointRecord>>
+    @Query("SELECT * FROM ${Tables.SIGNAL_MEASUREMENT_FENCE} WHERE sessionId=:sessionId ORDER BY sequenceNumber ASC")
+    fun getSignalMeasurementPoints(sessionId: String): LiveData<List<SignalMeasurementFenceRecord>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun saveSignalMeasurementPoint(point: SignalMeasurementPointRecord)
+    fun saveSignalMeasurementPoint(point: SignalMeasurementFenceRecord)
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun saveDedicatedSignalMeasurementSession(session: SignalMeasurementSession)
@@ -65,5 +65,5 @@ interface SignalMeasurementDao {
     }
 
     @Update
-    fun updateSignalMeasurementPoint(updatedPoint: SignalMeasurementPointRecord)
+    fun updateSignalMeasurementPoint(updatedPoint: SignalMeasurementFenceRecord)
 }

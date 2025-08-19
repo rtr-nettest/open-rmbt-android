@@ -52,5 +52,10 @@ data class SignalMeasurementSession(
     /**
      * Local Timestamp of the signal measurement response received from server to count relative time for fences (points)
      */
-    val startResponseReceivedMillis: Long = System.currentTimeMillis()
+    val startResponseReceivedMillis: Long = System.currentTimeMillis(),
+
+    /**
+     * Was the measurement synced with the server - was coverageResult successfully sent?
+     */
+    val synced: Boolean = false
 )

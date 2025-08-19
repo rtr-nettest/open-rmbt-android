@@ -7,10 +7,9 @@ import at.rmbt.util.exception.HandledException
 import at.rmbt.util.io
 import at.specure.client.PingClientConfiguration
 import at.specure.client.UdpHmacPingFlow
-import at.specure.client.UdpPingFlow
 import at.specure.config.Config
 import at.specure.data.SignalMeasurementSettings
-import at.specure.data.entity.SignalMeasurementPointRecord
+import at.specure.data.entity.SignalMeasurementFenceRecord
 import at.specure.data.entity.SignalMeasurementSession
 import at.specure.data.entity.SignalRecord
 import at.specure.data.repository.SignalMeasurementRepository
@@ -25,10 +24,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.flowOn
-import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import javax.inject.Inject
@@ -51,8 +47,8 @@ class DedicatedSignalMeasurementProcessor @Inject constructor(
     private val config: Config,
 ) : CoroutineScope {
 
-    private val _signalPoints: MutableLiveData<List<SignalMeasurementPointRecord>> = MutableLiveData()
-    val signalPoints: LiveData<List<SignalMeasurementPointRecord>> = _signalPoints
+    private val _signalPoints: MutableLiveData<List<SignalMeasurementFenceRecord>> = MutableLiveData()
+    val signalPoints: LiveData<List<SignalMeasurementFenceRecord>> = _signalPoints
     private var pingEvaluator: PingEvaluator? = null
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
 
@@ -152,43 +148,68 @@ class DedicatedSignalMeasurementProcessor @Inject constructor(
                 if (sessionId == null) {
                     Timber.e("Signal measurement Session not initialized yet - sessionId missing")
                 }
-                sessionId?.let {
-                    Timber.d("Creating point with signal record: $signalRecord")
-                    val point = SignalMeasurementPointRecord(
-                        sessionId = sessionId,
-                        sequenceNumber = getNextSequenceNumber(),
-                        location = location.toDeviceInfoLocation(),
-                        signalRecordId = signalRecord?.signalMeasurementPointId
-                    )
-                    saveDedicatedSignalMeasurementPoint(point)
+                sessionId?.let { sessionIdLocal ->
+                    Timber.d("Creating a new point with signal record: $signalRecord")
+                    val lastPoint = dedicatedSignalMeasurementData?.points?.lastOrNull()
+                    updateSignalFenceAndSaveOnLeaving(lastPoint)
+                    createSignalFence(sessionIdLocal, location, signalRecord)
                 }
-            } else if (isTheSameLocation(location)) {
+            } else if (isTheSameLocation(location)) { // todo verify what to do on the same location and what values needs to be replaced - how to replace ping, ...
                 val lastPoint = dedicatedSignalMeasurementData?.points?.lastOrNull()
                 lastPoint?.let { point ->
-                    updatePointAndSave(point, signalRecord)
+                    replaceSignalFenceAndSave(point, signalRecord)
                 }
             }
         }
     }
 
+    private fun createSignalFence(sessionId: String, location: LocationInfo, signalRecord: SignalRecord?) {
+        val point = SignalMeasurementFenceRecord(
+            sessionId = sessionId,
+            sequenceNumber = getNextSequenceNumber(),
+            location = location.toDeviceInfoLocation(),
+            signalRecordId = signalRecord?.signalMeasurementPointId,
+            entryTimestampMillis = System.currentTimeMillis(),
+            leaveTimestampMillis = 0,
+            radiusMeters = config.minDistanceMetersToLogNewLocationOnMapDuringSignalMeasurement,
+            technologyId = signalRecord?.mobileNetworkType?.intValue,
+            avgPingMillis = null,
+        )
+        saveDedicatedSignalMeasurementPoint(point)
+    }
+
     /**
-     * Location is kept from original point as we could end in the cascade of updates with drifting
+     * Location is kept from original fence as we could end in the cascade of updates with drifting
      * original location to even few tenth of meters
      */
-    private fun updatePointAndSave(
-        lastPoint: SignalMeasurementPointRecord?,
+    private fun replaceSignalFenceAndSave(
+        lastPoint: SignalMeasurementFenceRecord?,
         signalRecord: SignalRecord?
     ) = io {
         val updatedPoint = lastPoint?.copy(
             signalRecordId = signalRecord?.signalMeasurementPointId,
-            timestamp = System.currentTimeMillis()
+            entryTimestampMillis = System.currentTimeMillis(),
+            technologyId = signalRecord?.mobileNetworkType?.intValue,
         )
         updatedPoint?.let {
             signalMeasurementRepository.updateSignalMeasurementPoint(updatedPoint)
         }
     }
 
-    private fun saveDedicatedSignalMeasurementPoint(point: SignalMeasurementPointRecord) = io {
+    // TODO: Take network info when leaving the point - possible problem with changing the network type on map when created and when leaving
+    private fun updateSignalFenceAndSaveOnLeaving(
+        lastPoint: SignalMeasurementFenceRecord?,
+    ) = io {
+        val updatedPoint = lastPoint?.copy(
+            leaveTimestampMillis = System.currentTimeMillis(),
+            avgPingMillis = pingEvaluator?.evaluateAndReset()?.average
+        )
+        updatedPoint?.let {
+            signalMeasurementRepository.updateSignalMeasurementPoint(updatedPoint)
+        }
+    }
+
+    private fun saveDedicatedSignalMeasurementPoint(point: SignalMeasurementFenceRecord) = io {
         signalMeasurementRepository.saveMeasurementPointRecord(point)
     }
 
