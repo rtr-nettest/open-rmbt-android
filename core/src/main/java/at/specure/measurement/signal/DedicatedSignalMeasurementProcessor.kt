@@ -39,6 +39,7 @@ private const val PING_PROTOCOL_SUCCESS_RESPONSE_HEADER: String = "RR01"
 private const val PING_PROTOCOL_ERROR_RESPONSE_HEADER: String = "RE01"
 
 // TODO: resolve problems with signal uuids and coverage uuids, send coverage results, new coverage request on network change and response
+// TODO: make own signal listener because now we do not get null signals on signal loss from SignalMeasurementProcessor
 
 @Singleton
 class DedicatedSignalMeasurementProcessor @Inject constructor(
@@ -168,11 +169,12 @@ class DedicatedSignalMeasurementProcessor @Inject constructor(
             sessionId = sessionId,
             sequenceNumber = getNextSequenceNumber(),
             location = location.toDeviceInfoLocation(),
-            signalRecordId = signalRecord?.signalMeasurementPointId,
+            signalRecordId = signalRecord?.signalMeasurementPointId, // todo: because of signal measurement it is removed when chunk is sent
             entryTimestampMillis = System.currentTimeMillis(),
             leaveTimestampMillis = 0,
             radiusMeters = config.minDistanceMetersToLogNewLocationOnMapDuringSignalMeasurement,
             technologyId = signalRecord?.mobileNetworkType?.intValue,
+            signalStrength = signalRecord?.lteRsrp, // todo: extract signal value correctly
             avgPingMillis = null,
         )
         saveDedicatedSignalMeasurementPoint(point)
@@ -257,6 +259,8 @@ class DedicatedSignalMeasurementProcessor @Inject constructor(
         CoroutineScope(Dispatchers.IO).launch {
             try {
                 pingEvaluator?.evaluateAndStop()
+                val lastPoint = dedicatedSignalMeasurementData?.points?.lastOrNull()
+                updateSignalFenceAndSaveOnLeaving(lastPoint)
             } finally {
                 // todo: send points
                 cleanData()

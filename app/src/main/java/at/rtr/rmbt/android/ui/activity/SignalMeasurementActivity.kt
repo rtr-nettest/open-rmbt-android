@@ -25,6 +25,8 @@ import at.specure.location.LocationInfo
 import at.specure.location.LocationState
 import at.specure.test.DeviceInfo
 import at.rmbt.client.control.data.SignalMeasurementType
+import at.rtr.rmbt.android.util.getMarkerColor
+import at.specure.info.network.MobileNetworkType
 import at.specure.test.toLocation
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
@@ -141,13 +143,21 @@ class SignalMeasurementActivity : BaseActivity(), OnMapReadyCallback {
                     latLng?.let { markerLatLng ->
                         lifecycleScope.launch {
                             val signalData = withContext(Dispatchers.IO) {
-                                point.signalRecordId?.let { viewModel.getSignalData(it) }
+                                point.signalRecordId?.let {
+                                    val signal = viewModel.getSignalData(it)
+                                    if (signal == null) {
+                                        Timber.d("FAILED Getting signal data for point: $point")
+                                    }
+                                    signal
+                                }
                             }
 
                             val options = MarkerOptions()
                                 .position(markerLatLng)
-                                .icon(BitmapDescriptorFactory.defaultMarker(Random.nextFloat() * 360))
-                                .title(signalData?.mobileNetworkType?.toString() ?: getString(R.string.noSignal))
+//                                .icon(BitmapDescriptorFactory.defaultMarker(signalData?.mobileNetworkType?.getMarkerColor() ?: BitmapDescriptorFactory.HUE_AZURE))
+//                                .title(signalData?.mobileNetworkType?.toString() ?: getString(R.string.noSignal))
+                                .icon(BitmapDescriptorFactory.defaultMarker(MobileNetworkType.fromValue(point.technologyId ?: 0).getMarkerColor() ?: BitmapDescriptorFactory.HUE_AZURE))
+                                .title(MobileNetworkType.fromValue(point.technologyId ?: 0).displayName)
 
                             currentMap.addMarker(options)
                         }

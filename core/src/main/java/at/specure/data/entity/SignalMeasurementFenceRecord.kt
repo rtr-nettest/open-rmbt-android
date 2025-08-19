@@ -58,6 +58,11 @@ data class SignalMeasurementFenceRecord(
     val technologyId: Int?,
 
     /**
+     * Signal strength of the main cell connected to the network (in dBm)
+     */
+    val signalStrength: Int?,
+
+    /**
      * Average ping in milliseconds
      */
     val avgPingMillis: Double?,
