@@ -130,6 +130,12 @@
             android:name="com.google.android.geo.API_KEY"
             android:value="${googleMapsApiKey}" />
 
+        <!-- Disable WorkManager's default initializer -->
+        <provider
+            android:name="androidx.startup.InitializationProvider"
+            android:authorities="${applicationId}.androidx-startup"
+            tools:node="remove" />
+
     </application>
 
 </manifest>
