@@ -43,30 +43,8 @@ class CustomMarker(private val context: Context) {
             style = Paint.Style.FILL
         }
 
-//        when (mobileTechnology) {
-//            MobileNetworkType.UNKNOWN -> {
-//                // Draw square for no coverage
-//                val rect = RectF(4f, 4f, size - 4f, size - 4f)
-//                canvas.drawRect(rect, paint)
-//            }
-//
-//            MobileNetworkType.TECH_2G -> {
-//                // Draw triangle for 2G
-//                val path = Path().apply {
-//                    moveTo(size / 2f, 4f)
-//                    lineTo(4f, size - 4f)
-//                    lineTo(size - 4f, size - 4f)
-//                    close()
-//                }
-//                canvas.drawPath(path, paint)
-//            }
-
-//            else -> {
-                // Draw circle for 3G, 4G, 5G
-                val radius = (size - 8) / 2f
-                canvas.drawCircle(size / 2f, size / 2f, radius, paint)
-//            }
-//        }
+        val radius = (size - 8) / 2f
+        canvas.drawCircle(size / 2f, size / 2f, radius, paint)
 
         // Add white border
         paint.apply {
@@ -75,27 +53,8 @@ class CustomMarker(private val context: Context) {
             strokeWidth = 3f
         }
 
-//        when (mobileTechnology) {
-//            MobileNetworkType.UNKNOWN -> {
-//                val rect = RectF(4f, 4f, size - 4f, size - 4f)
-//                canvas.drawRect(rect, paint)
-//            }
-//
-//            TechnologyMarkerColor.TECH_2G -> {
-//                val path = Path().apply {
-//                    moveTo(size / 2f, 4f)
-//                    lineTo(4f, size - 4f)
-//                    lineTo(size - 4f, size - 4f)
-//                    close()
-//                }
-//                canvas.drawPath(path, paint)
-//            }
-//
-//            else -> {
-                val borderRadius = (size - 8) / 2f
-                canvas.drawCircle(size / 2f, size / 2f, borderRadius, paint)
-//            }
-//        }
+        val borderRadius = (size - 8) / 2f
+        canvas.drawCircle(size / 2f, size / 2f, borderRadius, paint)
 
         return bitmap
     }
