@@ -35,6 +35,7 @@ import at.specure.measurement.signal.DedicatedSignalMeasurementProcessor
 import at.specure.measurement.signal.SignalMeasurementProducer
 import at.specure.measurement.signal.SignalMeasurementService
 import at.rmbt.client.control.data.SignalMeasurementType
+import at.specure.util.map.CustomMarker
 import at.specure.util.permission.PermissionsWatcher
 import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.Dispatchers
@@ -63,7 +64,8 @@ class HomeViewModel @Inject constructor(
     private val signalMeasurementRepository: SignalMeasurementRepository,
     private val dedicatedSignalMeasurementProcessor: DedicatedSignalMeasurementProcessor,
     measurementServers: MeasurementServers,
-    private val signalMeasurementSettings: SignalMeasurementSettings
+    private val signalMeasurementSettings: SignalMeasurementSettings,
+    private val customMarker: CustomMarker,
 ) : BaseViewModel() {
 
     val state = HomeViewState(appConfig, measurementServers)
@@ -116,6 +118,9 @@ class HomeViewModel @Inject constructor(
 
     val isalwaysAllowCellInfosOn: Boolean
         get() = appConfig.alwaysAllowCellInfos
+
+    val customMarkerProvider: CustomMarker
+        get() = customMarker
 
     private val serviceConnection = object : ServiceConnection {
 

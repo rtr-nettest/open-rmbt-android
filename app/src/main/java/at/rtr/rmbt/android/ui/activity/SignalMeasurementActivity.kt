@@ -25,7 +25,6 @@ import at.specure.location.LocationInfo
 import at.specure.location.LocationState
 import at.specure.test.DeviceInfo
 import at.rmbt.client.control.data.SignalMeasurementType
-import at.rtr.rmbt.android.util.getMarkerColor
 import at.specure.info.network.MobileNetworkType
 import at.specure.test.toLocation
 import com.google.android.gms.maps.CameraUpdateFactory
@@ -33,15 +32,14 @@ import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.LocationSource
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
-import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import timber.log.Timber
-import kotlin.random.Random
 
 const val DEFAULT_POSITION_TRACKING_ZOOM_LEVEL = 16.2f
 private const val DEFAULT_LAT: Double = ((49.0390742051F + 46.4318173285F) / 2F).toDouble()
@@ -49,7 +47,7 @@ private const val DEFAULT_LONG: Double = ((16.9796667823F + 9.47996951665F) / 2F
 private const val DEFAULT_ZOOM_LEVEL = 6F
 const val DEFAULT_POINT_CLICKED_ZOOM_LEVEL = 16f
 
-class SignalMeasurementActivity : BaseActivity(), OnMapReadyCallback {
+class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback {
 
     private val viewModel: HomeViewModel by viewModelLazy()
     private lateinit var binding: ActivitySignalMeasurementBinding
@@ -154,9 +152,7 @@ class SignalMeasurementActivity : BaseActivity(), OnMapReadyCallback {
 
                             val options = MarkerOptions()
                                 .position(markerLatLng)
-//                                .icon(BitmapDescriptorFactory.defaultMarker(signalData?.mobileNetworkType?.getMarkerColor() ?: BitmapDescriptorFactory.HUE_AZURE))
-//                                .title(signalData?.mobileNetworkType?.toString() ?: getString(R.string.noSignal))
-                                .icon(BitmapDescriptorFactory.defaultMarker(MobileNetworkType.fromValue(point.technologyId ?: 0).getMarkerColor() ?: BitmapDescriptorFactory.HUE_AZURE))
+                                .icon(BitmapDescriptorFactory.fromBitmap(viewModel.customMarkerProvider.createCustomShapeBitmap(MobileNetworkType.fromValue(point.technologyId ?: 0))))
                                 .title(MobileNetworkType.fromValue(point.technologyId ?: 0).displayName)
 
                             currentMap.addMarker(options)

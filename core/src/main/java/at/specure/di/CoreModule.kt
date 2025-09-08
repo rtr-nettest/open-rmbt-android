@@ -50,6 +50,7 @@ import at.specure.location.cell.CellLocationWatcher
 import at.specure.location.cell.CellLocationWatcherImpl
 import at.specure.test.TestController
 import at.specure.test.TestControllerImpl
+import at.specure.util.map.CustomMarker
 import at.specure.util.permission.LocationAccess
 import at.specure.util.permission.LocationAccessImpl
 import at.specure.util.permission.PermissionsWatcher
@@ -271,4 +272,10 @@ class CoreModule {
         config = config,
         permissionsWatcher = permissionsWatcher
     )
+
+    @Provides
+    @Singleton
+    fun provideCustomMarker(
+        context: Context
+    ) : CustomMarker = CustomMarker(context = context)
 }
