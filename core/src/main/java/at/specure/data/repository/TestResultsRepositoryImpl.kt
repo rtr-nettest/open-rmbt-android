@@ -163,15 +163,21 @@ class TestResultsRepositoryImpl(
             )
 
             response.onSuccess {
-                val testResult = it.toModel(testUUID)
-                val qoeRecords = it.toQoeModel(testUUID)
+                try {
+                    val testResult = it.toModel(testUUID)
+                    val qoeRecords = it.toQoeModel(testUUID)
 
-                testResultDao.insert(testResult)
-                qoeInfoDao.clearInsert(qoeRecords)
-                getServerTestResult(testUUID)
-                loadOpenDataTestResults(testResult.testOpenUUID, testUUID)
-                loadQosTestResults(testUUID, clientUUID)
-                emit(true)
+                    testResultDao.insert(testResult)
+                    qoeInfoDao.clearInsert(qoeRecords)
+                    getServerTestResult(testUUID)
+                    loadOpenDataTestResults(testResult.testOpenUUID, testUUID)
+                    loadQosTestResults(testUUID, clientUUID)
+                    emit(true)
+                } catch (e: NullPointerException) {
+                    throw (KotlinNullPointerException(
+                        message = "TestUUID: $testUUID,\n response: $it"
+                    ))
+                }
             }
 
             response.onFailure { throw it }
