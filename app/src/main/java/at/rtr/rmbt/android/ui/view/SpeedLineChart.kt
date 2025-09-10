@@ -18,6 +18,9 @@ import kotlin.math.min
 import kotlin.math.pow
 import kotlin.math.sqrt
 
+
+private const val RESULT_GRAPH_MISSING_SPEED_TIME_GAP_MILLISECONDS = 250L
+
 @SuppressLint("CustomViewStyleable")
 class SpeedLineChart @JvmOverloads constructor(
     context: Context,
@@ -147,7 +150,7 @@ class SpeedLineChart @JvmOverloads constructor(
         pathStroke.rewind()
         pathFill.rewind()
 
-        val filteredGraphItems = removeLeadingZeroValuesForResult(graphItems)
+        val filteredGraphItems = removeLeadingZeroValuesForResult(graphItems)?.addMissingDataBorderPoints()
         filteredGraphItems.let { items ->
 
             chartPoints = ArrayList()
@@ -161,13 +164,95 @@ class SpeedLineChart @JvmOverloads constructor(
 
                 for (index in items.indices) {
                     val x = items[index].time / maxValue.toFloat()
-                    val y = toLog(items[index].value * 8000 / items[index].time)
+                    val y = if (items[index].value == -1L) {
+                        0f
+                    } else {
+                        toLog( (averageAtIndex(items, index, 20).toLong() * 8000) / items[index].time)// counts bits / time
+                        // todo count average value from last N points unless there is -1 which is end of segment so we need to calculate again
+                    }
                     chartPoints.add(PointF(x, y))
                     Timber.d("itemsdisplaytest x $x y $y width ${getChartWidth()} height ${getChartHeight()}")
                 }
             }
         }
+
         invalidate()
+    }
+
+    fun averageTransferredIndex(data: List<TestResultGraphItemRecord>, index: Int, windowSize: Int): Double {
+        require(index in data.indices) { "Index out of bounds" }
+
+        val buffer = ArrayDeque<Long>()
+
+        for (i in 0..index) {
+            val value = data[i].value
+            if (value == -1L) {
+                buffer.clear() // reset buffer on sentinel
+            } else {
+                buffer.addLast(value)
+                if (buffer.size > windowSize) {
+                    buffer.removeFirst()
+                }
+            }
+        }
+
+        val differencesBuffer = ArrayDeque<Long>()
+        for (items in buffer) {
+            differencesBuffer
+        }
+
+        return if (buffer.isEmpty()) Double.NaN else buffer.average()
+    }
+
+    fun averageAtIndex(data: List<TestResultGraphItemRecord>, index: Int, windowSize: Int): Double {
+        require(index in data.indices) { "Index out of bounds" }
+
+        val buffer = ArrayDeque<Long>()
+
+        for (i in 0..index) {
+            val value = data[i].value
+            if (value == -1L) {
+                buffer.clear() // reset buffer on sentinel
+            } else {
+                buffer.addLast(value)
+                if (buffer.size > windowSize) {
+                    buffer.removeFirst()
+                }
+            }
+        }
+
+        return if (buffer.isEmpty()) Double.NaN else buffer.average()
+    }
+
+    private fun List<TestResultGraphItemRecord>.addMissingDataBorderPoints(step: Long = RESULT_GRAPH_MISSING_SPEED_TIME_GAP_MILLISECONDS): List<TestResultGraphItemRecord> {
+        val result = mutableListOf<TestResultGraphItemRecord>()
+
+        for (i in indices) {
+            val current = this[i]
+            result.add(current)
+
+            if (i < lastIndex) {
+                val next = this[i + 1]
+                val gap = next.time - current.time
+
+                if (gap > step) {
+                    var t = current.time + step
+                    while (t < next.time) {
+                        result.add(
+                            current.copy(
+                                id = 123,
+                                time = t,
+//                                value = current.value
+                                value = -1
+                            )
+                        )
+                        t += step
+                    }
+                }
+            }
+        }
+
+        return result.sortedBy { it.time }
     }
 
     /**
