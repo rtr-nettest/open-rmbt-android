@@ -18,6 +18,9 @@ import kotlin.math.min
 import kotlin.math.pow
 import kotlin.math.sqrt
 
+
+private const val RESULT_GRAPH_MISSING_SPEED_TIME_GAP_MILLISECONDS = 250L
+
 @SuppressLint("CustomViewStyleable")
 class SpeedLineChart @JvmOverloads constructor(
     context: Context,
@@ -117,6 +120,23 @@ class SpeedLineChart @JvmOverloads constructor(
         }
     }
 
+    fun TestResultGraphItemRecord.toGraphItemRecord(graphItem: TestResultGraphItemRecord): GraphItemRecord {
+        return GraphItemRecord(
+            id = 0,
+            testUUID = graphItem.testUUID,
+            progress = graphItem.time.toInt(),
+            value = graphItem.value,
+            type = when (graphItem.type) {
+                TestResultGraphItemRecord.Type.DOWNLOAD -> GraphItemRecord.GRAPH_ITEM_TYPE_DOWNLOAD
+                TestResultGraphItemRecord.Type.UPLOAD -> GraphItemRecord.GRAPH_ITEM_TYPE_UPLOAD
+                else -> throw IllegalArgumentException("Unknown graph item type: ${graphItem.type}")
+            })
+    }
+
+    fun List<TestResultGraphItemRecord>.toSpeedGraphItems(): List<GraphItemRecord> {
+        return this.map { it.toGraphItemRecord(it) }
+    }
+
     fun addGraphItems(graphItems: List<GraphItemRecord>?) {
 
         pathStroke.rewind()
@@ -147,27 +167,91 @@ class SpeedLineChart @JvmOverloads constructor(
         pathStroke.rewind()
         pathFill.rewind()
 
-        val filteredGraphItems = removeLeadingZeroValuesForResult(graphItems)
+        val filteredGraphItems = removeLeadingZeroValuesForResult(graphItems)?.addMissingDataBorderPoints()
         filteredGraphItems.let { items ->
-
-            chartPoints = ArrayList()
-
-            val maxValue = items?.maxByOrNull { it.time }?.time
-            if (maxValue != null) {
-
-                if (((items[0].time / maxValue.toFloat()) * 100.0f) > 0) {
-                    chartPoints.add(PointF(0.0f, toLog(items[0].value * 8000 / items[0].time)))
+            val maxTime = items?.maxByOrNull { it.time }?.time
+            if (maxTime != null) {
+                val differences: List<TestResultGraphItemRecord> = items.zipWithNext { prev, next ->
+                    TestResultGraphItemRecord(
+                        id = 0,
+                        testUUID = next.testUUID,
+                        time = ((next.time.toDouble() / maxTime.toDouble()) * 100).toLong(),          // time
+                        value = if (next.value == -1L || prev.value == -1L) 0 else ((next.value - prev.value) * 8000) / (next.time - prev.time),       // speed Mbits / seconds
+                        type = next.type
+                    )
+                }.groupBy {
+                    it.time
+                }.map {(time, items) ->
+                    val avgValue = items.map { it.value }.average().toLong() // average of values
+                    TestResultGraphItemRecord(
+                        id = 0,
+                        testUUID = items.first().testUUID, // keep the same testUUID
+                        time = time,
+                        value = avgValue,
+                        type = items.first().type         // keep the same type
+                    )
+                }
+                val averages = differences.mapIndexed { index, record ->
+                    record.copy(
+                        value = averageAtIndex(differences, index, 3).toLong()
+                    )
                 }
 
-                for (index in items.indices) {
-                    val x = items[index].time / maxValue.toFloat()
-                    val y = toLog(items[index].value * 8000 / items[index].time)
-                    chartPoints.add(PointF(x, y))
-                    Timber.d("itemsdisplaytest x $x y $y width ${getChartWidth()} height ${getChartHeight()}")
+                addGraphItems(averages.toSpeedGraphItems())
+            }
+        }
+
+    }
+
+    fun averageAtIndex(data: List<TestResultGraphItemRecord>, index: Int, windowSize: Int): Double {
+        require(index in data.indices) { "Index out of bounds" }
+
+        val buffer = ArrayDeque<Long>()
+
+        for (i in 0..index) {
+            val value = data[i].value
+            if (value == -1L) {
+                buffer.clear() // reset buffer on sentinel
+            } else {
+                buffer.addLast(value)
+                if (buffer.size > windowSize) {
+                    buffer.removeFirst()
                 }
             }
         }
-        invalidate()
+
+        return if (buffer.isEmpty()) Double.NaN else buffer.average()
+    }
+
+    private fun List<TestResultGraphItemRecord>.addMissingDataBorderPoints(step: Long = RESULT_GRAPH_MISSING_SPEED_TIME_GAP_MILLISECONDS): List<TestResultGraphItemRecord> {
+        val result = mutableListOf<TestResultGraphItemRecord>()
+
+        for (i in indices) {
+            val current = this[i]
+            result.add(current)
+
+            if (i < lastIndex) {
+                val next = this[i + 1]
+                val gap = next.time - current.time
+
+                if (gap > step) {
+                    var t = current.time + step
+                    while (t < next.time) {
+                        result.add(
+                            current.copy(
+                                id = 123,
+                                time = t,
+//                                value = current.value
+                                value = -1
+                            )
+                        )
+                        t += step
+                    }
+                }
+            }
+        }
+
+        return result.sortedBy { it.time }
     }
 
     /**
