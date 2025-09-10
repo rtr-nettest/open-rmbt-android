@@ -450,7 +450,8 @@
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toEndOf="@+id/btnLocation"
-                tools:src="@drawable/ic_upload_enabled" android:visibility="@{state.expertModeIsEnabled ? View.VISIBLE : View.GONE}"/>
+                tools:src="@drawable/ic_upload_enabled"
+                android:visibility="@{state.developerModeIsEnabled ? View.VISIBLE : View.GONE}"/>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

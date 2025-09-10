@@ -474,7 +474,8 @@
                 app:layout_constraintEnd_toStartOf="@+id/right_guideline"
                 app:layout_constraintStart_toEndOf="@+id/btnLocation"
                 app:layout_constraintTop_toBottomOf="@+id/vBottomDivider"
-                tools:src="@drawable/ic_upload_enabled" android:visibility="@{state.expertModeIsEnabled ? View.VISIBLE : View.GONE}"/>
+                tools:src="@drawable/ic_upload_enabled"
+                android:visibility="@{state.developerModeIsEnabled ? View.VISIBLE : View.GONE}"/>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>
