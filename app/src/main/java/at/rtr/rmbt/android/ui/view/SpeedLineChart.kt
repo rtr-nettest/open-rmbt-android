@@ -120,6 +120,23 @@ class SpeedLineChart @JvmOverloads constructor(
         }
     }
 
+    fun TestResultGraphItemRecord.toGraphItemRecord(graphItem: TestResultGraphItemRecord): GraphItemRecord {
+        return GraphItemRecord(
+            id = 0,
+            testUUID = graphItem.testUUID,
+            progress = graphItem.time.toInt(),
+            value = graphItem.value,
+            type = when (graphItem.type) {
+                TestResultGraphItemRecord.Type.DOWNLOAD -> GraphItemRecord.GRAPH_ITEM_TYPE_DOWNLOAD
+                TestResultGraphItemRecord.Type.UPLOAD -> GraphItemRecord.GRAPH_ITEM_TYPE_UPLOAD
+                else -> throw IllegalArgumentException("Unknown graph item type: ${graphItem.type}")
+            })
+    }
+
+    fun List<TestResultGraphItemRecord>.toSpeedGraphItems(): List<GraphItemRecord> {
+        return this.map { it.toGraphItemRecord(it) }
+    }
+
     fun addGraphItems(graphItems: List<GraphItemRecord>?) {
 
         pathStroke.rewind()
@@ -152,56 +169,38 @@ class SpeedLineChart @JvmOverloads constructor(
 
         val filteredGraphItems = removeLeadingZeroValuesForResult(graphItems)?.addMissingDataBorderPoints()
         filteredGraphItems.let { items ->
-
-            chartPoints = ArrayList()
-
-            val maxValue = items?.maxByOrNull { it.time }?.time
-            if (maxValue != null) {
-
-                if (((items[0].time / maxValue.toFloat()) * 100.0f) > 0) {
-                    chartPoints.add(PointF(0.0f, toLog(items[0].value * 8000 / items[0].time)))
+            val maxTime = items?.maxByOrNull { it.time }?.time
+            if (maxTime != null) {
+                val differences: List<TestResultGraphItemRecord> = items.zipWithNext { prev, next ->
+                    TestResultGraphItemRecord(
+                        id = 0,
+                        testUUID = next.testUUID,
+                        time = ((next.time.toDouble() / maxTime.toDouble()) * 100).toLong(),          // time
+                        value = if (next.value == -1L || prev.value == -1L) 0 else ((next.value - prev.value) * 8000) / (next.time - prev.time),       // speed Mbits / seconds
+                        type = next.type
+                    )
+                }.groupBy {
+                    it.time
+                }.map {(time, items) ->
+                    val avgValue = items.map { it.value }.average().toLong() // average of values
+                    TestResultGraphItemRecord(
+                        id = 0,
+                        testUUID = items.first().testUUID, // keep the same testUUID
+                        time = time,
+                        value = avgValue,
+                        type = items.first().type         // keep the same type
+                    )
+                }
+                val averages = differences.mapIndexed { index, record ->
+                    record.copy(
+                        value = averageAtIndex(differences, index, 3).toLong()
+                    )
                 }
 
-                for (index in items.indices) {
-                    val x = items[index].time / maxValue.toFloat()
-                    val y = if (items[index].value == -1L) {
-                        0f
-                    } else {
-                        toLog( (averageAtIndex(items, index, 20).toLong() * 8000) / items[index].time)// counts bits / time
-                        // todo count average value from last N points unless there is -1 which is end of segment so we need to calculate again
-                    }
-                    chartPoints.add(PointF(x, y))
-                    Timber.d("itemsdisplaytest x $x y $y width ${getChartWidth()} height ${getChartHeight()}")
-                }
+                addGraphItems(averages.toSpeedGraphItems())
             }
         }
 
-        invalidate()
-    }
-
-    fun averageTransferredIndex(data: List<TestResultGraphItemRecord>, index: Int, windowSize: Int): Double {
-        require(index in data.indices) { "Index out of bounds" }
-
-        val buffer = ArrayDeque<Long>()
-
-        for (i in 0..index) {
-            val value = data[i].value
-            if (value == -1L) {
-                buffer.clear() // reset buffer on sentinel
-            } else {
-                buffer.addLast(value)
-                if (buffer.size > windowSize) {
-                    buffer.removeFirst()
-                }
-            }
-        }
-
-        val differencesBuffer = ArrayDeque<Long>()
-        for (items in buffer) {
-            differencesBuffer
-        }
-
-        return if (buffer.isEmpty()) Double.NaN else buffer.average()
     }
 
     fun averageAtIndex(data: List<TestResultGraphItemRecord>, index: Int, windowSize: Int): Double {
