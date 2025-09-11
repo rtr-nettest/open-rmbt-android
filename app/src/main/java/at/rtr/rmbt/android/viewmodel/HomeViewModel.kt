@@ -274,7 +274,7 @@ class HomeViewModel @Inject constructor(
     }
 
     fun isMobileNetworkActive(): Boolean {
-        return state.activeNetworkInfo.get()?.networkInfo?.type == TransportType.CELLULAR
+        return state.activeNetworkInfo.get()?.networkInfo?.type != TransportType.WIFI
     }
 
     fun isOnlyOneSimActive(): Boolean {
