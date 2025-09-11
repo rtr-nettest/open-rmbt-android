@@ -25,9 +25,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.flowOn
-import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.sample
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import timber.log.Timber
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -143,7 +142,9 @@ class DedicatedSignalMeasurementProcessor @Inject constructor(
 //            val evaluator = PingEvaluator(UdpPingFlow(configuration).pingFlow())
             pingEvaluator = PingEvaluator(UdpHmacPingFlow(configuration).pingFlow())
 
-                pingEvaluator?.start()?.collect { pingResult ->
+                pingEvaluator?.start()
+                    ?.sample(1000)
+                    ?.collect { pingResult ->
                     Timber.d("New ping value posted: ${pingResult?.getRTTMillis()}")
                     dedicatedSignalMeasurementData.postValue(
                         dedicatedSignalMeasurementData.value?.copy(
