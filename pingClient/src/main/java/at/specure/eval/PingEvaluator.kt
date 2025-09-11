@@ -6,6 +6,9 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.channelFlow
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -19,33 +22,29 @@ class PingEvaluator(private val pingFlow: Flow<PingResult>) {
 
     private val results = mutableListOf<Double?>()
     private val mutex = Mutex()
-
+    private val debugLog = false
     /**
      * Starts collecting ping results. If already collecting, does nothing.
      */
-    fun start() {
+    fun start(): Flow<PingResult?> = channelFlow {
         if (job?.isActive == true) {
-            println("✅ Ping job already running")
-            return
+            if (debugLog) println("✅ Ping job already running")
+            trySend(null)
+            return@channelFlow
         } // already running
-        println("✅ Ping job starting")
+        if (debugLog) println("✅ Ping job starting")
         results.clear()
-        job = scope.launch {
+        job = launch {
             pingFlow.collect { result ->
                 mutex.withLock {
                     results.add(result.getRTTMillis())
-//                    when (result) {
-//                        is PingResult.Success -> results.add(result.rttMillis)
-//                        is PingResult.Lost -> results.add(null)
-//                        is PingResult.ClientError -> results.add(null)
-//                        is PingResult.ServerError -> results.add(null)
-//                    }
-                    when (result) {
+                    if (debugLog) when (result) {
                         is PingResult.Success -> println("✅ Ping ${result.sequenceNumber} - RTT: ${result.rttMillis} ms")
                         is PingResult.Lost -> println("⚠️  Ping ${result.sequenceNumber} - Timeout")
                         is PingResult.ClientError -> println("❌ Ping ${result.sequenceNumber} - ${result.exception}")
                         is PingResult.ServerError -> println("❌ Ping ${result.sequenceNumber} - Server error")
                     }
+                    trySend(result)
                 }
             }
         }

@@ -35,6 +35,7 @@ import at.specure.measurement.signal.DedicatedSignalMeasurementProcessor
 import at.specure.measurement.signal.SignalMeasurementProducer
 import at.specure.measurement.signal.SignalMeasurementService
 import at.rmbt.client.control.data.SignalMeasurementType
+import at.specure.measurement.signal.DedicatedSignalMeasurementData
 import at.specure.util.map.CustomMarker
 import at.specure.util.permission.PermissionsWatcher
 import kotlinx.coroutines.CoroutineName
@@ -86,6 +87,7 @@ class HomeViewModel @Inject constructor(
 
     private var _pointsLiveData = MutableLiveData<List<SignalMeasurementFenceRecord>>()
     private var _dedicatedSignalMeasurementSessionIdLiveData : LiveData<String?> = MutableLiveData<String>(null)
+    private var _dedicatedSignalMeasurementDataLiveData : LiveData<DedicatedSignalMeasurementData?> = dedicatedSignalMeasurementProcessor.dedicatedSignalMeasurementData
 
     private var producer: SignalMeasurementProducer? = null
     private var _activeMeasurementSource: LiveData<Boolean>? = null
@@ -97,6 +99,9 @@ class HomeViewModel @Inject constructor(
     private var toggleService: Boolean = false
 
     private var _getNewsLiveData = MutableLiveData<List<NewsItem>?>()
+
+    val dedicatedSignalMeasurementDataLiveData : LiveData<DedicatedSignalMeasurementData?>
+        get() = _dedicatedSignalMeasurementDataLiveData
 
     val dedicatedSignalMeasurementSessionIdLiveData : LiveData<String?>
         get() = _dedicatedSignalMeasurementSessionIdLiveData
