@@ -15,6 +15,8 @@ import at.specure.data.entity.SignalRecord
 import at.specure.data.repository.SignalMeasurementRepository
 import at.specure.eval.PingEvaluator
 import at.specure.info.TransportType
+import at.specure.info.cell.CellNetworkInfo
+import at.specure.info.network.NetworkInfo
 import at.specure.location.LocationInfo
 import at.specure.location.isAccuracyEnoughForSignalMeasurement
 import at.specure.test.toDeviceInfoLocation
@@ -145,36 +147,43 @@ class DedicatedSignalMeasurementProcessor @Inject constructor(
                 pingEvaluator?.start()
                     ?.sample(1000)
                     ?.collect { pingResult ->
-                    Timber.d("New ping value posted: ${pingResult?.getRTTMillis()}")
                     dedicatedSignalMeasurementData.postValue(
                         dedicatedSignalMeasurementData.value?.copy(
                             currentPingMs = pingResult?.getRTTMillis()
                         )
                     )
-                    Timber.d("New ping value posted: ")
                 }
         }
     }
 
-    fun onNewLocation(location: LocationInfo, signalRecord: SignalRecord?) {
+    fun onNewLocation(location: LocationInfo, signalRecord: SignalRecord?, networkInfo: NetworkInfo?) {
+        if (networkInfo == null) {
+            dedicatedSignalMeasurementData.postValue(
+                dedicatedSignalMeasurementData.value?.copy(
+                    currentNetworkType = null
+                )
+            )
+        } else {
+            dedicatedSignalMeasurementData.postValue(
+                dedicatedSignalMeasurementData.value?.copy(
+                    currentNetworkType = when(networkInfo.type) {
+                        TransportType.CELLULAR -> (networkInfo as CellNetworkInfo).networkType.displayName
+                        TransportType.WIFI,
+                        TransportType.BLUETOOTH,
+                        TransportType.ETHERNET,
+                        TransportType.VPN,
+                        TransportType.WIFI_AWARE,
+                        TransportType.LOWPAN,
+                        TransportType.BROWSER,
+                        TransportType.UNKNOWN -> networkInfo.type.name
+                    }
+                )
+            )
+        }
+
         // TODO: check how old is signal information + also handle no signal record in SignalMeasurementProcessor
         // TODO: check if airplane mode is enabled or not, check if mobile data are enabled
         if (signalRecord == null || signalRecord.transportType == TransportType.CELLULAR) {
-
-            if (signalRecord == null) {
-                dedicatedSignalMeasurementData.postValue(
-                    dedicatedSignalMeasurementData.value?.copy(
-                        currentNetworkType = null
-                    )
-                )
-            } else {
-                dedicatedSignalMeasurementData.postValue(
-                    dedicatedSignalMeasurementData.value?.copy(
-                        currentNetworkType = signalRecord.mobileNetworkType?.displayName
-                    )
-                )
-            }
-
             if (isDistanceToLastSignalPointLocationEnough(location)) {
                 val sessionId = dedicatedSignalMeasurementData.value?.signalMeasurementSession?.sessionId
                 if (sessionId == null) {
