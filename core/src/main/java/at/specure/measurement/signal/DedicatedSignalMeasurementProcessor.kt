@@ -160,6 +160,21 @@ class DedicatedSignalMeasurementProcessor @Inject constructor(
         // TODO: check how old is signal information + also handle no signal record in SignalMeasurementProcessor
         // TODO: check if airplane mode is enabled or not, check if mobile data are enabled
         if (signalRecord == null || signalRecord.transportType == TransportType.CELLULAR) {
+
+            if (signalRecord == null) {
+                dedicatedSignalMeasurementData.postValue(
+                    dedicatedSignalMeasurementData.value?.copy(
+                        currentNetworkType = null
+                    )
+                )
+            } else {
+                dedicatedSignalMeasurementData.postValue(
+                    dedicatedSignalMeasurementData.value?.copy(
+                        currentNetworkType = signalRecord.mobileNetworkType?.displayName
+                    )
+                )
+            }
+
             if (isDistanceToLastSignalPointLocationEnough(location)) {
                 val sessionId = dedicatedSignalMeasurementData.value?.signalMeasurementSession?.sessionId
                 if (sessionId == null) {
