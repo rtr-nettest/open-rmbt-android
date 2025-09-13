@@ -25,6 +25,7 @@ import at.specure.location.LocationInfo
 import at.specure.location.LocationState
 import at.specure.test.DeviceInfo
 import at.rmbt.client.control.data.SignalMeasurementType
+import at.rtr.rmbt.android.util.formatAccuracy
 import at.specure.info.network.MobileNetworkType
 import at.specure.test.toLocation
 import com.google.android.gms.maps.CameraUpdateFactory
@@ -40,6 +41,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import timber.log.Timber
+import kotlin.math.roundToInt
 
 const val DEFAULT_POSITION_TRACKING_ZOOM_LEVEL = 16.2f
 private const val DEFAULT_LAT: Double = ((49.0390742051F + 46.4318173285F) / 2F).toDouble()
@@ -93,6 +95,21 @@ class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback {
         mapFragment!!.getMapAsync(this)
 
         hideDialog()
+
+        viewModel.dedicatedSignalMeasurementDataLiveData.listen(this) {
+            val pingResult: Double? = it?.currentPingMs
+            binding.technologyValue.text = it?.currentNetworkType ?: "-"
+            binding.pingValue.text = if (pingResult != null && pingResult > 0) {
+                val mantissa = pingResult - (pingResult.toInt().toDouble())
+                if (mantissa > 0 && pingResult < 10.0) {
+                    this.getString(R.string.measurement_ping_value_1f, pingResult)
+                } else {
+                    this.getString(R.string.measurement_ping_value, pingResult.roundToInt().toString())
+                }
+            } else {
+                this.getString(R.string.measurement_dash)
+            }
+        }
 
         viewModel.activeSignalMeasurementLiveData.listen(this) {
             binding.isActive = it
@@ -190,6 +207,9 @@ class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback {
                     )
                 }
             }
+
+            binding.accuracyValue.text = this.getString(R.string.location_dialog_accuracy, (location?.formatAccuracy() ?: "-").toString())
+
             map?.let { gMap ->
                 location?.let { latestLocation ->
                     if (!viewModel.state.markerDetailsDisplayed.get()) {
@@ -245,6 +265,7 @@ class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback {
         checkLocationAndSetCurrent()
         updateLocationPermissionRelatedUi()
         map?.uiSettings?.isMyLocationButtonEnabled = false
+        map?.uiSettings?.isMapToolbarEnabled = false
     }
 
     override fun onStart() {

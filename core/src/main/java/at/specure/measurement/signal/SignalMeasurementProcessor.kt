@@ -34,7 +34,6 @@ import at.specure.location.LocationWatcher
 import at.specure.location.cell.CellLocationInfo
 import at.rmbt.client.control.data.SignalMeasurementType
 import at.specure.test.toDeviceInfoLocation
-import at.specure.util.exception.DataMissingException
 import at.specure.util.isFineLocationPermitted
 import at.specure.util.isLocationServiceEnabled
 import at.specure.util.isReadPhoneStatePermitted
@@ -81,6 +80,7 @@ class SignalMeasurementProcessor @Inject constructor(
 ) : Binder(), SignalMeasurementProducer, CoroutineScope, SignalMeasurementChunkResultCallback,
     SignalMeasurementChunkReadyCallback {
 
+    private var globalNetworkInfo: NetworkInfo? = null
     private var lastSignalRecord: SignalRecord? = null
     private var isUnstoppable = false
     private var _isActive = false
@@ -223,6 +223,12 @@ class SignalMeasurementProcessor @Inject constructor(
         locationWatcher.liveData.observe(owner, Observer { info ->
             if (locationWatcher.state == LocationState.ENABLED) {
                 locationInfo = info
+                if (lastSignalMeasurementType == SignalMeasurementType.DEDICATED) {
+                    locationInfo?.let { location ->
+                        Timber.d("passing new info with network: ${globalNetworkInfo?.type}")
+                        dedicatedSignalMeasurementProcessor.onNewLocation(location, lastSignalRecord, globalNetworkInfo)
+                    }
+                }
                 if (isSignalMeasurementRunning()) {
                     saveLocationInfo()
                 }
@@ -284,6 +290,7 @@ class SignalMeasurementProcessor @Inject constructor(
 
     private fun handleNewNetwork(newInfo: NetworkInfo?) {
         val currentInfo = networkInfo
+        globalNetworkInfo = newInfo
         var newNetworkInfo = newInfo
         if (newInfo?.type != TransportType.CELLULAR) {
             newNetworkInfo = null
@@ -687,9 +694,9 @@ class SignalMeasurementProcessor @Inject constructor(
                 true
             )
             locationInfo?.let { location ->
-                if (lastSignalMeasurementType == SignalMeasurementType.DEDICATED){
-                    dedicatedSignalMeasurementProcessor.onNewLocation(location, lastSignalRecord)
-                }
+//                if (lastSignalMeasurementType == SignalMeasurementType.DEDICATED){
+//                    dedicatedSignalMeasurementProcessor.onNewLocation(location, lastSignalRecord, networkInfo)
+//                }
             }
         }
     }

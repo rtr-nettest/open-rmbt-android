@@ -15,6 +15,8 @@ import at.specure.data.entity.SignalRecord
 import at.specure.data.repository.SignalMeasurementRepository
 import at.specure.eval.PingEvaluator
 import at.specure.info.TransportType
+import at.specure.info.cell.CellNetworkInfo
+import at.specure.info.network.NetworkInfo
 import at.specure.location.LocationInfo
 import at.specure.location.isAccuracyEnoughForSignalMeasurement
 import at.specure.test.toDeviceInfoLocation
@@ -25,6 +27,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.sample
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import javax.inject.Inject
@@ -49,6 +52,7 @@ class DedicatedSignalMeasurementProcessor @Inject constructor(
 ) : CoroutineScope {
 
     private val _signalPoints: MutableLiveData<List<SignalMeasurementFenceRecord>> = MutableLiveData()
+    val dedicatedSignalMeasurementData: MutableLiveData<DedicatedSignalMeasurementData?> = MutableLiveData()
     val signalPoints: LiveData<List<SignalMeasurementFenceRecord>> = _signalPoints
     private var pingEvaluator: PingEvaluator? = null
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
@@ -63,10 +67,9 @@ class DedicatedSignalMeasurementProcessor @Inject constructor(
 
     private var loadingPointsJob: Job? = null
     override val coroutineContext = EmptyCoroutineContext + coroutineExceptionHandler
-    private var dedicatedSignalMeasurementData: DedicatedSignalMeasurementData? = null
 
     val currentSessionId: String?
-        get() = dedicatedSignalMeasurementData?.signalMeasurementSession?.sessionId
+        get() = dedicatedSignalMeasurementData.value?.signalMeasurementSession?.sessionId
 
     fun initializeDedicatedMeasurementSession(sessionCreated: ((sessionId: String) -> Unit)?) {
         loadingPointsJob?.cancel()
@@ -78,9 +81,11 @@ class DedicatedSignalMeasurementProcessor @Inject constructor(
             (shouldContinueInPreviousDedicatedMeasurement && lastSignalMeasurementSessionId != null)
         val onSessionReady: (SignalMeasurementSession) -> Unit = { session ->
             loadingPointsJob = loadPoints(session.sessionId)
-            dedicatedSignalMeasurementData = DedicatedSignalMeasurementData(
-                signalMeasurementSession = session,
-                signalMeasurementSettings = signalMeasurementSettings,
+            dedicatedSignalMeasurementData.postValue(
+                DedicatedSignalMeasurementData(
+                            signalMeasurementSession = session,
+                            signalMeasurementSettings = signalMeasurementSettings,
+                        )
             )
             Timber.d("Session created: ${session.sessionId} invoking callback")
             sessionCreated?.invoke(session.sessionId)
@@ -102,7 +107,9 @@ class DedicatedSignalMeasurementProcessor @Inject constructor(
                 }
             } else {
                 Timber.d("Starting ping client as continue from previous")
-                startPingClient(session)
+                CoroutineScope(Dispatchers.IO).launch(Dispatchers.IO) {
+                    startPingClient(session)
+                }
             }
 
         }
@@ -116,7 +123,7 @@ class DedicatedSignalMeasurementProcessor @Inject constructor(
         }
     }
 
-    private fun startPingClient(signalMeasurementSession: SignalMeasurementSession) {
+    private suspend fun startPingClient(signalMeasurementSession: SignalMeasurementSession) {
         val pingHost = signalMeasurementSession.pingServerHost
         val pingPort = signalMeasurementSession.pingServerPort
         val pingToken = signalMeasurementSession.pingServerToken
@@ -136,27 +143,60 @@ class DedicatedSignalMeasurementProcessor @Inject constructor(
             Timber.d("Starting ping client: $configuration")
 //            val evaluator = PingEvaluator(UdpPingFlow(configuration).pingFlow())
             pingEvaluator = PingEvaluator(UdpHmacPingFlow(configuration).pingFlow())
-            pingEvaluator?.start()
+
+                pingEvaluator?.start()
+                    ?.sample(1000)
+                    ?.collect { pingResult ->
+                    dedicatedSignalMeasurementData.postValue(
+                        dedicatedSignalMeasurementData.value?.copy(
+                            currentPingMs = pingResult?.getRTTMillis()
+                        )
+                    )
+                }
         }
     }
 
-    fun onNewLocation(location: LocationInfo, signalRecord: SignalRecord?) {
+    fun onNewLocation(location: LocationInfo, signalRecord: SignalRecord?, networkInfo: NetworkInfo?) {
+        if (networkInfo == null) {
+            dedicatedSignalMeasurementData.postValue(
+                dedicatedSignalMeasurementData.value?.copy(
+                    currentNetworkType = null
+                )
+            )
+        } else {
+            dedicatedSignalMeasurementData.postValue(
+                dedicatedSignalMeasurementData.value?.copy(
+                    currentNetworkType = when(networkInfo.type) {
+                        TransportType.CELLULAR -> (networkInfo as CellNetworkInfo).networkType.displayName
+                        TransportType.WIFI,
+                        TransportType.BLUETOOTH,
+                        TransportType.ETHERNET,
+                        TransportType.VPN,
+                        TransportType.WIFI_AWARE,
+                        TransportType.LOWPAN,
+                        TransportType.BROWSER,
+                        TransportType.UNKNOWN -> networkInfo.type.name
+                    }
+                )
+            )
+        }
+
         // TODO: check how old is signal information + also handle no signal record in SignalMeasurementProcessor
         // TODO: check if airplane mode is enabled or not, check if mobile data are enabled
         if (signalRecord == null || signalRecord.transportType == TransportType.CELLULAR) {
             if (isDistanceToLastSignalPointLocationEnough(location)) {
-                val sessionId = dedicatedSignalMeasurementData?.signalMeasurementSession?.sessionId
+                val sessionId = dedicatedSignalMeasurementData.value?.signalMeasurementSession?.sessionId
                 if (sessionId == null) {
                     Timber.e("Signal measurement Session not initialized yet - sessionId missing")
                 }
                 sessionId?.let { sessionIdLocal ->
                     Timber.d("Creating a new point with signal record: $signalRecord")
-                    val lastPoint = dedicatedSignalMeasurementData?.points?.lastOrNull()
+                    val lastPoint = dedicatedSignalMeasurementData.value?.points?.lastOrNull()
                     updateSignalFenceAndSaveOnLeaving(lastPoint)
                     createSignalFence(sessionIdLocal, location, signalRecord)
                 }
             } else if (isTheSameLocation(location)) { // todo verify what to do on the same location and what values needs to be replaced - how to replace ping, ...
-                val lastPoint = dedicatedSignalMeasurementData?.points?.lastOrNull()
+                val lastPoint = dedicatedSignalMeasurementData.value?.points?.lastOrNull()
                 lastPoint?.let { point ->
                     replaceSignalFenceAndSave(point, signalRecord)
                 }
@@ -219,7 +259,7 @@ class DedicatedSignalMeasurementProcessor @Inject constructor(
         if (!location.isAccuracyEnoughForSignalMeasurement()) {
             return false
         }
-        val lastPoint = dedicatedSignalMeasurementData?.points?.lastOrNull()
+        val lastPoint = dedicatedSignalMeasurementData.value?.points?.lastOrNull()
         val lastLocation = lastPoint?.location
         return if (lastLocation != null) {
             val distance = location.toLocation().distanceTo(lastLocation.toLocation())
@@ -235,7 +275,7 @@ class DedicatedSignalMeasurementProcessor @Inject constructor(
             return false
         }
         val minDistance = config.minDistanceMetersToLogNewLocationOnMapDuringSignalMeasurement
-        val lastPoint = dedicatedSignalMeasurementData?.points?.lastOrNull()
+        val lastPoint = dedicatedSignalMeasurementData.value?.points?.lastOrNull()
         val lastLocation = lastPoint?.location
         return if (lastLocation != null) {
             val distance = location.toLocation().distanceTo(lastLocation.toLocation())
@@ -249,7 +289,7 @@ class DedicatedSignalMeasurementProcessor @Inject constructor(
 
     private fun getNextSequenceNumber(): Int {
         val lastPointNumber =
-            (dedicatedSignalMeasurementData?.points?.lastOrNull()?.sequenceNumber ?: -1)
+            (dedicatedSignalMeasurementData.value?.points?.lastOrNull()?.sequenceNumber ?: -1)
         val nextPointNumber = lastPointNumber + 1
         return nextPointNumber
     }
@@ -259,7 +299,7 @@ class DedicatedSignalMeasurementProcessor @Inject constructor(
         CoroutineScope(Dispatchers.IO).launch {
             try {
                 pingEvaluator?.evaluateAndStop()
-                val lastPoint = dedicatedSignalMeasurementData?.points?.lastOrNull()
+                val lastPoint = dedicatedSignalMeasurementData.value?.points?.lastOrNull()
                 updateSignalFenceAndSaveOnLeaving(lastPoint)
             } finally {
                 // todo: send points
@@ -276,9 +316,9 @@ class DedicatedSignalMeasurementProcessor @Inject constructor(
         val points =
             signalMeasurementRepository.loadSignalMeasurementPointRecordsForMeasurement(sessionId)
         points.asFlow().flowOn(Dispatchers.IO).collect { loadedPoints ->
-            dedicatedSignalMeasurementData = dedicatedSignalMeasurementData?.copy(
+            dedicatedSignalMeasurementData.postValue( dedicatedSignalMeasurementData.value?.copy(
                 points = loadedPoints
-            )
+            ))
             _signalPoints.postValue(loadedPoints)
             Timber.d("New points loaded ${loadedPoints.size}")
         }
@@ -309,7 +349,7 @@ class DedicatedSignalMeasurementProcessor @Inject constructor(
 
     private fun cleanData() {
         loadingPointsJob?.cancel()
-        dedicatedSignalMeasurementData = null
+        dedicatedSignalMeasurementData.postValue(null)
         signalMeasurementSettings.signalMeasurementLastSessionId = null
     }
 }
