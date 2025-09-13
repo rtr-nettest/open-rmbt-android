@@ -345,7 +345,7 @@ class HomeFragment : BaseFragment() {
 
     private fun isSignalMeasurementPrechecksPassed(): Boolean {
         val isMobileNetworkActive = homeViewModel.isMobileNetworkActive()
-        val isOnlyOneSimActive = homeViewModel.isOnlyOneSimActive()
+        val isOnlyOneSimActive = true
         val isGPSEnabledAndPermitted = doGPSRelatedActionOrShowProblemDialog {}
 
         if (!isGPSEnabledAndPermitted) {
