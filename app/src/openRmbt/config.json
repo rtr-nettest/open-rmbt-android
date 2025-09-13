@@ -432,7 +432,7 @@
     },
     {
       "name": "SHOULD_CHECK_ACTIVE_SIMS_COUNT",
-      "value": "true",
+      "value": "false",
       "visible": false
     },
     {
