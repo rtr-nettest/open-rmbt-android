@@ -281,7 +281,7 @@ class HomeViewModel @Inject constructor(
         return if (state.activeNetworkInfo.get()?.networkInfo is CellNetworkInfo && appConfig.shouldCheckActiveSimsCount) {
             (state.activeNetworkInfo.get()?.networkInfo as CellNetworkInfo).subscriptionsCount <= 1
         } else {
-            false
+            true
         }
     }
 
