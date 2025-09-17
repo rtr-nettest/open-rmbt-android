@@ -16,6 +16,11 @@ data class SignalMeasurementSession(
     val sessionId: String = UUID.randomUUID().toString(),
 
     /**
+     * Id of measurement record related to this session
+     */
+    val measurementId: String? = null,
+
+    /**
      * server generated id of a signal measurement session, result will be sent with this UUID, also when loop - then it needs to be updated from coverageResultResponse
      *
      * Signal serverSessionId UUID. Related only for one network in the loop. Another [SignalMeasurementRecord] must be used for another network.

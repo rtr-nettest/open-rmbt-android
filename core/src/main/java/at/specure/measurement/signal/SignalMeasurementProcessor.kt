@@ -349,6 +349,7 @@ class SignalMeasurementProcessor @Inject constructor(
             location = locationInfo.toDeviceInfoLocation(),
             rawCapabilitiesRecord = networkInfo.capabilitiesRaw
         ).also {
+            // todo: create new local dedicated measurement session
             signalRepository.saveAndRegisterRecord(it)
         }
         chunk = null
@@ -358,7 +359,7 @@ class SignalMeasurementProcessor @Inject constructor(
     private fun createNewRecordBecauseOfChangedUUID(
         networkInfo: NetworkInfo,
         newUUID: String,
-        info: SignalMeasurementInfo
+        session: SignalMeasurementSession
     ) {
         record = SignalMeasurementRecord(
             signalMeasurementType = lastSignalMeasurementType,
@@ -367,7 +368,7 @@ class SignalMeasurementProcessor @Inject constructor(
             location = locationInfo.toDeviceInfoLocation(),
             rawCapabilitiesRecord = networkInfo.capabilitiesRaw
         ).also {
-            signalRepository.saveAndUpdateRegisteredRecord(it, newUUID, info)
+            signalRepository.saveAndUpdateRegisteredRecord(it, newUUID, session)
         }
         chunk = null
         createNewChunk()
@@ -722,10 +723,10 @@ class SignalMeasurementProcessor @Inject constructor(
     }
 
     @ExperimentalCoroutinesApi
-    override fun newUUIDSent(respondedUuid: String, info: SignalMeasurementInfo) {
+    override fun newUUIDSent(respondedUuid: String, session: SignalMeasurementSession) {
         val network = networkInfo
         network?.let {
-            createNewRecordBecauseOfChangedUUID(network, respondedUuid, info)
+            createNewRecordBecauseOfChangedUUID(network, respondedUuid, session)
         }
     }
 

@@ -25,12 +25,12 @@ class SignalMeasurementInfoWorker(appContext: Context, workerParams: WorkerParam
         val measurementId = inputData.getString(KEY_MEASUREMENT_ID) ?: throw DataMissingException("measurementId is missing in worker")
 
         var result = Result.failure()
-        repository.registerMeasurement(measurementId)
+        repository.registerCoverageMeasurement(coverageSessionId = null, measurementId = measurementId)
             .catch { e ->
                 if (e is NoConnectionException) {
                     emit(false)
                 } else {
-                    Timber.e(e, "Getting signal info record error")
+                    Timber.e(e, "Register coverage measurement error")
                     emit(true)
                 }
             }

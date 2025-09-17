@@ -2,7 +2,6 @@ package at.specure.data.repository
 
 import androidx.lifecycle.LiveData
 import at.specure.data.entity.SignalMeasurementChunk
-import at.specure.data.entity.SignalMeasurementInfo
 import at.specure.data.entity.SignalMeasurementFenceRecord
 import at.specure.data.entity.SignalMeasurementRecord
 import at.specure.data.entity.SignalMeasurementSession
@@ -25,12 +24,7 @@ interface SignalMeasurementRepository {
      * Method to save new [record] and create new SignalMeasurementInfo record because of provided new [newUuid] from the backend and
      * create a new info from old info and updated uuid
      */
-    fun saveAndUpdateRegisteredRecord(record: SignalMeasurementRecord, newUuid: String, oldInfo: SignalMeasurementInfo)
-
-    @Deprecated(
-        message = "replaced by registerCoverageMeasurement"
-    )
-    fun registerMeasurement(measurementId: String): Flow<Boolean>
+    fun saveAndUpdateRegisteredRecord(record: SignalMeasurementRecord, newUuid: String, oldInfo: SignalMeasurementSession)
 
     fun saveMeasurementRecord(record: SignalMeasurementRecord)
 
@@ -66,5 +60,5 @@ interface SignalMeasurementRepository {
 
     fun updateSignalMeasurementPoint(updatedPoint: SignalMeasurementFenceRecord)
 
-    fun registerCoverageMeasurement(coverageSessionId: String): Flow<Boolean>
+    fun registerCoverageMeasurement(coverageSessionId: String?, measurementId: String?): Flow<Boolean>
 }

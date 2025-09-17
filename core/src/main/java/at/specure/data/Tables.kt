@@ -42,7 +42,6 @@ object Tables {
     const val MAP_MARKER_MEASUREMENTS = "map_markers"
     const val LOOP_MODE = "loop_mode"
     const val SIGNAL_MEASUREMENT = "signal_measurement"
-    const val SIGNAL_MEASUREMENT_INFO = "signal_measurement_info"
     const val SIGNAL_MEASUREMENT_CHUNK = "signal_measurement_chunk"
     const val SIGNAL_MEASUREMENT_FENCE = "signal_measurement_point"
     const val SIGNAL_MEASUREMENT_SESSION = "signal_measurement_session"

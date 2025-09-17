@@ -23,7 +23,7 @@ class CoverageMeasurementWorker(appContext: Context, workerParams: WorkerParamet
         val coverageSessionId = inputData.getString(KEY_SESSION_ID) ?: throw DataMissingException("coverage sessionId is missing in worker")
 
         var result = Result.failure()
-        repository.registerCoverageMeasurement(coverageSessionId)
+        repository.registerCoverageMeasurement(coverageSessionId = coverageSessionId, measurementId = null)
             .catch { e ->
                 if (e is NoConnectionException) {
                     emit(false)

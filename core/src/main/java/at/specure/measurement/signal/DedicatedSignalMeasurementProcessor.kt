@@ -92,7 +92,7 @@ class DedicatedSignalMeasurementProcessor @Inject constructor(
             val isSessionRegistered = session.serverSessionId != null
             if (isSessionRegistered.not()) {
                 scope.launch(Dispatchers.IO) {
-                    val isRegistered = signalMeasurementRepository.registerCoverageMeasurement(coverageSessionId = session.sessionId).collect { isRegistered ->
+                    val isRegistered = signalMeasurementRepository.registerCoverageMeasurement(coverageSessionId = session.sessionId, measurementId = null).collect { isRegistered ->
                         if (isRegistered) {
                             val registeredSession = signalMeasurementRepository.getDedicatedMeasurementSession(
                                 session.sessionId

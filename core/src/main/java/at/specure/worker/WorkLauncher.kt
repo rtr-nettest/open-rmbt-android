@@ -47,18 +47,6 @@ object WorkLauncher {
         WorkManager.getInstance(context).enqueueUniqueWork(DELAYED_SUBMISSION_WORK_NAME, ExistingWorkPolicy.REPLACE, workRequest)
     }
 
-    @Deprecated(message = "Use enqueueCoverageMeasurementRequest instead")
-    fun enqueueSignalMeasurementInfoRequest(context: Context, measurementId: String) {
-
-        val request = OneTimeWorkRequest.Builder(SignalMeasurementInfoWorker::class.java)
-            .setInputData(SignalMeasurementInfoWorker.getData(measurementId))
-            .setConstraints(getWorkerConstraints())
-            .setBackoffCriteria(BackoffPolicy.EXPONENTIAL, WAITING_TIME_BETWEEN_REQUEST, TimeUnit.SECONDS)
-            .build()
-
-        WorkManager.getInstance(context).enqueueUniqueWork(SERVER_MEASUREMENT_INFO, ExistingWorkPolicy.REPLACE, request)
-    }
-
     fun enqueueSignalMeasurementChunkRequest(context: Context, chunkId: String) {
 
         val request = OneTimeWorkRequest.Builder(SignalMeasurementChunkWorker::class.java)
