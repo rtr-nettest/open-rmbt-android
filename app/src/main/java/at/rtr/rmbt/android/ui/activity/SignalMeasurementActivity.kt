@@ -35,10 +35,8 @@ import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import timber.log.Timber
 import kotlin.math.roundToInt
@@ -157,16 +155,6 @@ class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback {
                     val latLng = point.location.toLatLng()
                     latLng?.let { markerLatLng ->
                         lifecycleScope.launch {
-                            val signalData = withContext(Dispatchers.IO) {
-                                point.signalRecordId?.let {
-                                    val signal = viewModel.getSignalData(it)
-                                    if (signal == null) {
-                                        Timber.d("FAILED Getting signal data for point: $point")
-                                    }
-                                    signal
-                                }
-                            }
-
                             val options = MarkerOptions()
                                 .position(markerLatLng)
                                 .icon(BitmapDescriptorFactory.fromBitmap(viewModel.customMarkerProvider.createCustomShapeBitmap(MobileNetworkType.fromValue(point.technologyId ?: 0))))
