@@ -27,6 +27,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.sample
 import kotlinx.coroutines.launch
@@ -34,6 +36,8 @@ import timber.log.Timber
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlin.coroutines.EmptyCoroutineContext
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.seconds
 
 private const val SAME_LOCATION_DISTANCE_METERS = 3
 private const val PING_INTERVAL_MILLIS: Long = 100
@@ -57,6 +61,8 @@ class DedicatedSignalMeasurementProcessor @Inject constructor(
     val signalPoints: LiveData<List<SignalMeasurementFenceRecord>> = _signalPoints
     private var pingEvaluator: PingEvaluator? = null
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
+    private var maxCoverageMeasurementSecondsReachedJob: Job? = null
+    private var maxCoverageSessionSecondsReachedJob: Job? = null
 
     private val coroutineExceptionHandler = CoroutineExceptionHandler { _, e ->
         if (e is HandledException) {
@@ -101,7 +107,7 @@ class DedicatedSignalMeasurementProcessor @Inject constructor(
                             // TODO: implement retry mechanism when it was not able to register session
                             Timber.d("Starting ping client after registration a new measurement with session: $registeredSession")
                             registeredSession?.let {
-                                startPingClient(registeredSession)
+                                onStartAndRegistrationCompleted(registeredSession)
                             }
                         }
                     }
@@ -109,7 +115,8 @@ class DedicatedSignalMeasurementProcessor @Inject constructor(
             } else {
                 Timber.d("Starting ping client as continue from previous")
                 CoroutineScope(Dispatchers.IO).launch(Dispatchers.IO) {
-                    startPingClient(session)
+                    onStartAndRegistrationCompleted(session)
+
                 }
             }
 
@@ -121,6 +128,38 @@ class DedicatedSignalMeasurementProcessor @Inject constructor(
         } else {
             Timber.d("Creating new dedicated signal measurement: $lastSignalMeasurementSessionId")
             createNewDedicatedMeasurementSession(onSessionReady)
+        }
+    }
+
+    private suspend fun onStartAndRegistrationCompleted(registeredAndStartedSession: SignalMeasurementSession) {
+        startPingClient(registeredAndStartedSession)
+        startMaxCoverageMeasurementSecondsReachedJob(session = registeredAndStartedSession)
+        startMaxCoverageSessionSecondsReachedJob(session = registeredAndStartedSession)
+    }
+
+    private fun startMaxCoverageMeasurementSecondsReachedJob(session: SignalMeasurementSession) {
+        maxCoverageMeasurementSecondsReachedJob?.cancel()
+        maxCoverageMeasurementSecondsReachedJob = CoroutineScope(Dispatchers.Default).launch {
+            session.maxCoverageMeasurementSeconds?.let { maxCoverageMeasurementSeconds ->
+                launch {
+                    delay( maxCoverageMeasurementSeconds.seconds) // todo: alter time as session begin one time but response was another time
+                    onMeasurementStop() // todo check if this is correct logic to happen
+                    cancel("MaxCoverageMeasurementSeconds elapsed")
+                }
+            }
+        }
+    }
+
+    private fun startMaxCoverageSessionSecondsReachedJob(session: SignalMeasurementSession) {
+        maxCoverageSessionSecondsReachedJob?.cancel()
+        maxCoverageSessionSecondsReachedJob = CoroutineScope(Dispatchers.Default).launch {
+            session.maxCoverageSessionSeconds?.let { maxCoverageSessionSeconds ->
+                launch {
+                    delay( maxCoverageSessionSeconds.seconds) // todo: alter time as session begin one time but response was another time
+                    onMeasurementStop() // todo check if this is correct logic to happen
+                    cancel("MaxCoverageSessionSeconds elapsed")
+                }
+            }
         }
     }
 
