@@ -18,6 +18,7 @@ import at.specure.data.entity.SignalRecord
 import at.specure.data.entity.TestTelephonyRecord
 import at.specure.data.entity.TestWlanRecord
 import at.specure.data.toCoverageRequest
+import at.specure.data.toCoverageResultRequest
 import at.specure.data.toRequest
 import at.specure.info.TransportType
 import at.specure.measurement.signal.SignalMeasurementChunkReadyCallback
@@ -30,7 +31,6 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.flow
 import timber.log.Timber
-import kotlin.io.path.Path
 
 class SignalMeasurementRepositoryImpl(
     private val db: CoreDatabase,
@@ -128,15 +128,7 @@ class SignalMeasurementRepositoryImpl(
 
         val clientUUID = clientUUID.value ?: throw DataMissingException("Missing client UUID")
         val coverageSession =
-            if (coverageSessionId == null) {
-                if (measurementRecordId == null) {
-                    null
-                } else {
-                    dao.getDedicatedSignalMeasurementSessionForMeasurementId(measurementRecordId)
-                }
-            } else {
-                dao.getDedicatedSignalMeasurementSession(coverageSessionId)
-            } ?: SignalMeasurementSession() // if not created yet, we create one for registration
+            retrieveCoverageSessionOrCreate(coverageSessionId, measurementRecordId) // if not created yet, we create one for registration
         val deviceInfo = deviceInfo ?: throw DataMissingException("Missing device info")
         val body = coverageSession.toCoverageRequest(clientUUID, deviceInfo, config)
 
@@ -169,6 +161,20 @@ class SignalMeasurementRepositoryImpl(
             throw response.failure
         }
 
+    }
+
+    private fun retrieveCoverageSessionOrCreate(coverageSessionId: String?, measurementRecordId: String?): SignalMeasurementSession {
+        val coverageSession =
+            if (coverageSessionId == null) {
+                if (measurementRecordId == null) {
+                    null
+                } else {
+                    dao.getDedicatedSignalMeasurementSessionForMeasurementId(measurementRecordId)
+                }
+            } else {
+                dao.getDedicatedSignalMeasurementSession(coverageSessionId)
+            } ?: SignalMeasurementSession() // if not created yet, we create one for registration
+        return coverageSession
     }
 
     override fun saveMeasurementChunk(chunk: SignalMeasurementChunk) = io {
@@ -215,6 +221,17 @@ class SignalMeasurementRepositoryImpl(
                     }
                 }
             }
+    }
+
+    override fun sendFences(sessionId: String, fences: List<SignalMeasurementFenceRecord>) {
+        val coverageSession = retrieveCoverageSessionOrCreate(sessionId, null)
+        if (coverageSession.isRegistered()) {
+            clientUUID.value?.let {clientUuid ->
+                val requestBody = coverageSession.toCoverageResultRequest(clientUuid, deviceInfo, config, fences)
+                client.coverageResult(requestBody)
+                // TODO: enqueue sending with worker in case of failed send
+            }
+        }
     }
 
     /**
@@ -334,4 +351,8 @@ class SignalMeasurementRepositoryImpl(
             }
         }
     }
+}
+
+fun SignalMeasurementSession.isRegistered(): Boolean {
+    return this.serverSessionId != null
 }

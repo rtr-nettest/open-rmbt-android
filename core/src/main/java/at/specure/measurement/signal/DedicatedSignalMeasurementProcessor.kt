@@ -24,6 +24,7 @@ import at.specure.test.toLocation
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.flowOn
@@ -123,6 +124,7 @@ class DedicatedSignalMeasurementProcessor @Inject constructor(
         }
     }
 
+    @OptIn(FlowPreview::class)
     private suspend fun startPingClient(signalMeasurementSession: SignalMeasurementSession) {
         val pingHost = signalMeasurementSession.pingServerHost
         val pingPort = signalMeasurementSession.pingServerPort
@@ -143,16 +145,15 @@ class DedicatedSignalMeasurementProcessor @Inject constructor(
             Timber.d("Starting ping client: $configuration")
 //            val evaluator = PingEvaluator(UdpPingFlow(configuration).pingFlow())
             pingEvaluator = PingEvaluator(UdpHmacPingFlow(configuration).pingFlow())
-
-                pingEvaluator?.start()
-                    ?.sample(1000)
-                    ?.collect { pingResult ->
-                    dedicatedSignalMeasurementData.postValue(
-                        dedicatedSignalMeasurementData.value?.copy(
-                            currentPingMs = pingResult?.getRTTMillis()
-                        )
+            pingEvaluator?.start()
+                ?.sample(1000)
+                ?.collect { pingResult ->
+                dedicatedSignalMeasurementData.postValue(
+                    dedicatedSignalMeasurementData.value?.copy(
+                        currentPingMs = pingResult?.getRTTMillis()
                     )
-                }
+                )
+            }
         }
     }
 
@@ -295,14 +296,16 @@ class DedicatedSignalMeasurementProcessor @Inject constructor(
     }
 
     fun onMeasurementStop() {
-        Timber.d("On Measurement Stop called")
-        CoroutineScope(Dispatchers.IO).launch {
+        this.launch {
             try {
                 pingEvaluator?.evaluateAndStop()
                 val lastPoint = dedicatedSignalMeasurementData.value?.points?.lastOrNull()
                 updateSignalFenceAndSaveOnLeaving(lastPoint)
             } finally {
-                // todo: send points
+                signalMeasurementRepository.sendFences(
+                    dedicatedSignalMeasurementData.value?.signalMeasurementSession?.sessionId ?: "",
+                    dedicatedSignalMeasurementData.value?.points ?: emptyList()
+                )
                 cleanData()
             }
         }

@@ -1,12 +1,13 @@
 package at.specure.data
 
 import android.telephony.TelephonyManager
-import at.rmbt.client.control.Capabilities
 import at.rmbt.client.control.CapabilitiesBody
 import at.rmbt.client.control.CellInfoBody
 import at.rmbt.client.control.CellLocationBody
 import at.rmbt.client.control.ClassificationBody
 import at.rmbt.client.control.CoverageRequestBody
+import at.rmbt.client.control.CoverageResultRequestBody
+import at.rmbt.client.control.FenceBody
 import at.rmbt.client.control.IpRequestBody
 import at.rmbt.client.control.NetworkEventBody
 import at.rmbt.client.control.PermissionStatusBody
@@ -20,6 +21,7 @@ import at.rmbt.client.control.SignalItemBody
 import at.rmbt.client.control.SignalMeasurementChunkBody
 import at.rmbt.client.control.SignalMeasurementLocationBody
 import at.rmbt.client.control.SignalMeasurementRequestBody
+import at.rmbt.client.control.SimpleLocationBody
 import at.rmbt.client.control.SpeedBody
 import at.rmbt.client.control.TestLocationBody
 import at.rmbt.client.control.TestResultBody
@@ -36,6 +38,7 @@ import at.specure.data.entity.PermissionStatusRecord
 import at.specure.data.entity.PingRecord
 import at.specure.data.entity.QoSResultRecord
 import at.specure.data.entity.SignalMeasurementChunk
+import at.specure.data.entity.SignalMeasurementFenceRecord
 import at.specure.data.entity.SignalMeasurementRecord
 import at.specure.data.entity.SignalMeasurementSession
 import at.specure.data.entity.SignalRecord
@@ -515,6 +518,52 @@ fun SignalMeasurementSession.toCoverageRequest(clientUUID: String, deviceInfo: D
     version = deviceInfo.clientVersionName,
 )
 
+fun SignalMeasurementSession.toCoverageResultRequest(
+    clientUUID: String,
+    deviceInfo: DeviceInfo,
+    config: Config,
+    fences: List<SignalMeasurementFenceRecord>,
+) = CoverageResultRequestBody(
+    clientUUID = clientUUID,
+    testUUID = this.serverSessionId ?: throw DataMissingException("Missing signal measurement server session ID"),
+    platform = deviceInfo.platform,
+    softwareVersion = deviceInfo.softwareVersionName,
+    timezone = deviceInfo.timezone ?: UNKNOWN,
+    model = deviceInfo.model ?: UNKNOWN,
+    osVersion = deviceInfo.osVersion,
+    device = deviceInfo.device ?: UNKNOWN,
+    capabilities = CapabilitiesBody(
+        classification = ClassificationBody(config.capabilitiesClassificationCount),
+        qos = QoSBody(config.capabilitiesQosSupportsInfo),
+        rmbtHttpStatus = config.capabilitiesRmbtHttp
+    ),
+    clientVersion = deviceInfo.clientVersionName,
+    clientLanguage = deviceInfo.language ?: UNKNOWN,
+    product = deviceInfo.product ?: UNKNOWN,
+    apiLevel = deviceInfo.apiLevel,
+    softwareVersionCode = deviceInfo.softwareVersionCode.toString(),
+    fences = fences.toRequest(startTimeMillis),
+)
+
+fun List<SignalMeasurementFenceRecord>.toRequest(measurementStartMillis: Long): List<FenceBody> {
+    return this.map { it.toRequest(measurementStartMillis) }
+}
+
+fun SignalMeasurementFenceRecord.toRequest(measurementStartMillis: Long): FenceBody = FenceBody(
+    centerLocation = this.location?.toSimpleLocation(),
+    networkTechnologyId = this.technologyId ?: MobileNetworkType.UNKNOWN.intValue,
+    networkTechnologyName = MobileNetworkType.fromValue(this.technologyId ?: MobileNetworkType.UNKNOWN.intValue).displayName,
+    offsetMillis = this.entryTimestampMillis - measurementStartMillis,
+    durationMillis = this.leaveTimestampMillis - this.entryTimestampMillis,
+    fenceRadiusMeters = this.radiusMeters,
+    averagePingMillis = this.avgPingMillis?.toInt(),
+    timestampMicroseconds = this.entryTimestampMillis
+)
+
+fun DeviceInfo.Location.toSimpleLocation(): SimpleLocationBody = SimpleLocationBody(
+    latitude = lat,
+    longitude = long,
+)
 
 fun DeviceInfo.Location.toRequest() = SignalMeasurementLocationBody(
     lat = lat,

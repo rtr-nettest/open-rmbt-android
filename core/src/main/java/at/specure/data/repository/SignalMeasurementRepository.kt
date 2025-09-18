@@ -61,4 +61,6 @@ interface SignalMeasurementRepository {
     fun updateSignalMeasurementPoint(updatedPoint: SignalMeasurementFenceRecord)
 
     fun registerCoverageMeasurement(coverageSessionId: String?, measurementId: String?): Flow<Boolean>
+
+    fun sendFences(sessionId: String, fences: List<SignalMeasurementFenceRecord>)
 }
