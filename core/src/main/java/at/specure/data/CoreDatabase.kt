@@ -93,7 +93,7 @@ import at.specure.data.entity.VoipTestResultRecord
         ConnectivityStateRecord::class,
         HistoryReference::class],
     // Needs to upgraded when schema changes - else: "Room cannot verify the data integrity. Looks like you've changed schema but forgot to update the version number. You can simply fix this by increasing the version number."
-    version = 153
+    version = 154
 )
 @TypeConverters(TypeConverter::class)
 abstract class CoreDatabase : RoomDatabase() {

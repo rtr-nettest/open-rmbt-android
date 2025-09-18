@@ -151,6 +151,8 @@ class SignalMeasurementRepositoryImpl(
                     provider = it.provider,
                     startTimeMillis = coverageSession.startTimeMillis,
                     startResponseReceivedMillis = System.currentTimeMillis(),
+                    maxCoverageMeasurementSeconds = it.maxCoverageMeasurementSeconds,
+                    maxCoverageSessionSeconds = it.maxCoverageMeasurementSeconds,
                 )
             )
         }

@@ -161,5 +161,5 @@ interface ControlServerApi {
      * Request to send coverage measurement result data
      */
     @POST
-    fun coverageResult(@Url url: String, @Body body: CoverageResultRequestBody): Call<CoverageResultResponse>
+    fun coverageResult(@Url url: String, @Body body: CoverageResultRequestBody): Call<BaseResponse>
 }

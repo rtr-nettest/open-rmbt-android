@@ -111,7 +111,7 @@ class ControlServerClient @Inject constructor(private val endpointProvider: Cont
         return api.coverageRequest(endpointProvider.coverageRequestUrl, body).exec(true)
     }
 
-    fun coverageResult(body: CoverageResultRequestBody): Maybe<CoverageResultResponse> {
+    fun coverageResult(body: CoverageResultRequestBody): Maybe<BaseResponse> {
         return api.coverageResult(endpointProvider.coverageResultUrl, body).exec(true)
     }
 }

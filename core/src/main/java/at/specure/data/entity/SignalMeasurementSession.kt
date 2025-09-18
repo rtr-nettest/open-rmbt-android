@@ -60,6 +60,19 @@ data class SignalMeasurementSession(
     val startResponseReceivedMillis: Long = System.currentTimeMillis(),
 
     /**
+     * defines the maximum time in seconds for a single session (thus, is that timer expires a new /coverageRequest is needed. The timer is started
+     * with the actual start of the measurement (this might, in case of no coverage be before response from the coverageRequest is received).
+     *
+     * After timer expiration a new measurement shall be started (as it is done when there is no coverage.
+     */
+    val maxCoverageSessionSeconds: Int? = null,
+
+    /**
+     * defines the maximum total measurement time. After this timeout the coverage measurement must end (thus, the user interface must switch to results
+     */
+    val maxCoverageMeasurementSeconds: Int? = null,
+
+    /**
      * Was the measurement synced with the server - was coverageResult successfully sent?
      */
     val synced: Boolean = false
