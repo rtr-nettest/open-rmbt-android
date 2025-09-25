@@ -10,4 +10,5 @@ data class DedicatedSignalMeasurementData(
     val points: List<SignalMeasurementFenceRecord> = mutableListOf(),
     val currentNetworkType: String? = null,
     val currentPingMs: Double? = null,
+    val currentPingStatus: String? = null,
 )

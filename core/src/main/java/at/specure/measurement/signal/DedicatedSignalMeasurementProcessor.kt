@@ -29,8 +29,10 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.sample
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import javax.inject.Inject
@@ -181,17 +183,33 @@ class DedicatedSignalMeasurementProcessor @Inject constructor(
                 successResponseHeader = PING_PROTOCOL_SUCCESS_RESPONSE_HEADER,
                 errorResponseHeader = PING_PROTOCOL_ERROR_RESPONSE_HEADER
             )
-            Timber.d("Starting ping client: $configuration")
+
 //            val evaluator = PingEvaluator(UdpPingFlow(configuration).pingFlow())
-            pingEvaluator = PingEvaluator(UdpHmacPingFlow(configuration).pingFlow())
-            pingEvaluator?.start()
-                ?.sample(1000)
-                ?.collect { pingResult ->
-                dedicatedSignalMeasurementData.postValue(
-                    dedicatedSignalMeasurementData.value?.copy(
-                        currentPingMs = pingResult?.getRTTMillis()
-                    )
-                )
+            try {
+                Timber.d("Starting ping client: $configuration")
+                pingEvaluator = PingEvaluator(UdpHmacPingFlow(configuration).pingFlow())
+                pingEvaluator?.start()
+                    ?.sample(1000)
+                    ?.catch { e -> // <-- ADD THIS CATCH OPERATOR
+                        Timber.e(e, "Error in pingEvaluator flow before collect")
+                        dedicatedSignalMeasurementData.postValue( dedicatedSignalMeasurementData.value?.copy(currentPingStatus = "Error") )
+                    }
+                    ?.collect { pingResult ->
+                        try {
+                            dedicatedSignalMeasurementData.postValue(
+                                dedicatedSignalMeasurementData.value?.copy(
+                                    currentPingMs = pingResult?.getRTTMillis()
+                                )
+                            )
+                        } catch (innerE: Exception) {
+                            Timber.e(innerE, "Error inside collect block processing pingResult")
+                        }
+                    }
+            } catch (outerE: Exception) {
+                isActive
+                // This will catch exceptions if start() itself throws, or if sample() throws (less likely for sample)
+                // OR if the flow was closed with an exception and .catch was not used before .collect
+                Timber.e(outerE, "Error launching or collecting pingEvaluator flow")
             }
         }
     }
@@ -393,5 +411,14 @@ class DedicatedSignalMeasurementProcessor @Inject constructor(
         loadingPointsJob?.cancel()
         dedicatedSignalMeasurementData.postValue(null)
         signalMeasurementSettings.signalMeasurementLastSessionId = null
+    }
+
+    private fun cleanPingDataOnly() {
+        dedicatedSignalMeasurementData.postValue(
+            dedicatedSignalMeasurementData.value?.copy(
+                currentPingStatus = null,
+                currentPingMs = null,
+            )
+        )
     }
 }

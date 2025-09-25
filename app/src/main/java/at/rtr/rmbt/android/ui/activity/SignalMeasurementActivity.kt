@@ -105,7 +105,11 @@ class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback {
                     this.getString(R.string.measurement_ping_value, pingResult.roundToInt().toString())
                 }
             } else {
-                this.getString(R.string.measurement_dash)
+                if (it?.currentPingStatus != null) {
+                    it.currentPingStatus
+                } else {
+                    this.getString(R.string.measurement_dash)
+                }
             }
         }
 

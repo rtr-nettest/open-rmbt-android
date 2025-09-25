@@ -35,7 +35,17 @@ class UdpHmacPingFlow(
     private val logsEnabled = false
 
     fun pingFlow(): Flow<PingResult> = channelFlow {
-        val address = InetAddress.getByName(configuration.host)
+        val address = try {
+            InetAddress.getByName(configuration.host)
+        } catch (e: java.net.UnknownHostException) {
+            println("Unknown host: ${configuration.host} -> ${e.message}")
+            e.printStackTrace()
+            // Send a PingResult.ClientError for sequence 0, or just exit flow
+            send(PingResult.ClientError(0, e))
+            close(e) // stop the flow
+            return@channelFlow
+        }
+
         val socket = DatagramSocket().apply { soTimeout = configuration.pingTimeoutMillis.toInt() }
         val charset = StandardCharsets.US_ASCII
         val byteOrder = ByteOrder.BIG_ENDIAN

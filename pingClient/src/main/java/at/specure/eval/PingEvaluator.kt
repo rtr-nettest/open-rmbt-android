@@ -1,6 +1,7 @@
 package at.specure.eval
 
 import at.specure.client.PingResult
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -34,20 +35,32 @@ class PingEvaluator(private val pingFlow: Flow<PingResult>) {
         } // already running
         if (debugLog) println("✅ Ping job starting")
         results.clear()
-        job = launch {
-            pingFlow.collect { result ->
-                mutex.withLock {
-                    results.add(result.getRTTMillis())
-                    if (debugLog) when (result) {
-                        is PingResult.Success -> println("✅ Ping ${result.sequenceNumber} - RTT: ${result.rttMillis} ms")
-                        is PingResult.Lost -> println("⚠️  Ping ${result.sequenceNumber} - Timeout")
-                        is PingResult.ClientError -> println("❌ Ping ${result.sequenceNumber} - ${result.exception}")
-                        is PingResult.ServerError -> println("❌ Ping ${result.sequenceNumber} - Server error")
+        job = launch { // This is the CoroutineScope(Dispatchers.Default).coroutineContext + Job()
+            try {
+                pingFlow.collect { result ->
+                    mutex.withLock {
+                        results.add(result.getRTTMillis())
+                        if (debugLog) when (result) {
+                            is PingResult.Success -> println("✅ Ping ${result.sequenceNumber} - RTT: ${result.rttMillis} ms")
+                            is PingResult.Lost -> println("⚠️  Ping ${result.sequenceNumber} - Timeout")
+                            is PingResult.ClientError -> println("❌ Ping ${result.sequenceNumber} - ${result.exception}")
+                            is PingResult.ServerError -> println("❌ Ping ${result.sequenceNumber} - Server error")
+                        }
+                        trySend(result) // Send the original result
                     }
-                    trySend(result)
                 }
+                // Flow completed normally
+                close()
+            } catch (e: CancellationException) {
+                if (debugLog) println("Ping collection job cancelled: ${e.message}")
+                throw e // Rethrow CancellationException to ensure the coroutine cancels properly
+            } catch (e: Exception) {
+                // An exception occurred in pingFlow (e.g., from UdpHmacPingFlow's close(e))
+                if (debugLog) println("❌ Error collecting pingFlow: ${e.message}")
+                close(e) // This will make the collector of start()'s flow receive the error
             }
         }
+
     }
 
     /**
