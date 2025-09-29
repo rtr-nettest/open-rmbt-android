@@ -54,11 +54,14 @@ import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.onCompletion
 import kotlinx.coroutines.flow.zip
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import timber.log.Timber
 import java.util.Timer
 import java.util.concurrent.TimeUnit
@@ -795,33 +798,30 @@ class MeasurementService : CustomLifecycleService(), CoroutineScope {
         }
     }
 
-    fun loadTestResults(testUUIDType: TestUuidType, testUUID: String) {
+    suspend fun loadTestResults(testUUIDType: TestUuidType, testUUID: String) {
         when (testUUIDType) {
-            TestUuidType.TEST_UUID -> launch {
+            TestUuidType.TEST_UUID -> coroutineScope {
                 delay(1000)
-                testResultsRepository.loadTestResults(testUUID).zip(
-                    testResultsRepository.loadTestDetailsResult(testUUID)
-                ) { a, b -> a && b }
+                testResultsRepository.loadTestResults(testUUID)
+                    .zip(testResultsRepository.loadTestDetailsResult(testUUID)) { a, b -> a && b }
                     .flowOn(Dispatchers.IO)
+                    .collect { result ->
+                        Timber.d("Results loaded? $result")
+                    }
             }
-            TestUuidType.LOOP_UUID -> {
+            TestUuidType.LOOP_UUID -> withContext(Dispatchers.IO) {
                 Timber.d("Starting to load Median values")
-                io {
-                    delay(1000) // added because of BE QOS part processing performance issue
-                    historyRepository.loadHistoryItems(0, 100, true).onSuccess {
-                        if (it?.isNotEmpty() == true) {
-                            Timber.d("History Successfully loaded: ${it[0]?.loopUUID} ${it[0]?.speedDownload}  from size: ${it.size}")
-                        } else {
-                            Timber.d("History is empty")
-                        }
-                        historyRepository.loadLoopMedianValues(testUUID).onCompletion {
-                        }.collect {
-                            Timber.d("Median values median values? $it")
-                            Timber.d("Median values median qosMedian? $it?.qosMedian")
-                            it?.qosMedian?.let { qosMedian ->
-                                Timber.d("Median values $qosMedian")
-                                testResultsRepository.saveOverallQosItem(qosMedian, testUUID)
-                            }
+                delay(1000) // workaround for BE QOS perf issue
+                historyRepository.loadHistoryItems(0, 100, true).onSuccess {
+                    if (it?.isNotEmpty() == true) {
+                        Timber.d("History loaded: ${it[0]?.loopUUID}, ${it[0]?.speedDownload}, size: ${it.size}")
+                    } else {
+                        Timber.d("History is empty")
+                    }
+                    historyRepository.loadLoopMedianValues(testUUID).collect { median ->
+                        Timber.d("Median values: $median, qosMedian=${median?.qosMedian}")
+                        median?.qosMedian?.let { qosMedian ->
+                            testResultsRepository.saveOverallQosItem(qosMedian, testUUID)
                         }
                     }
                 }
