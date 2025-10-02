@@ -901,7 +901,9 @@ data class HistoryRequestBody(
     val language: String,
     val devices: List<String>?,
     val networks: List<String>?,
-    val capabilities: CapabilitiesBody
+    val capabilities: CapabilitiesBody,
+    @SerializedName("include_coverage_fences")
+    val includeCoverageFences: Boolean,
 )
 
 @Keep
@@ -1174,6 +1176,27 @@ data class FenceBody(
     val averagePingMillis: Int?,
     @SerializedName("timestamp_microseconds")
     val timestampMicroseconds: Long, // absolute client time in microseconds
+)
+
+@Keep
+data class FenceResponseBody(
+    @SerializedName("fence_id")
+    val fenceId: Long,
+    @SerializedName("technology_id")
+    val networkTechnologyId: Int, // 41
+    @Deprecated("Client should use technologyId and convert to string")
+    @SerializedName("technology")
+    val networkTechnologyName: String?, // "NR NSA"
+    val latitude: Double,
+    val longitude: Double,
+    @SerializedName("radius")
+    val fenceRadiusMeters: Int,
+    @SerializedName("duration_ms")
+    val durationMillis: Long, // duration of fence in millis
+    @SerializedName("offset_ms")
+    val offsetMillis: Long, // from the start of the test - official start is when coverage response arrives so it can be negative too
+    @SerializedName("avg_ping_ms")
+    val averagePingMillis: Double?,
 )
 
 @Keep

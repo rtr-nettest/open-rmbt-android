@@ -7,6 +7,7 @@ import at.specure.data.dao.CapabilitiesDao
 import at.specure.data.dao.CellInfoDao
 import at.specure.data.dao.CellLocationDao
 import at.specure.data.dao.ConnectivityStateDao
+import at.specure.data.dao.FencesResultItemDao
 import at.specure.data.dao.GeoLocationDao
 import at.specure.data.dao.GraphItemDao
 import at.specure.data.dao.HistoryDao
@@ -31,6 +32,7 @@ import at.specure.data.entity.CapabilitiesRecord
 import at.specure.data.entity.CellInfoRecord
 import at.specure.data.entity.CellLocationRecord
 import at.specure.data.entity.ConnectivityStateRecord
+import at.specure.data.entity.FencesResultItemRecord
 import at.specure.data.entity.GeoLocationRecord
 import at.specure.data.entity.GraphItemRecord
 import at.specure.data.entity.History
@@ -60,9 +62,11 @@ import at.specure.data.entity.TestWlanRecord
 import at.specure.data.entity.VoipTestResultRecord
 
 @Database(
-    entities = [CapabilitiesRecord::class,
+    entities = [
+        CapabilitiesRecord::class,
         CellInfoRecord::class,
         CellLocationRecord::class,
+        FencesResultItemRecord::class,
         GeoLocationRecord::class,
         GraphItemRecord::class,
         History::class,
@@ -91,9 +95,10 @@ import at.specure.data.entity.VoipTestResultRecord
         SignalMeasurementFenceRecord::class,
         SignalMeasurementSession::class,
         ConnectivityStateRecord::class,
-        HistoryReference::class],
+        HistoryReference::class,
+               ],
     // Needs to upgraded when schema changes - else: "Room cannot verify the data integrity. Looks like you've changed schema but forgot to update the version number. You can simply fix this by increasing the version number."
-    version = 154
+    version = 156
 )
 @TypeConverters(TypeConverter::class)
 abstract class CoreDatabase : RoomDatabase() {
@@ -119,6 +124,7 @@ abstract class CoreDatabase : RoomDatabase() {
     abstract fun testResultDao(): TestResultDao
     abstract fun testResultDetailsDao(): TestResultDetailsDao
     abstract fun testResultGraphItemDao(): TestResultGraphItemDao
+    abstract fun fencesResultItemDao(): FencesResultItemDao
     abstract fun mapDao(): MapDao
     abstract fun signalMeasurementDao(): SignalMeasurementDao
     abstract fun connectivityStateDao(): ConnectivityStateDao

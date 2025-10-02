@@ -525,4 +525,7 @@
     <string name="stop_signal_measurement_text">Do you want to end the measurement?</string>
     <string name="no_gps_or_insufficient_precision">No GPS signal or GPS quality is insufficient. Please move outdoors.</string>
     <string name="noSignal">No signal</string>
+    <string name="coverage_result">Coverage result</string>
+    <string name="number_of_fences_is">Number of fences is</string>
+    <string name="title_coverage_loop_mode">Coverage loop mode</string>
 </resources>

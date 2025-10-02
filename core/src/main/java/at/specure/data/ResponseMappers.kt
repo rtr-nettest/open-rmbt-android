@@ -1,5 +1,6 @@
 package at.specure.data
 
+import at.rmbt.client.control.FenceResponseBody
 import at.rmbt.client.control.HistoryItemONTResponse
 import at.rmbt.client.control.HistoryItemResponse
 import at.rmbt.client.control.HistoryONTResponse
@@ -25,6 +26,7 @@ import at.rmbt.client.control.SpeedGraphItemResponseONT
 import at.rmbt.client.control.TestResultDetailItem
 import at.rmbt.client.control.TestResultDetailResponse
 import at.rmbt.client.control.data.MapFilterType
+import at.specure.data.entity.FencesResultItemRecord
 import at.specure.data.entity.History
 import at.specure.data.entity.MarkerMeasurementRecord
 import at.specure.data.entity.QoeInfoRecord
@@ -72,7 +74,9 @@ fun HistoryItemResponse.toModel() = History(
     jitterMillis = jitterMillisResult,
     packetLossPercents = packetLossPercents,
     packetLossClassification = classificationPacketLoss?.let { Classification.fromValue(it) },
-    jitterClassification = classificationJitter?.let { Classification.fromValue(it) }
+    jitterClassification = classificationJitter?.let { Classification.fromValue(it) },
+    isCoverageResult = isCoverageFences,
+    fencesCount = fencesCount,
 )
 
 fun HistoryONTResponse.toModelList(): List<History> =
@@ -120,7 +124,9 @@ fun HistoryItemONTResponse.toModel(): History {
             packetLossPercents?.roundToInt().toString()
         },
         packetLossClassification = Classification.NONE,
-        jitterClassification = Classification.NONE
+        jitterClassification = Classification.NONE,
+        isCoverageResult = false,
+        fencesCount = 0
     )
 }
 
@@ -226,6 +232,21 @@ fun SpeedGraphItemResponse.toModel(testUUID: String, type: TestResultGraphItemRe
         time = timeMillis,
         value = bytes,
         type = type
+    )
+}
+
+fun FenceResponseBody.toModel(testUUID: String): FencesResultItemRecord {
+    return FencesResultItemRecord(
+        testUUID = testUUID,
+        fenceRemoteId = this.fenceId,
+        networkTechnologyId = this.networkTechnologyId,
+        networkTechnologyName = this.networkTechnologyName,
+        latitude = this.latitude,
+        longitude = this.longitude,
+        fenceRadiusMeters = this.fenceRadiusMeters,
+        durationMillis = this.durationMillis,
+        offsetMillis = this.offsetMillis,
+        averagePingMillis = this.averagePingMillis,
     )
 }
 

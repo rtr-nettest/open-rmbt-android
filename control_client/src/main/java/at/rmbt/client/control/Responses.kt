@@ -118,6 +118,8 @@ data class SpeedCurveBodyResponse(
     val speedCurve: SpeedCurveResponse
 ) : BaseResponse()
 
+
+@Deprecated("Should not be used anymore")
 @Keep
 data class SpeedCurveBodyResponseONT(
     // a lot of fields are not important for us, so we will parse only those one we need
@@ -137,7 +139,9 @@ data class SpeedCurveResponse(
     val ping: List<PingGraphItemResponse>,
 
     @SerializedName("signal")
-    val signal: List<SignalGraphItemResponse>
+    val signal: List<SignalGraphItemResponse>,
+
+    val fences: List<FenceResponseBody>?
 )
 
 @Keep
@@ -673,7 +677,9 @@ data class HistoryItemResponse(
     @SerializedName("classification_jitter")
     val classificationJitter: Int?,
     @SerializedName("classification_packet_loss")
-    val classificationPacketLoss: Int?
+    val classificationPacketLoss: Int?,
+    val isCoverageFences: Boolean?,
+    val fencesCount: Int?,
 )
 
 @Keep

@@ -18,6 +18,7 @@ object Tables {
     const val CAPABILITIES = "capabilities"
     const val CELL_INFO = "cell_info"
     const val CELL_LOCATION = "cell_location"
+    const val FENCES_RESULT_ITEM = "fences_result_item"
     const val GEO_LOCATION = "geo_location"
     const val HISTORY = "history"
     const val HISTORY_MEDIAN = "history_median"
