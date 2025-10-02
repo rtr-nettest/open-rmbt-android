@@ -67,6 +67,7 @@ import java.util.Timer
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import javax.inject.Named
+import kotlin.concurrent.schedule
 import kotlin.concurrent.timerTask
 import kotlin.coroutines.EmptyCoroutineContext
 
@@ -91,7 +92,7 @@ class MeasurementService : CustomLifecycleService(), CoroutineScope {
         inactivityTimer.purge()
         inactivityTimer = Timer()
         Timber.d("RMBTClient inactivity checking started")
-        inactivityTimer.scheduleAtFixedRate(
+        inactivityTimer.schedule(
             timerTask {
                 val isNotResponding = !isRMBTClientResponding()
                 if (isNotResponding) {
@@ -415,16 +416,19 @@ class MeasurementService : CustomLifecycleService(), CoroutineScope {
                             clientAggregator.onSubmitted()
                         }
                         clientAggregator.onResultSubmitted()
-                        loadTestResults(
-                            if (loopUUID == null) {
-                                TestUuidType.TEST_UUID
-                            } else {
-                                TestUuidType.LOOP_UUID
-                            }, loopUUID ?: testUUID
-                        )
+                        Timber.d("Loop uuid = $loopUUID Length = ${loopUUID?.length} Loop is null = ${loopUUID == null}}")
+                        CoroutineScope(Dispatchers.IO + SupervisorJob()).launch {
+                            loadTestResults(
+                                if (loopUUID == null) {
+                                    TestUuidType.TEST_UUID
+                                } else {
+                                    TestUuidType.LOOP_UUID
+                                }, loopUUID ?: testUUID
+                            )
+                        }
                     }
                     it.onFailure { ex ->
-
+                        Timber.d("Sending results failed")
                         if (shouldShowResults) {
                             clientAggregator.onSubmitted()
                         }
@@ -698,7 +702,7 @@ class MeasurementService : CustomLifecycleService(), CoroutineScope {
         if (isBetweenTwoLoopTests()) {
             scheduleNextLoopTest()
         }
-        Timber.d("RUNNER IS RUNNING: ${runner.isRunning}")
+        Timber.d("TRS RUNNER IS RUNNING: ${runner.isRunning}")
     }
 
     private fun isBetweenTwoLoopTests() : Boolean {
@@ -843,6 +847,7 @@ class MeasurementService : CustomLifecycleService(), CoroutineScope {
                 onUploadSpeedChanged(measurementProgress, uploadSpeedBps)
                 isQoSEnabled(config.shouldRunQosTest)
                 runner.testUUID?.let {
+                    Timber.d("TRS sending result adding client inner class")
                     onClientReady(it, stateRecorder.loopLocalUuid)
                 }
                 if (hasErrors) {
@@ -909,6 +914,7 @@ class MeasurementService : CustomLifecycleService(), CoroutineScope {
         private val clients = mutableSetOf<MeasurementClient>()
 
         fun addClient(client: MeasurementClient) {
+            Timber.d("Adding Test data sent client: $client to clients: ${clients.size}")
             clients.add(client)
         }
 
@@ -960,6 +966,7 @@ class MeasurementService : CustomLifecycleService(), CoroutineScope {
 
         override fun onClientReady(testUUID: String, loopLocalUUID: String?) {
             clients.forEach {
+                Timber.d("TRS onClient ready agregator: ${testUUID}")
                 it.onClientReady(testUUID, loopLocalUUID)
             }
         }
