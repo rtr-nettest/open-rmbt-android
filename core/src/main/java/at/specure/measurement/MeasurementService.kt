@@ -415,13 +415,16 @@ class MeasurementService : CustomLifecycleService(), CoroutineScope {
                             clientAggregator.onSubmitted()
                         }
                         clientAggregator.onResultSubmitted()
-                        loadTestResults(
-                            if (loopUUID == null) {
-                                TestUuidType.TEST_UUID
-                            } else {
-                                TestUuidType.LOOP_UUID
-                            }, loopUUID ?: testUUID
-                        )
+                        Timber.d("Loop uuid = $loopUUID Length = ${loopUUID?.length} Loop is null = ${loopUUID == null}}")
+                        CoroutineScope(Dispatchers.IO + SupervisorJob()).launch {
+                            loadTestResults(
+                                if (loopUUID == null) {
+                                    TestUuidType.TEST_UUID
+                                } else {
+                                    TestUuidType.LOOP_UUID
+                                }, loopUUID ?: testUUID
+                            )
+                        }
                     }
                     it.onFailure { ex ->
 
