@@ -185,7 +185,8 @@ fun ServerTestResultItem.toModel(testUUID: String): TestResultRecord {
         jitterMillis = measurementItem.jitterMillis?.toDoubleOrNull(),
         packetLossPercents = measurementItem.packetLossPercents?.toDoubleOrNull(),
         packetLossClass = measurementItem.packetLossClass?.let { Classification.fromValue(it) },
-        jitterClass = measurementItem.jitterClass?.let { Classification.fromValue(it) }
+        jitterClass = measurementItem.jitterClass?.let { Classification.fromValue(it) },
+        status = status
     )
 }
 

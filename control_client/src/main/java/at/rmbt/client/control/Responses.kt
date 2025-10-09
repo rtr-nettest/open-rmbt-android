@@ -332,7 +332,13 @@ data class ServerTestResultItem(
      * List with all QoE classifications
      */
     @SerializedName("qoe_classification")
-    val qoeClassifications: List<QoEClassification>
+    val qoeClassifications: List<QoEClassification>,
+
+    /**
+     * Test status, "coverage" for Coverage measurement
+     */
+    @SerializedName("status")
+    val status: String?
 )
 
 @Keep

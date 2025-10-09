@@ -140,5 +140,11 @@ data class TestResultRecord(
 
     val jitterClass: Classification?,
 
-    val packetLossClass: Classification?
+    val packetLossClass: Classification?,
+
+    val status: String?,
 )
+
+fun TestResultRecord.isCoverageResult(): Boolean {
+    return status?.compareTo("coverage", true) == 0
+}

@@ -25,6 +25,7 @@ import at.rtr.rmbt.android.util.listen
 import at.rtr.rmbt.android.viewmodel.ResultViewModel
 import at.specure.data.NetworkTypeCompat
 import at.specure.data.entity.TestResultRecord
+import at.specure.data.entity.isCoverageResult
 import timber.log.Timber
 import java.lang.IllegalStateException
 import java.util.Timer
@@ -228,6 +229,14 @@ class ResultsActivity : BaseActivity() {
     }
 
     private fun setUpMap(result: TestResultRecord) {
+        if (result.isCoverageResult()) {
+            setUpCoverageMeasurementMap(result)
+        } else {
+            setUpSpeedMeasurementMap(result)
+        }
+    }
+
+    private fun setUpSpeedMeasurementMap(result: TestResultRecord) {
         if (result.latitude != null && result.longitude != null) {
             val latLngW = LatLngW(result.latitude!!, result.longitude!!)
 
@@ -235,11 +244,13 @@ class ResultsActivity : BaseActivity() {
                 NetworkTypeCompat.TYPE_BLUETOOTH,
                 NetworkTypeCompat.TYPE_VPN,
                 NetworkTypeCompat.TYPE_UNKNOWN -> R.drawable.ic_marker_empty
+
                 NetworkTypeCompat.TYPE_LAN -> R.drawable.ic_marker_ethernet
                 NetworkTypeCompat.TYPE_BROWSER -> R.drawable.ic_marker_browser
                 NetworkTypeCompat.TYPE_WLAN -> R.drawable.ic_marker_wifi
                 NetworkTypeCompat.TYPE_5G_AVAILABLE,
                 NetworkTypeCompat.TYPE_4G -> R.drawable.ic_marker_4g
+
                 NetworkTypeCompat.TYPE_3G -> R.drawable.ic_marker_3g
                 NetworkTypeCompat.TYPE_2G -> R.drawable.ic_marker_2g
                 NetworkTypeCompat.TYPE_5G_NSA,
@@ -265,6 +276,10 @@ class ResultsActivity : BaseActivity() {
                 }
             }
         }
+    }
+
+    private fun setUpCoverageMeasurementMap(result: TestResultRecord) {
+        // todo: prepare map with fences
     }
 
     private fun mapW(): MapWrapper = binding.map.mapWrapper
