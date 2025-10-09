@@ -236,10 +236,8 @@
     <string name="toast_sync_code_copied_to_clipboard">Kopiert</string>
     <string name="hint_sync_code">Code</string>
     <string name="error_sync_code_short">Der Code muss aus zwölf Zeichen bestehen</string>
-    <string name="notification_signal_test_title">Die Signalmessung läuft</string>
     <string name="notification_signal_test_text">RTR-Netztest Signalmessung läuft im Hintergrund</string>
     <string name="notification_loop_mode_finished_title">Der Wiederholungsmodus ist beendet</string>
-    <string name="toast_signal_measurement_enabled">Die Signalmessung wurde gestartet.</string>
     <string name="error_no_connection">Keine Netzwerksverbindung: Einträge konnten nicht geladen werden.</string>
     <string name="label_map_filters">Karten-Einstellugen</string>
     <string name="text_filter_confirm">übernehmen</string>
@@ -317,4 +315,9 @@
     <string name="notification_permission_explanation">Die Benachrichtigungsberechtigung ist erforderlich, um die App während im Hintergrund ausgeführter Messungen am Leben zu halten. Ohne Benachrichtigungsberechtigung können Sie den Messfortschritt nicht verfolgen, wenn die App im Hintergrund läuft. Die Benachrichtigungsberechtigung ist erforderlich, damit der Schleifenmodus im Hintergrund ausgeführt werden kann.</string>
     <string name="preferences_unable_to_find_browser_app">Der Standard-Web-Browser ist nicht verfügbar.</string>
     <string name="title_loop_instruction_3">Berechtigungen</string>
+    <string name="more_sims_active_dialog_text">Coverage measurement only supports single SIM. Please deactivate second SIM.</string>
+    <string name="home_signal_measurement_toggle_on">Coverage measurement toggle on</string>
+    <string name="home_signal_measurement_toggle_off">Coverage measurement toggle off</string>
+    <string name="toast_signal_measurement_enabled">Die Signalmessung wurde gestartet.</string>
+    <string name="notification_signal_test_title">Die Signalmessung läuft</string>
 </resources>

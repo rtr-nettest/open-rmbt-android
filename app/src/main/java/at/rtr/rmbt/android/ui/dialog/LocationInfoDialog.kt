@@ -20,12 +20,14 @@ import at.specure.location.LocationWatcher
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import kotlin.math.max
+import javax.inject.Named
 
 class LocationInfoDialog : FullscreenDialog() {
 
     private lateinit var binding: DialogLocationInfoBinding
 
     @Inject
+    @Named("GPSAndNetworkLocationProvider")
     lateinit var locationWatcher: LocationWatcher
 
     private var locationAge = 0L

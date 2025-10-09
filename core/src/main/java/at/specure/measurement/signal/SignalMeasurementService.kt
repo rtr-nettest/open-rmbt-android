@@ -13,7 +13,7 @@ import android.os.PowerManager
 import androidx.lifecycle.LiveData
 import at.specure.di.CoreInjector
 import at.specure.di.NotificationProvider
-import at.specure.test.SignalMeasurementType
+import at.rmbt.client.control.data.SignalMeasurementType
 import at.specure.util.CustomLifecycleService
 import timber.log.Timber
 import java.text.SimpleDateFormat
@@ -110,9 +110,9 @@ class SignalMeasurementService : CustomLifecycleService() {
         isUnstoppable = false
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            startForeground(NOTIFICATION_ID, notificationProvider.signalMeasurementService(stopIntent(this)), FOREGROUND_SERVICE_TYPE_SPECIAL_USE)
+            startForeground(NOTIFICATION_ID, notificationProvider.signalMeasurementService(null), FOREGROUND_SERVICE_TYPE_SPECIAL_USE)
         } else {
-            startForeground(NOTIFICATION_ID, notificationProvider.signalMeasurementService(stopIntent(this)))
+            startForeground(NOTIFICATION_ID, notificationProvider.signalMeasurementService(null))
         }
     }
 
@@ -175,6 +175,9 @@ class SignalMeasurementService : CustomLifecycleService() {
 
         override val pausedStateLiveData: LiveData<Boolean>
             get() = processor.pausedStateLiveData
+
+        override val signalMeasurementSessionIdLiveData: LiveData<String?>
+            get() = processor.signalMeasurementSessionIdLiveData
 
         override fun startMeasurement(unstoppable: Boolean, signalMeasurementType: SignalMeasurementType) {
             this@SignalMeasurementService.isUnstoppable = unstoppable

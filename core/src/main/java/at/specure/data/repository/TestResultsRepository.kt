@@ -1,6 +1,7 @@
 package at.specure.data.repository
 
 import androidx.lifecycle.LiveData
+import at.specure.data.entity.FencesResultItemRecord
 import at.specure.data.entity.QoeInfoRecord
 import at.specure.data.entity.QosCategoryRecord
 import at.specure.data.entity.QosTestGoalRecord
@@ -24,6 +25,8 @@ interface TestResultsRepository {
     fun getTestDetailsResult(testUUID: String): LiveData<List<TestResultDetailsRecord>>
 
     fun getGraphDataLiveData(testUUID: String, type: TestResultGraphItemRecord.Type): LiveData<List<TestResultGraphItemRecord>>
+
+    fun getFencesDataLiveData(testUUID: String): LiveData<List<FencesResultItemRecord>>
 
     fun getQosTestCategoriesResult(testUUID: String): LiveData<List<QosCategoryRecord>>
 

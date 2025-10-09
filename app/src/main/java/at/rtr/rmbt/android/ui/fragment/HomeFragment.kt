@@ -38,7 +38,6 @@ import at.specure.location.LocationState
 import at.specure.measurement.MeasurementService
 import at.specure.util.hasPermission
 import at.specure.util.openAppSettings
-import at.specure.util.toast
 import timber.log.Timber
 import java.lang.IndexOutOfBoundsException
 import kotlin.math.max
@@ -54,8 +53,8 @@ class HomeFragment : BaseFragment() {
         registerForActivityResult(
             ActivityResultContracts.StartActivityForResult()) {
             if (it.resultCode == Activity.RESULT_OK) {
-                homeViewModel.toggleSignalMeasurementService()
-                requireContext().toast(R.string.toast_signal_measurement_enabled)
+//                homeViewModel.toggleSignalMeasurementService()
+//                requireContext().toast(R.string.toast_signal_measurement_enabled)
             }
         }
 
@@ -202,8 +201,7 @@ class HomeFragment : BaseFragment() {
                 if (!active) {
                     val checksPassed = isSignalMeasurementPrechecksPassed()
                     if (checksPassed) {
-                        val intent = SignalMeasurementTermsActivity.start(requireContext())
-                        getSignalMeasurementResult.launch(intent)
+                        openSignalMeasurementTermsActivity()
                     }
                 } else {
                     homeViewModel.toggleSignalMeasurementService()
@@ -267,6 +265,15 @@ class HomeFragment : BaseFragment() {
         }
     }
 
+    private fun openSignalMeasurementTermsActivity() {
+        val intent = SignalMeasurementTermsActivity.start(requireContext())
+        getSignalMeasurementResult.launch(intent)
+    }
+
+    private fun openSignalMeasurementActivity() {
+        SignalMeasurementActivity.start(requireContext())
+    }
+
     private fun doGPSRelatedActionOrShowProblemDialog(action: () -> Unit): Boolean {
         context?.let {
             homeViewModel.state.isLocationEnabled.get()?.let {
@@ -324,6 +331,16 @@ class HomeFragment : BaseFragment() {
         }
         checkInformationAvailability()
         homeViewModel.state.informationAccessProblem.get()?.let { updateProblemUI(it) }
+
+        continueInSignalMeasurementIfShould()
+    }
+
+    private fun continueInSignalMeasurementIfShould() {
+        if (homeViewModel.shouldOpenSignalMeasurementScreen()) {
+
+            homeViewModel.setSignalMeasurementShouldContinueInLastSession(true)
+            openSignalMeasurementActivity()
+        }
     }
 
     private fun isSignalMeasurementPrechecksPassed(): Boolean {

@@ -49,4 +49,5 @@ dependencies {
     implementation "com.jakewharton.timber:timber:$versions.timber"
     implementation "androidx.appcompat:appcompat:$versions.appcompat"
     implementation "androidx.test.ext:junit-ktx:$versions.kotlin_junit"
+    implementation 'com.google.android.gms:play-services-maps:19.0.0'
 }

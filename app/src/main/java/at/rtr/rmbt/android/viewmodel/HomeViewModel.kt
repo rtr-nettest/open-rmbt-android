@@ -7,14 +7,19 @@ import android.os.IBinder
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.asFlow
 import androidx.lifecycle.map
 import at.rmbt.client.control.NewsItem
 import at.rtr.rmbt.android.config.AppConfig
 import at.rtr.rmbt.android.ui.viewstate.HomeViewState
 import at.specure.data.ClientUUID
 import at.specure.data.MeasurementServers
+import at.specure.data.SignalMeasurementSettings
+import at.specure.data.entity.SignalMeasurementFenceRecord
+import at.specure.data.entity.SignalRecord
 import at.specure.data.repository.NewsRepository
 import at.specure.data.repository.SettingsRepository
+import at.specure.data.repository.SignalMeasurementRepository
 import at.specure.info.TransportType
 import at.specure.info.cell.CellNetworkInfo
 import at.specure.info.connectivity.ConnectivityInfoLiveData
@@ -22,21 +27,31 @@ import at.specure.info.ip.IpV4ChangeLiveData
 import at.specure.info.ip.IpV6ChangeLiveData
 import at.specure.info.network.ActiveNetworkLiveData
 import at.specure.info.strength.SignalStrengthLiveData
+import at.specure.location.LocationInfo
 import at.specure.location.LocationState
 import at.specure.location.LocationWatcher
+import at.specure.location.isAccuracyEnoughForSignalMeasurement
+import at.specure.measurement.signal.DedicatedSignalMeasurementProcessor
 import at.specure.measurement.signal.SignalMeasurementProducer
 import at.specure.measurement.signal.SignalMeasurementService
-import at.specure.test.SignalMeasurementType
+import at.rmbt.client.control.data.SignalMeasurementType
+import at.specure.measurement.signal.DedicatedSignalMeasurementData
+import at.specure.util.map.CustomMarker
 import at.specure.util.permission.PermissionsWatcher
 import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import javax.inject.Inject
+import javax.inject.Named
+
+const val LOCATION_ACCURACY_WARNING_DIALOG_SILENCED_TIME_MILLIS = 60_000L
 
 class HomeViewModel @Inject constructor(
-    private val locationWatcher: LocationWatcher,
+    @Named("GPSAndFusedLocationProvider") private val locationWatcher: LocationWatcher,
     val signalStrengthLiveData: SignalStrengthLiveData,
     connectivityInfoLiveData: ConnectivityInfoLiveData,
     val activeNetworkLiveData: ActiveNetworkLiveData,
@@ -47,7 +62,11 @@ class HomeViewModel @Inject constructor(
     private val appConfig: AppConfig,
     private val newsRepository: NewsRepository,
     private val settingsRepository: SettingsRepository,
-    measurementServers: MeasurementServers
+    private val signalMeasurementRepository: SignalMeasurementRepository,
+    private val dedicatedSignalMeasurementProcessor: DedicatedSignalMeasurementProcessor,
+    measurementServers: MeasurementServers,
+    private val signalMeasurementSettings: SignalMeasurementSettings,
+    private val customMarker: CustomMarker,
 ) : BaseViewModel() {
 
     val state = HomeViewState(appConfig, measurementServers)
@@ -58,8 +77,17 @@ class HomeViewModel @Inject constructor(
         it != null
     }
 
+    private var loadPointJob: Job? = null
+
     val locationStateLiveData: LiveData<LocationState?>
         get() = locationWatcher.stateLiveData
+
+    val locationLiveData: LiveData<LocationInfo?>
+        get() = locationWatcher.liveData
+
+    private var _pointsLiveData = MutableLiveData<List<SignalMeasurementFenceRecord>>()
+    private var _dedicatedSignalMeasurementSessionIdLiveData : LiveData<String?> = MutableLiveData<String>(null)
+    private var _dedicatedSignalMeasurementDataLiveData : LiveData<DedicatedSignalMeasurementData?> = dedicatedSignalMeasurementProcessor.dedicatedSignalMeasurementData
 
     private var producer: SignalMeasurementProducer? = null
     private var _activeMeasurementSource: LiveData<Boolean>? = null
@@ -67,9 +95,19 @@ class HomeViewModel @Inject constructor(
 
     private var _pausedMeasurementSource: LiveData<Boolean>? = null
     private var _pausedMeasurementMediator = MediatorLiveData<Boolean>()
+    private var _currentSignalMeasurementMapPointsLiveData: LiveData<List<SignalMeasurementFenceRecord>>? = null
     private var toggleService: Boolean = false
 
     private var _getNewsLiveData = MutableLiveData<List<NewsItem>?>()
+
+    val dedicatedSignalMeasurementDataLiveData : LiveData<DedicatedSignalMeasurementData?>
+        get() = _dedicatedSignalMeasurementDataLiveData
+
+    val dedicatedSignalMeasurementSessionIdLiveData : LiveData<String?>
+        get() = _dedicatedSignalMeasurementSessionIdLiveData
+
+    val currentSignalMeasurementMapPointsLiveData: LiveData<List<SignalMeasurementFenceRecord>>
+        get() = dedicatedSignalMeasurementProcessor.signalPoints // _pointsLiveData
 
     val activeSignalMeasurementLiveData: LiveData<Boolean>
         get() = _activeMeasurementMediator
@@ -86,15 +124,20 @@ class HomeViewModel @Inject constructor(
     val isalwaysAllowCellInfosOn: Boolean
         get() = appConfig.alwaysAllowCellInfos
 
+    val customMarkerProvider: CustomMarker
+        get() = customMarker
+
     private val serviceConnection = object : ServiceConnection {
 
         override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
+            Timber.d("Signal measurement service connected")
             producer = service as SignalMeasurementProducer
 
             if (producer != null && toggleService) {
                 toggleService = false
                 toggleSignalMeasurementService()
             }
+
 
             _activeMeasurementSource = producer?.activeStateLiveData
             _activeMeasurementSource?.let { lv ->
@@ -109,9 +152,14 @@ class HomeViewModel @Inject constructor(
                     _pausedMeasurementMediator.postValue(it)
                 }
             }
+
+            producer?.let {
+                _dedicatedSignalMeasurementSessionIdLiveData = it.signalMeasurementSessionIdLiveData
+            }
         }
 
         override fun onServiceDisconnected(name: ComponentName?) {
+            Timber.d("Signal measurement service disconnected")
             _activeMeasurementSource?.let {
                 _activeMeasurementMediator.removeSource(it)
             }
@@ -129,6 +177,22 @@ class HomeViewModel @Inject constructor(
     init {
         addStateSaveHandler(state)
         _activeMeasurementMediator.postValue(false)
+        signalMeasurementSettings.signalMeasurementLastSessionId?.let {
+            loadSessionPoints(it)
+        }
+    }
+
+    fun loadSessionPoints(sessionId: String) {
+        loadPointJob = loadPoints(sessionId)
+    }
+
+    private fun loadPoints(sessionId: String) = launch {
+        val points =
+            signalMeasurementRepository.loadSignalMeasurementPointRecordsForMeasurement(sessionId)
+        points.asFlow().flowOn(Dispatchers.IO).collect { loadedPoints ->
+            _pointsLiveData.postValue(loadedPoints)
+            Timber.d("New points loaded ${loadedPoints.size}")
+        }
     }
 
     fun toggleSignalMeasurementService() {
@@ -160,18 +224,22 @@ class HomeViewModel @Inject constructor(
     }
 
     fun startSignalMeasurement(signalMeasurementType: SignalMeasurementType) {
+        signalMeasurementSettings.signalMeasurementIsRunning = true
         producer?.startMeasurement(false, signalMeasurementType)
     }
 
     fun stopSignalMeasurement() {
+        signalMeasurementSettings.signalMeasurementIsRunning = false
         producer?.stopMeasurement(false)
     }
 
     fun pauseSignalMeasurement() {
+        signalMeasurementSettings.signalMeasurementIsRunning = false
         producer?.pauseMeasurement(false)
     }
 
     fun resumeSignalMeasurement() {
+        signalMeasurementSettings.signalMeasurementIsRunning = true
         producer?.resumeMeasurement(false)
     }
 
@@ -206,15 +274,58 @@ class HomeViewModel @Inject constructor(
     }
 
     fun isMobileNetworkActive(): Boolean {
-        return state.activeNetworkInfo.get()?.networkInfo?.type == TransportType.CELLULAR
+        return state.activeNetworkInfo.get()?.networkInfo?.type != TransportType.WIFI
     }
 
     fun isOnlyOneSimActive(): Boolean {
         return if (state.activeNetworkInfo.get()?.networkInfo is CellNetworkInfo && appConfig.shouldCheckActiveSimsCount) {
             (state.activeNetworkInfo.get()?.networkInfo as CellNetworkInfo).subscriptionsCount <= 1
         } else {
-            false
+            true
         }
+    }
+
+    fun setIsCloseDialogShown(isShown: Boolean) {
+        state.closeDialogDisplayed.set(isShown)
+    }
+
+    fun silenceLocationDialogWarning() {
+        state.locationWarningDialogSilenced.set(true)
+        launch {
+            delay(LOCATION_ACCURACY_WARNING_DIALOG_SILENCED_TIME_MILLIS)
+            state.locationWarningDialogSilenced.set(false)
+        }
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        loadPointJob?.cancel()
+    }
+
+    fun isLocationInfoMeetingQualityCriteria(): Boolean {
+        val isNotNull = locationLiveData.value != null
+        return isNotNull && isLocationAccuracyGoodEnough()
+    }
+
+    private fun isLocationAccuracyGoodEnough(): Boolean {
+        return locationLiveData.value?.isAccuracyEnoughForSignalMeasurement() ?: false
+    }
+
+    fun shouldOpenSignalMeasurementScreen(): Boolean {
+        return signalMeasurementSettings.signalMeasurementIsRunning
+    }
+
+    fun setSignalMeasurementShouldContinueInLastSession(shouldContinueInLastSession: Boolean) {
+        signalMeasurementSettings.signalMeasurementShouldContinueInLastSession = shouldContinueInLastSession
+    }
+
+    fun shouldSignalMeasurementContinueInLastSession(): Boolean {
+        return signalMeasurementSettings.signalMeasurementShouldContinueInLastSession
+    }
+
+    suspend fun getSignalData(id: String?): SignalRecord? {
+        val record = signalMeasurementRepository.getSignalMeasurementRecord(id)
+        return record
     }
 
 }

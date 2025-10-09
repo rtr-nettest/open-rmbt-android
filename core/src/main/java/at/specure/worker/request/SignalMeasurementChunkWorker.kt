@@ -5,13 +5,12 @@ import androidx.work.CoroutineWorker
 import androidx.work.Data
 import androidx.work.WorkerParameters
 import at.rmbt.util.exception.NoConnectionException
-import at.specure.data.entity.SignalMeasurementInfo
+import at.specure.data.entity.SignalMeasurementSession
 import at.specure.data.repository.SignalMeasurementRepository
 import at.specure.di.CoreInjector
 import at.specure.measurement.signal.SignalMeasurementChunkResultCallback
 import at.specure.util.exception.DataMissingException
 import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.collect
 import timber.log.Timber
 import javax.inject.Inject
 
@@ -27,7 +26,7 @@ class SignalMeasurementChunkWorker(appContext: Context, workerParams: WorkerPara
 
         var result = Result.failure()
         repository.sendMeasurementChunk(chunkId, object : SignalMeasurementChunkResultCallback {
-            override fun newUUIDSent(respondedUuid: String, info: SignalMeasurementInfo) {
+            override fun newUUIDSent(respondedUuid: String, session: SignalMeasurementSession) {
                 // ignored for retried submissions
             }
         })

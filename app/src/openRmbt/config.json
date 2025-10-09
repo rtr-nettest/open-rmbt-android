@@ -381,6 +381,16 @@
       "visible": false
     },
     {
+      "name": "CONTROL_SERVER_COVERAGE_REQUEST_ROUTE",
+      "value": "coverageRequest",
+      "visible": false
+    },
+    {
+      "name": "CONTROL_SERVER_COVERAGE_RESULT_ROUTE",
+      "value": "coverageResult",
+      "visible": false
+    },
+    {
       "name": "CONTROL_SERVER_GET_SYNC_CODE_ROUTE",
       "value": "sync",
       "visible": false
@@ -422,7 +432,12 @@
     },
     {
       "name": "SHOULD_CHECK_ACTIVE_SIMS_COUNT",
-      "value": "true",
+      "value": "false",
+      "visible": false
+    },
+    {
+      "name": "MIN_LOCATION_DISTANCE_METERS_SIGNAL_MEASUREMENT",
+      "value": "20",
       "visible": false
     }
   ]

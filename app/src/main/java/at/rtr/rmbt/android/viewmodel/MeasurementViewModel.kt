@@ -25,10 +25,11 @@ import at.specure.measurement.MeasurementService
 import at.specure.measurement.MeasurementState
 import timber.log.Timber
 import javax.inject.Inject
+import javax.inject.Named
 
 class MeasurementViewModel @Inject constructor(
     private val testDataRepository: TestDataRepository,
-    private val locationWatcher: LocationWatcher,
+    @Named("GPSAndNetworkLocationProvider") private val locationWatcher: LocationWatcher,
     val signalStrengthLiveData: SignalStrengthLiveData,
     val config: AppConfig,
     private val tac: TermsAndConditions

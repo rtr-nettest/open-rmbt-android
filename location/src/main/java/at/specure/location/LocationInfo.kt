@@ -8,6 +8,7 @@ import at.specure.location.LocationInfo.LocationCardinalDirections.EAST
 import at.specure.location.LocationInfo.LocationCardinalDirections.NORTH
 import at.specure.location.LocationInfo.LocationCardinalDirections.SOUTH
 import at.specure.location.LocationInfo.LocationCardinalDirections.WEST
+import com.google.android.gms.maps.model.LatLng
 
 /**
  * Class suitable to display information for user, information are in human-readable form
@@ -274,10 +275,23 @@ class LocationInfo {
         }
     }
 
+    fun toLatLng(): LatLng {
+        return LatLng(
+            this.latitude,
+            this.longitude
+        )
+    }
+
     enum class LocationCardinalDirections {
         NORTH,
         SOUTH,
         EAST,
         WEST
     }
+}
+
+const val LOCATION_ACCURACY_THRESHOLD_METERS = 7f
+fun LocationInfo?.isAccuracyEnoughForSignalMeasurement(): Boolean {
+    return if (this == null) false
+    else this.accuracy != null && this.accuracy <= LOCATION_ACCURACY_THRESHOLD_METERS
 }

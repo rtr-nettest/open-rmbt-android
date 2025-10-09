@@ -12,6 +12,7 @@ import at.specure.config.Config
 import at.specure.data.Classification
 import at.specure.data.ClientUUID
 import at.specure.data.CoreDatabase
+import at.specure.data.entity.FencesResultItemRecord
 import at.specure.data.entity.QoeInfoRecord
 import at.specure.data.entity.QosCategoryRecord
 import at.specure.data.entity.QosTestGoalRecord
@@ -45,6 +46,7 @@ class TestResultsRepositoryImpl(
     private val testResultDao = db.testResultDao()
     private val testResultDetailsDao = db.testResultDetailsDao()
     private val testResultGraphItemDao = db.testResultGraphItemDao()
+    private val fencesResultItemDao = db.fencesResultItemDao()
 
     override fun getQoEItems(testOpenUUID: String): LiveData<List<QoeInfoRecord>> {
         return qoeInfoDao.get(testOpenUUID)
@@ -56,6 +58,9 @@ class TestResultsRepositoryImpl(
 
     override fun getGraphDataLiveData(testUUID: String, type: TestResultGraphItemRecord.Type): LiveData<List<TestResultGraphItemRecord>> =
         testResultGraphItemDao.getGraphDataLiveData(testUUID, type.typeValue)
+
+    override fun getFencesDataLiveData(testUUID: String): LiveData<List<FencesResultItemRecord>> =
+        fencesResultItemDao.getFencesLiveData(testUUID)
 
     override fun getTestDetailsResult(testUUID: String): LiveData<List<TestResultDetailsRecord>> = testResultDetailsDao.get(testUUID)
 
@@ -125,6 +130,13 @@ class TestResultsRepositoryImpl(
                     testUUID
                 )
             })
+            response.speedCurve.fences?.let {fences ->
+                fencesResultItemDao.clearInsertItems(fences.map {
+                    it.toModel(
+                        testUUID
+                    )
+                })
+            }
         }
     }
 

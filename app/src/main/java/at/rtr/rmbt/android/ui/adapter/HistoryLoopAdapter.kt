@@ -25,6 +25,8 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import at.rtr.rmbt.android.R
 import at.rtr.rmbt.android.databinding.ItemHistoryBinding
+import at.rtr.rmbt.android.databinding.ItemHistoryFencesBinding
+import at.rtr.rmbt.android.databinding.ItemHistoryFencesLoopBinding
 import at.rtr.rmbt.android.databinding.ItemHistoryLoopBinding
 import at.rtr.rmbt.android.util.bindWith
 import at.rtr.rmbt.android.util.gone
@@ -34,6 +36,8 @@ import at.specure.data.entity.HistoryContainer
 
 private const val ITEM_LOOP = 0
 private const val ITEM_HISTORY = 1
+private const val ITEM_COVERAGE_HISTORY = 2
+private const val ITEM_COVERAGE_LOOP = 3
 private const val KEY_STATE = "KEY_STATE"
 
 class HistoryLoopAdapter : PagedListAdapter<HistoryContainer, HistoryLoopAdapter.Holder>(DIFF_CALLBACK) {
@@ -44,18 +48,33 @@ class HistoryLoopAdapter : PagedListAdapter<HistoryContainer, HistoryLoopAdapter
     var pendingAnimationCallback: (() -> Unit)? = null
 
     override fun getItemViewType(position: Int): Int {
+        val historyItem = getItem(position)?.items?.firstOrNull()
+        val isCoverage = historyItem?.isCoverageResult == true
         val size = getItem(position)?.items?.size ?: 1
         return if (size == 1) {
-            ITEM_HISTORY
+            if (isCoverage) {
+                ITEM_COVERAGE_HISTORY
+            } else {
+                ITEM_HISTORY
+            }
         } else {
-            ITEM_LOOP
+            if (isCoverage) {
+                ITEM_COVERAGE_LOOP
+            } else {
+                ITEM_LOOP
+            }
         }
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) = if (viewType == ITEM_LOOP) {
-        LoopHolder(parent.bindWith(R.layout.item_history_loop))
-    } else {
-        HistoryHolder(parent.bindWith(R.layout.item_history))
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) = when (viewType) {
+        ITEM_LOOP ->
+            LoopHolder(parent.bindWith(R.layout.item_history_loop))
+        ITEM_COVERAGE_LOOP ->
+            FencesLoopHolder(parent.bindWith(R.layout.item_history_fences_loop))
+        ITEM_COVERAGE_HISTORY ->
+            HistoryCoverageItemHolder(parent.bindWith(R.layout.item_history_fences))
+        else ->
+            HistoryHolder(parent.bindWith(R.layout.item_history))
     }
 
     override fun onBindViewHolder(holder: Holder, position: Int) {
@@ -139,6 +158,78 @@ class HistoryLoopAdapter : PagedListAdapter<HistoryContainer, HistoryLoopAdapter
     }
 
     class HistoryHolder(val binding: ItemHistoryBinding) : Holder(binding.root) {
+
+        override fun bind(
+            position: Int,
+            item: HistoryContainer,
+            expandedItemsMap: MutableMap<Int, Boolean>,
+            actionCallback: ((History) -> Unit)?,
+            pendingAnimationCallback: (() -> Unit)?
+        ) {
+            binding.item = item.items.first()
+            binding.root.setOnClickListener {
+                actionCallback?.invoke(item.items.first())
+            }
+        }
+    }
+
+    class FencesLoopHolder(val binding: ItemHistoryFencesLoopBinding) : Holder(binding.root) {
+
+        private var animation: ViewPropertyAnimator? = null
+        private val adapter = HistoryAdapter()
+
+        init {
+            binding.recyclerView.layoutManager = LinearLayoutManager(binding.recyclerView.context)
+            binding.recyclerView.adapter = adapter
+        }
+
+        override fun bind(
+            position: Int,
+            item: HistoryContainer,
+            expandedItemsMap: MutableMap<Int, Boolean>,
+            actionCallback: ((History) -> Unit)?,
+            pendingAnimationCallback: (() -> Unit)?
+        ) {
+            if (item.items.isEmpty()) {
+                return
+            }
+            binding.item = item.items.last()
+
+            animation?.cancel()
+
+            adapter.items = item.items
+            adapter.actionCallback = actionCallback
+
+            val isExpanded = expandedItemsMap[position] ?: false
+
+            if (isExpanded) {
+                binding.imageExpand.rotation = 180f
+                binding.recyclerView.visible()
+            } else {
+                binding.imageExpand.rotation = 0f
+                binding.recyclerView.gone()
+            }
+
+            binding.root.setOnClickListener {
+                val expanded = expandedItemsMap[position] ?: false
+                expandedItemsMap[position] = !expanded
+
+                val anim = binding.imageExpand.animate()
+                if (expanded) {
+                    anim.rotation(0f)
+                    binding.recyclerView.gone()
+                } else {
+                    anim.rotation(180f)
+                    binding.recyclerView.visible()
+                }
+                pendingAnimationCallback?.invoke()
+                animation = anim
+                anim.start()
+            }
+        }
+    }
+
+    class HistoryCoverageItemHolder(val binding: ItemHistoryFencesBinding) : Holder(binding.root) {
 
         override fun bind(
             position: Int,

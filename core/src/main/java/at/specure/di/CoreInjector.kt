@@ -16,6 +16,7 @@ package at.specure.di
 
 import at.specure.measurement.MeasurementService
 import at.specure.measurement.signal.SignalMeasurementService
+import at.specure.worker.request.CoverageMeasurementWorker
 import at.specure.worker.request.SendDataWorker
 import at.specure.worker.request.SettingsWorker
 import at.specure.worker.request.SignalMeasurementChunkWorker
@@ -36,4 +37,6 @@ object CoreInjector : CoreComponent {
     override fun inject(worker: SignalMeasurementInfoWorker) = component.inject(worker)
 
     override fun inject(worker: SignalMeasurementChunkWorker) = component.inject(worker)
+
+    override fun inject(worker: CoverageMeasurementWorker) = component.inject(worker)
 }

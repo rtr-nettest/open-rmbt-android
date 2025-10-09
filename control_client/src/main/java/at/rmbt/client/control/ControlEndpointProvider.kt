@@ -96,6 +96,16 @@ interface ControlEndpointProvider {
     val signalResultUrl: String
 
     /**
+     * Coverage request url to obtain signal measurement data
+     */
+    val coverageRequestUrl: String
+
+    /**
+     * Url to send coverage measurement result data
+     */
+    val coverageResultUrl: String
+
+    /**
      * Endpoint to get news
      */
     val getNewsUrl: String

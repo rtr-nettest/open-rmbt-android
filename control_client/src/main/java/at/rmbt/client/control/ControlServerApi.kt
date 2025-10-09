@@ -146,8 +146,20 @@ interface ControlServerApi {
     fun signalRequest(@Url url: String, @Body body: SignalMeasurementRequestBody): Call<SignalMeasurementRequestResponse>
 
     /**
-     * Request to obtain signal measurement required data
+     * Request to send signal measurement data
      */
     @POST
     fun signalResult(@Url url: String, @Body body: SignalMeasurementChunkBody): Call<SignalMeasurementChunkResultResponse>
+
+    /**
+     * Request to obtain coverage measurement required data
+     */
+    @POST
+    fun coverageRequest(@Url url: String, @Body body: CoverageRequestBody): Call<CoverageRequestResponse>
+
+    /**
+     * Request to send coverage measurement result data
+     */
+    @POST
+    fun coverageResult(@Url url: String, @Body body: CoverageResultRequestBody): Call<BaseResponse>
 }

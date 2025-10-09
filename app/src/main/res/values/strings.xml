@@ -299,12 +299,12 @@
     <string name="hint_sync_code">Code</string>
     <string name="error_sync_code_short">The code must consist of twelve characters</string>
 
-    <string name="notification_signal_test_title">Signal measurement is running</string>
+    <string name="notification_signal_test_title">Coverage measurement is running</string>
     <string name="notification_signal_test_text">RTR-NetTest signal measurement is running in the background</string>
 
     <string name="notification_loop_mode_finished_title">Loop mode finished</string>
 
-    <string name="toast_signal_measurement_enabled">Signal measurement started.</string>
+    <string name="toast_signal_measurement_enabled">Coverage measurement started.</string>
     <string name="error_no_connection">No Internet connection. Could not load data.</string>
 
     <string name="label_map_filters">Map settings</string>
@@ -488,8 +488,8 @@
     <string name="title">Title: </string>
     <string name="subtitle">Subtitle: </string>
 
-    <string name="home_signal_measurement_toggle_on">Signal measurement toggle on</string>
-    <string name="home_signal_measurement_toggle_off">Signal measurement toggle off</string>
+    <string name="home_signal_measurement_toggle_on">Coverage measurement toggle on</string>
+    <string name="home_signal_measurement_toggle_off">Coverage measurement toggle off</string>
 
     <string name="ipv4_no_info">IP version 4: no information</string>
     <string name="ipv4_no_address">IP version 4: no address</string>
@@ -517,8 +517,15 @@
 
     <string name="test_result_status">Test result status:</string>
     <string name="more_sims_active_dialog_title">Dual SIM active</string>
-    <string name="more_sims_active_dialog_text">Signal measurement only supports single SIM. Please deactivate second SIM.</string>
+    <string name="more_sims_active_dialog_text">Coverage measurement only supports single SIM. Please deactivate second SIM.</string>
     <string name="confirm">Confirm</string>
     <string name="wrong_network_type_active_dialog_title">Not on mobile</string>
     <string name="wrong_network_type_active_dialog_text">Please deactivate Wifi (or some other non-mobile connection)</string>
+    <string name="stop_signal_measurement_title">End signal measurement</string>
+    <string name="stop_signal_measurement_text">Do you want to end the measurement?</string>
+    <string name="no_gps_or_insufficient_precision">No GPS signal or GPS quality is insufficient. Please move outdoors.</string>
+    <string name="noSignal">No signal</string>
+    <string name="coverage_result">Coverage result</string>
+    <string name="number_of_fences_is">Number of fences is</string>
+    <string name="title_coverage_loop_mode">Coverage loop mode</string>
 </resources>

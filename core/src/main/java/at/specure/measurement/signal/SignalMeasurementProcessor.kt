@@ -32,7 +32,7 @@ import at.specure.location.LocationInfo
 import at.specure.location.LocationState
 import at.specure.location.LocationWatcher
 import at.specure.location.cell.CellLocationInfo
-import at.specure.test.SignalMeasurementType
+import at.rmbt.client.control.data.SignalMeasurementType
 import at.specure.test.toDeviceInfoLocation
 import at.specure.util.isFineLocationPermitted
 import at.specure.util.isLocationServiceEnabled
@@ -55,6 +55,7 @@ import java.util.Timer
 import java.util.TimerTask
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
+import javax.inject.Named
 import javax.inject.Singleton
 import kotlin.coroutines.EmptyCoroutineContext
 
@@ -67,22 +68,26 @@ class SignalMeasurementProcessor @Inject constructor(
     private val context: Context,
     private val config: Config,
     private val repository: TestDataRepository,
-    private val locationWatcher: LocationWatcher,
+    @Named("GPSAndFusedLocationProvider") private val locationWatcher: LocationWatcher,
     private val signalStrengthLiveData: SignalStrengthLiveData,
     private val signalStrengthWatcher: SignalStrengthWatcher,
     private val subscriptionManager: SubscriptionManager,
     private val signalRepository: SignalMeasurementRepository,
     private val connectivityWatcher: ConnectivityWatcher,
     private val measurementRepository: MeasurementRepository,
+    private val dedicatedSignalMeasurementProcessor: DedicatedSignalMeasurementProcessor,
     private val cellInfoWatcher: CellInfoWatcher
 ) : Binder(), SignalMeasurementProducer, CoroutineScope, SignalMeasurementChunkResultCallback,
     SignalMeasurementChunkReadyCallback {
 
+    private var globalNetworkInfo: NetworkInfo? = null
+    private var lastSignalRecord: SignalRecord? = null
     private var isUnstoppable = false
     private var _isActive = false
     private var _isPaused = false
     private val _activeStateLiveData = MutableLiveData<Boolean>()
     private val _pausedStateLiveData = MutableLiveData<Boolean>()
+    private val _signalMeasurementSessionIdLiveData = MutableLiveData<String?>()
 
     private var networkInfo: NetworkInfo? = null
     private var record: SignalMeasurementRecord? = null
@@ -129,19 +134,32 @@ class SignalMeasurementProcessor @Inject constructor(
     override val pausedStateLiveData: LiveData<Boolean>
         get() = _pausedStateLiveData
 
+    override val signalMeasurementSessionIdLiveData: LiveData<String?>
+        get() = _signalMeasurementSessionIdLiveData
+
     override fun setEndAlarm() {
         // not necessary to implement here
     }
 
-    override fun startMeasurement(unstoppable: Boolean, signalMeasurementType: SignalMeasurementType) {
+    val measurementSessionInitializedCallback: (sessionId: String?) -> Unit = { sessionId ->
+        _signalMeasurementSessionIdLiveData.postValue(sessionId)
+    }
+
+    override fun startMeasurement(
+        unstoppable: Boolean,
+        signalMeasurementType: SignalMeasurementType
+    ) {
         Timber.w("startMeasurement")
         _isActive = true
         isUnstoppable = unstoppable
-        _activeStateLiveData.postValue(_isActive)
-        _pausedStateLiveData.postValue(_isPaused)
+        postStateData()
         lastSignalMeasurementType = signalMeasurementType
 
-        if (!isPaused) {
+        if (lastSignalMeasurementType == SignalMeasurementType.DEDICATED) {
+            dedicatedSignalMeasurementProcessor.initializeDedicatedMeasurementSession(measurementSessionInitializedCallback)
+        }
+
+        if (isSignalMeasurementRunning()) {
             handleNewNetwork(signalStrengthWatcher.lastNetworkInfo)
         }
     }
@@ -152,11 +170,22 @@ class SignalMeasurementProcessor @Inject constructor(
         chunk?.state = SignalMeasurementState.SUCCESS
         commitChunkData(ValidChunkPostProcessing.NOTHING)
         isUnstoppable = unstoppable
+        if (lastSignalMeasurementType == SignalMeasurementType.DEDICATED) {
+            dedicatedSignalMeasurementProcessor.onMeasurementStop()
+        }
+        resetStateData()
+        postStateData()
+    }
+
+    private fun resetStateData() {
         _isActive = false
         _isPaused = false
         networkInfo = null
         record = null
         chunk = null
+    }
+
+    private fun postStateData() {
         _activeStateLiveData.postValue(_isActive)
         _pausedStateLiveData.postValue(_isPaused)
     }
@@ -164,18 +193,26 @@ class SignalMeasurementProcessor @Inject constructor(
     override fun pauseMeasurement(unstoppable: Boolean) {
         Timber.w("pauseMeasurement")
         isUnstoppable = unstoppable
-        _isPaused = true
-        _pausedStateLiveData.postValue(_isPaused)
+        setMeasurementAsPaused()
     }
 
     override fun resumeMeasurement(unstoppable: Boolean) {
         Timber.w("resumeMeasurement")
         isUnstoppable = unstoppable
-        _isPaused = false
-        _pausedStateLiveData.postValue(_isPaused)
-        if (isActive) {
+        setMeasurementAsResumed()
+        if (isSignalMeasurementRunning()) {
             handleNewNetwork(signalStrengthWatcher.lastNetworkInfo)
         }
+    }
+
+    private fun setMeasurementAsPaused() {
+        _isPaused = true
+        _pausedStateLiveData.postValue(_isPaused)
+    }
+
+    private fun setMeasurementAsResumed() {
+        _isPaused = false
+        _pausedStateLiveData.postValue(_isPaused)
     }
 
     fun bind(owner: LifecycleOwner) {
@@ -186,7 +223,13 @@ class SignalMeasurementProcessor @Inject constructor(
         locationWatcher.liveData.observe(owner, Observer { info ->
             if (locationWatcher.state == LocationState.ENABLED) {
                 locationInfo = info
-                if (isActive && !isPaused) {
+                if (lastSignalMeasurementType == SignalMeasurementType.DEDICATED) {
+                    locationInfo?.let { location ->
+                        Timber.d("passing new info with network: ${globalNetworkInfo?.type}")
+                        dedicatedSignalMeasurementProcessor.onNewLocation(location, lastSignalRecord, globalNetworkInfo)
+                    }
+                }
+                if (isSignalMeasurementRunning()) {
                     saveLocationInfo()
                 }
             }
@@ -195,7 +238,7 @@ class SignalMeasurementProcessor @Inject constructor(
         signalStrengthInfo = signalStrengthWatcher.lastSignalStrength
         signalStrengthLiveData.observe(owner, Observer { info ->
             signalStrengthInfo = info?.signalStrengthInfo
-            if (isActive && !isPaused) {
+            if (isSignalMeasurementRunning()) {
                 handleNewNetwork(info?.networkInfo)
                 saveCellInfo(info)
             }
@@ -209,6 +252,8 @@ class SignalMeasurementProcessor @Inject constructor(
             }
         })
     }
+
+    private fun isSignalMeasurementRunning() = isActive && !isPaused
 
     private fun planUnconnectedClean() {
         synchronized(this) {
@@ -240,10 +285,12 @@ class SignalMeasurementProcessor @Inject constructor(
         lastSeenNetworkInfo = null
         lastSeenNetworkRecord = null
         lastSeenNetworkTimestampMillis = null
+        lastSignalRecord = null
     }
 
     private fun handleNewNetwork(newInfo: NetworkInfo?) {
         val currentInfo = networkInfo
+        globalNetworkInfo = newInfo
         var newNetworkInfo = newInfo
         if (newInfo?.type != TransportType.CELLULAR) {
             newNetworkInfo = null
@@ -259,6 +306,7 @@ class SignalMeasurementProcessor @Inject constructor(
                 networkInfo = null
                 record = null
             }
+
             newNetworkInfo != null && currentInfo == null -> {
                 Timber.i("Network appeared")
                 networkInfo = newNetworkInfo
@@ -286,6 +334,7 @@ class SignalMeasurementProcessor @Inject constructor(
                 commitChunkData(ValidChunkPostProcessing.NOTHING)
                 createNewRecord(newNetworkInfo)
             }
+
             else -> {
 //                Timber.i("New network other case -> new: ${newNetworkInfo?.cellUUID} old ${currentInfo?.cellUUID}")
             }
@@ -300,13 +349,18 @@ class SignalMeasurementProcessor @Inject constructor(
             location = locationInfo.toDeviceInfoLocation(),
             rawCapabilitiesRecord = networkInfo.capabilitiesRaw
         ).also {
+            // todo: create new local dedicated measurement session
             signalRepository.saveAndRegisterRecord(it)
         }
         chunk = null
         createNewChunk()
     }
 
-    private fun createNewRecordBecauseOfChangedUUID(networkInfo: NetworkInfo, newUUID: String, info: SignalMeasurementInfo) {
+    private fun createNewRecordBecauseOfChangedUUID(
+        networkInfo: NetworkInfo,
+        newUUID: String,
+        session: SignalMeasurementSession
+    ) {
         record = SignalMeasurementRecord(
             signalMeasurementType = lastSignalMeasurementType,
             networkUUID = networkInfo.cellUUID,
@@ -314,7 +368,7 @@ class SignalMeasurementProcessor @Inject constructor(
             location = locationInfo.toDeviceInfoLocation(),
             rawCapabilitiesRecord = networkInfo.capabilitiesRaw
         ).also {
-            signalRepository.saveAndUpdateRegisteredRecord(it, newUUID, info)
+            signalRepository.saveAndUpdateRegisteredRecord(it, newUUID, session)
         }
         chunk = null
         createNewChunk()
@@ -385,7 +439,10 @@ class SignalMeasurementProcessor @Inject constructor(
 
     private fun scheduleCountDownTimer() {
         chunkCountDownHandler.removeCallbacks(chunkCountDownRunner)
-        chunkCountDownHandler.postDelayed(chunkCountDownRunner, TimeUnit.MINUTES.toMillis(MAX_SIGNAL_UPTIME_PER_CHUNK_MIN))
+        chunkCountDownHandler.postDelayed(
+            chunkCountDownRunner,
+            TimeUnit.MINUTES.toMillis(MAX_SIGNAL_UPTIME_PER_CHUNK_MIN)
+        )
     }
 
     private fun saveConnectivityState(bundle: ConnectivityStateBundle) {
@@ -448,16 +505,34 @@ class SignalMeasurementProcessor @Inject constructor(
                     otherCells.remove(detailedNetworkInfo.networkInfo.rawCellInfo)
                 }
 
-                signalsSavedCount += saveNetworkInformation(cellNetworkInfo, detailedNetworkInfo.signalStrengthInfo, uuid, it.dataSubscriptionId, testStartTimeNanos)
+                signalsSavedCount += saveNetworkInformation(
+                    cellNetworkInfo,
+                    detailedNetworkInfo.signalStrengthInfo,
+                    uuid,
+                    it.dataSubscriptionId,
+                    testStartTimeNanos
+                )
                 Timber.v("Process chunk primary cell data end with: $signalsSavedCount")
                 active5GNetworkInfos?.forEachIndexed { index, cellNetworkInfo ->
                     otherCells.remove(cellNetworkInfo?.rawCellInfo)
-                    signalsSavedCount += saveNetworkInformation(cellNetworkInfo, detailedNetworkInfo.secondary5GActiveSignalStrengthInfos?.get(index), uuid, it.dataSubscriptionId, testStartTimeNanos)
+                    signalsSavedCount += saveNetworkInformation(
+                        cellNetworkInfo,
+                        detailedNetworkInfo.secondary5GActiveSignalStrengthInfos?.get(index),
+                        uuid,
+                        it.dataSubscriptionId,
+                        testStartTimeNanos
+                    )
                     Timber.v("Process chunk 5G cell data end with: $signalsSavedCount")
                 }
 
                 if (config.headerValue.isNullOrEmpty()) {
-                    signalsSavedCount += saveOtherCellInfo(otherCells.toMutableList(), uuid, testStartTimeNanos, detailedNetworkInfo.networkTypes, it.dataSubscriptionId)
+                    signalsSavedCount += saveOtherCellInfo(
+                        otherCells.toMutableList(),
+                        uuid,
+                        testStartTimeNanos,
+                        detailedNetworkInfo.networkTypes,
+                        it.dataSubscriptionId
+                    )
                     Timber.v("Process chunk other cell data end with: $signalsSavedCount")
                 }
                 Timber.v("Process chunk data end with: $signalsSavedCount")
@@ -471,7 +546,13 @@ class SignalMeasurementProcessor @Inject constructor(
         }
     }
 
-    private fun saveOtherCellInfo(cells: List<ICell>?, signalChunkId: String?, testStartTimeNanos: Long, mobileNetworkTypes: HashMap<Int, MobileNetworkType>, dataSubscriptionId: Int): Int {
+    private fun saveOtherCellInfo(
+        cells: List<ICell>?,
+        signalChunkId: String?,
+        testStartTimeNanos: Long,
+        mobileNetworkTypes: HashMap<Int, MobileNetworkType>,
+        dataSubscriptionId: Int
+    ): Int {
         var saveMobileSignalsCount = 0
 
         val cellInfosToSave = mutableListOf<CellInfoRecord>()
@@ -522,7 +603,18 @@ class SignalMeasurementProcessor @Inject constructor(
         return saveMobileSignalsCount
     }
 
-    private fun saveNetworkInformation(cellNetworkInfo: NetworkInfo?, signalStrengthInfo: SignalStrengthInfo?, signalChunkId: String?, dataSubscriptionId: Int, testStartTimeNanos: Long): Int {
+    private val onSignalInfoSaved: (signalRecord: SignalRecord) -> Unit = { signalRecord ->
+        Timber.d("Last saved signal record: $signalRecord")
+        lastSignalRecord = signalRecord
+    }
+
+    private fun saveNetworkInformation(
+        cellNetworkInfo: NetworkInfo?,
+        signalStrengthInfo: SignalStrengthInfo?,
+        signalChunkId: String?,
+        dataSubscriptionId: Int,
+        testStartTimeNanos: Long
+    ): Int {
         var saveMobileSignalsCount = 0
         if (cellNetworkInfo is CellNetworkInfo) {
             if (signalChunkId != null) {
@@ -534,7 +626,10 @@ class SignalMeasurementProcessor @Inject constructor(
                     cellTechnology = cellNetworkInfo.cellType,
                     transportType = TransportType.CELLULAR,
                     registered = cellNetworkInfo.isRegistered,
-                    isPrimaryDataSubscription = PrimaryDataSubscription.resolvePrimaryDataSubscriptionID(dataSubscriptionId, cellNetworkInfo.rawCellInfo?.subscriptionId).value,
+                    isPrimaryDataSubscription = PrimaryDataSubscription.resolvePrimaryDataSubscriptionID(
+                        dataSubscriptionId,
+                        cellNetworkInfo.rawCellInfo?.subscriptionId
+                    ).value,
                     areaCode = cellNetworkInfo.areaCode,
                     channelNumber = cellNetworkInfo.band?.channel,
                     frequency = cellNetworkInfo.band?.frequencyDL,
@@ -557,7 +652,8 @@ class SignalMeasurementProcessor @Inject constructor(
                             cellNetworkInfo.networkType,
                             it,
                             testStartTimeNanos,
-                            NRConnectionState.NOT_AVAILABLE
+                            NRConnectionState.NOT_AVAILABLE,
+                            if (cellNetworkInfo.isActive) onSignalInfoSaved else null
                         )
                         saveMobileSignalsCount++
                     }
@@ -591,7 +687,18 @@ class SignalMeasurementProcessor @Inject constructor(
         val location = locationInfo
 //        Timber.d("Saving location:  UUID:$signalChunkId  ${location.toDeviceInfoLocation()} ")
         if (signalChunkId != null && location != null && locationWatcher.state == LocationState.ENABLED) {
-            repository.saveGeoLocation(null, signalChunkId, location, record?.startTimeNanos ?: 0, true)
+            repository.saveGeoLocation(
+                null,
+                signalChunkId,
+                location,
+                record?.startTimeNanos ?: 0,
+                true
+            )
+            locationInfo?.let { location ->
+//                if (lastSignalMeasurementType == SignalMeasurementType.DEDICATED){
+//                    dedicatedSignalMeasurementProcessor.onNewLocation(location, lastSignalRecord, networkInfo)
+//                }
+            }
         }
     }
 
@@ -616,10 +723,10 @@ class SignalMeasurementProcessor @Inject constructor(
     }
 
     @ExperimentalCoroutinesApi
-    override fun newUUIDSent(respondedUuid: String, info: SignalMeasurementInfo) {
+    override fun newUUIDSent(respondedUuid: String, session: SignalMeasurementSession) {
         val network = networkInfo
         network?.let {
-            createNewRecordBecauseOfChangedUUID(network, respondedUuid, info)
+            createNewRecordBecauseOfChangedUUID(network, respondedUuid, session)
         }
     }
 
@@ -637,6 +744,7 @@ class SignalMeasurementProcessor @Inject constructor(
             when (validChunkPostProcessing) {
                 ValidChunkPostProcessing.NOTHING -> {
                 }
+
                 ValidChunkPostProcessing.CREATE_NEW_CHUNK -> {
                     createNewChunk()
                 }

@@ -41,7 +41,7 @@ import at.specure.location.LocationWatcher
 import at.specure.measurement.signal.SignalMeasurementProducer
 import at.specure.measurement.signal.SignalMeasurementService
 import at.specure.test.DeviceInfo
-import at.specure.test.SignalMeasurementType
+import at.rmbt.client.control.data.SignalMeasurementType
 import at.specure.test.StateRecorder
 import at.specure.test.TestController
 import at.specure.test.TestProgressListener
@@ -54,15 +54,20 @@ import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.onCompletion
 import kotlinx.coroutines.flow.zip
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import timber.log.Timber
 import java.util.Timer
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
+import javax.inject.Named
+import kotlin.concurrent.schedule
 import kotlin.concurrent.timerTask
 import kotlin.coroutines.EmptyCoroutineContext
 
@@ -87,7 +92,7 @@ class MeasurementService : CustomLifecycleService(), CoroutineScope {
         inactivityTimer.purge()
         inactivityTimer = Timer()
         Timber.d("RMBTClient inactivity checking started")
-        inactivityTimer.scheduleAtFixedRate(
+        inactivityTimer.schedule(
             timerTask {
                 val isNotResponding = !isRMBTClientResponding()
                 if (isNotResponding) {
@@ -136,6 +141,7 @@ class MeasurementService : CustomLifecycleService(), CoroutineScope {
     lateinit var connectivityManager: ConnectivityManager
 
     @Inject
+    @Named("GPSAndNetworkLocationProvider")
     lateinit var locationWatcher: LocationWatcher
 
     private val producer: Producer by lazy { Producer() }
@@ -410,16 +416,19 @@ class MeasurementService : CustomLifecycleService(), CoroutineScope {
                             clientAggregator.onSubmitted()
                         }
                         clientAggregator.onResultSubmitted()
-                        loadTestResults(
-                            if (loopUUID == null) {
-                                TestUuidType.TEST_UUID
-                            } else {
-                                TestUuidType.LOOP_UUID
-                            }, loopUUID ?: testUUID
-                        )
+                        Timber.d("Loop uuid = $loopUUID Length = ${loopUUID?.length} Loop is null = ${loopUUID == null}}")
+                        CoroutineScope(Dispatchers.IO + SupervisorJob()).launch {
+                            loadTestResults(
+                                if (loopUUID == null) {
+                                    TestUuidType.TEST_UUID
+                                } else {
+                                    TestUuidType.LOOP_UUID
+                                }, loopUUID ?: testUUID
+                            )
+                        }
                     }
                     it.onFailure { ex ->
-
+                        Timber.d("Sending results failed")
                         if (shouldShowResults) {
                             clientAggregator.onSubmitted()
                         }
@@ -693,7 +702,7 @@ class MeasurementService : CustomLifecycleService(), CoroutineScope {
         if (isBetweenTwoLoopTests()) {
             scheduleNextLoopTest()
         }
-        Timber.d("RUNNER IS RUNNING: ${runner.isRunning}")
+        Timber.d("TRS RUNNER IS RUNNING: ${runner.isRunning}")
     }
 
     private fun isBetweenTwoLoopTests() : Boolean {
@@ -793,33 +802,30 @@ class MeasurementService : CustomLifecycleService(), CoroutineScope {
         }
     }
 
-    fun loadTestResults(testUUIDType: TestUuidType, testUUID: String) {
+    suspend fun loadTestResults(testUUIDType: TestUuidType, testUUID: String) {
         when (testUUIDType) {
-            TestUuidType.TEST_UUID -> launch {
+            TestUuidType.TEST_UUID -> coroutineScope {
                 delay(1000)
-                testResultsRepository.loadTestResults(testUUID).zip(
-                    testResultsRepository.loadTestDetailsResult(testUUID)
-                ) { a, b -> a && b }
+                testResultsRepository.loadTestResults(testUUID)
+                    .zip(testResultsRepository.loadTestDetailsResult(testUUID)) { a, b -> a && b }
                     .flowOn(Dispatchers.IO)
+                    .collect { result ->
+                        Timber.d("Results loaded? $result")
+                    }
             }
-            TestUuidType.LOOP_UUID -> {
+            TestUuidType.LOOP_UUID -> withContext(Dispatchers.IO) {
                 Timber.d("Starting to load Median values")
-                io {
-                    delay(1000) // added because of BE QOS part processing performance issue
-                    historyRepository.loadHistoryItems(0, 100, true).onSuccess {
-                        if (it?.isNotEmpty() == true) {
-                            Timber.d("History Successfully loaded: ${it[0]?.loopUUID} ${it[0]?.speedDownload}  from size: ${it.size}")
-                        } else {
-                            Timber.d("History is empty")
-                        }
-                        historyRepository.loadLoopMedianValues(testUUID).onCompletion {
-                        }.collect {
-                            Timber.d("Median values median values? $it")
-                            Timber.d("Median values median qosMedian? $it?.qosMedian")
-                            it?.qosMedian?.let { qosMedian ->
-                                Timber.d("Median values $qosMedian")
-                                testResultsRepository.saveOverallQosItem(qosMedian, testUUID)
-                            }
+                delay(1000) // workaround for BE QOS perf issue
+                historyRepository.loadHistoryItems(0, 100, true).onSuccess {
+                    if (it?.isNotEmpty() == true) {
+                        Timber.d("History loaded: ${it[0]?.loopUUID}, ${it[0]?.speedDownload}, size: ${it.size}")
+                    } else {
+                        Timber.d("History is empty")
+                    }
+                    historyRepository.loadLoopMedianValues(testUUID).collect { median ->
+                        Timber.d("Median values: $median, qosMedian=${median?.qosMedian}")
+                        median?.qosMedian?.let { qosMedian ->
+                            testResultsRepository.saveOverallQosItem(qosMedian, testUUID)
                         }
                     }
                 }
@@ -841,6 +847,7 @@ class MeasurementService : CustomLifecycleService(), CoroutineScope {
                 onUploadSpeedChanged(measurementProgress, uploadSpeedBps)
                 isQoSEnabled(config.shouldRunQosTest)
                 runner.testUUID?.let {
+                    Timber.d("TRS sending result adding client inner class")
                     onClientReady(it, stateRecorder.loopLocalUuid)
                 }
                 if (hasErrors) {
@@ -907,6 +914,7 @@ class MeasurementService : CustomLifecycleService(), CoroutineScope {
         private val clients = mutableSetOf<MeasurementClient>()
 
         fun addClient(client: MeasurementClient) {
+            Timber.d("Adding Test data sent client: $client to clients: ${clients.size}")
             clients.add(client)
         }
 
@@ -958,6 +966,7 @@ class MeasurementService : CustomLifecycleService(), CoroutineScope {
 
         override fun onClientReady(testUUID: String, loopLocalUUID: String?) {
             clients.forEach {
+                Timber.d("TRS onClient ready agregator: ${testUUID}")
                 it.onClientReady(testUUID, loopLocalUUID)
             }
         }

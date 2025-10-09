@@ -251,7 +251,8 @@ class ResultsRepositoryImpl @Inject constructor(
                 jitterMillis = jitterMean,
                 jitterClass = Classification.fromValue(0),
                 packetLossClass = Classification.fromValue(0),
-                packetLossPercents = packetLoss
+                packetLossPercents = packetLoss,
+                status = null
             )
         )
 

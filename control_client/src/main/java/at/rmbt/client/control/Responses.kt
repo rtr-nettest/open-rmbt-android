@@ -118,6 +118,8 @@ data class SpeedCurveBodyResponse(
     val speedCurve: SpeedCurveResponse
 ) : BaseResponse()
 
+
+@Deprecated("Should not be used anymore")
 @Keep
 data class SpeedCurveBodyResponseONT(
     // a lot of fields are not important for us, so we will parse only those one we need
@@ -137,7 +139,9 @@ data class SpeedCurveResponse(
     val ping: List<PingGraphItemResponse>,
 
     @SerializedName("signal")
-    val signal: List<SignalGraphItemResponse>
+    val signal: List<SignalGraphItemResponse>,
+
+    val fences: List<FenceResponseBody>?
 )
 
 @Keep
@@ -328,7 +332,13 @@ data class ServerTestResultItem(
      * List with all QoE classifications
      */
     @SerializedName("qoe_classification")
-    val qoeClassifications: List<QoEClassification>
+    val qoeClassifications: List<QoEClassification>,
+
+    /**
+     * Test status, "coverage" for Coverage measurement
+     */
+    @SerializedName("status")
+    val status: String?
 )
 
 @Keep
@@ -673,7 +683,9 @@ data class HistoryItemResponse(
     @SerializedName("classification_jitter")
     val classificationJitter: Int?,
     @SerializedName("classification_packet_loss")
-    val classificationPacketLoss: Int?
+    val classificationPacketLoss: Int?,
+    val isCoverageFences: Boolean?,
+    val fencesCount: Int?,
 )
 
 @Keep
@@ -915,6 +927,55 @@ class SyncDeviceResponseItem(
 
     val success: Boolean
 )
+
+@Keep
+data class RequestResponse(
+
+    @SerializedName("client_remote_ip")
+    val clientRemoteIp: String,
+
+    @SerializedName("test_uuid")
+    val testUUID: String,
+
+    @SerializedName("result_url")
+    val resultUrl: String,
+
+    @SerializedName("provider")
+    val provider: String?
+) : BaseResponse()
+
+@Keep
+data class CoverageRequestResponse( // CoverageSettingsResponse
+
+    @SerializedName("client_remote_ip")
+    val clientRemoteIp: String,
+    @SerializedName("provider")
+    val provider: String?,
+    @SerializedName("test_uuid")
+    val testUUID: String,
+    @SerializedName("ping_token")
+    val pingToken: String,
+    @SerializedName("ping_host")
+    val pingHost: String,
+    @SerializedName("ping_port")
+    val pingPort: String,
+    @SerializedName("ip_version")
+    val ipVersion: Int,
+    /**
+     * defines the maximum time in seconds for a single session (thus, is that timer expires a new /coverageRequest is needed. The timer is started
+     * with the actual start of the measurement (this might, in case of no coverage be before response from the coverageRequest is received).
+     *
+     * After timer expiration a new measurement shall be started (as it is done when there is no coverage.
+     */
+    @SerializedName("max_coverage_session_seconds")
+    val maxCoverageSessionSeconds: Int,
+    /**
+     * defines the maximum total measurement time. After this timeout the coverage measurement must end (thus, the user interface must switch to results
+     */
+    @SerializedName("max_coverage_measurement_seconds")
+    val maxCoverageMeasurementSeconds: Int,
+
+) : BaseResponse()
 
 @Keep
 data class SignalMeasurementRequestResponse(

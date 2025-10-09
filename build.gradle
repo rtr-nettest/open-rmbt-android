@@ -25,6 +25,7 @@ buildscript {
 plugins {
     id 'io.gitlab.arturbosch.detekt' version '1.0.1'
     id 'org.jetbrains.dokka' version '0.10.0'
+    id 'org.jetbrains.kotlin.jvm' version '1.9.24' apply false
 }
 
 allprojects {

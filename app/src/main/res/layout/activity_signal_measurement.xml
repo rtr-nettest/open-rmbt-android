@@ -14,14 +14,100 @@
             type="Boolean" />
     </data>
 
-    <ScrollView
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:keepScreenOn="true">
+
+        <androidx.fragment.app.FragmentContainerView
+            android:name="com.google.android.gms.maps.SupportMapFragment"
+            android:id="@+id/map"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"/>
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:padding="@dimen/margin_medium">
+            android:padding="@dimen/margin_medium"
+            android:layout_height="match_parent">
+
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:elevation="10dp"
+                android:layout_marginTop="56dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent">
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:padding="@dimen/margin_medium">
+
+                    <!-- Technology -->
+                    <TextView
+                        android:id="@+id/technology_label"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/technology_label"
+                        style="@style/RobotoBoldStyle.Medium"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent"/>
+
+                    <TextView
+                        android:id="@+id/technology_value"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        tools:text="5G"
+                        style="@style/RobotoBoldStyle.Medium"
+                        app:layout_constraintStart_toStartOf="@id/technology_label"
+                        app:layout_constraintTop_toBottomOf="@id/technology_label"/>
+
+                    <!-- Ping -->
+                    <TextView
+                        android:id="@+id/ping_label"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/label_ping"
+                        style="@style/RobotoBoldStyle.Medium"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintHorizontal_bias="0.5"/>
+
+                    <TextView
+                        android:id="@+id/ping_value"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        tools:text="10 ms"
+                        style="@style/RobotoBoldStyle.Medium"
+                        app:layout_constraintTop_toBottomOf="@id/ping_label"
+                        app:layout_constraintStart_toStartOf="@id/ping_label"
+                        app:layout_constraintEnd_toEndOf="@id/ping_label"/>
+
+                    <!-- Accuracy -->
+                    <TextView
+                        android:id="@+id/accuracy_label"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/location_dialog_label_accuracy"
+                        style="@style/RobotoBoldStyle.Medium"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"/>
+
+                    <TextView
+                        android:id="@+id/accuracy_value"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        tools:text="19.6m"
+                        style="@style/RobotoBoldStyle.Medium"
+                        app:layout_constraintTop_toBottomOf="@id/accuracy_label"
+                        app:layout_constraintEnd_toEndOf="@id/accuracy_label"/>
+
+                </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+            </androidx.cardview.widget.CardView>
 
             <Button
                 android:id="@+id/buttonStart"
@@ -32,6 +118,7 @@
                 app:layout_constraintEnd_toStartOf="@+id/buttonStop"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
+                android:visibility="gone"
                 tools:ignore="HardcodedText" />
 
             <Button
@@ -43,6 +130,7 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toEndOf="@+id/buttonStart"
                 app:layout_constraintTop_toTopOf="parent"
+                android:visibility="gone"
                 tools:ignore="HardcodedText" />
 
             <Button
@@ -54,6 +142,7 @@
                 app:layout_constraintEnd_toStartOf="@+id/buttonResume"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/buttonStart"
+                android:visibility="gone"
                 tools:ignore="HardcodedText" />
 
             <Button
@@ -65,6 +154,7 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toEndOf="@+id/buttonPause"
                 app:layout_constraintTop_toBottomOf="@+id/buttonStop"
+                android:visibility="gone"
                 tools:ignore="HardcodedText" />
 
             <Button
@@ -87,6 +177,7 @@
                 android:text="isActive: "
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/buttonWipe"
+                android:visibility="gone"
                 tools:ignore="HardcodedText" />
 
             <TextView
@@ -95,6 +186,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/margin_small"
+                android:visibility="gone"
                 android:layout_marginTop="@dimen/margin_medium"
                 android:text="@{String.valueOf(isActive)}"
                 app:layout_constraintStart_toEndOf="@+id/labelActive"
@@ -107,6 +199,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/margin_medium"
+                android:visibility="gone"
                 android:text="isPaused: "
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/labelActive"
@@ -120,6 +213,7 @@
                 android:layout_marginStart="@dimen/margin_small"
                 android:layout_marginTop="@dimen/margin_medium"
                 android:text="@{String.valueOf(isPaused)}"
+                android:visibility="gone"
                 app:layout_constraintStart_toEndOf="@+id/labelPaused"
                 app:layout_constraintTop_toBottomOf="@+id/labelActive"
                 tools:text="false" />
@@ -131,11 +225,147 @@
                 android:layout_marginTop="@dimen/margin_medium"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
+                android:visibility="gone"
                 app:layout_constraintTop_toBottomOf="@+id/textPaused" />
 
-        </androidx.constraintlayout.widget.ConstraintLayout>
+            <com.google.android.material.floatingactionbutton.FloatingActionButton
+                android:id="@+id/fab_warning"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="@dimen/margin_large"
+                android:layout_marginBottom="@dimen/margin_medium"
+                android:backgroundTint="@android:color/white"
+                android:src="@drawable/ic_no_gps"
+                app:borderWidth="0dp"
+                android:visibility="gone"
+                app:layout_constraintBottom_toTopOf="@+id/fab_location"
+                app:layout_constraintEnd_toEndOf="parent" />
 
-    </ScrollView>
+            <com.google.android.material.floatingactionbutton.FloatingActionButton
+                android:id="@+id/fab_location"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="@dimen/margin_large"
+                android:layout_marginBottom="@dimen/margin_medium"
+                android:backgroundTint="@android:color/white"
+                android:src="@drawable/ic_map_current_location"
+                app:borderWidth="0dp"
+                app:layout_constraintBottom_toTopOf="@+id/fab_close"
+                app:layout_constraintEnd_toEndOf="parent" />
+
+            <com.google.android.material.floatingactionbutton.FloatingActionButton
+                android:id="@+id/fab_close"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="@dimen/margin_large"
+                android:layout_marginBottom="@dimen/margin_medium"
+                android:backgroundTint="@android:color/white"
+                android:src="@drawable/ic_close"
+                app:borderWidth="0dp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent" />
+
+            <TextView
+                android:id="@+id/labelSource"
+                style="@style/TextInputTheme"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="@dimen/margin_large"
+                android:text="@string/location_dialog_label_source"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                android:visibility="gone"
+                tools:ignore="HardcodedText" />
+
+            <TextView
+                android:id="@+id/textSource"
+                style="@style/TextInputTheme"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/margin_small"
+                android:layout_marginBottom="@dimen/margin_large"
+                android:text=" - "
+                app:layout_constraintStart_toEndOf="@+id/labelSource"
+                app:layout_constraintBottom_toBottomOf="parent"
+                tools:text="true"
+                android:visibility="gone"
+                tools:ignore="HardcodedText" />
+
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/warning_message"
+                android:layout_width="match_parent"
+                android:background="@drawable/dialog_background"
+                android:padding="@dimen/margin_large"
+                android:layout_height="wrap_content"
+                android:visibility="gone"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                >
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:id="@+id/warning_message_title"
+                    style="@style/RobotoBoldStyle.Medium"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:textColor="@color/colorAccent"
+                    android:paddingStart="@dimen/padding_small"
+                    android:paddingTop="@dimen/padding_medium"
+                    android:paddingEnd="@dimen/padding_small"
+                    android:paddingBottom="@dimen/padding_large"
+                    android:text="@string/open_gps_setting_dialog_label_gps_not_enabled"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:id="@+id/warning_message_content"
+                    style="@style/RobotoRegularStyle.Medium"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:paddingStart="@dimen/padding_small"
+                    android:paddingTop="@dimen/padding_medium"
+                    android:paddingEnd="@dimen/padding_small"
+                    android:paddingBottom="@dimen/padding_large"
+                    android:text="@string/open_gps_setting_dialog_label_gps_not_enabled"
+                    android:textColor="@color/text_black_transparency_60"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/warning_message_title" />
+
+                <androidx.appcompat.widget.AppCompatButton
+                    android:id="@+id/warning_message_action"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/button_green_background"
+                    android:text="@string/open_gps_setting_dialog_label_open_gps_setting"
+                    android:textAllCaps="false"
+                    android:textColor="@android:color/white"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/warning_message_content" />
+
+                <androidx.appcompat.widget.AppCompatButton
+                    android:id="@+id/warning_message_cancel"
+                    style="?android:attr/borderlessButtonStyle"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/button_white_background"
+                    android:elevation="0dp"
+                    android:text="@string/open_gps_setting_dialog_label_cancel"
+                    android:textAllCaps="false"
+                    android:textColor="@color/colorAccent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/warning_message_action" />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
 
 </layout>

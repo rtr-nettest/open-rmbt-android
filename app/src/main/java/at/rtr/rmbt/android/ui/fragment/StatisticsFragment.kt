@@ -63,6 +63,7 @@ class StatisticsFragment : BaseFragment() {
             settings.useWideViewPort = true
             settings.builtInZoomControls = true
             settings.javaScriptEnabled = true
+            settings.domStorageEnabled = true
             webViewClient = MyWebViewClient(statisticsViewModel)
 
             setOnKeyListener(View.OnKeyListener { _, keyCode, event ->

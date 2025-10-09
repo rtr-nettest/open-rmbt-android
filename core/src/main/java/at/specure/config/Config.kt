@@ -362,6 +362,16 @@ interface Config {
     var signalResultRoute: String
 
     /**
+     * End of url to perform coverage measurement request
+     */
+    var coverageRequestRoute: String
+
+    /**
+     * End of url to send coverage measurement results
+     */
+    var coverageResultRoute: String
+
+    /**
      * Secret code to enable developer mode
      */
     var secretCodeDeveloperModeOn: String
@@ -441,5 +451,10 @@ interface Config {
      * When this flag is set to true, app checks if only one sim is active before signal measurement is activated
      */
     var shouldCheckActiveSimsCount: Boolean
+
+    /**
+     * Minimum distance between latest two dots on map during the signal measurement
+     */
+    var minDistanceMetersToLogNewLocationOnMapDuringSignalMeasurement: Int
 
 }

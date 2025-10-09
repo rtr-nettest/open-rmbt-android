@@ -1,5 +1,6 @@
 package at.specure.data
 
+import at.rmbt.client.control.FenceResponseBody
 import at.rmbt.client.control.HistoryItemONTResponse
 import at.rmbt.client.control.HistoryItemResponse
 import at.rmbt.client.control.HistoryONTResponse
@@ -25,13 +26,13 @@ import at.rmbt.client.control.SpeedGraphItemResponseONT
 import at.rmbt.client.control.TestResultDetailItem
 import at.rmbt.client.control.TestResultDetailResponse
 import at.rmbt.client.control.data.MapFilterType
+import at.specure.data.entity.FencesResultItemRecord
 import at.specure.data.entity.History
 import at.specure.data.entity.MarkerMeasurementRecord
 import at.specure.data.entity.QoeInfoRecord
 import at.specure.data.entity.QosCategoryRecord
 import at.specure.data.entity.QosTestGoalRecord
 import at.specure.data.entity.QosTestItemRecord
-import at.specure.data.entity.SignalMeasurementInfo
 import at.specure.data.entity.TestResultDetailsRecord
 import at.specure.data.entity.TestResultGraphItemRecord
 import at.specure.data.entity.TestResultRecord
@@ -73,7 +74,9 @@ fun HistoryItemResponse.toModel() = History(
     jitterMillis = jitterMillisResult,
     packetLossPercents = packetLossPercents,
     packetLossClassification = classificationPacketLoss?.let { Classification.fromValue(it) },
-    jitterClassification = classificationJitter?.let { Classification.fromValue(it) }
+    jitterClassification = classificationJitter?.let { Classification.fromValue(it) },
+    isCoverageResult = isCoverageFences,
+    fencesCount = fencesCount,
 )
 
 fun HistoryONTResponse.toModelList(): List<History> =
@@ -121,7 +124,9 @@ fun HistoryItemONTResponse.toModel(): History {
             packetLossPercents?.roundToInt().toString()
         },
         packetLossClassification = Classification.NONE,
-        jitterClassification = Classification.NONE
+        jitterClassification = Classification.NONE,
+        isCoverageResult = false,
+        fencesCount = 0
     )
 }
 
@@ -180,7 +185,8 @@ fun ServerTestResultItem.toModel(testUUID: String): TestResultRecord {
         jitterMillis = measurementItem.jitterMillis?.toDoubleOrNull(),
         packetLossPercents = measurementItem.packetLossPercents?.toDoubleOrNull(),
         packetLossClass = measurementItem.packetLossClass?.let { Classification.fromValue(it) },
-        jitterClass = measurementItem.jitterClass?.let { Classification.fromValue(it) }
+        jitterClass = measurementItem.jitterClass?.let { Classification.fromValue(it) },
+        status = status
     )
 }
 
@@ -227,6 +233,21 @@ fun SpeedGraphItemResponse.toModel(testUUID: String, type: TestResultGraphItemRe
         time = timeMillis,
         value = bytes,
         type = type
+    )
+}
+
+fun FenceResponseBody.toModel(testUUID: String): FencesResultItemRecord {
+    return FencesResultItemRecord(
+        testUUID = testUUID,
+        fenceRemoteId = this.fenceId,
+        networkTechnologyId = this.networkTechnologyId,
+        networkTechnologyName = this.networkTechnologyName,
+        latitude = this.latitude,
+        longitude = this.longitude,
+        fenceRadiusMeters = this.fenceRadiusMeters,
+        durationMillis = this.durationMillis,
+        offsetMillis = this.offsetMillis,
+        averagePingMillis = this.averagePingMillis,
     )
 }
 
@@ -428,14 +449,6 @@ fun MapFilterObjectResponse.toSubtypesMap(types: MutableMap<String, MapFilterTyp
 
     return result
 }
-
-fun SignalMeasurementRequestResponse.toModel(measurementId: String) = SignalMeasurementInfo(
-    measurementId = measurementId,
-    uuid = testUUID,
-    clientRemoteIp = clientRemoteIp,
-    resultUrl = resultUrl,
-    provider = provider
-)
 
 private fun List<Any?>.extractFromList(position: Int): Any? = try {
     this[position]

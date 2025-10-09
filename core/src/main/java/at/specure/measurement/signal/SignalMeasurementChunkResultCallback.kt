@@ -1,8 +1,8 @@
 package at.specure.measurement.signal
 
-import at.specure.data.entity.SignalMeasurementInfo
+import at.specure.data.entity.SignalMeasurementSession
 
 interface SignalMeasurementChunkResultCallback {
 
-    fun newUUIDSent(respondedUuid: String, info: SignalMeasurementInfo)
+    fun newUUIDSent(respondedUuid: String, info: SignalMeasurementSession)
 }
