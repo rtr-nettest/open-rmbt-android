@@ -27,7 +27,12 @@ data class TestResultGraphItemRecord(
     /**
      * type of the graph value
      */
-    val type: Type
+    val type: Type,
+
+    /**
+     * it is graph values from local results?
+     */
+    val isLocal: Boolean,
 ) {
 
     enum class Type(val typeValue: Int) {

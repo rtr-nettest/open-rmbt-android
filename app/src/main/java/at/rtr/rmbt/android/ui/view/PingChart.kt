@@ -8,6 +8,7 @@ import at.rtr.rmbt.android.R
 import at.specure.data.NetworkTypeCompat
 import at.specure.data.entity.TestResultGraphItemRecord
 import kotlin.math.ceil
+import androidx.core.content.withStyledAttributes
 
 class PingChart @JvmOverloads constructor(
     context: Context,
@@ -20,16 +21,16 @@ class PingChart @JvmOverloads constructor(
 
     init {
 
-        val typedArray = context.obtainStyledAttributes(attrs, R.styleable.PingChart)
+        context.withStyledAttributes(attrs, R.styleable.PingChart) {
 
-        paintFill.color = typedArray.getColor(
-            R.styleable.PingChart_bar_color,
-            context.getColor(R.color.ping_bar_color)
-        )
-        paintFill.style = Paint.Style.FILL
-        paintFill.isAntiAlias = true
+            paintFill.color = getColor(
+                R.styleable.PingChart_bar_color,
+                context.getColor(R.color.ping_bar_color)
+            )
+            paintFill.style = Paint.Style.FILL
+            paintFill.isAntiAlias = true
 
-        typedArray.recycle()
+        }
     }
 
     override fun onDraw(canvas: Canvas) {
@@ -56,12 +57,19 @@ class PingChart @JvmOverloads constructor(
     /**
      * This function is use for calculate path
      */
-    override fun addResultGraphItems(graphItems: List<TestResultGraphItemRecord>?, networkType: NetworkTypeCompat) {
+    override fun addServerResultGraphItems(graphItems: List<TestResultGraphItemRecord>?, networkType: NetworkTypeCompat) {
         graphItems?.let {
             this.graphItems = it
             setYLabels(getYLabels(it))
         }
         invalidate()
+    }
+
+    override fun addLocalResultGraphItems(
+        graphItems: List<TestResultGraphItemRecord>?,
+        networkType: NetworkTypeCompat
+    ) {
+        addServerResultGraphItems(graphItems, networkType)
     }
 
     private fun getYLabels(graphItems: List<TestResultGraphItemRecord>): Array<Int> {

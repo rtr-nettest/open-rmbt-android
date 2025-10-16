@@ -10,6 +10,7 @@ import at.rtr.rmbt.android.R
 import at.specure.data.NetworkTypeCompat
 import at.specure.data.entity.TestResultGraphItemRecord
 import kotlin.math.abs
+import androidx.core.content.withStyledAttributes
 
 @SuppressLint("CustomViewStyleable")
 class SignalBarChartView @JvmOverloads constructor(
@@ -57,11 +58,11 @@ class SignalBarChartView @JvmOverloads constructor(
         get() = R.string.graph_signal_value
 
     init {
-        val typedArray = context.obtainStyledAttributes(attrs, R.styleable.SpeedLineChart)
-        fillPaint.color = typedArray.getColor(R.styleable.SpeedLineChart_progress_fill_color, context.getColor(R.color.ping_bar_color))
-        linePaint.color = typedArray.getColor(R.styleable.SpeedLineChart_progress_line_color, context.getColor(R.color.ping_bar_color))
+        context.withStyledAttributes(attrs, R.styleable.SpeedLineChart) {
+            fillPaint.color = getColor(R.styleable.SpeedLineChart_progress_fill_color, context.getColor(R.color.ping_bar_color))
+            linePaint.color = getColor(R.styleable.SpeedLineChart_progress_line_color, context.getColor(R.color.ping_bar_color))
 
-        typedArray.recycle()
+        }
     }
 
     override fun onDraw(canvas: Canvas) {
@@ -74,7 +75,7 @@ class SignalBarChartView @JvmOverloads constructor(
     /**
      * This function is use for calculate path
      */
-    override fun addResultGraphItems(graphItems: List<TestResultGraphItemRecord>?, networkType: NetworkTypeCompat) {
+    override fun addServerResultGraphItems(graphItems: List<TestResultGraphItemRecord>?, networkType: NetworkTypeCompat) {
         if (!graphItems.isNullOrEmpty()) {
             val items = graphItems.map {
                 TestResultGraphItemRecord(
@@ -82,7 +83,8 @@ class SignalBarChartView @JvmOverloads constructor(
                     time = it.time,
                     value = it.value,
                     type = it.type,
-                    testUUID = it.testUUID
+                    testUUID = it.testUUID,
+                    isLocal = it.isLocal,
                 )
             }
             this.graphItems = items
@@ -90,6 +92,13 @@ class SignalBarChartView @JvmOverloads constructor(
             setYLabels(labelsYAxis)
         }
         invalidate()
+    }
+
+    override fun addLocalResultGraphItems(
+        graphItems: List<TestResultGraphItemRecord>?,
+        networkType: NetworkTypeCompat
+    ) {
+        addServerResultGraphItems(graphItems, networkType)
     }
 
     private fun calculatePath() {

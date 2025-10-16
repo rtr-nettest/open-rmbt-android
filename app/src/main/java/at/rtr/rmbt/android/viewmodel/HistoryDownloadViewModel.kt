@@ -95,7 +95,7 @@ class HistoryDownloadViewModel @Inject constructor(
         state.isHistoryEmpty.set(historyItemsLiveData.value.isNullOrEmpty())
     }
     fun downloadFile(format: String) {
-        viewModelScope.launch {
+        viewModelScope.launch(CoroutineName("Download file coroutine")) {
             val openUuids = if (historyItemsLiveData.value.isNullOrEmpty()) {
                 emptyList<String>()
             } else {

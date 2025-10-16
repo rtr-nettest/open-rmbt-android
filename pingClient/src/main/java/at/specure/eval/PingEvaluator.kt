@@ -2,6 +2,7 @@ package at.specure.eval
 
 import at.specure.client.PingResult
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -35,7 +36,7 @@ class PingEvaluator(private val pingFlow: Flow<PingResult>) {
         } // already running
         if (debugLog) println("✅ Ping job starting")
         results.clear()
-        job = launch { // This is the CoroutineScope(Dispatchers.Default).coroutineContext + Job()
+        job = launch(CoroutineName("PingJob in evaluator")) { // This is the CoroutineScope(Dispatchers.Default).coroutineContext + Job()
             try {
                 pingFlow.collect { result ->
                     mutex.withLock {

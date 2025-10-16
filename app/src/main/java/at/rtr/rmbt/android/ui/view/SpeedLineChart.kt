@@ -17,6 +17,7 @@ import kotlin.math.max
 import kotlin.math.min
 import kotlin.math.pow
 import kotlin.math.sqrt
+import androidx.core.content.withStyledAttributes
 
 
 private const val RESULT_GRAPH_MISSING_SPEED_TIME_GAP_MILLISECONDS = 250L
@@ -162,7 +163,7 @@ class SpeedLineChart @JvmOverloads constructor(
         invalidate()
     }
 
-    override fun addResultGraphItems(graphItems: List<TestResultGraphItemRecord>?, networkType: NetworkTypeCompat) {
+    override fun addServerResultGraphItems(graphItems: List<TestResultGraphItemRecord>?, networkType: NetworkTypeCompat) {
 
         pathStroke.rewind()
         pathFill.rewind()
@@ -177,7 +178,10 @@ class SpeedLineChart @JvmOverloads constructor(
                         testUUID = next.testUUID,
                         time = ((next.time.toDouble() / maxTime.toDouble()) * 100).toLong(),          // time
                         value = if (next.value == -1L || prev.value == -1L) 0 else ((next.value - prev.value) * 8000) / (next.time - prev.time),       // speed Mbits / seconds
-                        type = next.type
+                        type = next.type,
+
+
+                        isLocal = false
                     )
                 }.groupBy {
                     it.time
@@ -188,7 +192,8 @@ class SpeedLineChart @JvmOverloads constructor(
                         testUUID = items.first().testUUID, // keep the same testUUID
                         time = time,
                         value = avgValue,
-                        type = items.first().type         // keep the same type
+                        type = items.first().type,         // keep the same type,
+                        isLocal = false
                     )
                 }
                 val averages = differences.mapIndexed { index, record ->
@@ -201,6 +206,36 @@ class SpeedLineChart @JvmOverloads constructor(
             }
         }
 
+    }
+
+    override fun addLocalResultGraphItems(
+        graphItems: List<TestResultGraphItemRecord>?,
+        networkType: NetworkTypeCompat
+    ) {
+        pathStroke.rewind()
+        pathFill.rewind()
+
+        val filteredGraphItems = removeLeadingZeroValuesForResult(graphItems)
+        filteredGraphItems.let { items ->
+
+            chartPoints = ArrayList()
+
+            val maxValue = items?.maxByOrNull { it.time }?.time
+            if (maxValue != null) {
+
+                if (((items[0].time / maxValue.toFloat()) * 100.0f) > 0) {
+                    chartPoints.add(PointF(0.0f, toLog(items[0].value * 8000 / items[0].time)))
+                }
+
+                for (index in items.indices) {
+                    val x = items[index].time / maxValue.toFloat()
+                    val y = toLog(items[index].value * 8000 / items[index].time)
+                    chartPoints.add(PointF(x, y))
+                    Timber.d("itemsdisplaytest x $x y $y width ${getChartWidth()} height ${getChartHeight()}")
+                }
+            }
+        }
+        invalidate()
     }
 
     fun averageAtIndex(data: List<TestResultGraphItemRecord>, index: Int, windowSize: Int): Double {

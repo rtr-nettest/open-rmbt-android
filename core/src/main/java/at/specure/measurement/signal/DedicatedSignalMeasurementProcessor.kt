@@ -22,6 +22,7 @@ import at.specure.location.isAccuracyEnoughForSignalMeasurement
 import at.specure.test.toDeviceInfoLocation
 import at.specure.test.toLocation
 import kotlinx.coroutines.CoroutineExceptionHandler
+import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.FlowPreview
@@ -141,9 +142,9 @@ class DedicatedSignalMeasurementProcessor @Inject constructor(
 
     private fun startMaxCoverageMeasurementSecondsReachedJob(session: SignalMeasurementSession) {
         maxCoverageMeasurementSecondsReachedJob?.cancel()
-        maxCoverageMeasurementSecondsReachedJob = CoroutineScope(Dispatchers.Default).launch {
+        maxCoverageMeasurementSecondsReachedJob = CoroutineScope(Dispatchers.Default).launch(CoroutineName("MaxCoverageMeasurementSecondsReachedJob")) {
             session.maxCoverageMeasurementSeconds?.let { maxCoverageMeasurementSeconds ->
-                launch {
+                launch(CoroutineName("OnMaxCoverageMeasurementSecondsReachedJob")) {
                     delay( maxCoverageMeasurementSeconds.seconds) // todo: alter time as session begin one time but response was another time
                     onMeasurementStop() // todo check if this is correct logic to happen
                     cancel("MaxCoverageMeasurementSeconds elapsed")
@@ -154,9 +155,9 @@ class DedicatedSignalMeasurementProcessor @Inject constructor(
 
     private fun startMaxCoverageSessionSecondsReachedJob(session: SignalMeasurementSession) {
         maxCoverageSessionSecondsReachedJob?.cancel()
-        maxCoverageSessionSecondsReachedJob = CoroutineScope(Dispatchers.Default).launch {
+        maxCoverageSessionSecondsReachedJob = CoroutineScope(Dispatchers.Default).launch(CoroutineName("MaxCoverageSessionSecondsReachedJob2")) {
             session.maxCoverageSessionSeconds?.let { maxCoverageSessionSeconds ->
-                launch {
+                launch(CoroutineName("OnMaxCoverageSessionSecondsReachedJob2")) {
                     delay( maxCoverageSessionSeconds.seconds) // todo: alter time as session begin one time but response was another time
                     onMeasurementStop() // todo check if this is correct logic to happen
                     cancel("MaxCoverageSessionSeconds elapsed")
@@ -353,7 +354,7 @@ class DedicatedSignalMeasurementProcessor @Inject constructor(
     }
 
     fun onMeasurementStop() {
-        this.launch {
+        this.launch(CoroutineName("OnDedicatedSignalMeasurementStop")) {
             try {
                 pingEvaluator?.evaluateAndStop()
                 val lastPoint = dedicatedSignalMeasurementData.value?.points?.lastOrNull()
@@ -386,7 +387,7 @@ class DedicatedSignalMeasurementProcessor @Inject constructor(
 
     private fun loadDedicatedMeasurementSession(
         sessionId: String, onSessionReadyCallback: (SignalMeasurementSession) -> Unit
-    ) = launch {
+    ) = launch(CoroutineName("loadDedicatedMeasurementSession")) {
         val loadedSession = signalMeasurementRepository.getDedicatedMeasurementSession(
             sessionId
         )
@@ -399,7 +400,7 @@ class DedicatedSignalMeasurementProcessor @Inject constructor(
     }
 
     private fun createNewDedicatedMeasurementSession(onSessionReadyCallback: (SignalMeasurementSession) -> Unit) =
-        launch {
+        launch(CoroutineName("createNewDedicatedMeasurementSession")) {
             val session = SignalMeasurementSession()
             signalMeasurementRepository.saveDedicatedMeasurementSession(session)
             Timber.d("Newly created session id: ${session.sessionId}")
