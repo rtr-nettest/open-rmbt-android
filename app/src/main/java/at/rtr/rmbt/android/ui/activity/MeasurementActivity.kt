@@ -178,7 +178,6 @@ class MeasurementActivity : BaseActivity(), SimpleDialog.Callback {
                 viewModel.testUUID?.let {
                     if (viewModel.state.measurementState.get() == MeasurementState.FINISH) {
                         ResultsActivity.start(this, it, ResultsActivity.ReturnPoint.HOME)
-                        finish()
                         return
                     }
                 }
