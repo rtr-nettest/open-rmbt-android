@@ -186,7 +186,7 @@ class HomeViewModel @Inject constructor(
         loadPointJob = loadPoints(sessionId)
     }
 
-    private fun loadPoints(sessionId: String) = launch {
+    private fun loadPoints(sessionId: String) = launch(CoroutineName("LoadPointsHomeViewModel")) {
         val points =
             signalMeasurementRepository.loadSignalMeasurementPointRecordsForMeasurement(sessionId)
         points.asFlow().flowOn(Dispatchers.IO).collect { loadedPoints ->
@@ -291,7 +291,7 @@ class HomeViewModel @Inject constructor(
 
     fun silenceLocationDialogWarning() {
         state.locationWarningDialogSilenced.set(true)
-        launch {
+        launch(CoroutineName("SilenceLocationDialogWarning")) {
             delay(LOCATION_ACCURACY_WARNING_DIALOG_SILENCED_TIME_MILLIS)
             state.locationWarningDialogSilenced.set(false)
         }

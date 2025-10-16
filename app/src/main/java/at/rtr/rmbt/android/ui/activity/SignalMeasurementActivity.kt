@@ -38,6 +38,7 @@ import com.google.android.gms.maps.model.MarkerOptions
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
+import kotlinx.coroutines.CoroutineName
 import timber.log.Timber
 import kotlin.math.roundToInt
 
@@ -158,7 +159,7 @@ class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback {
                 points.forEach { point ->
                     val latLng = point.location.toLatLng()
                     latLng?.let { markerLatLng ->
-                        lifecycleScope.launch {
+                        lifecycleScope.launch(CoroutineName("Creating marker signal measurement activity")) {
                             val options = MarkerOptions()
                                 .position(markerLatLng)
                                 .icon(BitmapDescriptorFactory.fromBitmap(viewModel.customMarkerProvider.createCustomShapeBitmap(MobileNetworkType.fromValue(point.technologyId ?: 0))))
@@ -263,7 +264,7 @@ class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback {
     override fun onStart() {
         super.onStart()
         viewModel.attach(this)
-        lifecycleScope.launch {
+        lifecycleScope.launch(CoroutineName("Starting signal measurement")) {
             // TODO: maybe a little improve and instead of delay add state variable which listens on onServiceConnected in homeViewModel and start it there, but drawback is that we need to know when we want to continue there
             delay(1000)
             Timber.d("Starting signal measurement")
@@ -352,7 +353,7 @@ class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback {
     }
 
     private fun showStopDialog() {
-        val hideStopDialogJob = lifecycleScope.launch {
+        val hideStopDialogJob = lifecycleScope.launch(CoroutineName("Hiding stop dialog")) {
             delay(5000L)
             hideDialog()
         }

@@ -88,7 +88,11 @@ class ResultChartFragment : BaseFragment() {
         progressLoadItems.visibility = View.GONE
 
         with(graphView as ResultChart) {
-            addResultGraphItems(viewModel.state.graphItems, viewModel.state.networkType)
+            if (viewModel.state.graphItems.isNullOrEmpty() || viewModel.state.graphItems?.get(0)?.isLocal == true) {
+                addLocalResultGraphItems(viewModel.state.graphItems, viewModel.state.networkType)
+            } else {
+                addServerResultGraphItems(viewModel.state.graphItems, viewModel.state.networkType)
+            }
         }
     }
 

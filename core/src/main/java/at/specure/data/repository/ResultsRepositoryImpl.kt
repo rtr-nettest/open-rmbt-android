@@ -292,7 +292,8 @@ class ResultsRepositoryImpl @Inject constructor(
             testUUID = testUUID,
             time = pingRecord.testTimeNanos / 1000000,
             type = TestResultGraphItemRecord.Type.PING,
-            value = pingRecord.value / 1000000
+            value = pingRecord.value / 1000000,
+            isLocal = true,
         )
     }
 
@@ -301,7 +302,8 @@ class ResultsRepositoryImpl @Inject constructor(
             testUUID = testUUID,
             time = signalRecord.timeNanos / 1000000,
             type = TestResultGraphItemRecord.Type.SIGNAL,
-            value = signalRecord.signal?.toLong() ?: signalRecord.lteRsrp?.toLong() ?: 0
+            value = signalRecord.signal?.toLong() ?: signalRecord.lteRsrp?.toLong() ?: 0,
+            isLocal = true,
         )
     }
 
@@ -361,7 +363,8 @@ class ResultsRepositoryImpl @Inject constructor(
             testUUID = minTime.testUUID,
             value = (speedBPS * (minTime.timestampNanos / 1000000000f)).toLong(),
             time = minTime.timestampNanos / 1000000,
-            type = if (minTime.isUpload) TestResultGraphItemRecord.Type.UPLOAD else TestResultGraphItemRecord.Type.DOWNLOAD
+            type = if (minTime.isUpload) TestResultGraphItemRecord.Type.UPLOAD else TestResultGraphItemRecord.Type.DOWNLOAD,
+            isLocal = true
         )
     }
 

@@ -417,7 +417,7 @@ class MeasurementService : CustomLifecycleService(), CoroutineScope {
                         }
                         clientAggregator.onResultSubmitted()
                         Timber.d("Loop uuid = $loopUUID Length = ${loopUUID?.length} Loop is null = ${loopUUID == null}}")
-                        CoroutineScope(Dispatchers.IO + SupervisorJob()).launch {
+                        CoroutineScope(Dispatchers.IO + SupervisorJob()).launch(CoroutineName("LoadTestResults")) {
                             loadTestResults(
                                 if (loopUUID == null) {
                                     TestUuidType.TEST_UUID

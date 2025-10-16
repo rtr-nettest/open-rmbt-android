@@ -5,5 +5,7 @@ import at.specure.data.entity.TestResultGraphItemRecord
 
 interface ResultChart {
 
-    fun addResultGraphItems(graphItems: List<TestResultGraphItemRecord>?, networkType: NetworkTypeCompat)
+    fun addServerResultGraphItems(graphItems: List<TestResultGraphItemRecord>?, networkType: NetworkTypeCompat)
+
+    fun addLocalResultGraphItems(graphItems: List<TestResultGraphItemRecord>?, networkType: NetworkTypeCompat)
 }
