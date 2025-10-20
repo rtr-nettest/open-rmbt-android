@@ -1,6 +1,7 @@
 package at.rtr.rmbt.android.viewmodel
 
 import androidx.lifecycle.MutableLiveData
+import at.rmbt.client.control.data.MapFilterData
 import at.rmbt.client.control.data.MapFilterType
 import at.rtr.rmbt.android.ui.viewstate.MapFilterViewState
 import at.specure.data.repository.MapRepository
@@ -10,7 +11,7 @@ class MapFiltersViewModel @Inject constructor(private val repository: MapReposit
 
     val state = MapFilterViewState()
 
-    val typesLiveData: MutableLiveData<List<String>> = MutableLiveData()
+    val typesLiveData: MutableLiveData<MapFilterData> = MutableLiveData()
 
     val statisticsLiveData = repository.statisticalLiveData
     val subtypesLiveData = repository.subtypesLiveData

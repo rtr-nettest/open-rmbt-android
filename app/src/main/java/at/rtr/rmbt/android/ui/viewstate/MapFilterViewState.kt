@@ -1,5 +1,6 @@
 package at.rtr.rmbt.android.ui.viewstate
 
+import android.os.Build
 import android.os.Bundle
 import androidx.databinding.ObservableBoolean
 import androidx.databinding.ObservableField
@@ -29,6 +30,8 @@ private const val KEY_OPERATOR_VISIBILITY = "operator_visibility"
 private const val KEY_TECHNOLOGY_VISIBILITY = "technology_visibility"
 private const val KEY_PROVIDER_VISIBILITY = "provider_visibility"
 
+private const val KEY_LOADING_FILTERS_EXCEPTION = "loading_filters_exception"
+
 class MapFilterViewState : ViewState {
 
     var type: ObservableField<String> = ObservableField()
@@ -38,6 +41,7 @@ class MapFilterViewState : ViewState {
     var operator: ObservableField<FilterOperatorOptionResponse> = ObservableField()
     var timeRange: ObservableField<FilterPeriodOptionResponse> = ObservableField()
     var technology: ObservableField<FilterTechnologyOptionResponse> = ObservableField()
+    var loadingFiltersException: ObservableField<Exception?> = ObservableField()
 
     var displayType: ObservableField<String> = ObservableField()
     var operatorVisibility = ObservableBoolean(true)
@@ -72,6 +76,8 @@ class MapFilterViewState : ViewState {
             putString(KEY_TIME_RANGE_TITLE, periodTitle.get())
             putString(KEY_OPERATOR_TITLE, operatorTitle.get())
             putString(KEY_TECHNOLOGY_TITLE, technologyTitle.get())
+
+            putSerializable(KEY_LOADING_FILTERS_EXCEPTION, loadingFiltersException.get())
         }
     }
 
@@ -97,6 +103,14 @@ class MapFilterViewState : ViewState {
             operatorTitle.set(getString(KEY_OPERATOR_TITLE))
             providerTitle.set(getString(KEY_PROVIDER_TITLE))
             technologyTitle.set(getString(KEY_TECHNOLOGY_TITLE))
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                loadingFiltersException.set(getSerializable(KEY_LOADING_FILTERS_EXCEPTION, Exception::class.java))
+            } else {
+                loadingFiltersException.set(getSerializable(KEY_LOADING_FILTERS_EXCEPTION) as? Exception)
+            }
+
+
         }
     }
 }

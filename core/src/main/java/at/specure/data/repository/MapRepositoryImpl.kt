@@ -22,6 +22,7 @@ import at.rmbt.client.control.MapServerClient
 import at.rmbt.client.control.MapTypeOptionsResponse
 import at.rmbt.client.control.MarkersRequestBody
 import at.rmbt.client.control.ProviderStatistics
+import at.rmbt.client.control.data.MapFilterData
 import at.rmbt.client.control.data.MapFilterType
 import at.rmbt.client.control.data.MapPresentationType
 import at.rmbt.util.io
@@ -123,7 +124,7 @@ class MapRepositoryImpl @Inject constructor(
         }
     }
 
-    override fun obtainFilters(callback: (List<String>) -> Unit) = io {
+    override fun obtainFilters(callback: (MapFilterData) -> Unit) = io {
 
         if (config.headerValue.isNullOrEmpty()) {
 
@@ -192,8 +193,22 @@ class MapRepositoryImpl @Inject constructor(
                     }
                     markTypeAsSelected(storage.findType(active.type))
 
-                    callback.invoke(types.keys.toMutableList())
+                    callback.invoke(
+                        MapFilterData(
+                            filterData = types.keys.toMutableList(),
+                        )
+                    )
                 }
+            }
+
+            result.onFailure {
+                callback.invoke(
+                    MapFilterData(
+                        filterData = mutableListOf(),
+                        exception = it
+                    )
+                )
+                Timber.d("Loading map filters failed $it")
             }
         } else {
             val types = LinkedHashMap<String, MapFilterType>()
@@ -268,7 +283,11 @@ class MapRepositoryImpl @Inject constructor(
                 )
             }
             markTypeAsSelected(storage.findType(active.type))
-            callback.invoke(types.keys.toMutableList())
+            callback.invoke(
+                MapFilterData(
+                    filterData = types.keys.toMutableList()
+                )
+            )
 //            }
         }
         // todo: add error handling

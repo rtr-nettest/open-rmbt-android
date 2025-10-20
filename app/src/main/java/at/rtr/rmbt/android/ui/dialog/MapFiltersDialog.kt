@@ -75,16 +75,25 @@ class MapFiltersDialog : FullscreenDialog(), MapFiltersConfirmationDialog.Callba
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        viewModel.typesLiveData.listen(this) {
+            it.exception?.let { exception ->
+                this.dialog?.dismiss()
+                showLoadingFiltersErrorDialog(exception)
+            }
+        }
+
         binding.type.setOnClickListener {
             viewModel.typesLiveData.listen(this) {
                 viewModel.typesLiveData.removeObservers(this)
-                MapFiltersConfirmationDialog.instance(
-                    this,
-                    CODE_TYPE,
-                    getString(R.string.title_filters_type),
-                    it as ArrayList<String>,
-                    it.indexOf(it.find { it == viewModel.state.type.get() })
-                ).show(parentFragmentManager)
+                it.filterData.also {
+                    MapFiltersConfirmationDialog.instance(
+                        this,
+                        CODE_TYPE,
+                        getString(R.string.title_filters_type),
+                        it as ArrayList<String>,
+                        it.indexOf(it.find { it == viewModel.state.type.get() })
+                    ).show(parentFragmentManager)
+                }
             }
         }
 
@@ -197,6 +206,10 @@ class MapFiltersDialog : FullscreenDialog(), MapFiltersConfirmationDialog.Callba
     override fun onDismiss(dialog: DialogInterface) {
         super.onDismiss(dialog)
         callback?.onFiltersUpdated()
+    }
+
+    private fun showLoadingFiltersErrorDialog(exception: Exception) {
+        Dialogs.show(this.requireContext(), getString(R.string.title_filters_loading_error), exception.localizedMessage ?: exception.message ?: getString(R.string.loading_map_filters_failed))
     }
 
     companion object {
