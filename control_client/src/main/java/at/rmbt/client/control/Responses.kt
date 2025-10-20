@@ -254,7 +254,7 @@ data class ServerTestResultItem(
      * open uuid of the client used for identify user in opendata
      */
     @SerializedName("open_uuid")
-    val clientOpenUUID: String,
+    val clientOpenUUID: String?,
 
     /**
      * open uuid of the test used for identify test in opendata and request opendata result details (necessary for graph values)
