@@ -530,4 +530,6 @@
     <string name="title_coverage_loop_mode">Coverage loop mode</string>
     <string name="title_filters_loading_error">Loading filters failed</string>
     <string name="loading_map_filters_failed">Unable to load map filters. Please, try again.</string>
+    <string name="coverage_measurement_error_title">Coverage measurement error</string>
+    <string name="coverage_measurement_error_unknown">There was an error during coverage measurement. Please, try again.</string>
 </resources>

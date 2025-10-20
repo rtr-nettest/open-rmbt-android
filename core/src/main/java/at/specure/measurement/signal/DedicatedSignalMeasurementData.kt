@@ -8,6 +8,7 @@ data class DedicatedSignalMeasurementData(
     val signalMeasurementSession: SignalMeasurementSession,
     val signalMeasurementSettings: SignalMeasurementSettings,
     val points: List<SignalMeasurementFenceRecord> = mutableListOf(),
+    val signalMeasurementException: Exception? = null,
     val currentNetworkType: String? = null,
     val currentPingMs: Double? = null,
     val currentPingStatus: String? = null,

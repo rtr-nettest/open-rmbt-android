@@ -22,7 +22,7 @@ data class TestResultRecord(
     /**
      * open uuid of the client used for identify user in opendata
      */
-    val clientOpenUUID: String,
+    val clientOpenUUID: String?,
 
     /**
      * open uuid of the test used for identify test in opendata and request opendata result details (necessary for graph values)

@@ -25,6 +25,7 @@ import at.specure.location.LocationInfo
 import at.specure.location.LocationState
 import at.specure.test.DeviceInfo
 import at.rmbt.client.control.data.SignalMeasurementType
+import at.rtr.rmbt.android.ui.dialog.Dialogs
 import at.rtr.rmbt.android.util.formatAccuracy
 import at.specure.info.network.MobileNetworkType
 import at.specure.test.toLocation
@@ -111,6 +112,10 @@ class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback {
                 } else {
                     this.getString(R.string.measurement_dash)
                 }
+            }
+
+            it?.signalMeasurementException?.also {
+                Dialogs.show(this.applicationContext, getString(R.string.coverage_measurement_error_title), it.message ?: getString(R.string.coverage_measurement_error_unknown))
             }
         }
 

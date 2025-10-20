@@ -81,7 +81,7 @@ class DedicatedSignalMeasurementProcessor @Inject constructor(
     val currentSessionId: String?
         get() = dedicatedSignalMeasurementData.value?.signalMeasurementSession?.sessionId
 
-    fun initializeDedicatedMeasurementSession(sessionCreated: ((sessionId: String) -> Unit)?) {
+    fun initializeDedicatedMeasurementSession(sessionCreated: ((sessionId: String) -> Unit)?, sessionCreationError: ((e: Exception) -> Unit)?) {
         loadingPointsJob?.cancel()
         val lastSignalMeasurementSessionId =
             signalMeasurementSettings.signalMeasurementLastSessionId
@@ -102,17 +102,23 @@ class DedicatedSignalMeasurementProcessor @Inject constructor(
             val isSessionRegistered = session.serverSessionId != null
             if (isSessionRegistered.not()) {
                 scope.launch(Dispatchers.IO) {
-                    val isRegistered = signalMeasurementRepository.registerCoverageMeasurement(coverageSessionId = session.sessionId, measurementId = null).collect { isRegistered ->
-                        if (isRegistered) {
-                            val registeredSession = signalMeasurementRepository.getDedicatedMeasurementSession(
-                                session.sessionId
-                            )
-                            // TODO: implement retry mechanism when it was not able to register session
-                            Timber.d("Starting ping client after registration a new measurement with session: $registeredSession")
-                            registeredSession?.let {
-                                onStartAndRegistrationCompleted(registeredSession)
+                    try {
+                        val isRegistered = signalMeasurementRepository.registerCoverageMeasurement(coverageSessionId = session.sessionId, measurementId = null)
+                            .collect { isRegistered ->
+                                if (isRegistered) {
+                                    val registeredSession = signalMeasurementRepository.getDedicatedMeasurementSession(
+                                        session.sessionId
+                                    )
+                                    // TODO: implement retry mechanism when it was not able to register session
+                                    Timber.d("Starting ping client after registration a new measurement with session: $registeredSession")
+                                    registeredSession?.let {
+                                        onStartAndRegistrationCompleted(registeredSession)
+                                    }
+                                }
                             }
-                        }
+                    } catch (e: HandledException) {
+                        onError(e)
+                        sessionCreationError?.invoke(e)
                     }
                 }
             } else {
@@ -138,6 +144,14 @@ class DedicatedSignalMeasurementProcessor @Inject constructor(
         startPingClient(registeredAndStartedSession)
         startMaxCoverageMeasurementSecondsReachedJob(session = registeredAndStartedSession)
         startMaxCoverageSessionSecondsReachedJob(session = registeredAndStartedSession)
+    }
+
+    private fun onError(e: Exception) {
+        dedicatedSignalMeasurementData.postValue(
+            dedicatedSignalMeasurementData.value?.copy(
+                signalMeasurementException = e,
+            )
+        )
     }
 
     private fun startMaxCoverageMeasurementSecondsReachedJob(session: SignalMeasurementSession) {
