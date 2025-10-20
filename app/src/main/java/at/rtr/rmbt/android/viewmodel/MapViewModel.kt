@@ -44,7 +44,7 @@ class MapViewModel @Inject constructor(
 
     fun obtainFilters() {
         repository.obtainFilters {
-            this.state.isFilterLoaded.set(it.isNotEmpty())
+            this.state.isFilterLoaded.set(it.filterData.isNotEmpty())
             providerLiveData.postValue(RetrofitTileProvider(repository, state))
         }
     }

@@ -528,4 +528,6 @@
     <string name="coverage_result">Coverage result</string>
     <string name="number_of_fences_is">Number of fences is</string>
     <string name="title_coverage_loop_mode">Coverage loop mode</string>
+    <string name="title_filters_loading_error">Loading filters failed</string>
+    <string name="loading_map_filters_failed">Unable to load map filters. Please, try again.</string>
 </resources>

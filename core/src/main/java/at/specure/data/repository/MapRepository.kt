@@ -8,6 +8,7 @@ import at.rmbt.client.control.FilterProviderOptionResponse
 import at.rmbt.client.control.FilterStatisticOptionResponse
 import at.rmbt.client.control.FilterTechnologyOptionResponse
 import at.rmbt.client.control.MapTypeOptionsResponse
+import at.rmbt.client.control.data.MapFilterData
 import at.rmbt.client.control.data.MapPresentationType
 import at.specure.data.entity.MarkerMeasurementRecord
 import at.specure.util.ActiveFilter
@@ -35,7 +36,7 @@ interface MapRepository {
 
     fun prepareDetailsLink(openUUID: String): LiveData<String>
 
-    fun obtainFilters(callback: (List<String>) -> Unit)
+    fun obtainFilters(callback: (MapFilterData) -> Unit)
 
     fun obtainProviders(callback: (MutableList<String>) -> Unit)
 
