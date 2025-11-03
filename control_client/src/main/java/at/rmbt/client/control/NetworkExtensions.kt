@@ -61,7 +61,7 @@ fun <T : BaseResponse> Call<T>.exec(silentError: Boolean = false): Maybe<T> {
         } else {
             Timber.w(t)
         }
-        Maybe(HandledException.from(t))
+        Maybe(HandledException.fromWithMessage(t, "${t.javaClass.simpleName} ${this.request()}"))
     }
 }
 

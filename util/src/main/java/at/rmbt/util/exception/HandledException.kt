@@ -39,11 +39,13 @@ open class HandledException constructor(val msg: String?, val stringResource: In
 
     companion object {
 
-        fun from(ex: Throwable) = when (ex) {
+        fun from(ex: Throwable) = fromWithMessage(ex, "")
+
+        fun fromWithMessage(ex: Throwable, msg: String) = when (ex) {
             is HandledException -> ex
             is SocketTimeoutException -> ConnectionTimeoutException()
             is UnknownHostException, is ConnectException, is SocketException -> NoConnectionException()
-            else -> HandledException(ex.message!!)
+            else -> HandledException("Message: ${ex.message} \nCause: ${ex.cause} \nCustom message: $msg")
         }
     }
 }
