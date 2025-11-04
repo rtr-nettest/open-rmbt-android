@@ -7,8 +7,8 @@ buildscript {
                 applicationId    : "at.alladin.rmbt.android.prod",
                 minSdkVersion    : 26, // Android Version 8 as of year 2017 (supports 94% of all devices as of 2025)
                 targetSdkVersion : 35, // Android Version 15 as of year 2024
-                versionCode      : (project.hasProperty('buildVersionCode') ? Integer.parseInt(buildVersionCode) : 41609),
-                versionName      : (project.hasProperty('buildVersionName') ? buildVersionName : '4.16.9' +
+                versionCode      : (project.hasProperty('buildVersionCode') ? Integer.parseInt(buildVersionCode) : 41610),
+                versionName      : (project.hasProperty('buildVersionName') ? buildVersionName : '4.16.10' +
                         '')
         ]
 
