@@ -27,6 +27,7 @@ private const val PING_EVALUATE_LAST_N_ITEMS: Int = 10
 class RtrPingProcessor: PingProcessor {
 
     private var pingEvaluator: PingEvaluator? = null
+    private val debug = true
 
     @OptIn(FlowPreview::class)
     override suspend fun startPing(coverageMeasurementSession: CoverageMeasurementSession): Flow<PingData> = flow {
@@ -87,7 +88,11 @@ class RtrPingProcessor: PingProcessor {
     }
 
     override suspend fun getCurrentPingStats(): PingStats? {
-        return pingEvaluator?.evaluateLastItems(PING_EVALUATE_LAST_N_ITEMS)
+        val pingStats = pingEvaluator?.evaluateLastItems(PING_EVALUATE_LAST_N_ITEMS)
+        if (debug) {
+            println("Ping stats for ${PING_EVALUATE_LAST_N_ITEMS} items: ${pingStats}")
+        }
+        return pingStats
     }
 
     override suspend fun onNewFenceStarted(): PingStats? {
