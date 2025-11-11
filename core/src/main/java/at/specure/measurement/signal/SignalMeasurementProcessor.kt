@@ -180,7 +180,7 @@ class SignalMeasurementProcessor @Inject constructor(
         commitChunkData(ValidChunkPostProcessing.NOTHING)
         isUnstoppable = unstoppable
         if (lastSignalMeasurementType == SignalMeasurementType.DEDICATED) {
-            rtrCoverageMeasurementProcessor.onMeasurementStop()
+            rtrCoverageMeasurementProcessor.onMeasurementSessionStop()
         }
         resetStateData()
         postStateData()

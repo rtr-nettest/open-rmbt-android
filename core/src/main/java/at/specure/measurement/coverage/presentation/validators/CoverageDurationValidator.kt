@@ -1,4 +1,4 @@
-package at.specure.measurement.coverage.validators
+package at.specure.measurement.coverage.presentation.validators
 
 import at.specure.measurement.coverage.domain.validators.DurationValidator
 import javax.inject.Singleton

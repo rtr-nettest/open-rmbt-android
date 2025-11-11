@@ -48,12 +48,14 @@ import at.specure.info.wifi.WifiInfoWatcherImpl
 import at.specure.location.LocationWatcher
 import at.specure.location.cell.CellLocationWatcher
 import at.specure.location.cell.CellLocationWatcherImpl
-import at.specure.measurement.coverage.validators.CoverageDurationValidator
-import at.specure.measurement.coverage.validators.CoverageGpsValidator
-import at.specure.measurement.coverage.validators.CoverageNetworkValidator
+import at.specure.measurement.coverage.domain.PingProcessor
+import at.specure.measurement.coverage.presentation.validators.CoverageDurationValidator
+import at.specure.measurement.coverage.presentation.validators.CoverageGpsValidator
+import at.specure.measurement.coverage.presentation.validators.CoverageNetworkValidator
 import at.specure.measurement.coverage.domain.validators.DurationValidator
 import at.specure.measurement.coverage.domain.validators.GpsValidator
 import at.specure.measurement.coverage.domain.validators.NetworkValidator
+import at.specure.measurement.coverage.presentation.RtrPingProcessor
 import at.specure.test.TestController
 import at.specure.test.TestControllerImpl
 import at.specure.util.map.CustomMarker
@@ -308,7 +310,9 @@ class CoreModule {
     @Singleton
     fun provideNetworkValidator(
         config: Config
-    ): NetworkValidator = CoverageNetworkValidator(
+    ): NetworkValidator = CoverageNetworkValidator()
 
-    )
+    @Provides
+    @Singleton
+    fun providePingProcessor(): PingProcessor = RtrPingProcessor()
 }

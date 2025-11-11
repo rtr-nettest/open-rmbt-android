@@ -1,4 +1,4 @@
-package at.specure.measurement.coverage.data
+package at.specure.measurement.coverage.domain.models
 
 import at.specure.data.CoverageMeasurementSettings
 import at.specure.data.entity.CoverageMeasurementFenceRecord

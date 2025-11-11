@@ -5,51 +5,37 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.asFlow
 import at.rmbt.util.exception.HandledException
 import at.rmbt.util.io
-import at.specure.client.PingClientConfiguration
-import at.specure.client.UdpHmacPingFlow
 import at.specure.config.Config
 import at.specure.data.CoverageMeasurementSettings
 import at.specure.data.entity.CoverageMeasurementFenceRecord
 import at.specure.data.entity.CoverageMeasurementSession
 import at.specure.data.entity.SignalRecord
 import at.specure.data.repository.SignalMeasurementRepository
-import at.specure.eval.PingEvaluator
 import at.specure.info.TransportType
 import at.specure.info.cell.CellNetworkInfo
 import at.specure.info.network.NetworkInfo
 import at.specure.location.LocationInfo
-import at.specure.measurement.coverage.data.CoverageMeasurementData
+import at.specure.measurement.coverage.domain.models.CoverageMeasurementData
+import at.specure.measurement.coverage.domain.CoverageTimer
+import at.specure.measurement.coverage.domain.PingProcessor
 import at.specure.measurement.coverage.domain.validators.DurationValidator
 import at.specure.measurement.coverage.domain.validators.GpsValidator
 import at.specure.measurement.coverage.domain.validators.NetworkValidator
-import at.specure.measurement.coverage.validators.CoverageDurationValidator
 import at.specure.test.DeviceInfo
 import at.specure.test.toDeviceInfoLocation
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.cancel
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.flowOn
-import kotlinx.coroutines.flow.sample
-import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.time.Duration.Companion.seconds
-
-private const val PING_INTERVAL_MILLIS: Long = 100
-private const val PING_TIMEOUT_MILLIS: Long = 2000
-private const val PING_PROTOCOL_HEADER: String = "RP01"
-private const val PING_PROTOCOL_SUCCESS_RESPONSE_HEADER: String = "RR01"
-private const val PING_PROTOCOL_ERROR_RESPONSE_HEADER: String = "RE01"
 
 // TODO: resolve problems with signal uuids and coverage uuids, send coverage results, new coverage request on network change and response
 // TODO: make own signal listener because now we do not get null signals on signal loss from SignalMeasurementProcessor
@@ -62,16 +48,22 @@ class RtrCoverageMeasurementProcessor @Inject constructor(
     private val coverageGpsValidator: GpsValidator,
     private val coverageNetworkValidator: NetworkValidator,
     private val coverageDurationValidator: DurationValidator,
+    private val coveragePingProcessor: PingProcessor
 ) : CoroutineScope {
 
-    private val _signalPoints: MutableLiveData<List<CoverageMeasurementFenceRecord>> = MutableLiveData()
     val coverageMeasurementData: MutableLiveData<CoverageMeasurementData?> = MutableLiveData()
+    private val _signalPoints: MutableLiveData<List<CoverageMeasurementFenceRecord>> = MutableLiveData()
     val signalPoints: LiveData<List<CoverageMeasurementFenceRecord>> = _signalPoints
-    private var pingEvaluator: PingEvaluator? = null
-    private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
-    private var maxCoverageMeasurementSecondsReachedJob: Job? = null
-    private var maxCoverageSessionSecondsReachedJob: Job? = null
+    val currentSessionId: String?
+        get() = coverageMeasurementData.value?.coverageMeasurementSession?.sessionId
 
+    private val coverageSessionTimer = CoverageTimer(
+        scope = CoroutineScope(Dispatchers.Default + CoroutineName("MaxCoverageSessionTimer")),
+    )
+    private val coverageMeasurementTimer = CoverageTimer(
+        scope = CoroutineScope(Dispatchers.Default + CoroutineName("MaxCoverageMeasurementTimer")),
+    )
+    private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
     private val coroutineExceptionHandler = CoroutineExceptionHandler { _, e ->
         if (e is HandledException) {
             // do nothing
@@ -79,12 +71,8 @@ class RtrCoverageMeasurementProcessor @Inject constructor(
             throw e
         }
     }
-
     private var loadingPointsJob: Job? = null
     override val coroutineContext = EmptyCoroutineContext + coroutineExceptionHandler
-
-    val currentSessionId: String?
-        get() = coverageMeasurementData.value?.coverageMeasurementSession?.sessionId
 
     fun initializeDedicatedMeasurementSession(sessionCreated: ((sessionId: String) -> Unit)?, sessionCreationError: ((e: Exception) -> Unit)?) {
         loadingPointsJob?.cancel()
@@ -146,7 +134,14 @@ class RtrCoverageMeasurementProcessor @Inject constructor(
     }
 
     private suspend fun onStartAndRegistrationCompleted(registeredAndStartedSession: CoverageMeasurementSession) {
-        startPingClient(registeredAndStartedSession)
+        coveragePingProcessor.startPing(registeredAndStartedSession).collect {
+            coverageMeasurementData.postValue(
+                coverageMeasurementData.value?.copy(
+                    currentPingStatus = null,
+                    currentPingMs = it.pingStatistics?.average,
+                )
+            )
+        }
         startMaxCoverageMeasurementSecondsReachedJob(session = registeredAndStartedSession)
         startMaxCoverageSessionSecondsReachedJob(session = registeredAndStartedSession)
     }
@@ -160,77 +155,14 @@ class RtrCoverageMeasurementProcessor @Inject constructor(
     }
 
     private fun startMaxCoverageMeasurementSecondsReachedJob(session: CoverageMeasurementSession) {
-        maxCoverageMeasurementSecondsReachedJob?.cancel()
-        maxCoverageMeasurementSecondsReachedJob = CoroutineScope(Dispatchers.Default).launch(CoroutineName("MaxCoverageMeasurementSecondsReachedJob")) {
-            session.maxCoverageMeasurementSeconds?.let { maxCoverageMeasurementSeconds ->
-                launch(CoroutineName("OnMaxCoverageMeasurementSecondsReachedJob")) {
-                    delay( maxCoverageMeasurementSeconds.seconds) // todo: alter time as session begin one time but response was another time
-                    onMeasurementStop() // todo check if this is correct logic to happen
-                    cancel("MaxCoverageMeasurementSeconds elapsed")
-                }
-            }
+        session.maxCoverageMeasurementSeconds?.let { maxCoverageMeasurementSeconds ->
+            coverageMeasurementTimer.start(maxCoverageMeasurementSeconds.seconds, { onMeasurementStop() })
         }
     }
 
     private fun startMaxCoverageSessionSecondsReachedJob(session: CoverageMeasurementSession) {
-        maxCoverageSessionSecondsReachedJob?.cancel()
-        maxCoverageSessionSecondsReachedJob = CoroutineScope(Dispatchers.Default).launch(CoroutineName("MaxCoverageSessionSecondsReachedJob2")) {
-            session.maxCoverageSessionSeconds?.let { maxCoverageSessionSeconds ->
-                launch(CoroutineName("OnMaxCoverageSessionSecondsReachedJob2")) {
-                    delay( maxCoverageSessionSeconds.seconds) // todo: alter time as session begin one time but response was another time
-                    onMeasurementStop() // todo check if this is correct logic to happen
-                    cancel("MaxCoverageSessionSeconds elapsed")
-                }
-            }
-        }
-    }
-
-    @OptIn(FlowPreview::class)
-    private suspend fun startPingClient(coverageMeasurementSession: CoverageMeasurementSession) {
-        val pingHost = coverageMeasurementSession.pingServerHost
-        val pingPort = coverageMeasurementSession.pingServerPort
-        val pingToken = coverageMeasurementSession.pingServerToken
-
-        if (pingHost != null && pingPort != null && pingToken != null) {
-
-            val configuration = PingClientConfiguration(
-                host = pingHost,
-                port = pingPort,
-                token = pingToken,
-                protocolId = PING_PROTOCOL_HEADER,
-                pingIntervalMillis = PING_INTERVAL_MILLIS,
-                pingTimeoutMillis = PING_TIMEOUT_MILLIS,
-                successResponseHeader = PING_PROTOCOL_SUCCESS_RESPONSE_HEADER,
-                errorResponseHeader = PING_PROTOCOL_ERROR_RESPONSE_HEADER
-            )
-
-//            val evaluator = PingEvaluator(UdpPingFlow(configuration).pingFlow())
-            try {
-                Timber.d("Starting ping client: $configuration")
-                pingEvaluator = PingEvaluator(UdpHmacPingFlow(configuration).pingFlow())
-                pingEvaluator?.start()
-                    ?.sample(1000)
-                    ?.catch { e -> // <-- ADD THIS CATCH OPERATOR
-                        Timber.e(e, "Error in pingEvaluator flow before collect")
-                        coverageMeasurementData.postValue( coverageMeasurementData.value?.copy(currentPingStatus = "Error") )
-                    }
-                    ?.collect { pingResult ->
-                        try {
-                            coverageMeasurementData.postValue(
-                                coverageMeasurementData.value?.copy(
-                                    currentPingMs = pingResult?.getRTTMillis()
-                                )
-                            )
-                        } catch (innerE: Exception) {
-                            Timber.e(innerE, "Error inside collect block processing pingResult")
-                        }
-                    }
-            } catch (outerE: Exception) {
-                isActive
-                // This will catch exceptions if start() itself throws, or if sample() throws (less likely for sample)
-                // OR if the flow was closed with an exception and .catch was not used before .collect
-                Timber.e(outerE, "Error launching or collecting pingEvaluator flow")
-            }
+        session.maxCoverageSessionSeconds?.let { maxCoverageSessionSeconds ->
+            coverageSessionTimer.start(maxCoverageSessionSeconds.seconds, { onMeasurementSessionStop() })
         }
     }
 
@@ -322,7 +254,7 @@ class RtrCoverageMeasurementProcessor @Inject constructor(
     ) = io {
         val updatedPoint = lastPoint?.copy(
             leaveTimestampMillis = System.currentTimeMillis(),
-            avgPingMillis = pingEvaluator?.evaluateAndReset()?.average
+            avgPingMillis = coveragePingProcessor.onNewFenceStarted()?.average
         )
         updatedPoint?.let {
             signalMeasurementRepository.updateSignalMeasurementPoint(updatedPoint)
@@ -354,10 +286,20 @@ class RtrCoverageMeasurementProcessor @Inject constructor(
         return nextPointNumber
     }
 
+    /**
+     * Stop of single measurement in a loop
+     */
     fun onMeasurementStop() {
+        // todo
+    }
+
+    /**
+     * Stop of whole measurement loop aka session
+     */
+    fun onMeasurementSessionStop() {
         this.launch(CoroutineName("OnDedicatedSignalMeasurementStop")) {
             try {
-                pingEvaluator?.evaluateAndStop()
+                coveragePingProcessor.stopPing()
                 val lastPoint = coverageMeasurementData.value?.points?.lastOrNull()
                 updateSignalFenceAndSaveOnLeaving(lastPoint)
             } finally {

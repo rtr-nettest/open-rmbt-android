@@ -34,7 +34,7 @@ import at.specure.measurement.coverage.RtrCoverageMeasurementProcessor
 import at.specure.measurement.signal.SignalMeasurementProducer
 import at.specure.measurement.signal.SignalMeasurementService
 import at.rmbt.client.control.data.SignalMeasurementType
-import at.specure.measurement.coverage.data.CoverageMeasurementData
+import at.specure.measurement.coverage.domain.models.CoverageMeasurementData
 import at.specure.measurement.coverage.domain.validators.GpsValidator
 import at.specure.test.toDeviceInfoLocation
 import at.specure.util.map.CustomMarker

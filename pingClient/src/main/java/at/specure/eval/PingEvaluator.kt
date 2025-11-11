@@ -9,8 +9,6 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.channelFlow
-import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -63,6 +61,17 @@ class PingEvaluator(private val pingFlow: Flow<PingResult>) {
             }
         }
 
+    }
+
+    /**
+     * Evaluates collected results for latest N items.
+     */
+    suspend fun evaluateLastItems(count: Int): PingStats {
+        val snapshot: List<Double?> = mutex.withLock {
+            val copy = results.takeLast(count)
+            copy
+        }
+        return calculateStats(snapshot)
     }
 
     /**
