@@ -14,8 +14,8 @@ import at.rtr.rmbt.android.config.AppConfig
 import at.rtr.rmbt.android.ui.viewstate.HomeViewState
 import at.specure.data.ClientUUID
 import at.specure.data.MeasurementServers
-import at.specure.data.SignalMeasurementSettings
-import at.specure.data.entity.SignalMeasurementFenceRecord
+import at.specure.data.CoverageMeasurementSettings
+import at.specure.data.entity.CoverageMeasurementFenceRecord
 import at.specure.data.entity.SignalRecord
 import at.specure.data.repository.NewsRepository
 import at.specure.data.repository.SettingsRepository
@@ -30,12 +30,13 @@ import at.specure.info.strength.SignalStrengthLiveData
 import at.specure.location.LocationInfo
 import at.specure.location.LocationState
 import at.specure.location.LocationWatcher
-import at.specure.location.isAccuracyEnoughForSignalMeasurement
-import at.specure.measurement.signal.DedicatedSignalMeasurementProcessor
+import at.specure.measurement.coverage.DedicatedSignalMeasurementProcessor
 import at.specure.measurement.signal.SignalMeasurementProducer
 import at.specure.measurement.signal.SignalMeasurementService
 import at.rmbt.client.control.data.SignalMeasurementType
-import at.specure.measurement.signal.DedicatedSignalMeasurementData
+import at.specure.measurement.coverage.data.CoverageMeasurementData
+import at.specure.measurement.coverage.domain.validators.GpsValidator
+import at.specure.test.toDeviceInfoLocation
 import at.specure.util.map.CustomMarker
 import at.specure.util.permission.PermissionsWatcher
 import kotlinx.coroutines.CoroutineName
@@ -65,8 +66,9 @@ class HomeViewModel @Inject constructor(
     private val signalMeasurementRepository: SignalMeasurementRepository,
     private val dedicatedSignalMeasurementProcessor: DedicatedSignalMeasurementProcessor,
     measurementServers: MeasurementServers,
-    private val signalMeasurementSettings: SignalMeasurementSettings,
+    private val coverageMeasurementSettings: CoverageMeasurementSettings,
     private val customMarker: CustomMarker,
+    private val gpsValidator: GpsValidator,
 ) : BaseViewModel() {
 
     val state = HomeViewState(appConfig, measurementServers)
@@ -85,9 +87,9 @@ class HomeViewModel @Inject constructor(
     val locationLiveData: LiveData<LocationInfo?>
         get() = locationWatcher.liveData
 
-    private var _pointsLiveData = MutableLiveData<List<SignalMeasurementFenceRecord>>()
+    private var _pointsLiveData = MutableLiveData<List<CoverageMeasurementFenceRecord>>()
     private var _dedicatedSignalMeasurementSessionIdLiveData : LiveData<String?> = MutableLiveData<String>(null)
-    private var _dedicatedSignalMeasurementDataLiveData : LiveData<DedicatedSignalMeasurementData?> = dedicatedSignalMeasurementProcessor.dedicatedSignalMeasurementData
+    private var _coverageMeasurementDataLiveData : LiveData<CoverageMeasurementData?> = dedicatedSignalMeasurementProcessor.coverageMeasurementData
 
     private var producer: SignalMeasurementProducer? = null
     private var _activeMeasurementSource: LiveData<Boolean>? = null
@@ -95,18 +97,18 @@ class HomeViewModel @Inject constructor(
 
     private var _pausedMeasurementSource: LiveData<Boolean>? = null
     private var _pausedMeasurementMediator = MediatorLiveData<Boolean>()
-    private var _currentSignalMeasurementMapPointsLiveData: LiveData<List<SignalMeasurementFenceRecord>>? = null
+    private var _currentSignalMeasurementMapPointsLiveData: LiveData<List<CoverageMeasurementFenceRecord>>? = null
     private var toggleService: Boolean = false
 
     private var _getNewsLiveData = MutableLiveData<List<NewsItem>?>()
 
-    val dedicatedSignalMeasurementDataLiveData : LiveData<DedicatedSignalMeasurementData?>
-        get() = _dedicatedSignalMeasurementDataLiveData
+    val coverageMeasurementDataLiveData : LiveData<CoverageMeasurementData?>
+        get() = _coverageMeasurementDataLiveData
 
     val dedicatedSignalMeasurementSessionIdLiveData : LiveData<String?>
         get() = _dedicatedSignalMeasurementSessionIdLiveData
 
-    val currentSignalMeasurementMapPointsLiveData: LiveData<List<SignalMeasurementFenceRecord>>
+    val currentSignalMeasurementMapPointsLiveData: LiveData<List<CoverageMeasurementFenceRecord>>
         get() = dedicatedSignalMeasurementProcessor.signalPoints // _pointsLiveData
 
     val activeSignalMeasurementLiveData: LiveData<Boolean>
@@ -177,7 +179,7 @@ class HomeViewModel @Inject constructor(
     init {
         addStateSaveHandler(state)
         _activeMeasurementMediator.postValue(false)
-        signalMeasurementSettings.signalMeasurementLastSessionId?.let {
+        coverageMeasurementSettings.signalMeasurementLastSessionId?.let {
             loadSessionPoints(it)
         }
     }
@@ -224,22 +226,22 @@ class HomeViewModel @Inject constructor(
     }
 
     fun startSignalMeasurement(signalMeasurementType: SignalMeasurementType) {
-        signalMeasurementSettings.signalMeasurementIsRunning = true
+        coverageMeasurementSettings.signalMeasurementIsRunning = true
         producer?.startMeasurement(false, signalMeasurementType)
     }
 
     fun stopSignalMeasurement() {
-        signalMeasurementSettings.signalMeasurementIsRunning = false
+        coverageMeasurementSettings.signalMeasurementIsRunning = false
         producer?.stopMeasurement(false)
     }
 
     fun pauseSignalMeasurement() {
-        signalMeasurementSettings.signalMeasurementIsRunning = false
+        coverageMeasurementSettings.signalMeasurementIsRunning = false
         producer?.pauseMeasurement(false)
     }
 
     fun resumeSignalMeasurement() {
-        signalMeasurementSettings.signalMeasurementIsRunning = true
+        coverageMeasurementSettings.signalMeasurementIsRunning = true
         producer?.resumeMeasurement(false)
     }
 
@@ -308,19 +310,19 @@ class HomeViewModel @Inject constructor(
     }
 
     private fun isLocationAccuracyGoodEnough(): Boolean {
-        return locationLiveData.value?.isAccuracyEnoughForSignalMeasurement() ?: false
+        return gpsValidator.isLocationAccuracyPreciseEnough(locationLiveData.value?.toDeviceInfoLocation())
     }
 
     fun shouldOpenSignalMeasurementScreen(): Boolean {
-        return signalMeasurementSettings.signalMeasurementIsRunning
+        return coverageMeasurementSettings.signalMeasurementIsRunning
     }
 
     fun setSignalMeasurementShouldContinueInLastSession(shouldContinueInLastSession: Boolean) {
-        signalMeasurementSettings.signalMeasurementShouldContinueInLastSession = shouldContinueInLastSession
+        coverageMeasurementSettings.signalMeasurementShouldContinueInLastSession = shouldContinueInLastSession
     }
 
     fun shouldSignalMeasurementContinueInLastSession(): Boolean {
-        return signalMeasurementSettings.signalMeasurementShouldContinueInLastSession
+        return coverageMeasurementSettings.signalMeasurementShouldContinueInLastSession
     }
 
     suspend fun getSignalData(id: String?): SignalRecord? {

@@ -96,7 +96,7 @@ class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback {
 
         hideDialog()
 
-        viewModel.dedicatedSignalMeasurementDataLiveData.listen(this) {
+        viewModel.coverageMeasurementDataLiveData.listen(this) {
             val pingResult: Double? = it?.currentPingMs
             binding.technologyValue.text = it?.currentNetworkType ?: "-"
             binding.pingValue.text = if (pingResult != null && pingResult > 0) {

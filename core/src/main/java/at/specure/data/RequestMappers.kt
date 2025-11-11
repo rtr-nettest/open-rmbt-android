@@ -38,9 +38,9 @@ import at.specure.data.entity.PermissionStatusRecord
 import at.specure.data.entity.PingRecord
 import at.specure.data.entity.QoSResultRecord
 import at.specure.data.entity.SignalMeasurementChunk
-import at.specure.data.entity.SignalMeasurementFenceRecord
+import at.specure.data.entity.CoverageMeasurementFenceRecord
 import at.specure.data.entity.SignalMeasurementRecord
-import at.specure.data.entity.SignalMeasurementSession
+import at.specure.data.entity.CoverageMeasurementSession
 import at.specure.data.entity.SignalRecord
 import at.specure.data.entity.SpeedRecord
 import at.specure.data.entity.TestRecord
@@ -495,7 +495,7 @@ fun SignalMeasurementRecord.toRequest(clientUUID: String, deviceInfo: DeviceInfo
     location = location?.toRequest()
 )
 
-fun SignalMeasurementSession.toCoverageRequest(clientUUID: String, deviceInfo: DeviceInfo, config: Config) = CoverageRequestBody(
+fun CoverageMeasurementSession.toCoverageRequest(clientUUID: String, deviceInfo: DeviceInfo, config: Config) = CoverageRequestBody(
     clientUUID = clientUUID,
     platform = deviceInfo.platform,
     softwareVersionCode = deviceInfo.softwareVersionCode,
@@ -518,11 +518,11 @@ fun SignalMeasurementSession.toCoverageRequest(clientUUID: String, deviceInfo: D
     version = deviceInfo.clientVersionName,
 )
 
-fun SignalMeasurementSession.toCoverageResultRequest(
+fun CoverageMeasurementSession.toCoverageResultRequest(
     clientUUID: String,
     deviceInfo: DeviceInfo,
     config: Config,
-    fences: List<SignalMeasurementFenceRecord>,
+    fences: List<CoverageMeasurementFenceRecord>,
 ) = CoverageResultRequestBody(
     clientUUID = clientUUID,
     testUUID = this.serverSessionId ?: throw DataMissingException("Missing signal measurement server session ID"),
@@ -545,11 +545,11 @@ fun SignalMeasurementSession.toCoverageResultRequest(
     fences = fences.toRequest(startTimeMillis),
 )
 
-fun List<SignalMeasurementFenceRecord>.toRequest(measurementStartMillis: Long): List<FenceBody> {
+fun List<CoverageMeasurementFenceRecord>.toRequest(measurementStartMillis: Long): List<FenceBody> {
     return this.map { it.toRequest(measurementStartMillis) }
 }
 
-fun SignalMeasurementFenceRecord.toRequest(measurementStartMillis: Long): FenceBody = FenceBody(
+fun CoverageMeasurementFenceRecord.toRequest(measurementStartMillis: Long): FenceBody = FenceBody(
     centerLocation = this.location?.toSimpleLocation(),
     networkTechnologyId = this.technologyId ?: MobileNetworkType.UNKNOWN.intValue,
     networkTechnologyName = MobileNetworkType.fromValue(this.technologyId ?: MobileNetworkType.UNKNOWN.intValue).displayName,

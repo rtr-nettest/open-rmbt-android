@@ -8,9 +8,9 @@ import androidx.room.Query
 import androidx.room.Update
 import at.specure.data.Tables
 import at.specure.data.entity.SignalMeasurementChunk
-import at.specure.data.entity.SignalMeasurementFenceRecord
+import at.specure.data.entity.CoverageMeasurementFenceRecord
 import at.specure.data.entity.SignalMeasurementRecord
-import at.specure.data.entity.SignalMeasurementSession
+import at.specure.data.entity.CoverageMeasurementSession
 import at.specure.data.entity.SignalRecord
 
 @Dao
@@ -32,19 +32,19 @@ interface SignalMeasurementDao {
     fun getSignalMeasurementChunk(chunkId: String): SignalMeasurementChunk?
 
     @Query("SELECT * FROM ${Tables.SIGNAL_MEASUREMENT_FENCE} WHERE sessionId=:sessionId ORDER BY sequenceNumber ASC")
-    fun getSignalMeasurementPoints(sessionId: String): LiveData<List<SignalMeasurementFenceRecord>>
+    fun getSignalMeasurementPoints(sessionId: String): LiveData<List<CoverageMeasurementFenceRecord>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun saveSignalMeasurementPoint(point: SignalMeasurementFenceRecord)
+    fun saveSignalMeasurementPoint(point: CoverageMeasurementFenceRecord)
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun saveDedicatedSignalMeasurementSession(session: SignalMeasurementSession)
+    fun saveDedicatedSignalMeasurementSession(session: CoverageMeasurementSession)
 
     @Query("SELECT * FROM ${Tables.SIGNAL_MEASUREMENT_SESSION} WHERE sessionId=:sessionId LIMIT 1")
-    fun getDedicatedSignalMeasurementSession(sessionId: String): SignalMeasurementSession?
+    fun getDedicatedSignalMeasurementSession(sessionId: String): CoverageMeasurementSession?
 
     @Query("SELECT * FROM ${Tables.SIGNAL_MEASUREMENT_SESSION} WHERE measurementId=:measurementId LIMIT 1")
-    fun getDedicatedSignalMeasurementSessionForMeasurementId(measurementId: String): SignalMeasurementSession?
+    fun getDedicatedSignalMeasurementSessionForMeasurementId(measurementId: String): CoverageMeasurementSession?
 
     @Query("SELECT * FROM ${Tables.SIGNAL} WHERE signalMeasurementPointId=:id LIMIT 1")
     suspend fun getSignalRecord(id: String): SignalRecord?
@@ -58,5 +58,5 @@ interface SignalMeasurementDao {
     }
 
     @Update
-    fun updateSignalMeasurementPoint(updatedPoint: SignalMeasurementFenceRecord)
+    fun updateSignalMeasurementPoint(updatedPoint: CoverageMeasurementFenceRecord)
 }

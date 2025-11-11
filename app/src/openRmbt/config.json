@@ -439,6 +439,26 @@
       "name": "MIN_LOCATION_DISTANCE_METERS_SIGNAL_MEASUREMENT",
       "value": "20",
       "visible": false
+    },
+    {
+      "name": "MIN_LOCATION_ACCURACY_METERS_SIGNAL_MEASUREMENT",
+      "value": "7",
+      "visible": false
+    },
+    {
+      "name": "MAX_LOCATION_AGE_MILLIS_SIGNAL_MEASUREMENT",
+      "value": "60000",
+      "visible": false
+    },
+    {
+      "name": "SAME_LOCATION_DISTANCE_METERS_SIGNAL_MEASUREMENT",
+      "value": "3",
+      "visible": false
+    },
+    {
+      "name": "MINIMAL_FENCE_DURATION_MILLIS_SIGNAL_MEASUREMENT",
+      "value": "1000",
+      "visible": false
     }
   ]
 }

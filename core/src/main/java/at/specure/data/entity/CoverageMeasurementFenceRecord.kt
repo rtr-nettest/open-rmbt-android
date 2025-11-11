@@ -11,7 +11,7 @@ import java.util.UUID
 
 @Keep
 @Entity(tableName = Tables.SIGNAL_MEASUREMENT_FENCE)
-data class SignalMeasurementFenceRecord(
+data class CoverageMeasurementFenceRecord(
 
     @PrimaryKey
     @ColumnInfo(name = Columns.SIGNAL_MEASUREMENT_FENCE_ID_PARENT_COLUMN)

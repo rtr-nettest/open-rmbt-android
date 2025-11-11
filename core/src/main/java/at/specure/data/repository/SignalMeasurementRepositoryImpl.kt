@@ -11,9 +11,9 @@ import at.specure.data.CoreDatabase
 import at.specure.data.RequestFilters.Companion.createRadioInfoBody
 import at.specure.data.entity.CellInfoRecord
 import at.specure.data.entity.SignalMeasurementChunk
-import at.specure.data.entity.SignalMeasurementFenceRecord
+import at.specure.data.entity.CoverageMeasurementFenceRecord
 import at.specure.data.entity.SignalMeasurementRecord
-import at.specure.data.entity.SignalMeasurementSession
+import at.specure.data.entity.CoverageMeasurementSession
 import at.specure.data.entity.SignalRecord
 import at.specure.data.entity.TestTelephonyRecord
 import at.specure.data.entity.TestWlanRecord
@@ -45,7 +45,7 @@ class SignalMeasurementRepositoryImpl(
     private val testDao = db.testDao()
 
     // TODO: we should perform a new request for session
-    override fun saveAndUpdateRegisteredRecord(record: SignalMeasurementRecord, newUuid: String, oldSession: SignalMeasurementSession) = io {
+    override fun saveAndUpdateRegisteredRecord(record: SignalMeasurementRecord, newUuid: String, oldSession: CoverageMeasurementSession) = io {
         dao.saveSignalMeasurementRecord(record)
         val newSession = oldSession.copy(
             sessionId = record.id,
@@ -97,19 +97,19 @@ class SignalMeasurementRepositoryImpl(
         emit(chunk)
     }
 
-    override fun saveDedicatedMeasurementSession(session: SignalMeasurementSession) {
+    override fun saveDedicatedMeasurementSession(session: CoverageMeasurementSession) {
         dao.saveDedicatedSignalMeasurementSession(session)
     }
 
-    override fun getDedicatedMeasurementSession(sessionId: String): SignalMeasurementSession? {
+    override fun getDedicatedMeasurementSession(sessionId: String): CoverageMeasurementSession? {
         return dao.getDedicatedSignalMeasurementSession(sessionId)
     }
 
-    override fun saveMeasurementPointRecord(point: SignalMeasurementFenceRecord) = io {
+    override fun saveMeasurementPointRecord(point: CoverageMeasurementFenceRecord) = io {
         dao.saveSignalMeasurementPoint(point)
     }
 
-    override fun loadSignalMeasurementPointRecordsForMeasurement(measurementId: String): LiveData<List<SignalMeasurementFenceRecord>> {
+    override fun loadSignalMeasurementPointRecordsForMeasurement(measurementId: String): LiveData<List<CoverageMeasurementFenceRecord>> {
         return dao.getSignalMeasurementPoints(measurementId)
     }
 
@@ -117,7 +117,7 @@ class SignalMeasurementRepositoryImpl(
         return dao.getSignalRecordNullable(id)
     }
 
-    override fun updateSignalMeasurementPoint(updatedPoint: SignalMeasurementFenceRecord) {
+    override fun updateSignalMeasurementPoint(updatedPoint: CoverageMeasurementFenceRecord) {
         dao.updateSignalMeasurementPoint(updatedPoint)
     }
 
@@ -138,7 +138,7 @@ class SignalMeasurementRepositoryImpl(
         response.onSuccess {
             Timber.d("$it")
             dao.saveDedicatedSignalMeasurementSession(
-                session = SignalMeasurementSession(
+                session = CoverageMeasurementSession(
                     sessionId = coverageSession.sessionId,
                     measurementId = measurementRecordId,
                     serverSessionId = it.testUUID,
@@ -165,7 +165,7 @@ class SignalMeasurementRepositoryImpl(
 
     }
 
-    private fun retrieveCoverageSessionOrCreate(coverageSessionId: String?, measurementRecordId: String?): SignalMeasurementSession {
+    private fun retrieveCoverageSessionOrCreate(coverageSessionId: String?, measurementRecordId: String?): CoverageMeasurementSession {
         val coverageSession =
             if (coverageSessionId == null) {
                 if (measurementRecordId == null) {
@@ -175,7 +175,7 @@ class SignalMeasurementRepositoryImpl(
                 }
             } else {
                 dao.getDedicatedSignalMeasurementSession(coverageSessionId)
-            } ?: SignalMeasurementSession() // if not created yet, we create one for registration
+            } ?: CoverageMeasurementSession() // if not created yet, we create one for registration
         return coverageSession
     }
 
@@ -225,7 +225,7 @@ class SignalMeasurementRepositoryImpl(
             }
     }
 
-    override fun sendFences(sessionId: String, fences: List<SignalMeasurementFenceRecord>) {
+    override fun sendFences(sessionId: String, fences: List<CoverageMeasurementFenceRecord>) {
         val coverageSession = retrieveCoverageSessionOrCreate(sessionId, null)
         if (coverageSession.isRegistered()) {
             clientUUID.value?.let {clientUuid ->
@@ -292,7 +292,7 @@ class SignalMeasurementRepositoryImpl(
             if (result.ok) {
                 Timber.d("SM Chunk OK responded with uuid: ${result.success.uuid}   before: ${session?.serverSessionId}")
                 if (session == null) {
-                    session = SignalMeasurementSession(
+                    session = CoverageMeasurementSession(
                         measurementId = record.id,
                         serverSessionId = result.success.uuid,
                         remoteIpAddress = "", // TODO need to fill that field
@@ -355,6 +355,6 @@ class SignalMeasurementRepositoryImpl(
     }
 }
 
-fun SignalMeasurementSession.isRegistered(): Boolean {
+fun CoverageMeasurementSession.isRegistered(): Boolean {
     return this.serverSessionId != null
 }

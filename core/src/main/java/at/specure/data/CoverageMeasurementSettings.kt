@@ -9,7 +9,7 @@ private const val KEY_SIGNAL_MEASUREMENT_RUNNING = "KEY_SIGNAL_MEASUREMENT_RUNNI
 private const val KEY_SIGNAL_MEASUREMENT_CONTINUE_LAST_SESSION = "KEY_SIGNAL_MEASUREMENT_CONTINUE_LAST_SESSION"
 private const val KEY_SIGNAL_MEASUREMENT_LAST_SESSION_ID = "KEY_SIGNAL_MEASUREMENT_LAST_SESSION_ID"
 
-class SignalMeasurementSettings @Inject constructor(context: Context) {
+class CoverageMeasurementSettings @Inject constructor(context: Context) {
 
     private val preferences = context.getSharedPreferences("signal_measurement_settings.pref",
         Context.MODE_PRIVATE

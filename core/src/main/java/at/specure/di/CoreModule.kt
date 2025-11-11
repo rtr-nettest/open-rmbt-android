@@ -48,6 +48,12 @@ import at.specure.info.wifi.WifiInfoWatcherImpl
 import at.specure.location.LocationWatcher
 import at.specure.location.cell.CellLocationWatcher
 import at.specure.location.cell.CellLocationWatcherImpl
+import at.specure.measurement.coverage.validators.CoverageDurationValidator
+import at.specure.measurement.coverage.validators.CoverageGpsValidator
+import at.specure.measurement.coverage.validators.CoverageNetworkValidator
+import at.specure.measurement.coverage.domain.validators.DurationValidator
+import at.specure.measurement.coverage.domain.validators.GpsValidator
+import at.specure.measurement.coverage.domain.validators.NetworkValidator
 import at.specure.test.TestController
 import at.specure.test.TestControllerImpl
 import at.specure.util.map.CustomMarker
@@ -278,4 +284,31 @@ class CoreModule {
     fun provideCustomMarker(
         context: Context
     ) : CustomMarker = CustomMarker(context = context)
+
+    @Provides
+    @Singleton
+    fun provideGpsValidator(
+        config: Config
+    ): GpsValidator = CoverageGpsValidator(
+        minDistanceMetersToLogNewLocationOnMapDuringSignalMeasurement = config.minDistanceMetersToLogNewLocationOnMapDuringSignalMeasurement,
+        maxDistanceMetersToLocationBeTheSameDuringSignalMeasurement = config.sameLocationDistanceMetersForSignalMeasurement,
+        minLocationAccuracyThresholdMeters = config.minLocationAccuracyMetersDuringSignalMeasurement.toFloat(),
+        maxLocationAgeThresholdMillis = config.maxAgeOfLocationInformationForSignalMeasurementMillis
+    )
+
+    @Provides
+    @Singleton
+    fun provideDurationValidator(
+        config: Config
+    ): DurationValidator = CoverageDurationValidator(
+        minimalFenceDurationMillis = config.minimalFenceDurationMillisForSignalMeasurement,
+    )
+
+    @Provides
+    @Singleton
+    fun provideNetworkValidator(
+        config: Config
+    ): NetworkValidator = CoverageNetworkValidator(
+
+    )
 }

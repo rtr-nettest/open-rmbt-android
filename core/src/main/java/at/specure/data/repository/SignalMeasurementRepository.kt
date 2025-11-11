@@ -2,9 +2,9 @@ package at.specure.data.repository
 
 import androidx.lifecycle.LiveData
 import at.specure.data.entity.SignalMeasurementChunk
-import at.specure.data.entity.SignalMeasurementFenceRecord
+import at.specure.data.entity.CoverageMeasurementFenceRecord
 import at.specure.data.entity.SignalMeasurementRecord
-import at.specure.data.entity.SignalMeasurementSession
+import at.specure.data.entity.CoverageMeasurementSession
 import at.specure.data.entity.SignalRecord
 import at.specure.measurement.signal.SignalMeasurementChunkReadyCallback
 import at.specure.measurement.signal.SignalMeasurementChunkResultCallback
@@ -24,7 +24,7 @@ interface SignalMeasurementRepository {
      * Method to save new [record] and create new SignalMeasurementInfo record because of provided new [newUuid] from the backend and
      * create a new info from old info and updated uuid
      */
-    fun saveAndUpdateRegisteredRecord(record: SignalMeasurementRecord, newUuid: String, oldInfo: SignalMeasurementSession)
+    fun saveAndUpdateRegisteredRecord(record: SignalMeasurementRecord, newUuid: String, oldInfo: CoverageMeasurementSession)
 
     fun saveMeasurementRecord(record: SignalMeasurementRecord)
 
@@ -48,19 +48,19 @@ interface SignalMeasurementRepository {
      */
     fun sendMeasurementChunk(chunkId: String, callback: SignalMeasurementChunkResultCallback): Flow<String?>
 
-    fun saveDedicatedMeasurementSession(session: SignalMeasurementSession)
+    fun saveDedicatedMeasurementSession(session: CoverageMeasurementSession)
 
-    fun getDedicatedMeasurementSession(sessionId: String): SignalMeasurementSession?
+    fun getDedicatedMeasurementSession(sessionId: String): CoverageMeasurementSession?
 
-    fun saveMeasurementPointRecord(point: SignalMeasurementFenceRecord)
+    fun saveMeasurementPointRecord(point: CoverageMeasurementFenceRecord)
 
-    fun loadSignalMeasurementPointRecordsForMeasurement(measurementId: String): LiveData<List<SignalMeasurementFenceRecord>>
+    fun loadSignalMeasurementPointRecordsForMeasurement(measurementId: String): LiveData<List<CoverageMeasurementFenceRecord>>
 
     suspend fun getSignalMeasurementRecord(id: String?): SignalRecord?
 
-    fun updateSignalMeasurementPoint(updatedPoint: SignalMeasurementFenceRecord)
+    fun updateSignalMeasurementPoint(updatedPoint: CoverageMeasurementFenceRecord)
 
     fun registerCoverageMeasurement(coverageSessionId: String?, measurementId: String?): Flow<Boolean>
 
-    fun sendFences(sessionId: String, fences: List<SignalMeasurementFenceRecord>)
+    fun sendFences(sessionId: String, fences: List<CoverageMeasurementFenceRecord>)
 }

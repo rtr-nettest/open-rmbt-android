@@ -1,4 +1,4 @@
-package at.specure.measurement.signal
+package at.specure.measurement.coverage
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -8,9 +8,9 @@ import at.rmbt.util.io
 import at.specure.client.PingClientConfiguration
 import at.specure.client.UdpHmacPingFlow
 import at.specure.config.Config
-import at.specure.data.SignalMeasurementSettings
-import at.specure.data.entity.SignalMeasurementFenceRecord
-import at.specure.data.entity.SignalMeasurementSession
+import at.specure.data.CoverageMeasurementSettings
+import at.specure.data.entity.CoverageMeasurementFenceRecord
+import at.specure.data.entity.CoverageMeasurementSession
 import at.specure.data.entity.SignalRecord
 import at.specure.data.repository.SignalMeasurementRepository
 import at.specure.eval.PingEvaluator
@@ -18,9 +18,11 @@ import at.specure.info.TransportType
 import at.specure.info.cell.CellNetworkInfo
 import at.specure.info.network.NetworkInfo
 import at.specure.location.LocationInfo
-import at.specure.location.isAccuracyEnoughForSignalMeasurement
+import at.specure.measurement.coverage.data.CoverageMeasurementData
+import at.specure.measurement.coverage.domain.validators.GpsValidator
+import at.specure.measurement.coverage.domain.validators.NetworkValidator
+import at.specure.test.DeviceInfo
 import at.specure.test.toDeviceInfoLocation
-import at.specure.test.toLocation
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.CoroutineScope
@@ -39,10 +41,8 @@ import timber.log.Timber
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlin.coroutines.EmptyCoroutineContext
-import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
 
-private const val SAME_LOCATION_DISTANCE_METERS = 3
 private const val PING_INTERVAL_MILLIS: Long = 100
 private const val PING_TIMEOUT_MILLIS: Long = 2000
 private const val PING_PROTOCOL_HEADER: String = "RP01"
@@ -54,14 +54,16 @@ private const val PING_PROTOCOL_ERROR_RESPONSE_HEADER: String = "RE01"
 
 @Singleton
 class DedicatedSignalMeasurementProcessor @Inject constructor(
-    private val signalMeasurementSettings: SignalMeasurementSettings,
+    private val coverageMeasurementSettings: CoverageMeasurementSettings,
     private val signalMeasurementRepository: SignalMeasurementRepository,
     private val config: Config,
+    private val androidGpsValidator: GpsValidator,
+    private val androidNetworkValidator: NetworkValidator,
 ) : CoroutineScope {
 
-    private val _signalPoints: MutableLiveData<List<SignalMeasurementFenceRecord>> = MutableLiveData()
-    val dedicatedSignalMeasurementData: MutableLiveData<DedicatedSignalMeasurementData?> = MutableLiveData()
-    val signalPoints: LiveData<List<SignalMeasurementFenceRecord>> = _signalPoints
+    private val _signalPoints: MutableLiveData<List<CoverageMeasurementFenceRecord>> = MutableLiveData()
+    val coverageMeasurementData: MutableLiveData<CoverageMeasurementData?> = MutableLiveData()
+    val signalPoints: LiveData<List<CoverageMeasurementFenceRecord>> = _signalPoints
     private var pingEvaluator: PingEvaluator? = null
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
     private var maxCoverageMeasurementSecondsReachedJob: Job? = null
@@ -79,23 +81,23 @@ class DedicatedSignalMeasurementProcessor @Inject constructor(
     override val coroutineContext = EmptyCoroutineContext + coroutineExceptionHandler
 
     val currentSessionId: String?
-        get() = dedicatedSignalMeasurementData.value?.signalMeasurementSession?.sessionId
+        get() = coverageMeasurementData.value?.coverageMeasurementSession?.sessionId
 
     fun initializeDedicatedMeasurementSession(sessionCreated: ((sessionId: String) -> Unit)?, sessionCreationError: ((e: Exception) -> Unit)?) {
         loadingPointsJob?.cancel()
         val lastSignalMeasurementSessionId =
-            signalMeasurementSettings.signalMeasurementLastSessionId
+            coverageMeasurementSettings.signalMeasurementLastSessionId
         val shouldContinueInPreviousDedicatedMeasurement =
-            signalMeasurementSettings.signalMeasurementShouldContinueInLastSession
+            coverageMeasurementSettings.signalMeasurementShouldContinueInLastSession
         val continueInPreviousSession =
             (shouldContinueInPreviousDedicatedMeasurement && lastSignalMeasurementSessionId != null)
-        val onSessionReady: (SignalMeasurementSession) -> Unit = { session ->
+        val onSessionReady: (CoverageMeasurementSession) -> Unit = { session ->
             loadingPointsJob = loadPoints(session.sessionId)
-            dedicatedSignalMeasurementData.postValue(
-                DedicatedSignalMeasurementData(
-                            signalMeasurementSession = session,
-                            signalMeasurementSettings = signalMeasurementSettings,
-                        )
+            coverageMeasurementData.postValue(
+                CoverageMeasurementData(
+                    coverageMeasurementSession = session,
+                    coverageMeasurementSettings = coverageMeasurementSettings,
+                )
             )
             Timber.d("Session created: ${session.sessionId} invoking callback")
             sessionCreated?.invoke(session.sessionId)
@@ -140,21 +142,21 @@ class DedicatedSignalMeasurementProcessor @Inject constructor(
         }
     }
 
-    private suspend fun onStartAndRegistrationCompleted(registeredAndStartedSession: SignalMeasurementSession) {
+    private suspend fun onStartAndRegistrationCompleted(registeredAndStartedSession: CoverageMeasurementSession) {
         startPingClient(registeredAndStartedSession)
         startMaxCoverageMeasurementSecondsReachedJob(session = registeredAndStartedSession)
         startMaxCoverageSessionSecondsReachedJob(session = registeredAndStartedSession)
     }
 
     private fun onError(e: Exception) {
-        dedicatedSignalMeasurementData.postValue(
-            dedicatedSignalMeasurementData.value?.copy(
+        coverageMeasurementData.postValue(
+            coverageMeasurementData.value?.copy(
                 signalMeasurementException = e,
             )
         )
     }
 
-    private fun startMaxCoverageMeasurementSecondsReachedJob(session: SignalMeasurementSession) {
+    private fun startMaxCoverageMeasurementSecondsReachedJob(session: CoverageMeasurementSession) {
         maxCoverageMeasurementSecondsReachedJob?.cancel()
         maxCoverageMeasurementSecondsReachedJob = CoroutineScope(Dispatchers.Default).launch(CoroutineName("MaxCoverageMeasurementSecondsReachedJob")) {
             session.maxCoverageMeasurementSeconds?.let { maxCoverageMeasurementSeconds ->
@@ -167,7 +169,7 @@ class DedicatedSignalMeasurementProcessor @Inject constructor(
         }
     }
 
-    private fun startMaxCoverageSessionSecondsReachedJob(session: SignalMeasurementSession) {
+    private fun startMaxCoverageSessionSecondsReachedJob(session: CoverageMeasurementSession) {
         maxCoverageSessionSecondsReachedJob?.cancel()
         maxCoverageSessionSecondsReachedJob = CoroutineScope(Dispatchers.Default).launch(CoroutineName("MaxCoverageSessionSecondsReachedJob2")) {
             session.maxCoverageSessionSeconds?.let { maxCoverageSessionSeconds ->
@@ -181,10 +183,10 @@ class DedicatedSignalMeasurementProcessor @Inject constructor(
     }
 
     @OptIn(FlowPreview::class)
-    private suspend fun startPingClient(signalMeasurementSession: SignalMeasurementSession) {
-        val pingHost = signalMeasurementSession.pingServerHost
-        val pingPort = signalMeasurementSession.pingServerPort
-        val pingToken = signalMeasurementSession.pingServerToken
+    private suspend fun startPingClient(coverageMeasurementSession: CoverageMeasurementSession) {
+        val pingHost = coverageMeasurementSession.pingServerHost
+        val pingPort = coverageMeasurementSession.pingServerPort
+        val pingToken = coverageMeasurementSession.pingServerToken
 
         if (pingHost != null && pingPort != null && pingToken != null) {
 
@@ -207,12 +209,12 @@ class DedicatedSignalMeasurementProcessor @Inject constructor(
                     ?.sample(1000)
                     ?.catch { e -> // <-- ADD THIS CATCH OPERATOR
                         Timber.e(e, "Error in pingEvaluator flow before collect")
-                        dedicatedSignalMeasurementData.postValue( dedicatedSignalMeasurementData.value?.copy(currentPingStatus = "Error") )
+                        coverageMeasurementData.postValue( coverageMeasurementData.value?.copy(currentPingStatus = "Error") )
                     }
                     ?.collect { pingResult ->
                         try {
-                            dedicatedSignalMeasurementData.postValue(
-                                dedicatedSignalMeasurementData.value?.copy(
+                            coverageMeasurementData.postValue(
+                                coverageMeasurementData.value?.copy(
                                     currentPingMs = pingResult?.getRTTMillis()
                                 )
                             )
@@ -231,14 +233,14 @@ class DedicatedSignalMeasurementProcessor @Inject constructor(
 
     fun onNewLocation(location: LocationInfo, signalRecord: SignalRecord?, networkInfo: NetworkInfo?) {
         if (networkInfo == null) {
-            dedicatedSignalMeasurementData.postValue(
-                dedicatedSignalMeasurementData.value?.copy(
+            coverageMeasurementData.postValue(
+                coverageMeasurementData.value?.copy(
                     currentNetworkType = null
                 )
             )
         } else {
-            dedicatedSignalMeasurementData.postValue(
-                dedicatedSignalMeasurementData.value?.copy(
+            coverageMeasurementData.postValue(
+                coverageMeasurementData.value?.copy(
                     currentNetworkType = when(networkInfo.type) {
                         TransportType.CELLULAR -> (networkInfo as CellNetworkInfo).networkType.displayName
                         TransportType.WIFI,
@@ -257,19 +259,19 @@ class DedicatedSignalMeasurementProcessor @Inject constructor(
         // TODO: check how old is signal information + also handle no signal record in SignalMeasurementProcessor
         // TODO: check if airplane mode is enabled or not, check if mobile data are enabled
         if (signalRecord == null || signalRecord.transportType == TransportType.CELLULAR) {
-            if (isDistanceToLastSignalPointLocationEnough(location)) {
-                val sessionId = dedicatedSignalMeasurementData.value?.signalMeasurementSession?.sessionId
+            if (isDistanceToLastSignalPointLocationEnough(location?.toDeviceInfoLocation())) {
+                val sessionId = coverageMeasurementData.value?.coverageMeasurementSession?.sessionId
                 if (sessionId == null) {
                     Timber.e("Signal measurement Session not initialized yet - sessionId missing")
                 }
                 sessionId?.let { sessionIdLocal ->
                     Timber.d("Creating a new point with signal record: $signalRecord")
-                    val lastPoint = dedicatedSignalMeasurementData.value?.points?.lastOrNull()
+                    val lastPoint = coverageMeasurementData.value?.points?.lastOrNull()
                     updateSignalFenceAndSaveOnLeaving(lastPoint)
                     createSignalFence(sessionIdLocal, location, signalRecord)
                 }
-            } else if (isTheSameLocation(location)) { // todo verify what to do on the same location and what values needs to be replaced - how to replace ping, ...
-                val lastPoint = dedicatedSignalMeasurementData.value?.points?.lastOrNull()
+            } else if (isTheSameLocation(location.toDeviceInfoLocation())) { // todo verify what to do on the same location and what values needs to be replaced - how to replace ping, ...
+                val lastPoint = coverageMeasurementData.value?.points?.lastOrNull()
                 lastPoint?.let { point ->
                     replaceSignalFenceAndSave(point, signalRecord)
                 }
@@ -278,7 +280,7 @@ class DedicatedSignalMeasurementProcessor @Inject constructor(
     }
 
     private fun createSignalFence(sessionId: String, location: LocationInfo, signalRecord: SignalRecord?) {
-        val point = SignalMeasurementFenceRecord(
+        val point = CoverageMeasurementFenceRecord(
             sessionId = sessionId,
             sequenceNumber = getNextSequenceNumber(),
             location = location.toDeviceInfoLocation(),
@@ -298,7 +300,7 @@ class DedicatedSignalMeasurementProcessor @Inject constructor(
      * original location to even few tenth of meters
      */
     private fun replaceSignalFenceAndSave(
-        lastPoint: SignalMeasurementFenceRecord?,
+        lastPoint: CoverageMeasurementFenceRecord?,
         signalRecord: SignalRecord?
     ) = io {
         val updatedPoint = lastPoint?.copy(
@@ -313,7 +315,7 @@ class DedicatedSignalMeasurementProcessor @Inject constructor(
 
     // TODO: Take network info when leaving the point - possible problem with changing the network type on map when created and when leaving
     private fun updateSignalFenceAndSaveOnLeaving(
-        lastPoint: SignalMeasurementFenceRecord?,
+        lastPoint: CoverageMeasurementFenceRecord?,
     ) = io {
         val updatedPoint = lastPoint?.copy(
             leaveTimestampMillis = System.currentTimeMillis(),
@@ -324,45 +326,27 @@ class DedicatedSignalMeasurementProcessor @Inject constructor(
         }
     }
 
-    private fun saveDedicatedSignalMeasurementPoint(point: SignalMeasurementFenceRecord) = io {
+    private fun saveDedicatedSignalMeasurementPoint(point: CoverageMeasurementFenceRecord) = io {
         signalMeasurementRepository.saveMeasurementPointRecord(point)
     }
 
-    private fun isTheSameLocation(location: LocationInfo): Boolean {
-        if (!location.isAccuracyEnoughForSignalMeasurement()) {
-            return false
-        }
-        val lastPoint = dedicatedSignalMeasurementData.value?.points?.lastOrNull()
-        val lastLocation = lastPoint?.location
-        return if (lastLocation != null) {
-            val distance = location.toLocation().distanceTo(lastLocation.toLocation())
-            (distance < SAME_LOCATION_DISTANCE_METERS)
-        } else {
-            false
-        }
+    private fun isTheSameLocation(location: DeviceInfo.Location?): Boolean {
+        return androidGpsValidator.isTheSameLocation(
+            newLocation = location,
+            lastSavedLocation = coverageMeasurementData.value?.points?.lastOrNull()?.location
+        )
     }
 
-    private fun isDistanceToLastSignalPointLocationEnough(location: LocationInfo): Boolean {
-        if (!location.isAccuracyEnoughForSignalMeasurement()) {
-            Timber.d("Accuracy is not enough")
-            return false
-        }
-        val minDistance = config.minDistanceMetersToLogNewLocationOnMapDuringSignalMeasurement
-        val lastPoint = dedicatedSignalMeasurementData.value?.points?.lastOrNull()
-        val lastLocation = lastPoint?.location
-        return if (lastLocation != null) {
-            val distance = location.toLocation().distanceTo(lastLocation.toLocation())
-            Timber.d("Distance is: $distance")
-            (distance >= minDistance)
-        } else {
-            Timber.d("Distance is good because no previous point loaded")
-            true
-        }
+    private fun isDistanceToLastSignalPointLocationEnough(location: DeviceInfo.Location?): Boolean {
+        return androidGpsValidator.isLocationDistantEnough(
+            newLocation = location,
+            lastSavedLocation = coverageMeasurementData.value?.points?.lastOrNull()?.location
+        )
     }
 
     private fun getNextSequenceNumber(): Int {
         val lastPointNumber =
-            (dedicatedSignalMeasurementData.value?.points?.lastOrNull()?.sequenceNumber ?: -1)
+            (coverageMeasurementData.value?.points?.lastOrNull()?.sequenceNumber ?: -1)
         val nextPointNumber = lastPointNumber + 1
         return nextPointNumber
     }
@@ -371,12 +355,12 @@ class DedicatedSignalMeasurementProcessor @Inject constructor(
         this.launch(CoroutineName("OnDedicatedSignalMeasurementStop")) {
             try {
                 pingEvaluator?.evaluateAndStop()
-                val lastPoint = dedicatedSignalMeasurementData.value?.points?.lastOrNull()
+                val lastPoint = coverageMeasurementData.value?.points?.lastOrNull()
                 updateSignalFenceAndSaveOnLeaving(lastPoint)
             } finally {
                 signalMeasurementRepository.sendFences(
-                    dedicatedSignalMeasurementData.value?.signalMeasurementSession?.sessionId ?: "",
-                    dedicatedSignalMeasurementData.value?.points ?: emptyList()
+                    coverageMeasurementData.value?.coverageMeasurementSession?.sessionId ?: "",
+                    coverageMeasurementData.value?.points ?: emptyList()
                 )
                 cleanData()
             }
@@ -391,7 +375,7 @@ class DedicatedSignalMeasurementProcessor @Inject constructor(
         val points =
             signalMeasurementRepository.loadSignalMeasurementPointRecordsForMeasurement(sessionId)
         points.asFlow().flowOn(Dispatchers.IO).collect { loadedPoints ->
-            dedicatedSignalMeasurementData.postValue( dedicatedSignalMeasurementData.value?.copy(
+            coverageMeasurementData.postValue( coverageMeasurementData.value?.copy(
                 points = loadedPoints
             ))
             _signalPoints.postValue(loadedPoints)
@@ -400,7 +384,7 @@ class DedicatedSignalMeasurementProcessor @Inject constructor(
     }
 
     private fun loadDedicatedMeasurementSession(
-        sessionId: String, onSessionReadyCallback: (SignalMeasurementSession) -> Unit
+        sessionId: String, onSessionReadyCallback: (CoverageMeasurementSession) -> Unit
     ) = launch(CoroutineName("loadDedicatedMeasurementSession")) {
         val loadedSession = signalMeasurementRepository.getDedicatedMeasurementSession(
             sessionId
@@ -413,24 +397,24 @@ class DedicatedSignalMeasurementProcessor @Inject constructor(
         }
     }
 
-    private fun createNewDedicatedMeasurementSession(onSessionReadyCallback: (SignalMeasurementSession) -> Unit) =
+    private fun createNewDedicatedMeasurementSession(onSessionReadyCallback: (CoverageMeasurementSession) -> Unit) =
         launch(CoroutineName("createNewDedicatedMeasurementSession")) {
-            val session = SignalMeasurementSession()
+            val session = CoverageMeasurementSession()
             signalMeasurementRepository.saveDedicatedMeasurementSession(session)
             Timber.d("Newly created session id: ${session.sessionId}")
-            signalMeasurementSettings.signalMeasurementLastSessionId = session.sessionId
+            coverageMeasurementSettings.signalMeasurementLastSessionId = session.sessionId
             onSessionReadyCallback(session)
         }
 
     private fun cleanData() {
         loadingPointsJob?.cancel()
-        dedicatedSignalMeasurementData.postValue(null)
-        signalMeasurementSettings.signalMeasurementLastSessionId = null
+        coverageMeasurementData.postValue(null)
+        coverageMeasurementSettings.signalMeasurementLastSessionId = null
     }
 
     private fun cleanPingDataOnly() {
-        dedicatedSignalMeasurementData.postValue(
-            dedicatedSignalMeasurementData.value?.copy(
+        coverageMeasurementData.postValue(
+            coverageMeasurementData.value?.copy(
                 currentPingStatus = null,
                 currentPingMs = null,
             )

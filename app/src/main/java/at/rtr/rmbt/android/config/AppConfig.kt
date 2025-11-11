@@ -47,6 +47,16 @@ class AppConfig @Inject constructor(context: Context, private val serverSettings
             .apply()
     }
 
+    private fun getLong(configValue: ConfigValue, serverValue: Long? = null): Long {
+        return preferences.getLong(configValue.name, serverValue ?: configValue.value.toLong())
+    }
+
+    private fun setLong(configValue: ConfigValue, value: Long) {
+        preferences.edit()
+            .putLong(configValue.name, value)
+            .apply()
+    }
+
     private fun getString(configValue: ConfigValue, serverValue: String? = null): String {
         return preferences.getString(configValue.name, serverValue ?: configValue.value)!!
     }
@@ -468,4 +478,19 @@ class AppConfig @Inject constructor(context: Context, private val serverSettings
         get() = getInt(BuildConfig.MIN_LOCATION_DISTANCE_METERS_SIGNAL_MEASUREMENT)
         set(value) = setInt(BuildConfig.MIN_LOCATION_DISTANCE_METERS_SIGNAL_MEASUREMENT, value)
 
+    override var minLocationAccuracyMetersDuringSignalMeasurement: Int
+        get() = getInt(BuildConfig.MIN_LOCATION_ACCURACY_METERS_SIGNAL_MEASUREMENT)
+        set(value) = setInt(BuildConfig.MIN_LOCATION_ACCURACY_METERS_SIGNAL_MEASUREMENT, value)
+
+    override var maxAgeOfLocationInformationForSignalMeasurementMillis: Long
+        get() = getLong(BuildConfig.MAX_LOCATION_AGE_MILLIS_SIGNAL_MEASUREMENT)
+        set(value) = setLong(BuildConfig.MAX_LOCATION_AGE_MILLIS_SIGNAL_MEASUREMENT, value)
+
+    override var sameLocationDistanceMetersForSignalMeasurement: Int
+        get() = getInt(BuildConfig.SAME_LOCATION_DISTANCE_METERS_SIGNAL_MEASUREMENT)
+        set(value) = setInt(BuildConfig.SAME_LOCATION_DISTANCE_METERS_SIGNAL_MEASUREMENT, value)
+
+    override var minimalFenceDurationMillisForSignalMeasurement: Long
+        get() = getLong(BuildConfig.MINIMAL_FENCE_DURATION_MILLIS_SIGNAL_MEASUREMENT)
+        set(value) = setLong(BuildConfig.MINIMAL_FENCE_DURATION_MILLIS_SIGNAL_MEASUREMENT, value)
 }

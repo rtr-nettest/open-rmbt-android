@@ -33,6 +33,7 @@ import at.specure.location.LocationState
 import at.specure.location.LocationWatcher
 import at.specure.location.cell.CellLocationInfo
 import at.rmbt.client.control.data.SignalMeasurementType
+import at.specure.measurement.coverage.DedicatedSignalMeasurementProcessor
 import at.specure.test.toDeviceInfoLocation
 import at.specure.util.isFineLocationPermitted
 import at.specure.util.isLocationServiceEnabled
@@ -367,7 +368,7 @@ class SignalMeasurementProcessor @Inject constructor(
     private fun createNewRecordBecauseOfChangedUUID(
         networkInfo: NetworkInfo,
         newUUID: String,
-        session: SignalMeasurementSession
+        session: CoverageMeasurementSession
     ) {
         record = SignalMeasurementRecord(
             signalMeasurementType = lastSignalMeasurementType,
@@ -731,7 +732,7 @@ class SignalMeasurementProcessor @Inject constructor(
     }
 
     @ExperimentalCoroutinesApi
-    override fun newUUIDSent(respondedUuid: String, session: SignalMeasurementSession) {
+    override fun newUUIDSent(respondedUuid: String, session: CoverageMeasurementSession) {
         val network = networkInfo
         network?.let {
             createNewRecordBecauseOfChangedUUID(network, respondedUuid, session)

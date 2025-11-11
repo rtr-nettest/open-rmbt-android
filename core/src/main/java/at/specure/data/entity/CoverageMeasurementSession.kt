@@ -6,7 +6,7 @@ import at.specure.data.Tables
 import java.util.UUID
 
 @Entity(tableName = Tables.SIGNAL_MEASUREMENT_SESSION)
-data class SignalMeasurementSession(
+data class CoverageMeasurementSession(
 
 
     /**
