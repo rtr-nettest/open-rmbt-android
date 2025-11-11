@@ -33,7 +33,7 @@ import at.specure.location.LocationState
 import at.specure.location.LocationWatcher
 import at.specure.location.cell.CellLocationInfo
 import at.rmbt.client.control.data.SignalMeasurementType
-import at.specure.measurement.coverage.DedicatedSignalMeasurementProcessor
+import at.specure.measurement.coverage.RtrCoverageMeasurementProcessor
 import at.specure.test.toDeviceInfoLocation
 import at.specure.util.isFineLocationPermitted
 import at.specure.util.isLocationServiceEnabled
@@ -76,7 +76,7 @@ class SignalMeasurementProcessor @Inject constructor(
     private val signalRepository: SignalMeasurementRepository,
     private val connectivityWatcher: ConnectivityWatcher,
     private val measurementRepository: MeasurementRepository,
-    private val dedicatedSignalMeasurementProcessor: DedicatedSignalMeasurementProcessor,
+    private val rtrCoverageMeasurementProcessor: RtrCoverageMeasurementProcessor,
     private val cellInfoWatcher: CellInfoWatcher
 ) : Binder(), SignalMeasurementProducer, CoroutineScope, SignalMeasurementChunkResultCallback,
     SignalMeasurementChunkReadyCallback {
@@ -165,7 +165,7 @@ class SignalMeasurementProcessor @Inject constructor(
         lastSignalMeasurementType = signalMeasurementType
 
         if (lastSignalMeasurementType == SignalMeasurementType.DEDICATED) {
-            dedicatedSignalMeasurementProcessor.initializeDedicatedMeasurementSession(measurementSessionInitializedCallback, measurementSessionInitializationErrorCallback)
+            rtrCoverageMeasurementProcessor.initializeDedicatedMeasurementSession(measurementSessionInitializedCallback, measurementSessionInitializationErrorCallback)
         }
 
         if (isSignalMeasurementRunning()) {
@@ -180,7 +180,7 @@ class SignalMeasurementProcessor @Inject constructor(
         commitChunkData(ValidChunkPostProcessing.NOTHING)
         isUnstoppable = unstoppable
         if (lastSignalMeasurementType == SignalMeasurementType.DEDICATED) {
-            dedicatedSignalMeasurementProcessor.onMeasurementStop()
+            rtrCoverageMeasurementProcessor.onMeasurementStop()
         }
         resetStateData()
         postStateData()
@@ -235,7 +235,7 @@ class SignalMeasurementProcessor @Inject constructor(
                 if (lastSignalMeasurementType == SignalMeasurementType.DEDICATED) {
                     locationInfo?.let { location ->
                         Timber.d("passing new info with network: ${globalNetworkInfo?.type}")
-                        dedicatedSignalMeasurementProcessor.onNewLocation(location, lastSignalRecord, globalNetworkInfo)
+                        rtrCoverageMeasurementProcessor.onNewLocation(location, lastSignalRecord, globalNetworkInfo)
                     }
                 }
                 if (isSignalMeasurementRunning()) {

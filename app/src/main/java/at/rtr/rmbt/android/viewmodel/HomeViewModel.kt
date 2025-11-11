@@ -30,7 +30,7 @@ import at.specure.info.strength.SignalStrengthLiveData
 import at.specure.location.LocationInfo
 import at.specure.location.LocationState
 import at.specure.location.LocationWatcher
-import at.specure.measurement.coverage.DedicatedSignalMeasurementProcessor
+import at.specure.measurement.coverage.RtrCoverageMeasurementProcessor
 import at.specure.measurement.signal.SignalMeasurementProducer
 import at.specure.measurement.signal.SignalMeasurementService
 import at.rmbt.client.control.data.SignalMeasurementType
@@ -64,7 +64,7 @@ class HomeViewModel @Inject constructor(
     private val newsRepository: NewsRepository,
     private val settingsRepository: SettingsRepository,
     private val signalMeasurementRepository: SignalMeasurementRepository,
-    private val dedicatedSignalMeasurementProcessor: DedicatedSignalMeasurementProcessor,
+    private val rtrCoverageMeasurementProcessor: RtrCoverageMeasurementProcessor,
     measurementServers: MeasurementServers,
     private val coverageMeasurementSettings: CoverageMeasurementSettings,
     private val customMarker: CustomMarker,
@@ -89,7 +89,7 @@ class HomeViewModel @Inject constructor(
 
     private var _pointsLiveData = MutableLiveData<List<CoverageMeasurementFenceRecord>>()
     private var _dedicatedSignalMeasurementSessionIdLiveData : LiveData<String?> = MutableLiveData<String>(null)
-    private var _coverageMeasurementDataLiveData : LiveData<CoverageMeasurementData?> = dedicatedSignalMeasurementProcessor.coverageMeasurementData
+    private var _coverageMeasurementDataLiveData : LiveData<CoverageMeasurementData?> = rtrCoverageMeasurementProcessor.coverageMeasurementData
 
     private var producer: SignalMeasurementProducer? = null
     private var _activeMeasurementSource: LiveData<Boolean>? = null
@@ -109,7 +109,7 @@ class HomeViewModel @Inject constructor(
         get() = _dedicatedSignalMeasurementSessionIdLiveData
 
     val currentSignalMeasurementMapPointsLiveData: LiveData<List<CoverageMeasurementFenceRecord>>
-        get() = dedicatedSignalMeasurementProcessor.signalPoints // _pointsLiveData
+        get() = rtrCoverageMeasurementProcessor.signalPoints // _pointsLiveData
 
     val activeSignalMeasurementLiveData: LiveData<Boolean>
         get() = _activeMeasurementMediator

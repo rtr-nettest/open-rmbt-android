@@ -19,8 +19,10 @@ import at.specure.info.cell.CellNetworkInfo
 import at.specure.info.network.NetworkInfo
 import at.specure.location.LocationInfo
 import at.specure.measurement.coverage.data.CoverageMeasurementData
+import at.specure.measurement.coverage.domain.validators.DurationValidator
 import at.specure.measurement.coverage.domain.validators.GpsValidator
 import at.specure.measurement.coverage.domain.validators.NetworkValidator
+import at.specure.measurement.coverage.validators.CoverageDurationValidator
 import at.specure.test.DeviceInfo
 import at.specure.test.toDeviceInfoLocation
 import kotlinx.coroutines.CoroutineExceptionHandler
@@ -53,12 +55,13 @@ private const val PING_PROTOCOL_ERROR_RESPONSE_HEADER: String = "RE01"
 // TODO: make own signal listener because now we do not get null signals on signal loss from SignalMeasurementProcessor
 
 @Singleton
-class DedicatedSignalMeasurementProcessor @Inject constructor(
+class RtrCoverageMeasurementProcessor @Inject constructor(
     private val coverageMeasurementSettings: CoverageMeasurementSettings,
     private val signalMeasurementRepository: SignalMeasurementRepository,
     private val config: Config,
-    private val androidGpsValidator: GpsValidator,
-    private val androidNetworkValidator: NetworkValidator,
+    private val coverageGpsValidator: GpsValidator,
+    private val coverageNetworkValidator: NetworkValidator,
+    private val coverageDurationValidator: DurationValidator,
 ) : CoroutineScope {
 
     private val _signalPoints: MutableLiveData<List<CoverageMeasurementFenceRecord>> = MutableLiveData()
@@ -331,14 +334,14 @@ class DedicatedSignalMeasurementProcessor @Inject constructor(
     }
 
     private fun isTheSameLocation(location: DeviceInfo.Location?): Boolean {
-        return androidGpsValidator.isTheSameLocation(
+        return coverageGpsValidator.isTheSameLocation(
             newLocation = location,
             lastSavedLocation = coverageMeasurementData.value?.points?.lastOrNull()?.location
         )
     }
 
     private fun isDistanceToLastSignalPointLocationEnough(location: DeviceInfo.Location?): Boolean {
-        return androidGpsValidator.isLocationDistantEnough(
+        return coverageGpsValidator.isLocationDistantEnough(
             newLocation = location,
             lastSavedLocation = coverageMeasurementData.value?.points?.lastOrNull()?.location
         )

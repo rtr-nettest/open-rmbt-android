@@ -5,7 +5,7 @@ import javax.inject.Singleton
 
 @Singleton
 class CoverageDurationValidator(
-    private val minimalFenceDurationMillis: Long,
+    val minimalFenceDurationMillis: Long,
 ): DurationValidator {
     override fun isMinimalTimePassed(newTimestamp: Long?, lastTimestamp: Long?): Boolean {
         if (newTimestamp == null) return false

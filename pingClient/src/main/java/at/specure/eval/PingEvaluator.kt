@@ -22,7 +22,8 @@ class PingEvaluator(private val pingFlow: Flow<PingResult>) {
     private val scope = CoroutineScope(Dispatchers.Default)
     private var job: Job? = null
 
-    private val results = mutableListOf<Double?>()
+    private val results = ArrayDeque<Double?>()
+    private val maxResultsSize = 1000
     private val mutex = Mutex()
     private val debugLog = false
     /**
@@ -40,7 +41,7 @@ class PingEvaluator(private val pingFlow: Flow<PingResult>) {
             try {
                 pingFlow.collect { result ->
                     mutex.withLock {
-                        results.add(result.getRTTMillis())
+                        addResult(result.getRTTMillis())
                         if (debugLog) when (result) {
                             is PingResult.Success -> println("✅ Ping ${result.sequenceNumber} - RTT: ${result.rttMillis} ms")
                             is PingResult.Lost -> println("⚠️  Ping ${result.sequenceNumber} - Timeout")
@@ -87,6 +88,16 @@ class PingEvaluator(private val pingFlow: Flow<PingResult>) {
             copy
         }
         return calculateStats(snapshot)
+    }
+
+    fun addResult(value: Double?) {
+        if (results.size >= maxResultsSize) {
+            results.removeFirst()
+        }
+        results.addLast(value)
+        if (debugLog) {
+            println("Added result:  $value  size:   ${results.size}")
+        }
     }
 
     /**
