@@ -83,8 +83,12 @@ class UdpHmacPingFlow(
         // Sender loop
         launch(Dispatchers.IO + SupervisorJob()) {
             while (isActive) {
+                if (sequenceNumber == Int.MAX_VALUE) {
+                    sequenceNumber = Int.MIN_VALUE
+                    sentTimes.clear() // clear to avoid collisions
+                }
                 val seq = sequenceNumber
-                sequenceNumber = (sequenceNumber + 1) and 0xFFFFFFFF.toInt()
+                sequenceNumber += 1
                 val sendTime = System.nanoTime()
                 sentTimes[seq] = Triple(sendTime, sentTimes.size + 1, sendTime)
 

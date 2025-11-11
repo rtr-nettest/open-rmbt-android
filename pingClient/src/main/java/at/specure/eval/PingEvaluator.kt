@@ -65,7 +65,8 @@ class PingEvaluator(private val pingFlow: Flow<PingResult>) {
     }
 
     /**
-     * Adds a ping result in an ordered manner by sequence number.
+     * Adds a ping result in an ordered manner by sequence number,
+     * handling overflow and replacing earlier Lost/Timeout with later Success.
      */
     fun addResult(result: PingResult?) {
         if (result == null) return
@@ -77,15 +78,33 @@ class PingEvaluator(private val pingFlow: Flow<PingResult>) {
             is PingResult.ClientError -> result.sequenceNumber to null
         }
 
-        // Keep list ordered by sequence number (ascending)
-        val existingIndex = results.indexOfFirst { it.first >= seq.first }
+        val seqNumber = seq.first
+
+        // Check for existing entry with the same sequence number
+        val existingIndex = results.indexOfFirst { it.first == seqNumber }
         if (existingIndex >= 0) {
-            results.add(existingIndex, seq)
-        } else {
-            results.addLast(seq)
+            // Replace Lost/Timeout with Success if applicable
+            val existing = results[existingIndex]
+            if (existing.second == null && seq.second != null) {
+                results[existingIndex] = seq
+            }
+            return
         }
 
-        // Trim if too big
+        // Find insertion point by comparing sequence number relative to last item
+        if (results.isEmpty() || isNewer(seqNumber, results.last().first)) {
+            results.addLast(seq) // append to end
+        } else {
+            // Insert in correct position
+            val insertIndex = results.indexOfFirst { isNewer(seq.first, it.first) }
+            if (insertIndex >= 0) {
+                results.add(insertIndex, seq)
+            } else {
+                results.addFirst(seq)
+            }
+        }
+
+        // Keep list size within maxResultsSize
         while (results.size > maxResultsSize) {
             results.removeFirst()
         }
@@ -160,38 +179,16 @@ class PingEvaluator(private val pingFlow: Flow<PingResult>) {
             totalCountWithoutNulls = numericValues.size
         )
     }
+
+    /**
+     * Returns true if 'a' is a newer sequence than 'b', taking overflow into account.
+     */
+    private fun isNewer(a: Int, b: Int): Boolean {
+        val diff = a.toLong() - b.toLong()
+        return when {
+            diff > Int.MAX_VALUE / 2 -> false // a is older due to overflow
+            diff < -Int.MAX_VALUE / 2 -> true // a is newer due to overflow
+            else -> diff > 0
+        }
+    }
 }
-
-
-/*
-  I  ❌ Ping -1095230504 - java.io.IOException: sendto failed: ENETUNREACH (Network is unreachable)
-2025-11-11 14:58:53.749 17169-17204 System.out              at.alladin.rmbt.android              I  ⚠️  Ping -1095230504 - Timeout
-2025-11-11 14:58:53.847 17169-17326 System.out              at.alladin.rmbt.android              I  ❌ Ping -1095230503 - java.io.IOException: sendto failed: ENETUNREACH (Network is unreachable)
-2025-11-11 14:58:53.851 17169-17326 System.out              at.alladin.rmbt.android              I  ⚠️  Ping -1095230503 - Timeout
-2025-11-11 14:58:53.956 17169-17204 System.out              at.alladin.rmbt.android              I  ❌ Ping -1095230502 - java.io.IOException: sendto failed: ENETUNREACH (Network is unreachable)
-2025-11-11 14:58:53.963 17169-17204 System.out              at.alladin.rmbt.android              I  ⚠️  Ping -1095230502 - Timeout
-2025-11-11 14:58:54.061 17169-17217 System.out              at.alladin.rmbt.android              I  ❌ Ping -1095230501 - java.io.IOException: sendto failed: ENETUNREACH (Network is unreachable)
-2025-11-11 14:58:54.068 17169-17217 System.out              at.alladin.rmbt.android              I  ⚠️  Ping -1095230501 - Timeout
-2025-11-11 14:58:54.163 17169-17217 System.out              at.alladin.rmbt.android              I  ❌ Ping -1095230500 - java.io.IOException: sendto failed: ENETUNREACH (Network is unreachable)
-2025-11-11 14:58:54.168 17169-17217 System.out              at.alladin.rmbt.android              I  ⚠️  Ping -1095230500 - Timeout
-2025-11-11 14:58:54.264 17169-17204 System.out              at.alladin.rmbt.android              I  ❌ Ping -1095230499 - java.io.IOException: sendto failed: ENETUNREACH (Network is unreachable)
-2025-11-11 14:58:54.265 17169-17204 System.out              at.alladin.rmbt.android              I  ⚠️  Ping -1095230499 - Timeout
-2025-11-11 14:58:54.366 17169-17218 System.out              at.alladin.rmbt.android              I  ❌ Ping -1095230498 - java.io.IOException: sendto failed: ENETUNREACH (Network is unreachable)
-2025-11-11 14:58:54.369 17169-17218 System.out              at.alladin.rmbt.android              I  ⚠️  Ping -1095230498 - Timeout
-2025-11-11 14:58:54.468 17169-17217 System.out              at.alladin.rmbt.android              I  ❌ Ping -1095230497 - java.io.IOException: sendto failed: ENETUNREACH (Network is unreachable)
-2025-11-11 14:58:54.469 17169-17217 System.out              at.alladin.rmbt.android              I  ⚠️  Ping -1095230497 - Timeout
-2025-11-11 14:58:54.572 17169-17204 System.out              at.alladin.rmbt.android              I  ⚠️  Ping -1095230496 - Timeout
-2025-11-11 14:58:54.609 17169-17217 System.out              at.alladin.rmbt.android              I  ✅ Ping -1095230496 - RTT: 38.261618 ms
-2025-11-11 14:58:54.673 17169-17218 System.out              at.alladin.rmbt.android              I  ⚠️  Ping -1095230495 - Timeout
-2025-11-11 14:58:54.711 17169-17214 System.out              at.alladin.rmbt.android              I  ✅ Ping -1095230495 - RTT: 37.446358 ms
-2025-11-11 14:58:54.736 17169-17204 System.out              at.alladin.rmbt.android              I  Ping - evaluateLastItems: -1095230499 - null
-2025-11-11 14:58:54.736 17169-17204 System.out              at.alladin.rmbt.android              I  Ping - evaluateLastItems: -1095230499 - null
-2025-11-11 14:58:54.736 17169-17204 System.out              at.alladin.rmbt.android              I  Ping - evaluateLastItems: -1095230498 - null
-2025-11-11 14:58:54.736 17169-17204 System.out              at.alladin.rmbt.android              I  Ping - evaluateLastItems: -1095230498 - null
-2025-11-11 14:58:54.736 17169-17204 System.out              at.alladin.rmbt.android              I  Ping - evaluateLastItems: -1095230497 - null
-2025-11-11 14:58:54.736 17169-17204 System.out              at.alladin.rmbt.android              I  Ping - evaluateLastItems: -1095230497 - null
-2025-11-11 14:58:54.736 17169-17204 System.out              at.alladin.rmbt.android              I  Ping - evaluateLastItems: -1095230496 - 38.261618
-2025-11-11 14:58:54.736 17169-17204 System.out              at.alladin.rmbt.android              I  Ping - evaluateLastItems: -1095230496 - null
-2025-11-11 14:58:54.737 17169-17204 System.out              at.alladin.rmbt.android              I  Ping - evaluateLastItems: -1095230495 - 37.446358
-2025-11-11 14:58:54.737 17169-17204 System.out              at.alladin.rmbt.android              I  Ping - evaluateLastItems: -1095230495 - null
- */
