@@ -28,7 +28,10 @@ import at.rmbt.client.control.data.SignalMeasurementType
 import at.rtr.rmbt.android.ui.dialog.Dialogs
 import at.rtr.rmbt.android.util.formatAccuracy
 import at.specure.data.entity.CoverageMeasurementFenceRecord
+import at.specure.info.TransportType
+import at.specure.info.cell.CellNetworkInfo
 import at.specure.info.network.MobileNetworkType
+import at.specure.info.network.NetworkInfo
 import at.specure.test.toLocation
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
@@ -99,7 +102,8 @@ class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback {
 
         viewModel.coverageMeasurementDataLiveData.listen(this) {
             val pingResult: Double? = it?.currentPingMs
-            binding.technologyValue.text = it?.currentNetworkType ?: "-"
+            updateCurrentLocation(it?.currentLocation)
+            binding.technologyValue.text = getCurrentNetworkTypeName(it?.currentNetworkInfo)
             binding.pingValue.text = if (pingResult != null && pingResult > 0) {
                 val mantissa = pingResult - (pingResult.toInt().toDouble())
                 if (mantissa > 0 && pingResult < 10.0) {
@@ -162,41 +166,60 @@ class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback {
         }
 
         viewModel.locationLiveData.listen(this) { location ->
-            Timber.d("New location obtained: $location")
-            binding.textSource.text = "${location?.provider} ${location?.accuracy}m"
-            if (viewModel.isLocationInfoMeetingQualityCriteria()) {
-                hideWarningButton()
-                if (!viewModel.state.closeDialogDisplayed.get()) {
-                    hideDialog()
-                }
-            } else {
-                if (!viewModel.state.closeDialogDisplayed.get()) {
-                    showWarningButton()
-                    showLocationProblemDialogIfNotSilenced()
-                }
+
+        }
+    }
+
+    private fun updateCurrentLocation(location: LocationInfo?) {
+        Timber.d("New location obtained: $location")
+        binding.textSource.text = "${location?.provider} ${location?.accuracy}m"
+        if (viewModel.isLocationInfoMeetingQualityCriteria()) {
+            hideWarningButton()
+            if (!viewModel.state.closeDialogDisplayed.get()) {
+                hideDialog()
             }
-            map?.let {
-                location?.let { latestLocation ->
-                    mapLocationListener.updateLocation(
-                        latestLocation
+        } else {
+            if (!viewModel.state.closeDialogDisplayed.get()) {
+                showWarningButton()
+                showLocationProblemDialogIfNotSilenced()
+            }
+        }
+        map?.let {
+            location?.let { latestLocation ->
+                mapLocationListener.updateLocation(
+                    latestLocation
+                )
+            }
+        }
+
+        binding.accuracyValue.text = this.getString(R.string.location_dialog_accuracy, (location?.formatAccuracy() ?: "-").toString())
+
+        map?.let { gMap ->
+            location?.let { latestLocation ->
+                if (!viewModel.state.markerDetailsDisplayed.get()) {
+                    gMap.animateCamera(
+                        CameraUpdateFactory.newLatLng(
+                            latestLocation.toLatLng()
+                        )
                     )
                 }
             }
-
-            binding.accuracyValue.text = this.getString(R.string.location_dialog_accuracy, (location?.formatAccuracy() ?: "-").toString())
-
-            map?.let { gMap ->
-                location?.let { latestLocation ->
-                    if (!viewModel.state.markerDetailsDisplayed.get()) {
-                        gMap.animateCamera(
-                            CameraUpdateFactory.newLatLng(
-                                latestLocation.toLatLng()
-                            )
-                        )
-                    }
-                }
-            }
+        }
 //            centerMapOnLocation()
+    }
+
+    private fun getCurrentNetworkTypeName(networkInfo: NetworkInfo?): String {
+        return when(networkInfo?.type) {
+            TransportType.CELLULAR -> (networkInfo as CellNetworkInfo).networkType.displayName
+            TransportType.WIFI,
+            TransportType.BLUETOOTH,
+            TransportType.ETHERNET,
+            TransportType.VPN,
+            TransportType.WIFI_AWARE,
+            TransportType.LOWPAN,
+            TransportType.BROWSER,
+            TransportType.UNKNOWN -> networkInfo.type.name
+            null -> "-"
         }
     }
 

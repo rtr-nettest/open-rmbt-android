@@ -190,30 +190,13 @@ class RtrCoverageMeasurementProcessor @Inject constructor(
             }
         }
 
+        coverageMeasurementData.postValue(
+            coverageMeasurementData.value?.copy(
+                currentNetworkInfo = networkInfo,
+                currentLocation = location,
+            )
+        )
 
-        if (networkInfo == null) {
-            coverageMeasurementData.postValue(
-                coverageMeasurementData.value?.copy(
-                    currentNetworkType = null
-                )
-            )
-        } else {
-            coverageMeasurementData.postValue(
-                coverageMeasurementData.value?.copy(
-                    currentNetworkType = when(networkInfo.type) {
-                        TransportType.CELLULAR -> (networkInfo as CellNetworkInfo).networkType.displayName
-                        TransportType.WIFI,
-                        TransportType.BLUETOOTH,
-                        TransportType.ETHERNET,
-                        TransportType.VPN,
-                        TransportType.WIFI_AWARE,
-                        TransportType.LOWPAN,
-                        TransportType.BROWSER,
-                        TransportType.UNKNOWN -> networkInfo.type.name
-                    }
-                )
-            )
-        }
     }
 
     /**
