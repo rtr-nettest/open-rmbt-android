@@ -1,12 +1,19 @@
 package at.specure.measurement.coverage.domain
 
+import at.specure.data.entity.CoverageMeasurementSession
+
 interface CoverageMeasurementProcessor {
 
-    fun start()
+    fun startCoverageSession(
+        sessionCreated: ((session: CoverageMeasurementSession) -> Unit)?,
+        sessionCreationError: ((e: Exception) -> Unit)?,
+    )
 
-    fun stop()
+    fun stopCoverageSession()
 
-    fun pause()
+    fun pauseCoverageSession()
 
-    fun getData()
+    fun resumeCoverageSession()
+
+    fun getData(): CoverageMeasurementSession
 }

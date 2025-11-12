@@ -35,7 +35,7 @@ import at.specure.measurement.signal.SignalMeasurementProducer
 import at.specure.measurement.signal.SignalMeasurementService
 import at.rmbt.client.control.data.SignalMeasurementType
 import at.specure.measurement.coverage.domain.models.CoverageMeasurementData
-import at.specure.measurement.coverage.domain.validators.GpsValidator
+import at.specure.measurement.coverage.domain.validators.LocationValidator
 import at.specure.test.toDeviceInfoLocation
 import at.specure.util.map.CustomMarker
 import at.specure.util.permission.PermissionsWatcher
@@ -68,7 +68,7 @@ class HomeViewModel @Inject constructor(
     measurementServers: MeasurementServers,
     private val coverageMeasurementSettings: CoverageMeasurementSettings,
     private val customMarker: CustomMarker,
-    private val gpsValidator: GpsValidator,
+    private val locationValidator: LocationValidator,
 ) : BaseViewModel() {
 
     val state = HomeViewState(appConfig, measurementServers)
@@ -97,7 +97,6 @@ class HomeViewModel @Inject constructor(
 
     private var _pausedMeasurementSource: LiveData<Boolean>? = null
     private var _pausedMeasurementMediator = MediatorLiveData<Boolean>()
-    private var _currentSignalMeasurementMapPointsLiveData: LiveData<List<CoverageMeasurementFenceRecord>>? = null
     private var toggleService: Boolean = false
 
     private var _getNewsLiveData = MutableLiveData<List<NewsItem>?>()
@@ -107,9 +106,6 @@ class HomeViewModel @Inject constructor(
 
     val dedicatedSignalMeasurementSessionIdLiveData : LiveData<String?>
         get() = _dedicatedSignalMeasurementSessionIdLiveData
-
-    val currentSignalMeasurementMapPointsLiveData: LiveData<List<CoverageMeasurementFenceRecord>>
-        get() = rtrCoverageMeasurementProcessor.signalPoints // _pointsLiveData
 
     val activeSignalMeasurementLiveData: LiveData<Boolean>
         get() = _activeMeasurementMediator
@@ -310,7 +306,7 @@ class HomeViewModel @Inject constructor(
     }
 
     private fun isLocationAccuracyGoodEnough(): Boolean {
-        return gpsValidator.isLocationAccuracyPreciseEnough(locationLiveData.value?.toDeviceInfoLocation())
+        return locationValidator.isLocationAccuracyPreciseEnough(locationLiveData.value?.toDeviceInfoLocation())
     }
 
     fun shouldOpenSignalMeasurementScreen(): Boolean {

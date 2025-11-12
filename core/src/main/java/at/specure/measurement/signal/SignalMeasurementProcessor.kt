@@ -146,8 +146,8 @@ class SignalMeasurementProcessor @Inject constructor(
         // not necessary to implement here
     }
 
-    val measurementSessionInitializedCallback: (sessionId: String?) -> Unit = { sessionId ->
-        _signalMeasurementSessionIdLiveData.postValue(sessionId)
+    val measurementSessionInitializedCallback: (sessionId: CoverageMeasurementSession) -> Unit = { coverageMeasurementSession ->
+        _signalMeasurementSessionIdLiveData.postValue(coverageMeasurementSession.sessionId)
     }
 
     val measurementSessionInitializationErrorCallback: (exception: Exception) -> Unit = { exception ->
@@ -165,7 +165,7 @@ class SignalMeasurementProcessor @Inject constructor(
         lastSignalMeasurementType = signalMeasurementType
 
         if (lastSignalMeasurementType == SignalMeasurementType.DEDICATED) {
-            rtrCoverageMeasurementProcessor.initializeDedicatedMeasurementSession(measurementSessionInitializedCallback, measurementSessionInitializationErrorCallback)
+            rtrCoverageMeasurementProcessor.startCoverageSession(measurementSessionInitializedCallback, measurementSessionInitializationErrorCallback)
         }
 
         if (isSignalMeasurementRunning()) {

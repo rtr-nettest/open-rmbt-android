@@ -17,6 +17,7 @@ import at.specure.data.ClientUUID
 import at.specure.data.ClientUUIDLegacy
 import at.specure.data.ControlServerSettings
 import at.specure.data.CoreDatabase
+import at.specure.data.CoverageMeasurementSettings
 import at.specure.data.HistoryFilterOptions
 import at.specure.data.MeasurementServers
 import at.specure.data.NewsSettings
@@ -32,6 +33,7 @@ import at.specure.data.repository.NewsRepository
 import at.specure.data.repository.NewsRepositoryImpl
 import at.specure.data.repository.SettingsRepository
 import at.specure.data.repository.SettingsRepositoryImpl
+import at.specure.data.repository.SignalMeasurementRepository
 import at.specure.data.repository.TestDataRepository
 import at.specure.info.cell.CellInfoWatcher
 import at.specure.info.cell.CellInfoWatcherImpl
@@ -48,14 +50,18 @@ import at.specure.info.wifi.WifiInfoWatcherImpl
 import at.specure.location.LocationWatcher
 import at.specure.location.cell.CellLocationWatcher
 import at.specure.location.cell.CellLocationWatcherImpl
+import at.specure.measurement.coverage.RtrCoverageSessionManager
+import at.specure.measurement.coverage.domain.CoverageSessionManager
 import at.specure.measurement.coverage.domain.PingProcessor
+import at.specure.measurement.coverage.domain.validators.CoverageDataValidator
 import at.specure.measurement.coverage.presentation.validators.CoverageDurationValidator
-import at.specure.measurement.coverage.presentation.validators.CoverageGpsValidator
+import at.specure.measurement.coverage.presentation.validators.CoverageLocationValidator
 import at.specure.measurement.coverage.presentation.validators.CoverageNetworkValidator
 import at.specure.measurement.coverage.domain.validators.DurationValidator
-import at.specure.measurement.coverage.domain.validators.GpsValidator
+import at.specure.measurement.coverage.domain.validators.LocationValidator
 import at.specure.measurement.coverage.domain.validators.NetworkValidator
 import at.specure.measurement.coverage.presentation.RtrPingProcessor
+import at.specure.measurement.coverage.presentation.validators.MainCoverageDataValidator
 import at.specure.test.TestController
 import at.specure.test.TestControllerImpl
 import at.specure.util.map.CustomMarker
@@ -291,7 +297,7 @@ class CoreModule {
     @Singleton
     fun provideGpsValidator(
         config: Config
-    ): GpsValidator = CoverageGpsValidator(
+    ): LocationValidator = CoverageLocationValidator(
         minDistanceMetersToLogNewLocationOnMapDuringSignalMeasurement = config.minDistanceMetersToLogNewLocationOnMapDuringSignalMeasurement,
         maxDistanceMetersToLocationBeTheSameDuringSignalMeasurement = config.sameLocationDistanceMetersForSignalMeasurement,
         minLocationAccuracyThresholdMeters = config.minLocationAccuracyMetersDuringSignalMeasurement.toFloat(),
@@ -308,11 +314,31 @@ class CoreModule {
 
     @Provides
     @Singleton
-    fun provideNetworkValidator(
-        config: Config
-    ): NetworkValidator = CoverageNetworkValidator()
+    fun provideNetworkValidator(): NetworkValidator = CoverageNetworkValidator()
+
+    @Provides
+    @Singleton
+    fun provideCoverageDataValidator(
+        networkValidator: NetworkValidator,
+        locationValidator: LocationValidator,
+        durationValidator: DurationValidator
+    ): CoverageDataValidator = MainCoverageDataValidator(
+        networkValidator = networkValidator,
+        locationValidator = locationValidator,
+        durationValidator = durationValidator
+    )
 
     @Provides
     @Singleton
     fun providePingProcessor(): PingProcessor = RtrPingProcessor()
+
+    @Provides
+    @Singleton
+    fun provideCoverageSessionManager(
+        signalMeasurementRepository: SignalMeasurementRepository,
+        coverageMeasurementSettings: CoverageMeasurementSettings
+    ): CoverageSessionManager = RtrCoverageSessionManager(
+        signalMeasurementRepository = signalMeasurementRepository,
+        coverageMeasurementSettings = coverageMeasurementSettings
+    )
 }

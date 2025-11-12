@@ -27,6 +27,7 @@ import at.specure.test.DeviceInfo
 import at.rmbt.client.control.data.SignalMeasurementType
 import at.rtr.rmbt.android.ui.dialog.Dialogs
 import at.rtr.rmbt.android.util.formatAccuracy
+import at.specure.data.entity.CoverageMeasurementFenceRecord
 import at.specure.info.network.MobileNetworkType
 import at.specure.test.toLocation
 import com.google.android.gms.maps.CameraUpdateFactory
@@ -117,6 +118,8 @@ class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback {
             it?.signalMeasurementException?.also {
                 Dialogs.show(this.applicationContext, getString(R.string.coverage_measurement_error_title), it.message ?: getString(R.string.coverage_measurement_error_unknown))
             }
+
+            updateMapPoints(points = it?.points)
         }
 
         viewModel.activeSignalMeasurementLiveData.listen(this) {
@@ -158,32 +161,6 @@ class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback {
             }
         }
 
-        viewModel.currentSignalMeasurementMapPointsLiveData.listen(this) { points ->
-            Timber.d("Points in activity: $points")
-            map?.let { currentMap ->
-                points.forEach { point ->
-                    val latLng = point.location.toLatLng()
-                    latLng?.let { markerLatLng ->
-                        lifecycleScope.launch(CoroutineName("Creating marker signal measurement activity")) {
-                            val options = MarkerOptions()
-                                .position(markerLatLng)
-                                .icon(BitmapDescriptorFactory.fromBitmap(viewModel.customMarkerProvider.createCustomShapeBitmap(MobileNetworkType.fromValue(point.technologyId ?: 0))))
-                                .title(MobileNetworkType.fromValue(point.technologyId ?: 0).displayName)
-
-                            currentMap.addMarker(options)
-                        }
-                    }
-                }
-                currentMap.setOnMarkerClickListener { marker ->
-                    viewModel.state.markerDetailsDisplayed.set(true)
-                    return@setOnMarkerClickListener false
-                }
-                currentMap.setOnMapClickListener {
-                    viewModel.state.markerDetailsDisplayed.set(false)
-                }
-            }
-        }
-
         viewModel.locationLiveData.listen(this) { location ->
             Timber.d("New location obtained: $location")
             binding.textSource.text = "${location?.provider} ${location?.accuracy}m"
@@ -220,6 +197,32 @@ class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback {
                 }
             }
 //            centerMapOnLocation()
+        }
+    }
+
+    private fun updateMapPoints(points: List<CoverageMeasurementFenceRecord>?) {
+        Timber.d("Points in activity: $points")
+        map?.let { currentMap ->
+            points?.forEach { point ->
+                val latLng = point.location.toLatLng()
+                latLng?.let { markerLatLng ->
+                    lifecycleScope.launch(CoroutineName("Creating marker signal measurement activity")) {
+                        val options = MarkerOptions()
+                            .position(markerLatLng)
+                            .icon(BitmapDescriptorFactory.fromBitmap(viewModel.customMarkerProvider.createCustomShapeBitmap(MobileNetworkType.fromValue(point.technologyId ?: 0))))
+                            .title(MobileNetworkType.fromValue(point.technologyId ?: 0).displayName)
+
+                        currentMap.addMarker(options)
+                    }
+                }
+            }
+            currentMap.setOnMarkerClickListener { marker ->
+                viewModel.state.markerDetailsDisplayed.set(true)
+                return@setOnMarkerClickListener false
+            }
+            currentMap.setOnMapClickListener {
+                viewModel.state.markerDetailsDisplayed.set(false)
+            }
         }
     }
 

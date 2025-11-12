@@ -1,23 +1,23 @@
 package at.specure.measurement.coverage.presentation.validators
 
-import at.specure.measurement.coverage.domain.validators.GpsValidator
+import at.specure.measurement.coverage.domain.validators.LocationValidator
 import at.specure.test.DeviceInfo
 import at.specure.test.toLocation
 import timber.log.Timber
 import javax.inject.Singleton
 
 @Singleton
-class CoverageGpsValidator(
+class CoverageLocationValidator(
     val minDistanceMetersToLogNewLocationOnMapDuringSignalMeasurement: Int,
     val maxDistanceMetersToLocationBeTheSameDuringSignalMeasurement: Int,
     val minLocationAccuracyThresholdMeters: Float,
     val maxLocationAgeThresholdMillis: Long,
-): GpsValidator {
+): LocationValidator {
     override fun isLocationValid(newLocation: DeviceInfo.Location?): Boolean {
         return isLocationNotTooOld(newLocation) && isLocationAccuracyPreciseEnough(newLocation)
     }
 
-    override fun isLocationDistantEnough(newLocation: DeviceInfo.Location?, lastSavedLocation: DeviceInfo.Location?): Boolean {
+    override fun isLocationValidAndDistantEnough(newLocation: DeviceInfo.Location?, lastSavedLocation: DeviceInfo.Location?): Boolean {
         if (newLocation == null) return false
 
         if (isLocationValid(newLocation)) {
