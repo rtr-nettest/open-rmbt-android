@@ -35,6 +35,7 @@ import at.specure.info.network.NetworkInfo
 import at.specure.measurement.coverage.presentation.validators.CoverageLocationValidator
 import at.specure.measurement.coverage.presentation.validators.CoverageNetworkValidator
 import at.specure.test.toLocation
+import at.specure.util.map.getMarkerColorInt
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.LocationSource
@@ -45,6 +46,7 @@ import com.google.android.gms.maps.model.MarkerOptions
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
+import com.google.android.gms.maps.model.CircleOptions
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.CoroutineName
 import timber.log.Timber
@@ -263,14 +265,30 @@ class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback {
     private fun updateMapPoints(points: List<CoverageMeasurementFenceRecord>?) {
         Timber.d("Points in activity: $points")
         map?.let { currentMap ->
-            points?.forEach { point ->
+            points?.forEachIndexed { index, point ->
+                val isLast = index == points.lastIndex
                 val latLng = point.location.toLatLng()
+                val technology = MobileNetworkType.fromValue(point.technologyId ?: 0)
                 latLng?.let { markerLatLng ->
                     lifecycleScope.launch(CoroutineName("Creating marker signal measurement activity")) {
                         val options = MarkerOptions()
                             .position(markerLatLng)
                             .icon(BitmapDescriptorFactory.fromBitmap(viewModel.customMarkerProvider.createCustomShapeBitmap(MobileNetworkType.fromValue(point.technologyId ?: 0))))
                             .title(MobileNetworkType.fromValue(point.technologyId ?: 0).displayName)
+                            .anchor(0.5f, 0.5f)
+
+                        if (isLast) {
+                            val colorInt = technology.getMarkerColorInt()
+                            val fillColor = makeSemiTransparent(colorInt)
+                            currentMap.addCircle(
+                                CircleOptions()
+                                    .center(latLng)
+                                    .radius(point.radiusMeters.toDouble()) // in meters
+                                    .strokeColor(colorInt)
+                                    .strokeWidth(2f)
+                                    .fillColor(fillColor) // semi-transparent red
+                            )
+                        }
 
                         currentMap.addMarker(options)
                     }
@@ -286,6 +304,10 @@ class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback {
         }
     }
 
+    private fun makeSemiTransparent(color: Int, alpha: Int = 1): Int {
+        // alpha: 0..255, 128 = 50% transparency
+        return (color and 0x00FFFFFF) or (alpha shl 24)
+    }
     private fun showWarningButton() {
         binding.fabWarning.hide()
         binding.fabWarning.show()
