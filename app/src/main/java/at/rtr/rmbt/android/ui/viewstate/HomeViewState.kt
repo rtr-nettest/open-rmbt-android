@@ -53,6 +53,7 @@ class HomeViewState(
     val informationAccessProblem = ObservableField(InformationAccessProblem.NO_PROBLEM)
     val locationChanged = ObservableBoolean(false)
     val locationWarningDialogSilenced = ObservableBoolean(false)
+    val networkWarningDialogSilenced = ObservableBoolean(false)
 
     var coordinatesLiveData: MutableLiveData<LatLngW> = MutableLiveData()
     var cameraPositionLiveData: MutableLiveData<LatLngW> = MutableLiveData()

@@ -295,6 +295,14 @@ class HomeViewModel @Inject constructor(
         }
     }
 
+    fun silenceNetworkWarning() {
+        state.networkWarningDialogSilenced.set(true)
+        launch(CoroutineName("SilenceNetworkDialogWarning")) {
+            delay(LOCATION_ACCURACY_WARNING_DIALOG_SILENCED_TIME_MILLIS)
+            state.networkWarningDialogSilenced.set(false)
+        }
+    }
+
     override fun onCleared() {
         super.onCleared()
         loadPointJob?.cancel()
@@ -306,7 +314,7 @@ class HomeViewModel @Inject constructor(
     }
 
     private fun isLocationAccuracyGoodEnough(): Boolean {
-        return locationValidator.isLocationAccuracyPreciseEnough(locationLiveData.value?.toDeviceInfoLocation())
+        return locationValidator.isLocationValid(locationLiveData.value?.toDeviceInfoLocation())
     }
 
     fun shouldOpenSignalMeasurementScreen(): Boolean {

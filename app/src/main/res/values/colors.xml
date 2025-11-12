@@ -90,4 +90,7 @@
     <color name="ping_bar_color">#4D78Ed03</color>
 
     <color name="colorSelector">#5559b200</color>
+
+    <color name="snackbar_error_background">#EEF2F3F5</color>
+    <color name="snackbar_error_text">#cf0c0c</color>
 </resources>

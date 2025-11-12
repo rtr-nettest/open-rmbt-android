@@ -32,6 +32,8 @@ import at.specure.info.TransportType
 import at.specure.info.cell.CellNetworkInfo
 import at.specure.info.network.MobileNetworkType
 import at.specure.info.network.NetworkInfo
+import at.specure.measurement.coverage.presentation.validators.CoverageLocationValidator
+import at.specure.measurement.coverage.presentation.validators.CoverageNetworkValidator
 import at.specure.test.toLocation
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
@@ -43,6 +45,7 @@ import com.google.android.gms.maps.model.MarkerOptions
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
+import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.CoroutineName
 import timber.log.Timber
 import kotlin.math.roundToInt
@@ -55,9 +58,11 @@ const val DEFAULT_POINT_CLICKED_ZOOM_LEVEL = 16f
 
 class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback {
 
+    val networkValidator = CoverageNetworkValidator()
     private val viewModel: HomeViewModel by viewModelLazy()
     private lateinit var binding: ActivitySignalMeasurementBinding
     private var map: GoogleMap? = null
+    private var warningSnackbar: Snackbar? = null
     private val mapLocationListener = object : LocationSource {
         private var listener: LocationSource.OnLocationChangedListener? = null
 
@@ -103,6 +108,7 @@ class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback {
         viewModel.coverageMeasurementDataLiveData.listen(this) {
             val pingResult: Double? = it?.currentPingMs
             updateCurrentLocation(it?.currentLocation)
+            checkNetwork(it?.currentNetworkInfo)
             binding.technologyValue.text = getCurrentNetworkTypeName(it?.currentNetworkInfo)
             binding.pingValue.text = if (pingResult != null && pingResult > 0) {
                 val mantissa = pingResult - (pingResult.toInt().toDouble())
@@ -221,6 +227,37 @@ class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback {
             TransportType.UNKNOWN -> networkInfo.type.name
             null -> "-"
         }
+    }
+
+    private fun checkNetwork(networkInfo: NetworkInfo?) {
+        if (!networkValidator.isNetworkToBeLogged(networkInfo = networkInfo)) {
+            val message = getString(R.string.wrong_network_message, getCurrentNetworkTypeName(networkInfo))
+            showNetworkWarningIfNotSilenced(binding.root, message)
+        }
+    }
+
+    fun showNetworkWarningIfNotSilenced(view: View, message: String) {
+        if (!viewModel.state.networkWarningDialogSilenced.get()) {
+            showNetworkWarningSnackbar(view, message)
+        }
+    }
+
+    fun showNetworkWarningSnackbar(view: View, message: String) {
+        if (warningSnackbar?.isShownOrQueued == true) {
+            // Already visible or scheduled to show
+            return
+        }
+
+        warningSnackbar = Snackbar.make(view, message, Snackbar.LENGTH_INDEFINITE)
+            .setBackgroundTint(ContextCompat.getColor(this, R.color.snackbar_error_background))
+            .setTextColor(ContextCompat.getColor(this, R.color.snackbar_error_text))
+            .setAction(R.string.dismiss) {
+                // User tapped the button → Snackbar disappears
+                viewModel.silenceNetworkWarning()
+            }
+            .setActionTextColor(ContextCompat.getColor(this, R.color.snackbar_error_text))
+
+        warningSnackbar?.show()
     }
 
     private fun updateMapPoints(points: List<CoverageMeasurementFenceRecord>?) {

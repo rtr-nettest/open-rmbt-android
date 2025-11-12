@@ -258,7 +258,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="@dimen/margin_large"
-                android:layout_marginBottom="@dimen/margin_medium"
+                android:layout_marginBottom="64dp"
                 android:backgroundTint="@android:color/white"
                 android:src="@drawable/ic_close"
                 app:borderWidth="0dp"
