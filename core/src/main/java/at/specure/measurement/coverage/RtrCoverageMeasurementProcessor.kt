@@ -20,6 +20,7 @@ import at.specure.measurement.coverage.domain.CoverageSessionManager
 import at.specure.measurement.coverage.domain.CoverageTimer
 import at.specure.measurement.coverage.domain.PingProcessor
 import at.specure.measurement.coverage.domain.models.CoverageMeasurementData
+import at.specure.measurement.coverage.domain.models.state.CoverageMeasurementState
 import at.specure.measurement.coverage.domain.validators.CoverageDataValidator
 import at.specure.measurement.coverage.domain.validators.LocationValidator
 import at.specure.test.DeviceInfo
@@ -105,15 +106,32 @@ class RtrCoverageMeasurementProcessor @Inject constructor(
     }
 
     override fun stopCoverageSession() {
-        TODO("Not yet implemented")
+        this.launch(CoroutineName("OnDedicatedSignalMeasurementStop")) {
+            try {
+                val avgPingMillis = coveragePingProcessor.stopPing()?.average
+                val lastPoint = coverageMeasurementData.value?.points?.lastOrNull()
+                fencesDataSource.updateSignalFenceAndSaveOnLeaving(
+                    lastPoint,
+                    leaveTimestampMillis = System.currentTimeMillis(),
+                    avgPingMillis = avgPingMillis
+                )
+            } finally {
+                signalMeasurementRepository.sendFences(
+                    coverageMeasurementData.value?.coverageMeasurementSession?.sessionId ?: "",
+                    coverageMeasurementData.value?.points ?: emptyList()
+                )
+//                cleanData()
+                updateCoverageDataState(CoverageMeasurementState.FINISHED_LOOP_CORRECTLY)
+            }
+        }
     }
 
     override fun pauseCoverageSession() {
-        TODO("Not yet implemented")
+        updateCoverageDataState(CoverageMeasurementState.PAUSED)
     }
 
     override fun resumeCoverageSession() {
-        TODO("Not yet implemented")
+        updateCoverageDataState(CoverageMeasurementState.RUNNING)
     }
 
     override fun getData(): CoverageMeasurementSession {
@@ -131,6 +149,7 @@ class RtrCoverageMeasurementProcessor @Inject constructor(
         }
         startMaxCoverageMeasurementSecondsReachedJob(session = registeredAndStartedSession)
         startMaxCoverageSessionSecondsReachedJob(session = registeredAndStartedSession)
+        updateCoverageDataState(CoverageMeasurementState.RUNNING)
     }
 
     private fun onError(e: Exception) {
@@ -149,8 +168,16 @@ class RtrCoverageMeasurementProcessor @Inject constructor(
 
     private fun startMaxCoverageSessionSecondsReachedJob(session: CoverageMeasurementSession) {
         session.maxCoverageSessionSeconds?.let { maxCoverageSessionSeconds ->
-            coverageSessionTimer.start(maxCoverageSessionSeconds.seconds, { onMeasurementSessionStop() })
+            coverageSessionTimer.start(maxCoverageSessionSeconds.seconds, { stopCoverageSession() })
         }
+    }
+
+    private fun updateCoverageDataState(state: CoverageMeasurementState) {
+        coverageMeasurementData.postValue(
+            coverageMeasurementData.value?.copy(
+                state = state
+            )
+        )
     }
 
     fun onNewLocation(location: LocationInfo, signalRecord: SignalRecord?, networkInfo: NetworkInfo?) {
@@ -229,29 +256,6 @@ class RtrCoverageMeasurementProcessor @Inject constructor(
      */
     fun onMeasurementStop() {
         // todo
-    }
-
-    /**
-     * Stop of whole measurement loop aka session
-     */
-    fun onMeasurementSessionStop() {
-        this.launch(CoroutineName("OnDedicatedSignalMeasurementStop")) {
-            try {
-                val avgPingMillis = coveragePingProcessor.stopPing()?.average
-                val lastPoint = coverageMeasurementData.value?.points?.lastOrNull()
-                fencesDataSource.updateSignalFenceAndSaveOnLeaving(
-                    lastPoint,
-                    leaveTimestampMillis = System.currentTimeMillis(),
-                    avgPingMillis = avgPingMillis
-                )
-            } finally {
-                signalMeasurementRepository.sendFences(
-                    coverageMeasurementData.value?.coverageMeasurementSession?.sessionId ?: "",
-                    coverageMeasurementData.value?.points ?: emptyList()
-                )
-                cleanData()
-            }
-        }
     }
 
     fun onNetworkChanged() {
