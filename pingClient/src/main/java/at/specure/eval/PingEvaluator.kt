@@ -24,7 +24,7 @@ class PingEvaluator(private val pingFlow: Flow<PingResult>) {
     private val results = ArrayDeque<Pair<Int, Double?>>()
     private val maxResultsSize = 1000
     private val mutex = Mutex()
-    private val debugLog = true
+    private val debugLog = false
 
     /**
      * Starts collecting ping results. If already collecting, does nothing.
