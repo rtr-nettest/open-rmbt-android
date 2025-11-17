@@ -172,10 +172,12 @@ class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback {
         hideNetworkWarningSnackbar()
         setInfoVisible(false)
         setResultTitleVisible(true)
+        setSettingsButtonVisible(false)
     }
     
     private fun updateUnfinishedMeasurement(coverageMeasurementData: CoverageMeasurementData?) {
         updateCurrentLocation(coverageMeasurementData?.currentLocation)
+        setSettingsButtonVisible(true)
         setMyLocationButtonVisible(true)
         setMyPositionAndButtonVisible(true)
         checkNetwork(coverageMeasurementData?.currentNetworkInfo)
@@ -185,6 +187,14 @@ class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback {
         showCurrentNetworkType(coverageMeasurementData)
         showMeasurementError(coverageMeasurementData)
         updateMapPoints(points = coverageMeasurementData?.points)
+    }
+
+    private fun setSettingsButtonVisible(visible: Boolean) {
+        binding.fabSettings.visibility = if (visible) {
+            View.VISIBLE
+        } else {
+            View.GONE
+        }
     }
 
     private fun setMyPositionAndButtonVisible(visible: Boolean) {
