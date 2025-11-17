@@ -4,11 +4,13 @@ import android.content.Context
 import timber.log.Timber
 import javax.inject.Inject
 import androidx.core.content.edit
+import javax.inject.Singleton
 
 private const val KEY_SIGNAL_MEASUREMENT_RUNNING = "KEY_SIGNAL_MEASUREMENT_RUNNING"
 private const val KEY_SIGNAL_MEASUREMENT_CONTINUE_LAST_SESSION = "KEY_SIGNAL_MEASUREMENT_CONTINUE_LAST_SESSION"
 private const val KEY_SIGNAL_MEASUREMENT_LAST_SESSION_ID = "KEY_SIGNAL_MEASUREMENT_LAST_SESSION_ID"
 
+@Singleton
 class CoverageMeasurementSettings @Inject constructor(context: Context) {
 
     private val preferences = context.getSharedPreferences("signal_measurement_settings.pref",

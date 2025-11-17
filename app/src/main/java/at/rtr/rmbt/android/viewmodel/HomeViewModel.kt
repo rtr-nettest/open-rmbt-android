@@ -193,6 +193,10 @@ class HomeViewModel @Inject constructor(
         }
     }
 
+    fun onCoverageConfigurationChanged() {
+        rtrCoverageMeasurementProcessor.onCoverageConfigurationChanged()
+    }
+
     fun toggleSignalMeasurementService() {
         if (producer == null) {
             toggleService = true

@@ -1,0 +1,202 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <variable
+            name="state"
+            type="at.rtr.rmbt.android.ui.viewstate.CoverageSettingsViewState" />
+
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/bg_map_action_sheet"
+        android:paddingBottom="@dimen/padding_extra_large">
+
+        <TextView
+            android:id="@+id/label"
+            style="@style/RobotoMediumStyle.Medium"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="@dimen/margin_large"
+            android:text="@string/history_settings"
+            android:textColor="@color/navigation_gray"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <ImageView
+            android:id="@+id/icon_close"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="@dimen/padding_large"
+            android:contentDescription="@string/content_label_close"
+            android:src="@drawable/ic_map_dialog_close"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <View
+            android:id="@+id/title_divider"
+            android:layout_width="0dp"
+            android:layout_height="@dimen/size_divider_height"
+            android:background="@color/horizontal_divider"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:layout_marginTop="@dimen/padding_medium"
+            android:layout_marginStart="@dimen/padding_large"
+            android:layout_marginEnd="@dimen/padding_large"
+            android:layout_marginBottom="@dimen/padding_medium"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/label" />
+
+        <TextView
+            android:id="@+id/label_fence_radius"
+            style="@style/RobotoRegularStyle.Medium"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/padding_large"
+            android:layout_marginTop="@dimen/padding_medium"
+            android:text="@string/text_fence_radius"
+            android:textColor="@color/navigation_gray"
+            app:layout_constraintBottom_toTopOf="@id/fence_radius_slider"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/title_divider" />
+
+        <TextView
+            android:id="@+id/fence_radius_meters"
+            style="@style/RobotoRegularStyle.Medium"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/padding_large"
+            android:text="@string/text_meters"
+            android:textColor="@color/navigation_gray"
+            app:layout_constraintBottom_toTopOf="@id/fence_radius_slider"
+            app:layout_constraintStart_toEndOf="@+id/label_fence_radius"
+            app:layout_constraintBaseline_toBaselineOf="@id/label_fence_radius" />
+
+        <TextView
+            android:id="@+id/label_fence_radius_min_meters"
+            style="@style/RobotoRegularStyle.Medium"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/padding_large"
+            android:text="@string/text_meters"
+            android:textColor="@color/navigation_gray"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@id/fence_radius_slider"
+            app:layout_constraintBottom_toBottomOf="@id/fence_radius_slider"
+            app:layout_constraintEnd_toStartOf="@+id/fence_radius_slider"
+            />
+
+        <com.google.android.material.slider.Slider
+            android:id="@+id/fence_radius_slider"
+            android:contentDescription="@string/fence_radius_slider_content_description"
+            android:theme="@style/Slider"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:valueFrom="10"
+            android:valueTo="50"
+            android:stepSize="1"
+            app:layout_constraintStart_toEndOf="@+id/label_fence_radius_min_meters"
+            app:layout_constraintEnd_toStartOf="@+id/label_fence_radius_max_meters"
+            app:layout_constraintTop_toBottomOf="@id/label_fence_radius"
+            />
+
+        <TextView
+            android:id="@+id/label_fence_radius_max_meters"
+            style="@style/RobotoRegularStyle.Medium"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="@dimen/padding_large"
+            android:text="@string/text_meters"
+            android:textColor="@color/navigation_gray"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@id/fence_radius_slider"
+            app:layout_constraintBottom_toBottomOf="@id/fence_radius_slider"
+            app:layout_constraintStart_toEndOf="@+id/fence_radius_slider"
+            />
+        <View
+            android:id="@+id/fence_radius_divider"
+            android:layout_width="0dp"
+            android:layout_height="@dimen/size_divider_height"
+            android:background="@color/horizontal_divider"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:layout_marginTop="@dimen/padding_medium"
+            android:layout_marginStart="@dimen/padding_large"
+            android:layout_marginEnd="@dimen/padding_large"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/fence_radius_slider" />
+
+        <TextView
+            android:id="@+id/label_accuracy_radius"
+            style="@style/RobotoRegularStyle.Medium"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/padding_large"
+            android:layout_marginTop="@dimen/padding_medium"
+            android:text="@string/text_accuracy_radius"
+            android:textColor="@color/navigation_gray"
+            app:layout_constraintBottom_toTopOf="@id/accuracy_radius_slider"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/fence_radius_divider" />
+
+        <TextView
+            android:id="@+id/accuracy_radius_meters"
+            style="@style/RobotoRegularStyle.Medium"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/padding_large"
+            android:text="@string/text_meters"
+            android:textColor="@color/navigation_gray"
+            app:layout_constraintBottom_toTopOf="@id/accuracy_radius_slider"
+            app:layout_constraintStart_toEndOf="@+id/label_accuracy_radius"
+            app:layout_constraintBaseline_toBaselineOf="@id/label_accuracy_radius" />
+
+        <TextView
+            android:id="@+id/label_accuracy_radius_min_meters"
+            style="@style/RobotoRegularStyle.Medium"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/padding_large"
+            android:text="@string/text_meters"
+            android:textColor="@color/navigation_gray"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@id/accuracy_radius_slider"
+            app:layout_constraintBottom_toBottomOf="@id/accuracy_radius_slider"
+            app:layout_constraintEnd_toStartOf="@+id/accuracy_radius_slider"
+            />
+
+        <com.google.android.material.slider.Slider
+            android:id="@+id/accuracy_radius_slider"
+            android:contentDescription="@string/accuracy_radius_slider_content_description"
+            android:theme="@style/Slider"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:valueFrom="10"
+            android:valueTo="50"
+            android:stepSize="1"
+            app:layout_constraintStart_toEndOf="@+id/label_accuracy_radius_min_meters"
+            app:layout_constraintEnd_toStartOf="@+id/label_accuracy_radius_max_meters"
+            app:layout_constraintTop_toBottomOf="@id/label_accuracy_radius"
+            />
+
+        <TextView
+            android:id="@+id/label_accuracy_radius_max_meters"
+            style="@style/RobotoRegularStyle.Medium"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="@dimen/padding_large"
+            android:text="@string/text_meters"
+            android:textColor="@color/navigation_gray"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@id/accuracy_radius_slider"
+            app:layout_constraintBottom_toBottomOf="@id/accuracy_radius_slider"
+            app:layout_constraintStart_toEndOf="@+id/accuracy_radius_slider"
+            />
+
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</layout>

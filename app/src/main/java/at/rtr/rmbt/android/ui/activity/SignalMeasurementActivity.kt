@@ -25,6 +25,7 @@ import at.specure.location.LocationInfo
 import at.specure.location.LocationState
 import at.specure.test.DeviceInfo
 import at.rmbt.client.control.data.SignalMeasurementType
+import at.rtr.rmbt.android.ui.dialog.CoverageSettingsDialog
 import at.rtr.rmbt.android.ui.dialog.Dialogs
 import at.rtr.rmbt.android.util.formatAccuracy
 import at.specure.data.entity.CoverageMeasurementFenceRecord
@@ -42,6 +43,7 @@ import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.LocationSource
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
+import com.google.android.gms.maps.model.BitmapDescriptor
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
 import kotlinx.coroutines.delay
@@ -52,20 +54,31 @@ import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.CoroutineName
 import timber.log.Timber
 import kotlin.math.roundToInt
+import androidx.core.graphics.scale
+import at.specure.data.entity.generateHash
+import com.google.android.gms.maps.model.Circle
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+import java.util.UUID
 
 const val DEFAULT_POSITION_TRACKING_ZOOM_LEVEL = 16.2f
 private const val DEFAULT_LAT: Double = ((49.0390742051F + 46.4318173285F) / 2F).toDouble()
 private const val DEFAULT_LONG: Double = ((16.9796667823F + 9.47996951665F) / 2F).toDouble()
 private const val DEFAULT_ZOOM_LEVEL = 6F
 const val DEFAULT_POINT_CLICKED_ZOOM_LEVEL = 16f
+const val DEFAULT_MAX_POINTS_TO_DRAW_ON_MAP = 1000
 
-class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback {
+class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback, CoverageSettingsDialog.Callback {
 
     val networkValidator = CoverageNetworkValidator()
     private val viewModel: HomeViewModel by viewModelLazy()
     private lateinit var binding: ActivitySignalMeasurementBinding
     private var map: GoogleMap? = null
     private var warningSnackbar: Snackbar? = null
+    private val markerIconCache = mutableMapOf<MobileNetworkType, BitmapDescriptor>()
+//    private val activeMarkers = mutableListOf<com.google.android.gms.maps.model.Marker>()
+    private val activeCircles = mutableListOf<com.google.android.gms.maps.model.Circle>()
+    private val displayedPointIds = mutableSetOf<String>()
     private val mapLocationListener = object : LocationSource {
         private var listener: LocationSource.OnLocationChangedListener? = null
 
@@ -81,6 +94,10 @@ class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback {
             val latestLocation = location.toLocation()
             listener?.onLocationChanged(latestLocation)
         }
+    }
+
+    override fun onFenceOrAccuracyUpdated() {
+        viewModel.onCoverageConfigurationChanged()
     }
 
     @SuppressLint("SetTextI18n")
@@ -148,6 +165,10 @@ class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback {
             }
         }
 
+        binding.fabSettings.setOnClickListener {
+            CoverageSettingsDialog.show(supportFragmentManager)
+        }
+
         binding.fabWarning.setOnClickListener {
             showLocationProblemDialog()
         }
@@ -187,6 +208,14 @@ class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback {
         showCurrentNetworkType(coverageMeasurementData)
         showMeasurementError(coverageMeasurementData)
         updateMapPoints(points = coverageMeasurementData?.points)
+    }
+
+    private fun getCachedIcon(type: MobileNetworkType): BitmapDescriptor {
+        return markerIconCache.getOrPut(type) {
+            val bmp = viewModel.customMarkerProvider.getMarker(type)
+            val smallBmp = bmp.scale(48, 48)
+            BitmapDescriptorFactory.fromBitmap(smallBmp)
+        }
     }
 
     private fun setSettingsButtonVisible(visible: Boolean) {
@@ -362,45 +391,74 @@ class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback {
     }
 
     private fun updateMapPoints(points: List<CoverageMeasurementFenceRecord>?) {
-        Timber.d("Points in activity: $points")
-        map?.let { currentMap ->
-            points?.forEachIndexed { index, point ->
-                val isLast = index == points.lastIndex
-                val latLng = point.location.toLatLng()
-                val technology = MobileNetworkType.fromValue(point.technologyId ?: 0)
-                latLng?.let { markerLatLng ->
-                    lifecycleScope.launch(CoroutineName("Creating marker signal measurement activity")) {
-                        val options = MarkerOptions()
-                            .position(markerLatLng)
-                            .icon(BitmapDescriptorFactory.fromBitmap(viewModel.customMarkerProvider.createCustomShapeBitmap(MobileNetworkType.fromValue(point.technologyId ?: 0))))
-                            .title(MobileNetworkType.fromValue(point.technologyId ?: 0).displayName)
-                            .anchor(0.5f, 0.5f)
+        val currentMap = map ?: return
+        val pts = points ?: return
 
-                        if (isLast) {
-                            val colorInt = technology.getMarkerColorInt()
-                            val fillColor = makeSemiTransparent(colorInt)
-                            currentMap.addCircle(
-                                CircleOptions()
-                                    .center(latLng)
-                                    .radius(point.radiusMeters.toDouble()) // in meters
-                                    .strokeColor(colorInt)
-                                    .strokeWidth(2f)
-                                    .fillColor(fillColor) // semi-transparent red
-                            )
-                        }
+        lifecycleScope.launch(Dispatchers.Default) {
+            // Filter only points that haven't been displayed yet
+            val newPoints = pts.filter { !displayedPointIds.contains(it.generateHash()) }
 
-                        currentMap.addMarker(options)
+            // Prepare MarkerOptions in background
+            val markerOptionsList = newPoints.mapNotNull { point ->
+                val latLng = point.location.toLatLng() ?: return@mapNotNull null
+                val tech = MobileNetworkType.fromValue(point.technologyId ?: 0)
+                MarkerOptions()
+                    .position(latLng)
+                    .icon(getCachedIcon(tech))
+                    .title(tech.displayName)
+                    .anchor(0.5f, 0.5f)
+            }
+
+            // Prepare CircleOptions for last point if needed
+            val lastPoint = newPoints.lastOrNull() ?: pts.lastOrNull()
+            val circleOptionsList = lastPoint?.let { point ->
+                val latLng = point.location.toLatLng() ?: return@let null
+                val tech = MobileNetworkType.fromValue(point.technologyId ?: 0)
+                val colorInt = tech.getMarkerColorInt()
+                val fillColor = makeSemiTransparent(colorInt)
+                listOf(
+                    CircleOptions()
+                        .center(latLng)
+                        .radius(point.radiusMeters.toDouble())
+                        .strokeColor(colorInt)
+                        .strokeWidth(2f)
+                        .fillColor(fillColor)
+                )
+            } ?: emptyList()
+
+            // Switch to main thread to add markers and circles
+            withContext(Dispatchers.Main) {
+                // Add new markers
+                markerOptionsList.forEachIndexed { index, options ->
+                    currentMap.addMarker(options)?.let { marker ->
+//                        activeMarkers.add(marker)
+                        displayedPointIds.add(newPoints[index].generateHash())
                     }
                 }
-            }
-            currentMap.setOnMarkerClickListener { marker ->
-                viewModel.state.markerDetailsDisplayed.set(true)
-                return@setOnMarkerClickListener false
-            }
-            currentMap.setOnMapClickListener {
-                viewModel.state.markerDetailsDisplayed.set(false)
+
+                // Add/update circles for last point
+                circleOptionsList.forEach { options ->
+                    currentMap.addCircle(options)?.let {
+                        updateCircle(it)
+                    }
+                }
+
+                // Map click listeners
+                currentMap.setOnMarkerClickListener { marker ->
+                    viewModel.state.markerDetailsDisplayed.set(true)
+                    false
+                }
+                currentMap.setOnMapClickListener {
+                    viewModel.state.markerDetailsDisplayed.set(false)
+                }
             }
         }
+    }
+
+    private fun updateCircle(it: Circle) {
+        activeCircles.forEach { it.remove() }
+        activeCircles.clear()
+        activeCircles.add(it)
     }
 
     private fun makeSemiTransparent(color: Int, alpha: Int = 1): Int {
@@ -448,6 +506,8 @@ class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback {
         updateLocationPermissionRelatedUi()
         map?.uiSettings?.isMyLocationButtonEnabled = false
         map?.uiSettings?.isMapToolbarEnabled = false
+        map?.isIndoorEnabled = false
+        map?.isBuildingsEnabled = false
     }
 
     override fun onStart() {

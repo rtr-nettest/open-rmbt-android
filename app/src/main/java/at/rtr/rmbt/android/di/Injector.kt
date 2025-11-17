@@ -1,6 +1,7 @@
 package at.rtr.rmbt.android.di
 
 import at.rtr.rmbt.android.App
+import at.rtr.rmbt.android.ui.dialog.CoverageSettingsDialog
 import at.rtr.rmbt.android.ui.dialog.HistoryDownloadDialog
 import at.rtr.rmbt.android.ui.dialog.HistoryFiltersDialog
 import at.rtr.rmbt.android.ui.dialog.IpInfoDialog
@@ -49,6 +50,8 @@ object Injector : AppComponent {
     override fun inject(dialog: NetworkInfoDialog) = component.inject(dialog)
 
     override fun inject(dialog: HistoryDownloadDialog) = component.inject(dialog)
+
+    override fun inject(dialog: CoverageSettingsDialog) = component.inject(dialog)
 
     override fun inject(app: App) = component.inject(app)
 }

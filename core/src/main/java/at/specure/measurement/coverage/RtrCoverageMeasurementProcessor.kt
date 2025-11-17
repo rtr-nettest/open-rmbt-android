@@ -10,8 +10,6 @@ import at.specure.data.entity.CoverageMeasurementFenceRecord
 import at.specure.data.entity.CoverageMeasurementSession
 import at.specure.data.entity.SignalRecord
 import at.specure.data.repository.SignalMeasurementRepository
-import at.specure.info.TransportType
-import at.specure.info.cell.CellNetworkInfo
 import at.specure.info.network.NetworkInfo
 import at.specure.location.LocationInfo
 import at.specure.measurement.coverage.data.FencesDataSource
@@ -291,4 +289,12 @@ class RtrCoverageMeasurementProcessor @Inject constructor(
             )
         )
     }
+
+    fun onCoverageConfigurationChanged() {
+        fencesDataSource.updateLastFenceRadius(
+            coverageMeasurementData.value?.points?.lastOrNull(),
+            config.minDistanceMetersToLogNewLocationOnMapDuringSignalMeasurement
+        )
+    }
+
 }

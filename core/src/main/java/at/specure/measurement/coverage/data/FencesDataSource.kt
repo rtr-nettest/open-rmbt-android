@@ -68,4 +68,16 @@ class FencesDataSource @Inject constructor(
         val nextPointNumber = lastPointNumber + 1
         return nextPointNumber
     }
+
+    fun updateLastFenceRadius(
+        lastPoint: CoverageMeasurementFenceRecord?,
+        newRadiusValue: Int
+    ) = io {
+        lastPoint?.let {
+            val updatedPoint = it.copy(
+                radiusMeters = newRadiusValue
+            )
+            signalMeasurementRepository.updateSignalMeasurementPoint(updatedPoint)
+        }
+    }
 }

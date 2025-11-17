@@ -68,3 +68,7 @@ data class CoverageMeasurementFenceRecord(
     val avgPingMillis: Double?,
 
 )
+
+fun CoverageMeasurementFenceRecord.generateHash(): String {
+    return "${this.id}-${this.radiusMeters}"
+}

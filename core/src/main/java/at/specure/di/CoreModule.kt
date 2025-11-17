@@ -289,6 +289,10 @@ class CoreModule {
 
     @Provides
     @Singleton
+    fun provideCoverageSettings(context: Context): CoverageMeasurementSettings = CoverageMeasurementSettings(context)
+
+    @Provides
+    @Singleton
     fun provideCustomMarker(
         context: Context
     ) : CustomMarker = CustomMarker(context = context)

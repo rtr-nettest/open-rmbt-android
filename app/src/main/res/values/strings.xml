@@ -535,4 +535,9 @@
     <string name="dismiss">Dismiss</string>
     <string name="wrong_network_message">You are on %1$s data now. Please change to mobile data connection.</string>
     <string name="coverage_results_title">Coverage test results</string>
+    <string name="text_fence_radius">Fence radius:</string>
+    <string name="text_meters">%1$dm</string>
+    <string name="fence_radius_slider_content_description">Fence radius slider value %1$d meters</string>
+    <string name="accuracy_radius_slider_content_description">Accuracy radius slider value %1$d meters</string>
+    <string name="text_accuracy_radius">Accuracy:</string>
 </resources>
