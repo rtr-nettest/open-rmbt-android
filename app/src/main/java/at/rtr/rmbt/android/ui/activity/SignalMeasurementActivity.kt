@@ -32,7 +32,8 @@ import at.specure.info.TransportType
 import at.specure.info.cell.CellNetworkInfo
 import at.specure.info.network.MobileNetworkType
 import at.specure.info.network.NetworkInfo
-import at.specure.measurement.coverage.presentation.validators.CoverageLocationValidator
+import at.specure.measurement.coverage.domain.models.CoverageMeasurementData
+import at.specure.measurement.coverage.domain.models.state.CoverageMeasurementState
 import at.specure.measurement.coverage.presentation.validators.CoverageNetworkValidator
 import at.specure.test.toLocation
 import at.specure.util.map.getMarkerColorInt
@@ -108,30 +109,11 @@ class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback {
         hideDialog()
 
         viewModel.coverageMeasurementDataLiveData.listen(this) {
-            val pingResult: Double? = it?.currentPingMs
-            updateCurrentLocation(it?.currentLocation)
-            checkNetwork(it?.currentNetworkInfo)
-            binding.technologyValue.text = getCurrentNetworkTypeName(it?.currentNetworkInfo)
-            binding.pingValue.text = if (pingResult != null && pingResult > 0) {
-                val mantissa = pingResult - (pingResult.toInt().toDouble())
-                if (mantissa > 0 && pingResult < 10.0) {
-                    this.getString(R.string.measurement_ping_value_1f, pingResult)
-                } else {
-                    this.getString(R.string.measurement_ping_value, pingResult.roundToInt().toString())
-                }
+            if (it?.state == CoverageMeasurementState.FINISHED_LOOP_CORRECTLY) {
+                showMeasurementResults(it)
             } else {
-                if (it?.currentPingStatus != null) {
-                    it.currentPingStatus
-                } else {
-                    this.getString(R.string.measurement_dash)
-                }
+                updateUnfinishedMeasurement(it)
             }
-
-            it?.signalMeasurementException?.also {
-                Dialogs.show(this.applicationContext, getString(R.string.coverage_measurement_error_title), it.message ?: getString(R.string.coverage_measurement_error_unknown))
-            }
-
-            updateMapPoints(points = it?.points)
         }
 
         viewModel.activeSignalMeasurementLiveData.listen(this) {
@@ -159,7 +141,11 @@ class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback {
         }
 
         binding.fabClose.setOnClickListener {
-            showStopDialog()
+            if (viewModel.coverageMeasurementDataLiveData.value?.state != CoverageMeasurementState.FINISHED_LOOP_CORRECTLY) {
+                showStopDialog()
+            } else {
+                finish()
+            }
         }
 
         binding.fabWarning.setOnClickListener {
@@ -177,7 +163,104 @@ class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback {
 
         }
     }
+    
+    private fun showMeasurementResults(coverageMeasurementData: CoverageMeasurementData) {
+        hideWarningButton()
+        hideDialog()
+        setMyPositionAndButtonVisible(false)
+        setMyLocationButtonVisible(false)
+        hideNetworkWarningSnackbar()
+        setInfoVisible(false)
+        setResultTitleVisible(true)
+    }
+    
+    private fun updateUnfinishedMeasurement(coverageMeasurementData: CoverageMeasurementData?) {
+        updateCurrentLocation(coverageMeasurementData?.currentLocation)
+        setMyLocationButtonVisible(true)
+        setMyPositionAndButtonVisible(true)
+        checkNetwork(coverageMeasurementData?.currentNetworkInfo)
+        setInfoVisible(true)
+        setResultTitleVisible(false)
+        updatePingValue(coverageMeasurementData)
+        showCurrentNetworkType(coverageMeasurementData)
+        showMeasurementError(coverageMeasurementData)
+        updateMapPoints(points = coverageMeasurementData?.points)
+    }
 
+    private fun setMyPositionAndButtonVisible(visible: Boolean) {
+        binding.fabLocation.visibility = if (visible) {
+            View.VISIBLE
+        } else {
+            View.GONE
+        }
+        try {
+            if (ActivityCompat.checkSelfPermission(
+                    this,
+                    Manifest.permission.ACCESS_FINE_LOCATION
+                ) == PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
+                    this,
+                    Manifest.permission.ACCESS_COARSE_LOCATION
+                ) == PackageManager.PERMISSION_GRANTED
+            ) {
+                map?.isMyLocationEnabled = visible
+            }
+        } catch (e: Exception) {
+         Timber.e("Unable to deactivate my location on the map  ${e.message}")
+        }
+    }
+
+    private fun setMyLocationButtonVisible(visible: Boolean) {
+        binding.fabLocation.visibility = if (visible) {
+            View.VISIBLE
+        } else {
+            View.GONE
+        }
+    }
+
+    private fun setResultTitleVisible(visible: Boolean) {
+        binding.measurementResultTitle.visibility = if (visible) {
+            View.VISIBLE
+        } else {
+            View.GONE
+        }
+    }
+
+    private fun setInfoVisible(visible: Boolean) {
+        binding.measurementProgressInfo.visibility = if (visible) {
+            View.VISIBLE
+        } else {
+            View.GONE
+        }
+    }
+
+    private fun showMeasurementError(coverageMeasurementData: CoverageMeasurementData?) {
+        coverageMeasurementData?.signalMeasurementException?.also {
+            Dialogs.show(this.applicationContext, getString(R.string.coverage_measurement_error_title), it.message ?: getString(R.string.coverage_measurement_error_unknown))
+        }
+    }
+
+    private fun showCurrentNetworkType(coverageMeasurementData: CoverageMeasurementData?) {
+        binding.technologyValue.text = getCurrentNetworkTypeName(coverageMeasurementData?.currentNetworkInfo)
+    }
+
+    private fun updatePingValue(coverageMeasurementData: CoverageMeasurementData?) {
+        val pingResult = coverageMeasurementData?.currentPingMs
+        binding.pingValue.text = if (pingResult != null && pingResult > 0) {
+            val mantissa = pingResult - (pingResult.toInt().toDouble())
+            if (mantissa > 0 && pingResult < 10.0) {
+                this.getString(R.string.measurement_ping_value_1f, pingResult)
+            } else {
+                this.getString(R.string.measurement_ping_value, pingResult.roundToInt().toString())
+            }
+        } else {
+            if (coverageMeasurementData?.currentPingStatus != null) {
+                coverageMeasurementData.currentPingStatus
+            } else {
+                this.getString(R.string.measurement_dash)
+            }
+        }
+    }
+    
     private fun updateCurrentLocation(location: LocationInfo?) {
         Timber.d("New location obtained: $location")
         binding.textSource.text = "${location?.provider} ${location?.accuracy}m"
@@ -235,6 +318,8 @@ class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback {
         if (!networkValidator.isNetworkToBeLogged(networkInfo = networkInfo)) {
             val message = getString(R.string.wrong_network_message, getCurrentNetworkTypeName(networkInfo))
             showNetworkWarningIfNotSilenced(binding.root, message)
+        } else {
+            hideNetworkWarningSnackbar()
         }
     }
 
@@ -260,6 +345,10 @@ class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback {
             .setActionTextColor(ContextCompat.getColor(this, R.color.snackbar_error_text))
 
         warningSnackbar?.show()
+    }
+
+    fun hideNetworkWarningSnackbar() {
+        warningSnackbar?.dismiss()
     }
 
     private fun updateMapPoints(points: List<CoverageMeasurementFenceRecord>?) {
@@ -458,7 +547,6 @@ class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback {
             hideStopDialogJob.cancel()
             viewModel.stopSignalMeasurement()
             hideDialog()
-            finish()
         }
         binding.warningMessageCancel.setOnClickListener {
             hideStopDialogJob.cancel()

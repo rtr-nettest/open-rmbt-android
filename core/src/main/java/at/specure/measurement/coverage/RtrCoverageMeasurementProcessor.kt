@@ -122,6 +122,7 @@ class RtrCoverageMeasurementProcessor @Inject constructor(
                 )
 //                cleanData()
                 updateCoverageDataState(CoverageMeasurementState.FINISHED_LOOP_CORRECTLY)
+                coverageMeasurementSettings.onStopMeasurementSession()
             }
         }
     }

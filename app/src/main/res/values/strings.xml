@@ -534,4 +534,5 @@
     <string name="coverage_measurement_error_unknown">There was an error during coverage measurement. Please, try again.</string>
     <string name="dismiss">Dismiss</string>
     <string name="wrong_network_message">You are on %1$s data now. Please change to mobile data connection.</string>
+    <string name="coverage_results_title">Coverage test results</string>
 </resources>

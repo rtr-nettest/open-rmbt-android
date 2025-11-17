@@ -47,4 +47,10 @@ class CoverageMeasurementSettings @Inject constructor(context: Context) {
             Timber.d("Signal measurement last session ID set to: $value")
             preferences.edit { putString(KEY_SIGNAL_MEASUREMENT_LAST_SESSION_ID, value) }
         }
+
+    fun onStopMeasurementSession() {
+        signalMeasurementLastSessionId = null
+        signalMeasurementShouldContinueInLastSession = false
+        signalMeasurementIsRunning = false
+    }
 }
