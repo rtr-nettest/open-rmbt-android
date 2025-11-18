@@ -78,7 +78,7 @@ class HistoryRepositoryImpl(
             devices = if (ignoreFilters) null else historyFilterOptions.activeDevices?.toList(),
             networks = if (ignoreFilters) null else historyFilterOptions.activeNetworks?.toList(),
             language = Locale.getDefault().language,
-            includeCoverageFences = false,
+            includeCoverageFences = true,
         )
         val response = client.getHistory(body)
 

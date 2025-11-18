@@ -83,6 +83,10 @@
         <item name="fontFamily">@font/roboto_bold</item>
     </style>
 
+    <style name="RobotoBoldStyle.Small">
+        <item name="android:textSize">14sp</item>
+    </style>
+
     <style name="RobotoRegularStyle.VerySmall">
         <item name="android:textSize">12sp</item>
     </style>

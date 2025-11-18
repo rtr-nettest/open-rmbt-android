@@ -47,7 +47,7 @@ class PingEvaluator(private val pingFlow: Flow<PingResult>) {
                         if (debugLog) when (result) {
                             is PingResult.Success -> println("✅ Ping ${result.sequenceNumber} - RTT: ${result.rttMillis} ms")
                             is PingResult.Lost -> println("⚠️  Ping ${result.sequenceNumber} - Timeout")
-                            is PingResult.ClientError -> println("❌ Ping ${result.sequenceNumber} - ${result.exception}")
+                            is PingResult.ClientError -> println("❌ Ping ${result.sequenceNumber} - ${result.exception}") // TODO: restart ping on this
                             is PingResult.ServerError -> println("❌ Ping ${result.sequenceNumber} - Server error")
                         }
                         trySend(result)

@@ -1,5 +1,6 @@
 package at.specure.measurement.coverage.presentation.validators
 
+import at.specure.config.Config
 import at.specure.measurement.coverage.domain.validators.LocationValidator
 import at.specure.test.DeviceInfo
 import at.specure.test.toLocation
@@ -8,11 +9,8 @@ import javax.inject.Singleton
 
 @Singleton
 class CoverageLocationValidator(
-    val minDistanceMetersToLogNewLocationOnMapDuringSignalMeasurement: Int,
-    val maxDistanceMetersToLocationBeTheSameDuringSignalMeasurement: Int,
-    val minLocationAccuracyThresholdMeters: Float,
-    val maxLocationAgeThresholdMillis: Long,
-): LocationValidator {
+    private val appConfig: Config,
+    ): LocationValidator {
     override fun isLocationValid(newLocation: DeviceInfo.Location?): Boolean {
         return isLocationNotTooOld(newLocation) && isLocationAccuracyPreciseEnough(newLocation)
     }
@@ -30,7 +28,7 @@ class CoverageLocationValidator(
         return if (lastSavedLocation != null) {
             val distance = newLocation.toLocation().distanceTo(lastSavedLocation.toLocation())
             Timber.d("Distance is: $distance")
-            (distance >= minDistanceMetersToLogNewLocationOnMapDuringSignalMeasurement)
+            (distance >= appConfig.minDistanceMetersToLogNewLocationOnMapDuringSignalMeasurement)
         } else {
             Timber.d("Distance is good because no previous point loaded")
             true
@@ -46,7 +44,7 @@ class CoverageLocationValidator(
 
         return if (lastSavedLocation != null) {
             val distance = newLocation.toLocation().distanceTo(lastSavedLocation.toLocation())
-            (distance < maxDistanceMetersToLocationBeTheSameDuringSignalMeasurement)
+            (distance < appConfig.sameLocationDistanceMetersForSignalMeasurement)
         } else {
             false
         }
@@ -56,13 +54,13 @@ class CoverageLocationValidator(
         return if (newLocation == null) false
         else {
             val currentAgeMillis = calculateActualAgeOfLocation(newLocation)
-            currentAgeMillis != null && currentAgeMillis <= maxLocationAgeThresholdMillis
+            currentAgeMillis != null && currentAgeMillis <= appConfig.minimalFenceDurationMillisForSignalMeasurement
         }
     }
 
     override fun isLocationAccuracyPreciseEnough(newLocation: DeviceInfo.Location?): Boolean {
         return if (newLocation == null) false
-        else newLocation.accuracy != null && newLocation.accuracy <= minLocationAccuracyThresholdMeters
+        else newLocation.accuracy != null && newLocation.accuracy <= appConfig.minLocationAccuracyMetersDuringSignalMeasurement
     }
 
     private fun calculateActualAgeOfLocation(newLocation: DeviceInfo.Location?): Long? {

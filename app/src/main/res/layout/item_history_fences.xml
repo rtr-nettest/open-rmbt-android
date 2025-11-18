@@ -17,6 +17,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
+        android:gravity="center_vertical"
         android:paddingTop="@dimen/padding_large"
         android:paddingBottom="@dimen/padding_large">
 
@@ -46,15 +47,27 @@
 
 
         <androidx.appcompat.widget.AppCompatTextView
-            style="@style/RobotoRegularStyle.Small"
+            style="@style/RobotoBoldStyle.Small"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginEnd="@dimen/margin_small"
+            android:drawablePadding="@dimen/padding_very_small"
+            android:gravity="end"
+            android:text="@{item.fencesCount.toString()}"
+            android:contentDescription="@{@string/number_of_fences_is + ' ' + item.fencesCount}"
+            android:textColor="@color/text_dark_gray"
+            tools:text="14" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            style="@style/RobotoBoldStyle.Small"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:drawablePadding="@dimen/padding_very_small"
-            android:text="@{item.fencesCount}"
+            android:text="@string/points"
             android:contentDescription="@{@string/number_of_fences_is + ' ' + item.fencesCount}"
             android:textColor="@color/text_dark_gray"
-            android:drawableStart="@drawable/ic_map_points_gray"
             tools:text="14" />
 
     </androidx.appcompat.widget.LinearLayoutCompat>

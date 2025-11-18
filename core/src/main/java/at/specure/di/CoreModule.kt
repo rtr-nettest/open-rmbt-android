@@ -302,10 +302,7 @@ class CoreModule {
     fun provideGpsValidator(
         config: Config
     ): LocationValidator = CoverageLocationValidator(
-        minDistanceMetersToLogNewLocationOnMapDuringSignalMeasurement = config.minDistanceMetersToLogNewLocationOnMapDuringSignalMeasurement,
-        maxDistanceMetersToLocationBeTheSameDuringSignalMeasurement = config.sameLocationDistanceMetersForSignalMeasurement,
-        minLocationAccuracyThresholdMeters = config.minLocationAccuracyMetersDuringSignalMeasurement.toFloat(),
-        maxLocationAgeThresholdMillis = config.maxAgeOfLocationInformationForSignalMeasurementMillis
+        config
     )
 
     @Provides

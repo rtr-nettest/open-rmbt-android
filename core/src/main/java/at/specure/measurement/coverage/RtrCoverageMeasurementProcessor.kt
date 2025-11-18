@@ -190,6 +190,7 @@ class RtrCoverageMeasurementProcessor @Inject constructor(
             newNetworkInfo = networkInfo,
             lastRecordedFenceRecord = lastRecordedFence
         )
+        Timber.d("lastPoint = $lastRecordedFence")
         if (isDataValidToSaveNewFence) {
             val sessionId = coverageMeasurementData.value?.coverageMeasurementSession?.sessionId
             if (sessionId == null) {

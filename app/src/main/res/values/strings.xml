@@ -540,4 +540,5 @@
     <string name="fence_radius_slider_content_description">Fence radius slider value %1$d meters</string>
     <string name="accuracy_radius_slider_content_description">Accuracy radius slider value %1$d meters</string>
     <string name="text_accuracy_radius">Accuracy:</string>
+    <string name="points">Points</string>
 </resources>
