@@ -82,6 +82,11 @@
             android:launchMode="singleTask"
             android:windowSoftInputMode="stateAlwaysHidden" />
 
+        <activity
+            android:name=".ui.activity.CoverageResultsActivity"
+            android:theme="@style/PreferenceTheme"
+            android:windowSoftInputMode="stateAlwaysHidden" />
+
         <activity android:name=".ui.activity.DetailedFullscreenMapActivity" />
 
         <activity android:name=".ui.activity.ShowWebViewActivity" />

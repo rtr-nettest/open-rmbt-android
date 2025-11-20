@@ -76,6 +76,7 @@ class TestResultsRepositoryImpl(
         return qosTestGoalDao.get(testUUID, testItemId)
     }
 
+    @Deprecated("use open data instead")
     override fun loadTestDetailsResult(testUUID: String) = flow {
         val clientUUID = clientUUID.value
         if (clientUUID == null) {

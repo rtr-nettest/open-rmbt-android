@@ -541,4 +541,5 @@
     <string name="accuracy_radius_slider_content_description">Accuracy radius slider value %1$d meters</string>
     <string name="text_accuracy_radius">Accuracy:</string>
     <string name="points">Points</string>
+    <string name="text_loading_results_failed">Loading results failed</string>
 </resources>

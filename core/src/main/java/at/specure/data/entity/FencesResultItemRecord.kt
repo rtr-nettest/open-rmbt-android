@@ -18,8 +18,12 @@ data class FencesResultItemRecord(
     val networkTechnologyName: String?, // "NR NSA"
     val latitude: Double?,
     val longitude: Double?,
-    val fenceRadiusMeters: Int?,
+    val fenceRadiusMeters: Double?,
     val durationMillis: Long?, // duration of fence in millis
     val offsetMillis: Long?, // from the start of the test - official start is when coverage response arrives so it can be negative too
     val averagePingMillis: Double?,
 )
+
+fun FencesResultItemRecord.generateHash(): String {
+    return "${this.id}-${this.fenceRadiusMeters}"
+}

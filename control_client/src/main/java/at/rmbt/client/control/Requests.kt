@@ -1171,7 +1171,7 @@ data class FenceBody(
     @SerializedName("duration_ms")
     val durationMillis: Long, // duration of fence in millis
     @SerializedName("radius")
-    val fenceRadiusMeters: Int,
+    val fenceRadiusMeters: Double,
     @SerializedName("avg_ping_ms")
     val averagePingMillis: Int?,
     @SerializedName("timestamp_microseconds")
@@ -1181,20 +1181,20 @@ data class FenceBody(
 @Keep
 data class FenceResponseBody(
     @SerializedName("fence_id")
-    val fenceId: Long,
+    val fenceId: Long?,
     @SerializedName("technology_id")
-    val networkTechnologyId: Int, // 41
+    val networkTechnologyId: Int?, // 41
     @Deprecated("Client should use technologyId and convert to string")
     @SerializedName("technology")
     val networkTechnologyName: String?, // "NR NSA"
-    val latitude: Double,
-    val longitude: Double,
+    val latitude: Double?,
+    val longitude: Double?,
     @SerializedName("radius")
-    val fenceRadiusMeters: Int,
+    val fenceRadiusMeters: Double?,
     @SerializedName("duration_ms")
-    val durationMillis: Long, // duration of fence in millis
+    val durationMillis: Long?, // duration of fence in millis
     @SerializedName("offset_ms")
-    val offsetMillis: Long, // from the start of the test - official start is when coverage response arrives so it can be negative too
+    val offsetMillis: Long?, // from the start of the test - official start is when coverage response arrives so it can be negative too
     @SerializedName("avg_ping_ms")
     val averagePingMillis: Double?,
 )

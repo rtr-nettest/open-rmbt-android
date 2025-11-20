@@ -64,11 +64,8 @@ class HomeViewModel @Inject constructor(
     private val newsRepository: NewsRepository,
     private val settingsRepository: SettingsRepository,
     private val signalMeasurementRepository: SignalMeasurementRepository,
-    private val rtrCoverageMeasurementProcessor: RtrCoverageMeasurementProcessor,
-    measurementServers: MeasurementServers,
     private val coverageMeasurementSettings: CoverageMeasurementSettings,
-    private val customMarker: CustomMarker,
-    private val locationValidator: LocationValidator,
+    measurementServers: MeasurementServers,
 ) : BaseViewModel() {
 
     val state = HomeViewState(appConfig, measurementServers)
@@ -78,18 +75,15 @@ class HomeViewModel @Inject constructor(
         state.isConnected.set(it != null)
         it != null
     }
-
-    private var loadPointJob: Job? = null
+    private var _dedicatedSignalMeasurementSessionIdLiveData : LiveData<String?> = MutableLiveData<String>(null)
+    val dedicatedSignalMeasurementSessionIdLiveData : LiveData<String?>
+        get() = _dedicatedSignalMeasurementSessionIdLiveData
 
     val locationStateLiveData: LiveData<LocationState?>
         get() = locationWatcher.stateLiveData
 
     val locationLiveData: LiveData<LocationInfo?>
         get() = locationWatcher.liveData
-
-    private var _pointsLiveData = MutableLiveData<List<CoverageMeasurementFenceRecord>>()
-    private var _dedicatedSignalMeasurementSessionIdLiveData : LiveData<String?> = MutableLiveData<String>(null)
-    private var _coverageMeasurementDataLiveData : LiveData<CoverageMeasurementData?> = rtrCoverageMeasurementProcessor.coverageMeasurementData
 
     private var producer: SignalMeasurementProducer? = null
     private var _activeMeasurementSource: LiveData<Boolean>? = null
@@ -100,12 +94,6 @@ class HomeViewModel @Inject constructor(
     private var toggleService: Boolean = false
 
     private var _getNewsLiveData = MutableLiveData<List<NewsItem>?>()
-
-    val coverageMeasurementDataLiveData : LiveData<CoverageMeasurementData?>
-        get() = _coverageMeasurementDataLiveData
-
-    val dedicatedSignalMeasurementSessionIdLiveData : LiveData<String?>
-        get() = _dedicatedSignalMeasurementSessionIdLiveData
 
     val activeSignalMeasurementLiveData: LiveData<Boolean>
         get() = _activeMeasurementMediator
@@ -121,9 +109,6 @@ class HomeViewModel @Inject constructor(
 
     val isalwaysAllowCellInfosOn: Boolean
         get() = appConfig.alwaysAllowCellInfos
-
-    val customMarkerProvider: CustomMarker
-        get() = customMarker
 
     private val serviceConnection = object : ServiceConnection {
 
@@ -175,26 +160,6 @@ class HomeViewModel @Inject constructor(
     init {
         addStateSaveHandler(state)
         _activeMeasurementMediator.postValue(false)
-        coverageMeasurementSettings.signalMeasurementLastSessionId?.let {
-            loadSessionPoints(it)
-        }
-    }
-
-    fun loadSessionPoints(sessionId: String) {
-        loadPointJob = loadPoints(sessionId)
-    }
-
-    private fun loadPoints(sessionId: String) = launch(CoroutineName("LoadPointsHomeViewModel")) {
-        val points =
-            signalMeasurementRepository.loadSignalMeasurementPointRecordsForMeasurement(sessionId)
-        points.asFlow().flowOn(Dispatchers.IO).collect { loadedPoints ->
-            _pointsLiveData.postValue(loadedPoints)
-            Timber.d("New points loaded ${loadedPoints.size}")
-        }
-    }
-
-    fun onCoverageConfigurationChanged() {
-        rtrCoverageMeasurementProcessor.onCoverageConfigurationChanged()
     }
 
     fun toggleSignalMeasurementService() {
@@ -305,20 +270,6 @@ class HomeViewModel @Inject constructor(
             delay(LOCATION_ACCURACY_WARNING_DIALOG_SILENCED_TIME_MILLIS)
             state.networkWarningDialogSilenced.set(false)
         }
-    }
-
-    override fun onCleared() {
-        super.onCleared()
-        loadPointJob?.cancel()
-    }
-
-    fun isLocationInfoMeetingQualityCriteria(): Boolean {
-        val isNotNull = locationLiveData.value != null
-        return isNotNull && isLocationAccuracyGoodEnough()
-    }
-
-    private fun isLocationAccuracyGoodEnough(): Boolean {
-        return locationValidator.isLocationValid(locationLiveData.value?.toDeviceInfoLocation())
     }
 
     fun shouldOpenSignalMeasurementScreen(): Boolean {

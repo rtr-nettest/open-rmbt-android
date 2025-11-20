@@ -16,6 +16,7 @@ import androidx.transition.TransitionSet
 import at.rtr.rmbt.android.R
 import at.rtr.rmbt.android.databinding.FragmentHistoryBinding
 import at.rtr.rmbt.android.di.viewModelLazy
+import at.rtr.rmbt.android.ui.activity.CoverageResultsActivity
 import at.rtr.rmbt.android.ui.activity.ResultsActivity
 import at.rtr.rmbt.android.ui.adapter.FilterLabelAdapter
 import at.rtr.rmbt.android.ui.adapter.HistoryLoopAdapter
@@ -63,7 +64,12 @@ class HistoryFragment : BaseFragment(), SyncDevicesDialog.Callback, HistoryFilte
         binding.recyclerViewHistoryItems.adapter = adapter
 
         adapter.actionCallback = {
-            ResultsActivity.start(requireContext(), it.testUUID, ResultsActivity.ReturnPoint.HISTORY)
+            if (it.isCoverageResult == true) {
+                CoverageResultsActivity.start(requireContext(), it.testUUID)
+            } else {
+                ResultsActivity.start(requireContext(), it.testUUID, ResultsActivity.ReturnPoint.HISTORY)
+            }
+
         }
 
         adapter.pendingAnimationCallback = {

@@ -22,7 +22,7 @@ class FencesDataSource @Inject constructor(
         sessionId: String,
         location: LocationInfo,
         signalRecord: SignalRecord?,
-        radiusMeters: Int,
+        radiusMeters: Double,
         entryTimestampMillis: Long,
         avgPingMillisForLastFence: Double?,
         lastSavedFence: CoverageMeasurementFenceRecord?
@@ -71,7 +71,7 @@ class FencesDataSource @Inject constructor(
 
     fun updateLastFenceRadius(
         lastPoint: CoverageMeasurementFenceRecord?,
-        newRadiusValue: Int
+        newRadiusValue: Double
     ) = io {
         lastPoint?.let {
             val updatedPoint = it.copy(

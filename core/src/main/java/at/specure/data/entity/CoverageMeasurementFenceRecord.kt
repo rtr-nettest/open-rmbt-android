@@ -50,7 +50,7 @@ data class CoverageMeasurementFenceRecord(
     /**
      * Radius in meters of the fence set in the app
      */
-    val radiusMeters: Int,
+    val radiusMeters: Double,
 
     /**
      * Technology ID of the mobile network (for further details check MobileNetworkType.kt) from signal record)

@@ -203,7 +203,7 @@ class RtrCoverageMeasurementProcessor @Inject constructor(
                         sessionId = sessionIdLocal,
                         location = location,
                         signalRecord = signalRecord,
-                        radiusMeters = config.minDistanceMetersToLogNewLocationOnMapDuringSignalMeasurement,
+                        radiusMeters = config.minDistanceMetersToLogNewLocationOnMapDuringSignalMeasurement.toDouble(),
                         lastSavedFence = lastRecordedFence,
                         entryTimestampMillis = newTimestamp,
                         avgPingMillisForLastFence = coveragePingProcessor.onNewFenceStarted()?.average
@@ -294,7 +294,7 @@ class RtrCoverageMeasurementProcessor @Inject constructor(
     fun onCoverageConfigurationChanged() {
         fencesDataSource.updateLastFenceRadius(
             coverageMeasurementData.value?.points?.lastOrNull(),
-            config.minDistanceMetersToLogNewLocationOnMapDuringSignalMeasurement
+            config.minDistanceMetersToLogNewLocationOnMapDuringSignalMeasurement.toDouble()
         )
     }
 

@@ -55,7 +55,9 @@ import kotlinx.coroutines.CoroutineName
 import timber.log.Timber
 import kotlin.math.roundToInt
 import androidx.core.graphics.scale
+import at.rtr.rmbt.android.viewmodel.CoverageResultViewModel
 import at.specure.data.entity.generateHash
+import at.specure.test.toDeviceInfoLocation
 import com.google.android.gms.maps.model.Circle
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -72,13 +74,11 @@ class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback, Coverage
 
     val networkValidator = CoverageNetworkValidator()
     private val viewModel: HomeViewModel by viewModelLazy()
+    private val coverageViewModel: CoverageResultViewModel by viewModelLazy()
     private lateinit var binding: ActivitySignalMeasurementBinding
     private var map: GoogleMap? = null
     private var warningSnackbar: Snackbar? = null
-    private val markerIconCache = mutableMapOf<MobileNetworkType, BitmapDescriptor>()
-//    private val activeMarkers = mutableListOf<com.google.android.gms.maps.model.Marker>()
-    private val activeCircles = mutableListOf<com.google.android.gms.maps.model.Circle>()
-    private val displayedPointIds = mutableSetOf<String>()
+
     private val mapLocationListener = object : LocationSource {
         private var listener: LocationSource.OnLocationChangedListener? = null
 
@@ -97,7 +97,7 @@ class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback, Coverage
     }
 
     override fun onFenceOrAccuracyUpdated() {
-        viewModel.onCoverageConfigurationChanged()
+        coverageViewModel.onCoverageConfigurationChanged()
     }
 
     @SuppressLint("SetTextI18n")
@@ -125,7 +125,7 @@ class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback, Coverage
 
         hideDialog()
 
-        viewModel.coverageMeasurementDataLiveData.listen(this) {
+        coverageViewModel.coverageMeasurementDataLiveData.listen(this) {
             if (it?.state == CoverageMeasurementState.FINISHED_LOOP_CORRECTLY) {
                 showMeasurementResults(it)
             } else {
@@ -158,7 +158,7 @@ class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback, Coverage
         }
 
         binding.fabClose.setOnClickListener {
-            if (viewModel.coverageMeasurementDataLiveData.value?.state != CoverageMeasurementState.FINISHED_LOOP_CORRECTLY) {
+            if (coverageViewModel.coverageMeasurementDataLiveData.value?.state != CoverageMeasurementState.FINISHED_LOOP_CORRECTLY) {
                 showStopDialog()
             } else {
                 finish()
@@ -175,12 +175,7 @@ class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback, Coverage
 
         viewModel.dedicatedSignalMeasurementSessionIdLiveData.listen(this) { sessionId ->
             Timber.d("SessionId loaded: $sessionId")
-            sessionId?.let {
-                viewModel.loadSessionPoints(it)
-            }
-        }
-
-        viewModel.locationLiveData.listen(this) { location ->
+            coverageViewModel.onCoverageSessionLoaded(sessionId)
 
         }
     }
@@ -194,6 +189,7 @@ class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback, Coverage
         setInfoVisible(false)
         setResultTitleVisible(true)
         setSettingsButtonVisible(false)
+        coverageViewModel.clearPerformanceImprovementLists()
     }
     
     private fun updateUnfinishedMeasurement(coverageMeasurementData: CoverageMeasurementData?) {
@@ -207,15 +203,7 @@ class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback, Coverage
         updatePingValue(coverageMeasurementData)
         showCurrentNetworkType(coverageMeasurementData)
         showMeasurementError(coverageMeasurementData)
-        updateMapPoints(points = coverageMeasurementData?.points)
-    }
-
-    private fun getCachedIcon(type: MobileNetworkType): BitmapDescriptor {
-        return markerIconCache.getOrPut(type) {
-            val bmp = viewModel.customMarkerProvider.getMarker(type)
-            val smallBmp = bmp.scale(48, 48)
-            BitmapDescriptorFactory.fromBitmap(smallBmp)
-        }
+        coverageViewModel.updateMapPoints(map, coverageMeasurementData?.points.toCoverageResultItemRecords())
     }
 
     private fun setSettingsButtonVisible(visible: Boolean) {
@@ -279,7 +267,7 @@ class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback, Coverage
     }
 
     private fun showCurrentNetworkType(coverageMeasurementData: CoverageMeasurementData?) {
-        binding.technologyValue.text = getCurrentNetworkTypeName(coverageMeasurementData?.currentNetworkInfo)
+        binding.technologyValue.text = coverageViewModel.getCurrentNetworkTypeName(coverageMeasurementData?.currentNetworkInfo)
     }
 
     private fun updatePingValue(coverageMeasurementData: CoverageMeasurementData?) {
@@ -303,7 +291,7 @@ class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback, Coverage
     private fun updateCurrentLocation(location: LocationInfo?) {
         Timber.d("New location obtained: $location")
         binding.textSource.text = "${location?.provider} ${location?.accuracy}m"
-        if (viewModel.isLocationInfoMeetingQualityCriteria()) {
+        if (coverageViewModel.isLocationInfoMeetingQualityCriteria(location.toDeviceInfoLocation())) {
             hideWarningButton()
             if (!viewModel.state.closeDialogDisplayed.get()) {
                 hideDialog()
@@ -338,24 +326,9 @@ class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback, Coverage
 //            centerMapOnLocation()
     }
 
-    private fun getCurrentNetworkTypeName(networkInfo: NetworkInfo?): String {
-        return when(networkInfo?.type) {
-            TransportType.CELLULAR -> (networkInfo as CellNetworkInfo).networkType.displayName
-            TransportType.WIFI,
-            TransportType.BLUETOOTH,
-            TransportType.ETHERNET,
-            TransportType.VPN,
-            TransportType.WIFI_AWARE,
-            TransportType.LOWPAN,
-            TransportType.BROWSER,
-            TransportType.UNKNOWN -> networkInfo.type.name
-            null -> "-"
-        }
-    }
-
     private fun checkNetwork(networkInfo: NetworkInfo?) {
         if (!networkValidator.isNetworkToBeLogged(networkInfo = networkInfo)) {
-            val message = getString(R.string.wrong_network_message, getCurrentNetworkTypeName(networkInfo))
+            val message = getString(R.string.wrong_network_message, coverageViewModel.getCurrentNetworkTypeName(networkInfo))
             showNetworkWarningIfNotSilenced(binding.root, message)
         } else {
             hideNetworkWarningSnackbar()
@@ -390,81 +363,6 @@ class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback, Coverage
         warningSnackbar?.dismiss()
     }
 
-    private fun updateMapPoints(points: List<CoverageMeasurementFenceRecord>?) {
-        val currentMap = map ?: return
-        val pts = points ?: return
-
-        lifecycleScope.launch(Dispatchers.Default) {
-            // Filter only points that haven't been displayed yet
-            val newPoints = pts.filter { !displayedPointIds.contains(it.generateHash()) }
-
-            // Prepare MarkerOptions in background
-            val markerOptionsList = newPoints.mapNotNull { point ->
-                val latLng = point.location.toLatLng() ?: return@mapNotNull null
-                val tech = MobileNetworkType.fromValue(point.technologyId ?: 0)
-                MarkerOptions()
-                    .position(latLng)
-                    .icon(getCachedIcon(tech))
-                    .title(tech.displayName)
-                    .anchor(0.5f, 0.5f)
-            }
-
-            // Prepare CircleOptions for last point if needed
-            val lastPoint = newPoints.lastOrNull() ?: pts.lastOrNull()
-            val circleOptionsList = lastPoint?.let { point ->
-                val latLng = point.location.toLatLng() ?: return@let null
-                val tech = MobileNetworkType.fromValue(point.technologyId ?: 0)
-                val colorInt = tech.getMarkerColorInt()
-                val fillColor = makeSemiTransparent(colorInt)
-                listOf(
-                    CircleOptions()
-                        .center(latLng)
-                        .radius(point.radiusMeters.toDouble())
-                        .strokeColor(colorInt)
-                        .strokeWidth(2f)
-                        .fillColor(fillColor)
-                )
-            } ?: emptyList()
-
-            // Switch to main thread to add markers and circles
-            withContext(Dispatchers.Main) {
-                // Add new markers
-                markerOptionsList.forEachIndexed { index, options ->
-                    currentMap.addMarker(options)?.let { marker ->
-//                        activeMarkers.add(marker)
-                        displayedPointIds.add(newPoints[index].generateHash())
-                    }
-                }
-
-                // Add/update circles for last point
-                circleOptionsList.forEach { options ->
-                    currentMap.addCircle(options)?.let {
-                        updateCircle(it)
-                    }
-                }
-
-                // Map click listeners
-                currentMap.setOnMarkerClickListener { marker ->
-                    viewModel.state.markerDetailsDisplayed.set(true)
-                    false
-                }
-                currentMap.setOnMapClickListener {
-                    viewModel.state.markerDetailsDisplayed.set(false)
-                }
-            }
-        }
-    }
-
-    private fun updateCircle(it: Circle) {
-        activeCircles.forEach { it.remove() }
-        activeCircles.clear()
-        activeCircles.add(it)
-    }
-
-    private fun makeSemiTransparent(color: Int, alpha: Int = 1): Int {
-        // alpha: 0..255, 128 = 50% transparency
-        return (color and 0x00FFFFFF) or (alpha shl 24)
-    }
     private fun showWarningButton() {
         binding.fabWarning.hide()
         binding.fabWarning.show()
