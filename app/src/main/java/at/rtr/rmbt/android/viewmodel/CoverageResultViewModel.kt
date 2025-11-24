@@ -12,6 +12,7 @@ import at.specure.data.ControlServerSettings
 import at.specure.data.CoverageMeasurementSettings
 import at.specure.data.entity.CoverageMeasurementFenceRecord
 import at.specure.data.entity.FencesResultItemRecord
+import at.specure.data.entity.SignalRecord
 import at.specure.data.entity.TestResultDetailsRecord
 import at.specure.data.entity.TestResultRecord
 import at.specure.data.entity.generateHash
@@ -25,7 +26,6 @@ import at.specure.measurement.coverage.RtrCoverageMeasurementProcessor
 import at.specure.measurement.coverage.domain.models.CoverageMeasurementData
 import at.specure.measurement.coverage.domain.validators.LocationValidator
 import at.specure.test.DeviceInfo
-import at.specure.test.toDeviceInfoLocation
 import at.specure.util.map.CustomMarker
 import at.specure.util.map.getMarkerColorInt
 import com.google.android.gms.maps.GoogleMap
@@ -255,7 +255,7 @@ class CoverageResultViewModel @Inject constructor(
     }
 
     private fun isLocationAccuracyGoodEnough(location: DeviceInfo.Location?): Boolean {
-        return locationValidator.isLocationValid(location)
+        return locationValidator.isLocationFreshAndAccurate(location)
     }
 
     fun onCoverageSessionLoaded(sessionId: String?) {
@@ -263,6 +263,15 @@ class CoverageResultViewModel @Inject constructor(
         sessionId?.let {
             loadSessionPoints(it)
         }
+    }
+
+    fun shouldSignalMeasurementContinueInLastSession(): Boolean {
+        return coverageMeasurementSettings.signalMeasurementShouldContinueInLastSession
+    }
+
+    suspend fun getSignalData(id: String?): SignalRecord? {
+        val record = signalMeasurementRepository.getSignalMeasurementRecord(id)
+        return record
     }
 }
 

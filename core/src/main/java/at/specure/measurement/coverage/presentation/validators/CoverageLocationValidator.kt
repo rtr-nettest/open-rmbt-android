@@ -11,15 +11,15 @@ import javax.inject.Singleton
 class CoverageLocationValidator(
     private val appConfig: Config,
     ): LocationValidator {
-    override fun isLocationValid(newLocation: DeviceInfo.Location?): Boolean {
+    override fun isLocationFreshAndAccurate(newLocation: DeviceInfo.Location?): Boolean {
         return isLocationNotTooOld(newLocation) && isLocationAccuracyPreciseEnough(newLocation)
     }
 
     override fun isLocationValidAndDistantEnough(newLocation: DeviceInfo.Location?, lastSavedLocation: DeviceInfo.Location?): Boolean {
         if (newLocation == null) return false
 
-        if (isLocationValid(newLocation)) {
-            Timber.d("Accuracy is not enough")
+        if (!isLocationFreshAndAccurate(newLocation)) {
+            Timber.d("Accuracy or age is not enough $newLocation")
             return false
         }
 
@@ -38,7 +38,7 @@ class CoverageLocationValidator(
     override fun isTheSameLocation(newLocation: DeviceInfo.Location?, lastSavedLocation: DeviceInfo.Location?): Boolean {
         if (newLocation == null) return false
 
-        if (!isLocationValid(newLocation)) {
+        if (!isLocationFreshAndAccurate(newLocation)) {
             return false
         }
 
@@ -54,13 +54,19 @@ class CoverageLocationValidator(
         return if (newLocation == null) false
         else {
             val currentAgeMillis = calculateActualAgeOfLocation(newLocation)
-            currentAgeMillis != null && currentAgeMillis <= appConfig.minimalFenceDurationMillisForSignalMeasurement
+            val isLocationFreshEnough = currentAgeMillis != null && currentAgeMillis <= appConfig.minimalFenceDurationMillisForSignalMeasurement
+            Timber.d("Location is fresh enough: $isLocationFreshEnough - $currentAgeMillis")
+            isLocationFreshEnough
         }
     }
 
     override fun isLocationAccuracyPreciseEnough(newLocation: DeviceInfo.Location?): Boolean {
         return if (newLocation == null) false
-        else newLocation.accuracy != null && newLocation.accuracy <= appConfig.minLocationAccuracyMetersDuringSignalMeasurement
+        else {
+            val preciseEnough = newLocation.accuracy != null && (newLocation.accuracy <= appConfig.minLocationAccuracyMetersDuringSignalMeasurement)
+            Timber.d("Location accuracy: ${newLocation.accuracy} - $preciseEnough")
+            preciseEnough
+        }
     }
 
     private fun calculateActualAgeOfLocation(newLocation: DeviceInfo.Location?): Long? {

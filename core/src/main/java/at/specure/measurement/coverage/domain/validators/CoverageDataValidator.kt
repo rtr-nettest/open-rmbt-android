@@ -11,4 +11,11 @@ interface CoverageDataValidator {
         newNetworkInfo: NetworkInfo?,
         lastRecordedFenceRecord: CoverageMeasurementFenceRecord?
     ): Boolean
+
+    fun areDataValidToReplaceSomeOldFence(
+        newTimestamp: Long,
+        newLocation: DeviceInfo.Location?,
+        newNetworkInfo: NetworkInfo?,
+        lastRecordedFenceRecord: CoverageMeasurementFenceRecord?
+    ): Boolean
 }

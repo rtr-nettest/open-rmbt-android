@@ -183,10 +183,13 @@ class RtrCoverageMeasurementProcessor @Inject constructor(
         // TODO: check how old is signal information + also handle no signal record in SignalMeasurementProcessor
         // TODO: check if airplane mode is enabled or not, check if mobile data are enabled
         val newTimestamp = System.currentTimeMillis()
+        val newLocation = location.toDeviceInfoLocation()
+        if (newLocation == null) return
+        Timber.d("DeviceInfoLocation: $newLocation \nLocationInfo: $location")
         val lastRecordedFence = coverageMeasurementData.value?.points?.lastOrNull()
         val isDataValidToSaveNewFence = mainCoverageDataValidator.areDataValidToSaveNewFence(
             newTimestamp = newTimestamp,
-            newLocation = location.toDeviceInfoLocation(),
+            newLocation = newLocation,
             newNetworkInfo = networkInfo,
             lastRecordedFenceRecord = lastRecordedFence
         )
@@ -201,7 +204,7 @@ class RtrCoverageMeasurementProcessor @Inject constructor(
                 scope.launch(Dispatchers.IO + CoroutineName("Saving new fence")) {
                     fencesDataSource.createSignalFenceAndUpdateLastOne(
                         sessionId = sessionIdLocal,
-                        location = location,
+                        location = newLocation,
                         signalRecord = signalRecord,
                         radiusMeters = config.minDistanceMetersToLogNewLocationOnMapDuringSignalMeasurement.toDouble(),
                         lastSavedFence = lastRecordedFence,
@@ -210,12 +213,14 @@ class RtrCoverageMeasurementProcessor @Inject constructor(
                     )
                 }
             }
-        } else if (isTheSameLocation(location.toDeviceInfoLocation())) { // todo verify what to do on the same location and what values needs to be replaced - how to replace ping, ...
+        } /*
+        TODO: Same location to replace points?
+        else if (isTheSameLocation(location.toDeviceInfoLocation())) { // todo verify what to do on the same location and what values needs to be replaced - how to replace ping, ...
             val lastPoint = coverageMeasurementData.value?.points?.lastOrNull()
             lastPoint?.let { point ->
                 replaceSignalFenceAndSave(point, signalRecord)
             }
-        }
+        }*/
 
         coverageMeasurementData.postValue(
             coverageMeasurementData.value?.copy(

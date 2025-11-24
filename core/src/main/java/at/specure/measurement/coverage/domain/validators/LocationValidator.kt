@@ -4,7 +4,7 @@ import at.specure.test.DeviceInfo
 
 interface LocationValidator {
 
-    fun isLocationValid(newLocation: DeviceInfo.Location?): Boolean
+    fun isLocationFreshAndAccurate(newLocation: DeviceInfo.Location?): Boolean
 
     fun isLocationNotTooOld(newLocation: DeviceInfo.Location?): Boolean
 

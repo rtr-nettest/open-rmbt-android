@@ -280,13 +280,4 @@ class HomeViewModel @Inject constructor(
         coverageMeasurementSettings.signalMeasurementShouldContinueInLastSession = shouldContinueInLastSession
     }
 
-    fun shouldSignalMeasurementContinueInLastSession(): Boolean {
-        return coverageMeasurementSettings.signalMeasurementShouldContinueInLastSession
-    }
-
-    suspend fun getSignalData(id: String?): SignalRecord? {
-        val record = signalMeasurementRepository.getSignalMeasurementRecord(id)
-        return record
-    }
-
 }

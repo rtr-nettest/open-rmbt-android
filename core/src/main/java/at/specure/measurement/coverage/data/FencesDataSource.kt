@@ -6,6 +6,7 @@ import at.specure.data.entity.CoverageMeasurementFenceRecord
 import at.specure.data.entity.SignalRecord
 import at.specure.data.repository.SignalMeasurementRepository
 import at.specure.location.LocationInfo
+import at.specure.test.DeviceInfo
 import at.specure.test.toDeviceInfoLocation
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -20,7 +21,7 @@ class FencesDataSource @Inject constructor(
 
     fun createSignalFenceAndUpdateLastOne(
         sessionId: String,
-        location: LocationInfo,
+        location: DeviceInfo.Location,
         signalRecord: SignalRecord?,
         radiusMeters: Double,
         entryTimestampMillis: Long,
@@ -30,7 +31,7 @@ class FencesDataSource @Inject constructor(
         val point = CoverageMeasurementFenceRecord(
             sessionId = sessionId,
             sequenceNumber = getNextSequenceNumber(lastSavedFence),
-            location = location.toDeviceInfoLocation(),
+            location = location,
             signalRecordId = signalRecord?.signalMeasurementPointId, // todo: because of signal measurement it is removed when chunk is sent
             entryTimestampMillis = entryTimestampMillis,
             leaveTimestampMillis = 0,

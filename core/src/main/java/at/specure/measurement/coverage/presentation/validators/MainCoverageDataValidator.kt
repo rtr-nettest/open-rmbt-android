@@ -34,4 +34,26 @@ class MainCoverageDataValidator @Inject constructor(
         }
         return true
     }
+
+    override fun areDataValidToReplaceSomeOldFence(
+        newTimestamp: Long,
+        newLocation: DeviceInfo.Location?,
+        newNetworkInfo: NetworkInfo?,
+        lastRecordedFenceRecord: CoverageMeasurementFenceRecord?
+    ): Boolean {
+        if (!locationValidator.isLocationFreshAndAccurate(newLocation)) {
+            return false
+        }
+        if (!locationValidator.isTheSameLocation(newLocation, lastRecordedFenceRecord?.location)) {
+            return false
+        }
+        if (!networkValidator.isNetworkToBeLogged(newNetworkInfo)) {
+            return false
+        }
+        // TODO: ask if it is valid to check for replacing fences
+        if (!durationValidator.isMinimalTimePassed(newTimestamp, lastRecordedFenceRecord?.entryTimestampMillis)) {
+            return false
+        }
+        return true
+    }
 }
