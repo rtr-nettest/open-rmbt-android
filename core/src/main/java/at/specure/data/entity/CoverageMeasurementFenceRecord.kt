@@ -63,6 +63,11 @@ data class CoverageMeasurementFenceRecord(
     val signalStrength: Int?,
 
     /**
+     * Frequency band of the main cell connected to the network
+     */
+    val frequencyBand: String?,
+
+    /**
      * Average ping in milliseconds
      */
     val avgPingMillis: Double?,

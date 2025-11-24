@@ -28,40 +28,27 @@ import at.rmbt.client.control.data.SignalMeasurementType
 import at.rtr.rmbt.android.ui.dialog.CoverageSettingsDialog
 import at.rtr.rmbt.android.ui.dialog.Dialogs
 import at.rtr.rmbt.android.util.formatAccuracy
-import at.specure.data.entity.CoverageMeasurementFenceRecord
-import at.specure.info.TransportType
-import at.specure.info.cell.CellNetworkInfo
-import at.specure.info.network.MobileNetworkType
 import at.specure.info.network.NetworkInfo
 import at.specure.measurement.coverage.domain.models.CoverageMeasurementData
 import at.specure.measurement.coverage.domain.models.state.CoverageMeasurementState
 import at.specure.measurement.coverage.presentation.validators.CoverageNetworkValidator
 import at.specure.test.toLocation
-import at.specure.util.map.getMarkerColorInt
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.LocationSource
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
-import com.google.android.gms.maps.model.BitmapDescriptor
 import com.google.android.gms.maps.model.LatLng
-import com.google.android.gms.maps.model.MarkerOptions
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import com.google.android.gms.maps.model.BitmapDescriptorFactory
-import com.google.android.gms.maps.model.CircleOptions
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.CoroutineName
 import timber.log.Timber
 import kotlin.math.roundToInt
-import androidx.core.graphics.scale
 import at.rtr.rmbt.android.viewmodel.CoverageResultViewModel
-import at.specure.data.entity.generateHash
+import at.specure.measurement.coverage.data.getFrequencyBand
+import at.specure.measurement.coverage.data.getSignalStrengthValue
 import at.specure.test.toDeviceInfoLocation
-import com.google.android.gms.maps.model.Circle
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
-import java.util.UUID
 
 const val DEFAULT_POSITION_TRACKING_ZOOM_LEVEL = 16.2f
 private const val DEFAULT_LAT: Double = ((49.0390742051F + 46.4318173285F) / 2F).toDouble()
@@ -267,7 +254,10 @@ class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback, Coverage
     }
 
     private fun showCurrentNetworkType(coverageMeasurementData: CoverageMeasurementData?) {
-        binding.technologyValue.text = coverageViewModel.getCurrentNetworkTypeName(coverageMeasurementData?.currentNetworkInfo)
+        val networkType = coverageViewModel.getCurrentNetworkTypeName(coverageMeasurementData?.currentNetworkInfo)
+        val frequencyBand = coverageMeasurementData?.currentNetworkInfo?.getFrequencyBand()
+        val signal = coverageMeasurementData?.currentNetworkInfo?.getSignalStrengthValue()
+        binding.technologyValue.text = listOfNotNull(networkType, frequencyBand, signal).joinToString(", ")
     }
 
     private fun updatePingValue(coverageMeasurementData: CoverageMeasurementData?) {

@@ -235,7 +235,7 @@ class SignalMeasurementProcessor @Inject constructor(
                 if (lastSignalMeasurementType == SignalMeasurementType.DEDICATED) {
                     locationInfo?.let { location ->
                         Timber.d("passing new info with network: ${globalNetworkInfo?.type}")
-                        rtrCoverageMeasurementProcessor.onNewLocation(location, lastSignalRecord, globalNetworkInfo)
+                        rtrCoverageMeasurementProcessor.onNewLocation(location, globalNetworkInfo)
                     }
                 }
                 if (isSignalMeasurementRunning()) {

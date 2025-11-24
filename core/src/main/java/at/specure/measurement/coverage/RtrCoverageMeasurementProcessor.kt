@@ -179,41 +179,37 @@ class RtrCoverageMeasurementProcessor @Inject constructor(
         )
     }
 
-    fun onNewLocation(location: LocationInfo, signalRecord: SignalRecord?, networkInfo: NetworkInfo?) {
+    fun onNewLocation(location: LocationInfo, networkInfo: NetworkInfo?) {
         // TODO: check how old is signal information + also handle no signal record in SignalMeasurementProcessor
         // TODO: check if airplane mode is enabled or not, check if mobile data are enabled
         val newTimestamp = System.currentTimeMillis()
         val newLocation = location.toDeviceInfoLocation()
-        if (newLocation == null) return
         Timber.d("DeviceInfoLocation: $newLocation \nLocationInfo: $location")
         val lastRecordedFence = coverageMeasurementData.value?.points?.lastOrNull()
+        Timber.d("lastPoint = $lastRecordedFence")
         val isDataValidToSaveNewFence = mainCoverageDataValidator.areDataValidToSaveNewFence(
             newTimestamp = newTimestamp,
             newLocation = newLocation,
             newNetworkInfo = networkInfo,
             lastRecordedFenceRecord = lastRecordedFence
         )
-        Timber.d("lastPoint = $lastRecordedFence")
+        val sessionId = coverageMeasurementData.value?.coverageMeasurementSession?.sessionId
+        if (sessionId == null) {
+            Timber.e("Signal measurement Session not initialized yet - sessionId missing")
+            return
+        }
+
         if (isDataValidToSaveNewFence) {
-            val sessionId = coverageMeasurementData.value?.coverageMeasurementSession?.sessionId
-            if (sessionId == null) {
-                Timber.e("Signal measurement Session not initialized yet - sessionId missing")
-            }
-            sessionId?.let { sessionIdLocal ->
-                Timber.d("Creating a new point with signal record: $signalRecord")
-                scope.launch(Dispatchers.IO + CoroutineName("Saving new fence")) {
-                    fencesDataSource.createSignalFenceAndUpdateLastOne(
-                        sessionId = sessionIdLocal,
-                        location = newLocation,
-                        signalRecord = signalRecord,
-                        radiusMeters = config.minDistanceMetersToLogNewLocationOnMapDuringSignalMeasurement.toDouble(),
-                        lastSavedFence = lastRecordedFence,
-                        entryTimestampMillis = newTimestamp,
-                        avgPingMillisForLastFence = coveragePingProcessor.onNewFenceStarted()?.average
-                    )
-                }
-            }
-        } /*
+            saveNewFence(
+                sessionId = sessionId,
+                newLocation = newLocation!!,
+                newTimestamp = newTimestamp,
+                networkInfo = networkInfo,
+                lastRecordedFence = lastRecordedFence
+            )
+        }
+
+        /*
         TODO: Same location to replace points?
         else if (isTheSameLocation(location.toDeviceInfoLocation())) { // todo verify what to do on the same location and what values needs to be replaced - how to replace ping, ...
             val lastPoint = coverageMeasurementData.value?.points?.lastOrNull()
@@ -229,6 +225,27 @@ class RtrCoverageMeasurementProcessor @Inject constructor(
             )
         )
 
+    }
+
+    private fun saveNewFence(
+        sessionId: String,
+        newLocation: DeviceInfo.Location,
+        newTimestamp: Long,
+        networkInfo: NetworkInfo?,
+        lastRecordedFence: CoverageMeasurementFenceRecord?,
+    ) {
+        scope.launch(Dispatchers.IO + CoroutineName("Saving new fence")) {
+            fencesDataSource.createSignalFenceAndUpdateLastOne(
+                sessionId = sessionId,
+                location = newLocation,
+                signalRecord = null,
+                radiusMeters = config.minDistanceMetersToLogNewLocationOnMapDuringSignalMeasurement.toDouble(),
+                lastSavedFence = lastRecordedFence,
+                entryTimestampMillis = newTimestamp,
+                networkInfo = networkInfo,
+                avgPingMillisForLastFence = coveragePingProcessor.onNewFenceStarted()?.average
+            )
+        }
     }
 
     /**

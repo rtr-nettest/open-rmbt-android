@@ -6,7 +6,6 @@ import at.specure.data.entity.CoverageMeasurementSession
 import at.specure.info.network.NetworkInfo
 import at.specure.location.LocationInfo
 import at.specure.measurement.coverage.domain.models.state.CoverageMeasurementState
-import at.specure.test.DeviceInfo
 
 data class CoverageMeasurementData(
     val coverageMeasurementSession: CoverageMeasurementSession,

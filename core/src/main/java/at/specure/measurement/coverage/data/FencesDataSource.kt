@@ -5,9 +5,8 @@ import at.rmbt.util.io
 import at.specure.data.entity.CoverageMeasurementFenceRecord
 import at.specure.data.entity.SignalRecord
 import at.specure.data.repository.SignalMeasurementRepository
-import at.specure.location.LocationInfo
+import at.specure.info.network.NetworkInfo
 import at.specure.test.DeviceInfo
-import at.specure.test.toDeviceInfoLocation
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -23,6 +22,7 @@ class FencesDataSource @Inject constructor(
         sessionId: String,
         location: DeviceInfo.Location,
         signalRecord: SignalRecord?,
+        networkInfo: NetworkInfo?,
         radiusMeters: Double,
         entryTimestampMillis: Long,
         avgPingMillisForLastFence: Double?,
@@ -36,8 +36,9 @@ class FencesDataSource @Inject constructor(
             entryTimestampMillis = entryTimestampMillis,
             leaveTimestampMillis = 0,
             radiusMeters = radiusMeters,
-            technologyId = signalRecord?.mobileNetworkType?.intValue,
-            signalStrength = signalRecord?.signal, // todo: extract signal value correctly
+            technologyId = networkInfo.getMobileNetworkType().intValue,
+            signalStrength = networkInfo.getSignalStrengthValue(),
+            frequencyBand = networkInfo.getFrequencyBand(),
             avgPingMillis = null,
         )
         signalMeasurementRepository.saveMeasurementPointRecord(point)

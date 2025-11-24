@@ -223,7 +223,7 @@ class CoverageResultViewModel @Inject constructor(
         state.displayedPointIds.clear()
     }
 
-    fun getCurrentNetworkTypeName(networkInfo: NetworkInfo?): String {
+    fun getCurrentNetworkTypeName(networkInfo: NetworkInfo?): String? {
         return when(networkInfo?.type) {
             TransportType.CELLULAR -> (networkInfo as CellNetworkInfo).networkType.displayName
             TransportType.WIFI,
@@ -234,7 +234,7 @@ class CoverageResultViewModel @Inject constructor(
             TransportType.LOWPAN,
             TransportType.BROWSER,
             TransportType.UNKNOWN -> networkInfo.type.name
-            null -> "-"
+            null -> null
         }
     }
 
