@@ -257,7 +257,7 @@ class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback, Coverage
         val networkType = coverageViewModel.getCurrentNetworkTypeName(coverageMeasurementData?.currentNetworkInfo)
         val frequencyBand = coverageMeasurementData?.currentNetworkInfo?.getFrequencyBand()
         val signal = coverageMeasurementData?.currentNetworkInfo?.getSignalStrengthValue()
-        binding.technologyValue.text = listOfNotNull(networkType, frequencyBand, signal).joinToString(", ")
+        binding.technologyValue.text = listOfNotNull(networkType, frequencyBand, signal).joinToString(" | ")
     }
 
     private fun updatePingValue(coverageMeasurementData: CoverageMeasurementData?) {
