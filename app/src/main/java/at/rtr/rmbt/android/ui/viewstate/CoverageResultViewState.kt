@@ -39,7 +39,7 @@ class CoverageResultViewState constructor(
     var markerDetailsDisplayed = ObservableBoolean(false)
     val activeCircles = mutableListOf<com.google.android.gms.maps.model.Circle>()
     val displayedPointIds = mutableSetOf<String>()
-    lateinit var testUUID: String
+    var testUUID: String = ""
 
     override fun onRestoreState(bundle: Bundle?) {
         bundle?.run {

@@ -1,104 +1,158 @@
 package at.specure.measurement.coverage
 
-import at.rmbt.util.exception.HandledException
 import at.specure.data.CoverageMeasurementSettings
 import at.specure.data.entity.CoverageMeasurementSession
 import at.specure.data.repository.SignalMeasurementRepository
+import at.specure.measurement.coverage.domain.CoverageSessionEvent
 import at.specure.measurement.coverage.domain.CoverageSessionManager
 import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.ensureActive
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlin.coroutines.coroutineContext
 
 @Singleton
 class RtrCoverageSessionManager @Inject constructor(
     private val signalMeasurementRepository: SignalMeasurementRepository,
     private val coverageMeasurementSettings: CoverageMeasurementSettings,
-): CoverageSessionManager {
+) : CoverageSessionManager {
 
-    override fun createSession(
-        onSessionCreated: ((CoverageMeasurementSession) -> Unit)?,
-        onSessionRegistered: ((CoverageMeasurementSession) -> Unit)?,
-        onSessionCreationError: ((Exception) -> Unit)?,
+    private val _sessionEvents = MutableSharedFlow<CoverageSessionEvent>()
+    override fun sessionFlow(): SharedFlow<CoverageSessionEvent> = _sessionEvents
+
+    private var registrationJob: Job? = null
+
+    private val MAX_RETRY = 100 // todo: adjust according the needs, maybe change to indefinitely
+    private val RETRY_DELAY_MS = 2_000L
+
+    override fun createSession(coroutineScope: CoroutineScope) {
+        coroutineScope.launch {
+            _sessionEvents.emit(CoverageSessionEvent.SessionInitializing)
+        }
+        val lastSessionId = coverageMeasurementSettings.signalMeasurementLastSessionId
+        val shouldContinue = coverageMeasurementSettings.signalMeasurementShouldContinueInLastSession
+        val continuePrevious = (shouldContinue && lastSessionId != null)
+
+        if (continuePrevious) {
+            loadExistingSession(lastSessionId!!, coroutineScope)
+        } else {
+            createNewSession(coroutineScope)
+        }
+    }
+
+    override suspend fun endSession() {
+        registrationJob?.cancel()
+        registrationJob = null
+
+        _sessionEvents.emit(CoverageSessionEvent.SessionEnded)
+    }
+
+    private fun loadExistingSession(
+        sessionId: String,
+        coroutineScope: CoroutineScope
+    ) = coroutineScope.launch(CoroutineName("loadSession")) {
+
+        Timber.d("Continue in coverage measurement: $sessionId")
+
+        val loaded = signalMeasurementRepository.getDedicatedMeasurementSession(sessionId)
+
+        if (loaded != null) {
+            handleSessionReady(loaded, coroutineScope)
+        } else {
+            createNewSession(coroutineScope)
+        }
+    }
+
+    private fun createNewSession(
+        coroutineScope: CoroutineScope
+    ) = coroutineScope.launch(CoroutineName("createNewSession")) {
+
+        val session = CoverageMeasurementSession()
+        Timber.d("Creating new coverage measurement: ${session.sessionId}")
+        signalMeasurementRepository.saveDedicatedMeasurementSession(session)
+
+        coverageMeasurementSettings.signalMeasurementLastSessionId = session.sessionId
+
+        handleSessionReady(session, coroutineScope)
+    }
+
+    private fun handleSessionReady(
+        session: CoverageMeasurementSession,
         coroutineScope: CoroutineScope
     ) {
-        val lastSignalMeasurementSessionId =
-            coverageMeasurementSettings.signalMeasurementLastSessionId
-        val shouldContinueInPreviousDedicatedMeasurement =
-            coverageMeasurementSettings.signalMeasurementShouldContinueInLastSession
-        val continueInPreviousSession =
-            (shouldContinueInPreviousDedicatedMeasurement && lastSignalMeasurementSessionId != null)
-        val onSessionReady: (CoverageMeasurementSession) -> Unit = { session ->
-            onSessionCreated?.invoke(session)
-            val isSessionRegistered = session.serverSessionId != null
-            if (isSessionRegistered.not()) {
-                coroutineScope.launch(Dispatchers.IO) {
-                    try {
-                        val isRegistered = signalMeasurementRepository.registerCoverageMeasurement(coverageSessionId = session.sessionId, measurementId = null)
-                            .collect { isRegistered ->
-                                if (isRegistered) {
-                                    val registeredSession = signalMeasurementRepository.getDedicatedMeasurementSession(
-                                        session.sessionId
-                                    )
-                                    // TODO: implement retry mechanism when it was not able to register session
-                                    Timber.d("Starting ping client after registration a new measurement with session: $registeredSession")
-                                    registeredSession?.let {
-                                        onSessionRegistered?.invoke(registeredSession)
-                                    }
-                                }
-                            }
-                    } catch (e: HandledException) {
-                        onSessionCreationError?.invoke(e)
+        coroutineScope.launch {
+            _sessionEvents.emit(CoverageSessionEvent.SessionCreated(session))
+        }
+
+        // Already registered → resume
+        if (session.serverSessionId != null) {
+            coroutineScope.launch {
+                _sessionEvents.emit(CoverageSessionEvent.SessionRegistered(session))
+            }
+            return
+        }
+
+        // Not registered → start retry loop
+        registrationJob = coroutineScope.launch(Dispatchers.IO + CoroutineName("registerSession")) {
+            registerSessionWithRetry(session)
+        }
+    }
+
+    private suspend fun registerSessionWithRetry(
+        session: CoverageMeasurementSession
+    ) {
+        var attempt = 1
+
+        while (attempt <= MAX_RETRY) {
+
+            coroutineContext.ensureActive() // 🔥 STOP immediately if endSession() was called
+
+            try {
+                signalMeasurementRepository
+                    .registerCoverageMeasurement(session.sessionId, null)
+                    .collect { ok ->
+                        if (ok) {
+                            val registered =
+                                signalMeasurementRepository.getDedicatedMeasurementSession(session.sessionId)
+
+                            _sessionEvents.emit(
+                                CoverageSessionEvent.SessionRegistered(registered!!)
+                            )
+                            return@collect
+                        }
                     }
+
+            } catch (e: Exception) {
+
+                // Last attempt → fail
+                if (attempt >= MAX_RETRY) {
+                    _sessionEvents.emit(
+                        CoverageSessionEvent.SessionRegistrationFailed(session, e)
+                    )
+                    return
                 }
-            } else {
-                Timber.d("Starting ping client as continue from previous")
-                onSessionRegistered?.invoke(session)
+
+                // Otherwise → retry event
+                _sessionEvents.emit(
+                    CoverageSessionEvent.SessionRegistrationRetrying(
+                        session = session,
+                        attempt = attempt,
+                        maxAttempts = MAX_RETRY,
+                        delayMs = RETRY_DELAY_MS
+                    )
+                )
             }
 
-        }
-        Timber.d("Continue?: $shouldContinueInPreviousDedicatedMeasurement && has id?: $lastSignalMeasurementSessionId")
-        if (continueInPreviousSession) {
-            Timber.d("Continue in dedicated signal measurement: $lastSignalMeasurementSessionId")
-            loadRunningCoverageMeasurementSession(lastSignalMeasurementSessionId!!, onSessionReady, coroutineScope)
-        } else {
-            Timber.d("Creating new dedicated signal measurement: $lastSignalMeasurementSessionId")
-            createNewCoverageMeasurementSession(onSessionReady, coroutineScope)
+            delay(RETRY_DELAY_MS)  // cancels automatically when Job is cancelled
+            attempt++
         }
     }
-
-    override fun endSession(resultsSent: (() -> Unit)?, resultsSendError: ((Exception) -> Unit)?) {
-        TODO("Not yet implemented")
-    }
-
-    private fun loadRunningCoverageMeasurementSession(
-        sessionId: String,
-        onSessionReadyCallback: (CoverageMeasurementSession) -> Unit,
-        coroutineScope: CoroutineScope,
-    ) = coroutineScope.launch(CoroutineName("loadDedicatedMeasurementSession")) {
-        val loadedSession = signalMeasurementRepository.getDedicatedMeasurementSession(
-            sessionId
-        )
-        if (loadedSession != null) {
-            Timber.d("Loaded session with ID: ${loadedSession.sessionId}")
-            onSessionReadyCallback(loadedSession)
-        } else {
-            createNewCoverageMeasurementSession(onSessionReadyCallback, coroutineScope)
-        }
-    }
-
-    private fun createNewCoverageMeasurementSession(
-        onSessionReadyCallback: (CoverageMeasurementSession) -> Unit,
-        coroutineScope: CoroutineScope,
-    ) = coroutineScope.launch(CoroutineName("createNewDedicatedMeasurementSession")) {
-            val session = CoverageMeasurementSession()
-            signalMeasurementRepository.saveDedicatedMeasurementSession(session)
-            Timber.d("Newly created session id: ${session.sessionId}")
-            coverageMeasurementSettings.signalMeasurementLastSessionId = session.sessionId
-            onSessionReadyCallback(session)
-        }
-
 }

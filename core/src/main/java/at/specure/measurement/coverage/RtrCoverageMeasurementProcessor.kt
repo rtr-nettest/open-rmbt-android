@@ -14,6 +14,7 @@ import at.specure.info.network.NetworkInfo
 import at.specure.location.LocationInfo
 import at.specure.measurement.coverage.data.FencesDataSource
 import at.specure.measurement.coverage.domain.CoverageMeasurementProcessor
+import at.specure.measurement.coverage.domain.CoverageSessionEvent
 import at.specure.measurement.coverage.domain.CoverageSessionManager
 import at.specure.measurement.coverage.domain.CoverageTimer
 import at.specure.measurement.coverage.domain.PingProcessor
@@ -71,35 +72,88 @@ class RtrCoverageMeasurementProcessor @Inject constructor(
         }
     }
     private var loadingFencesJob: Job? = null
+    private var sessionCollectorJob: Job? = null
     override val coroutineContext = EmptyCoroutineContext + coroutineExceptionHandler
 
     override fun startCoverageSession(
-        sessionCreated: ((session: CoverageMeasurementSession) -> Unit)?,
-        sessionCreationError: ((e: Exception) -> Unit)?)
-    {
+        sessionCreated: ((CoverageMeasurementSession) -> Unit)?,
+        sessionCreationError: ((Exception) -> Unit)?
+    ) {
+        Timber.d("Starting ping with start coverage session")
+        prepareInitialData()
         loadingFencesJob?.cancel()
-        coverageSessionManager.createSession(
-            onSessionCreated = { session ->
-                sessionCreated?.invoke(session)
-                loadingFencesJob = loadPoints(session.sessionId)
-                coverageMeasurementData.postValue(
-                    CoverageMeasurementData(
-                        coverageMeasurementSession = session,
-                        coverageMeasurementSettings = coverageMeasurementSettings,
-                    )
-                )
-                Timber.d("Session created: ${session.sessionId} invoking callback")
-            },
-            onSessionRegistered = { registeredSession ->
-                scope.launch(Dispatchers.IO) {
-                    onStartAndRegistrationCompleted(registeredSession)
+
+        // Start emitting session events
+        coverageSessionManager.createSession(scope)
+
+        if (sessionCollectorJob == null) {
+            sessionCollectorJob = scope.launch {
+                coverageSessionManager.sessionFlow().collect { event ->
+                    when (event) {
+
+                        is CoverageSessionEvent.SessionInitializing -> {
+                            // optional: show loading UI
+                        }
+
+                        is CoverageSessionEvent.SessionCreated -> {
+                            val session = event.session
+
+                            sessionCreated?.invoke(session)   // 🔥 same callback you originally had
+
+                            loadingFencesJob = loadPoints(session.sessionId)
+
+                            coverageMeasurementData.postValue(
+                                CoverageMeasurementData(
+                                    coverageMeasurementSession = session,
+                                    coverageMeasurementSettings = coverageMeasurementSettings
+                                )
+                            )
+
+                            Timber.d("Session created: ${session.sessionId}")
+                        }
+
+                        is CoverageSessionEvent.SessionRegistered -> {
+                            // this replaces your onSessionRegistered callback
+                            scope.launch(Dispatchers.IO) {
+                                onStartAndRegistrationCompleted(event.session)
+                            }
+                        }
+
+                        is CoverageSessionEvent.SessionRegistrationRetrying -> {
+                            // optional: show retry attempt info in UI
+                        }
+
+                        is CoverageSessionEvent.SessionRegistrationFailed -> {
+                            onError(event.error ?: Exception("Unknown registration failure"))
+                            sessionCreationError?.invoke(event.error ?: Exception("Unknown registration failure"))
+                        }
+
+                        is CoverageSessionEvent.SessionCreationError -> {
+                            onError(event.error)
+                            sessionCreationError?.invoke(event.error)
+                        }
+
+                        CoverageSessionEvent.SessionEnded -> {
+                            // optional: cleanup UI or state
+                        }
+                    }
                 }
-            },
-            onSessionCreationError = {
-                onError(it)
-                sessionCreationError
-            },
-            scope
+            }
+        }
+    }
+
+
+    private fun prepareInitialData() {
+        coverageMeasurementData.postValue(
+            CoverageMeasurementData(
+                coverageMeasurementSettings = coverageMeasurementSettings,
+                coverageMeasurementSession = null,
+                signalMeasurementException = null,
+                currentNetworkInfo = null,
+                currentLocation = null,
+                currentPingMs = null,
+                currentPingStatus = null,
+            )
         )
     }
 
@@ -121,6 +175,7 @@ class RtrCoverageMeasurementProcessor @Inject constructor(
 //                cleanData()
                 updateCoverageDataState(CoverageMeasurementState.FINISHED_LOOP_CORRECTLY)
                 coverageMeasurementSettings.onStopMeasurementSession()
+                coverageSessionManager.endSession()
             }
         }
     }
@@ -138,6 +193,7 @@ class RtrCoverageMeasurementProcessor @Inject constructor(
     }
 
     private suspend fun onStartAndRegistrationCompleted(registeredAndStartedSession: CoverageMeasurementSession) {
+        Timber.d("Starting ping w called")
         coveragePingProcessor.startPing(registeredAndStartedSession).collect {
             coverageMeasurementData.postValue(
                 coverageMeasurementData.value?.copy(
