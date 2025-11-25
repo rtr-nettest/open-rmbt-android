@@ -156,6 +156,16 @@ class PingEvaluator(private val pingFlow: Flow<PingResult>) {
     }
 
     /**
+     *  Just cancel the job and clear the data.
+     */
+    suspend fun cancel() {
+        job?.cancelAndJoin()
+        mutex.withLock {
+            results.clear()
+        }
+    }
+
+    /**
      * Calculate all stats from the given list of values.
      */
     private fun calculateStats(values: List<Double?>): PingStats {

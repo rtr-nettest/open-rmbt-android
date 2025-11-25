@@ -26,7 +26,7 @@ import java.time.Instant
 import java.util.Base64
 
 class UdpHmacPingFlow(
-    private val configuration: PingClientConfiguration,
+    val configuration: PingClientConfiguration,
 ) {
     private val sentTimes = ConcurrentHashMap<Int, Triple<Long, Int, Long>>()
     private var sequenceNumber = Random.nextInt()

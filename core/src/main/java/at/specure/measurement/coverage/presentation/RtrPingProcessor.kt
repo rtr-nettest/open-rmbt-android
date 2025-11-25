@@ -1,6 +1,7 @@
 package at.specure.measurement.coverage.presentation
 
 import at.specure.client.PingClientConfiguration
+import at.specure.client.PingResult
 import at.specure.client.UdpHmacPingFlow
 import at.specure.data.entity.CoverageMeasurementSession
 import at.specure.eval.PingEvaluator
@@ -8,6 +9,7 @@ import at.specure.eval.PingStats
 import at.specure.measurement.coverage.domain.models.PingData
 import at.specure.measurement.coverage.domain.PingProcessor
 import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.flow
@@ -27,6 +29,7 @@ private const val PING_EVALUATE_LAST_N_ITEMS: Int = 10
 class RtrPingProcessor: PingProcessor {
 
     private var pingEvaluator: PingEvaluator? = null
+    private var pingClient: UdpHmacPingFlow? = null
     private val debug = true
 
     @OptIn(FlowPreview::class)
@@ -56,31 +59,40 @@ class RtrPingProcessor: PingProcessor {
             errorResponseHeader = PING_PROTOCOL_ERROR_RESPONSE_HEADER
         )
 
-        pingEvaluator = PingEvaluator(UdpHmacPingFlow(configuration).pingFlow())
-        pingEvaluator?.start()
-            ?.sample(1000)
-            ?.retryWhen { cause, attempt ->
-                Timber.e(cause, "Error in ping flow, restarting attempt #$attempt")
-                true // retry on every exception
-            }
-            ?.catch { e ->
-                // This will catch any remaining exceptions that retry didn't handle
-                Timber.e(e, "Error in ping flow after retries")
-                emit(
-                    PingData(
-                        pingStatistics = null,
-                        error = e
+        if (configuration == pingClient?.configuration) {
+            Timber.d("Starting ping with configuration is already running")
+        } else {
+            Timber.d("Starting ping with $pingEvaluator cancelled")
+            pingEvaluator?.cancel()
+            pingClient = UdpHmacPingFlow(configuration)
+            pingEvaluator = PingEvaluator(pingClient!!.pingFlow())
+            Timber.d("Starting ping with $pingEvaluator configuration: $configuration")
+            pingEvaluator?.start()
+                ?.sample(1000)
+                ?.retryWhen { cause, attempt ->
+                    Timber.e(cause, "Error in ping flow, restarting attempt #$attempt")
+                    delay(1000)
+                    true // retry on every exception
+                }
+                ?.catch { e ->
+                    // This will catch any remaining exceptions that retry didn't handle
+                    Timber.e(e, "Error in ping flow after retries")
+                    emit(
+                        PingData(
+                            pingStatistics = null,
+                            error = e
+                        )
                     )
-                )
-            }
-            ?.collect { pingResult ->
-                emit(
-                    PingData(
-                        pingStatistics = getCurrentPingStats(),
-                        error = null
+                }
+                ?.collect { pingResult ->
+                    emit(
+                        PingData(
+                            pingStatistics = getCurrentPingStats(),
+                            error = null
+                        )
                     )
-                )
-            }
+                }
+        }
     }
 
     override suspend fun stopPing(): PingStats? {
