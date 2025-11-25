@@ -75,5 +75,10 @@ data class CoverageMeasurementSession(
     /**
      * Was the measurement synced with the server - was coverageResult successfully sent?
      */
-    val synced: Boolean = false
+    val synced: Boolean = false,
+
+    /**
+     * How many times app tried to send the coverage measurement session results to the server.
+     */
+    val retryCount: Int = 0,
 )
