@@ -88,55 +88,59 @@ class RtrCoverageMeasurementProcessor @Inject constructor(
 
         if (sessionCollectorJob == null) {
             sessionCollectorJob = scope.launch {
-                coverageSessionManager.sessionFlow().collect { event ->
-                    when (event) {
+                try {
+                    coverageSessionManager.sessionFlow().collect { event ->
+                        when (event) {
 
-                        is CoverageSessionEvent.SessionInitializing -> {
-                            // optional: show loading UI
-                        }
+                            is CoverageSessionEvent.SessionInitializing -> {
+                                // optional: show loading UI
+                            }
 
-                        is CoverageSessionEvent.SessionCreated -> {
-                            val session = event.session
+                            is CoverageSessionEvent.SessionCreated -> {
+                                val session = event.session
 
-                            sessionCreated?.invoke(session)   // 🔥 same callback you originally had
+                                sessionCreated?.invoke(session)   // 🔥 same callback you originally had
 
-                            loadingFencesJob = loadPoints(session.sessionId)
+                                loadingFencesJob = loadPoints(session.sessionId)
 
-                            coverageMeasurementData.postValue(
-                                CoverageMeasurementData(
-                                    coverageMeasurementSession = session,
-                                    coverageMeasurementSettings = coverageMeasurementSettings
+                                coverageMeasurementData.postValue(
+                                    CoverageMeasurementData(
+                                        coverageMeasurementSession = session,
+                                        coverageMeasurementSettings = coverageMeasurementSettings
+                                    )
                                 )
-                            )
 
-                            Timber.d("Session created: ${session.sessionId}")
-                        }
+                                Timber.d("Session created: ${session.sessionId}")
+                            }
 
-                        is CoverageSessionEvent.SessionRegistered -> {
-                            // this replaces your onSessionRegistered callback
-                            scope.launch(Dispatchers.IO) {
-                                onStartAndRegistrationCompleted(event.session)
+                            is CoverageSessionEvent.SessionRegistered -> {
+                                // this replaces your onSessionRegistered callback
+                                scope.launch(Dispatchers.IO) {
+                                    onStartAndRegistrationCompleted(event.session)
+                                }
+                            }
+
+                            is CoverageSessionEvent.SessionRegistrationRetrying -> {
+                                // optional: show retry attempt info in UI
+                            }
+
+                            is CoverageSessionEvent.SessionRegistrationFailed -> {
+                                onError(event.error ?: Exception("Unknown registration failure"))
+                                sessionCreationError?.invoke(event.error ?: Exception("Unknown registration failure"))
+                            }
+
+                            is CoverageSessionEvent.SessionCreationError -> {
+                                onError(event.error)
+                                sessionCreationError?.invoke(event.error)
+                            }
+
+                            CoverageSessionEvent.SessionEnded -> {
+                                // optional: cleanup UI or state
                             }
                         }
-
-                        is CoverageSessionEvent.SessionRegistrationRetrying -> {
-                            // optional: show retry attempt info in UI
-                        }
-
-                        is CoverageSessionEvent.SessionRegistrationFailed -> {
-                            onError(event.error ?: Exception("Unknown registration failure"))
-                            sessionCreationError?.invoke(event.error ?: Exception("Unknown registration failure"))
-                        }
-
-                        is CoverageSessionEvent.SessionCreationError -> {
-                            onError(event.error)
-                            sessionCreationError?.invoke(event.error)
-                        }
-
-                        CoverageSessionEvent.SessionEnded -> {
-                            // optional: cleanup UI or state
-                        }
                     }
+                } finally {
+                    sessionCollectorJob = null
                 }
             }
         }
@@ -175,6 +179,8 @@ class RtrCoverageMeasurementProcessor @Inject constructor(
 //                cleanData()
                 updateCoverageDataState(CoverageMeasurementState.FINISHED_LOOP_CORRECTLY)
                 coverageMeasurementSettings.onStopMeasurementSession()
+                sessionCollectorJob?.cancel()
+                sessionCollectorJob = null
                 coverageSessionManager.endSession()
             }
         }
