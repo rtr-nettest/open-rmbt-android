@@ -13,6 +13,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import javax.inject.Inject
@@ -113,26 +114,26 @@ class RtrCoverageSessionManager @Inject constructor(
 
         while (attempt <= MAX_RETRY) {
 
-            coroutineContext.ensureActive() // 🔥 STOP immediately if endSession() was called
+            coroutineContext.ensureActive()
 
             try {
-                signalMeasurementRepository
+                val ok = signalMeasurementRepository
                     .registerCoverageMeasurement(session.sessionId, null)
-                    .collect { ok ->
-                        if (ok) {
-                            val registered =
-                                signalMeasurementRepository.getDedicatedMeasurementSession(session.sessionId)
+                    .first()
 
-                            _sessionEvents.emit(
-                                CoverageSessionEvent.SessionRegistered(registered!!)
-                            )
-                            return@collect
-                        }
-                    }
+                if (ok) {
+                    val registered =
+                        signalMeasurementRepository.getDedicatedMeasurementSession(session.sessionId)
+
+                    _sessionEvents.emit(
+                        CoverageSessionEvent.SessionRegistered(registered!!)
+                    )
+
+                    return
+                }
 
             } catch (e: Exception) {
 
-                // Last attempt → fail
                 if (attempt >= MAX_RETRY) {
                     _sessionEvents.emit(
                         CoverageSessionEvent.SessionRegistrationFailed(session, e)
@@ -140,7 +141,6 @@ class RtrCoverageSessionManager @Inject constructor(
                     return
                 }
 
-                // Otherwise → retry event
                 _sessionEvents.emit(
                     CoverageSessionEvent.SessionRegistrationRetrying(
                         session = session,

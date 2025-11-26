@@ -484,6 +484,7 @@ class MeasurementService : CustomLifecycleService(), CoroutineScope {
     private fun startSignalMeasurement(signalMeasurementType: SignalMeasurementType) {
         Timber.d("Signal measurement starting with type: ${signalMeasurementType.signalTypeName}")
         signalMeasurementPauseRequired = true // in case when service connection wasn't established before test started
+        Timber.d("Starting coverage session MS1")
         signalMeasurementProducer?.startMeasurement(false, signalMeasurementType)
     }
 

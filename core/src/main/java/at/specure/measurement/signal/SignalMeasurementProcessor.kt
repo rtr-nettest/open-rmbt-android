@@ -165,6 +165,7 @@ class SignalMeasurementProcessor @Inject constructor(
         lastSignalMeasurementType = signalMeasurementType
 
         if (lastSignalMeasurementType == SignalMeasurementType.DEDICATED) {
+            Timber.d("Starting coverage session")
             rtrCoverageMeasurementProcessor.startCoverageSession(measurementSessionInitializedCallback, measurementSessionInitializationErrorCallback)
         }
 

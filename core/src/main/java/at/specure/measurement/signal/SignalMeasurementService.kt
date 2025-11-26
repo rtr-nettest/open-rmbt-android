@@ -98,6 +98,7 @@ class SignalMeasurementService : CustomLifecycleService() {
 
     private fun startMeasurement(signalMeasurementType: SignalMeasurementType) {
         acquireWakeLock()
+        Timber.d("Starting coverage session SMS1")
         processor.startMeasurement(false, signalMeasurementType)
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {

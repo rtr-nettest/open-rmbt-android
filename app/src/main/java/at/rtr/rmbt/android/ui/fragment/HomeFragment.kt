@@ -203,8 +203,6 @@ class HomeFragment : BaseFragment() {
                     if (checksPassed) {
                         openSignalMeasurementTermsActivity()
                     }
-                } else {
-                    homeViewModel.toggleSignalMeasurementService()
                 }
             }
         }

@@ -170,6 +170,7 @@ class HomeViewModel @Inject constructor(
                 if (it.isActive) {
                     it.stopMeasurement(false)
                 } else {
+                    Timber.d("Starting coverage session HVM2")
                     it.startMeasurement(false, SignalMeasurementType.DEDICATED)
                     it.setEndAlarm()
                 }
@@ -192,6 +193,7 @@ class HomeViewModel @Inject constructor(
 
     fun startSignalMeasurement(signalMeasurementType: SignalMeasurementType) {
         coverageMeasurementSettings.signalMeasurementIsRunning = true
+        Timber.d("Starting coverage session HVM1")
         producer?.startMeasurement(false, signalMeasurementType)
     }
 

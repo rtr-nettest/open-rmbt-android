@@ -7,6 +7,7 @@ import at.specure.data.entity.SignalRecord
 import at.specure.data.repository.SignalMeasurementRepository
 import at.specure.info.network.NetworkInfo
 import at.specure.test.DeviceInfo
+import timber.log.Timber
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -47,6 +48,7 @@ class FencesDataSource @Inject constructor(
             entryTimestampMillis,
             avgPingMillisForLastFence
         )
+        Timber.d("createSignalFenceAndUpdateLastOne: $point")
 
     }
 
