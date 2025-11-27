@@ -183,7 +183,7 @@ class CoreModule {
 
     @Provides
     @Singleton
-    fun provideControlEndpointProvider(config: Config): ControlEndpointProvider = ControlServerProviderImpl(config)
+    fun provideControlEndpointProvider(config: Config, controlServerSettings: ControlServerSettings): ControlEndpointProvider = ControlServerProviderImpl(config, controlServerSettings)
 
     @Provides
     @Singleton

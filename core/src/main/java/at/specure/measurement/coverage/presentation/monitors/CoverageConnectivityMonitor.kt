@@ -4,6 +4,9 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import android.net.ConnectivityManager
+import android.net.Network
+import android.net.NetworkCapabilities
 import android.os.Build
 import android.provider.Settings
 import android.telephony.TelephonyManager
@@ -17,12 +20,17 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.merge
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
+import timber.log.Timber
+import java.net.Inet4Address
+import java.net.Inet6Address
+import java.net.NetworkInterface
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -30,7 +38,7 @@ import javax.inject.Singleton
 class RtrConnectivityMonitor @Inject constructor(
     private val context: Context,
     private val telephonyManager: TelephonyManager,
-): ConnectivityMonitor {
+) : ConnectivityMonitor {
 
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
     private var monitorJob: Job? = null
@@ -88,13 +96,65 @@ class RtrConnectivityMonitor @Inject constructor(
             false
         }
 
+    // -------------------- IP ADDRESS CHANGED --------------------
+
+    private fun ipAddressFlow(context: Context) = callbackFlow<String?> {
+        val connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        var lastIp: String? = null
+
+        val networkCallback = object : ConnectivityManager.NetworkCallback() {
+            override fun onAvailable(network: Network) {
+                trySend(checkIp())
+            }
+
+            override fun onCapabilitiesChanged(network: Network, networkCapabilities: NetworkCapabilities) {
+                trySend(checkIp())
+            }
+
+            private fun checkIp(): String? {
+                val ip = getCurrentIpAddress()
+                if (ip != lastIp) {
+                    lastIp = ip
+                    return ip
+                }
+                return null
+            }
+        }
+
+        connectivityManager.registerDefaultNetworkCallback(networkCallback)
+        awaitClose { connectivityManager.unregisterNetworkCallback(networkCallback) }
+    }.distinctUntilChanged()
+
+    override fun getCurrentIpAddress(): String? {
+        return try {
+            NetworkInterface.getNetworkInterfaces()
+                .toList()
+                .asSequence()
+                .flatMap { it.inetAddresses.toList().asSequence() }
+                .filter { !it.isLoopbackAddress }
+                .mapNotNull { address ->
+                    when (address) {
+                        is Inet4Address -> address.hostAddress
+                        is Inet6Address -> address.hostAddress
+                            ?.substringBefore('%')
+
+                        else -> null
+                    }
+                }
+                .firstOrNull()
+        } catch (e: Exception) {
+            null
+        }
+    }
+
     // -------------------- PUBLIC START / STOP --------------------
 
     override fun start(
         onAirplaneEnabled: () -> Unit,
         onAirplaneDisabled: () -> Unit,
         onMobileDataEnabled: () -> Unit,
-        onMobileDataDisabled: () -> Unit
+        onMobileDataDisabled: () -> Unit,
+        onIpAddressChanged: (ipAddress: String?) -> Unit
     ) {
         if (monitorJob != null) return
 
@@ -102,16 +162,28 @@ class RtrConnectivityMonitor @Inject constructor(
 
             merge(
                 airplaneModeFlow()
+                    .onEach { Timber.d("Airplane mode changed to: $it") }
                     .drop(1)
+                    .debounce { 1_000 }
                     .onEach {
-                    if (it) onAirplaneEnabled() else onAirplaneDisabled()
-                },
+                        if (it) onAirplaneEnabled() else onAirplaneDisabled()
+                    },
 
                 mobileDataEnabledFlow()
+                    .onEach { Timber.d("mobile data enabled changed to: $it") }
                     .drop(1)
+                    .debounce { 1_000 }
                     .onEach {
-                    if (it) onMobileDataEnabled() else onMobileDataDisabled()
-                }
+                        if (it) onMobileDataEnabled() else onMobileDataDisabled()
+                    },
+
+                ipAddressFlow(context)
+                    .onEach { Timber.d("IP changed to: $it") }
+                    .drop(1)
+                    .debounce { 1_000 }
+                    .onEach {
+                        onIpAddressChanged(it)
+                    }
 
             ).collect()
         }

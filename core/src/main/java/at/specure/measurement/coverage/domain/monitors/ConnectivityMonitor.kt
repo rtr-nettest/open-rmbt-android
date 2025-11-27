@@ -6,7 +6,8 @@ interface ConnectivityMonitor {
         onAirplaneEnabled: () -> Unit,
         onAirplaneDisabled: () -> Unit,
         onMobileDataEnabled: () -> Unit,
-        onMobileDataDisabled: () -> Unit
+        onMobileDataDisabled: () -> Unit,
+        onIpAddressChanged: (ipAddress: String?) -> Unit
     )
 
     fun stop()
@@ -14,4 +15,6 @@ interface ConnectivityMonitor {
     fun isAirplaneModeCurrentlyEnabled(): Boolean
 
     fun isMobileDataEnabled(): Boolean
+
+    fun getCurrentIpAddress(): String?
 }

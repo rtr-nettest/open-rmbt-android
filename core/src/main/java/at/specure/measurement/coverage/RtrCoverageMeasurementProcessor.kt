@@ -23,6 +23,7 @@ import at.specure.measurement.coverage.domain.monitors.ConnectivityMonitor
 import at.specure.measurement.coverage.domain.validators.CoverageDataValidator
 import at.specure.measurement.coverage.domain.validators.LocationValidator
 import at.specure.measurement.coverage.presentation.CoverageMeasurementDataStateManager
+import at.specure.measurement.coverage.presentation.monitors.CoverageDataSimMonitor
 import at.specure.test.DeviceInfo
 import at.specure.test.toDeviceInfoLocation
 import kotlinx.coroutines.CoroutineExceptionHandler
@@ -31,7 +32,10 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import javax.inject.Inject
@@ -74,6 +78,8 @@ class RtrCoverageMeasurementProcessor @Inject constructor(
     private var sessionCollectorJob: Job? = null
     override val coroutineContext = EmptyCoroutineContext + coroutineExceptionHandler
     val stateManager = CoverageMeasurementDataStateManager(coverageMeasurementSettings, scope)
+    val dataSimMonitor = CoverageDataSimMonitor(scope = scope)
+    var dataSimMonitorJob: Job? = null
 
     override fun startCoverageSession(
         sessionCreated: ((CoverageMeasurementSession) -> Unit)?,
@@ -82,22 +88,40 @@ class RtrCoverageMeasurementProcessor @Inject constructor(
     ) {
         connectivityMonitor.start(
             onAirplaneEnabled = {
-                Timber.d("✈️ Airplane mode ENABLED → stopping session")
+                Timber.d("✈️ Airplane mode changed to ENABLED → stopping session")
                 stopCoverageSession()
             },
             onAirplaneDisabled = {
-                Timber.d("📶 Airplane mode DISABLED → resuming session")
+                Timber.d("📶 Airplane mode changed to DISABLED → resuming session")
                 resumeCoverageSession()
             },
             onMobileDataEnabled =  {
-                Timber.d("📶 Mobile data ENABLED → resuming session")
+                Timber.d("📶 Mobile data changed to ENABLED → resuming session")
                 resumeCoverageSession()
             },
             onMobileDataDisabled = {
-                Timber.d("📶 Mobile data DISABLED → stopping session")
+                Timber.d("📶 Mobile data changed to DISABLED → stopping session")
                 stopCoverageSession()
-            }
+            },
+            onIpAddressChanged = {
+                Timber.d("🌐 IP address changed to $it → stopping measurement")
+                // todo: this is not working properly
+//                onMeasurementStop()
+            },
         )
+        dataSimMonitorJob = scope.launch {
+            dataSimMonitor.activeDataSim
+                .onEach { Timber.d("data sim subsId changed to: $it") }
+                .drop(1)
+                .debounce { 1_000 }
+                .collect { subscriptionId ->
+                    Timber.d("📶 Active data sim changed to subId: $subscriptionId -> stopping measurement")
+                    onMeasurementStop()
+            }
+        }
+
+        dataSimMonitor.start()
+
         stateManager.initData()
         coverageSessionManager.createSession(scope)
 
@@ -171,6 +195,8 @@ class RtrCoverageMeasurementProcessor @Inject constructor(
                 )
 //                cleanData()
                 coverageMeasurementSettings.onStopMeasurementSession()
+                dataSimMonitorJob?.cancel()
+                dataSimMonitorJob = null
                 sessionCollectorJob?.cancel()
                 sessionCollectorJob = null
                 connectivityMonitor.stop()
