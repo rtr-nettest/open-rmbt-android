@@ -214,6 +214,9 @@ class RtrCoverageMeasurementProcessor @Inject constructor(
 
         val coverageMeasurementDataValue = stateManager.state.value ?: return
 
+        stateManager.updateLocation(location)
+        stateManager.updateNetworkInfo(networkInfo)
+
         if (!stateManager.isInStateToAddNewFences()) return
 
         val newTimestamp = System.currentTimeMillis()
@@ -252,8 +255,7 @@ class RtrCoverageMeasurementProcessor @Inject constructor(
             }
         }*/
 
-        stateManager.updateLocation(location)
-        stateManager.updateNetworkInfo(networkInfo)
+
 
     }
 
