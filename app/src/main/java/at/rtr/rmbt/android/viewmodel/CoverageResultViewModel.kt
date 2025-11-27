@@ -4,6 +4,7 @@ import androidx.core.graphics.scale
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.asFlow
+import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
 import at.rmbt.util.exception.HandledException
 import at.rtr.rmbt.android.config.AppConfig
@@ -38,6 +39,7 @@ import com.google.android.gms.maps.model.MarkerOptions
 import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.zip
@@ -66,7 +68,9 @@ class CoverageResultViewModel @Inject constructor(
 
     private var _pointsLiveData = MutableLiveData<List<CoverageMeasurementFenceRecord>>()
 //    private var _dedicatedSignalMeasurementSessionIdLiveData : LiveData<String?> = MutableLiveData<String>(null)
-    private var _coverageMeasurementDataLiveData : LiveData<CoverageMeasurementData?> = rtrCoverageMeasurementProcessor.coverageMeasurementData
+    private val _coverageMeasurementDataLiveData: LiveData<CoverageMeasurementData?> =
+        rtrCoverageMeasurementProcessor.stateManager.state.asLiveData(viewModelScope.coroutineContext)
+
 
     val testServerResultLiveData: LiveData<TestResultRecord?>
         get() {

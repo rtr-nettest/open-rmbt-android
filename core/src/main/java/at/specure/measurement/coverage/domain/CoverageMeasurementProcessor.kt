@@ -7,6 +7,7 @@ interface CoverageMeasurementProcessor {
     fun startCoverageSession(
         sessionCreated: ((session: CoverageMeasurementSession) -> Unit)?,
         sessionCreationError: ((e: Exception) -> Unit)?,
+        sessionStopped: (() -> Unit)?,
     )
 
     fun stopCoverageSession()

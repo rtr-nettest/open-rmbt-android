@@ -54,16 +54,16 @@ class FencesDataSource @Inject constructor(
 
     // TODO: Take network info when leaving the point - possible problem with changing the network type on map when created and when leaving
     fun updateSignalFenceAndSaveOnLeaving(
-        lastPoint: CoverageMeasurementFenceRecord?,
+        lastFence: CoverageMeasurementFenceRecord?,
         leaveTimestampMillis: Long,
         avgPingMillis: Double?,
     ) = io {
-        val updatedPoint = lastPoint?.copy(
+        val updatedFence = lastFence?.copy(
             leaveTimestampMillis = leaveTimestampMillis,
             avgPingMillis = avgPingMillis
         )
-        updatedPoint?.let {
-            signalMeasurementRepository.updateSignalMeasurementPoint(updatedPoint)
+        updatedFence?.let {
+            signalMeasurementRepository.updateSignalMeasurementFence(updatedFence)
         }
     }
 
@@ -74,14 +74,14 @@ class FencesDataSource @Inject constructor(
     }
 
     fun updateLastFenceRadius(
-        lastPoint: CoverageMeasurementFenceRecord?,
+        lastFence: CoverageMeasurementFenceRecord?,
         newRadiusValue: Double
     ) = io {
-        lastPoint?.let {
-            val updatedPoint = it.copy(
+        lastFence?.let {
+            val updatedFence = it.copy(
                 radiusMeters = newRadiusValue
             )
-            signalMeasurementRepository.updateSignalMeasurementPoint(updatedPoint)
+            signalMeasurementRepository.updateSignalMeasurementFence(updatedFence)
         }
     }
 }

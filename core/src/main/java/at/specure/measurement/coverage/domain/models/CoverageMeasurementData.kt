@@ -10,7 +10,7 @@ import at.specure.measurement.coverage.domain.models.state.CoverageMeasurementSt
 data class CoverageMeasurementData(
     val coverageMeasurementSession: CoverageMeasurementSession?,
     val coverageMeasurementSettings: CoverageMeasurementSettings, // TODO: maybe remove from here
-    val points: List<CoverageMeasurementFenceRecord> = mutableListOf(),
+    val fences: List<CoverageMeasurementFenceRecord> = mutableListOf(),
     val signalMeasurementException: Exception? = null,
     val currentNetworkInfo: NetworkInfo? = null,
     val currentLocation: LocationInfo? = null,

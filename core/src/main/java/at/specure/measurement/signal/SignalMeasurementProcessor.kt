@@ -154,6 +154,10 @@ class SignalMeasurementProcessor @Inject constructor(
         _signalMeasurementSessionErrorLiveData.postValue(exception)
     }
 
+    val measurementSessionStoppedCallback: () -> Unit = {
+        stopMeasurement(unstoppable = false)
+    }
+
     override fun startMeasurement(
         unstoppable: Boolean,
         signalMeasurementType: SignalMeasurementType
@@ -166,7 +170,11 @@ class SignalMeasurementProcessor @Inject constructor(
 
         if (lastSignalMeasurementType == SignalMeasurementType.DEDICATED) {
             Timber.d("Starting coverage session")
-            rtrCoverageMeasurementProcessor.startCoverageSession(measurementSessionInitializedCallback, measurementSessionInitializationErrorCallback)
+            rtrCoverageMeasurementProcessor.startCoverageSession(
+                sessionCreated = measurementSessionInitializedCallback,
+                sessionCreationError = measurementSessionInitializationErrorCallback,
+                sessionStopped = measurementSessionStoppedCallback,
+            )
         }
 
         if (isSignalMeasurementRunning()) {

@@ -190,7 +190,7 @@ class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback, Coverage
         updatePingValue(coverageMeasurementData)
         showCurrentNetworkType(coverageMeasurementData)
         showMeasurementError(coverageMeasurementData)
-        coverageViewModel.updateMapPoints(map, coverageMeasurementData?.points.toCoverageResultItemRecords())
+        coverageViewModel.updateMapPoints(map, coverageMeasurementData?.fences.toCoverageResultItemRecords())
     }
 
     private fun setSettingsButtonVisible(visible: Boolean) {

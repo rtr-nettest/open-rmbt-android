@@ -117,7 +117,7 @@ class SignalMeasurementRepositoryImpl(
         return dao.getSignalRecordNullable(id)
     }
 
-    override fun updateSignalMeasurementPoint(updatedPoint: CoverageMeasurementFenceRecord) {
+    override fun updateSignalMeasurementFence(updatedPoint: CoverageMeasurementFenceRecord) {
         dao.updateSignalMeasurementPoint(updatedPoint)
     }
 
@@ -226,6 +226,7 @@ class SignalMeasurementRepositoryImpl(
     }
 
     override fun sendFences(sessionId: String, fences: List<CoverageMeasurementFenceRecord>) {
+        // todo: update times before sending the fences (regarding real time of coverageRequest response arrival time)
         val coverageSession = retrieveCoverageSessionOrCreate(sessionId, null)
         if (coverageSession.isRegistered()) {
             clientUUID.value?.let {clientUuid ->

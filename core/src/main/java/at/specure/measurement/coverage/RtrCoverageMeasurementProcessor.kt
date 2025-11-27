@@ -1,6 +1,6 @@
 package at.specure.measurement.coverage
 
-import androidx.lifecycle.MutableLiveData
+import android.content.Context
 import androidx.lifecycle.asFlow
 import at.rmbt.util.exception.HandledException
 import at.rmbt.util.io
@@ -18,10 +18,11 @@ import at.specure.measurement.coverage.domain.CoverageSessionEvent
 import at.specure.measurement.coverage.domain.CoverageSessionManager
 import at.specure.measurement.coverage.domain.CoverageTimer
 import at.specure.measurement.coverage.domain.PingProcessor
-import at.specure.measurement.coverage.domain.models.CoverageMeasurementData
 import at.specure.measurement.coverage.domain.models.state.CoverageMeasurementState
+import at.specure.measurement.coverage.domain.monitors.ConnectivityMonitor
 import at.specure.measurement.coverage.domain.validators.CoverageDataValidator
 import at.specure.measurement.coverage.domain.validators.LocationValidator
+import at.specure.measurement.coverage.presentation.CoverageMeasurementDataStateManager
 import at.specure.test.DeviceInfo
 import at.specure.test.toDeviceInfoLocation
 import kotlinx.coroutines.CoroutineExceptionHandler
@@ -43,6 +44,7 @@ import kotlin.time.Duration.Companion.seconds
 
 @Singleton
 class RtrCoverageMeasurementProcessor @Inject constructor(
+    private val appContext: Context,
     private val coverageMeasurementSettings: CoverageMeasurementSettings,
     private val signalMeasurementRepository: SignalMeasurementRepository,
     private val config: Config,
@@ -51,11 +53,8 @@ class RtrCoverageMeasurementProcessor @Inject constructor(
     private val coveragePingProcessor: PingProcessor,
     private val fencesDataSource: FencesDataSource,
     private val coverageSessionManager: CoverageSessionManager,
+    private val connectivityMonitor: ConnectivityMonitor,
 ) : CoverageMeasurementProcessor, CoroutineScope {
-
-    val coverageMeasurementData: MutableLiveData<CoverageMeasurementData?> = MutableLiveData()
-    val currentSessionId: String?
-        get() = coverageMeasurementData.value?.coverageMeasurementSession?.sessionId
 
     private val coverageSessionTimer = CoverageTimer(
         scope = CoroutineScope(Dispatchers.Default + CoroutineName("MaxCoverageSessionTimer")),
@@ -74,16 +73,24 @@ class RtrCoverageMeasurementProcessor @Inject constructor(
     private var loadingFencesJob: Job? = null
     private var sessionCollectorJob: Job? = null
     override val coroutineContext = EmptyCoroutineContext + coroutineExceptionHandler
+    val stateManager = CoverageMeasurementDataStateManager(coverageMeasurementSettings, scope)
 
     override fun startCoverageSession(
         sessionCreated: ((CoverageMeasurementSession) -> Unit)?,
-        sessionCreationError: ((Exception) -> Unit)?
+        sessionCreationError: ((Exception) -> Unit)?,
+        sessionStopped: (() -> Unit)?,
     ) {
-        Timber.d("Starting ping with start coverage session")
-        prepareInitialData()
-        loadingFencesJob?.cancel()
-
-        // Start emitting session events
+//        airplaneModeMonitor.start(
+//            onEnabled = {
+//                Timber.d("✈️ Airplane mode ENABLED → stopping session")
+//                stopCoverageSession()
+//            },
+//            onDisabled = {
+//                Timber.d("📶 Airplane mode DISABLED → resuming session")
+//                resumeCoverageSession()
+//            }
+//        )
+        stateManager.initData()
         coverageSessionManager.createSession(scope)
 
         if (sessionCollectorJob == null) {
@@ -98,19 +105,10 @@ class RtrCoverageMeasurementProcessor @Inject constructor(
 
                             is CoverageSessionEvent.SessionCreated -> {
                                 val session = event.session
-
                                 sessionCreated?.invoke(session)   // 🔥 same callback you originally had
-
+                                loadingFencesJob?.cancel()
                                 loadingFencesJob = loadPoints(session.sessionId)
-
-                                coverageMeasurementData.postValue(
-                                    CoverageMeasurementData(
-                                        coverageMeasurementSession = session,
-                                        coverageMeasurementSettings = coverageMeasurementSettings
-                                    )
-                                )
-
-                                Timber.d("Session created: ${session.sessionId}")
+                                stateManager.onSessionCreated(session)
                             }
 
                             is CoverageSessionEvent.SessionRegistered -> {
@@ -135,7 +133,7 @@ class RtrCoverageMeasurementProcessor @Inject constructor(
                             }
 
                             CoverageSessionEvent.SessionEnded -> {
-                                // optional: cleanup UI or state
+                                sessionStopped?.invoke()
                             }
                         }
                     }
@@ -146,52 +144,39 @@ class RtrCoverageMeasurementProcessor @Inject constructor(
         }
     }
 
-
-    private fun prepareInitialData() {
-        coverageMeasurementData.postValue(
-            CoverageMeasurementData(
-                coverageMeasurementSettings = coverageMeasurementSettings,
-                coverageMeasurementSession = null,
-                signalMeasurementException = null,
-                currentNetworkInfo = null,
-                currentLocation = null,
-                currentPingMs = null,
-                currentPingStatus = null,
-            )
-        )
-    }
-
     override fun stopCoverageSession() {
         this.launch(CoroutineName("OnDedicatedSignalMeasurementStop")) {
             try {
                 val avgPingMillis = coveragePingProcessor.stopPing()?.average
-                val lastPoint = coverageMeasurementData.value?.points?.lastOrNull()
+                val lastFence = stateManager.getLastFence()
                 fencesDataSource.updateSignalFenceAndSaveOnLeaving(
-                    lastPoint,
+                    lastFence,
                     leaveTimestampMillis = System.currentTimeMillis(),
                     avgPingMillis = avgPingMillis
                 )
             } finally {
+                stateManager.onUpdateCoverageDataState(CoverageMeasurementState.FINISHED_LOOP_CORRECTLY)
+                val data = stateManager.state.value
                 signalMeasurementRepository.sendFences(
-                    coverageMeasurementData.value?.coverageMeasurementSession?.sessionId ?: "",
-                    coverageMeasurementData.value?.points ?: emptyList()
+                    data?.coverageMeasurementSession?.sessionId ?: "",
+                    data?.fences ?: emptyList()
                 )
 //                cleanData()
-                updateCoverageDataState(CoverageMeasurementState.FINISHED_LOOP_CORRECTLY)
                 coverageMeasurementSettings.onStopMeasurementSession()
                 sessionCollectorJob?.cancel()
                 sessionCollectorJob = null
+                connectivityMonitor.stop()
                 coverageSessionManager.endSession()
             }
         }
     }
 
     override fun pauseCoverageSession() {
-        updateCoverageDataState(CoverageMeasurementState.PAUSED)
+        stateManager.onUpdateCoverageDataState(CoverageMeasurementState.PAUSED)
     }
 
     override fun resumeCoverageSession() {
-        updateCoverageDataState(CoverageMeasurementState.RUNNING)
+        stateManager.onUpdateCoverageDataState(CoverageMeasurementState.RUNNING)
     }
 
     override fun getData(): CoverageMeasurementSession {
@@ -199,26 +184,16 @@ class RtrCoverageMeasurementProcessor @Inject constructor(
     }
 
     private suspend fun onStartAndRegistrationCompleted(registeredAndStartedSession: CoverageMeasurementSession) {
-        Timber.d("Starting ping w called")
+        stateManager.onUpdateCoverageDataState(CoverageMeasurementState.RUNNING)
         coveragePingProcessor.startPing(registeredAndStartedSession).collect {
-            coverageMeasurementData.postValue(
-                coverageMeasurementData.value?.copy(
-                    currentPingStatus = null,
-                    currentPingMs = it.pingStatistics?.average,
-                )
-            )
+            stateManager.updatePingData(it)
         }
         startMaxCoverageMeasurementSecondsReachedJob(session = registeredAndStartedSession)
         startMaxCoverageSessionSecondsReachedJob(session = registeredAndStartedSession)
-        updateCoverageDataState(CoverageMeasurementState.RUNNING)
     }
 
     private fun onError(e: Exception) {
-        coverageMeasurementData.postValue(
-            coverageMeasurementData.value?.copy(
-                signalMeasurementException = e,
-            )
-        )
+        stateManager.onException(e)
     }
 
     private fun startMaxCoverageMeasurementSecondsReachedJob(session: CoverageMeasurementSession) {
@@ -233,21 +208,18 @@ class RtrCoverageMeasurementProcessor @Inject constructor(
         }
     }
 
-    private fun updateCoverageDataState(state: CoverageMeasurementState) {
-        coverageMeasurementData.postValue(
-            coverageMeasurementData.value?.copy(
-                state = state
-            )
-        )
-    }
-
     fun onNewLocation(location: LocationInfo, networkInfo: NetworkInfo?) {
         // TODO: check how old is signal information + also handle no signal record in SignalMeasurementProcessor
         // TODO: check if airplane mode is enabled or not, check if mobile data are enabled
+
+        val coverageMeasurementDataValue = stateManager.state.value ?: return
+
+        if (!stateManager.isInStateToAddNewFences()) return
+
         val newTimestamp = System.currentTimeMillis()
         val newLocation = location.toDeviceInfoLocation()
         Timber.d("DeviceInfoLocation: $newLocation \nLocationInfo: $location")
-        val lastRecordedFence = coverageMeasurementData.value?.points?.lastOrNull()
+        val lastRecordedFence = coverageMeasurementDataValue.fences.lastOrNull()
         Timber.d("lastPoint = $lastRecordedFence")
         val isDataValidToSaveNewFence = mainCoverageDataValidator.areDataValidToSaveNewFence(
             newTimestamp = newTimestamp,
@@ -255,7 +227,7 @@ class RtrCoverageMeasurementProcessor @Inject constructor(
             newNetworkInfo = networkInfo,
             lastRecordedFenceRecord = lastRecordedFence
         )
-        val sessionId = coverageMeasurementData.value?.coverageMeasurementSession?.sessionId
+        val sessionId = coverageMeasurementDataValue.coverageMeasurementSession?.sessionId
         if (sessionId == null) {
             Timber.e("Signal measurement Session not initialized yet - sessionId missing")
             return
@@ -280,12 +252,8 @@ class RtrCoverageMeasurementProcessor @Inject constructor(
             }
         }*/
 
-        coverageMeasurementData.postValue(
-            coverageMeasurementData.value?.copy(
-                currentNetworkInfo = networkInfo,
-                currentLocation = location,
-            )
-        )
+        stateManager.updateLocation(location)
+        stateManager.updateNetworkInfo(networkInfo)
 
     }
 
@@ -310,6 +278,8 @@ class RtrCoverageMeasurementProcessor @Inject constructor(
         }
     }
 
+
+
     /**
      * Location is kept from original fence as we could end in the cascade of updates with drifting
      * original location to even few tenth of meters
@@ -324,14 +294,14 @@ class RtrCoverageMeasurementProcessor @Inject constructor(
             technologyId = signalRecord?.mobileNetworkType?.intValue,
         )
         updatedPoint?.let {
-            signalMeasurementRepository.updateSignalMeasurementPoint(updatedPoint)
+            signalMeasurementRepository.updateSignalMeasurementFence(updatedPoint)
         }
     }
 
     private fun isTheSameLocation(location: DeviceInfo.Location?): Boolean {
         return coverageLocationValidator.isTheSameLocation(
             newLocation = location,
-            lastSavedLocation = coverageMeasurementData.value?.points?.lastOrNull()?.location
+            lastSavedLocation = stateManager.getLastFence()?.location
         )
     }
 
@@ -351,33 +321,23 @@ class RtrCoverageMeasurementProcessor @Inject constructor(
             .asFlow().
             flowOn(Dispatchers.IO)
                 .collect { loadedPoints ->
-                    coverageMeasurementData.postValue(
-                        coverageMeasurementData.value?.copy(
-                            points = loadedPoints
-                        )
-                    )
-                    Timber.d("New points loaded ${loadedPoints.size}")
+                    stateManager.updatePoints(loadedPoints)
                 }
     }
 
     private fun cleanData() {
         loadingFencesJob?.cancel()
-        coverageMeasurementData.postValue(null)
+        stateManager.initData()
         coverageMeasurementSettings.signalMeasurementLastSessionId = null
     }
 
     private fun cleanPingDataOnly() {
-        coverageMeasurementData.postValue(
-            coverageMeasurementData.value?.copy(
-                currentPingStatus = null,
-                currentPingMs = null,
-            )
-        )
+        stateManager.updatePingData(null)
     }
 
     fun onCoverageConfigurationChanged() {
         fencesDataSource.updateLastFenceRadius(
-            coverageMeasurementData.value?.points?.lastOrNull(),
+            stateManager.getLastFence(),
             config.minDistanceMetersToLogNewLocationOnMapDuringSignalMeasurement.toDouble()
         )
     }
