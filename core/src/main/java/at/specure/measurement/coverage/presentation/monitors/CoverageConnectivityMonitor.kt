@@ -4,13 +4,8 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
-import android.net.ConnectivityManager
-import android.net.Network
-import android.net.NetworkCapabilities
-import android.net.NetworkRequest
 import android.os.Build
 import android.provider.Settings
-import android.telephony.SubscriptionManager
 import android.telephony.TelephonyManager
 import at.specure.measurement.coverage.domain.monitors.ConnectivityMonitor
 import kotlinx.coroutines.CoroutineScope
@@ -25,7 +20,6 @@ import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.merge
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
@@ -35,7 +29,6 @@ import javax.inject.Singleton
 @Singleton
 class RtrConnectivityMonitor @Inject constructor(
     private val context: Context,
-    private val connectivityManager: ConnectivityManager,
     private val telephonyManager: TelephonyManager,
 ): ConnectivityMonitor {
 
@@ -76,53 +69,6 @@ class RtrConnectivityMonitor @Inject constructor(
         ) == 1
     }
 
-    // -------------------- NETWORK AVAILABILITY --------------------
-
-    private fun networkAvailableFlow(): Flow<Boolean> = callbackFlow {
-
-        val callback = object : ConnectivityManager.NetworkCallback() {
-            override fun onAvailable(network: Network): Unit {trySend(true)}
-            override fun onLost(network: Network): Unit  {trySend(false)}
-        }
-
-        val request = NetworkRequest.Builder()
-            .addCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
-            .build()
-
-        connectivityManager.registerNetworkCallback(request, callback)
-
-        trySend(isCurrentlyOnline())
-
-        awaitClose {
-            connectivityManager.unregisterNetworkCallback(callback)
-        }
-
-    }.distinctUntilChanged()
-
-    private fun isCurrentlyOnline(): Boolean {
-        val network = connectivityManager.activeNetwork ?: return false
-        val caps = connectivityManager.getNetworkCapabilities(network) ?: return false
-        return caps.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
-    }
-
-    // -------------------- NETWORK TYPE --------------------
-
-    private fun networkTypeFlow(): Flow<NetworkType> =
-        networkAvailableFlow().map {
-            if (!it) NetworkType.NONE
-            else {
-                val caps = connectivityManager.getNetworkCapabilities(connectivityManager.activeNetwork)
-                when {
-                    caps?.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) == true ->
-                        NetworkType.WIFI
-                    caps?.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR) == true ->
-                        NetworkType.CELLULAR
-                    else -> NetworkType.OTHER
-                }
-            }
-        }.distinctUntilChanged()
-
-
     // -------------------- MOBILE DATA ENABLED --------------------
 
     private fun mobileDataEnabledFlow(): Flow<Boolean> =
@@ -133,7 +79,7 @@ class RtrConnectivityMonitor @Inject constructor(
             }
         }.distinctUntilChanged()
 
-    private fun isMobileDataEnabled(): Boolean =
+    override fun isMobileDataEnabled(): Boolean =
         try {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 telephonyManager.isDataEnabled
@@ -176,13 +122,3 @@ class RtrConnectivityMonitor @Inject constructor(
         monitorJob = null
     }
 }
-
-// -------------------- SUPPORT TYPES --------------------
-
-enum class NetworkType {
-    WIFI,
-    CELLULAR,
-    OTHER,
-    NONE
-}
-

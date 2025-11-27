@@ -351,11 +351,9 @@ class CoreModule {
     @Singleton
     fun provideConnectivityMonitor(
         context: Context,
-        connectivityManager: ConnectivityManager,
         telephonyManager: TelephonyManager,
     ): ConnectivityMonitor = RtrConnectivityMonitor(
         context,
-        connectivityManager,
         telephonyManager,
     )
 }

@@ -156,6 +156,7 @@ class SignalMeasurementProcessor @Inject constructor(
 
     val measurementSessionStoppedCallback: () -> Unit = {
         stopMeasurementFromCoverage()
+        SignalMeasurementService.stopIntent(context)
     }
 
     override fun startMeasurement(

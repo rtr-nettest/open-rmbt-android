@@ -12,4 +12,6 @@ interface ConnectivityMonitor {
     fun stop()
 
     fun isAirplaneModeCurrentlyEnabled(): Boolean
+
+    fun isMobileDataEnabled(): Boolean
 }

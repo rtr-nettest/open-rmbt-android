@@ -80,16 +80,24 @@ class RtrCoverageMeasurementProcessor @Inject constructor(
         sessionCreationError: ((Exception) -> Unit)?,
         sessionStopped: (() -> Unit)?,
     ) {
-//        airplaneModeMonitor.start(
-//            onEnabled = {
-//                Timber.d("✈️ Airplane mode ENABLED → stopping session")
-//                stopCoverageSession()
-//            },
-//            onDisabled = {
-//                Timber.d("📶 Airplane mode DISABLED → resuming session")
-//                resumeCoverageSession()
-//            }
-//        )
+        connectivityMonitor.start(
+            onAirplaneEnabled = {
+                Timber.d("✈️ Airplane mode ENABLED → stopping session")
+                stopCoverageSession()
+            },
+            onAirplaneDisabled = {
+                Timber.d("📶 Airplane mode DISABLED → resuming session")
+                resumeCoverageSession()
+            },
+            onMobileDataEnabled =  {
+                Timber.d("📶 Mobile data ENABLED → resuming session")
+                resumeCoverageSession()
+            },
+            onMobileDataDisabled = {
+                Timber.d("📶 Mobile data DISABLED → stopping session")
+                stopCoverageSession()
+            }
+        )
         stateManager.initData()
         coverageSessionManager.createSession(scope)
 
@@ -217,6 +225,9 @@ class RtrCoverageMeasurementProcessor @Inject constructor(
         stateManager.updateLocation(location)
         stateManager.updateNetworkInfo(networkInfo)
 
+        val isConnectionStateValid = checkForTheConnectionState()
+        if (!isConnectionStateValid) return
+
         if (!stateManager.isInStateToAddNewFences()) return
         if (location == null) return
 
@@ -258,6 +269,16 @@ class RtrCoverageMeasurementProcessor @Inject constructor(
 
 
 
+    }
+
+    private fun checkForTheConnectionState(): Boolean {
+        val airplaneModeEnabled = connectivityMonitor.isAirplaneModeCurrentlyEnabled()
+        val mobileDataEnabled = connectivityMonitor.isMobileDataEnabled()
+        if (airplaneModeEnabled || !mobileDataEnabled) {
+            stateManager.onUpdateCoverageDataState(CoverageMeasurementState.PAUSED)
+            return false
+        }
+        return true
     }
 
     private fun saveNewFence(

@@ -225,7 +225,7 @@ class SignalMeasurementService : CustomLifecycleService() {
         private const val ACTION_STOP = "KEY_ACTION_STOP"
         private const val ACTION_ALARM_STOP = "KEY_ACTION_ALARM_STOP"
 
-        private fun stopIntent(context: Context): Intent = Intent(context, SignalMeasurementService::class.java).setAction(ACTION_STOP)
+        fun stopIntent(context: Context): Intent = Intent(context, SignalMeasurementService::class.java).setAction(ACTION_STOP)
 
         private fun alarmStopIntent(context: Context): Intent = Intent(context, SignalMeasurementService::class.java).setAction(ACTION_ALARM_STOP)
 
