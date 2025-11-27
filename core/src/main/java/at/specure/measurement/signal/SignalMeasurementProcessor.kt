@@ -155,7 +155,7 @@ class SignalMeasurementProcessor @Inject constructor(
     }
 
     val measurementSessionStoppedCallback: () -> Unit = {
-        stopMeasurement(unstoppable = false)
+        stopMeasurementFromCoverage()
     }
 
     override fun startMeasurement(
@@ -175,6 +175,7 @@ class SignalMeasurementProcessor @Inject constructor(
                 sessionCreationError = measurementSessionInitializationErrorCallback,
                 sessionStopped = measurementSessionStoppedCallback,
             )
+            rtrCoverageMeasurementProcessor.onNewLocation(locationInfo, networkInfo)
         }
 
         if (isSignalMeasurementRunning()) {
@@ -184,16 +185,21 @@ class SignalMeasurementProcessor @Inject constructor(
 
     override fun stopMeasurement(unstoppable: Boolean) {
         Timber.w("stopMeasurement")
-
-        chunk?.state = SignalMeasurementState.SUCCESS
-        commitChunkData(ValidChunkPostProcessing.NOTHING)
+        stopMeasurementFromCoverage()
         isUnstoppable = unstoppable
         if (lastSignalMeasurementType == SignalMeasurementType.DEDICATED) {
             rtrCoverageMeasurementProcessor.stopCoverageSession()
         }
+    }
+
+    fun stopMeasurementFromCoverage() {
+        Timber.w("stopMeasurement")
+        chunk?.state = SignalMeasurementState.SUCCESS
+        commitChunkData(ValidChunkPostProcessing.NOTHING)
         resetStateData()
         postStateData()
     }
+
 
     private fun resetStateData() {
         _isActive = false

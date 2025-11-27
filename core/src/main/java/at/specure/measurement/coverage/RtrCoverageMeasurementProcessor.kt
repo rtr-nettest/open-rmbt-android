@@ -208,7 +208,7 @@ class RtrCoverageMeasurementProcessor @Inject constructor(
         }
     }
 
-    fun onNewLocation(location: LocationInfo, networkInfo: NetworkInfo?) {
+    fun onNewLocation(location: LocationInfo?, networkInfo: NetworkInfo?) {
         // TODO: check how old is signal information + also handle no signal record in SignalMeasurementProcessor
         // TODO: check if airplane mode is enabled or not, check if mobile data are enabled
 
@@ -218,6 +218,7 @@ class RtrCoverageMeasurementProcessor @Inject constructor(
         stateManager.updateNetworkInfo(networkInfo)
 
         if (!stateManager.isInStateToAddNewFences()) return
+        if (location == null) return
 
         val newTimestamp = System.currentTimeMillis()
         val newLocation = location.toDeviceInfoLocation()
