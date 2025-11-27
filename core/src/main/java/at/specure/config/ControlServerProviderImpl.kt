@@ -15,8 +15,13 @@
 package at.specure.config
 
 import at.rmbt.client.control.ControlEndpointProvider
+import at.specure.data.ControlServerSettings
+import timber.log.Timber
 
-class ControlServerProviderImpl(private val config: Config) : ControlEndpointProvider {
+class ControlServerProviderImpl(
+    private val config: Config,
+    private val controlServerSettings: ControlServerSettings,
+) : ControlEndpointProvider {
 
     private val protocol = if (config.controlServerUseSSL) "https://" else "http://"
 
@@ -24,6 +29,9 @@ class ControlServerProviderImpl(private val config: Config) : ControlEndpointPro
 
     override val host: String
         get() = protocol + config.controlServerHost
+
+    override val statisticsHost: String
+        get() = controlServerSettings.statisticsMasterServerUrl!!
 
     override val checkSettingsUrl: String
         get() = "$host$routePath/${config.controlServerSettingsEndpoint}"
@@ -47,7 +55,10 @@ class ControlServerProviderImpl(private val config: Config) : ControlEndpointPro
         get() = "$host$routePath/${config.controlServerResultsBasicPath}"
 
     override val getTestResultsOpenDataUrl: String
-        get() = "$host$routePath/${config.controlServerResultsOpenDataPath}"
+        get() {
+            val statisticHost = "$statisticsHost/${config.controlServerResultsOpenDataPath}"
+            return statisticHost
+        }
 
     override val getTestResultsDetailsUrl: String
         get() = "$host$routePath/${config.controlServerTestResultDetailsEndpoint}"
