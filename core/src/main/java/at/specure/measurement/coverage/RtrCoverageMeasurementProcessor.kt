@@ -166,6 +166,8 @@ class RtrCoverageMeasurementProcessor @Inject constructor(
 
                             CoverageSessionEvent.SessionEnded -> {
                                 sessionStopped?.invoke()
+                                sessionCollectorJob?.cancel()
+                                sessionCollectorJob = null
                             }
                         }
                     }
@@ -177,30 +179,30 @@ class RtrCoverageMeasurementProcessor @Inject constructor(
     }
 
     override fun stopCoverageSession() {
-        this.launch(CoroutineName("OnDedicatedSignalMeasurementStop")) {
-            try {
-                val avgPingMillis = coveragePingProcessor.stopPing()?.average
-                val lastFence = stateManager.getLastFence()
-                fencesDataSource.updateSignalFenceAndSaveOnLeaving(
-                    lastFence,
-                    leaveTimestampMillis = System.currentTimeMillis(),
-                    avgPingMillis = avgPingMillis
-                )
-            } finally {
-                stateManager.onUpdateCoverageDataState(CoverageMeasurementState.FINISHED_LOOP_CORRECTLY)
-                val data = stateManager.state.value
-                signalMeasurementRepository.sendFences(
-                    data?.coverageMeasurementSession?.sessionId ?: "",
-                    data?.fences ?: emptyList()
-                )
+        if (stateManager.state.value.state != CoverageMeasurementState.FINISHED_LOOP_CORRECTLY) {
+            this.launch(CoroutineName("OnDedicatedSignalMeasurementStop")) {
+                try {
+                    val avgPingMillis = coveragePingProcessor.stopPing()?.average
+                    val lastFence = stateManager.getLastFence()
+                    fencesDataSource.updateSignalFenceAndSaveOnLeaving(
+                        lastFence,
+                        leaveTimestampMillis = System.currentTimeMillis(),
+                        avgPingMillis = avgPingMillis
+                    )
+                    stateManager.onUpdateCoverageDataState(CoverageMeasurementState.FINISHED_LOOP_CORRECTLY)
+                    val data = stateManager.state.value
+                    signalMeasurementRepository.sendFences(
+                        data?.coverageMeasurementSession?.sessionId ?: "",
+                        data?.fences ?: emptyList()
+                    )
+                } finally {
 //                cleanData()
-                coverageMeasurementSettings.onStopMeasurementSession()
-                dataSimMonitorJob?.cancel()
-                dataSimMonitorJob = null
-                sessionCollectorJob?.cancel()
-                sessionCollectorJob = null
-                connectivityMonitor.stop()
-                coverageSessionManager.endSession()
+                    coverageMeasurementSettings.onStopMeasurementSession()
+                    coverageSessionManager.endSession()
+                    dataSimMonitorJob?.cancel()
+                    dataSimMonitorJob = null
+                    connectivityMonitor.stop()
+                }
             }
         }
     }

@@ -92,6 +92,7 @@ class SignalMeasurementService : CustomLifecycleService() {
     }
 
     override fun onDestroy() {
+        stopForeground(STOP_FOREGROUND_REMOVE)
         super.onDestroy()
         Timber.v("SERVICE onDestroy")
     }
@@ -122,7 +123,8 @@ class SignalMeasurementService : CustomLifecycleService() {
         cancelSignalMeasurementStopAlarm()
         Timber.i("Signal measurement stopped")
         processor.stopMeasurement(false)
-        stopForeground(true)
+        stopForeground(STOP_FOREGROUND_REMOVE)
+        stopSelf()
     }
 
     private fun setEndAlarm() {
