@@ -54,7 +54,6 @@ import at.specure.measurement.coverage.RtrCoverageSessionManager
 import at.specure.measurement.coverage.domain.CoverageSessionManager
 import at.specure.measurement.coverage.domain.PingProcessor
 import at.specure.measurement.coverage.domain.monitors.ConnectivityMonitor
-import at.specure.measurement.coverage.domain.monitors.DataSimMonitor
 import at.specure.measurement.coverage.domain.validators.CoverageDataValidator
 import at.specure.measurement.coverage.presentation.validators.CoverageDurationValidator
 import at.specure.measurement.coverage.presentation.validators.CoverageLocationValidator
@@ -63,8 +62,7 @@ import at.specure.measurement.coverage.domain.validators.DurationValidator
 import at.specure.measurement.coverage.domain.validators.LocationValidator
 import at.specure.measurement.coverage.domain.validators.NetworkValidator
 import at.specure.measurement.coverage.presentation.monitors.RtrConnectivityMonitor
-import at.specure.measurement.coverage.presentation.RtrPingProcessor
-import at.specure.measurement.coverage.presentation.monitors.CoverageDataSimMonitor
+import at.specure.measurement.coverage.presentation.ping.RtrPingProcessor
 import at.specure.measurement.coverage.presentation.validators.MainCoverageDataValidator
 import at.specure.test.TestController
 import at.specure.test.TestControllerImpl

@@ -1,7 +1,6 @@
-package at.specure.measurement.coverage.presentation
+package at.specure.measurement.coverage.presentation.ping
 
 import at.specure.client.PingClientConfiguration
-import at.specure.client.PingResult
 import at.specure.client.UdpHmacPingFlow
 import at.specure.data.entity.CoverageMeasurementSession
 import at.specure.eval.PingEvaluator
@@ -9,6 +8,7 @@ import at.specure.eval.PingStats
 import at.specure.measurement.coverage.domain.models.PingData
 import at.specure.measurement.coverage.domain.PingProcessor
 import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
@@ -26,10 +26,11 @@ private const val PING_PROTOCOL_ERROR_RESPONSE_HEADER: String = "RE01"
 private const val PING_EVALUATE_LAST_N_ITEMS: Int = 10
 
 @Singleton
-class RtrPingProcessor: PingProcessor {
+class RtrPingProcessor : PingProcessor {
 
     private var pingEvaluator: PingEvaluator? = null
     private var pingClient: UdpHmacPingFlow? = null
+    private var pingJob: Job? = null
     private val debug = true
 
     @OptIn(FlowPreview::class)

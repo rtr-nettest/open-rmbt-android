@@ -76,6 +76,7 @@ class RtrCoverageMeasurementProcessor @Inject constructor(
     }
     private var loadingFencesJob: Job? = null
     private var sessionCollectorJob: Job? = null
+    private var pingJob: Job? = null
     override val coroutineContext = EmptyCoroutineContext + coroutineExceptionHandler
     val stateManager = CoverageMeasurementDataStateManager(coverageMeasurementSettings, scope)
     val dataSimMonitor = CoverageDataSimMonitor(scope = scope)
@@ -109,7 +110,7 @@ class RtrCoverageMeasurementProcessor @Inject constructor(
 //                onMeasurementStop()
             },
         )
-        dataSimMonitorJob = scope.launch {
+        dataSimMonitorJob = scope.launch() {
             dataSimMonitor.activeDataSim
                 .onEach { Timber.d("data sim subsId changed to: $it") }
                 .drop(1)
@@ -145,9 +146,7 @@ class RtrCoverageMeasurementProcessor @Inject constructor(
 
                             is CoverageSessionEvent.SessionRegistered -> {
                                 // this replaces your onSessionRegistered callback
-                                scope.launch(Dispatchers.IO) {
-                                    onStartAndRegistrationCompleted(event.session)
-                                }
+                                onStartAndRegistrationCompleted(event.session)
                             }
 
                             is CoverageSessionEvent.SessionRegistrationRetrying -> {
@@ -168,6 +167,7 @@ class RtrCoverageMeasurementProcessor @Inject constructor(
                                 sessionStopped?.invoke()
                                 sessionCollectorJob?.cancel()
                                 sessionCollectorJob = null
+                                cancelPingJob()
                             }
                         }
                     }
@@ -221,11 +221,21 @@ class RtrCoverageMeasurementProcessor @Inject constructor(
 
     private suspend fun onStartAndRegistrationCompleted(registeredAndStartedSession: CoverageMeasurementSession) {
         stateManager.onUpdateCoverageDataState(CoverageMeasurementState.RUNNING)
-        coveragePingProcessor.startPing(registeredAndStartedSession).collect {
-            stateManager.updatePingData(it)
+        Timber.d("Starting ping")
+        cancelPingJob()
+        pingJob = scope.launch(CoroutineName("PingJobCoroutine")) {
+            coveragePingProcessor.startPing(registeredAndStartedSession).collect { pingData ->
+                stateManager.updatePingData(pingData)
+            }
         }
         startMaxCoverageMeasurementSecondsReachedJob(session = registeredAndStartedSession)
         startMaxCoverageSessionSecondsReachedJob(session = registeredAndStartedSession)
+        Timber.d("Starting cancellation jobs")
+    }
+
+    private fun cancelPingJob() {
+        pingJob?.cancel()
+        pingJob = null
     }
 
     private fun onError(e: Exception) {
@@ -234,7 +244,7 @@ class RtrCoverageMeasurementProcessor @Inject constructor(
 
     private fun startMaxCoverageMeasurementSecondsReachedJob(session: CoverageMeasurementSession) {
         session.maxCoverageMeasurementSeconds?.let { maxCoverageMeasurementSeconds ->
-            Timber.d("Starting maxCoverageMeasurementSeconds timer with ${maxCoverageMeasurementSeconds.seconds} seconds")
+            Timber.d("Starting maxCoverageMeasurementSeconds timer with ${maxCoverageMeasurementSeconds.seconds.inWholeSeconds} seconds")
             coverageMeasurementTimer.start(maxCoverageMeasurementSeconds.seconds, {
                 Timber.d("Stopping coverage measurement because of max time reached")
                 onMeasurementStop()
@@ -244,7 +254,7 @@ class RtrCoverageMeasurementProcessor @Inject constructor(
 
     private fun startMaxCoverageSessionSecondsReachedJob(session: CoverageMeasurementSession) {
         session.maxCoverageSessionSeconds?.let { maxCoverageSessionSeconds ->
-            Timber.d("Starting maxCoverageSessionSeconds timer with ${maxCoverageSessionSeconds.seconds} seconds")
+            Timber.d("Starting maxCoverageSessionSeconds timer with ${maxCoverageSessionSeconds.seconds.inWholeSeconds} seconds")
             coverageSessionTimer.start(maxCoverageSessionSeconds.seconds, {
                 Timber.d("Stopping coverage session because of max time reached")
                 stopCoverageSession()
