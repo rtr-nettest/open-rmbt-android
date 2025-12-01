@@ -1030,9 +1030,9 @@ data class CoverageResultRequestBody(
     val testUUID: String,
     @SerializedName("client_uuid")
     val clientUUID: String,
-//    val sequenceNumber: Int,
-//    @SerializedName("time_ns")
-//    val timeNanos: Long,
+    val sequenceNumber: Int,
+    @SerializedName("time_ns")
+    val timeNanos: Long,
     @SerializedName("client_version")
     val clientVersion: String,
     @SerializedName("client_language")

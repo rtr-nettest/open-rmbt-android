@@ -62,6 +62,8 @@ import at.specure.util.exception.DataMissingException
 import com.google.gson.JsonArray
 import com.google.gson.JsonParser
 import java.util.UUID
+import kotlin.time.Duration.Companion.milliseconds
+import kotlin.time.Duration.Companion.nanoseconds
 
 const val UNKNOWN = "UNKNOWN"
 
@@ -543,6 +545,8 @@ fun CoverageMeasurementSession.toCoverageResultRequest(
     apiLevel = deviceInfo.apiLevel,
     softwareVersionCode = deviceInfo.softwareVersionCode.toString(),
     fences = fences.toRequest(startTimeMillis),
+    sequenceNumber = sequenceNumber,
+    timeNanos = startResponseReceivedMillis.milliseconds.inWholeNanoseconds
 )
 
 fun List<CoverageMeasurementFenceRecord>.toRequest(measurementStartMillis: Long): List<FenceBody> {

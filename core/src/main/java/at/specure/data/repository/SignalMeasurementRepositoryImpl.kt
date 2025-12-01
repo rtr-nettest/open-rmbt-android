@@ -157,6 +157,7 @@ class SignalMeasurementRepositoryImpl(
                     startResponseReceivedMillis = System.currentTimeMillis(),
                     maxCoverageMeasurementSeconds = it.maxCoverageMeasurementSeconds,
                     maxCoverageSessionSeconds = it.maxCoverageMeasurementSeconds,
+                    sequenceNumber = coverageSession.sequenceNumber,
                 )
             )
         }
@@ -304,7 +305,8 @@ class SignalMeasurementRepositoryImpl(
                         measurementId = record.id,
                         serverSessionId = result.success.uuid,
                         remoteIpAddress = "", // TODO need to fill that field
-                        provider = "" // TODO need to fill that field
+                        provider = "", // TODO need to fill that field
+                        sequenceNumber = 0,
                     )
                     session?.let { signalMeasurementSession ->
                         dao.saveDedicatedSignalMeasurementSession(signalMeasurementSession)

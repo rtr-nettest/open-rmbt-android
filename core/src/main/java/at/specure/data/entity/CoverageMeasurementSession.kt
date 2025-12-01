@@ -81,4 +81,9 @@ data class CoverageMeasurementSession(
      * How many times app tried to send the coverage measurement session results to the server.
      */
     val retryCount: Int = 0,
+
+    /**
+     * Number of session item order in the loop.
+     */
+    val sequenceNumber: Int = 0,
 )
