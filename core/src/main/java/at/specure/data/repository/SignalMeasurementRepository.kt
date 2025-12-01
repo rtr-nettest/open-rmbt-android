@@ -56,11 +56,13 @@ interface SignalMeasurementRepository {
 
     fun loadSignalMeasurementPointRecordsForMeasurement(measurementId: String): LiveData<List<CoverageMeasurementFenceRecord>>
 
+    fun loadSignalMeasurementPointRecordsForMeasurementList(measurementId: String): List<CoverageMeasurementFenceRecord>
+
     suspend fun getSignalMeasurementRecord(id: String?): SignalRecord?
 
     fun updateSignalMeasurementFence(updatedPoint: CoverageMeasurementFenceRecord)
 
     fun registerCoverageMeasurement(coverageSessionId: String?, measurementId: String?): Flow<Boolean>
 
-    fun sendFences(sessionId: String, fences: List<CoverageMeasurementFenceRecord>)
+    fun sendFences(sessionId: String)
 }

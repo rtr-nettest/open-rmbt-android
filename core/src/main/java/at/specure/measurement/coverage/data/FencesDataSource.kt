@@ -52,7 +52,7 @@ class FencesDataSource @Inject constructor(
 
     }
 
-    // TODO: Take network info when leaving the point - possible problem with changing the network type on map when created and when leaving
+    // TODO: Take network info when leaving the point? - possible problem with changing the network type on map when created and when leaving
     fun updateSignalFenceAndSaveOnLeaving(
         lastFence: CoverageMeasurementFenceRecord?,
         leaveTimestampMillis: Long,

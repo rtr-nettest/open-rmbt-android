@@ -32,7 +32,10 @@ interface SignalMeasurementDao {
     fun getSignalMeasurementChunk(chunkId: String): SignalMeasurementChunk?
 
     @Query("SELECT * FROM ${Tables.SIGNAL_MEASUREMENT_FENCE} WHERE sessionId=:sessionId ORDER BY sequenceNumber ASC")
-    fun getSignalMeasurementPoints(sessionId: String): LiveData<List<CoverageMeasurementFenceRecord>>
+    fun getCoverageMeasurementFences(sessionId: String): LiveData<List<CoverageMeasurementFenceRecord>>
+
+    @Query("SELECT * FROM ${Tables.SIGNAL_MEASUREMENT_FENCE} WHERE sessionId=:sessionId ORDER BY sequenceNumber ASC")
+    fun getCoverageMeasurementFencesList(sessionId: String): List<CoverageMeasurementFenceRecord>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun saveSignalMeasurementPoint(point: CoverageMeasurementFenceRecord)

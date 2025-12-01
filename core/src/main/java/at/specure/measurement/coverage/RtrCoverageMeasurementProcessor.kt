@@ -192,8 +192,7 @@ class RtrCoverageMeasurementProcessor @Inject constructor(
                     stateManager.onUpdateCoverageDataState(CoverageMeasurementState.FINISHED_LOOP_CORRECTLY)
                     val data = stateManager.state.value
                     signalMeasurementRepository.sendFences(
-                        data?.coverageMeasurementSession?.sessionId ?: "",
-                        data?.fences ?: emptyList()
+                        data?.coverageMeasurementSession?.sessionId ?: ""
                     )
                 } finally {
 //                cleanData()

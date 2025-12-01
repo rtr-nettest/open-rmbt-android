@@ -110,7 +110,11 @@ class SignalMeasurementRepositoryImpl(
     }
 
     override fun loadSignalMeasurementPointRecordsForMeasurement(measurementId: String): LiveData<List<CoverageMeasurementFenceRecord>> {
-        return dao.getSignalMeasurementPoints(measurementId)
+        return dao.getCoverageMeasurementFences(measurementId)
+    }
+
+    override fun loadSignalMeasurementPointRecordsForMeasurementList(measurementId: String): List<CoverageMeasurementFenceRecord> {
+        return dao.getCoverageMeasurementFencesList(measurementId)
     }
 
     override suspend fun getSignalMeasurementRecord(id: String?): SignalRecord? {
@@ -225,14 +229,17 @@ class SignalMeasurementRepositoryImpl(
             }
     }
 
-    override fun sendFences(sessionId: String, fences: List<CoverageMeasurementFenceRecord>) {
+    override fun sendFences(sessionId: String) {
         // todo: update times before sending the fences (regarding real time of coverageRequest response arrival time)
         val coverageSession = retrieveCoverageSessionOrCreate(sessionId, null)
         if (coverageSession.isRegistered()) {
+            val fencesForSession = dao.getCoverageMeasurementFencesList(coverageSession.sessionId)
             clientUUID.value?.let {clientUuid ->
-                val requestBody = coverageSession.toCoverageResultRequest(clientUuid, deviceInfo, config, fences)
-                client.coverageResult(requestBody)
-                // TODO: enqueue sending with worker in case of failed send
+                fencesForSession?.let { fences ->
+                    val requestBody = coverageSession.toCoverageResultRequest(clientUuid, deviceInfo, config, fencesForSession)
+                    client.coverageResult(requestBody)
+                    // TODO: enqueue sending with worker in case of failed send
+                }
             }
         }
     }
