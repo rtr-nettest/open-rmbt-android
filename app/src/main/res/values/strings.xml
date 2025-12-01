@@ -300,7 +300,7 @@
     <string name="error_sync_code_short">The code must consist of twelve characters</string>
 
     <string name="notification_signal_test_title">Coverage measurement is running</string>
-    <string name="notification_signal_test_text">RTR-NetTest signal measurement is running in the background</string>
+    <string name="notification_signal_test_text">RTR-NetTest coverage measurement is running in the background</string>
 
     <string name="notification_loop_mode_finished_title">Loop mode finished</string>
 
