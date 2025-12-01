@@ -157,7 +157,7 @@ class SignalMeasurementProcessor @Inject constructor(
     val measurementSessionStoppedCallback: () -> Unit = {
         stopMeasurement(false)
         Timber.d("Stopping service from coverage measurement")
-        SignalMeasurementService.stopIntent(context)
+        context.startService(SignalMeasurementService.stopIntent(context))
     }
 
     override fun startMeasurement(

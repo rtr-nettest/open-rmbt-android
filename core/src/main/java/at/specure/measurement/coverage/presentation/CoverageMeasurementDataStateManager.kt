@@ -64,10 +64,21 @@ class CoverageMeasurementDataStateManager(
     }
 
     fun onUpdateCoverageDataState(newState: CoverageMeasurementState) {
-        update {
-            copy(state = newState)
+        val currentState = _state.value.state
+        when (newState) {
+            CoverageMeasurementState.RUNNING ->
+                if (currentState == CoverageMeasurementState.PAUSED || currentState == CoverageMeasurementState.INITIALIZING) {
+                    updateState(newState)
+                }
+            CoverageMeasurementState.PAUSED ->
+                if (currentState == CoverageMeasurementState.RUNNING || currentState == CoverageMeasurementState.INITIALIZING) {
+                    updateState(newState)
+                }
+            CoverageMeasurementState.FINISHED_LOOP_CORRECTLY,
+            CoverageMeasurementState.INITIALIZING, -> {
+                updateState(newState)
+            }
         }
-        Timber.d("Session state updated to: ${newState.name}")
     }
 
     fun updateLocation(location: LocationInfo?) = update {
@@ -94,6 +105,14 @@ class CoverageMeasurementDataStateManager(
             copy(fences = loadedFences)
         }
         Timber.d("New fences loaded ${loadedFences.size}")
+    }
+
+
+    private fun updateState(newState: CoverageMeasurementState) {
+        update {
+            copy(state = newState)
+        }
+        Timber.d("Session state updated to: ${newState.name}")
     }
 
     private inline fun update(
