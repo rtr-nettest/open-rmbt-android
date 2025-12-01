@@ -192,6 +192,7 @@ class SignalMeasurementProcessor @Inject constructor(
         commitChunkData(ValidChunkPostProcessing.NOTHING)
         isUnstoppable = unstoppable
         if (lastSignalMeasurementType == SignalMeasurementType.DEDICATED) {
+            Timber.d("Stopping coverage session from SignalMeasurementProcessor")
             rtrCoverageMeasurementProcessor.stopCoverageSession()
         }
         resetStateData()

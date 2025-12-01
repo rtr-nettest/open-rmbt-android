@@ -121,7 +121,7 @@ class SignalMeasurementService : CustomLifecycleService() {
     private fun stopMeasurement() {
         releaseWakeLock()
         cancelSignalMeasurementStopAlarm()
-        Timber.i("Signal measurement stopped")
+        Timber.d("Stoping coverage session SMS1")
         processor.stopMeasurement(false)
         stopForeground(STOP_FOREGROUND_REMOVE)
         stopSelf()

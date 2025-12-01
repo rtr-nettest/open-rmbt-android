@@ -168,6 +168,7 @@ class HomeViewModel @Inject constructor(
         } else {
             producer?.let {
                 if (it.isActive) {
+                    Timber.d("Stopping coverage session HVM1")
                     it.stopMeasurement(false)
                 } else {
                     Timber.d("Starting coverage session HVM2")
@@ -199,6 +200,7 @@ class HomeViewModel @Inject constructor(
 
     fun stopSignalMeasurement() {
         coverageMeasurementSettings.signalMeasurementIsRunning = false
+        Timber.d("Stopping coverage session HVM2")
         producer?.stopMeasurement(false)
     }
 

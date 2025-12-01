@@ -478,6 +478,7 @@ class MeasurementService : CustomLifecycleService(), CoroutineScope {
     private fun stopSignalMeasurement() {
         Timber.d("Signal measurement stopped")
         signalMeasurementPauseRequired = false
+        Timber.d("Stopping coverage session MS1")
         signalMeasurementProducer?.stopMeasurement(false)
     }
 

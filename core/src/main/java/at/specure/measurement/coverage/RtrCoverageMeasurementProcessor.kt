@@ -88,7 +88,7 @@ class RtrCoverageMeasurementProcessor @Inject constructor(
     ) {
         connectivityMonitor.start(
             onAirplaneEnabled = {
-                Timber.d("✈️ Airplane mode changed to ENABLED → stopping session")
+                Timber.d("✈️ Airplane mode changed to ENABLED → stopping coverage session")
                 stopCoverageSession()
             },
             onAirplaneDisabled = {
@@ -100,7 +100,7 @@ class RtrCoverageMeasurementProcessor @Inject constructor(
                 resumeCoverageSession()
             },
             onMobileDataDisabled = {
-                Timber.d("📶 Mobile data changed to DISABLED → stopping session")
+                Timber.d("📶 Mobile data changed to DISABLED → stopping coverage session")
                 stopCoverageSession()
             },
             onIpAddressChanged = {
@@ -191,6 +191,7 @@ class RtrCoverageMeasurementProcessor @Inject constructor(
                     )
                     stateManager.onUpdateCoverageDataState(CoverageMeasurementState.FINISHED_LOOP_CORRECTLY)
                     val data = stateManager.state.value
+                    Timber.d("Sending coverageResult")
                     signalMeasurementRepository.sendFences(
                         data?.coverageMeasurementSession?.sessionId ?: ""
                     )
@@ -233,13 +234,21 @@ class RtrCoverageMeasurementProcessor @Inject constructor(
 
     private fun startMaxCoverageMeasurementSecondsReachedJob(session: CoverageMeasurementSession) {
         session.maxCoverageMeasurementSeconds?.let { maxCoverageMeasurementSeconds ->
-            coverageMeasurementTimer.start(maxCoverageMeasurementSeconds.seconds, { onMeasurementStop() })
+            Timber.d("Starting maxCoverageMeasurementSeconds timer with ${maxCoverageMeasurementSeconds.seconds} seconds")
+            coverageMeasurementTimer.start(maxCoverageMeasurementSeconds.seconds, {
+                Timber.d("Stopping coverage measurement because of max time reached")
+                onMeasurementStop()
+            })
         }
     }
 
     private fun startMaxCoverageSessionSecondsReachedJob(session: CoverageMeasurementSession) {
         session.maxCoverageSessionSeconds?.let { maxCoverageSessionSeconds ->
-            coverageSessionTimer.start(maxCoverageSessionSeconds.seconds, { stopCoverageSession() })
+            Timber.d("Starting maxCoverageSessionSeconds timer with ${maxCoverageSessionSeconds.seconds} seconds")
+            coverageSessionTimer.start(maxCoverageSessionSeconds.seconds, {
+                Timber.d("Stopping coverage session because of max time reached")
+                stopCoverageSession()
+            })
         }
     }
 
