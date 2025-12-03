@@ -63,7 +63,6 @@ import com.google.gson.JsonArray
 import com.google.gson.JsonParser
 import java.util.UUID
 import kotlin.time.Duration.Companion.milliseconds
-import kotlin.time.Duration.Companion.nanoseconds
 
 const val UNKNOWN = "UNKNOWN"
 
@@ -527,7 +526,7 @@ fun CoverageMeasurementSession.toCoverageResultRequest(
     fences: List<CoverageMeasurementFenceRecord>,
 ) = CoverageResultRequestBody(
     clientUUID = clientUUID,
-    testUUID = this.serverSessionId ?: throw DataMissingException("Missing signal measurement server session ID"),
+    testUUID = this.serverMeasurementId ?: throw DataMissingException("Missing signal measurement server session ID"),
     platform = deviceInfo.platform,
     softwareVersion = deviceInfo.softwareVersionName,
     timezone = deviceInfo.timezone ?: UNKNOWN,

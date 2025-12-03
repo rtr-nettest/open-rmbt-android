@@ -30,6 +30,7 @@ class CoverageMeasurementDataStateManager(
             currentPingMs = null,
             currentPingStatus = null,
         )
+
     )
 
     val state: StateFlow<CoverageMeasurementData> = _state.asStateFlow()
@@ -44,6 +45,7 @@ class CoverageMeasurementDataStateManager(
         _state.value.fences.lastOrNull()
 
     fun initData() {
+        Timber.d("Session state updated to from init: ${CoverageMeasurementState.INITIALIZING.name}")
         _state.value =
             CoverageMeasurementData(
                 coverageMeasurementSettings = coverageMeasurementSettings,
@@ -54,13 +56,14 @@ class CoverageMeasurementDataStateManager(
                 currentPingMs = null,
                 currentPingStatus = null,
             )
+
     }
 
     fun onSessionCreated(session: CoverageMeasurementSession) {
         update {
             copy(coverageMeasurementSession = session)
         }
-        Timber.d("Session created: ${session.sessionId}")
+        Timber.d("Session created: ${session.localMeasurementId}")
     }
 
     fun onUpdateCoverageDataState(newState: CoverageMeasurementState) {

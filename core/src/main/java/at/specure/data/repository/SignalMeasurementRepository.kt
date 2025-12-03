@@ -48,9 +48,9 @@ interface SignalMeasurementRepository {
      */
     fun sendMeasurementChunk(chunkId: String, callback: SignalMeasurementChunkResultCallback): Flow<String?>
 
-    fun saveDedicatedMeasurementSession(session: CoverageMeasurementSession)
+    fun saveCoverageMeasurementSession(session: CoverageMeasurementSession)
 
-    fun getDedicatedMeasurementSession(sessionId: String): CoverageMeasurementSession?
+    fun getCoverageMeasurementSession(localMeasurementId: String): CoverageMeasurementSession?
 
     fun saveMeasurementPointRecord(point: CoverageMeasurementFenceRecord)
 
@@ -62,7 +62,9 @@ interface SignalMeasurementRepository {
 
     fun updateSignalMeasurementFence(updatedPoint: CoverageMeasurementFenceRecord)
 
-    fun registerCoverageMeasurement(coverageSessionId: String?, measurementId: String?): Flow<Boolean>
+    fun registerCoverageMeasurement(localMeasurementId: String): Flow<Boolean>
 
-    fun sendFences(sessionId: String)
+    suspend fun sendFences(sessionId: String)
+
+    suspend fun retrySendFences()
 }

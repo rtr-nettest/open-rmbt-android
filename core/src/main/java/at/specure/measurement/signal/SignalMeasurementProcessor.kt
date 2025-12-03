@@ -147,7 +147,7 @@ class SignalMeasurementProcessor @Inject constructor(
     }
 
     val measurementSessionInitializedCallback: (sessionId: CoverageMeasurementSession) -> Unit = { coverageMeasurementSession ->
-        _signalMeasurementSessionIdLiveData.postValue(coverageMeasurementSession.sessionId)
+        _signalMeasurementSessionIdLiveData.postValue(coverageMeasurementSession.localMeasurementId)
     }
 
     val measurementSessionInitializationErrorCallback: (exception: Exception) -> Unit = { exception ->

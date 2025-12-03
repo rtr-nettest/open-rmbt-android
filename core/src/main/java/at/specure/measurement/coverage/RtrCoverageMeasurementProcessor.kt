@@ -140,7 +140,7 @@ class RtrCoverageMeasurementProcessor @Inject constructor(
                                 val session = event.session
                                 sessionCreated?.invoke(session)   // 🔥 same callback you originally had
                                 loadingFencesJob?.cancel()
-                                loadingFencesJob = loadPoints(session.sessionId)
+                                loadingFencesJob = loadPoints(session.localMeasurementId)
                                 stateManager.onSessionCreated(session)
                             }
 
@@ -193,7 +193,7 @@ class RtrCoverageMeasurementProcessor @Inject constructor(
                     val data = stateManager.state.value
                     Timber.d("Sending coverageResult")
                     signalMeasurementRepository.sendFences(
-                        data?.coverageMeasurementSession?.sessionId ?: ""
+                        data?.coverageMeasurementSession?.localMeasurementId ?: ""
                     )
                 } finally {
 //                cleanData()
@@ -288,7 +288,7 @@ class RtrCoverageMeasurementProcessor @Inject constructor(
             newNetworkInfo = networkInfo,
             lastRecordedFenceRecord = lastRecordedFence
         )
-        val sessionId = coverageMeasurementDataValue.coverageMeasurementSession?.sessionId
+        val sessionId = coverageMeasurementDataValue.coverageMeasurementSession?.localMeasurementId
         if (sessionId == null) {
             Timber.e("Signal measurement Session not initialized yet - sessionId missing")
             return

@@ -63,7 +63,7 @@ class RtrCoverageSessionManager @Inject constructor(
 
         Timber.d("Continue in coverage measurement: $sessionId")
 
-        val loaded = signalMeasurementRepository.getDedicatedMeasurementSession(sessionId)
+        val loaded = signalMeasurementRepository.getCoverageMeasurementSession(sessionId)
 
         if (loaded != null) {
             handleSessionReady(loaded, coroutineScope)
@@ -77,10 +77,10 @@ class RtrCoverageSessionManager @Inject constructor(
     ) = coroutineScope.launch(CoroutineName("createNewSession")) {
 
         val session = CoverageMeasurementSession()
-        Timber.d("Creating new coverage measurement: ${session.sessionId}")
-        signalMeasurementRepository.saveDedicatedMeasurementSession(session)
+        Timber.d("Creating new coverage measurement: ${session.localMeasurementId}")
+        signalMeasurementRepository.saveCoverageMeasurementSession(session)
 
-        coverageMeasurementSettings.signalMeasurementLastSessionId = session.sessionId
+        coverageMeasurementSettings.signalMeasurementLastSessionId = session.localMeasurementId
 
         handleSessionReady(session, coroutineScope)
     }
@@ -94,7 +94,7 @@ class RtrCoverageSessionManager @Inject constructor(
         }
 
         // Already registered → resume
-        if (session.serverSessionId != null) {
+        if (session.serverMeasurementId != null) {
             coroutineScope.launch {
                 _sessionEvents.emit(CoverageSessionEvent.SessionRegistered(session))
             }
@@ -118,12 +118,12 @@ class RtrCoverageSessionManager @Inject constructor(
 
             try {
                 val ok = signalMeasurementRepository
-                    .registerCoverageMeasurement(session.sessionId, null)
+                    .registerCoverageMeasurement(session.localMeasurementId)
                     .first()
 
                 if (ok) {
                     val registered =
-                        signalMeasurementRepository.getDedicatedMeasurementSession(session.sessionId)
+                        signalMeasurementRepository.getCoverageMeasurementSession(session.localMeasurementId)
 
                     _sessionEvents.emit(
                         CoverageSessionEvent.SessionRegistered(registered!!)

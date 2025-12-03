@@ -5,29 +5,29 @@ import androidx.room.PrimaryKey
 import at.specure.data.Tables
 import java.util.UUID
 
-@Entity(tableName = Tables.SIGNAL_MEASUREMENT_SESSION)
+@Entity(tableName = Tables.COVERAGE_MEASUREMENT_SESSION)
 data class CoverageMeasurementSession(
 
 
     /**
-     * internal id of a signal measurement session
+     * internal id of a single coverage measurement in a loop
      */
     @PrimaryKey
-    val sessionId: String = UUID.randomUUID().toString(),
+    val localMeasurementId: String = UUID.randomUUID().toString(),
 
     /**
-     * Id of measurement record related to this session
+     * internal id of loop, which groups all measurements
      */
-    val measurementId: String? = null,
+    val localLoopId: String = UUID.randomUUID().toString(),
 
     /**
-     * server generated id of a signal measurement session, result will be sent with this UUID, also when loop - then it needs to be updated from coverageResultResponse
+     * server generated id of a signal measurement, result will be sent with this UUID, also when loop - then it needs to be updated from coverageResultResponse
      *
      * Signal serverSessionId UUID. Related only for one network in the loop. Another [SignalMeasurementRecord] must be used for another network.
      * Must be filled with data from server.
      *
      */
-    val serverSessionId: String? = null,
+    val serverMeasurementId: String? = null,
 
     /**
      * server serverSessionLoopId id of a signal measurement loop session

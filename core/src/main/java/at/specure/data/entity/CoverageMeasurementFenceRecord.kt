@@ -10,7 +10,7 @@ import at.specure.test.DeviceInfo
 import java.util.UUID
 
 @Keep
-@Entity(tableName = Tables.SIGNAL_MEASUREMENT_FENCE)
+@Entity(tableName = Tables.COVERAGE_MEASUREMENT_FENCE)
 data class CoverageMeasurementFenceRecord(
 
     @PrimaryKey
