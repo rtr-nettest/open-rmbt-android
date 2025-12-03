@@ -8,9 +8,9 @@ interface CoverageSessionManager {
     /**
      * Returns a Flow emitting session events over time.
      */
-    fun sessionFlow(): Flow<CoverageSessionEvent>
+    fun sessionFlow(): Flow<CoverageMeasurementEvent>
 
-    fun createSession(coroutineScope: CoroutineScope)
+    fun createMeasurement(coroutineScope: CoroutineScope)
 
-    suspend fun endSession()
+    suspend fun endMeasurement()
 }

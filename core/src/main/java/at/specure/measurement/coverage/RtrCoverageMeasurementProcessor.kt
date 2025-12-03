@@ -14,7 +14,7 @@ import at.specure.info.network.NetworkInfo
 import at.specure.location.LocationInfo
 import at.specure.measurement.coverage.data.FencesDataSource
 import at.specure.measurement.coverage.domain.CoverageMeasurementProcessor
-import at.specure.measurement.coverage.domain.CoverageSessionEvent
+import at.specure.measurement.coverage.domain.CoverageMeasurementEvent
 import at.specure.measurement.coverage.domain.CoverageSessionManager
 import at.specure.measurement.coverage.domain.CoverageTimer
 import at.specure.measurement.coverage.domain.PingProcessor
@@ -124,7 +124,7 @@ class RtrCoverageMeasurementProcessor @Inject constructor(
         dataSimMonitor.start()
 
         stateManager.initData()
-        coverageSessionManager.createSession(scope)
+        coverageSessionManager.createMeasurement(scope)
 
         if (sessionCollectorJob == null) {
             sessionCollectorJob = scope.launch {
@@ -132,11 +132,11 @@ class RtrCoverageMeasurementProcessor @Inject constructor(
                     coverageSessionManager.sessionFlow().collect { event ->
                         when (event) {
 
-                            is CoverageSessionEvent.SessionInitializing -> {
+                            is CoverageMeasurementEvent.MeasurementInitializing -> {
                                 // optional: show loading UI
                             }
 
-                            is CoverageSessionEvent.SessionCreated -> {
+                            is CoverageMeasurementEvent.MeasurementCreated -> {
                                 val session = event.session
                                 sessionCreated?.invoke(session)   // 🔥 same callback you originally had
                                 loadingFencesJob?.cancel()
@@ -144,26 +144,26 @@ class RtrCoverageMeasurementProcessor @Inject constructor(
                                 stateManager.onSessionCreated(session)
                             }
 
-                            is CoverageSessionEvent.SessionRegistered -> {
+                            is CoverageMeasurementEvent.MeasurementRegistered -> {
                                 // this replaces your onSessionRegistered callback
                                 onStartAndRegistrationCompleted(event.session)
                             }
 
-                            is CoverageSessionEvent.SessionRegistrationRetrying -> {
+                            is CoverageMeasurementEvent.MeasurementRegistrationRetrying -> {
                                 // optional: show retry attempt info in UI
                             }
 
-                            is CoverageSessionEvent.SessionRegistrationFailed -> {
+                            is CoverageMeasurementEvent.MeasurementRegistrationFailed -> {
                                 onError(event.error ?: Exception("Unknown registration failure"))
                                 sessionCreationError?.invoke(event.error ?: Exception("Unknown registration failure"))
                             }
 
-                            is CoverageSessionEvent.SessionCreationError -> {
+                            is CoverageMeasurementEvent.MeasurementCreationError -> {
                                 onError(event.error)
                                 sessionCreationError?.invoke(event.error)
                             }
 
-                            CoverageSessionEvent.SessionEnded -> {
+                            CoverageMeasurementEvent.MeasurementEnded -> {
                                 sessionStopped?.invoke()
                                 sessionCollectorJob?.cancel()
                                 sessionCollectorJob = null
@@ -198,7 +198,7 @@ class RtrCoverageMeasurementProcessor @Inject constructor(
                 } finally {
 //                cleanData()
                     coverageMeasurementSettings.onStopMeasurementSession()
-                    coverageSessionManager.endSession()
+                    coverageSessionManager.endMeasurement()
                     dataSimMonitorJob?.cancel()
                     dataSimMonitorJob = null
                     connectivityMonitor.stop()
