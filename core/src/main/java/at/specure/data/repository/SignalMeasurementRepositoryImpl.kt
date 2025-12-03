@@ -133,7 +133,7 @@ class SignalMeasurementRepositoryImpl(
 
         val clientUUID = clientUUID.value ?: throw DataMissingException("Missing client UUID")
         val coverageSession =
-            retrieveCoverageSessionOrCreate(localMeasurementId) // if not created yet, we create one for registration
+            retrieveCoverageMeasurementOrCreate(localMeasurementId) // if not created yet, we create one for registration
         val deviceInfo = deviceInfo ?: throw DataMissingException("Missing device info")
         val body = coverageSession.toCoverageRequest(clientUUID, deviceInfo, config)
 
@@ -147,7 +147,7 @@ class SignalMeasurementRepositoryImpl(
                     localMeasurementId = coverageSession.localMeasurementId,
                     localLoopId = coverageSession.localLoopId,
                     serverMeasurementId = it.testUUID,
-                    serverSessionLoopId = "it.loopUUID will be done", // TODO:
+                    serverSessionLoopId = if (coverageSession.sequenceNumber == 0) it.testUUID else coverageSession.serverSessionLoopId, // TODO: it.loopUUID will be done"
                     pingServerHost = it.pingHost,
                     pingServerPort = it.pingPort.toIntOrNull() ?: -1,
                     pingServerToken = it.pingToken,
@@ -171,12 +171,14 @@ class SignalMeasurementRepositoryImpl(
 
     }
 
-    private fun retrieveCoverageSessionOrCreate(localMeasurementId: String?): CoverageMeasurementSession {
+    private fun retrieveCoverageMeasurementOrCreate(localMeasurementId: String?): CoverageMeasurementSession {
         val coverageSession =
             if (localMeasurementId == null) {
                 null
             } else {
-                dao.getCoverageMeasurementSessionForMeasurementId(localMeasurementId)
+                val loadedMeasurement = dao.getCoverageMeasurementSessionForMeasurementId(localMeasurementId)
+                // todo: check if measurement is still in max times defined or we are gonna create a new one
+                loadedMeasurement
             } ?: CoverageMeasurementSession() // if not created yet, we create one for registration
         return coverageSession
     }
@@ -229,7 +231,7 @@ class SignalMeasurementRepositoryImpl(
 
     override suspend fun sendFences(localMeasurementId: String) {
         // todo: update times before sending the fences (regarding real time of coverageRequest response arrival time)
-        val coverageSession = retrieveCoverageSessionOrCreate(localMeasurementId)
+        val coverageSession = retrieveCoverageMeasurementOrCreate(localMeasurementId)
         if (coverageSession.isRegistered()) {
             val fencesForSession = dao.getCoverageMeasurementFencesList(coverageSession.localMeasurementId)
             clientUUID.value?.let {clientUuid ->

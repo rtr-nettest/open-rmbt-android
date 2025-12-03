@@ -38,12 +38,12 @@ class RtrCoverageSessionManager @Inject constructor(
         coroutineScope.launch {
             _sessionEvents.emit(CoverageMeasurementEvent.MeasurementInitializing)
         }
-        val lastSessionId = coverageMeasurementSettings.signalMeasurementLastSessionId
-        val shouldContinue = coverageMeasurementSettings.signalMeasurementShouldContinueInLastSession
-        val continuePrevious = (shouldContinue && lastSessionId != null)
+        val lastLocalMeasurementId = coverageMeasurementSettings.signalMeasurementLastSessionId
+        val shouldMeasurementContinue = coverageMeasurementSettings.signalMeasurementShouldContinueInLastSession
+        val continueInPreviousSession = (shouldMeasurementContinue && lastLocalMeasurementId != null)
 
-        if (continuePrevious) {
-            loadExistingMeasurement(lastSessionId!!, coroutineScope)
+        if (continueInPreviousSession) {
+            loadExistingMeasurement(lastLocalMeasurementId!!, coroutineScope)
         } else {
             createNewMeasurement(coroutineScope)
         }
