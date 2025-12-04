@@ -1,6 +1,7 @@
 package at.specure.measurement.coverage.presentation.validators
 
 import at.specure.data.entity.CoverageMeasurementFenceRecord
+import at.specure.info.cell.CellNetworkInfo
 import at.specure.info.network.NetworkInfo
 import at.specure.measurement.coverage.domain.validators.CoverageDataValidator
 import at.specure.measurement.coverage.domain.validators.DurationValidator
@@ -55,5 +56,25 @@ class MainCoverageDataValidator @Inject constructor(
             return false
         }
         return true
+    }
+
+    // todo check if this is enough or make another checks
+    override fun isNotTheSameMobileNetwork(oldNetwork: NetworkInfo?, newNetwork: NetworkInfo?): Boolean {
+        if (oldNetwork == null) return true
+        if (newNetwork == null) return true
+        if (oldNetwork is CellNetworkInfo && newNetwork is CellNetworkInfo
+            && oldNetwork.mcc == newNetwork.mcc
+            && oldNetwork.mnc == newNetwork.mnc
+            ) {
+            return true
+        }
+        return false
+    }
+
+    override fun isBackToMobile(oldNetwork: NetworkInfo?, newNetwork: NetworkInfo?): Boolean {
+        if (newNetwork == null) return false
+        val newIsMobileNetwork = (newNetwork is CellNetworkInfo)
+        val oldIsMobileNetwork = (oldNetwork != null && oldNetwork is CellNetworkInfo)
+        return oldIsMobileNetwork.not() && newIsMobileNetwork
     }
 }

@@ -168,6 +168,10 @@ class RtrCoverageMeasurementProcessor @Inject constructor(
                                 sessionCollectorJob = null
                                 cancelPingJob()
                             }
+
+                            CoverageMeasurementEvent.MeasurementEnded -> {
+                                // todo:check if there is anything necessary to do
+                            }
                         }
                     }
                 } finally {
@@ -268,7 +272,14 @@ class RtrCoverageMeasurementProcessor @Inject constructor(
         val coverageMeasurementDataValue = stateManager.state.value ?: return
 
         stateManager.updateLocation(location)
-        mainCoverageDataValidator.isSameNetwork(oldNetwork: NetworkInfo, newNetwork: NetworkInfo)
+
+        val isBackOnMobileData = mainCoverageDataValidator.isBackToMobile(coverageMeasurementDataValue.currentNetworkInfo, networkInfo)
+        if (isBackOnMobileData) {
+            coverageMeasurementDataValue.coverageMeasurementSession?.let { currentMeasurement ->
+                coverageLoopManager.endMeasurementInLoop(currentMeasurement, scope)
+                coverageLoopManager.createNewMeasurementInLoop(currentMeasurement, scope)
+            }
+        }
 
         stateManager.updateNetworkInfo(networkInfo)
 
@@ -381,13 +392,13 @@ class RtrCoverageMeasurementProcessor @Inject constructor(
      */
     fun onMeasurementStop() {
         stateManager.state.value.coverageMeasurementSession?.let { lastMeasurement ->
-            coverageLoopManager.endMeasurementInLoop(lastMeasurement)
+            coverageLoopManager.endMeasurementInLoop(lastMeasurement, scope)
         }
     }
 
     fun onNetworkChanged() {
         stateManager.state.value.coverageMeasurementSession?.let { lastMeasurement ->
-            coverageLoopManager.endMeasurementInLoop(lastMeasurement)
+            coverageLoopManager.endMeasurementInLoop(lastMeasurement, scope)
             coverageLoopManager.createNewMeasurementInLoop(lastMeasurement, scope)
         }
     }
