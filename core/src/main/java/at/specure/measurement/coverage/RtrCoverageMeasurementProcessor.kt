@@ -15,7 +15,7 @@ import at.specure.location.LocationInfo
 import at.specure.measurement.coverage.data.FencesDataSource
 import at.specure.measurement.coverage.domain.CoverageMeasurementProcessor
 import at.specure.measurement.coverage.domain.CoverageMeasurementEvent
-import at.specure.measurement.coverage.domain.CoverageSessionManager
+import at.specure.measurement.coverage.domain.CoverageLoopManager
 import at.specure.measurement.coverage.domain.CoverageTimer
 import at.specure.measurement.coverage.domain.PingProcessor
 import at.specure.measurement.coverage.domain.models.state.CoverageMeasurementState
@@ -56,7 +56,7 @@ class RtrCoverageMeasurementProcessor @Inject constructor(
     private val mainCoverageDataValidator: CoverageDataValidator,
     private val coveragePingProcessor: PingProcessor,
     private val fencesDataSource: FencesDataSource,
-    private val coverageSessionManager: CoverageSessionManager,
+    private val coverageLoopManager: CoverageLoopManager,
     private val connectivityMonitor: ConnectivityMonitor,
 ) : CoverageMeasurementProcessor, CoroutineScope {
 
@@ -124,12 +124,12 @@ class RtrCoverageMeasurementProcessor @Inject constructor(
         dataSimMonitor.start()
 
         stateManager.initData()
-        coverageSessionManager.createMeasurement(scope)
+        coverageLoopManager.startOrContinueInLoop(scope)
 
         if (sessionCollectorJob == null) {
             sessionCollectorJob = scope.launch {
                 try {
-                    coverageSessionManager.sessionFlow().collect { event ->
+                    coverageLoopManager.loopFlow().collect { event ->
                         when (event) {
 
                             is CoverageMeasurementEvent.MeasurementInitializing -> {
@@ -138,14 +138,13 @@ class RtrCoverageMeasurementProcessor @Inject constructor(
 
                             is CoverageMeasurementEvent.MeasurementCreated -> {
                                 val session = event.session
-                                sessionCreated?.invoke(session)   // 🔥 same callback you originally had
+                                sessionCreated?.invoke(session)
                                 loadingFencesJob?.cancel()
                                 loadingFencesJob = loadPoints(session.localMeasurementId)
                                 stateManager.onSessionCreated(session)
                             }
 
                             is CoverageMeasurementEvent.MeasurementRegistered -> {
-                                // this replaces your onSessionRegistered callback
                                 onStartAndRegistrationCompleted(event.session)
                             }
 
@@ -163,7 +162,7 @@ class RtrCoverageMeasurementProcessor @Inject constructor(
                                 sessionCreationError?.invoke(event.error)
                             }
 
-                            CoverageMeasurementEvent.MeasurementEnded -> {
+                            CoverageMeasurementEvent.MeasurementLoopEnded -> {
                                 sessionStopped?.invoke()
                                 sessionCollectorJob?.cancel()
                                 sessionCollectorJob = null
@@ -198,7 +197,7 @@ class RtrCoverageMeasurementProcessor @Inject constructor(
                 } finally {
 //                cleanData()
                     coverageMeasurementSettings.onStopMeasurementSession()
-                    coverageSessionManager.endMeasurement()
+                    coverageLoopManager.endMeasurementLoop()
                     dataSimMonitorJob?.cancel()
                     dataSimMonitorJob = null
                     connectivityMonitor.stop()
@@ -253,7 +252,7 @@ class RtrCoverageMeasurementProcessor @Inject constructor(
     }
 
     private fun startMaxCoverageSessionSecondsReachedJob(session: CoverageMeasurementSession) {
-        session.maxCoverageSessionSeconds?.let { maxCoverageSessionSeconds ->
+        session.maxCoverageLoopSeconds?.let { maxCoverageSessionSeconds ->
             Timber.d("Starting maxCoverageSessionSeconds timer with ${maxCoverageSessionSeconds.seconds.inWholeSeconds} seconds")
             coverageSessionTimer.start(maxCoverageSessionSeconds.seconds, {
                 Timber.d("Stopping coverage session because of max time reached")
@@ -269,6 +268,8 @@ class RtrCoverageMeasurementProcessor @Inject constructor(
         val coverageMeasurementDataValue = stateManager.state.value ?: return
 
         stateManager.updateLocation(location)
+        mainCoverageDataValidator.isSameNetwork(oldNetwork: NetworkInfo, newNetwork: NetworkInfo)
+
         stateManager.updateNetworkInfo(networkInfo)
 
         val isConnectionStateValid = checkForTheConnectionState()
@@ -379,11 +380,16 @@ class RtrCoverageMeasurementProcessor @Inject constructor(
      * Stop of single measurement in a loop
      */
     fun onMeasurementStop() {
-        // todo
+        stateManager.state.value.coverageMeasurementSession?.let { lastMeasurement ->
+            coverageLoopManager.endMeasurementInLoop(lastMeasurement)
+        }
     }
 
     fun onNetworkChanged() {
-        // todo: what to do on a new network
+        stateManager.state.value.coverageMeasurementSession?.let { lastMeasurement ->
+            coverageLoopManager.endMeasurementInLoop(lastMeasurement)
+            coverageLoopManager.createNewMeasurementInLoop(lastMeasurement, scope)
+        }
     }
 
     private fun loadPoints(sessionId: String) = scope.launch(Dispatchers.IO) {
@@ -398,7 +404,7 @@ class RtrCoverageMeasurementProcessor @Inject constructor(
     private fun cleanData() {
         loadingFencesJob?.cancel()
         stateManager.initData()
-        coverageMeasurementSettings.signalMeasurementLastSessionId = null
+        coverageMeasurementSettings.signalMeasurementLastMeasurementId = null
     }
 
     private fun cleanPingDataOnly() {

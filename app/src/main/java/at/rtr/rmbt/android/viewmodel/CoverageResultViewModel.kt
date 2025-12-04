@@ -39,7 +39,6 @@ import com.google.android.gms.maps.model.MarkerOptions
 import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.zip
@@ -104,7 +103,7 @@ class CoverageResultViewModel @Inject constructor(
 
     init {
         addStateSaveHandler(state)
-        coverageMeasurementSettings.signalMeasurementLastSessionId?.let {
+        coverageMeasurementSettings.signalMeasurementLastMeasurementId?.let {
             loadSessionPoints(it)
         }
     }

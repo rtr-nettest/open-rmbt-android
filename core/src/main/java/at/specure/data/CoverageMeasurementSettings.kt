@@ -8,7 +8,7 @@ import javax.inject.Singleton
 
 private const val KEY_SIGNAL_MEASUREMENT_RUNNING = "KEY_SIGNAL_MEASUREMENT_RUNNING"
 private const val KEY_SIGNAL_MEASUREMENT_CONTINUE_LAST_SESSION = "KEY_SIGNAL_MEASUREMENT_CONTINUE_LAST_SESSION"
-private const val KEY_SIGNAL_MEASUREMENT_LAST_SESSION_ID = "KEY_SIGNAL_MEASUREMENT_LAST_SESSION_ID"
+private const val KEY_SIGNAL_MEASUREMENT_LAST_MEASUREMENT_ID = "KEY_SIGNAL_MEASUREMENT_LAST_SESSION_ID"
 
 @Singleton
 class CoverageMeasurementSettings @Inject constructor(context: Context) {
@@ -39,19 +39,19 @@ class CoverageMeasurementSettings @Inject constructor(context: Context) {
             preferences.edit { putBoolean(KEY_SIGNAL_MEASUREMENT_CONTINUE_LAST_SESSION, value) }
         }
 
-    var signalMeasurementLastSessionId: String?
+    var signalMeasurementLastMeasurementId: String?
         get() {
-            val sessionId = preferences.getString(KEY_SIGNAL_MEASUREMENT_LAST_SESSION_ID, null)
+            val sessionId = preferences.getString(KEY_SIGNAL_MEASUREMENT_LAST_MEASUREMENT_ID, null)
             Timber.d("Signal measurement last session ID $sessionId")
             return sessionId
         }
         set(value) {
             Timber.d("Signal measurement last session ID set to: $value")
-            preferences.edit { putString(KEY_SIGNAL_MEASUREMENT_LAST_SESSION_ID, value) }
+            preferences.edit { putString(KEY_SIGNAL_MEASUREMENT_LAST_MEASUREMENT_ID, value) }
         }
 
     fun onStopMeasurementSession() {
-        signalMeasurementLastSessionId = null
+        signalMeasurementLastMeasurementId = null
         signalMeasurementShouldContinueInLastSession = false
         signalMeasurementIsRunning = false
     }

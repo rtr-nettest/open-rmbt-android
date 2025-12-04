@@ -50,8 +50,8 @@ import at.specure.info.wifi.WifiInfoWatcherImpl
 import at.specure.location.LocationWatcher
 import at.specure.location.cell.CellLocationWatcher
 import at.specure.location.cell.CellLocationWatcherImpl
-import at.specure.measurement.coverage.RtrCoverageSessionManager
-import at.specure.measurement.coverage.domain.CoverageSessionManager
+import at.specure.measurement.coverage.RtrCoverageLoopManager
+import at.specure.measurement.coverage.domain.CoverageLoopManager
 import at.specure.measurement.coverage.domain.PingProcessor
 import at.specure.measurement.coverage.domain.monitors.ConnectivityMonitor
 import at.specure.measurement.coverage.domain.validators.CoverageDataValidator
@@ -340,7 +340,7 @@ class CoreModule {
     fun provideCoverageSessionManager(
         signalMeasurementRepository: SignalMeasurementRepository,
         coverageMeasurementSettings: CoverageMeasurementSettings
-    ): CoverageSessionManager = RtrCoverageSessionManager(
+    ): CoverageLoopManager = RtrCoverageLoopManager(
         signalMeasurementRepository = signalMeasurementRepository,
         coverageMeasurementSettings = coverageMeasurementSettings
     )

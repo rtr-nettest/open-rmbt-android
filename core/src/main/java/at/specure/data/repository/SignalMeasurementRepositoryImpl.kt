@@ -142,22 +142,25 @@ class SignalMeasurementRepositoryImpl(
         val response = client.coverageRequest(body)
         response.onSuccess {
             Timber.d("$it")
+            val responseReceivedTime = System.currentTimeMillis()
             dao.saveDedicatedSignalMeasurementSession(
                 session = CoverageMeasurementSession(
                     localMeasurementId = coverageSession.localMeasurementId,
                     localLoopId = coverageSession.localLoopId,
                     serverMeasurementId = it.testUUID,
-                    serverSessionLoopId = if (coverageSession.sequenceNumber == 0) it.testUUID else coverageSession.serverSessionLoopId, // TODO: it.loopUUID will be done"
+                    serverSessionLoopId = if (coverageSession.isFirstMeasurementInLoop()) it.testUUID else coverageSession.serverSessionLoopId, // TODO: it.loopUUID will be done"
                     pingServerHost = it.pingHost,
                     pingServerPort = it.pingPort.toIntOrNull() ?: -1,
                     pingServerToken = it.pingToken,
                     ipVersion = it.ipVersion,
                     remoteIpAddress = it.clientRemoteIp,
                     provider = it.provider,
-                    startTimeMillis = coverageSession.startTimeMillis,
-                    startResponseReceivedMillis = System.currentTimeMillis(),
+                    startTimeMeasurementMillis = coverageSession.startTimeMeasurementMillis,
+                    startMeasurementResponseReceivedMillis = responseReceivedTime,
+                    startTimeLoopMillis = coverageSession.startTimeLoopMillis,
+                    startLoopResponseReceivedMillis = if (coverageSession.isFirstMeasurementInLoop()) responseReceivedTime else coverageSession.startLoopResponseReceivedMillis,
                     maxCoverageMeasurementSeconds = it.maxCoverageMeasurementSeconds,
-                    maxCoverageSessionSeconds = it.maxCoverageSessionSeconds,
+                    maxCoverageLoopSeconds = it.maxCoverageSessionSeconds,
                     sequenceNumber = coverageSession.sequenceNumber,
                 )
             )
@@ -241,6 +244,8 @@ class SignalMeasurementRepositoryImpl(
                         val result = client.coverageResult(requestBody)
                         if (result.ok) {
                             dao.markSessionAsSynced(localMeasurementId)
+                        } else {
+                            dao.incrementRetryCountForSession(localMeasurementId)
                         }
                     }
                     // TODO: enqueue sending with worker in case of failed send

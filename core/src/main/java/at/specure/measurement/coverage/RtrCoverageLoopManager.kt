@@ -3,8 +3,9 @@ package at.specure.measurement.coverage
 import at.specure.data.CoverageMeasurementSettings
 import at.specure.data.entity.CoverageMeasurementSession
 import at.specure.data.repository.SignalMeasurementRepository
+import at.specure.data.repository.isRegistered
 import at.specure.measurement.coverage.domain.CoverageMeasurementEvent
-import at.specure.measurement.coverage.domain.CoverageSessionManager
+import at.specure.measurement.coverage.domain.CoverageLoopManager
 import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -21,24 +22,27 @@ import javax.inject.Singleton
 import kotlin.coroutines.coroutineContext
 
 @Singleton
-class RtrCoverageSessionManager @Inject constructor(
+class RtrCoverageLoopManager @Inject constructor(
     private val signalMeasurementRepository: SignalMeasurementRepository,
     private val coverageMeasurementSettings: CoverageMeasurementSettings,
-) : CoverageSessionManager {
+) : CoverageLoopManager {
 
     private val _sessionEvents = MutableSharedFlow<CoverageMeasurementEvent>()
-    override fun sessionFlow(): SharedFlow<CoverageMeasurementEvent> = _sessionEvents
+    override fun loopFlow(): SharedFlow<CoverageMeasurementEvent> = _sessionEvents
 
     private var registrationJob: Job? = null
 
     private val MAX_RETRY = 100 // todo: adjust according the needs, maybe change to indefinitely
     private val RETRY_DELAY_MS = 2_000L
 
-    override fun createMeasurement(coroutineScope: CoroutineScope) {
+    /**
+     * Starts the first measurement in loop or continue in the last one
+     */
+    override fun startOrContinueInLoop(coroutineScope: CoroutineScope) {
         coroutineScope.launch {
             _sessionEvents.emit(CoverageMeasurementEvent.MeasurementInitializing)
         }
-        val lastLocalMeasurementId = coverageMeasurementSettings.signalMeasurementLastSessionId
+        val lastLocalMeasurementId = coverageMeasurementSettings.signalMeasurementLastMeasurementId
         val shouldMeasurementContinue = coverageMeasurementSettings.signalMeasurementShouldContinueInLastSession
         val continueInPreviousSession = (shouldMeasurementContinue && lastLocalMeasurementId != null)
 
@@ -49,12 +53,60 @@ class RtrCoverageSessionManager @Inject constructor(
         }
     }
 
-    override suspend fun endMeasurement() {
+    /**
+     * Creates 2nd and other measurements in loop. Do not use it for the first measurement.
+     */
+    override fun createNewMeasurementInLoop(lastCoverageMeasurementSession: CoverageMeasurementSession, coroutineScope: CoroutineScope) {
+        coroutineScope.launch {
+            val newMeasurement = prepareNextMeasurementOrKeepCurrent(lastCoverageMeasurementSession)
+            handleMeasurementReady(newMeasurement, coroutineScope) // todo: check if we do not need to emit different states
+        }
+    }
+
+    override fun endMeasurementInLoop(lastCoverageMeasurementSession: CoverageMeasurementSession, coroutineScope: CoroutineScope) {
+        coroutineScope.launch {
+            val fencesCount =
+                signalMeasurementRepository.loadSignalMeasurementPointRecordsForMeasurementList(lastCoverageMeasurementSession.localMeasurementId).size
+            val hasRecordedFences = fencesCount != 0
+            if (lastCoverageMeasurementSession.isRegistered() && hasRecordedFences) {
+                signalMeasurementRepository.sendFences(lastCoverageMeasurementSession.localMeasurementId)
+            }
+        }
+    }
+
+    override suspend fun endMeasurementLoop() {
         registrationJob?.cancel()
         registrationJob = null
 
-        _sessionEvents.emit(CoverageMeasurementEvent.MeasurementEnded)
+        _sessionEvents.emit(CoverageMeasurementEvent.MeasurementLoopEnded)
     }
+
+    private fun prepareNextMeasurementOrKeepCurrent(lastCoverageMeasurementSession: CoverageMeasurementSession): CoverageMeasurementSession {
+        val fencesCount = signalMeasurementRepository.loadSignalMeasurementPointRecordsForMeasurementList(lastCoverageMeasurementSession.localMeasurementId).size
+        val previousWasNotRegistered = lastCoverageMeasurementSession.isRegistered().not()
+        val noRecordedFences = fencesCount == 0
+
+        val newMeasurement = if (previousWasNotRegistered || noRecordedFences) {
+            CoverageMeasurementSession(
+                sequenceNumber = lastCoverageMeasurementSession.sequenceNumber,
+                serverSessionLoopId = lastCoverageMeasurementSession.serverSessionLoopId,
+                localLoopId = lastCoverageMeasurementSession.localLoopId,
+                startTimeLoopMillis = lastCoverageMeasurementSession.startTimeLoopMillis,
+                startLoopResponseReceivedMillis = lastCoverageMeasurementSession.startLoopResponseReceivedMillis,
+            )
+        } else {
+            CoverageMeasurementSession(
+                sequenceNumber = lastCoverageMeasurementSession.sequenceNumber + 1,
+                serverSessionLoopId = lastCoverageMeasurementSession.serverSessionLoopId,
+                localLoopId = lastCoverageMeasurementSession.localLoopId,
+                startTimeLoopMillis = lastCoverageMeasurementSession.startTimeLoopMillis,
+                startLoopResponseReceivedMillis = lastCoverageMeasurementSession.startLoopResponseReceivedMillis
+            )
+        }
+        saveNewMeasurement(newMeasurement)
+        return newMeasurement
+    }
+
 
     private fun loadExistingMeasurement(
         measurementId: String,
@@ -76,13 +128,16 @@ class RtrCoverageSessionManager @Inject constructor(
         coroutineScope: CoroutineScope
     ) = coroutineScope.launch(CoroutineName("createNewSession")) {
 
-        val session = CoverageMeasurementSession()
-        Timber.d("Creating new coverage measurement: ${session.localMeasurementId}")
-        signalMeasurementRepository.saveCoverageMeasurementSession(session)
+        val measurement = CoverageMeasurementSession()
+        Timber.d("Creating new coverage measurement: ${measurement.localMeasurementId}")
+        saveNewMeasurement(measurement)
 
-        coverageMeasurementSettings.signalMeasurementLastSessionId = session.localMeasurementId
+        handleMeasurementReady(measurement, coroutineScope)
+    }
 
-        handleMeasurementReady(session, coroutineScope)
+    private fun saveNewMeasurement(measurement: CoverageMeasurementSession) {
+        signalMeasurementRepository.saveCoverageMeasurementSession(measurement)
+        coverageMeasurementSettings.signalMeasurementLastMeasurementId = measurement.localMeasurementId
     }
 
     private fun handleMeasurementReady(

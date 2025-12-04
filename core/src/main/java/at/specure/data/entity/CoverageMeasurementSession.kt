@@ -50,14 +50,24 @@ data class CoverageMeasurementSession(
     val provider: String? = null,
 
     /**
-     * Local Timestamp of the signal measurement start
+     * Local Timestamp of the signal measurement start in loop
      */
-    val startTimeMillis: Long = System.currentTimeMillis(),
+    val startTimeMeasurementMillis: Long = System.currentTimeMillis(),
 
     /**
-     * Local Timestamp of the signal measurement response received from server to count relative time for fences (points)
+     * Local Timestamp of the signal measurement response received from server to count relative time for fences (points) in loop
      */
-    val startResponseReceivedMillis: Long = System.currentTimeMillis(),
+    val startMeasurementResponseReceivedMillis: Long = System.currentTimeMillis(),
+
+    /**
+     * Local Timestamp of the loop start
+     */
+    val startTimeLoopMillis: Long = System.currentTimeMillis(),
+
+    /**
+     * Local Timestamp of the signal measurement response received from server to count relative time for loop start
+     */
+    val startLoopResponseReceivedMillis: Long = System.currentTimeMillis(),
 
     /**
      * defines the maximum time in seconds for a single session (thus, is that timer expires a new /coverageRequest is needed. The timer is started
@@ -65,7 +75,7 @@ data class CoverageMeasurementSession(
      *
      * After timer expiration a new measurement shall be started (as it is done when there is no coverage.
      */
-    val maxCoverageSessionSeconds: Int? = null,
+    val maxCoverageLoopSeconds: Int? = null,
 
     /**
      * defines the maximum total measurement time. After this timeout the coverage measurement must end (thus, the user interface must switch to results
@@ -86,4 +96,8 @@ data class CoverageMeasurementSession(
      * Number of session item order in the loop.
      */
     val sequenceNumber: Int = 0,
-)
+) {
+    fun isFirstMeasurementInLoop(): Boolean {
+        return sequenceNumber == 0
+    }
+}

@@ -503,7 +503,7 @@ fun CoverageMeasurementSession.toCoverageRequest(clientUUID: String, deviceInfo:
     softwareRevision = deviceInfo.softwareRevision,
     softwareVersion = deviceInfo.softwareRevision,
     timezone = deviceInfo.timezone ?: UNKNOWN,
-    time = startTimeMillis,
+    time = startTimeMeasurementMillis,
     measurementTypeFlag = SignalMeasurementType.DEDICATED.signalTypeName,
     languageCode = deviceInfo.language,
     model = deviceInfo.model,
@@ -543,9 +543,9 @@ fun CoverageMeasurementSession.toCoverageResultRequest(
     product = deviceInfo.product ?: UNKNOWN,
     apiLevel = deviceInfo.apiLevel,
     softwareVersionCode = deviceInfo.softwareVersionCode.toString(),
-    fences = fences.toRequest(startTimeMillis),
+    fences = fences.toRequest(startTimeMeasurementMillis),
     sequenceNumber = sequenceNumber,
-    timeNanos = startResponseReceivedMillis.milliseconds.inWholeNanoseconds
+    timeNanos = startMeasurementResponseReceivedMillis.milliseconds.inWholeNanoseconds
 )
 
 fun List<CoverageMeasurementFenceRecord>.toRequest(measurementStartMillis: Long): List<FenceBody> {

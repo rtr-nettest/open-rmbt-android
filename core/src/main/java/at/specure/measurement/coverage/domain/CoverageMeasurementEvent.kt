@@ -20,5 +20,6 @@ sealed class CoverageMeasurementEvent {
         val error: Exception? = null
     ) : CoverageMeasurementEvent()
 
+    object MeasurementLoopEnded : CoverageMeasurementEvent()
     object MeasurementEnded : CoverageMeasurementEvent()
 }

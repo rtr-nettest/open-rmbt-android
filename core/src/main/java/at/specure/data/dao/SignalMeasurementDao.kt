@@ -53,7 +53,7 @@ interface SignalMeasurementDao {
     @Query("SELECT * FROM ${Tables.COVERAGE_MEASUREMENT_SESSION} WHERE localMeasurementId=:measurementId LIMIT 1")
     fun getCoverageMeasurementSessionForMeasurementId(measurementId: String): CoverageMeasurementSession?
 
-    @Query("SELECT * FROM ${Tables.COVERAGE_MEASUREMENT_SESSION} WHERE retryCount < $COVERAGE_MEASUREMENT_SUBMISSION_MAX_RETRY_COUNT AND (startResponseReceivedMillis + (maxCoverageMeasurementSeconds * 1000)) < :currentTimeMillis AND localLoopId IS NOT NULL")
+    @Query("SELECT * FROM ${Tables.COVERAGE_MEASUREMENT_SESSION} WHERE retryCount < $COVERAGE_MEASUREMENT_SUBMISSION_MAX_RETRY_COUNT AND (startMeasurementResponseReceivedMillis + (maxCoverageMeasurementSeconds * 1000)) < :currentTimeMillis AND localLoopId IS NOT NULL")
     fun getCoverageMeasurementsForRetrySend(currentTimeMillis: Long = System.currentTimeMillis()): CoverageMeasurementSession?
 
     @Query("SELECT * FROM ${Tables.SIGNAL} WHERE signalMeasurementPointId=:id LIMIT 1")
