@@ -1,7 +1,6 @@
 package at.specure.measurement.coverage.domain
 
 import at.specure.data.entity.CoverageMeasurementSession
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
 
 interface CoverageLoopManager {
@@ -11,11 +10,11 @@ interface CoverageLoopManager {
      */
     fun loopFlow(): Flow<CoverageMeasurementEvent>
 
-    fun createNewMeasurementInLoop(lastCoverageMeasurementSession: CoverageMeasurementSession, coroutineScope: CoroutineScope)
+    fun createNewMeasurementInLoop(lastCoverageMeasurementSession: CoverageMeasurementSession)
 
-    fun startOrContinueInLoop(coroutineScope: CoroutineScope)
+    fun startOrContinueInLoop()
 
-    fun endMeasurementInLoop(lastCoverageMeasurementSession: CoverageMeasurementSession, coroutineScope: CoroutineScope)
+    fun endMeasurementInLoop(lastCoverageMeasurementSession: CoverageMeasurementSession)
 
     suspend fun endMeasurementLoop()
 }

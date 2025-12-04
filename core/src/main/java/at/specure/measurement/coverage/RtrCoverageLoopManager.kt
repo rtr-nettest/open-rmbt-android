@@ -10,6 +10,7 @@ import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -30,44 +31,49 @@ class RtrCoverageLoopManager @Inject constructor(
     private val _sessionEvents = MutableSharedFlow<CoverageMeasurementEvent>()
     override fun loopFlow(): SharedFlow<CoverageMeasurementEvent> = _sessionEvents
 
+    private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
     private var registrationJob: Job? = null
 
-    private val MAX_RETRY = 100 // todo: adjust according the needs, maybe change to indefinitely
+    private val MAX_RETRY = 100
     private val RETRY_DELAY_MS = 2_000L
 
     /**
      * Starts the first measurement in loop or continue in the last one
      */
-    override fun startOrContinueInLoop(coroutineScope: CoroutineScope) {
-        coroutineScope.launch {
+    override fun startOrContinueInLoop() {
+        scope.launch {
             _sessionEvents.emit(CoverageMeasurementEvent.MeasurementInitializing)
         }
+
         val lastLocalMeasurementId = coverageMeasurementSettings.signalMeasurementLastMeasurementId
         val shouldMeasurementContinue = coverageMeasurementSettings.signalMeasurementShouldContinueInLastSession
         val continueInPreviousSession = (shouldMeasurementContinue && lastLocalMeasurementId != null)
 
         if (continueInPreviousSession) {
-            loadExistingMeasurement(lastLocalMeasurementId!!, coroutineScope)
+            loadExistingMeasurement(lastLocalMeasurementId!!)
         } else {
-            createNewMeasurement(coroutineScope)
+            createNewMeasurement()
         }
     }
 
     /**
-     * Creates 2nd and other measurements in loop. Do not use it for the first measurement.
+     * Creates a new measurement in the loop
      */
-    override fun createNewMeasurementInLoop(lastCoverageMeasurementSession: CoverageMeasurementSession, coroutineScope: CoroutineScope) {
-        coroutineScope.launch {
+    override fun createNewMeasurementInLoop(lastCoverageMeasurementSession: CoverageMeasurementSession) {
+        scope.launch {
             val newMeasurement = prepareNextMeasurementOrKeepCurrent(lastCoverageMeasurementSession)
-            handleMeasurementReady(newMeasurement, coroutineScope) // todo: check if we do not need to emit different states
+            handleMeasurementReady(newMeasurement)
         }
     }
 
-    override fun endMeasurementInLoop(lastCoverageMeasurementSession: CoverageMeasurementSession, coroutineScope: CoroutineScope) {
-        coroutineScope.launch {
+    override fun endMeasurementInLoop(lastCoverageMeasurementSession: CoverageMeasurementSession) {
+        scope.launch {
             val fencesCount =
-                signalMeasurementRepository.loadSignalMeasurementPointRecordsForMeasurementList(lastCoverageMeasurementSession.localMeasurementId).size
+                signalMeasurementRepository.loadSignalMeasurementPointRecordsForMeasurementList(
+                    lastCoverageMeasurementSession.localMeasurementId
+                ).size
             val hasRecordedFences = fencesCount != 0
+
             if (lastCoverageMeasurementSession.isRegistered() && hasRecordedFences) {
                 signalMeasurementRepository.sendFences(lastCoverageMeasurementSession.localMeasurementId)
             }
@@ -82,7 +88,9 @@ class RtrCoverageLoopManager @Inject constructor(
     }
 
     private fun prepareNextMeasurementOrKeepCurrent(lastCoverageMeasurementSession: CoverageMeasurementSession): CoverageMeasurementSession {
-        val fencesCount = signalMeasurementRepository.loadSignalMeasurementPointRecordsForMeasurementList(lastCoverageMeasurementSession.localMeasurementId).size
+        val fencesCount = signalMeasurementRepository
+            .loadSignalMeasurementPointRecordsForMeasurementList(lastCoverageMeasurementSession.localMeasurementId)
+            .size
         val previousWasNotRegistered = lastCoverageMeasurementSession.isRegistered().not()
         val noRecordedFences = fencesCount == 0
 
@@ -103,36 +111,32 @@ class RtrCoverageLoopManager @Inject constructor(
                 startLoopResponseReceivedMillis = lastCoverageMeasurementSession.startLoopResponseReceivedMillis
             )
         }
+
         saveNewMeasurement(newMeasurement)
         return newMeasurement
     }
 
+    private fun loadExistingMeasurement(measurementId: String) {
+        scope.launch(CoroutineName("loadSession")) {
+            Timber.d("Continue in coverage measurement: $measurementId")
 
-    private fun loadExistingMeasurement(
-        measurementId: String,
-        coroutineScope: CoroutineScope
-    ) = coroutineScope.launch(CoroutineName("loadSession")) {
+            val loaded = signalMeasurementRepository.getCoverageMeasurementSession(measurementId)
 
-        Timber.d("Continue in coverage measurement: $measurementId")
-
-        val loaded = signalMeasurementRepository.getCoverageMeasurementSession(measurementId)
-
-        if (loaded != null) {
-            handleMeasurementReady(loaded, coroutineScope)
-        } else {
-            createNewMeasurement(coroutineScope)
+            if (loaded != null) {
+                handleMeasurementReady(loaded)
+            } else {
+                createNewMeasurement()
+            }
         }
     }
 
-    private fun createNewMeasurement(
-        coroutineScope: CoroutineScope
-    ) = coroutineScope.launch(CoroutineName("createNewSession")) {
-
-        val measurement = CoverageMeasurementSession()
-        Timber.d("Creating new coverage measurement: ${measurement.localMeasurementId}")
-        saveNewMeasurement(measurement)
-
-        handleMeasurementReady(measurement, coroutineScope)
+    private fun createNewMeasurement() {
+        scope.launch(CoroutineName("createNewSession")) {
+            val measurement = CoverageMeasurementSession()
+            Timber.d("Creating new coverage measurement: ${measurement.localMeasurementId}")
+            saveNewMeasurement(measurement)
+            handleMeasurementReady(measurement)
+        }
     }
 
     private fun saveNewMeasurement(measurement: CoverageMeasurementSession) {
@@ -140,35 +144,27 @@ class RtrCoverageLoopManager @Inject constructor(
         coverageMeasurementSettings.signalMeasurementLastMeasurementId = measurement.localMeasurementId
     }
 
-    private fun handleMeasurementReady(
-        session: CoverageMeasurementSession,
-        coroutineScope: CoroutineScope
-    ) {
-        coroutineScope.launch {
+    private fun handleMeasurementReady(session: CoverageMeasurementSession) {
+        scope.launch {
             _sessionEvents.emit(CoverageMeasurementEvent.MeasurementCreated(session))
         }
 
-        // Already registered → resume
         if (session.serverMeasurementId != null) {
-            coroutineScope.launch {
+            scope.launch {
                 _sessionEvents.emit(CoverageMeasurementEvent.MeasurementRegistered(session))
             }
             return
         }
 
-        // Not registered → start retry loop
-        registrationJob = coroutineScope.launch(Dispatchers.IO + CoroutineName("registerSession")) {
+        registrationJob = scope.launch(Dispatchers.IO + CoroutineName("registerSession")) {
             registerMeasurementWithRetry(session)
         }
     }
 
-    private suspend fun registerMeasurementWithRetry(
-        session: CoverageMeasurementSession
-    ) {
+    private suspend fun registerMeasurementWithRetry(session: CoverageMeasurementSession) {
         var attempt = 1
 
         while (attempt <= MAX_RETRY) {
-
             coroutineContext.ensureActive()
 
             try {
@@ -188,7 +184,6 @@ class RtrCoverageLoopManager @Inject constructor(
                 }
 
             } catch (e: Exception) {
-
                 if (attempt >= MAX_RETRY) {
                     _sessionEvents.emit(
                         CoverageMeasurementEvent.MeasurementRegistrationFailed(session, e)
@@ -206,7 +201,7 @@ class RtrCoverageLoopManager @Inject constructor(
                 )
             }
 
-            delay(RETRY_DELAY_MS)  // cancels automatically when Job is cancelled
+            delay(RETRY_DELAY_MS)  // automatically cancels if job is cancelled
             attempt++
         }
     }

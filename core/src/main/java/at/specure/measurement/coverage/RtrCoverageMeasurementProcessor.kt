@@ -124,7 +124,7 @@ class RtrCoverageMeasurementProcessor @Inject constructor(
         dataSimMonitor.start()
 
         stateManager.initData()
-        coverageLoopManager.startOrContinueInLoop(scope)
+        coverageLoopManager.startOrContinueInLoop()
 
         if (sessionCollectorJob == null) {
             sessionCollectorJob = scope.launch {
@@ -276,8 +276,8 @@ class RtrCoverageMeasurementProcessor @Inject constructor(
         val isBackOnMobileData = mainCoverageDataValidator.isBackToMobile(coverageMeasurementDataValue.currentNetworkInfo, networkInfo)
         if (isBackOnMobileData) {
             coverageMeasurementDataValue.coverageMeasurementSession?.let { currentMeasurement ->
-                coverageLoopManager.endMeasurementInLoop(currentMeasurement, scope)
-                coverageLoopManager.createNewMeasurementInLoop(currentMeasurement, scope)
+                coverageLoopManager.endMeasurementInLoop(currentMeasurement)
+                coverageLoopManager.createNewMeasurementInLoop(currentMeasurement)
             }
         }
 
@@ -392,14 +392,14 @@ class RtrCoverageMeasurementProcessor @Inject constructor(
      */
     fun onMeasurementStop() {
         stateManager.state.value.coverageMeasurementSession?.let { lastMeasurement ->
-            coverageLoopManager.endMeasurementInLoop(lastMeasurement, scope)
+            coverageLoopManager.endMeasurementInLoop(lastMeasurement)
         }
     }
 
     fun onNetworkChanged() {
         stateManager.state.value.coverageMeasurementSession?.let { lastMeasurement ->
-            coverageLoopManager.endMeasurementInLoop(lastMeasurement, scope)
-            coverageLoopManager.createNewMeasurementInLoop(lastMeasurement, scope)
+            coverageLoopManager.endMeasurementInLoop(lastMeasurement)
+            coverageLoopManager.createNewMeasurementInLoop(lastMeasurement)
         }
     }
 
