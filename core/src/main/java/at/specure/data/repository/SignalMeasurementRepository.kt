@@ -67,4 +67,6 @@ interface SignalMeasurementRepository {
     suspend fun sendFences(sessionId: String)
 
     suspend fun retrySendFences()
+
+    suspend fun removeOldFencesAndSessions()
 }

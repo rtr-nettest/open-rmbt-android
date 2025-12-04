@@ -9,6 +9,7 @@ import at.rtr.rmbt.android.ui.dialog.LocationInfoDialog
 import at.rtr.rmbt.android.ui.dialog.NetworkInfoDialog
 import at.rtr.rmbt.android.ui.dialog.SyncDevicesDialog
 import at.specure.measurement.MeasurementService
+import at.specure.measurement.coverage.data.workers.CoverageSyncWorker
 import at.specure.measurement.signal.SignalMeasurementService
 import at.specure.worker.request.CoverageMeasurementWorker
 import at.specure.worker.request.SendDataWorker
@@ -46,6 +47,8 @@ object Injector : AppComponent {
     override fun inject(worker: SignalMeasurementChunkWorker) = component.inject(worker)
 
     override fun inject(worker: CoverageMeasurementWorker) = component.inject(worker)
+
+    override fun inject(worker: CoverageSyncWorker) = component.inject(worker)
 
     override fun inject(dialog: NetworkInfoDialog) = component.inject(dialog)
 

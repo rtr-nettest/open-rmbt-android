@@ -8,6 +8,7 @@ import androidx.work.ExistingWorkPolicy
 import androidx.work.NetworkType
 import androidx.work.OneTimeWorkRequest
 import androidx.work.WorkManager
+import at.specure.measurement.coverage.data.workers.CoverageSyncWorker
 import at.specure.worker.request.CoverageMeasurementWorker
 import at.specure.worker.request.SendDataWorker
 import at.specure.worker.request.SettingsWorker
@@ -21,6 +22,7 @@ private const val DELAYED_SUBMISSION_WORK_NAME = "DELAYED_SUBMISSION_WORK_NAME"
 private const val SERVER_MEASUREMENT_INFO = "SERVER_MEASUREMENT_INFO"
 private const val SIGNAL_MEASUREMENT_CHUNK = "SIGNAL_MEASUREMENT_CHUNK"
 private const val COVERAGE_MEASUREMENT_REQUEST = "COVERAGE_MEASUREMENT_REQUEST"
+private const val COVERAGE_SYNC_REQUEST = "COVERAGE_SYNC_REQUEST"
 private const val COVERAGE_MEASUREMENT_RESULT = "COVERAGE_MEASUREMENT_RESULT" //TODO: add coverage result request
 
 const val KEY_TEST_UUID = "key_test_uuid"
@@ -67,6 +69,17 @@ object WorkLauncher {
             .build()
 
         WorkManager.getInstance(context).enqueueUniqueWork(COVERAGE_MEASUREMENT_REQUEST, ExistingWorkPolicy.REPLACE, request)
+    }
+
+    fun enqueueCoverageSyncRequest(context: Context) {
+
+        val request = OneTimeWorkRequest.Builder(CoverageSyncWorker::class.java)
+            .setConstraints(getWorkerConstraints())
+            .setBackoffCriteria(BackoffPolicy.EXPONENTIAL, WAITING_TIME_BETWEEN_REQUEST, TimeUnit.SECONDS)
+            .addTag(COVERAGE_SYNC_REQUEST)
+            .build()
+
+        WorkManager.getInstance(context).enqueueUniqueWork(COVERAGE_SYNC_REQUEST, ExistingWorkPolicy.REPLACE, request)
     }
 
     // TODO: add enqueue coverage request and send coverage result request

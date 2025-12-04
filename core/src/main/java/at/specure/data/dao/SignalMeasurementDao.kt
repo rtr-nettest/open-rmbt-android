@@ -7,6 +7,7 @@ import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Transaction
 import androidx.room.Update
+import androidx.room.Upsert
 import at.specure.data.Tables
 import at.specure.data.entity.SignalMeasurementChunk
 import at.specure.data.entity.CoverageMeasurementFenceRecord
@@ -43,7 +44,7 @@ interface SignalMeasurementDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun saveSignalMeasurementPoint(point: CoverageMeasurementFenceRecord)
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    @Upsert()
     fun saveDedicatedSignalMeasurementSession(session: CoverageMeasurementSession)
 
     // TODO: Change to return list according to loop id
@@ -53,8 +54,14 @@ interface SignalMeasurementDao {
     @Query("SELECT * FROM ${Tables.COVERAGE_MEASUREMENT_SESSION} WHERE localMeasurementId=:measurementId LIMIT 1")
     fun getCoverageMeasurementSessionForMeasurementId(measurementId: String): CoverageMeasurementSession?
 
-    @Query("SELECT * FROM ${Tables.COVERAGE_MEASUREMENT_SESSION} WHERE retryCount < $COVERAGE_MEASUREMENT_SUBMISSION_MAX_RETRY_COUNT AND (startMeasurementResponseReceivedMillis + (maxCoverageMeasurementSeconds * 1000)) < :currentTimeMillis AND localLoopId IS NOT NULL")
-    fun getCoverageMeasurementsForRetrySend(currentTimeMillis: Long = System.currentTimeMillis()): CoverageMeasurementSession?
+    @Query("""
+        SELECT * FROM ${Tables.COVERAGE_MEASUREMENT_SESSION} 
+        WHERE retryCount < $COVERAGE_MEASUREMENT_SUBMISSION_MAX_RETRY_COUNT 
+          AND (startMeasurementResponseReceivedMillis + (maxCoverageMeasurementSeconds * 1000)) < :currentTimeMillis 
+          AND serverMeasurementId IS NOT NULL 
+          AND synced = 0
+    """)
+    fun getCoverageMeasurementsForRetrySend(currentTimeMillis: Long = System.currentTimeMillis()): List<CoverageMeasurementSession>
 
     @Query("SELECT * FROM ${Tables.SIGNAL} WHERE signalMeasurementPointId=:id LIMIT 1")
     suspend fun getSignalRecord(id: String): SignalRecord?

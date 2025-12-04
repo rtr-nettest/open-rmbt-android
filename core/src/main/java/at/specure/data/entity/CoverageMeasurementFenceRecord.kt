@@ -3,6 +3,7 @@ package at.specure.data.entity
 import androidx.annotation.Keep
 import androidx.room.ColumnInfo
 import androidx.room.Entity
+import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
 import at.specure.data.Columns
 import at.specure.data.Tables
@@ -10,7 +11,17 @@ import at.specure.test.DeviceInfo
 import java.util.UUID
 
 @Keep
-@Entity(tableName = Tables.COVERAGE_MEASUREMENT_FENCE)
+@Entity(
+    tableName = Tables.COVERAGE_MEASUREMENT_FENCE,
+    foreignKeys = [
+        ForeignKey(
+            entity = CoverageMeasurementSession::class,
+            parentColumns = ["localMeasurementId"],
+            childColumns = ["sessionId"],
+            onDelete = ForeignKey.CASCADE
+        )
+    ]
+)
 data class CoverageMeasurementFenceRecord(
 
     @PrimaryKey

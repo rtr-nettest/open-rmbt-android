@@ -246,6 +246,27 @@ class SignalMeasurementRepositoryImpl(
                             dao.markSessionAsSynced(localMeasurementId)
                         } else {
                             dao.incrementRetryCountForSession(localMeasurementId)
+                            // TODO: enqueue sending with worker in case of failed send
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    override suspend fun retrySendFences() {
+        val measurements = dao.getCoverageMeasurementsForRetrySend()
+        measurements.forEach {coverageSessionMeasurement ->
+            val fencesForSession = dao.getCoverageMeasurementFencesList(coverageSessionMeasurement.localMeasurementId)
+            clientUUID.value?.let {clientUuid ->
+                fencesForSession.let { fences ->
+                    if (fences.isNotEmpty()) {
+                        val requestBody = coverageSessionMeasurement.toCoverageResultRequest(clientUuid, deviceInfo, config, fencesForSession)
+                        val result = client.coverageResult(requestBody)
+                        if (result.ok) {
+                            dao.markSessionAsSynced(coverageSessionMeasurement.localMeasurementId)
+                        } else {
+                            dao.incrementRetryCountForSession(coverageSessionMeasurement.localMeasurementId)
                         }
                     }
                     // TODO: enqueue sending with worker in case of failed send
@@ -254,8 +275,8 @@ class SignalMeasurementRepositoryImpl(
         }
     }
 
-    override suspend fun retrySendFences() {
-        dao.getCoverageMeasurementsForRetrySend()
+    override suspend fun removeOldFencesAndSessions() {
+        dao.deleteDeletableSessions()
     }
 
     /**
