@@ -7,7 +7,6 @@ import android.os.IBinder
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.asFlow
 import androidx.lifecycle.map
 import at.rmbt.client.control.NewsItem
 import at.rtr.rmbt.android.config.AppConfig
@@ -15,8 +14,6 @@ import at.rtr.rmbt.android.ui.viewstate.HomeViewState
 import at.specure.data.ClientUUID
 import at.specure.data.MeasurementServers
 import at.specure.data.CoverageMeasurementSettings
-import at.specure.data.entity.CoverageMeasurementFenceRecord
-import at.specure.data.entity.SignalRecord
 import at.specure.data.repository.NewsRepository
 import at.specure.data.repository.SettingsRepository
 import at.specure.data.repository.SignalMeasurementRepository
@@ -30,18 +27,12 @@ import at.specure.info.strength.SignalStrengthLiveData
 import at.specure.location.LocationInfo
 import at.specure.location.LocationState
 import at.specure.location.LocationWatcher
-import at.specure.measurement.coverage.RtrCoverageMeasurementProcessor
 import at.specure.measurement.signal.SignalMeasurementProducer
 import at.specure.measurement.signal.SignalMeasurementService
 import at.rmbt.client.control.data.SignalMeasurementType
-import at.specure.measurement.coverage.domain.models.CoverageMeasurementData
-import at.specure.measurement.coverage.domain.validators.LocationValidator
-import at.specure.test.toDeviceInfoLocation
-import at.specure.util.map.CustomMarker
 import at.specure.util.permission.PermissionsWatcher
 import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.launch
@@ -67,6 +58,8 @@ class HomeViewModel @Inject constructor(
     private val coverageMeasurementSettings: CoverageMeasurementSettings,
     measurementServers: MeasurementServers,
 ) : BaseViewModel() {
+
+    var shouldStartDedicatedMeasurementStateChecker: () -> Boolean = { false }
 
     val state = HomeViewState(appConfig, measurementServers)
 
@@ -171,9 +164,11 @@ class HomeViewModel @Inject constructor(
                     Timber.d("Stopping coverage session HVM1")
                     it.stopMeasurement(false)
                 } else {
-                    Timber.d("Starting coverage session HVM2")
-                    it.startMeasurement(false, SignalMeasurementType.DEDICATED)
-                    it.setEndAlarm()
+                    if (shouldStartDedicatedMeasurementStateChecker()) {
+                        Timber.d("Starting coverage session HVM2")
+                        it.startMeasurement(false, SignalMeasurementType.DEDICATED)
+                        it.setEndAlarm()
+                    }
                 }
             }
         }
@@ -193,9 +188,11 @@ class HomeViewModel @Inject constructor(
     }
 
     fun startSignalMeasurement(signalMeasurementType: SignalMeasurementType) {
-        coverageMeasurementSettings.signalMeasurementIsRunning = true
-        Timber.d("Starting coverage session HVM1")
-        producer?.startMeasurement(false, signalMeasurementType)
+        if (shouldStartDedicatedMeasurementStateChecker()) {
+            coverageMeasurementSettings.signalMeasurementIsRunning = true
+            Timber.d("Starting coverage session HVM1")
+            producer?.startMeasurement(false, signalMeasurementType)
+        }
     }
 
     fun stopSignalMeasurement() {

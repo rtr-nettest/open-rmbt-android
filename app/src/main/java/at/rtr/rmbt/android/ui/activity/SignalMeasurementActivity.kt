@@ -50,7 +50,6 @@ import at.rtr.rmbt.android.viewmodel.CoverageResultViewModel
 import at.specure.measurement.coverage.data.getFrequencyBand
 import at.specure.measurement.coverage.data.getSignalStrengthValue
 import at.specure.test.toDeviceInfoLocation
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlin.coroutines.resume
 
@@ -96,6 +95,9 @@ class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback, Coverage
         super.onCreate(savedInstanceState)
         binding = bindContentView(R.layout.activity_signal_measurement)
         coverageViewModel.onConfigurationChanged()
+        viewModel.shouldStartDedicatedMeasurementStateChecker = {
+            coverageViewModel.shouldRunCoverageMeasurement()
+        }
         binding.isActive = false
         binding.isPaused = false
 
@@ -153,6 +155,7 @@ class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback, Coverage
             if (coverageViewModel.coverageMeasurementDataLiveData.value?.state != CoverageMeasurementState.FINISHED_LOOP_CORRECTLY) {
                 showStopDialog()
             } else {
+                coverageViewModel.clearMeasurementData()
                 finish()
             }
         }
@@ -178,6 +181,7 @@ class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback, Coverage
     }
     
     private fun showMeasurementResults(coverageMeasurementData: CoverageMeasurementData) {
+        coverageViewModel.clearPerformanceImprovementLists()
         hideWarningButton()
         hideDialog()
         setMyPositionAndButtonVisible(false)
@@ -186,7 +190,13 @@ class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback, Coverage
         setInfoVisible(false)
         setResultTitleVisible(true)
         setSettingsButtonVisible(false)
-        coverageViewModel.clearPerformanceImprovementLists()
+        // Launch a coroutine to safely update the map
+        lifecycleScope.launch {
+            coverageViewModel.updateMapPoints(
+                map,
+                coverageMeasurementData?.fences.toCoverageResultItemRecords()
+            )
+        }
     }
     
     private fun updateUnfinishedMeasurement(coverageMeasurementData: CoverageMeasurementData?) {

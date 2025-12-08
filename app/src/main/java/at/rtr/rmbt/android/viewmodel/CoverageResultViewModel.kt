@@ -25,7 +25,9 @@ import at.specure.info.network.MobileNetworkType
 import at.specure.info.network.NetworkInfo
 import at.specure.measurement.coverage.RtrCoverageMeasurementProcessor
 import at.specure.measurement.coverage.domain.models.CoverageMeasurementData
+import at.specure.measurement.coverage.domain.models.state.CoverageMeasurementState
 import at.specure.measurement.coverage.domain.validators.LocationValidator
+import at.specure.measurement.coverage.presentation.CoverageMeasurementDataStateManager
 import at.specure.test.DeviceInfo
 import at.specure.util.map.CustomMarker
 import at.specure.util.map.getMarkerColorInt
@@ -298,11 +300,22 @@ class CoverageResultViewModel @Inject constructor(
         return locationValidator.isLocationFreshAndAccurate(location)
     }
 
+    fun clearMeasurementData() {
+        rtrCoverageMeasurementProcessor.cleanData()
+    }
+
     fun onCoverageSessionLoaded(sessionId: String?) {
         coverageSessionId = sessionId
         sessionId?.let {
             loadSessionPoints(it)
         }
+    }
+
+    fun shouldRunCoverageMeasurement(): Boolean {
+        val measurementNotFinishedOrNotStarted = coverageMeasurementDataLiveData.value?.state == null
+                || coverageMeasurementDataLiveData.value?.state != CoverageMeasurementState.FINISHED_LOOP_CORRECTLY
+        Timber.d("Current last state of data: ${coverageMeasurementDataLiveData.value?.state}")
+        return measurementNotFinishedOrNotStarted
     }
 
     fun shouldSignalMeasurementContinueInLastSession(): Boolean {

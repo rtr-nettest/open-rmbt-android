@@ -403,6 +403,11 @@ class RtrCoverageMeasurementProcessor @Inject constructor(
         }
     }
 
+    fun cleanData() {
+        stateManager.initData()
+        coverageMeasurementSettings.signalMeasurementLastMeasurementId = null
+    }
+
     private fun loadPoints(sessionId: String) = scope.launch(Dispatchers.IO) {
         fencesDataSource.loadCoverageFences(sessionId)
             .asFlow().
