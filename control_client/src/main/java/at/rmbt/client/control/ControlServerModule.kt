@@ -18,6 +18,7 @@ import com.google.gson.GsonBuilder
 import dagger.Module
 import dagger.Provides
 import okhttp3.ConnectionPool
+import okhttp3.Dispatcher
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
@@ -63,7 +64,13 @@ class ControlServerModule {
         .build()
 
     fun createOkHttpClient(controlEndpointProvider: ControlEndpointProvider): OkHttpClient {
+        val dispatcher = Dispatcher().apply {
+            maxRequests = 64              // total parallel requests (default 64)
+            maxRequestsPerHost = 32       // increased this to prevent failing of map filters loading (default is ONLY 5!), but it can still happen
+        }
+
         val builder = OkHttpClient.Builder()
+            .dispatcher(dispatcher)
             .connectTimeout(CONNECTION_TIMEOUT_SEC, TimeUnit.SECONDS)
             .readTimeout(READ_TIMEOUT_SEC, TimeUnit.SECONDS)
             .writeTimeout(CONNECTION_TIMEOUT_SEC, TimeUnit.SECONDS)
