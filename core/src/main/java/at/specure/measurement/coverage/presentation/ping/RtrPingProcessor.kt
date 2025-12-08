@@ -7,14 +7,18 @@ import at.specure.eval.PingEvaluator
 import at.specure.eval.PingStats
 import at.specure.measurement.coverage.domain.models.PingData
 import at.specure.measurement.coverage.domain.PingProcessor
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.retryWhen
 import kotlinx.coroutines.flow.sample
+import kotlinx.coroutines.launch
 import timber.log.Timber
 import javax.inject.Singleton
 
@@ -33,20 +37,17 @@ class RtrPingProcessor : PingProcessor {
     private var pingJob: Job? = null
     private val debug = true
 
+    private val pingDataFlow = MutableSharedFlow<PingData>(replay = 0)
+
     @OptIn(FlowPreview::class)
-    override suspend fun startPing(coverageMeasurementSession: CoverageMeasurementSession): Flow<PingData> = flow {
+    override suspend fun startPing(coverageMeasurementSession: CoverageMeasurementSession): Flow<PingData> {
         val pingHost = coverageMeasurementSession.pingServerHost
         val pingPort = coverageMeasurementSession.pingServerPort
         val pingToken = coverageMeasurementSession.pingServerToken
 
         if (pingHost == null || pingPort == null || pingToken == null) {
-            emit(
-                PingData(
-                    pingStatistics = null,
-                    error = IllegalStateException("Ping host, port, or token is null")
-                )
-            )
-            return@flow
+            pingDataFlow.emit(PingData(null, IllegalStateException("Ping host, port, or token is null")))
+            return pingDataFlow
         }
 
         val configuration = PingClientConfiguration(
@@ -60,44 +61,39 @@ class RtrPingProcessor : PingProcessor {
             errorResponseHeader = PING_PROTOCOL_ERROR_RESPONSE_HEADER
         )
 
-        if (configuration == pingClient?.configuration) {
-            Timber.d("Starting ping with configuration is already running")
-        } else {
-            Timber.d("Starting ping with $pingEvaluator cancelled")
+        if (configuration != pingClient?.configuration) {
             pingEvaluator?.cancel()
             pingClient = UdpHmacPingFlow(configuration)
             pingEvaluator = PingEvaluator(pingClient!!.pingFlow())
-            Timber.d("Starting ping with $pingEvaluator configuration: $configuration")
-            pingEvaluator?.start()
-                ?.sample(1000)
-                ?.retryWhen { cause, attempt ->
-                    Timber.e(cause, "Error in ping flow, restarting attempt #$attempt")
-                    delay(1000)
-                    true // retry on every exception
-                }
-                ?.catch { e ->
-                    // This will catch any remaining exceptions that retry didn't handle
-                    Timber.e(e, "Error in ping flow after retries")
-                    emit(
-                        PingData(
-                            pingStatistics = null,
-                            error = e
-                        )
-                    )
-                }
-                ?.collect { pingResult ->
-                    emit(
-                        PingData(
-                            pingStatistics = getCurrentPingStats(),
-                            error = null
-                        )
-                    )
-                }
+
+            pingJob?.cancel()
+            // Start collecting and emitting to the hot flow
+            pingJob = CoroutineScope(Dispatchers.IO).launch {
+                pingEvaluator?.start()
+                    ?.sample(1000)
+                    ?.retryWhen { cause, attempt ->
+                        Timber.e(cause, "Error in ping flow, restarting attempt #$attempt")
+                        delay(1000)
+                        true
+                    }
+                    ?.catch { e ->
+                        Timber.e(e, "Error in ping flow after retries")
+                        pingDataFlow.emit(PingData(null, e))
+                    }
+                    ?.collect {
+                        pingDataFlow.emit(PingData(getCurrentPingStats(), null))
+                    }
+            }
         }
+
+        return pingDataFlow
     }
 
+
     override suspend fun stopPing(): PingStats? {
-        return pingEvaluator?.evaluateAndStop()
+        val results = pingEvaluator?.evaluateAndStop()
+        pingJob?.cancel()
+        return results
     }
 
     override suspend fun getCurrentPingStats(): PingStats? {
