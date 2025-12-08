@@ -40,11 +40,13 @@ import com.google.android.gms.maps.model.LatLngBounds
 import com.google.android.gms.maps.model.MarkerOptions
 import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.zip
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
 import timber.log.Timber
 import javax.inject.Inject
@@ -158,8 +160,12 @@ class CoverageResultViewModel @Inject constructor(
         }
     }
 
-    fun zoomMapToShowAllMarkers(markersOptions: List<MarkerOptions>, map: GoogleMap) {
+    suspend fun zoomMapToShowAllMarkers(markersOptions: List<MarkerOptions>, map: GoogleMap) {
         if (markersOptions.isEmpty()) return
+
+        withContext(Dispatchers.Main) {
+            map.awaitMapLoad()
+        }
 
         val boundsBuilder = LatLngBounds.Builder()
         markersOptions.forEach { it ->
@@ -173,6 +179,15 @@ class CoverageResultViewModel @Inject constructor(
                 CameraUpdateFactory.newLatLngBounds(bounds, padding)
             )
         }
+    }
+
+    fun onConfigurationChanged() {
+        clearPerformanceImprovementLists()
+    }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    suspend fun GoogleMap.awaitMapLoad() = suspendCancellableCoroutine<Unit> { cont ->
+        setOnMapLoadedCallback { cont.resume(Unit) {} }
     }
 
     fun updateMapPoints(map: GoogleMap?, points: List<FencesResultItemRecord>?) {
@@ -245,6 +260,7 @@ class CoverageResultViewModel @Inject constructor(
     fun clearPerformanceImprovementLists() {
         state.activeCircles.clear()
         state.displayedPointIds.clear()
+        Timber.d("Lists optimisation cleared")
     }
 
     fun getCurrentNetworkTypeName(networkInfo: NetworkInfo?): String? {

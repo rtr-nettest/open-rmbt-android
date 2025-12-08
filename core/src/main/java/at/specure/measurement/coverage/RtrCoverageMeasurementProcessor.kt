@@ -412,16 +412,6 @@ class RtrCoverageMeasurementProcessor @Inject constructor(
                 }
     }
 
-    private fun cleanData() {
-        loadingFencesJob?.cancel()
-        stateManager.initData()
-        coverageMeasurementSettings.signalMeasurementLastMeasurementId = null
-    }
-
-    private fun cleanPingDataOnly() {
-        stateManager.updatePingData(null)
-    }
-
     fun onCoverageConfigurationChanged() {
         fencesDataSource.updateLastFenceRadius(
             stateManager.getLastFence(),

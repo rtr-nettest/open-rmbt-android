@@ -5,6 +5,7 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.content.res.Configuration
 import android.graphics.Color
 import android.os.Build
 import android.os.Bundle
@@ -49,6 +50,9 @@ import at.rtr.rmbt.android.viewmodel.CoverageResultViewModel
 import at.specure.measurement.coverage.data.getFrequencyBand
 import at.specure.measurement.coverage.data.getSignalStrengthValue
 import at.specure.test.toDeviceInfoLocation
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlin.coroutines.resume
 
 const val DEFAULT_POSITION_TRACKING_ZOOM_LEVEL = 16.2f
 private const val DEFAULT_LAT: Double = ((49.0390742051F + 46.4318173285F) / 2F).toDouble()
@@ -91,6 +95,7 @@ class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback, Coverage
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = bindContentView(R.layout.activity_signal_measurement)
+        coverageViewModel.onConfigurationChanged()
         binding.isActive = false
         binding.isPaused = false
 
@@ -166,6 +171,11 @@ class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback, Coverage
 
         }
     }
+
+    override fun onConfigurationChanged(newConfig: Configuration) {
+        super.onConfigurationChanged(newConfig)
+        coverageViewModel.onConfigurationChanged()
+    }
     
     private fun showMeasurementResults(coverageMeasurementData: CoverageMeasurementData) {
         hideWarningButton()
@@ -180,17 +190,27 @@ class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback, Coverage
     }
     
     private fun updateUnfinishedMeasurement(coverageMeasurementData: CoverageMeasurementData?) {
-        updateCurrentLocation(coverageMeasurementData?.currentLocation)
+
         setSettingsButtonVisible(true)
         setMyLocationButtonVisible(true)
-        setMyPositionAndButtonVisible(true)
         checkNetwork(coverageMeasurementData?.currentNetworkInfo)
         setInfoVisible(true)
         setResultTitleVisible(false)
         updatePingValue(coverageMeasurementData)
         showCurrentNetworkType(coverageMeasurementData)
         showMeasurementError(coverageMeasurementData)
-        coverageViewModel.updateMapPoints(map, coverageMeasurementData?.fences.toCoverageResultItemRecords())
+
+        // Launch a coroutine to safely update the map
+        lifecycleScope.launch {
+            map?.awaitMapLoad()
+
+            setMyPositionAndButtonVisible(true)
+            updateCurrentLocation(coverageMeasurementData?.currentLocation)
+            coverageViewModel.updateMapPoints(
+                map,
+                coverageMeasurementData?.fences.toCoverageResultItemRecords()
+            )
+        }
     }
 
     private fun setSettingsButtonVisible(visible: Boolean) {
@@ -198,6 +218,12 @@ class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback, Coverage
             View.VISIBLE
         } else {
             View.GONE
+        }
+    }
+
+    suspend fun GoogleMap.awaitMapLoad() = suspendCancellableCoroutine<Unit> { cont ->
+        setOnMapLoadedCallback {
+            cont.resume(Unit)
         }
     }
 

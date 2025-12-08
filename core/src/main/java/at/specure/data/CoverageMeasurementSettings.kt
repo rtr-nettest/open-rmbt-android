@@ -55,4 +55,10 @@ class CoverageMeasurementSettings @Inject constructor(context: Context) {
         signalMeasurementShouldContinueInLastSession = false
         signalMeasurementIsRunning = false
     }
+
+    fun onStartMeasurementSession(lastMeasurementId: String) {
+        signalMeasurementLastMeasurementId = lastMeasurementId
+        signalMeasurementShouldContinueInLastSession = true
+        signalMeasurementIsRunning = true
+    }
 }

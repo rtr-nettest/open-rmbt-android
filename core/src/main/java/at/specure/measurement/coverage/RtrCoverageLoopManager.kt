@@ -141,7 +141,7 @@ class RtrCoverageLoopManager @Inject constructor(
 
     private fun saveNewMeasurement(measurement: CoverageMeasurementSession) {
         signalMeasurementRepository.saveCoverageMeasurementSession(measurement)
-        coverageMeasurementSettings.signalMeasurementLastMeasurementId = measurement.localMeasurementId
+        coverageMeasurementSettings.onStartMeasurementSession(measurement.localMeasurementId)
     }
 
     private fun handleMeasurementReady(session: CoverageMeasurementSession) {
