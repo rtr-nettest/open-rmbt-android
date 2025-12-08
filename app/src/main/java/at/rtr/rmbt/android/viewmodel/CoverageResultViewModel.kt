@@ -29,12 +29,14 @@ import at.specure.measurement.coverage.domain.validators.LocationValidator
 import at.specure.test.DeviceInfo
 import at.specure.util.map.CustomMarker
 import at.specure.util.map.getMarkerColorInt
+import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.model.BitmapDescriptor
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.Circle
 import com.google.android.gms.maps.model.CircleOptions
 import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.LatLngBounds
 import com.google.android.gms.maps.model.MarkerOptions
 import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.Dispatchers
@@ -156,6 +158,23 @@ class CoverageResultViewModel @Inject constructor(
         }
     }
 
+    fun zoomMapToShowAllMarkers(markersOptions: List<MarkerOptions>, map: GoogleMap) {
+        if (markersOptions.isEmpty()) return
+
+        val boundsBuilder = LatLngBounds.Builder()
+        markersOptions.forEach { it ->
+            boundsBuilder.include(it.position)
+        }
+        val bounds = boundsBuilder.build()
+        val padding = 100 // padding in pixels from edges
+
+        viewModelScope.launch(Dispatchers.Main) {
+            map.animateCamera(
+                CameraUpdateFactory.newLatLngBounds(bounds, padding)
+            )
+        }
+    }
+
     fun updateMapPoints(map: GoogleMap?, points: List<FencesResultItemRecord>?) {
         val currentMap = map ?: return
         val pts = points ?: return
@@ -191,6 +210,8 @@ class CoverageResultViewModel @Inject constructor(
                         .fillColor(fillColor)
                 )
             } ?: emptyList()
+
+            zoomMapToShowAllMarkers(markersOptions = markerOptionsList, map = map)
 
             // Switch to main thread to add markers and circles
             withContext(Dispatchers.Main) {
