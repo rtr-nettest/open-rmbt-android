@@ -30,7 +30,7 @@ class UdpHmacPingFlow(
 ) {
     private val sentTimes = ConcurrentHashMap<Int, Triple<Long, Int, Long>>()
     private var sequenceNumber = Random.nextInt()
-    private val logsEnabled = true
+    private val logsEnabled = false
 
     fun pingFlow(): Flow<PingResult> = channelFlow {
         val address = try {

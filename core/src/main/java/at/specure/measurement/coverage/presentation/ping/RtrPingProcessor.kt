@@ -35,7 +35,7 @@ class RtrPingProcessor : PingProcessor {
     private var pingEvaluator: PingEvaluator? = null
     private var pingClient: UdpHmacPingFlow? = null
     private var pingJob: Job? = null
-    private val debug = true
+    private val debug = false
 
     private val pingDataFlow = MutableSharedFlow<PingData>(replay = 0)
 
