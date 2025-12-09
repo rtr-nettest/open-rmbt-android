@@ -24,13 +24,14 @@ import java.util.concurrent.ConcurrentHashMap
 import kotlin.random.Random
 import java.time.Instant
 import java.util.Base64
+import kotlin.coroutines.cancellation.CancellationException
 
 class UdpHmacPingFlow(
     val configuration: PingClientConfiguration,
 ) {
     private val sentTimes = ConcurrentHashMap<Int, Triple<Long, Int, Long>>()
     private var sequenceNumber = Random.nextInt()
-    private val logsEnabled = false
+    private val logsEnabled = true
 
     fun pingFlow(): Flow<PingResult> = channelFlow {
         val address = try {
@@ -60,9 +61,26 @@ class UdpHmacPingFlow(
                     val seq = bb.int
 
                     val id = String(idBytes, charset)
-                    val now = System.nanoTime()
 
-                    // remove ensures we only emit once
+                    // --- SERVER ERROR DETECTION ---
+                    when (id) {
+                        configuration.successResponseHeader -> {
+                            // OK - continue below
+                        }
+                        configuration.errorResponseHeader -> {
+                            send(PingResult.ServerError(seq, PingServerException.PingErrorResponseExceptionPing))
+                            sentTimes.remove(seq)
+                            continue
+                        }
+                        else -> {
+                            send(PingResult.ServerError(seq, PingServerException.UnknownPingResponseHeaderExceptionPing))
+                            sentTimes.remove(seq)
+                            continue
+                        }
+                    }
+
+                    // normal RTT path
+                    val now = System.nanoTime()
                     val sendInfo = sentTimes.remove(seq)
                     if (sendInfo != null) {
                         val rttMs = (now - sendInfo.first) / 1_000_000.0
@@ -72,13 +90,16 @@ class UdpHmacPingFlow(
                             send(PingResult.Lost(seq))
                         }
                     }
-                } catch (_: SocketTimeoutException) {
-                    // ignore
-                } catch (_: Exception) {
-                    // ignore
+                } catch (e: CancellationException) {
+                    throw e // allow coroutine cancellation to propagate
+                } catch (e: SocketTimeoutException) {
+                    // ignore timeout
+                } catch (e: Exception) {
+                    send(PingResult.ClientError(0, e))
                 }
             }
         }
+
 
         // Sender loop
         launch(Dispatchers.IO + SupervisorJob()) {
@@ -119,6 +140,8 @@ class UdpHmacPingFlow(
                             put(packetIpHash)
                         }.array()
                     }
+                } catch (e: CancellationException) {
+                    throw e // allow coroutine cancellation to propagate
                 } catch (e: Exception) {
                     // If we cannot build the packet, mark as failed immediately
                     sentTimes.remove(seq)

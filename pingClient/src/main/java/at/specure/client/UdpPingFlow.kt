@@ -72,8 +72,10 @@ class UdpPingFlow(
                    if (header == configuration.successResponseHeader) {
                        val rtt = System.currentTimeMillis() - startTime
                        emit(PingResult.Success(currentSeq, rtt.toDouble()))
+                   } else  if (header == configuration.errorResponseHeader) {
+                       emit(PingResult.ServerError(currentSeq, PingServerException.PingErrorResponseExceptionPing))
                    } else {
-                       emit(PingResult.ServerError(currentSeq))
+                       emit(PingResult.ServerError(currentSeq, PingServerException.UnknownPingResponseHeaderExceptionPing))
                    }
                 }
             } catch (e: SocketTimeoutException) {

@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.lifecycle.asFlow
 import at.rmbt.util.exception.HandledException
 import at.rmbt.util.io
+import at.specure.client.PingServerException
 import at.specure.config.Config
 import at.specure.data.CoverageMeasurementSettings
 import at.specure.data.entity.CoverageMeasurementFenceRecord
@@ -228,7 +229,11 @@ class RtrCoverageMeasurementProcessor @Inject constructor(
         cancelPingJob()
         pingJob = scope.launch(CoroutineName("PingJobCoroutine")) {
             coveragePingProcessor.startPing(registeredAndStartedSession).collect { pingData ->
-                stateManager.updatePingData(pingData)
+                if (pingData.error is PingServerException) {
+                    onNetworkChanged()
+                } else {
+                    stateManager.updatePingData(pingData)
+                }
             }
         }
         startMaxCoverageMeasurementSecondsReachedJob(session = registeredAndStartedSession)

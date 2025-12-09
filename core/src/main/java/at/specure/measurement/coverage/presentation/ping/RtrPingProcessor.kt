@@ -1,6 +1,7 @@
 package at.specure.measurement.coverage.presentation.ping
 
 import at.specure.client.PingClientConfiguration
+import at.specure.client.PingResult
 import at.specure.client.UdpHmacPingFlow
 import at.specure.data.entity.CoverageMeasurementSession
 import at.specure.eval.PingEvaluator
@@ -15,7 +16,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.retryWhen
 import kotlinx.coroutines.flow.sample
 import kotlinx.coroutines.launch
@@ -35,7 +36,7 @@ class RtrPingProcessor : PingProcessor {
     private var pingEvaluator: PingEvaluator? = null
     private var pingClient: UdpHmacPingFlow? = null
     private var pingJob: Job? = null
-    private val debug = false
+    private val debug = true
 
     private val pingDataFlow = MutableSharedFlow<PingData>(replay = 0)
 
@@ -70,6 +71,12 @@ class RtrPingProcessor : PingProcessor {
             // Start collecting and emitting to the hot flow
             pingJob = CoroutineScope(Dispatchers.IO).launch {
                 pingEvaluator?.start()
+                    ?.onEach {
+                        if (it is PingResult.ServerError) {
+                            Timber.e(it.exception, "Server error in ping flow")
+                            pingDataFlow.emit(PingData(getCurrentPingStats(), it.exception))
+                        }
+                    }
                     ?.sample(1000)
                     ?.retryWhen { cause, attempt ->
                         Timber.e(cause, "Error in ping flow, restarting attempt #$attempt")
