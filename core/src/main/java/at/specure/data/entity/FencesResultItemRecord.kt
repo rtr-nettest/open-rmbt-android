@@ -25,5 +25,5 @@ data class FencesResultItemRecord(
 )
 
 fun FencesResultItemRecord.generateHash(): String {
-    return "${this.id}-${this.fenceRadiusMeters}"
+    return "${this.id}-${this.fenceRadiusMeters}-${this.offsetMillis}"
 }

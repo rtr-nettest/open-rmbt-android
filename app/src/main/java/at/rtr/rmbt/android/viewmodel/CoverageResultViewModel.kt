@@ -27,7 +27,6 @@ import at.specure.measurement.coverage.RtrCoverageMeasurementProcessor
 import at.specure.measurement.coverage.domain.models.CoverageMeasurementData
 import at.specure.measurement.coverage.domain.models.state.CoverageMeasurementState
 import at.specure.measurement.coverage.domain.validators.LocationValidator
-import at.specure.measurement.coverage.presentation.CoverageMeasurementDataStateManager
 import at.specure.test.DeviceInfo
 import at.specure.util.map.CustomMarker
 import at.specure.util.map.getMarkerColorInt
@@ -192,11 +191,12 @@ class CoverageResultViewModel @Inject constructor(
         setOnMapLoadedCallback { cont.resume(Unit) {} }
     }
 
-    fun updateMapPoints(map: GoogleMap?, points: List<FencesResultItemRecord>?) {
+    fun updateMapPoints(map: GoogleMap?, points: List<FencesResultItemRecord>?, coverageMeasurementState: CoverageMeasurementState?) {
         val currentMap = map ?: return
         val pts = points ?: return
 
         viewModelScope.launch(Dispatchers.Default) {
+            clearPerformanceListsIfTheyAreFromPreviousMeasurement(pts)
             // Filter only points that haven't been displayed yet
             val newPoints = pts.filter { !state.displayedPointIds.contains(it.generateHash()) }
 
@@ -228,7 +228,9 @@ class CoverageResultViewModel @Inject constructor(
                 )
             } ?: emptyList()
 
-            zoomMapToShowAllMarkers(markersOptions = markerOptionsList, map = map)
+            if (coverageMeasurementState == null || coverageMeasurementState == CoverageMeasurementState.FINISHED_LOOP_CORRECTLY) {
+                zoomMapToShowAllMarkers(markersOptions = markerOptionsList, map = map)
+            }
 
             // Switch to main thread to add markers and circles
             withContext(Dispatchers.Main) {
@@ -259,8 +261,13 @@ class CoverageResultViewModel @Inject constructor(
         }
     }
 
+    private fun clearPerformanceListsIfTheyAreFromPreviousMeasurement(pts: List<FencesResultItemRecord>) {
+        if (state.displayedPointIds.size > pts.size) {
+            clearPerformanceImprovementLists()
+        }
+    }
+
     fun clearPerformanceImprovementLists() {
-        state.activeCircles.clear()
         state.displayedPointIds.clear()
         Timber.d("Lists optimisation cleared")
     }

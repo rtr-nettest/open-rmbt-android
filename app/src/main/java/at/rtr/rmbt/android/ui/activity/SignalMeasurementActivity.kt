@@ -194,7 +194,8 @@ class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback, Coverage
         lifecycleScope.launch {
             coverageViewModel.updateMapPoints(
                 map,
-                coverageMeasurementData?.fences.toCoverageResultItemRecords()
+                coverageMeasurementData?.fences.toCoverageResultItemRecords(),
+                coverageMeasurementData?.state
             )
         }
     }
@@ -218,7 +219,8 @@ class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback, Coverage
             updateCurrentLocation(coverageMeasurementData?.currentLocation)
             coverageViewModel.updateMapPoints(
                 map,
-                coverageMeasurementData?.fences.toCoverageResultItemRecords()
+                coverageMeasurementData?.fences.toCoverageResultItemRecords(),
+                coverageMeasurementData?.state
             )
         }
     }

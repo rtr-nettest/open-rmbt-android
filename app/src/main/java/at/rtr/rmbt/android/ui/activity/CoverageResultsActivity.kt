@@ -25,6 +25,7 @@ import at.specure.data.entity.TestResultRecord
 import at.specure.data.entity.isCoverageResult
 import at.specure.info.network.MobileNetworkType
 import at.specure.location.LocationInfo
+import at.specure.measurement.coverage.domain.models.state.CoverageMeasurementState
 import at.specure.test.DeviceInfo
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
@@ -149,7 +150,7 @@ class CoverageResultsActivity : BaseActivity() {
     }
 
     private fun setUpMap(map: GoogleMap?, fences: List<FencesResultItemRecord>?) {
-        viewModel.updateMapPoints(map, fences)
+        viewModel.updateMapPoints(map, fences, null)
     }
 
 
