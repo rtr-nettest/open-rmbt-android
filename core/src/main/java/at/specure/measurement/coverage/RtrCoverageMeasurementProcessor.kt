@@ -138,6 +138,7 @@ class RtrCoverageMeasurementProcessor @Inject constructor(
                             }
 
                             is CoverageMeasurementEvent.MeasurementCreated -> {
+                                Timber.d("Session created with id: ${event.session.localMeasurementId} seq: ${event.session.sequenceNumber}")
                                 val session = event.session
                                 sessionCreated?.invoke(session)
                                 loadingFencesJob?.cancel()
@@ -146,6 +147,7 @@ class RtrCoverageMeasurementProcessor @Inject constructor(
                             }
 
                             is CoverageMeasurementEvent.MeasurementRegistered -> {
+                                Timber.d("Session created with id: ${event.session.localMeasurementId} and server: ${event.session.serverMeasurementId}")
                                 onStartAndRegistrationCompleted(event.session)
                             }
 

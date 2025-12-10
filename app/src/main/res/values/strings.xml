@@ -542,4 +542,9 @@
     <string name="text_accuracy_radius">Accuracy:</string>
     <string name="points">Points</string>
     <string name="text_loading_results_failed">Loading results failed</string>
+    <string name="text_connection_count">%1$d connections</string>
+    <string name="text_fence_count">%1$d fences</string>
+    <string name="text_unknown">None</string>
+    <string name="ipv4_short">IPv4</string>
+    <string name="ipv6_short">IPv6</string>
 </resources>

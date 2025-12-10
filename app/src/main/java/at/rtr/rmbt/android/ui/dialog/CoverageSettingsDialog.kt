@@ -16,14 +16,16 @@ import at.rtr.rmbt.android.R
 import at.rtr.rmbt.android.databinding.DialogCoverageSettingsBinding
 import at.rtr.rmbt.android.di.Injector
 import at.rtr.rmbt.android.util.addOnPropertyChanged
+import at.rtr.rmbt.android.util.listen
 import at.rtr.rmbt.android.viewmodel.CoverageSettingsViewModel
+import at.specure.measurement.coverage.domain.models.state.CoverageMeasurementState
 import javax.inject.Inject
 import kotlin.math.max
 
 const val MIN_FENCE_RADIUS_METERS = 10
-const val MAX_FENCE_RADIUS_METERS = 50
+const val MAX_FENCE_RADIUS_METERS = 100
 const val MIN_LOCATION_ACCURACY_METERS = 3
-const val MAX_LOCATION_ACCURACY_METERS = 20
+const val MAX_LOCATION_ACCURACY_METERS = 30
 
 class CoverageSettingsDialog : FullscreenDialog() {
 
@@ -52,6 +54,30 @@ class CoverageSettingsDialog : FullscreenDialog() {
 
         Injector.inject(this)
         viewModel.onRestoreState(savedInstanceState)
+
+        viewModel.coverageMeasurementDataLiveData.listen(this) {
+            showConnectionCount(it?.coverageMeasurementSession?.sequenceNumber ?: 0)
+            showFencesCount(it?.fences?.size ?: 0)
+            showIpVersion(it?.coverageMeasurementSession?.ipVersion ?: 0)
+        }
+
+    }
+
+    private fun showFencesCount(i: Int) {
+        binding.labelPointsCount.text = getString(R.string.text_fence_count, i)
+    }
+
+    private fun showConnectionCount(i: Int) {
+        binding.labelConnectionCount.text = getString(R.string.text_connection_count, i)
+    }
+
+    private fun showIpVersion(i: Int?) {
+        val ipText = when (i) {
+            4 -> getString(R.string.ipv4_short)
+            6 -> getString(R.string.ipv6_short)
+            else -> getString(R.string.text_unknown)
+        }
+        binding.labelIpVersion.text = ipText
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
