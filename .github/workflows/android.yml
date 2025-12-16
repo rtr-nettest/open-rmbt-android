@@ -6,7 +6,7 @@ name: Build and Deploy
 # events but only for the master branch
 on:
   push:
-    branches: [ fix/rtr_release_fixes ]
+    
 
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
