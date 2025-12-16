@@ -14,9 +14,9 @@ jobs:
   # This workflow contains a single job called "build"
   build-app:
     # The type of runner that the job will run on
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v5
       with:
         persist-credentials: false  
     - uses: webfactory/ssh-agent@v0.5.4
@@ -44,7 +44,7 @@ jobs:
         buildToolsVersion: 33.0.0
 
     # Upload your signed file if you want
-    - uses: actions/upload-artifact@v2
+    - uses: actions/upload-artifact@v6
       with:
         name: Signed app bundle
         path: ${{steps.sign_app.outputs.signedFile}}
