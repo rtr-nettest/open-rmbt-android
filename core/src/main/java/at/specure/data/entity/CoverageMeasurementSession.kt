@@ -96,6 +96,11 @@ data class CoverageMeasurementSession(
      * Number of session item order in the loop.
      */
     val sequenceNumber: Int = 0,
+
+    /**
+     * Number of session item order in the loop from server.
+     */
+    val serverSessionLoopTestCounter: Int = 0,
 ) {
     fun isFirstMeasurementInLoop(): Boolean {
         return sequenceNumber == 0

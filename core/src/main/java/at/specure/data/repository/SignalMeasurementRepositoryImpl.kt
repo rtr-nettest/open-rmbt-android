@@ -148,7 +148,8 @@ class SignalMeasurementRepositoryImpl(
                     localMeasurementId = coverageSession.localMeasurementId,
                     localLoopId = coverageSession.localLoopId,
                     serverMeasurementId = it.testUUID,
-                    serverSessionLoopId = if (coverageSession.isFirstMeasurementInLoop()) it.testUUID else coverageSession.serverSessionLoopId, // TODO: it.loopUUID will be done"
+                    serverSessionLoopId = if (coverageSession.isFirstMeasurementInLoop()) it.testUUID else it.loopUUID,
+                    serverSessionLoopTestCounter = it.loopTestCounter,
                     pingServerHost = it.pingHost,
                     pingServerPort = it.pingPort.toIntOrNull() ?: -1,
                     pingServerToken = it.pingToken,
