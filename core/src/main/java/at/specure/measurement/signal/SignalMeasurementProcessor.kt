@@ -371,7 +371,7 @@ class SignalMeasurementProcessor @Inject constructor(
             location = locationInfo.toDeviceInfoLocation(),
             rawCapabilitiesRecord = networkInfo.capabilitiesRaw
         ).also {
-            // todo: create new local dedicated measurement session
+            // todo: create new local dedicated measurement session, or maybe not - need to be consulted
             signalRepository.saveAndRegisterRecord(it)
         }
         chunk = null

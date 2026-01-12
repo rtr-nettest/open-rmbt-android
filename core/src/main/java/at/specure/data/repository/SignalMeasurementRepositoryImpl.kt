@@ -44,7 +44,7 @@ class SignalMeasurementRepositoryImpl(
     private val dao = db.signalMeasurementDao()
     private val testDao = db.testDao()
 
-    // TODO: we should perform a new request for session
+    // TODO: we should perform a new request for session, we need to discuss if new coverage is needed
     override fun saveAndUpdateRegisteredRecord(record: SignalMeasurementRecord, newUuid: String, oldSession: CoverageMeasurementSession) = io {
         dao.saveSignalMeasurementRecord(record)
         val newSession = oldSession.copy(
@@ -52,14 +52,14 @@ class SignalMeasurementRepositoryImpl(
             serverMeasurementId = newUuid,
         )
         .also {
-            dao.saveDedicatedSignalMeasurementSession(it)
+//            dao.saveDedicatedSignalMeasurementSession(it)
         }
     }
 
     override fun saveAndRegisterRecord(record: SignalMeasurementRecord) = io {
         dao.saveSignalMeasurementRecord(record)
         // TODO: Here is the logic when signalMeasurementRecord returns new uuid move this logic to session manager
-        registerCoverageMeasurement(localMeasurementId = record.id)
+        /*registerCoverageMeasurement(localMeasurementId = record.id)
             .catch { e ->
                 if (e is NoConnectionException) {
                     emit(false)
@@ -72,7 +72,7 @@ class SignalMeasurementRepositoryImpl(
                 if (!it) {
                     WorkLauncher.enqueueCoverageMeasurementRequest(context, record.id)
                 }
-            }
+            }*/
     }
 
     override fun updateSignalMeasurementRecord(record: SignalMeasurementRecord) = io {
@@ -344,7 +344,7 @@ class SignalMeasurementRepositoryImpl(
                         sequenceNumber = 0,
                     )
                     session?.let { signalMeasurementSession ->
-                        dao.saveDedicatedSignalMeasurementSession(signalMeasurementSession)
+//                        saveCoverageMeasurementSession(signalMeasurementSession)
                     }
 
                 } else {
