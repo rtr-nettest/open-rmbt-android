@@ -29,7 +29,9 @@ open class HandledException constructor(val msg: String?, val stringResource: In
 
     constructor(stringResource: Int) : this(null, stringResource)
 
-    open fun getText(context: Context): String = msg ?: context.getString(stringResource!!)
+    open fun getText(context: Context): String =
+        msg ?: stringResource?.let(context::getString)
+        ?: "Unknown error"
 
     fun getTitle(context: Context): String? = if (titleRes == null) {
         null
