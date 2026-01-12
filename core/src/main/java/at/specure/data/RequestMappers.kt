@@ -545,7 +545,7 @@ fun CoverageMeasurementSession.toCoverageResultRequest(
     apiLevel = deviceInfo.apiLevel,
     softwareVersionCode = deviceInfo.softwareVersionCode.toString(),
     fences = fences.toRequest(startTimeMeasurementMillis),
-    sequenceNumber = sequenceNumber,
+    sequenceNumber = this.serverSessionLoopTestCounter,
     timeNanos = startMeasurementResponseReceivedMillis.milliseconds.inWholeNanoseconds
 )
 
