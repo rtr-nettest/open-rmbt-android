@@ -95,6 +95,7 @@ class RtrCoverageLoopManager @Inject constructor(
         val noRecordedFences = fencesCount == 0
 
         val newMeasurement = if (previousWasNotRegistered || noRecordedFences) {
+            Timber.d("Creating new session as it was not registered ${previousWasNotRegistered} or no fences were recorded ${noRecordedFences}")
             CoverageMeasurementSession(
                 sequenceNumber = lastCoverageMeasurementSession.sequenceNumber,
                 serverSessionLoopId = lastCoverageMeasurementSession.serverSessionLoopId,
@@ -168,6 +169,7 @@ class RtrCoverageLoopManager @Inject constructor(
             coroutineContext.ensureActive()
 
             try {
+                Timber.d("Registering coverage measurement: ${session.localMeasurementId}")
                 val ok = signalMeasurementRepository
                     .registerCoverageMeasurement(session.localMeasurementId)
                     .first()

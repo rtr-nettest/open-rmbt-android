@@ -283,6 +283,7 @@ class RtrCoverageMeasurementProcessor @Inject constructor(
         val isBackOnMobileData = mainCoverageDataValidator.isBackToMobile(coverageMeasurementDataValue.currentNetworkInfo, networkInfo)
         if (isBackOnMobileData) {
             coverageMeasurementDataValue.coverageMeasurementSession?.let { currentMeasurement ->
+                Timber.d("Starting new measurement because we are back on mobile data: $coverageMeasurementDataValue")
                 coverageLoopManager.endMeasurementInLoop(currentMeasurement)
                 coverageLoopManager.createNewMeasurementInLoop(currentMeasurement)
             }
@@ -406,6 +407,7 @@ class RtrCoverageMeasurementProcessor @Inject constructor(
     fun onNetworkChanged() {
         stateManager.state.value.coverageMeasurementSession?.let { lastMeasurement ->
             coverageLoopManager.endMeasurementInLoop(lastMeasurement)
+            Timber.d("Starting new measurement because of network change")
             coverageLoopManager.createNewMeasurementInLoop(lastMeasurement)
         }
     }
