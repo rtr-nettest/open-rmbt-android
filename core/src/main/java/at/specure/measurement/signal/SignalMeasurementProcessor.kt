@@ -177,7 +177,7 @@ class SignalMeasurementProcessor @Inject constructor(
                 sessionCreationError = measurementSessionInitializationErrorCallback,
                 sessionStopped = measurementSessionStoppedCallback,
             )
-            rtrCoverageMeasurementProcessor.onNewLocation(locationInfo, networkInfo)
+            rtrCoverageMeasurementProcessor.onNewLocation(locationInfo, globalNetworkInfo)
         }
 
         if (isSignalMeasurementRunning()) {
