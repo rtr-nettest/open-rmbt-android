@@ -287,7 +287,7 @@ class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback, Coverage
 
     private fun showMeasurementError(coverageMeasurementData: CoverageMeasurementData?) {
         coverageMeasurementData?.signalMeasurementException?.also {
-            Dialogs.show(this.applicationContext, getString(R.string.coverage_measurement_error_title), it.message ?: getString(R.string.coverage_measurement_error_unknown))
+            Dialogs.show(this, getString(R.string.coverage_measurement_error_title), it.message ?: getString(R.string.coverage_measurement_error_unknown))
         }
     }
 
