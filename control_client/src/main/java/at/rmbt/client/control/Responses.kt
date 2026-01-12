@@ -953,6 +953,10 @@ data class CoverageRequestResponse( // CoverageSettingsResponse
     val provider: String?,
     @SerializedName("test_uuid")
     val testUUID: String,
+    @SerializedName("loop_uuid")
+    val loopUUID: String,
+    @SerializedName("loop_test_counter")
+    val loopTestCounter: Int,
     @SerializedName("ping_token")
     val pingToken: String,
     @SerializedName("ping_host")
@@ -967,7 +971,7 @@ data class CoverageRequestResponse( // CoverageSettingsResponse
      *
      * After timer expiration a new measurement shall be started (as it is done when there is no coverage.
      */
-    @SerializedName("max_coverage_session_seconds")
+    @SerializedName("maxCoverageSessionSeconds")
     val maxCoverageSessionSeconds: Int,
     /**
      * defines the maximum total measurement time. After this timeout the coverage measurement must end (thus, the user interface must switch to results
