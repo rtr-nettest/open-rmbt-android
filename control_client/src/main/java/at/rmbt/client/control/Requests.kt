@@ -1000,6 +1000,8 @@ data class CoverageRequestBody(
 
     @SerializedName("client_uuid")
     val clientUUID: String,
+    @SerializedName("loop_uuid")
+    val serverLoopUuid: String?,
     @SerializedName("client_language") // language code
     val languageCode: String?,
     val softwareRevision: String?, // git branch and hash of the client software revision

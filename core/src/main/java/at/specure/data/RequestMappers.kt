@@ -498,6 +498,7 @@ fun SignalMeasurementRecord.toRequest(clientUUID: String, deviceInfo: DeviceInfo
 
 fun CoverageMeasurementSession.toCoverageRequest(clientUUID: String, deviceInfo: DeviceInfo, config: Config) = CoverageRequestBody(
     clientUUID = clientUUID,
+    serverLoopUuid = this.serverSessionLoopId,
     platform = deviceInfo.platform,
     softwareVersionCode = deviceInfo.softwareVersionCode,
     softwareRevision = deviceInfo.softwareRevision,
