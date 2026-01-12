@@ -143,7 +143,7 @@ class SignalMeasurementRepositoryImpl(
         response.onSuccess {
             Timber.d("$it")
             val responseReceivedTime = System.currentTimeMillis()
-            dao.saveDedicatedSignalMeasurementSession(
+            saveCoverageMeasurementSession(
                 session = CoverageMeasurementSession(
                     localMeasurementId = coverageSession.localMeasurementId,
                     localLoopId = coverageSession.localLoopId,
