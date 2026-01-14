@@ -260,6 +260,7 @@ class SignalMeasurementProcessor @Inject constructor(
         signalStrengthInfo = signalStrengthWatcher.lastSignalStrength
         signalStrengthLiveData.observe(owner, Observer { info ->
             signalStrengthInfo = info?.signalStrengthInfo
+            globalNetworkInfo = info?.networkInfo
             if (isSignalMeasurementRunning()) {
                 handleNewNetwork(info?.networkInfo)
                 saveCellInfo(info)
