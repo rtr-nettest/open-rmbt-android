@@ -56,7 +56,8 @@ class CoverageSettingsDialog : FullscreenDialog() {
         viewModel.onRestoreState(savedInstanceState)
 
         viewModel.coverageMeasurementDataLiveData.listen(this) {
-            showConnectionCount(it?.coverageMeasurementSession?.sequenceNumber ?: 0)
+            val currentSequenceNumber = it?.coverageMeasurementSession?.sequenceNumber ?: -1
+            showConnectionCount(currentSequenceNumber + 1)
             showFencesCount(it?.fences?.size ?: 0)
             showIpVersion(it?.coverageMeasurementSession?.ipVersion ?: 0)
         }
