@@ -32,7 +32,6 @@ import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.flowOn
@@ -120,7 +119,7 @@ class RtrCoverageMeasurementProcessor @Inject constructor(
                 .debounce { 1_000 }
                 .collect { subscriptionId ->
                     Timber.d("📶 Active data sim changed to subId: $subscriptionId -> stopping measurement")
-                    onMeasurementStop()
+                    onMeasurementStopAndStartNewMeasurement()
             }
         }
 
@@ -260,7 +259,7 @@ class RtrCoverageMeasurementProcessor @Inject constructor(
             Timber.d("Starting maxCoverageMeasurementSeconds timer with ${maxCoverageMeasurementSeconds.seconds.inWholeSeconds} seconds")
             coverageMeasurementTimer.start(maxCoverageMeasurementSeconds.seconds, {
                 Timber.d("Stopping coverage measurement because of max time reached")
-                onMeasurementStop()
+                onMeasurementStopAndStartNewMeasurement()
             })
         }
     }
@@ -404,9 +403,10 @@ class RtrCoverageMeasurementProcessor @Inject constructor(
     /**
      * Stop of single measurement in a loop
      */
-    fun onMeasurementStop() {
+    fun onMeasurementStopAndStartNewMeasurement() {
         stateManager.state.value.coverageMeasurementSession?.let { lastMeasurement ->
             coverageLoopManager.endMeasurementInLoop(lastMeasurement)
+            coverageLoopManager.createNewMeasurementInLoop(lastMeasurement)
         }
     }
 
