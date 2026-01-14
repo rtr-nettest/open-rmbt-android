@@ -280,13 +280,14 @@ class RtrCoverageMeasurementProcessor @Inject constructor(
         // TODO: check if airplane mode is enabled or not, check if mobile data are enabled
 
         val coverageMeasurementDataValue = stateManager.state.value ?: return
+        val lastRecordedFence = coverageMeasurementDataValue.fences.lastOrNull()
 
         stateManager.updateLocation(location)
         Timber.d("onNewLocation triggered")
         val isBackOnMobileData = mainCoverageDataValidator.isBackToMobile(coverageMeasurementDataValue.currentNetworkInfo, networkInfo)
         val isFirstMeasurementInLoop = coverageMeasurementDataValue.coverageMeasurementSession?.sequenceNumber == 0
 
-        if (isBackOnMobileData && isFirstMeasurementInLoop.not()) {
+        if (isBackOnMobileData && lastRecordedFence != null) {
             coverageMeasurementDataValue.coverageMeasurementSession?.let { currentMeasurement ->
                 Timber.d("Starting new measurement because we are back on mobile data: $coverageMeasurementDataValue")
                 coverageLoopManager.endMeasurementInLoop(currentMeasurement)
@@ -305,7 +306,7 @@ class RtrCoverageMeasurementProcessor @Inject constructor(
         val newTimestamp = System.currentTimeMillis()
         val newLocation = location.toDeviceInfoLocation()
         Timber.d("DeviceInfoLocation: $newLocation \nLocationInfo: $location")
-        val lastRecordedFence = coverageMeasurementDataValue.fences.lastOrNull()
+
         Timber.d("lastPoint = $lastRecordedFence")
         val isDataValidToSaveNewFence = mainCoverageDataValidator.areDataValidToSaveNewFence(
             newTimestamp = newTimestamp,
