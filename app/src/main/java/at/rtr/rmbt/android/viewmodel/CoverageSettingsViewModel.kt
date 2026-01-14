@@ -27,7 +27,7 @@ class CoverageSettingsViewModel @Inject constructor(
         get() = _coverageMeasurementDataLiveData
 
     private val _coverageMeasurementDataLiveData: LiveData<CoverageMeasurementData?> =
-        rtrCoverageMeasurementProcessor.stateManager.state.asLiveData(viewModelScope.coroutineContext)
+        rtrCoverageMeasurementProcessor.stateManager.state.asLiveData()
 
 
 

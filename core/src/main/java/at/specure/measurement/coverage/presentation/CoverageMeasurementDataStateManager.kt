@@ -14,8 +14,11 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import timber.log.Timber
+import javax.inject.Inject
+import javax.inject.Singleton
 
-class CoverageMeasurementDataStateManager(
+@Singleton
+class CoverageMeasurementDataStateManager @Inject constructor(
     private val coverageMeasurementSettings: CoverageMeasurementSettings,
     private val scope: CoroutineScope
 ) {
@@ -64,6 +67,19 @@ class CoverageMeasurementDataStateManager(
             copy(coverageMeasurementSession = session)
         }
         Timber.d("Session created: ${session.localMeasurementId}")
+    }
+
+    fun onSessionRegistered(session: CoverageMeasurementSession) {
+        update {
+            copy(coverageMeasurementSession = session)
+        }
+        Timber.d("Session registered: ${session.localMeasurementId}")
+    }
+
+    fun onSessionUpdate(session: CoverageMeasurementSession) {
+        update {
+            copy(coverageMeasurementSession = session)
+        }
     }
 
     fun onUpdateCoverageDataState(newState: CoverageMeasurementState) {

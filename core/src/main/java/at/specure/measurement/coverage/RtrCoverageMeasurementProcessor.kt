@@ -59,6 +59,8 @@ class RtrCoverageMeasurementProcessor @Inject constructor(
     private val fencesDataSource: FencesDataSource,
     private val coverageLoopManager: CoverageLoopManager,
     private val connectivityMonitor: ConnectivityMonitor,
+    private val scope: CoroutineScope,
+    val stateManager: CoverageMeasurementDataStateManager,
 ) : CoverageMeasurementProcessor, CoroutineScope {
 
     private val coverageSessionTimer = CoverageTimer(
@@ -67,7 +69,7 @@ class RtrCoverageMeasurementProcessor @Inject constructor(
     private val coverageMeasurementTimer = CoverageTimer(
         scope = CoroutineScope(Dispatchers.Default + CoroutineName("MaxCoverageMeasurementTimer")),
     )
-    private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
+//    private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
     private val coroutineExceptionHandler = CoroutineExceptionHandler { _, e ->
         if (e is HandledException) {
             // do nothing
@@ -79,7 +81,7 @@ class RtrCoverageMeasurementProcessor @Inject constructor(
     private var sessionCollectorJob: Job? = null
     private var pingJob: Job? = null
     override val coroutineContext = EmptyCoroutineContext + coroutineExceptionHandler
-    val stateManager = CoverageMeasurementDataStateManager(coverageMeasurementSettings, scope)
+//    val stateManager = CoverageMeasurementDataStateManager(coverageMeasurementSettings, scope)
     val dataSimMonitor = CoverageDataSimMonitor(scope = scope)
     var dataSimMonitorJob: Job? = null
 
@@ -226,6 +228,7 @@ class RtrCoverageMeasurementProcessor @Inject constructor(
     }
 
     private suspend fun onStartAndRegistrationCompleted(registeredAndStartedSession: CoverageMeasurementSession) {
+        stateManager.onSessionRegistered(registeredAndStartedSession)
         stateManager.onUpdateCoverageDataState(CoverageMeasurementState.RUNNING)
         Timber.d("Starting ping")
         cancelPingJob()

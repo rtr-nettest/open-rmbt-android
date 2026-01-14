@@ -61,6 +61,7 @@ import at.specure.measurement.coverage.presentation.validators.CoverageNetworkVa
 import at.specure.measurement.coverage.domain.validators.DurationValidator
 import at.specure.measurement.coverage.domain.validators.LocationValidator
 import at.specure.measurement.coverage.domain.validators.NetworkValidator
+import at.specure.measurement.coverage.presentation.CoverageMeasurementDataStateManager
 import at.specure.measurement.coverage.presentation.monitors.RtrConnectivityMonitor
 import at.specure.measurement.coverage.presentation.ping.RtrPingProcessor
 import at.specure.measurement.coverage.presentation.validators.MainCoverageDataValidator
@@ -76,6 +77,9 @@ import cz.mroczis.netmonster.core.INetMonster
 import cz.mroczis.netmonster.core.factory.NetMonsterFactory
 import dagger.Module
 import dagger.Provides
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 import javax.inject.Named
 import javax.inject.Singleton
 
@@ -292,6 +296,23 @@ class CoreModule {
     @Provides
     @Singleton
     fun provideCoverageSettings(context: Context): CoverageMeasurementSettings = CoverageMeasurementSettings(context)
+
+
+    @Provides
+    @Singleton
+    fun provideCoverageScope(): CoroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
+
+
+    @Provides
+    @Singleton
+    fun provideCoverageMeasurementDataStateManager(
+        coverageMeasurementSettings: CoverageMeasurementSettings,
+        scope: CoroutineScope
+    ): CoverageMeasurementDataStateManager =
+        CoverageMeasurementDataStateManager(
+            coverageMeasurementSettings = coverageMeasurementSettings,
+            scope = scope
+            )
 
     @Provides
     @Singleton
