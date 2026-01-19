@@ -34,11 +34,11 @@ import at.rtr.rmbt.android.util.visible
 import at.specure.data.entity.History
 import at.specure.data.entity.HistoryContainer
 
-private const val ITEM_LOOP = 0
-private const val ITEM_HISTORY = 1
-private const val ITEM_COVERAGE_HISTORY = 2
-private const val ITEM_COVERAGE_LOOP = 3
-private const val KEY_STATE = "KEY_STATE"
+const val ITEM_LOOP = 0
+const val ITEM_HISTORY = 1
+const val ITEM_COVERAGE_HISTORY = 2
+const val ITEM_COVERAGE_LOOP = 3
+const val KEY_STATE = "KEY_STATE"
 
 class HistoryLoopAdapter : PagedListAdapter<HistoryContainer, HistoryLoopAdapter.Holder>(DIFF_CALLBACK) {
 
