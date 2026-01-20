@@ -51,6 +51,7 @@ import androidx.core.view.marginRight
 import androidx.core.view.marginTop
 import androidx.core.view.updateLayoutParams
 import androidx.core.view.updatePadding
+import at.rtr.rmbt.android.map.DefaultLocation
 import kotlin.math.max
 
 const val START_ZOOM_LEVEL = 12f
@@ -66,9 +67,7 @@ private const val ANCHOR_V = 0.865f
 // derived from Github/graydon/country-bounding-boxes.py
 // extracted from http//www.naturalearthdata.com/download/110m/cultural/ne_110m_admin_0_countries.zip
 // under public domain terms
-private const val DEFAULT_LAT = (49.0390742051F + 46.4318173285F) / 2F
-private const val DEFAULT_LONG = (16.9796667823F + 9.47996951665F) / 2F
-private const val DEFAULT_ZOOM_LEVEL = 6F
+
 private val DEFAULT_PRESENTATION_TYPE = MapPresentationType.AUTOMATIC
 
 class MapFragment : BaseFragment(), MapMarkerDetailsAdapter.MarkerDetailsCallback,
@@ -413,9 +412,9 @@ class MapFragment : BaseFragment(), MapMarkerDetailsAdapter.MarkerDetailsCallbac
     private fun setDefaultMapPosition() {
         Timber.d("Position default check to : ${mapViewModel.state.cameraPositionLiveData.value?.latitude} ${mapViewModel.state.cameraPositionLiveData.value?.longitude}")
         if (mapViewModel.state.cameraPositionLiveData.value == null || mapViewModel.state.cameraPositionLiveData.value?.latitude == 0.0 && mapViewModel.state.cameraPositionLiveData.value?.longitude == 0.0) {
-            val defaultPosition = LatLngW(DEFAULT_LAT.toDouble(), DEFAULT_LONG.toDouble())
+            val defaultPosition = DefaultLocation.austriaLocationWrapped
             Timber.d("Position default to : ${defaultPosition.latitude} ${defaultPosition.longitude}")
-            mapW().animateCamera(defaultPosition, DEFAULT_ZOOM_LEVEL)
+            mapW().animateCamera(defaultPosition, DefaultLocation.austriaZoomLevel)
             mapViewModel.state.type.set(DEFAULT_PRESENTATION_TYPE)
         }
     }

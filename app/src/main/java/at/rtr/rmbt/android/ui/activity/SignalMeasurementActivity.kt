@@ -26,6 +26,7 @@ import at.specure.location.LocationInfo
 import at.specure.location.LocationState
 import at.specure.test.DeviceInfo
 import at.rmbt.client.control.data.SignalMeasurementType
+import at.rtr.rmbt.android.map.DefaultLocation
 import at.rtr.rmbt.android.ui.dialog.CoverageSettingsDialog
 import at.rtr.rmbt.android.ui.dialog.Dialogs
 import at.rtr.rmbt.android.util.formatAccuracy
@@ -438,6 +439,9 @@ class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback, Coverage
         map?.uiSettings?.isMapToolbarEnabled = false
         map?.isIndoorEnabled = false
         map?.isBuildingsEnabled = false
+        map?.moveCamera(
+            CameraUpdateFactory.newLatLngZoom(DefaultLocation.austriaLocation, DefaultLocation.austriaZoomLevel)
+        )
     }
 
     override fun onStart() {

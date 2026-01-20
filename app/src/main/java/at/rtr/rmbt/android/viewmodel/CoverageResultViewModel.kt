@@ -8,6 +8,7 @@ import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
 import at.rmbt.util.exception.HandledException
 import at.rtr.rmbt.android.config.AppConfig
+import at.rtr.rmbt.android.map.DefaultLocation
 import at.rtr.rmbt.android.ui.viewstate.CoverageResultViewState
 import at.specure.data.ControlServerSettings
 import at.specure.data.CoverageMeasurementSettings
@@ -176,9 +177,11 @@ class CoverageResultViewModel @Inject constructor(
         val padding = 100 // padding in pixels from edges
 
         viewModelScope.launch(Dispatchers.Main) {
+            map.setMaxZoomPreference(DefaultLocation.defaultMaximumZoomLevelForCoverage)
             map.animateCamera(
                 CameraUpdateFactory.newLatLngBounds(bounds, padding)
             )
+            map.resetMinMaxZoomPreference()
         }
     }
 

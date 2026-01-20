@@ -13,6 +13,7 @@ import at.rmbt.util.exception.HandledException
 import at.rtr.rmbt.android.R
 import at.rtr.rmbt.android.databinding.ActivityCoverageResultBinding
 import at.rtr.rmbt.android.di.viewModelLazy
+import at.rtr.rmbt.android.map.DefaultLocation
 import at.rtr.rmbt.android.map.wrapper.LatLngW
 import at.rtr.rmbt.android.ui.activity.toCoverageResultItemRecords
 import at.rtr.rmbt.android.util.isGmsAvailable
@@ -41,7 +42,6 @@ class CoverageResultsActivity : BaseActivity() {
 
     private val viewModel: CoverageResultViewModel by viewModelLazy()
     private lateinit var binding: ActivityCoverageResultBinding
-
     private var mapLoadRequested: Boolean = false
     private var map: GoogleMap? = null
     private var timer: Timer? = null
@@ -76,6 +76,9 @@ class CoverageResultsActivity : BaseActivity() {
                 .findFragmentById(R.id.map) as SupportMapFragment?
             mapFragment!!.getMapAsync({ map ->
                 this.map = map
+                map.moveCamera(
+                    CameraUpdateFactory.newLatLngZoom(DefaultLocation.austriaLocation, DefaultLocation.austriaZoomLevel)
+                )
             })
         }
 
