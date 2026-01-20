@@ -266,11 +266,13 @@ class RtrCoverageMeasurementProcessor @Inject constructor(
 
     private fun startMaxCoverageSessionSecondsReachedJob(session: CoverageMeasurementSession) {
         session.maxCoverageLoopSeconds?.let { maxCoverageSessionSeconds ->
-            Timber.d("Starting maxCoverageSessionSeconds timer with ${maxCoverageSessionSeconds.seconds.inWholeSeconds} seconds")
-            coverageSessionTimer.start(maxCoverageSessionSeconds.seconds, {
-                Timber.d("Stopping coverage session because of max time reached")
-                stopCoverageSession()
-            })
+            if (session.isFirstMeasurementInLoop()) {
+                Timber.d("Starting maxCoverageSessionSeconds timer with ${maxCoverageSessionSeconds.seconds.inWholeSeconds} seconds")
+                coverageSessionTimer.start(maxCoverageSessionSeconds.seconds, {
+                    Timber.d("Stopping coverage session because of max time reached")
+                    stopCoverageSession()
+                })
+            }
         }
     }
 
