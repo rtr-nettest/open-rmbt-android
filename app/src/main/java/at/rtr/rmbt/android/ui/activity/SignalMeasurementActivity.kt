@@ -95,6 +95,7 @@ class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback, Coverage
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = bindContentView(R.layout.activity_signal_measurement)
+        binding.state = viewModel.state
         coverageViewModel.onConfigurationChanged()
         viewModel.shouldStartDedicatedMeasurementStateChecker = {
             coverageViewModel.shouldRunCoverageMeasurement()
@@ -121,6 +122,7 @@ class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback, Coverage
         hideDialog()
 
         coverageViewModel.coverageMeasurementDataLiveData.listen(this) {
+            viewModel.state.coverageSessionStart.set(it?.coverageMeasurementSession?.startTimeLoopMillis ?: 0)
             if (it?.state == CoverageMeasurementState.FINISHED_LOOP_CORRECTLY) {
                 showMeasurementResults(it)
             } else {

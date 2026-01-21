@@ -23,6 +23,8 @@ private const val KEY_CAMERA_POSITION_LON = "KEY_CAMERA_POSITION_LON"
 private const val KEY_CLOSE_DIALOG_DISPLAYED = "KEY_CLOSE_DIALOG_DISPLAYED"
 private const val KEY_MARKER_DETAILS_DISPLAYED = "KEY_MARKER_DETAILS_DISPLAYED"
 
+private const val KEY_COVERAGE_SESSION_DETAILS = "KEY_COVERAGE_SESSION_DETAILS"
+
 class CoverageResultViewState constructor(
     val appConfig: AppConfig,
 
@@ -40,6 +42,7 @@ class CoverageResultViewState constructor(
     val activeCircles = mutableListOf<com.google.android.gms.maps.model.Circle>()
     val displayedPointIds = mutableSetOf<String>()
     var testUUID: String = ""
+    var coverageSessionStart: Long? = 0
 
     override fun onRestoreState(bundle: Bundle?) {
         bundle?.run {
@@ -48,6 +51,7 @@ class CoverageResultViewState constructor(
             markerDetailsDisplayed.set(getBoolean(KEY_MARKER_DETAILS_DISPLAYED))
             coordinatesLiveData.postValue(LatLngW(getDouble(KEY_LATITUDE), getDouble(KEY_LONGITUDE)))
             zoom = getFloat(KEY_ZOOM)
+            coverageSessionStart = getLong(KEY_COVERAGE_SESSION_DETAILS)
             cameraPositionLiveData.postValue(LatLngW(getDouble(KEY_CAMERA_POSITION_LAT), getDouble(KEY_CAMERA_POSITION_LON)))
         }
     }
@@ -61,6 +65,7 @@ class CoverageResultViewState constructor(
             coordinatesLiveData.value?.latitude?.let { putDouble(KEY_LATITUDE, it) }
             coordinatesLiveData.value?.longitude?.let { putDouble(KEY_LONGITUDE, it) }
             putFloat(KEY_ZOOM, zoom)
+            putLong(KEY_COVERAGE_SESSION_DETAILS, coverageSessionStart ?: 0)
             cameraPositionLiveData.value?.longitude?.let { putDouble(KEY_CAMERA_POSITION_LON, it) }
             cameraPositionLiveData.value?.latitude?.let { putDouble(KEY_CAMERA_POSITION_LAT, it) }
         }

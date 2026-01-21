@@ -3,6 +3,7 @@ package at.rtr.rmbt.android.ui.viewstate
 import android.os.Bundle
 import androidx.databinding.ObservableBoolean
 import androidx.databinding.ObservableField
+import androidx.databinding.ObservableLong
 import androidx.lifecycle.MutableLiveData
 import at.rtr.rmbt.android.config.AppConfig
 import at.rtr.rmbt.android.map.wrapper.LatLngW
@@ -30,6 +31,8 @@ private const val KEY_CAMERA_POSITION_LON = "KEY_CAMERA_POSITION_LON"
 private const val KEY_CLOSE_DIALOG_DISPLAYED = "KEY_CLOSE_DIALOG_DISPLAYED"
 private const val KEY_MARKER_DETAILS_DISPLAYED = "KEY_MARKER_DETAILS_DISPLAYED"
 
+private const val KEY_COVERAGE_SESSION_DETAILS = "KEY_COVERAGE_SESSION_DETAILS"
+
 class HomeViewState(
     private val config: AppConfig,
     private val measurementServers: MeasurementServers
@@ -54,6 +57,7 @@ class HomeViewState(
     val locationChanged = ObservableBoolean(false)
     val locationWarningDialogSilenced = ObservableBoolean(false)
     val networkWarningDialogSilenced = ObservableBoolean(false)
+    var coverageSessionStart = ObservableLong(0)
 
     var coordinatesLiveData: MutableLiveData<LatLngW> = MutableLiveData()
     var cameraPositionLiveData: MutableLiveData<LatLngW> = MutableLiveData()
@@ -75,6 +79,7 @@ class HomeViewState(
             markerDetailsDisplayed.set(getBoolean(KEY_MARKER_DETAILS_DISPLAYED))
             coordinatesLiveData.postValue(LatLngW(getDouble(KEY_LATITUDE), getDouble(KEY_LONGITUDE)))
             zoom = getFloat(KEY_ZOOM)
+            coverageSessionStart.set(getLong(KEY_COVERAGE_SESSION_DETAILS))
             cameraPositionLiveData.postValue(LatLngW(getDouble(KEY_CAMERA_POSITION_LAT), getDouble(KEY_CAMERA_POSITION_LON)))
         }
     }
@@ -88,6 +93,7 @@ class HomeViewState(
             coordinatesLiveData.value?.latitude?.let { putDouble(KEY_LATITUDE, it) }
             coordinatesLiveData.value?.longitude?.let { putDouble(KEY_LONGITUDE, it) }
             putFloat(KEY_ZOOM, zoom)
+            putLong(KEY_COVERAGE_SESSION_DETAILS, coverageSessionStart.get())
             cameraPositionLiveData.value?.longitude?.let { putDouble(KEY_CAMERA_POSITION_LON, it) }
             cameraPositionLiveData.value?.latitude?.let { putDouble(KEY_CAMERA_POSITION_LAT, it) }
         }

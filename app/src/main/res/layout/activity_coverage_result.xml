@@ -82,12 +82,23 @@
                         android:visibility="visible">
 
                         <TextView
+                            android:id="@+id/result_title"
                             style="@style/RobotoMediumStyle.ExtraLarge"
-                            android:layout_width="match_parent"
+                            android:layout_width="wrap_content"
                             android:layout_height="match_parent"
                             android:text="@string/coverage_results_title"
-                            app:layout_constraintEnd_toEndOf="parent"
                             app:layout_constraintStart_toStartOf="parent" />
+
+                        <androidx.appcompat.widget.AppCompatTextView
+                            android:id="@+id/result_time"
+                            style="@style/RobotoMediumStyle.ExtraLarge"
+                            android:layout_width="wrap_content"
+                            android:layout_height="match_parent"
+                            android:paddingStart="4sp"
+                            android:paddingEnd="4sp"
+                            app:timeString="@{state.testResult != null ? state.testResult.timestamp : 0}"
+                            tools:text="20.11.18, 12:00:45"
+                            app:layout_constraintStart_toEndOf="@+id/result_title" />
 
                     </androidx.constraintlayout.widget.ConstraintLayout>
 

@@ -79,6 +79,7 @@ class CoverageResultViewModel @Inject constructor(
         rtrCoverageMeasurementProcessor.stateManager.state.asLiveData(viewModelScope.coroutineContext)
 
 
+
     val testServerResultLiveData: LiveData<TestResultRecord?>
         get() {
             if (_testResultLiveData == null) {
@@ -197,6 +198,8 @@ class CoverageResultViewModel @Inject constructor(
     }
 
     fun updateMapPoints(map: GoogleMap?, points: List<FencesResultItemRecord>?, coverageMeasurementState: CoverageMeasurementState?) {
+        state.coverageSessionStart = coverageMeasurementDataLiveData.value?.coverageMeasurementSession?.startTimeLoopMillis
+
         val currentMap = map ?: return
         val pts = points ?: return
 
