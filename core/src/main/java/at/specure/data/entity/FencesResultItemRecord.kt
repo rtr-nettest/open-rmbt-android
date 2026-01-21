@@ -22,6 +22,7 @@ data class FencesResultItemRecord(
     val durationMillis: Long?, // duration of fence in millis
     val offsetMillis: Long?, // from the start of the test - official start is when coverage response arrives so it can be negative too
     val averagePingMillis: Double?,
+    val fenceTimestampMillis: Long?,
 )
 
 fun FencesResultItemRecord.generateHash(): String {

@@ -1199,6 +1199,8 @@ data class FenceResponseBody(
     val offsetMillis: Long?, // from the start of the test - official start is when coverage response arrives so it can be negative too
     @SerializedName("avg_ping_ms")
     val averagePingMillis: Double?,
+    @SerializedName("fence_time")
+    val fenceTimeMillis: Long?, // absolute client time in millis
 )
 
 @Keep

@@ -10,6 +10,7 @@ import at.rmbt.util.exception.HandledException
 import at.rtr.rmbt.android.config.AppConfig
 import at.rtr.rmbt.android.map.DefaultLocation
 import at.rtr.rmbt.android.ui.viewstate.CoverageResultViewState
+import at.rtr.rmbt.android.viewmodel.viewData.CoverageMarkerDetailsData
 import at.specure.data.ControlServerSettings
 import at.specure.data.CoverageMeasurementSettings
 import at.specure.data.entity.CoverageMeasurementFenceRecord
@@ -33,6 +34,7 @@ import at.specure.util.map.CustomMarker
 import at.specure.util.map.getMarkerColorInt
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
+import com.google.android.gms.maps.model.AdvancedMarkerOptions
 import com.google.android.gms.maps.model.BitmapDescriptor
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.Circle
@@ -202,9 +204,20 @@ class CoverageResultViewModel @Inject constructor(
             clearPerformanceListsIfTheyAreFromPreviousMeasurement(pts)
             // Filter only points that haven't been displayed yet
             val newPoints = pts.filter { !state.displayedPointIds.contains(it.generateHash()) }
+            val markerDetailsMap = mutableMapOf<Long, CoverageMarkerDetailsData>()
 
             // Prepare MarkerOptions in background
             val markerOptionsList = newPoints.mapNotNull { point ->
+                markerDetailsMap[point.id] = CoverageMarkerDetailsData(
+                    id = point.id,
+                    networkType = point.networkTechnologyId ?: 0,
+                    MobileNetworkType.fromValue(point.networkTechnologyId ?: 0).displayName,
+                    provider = null, // todo: map provider
+                    signalClass = null,
+                    signalStrength = null, // todo: map signal strength
+                    pingMillis = (point.averagePingMillis?.times(1000000))?.toLong(),
+                    timestamp = point.fenceTimestampMillis,
+                )
                 val latLng = point.toLatLng() ?: return@mapNotNull null
                 val tech = MobileNetworkType.fromValue(point.networkTechnologyId ?: 0)
                 MarkerOptions()
@@ -241,7 +254,9 @@ class CoverageResultViewModel @Inject constructor(
                 markerOptionsList.forEachIndexed { index, options ->
                     currentMap.addMarker(options)?.let { marker ->
 //                        activeMarkers.add(marker)
-                        state.displayedPointIds.add(newPoints[index].generateHash())
+                        val point = newPoints[index]
+                        state.displayedPointIds.add(point.generateHash())
+                        marker.tag = markerDetailsMap[point.id]
                     }
                 }
 

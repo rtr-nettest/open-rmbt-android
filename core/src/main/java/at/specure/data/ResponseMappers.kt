@@ -251,6 +251,7 @@ fun FenceResponseBody.toModel(testUUID: String): FencesResultItemRecord {
         durationMillis = this.durationMillis,
         offsetMillis = this.offsetMillis,
         averagePingMillis = this.averagePingMillis,
+        fenceTimestampMillis = this.fenceTimeMillis,
     )
 }
 

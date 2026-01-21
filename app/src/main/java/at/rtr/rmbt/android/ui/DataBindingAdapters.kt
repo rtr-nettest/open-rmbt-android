@@ -517,12 +517,40 @@ fun waveEnabled(view: WaveView, enabled: Boolean) {
 
 val THRESHOLD_PING = listOf(0.0, 10.0, 25.0, 75.0) // 0ms, 10ms, 25ms, 75ms
 
+
+@BindingAdapter("pingMsNoColor")
+fun AppCompatTextView.setPingNoColor(pingNanos: Long) {
+    this.resolvePing(pingNanos, false)
+}
+
 /**
  * A binding adapter that is used for show ping value
  */
 @BindingAdapter("pingMs")
 fun AppCompatTextView.setPing(pingNanos: Long) {
+    this.resolvePing(pingNanos)
+}
 
+val THRESHOLD_DOWNLOAD = listOf(0L, 5000000L, 10000000L, 100000000L) // 0mb, 5mb, 10mb, 100mb
+
+fun getBigDownloadIconAccordingToSpeed(downloadSpeedBps: Long): Int {
+    return when (downloadSpeedBps) {
+        in THRESHOLD_DOWNLOAD[0] until THRESHOLD_DOWNLOAD[1] -> {
+            R.drawable.ic_speed_download_red
+        }
+        in THRESHOLD_DOWNLOAD[1] until THRESHOLD_DOWNLOAD[2] -> {
+            R.drawable.ic_speed_download_yellow
+        }
+        in THRESHOLD_DOWNLOAD[2] until THRESHOLD_DOWNLOAD[3] -> {
+            R.drawable.ic_speed_download_light_green
+        }
+        else -> {
+            R.drawable.ic_speed_download_dark_green
+        }
+    }
+}
+
+fun AppCompatTextView.resolvePing(pingNanos: Long, shouldChangeColor: Boolean = true) {
     if (pingNanos > 0) {
 
         val pingResult = if (pingNanos > 1000000) {
@@ -552,7 +580,7 @@ fun AppCompatTextView.setPing(pingNanos: Long) {
             }, 0, 0, 0
         )
 
-        setTextColor(context.getColor(android.R.color.white))
+        if (shouldChangeColor) setTextColor(context.getColor(android.R.color.white))
         val mantissa = pingResult - (pingResult.toInt().toDouble())
         if (mantissa > 0 && pingResult < 10.0) {
             text = context.getString(R.string.measurement_ping_value_1f, pingResult)
@@ -561,29 +589,11 @@ fun AppCompatTextView.setPing(pingNanos: Long) {
         }
     } else {
         setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_small_ping_gray, 0, 0, 0)
-        setTextColor(context.getColor(R.color.text_white_transparency_40))
+        if (shouldChangeColor) setTextColor(context.getColor(R.color.text_white_transparency_40))
         text = context.getString(R.string.measurement_dash)
     }
 }
 
-val THRESHOLD_DOWNLOAD = listOf(0L, 5000000L, 10000000L, 100000000L) // 0mb, 5mb, 10mb, 100mb
-
-fun getBigDownloadIconAccordingToSpeed(downloadSpeedBps: Long): Int {
-    return when (downloadSpeedBps) {
-        in THRESHOLD_DOWNLOAD[0] until THRESHOLD_DOWNLOAD[1] -> {
-            R.drawable.ic_speed_download_red
-        }
-        in THRESHOLD_DOWNLOAD[1] until THRESHOLD_DOWNLOAD[2] -> {
-            R.drawable.ic_speed_download_yellow
-        }
-        in THRESHOLD_DOWNLOAD[2] until THRESHOLD_DOWNLOAD[3] -> {
-            R.drawable.ic_speed_download_light_green
-        }
-        else -> {
-            R.drawable.ic_speed_download_dark_green
-        }
-    }
-}
 
 fun getDownloadIconAccordingToSpeed(downloadSpeedBps: Long): Int {
     return when (downloadSpeedBps) {

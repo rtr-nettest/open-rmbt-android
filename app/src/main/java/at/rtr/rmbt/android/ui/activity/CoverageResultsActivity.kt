@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
+import android.view.LayoutInflater
 import android.view.View
 import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
@@ -12,6 +13,8 @@ import androidx.core.view.updatePadding
 import at.rmbt.util.exception.HandledException
 import at.rtr.rmbt.android.R
 import at.rtr.rmbt.android.databinding.ActivityCoverageResultBinding
+import at.rtr.rmbt.android.databinding.ItemCoverageMarkerDetailsBinding
+import at.rtr.rmbt.android.databinding.ItemCoverageMarkerDetailsBindingImpl
 import at.rtr.rmbt.android.di.viewModelLazy
 import at.rtr.rmbt.android.map.DefaultLocation
 import at.rtr.rmbt.android.map.wrapper.LatLngW
@@ -19,6 +22,7 @@ import at.rtr.rmbt.android.ui.activity.toCoverageResultItemRecords
 import at.rtr.rmbt.android.util.isGmsAvailable
 import at.rtr.rmbt.android.util.listen
 import at.rtr.rmbt.android.viewmodel.CoverageResultViewModel
+import at.rtr.rmbt.android.viewmodel.viewData.CoverageMarkerDetailsData
 import at.specure.data.NetworkTypeCompat
 import at.specure.data.entity.CoverageMeasurementFenceRecord
 import at.specure.data.entity.FencesResultItemRecord
@@ -32,6 +36,7 @@ import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
 import timber.log.Timber
 import java.util.Timer
@@ -79,6 +84,28 @@ class CoverageResultsActivity : BaseActivity() {
                 map.moveCamera(
                     CameraUpdateFactory.newLatLngZoom(DefaultLocation.austriaLocation, DefaultLocation.austriaZoomLevel)
                 )
+                map.setInfoWindowAdapter(object : GoogleMap.InfoWindowAdapter {
+
+                    override fun getInfoWindow(marker: Marker): View? = null
+
+                    override fun getInfoContents(marker: Marker): View {
+                        val binding = ItemCoverageMarkerDetailsBinding.inflate(
+                            LayoutInflater.from(this@CoverageResultsActivity)
+                        )
+
+                        val data = marker.tag as? CoverageMarkerDetailsData
+                        if (data != null) {
+                            binding.item = data
+                            binding.executePendingBindings()
+                        }
+
+                        binding.root.setOnClickListener {
+
+                        }
+
+                        return binding.root
+                    }
+                })
             })
         }
 
@@ -222,6 +249,7 @@ fun CoverageMeasurementFenceRecord.toFencesResultItemRecord(index: Int): FencesR
         fenceRadiusMeters = this.radiusMeters,
         durationMillis = this.leaveTimestampMillis - this.entryTimestampMillis,
         offsetMillis = this.entryTimestampMillis,
-        averagePingMillis = this.avgPingMillis
+        averagePingMillis = this.avgPingMillis,
+        fenceTimestampMillis = this.entryTimestampMillis
     )
 }
