@@ -58,6 +58,10 @@ interface SignalMeasurementRepository {
 
     fun loadSignalMeasurementPointRecordsForMeasurementList(measurementId: String): List<CoverageMeasurementFenceRecord>
 
+    fun loadSignalMeasurementPointRecordsForLoopMeasurement(localLoopSessionId: String): LiveData<List<CoverageMeasurementFenceRecord>>
+
+    fun loadSignalMeasurementPointRecordsForLoopMeasurementList(localLoopSessionId: String): List<CoverageMeasurementFenceRecord>
+
     suspend fun getSignalMeasurementRecord(id: String?): SignalRecord?
 
     fun updateSignalMeasurementFence(updatedPoint: CoverageMeasurementFenceRecord)

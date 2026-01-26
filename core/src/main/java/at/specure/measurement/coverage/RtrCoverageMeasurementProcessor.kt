@@ -143,7 +143,7 @@ class RtrCoverageMeasurementProcessor @Inject constructor(
                                 val session = event.session
                                 sessionCreated?.invoke(session)
                                 loadingFencesJob?.cancel()
-                                loadingFencesJob = loadPoints(session.localMeasurementId)
+                                loadingFencesJob = loadPoints(session.localLoopId)
                                 stateManager.onSessionCreated(session)
                             }
 
@@ -425,8 +425,8 @@ class RtrCoverageMeasurementProcessor @Inject constructor(
         coverageMeasurementSettings.signalMeasurementLastMeasurementId = null
     }
 
-    private fun loadPoints(sessionId: String) = scope.launch(Dispatchers.IO) {
-        fencesDataSource.loadCoverageFences(sessionId)
+    private fun loadPoints(localLoopSessionId: String) = scope.launch(Dispatchers.IO) {
+        fencesDataSource.loadCoverageFences(localLoopSessionId)
             .asFlow().
             flowOn(Dispatchers.IO)
                 .collect { loadedPoints ->

@@ -118,6 +118,14 @@ class SignalMeasurementRepositoryImpl(
         return dao.getCoverageMeasurementFencesList(measurementId)
     }
 
+    override fun loadSignalMeasurementPointRecordsForLoopMeasurement(localLoopSessionId: String): LiveData<List<CoverageMeasurementFenceRecord>> {
+        return dao.getFencesLiveDataForSessionLoop(localLoopSessionId)
+    }
+
+    override fun loadSignalMeasurementPointRecordsForLoopMeasurementList(localLoopSessionId: String): List<CoverageMeasurementFenceRecord> {
+        return dao.getFencesListForSessionLoop(localLoopSessionId)
+    }
+
     override suspend fun getSignalMeasurementRecord(id: String?): SignalRecord? {
         return dao.getSignalRecordNullable(id)
     }

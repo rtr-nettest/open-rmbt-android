@@ -15,8 +15,8 @@ import javax.inject.Singleton
 class FencesDataSource @Inject constructor(
     private val signalMeasurementRepository: SignalMeasurementRepository
 ) {
-    fun loadCoverageFences(sessionId: String): LiveData<List<CoverageMeasurementFenceRecord>> {
-        return signalMeasurementRepository.loadSignalMeasurementPointRecordsForMeasurement(sessionId)
+    fun loadCoverageFences(localLoopSessionId: String): LiveData<List<CoverageMeasurementFenceRecord>> {
+        return signalMeasurementRepository.loadSignalMeasurementPointRecordsForLoopMeasurement(localLoopSessionId = localLoopSessionId)
     }
 
     fun createSignalFenceAndUpdateLastOne(

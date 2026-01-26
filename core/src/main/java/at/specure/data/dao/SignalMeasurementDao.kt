@@ -41,6 +41,26 @@ interface SignalMeasurementDao {
     @Query("SELECT * FROM ${Tables.COVERAGE_MEASUREMENT_FENCE} WHERE sessionId=:sessionId ORDER BY sequenceNumber ASC")
     fun getCoverageMeasurementFencesList(sessionId: String): List<CoverageMeasurementFenceRecord>
 
+    @Query("""
+        SELECT fence.* 
+        FROM ${Tables.COVERAGE_MEASUREMENT_FENCE} AS fence
+        INNER JOIN ${Tables.COVERAGE_MEASUREMENT_SESSION} AS session
+        ON fence.sessionId = session.localMeasurementId
+        WHERE session.localLoopId = :sessionLoopId
+        ORDER BY fence.sequenceNumber ASC
+    """)
+    fun getFencesListForSessionLoop(sessionLoopId: String): List<CoverageMeasurementFenceRecord>
+
+    @Query("""
+        SELECT fence.* 
+        FROM ${Tables.COVERAGE_MEASUREMENT_FENCE} AS fence
+        INNER JOIN ${Tables.COVERAGE_MEASUREMENT_SESSION} AS session
+        ON fence.sessionId = session.localMeasurementId
+        WHERE session.localLoopId = :sessionLoopId
+        ORDER BY fence.sequenceNumber ASC
+    """)
+    fun getFencesLiveDataForSessionLoop(sessionLoopId: String): LiveData<List<CoverageMeasurementFenceRecord>>
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun saveSignalMeasurementPoint(point: CoverageMeasurementFenceRecord)
 

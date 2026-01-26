@@ -112,18 +112,18 @@ class CoverageResultViewModel @Inject constructor(
 
     init {
         addStateSaveHandler(state)
-        coverageMeasurementSettings.signalMeasurementLastMeasurementId?.let {
+        coverageMeasurementSettings.signalMeasurementLastMeasurementLoopId?.let {
             loadSessionPoints(it)
         }
     }
 
-    fun loadSessionPoints(sessionId: String) {
-        loadPointJob = loadPoints(sessionId)
+    fun loadSessionPoints(loopLocalSessionId: String) {
+        loadPointJob = loadPoints(loopLocalSessionId)
     }
 
-    private fun loadPoints(sessionId: String) = launch(CoroutineName("LoadPointsHomeViewModel")) {
+    private fun loadPoints(loopLocalSessionId: String) = launch(CoroutineName("LoadPointsHomeViewModel")) {
         val points =
-            signalMeasurementRepository.loadSignalMeasurementPointRecordsForMeasurement(sessionId)
+            signalMeasurementRepository.loadSignalMeasurementPointRecordsForLoopMeasurement(loopLocalSessionId)
         points.asFlow().flowOn(Dispatchers.IO).collect { loadedPoints ->
             _pointsLiveData.postValue(loadedPoints)
             Timber.d("New points loaded ${loadedPoints.size}")
