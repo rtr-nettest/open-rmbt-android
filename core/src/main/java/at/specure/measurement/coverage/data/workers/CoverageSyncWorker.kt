@@ -8,6 +8,7 @@ import at.specure.data.repository.SignalMeasurementRepository
 import at.specure.di.CoreInjector
 import timber.log.Timber
 import javax.inject.Inject
+import kotlin.coroutines.cancellation.CancellationException
 
 /**
  * Worker responsible for retrying failed fence uploads and cleaning up old sessions.
@@ -30,6 +31,8 @@ class CoverageSyncWorker(
 
             try {
                 repository.retrySendFences()
+            } catch (e: CancellationException) {
+                throw e
             } catch (e: NoConnectionException) {
                 Timber.w("No connection for session retry sending — retry later")
                 return Result.retry()
@@ -42,6 +45,9 @@ class CoverageSyncWorker(
 
             Timber.d("CoverageSyncWorker finished successfully")
             Result.success()
+
+        } catch (e: CancellationException) {
+            throw e
 
         } catch (e: NoConnectionException) {
             Timber.w("CoverageSyncWorker — no connection, retry triggered")
