@@ -60,6 +60,9 @@ interface SignalMeasurementDao {
           AND (startMeasurementResponseReceivedMillis + (maxCoverageMeasurementSeconds * 1000)) < :currentTimeMillis 
           AND serverMeasurementId IS NOT NULL 
           AND synced = 0
+      ORDER BY 
+        startTimeLoopMillis DESC,
+        startTimeMeasurementMillis ASC
     """)
     fun getCoverageMeasurementsForRetrySend(currentTimeMillis: Long = System.currentTimeMillis()): List<CoverageMeasurementSession>
 
