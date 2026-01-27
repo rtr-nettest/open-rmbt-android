@@ -191,11 +191,11 @@ class RtrCoverageMeasurementProcessor @Inject constructor(
                 try {
                     val avgPingMillis = coveragePingProcessor.stopPing()?.average
                     val lastFence = stateManager.getLastFence()
-                    fencesDataSource.updateSignalFenceAndSaveOnLeaving(
+                    /*fencesDataSource.updateSignalFenceAndSaveOnLeaving(
                         lastFence,
-                        leaveTimestampMillis = System.currentTimeMillis(),
+                        leaveTimestampMillis = 0,
                         avgPingMillis = avgPingMillis
-                    )
+                    )*/
                     stateManager.onUpdateCoverageDataState(CoverageMeasurementState.FINISHED_LOOP_CORRECTLY)
                     val data = stateManager.state.value
                     Timber.d("Sending coverageResult")

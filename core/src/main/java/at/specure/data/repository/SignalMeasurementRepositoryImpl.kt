@@ -17,6 +17,7 @@ import at.specure.data.entity.CoverageMeasurementSession
 import at.specure.data.entity.SignalRecord
 import at.specure.data.entity.TestTelephonyRecord
 import at.specure.data.entity.TestWlanRecord
+import at.specure.data.entity.removeUnfinishedFences
 import at.specure.data.toCoverageRequest
 import at.specure.data.toCoverageResultRequest
 import at.specure.data.toRequest
@@ -242,15 +243,16 @@ class SignalMeasurementRepositoryImpl(
             }
     }
 
+
     override suspend fun sendFences(localMeasurementId: String) {
-        // todo: update times before sending the fences (regarding real time of coverageRequest response arrival time)
         val coverageSession = retrieveCoverageMeasurementOrCreate(localMeasurementId)
         if (coverageSession.isRegistered()) {
             val fencesForSession = dao.getCoverageMeasurementFencesList(coverageSession.localMeasurementId)
             clientUUID.value?.let {clientUuid ->
                 fencesForSession.let { fences ->
-                    if (fences.isNotEmpty()) {
-                        val requestBody = coverageSession.toCoverageResultRequest(clientUuid, deviceInfo, config, fencesForSession)
+                    val cleanedFences = fences.removeUnfinishedFences()
+                    if (cleanedFences.isNotEmpty()) {
+                        val requestBody = coverageSession.toCoverageResultRequest(clientUuid, deviceInfo, config, cleanedFences)
                         val result = client.coverageResult(requestBody)
                         if (result.ok) {
                             dao.markSessionAsSynced(localMeasurementId)
