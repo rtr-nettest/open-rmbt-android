@@ -31,6 +31,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.flow
 import timber.log.Timber
+import kotlin.coroutines.cancellation.CancellationException
 
 class SignalMeasurementRepositoryImpl(
     private val db: CoreDatabase,
@@ -286,6 +287,23 @@ class SignalMeasurementRepositoryImpl(
 
     override suspend fun removeOldFencesAndSessions() {
         dao.deleteDeletableSessions()
+    }
+
+    override suspend fun registerNotRegisteredMeasurementsWithSomeFences() {
+        val notRegisteredCoverageSession = dao.getNotRegisteredCoverageMeasurements()
+        notRegisteredCoverageSession.forEach {
+            try {
+                registerCoverageMeasurement(it.localMeasurementId).collect { registered ->
+                    if (!registered) {
+                        Timber.e("Unable to register session")
+                    }
+                }
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+
+            }
+        }
     }
 
     /**

@@ -86,6 +86,18 @@ interface SignalMeasurementDao {
     """)
     fun getCoverageMeasurementsForRetrySend(currentTimeMillis: Long = System.currentTimeMillis()): List<CoverageMeasurementSession>
 
+    @Query("""
+        SELECT * FROM ${Tables.COVERAGE_MEASUREMENT_SESSION} 
+        WHERE retryCount < $COVERAGE_MEASUREMENT_SUBMISSION_MAX_RETRY_COUNT 
+          AND (startMeasurementResponseReceivedMillis + (maxCoverageMeasurementSeconds * 1000)) < :currentTimeMillis 
+          AND serverMeasurementId IS NULL 
+          AND synced = 0
+      ORDER BY 
+        startTimeLoopMillis DESC,
+        startTimeMeasurementMillis ASC
+    """)
+    fun getNotRegisteredCoverageMeasurements(currentTimeMillis: Long = System.currentTimeMillis()): List<CoverageMeasurementSession>
+
     @Query("SELECT * FROM ${Tables.SIGNAL} WHERE signalMeasurementPointId=:id LIMIT 1")
     suspend fun getSignalRecord(id: String): SignalRecord?
 

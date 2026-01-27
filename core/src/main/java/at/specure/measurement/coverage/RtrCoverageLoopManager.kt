@@ -20,6 +20,7 @@ import kotlinx.coroutines.launch
 import timber.log.Timber
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlin.coroutines.cancellation.CancellationException
 import kotlin.coroutines.coroutineContext
 
 @Singleton
@@ -185,6 +186,8 @@ class RtrCoverageLoopManager @Inject constructor(
                     return
                 }
 
+            } catch (e: CancellationException) {
+                throw e
             } catch (e: Exception) {
                 if (attempt >= MAX_RETRY) {
                     _sessionEvents.emit(

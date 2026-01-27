@@ -30,6 +30,17 @@ class CoverageSyncWorker(
             Timber.d("CoverageSyncWorker started")
 
             try {
+                repository.registerNotRegisteredMeasurementsWithSomeFences()
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: NoConnectionException) {
+                Timber.w("No connection for session retry registering — retry later")
+                return Result.retry()
+            } catch (e: Exception) {
+                Timber.e(e, "Error retried registering measurement")
+            }
+
+            try {
                 repository.retrySendFences()
             } catch (e: CancellationException) {
                 throw e
