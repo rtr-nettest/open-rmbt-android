@@ -55,6 +55,8 @@ import kotlinx.coroutines.withContext
 import timber.log.Timber
 import javax.inject.Inject
 
+const val MAX_MARKER_COUNT_DISPLAYED_THRESHOLD = 100
+
 class CoverageResultViewModel @Inject constructor(
     private val appConfig: AppConfig,
     private val signalMeasurementRepository: SignalMeasurementRepository,
@@ -256,10 +258,17 @@ class CoverageResultViewModel @Inject constructor(
                 // Add new markers
                 markerOptionsList.forEachIndexed { index, options ->
                     currentMap.addMarker(options)?.let { marker ->
-//                        activeMarkers.add(marker)
                         val point = newPoints[index]
                         state.displayedPointIds.add(point.generateHash())
                         marker.tag = markerDetailsMap[point.id]
+
+                        state.markers.addLast(marker)
+
+                        // remove oldest markers if exceeding limit
+                        while (state.markers.size > MAX_MARKER_COUNT_DISPLAYED_THRESHOLD) {
+                            val oldMarker = state.markers.removeAt(0)
+                            oldMarker.remove()
+                        }
                     }
                 }
 
@@ -290,6 +299,7 @@ class CoverageResultViewModel @Inject constructor(
 
     fun clearPerformanceImprovementLists() {
         state.displayedPointIds.clear()
+        state.markers.clear()
         Timber.d("Lists optimisation cleared")
     }
 

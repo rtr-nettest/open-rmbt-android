@@ -8,6 +8,7 @@ import at.rtr.rmbt.android.config.AppConfig
 import at.rtr.rmbt.android.map.wrapper.LatLngW
 import at.rtr.rmbt.android.ui.fragment.START_ZOOM_LEVEL
 import at.specure.data.entity.TestResultRecord
+import com.google.android.gms.maps.model.Marker
 
 private const val KEY_TEST_UUID = "KEY_TEST_UUID"
 private const val KEY_PLAY_SERVICES = "KEY_PLAY_SERVICES"
@@ -40,6 +41,7 @@ class CoverageResultViewState constructor(
     var closeDialogDisplayed = ObservableBoolean(false)
     var markerDetailsDisplayed = ObservableBoolean(false)
     val activeCircles = mutableListOf<com.google.android.gms.maps.model.Circle>()
+    val markers: ArrayDeque<Marker> = ArrayDeque()
     val displayedPointIds = mutableSetOf<String>()
     var testUUID: String = ""
     var coverageSessionStart: Long? = 0
