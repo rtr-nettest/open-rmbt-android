@@ -18,7 +18,6 @@ import androidx.core.content.ContextCompat.checkSelfPermission
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updateLayoutParams
-import androidx.core.view.updatePadding
 import at.rmbt.client.control.IpProtocol
 import at.rtr.rmbt.android.R
 import at.rtr.rmbt.android.databinding.FragmentHomeBinding
@@ -33,6 +32,7 @@ import at.rtr.rmbt.android.ui.dialog.NetworkInfoDialog
 import at.rtr.rmbt.android.ui.dialog.SimpleDialog
 import at.rtr.rmbt.android.util.*
 import at.rtr.rmbt.android.viewmodel.HomeViewModel
+import at.specure.info.cell.CellNetworkInfo
 import at.specure.info.network.WifiNetworkInfo
 import at.specure.location.LocationState
 import at.specure.measurement.MeasurementService
@@ -118,6 +118,13 @@ class HomeFragment : BaseFragment() {
 
         homeViewModel.isConnected.listen(this) {
             activity?.window?.changeStatusBarColor(if (it) ToolbarTheme.BLUE else ToolbarTheme.GRAY)
+        }
+
+        homeViewModel.activeNetworkLiveData.listen(this) {
+            if (it == null || it is CellNetworkInfo) {
+                Timber.d("Network changed to CellInfo or null")
+                hideWrongNetworkTypeDialog()
+            }
         }
 
         homeViewModel.signalStrengthLiveData.listen(this) {
@@ -385,9 +392,14 @@ class HomeFragment : BaseFragment() {
                 .titleText(title)
                 .positiveText(R.string.confirm)
                 .cancelable(false)
-                .show(this.childFragmentManager, CODE_DIALOG_MORE_SIMS)
+                .show(this.childFragmentManager, CODE_DIALOG_WRONG_NETWORK, TAG_CODE_DIALOG_WRONG_NETWORK)
         }
 
+    }
+
+    private fun hideWrongNetworkTypeDialog() {
+        val dialog = this.childFragmentManager.findFragmentByTag(TAG_CODE_DIALOG_WRONG_NETWORK) as SimpleDialog?
+        dialog?.dismissAllowingStateLoss()
     }
 
     private fun checkInformationAvailability() {
@@ -544,5 +556,8 @@ class HomeFragment : BaseFragment() {
         private const val INFO_WINDOW_TIME_MS: Long = 2000
         private const val CODE_DIALOG_NEWS = 14
         private const val CODE_DIALOG_MORE_SIMS = 15
+        private const val CODE_DIALOG_WRONG_NETWORK = 16
+
+        private const val TAG_CODE_DIALOG_WRONG_NETWORK = "TAG_CODE_DIALOG_WRONG_NETWORK"
     }
 }
