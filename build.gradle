@@ -45,8 +45,4 @@ tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).all {
     }
 }
 
-task clean(type: Delete) {
-    delete rootProject.buildDir
-}
-
 apply from: "$project.rootDir/tools/dokka.gradle" 

@@ -109,8 +109,6 @@ dependencies {
 
     implementation "androidx.core:core-splashscreen:$versions.splash_screen"
 
-    debugImplementation "com.facebook.stetho:stetho:$versions.stetho"
-
     testImplementation "junit:junit:$versions.junit"
     androidTestImplementation "androidx.test:runner:$versions.test_runner"
     androidTestImplementation "androidx.test.espresso:espresso-core:$versions.espresso_core"
