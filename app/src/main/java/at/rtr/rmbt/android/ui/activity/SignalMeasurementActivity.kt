@@ -221,6 +221,13 @@ class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback {
             }
 //            centerMapOnLocation()
         }
+        onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                if (shouldAllowBackPress()) {
+                    onBackPressedDispatcher.onBackPressed()
+                }
+            }
+        })
     }
 
     private fun showWarningButton() {
@@ -285,13 +292,6 @@ class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback {
     override fun onDestroy() {
         super.onDestroy()
         map = null
-    }
-
-    @Deprecated("This is for android bellow 33 (android 12 and bellow)")
-    override fun onBackPressed() {
-        if (shouldAllowBackPress()) {
-            super.onBackPressed()
-        }
     }
 
     private fun checkLocationAndSetCurrent() {

@@ -21,6 +21,7 @@ import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import android.view.ViewGroup
+import androidx.activity.OnBackPressedCallback
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
@@ -127,14 +128,16 @@ class HomeActivity : BaseActivity() {
                 windowInsets
             }
         }
-    }
-
-    override fun onBackPressed() {
-        if (binding.navView.selectedItemId == R.id.navigation_home) {
-            super.onBackPressed()
-        } else {
-            binding.navView.selectedItemId = R.id.navigation_home
-        }
+        onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                if (binding.navView.selectedItemId == R.id.navigation_home) {
+                    isEnabled = false
+                    onBackPressedDispatcher.onBackPressed()
+                } else {
+                    binding.navView.selectedItemId = R.id.navigation_home
+                }
+            }
+        })
     }
 
     override fun onStart() {
