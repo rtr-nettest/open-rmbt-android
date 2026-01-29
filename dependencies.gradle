@@ -6,7 +6,7 @@ buildscript {
         config = [
                 applicationId    : "at.alladin.rmbt.android.prod",
                 minSdkVersion    : 26, // Android Version 8 as of year 2017 (supports 94% of all devices as of 2025)
-                targetSdkVersion : 35, // Android Version 15 as of year 2024
+                targetSdkVersion : 36, // Android Version 16 as of year 2025
                 versionCode      : (project.hasProperty('buildVersionCode') ? Integer.parseInt(buildVersionCode) : 41607),
                 versionName      : (project.hasProperty('buildVersionName') ? buildVersionName : '4.16.7')
         ]
@@ -31,7 +31,6 @@ buildscript {
                 location_services   : '21.2.0',
                 crashlytics         : '18.6.4',
                 retrofit            : '2.11.0',
-                stetho              : '1.6.0',
                 logging_interceptor : '5.0.0-alpha.14',
                 work_manager        : '2.9.0',
                 room                : '2.6.1',

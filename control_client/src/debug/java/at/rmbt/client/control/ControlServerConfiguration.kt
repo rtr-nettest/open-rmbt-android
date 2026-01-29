@@ -14,13 +14,12 @@
 
 package at.rmbt.client.control
 
-import com.facebook.stetho.okhttp3.StethoInterceptor
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 
 fun setupOkHttpClient(builder: OkHttpClient.Builder): OkHttpClient.Builder {
     val loggingInterceptor = HttpLoggingInterceptor()
     loggingInterceptor.level = HttpLoggingInterceptor.Level.BODY
-    return builder.addNetworkInterceptor(StethoInterceptor())
+    return builder
         .addNetworkInterceptor(loggingInterceptor)
 }

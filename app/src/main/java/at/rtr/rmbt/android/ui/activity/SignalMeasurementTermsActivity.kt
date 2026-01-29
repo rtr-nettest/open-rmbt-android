@@ -21,6 +21,25 @@ class SignalMeasurementTermsActivity : BaseActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = bindContentView(R.layout.activity_signal_measurement_terms)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
+            ViewCompat.setOnApplyWindowInsetsListener(binding.root) { v, windowInsets ->
+                val insetsSystemBars = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
+                val insetsDisplayCutout = windowInsets.getInsets(WindowInsetsCompat.Type.displayCutout())
+                val topSafe = max(insetsSystemBars.top, insetsDisplayCutout.top)
+                val leftSafe = max(insetsSystemBars.left, insetsDisplayCutout.left)
+                val rightSafe = max(insetsSystemBars.right, insetsDisplayCutout.right)
+                val bottomSafe = max(insetsSystemBars.bottom, insetsDisplayCutout.bottom)
+
+                v.updatePadding(
+                    right = rightSafe,
+                    left = leftSafe,
+                    top = topSafe,
+                    bottom = bottomSafe
+                )
+                WindowInsetsCompat.CONSUMED
+            }
+        }
+
         window?.changeStatusBarColor(ToolbarTheme.WHITE)
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {

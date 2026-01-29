@@ -77,7 +77,7 @@ class QosTestsSummaryActivity : BaseActivity() {
         binding.title.text = toolbarTitle
         binding.title.contentDescription = "${ContextCompat.getString(this.applicationContext, R.string.title)} $toolbarTitle"
         binding.buttonBack.setOnClickListener {
-            onBackPressed()
+            onBackPressedDispatcher.onBackPressed()
         }
     }
 

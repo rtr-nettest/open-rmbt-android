@@ -21,6 +21,7 @@ import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import android.view.WindowManager
+import androidx.activity.OnBackPressedCallback
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updatePadding
@@ -79,6 +80,11 @@ class MeasurementActivity : BaseActivity(), SimpleDialog.Callback {
                 windowInsets
             }
         }
+        onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                onCrossIconClicked()
+            }
+        })
 
 //        binding = bindContentView(R.layout.activity_measurement)
         binding.state = viewModel.state
@@ -256,12 +262,6 @@ class MeasurementActivity : BaseActivity(), SimpleDialog.Callback {
     override fun onStop() {
         super.onStop()
         viewModel.detach(this)
-    }
-
-    @Deprecated("Deprecated in Java")
-    override fun onBackPressed() {
-        super.onBackPressed()
-        onCrossIconClicked()
     }
 
     override fun onResume() {

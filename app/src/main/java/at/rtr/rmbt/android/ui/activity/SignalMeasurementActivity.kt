@@ -176,13 +176,20 @@ class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback, Coverage
             coverageViewModel.onCoverageSessionLoaded(sessionId)
 
         }
+        onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                if (shouldAllowBackPress()) {
+                    onBackPressedDispatcher.onBackPressed()
+                }
+            }
+        })
     }
 
     override fun onConfigurationChanged(newConfig: Configuration) {
         super.onConfigurationChanged(newConfig)
         coverageViewModel.onConfigurationChanged()
     }
-    
+
     private fun showMeasurementResults(coverageMeasurementData: CoverageMeasurementData) {
         coverageViewModel.clearPerformanceImprovementLists()
         hideWarningButton()
@@ -202,7 +209,7 @@ class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback, Coverage
             )
         }
     }
-    
+
     private fun updateUnfinishedMeasurement(coverageMeasurementData: CoverageMeasurementData?) {
 
         setSettingsButtonVisible(true)
@@ -322,7 +329,7 @@ class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback, Coverage
             }
         }
     }
-    
+
     private fun updateCurrentLocation(location: LocationInfo?) {
         Timber.d("New location obtained: $location")
         binding.textSource.text = "${location?.provider} ${location?.accuracy}m"
@@ -465,13 +472,6 @@ class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback, Coverage
     override fun onDestroy() {
         super.onDestroy()
         map = null
-    }
-
-    @Deprecated("This is for android bellow 33 (android 12 and bellow)")
-    override fun onBackPressed() {
-        if (shouldAllowBackPress()) {
-            super.onBackPressed()
-        }
     }
 
     private fun checkLocationAndSetCurrent() {

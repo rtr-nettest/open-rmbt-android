@@ -16,6 +16,8 @@
  ******************************************************************************/
 package at.rtr.rmbt.client;
 
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 
 import org.jetbrains.annotations.NotNull;
@@ -36,14 +38,14 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
-import java.util.Timer;
-import java.util.TimerTask;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CyclicBarrier;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -165,7 +167,8 @@ public class RMBTClient implements RMBTClientCallback {
     private final static Long MEASUREMENT_INACTIVITY_THRESHOLD_SECONDS = 120L;
     private final static Long MEASUREMENT_INACTIVITY_CHECKER_PERIOD_SECONDS = 1L;
     private Long measurementLastUpdate = System.currentTimeMillis();
-    private Timer inactivityTimer = new Timer();
+    private ScheduledExecutorService inactivityExecutor;
+    private ScheduledFuture<?> inactivityFuture;
 
 
     RMBTClient(final RMBTTestParameter params, final ControlServerConnection controlConnection) {
@@ -217,28 +220,53 @@ public class RMBTClient implements RMBTClientCallback {
                 clientName, clientVersion, overrideParams, additionalValues, headerValue, cacheDir, null, false);
     }
 
-    private void planInactivityCheck() {
-        synchronized (this) {
-            inactivityTimer.cancel();
-            inactivityTimer.purge();
-            inactivityTimer = new Timer();
-            Timber.d("RMBTClient inactivity internal checking started");
-            inactivityTimer.scheduleAtFixedRate(new TimerTask() {
-                @Override
-                public void run() {
-                    boolean isNotResponding = !isRMBTClientResponding();
-                    if (isNotResponding) {
-                        if (commonCallback != null) {
-                            commonCallback.onTestStatusUpdate(TestStatus.ERROR);
+    private synchronized void planInactivityCheck() {
+        stopInactivityCheck();
+
+        if (inactivityExecutor == null || inactivityExecutor.isShutdown()) {
+            inactivityExecutor = Executors.newSingleThreadScheduledExecutor();
+        }
+
+        Timber.d("RMBTClient inactivity internal checking started (manual schedule)");
+        scheduleNextInactivityCheck();
+    }
+
+    private void scheduleNextInactivityCheck() {
+        long delayMillis = TimeUnit.SECONDS.toMillis(MEASUREMENT_INACTIVITY_CHECKER_PERIOD_SECONDS);
+
+        inactivityFuture = inactivityExecutor.schedule(
+                new Runnable() {
+                    @Override
+                    public void run() {
+                        boolean isNotResponding = !isRMBTClientResponding();
+
+                        if (isNotResponding) {
+                            Timber.e("Test has been terminated, because of RMBTClient inactivity internal");
+
+                            if (commonCallback != null) {
+                                new Handler(Looper.getMainLooper()).post(() ->
+                                        commonCallback.onTestStatusUpdate(TestStatus.ERROR)
+                                );
+                            }
+
+                            abortTest(true);
+                            shutdown();
+                            return;
                         }
-                        RMBTClient.this.abortTest(true);
-                        RMBTClient.this.shutdown();
-                        inactivityTimer.cancel();
-                        inactivityTimer.purge();
-                        Timber.e("Test has been terminated, because of RMBTClient inactivity internal");
+
+                        scheduleNextInactivityCheck();
                     }
-                }
-            }, TimeUnit.SECONDS.toMillis(MEASUREMENT_INACTIVITY_CHECKER_PERIOD_SECONDS), TimeUnit.SECONDS.toMillis(MEASUREMENT_INACTIVITY_CHECKER_PERIOD_SECONDS));
+                },
+                delayMillis,
+                TimeUnit.MILLISECONDS
+        );
+    }
+
+    private synchronized void stopInactivityCheck() {
+        Timber.d("RMBTClient inactivity internal checking stopped");
+        if (inactivityFuture != null) {
+            inactivityFuture.cancel(true);
+            inactivityFuture = null;
         }
     }
 
@@ -283,11 +311,6 @@ public class RMBTClient implements RMBTClientCallback {
 
     public static RMBTClient getInstance(final RMBTTestParameter params) {
         return new RMBTClient(params, null);
-    }
-
-    private void removeInactivityCheck() {
-        Timber.d("RMBTClient inactivity internal checking stopped");
-        inactivityTimer.cancel();
     }
 
     public void setTrafficService(TrafficService trafficService) {
@@ -707,7 +730,7 @@ public class RMBTClient implements RMBTClientCallback {
         if (testThreadPool != null)
             testThreadPool.shutdownNow();
 
-        removeInactivityCheck();
+        stopInactivityCheck();
         return true;
     }
 
@@ -715,7 +738,7 @@ public class RMBTClient implements RMBTClientCallback {
         System.out.println("Shutting down RMBT thread pool...");
         if (testThreadPool != null)
             testThreadPool.shutdownNow();
-        removeInactivityCheck();
+        stopInactivityCheck();
         System.out.println("Shutdown finished.");
     }
 
@@ -724,7 +747,7 @@ public class RMBTClient implements RMBTClientCallback {
         super.finalize();
         if (testThreadPool != null)
             testThreadPool.shutdownNow();
-        removeInactivityCheck();
+        stopInactivityCheck();
     }
 
     public SSLSocketFactory getSslSocketFactory() {
