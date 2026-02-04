@@ -21,8 +21,11 @@ import at.specure.data.entity.TestRecord
 import at.specure.data.entity.TestTelephonyRecord
 import at.specure.data.entity.TestWlanRecord
 import at.specure.data.entity.VoipTestResultRecord
+import at.specure.info.TransportType
 import at.specure.info.cell.CellNetworkInfo
 import at.specure.info.cell.CellTechnology
+import at.specure.info.cell.PrimaryDataSubscription
+import at.specure.info.network.DetailedNetworkInfo
 import at.specure.info.network.MobileNetworkType
 import at.specure.info.network.NRConnectionState
 import at.specure.info.network.NetworkInfo
@@ -35,6 +38,9 @@ import at.specure.info.strength.SignalStrengthInfoNr
 import at.specure.info.strength.SignalStrengthInfoWiFi
 import at.specure.location.LocationInfo
 import at.specure.location.cell.CellLocationInfo
+import at.specure.util.toCellLocation
+import at.specure.util.toRecords
+import cz.mroczis.netmonster.core.model.cell.ICell
 import org.json.JSONArray
 import timber.log.Timber
 import java.text.DecimalFormat
@@ -57,18 +63,7 @@ class TestDataRepositoryImpl(db: CoreDatabase) : TestDataRepository {
 
     override fun saveGeoLocation(testUUID: String?, signalChunkId: String?, location: LocationInfo, testStartTimeNanos: Long, filterOldValues: Boolean) = io {
         if (filterOldValues) {
-            val timeDiff = TimeUnit.MINUTES.toMillis(1)
-            val locationAgeDiff = System.currentTimeMillis() - location.time
-
-            val ageAcceptable = TimeUnit.MINUTES.toNanos(1)
-            val locationAge = location.ageNanos
-
-            val locationTimeIsOutOfBounds = timeDiff < locationAgeDiff
-            val locationAgeIsOutOfBounds = locationAge > ageAcceptable
-
-            if (locationTimeIsOutOfBounds && locationAgeIsOutOfBounds) {
-                return@io
-            }
+            if (isLocationValueTooOld(location)) return@io
         }
 
         val geoLocation = GeoLocationRecord(
@@ -88,6 +83,22 @@ class TestDataRepositoryImpl(db: CoreDatabase) : TestDataRepository {
             isMocked = location.locationIsMocked
         )
         geoLocationDao.insert(geoLocation)
+    }
+
+    private fun isLocationValueTooOld(location: LocationInfo): Boolean {
+        val timeDiff = TimeUnit.MINUTES.toMillis(1)
+        val locationAgeDiff = System.currentTimeMillis() - location.time
+
+        val ageAcceptable = TimeUnit.MINUTES.toNanos(1)
+        val locationAge = location.ageNanos
+
+        val locationTimeIsOutOfBounds = timeDiff < locationAgeDiff
+        val locationAgeIsOutOfBounds = locationAge > ageAcceptable
+
+        if (locationTimeIsOutOfBounds && locationAgeIsOutOfBounds) {
+            return true
+        }
+        return false
     }
 
     override fun saveDownloadGraphItem(testUUID: String, progress: Int, speedBps: Long) = io {
@@ -201,6 +212,7 @@ class TestDataRepositoryImpl(db: CoreDatabase) : TestDataRepository {
                 nrSsRsrq = info.ssRsrq
                 nrSsSinr = info.ssSinr
             }
+
             is SignalStrengthInfoLte -> {
                 signal = null
                 lteRsrp = info.rsrp
@@ -209,9 +221,11 @@ class TestDataRepositoryImpl(db: CoreDatabase) : TestDataRepository {
                 lteCqi = info.cqi
                 timingAdvance = info.timingAdvance
             }
+
             is SignalStrengthInfoWiFi -> {
                 wifiLinkSpeed = info.linkSpeed
             }
+
             is SignalStrengthInfoGsm -> {
                 bitErrorRate = info.bitErrorRate
                 timingAdvance = info.timingAdvance
@@ -334,6 +348,7 @@ class TestDataRepositoryImpl(db: CoreDatabase) : TestDataRepository {
                     }
                     info.toCellInfoRecord(testUUID, signalChunkId)
                 }
+
                 else -> throw IllegalArgumentException("Don't know how to save ${info.javaClass.simpleName} info into db")
             }
             if (mapped.uuid.isNotEmpty()) {
@@ -407,7 +422,7 @@ class TestDataRepositoryImpl(db: CoreDatabase) : TestDataRepository {
         capabilitiesDao.insert(capabilities)
     }
 
-    override fun saveCellLocation(testUUID: String?, signalChunkId: String?,  info: CellLocationInfo, startTimeNanos: Long) = io {
+    override fun saveCellLocation(testUUID: String?, signalChunkId: String?, info: CellLocationInfo, startTimeNanos: Long) = io {
         val record = CellLocationRecord(
             testUUID = testUUID,
             signalChunkId = signalChunkId,
@@ -524,4 +539,219 @@ class TestDataRepositoryImpl(db: CoreDatabase) : TestDataRepository {
     override fun saveVoipResult(voipTestResultRecord: VoipTestResultRecord) {
         return voipResultsDao.insert(voipTestResultRecord)
     }
+
+    override fun saveLocationMetadataForCoverage(location: LocationInfo?, localMeasurementId: String, startTimeNanos: Long) = io {
+
+        if (location == null) return@io
+
+        val latestLocation = geoLocationDao.getLatestLocationForTest(localMeasurementId)
+        latestLocation?.let { oldLocation ->
+            val isTheSameLocation = oldLocation.latitude == location.latitude && oldLocation.longitude == location.longitude
+            if (isTheSameLocation) return@io
+        }
+
+        saveGeoLocation(
+            testUUID = localMeasurementId,
+            signalChunkId = null,
+            location = location,
+            testStartTimeNanos = startTimeNanos,
+            filterOldValues = true
+        )
+    }
+
+    override fun removeLocationMetadataForCoverage(localMeasurementId: String) = io {
+        geoLocationDao.removeForTest(localMeasurementId)
+    }
+
+    override fun saveCellMetadataForCoverage(detailedNetworkInfo: DetailedNetworkInfo?, localMeasurementId: String, startTimeNanos: Long) = io {
+        if (detailedNetworkInfo == null) return@io
+
+        saveCellAndSignalInfo(localMeasurementId, detailedNetworkInfo, startTimeNanos)
+    }
+
+    override fun removeCellMetadataForCoverage(localMeasurementId: String) {
+        cellInfoDao.removeAllCellInfo(localMeasurementId, null)
+        cellLocationDao.remove(localMeasurementId, null)
+        signalDao.remove(localMeasurementId, null)
+    }
+
+    @Synchronized
+    private fun saveCellAndSignalInfo(
+        uuid: String?,
+        detailedNetworkInfo: DetailedNetworkInfo?,
+        testStartTimeNanos: Long
+    ) {
+        synchronized(this) {
+            var signalsSavedCount = 0
+            detailedNetworkInfo?.let {
+
+                val cellNetworkInfo = detailedNetworkInfo.networkInfo
+                val active5GNetworkInfos = detailedNetworkInfo.secondary5GActiveCellNetworks
+                val otherCells = if (detailedNetworkInfo.allCellInfos.isNullOrEmpty()) {
+                    mutableListOf<ICell>()
+                } else {
+                    detailedNetworkInfo.allCellInfos.toMutableList()
+                }
+                val testStartTimeNanos = testStartTimeNanos ?: 0
+
+                if (detailedNetworkInfo.networkInfo != null && detailedNetworkInfo.networkInfo is CellNetworkInfo) {
+                    otherCells.remove(detailedNetworkInfo.networkInfo.rawCellInfo)
+                }
+
+                signalsSavedCount += saveNetworkInformation(
+                    cellNetworkInfo,
+                    detailedNetworkInfo.signalStrengthInfo,
+                    uuid,
+                    it.dataSubscriptionId,
+                    testStartTimeNanos
+                )
+                active5GNetworkInfos?.forEachIndexed { index, cellNetworkInfo ->
+                    otherCells.remove(cellNetworkInfo?.rawCellInfo)
+                    signalsSavedCount += saveNetworkInformation(
+                        cellNetworkInfo,
+                        detailedNetworkInfo.secondary5GActiveSignalStrengthInfos?.get(index),
+                        uuid,
+                        it.dataSubscriptionId,
+                        testStartTimeNanos
+                    )
+                }
+
+                signalsSavedCount += saveOtherCellInfo(
+                    otherCells.toMutableList(),
+                    uuid,
+                    testStartTimeNanos,
+                    detailedNetworkInfo.networkTypes,
+                    it.dataSubscriptionId
+                )
+            }
+        }
+    }
+
+    private fun saveNetworkInformation(
+        cellNetworkInfo: NetworkInfo?,
+        signalStrengthInfo: SignalStrengthInfo?,
+        testUUID: String?,
+        dataSubscriptionId: Int,
+        testStartTimeNanos: Long
+    ): Int {
+        var saveMobileSignalsCount = 0
+        if (cellNetworkInfo is CellNetworkInfo) {
+            if (testUUID != null) {
+
+                val cellInfoRecord = CellInfoRecord(
+                    testUUID = testUUID,
+                    uuid = cellNetworkInfo.cellUUID,
+                    isActive = cellNetworkInfo.isActive,
+                    cellTechnology = cellNetworkInfo.cellType,
+                    transportType = TransportType.CELLULAR,
+                    registered = cellNetworkInfo.isRegistered,
+                    isPrimaryDataSubscription = PrimaryDataSubscription.resolvePrimaryDataSubscriptionID(
+                        dataSubscriptionId,
+                        cellNetworkInfo.rawCellInfo?.subscriptionId
+                    ).value,
+                    areaCode = cellNetworkInfo.areaCode,
+                    channelNumber = cellNetworkInfo.band?.channel,
+                    frequency = cellNetworkInfo.band?.frequencyDL,
+                    locationId = cellNetworkInfo.locationId,
+                    mcc = cellNetworkInfo.mcc,
+                    mnc = cellNetworkInfo.mnc,
+                    primaryScramblingCode = cellNetworkInfo.scramblingCode,
+                    dualSimDetectionMethod = cellNetworkInfo.dualSimDetectionMethod,
+                    signalChunkId = null,
+                    cellState = cellNetworkInfo.cellState
+                )
+                saveCellInfoRecord(listOf(cellInfoRecord))
+
+                signalStrengthInfo?.let {
+                    if (cellNetworkInfo.networkType != MobileNetworkType.UNKNOWN) {
+                        saveSignalStrength(
+                            testUUID,
+                            null,
+                            cellNetworkInfo.cellUUID,
+                            cellNetworkInfo.networkType,
+                            it,
+                            testStartTimeNanos,
+                            NRConnectionState.NOT_AVAILABLE,
+                            null
+                        )
+                        saveMobileSignalsCount++
+                    }
+                }
+
+                val cellLocationInfo = CellLocationInfo(
+                    timestampMillis = System.currentTimeMillis(),
+                    timestampNanos = System.nanoTime(),
+                    locationId = cellNetworkInfo.locationId,
+                    areaCode = cellNetworkInfo.areaCode,
+                    scramblingCode = cellNetworkInfo.scramblingCode ?: 0
+                )
+
+                saveCellLocation(
+                    testUUID,
+                    null,
+                    cellLocationInfo,
+                    testStartTimeNanos
+                )
+            }
+        }
+        return saveMobileSignalsCount
+    }
+
+    private fun saveOtherCellInfo(
+        cells: List<ICell>?,
+        testUUID: String?,
+        testStartTimeNanos: Long,
+        mobileNetworkTypes: HashMap<Int, MobileNetworkType>,
+        dataSubscriptionId: Int
+    ): Int {
+        var saveMobileSignalsCount = 0
+
+        val cellInfosToSave = mutableListOf<CellInfoRecord>()
+        val signalsToSave = mutableListOf<SignalRecord>()
+        val cellLocationsToSave = mutableListOf<CellLocationRecord>()
+
+        if (testUUID != null) {
+            cells?.forEach {
+                val iCell = it
+                val map = iCell.toRecords(
+                    testUUID,
+                    null,
+                    mobileNetworkTypes[iCell.subscriptionId] ?: MobileNetworkType.UNKNOWN,
+                    testStartTimeNanos,
+                    dataSubscriptionId,
+                    NRConnectionState.NOT_AVAILABLE
+                )
+                if (map.keys.isNotEmpty()) {
+                    val cell = map.keys.iterator().next()
+                    cell?.let {
+                        val signal = map.get(it)
+
+                        if (signal?.hasNonNullSignal() == true) {
+                            signalsToSave.add(signal)
+                        }
+                        val cellLocationRecord =
+                            iCell.toCellLocation(
+                                testUUID,
+                                null,
+                                System.currentTimeMillis(),
+                                System.nanoTime(),
+                                testStartTimeNanos
+                            )
+                        cellLocationRecord?.let {
+                            cellLocationsToSave.add(cellLocationRecord)
+                        }
+                        cellInfosToSave.add(it)
+                    }
+                }
+            }
+            val signalsToSaveTmp = signalsToSave.toMutableList()
+
+            saveCellLocationRecord(cellLocationsToSave.toMutableList())
+            saveCellInfoRecord(cellInfosToSave.toMutableList())
+            saveSignalRecord(signalsToSaveTmp, false)
+            saveMobileSignalsCount += signalsToSaveTmp.size
+        }
+        return saveMobileSignalsCount
+    }
+
 }

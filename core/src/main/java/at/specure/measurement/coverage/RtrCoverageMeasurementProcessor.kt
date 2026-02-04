@@ -10,7 +10,10 @@ import at.specure.data.CoverageMeasurementSettings
 import at.specure.data.entity.CoverageMeasurementFenceRecord
 import at.specure.data.entity.CoverageMeasurementSession
 import at.specure.data.entity.SignalRecord
+import at.specure.data.repository.MeasurementRepository
 import at.specure.data.repository.SignalMeasurementRepository
+import at.specure.data.repository.TestDataRepository
+import at.specure.info.network.DetailedNetworkInfo
 import at.specure.info.network.NetworkInfo
 import at.specure.location.LocationInfo
 import at.specure.measurement.coverage.data.FencesDataSource
@@ -38,6 +41,7 @@ import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import timber.log.Timber
+import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlin.coroutines.EmptyCoroutineContext
@@ -51,6 +55,8 @@ class RtrCoverageMeasurementProcessor @Inject constructor(
     private val appContext: Context,
     private val coverageMeasurementSettings: CoverageMeasurementSettings,
     private val signalMeasurementRepository: SignalMeasurementRepository,
+    private val testDataRepository: TestDataRepository,
+    private val measurementRepository: MeasurementRepository,
     private val config: Config,
     private val coverageLocationValidator: LocationValidator,
     private val mainCoverageDataValidator: CoverageDataValidator,
@@ -276,16 +282,28 @@ class RtrCoverageMeasurementProcessor @Inject constructor(
         }
     }
 
-    fun onNewLocation(location: LocationInfo?, networkInfo: NetworkInfo?) {
+    fun onNewLocation(location: LocationInfo?, networkInfo: DetailedNetworkInfo?) {
         // TODO: check how old is signal information + also handle no signal record in SignalMeasurementProcessor
         // TODO: check if airplane mode is enabled or not, check if mobile data are enabled
 
         val coverageMeasurementDataValue = stateManager.state.value ?: return
         val lastRecordedFence = coverageMeasurementDataValue.fences.lastOrNull()
 
+        coverageMeasurementDataValue.coverageMeasurementSession?.localMeasurementId?.let { localMeasurementId ->
+            coverageMeasurementDataValue.coverageMeasurementSession.startTimeMeasurementMillis.let {startTimeMillis ->
+                val startTimeNanos = TimeUnit.MILLISECONDS.toNanos(startTimeMillis)
+                testDataRepository.saveLocationMetadataForCoverage(location, localMeasurementId, startTimeNanos)
+                testDataRepository.saveCellMetadataForCoverage(networkInfo, localMeasurementId, startTimeNanos)
+                // todo: these last three we can save once - at the creation time of the coverageMeasurement
+                measurementRepository.saveCapabilities(localMeasurementId, null)
+                measurementRepository.saveTelephonyInfo(localMeasurementId)
+                measurementRepository.savePermissionsStatus(localMeasurementId, null)
+            }
+        }
+
         stateManager.updateLocation(location)
         Timber.d("onNewLocation triggered")
-        val isBackOnMobileData = mainCoverageDataValidator.isBackToMobile(coverageMeasurementDataValue.currentNetworkInfo, networkInfo)
+        val isBackOnMobileData = mainCoverageDataValidator.isBackToMobile(coverageMeasurementDataValue.currentNetworkInfo, networkInfo?.networkInfo)
         val isFirstMeasurementInLoop = coverageMeasurementDataValue.coverageMeasurementSession?.sequenceNumber == 0
 
         if (isBackOnMobileData && lastRecordedFence != null) {
@@ -296,7 +314,7 @@ class RtrCoverageMeasurementProcessor @Inject constructor(
             }
         }
 
-        stateManager.updateNetworkInfo(networkInfo)
+        stateManager.updateNetworkInfo(networkInfo?.networkInfo)
 
         val isConnectionStateValid = checkForTheConnectionState()
         if (!isConnectionStateValid) return
@@ -312,7 +330,7 @@ class RtrCoverageMeasurementProcessor @Inject constructor(
         val isDataValidToSaveNewFence = mainCoverageDataValidator.areDataValidToSaveNewFence(
             newTimestamp = newTimestamp,
             newLocation = newLocation,
-            newNetworkInfo = networkInfo,
+            newNetworkInfo = networkInfo?.networkInfo,
             lastRecordedFenceRecord = lastRecordedFence
         )
         val sessionId = coverageMeasurementDataValue.coverageMeasurementSession?.localMeasurementId
@@ -326,7 +344,7 @@ class RtrCoverageMeasurementProcessor @Inject constructor(
                 sessionId = sessionId,
                 newLocation = newLocation!!,
                 newTimestamp = newTimestamp,
-                networkInfo = networkInfo,
+                networkInfo = networkInfo?.networkInfo,
                 lastRecordedFence = lastRecordedFence
             )
         }

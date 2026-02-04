@@ -81,7 +81,7 @@ class SignalMeasurementProcessor @Inject constructor(
 ) : Binder(), SignalMeasurementProducer, CoroutineScope, SignalMeasurementChunkResultCallback,
     SignalMeasurementChunkReadyCallback {
 
-    private var globalNetworkInfo: NetworkInfo? = null
+    private var globalNetworkInfo: DetailedNetworkInfo? = null
     private var lastSignalRecord: SignalRecord? = null
     private var isUnstoppable = false
     private var _isActive = false
@@ -181,7 +181,7 @@ class SignalMeasurementProcessor @Inject constructor(
         }
 
         if (isSignalMeasurementRunning()) {
-            handleNewNetwork(signalStrengthWatcher.lastNetworkInfo)
+            handleNewNetwork(signalStrengthWatcher.lastDetailedNetworkInfo)
         }
     }
 
@@ -223,7 +223,7 @@ class SignalMeasurementProcessor @Inject constructor(
         isUnstoppable = unstoppable
         setMeasurementAsResumed()
         if (isSignalMeasurementRunning()) {
-            handleNewNetwork(signalStrengthWatcher.lastNetworkInfo)
+            handleNewNetwork(signalStrengthWatcher.lastDetailedNetworkInfo)
         }
     }
 
@@ -247,7 +247,7 @@ class SignalMeasurementProcessor @Inject constructor(
                 locationInfo = info
                 if (lastSignalMeasurementType == SignalMeasurementType.DEDICATED) {
                     locationInfo?.let { location ->
-                        Timber.d("passing new info with network: ${globalNetworkInfo?.type}")
+                        Timber.d("passing new info with network: ${globalNetworkInfo?.networkInfo?.type}")
                         rtrCoverageMeasurementProcessor.onNewLocation(location, globalNetworkInfo)
                     }
                 }
@@ -260,9 +260,9 @@ class SignalMeasurementProcessor @Inject constructor(
         signalStrengthInfo = signalStrengthWatcher.lastSignalStrength
         signalStrengthLiveData.observe(owner, Observer { info ->
             signalStrengthInfo = info?.signalStrengthInfo
-            globalNetworkInfo = info?.networkInfo
+            globalNetworkInfo = info
             if (isSignalMeasurementRunning()) {
-                handleNewNetwork(info?.networkInfo)
+                handleNewNetwork(info)
                 saveCellInfo(info)
             }
         })
@@ -311,11 +311,11 @@ class SignalMeasurementProcessor @Inject constructor(
         lastSignalRecord = null
     }
 
-    private fun handleNewNetwork(newInfo: NetworkInfo?) {
+    private fun handleNewNetwork(newInfo: DetailedNetworkInfo?) {
         val currentInfo = networkInfo
         globalNetworkInfo = newInfo
-        var newNetworkInfo = newInfo
-        if (newInfo?.type != TransportType.CELLULAR) {
+        var newNetworkInfo = newInfo?.networkInfo
+        if (newInfo?.networkInfo?.type != TransportType.CELLULAR) {
             newNetworkInfo = null
         }
         when {
