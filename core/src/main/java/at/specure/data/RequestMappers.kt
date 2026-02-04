@@ -525,29 +525,59 @@ fun CoverageMeasurementSession.toCoverageResultRequest(
     deviceInfo: DeviceInfo,
     config: Config,
     fences: List<CoverageMeasurementFenceRecord>,
-) = CoverageResultRequestBody(
-    clientUUID = clientUUID,
-    testUUID = this.serverMeasurementId ?: throw DataMissingException("Missing signal measurement server session ID"),
-    platform = deviceInfo.platform,
-    softwareVersion = deviceInfo.softwareVersionName,
-    timezone = deviceInfo.timezone ?: UNKNOWN,
-    model = deviceInfo.model ?: UNKNOWN,
-    osVersion = deviceInfo.osVersion,
-    device = deviceInfo.device ?: UNKNOWN,
-    capabilities = CapabilitiesBody(
-        classification = ClassificationBody(config.capabilitiesClassificationCount),
-        qos = QoSBody(config.capabilitiesQosSupportsInfo),
-        rmbtHttpStatus = config.capabilitiesRmbtHttp
-    ),
-    clientVersion = deviceInfo.clientVersionName,
-    clientLanguage = deviceInfo.language ?: UNKNOWN,
-    product = deviceInfo.product ?: UNKNOWN,
-    apiLevel = deviceInfo.apiLevel,
-    softwareVersionCode = deviceInfo.softwareVersionCode.toString(),
-    fences = fences.toRequest(startTimeMeasurementMillis),
-    sequenceNumber = this.serverSessionLoopTestCounter,
-    timeNanos = startMeasurementResponseReceivedMillis.milliseconds.inWholeNanoseconds
-)
+    telephonyInfo: TestTelephonyRecord?,
+    locations: List<GeoLocationRecord>,
+    cellInfoList: List<CellInfoRecord>,
+    signalList: List<SignalRecord>,
+    permissions: List<PermissionStatusRecord>,
+    cellLocationList: List<CellLocationRecord>
+): CoverageResultRequestBody {
+    val geoLocations: List<TestLocationBody>? = mapLocationsToRequest(locations)
+    var radioInfo: RadioInfoBody? = createRadioInfoBody(cellInfoList, signalList, null)
+    radioInfo = getRadioInfoIntegrityCheckedOrNull(radioInfo)
+    val permissionStatuses: List<PermissionStatusBody>? = mapPermissionStatusesToRequest(permissions, null)
+    val cellLocations: List<CellLocationBody>? = mapCellLocationsToRequest(cellLocationList)
+    val firstFence = if (fences.isNotEmpty()) {fences.first()} else null
+
+    return CoverageResultRequestBody(
+        clientUUID = clientUUID,
+        testUUID = this.serverMeasurementId ?: throw DataMissingException("Missing signal measurement server session ID"),
+        platform = deviceInfo.platform,
+        softwareVersion = deviceInfo.softwareVersionName,
+        timezone = deviceInfo.timezone ?: UNKNOWN,
+        model = deviceInfo.model ?: UNKNOWN,
+        osVersion = deviceInfo.osVersion,
+        device = deviceInfo.device ?: UNKNOWN,
+        capabilities = CapabilitiesBody(
+            classification = ClassificationBody(config.capabilitiesClassificationCount),
+            qos = QoSBody(config.capabilitiesQosSupportsInfo),
+            rmbtHttpStatus = config.capabilitiesRmbtHttp
+        ),
+        clientVersion = deviceInfo.clientVersionName,
+        clientLanguage = deviceInfo.language ?: UNKNOWN,
+        product = deviceInfo.product ?: UNKNOWN,
+        apiLevel = deviceInfo.apiLevel,
+        softwareVersionCode = deviceInfo.softwareVersionCode.toString(),
+        fences = fences.toRequest(startTimeMeasurementMillis),
+        sequenceNumber = this.serverSessionLoopTestCounter,
+        timeNanos = startMeasurementResponseReceivedMillis.milliseconds.inWholeNanoseconds,
+        geoLocations = geoLocations,
+        radioInfo = radioInfo,
+        permissionStatuses = permissionStatuses,
+        cellLocations = cellLocations,
+        networkType = (firstFence?.technologyId ?: TelephonyManager.NETWORK_TYPE_UNKNOWN).toString(),
+        telephonyNetworkOperator = telephonyInfo?.networkOperator,
+        telephonyNetworkIsRoaming = telephonyInfo?.networkIsRoaming?.toString(),
+        telephonyNetworkCountry = telephonyInfo?.networkCountry,
+        telephonyNetworkOperatorName = telephonyInfo?.networkOperatorName,
+        telephonyNetworkSimOperatorName = telephonyInfo?.networkSimOperatorName,
+        telephonyNetworkSimOperator = telephonyInfo?.networkSimOperator,
+        telephonyPhoneType = telephonyInfo?.phoneType,
+        telephonyDataState = telephonyInfo?.dataState,
+        telephonyApn = telephonyInfo?.apn,
+        telephonyNetworkSimCountry = telephonyInfo?.networkSimCountry,
+    )
+}
 
 fun List<CoverageMeasurementFenceRecord>.toRequest(measurementStartMillis: Long): List<FenceBody> {
     return this.map { it.toRequest(measurementStartMillis) }

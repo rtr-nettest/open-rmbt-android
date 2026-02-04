@@ -121,14 +121,84 @@ interface SignalMeasurementDao {
 
     @Transaction
     suspend fun deleteSyncedOrFailedSessions(maxRetryCount: Int = COVERAGE_MEASUREMENT_SUBMISSION_MAX_RETRY_COUNT) {
+        deletePermissionsStatusForDeletableCoverageSessions(maxRetryCount)
+        deleteCapabilitiesForDeletableCoverageSessions(maxRetryCount)
+        deleteCellLocationsForDeletableCoverageSessions(maxRetryCount)
+        deleteCellInfosForDeletableCoverageSessions(maxRetryCount)
+        deleteGeolocationsForDeletableCoverageSessions(maxRetryCount)
+        deleteTelephonyRecordsForDeletableCoverageSessions(maxRetryCount)
+        deleteSignalsForDeletableCoverageSessions(maxRetryCount)
         deleteFencesForDeletableSessions(maxRetryCount)
         deleteDeletableSessions(maxRetryCount)
     }
 
     @Query("""
+        DELETE FROM ${Tables.PERMISSIONS_STATUS}
+            WHERE testUUID IN (
+            SELECT localMeasurementId FROM ${Tables.COVERAGE_MEASUREMENT_SESSION}
+            WHERE synced = 1 OR retryCount >= :maxRetryCount
+        )
+    """)
+    suspend fun deletePermissionsStatusForDeletableCoverageSessions(maxRetryCount: Int)
+
+    @Query("""
+        DELETE FROM ${Tables.CAPABILITIES}
+            WHERE testUUID IN (
+            SELECT localMeasurementId FROM ${Tables.COVERAGE_MEASUREMENT_SESSION}
+            WHERE synced = 1 OR retryCount >= :maxRetryCount
+        )
+    """)
+    suspend fun deleteCapabilitiesForDeletableCoverageSessions(maxRetryCount: Int)
+
+    @Query("""
+        DELETE FROM ${Tables.CELL_LOCATION}
+        WHERE testUUID IN (
+            SELECT localMeasurementId FROM ${Tables.COVERAGE_MEASUREMENT_SESSION}
+            WHERE synced = 1 OR retryCount >= :maxRetryCount
+        )
+    """)
+    suspend fun deleteCellLocationsForDeletableCoverageSessions(maxRetryCount: Int)
+
+    @Query("""
+        DELETE FROM ${Tables.CELL_INFO}
+        WHERE testUUID IN (
+            SELECT localMeasurementId FROM ${Tables.COVERAGE_MEASUREMENT_SESSION}
+            WHERE synced = 1 OR retryCount >= :maxRetryCount
+        )
+    """)
+    suspend fun deleteCellInfosForDeletableCoverageSessions(maxRetryCount: Int)
+
+    @Query("""
+        DELETE FROM ${Tables.GEO_LOCATION}
+        WHERE testUUID IN (
+            SELECT localMeasurementId FROM ${Tables.COVERAGE_MEASUREMENT_SESSION}
+            WHERE synced = 1 OR retryCount >= :maxRetryCount
+        )
+    """)
+    suspend fun deleteGeolocationsForDeletableCoverageSessions(maxRetryCount: Int)
+
+    @Query("""
+        DELETE FROM ${Tables.TEST_TELEPHONY_RECORD}
+        WHERE testUUID IN (
+            SELECT localMeasurementId FROM ${Tables.COVERAGE_MEASUREMENT_SESSION}
+            WHERE synced = 1 OR retryCount >= :maxRetryCount
+        )
+    """)
+    suspend fun deleteTelephonyRecordsForDeletableCoverageSessions(maxRetryCount: Int)
+
+    @Query("""
+        DELETE FROM ${Tables.SIGNAL}
+        WHERE testUUID IN (
+            SELECT localMeasurementId FROM ${Tables.COVERAGE_MEASUREMENT_SESSION}
+            WHERE synced = 1 OR retryCount >= :maxRetryCount
+        )
+    """)
+    suspend fun deleteSignalsForDeletableCoverageSessions(maxRetryCount: Int)
+
+    @Query("""
         DELETE FROM ${Tables.COVERAGE_MEASUREMENT_FENCE}
         WHERE sessionId IN (
-            SELECT sessionId FROM ${Tables.COVERAGE_MEASUREMENT_SESSION}
+            SELECT localMeasurementId FROM ${Tables.COVERAGE_MEASUREMENT_SESSION}
             WHERE synced = 1 OR retryCount >= :maxRetryCount
         )
     """)

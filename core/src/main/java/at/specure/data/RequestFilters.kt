@@ -16,7 +16,7 @@ class RequestFilters {
         fun createRadioInfoBody(
             cellInfoList: List<CellInfoRecord>,
             signalList: List<SignalRecord>,
-            chunk: SignalMeasurementChunk
+            chunk: SignalMeasurementChunk?
         ): RadioInfoBody? {
             var radioInfo: RadioInfoBody? = if (cellInfoList.isEmpty() && signalList.isEmpty()) {
                 null
@@ -52,7 +52,7 @@ class RequestFilters {
                 }
                 Timber.i("Old list size: ${signals?.size}")
                 // remove last signal from previous chunk
-                if (signals != null && (signals.size > 1) && (chunk.sequenceNumber > 0)) {
+                if (signals != null && (signals.size > 1) && (chunk != null && chunk.sequenceNumber > 0)) {
                     signals = signals.filterIndexed { index, it ->
                         if (index == signals?.lastIndex) {
                             true

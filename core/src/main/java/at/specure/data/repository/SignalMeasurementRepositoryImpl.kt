@@ -9,6 +9,7 @@ import at.specure.config.Config
 import at.specure.data.ClientUUID
 import at.specure.data.CoreDatabase
 import at.specure.data.RequestFilters.Companion.createRadioInfoBody
+import at.specure.data.entity.CapabilitiesRecord
 import at.specure.data.entity.CellInfoRecord
 import at.specure.data.entity.SignalMeasurementChunk
 import at.specure.data.entity.CoverageMeasurementFenceRecord
@@ -247,12 +248,30 @@ class SignalMeasurementRepositoryImpl(
     override suspend fun sendFences(localMeasurementId: String) {
         val coverageSession = retrieveCoverageMeasurementOrCreate(localMeasurementId)
         if (coverageSession.isRegistered()) {
-            val fencesForSession = dao.getCoverageMeasurementFencesList(coverageSession.localMeasurementId)
+            val localMeasurementId = coverageSession.localMeasurementId
+            val fencesForSession = dao.getCoverageMeasurementFencesList(localMeasurementId)
+            val telephonyRecord = db.testDao().getTelephonyRecord(localMeasurementId)
+            val locations = db.geoLocationDao().get(localMeasurementId, null)
+            val cellInfoList = db.cellInfoDao().get(localMeasurementId, null)
+            val signalList = db.signalDao().get(localMeasurementId, null)
+            val cellLocationList = db.cellLocationDao().get(localMeasurementId, null)
+            val permissions = db.permissionStatusDao().get(localMeasurementId, null)
             clientUUID.value?.let {clientUuid ->
                 fencesForSession.let { fences ->
                     val cleanedFences = fences.removeUnfinishedFences()
                     if (cleanedFences.isNotEmpty()) {
-                        val requestBody = coverageSession.toCoverageResultRequest(clientUuid, deviceInfo, config, cleanedFences)
+                        val requestBody = coverageSession.toCoverageResultRequest(
+                            clientUUID = clientUuid,
+                            deviceInfo = deviceInfo,
+                            config = config,
+                            fences = cleanedFences,
+                            telephonyInfo = telephonyRecord,
+                            locations = locations,
+                            cellInfoList = cellInfoList,
+                            signalList = signalList,
+                            permissions = permissions,
+                            cellLocationList = cellLocationList,
+                        )
                         val result = client.coverageResult(requestBody)
                         if (result.ok) {
                             dao.markSessionAsSynced(localMeasurementId)
@@ -269,11 +288,30 @@ class SignalMeasurementRepositoryImpl(
     override suspend fun retrySendFences() {
         val measurements = dao.getCoverageMeasurementsForRetrySend()
         measurements.forEach {coverageSessionMeasurement ->
+            val localMeasurementId = coverageSessionMeasurement.localMeasurementId
+            val telephonyRecord = db.testDao().getTelephonyRecord(localMeasurementId)
             val fencesForSession = dao.getCoverageMeasurementFencesList(coverageSessionMeasurement.localMeasurementId)
+            val locations = db.geoLocationDao().get(localMeasurementId, null)
+            val cellInfoList = db.cellInfoDao().get(localMeasurementId, null)
+            val signalList = db.signalDao().get(localMeasurementId, null)
+            val cellLocationList = db.cellLocationDao().get(localMeasurementId, null)
+            val permissions = db.permissionStatusDao().get(localMeasurementId, null)
+
             clientUUID.value?.let {clientUuid ->
                 fencesForSession.let { fences ->
                     if (fences.isNotEmpty()) {
-                        val requestBody = coverageSessionMeasurement.toCoverageResultRequest(clientUuid, deviceInfo, config, fencesForSession)
+                        val requestBody = coverageSessionMeasurement.toCoverageResultRequest(
+                            clientUUID = clientUuid,
+                            deviceInfo = deviceInfo,
+                            config = config,
+                            fences = fencesForSession,
+                            telephonyInfo = telephonyRecord,
+                            locations = locations,
+                            cellInfoList = cellInfoList,
+                            signalList = signalList,
+                            permissions = permissions,
+                            cellLocationList = cellLocationList,
+                        )
                         val result = client.coverageResult(requestBody)
                         if (result.ok) {
                             dao.markSessionAsSynced(coverageSessionMeasurement.localMeasurementId)
@@ -288,7 +326,7 @@ class SignalMeasurementRepositoryImpl(
     }
 
     override suspend fun removeOldFencesAndSessions() {
-        dao.deleteDeletableSessions()
+        dao.deleteSyncedOrFailedSessions()
     }
 
     override suspend fun registerNotRegisteredMeasurementsWithSomeFences() {
