@@ -1056,8 +1056,8 @@ data class CoverageResultRequestBody(
     /**
      * Server id for the network TODO:(shared/Helperfunctions line 156 - conversion from number to name)
      */
-//    @SerializedName("network_type")
-//    val networkType: String,
+    @SerializedName("network_type")
+    val networkType: String,
 //    @SerializedName("wifi_supplicant_state")
 //    var wifiSupplicantState: String?,
     /**
@@ -1083,53 +1083,53 @@ data class CoverageResultRequestBody(
     /**
      * mcc-mnc of the operator network, mobile networks only, e.g. "231-06"
      */
-//    @SerializedName("telephony_network_operator")
-//    val telephonyNetworkOperator: String?,
+    @SerializedName("telephony_network_operator")
+    val telephonyNetworkOperator: String?,
     /**
      * true if the network is roaming, mobile networks only
      */
-//    @SerializedName("telephony_network_is_roaming")
-//    val telephonyNetworkIsRoaming: String?,
+    @SerializedName("telephony_network_is_roaming")
+    val telephonyNetworkIsRoaming: String?,
     /**
      * country code for network, mobile networks only e.g. "en"
      */
-//    @SerializedName("telephony_network_country")
-//    val telephonyNetworkCountry: String?,
+    @SerializedName("telephony_network_country")
+    val telephonyNetworkCountry: String?,
     /**
      * name of the network operator, mobile networks only, e.g. "O2 - SK"
      */
-//    @SerializedName("telephony_network_operator_name")
-//    val telephonyNetworkOperatorName: String?,
+    @SerializedName("telephony_network_operator_name")
+    val telephonyNetworkOperatorName: String?,
     /**
      * name of the sim operator, mobile networks only, e.g. "O2 - SK"
      */
-//    @SerializedName("telephony_network_sim_operator_name")
-//    val telephonyNetworkSimOperatorName: String?,
+    @SerializedName("telephony_network_sim_operator_name")
+    val telephonyNetworkSimOperatorName: String?,
     /**
      * mcc-mnc of the sim operator, mobile networks only e.g."231-06"
      */
-//    @SerializedName("telephony_network_sim_operator")
-//    val telephonyNetworkSimOperator: String?,
+    @SerializedName("telephony_network_sim_operator")
+    val telephonyNetworkSimOperator: String?,
     /**
      * phone type, mobile networks only e.g. "1"
      */
-//    @SerializedName("telephony_phone_type")
-//    val telephonyPhoneType: String?,
+    @SerializedName("telephony_phone_type")
+    val telephonyPhoneType: String?,
     /**
      * data state, mobile networks only e.g. "2"
      */
-//    @SerializedName("telephony_data_state")
-//    val telephonyDataState: String?,
+    @SerializedName("telephony_data_state")
+    val telephonyDataState: String?,
     /**
      * name of the access point, mobile networks only e.g. "o2internet"
      */
-//    @SerializedName("telephony_apn")
-//    val telephonyApn: String?,
+    @SerializedName("telephony_apn")
+    val telephonyApn: String?,
     /**
      * country code of the sim card issuer, mobile networks only, e.g. "sk"
      */
-//    @SerializedName("telephony_network_sim_country")
-//    val telephonyNetworkSimCountry: String?,
+    @SerializedName("telephony_network_sim_country")
+    val telephonyNetworkSimCountry: String?,
     /**
      * Count of unsuccessful submissions
      */
@@ -1147,11 +1147,11 @@ data class CoverageResultRequestBody(
 //    @SerializedName("test_error_cause")
 //    var testErrorCause: String? = null, // todo add an catch IllegalNetworkChangeException
     val capabilities: CapabilitiesBody,
-//    val radioInfo: RadioInfoBody?,
-//    @SerializedName("android_permission_status")
-//    val permissionStatuses: List<PermissionStatusBody>?,
-//    val cellLocations: List<CellLocationBody>?,
-//    val geoLocations: List<TestLocationBody>?,
+    val radioInfo: RadioInfoBody?,
+    @SerializedName("android_permission_status")
+    val permissionStatuses: List<PermissionStatusBody>?,
+    val cellLocations: List<CellLocationBody>?,
+    val geoLocations: List<TestLocationBody>?,
     /**
      * Client public ip address, sent by control server
      */
