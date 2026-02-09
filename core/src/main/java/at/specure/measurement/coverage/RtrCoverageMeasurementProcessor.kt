@@ -286,11 +286,14 @@ class RtrCoverageMeasurementProcessor @Inject constructor(
         }
     }
 
-    fun onNewLocation(location: LocationInfo?, networkInfo: DetailedNetworkInfo?) {
+    fun onNewLocation(location: LocationInfo?, networkInfo: DetailedNetworkInfo?) = io {
         // TODO: check how old is signal information + also handle no signal record in SignalMeasurementProcessor
         // TODO: check if airplane mode is enabled or not, check if mobile data are enabled
 
-        val coverageMeasurementDataValue = stateManager.state.value ?: return
+        val coverageMeasurementDataValue = stateManager.state.value ?: return@io
+
+        if (coverageMeasurementDataValue.state == CoverageMeasurementState.FINISHED_LOOP_CORRECTLY) return@io
+
         val lastRecordedFence = coverageMeasurementDataValue.fences.lastOrNull()
 
         coverageMeasurementDataValue.coverageMeasurementSession?.localMeasurementId?.let { localMeasurementId ->
@@ -318,10 +321,10 @@ class RtrCoverageMeasurementProcessor @Inject constructor(
         stateManager.updateNetworkInfo(networkInfo?.networkInfo)
 
         val isConnectionStateValid = checkForTheConnectionState()
-        if (!isConnectionStateValid) return
+        if (!isConnectionStateValid) return@io
 
-        if (!stateManager.isInStateToAddNewFences()) return
-        if (location == null) return
+        if (!stateManager.isInStateToAddNewFences()) return@io
+        if (location == null) return@io
 
         val newTimestamp = System.currentTimeMillis()
         val newLocation = location.toDeviceInfoLocation()
@@ -337,7 +340,7 @@ class RtrCoverageMeasurementProcessor @Inject constructor(
         val sessionId = coverageMeasurementDataValue.coverageMeasurementSession?.localMeasurementId
         if (sessionId == null) {
             Timber.e("Signal measurement Session not initialized yet - sessionId missing")
-            return
+            return@io
         }
 
         if (isDataValidToSaveNewFence) {
