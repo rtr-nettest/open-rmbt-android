@@ -147,6 +147,10 @@ class RtrCoverageMeasurementProcessor @Inject constructor(
                             is CoverageMeasurementEvent.MeasurementCreated -> {
                                 Timber.d("Session created with id: ${event.session.localMeasurementId} seq: ${event.session.sequenceNumber}")
                                 val session = event.session
+                                val localMeasurementId = event.session.localMeasurementId
+                                measurementRepository.saveCapabilities(localMeasurementId, null)
+                                measurementRepository.saveTelephonyInfo(localMeasurementId)
+                                measurementRepository.savePermissionsStatus(localMeasurementId, null)
                                 sessionCreated?.invoke(session)
                                 loadingFencesJob?.cancel()
                                 loadingFencesJob = loadPoints(session.localLoopId)
@@ -292,12 +296,9 @@ class RtrCoverageMeasurementProcessor @Inject constructor(
         coverageMeasurementDataValue.coverageMeasurementSession?.localMeasurementId?.let { localMeasurementId ->
             coverageMeasurementDataValue.coverageMeasurementSession.startTimeMeasurementMillis.let {startTimeMillis ->
                 val startTimeNanos = TimeUnit.MILLISECONDS.toNanos(startTimeMillis)
+                // TODO: redo timestamps of locations
                 testDataRepository.saveLocationMetadataForCoverage(location, localMeasurementId, startTimeNanos)
                 testDataRepository.saveCellMetadataForCoverage(networkInfo, localMeasurementId, startTimeNanos)
-                // todo: these last three we can save once - at the creation time of the coverageMeasurement
-                measurementRepository.saveCapabilities(localMeasurementId, null)
-                measurementRepository.saveTelephonyInfo(localMeasurementId)
-                measurementRepository.savePermissionsStatus(localMeasurementId, null)
             }
         }
 
