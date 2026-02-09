@@ -375,7 +375,8 @@ class TestDataRepositoryImpl(db: CoreDatabase) : TestDataRepository {
         dualSimDetectionMethod = null,
         isPrimaryDataSubscription = null,
         signalChunkId = signalChunkId,
-        cellState = null
+        cellState = null,
+        comparisonUuid = comparisonCellUuid
     )
 
     private fun CellNetworkInfo.toCellInfoRecord(testUUID: String?, signalChunkId: String?): CellInfoRecord {
@@ -396,7 +397,8 @@ class TestDataRepositoryImpl(db: CoreDatabase) : TestDataRepository {
             primaryScramblingCode = scramblingCode,
             dualSimDetectionMethod = dualSimDetectionMethod,
             isPrimaryDataSubscription = isPrimaryDataSubscription?.value,
-            cellState = cellState
+            cellState = cellState,
+            comparisonUuid = comparisonCellUuid
         )
         Timber.d("Saving CellInfo Record TDR with uuid: ${cellInfoRecord.uuid} and cellTechnology: ${cellInfoRecord.cellTechnology?.name} and channel number: ${cellInfoRecord.channelNumber}")
         return cellInfoRecord
@@ -658,7 +660,8 @@ class TestDataRepositoryImpl(db: CoreDatabase) : TestDataRepository {
                     primaryScramblingCode = cellNetworkInfo.scramblingCode,
                     dualSimDetectionMethod = cellNetworkInfo.dualSimDetectionMethod,
                     signalChunkId = null,
-                    cellState = cellNetworkInfo.cellState
+                    cellState = cellNetworkInfo.cellState,
+                    comparisonUuid = cellNetworkInfo.comparisonCellUuid
                 )
                 saveCellInfoRecord(listOf(cellInfoRecord))
 

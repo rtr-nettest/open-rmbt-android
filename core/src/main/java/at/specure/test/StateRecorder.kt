@@ -481,7 +481,8 @@ class StateRecorder @Inject constructor(
                     dualSimDetectionMethod = cellNetworkInfo.dualSimDetectionMethod,
                     isPrimaryDataSubscription = cellNetworkInfo.isPrimaryDataSubscription?.value,
                     signalChunkId = null,
-                    cellState = cellNetworkInfo.cellState
+                    cellState = cellNetworkInfo.cellState,
+                    comparisonUuid = cellNetworkInfo.comparisonCellUuid
                 )
                 repository.saveCellInfoRecord(listOf(cellInfoRecord))
 

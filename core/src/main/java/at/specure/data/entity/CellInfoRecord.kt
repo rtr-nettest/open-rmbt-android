@@ -16,6 +16,7 @@ data class CellInfoRecord(
     val signalChunkId: String?,
     val isActive: Boolean,
     val uuid: String,
+    val comparisonUuid: String,
     val channelNumber: Int?,
     val frequency: Double?,
     val registered: Boolean,

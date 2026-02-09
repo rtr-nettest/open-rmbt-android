@@ -171,7 +171,7 @@ class CellInfoWatcherImpl(
 
                 when (primaryCellsCorrected.size) {
                     0 -> {
-                        _activeNetwork = CellNetworkInfo("")
+                        _activeNetwork = CellNetworkInfo("", "")
                         _signalStrengthInfo = null
                         clearLists()
                     }
@@ -246,24 +246,24 @@ class CellInfoWatcherImpl(
                         }
                     }
                     else -> {
-                        _activeNetwork = CellNetworkInfo("")
+                        _activeNetwork = CellNetworkInfo("", "")
                         clearLists()
                         // ignore, inconsistent state
                     }
                 }
             } catch (e: SecurityException) {
                 Timber.e("SecurityException: Not able to read telephonyManager.allCellInfo")
-                _activeNetwork = CellNetworkInfo("")
+                _activeNetwork = CellNetworkInfo("", "")
             } catch (e: IllegalStateException) {
                 Timber.e("IllegalStateException: Not able to read telephonyManager.allCellInfo")
-                _activeNetwork = CellNetworkInfo("")
+                _activeNetwork = CellNetworkInfo("", "")
             } catch (e: NullPointerException) {
                 Timber.e("NullPointerException: Not able to read telephonyManager.allCellInfo from other reason")
-                _activeNetwork = CellNetworkInfo("")
+                _activeNetwork = CellNetworkInfo("","")
             }
         } else {
             // when we are not able to detect more than there is cellular connection (we have no permission granted to read more details)
-            _activeNetwork = CellNetworkInfo("")
+            _activeNetwork = CellNetworkInfo("","")
         }
     }
 

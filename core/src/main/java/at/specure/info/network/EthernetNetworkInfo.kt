@@ -39,4 +39,4 @@ open class EthernetNetworkInfo(
 
     override val capabilitiesRaw: String?
 
-) : NetworkInfo(TransportType.ETHERNET, UUID.nameUUIDFromBytes(("").toByteArray()).toString(), capabilitiesRaw)
+) : NetworkInfo(TransportType.ETHERNET, UUID.nameUUIDFromBytes(("").toByteArray()).toString(), comparisonCellUuid = UUID.nameUUIDFromBytes(("").toByteArray()).toString(), capabilitiesRaw)

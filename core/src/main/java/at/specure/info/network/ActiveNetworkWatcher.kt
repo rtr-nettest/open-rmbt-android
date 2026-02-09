@@ -213,7 +213,7 @@ class ActiveNetworkWatcher(
                     // more than one primary cell for data subscription
                 } else {
                     Timber.e("NM network type unable to detect because of ${primaryCellsCorrected.size} primary cells for subscription")
-                    activeCellNetwork = CellNetworkInfo("")
+                    activeCellNetwork = CellNetworkInfo("", "")
                     scheduleUpdate()
                 }
 
@@ -232,7 +232,7 @@ class ActiveNetworkWatcher(
         // when we are not able to detect more than there is cellular connection (we have
         // no permission granted to read more details or permissions are granted but location is off)
         scheduleUpdate()
-        return CellNetworkInfo(cellUUID = "")
+        return CellNetworkInfo(cellUUID = "","")
     }
 
     private fun scheduleUpdate() {

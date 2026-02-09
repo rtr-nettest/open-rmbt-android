@@ -2,7 +2,16 @@ package at.specure.util
 
 import android.Manifest
 import android.net.NetworkCapabilities
+import android.os.Build
 import android.os.SystemClock
+import android.telephony.CellIdentityNr
+import android.telephony.CellInfo
+import android.telephony.CellInfoCdma
+import android.telephony.CellInfoGsm
+import android.telephony.CellInfoLte
+import android.telephony.CellInfoNr
+import android.telephony.CellInfoTdscdma
+import android.telephony.CellInfoWcdma
 import android.telephony.TelephonyManager
 import androidx.annotation.RequiresPermission
 import at.rtr.rmbt.util.BandCalculationUtil
@@ -355,11 +364,12 @@ fun ICell.toCellNetworkInfo(
         } else NRConnectionState.NOT_AVAILABLE,
         dualSimDetectionMethod = null,
         cellUUID = this.uuid(),
+        comparisonCellUuid = this.internalUuidForComparison(),
         rawCellInfo = this,
         isPrimaryDataSubscription = PrimaryDataSubscription.resolvePrimaryDataSubscriptionID(dataSubscriptionId, this.subscriptionId),
         capabilitiesRaw = "HARDCODED Capabilities netmonster ${NetworkCapabilities.TRANSPORT_CELLULAR} networkType = $mobileNetworkType",
         cellState = resolveConnectionState(),
-        subscriptionsCount = subscriptionsCount
+        subscriptionsCount = subscriptionsCount,
     )
 }
 
@@ -502,11 +512,13 @@ fun ICell.toRecords(
     var signalRecord: SignalRecord? = null
     cellTechnology?.let {
         val uuid = this.uuid()
+        val comparisonCellUuid = this.internalUuidForComparison()
         if (isInformationCorrect(cellTechnology)) {
             cellInfoRecord = CellInfoRecord(
                 testUUID = testUUID,
                 signalChunkId = signalChunkId,
                 uuid = uuid,
+                comparisonUuid = comparisonCellUuid,
                 isActive = this.connectionStatus is PrimaryConnection,
                 cellTechnology = toTechnologyClass(),
                 transportType = TransportType.CELLULAR,
@@ -670,6 +682,71 @@ fun ICell.locationId(): Long? {
 fun ICell.uuid(): String {
     return UUID.randomUUID().toString()
 }
+
+fun ICell.internalUuidForComparison(): String {
+    return when (this) {
+        is CellNr -> this.internalUuidForComparison()
+        is CellTdscdma -> this.internalUuidForComparison()
+        is CellLte -> this.internalUuidForComparison()
+        is CellCdma -> this.internalUuidForComparison()
+        is CellWcdma -> this.internalUuidForComparison()
+        is CellGsm -> this.internalUuidForComparison()
+        else -> ""
+    }
+}
+
+fun CellNr.internalUuidForComparison(): String {
+    val id = buildString {
+        append("nr")
+        append(nci)
+        append(pci)
+    }.toByteArray()
+    return UUID.nameUUIDFromBytes(id).toString()
+}
+
+fun CellTdscdma.internalUuidForComparison(): String {
+    val id = buildString {
+        append("tdscdma")
+        append(cid)
+        append(cpid)
+    }.toByteArray()
+    return UUID.nameUUIDFromBytes(id).toString()
+}
+
+fun CellLte.internalUuidForComparison(): String {
+    val id = buildString {
+        append("lte")
+        append(eci)
+        append(pci)
+    }.toByteArray()
+    return UUID.nameUUIDFromBytes(id).toString()
+}
+
+fun CellWcdma.internalUuidForComparison(): String {
+    val id = buildString {
+        append("wcdma")
+        append(cid)
+    }.toByteArray()
+    return UUID.nameUUIDFromBytes(id).toString()
+}
+
+fun CellGsm.internalUuidForComparison(): String {
+    val id = buildString {
+        append("gsm")
+        append(cid)
+    }.toByteArray()
+    return UUID.nameUUIDFromBytes(id).toString()
+}
+
+fun CellCdma.internalUuidForComparison(): String {
+    val id = buildString {
+        append("cdma")
+        append(bid)
+        append(sid)
+    }.toByteArray()
+    return UUID.nameUUIDFromBytes(id).toString()
+}
+
 
 fun CellNr.getEuBand(): BandNrEU? {
     return this.band?.getEuBand()
