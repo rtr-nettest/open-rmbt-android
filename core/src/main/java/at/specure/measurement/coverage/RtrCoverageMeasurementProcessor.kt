@@ -292,15 +292,15 @@ class RtrCoverageMeasurementProcessor @Inject constructor(
 
         val coverageMeasurementDataValue = stateManager.state.value ?: return@io
 
-        if (coverageMeasurementDataValue.state == CoverageMeasurementState.FINISHED_LOOP_CORRECTLY) return@io
+        if (coverageMeasurementDataValue.state == CoverageMeasurementState.FINISHED_LOOP_CORRECTLY
+            || coverageMeasurementDataValue.state == CoverageMeasurementState.IDLE) return@io
 
         val lastRecordedFence = coverageMeasurementDataValue.fences.lastOrNull()
 
         coverageMeasurementDataValue.coverageMeasurementSession?.localMeasurementId?.let { localMeasurementId ->
-            coverageMeasurementDataValue.coverageMeasurementSession.startTimeMeasurementMillis.let {startTimeMillis ->
-                val startTimeNanos = TimeUnit.MILLISECONDS.toNanos(startTimeMillis)
+            coverageMeasurementDataValue.coverageMeasurementSession.startMeasurementTimeResponseReceivedNanos.let {startTimeNanos ->
                 // TODO: redo timestamps of locations
-                testDataRepository.saveLocationMetadataForCoverage(location, localMeasurementId, startTimeMillis)
+                testDataRepository.saveLocationMetadataForCoverage(location, localMeasurementId, startTimeNanos)
                 testDataRepository.saveCellMetadataForCoverage(networkInfo, localMeasurementId, startTimeNanos)
             }
         }

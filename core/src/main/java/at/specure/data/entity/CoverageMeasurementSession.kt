@@ -55,6 +55,11 @@ data class CoverageMeasurementSession(
     val startTimeMeasurementMillis: Long = System.currentTimeMillis(),
 
     /**
+     * Local Timestamp of the signal measurement start in loop
+     */
+    val startMeasurementTimeResponseReceivedNanos: Long = System.nanoTime(),
+
+    /**
      * Local Timestamp of the signal measurement response received from server to count relative time for fences (points) in loop
      */
     val startMeasurementResponseReceivedMillis: Long = System.currentTimeMillis(),

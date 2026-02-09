@@ -560,7 +560,7 @@ fun CoverageMeasurementSession.toCoverageResultRequest(
         softwareVersionCode = deviceInfo.softwareVersionCode.toString(),
         fences = fences.toRequest(startTimeMeasurementMillis),
         sequenceNumber = this.serverSessionLoopTestCounter,
-        timeNanos = startMeasurementResponseReceivedMillis.milliseconds.inWholeNanoseconds,
+        timeNanos = startMeasurementTimeResponseReceivedNanos,
         geoLocations = geoLocations,
         radioInfo = radioInfo,
         permissionStatuses = permissionStatuses,

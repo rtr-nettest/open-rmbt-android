@@ -9,7 +9,6 @@ import at.specure.config.Config
 import at.specure.data.ClientUUID
 import at.specure.data.CoreDatabase
 import at.specure.data.RequestFilters.Companion.createRadioInfoBody
-import at.specure.data.entity.CapabilitiesRecord
 import at.specure.data.entity.CellInfoRecord
 import at.specure.data.entity.SignalMeasurementChunk
 import at.specure.data.entity.CoverageMeasurementFenceRecord
@@ -153,7 +152,8 @@ class SignalMeasurementRepositoryImpl(
         val response = client.coverageRequest(body)
         response.onSuccess {
             Timber.d("$it")
-            val responseReceivedTime = System.currentTimeMillis()
+            val responseReceivedTimeMillis = System.currentTimeMillis()
+            val responseReceivedTimeNanos = System.nanoTime()
             saveCoverageMeasurementSession(
                 session = CoverageMeasurementSession(
                     localMeasurementId = coverageSession.localMeasurementId,
@@ -168,9 +168,10 @@ class SignalMeasurementRepositoryImpl(
                     remoteIpAddress = it.clientRemoteIp,
                     provider = it.provider,
                     startTimeMeasurementMillis = coverageSession.startTimeMeasurementMillis,
-                    startMeasurementResponseReceivedMillis = responseReceivedTime,
+                    startMeasurementResponseReceivedMillis = responseReceivedTimeMillis,
+                    startMeasurementTimeResponseReceivedNanos = responseReceivedTimeNanos,
                     startTimeLoopMillis = coverageSession.startTimeLoopMillis,
-                    startLoopResponseReceivedMillis = if (coverageSession.isFirstMeasurementInLoop()) responseReceivedTime else coverageSession.startLoopResponseReceivedMillis,
+                    startLoopResponseReceivedMillis = if (coverageSession.isFirstMeasurementInLoop()) responseReceivedTimeMillis else coverageSession.startLoopResponseReceivedMillis,
                     maxCoverageMeasurementSeconds = it.maxCoverageMeasurementSeconds,
                     maxCoverageLoopSeconds = it.maxCoverageSessionSeconds,
                     sequenceNumber = coverageSession.sequenceNumber,

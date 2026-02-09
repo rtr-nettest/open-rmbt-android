@@ -106,7 +106,7 @@ interface TestDataRepository {
 
     fun saveVoipResult(voipTestResultRecord: VoipTestResultRecord)
 
-    fun saveLocationMetadataForCoverage(location: LocationInfo?, localMeasurementId: String, startTimeMillis: Long)
+    fun saveLocationMetadataForCoverage(location: LocationInfo?, localMeasurementId: String, startTimeNanos: Long)
 
     fun removeLocationMetadataForCoverage(localMeasurementId: String)
 

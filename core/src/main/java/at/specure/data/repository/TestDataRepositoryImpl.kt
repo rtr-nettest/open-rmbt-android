@@ -567,7 +567,7 @@ class TestDataRepositoryImpl(db: CoreDatabase) : TestDataRepository {
         return voipResultsDao.insert(voipTestResultRecord)
     }
 
-    override fun saveLocationMetadataForCoverage(location: LocationInfo?, localMeasurementId: String, startTimeMillis: Long) = io {
+    override fun saveLocationMetadataForCoverage(location: LocationInfo?, localMeasurementId: String, startTimeNanos: Long) = io {
 
         if (location == null) return@io
 
@@ -577,11 +577,11 @@ class TestDataRepositoryImpl(db: CoreDatabase) : TestDataRepository {
             if (isTheSameLocation) return@io
         }
 
-        saveCoverageGeoLocation(
+        saveGeoLocation(
             testUUID = localMeasurementId,
             signalChunkId = null,
             location = location,
-            testStartTimeMillis = startTimeMillis,
+            testStartTimeNanos = startTimeNanos,
             filterOldValues = true
         )
     }

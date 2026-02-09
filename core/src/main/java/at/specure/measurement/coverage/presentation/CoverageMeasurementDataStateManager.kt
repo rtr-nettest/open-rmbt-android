@@ -48,7 +48,7 @@ class CoverageMeasurementDataStateManager @Inject constructor(
         _state.value.fences.lastOrNull()
 
     fun initData() {
-        Timber.d("Session state updated to from init: ${CoverageMeasurementState.INITIALIZING.name}")
+        Timber.d("Session state updated to from init: ${CoverageMeasurementState.IDLE.name}")
         _state.value =
             CoverageMeasurementData(
                 coverageMeasurementSettings = coverageMeasurementSettings,
@@ -85,16 +85,20 @@ class CoverageMeasurementDataStateManager @Inject constructor(
     fun onUpdateCoverageDataState(newState: CoverageMeasurementState) {
         val currentState = _state.value.state
         when (newState) {
+            CoverageMeasurementState.CREATED ->
+                if (currentState == CoverageMeasurementState.IDLE) {
+                    updateState(newState)
+                }
             CoverageMeasurementState.RUNNING ->
-                if (currentState == CoverageMeasurementState.PAUSED || currentState == CoverageMeasurementState.INITIALIZING) {
+                if (currentState == CoverageMeasurementState.PAUSED || currentState == CoverageMeasurementState.IDLE || currentState == CoverageMeasurementState.CREATED) {
                     updateState(newState)
                 }
             CoverageMeasurementState.PAUSED ->
-                if (currentState == CoverageMeasurementState.RUNNING || currentState == CoverageMeasurementState.INITIALIZING) {
+                if (currentState == CoverageMeasurementState.RUNNING || currentState == CoverageMeasurementState.IDLE || currentState == CoverageMeasurementState.CREATED) {
                     updateState(newState)
                 }
             CoverageMeasurementState.FINISHED_LOOP_CORRECTLY,
-            CoverageMeasurementState.INITIALIZING, -> {
+            CoverageMeasurementState.IDLE, -> {
                 updateState(newState)
             }
         }
