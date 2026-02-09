@@ -14,6 +14,35 @@ abstract class CellInfoDao {
     @Query("SELECT * FROM ${Tables.CELL_INFO} WHERE ((testUUID IS :testUUID) AND (signalChunkId IS :signalChunkId))")
     abstract fun get(testUUID: String?, signalChunkId: String?): List<CellInfoRecord>
 
+    @Query("""
+        SELECT * FROM ${Tables.CELL_INFO}
+        WHERE id IN (
+            SELECT MIN(id)
+            FROM ${Tables.CELL_INFO}
+            GROUP BY
+                testUUID,
+                signalChunkId,
+                isActive,
+                comparisonUuid,
+                channelNumber,
+                frequency,
+                registered,
+                transportType,
+                cellTechnology,
+                areaCode,
+                locationId,
+                mcc,
+                mnc,
+                primaryScramblingCode,
+                dualSimDetectionMethod,
+                isPrimaryDataSubscription,
+                cellState
+        )
+    AND ((testUUID IS :testUUID) AND (signalChunkId IS :signalChunkId))
+    ORDER BY id ASC
+    """)
+    abstract fun getDistinctIgnoringUuidAndId(testUUID: String?, signalChunkId: String?): List<CellInfoRecord>
+
     @Upsert
     abstract fun insert(cellInfo: List<CellInfoRecord>)
 

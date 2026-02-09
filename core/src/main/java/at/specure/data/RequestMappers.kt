@@ -533,7 +533,7 @@ fun CoverageMeasurementSession.toCoverageResultRequest(
     cellLocationList: List<CellLocationRecord>
 ): CoverageResultRequestBody {
     val geoLocations: List<TestLocationBody>? = mapLocationsToRequest(locations)
-    var radioInfo: RadioInfoBody? = createRadioInfoBody(cellInfoList, signalList, null)
+    var radioInfo: RadioInfoBody? = createRadioInfoBody(cellInfoList, signalList, null, true)
     radioInfo = getRadioInfoIntegrityCheckedOrNull(radioInfo)
     val permissionStatuses: List<PermissionStatusBody>? = mapPermissionStatusesToRequest(permissions, null)
     val cellLocations: List<CellLocationBody>? = mapCellLocationsToRequest(cellLocationList)

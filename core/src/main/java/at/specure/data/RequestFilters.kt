@@ -16,7 +16,8 @@ class RequestFilters {
         fun createRadioInfoBody(
             cellInfoList: List<CellInfoRecord>,
             signalList: List<SignalRecord>,
-            chunk: SignalMeasurementChunk?
+            chunk: SignalMeasurementChunk?,
+            useComparisonCellUuid: Boolean = false
         ): RadioInfoBody? {
             var radioInfo: RadioInfoBody? = if (cellInfoList.isEmpty() && signalList.isEmpty()) {
                 null
@@ -26,7 +27,11 @@ class RequestFilters {
                 } else {
                     val map = mutableMapOf<String, CellInfoBody>()
                     cellInfoList.forEach {
-                        map[it.uuid] = it.toRequest()
+                        if (useComparisonCellUuid) {
+                            map[it.comparisonUuid] = it.toRequest()
+                        } else {
+                            map[it.uuid] = it.toRequest()
+                        }
                     }
                     if (map.isEmpty()) null else map
                 }

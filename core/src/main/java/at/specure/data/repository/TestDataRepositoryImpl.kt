@@ -45,6 +45,7 @@ import org.json.JSONArray
 import timber.log.Timber
 import java.text.DecimalFormat
 import java.util.concurrent.TimeUnit
+import kotlin.time.Duration.Companion.milliseconds
 
 class TestDataRepositoryImpl(db: CoreDatabase) : TestDataRepository {
 
@@ -60,6 +61,30 @@ class TestDataRepositoryImpl(db: CoreDatabase) : TestDataRepository {
     private val testDao = db.testDao()
     private val voipResultsDao = db.jplResultsDao()
     private val connectivityStateDao = db.connectivityStateDao()
+
+    override fun saveCoverageGeoLocation(testUUID: String?, signalChunkId: String?, location: LocationInfo, testStartTimeMillis: Long, filterOldValues: Boolean) = io {
+        if (filterOldValues) {
+            if (isLocationValueTooOld(location)) return@io
+        }
+
+        val geoLocation = GeoLocationRecord(
+            testUUID = testUUID,
+            signalChunkId = signalChunkId,
+            latitude = location.latitude,
+            longitude = location.longitude,
+            provider = location.provider,
+            speed = location.speed,
+            altitude = location.altitude,
+            timestampMillis = location.time, // time of acquired information directly from android API
+            timeRelativeNanos = (location.time - testStartTimeMillis).milliseconds.inWholeNanoseconds, // relative time to the start of the test
+            ageNanos = location.ageNanos,
+            accuracy = location.accuracy,
+            bearing = location.bearing,
+            satellitesCount = location.satellites ?: 0,
+            isMocked = location.locationIsMocked
+        )
+        geoLocationDao.insert(geoLocation)
+    }
 
     override fun saveGeoLocation(testUUID: String?, signalChunkId: String?, location: LocationInfo, testStartTimeNanos: Long, filterOldValues: Boolean) = io {
         if (filterOldValues) {
@@ -542,7 +567,7 @@ class TestDataRepositoryImpl(db: CoreDatabase) : TestDataRepository {
         return voipResultsDao.insert(voipTestResultRecord)
     }
 
-    override fun saveLocationMetadataForCoverage(location: LocationInfo?, localMeasurementId: String, startTimeNanos: Long) = io {
+    override fun saveLocationMetadataForCoverage(location: LocationInfo?, localMeasurementId: String, startTimeMillis: Long) = io {
 
         if (location == null) return@io
 
@@ -552,11 +577,11 @@ class TestDataRepositoryImpl(db: CoreDatabase) : TestDataRepository {
             if (isTheSameLocation) return@io
         }
 
-        saveGeoLocation(
+        saveCoverageGeoLocation(
             testUUID = localMeasurementId,
             signalChunkId = null,
             location = location,
-            testStartTimeNanos = startTimeNanos,
+            testStartTimeMillis = startTimeMillis,
             filterOldValues = true
         )
     }
@@ -670,7 +695,7 @@ class TestDataRepositoryImpl(db: CoreDatabase) : TestDataRepository {
                         saveSignalStrength(
                             testUUID,
                             null,
-                            cellNetworkInfo.cellUUID,
+                            cellNetworkInfo.comparisonCellUuid,
                             cellNetworkInfo.networkType,
                             it,
                             testStartTimeNanos,

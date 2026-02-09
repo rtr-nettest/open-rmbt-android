@@ -26,6 +26,8 @@ interface TestDataRepository {
 
     fun saveGeoLocation(testUUID: String?, signalChunkId: String?, location: LocationInfo, testStartTimeNanos: Long, filterOldValues: Boolean)
 
+    fun saveCoverageGeoLocation(testUUID: String?, signalChunkId: String?, location: LocationInfo, testStartTimeMillis: Long, filterOldValues: Boolean)
+
     fun saveSpeedData(testUUID: String, threadId: Int, bytes: Long, timestampNanos: Long, isUpload: Boolean)
 
     fun saveDownloadGraphItem(testUUID: String, progress: Int, speedBps: Long)
@@ -104,7 +106,7 @@ interface TestDataRepository {
 
     fun saveVoipResult(voipTestResultRecord: VoipTestResultRecord)
 
-    fun saveLocationMetadataForCoverage(location: LocationInfo?, localMeasurementId: String, startTimeNanos: Long)
+    fun saveLocationMetadataForCoverage(location: LocationInfo?, localMeasurementId: String, startTimeMillis: Long)
 
     fun removeLocationMetadataForCoverage(localMeasurementId: String)
 

@@ -297,7 +297,7 @@ class RtrCoverageMeasurementProcessor @Inject constructor(
             coverageMeasurementDataValue.coverageMeasurementSession.startTimeMeasurementMillis.let {startTimeMillis ->
                 val startTimeNanos = TimeUnit.MILLISECONDS.toNanos(startTimeMillis)
                 // TODO: redo timestamps of locations
-                testDataRepository.saveLocationMetadataForCoverage(location, localMeasurementId, startTimeNanos)
+                testDataRepository.saveLocationMetadataForCoverage(location, localMeasurementId, startTimeMillis)
                 testDataRepository.saveCellMetadataForCoverage(networkInfo, localMeasurementId, startTimeNanos)
             }
         }
