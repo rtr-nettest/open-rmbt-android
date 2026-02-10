@@ -12,11 +12,10 @@ import at.specure.data.repository.SettingsRepository
 import at.specure.location.LocationState
 import at.specure.location.LocationWatcher
 import javax.inject.Inject
-import javax.inject.Named
 
 class SettingsViewModel @Inject constructor(
     private val appConfig: AppConfig,
-    @Named("GPSAndNetworkLocationProvider") private val locationWatcher: LocationWatcher,
+    private val locationWatcher: LocationWatcher,
     clientUUID: ClientUUID,
     val measurementServers: MeasurementServers,
     settingsRepository: SettingsRepository,

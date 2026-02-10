@@ -82,7 +82,7 @@ class DatabaseModule {
         context: Context,
         config: Config,
         clientUUID: ClientUUID,
-        @Named("GPSAndNetworkLocationProvider") locationWatcher: LocationWatcher,
+        locationWatcher: LocationWatcher,
         signalStrengthWatcher: SignalStrengthWatcher,
         client: IpClient
     ): IpCheckRepository = IpCheckRepositoryImpl(

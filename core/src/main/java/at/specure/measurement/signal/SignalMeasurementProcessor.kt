@@ -49,7 +49,7 @@ class SignalMeasurementProcessor @Inject constructor(
     private val context: Context,
     private val config: Config,
     private val repository: TestDataRepository,
-    @Named("GPSAndFusedLocationProvider") private val locationWatcher: LocationWatcher,
+    private val locationWatcher: LocationWatcher,
     private val signalStrengthLiveData: SignalStrengthLiveData,
     private val signalStrengthWatcher: SignalStrengthWatcher,
     private val subscriptionManager: SubscriptionManager,

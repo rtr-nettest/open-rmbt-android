@@ -1,8 +1,10 @@
 package at.specure.location
 
 import timber.log.Timber
+import kotlin.math.abs
 
 private const val LOCATION_MAX_AGE_MS = 30_000L
+private const val LOCATION_MAX_UPDATE_RATE_MS = 300L
 
 /**
  * [LocationDispatcher] that uses to choose the best location to publish
@@ -95,7 +97,7 @@ class DefaultLocationDispatcher : LocationDispatcher {
             } else if (timestamp >= lastTimestamp + LOCATION_MAX_AGE_MS) {
                 Timber.v("location update: last outdated")
                 updateLastLocation(location, timestamp, source)
-            } else if (lastSource != null && lastSource == source) {
+            } else if (((lastSource != null) && (lastSource == source)) && (abs(location.time - (lastLocation?.time ?: 0)) > LOCATION_MAX_UPDATE_RATE_MS)) {
                 Timber.v("location update: source")
                 updateLastLocation(location, timestamp, source)
             } else {
@@ -114,7 +116,7 @@ class DefaultLocationDispatcher : LocationDispatcher {
         lastTimestamp = timestamp
         lastSource = source
         location?.let {
-            Timber.d("LOCU: LOCATION UPDATE ageNanos:  ${it.ageNanos} in seconds: ${it.ageNanos / 1000000000}")
+            Timber.d("LOCU: LOCATION UPDATE ageNanos:  ${it.ageNanos} in seconds: ${it.ageNanos / 1000000000} $source")
         }
         return LocationDispatcher.Decision(location, true)
     }

@@ -159,7 +159,7 @@ class CoreModule {
         connectivityManager: ConnectivityManager,
         connectivityWatcher: ConnectivityWatcher,
         wifiInfoWatcher: WifiInfoWatcher,
-        @Named("GPSAndNetworkLocationProvider") locationWatcher: LocationWatcher,
+        locationWatcher: LocationWatcher,
         captivePortal: CaptivePortal
     ): ActiveNetworkWatcher =
         ActiveNetworkWatcher(

@@ -141,7 +141,6 @@ class MeasurementService : CustomLifecycleService(), CoroutineScope {
     lateinit var connectivityManager: ConnectivityManager
 
     @Inject
-    @Named("GPSAndNetworkLocationProvider")
     lateinit var locationWatcher: LocationWatcher
 
     private val producer: Producer by lazy { Producer() }

@@ -18,7 +18,7 @@ import javax.inject.Named
 
 class MapViewModel @Inject constructor(
     private val repository: MapRepository,
-    @Named("GPSAndNetworkLocationProvider") private val locationWatcher: LocationWatcher
+    private val locationWatcher: LocationWatcher
 ) : BaseViewModel() {
 
     val state = MapViewState()

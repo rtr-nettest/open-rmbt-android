@@ -18,7 +18,7 @@ class NetworkDetailsViewModel @Inject constructor(
     val signalStrengthLiveData: SignalStrengthLiveData,
     val ipV4ChangeLiveData: IpV4ChangeLiveData,
     val ipV6ChangeLiveData: IpV6ChangeLiveData,
-    @Named("GPSAndNetworkLocationProvider") val locationProducer: LocationWatcher
+    val locationProducer: LocationWatcher
 ) : BaseViewModel() {
 
     val state = NetworkDetailsViewState()
