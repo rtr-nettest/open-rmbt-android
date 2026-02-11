@@ -458,6 +458,11 @@ interface Config {
     var minDistanceMetersToLogNewLocationOnMapDuringSignalMeasurement: Int
 
     /**
+     * Minimum distance factor between latest two dots on map during the signal measurement
+     */
+    var minDistanceFactorCoverageMeasurement: Int
+
+    /**
      * Minimum location accuracy during signal measurement in meters
      */
     var minLocationAccuracyMetersDuringSignalMeasurement: Int

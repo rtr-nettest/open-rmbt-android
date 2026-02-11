@@ -20,6 +20,7 @@ import at.rtr.rmbt.android.util.ConfigValue
 import at.specure.config.Config
 import at.specure.data.ControlServerSettings
 import javax.inject.Inject
+import androidx.core.content.edit
 
 private const val FILENAME = "config.pref"
 
@@ -32,6 +33,9 @@ private const val KEY_LAST_NOTIFICATION_PERMISSIONS_ASKED_TIMESTAMP_MILLIS = "KE
 private const val KEY_LAST_BACKGROUND_PERMISSIONS_ASKED_TIMESTAMP_MILLIS = "LAST_BACKGROUND_PERMISSIONS_ASKED_TIMESTAMP_MILLIS"
 private const val KEY_PERSISTENT_CLIENT_UUID_ENABLED = "PERSISTENT_CLIENT_UUID_ENABLED"
 private const val KEY_ANALYTICS_ENABLED = "ANALYTICS_ENABLED"
+
+private const val KEY_COVERAGE_MIN_FENCES_DISTANCE_FACTOR = "KEY_COVERAGE_MIN_FENCES_DISTANCE_FACTOR"
+private const val COVERAGE_MIN_FENCES_DISTANCE_FACTOR_DEFAULT_VALUE = 1
 
 class AppConfig @Inject constructor(context: Context, private val serverSettings: ControlServerSettings) : Config {
 
@@ -477,6 +481,12 @@ class AppConfig @Inject constructor(context: Context, private val serverSettings
     override var minDistanceMetersToLogNewLocationOnMapDuringSignalMeasurement: Int
         get() = getInt(BuildConfig.MIN_LOCATION_DISTANCE_METERS_SIGNAL_MEASUREMENT)
         set(value) = setInt(BuildConfig.MIN_LOCATION_DISTANCE_METERS_SIGNAL_MEASUREMENT, value)
+
+    override var minDistanceFactorCoverageMeasurement: Int
+        get() = preferences.getInt(KEY_COVERAGE_MIN_FENCES_DISTANCE_FACTOR, COVERAGE_MIN_FENCES_DISTANCE_FACTOR_DEFAULT_VALUE)
+        set(value) = preferences.edit {
+            putInt(KEY_COVERAGE_MIN_FENCES_DISTANCE_FACTOR, value)
+        }
 
     override var minLocationAccuracyMetersDuringSignalMeasurement: Int
         get() = getInt(BuildConfig.MIN_LOCATION_ACCURACY_METERS_SIGNAL_MEASUREMENT)

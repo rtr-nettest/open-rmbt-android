@@ -26,7 +26,6 @@ import at.specure.info.strength.SignalStrengthInfo
 import at.specure.info.strength.SignalStrengthLiveData
 import at.specure.info.strength.SignalStrengthWatcher
 import at.specure.location.LocationInfo
-import at.specure.location.LocationState
 import at.specure.location.LocationWatcher
 import at.specure.measurement.coverage.RtrCoverageMeasurementProcessor
 import kotlinx.coroutines.CoroutineExceptionHandler
@@ -38,7 +37,6 @@ import java.util.Timer
 import java.util.TimerTask
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
-import javax.inject.Named
 import javax.inject.Singleton
 import kotlin.coroutines.EmptyCoroutineContext
 
@@ -82,7 +80,7 @@ class SignalMeasurementProcessor @Inject constructor(
 
     private var lastSignalMeasurementType: SignalMeasurementType = SignalMeasurementType.UNKNOWN
 
-    private var locationInfo: LocationInfo? = null
+    private var globalLocationInfo: LocationInfo? = null
     private var signalStrengthInfo: SignalStrengthInfo? = null
 
     private val coroutineExceptionHandler = CoroutineExceptionHandler { context, e ->
@@ -149,7 +147,7 @@ class SignalMeasurementProcessor @Inject constructor(
                 sessionCreationError = measurementSessionInitializationErrorCallback,
                 sessionStopped = measurementSessionStoppedCallback,
             )
-            rtrCoverageMeasurementProcessor.onNewLocation(locationInfo, globalNetworkInfo)
+            rtrCoverageMeasurementProcessor.onNewLocation(globalLocationInfo, globalNetworkInfo)
         }
 
         if (isSignalMeasurementRunning()) {
@@ -210,20 +208,12 @@ class SignalMeasurementProcessor @Inject constructor(
 
     fun bind(owner: LifecycleOwner) {
 
-        if (locationWatcher.state == LocationState.ENABLED) {
-            locationInfo = locationWatcher.latestLocation
-        }
-        locationWatcher.liveData.observe(owner, Observer { info ->
-            if (locationWatcher.state == LocationState.ENABLED) {
-                locationInfo = info
-                if (lastSignalMeasurementType == SignalMeasurementType.DEDICATED) {
-                    locationInfo?.let { location ->
-                        Timber.d("passing new info with network: ${globalNetworkInfo?.networkInfo?.type}")
-                        rtrCoverageMeasurementProcessor.onNewLocation(location, globalNetworkInfo)
-                    }
-                }
-                if (isSignalMeasurementRunning()) {
-//                    saveLocationInfo()
+        locationWatcher.addListener(object : LocationWatcher.Listener {
+            override fun onLocationInfoChanged(locationInfo: LocationInfo?) {
+                globalLocationInfo = locationInfo
+                locationInfo?.let { location ->
+                    Timber.d("passing new info with network: ${globalNetworkInfo?.networkInfo?.type}")
+                    rtrCoverageMeasurementProcessor.onNewLocation(location, globalNetworkInfo)
                 }
             }
         })

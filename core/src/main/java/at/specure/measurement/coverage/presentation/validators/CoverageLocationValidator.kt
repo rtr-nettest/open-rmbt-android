@@ -28,7 +28,7 @@ class CoverageLocationValidator(
         return if (lastSavedLocation != null) {
             val distance = newLocation.toLocation().distanceTo(lastSavedLocation.toLocation())
             Timber.d("Distance is: $distance")
-            (distance >= appConfig.minDistanceMetersToLogNewLocationOnMapDuringSignalMeasurement)
+            (distance >= appConfig.minDistanceMetersToLogNewLocationOnMapDuringSignalMeasurement * appConfig.minDistanceFactorCoverageMeasurement)
         } else {
             Timber.d("Distance is good because no previous point loaded")
             true

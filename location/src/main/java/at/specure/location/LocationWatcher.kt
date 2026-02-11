@@ -118,6 +118,7 @@ class LocationWatcher private constructor(context: Context, sourceSet: Set<Locat
 
     private fun onLocationInfoChanged(source: LocationSource, info: LocationInfo?) {
         val decision = dispatcher.onLocationInfoChanged(source, info)
+        Timber.d("Delivering new location: $decision")
         if (decision.publish) {
             synchronized(monitor) {
                 listeners.forEach { it.onLocationInfoChanged(decision.location) }

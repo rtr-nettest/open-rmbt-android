@@ -13,10 +13,13 @@ import at.specure.data.entity.SignalRecord
 import at.specure.data.repository.MeasurementRepository
 import at.specure.data.repository.SignalMeasurementRepository
 import at.specure.data.repository.TestDataRepository
+import at.specure.info.cell.CellNetworkInfo
 import at.specure.info.network.DetailedNetworkInfo
 import at.specure.info.network.NetworkInfo
+import at.specure.location.LocationDistanceAndSpeedCounter
 import at.specure.location.LocationInfo
 import at.specure.measurement.coverage.data.FencesDataSource
+import at.specure.measurement.coverage.data.getMobileNetworkType
 import at.specure.measurement.coverage.domain.CoverageMeasurementProcessor
 import at.specure.measurement.coverage.domain.CoverageMeasurementEvent
 import at.specure.measurement.coverage.domain.CoverageLoopManager
@@ -41,10 +44,10 @@ import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import timber.log.Timber
-import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlin.coroutines.EmptyCoroutineContext
+import kotlin.math.max
 import kotlin.time.Duration.Companion.seconds
 
 // TODO: resolve problems with signal uuids and coverage uuids, send coverage results, new coverage request on network change and response
@@ -286,10 +289,37 @@ class RtrCoverageMeasurementProcessor @Inject constructor(
         }
     }
 
+    private fun computeSpeedAndUpdateFenceRadius(oldLocation: LocationInfo?, currentLocation: LocationInfo?) {
+        if (oldLocation == null || currentLocation == null) {
+            return
+        }
+        val speedMetersPerSecond = LocationDistanceAndSpeedCounter.getSpeedMetersPerSecond(
+            lat1 = oldLocation.latitude,
+            lon1 = oldLocation.longitude,
+            lat2 = currentLocation.latitude,
+            lon2 = currentLocation.longitude,
+            timestampMilliseconds1 = oldLocation.time,
+            timestampMilliseconds2 = currentLocation.time
+        )
+        val currentAccuracy = currentLocation.accuracy
+
+        val fenceRadiusFromGps = coverageMeasurementSettings.baseMinimalDistanceBetweenFenceCentersMeters + 2 * currentAccuracy
+        val fenceRadiusFromSpeed = speedMetersPerSecond
+
+        val fenceRadius = max(fenceRadiusFromSpeed, fenceRadiusFromGps).toInt()
+
+        if (fenceRadius == 0) {
+            Timber.e("fence radius updated: $fenceRadius * factor from $fenceRadiusFromGps And $fenceRadiusFromSpeed")
+        }
+        Timber.d("fence radius updated: $fenceRadius * factor from $fenceRadiusFromGps And $fenceRadiusFromSpeed")
+        config.minDistanceMetersToLogNewLocationOnMapDuringSignalMeasurement = fenceRadius
+        onCoverageConfigurationChanged()
+    }
+
     fun onNewLocation(location: LocationInfo?, networkInfo: DetailedNetworkInfo?) = io {
         // TODO: check how old is signal information + also handle no signal record in SignalMeasurementProcessor
         // TODO: check if airplane mode is enabled or not, check if mobile data are enabled
-
+        Timber.d("Checking new location")
         val coverageMeasurementDataValue = stateManager.state.value ?: return@io
 
         if (coverageMeasurementDataValue.state == CoverageMeasurementState.FINISHED_LOOP_CORRECTLY
@@ -305,8 +335,9 @@ class RtrCoverageMeasurementProcessor @Inject constructor(
             }
         }
 
+        computeSpeedAndUpdateFenceRadius(coverageMeasurementDataValue.currentLocation, location)
+
         stateManager.updateLocation(location)
-        Timber.d("onNewLocation triggered")
         val isBackOnMobileData = mainCoverageDataValidator.isBackToMobile(coverageMeasurementDataValue.currentNetworkInfo, networkInfo?.networkInfo)
         val isFirstMeasurementInLoop = coverageMeasurementDataValue.coverageMeasurementSession?.sequenceNumber == 0
 
@@ -328,9 +359,7 @@ class RtrCoverageMeasurementProcessor @Inject constructor(
 
         val newTimestamp = System.currentTimeMillis()
         val newLocation = location.toDeviceInfoLocation()
-        Timber.d("DeviceInfoLocation: $newLocation \nLocationInfo: $location")
 
-        Timber.d("lastPoint = $lastRecordedFence")
         val isDataValidToSaveNewFence = mainCoverageDataValidator.areDataValidToSaveNewFence(
             newTimestamp = newTimestamp,
             newLocation = newLocation,
@@ -344,6 +373,7 @@ class RtrCoverageMeasurementProcessor @Inject constructor(
         }
 
         if (isDataValidToSaveNewFence) {
+            Timber.d("Saving new fence ${networkInfo?.networkInfo} ${(networkInfo?.networkInfo as CellNetworkInfo).networkType}")
             saveNewFence(
                 sessionId = sessionId,
                 newLocation = newLocation!!,
@@ -351,6 +381,8 @@ class RtrCoverageMeasurementProcessor @Inject constructor(
                 networkInfo = networkInfo?.networkInfo,
                 lastRecordedFence = lastRecordedFence
             )
+        } else {
+            Timber.d("Not saving new fence")
         }
 
         /*
@@ -361,9 +393,6 @@ class RtrCoverageMeasurementProcessor @Inject constructor(
                 replaceSignalFenceAndSave(point, signalRecord)
             }
         }*/
-
-
-
     }
 
     private fun checkForTheConnectionState(): Boolean {
@@ -388,7 +417,7 @@ class RtrCoverageMeasurementProcessor @Inject constructor(
                 sessionId = sessionId,
                 location = newLocation,
                 signalRecord = null,
-                radiusMeters = config.minDistanceMetersToLogNewLocationOnMapDuringSignalMeasurement.toDouble(),
+                radiusMeters = config.minDistanceMetersToLogNewLocationOnMapDuringSignalMeasurement.toDouble() * config.minDistanceFactorCoverageMeasurement.toDouble(),
                 lastSavedFence = lastRecordedFence,
                 entryTimestampMillis = newTimestamp,
                 networkInfo = networkInfo,
@@ -459,7 +488,7 @@ class RtrCoverageMeasurementProcessor @Inject constructor(
     fun onCoverageConfigurationChanged() {
         fencesDataSource.updateLastFenceRadius(
             stateManager.getLastFence(),
-            config.minDistanceMetersToLogNewLocationOnMapDuringSignalMeasurement.toDouble()
+            config.minDistanceMetersToLogNewLocationOnMapDuringSignalMeasurement.toDouble() * config.minDistanceFactorCoverageMeasurement.toDouble()
         )
     }
 

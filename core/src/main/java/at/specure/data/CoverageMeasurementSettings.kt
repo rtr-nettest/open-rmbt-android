@@ -62,6 +62,8 @@ class CoverageMeasurementSettings @Inject constructor(context: Context) {
             preferences.edit { putString(KEY_SIGNAL_MEASUREMENT_LAST_MEASUREMENT_LOOP_ID, value) }
         }
 
+    val baseMinimalDistanceBetweenFenceCentersMeters = 10
+
     fun onStopMeasurementSession() {
         signalMeasurementLastMeasurementId = null
         signalMeasurementLastMeasurementLoopId = null

@@ -18,12 +18,11 @@ import at.rtr.rmbt.android.di.Injector
 import at.rtr.rmbt.android.util.addOnPropertyChanged
 import at.rtr.rmbt.android.util.listen
 import at.rtr.rmbt.android.viewmodel.CoverageSettingsViewModel
-import at.specure.measurement.coverage.domain.models.state.CoverageMeasurementState
 import javax.inject.Inject
 import kotlin.math.max
 
-const val MIN_FENCE_RADIUS_METERS = 10
-const val MAX_FENCE_RADIUS_METERS = 100
+const val MIN_FENCE_RADIUS_FACTOR = 1
+const val MAX_FENCE_RADIUS_FACTOR = 100
 const val MIN_LOCATION_ACCURACY_METERS = 3
 const val MAX_LOCATION_ACCURACY_METERS = 30
 
@@ -134,22 +133,22 @@ class CoverageSettingsDialog : FullscreenDialog() {
     }
 
     private fun setFenceRadiusItem() {
-        val initialValue = (viewModel.state.fenceRadiusMeters.get() ?: MIN_FENCE_RADIUS_METERS).coerceIn(MIN_FENCE_RADIUS_METERS, MAX_FENCE_RADIUS_METERS)
+        val initialValue = (viewModel.state.fenceRadiusFactor.get() ?: MIN_FENCE_RADIUS_FACTOR).coerceIn(MIN_FENCE_RADIUS_FACTOR, MAX_FENCE_RADIUS_FACTOR)
         binding.fenceRadiusMeters.text = getString(R.string.text_meters, initialValue)
 
-        viewModel.state.fenceRadiusMeters.addOnPropertyChanged { property ->
-            binding.fenceRadiusMeters.text = getString(R.string.text_meters, property.get())
-            binding.fenceRadiusSlider.contentDescription = getString(R.string.fence_radius_slider_content_description, property.get())
+        viewModel.state.fenceRadiusFactor.addOnPropertyChanged { property ->
+            binding.fenceRadiusMeters.text = property.get().toString()
+            binding.fenceRadiusFactorSlider.contentDescription = getString(R.string.fence_radius_slider_content_description, property.get())
         }
 
-        binding.labelFenceRadiusMinMeters.text = getString(R.string.text_meters, MIN_FENCE_RADIUS_METERS)
-        binding.labelFenceRadiusMaxMeters.text = getString(R.string.text_meters, MAX_FENCE_RADIUS_METERS)
+        binding.labelFenceRadiusMinMeters.text = MIN_FENCE_RADIUS_FACTOR.toString()
+        binding.labelFenceRadiusMaxMeters.text = MAX_FENCE_RADIUS_FACTOR.toString()
 
-        binding.fenceRadiusSlider.value = initialValue.toFloat()
-        binding.fenceRadiusSlider.valueTo = MAX_FENCE_RADIUS_METERS.toFloat()
-        binding.fenceRadiusSlider.valueFrom = MIN_FENCE_RADIUS_METERS.toFloat()
-        binding.fenceRadiusSlider.addOnChangeListener { slider, value, fromUser ->
-            viewModel.state.fenceRadiusMeters.set(value.toInt())
+        binding.fenceRadiusFactorSlider.value = initialValue.toFloat()
+        binding.fenceRadiusFactorSlider.valueTo = MAX_FENCE_RADIUS_FACTOR.toFloat()
+        binding.fenceRadiusFactorSlider.valueFrom = MIN_FENCE_RADIUS_FACTOR.toFloat()
+        binding.fenceRadiusFactorSlider.addOnChangeListener { slider, value, fromUser ->
+            viewModel.state.fenceRadiusFactor.set(value.toInt())
             callback?.onFenceOrAccuracyUpdated()
         }
     }
