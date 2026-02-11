@@ -12,13 +12,13 @@ class CoverageSettingsViewState(
     val appConfig: AppConfig,
 ) : ViewState {
 
-    val fenceRadiusMeters = ObservableField(appConfig.minDistanceMetersToLogNewLocationOnMapDuringSignalMeasurement)
+    val fenceRadiusFactor = ObservableField(appConfig.minDistanceFactorCoverageMeasurement)
     val locationAccuracyMeters = ObservableField(appConfig.minLocationAccuracyMetersDuringSignalMeasurement)
 
     init {
-        fenceRadiusMeters.addOnPropertyChanged { value ->
+        fenceRadiusFactor.addOnPropertyChanged { value ->
             value.get()?.let {
-                appConfig.minDistanceMetersToLogNewLocationOnMapDuringSignalMeasurement = it
+                appConfig.minDistanceFactorCoverageMeasurement = it
             }
         }
         locationAccuracyMeters.addOnPropertyChanged { value ->

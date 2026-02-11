@@ -123,11 +123,7 @@ class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback, Coverage
 
         coverageViewModel.coverageMeasurementDataLiveData.listen(this) {
             viewModel.state.coverageSessionStart.set(it?.coverageMeasurementSession?.startTimeLoopMillis ?: 0)
-            if (it?.state == CoverageMeasurementState.FINISHED_LOOP_CORRECTLY) {
-                showMeasurementResults(it)
-            } else {
-                updateUnfinishedMeasurement(it)
-            }
+            updateMapState(it)
         }
 
         viewModel.activeSignalMeasurementLiveData.listen(this) {
@@ -183,6 +179,14 @@ class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback, Coverage
                 }
             }
         })
+    }
+
+    private fun updateMapState(data: CoverageMeasurementData?) {
+        if (data?.state == CoverageMeasurementState.FINISHED_LOOP_CORRECTLY) {
+            showMeasurementResults(data)
+        } else {
+            updateUnfinishedMeasurement(data)
+        }
     }
 
     override fun onConfigurationChanged(newConfig: Configuration) {
@@ -465,6 +469,7 @@ class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback, Coverage
         map?.setOnMapClickListener {
             coverageViewModel.state.markerDetailsDisplayed.set(false)
         }
+        updateMapState(coverageViewModel.coverageMeasurementDataLiveData.value)
     }
 
     override fun onStart() {
