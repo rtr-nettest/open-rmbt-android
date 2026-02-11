@@ -312,7 +312,10 @@ class CoverageResultViewModel @Inject constructor(
     fun clearPerformanceImprovementLists() {
         state.displayedPointIds.clear()
         state.markers.clear()
-        lastCircle = null
+        viewModelScope.launch(Dispatchers.Main) {
+            lastCircle?.remove()
+            lastCircle = null
+        }
         state.markerDetailsDisplayed.set(false)
         Timber.d("Lists optimisation cleared")
     }
