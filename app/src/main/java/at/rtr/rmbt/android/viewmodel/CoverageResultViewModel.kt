@@ -248,22 +248,8 @@ class CoverageResultViewModel @Inject constructor(
                     .anchor(0.5f, 0.5f)
             }
 
-            // Prepare CircleOptions for last point if needed
+            // Prepare last point for circle needed
             val lastPoint = newPoints.lastOrNull() ?: pts.lastOrNull()
-            val circleOptionsList = lastPoint?.let { point ->
-                val latLng = point.toLatLng() ?: return@let null
-                val tech = MobileNetworkType.fromValue(point.networkTechnologyId ?: 0)
-                val colorInt = tech.getMarkerColorInt()
-                val fillColor = makeSemiTransparent(colorInt)
-                listOf(
-                    CircleOptions()
-                        .center(latLng)
-                        .radius(point.fenceRadiusMeters?.toDouble() ?: 0.0)
-                        .strokeColor(colorInt)
-                        .strokeWidth(2f)
-                        .fillColor(fillColor)
-                )
-            } ?: emptyList()
 
             if (coverageMeasurementState == null || coverageMeasurementState == CoverageMeasurementState.FINISHED_LOOP_CORRECTLY) {
                 zoomMapToShowAllMarkers(markersOptions = markerOptionsList, map = map)
@@ -289,9 +275,30 @@ class CoverageResultViewModel @Inject constructor(
                 }
 
                 // Add/update circles for last point
-                circleOptionsList.forEach { options ->
-                    currentMap.addCircle(options)?.let {
-                        updateCircle(it)
+                lastPoint?.let { point ->
+
+                    val latLng = point.toLatLng() ?: return@let
+                    val tech = MobileNetworkType.fromValue(point.networkTechnologyId ?: 0)
+                    val colorInt = tech.getMarkerColorInt()
+                    val fillColor = makeSemiTransparent(colorInt)
+                    val radius = point.fenceRadiusMeters?.toDouble() ?: 0.0
+
+                    if (lastCircle == null) {
+                        val options = CircleOptions()
+                            .center(latLng)
+                            .radius(radius)
+                            .strokeColor(colorInt)
+                            .strokeWidth(2f)
+                            .fillColor(fillColor)
+
+                        lastCircle = currentMap.addCircle(
+                            options
+                        )
+                    } else {
+                        lastCircle?.center = latLng
+                        lastCircle?.radius = radius
+                        lastCircle?.strokeColor = colorInt
+                        lastCircle?.fillColor = fillColor
                     }
                 }
             }
@@ -307,6 +314,7 @@ class CoverageResultViewModel @Inject constructor(
     fun clearPerformanceImprovementLists() {
         state.displayedPointIds.clear()
         state.markers.clear()
+        lastCircle = null
         Timber.d("Lists optimisation cleared")
     }
 
@@ -328,12 +336,6 @@ class CoverageResultViewModel @Inject constructor(
     private fun makeSemiTransparent(color: Int, alpha: Int = 1): Int {
         // alpha: 0..255, 128 = 50% transparency
         return (color and 0x00FFFFFF) or (alpha shl 24)
-    }
-
-    private fun updateCircle(it: Circle) {
-        state.activeCircles.forEach { it.remove() }
-        state.activeCircles.clear()
-        state.activeCircles.add(it)
     }
 
     fun isLocationInfoMeetingQualityCriteria(location: DeviceInfo.Location?): Boolean {

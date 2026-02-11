@@ -40,7 +40,6 @@ class CoverageResultViewState constructor(
     var zoom: Float = START_ZOOM_LEVEL
     var closeDialogDisplayed = ObservableBoolean(false)
     var markerDetailsDisplayed = ObservableBoolean(false)
-    val activeCircles = mutableListOf<com.google.android.gms.maps.model.Circle>()
     val markers: ArrayDeque<Marker> = ArrayDeque()
     val displayedPointIds = mutableSetOf<String>()
     var testUUID: String = ""
