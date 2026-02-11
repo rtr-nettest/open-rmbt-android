@@ -1,5 +1,6 @@
 package at.rtr.rmbt.android.viewmodel
 
+import android.os.SystemClock
 import androidx.core.graphics.scale
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -41,6 +42,7 @@ import com.google.android.gms.maps.model.Circle
 import com.google.android.gms.maps.model.CircleOptions
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.LatLngBounds
+import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
 import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.Dispatchers
@@ -56,6 +58,7 @@ import timber.log.Timber
 import javax.inject.Inject
 
 const val MAX_MARKER_COUNT_DISPLAYED_THRESHOLD = 100
+const val MIN_MAP_UPDATE_RATE = 700 // do not set it bellow maybe 500ms as map is very sensitive to frequent updates
 
 class CoverageResultViewModel @Inject constructor(
     private val appConfig: AppConfig,
@@ -199,11 +202,24 @@ class CoverageResultViewModel @Inject constructor(
         setOnMapLoadedCallback { cont.resume(Unit) {} }
     }
 
+    private var lastCircle: Circle? = null
+    private val markerCache = mutableMapOf<Long, Marker>()
+    private var lastMapUpdate = 0L
+
+    private fun shouldUpdateMap(): Boolean {
+        val now = SystemClock.elapsedRealtime()
+        if (now - lastMapUpdate < MIN_MAP_UPDATE_RATE) return false
+        lastMapUpdate = now
+        return true
+    }
+
+
     fun updateMapPoints(map: GoogleMap?, points: List<FencesResultItemRecord>?, coverageMeasurementState: CoverageMeasurementState?) {
         state.coverageSessionStart = coverageMeasurementDataLiveData.value?.coverageMeasurementSession?.startTimeLoopMillis
 
         val currentMap = map ?: return
         val pts = points ?: return
+        if (!shouldUpdateMap()) return
 
         viewModelScope.launch(Dispatchers.Default) {
             clearPerformanceListsIfTheyAreFromPreviousMeasurement(pts)
@@ -277,15 +293,6 @@ class CoverageResultViewModel @Inject constructor(
                     currentMap.addCircle(options)?.let {
                         updateCircle(it)
                     }
-                }
-
-                // Map click listeners
-                currentMap.setOnMarkerClickListener { marker ->
-                    state.markerDetailsDisplayed.set(true)
-                    false
-                }
-                currentMap.setOnMapClickListener {
-                    state.markerDetailsDisplayed.set(false)
                 }
             }
         }

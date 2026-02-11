@@ -223,8 +223,7 @@ class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback, Coverage
 
         // Launch a coroutine to safely update the map
         lifecycleScope.launch {
-            map?.awaitMapLoad()
-
+//            map?.awaitMapLoad()
             setMyPositionAndButtonVisible(true)
             updateCurrentLocation(coverageMeasurementData?.currentLocation)
             coverageViewModel.updateMapPoints(
@@ -240,12 +239,6 @@ class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback, Coverage
             View.VISIBLE
         } else {
             View.GONE
-        }
-    }
-
-    suspend fun GoogleMap.awaitMapLoad() = suspendCancellableCoroutine<Unit> { cont ->
-        setOnMapLoadedCallback {
-            cont.resume(Unit)
         }
     }
 
@@ -439,9 +432,23 @@ class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback, Coverage
         return false
     }
 
+    suspend fun GoogleMap.awaitLoadedOnce(): GoogleMap =
+        suspendCancellableCoroutine { cont ->
+            setOnMapLoadedCallback {
+                if (cont.isActive) cont.resume(this, null)
+            }
+        }
+
     // Get a handle to the GoogleMap object and display marker.
     override fun onMapReady(googleMap: GoogleMap) {
         map = googleMap
+        lifecycleScope.launch {
+            map?.awaitLoadedOnce()
+            onMapFullyReady()
+        }
+    }
+
+    fun onMapFullyReady() {
         checkLocationAndSetCurrent()
         updateLocationPermissionRelatedUi()
         map?.uiSettings?.isMyLocationButtonEnabled = false
@@ -451,6 +458,13 @@ class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback, Coverage
         map?.moveCamera(
             CameraUpdateFactory.newLatLngZoom(DefaultLocation.austriaLocation, DefaultLocation.austriaZoomLevel)
         )
+        map?.setOnMarkerClickListener { marker ->
+            coverageViewModel.state.markerDetailsDisplayed.set(true)
+            false
+        }
+        map?.setOnMapClickListener {
+            coverageViewModel.state.markerDetailsDisplayed.set(false)
+        }
     }
 
     override fun onStart() {
