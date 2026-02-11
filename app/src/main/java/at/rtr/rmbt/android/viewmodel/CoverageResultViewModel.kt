@@ -83,8 +83,6 @@ class CoverageResultViewModel @Inject constructor(
     private val _coverageMeasurementDataLiveData: LiveData<CoverageMeasurementData?> =
         rtrCoverageMeasurementProcessor.stateManager.state.asLiveData(viewModelScope.coroutineContext)
 
-
-
     val testServerResultLiveData: LiveData<TestResultRecord?>
         get() {
             if (_testResultLiveData == null) {
@@ -219,7 +217,7 @@ class CoverageResultViewModel @Inject constructor(
 
         val currentMap = map ?: return
         val pts = points ?: return
-        if (!shouldUpdateMap()) return
+        if (!shouldUpdateMap() && coverageMeasurementState != CoverageMeasurementState.FINISHED_LOOP_CORRECTLY) return
 
         viewModelScope.launch(Dispatchers.Default) {
             clearPerformanceListsIfTheyAreFromPreviousMeasurement(pts)
@@ -315,6 +313,7 @@ class CoverageResultViewModel @Inject constructor(
         state.displayedPointIds.clear()
         state.markers.clear()
         lastCircle = null
+        state.markerDetailsDisplayed.set(false)
         Timber.d("Lists optimisation cleared")
     }
 

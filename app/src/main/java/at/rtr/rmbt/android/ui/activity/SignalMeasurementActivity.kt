@@ -353,7 +353,7 @@ class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback, Coverage
 
         map?.let { gMap ->
             location?.let { latestLocation ->
-                if (!viewModel.state.markerDetailsDisplayed.get()) {
+                if (!coverageViewModel.state.markerDetailsDisplayed.get()) {
                     gMap.animateCamera(
                         CameraUpdateFactory.newLatLng(
                             latestLocation.toLatLng()

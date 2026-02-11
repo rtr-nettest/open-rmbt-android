@@ -63,7 +63,6 @@ class HomeViewState(
     var cameraPositionLiveData: MutableLiveData<LatLngW> = MutableLiveData()
     var zoom: Float = START_ZOOM_LEVEL
     var closeDialogDisplayed = ObservableBoolean(false)
-    var markerDetailsDisplayed = ObservableBoolean(false)
 
     init {
         isLoopModeActive.addOnPropertyChanged {
@@ -76,7 +75,6 @@ class HomeViewState(
             informationAccessProblem.set(InformationAccessProblem.values()[(getInt(KEY_IAP))])
             locationChanged.set(getBoolean(KEY_LOCATION_CHANGED))
             closeDialogDisplayed.set(getBoolean(KEY_CLOSE_DIALOG_DISPLAYED))
-            markerDetailsDisplayed.set(getBoolean(KEY_MARKER_DETAILS_DISPLAYED))
             coordinatesLiveData.postValue(LatLngW(getDouble(KEY_LATITUDE), getDouble(KEY_LONGITUDE)))
             zoom = getFloat(KEY_ZOOM)
             coverageSessionStart.set(getLong(KEY_COVERAGE_SESSION_DETAILS))
@@ -89,7 +87,6 @@ class HomeViewState(
             putInt(KEY_IAP, informationAccessProblem.get()?.ordinal ?: InformationAccessProblem.NO_PROBLEM.ordinal)
             putBoolean(KEY_LOCATION_CHANGED, locationChanged.get())
             putBoolean(KEY_CLOSE_DIALOG_DISPLAYED, closeDialogDisplayed.get())
-            putBoolean(KEY_MARKER_DETAILS_DISPLAYED, markerDetailsDisplayed.get())
             coordinatesLiveData.value?.latitude?.let { putDouble(KEY_LATITUDE, it) }
             coordinatesLiveData.value?.longitude?.let { putDouble(KEY_LONGITUDE, it) }
             putFloat(KEY_ZOOM, zoom)
