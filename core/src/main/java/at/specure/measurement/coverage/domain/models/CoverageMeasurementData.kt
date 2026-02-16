@@ -16,5 +16,7 @@ data class CoverageMeasurementData(
     val currentLocation: LocationInfo? = null,
     val currentPingMs: Double? = null,
     val currentPingStatus: String? = null,
-    val state: CoverageMeasurementState = CoverageMeasurementState.IDLE
+    val state: CoverageMeasurementState = CoverageMeasurementState.IDLE,
+    val sendingResults: Boolean = false,
+    val initializing: Boolean = false,
 )

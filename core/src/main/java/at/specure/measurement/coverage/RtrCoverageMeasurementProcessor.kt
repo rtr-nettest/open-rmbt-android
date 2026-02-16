@@ -19,7 +19,6 @@ import at.specure.info.network.NetworkInfo
 import at.specure.location.LocationDistanceAndSpeedCounter
 import at.specure.location.LocationInfo
 import at.specure.measurement.coverage.data.FencesDataSource
-import at.specure.measurement.coverage.data.getMobileNetworkType
 import at.specure.measurement.coverage.domain.CoverageMeasurementProcessor
 import at.specure.measurement.coverage.domain.CoverageMeasurementEvent
 import at.specure.measurement.coverage.domain.CoverageLoopManager
@@ -210,10 +209,14 @@ class RtrCoverageMeasurementProcessor @Inject constructor(
                         avgPingMillis = avgPingMillis
                     )*/
                     stateManager.onUpdateCoverageDataState(CoverageMeasurementState.FINISHED_LOOP_CORRECTLY)
+                    stateManager.startSendingResults()
                     val data = stateManager.state.value
                     Timber.d("Sending coverageResult")
                     signalMeasurementRepository.sendFences(
-                        data?.coverageMeasurementSession?.localMeasurementId ?: ""
+                        data?.coverageMeasurementSession?.localMeasurementId ?: "",
+                        { sentSuccessfully: Boolean ->
+                            stateManager.onSignalResultSent(sentSuccessfully)
+                        }
                     )
                 } finally {
 //                cleanData()

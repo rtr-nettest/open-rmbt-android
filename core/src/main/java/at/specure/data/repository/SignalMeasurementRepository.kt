@@ -68,7 +68,7 @@ interface SignalMeasurementRepository {
 
     fun registerCoverageMeasurement(localMeasurementId: String): Flow<Boolean>
 
-    suspend fun sendFences(sessionId: String)
+    suspend fun sendFences(sessionId: String, onSendCompleted: ((Boolean) -> Unit)?)
 
     suspend fun retrySendFences()
 

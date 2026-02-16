@@ -318,6 +318,41 @@
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent" />
 
+            <LinearLayout
+                android:id="@+id/sendingResults"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="@dimen/margin_large"
+                android:layout_marginBottom="64dp"
+                android:background="@android:color/white"
+                android:backgroundTint="@android:color/white"
+                android:gravity="center"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                android:padding="8dp"
+                >
+
+                <androidx.core.widget.ContentLoadingProgressBar
+                    android:id="@+id/progressStatistics"
+                    style="?android:attr/progressBarStyle"
+                    android:layout_width="24dp"
+                    android:layout_gravity="center"
+                    android:layout_height="24dp"
+                    android:indeterminateTint="@color/colorAccent"
+                    />
+                <Space
+                    android:layout_width="8dp"
+                    android:layout_height="1dp"/>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/sending_results"
+                    />
+
+            </LinearLayout>
+
             <TextView
                 android:id="@+id/labelSource"
                 style="@style/TextInputTheme"

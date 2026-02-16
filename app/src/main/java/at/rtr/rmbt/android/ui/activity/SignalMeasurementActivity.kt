@@ -187,6 +187,7 @@ class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback, Coverage
         setInfoVisible(false)
         setResultTitleVisible(true)
         setSettingsButtonVisible(false)
+        updateSendingResultsInfo(coverageMeasurementData.sendingResults)
         // Launch a coroutine to safely update the map
         lifecycleScope.launch {
             coverageViewModel.updateMapPoints(
@@ -207,6 +208,7 @@ class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback, Coverage
         updatePingValue(coverageMeasurementData)
         showCurrentNetworkType(coverageMeasurementData)
         showMeasurementError(coverageMeasurementData)
+        updateSendingResultsInfo(coverageMeasurementData?.sendingResults ?: false)
 
         // Launch a coroutine to safely update the map
         lifecycleScope.launch {
@@ -317,6 +319,15 @@ class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback, Coverage
             }
         }
     }
+
+    private fun updateSendingResultsInfo(sendingResults : Boolean) {
+        if (sendingResults) {
+            binding.sendingResults.visibility = View.VISIBLE
+        } else {
+            binding.sendingResults.visibility = View.GONE
+        }
+    }
+
 
     private fun updateCurrentLocation(location: LocationInfo?) {
         Timber.d("New location obtained: $location")

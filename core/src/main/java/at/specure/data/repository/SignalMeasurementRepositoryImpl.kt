@@ -246,7 +246,7 @@ class SignalMeasurementRepositoryImpl(
     }
 
 
-    override suspend fun sendFences(localMeasurementId: String) {
+    override suspend fun sendFences(localMeasurementId: String, onSendCompleted: ((Boolean) -> Unit)?) {
         val coverageSession = retrieveCoverageMeasurementOrCreate(localMeasurementId)
         if (coverageSession.isRegistered()) {
             val localMeasurementId = coverageSession.localMeasurementId
@@ -276,8 +276,10 @@ class SignalMeasurementRepositoryImpl(
                         val result = client.coverageResult(requestBody)
                         if (result.ok) {
                             dao.markSessionAsSynced(localMeasurementId)
+                            onSendCompleted?.invoke(true)
                         } else {
                             dao.incrementRetryCountForSession(localMeasurementId)
+                            onSendCompleted?.invoke(false)
                             // TODO: enqueue sending with worker in case of failed send
                         }
                     }

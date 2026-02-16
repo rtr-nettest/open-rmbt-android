@@ -76,7 +76,7 @@ class RtrCoverageLoopManager @Inject constructor(
             val hasRecordedFences = fencesCount != 0
 
             if (lastCoverageMeasurementSession.isRegistered() && hasRecordedFences) {
-                signalMeasurementRepository.sendFences(lastCoverageMeasurementSession.localMeasurementId)
+                signalMeasurementRepository.sendFences(lastCoverageMeasurementSession.localMeasurementId, null)
             }
         }
     }

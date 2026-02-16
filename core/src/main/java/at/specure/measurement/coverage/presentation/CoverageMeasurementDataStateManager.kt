@@ -143,4 +143,16 @@ class CoverageMeasurementDataStateManager @Inject constructor(
     ) {
         _state.update { block(it) }
     }
+
+    fun startSendingResults() {
+        update {
+            copy(sendingResults = true)
+        }
+    }
+
+    fun onSignalResultSent(sentSuccessfully: Boolean) {
+        update {
+            copy(sendingResults = false)
+        }
+    }
 }
