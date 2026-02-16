@@ -134,13 +134,14 @@ class SignalMeasurementProcessor @Inject constructor(
         unstoppable: Boolean,
         signalMeasurementType: SignalMeasurementType
     ) {
-        Timber.w("startMeasurement")
+        val shouldStartCoverage = !_isActive
+        Timber.w("startMeasurement $shouldStartCoverage")
         _isActive = true
         isUnstoppable = unstoppable
         postStateData()
         lastSignalMeasurementType = signalMeasurementType
 
-        if (lastSignalMeasurementType == SignalMeasurementType.DEDICATED) {
+        if (lastSignalMeasurementType == SignalMeasurementType.DEDICATED && shouldStartCoverage) {
             Timber.d("Starting coverage session")
             rtrCoverageMeasurementProcessor.startCoverageSession(
                 sessionCreated = measurementSessionInitializedCallback,

@@ -456,7 +456,9 @@ class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback, Coverage
 //        map?.setOnMapClickListener {
 //            coverageViewModel.state.markerDetailsDisplayed.set(false)
 //        }
-        updateMapState(coverageViewModel.coverageMeasurementDataLiveData.value)
+        if (coverageViewModel.coverageMeasurementDataLiveData.value?.state == CoverageMeasurementState.FINISHED_LOOP_CORRECTLY) {
+            updateMapState(coverageViewModel.coverageMeasurementDataLiveData.value)
+        }
     }
 
     override fun onStart() {
