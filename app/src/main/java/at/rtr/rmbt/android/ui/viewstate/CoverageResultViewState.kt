@@ -5,9 +5,11 @@ import androidx.databinding.ObservableBoolean
 import androidx.databinding.ObservableField
 import androidx.lifecycle.MutableLiveData
 import at.rtr.rmbt.android.config.AppConfig
+import at.rtr.rmbt.android.map.DefaultLocation
 import at.rtr.rmbt.android.map.wrapper.LatLngW
 import at.rtr.rmbt.android.ui.fragment.START_ZOOM_LEVEL
 import at.specure.data.entity.TestResultRecord
+import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.Marker
 
 private const val KEY_TEST_UUID = "KEY_TEST_UUID"
@@ -35,9 +37,9 @@ class CoverageResultViewState constructor(
     val testResult = ObservableField<TestResultRecord?>()
     val expertModeEnabled = ObservableField(appConfig.expertModeEnabled)
     val coverageModeEnabled = ObservableField(appConfig.coverageModeEnabled)
-    var coordinatesLiveData: MutableLiveData<LatLngW> = MutableLiveData()
-    var cameraPositionLiveData: MutableLiveData<LatLngW> = MutableLiveData()
-    var zoom: Float = START_ZOOM_LEVEL
+    var coordinatesLiveData: MutableLiveData<LatLng> = MutableLiveData()
+    var cameraPositionLiveData: MutableLiveData<LatLng> = MutableLiveData()
+    var zoom: Float = DefaultLocation.austriaZoomLevel
     var closeDialogDisplayed = ObservableBoolean(false)
     var markerDetailsDisplayed = ObservableBoolean(false)
     val markers: ArrayDeque<Marker> = ArrayDeque()
@@ -50,10 +52,10 @@ class CoverageResultViewState constructor(
             testUUID = getString(KEY_TEST_UUID, "")
             playServicesAvailable.set(getBoolean(KEY_PLAY_SERVICES))
             markerDetailsDisplayed.set(getBoolean(KEY_MARKER_DETAILS_DISPLAYED))
-            coordinatesLiveData.postValue(LatLngW(getDouble(KEY_LATITUDE), getDouble(KEY_LONGITUDE)))
+            coordinatesLiveData.postValue(LatLng(getDouble(KEY_LATITUDE), getDouble(KEY_LONGITUDE)))
             zoom = getFloat(KEY_ZOOM)
             coverageSessionStart = getLong(KEY_COVERAGE_SESSION_DETAILS)
-            cameraPositionLiveData.postValue(LatLngW(getDouble(KEY_CAMERA_POSITION_LAT), getDouble(KEY_CAMERA_POSITION_LON)))
+            cameraPositionLiveData.postValue(LatLng(getDouble(KEY_CAMERA_POSITION_LAT), getDouble(KEY_CAMERA_POSITION_LON)))
         }
     }
 

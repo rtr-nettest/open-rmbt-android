@@ -70,23 +70,6 @@ class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback, Coverage
     private var map: GoogleMap? = null
     private var warningSnackbar: Snackbar? = null
 
-    private val mapLocationListener = object : LocationSource {
-        private var listener: LocationSource.OnLocationChangedListener? = null
-
-        override fun activate(onLocationChangedListener: LocationSource.OnLocationChangedListener) {
-            listener = onLocationChangedListener
-        }
-
-        override fun deactivate() {
-            listener = null
-        }
-
-        fun updateLocation(location: LocationInfo) {
-            val latestLocation = location.toLocation()
-            listener?.onLocationChanged(latestLocation)
-        }
-    }
-
     override fun onFenceOrAccuracyUpdated() {
         coverageViewModel.onCoverageConfigurationChanged()
     }
@@ -312,6 +295,7 @@ class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback, Coverage
     private fun updatePingValue(coverageMeasurementData: CoverageMeasurementData?) {
         val pingResult = coverageMeasurementData?.currentPingMs
         binding.pingValue.text = if (pingResult != null && pingResult > 0) {
+            binding.pingGroup.visibility = View.VISIBLE
             val mantissa = pingResult - (pingResult.toInt().toDouble())
             if (mantissa > 0 && pingResult < 10.0) {
                 this.getString(R.string.measurement_ping_value_1f, pingResult)
@@ -320,8 +304,10 @@ class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback, Coverage
             }
         } else {
             if (coverageMeasurementData?.currentPingStatus != null) {
+                binding.pingGroup.visibility = View.VISIBLE
                 coverageMeasurementData.currentPingStatus
             } else {
+                binding.pingGroup.visibility = View.INVISIBLE
                 this.getString(R.string.measurement_dash)
             }
         }
@@ -341,18 +327,12 @@ class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback, Coverage
                 showLocationProblemDialogIfNotSilenced()
             }
         }
-        map?.let {
-            location?.let { latestLocation ->
-                mapLocationListener.updateLocation(
-                    latestLocation
-                )
-            }
-        }
 
         binding.accuracyValue.text = this.getString(R.string.location_dialog_accuracy, (location?.formatAccuracy() ?: "-").toString())
 
         map?.let { gMap ->
             location?.let { latestLocation ->
+                coverageViewModel.state.cameraPositionLiveData.postValue(LatLng(latestLocation.latitude, latestLocation.longitude))
                 if (!coverageViewModel.state.markerDetailsDisplayed.get()) {
                     gMap.animateCamera(
                         CameraUpdateFactory.newLatLng(
@@ -459,9 +439,16 @@ class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback, Coverage
         map?.uiSettings?.isMapToolbarEnabled = false
         map?.isIndoorEnabled = false
         map?.isBuildingsEnabled = false
-        map?.moveCamera(
-            CameraUpdateFactory.newLatLngZoom(DefaultLocation.austriaLocation, DefaultLocation.austriaZoomLevel)
-        )
+        map?.moveCamera(CameraUpdateFactory.newLatLngZoom(
+            coverageViewModel.state.cameraPositionLiveData.value ?: DefaultLocation.austriaLocation,
+            coverageViewModel.state.zoom
+        ))
+        map?.setOnCameraIdleListener {
+            map?.cameraPosition?.zoom?.let { newZoom ->
+                coverageViewModel.state.zoom = newZoom
+            }
+        }
+
 //        map?.setOnMarkerClickListener { marker ->
 //            coverageViewModel.state.markerDetailsDisplayed.set(true)
 //            false
