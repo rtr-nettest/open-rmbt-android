@@ -119,6 +119,13 @@
                         app:layout_constraintStart_toStartOf="@id/ping_label"
                         app:layout_constraintEnd_toEndOf="@id/ping_label"/>
 
+                    <androidx.constraintlayout.widget.Group
+                        android:id="@+id/pingGroup"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:visibility="visible"
+                        app:constraint_referenced_ids="ping_value, ping_label" />
+
                     <!-- Accuracy -->
                     <TextView
                         android:id="@+id/accuracy_label"
