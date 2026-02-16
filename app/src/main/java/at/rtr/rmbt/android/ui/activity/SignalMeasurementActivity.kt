@@ -462,13 +462,13 @@ class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback, Coverage
         map?.moveCamera(
             CameraUpdateFactory.newLatLngZoom(DefaultLocation.austriaLocation, DefaultLocation.austriaZoomLevel)
         )
-        map?.setOnMarkerClickListener { marker ->
-            coverageViewModel.state.markerDetailsDisplayed.set(true)
-            false
-        }
-        map?.setOnMapClickListener {
-            coverageViewModel.state.markerDetailsDisplayed.set(false)
-        }
+//        map?.setOnMarkerClickListener { marker ->
+//            coverageViewModel.state.markerDetailsDisplayed.set(true)
+//            false
+//        }
+//        map?.setOnMapClickListener {
+//            coverageViewModel.state.markerDetailsDisplayed.set(false)
+//        }
         updateMapState(coverageViewModel.coverageMeasurementDataLiveData.value)
     }
 

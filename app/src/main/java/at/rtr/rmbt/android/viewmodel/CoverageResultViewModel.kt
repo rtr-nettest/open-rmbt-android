@@ -242,7 +242,7 @@ class CoverageResultViewModel @Inject constructor(
                 MarkerOptions()
                     .position(latLng)
                     .icon(getCachedIcon(tech))
-                    .title(tech.displayName)
+//                    .title(tech.displayName)
                     .anchor(0.5f, 0.5f)
             }
 
