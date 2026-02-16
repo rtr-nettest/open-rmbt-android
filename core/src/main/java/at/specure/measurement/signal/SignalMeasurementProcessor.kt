@@ -118,6 +118,7 @@ class SignalMeasurementProcessor @Inject constructor(
 
     val measurementSessionInitializedCallback: (sessionId: CoverageMeasurementSession) -> Unit = { coverageMeasurementSession ->
         _signalMeasurementSessionIdLiveData.postValue(coverageMeasurementSession.localMeasurementId)
+        rtrCoverageMeasurementProcessor.onNewLocation(globalLocationInfo, globalNetworkInfo)
     }
 
     val measurementSessionInitializationErrorCallback: (exception: Exception) -> Unit = { exception ->

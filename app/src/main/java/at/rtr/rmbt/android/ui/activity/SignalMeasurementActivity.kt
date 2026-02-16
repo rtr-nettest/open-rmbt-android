@@ -212,7 +212,12 @@ class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback, Coverage
         lifecycleScope.launch {
 //            map?.awaitMapLoad()
             setMyPositionAndButtonVisible(true)
-            updateCurrentLocation(coverageMeasurementData?.currentLocation)
+            val longEnoughTimePassedFromStart = (2000.plus(coverageMeasurementData?.coverageMeasurementSession?.startTimeMeasurementMillis ?: 0) <= System.currentTimeMillis())
+            if (coverageMeasurementData?.currentLocation != null || (coverageMeasurementData?.coverageMeasurementSession != null
+                        && longEnoughTimePassedFromStart)
+            ) {
+                updateCurrentLocation(coverageMeasurementData?.currentLocation)
+            }
             coverageViewModel.updateMapPoints(
                 map,
                 coverageMeasurementData?.fences.toCoverageResultItemRecords(),
