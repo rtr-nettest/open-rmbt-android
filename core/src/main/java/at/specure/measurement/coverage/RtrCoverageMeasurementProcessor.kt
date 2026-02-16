@@ -208,6 +208,7 @@ class RtrCoverageMeasurementProcessor @Inject constructor(
                         leaveTimestampMillis = 0,
                         avgPingMillis = avgPingMillis
                     )*/
+
                     stateManager.onUpdateCoverageDataState(CoverageMeasurementState.FINISHED_LOOP_CORRECTLY)
                     stateManager.startSendingResults()
                     val data = stateManager.state.value

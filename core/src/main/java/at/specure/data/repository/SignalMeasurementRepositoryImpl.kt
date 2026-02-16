@@ -246,7 +246,7 @@ class SignalMeasurementRepositoryImpl(
     }
 
 
-    override suspend fun sendFences(localMeasurementId: String, onSendCompleted: ((Boolean) -> Unit)?) {
+    override suspend fun sendFences(localMeasurementId: String, onSendCompleted: ((Boolean) -> Unit)?) = io {
         val coverageSession = retrieveCoverageMeasurementOrCreate(localMeasurementId)
         if (coverageSession.isRegistered()) {
             val localMeasurementId = coverageSession.localMeasurementId
