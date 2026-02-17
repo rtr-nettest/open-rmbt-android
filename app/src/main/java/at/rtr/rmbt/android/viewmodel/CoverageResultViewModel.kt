@@ -100,10 +100,14 @@ class CoverageResultViewModel @Inject constructor(
 //        get() = _dedicatedSignalMeasurementSessionIdLiveData
 
     val fencesLiveData: LiveData<List<FencesResultItemRecord>>
-        get() = testResultsRepository.getFencesDataLiveData(state.testUUID)
+        get() {
+            return testResultsRepository.getFencesDataLiveData(state.testUUID)
+        }
 
     val testResultDetailsLiveData: LiveData<List<TestResultDetailsRecord>>
-        get() = testResultsRepository.getTestDetailsResult(state.testUUID)
+        get() {
+            return testResultsRepository.getTestDetailsResult(state.testUUID)
+        }
 
     val loadingLiveData: LiveData<Boolean>
         get() = _loadingLiveData
@@ -151,9 +155,11 @@ class CoverageResultViewModel @Inject constructor(
             .flowOn(Dispatchers.IO)
             .catch {
                 if (it is HandledException) {
+                    Timber.e("Loaded points problem handled")
                     emit(false)
                     postError(it)
                 } else {
+                    Timber.e("Loaded points problem")
                     throw it
                 }
             }

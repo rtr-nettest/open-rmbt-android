@@ -2,6 +2,7 @@ package at.rtr.rmbt.android.ui.activity
 
 import android.content.Context
 import android.content.Intent
+import android.content.res.Configuration
 import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -44,6 +45,7 @@ class CoverageResultsActivity : BaseActivity(), OnMapReadyCallback {
     private var mapLoadRequested: Boolean = false
     private var map: GoogleMap? = null
     private var timer: Timer? = null
+    private var loadAttempts = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -69,13 +71,6 @@ class CoverageResultsActivity : BaseActivity(), OnMapReadyCallback {
             }
         }
 
-//        if (!mapLoadRequested) {
-//            mapLoadRequested = true
-            val mapFragment = supportFragmentManager
-                .findFragmentById(R.id.map) as SupportMapFragment?
-            mapFragment!!.getMapAsync(this)
-//        }
-
         viewModel.state.playServicesAvailable.set(isGmsAvailable())
 
         val testUUID = intent.getStringExtra(KEY_TEST_UUID)
@@ -83,44 +78,12 @@ class CoverageResultsActivity : BaseActivity(), OnMapReadyCallback {
 
         viewModel.state.testUUID = testUUID
 
-        viewModel.fencesLiveData.listen(this) { fences ->
-            setUpMap(map, fences)
-        }
-
-        viewModel.testServerResultLiveData.listen(this) { result ->
-
-            // show local results if no results from server after 2000 ms
-             if (result?.isLocalOnly == true) {
-                cancelAnyPreviouslyRunningTimer()
-                timer = Timer()
-                timer?.schedule(timerTask {
-                    viewModel.state.testResult.set(result)
-                }, 2000)
-            } else {
-                cancelAnyPreviouslyRunningTimer()
-                viewModel.state.testResult.set(result)
-            }
-        }
-        viewModel.testResultDetailsLiveData.listen(this) {
-            Timber.d("found ${it.size} rows of details")
-            // todo: display result details
-        }
-
         binding.fabClose.setOnClickListener {
             onBackPressed()
         }
 
         binding.swipeRefreshLayout.setOnRefreshListener {
             refreshResults()
-        }
-
-        viewModel.loadingLiveData.listen(this) {
-            binding.swipeRefreshLayout.isRefreshing = false
-            if (viewModel.state.testResult.get() == null) {
-                binding.textWaitLoading.visibility = if (it) View.GONE else View.VISIBLE
-            } else {
-                binding.textWaitLoading.visibility = View.GONE
-            }
         }
 
         binding.testDetailsButton.setOnClickListener {
@@ -132,7 +95,8 @@ class CoverageResultsActivity : BaseActivity(), OnMapReadyCallback {
                 HomeActivity.startWithFragment(this@CoverageResultsActivity, HomeActivity.Companion.HomeNavigationTarget.HISTORY_FRAGMENT_TO_SHOW)
             }
         })
-        refreshResults()
+        val mapFragment = supportFragmentManager.findFragmentById(R.id.map) as SupportMapFragment?
+        mapFragment!!.getMapAsync(this)
     }
 
     private fun cancelAnyPreviouslyRunningTimer() {
@@ -143,19 +107,12 @@ class CoverageResultsActivity : BaseActivity(), OnMapReadyCallback {
         }
     }
 
-    suspend fun GoogleMap.awaitLoadedOnce(): GoogleMap =
-        suspendCancellableCoroutine { cont ->
-            setOnMapLoadedCallback {
-                if (cont.isActive) cont.resume(this, null)
-            }
-        }
-
     // Get a handle to the GoogleMap object and display marker.
     override fun onMapReady(googleMap: GoogleMap) {
         map = googleMap
         lifecycleScope.launch {
-//            map?.awaitLoadedOnce() // causing initial display to 0,0
             onMapFullyReady()
+//            refreshResults()
         }
     }
 
@@ -165,7 +122,6 @@ class CoverageResultsActivity : BaseActivity(), OnMapReadyCallback {
         map?.uiSettings?.isMapToolbarEnabled = false
         map?.isIndoorEnabled = false
         map?.isBuildingsEnabled = false
-        Timber.d("Moving camera to: ${viewModel.state.cameraPositionLiveData.value} $map")
         map?.moveCamera(CameraUpdateFactory.newLatLngZoom(
             viewModel.state.cameraPositionLiveData.value ?: DefaultLocation.austriaLocation,
             viewModel.state.zoom
@@ -201,11 +157,49 @@ class CoverageResultsActivity : BaseActivity(), OnMapReadyCallback {
                 return binding.root
             }
         })
+        viewModel.fencesLiveData.listen(this) { fences ->
+            Timber.d("Loaded points from livedata: ${fences.count()} for ${viewModel.state.testUUID} attempt: $loadAttempts")
+            if (fences.isNotEmpty()) {
+                setUpMap(map, fences)
+            } else {
+                if (loadAttempts < 3) {
+                    refreshResults()
+                    loadAttempts++
+                }
+            }
+        }
 
-        setUpMap(map, viewModel.fencesLiveData.value)
+        viewModel.testServerResultLiveData.listen(this) { result ->
+
+            // show local results if no results from server after 2000 ms
+            if (result?.isLocalOnly == true) {
+                cancelAnyPreviouslyRunningTimer()
+                timer = Timer()
+                timer?.schedule(timerTask {
+                    viewModel.state.testResult.set(result)
+                }, 2000)
+            } else {
+                cancelAnyPreviouslyRunningTimer()
+                viewModel.state.testResult.set(result)
+            }
+        }
+        viewModel.testResultDetailsLiveData.listen(this) {
+            Timber.d("found ${it.size} rows of details")
+            // todo: display result details
+        }
+        viewModel.loadingLiveData.listen(this) {
+            binding.swipeRefreshLayout.isRefreshing = false
+            if (viewModel.state.testResult.get() == null) {
+                binding.textWaitLoading.visibility = if (it) View.GONE else View.VISIBLE
+            } else {
+                binding.textWaitLoading.visibility = View.GONE
+            }
+        }
     }
 
     private fun setUpMap(map: GoogleMap?, fences: List<FencesResultItemRecord>?) {
+        Timber.d("Showing points: ${fences?.size} for ${viewModel.state.testUUID}")
+        viewModel.clearPerformanceImprovementLists() // to show data after rotation without loading it again
         viewModel.updateMapPoints(map, fences, null, null)
     }
 
