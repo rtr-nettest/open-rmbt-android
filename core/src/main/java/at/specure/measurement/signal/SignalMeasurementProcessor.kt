@@ -97,6 +97,8 @@ class SignalMeasurementProcessor @Inject constructor(
     val measurementSessionStoppedCallback: () -> Unit = {
         stopMeasurement(false)
         Timber.d("Stopping service from coverage measurement")
+        locationWatcher.removeListener(locationListener)
+        signalStrengthWatcher.removeListener(signalStrengthListener)
         context.startService(SignalMeasurementService.stopIntent(context))
     }
 
