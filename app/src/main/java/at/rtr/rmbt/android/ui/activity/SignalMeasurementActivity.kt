@@ -56,7 +56,6 @@ import kotlin.coroutines.resume
 
 const val DEFAULT_POSITION_TRACKING_ZOOM_LEVEL = 16.2f
 const val DEFAULT_TRACKING_ZOOM_LEVEL = 16f
-const val DEFAULT_MAX_POINTS_TO_DRAW_ON_MAP = 1000
 
 class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback, CoverageSettingsDialog.Callback {
 

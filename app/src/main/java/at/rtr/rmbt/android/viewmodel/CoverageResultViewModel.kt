@@ -59,7 +59,7 @@ import timber.log.Timber
 import javax.inject.Inject
 
 const val MAX_MARKER_COUNT_DISPLAYED_THRESHOLD = 100
-const val TOTAL_MAX_MARKER_COUNT_DISPLAYED_THRESHOLD = 1000
+const val TOTAL_MAX_MARKER_COUNT_DISPLAYED_THRESHOLD = 3000
 const val MIN_MAP_UPDATE_RATE = 700 // do not set it bellow maybe 500ms as map is very sensitive to frequent updates
 
 class CoverageResultViewModel @Inject constructor(
