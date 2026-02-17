@@ -1,6 +1,7 @@
 package at.rtr.rmbt.android.viewmodel
 
 import android.os.SystemClock
+import android.view.Display
 import androidx.core.graphics.scale
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -58,6 +59,7 @@ import timber.log.Timber
 import javax.inject.Inject
 
 const val MAX_MARKER_COUNT_DISPLAYED_THRESHOLD = 100
+const val TOTAL_MAX_MARKER_COUNT_DISPLAYED_THRESHOLD = 1000
 const val MIN_MAP_UPDATE_RATE = 700 // do not set it bellow maybe 500ms as map is very sensitive to frequent updates
 
 class CoverageResultViewModel @Inject constructor(
@@ -212,7 +214,7 @@ class CoverageResultViewModel @Inject constructor(
     }
 
 
-    fun updateMapPoints(map: GoogleMap?, points: List<FencesResultItemRecord>?, coverageMeasurementState: CoverageMeasurementState?) {
+    fun updateMapPoints(map: GoogleMap?, points: List<FencesResultItemRecord>?, coverageMeasurementState: CoverageMeasurementState?, maxLimitToDisplay: Int? = MAX_MARKER_COUNT_DISPLAYED_THRESHOLD) {
         state.coverageSessionStart = coverageMeasurementDataLiveData.value?.coverageMeasurementSession?.startTimeLoopMillis
 
         val currentMap = map ?: return
@@ -265,7 +267,7 @@ class CoverageResultViewModel @Inject constructor(
                         state.markers.addLast(marker)
 
                         // remove oldest markers if exceeding limit
-                        while (state.markers.size > MAX_MARKER_COUNT_DISPLAYED_THRESHOLD) {
+                        while (state.markers.size > (maxLimitToDisplay ?: TOTAL_MAX_MARKER_COUNT_DISPLAYED_THRESHOLD)) {
                             val oldMarker = state.markers.removeAt(0)
                             oldMarker.remove()
                         }

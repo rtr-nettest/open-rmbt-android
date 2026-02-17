@@ -6,44 +6,38 @@ import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
-import androidx.core.content.ContextCompat
+import androidx.activity.OnBackPressedCallback
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updatePadding
+import androidx.lifecycle.lifecycleScope
 import at.rmbt.util.exception.HandledException
 import at.rtr.rmbt.android.R
 import at.rtr.rmbt.android.databinding.ActivityCoverageResultBinding
 import at.rtr.rmbt.android.databinding.ItemCoverageMarkerDetailsBinding
-import at.rtr.rmbt.android.databinding.ItemCoverageMarkerDetailsBindingImpl
 import at.rtr.rmbt.android.di.viewModelLazy
 import at.rtr.rmbt.android.map.DefaultLocation
-import at.rtr.rmbt.android.map.wrapper.LatLngW
-import at.rtr.rmbt.android.ui.activity.toCoverageResultItemRecords
 import at.rtr.rmbt.android.util.isGmsAvailable
 import at.rtr.rmbt.android.util.listen
 import at.rtr.rmbt.android.viewmodel.CoverageResultViewModel
 import at.rtr.rmbt.android.viewmodel.viewData.CoverageMarkerDetailsData
-import at.specure.data.NetworkTypeCompat
 import at.specure.data.entity.CoverageMeasurementFenceRecord
 import at.specure.data.entity.FencesResultItemRecord
-import at.specure.data.entity.TestResultRecord
-import at.specure.data.entity.isCoverageResult
 import at.specure.info.network.MobileNetworkType
-import at.specure.location.LocationInfo
-import at.specure.measurement.coverage.domain.models.state.CoverageMeasurementState
-import at.specure.test.DeviceInfo
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
+import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.Marker
-import com.google.android.gms.maps.model.MarkerOptions
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.suspendCancellableCoroutine
 import timber.log.Timber
 import java.util.Timer
 import kotlin.concurrent.timerTask
 import kotlin.math.max
 
-class CoverageResultsActivity : BaseActivity() {
+class CoverageResultsActivity : BaseActivity(), OnMapReadyCallback {
 
     private val viewModel: CoverageResultViewModel by viewModelLazy()
     private lateinit var binding: ActivityCoverageResultBinding
@@ -75,39 +69,12 @@ class CoverageResultsActivity : BaseActivity() {
             }
         }
 
-        if (!mapLoadRequested) {
-            mapLoadRequested = true
+//        if (!mapLoadRequested) {
+//            mapLoadRequested = true
             val mapFragment = supportFragmentManager
                 .findFragmentById(R.id.map) as SupportMapFragment?
-            mapFragment!!.getMapAsync({ map ->
-                this.map = map
-                map.moveCamera(
-                    CameraUpdateFactory.newLatLngZoom(DefaultLocation.austriaLocation, DefaultLocation.austriaZoomLevel)
-                )
-                map.setInfoWindowAdapter(object : GoogleMap.InfoWindowAdapter {
-
-                    override fun getInfoWindow(marker: Marker): View? = null
-
-                    override fun getInfoContents(marker: Marker): View {
-                        val binding = ItemCoverageMarkerDetailsBinding.inflate(
-                            LayoutInflater.from(this@CoverageResultsActivity)
-                        )
-
-                        val data = marker.tag as? CoverageMarkerDetailsData
-                        if (data != null) {
-                            binding.item = data
-                            binding.executePendingBindings()
-                        }
-
-                        binding.root.setOnClickListener {
-
-                        }
-
-                        return binding.root
-                    }
-                })
-            })
-        }
+            mapFragment!!.getMapAsync(this)
+//        }
 
         viewModel.state.playServicesAvailable.set(isGmsAvailable())
 
@@ -132,14 +99,6 @@ class CoverageResultsActivity : BaseActivity() {
             } else {
                 cancelAnyPreviouslyRunningTimer()
                 viewModel.state.testResult.set(result)
-            }
-
-            result?.testOpenUUID?.let {
-
-            }
-
-            result?.let { testResultRecord ->
-                setUpDetails(testResultRecord)
             }
         }
         viewModel.testResultDetailsLiveData.listen(this) {
@@ -168,6 +127,11 @@ class CoverageResultsActivity : BaseActivity() {
             TestResultDetailActivity.start(this, viewModel.state.testUUID)
         }
 
+        onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                HomeActivity.startWithFragment(this@CoverageResultsActivity, HomeActivity.Companion.HomeNavigationTarget.HISTORY_FRAGMENT_TO_SHOW)
+            }
+        })
         refreshResults()
     }
 
@@ -179,22 +143,70 @@ class CoverageResultsActivity : BaseActivity() {
         }
     }
 
+    suspend fun GoogleMap.awaitLoadedOnce(): GoogleMap =
+        suspendCancellableCoroutine { cont ->
+            setOnMapLoadedCallback {
+                if (cont.isActive) cont.resume(this, null)
+            }
+        }
+
+    // Get a handle to the GoogleMap object and display marker.
+    override fun onMapReady(googleMap: GoogleMap) {
+        map = googleMap
+        lifecycleScope.launch {
+//            map?.awaitLoadedOnce() // causing initial display to 0,0
+            onMapFullyReady()
+        }
+    }
+
+    fun onMapFullyReady() {
+        this.map = map
+        map?.uiSettings?.isMyLocationButtonEnabled = false
+        map?.uiSettings?.isMapToolbarEnabled = false
+        map?.isIndoorEnabled = false
+        map?.isBuildingsEnabled = false
+        Timber.d("Moving camera to: ${viewModel.state.cameraPositionLiveData.value} $map")
+        map?.moveCamera(CameraUpdateFactory.newLatLngZoom(
+            viewModel.state.cameraPositionLiveData.value ?: DefaultLocation.austriaLocation,
+            viewModel.state.zoom
+        ))
+        map?.setOnCameraIdleListener {
+            map?.cameraPosition?.zoom?.let { newZoom ->
+                viewModel.state.zoom = newZoom
+            }
+            map?.cameraPosition?.let {
+                viewModel.state.cameraPositionLiveData.postValue(LatLng(it.target.latitude, it.target.longitude))
+            }
+        }
+
+        map?.setInfoWindowAdapter(object : GoogleMap.InfoWindowAdapter {
+
+            override fun getInfoWindow(marker: Marker): View? = null
+
+            override fun getInfoContents(marker: Marker): View {
+                val binding = ItemCoverageMarkerDetailsBinding.inflate(
+                    LayoutInflater.from(this@CoverageResultsActivity)
+                )
+
+                val data = marker.tag as? CoverageMarkerDetailsData
+                if (data != null) {
+                    binding.item = data
+                    binding.executePendingBindings()
+                }
+
+                binding.root.setOnClickListener {
+
+                }
+
+                return binding.root
+            }
+        })
+
+        setUpMap(map, viewModel.fencesLiveData.value)
+    }
+
     private fun setUpMap(map: GoogleMap?, fences: List<FencesResultItemRecord>?) {
-        viewModel.updateMapPoints(map, fences, null)
-    }
-
-
-    private fun setUpDetails(testResultRecord: TestResultRecord) {
-        // todo: implement
-    }
-
-
-    private fun setUpSpeedMeasurementMap(result: TestResultRecord) {
-
-    }
-
-    private fun setUpCoverageMeasurementMap(result: TestResultRecord) {
-        // todo: prepare map with fences
+        viewModel.updateMapPoints(map, fences, null, null)
     }
 
     private fun refreshResults() {
@@ -208,18 +220,7 @@ class CoverageResultsActivity : BaseActivity() {
         super.onSaveInstanceState(outState)
     }
 
-    override fun onBackPressed() {
-        super.onBackPressed()
-        HomeActivity.startWithFragment(this, HomeActivity.Companion.HomeNavigationTarget.HISTORY_FRAGMENT_TO_SHOW)
-    }
-
     companion object {
-
-        private const val ZOOM_LEVEL = 15f
-        private const val CIRCLE_RADIUS = 13.0
-        private const val STROKE_WIDTH = 7f
-        private const val ANCHOR_U = 0.5f
-        private const val ANCHOR_V = 0.865f
 
         private const val KEY_TEST_UUID = "KEY_TEST_UUID"
 
