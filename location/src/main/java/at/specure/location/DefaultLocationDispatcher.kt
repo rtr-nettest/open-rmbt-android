@@ -4,7 +4,7 @@ import timber.log.Timber
 import kotlin.math.abs
 
 private const val LOCATION_MAX_AGE_MS = 30_000L
-private const val LOCATION_MAX_UPDATE_RATE_MS = 300L
+private const val LOCATION_MAX_UPDATE_RATE_MS = 450L
 
 /**
  * [LocationDispatcher] that uses to choose the best location to publish
