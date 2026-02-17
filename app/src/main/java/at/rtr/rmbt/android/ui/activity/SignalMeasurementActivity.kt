@@ -55,10 +55,7 @@ import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlin.coroutines.resume
 
 const val DEFAULT_POSITION_TRACKING_ZOOM_LEVEL = 16.2f
-private const val DEFAULT_LAT: Double = ((49.0390742051F + 46.4318173285F) / 2F).toDouble()
-private const val DEFAULT_LONG: Double = ((16.9796667823F + 9.47996951665F) / 2F).toDouble()
-private const val DEFAULT_ZOOM_LEVEL = 6F
-const val DEFAULT_POINT_CLICKED_ZOOM_LEVEL = 16f
+const val DEFAULT_TRACKING_ZOOM_LEVEL = 16f
 const val DEFAULT_MAX_POINTS_TO_DRAW_ON_MAP = 1000
 
 class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback, CoverageSettingsDialog.Callback {
@@ -174,7 +171,6 @@ class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback, Coverage
         hideWarningButton()
         hideDialog()
         setMyPositionAndButtonVisible(false)
-        setMyLocationButtonVisible(false)
         hideNetworkWarningSnackbar()
         setInfoVisible(false)
         setResultTitleVisible(true)
@@ -193,10 +189,10 @@ class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback, Coverage
     private fun updateUnfinishedMeasurement(coverageMeasurementData: CoverageMeasurementData?) {
 
         setSettingsButtonVisible(true)
-        setMyLocationButtonVisible(true)
         checkNetwork(coverageMeasurementData?.currentNetworkInfo)
         setInfoVisible(true)
         setResultTitleVisible(false)
+        setMyPositionAndButtonVisible(true)
         updatePingValue(coverageMeasurementData)
         showCurrentNetworkType(coverageMeasurementData)
         showMeasurementError(coverageMeasurementData)
@@ -229,33 +225,47 @@ class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback, Coverage
     }
 
     private fun setMyPositionAndButtonVisible(visible: Boolean) {
-        binding.fabLocation.visibility = if (visible) {
-            View.VISIBLE
-        } else {
-            View.GONE
-        }
-        try {
-            if (ActivityCompat.checkSelfPermission(
-                    this,
-                    Manifest.permission.ACCESS_FINE_LOCATION
-                ) == PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
-                    this,
-                    Manifest.permission.ACCESS_COARSE_LOCATION
-                ) == PackageManager.PERMISSION_GRANTED
-            ) {
-                map?.isMyLocationEnabled = visible
-            }
-        } catch (e: Exception) {
-         Timber.e("Unable to deactivate my location on the map  ${e.message}")
-        }
-    }
 
-    private fun setMyLocationButtonVisible(visible: Boolean) {
-        binding.fabLocation.visibility = if (visible) {
+        val enabled = visible && coverageViewModel.coverageMeasurementDataLiveData.value?.state != CoverageMeasurementState.FINISHED_LOOP_CORRECTLY
+
+        binding.fabLocation.isEnabled = enabled
+
+        this.applicationContext?.let {
+            try {
+                if (ActivityCompat.checkSelfPermission(
+                        this,
+                        Manifest.permission.ACCESS_FINE_LOCATION
+                    ) == PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
+                        this,
+                        Manifest.permission.ACCESS_COARSE_LOCATION
+                    ) == PackageManager.PERMISSION_GRANTED
+                ) {
+                    Timber.d("Setting my position to: $enabled on $map")
+                    if (enabled == false) {
+                        map?.setLocationSource(null)
+                    }
+                    map?.isMyLocationEnabled = enabled
+                }
+            } catch (e: Exception) {
+                Timber.e("Unable to deactivate my location on the map  ${e.message}")
+            }
+        }
+
+        binding.fabLocation.setOnClickListener {
+            if (enabled) {
+                viewModel.locationLiveData.value?.let { info ->
+                    Timber.d("New location obtained in fabLocation: $info")
+                    map?.animateCamera(CameraUpdateFactory.newLatLngZoom(LatLng(info.latitude, info.longitude), DEFAULT_TRACKING_ZOOM_LEVEL))
+                }
+            }
+        }
+
+        binding.fabLocation.visibility = if (enabled) {
             View.VISIBLE
         } else {
             View.GONE
         }
+
     }
 
     private fun setResultTitleVisible(visible: Boolean) {
@@ -341,10 +351,14 @@ class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback, Coverage
         map?.let { gMap ->
             location?.let { latestLocation ->
                 coverageViewModel.state.cameraPositionLiveData.postValue(LatLng(latestLocation.latitude, latestLocation.longitude))
+                if (coverageViewModel.state.zoom <= DefaultLocation.austriaZoomLevel) {
+                    coverageViewModel.state.zoom = DEFAULT_POSITION_TRACKING_ZOOM_LEVEL
+                }
                 if (!coverageViewModel.state.markerDetailsDisplayed.get()) {
                     gMap.animateCamera(
-                        CameraUpdateFactory.newLatLng(
-                            latestLocation.toLatLng()
+                        CameraUpdateFactory.newLatLngZoom(
+                            latestLocation.toLatLng(),
+                            coverageViewModel.state.zoom
                         )
                     )
                 }
@@ -434,6 +448,10 @@ class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback, Coverage
     // Get a handle to the GoogleMap object and display marker.
     override fun onMapReady(googleMap: GoogleMap) {
         map = googleMap
+        map?.moveCamera(CameraUpdateFactory.newLatLngZoom(
+            coverageViewModel.state.cameraPositionLiveData.value ?: DefaultLocation.austriaLocation,
+            coverageViewModel.state.zoom
+        ))
         lifecycleScope.launch {
             map?.awaitLoadedOnce()
             onMapFullyReady()
@@ -457,13 +475,6 @@ class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback, Coverage
             }
         }
 
-//        map?.setOnMarkerClickListener { marker ->
-//            coverageViewModel.state.markerDetailsDisplayed.set(true)
-//            false
-//        }
-//        map?.setOnMapClickListener {
-//            coverageViewModel.state.markerDetailsDisplayed.set(false)
-//        }
         if (coverageViewModel.coverageMeasurementDataLiveData.value?.state == CoverageMeasurementState.FINISHED_LOOP_CORRECTLY) {
             updateMapState(coverageViewModel.coverageMeasurementDataLiveData.value)
         }
@@ -501,9 +512,9 @@ class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback, Coverage
                 return
             }
         } else {
-            var latitude = DEFAULT_LAT
-            var longitude = DEFAULT_LONG
-            var zoomLevel = DEFAULT_ZOOM_LEVEL
+            var latitude = DefaultLocation.austriaLocation.latitude
+            var longitude = DefaultLocation.austriaLocation.longitude
+            var zoomLevel = DEFAULT_POSITION_TRACKING_ZOOM_LEVEL
             viewModel.state.cameraPositionLiveData.value?.let {
                 latitude = it.latitude
                 longitude = it.longitude
@@ -526,11 +537,12 @@ class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback, Coverage
 //            }
             return
         }
-        val latitude = DEFAULT_LAT
-        val longitude = DEFAULT_LONG
-        val zoomLevel = DEFAULT_ZOOM_LEVEL
+        var latitude = DefaultLocation.austriaLocation.latitude
+        var longitude = DefaultLocation.austriaLocation.longitude
+        var zoomLevel = DEFAULT_POSITION_TRACKING_ZOOM_LEVEL
         map?.moveCamera(CameraUpdateFactory.newLatLngZoom(LatLng(latitude, longitude), zoomLevel))
     }
+
     private fun showLocationProblemDialogIfNotSilenced() {
         if (!viewModel.state.locationWarningDialogSilenced.get()) {
             showLocationProblemDialog()
@@ -584,28 +596,8 @@ class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback, Coverage
 
     private fun updateLocationPermissionRelatedUi() {
         viewModel.locationStateLiveData.listen(this) { state ->
-            this.applicationContext?.let {
-                if (ActivityCompat.checkSelfPermission(
-                        it,
-                        Manifest.permission.ACCESS_FINE_LOCATION
-                    )
-                    == PackageManager.PERMISSION_GRANTED || ActivityCompat.checkSelfPermission(
-                        it,
-                        Manifest.permission.ACCESS_COARSE_LOCATION
-                    ) == PackageManager.PERMISSION_GRANTED
-                ) {
-                    map?.isMyLocationEnabled = state == LocationState.ENABLED
-                }
-            }
-
-            binding.fabLocation.setOnClickListener {
-                if (state == LocationState.ENABLED) {
-                    viewModel.locationLiveData.value?.let { info ->
-                        Timber.d("New location obtained in fabLocation: $info")
-                        map?.animateCamera(CameraUpdateFactory.newLatLngZoom(LatLng(info.latitude, info.longitude), 16F))
-                    }
-                }
-            }
+            val enabled = state == LocationState.ENABLED
+            setMyPositionAndButtonVisible(enabled)
         }
     }
 
