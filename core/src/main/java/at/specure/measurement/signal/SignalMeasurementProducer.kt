@@ -12,9 +12,6 @@ interface SignalMeasurementProducer {
     val signalMeasurementSessionIdLiveData: LiveData<String?>
     val signalMeasurementSessionErrorLiveData: LiveData<Exception?>
 
-    fun setEndAlarm()
     fun startMeasurement(unstoppable: Boolean, signalMeasurementType: SignalMeasurementType)
     fun stopMeasurement(unstoppable: Boolean)
-    fun pauseMeasurement(unstoppable: Boolean)
-    fun resumeMeasurement(unstoppable: Boolean)
 }

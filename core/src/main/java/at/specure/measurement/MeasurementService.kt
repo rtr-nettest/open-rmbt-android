@@ -186,7 +186,6 @@ class MeasurementService : CustomLifecycleService(), CoroutineScope {
             Timber.d("Signal measurement connected to MeasurementService: pause required: $signalMeasurementPauseRequired")
             signalMeasurementProducer = service as SignalMeasurementProducer
             if (signalMeasurementPauseRequired) {
-                signalMeasurementProducer?.pauseMeasurement(true)
                 signalMeasurementPauseRequired = false
             }
         }
@@ -465,13 +464,11 @@ class MeasurementService : CustomLifecycleService(), CoroutineScope {
     private fun resumeSignalMeasurement(unstoppable: Boolean) {
         Timber.d("Signal measurement resumed")
         signalMeasurementPauseRequired = false
-        signalMeasurementProducer?.resumeMeasurement(unstoppable)
     }
 
     private fun pauseSignalMeasurement() {
         Timber.d("Signal measurement paused")
         signalMeasurementPauseRequired = true // in case when service connection wasn't established before test started
-        signalMeasurementProducer?.pauseMeasurement(true)
     }
 
     private fun stopSignalMeasurement() {

@@ -196,29 +196,6 @@ class SignalMeasurementService : CustomLifecycleService() {
             Timber.i("Signal measurement stop: $unstoppable")
             this@SignalMeasurementService.stopMeasurement()
         }
-
-        override fun pauseMeasurement(unstoppable: Boolean) {
-            this@SignalMeasurementService.isUnstoppable = unstoppable
-            Timber.i("Signal measurement pause unstoppable: $unstoppable")
-            processor.pauseMeasurement(unstoppable)
-        }
-
-        override fun resumeMeasurement(unstoppable: Boolean) {
-            this@SignalMeasurementService.isUnstoppable = unstoppable
-            Timber.i("Signal measurement resume unstoppable: $unstoppable")
-            processor.resumeMeasurement(unstoppable)
-            if (!isUnstoppable && shouldEndAfterLoopMode) {
-                this@SignalMeasurementService.endTime = null
-                this@SignalMeasurementService.shouldEndAfterLoopMode = false
-                Timber.i("Signal measurement stopping on alarm delayed")
-                stopMeasurement()
-            }
-        }
-
-        override fun setEndAlarm() {
-            Timber.i("Signal measurement trying to set alarm")
-            this@SignalMeasurementService.setEndAlarm()
-        }
     }
 
     companion object {

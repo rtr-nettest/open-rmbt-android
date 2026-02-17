@@ -125,14 +125,6 @@ class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback, Coverage
             viewModel.stopSignalMeasurement()
         }
 
-        binding.buttonPause.setOnClickListener {
-            viewModel.pauseSignalMeasurement()
-        }
-
-        binding.buttonResume.setOnClickListener {
-            viewModel.resumeSignalMeasurement()
-        }
-
         binding.fabClose.setOnClickListener {
             if (coverageViewModel.coverageMeasurementDataLiveData.value?.state != CoverageMeasurementState.FINISHED_LOOP_CORRECTLY) {
                 showStopDialog()

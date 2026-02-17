@@ -167,7 +167,6 @@ class HomeViewModel @Inject constructor(
                     if (shouldStartDedicatedMeasurementStateChecker()) {
                         Timber.d("Starting coverage session HVM2")
                         it.startMeasurement(false, SignalMeasurementType.DEDICATED)
-                        it.setEndAlarm()
                     }
                 }
             }
@@ -199,16 +198,6 @@ class HomeViewModel @Inject constructor(
         coverageMeasurementSettings.signalMeasurementIsRunning = false
         Timber.d("Stopping coverage session HVM2")
         producer?.stopMeasurement(false)
-    }
-
-    fun pauseSignalMeasurement() {
-        coverageMeasurementSettings.signalMeasurementIsRunning = false
-        producer?.pauseMeasurement(false)
-    }
-
-    fun resumeSignalMeasurement() {
-        coverageMeasurementSettings.signalMeasurementIsRunning = true
-        producer?.resumeMeasurement(false)
     }
 
     fun attach(context: Context) {
