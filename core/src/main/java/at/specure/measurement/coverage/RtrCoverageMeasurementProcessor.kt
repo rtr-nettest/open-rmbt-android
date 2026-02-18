@@ -37,6 +37,9 @@ import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.channels.BufferOverflow
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.flowOn
@@ -91,12 +94,24 @@ class RtrCoverageMeasurementProcessor @Inject constructor(
 //    val stateManager = CoverageMeasurementDataStateManager(coverageMeasurementSettings, scope)
     val dataSimMonitor = CoverageDataSimMonitor(scope = scope)
     var dataSimMonitorJob: Job? = null
+    private val locationUpdatesFlow = MutableSharedFlow<Pair<LocationInfo?, DetailedNetworkInfo?>>(
+        replay = 1, // keep only the latest value
+        extraBufferCapacity = 1,
+        onBufferOverflow = BufferOverflow.DROP_OLDEST
+    )
 
     override fun startCoverageSession(
         sessionCreated: ((CoverageMeasurementSession) -> Unit)?,
         sessionCreationError: ((Exception) -> Unit)?,
         sessionStopped: (() -> Unit)?,
     ) {
+        scope.launch(Dispatchers.IO + CoroutineName("LocationFlowProcessor")) {
+            locationUpdatesFlow
+                .debounce(100) // optional: add a tiny debounce if needed
+                .collectLatest { (location, networkInfo) ->
+                    processLocation(location, networkInfo)
+                }
+        }
         connectivityMonitor.start(
             onAirplaneEnabled = {
                 Timber.d("✈️ Airplane mode changed to ENABLED → stopping coverage session")
@@ -320,14 +335,18 @@ class RtrCoverageMeasurementProcessor @Inject constructor(
         onCoverageConfigurationChanged()
     }
 
-    fun onNewLocation(location: LocationInfo?, networkInfo: DetailedNetworkInfo?) = io {
+    fun onNewLocation(location: LocationInfo?, networkInfo: DetailedNetworkInfo?) {
+        locationUpdatesFlow.tryEmit(location to networkInfo)
+    }
+
+    private suspend fun processLocation(location: LocationInfo?, networkInfo: DetailedNetworkInfo?) {
         // TODO: check how old is signal information + also handle no signal record in SignalMeasurementProcessor
         // TODO: check if airplane mode is enabled or not, check if mobile data are enabled
         Timber.d("INFO UPDATE: PASSED")
-        val coverageMeasurementDataValue = stateManager.state.value ?: return@io
+        val coverageMeasurementDataValue = stateManager.state.value ?: return
 
         if (coverageMeasurementDataValue.state == CoverageMeasurementState.FINISHED_LOOP_CORRECTLY
-            || coverageMeasurementDataValue.state == CoverageMeasurementState.IDLE) return@io
+            || coverageMeasurementDataValue.state == CoverageMeasurementState.IDLE) return
 
         val lastRecordedFence = coverageMeasurementDataValue.fences.lastOrNull()
 
@@ -356,10 +375,10 @@ class RtrCoverageMeasurementProcessor @Inject constructor(
         stateManager.updateNetworkInfo(networkInfo?.networkInfo)
 
         val isConnectionStateValid = checkForTheConnectionState()
-        if (!isConnectionStateValid) return@io
+        if (!isConnectionStateValid) return
 
-        if (!stateManager.isInStateToAddNewFences()) return@io
-        if (location == null) return@io
+        if (!stateManager.isInStateToAddNewFences()) return
+        if (location == null) return
 
         val newTimestamp = System.currentTimeMillis()
         val newLocation = location.toDeviceInfoLocation()
@@ -373,7 +392,7 @@ class RtrCoverageMeasurementProcessor @Inject constructor(
         val sessionId = coverageMeasurementDataValue.coverageMeasurementSession?.localMeasurementId
         if (sessionId == null) {
             Timber.e("Signal measurement Session not initialized yet - sessionId missing")
-            return@io
+            return
         }
 
         if (isDataValidToSaveNewFence) {
