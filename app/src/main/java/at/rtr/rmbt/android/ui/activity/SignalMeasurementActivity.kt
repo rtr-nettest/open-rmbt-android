@@ -191,7 +191,6 @@ class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback, Coverage
         checkNetwork(coverageMeasurementData?.currentNetworkInfo)
         setInfoVisible(true)
         setResultTitleVisible(false)
-        setMyPositionAndButtonVisible(true)
         updatePingValue(coverageMeasurementData)
         showCurrentNetworkType(coverageMeasurementData)
         showMeasurementError(coverageMeasurementData)
@@ -252,10 +251,8 @@ class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback, Coverage
 
         binding.fabLocation.setOnClickListener {
             if (enabled) {
-                viewModel.locationLiveData.value?.let { info ->
-                    Timber.d("New location obtained in fabLocation: $info")
-                    map?.animateCamera(CameraUpdateFactory.newLatLngZoom(LatLng(info.latitude, info.longitude), DEFAULT_TRACKING_ZOOM_LEVEL))
-                }
+                val currentLocation = coverageViewModel.coverageMeasurementDataLiveData?.value?.currentLocation ?: return@setOnClickListener
+                map?.moveCamera(CameraUpdateFactory.newLatLngZoom(LatLng(currentLocation.latitude, currentLocation.longitude), DEFAULT_TRACKING_ZOOM_LEVEL))
             }
         }
 
