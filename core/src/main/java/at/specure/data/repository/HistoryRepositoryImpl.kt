@@ -70,13 +70,15 @@ class HistoryRepositoryImpl(
         limit: Int,
         ignoreFilters: Boolean
     ): Maybe<List<History?>?> {
+        val filterDevices = if (ignoreFilters) null else historyFilterOptions.activeDevices?.toList()
+        val filterNetworks = if (ignoreFilters) null else historyFilterOptions.activeNetworks?.toList()
         val body = HistoryRequestBody(
             clientUUID = clientUUID,
             offset = offset,
             limit = limit,
             capabilities = config.toCapabilitiesBody(),
-            devices = if (ignoreFilters) null else historyFilterOptions.activeDevices?.toList(),
-            networks = if (ignoreFilters) null else historyFilterOptions.activeNetworks?.toList(),
+            devices = filterDevices,
+            networks = filterNetworks,
             language = Locale.getDefault().language,
             includeCoverageFences = true,
         )
@@ -84,7 +86,7 @@ class HistoryRepositoryImpl(
 
         return response.map {
             val items = it?.toModelList()
-            if (offset == 0) {
+            if (offset == 0 && (filterDevices == null && filterNetworks == null)) {
                 settingsRepository.refreshSettings()
                 historyDao.clear()
             }

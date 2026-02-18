@@ -8,6 +8,7 @@ import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Transaction
 import androidx.room.Upsert
+import at.specure.data.NetworkTypeCompat
 import at.specure.data.Tables
 import at.specure.data.entity.History
 import at.specure.data.entity.HistoryContainer
@@ -16,8 +17,27 @@ import at.specure.data.entity.HistoryReference
 @Dao
 abstract class HistoryDao {
 
-    @Query("SELECT * from ${Tables.HISTORY_REFERENCE} ORDER BY time DESC")
-    abstract fun getHistorySource(): DataSource.Factory<Int, HistoryContainer>
+    @Transaction
+    @Query("""
+        SELECT DISTINCT hr.* 
+        FROM ${Tables.HISTORY_REFERENCE} hr
+        INNER JOIN ${Tables.HISTORY} h 
+            ON hr.uuid = h.referenceUUID
+        /* filters */
+        WHERE (
+            (:ignoreNetworkTypes OR h.networkType IN (:networks))
+        AND(
+            (:ignoreDevices OR h.networkType IN (:devices))
+        ))
+        /* add more filters here later */
+        ORDER BY hr.time DESC
+    """)
+    abstract fun getHistorySource(
+        networks: List<String>,
+        ignoreNetworkTypes: Boolean,
+        devices: List<String>,
+        ignoreDevices: Boolean
+    ): DataSource.Factory<Int, HistoryContainer>
 
     @Query("SELECT COUNT(*) from ${Tables.HISTORY}")
     abstract fun getItemsCount(): Int

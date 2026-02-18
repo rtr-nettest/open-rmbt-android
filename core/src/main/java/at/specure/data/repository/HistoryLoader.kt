@@ -35,7 +35,16 @@ class HistoryLoader @Inject constructor(
         }
 
     val historyLiveData: LiveData<PagedList<HistoryContainer>> by lazy {
-        val source = historyDao.getHistorySource()
+
+        val networks = historyRepository.networksLiveData.value?.toList() ?: emptyList()
+        val devices = historyRepository.devicesLiveData.value?.toList() ?: emptyList()
+
+        val source = historyDao.getHistorySource(
+            networks = networks,
+            ignoreNetworkTypes = networks.isEmpty(),
+            devices = devices,
+            ignoreDevices = devices.isEmpty()
+        )
         val config = PagedList.Config.Builder()
             .setPageSize(LIMIT)
             .setPrefetchDistance(LIMIT / 2) // load only near visible end
@@ -48,7 +57,18 @@ class HistoryLoader @Inject constructor(
     }
 
     val source: DataSource.Factory<Int, HistoryContainer>
-        get() = historyDao.getHistorySource()
+        get() {
+            val networks = historyRepository.networksLiveData.value?.toList() ?: emptyList()
+            val devices = historyRepository.devicesLiveData.value?.toList() ?: emptyList()
+
+            val source = historyDao.getHistorySource(
+                networks = networks,
+                ignoreNetworkTypes = networks.isEmpty(),
+                devices = devices,
+                ignoreDevices = devices.isEmpty()
+            )
+            return source
+        }
 
     override fun onZeroItemsLoaded() {
         super.onZeroItemsLoaded()
