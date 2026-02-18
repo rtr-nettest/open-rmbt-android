@@ -323,7 +323,7 @@ class RtrCoverageMeasurementProcessor @Inject constructor(
     fun onNewLocation(location: LocationInfo?, networkInfo: DetailedNetworkInfo?) = io {
         // TODO: check how old is signal information + also handle no signal record in SignalMeasurementProcessor
         // TODO: check if airplane mode is enabled or not, check if mobile data are enabled
-        Timber.d("Checking new location")
+        Timber.d("INFO UPDATE: PASSED")
         val coverageMeasurementDataValue = stateManager.state.value ?: return@io
 
         if (coverageMeasurementDataValue.state == CoverageMeasurementState.FINISHED_LOOP_CORRECTLY

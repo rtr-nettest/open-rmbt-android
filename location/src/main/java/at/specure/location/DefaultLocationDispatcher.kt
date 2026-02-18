@@ -72,15 +72,15 @@ class DefaultLocationDispatcher : LocationDispatcher {
 
     override fun onLocationInfoChanged(source: LocationSource, location: LocationInfo?): LocationDispatcher.Decision {
         val timestamp = System.currentTimeMillis()
-        location?.let {
+        /*location?.let {
             Timber.i(
-                "LOCU: location update: new location came: ${source::class.java.simpleName} ${location.provider} ${location.accuracy} ${
+                "LOCU: location update: new location came: ${source} ${location.provider} ${location.accuracy} ${
                     location.ageNanos.div(
                         1000000000
                     )
                 } ${((location.time.plus(LOCATION_MAX_AGE_MS * 2)) >= System.currentTimeMillis())}  ${location.time} $timestamp ${timestamp - location.time} $location"
             )
-        }
+        }*/
         if (location == null) {
             return if (lastSource == source) {
                 LocationDispatcher.Decision(null, true)
