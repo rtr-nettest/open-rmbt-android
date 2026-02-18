@@ -14,8 +14,10 @@ import at.specure.data.repository.MeasurementRepository
 import at.specure.data.repository.SignalMeasurementRepository
 import at.specure.data.repository.TestDataRepository
 import at.specure.info.cell.CellInfoWatcher
+import at.specure.info.cell.CellNetworkInfo
 import at.specure.info.connectivity.ConnectivityWatcher
 import at.specure.info.network.DetailedNetworkInfo
+import at.specure.info.network.MobileNetworkType
 import at.specure.info.strength.SignalStrengthLiveData
 import at.specure.info.strength.SignalStrengthWatcher
 import at.specure.location.LocationInfo
@@ -24,10 +26,17 @@ import at.specure.measurement.coverage.RtrCoverageMeasurementProcessor
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import timber.log.Timber
 import javax.inject.Inject
 import javax.inject.Singleton
-import kotlin.coroutines.EmptyCoroutineContext
+
+const val MAXIMUM_TIME_NETWORK_KEEP_MILLS = 3000
+const val MAXIMUM_TIME_LOCATION_KEEP_MILLS = 3000
 
 @Singleton
 class SignalMeasurementProcessor @Inject constructor(
@@ -64,8 +73,6 @@ class SignalMeasurementProcessor @Inject constructor(
             throw e
         }
     }
-
-    override val coroutineContext = EmptyCoroutineContext + coroutineExceptionHandler
 
     override val isActive: Boolean
         get() = _isActive
@@ -104,14 +111,51 @@ class SignalMeasurementProcessor @Inject constructor(
 
     val locationListener = object : LocationWatcher.Listener {
         override fun onLocationInfoChanged(locationInfo: LocationInfo?) {
-            globalLocationInfo = locationInfo
-            rtrCoverageMeasurementProcessor.onNewLocation(globalLocationInfo, globalNetworkInfo)
+            updateLocation(locationInfo)
         }
     }
 
     val signalStrengthListener = object: SignalStrengthWatcher.SignalStrengthListener {
         override fun onSignalStrengthChanged(signalInfo: DetailedNetworkInfo?) {
-            globalNetworkInfo = signalInfo
+            updateNetworkInfo(signalInfo)
+        }
+    }
+    private val processorJob = SupervisorJob()
+
+    override val coroutineContext =
+        Dispatchers.Default +
+                processorJob +
+                CoroutineName("SignalMeasurementProcessor") +
+                coroutineExceptionHandler
+
+    var locationResetJob: Job? = null
+    var networkInfoResetJob: Job? = null
+
+    fun updateLocation(newValue: LocationInfo?) {
+        globalLocationInfo = newValue
+        rtrCoverageMeasurementProcessor.onNewLocation(globalLocationInfo, globalNetworkInfo)
+
+        // restart timer
+        locationResetJob?.cancel()
+        locationResetJob = launch {
+            delay(MAXIMUM_TIME_LOCATION_KEEP_MILLS.toLong())
+            globalLocationInfo = null
+            rtrCoverageMeasurementProcessor.onNewLocation(globalLocationInfo, globalNetworkInfo)
+        }
+    }
+
+    fun updateNetworkInfo(newValue: DetailedNetworkInfo?) {
+
+        if ((newValue != null) && (newValue.networkInfo != null) && (newValue.networkInfo is CellNetworkInfo && newValue.networkInfo.networkType.intValue != MobileNetworkType.UNKNOWN.intValue)) {
+            globalNetworkInfo = newValue
+            networkInfoResetJob?.cancel()
+        }
+
+        if (newValue == null || newValue.networkInfo == null || (newValue.networkInfo is CellNetworkInfo && newValue.networkInfo.networkType.intValue == MobileNetworkType.UNKNOWN.intValue)) {
+            networkInfoResetJob = launch {
+                delay(MAXIMUM_TIME_NETWORK_KEEP_MILLS.toLong())
+                globalNetworkInfo = newValue
+            }
         }
     }
 
