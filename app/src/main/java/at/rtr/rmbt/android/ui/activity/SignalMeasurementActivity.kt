@@ -201,7 +201,7 @@ class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback, Coverage
         lifecycleScope.launch {
 //            map?.awaitMapLoad()
             setMyPositionAndButtonVisible(true)
-            val longEnoughTimePassedFromStart = (2000.plus(coverageMeasurementData?.coverageMeasurementSession?.startTimeMeasurementMillis ?: 0) <= System.currentTimeMillis())
+            val longEnoughTimePassedFromStart = (3000.plus(coverageMeasurementData?.coverageMeasurementSession?.startTimeMeasurementMillis ?: 0) <= System.currentTimeMillis())
             if (coverageMeasurementData?.currentLocation != null || (coverageMeasurementData?.coverageMeasurementSession != null
                         && longEnoughTimePassedFromStart)
             ) {
