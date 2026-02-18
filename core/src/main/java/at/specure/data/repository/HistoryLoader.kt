@@ -38,6 +38,9 @@ class HistoryLoader @Inject constructor(
         val source = historyDao.getHistorySource()
         val config = PagedList.Config.Builder()
             .setPageSize(LIMIT)
+            .setPrefetchDistance(LIMIT / 2) // load only near visible end
+            .setInitialLoadSizeHint(LIMIT)  // do NOT load 3 pages at start
+            .setEnablePlaceholders(false)
             .build()
         LivePagedListBuilder(source, config)
             .setBoundaryCallback(this)
@@ -83,7 +86,7 @@ class HistoryLoader @Inject constructor(
 
     fun refresh() = io {
         isLoading = true
-        historyRepository.loadHistoryItems(0, LIMIT).onFailure {
+        historyRepository.loadHistoryItems(0, LIMIT, false).onFailure {
             errorChannel?.send(it)
         }
         isLoading = false
