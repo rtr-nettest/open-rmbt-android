@@ -84,18 +84,28 @@ class HistoryLoader @Inject constructor(
     private fun loadItems() = io {
         if (!isLoading) {
             isLoading = true
+            val networks = historyRepository.networksLiveData.value?.toList() ?: emptyList()
+            val devices = historyRepository.devicesLiveData.value?.toList() ?: emptyList()
+            val offset = latestLoadedPage * LIMIT
 
-            val count = historyDao.getItemsCount()
-            Timber.d("HistoryItemsCount: $count")
-            if ((count % LIMIT == 0) && (count / LIMIT != latestLoadedPage)) {
-                val result = historyRepository.loadHistoryItems(count, LIMIT)
+//            val count = historyDao.getItemsCount(
+//                networks,
+//                networks.isEmpty(),
+//                devices,
+//                devices.isEmpty()
+//            )
+//            Timber.d("HistoryItemsCount: $count")
+//            if ((count % LIMIT == 0) && (count / LIMIT != latestLoadedPage)) {
+                val result = historyRepository.loadHistoryItems(offset, LIMIT)
                 result.onFailure {
                     errorChannel?.send(it)
                 }
                 result.onSuccess {
-                    latestLoadedPage = count / LIMIT
+                    if (!it.isNullOrEmpty()) {
+                        latestLoadedPage++
+                    }
                 }
-            }
+//            }
             isLoading = false
         }
     }

@@ -18,7 +18,8 @@ import at.specure.data.entity.HistoryReference
 abstract class HistoryDao {
 
     @Transaction
-    @Query("""
+    @Query(
+        """
         SELECT DISTINCT hr.* 
         FROM ${Tables.HISTORY_REFERENCE} hr
         INNER JOIN ${Tables.HISTORY} h 
@@ -31,7 +32,8 @@ abstract class HistoryDao {
         ))
         /* add more filters here later */
         ORDER BY hr.time DESC
-    """)
+    """
+    )
     abstract fun getHistorySource(
         networks: List<String>,
         ignoreNetworkTypes: Boolean,
@@ -39,8 +41,28 @@ abstract class HistoryDao {
         ignoreDevices: Boolean
     ): DataSource.Factory<Int, HistoryContainer>
 
-    @Query("SELECT COUNT(*) from ${Tables.HISTORY}")
-    abstract fun getItemsCount(): Int
+    @Query(
+        """
+        SELECT COUNT(DISTINCT hr.uuid) 
+        FROM ${Tables.HISTORY_REFERENCE} hr
+        INNER JOIN ${Tables.HISTORY} h 
+            ON hr.uuid = h.referenceUUID
+        /* filters */
+        WHERE (
+            (:ignoreNetworkTypes OR h.networkType IN (:networks))
+        AND(
+            (:ignoreDevices OR h.networkType IN (:devices))
+        ))
+        /* add more filters here later */
+        ORDER BY hr.time DESC
+    """
+    )
+    abstract fun getItemsCount(
+        networks: List<String>,
+        ignoreNetworkTypes: Boolean,
+        devices: List<String>,
+        ignoreDevices: Boolean
+    ): Int
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     abstract fun saveHistory(history: List<History>)
