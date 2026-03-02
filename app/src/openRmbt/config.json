@@ -442,7 +442,7 @@
     },
     {
       "name": "MIN_LOCATION_ACCURACY_METERS_SIGNAL_MEASUREMENT",
-      "value": "7",
+      "value": "14",
       "visible": false
     },
     {
