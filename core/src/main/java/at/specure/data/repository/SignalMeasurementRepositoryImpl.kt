@@ -257,7 +257,7 @@ class SignalMeasurementRepositoryImpl(
             val signalList = db.signalDao().get(localMeasurementId, null)
             val cellLocationList = db.cellLocationDao().get(localMeasurementId, null)
             val permissions = db.permissionStatusDao().get(localMeasurementId, null)
-            clientUUID.value?.let {clientUuid ->
+            clientUUID.value?.let { clientUuid ->
                 fencesForSession.let { fences ->
                     val cleanedFences = fences.removeUnfinishedFences()
                     if (cleanedFences.isNotEmpty()) {
@@ -286,6 +286,7 @@ class SignalMeasurementRepositoryImpl(
                 }
             }
         }
+        onSendCompleted?.invoke(false)
     }
 
     override suspend fun retrySendFences() {

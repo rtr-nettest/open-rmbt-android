@@ -49,6 +49,7 @@ import timber.log.Timber
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlin.coroutines.EmptyCoroutineContext
+import kotlin.coroutines.cancellation.CancellationException
 import kotlin.math.max
 import kotlin.time.Duration.Companion.seconds
 
@@ -234,6 +235,10 @@ class RtrCoverageMeasurementProcessor @Inject constructor(
                             stateManager.onSignalResultSent(sentSuccessfully)
                         }
                     )
+                } catch (e: CancellationException) {
+                    throw e
+                } catch (e: Exception) {
+                    stateManager.onSignalResultSent(false)
                 } finally {
 //                cleanData()
                     coverageMeasurementSettings.onStopMeasurementSession()
