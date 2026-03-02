@@ -1322,6 +1322,11 @@ fun ImageView.setNetworkType(networkType: String, signalStrength: Classification
 
 @BindingAdapter("timeString")
 fun AppCompatTextView.setTimeAs24h(time: Long) {
+    visibility = if (time == 0L) {
+        View.GONE
+    } else {
+        View.VISIBLE
+    }
     text = SimpleDateFormat("dd.MM.yy, HH:mm:ss", Locale.US).format(Date(time))
 }
 

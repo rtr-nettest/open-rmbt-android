@@ -2,7 +2,6 @@ package at.rtr.rmbt.android.ui.activity
 
 import android.content.Context
 import android.content.Intent
-import android.content.res.Configuration
 import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -32,7 +31,6 @@ import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.Marker
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.suspendCancellableCoroutine
 import timber.log.Timber
 import java.util.Timer
 import kotlin.concurrent.timerTask
