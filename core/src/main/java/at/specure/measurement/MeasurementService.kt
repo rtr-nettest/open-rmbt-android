@@ -281,13 +281,6 @@ class MeasurementService : CustomLifecycleService(), CoroutineScope {
                 stopForeground(true)
                 stateRecorder.finish()
                 unlock()
-                resumeSignalMeasurement(false)
-            } else {
-                if ((config.loopModeEnabled) && (stateRecorder.loopTestCount < config.loopModeNumberOfTests || config.loopModeNumberOfTests == 0) && (stateRecorder.loopModeRecord?.status != LoopModeState.CANCELLED) && (stateRecorder.loopModeRecord?.status != LoopModeState.FINISHED)) {
-                    startSignalMeasurement(SignalMeasurementType.LOOP_WAITING)
-                } else {
-                    resumeSignalMeasurement(false)
-                }
             }
         }
 
@@ -319,11 +312,6 @@ class MeasurementService : CustomLifecycleService(), CoroutineScope {
                 stopForeground(true)
             }
             removeInactivityCheck()
-            if (config.loopModeEnabled && stateRecorder.loopModeRecord?.status != LoopModeState.CANCELLED && (stateRecorder.loopTestCount < config.loopModeNumberOfTests || (config.loopModeNumberOfTests == 0 && config.developerModeIsEnabled))) {
-                startSignalMeasurement(SignalMeasurementType.LOOP_WAITING)
-            } else {
-                resumeSignalMeasurement(false)
-            }
             if (startNetwork != null && startNetwork != connectivityManager.activeNetwork) {
                 Timber.e("Network change!")
                 try {
@@ -461,30 +449,6 @@ class MeasurementService : CustomLifecycleService(), CoroutineScope {
         }
     }
 
-    private fun resumeSignalMeasurement(unstoppable: Boolean) {
-        Timber.d("Signal measurement resumed")
-        signalMeasurementPauseRequired = false
-    }
-
-    private fun pauseSignalMeasurement() {
-        Timber.d("Signal measurement paused")
-        signalMeasurementPauseRequired = true // in case when service connection wasn't established before test started
-    }
-
-    private fun stopSignalMeasurement() {
-        Timber.d("Signal measurement stopped")
-        signalMeasurementPauseRequired = false
-        Timber.d("Stopping coverage session MS1")
-        signalMeasurementProducer?.stopMeasurement(false)
-    }
-
-    private fun startSignalMeasurement(signalMeasurementType: SignalMeasurementType) {
-        Timber.d("Signal measurement starting with type: ${signalMeasurementType.signalTypeName}")
-        signalMeasurementPauseRequired = true // in case when service connection wasn't established before test started
-        Timber.d("Starting coverage session MS1")
-        signalMeasurementProducer?.startMeasurement(false, signalMeasurementType)
-    }
-
     override fun onCreate() {
         super.onCreate()
         CoreInjector.inject(this)
@@ -542,7 +506,6 @@ class MeasurementService : CustomLifecycleService(), CoroutineScope {
     }
 
     override fun onDestroy() {
-        resumeSignalMeasurement(false)
         unregisterBatteryInfoReceiver(batteryInfo)
         signalMeasurementConnection.onServiceDisconnected(null)
         unbindService(signalMeasurementConnection)
@@ -651,12 +614,6 @@ class MeasurementService : CustomLifecycleService(), CoroutineScope {
     private fun runTest() {
         notificationManager.cancel(NOTIFICATION_LOOP_FINISHED_ID)
 
-        if (isBetweenTwoLoopTests()) {
-            stopSignalMeasurement()
-        } else {
-            pauseSignalMeasurement()
-        }
-
         Timber.d("LOOP MODE: runner is running: ${runner.isRunning}")
         if (!runner.isRunning) {
             resetStates()
@@ -752,12 +709,6 @@ class MeasurementService : CustomLifecycleService(), CoroutineScope {
         stateRecorder.finish()
         clientAggregator.onMeasurementCancelled()
         clientAggregator.onProgressChanged(measurementState, 0)
-        if (config.loopModeEnabled) {
-            Timber.d("Signal measurement stopping: Loop mode state: ${previousLoopModeState.name}")
-            stopSignalMeasurement()
-        } else {
-            resumeSignalMeasurement(false)
-        }
         stopForeground(true)
         unlock()
     }
