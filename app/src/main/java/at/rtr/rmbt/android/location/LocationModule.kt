@@ -17,6 +17,6 @@ class LocationModule {
     @Provides
     @Singleton
     fun provideLocationProviderNoNetwork(context: Context): LocationWatcher = LocationWatcher.Builder(context)
-        .addSource(FusedLocationSource(context))
+        .addSource(GPSLocationSource(context))
         .build()
 }
