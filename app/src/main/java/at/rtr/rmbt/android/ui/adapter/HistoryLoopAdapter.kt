@@ -70,7 +70,7 @@ class HistoryLoopAdapter : PagedListAdapter<HistoryContainer, HistoryLoopAdapter
         ITEM_LOOP ->
             LoopHolder(parent.bindWith(R.layout.item_history_loop))
         ITEM_COVERAGE_LOOP ->
-            FencesLoopHolder(parent.bindWith(R.layout.item_history_fences_loop))
+            CoverageLoopHolder(parent.bindWith(R.layout.item_history_fences_loop))
         ITEM_COVERAGE_HISTORY ->
             HistoryCoverageItemHolder(parent.bindWith(R.layout.item_history_fences))
         else ->
@@ -173,7 +173,7 @@ class HistoryLoopAdapter : PagedListAdapter<HistoryContainer, HistoryLoopAdapter
         }
     }
 
-    class FencesLoopHolder(val binding: ItemHistoryFencesLoopBinding) : Holder(binding.root) {
+    class CoverageLoopHolder(val binding: ItemHistoryFencesLoopBinding) : Holder(binding.root) {
 
         private var animation: ViewPropertyAnimator? = null
         private val adapter = HistoryAdapter()
@@ -193,6 +193,19 @@ class HistoryLoopAdapter : PagedListAdapter<HistoryContainer, HistoryLoopAdapter
             if (item.items.isEmpty()) {
                 return
             }
+
+            val fencesSum = item.items
+                .mapNotNull { it.fencesCount }
+                .sum() ?: 0
+
+            binding.fencesCountSum.text = fencesSum.toString()
+
+            binding.fencesCountSum.text = item.items
+                ?.mapNotNull { it?.fencesCount }
+                ?.sum()
+                ?.toString()
+                ?: "0"
+
             binding.item = item.items.last()
 
             animation?.cancel()

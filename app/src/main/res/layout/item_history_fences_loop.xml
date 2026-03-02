@@ -61,6 +61,37 @@
             app:layout_constraintStart_toEndOf="@+id/imageSignal"
             app:layout_constraintTop_toBottomOf="@+id/textTime" />
 
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/fencesCountSum"
+            style="@style/RobotoBoldStyle.Small"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginEnd="@dimen/margin_small"
+            android:drawablePadding="@dimen/padding_very_small"
+            android:gravity="end"
+            android:contentDescription="@{@string/number_of_fences_is + ' ' + item.fencesCount}"
+            android:textColor="@color/text_dark_gray"
+            app:layout_constraintEnd_toStartOf="@+id/points"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toTopOf="@+id/recyclerView"
+            tools:text="14" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            style="@style/RobotoBoldStyle.Small"
+            android:id="@+id/points"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginEnd="@dimen/margin_small"
+            android:text="@string/points"
+            android:contentDescription="@{@string/number_of_fences_is + ' ' + item.fencesCount}"
+            android:textColor="@color/text_dark_gray"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/imageExpand"
+            app:layout_constraintBottom_toTopOf="@+id/recyclerView"
+            tools:text="14" />
+
         <ImageView
             android:id="@+id/imageExpand"
             android:layout_width="wrap_content"

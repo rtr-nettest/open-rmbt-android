@@ -61,9 +61,9 @@
 
         <androidx.appcompat.widget.AppCompatTextView
             style="@style/RobotoBoldStyle.Small"
-            android:layout_width="0dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
+            android:layout_marginEnd="44dp"
             android:drawablePadding="@dimen/padding_very_small"
             android:text="@string/points"
             android:contentDescription="@{@string/number_of_fences_is + ' ' + item.fencesCount}"
