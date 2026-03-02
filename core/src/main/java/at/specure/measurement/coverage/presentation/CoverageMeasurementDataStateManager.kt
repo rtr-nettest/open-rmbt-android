@@ -66,6 +66,7 @@ class CoverageMeasurementDataStateManager @Inject constructor(
         update {
             copy(coverageMeasurementSession = session)
         }
+        updateState(CoverageMeasurementState.CREATED)
         Timber.d("Session created: ${session.localMeasurementId}")
     }
 
