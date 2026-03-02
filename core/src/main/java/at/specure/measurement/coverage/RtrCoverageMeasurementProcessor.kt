@@ -401,7 +401,6 @@ class RtrCoverageMeasurementProcessor @Inject constructor(
         }
 
         if (isDataValidToSaveNewFence) {
-            Timber.d("Saving new fence ${networkInfo?.networkInfo} ${(networkInfo?.networkInfo as CellNetworkInfo).networkType}")
             saveNewFence(
                 sessionId = sessionId,
                 newLocation = newLocation!!,
