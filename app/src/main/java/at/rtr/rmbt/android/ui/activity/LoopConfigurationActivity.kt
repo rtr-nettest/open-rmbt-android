@@ -91,7 +91,7 @@ class LoopConfigurationActivity : BaseActivity(), InputSettingDialog.Callback {
                     MeasurementService.startTests(this)
                     MeasurementActivity.start(this)
                 } else {
-                    MessageDialog.instance(R.string.home_no_internet_connection).show(this)
+                    MessageDialog.show(this.supportFragmentManager, getString(R.string.home_no_internet_connection), "DialogNoInternet")
                 }
             }
         }

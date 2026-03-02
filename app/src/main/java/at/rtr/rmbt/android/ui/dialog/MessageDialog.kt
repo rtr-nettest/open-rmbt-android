@@ -20,16 +20,16 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
+import androidx.fragment.app.FragmentManager
 import at.rtr.rmbt.android.R
 import at.rtr.rmbt.android.databinding.DialogMessageBinding
 
-class MessageDialog(var message: Int) : FullscreenDialog() {
-
-    private lateinit var binding: DialogMessageBinding
+class MessageDialog : FullscreenDialog() {
 
     override val gravity = Gravity.CENTER
-
     override val dimBackground = false
+
+    private lateinit var binding: DialogMessageBinding
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -41,6 +41,8 @@ class MessageDialog(var message: Int) : FullscreenDialog() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        val message = requireArguments().getString(ARG_MESSAGE)!!
+
         super.onViewCreated(view, savedInstanceState)
         binding.editTextValue.setText(message)
         binding.buttonCancel.setOnClickListener {
@@ -49,7 +51,23 @@ class MessageDialog(var message: Int) : FullscreenDialog() {
     }
 
     companion object {
+        private const val ARG_MESSAGE = "arg_message"
+        private const val ARG_TAG = "arg_tag"
 
-        fun instance(message: Int): FullscreenDialog = MessageDialog(message)
+        private fun newInstance(message: String, tag: String = "dialog"): MessageDialog {
+            return MessageDialog().apply {
+                arguments = Bundle().apply {
+                    putString(ARG_MESSAGE, message)
+                    putString(ARG_TAG, tag)
+                }
+            }
+        }
+
+        fun show(fragmentManager: FragmentManager, message: String, tag: String = "dialog") {
+            if (fragmentManager.isStateSaved) return
+            if (fragmentManager.findFragmentByTag(tag) != null) return
+
+            newInstance(message).show(fragmentManager, tag)
+        }
     }
 }

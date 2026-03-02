@@ -29,6 +29,8 @@ import at.rmbt.client.control.data.SignalMeasurementType
 import at.rtr.rmbt.android.map.DefaultLocation
 import at.rtr.rmbt.android.ui.dialog.CoverageSettingsDialog
 import at.rtr.rmbt.android.ui.dialog.Dialogs
+import at.rtr.rmbt.android.ui.dialog.FullscreenDialog
+import at.rtr.rmbt.android.ui.dialog.MessageDialog
 import at.rtr.rmbt.android.util.formatAccuracy
 import at.specure.info.network.NetworkInfo
 import at.specure.measurement.coverage.domain.models.CoverageMeasurementData
@@ -282,7 +284,7 @@ class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback, Coverage
 
     private fun showMeasurementError(coverageMeasurementData: CoverageMeasurementData?) {
         coverageMeasurementData?.signalMeasurementException?.also {
-            Dialogs.show(this, getString(R.string.coverage_measurement_error_title), it.message ?: getString(R.string.coverage_measurement_error_unknown))
+            MessageDialog.show(this.supportFragmentManager, getString(R.string.coverage_measurement_error_unknown), "CoverageMeasurementErrorDialog")
         }
     }
 

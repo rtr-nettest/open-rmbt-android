@@ -196,10 +196,14 @@ class HomeFragment : BaseFragment() {
                         MeasurementActivity.start(requireContext())
                     }
                 } else {
-                    MessageDialog.instance(R.string.client_not_registered).show(activity)
+                    activity?.supportFragmentManager?.let {
+                        MessageDialog.show(it, getString(R.string.client_not_registered), "NotRegistered")
+                    }
                 }
             } else {
-                MessageDialog.instance(R.string.home_no_internet_connection).show(activity)
+                activity?.supportFragmentManager?.let {
+                    MessageDialog.show(it, getString(R.string.home_no_internet_connection), "NotRegistered")
+                }
             }
         }
 

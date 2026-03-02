@@ -92,7 +92,7 @@ class MapFiltersDialog : FullscreenDialog(), MapFiltersConfirmationDialog.Callba
                         getString(R.string.title_filters_type),
                         it as ArrayList<String>,
                         it.indexOf(it.find { it == viewModel.state.type.get() })
-                    ).show(parentFragmentManager)
+                    ).showOnce(parentFragmentManager)
                 }
             }
         }
@@ -105,7 +105,7 @@ class MapFiltersDialog : FullscreenDialog(), MapFiltersConfirmationDialog.Callba
                     it.first,
                     it.second.map { it.title } as ArrayList<String>,
                     it.second.indexOf(it.second.find { it == viewModel.state.statistical.get() })
-                ).show(parentFragmentManager)
+                ).showOnce(parentFragmentManager)
             }
         }
 
@@ -117,7 +117,7 @@ class MapFiltersDialog : FullscreenDialog(), MapFiltersConfirmationDialog.Callba
                     it.first,
                     it.second.map { it.title } as ArrayList<String>,
                     it.second.indexOf(it.second.find { it == viewModel.state.timeRange.get() })
-                ).show(parentFragmentManager)
+                ).showOnce(parentFragmentManager)
             }
         }
 
@@ -130,7 +130,7 @@ class MapFiltersDialog : FullscreenDialog(), MapFiltersConfirmationDialog.Callba
                         it.first,
                         it.second.map { it.title } as ArrayList<String>,
                         it.second.indexOf(it.second.find { it == viewModel.state.operator.get() })
-                    ).show(parentFragmentManager)
+                    ).showOnce(parentFragmentManager)
                 }
             }
         }
@@ -144,7 +144,7 @@ class MapFiltersDialog : FullscreenDialog(), MapFiltersConfirmationDialog.Callba
                         it.first,
                         it.second.map { it.title } as ArrayList<String>,
                         it.second.indexOf(it.second.find { it == viewModel.state.provider.get() })
-                    ).show(parentFragmentManager)
+                    ).showOnce(parentFragmentManager)
                 }
             }
         }
@@ -157,7 +157,7 @@ class MapFiltersDialog : FullscreenDialog(), MapFiltersConfirmationDialog.Callba
                     it.first,
                     it.second.map { it.title } as ArrayList<String>,
                     it.second.indexOf(it.second.find { it == viewModel.state.technology.get() })
-                ).show(parentFragmentManager)
+                ).showOnce(parentFragmentManager)
             }
         }
 
@@ -187,7 +187,7 @@ class MapFiltersDialog : FullscreenDialog(), MapFiltersConfirmationDialog.Callba
                             getString(R.string.title_filters_subtype),
                             it.second.map { it.title } as ArrayList<String>,
                             it.second.indexOf(it.second.find { it.title == viewModel.state.subtype.get()?.title } ?: 0)
-                        ).show(parentFragmentManager)
+                        ).showOnce(parentFragmentManager)
                     }
                 }
             }

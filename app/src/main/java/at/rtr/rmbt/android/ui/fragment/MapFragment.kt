@@ -151,7 +151,7 @@ class MapFragment : BaseFragment(), MapMarkerDetailsAdapter.MarkerDetailsCallbac
                 mapViewModel.state.type.get()!!.ordinal,
                 noSatelliteOrHybrid = !mapW().supportSatelliteAndHybridView()
             )
-                .show(fragmentManager)
+                .showOnce(fragmentManager)
         }
 
         setFiltersOnClickListener()
@@ -180,7 +180,7 @@ class MapFragment : BaseFragment(), MapMarkerDetailsAdapter.MarkerDetailsCallbac
 
     private fun setFiltersOnClickListener() {
         binding.fabFilters.setOnClickListener {
-            MapFiltersDialog.instance(this, CODE_FILTERS_DIALOG).show(fragmentManager)
+            MapFiltersDialog.instance(this, CODE_FILTERS_DIALOG).showOnce(fragmentManager)
         }
     }
 
@@ -599,6 +599,6 @@ class MapFragment : BaseFragment(), MapMarkerDetailsAdapter.MarkerDetailsCallbac
             ).show()
             return
         }
-        MapSearchDialog.instance(this, CODE_SEARCH_DIALOG).show(fragmentManager)
+        MapSearchDialog.instance(this, CODE_SEARCH_DIALOG).showOnce(fragmentManager)
     }
 }

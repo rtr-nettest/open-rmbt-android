@@ -106,14 +106,14 @@ class HistoryFragment : BaseFragment(), SyncDevicesDialog.Callback, HistoryFilte
 
         binding.buttonDownload.setOnClickListener {
             if (adapter.itemCount > 0) {
-                HistoryDownloadDialog.instance(this, CODE_DOWNLOAD).show(parentFragmentManager)
+                HistoryDownloadDialog.instance(this, CODE_DOWNLOAD).showOnce(parentFragmentManager)
             }
         }
 
 
         binding.buttonMenu.setOnClickListener {
             if (adapter.itemCount > 0) {
-                HistoryFiltersDialog.instance(this, CODE_FILTERS).show(parentFragmentManager)
+                HistoryFiltersDialog.instance(this, CODE_FILTERS).showOnce(parentFragmentManager)
             }
         }
 

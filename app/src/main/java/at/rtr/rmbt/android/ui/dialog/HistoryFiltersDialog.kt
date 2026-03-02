@@ -84,7 +84,7 @@ class HistoryFiltersDialog : FullscreenDialog(), HistoryFiltersConfirmationDialo
                 state.defaultDevices,
                 state.activeDevices
             )
-                .show(parentFragmentManager)
+                .showOnce(parentFragmentManager)
         }
 
         binding.networks.setOnClickListener {
@@ -96,7 +96,7 @@ class HistoryFiltersDialog : FullscreenDialog(), HistoryFiltersConfirmationDialo
                 state.defaultNetwors,
                 state.activeNetworks
             )
-                .show(parentFragmentManager)
+                .showOnce(parentFragmentManager)
         }
 
         viewModel.devicesLiveData.listen(this) {
