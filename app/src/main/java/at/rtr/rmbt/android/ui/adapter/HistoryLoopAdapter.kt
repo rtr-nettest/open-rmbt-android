@@ -30,6 +30,7 @@ import at.rtr.rmbt.android.databinding.ItemHistoryFencesLoopBinding
 import at.rtr.rmbt.android.databinding.ItemHistoryLoopBinding
 import at.rtr.rmbt.android.util.bindWith
 import at.rtr.rmbt.android.util.gone
+import at.rtr.rmbt.android.util.invisible
 import at.rtr.rmbt.android.util.visible
 import at.specure.data.entity.History
 import at.specure.data.entity.HistoryContainer
@@ -216,12 +217,19 @@ class HistoryLoopAdapter : PagedListAdapter<HistoryContainer, HistoryLoopAdapter
             val isExpanded = expandedItemsMap[position] ?: false
 
             if (isExpanded) {
+                binding.imageSignal.invisible()
+                binding.fencesCountSum.invisible()
+                binding.points.invisible()
                 binding.imageExpand.rotation = 180f
                 binding.recyclerView.visible()
             } else {
+                binding.imageSignal.visible()
+                binding.fencesCountSum.visible()
+                binding.points.visible()
                 binding.imageExpand.rotation = 0f
                 binding.recyclerView.gone()
             }
+            binding.invalidateAll()
 
             binding.root.setOnClickListener {
                 val expanded = expandedItemsMap[position] ?: false
@@ -231,9 +239,15 @@ class HistoryLoopAdapter : PagedListAdapter<HistoryContainer, HistoryLoopAdapter
                 if (expanded) {
                     anim.rotation(0f)
                     binding.recyclerView.gone()
+                    binding.imageSignal.visible()
+                    binding.fencesCountSum.visible()
+                    binding.points.visible()
                 } else {
                     anim.rotation(180f)
                     binding.recyclerView.visible()
+                    binding.imageSignal.invisible()
+                    binding.fencesCountSum.invisible()
+                    binding.points.invisible()
                 }
                 pendingAnimationCallback?.invoke()
                 animation = anim

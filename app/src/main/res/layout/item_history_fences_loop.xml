@@ -24,15 +24,14 @@
             android:id="@+id/imageSignal"
             android:layout_width="@dimen/history_image_size"
             android:layout_height="@dimen/history_image_size"
-            android:contentDescription="@null"
             android:scaleType="center"
-            app:historySignalStrength="@{item.signalClassification ?? Classification.NONE}"
             app:layout_constraintBottom_toBottomOf="@+id/labelLoop"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="@+id/textTime"
-            android:visibility="invisible"
-            app:networkType="@{item.networkType}"
-            tools:src="@drawable/ic_history_no_internet" />
+            android:contentDescription="@string/coverage_result"
+            android:src="@drawable/ic_upload_enabled"
+            app:tint="@color/navigation_gray" />
+            tools:src="@drawable/ic_upload_enabled" />
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/textTime"
