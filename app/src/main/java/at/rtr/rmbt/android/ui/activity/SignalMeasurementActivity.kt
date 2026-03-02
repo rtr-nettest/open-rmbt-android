@@ -344,7 +344,9 @@ class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback, Coverage
             }
         }
 
-        binding.accuracyValue.text = this.getString(R.string.location_dialog_accuracy, (location?.formatAccuracy() ?: "-").toString())
+        binding.accuracyValue.text = location?.formatAccuracy()?.let { formattedAccuracy ->
+            this.getString(R.string.location_dialog_accuracy, formattedAccuracy)
+        } ?: getString(R.string.no_gps_value)
 
         map?.let { gMap ->
             location?.let { latestLocation ->
