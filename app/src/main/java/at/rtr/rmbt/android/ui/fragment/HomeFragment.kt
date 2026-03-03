@@ -341,7 +341,6 @@ class HomeFragment : BaseFragment() {
         checkInformationAvailability()
         homeViewModel.state.informationAccessProblem.get()?.let { updateProblemUI(it) }
 
-        continueInSignalMeasurementIfShould()
     }
 
     private fun continueInSignalMeasurementIfShould() {
