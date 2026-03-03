@@ -112,6 +112,10 @@ class RtrPingProcessor : PingProcessor {
     }
 
     override suspend fun onNewFenceStarted(): PingStats? {
-        return pingEvaluator?.evaluateAndReset()
+        val pingStats = pingEvaluator?.evaluateAndReset()
+        if (debug) {
+            println("Ping stats RESET for ${PING_EVALUATE_LAST_N_ITEMS} items: ${pingStats}")
+        }
+        return pingStats
     }
 }

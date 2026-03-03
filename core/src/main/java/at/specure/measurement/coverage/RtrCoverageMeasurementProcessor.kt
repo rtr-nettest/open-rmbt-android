@@ -91,6 +91,7 @@ class RtrCoverageMeasurementProcessor @Inject constructor(
     private var loadingFencesJob: Job? = null
     private var sessionCollectorJob: Job? = null
     private var pingJob: Job? = null
+    private var processingLocationsJob: Job? = null
     override val coroutineContext = EmptyCoroutineContext + coroutineExceptionHandler
 //    val stateManager = CoverageMeasurementDataStateManager(coverageMeasurementSettings, scope)
     val dataSimMonitor = CoverageDataSimMonitor(scope = scope)
@@ -106,7 +107,8 @@ class RtrCoverageMeasurementProcessor @Inject constructor(
         sessionCreationError: ((Exception) -> Unit)?,
         sessionStopped: (() -> Unit)?,
     ) {
-        scope.launch(Dispatchers.IO + CoroutineName("LocationFlowProcessor")) {
+        processingLocationsJob?.cancel(kotlinx.coroutines.CancellationException("New measurement started"))
+        processingLocationsJob = scope.launch(Dispatchers.IO + CoroutineName("LocationFlowProcessor")) {
             locationUpdatesFlow
                 .debounce(100) // optional: add a tiny debounce if needed
                 .collectLatest { (location, networkInfo) ->
