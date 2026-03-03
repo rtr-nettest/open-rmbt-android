@@ -334,12 +334,16 @@ class SignalMeasurementRepositoryImpl(
     }
 
     override suspend fun registerNotRegisteredMeasurementsWithSomeFences() {
-        val notRegisteredCoverageSession = dao.getNotRegisteredCoverageMeasurements()
-        notRegisteredCoverageSession.forEach {
+        val notRegisteredCoverageSessions = dao.getNotRegisteredCoverageMeasurements()
+
+        notRegisteredCoverageSessions.forEach {
             try {
-                registerCoverageMeasurement(it.localMeasurementId).collect { registered ->
-                    if (!registered) {
-                        Timber.e("Unable to register session")
+                val fences = dao.getCoverageMeasurementFencesList(it.localMeasurementId)
+                if (fences.isNotEmpty()) {
+                    registerCoverageMeasurement(it.localMeasurementId).collect { registered ->
+                        if (!registered) {
+                            Timber.e("Unable to register session")
+                        }
                     }
                 }
             } catch (e: CancellationException) {
