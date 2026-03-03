@@ -547,6 +547,6 @@
     <string name="text_unknown">None</string>
     <string name="ipv4_short">IPv4</string>
     <string name="ipv6_short">IPv6</string>
-    <string name="sending_results">Sending results</string>
+    <string name="sending_results">Storing results</string>
     <string name="no_gps_value" />
 </resources>
