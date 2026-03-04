@@ -591,7 +591,8 @@ fun CoverageMeasurementFenceRecord.toRequest(measurementStartMillis: Long): Fenc
     durationMillis = this.leaveTimestampMillis - this.entryTimestampMillis,
     fenceRadiusMeters = this.radiusMeters,
     averagePingMillis = this.avgPingMillis?.toInt(),
-    timestampMicroseconds = this.entryTimestampMillis
+    timestampMicroseconds = this.entryTimestampMillis,
+    signalDbm = this.signalStrength
 )
 
 fun DeviceInfo.Location.toSimpleLocation(): SimpleLocationBody = SimpleLocationBody(

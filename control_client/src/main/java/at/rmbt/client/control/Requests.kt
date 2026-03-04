@@ -1168,6 +1168,8 @@ data class FenceBody(
     val networkTechnologyId: Int, // 41
     @SerializedName("technology")
     val networkTechnologyName: String, // "NR NSA"
+    @SerializedName("signal")
+    val signalDbm: Int?,
     @SerializedName("offset_ms")
     val offsetMillis: Long, // from the start of the test - official start is when coverage response arrives so it can be negative too
     @SerializedName("duration_ms")
@@ -1191,6 +1193,8 @@ data class FenceResponseBody(
     val networkTechnologyName: String?, // "NR NSA"
     val latitude: Double?,
     val longitude: Double?,
+    @SerializedName("signal")
+    val signalDbm: Int?,
     @SerializedName("radius")
     val fenceRadiusMeters: Double?,
     @SerializedName("duration_ms")
