@@ -24,4 +24,7 @@ interface GeoLocationDao {
 
     @Query("DELETE FROM ${Tables.GEO_LOCATION} WHERE (testUUID IS :testUUID)")
     fun removeForTest(testUUID: String)
+
+    @Query("SELECT COUNT(*) FROM ${Tables.GEO_LOCATION} WHERE testUUID IS :localMeasurementId")
+    fun getCountForCoverageMeasurement(localMeasurementId: String): Int
 }

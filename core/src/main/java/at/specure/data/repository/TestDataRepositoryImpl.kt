@@ -782,4 +782,12 @@ class TestDataRepositoryImpl(db: CoreDatabase) : TestDataRepository {
         return saveMobileSignalsCount
     }
 
+
+    override fun getSignalsCountForCoverageMeasurement(localMeasurementId: String): Int {
+        return signalDao.getSignalsCountForCoverageMeasurement(localMeasurementId)
+    }
+
+    override fun getLocationMetadataCountForCoverageMeasurement(localMeasurementId: String): Int {
+        return geoLocationDao.getCountForCoverageMeasurement(localMeasurementId)
+    }
 }

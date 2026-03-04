@@ -113,4 +113,8 @@ interface TestDataRepository {
     fun saveCellMetadataForCoverage(detailedNetworkInfo: DetailedNetworkInfo?, localMeasurementId: String, startTimeNanos: Long)
 
     fun removeCellMetadataForCoverage(localMeasurementId: String)
+
+    fun getSignalsCountForCoverageMeasurement(localMeasurementId: String): Int
+
+    fun getLocationMetadataCountForCoverageMeasurement(localMeasurementId: String): Int
 }

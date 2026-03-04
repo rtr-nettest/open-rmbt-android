@@ -13,7 +13,6 @@ import at.specure.data.entity.SignalRecord
 import at.specure.data.repository.MeasurementRepository
 import at.specure.data.repository.SignalMeasurementRepository
 import at.specure.data.repository.TestDataRepository
-import at.specure.info.cell.CellNetworkInfo
 import at.specure.info.network.DetailedNetworkInfo
 import at.specure.info.network.NetworkInfo
 import at.specure.location.LocationDistanceAndSpeedCounter
@@ -55,6 +54,10 @@ import kotlin.time.Duration.Companion.seconds
 
 // TODO: resolve problems with signal uuids and coverage uuids, send coverage results, new coverage request on network change and response
 // TODO: make own signal listener because now we do not get null signals on signal loss from SignalMeasurementProcessor
+
+const val MAXIMUM_FENCES_IN_SINGLE_MEASUREMENT = 400
+const val MAXIMUM_LOCATIONS_IN_SINGLE_MEASUREMENT = 700
+const val MAXIMUM_SIGNALS_IN_SINGLE_MEASUREMENT = 400
 
 @Singleton
 class RtrCoverageMeasurementProcessor @Inject constructor(
@@ -376,14 +379,15 @@ class RtrCoverageMeasurementProcessor @Inject constructor(
         val isFirstMeasurementInLoop = coverageMeasurementDataValue.coverageMeasurementSession?.sequenceNumber == 0
 
         if (isBackOnMobileData && lastRecordedFence != null) {
-            coverageMeasurementDataValue.coverageMeasurementSession?.let { currentMeasurement ->
-                Timber.d("Starting new measurement because we are back on mobile data: $coverageMeasurementDataValue")
-                coverageLoopManager.endMeasurementInLoop(currentMeasurement)
-                coverageLoopManager.createNewMeasurementInLoop(currentMeasurement)
-            }
+            onMeasurementStopAndStartNewMeasurement()
         }
 
         stateManager.updateNetworkInfo(networkInfo?.networkInfo)
+
+        val isMeasurementDataThresholdsReached = isMeasurementMaxItemsThresholdsReached(coverageMeasurementDataValue.coverageMeasurementSession?.localMeasurementId)
+        if (isMeasurementDataThresholdsReached) {
+            onMeasurementStopAndStartNewMeasurement()
+        }
 
         val isConnectionStateValid = checkForTheConnectionState()
         if (!isConnectionStateValid) return
@@ -431,6 +435,30 @@ class RtrCoverageMeasurementProcessor @Inject constructor(
                 replaceSignalFenceAndSave(point, signalRecord)
             }
         }*/
+    }
+
+    private fun isMeasurementMaxItemsThresholdsReached(sessionId: String?): Boolean {
+        if (sessionId == null) return false
+
+        val fencesCount = fencesDataSource.loadCoverageMeasurementFences(sessionId).count()
+        Timber.d("Check fences count: $fencesCount")
+        if (fencesCount >= MAXIMUM_FENCES_IN_SINGLE_MEASUREMENT) {
+            return true
+        }
+
+        val locationsCount = testDataRepository.getLocationMetadataCountForCoverageMeasurement(localMeasurementId = sessionId)
+        Timber.d("Check locations count: $locationsCount")
+        if (locationsCount >= MAXIMUM_LOCATIONS_IN_SINGLE_MEASUREMENT) {
+            return true
+        }
+
+        val signalsCount = testDataRepository.getSignalsCountForCoverageMeasurement(localMeasurementId = sessionId)
+        Timber.d("Check signals count: $signalsCount")
+        if (signalsCount >= MAXIMUM_SIGNALS_IN_SINGLE_MEASUREMENT) {
+            return true
+        }
+
+        return false
     }
 
     private fun checkForTheConnectionState(): Boolean {
@@ -519,7 +547,7 @@ class RtrCoverageMeasurementProcessor @Inject constructor(
     }
 
     private fun loadPoints(localLoopSessionId: String) = scope.launch(Dispatchers.IO) {
-        fencesDataSource.loadCoverageFences(localLoopSessionId)
+        fencesDataSource.loadCoverageLoopFences(localLoopSessionId)
             .asFlow().
             flowOn(Dispatchers.IO)
                 .collect { loadedPoints ->
