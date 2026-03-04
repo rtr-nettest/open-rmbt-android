@@ -549,4 +549,5 @@
     <string name="ipv6_short">IPv6</string>
     <string name="sending_results">Storing results</string>
     <string name="no_gps_value" />
+    <string name="error_sending_data">Storing results failed!</string>
 </resources>

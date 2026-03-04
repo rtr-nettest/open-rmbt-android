@@ -19,6 +19,7 @@ data class CoverageMeasurementData(
     val currentPingStatus: String? = null,
     val state: CoverageMeasurementState = CoverageMeasurementState.IDLE,
     val sendingResults: Boolean = false,
+    val sendingResultsError: Boolean = false,
     val initializing: Boolean = false,
     val technologyMinSignalMapForCurrentFence: HashMap<MobileNetworkType, Int?>
 )

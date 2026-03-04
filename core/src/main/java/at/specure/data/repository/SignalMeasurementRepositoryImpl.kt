@@ -282,11 +282,14 @@ class SignalMeasurementRepositoryImpl(
                             onSendCompleted?.invoke(false)
                             // TODO: enqueue sending with worker in case of failed send
                         }
+                    } else {
+                        onSendCompleted?.invoke(true)
                     }
-                }
-            }
+                } ?: onSendCompleted?.invoke(true)
+            } ?: onSendCompleted?.invoke(false)
+        } else {
+            onSendCompleted?.invoke(true)
         }
-        onSendCompleted?.invoke(false)
     }
 
     override suspend fun retrySendFences() {

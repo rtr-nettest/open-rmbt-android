@@ -203,6 +203,10 @@ class CoverageResultViewModel @Inject constructor(
         clearPerformanceImprovementLists()
     }
 
+    fun onSendingResultErrorClearPressed() {
+        rtrCoverageMeasurementProcessor.stateManager.removeSendingResultError()
+    }
+
     @OptIn(ExperimentalCoroutinesApi::class)
     suspend fun GoogleMap.awaitMapLoad() = suspendCancellableCoroutine<Unit> { cont ->
         setOnMapLoadedCallback { cont.resume(Unit) {} }

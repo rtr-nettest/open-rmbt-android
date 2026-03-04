@@ -67,6 +67,7 @@ class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback, Coverage
     private lateinit var binding: ActivitySignalMeasurementBinding
     private var map: GoogleMap? = null
     private var warningSnackbar: Snackbar? = null
+    private var sendingResultsErrorSnackbar: Snackbar? = null
 
     override fun onFenceOrAccuracyUpdated() {
         coverageViewModel.onCoverageConfigurationChanged()
@@ -160,6 +161,30 @@ class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback, Coverage
         } else {
             updateUnfinishedMeasurement(data)
         }
+        updateResultSendStatus(data)
+    }
+
+    private fun updateResultSendStatus(data: CoverageMeasurementData?) {
+        if (data?.sendingResultsError == true) {
+            showSendDataErrorSnackbar()
+        }
+    }
+
+    private fun showSendDataErrorSnackbar() {
+        if (sendingResultsErrorSnackbar?.isShownOrQueued == true) {
+            // Already visible or scheduled to show
+            return
+        }
+
+        sendingResultsErrorSnackbar = Snackbar.make(binding.root, R.string.error_sending_data, Snackbar.LENGTH_INDEFINITE)
+            .setBackgroundTint(ContextCompat.getColor(this, R.color.snackbar_error_background))
+            .setTextColor(ContextCompat.getColor(this, R.color.snackbar_error_text))
+            .setAction(R.string.dismiss) {
+                coverageViewModel.onSendingResultErrorClearPressed()
+            }
+            .setActionTextColor(ContextCompat.getColor(this, R.color.snackbar_error_text))
+
+        sendingResultsErrorSnackbar?.show()
     }
 
     override fun onConfigurationChanged(newConfig: Configuration) {

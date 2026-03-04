@@ -194,7 +194,18 @@ class CoverageMeasurementDataStateManager @Inject constructor(
 
     fun onSignalResultSent(sentSuccessfully: Boolean) {
         update {
-            copy(sendingResults = false)
+            copy(
+                sendingResults = false,
+                sendingResultsError = !sentSuccessfully
+            )
+        }
+    }
+
+    fun removeSendingResultError() {
+        update {
+            copy(
+                sendingResultsError = false
+            )
         }
     }
 }
