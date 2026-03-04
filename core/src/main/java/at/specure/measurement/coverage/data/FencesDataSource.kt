@@ -27,7 +27,8 @@ class FencesDataSource @Inject constructor(
         radiusMeters: Double,
         entryTimestampMillis: Long,
         avgPingMillisForLastFence: Double?,
-        lastSavedFence: CoverageMeasurementFenceRecord?
+        lastSavedFence: CoverageMeasurementFenceRecord?,
+        lastFenceMinTechSignal: Int?,
     ) {
         val point = CoverageMeasurementFenceRecord(
             sessionId = sessionId,
@@ -46,7 +47,9 @@ class FencesDataSource @Inject constructor(
         updateSignalFenceAndSaveOnLeaving(
             lastSavedFence,
             entryTimestampMillis,
-            avgPingMillisForLastFence
+            avgPingMillisForLastFence,
+            networkInfo = networkInfo,
+            lastFenceMinTechSignal = lastFenceMinTechSignal
         )
         Timber.d("createSignalFenceAndUpdateLastOne: $point")
 
@@ -57,10 +60,14 @@ class FencesDataSource @Inject constructor(
         lastFence: CoverageMeasurementFenceRecord?,
         leaveTimestampMillis: Long,
         avgPingMillis: Double?,
+        networkInfo: NetworkInfo?,
+        lastFenceMinTechSignal: Int?,
     ) = io {
         val updatedFence = lastFence?.copy(
             leaveTimestampMillis = leaveTimestampMillis,
-            avgPingMillis = avgPingMillis
+            avgPingMillis = avgPingMillis,
+            technologyId = networkInfo?.getMobileNetworkType()?.intValue,
+            signalStrength = lastFenceMinTechSignal
         )
         updatedFence?.let {
             signalMeasurementRepository.updateSignalMeasurementFence(updatedFence)

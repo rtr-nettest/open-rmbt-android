@@ -3,8 +3,11 @@ package at.specure.measurement.coverage.presentation
 import at.specure.data.CoverageMeasurementSettings
 import at.specure.data.entity.CoverageMeasurementFenceRecord
 import at.specure.data.entity.CoverageMeasurementSession
+import at.specure.info.cell.CellNetworkInfo
+import at.specure.info.network.MobileNetworkType
 import at.specure.info.network.NetworkInfo
 import at.specure.location.LocationInfo
+import at.specure.measurement.coverage.data.getMobileNetworkType
 import at.specure.measurement.coverage.domain.models.CoverageMeasurementData
 import at.specure.measurement.coverage.domain.models.PingData
 import at.specure.measurement.coverage.domain.models.state.CoverageMeasurementState
@@ -32,6 +35,7 @@ class CoverageMeasurementDataStateManager @Inject constructor(
             currentLocation = null,
             currentPingMs = null,
             currentPingStatus = null,
+            technologyMinSignalMapForCurrentFence = hashMapOf()
         )
 
     )
@@ -58,8 +62,8 @@ class CoverageMeasurementDataStateManager @Inject constructor(
                 currentLocation = null,
                 currentPingMs = null,
                 currentPingStatus = null,
+                technologyMinSignalMapForCurrentFence = hashMapOf()
             )
-
     }
 
     fun onSessionCreated(session: CoverageMeasurementSession) {
@@ -110,7 +114,44 @@ class CoverageMeasurementDataStateManager @Inject constructor(
     }
 
     fun updateNetworkInfo(networkInfo: NetworkInfo?) = update {
-        copy(currentNetworkInfo = networkInfo)
+        copy(
+            technologyMinSignalMapForCurrentFence = updateTechnologyMinSignalMap(
+                data = this,
+                networkInfo = networkInfo
+            ),
+            currentNetworkInfo = networkInfo
+        )
+    }
+
+    private fun updateTechnologyMinSignalMap(data: CoverageMeasurementData, networkInfo: NetworkInfo?): HashMap<MobileNetworkType, Int?> {
+        if (networkInfo == null) {
+            return data.technologyMinSignalMapForCurrentFence
+        }
+        if (networkInfo is CellNetworkInfo) {
+            val lastMinSignalValueForTechnology = data.technologyMinSignalMapForCurrentFence.get(networkInfo.networkType)
+            val newSignalValueForTechnology = networkInfo.signalStrength?.value
+            if (lastMinSignalValueForTechnology == null || newSignalValueForTechnology != null && newSignalValueForTechnology < lastMinSignalValueForTechnology) {
+                data.technologyMinSignalMapForCurrentFence.put(networkInfo.networkType, networkInfo.signalStrength?.value)
+            }
+            return data.technologyMinSignalMapForCurrentFence
+        } else {
+            return data.technologyMinSignalMapForCurrentFence
+        }
+    }
+
+    fun getMinSignalForTechnologyForCurrentFence(networkInfo: NetworkInfo?): Int? {
+        return if (networkInfo!= null && networkInfo is CellNetworkInfo) {
+            state.value.technologyMinSignalMapForCurrentFence[state.value.currentNetworkInfo?.getMobileNetworkType()]
+        } else {
+            null
+        }
+    }
+
+    fun onFenceExitClean() = update {
+        Timber.d("updateSignalFenceOn signal map cleaning started" )
+        copy(
+            technologyMinSignalMapForCurrentFence = hashMapOf()
+        )
     }
 
     fun updatePingData(pingData: PingData?) = update {

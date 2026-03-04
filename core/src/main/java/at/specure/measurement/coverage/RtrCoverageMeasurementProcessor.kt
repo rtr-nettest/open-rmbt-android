@@ -224,7 +224,9 @@ class RtrCoverageMeasurementProcessor @Inject constructor(
                     fencesDataSource.updateSignalFenceAndSaveOnLeaving(
                         lastFence,
                         leaveTimestampMillis = System.currentTimeMillis(),
-                        avgPingMillis = avgPingMillis
+                        avgPingMillis = avgPingMillis,
+                        networkInfo = stateManager.state.value.currentNetworkInfo,
+                        lastFenceMinTechSignal = stateManager.getMinSignalForTechnologyForCurrentFence(stateManager.state.value.currentNetworkInfo)
                     )
 
                     stateManager.onUpdateCoverageDataState(CoverageMeasurementState.FINISHED_LOOP_CORRECTLY)
@@ -414,7 +416,8 @@ class RtrCoverageMeasurementProcessor @Inject constructor(
                 newTimestamp = newTimestamp,
                 networkInfo = networkInfo?.networkInfo,
                 fenceRadiusMeters = newFenceRadius,
-                lastRecordedFence = lastRecordedFence
+                lastRecordedFence = lastRecordedFence,
+                lastFenceMinTechSignal = stateManager.getMinSignalForTechnologyForCurrentFence(networkInfo?.networkInfo)
             )
         } else {
             Timber.d("Not saving new fence")
@@ -447,6 +450,7 @@ class RtrCoverageMeasurementProcessor @Inject constructor(
         networkInfo: NetworkInfo?,
         fenceRadiusMeters: Double,
         lastRecordedFence: CoverageMeasurementFenceRecord?,
+        lastFenceMinTechSignal: Int?,
     ) {
         scope.launch(Dispatchers.IO + CoroutineName("Saving new fence")) {
             fencesDataSource.createSignalFenceAndUpdateLastOne(
@@ -457,8 +461,10 @@ class RtrCoverageMeasurementProcessor @Inject constructor(
                 lastSavedFence = lastRecordedFence,
                 entryTimestampMillis = newTimestamp,
                 networkInfo = networkInfo,
+                lastFenceMinTechSignal = lastFenceMinTechSignal,
                 avgPingMillisForLastFence = coveragePingProcessor.onNewFenceStarted()?.average
             )
+            stateManager.onFenceExitClean()
         }
     }
 
