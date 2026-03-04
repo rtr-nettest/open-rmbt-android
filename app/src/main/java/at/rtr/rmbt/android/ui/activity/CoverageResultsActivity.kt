@@ -243,6 +243,7 @@ fun CoverageMeasurementFenceRecord.toFencesResultItemRecord(index: Int): FencesR
         durationMillis = this.leaveTimestampMillis - this.entryTimestampMillis,
         offsetMillis = this.entryTimestampMillis,
         averagePingMillis = this.avgPingMillis,
-        fenceTimestampMillis = this.entryTimestampMillis
+        fenceTimestampMillis = this.entryTimestampMillis,
+        signalMainDbm = signalStrength,
     )
 }

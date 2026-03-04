@@ -241,7 +241,7 @@ class CoverageResultViewModel @Inject constructor(
                     MobileNetworkType.fromValue(point.networkTechnologyId ?: 0).displayName,
                     provider = null, // todo: map provider
                     signalClass = null,
-                    signalStrength = null, // todo: map signal strength
+                    signalStrength = point.signalMainDbm,
                     pingMillis = (point.averagePingMillis?.times(1000000))?.toLong(),
                     timestamp = point.fenceTimestampMillis,
                 )

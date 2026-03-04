@@ -1194,7 +1194,7 @@ data class FenceResponseBody(
     val latitude: Double?,
     val longitude: Double?,
     @SerializedName("signal")
-    val signalDbm: Int?,
+    val signalMainDbm: Int?,
     @SerializedName("radius")
     val fenceRadiusMeters: Double?,
     @SerializedName("duration_ms")

@@ -199,8 +199,8 @@
                 app:layout_constraintHorizontal_weight="2"
                 app:layout_constraintStart_toEndOf="@+id/textPing"
                 app:layout_constraintTop_toBottomOf="@+id/labelResultBottomSignal"
-                app:signalStrengthClassificationMap="@{item.signalClass == null ? Classification.NONE : item.signalClass}"
-                app:signalStrengthMap="@{item.signalStrength}"
+                app:signalStrengthClassificationResult="@{item.signalClass == null ? Classification.NONE : item.signalClass}"
+                app:signalStrengthResult="@{item.signalStrength}"
                 tools:drawableStart="@drawable/ic_small_wifi_gray"
                 tools:text="-86 dBm" />
 
