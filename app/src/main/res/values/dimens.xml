@@ -69,4 +69,7 @@
     <dimen name="size_label_height">48dp</dimen>
 
     <dimen name="history_image_size">24dp</dimen>
+
+    <!-- Coverage -->
+    <dimen name="coverage_result_margin_top">56dp</dimen>
 </resources>
