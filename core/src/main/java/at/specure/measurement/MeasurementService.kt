@@ -41,7 +41,7 @@ import at.specure.location.LocationWatcher
 import at.specure.measurement.signal.SignalMeasurementProducer
 import at.specure.measurement.signal.SignalMeasurementService
 import at.specure.test.DeviceInfo
-import at.rmbt.client.control.data.SignalMeasurementType
+import at.specure.temperature.BatteryInfoReceiver
 import at.specure.test.StateRecorder
 import at.specure.test.TestController
 import at.specure.test.TestProgressListener
@@ -58,7 +58,6 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.flowOn
-import kotlinx.coroutines.flow.onCompletion
 import kotlinx.coroutines.flow.zip
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -66,8 +65,6 @@ import timber.log.Timber
 import java.util.Timer
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
-import javax.inject.Named
-import kotlin.concurrent.schedule
 import kotlin.concurrent.timerTask
 import kotlin.coroutines.EmptyCoroutineContext
 
@@ -1047,25 +1044,6 @@ class MeasurementService : CustomLifecycleService(), CoroutineScope {
             )
         } catch (e: java.lang.Exception) {
             Timber.e("Error during unregistering battery info receiver: ${e.localizedMessage}")
-        }
-    }
-
-    class BatteryInfoReceiver : BroadcastReceiver() {
-        // temperature in Celzius units in XXY format as XX.Y
-        private var temp: Int? = null
-
-        /**
-         * temperature in Celzius or null if not acquired yet
-         */
-        fun getTemp(): Float? {
-            temp?.let { temperature ->
-                return (temperature.toFloat() / 10f)
-            }
-            return null
-        }
-
-        override fun onReceive(arg0: Context?, intent: Intent) {
-            temp = intent.getIntExtra(BatteryManager.EXTRA_TEMPERATURE, 0)
         }
     }
 }

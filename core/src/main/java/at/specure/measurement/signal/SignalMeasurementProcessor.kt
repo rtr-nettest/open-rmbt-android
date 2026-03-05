@@ -1,6 +1,8 @@
 package at.specure.measurement.signal
 
 import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
 import android.os.Binder
 import android.telephony.SubscriptionManager
 import androidx.lifecycle.LifecycleOwner
@@ -23,6 +25,7 @@ import at.specure.info.strength.SignalStrengthWatcher
 import at.specure.location.LocationInfo
 import at.specure.location.LocationWatcher
 import at.specure.measurement.coverage.RtrCoverageMeasurementProcessor
+import at.specure.temperature.BatteryInfoReceiver
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.CoroutineScope
@@ -94,7 +97,7 @@ class SignalMeasurementProcessor @Inject constructor(
 
     val measurementSessionInitializedCallback: (sessionId: CoverageMeasurementSession) -> Unit = { coverageMeasurementSession ->
         _signalMeasurementSessionIdLiveData.postValue(coverageMeasurementSession.localMeasurementId)
-        rtrCoverageMeasurementProcessor.onNewLocation(globalLocationInfo, globalNetworkInfo)
+        rtrCoverageMeasurementProcessor.onNewLocation(globalLocationInfo, globalNetworkInfo, batteryInfo.getTemp())
     }
 
     val measurementSessionInitializationErrorCallback: (exception: Exception) -> Unit = { exception ->
@@ -130,17 +133,18 @@ class SignalMeasurementProcessor @Inject constructor(
 
     var locationResetJob: Job? = null
     var networkInfoResetJob: Job? = null
+    private var batteryInfo = BatteryInfoReceiver()
 
     fun updateLocation(newValue: LocationInfo?) {
         globalLocationInfo = newValue
-        rtrCoverageMeasurementProcessor.onNewLocation(globalLocationInfo, globalNetworkInfo)
+        rtrCoverageMeasurementProcessor.onNewLocation(globalLocationInfo, globalNetworkInfo, batteryInfo.getTemp())
 
         // restart timer
         locationResetJob?.cancel()
         locationResetJob = launch {
             delay(MAXIMUM_TIME_LOCATION_KEEP_MILLS.toLong())
             globalLocationInfo = null
-            rtrCoverageMeasurementProcessor.onNewLocation(globalLocationInfo, globalNetworkInfo)
+            rtrCoverageMeasurementProcessor.onNewLocation(globalLocationInfo, globalNetworkInfo, batteryInfo.getTemp())
         }
     }
 
@@ -161,8 +165,9 @@ class SignalMeasurementProcessor @Inject constructor(
 
     override fun startMeasurement(
         unstoppable: Boolean,
-        signalMeasurementType: SignalMeasurementType
+        signalMeasurementType: SignalMeasurementType,
     ) {
+        registerBatteryInfoReceiver(batteryInfo)
         val shouldStartCoverage = !_isActive
         Timber.w("startMeasurement $shouldStartCoverage")
         _isActive = true
@@ -179,13 +184,14 @@ class SignalMeasurementProcessor @Inject constructor(
                 sessionCreationError = measurementSessionInitializationErrorCallback,
                 sessionStopped = measurementSessionStoppedCallback,
             )
-            rtrCoverageMeasurementProcessor.onNewLocation(globalLocationInfo, globalNetworkInfo)
+            rtrCoverageMeasurementProcessor.onNewLocation(globalLocationInfo, globalNetworkInfo, batteryInfo.getTemp())
         }
     }
 
     override fun stopMeasurement(unstoppable: Boolean) {
         Timber.d("Stopping coverage session from SignalMeasurementProcessor")
         rtrCoverageMeasurementProcessor.stopCoverageSession()
+        unregisterBatteryInfoReceiver(batteryInfo)
         resetStateData()
         postStateData()
         locationWatcher.removeListener(locationListener)
@@ -209,4 +215,22 @@ class SignalMeasurementProcessor @Inject constructor(
 
     private fun isSignalMeasurementRunning() = isActive
 
+    private fun registerBatteryInfoReceiver(batteryInfoReceiver: BatteryInfoReceiver) {
+        Timber.d("REGISTERING TEMPERATURE")
+        context.registerReceiver(
+            batteryInfoReceiver,
+            IntentFilter(Intent.ACTION_BATTERY_CHANGED)
+        )
+    }
+
+    private fun unregisterBatteryInfoReceiver(batteryInfoReceiver: BatteryInfoReceiver) {
+        try {
+            Timber.d("UNREGISTERING TEMPERATURE")
+            context.unregisterReceiver(
+                batteryInfoReceiver
+            )
+        } catch (e: java.lang.Exception) {
+            Timber.e("Error during unregistering battery info receiver: ${e.localizedMessage}")
+        }
+    }
 }

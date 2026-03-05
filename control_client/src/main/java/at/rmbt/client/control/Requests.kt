@@ -1155,8 +1155,9 @@ data class CoverageResultRequestBody(
     /**
      * Client public ip address, sent by control server
      */
-//    @SerializedName("test_ip_local")
-//    val clientPublicIp: String?,
+    @SerializedName("test_ip_local")
+    val clientLocalIp: String?,
+    val temperature: Float?,
     val fences: List<FenceBody>?
 )
 

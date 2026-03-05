@@ -47,6 +47,13 @@ data class CoverageMeasurementSession(
      */
     val remoteIpAddress: String? = null,
 
+    /**
+     * local IP address of the client
+     */
+    val localIpAddress: String? = null,
+
+    val temperature: Float? = null,
+
     val provider: String? = null,
 
     /**

@@ -544,6 +544,8 @@ fun CoverageMeasurementSession.toCoverageResultRequest(
         testUUID = this.serverMeasurementId ?: throw DataMissingException("Missing signal measurement server session ID"),
         platform = deviceInfo.platform,
         softwareVersion = deviceInfo.softwareVersionName,
+        temperature = this.temperature,
+        clientLocalIp = this.localIpAddress,
         timezone = deviceInfo.timezone ?: UNKNOWN,
         model = deviceInfo.model ?: UNKNOWN,
         osVersion = deviceInfo.osVersion,

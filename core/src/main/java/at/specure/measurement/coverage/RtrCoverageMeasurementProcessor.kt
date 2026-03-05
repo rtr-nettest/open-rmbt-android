@@ -13,6 +13,7 @@ import at.specure.data.entity.SignalRecord
 import at.specure.data.repository.MeasurementRepository
 import at.specure.data.repository.SignalMeasurementRepository
 import at.specure.data.repository.TestDataRepository
+import at.specure.info.ip.IpChangeWatcher
 import at.specure.info.network.DetailedNetworkInfo
 import at.specure.info.network.NetworkInfo
 import at.specure.location.LocationDistanceAndSpeedCounter
@@ -75,6 +76,7 @@ class RtrCoverageMeasurementProcessor @Inject constructor(
     private val connectivityMonitor: ConnectivityMonitor,
     private val scope: CoroutineScope,
     val stateManager: CoverageMeasurementDataStateManager,
+    private val ipChangeWatcher: IpChangeWatcher,
 ) : CoverageMeasurementProcessor, CoroutineScope {
 
     private val coverageSessionTimer = CoverageTimer(
@@ -99,7 +101,7 @@ class RtrCoverageMeasurementProcessor @Inject constructor(
 //    val stateManager = CoverageMeasurementDataStateManager(coverageMeasurementSettings, scope)
     val dataSimMonitor = CoverageDataSimMonitor(scope = scope)
     var dataSimMonitorJob: Job? = null
-    private val locationUpdatesFlow = MutableSharedFlow<Pair<LocationInfo?, DetailedNetworkInfo?>>(
+    private val locationUpdatesFlow = MutableSharedFlow<Triple<LocationInfo?, DetailedNetworkInfo?, Float?>>(
         replay = 1, // keep only the latest value
         extraBufferCapacity = 1,
         onBufferOverflow = BufferOverflow.DROP_OLDEST
@@ -114,8 +116,8 @@ class RtrCoverageMeasurementProcessor @Inject constructor(
         processingLocationsJob = scope.launch(Dispatchers.IO + CoroutineName("LocationFlowProcessor")) {
             locationUpdatesFlow
                 .debounce(100) // optional: add a tiny debounce if needed
-                .collectLatest { (location, networkInfo) ->
-                    processLocation(location, networkInfo)
+                .collectLatest { (location, networkInfo, currentTemperature) ->
+                    processLocation(location, networkInfo, currentTemperature)
                 }
         }
         connectivityMonitor.start(
@@ -349,11 +351,11 @@ class RtrCoverageMeasurementProcessor @Inject constructor(
         return fenceRadius
     }
 
-    fun onNewLocation(location: LocationInfo?, networkInfo: DetailedNetworkInfo?) {
-        locationUpdatesFlow.tryEmit(location to networkInfo)
+    fun onNewLocation(location: LocationInfo?, networkInfo: DetailedNetworkInfo?, batteryTemperature: Float?) {
+        locationUpdatesFlow.tryEmit(Triple(location, networkInfo, batteryTemperature))
     }
 
-    private suspend fun processLocation(location: LocationInfo?, networkInfo: DetailedNetworkInfo?) {
+    private suspend fun processLocation(location: LocationInfo?, networkInfo: DetailedNetworkInfo?, currentTemperature: Float?) {
         // TODO: check how old is signal information + also handle no signal record in SignalMeasurementProcessor
         // TODO: check if airplane mode is enabled or not, check if mobile data are enabled
         Timber.d("INFO UPDATE: PASSED")
@@ -361,6 +363,15 @@ class RtrCoverageMeasurementProcessor @Inject constructor(
 
         if (coverageMeasurementDataValue.state == CoverageMeasurementState.FINISHED_LOOP_CORRECTLY
             || coverageMeasurementDataValue.state == CoverageMeasurementState.IDLE) return
+
+        val session = coverageMeasurementDataValue.coverageMeasurementSession
+
+        val sessionWithTemperature = updateCurrentTemperature(session, currentTemperature)
+        val sessionWithIpAddress = updateCurrentLocalIpAddress(sessionWithTemperature)
+        sessionWithIpAddress?.let {
+            signalMeasurementRepository.saveCoverageMeasurementSession(it)
+            stateManager.onSessionUpdate(it)
+        }
 
         val lastRecordedFence = coverageMeasurementDataValue.fences.lastOrNull()
 
@@ -435,6 +446,37 @@ class RtrCoverageMeasurementProcessor @Inject constructor(
                 replaceSignalFenceAndSave(point, signalRecord)
             }
         }*/
+    }
+
+    private fun updateCurrentTemperature(session: CoverageMeasurementSession?, currentTemperature: Float?): CoverageMeasurementSession? {
+        if (session == null || currentTemperature == null) return session
+
+        val lastTemperature = session.temperature
+        if (currentTemperature != lastTemperature) {
+            val updatedSession = session.copy(
+                temperature = currentTemperature
+            )
+            return updatedSession
+        }
+        return session
+    }
+
+    private fun updateCurrentLocalIpAddress(session: CoverageMeasurementSession?): CoverageMeasurementSession? {
+        val ipv4 = ipChangeWatcher.lastIPv4Address.privateAddress
+        val ipv6 = ipChangeWatcher.lastIPv6Address.privateAddress
+
+        val localIpAddress = ipv4 ?: ipv6
+
+        if (session == null || localIpAddress == null) return session
+
+        val lastLocalIpAddress = session.localIpAddress
+        if (lastLocalIpAddress == null) {
+            val updatedSession = session.copy(
+                localIpAddress = localIpAddress
+            )
+            return updatedSession
+        }
+        return session
     }
 
     private fun isMeasurementMaxItemsThresholdsReached(sessionId: String?): Boolean {
