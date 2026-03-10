@@ -124,7 +124,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:visibility="visible"
-                        app:constraint_referenced_ids="ping_value, ping_label" />
+                        app:constraint_referenced_ids="ping_value" />
 
                     <!-- Accuracy -->
                     <TextView
