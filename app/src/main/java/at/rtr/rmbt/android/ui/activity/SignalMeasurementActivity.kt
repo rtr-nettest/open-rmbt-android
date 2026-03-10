@@ -320,7 +320,7 @@ class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback, Coverage
         val signal = coverageMeasurementData?.currentNetworkInfo?.getSignalStrengthValue()
         val networkStringRaw = listOfNotNull(networkType, frequencyBand, signal).joinToString(" | ")
         val networkString = networkStringRaw.ifEmpty {
-            "-"
+            ""
         }
         binding.technologyValue.text = networkString
     }
