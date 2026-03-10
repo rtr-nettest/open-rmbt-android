@@ -279,6 +279,7 @@ class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback, Coverage
         binding.fabLocation.setOnClickListener {
             if (enabled) {
                 val currentLocation = coverageViewModel.coverageMeasurementDataLiveData?.value?.currentLocation ?: return@setOnClickListener
+                Timber.d("Setting latest location to 2: $currentLocation")
                 map?.moveCamera(CameraUpdateFactory.newLatLngZoom(LatLng(currentLocation.latitude, currentLocation.longitude), DEFAULT_TRACKING_ZOOM_LEVEL))
             }
         }
@@ -375,6 +376,7 @@ class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback, Coverage
 
         map?.let { gMap ->
             location?.let { latestLocation ->
+                Timber.d("Setting latest location to 1: $latestLocation")
                 coverageViewModel.state.cameraPositionLiveData.postValue(LatLng(latestLocation.latitude, latestLocation.longitude))
                 if (coverageViewModel.state.zoom <= DefaultLocation.austriaZoomLevel) {
                     coverageViewModel.state.zoom = DEFAULT_POSITION_TRACKING_ZOOM_LEVEL
@@ -477,6 +479,7 @@ class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback, Coverage
             coverageViewModel.state.cameraPositionLiveData.value ?: DefaultLocation.austriaLocation,
             coverageViewModel.state.zoom
         ))
+        Timber.d("Setting latest location to 3: ${coverageViewModel.state.cameraPositionLiveData.value ?: DefaultLocation.austriaLocation}")
         lifecycleScope.launch {
             map?.awaitLoadedOnce()
             onMapFullyReady()
@@ -494,6 +497,7 @@ class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback, Coverage
             coverageViewModel.state.cameraPositionLiveData.value ?: DefaultLocation.austriaLocation,
             coverageViewModel.state.zoom
         ))
+        Timber.d("Setting latest location to 4: ${coverageViewModel.state.cameraPositionLiveData.value ?: DefaultLocation.austriaLocation}")
         map?.setOnCameraIdleListener {
             map?.cameraPosition?.zoom?.let { newZoom ->
                 coverageViewModel.state.zoom = newZoom
@@ -532,6 +536,7 @@ class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback, Coverage
                 with(LatLngW(it.latitude, it.longitude)) {
                     viewModel.state.cameraPositionLiveData.postValue(this)
                     viewModel.state.coordinatesLiveData.postValue(this)
+                    Timber.d("Setting latest location to 5: ${it}")
                     map?.moveCamera(CameraUpdateFactory.newLatLngZoom(LatLng(it.latitude, it.longitude), DEFAULT_POSITION_TRACKING_ZOOM_LEVEL))
                 }
                 return
@@ -547,6 +552,7 @@ class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback, Coverage
                     zoomLevel = DEFAULT_POSITION_TRACKING_ZOOM_LEVEL
                 }
             }
+            Timber.d("Setting latest location to 6: ${latitude} $longitude")
             map?.moveCamera(CameraUpdateFactory.newLatLngZoom(LatLng(latitude, longitude), zoomLevel))
 
 //            visiblePosition = RecyclerView.NO_POSITION
@@ -565,6 +571,7 @@ class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback, Coverage
         var latitude = DefaultLocation.austriaLocation.latitude
         var longitude = DefaultLocation.austriaLocation.longitude
         var zoomLevel = DEFAULT_POSITION_TRACKING_ZOOM_LEVEL
+        Timber.d("Setting latest location to 7: ${latitude} $longitude")
         map?.moveCamera(CameraUpdateFactory.newLatLngZoom(LatLng(latitude, longitude), zoomLevel))
     }
 

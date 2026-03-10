@@ -16,10 +16,6 @@ private const val KEY_TEST_UUID = "KEY_TEST_UUID"
 private const val KEY_PLAY_SERVICES = "KEY_PLAY_SERVICES"
 private const val KEY_ZOOM = "KEY_ZOOM"
 
-private const val KEY_LATITUDE = "KEY_LATITUDE"
-private const val KEY_LONGITUDE = "KEY_LONGITUDE"
-
-private const val KEY_LOCATION_CHANGED = "KEY_LOCATION_CHANGED"
 private const val KEY_CAMERA_POSITION_LAT = "KEY_CAMERA_POSITION_LAT"
 private const val KEY_CAMERA_POSITION_LON = "KEY_CAMERA_POSITION_LON"
 
@@ -37,7 +33,6 @@ class CoverageResultViewState constructor(
     val testResult = ObservableField<TestResultRecord?>()
     val expertModeEnabled = ObservableField(appConfig.expertModeEnabled)
     val coverageModeEnabled = ObservableField(appConfig.coverageModeEnabled)
-    var coordinatesLiveData: MutableLiveData<LatLng> = MutableLiveData()
     var cameraPositionLiveData: MutableLiveData<LatLng> = MutableLiveData()
     var zoom: Float = DefaultLocation.austriaZoomLevel
     var closeDialogDisplayed = ObservableBoolean(false)
@@ -52,10 +47,9 @@ class CoverageResultViewState constructor(
             testUUID = getString(KEY_TEST_UUID, "")
             playServicesAvailable.set(getBoolean(KEY_PLAY_SERVICES))
             markerDetailsDisplayed.set(getBoolean(KEY_MARKER_DETAILS_DISPLAYED))
-            coordinatesLiveData.postValue(LatLng(getDouble(KEY_LATITUDE), getDouble(KEY_LONGITUDE)))
             zoom = getFloat(KEY_ZOOM)
             coverageSessionStart = getLong(KEY_COVERAGE_SESSION_DETAILS)
-            cameraPositionLiveData.postValue(LatLng(getDouble(KEY_CAMERA_POSITION_LAT), getDouble(KEY_CAMERA_POSITION_LON)))
+            cameraPositionLiveData.postValue(LatLng(getDouble(KEY_CAMERA_POSITION_LAT, DefaultLocation.austriaLocation.latitude), getDouble(KEY_CAMERA_POSITION_LON, DefaultLocation.austriaLocation.longitude)))
         }
     }
 
@@ -65,8 +59,6 @@ class CoverageResultViewState constructor(
             putBoolean(KEY_PLAY_SERVICES, playServicesAvailable.get())
             putBoolean(KEY_CLOSE_DIALOG_DISPLAYED, closeDialogDisplayed.get())
             putBoolean(KEY_MARKER_DETAILS_DISPLAYED, markerDetailsDisplayed.get())
-            coordinatesLiveData.value?.latitude?.let { putDouble(KEY_LATITUDE, it) }
-            coordinatesLiveData.value?.longitude?.let { putDouble(KEY_LONGITUDE, it) }
             putFloat(KEY_ZOOM, zoom)
             putLong(KEY_COVERAGE_SESSION_DETAILS, coverageSessionStart ?: 0)
             cameraPositionLiveData.value?.longitude?.let { putDouble(KEY_CAMERA_POSITION_LON, it) }
