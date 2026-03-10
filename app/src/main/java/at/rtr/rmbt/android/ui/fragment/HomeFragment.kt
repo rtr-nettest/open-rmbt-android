@@ -220,6 +220,9 @@ class HomeFragment : BaseFragment() {
 
         homeViewModel.activeSignalMeasurementLiveData.listen(this) {
             homeViewModel.state.isSignalMeasurementActive.set(it)
+            if (it) {
+                openSignalMeasurementActivity()
+            }
             checkInformationAvailability()
         }
 

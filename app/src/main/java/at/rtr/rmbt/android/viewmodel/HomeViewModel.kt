@@ -263,7 +263,8 @@ class HomeViewModel @Inject constructor(
     }
 
     fun shouldOpenSignalMeasurementScreen(): Boolean {
-        return coverageMeasurementSettings.signalMeasurementIsRunning
+        return state.isSignalMeasurementActive.get() == true
+//        return coverageMeasurementSettings.signalMeasurementIsRunning
     }
 
     fun setSignalMeasurementShouldContinueInLastSession(shouldContinueInLastSession: Boolean) {
