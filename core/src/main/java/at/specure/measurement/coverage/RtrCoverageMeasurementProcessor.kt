@@ -534,7 +534,7 @@ class RtrCoverageMeasurementProcessor @Inject constructor(
                 lastFenceMinTechSignal = lastFenceMinTechSignal,
                 avgPingMillisForLastFence = coveragePingProcessor.onNewFenceStarted()?.average
             )
-            stateManager.onFenceExitClean()
+            stateManager.onFenceExitClean(networkInfo)
         }
     }
 

@@ -128,29 +128,49 @@ class CoverageMeasurementDataStateManager @Inject constructor(
             return data.technologyMinSignalMapForCurrentFence
         }
         if (networkInfo is CellNetworkInfo) {
-            val lastMinSignalValueForTechnology = data.technologyMinSignalMapForCurrentFence.get(networkInfo.networkType)
-            val newSignalValueForTechnology = networkInfo.signalStrength?.value
-            if (lastMinSignalValueForTechnology == null || newSignalValueForTechnology != null && newSignalValueForTechnology < lastMinSignalValueForTechnology) {
-                data.technologyMinSignalMapForCurrentFence.put(networkInfo.networkType, networkInfo.signalStrength?.value)
+            val newTechnologySignalPair = getTechnologySignalPair(networkInfo)
+            if (newTechnologySignalPair == null) {
+                return data.technologyMinSignalMapForCurrentFence
+            } else {
+                val lastMinSignalValueForTechnology = data.technologyMinSignalMapForCurrentFence.get(networkInfo.networkType)
+                val newSignalValueForTechnology = newTechnologySignalPair.second
+                if (lastMinSignalValueForTechnology == null || newSignalValueForTechnology != null && newSignalValueForTechnology < lastMinSignalValueForTechnology) {
+                    data.technologyMinSignalMapForCurrentFence.put(networkInfo.networkType, networkInfo.signalStrength?.value)
+                }
+                return data.technologyMinSignalMapForCurrentFence
             }
-            return data.technologyMinSignalMapForCurrentFence
         } else {
             return data.technologyMinSignalMapForCurrentFence
         }
     }
 
+    private fun getTechnologySignalPair(networkInfo: NetworkInfo?): Pair<MobileNetworkType, Int?>? {
+        if (networkInfo == null) {
+            return null
+        }
+        if (networkInfo is CellNetworkInfo) {
+            val newSignalValueForTechnology = networkInfo.signalStrength?.value
+            val networkType = networkInfo.networkType
+            return Pair(networkType, newSignalValueForTechnology)
+        } else {
+            return null
+        }
+    }
+
     fun getMinSignalForTechnologyForCurrentFence(networkInfo: NetworkInfo?): Int? {
-        return if (networkInfo!= null && networkInfo is CellNetworkInfo) {
-            state.value.technologyMinSignalMapForCurrentFence[state.value.currentNetworkInfo?.getMobileNetworkType()]
+        return if (networkInfo != null && networkInfo is CellNetworkInfo) {
+            val lastMinSignal = state.value.technologyMinSignalMapForCurrentFence[state.value.currentNetworkInfo?.getMobileNetworkType()]
+            lastMinSignal ?: networkInfo.signalStrength?.value
         } else {
             null
         }
     }
 
-    fun onFenceExitClean() = update {
+    fun onFenceExitClean(networkInfo: NetworkInfo?) = update {
         Timber.d("updateSignalFenceOn signal map cleaning started" )
+        val lastTechnologySignal = getTechnologySignalPair(networkInfo)
         copy(
-            technologyMinSignalMapForCurrentFence = hashMapOf()
+            technologyMinSignalMapForCurrentFence = lastTechnologySignal?.let { hashMapOf(it) } ?: hashMapOf()
         )
     }
 
