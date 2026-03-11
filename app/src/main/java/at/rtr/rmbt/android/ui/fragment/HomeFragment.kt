@@ -42,6 +42,8 @@ import timber.log.Timber
 import java.lang.IndexOutOfBoundsException
 import kotlin.math.max
 
+private const val COVERAGE_ACCURACY_METERS_TO_FULFILL_FOR_GREEN_BUTTON = 20
+
 class HomeFragment : BaseFragment() {
 
     private val homeViewModel: HomeViewModel by viewModelLazy()
@@ -348,7 +350,7 @@ class HomeFragment : BaseFragment() {
         val prechecksFulfilled = isSignalMeasurementPrechecksPassed(false)
         val locationAccuracy = homeViewModel.locationLiveData.value?.accuracy
         val isPassed = locationAccuracy?.let { accuracy ->
-            accuracy < 20 && prechecksFulfilled
+            accuracy < COVERAGE_ACCURACY_METERS_TO_FULFILL_FOR_GREEN_BUTTON && prechecksFulfilled
         } ?: false
         homeViewModel.state.isSignalMeasurementCriteriaMet.set(isPassed)
         return isPassed
