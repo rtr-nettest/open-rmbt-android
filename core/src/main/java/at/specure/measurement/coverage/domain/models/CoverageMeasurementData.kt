@@ -16,6 +16,7 @@ data class CoverageMeasurementData(
     val currentNetworkInfo: NetworkInfo? = null,
     val currentLocation: LocationInfo? = null,
     val currentPingMs: Double? = null,
+    val pingNullSkipped: Boolean = false,
     val currentPingStatus: String? = null,
     val state: CoverageMeasurementState = CoverageMeasurementState.IDLE,
     val sendingResults: Boolean = false,

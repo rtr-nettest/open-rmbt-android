@@ -175,10 +175,21 @@ class CoverageMeasurementDataStateManager @Inject constructor(
     }
 
     fun updatePingData(pingData: PingData?) = update {
-        copy(
-            currentPingStatus = null,
-            currentPingMs = pingData?.pingStatistics?.average
-        )
+        val newPingAverage = pingData?.pingStatistics?.average
+        val oldPingAverage = currentPingMs
+        if (newPingAverage == null && !this.pingNullSkipped) {
+            copy(
+                currentPingStatus = null,
+                currentPingMs = oldPingAverage,
+                pingNullSkipped = true
+            )
+        } else {
+            copy(
+                currentPingStatus = null,
+                currentPingMs = newPingAverage,
+                pingNullSkipped = false
+            )
+        }
     }
 
     fun onException(exception: Exception) = update {
