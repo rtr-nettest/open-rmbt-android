@@ -488,8 +488,8 @@
     <string name="title">Title: </string>
     <string name="subtitle">Subtitle: </string>
 
-    <string name="home_signal_measurement_toggle_on">Coverage measurement toggle on</string>
-    <string name="home_signal_measurement_toggle_off">Coverage measurement toggle off</string>
+    <string name="home_signal_measurement_toggle_on">Coverage measurement conditions to start are met</string>
+    <string name="home_signal_measurement_toggle_off">Coverage measurement conditions to start are not met</string>
 
     <string name="ipv4_no_info">IP version 4: no information</string>
     <string name="ipv4_no_address">IP version 4: no address</string>

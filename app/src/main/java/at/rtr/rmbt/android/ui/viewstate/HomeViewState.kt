@@ -32,6 +32,7 @@ private const val KEY_CLOSE_DIALOG_DISPLAYED = "KEY_CLOSE_DIALOG_DISPLAYED"
 private const val KEY_MARKER_DETAILS_DISPLAYED = "KEY_MARKER_DETAILS_DISPLAYED"
 
 private const val KEY_COVERAGE_SESSION_DETAILS = "KEY_COVERAGE_SESSION_DETAILS"
+private const val KEY_IS_COVERAGE_CRITERIA_MET = "KEY_IS_COVERAGE_CRITERIA_MET"
 
 class HomeViewState(
     private val config: AppConfig,
@@ -48,6 +49,7 @@ class HomeViewState(
     val ipV4Info = ObservableField<IpInfo?>()
     val ipV6Info = ObservableField<IpInfo?>()
     val isSignalMeasurementActive = ObservableField<Boolean>()
+    val isSignalMeasurementCriteriaMet = ObservableBoolean(false)
     val isLoopModeActive = ObservableBoolean(config.loopModeEnabled)
     val expertModeIsEnabled = ObservableField(config.expertModeEnabled)
     val developerModeIsEnabled = ObservableField(config.developerModeIsEnabled)
@@ -79,6 +81,7 @@ class HomeViewState(
             zoom = getFloat(KEY_ZOOM)
             coverageSessionStart.set(getLong(KEY_COVERAGE_SESSION_DETAILS))
             cameraPositionLiveData.postValue(LatLngW(getDouble(KEY_CAMERA_POSITION_LAT), getDouble(KEY_CAMERA_POSITION_LON)))
+            isSignalMeasurementCriteriaMet.set(getBoolean(KEY_IS_COVERAGE_CRITERIA_MET))
         }
     }
 
@@ -93,6 +96,7 @@ class HomeViewState(
             putLong(KEY_COVERAGE_SESSION_DETAILS, coverageSessionStart.get())
             cameraPositionLiveData.value?.longitude?.let { putDouble(KEY_CAMERA_POSITION_LON, it) }
             cameraPositionLiveData.value?.latitude?.let { putDouble(KEY_CAMERA_POSITION_LAT, it) }
+            putBoolean(KEY_IS_COVERAGE_CRITERIA_MET, isSignalMeasurementCriteriaMet.get())
         }
     }
 

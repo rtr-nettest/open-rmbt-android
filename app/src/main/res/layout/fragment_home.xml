@@ -434,19 +434,19 @@
             android:gravity="center"
             android:src="@{state.isLocationEnabled == LocationState.ENABLED ? @drawable/ic_location : @drawable/ic_location_disable}"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@+id/btnUpload"
+            app:layout_constraintEnd_toStartOf="@+id/btnCoverage"
             app:layout_constraintStart_toEndOf="@+id/btnIpv6"
             tools:src="@drawable/ic_location" />
 
         <androidx.appcompat.widget.AppCompatImageButton
-                android:id="@+id/btnUpload"
+                android:id="@+id/btnCoverage"
                 android:layout_width="0dp"
-                android:contentDescription="@{state.isSignalMeasurementActive ? @string/home_signal_measurement_toggle_on : @string/home_signal_measurement_toggle_off}"
+                android:contentDescription="@{state.isSignalMeasurementCriteriaMet ? @string/home_signal_measurement_toggle_on : @string/home_signal_measurement_toggle_off}"
                 android:layout_height="?android:attr/actionBarSize"
                 android:background="?android:attr/selectableItemBackground"
                 android:clickable="@{true}"
                 android:gravity="center"
-                android:src="@{state.isSignalMeasurementActive ? @drawable/ic_upload_enabled : @drawable/ic_upload_disabled}"
+                android:src="@{state.isSignalMeasurementCriteriaMet ? @drawable/ic_upload_enabled : @drawable/ic_upload_disabled}"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toEndOf="@+id/btnLocation"

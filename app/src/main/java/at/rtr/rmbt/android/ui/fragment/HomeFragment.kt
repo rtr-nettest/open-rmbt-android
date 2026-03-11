@@ -125,9 +125,15 @@ class HomeFragment : BaseFragment() {
                 Timber.d("Network changed to CellInfo or null")
                 hideWrongNetworkTypeDialog()
             }
+            evaluateCoverageMeasurementStartingConditionsForButton()
+        }
+
+        homeViewModel.locationLiveData.listen(this) {
+            evaluateCoverageMeasurementStartingConditionsForButton()
         }
 
         homeViewModel.signalStrengthLiveData.listen(this) {
+            Timber.d("Signal strength changed 1")
             homeViewModel.state.signalStrength.set(it?.signalStrengthInfo)
             homeViewModel.state.activeNetworkInfo.set(it)
             homeViewModel.state.secondary5GActiveNetworkInfo.set(
@@ -147,11 +153,13 @@ class HomeFragment : BaseFragment() {
             if (it?.networkInfo is WifiNetworkInfo) {
                 (it.networkInfo as WifiNetworkInfo).signal = it.signalStrengthInfo?.value
             }
+            evaluateCoverageMeasurementStartingConditionsForButton()
         }
 
         homeViewModel.locationStateLiveData.listen(this) {
             homeViewModel.state.isLocationEnabled.set(it)
             checkInformationAvailability()
+            evaluateCoverageMeasurementStartingConditionsForButton()
         }
 
         homeViewModel.ipV4ChangeLiveData.listen(this) {
@@ -183,7 +191,7 @@ class HomeFragment : BaseFragment() {
                 LocationInfoDialog.instance().show(activity)
             }
 
-            doGPSRelatedActionOrShowProblemDialog(action)
+            checkGPSAndShouldMakeAction(true, action)
         }
 
         binding.ivSignalLevel.setOnClickListener {
@@ -207,7 +215,7 @@ class HomeFragment : BaseFragment() {
             }
         }
 
-        binding.btnUpload.setOnClickListener {
+        binding.btnCoverage.setOnClickListener {
             homeViewModel.activeSignalMeasurementLiveData.value?.let { active ->
                 if (!active) {
                     val checksPassed = isSignalMeasurementPrechecksPassed()
@@ -286,22 +294,22 @@ class HomeFragment : BaseFragment() {
         SignalMeasurementActivity.start(requireContext())
     }
 
-    private fun doGPSRelatedActionOrShowProblemDialog(action: () -> Unit): Boolean {
+    private fun checkGPSAndShouldMakeAction(shouldMakeAction: Boolean, action: () -> Unit): Boolean {
         context?.let {
             homeViewModel.state.isLocationEnabled.get()?.let {
                 when (it) {
                     LocationState.ENABLED -> {
-                        action()
+                        if (shouldMakeAction) action()
                         return true
                     }
                     LocationState.DISABLED_APP -> {
-                        OpenLocationPermissionDialog.instance()
+                        if (shouldMakeAction) OpenLocationPermissionDialog.instance()
                             .show(activity)
                         return false
                     }
 
                     LocationState.DISABLED_DEVICE -> {
-                        OpenGpsSettingDialog.instance().show(activity)
+                        if (shouldMakeAction) OpenGpsSettingDialog.instance().show(activity)
                         return false
                     }
                 }
@@ -312,7 +320,8 @@ class HomeFragment : BaseFragment() {
 
     override fun onResume() {
         super.onResume()
-        homeViewModel.signalStrengthLiveData.listen(this) {
+        /*homeViewModel.signalStrengthLiveData.listen(this) {
+            Timber.d("Signal strength changed 2")
             val networkInfo = it?.copy()
             homeViewModel.state.signalStrength.set(networkInfo?.signalStrengthInfo)
             homeViewModel.state.activeNetworkInfo.set(networkInfo)
@@ -340,7 +349,7 @@ class HomeFragment : BaseFragment() {
                     null
                 }
             )
-        }
+        }*/
         checkInformationAvailability()
         homeViewModel.state.informationAccessProblem.get()?.let { updateProblemUI(it) }
 
@@ -354,22 +363,32 @@ class HomeFragment : BaseFragment() {
         }
     }
 
-    private fun isSignalMeasurementPrechecksPassed(): Boolean {
+    private fun evaluateCoverageMeasurementStartingConditionsForButton(): Boolean {
+        val prechecksFulfilled = isSignalMeasurementPrechecksPassed(false)
+        val locationAccuracy = homeViewModel.locationLiveData.value?.accuracy
+        val isPassed = locationAccuracy?.let { accuracy ->
+            accuracy < 20 && prechecksFulfilled
+        } ?: false
+        homeViewModel.state.isSignalMeasurementCriteriaMet.set(isPassed)
+        return isPassed
+    }
+
+    private fun isSignalMeasurementPrechecksPassed(showDialogs: Boolean = true): Boolean {
         val isMobileNetworkActive = homeViewModel.isMobileNetworkActive()
         val isOnlyOneSimActive = homeViewModel.isOnlyOneSimActive()
-        val isGPSEnabledAndPermitted = doGPSRelatedActionOrShowProblemDialog {}
+        val isGPSEnabledAndPermitted = checkGPSAndShouldMakeAction(showDialogs) {}
 
         if (!isGPSEnabledAndPermitted) {
             return false
         }
 
         if (!isMobileNetworkActive) {
-            showWrongNetworkTypeDialog()
+            if (showDialogs) showWrongNetworkTypeDialog()
             return false
         }
 
         if (!isOnlyOneSimActive) {
-            showMoreSimsActiveDialog()
+            if (showDialogs) showMoreSimsActiveDialog()
             return false
         }
 
