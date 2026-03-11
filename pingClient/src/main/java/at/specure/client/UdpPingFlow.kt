@@ -1,5 +1,6 @@
 package at.specure.client
 
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.currentCoroutineContext
@@ -78,6 +79,8 @@ class UdpPingFlow(
                        emit(PingResult.ServerError(currentSeq, PingServerException.UnknownPingResponseHeaderExceptionPing))
                    }
                 }
+            } catch (e: CancellationException) {
+                throw e
             } catch (e: SocketTimeoutException) {
                 emit(PingResult.Lost(currentSeq))
             } catch (e: TimeoutCancellationException) {

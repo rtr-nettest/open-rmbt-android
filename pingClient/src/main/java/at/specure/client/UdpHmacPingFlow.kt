@@ -153,6 +153,8 @@ class UdpHmacPingFlow(
                 try {
                     val packet = DatagramPacket(packetData, packetData.size, address, configuration.port)
                     socket.send(packet)
+                } catch (e: CancellationException) {
+                    throw e
                 } catch (e: Exception) {
                     // remove from sentTimes here to prevent a later timeout duplicate
                     sentTimes.remove(seq)

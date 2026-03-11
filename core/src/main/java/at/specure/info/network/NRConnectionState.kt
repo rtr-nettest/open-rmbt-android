@@ -2,6 +2,7 @@ package at.specure.info.network
 
 import android.os.Build
 import android.telephony.TelephonyManager
+import kotlinx.coroutines.CancellationException
 
 enum class NRConnectionState(val stringValue: String) {
 
@@ -55,6 +56,9 @@ enum class NRConnectionState(val stringValue: String) {
                     }
                 }
             } catch (e: Exception) {
+                if (e is CancellationException) {
+                    throw e
+                }
                 e.printStackTrace()
             }
             return NOT_AVAILABLE

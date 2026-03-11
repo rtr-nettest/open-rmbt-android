@@ -20,6 +20,7 @@ import android.telephony.SubscriptionManager.INVALID_SUBSCRIPTION_ID
 import android.telephony.TelephonyManager
 import at.rmbt.util.Maybe
 import at.rmbt.util.exception.HandledException
+import kotlinx.coroutines.CancellationException
 import retrofit2.Call
 import timber.log.Timber
 
@@ -28,6 +29,9 @@ import timber.log.Timber
  */
 fun <T : BaseResponse> Call<T>.exec(silentError: Boolean = false): Maybe<T> {
     return try {
+//        if (this.request().url.toString().contains("coverageResult")) {
+//            throw RuntimeException("TEST")
+//        }
         val result = execute()
         if (result.isSuccessful) {
             val body = result.body()
@@ -55,6 +59,8 @@ fun <T : BaseResponse> Call<T>.exec(silentError: Boolean = false): Maybe<T> {
         else {
             Maybe(HandledException("Server connection error (Status: ${result.code()})"))
         }
+    } catch (e: CancellationException) {
+      throw e
     } catch (t: Throwable) {
         if (silentError) {
             Timber.w("Failed to perform request : ${t.message}")
@@ -78,6 +84,9 @@ fun TelephonyManager.getTelephonyManagerForSubscription(dataSubscriptionId: Int)
             }
         } catch (e: Exception) {
             Timber.e("Problem to obtain correct telephony manager for data subscription")
+            if (e is CancellationException) {
+                throw e
+            }
             null
         }
     } else {
@@ -100,6 +109,9 @@ fun TelephonyManager.getCorrectDataTelephonyManager(subscriptionManager: Subscri
             }
         } catch (e: Exception) {
             Timber.e("Debug session problem to obtain correct telephony manager for data subscription")
+            if (e is CancellationException) {
+                throw e
+            }
             this
         }
     } else {
@@ -115,8 +127,13 @@ fun SubscriptionManager.getCurrentDataSubscriptionId(): Int {
         try {
             val method = clazz.getMethod("getDefaultDataSubId")
             method.invoke(this) as Int
+        } catch (e: CancellationException) {
+            throw e
         } catch (ex: Throwable) {
             Timber.e(ex)
+            if (ex is CancellationException) {
+                throw ex
+            }
             -1
         }
     }

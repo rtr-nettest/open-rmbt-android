@@ -315,6 +315,9 @@ class MeasurementService : CustomLifecycleService(), CoroutineScope {
                     throw IllegalNetworkChangeException("Illegal network change during the test")
                 } catch (ex: Exception) {
                     stateRecorder.setErrorCause(Log.getStackTraceString(ex))
+                    if (ex is CancellationException) {
+                        throw ex
+                    }
                 }
             }
 
@@ -324,6 +327,9 @@ class MeasurementService : CustomLifecycleService(), CoroutineScope {
                     throw IllegalNetworkChangeException("No active network detected")
                 } catch (ex: Exception) {
                     stateRecorder.setErrorCause(Log.getStackTraceString(ex))
+                    if (ex is CancellationException) {
+                        throw ex
+                    }
                 }
             }
 
@@ -393,33 +399,39 @@ class MeasurementService : CustomLifecycleService(), CoroutineScope {
             clientAggregator.onClientReady(testUUID, loopLocalUUID)
             startNetwork = connectivityManager.activeNetwork
             stateRecorder.onReadyToSubmit = { shouldShowResults ->
-                resultRepository.sendTestResults(testUUID) {
-                    it.onSuccess {
-                        if (shouldShowResults) {
-                            clientAggregator.onSubmitted()
+                runCatching {
+                    resultRepository.sendTestResults(testUUID) {
+                        it.onSuccess {
+                            if (shouldShowResults) {
+                                clientAggregator.onSubmitted()
+                            }
+                            clientAggregator.onResultSubmitted()
+                            Timber.d("Loop uuid = $loopUUID Length = ${loopUUID?.length} Loop is null = ${loopUUID == null}}")
+                            CoroutineScope(Dispatchers.IO + SupervisorJob()).launch(CoroutineName("LoadTestResults")) {
+                                loadTestResults(
+                                    if (loopUUID == null) {
+                                        TestUuidType.TEST_UUID
+                                    } else {
+                                        TestUuidType.LOOP_UUID
+                                    }, loopUUID ?: testUUID
+                                )
+                            }
                         }
-                        clientAggregator.onResultSubmitted()
-                        Timber.d("Loop uuid = $loopUUID Length = ${loopUUID?.length} Loop is null = ${loopUUID == null}}")
-                        CoroutineScope(Dispatchers.IO + SupervisorJob()).launch(CoroutineName("LoadTestResults")) {
-                            loadTestResults(
-                                if (loopUUID == null) {
-                                    TestUuidType.TEST_UUID
-                                } else {
-                                    TestUuidType.LOOP_UUID
-                                }, loopUUID ?: testUUID
-                            )
+                        it.onFailure { ex ->
+                            Timber.d("Sending results failed")
+                            if (shouldShowResults) {
+                                clientAggregator.onSubmitted()
+                            }
+                            if (ex is NoConnectionException) {
+                                Timber.d("Delayed submission work created")
+                                WorkLauncher.enqueueDelayedDataSaveRequest(applicationContext, testUUID)
+                            }
+                            clientAggregator.onResultSubmitted()
                         }
                     }
-                    it.onFailure { ex ->
-                        Timber.d("Sending results failed")
-                        if (shouldShowResults) {
-                            clientAggregator.onSubmitted()
-                        }
-                        if (ex is NoConnectionException) {
-                            Timber.d("Delayed submission work created")
-                            WorkLauncher.enqueueDelayedDataSaveRequest(applicationContext, testUUID)
-                        }
-                        clientAggregator.onResultSubmitted()
+                }.onFailure {
+                    if (it !is CancellationException) {
+                        Timber.e("Sending result exception caught $it")
                     }
                 }
             }
@@ -730,6 +742,9 @@ class MeasurementService : CustomLifecycleService(), CoroutineScope {
             }
             Timber.i("Wake locked")
         } catch (ex: Exception) {
+            if (ex is CancellationException) {
+                throw ex
+            }
             Timber.e(ex, "Wake lock failed")
         }
     }
@@ -745,6 +760,9 @@ class MeasurementService : CustomLifecycleService(), CoroutineScope {
             Timber.v("Wake unlocked")
         } catch (ex: Exception) {
             Timber.e(ex, "Wake unlock failed")
+            if (ex is CancellationException) {
+                throw ex
+            }
         }
     }
 

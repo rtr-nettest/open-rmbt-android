@@ -53,6 +53,7 @@ import at.rtr.rmbt.android.viewmodel.CoverageResultViewModel
 import at.specure.measurement.coverage.data.getFrequencyBand
 import at.specure.measurement.coverage.data.getSignalStrengthValue
 import at.specure.test.toDeviceInfoLocation
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlin.coroutines.resume
 
@@ -272,6 +273,9 @@ class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback, Coverage
                     map?.isMyLocationEnabled = enabled
                 }
             } catch (e: Exception) {
+                if (e is CancellationException) {
+                    throw e
+                }
                 Timber.e("Unable to deactivate my location on the map  ${e.message}")
             }
         }

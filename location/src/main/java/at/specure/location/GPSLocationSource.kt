@@ -10,6 +10,7 @@ import android.location.LocationManager
 import android.os.Bundle
 import androidx.core.app.ActivityCompat
 import timber.log.Timber
+import kotlin.coroutines.cancellation.CancellationException
 
 /**
  * [LocationSource] that is used to provide location changes using GPS Provider
@@ -35,6 +36,9 @@ class GPSLocationSource(val context: Context) : LocationSource {
                 location?.let { LocationInfo(it) }
             }
         } catch (ex: Exception) {
+            if (ex is CancellationException) {
+                throw ex
+            }
             Timber.e(ex, "Failed to get last known network location")
             null
         }
@@ -75,6 +79,9 @@ class GPSLocationSource(val context: Context) : LocationSource {
                 Timber.d("GPS Location Source started")
             }
         } catch (ex: Exception) {
+            if (ex is kotlinx.coroutines.CancellationException) {
+                throw ex
+            }
             Timber.e(ex, "Failed to register gps updates")
         }
     }

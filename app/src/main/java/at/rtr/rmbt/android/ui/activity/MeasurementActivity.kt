@@ -177,18 +177,20 @@ class MeasurementActivity : BaseActivity(), SimpleDialog.Callback {
         if (measurementFinished) {
             if (viewModel.state.isLoopModeActive.get()) {
                 if (viewModel.state.loopModeRecord.get()?.status == LoopModeState.FINISHED) {
-                    this.finish()
                     LoopFinishedActivity.start(this)
+                    this.finish()
                 }
             } else {
                 viewModel.testUUID?.let {
                     if (viewModel.state.measurementState.get() == MeasurementState.FINISH) {
                         ResultsActivity.start(this, it, ResultsActivity.ReturnPoint.HOME)
+                        this.finish()
                         return
                     }
+                } ?: run {
+                    HomeActivity.start(this)
+                    this.finish()
                 }
-                HomeActivity.start(this)
-                this.finish()
             }
         }
     }

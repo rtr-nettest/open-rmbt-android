@@ -11,6 +11,7 @@ import android.os.Build
 import android.provider.Settings
 import android.telephony.TelephonyManager
 import at.specure.measurement.coverage.domain.monitors.ConnectivityMonitor
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -93,6 +94,9 @@ class RtrConnectivityMonitor @Inject constructor(
                 telephonyManager.isDataEnabled
             } else true
         } catch (e: Exception) {
+            if (e is CancellationException) {
+                throw e
+            }
             false
         }
 
@@ -143,6 +147,9 @@ class RtrConnectivityMonitor @Inject constructor(
                 }
                 .firstOrNull()
         } catch (e: Exception) {
+            if (e is CancellationException) {
+                throw e
+            }
             null
         }
     }

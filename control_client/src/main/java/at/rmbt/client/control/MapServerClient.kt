@@ -8,6 +8,7 @@ import retrofit2.Response
 import timber.log.Timber
 import javax.inject.Inject
 import androidx.core.net.toUri
+import kotlinx.coroutines.CancellationException
 
 class MapServerClient @Inject constructor(
     private val endpointProvider: MapEndpointProvider,
@@ -30,6 +31,9 @@ class MapServerClient @Inject constructor(
             api.loadTiles(uriBuilder.build().toString()).execute()
         } catch(e: Exception) {
             Timber.e("Map tiles loading exception ${e.localizedMessage}")
+            if (e is CancellationException) {
+                throw e
+            }
             null
         }
     }
