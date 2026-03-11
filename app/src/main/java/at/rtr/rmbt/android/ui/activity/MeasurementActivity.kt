@@ -187,8 +187,8 @@ class MeasurementActivity : BaseActivity(), SimpleDialog.Callback {
                         return
                     }
                 }
-                finish()
                 HomeActivity.start(this)
+                this.finish()
             }
         }
     }
