@@ -132,26 +132,37 @@ class HomeFragment : BaseFragment() {
             evaluateCoverageMeasurementStartingConditionsForButton()
         }
 
-        homeViewModel.signalStrengthLiveData.listen(this) {
+        homeViewModel.signalStrengthLiveData.listen(this) { newNetworkInfo ->
+            val networkInfo = newNetworkInfo?.copy()
             Timber.d("Signal strength changed 1")
-            homeViewModel.state.signalStrength.set(it?.signalStrengthInfo)
-            homeViewModel.state.activeNetworkInfo.set(it)
+            homeViewModel.state.signalStrength.set(networkInfo?.signalStrengthInfo)
+            homeViewModel.state.activeNetworkInfo.set(networkInfo)
             homeViewModel.state.secondary5GActiveNetworkInfo.set(
-                if (it?.secondary5GActiveCellNetworks?.isNotEmpty() == true) {
-                    it.secondary5GActiveCellNetworks?.get(0)
-                } else {
+                try {
+                    if (networkInfo?.secondary5GActiveCellNetworks?.isNotEmpty() == true) {
+                        networkInfo.secondary5GActiveCellNetworks?.get(0)
+                    } else {
+                        null
+                    }
+                } catch (ex: IndexOutOfBoundsException) {
+                    Timber.e(ex)
                     null
                 }
             )
             homeViewModel.state.secondary5GSignalStrength.set(
-                if (it?.secondary5GActiveSignalStrengthInfos?.isNotEmpty() == true) {
-                    it.secondary5GActiveSignalStrengthInfos?.get(0)
-                } else {
+                try{
+                    if (networkInfo?.secondary5GActiveSignalStrengthInfos?.isNotEmpty() == true) {
+                        networkInfo.secondary5GActiveSignalStrengthInfos?.get(0)
+                    } else {
+                        null
+                    }
+                } catch (ex: IndexOutOfBoundsException) {
+                    Timber.e(ex)
                     null
                 }
             )
-            if (it?.networkInfo is WifiNetworkInfo) {
-                (it.networkInfo as WifiNetworkInfo).signal = it.signalStrengthInfo?.value
+            if (networkInfo?.networkInfo is WifiNetworkInfo) {
+                (networkInfo.networkInfo as WifiNetworkInfo).signal = networkInfo.signalStrengthInfo?.value
             }
             evaluateCoverageMeasurementStartingConditionsForButton()
         }
@@ -320,36 +331,6 @@ class HomeFragment : BaseFragment() {
 
     override fun onResume() {
         super.onResume()
-        /*homeViewModel.signalStrengthLiveData.listen(this) {
-            Timber.d("Signal strength changed 2")
-            val networkInfo = it?.copy()
-            homeViewModel.state.signalStrength.set(networkInfo?.signalStrengthInfo)
-            homeViewModel.state.activeNetworkInfo.set(networkInfo)
-            homeViewModel.state.secondary5GActiveNetworkInfo.set(
-                try {
-                    if (networkInfo?.secondary5GActiveCellNetworks?.isNotEmpty() == true) {
-                        networkInfo.secondary5GActiveCellNetworks?.get(0)
-                    } else {
-                        null
-                    }
-                } catch (ex: IndexOutOfBoundsException) {
-                    Timber.e(ex)
-                    null
-                }
-            )
-            homeViewModel.state.secondary5GSignalStrength.set(
-                try{
-                    if (networkInfo?.secondary5GActiveSignalStrengthInfos?.isNotEmpty() == true) {
-                        networkInfo.secondary5GActiveSignalStrengthInfos?.get(0)
-                    } else {
-                        null
-                    }
-                } catch (ex: IndexOutOfBoundsException) {
-                    Timber.e(ex)
-                    null
-                }
-            )
-        }*/
         checkInformationAvailability()
         homeViewModel.state.informationAccessProblem.get()?.let { updateProblemUI(it) }
 
