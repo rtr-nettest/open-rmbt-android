@@ -113,6 +113,11 @@ data class CoverageMeasurementSession(
      * Number of session item order in the loop from server.
      */
     val serverSessionLoopTestCounter: Int = 0,
+
+    /**
+     * string text which represents reason why it was terminated @see{CoverageMeasurementTerminationCause}
+     */
+    val reasonToTerminate: String? = null
 ) {
     fun isFirstMeasurementInLoop(): Boolean {
         return sequenceNumber == 0

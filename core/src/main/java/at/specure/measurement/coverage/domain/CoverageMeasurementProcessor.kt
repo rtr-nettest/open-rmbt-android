@@ -1,6 +1,7 @@
 package at.specure.measurement.coverage.domain
 
 import at.specure.data.entity.CoverageMeasurementSession
+import at.specure.measurement.coverage.domain.models.CoverageMeasurementTerminationCause
 
 interface CoverageMeasurementProcessor {
 
@@ -10,7 +11,7 @@ interface CoverageMeasurementProcessor {
         sessionStopped: (() -> Unit)?,
     )
 
-    fun stopCoverageSession()
+    fun stopCoverageSession(reasonToTerminate: CoverageMeasurementTerminationCause)
 
     fun pauseCoverageSession()
 

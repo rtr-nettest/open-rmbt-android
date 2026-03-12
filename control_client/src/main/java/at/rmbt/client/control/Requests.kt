@@ -1158,7 +1158,9 @@ data class CoverageResultRequestBody(
     @SerializedName("test_ip_local")
     val clientLocalIp: String?,
     val temperature: Float?,
-    val fences: List<FenceBody>?
+    val fences: List<FenceBody>?,
+    @SerializedName("termination_cause")
+    val measurementTerminationCause: String?,
 )
 
 @Keep

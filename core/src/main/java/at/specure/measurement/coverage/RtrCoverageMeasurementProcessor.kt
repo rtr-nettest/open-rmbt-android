@@ -24,6 +24,7 @@ import at.specure.measurement.coverage.domain.CoverageMeasurementEvent
 import at.specure.measurement.coverage.domain.CoverageLoopManager
 import at.specure.measurement.coverage.domain.CoverageTimer
 import at.specure.measurement.coverage.domain.PingProcessor
+import at.specure.measurement.coverage.domain.models.CoverageMeasurementTerminationCause
 import at.specure.measurement.coverage.domain.models.state.CoverageMeasurementState
 import at.specure.measurement.coverage.domain.monitors.ConnectivityMonitor
 import at.specure.measurement.coverage.domain.validators.CoverageDataValidator
@@ -123,7 +124,7 @@ class RtrCoverageMeasurementProcessor @Inject constructor(
         connectivityMonitor.start(
             onAirplaneEnabled = {
                 Timber.d("✈️ Airplane mode changed to ENABLED → stopping coverage session")
-                stopCoverageSession()
+                stopCoverageSession(CoverageMeasurementTerminationCause.EndedByAirplaneModeEnabled())
             },
             onAirplaneDisabled = {
                 Timber.d("📶 Airplane mode changed to DISABLED → resuming session")
@@ -135,11 +136,11 @@ class RtrCoverageMeasurementProcessor @Inject constructor(
             },
             onMobileDataDisabled = {
                 Timber.d("📶 Mobile data changed to DISABLED → stopping coverage session")
-                stopCoverageSession()
+                stopCoverageSession(CoverageMeasurementTerminationCause.EndedByMobileDataDisabled())
             },
             onIpAddressChanged = {
                 Timber.d("🌐 IP address changed to $it → stopping measurement")
-                // todo: this is not working properly
+//                handled by onNetworkChanged()
 //                onMeasurementStop()
             },
         )
@@ -150,7 +151,7 @@ class RtrCoverageMeasurementProcessor @Inject constructor(
                 .debounce { 1_000 }
                 .collect { subscriptionId ->
                     Timber.d("📶 Active data sim changed to subId: $subscriptionId -> stopping measurement")
-                    onMeasurementStopAndStartNewMeasurement()
+                    onMeasurementStopAndStartNewMeasurement(CoverageMeasurementTerminationCause.EndedByActiveSimChange())
             }
         }
 
@@ -220,7 +221,7 @@ class RtrCoverageMeasurementProcessor @Inject constructor(
         }
     }
 
-    override fun stopCoverageSession() {
+    override fun stopCoverageSession(reasonToTerminate: CoverageMeasurementTerminationCause) {
         if (stateManager.state.value.state != CoverageMeasurementState.FINISHED_LOOP_CORRECTLY) {
             this.launch(CoroutineName("OnDedicatedSignalMeasurementStop")) {
                 try {
@@ -233,13 +234,20 @@ class RtrCoverageMeasurementProcessor @Inject constructor(
                         networkInfo = stateManager.state.value.currentNetworkInfo,
                         lastFenceMinTechSignal = stateManager.getMinSignalForTechnologyForCurrentFence(stateManager.state.value.currentNetworkInfo)
                     )
+                    val data = stateManager.state.value
+                    val session = data.coverageMeasurementSession
+                    session?.let {
+                        signalMeasurementRepository.saveCoverageMeasurementSession(it.copy(
+                            reasonToTerminate = reasonToTerminate.cause
+                        ))
+                    }
 
                     stateManager.onUpdateCoverageDataState(CoverageMeasurementState.FINISHED_LOOP_CORRECTLY)
                     stateManager.startSendingResults()
-                    val data = stateManager.state.value
+
                     Timber.d("Sending coverageResult")
                     signalMeasurementRepository.sendFences(
-                        data?.coverageMeasurementSession?.localMeasurementId ?: "",
+                        data.coverageMeasurementSession?.localMeasurementId ?: "",
                         { sentSuccessfully: Boolean ->
                             stateManager.onSignalResultSent(sentSuccessfully)
                         }
@@ -305,7 +313,7 @@ class RtrCoverageMeasurementProcessor @Inject constructor(
             Timber.d("Starting maxCoverageMeasurementSeconds timer with ${maxCoverageMeasurementSeconds.seconds.inWholeSeconds} seconds")
             coverageMeasurementTimer.start(maxCoverageMeasurementSeconds.seconds, {
                 Timber.d("Stopping coverage measurement because of max time reached")
-                onMeasurementStopAndStartNewMeasurement()
+                onMeasurementStopAndStartNewMeasurement(CoverageMeasurementTerminationCause.EndedByMeasurementTimeExpired())
             })
         }
     }
@@ -316,7 +324,7 @@ class RtrCoverageMeasurementProcessor @Inject constructor(
                 Timber.d("Starting maxCoverageSessionSeconds timer with ${maxCoverageSessionSeconds.seconds.inWholeSeconds} seconds")
                 coverageSessionTimer.start(maxCoverageSessionSeconds.seconds, {
                     Timber.d("Stopping coverage session because of max time reached")
-                    stopCoverageSession()
+                    stopCoverageSession(CoverageMeasurementTerminationCause.EndedByMeasurementLoopTimeExpired())
                 })
             }
         }
@@ -390,14 +398,14 @@ class RtrCoverageMeasurementProcessor @Inject constructor(
         val isFirstMeasurementInLoop = coverageMeasurementDataValue.coverageMeasurementSession?.sequenceNumber == 0
 
         if (isBackOnMobileData && lastRecordedFence != null) {
-            onMeasurementStopAndStartNewMeasurement()
+            onMeasurementStopAndStartNewMeasurement(CoverageMeasurementTerminationCause.EndedByBackOnMobileData())
         }
 
         stateManager.updateNetworkInfo(networkInfo?.networkInfo)
 
-        val isMeasurementDataThresholdsReached = isMeasurementMaxItemsThresholdsReached(coverageMeasurementDataValue.coverageMeasurementSession?.localMeasurementId)
-        if (isMeasurementDataThresholdsReached) {
-            onMeasurementStopAndStartNewMeasurement()
+        val reasonToTerminate = getReasonToTerminateMeasurementBecauseOfSomeCause(coverageMeasurementDataValue.coverageMeasurementSession?.localMeasurementId)
+        if (reasonToTerminate != null) {
+            onMeasurementStopAndStartNewMeasurement(reasonToTerminate)
         }
 
         val isConnectionStateValid = checkForTheConnectionState()
@@ -479,28 +487,27 @@ class RtrCoverageMeasurementProcessor @Inject constructor(
         return session
     }
 
-    private fun isMeasurementMaxItemsThresholdsReached(sessionId: String?): Boolean {
-        if (sessionId == null) return false
+    private fun getReasonToTerminateMeasurementBecauseOfSomeCause(sessionId: String?): CoverageMeasurementTerminationCause? {
+        if (sessionId == null) return null
 
         val fencesCount = fencesDataSource.loadCoverageMeasurementFences(sessionId).count()
         Timber.d("Check fences count: $fencesCount")
         if (fencesCount >= MAXIMUM_FENCES_IN_SINGLE_MEASUREMENT) {
-            return true
+            return CoverageMeasurementTerminationCause.EndedByTooManyFences()
         }
 
         val locationsCount = testDataRepository.getLocationMetadataCountForCoverageMeasurement(localMeasurementId = sessionId)
         Timber.d("Check locations count: $locationsCount")
         if (locationsCount >= MAXIMUM_LOCATIONS_IN_SINGLE_MEASUREMENT) {
-            return true
+            return CoverageMeasurementTerminationCause.EndedByTooManyGeolocations()
         }
 
         val signalsCount = testDataRepository.getSignalsCountForCoverageMeasurement(localMeasurementId = sessionId)
         Timber.d("Check signals count: $signalsCount")
         if (signalsCount >= MAXIMUM_SIGNALS_IN_SINGLE_MEASUREMENT) {
-            return true
+            return CoverageMeasurementTerminationCause.EndedByTooManySignals()
         }
-
-        return false
+        return null
     }
 
     private fun checkForTheConnectionState(): Boolean {
@@ -568,16 +575,16 @@ class RtrCoverageMeasurementProcessor @Inject constructor(
     /**
      * Stop of single measurement in a loop
      */
-    fun onMeasurementStopAndStartNewMeasurement() {
+    fun onMeasurementStopAndStartNewMeasurement(reasonToTerminate: CoverageMeasurementTerminationCause) {
         stateManager.state.value.coverageMeasurementSession?.let { lastMeasurement ->
-            coverageLoopManager.endMeasurementInLoop(lastMeasurement)
+            coverageLoopManager.endMeasurementInLoop(lastMeasurement, reasonToTerminate)
             coverageLoopManager.createNewMeasurementInLoop(lastMeasurement)
         }
     }
 
     fun onNetworkChanged() {
         stateManager.state.value.coverageMeasurementSession?.let { lastMeasurement ->
-            coverageLoopManager.endMeasurementInLoop(lastMeasurement)
+            coverageLoopManager.endMeasurementInLoop(lastMeasurement, CoverageMeasurementTerminationCause.EndedByNetworkChange())
             Timber.d("Starting new measurement because of network change")
             coverageLoopManager.createNewMeasurementInLoop(lastMeasurement)
         }

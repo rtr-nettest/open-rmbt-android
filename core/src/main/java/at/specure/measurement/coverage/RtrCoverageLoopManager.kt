@@ -6,6 +6,7 @@ import at.specure.data.repository.SignalMeasurementRepository
 import at.specure.data.repository.isRegistered
 import at.specure.measurement.coverage.domain.CoverageMeasurementEvent
 import at.specure.measurement.coverage.domain.CoverageLoopManager
+import at.specure.measurement.coverage.domain.models.CoverageMeasurementTerminationCause
 import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -67,16 +68,18 @@ class RtrCoverageLoopManager @Inject constructor(
         }
     }
 
-    override fun endMeasurementInLoop(lastCoverageMeasurementSession: CoverageMeasurementSession) {
+    override fun endMeasurementInLoop(lastCoverageMeasurementSession: CoverageMeasurementSession, reasonToTerminate: CoverageMeasurementTerminationCause) {
         scope.launch {
+            val updatedSession = lastCoverageMeasurementSession.copy(reasonToTerminate = reasonToTerminate.cause)
+            signalMeasurementRepository.saveCoverageMeasurementSession(updatedSession)
             val fencesCount =
                 signalMeasurementRepository.loadSignalMeasurementPointRecordsForMeasurementList(
-                    lastCoverageMeasurementSession.localMeasurementId
+                    updatedSession.localMeasurementId
                 ).size
             val hasRecordedFences = fencesCount != 0
 
-            if (lastCoverageMeasurementSession.isRegistered() && hasRecordedFences) {
-                signalMeasurementRepository.sendFences(lastCoverageMeasurementSession.localMeasurementId, null)
+            if (updatedSession.isRegistered() && hasRecordedFences) {
+                signalMeasurementRepository.sendFences(updatedSession.localMeasurementId, null)
             }
         }
     }

@@ -25,6 +25,7 @@ import at.specure.info.strength.SignalStrengthWatcher
 import at.specure.location.LocationInfo
 import at.specure.location.LocationWatcher
 import at.specure.measurement.coverage.RtrCoverageMeasurementProcessor
+import at.specure.measurement.coverage.domain.models.CoverageMeasurementTerminationCause
 import at.specure.temperature.BatteryInfoReceiver
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineName
@@ -190,7 +191,7 @@ class SignalMeasurementProcessor @Inject constructor(
 
     override fun stopMeasurement(unstoppable: Boolean) {
         Timber.d("Stopping coverage session from SignalMeasurementProcessor")
-        rtrCoverageMeasurementProcessor.stopCoverageSession()
+        rtrCoverageMeasurementProcessor.stopCoverageSession(CoverageMeasurementTerminationCause.EndedByUser())
         unregisterBatteryInfoReceiver(batteryInfo)
         resetStateData()
         postStateData()

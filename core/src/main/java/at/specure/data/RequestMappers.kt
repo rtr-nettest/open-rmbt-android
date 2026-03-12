@@ -578,6 +578,7 @@ fun CoverageMeasurementSession.toCoverageResultRequest(
         telephonyDataState = telephonyInfo?.dataState,
         telephonyApn = telephonyInfo?.apn,
         telephonyNetworkSimCountry = telephonyInfo?.networkSimCountry,
+        measurementTerminationCause = this.reasonToTerminate
     )
 }
 
