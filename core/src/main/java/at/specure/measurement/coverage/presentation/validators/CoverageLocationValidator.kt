@@ -54,7 +54,7 @@ class CoverageLocationValidator(
         return if (newLocation == null) false
         else {
             val currentAgeMillis = calculateActualAgeOfLocation(newLocation)
-            val isLocationFreshEnough = currentAgeMillis != null && currentAgeMillis <= appConfig.minimalFenceDurationMillisForSignalMeasurement
+            val isLocationFreshEnough = currentAgeMillis != null && currentAgeMillis <= appConfig.maxAgeOfLocationInformationForSignalMeasurementMillis
             Timber.d("Location is fresh enough: $isLocationFreshEnough - $currentAgeMillis")
             isLocationFreshEnough
         }
