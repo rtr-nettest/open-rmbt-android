@@ -7,6 +7,7 @@ import at.rmbt.util.io
 import at.specure.client.PingServerException
 import at.specure.config.Config
 import at.specure.data.CoverageMeasurementSettings
+import at.specure.data.RequestFilters
 import at.specure.data.entity.CoverageMeasurementFenceRecord
 import at.specure.data.entity.CoverageMeasurementSession
 import at.specure.data.entity.SignalRecord
@@ -502,9 +503,12 @@ class RtrCoverageMeasurementProcessor @Inject constructor(
             return CoverageMeasurementTerminationCause.EndedByTooManyGeolocations()
         }
 
-        val signalsCount = testDataRepository.getSignalsCountForCoverageMeasurement(localMeasurementId = sessionId)
-        Timber.d("Check signals count: $signalsCount")
-        if (signalsCount >= MAXIMUM_SIGNALS_IN_SINGLE_MEASUREMENT) {
+        val signals = testDataRepository.getSignalsForCoverageMeasurement(sessionId)
+        val cellInfos = testDataRepository.getCellInfosForCoverageMeasurement(sessionId)
+        val radioInfoBody = RequestFilters.createRadioInfoBody(cellInfos, signals, null, true)
+
+        val signalCountNew = radioInfoBody?.signals?.count() ?: 0
+        if (signalCountNew >= MAXIMUM_SIGNALS_IN_SINGLE_MEASUREMENT) {
             return CoverageMeasurementTerminationCause.EndedByTooManySignals()
         }
         return null

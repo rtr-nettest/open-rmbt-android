@@ -116,5 +116,9 @@ interface TestDataRepository {
 
     fun getSignalsCountForCoverageMeasurement(localMeasurementId: String): Int
 
+    fun getSignalsForCoverageMeasurement(localMeasurementId: String): List<SignalRecord>
+
+    fun getCellInfosForCoverageMeasurement(localMeasurementId: String): List<CellInfoRecord>
+
     fun getLocationMetadataCountForCoverageMeasurement(localMeasurementId: String): Int
 }
