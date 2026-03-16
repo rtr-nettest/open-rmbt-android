@@ -260,6 +260,7 @@ class SignalMeasurementRepositoryImpl(
             clientUUID.value?.let { clientUuid ->
                 fencesForSession.let { fences ->
                     val cleanedFences = fences.removeUnfinishedFences()
+                    Timber.d("ENDING SESSION: FENCES COMPARE: ${cleanedFences.size} vs ${fences.size}")
                     if (cleanedFences.isNotEmpty()) {
                         val requestBody = coverageSession.toCoverageResultRequest(
                             clientUUID = clientUuid,

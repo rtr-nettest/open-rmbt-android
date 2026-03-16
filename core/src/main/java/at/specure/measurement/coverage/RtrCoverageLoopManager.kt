@@ -4,6 +4,7 @@ import at.specure.data.CoverageMeasurementSettings
 import at.specure.data.entity.CoverageMeasurementSession
 import at.specure.data.repository.SignalMeasurementRepository
 import at.specure.data.repository.isRegistered
+import at.specure.measurement.coverage.data.FencesDataSource
 import at.specure.measurement.coverage.domain.CoverageMeasurementEvent
 import at.specure.measurement.coverage.domain.CoverageLoopManager
 import at.specure.measurement.coverage.domain.models.CoverageMeasurementTerminationCause
@@ -72,10 +73,8 @@ class RtrCoverageLoopManager @Inject constructor(
         scope.launch {
             val updatedSession = lastCoverageMeasurementSession.copy(reasonToTerminate = reasonToTerminate.cause)
             signalMeasurementRepository.saveCoverageMeasurementSession(updatedSession)
-            val fencesCount =
-                signalMeasurementRepository.loadSignalMeasurementPointRecordsForMeasurementList(
-                    updatedSession.localMeasurementId
-                ).size
+            val fences = signalMeasurementRepository.loadSignalMeasurementPointRecordsForMeasurementList(updatedSession.localMeasurementId)
+            val fencesCount = fences.size
             val hasRecordedFences = fencesCount != 0
 
             if (updatedSession.isRegistered() && hasRecordedFences) {

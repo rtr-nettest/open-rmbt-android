@@ -7,6 +7,9 @@ import at.specure.data.entity.SignalRecord
 import at.specure.data.repository.SignalMeasurementRepository
 import at.specure.info.network.NetworkInfo
 import at.specure.test.DeviceInfo
+import kotlinx.coroutines.CoroutineName
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import timber.log.Timber
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -23,7 +26,7 @@ class FencesDataSource @Inject constructor(
         return signalMeasurementRepository.loadSignalMeasurementPointRecordsForMeasurementList(measurementId = localSessionId)
     }
 
-    fun createSignalFenceAndUpdateLastOne(
+    suspend fun createSignalFenceAndUpdateLastOne(
         sessionId: String,
         location: DeviceInfo.Location,
         signalRecord: SignalRecord?,
@@ -60,13 +63,13 @@ class FencesDataSource @Inject constructor(
     }
 
     // TODO: Take network info when leaving the point? - possible problem with changing the network type on map when created and when leaving
-    fun updateSignalFenceAndSaveOnLeaving(
+    suspend fun updateSignalFenceAndSaveOnLeaving(
         lastFence: CoverageMeasurementFenceRecord?,
         leaveTimestampMillis: Long,
         avgPingMillis: Double?,
         networkInfo: NetworkInfo?,
         lastFenceMinTechSignal: Int?,
-    ) = io {
+    ) = withContext(Dispatchers.IO + CoroutineName("Updating fence and saving on leaving")) {
         val updatedFence = lastFence?.copy(
             leaveTimestampMillis = leaveTimestampMillis,
             avgPingMillis = avgPingMillis,
@@ -76,6 +79,7 @@ class FencesDataSource @Inject constructor(
         updatedFence?.let {
             signalMeasurementRepository.updateSignalMeasurementFence(updatedFence)
         }
+        Timber.d("ENDING SESSION: Last Fence updated: $updatedFence")
     }
 
     private fun getNextSequenceNumber(lastPoint: CoverageMeasurementFenceRecord?): Int {

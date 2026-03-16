@@ -51,6 +51,7 @@ import at.specure.location.LocationWatcher
 import at.specure.location.cell.CellLocationWatcher
 import at.specure.location.cell.CellLocationWatcherImpl
 import at.specure.measurement.coverage.RtrCoverageLoopManager
+import at.specure.measurement.coverage.data.FencesDataSource
 import at.specure.measurement.coverage.domain.CoverageLoopManager
 import at.specure.measurement.coverage.domain.PingProcessor
 import at.specure.measurement.coverage.domain.monitors.ConnectivityMonitor
@@ -360,10 +361,10 @@ class CoreModule {
     @Singleton
     fun provideCoverageSessionManager(
         signalMeasurementRepository: SignalMeasurementRepository,
-        coverageMeasurementSettings: CoverageMeasurementSettings
+        coverageMeasurementSettings: CoverageMeasurementSettings,
     ): CoverageLoopManager = RtrCoverageLoopManager(
         signalMeasurementRepository = signalMeasurementRepository,
-        coverageMeasurementSettings = coverageMeasurementSettings
+        coverageMeasurementSettings = coverageMeasurementSettings,
     )
 
     @Provides
