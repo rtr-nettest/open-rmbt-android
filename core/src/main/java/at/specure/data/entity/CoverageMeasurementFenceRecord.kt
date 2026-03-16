@@ -10,6 +10,8 @@ import at.specure.data.Tables
 import at.specure.test.DeviceInfo
 import java.util.UUID
 
+const val DEFAULT_LEAVE_TIMESTAMP_MILLIS = 0L
+
 @Keep
 @Entity(
     tableName = Tables.COVERAGE_MEASUREMENT_FENCE,

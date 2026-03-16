@@ -3,6 +3,7 @@ package at.specure.measurement.coverage.data
 import androidx.lifecycle.LiveData
 import at.rmbt.util.io
 import at.specure.data.entity.CoverageMeasurementFenceRecord
+import at.specure.data.entity.DEFAULT_LEAVE_TIMESTAMP_MILLIS
 import at.specure.data.entity.SignalRecord
 import at.specure.data.repository.SignalMeasurementRepository
 import at.specure.info.network.NetworkInfo
@@ -43,7 +44,7 @@ class FencesDataSource @Inject constructor(
             location = location,
             signalRecordId = signalRecord?.signalMeasurementPointId, // todo: because of signal measurement it is removed when chunk is sent
             entryTimestampMillis = entryTimestampMillis,
-            leaveTimestampMillis = 0,
+            leaveTimestampMillis = DEFAULT_LEAVE_TIMESTAMP_MILLIS,
             radiusMeters = radiusMeters,
             technologyId = networkInfo.getMobileNetworkType().intValue,
             signalStrength = networkInfo.getSignalStrengthValue(),
@@ -70,16 +71,17 @@ class FencesDataSource @Inject constructor(
         networkInfo: NetworkInfo?,
         lastFenceMinTechSignal: Int?,
     ) = withContext(Dispatchers.IO + CoroutineName("Updating fence and saving on leaving")) {
-        val updatedFence = lastFence?.copy(
-            leaveTimestampMillis = leaveTimestampMillis,
-            avgPingMillis = avgPingMillis,
-            technologyId = networkInfo?.getMobileNetworkType()?.intValue,
-            signalStrength = lastFenceMinTechSignal
-        )
-        updatedFence?.let {
-            signalMeasurementRepository.updateSignalMeasurementFence(updatedFence)
+        if (lastFence?.leaveTimestampMillis == DEFAULT_LEAVE_TIMESTAMP_MILLIS) { // to not update fence once exited
+            val updatedFence = lastFence.copy(
+                leaveTimestampMillis = leaveTimestampMillis,
+                avgPingMillis = avgPingMillis,
+                technologyId = networkInfo?.getMobileNetworkType()?.intValue,
+                signalStrength = lastFenceMinTechSignal
+            )
+            updatedFence.let {
+                signalMeasurementRepository.updateSignalMeasurementFence(updatedFence)
+            }
         }
-        Timber.d("ENDING SESSION: Last Fence updated: $updatedFence")
     }
 
     private fun getNextSequenceNumber(lastPoint: CoverageMeasurementFenceRecord?): Int {
