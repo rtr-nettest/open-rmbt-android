@@ -12,7 +12,9 @@ class CoverageLocationValidator(
     private val appConfig: Config,
     ): LocationValidator {
     override fun isLocationFreshAndAccurate(newLocation: DeviceInfo.Location?): Boolean {
-        return isLocationNotTooOld(newLocation) && isLocationAccuracyPreciseEnough(newLocation)
+        val isLocationFreshAndAccurate = isLocationNotTooOld(newLocation) && isLocationAccuracyPreciseEnough(newLocation)
+        Timber.d("DJTL: isLocationFreshAndAccurate: $isLocationFreshAndAccurate - $newLocation")
+        return isLocationFreshAndAccurate
     }
 
     override fun isLocationValidAndDistantEnough(newLocation: DeviceInfo.Location?, lastSavedLocation: DeviceInfo.Location?): Boolean {
@@ -51,20 +53,26 @@ class CoverageLocationValidator(
     }
 
     override fun isLocationNotTooOld(newLocation: DeviceInfo.Location?): Boolean {
-        return if (newLocation == null) false
+        return if (newLocation == null) {
+            Timber.d("DJLT isLocationNotTooOld location isNotNull: false $newLocation")
+            false
+        }
         else {
             val currentAgeMillis = calculateActualAgeOfLocation(newLocation)
             val isLocationFreshEnough = currentAgeMillis != null && currentAgeMillis <= appConfig.maxAgeOfLocationInformationForSignalMeasurementMillis
-            Timber.d("Location is fresh enough: $isLocationFreshEnough - $currentAgeMillis")
+            Timber.d("DJLT Location is fresh enough: $isLocationFreshEnough - age: $currentAgeMillis - $newLocation")
             isLocationFreshEnough
         }
     }
 
     override fun isLocationAccuracyPreciseEnough(newLocation: DeviceInfo.Location?): Boolean {
-        return if (newLocation == null) false
+        return if (newLocation == null) {
+            Timber.d("DJLT isLocationAccuracyPreciseEnough location isNotNull: false $newLocation")
+            false
+        }
         else {
             val preciseEnough = newLocation.accuracy != null && (newLocation.accuracy <= appConfig.minLocationAccuracyMetersDuringSignalMeasurement)
-            Timber.d("Location accuracy: ${newLocation.accuracy} - $preciseEnough")
+            Timber.d("DJLT Location accuracy: ${newLocation.accuracy} - $preciseEnough")
             preciseEnough
         }
     }

@@ -360,7 +360,7 @@ class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback, Coverage
 
 
     private fun updateCurrentLocation(location: LocationInfo?) {
-        Timber.d("New location obtained: $location")
+        Timber.d("DJLT New location obtained: $location")
         binding.textSource.text = "${location?.provider} ${location?.accuracy}m"
         if (coverageViewModel.isLocationInfoMeetingQualityCriteria(location.toDeviceInfoLocation())) {
             hideWarningButton()

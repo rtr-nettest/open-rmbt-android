@@ -354,6 +354,7 @@ class CoverageResultViewModel @Inject constructor(
 
     fun isLocationInfoMeetingQualityCriteria(location: DeviceInfo.Location?): Boolean {
         val isNotNull = location != null
+        Timber.d("DJLT location isNotNull: $isNotNull $location")
         return isNotNull && isLocationAccuracyGoodEnough(location)
     }
 
