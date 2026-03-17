@@ -8,6 +8,7 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.content.res.Configuration
 import android.graphics.Color
+import android.graphics.Point
 import android.os.Build
 import android.os.Bundle
 import android.util.Rational
@@ -36,10 +37,8 @@ import at.specure.info.network.NetworkInfo
 import at.specure.measurement.coverage.domain.models.CoverageMeasurementData
 import at.specure.measurement.coverage.domain.models.state.CoverageMeasurementState
 import at.specure.measurement.coverage.presentation.validators.CoverageNetworkValidator
-import at.specure.test.toLocation
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
-import com.google.android.gms.maps.LocationSource
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
@@ -53,9 +52,10 @@ import at.rtr.rmbt.android.viewmodel.CoverageResultViewModel
 import at.specure.measurement.coverage.data.getFrequencyBand
 import at.specure.measurement.coverage.data.getSignalStrengthValue
 import at.specure.test.toDeviceInfoLocation
+import at.specure.util.hasPermission
+import at.specure.util.openAppSettings
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.suspendCancellableCoroutine
-import kotlin.coroutines.resume
 
 const val DEFAULT_POSITION_TRACKING_ZOOM_LEVEL = 16.2f
 const val DEFAULT_TRACKING_ZOOM_LEVEL = 16f
@@ -69,6 +69,7 @@ class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback, Coverage
     private var map: GoogleMap? = null
     private var warningSnackbar: Snackbar? = null
     private var sendingResultsErrorSnackbar: Snackbar? = null
+    private var noBackgroundLocationPermissionGrantedSnackbar: Snackbar? = null
 
     override fun onFenceOrAccuracyUpdated() {
         coverageViewModel.onCoverageConfigurationChanged()
@@ -157,13 +158,22 @@ class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback, Coverage
     }
 
     private fun enterInPictureMode() {
-        val screenBounds = this.windowManager.maximumWindowMetrics.bounds
-        val width = screenBounds.width();
-        val height = screenBounds.height();
-        val ratio = Rational(width, height);
-        val pipBuilder = PictureInPictureParams.Builder();
-        pipBuilder.setAspectRatio(ratio).build();
-        enterPictureInPictureMode(pipBuilder.build());
+        val ratio = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            val screenBounds = this.windowManager.maximumWindowMetrics.bounds
+            val width = screenBounds.width()
+            val height = screenBounds.height()
+            Rational(width, height)
+        } else {
+            val display = windowManager.defaultDisplay
+            val point = Point();
+            display.getSize(point);
+            val width = point.x;
+            val height = point.y;
+            Rational(width, height);
+        }
+        val pipBuilder = PictureInPictureParams.Builder()
+        pipBuilder.setAspectRatio(ratio).build()
+        enterPictureInPictureMode(pipBuilder.build())
     }
 
     private fun updateMapState(data: CoverageMeasurementData?) {
@@ -187,15 +197,43 @@ class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback, Coverage
             return
         }
 
-        sendingResultsErrorSnackbar = Snackbar.make(binding.root, R.string.error_sending_data, Snackbar.LENGTH_INDEFINITE)
-            .setBackgroundTint(ContextCompat.getColor(this, R.color.snackbar_error_background))
-            .setTextColor(ContextCompat.getColor(this, R.color.snackbar_error_text))
-            .setAction(R.string.dismiss) {
+        sendingResultsErrorSnackbar = createErrorSnackbar(
+            getString(R.string.error_sending_data),
+            R.string.dismiss,
+            {
                 coverageViewModel.onSendingResultErrorClearPressed()
             }
-            .setActionTextColor(ContextCompat.getColor(this, R.color.snackbar_error_text))
-
+        )
         sendingResultsErrorSnackbar?.show()
+    }
+
+    private fun showNoBackgroundLocationAllowed() {
+        if (sendingResultsErrorSnackbar?.isShownOrQueued == true) return
+        if (warningSnackbar?.isShownOrQueued == true) return
+        if (noBackgroundLocationPermissionGrantedSnackbar?.isShownOrQueued == true) return
+
+        noBackgroundLocationPermissionGrantedSnackbar = createErrorSnackbar(
+            getString(R.string.location_usage_always_warning_message),
+            R.string.allow,
+            {
+                this@SignalMeasurementActivity.openAppSettings()
+            }
+        )
+        noBackgroundLocationPermissionGrantedSnackbar?.show()
+    }
+
+    private fun createErrorSnackbar(
+        message: String,
+        actionResId: Int,
+        action: (View) -> Unit
+    ): Snackbar {
+        return Snackbar.make(binding.root, message, Snackbar.LENGTH_INDEFINITE)
+            .setBackgroundTint(ContextCompat.getColor(this, R.color.snackbar_error_background))
+            .setTextColor(ContextCompat.getColor(this, R.color.snackbar_error_text))
+            .setAction(actionResId) {view ->
+                action(view)
+            }
+            .setActionTextColor(ContextCompat.getColor(this, R.color.snackbar_error_text))
     }
 
     override fun onConfigurationChanged(newConfig: Configuration) {
@@ -209,6 +247,7 @@ class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback, Coverage
         hideDialog()
         setMyPositionAndButtonVisible(false)
         hideNetworkWarningSnackbar()
+        hideBackgroundLocationMissingSnackbar()
         setInfoVisible(false)
         setResultTitleVisible(true)
         setSettingsButtonVisible(false)
@@ -227,6 +266,7 @@ class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback, Coverage
 
         setSettingsButtonVisible(true)
         checkNetwork(coverageMeasurementData?.currentNetworkInfo)
+        checkLocationPermissions()
         setInfoVisible(true)
         setResultTitleVisible(false)
         updatePingValue(coverageMeasurementData)
@@ -249,6 +289,18 @@ class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback, Coverage
                 coverageMeasurementData?.fences.toCoverageResultItemRecords(),
                 coverageMeasurementData?.state
             )
+        }
+    }
+
+    private fun checkLocationPermissions() {
+        val backgroundLocationPermissionsGranted =
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                this.hasPermission(Manifest.permission.ACCESS_BACKGROUND_LOCATION)
+            } else {
+                true
+            }
+        if (!backgroundLocationPermissionsGranted) {
+            showNoBackgroundLocationAllowed()
         }
     }
 
@@ -424,25 +476,26 @@ class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback, Coverage
     }
 
     fun showNetworkWarningSnackbar(view: View, message: String) {
-        if (warningSnackbar?.isShownOrQueued == true) {
-            // Already visible or scheduled to show
-            return
-        }
+        if (sendingResultsErrorSnackbar?.isShownOrQueued == true) return
+        if (warningSnackbar?.isShownOrQueued == true) return
 
-        warningSnackbar = Snackbar.make(view, message, Snackbar.LENGTH_INDEFINITE)
-            .setBackgroundTint(ContextCompat.getColor(this, R.color.snackbar_error_background))
-            .setTextColor(ContextCompat.getColor(this, R.color.snackbar_error_text))
-            .setAction(R.string.dismiss) {
-                // User tapped the button → Snackbar disappears
+        warningSnackbar = createErrorSnackbar(
+            message,
+            R.string.dismiss,
+            {
                 viewModel.silenceNetworkWarning()
             }
-            .setActionTextColor(ContextCompat.getColor(this, R.color.snackbar_error_text))
+        )
 
         warningSnackbar?.show()
     }
 
     fun hideNetworkWarningSnackbar() {
         warningSnackbar?.dismiss()
+    }
+
+    fun hideBackgroundLocationMissingSnackbar() {
+        noBackgroundLocationPermissionGrantedSnackbar?.dismiss()
     }
 
     private fun showWarningButton() {
