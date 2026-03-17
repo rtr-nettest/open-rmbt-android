@@ -2,6 +2,7 @@ package at.rtr.rmbt.android.ui.activity
 
 import android.Manifest
 import android.annotation.SuppressLint
+import android.app.PictureInPictureParams
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -9,6 +10,7 @@ import android.content.res.Configuration
 import android.graphics.Color
 import android.os.Build
 import android.os.Bundle
+import android.util.Rational
 import android.view.View
 import android.view.WindowInsets
 import android.view.WindowManager
@@ -28,8 +30,6 @@ import at.specure.test.DeviceInfo
 import at.rmbt.client.control.data.SignalMeasurementType
 import at.rtr.rmbt.android.map.DefaultLocation
 import at.rtr.rmbt.android.ui.dialog.CoverageSettingsDialog
-import at.rtr.rmbt.android.ui.dialog.Dialogs
-import at.rtr.rmbt.android.ui.dialog.FullscreenDialog
 import at.rtr.rmbt.android.ui.dialog.MessageDialog
 import at.rtr.rmbt.android.util.formatAccuracy
 import at.specure.info.network.NetworkInfo
@@ -156,6 +156,16 @@ class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback, Coverage
         })
     }
 
+    private fun enterInPictureMode() {
+        val screenBounds = this.windowManager.maximumWindowMetrics.bounds
+        val width = screenBounds.width();
+        val height = screenBounds.height();
+        val ratio = Rational(width, height);
+        val pipBuilder = PictureInPictureParams.Builder();
+        pipBuilder.setAspectRatio(ratio).build();
+        enterPictureInPictureMode(pipBuilder.build());
+    }
+
     private fun updateMapState(data: CoverageMeasurementData?) {
         if (data?.state == CoverageMeasurementState.FINISHED_LOOP_CORRECTLY) {
             showMeasurementResults(data)
@@ -243,7 +253,7 @@ class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback, Coverage
     }
 
     private fun setSettingsButtonVisible(visible: Boolean) {
-        binding.fabSettings.visibility = if (visible) {
+        binding.fabSettings.visibility = if (visible && !coverageViewModel.state.pipActive.get()) {
             View.VISIBLE
         } else {
             View.GONE
@@ -288,7 +298,7 @@ class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback, Coverage
             }
         }
 
-        binding.fabLocation.visibility = if (enabled) {
+        binding.fabLocation.visibility = if (enabled && !coverageViewModel.state.pipActive.get()) {
             View.VISIBLE
         } else {
             View.GONE
@@ -297,7 +307,7 @@ class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback, Coverage
     }
 
     private fun setResultTitleVisible(visible: Boolean) {
-        binding.measurementResultTitle.visibility = if (visible) {
+        binding.measurementResultTitle.visibility = if (visible && !coverageViewModel.state.pipActive.get()) {
             View.VISIBLE
         } else {
             View.GONE
@@ -305,7 +315,7 @@ class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback, Coverage
     }
 
     private fun setInfoVisible(visible: Boolean) {
-        binding.measurementProgressInfo.visibility = if (visible) {
+        binding.measurementProgressInfo.visibility = if (visible && !coverageViewModel.state.pipActive.get()) {
             View.VISIBLE
         } else {
             View.GONE
@@ -521,6 +531,32 @@ class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback, Coverage
             delay(1000)
             Timber.d("Starting signal measurement")
             viewModel.startSignalMeasurement(SignalMeasurementType.DEDICATED)
+        }
+    }
+
+    override fun onUserLeaveHint() {
+        super.onUserLeaveHint()
+        enterInPictureMode()
+    }
+
+    override fun onPictureInPictureModeChanged(
+        isInPictureInPictureMode: Boolean,
+        newConfig: Configuration
+    ) {
+        super.onPictureInPictureModeChanged(isInPictureInPictureMode, newConfig)
+
+        coverageViewModel.state.pipActive.set(isInPictureInPictureMode)
+
+        if (isInPictureInPictureMode) {
+            setInfoVisible(false)
+            setSettingsButtonVisible(false)
+            binding.fabLocation.visibility = View.GONE
+            binding.fabClose.visibility = View.GONE
+        } else {
+            setInfoVisible(true)
+            setSettingsButtonVisible(true)
+            binding.fabClose.visibility = View.VISIBLE
+            binding.fabLocation.visibility = View.VISIBLE
         }
     }
 

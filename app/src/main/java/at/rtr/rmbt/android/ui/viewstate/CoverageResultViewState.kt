@@ -23,12 +23,14 @@ private const val KEY_CLOSE_DIALOG_DISPLAYED = "KEY_CLOSE_DIALOG_DISPLAYED"
 private const val KEY_MARKER_DETAILS_DISPLAYED = "KEY_MARKER_DETAILS_DISPLAYED"
 
 private const val KEY_COVERAGE_SESSION_DETAILS = "KEY_COVERAGE_SESSION_DETAILS"
+private const val KEY_PIP_ACTIVE = "KEY_PIP_ACTIVE"
 
 class CoverageResultViewState constructor(
     val appConfig: AppConfig,
 
 ) : ViewState {
 
+    val pipActive = ObservableBoolean(false)
     var playServicesAvailable = ObservableBoolean(false)
     val testResult = ObservableField<TestResultRecord?>()
     val expertModeEnabled = ObservableField(appConfig.expertModeEnabled)
@@ -45,6 +47,7 @@ class CoverageResultViewState constructor(
     override fun onRestoreState(bundle: Bundle?) {
         bundle?.run {
             testUUID = getString(KEY_TEST_UUID, "")
+            pipActive.set(getBoolean(KEY_PIP_ACTIVE, false))
             playServicesAvailable.set(getBoolean(KEY_PLAY_SERVICES))
             markerDetailsDisplayed.set(getBoolean(KEY_MARKER_DETAILS_DISPLAYED))
             zoom = getFloat(KEY_ZOOM)
@@ -59,6 +62,7 @@ class CoverageResultViewState constructor(
             putBoolean(KEY_PLAY_SERVICES, playServicesAvailable.get())
             putBoolean(KEY_CLOSE_DIALOG_DISPLAYED, closeDialogDisplayed.get())
             putBoolean(KEY_MARKER_DETAILS_DISPLAYED, markerDetailsDisplayed.get())
+            putBoolean(KEY_PIP_ACTIVE, pipActive.get())
             putFloat(KEY_ZOOM, zoom)
             putLong(KEY_COVERAGE_SESSION_DETAILS, coverageSessionStart ?: 0)
             cameraPositionLiveData.value?.longitude?.let { putDouble(KEY_CAMERA_POSITION_LON, it) }
