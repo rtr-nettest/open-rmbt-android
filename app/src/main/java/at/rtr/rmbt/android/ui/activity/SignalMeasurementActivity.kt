@@ -12,6 +12,7 @@ import android.graphics.Point
 import android.os.Build
 import android.os.Bundle
 import android.util.Rational
+import android.view.LayoutInflater
 import android.view.View
 import android.view.WindowInsets
 import android.view.WindowManager
@@ -29,6 +30,7 @@ import at.specure.location.LocationInfo
 import at.specure.location.LocationState
 import at.specure.test.DeviceInfo
 import at.rmbt.client.control.data.SignalMeasurementType
+import at.rtr.rmbt.android.databinding.ItemCoverageMarkerDetailsBinding
 import at.rtr.rmbt.android.map.DefaultLocation
 import at.rtr.rmbt.android.ui.dialog.CoverageSettingsDialog
 import at.rtr.rmbt.android.ui.dialog.MessageDialog
@@ -49,11 +51,13 @@ import kotlinx.coroutines.CoroutineName
 import timber.log.Timber
 import kotlin.math.roundToInt
 import at.rtr.rmbt.android.viewmodel.CoverageResultViewModel
+import at.rtr.rmbt.android.viewmodel.viewData.CoverageMarkerDetailsData
 import at.specure.measurement.coverage.data.getFrequencyBand
 import at.specure.measurement.coverage.data.getSignalStrengthValue
 import at.specure.test.toDeviceInfoLocation
 import at.specure.util.hasPermission
 import at.specure.util.openAppSettings
+import com.google.android.gms.maps.model.Marker
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.suspendCancellableCoroutine
 
@@ -571,9 +575,39 @@ class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback, Coverage
             }
         }
 
+        map?.setOnMarkerClickListener { marker ->
+            coverageViewModel.state.markerDetailsDisplayed.set(true)
+            false
+        }
+        map?.setOnMapClickListener {
+            coverageViewModel.state.markerDetailsDisplayed.set(false)
+        }
+
         if (coverageViewModel.coverageMeasurementDataLiveData.value?.state == CoverageMeasurementState.FINISHED_LOOP_CORRECTLY) {
             updateMapState(coverageViewModel.coverageMeasurementDataLiveData.value)
         }
+        map?.setInfoWindowAdapter(object : GoogleMap.InfoWindowAdapter {
+
+            override fun getInfoWindow(marker: Marker): View? = null
+
+            override fun getInfoContents(marker: Marker): View {
+                val binding = ItemCoverageMarkerDetailsBinding.inflate(
+                    LayoutInflater.from(this@SignalMeasurementActivity)
+                )
+
+                val data = marker.tag as? CoverageMarkerDetailsData
+                if (data != null) {
+                    binding.item = data
+                    binding.executePendingBindings()
+                }
+
+                binding.root.setOnClickListener {
+
+                }
+
+                return binding.root
+            }
+        })
     }
 
     override fun onStart() {

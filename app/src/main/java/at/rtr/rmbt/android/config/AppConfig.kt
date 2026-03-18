@@ -21,6 +21,8 @@ import at.specure.config.Config
 import at.specure.data.ControlServerSettings
 import javax.inject.Inject
 import androidx.core.content.edit
+import at.specure.measurement.coverage.MAXIMUM_POSSIBLE_FENCE_RADIUS_METERS
+import at.specure.measurement.coverage.MINIMUM_POSSIBLE_FENCE_RADIUS_METERS
 
 private const val FILENAME = "config.pref"
 
@@ -479,8 +481,8 @@ class AppConfig @Inject constructor(context: Context, private val serverSettings
         set(value) = setBoolean(BuildConfig.SHOULD_CHECK_ACTIVE_SIMS_COUNT, value)
 
     override var minDistanceMetersToLogNewLocationOnMapDuringSignalMeasurement: Int
-        get() = getInt(BuildConfig.MIN_LOCATION_DISTANCE_METERS_SIGNAL_MEASUREMENT)
-        set(value) = setInt(BuildConfig.MIN_LOCATION_DISTANCE_METERS_SIGNAL_MEASUREMENT, value)
+        get() = getInt(BuildConfig.MIN_LOCATION_DISTANCE_METERS_SIGNAL_MEASUREMENT).coerceAtLeast(MINIMUM_POSSIBLE_FENCE_RADIUS_METERS).coerceAtMost(MAXIMUM_POSSIBLE_FENCE_RADIUS_METERS)
+        set(value) = setInt(BuildConfig.MIN_LOCATION_DISTANCE_METERS_SIGNAL_MEASUREMENT, value.coerceAtLeast(MINIMUM_POSSIBLE_FENCE_RADIUS_METERS).coerceAtMost(MAXIMUM_POSSIBLE_FENCE_RADIUS_METERS))
 
     override var minDistanceFactorCoverageMeasurement: Int
         get() = preferences.getInt(KEY_COVERAGE_MIN_FENCES_DISTANCE_FACTOR, COVERAGE_MIN_FENCES_DISTANCE_FACTOR_DEFAULT_VALUE)
