@@ -635,15 +635,15 @@ class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback, Coverage
         coverageViewModel.state.pipActive.set(isInPictureInPictureMode)
 
         if (isInPictureInPictureMode) {
-            setInfoVisible(false)
-            setSettingsButtonVisible(false)
             binding.fabLocation.visibility = View.GONE
             binding.fabClose.visibility = View.GONE
+            setResultTitleVisible(false)
         } else {
-            setInfoVisible(true)
-            setSettingsButtonVisible(true)
             binding.fabClose.visibility = View.VISIBLE
             binding.fabLocation.visibility = View.VISIBLE
+            if (coverageViewModel.coverageMeasurementDataLiveData.value?.state == CoverageMeasurementState.FINISHED_LOOP_CORRECTLY) {
+                updateMapState(coverageViewModel.coverageMeasurementDataLiveData.value)
+            }
         }
     }
 
