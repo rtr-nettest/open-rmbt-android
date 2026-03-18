@@ -486,7 +486,6 @@ fun ICell.isInformationCorrect(cellTechnology: CellTechnology): Boolean {
         is CellGsm -> cellTechnology == CellTechnology.CONNECTION_2G
         else -> false
     }
-    Timber.d("Saving ICell: $this and  technology: ${cellTechnology?.name} is Correct: $isCorrect")
     return isCorrect
 }
 

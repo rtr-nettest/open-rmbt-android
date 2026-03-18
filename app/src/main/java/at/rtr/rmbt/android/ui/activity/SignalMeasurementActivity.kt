@@ -84,7 +84,7 @@ class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback, Coverage
         super.onCreate(savedInstanceState)
         binding = bindContentView(R.layout.activity_signal_measurement)
         binding.state = viewModel.state
-        coverageViewModel.onConfigurationChanged()
+        coverageViewModel.onConfigurationChanged(map)
         viewModel.shouldStartDedicatedMeasurementStateChecker = {
             coverageViewModel.shouldRunCoverageMeasurement()
         }
@@ -135,6 +135,7 @@ class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback, Coverage
                 showStopDialog()
             } else {
                 coverageViewModel.clearMeasurementData()
+                coverageViewModel.clearPerformanceImprovementLists(map)
                 finish()
             }
         }
@@ -242,11 +243,11 @@ class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback, Coverage
 
     override fun onConfigurationChanged(newConfig: Configuration) {
         super.onConfigurationChanged(newConfig)
-        coverageViewModel.onConfigurationChanged()
+        coverageViewModel.onConfigurationChanged(map)
     }
 
     private fun showMeasurementResults(coverageMeasurementData: CoverageMeasurementData) {
-        coverageViewModel.clearPerformanceImprovementLists()
+        coverageViewModel.clearPerformanceImprovementLists(map)
         hideWarningButton()
         hideDialog()
         setMyPositionAndButtonVisible(false)
@@ -332,7 +333,6 @@ class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback, Coverage
                         Manifest.permission.ACCESS_COARSE_LOCATION
                     ) == PackageManager.PERMISSION_GRANTED
                 ) {
-                    Timber.d("Setting my position to: $enabled on $map")
                     if (enabled == false) {
                         map?.setLocationSource(null)
                     }
@@ -426,7 +426,6 @@ class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback, Coverage
 
 
     private fun updateCurrentLocation(location: LocationInfo?) {
-        Timber.d("DJLT New location obtained: $location")
         binding.textSource.text = "${location?.provider} ${location?.accuracy}m"
         if (coverageViewModel.isLocationInfoMeetingQualityCriteria(location.toDeviceInfoLocation())) {
             hideWarningButton()

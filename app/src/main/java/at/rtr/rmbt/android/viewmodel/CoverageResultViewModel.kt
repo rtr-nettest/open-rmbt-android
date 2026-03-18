@@ -199,8 +199,8 @@ class CoverageResultViewModel @Inject constructor(
         }
     }
 
-    fun onConfigurationChanged() {
-        clearPerformanceImprovementLists()
+    fun onConfigurationChanged(map: GoogleMap?) {
+        clearPerformanceImprovementLists(map)
     }
 
     fun onSendingResultErrorClearPressed() {
@@ -231,7 +231,7 @@ class CoverageResultViewModel @Inject constructor(
         if (!shouldUpdateMap() && coverageMeasurementState != CoverageMeasurementState.FINISHED_LOOP_CORRECTLY) return
 
         viewModelScope.launch(Dispatchers.Default) {
-            clearPerformanceListsIfTheyAreFromPreviousMeasurement(pts)
+            clearPerformanceListsIfTheyAreFromPreviousMeasurement(currentMap, pts)
 
             // Filter only points that haven't been displayed yet
             val newPoints = pts.filter { !state.displayedPointIds.contains(it.generateHash()) }
@@ -344,19 +344,19 @@ class CoverageResultViewModel @Inject constructor(
         }
     }
 
-    private fun clearPerformanceListsIfTheyAreFromPreviousMeasurement(pts: List<FencesResultItemRecord>) {
+    private fun clearPerformanceListsIfTheyAreFromPreviousMeasurement(map: GoogleMap?, pts: List<FencesResultItemRecord>) {
         if (state.displayedPointIds.size > pts.size) {
-            clearPerformanceImprovementLists()
+            clearPerformanceImprovementLists(map)
         }
     }
 
-    fun clearPerformanceImprovementLists() {
+    fun clearPerformanceImprovementLists(map: GoogleMap?) {
         state.displayedPointIds.clear()
-        state.markers.clear()
         viewModelScope.launch(Dispatchers.Main) {
-            lastCircle?.remove()
+            map?.clear()
             lastCircle = null
         }
+        state.markers.clear()
         state.markerDetailsDisplayed.set(false)
         Timber.d("Lists optimisation cleared")
     }
@@ -383,7 +383,6 @@ class CoverageResultViewModel @Inject constructor(
 
     fun isLocationInfoMeetingQualityCriteria(location: DeviceInfo.Location?): Boolean {
         val isNotNull = location != null
-        Timber.d("DJLT location isNotNull: $isNotNull $location")
         return isNotNull && isLocationAccuracyGoodEnough(location)
     }
 

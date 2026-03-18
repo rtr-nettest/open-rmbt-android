@@ -35,14 +35,9 @@ class DefaultLocationDispatcher : LocationDispatcher {
                 newLocation?.let {
                     if (location == null) {
                         location = newLocation
-                        location?.let {
-                            Timber.d("LOCU: LOCATION UPDATE 1 ageNanos:  ${it.ageNanos} in seconds: ${it.ageNanos / 1000000000}")
-                        }
+
                     } else if (location?.accuracy ?: Float.MAX_VALUE > newLocation.accuracy) {
                         location = newLocation
-                        location?.let {
-                            Timber.d("LOCU: LOCATION UPDATE 2 ageNanos:  ${it.ageNanos} in seconds: ${it.ageNanos / 1000000000}")
-                        }
                     }
                 }
             }
@@ -89,19 +84,14 @@ class DefaultLocationDispatcher : LocationDispatcher {
             }
         } else {
             return if (lastLocation == null) {
-                Timber.v("location update: no last location")
                 updateLastLocation(location, timestamp, source)
             } else if (lastLocation?.accuracy ?: Float.MAX_VALUE > location.accuracy) {
-                Timber.v("location update: accuracy is better")
                 updateLastLocation(location, timestamp, source)
             } else if (timestamp >= lastTimestamp + LOCATION_MAX_AGE_MS) {
-                Timber.v("location update: last outdated")
                 updateLastLocation(location, timestamp, source)
             } else if (((lastSource != null) && (lastSource == source)) && (abs(location.time - (lastLocation?.time ?: 0)) > LOCATION_MAX_UPDATE_RATE_MS)) {
-                Timber.v("location update: source")
                 updateLastLocation(location, timestamp, source)
             } else {
-                Timber.v("location update: else")
                 LocationDispatcher.Decision(null, false)
             }
         }
@@ -115,9 +105,6 @@ class DefaultLocationDispatcher : LocationDispatcher {
         lastLocation = location
         lastTimestamp = timestamp
         lastSource = source
-        location?.let {
-            Timber.d("LOCU: LOCATION UPDATE ageNanos:  ${it.ageNanos} in seconds: ${it.ageNanos / 1000000000} $source")
-        }
         return LocationDispatcher.Decision(location, true)
     }
 }
