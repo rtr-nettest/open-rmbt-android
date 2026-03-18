@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import at.rmbt.util.exception.NoConnectionException
+import at.specure.data.CoverageMeasurementSettings
 import at.specure.data.repository.SignalMeasurementRepository
 import at.specure.di.CoreInjector
 import kotlinx.coroutines.Dispatchers
@@ -24,40 +25,48 @@ class CoverageSyncWorker(
     @Inject
     lateinit var repository: SignalMeasurementRepository
 
+    @Inject
+    lateinit var  settings: CoverageMeasurementSettings
+
     override suspend fun doWork(): Result = try {
         // Inject repository via custom DI
         CoreInjector.inject(this)
 
-        Timber.d("CoverageSyncWorker started")
-        withContext(Dispatchers.IO) {
-            try {
-                repository.registerNotRegisteredMeasurementsWithSomeFences()
-            } catch (e: CancellationException) {
-                throw e
-            } catch (e: NoConnectionException) {
-                Timber.w("No connection for session retry registering — retry later")
-                return@withContext Result.retry()
-            } catch (e: Exception) {
-                Timber.e(e, "Error retried registering measurement")
+        if (settings.signalMeasurementIsRunning) {
+            Timber.d("CoverageSyncWorker not started because of running measurement")
+            Result.retry()
+        } else {
+            Timber.d("CoverageSyncWorker started")
+            withContext(Dispatchers.IO) {
+                try {
+                    repository.registerNotRegisteredMeasurementsWithSomeFences()
+                } catch (e: CancellationException) {
+                    throw e
+                } catch (e: NoConnectionException) {
+                    Timber.w("No connection for session retry registering — retry later")
+                    return@withContext Result.retry()
+                } catch (e: Exception) {
+                    Timber.e(e, "Error retried registering measurement")
+                }
+
+                try {
+                    repository.retrySendFences()
+                } catch (e: CancellationException) {
+                    throw e
+                } catch (e: NoConnectionException) {
+                    Timber.w("No connection for session retry sending — retry later")
+                    return@withContext Result.retry()
+                } catch (e: Exception) {
+                    Timber.e(e, "Error retried sending fences")
+                }
+
+                // Always clean old data if deletable
+                repository.removeOldFencesAndSessions()
             }
 
-            try {
-                repository.retrySendFences()
-            } catch (e: CancellationException) {
-                throw e
-            } catch (e: NoConnectionException) {
-                Timber.w("No connection for session retry sending — retry later")
-                return@withContext Result.retry()
-            } catch (e: Exception) {
-                Timber.e(e, "Error retried sending fences")
-            }
-
-            // Always clean old data if deletable
-            repository.removeOldFencesAndSessions()
+            Timber.d("CoverageSyncWorker finished successfully")
+            Result.success()
         }
-
-        Timber.d("CoverageSyncWorker finished successfully")
-        Result.success()
 
     } catch (e: CancellationException) {
         throw e
