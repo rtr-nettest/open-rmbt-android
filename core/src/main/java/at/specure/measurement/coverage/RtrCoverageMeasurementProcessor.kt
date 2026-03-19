@@ -61,6 +61,8 @@ import kotlin.time.Duration.Companion.seconds
 const val MAXIMUM_FENCES_IN_SINGLE_MEASUREMENT = 400
 const val MAXIMUM_LOCATIONS_IN_SINGLE_MEASUREMENT = 700
 const val MAXIMUM_SIGNALS_IN_SINGLE_MEASUREMENT = 400
+const val MINIMUM_POSSIBLE_FENCE_RADIUS_METERS = 1
+const val MAXIMUM_POSSIBLE_FENCE_RADIUS_METERS = 1000
 
 @Singleton
 class RtrCoverageMeasurementProcessor @Inject constructor(

@@ -2,13 +2,17 @@ package at.rtr.rmbt.android.ui.activity
 
 import android.Manifest
 import android.annotation.SuppressLint
+import android.app.PictureInPictureParams
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.content.res.Configuration
 import android.graphics.Color
+import android.graphics.Point
 import android.os.Build
 import android.os.Bundle
+import android.util.Rational
+import android.view.LayoutInflater
 import android.view.View
 import android.view.WindowInsets
 import android.view.WindowManager
@@ -26,20 +30,17 @@ import at.specure.location.LocationInfo
 import at.specure.location.LocationState
 import at.specure.test.DeviceInfo
 import at.rmbt.client.control.data.SignalMeasurementType
+import at.rtr.rmbt.android.databinding.ItemCoverageMarkerDetailsBinding
 import at.rtr.rmbt.android.map.DefaultLocation
 import at.rtr.rmbt.android.ui.dialog.CoverageSettingsDialog
-import at.rtr.rmbt.android.ui.dialog.Dialogs
-import at.rtr.rmbt.android.ui.dialog.FullscreenDialog
 import at.rtr.rmbt.android.ui.dialog.MessageDialog
 import at.rtr.rmbt.android.util.formatAccuracy
 import at.specure.info.network.NetworkInfo
 import at.specure.measurement.coverage.domain.models.CoverageMeasurementData
 import at.specure.measurement.coverage.domain.models.state.CoverageMeasurementState
 import at.specure.measurement.coverage.presentation.validators.CoverageNetworkValidator
-import at.specure.test.toLocation
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
-import com.google.android.gms.maps.LocationSource
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
@@ -50,12 +51,15 @@ import kotlinx.coroutines.CoroutineName
 import timber.log.Timber
 import kotlin.math.roundToInt
 import at.rtr.rmbt.android.viewmodel.CoverageResultViewModel
+import at.rtr.rmbt.android.viewmodel.viewData.CoverageMarkerDetailsData
 import at.specure.measurement.coverage.data.getFrequencyBand
 import at.specure.measurement.coverage.data.getSignalStrengthValue
 import at.specure.test.toDeviceInfoLocation
+import at.specure.util.hasPermission
+import at.specure.util.openAppSettings
+import com.google.android.gms.maps.model.Marker
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.suspendCancellableCoroutine
-import kotlin.coroutines.resume
 
 const val DEFAULT_POSITION_TRACKING_ZOOM_LEVEL = 16.2f
 const val DEFAULT_TRACKING_ZOOM_LEVEL = 16f
@@ -69,6 +73,7 @@ class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback, Coverage
     private var map: GoogleMap? = null
     private var warningSnackbar: Snackbar? = null
     private var sendingResultsErrorSnackbar: Snackbar? = null
+    private var noBackgroundLocationPermissionGrantedSnackbar: Snackbar? = null
 
     override fun onFenceOrAccuracyUpdated() {
         coverageViewModel.onCoverageConfigurationChanged()
@@ -79,7 +84,7 @@ class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback, Coverage
         super.onCreate(savedInstanceState)
         binding = bindContentView(R.layout.activity_signal_measurement)
         binding.state = viewModel.state
-        coverageViewModel.onConfigurationChanged()
+        coverageViewModel.onConfigurationChanged(map)
         viewModel.shouldStartDedicatedMeasurementStateChecker = {
             coverageViewModel.shouldRunCoverageMeasurement()
         }
@@ -130,6 +135,7 @@ class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback, Coverage
                 showStopDialog()
             } else {
                 coverageViewModel.clearMeasurementData()
+                coverageViewModel.clearPerformanceImprovementLists(map)
                 finish()
             }
         }
@@ -156,6 +162,25 @@ class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback, Coverage
         })
     }
 
+    private fun enterInPictureMode() {
+        val ratio = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            val screenBounds = this.windowManager.maximumWindowMetrics.bounds
+            val width = screenBounds.width()
+            val height = screenBounds.height()
+            Rational(width, height)
+        } else {
+            val display = windowManager.defaultDisplay
+            val point = Point();
+            display.getSize(point);
+            val width = point.x;
+            val height = point.y;
+            Rational(width, height);
+        }
+        val pipBuilder = PictureInPictureParams.Builder()
+        pipBuilder.setAspectRatio(ratio).build()
+        enterPictureInPictureMode(pipBuilder.build())
+    }
+
     private fun updateMapState(data: CoverageMeasurementData?) {
         if (data?.state == CoverageMeasurementState.FINISHED_LOOP_CORRECTLY) {
             showMeasurementResults(data)
@@ -177,28 +202,57 @@ class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback, Coverage
             return
         }
 
-        sendingResultsErrorSnackbar = Snackbar.make(binding.root, R.string.error_sending_data, Snackbar.LENGTH_INDEFINITE)
-            .setBackgroundTint(ContextCompat.getColor(this, R.color.snackbar_error_background))
-            .setTextColor(ContextCompat.getColor(this, R.color.snackbar_error_text))
-            .setAction(R.string.dismiss) {
+        sendingResultsErrorSnackbar = createErrorSnackbar(
+            getString(R.string.error_sending_data),
+            R.string.dismiss,
+            {
                 coverageViewModel.onSendingResultErrorClearPressed()
             }
-            .setActionTextColor(ContextCompat.getColor(this, R.color.snackbar_error_text))
-
+        )
         sendingResultsErrorSnackbar?.show()
+    }
+
+    private fun showNoBackgroundLocationAllowed() {
+        if (sendingResultsErrorSnackbar?.isShownOrQueued == true) return
+        if (warningSnackbar?.isShownOrQueued == true) return
+        if (noBackgroundLocationPermissionGrantedSnackbar?.isShownOrQueued == true) return
+
+        noBackgroundLocationPermissionGrantedSnackbar = createErrorSnackbar(
+            getString(R.string.location_usage_always_warning_message),
+            R.string.allow,
+            {
+                this@SignalMeasurementActivity.openAppSettings()
+            }
+        )
+        noBackgroundLocationPermissionGrantedSnackbar?.show()
+    }
+
+    private fun createErrorSnackbar(
+        message: String,
+        actionResId: Int,
+        action: (View) -> Unit
+    ): Snackbar {
+        return Snackbar.make(binding.root, message, Snackbar.LENGTH_INDEFINITE)
+            .setBackgroundTint(ContextCompat.getColor(this, R.color.snackbar_error_background))
+            .setTextColor(ContextCompat.getColor(this, R.color.snackbar_error_text))
+            .setAction(actionResId) {view ->
+                action(view)
+            }
+            .setActionTextColor(ContextCompat.getColor(this, R.color.snackbar_error_text))
     }
 
     override fun onConfigurationChanged(newConfig: Configuration) {
         super.onConfigurationChanged(newConfig)
-        coverageViewModel.onConfigurationChanged()
+        coverageViewModel.onConfigurationChanged(map)
     }
 
     private fun showMeasurementResults(coverageMeasurementData: CoverageMeasurementData) {
-        coverageViewModel.clearPerformanceImprovementLists()
+        coverageViewModel.clearPerformanceImprovementLists(map)
         hideWarningButton()
         hideDialog()
         setMyPositionAndButtonVisible(false)
         hideNetworkWarningSnackbar()
+        hideBackgroundLocationMissingSnackbar()
         setInfoVisible(false)
         setResultTitleVisible(true)
         setSettingsButtonVisible(false)
@@ -217,6 +271,7 @@ class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback, Coverage
 
         setSettingsButtonVisible(true)
         checkNetwork(coverageMeasurementData?.currentNetworkInfo)
+        checkLocationPermissions()
         setInfoVisible(true)
         setResultTitleVisible(false)
         updatePingValue(coverageMeasurementData)
@@ -242,8 +297,20 @@ class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback, Coverage
         }
     }
 
+    private fun checkLocationPermissions() {
+        val backgroundLocationPermissionsGranted =
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                this.hasPermission(Manifest.permission.ACCESS_BACKGROUND_LOCATION)
+            } else {
+                true
+            }
+        if (!backgroundLocationPermissionsGranted) {
+            showNoBackgroundLocationAllowed()
+        }
+    }
+
     private fun setSettingsButtonVisible(visible: Boolean) {
-        binding.fabSettings.visibility = if (visible) {
+        binding.fabSettings.visibility = if (visible && !coverageViewModel.state.pipActive.get()) {
             View.VISIBLE
         } else {
             View.GONE
@@ -266,7 +333,6 @@ class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback, Coverage
                         Manifest.permission.ACCESS_COARSE_LOCATION
                     ) == PackageManager.PERMISSION_GRANTED
                 ) {
-                    Timber.d("Setting my position to: $enabled on $map")
                     if (enabled == false) {
                         map?.setLocationSource(null)
                     }
@@ -288,7 +354,7 @@ class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback, Coverage
             }
         }
 
-        binding.fabLocation.visibility = if (enabled) {
+        binding.fabLocation.visibility = if (enabled && !coverageViewModel.state.pipActive.get()) {
             View.VISIBLE
         } else {
             View.GONE
@@ -297,7 +363,7 @@ class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback, Coverage
     }
 
     private fun setResultTitleVisible(visible: Boolean) {
-        binding.measurementResultTitle.visibility = if (visible) {
+        binding.measurementResultTitle.visibility = if (visible && !coverageViewModel.state.pipActive.get()) {
             View.VISIBLE
         } else {
             View.GONE
@@ -305,7 +371,7 @@ class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback, Coverage
     }
 
     private fun setInfoVisible(visible: Boolean) {
-        binding.measurementProgressInfo.visibility = if (visible) {
+        binding.measurementProgressInfo.visibility = if (visible && !coverageViewModel.state.pipActive.get()) {
             View.VISIBLE
         } else {
             View.GONE
@@ -360,7 +426,6 @@ class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback, Coverage
 
 
     private fun updateCurrentLocation(location: LocationInfo?) {
-        Timber.d("DJLT New location obtained: $location")
         binding.textSource.text = "${location?.provider} ${location?.accuracy}m"
         if (coverageViewModel.isLocationInfoMeetingQualityCriteria(location.toDeviceInfoLocation())) {
             hideWarningButton()
@@ -414,25 +479,26 @@ class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback, Coverage
     }
 
     fun showNetworkWarningSnackbar(view: View, message: String) {
-        if (warningSnackbar?.isShownOrQueued == true) {
-            // Already visible or scheduled to show
-            return
-        }
+        if (sendingResultsErrorSnackbar?.isShownOrQueued == true) return
+        if (warningSnackbar?.isShownOrQueued == true) return
 
-        warningSnackbar = Snackbar.make(view, message, Snackbar.LENGTH_INDEFINITE)
-            .setBackgroundTint(ContextCompat.getColor(this, R.color.snackbar_error_background))
-            .setTextColor(ContextCompat.getColor(this, R.color.snackbar_error_text))
-            .setAction(R.string.dismiss) {
-                // User tapped the button → Snackbar disappears
+        warningSnackbar = createErrorSnackbar(
+            message,
+            R.string.dismiss,
+            {
                 viewModel.silenceNetworkWarning()
             }
-            .setActionTextColor(ContextCompat.getColor(this, R.color.snackbar_error_text))
+        )
 
         warningSnackbar?.show()
     }
 
     fun hideNetworkWarningSnackbar() {
         warningSnackbar?.dismiss()
+    }
+
+    fun hideBackgroundLocationMissingSnackbar() {
+        noBackgroundLocationPermissionGrantedSnackbar?.dismiss()
     }
 
     private fun showWarningButton() {
@@ -508,9 +574,39 @@ class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback, Coverage
             }
         }
 
+        map?.setOnMarkerClickListener { marker ->
+            coverageViewModel.state.markerDetailsDisplayed.set(true)
+            false
+        }
+        map?.setOnMapClickListener {
+            coverageViewModel.state.markerDetailsDisplayed.set(false)
+        }
+
         if (coverageViewModel.coverageMeasurementDataLiveData.value?.state == CoverageMeasurementState.FINISHED_LOOP_CORRECTLY) {
             updateMapState(coverageViewModel.coverageMeasurementDataLiveData.value)
         }
+        map?.setInfoWindowAdapter(object : GoogleMap.InfoWindowAdapter {
+
+            override fun getInfoWindow(marker: Marker): View? = null
+
+            override fun getInfoContents(marker: Marker): View {
+                val binding = ItemCoverageMarkerDetailsBinding.inflate(
+                    LayoutInflater.from(this@SignalMeasurementActivity)
+                )
+
+                val data = marker.tag as? CoverageMarkerDetailsData
+                if (data != null) {
+                    binding.item = data
+                    binding.executePendingBindings()
+                }
+
+                binding.root.setOnClickListener {
+
+                }
+
+                return binding.root
+            }
+        })
     }
 
     override fun onStart() {
@@ -521,6 +617,32 @@ class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback, Coverage
             delay(1000)
             Timber.d("Starting signal measurement")
             viewModel.startSignalMeasurement(SignalMeasurementType.DEDICATED)
+        }
+    }
+
+    override fun onUserLeaveHint() {
+        super.onUserLeaveHint()
+        enterInPictureMode()
+    }
+
+    override fun onPictureInPictureModeChanged(
+        isInPictureInPictureMode: Boolean,
+        newConfig: Configuration
+    ) {
+        super.onPictureInPictureModeChanged(isInPictureInPictureMode, newConfig)
+
+        coverageViewModel.state.pipActive.set(isInPictureInPictureMode)
+
+        if (isInPictureInPictureMode) {
+            binding.fabLocation.visibility = View.GONE
+            binding.fabClose.visibility = View.GONE
+            setResultTitleVisible(false)
+        } else {
+            binding.fabClose.visibility = View.VISIBLE
+            binding.fabLocation.visibility = View.VISIBLE
+            if (coverageViewModel.coverageMeasurementDataLiveData.value?.state == CoverageMeasurementState.FINISHED_LOOP_CORRECTLY) {
+                updateMapState(coverageViewModel.coverageMeasurementDataLiveData.value)
+            }
         }
     }
 

@@ -151,12 +151,20 @@ class SignalMeasurementProcessor @Inject constructor(
 
     fun updateNetworkInfo(newValue: DetailedNetworkInfo?) {
 
-        if ((newValue != null) && (newValue.networkInfo != null) && (newValue.networkInfo is CellNetworkInfo && newValue.networkInfo.networkType.intValue != MobileNetworkType.UNKNOWN.intValue)) {
+        val isKnownCellularNetwork = (newValue != null) && (newValue.networkInfo != null) && (newValue.networkInfo is CellNetworkInfo && newValue.networkInfo.networkType.intValue != MobileNetworkType.UNKNOWN.intValue)
+        if (isKnownCellularNetwork) {
             globalNetworkInfo = newValue
             networkInfoResetJob?.cancel()
         }
 
-        if (newValue == null || newValue.networkInfo == null || (newValue.networkInfo is CellNetworkInfo && newValue.networkInfo.networkType.intValue == MobileNetworkType.UNKNOWN.intValue)) {
+        val isNonCellularNetwork = (newValue != null) && (newValue.networkInfo != null) && newValue.networkInfo !is CellNetworkInfo
+        if  (isNonCellularNetwork) {
+            globalNetworkInfo = newValue
+            networkInfoResetJob?.cancel()
+        }
+
+        val isNullOrUnknownNetwork = newValue == null || newValue.networkInfo == null || (newValue.networkInfo is CellNetworkInfo && newValue.networkInfo.networkType.intValue == MobileNetworkType.UNKNOWN.intValue)
+        if (isNullOrUnknownNetwork) {
             networkInfoResetJob = launch {
                 delay(MAXIMUM_TIME_NETWORK_KEEP_MILLS.toLong())
                 globalNetworkInfo = newValue

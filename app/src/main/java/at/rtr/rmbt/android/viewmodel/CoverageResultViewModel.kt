@@ -199,8 +199,8 @@ class CoverageResultViewModel @Inject constructor(
         }
     }
 
-    fun onConfigurationChanged() {
-        clearPerformanceImprovementLists()
+    fun onConfigurationChanged(map: GoogleMap?) {
+        clearPerformanceImprovementLists(map)
     }
 
     fun onSendingResultErrorClearPressed() {
@@ -223,7 +223,6 @@ class CoverageResultViewModel @Inject constructor(
         return true
     }
 
-
     fun updateMapPoints(map: GoogleMap?, points: List<FencesResultItemRecord>?, coverageMeasurementState: CoverageMeasurementState?, maxLimitToDisplay: Int? = MAX_MARKER_COUNT_DISPLAYED_THRESHOLD) {
         state.coverageSessionStart = coverageMeasurementDataLiveData.value?.coverageMeasurementSession?.startTimeLoopMillis
 
@@ -232,7 +231,8 @@ class CoverageResultViewModel @Inject constructor(
         if (!shouldUpdateMap() && coverageMeasurementState != CoverageMeasurementState.FINISHED_LOOP_CORRECTLY) return
 
         viewModelScope.launch(Dispatchers.Default) {
-            clearPerformanceListsIfTheyAreFromPreviousMeasurement(pts)
+            clearPerformanceListsIfTheyAreFromPreviousMeasurement(currentMap, pts)
+
             // Filter only points that haven't been displayed yet
             val newPoints = pts.filter { !state.displayedPointIds.contains(it.generateHash()) }
             val markerDetailsMap = mutableMapOf<Long, CoverageMarkerDetailsData>()
@@ -267,6 +267,35 @@ class CoverageResultViewModel @Inject constructor(
 
             // Switch to main thread to add markers and circles
             withContext(Dispatchers.Main) {
+
+                // Update previously last marker with fresh data after leaving it
+                val previouslyLastMarker = state.markers.lastOrNull()
+                previouslyLastMarker?.let { marker ->
+                    val data = marker.tag as? CoverageMarkerDetailsData
+                    data?.id?.let { lastId ->
+                        val updatedPoint = pts.find { it.id == lastId }
+
+                        updatedPoint?.let { point ->
+                            val updatedData = CoverageMarkerDetailsData(
+                                id = point.id,
+                                networkType = point.networkTechnologyId ?: 0,
+                                MobileNetworkType.fromValue(point.networkTechnologyId ?: 0).displayName,
+                                provider = null,
+                                signalClass = null,
+                                signalStrength = point.signalMainDbm,
+                                pingMillis = (point.averagePingMillis?.times(1000000))?.toLong(),
+                                timestamp = point.fenceTimestampMillis,
+                            )
+
+                            marker.tag = updatedData
+
+                            // refresh icon in case the technology has change on the leave
+                            val tech = MobileNetworkType.fromValue(point.networkTechnologyId ?: 0)
+                            marker.setIcon(getCachedIcon(tech))
+                        }
+                    }
+                }
+
                 // Add new markers
                 markerOptionsList.forEachIndexed { index, options ->
                     currentMap.addMarker(options)?.let { marker ->
@@ -315,19 +344,19 @@ class CoverageResultViewModel @Inject constructor(
         }
     }
 
-    private fun clearPerformanceListsIfTheyAreFromPreviousMeasurement(pts: List<FencesResultItemRecord>) {
+    private fun clearPerformanceListsIfTheyAreFromPreviousMeasurement(map: GoogleMap?, pts: List<FencesResultItemRecord>) {
         if (state.displayedPointIds.size > pts.size) {
-            clearPerformanceImprovementLists()
+            clearPerformanceImprovementLists(map)
         }
     }
 
-    fun clearPerformanceImprovementLists() {
+    fun clearPerformanceImprovementLists(map: GoogleMap?) {
         state.displayedPointIds.clear()
-        state.markers.clear()
         viewModelScope.launch(Dispatchers.Main) {
-            lastCircle?.remove()
+            map?.clear()
             lastCircle = null
         }
+        state.markers.clear()
         state.markerDetailsDisplayed.set(false)
         Timber.d("Lists optimisation cleared")
     }
@@ -354,7 +383,6 @@ class CoverageResultViewModel @Inject constructor(
 
     fun isLocationInfoMeetingQualityCriteria(location: DeviceInfo.Location?): Boolean {
         val isNotNull = location != null
-        Timber.d("DJLT location isNotNull: $isNotNull $location")
         return isNotNull && isLocationAccuracyGoodEnough(location)
     }
 

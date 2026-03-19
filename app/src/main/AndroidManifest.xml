@@ -111,6 +111,8 @@
             android:theme="@style/PreferenceTheme"/>
 
         <activity android:name=".ui.activity.SignalMeasurementActivity"
+            android:supportsPictureInPicture="true"
+            android:configChanges="screenSize|smallestScreenSize|screenLayout|orientation"
             android:theme="@style/PreferenceTheme"/>
 
         <activity
