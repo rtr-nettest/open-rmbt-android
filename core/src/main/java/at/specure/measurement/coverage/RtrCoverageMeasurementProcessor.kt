@@ -394,7 +394,6 @@ class RtrCoverageMeasurementProcessor @Inject constructor(
 
         coverageMeasurementDataValue.coverageMeasurementSession?.localMeasurementId?.let { localMeasurementId ->
             coverageMeasurementDataValue.coverageMeasurementSession.startMeasurementTimeResponseReceivedNanos.let {startTimeNanos ->
-                // TODO: redo timestamps of locations
                 testDataRepository.saveLocationMetadataForCoverage(location, localMeasurementId, startTimeNanos)
                 testDataRepository.saveCellMetadataForCoverage(networkInfo, localMeasurementId, startTimeNanos)
             }

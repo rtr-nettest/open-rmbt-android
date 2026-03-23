@@ -38,6 +38,9 @@ import at.specure.info.strength.SignalStrengthInfoNr
 import at.specure.info.strength.SignalStrengthInfoWiFi
 import at.specure.location.LocationInfo
 import at.specure.location.cell.CellLocationInfo
+import at.specure.location.util.toDeviceInfoLocation
+import at.specure.measurement.coverage.presentation.validators.ViennaLocationProcessor
+import at.specure.test.toDeviceInfoLocation
 import at.specure.util.toCellLocation
 import at.specure.util.toRecords
 import cz.mroczis.netmonster.core.model.cell.ICell
@@ -572,18 +575,21 @@ class TestDataRepositoryImpl(db: CoreDatabase) : TestDataRepository {
         if (location == null) return@io
 
         val latestLocation = geoLocationDao.getLatestLocationForTest(localMeasurementId)
-        latestLocation?.let { oldLocation ->
-            val isTheSameLocation = oldLocation.latitude == location.latitude && oldLocation.longitude == location.longitude
-            if (isTheSameLocation) return@io
-        }
 
-        saveGeoLocation(
-            testUUID = localMeasurementId,
-            signalChunkId = null,
-            location = location,
-            testStartTimeNanos = startTimeNanos,
-            filterOldValues = true
-        )
+        val newLocationInfo = location.toDeviceInfoLocation()
+        val shouldStoreLocation = newLocationInfo?.let {
+            ViennaLocationProcessor.shouldStoreLocation(latestLocation?.toDeviceInfoLocation(), it)
+        } ?: false
+
+        if (shouldStoreLocation) {
+            saveGeoLocation(
+                testUUID = localMeasurementId,
+                signalChunkId = null,
+                location = location,
+                testStartTimeNanos = startTimeNanos,
+                filterOldValues = true
+            )
+        }
     }
 
     override fun removeLocationMetadataForCoverage(localMeasurementId: String) = io {
