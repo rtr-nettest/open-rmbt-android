@@ -280,7 +280,19 @@ class RtrCoverageMeasurementProcessor @Inject constructor(
     }
 
     override fun resumeCoverageSession() {
-        stateManager.onUpdateCoverageDataState(CoverageMeasurementState.RUNNING)
+        val recoveredState = recoverCoverageState()
+        stateManager.onUpdateCoverageDataState(recoveredState)
+    }
+
+    fun recoverCoverageState(): CoverageMeasurementState {
+        val session = stateManager.state.value.coverageMeasurementSession
+        val newState = when {
+            session == null -> CoverageMeasurementState.IDLE
+            session.serverMeasurementId != null -> CoverageMeasurementState.RUNNING
+            session.localMeasurementId != null -> CoverageMeasurementState.CREATED
+            else -> CoverageMeasurementState.IDLE
+         }
+        return newState
     }
 
     override fun getData(): CoverageMeasurementSession {
@@ -526,10 +538,12 @@ class RtrCoverageMeasurementProcessor @Inject constructor(
     private fun checkForTheConnectionState(): Boolean {
         val airplaneModeEnabled = connectivityMonitor.isAirplaneModeCurrentlyEnabled()
         val mobileDataEnabled = connectivityMonitor.isMobileDataEnabled()
+        Timber.d("CMPS airplane mode: $airplaneModeEnabled, mobileDataEnabled: $mobileDataEnabled")
         if (airplaneModeEnabled || !mobileDataEnabled) {
-            stateManager.onUpdateCoverageDataState(CoverageMeasurementState.PAUSED)
+            pauseCoverageSession()
             return false
         }
+        resumeCoverageSession()
         return true
     }
 
