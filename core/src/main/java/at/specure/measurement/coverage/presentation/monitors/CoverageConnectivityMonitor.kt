@@ -1,5 +1,6 @@
 package at.specure.measurement.coverage.presentation.monitors
 
+import android.Manifest
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
@@ -7,8 +8,8 @@ import android.content.IntentFilter
 import android.net.ConnectivityManager
 import android.net.Network
 import android.net.NetworkCapabilities
-import android.os.Build
 import android.provider.Settings
+import android.telephony.SubscriptionManager
 import android.telephony.TelephonyManager
 import at.specure.measurement.coverage.domain.monitors.ConnectivityMonitor
 import kotlinx.coroutines.CancellationException
@@ -88,17 +89,73 @@ class RtrConnectivityMonitor @Inject constructor(
             }
         }.distinctUntilChanged()
 
-    override fun isMobileDataEnabled(): Boolean =
-        try {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                telephonyManager.isDataEnabled
-            } else true
+//     // Not working on eSIM devices (e.g. DJ's pixel 6 with dual sim (1 eSIM, 1 physical SIM))
+//    override fun isMobileDataEnabled(): Boolean =
+//        try {
+//            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+//                telephonyManager.isDataEnabled
+//            } else true
+//        } catch (e: Exception) {
+//            if (e is CancellationException) {
+//                throw e
+//            }
+//            false
+//        }
+
+//    /**
+//     * Now it checks ability to connect to a network with some capabilities and if there is an airplane mode enabled then there is no such a possibility,
+//     * so it returns null, also it uses deprecated  method so it can stop to work with new versions. when there is no network in reach it will return false.
+//     */
+//    override fun isMobileDataEnabled(): Boolean =
+//        try {
+//            val cm = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+//
+//            val networks = cm.allNetworks
+//
+//            val hasCellular = networks.any { network ->
+//                val caps = cm.getNetworkCapabilities(network)
+//                val isCellularAvailable = caps?.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR) ?: false
+//                val isDataCapable = caps?.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET) ?: false
+//                isCellularAvailable && isDataCapable
+//            }
+//            val oldWay = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+//                telephonyManager.isDataEnabled
+//            } else true
+//            Timber.d("Mobile data enabled: $hasCellular vs $oldWay")
+//            hasCellular
+//
+//        } catch (e: Exception) {
+//            if (e is CancellationException) {
+//                throw e
+//            }
+//            false
+//        }
+
+    override fun isMobileDataEnabled(): Boolean {
+        val subscriptionManager = context.getSystemService(Context.TELEPHONY_SUBSCRIPTION_SERVICE) as SubscriptionManager
+        val telephonyManager = context.getSystemService(Context.TELEPHONY_SERVICE) as TelephonyManager
+        val defaultDataSubId = SubscriptionManager.getDefaultDataSubscriptionId()
+        try{
+            return if (defaultDataSubId != SubscriptionManager.INVALID_SUBSCRIPTION_ID) {
+                val subSpecificTelephonyManager = telephonyManager.createForSubscriptionId(defaultDataSubId)
+                val isDataEnabled = subSpecificTelephonyManager.isDataEnabled
+                Timber.d("Mobile data enabled: $isDataEnabled")
+                isDataEnabled
+            } else {
+                Timber.e("Mobile data not enabled - invalid subscription ID")
+                false
+            }
         } catch (e: Exception) {
             if (e is CancellationException) {
                 throw e
             }
+            Timber.e("Mobile data not enabled - ${e.message}")
             false
         }
+        Timber.e("Mobile data not enabled - fallback")
+        return false
+    }
+
 
     // -------------------- IP ADDRESS CHANGED --------------------
 
