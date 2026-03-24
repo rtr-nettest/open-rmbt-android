@@ -280,7 +280,19 @@ class RtrCoverageMeasurementProcessor @Inject constructor(
     }
 
     override fun resumeCoverageSession() {
-        stateManager.onUpdateCoverageDataState(CoverageMeasurementState.RUNNING)
+        val recoveredState = recoverCoverageState()
+        stateManager.onUpdateCoverageDataState(recoveredState)
+    }
+
+    fun recoverCoverageState(): CoverageMeasurementState {
+        val session = stateManager.state.value.coverageMeasurementSession
+        val newState = when {
+            session == null -> CoverageMeasurementState.IDLE
+            session.serverMeasurementId != null -> CoverageMeasurementState.RUNNING
+            session.localMeasurementId != null -> CoverageMeasurementState.CREATED
+            else -> CoverageMeasurementState.IDLE
+         }
+        return newState
     }
 
     override fun getData(): CoverageMeasurementSession {
@@ -394,7 +406,6 @@ class RtrCoverageMeasurementProcessor @Inject constructor(
 
         coverageMeasurementDataValue.coverageMeasurementSession?.localMeasurementId?.let { localMeasurementId ->
             coverageMeasurementDataValue.coverageMeasurementSession.startMeasurementTimeResponseReceivedNanos.let {startTimeNanos ->
-                // TODO: redo timestamps of locations
                 testDataRepository.saveLocationMetadataForCoverage(location, localMeasurementId, startTimeNanos)
                 testDataRepository.saveCellMetadataForCoverage(networkInfo, localMeasurementId, startTimeNanos)
             }
@@ -406,12 +417,12 @@ class RtrCoverageMeasurementProcessor @Inject constructor(
         val isBackOnMobileData = mainCoverageDataValidator.isBackToMobile(coverageMeasurementDataValue.currentNetworkInfo, networkInfo?.networkInfo)
         val isFirstMeasurementInLoop = coverageMeasurementDataValue.coverageMeasurementSession?.sequenceNumber == 0
 
+        stateManager.updateNetworkInfo(networkInfo?.networkInfo)
+
         if (isBackOnMobileData && lastRecordedFence != null) {
             onMeasurementStopAndStartNewMeasurement(CoverageMeasurementTerminationCause.EndedByBackOnMobileData())
             return
         }
-
-        stateManager.updateNetworkInfo(networkInfo?.networkInfo)
 
         val reasonToTerminate = getReasonToTerminateMeasurementBecauseOfSomeCause(coverageMeasurementDataValue.coverageMeasurementSession?.localMeasurementId)
         if (reasonToTerminate != null) {
@@ -527,10 +538,12 @@ class RtrCoverageMeasurementProcessor @Inject constructor(
     private fun checkForTheConnectionState(): Boolean {
         val airplaneModeEnabled = connectivityMonitor.isAirplaneModeCurrentlyEnabled()
         val mobileDataEnabled = connectivityMonitor.isMobileDataEnabled()
+        Timber.d("CMPS airplane mode: $airplaneModeEnabled, mobileDataEnabled: $mobileDataEnabled")
         if (airplaneModeEnabled || !mobileDataEnabled) {
-            stateManager.onUpdateCoverageDataState(CoverageMeasurementState.PAUSED)
+            pauseCoverageSession()
             return false
         }
+        resumeCoverageSession()
         return true
     }
 

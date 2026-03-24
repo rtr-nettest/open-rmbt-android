@@ -481,3 +481,7 @@ class SignalMeasurementRepositoryImpl(
 fun CoverageMeasurementSession.isRegistered(): Boolean {
     return this.serverMeasurementId != null
 }
+
+fun CoverageMeasurementSession.isFinished(): Boolean {
+    return this.reasonToTerminate != null
+}

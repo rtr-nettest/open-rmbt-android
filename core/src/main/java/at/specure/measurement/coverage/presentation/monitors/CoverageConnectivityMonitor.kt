@@ -7,8 +7,8 @@ import android.content.IntentFilter
 import android.net.ConnectivityManager
 import android.net.Network
 import android.net.NetworkCapabilities
-import android.os.Build
 import android.provider.Settings
+import android.telephony.SubscriptionManager
 import android.telephony.TelephonyManager
 import at.specure.measurement.coverage.domain.monitors.ConnectivityMonitor
 import kotlinx.coroutines.CancellationException
@@ -88,17 +88,29 @@ class RtrConnectivityMonitor @Inject constructor(
             }
         }.distinctUntilChanged()
 
-    override fun isMobileDataEnabled(): Boolean =
-        try {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                telephonyManager.isDataEnabled
-            } else true
+    override fun isMobileDataEnabled(): Boolean {
+        val defaultDataSubId = SubscriptionManager.getDefaultDataSubscriptionId()
+        try{
+            return if (defaultDataSubId != SubscriptionManager.INVALID_SUBSCRIPTION_ID) {
+                val subSpecificTelephonyManager = telephonyManager.createForSubscriptionId(defaultDataSubId)
+                val isDataEnabled = subSpecificTelephonyManager.isDataEnabled
+                Timber.d("Mobile data enabled: $isDataEnabled")
+                isDataEnabled
+            } else {
+                Timber.e("Mobile data not enabled - invalid subscription ID")
+                false
+            }
         } catch (e: Exception) {
             if (e is CancellationException) {
                 throw e
             }
+            Timber.e("Mobile data not enabled - ${e.message}")
             false
         }
+        Timber.e("Mobile data not enabled - fallback")
+        return false
+    }
+
 
     // -------------------- IP ADDRESS CHANGED --------------------
 
