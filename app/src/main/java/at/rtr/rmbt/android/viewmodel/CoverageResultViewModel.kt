@@ -228,7 +228,7 @@ class CoverageResultViewModel @Inject constructor(
 
         val currentMap = map ?: return
         val pts = points ?: return
-        val isMeasurementInProgress = coverageMeasurementState != CoverageMeasurementState.FINISHED_LOOP_CORRECTLY
+        val isMeasurementInProgress = coverageMeasurementState != null && coverageMeasurementState != CoverageMeasurementState.FINISHED_LOOP_CORRECTLY
         if (!shouldUpdateMap() && isMeasurementInProgress) return
 
         viewModelScope.launch(Dispatchers.Default) {
@@ -288,7 +288,7 @@ class CoverageResultViewModel @Inject constructor(
                                 signalStrength = point.signalMainDbm,
                                 pingMillis = (point.averagePingMillis?.times(1000000))?.toLong(),
                                 timestamp = point.fenceTimestampMillis,
-                                isNotFinished = lastPoint?.id == point.id,
+                                isNotFinished = isMeasurementInProgress && lastPoint?.id == point.id,
                             )
 
                             marker.tag = updatedData
