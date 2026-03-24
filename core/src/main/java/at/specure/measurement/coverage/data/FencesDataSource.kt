@@ -40,7 +40,7 @@ class FencesDataSource @Inject constructor(
     ) {
         val point = CoverageMeasurementFenceRecord(
             sessionId = sessionId,
-            sequenceNumber = getNextSequenceNumber(lastSavedFence),
+            sequenceNumber = Int.MIN_VALUE,
             location = location,
             signalRecordId = signalRecord?.signalMeasurementPointId, // todo: because of signal measurement it is removed when chunk is sent
             entryTimestampMillis = entryTimestampMillis,
@@ -51,7 +51,7 @@ class FencesDataSource @Inject constructor(
             frequencyBand = networkInfo.getFrequencyBand(),
             avgPingMillis = null,
         )
-        signalMeasurementRepository.saveMeasurementPointRecord(point)
+        signalMeasurementRepository.createMeasurementPointRecordWithNewSequenceNumber(point)
         updateSignalFenceAndSaveOnLeaving(
             lastSavedFence,
             entryTimestampMillis,
@@ -70,7 +70,7 @@ class FencesDataSource @Inject constructor(
         avgPingMillis: Double?,
         networkInfo: NetworkInfo?,
         lastFenceMinTechSignal: Int?,
-    ) = withContext(Dispatchers.IO + CoroutineName("Updating fence and saving on leaving")) {
+    ) {
         if (lastFence?.leaveTimestampMillis == DEFAULT_LEAVE_TIMESTAMP_MILLIS) { // to not update fence once exited
             val updatedFence = lastFence.copy(
                 leaveTimestampMillis = leaveTimestampMillis,

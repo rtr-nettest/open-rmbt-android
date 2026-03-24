@@ -18,7 +18,7 @@ class MainCoverageDataValidator @Inject constructor(
     private val durationValidator: DurationValidator,
 ): CoverageDataValidator {
 
-    override fun areDataValidToSaveNewFence(
+    override fun isDataValidToSaveNewFence(
         newTimestamp: Long,
         newLocation: DeviceInfo.Location?,
         newNetworkInfo: NetworkInfo?,

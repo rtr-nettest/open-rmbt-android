@@ -108,8 +108,12 @@ class SignalMeasurementRepositoryImpl(
         return dao.getCoverageMeasurementSessionForMeasurementId(measurementId)
     }
 
-    override fun saveMeasurementPointRecord(point: CoverageMeasurementFenceRecord) = io {
-        dao.saveSignalMeasurementPoint(point)
+    override fun upsertMeasurementPointRecord(point: CoverageMeasurementFenceRecord) = io {
+        dao.upsertSignalMeasurementPoint(point)
+    }
+
+    override suspend fun createMeasurementPointRecordWithNewSequenceNumber(point: CoverageMeasurementFenceRecord) = io {
+        dao.insertFenceWithNextSequence(point)
     }
 
     override fun loadSignalMeasurementPointRecordsForMeasurement(measurementId: String): LiveData<List<CoverageMeasurementFenceRecord>> {
@@ -120,12 +124,16 @@ class SignalMeasurementRepositoryImpl(
         return dao.getCoverageMeasurementFencesList(measurementId)
     }
 
-    override fun loadSignalMeasurementPointRecordsForLoopMeasurement(localLoopSessionId: String): LiveData<List<CoverageMeasurementFenceRecord>> {
-        return dao.getFencesLiveDataForSessionLoop(localLoopSessionId)
+    override fun loadSignalMeasurementPointRecordsForLoopMeasurement(localLoopSessionId: String, limit: Int?): LiveData<List<CoverageMeasurementFenceRecord>> {
+        return dao.getFencesLiveDataForSessionLoop(localLoopSessionId, limit)
     }
 
-    override fun loadSignalMeasurementPointRecordsForLoopMeasurementList(localLoopSessionId: String): List<CoverageMeasurementFenceRecord> {
-        return dao.getFencesListForSessionLoop(localLoopSessionId)
+    override fun loadSignalMeasurementPointRecordsForLoopMeasurementList(localLoopSessionId: String, limit: Int?): List<CoverageMeasurementFenceRecord> {
+        return dao.getFencesListForSessionLoop(localLoopSessionId, limit)
+    }
+
+    override fun loadLastSignalMeasurementPointRecordsForLoopMeasurementList(localLoopSessionId: String, limit: Int?): List<CoverageMeasurementFenceRecord> {
+        return dao.getLastFencesListForSessionLoop(localLoopSessionId, limit)
     }
 
     override suspend fun getSignalMeasurementRecord(id: String?): SignalRecord? {

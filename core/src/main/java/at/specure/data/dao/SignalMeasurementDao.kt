@@ -47,9 +47,10 @@ interface SignalMeasurementDao {
         INNER JOIN ${Tables.COVERAGE_MEASUREMENT_SESSION} AS session
         ON fence.sessionId = session.localMeasurementId
         WHERE session.localLoopId = :sessionLoopId
-        ORDER BY fence.sequenceNumber ASC
+        ORDER BY fence.sequenceNumber DESC
+        LIMIT CASE WHEN :limit IS NULL THEN -1 ELSE :limit END
     """)
-    fun getFencesListForSessionLoop(sessionLoopId: String): List<CoverageMeasurementFenceRecord>
+    fun getLastFencesListForSessionLoop(sessionLoopId: String, limit: Int? = null): List<CoverageMeasurementFenceRecord>
 
     @Query("""
         SELECT fence.* 
@@ -58,11 +59,42 @@ interface SignalMeasurementDao {
         ON fence.sessionId = session.localMeasurementId
         WHERE session.localLoopId = :sessionLoopId
         ORDER BY fence.sequenceNumber ASC
+        LIMIT CASE WHEN :limit IS NULL THEN -1 ELSE :limit END
     """)
-    fun getFencesLiveDataForSessionLoop(sessionLoopId: String): LiveData<List<CoverageMeasurementFenceRecord>>
+    fun getFencesListForSessionLoop(sessionLoopId: String, limit: Int? = null): List<CoverageMeasurementFenceRecord>
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun saveSignalMeasurementPoint(point: CoverageMeasurementFenceRecord)
+    @Query("""
+        SELECT fence.* 
+        FROM ${Tables.COVERAGE_MEASUREMENT_FENCE} AS fence
+        INNER JOIN ${Tables.COVERAGE_MEASUREMENT_SESSION} AS session
+        ON fence.sessionId = session.localMeasurementId
+        WHERE session.localLoopId = :sessionLoopId
+        ORDER BY fence.sequenceNumber ASC
+        LIMIT CASE WHEN :limit IS NULL THEN -1 ELSE :limit END
+    """)
+    fun getFencesLiveDataForSessionLoop(sessionLoopId: String, limit: Int? = null): LiveData<List<CoverageMeasurementFenceRecord>>
+
+    @Upsert
+    fun upsertSignalMeasurementPoint(point: CoverageMeasurementFenceRecord)
+
+    @Query("""
+        SELECT COALESCE(MAX(sequenceNumber), -1) 
+        FROM ${Tables.COVERAGE_MEASUREMENT_FENCE} 
+        WHERE sessionId = :sessionId
+    """)
+    suspend fun getMaxSequence(sessionId: String): Int
+
+    @Transaction
+    open suspend fun insertFenceWithNextSequence(
+        point: CoverageMeasurementFenceRecord
+    ) {
+        val nextSeq = getMaxSequence(point.sessionId) + 1
+
+        val updatedSequencePoint = point.copy(
+            sequenceNumber = nextSeq
+        )
+        upsertSignalMeasurementPoint(updatedSequencePoint)
+    }
 
     @Upsert()
     fun saveDedicatedSignalMeasurementSession(session: CoverageMeasurementSession)

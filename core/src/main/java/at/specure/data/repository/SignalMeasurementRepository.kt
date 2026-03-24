@@ -52,15 +52,19 @@ interface SignalMeasurementRepository {
 
     fun getCoverageMeasurementSession(localMeasurementId: String): CoverageMeasurementSession?
 
-    fun saveMeasurementPointRecord(point: CoverageMeasurementFenceRecord)
+    fun upsertMeasurementPointRecord(point: CoverageMeasurementFenceRecord)
+
+    suspend fun createMeasurementPointRecordWithNewSequenceNumber(point: CoverageMeasurementFenceRecord)
 
     fun loadSignalMeasurementPointRecordsForMeasurement(measurementId: String): LiveData<List<CoverageMeasurementFenceRecord>>
 
     fun loadSignalMeasurementPointRecordsForMeasurementList(measurementId: String): List<CoverageMeasurementFenceRecord>
 
-    fun loadSignalMeasurementPointRecordsForLoopMeasurement(localLoopSessionId: String): LiveData<List<CoverageMeasurementFenceRecord>>
+    fun loadSignalMeasurementPointRecordsForLoopMeasurement(localLoopSessionId: String, limit: Int? = null): LiveData<List<CoverageMeasurementFenceRecord>>
 
-    fun loadSignalMeasurementPointRecordsForLoopMeasurementList(localLoopSessionId: String): List<CoverageMeasurementFenceRecord>
+    fun loadSignalMeasurementPointRecordsForLoopMeasurementList(localLoopSessionId: String, limit: Int? = null): List<CoverageMeasurementFenceRecord>
+
+    fun loadLastSignalMeasurementPointRecordsForLoopMeasurementList(localLoopSessionId: String, limit: Int?): List<CoverageMeasurementFenceRecord>
 
     suspend fun getSignalMeasurementRecord(id: String?): SignalRecord?
 

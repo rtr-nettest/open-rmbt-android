@@ -4,6 +4,7 @@ import androidx.annotation.Keep
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.ForeignKey
+import androidx.room.Index
 import androidx.room.PrimaryKey
 import at.specure.data.Columns
 import at.specure.data.Tables
@@ -22,6 +23,9 @@ const val DEFAULT_LEAVE_TIMESTAMP_MILLIS = 0L
             childColumns = ["sessionId"],
             onDelete = ForeignKey.CASCADE
         )
+    ],
+    indices = [
+        Index(value = ["sessionId", "sequenceNumber"], unique = true)
     ]
 )
 data class CoverageMeasurementFenceRecord(
