@@ -417,12 +417,12 @@ class RtrCoverageMeasurementProcessor @Inject constructor(
         val isBackOnMobileData = mainCoverageDataValidator.isBackToMobile(coverageMeasurementDataValue.currentNetworkInfo, networkInfo?.networkInfo)
         val isFirstMeasurementInLoop = coverageMeasurementDataValue.coverageMeasurementSession?.sequenceNumber == 0
 
+        stateManager.updateNetworkInfo(networkInfo?.networkInfo)
+
         if (isBackOnMobileData && lastRecordedFence != null) {
             onMeasurementStopAndStartNewMeasurement(CoverageMeasurementTerminationCause.EndedByBackOnMobileData())
             return
         }
-
-        stateManager.updateNetworkInfo(networkInfo?.networkInfo)
 
         val reasonToTerminate = getReasonToTerminateMeasurementBecauseOfSomeCause(coverageMeasurementDataValue.coverageMeasurementSession?.localMeasurementId)
         if (reasonToTerminate != null) {
