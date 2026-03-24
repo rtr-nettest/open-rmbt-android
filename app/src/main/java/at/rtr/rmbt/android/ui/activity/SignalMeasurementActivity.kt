@@ -222,6 +222,7 @@ class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback, Coverage
             R.string.allow,
             {
                 this@SignalMeasurementActivity.openAppSettings()
+                hideBackgroundLocationMissingSnackbar()
             }
         )
         noBackgroundLocationPermissionGrantedSnackbar?.show()
@@ -306,6 +307,8 @@ class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback, Coverage
             }
         if (!backgroundLocationPermissionsGranted) {
             showNoBackgroundLocationAllowed()
+        } else {
+            hideBackgroundLocationMissingSnackbar()
         }
     }
 
