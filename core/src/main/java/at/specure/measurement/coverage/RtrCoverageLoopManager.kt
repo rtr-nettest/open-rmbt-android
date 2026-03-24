@@ -1,10 +1,10 @@
 package at.specure.measurement.coverage
 
+import at.specure.config.Config
 import at.specure.data.CoverageMeasurementSettings
 import at.specure.data.entity.CoverageMeasurementSession
 import at.specure.data.repository.SignalMeasurementRepository
 import at.specure.data.repository.isRegistered
-import at.specure.measurement.coverage.data.FencesDataSource
 import at.specure.measurement.coverage.domain.CoverageMeasurementEvent
 import at.specure.measurement.coverage.domain.CoverageLoopManager
 import at.specure.measurement.coverage.domain.models.CoverageMeasurementTerminationCause
@@ -29,6 +29,7 @@ import kotlin.coroutines.coroutineContext
 class RtrCoverageLoopManager @Inject constructor(
     private val signalMeasurementRepository: SignalMeasurementRepository,
     private val coverageMeasurementSettings: CoverageMeasurementSettings,
+    private val config: Config,
 ) : CoverageLoopManager {
 
     private val _sessionEvents = MutableSharedFlow<CoverageMeasurementEvent>()
@@ -86,7 +87,7 @@ class RtrCoverageLoopManager @Inject constructor(
     override suspend fun endMeasurementLoop() {
         registrationJob?.cancel()
         registrationJob = null
-
+        config.minDistanceMetersToLogNewLocationOnMapDuringSignalMeasurement = coverageMeasurementSettings.baseMinimalDistanceBetweenFenceCentersMeters
         _sessionEvents.emit(CoverageMeasurementEvent.MeasurementLoopEnded)
     }
 
