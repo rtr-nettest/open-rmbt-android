@@ -228,7 +228,8 @@ class CoverageResultViewModel @Inject constructor(
 
         val currentMap = map ?: return
         val pts = points ?: return
-        if (!shouldUpdateMap() && coverageMeasurementState != CoverageMeasurementState.FINISHED_LOOP_CORRECTLY) return
+        val isMeasurementInProgress = coverageMeasurementState != CoverageMeasurementState.FINISHED_LOOP_CORRECTLY
+        if (!shouldUpdateMap() && isMeasurementInProgress) return
 
         viewModelScope.launch(Dispatchers.Default) {
             clearPerformanceListsIfTheyAreFromPreviousMeasurement(currentMap, pts)
@@ -238,7 +239,8 @@ class CoverageResultViewModel @Inject constructor(
             val markerDetailsMap = mutableMapOf<Long, CoverageMarkerDetailsData>()
 
             // Prepare MarkerOptions in background
-            val markerOptionsList = newPoints.mapNotNull { point ->
+            val markerOptionsList = newPoints.mapIndexedNotNull { index, point ->
+                val isLastDuringMeasurement = index == newPoints.lastIndex && isMeasurementInProgress
                 markerDetailsMap[point.id] = CoverageMarkerDetailsData(
                     id = point.id,
                     networkType = point.networkTechnologyId ?: 0,
@@ -248,8 +250,9 @@ class CoverageResultViewModel @Inject constructor(
                     signalStrength = point.signalMainDbm,
                     pingMillis = (point.averagePingMillis?.times(1000000))?.toLong(),
                     timestamp = point.fenceTimestampMillis,
+                    isNotFinished = isLastDuringMeasurement
                 )
-                val latLng = point.toLatLng() ?: return@mapNotNull null
+                val latLng = point.toLatLng() ?: return@mapIndexedNotNull null
                 val tech = MobileNetworkType.fromValue(point.networkTechnologyId ?: 0)
                 MarkerOptions()
                     .position(latLng)
@@ -285,6 +288,7 @@ class CoverageResultViewModel @Inject constructor(
                                 signalStrength = point.signalMainDbm,
                                 pingMillis = (point.averagePingMillis?.times(1000000))?.toLong(),
                                 timestamp = point.fenceTimestampMillis,
+                                isNotFinished = lastPoint?.id == point.id,
                             )
 
                             marker.tag = updatedData

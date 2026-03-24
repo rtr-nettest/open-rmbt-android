@@ -183,6 +183,7 @@
                 app:layout_constraintStart_toEndOf="@+id/textConnection"
                 app:layout_constraintTop_toBottomOf="@+id/labelResultBottomPing"
                 app:pingMsNoColor="@{item.pingMillis}"
+                app:finalValue="@{!item.notFinished}"
                 tools:drawableStart="@drawable/ic_small_ping_yellow"
                 tools:text="14 ms" />
 
@@ -201,6 +202,7 @@
                 app:layout_constraintTop_toBottomOf="@+id/labelResultBottomSignal"
                 app:signalStrengthClassificationResult="@{item.signalClass == null ? Classification.NONE : item.signalClass}"
                 app:signalStrengthResult="@{item.signalStrength}"
+                app:finalValue="@{!item.notFinished}"
                 tools:drawableStart="@drawable/ic_small_wifi_gray"
                 tools:text="-86 dBm" />
 

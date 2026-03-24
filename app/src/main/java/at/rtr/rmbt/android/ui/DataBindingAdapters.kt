@@ -518,9 +518,14 @@ fun waveEnabled(view: WaveView, enabled: Boolean) {
 val THRESHOLD_PING = listOf(0.0, 10.0, 25.0, 75.0) // 0ms, 10ms, 25ms, 75ms
 
 
-@BindingAdapter("pingMsNoColor")
-fun AppCompatTextView.setPingNoColor(pingNanos: Long) {
-    this.resolvePing(pingNanos, false)
+@BindingAdapter("pingMsNoColor", "finalValue")
+fun AppCompatTextView.setPingNoColor(pingNanos: Long, finalValue: Boolean = true) {
+    if (finalValue) {
+        this.resolvePing(pingNanos, false)
+    } else {
+        this.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, 0)
+        this.text = context.getString(R.string.measuring)
+    }
 }
 
 /**
@@ -1171,35 +1176,45 @@ fun getPingClassificationIcon(pingClassification: Classification): Int {
 /**
  * A binding adapter that is used for show signal strength with classification icon in result
  */
-@BindingAdapter("signalStrengthResult", "signalStrengthClassificationResult", requireAll = true)
-fun AppCompatTextView.setSignalStrength(signalStrengthResult: Int?, signalStrengthClassificationResult: Classification) {
+@BindingAdapter("signalStrengthResult", "signalStrengthClassificationResult","finalValue", requireAll = true)
+fun AppCompatTextView.setSignalStrength(signalStrengthResult: Int?, signalStrengthClassificationResult: Classification, finalValue: Boolean) {
 
-    text = if (signalStrengthResult != null) {
-        context.getString(R.string.strength_signal_value, signalStrengthResult)
+    if (finalValue) {
+
+        text = if (signalStrengthResult != null) {
+            context.getString(R.string.strength_signal_value, signalStrengthResult)
+        } else {
+            context.getString(R.string.measurement_dash)
+        }
+
+        setCompoundDrawablesWithIntrinsicBounds(
+
+            when (signalStrengthClassificationResult) {
+                Classification.NONE -> {
+                    R.drawable.ic_small_wifi_gray
+                }
+
+                Classification.BAD -> {
+                    R.drawable.ic_small_wifi_red
+                }
+
+                Classification.NORMAL -> {
+                    R.drawable.ic_small_wifi_yellow
+                }
+
+                Classification.GOOD -> {
+                    R.drawable.ic_small_wifi_light_green
+                }
+
+                Classification.EXCELLENT -> {
+                    R.drawable.ic_small_wifi_dark_green
+                }
+            }, 0, 0, 0
+        )
     } else {
-        context.getString(R.string.measurement_dash)
+        setCompoundDrawablesWithIntrinsicBounds(0,0,0,0)
+        text = context.getString(R.string.measuring)
     }
-
-    setCompoundDrawablesWithIntrinsicBounds(
-
-        when (signalStrengthClassificationResult) {
-            Classification.NONE -> {
-                R.drawable.ic_small_wifi_gray
-            }
-            Classification.BAD -> {
-                R.drawable.ic_small_wifi_red
-            }
-            Classification.NORMAL -> {
-                R.drawable.ic_small_wifi_yellow
-            }
-            Classification.GOOD -> {
-                R.drawable.ic_small_wifi_light_green
-            }
-            Classification.EXCELLENT -> {
-                R.drawable.ic_small_wifi_dark_green
-            }
-        }, 0, 0, 0
-    )
 }
 
 /**
