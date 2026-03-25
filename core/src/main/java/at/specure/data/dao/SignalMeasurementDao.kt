@@ -13,7 +13,10 @@ import at.specure.data.entity.SignalMeasurementChunk
 import at.specure.data.entity.CoverageMeasurementFenceRecord
 import at.specure.data.entity.SignalMeasurementRecord
 import at.specure.data.entity.CoverageMeasurementSession
+import at.specure.data.entity.DEFAULT_LEAVE_TIMESTAMP_MILLIS
 import at.specure.data.entity.SignalRecord
+import at.specure.info.network.NetworkInfo
+import at.specure.measurement.coverage.data.getMobileNetworkType
 
 const val COVERAGE_MEASUREMENT_SUBMISSION_MAX_RETRY_COUNT = 3
 
@@ -89,6 +92,37 @@ interface SignalMeasurementDao {
         point: CoverageMeasurementFenceRecord
     ) {
         val nextSeq = getMaxSequence(point.sessionId) + 1
+
+        val updatedSequencePoint = point.copy(
+            sequenceNumber = nextSeq
+        )
+        upsertSignalMeasurementPoint(updatedSequencePoint)
+    }
+
+    @Transaction
+    open suspend fun insertFenceWithNextSequenceAndUpdateLastOne(
+        point: CoverageMeasurementFenceRecord,
+        leaveTimestampMillis: Long,
+        avgPingMillis: Double?,
+        networkInfo: NetworkInfo?,
+        lastFenceMinTechSignal: Int?,
+    ) {
+        val nextSeq = getMaxSequence(point.sessionId) + 1
+        val session = getCoverageMeasurementSessionForMeasurementId(point.sessionId)
+        val lastPoint = session?.localLoopId?.let {
+            getLastFencesListForSessionLoop(sessionLoopId = session.localLoopId, 1).firstOrNull()
+        }
+        lastPoint?.let { lastFence ->
+            if (lastFence.leaveTimestampMillis == DEFAULT_LEAVE_TIMESTAMP_MILLIS) { // to not update fence once exited
+                val updatedFence = lastFence.copy(
+                    leaveTimestampMillis = leaveTimestampMillis,
+                    avgPingMillis = avgPingMillis,
+                    technologyId = networkInfo?.getMobileNetworkType()?.intValue,
+                    signalStrength = lastFenceMinTechSignal
+                )
+                upsertSignalMeasurementPoint(updatedFence)
+            }
+        }
 
         val updatedSequencePoint = point.copy(
             sequenceNumber = nextSeq

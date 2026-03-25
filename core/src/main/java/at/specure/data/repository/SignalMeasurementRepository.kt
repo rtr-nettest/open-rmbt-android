@@ -6,6 +6,7 @@ import at.specure.data.entity.CoverageMeasurementFenceRecord
 import at.specure.data.entity.SignalMeasurementRecord
 import at.specure.data.entity.CoverageMeasurementSession
 import at.specure.data.entity.SignalRecord
+import at.specure.info.network.NetworkInfo
 import at.specure.measurement.signal.SignalMeasurementChunkReadyCallback
 import at.specure.measurement.signal.SignalMeasurementChunkResultCallback
 import at.specure.measurement.signal.ValidChunkPostProcessing
@@ -55,6 +56,14 @@ interface SignalMeasurementRepository {
     fun upsertMeasurementPointRecord(point: CoverageMeasurementFenceRecord)
 
     suspend fun createMeasurementPointRecordWithNewSequenceNumber(point: CoverageMeasurementFenceRecord)
+
+    suspend fun createMeasurementPointRecordWithNewSequenceNumberAndUpdateLastOneTransaction(
+        point: CoverageMeasurementFenceRecord,
+        leaveTimestampMillis: Long,
+        avgPingMillis: Double?,
+        networkInfo: NetworkInfo?,
+        lastFenceMinTechSignal: Int?,
+    )
 
     fun loadSignalMeasurementPointRecordsForMeasurement(measurementId: String): LiveData<List<CoverageMeasurementFenceRecord>>
 

@@ -22,6 +22,7 @@ import at.specure.data.toCoverageRequest
 import at.specure.data.toCoverageResultRequest
 import at.specure.data.toRequest
 import at.specure.info.TransportType
+import at.specure.info.network.NetworkInfo
 import at.specure.measurement.signal.SignalMeasurementChunkReadyCallback
 import at.specure.measurement.signal.SignalMeasurementChunkResultCallback
 import at.specure.measurement.signal.ValidChunkPostProcessing
@@ -53,9 +54,9 @@ class SignalMeasurementRepositoryImpl(
             localMeasurementId = record.id,
             serverMeasurementId = newUuid,
         )
-        .also {
+            .also {
 //            dao.saveDedicatedSignalMeasurementSession(it)
-        }
+            }
     }
 
     override fun saveAndRegisterRecord(record: SignalMeasurementRecord) = io {
@@ -108,12 +109,28 @@ class SignalMeasurementRepositoryImpl(
         return dao.getCoverageMeasurementSessionForMeasurementId(measurementId)
     }
 
-    override fun upsertMeasurementPointRecord(point: CoverageMeasurementFenceRecord) = io {
+    override fun upsertMeasurementPointRecord(point: CoverageMeasurementFenceRecord) {
         dao.upsertSignalMeasurementPoint(point)
     }
 
-    override suspend fun createMeasurementPointRecordWithNewSequenceNumber(point: CoverageMeasurementFenceRecord) = io {
+    override suspend fun createMeasurementPointRecordWithNewSequenceNumber(point: CoverageMeasurementFenceRecord) {
         dao.insertFenceWithNextSequence(point)
+    }
+
+    override suspend fun createMeasurementPointRecordWithNewSequenceNumberAndUpdateLastOneTransaction(
+        point: CoverageMeasurementFenceRecord,
+        leaveTimestampMillis: Long,
+        avgPingMillis: Double?,
+        networkInfo: NetworkInfo?,
+        lastFenceMinTechSignal: Int?,
+    ) {
+        dao.insertFenceWithNextSequenceAndUpdateLastOne(
+            point,
+            leaveTimestampMillis,
+            avgPingMillis,
+            networkInfo,
+            lastFenceMinTechSignal,
+        )
     }
 
     override fun loadSignalMeasurementPointRecordsForMeasurement(measurementId: String): LiveData<List<CoverageMeasurementFenceRecord>> {
@@ -303,7 +320,7 @@ class SignalMeasurementRepositoryImpl(
 
     override suspend fun retrySendFences() {
         val measurements = dao.getCoverageMeasurementsForRetrySend()
-        measurements.forEach {coverageSessionMeasurement ->
+        measurements.forEach { coverageSessionMeasurement ->
             val localMeasurementId = coverageSessionMeasurement.localMeasurementId
             val telephonyRecord = db.testDao().getTelephonyRecord(localMeasurementId)
             val fencesForSession = dao.getCoverageMeasurementFencesList(coverageSessionMeasurement.localMeasurementId)
@@ -313,7 +330,7 @@ class SignalMeasurementRepositoryImpl(
             val cellLocationList = db.cellLocationDao().get(localMeasurementId, null)
             val permissions = db.permissionStatusDao().get(localMeasurementId, null)
 
-            clientUUID.value?.let {clientUuid ->
+            clientUUID.value?.let { clientUuid ->
                 fencesForSession.let { fences ->
                     if (fences.isNotEmpty()) {
                         val requestBody = coverageSessionMeasurement.toCoverageResultRequest(

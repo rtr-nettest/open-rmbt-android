@@ -48,9 +48,6 @@ class CoverageMeasurementDataStateManager @Inject constructor(
                 state != CoverageMeasurementState.PAUSED
     }
 
-    fun getLastFence(): CoverageMeasurementFenceRecord? =
-        _state.value.fences.lastOrNull()
-
     fun initData() {
         Timber.d("Session state updated to from init: ${CoverageMeasurementState.IDLE.name}")
         _state.value =

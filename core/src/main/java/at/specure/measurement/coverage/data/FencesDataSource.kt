@@ -51,16 +51,14 @@ class FencesDataSource @Inject constructor(
             frequencyBand = networkInfo.getFrequencyBand(),
             avgPingMillis = null,
         )
-        signalMeasurementRepository.createMeasurementPointRecordWithNewSequenceNumber(point)
-        updateSignalFenceAndSaveOnLeaving(
-            lastSavedFence,
+        signalMeasurementRepository.createMeasurementPointRecordWithNewSequenceNumberAndUpdateLastOneTransaction(
+            point,
             entryTimestampMillis,
             avgPingMillisForLastFence,
             networkInfo = networkInfo,
             lastFenceMinTechSignal = lastFenceMinTechSignal
         )
         Timber.d("createSignalFenceAndUpdateLastOne: $point")
-
     }
 
     // TODO: Take network info when leaving the point? - possible problem with changing the network type on map when created and when leaving
