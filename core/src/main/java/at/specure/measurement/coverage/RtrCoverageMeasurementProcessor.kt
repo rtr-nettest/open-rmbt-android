@@ -100,7 +100,6 @@ class RtrCoverageMeasurementProcessor @Inject constructor(
             throw e
         }
     }
-    private val mutex = Mutex()
     private var loadingFencesJob: Job? = null
     private var sessionCollectorJob: Job? = null
     private var pingJob: Job? = null
@@ -413,12 +412,12 @@ class RtrCoverageMeasurementProcessor @Inject constructor(
             }
         }
 
-        val lastRecordedFence = mutex.withLock {
+        val lastRecordedFence =
             session?.localLoopId?.let { localSessionLoopId ->
                 signalMeasurementRepository.loadLastSignalMeasurementPointRecordsForLoopMeasurementList(localLoopSessionId = localSessionLoopId, limit = 1)
                     .firstOrNull()
             }
-        }
+
         Timber.d("Last fence sequence: ${lastRecordedFence?.sequenceNumber}")
 
         coverageMeasurementDataValue.coverageMeasurementSession?.localMeasurementId?.let { localMeasurementId ->
@@ -471,17 +470,15 @@ class RtrCoverageMeasurementProcessor @Inject constructor(
             config.minDistanceMetersToLogNewLocationOnMapDuringSignalMeasurement = newFenceRadiusBase
             Timber.d("Current radius to save new fence Saving new with base: ${config.minDistanceMetersToLogNewLocationOnMapDuringSignalMeasurement} vs $newFenceRadiusBase")
             val newFenceRadius = newFenceRadiusBase * config.minDistanceFactorCoverageMeasurement.toDouble()
-            mutex.withLock {
-                saveNewFence(
-                    sessionId = sessionId,
-                    newLocation = newLocation!!,
-                    newTimestamp = newTimestamp,
-                    networkInfo = networkInfo?.networkInfo,
-                    fenceRadiusMeters = newFenceRadius,
-                    lastRecordedFence = lastRecordedFence,
-                    lastFenceMinTechSignal = stateManager.getMinSignalForTechnologyForCurrentFence(networkInfo?.networkInfo)
-                )
-            }
+            saveNewFence(
+                sessionId = sessionId,
+                newLocation = newLocation!!,
+                newTimestamp = newTimestamp,
+                networkInfo = networkInfo?.networkInfo,
+                fenceRadiusMeters = newFenceRadius,
+                lastRecordedFence = lastRecordedFence,
+                lastFenceMinTechSignal = stateManager.getMinSignalForTechnologyForCurrentFence(networkInfo?.networkInfo)
+            )
         } else {
             Timber.d("Not saving new fence")
         }
