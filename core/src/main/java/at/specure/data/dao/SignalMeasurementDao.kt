@@ -62,9 +62,8 @@ interface SignalMeasurementDao {
         ON fence.sessionId = session.localMeasurementId
         WHERE session.localLoopId = :sessionLoopId
         ORDER BY fence.sequenceNumber ASC
-        LIMIT CASE WHEN :limit IS NULL THEN -1 ELSE :limit END
     """)
-    fun getFencesListForSessionLoop(sessionLoopId: String, limit: Int? = null): List<CoverageMeasurementFenceRecord>
+    fun getFencesListForSessionLoop(sessionLoopId: String): List<CoverageMeasurementFenceRecord>
 
     @Query("""
         SELECT fence.* 
@@ -73,9 +72,8 @@ interface SignalMeasurementDao {
         ON fence.sessionId = session.localMeasurementId
         WHERE session.localLoopId = :sessionLoopId
         ORDER BY fence.sequenceNumber ASC
-        LIMIT CASE WHEN :limit IS NULL THEN -1 ELSE :limit END
     """)
-    fun getFencesLiveDataForSessionLoop(sessionLoopId: String, limit: Int? = null): LiveData<List<CoverageMeasurementFenceRecord>>
+    fun getFencesLiveDataForSessionLoop(sessionLoopId: String): LiveData<List<CoverageMeasurementFenceRecord>>
 
     @Upsert
     fun upsertSignalMeasurementPoint(point: CoverageMeasurementFenceRecord)

@@ -77,9 +77,9 @@ interface SignalMeasurementRepository {
 
     fun loadSignalMeasurementPointRecordsForMeasurementList(measurementId: String): List<CoverageMeasurementFenceRecord>
 
-    fun loadSignalMeasurementPointRecordsForLoopMeasurement(localLoopSessionId: String, limit: Int? = null): LiveData<List<CoverageMeasurementFenceRecord>>
+    fun loadSignalMeasurementPointRecordsForLoopMeasurement(localLoopSessionId: String): LiveData<List<CoverageMeasurementFenceRecord>>
 
-    fun loadSignalMeasurementPointRecordsForLoopMeasurementList(localLoopSessionId: String, limit: Int? = null): List<CoverageMeasurementFenceRecord>
+    fun loadSignalMeasurementPointRecordsForLoopMeasurementList(localLoopSessionId: String): List<CoverageMeasurementFenceRecord>
 
     fun loadLastSignalMeasurementPointRecordsForLoopMeasurementList(localLoopSessionId: String, limit: Int?): List<CoverageMeasurementFenceRecord>
 

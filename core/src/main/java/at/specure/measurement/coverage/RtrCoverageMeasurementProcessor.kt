@@ -47,8 +47,6 @@ import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.sync.Mutex
-import kotlinx.coroutines.sync.withLock
 import timber.log.Timber
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -127,7 +125,7 @@ class RtrCoverageMeasurementProcessor @Inject constructor(
                     val time = measureTime {
                         processLocation(location, networkInfo, currentTemperature)
                     }
-                    Timber.d("Location processing time milliseconds: ${time.inWholeMilliseconds}")
+                    Timber.d("TOTAL PROCESSING TIME: ${time.inWholeMilliseconds}")
                 }
         }
         connectivityMonitor.start(
@@ -394,13 +392,14 @@ class RtrCoverageMeasurementProcessor @Inject constructor(
 
     private suspend fun processLocation(location: LocationInfo?, networkInfo: DetailedNetworkInfo?, currentTemperature: Float?) {
         // TODO: check how old is signal information + also handle no signal record in SignalMeasurementProcessor
-        Timber.d("INFO UPDATE: PASSED")
+        Timber.d("LPT PROCESSING LOCATION...")
         val coverageMeasurementDataValue = stateManager.state.value ?: return
 
         if (coverageMeasurementDataValue.state == CoverageMeasurementState.FINISHED_LOOP_CORRECTLY
             || coverageMeasurementDataValue.state == CoverageMeasurementState.IDLE) return
 
         val session = coverageMeasurementDataValue.coverageMeasurementSession
+        Timber.d("LPT SESSION: $session")
 
         val sessionWithTemperature = updateCurrentTemperature(session, currentTemperature)
         val sessionWithIpAddress = updateCurrentLocalIpAddress(sessionWithTemperature)
@@ -411,20 +410,31 @@ class RtrCoverageMeasurementProcessor @Inject constructor(
             }
         }
 
-        val lastRecordedFence =
-            session?.localLoopId?.let { localSessionLoopId ->
-                signalMeasurementRepository.loadLastSignalMeasurementPointRecordsForLoopMeasurementList(localLoopSessionId = localSessionLoopId, limit = 1)
-                    .firstOrNull()
-            }
+        val lastRecordedFence = loadLastFenceForSessionLoop( session?.localLoopId)
+        Timber.d("LPT LAST FENCE #${lastRecordedFence?.sequenceNumber}: $lastRecordedFence")
 
-        Timber.d("Last fence sequence: ${lastRecordedFence?.sequenceNumber}")
+        var jobCellularMetadata: Job? = null
+        var jobLocationMetadata: Job? = null
+       /* session?.localMeasurementId?.let { localMeasurementId ->
+            session.startMeasurementTimeResponseReceivedNanos.let {startTimeNanos ->
 
-        coverageMeasurementDataValue.coverageMeasurementSession?.localMeasurementId?.let { localMeasurementId ->
-            coverageMeasurementDataValue.coverageMeasurementSession.startMeasurementTimeResponseReceivedNanos.let {startTimeNanos ->
-                testDataRepository.saveLocationMetadataForCoverage(location, localMeasurementId, startTimeNanos)
-                testDataRepository.saveCellMetadataForCoverage(networkInfo, localMeasurementId, startTimeNanos)
+                val timespentLocation = measureTime {
+                    val jobLocationMetadata = launch(Dispatchers.IO) {
+                        testDataRepository.saveLocationMetadataForCoverage(location, localMeasurementId, startTimeNanos)
+                    }
+                    jobLocationMetadata.join()
+                }
+                Timber.d("LPT LOCATION METADATA PROCESSING TIME: ${timespentLocation.inWholeMilliseconds}")
+
+                val timespent = measureTime {
+                    val jobCellularMetadata = launch(Dispatchers.IO) {
+                        testDataRepository.saveCellMetadataForCoverage(networkInfo, localMeasurementId, startTimeNanos)
+                    }
+                    jobCellularMetadata.join()
+                }
+                Timber.d("LPT CELLULAR METADATA PROCESSING TIME: ${timespent.inWholeMilliseconds}")
             }
-        }
+        }*/
 
         val newFenceRadiusBase = computeSpeedAndUpdateFenceRadius(coverageMeasurementDataValue.currentLocation, location)
 
@@ -435,20 +445,36 @@ class RtrCoverageMeasurementProcessor @Inject constructor(
 
         if (isBackOnMobileData && lastRecordedFence != null) {
             onMeasurementStopAndStartNewMeasurement(CoverageMeasurementTerminationCause.EndedByBackOnMobileData())
+            waitForCompletition(jobLocationMetadata)
+            waitForCompletition(jobCellularMetadata)
             return
         }
 
         val reasonToTerminate = getReasonToTerminateMeasurementBecauseOfSomeCause(coverageMeasurementDataValue.coverageMeasurementSession?.localMeasurementId)
         if (reasonToTerminate != null) {
             onMeasurementStopAndStartNewMeasurement(reasonToTerminate)
+            waitForCompletition(jobLocationMetadata)
+            waitForCompletition(jobCellularMetadata)
             return
         }
 
         val isConnectionStateValid = checkForTheConnectionState()
-        if (!isConnectionStateValid) return
+        if (!isConnectionStateValid) {
+            waitForCompletition(jobLocationMetadata)
+            waitForCompletition(jobCellularMetadata)
+            return
+        }
 
-        if (!stateManager.isInStateToAddNewFences()) return
-        if (location == null) return
+        if (!stateManager.isInStateToAddNewFences()) {
+            waitForCompletition(jobLocationMetadata)
+            waitForCompletition(jobCellularMetadata)
+            return
+        }
+        if (location == null) {
+            waitForCompletition(jobLocationMetadata)
+            waitForCompletition(jobCellularMetadata)
+            return
+        }
 
         val newTimestamp = System.currentTimeMillis()
         val newLocation = location.toDeviceInfoLocation()
@@ -462,6 +488,8 @@ class RtrCoverageMeasurementProcessor @Inject constructor(
         val sessionId = session?.localMeasurementId
         if (sessionId == null) {
             Timber.e("Signal measurement Session not initialized yet - sessionId missing")
+            waitForCompletition(jobLocationMetadata)
+            waitForCompletition(jobCellularMetadata)
             return
         }
         Timber.d("Current radius to save new fence: ${config.minDistanceMetersToLogNewLocationOnMapDuringSignalMeasurement} vs new one $newFenceRadiusBase")
@@ -481,7 +509,8 @@ class RtrCoverageMeasurementProcessor @Inject constructor(
         } else {
             Timber.d("Not saving new fence")
         }
-
+        waitForCompletition(jobLocationMetadata)
+        waitForCompletition(jobCellularMetadata)
         /*
         TODO: Same location to replace points?
         else if (isTheSameLocation(location.toDeviceInfoLocation())) { // todo verify what to do on the same location and what values needs to be replaced - how to replace ping, ...
@@ -490,6 +519,10 @@ class RtrCoverageMeasurementProcessor @Inject constructor(
                 replaceSignalFenceAndSave(point, signalRecord)
             }
         }*/
+    }
+
+    private suspend fun waitForCompletition(job: Job?) {
+        job?.join()
     }
 
     private fun updateCurrentTemperature(session: CoverageMeasurementSession?, currentTemperature: Float?): CoverageMeasurementSession? {
@@ -561,8 +594,9 @@ class RtrCoverageMeasurementProcessor @Inject constructor(
         return true
     }
 
-    private suspend fun loadLastFenceForSession(sessionId: String): CoverageMeasurementFenceRecord? {
-        return signalMeasurementRepository.loadLastSignalMeasurementPointRecordsForLoopMeasurementList(localLoopSessionId = sessionId, limit = 1).firstOrNull()
+    private suspend fun loadLastFenceForSessionLoop(sessionLoopId: String?): CoverageMeasurementFenceRecord? {
+        if (sessionLoopId == null) return null
+        return signalMeasurementRepository.loadLastSignalMeasurementPointRecordsForLoopMeasurementList(localLoopSessionId = sessionLoopId, limit = 1).firstOrNull()
     }
 
     private suspend fun saveNewFence(
