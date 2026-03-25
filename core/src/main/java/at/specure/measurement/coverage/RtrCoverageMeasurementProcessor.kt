@@ -181,17 +181,18 @@ class RtrCoverageMeasurementProcessor @Inject constructor(
                                 Timber.d("Session created with id: ${event.session.localMeasurementId} seq: ${event.session.sequenceNumber}")
                                 val session = event.session
                                 val localMeasurementId = event.session.localMeasurementId
+                                stateManager.onSessionCreated(session)
                                 measurementRepository.saveCapabilities(localMeasurementId, null)
                                 measurementRepository.saveTelephonyInfo(localMeasurementId)
                                 measurementRepository.savePermissionsStatus(localMeasurementId, null)
                                 sessionCreated?.invoke(session)
                                 loadingFencesJob?.cancel()
                                 loadingFencesJob = loadPoints(session.localLoopId)
-                                stateManager.onSessionCreated(session)
+                                Timber.d("SDT Updating main state with session id: ${event.session.localMeasurementId} and server: ${event.session.serverMeasurementId}")
                             }
 
                             is CoverageMeasurementEvent.MeasurementRegistered -> {
-                                Timber.d("Session created with id: ${event.session.localMeasurementId} and server: ${event.session.serverMeasurementId}")
+                                Timber.d("SDT Session created or continue with id: ${event.session.localMeasurementId} and server: ${event.session.serverMeasurementId}")
                                 onStartAndRegistrationCompleted(event.session)
                             }
 
@@ -399,7 +400,7 @@ class RtrCoverageMeasurementProcessor @Inject constructor(
             || coverageMeasurementDataValue.state == CoverageMeasurementState.IDLE) return
 
         val session = coverageMeasurementDataValue.coverageMeasurementSession
-        Timber.d("LPT SESSION: $session")
+        Timber.d("LPT SDT SESSION: $session")
 
         val sessionWithTemperature = updateCurrentTemperature(session, currentTemperature)
         val sessionWithIpAddress = updateCurrentLocalIpAddress(sessionWithTemperature)
