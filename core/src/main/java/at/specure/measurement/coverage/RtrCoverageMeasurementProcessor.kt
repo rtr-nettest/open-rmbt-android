@@ -273,9 +273,8 @@ class RtrCoverageMeasurementProcessor @Inject constructor(
         val sessionId = stateManager.state.value.coverageMeasurementSession?.localMeasurementId
         val avgPingMillis = coveragePingProcessor.stopPing()?.average
         sessionId?.let {
-            val lastFence = loadLastFenceForSession(sessionId)
             fencesDataSource.updateSignalFenceAndSaveOnLeaving(
-                lastFence,
+                sessionId,
                 leaveTimestampMillis = System.currentTimeMillis(),
                 avgPingMillis = avgPingMillis,
                 networkInfo = stateManager.state.value.currentNetworkInfo,

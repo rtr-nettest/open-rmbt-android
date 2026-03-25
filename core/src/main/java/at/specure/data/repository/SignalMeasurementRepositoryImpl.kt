@@ -133,6 +133,22 @@ class SignalMeasurementRepositoryImpl(
         )
     }
 
+    override suspend fun updateSignalMeasurementOnLeavingTransaction(
+        sessionId: String,
+        leaveTimestampMillis: Long,
+        avgPingMillis: Double?,
+        networkInfo: NetworkInfo?,
+        lastFenceMinTechSignal: Int?
+    ) {
+        dao.updateLastPointForSession(
+            sessionId,
+            leaveTimestampMillis,
+            avgPingMillis,
+            networkInfo,
+            lastFenceMinTechSignal,
+        )
+    }
+
     override fun loadSignalMeasurementPointRecordsForMeasurement(measurementId: String): LiveData<List<CoverageMeasurementFenceRecord>> {
         return dao.getCoverageMeasurementFences(measurementId)
     }

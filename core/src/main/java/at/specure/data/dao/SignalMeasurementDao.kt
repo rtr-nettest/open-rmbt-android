@@ -130,6 +130,31 @@ interface SignalMeasurementDao {
         upsertSignalMeasurementPoint(updatedSequencePoint)
     }
 
+    @Transaction
+    open suspend fun updateLastPointForSession(
+        sessionId: String,
+        leaveTimestampMillis: Long,
+        avgPingMillis: Double?,
+        networkInfo: NetworkInfo?,
+        lastFenceMinTechSignal: Int?,
+    ) {
+        val session = getCoverageMeasurementSessionForMeasurementId(sessionId)
+        val lastPoint = session?.localLoopId?.let {
+            getLastFencesListForSessionLoop(sessionLoopId = session.localLoopId, 1).firstOrNull()
+        }
+        lastPoint?.let { lastFence ->
+            if (lastFence.leaveTimestampMillis == DEFAULT_LEAVE_TIMESTAMP_MILLIS) { // to not update fence once exited
+                val updatedFence = lastFence.copy(
+                    leaveTimestampMillis = leaveTimestampMillis,
+                    avgPingMillis = avgPingMillis,
+                    technologyId = networkInfo?.getMobileNetworkType()?.intValue,
+                    signalStrength = lastFenceMinTechSignal
+                )
+                upsertSignalMeasurementPoint(updatedFence)
+            }
+        }
+    }
+
     @Upsert()
     fun saveDedicatedSignalMeasurementSession(session: CoverageMeasurementSession)
 

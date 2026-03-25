@@ -65,6 +65,14 @@ interface SignalMeasurementRepository {
         lastFenceMinTechSignal: Int?,
     )
 
+    suspend fun updateSignalMeasurementOnLeavingTransaction(
+        sessionId: String,
+        leaveTimestampMillis: Long,
+        avgPingMillis: Double?,
+        networkInfo: NetworkInfo?,
+        lastFenceMinTechSignal: Int?
+    )
+
     fun loadSignalMeasurementPointRecordsForMeasurement(measurementId: String): LiveData<List<CoverageMeasurementFenceRecord>>
 
     fun loadSignalMeasurementPointRecordsForMeasurementList(measurementId: String): List<CoverageMeasurementFenceRecord>

@@ -63,23 +63,19 @@ class FencesDataSource @Inject constructor(
 
     // TODO: Take network info when leaving the point? - possible problem with changing the network type on map when created and when leaving
     suspend fun updateSignalFenceAndSaveOnLeaving(
-        lastFence: CoverageMeasurementFenceRecord?,
+        sessionId: String,
         leaveTimestampMillis: Long,
         avgPingMillis: Double?,
         networkInfo: NetworkInfo?,
         lastFenceMinTechSignal: Int?,
     ) {
-        if (lastFence?.leaveTimestampMillis == DEFAULT_LEAVE_TIMESTAMP_MILLIS) { // to not update fence once exited
-            val updatedFence = lastFence.copy(
-                leaveTimestampMillis = leaveTimestampMillis,
-                avgPingMillis = avgPingMillis,
-                technologyId = networkInfo?.getMobileNetworkType()?.intValue,
-                signalStrength = lastFenceMinTechSignal
-            )
-            updatedFence.let {
-                signalMeasurementRepository.updateSignalMeasurementFence(updatedFence)
-            }
-        }
+        signalMeasurementRepository.updateSignalMeasurementOnLeavingTransaction(
+            sessionId,
+            leaveTimestampMillis,
+            avgPingMillis,
+            networkInfo,
+            lastFenceMinTechSignal
+        )
     }
 
     private fun getNextSequenceNumber(lastPoint: CoverageMeasurementFenceRecord?): Int {
