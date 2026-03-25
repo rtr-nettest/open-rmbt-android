@@ -50,7 +50,7 @@ interface SignalMeasurementDao {
         INNER JOIN ${Tables.COVERAGE_MEASUREMENT_SESSION} AS session
         ON fence.sessionId = session.localMeasurementId
         WHERE session.localLoopId = :sessionLoopId
-        ORDER BY fence.sequenceNumber DESC
+        ORDER BY fence.entryTimestampMillis DESC
         LIMIT CASE WHEN :limit IS NULL THEN -1 ELSE :limit END
     """)
     fun getLastFencesListForSessionLoop(sessionLoopId: String, limit: Int? = null): List<CoverageMeasurementFenceRecord>
@@ -61,7 +61,7 @@ interface SignalMeasurementDao {
         INNER JOIN ${Tables.COVERAGE_MEASUREMENT_SESSION} AS session
         ON fence.sessionId = session.localMeasurementId
         WHERE session.localLoopId = :sessionLoopId
-        ORDER BY fence.sequenceNumber ASC
+        ORDER BY fence.entryTimestampMillis ASC
     """)
     fun getFencesListForSessionLoop(sessionLoopId: String): List<CoverageMeasurementFenceRecord>
 
@@ -71,7 +71,7 @@ interface SignalMeasurementDao {
         INNER JOIN ${Tables.COVERAGE_MEASUREMENT_SESSION} AS session
         ON fence.sessionId = session.localMeasurementId
         WHERE session.localLoopId = :sessionLoopId
-        ORDER BY fence.sequenceNumber ASC
+        ORDER BY fence.entryTimestampMillis ASC
     """)
     fun getFencesLiveDataForSessionLoop(sessionLoopId: String): LiveData<List<CoverageMeasurementFenceRecord>>
 

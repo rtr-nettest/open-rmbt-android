@@ -504,7 +504,6 @@ class RtrCoverageMeasurementProcessor @Inject constructor(
                 newTimestamp = newTimestamp,
                 networkInfo = networkInfo?.networkInfo,
                 fenceRadiusMeters = newFenceRadius,
-                lastRecordedFence = lastRecordedFence,
                 lastFenceMinTechSignal = stateManager.getMinSignalForTechnologyForCurrentFence(networkInfo?.networkInfo)
             )
         } else {
@@ -606,16 +605,14 @@ class RtrCoverageMeasurementProcessor @Inject constructor(
         newTimestamp: Long,
         networkInfo: NetworkInfo?,
         fenceRadiusMeters: Double,
-        lastRecordedFence: CoverageMeasurementFenceRecord?,
         lastFenceMinTechSignal: Int?,
     ) {
-        Timber.d("ENDING SESSION: FENCE CREATED: session: $sessionId, ${(lastRecordedFence?.sequenceNumber ?: 0) + 1}")
+        Timber.d("ENDING SESSION: FENCE CREATED: session: $sessionId")
         fencesDataSource.createSignalFenceAndUpdateLastOne(
             sessionId = sessionId,
             location = newLocation,
             signalRecord = null,
             radiusMeters = fenceRadiusMeters,
-            lastSavedFence = lastRecordedFence,
             entryTimestampMillis = newTimestamp,
             networkInfo = networkInfo,
             lastFenceMinTechSignal = lastFenceMinTechSignal,

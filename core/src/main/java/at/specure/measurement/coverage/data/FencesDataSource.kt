@@ -8,9 +8,6 @@ import at.specure.data.entity.SignalRecord
 import at.specure.data.repository.SignalMeasurementRepository
 import at.specure.info.network.NetworkInfo
 import at.specure.test.DeviceInfo
-import kotlinx.coroutines.CoroutineName
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 import timber.log.Timber
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -35,7 +32,6 @@ class FencesDataSource @Inject constructor(
         radiusMeters: Double,
         entryTimestampMillis: Long,
         avgPingMillisForLastFence: Double?,
-        lastSavedFence: CoverageMeasurementFenceRecord?,
         lastFenceMinTechSignal: Int?,
     ) {
         val point = CoverageMeasurementFenceRecord(
