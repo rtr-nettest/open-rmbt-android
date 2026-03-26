@@ -7,7 +7,6 @@ import at.rmbt.util.io
 import at.specure.client.PingServerException
 import at.specure.config.Config
 import at.specure.data.CoverageMeasurementSettings
-import at.specure.data.RequestFilters
 import at.specure.data.entity.CoverageMeasurementFenceRecord
 import at.specure.data.entity.CoverageMeasurementSession
 import at.specure.data.entity.SignalRecord
@@ -54,7 +53,6 @@ import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.coroutines.cancellation.CancellationException
 import kotlin.math.max
 import kotlin.time.Duration.Companion.seconds
-import kotlin.time.measureTime
 
 // TODO: resolve problems with signal uuids and coverage uuids, send coverage results, new coverage request on network change and response
 // TODO: make own signal listener because now we do not get null signals on signal loss from SignalMeasurementProcessor
@@ -122,10 +120,7 @@ class RtrCoverageMeasurementProcessor @Inject constructor(
             locationUpdatesFlow
                 .conflate()
                 .collect { (location, networkInfo, currentTemperature) ->
-                    val time = measureTime {
-                        processLocation(location, networkInfo, currentTemperature)
-                    }
-                    Timber.d("TOTAL PROCESSING TIME: ${time.inWholeMilliseconds}")
+                    processLocation(location, networkInfo, currentTemperature)
                 }
         }
         connectivityMonitor.start(
@@ -564,13 +559,12 @@ class RtrCoverageMeasurementProcessor @Inject constructor(
             return CoverageMeasurementTerminationCause.EndedByTooManyGeolocations()
         }
 
-        val signalsProcessingTime = measureTime {
-            val signalCountNew = testDataRepository.getSignalsCountForCoverageMeasurement(sessionId)
-            if (signalCountNew >= MAXIMUM_SIGNALS_IN_SINGLE_MEASUREMENT) {
-                return CoverageMeasurementTerminationCause.EndedByTooManySignals()
-            }
+        val signalCountNew = testDataRepository.getSignalsCountForCoverageMeasurement(sessionId)
+        Timber.d("Check signals count: $signalCountNew")
+        if (signalCountNew >= MAXIMUM_SIGNALS_IN_SINGLE_MEASUREMENT) {
+            return CoverageMeasurementTerminationCause.EndedByTooManySignals()
         }
-        Timber.d("SIGNAL PROCESSING TIME: $signalsProcessingTime")
+
         return null
     }
 
