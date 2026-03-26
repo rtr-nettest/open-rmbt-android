@@ -52,6 +52,7 @@ interface TestDataRepository {
         info: SignalStrengthInfo,
         testStartTimeNanos: Long,
         nrConnectionState: NRConnectionState,
+        shouldSaveSignalsWithoutSignalStrength: Boolean = true,
         signalSavedCallback: ((signalRecord: SignalRecord) -> Unit)? = null,
     )
 

@@ -416,26 +416,18 @@ class RtrCoverageMeasurementProcessor @Inject constructor(
 
         var jobCellularMetadata: Job? = null
         var jobLocationMetadata: Job? = null
-       /* session?.localMeasurementId?.let { localMeasurementId ->
+        session?.localMeasurementId?.let { localMeasurementId ->
             session.startMeasurementTimeResponseReceivedNanos.let {startTimeNanos ->
 
-                val timespentLocation = measureTime {
-                    val jobLocationMetadata = launch(Dispatchers.IO) {
-                        testDataRepository.saveLocationMetadataForCoverage(location, localMeasurementId, startTimeNanos)
-                    }
-                    jobLocationMetadata.join()
+                jobLocationMetadata = launch(Dispatchers.IO) {
+                    testDataRepository.saveLocationMetadataForCoverage(location, localMeasurementId, startTimeNanos)
                 }
-                Timber.d("LPT LOCATION METADATA PROCESSING TIME: ${timespentLocation.inWholeMilliseconds}")
 
-                val timespent = measureTime {
-                    val jobCellularMetadata = launch(Dispatchers.IO) {
-                        testDataRepository.saveCellMetadataForCoverage(networkInfo, localMeasurementId, startTimeNanos)
-                    }
-                    jobCellularMetadata.join()
+                jobCellularMetadata = launch(Dispatchers.IO) {
+                    testDataRepository.saveCellMetadataForCoverage(networkInfo, localMeasurementId, startTimeNanos)
                 }
-                Timber.d("LPT CELLULAR METADATA PROCESSING TIME: ${timespent.inWholeMilliseconds}")
             }
-        }*/
+        }
 
         val newFenceRadiusBase = computeSpeedAndUpdateFenceRadius(coverageMeasurementDataValue.currentLocation, location)
 
@@ -451,7 +443,8 @@ class RtrCoverageMeasurementProcessor @Inject constructor(
             return
         }
 
-        val reasonToTerminate = getReasonToTerminateMeasurementBecauseOfSomeCause(coverageMeasurementDataValue.coverageMeasurementSession?.localMeasurementId)
+
+        val reasonToTerminate = getReasonToTerminateMeasurementBecauseOfSomeCause(session?.localMeasurementId)
         if (reasonToTerminate != null) {
             onMeasurementStopAndStartNewMeasurement(reasonToTerminate)
             waitForCompletition(jobLocationMetadata)
@@ -571,14 +564,13 @@ class RtrCoverageMeasurementProcessor @Inject constructor(
             return CoverageMeasurementTerminationCause.EndedByTooManyGeolocations()
         }
 
-        val signals = testDataRepository.getSignalsForCoverageMeasurement(sessionId)
-        val cellInfos = testDataRepository.getCellInfosForCoverageMeasurement(sessionId)
-        val radioInfoBody = RequestFilters.createRadioInfoBody(cellInfos, signals, null, true)
-
-        val signalCountNew = radioInfoBody?.signals?.count() ?: 0
-        if (signalCountNew >= MAXIMUM_SIGNALS_IN_SINGLE_MEASUREMENT) {
-            return CoverageMeasurementTerminationCause.EndedByTooManySignals()
+        val signalsProcessingTime = measureTime {
+            val signalCountNew = testDataRepository.getSignalsCountForCoverageMeasurement(sessionId)
+            if (signalCountNew >= MAXIMUM_SIGNALS_IN_SINGLE_MEASUREMENT) {
+                return CoverageMeasurementTerminationCause.EndedByTooManySignals()
+            }
         }
+        Timber.d("SIGNAL PROCESSING TIME: $signalsProcessingTime")
         return null
     }
 

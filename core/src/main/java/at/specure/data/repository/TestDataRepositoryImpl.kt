@@ -198,9 +198,10 @@ class TestDataRepositoryImpl(db: CoreDatabase) : TestDataRepository {
         info: SignalStrengthInfo,
         testStartTimeNanos: Long,
         nrConnectionState: NRConnectionState,
+        shouldSaveSignalsWithoutSignalStrength: Boolean,
         signalSavedCallback: ((signalRecord: SignalRecord) -> Unit)?
     ) = io {
-        saveSignalStrengthDirectly(testUUID, signalChunkId, cellUUID, mobileNetworkType, info, testStartTimeNanos, nrConnectionState, signalSavedCallback)
+        saveSignalStrengthDirectly(testUUID, signalChunkId, cellUUID, mobileNetworkType, info, testStartTimeNanos, nrConnectionState, shouldSaveSignalsWithoutSignalStrength,  signalSavedCallback)
     }
 
     private fun saveSignalStrengthDirectly(
@@ -211,6 +212,7 @@ class TestDataRepositoryImpl(db: CoreDatabase) : TestDataRepository {
         info: SignalStrengthInfo,
         testStartTimeNanos: Long,
         nrConnectionState: NRConnectionState,
+        shouldSaveSignalsWithoutSignalStrength: Boolean = true,
         signalSavedCallback: ((signalRecord: SignalRecord) -> Unit)? = null
     ) {
         var signal = info.value
@@ -293,7 +295,10 @@ class TestDataRepositoryImpl(db: CoreDatabase) : TestDataRepository {
             source = info.source,
             signalChunkId = signalChunkId
         )
-        signalDao.insert(item)
+        val isMissingSignalValue = item.signal == null && item.lteRsrp == null && item.nrSsRsrp == null
+        if (shouldSaveSignalsWithoutSignalStrength || !isMissingSignalValue) {
+            signalDao.insert(item)
+        }
         signalSavedCallback?.invoke(item)
     }
 
@@ -599,7 +604,7 @@ class TestDataRepositoryImpl(db: CoreDatabase) : TestDataRepository {
     override fun saveCellMetadataForCoverage(detailedNetworkInfo: DetailedNetworkInfo?, localMeasurementId: String, startTimeNanos: Long) = io {
         if (detailedNetworkInfo == null) return@io
 
-        saveCellAndSignalInfo(localMeasurementId, detailedNetworkInfo, startTimeNanos)
+        saveCellAndSignalInfo(localMeasurementId, detailedNetworkInfo, startTimeNanos, false)
     }
 
     override fun removeCellMetadataForCoverage(localMeasurementId: String) {
@@ -612,7 +617,8 @@ class TestDataRepositoryImpl(db: CoreDatabase) : TestDataRepository {
     private fun saveCellAndSignalInfo(
         uuid: String?,
         detailedNetworkInfo: DetailedNetworkInfo?,
-        testStartTimeNanos: Long
+        testStartTimeNanos: Long,
+        shouldSaveSignalsWithoutSignalStrength: Boolean = true,
     ) {
         synchronized(this) {
             var signalsSavedCount = 0
@@ -636,7 +642,8 @@ class TestDataRepositoryImpl(db: CoreDatabase) : TestDataRepository {
                     detailedNetworkInfo.signalStrengthInfo,
                     uuid,
                     it.dataSubscriptionId,
-                    testStartTimeNanos
+                    testStartTimeNanos,
+                    shouldSaveSignalsWithoutSignalStrength
                 )
                 active5GNetworkInfos?.forEachIndexed { index, cellNetworkInfo ->
                     otherCells.remove(cellNetworkInfo?.rawCellInfo)
@@ -645,7 +652,8 @@ class TestDataRepositoryImpl(db: CoreDatabase) : TestDataRepository {
                         detailedNetworkInfo.secondary5GActiveSignalStrengthInfos?.get(index),
                         uuid,
                         it.dataSubscriptionId,
-                        testStartTimeNanos
+                        testStartTimeNanos,
+                        shouldSaveSignalsWithoutSignalStrength
                     )
                 }
 
@@ -654,7 +662,8 @@ class TestDataRepositoryImpl(db: CoreDatabase) : TestDataRepository {
                     uuid,
                     testStartTimeNanos,
                     detailedNetworkInfo.networkTypes,
-                    it.dataSubscriptionId
+                    it.dataSubscriptionId,
+                    shouldSaveSignalsWithoutSignalStrength
                 )
             }
         }
@@ -665,7 +674,8 @@ class TestDataRepositoryImpl(db: CoreDatabase) : TestDataRepository {
         signalStrengthInfo: SignalStrengthInfo?,
         testUUID: String?,
         dataSubscriptionId: Int,
-        testStartTimeNanos: Long
+        testStartTimeNanos: Long,
+        shouldSaveSignalsWithoutSignalStrength: Boolean = true,
     ): Int {
         var saveMobileSignalsCount = 0
         if (cellNetworkInfo is CellNetworkInfo) {
@@ -696,19 +706,22 @@ class TestDataRepositoryImpl(db: CoreDatabase) : TestDataRepository {
                 )
                 saveCellInfoRecord(listOf(cellInfoRecord))
 
-                signalStrengthInfo?.let {
-                    if (cellNetworkInfo.networkType != MobileNetworkType.UNKNOWN) {
-                        saveSignalStrength(
-                            testUUID,
-                            null,
-                            cellNetworkInfo.comparisonCellUuid,
-                            cellNetworkInfo.networkType,
-                            it,
-                            testStartTimeNanos,
-                            NRConnectionState.NOT_AVAILABLE,
-                            null
-                        )
-                        saveMobileSignalsCount++
+                if (shouldSaveSignalsWithoutSignalStrength || (cellNetworkInfo.isRegistered && cellInfoRecord.isPrimaryDataSubscription == "true" && cellInfoRecord.cellState == "primary")) {
+                    signalStrengthInfo?.let {
+                        if (cellNetworkInfo.networkType != MobileNetworkType.UNKNOWN) {
+                            saveSignalStrength(
+                                testUUID,
+                                null,
+                                cellNetworkInfo.comparisonCellUuid,
+                                cellNetworkInfo.networkType,
+                                it,
+                                testStartTimeNanos,
+                                NRConnectionState.NOT_AVAILABLE,
+                                shouldSaveSignalsWithoutSignalStrength,
+                                null,
+                            )
+                            saveMobileSignalsCount++
+                        }
                     }
                 }
 
@@ -736,7 +749,8 @@ class TestDataRepositoryImpl(db: CoreDatabase) : TestDataRepository {
         testUUID: String?,
         testStartTimeNanos: Long,
         mobileNetworkTypes: HashMap<Int, MobileNetworkType>,
-        dataSubscriptionId: Int
+        dataSubscriptionId: Int,
+        shouldSaveSignalsWithoutSignalStrength: Boolean = true,
     ): Int {
         var saveMobileSignalsCount = 0
 
@@ -745,8 +759,7 @@ class TestDataRepositoryImpl(db: CoreDatabase) : TestDataRepository {
         val cellLocationsToSave = mutableListOf<CellLocationRecord>()
 
         if (testUUID != null) {
-            cells?.forEach {
-                val iCell = it
+            cells?.forEach { iCell ->
                 val map = iCell.toRecords(
                     testUUID,
                     null,
@@ -757,12 +770,15 @@ class TestDataRepositoryImpl(db: CoreDatabase) : TestDataRepository {
                 )
                 if (map.keys.isNotEmpty()) {
                     val cell = map.keys.iterator().next()
-                    cell?.let {
-                        val signal = map.get(it)
+                    cell?.let { cellInfoRecord ->
+                        val signal = map[cellInfoRecord]
 
-                        if (signal?.hasNonNullSignal() == true) {
+                        val hasSignal = signal?.hasNonNullSignal() == true
+                        val shouldBeSaved = shouldSaveSignalsWithoutSignalStrength || (hasSignal && cellInfoRecord.cellState == "primary" && cellInfoRecord.isPrimaryDataSubscription == "true" && cellInfoRecord.isActive)
+                        if (shouldBeSaved && hasSignal && signal != null) {
                             signalsToSave.add(signal)
                         }
+
                         val cellLocationRecord =
                             iCell.toCellLocation(
                                 testUUID,
@@ -774,7 +790,7 @@ class TestDataRepositoryImpl(db: CoreDatabase) : TestDataRepository {
                         cellLocationRecord?.let {
                             cellLocationsToSave.add(cellLocationRecord)
                         }
-                        cellInfosToSave.add(it)
+                        cellInfosToSave.add(cellInfoRecord)
                     }
                 }
             }
