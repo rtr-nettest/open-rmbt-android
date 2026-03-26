@@ -119,13 +119,6 @@
                         app:layout_constraintStart_toStartOf="@id/ping_label"
                         app:layout_constraintEnd_toEndOf="@id/ping_label"/>
 
-                    <androidx.constraintlayout.widget.Group
-                        android:id="@+id/pingGroup"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:visibility="visible"
-                        app:constraint_referenced_ids="ping_value" />
-
                     <!-- Accuracy -->
                     <TextView
                         android:id="@+id/accuracy_label"
@@ -144,6 +137,84 @@
                         style="@style/RobotoBoldStyle.Medium"
                         app:layout_constraintTop_toBottomOf="@id/accuracy_label"
                         app:layout_constraintEnd_toEndOf="@id/accuracy_label"/>
+
+                </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+            </androidx.cardview.widget.CardView>
+
+            <androidx.cardview.widget.CardView
+                android:id="@+id/measurementProgressInfoPipNetwork"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:elevation="10dp"
+                android:layout_marginTop="@dimen/margin_small"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent">
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:padding="@dimen/margin_medium">
+
+                    <!-- Technology -->
+                    <TextView
+                        android:id="@+id/technology_label_pip"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/network_label"
+                        style="@style/RobotoBoldStyle.Small"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent"/>
+
+                    <TextView
+                        android:id="@+id/technology_value_pip"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        tools:text="5G"
+                        style="@style/RobotoBoldStyle.Small"
+                        app:layout_constraintStart_toStartOf="@id/technology_label_pip"
+                        app:layout_constraintTop_toBottomOf="@id/technology_label_pip"/>
+
+                </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+            </androidx.cardview.widget.CardView>
+
+            <androidx.cardview.widget.CardView
+                android:id="@+id/measurementProgressInfoPipPing"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:elevation="10dp"
+                android:layout_marginTop="@dimen/margin_small"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent">
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:padding="@dimen/margin_medium">
+
+                    <!-- Ping -->
+                    <TextView
+                        android:id="@+id/ping_label_pip"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/label_ping"
+                        style="@style/RobotoBoldStyle.Small"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintStart_toStartOf="parent" />
+
+                    <TextView
+                        android:id="@+id/ping_value_pip"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        tools:text="10 ms"
+                        style="@style/RobotoBoldStyle.Small"
+                        app:layout_constraintTop_toBottomOf="@id/ping_label_pip"
+                        app:layout_constraintStart_toStartOf="@id/ping_label_pip" />
 
                 </androidx.constraintlayout.widget.ConstraintLayout>
 
