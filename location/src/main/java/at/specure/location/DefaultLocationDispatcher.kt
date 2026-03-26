@@ -76,22 +76,30 @@ class DefaultLocationDispatcher : LocationDispatcher {
                 } ${((location.time.plus(LOCATION_MAX_AGE_MS * 2)) >= System.currentTimeMillis())}  ${location.time} $timestamp ${timestamp - location.time} $location"
             )
         }*/
+        Timber.d("New location update from system source: $source provider: ${location?.provider} and accuracy: ${location?.accuracy}")
         if (location == null) {
             return if (lastSource == source) {
+                Timber.d("New location update: PUBLISH")
                 LocationDispatcher.Decision(null, true)
             } else {
+                Timber.d("New location update: DO NOT PUBLISH")
                 LocationDispatcher.Decision(null, false)
             }
         } else {
             return if (lastLocation == null) {
+                Timber.d("New location update: PUBLISH")
                 updateLastLocation(location, timestamp, source)
             } else if (lastLocation?.accuracy ?: Float.MAX_VALUE > location.accuracy) {
+                Timber.d("New location update: PUBLISH")
                 updateLastLocation(location, timestamp, source)
             } else if (timestamp >= lastTimestamp + LOCATION_MAX_AGE_MS) {
+                Timber.d("New location update: PUBLISH")
                 updateLastLocation(location, timestamp, source)
             } else if (((lastSource != null) && (lastSource == source)) && (abs(location.time - (lastLocation?.time ?: 0)) > LOCATION_MAX_UPDATE_RATE_MS)) {
+                Timber.d("New location update: PUBLISH")
                 updateLastLocation(location, timestamp, source)
             } else {
+                Timber.d("New location update: DO NOT PUBLISH")
                 LocationDispatcher.Decision(null, false)
             }
         }
