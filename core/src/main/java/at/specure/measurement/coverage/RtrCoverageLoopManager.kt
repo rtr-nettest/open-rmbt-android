@@ -99,22 +99,18 @@ class RtrCoverageLoopManager @Inject constructor(
         val noRecordedFences = fencesCount == 0
 
         val newMeasurement = if (previousWasNotRegistered || noRecordedFences) {
-            Timber.d("Creating new session as it was not registered ${previousWasNotRegistered} or no fences were recorded ${noRecordedFences}")
-            CoverageMeasurementSession(
-                sequenceNumber = lastCoverageMeasurementSession.sequenceNumber,
-                serverSessionLoopId = lastCoverageMeasurementSession.serverSessionLoopId,
-                localLoopId = lastCoverageMeasurementSession.localLoopId,
-                startTimeLoopMillis = lastCoverageMeasurementSession.startTimeLoopMillis,
-                startLoopResponseReceivedMillis = lastCoverageMeasurementSession.startLoopResponseReceivedMillis,
-            )
+            Timber.d("SDT Continue in previous session ${lastCoverageMeasurementSession.localMeasurementId} as it was not registered ${previousWasNotRegistered} or no fences were recorded ${noRecordedFences}")
+            lastCoverageMeasurementSession
         } else {
-            CoverageMeasurementSession(
+            val newSession = CoverageMeasurementSession(
                 sequenceNumber = lastCoverageMeasurementSession.sequenceNumber + 1,
                 serverSessionLoopId = lastCoverageMeasurementSession.serverSessionLoopId,
                 localLoopId = lastCoverageMeasurementSession.localLoopId,
                 startTimeLoopMillis = lastCoverageMeasurementSession.startTimeLoopMillis,
                 startLoopResponseReceivedMillis = lastCoverageMeasurementSession.startLoopResponseReceivedMillis
             )
+            Timber.d("SDT Creating new session ${newSession.localMeasurementId}as previous was already registered and had fences")
+            newSession
         }
 
         saveNewMeasurement(newMeasurement)

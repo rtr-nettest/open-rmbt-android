@@ -6,6 +6,7 @@ import at.specure.data.entity.CoverageMeasurementFenceRecord
 import at.specure.data.entity.SignalMeasurementRecord
 import at.specure.data.entity.CoverageMeasurementSession
 import at.specure.data.entity.SignalRecord
+import at.specure.info.network.NetworkInfo
 import at.specure.measurement.signal.SignalMeasurementChunkReadyCallback
 import at.specure.measurement.signal.SignalMeasurementChunkResultCallback
 import at.specure.measurement.signal.ValidChunkPostProcessing
@@ -52,7 +53,25 @@ interface SignalMeasurementRepository {
 
     fun getCoverageMeasurementSession(localMeasurementId: String): CoverageMeasurementSession?
 
-    fun saveMeasurementPointRecord(point: CoverageMeasurementFenceRecord)
+    fun upsertMeasurementPointRecord(point: CoverageMeasurementFenceRecord)
+
+    suspend fun createMeasurementPointRecordWithNewSequenceNumber(point: CoverageMeasurementFenceRecord)
+
+    suspend fun createMeasurementPointRecordWithNewSequenceNumberAndUpdateLastOneTransaction(
+        point: CoverageMeasurementFenceRecord,
+        leaveTimestampMillis: Long,
+        avgPingMillis: Double?,
+        networkInfo: NetworkInfo?,
+        lastFenceMinTechSignal: Int?,
+    )
+
+    suspend fun updateSignalMeasurementOnLeavingTransaction(
+        sessionId: String,
+        leaveTimestampMillis: Long,
+        avgPingMillis: Double?,
+        networkInfo: NetworkInfo?,
+        lastFenceMinTechSignal: Int?
+    )
 
     fun loadSignalMeasurementPointRecordsForMeasurement(measurementId: String): LiveData<List<CoverageMeasurementFenceRecord>>
 
@@ -61,6 +80,8 @@ interface SignalMeasurementRepository {
     fun loadSignalMeasurementPointRecordsForLoopMeasurement(localLoopSessionId: String): LiveData<List<CoverageMeasurementFenceRecord>>
 
     fun loadSignalMeasurementPointRecordsForLoopMeasurementList(localLoopSessionId: String): List<CoverageMeasurementFenceRecord>
+
+    fun loadLastSignalMeasurementPointRecordsForLoopMeasurementList(localLoopSessionId: String, limit: Int?): List<CoverageMeasurementFenceRecord>
 
     suspend fun getSignalMeasurementRecord(id: String?): SignalRecord?
 

@@ -8,9 +8,6 @@ import at.specure.data.entity.SignalRecord
 import at.specure.data.repository.SignalMeasurementRepository
 import at.specure.info.network.NetworkInfo
 import at.specure.test.DeviceInfo
-import kotlinx.coroutines.CoroutineName
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 import timber.log.Timber
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -35,12 +32,11 @@ class FencesDataSource @Inject constructor(
         radiusMeters: Double,
         entryTimestampMillis: Long,
         avgPingMillisForLastFence: Double?,
-        lastSavedFence: CoverageMeasurementFenceRecord?,
         lastFenceMinTechSignal: Int?,
     ) {
         val point = CoverageMeasurementFenceRecord(
             sessionId = sessionId,
-            sequenceNumber = getNextSequenceNumber(lastSavedFence),
+            sequenceNumber = Int.MIN_VALUE,
             location = location,
             signalRecordId = signalRecord?.signalMeasurementPointId, // todo: because of signal measurement it is removed when chunk is sent
             entryTimestampMillis = entryTimestampMillis,
@@ -51,37 +47,31 @@ class FencesDataSource @Inject constructor(
             frequencyBand = networkInfo.getFrequencyBand(),
             avgPingMillis = null,
         )
-        signalMeasurementRepository.saveMeasurementPointRecord(point)
-        updateSignalFenceAndSaveOnLeaving(
-            lastSavedFence,
+        signalMeasurementRepository.createMeasurementPointRecordWithNewSequenceNumberAndUpdateLastOneTransaction(
+            point,
             entryTimestampMillis,
             avgPingMillisForLastFence,
             networkInfo = networkInfo,
             lastFenceMinTechSignal = lastFenceMinTechSignal
         )
         Timber.d("createSignalFenceAndUpdateLastOne: $point")
-
     }
 
     // TODO: Take network info when leaving the point? - possible problem with changing the network type on map when created and when leaving
     suspend fun updateSignalFenceAndSaveOnLeaving(
-        lastFence: CoverageMeasurementFenceRecord?,
+        sessionId: String,
         leaveTimestampMillis: Long,
         avgPingMillis: Double?,
         networkInfo: NetworkInfo?,
         lastFenceMinTechSignal: Int?,
-    ) = withContext(Dispatchers.IO + CoroutineName("Updating fence and saving on leaving")) {
-        if (lastFence?.leaveTimestampMillis == DEFAULT_LEAVE_TIMESTAMP_MILLIS) { // to not update fence once exited
-            val updatedFence = lastFence.copy(
-                leaveTimestampMillis = leaveTimestampMillis,
-                avgPingMillis = avgPingMillis,
-                technologyId = networkInfo?.getMobileNetworkType()?.intValue,
-                signalStrength = lastFenceMinTechSignal
-            )
-            updatedFence.let {
-                signalMeasurementRepository.updateSignalMeasurementFence(updatedFence)
-            }
-        }
+    ) {
+        signalMeasurementRepository.updateSignalMeasurementOnLeavingTransaction(
+            sessionId,
+            leaveTimestampMillis,
+            avgPingMillis,
+            networkInfo,
+            lastFenceMinTechSignal
+        )
     }
 
     private fun getNextSequenceNumber(lastPoint: CoverageMeasurementFenceRecord?): Int {

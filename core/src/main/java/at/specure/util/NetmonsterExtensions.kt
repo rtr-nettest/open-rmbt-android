@@ -699,6 +699,7 @@ fun CellNr.internalUuidForComparison(): String {
         append("nr")
         append(nci)
         append(pci)
+        append(band?.number)
     }.toByteArray()
     return UUID.nameUUIDFromBytes(id).toString()
 }
@@ -708,6 +709,7 @@ fun CellTdscdma.internalUuidForComparison(): String {
         append("tdscdma")
         append(cid)
         append(cpid)
+        append(band?.number)
     }.toByteArray()
     return UUID.nameUUIDFromBytes(id).toString()
 }
@@ -717,6 +719,7 @@ fun CellLte.internalUuidForComparison(): String {
         append("lte")
         append(eci)
         append(pci)
+        append(band?.number)
     }.toByteArray()
     return UUID.nameUUIDFromBytes(id).toString()
 }
@@ -725,6 +728,7 @@ fun CellWcdma.internalUuidForComparison(): String {
     val id = buildString {
         append("wcdma")
         append(cid)
+        append(band?.number)
     }.toByteArray()
     return UUID.nameUUIDFromBytes(id).toString()
 }

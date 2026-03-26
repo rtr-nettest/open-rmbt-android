@@ -374,6 +374,17 @@ class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback, Coverage
     }
 
     private fun setInfoVisible(visible: Boolean) {
+
+        binding.measurementProgressInfoPipPing.visibility = if (visible && coverageViewModel.state.pipActive.get()) {
+            View.VISIBLE
+        } else {
+            View.GONE
+        }
+        binding.measurementProgressInfoPipNetwork.visibility = if (visible && coverageViewModel.state.pipActive.get()) {
+            View.VISIBLE
+        } else {
+            View.GONE
+        }
         binding.measurementProgressInfo.visibility = if (visible && !coverageViewModel.state.pipActive.get()) {
             View.VISIBLE
         } else {
@@ -396,12 +407,14 @@ class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback, Coverage
             ""
         }
         binding.technologyValue.text = networkString
+        binding.technologyValuePip.text = networkString
     }
 
     private fun updatePingValue(coverageMeasurementData: CoverageMeasurementData?) {
         val pingResult = coverageMeasurementData?.currentPingMs
-        binding.pingValue.text = if (pingResult != null && pingResult > 0) {
-            binding.pingGroup.visibility = View.VISIBLE
+        val pingText = if (pingResult != null && pingResult > 0) {
+            binding.pingValue.visibility = View.VISIBLE
+            binding.pingValuePip.visibility = View.VISIBLE
             val mantissa = pingResult - (pingResult.toInt().toDouble())
             if (mantissa > 0 && pingResult < 10.0) {
                 this.getString(R.string.measurement_ping_value_1f, pingResult)
@@ -410,13 +423,17 @@ class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback, Coverage
             }
         } else {
             if (coverageMeasurementData?.currentPingStatus != null) {
-                binding.pingGroup.visibility = View.VISIBLE
+                binding.pingValue.visibility = View.VISIBLE
+                binding.pingValuePip.visibility = View.VISIBLE
                 coverageMeasurementData.currentPingStatus
             } else {
-                binding.pingGroup.visibility = View.INVISIBLE
+                binding.pingValue.visibility = View.INVISIBLE
+                binding.pingValuePip.visibility = View.INVISIBLE
                 this.getString(R.string.measurement_dash)
             }
         }
+        binding.pingValue.text = pingText
+        binding.pingValuePip.text = pingText
     }
 
     private fun updateSendingResultsInfo(sendingResults : Boolean) {

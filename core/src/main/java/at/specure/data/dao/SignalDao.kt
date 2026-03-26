@@ -22,6 +22,6 @@ interface SignalDao {
     @Query("DELETE FROM ${Tables.SIGNAL} WHERE ((testUUID IS :testUUID) AND (signalChunkId IS :signalChunkId))")
     fun remove(testUUID: String?, signalChunkId: String?): Int
 
-    @Query("SELECT COUNT(*) FROM ${Tables.SIGNAL} WHERE testUUID is :localMeasurementId")
+    @Query("SELECT COUNT(DISTINCT timeNanos) FROM ${Tables.SIGNAL} WHERE testUUID = :localMeasurementId")
     fun getSignalsCountForCoverageMeasurement(localMeasurementId: String): Int
 }

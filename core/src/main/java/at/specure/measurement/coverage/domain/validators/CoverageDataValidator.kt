@@ -1,12 +1,11 @@
 package at.specure.measurement.coverage.domain.validators
 
 import at.specure.data.entity.CoverageMeasurementFenceRecord
-import at.specure.info.cell.CellNetworkInfo
 import at.specure.info.network.NetworkInfo
 import at.specure.test.DeviceInfo
 
 interface CoverageDataValidator {
-    fun areDataValidToSaveNewFence(
+    fun isDataValidToSaveNewFence(
         newTimestamp: Long,
         newLocation: DeviceInfo.Location?,
         newNetworkInfo: NetworkInfo?,
