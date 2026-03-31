@@ -94,6 +94,7 @@ class SignalMeasurementService : CustomLifecycleService() {
     override fun onDestroy() {
         stopForeground(STOP_FOREGROUND_REMOVE)
         super.onDestroy()
+        releaseWakeLock()
         Timber.v("SERVICE onDestroy")
     }
 
