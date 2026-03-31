@@ -252,9 +252,11 @@ class RtrCoverageMeasurementProcessor @Inject constructor(
                 } catch (e: CancellationException) {
                     throw e
                 } catch (e: Exception) {
+                    Timber.e("Error stopping coverage session: $e ${e.message}")
                     stateManager.onSignalResultSent(false)
                 } finally {
 //                cleanData()
+                    stateManager.onUpdateCoverageDataState(CoverageMeasurementState.FINISHED_LOOP_CORRECTLY)
                     coverageMeasurementSettings.onStopMeasurementSession()
                     coverageLoopManager.endMeasurementLoop()
                     dataSimMonitorJob?.cancel()
