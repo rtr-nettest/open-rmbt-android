@@ -58,6 +58,20 @@ class MainCoverageDataValidator @Inject constructor(
         return true
     }
 
+    override fun isDataValidToFinishLastFence(
+        newTimestamp: Long,
+        newLocation: DeviceInfo.Location?,
+        lastRecordedFenceRecord: CoverageMeasurementFenceRecord?
+    ): Boolean {
+        if (!locationValidator.isDistantEnough(newLocation, lastRecordedFenceRecord?.location)) {
+            return false
+        }
+        if (!durationValidator.isMinimalTimePassed(newTimestamp, lastRecordedFenceRecord?.entryTimestampMillis)) {
+            return false
+        }
+        return true
+    }
+
     // todo check if this is enough or make another checks
     override fun isNotTheSameMobileNetwork(oldNetwork: NetworkInfo?, newNetwork: NetworkInfo?): Boolean {
         if (oldNetwork == null) return true

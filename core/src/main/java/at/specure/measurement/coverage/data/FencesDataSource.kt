@@ -44,8 +44,8 @@ class FencesDataSource @Inject constructor(
             leaveTimestampMillis = DEFAULT_LEAVE_TIMESTAMP_MILLIS,
             radiusMeters = radiusMeters,
             technologyId = lastFenceMinTechSignal?.type?.intValue ?: MobileNetworkType.UNKNOWN.intValue,
-            signalStrength = lastFenceMinTechSignal?.signalValueDbm,
-            frequencyBand = lastFenceMinTechSignal?.frequencyBand,
+            signalStrength = null,
+            frequencyBand = null,
             avgPingMillis = null,
         )
         signalMeasurementRepository.createMeasurementPointRecordWithNewSequenceNumberAndUpdateLastOneTransaction(

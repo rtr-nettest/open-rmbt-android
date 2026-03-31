@@ -17,7 +17,6 @@ import at.specure.info.cell.CellNetworkInfo
 import at.specure.info.ip.IpChangeWatcher
 import at.specure.info.network.DetailedNetworkInfo
 import at.specure.info.network.MobileNetworkType
-import at.specure.info.network.NetworkInfo
 import at.specure.location.LocationDistanceAndSpeedCounter
 import at.specure.location.LocationInfo
 import at.specure.measurement.coverage.data.FencesDataSource
@@ -231,7 +230,7 @@ class RtrCoverageMeasurementProcessor @Inject constructor(
         if (stateManager.state.value.state != CoverageMeasurementState.FINISHED_LOOP_CORRECTLY) {
             this.launch(CoroutineName("OnDedicatedSignalMeasurementStop")) {
                 try {
-                    updateLastFenceOnLeaving()
+                    updateLastFenceOnLeavingMeasurement()
                     val data = stateManager.state.value
                     val session = data.coverageMeasurementSession
                     session?.let {
@@ -266,10 +265,25 @@ class RtrCoverageMeasurementProcessor @Inject constructor(
         }
     }
 
-    private suspend fun updateLastFenceOnLeaving() {
+    private suspend fun updateLastFenceAndContinueMeasurement() {
+        val sessionId = stateManager.state.value.coverageMeasurementSession?.localMeasurementId
+        val avgPingMillis = coveragePingProcessor.onNewFenceStarted()?.average
+        val fenceMinNetworkSignal = stateManager.getMinSignalForTechnologyForCurrentFence()
+        val currentNetworkMobileType = resolveFenceMobileNetworkType(fenceMinNetworkSignal)
+        sessionId?.let {
+            fencesDataSource.updateSignalFenceAndSaveOnLeaving(
+                sessionId,
+                leaveTimestampMillis = System.currentTimeMillis(),
+                avgPingMillis = avgPingMillis,
+                lastFenceMinTechSignal = fenceMinNetworkSignal
+            )
+        } ?: Timber.e("Session id is null - impossible to update last fence")
+    }
+
+    private suspend fun updateLastFenceOnLeavingMeasurement() {
         val sessionId = stateManager.state.value.coverageMeasurementSession?.localMeasurementId
         val avgPingMillis = coveragePingProcessor.stopPing()?.average
-        val fenceMinNetworkSignal = stateManager.getMinSignalForTechnologyForCurrentFence(stateManager.state.value.currentNetworkInfo)
+        val fenceMinNetworkSignal = stateManager.getMinSignalForTechnologyForCurrentFence()
         val currentNetworkMobileType = resolveFenceMobileNetworkType(fenceMinNetworkSignal)
         sessionId?.let {
             fencesDataSource.updateSignalFenceAndSaveOnLeaving(
@@ -435,6 +449,8 @@ class RtrCoverageMeasurementProcessor @Inject constructor(
 
         stateManager.updateNetworkInfo(networkInfo?.networkInfo)
 
+
+
         if (isBackOnMobileData && lastRecordedFence != null) {
             onMeasurementStopAndStartNewMeasurement(CoverageMeasurementTerminationCause.EndedByBackOnMobileData())
             waitForCompletition(jobLocationMetadata)
@@ -442,6 +458,8 @@ class RtrCoverageMeasurementProcessor @Inject constructor(
             return
         }
 
+        val newTimestamp = System.currentTimeMillis()
+        val newLocation = location.toDeviceInfoLocation()
 
         val reasonToTerminate = getReasonToTerminateMeasurementBecauseOfSomeCause(session?.localMeasurementId)
         if (reasonToTerminate != null) {
@@ -449,6 +467,16 @@ class RtrCoverageMeasurementProcessor @Inject constructor(
             waitForCompletition(jobLocationMetadata)
             waitForCompletition(jobCellularMetadata)
             return
+        } else {
+            val isDistantEnoughToFinishLastFence = mainCoverageDataValidator.isDataValidToFinishLastFence(
+                newTimestamp = newTimestamp,
+                newLocation = newLocation,
+                lastRecordedFenceRecord = lastRecordedFence
+            )
+
+            if (isDistantEnoughToFinishLastFence) {
+                updateLastFenceAndContinueMeasurement()
+            }
         }
 
         val isConnectionStateValid = checkForTheConnectionState()
@@ -469,9 +497,6 @@ class RtrCoverageMeasurementProcessor @Inject constructor(
             return
         }
 
-        val newTimestamp = System.currentTimeMillis()
-        val newLocation = location.toDeviceInfoLocation()
-
         val isDataValidToSaveNewFence = mainCoverageDataValidator.isDataValidToSaveNewFence(
             newTimestamp = newTimestamp,
             newLocation = newLocation,
@@ -490,7 +515,7 @@ class RtrCoverageMeasurementProcessor @Inject constructor(
             config.minDistanceMetersToLogNewLocationOnMapDuringSignalMeasurement = newFenceRadiusBase
             Timber.d("Current radius to save new fence Saving new with base: ${config.minDistanceMetersToLogNewLocationOnMapDuringSignalMeasurement} vs $newFenceRadiusBase")
             val newFenceRadius = newFenceRadiusBase * config.minDistanceFactorCoverageMeasurement.toDouble()
-            val fenceMinNetworkSignal = stateManager.getMinSignalForTechnologyForCurrentFence(networkInfo?.networkInfo)
+            val fenceMinNetworkSignal = stateManager.getMinSignalForTechnologyForCurrentFence()
             val currentNetworkMobileType = resolveFenceMobileNetworkType(fenceMinNetworkSignal)
             saveNewFence(
                 sessionId = sessionId,
@@ -653,7 +678,7 @@ class RtrCoverageMeasurementProcessor @Inject constructor(
      */
     suspend fun onMeasurementStopAndStartNewMeasurement(reasonToTerminate: CoverageMeasurementTerminationCause) {
         stateManager.state.value.coverageMeasurementSession?.let { lastMeasurement ->
-            updateLastFenceOnLeaving()
+            updateLastFenceOnLeavingMeasurement()
             coverageLoopManager.endMeasurementInLoop(lastMeasurement, reasonToTerminate)
             coverageLoopManager.createNewMeasurementInLoop(lastMeasurement)
         }
@@ -661,7 +686,7 @@ class RtrCoverageMeasurementProcessor @Inject constructor(
 
     suspend fun onNetworkChanged() {
         stateManager.state.value.coverageMeasurementSession?.let { lastMeasurement ->
-            updateLastFenceOnLeaving()
+            updateLastFenceOnLeavingMeasurement()
             coverageLoopManager.endMeasurementInLoop(lastMeasurement, CoverageMeasurementTerminationCause.EndedByNetworkChange())
             Timber.d("Starting new measurement because of network change")
             coverageLoopManager.createNewMeasurementInLoop(lastMeasurement)

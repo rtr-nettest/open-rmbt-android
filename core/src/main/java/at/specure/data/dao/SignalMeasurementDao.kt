@@ -117,6 +117,7 @@ interface SignalMeasurementDao {
                     leaveTimestampMillis = leaveTimestampMillis,
                     avgPingMillis = avgPingMillis,
                     technologyId = lastFenceMinTechSignal?.type?.intValue ?: MobileNetworkType.UNKNOWN.intValue,
+                    frequencyBand = lastFenceMinTechSignal?.frequencyBand,
                     signalStrength = lastFenceMinTechSignal?.signalValueDbm
                 )
                 upsertSignalMeasurementPoint(updatedFence)

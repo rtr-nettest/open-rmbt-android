@@ -12,6 +12,12 @@ interface CoverageDataValidator {
         lastRecordedFenceRecord: CoverageMeasurementFenceRecord?
     ): Boolean
 
+    fun isDataValidToFinishLastFence(
+        newTimestamp: Long,
+        newLocation: DeviceInfo.Location?,
+        lastRecordedFenceRecord: CoverageMeasurementFenceRecord?
+    ): Boolean
+
     fun areDataValidToReplaceSomeOldFence(
         newTimestamp: Long,
         newLocation: DeviceInfo.Location?,
