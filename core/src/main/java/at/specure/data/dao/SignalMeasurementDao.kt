@@ -15,8 +15,10 @@ import at.specure.data.entity.SignalMeasurementRecord
 import at.specure.data.entity.CoverageMeasurementSession
 import at.specure.data.entity.DEFAULT_LEAVE_TIMESTAMP_MILLIS
 import at.specure.data.entity.SignalRecord
+import at.specure.info.network.MobileNetworkType
 import at.specure.info.network.NetworkInfo
 import at.specure.measurement.coverage.data.getMobileNetworkType
+import at.specure.measurement.coverage.domain.models.MobileSignalTechnologyTimestamp
 
 const val COVERAGE_MEASUREMENT_SUBMISSION_MAX_RETRY_COUNT = 3
 
@@ -102,8 +104,7 @@ interface SignalMeasurementDao {
         point: CoverageMeasurementFenceRecord,
         leaveTimestampMillis: Long,
         avgPingMillis: Double?,
-        networkInfo: NetworkInfo?,
-        lastFenceMinTechSignal: Int?,
+        lastFenceMinTechSignal: MobileSignalTechnologyTimestamp?,
     ) {
         val nextSeq = getMaxSequence(point.sessionId) + 1
         val session = getCoverageMeasurementSessionForMeasurementId(point.sessionId)
@@ -115,8 +116,8 @@ interface SignalMeasurementDao {
                 val updatedFence = lastFence.copy(
                     leaveTimestampMillis = leaveTimestampMillis,
                     avgPingMillis = avgPingMillis,
-                    technologyId = networkInfo?.getMobileNetworkType()?.intValue,
-                    signalStrength = lastFenceMinTechSignal
+                    technologyId = lastFenceMinTechSignal?.type?.intValue ?: MobileNetworkType.UNKNOWN.intValue,
+                    signalStrength = lastFenceMinTechSignal?.signalValueDbm
                 )
                 upsertSignalMeasurementPoint(updatedFence)
             }
@@ -133,8 +134,7 @@ interface SignalMeasurementDao {
         sessionId: String,
         leaveTimestampMillis: Long,
         avgPingMillis: Double?,
-        networkInfo: NetworkInfo?,
-        lastFenceMinTechSignal: Int?,
+        lastFenceMinTechSignal: MobileSignalTechnologyTimestamp?,
     ) {
         val session = getCoverageMeasurementSessionForMeasurementId(sessionId)
         val lastPoint = session?.localLoopId?.let {
@@ -145,8 +145,8 @@ interface SignalMeasurementDao {
                 val updatedFence = lastFence.copy(
                     leaveTimestampMillis = leaveTimestampMillis,
                     avgPingMillis = avgPingMillis,
-                    technologyId = networkInfo?.getMobileNetworkType()?.intValue,
-                    signalStrength = lastFenceMinTechSignal
+                    technologyId = lastFenceMinTechSignal?.type?.intValue ?: MobileNetworkType.UNKNOWN.intValue,
+                    signalStrength = lastFenceMinTechSignal?.signalValueDbm
                 )
                 upsertSignalMeasurementPoint(updatedFence)
             }

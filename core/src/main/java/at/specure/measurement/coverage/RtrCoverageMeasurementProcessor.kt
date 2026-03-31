@@ -13,8 +13,10 @@ import at.specure.data.entity.SignalRecord
 import at.specure.data.repository.MeasurementRepository
 import at.specure.data.repository.SignalMeasurementRepository
 import at.specure.data.repository.TestDataRepository
+import at.specure.info.cell.CellNetworkInfo
 import at.specure.info.ip.IpChangeWatcher
 import at.specure.info.network.DetailedNetworkInfo
+import at.specure.info.network.MobileNetworkType
 import at.specure.info.network.NetworkInfo
 import at.specure.location.LocationDistanceAndSpeedCounter
 import at.specure.location.LocationInfo
@@ -25,6 +27,7 @@ import at.specure.measurement.coverage.domain.CoverageLoopManager
 import at.specure.measurement.coverage.domain.CoverageTimer
 import at.specure.measurement.coverage.domain.PingProcessor
 import at.specure.measurement.coverage.domain.models.CoverageMeasurementTerminationCause
+import at.specure.measurement.coverage.domain.models.MobileSignalTechnologyTimestamp
 import at.specure.measurement.coverage.domain.models.state.CoverageMeasurementState
 import at.specure.measurement.coverage.domain.monitors.ConnectivityMonitor
 import at.specure.measurement.coverage.domain.validators.CoverageDataValidator
@@ -266,13 +269,14 @@ class RtrCoverageMeasurementProcessor @Inject constructor(
     private suspend fun updateLastFenceOnLeaving() {
         val sessionId = stateManager.state.value.coverageMeasurementSession?.localMeasurementId
         val avgPingMillis = coveragePingProcessor.stopPing()?.average
+        val fenceMinNetworkSignal = stateManager.getMinSignalForTechnologyForCurrentFence(stateManager.state.value.currentNetworkInfo)
+        val currentNetworkMobileType = resolveFenceMobileNetworkType(fenceMinNetworkSignal)
         sessionId?.let {
             fencesDataSource.updateSignalFenceAndSaveOnLeaving(
                 sessionId,
                 leaveTimestampMillis = System.currentTimeMillis(),
                 avgPingMillis = avgPingMillis,
-                networkInfo = stateManager.state.value.currentNetworkInfo,
-                lastFenceMinTechSignal = stateManager.getMinSignalForTechnologyForCurrentFence(stateManager.state.value.currentNetworkInfo)
+                lastFenceMinTechSignal = fenceMinNetworkSignal
             )
         } ?: Timber.e("Session id is null - impossible to update last fence")
     }
@@ -486,13 +490,14 @@ class RtrCoverageMeasurementProcessor @Inject constructor(
             config.minDistanceMetersToLogNewLocationOnMapDuringSignalMeasurement = newFenceRadiusBase
             Timber.d("Current radius to save new fence Saving new with base: ${config.minDistanceMetersToLogNewLocationOnMapDuringSignalMeasurement} vs $newFenceRadiusBase")
             val newFenceRadius = newFenceRadiusBase * config.minDistanceFactorCoverageMeasurement.toDouble()
+            val fenceMinNetworkSignal = stateManager.getMinSignalForTechnologyForCurrentFence(networkInfo?.networkInfo)
+            val currentNetworkMobileType = resolveFenceMobileNetworkType(fenceMinNetworkSignal)
             saveNewFence(
                 sessionId = sessionId,
                 newLocation = newLocation!!,
                 newTimestamp = newTimestamp,
-                networkInfo = networkInfo?.networkInfo,
                 fenceRadiusMeters = newFenceRadius,
-                lastFenceMinTechSignal = stateManager.getMinSignalForTechnologyForCurrentFence(networkInfo?.networkInfo)
+                lastFenceMinTechSignal = fenceMinNetworkSignal,
             )
         } else {
             Timber.d("Not saving new fence")
@@ -589,9 +594,8 @@ class RtrCoverageMeasurementProcessor @Inject constructor(
         sessionId: String,
         newLocation: DeviceInfo.Location,
         newTimestamp: Long,
-        networkInfo: NetworkInfo?,
+        lastFenceMinTechSignal: MobileSignalTechnologyTimestamp?,
         fenceRadiusMeters: Double,
-        lastFenceMinTechSignal: Int?,
     ) {
         Timber.d("ENDING SESSION: FENCE CREATED: session: $sessionId")
         fencesDataSource.createSignalFenceAndUpdateLastOne(
@@ -600,11 +604,10 @@ class RtrCoverageMeasurementProcessor @Inject constructor(
             signalRecord = null,
             radiusMeters = fenceRadiusMeters,
             entryTimestampMillis = newTimestamp,
-            networkInfo = networkInfo,
             lastFenceMinTechSignal = lastFenceMinTechSignal,
-            avgPingMillisForLastFence = coveragePingProcessor.onNewFenceStarted()?.average
+            avgPingMillisForLastFence = coveragePingProcessor.onNewFenceStarted()?.average,
         )
-        stateManager.onFenceExitClean(networkInfo)
+        stateManager.onFenceExitClean(lastFenceMinTechSignal)
     }
 
 
@@ -632,6 +635,17 @@ class RtrCoverageMeasurementProcessor @Inject constructor(
             newLocation = location,
             lastSavedLocation = lastSavedLocation
         )
+    }
+
+    private fun resolveFenceMobileNetworkType(fenceMinNetworkSignal: MobileSignalTechnologyTimestamp?): MobileNetworkType {
+        val currentNetworkMobileType = if (stateManager.state.value.currentNetworkInfo !is CellNetworkInfo) {
+            fenceMinNetworkSignal?.type ?: MobileNetworkType.UNKNOWN
+        } else if (stateManager.state.value.currentNetworkInfo is CellNetworkInfo) {
+            (stateManager.state.value.currentNetworkInfo as CellNetworkInfo).networkType
+        } else {
+            MobileNetworkType.UNKNOWN
+        }
+        return currentNetworkMobileType
     }
 
     /**
