@@ -21,6 +21,7 @@ import at.specure.data.entity.SignalRecord
 import at.specure.data.entity.TestResultDetailsRecord
 import at.specure.data.entity.TestResultRecord
 import at.specure.data.entity.generateHash
+import at.specure.data.entity.isNotFinished
 import at.specure.data.repository.SignalMeasurementRepository
 import at.specure.data.repository.TestResultsRepository
 import at.specure.info.TransportType
@@ -250,7 +251,7 @@ class CoverageResultViewModel @Inject constructor(
                     signalStrength = point.signalMainDbm,
                     pingMillis = (point.averagePingMillis?.times(1000000))?.toLong(),
                     timestamp = point.fenceTimestampMillis,
-                    isNotFinished = isLastDuringMeasurement
+                    isNotFinished = isLastDuringMeasurement && point.isNotFinished()
                 )
                 val latLng = point.toLatLng() ?: return@mapIndexedNotNull null
                 val tech = MobileNetworkType.fromValue(point.networkTechnologyId ?: 0)
@@ -288,7 +289,7 @@ class CoverageResultViewModel @Inject constructor(
                                 signalStrength = point.signalMainDbm,
                                 pingMillis = (point.averagePingMillis?.times(1000000))?.toLong(),
                                 timestamp = point.fenceTimestampMillis,
-                                isNotFinished = isMeasurementInProgress && lastPoint?.id == point.id,
+                                isNotFinished = isMeasurementInProgress && lastPoint?.id == point.id && point.isNotFinished(),
                             )
 
                             marker.tag = updatedData

@@ -22,7 +22,9 @@ import at.specure.data.toCoverageRequest
 import at.specure.data.toCoverageResultRequest
 import at.specure.data.toRequest
 import at.specure.info.TransportType
+import at.specure.info.network.MobileNetworkType
 import at.specure.info.network.NetworkInfo
+import at.specure.measurement.coverage.domain.models.MobileSignalTechnologyTimestamp
 import at.specure.measurement.signal.SignalMeasurementChunkReadyCallback
 import at.specure.measurement.signal.SignalMeasurementChunkResultCallback
 import at.specure.measurement.signal.ValidChunkPostProcessing
@@ -121,14 +123,12 @@ class SignalMeasurementRepositoryImpl(
         point: CoverageMeasurementFenceRecord,
         leaveTimestampMillis: Long,
         avgPingMillis: Double?,
-        networkInfo: NetworkInfo?,
-        lastFenceMinTechSignal: Int?,
+        lastFenceMinTechSignal: MobileSignalTechnologyTimestamp?,
     ) {
         dao.insertFenceWithNextSequenceAndUpdateLastOne(
             point,
             leaveTimestampMillis,
             avgPingMillis,
-            networkInfo,
             lastFenceMinTechSignal,
         )
     }
@@ -137,14 +137,12 @@ class SignalMeasurementRepositoryImpl(
         sessionId: String,
         leaveTimestampMillis: Long,
         avgPingMillis: Double?,
-        networkInfo: NetworkInfo?,
-        lastFenceMinTechSignal: Int?
+        lastFenceMinTechSignal: MobileSignalTechnologyTimestamp?
     ) {
         dao.updateLastPointForSession(
             sessionId,
             leaveTimestampMillis,
             avgPingMillis,
-            networkInfo,
             lastFenceMinTechSignal,
         )
     }

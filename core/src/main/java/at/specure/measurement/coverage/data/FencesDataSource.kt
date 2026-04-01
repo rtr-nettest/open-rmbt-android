@@ -6,7 +6,9 @@ import at.specure.data.entity.CoverageMeasurementFenceRecord
 import at.specure.data.entity.DEFAULT_LEAVE_TIMESTAMP_MILLIS
 import at.specure.data.entity.SignalRecord
 import at.specure.data.repository.SignalMeasurementRepository
+import at.specure.info.network.MobileNetworkType
 import at.specure.info.network.NetworkInfo
+import at.specure.measurement.coverage.domain.models.MobileSignalTechnologyTimestamp
 import at.specure.test.DeviceInfo
 import timber.log.Timber
 import javax.inject.Inject
@@ -28,11 +30,10 @@ class FencesDataSource @Inject constructor(
         sessionId: String,
         location: DeviceInfo.Location,
         signalRecord: SignalRecord?,
-        networkInfo: NetworkInfo?,
         radiusMeters: Double,
         entryTimestampMillis: Long,
         avgPingMillisForLastFence: Double?,
-        lastFenceMinTechSignal: Int?,
+        lastFenceMinTechSignal: MobileSignalTechnologyTimestamp?,
     ) {
         val point = CoverageMeasurementFenceRecord(
             sessionId = sessionId,
@@ -42,17 +43,16 @@ class FencesDataSource @Inject constructor(
             entryTimestampMillis = entryTimestampMillis,
             leaveTimestampMillis = DEFAULT_LEAVE_TIMESTAMP_MILLIS,
             radiusMeters = radiusMeters,
-            technologyId = networkInfo.getMobileNetworkType().intValue,
-            signalStrength = networkInfo.getSignalStrengthValue(),
-            frequencyBand = networkInfo.getFrequencyBand(),
+            technologyId = lastFenceMinTechSignal?.type?.intValue ?: MobileNetworkType.UNKNOWN.intValue,
+            signalStrength = null,
+            frequencyBand = null,
             avgPingMillis = null,
         )
         signalMeasurementRepository.createMeasurementPointRecordWithNewSequenceNumberAndUpdateLastOneTransaction(
             point,
             entryTimestampMillis,
             avgPingMillisForLastFence,
-            networkInfo = networkInfo,
-            lastFenceMinTechSignal = lastFenceMinTechSignal
+            lastFenceMinTechSignal
         )
         Timber.d("createSignalFenceAndUpdateLastOne: $point")
     }
@@ -62,14 +62,12 @@ class FencesDataSource @Inject constructor(
         sessionId: String,
         leaveTimestampMillis: Long,
         avgPingMillis: Double?,
-        networkInfo: NetworkInfo?,
-        lastFenceMinTechSignal: Int?,
+        lastFenceMinTechSignal: MobileSignalTechnologyTimestamp?,
     ) {
         signalMeasurementRepository.updateSignalMeasurementOnLeavingTransaction(
             sessionId,
             leaveTimestampMillis,
             avgPingMillis,
-            networkInfo,
             lastFenceMinTechSignal
         )
     }

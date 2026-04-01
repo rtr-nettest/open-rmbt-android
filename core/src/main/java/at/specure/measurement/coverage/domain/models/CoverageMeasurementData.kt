@@ -22,5 +22,5 @@ data class CoverageMeasurementData(
     val sendingResults: Boolean = false,
     val sendingResultsError: Boolean = false,
     val initializing: Boolean = false,
-    val technologyMinSignalMapForCurrentFence: HashMap<MobileNetworkType, Int?>
+    val technologyMinSignalMapForCurrentFence: HashMap<MobileNetworkType, MobileSignalTechnologyTimestamp?>
 )

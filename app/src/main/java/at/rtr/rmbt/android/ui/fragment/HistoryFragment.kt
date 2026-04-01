@@ -113,7 +113,7 @@ class HistoryFragment : BaseFragment(), SyncDevicesDialog.Callback, HistoryFilte
 
         binding.buttonMenu.setOnClickListener {
             if (adapter.itemCount > 0) {
-                HistoryFiltersDialog.instance(this, CODE_FILTERS).showOnce(parentFragmentManager)
+                HistoryFiltersDialog.instance(this, CODE_FILTERS).show(parentFragmentManager)
             }
         }
 

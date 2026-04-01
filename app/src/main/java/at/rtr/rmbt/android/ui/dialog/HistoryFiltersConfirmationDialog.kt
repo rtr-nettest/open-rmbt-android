@@ -13,7 +13,7 @@ import at.rtr.rmbt.android.ui.adapter.HistoryFilterConfirmationAdapter
 import at.rtr.rmbt.android.util.args
 import kotlin.math.min
 
-class HistoryFiltersConfirmationDialog : FullscreenDialog() {
+class HistoryFiltersConfirmationDialog : FullscreenBottomDialog() {
 
     override val gravity: Int = Gravity.BOTTOM
 
@@ -69,7 +69,7 @@ class HistoryFiltersConfirmationDialog : FullscreenDialog() {
             title: String,
             data: Set<String>?,
             selected: Set<String>?
-        ): FullscreenDialog =
+        ): FullscreenBottomDialog =
             HistoryFiltersConfirmationDialog().apply {
                 setTargetFragment(fragment, requestCode)
                 args {

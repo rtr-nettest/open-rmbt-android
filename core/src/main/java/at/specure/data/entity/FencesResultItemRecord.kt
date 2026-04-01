@@ -29,3 +29,7 @@ data class FencesResultItemRecord(
 fun FencesResultItemRecord.generateHash(): String {
     return "${this.id}-${this.fenceRadiusMeters}-${this.offsetMillis}"
 }
+
+fun FencesResultItemRecord.isNotFinished(): Boolean {
+    return (this.durationMillis == null || (this.durationMillis ?: -1) <= 0L)
+}

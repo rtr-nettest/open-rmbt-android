@@ -26,7 +26,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import java.io.IOException
 
-class MapSearchDialog : FullscreenDialog() {
+class MapSearchDialog : FullscreenBottomDialog() {
 
     private lateinit var binding: DialogMapSearchBinding
     private val coroutineScope: CoroutineScope = CoroutineScope(Dispatchers.Main)
@@ -160,7 +160,7 @@ class MapSearchDialog : FullscreenDialog() {
         fun instance(
             fragment: Fragment,
             requestCode: Int
-        ): FullscreenDialog {
+        ): FullscreenBottomDialog {
             val mapSearchDialog = MapSearchDialog()
             mapSearchDialog.setTargetFragment(fragment, requestCode)
             return mapSearchDialog

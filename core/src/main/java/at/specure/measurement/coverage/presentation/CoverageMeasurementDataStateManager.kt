@@ -1,5 +1,6 @@
 package at.specure.measurement.coverage.presentation
 
+import android.R.attr.value
 import at.specure.data.CoverageMeasurementSettings
 import at.specure.data.entity.CoverageMeasurementFenceRecord
 import at.specure.data.entity.CoverageMeasurementSession
@@ -7,8 +8,10 @@ import at.specure.info.cell.CellNetworkInfo
 import at.specure.info.network.MobileNetworkType
 import at.specure.info.network.NetworkInfo
 import at.specure.location.LocationInfo
+import at.specure.measurement.coverage.data.getFrequencyBand
 import at.specure.measurement.coverage.data.getMobileNetworkType
 import at.specure.measurement.coverage.domain.models.CoverageMeasurementData
+import at.specure.measurement.coverage.domain.models.MobileSignalTechnologyTimestamp
 import at.specure.measurement.coverage.domain.models.PingData
 import at.specure.measurement.coverage.domain.models.state.CoverageMeasurementState
 import kotlinx.coroutines.CoroutineScope
@@ -120,7 +123,7 @@ class CoverageMeasurementDataStateManager @Inject constructor(
         )
     }
 
-    private fun updateTechnologyMinSignalMap(data: CoverageMeasurementData, networkInfo: NetworkInfo?): HashMap<MobileNetworkType, Int?> {
+    private fun updateTechnologyMinSignalMap(data: CoverageMeasurementData, networkInfo: NetworkInfo?): HashMap<MobileNetworkType, MobileSignalTechnologyTimestamp?> {
         if (networkInfo == null) {
             return data.technologyMinSignalMapForCurrentFence
         }
@@ -129,10 +132,14 @@ class CoverageMeasurementDataStateManager @Inject constructor(
             if (newTechnologySignalPair == null) {
                 return data.technologyMinSignalMapForCurrentFence
             } else {
-                val lastMinSignalValueForTechnology = data.technologyMinSignalMapForCurrentFence.get(networkInfo.networkType)
-                val newSignalValueForTechnology = newTechnologySignalPair.second
-                if (lastMinSignalValueForTechnology == null || newSignalValueForTechnology != null && newSignalValueForTechnology < lastMinSignalValueForTechnology) {
-                    data.technologyMinSignalMapForCurrentFence.put(networkInfo.networkType, networkInfo.signalStrength?.value)
+                val lastMinSignalValueForTechnology = data.technologyMinSignalMapForCurrentFence.get(networkInfo.networkType)?.signalValueDbm
+                val isLastSignalForTechnologyNull = lastMinSignalValueForTechnology == null
+                val newSignalValueForTechnology = newTechnologySignalPair.second?.signalValueDbm
+                if (isLastSignalForTechnologyNull || (newSignalValueForTechnology != null && newSignalValueForTechnology <= (lastMinSignalValueForTechnology ?: Int.MAX_VALUE))) {
+                    data.technologyMinSignalMapForCurrentFence.put(
+                        networkInfo.networkType,
+                        newTechnologySignalPair.second
+                    )
                 }
                 return data.technologyMinSignalMapForCurrentFence
             }
@@ -141,33 +148,50 @@ class CoverageMeasurementDataStateManager @Inject constructor(
         }
     }
 
-    private fun getTechnologySignalPair(networkInfo: NetworkInfo?): Pair<MobileNetworkType, Int?>? {
+    private fun getTechnologySignalPair(networkInfo: NetworkInfo?): Pair<MobileNetworkType, MobileSignalTechnologyTimestamp?>? {
         if (networkInfo == null) {
             return null
         }
         if (networkInfo is CellNetworkInfo) {
             val newSignalValueForTechnology = networkInfo.signalStrength?.value
             val networkType = networkInfo.networkType
-            return Pair(networkType, newSignalValueForTechnology)
+            val technologySignalTimestamp = MobileSignalTechnologyTimestamp(
+                type = networkType,
+                signalValueDbm = newSignalValueForTechnology,
+                frequencyBand = networkInfo.getFrequencyBand(),
+                timestamp = System.currentTimeMillis(),
+            )
+            Timber.d("Creating 1 signal technology timestamp: $technologySignalTimestamp")
+            return Pair(
+                networkType,
+                technologySignalTimestamp,
+            )
         } else {
             return null
         }
     }
 
-    fun getMinSignalForTechnologyForCurrentFence(networkInfo: NetworkInfo?): Int? {
-        return if (networkInfo != null && networkInfo is CellNetworkInfo) {
-            val lastMinSignal = state.value.technologyMinSignalMapForCurrentFence[state.value.currentNetworkInfo?.getMobileNetworkType()]
-            lastMinSignal ?: networkInfo.signalStrength?.value
-        } else {
-            null
-        }
+    fun getMinSignalForTechnologyForCurrentFence(): MobileSignalTechnologyTimestamp? {
+        Timber.d("CurrentFence minimal signals: ${state.value.technologyMinSignalMapForCurrentFence}")
+        val latestTechnology = pickLatestLoggedMobileTechnology(state.value.technologyMinSignalMapForCurrentFence)
+        return latestTechnology
     }
 
-    fun onFenceExitClean(networkInfo: NetworkInfo?) = update {
+    private fun pickLatestLoggedMobileTechnology(technologyMinSignalMapForCurrentFence: HashMap<MobileNetworkType, MobileSignalTechnologyTimestamp?>): MobileSignalTechnologyTimestamp? {
+        val latestSignal = technologyMinSignalMapForCurrentFence.values.maxBy { it?.timestamp ?: 0 }
+        return latestSignal
+    }
+
+    fun onFenceExitClean(networkInfo: MobileSignalTechnologyTimestamp?) = update {
         Timber.d("updateSignalFenceOn signal map cleaning started" )
-        val lastTechnologySignal = getTechnologySignalPair(networkInfo)
+        val isNetworkInfoTooOldToPassForNewFence = (System.currentTimeMillis() - (networkInfo?.timestamp ?: 0) > 1000)
+        val newMap: HashMap<MobileNetworkType, MobileSignalTechnologyTimestamp?> = if (isNetworkInfoTooOldToPassForNewFence) {
+            hashMapOf()
+        } else {
+            networkInfo?.let { hashMapOf(it.type to it) } ?: hashMapOf()
+        }
         copy(
-            technologyMinSignalMapForCurrentFence = lastTechnologySignal?.let { hashMapOf(it) } ?: hashMapOf()
+            technologyMinSignalMapForCurrentFence = newMap
         )
     }
 

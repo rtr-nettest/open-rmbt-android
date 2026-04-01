@@ -19,7 +19,7 @@ import at.rtr.rmbt.android.di.Injector
 import at.rtr.rmbt.android.util.listen
 import at.rtr.rmbt.android.viewmodel.MapFiltersViewModel
 
-class MapFiltersDialog : FullscreenDialog(), MapFiltersConfirmationDialog.Callback {
+class MapFiltersDialog : FullscreenBottomDialog(), MapFiltersConfirmationDialog.Callback {
 
     override val gravity: Int = Gravity.BOTTOM
 
@@ -92,7 +92,7 @@ class MapFiltersDialog : FullscreenDialog(), MapFiltersConfirmationDialog.Callba
                         getString(R.string.title_filters_type),
                         it as ArrayList<String>,
                         it.indexOf(it.find { it == viewModel.state.type.get() })
-                    ).showOnce(parentFragmentManager)
+                    ).show(parentFragmentManager)
                 }
             }
         }
@@ -105,7 +105,7 @@ class MapFiltersDialog : FullscreenDialog(), MapFiltersConfirmationDialog.Callba
                     it.first,
                     it.second.map { it.title } as ArrayList<String>,
                     it.second.indexOf(it.second.find { it == viewModel.state.statistical.get() })
-                ).showOnce(parentFragmentManager)
+                ).show(parentFragmentManager)
             }
         }
 
@@ -117,7 +117,7 @@ class MapFiltersDialog : FullscreenDialog(), MapFiltersConfirmationDialog.Callba
                     it.first,
                     it.second.map { it.title } as ArrayList<String>,
                     it.second.indexOf(it.second.find { it == viewModel.state.timeRange.get() })
-                ).showOnce(parentFragmentManager)
+                ).show(parentFragmentManager)
             }
         }
 
@@ -130,7 +130,7 @@ class MapFiltersDialog : FullscreenDialog(), MapFiltersConfirmationDialog.Callba
                         it.first,
                         it.second.map { it.title } as ArrayList<String>,
                         it.second.indexOf(it.second.find { it == viewModel.state.operator.get() })
-                    ).showOnce(parentFragmentManager)
+                    ).show(parentFragmentManager)
                 }
             }
         }
@@ -144,7 +144,7 @@ class MapFiltersDialog : FullscreenDialog(), MapFiltersConfirmationDialog.Callba
                         it.first,
                         it.second.map { it.title } as ArrayList<String>,
                         it.second.indexOf(it.second.find { it == viewModel.state.provider.get() })
-                    ).showOnce(parentFragmentManager)
+                    ).show(parentFragmentManager)
                 }
             }
         }
@@ -157,7 +157,7 @@ class MapFiltersDialog : FullscreenDialog(), MapFiltersConfirmationDialog.Callba
                     it.first,
                     it.second.map { it.title } as ArrayList<String>,
                     it.second.indexOf(it.second.find { it == viewModel.state.technology.get() })
-                ).showOnce(parentFragmentManager)
+                ).show(parentFragmentManager)
             }
         }
 
@@ -187,7 +187,7 @@ class MapFiltersDialog : FullscreenDialog(), MapFiltersConfirmationDialog.Callba
                             getString(R.string.title_filters_subtype),
                             it.second.map { it.title } as ArrayList<String>,
                             it.second.indexOf(it.second.find { it.title == viewModel.state.subtype.get()?.title } ?: 0)
-                        ).showOnce(parentFragmentManager)
+                        ).show(parentFragmentManager)
                     }
                 }
             }
@@ -222,7 +222,7 @@ class MapFiltersDialog : FullscreenDialog(), MapFiltersConfirmationDialog.Callba
         const val CODE_PERIOD = 5
         const val CODE_PROVIDER = 6
 
-        fun instance(fragment: Fragment, requestCode: Int): FullscreenDialog = MapFiltersDialog().apply { setTargetFragment(fragment, requestCode) }
+        fun instance(fragment: Fragment, requestCode: Int): FullscreenBottomDialog = MapFiltersDialog().apply { setTargetFragment(fragment, requestCode) }
     }
 
     interface Callback {

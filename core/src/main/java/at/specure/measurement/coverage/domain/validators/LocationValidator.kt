@@ -8,6 +8,8 @@ interface LocationValidator {
 
     fun isLocationNotTooOld(newLocation: DeviceInfo.Location?): Boolean
 
+    fun isDistantEnough(newLocation: DeviceInfo.Location?, lastSavedLocation: DeviceInfo.Location?): Boolean
+
     fun isLocationAccuracyPreciseEnough(newLocation: DeviceInfo.Location?): Boolean
 
     fun isLocationValidAndDistantEnough(newLocation: DeviceInfo.Location?, lastSavedLocation: DeviceInfo.Location?): Boolean

@@ -24,7 +24,11 @@ class CoverageLocationValidator(
             return false
         }
 
-        val newLocationInfo = newLocation.toLocation()
+        return isDistantEnough(newLocation, lastSavedLocation)
+    }
+
+    override fun isDistantEnough(newLocation: DeviceInfo.Location?, lastSavedLocation: DeviceInfo.Location?): Boolean {
+        if (newLocation == null) return false
 
         return if (lastSavedLocation != null) {
             val distance = newLocation.toLocation().distanceTo(lastSavedLocation.toLocation())
