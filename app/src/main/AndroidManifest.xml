@@ -73,8 +73,12 @@
         <activity
             android:name=".ui.activity.MeasurementActivity"
             android:theme="@style/MeasurementTheme"
+            android:supportsPictureInPicture="true"
+            android:configChanges="screenSize|smallestScreenSize|screenLayout"
             android:launchMode="singleTask"
             android:windowSoftInputMode="stateAlwaysHidden" />
+
+
 
         <activity
             android:name=".ui.activity.ResultsActivity"
