@@ -16,10 +16,15 @@
 
 package at.rtr.rmbt.android.ui.activity
 
+import android.app.PictureInPictureParams
 import android.content.Context
 import android.content.Intent
+import android.content.res.Configuration
+import android.graphics.Point
 import android.os.Build
 import android.os.Bundle
+import android.util.Rational
+import android.view.View
 import android.view.WindowManager
 import androidx.activity.OnBackPressedCallback
 import androidx.core.view.ViewCompat
@@ -171,6 +176,41 @@ class MeasurementActivity : BaseActivity(), SimpleDialog.Callback {
 
         viewModel.qosProgressLiveData.value?.let { binding.measurementBottomView?.qosProgressContainer?.update(it) }
     }
+
+    private fun enterInPictureMode() {
+        val ratio = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            val screenBounds = this.windowManager.maximumWindowMetrics.bounds
+            val width = screenBounds.width()
+            val height = screenBounds.height()
+            Rational(width, height)
+        } else {
+            val display = windowManager.defaultDisplay
+            val point = Point();
+            display.getSize(point);
+            val width = point.x;
+            val height = point.y;
+            Rational(width, height);
+        }
+        val pipBuilder = PictureInPictureParams.Builder()
+        pipBuilder.setAspectRatio(ratio).build()
+        enterPictureInPictureMode(pipBuilder.build())
+    }
+
+    override fun onUserLeaveHint() {
+        super.onUserLeaveHint()
+        if (viewModel.state.isLoopModeActive.get()) {
+            enterInPictureMode()
+        }
+    }
+
+    override fun onPictureInPictureModeChanged(
+        isInPictureInPictureMode: Boolean,
+        newConfig: Configuration
+    ) {
+        super.onPictureInPictureModeChanged(isInPictureInPictureMode, newConfig)
+        // TODO: adjust variable for state and adjust UI to process that state
+    }
+
 
     private fun finishActivity(measurementFinished: Boolean) {
         Timber.d("Finish activity with measurement finished: $measurementFinished, testUUID: ${viewModel.testUUID}, measurementState: ${viewModel.state.measurementState.get()}, LoopModeActive: ${viewModel.state.isLoopModeActive.get()}, LoopModeState: ${viewModel.state.loopModeRecord.get()?.status}")
