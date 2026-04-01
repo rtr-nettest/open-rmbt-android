@@ -18,7 +18,7 @@ import at.rtr.rmbt.android.R
 import at.rtr.rmbt.android.databinding.LayoutMapLayersBinding
 import at.rtr.rmbt.android.util.args
 
-class MapLayersDialog : FullscreenDialog() {
+class MapLayersDialog : FullscreenBottomDialog() {
 
     override val gravity: Int = Gravity.BOTTOM
 
@@ -112,7 +112,7 @@ class MapLayersDialog : FullscreenDialog() {
             activeStyle: Int? = NO_VALUE,
             activeType: Int? = NO_VALUE,
             noSatelliteOrHybrid: Boolean = false
-        ): FullscreenDialog =
+        ): FullscreenBottomDialog =
             MapLayersDialog()
                 .apply {
                     requestCode?.let { setTargetFragment(fragment, it) }

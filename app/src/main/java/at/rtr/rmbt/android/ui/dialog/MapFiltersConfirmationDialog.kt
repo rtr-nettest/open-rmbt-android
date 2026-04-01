@@ -14,7 +14,7 @@ import at.rtr.rmbt.android.ui.adapter.FilterConfirmationAdapter
 import at.rtr.rmbt.android.util.args
 import kotlin.math.min
 
-class MapFiltersConfirmationDialog : FullscreenDialog() {
+class MapFiltersConfirmationDialog : FullscreenBottomDialog() {
 
     override val gravity: Int = Gravity.BOTTOM
 
@@ -102,7 +102,7 @@ class MapFiltersConfirmationDialog : FullscreenDialog() {
             title: String,
             data: ArrayList<String>,
             selectedPosition: Int
-        ): FullscreenDialog =
+        ): FullscreenBottomDialog =
             MapFiltersConfirmationDialog().apply {
                 setTargetFragment(fragment, requestCode)
                 args {
