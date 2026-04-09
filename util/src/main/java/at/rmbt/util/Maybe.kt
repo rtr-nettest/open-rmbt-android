@@ -15,6 +15,7 @@
 package at.rmbt.util
 
 import at.rmbt.util.exception.HandledException
+import kotlinx.coroutines.CancellationException
 import timber.log.Timber
 
 /**
@@ -30,6 +31,8 @@ class Maybe<out S>(private val successValue: S?, private val exceptionValue: Han
         fun <S> of(block: () -> (S)): Maybe<S> {
             return try {
                 Maybe(block.invoke())
+            } catch (e: CancellationException) {
+                throw e
             } catch (ex: Exception) {
                 Timber.e(ex)
                 Maybe(HandledException.from(ex))

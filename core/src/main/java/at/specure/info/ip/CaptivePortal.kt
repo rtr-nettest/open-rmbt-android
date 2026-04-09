@@ -24,7 +24,6 @@ class CaptivePortal @Inject constructor(private val ipEndpointProvider: IpEndpoi
             captivePortalStatus = CaptivePortalStatus.TESTING
             val status = isWalledGardenConnection()
             captivePortalStatus = if (status.ok && status.success) CaptivePortalStatus.FOUND else CaptivePortalStatus.NOT_FOUND
-            Timber.e("CPS detected: $status")
             isCaptivePortalTestRunning = false
         }
     }

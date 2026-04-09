@@ -220,6 +220,7 @@ class ResultsActivity : BaseActivity() {
                     ReturnPoint.HOME -> HomeActivity.startWithFragment(this@ResultsActivity, HomeActivity.Companion.HomeNavigationTarget.HOME_FRAGMENT_TO_SHOW)
                     ReturnPoint.HISTORY -> HomeActivity.startWithFragment(this@ResultsActivity, HomeActivity.Companion.HomeNavigationTarget.HISTORY_FRAGMENT_TO_SHOW)
                 }
+                this@ResultsActivity.finish()
             }
         })
 

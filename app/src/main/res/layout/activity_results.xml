@@ -331,6 +331,7 @@
                         android:accessibilityTraversalAfter="@id/labelResultBottomSignal"
                         app:signalStrengthClassificationResult="@{state.testResult.signalClass == null ? Classification.NONE : state.testResult.signalClass}"
                         app:signalStrengthResult="@{state.testResult.signalStrength}"
+                        app:finalValue="@{true}"
                         tools:drawableStart="@drawable/ic_small_wifi_gray"
                         tools:text="-86 dBm" />
 

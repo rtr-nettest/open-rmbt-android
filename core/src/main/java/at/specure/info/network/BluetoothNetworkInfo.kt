@@ -39,4 +39,4 @@ open class BluetoothNetworkInfo(
 
     override val capabilitiesRaw: String?
 
-) : NetworkInfo(TransportType.BLUETOOTH, UUID.nameUUIDFromBytes(("").toByteArray()).toString(), capabilitiesRaw)
+) : NetworkInfo(TransportType.BLUETOOTH, UUID.nameUUIDFromBytes(("").toByteArray()).toString(), comparisonCellUuid = UUID.nameUUIDFromBytes(("").toByteArray()).toString(), capabilitiesRaw)

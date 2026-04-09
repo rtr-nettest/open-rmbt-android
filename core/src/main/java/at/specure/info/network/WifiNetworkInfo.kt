@@ -108,7 +108,7 @@ open class WifiNetworkInfo(
 
     override val capabilitiesRaw: String?
 
-) : NetworkInfo(TransportType.WIFI, UUID.nameUUIDFromBytes((ssid ?: "").toByteArray()).toString(), capabilitiesRaw) {
+) : NetworkInfo(TransportType.WIFI, UUID.nameUUIDFromBytes((ssid ?: "").toByteArray()).toString(), UUID.nameUUIDFromBytes(("").toByteArray()).toString(), capabilitiesRaw) {
 
     override val name: String?
         get() = ssid

@@ -61,6 +61,8 @@ class MeasurementRepositoryImpl @Inject constructor(
         }
     }
 
+    // TODO: see deprecation message
+    @Deprecated("Most of the info should be passed from DetailedNetworkInfo object and extracted from it to have the same logic everywhere")
     @SuppressLint("MissingPermission")
     override fun saveTelephonyInfo(uuid: String) {
         val type = cellInfoWatcher.activeNetwork?.type

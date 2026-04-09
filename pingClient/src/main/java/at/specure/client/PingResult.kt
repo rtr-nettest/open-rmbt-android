@@ -16,7 +16,7 @@ sealed class PingResult {
             return "Success(sequenceNumber=$sequenceNumber, rttMillis=$rttMillis)"
         }
     }
-    data class ServerError(val sequenceNumber: Int) : PingResult()
+    data class ServerError(val sequenceNumber: Int, val exception: PingServerException) : PingResult()
     data class Lost(val sequenceNumber: Int) : PingResult()
     data class ClientError(val sequenceNumber: Int, val exception: Exception) : PingResult()
 }

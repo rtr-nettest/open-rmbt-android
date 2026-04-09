@@ -10,8 +10,48 @@ import androidx.core.content.ContextCompat
 import androidx.core.graphics.createBitmap
 import androidx.core.graphics.drawable.DrawableCompat
 import at.specure.info.network.MobileNetworkType
+import javax.inject.Singleton
 
+@Singleton
 class CustomMarker(private val context: Context) {
+
+    val markers: Map<MobileNetworkType, Bitmap>
+
+    init {
+        markers = mapOf(
+            MobileNetworkType.UNKNOWN to createCustomShapeBitmap(MobileNetworkType.UNKNOWN),
+            MobileNetworkType.NR_AVAILABLE to createCustomShapeBitmap(MobileNetworkType.NR_AVAILABLE),
+            MobileNetworkType.NR_NSA to createCustomShapeBitmap(MobileNetworkType.NR_NSA),
+            MobileNetworkType.NR_SA to createCustomShapeBitmap(MobileNetworkType.NR_SA),
+
+            MobileNetworkType.LTE to createCustomShapeBitmap(MobileNetworkType.LTE),
+            MobileNetworkType.LTE_CA to createCustomShapeBitmap(MobileNetworkType.LTE_CA),
+            MobileNetworkType.IWLAN to createCustomShapeBitmap(MobileNetworkType.IWLAN),
+
+            MobileNetworkType.GPRS to createCustomShapeBitmap(MobileNetworkType.GPRS),
+            MobileNetworkType.EDGE to createCustomShapeBitmap(MobileNetworkType.EDGE),
+            MobileNetworkType.CDMA to createCustomShapeBitmap(MobileNetworkType.CDMA),
+            MobileNetworkType._1xRTT to createCustomShapeBitmap(MobileNetworkType._1xRTT),
+            MobileNetworkType.IDEN to createCustomShapeBitmap(MobileNetworkType.IDEN),
+            MobileNetworkType.GSM to createCustomShapeBitmap(MobileNetworkType.GSM),
+            // 3G family
+            MobileNetworkType.UMTS to createCustomShapeBitmap(MobileNetworkType.UMTS),
+            MobileNetworkType.EVDO_0 to createCustomShapeBitmap(MobileNetworkType.EVDO_0),
+            MobileNetworkType.EVDO_A to createCustomShapeBitmap(MobileNetworkType.EVDO_A),
+            MobileNetworkType.EVDO_B to createCustomShapeBitmap(MobileNetworkType.EVDO_B),
+            MobileNetworkType.HSDPA to createCustomShapeBitmap(MobileNetworkType.HSDPA),
+            MobileNetworkType.HSUPA to createCustomShapeBitmap(MobileNetworkType.HSUPA),
+            MobileNetworkType.HSPA to createCustomShapeBitmap(MobileNetworkType.HSPA),
+            MobileNetworkType.EHRPD to createCustomShapeBitmap(MobileNetworkType.EHRPD),
+            MobileNetworkType.TD_SCDMA to createCustomShapeBitmap(MobileNetworkType.TD_SCDMA),
+            MobileNetworkType.HSPAP to createCustomShapeBitmap(MobileNetworkType.HSPAP)
+        )
+    }
+
+    fun getMarker(mobileNetworkType: MobileNetworkType): Bitmap {
+        return markers[mobileNetworkType] ?: createCustomShapeBitmap(mobileNetworkType)
+    }
+
 
     fun createTintedVectorMarker(
         vectorResId: Int,

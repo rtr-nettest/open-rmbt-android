@@ -14,6 +14,7 @@ import android.telephony.TelephonyManager
 import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.core.content.PermissionChecker
+import kotlinx.coroutines.CancellationException
 import timber.log.Timber
 
 /**
@@ -30,6 +31,9 @@ fun Context.isLocationServiceEnabled(): Boolean {
         networkEnabled = lm.isProviderEnabled(LocationManager.NETWORK_PROVIDER)
     } catch (e: Exception) {
         Timber.e(e)
+        if (e is CancellationException) {
+            throw e
+        }
     }
     return gpsEnabled || networkEnabled
 }

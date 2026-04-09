@@ -1,5 +1,6 @@
 package at.rmbt.client.control
 
+import kotlinx.coroutines.CancellationException
 import okhttp3.Interceptor
 import okhttp3.Response
 import java.io.IOException
@@ -11,6 +12,9 @@ class RetryInterceptor(private val maxRetryCount: Int = 3) : Interceptor {
         var response = try {
             chain.proceed(request)
         } catch (e: Exception) {
+            if (e is CancellationException) {
+                throw e
+            }
             throw IOException("Initial request failed: ${e.message}")
         }
         var retryCount = 0
@@ -21,6 +25,9 @@ class RetryInterceptor(private val maxRetryCount: Int = 3) : Interceptor {
             response = try {
                 chain.proceed(request)
             } catch (e: Exception) {
+                if (e is CancellationException) {
+                    throw e
+                }
                 throw IOException("Request failed on retry $retryCount: ${e.message}")
             }
         }

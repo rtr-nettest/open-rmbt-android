@@ -29,7 +29,7 @@ interface LocationSource {
     }
 
     companion object {
-        const val MINIMUM_UPDATE_TIME_MS: Long = 1000
+        const val MINIMUM_UPDATE_TIME_MS: Long = 500
         const val MINIMUM_DISTANCE_METERS: Float = 0.001f
     }
 }

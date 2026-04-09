@@ -17,6 +17,7 @@ import at.specure.data.ClientUUID
 import at.specure.data.ClientUUIDLegacy
 import at.specure.data.ControlServerSettings
 import at.specure.data.CoreDatabase
+import at.specure.data.CoverageMeasurementSettings
 import at.specure.data.HistoryFilterOptions
 import at.specure.data.MeasurementServers
 import at.specure.data.NewsSettings
@@ -32,6 +33,7 @@ import at.specure.data.repository.NewsRepository
 import at.specure.data.repository.NewsRepositoryImpl
 import at.specure.data.repository.SettingsRepository
 import at.specure.data.repository.SettingsRepositoryImpl
+import at.specure.data.repository.SignalMeasurementRepository
 import at.specure.data.repository.TestDataRepository
 import at.specure.info.cell.CellInfoWatcher
 import at.specure.info.cell.CellInfoWatcherImpl
@@ -48,6 +50,22 @@ import at.specure.info.wifi.WifiInfoWatcherImpl
 import at.specure.location.LocationWatcher
 import at.specure.location.cell.CellLocationWatcher
 import at.specure.location.cell.CellLocationWatcherImpl
+import at.specure.measurement.coverage.RtrCoverageLoopManager
+import at.specure.measurement.coverage.data.FencesDataSource
+import at.specure.measurement.coverage.domain.CoverageLoopManager
+import at.specure.measurement.coverage.domain.PingProcessor
+import at.specure.measurement.coverage.domain.monitors.ConnectivityMonitor
+import at.specure.measurement.coverage.domain.validators.CoverageDataValidator
+import at.specure.measurement.coverage.presentation.validators.CoverageDurationValidator
+import at.specure.measurement.coverage.presentation.validators.CoverageLocationValidator
+import at.specure.measurement.coverage.presentation.validators.CoverageNetworkValidator
+import at.specure.measurement.coverage.domain.validators.DurationValidator
+import at.specure.measurement.coverage.domain.validators.LocationValidator
+import at.specure.measurement.coverage.domain.validators.NetworkValidator
+import at.specure.measurement.coverage.presentation.CoverageMeasurementDataStateManager
+import at.specure.measurement.coverage.presentation.monitors.RtrConnectivityMonitor
+import at.specure.measurement.coverage.presentation.ping.RtrPingProcessor
+import at.specure.measurement.coverage.presentation.validators.MainCoverageDataValidator
 import at.specure.test.TestController
 import at.specure.test.TestControllerImpl
 import at.specure.util.map.CustomMarker
@@ -60,6 +78,9 @@ import cz.mroczis.netmonster.core.INetMonster
 import cz.mroczis.netmonster.core.factory.NetMonsterFactory
 import dagger.Module
 import dagger.Provides
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 import javax.inject.Named
 import javax.inject.Singleton
 
@@ -139,7 +160,7 @@ class CoreModule {
         connectivityManager: ConnectivityManager,
         connectivityWatcher: ConnectivityWatcher,
         wifiInfoWatcher: WifiInfoWatcher,
-        @Named("GPSAndNetworkLocationProvider") locationWatcher: LocationWatcher,
+        locationWatcher: LocationWatcher,
         captivePortal: CaptivePortal
     ): ActiveNetworkWatcher =
         ActiveNetworkWatcher(
@@ -165,7 +186,7 @@ class CoreModule {
 
     @Provides
     @Singleton
-    fun provideControlEndpointProvider(config: Config): ControlEndpointProvider = ControlServerProviderImpl(config)
+    fun provideControlEndpointProvider(config: Config, controlServerSettings: ControlServerSettings): ControlEndpointProvider = ControlServerProviderImpl(config, controlServerSettings)
 
     @Provides
     @Singleton
@@ -275,7 +296,86 @@ class CoreModule {
 
     @Provides
     @Singleton
+    fun provideCoverageSettings(context: Context): CoverageMeasurementSettings = CoverageMeasurementSettings(context)
+
+
+    @Provides
+    @Singleton
+    fun provideCoverageScope(): CoroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
+
+
+    @Provides
+    @Singleton
+    fun provideCoverageMeasurementDataStateManager(
+        coverageMeasurementSettings: CoverageMeasurementSettings,
+        scope: CoroutineScope
+    ): CoverageMeasurementDataStateManager =
+        CoverageMeasurementDataStateManager(
+            coverageMeasurementSettings = coverageMeasurementSettings,
+            scope = scope
+            )
+
+    @Provides
+    @Singleton
     fun provideCustomMarker(
         context: Context
     ) : CustomMarker = CustomMarker(context = context)
+
+    @Provides
+    @Singleton
+    fun provideGpsValidator(
+        config: Config
+    ): LocationValidator = CoverageLocationValidator(
+        config
+    )
+
+    @Provides
+    @Singleton
+    fun provideDurationValidator(
+        config: Config
+    ): DurationValidator = CoverageDurationValidator(
+        minimalFenceDurationMillis = config.minimalFenceDurationMillisForSignalMeasurement,
+    )
+
+    @Provides
+    @Singleton
+    fun provideNetworkValidator(): NetworkValidator = CoverageNetworkValidator()
+
+    @Provides
+    @Singleton
+    fun provideCoverageDataValidator(
+        networkValidator: NetworkValidator,
+        locationValidator: LocationValidator,
+        durationValidator: DurationValidator
+    ): CoverageDataValidator = MainCoverageDataValidator(
+        networkValidator = networkValidator,
+        locationValidator = locationValidator,
+        durationValidator = durationValidator
+    )
+
+    @Provides
+    @Singleton
+    fun providePingProcessor(): PingProcessor = RtrPingProcessor()
+
+    @Provides
+    @Singleton
+    fun provideCoverageSessionManager(
+        signalMeasurementRepository: SignalMeasurementRepository,
+        coverageMeasurementSettings: CoverageMeasurementSettings,
+        config: Config
+    ): CoverageLoopManager = RtrCoverageLoopManager(
+        signalMeasurementRepository = signalMeasurementRepository,
+        coverageMeasurementSettings = coverageMeasurementSettings,
+        config,
+    )
+
+    @Provides
+    @Singleton
+    fun provideConnectivityMonitor(
+        context: Context,
+        telephonyManager: TelephonyManager,
+    ): ConnectivityMonitor = RtrConnectivityMonitor(
+        context,
+        telephonyManager,
+    )
 }

@@ -1,0 +1,211 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <variable
+            name="item"
+            type="at.rtr.rmbt.android.viewmodel.viewData.CoverageMarkerDetailsData" />
+
+        <import type="at.specure.data.Classification" />
+
+        <import type="android.view.View" />
+    </data>
+
+    <androidx.cardview.widget.CardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:cardCornerRadius="@dimen/margin_medium">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/padding_small"
+            android:layout_marginEnd="@dimen/padding_small"
+            android:layout_marginBottom="@dimen/padding_large"
+            android:elevation="@dimen/margin_small">
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/testTime"
+                style="@style/TextAppearance.AppCompat.Title"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginVertical="8dp"
+                android:layout_marginStart="@dimen/padding_large"
+                android:maxLines="2"
+                android:textColor="@color/text_dark_gray"
+                app:layout_constraintEnd_toStartOf="@id/icon_close"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:timeString="@{item.timestamp}"
+                tools:text="20.11.18, 12:00:45" />
+
+            <View
+                android:id="@+id/time_divider"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/size_divider_height"
+                android:layout_marginTop="@dimen/padding_medium"
+                android:background="@color/horizontal_divider"
+                app:layout_constraintTop_toBottomOf="@id/testTime"
+                tools:layout_editor_absoluteX="0dp" />
+
+            <ImageView
+                android:id="@+id/icon_close"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="@dimen/padding_medium"
+                android:src="@drawable/ic_map_dialog_close"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                android:visibility="invisible"/>
+
+            <androidx.appcompat.widget.AppCompatImageView
+                android:id="@+id/networkTypeIcon"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/padding_large"
+                android:contentDescription="@null"
+                app:layout_constraintBottom_toBottomOf="@id/labelProvider"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="@id/textProvider"
+                app:networkType="@{item.networkTypeLabel}"
+                app:signalStrength="@{item.signalClass ?? Classification.NONE}"
+                android:visibility="gone"/>
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/labelProvider"
+                style="@style/RobotoRegularStyle.VerySmall"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/margin_large"
+                android:layout_marginTop="@dimen/margin_large"
+                android:text="@string/results_network_provider"
+                android:textColor="@color/text_gray_transparency_60"
+                app:layout_constraintEnd_toStartOf="@+id/labelConnection"
+                app:layout_constraintHorizontal_bias="0.5"
+                app:layout_constraintHorizontal_weight="2"
+                app:layout_constraintStart_toEndOf="@id/networkTypeIcon"
+                app:layout_constraintTop_toBottomOf="@id/time_divider"
+                tools:text="Provider"
+                android:visibility="gone"/>
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/labelConnection"
+                style="@style/RobotoRegularStyle.VerySmall"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/margin_large"
+                android:layout_marginTop="@dimen/margin_large"
+                android:text="@string/results_network_type"
+                android:textColor="@color/text_gray_transparency_60"
+                app:layout_constraintEnd_toStartOf="@+id/labelResultBottomPing"
+                app:layout_constraintHorizontal_bias="0.5"
+                app:layout_constraintHorizontal_weight="2"
+                app:layout_constraintStart_toEndOf="@+id/labelProvider"
+                app:layout_constraintTop_toBottomOf="@+id/time_divider" />
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/labelResultBottomPing"
+                style="@style/RobotoRegularStyle.VerySmall"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:text="@string/measurement_ping"
+                android:textColor="@color/text_gray_transparency_60"
+                app:layout_constraintBottom_toBottomOf="@+id/labelConnection"
+                app:layout_constraintEnd_toStartOf="@+id/labelResultBottomSignal"
+                app:layout_constraintHorizontal_bias="0.5"
+                app:layout_constraintHorizontal_weight="2"
+                app:layout_constraintStart_toEndOf="@+id/labelConnection"
+                app:layout_constraintTop_toBottomOf="@id/testTime"
+                app:layout_constraintTop_toTopOf="@+id/labelConnection" />
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/labelResultBottomSignal"
+                style="@style/RobotoRegularStyle.VerySmall"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="@dimen/margin_large"
+                android:text="@string/label_signal_strength"
+                android:textColor="@color/text_gray_transparency_60"
+                app:layout_constraintBottom_toBottomOf="@+id/labelResultBottomPing"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.5"
+                app:layout_constraintHorizontal_weight="2"
+                app:layout_constraintStart_toEndOf="@+id/labelResultBottomPing"
+                app:layout_constraintTop_toBottomOf="@id/testTime"
+                app:layout_constraintTop_toTopOf="@+id/labelResultBottomPing" />
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/textProvider"
+                style="@style/RobotoMediumStyle.VerySmall"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/margin_large"
+                android:drawablePadding="@dimen/padding_very_small"
+                android:maxLines="1"
+                android:text="@{item.provider}"
+                app:layout_constraintEnd_toStartOf="@+id/textConnection"
+                app:layout_constraintHorizontal_bias="0.5"
+                app:layout_constraintHorizontal_weight="2"
+                app:layout_constraintStart_toEndOf="@id/networkTypeIcon"
+                app:layout_constraintTop_toBottomOf="@+id/labelProvider"
+                android:ellipsize="end"
+                tools:text="Long Provider name which does not fit into single line for sure"
+                android:visibility="gone"/>
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/textConnection"
+                style="@style/RobotoMediumStyle.VerySmall"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:drawablePadding="@dimen/padding_very_small"
+                android:maxLines="1"
+                android:text="@{item.networkTypeLabel}"
+                app:layout_constraintEnd_toStartOf="@+id/textPing"
+                app:layout_constraintHorizontal_bias="0.5"
+                app:layout_constraintHorizontal_weight="2"
+                app:layout_constraintStart_toStartOf="@+id/labelConnection"
+                app:layout_constraintTop_toBottomOf="@+id/labelConnection"
+                tools:text="4G (LTE)"/>
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/textPing"
+                style="@style/RobotoMediumStyle.VerySmall"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:drawablePadding="@dimen/padding_very_small"
+                android:maxLines="1"
+                app:layout_constraintEnd_toStartOf="@+id/textSignal"
+                app:layout_constraintHorizontal_bias="0.5"
+                app:layout_constraintHorizontal_weight="2"
+                app:layout_constraintStart_toEndOf="@+id/textConnection"
+                app:layout_constraintTop_toBottomOf="@+id/labelResultBottomPing"
+                app:pingMsNoColor="@{item.pingMillis}"
+                app:finalValue="@{!item.notFinished}"
+                tools:drawableStart="@drawable/ic_small_ping_yellow"
+                tools:text="14 ms" />
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/textSignal"
+                style="@style/RobotoMediumStyle.VerySmall"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="@dimen/margin_large"
+                android:drawablePadding="@dimen/padding_very_small"
+                android:maxLines="1"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.5"
+                app:layout_constraintHorizontal_weight="2"
+                app:layout_constraintStart_toEndOf="@+id/textPing"
+                app:layout_constraintTop_toBottomOf="@+id/labelResultBottomSignal"
+                app:signalStrengthClassificationResult="@{item.signalClass == null ? Classification.NONE : item.signalClass}"
+                app:signalStrengthResult="@{item.signalStrength}"
+                app:finalValue="@{!item.notFinished}"
+                tools:drawableStart="@drawable/ic_small_wifi_gray"
+                tools:text="-86 dBm" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.cardview.widget.CardView>
+</layout>

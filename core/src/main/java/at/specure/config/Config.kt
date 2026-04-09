@@ -457,4 +457,29 @@ interface Config {
      */
     var minDistanceMetersToLogNewLocationOnMapDuringSignalMeasurement: Int
 
+    /**
+     * Minimum distance factor between latest two dots on map during the signal measurement
+     */
+    var minDistanceFactorCoverageMeasurement: Int
+
+    /**
+     * Minimum location accuracy during signal measurement in meters
+     */
+    var minLocationAccuracyMetersDuringSignalMeasurement: Int
+
+    /**
+     * Maximum age of the location information for signal measurement in milliseconds to take it into processing
+     */
+    var maxAgeOfLocationInformationForSignalMeasurementMillis: Long
+
+    /**
+     * Maximum distance to consider the location point to be the same as other saved one
+     */
+    var sameLocationDistanceMetersForSignalMeasurement: Int
+
+    /**
+     * Minimal time duration of the fence during the signal measurement for high speed travelling to execute at least few pings, addition to fence radius
+     */
+    var minimalFenceDurationMillisForSignalMeasurement: Long
+
 }

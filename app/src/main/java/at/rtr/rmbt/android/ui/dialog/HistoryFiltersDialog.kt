@@ -20,7 +20,7 @@ import at.rtr.rmbt.android.viewmodel.HistoryFiltersViewModel
 import javax.inject.Inject
 import kotlin.math.max
 
-class HistoryFiltersDialog : FullscreenDialog(), HistoryFiltersConfirmationDialog.Callback {
+class HistoryFiltersDialog : FullscreenBottomDialog(), HistoryFiltersConfirmationDialog.Callback {
 
     override val gravity: Int = Gravity.BOTTOM
 
@@ -144,7 +144,7 @@ class HistoryFiltersDialog : FullscreenDialog(), HistoryFiltersConfirmationDialo
         const val CODE_DEVICES = 0
         const val CODE_NETWORK = 1
 
-        fun instance(fragment: Fragment, requestCode: Int): FullscreenDialog =
+        fun instance(fragment: Fragment, requestCode: Int): FullscreenBottomDialog =
             HistoryFiltersDialog().apply { setTargetFragment(fragment, requestCode) }
     }
 

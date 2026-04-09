@@ -166,8 +166,25 @@ class SimpleDialog : FullscreenDialog() {
             return this
         }
 
-        fun show(manager: FragmentManager, code: Int) {
-            val tag = SimpleDialog::class.java.simpleName
+        fun create(manager: FragmentManager, code: Int, tag: String): SimpleDialog {
+            val tag = tag
+
+            manager.findFragmentByTag(tag)?.let {
+                if (it is DialogFragment) {
+                    it.dismissAllowingStateLoss()
+                }
+            }
+
+            this.code = code
+            val dialog = SimpleDialog()
+            val args = Bundle()
+            args.putParcelable(KEY_BUILDER, this)
+            dialog.arguments = args
+            return dialog
+        }
+
+        fun show(manager: FragmentManager, code: Int, tag: String? = null) {
+            val tag = tag ?: SimpleDialog::class.java.simpleName
 
             manager.findFragmentByTag(tag)?.let {
                 if (it is DialogFragment) {

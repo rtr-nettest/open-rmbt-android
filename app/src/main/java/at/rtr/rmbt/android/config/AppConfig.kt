@@ -20,6 +20,9 @@ import at.rtr.rmbt.android.util.ConfigValue
 import at.specure.config.Config
 import at.specure.data.ControlServerSettings
 import javax.inject.Inject
+import androidx.core.content.edit
+import at.specure.measurement.coverage.MAXIMUM_POSSIBLE_FENCE_RADIUS_METERS
+import at.specure.measurement.coverage.MINIMUM_POSSIBLE_FENCE_RADIUS_METERS
 
 private const val FILENAME = "config.pref"
 
@@ -33,6 +36,9 @@ private const val KEY_LAST_BACKGROUND_PERMISSIONS_ASKED_TIMESTAMP_MILLIS = "LAST
 private const val KEY_PERSISTENT_CLIENT_UUID_ENABLED = "PERSISTENT_CLIENT_UUID_ENABLED"
 private const val KEY_ANALYTICS_ENABLED = "ANALYTICS_ENABLED"
 
+private const val KEY_COVERAGE_MIN_FENCES_DISTANCE_FACTOR = "KEY_COVERAGE_MIN_FENCES_DISTANCE_FACTOR"
+private const val COVERAGE_MIN_FENCES_DISTANCE_FACTOR_DEFAULT_VALUE = 1
+
 class AppConfig @Inject constructor(context: Context, private val serverSettings: ControlServerSettings) : Config {
 
     private val preferences = context.getSharedPreferences(FILENAME, Context.MODE_PRIVATE)
@@ -44,6 +50,16 @@ class AppConfig @Inject constructor(context: Context, private val serverSettings
     private fun setInt(configValue: ConfigValue, value: Int) {
         preferences.edit()
             .putInt(configValue.name, value)
+            .apply()
+    }
+
+    private fun getLong(configValue: ConfigValue, serverValue: Long? = null): Long {
+        return preferences.getLong(configValue.name, serverValue ?: configValue.value.toLong())
+    }
+
+    private fun setLong(configValue: ConfigValue, value: Long) {
+        preferences.edit()
+            .putLong(configValue.name, value)
             .apply()
     }
 
@@ -465,7 +481,28 @@ class AppConfig @Inject constructor(context: Context, private val serverSettings
         set(value) = setBoolean(BuildConfig.SHOULD_CHECK_ACTIVE_SIMS_COUNT, value)
 
     override var minDistanceMetersToLogNewLocationOnMapDuringSignalMeasurement: Int
-        get() = getInt(BuildConfig.MIN_LOCATION_DISTANCE_METERS_SIGNAL_MEASUREMENT)
-        set(value) = setInt(BuildConfig.MIN_LOCATION_DISTANCE_METERS_SIGNAL_MEASUREMENT, value)
+        get() = getInt(BuildConfig.MIN_LOCATION_DISTANCE_METERS_SIGNAL_MEASUREMENT).coerceAtLeast(MINIMUM_POSSIBLE_FENCE_RADIUS_METERS).coerceAtMost(MAXIMUM_POSSIBLE_FENCE_RADIUS_METERS)
+        set(value) = setInt(BuildConfig.MIN_LOCATION_DISTANCE_METERS_SIGNAL_MEASUREMENT, value.coerceAtLeast(MINIMUM_POSSIBLE_FENCE_RADIUS_METERS).coerceAtMost(MAXIMUM_POSSIBLE_FENCE_RADIUS_METERS))
 
+    override var minDistanceFactorCoverageMeasurement: Int
+        get() = preferences.getInt(KEY_COVERAGE_MIN_FENCES_DISTANCE_FACTOR, COVERAGE_MIN_FENCES_DISTANCE_FACTOR_DEFAULT_VALUE)
+        set(value) = preferences.edit {
+            putInt(KEY_COVERAGE_MIN_FENCES_DISTANCE_FACTOR, value)
+        }
+
+    override var minLocationAccuracyMetersDuringSignalMeasurement: Int
+        get() = getInt(BuildConfig.MIN_LOCATION_ACCURACY_METERS_SIGNAL_MEASUREMENT)
+        set(value) = setInt(BuildConfig.MIN_LOCATION_ACCURACY_METERS_SIGNAL_MEASUREMENT, value)
+
+    override var maxAgeOfLocationInformationForSignalMeasurementMillis: Long
+        get() = getLong(BuildConfig.MAX_LOCATION_AGE_MILLIS_SIGNAL_MEASUREMENT)
+        set(value) = setLong(BuildConfig.MAX_LOCATION_AGE_MILLIS_SIGNAL_MEASUREMENT, value)
+
+    override var sameLocationDistanceMetersForSignalMeasurement: Int
+        get() = getInt(BuildConfig.SAME_LOCATION_DISTANCE_METERS_SIGNAL_MEASUREMENT)
+        set(value) = setInt(BuildConfig.SAME_LOCATION_DISTANCE_METERS_SIGNAL_MEASUREMENT, value)
+
+    override var minimalFenceDurationMillisForSignalMeasurement: Long
+        get() = getLong(BuildConfig.MINIMAL_FENCE_DURATION_MILLIS_SIGNAL_MEASUREMENT)
+        set(value) = setLong(BuildConfig.MINIMAL_FENCE_DURATION_MILLIS_SIGNAL_MEASUREMENT, value)
 }

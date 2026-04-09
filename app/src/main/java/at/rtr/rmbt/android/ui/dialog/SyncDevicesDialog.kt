@@ -172,7 +172,7 @@ class SyncDevicesDialog : FullscreenDialog() {
     private fun showProgressDialog() {
         if (progressDialog == null) {
             progressDialog = ProgressDialogFragment()
-            progressDialog?.show(childFragmentManager)
+            progressDialog?.showOnce(childFragmentManager)
         }
     }
 

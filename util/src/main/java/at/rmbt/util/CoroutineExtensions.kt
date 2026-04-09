@@ -16,6 +16,7 @@ package at.rmbt.util
 
 import android.os.Handler
 import android.os.Looper
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
@@ -30,6 +31,8 @@ fun io(block: suspend CoroutineScope.() -> (Unit)) {
     val catchingBlock: suspend CoroutineScope.() -> (Unit) = {
         try {
             block.invoke(this)
+        } catch (e: CancellationException) {
+            throw e
         } catch (throwable: Throwable) {
             Timber.e(throwable)
             Handler(Looper.getMainLooper())

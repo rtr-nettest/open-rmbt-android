@@ -40,6 +40,7 @@ import at.specure.info.network.NRConnectionState
 import at.specure.info.network.NetworkInfo
 import at.specure.info.network.WifiNetworkInfo
 import at.specure.info.strength.SignalStrengthInfo.Companion.checkValueAvailable
+import kotlinx.coroutines.CancellationException
 import timber.log.Timber
 import kotlin.math.abs
 
@@ -573,6 +574,8 @@ abstract class SignalStrengthInfo : Parcelable {
                         if (lteCqi == Integer.MAX_VALUE) {
                             lteCqi = null
                         }
+                    } catch (e: CancellationException) {
+                        throw e
                     } catch (t: Throwable) {
                         Timber.e(t)
                     }
@@ -582,6 +585,8 @@ abstract class SignalStrengthInfo : Parcelable {
                         val result = getGsmDbm.invoke(signalStrength) as Int
                         if (result != -1)
                             strength = result
+                    } catch (e: CancellationException) {
+                        throw e
                     } catch (t: Throwable) {
                         Timber.e(t)
                     }
@@ -621,6 +626,8 @@ abstract class SignalStrengthInfo : Parcelable {
                                 if (lteCqi == Integer.MAX_VALUE) {
                                     lteCqi = null
                                 }
+                            } catch (e: CancellationException) {
+                                throw e
                             } catch (t: Throwable) {
                                 Timber.e(t)
                             }
@@ -642,6 +649,8 @@ abstract class SignalStrengthInfo : Parcelable {
                             val result = getDbm.invoke(cellSignalStrength) as Int
                             if (result != CellInfo.UNAVAILABLE)
                                 strength = result
+                        } catch (e: CancellationException) {
+                            throw e
                         } catch (t: Throwable) {
                             Timber.e(t)
                         }

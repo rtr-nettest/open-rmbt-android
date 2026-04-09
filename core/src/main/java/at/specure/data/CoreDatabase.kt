@@ -47,9 +47,9 @@ import at.specure.data.entity.QosCategoryRecord
 import at.specure.data.entity.QosTestGoalRecord
 import at.specure.data.entity.QosTestItemRecord
 import at.specure.data.entity.SignalMeasurementChunk
-import at.specure.data.entity.SignalMeasurementFenceRecord
+import at.specure.data.entity.CoverageMeasurementFenceRecord
 import at.specure.data.entity.SignalMeasurementRecord
-import at.specure.data.entity.SignalMeasurementSession
+import at.specure.data.entity.CoverageMeasurementSession
 import at.specure.data.entity.SignalRecord
 import at.specure.data.entity.SpeedRecord
 import at.specure.data.entity.TacRecord
@@ -92,13 +92,13 @@ import at.specure.data.entity.VoipTestResultRecord
         LoopModeRecord::class,
         SignalMeasurementRecord::class,
         SignalMeasurementChunk::class,
-        SignalMeasurementFenceRecord::class,
-        SignalMeasurementSession::class,
+        CoverageMeasurementFenceRecord::class,
+        CoverageMeasurementSession::class,
         ConnectivityStateRecord::class,
         HistoryReference::class,
                ],
     // Needs to upgraded when schema changes - else: "Room cannot verify the data integrity. Looks like you've changed schema but forgot to update the version number. You can simply fix this by increasing the version number."
-    version = 159
+    version = 174
 )
 @TypeConverters(TypeConverter::class)
 abstract class CoreDatabase : RoomDatabase() {

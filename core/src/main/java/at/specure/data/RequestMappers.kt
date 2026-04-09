@@ -38,9 +38,9 @@ import at.specure.data.entity.PermissionStatusRecord
 import at.specure.data.entity.PingRecord
 import at.specure.data.entity.QoSResultRecord
 import at.specure.data.entity.SignalMeasurementChunk
-import at.specure.data.entity.SignalMeasurementFenceRecord
+import at.specure.data.entity.CoverageMeasurementFenceRecord
 import at.specure.data.entity.SignalMeasurementRecord
-import at.specure.data.entity.SignalMeasurementSession
+import at.specure.data.entity.CoverageMeasurementSession
 import at.specure.data.entity.SignalRecord
 import at.specure.data.entity.SpeedRecord
 import at.specure.data.entity.TestRecord
@@ -62,6 +62,7 @@ import at.specure.util.exception.DataMissingException
 import com.google.gson.JsonArray
 import com.google.gson.JsonParser
 import java.util.UUID
+import kotlin.time.Duration.Companion.milliseconds
 
 const val UNKNOWN = "UNKNOWN"
 
@@ -495,14 +496,15 @@ fun SignalMeasurementRecord.toRequest(clientUUID: String, deviceInfo: DeviceInfo
     location = location?.toRequest()
 )
 
-fun SignalMeasurementSession.toCoverageRequest(clientUUID: String, deviceInfo: DeviceInfo, config: Config) = CoverageRequestBody(
+fun CoverageMeasurementSession.toCoverageRequest(clientUUID: String, deviceInfo: DeviceInfo, config: Config) = CoverageRequestBody(
     clientUUID = clientUUID,
+    serverLoopUuid = this.serverSessionLoopId,
     platform = deviceInfo.platform,
     softwareVersionCode = deviceInfo.softwareVersionCode,
     softwareRevision = deviceInfo.softwareRevision,
     softwareVersion = deviceInfo.softwareRevision,
     timezone = deviceInfo.timezone ?: UNKNOWN,
-    time = startTimeMillis,
+    time = startTimeMeasurementMillis,
     measurementTypeFlag = SignalMeasurementType.DEDICATED.signalTypeName,
     languageCode = deviceInfo.language,
     model = deviceInfo.model,
@@ -518,38 +520,73 @@ fun SignalMeasurementSession.toCoverageRequest(clientUUID: String, deviceInfo: D
     version = deviceInfo.clientVersionName,
 )
 
-fun SignalMeasurementSession.toCoverageResultRequest(
+fun CoverageMeasurementSession.toCoverageResultRequest(
     clientUUID: String,
     deviceInfo: DeviceInfo,
     config: Config,
-    fences: List<SignalMeasurementFenceRecord>,
-) = CoverageResultRequestBody(
-    clientUUID = clientUUID,
-    testUUID = this.serverSessionId ?: throw DataMissingException("Missing signal measurement server session ID"),
-    platform = deviceInfo.platform,
-    softwareVersion = deviceInfo.softwareVersionName,
-    timezone = deviceInfo.timezone ?: UNKNOWN,
-    model = deviceInfo.model ?: UNKNOWN,
-    osVersion = deviceInfo.osVersion,
-    device = deviceInfo.device ?: UNKNOWN,
-    capabilities = CapabilitiesBody(
-        classification = ClassificationBody(config.capabilitiesClassificationCount),
-        qos = QoSBody(config.capabilitiesQosSupportsInfo),
-        rmbtHttpStatus = config.capabilitiesRmbtHttp
-    ),
-    clientVersion = deviceInfo.clientVersionName,
-    clientLanguage = deviceInfo.language ?: UNKNOWN,
-    product = deviceInfo.product ?: UNKNOWN,
-    apiLevel = deviceInfo.apiLevel,
-    softwareVersionCode = deviceInfo.softwareVersionCode.toString(),
-    fences = fences.toRequest(startTimeMillis),
-)
+    fences: List<CoverageMeasurementFenceRecord>,
+    telephonyInfo: TestTelephonyRecord?,
+    locations: List<GeoLocationRecord>,
+    cellInfoList: List<CellInfoRecord>,
+    signalList: List<SignalRecord>,
+    permissions: List<PermissionStatusRecord>,
+    cellLocationList: List<CellLocationRecord>
+): CoverageResultRequestBody {
+    val geoLocations: List<TestLocationBody>? = mapLocationsToRequest(locations)
+    var radioInfo: RadioInfoBody? = createRadioInfoBody(cellInfoList, signalList, null, true)
+    radioInfo = getRadioInfoIntegrityCheckedOrNull(radioInfo)
+    val permissionStatuses: List<PermissionStatusBody>? = mapPermissionStatusesToRequest(permissions, null)
+    val cellLocations: List<CellLocationBody>? = mapCellLocationsToRequest(cellLocationList)
+    val firstFence = if (fences.isNotEmpty()) {fences.first()} else null
 
-fun List<SignalMeasurementFenceRecord>.toRequest(measurementStartMillis: Long): List<FenceBody> {
+    return CoverageResultRequestBody(
+        clientUUID = clientUUID,
+        testUUID = this.serverMeasurementId ?: throw DataMissingException("Missing signal measurement server session ID"),
+        platform = deviceInfo.platform,
+        softwareVersion = deviceInfo.softwareVersionName,
+        temperature = this.temperature,
+        clientLocalIp = this.localIpAddress,
+        timezone = deviceInfo.timezone ?: UNKNOWN,
+        model = deviceInfo.model ?: UNKNOWN,
+        osVersion = deviceInfo.osVersion,
+        device = deviceInfo.device ?: UNKNOWN,
+        capabilities = CapabilitiesBody(
+            classification = ClassificationBody(config.capabilitiesClassificationCount),
+            qos = QoSBody(config.capabilitiesQosSupportsInfo),
+            rmbtHttpStatus = config.capabilitiesRmbtHttp
+        ),
+        clientVersion = deviceInfo.clientVersionName,
+        clientLanguage = deviceInfo.language ?: UNKNOWN,
+        product = deviceInfo.product ?: UNKNOWN,
+        apiLevel = deviceInfo.apiLevel,
+        softwareVersionCode = deviceInfo.softwareVersionCode.toString(),
+        fences = fences.toRequest(startTimeMeasurementMillis),
+        sequenceNumber = this.serverSessionLoopTestCounter,
+        timeNanos = startMeasurementTimeResponseReceivedNanos,
+        geoLocations = geoLocations,
+        radioInfo = radioInfo,
+        permissionStatuses = permissionStatuses,
+        cellLocations = cellLocations,
+        networkType = (firstFence?.technologyId ?: TelephonyManager.NETWORK_TYPE_UNKNOWN).toString(),
+        telephonyNetworkOperator = telephonyInfo?.networkOperator,
+        telephonyNetworkIsRoaming = telephonyInfo?.networkIsRoaming?.toString(),
+        telephonyNetworkCountry = telephonyInfo?.networkCountry,
+        telephonyNetworkOperatorName = telephonyInfo?.networkOperatorName,
+        telephonyNetworkSimOperatorName = telephonyInfo?.networkSimOperatorName,
+        telephonyNetworkSimOperator = telephonyInfo?.networkSimOperator,
+        telephonyPhoneType = telephonyInfo?.phoneType,
+        telephonyDataState = telephonyInfo?.dataState,
+        telephonyApn = telephonyInfo?.apn,
+        telephonyNetworkSimCountry = telephonyInfo?.networkSimCountry,
+        measurementTerminationCause = this.reasonToTerminate
+    )
+}
+
+fun List<CoverageMeasurementFenceRecord>.toRequest(measurementStartMillis: Long): List<FenceBody> {
     return this.map { it.toRequest(measurementStartMillis) }
 }
 
-fun SignalMeasurementFenceRecord.toRequest(measurementStartMillis: Long): FenceBody = FenceBody(
+fun CoverageMeasurementFenceRecord.toRequest(measurementStartMillis: Long): FenceBody = FenceBody(
     centerLocation = this.location?.toSimpleLocation(),
     networkTechnologyId = this.technologyId ?: MobileNetworkType.UNKNOWN.intValue,
     networkTechnologyName = MobileNetworkType.fromValue(this.technologyId ?: MobileNetworkType.UNKNOWN.intValue).displayName,
@@ -557,7 +594,8 @@ fun SignalMeasurementFenceRecord.toRequest(measurementStartMillis: Long): FenceB
     durationMillis = this.leaveTimestampMillis - this.entryTimestampMillis,
     fenceRadiusMeters = this.radiusMeters,
     averagePingMillis = this.avgPingMillis?.toInt(),
-    timestampMicroseconds = this.entryTimestampMillis
+    timestampMicroseconds = this.entryTimestampMillis,
+    signalDbm = this.signalStrength
 )
 
 fun DeviceInfo.Location.toSimpleLocation(): SimpleLocationBody = SimpleLocationBody(

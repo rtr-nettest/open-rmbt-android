@@ -42,6 +42,7 @@ class App : CoreApp(), Configuration.Provider {
 
 
         WorkLauncher.enqueueSettingsRequest(this)
+        WorkLauncher.enqueueCoverageSyncRequest(this)
 
         // https://issuetracker.google.com/issues/154855417#comment367 Workaround
         try {

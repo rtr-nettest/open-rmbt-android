@@ -30,15 +30,16 @@ import at.rtr.rmbt.android.databinding.ItemHistoryFencesLoopBinding
 import at.rtr.rmbt.android.databinding.ItemHistoryLoopBinding
 import at.rtr.rmbt.android.util.bindWith
 import at.rtr.rmbt.android.util.gone
+import at.rtr.rmbt.android.util.invisible
 import at.rtr.rmbt.android.util.visible
 import at.specure.data.entity.History
 import at.specure.data.entity.HistoryContainer
 
-private const val ITEM_LOOP = 0
-private const val ITEM_HISTORY = 1
-private const val ITEM_COVERAGE_HISTORY = 2
-private const val ITEM_COVERAGE_LOOP = 3
-private const val KEY_STATE = "KEY_STATE"
+const val ITEM_LOOP = 0
+const val ITEM_HISTORY = 1
+const val ITEM_COVERAGE_HISTORY = 2
+const val ITEM_COVERAGE_LOOP = 3
+const val KEY_STATE = "KEY_STATE"
 
 class HistoryLoopAdapter : PagedListAdapter<HistoryContainer, HistoryLoopAdapter.Holder>(DIFF_CALLBACK) {
 
@@ -70,7 +71,7 @@ class HistoryLoopAdapter : PagedListAdapter<HistoryContainer, HistoryLoopAdapter
         ITEM_LOOP ->
             LoopHolder(parent.bindWith(R.layout.item_history_loop))
         ITEM_COVERAGE_LOOP ->
-            FencesLoopHolder(parent.bindWith(R.layout.item_history_fences_loop))
+            CoverageLoopHolder(parent.bindWith(R.layout.item_history_fences_loop))
         ITEM_COVERAGE_HISTORY ->
             HistoryCoverageItemHolder(parent.bindWith(R.layout.item_history_fences))
         else ->
@@ -173,7 +174,7 @@ class HistoryLoopAdapter : PagedListAdapter<HistoryContainer, HistoryLoopAdapter
         }
     }
 
-    class FencesLoopHolder(val binding: ItemHistoryFencesLoopBinding) : Holder(binding.root) {
+    class CoverageLoopHolder(val binding: ItemHistoryFencesLoopBinding) : Holder(binding.root) {
 
         private var animation: ViewPropertyAnimator? = null
         private val adapter = HistoryAdapter()
@@ -193,6 +194,19 @@ class HistoryLoopAdapter : PagedListAdapter<HistoryContainer, HistoryLoopAdapter
             if (item.items.isEmpty()) {
                 return
             }
+
+            val fencesSum = item.items
+                .mapNotNull { it.fencesCount }
+                .sum() ?: 0
+
+            binding.fencesCountSum.text = fencesSum.toString()
+
+            binding.fencesCountSum.text = item.items
+                ?.mapNotNull { it?.fencesCount }
+                ?.sum()
+                ?.toString()
+                ?: "0"
+
             binding.item = item.items.last()
 
             animation?.cancel()
@@ -203,12 +217,19 @@ class HistoryLoopAdapter : PagedListAdapter<HistoryContainer, HistoryLoopAdapter
             val isExpanded = expandedItemsMap[position] ?: false
 
             if (isExpanded) {
+                binding.imageSignal.invisible()
+                binding.fencesCountSum.invisible()
+                binding.points.invisible()
                 binding.imageExpand.rotation = 180f
                 binding.recyclerView.visible()
             } else {
+                binding.imageSignal.visible()
+                binding.fencesCountSum.visible()
+                binding.points.visible()
                 binding.imageExpand.rotation = 0f
                 binding.recyclerView.gone()
             }
+            binding.invalidateAll()
 
             binding.root.setOnClickListener {
                 val expanded = expandedItemsMap[position] ?: false
@@ -218,9 +239,15 @@ class HistoryLoopAdapter : PagedListAdapter<HistoryContainer, HistoryLoopAdapter
                 if (expanded) {
                     anim.rotation(0f)
                     binding.recyclerView.gone()
+                    binding.imageSignal.visible()
+                    binding.fencesCountSum.visible()
+                    binding.points.visible()
                 } else {
                     anim.rotation(180f)
                     binding.recyclerView.visible()
+                    binding.imageSignal.invisible()
+                    binding.fencesCountSum.invisible()
+                    binding.points.invisible()
                 }
                 pendingAnimationCallback?.invoke()
                 animation = anim

@@ -1,6 +1,7 @@
 package at.specure.di
 
 import at.specure.measurement.MeasurementService
+import at.specure.measurement.coverage.data.workers.CoverageSyncWorker
 import at.specure.measurement.signal.SignalMeasurementService
 import at.specure.worker.request.CoverageMeasurementWorker
 import at.specure.worker.request.SendDataWorker
@@ -22,6 +23,8 @@ interface CoreComponent {
     fun inject(worker: SignalMeasurementChunkWorker)
 
     fun inject(worker: CoverageMeasurementWorker)
+
+    fun inject(worker: CoverageSyncWorker)
 
     fun inject(service: MeasurementService)
 

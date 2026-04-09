@@ -1000,6 +1000,8 @@ data class CoverageRequestBody(
 
     @SerializedName("client_uuid")
     val clientUUID: String,
+    @SerializedName("loop_uuid")
+    val serverLoopUuid: String?,
     @SerializedName("client_language") // language code
     val languageCode: String?,
     val softwareRevision: String?, // git branch and hash of the client software revision
@@ -1030,9 +1032,9 @@ data class CoverageResultRequestBody(
     val testUUID: String,
     @SerializedName("client_uuid")
     val clientUUID: String,
-//    val sequenceNumber: Int,
-//    @SerializedName("time_ns")
-//    val timeNanos: Long,
+    val sequenceNumber: Int,
+    @SerializedName("time_ns")
+    val timeNanos: Long,
     @SerializedName("client_version")
     val clientVersion: String,
     @SerializedName("client_language")
@@ -1054,8 +1056,8 @@ data class CoverageResultRequestBody(
     /**
      * Server id for the network TODO:(shared/Helperfunctions line 156 - conversion from number to name)
      */
-//    @SerializedName("network_type")
-//    val networkType: String,
+    @SerializedName("network_type")
+    val networkType: String,
 //    @SerializedName("wifi_supplicant_state")
 //    var wifiSupplicantState: String?,
     /**
@@ -1081,53 +1083,53 @@ data class CoverageResultRequestBody(
     /**
      * mcc-mnc of the operator network, mobile networks only, e.g. "231-06"
      */
-//    @SerializedName("telephony_network_operator")
-//    val telephonyNetworkOperator: String?,
+    @SerializedName("telephony_network_operator")
+    val telephonyNetworkOperator: String?,
     /**
      * true if the network is roaming, mobile networks only
      */
-//    @SerializedName("telephony_network_is_roaming")
-//    val telephonyNetworkIsRoaming: String?,
+    @SerializedName("telephony_network_is_roaming")
+    val telephonyNetworkIsRoaming: String?,
     /**
      * country code for network, mobile networks only e.g. "en"
      */
-//    @SerializedName("telephony_network_country")
-//    val telephonyNetworkCountry: String?,
+    @SerializedName("telephony_network_country")
+    val telephonyNetworkCountry: String?,
     /**
      * name of the network operator, mobile networks only, e.g. "O2 - SK"
      */
-//    @SerializedName("telephony_network_operator_name")
-//    val telephonyNetworkOperatorName: String?,
+    @SerializedName("telephony_network_operator_name")
+    val telephonyNetworkOperatorName: String?,
     /**
      * name of the sim operator, mobile networks only, e.g. "O2 - SK"
      */
-//    @SerializedName("telephony_network_sim_operator_name")
-//    val telephonyNetworkSimOperatorName: String?,
+    @SerializedName("telephony_network_sim_operator_name")
+    val telephonyNetworkSimOperatorName: String?,
     /**
      * mcc-mnc of the sim operator, mobile networks only e.g."231-06"
      */
-//    @SerializedName("telephony_network_sim_operator")
-//    val telephonyNetworkSimOperator: String?,
+    @SerializedName("telephony_network_sim_operator")
+    val telephonyNetworkSimOperator: String?,
     /**
      * phone type, mobile networks only e.g. "1"
      */
-//    @SerializedName("telephony_phone_type")
-//    val telephonyPhoneType: String?,
+    @SerializedName("telephony_phone_type")
+    val telephonyPhoneType: String?,
     /**
      * data state, mobile networks only e.g. "2"
      */
-//    @SerializedName("telephony_data_state")
-//    val telephonyDataState: String?,
+    @SerializedName("telephony_data_state")
+    val telephonyDataState: String?,
     /**
      * name of the access point, mobile networks only e.g. "o2internet"
      */
-//    @SerializedName("telephony_apn")
-//    val telephonyApn: String?,
+    @SerializedName("telephony_apn")
+    val telephonyApn: String?,
     /**
      * country code of the sim card issuer, mobile networks only, e.g. "sk"
      */
-//    @SerializedName("telephony_network_sim_country")
-//    val telephonyNetworkSimCountry: String?,
+    @SerializedName("telephony_network_sim_country")
+    val telephonyNetworkSimCountry: String?,
     /**
      * Count of unsuccessful submissions
      */
@@ -1145,17 +1147,20 @@ data class CoverageResultRequestBody(
 //    @SerializedName("test_error_cause")
 //    var testErrorCause: String? = null, // todo add an catch IllegalNetworkChangeException
     val capabilities: CapabilitiesBody,
-//    val radioInfo: RadioInfoBody?,
-//    @SerializedName("android_permission_status")
-//    val permissionStatuses: List<PermissionStatusBody>?,
-//    val cellLocations: List<CellLocationBody>?,
-//    val geoLocations: List<TestLocationBody>?,
+    val radioInfo: RadioInfoBody?,
+    @SerializedName("android_permission_status")
+    val permissionStatuses: List<PermissionStatusBody>?,
+    val cellLocations: List<CellLocationBody>?,
+    val geoLocations: List<TestLocationBody>?,
     /**
      * Client public ip address, sent by control server
      */
-//    @SerializedName("test_ip_local")
-//    val clientPublicIp: String?,
-    val fences: List<FenceBody>?
+    @SerializedName("test_ip_local")
+    val clientLocalIp: String?,
+    val temperature: Float?,
+    val fences: List<FenceBody>?,
+    @SerializedName("termination_cause")
+    val measurementTerminationCause: String?,
 )
 
 @Keep
@@ -1166,12 +1171,14 @@ data class FenceBody(
     val networkTechnologyId: Int, // 41
     @SerializedName("technology")
     val networkTechnologyName: String, // "NR NSA"
+    @SerializedName("signal")
+    val signalDbm: Int?,
     @SerializedName("offset_ms")
     val offsetMillis: Long, // from the start of the test - official start is when coverage response arrives so it can be negative too
     @SerializedName("duration_ms")
     val durationMillis: Long, // duration of fence in millis
     @SerializedName("radius")
-    val fenceRadiusMeters: Int,
+    val fenceRadiusMeters: Double,
     @SerializedName("avg_ping_ms")
     val averagePingMillis: Int?,
     @SerializedName("timestamp_microseconds")
@@ -1181,22 +1188,26 @@ data class FenceBody(
 @Keep
 data class FenceResponseBody(
     @SerializedName("fence_id")
-    val fenceId: Long,
+    val fenceId: Long?,
     @SerializedName("technology_id")
-    val networkTechnologyId: Int, // 41
+    val networkTechnologyId: Int?, // 41
     @Deprecated("Client should use technologyId and convert to string")
     @SerializedName("technology")
     val networkTechnologyName: String?, // "NR NSA"
-    val latitude: Double,
-    val longitude: Double,
+    val latitude: Double?,
+    val longitude: Double?,
+    @SerializedName("signal")
+    val signalMainDbm: Int?,
     @SerializedName("radius")
-    val fenceRadiusMeters: Int,
+    val fenceRadiusMeters: Double?,
     @SerializedName("duration_ms")
-    val durationMillis: Long, // duration of fence in millis
+    val durationMillis: Long?, // duration of fence in millis
     @SerializedName("offset_ms")
-    val offsetMillis: Long, // from the start of the test - official start is when coverage response arrives so it can be negative too
+    val offsetMillis: Long?, // from the start of the test - official start is when coverage response arrives so it can be negative too
     @SerializedName("avg_ping_ms")
     val averagePingMillis: Double?,
+    @SerializedName("fence_time")
+    val fenceTimeMillis: Long?, // absolute client time in millis
 )
 
 @Keep

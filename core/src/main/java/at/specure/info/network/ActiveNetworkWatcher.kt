@@ -47,11 +47,17 @@ import cz.mroczis.netmonster.core.model.cell.CellNr
 import cz.mroczis.netmonster.core.model.cell.ICell
 import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.flow.conflate
+import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.sample
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import java.util.Collections
 
 private const val CELL_UPDATE_DELAY = 1000L
+private const val MIN_CELL_UPDATE_DELAY = 300L
 
 /**
  * Active network watcher that is aggregates all network watchers
@@ -77,6 +83,7 @@ class ActiveNetworkWatcher(
     private val handler = Looper.myLooper()?.let { Handler(it) }
 
     private val signalUpdateRunnable = Runnable {
+        Timber.d("Signal update runnable called updateCellNetworkInfo")
         updateCellNetworkInfo()
     }
 
@@ -98,48 +105,95 @@ class ActiveNetworkWatcher(
     val currentNetworkInfo: NetworkInfo?
         get() = _currentNetworkInfo
 
-    private val connectivityCallback = object : ConnectivityWatcher.ConnectivityChangeListener {
+    private val connectivityEvents = callbackFlow<Pair<ConnectivityInfo?, Network?>> {
 
-        override fun onConnectivityChanged(connectivityInfo: ConnectivityInfo?, network: Network?) {
-
-
-
-            lastConnectivityInfo = connectivityInfo
-            Timber.d("NIFU: \n\n $connectivityInfo \n\n $network")
-            handler?.removeCallbacks(signalUpdateRunnable)
-            _currentNetworkInfo = if (connectivityInfo == null) {
-                null
-            } else {
-                when (connectivityInfo.transportType) {
-                    TransportType.ETHERNET -> {
-                        EthernetNetworkInfo(connectivityInfo.linkDownstreamBandwidthKbps, connectivityInfo.netId, null, connectivityInfo.capabilitiesRaw.toString())
-                    }
-                    TransportType.WIFI -> wifiInfoWatcher.activeWifiInfo.apply {
-                        this?.locationEnabled = locationStateWatcher.state == LocationState.ENABLED
-                    }
-                    TransportType.CELLULAR -> {
-                        updateCellNetworkInfo()
-                    }
-                    TransportType.BLUETOOTH -> {
-                        BluetoothNetworkInfo(connectivityInfo.linkDownstreamBandwidthKbps, connectivityInfo.netId, null, connectivityInfo.capabilitiesRaw.toString())
-                    }
-                    TransportType.VPN -> {
-                        VpnNetworkInfo(connectivityInfo.linkDownstreamBandwidthKbps, connectivityInfo.netId, null, connectivityInfo.capabilitiesRaw.toString())
-                    }
-                    else -> {
-                        Timber.d("NIFU creating OtherNetworkInfo: \n\n $connectivityInfo")
-                        OtherNetworkInfo(connectivityInfo.linkDownstreamBandwidthKbps, connectivityInfo.netId, null, connectivityInfo.capabilitiesRaw.toString())
-                    }
-                }
+        val listener = object : ConnectivityWatcher.ConnectivityChangeListener {
+            override fun onConnectivityChanged(connectivityInfo: ConnectivityInfo?, network: Network?) {
+                trySend(connectivityInfo to network)
             }
-            GlobalScope.launch((CoroutineName("captivePortalChecks"))) {
-                captivePortal.resetCaptivePortalStatus()
-                captivePortal.checkForCaptivePortal()
+        }
+
+        connectivityWatcher.addListener(listener)
+
+        awaitClose {
+            connectivityWatcher.removeListener(listener)
+        }
+    }
+    .conflate()
+    .sample(MIN_CELL_UPDATE_DELAY)
+    .debounce(MIN_CELL_UPDATE_DELAY)
+
+    init {
+        GlobalScope.launch(CoroutineName("connectivity-flow")) {
+            connectivityEvents.collect { (connectivityInfo, network) ->
+                handleConnectivityChanged(connectivityInfo, network)
             }
         }
     }
 
-    fun updateCellNetworkInfo(): CellNetworkInfo? {
+    private fun handleConnectivityChanged(
+        connectivityInfo: ConnectivityInfo?,
+        network: Network?
+    ) {
+        lastConnectivityInfo = connectivityInfo
+
+        Timber.d("NIFU: \n\n $connectivityInfo \n\n $network")
+
+        handler?.removeCallbacks(signalUpdateRunnable)
+
+        _currentNetworkInfo = if (connectivityInfo == null) {
+            null
+        } else {
+            when (connectivityInfo.transportType) {
+                TransportType.ETHERNET -> {
+                    EthernetNetworkInfo(
+                        connectivityInfo.linkDownstreamBandwidthKbps,
+                        connectivityInfo.netId,
+                        null,
+                        connectivityInfo.capabilitiesRaw.toString()
+                    )
+                }
+                TransportType.WIFI -> wifiInfoWatcher.activeWifiInfo.apply {
+                    this?.locationEnabled = locationStateWatcher.state == LocationState.ENABLED
+                }
+                TransportType.CELLULAR -> {
+                    updateCellNetworkInfo()
+                }
+                TransportType.BLUETOOTH -> {
+                    BluetoothNetworkInfo(
+                        connectivityInfo.linkDownstreamBandwidthKbps,
+                        connectivityInfo.netId,
+                        null,
+                        connectivityInfo.capabilitiesRaw.toString()
+                    )
+                }
+                TransportType.VPN -> {
+                    VpnNetworkInfo(
+                        connectivityInfo.linkDownstreamBandwidthKbps,
+                        connectivityInfo.netId,
+                        null,
+                        connectivityInfo.capabilitiesRaw.toString()
+                    )
+                }
+                else -> {
+                    Timber.d("NIFU creating OtherNetworkInfo: \n\n $connectivityInfo")
+                    OtherNetworkInfo(
+                        connectivityInfo.linkDownstreamBandwidthKbps,
+                        connectivityInfo.netId,
+                        null,
+                        connectivityInfo.capabilitiesRaw.toString()
+                    )
+                }
+            }
+        }
+
+        GlobalScope.launch(CoroutineName("captivePortalChecks")) {
+            captivePortal.resetCaptivePortalStatus()
+            captivePortal.checkForCaptivePortal()
+        }
+    }
+
+    private fun updateCellNetworkInfo(): CellNetworkInfo? {
 
         if (context.isLocationServiceEnabled() &&  context.isFineLocationPermitted() && context.isReadPhoneStatePermitted()) {
             try {
@@ -213,7 +267,7 @@ class ActiveNetworkWatcher(
                     // more than one primary cell for data subscription
                 } else {
                     Timber.e("NM network type unable to detect because of ${primaryCellsCorrected.size} primary cells for subscription")
-                    activeCellNetwork = CellNetworkInfo("")
+                    activeCellNetwork = CellNetworkInfo("", "")
                     scheduleUpdate()
                 }
 
@@ -232,7 +286,7 @@ class ActiveNetworkWatcher(
         // when we are not able to detect more than there is cellular connection (we have
         // no permission granted to read more details or permissions are granted but location is off)
         scheduleUpdate()
-        return CellNetworkInfo(cellUUID = "")
+        return CellNetworkInfo(cellUUID = "","")
     }
 
     private fun scheduleUpdate() {
@@ -247,9 +301,6 @@ class ActiveNetworkWatcher(
     fun addListener(listener: NetworkChangeListener) {
         listeners.add(listener)
         listener.onActiveNetworkChanged(currentNetworkInfo)
-        if (listeners.size == 1) {
-            registerCallbacks()
-        }
     }
 
     /**
@@ -257,23 +308,6 @@ class ActiveNetworkWatcher(
      */
     fun removeListener(listener: NetworkChangeListener) {
         listeners.remove(listener)
-        if (listeners.isEmpty()) {
-            unregisterCallbacks()
-        }
-    }
-
-    private fun registerCallbacks() {
-        if (!isCallbacksRegistered) {
-            connectivityWatcher.addListener(connectivityCallback)
-            isCallbacksRegistered = true
-        }
-    }
-
-    private fun unregisterCallbacks() {
-        if (isCallbacksRegistered) {
-            connectivityWatcher.removeListener(connectivityCallback)
-            isCallbacksRegistered = false
-        }
     }
 
     /**
@@ -290,10 +324,6 @@ class ActiveNetworkWatcher(
 
     override fun onLocationStateChanged(state: LocationState?) {
         val enabled = state == LocationState.ENABLED
-        if (listeners.isNotEmpty()) {
-            unregisterCallbacks()
-            registerCallbacks()
-        }
         if (_currentNetworkInfo is WifiNetworkInfo) {
             listeners.forEach {
                 it.onActiveNetworkChanged(

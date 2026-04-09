@@ -53,18 +53,16 @@ import org.json.JSONArray
 import timber.log.Timber
 import java.lang.Exception
 import java.util.UUID
-import java.util.Collections
 import java.util.concurrent.CancellationException
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
-import javax.inject.Named
 import kotlin.math.floor
 
 class StateRecorder @Inject constructor(
     private val context: Context,
     private val netmonster: INetMonster,
     private val repository: TestDataRepository,
-    @Named("GPSAndFusedLocationProvider") private val locationWatcher: LocationWatcher,
+    private val locationWatcher: LocationWatcher,
     private val signalStrengthLiveData: SignalStrengthLiveData,
     private val signalStrengthWatcher: SignalStrengthWatcher,
     private val config: Config,
@@ -481,7 +479,8 @@ class StateRecorder @Inject constructor(
                     dualSimDetectionMethod = cellNetworkInfo.dualSimDetectionMethod,
                     isPrimaryDataSubscription = cellNetworkInfo.isPrimaryDataSubscription?.value,
                     signalChunkId = null,
-                    cellState = cellNetworkInfo.cellState
+                    cellState = cellNetworkInfo.cellState,
+                    comparisonUuid = cellNetworkInfo.comparisonCellUuid
                 )
                 repository.saveCellInfoRecord(listOf(cellInfoRecord))
 

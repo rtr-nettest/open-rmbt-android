@@ -6,7 +6,6 @@ import androidx.room.Transaction
 import androidx.room.Upsert
 import at.specure.data.Tables
 import at.specure.data.entity.CellLocationRecord
-import timber.log.Timber
 
 @Dao
 interface CellLocationDao {
@@ -32,10 +31,7 @@ interface CellLocationDao {
                 (oldCellLocation.areaCode == newCellLocation.areaCode && oldCellLocation.locationId == newCellLocation.locationId)
             }
             if (sameCellLocationList.isEmpty()) {
-                Timber.d("Inserting cell location true: ${newCellLocation.areaCode}, ${newCellLocation.locationId}, ${newCellLocation.scramblingCode}")
                 insert(newCellLocation)
-            } else {
-                Timber.d("Inserting cell location false: ${newCellLocation.areaCode}, ${newCellLocation.locationId}, ${newCellLocation.scramblingCode}")
             }
         }
     }

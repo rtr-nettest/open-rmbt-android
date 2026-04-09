@@ -19,7 +19,7 @@ import at.rtr.rmbt.android.di.Injector
 import at.rtr.rmbt.android.util.listen
 import at.rtr.rmbt.android.viewmodel.MapFiltersViewModel
 
-class MapFiltersDialog : FullscreenDialog(), MapFiltersConfirmationDialog.Callback {
+class MapFiltersDialog : FullscreenBottomDialog(), MapFiltersConfirmationDialog.Callback {
 
     override val gravity: Int = Gravity.BOTTOM
 
@@ -222,7 +222,7 @@ class MapFiltersDialog : FullscreenDialog(), MapFiltersConfirmationDialog.Callba
         const val CODE_PERIOD = 5
         const val CODE_PROVIDER = 6
 
-        fun instance(fragment: Fragment, requestCode: Int): FullscreenDialog = MapFiltersDialog().apply { setTargetFragment(fragment, requestCode) }
+        fun instance(fragment: Fragment, requestCode: Int): FullscreenBottomDialog = MapFiltersDialog().apply { setTargetFragment(fragment, requestCode) }
     }
 
     interface Callback {

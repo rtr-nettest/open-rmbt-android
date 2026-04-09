@@ -13,10 +13,91 @@ class RequestFilters {
 
     companion object {
 
+        fun createRadioInfoBodyFast(
+            cellInfoList: List<CellInfoRecord>,
+            signalList: List<SignalRecord>,
+            chunk: SignalMeasurementChunk?,
+            useComparisonCellUuid: Boolean = false
+        ): RadioInfoBody? {
+
+            if (cellInfoList.isEmpty() && signalList.isEmpty()) return null
+
+            // ---- CELLS (build once, O(n)) ----
+            val cellsMap: MutableMap<String, CellInfoBody>? =
+                if (cellInfoList.isEmpty()) {
+                    null
+                } else {
+                    val map = HashMap<String, CellInfoBody>(cellInfoList.size)
+                    for (cell in cellInfoList) {
+                        val key = if (useComparisonCellUuid) cell.comparisonUuid else cell.uuid
+                        map[key] = cell.toRequest()
+                    }
+                    if (map.isEmpty()) null else map
+                }
+
+            // ---- SIGNALS (single-pass, optimized) ----
+            var signalsResult: MutableList<SignalBody>? = null
+
+            if (!signalList.isEmpty() && cellsMap != null) {
+                val result = ArrayList<SignalBody>(signalList.size)
+
+                // For distinctBy(timeNanos, networkTypeId)
+                val seen = HashSet<Pair<Long, Int>>(signalList.size)
+
+                var lastNegative: SignalBody? = null
+
+                val applyChunkFilter = chunk != null && chunk.sequenceNumber > 0
+
+                for (i in signalList.indices) {
+                    val signalRecord = signalList[i]
+
+                    val cell = cellsMap[signalRecord.cellUuid] ?: continue
+
+                    val signal = signalRecord.toRequest(cell.uuid, null)
+
+                    // ---- negative timestamp handling ----
+                    if (signal.timeNanos < 0) {
+                        lastNegative = signal
+                        continue
+                    }
+
+                    // ---- 60s filtering (only if needed) ----
+                    if (applyChunkFilter && i < signalList.lastIndex) {
+                        val next = signalList[i + 1]
+                        val diff = kotlin.math.abs(next.timeNanos) - kotlin.math.abs(signal.timeNanos)
+                        if (diff > 60_000_000_000) {
+                            continue
+                        }
+                    }
+
+                    // ---- distinctBy ----
+                    val key:Pair<Long, Int> = signal.timeNanos to (signal.networkTypeId ?: 0)
+                    if (seen.add(key)) {
+                        result.add(signal)
+                    }
+                }
+
+                // ---- re-add last negative timestamp ----
+                if (lastNegative != null) {
+                    result.add(0, lastNegative)
+                }
+
+                if (result.isNotEmpty()) {
+                    signalsResult = result
+                }
+            }
+
+            return RadioInfoBody(
+                cellsMap?.values?.toList(),
+                signalsResult
+            )
+        }
+
         fun createRadioInfoBody(
             cellInfoList: List<CellInfoRecord>,
             signalList: List<SignalRecord>,
-            chunk: SignalMeasurementChunk
+            chunk: SignalMeasurementChunk?,
+            useComparisonCellUuid: Boolean = false
         ): RadioInfoBody? {
             var radioInfo: RadioInfoBody? = if (cellInfoList.isEmpty() && signalList.isEmpty()) {
                 null
@@ -26,7 +107,11 @@ class RequestFilters {
                 } else {
                     val map = mutableMapOf<String, CellInfoBody>()
                     cellInfoList.forEach {
-                        map[it.uuid] = it.toRequest()
+                        if (useComparisonCellUuid) {
+                            map[it.comparisonUuid] = it.toRequest()
+                        } else {
+                            map[it.uuid] = it.toRequest()
+                        }
                     }
                     if (map.isEmpty()) null else map
                 }
@@ -52,7 +137,7 @@ class RequestFilters {
                 }
                 Timber.i("Old list size: ${signals?.size}")
                 // remove last signal from previous chunk
-                if (signals != null && (signals.size > 1) && (chunk.sequenceNumber > 0)) {
+                if (signals != null && (signals.size > 1) && (chunk != null && chunk.sequenceNumber > 0)) {
                     signals = signals.filterIndexed { index, it ->
                         if (index == signals?.lastIndex) {
                             true

@@ -234,7 +234,7 @@
     <string name="results_other_details">Further details</string>
     <string name="results_qoe_videos_sd">Videos SD</string>
     <string name="results_qoe_videos_hd">Videos HD</string>
-    <string name="results_qoe_videos_uhd">Videos UHD</string>
+    <string name="results_qoe_videos_uhd">Videos 4k</string>
     <string name="results_qoe_gaming">Gaming</string>
     <string name="results_qoe_gaming_cloud">Gaming Cloud</string>
     <string name="results_qoe_gaming_streaming">Gaming Streaming</string>
@@ -300,7 +300,7 @@
     <string name="error_sync_code_short">The code must consist of twelve characters</string>
 
     <string name="notification_signal_test_title">Coverage measurement is running</string>
-    <string name="notification_signal_test_text">RTR-NetTest signal measurement is running in the background</string>
+    <string name="notification_signal_test_text">RTR-NetTest coverage measurement is running in the background</string>
 
     <string name="notification_loop_mode_finished_title">Loop mode finished</string>
 
@@ -488,8 +488,8 @@
     <string name="title">Title: </string>
     <string name="subtitle">Subtitle: </string>
 
-    <string name="home_signal_measurement_toggle_on">Coverage measurement toggle on</string>
-    <string name="home_signal_measurement_toggle_off">Coverage measurement toggle off</string>
+    <string name="home_signal_measurement_toggle_on">Coverage measurement conditions to start are met</string>
+    <string name="home_signal_measurement_toggle_off">Coverage measurement conditions to start are not met</string>
 
     <string name="ipv4_no_info">IP version 4: no information</string>
     <string name="ipv4_no_address">IP version 4: no address</string>
@@ -527,9 +527,30 @@
     <string name="noSignal">No signal</string>
     <string name="coverage_result">Coverage result</string>
     <string name="number_of_fences_is">Number of fences is</string>
-    <string name="title_coverage_loop_mode">Coverage loop mode</string>
+    <string name="title_coverage_loop_mode">Coverage series</string>
     <string name="title_filters_loading_error">Loading filters failed</string>
     <string name="loading_map_filters_failed">Unable to load map filters. Please, try again.</string>
     <string name="coverage_measurement_error_title">Coverage measurement error</string>
     <string name="coverage_measurement_error_unknown">There was an error during coverage measurement. Please, try again.</string>
+    <string name="dismiss">Dismiss</string>
+    <string name="wrong_network_message">You are on %1$s data now. Please change to mobile data connection.</string>
+    <string name="coverage_results_title">Coverage</string>
+    <string name="text_fence_radius">Fence radius factor:</string>
+    <string name="text_meters">%1$dm</string>
+    <string name="fence_radius_slider_content_description">Fence radius slider value %1$d meters</string>
+    <string name="accuracy_radius_slider_content_description">Accuracy radius slider value %1$d meters</string>
+    <string name="text_accuracy_radius">Accuracy:</string>
+    <string name="points">Points</string>
+    <string name="text_loading_results_failed">Loading results failed</string>
+    <string name="text_connection_count">%1$d connections</string>
+    <string name="text_fence_count">%1$d fences</string>
+    <string name="text_unknown">None</string>
+    <string name="ipv4_short">IPv4</string>
+    <string name="ipv6_short">IPv6</string>
+    <string name="sending_results">Storing results</string>
+    <string name="no_gps_value" />
+    <string name="error_sending_data">Storing results failed!</string>
+    <string name="location_usage_always_warning_message">Allow location access in the background to use this feature.</string>
+    <string name="allow">Allow</string>
+    <string name="measuring">Measuring...</string>
 </resources>

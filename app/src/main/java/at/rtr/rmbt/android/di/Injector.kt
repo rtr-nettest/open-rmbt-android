@@ -1,6 +1,7 @@
 package at.rtr.rmbt.android.di
 
 import at.rtr.rmbt.android.App
+import at.rtr.rmbt.android.ui.dialog.CoverageSettingsDialog
 import at.rtr.rmbt.android.ui.dialog.HistoryDownloadDialog
 import at.rtr.rmbt.android.ui.dialog.HistoryFiltersDialog
 import at.rtr.rmbt.android.ui.dialog.IpInfoDialog
@@ -8,6 +9,7 @@ import at.rtr.rmbt.android.ui.dialog.LocationInfoDialog
 import at.rtr.rmbt.android.ui.dialog.NetworkInfoDialog
 import at.rtr.rmbt.android.ui.dialog.SyncDevicesDialog
 import at.specure.measurement.MeasurementService
+import at.specure.measurement.coverage.data.workers.CoverageSyncWorker
 import at.specure.measurement.signal.SignalMeasurementService
 import at.specure.worker.request.CoverageMeasurementWorker
 import at.specure.worker.request.SendDataWorker
@@ -46,9 +48,13 @@ object Injector : AppComponent {
 
     override fun inject(worker: CoverageMeasurementWorker) = component.inject(worker)
 
+    override fun inject(worker: CoverageSyncWorker) = component.inject(worker)
+
     override fun inject(dialog: NetworkInfoDialog) = component.inject(dialog)
 
     override fun inject(dialog: HistoryDownloadDialog) = component.inject(dialog)
+
+    override fun inject(dialog: CoverageSettingsDialog) = component.inject(dialog)
 
     override fun inject(app: App) = component.inject(app)
 }

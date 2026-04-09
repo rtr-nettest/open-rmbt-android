@@ -25,6 +25,11 @@ interface ControlEndpointProvider {
     val host: String
 
     /**
+     * Statistic server host for statistics, example "myhost.com"
+     */
+    val statisticsHost: String
+
+    /**
      * Route to the control server, example for value "RMBTControlServer",
      * "myhost.com/RMBTControlServer/endpoint" will be used for requests to ControlServer
      */

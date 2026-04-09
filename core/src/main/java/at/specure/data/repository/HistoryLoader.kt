@@ -35,9 +35,21 @@ class HistoryLoader @Inject constructor(
         }
 
     val historyLiveData: LiveData<PagedList<HistoryContainer>> by lazy {
-        val source = historyDao.getHistorySource()
+
+        val networks = historyRepository.networksLiveData.value?.toList() ?: emptyList()
+        val devices = historyRepository.devicesLiveData.value?.toList() ?: emptyList()
+
+        val source = historyDao.getHistorySource(
+            networks = networks,
+            ignoreNetworkTypes = networks.isEmpty(),
+            devices = devices,
+            ignoreDevices = devices.isEmpty()
+        )
         val config = PagedList.Config.Builder()
             .setPageSize(LIMIT)
+            .setPrefetchDistance(LIMIT / 2) // load only near visible end
+            .setInitialLoadSizeHint(LIMIT)  // do NOT load 3 pages at start
+            .setEnablePlaceholders(false)
             .build()
         LivePagedListBuilder(source, config)
             .setBoundaryCallback(this)
@@ -45,7 +57,18 @@ class HistoryLoader @Inject constructor(
     }
 
     val source: DataSource.Factory<Int, HistoryContainer>
-        get() = historyDao.getHistorySource()
+        get() {
+            val networks = historyRepository.networksLiveData.value?.toList() ?: emptyList()
+            val devices = historyRepository.devicesLiveData.value?.toList() ?: emptyList()
+
+            val source = historyDao.getHistorySource(
+                networks = networks,
+                ignoreNetworkTypes = networks.isEmpty(),
+                devices = devices,
+                ignoreDevices = devices.isEmpty()
+            )
+            return source
+        }
 
     override fun onZeroItemsLoaded() {
         super.onZeroItemsLoaded()
@@ -61,18 +84,28 @@ class HistoryLoader @Inject constructor(
     private fun loadItems() = io {
         if (!isLoading) {
             isLoading = true
+            val networks = historyRepository.networksLiveData.value?.toList() ?: emptyList()
+            val devices = historyRepository.devicesLiveData.value?.toList() ?: emptyList()
+            val offset = latestLoadedPage * LIMIT
 
-            val count = historyDao.getItemsCount()
-            Timber.d("HistoryItemsCount: $count")
-            if ((count % LIMIT == 0) && (count / LIMIT != latestLoadedPage)) {
-                val result = historyRepository.loadHistoryItems(count, LIMIT)
+//            val count = historyDao.getItemsCount(
+//                networks,
+//                networks.isEmpty(),
+//                devices,
+//                devices.isEmpty()
+//            )
+//            Timber.d("HistoryItemsCount: $count")
+//            if ((count % LIMIT == 0) && (count / LIMIT != latestLoadedPage)) {
+                val result = historyRepository.loadHistoryItems(offset, LIMIT)
                 result.onFailure {
                     errorChannel?.send(it)
                 }
                 result.onSuccess {
-                    latestLoadedPage = count / LIMIT
+                    if (!it.isNullOrEmpty()) {
+                        latestLoadedPage++
+                    }
                 }
-            }
+//            }
             isLoading = false
         }
     }
@@ -83,7 +116,7 @@ class HistoryLoader @Inject constructor(
 
     fun refresh() = io {
         isLoading = true
-        historyRepository.loadHistoryItems(0, LIMIT).onFailure {
+        historyRepository.loadHistoryItems(0, LIMIT, false).onFailure {
             errorChannel?.send(it)
         }
         isLoading = false

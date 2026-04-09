@@ -9,7 +9,6 @@ import at.specure.data.repository.SignalMeasurementRepository
 import at.specure.di.CoreInjector
 import at.specure.util.exception.DataMissingException
 import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.collect
 import timber.log.Timber
 import javax.inject.Inject
 
@@ -25,7 +24,7 @@ class SignalMeasurementInfoWorker(appContext: Context, workerParams: WorkerParam
         val measurementId = inputData.getString(KEY_MEASUREMENT_ID) ?: throw DataMissingException("measurementId is missing in worker")
 
         var result = Result.failure()
-        repository.registerCoverageMeasurement(coverageSessionId = null, measurementId = measurementId)
+        repository.registerCoverageMeasurement(localMeasurementId = measurementId)
             .catch { e ->
                 if (e is NoConnectionException) {
                     emit(false)

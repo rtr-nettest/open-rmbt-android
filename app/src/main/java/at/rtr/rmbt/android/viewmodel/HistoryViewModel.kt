@@ -65,7 +65,10 @@ class HistoryViewModel @Inject constructor(
     }
 
     fun refreshHistory() {
+        loader.latestLoadedPage = 0
+        repository.cleanHistory()
         loader.refresh()
+
     }
 
     fun removeFromFilters(value: String) {

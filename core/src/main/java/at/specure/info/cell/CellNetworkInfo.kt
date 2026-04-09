@@ -91,6 +91,11 @@ class CellNetworkInfo(
     cellUUID: String,
 
     /**
+     * generated cell UUID from identifying information of the cell to be used to check if it is the same cell info
+     */
+    comparisonCellUuid: String,
+
+    /**
      * Raw cellinfo provided by netmonster library
      */
     val rawCellInfo: ICell?,
@@ -103,9 +108,10 @@ class CellNetworkInfo(
 
     override val capabilitiesRaw: String?
 ) :
-    NetworkInfo(TransportType.CELLULAR, cellUUID, capabilitiesRaw) {
+    NetworkInfo(TransportType.CELLULAR, cellUUID, comparisonCellUuid, capabilitiesRaw) {
     constructor(
-        cellUUID: String
+        cellUUID: String,
+        comparisonCellUuid: String
     ) : this(
         mcc = null,
         mnc = null,
@@ -123,6 +129,7 @@ class CellNetworkInfo(
         dualSimDetectionMethod = null,
         rawCellInfo = null,
         cellUUID = cellUUID,
+        comparisonCellUuid = comparisonCellUuid,
         locationId = null,
         areaCode = null,
         isPrimaryDataSubscription = PrimaryDataSubscription.UNKNOWN,

@@ -3,15 +3,32 @@ package at.specure.data.entity
 import androidx.annotation.Keep
 import androidx.room.ColumnInfo
 import androidx.room.Entity
+import androidx.room.ForeignKey
+import androidx.room.Index
 import androidx.room.PrimaryKey
 import at.specure.data.Columns
 import at.specure.data.Tables
 import at.specure.test.DeviceInfo
 import java.util.UUID
 
+const val DEFAULT_LEAVE_TIMESTAMP_MILLIS = 0L
+
 @Keep
-@Entity(tableName = Tables.SIGNAL_MEASUREMENT_FENCE)
-data class SignalMeasurementFenceRecord(
+@Entity(
+    tableName = Tables.COVERAGE_MEASUREMENT_FENCE,
+    foreignKeys = [
+        ForeignKey(
+            entity = CoverageMeasurementSession::class,
+            parentColumns = ["localMeasurementId"],
+            childColumns = ["sessionId"],
+            onDelete = ForeignKey.CASCADE
+        )
+    ],
+    indices = [
+        Index(value = ["sessionId", "sequenceNumber"], unique = true)
+    ]
+)
+data class CoverageMeasurementFenceRecord(
 
     @PrimaryKey
     @ColumnInfo(name = Columns.SIGNAL_MEASUREMENT_FENCE_ID_PARENT_COLUMN)
@@ -50,7 +67,7 @@ data class SignalMeasurementFenceRecord(
     /**
      * Radius in meters of the fence set in the app
      */
-    val radiusMeters: Int,
+    val radiusMeters: Double,
 
     /**
      * Technology ID of the mobile network (for further details check MobileNetworkType.kt) from signal record)
@@ -63,8 +80,28 @@ data class SignalMeasurementFenceRecord(
     val signalStrength: Int?,
 
     /**
+     * Frequency band of the main cell connected to the network
+     */
+    val frequencyBand: String?,
+
+    /**
      * Average ping in milliseconds
      */
     val avgPingMillis: Double?,
 
 )
+
+fun CoverageMeasurementFenceRecord.generateHash(): String {
+    return "${this.id}-${this.radiusMeters}"
+}
+
+fun List<CoverageMeasurementFenceRecord>.removeUnfinishedFences(): List<CoverageMeasurementFenceRecord> {
+    return this.filter { it.leaveTimestampMillis != 0L }
+}
+
+fun List<CoverageMeasurementFenceRecord>.hasValidFences(): Boolean {
+    if (this.size == 1 && this[0].leaveTimestampMillis == 0L) {
+        return false
+    }
+    return true
+}

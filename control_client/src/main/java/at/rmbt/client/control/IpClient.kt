@@ -6,6 +6,7 @@ import at.rmbt.util.Maybe
 import at.rmbt.util.exception.HandledException
 import at.rmbt.util.exception.NoConnectionException
 import com.google.gson.Gson
+import kotlinx.coroutines.CancellationException
 import timber.log.Timber
 import java.net.HttpURLConnection
 import java.net.InetSocketAddress
@@ -37,6 +38,9 @@ class IpClient @Inject constructor(
             Maybe(IpInfoResponse(protocol.intValue, privateIp.hostAddress))
         } catch (ex: Exception) {
             Timber.w("Failed to get ip address: ${ex.message}")
+            if (ex is CancellationException) {
+                throw ex
+            }
             Maybe(HandledException.from(ex))
         }
     }
@@ -65,6 +69,9 @@ class IpClient @Inject constructor(
             val response = gson.fromJson(output, IpInfoResponse::class.java)
             Maybe(response)
         } catch (ex: Exception) {
+            if (ex is CancellationException) {
+                throw ex
+            }
             Maybe<IpInfoResponse>(NoConnectionException())
         }
     }

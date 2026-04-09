@@ -39,4 +39,4 @@ open class VpnNetworkInfo(
 
     override val capabilitiesRaw: String?
 
-) : NetworkInfo(TransportType.VPN, UUID.nameUUIDFromBytes(("").toByteArray()).toString(), capabilitiesRaw)
+) : NetworkInfo(TransportType.VPN, UUID.nameUUIDFromBytes(("").toByteArray()).toString(), UUID.nameUUIDFromBytes(("").toByteArray()).toString(), capabilitiesRaw)

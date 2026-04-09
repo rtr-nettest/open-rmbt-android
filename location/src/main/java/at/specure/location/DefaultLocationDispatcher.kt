@@ -1,8 +1,10 @@
 package at.specure.location
 
 import timber.log.Timber
+import kotlin.math.abs
 
 private const val LOCATION_MAX_AGE_MS = 30_000L
+private const val LOCATION_MAX_UPDATE_RATE_MS = 450L
 
 /**
  * [LocationDispatcher] that uses to choose the best location to publish
@@ -33,14 +35,9 @@ class DefaultLocationDispatcher : LocationDispatcher {
                 newLocation?.let {
                     if (location == null) {
                         location = newLocation
-                        location?.let {
-                            Timber.d("LOCU: LOCATION UPDATE 1 ageNanos:  ${it.ageNanos} in seconds: ${it.ageNanos / 1000000000}")
-                        }
+
                     } else if (location?.accuracy ?: Float.MAX_VALUE > newLocation.accuracy) {
                         location = newLocation
-                        location?.let {
-                            Timber.d("LOCU: LOCATION UPDATE 2 ageNanos:  ${it.ageNanos} in seconds: ${it.ageNanos / 1000000000}")
-                        }
                     }
                 }
             }
@@ -70,36 +67,39 @@ class DefaultLocationDispatcher : LocationDispatcher {
 
     override fun onLocationInfoChanged(source: LocationSource, location: LocationInfo?): LocationDispatcher.Decision {
         val timestamp = System.currentTimeMillis()
-        location?.let {
+        /*location?.let {
             Timber.i(
-                "LOCU: location update: new location came: ${source::class.java.simpleName} ${location.provider} ${location.accuracy} ${
+                "LOCU: location update: new location came: ${source} ${location.provider} ${location.accuracy} ${
                     location.ageNanos.div(
                         1000000000
                     )
                 } ${((location.time.plus(LOCATION_MAX_AGE_MS * 2)) >= System.currentTimeMillis())}  ${location.time} $timestamp ${timestamp - location.time} $location"
             )
-        }
+        }*/
+        Timber.d("New location update from system source: $source provider: ${location?.provider} and accuracy: ${location?.accuracy}")
         if (location == null) {
             return if (lastSource == source) {
+                Timber.d("New location update: PUBLISH")
                 LocationDispatcher.Decision(null, true)
             } else {
+                Timber.d("New location update: DO NOT PUBLISH")
                 LocationDispatcher.Decision(null, false)
             }
         } else {
             return if (lastLocation == null) {
-                Timber.v("location update: no last location")
+                Timber.d("New location update: PUBLISH")
                 updateLastLocation(location, timestamp, source)
             } else if (lastLocation?.accuracy ?: Float.MAX_VALUE > location.accuracy) {
-                Timber.v("location update: accuracy is better")
+                Timber.d("New location update: PUBLISH")
                 updateLastLocation(location, timestamp, source)
             } else if (timestamp >= lastTimestamp + LOCATION_MAX_AGE_MS) {
-                Timber.v("location update: last outdated")
+                Timber.d("New location update: PUBLISH")
                 updateLastLocation(location, timestamp, source)
-            } else if (lastSource != null && lastSource == source) {
-                Timber.v("location update: source")
+            } else if (((lastSource != null) && (lastSource == source)) && (abs(location.time - (lastLocation?.time ?: 0)) > LOCATION_MAX_UPDATE_RATE_MS)) {
+                Timber.d("New location update: PUBLISH")
                 updateLastLocation(location, timestamp, source)
             } else {
-                Timber.v("location update: else")
+                Timber.d("New location update: DO NOT PUBLISH")
                 LocationDispatcher.Decision(null, false)
             }
         }
@@ -113,9 +113,6 @@ class DefaultLocationDispatcher : LocationDispatcher {
         lastLocation = location
         lastTimestamp = timestamp
         lastSource = source
-        location?.let {
-            Timber.d("LOCU: LOCATION UPDATE ageNanos:  ${it.ageNanos} in seconds: ${it.ageNanos / 1000000000}")
-        }
         return LocationDispatcher.Decision(location, true)
     }
 }

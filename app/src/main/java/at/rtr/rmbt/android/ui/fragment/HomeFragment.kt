@@ -18,7 +18,6 @@ import androidx.core.content.ContextCompat.checkSelfPermission
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updateLayoutParams
-import androidx.core.view.updatePadding
 import at.rmbt.client.control.IpProtocol
 import at.rtr.rmbt.android.R
 import at.rtr.rmbt.android.databinding.FragmentHomeBinding
@@ -33,6 +32,7 @@ import at.rtr.rmbt.android.ui.dialog.NetworkInfoDialog
 import at.rtr.rmbt.android.ui.dialog.SimpleDialog
 import at.rtr.rmbt.android.util.*
 import at.rtr.rmbt.android.viewmodel.HomeViewModel
+import at.specure.info.cell.CellNetworkInfo
 import at.specure.info.network.WifiNetworkInfo
 import at.specure.location.LocationState
 import at.specure.measurement.MeasurementService
@@ -41,6 +41,8 @@ import at.specure.util.openAppSettings
 import timber.log.Timber
 import java.lang.IndexOutOfBoundsException
 import kotlin.math.max
+
+private const val COVERAGE_ACCURACY_METERS_TO_FULFILL_FOR_GREEN_BUTTON = 20
 
 class HomeFragment : BaseFragment() {
 
@@ -120,31 +122,57 @@ class HomeFragment : BaseFragment() {
             activity?.window?.changeStatusBarColor(if (it) ToolbarTheme.BLUE else ToolbarTheme.GRAY)
         }
 
-        homeViewModel.signalStrengthLiveData.listen(this) {
-            homeViewModel.state.signalStrength.set(it?.signalStrengthInfo)
-            homeViewModel.state.activeNetworkInfo.set(it)
+        homeViewModel.activeNetworkLiveData.listen(this) {
+            if (it == null || it is CellNetworkInfo) {
+                Timber.d("Network changed to CellInfo or null")
+                hideWrongNetworkTypeDialog()
+            }
+            evaluateCoverageMeasurementStartingConditionsForButton()
+        }
+
+        homeViewModel.locationLiveData.listen(this) {
+            evaluateCoverageMeasurementStartingConditionsForButton()
+        }
+
+        homeViewModel.signalStrengthLiveData.listen(this) { newNetworkInfo ->
+            val networkInfo = newNetworkInfo?.copy()
+            Timber.d("Signal strength changed 1")
+            homeViewModel.state.signalStrength.set(networkInfo?.signalStrengthInfo)
+            homeViewModel.state.activeNetworkInfo.set(networkInfo)
             homeViewModel.state.secondary5GActiveNetworkInfo.set(
-                if (it?.secondary5GActiveCellNetworks?.isNotEmpty() == true) {
-                    it.secondary5GActiveCellNetworks?.get(0)
-                } else {
+                try {
+                    if (networkInfo?.secondary5GActiveCellNetworks?.isNotEmpty() == true) {
+                        networkInfo.secondary5GActiveCellNetworks?.get(0)
+                    } else {
+                        null
+                    }
+                } catch (ex: IndexOutOfBoundsException) {
+                    Timber.e(ex)
                     null
                 }
             )
             homeViewModel.state.secondary5GSignalStrength.set(
-                if (it?.secondary5GActiveSignalStrengthInfos?.isNotEmpty() == true) {
-                    it.secondary5GActiveSignalStrengthInfos?.get(0)
-                } else {
+                try{
+                    if (networkInfo?.secondary5GActiveSignalStrengthInfos?.isNotEmpty() == true) {
+                        networkInfo.secondary5GActiveSignalStrengthInfos?.get(0)
+                    } else {
+                        null
+                    }
+                } catch (ex: IndexOutOfBoundsException) {
+                    Timber.e(ex)
                     null
                 }
             )
-            if (it?.networkInfo is WifiNetworkInfo) {
-                (it.networkInfo as WifiNetworkInfo).signal = it.signalStrengthInfo?.value
+            if (networkInfo?.networkInfo is WifiNetworkInfo) {
+                (networkInfo.networkInfo as WifiNetworkInfo).signal = networkInfo.signalStrengthInfo?.value
             }
+            evaluateCoverageMeasurementStartingConditionsForButton()
         }
 
         homeViewModel.locationStateLiveData.listen(this) {
             homeViewModel.state.isLocationEnabled.set(it)
             checkInformationAvailability()
+            evaluateCoverageMeasurementStartingConditionsForButton()
         }
 
         homeViewModel.ipV4ChangeLiveData.listen(this) {
@@ -176,7 +204,7 @@ class HomeFragment : BaseFragment() {
                 LocationInfoDialog.instance().show(activity)
             }
 
-            doGPSRelatedActionOrShowProblemDialog(action)
+            checkGPSAndShouldMakeAction(true, action)
         }
 
         binding.ivSignalLevel.setOnClickListener {
@@ -189,28 +217,33 @@ class HomeFragment : BaseFragment() {
                         MeasurementActivity.start(requireContext())
                     }
                 } else {
-                    MessageDialog.instance(R.string.client_not_registered).show(activity)
+                    activity?.supportFragmentManager?.let {
+                        MessageDialog.show(it, getString(R.string.client_not_registered), "NotRegistered")
+                    }
                 }
             } else {
-                MessageDialog.instance(R.string.home_no_internet_connection).show(activity)
+                activity?.supportFragmentManager?.let {
+                    MessageDialog.show(it, getString(R.string.home_no_internet_connection), "NotRegistered")
+                }
             }
         }
 
-        binding.btnUpload.setOnClickListener {
+        binding.btnCoverage.setOnClickListener {
             homeViewModel.activeSignalMeasurementLiveData.value?.let { active ->
                 if (!active) {
                     val checksPassed = isSignalMeasurementPrechecksPassed()
                     if (checksPassed) {
                         openSignalMeasurementTermsActivity()
                     }
-                } else {
-                    homeViewModel.toggleSignalMeasurementService()
                 }
             }
         }
 
         homeViewModel.activeSignalMeasurementLiveData.listen(this) {
             homeViewModel.state.isSignalMeasurementActive.set(it)
+            if (it) {
+                openSignalMeasurementActivity()
+            }
             checkInformationAvailability()
         }
 
@@ -274,22 +307,22 @@ class HomeFragment : BaseFragment() {
         SignalMeasurementActivity.start(requireContext())
     }
 
-    private fun doGPSRelatedActionOrShowProblemDialog(action: () -> Unit): Boolean {
+    private fun checkGPSAndShouldMakeAction(shouldMakeAction: Boolean, action: () -> Unit): Boolean {
         context?.let {
             homeViewModel.state.isLocationEnabled.get()?.let {
                 when (it) {
                     LocationState.ENABLED -> {
-                        action()
+                        if (shouldMakeAction) action()
                         return true
                     }
                     LocationState.DISABLED_APP -> {
-                        OpenLocationPermissionDialog.instance()
+                        if (shouldMakeAction) OpenLocationPermissionDialog.instance()
                             .show(activity)
                         return false
                     }
 
                     LocationState.DISABLED_DEVICE -> {
-                        OpenGpsSettingDialog.instance().show(activity)
+                        if (shouldMakeAction) OpenGpsSettingDialog.instance().show(activity)
                         return false
                     }
                 }
@@ -300,39 +333,9 @@ class HomeFragment : BaseFragment() {
 
     override fun onResume() {
         super.onResume()
-        homeViewModel.signalStrengthLiveData.listen(this) {
-            val networkInfo = it?.copy()
-            homeViewModel.state.signalStrength.set(networkInfo?.signalStrengthInfo)
-            homeViewModel.state.activeNetworkInfo.set(networkInfo)
-            homeViewModel.state.secondary5GActiveNetworkInfo.set(
-                try {
-                    if (networkInfo?.secondary5GActiveCellNetworks?.isNotEmpty() == true) {
-                        networkInfo.secondary5GActiveCellNetworks?.get(0)
-                    } else {
-                        null
-                    }
-                } catch (ex: IndexOutOfBoundsException) {
-                    Timber.e(ex)
-                    null
-                }
-            )
-            homeViewModel.state.secondary5GSignalStrength.set(
-                try{
-                    if (networkInfo?.secondary5GActiveSignalStrengthInfos?.isNotEmpty() == true) {
-                        networkInfo.secondary5GActiveSignalStrengthInfos?.get(0)
-                    } else {
-                        null
-                    }
-                } catch (ex: IndexOutOfBoundsException) {
-                    Timber.e(ex)
-                    null
-                }
-            )
-        }
         checkInformationAvailability()
         homeViewModel.state.informationAccessProblem.get()?.let { updateProblemUI(it) }
 
-        continueInSignalMeasurementIfShould()
     }
 
     private fun continueInSignalMeasurementIfShould() {
@@ -343,22 +346,32 @@ class HomeFragment : BaseFragment() {
         }
     }
 
-    private fun isSignalMeasurementPrechecksPassed(): Boolean {
+    private fun evaluateCoverageMeasurementStartingConditionsForButton(): Boolean {
+        val prechecksFulfilled = isSignalMeasurementPrechecksPassed(false)
+        val locationAccuracy = homeViewModel.locationLiveData.value?.accuracy
+        val isPassed = locationAccuracy?.let { accuracy ->
+            accuracy < COVERAGE_ACCURACY_METERS_TO_FULFILL_FOR_GREEN_BUTTON && prechecksFulfilled
+        } ?: false
+        homeViewModel.state.isSignalMeasurementCriteriaMet.set(isPassed)
+        return isPassed
+    }
+
+    private fun isSignalMeasurementPrechecksPassed(showDialogs: Boolean = true): Boolean {
         val isMobileNetworkActive = homeViewModel.isMobileNetworkActive()
         val isOnlyOneSimActive = homeViewModel.isOnlyOneSimActive()
-        val isGPSEnabledAndPermitted = doGPSRelatedActionOrShowProblemDialog {}
+        val isGPSEnabledAndPermitted = checkGPSAndShouldMakeAction(showDialogs) {}
 
         if (!isGPSEnabledAndPermitted) {
             return false
         }
 
         if (!isMobileNetworkActive) {
-            showWrongNetworkTypeDialog()
+            if (showDialogs) showWrongNetworkTypeDialog()
             return false
         }
 
         if (!isOnlyOneSimActive) {
-            showMoreSimsActiveDialog()
+            if (showDialogs) showMoreSimsActiveDialog()
             return false
         }
 
@@ -387,9 +400,14 @@ class HomeFragment : BaseFragment() {
                 .titleText(title)
                 .positiveText(R.string.confirm)
                 .cancelable(false)
-                .show(this.childFragmentManager, CODE_DIALOG_MORE_SIMS)
+                .show(this.childFragmentManager, CODE_DIALOG_WRONG_NETWORK, TAG_CODE_DIALOG_WRONG_NETWORK)
         }
 
+    }
+
+    private fun hideWrongNetworkTypeDialog() {
+        val dialog = this.childFragmentManager.findFragmentByTag(TAG_CODE_DIALOG_WRONG_NETWORK) as SimpleDialog?
+        dialog?.dismissAllowingStateLoss()
     }
 
     private fun checkInformationAvailability() {
@@ -546,5 +564,8 @@ class HomeFragment : BaseFragment() {
         private const val INFO_WINDOW_TIME_MS: Long = 2000
         private const val CODE_DIALOG_NEWS = 14
         private const val CODE_DIALOG_MORE_SIMS = 15
+        private const val CODE_DIALOG_WRONG_NETWORK = 16
+
+        private const val TAG_CODE_DIALOG_WRONG_NETWORK = "TAG_CODE_DIALOG_WRONG_NETWORK"
     }
 }

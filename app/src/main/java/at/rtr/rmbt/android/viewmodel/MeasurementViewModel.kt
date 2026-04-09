@@ -29,7 +29,7 @@ import javax.inject.Named
 
 class MeasurementViewModel @Inject constructor(
     private val testDataRepository: TestDataRepository,
-    @Named("GPSAndNetworkLocationProvider") private val locationWatcher: LocationWatcher,
+    private val locationWatcher: LocationWatcher,
     val signalStrengthLiveData: SignalStrengthLiveData,
     val config: AppConfig,
     private val tac: TermsAndConditions

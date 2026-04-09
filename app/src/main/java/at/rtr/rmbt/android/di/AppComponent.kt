@@ -5,6 +5,7 @@ import at.rmbt.client.control.ControlServerModule
 import at.rtr.rmbt.android.App
 import at.rtr.rmbt.android.config.ConfigModule
 import at.rtr.rmbt.android.location.LocationModule
+import at.rtr.rmbt.android.ui.dialog.CoverageSettingsDialog
 import at.rtr.rmbt.android.ui.dialog.HistoryDownloadDialog
 import at.rtr.rmbt.android.ui.dialog.HistoryFiltersDialog
 import at.rtr.rmbt.android.ui.dialog.IpInfoDialog
@@ -48,6 +49,8 @@ interface AppComponent : CoreComponent {
     fun inject(dialog: NetworkInfoDialog)
 
     fun inject(dialog: HistoryDownloadDialog)
+
+    fun inject(dialog: CoverageSettingsDialog)
 
     fun inject(app: App)
 

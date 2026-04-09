@@ -39,4 +39,4 @@ open class OtherNetworkInfo(
 
     override val capabilitiesRaw: String?
 
-) : NetworkInfo(TransportType.UNKNOWN, UUID.nameUUIDFromBytes(("").toByteArray()).toString(), capabilitiesRaw)
+) : NetworkInfo(TransportType.UNKNOWN, UUID.nameUUIDFromBytes(("").toByteArray()).toString(), UUID.nameUUIDFromBytes(("").toByteArray()).toString(), capabilitiesRaw)

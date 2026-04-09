@@ -8,6 +8,7 @@ import at.rmbt.client.control.FilterStatisticOptionResponse
 import at.rmbt.client.control.FilterTechnologyOptionResponse
 import at.rmbt.client.control.MapTypeOptionsResponse
 import at.rmbt.client.control.data.MapFilterType
+import kotlinx.coroutines.CancellationException
 import timber.log.Timber
 import java.util.Calendar
 import java.util.EnumMap
@@ -71,6 +72,9 @@ class FilterValuesStorage @Inject constructor() {
         return try {
             types.filterValues { it == value }.keys.first()
         } catch (e: Exception) {
+            if (e is CancellationException) {
+                throw e
+            }
             Timber.e(e.localizedMessage)
             MapFilterType.ALL.value
         }
@@ -80,6 +84,9 @@ class FilterValuesStorage @Inject constructor() {
         return try {
             subTypes.getValue(type).firstOrNull { it.title == value } ?: subTypes.getValue(type).first()
         } catch (e: Exception) {
+            if (e is CancellationException) {
+                throw e
+            }
             Timber.e(e.localizedMessage)
             MapTypeOptionsResponse(MapFilterType.ALL.value, MapFilterType.ALL.value, MapFilterType.ALL.value)
         }

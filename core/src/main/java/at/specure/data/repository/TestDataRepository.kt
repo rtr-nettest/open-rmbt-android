@@ -12,6 +12,7 @@ import at.specure.data.entity.SignalRecord
 import at.specure.data.entity.TestRecord
 import at.specure.data.entity.VoipTestResultRecord
 import at.specure.info.cell.CellNetworkInfo
+import at.specure.info.network.DetailedNetworkInfo
 import at.specure.info.network.MobileNetworkType
 import at.specure.info.network.NRConnectionState
 import at.specure.info.network.NetworkInfo
@@ -24,6 +25,8 @@ import org.json.JSONArray
 interface TestDataRepository {
 
     fun saveGeoLocation(testUUID: String?, signalChunkId: String?, location: LocationInfo, testStartTimeNanos: Long, filterOldValues: Boolean)
+
+    fun saveCoverageGeoLocation(testUUID: String?, signalChunkId: String?, location: LocationInfo, testStartTimeMillis: Long, filterOldValues: Boolean)
 
     fun saveSpeedData(testUUID: String, threadId: Int, bytes: Long, timestampNanos: Long, isUpload: Boolean)
 
@@ -49,6 +52,7 @@ interface TestDataRepository {
         info: SignalStrengthInfo,
         testStartTimeNanos: Long,
         nrConnectionState: NRConnectionState,
+        shouldSaveSignalsWithoutSignalStrength: Boolean = true,
         signalSavedCallback: ((signalRecord: SignalRecord) -> Unit)? = null,
     )
 
@@ -102,4 +106,20 @@ interface TestDataRepository {
     fun getLoopModeByLocal(loopUUID: String): LiveData<LoopModeRecord?>
 
     fun saveVoipResult(voipTestResultRecord: VoipTestResultRecord)
+
+    fun saveLocationMetadataForCoverage(location: LocationInfo?, localMeasurementId: String, startTimeNanos: Long)
+
+    fun removeLocationMetadataForCoverage(localMeasurementId: String)
+
+    fun saveCellMetadataForCoverage(detailedNetworkInfo: DetailedNetworkInfo?, localMeasurementId: String, startTimeNanos: Long)
+
+    fun removeCellMetadataForCoverage(localMeasurementId: String)
+
+    fun getSignalsCountForCoverageMeasurement(localMeasurementId: String): Int
+
+    fun getSignalsForCoverageMeasurement(localMeasurementId: String): List<SignalRecord>
+
+    fun getCellInfosForCoverageMeasurement(localMeasurementId: String): List<CellInfoRecord>
+
+    fun getLocationMetadataCountForCoverageMeasurement(localMeasurementId: String): Int
 }

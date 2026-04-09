@@ -71,6 +71,7 @@ class ControlServerClient @Inject constructor(private val endpointProvider: Cont
             .exec()
     }
 
+    @Deprecated("Use getTestResult only and opendata")
     fun getTestResultDetail(body: TestResultDetailBody): Maybe<TestResultDetailResponse> {
         return api.getTestResultDetail(endpointProvider.getTestResultsDetailsUrl, body).exec()
     }

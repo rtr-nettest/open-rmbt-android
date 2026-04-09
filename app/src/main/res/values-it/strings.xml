@@ -186,7 +186,7 @@
     <string name="results_other_details">Maggiori dettagli</string>
     <string name="results_qoe_videos_sd">Video SD</string>
     <string name="results_qoe_videos_hd">Video HD</string>
-    <string name="results_qoe_videos_uhd">Video UHD</string>
+    <string name="results_qoe_videos_uhd">Video 4k</string>
     <string name="results_qoe_gaming">Gioco</string>
     <string name="results_qoe_gaming_cloud">Cloud Gaming</string>
     <string name="results_qoe_gaming_streaming">Streaming Gaming</string>

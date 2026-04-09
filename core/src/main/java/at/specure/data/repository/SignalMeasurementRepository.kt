@@ -2,10 +2,13 @@ package at.specure.data.repository
 
 import androidx.lifecycle.LiveData
 import at.specure.data.entity.SignalMeasurementChunk
-import at.specure.data.entity.SignalMeasurementFenceRecord
+import at.specure.data.entity.CoverageMeasurementFenceRecord
 import at.specure.data.entity.SignalMeasurementRecord
-import at.specure.data.entity.SignalMeasurementSession
+import at.specure.data.entity.CoverageMeasurementSession
 import at.specure.data.entity.SignalRecord
+import at.specure.info.network.MobileNetworkType
+import at.specure.info.network.NetworkInfo
+import at.specure.measurement.coverage.domain.models.MobileSignalTechnologyTimestamp
 import at.specure.measurement.signal.SignalMeasurementChunkReadyCallback
 import at.specure.measurement.signal.SignalMeasurementChunkResultCallback
 import at.specure.measurement.signal.ValidChunkPostProcessing
@@ -24,7 +27,7 @@ interface SignalMeasurementRepository {
      * Method to save new [record] and create new SignalMeasurementInfo record because of provided new [newUuid] from the backend and
      * create a new info from old info and updated uuid
      */
-    fun saveAndUpdateRegisteredRecord(record: SignalMeasurementRecord, newUuid: String, oldInfo: SignalMeasurementSession)
+    fun saveAndUpdateRegisteredRecord(record: SignalMeasurementRecord, newUuid: String, oldInfo: CoverageMeasurementSession)
 
     fun saveMeasurementRecord(record: SignalMeasurementRecord)
 
@@ -48,19 +51,49 @@ interface SignalMeasurementRepository {
      */
     fun sendMeasurementChunk(chunkId: String, callback: SignalMeasurementChunkResultCallback): Flow<String?>
 
-    fun saveDedicatedMeasurementSession(session: SignalMeasurementSession)
+    fun saveCoverageMeasurementSession(session: CoverageMeasurementSession)
 
-    fun getDedicatedMeasurementSession(sessionId: String): SignalMeasurementSession?
+    fun getCoverageMeasurementSession(localMeasurementId: String): CoverageMeasurementSession?
 
-    fun saveMeasurementPointRecord(point: SignalMeasurementFenceRecord)
+    fun upsertMeasurementPointRecord(point: CoverageMeasurementFenceRecord)
 
-    fun loadSignalMeasurementPointRecordsForMeasurement(measurementId: String): LiveData<List<SignalMeasurementFenceRecord>>
+    suspend fun createMeasurementPointRecordWithNewSequenceNumber(point: CoverageMeasurementFenceRecord)
+
+    suspend fun createMeasurementPointRecordWithNewSequenceNumberAndUpdateLastOneTransaction(
+        point: CoverageMeasurementFenceRecord,
+        leaveTimestampMillis: Long,
+        avgPingMillis: Double?,
+        lastFenceMinTechSignal: MobileSignalTechnologyTimestamp?,
+    )
+
+    suspend fun updateSignalMeasurementOnLeavingTransaction(
+        sessionId: String,
+        leaveTimestampMillis: Long,
+        avgPingMillis: Double?,
+        lastFenceMinTechSignal: MobileSignalTechnologyTimestamp?
+    )
+
+    fun loadSignalMeasurementPointRecordsForMeasurement(measurementId: String): LiveData<List<CoverageMeasurementFenceRecord>>
+
+    fun loadSignalMeasurementPointRecordsForMeasurementList(measurementId: String): List<CoverageMeasurementFenceRecord>
+
+    fun loadSignalMeasurementPointRecordsForLoopMeasurement(localLoopSessionId: String): LiveData<List<CoverageMeasurementFenceRecord>>
+
+    fun loadSignalMeasurementPointRecordsForLoopMeasurementList(localLoopSessionId: String): List<CoverageMeasurementFenceRecord>
+
+    fun loadLastSignalMeasurementPointRecordsForLoopMeasurementList(localLoopSessionId: String, limit: Int?): List<CoverageMeasurementFenceRecord>
 
     suspend fun getSignalMeasurementRecord(id: String?): SignalRecord?
 
-    fun updateSignalMeasurementPoint(updatedPoint: SignalMeasurementFenceRecord)
+    fun updateSignalMeasurementFence(updatedPoint: CoverageMeasurementFenceRecord)
 
-    fun registerCoverageMeasurement(coverageSessionId: String?, measurementId: String?): Flow<Boolean>
+    fun registerCoverageMeasurement(localMeasurementId: String): Flow<Boolean>
 
-    fun sendFences(sessionId: String, fences: List<SignalMeasurementFenceRecord>)
+    suspend fun sendFences(sessionId: String, onSendCompleted: ((Boolean) -> Unit)?)
+
+    suspend fun retrySendFences()
+
+    suspend fun removeOldFencesAndSessions()
+
+    suspend fun registerNotRegisteredMeasurementsWithSomeFences()
 }

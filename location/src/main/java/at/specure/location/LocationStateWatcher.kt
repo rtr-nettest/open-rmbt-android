@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.pm.PackageManager
 import android.location.LocationManager
 import androidx.core.content.ContextCompat
+import kotlinx.coroutines.CancellationException
 import timber.log.Timber
 import java.util.Collections
 
@@ -48,12 +49,18 @@ class LocationStateWatcher(private val context: Context) : DeviceLocationStateWa
             try {
                 gpsEnabled = lm.isProviderEnabled(LocationManager.GPS_PROVIDER)
             } catch (ex: Exception) {
+                if (ex is CancellationException) {
+                    throw ex
+                }
                 Timber.w(ex)
             }
 
             try {
                 networkEnabled = lm.isProviderEnabled(LocationManager.NETWORK_PROVIDER)
             } catch (ex: Exception) {
+                if (ex is CancellationException) {
+                    throw ex
+                }
                 Timber.w(ex)
             }
 

@@ -20,10 +20,10 @@ class CoverageMeasurementWorker(appContext: Context, workerParams: WorkerParamet
     override suspend fun doWork(): Result {
         CoreInjector.inject(this)
 
-        val coverageSessionId = inputData.getString(KEY_SESSION_ID) ?: throw DataMissingException("coverage sessionId is missing in worker")
+        val coverageLocalMeasurementId = inputData.getString(KEY_COVERAGE_MEASUREMENT_LOCAL_ID) ?: throw DataMissingException("coverage sessionId is missing in worker")
 
         var result = Result.failure()
-        repository.registerCoverageMeasurement(coverageSessionId = coverageSessionId, measurementId = null)
+        repository.registerCoverageMeasurement(localMeasurementId = coverageLocalMeasurementId)
             .catch { e ->
                 if (e is NoConnectionException) {
                     emit(false)
@@ -41,10 +41,10 @@ class CoverageMeasurementWorker(appContext: Context, workerParams: WorkerParamet
 
     companion object {
 
-        private const val KEY_SESSION_ID = "KEY_SESSION_ID"
+        private const val KEY_COVERAGE_MEASUREMENT_LOCAL_ID = "KEY_COVERAGE_MEASUREMENT_LOCAL_ID"
 
-        fun getData(coverageSessionId: String) = Data.Builder().apply {
-            putString(KEY_SESSION_ID, coverageSessionId)
+        fun getData(coverageLocalMeasurementId: String) = Data.Builder().apply {
+            putString(KEY_COVERAGE_MEASUREMENT_LOCAL_ID, coverageLocalMeasurementId)
         }.build()
     }
 }
