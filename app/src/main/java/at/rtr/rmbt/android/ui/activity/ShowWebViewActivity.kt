@@ -7,8 +7,12 @@ import android.os.Bundle
 import android.view.View
 import android.webkit.WebView
 import android.webkit.WebViewClient
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.updatePadding
 import at.rtr.rmbt.android.R
 import at.rtr.rmbt.android.databinding.ActivityShowWebviewBinding
+import kotlin.math.max
 
 class ShowWebViewActivity : BaseActivity() {
 
@@ -24,6 +28,16 @@ class ShowWebViewActivity : BaseActivity() {
         binding.content.settings.javaScriptEnabled = true
         binding.content.settings.domStorageEnabled = true
         binding.content.webViewClient = DetailsViewClient()
+        ViewCompat.setOnApplyWindowInsetsListener(binding.root) { v, windowInsets ->
+            val insetsSystemBars = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
+            val insetsDisplayCutout = windowInsets.getInsets(WindowInsetsCompat.Type.displayCutout())
+            v.updatePadding(
+                top = max(insetsSystemBars.top, insetsDisplayCutout.top),
+                left = max(insetsSystemBars.left, insetsDisplayCutout.left),
+                right = max(insetsSystemBars.right, insetsDisplayCutout.right),
+            )
+            WindowInsetsCompat.CONSUMED
+        }
     }
 
     inner class DetailsViewClient : WebViewClient() {
