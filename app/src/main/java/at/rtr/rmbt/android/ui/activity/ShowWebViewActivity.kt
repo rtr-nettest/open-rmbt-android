@@ -22,6 +22,7 @@ class ShowWebViewActivity : BaseActivity() {
         val url = intent.getStringExtra(KEY_URL) ?: throw IllegalArgumentException("Nothing to show without url")
         binding.content.loadUrl(url)
         binding.content.settings.javaScriptEnabled = true
+        binding.content.settings.domStorageEnabled = true
         binding.content.webViewClient = DetailsViewClient()
     }
 
