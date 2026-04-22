@@ -51,6 +51,7 @@ enum class CellTechnology(val displayName: String) {
             MobileNetworkType.NR_NSA,
             MobileNetworkType.NR_SA -> CONNECTION_5G
             MobileNetworkType.IWLAN,
+            MobileNetworkType.NO_SIGNAL,
             MobileNetworkType.UNKNOWN -> null
         }
     }

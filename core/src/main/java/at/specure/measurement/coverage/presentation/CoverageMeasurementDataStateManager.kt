@@ -1,6 +1,5 @@
 package at.specure.measurement.coverage.presentation
 
-import android.R.attr.value
 import at.specure.data.CoverageMeasurementSettings
 import at.specure.data.entity.CoverageMeasurementFenceRecord
 import at.specure.data.entity.CoverageMeasurementSession
@@ -9,7 +8,6 @@ import at.specure.info.network.MobileNetworkType
 import at.specure.info.network.NetworkInfo
 import at.specure.location.LocationInfo
 import at.specure.measurement.coverage.data.getFrequencyBand
-import at.specure.measurement.coverage.data.getMobileNetworkType
 import at.specure.measurement.coverage.domain.models.CoverageMeasurementData
 import at.specure.measurement.coverage.domain.models.MobileSignalTechnologyTimestamp
 import at.specure.measurement.coverage.domain.models.PingData
@@ -124,33 +122,43 @@ class CoverageMeasurementDataStateManager @Inject constructor(
     }
 
     private fun updateTechnologyMinSignalMap(data: CoverageMeasurementData, networkInfo: NetworkInfo?): HashMap<MobileNetworkType, MobileSignalTechnologyTimestamp?> {
-        if (networkInfo == null) {
+        val newTechnologySignalPair = getTechnologySignalPair(networkInfo)
+        if (newTechnologySignalPair == null) {
             return data.technologyMinSignalMapForCurrentFence
-        }
-        if (networkInfo is CellNetworkInfo) {
-            val newTechnologySignalPair = getTechnologySignalPair(networkInfo)
-            if (newTechnologySignalPair == null) {
-                return data.technologyMinSignalMapForCurrentFence
-            } else {
-                val lastMinSignalValueForTechnology = data.technologyMinSignalMapForCurrentFence.get(networkInfo.networkType)?.signalValueDbm
-                val isLastSignalForTechnologyNull = lastMinSignalValueForTechnology == null
-                val newSignalValueForTechnology = newTechnologySignalPair.second?.signalValueDbm
-                if (isLastSignalForTechnologyNull || (newSignalValueForTechnology != null && newSignalValueForTechnology <= (lastMinSignalValueForTechnology ?: Int.MAX_VALUE))) {
-                    data.technologyMinSignalMapForCurrentFence.put(
-                        networkInfo.networkType,
-                        newTechnologySignalPair.second
-                    )
-                }
+        } else {
+            val (networkType, signalTimestamp) = newTechnologySignalPair
+
+            // Explicitly handle NO_CONNECTIVITY to differentiate from UNKNOWN
+            if (networkType == MobileNetworkType.NO_SIGNAL) {
+                data.technologyMinSignalMapForCurrentFence.put(networkType, signalTimestamp)
                 return data.technologyMinSignalMapForCurrentFence
             }
-        } else {
+
+            val lastMinSignalValueForTechnology = data.technologyMinSignalMapForCurrentFence.get(networkType)?.signalValueDbm
+            val isLastSignalForTechnologyNull = lastMinSignalValueForTechnology == null
+            val newSignalValueForTechnology = signalTimestamp?.signalValueDbm
+            if (isLastSignalForTechnologyNull || (newSignalValueForTechnology != null && newSignalValueForTechnology <= (lastMinSignalValueForTechnology ?: Int.MAX_VALUE))) {
+                data.technologyMinSignalMapForCurrentFence.put(
+                    networkType,
+                    signalTimestamp
+                )
+            }
             return data.technologyMinSignalMapForCurrentFence
         }
     }
 
     private fun getTechnologySignalPair(networkInfo: NetworkInfo?): Pair<MobileNetworkType, MobileSignalTechnologyTimestamp?>? {
         if (networkInfo == null) {
-            return null
+            // Return NO_CONNECTIVITY pair when network info is missing
+            return Pair(
+                MobileNetworkType.NO_SIGNAL,
+                MobileSignalTechnologyTimestamp(
+                    type = MobileNetworkType.NO_SIGNAL,
+                    signalValueDbm = null,
+                    frequencyBand = null,
+                    timestamp = System.currentTimeMillis(),
+                )
+            )
         }
         if (networkInfo is CellNetworkInfo) {
             val newSignalValueForTechnology = networkInfo.signalStrength?.value
