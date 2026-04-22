@@ -154,11 +154,6 @@ class SignalMeasurementProcessor @Inject constructor(
         if (isKnownCellularNetwork) {
             globalNetworkInfo = newValue
             networkInfoResetJob?.cancel()
-            rtrCoverageMeasurementProcessor.onNewLocation(
-                globalLocationInfo,
-                globalNetworkInfo,
-                batteryInfo.getTemp()
-            )
         }
 
         val isNonCellularNetwork =
@@ -166,11 +161,6 @@ class SignalMeasurementProcessor @Inject constructor(
         if (isNonCellularNetwork) {
             globalNetworkInfo = newValue
             networkInfoResetJob?.cancel()
-            rtrCoverageMeasurementProcessor.onNewLocation(
-                globalLocationInfo,
-                globalNetworkInfo,
-                batteryInfo.getTemp()
-            )
         }
 
         val isNoSignal =
@@ -192,11 +182,6 @@ class SignalMeasurementProcessor @Inject constructor(
             networkInfoResetJob = launch {
                 delay(MAXIMUM_TIME_NETWORK_KEEP_MILLS.toLong())
                 globalNetworkInfo = if (isNoSignal) null else newValue
-                rtrCoverageMeasurementProcessor.onNewLocation(
-                    globalLocationInfo,
-                    globalNetworkInfo,
-                    batteryInfo.getTemp()
-                )
             }
         }
     }
