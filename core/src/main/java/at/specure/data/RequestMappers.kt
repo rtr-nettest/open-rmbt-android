@@ -555,7 +555,7 @@ fun CoverageMeasurementSession.toCoverageResultRequest(
             qos = QoSBody(config.capabilitiesQosSupportsInfo),
             rmbtHttpStatus = config.capabilitiesRmbtHttp
         ),
-        clientVersion = deviceInfo.clientVersionName,
+        clientVersion = null,
         clientLanguage = deviceInfo.language ?: UNKNOWN,
         product = deviceInfo.product ?: UNKNOWN,
         apiLevel = deviceInfo.apiLevel,
