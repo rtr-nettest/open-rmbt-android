@@ -32,7 +32,7 @@ enum class MobileNetworkType(val intValue: Int, val displayName: String) {
     /**
      * No signal
      */
-    NO_SIGNAL(1000, "OFFLINE"),
+    OFFLINE(1000, "OFFLINE"),
 
     /**
      * Current network is GPRS

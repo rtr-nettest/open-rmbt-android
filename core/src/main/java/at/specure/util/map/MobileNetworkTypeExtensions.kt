@@ -5,7 +5,7 @@ import androidx.core.graphics.toColorInt
 
 fun MobileNetworkType.getMarkerColorInt(): Int {
     val colorHex = when (this) {
-        MobileNetworkType.NO_SIGNAL,
+        MobileNetworkType.OFFLINE,
         MobileNetworkType.UNKNOWN -> "#d9d9d9"
 
         // Very slow (2G)

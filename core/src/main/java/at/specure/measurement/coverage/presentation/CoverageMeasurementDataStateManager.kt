@@ -129,7 +129,7 @@ class CoverageMeasurementDataStateManager @Inject constructor(
             val (networkType, signalTimestamp) = newTechnologySignalPair
 
             // Explicitly handle NO_CONNECTIVITY to differentiate from UNKNOWN
-            if (networkType == MobileNetworkType.NO_SIGNAL) {
+            if (networkType == MobileNetworkType.OFFLINE) {
                 data.technologyMinSignalMapForCurrentFence.put(networkType, signalTimestamp)
                 return data.technologyMinSignalMapForCurrentFence
             }
@@ -151,9 +151,9 @@ class CoverageMeasurementDataStateManager @Inject constructor(
         if (networkInfo == null) {
             // Return NO_CONNECTIVITY pair when network info is missing
             return Pair(
-                MobileNetworkType.NO_SIGNAL,
+                MobileNetworkType.OFFLINE,
                 MobileSignalTechnologyTimestamp(
-                    type = MobileNetworkType.NO_SIGNAL,
+                    type = MobileNetworkType.OFFLINE,
                     signalValueDbm = null,
                     frequencyBand = null,
                     timestamp = System.currentTimeMillis(),

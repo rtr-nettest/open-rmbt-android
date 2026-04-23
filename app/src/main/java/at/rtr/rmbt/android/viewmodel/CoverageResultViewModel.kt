@@ -1,7 +1,6 @@
 package at.rtr.rmbt.android.viewmodel
 
 import android.os.SystemClock
-import android.view.Display
 import androidx.core.graphics.scale
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -37,7 +36,6 @@ import at.specure.util.map.CustomMarker
 import at.specure.util.map.getMarkerColorInt
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
-import com.google.android.gms.maps.model.AdvancedMarkerOptions
 import com.google.android.gms.maps.model.BitmapDescriptor
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.Circle
@@ -61,7 +59,8 @@ import javax.inject.Inject
 
 const val MAX_MARKER_COUNT_DISPLAYED_THRESHOLD = 100
 const val TOTAL_MAX_MARKER_COUNT_DISPLAYED_THRESHOLD = 3000
-const val MIN_MAP_UPDATE_RATE = 700 // do not set it bellow maybe 500ms as map is very sensitive to frequent updates
+const val MIN_MAP_UPDATE_RATE =
+    700 // do not set it bellow maybe 500ms as map is very sensitive to frequent updates
 
 class CoverageResultViewModel @Inject constructor(
     private val appConfig: AppConfig,
@@ -78,11 +77,12 @@ class CoverageResultViewModel @Inject constructor(
 
     private var loadPointJob: Job? = null
     private var _testResultLiveData: LiveData<TestResultRecord?>? = null
-    var coverageSessionId : String? = null
+    var coverageSessionId: String? = null
         private set
 
     private var _pointsLiveData = MutableLiveData<List<CoverageMeasurementFenceRecord>>()
-//    private var _dedicatedSignalMeasurementSessionIdLiveData : LiveData<String?> = MutableLiveData<String>(null)
+
+    //    private var _dedicatedSignalMeasurementSessionIdLiveData : LiveData<String?> = MutableLiveData<String>(null)
     private val _coverageMeasurementDataLiveData: LiveData<CoverageMeasurementData?> =
         rtrCoverageMeasurementProcessor.stateManager.state.asLiveData(viewModelScope.coroutineContext)
 
@@ -94,7 +94,7 @@ class CoverageResultViewModel @Inject constructor(
             return this._testResultLiveData!!
         }
 
-    val coverageMeasurementDataLiveData : LiveData<CoverageMeasurementData?>
+    val coverageMeasurementDataLiveData: LiveData<CoverageMeasurementData?>
         get() = _coverageMeasurementDataLiveData
 
 //    val dedicatedSignalMeasurementSessionIdLiveData : LiveData<String?>
@@ -131,14 +131,17 @@ class CoverageResultViewModel @Inject constructor(
         loadPointJob = loadPoints(loopLocalSessionId)
     }
 
-    private fun loadPoints(loopLocalSessionId: String) = launch(CoroutineName("LoadPointsHomeViewModel")) {
-        val points =
-            signalMeasurementRepository.loadSignalMeasurementPointRecordsForLoopMeasurement(loopLocalSessionId)
-        points.asFlow().flowOn(Dispatchers.IO).collect { loadedPoints ->
-            _pointsLiveData.postValue(loadedPoints)
-            Timber.d("New points loaded ${loadedPoints.size}")
+    private fun loadPoints(loopLocalSessionId: String) =
+        launch(CoroutineName("LoadPointsHomeViewModel")) {
+            val points =
+                signalMeasurementRepository.loadSignalMeasurementPointRecordsForLoopMeasurement(
+                    loopLocalSessionId
+                )
+            points.asFlow().flowOn(Dispatchers.IO).collect { loadedPoints ->
+                _pointsLiveData.postValue(loadedPoints)
+                Timber.d("New points loaded ${loadedPoints.size}")
+            }
         }
-    }
 
     fun onCoverageConfigurationChanged() {
         rtrCoverageMeasurementProcessor.onCoverageConfigurationChanged()
@@ -224,12 +227,19 @@ class CoverageResultViewModel @Inject constructor(
         return true
     }
 
-    fun updateMapPoints(map: GoogleMap?, points: List<FencesResultItemRecord>?, coverageMeasurementState: CoverageMeasurementState?, maxLimitToDisplay: Int? = MAX_MARKER_COUNT_DISPLAYED_THRESHOLD) {
-        state.coverageSessionStart = coverageMeasurementDataLiveData.value?.coverageMeasurementSession?.startTimeLoopMillis
+    fun updateMapPoints(
+        map: GoogleMap?,
+        points: List<FencesResultItemRecord>?,
+        coverageMeasurementState: CoverageMeasurementState?,
+        maxLimitToDisplay: Int? = MAX_MARKER_COUNT_DISPLAYED_THRESHOLD
+    ) {
+        state.coverageSessionStart =
+            coverageMeasurementDataLiveData.value?.coverageMeasurementSession?.startTimeLoopMillis
 
         val currentMap = map ?: return
         val pts = points ?: return
-        val isMeasurementInProgress = coverageMeasurementState != null && coverageMeasurementState != CoverageMeasurementState.FINISHED_LOOP_CORRECTLY
+        val isMeasurementInProgress =
+            coverageMeasurementState != null && coverageMeasurementState != CoverageMeasurementState.FINISHED_LOOP_CORRECTLY
         if (!shouldUpdateMap() && isMeasurementInProgress) return
 
         viewModelScope.launch(Dispatchers.Default) {
@@ -241,7 +251,8 @@ class CoverageResultViewModel @Inject constructor(
 
             // Prepare MarkerOptions in background
             val markerOptionsList = newPoints.mapIndexedNotNull { index, point ->
-                val isLastDuringMeasurement = index == newPoints.lastIndex && isMeasurementInProgress
+                val isLastDuringMeasurement =
+                    index == newPoints.lastIndex && isMeasurementInProgress
                 markerDetailsMap[point.id] = CoverageMarkerDetailsData(
                     id = point.id,
                     networkType = point.networkTechnologyId ?: 0,
@@ -283,7 +294,9 @@ class CoverageResultViewModel @Inject constructor(
                             val updatedData = CoverageMarkerDetailsData(
                                 id = point.id,
                                 networkType = point.networkTechnologyId ?: 0,
-                                MobileNetworkType.fromValue(point.networkTechnologyId ?: 0).displayName,
+                                MobileNetworkType.fromValue(
+                                    point.networkTechnologyId ?: 0
+                                ).displayName,
                                 provider = null,
                                 signalClass = null,
                                 signalStrength = point.signalMainDbm,
@@ -311,7 +324,9 @@ class CoverageResultViewModel @Inject constructor(
                         state.markers.addLast(marker)
 
                         // remove oldest markers if exceeding limit
-                        while (state.markers.size > (maxLimitToDisplay ?: TOTAL_MAX_MARKER_COUNT_DISPLAYED_THRESHOLD)) {
+                        while (state.markers.size > (maxLimitToDisplay
+                                ?: TOTAL_MAX_MARKER_COUNT_DISPLAYED_THRESHOLD)
+                        ) {
                             val oldMarker = state.markers.removeAt(0)
                             oldMarker.remove()
                         }
@@ -349,7 +364,10 @@ class CoverageResultViewModel @Inject constructor(
         }
     }
 
-    private fun clearPerformanceListsIfTheyAreFromPreviousMeasurement(map: GoogleMap?, pts: List<FencesResultItemRecord>) {
+    private fun clearPerformanceListsIfTheyAreFromPreviousMeasurement(
+        map: GoogleMap?,
+        pts: List<FencesResultItemRecord>
+    ) {
         if (state.displayedPointIds.size > pts.size) {
             clearPerformanceImprovementLists(map)
         }
@@ -367,7 +385,7 @@ class CoverageResultViewModel @Inject constructor(
     }
 
     fun getCurrentNetworkTypeName(networkInfo: NetworkInfo?): String? {
-        return when(networkInfo?.type) {
+        return when (networkInfo?.type) {
             TransportType.CELLULAR -> (networkInfo as CellNetworkInfo).networkType.displayName
             TransportType.WIFI,
             TransportType.BLUETOOTH,
@@ -377,6 +395,7 @@ class CoverageResultViewModel @Inject constructor(
             TransportType.LOWPAN,
             TransportType.BROWSER,
             TransportType.UNKNOWN -> networkInfo.type.name
+
             null -> null
         }
     }
@@ -407,8 +426,9 @@ class CoverageResultViewModel @Inject constructor(
     }
 
     fun shouldRunCoverageMeasurement(): Boolean {
-        val measurementNotFinishedOrNotStarted = coverageMeasurementDataLiveData.value?.state == null
-                || coverageMeasurementDataLiveData.value?.state != CoverageMeasurementState.FINISHED_LOOP_CORRECTLY
+        val measurementNotFinishedOrNotStarted =
+            coverageMeasurementDataLiveData.value?.state == null
+                    || coverageMeasurementDataLiveData.value?.state != CoverageMeasurementState.FINISHED_LOOP_CORRECTLY
         Timber.d("Current last state of data: ${coverageMeasurementDataLiveData.value?.state}")
         return measurementNotFinishedOrNotStarted
     }

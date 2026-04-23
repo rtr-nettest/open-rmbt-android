@@ -21,6 +21,7 @@ import at.specure.info.network.MobileNetworkType
  */
 enum class CellTechnology(val displayName: String) {
     CONNECTION_UNKNOWN(""),
+    CONNECTION_OFFLINE("OFFLINE"),
     CONNECTION_2G("2G"),
     CONNECTION_3G("3G"),
     CONNECTION_4G("4G"),
@@ -50,8 +51,8 @@ enum class CellTechnology(val displayName: String) {
             MobileNetworkType.NR_AVAILABLE -> CONNECTION_4G_5G
             MobileNetworkType.NR_NSA,
             MobileNetworkType.NR_SA -> CONNECTION_5G
+            MobileNetworkType.OFFLINE -> CONNECTION_OFFLINE
             MobileNetworkType.IWLAN,
-            MobileNetworkType.NO_SIGNAL,
             MobileNetworkType.UNKNOWN -> null
         }
     }

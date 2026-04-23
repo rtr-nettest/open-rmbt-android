@@ -254,6 +254,7 @@ class ResultsActivity : BaseActivity() {
             val icon = when (result.networkType) {
                 NetworkTypeCompat.TYPE_BLUETOOTH,
                 NetworkTypeCompat.TYPE_VPN,
+                NetworkTypeCompat.TYPE_OFFLINE,
                 NetworkTypeCompat.TYPE_UNKNOWN -> R.drawable.ic_marker_empty
 
                 NetworkTypeCompat.TYPE_LAN -> R.drawable.ic_marker_ethernet

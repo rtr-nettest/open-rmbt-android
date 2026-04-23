@@ -904,6 +904,7 @@ private fun getSignalImageResource(networkType: NetworkTypeCompat, signalStrengt
                 Classification.NONE -> R.drawable.ic_signal_unknown_small
             }
         }
+        NetworkTypeCompat.TYPE_OFFLINE,
         NetworkTypeCompat.TYPE_UNKNOWN -> {
             R.drawable.ic_signal_unknown_small
         }
@@ -971,6 +972,7 @@ private fun getSignalImageContentDescription(networkType: NetworkTypeCompat, sig
                 Classification.NONE -> ContextCompat.getString(context, R.string.unknown_signal_wifi)
             }
         }
+        NetworkTypeCompat.TYPE_OFFLINE,
         NetworkTypeCompat.TYPE_UNKNOWN -> {
             ContextCompat.getString(context, R.string.unknown_network_type)
         }
@@ -1302,6 +1304,7 @@ fun ImageView.setNetworkType(networkType: String, signalStrength: Classification
                 NetworkTypeCompat.TYPE_4G -> {
                     R.drawable.ic_history_4g
                 }
+                NetworkTypeCompat.TYPE_OFFLINE,
                 NetworkTypeCompat.TYPE_UNKNOWN -> {
                     R.drawable.ic_history_no_internet
                 }
