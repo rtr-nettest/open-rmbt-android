@@ -30,6 +30,11 @@ enum class MobileNetworkType(val intValue: Int, val displayName: String) {
     UNKNOWN(TelephonyManager.NETWORK_TYPE_UNKNOWN, "MOBILE"),
 
     /**
+     * No signal
+     */
+    OFFLINE(1000, "OFFLINE"),
+
+    /**
      * Current network is GPRS
      */
     GPRS(TelephonyManager.NETWORK_TYPE_GPRS, "GPRS"),

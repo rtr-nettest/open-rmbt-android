@@ -17,6 +17,7 @@ enum class NetworkTypeCompat(val stringValue: String, val minSignalValue: Int, v
     TYPE_WLAN("WLAN", SignalStrengthInfo.WIFI_MIN_SIGNAL_VALUE, SignalStrengthInfo.WIFI_MAX_SIGNAL_VALUE),
     TYPE_LAN("ETHERNET", Int.MIN_VALUE, Int.MIN_VALUE),
     TYPE_BROWSER("BROWSER", Int.MIN_VALUE, Int.MIN_VALUE),
+    TYPE_OFFLINE("OFFLINE", Int.MIN_VALUE, Int.MIN_VALUE),
     TYPE_UNKNOWN("UNKNOWN", Int.MIN_VALUE, Int.MIN_VALUE),
     TYPE_BLUETOOTH("BLUETOOTH", Int.MIN_VALUE, Int.MIN_VALUE),
     TYPE_VPN("VPN", Int.MIN_VALUE, Int.MIN_VALUE);
@@ -79,6 +80,7 @@ enum class NetworkTypeCompat(val stringValue: String, val minSignalValue: Int, v
                         CellTechnology.CONNECTION_4G -> TYPE_4G
                         CellTechnology.CONNECTION_4G_5G -> TYPE_5G_AVAILABLE
                         CellTechnology.CONNECTION_5G -> TYPE_5G
+                        CellTechnology.CONNECTION_OFFLINE -> TYPE_OFFLINE
                         else -> {
                             Timber.e("Incorrect cell technology value or null ${cellTechnology?.name}")
                             TYPE_UNKNOWN
