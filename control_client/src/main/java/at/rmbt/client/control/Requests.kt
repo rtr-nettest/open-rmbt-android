@@ -1036,7 +1036,7 @@ data class CoverageResultRequestBody(
     @SerializedName("time_ns")
     val timeNanos: Long,
     @SerializedName("client_version")
-    val clientVersion: String,
+    val clientVersion: String?,
     @SerializedName("client_language")
     val clientLanguage: String,
     val timezone: String, // Europe/Prague

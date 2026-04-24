@@ -502,7 +502,7 @@ fun CoverageMeasurementSession.toCoverageRequest(clientUUID: String, deviceInfo:
     platform = deviceInfo.platform,
     softwareVersionCode = deviceInfo.softwareVersionCode,
     softwareRevision = deviceInfo.softwareRevision,
-    softwareVersion = deviceInfo.softwareRevision,
+    softwareVersion = deviceInfo.softwareVersionName,
     timezone = deviceInfo.timezone ?: UNKNOWN,
     time = startTimeMeasurementMillis,
     measurementTypeFlag = SignalMeasurementType.DEDICATED.signalTypeName,
@@ -517,7 +517,7 @@ fun CoverageMeasurementSession.toCoverageRequest(clientUUID: String, deviceInfo:
         qos = QoSBody(config.capabilitiesQosSupportsInfo),
         rmbtHttpStatus = config.capabilitiesRmbtHttp
     ),
-    version = deviceInfo.clientVersionName,
+    version = null,
 )
 
 fun CoverageMeasurementSession.toCoverageResultRequest(
@@ -555,7 +555,7 @@ fun CoverageMeasurementSession.toCoverageResultRequest(
             qos = QoSBody(config.capabilitiesQosSupportsInfo),
             rmbtHttpStatus = config.capabilitiesRmbtHttp
         ),
-        clientVersion = deviceInfo.clientVersionName,
+        clientVersion = null,
         clientLanguage = deviceInfo.language ?: UNKNOWN,
         product = deviceInfo.product ?: UNKNOWN,
         apiLevel = deviceInfo.apiLevel,

@@ -9,7 +9,6 @@ import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updateLayoutParams
-import androidx.core.view.updatePadding
 import at.rmbt.client.control.data.MapPresentationType
 import at.rmbt.client.control.data.MapStyleType
 import at.rtr.rmbt.android.R
@@ -20,7 +19,6 @@ import at.rtr.rmbt.android.ui.dialog.MapLayersDialog
 import at.rtr.rmbt.android.util.ToolbarTheme
 import at.rtr.rmbt.android.util.changeStatusBarColor
 import at.specure.data.NetworkTypeCompat
-import kotlin.math.max
 
 class DetailedFullscreenMapActivity : BaseActivity(), MapLayersDialog.Callback {
 
@@ -96,6 +94,7 @@ class DetailedFullscreenMapActivity : BaseActivity(), MapLayersDialog.Callback {
         val icon = when (networkType) {
             NetworkTypeCompat.TYPE_BLUETOOTH,
             NetworkTypeCompat.TYPE_VPN,
+            NetworkTypeCompat.TYPE_OFFLINE,
             NetworkTypeCompat.TYPE_UNKNOWN -> R.drawable.ic_marker_empty
             NetworkTypeCompat.TYPE_LAN -> R.drawable.ic_marker_ethernet
             NetworkTypeCompat.TYPE_BROWSER -> R.drawable.ic_marker_browser
