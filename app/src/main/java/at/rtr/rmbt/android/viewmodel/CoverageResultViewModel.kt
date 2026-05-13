@@ -283,6 +283,12 @@ class CoverageResultViewModel @Inject constructor(
             // Switch to main thread to add markers and circles
             withContext(Dispatchers.Main) {
 
+                // Read the live network type on the main thread so the last ongoing marker
+                // always reflects the current technology (not the stale value stored in DB).
+                val liveNetworkType: MobileNetworkType? = if (isMeasurementInProgress) {
+                    (coverageMeasurementDataLiveData.value?.currentNetworkInfo as? CellNetworkInfo)?.networkType
+                } else null
+
                 // Update previously last marker with fresh data after leaving it
                 val previouslyLastMarker = state.markers.lastOrNull()
                 previouslyLastMarker?.let { marker ->
@@ -291,24 +297,30 @@ class CoverageResultViewModel @Inject constructor(
                         val updatedPoint = pts.find { it.id == lastId }
 
                         updatedPoint?.let { point ->
+                            val isLastOngoingPoint = isMeasurementInProgress && lastPoint?.id == point.id && point.isNotFinished()
+                            // For the current unfinished fence use the live technology so the
+                            // marker colour updates immediately when the technology changes
+                            // (the DB record is only written when the fence is finalised).
+                            val tech = if (isLastOngoingPoint && liveNetworkType != null) {
+                                liveNetworkType
+                            } else {
+                                MobileNetworkType.fromValue(point.networkTechnologyId ?: 0)
+                            }
                             val updatedData = CoverageMarkerDetailsData(
                                 id = point.id,
-                                networkType = point.networkTechnologyId ?: 0,
-                                MobileNetworkType.fromValue(
-                                    point.networkTechnologyId ?: 0
-                                ).displayName,
+                                networkType = tech.intValue,
+                                tech.displayName,
                                 provider = null,
                                 signalClass = null,
                                 signalStrength = point.signalMainDbm,
                                 pingMillis = (point.averagePingMillis?.times(1000000))?.toLong(),
                                 timestamp = point.fenceTimestampMillis,
-                                isNotFinished = isMeasurementInProgress && lastPoint?.id == point.id && point.isNotFinished(),
+                                isNotFinished = isLastOngoingPoint,
                             )
 
                             marker.tag = updatedData
 
-                            // refresh icon in case the technology has change on the leave
-                            val tech = MobileNetworkType.fromValue(point.networkTechnologyId ?: 0)
+                            // refresh icon in case the technology has changed
                             marker.setIcon(getCachedIcon(tech))
                         }
                     }
@@ -337,7 +349,13 @@ class CoverageResultViewModel @Inject constructor(
                 lastPoint?.let { point ->
 
                     val latLng = point.toLatLng() ?: return@let
-                    val tech = MobileNetworkType.fromValue(point.networkTechnologyId ?: 0)
+                    // Use live network type for the ongoing fence so the circle colour
+                    // matches the current technology in real-time.
+                    val tech = if (isMeasurementInProgress && point.isNotFinished() && liveNetworkType != null) {
+                        liveNetworkType
+                    } else {
+                        MobileNetworkType.fromValue(point.networkTechnologyId ?: 0)
+                    }
                     val colorInt = tech.getMarkerColorInt()
                     val fillColor = makeSemiTransparent(colorInt)
                     val radius = point.fenceRadiusMeters?.toDouble() ?: 0.0
