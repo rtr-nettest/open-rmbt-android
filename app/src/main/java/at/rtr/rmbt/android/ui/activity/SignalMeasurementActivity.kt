@@ -63,6 +63,7 @@ import kotlinx.coroutines.suspendCancellableCoroutine
 
 const val DEFAULT_POSITION_TRACKING_ZOOM_LEVEL = 16.2f
 const val DEFAULT_TRACKING_ZOOM_LEVEL = 16f
+const val GPS_CHECK_GRACE_PERIOD = 6000L
 
 class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback, CoverageSettingsDialog.Callback {
 
@@ -447,16 +448,17 @@ class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback, Coverage
 
     private fun updateCurrentLocation(location: LocationInfo?) {
         binding.textSource.text = "${location?.provider} ${location?.accuracy}m"
-        if (coverageViewModel.isLocationInfoMeetingQualityCriteria(location.toDeviceInfoLocation())) {
+        val startTime = coverageViewModel.coverageMeasurementDataLiveData.value?.coverageMeasurementSession?.startTimeMeasurementMillis ?: 0L
+        val gracePeriodEnded = System.currentTimeMillis() - startTime >= GPS_CHECK_GRACE_PERIOD
+        val deviceInfoLocation = location.toDeviceInfoLocation()
+        if (coverageViewModel.isLocationInfoMeetingQualityCriteria(deviceInfoLocation)) {
             hideWarningButton()
             if (!viewModel.state.closeDialogDisplayed.get()) {
                 hideDialog()
             }
-        } else {
-            if (!viewModel.state.closeDialogDisplayed.get()) {
-                showWarningButton()
-                showLocationProblemDialogIfNotSilenced()
-            }
+        } else if (!viewModel.state.closeDialogDisplayed.get() && gracePeriodEnded) {
+            showWarningButton()
+            showLocationProblemDialogIfNotSilenced()
         }
 
         binding.accuracyValue.text = location?.formatAccuracy()?.let { formattedAccuracy ->
