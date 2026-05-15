@@ -500,6 +500,7 @@ class HomeFragment : BaseFragment() {
         checkPermissions()
         startTimerForInfoWindow()
         homeViewModel.state.checkConfig()
+        homeViewModel.syncCoverageOnRequests(requireContext())
     }
 
     private fun checkPermissions() {
