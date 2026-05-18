@@ -240,7 +240,7 @@
     <string name="notification_signal_test_text">Open-RTMB medida de señal activa en segundo plano</string>
     <string name="notification_loop_mode_finished_title">El modo bucle ha terminado</string>
     <string name="toast_signal_measurement_enabled">Comenzar medida de señal</string>
-    <string name="error_no_connection">No hay conexión a Internet: No se pudo cargar sus datos.</string>
+    <string name="error_no_connection">No se pudo cargar datos. Por favor, revisa tu conexión a internet.</string>
     <string name="label_map_filters">Ajustes</string>
     <string name="text_filter_confirm">Confirmar</string>
     <string name="text_filter_continue">Continuar</string>

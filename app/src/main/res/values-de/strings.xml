@@ -238,7 +238,7 @@
     <string name="error_sync_code_short">Der Code muss aus zwölf Zeichen bestehen</string>
     <string name="notification_signal_test_text">RTR-Netztest Signalmessung läuft im Hintergrund</string>
     <string name="notification_loop_mode_finished_title">Der Wiederholungsmodus ist beendet</string>
-    <string name="error_no_connection">Keine Netzwerksverbindung: Einträge konnten nicht geladen werden.</string>
+    <string name="error_no_connection">Daten konnten nicht geladen werden. Bitte überprüfen Sie Ihre Internetverbindung.</string>
     <string name="label_map_filters">Karten-Einstellugen</string>
     <string name="text_filter_confirm">übernehmen</string>
     <string name="text_filter_continue">Fortsetzen</string>

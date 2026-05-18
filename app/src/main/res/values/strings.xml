@@ -305,7 +305,7 @@
     <string name="notification_loop_mode_finished_title">Loop mode finished</string>
 
     <string name="toast_signal_measurement_enabled">Coverage measurement started.</string>
-    <string name="error_no_connection">No Internet connection. Could not load data.</string>
+    <string name="error_no_connection">Could not load data. Please check your internet connection.</string>
 
     <string name="label_map_filters">Map settings</string>
     <string name="text_filter_confirm">Accept</string>

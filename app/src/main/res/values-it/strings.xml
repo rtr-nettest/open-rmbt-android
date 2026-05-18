@@ -240,7 +240,7 @@
     <string name="notification_signal_test_text">La misurazione del segnale da parte di RTR-NetTest è in esecuzione in background</string>
     <string name="notification_loop_mode_finished_title">Modalità ciclo terminata</string>
     <string name="toast_signal_measurement_enabled">Misurazione del segnale avviata.</string>
-    <string name="error_no_connection">Nessuna connessione Internet. Impossibile caricare i dati.</string>
+    <string name="error_no_connection">Non è riuscito a caricare i dati. Controlla la tua connessione internet.</string>
     <string name="label_map_filters">Impostazioni della mappa</string>
     <string name="text_filter_confirm">Accetta</string>
     <string name="text_filter_continue">Continua</string>
