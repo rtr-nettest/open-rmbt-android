@@ -275,7 +275,7 @@ class HomeViewModel @Inject constructor(
 
     fun syncCoverageOnRequests(context: Context) {
         controlServerModule.onResponseInterceptor = { response ->
-            if (response.code == 200 && coverageMeasurementSettings.hasUnsyncedCoverage) {
+            if (response.isSuccessful && coverageMeasurementSettings.hasUnsyncedCoverage) {
                 coverageMeasurementSettings.hasUnsyncedCoverage = false
                 WorkLauncher.enqueueCoverageSyncRequest(context)
             }
