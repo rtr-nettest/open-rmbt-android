@@ -26,6 +26,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import javax.inject.Inject
@@ -137,13 +138,20 @@ class SignalMeasurementProcessor @Inject constructor(
         // restart timer
         locationResetJob?.cancel()
         locationResetJob = launch {
-            delay(MAXIMUM_TIME_LOCATION_KEEP_MILLS.toLong())
-            globalLocationInfo = null
-            rtrCoverageMeasurementProcessor.onNewLocation(
-                globalLocationInfo,
-                globalNetworkInfo,
-                batteryInfo.getTemp()
-            )
+            while (isActive) {
+                delay(MAXIMUM_TIME_LOCATION_KEEP_MILLS.toLong())
+                // Double-check: If we still have satellites used in fix,
+                // we are likely just stationary, so we keep the last location.
+                if (locationWatcher.satellitesCount == 0) {
+                    globalLocationInfo = null
+                    rtrCoverageMeasurementProcessor.onNewLocation(
+                        null,
+                        globalNetworkInfo,
+                        batteryInfo.getTemp()
+                    )
+                    break
+                }
+            }
         }
     }
 

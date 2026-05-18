@@ -10,6 +10,7 @@ private const val KEY_SIGNAL_MEASUREMENT_RUNNING = "KEY_SIGNAL_MEASUREMENT_RUNNI
 private const val KEY_SIGNAL_MEASUREMENT_CONTINUE_LAST_SESSION = "KEY_SIGNAL_MEASUREMENT_CONTINUE_LAST_SESSION"
 private const val KEY_SIGNAL_MEASUREMENT_LAST_MEASUREMENT_ID = "KEY_SIGNAL_MEASUREMENT_LAST_SESSION_ID"
 private const val KEY_SIGNAL_MEASUREMENT_LAST_MEASUREMENT_LOOP_ID = "KEY_SIGNAL_MEASUREMENT_LAST_MEASUREMENT_LOOP_ID"
+private const val KEY_HAS_UNSYNCED_COVERAGE = "KEY_HAS_UNSYNCED_COVERAGE"
 
 @Singleton
 class CoverageMeasurementSettings @Inject constructor(context: Context) {
@@ -60,6 +61,13 @@ class CoverageMeasurementSettings @Inject constructor(context: Context) {
         set(value) {
             Timber.d("Signal measurement last session loop ID set to: $value")
             preferences.edit { putString(KEY_SIGNAL_MEASUREMENT_LAST_MEASUREMENT_LOOP_ID, value) }
+        }
+
+    var hasUnsyncedCoverage: Boolean
+        get() = preferences.getBoolean(KEY_HAS_UNSYNCED_COVERAGE, false)
+        set(value) {
+            Timber.d("Has unsynced coverage set to: $value")
+            preferences.edit { putBoolean(KEY_HAS_UNSYNCED_COVERAGE, value) }
         }
 
     val baseMinimalDistanceBetweenFenceCentersMeters = 10

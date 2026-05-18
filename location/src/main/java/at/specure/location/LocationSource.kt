@@ -11,6 +11,11 @@ interface LocationSource {
     val location: LocationInfo?
 
     /**
+     * The number of satellites in use for the last fix or current status
+     */
+    val satellitesCount: Int
+
+    /**
      * Init and start polling location changes to [Listener]
      */
     fun start(listener: Listener)

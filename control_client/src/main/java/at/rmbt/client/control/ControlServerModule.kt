@@ -20,6 +20,7 @@ import dagger.Provides
 import okhttp3.ConnectionPool
 import okhttp3.Dispatcher
 import okhttp3.OkHttpClient
+import okhttp3.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.util.concurrent.TimeUnit
@@ -33,6 +34,12 @@ private const val READ_TIMEOUT_SEC = 10L
  */
 @Module
 class ControlServerModule {
+
+    var onResponseInterceptor: ((response: Response) -> Unit)? = null
+
+    @Provides
+    @Singleton
+    fun provideControlServerModule(): ControlServerModule = this
 
     @Provides
     @Singleton
@@ -76,6 +83,7 @@ class ControlServerModule {
             .writeTimeout(CONNECTION_TIMEOUT_SEC, TimeUnit.SECONDS)
             .connectionPool(ConnectionPool(0, 5, TimeUnit.MINUTES))
             .addInterceptor(ControlServerInterceptor(controlEndpointProvider))
+            .addInterceptor(ResponseInterceptor { onResponseInterceptor?.invoke(it)})
             .addInterceptor(RetryInterceptor(3))
 
         return setupOkHttpClient(builder).build()

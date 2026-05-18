@@ -8,6 +8,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.map
+import at.rmbt.client.control.ControlServerModule
 import at.rmbt.client.control.NewsItem
 import at.rtr.rmbt.android.config.AppConfig
 import at.rtr.rmbt.android.ui.viewstate.HomeViewState
@@ -31,6 +32,7 @@ import at.specure.measurement.signal.SignalMeasurementProducer
 import at.specure.measurement.signal.SignalMeasurementService
 import at.rmbt.client.control.data.SignalMeasurementType
 import at.specure.util.permission.PermissionsWatcher
+import at.specure.worker.WorkLauncher
 import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -38,7 +40,6 @@ import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import javax.inject.Inject
-import javax.inject.Named
 
 const val LOCATION_ACCURACY_WARNING_DIALOG_SILENCED_TIME_MILLIS = 60_000L
 
@@ -56,6 +57,7 @@ class HomeViewModel @Inject constructor(
     private val settingsRepository: SettingsRepository,
     private val signalMeasurementRepository: SignalMeasurementRepository,
     private val coverageMeasurementSettings: CoverageMeasurementSettings,
+    private val controlServerModule: ControlServerModule,
     measurementServers: MeasurementServers,
 ) : BaseViewModel() {
 
@@ -269,6 +271,15 @@ class HomeViewModel @Inject constructor(
 
     fun setSignalMeasurementShouldContinueInLastSession(shouldContinueInLastSession: Boolean) {
         coverageMeasurementSettings.signalMeasurementShouldContinueInLastSession = shouldContinueInLastSession
+    }
+
+    fun syncCoverageOnRequests(context: Context) {
+        controlServerModule.onResponseInterceptor = { response ->
+            if (response.code == 200 && coverageMeasurementSettings.hasUnsyncedCoverage) {
+                coverageMeasurementSettings.hasUnsyncedCoverage = false
+                WorkLauncher.enqueueCoverageSyncRequest(context)
+            }
+        }
     }
 
 }

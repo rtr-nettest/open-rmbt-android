@@ -16,8 +16,6 @@ import at.specure.data.entity.CoverageMeasurementSession
 import at.specure.data.entity.DEFAULT_LEAVE_TIMESTAMP_MILLIS
 import at.specure.data.entity.SignalRecord
 import at.specure.info.network.MobileNetworkType
-import at.specure.info.network.NetworkInfo
-import at.specure.measurement.coverage.data.getMobileNetworkType
 import at.specure.measurement.coverage.domain.models.MobileSignalTechnologyTimestamp
 
 const val COVERAGE_MEASUREMENT_SUBMISSION_MAX_RETRY_COUNT = 3
@@ -166,15 +164,14 @@ interface SignalMeasurementDao {
 
     @Query("""
         SELECT * FROM ${Tables.COVERAGE_MEASUREMENT_SESSION} 
-        WHERE retryCount < $COVERAGE_MEASUREMENT_SUBMISSION_MAX_RETRY_COUNT 
-          AND (startMeasurementResponseReceivedMillis + (maxCoverageMeasurementSeconds * 1000)) < :currentTimeMillis 
+        WHERE retryCount < $COVERAGE_MEASUREMENT_SUBMISSION_MAX_RETRY_COUNT
           AND serverMeasurementId IS NOT NULL 
           AND synced = 0
       ORDER BY 
         startTimeLoopMillis DESC,
         startTimeMeasurementMillis ASC
     """)
-    fun getCoverageMeasurementsForRetrySend(currentTimeMillis: Long = System.currentTimeMillis()): List<CoverageMeasurementSession>
+    fun getCoverageMeasurementsForRetrySend(): List<CoverageMeasurementSession>
 
     @Query("""
         SELECT * FROM ${Tables.COVERAGE_MEASUREMENT_SESSION} 

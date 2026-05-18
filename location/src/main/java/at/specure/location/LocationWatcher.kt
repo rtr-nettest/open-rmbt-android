@@ -64,6 +64,12 @@ class LocationWatcher private constructor(context: Context, sourceSet: Set<Locat
         get() = dispatcher.latestLocation(sources.map { it.source })
 
     /**
+     * Total number of satellites used in fix across all sources
+     */
+    val satellitesCount: Int
+        get() = sources.sumOf { it.source.satellitesCount }
+
+    /**
      * Current [LocationState]
      */
     val state: LocationState?

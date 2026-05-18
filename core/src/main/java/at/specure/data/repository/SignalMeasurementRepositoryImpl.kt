@@ -8,6 +8,7 @@ import at.rmbt.util.io
 import at.specure.config.Config
 import at.specure.data.ClientUUID
 import at.specure.data.CoreDatabase
+import at.specure.data.CoverageMeasurementSettings
 import at.specure.data.RequestFilters.Companion.createRadioInfoBody
 import at.specure.data.entity.CellInfoRecord
 import at.specure.data.entity.SignalMeasurementChunk
@@ -22,8 +23,6 @@ import at.specure.data.toCoverageRequest
 import at.specure.data.toCoverageResultRequest
 import at.specure.data.toRequest
 import at.specure.info.TransportType
-import at.specure.info.network.MobileNetworkType
-import at.specure.info.network.NetworkInfo
 import at.specure.measurement.coverage.domain.models.MobileSignalTechnologyTimestamp
 import at.specure.measurement.signal.SignalMeasurementChunkReadyCallback
 import at.specure.measurement.signal.SignalMeasurementChunkResultCallback
@@ -42,7 +41,8 @@ class SignalMeasurementRepositoryImpl(
     private val context: Context,
     private val clientUUID: ClientUUID,
     private val client: ControlServerClient,
-    private val config: Config
+    private val config: Config,
+    private val coverageSettings: CoverageMeasurementSettings
 ) : SignalMeasurementRepository {
 
     private val deviceInfo = DeviceInfo(context)
@@ -320,7 +320,7 @@ class SignalMeasurementRepositoryImpl(
                         } else {
                             dao.incrementRetryCountForSession(localMeasurementId)
                             onSendCompleted?.invoke(false)
-                            // TODO: enqueue sending with worker in case of failed send
+                            coverageSettings.hasUnsyncedCoverage = true
                         }
                     } else {
                         onSendCompleted?.invoke(true)
@@ -364,9 +364,12 @@ class SignalMeasurementRepositoryImpl(
                             dao.markSessionAsSynced(coverageSessionMeasurement.localMeasurementId)
                         } else {
                             dao.incrementRetryCountForSession(coverageSessionMeasurement.localMeasurementId)
+                            coverageSettings.hasUnsyncedCoverage = true
+                            if (result.failure is NoConnectionException) {
+                                throw result.failure
+                            }
                         }
                     }
-                    // TODO: enqueue sending with worker in case of failed send
                 }
             }
         }
@@ -386,13 +389,17 @@ class SignalMeasurementRepositoryImpl(
                     registerCoverageMeasurement(it.localMeasurementId).collect { registered ->
                         if (!registered) {
                             Timber.e("Unable to register session")
+                            coverageSettings.hasUnsyncedCoverage = true
                         }
                     }
                 }
             } catch (e: CancellationException) {
                 throw e
+            } catch (e: NoConnectionException) {
+                coverageSettings.hasUnsyncedCoverage = true
+                throw e
             } catch (e: Exception) {
-
+                Timber.e(e, "Error retried registering measurement")
             }
         }
     }

@@ -30,6 +30,9 @@ class FusedLocationSource(context: Context) : LocationSource {
     private var listener: LocationSource.Listener? = null
     private var handlerThread: HandlerThread? = null
 
+    override val satellitesCount: Int
+        get() = latestLocation?.satellites ?: 0
+
     private val fetchedLocation: LocationInfo?
         @SuppressLint("MissingPermission") // should be called only after permission is granted
         get() {

@@ -23,6 +23,7 @@ import at.specure.config.Config
 import at.specure.data.ClientUUID
 import at.specure.data.ControlServerSettings
 import at.specure.data.CoreDatabase
+import at.specure.data.CoverageMeasurementSettings
 import at.specure.data.HistoryFilterOptions
 import at.specure.data.repository.HistoryRepository
 import at.specure.data.repository.HistoryRepositoryImpl
@@ -45,7 +46,6 @@ import at.specure.util.ActiveFilter
 import at.specure.util.FilterValuesStorage
 import dagger.Module
 import dagger.Provides
-import javax.inject.Named
 import javax.inject.Singleton
 
 /**
@@ -131,6 +131,7 @@ class DatabaseModule {
         context: Context,
         clientUUID: ClientUUID,
         client: ControlServerClient,
-        config: Config
-    ): SignalMeasurementRepository = SignalMeasurementRepositoryImpl(database, context, clientUUID, client, config)
+        config: Config,
+        coverageMeasurementSettings: CoverageMeasurementSettings
+    ): SignalMeasurementRepository = SignalMeasurementRepositoryImpl(database, context, clientUUID, client, config, coverageMeasurementSettings)
 }

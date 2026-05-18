@@ -20,6 +20,9 @@ class NetworkLocationSource(val context: Context) : LocationSource {
     private val manager = context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
     private var listener: LocationSource.Listener? = null
 
+    override val satellitesCount: Int
+        get() = 0
+
     override val location: LocationInfo?
         @SuppressLint("MissingPermission")
         get() = try {
