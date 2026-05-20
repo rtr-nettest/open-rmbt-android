@@ -530,7 +530,8 @@ fun CoverageMeasurementSession.toCoverageResultRequest(
     cellInfoList: List<CellInfoRecord>,
     signalList: List<SignalRecord>,
     permissions: List<PermissionStatusRecord>,
-    cellLocationList: List<CellLocationRecord>
+    cellLocationList: List<CellLocationRecord>,
+    submissionRetryCount: Int
 ): CoverageResultRequestBody {
     val geoLocations: List<TestLocationBody>? = mapLocationsToRequest(locations)
     var radioInfo: RadioInfoBody? = createRadioInfoBody(cellInfoList, signalList, null, true)
@@ -578,6 +579,7 @@ fun CoverageMeasurementSession.toCoverageResultRequest(
         telephonyDataState = telephonyInfo?.dataState,
         telephonyApn = telephonyInfo?.apn,
         telephonyNetworkSimCountry = telephonyInfo?.networkSimCountry,
+        submissionRetryCount = submissionRetryCount,
         measurementTerminationCause = this.reasonToTerminate
     )
 }

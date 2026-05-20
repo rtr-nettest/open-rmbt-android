@@ -240,7 +240,7 @@
     <string name="notification_signal_test_text">RTR-NetTest szélessáv mérés fut a háttérben</string>
     <string name="notification_loop_mode_finished_title">Ismétlődő mérési mód befejeződött</string>
     <string name="toast_signal_measurement_enabled">Jelszint mérés elkezdődött.</string>
-    <string name="error_no_connection">Nincs internet kapcsolat. Adatok betöltése sikertelen.</string>
+    <string name="error_no_connection">Nem tudtam adatokat betölteni. Kérlek, ellenőrizd az internetkapcsolatodat.</string>
     <string name="label_map_filters">Térkép beállítások</string>
     <string name="text_filter_confirm">Elfogadás</string>
     <string name="text_filter_continue">Tovább</string>

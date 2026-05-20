@@ -30,6 +30,11 @@ import at.specure.measurement.signal.ValidChunkPostProcessing
 import at.specure.test.DeviceInfo
 import at.specure.util.exception.DataMissingException
 import at.specure.worker.WorkLauncher
+import at.specure.info.network.WifiNetworkInfo
+import at.specure.info.cell.CellNetworkInfo
+import at.specure.info.ip.IpChangeWatcher
+import at.specure.info.network.ActiveNetworkWatcher
+import java.text.DecimalFormat
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.flow
@@ -42,7 +47,9 @@ class SignalMeasurementRepositoryImpl(
     private val clientUUID: ClientUUID,
     private val client: ControlServerClient,
     private val config: Config,
-    private val coverageSettings: CoverageMeasurementSettings
+    private val coverageSettings: CoverageMeasurementSettings,
+    private val activeNetworkWatcher: ActiveNetworkWatcher,
+    private val ipChangeWatcher: IpChangeWatcher
 ) : SignalMeasurementRepository {
 
     private val deviceInfo = DeviceInfo(context)
@@ -260,6 +267,37 @@ class SignalMeasurementRepositoryImpl(
         return (radioInfo != null) && radioInfo.signals?.isNotEmpty() ?: false
     }
 
+    private fun calculateSubmissionRetryCount(
+        session: CoverageMeasurementSession,
+        telephonyInfo: TestTelephonyRecord?,
+        wlanInfo: TestWlanRecord?
+    ): Int {
+        val currentNetworkInfo = activeNetworkWatcher.currentNetworkInfo
+
+        val previousWasWifi = wlanInfo != null
+        val previousWasMobile = telephonyInfo != null
+        val currentIsWifi = currentNetworkInfo is WifiNetworkInfo
+        val currentIsMobile = currentNetworkInfo is CellNetworkInfo
+        val typeChanged = (previousWasWifi && currentIsMobile) || (previousWasMobile && currentIsWifi)
+
+        val currentPublicIp = ipChangeWatcher.lastIPv4Address?.publicAddress ?: ipChangeWatcher.lastIPv6Address?.publicAddress
+        val previousIp = session.remoteIpAddress
+        val ipChanged = previousIp != currentPublicIp
+
+        var mccMncChanged = false
+        if (previousWasMobile && currentIsMobile) {
+            val info = currentNetworkInfo as CellNetworkInfo
+            val currentOperator = if (info.mcc != null && info.mnc != null) {
+                "${info.mcc}-${DecimalFormat("00").format(info.mnc)}"
+            } else null
+            val previousOperator = telephonyInfo?.networkSimOperator
+            mccMncChanged = previousOperator != currentOperator
+        }
+
+        val networkChanged = typeChanged || ipChanged || mccMncChanged
+        return session.retryCount + if (networkChanged) 1 else 0
+    }
+
     override fun sendMeasurementChunk(chunk: SignalMeasurementChunk, callBack: SignalMeasurementChunkResultCallback) = io {
         dao.saveSignalMeasurementChunk(chunk)
         val session = dao.getCoverageMeasurementSessionForMeasurementId(chunk.measurementId)
@@ -291,6 +329,7 @@ class SignalMeasurementRepositoryImpl(
             val localMeasurementId = coverageSession.localMeasurementId
             val fencesForSession = dao.getCoverageMeasurementFencesList(localMeasurementId)
             val telephonyRecord = db.testDao().getTelephonyRecord(localMeasurementId)
+            val wlanInfo = db.testDao().getWlanRecord(localMeasurementId)
             val locations = db.geoLocationDao().get(localMeasurementId, null)
             val cellInfoList = db.cellInfoDao().getDistinctIgnoringUuidAndId(localMeasurementId, null)
             val signalList = db.signalDao().get(localMeasurementId, null)
@@ -301,6 +340,7 @@ class SignalMeasurementRepositoryImpl(
                     val cleanedFences = fences.removeUnfinishedFences()
                     Timber.d("ENDING SESSION: FENCES COMPARE: ${cleanedFences.size} vs ${fences.size}")
                     if (cleanedFences.isNotEmpty()) {
+                        val submissionRetryCount = calculateSubmissionRetryCount(coverageSession, telephonyRecord, wlanInfo)
                         val requestBody = coverageSession.toCoverageResultRequest(
                             clientUUID = clientUuid,
                             deviceInfo = deviceInfo,
@@ -312,6 +352,7 @@ class SignalMeasurementRepositoryImpl(
                             signalList = signalList,
                             permissions = permissions,
                             cellLocationList = cellLocationList,
+                            submissionRetryCount = submissionRetryCount
                         )
                         val result = client.coverageResult(requestBody)
                         if (result.ok) {
@@ -337,6 +378,7 @@ class SignalMeasurementRepositoryImpl(
         measurements.forEach { coverageSessionMeasurement ->
             val localMeasurementId = coverageSessionMeasurement.localMeasurementId
             val telephonyRecord = db.testDao().getTelephonyRecord(localMeasurementId)
+            val wlanInfo = db.testDao().getWlanRecord(localMeasurementId)
             val fencesForSession = dao.getCoverageMeasurementFencesList(coverageSessionMeasurement.localMeasurementId)
             val locations = db.geoLocationDao().get(localMeasurementId, null)
             val cellInfoList = db.cellInfoDao().getDistinctIgnoringUuidAndId(localMeasurementId, null)
@@ -347,6 +389,7 @@ class SignalMeasurementRepositoryImpl(
             clientUUID.value?.let { clientUuid ->
                 fencesForSession.let { fences ->
                     if (fences.isNotEmpty()) {
+                        val submissionRetryCount = calculateSubmissionRetryCount(coverageSessionMeasurement, telephonyRecord, wlanInfo)
                         val requestBody = coverageSessionMeasurement.toCoverageResultRequest(
                             clientUUID = clientUuid,
                             deviceInfo = deviceInfo,
@@ -358,6 +401,7 @@ class SignalMeasurementRepositoryImpl(
                             signalList = signalList,
                             permissions = permissions,
                             cellLocationList = cellLocationList,
+                            submissionRetryCount = submissionRetryCount
                         )
                         val result = client.coverageResult(requestBody)
                         if (result.ok) {

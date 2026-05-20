@@ -40,6 +40,8 @@ import at.specure.data.repository.TestDataRepository
 import at.specure.data.repository.TestDataRepositoryImpl
 import at.specure.data.repository.TestResultsRepository
 import at.specure.data.repository.TestResultsRepositoryImpl
+import at.specure.info.ip.IpChangeWatcher
+import at.specure.info.network.ActiveNetworkWatcher
 import at.specure.info.strength.SignalStrengthWatcher
 import at.specure.location.LocationWatcher
 import at.specure.util.ActiveFilter
@@ -132,6 +134,8 @@ class DatabaseModule {
         clientUUID: ClientUUID,
         client: ControlServerClient,
         config: Config,
-        coverageMeasurementSettings: CoverageMeasurementSettings
-    ): SignalMeasurementRepository = SignalMeasurementRepositoryImpl(database, context, clientUUID, client, config, coverageMeasurementSettings)
+        coverageMeasurementSettings: CoverageMeasurementSettings,
+        activeNetworkWatcher: ActiveNetworkWatcher,
+        ipChangeWatcher: IpChangeWatcher
+    ): SignalMeasurementRepository = SignalMeasurementRepositoryImpl(database, context, clientUUID, client, config, coverageMeasurementSettings, activeNetworkWatcher, ipChangeWatcher)
 }

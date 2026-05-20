@@ -305,7 +305,7 @@
     <string name="notification_loop_mode_finished_title">Loop mode finished</string>
 
     <string name="toast_signal_measurement_enabled">Coverage measurement started.</string>
-    <string name="error_no_connection">No Internet connection. Could not load data.</string>
+    <string name="error_no_connection">Could not load data. Please check your internet connection.</string>
 
     <string name="label_map_filters">Map settings</string>
     <string name="text_filter_confirm">Accept</string>
@@ -549,7 +549,7 @@
     <string name="ipv6_short">IPv6</string>
     <string name="sending_results">Storing results</string>
     <string name="no_gps_value" />
-    <string name="error_sending_data">Storing results failed!</string>
+    <string name="error_sending_data">Results could not be saved. The app will retry later.</string>
     <string name="location_usage_always_warning_message">Allow location access in the background to use this feature.</string>
     <string name="allow">Allow</string>
     <string name="measuring">Measuring...</string>

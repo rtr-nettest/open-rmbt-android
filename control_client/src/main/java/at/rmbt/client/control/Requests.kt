@@ -1133,8 +1133,8 @@ data class CoverageResultRequestBody(
     /**
      * Count of unsuccessful submissions
      */
-//    @SerializedName("submission_retry_count")
-//    var submissionRetryCount: Int,
+    @SerializedName("submission_retry_count")
+    val submissionRetryCount: Int,
     /**
      * Reason of the test finishing, provided as int value, example - "0" for Success, "1" for Error, "2" for Aborted
      */
