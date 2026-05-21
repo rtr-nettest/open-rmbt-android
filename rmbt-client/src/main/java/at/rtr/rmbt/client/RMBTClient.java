@@ -243,11 +243,11 @@ public class RMBTClient implements RMBTClientCallback {
                         if (isNotResponding) {
                             Timber.e("Test has been terminated, because of RMBTClient inactivity internal");
 
-                            if (commonCallback != null) {
-                                new Handler(Looper.getMainLooper()).post(() ->
-                                        commonCallback.onTestStatusUpdate(TestStatus.ERROR)
-                                );
-                            }
+                            new Handler(Looper.getMainLooper()).post(() -> {
+                                if (commonCallback != null) {
+                                    commonCallback.onTestStatusUpdate(TestStatus.ERROR);
+                                }
+                            });
 
                             abortTest(true);
                             shutdown();
