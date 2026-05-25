@@ -240,9 +240,11 @@ class HomeFragment : BaseFragment() {
         }
 
         homeViewModel.activeSignalMeasurementLiveData.listen(this) {
-            homeViewModel.state.isSignalMeasurementActive.set(it)
-            if (it) {
-                openSignalMeasurementActivity()
+            if (it != homeViewModel.state.isSignalMeasurementActive.get()) {
+                homeViewModel.state.isSignalMeasurementActive.set(it)
+                if (it) {
+                    openSignalMeasurementActivity()
+                }
             }
             checkInformationAvailability()
         }

@@ -127,8 +127,8 @@ class RtrCoverageMeasurementProcessor @Inject constructor(
         }
         connectivityMonitor.start(
             onAirplaneEnabled = {
-                Timber.d("✈️ Airplane mode changed to ENABLED → stopping coverage session")
-                stopCoverageSession(CoverageMeasurementTerminationCause.EndedByAirplaneModeEnabled())
+                Timber.d("✈️ Airplane mode changed to ENABLED → pausing coverage session")
+                pauseCoverageSession()
             },
             onAirplaneDisabled = {
                 Timber.d("📶 Airplane mode changed to DISABLED → resuming session")
@@ -139,8 +139,8 @@ class RtrCoverageMeasurementProcessor @Inject constructor(
                 resumeCoverageSession()
             },
             onMobileDataDisabled = {
-                Timber.d("📶 Mobile data changed to DISABLED → stopping coverage session")
-                stopCoverageSession(CoverageMeasurementTerminationCause.EndedByMobileDataDisabled())
+                Timber.d("📶 Mobile data changed to DISABLED → pausing coverage session")
+                pauseCoverageSession()
             },
             onIpAddressChanged = {
                 Timber.d("🌐 IP address changed to $it → stopping measurement")
