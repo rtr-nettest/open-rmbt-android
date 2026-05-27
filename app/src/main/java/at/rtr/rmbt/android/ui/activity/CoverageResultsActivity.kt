@@ -30,11 +30,14 @@ import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.Marker
+import com.google.android.gms.maps.model.MarkerOptions
+import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import java.util.Timer
 import kotlin.concurrent.timerTask
 import kotlin.math.max
+import androidx.core.graphics.createBitmap
 
 class CoverageResultsActivity : BaseActivity(), OnMapReadyCallback {
 
@@ -42,6 +45,7 @@ class CoverageResultsActivity : BaseActivity(), OnMapReadyCallback {
     private lateinit var binding: ActivityCoverageResultBinding
     private var mapLoadRequested: Boolean = false
     private var map: GoogleMap? = null
+    private var infoWindowMarker: Marker? = null
     private var timer: Timer? = null
     private var loadAttempts = 0
 
@@ -124,13 +128,40 @@ class CoverageResultsActivity : BaseActivity(), OnMapReadyCallback {
             viewModel.state.cameraPositionLiveData.value ?: DefaultLocation.austriaLocation,
             viewModel.state.zoom
         ))
+        map?.setOnCameraMoveListener {
+            map?.cameraPosition?.zoom?.let { newZoom ->
+                if (viewModel.state.zoom != newZoom) {
+                    viewModel.state.zoom = newZoom
+                    viewModel.updateMarkersRadius(newZoom)
+                }
+            }
+        }
         map?.setOnCameraIdleListener {
             map?.cameraPosition?.zoom?.let { newZoom ->
-                viewModel.state.zoom = newZoom
+                if (viewModel.state.zoom != newZoom) {
+                    viewModel.state.zoom = newZoom
+                    viewModel.updateMarkersRadius(newZoom)
+                }
             }
             map?.cameraPosition?.let {
                 viewModel.state.cameraPositionLiveData.postValue(LatLng(it.target.latitude, it.target.longitude))
             }
+        }
+
+        val emptyBitmap = createBitmap(1, 1)
+        map?.setOnCircleClickListener { circle ->
+            infoWindowMarker = map?.addMarker(
+                MarkerOptions()
+                    .position(circle.center)
+                    .icon(BitmapDescriptorFactory.fromBitmap(emptyBitmap))
+                    .anchor(0.5f, 0.5f)
+            )
+            infoWindowMarker?.tag = circle.tag
+            infoWindowMarker?.showInfoWindow()
+        }
+
+        map?.setOnMapClickListener {
+            infoWindowMarker?.remove()
         }
 
         map?.setInfoWindowAdapter(object : GoogleMap.InfoWindowAdapter {

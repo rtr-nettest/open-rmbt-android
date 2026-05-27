@@ -19,6 +19,7 @@ import android.view.WindowManager
 import androidx.activity.OnBackPressedCallback
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.core.graphics.createBitmap
 import androidx.lifecycle.lifecycleScope
 import at.rtr.rmbt.android.R
 import at.rtr.rmbt.android.databinding.ActivitySignalMeasurementBinding
@@ -57,7 +58,9 @@ import at.specure.measurement.coverage.data.getSignalStrengthValue
 import at.specure.test.toDeviceInfoLocation
 import at.specure.util.hasPermission
 import at.specure.util.openAppSettings
+import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.Marker
+import com.google.android.gms.maps.model.MarkerOptions
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.suspendCancellableCoroutine
 
@@ -72,6 +75,7 @@ class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback, Coverage
     private val coverageViewModel: CoverageResultViewModel by viewModelLazy()
     private lateinit var binding: ActivitySignalMeasurementBinding
     private var map: GoogleMap? = null
+    private var infoWindowMarker: Marker? = null
     private var warningSnackbar: Snackbar? = null
     private var sendingResultsErrorSnackbar: Snackbar? = null
     private var noBackgroundLocationPermissionGrantedSnackbar: Snackbar? = null
@@ -590,17 +594,39 @@ class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback, Coverage
             coverageViewModel.state.zoom
         ))
         Timber.d("Setting latest location to 4: ${coverageViewModel.state.cameraPositionLiveData.value ?: DefaultLocation.austriaLocation}")
-        map?.setOnCameraIdleListener {
+        map?.setOnCameraMoveListener {
             map?.cameraPosition?.zoom?.let { newZoom ->
-                coverageViewModel.state.zoom = newZoom
+                if (coverageViewModel.state.zoom != newZoom) {
+                    coverageViewModel.state.zoom = newZoom
+                    coverageViewModel.updateMarkersRadius(newZoom)
+                }
             }
         }
 
-        map?.setOnMarkerClickListener { marker ->
-            coverageViewModel.state.markerDetailsDisplayed.set(true)
-            false
+        map?.setOnCameraIdleListener {
+            map?.cameraPosition?.zoom?.let { newZoom ->
+                if (coverageViewModel.state.zoom != newZoom) {
+                    coverageViewModel.state.zoom = newZoom
+                    coverageViewModel.updateMarkersRadius(newZoom)
+                }
+            }
         }
+
+        val emptyBitmap = createBitmap(1, 1)
+        map?.setOnCircleClickListener { circle ->
+            infoWindowMarker = map?.addMarker(
+                MarkerOptions()
+                    .position(circle.center)
+                    .icon(BitmapDescriptorFactory.fromBitmap(emptyBitmap))
+                    .anchor(0.5f, 0.5f)
+            )
+            infoWindowMarker?.tag = circle.tag
+            infoWindowMarker?.showInfoWindow()
+            coverageViewModel.state.markerDetailsDisplayed.set(true)
+        }
+
         map?.setOnMapClickListener {
+            infoWindowMarker?.remove()
             coverageViewModel.state.markerDetailsDisplayed.set(false)
         }
 
