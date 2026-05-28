@@ -52,6 +52,8 @@ import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
 import timber.log.Timber
 import javax.inject.Inject
+import kotlin.math.ceil
+import kotlin.math.floor
 import kotlin.math.min
 import kotlin.math.pow
 import kotlin.math.round
@@ -376,7 +378,8 @@ class CoverageResultViewModel @Inject constructor(
     }
 
     private fun togglePointsVisibility() {
-        val step = (state.displayedPointIds.size / MAX_MARKER_COUNT_DISPLAYED_THRESHOLD) + 1
+        val step =
+            floor(state.displayedPointIds.size.toDouble() / MAX_MARKER_COUNT_DISPLAYED_THRESHOLD).toInt() + 1
         state.markers.forEachIndexed { index, circle ->
             val shouldBeVisible = index % step == 0
             if (circle.isVisible != shouldBeVisible) {
