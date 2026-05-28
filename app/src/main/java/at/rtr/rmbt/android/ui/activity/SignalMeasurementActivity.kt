@@ -700,8 +700,9 @@ class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback, Coverage
     }
 
     override fun onDestroy() {
-        super.onDestroy()
+        coverageViewModel.clearPerformanceImprovementLists(map)
         map = null
+        super.onDestroy()
     }
 
     private fun checkLocationAndSetCurrent() {

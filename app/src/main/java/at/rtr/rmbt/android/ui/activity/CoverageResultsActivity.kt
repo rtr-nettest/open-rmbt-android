@@ -32,6 +32,7 @@ import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
+import com.google.android.gms.maps.model.MapStyleOptions
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import java.util.Timer
@@ -119,11 +120,18 @@ class CoverageResultsActivity : BaseActivity(), OnMapReadyCallback {
     }
 
     fun onMapFullyReady() {
-        this.map = map
         map?.uiSettings?.isMyLocationButtonEnabled = false
         map?.uiSettings?.isMapToolbarEnabled = false
         map?.isIndoorEnabled = false
         map?.isBuildingsEnabled = false
+        try {
+            val success = map?.setMapStyle(MapStyleOptions.loadRawResourceStyle(this, R.raw.map_style))
+            if (success == false) {
+                Timber.e("Style parsing failed.")
+            }
+        } catch (e: Exception) {
+            Timber.e(e, "Can't find style. Error: ")
+        }
         map?.moveCamera(CameraUpdateFactory.newLatLngZoom(
             viewModel.state.cameraPositionLiveData.value ?: DefaultLocation.austriaLocation,
             viewModel.state.zoom
@@ -235,6 +243,13 @@ class CoverageResultsActivity : BaseActivity(), OnMapReadyCallback {
     private fun refreshResults() {
         viewModel.loadTestResults()
         binding.swipeRefreshLayout.isRefreshing = true
+    }
+
+    override fun onDestroy() {
+        cancelAnyPreviouslyRunningTimer()
+        viewModel.clearPerformanceImprovementLists(map)
+        map = null
+        super.onDestroy()
     }
 
     override fun onHandledException(exception: HandledException?) { }

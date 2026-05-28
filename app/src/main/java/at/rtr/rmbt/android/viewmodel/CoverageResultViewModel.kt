@@ -52,13 +52,11 @@ import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
 import timber.log.Timber
 import javax.inject.Inject
-import kotlin.math.ceil
-import kotlin.math.max
 import kotlin.math.min
 import kotlin.math.pow
 import kotlin.math.round
 
-const val MAX_MARKER_COUNT_DISPLAYED_THRESHOLD = 100
+const val MAX_MARKER_COUNT_DISPLAYED_THRESHOLD = 500
 const val MIN_MAP_UPDATE_RATE =
     700 // do not set it bellow maybe 500ms as map is very sensitive to frequent updates
 
@@ -180,7 +178,7 @@ class CoverageResultViewModel @Inject constructor(
     }
 
     private fun calculateMarkerRadius(zoom: Float): Double {
-        return round(min(8.0, 2.0.pow(20.0 - zoom.toDouble()) * 0.8))
+        return round(min(12.0, 2.0.pow(20.0 - zoom.toDouble()) * 0.8))
     }
 
     var zoomUpdateJob: Job? = null
@@ -359,6 +357,7 @@ class CoverageResultViewModel @Inject constructor(
                             .strokeColor(colorInt)
                             .strokeWidth(2f)
                             .fillColor(fillColor)
+                            .zIndex(101f)
 
                         lastCircle = currentMap.addCircle(
                             options
@@ -377,9 +376,12 @@ class CoverageResultViewModel @Inject constructor(
     }
 
     private fun togglePointsVisibility() {
-        val step = max(1, ceil(state.displayedPointIds.size.toDouble() / MAX_MARKER_COUNT_DISPLAYED_THRESHOLD).toInt())
+        val step = (state.displayedPointIds.size / MAX_MARKER_COUNT_DISPLAYED_THRESHOLD) + 1
         state.markers.forEachIndexed { index, circle ->
-            circle.isVisible = index % step == 0
+            val shouldBeVisible = index % step == 0
+            if (circle.isVisible != shouldBeVisible) {
+                circle.isVisible = shouldBeVisible
+            }
         }
     }
 
@@ -421,6 +423,7 @@ class CoverageResultViewModel @Inject constructor(
                 .strokeWidth(icon["strokeWidth"]!!.toFloat())
                 .fillColor(icon["fillColor"]!!)
                 .clickable(true)
+                .zIndex(100f)
         }
         return markerOptionsList
     }
