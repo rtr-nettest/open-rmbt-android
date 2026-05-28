@@ -229,7 +229,7 @@ class CoverageResultsActivity : BaseActivity(), OnMapReadyCallback {
     private fun setUpMap(map: GoogleMap?, fences: List<FencesResultItemRecord>?) {
         Timber.d("Showing points: ${fences?.size} for ${viewModel.state.testUUID}")
         viewModel.clearPerformanceImprovementLists(map) // to show data after rotation without loading it again
-        viewModel.updateMapPoints(map, fences, null, null)
+        viewModel.updateMapPoints(map, fences, null)
     }
 
     private fun refreshResults() {

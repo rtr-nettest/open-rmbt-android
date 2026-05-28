@@ -16,7 +16,6 @@ import at.specure.data.ControlServerSettings
 import at.specure.data.CoverageMeasurementSettings
 import at.specure.data.entity.CoverageMeasurementFenceRecord
 import at.specure.data.entity.FencesResultItemRecord
-import at.specure.data.entity.SignalRecord
 import at.specure.data.entity.TestResultDetailsRecord
 import at.specure.data.entity.TestResultRecord
 import at.specure.data.entity.generateHash
@@ -44,6 +43,7 @@ import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.zip
@@ -52,11 +52,13 @@ import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
 import timber.log.Timber
 import javax.inject.Inject
+import kotlin.math.ceil
+import kotlin.math.max
 import kotlin.math.min
 import kotlin.math.pow
+import kotlin.math.round
 
 const val MAX_MARKER_COUNT_DISPLAYED_THRESHOLD = 100
-const val TOTAL_MAX_MARKER_COUNT_DISPLAYED_THRESHOLD = 3000
 const val MIN_MAP_UPDATE_RATE =
     700 // do not set it bellow maybe 500ms as map is very sensitive to frequent updates
 
@@ -112,9 +114,6 @@ class CoverageResultViewModel @Inject constructor(
         get() = _loadingLiveData
 
     private val _loadingLiveData = MutableLiveData<Boolean>()
-
-    val customMarkerProvider: CustomMarker
-        get() = customMarker
 
     private val markerIconCache = mutableMapOf<MobileNetworkType, Map<String, Int>>()
 
@@ -181,13 +180,20 @@ class CoverageResultViewModel @Inject constructor(
     }
 
     private fun calculateMarkerRadius(zoom: Float): Double {
-        return min(24.0, 2.0.pow(20.0 - zoom.toDouble()) * 0.9)
+        return round(min(8.0, 2.0.pow(20.0 - zoom.toDouble()) * 0.8))
     }
 
+    var zoomUpdateJob: Job? = null
     fun updateMarkersRadius(zoom: Float) {
-        val newRadius = calculateMarkerRadius(zoom)
-        state.markers.forEach { circle ->
-            circle.radius = newRadius
+        zoomUpdateJob?.cancel()
+        zoomUpdateJob = viewModelScope.launch {
+            delay(100)
+            val newRadius = calculateMarkerRadius(zoom)
+            state.markers.forEach { circle ->
+                if (newRadius != circle.radius) {
+                    circle.radius = newRadius
+                }
+            }
         }
     }
 
@@ -241,7 +247,6 @@ class CoverageResultViewModel @Inject constructor(
         map: GoogleMap?,
         points: List<FencesResultItemRecord>?,
         coverageMeasurementState: CoverageMeasurementState?,
-        maxLimitToDisplay: Int? = MAX_MARKER_COUNT_DISPLAYED_THRESHOLD
     ) {
         state.coverageSessionStart =
             coverageMeasurementDataLiveData.value?.coverageMeasurementSession?.startTimeLoopMillis
@@ -257,17 +262,14 @@ class CoverageResultViewModel @Inject constructor(
 
             // Filter only points that haven't been displayed yet
             val newPoints = pts.filter { !state.displayedPointIds.contains(it.generateHash()) }
+            if (newPoints.isEmpty()) {
+                return@launch
+            }
             val markerDetailsMap = mutableMapOf<Long, CoverageMarkerDetailsData>()
             val liveNetworkType: MobileNetworkType? = if (isMeasurementInProgress) {
                 (coverageMeasurementDataLiveData.value?.currentNetworkInfo as? CellNetworkInfo)?.networkType
             } else null
             val lastPoint = newPoints.lastOrNull() ?: pts.lastOrNull()
-            val markerOptionsList =
-                getUpdatedMarkerOptions(newPoints, isMeasurementInProgress, liveNetworkType, markerDetailsMap)
-
-            if (coverageMeasurementState == null || coverageMeasurementState == CoverageMeasurementState.FINISHED_LOOP_CORRECTLY) {
-                zoomMapToShowAllMarkers(markersOptions = markerOptionsList, map = map)
-            }
 
             // Switch to main thread to add markers and circles
             withContext(Dispatchers.Main) {
@@ -280,7 +282,8 @@ class CoverageResultViewModel @Inject constructor(
                         val updatedPoint = pts.find { it.id == lastId }
 
                         updatedPoint?.let { point ->
-                            val isLastOngoingPoint = isMeasurementInProgress && lastPoint?.id == point.id && point.isNotFinished()
+                            val isLastOngoingPoint =
+                                isMeasurementInProgress && lastPoint?.id == point.id && point.isNotFinished()
                             // For the current unfinished fence use the live technology so the
                             // marker colour updates immediately when the technology changes
                             // (the DB record is only written when the fence is finalised).
@@ -310,22 +313,26 @@ class CoverageResultViewModel @Inject constructor(
                     }
                 }
 
+                val markerOptionsList =
+                    getUpdatedMarkerOptions(
+                        newPoints,
+                        isMeasurementInProgress,
+                        liveNetworkType,
+                        markerDetailsMap
+                    )
+
+                if (coverageMeasurementState == null || coverageMeasurementState == CoverageMeasurementState.FINISHED_LOOP_CORRECTLY) {
+                    zoomMapToShowAllMarkers(markersOptions = markerOptionsList, map = map)
+                }
+
                 // Add new markers
                 markerOptionsList.forEachIndexed { index, options ->
-                    currentMap.addCircle(options)?.let { marker ->
+                    currentMap.addCircle(options).let { marker ->
                         val point = newPoints[index]
                         state.displayedPointIds.add(point.generateHash())
                         marker.tag = markerDetailsMap[point.id]
 
                         state.markers.addLast(marker)
-
-                        // remove oldest markers if exceeding limit
-                        while (state.markers.size > (maxLimitToDisplay
-                                ?: TOTAL_MAX_MARKER_COUNT_DISPLAYED_THRESHOLD)
-                        ) {
-                            val oldMarker = state.markers.removeAt(0)
-                            oldMarker.remove()
-                        }
                     }
                 }
 
@@ -335,11 +342,12 @@ class CoverageResultViewModel @Inject constructor(
                     val latLng = point.toLatLng() ?: return@let
                     // Use live network type for the ongoing fence so the circle colour
                     // matches the current technology in real-time.
-                    val tech = if (isMeasurementInProgress && point.isNotFinished() && liveNetworkType != null) {
-                        liveNetworkType
-                    } else {
-                        MobileNetworkType.fromValue(point.networkTechnologyId ?: 0)
-                    }
+                    val tech =
+                        if (isMeasurementInProgress && point.isNotFinished() && liveNetworkType != null) {
+                            liveNetworkType
+                        } else {
+                            MobileNetworkType.fromValue(point.networkTechnologyId ?: 0)
+                        }
                     val colorInt = tech.getMarkerColorInt()
                     val fillColor = makeSemiTransparent(colorInt)
                     val radius = point.fenceRadiusMeters ?: 0.0
@@ -362,7 +370,16 @@ class CoverageResultViewModel @Inject constructor(
                         lastCircle?.fillColor = fillColor
                     }
                 }
+
+                togglePointsVisibility()
             }
+        }
+    }
+
+    private fun togglePointsVisibility() {
+        val step = max(1, ceil(state.displayedPointIds.size.toDouble() / MAX_MARKER_COUNT_DISPLAYED_THRESHOLD).toInt())
+        state.markers.forEachIndexed { index, circle ->
+            circle.isVisible = index % step == 0
         }
     }
 
@@ -476,25 +493,9 @@ class CoverageResultViewModel @Inject constructor(
         Timber.d("Current last state of data: ${coverageMeasurementDataLiveData.value?.state}")
         return measurementNotFinishedOrNotStarted
     }
-
-    fun shouldSignalMeasurementContinueInLastSession(): Boolean {
-        return coverageMeasurementSettings.signalMeasurementShouldContinueInLastSession
-    }
-
-    suspend fun getSignalData(id: String?): SignalRecord? {
-        val record = signalMeasurementRepository.getSignalMeasurementRecord(id)
-        return record
-    }
 }
 
 fun FencesResultItemRecord.toLatLng(): LatLng? {
     if (this.latitude == null || this.longitude == null) return null
     return LatLng(this.latitude!!, this.longitude!!)
-}
-
-fun DeviceInfo.Location?.toLatLng(): LatLng? {
-    this?.let {
-        return LatLng(it.lat, it.long)
-    }
-    return null
 }
