@@ -284,8 +284,8 @@
     <string name="dialog_signal_info_band">Band</string>
     <string name="dialog_signal_info_channel">Kanal</string>
     <string name="text_local_results">Nur lokale Ergebnisse</string>
-    <string name="signal_measurement_terms_title">Aktivierung und Nutzung</string>
-    <string name="signal_measurement_terms_content">Die Nur-Signalmessung für technisch Interessierte ermöglicht, dass die Signalstärke automatisiert wiederholt gemessen wird – ohne, dass dabei Geschwindigkeits- oder Qualitätstests durchgeführt werden. Die Nur-Signalmessung kann jederzeit gestoppt werden bzw endet automatisch nach 48 Stunden. Sie ist (nur) zur Nutzung innerhalb der EU- und des EWR gedacht ist. Während der Signalmessung bleiben GPS und die Anzeige aktiv, deshalb wird die Batterie schnell entleert. Daher sollte sie nur genutzt werden, wenn externe Stromversorgung zur Verfügung steht. Es wird ausdrücklich darauf hingewiesen, dass aufgrund der Nur-Signalmessung ein Rückschluss auf die testende Person nicht ausgeschlossen ist.\n Damit Messungen stattfinden und einem Standort zugeordnet werden können, wenn sich die Anwendung im Hintergrund befindet, ist die Systemberechtigung zum Erfassen des Standorts bei Hintergrundnutzung notwendig. Diese Standortberechtigung wird verwendet, um den erfolgten Messungen Standorte zuzuordnen.</string>
+    <string name="signal_measurement_terms_title">Signalmessung</string>
+    <string name="signal_measurement_terms_content">Die Signalmessung ermöglicht Messungen von Mobilfunknetzen im Freien entlang eines Messpfads. Sie überwacht Konnektivität, Technologie und Signalstärke. Die Konnektivität wird mittels regelmäßiger Netzwerk-Pings gemessen. Die Messung erfordert guten GPS-Empfang und deaktiviertes WLAN. Sie verbraucht deutlich weniger Daten als Geschwindigkeitsmessungen. Die Signalmessung ist ausschließlich für die Nutzung innerhalb der EU und des EWR vorgesehen.</string>
     <!-- Signal details -->
     <string name="content_label_close">Schließen</string>
     <string name="ip_info_ip_address">IP-Adresse</string>
@@ -311,13 +311,141 @@
     <string name="download_complete_description">Datei %1$s wurde erfolgreich heruntergeladen. Tippen Sie, um es zu öffnen.</string>
     <string name="downloading">Herunterladen</string>
     <string name="download_progress">%1$d%% heruntergeladen</string>
-    <string name="notification_permission_title">3. Benachrichtigungsberechtigung</string>
-    <string name="notification_permission_explanation">Die Benachrichtigungsberechtigung ist erforderlich, um die App während im Hintergrund ausgeführter Messungen am Leben zu halten. Ohne Benachrichtigungsberechtigung können Sie den Messfortschritt nicht verfolgen, wenn die App im Hintergrund läuft. Die Benachrichtigungsberechtigung ist erforderlich, damit der Schleifenmodus im Hintergrund ausgeführt werden kann.</string>
     <string name="preferences_unable_to_find_browser_app">Der Standard-Web-Browser ist nicht verfügbar.</string>
     <string name="title_loop_instruction_3">Berechtigungen</string>
-    <string name="more_sims_active_dialog_text">Coverage measurement only supports single SIM. Please deactivate second SIM.</string>
-    <string name="home_signal_measurement_toggle_on">Coverage measurement toggle on</string>
-    <string name="home_signal_measurement_toggle_off">Coverage measurement toggle off</string>
     <string name="toast_signal_measurement_enabled">Die Signalmessung wurde gestartet.</string>
     <string name="notification_signal_test_title">Die Signalmessung läuft</string>
+
+    <!-- Signal details - content labeling -->
+
+    <string name="notification_permission_title">3. Notification permission</string>
+    <string name="notification_permission_explanation">The notification permission is necessary to keep app alive during measurements executed on the background. Without notification permission, you will be not able to track measurement progress when app is on the background. The notification permission is required to allow to run the loop mode in background.</string>
+
+    <string name="unknown_signal_mobile">Unbekanntes mobiles Netzwerk</string>
+    <string name="unknown_signal_2G">Unbekanntes Signal 2G</string>
+    <string name="unknown_signal_3G">Unbekanntes Signal 3G</string>
+    <string name="unknown_signal_4G">Unbekanntes Signal 4G</string>
+    <string name="unknown_signal_5G">Unbekanntes Signal 5G</string>
+    <string name="unknown_signal_wifi">Unbekanntes WLAN-Signal</string>
+    <string name="unknown_network_type">Unbekannte Netzwerk</string>
+
+    <string name="bad_signal_2g">"2G schwaches Signal "</string>
+    <string name="normal_signal_2g">2G normales Signal</string>
+    <string name="good_signal_2g">2G gutes Signal</string>
+    <string name="excellent_signal_2g">2G ausgezeichnetes Signal</string>
+
+    ```xml
+    <string name="bad_signal_3g">"3G schlechtes Signal "</string>
+    <string name="normal_signal_3g">3G normales Signal</string>
+    <string name="good_signal_3g">3G gutes Signal</string>
+    <string name="excellent_signal_3g">3G ausgezeichnetes Signal</string>
+
+    <string name="bad_signal_4g">"4G schlechtes Signal "</string>
+    <string name="normal_signal_4g">4G normales Signal</string>
+    <string name="good_signal_4g">4G gutes Signal</string>
+    <string name="excellent_signal_4g">4G ausgezeichnetes Signal</string>
+
+    <string name="bad_signal_5g">"5G schlechtes Signal "</string>
+    <string name="normal_signal_5g">5G normales Signal</string>
+    <string name="good_signal_5g">5G gutes Signal</string>
+    <string name="excellent_signal_5g">5G ausgezeichnetes Signal</string>
+
+    <string name="bad_signal_wifi">"WLAN schlechtes Signal "</string>
+    <string name="normal_signal_wifi">WLAN normales Signal</string>
+    <string name="good_signal_wifi">WLAN gutes Signal</string>
+    <string name="excellent_signal_wifi">WLAN ausgezeichnetes Signal</string>
+
+    <string name="network_type_bluetooth">Netzwerktyp Bluetooth</string>
+    <string name="network_type_vpn">Netzwerktyp VPN</string>
+    <string name="network_type_lan">Netzwerktyp LAN</string>
+    <string name="network_type_browser">Netzwerktyp Browser</string>
+
+    <string name="toggle_loop_mode">Wiederholungsmodes aktivieren</string>
+
+    <string name="previous_result">Vorheriges Ergebnis</string>
+    <string name="next_result">Nächstes Ergebnis</string>
+
+    <string name="download_history_as_pdf">Verlauf als PDF herunterladen</string>
+    <string name="download_history_as_xlsx">Verlauf als XLSX herunterladen</string>
+    <string name="download_history_as_csv">Verlauf als CSV herunterladen</string>
+
+    <string name="history_list_header_date">Verlaufsüberschrift: Datum</string>
+    <string name="history_list_header_download_speed">Verlaufsüberschrift: Download-Geschwindigkeit</string>
+    <string name="history_list_header_download_speed_units">Verlaufüberschrift: Download-Geschwindigkeitseinheiten: Mbit/s</string>
+    <string name="history_list_header_upload_speed">Verlaufsüberschrift: Upload-Geschwindigkeit</string>
+    <string name="history_list_header_upload_speed_units">Verlaufsüberschrift: Upload-Geschwindigkeitseinheiten: Mbit/s</string>
+    <string name="history_list_header_ping">Verlaufsüberschrift: Ping</string>
+    <string name="history_list_header_ping_units">Verlaufsüberschrift: Ping-Einheit: Millisekunden</string>
+
+    <string name="home_start_measurement">Messung starten</string>
+    <string name="title">Titel: </string>
+    <string name="subtitle">Untertitel: </string>
+
+    <string name="home_signal_measurement_toggle_on">Die Bedingungen für die Signalmessung sind erfüllt</string>
+    <string name="home_signal_measurement_toggle_off">Die Bedingungen für die Signalmessung sind nicht erfüllt</string>
+
+    <string name="ipv4_no_info">IP-Version 4: keine Information</string>
+    <string name="ipv4_no_address">IP-Version 4: keine Adresse</string>
+    <string name="ipv4_no_nat">IP-Version 4: kein NAT</string>
+    <string name="ipv4">IP-Version 4: NAT</string>
+    <string name="ipv6_no_info">IP-Version 6: keine Information</string>
+    <string name="ipv6_no_address">IP-Version 6: keine Adresse</string>
+    <string name="ipv6_no_nat">IP-Version 6: kein NAT</string>
+    <string name="ipv6">IP-Version 6: NAT</string>
+
+    <string name="bottom_navigation_area">Untere Navigationsleiste</string>
+    <string name="active_history_filters_container">Container für aktive Verlaufsfilter</string>
+    <string name="history_list_header_container">Container für Verlaufsüberschriften</string>
+    <string name="remove_filter">Filter entfernen</string>
+
+    <string name="share_result">Ergebnis teilen</string>
+    <string name="test_result_from">"Testergebnis vom: "</string>
+
+    <string name="classification_undefined">Einstufung: keine</string>
+    <string name="classification_bad">Einstufung: schlecht</string>
+    <string name="classification_normal">Einstufung: normal</string>
+    <string name="classification_good">Einstufung: gut</string>
+    <string name="classification_excellent">Einstufung: ausgezeichnet</string>
+    <string name="title_test_details">Testdetails</string>
+
+    <string name="test_result_status">Testergebnisstatus:</string>
+    <string name="more_sims_active_dialog_title">Dual-SIM aktiv</string>
+    <string name="more_sims_active_dialog_text">Die Signalmessung unterstützt nur Single-SIM. Bitte deaktiviere die zweite SIM.</string>
+    <string name="confirm">Bestätigen</string>
+    <string name="wrong_network_type_active_dialog_title">Nicht im Mobilfunknetz</string>
+    <string name="wrong_network_type_active_dialog_text">Bitte deaktiviere WLAN (oder eine andere Nicht-Mobilfunkverbindung)</string>
+    <string name="stop_signal_measurement_title">Signal Messung beenden</string>
+    <string name="stop_signal_measurement_text">Möchten Sie die Messung beenden?</string>
+    <string name="no_gps_or_insufficient_precision">Kein GPS-Signal oder GPS-Qualität unzureichend. Bitte ins Freie gehen.</string>
+    <string name="noSignal">Kein Signal</string>
+    <string name="coverage_result">Ergebnis der Signal Messung</string>
+    <string name="number_of_fences_is">Anzahl der Punkte ist</string>
+    <string name="title_coverage_loop_mode">Signal Messreihe</string>
+    <string name="title_filters_loading_error">Laden der Filter fehlgeschlagen</string>
+    <string name="loading_map_filters_failed">Kartenfilter konnten nicht geladen werden. Bitte versuchen Sie es erneut.</string>
+    <string name="coverage_measurement_error_title">Fehler bei der Signal Messung</string>
+    <string name="coverage_measurement_error_unknown">Während der Signal Messung ist ein Fehler aufgetreten. Bitte versuchen Sie es erneut.</string>
+    <string name="dismiss">Schließen</string>
+    <string name="wrong_network_message">Sie verwenden derzeit %1$s. Bitte wechseln Sie zu einer Mobilfunkdatenverbindung.</string>
+    <string name="coverage_results_title">Ergebnis der Signal Messung</string>
+    <string name="text_fence_radius">Punktradius-Faktor:</string>
+    <string name="text_meters">%1$dm</string>
+    <string name="fence_radius_slider_content_description">Punktradius-Schiebereglerwert %1$d Meter</string>
+    <string name="accuracy_radius_slider_content_description">Genauigkeitsradius-Schiebereglerwert %1$d Meter</string>
+    <string name="text_accuracy_radius">Genauigkeit:</string>
+    <string name="points">Punkte</string>
+    <string name="text_loading_results_failed">Laden der Ergebnisse fehlgeschlagen</string>
+    <string name="text_connection_count">%1$d Verbindungen</string>
+    <string name="text_fence_count">%1$d Punkte</string>
+    <string name="text_unknown">Keine</string>
+    <string name="ipv4_short">IPv4</string>
+    <string name="ipv6_short">IPv6</string>
+    <string name="sending_results">Ergebnisse speichern</string>
+    <string name="no_gps_value" />
+    <string name="error_sending_data">Ergebnisse konnten nicht gespeichert werden. Die App wird es später erneut versuchen.</string>
+    <string name="location_usage_always_warning_message">Erlauben Sie den Standortzugriff im Hintergrund, um diese Funktion zu nutzen.</string>
+    <string name="allow">Erlauben</string>
+    <string name="measuring">Messung läuft …</string>
+    ```
+
 </resources>
