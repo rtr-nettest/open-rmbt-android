@@ -6,11 +6,9 @@ import androidx.databinding.ObservableField
 import androidx.lifecycle.MutableLiveData
 import at.rtr.rmbt.android.config.AppConfig
 import at.rtr.rmbt.android.map.DefaultLocation
-import at.rtr.rmbt.android.map.wrapper.LatLngW
-import at.rtr.rmbt.android.ui.fragment.START_ZOOM_LEVEL
 import at.specure.data.entity.TestResultRecord
 import com.google.android.gms.maps.model.LatLng
-import com.google.android.gms.maps.model.Marker
+import com.google.android.gms.maps.model.Circle
 
 private const val KEY_TEST_UUID = "KEY_TEST_UUID"
 private const val KEY_PLAY_SERVICES = "KEY_PLAY_SERVICES"
@@ -39,7 +37,7 @@ class CoverageResultViewState constructor(
     var zoom: Float = DefaultLocation.austriaZoomLevel
     var closeDialogDisplayed = ObservableBoolean(false)
     var markerDetailsDisplayed = ObservableBoolean(false)
-    val markers: ArrayDeque<Marker> = ArrayDeque()
+    val markers: ArrayDeque<Circle> = ArrayDeque()
     val displayedPointIds = mutableSetOf<String>()
     var testUUID: String = ""
     var coverageSessionStart: Long? = 0

@@ -30,11 +30,15 @@ import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.Marker
+import com.google.android.gms.maps.model.MarkerOptions
+import com.google.android.gms.maps.model.BitmapDescriptorFactory
+import com.google.android.gms.maps.model.MapStyleOptions
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import java.util.Timer
 import kotlin.concurrent.timerTask
 import kotlin.math.max
+import androidx.core.graphics.createBitmap
 
 class CoverageResultsActivity : BaseActivity(), OnMapReadyCallback {
 
@@ -42,6 +46,7 @@ class CoverageResultsActivity : BaseActivity(), OnMapReadyCallback {
     private lateinit var binding: ActivityCoverageResultBinding
     private var mapLoadRequested: Boolean = false
     private var map: GoogleMap? = null
+    private var infoWindowMarker: Marker? = null
     private var timer: Timer? = null
     private var loadAttempts = 0
 
@@ -115,22 +120,56 @@ class CoverageResultsActivity : BaseActivity(), OnMapReadyCallback {
     }
 
     fun onMapFullyReady() {
-        this.map = map
         map?.uiSettings?.isMyLocationButtonEnabled = false
         map?.uiSettings?.isMapToolbarEnabled = false
         map?.isIndoorEnabled = false
         map?.isBuildingsEnabled = false
+        try {
+            val success = map?.setMapStyle(MapStyleOptions.loadRawResourceStyle(this, R.raw.map_style))
+            if (success == false) {
+                Timber.e("Style parsing failed.")
+            }
+        } catch (e: Exception) {
+            Timber.e(e, "Can't find style. Error: ")
+        }
         map?.moveCamera(CameraUpdateFactory.newLatLngZoom(
             viewModel.state.cameraPositionLiveData.value ?: DefaultLocation.austriaLocation,
             viewModel.state.zoom
         ))
+        map?.setOnCameraMoveListener {
+            map?.cameraPosition?.zoom?.let { newZoom ->
+                if (viewModel.state.zoom != newZoom) {
+                    viewModel.state.zoom = newZoom
+                    viewModel.updateMarkersRadius(newZoom)
+                }
+            }
+        }
         map?.setOnCameraIdleListener {
             map?.cameraPosition?.zoom?.let { newZoom ->
-                viewModel.state.zoom = newZoom
+                if (viewModel.state.zoom != newZoom) {
+                    viewModel.state.zoom = newZoom
+                    viewModel.updateMarkersRadius(newZoom)
+                }
             }
             map?.cameraPosition?.let {
                 viewModel.state.cameraPositionLiveData.postValue(LatLng(it.target.latitude, it.target.longitude))
             }
+        }
+
+        val emptyBitmap = createBitmap(1, 1)
+        map?.setOnCircleClickListener { circle ->
+            infoWindowMarker = map?.addMarker(
+                MarkerOptions()
+                    .position(circle.center)
+                    .icon(BitmapDescriptorFactory.fromBitmap(emptyBitmap))
+                    .anchor(0.5f, 0.5f)
+            )
+            infoWindowMarker?.tag = circle.tag
+            infoWindowMarker?.showInfoWindow()
+        }
+
+        map?.setOnMapClickListener {
+            infoWindowMarker?.remove()
         }
 
         map?.setInfoWindowAdapter(object : GoogleMap.InfoWindowAdapter {
@@ -198,12 +237,19 @@ class CoverageResultsActivity : BaseActivity(), OnMapReadyCallback {
     private fun setUpMap(map: GoogleMap?, fences: List<FencesResultItemRecord>?) {
         Timber.d("Showing points: ${fences?.size} for ${viewModel.state.testUUID}")
         viewModel.clearPerformanceImprovementLists(map) // to show data after rotation without loading it again
-        viewModel.updateMapPoints(map, fences, null, null)
+        viewModel.updateMapPoints(map, fences, null)
     }
 
     private fun refreshResults() {
         viewModel.loadTestResults()
         binding.swipeRefreshLayout.isRefreshing = true
+    }
+
+    override fun onDestroy() {
+        cancelAnyPreviouslyRunningTimer()
+        viewModel.clearPerformanceImprovementLists(map)
+        map = null
+        super.onDestroy()
     }
 
     override fun onHandledException(exception: HandledException?) { }
