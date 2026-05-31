@@ -13,17 +13,14 @@
   ~ limitations under the License.
   -->
 <resources xmlns:tools="http://schemas.android.com/tools">
-    <string name="toolbar_title">RTR-Netztest</string>
-    <!-- Navigation menu titles -->
+                <string name="toolbar_title">RTR-Netztest</string>
     <string name="menu_button_title_page">Start</string>
     <string name="menu_button_history">Verlauf</string>
     <string name="menu_button_statistics">Statistik</string>
     <string name="menu_button_map">Karte</string>
-    <!-- Error dialog messages -->
     <string name="dialog_title_error">Fehler</string>
     <string name="error_unknown">Die Verbindung ist unzureichend. Bitte versuchen Sie es später noch einmal</string>
     <string name="no_internet_connection_not_load_data">Keine Netzwerksverbindung: Die Daten konnten nicht geladen werden.</string>
-    <!-- Home screen -->
     <string name="tc_tobottom">Nach unten scrollen</string>
     <string name="home_signal">Signal</string>
     <string name="home_frequency">Frequenz</string>
@@ -32,14 +29,18 @@
     <string name="home_signal_value">%1$d dBm</string>
     <string name="home_start_test_info">Drücken Sie den Knopf, um den Test jetzt zu starten!</string>
     <string name="home_wifi">WLAN</string>
-    <string name="home_coverage_mode">Coverage mode</string>
+    <string name="home_coverage_mode">Abdeckungsmodus</string>
     <string name="public_ip_address">Öffentliche Adresse</string>
     <string name="private_ip_address">Lokale Adresse</string>
-    <!-- Preference titles -->
     <string name="home_ipv4">IPv4-Adresse</string>
     <string name="home_ipv6">IPv6-Adresse</string>
     <string name="home_location">Standort</string>
     <string name="home_settings">Einstellungen</string>
+    <string name="home_home">Hauptnavigation: Home</string>
+    <string name="home_map">Hauptnavigation: Karte</string>
+    <string name="home_statistics">Hauptnavigation: Statistik</string>
+    <string name="home_history">Hauptnavigation: Verlauf</string>
+    <string name="home_loop_mode_active">Wiederholungsmodus aktiv</string>
     <string name="options">Optionen</string>
     <string name="preferences_general_settings">Allgemeine Einstellungen</string>
     <string name="preferences_ndt">NDT</string>
@@ -82,8 +83,8 @@
     <string name="preferences_override_control_server_ssl_sum">Verschlüsselte Verbindung zum Control-Server</string>
     <string name="preferences_developer_options_disabled">Entwickleroptionen deaktiviert</string>
     <string name="preferences_developer_options_available">Entwickleroptionen verfügbar</string>
-    <string name="preferences_coverage_mode_disabled">Coverage mode disabled</string>
-    <string name="preferences_coverage_mode_available">Coverage mode enabled</string>
+    <string name="preferences_coverage_mode_disabled">Abdeckungsmodus deaktiviert</string>
+    <string name="preferences_coverage_mode_available">Abdeckungsmodus verfügbar</string>
     <string name="preferences_developer_try_again">Versuchen Sie es nochmals!</string>
     <string name="preferences_developer_map_server">Map-Server</string>
     <string name="preferences_developer_map_override">Map-Server überschreiben</string>
@@ -95,12 +96,11 @@
     <string name="preferences_category_developer_qos_server">QoS-Server</string>
     <string name="preferences_developer_qos_ssl">QoS-Server SSL</string>
     <string name="preferences_developer_qos_ssl_sum">Verwende verschlüsselte Verbindung zum QoS-Server</string>
-    <string name="preferences_all_disabled">All deactivated.</string>
+    <string name="preferences_all_disabled">Alle deaktiviert.</string>
     <string name="preferences_server_selection">Serverauswahl</string>
     <string name="preferences_default_server_selection">Standard</string>
     <string name="label_server_selection">Serverauswahl</string>
     <string name="preferences_tag">Kennzeichen</string>
-    <!-- Location Dialog -->
     <string name="location_dialog_label_title">Standort</string>
     <string name="location_dialog_label_position">Standort</string>
     <string name="location_dialog_label_accuracy">Genauigkeit</string>
@@ -129,7 +129,6 @@
     <string name="loop_mode_max_delay_invalid" tools:ignore="PluralsCandidate">Bitte wählen Sie einen Wert zwischen %1$d und %2$d.</string>
     <string name="about_client_uuid_copied">Die Client-UUID wurde in die Zwischenablage kopiert.</string>
     <string name="client_not_registered">Die App ist nicht registriert. Versuchen Sie es später erneut.</string>
-    <!-- Measurement screen -->
     <string name="measurement_ping_value">%1$s ms</string>
     <string name="measurement_ping_value_1f">%1$.1f ms</string>
     <string name="measurement_download_upload_speed">%1$s Mbit/s</string>
@@ -150,13 +149,6 @@
     <string name="measurement_qos_unmodified_content">Unveränderter Inhalt</string>
     <string name="measurement_qos_traceroute">Traceroute</string>
     <string name="measurement_qos_voip">VoIP</string>
-    <string-array name="measurement_speed_chart_y_labels">
-        <item>1M</item>
-        <item>10M</item>
-        <item>100M</item>
-        <item>1G</item>
-        <item>10G</item>
-    </string-array>
     <string name="label_qos">QoS</string>
     <string name="label_upload">Upload</string>
     <string name="label_download">Download</string>
@@ -171,7 +163,6 @@
     <string name="text_stop_measurement">Messung beenden</string>
     <string name="notification_test_title">Der RTR-Netztest läuft</string>
     <string name="test_dialog_error_text">Der Test schlug fehl. Bitte versuchen Sie es später noch einmal.</string>
-    <!-- History -->
     <string name="measurement_cancel">Abbrechen</string>
     <string name="history_item_header_test">Datum</string>
     <string name="history_item_header_down">Down</string>
@@ -179,7 +170,6 @@
     <string name="history_item_header_ping">Ping</string>
     <string name="history_item_header_ms">ms</string>
     <string name="history_no_data">Keine Daten verfügbar.</string>
-    <!-- Results -->
     <string name="history_settings">Einstellungen</string>
     <string name="history_sync">Synchronisieren</string>
     <string name="history_items">Einträge des Verlaufs</string>
@@ -210,7 +200,6 @@
     <string name="label_failed">GESCHEITERT</string>
     <string name="label_description">BESCHREIBUNG</string>
     <string name="label_detail">DETAILS</string>
-    <!-- Map -->
     <string name="map_layer_communities">Gemeinden</string>
     <string name="map_layer_points">Punkte</string>
     <string name="map_layer_automatic">Automatisch</string>
@@ -236,11 +225,13 @@
     <string name="toast_sync_code_copied_to_clipboard">Kopiert</string>
     <string name="hint_sync_code">Code</string>
     <string name="error_sync_code_short">Der Code muss aus zwölf Zeichen bestehen</string>
+    <string name="notification_signal_test_title">Die Signalmessung läuft</string>
     <string name="notification_signal_test_text">RTR-Netztest Signalmessung läuft im Hintergrund</string>
     <string name="notification_loop_mode_finished_title">Der Wiederholungsmodus ist beendet</string>
+    <string name="toast_signal_measurement_enabled">Die Signalmessung wurde gestartet.</string>
     <string name="error_no_connection">Daten konnten nicht geladen werden. Bitte überprüfen Sie Ihre Internetverbindung.</string>
-    <string name="label_map_filters">Karten-Einstellugen</string>
-    <string name="text_filter_confirm">übernehmen</string>
+    <string name="label_map_filters">Karten-Einstellungen</string>
+    <string name="text_filter_confirm">Übernehmen</string>
     <string name="text_filter_continue">Fortsetzen</string>
     <string name="title_filters_type">Kartentyp</string>
     <string name="title_filters_subtype">Einstellungen</string>
@@ -260,6 +251,7 @@
     <string name="text_loop_instruction_3">Der RTR-Netztest verwendet die Standortberechtigung nur während der Messung, die Hintergrundberechtigung ist beim Wiederholungsmodus notwendig um diesen auch im Hintergrund ausführen zu können.\n\nRTR-Netztest sammelt Standortdaten, um den Standort einer Messung im Wiederholungsmodus aufzuzeichnen, auch wenn die App im Hintergrund läuft.</string>
     <string name="title_loop_instruction_1">Aktivierung</string>
     <string name="title_loop_instruction_2">Nutzung</string>
+    <string name="title_loop_instruction_3">Berechtigungen</string>
     <string name="text_filter_devices">Gerät</string>
     <string name="text_filter_networks">Zugang</string>
     <string name="label_filter_options">Einstellungen</string>
@@ -286,7 +278,6 @@
     <string name="text_local_results">Nur lokale Ergebnisse</string>
     <string name="signal_measurement_terms_title">Signalmessung</string>
     <string name="signal_measurement_terms_content">Die Signalmessung ermöglicht Messungen von Mobilfunknetzen im Freien entlang eines Messpfads. Sie überwacht Konnektivität, Technologie und Signalstärke. Die Konnektivität wird mittels regelmäßiger Netzwerk-Pings gemessen. Die Messung erfordert guten GPS-Empfang und deaktiviertes WLAN. Sie verbraucht deutlich weniger Daten als Geschwindigkeitsmessungen. Die Signalmessung ist ausschließlich für die Nutzung innerhalb der EU und des EWR vorgesehen.</string>
-    <!-- Signal details -->
     <string name="content_label_close">Schließen</string>
     <string name="ip_info_ip_address">IP-Adresse</string>
     <string name="label_location_access_disabled">Standortberechtigung fehlt</string>
@@ -300,90 +291,64 @@
     <string name="phone_permission_explanation">Der RTR-Netztest tätigt keine Telefonanrufe. Die Telefonberechtigung ist jedoch notwendig, um die Messung einem Anbieter zuzuordnen.</string>
     <string name="location_permission_explanation">Die Standortberechtigung wird für die Bestimmung des Mess-Standorts und zur Darstellung auf der Karte benötigt. Ohne Berechtigung für den genauen Standort kann die Signalstärke auf vielen Geräten nicht angezeigt werden. Die Verwendung des Wiederholungsmodus in Bewegung ist nur mit Standortberechtigung möglich.</string>
     <string name="location_permissions_disclaimer">Der RTR-Netztest verwendet die Standortberechtigung nur während der Messung, die Hintergrundberechtigung ist beim Wiederholungsmodus notwendig um diesen auch im Hintergrund ausführen zu können.</string>
-    <string name="home_home">Hauptnavigation: Home</string>
-    <string name="home_map">Hauptnavigation: Karte</string>
-    <string name="home_statistics">Hauptnavigation: Statistik</string>
-    <string name="home_history">Hauptnavigation: Verlauf</string>
-    <string name="home_loop_mode_active">Wiederholungsmodus aktiv</string>
     <string name="error_during_download">Download-Fehler</string>
     <string name="error_opening_file">Fehler beim Öffnen der Datei</string>
     <string name="download_complete">Download abgeschlossen</string>
     <string name="download_complete_description">Datei %1$s wurde erfolgreich heruntergeladen. Tippen Sie, um es zu öffnen.</string>
     <string name="downloading">Herunterladen</string>
     <string name="download_progress">%1$d%% heruntergeladen</string>
-    <string name="preferences_unable_to_find_browser_app">Der Standard-Web-Browser ist nicht verfügbar.</string>
-    <string name="title_loop_instruction_3">Berechtigungen</string>
-    <string name="toast_signal_measurement_enabled">Die Signalmessung wurde gestartet.</string>
-    <string name="notification_signal_test_title">Die Signalmessung läuft</string>
-
-    <!-- Signal details - content labeling -->
-
-    <string name="notification_permission_title">3. Notification permission</string>
-    <string name="notification_permission_explanation">The notification permission is necessary to keep app alive during measurements executed on the background. Without notification permission, you will be not able to track measurement progress when app is on the background. The notification permission is required to allow to run the loop mode in background.</string>
-
+    <string name="history_filename">NetztestHistoryExport</string>
+    <string name="notification_permission_title">3. Benachrichtigungsberechtigung</string>
+    <string name="notification_permission_explanation">Die Benachrichtigungsberechtigung ist notwendig, damit die App während im Hintergrund ausgeführter Messungen aktiv bleibt. Ohne Benachrichtigungsberechtigung ist es nicht möglich, den Fortschritt der Messung zu verfolgen, wenn die App im Hintergrund läuft. Die Benachrichtigungsberechtigung ist erforderlich, um den Wiederholungsmodus im Hintergrund auszuführen.</string>
     <string name="unknown_signal_mobile">Unbekanntes mobiles Netzwerk</string>
     <string name="unknown_signal_2G">Unbekanntes Signal 2G</string>
     <string name="unknown_signal_3G">Unbekanntes Signal 3G</string>
     <string name="unknown_signal_4G">Unbekanntes Signal 4G</string>
     <string name="unknown_signal_5G">Unbekanntes Signal 5G</string>
     <string name="unknown_signal_wifi">Unbekanntes WLAN-Signal</string>
-    <string name="unknown_network_type">Unbekannte Netzwerk</string>
-
+    <string name="unknown_network_type">Unbekannte Netzwerktyp</string>
     <string name="bad_signal_2g">"2G schwaches Signal "</string>
     <string name="normal_signal_2g">2G normales Signal</string>
     <string name="good_signal_2g">2G gutes Signal</string>
     <string name="excellent_signal_2g">2G ausgezeichnetes Signal</string>
-
-    ```xml
     <string name="bad_signal_3g">"3G schlechtes Signal "</string>
     <string name="normal_signal_3g">3G normales Signal</string>
     <string name="good_signal_3g">3G gutes Signal</string>
     <string name="excellent_signal_3g">3G ausgezeichnetes Signal</string>
-
     <string name="bad_signal_4g">"4G schlechtes Signal "</string>
     <string name="normal_signal_4g">4G normales Signal</string>
     <string name="good_signal_4g">4G gutes Signal</string>
     <string name="excellent_signal_4g">4G ausgezeichnetes Signal</string>
-
     <string name="bad_signal_5g">"5G schlechtes Signal "</string>
     <string name="normal_signal_5g">5G normales Signal</string>
     <string name="good_signal_5g">5G gutes Signal</string>
     <string name="excellent_signal_5g">5G ausgezeichnetes Signal</string>
-
     <string name="bad_signal_wifi">"WLAN schlechtes Signal "</string>
     <string name="normal_signal_wifi">WLAN normales Signal</string>
     <string name="good_signal_wifi">WLAN gutes Signal</string>
     <string name="excellent_signal_wifi">WLAN ausgezeichnetes Signal</string>
-
     <string name="network_type_bluetooth">Netzwerktyp Bluetooth</string>
     <string name="network_type_vpn">Netzwerktyp VPN</string>
     <string name="network_type_lan">Netzwerktyp LAN</string>
     <string name="network_type_browser">Netzwerktyp Browser</string>
-
-    <string name="toggle_loop_mode">Wiederholungsmodes aktivieren</string>
-
+    <string name="toggle_loop_mode">Wiederholungsmodus aktivieren</string>
     <string name="previous_result">Vorheriges Ergebnis</string>
     <string name="next_result">Nächstes Ergebnis</string>
-
     <string name="download_history_as_pdf">Verlauf als PDF herunterladen</string>
     <string name="download_history_as_xlsx">Verlauf als XLSX herunterladen</string>
     <string name="download_history_as_csv">Verlauf als CSV herunterladen</string>
-
     <string name="history_list_header_date">Verlaufsüberschrift: Datum</string>
     <string name="history_list_header_download_speed">Verlaufsüberschrift: Download-Geschwindigkeit</string>
-    <string name="history_list_header_download_speed_units">Verlaufüberschrift: Download-Geschwindigkeitseinheiten: Mbit/s</string>
+    <string name="history_list_header_download_speed_units">Verlaufsüberschrift: Download-Geschwindigkeitseinheiten: Mbit/s</string>
     <string name="history_list_header_upload_speed">Verlaufsüberschrift: Upload-Geschwindigkeit</string>
     <string name="history_list_header_upload_speed_units">Verlaufsüberschrift: Upload-Geschwindigkeitseinheiten: Mbit/s</string>
     <string name="history_list_header_ping">Verlaufsüberschrift: Ping</string>
     <string name="history_list_header_ping_units">Verlaufsüberschrift: Ping-Einheit: Millisekunden</string>
-
     <string name="home_start_measurement">Messung starten</string>
     <string name="title">Titel: </string>
     <string name="subtitle">Untertitel: </string>
-
     <string name="home_signal_measurement_toggle_on">Die Bedingungen für die Signalmessung sind erfüllt</string>
     <string name="home_signal_measurement_toggle_off">Die Bedingungen für die Signalmessung sind nicht erfüllt</string>
-
     <string name="ipv4_no_info">IP-Version 4: keine Information</string>
     <string name="ipv4_no_address">IP-Version 4: keine Adresse</string>
     <string name="ipv4_no_nat">IP-Version 4: kein NAT</string>
@@ -392,22 +357,18 @@
     <string name="ipv6_no_address">IP-Version 6: keine Adresse</string>
     <string name="ipv6_no_nat">IP-Version 6: kein NAT</string>
     <string name="ipv6">IP-Version 6: NAT</string>
-
     <string name="bottom_navigation_area">Untere Navigationsleiste</string>
     <string name="active_history_filters_container">Container für aktive Verlaufsfilter</string>
     <string name="history_list_header_container">Container für Verlaufsüberschriften</string>
     <string name="remove_filter">Filter entfernen</string>
-
     <string name="share_result">Ergebnis teilen</string>
     <string name="test_result_from">"Testergebnis vom: "</string>
-
     <string name="classification_undefined">Einstufung: keine</string>
     <string name="classification_bad">Einstufung: schlecht</string>
     <string name="classification_normal">Einstufung: normal</string>
     <string name="classification_good">Einstufung: gut</string>
     <string name="classification_excellent">Einstufung: ausgezeichnet</string>
     <string name="title_test_details">Testdetails</string>
-
     <string name="test_result_status">Testergebnisstatus:</string>
     <string name="more_sims_active_dialog_title">Dual-SIM aktiv</string>
     <string name="more_sims_active_dialog_text">Die Signalmessung unterstützt nur Single-SIM. Bitte deaktiviere die zweite SIM.</string>
@@ -446,6 +407,5 @@
     <string name="location_usage_always_warning_message">Erlauben Sie den Standortzugriff im Hintergrund, um diese Funktion zu nutzen.</string>
     <string name="allow">Erlauben</string>
     <string name="measuring">Messung läuft …</string>
-    ```
-
+    <string name="preferences_unable_to_find_browser_app">Der Standard-Web-Browser ist nicht verfügbar.</string>
 </resources>
