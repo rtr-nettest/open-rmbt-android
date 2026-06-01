@@ -79,6 +79,9 @@ class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback, Coverage
     private var warningSnackbar: Snackbar? = null
     private var sendingResultsErrorSnackbar: Snackbar? = null
     private var noBackgroundLocationPermissionGrantedSnackbar: Snackbar? = null
+    private var showMeasurementResultsJob: kotlinx.coroutines.Job? = null
+    private var updateUnfinishedMeasurementJob: kotlinx.coroutines.Job? = null
+    private val emptyBitmap by lazy { createBitmap(1, 1) }
 
     override fun onFenceOrAccuracyUpdated() {
         coverageViewModel.onCoverageConfigurationChanged()
@@ -264,7 +267,8 @@ class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback, Coverage
         setSettingsButtonVisible(false)
         updateSendingResultsInfo(coverageMeasurementData.sendingResults)
         // Launch a coroutine to safely update the map
-        lifecycleScope.launch {
+        showMeasurementResultsJob?.cancel()
+        showMeasurementResultsJob = lifecycleScope.launch {
             coverageViewModel.updateMapPoints(
                 map,
                 coverageMeasurementData?.fences.toCoverageResultItemRecords(),
@@ -286,7 +290,8 @@ class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback, Coverage
         updateSendingResultsInfo(coverageMeasurementData?.sendingResults ?: false)
 
         // Launch a coroutine to safely update the map
-        lifecycleScope.launch {
+        updateUnfinishedMeasurementJob?.cancel()
+        updateUnfinishedMeasurementJob = lifecycleScope.launch {
 //            map?.awaitMapLoad()
             setMyPositionAndButtonVisible(true)
             val longEnoughTimePassedFromStart = (3000.plus(coverageMeasurementData?.coverageMeasurementSession?.startTimeMeasurementMillis ?: 0) <= System.currentTimeMillis())
@@ -612,7 +617,6 @@ class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback, Coverage
             }
         }
 
-        val emptyBitmap = createBitmap(1, 1)
         map?.setOnCircleClickListener { circle ->
             infoWindowMarker = map?.addMarker(
                 MarkerOptions()
@@ -701,6 +705,12 @@ class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback, Coverage
 
     override fun onDestroy() {
         coverageViewModel.clearPerformanceImprovementLists(map)
+        infoWindowMarker?.remove()
+        map?.setInfoWindowAdapter(null)
+        map?.setOnCircleClickListener(null)
+        map?.setOnMapClickListener(null)
+        map?.setOnCameraMoveListener(null)
+        map?.setOnCameraIdleListener(null)
         map = null
         super.onDestroy()
     }

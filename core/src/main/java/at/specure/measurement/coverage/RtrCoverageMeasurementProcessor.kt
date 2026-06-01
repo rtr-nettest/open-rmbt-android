@@ -84,12 +84,8 @@ class RtrCoverageMeasurementProcessor @Inject constructor(
     private val ipChangeWatcher: IpChangeWatcher,
 ) : CoverageMeasurementProcessor, CoroutineScope {
 
-    private val coverageSessionTimer = CoverageTimer(
-        scope = CoroutineScope(Dispatchers.Default + CoroutineName("MaxCoverageSessionTimer")),
-    )
-    private val coverageMeasurementTimer = CoverageTimer(
-        scope = CoroutineScope(Dispatchers.Default + CoroutineName("MaxCoverageMeasurementTimer")),
-    )
+    private val coverageSessionTimer = CoverageTimer(scope = scope)
+    private val coverageMeasurementTimer = CoverageTimer(scope = scope)
 //    private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
     private val coroutineExceptionHandler = CoroutineExceptionHandler { _, e ->
         if (e is HandledException) {
