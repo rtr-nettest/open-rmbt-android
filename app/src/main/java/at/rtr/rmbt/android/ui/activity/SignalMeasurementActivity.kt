@@ -62,6 +62,7 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.suspendCancellableCoroutine
 
 const val DEFAULT_POSITION_TRACKING_ZOOM_LEVEL = 16.2f
@@ -79,8 +80,8 @@ class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback, Coverage
     private var warningSnackbar: Snackbar? = null
     private var sendingResultsErrorSnackbar: Snackbar? = null
     private var noBackgroundLocationPermissionGrantedSnackbar: Snackbar? = null
-    private var showMeasurementResultsJob: kotlinx.coroutines.Job? = null
-    private var updateUnfinishedMeasurementJob: kotlinx.coroutines.Job? = null
+    private var showMeasurementResultsJob: Job? = null
+    private var updateUnfinishedMeasurementJob: Job? = null
     private val emptyBitmap by lazy { createBitmap(1, 1) }
 
     override fun onFenceOrAccuracyUpdated() {
@@ -168,25 +169,6 @@ class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback, Coverage
                 }
             }
         })
-    }
-
-    private fun enterInPictureMode() {
-        val ratio = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            val screenBounds = this.windowManager.maximumWindowMetrics.bounds
-            val width = screenBounds.width()
-            val height = screenBounds.height()
-            Rational(width, height)
-        } else {
-            val display = windowManager.defaultDisplay
-            val point = Point();
-            display.getSize(point);
-            val width = point.x;
-            val height = point.y;
-            Rational(width, height);
-        }
-        val pipBuilder = PictureInPictureParams.Builder()
-        pipBuilder.setAspectRatio(ratio).build()
-        enterPictureInPictureMode(pipBuilder.build())
     }
 
     private fun updateMapState(data: CoverageMeasurementData?) {
