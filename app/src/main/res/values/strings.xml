@@ -539,7 +539,7 @@
     <string name="text_meters">%1$dm</string>
     <string name="fence_radius_slider_content_description">Point radius slider value %1$d meters</string>
     <string name="accuracy_radius_slider_content_description">Accuracy radius slider value %1$d meters</string>
-    <string name="text_accuracy_radius">Accuracy:</string>
+    <string name="text_accuracy_radius">Accuracy threshold:</string>
     <string name="points">Points</string>
     <string name="text_loading_results_failed">Loading results failed</string>
     <string name="text_connection_count">%1$d connections</string>
