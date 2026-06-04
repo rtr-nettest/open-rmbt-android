@@ -1167,6 +1167,8 @@ data class CoverageResultRequestBody(
 data class FenceBody(
     @SerializedName("location")
     val centerLocation: SimpleLocationBody?,
+    @SerializedName("accuracy")
+    val accuracy: Float?, // location accuracy of the fence center in meters
     @SerializedName("technology_id")
     val networkTechnologyId: Int, // 41
     @SerializedName("technology")
