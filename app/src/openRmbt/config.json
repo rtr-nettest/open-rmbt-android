@@ -382,12 +382,12 @@
     },
     {
       "name": "CONTROL_SERVER_COVERAGE_REQUEST_ROUTE",
-      "value": "coverageRequest",
+      "value": "signalMeasurementRequest",
       "visible": false
     },
     {
       "name": "CONTROL_SERVER_COVERAGE_RESULT_ROUTE",
-      "value": "coverageResult",
+      "value": "signalMeasurementResult",
       "visible": false
     },
     {
