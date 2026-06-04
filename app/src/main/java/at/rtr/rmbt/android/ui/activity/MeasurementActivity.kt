@@ -177,25 +177,6 @@ class MeasurementActivity : BaseActivity(), SimpleDialog.Callback {
         viewModel.qosProgressLiveData.value?.let { binding.measurementBottomView?.qosProgressContainer?.update(it) }
     }
 
-    private fun enterInPictureMode() {
-        val ratio = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            val screenBounds = this.windowManager.maximumWindowMetrics.bounds
-            val width = screenBounds.width()
-            val height = screenBounds.height()
-            Rational(width, height)
-        } else {
-            val display = windowManager.defaultDisplay
-            val point = Point();
-            display.getSize(point);
-            val width = point.x;
-            val height = point.y;
-            Rational(width, height);
-        }
-        val pipBuilder = PictureInPictureParams.Builder()
-        pipBuilder.setAspectRatio(ratio).build()
-        enterPictureInPictureMode(pipBuilder.build())
-    }
-
     override fun onUserLeaveHint() {
         super.onUserLeaveHint()
         if (viewModel.state.isLoopModeActive.get()) {

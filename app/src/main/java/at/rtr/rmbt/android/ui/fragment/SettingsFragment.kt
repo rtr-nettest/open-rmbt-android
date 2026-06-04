@@ -189,7 +189,16 @@ class SettingsFragment : BaseFragment(), InputSettingDialog.Callback,
         }
 
         binding.version.value = "${BuildConfig.VERSION_NAME} (${BuildConfig.BUILD_TIME})"
-        binding.commitHash.value = BuildConfig.COMMIT_HASH
+        binding.commitHash.value = buildString {
+            append(BuildConfig.COMMIT_HASH)
+            val dirty = if (BuildConfig.GIT_IS_DIRTY) "*" else ""
+            when {
+                BuildConfig.GIT_BRANCH_NAME.isNotEmpty() ->
+                    append(" (${BuildConfig.GIT_BRANCH_NAME}$dirty)")
+                BuildConfig.GIT_IS_DIRTY -> append(" (*)") // detached HEAD + dirty
+                // detached HEAD + clean -> hash only
+            }
+        }
         binding.sourceCode.root.setOnClickListener {
             try {
                 startActivity(

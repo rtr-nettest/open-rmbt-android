@@ -30,6 +30,8 @@ android {
 
         buildConfigField "java.util.Date", "BUILD_TIME", "new java.util.Date(" + System.currentTimeMillis() + "L)"
         buildConfigField "String", "COMMIT_HASH", "\"${getGitHash()}\""
+        buildConfigField "String", "GIT_BRANCH_NAME", "\"${gitBranchName()}\""
+        buildConfigField "boolean", "GIT_IS_DIRTY", gitIsDirty()
         buildConfigField "int", "VERSION_CODE", "${versionCode}"
         buildConfigField "String", "VERSION_NAME", "\"${versionName}\""
 

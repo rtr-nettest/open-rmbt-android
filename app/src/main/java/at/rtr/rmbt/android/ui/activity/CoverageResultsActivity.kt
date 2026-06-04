@@ -49,6 +49,7 @@ class CoverageResultsActivity : BaseActivity(), OnMapReadyCallback {
     private var infoWindowMarker: Marker? = null
     private var timer: Timer? = null
     private var loadAttempts = 0
+    private val emptyBitmap by lazy { createBitmap(1, 1) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -156,7 +157,6 @@ class CoverageResultsActivity : BaseActivity(), OnMapReadyCallback {
             }
         }
 
-        val emptyBitmap = createBitmap(1, 1)
         map?.setOnCircleClickListener { circle ->
             infoWindowMarker = map?.addMarker(
                 MarkerOptions()
@@ -248,6 +248,12 @@ class CoverageResultsActivity : BaseActivity(), OnMapReadyCallback {
     override fun onDestroy() {
         cancelAnyPreviouslyRunningTimer()
         viewModel.clearPerformanceImprovementLists(map)
+        infoWindowMarker?.remove()
+        map?.setInfoWindowAdapter(null)
+        map?.setOnCircleClickListener(null)
+        map?.setOnMapClickListener(null)
+        map?.setOnCameraMoveListener(null)
+        map?.setOnCameraIdleListener(null)
         map = null
         super.onDestroy()
     }

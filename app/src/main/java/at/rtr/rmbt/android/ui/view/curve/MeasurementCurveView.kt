@@ -40,6 +40,10 @@ class MeasurementCurveView @JvmOverloads constructor(context: Context, attrs: At
             viewWidth = right - left
             viewHeight = bottom - top
 
+            if (viewWidth <= 0 || viewHeight <= 0) {
+                return
+            }
+
             topPart.updateScreenSizeRelatedData(resources, viewWidth, viewHeight)
             bottomPart.updateScreenSizeRelatedData(resources, viewWidth, viewHeight)
             if (currentPhase != MeasurementState.IDLE) {

@@ -62,6 +62,7 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.suspendCancellableCoroutine
 
 const val DEFAULT_POSITION_TRACKING_ZOOM_LEVEL = 16.2f
@@ -79,6 +80,9 @@ class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback, Coverage
     private var warningSnackbar: Snackbar? = null
     private var sendingResultsErrorSnackbar: Snackbar? = null
     private var noBackgroundLocationPermissionGrantedSnackbar: Snackbar? = null
+    private var showMeasurementResultsJob: Job? = null
+    private var updateUnfinishedMeasurementJob: Job? = null
+    private val emptyBitmap by lazy { createBitmap(1, 1) }
 
     override fun onFenceOrAccuracyUpdated() {
         coverageViewModel.onCoverageConfigurationChanged()
@@ -167,25 +171,6 @@ class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback, Coverage
         })
     }
 
-    private fun enterInPictureMode() {
-        val ratio = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            val screenBounds = this.windowManager.maximumWindowMetrics.bounds
-            val width = screenBounds.width()
-            val height = screenBounds.height()
-            Rational(width, height)
-        } else {
-            val display = windowManager.defaultDisplay
-            val point = Point();
-            display.getSize(point);
-            val width = point.x;
-            val height = point.y;
-            Rational(width, height);
-        }
-        val pipBuilder = PictureInPictureParams.Builder()
-        pipBuilder.setAspectRatio(ratio).build()
-        enterPictureInPictureMode(pipBuilder.build())
-    }
-
     private fun updateMapState(data: CoverageMeasurementData?) {
         if (data?.state == CoverageMeasurementState.FINISHED_LOOP_CORRECTLY) {
             showMeasurementResults(data)
@@ -264,7 +249,8 @@ class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback, Coverage
         setSettingsButtonVisible(false)
         updateSendingResultsInfo(coverageMeasurementData.sendingResults)
         // Launch a coroutine to safely update the map
-        lifecycleScope.launch {
+        showMeasurementResultsJob?.cancel()
+        showMeasurementResultsJob = lifecycleScope.launch {
             coverageViewModel.updateMapPoints(
                 map,
                 coverageMeasurementData?.fences.toCoverageResultItemRecords(),
@@ -286,7 +272,8 @@ class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback, Coverage
         updateSendingResultsInfo(coverageMeasurementData?.sendingResults ?: false)
 
         // Launch a coroutine to safely update the map
-        lifecycleScope.launch {
+        updateUnfinishedMeasurementJob?.cancel()
+        updateUnfinishedMeasurementJob = lifecycleScope.launch {
 //            map?.awaitMapLoad()
             setMyPositionAndButtonVisible(true)
             val longEnoughTimePassedFromStart = (3000.plus(coverageMeasurementData?.coverageMeasurementSession?.startTimeMeasurementMillis ?: 0) <= System.currentTimeMillis())
@@ -612,7 +599,6 @@ class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback, Coverage
             }
         }
 
-        val emptyBitmap = createBitmap(1, 1)
         map?.setOnCircleClickListener { circle ->
             infoWindowMarker = map?.addMarker(
                 MarkerOptions()
@@ -701,6 +687,12 @@ class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback, Coverage
 
     override fun onDestroy() {
         coverageViewModel.clearPerformanceImprovementLists(map)
+        infoWindowMarker?.remove()
+        map?.setInfoWindowAdapter(null)
+        map?.setOnCircleClickListener(null)
+        map?.setOnMapClickListener(null)
+        map?.setOnCameraMoveListener(null)
+        map?.setOnCameraIdleListener(null)
         map = null
         super.onDestroy()
     }

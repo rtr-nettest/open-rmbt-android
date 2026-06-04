@@ -197,9 +197,8 @@ class TestResultsRepositoryImpl(
                         loadQosTestResults(testUUID, clientUUID)
                         emit(true)
                     } catch (e: NullPointerException) {
-                        throw (KotlinNullPointerException(
-                            message = "TestUUID: $testUUID,\n response: $it"
-                        ))
+                        Timber.e(e, "TestUUID: $testUUID,\n response: $it")
+                        emit(false)
                     }
                 }
 

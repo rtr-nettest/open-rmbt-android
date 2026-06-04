@@ -21,8 +21,6 @@ import at.rtr.rmbt.android.viewmodel.CoverageSettingsViewModel
 import javax.inject.Inject
 import kotlin.math.max
 
-const val MIN_FENCE_RADIUS_FACTOR = 1
-const val MAX_FENCE_RADIUS_FACTOR = 100
 const val MIN_LOCATION_ACCURACY_METERS = 3
 const val MAX_LOCATION_ACCURACY_METERS = 30
 
@@ -106,7 +104,6 @@ class CoverageSettingsDialog : FullscreenDialog() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        setFenceRadiusItem()
         setAccuracyRadiusItem()
 
         binding.iconClose.setOnClickListener { dismiss() }
@@ -128,27 +125,6 @@ class CoverageSettingsDialog : FullscreenDialog() {
         binding.accuracyRadiusSlider.valueFrom = MIN_LOCATION_ACCURACY_METERS.toFloat()
         binding.accuracyRadiusSlider.addOnChangeListener { slider, value, fromUser ->
             viewModel.state.locationAccuracyMeters.set(value.toInt())
-            callback?.onFenceOrAccuracyUpdated()
-        }
-    }
-
-    private fun setFenceRadiusItem() {
-        val initialValue = (viewModel.state.fenceRadiusFactor.get() ?: MIN_FENCE_RADIUS_FACTOR).coerceIn(MIN_FENCE_RADIUS_FACTOR, MAX_FENCE_RADIUS_FACTOR)
-        binding.fenceRadiusMeters.text = getString(R.string.text_meters, initialValue)
-
-        viewModel.state.fenceRadiusFactor.addOnPropertyChanged { property ->
-            binding.fenceRadiusMeters.text = property.get().toString()
-            binding.fenceRadiusFactorSlider.contentDescription = getString(R.string.fence_radius_slider_content_description, property.get())
-        }
-
-        binding.labelFenceRadiusMinMeters.text = MIN_FENCE_RADIUS_FACTOR.toString()
-        binding.labelFenceRadiusMaxMeters.text = MAX_FENCE_RADIUS_FACTOR.toString()
-
-        binding.fenceRadiusFactorSlider.value = initialValue.toFloat()
-        binding.fenceRadiusFactorSlider.valueTo = MAX_FENCE_RADIUS_FACTOR.toFloat()
-        binding.fenceRadiusFactorSlider.valueFrom = MIN_FENCE_RADIUS_FACTOR.toFloat()
-        binding.fenceRadiusFactorSlider.addOnChangeListener { slider, value, fromUser ->
-            viewModel.state.fenceRadiusFactor.set(value.toInt())
             callback?.onFenceOrAccuracyUpdated()
         }
     }
