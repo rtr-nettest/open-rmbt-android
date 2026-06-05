@@ -62,7 +62,7 @@ class CustomMarker(private val context: Context) {
             ?: throw IllegalArgumentException("Drawable not found")
 
         // Tint the drawable
-        DrawableCompat.setTint(drawable, technology.getMarkerColorInt())
+        DrawableCompat.setTint(drawable, technology.colorInt())
 
         // Convert to bitmap
         val bitmap = createBitmap(size, size)
@@ -78,7 +78,7 @@ class CustomMarker(private val context: Context) {
         val canvas = Canvas(bitmap)
 
         val paint = Paint().apply {
-            color = mobileTechnology.getMarkerColorInt()
+            color = mobileTechnology.colorInt()
             isAntiAlias = true
             style = Paint.Style.FILL
         }

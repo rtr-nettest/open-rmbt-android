@@ -32,7 +32,7 @@ import at.specure.measurement.coverage.domain.models.state.CoverageMeasurementSt
 import at.specure.measurement.coverage.domain.validators.LocationValidator
 import at.specure.test.DeviceInfo
 import at.specure.util.map.CustomMarker
-import at.specure.util.map.getMarkerColorInt
+import at.specure.util.map.blendedColorInt
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.model.Circle
@@ -59,6 +59,7 @@ import kotlin.math.round
 const val MAX_MARKER_COUNT_DISPLAYED_THRESHOLD = 500
 const val MIN_MAP_UPDATE_RATE =
     700 // do not set it bellow maybe 500ms as map is very sensitive to frequent updates
+
 
 class CoverageResultViewModel @Inject constructor(
     private val appConfig: AppConfig,
@@ -113,7 +114,7 @@ class CoverageResultViewModel @Inject constructor(
 
     private val _loadingLiveData = MutableLiveData<Boolean>()
 
-    private val markerIconCache = mutableMapOf<String, Map<String, Int>>()
+    private val markerIconCache = mutableMapOf<Int, Map<String, Int>>()
 
     init {
         addStateSaveHandler(state)
@@ -167,22 +168,20 @@ class CoverageResultViewModel @Inject constructor(
             }
     }
 
-    fun getCachedIcon(
+    private fun getCachedIcon(
         type: MobileNetworkType,
         point: FencesResultItemRecord? = null
     ): Map<String, Int> {
-        val hasNoPing = point?.averagePingMillis == null
-        val signalDbm = point?.signalMainDbm
-        val hasWeakSignal = signalDbm != null && signalDbm < -125
-        val isGrayOut = point != null && (hasNoPing || hasWeakSignal)
+        val fillColor = type.blendedColorInt(
+            point?.signalMainDbm,
+            point?.averagePingMillis
+        )
 
-        val key = "${type.name}_$isGrayOut"
-
-        return markerIconCache.getOrPut(key) {
+        return markerIconCache.getOrPut(fillColor) {
             return mapOf(
                 "strokeColor" to "#ffffff".toColorInt(),
                 "strokeWidth" to 1,
-                "fillColor" to if (isGrayOut) "#d9d9d9".toColorInt() else type.getMarkerColorInt(),
+                "fillColor" to fillColor,
             )
         }
     }
