@@ -113,7 +113,7 @@ class CoverageResultViewModel @Inject constructor(
 
     private val _loadingLiveData = MutableLiveData<Boolean>()
 
-    private val markerIconCache = mutableMapOf<MobileNetworkType, Map<String, Int>>()
+    private val markerIconCache = mutableMapOf<String, Map<String, Int>>()
 
     init {
         addStateSaveHandler(state)
@@ -167,18 +167,28 @@ class CoverageResultViewModel @Inject constructor(
             }
     }
 
-    fun getCachedIcon(type: MobileNetworkType): Map<String, Int> {
-        return markerIconCache.getOrPut(type) {
+    fun getCachedIcon(
+        type: MobileNetworkType,
+        point: FencesResultItemRecord? = null
+    ): Map<String, Int> {
+        val hasNoPing = point?.averagePingMillis == null
+        val signalDbm = point?.signalMainDbm
+        val hasWeakSignal = signalDbm != null && signalDbm < -125
+        val isGrayOut = point != null && (hasNoPing || hasWeakSignal)
+
+        val key = "${type.name}_$isGrayOut"
+
+        return markerIconCache.getOrPut(key) {
             return mapOf(
                 "strokeColor" to "#ffffff".toColorInt(),
                 "strokeWidth" to 1,
-                "fillColor" to type.getMarkerColorInt(),
+                "fillColor" to if (isGrayOut) "#d9d9d9".toColorInt() else type.getMarkerColorInt(),
             )
         }
     }
 
     private fun calculateMarkerRadius(zoom: Float): Double {
-        return round( 2.0.pow(20.0 - zoom.toDouble()) * 0.8)
+        return round(2.0.pow(20.0 - zoom.toDouble()) * 0.8)
     }
 
     private var zoomUpdateJob: Job? = null
@@ -313,7 +323,8 @@ class CoverageResultViewModel @Inject constructor(
                         } else {
                             MobileNetworkType.fromValue(point.networkTechnologyId ?: 0)
                         }
-                    val colorInt = tech.getMarkerColorInt()
+                    val icon = getCachedIcon(tech, point)
+                    val colorInt = icon["fillColor"]!!
                     val fillColor = makeSemiTransparent(colorInt)
                     val radius = point.fenceRadiusMeters ?: 0.0
 
@@ -367,7 +378,7 @@ class CoverageResultViewModel @Inject constructor(
                     marker.tag = updatedData
 
                     // refresh icon in case the technology has changed
-                    val icon = getCachedIcon(tech)
+                    val icon = getCachedIcon(tech, point)
                     marker.fillColor = icon["fillColor"]!!
                 }
             }
@@ -416,7 +427,7 @@ class CoverageResultViewModel @Inject constructor(
                 isNotFinished = isLastOngoingPoint
             )
             val latLng = point.toLatLng() ?: return@mapIndexedNotNull null
-            val icon = getCachedIcon(tech)
+            val icon = getCachedIcon(tech, point)
 
             CircleOptions()
                 .center(latLng)
