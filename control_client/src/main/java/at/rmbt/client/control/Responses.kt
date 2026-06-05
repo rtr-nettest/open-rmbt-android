@@ -971,7 +971,7 @@ data class CoverageRequestResponse( // CoverageSettingsResponse
      *
      * After timer expiration a new measurement shall be started (as it is done when there is no coverage.
      */
-    @SerializedName("maxCoverageSessionSeconds")
+    @SerializedName("max_coverage_session_seconds")
     val maxCoverageSessionSeconds: Int,
     /**
      * defines the maximum total measurement time. After this timeout the coverage measurement must end (thus, the user interface must switch to results
