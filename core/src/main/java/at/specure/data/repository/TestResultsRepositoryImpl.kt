@@ -88,8 +88,13 @@ class TestResultsRepositoryImpl(
                 val body = TestResultDetailBody(testUUID, clientUUID, Locale.getDefault().language)
                 val result = client.getTestResultDetail(body)
                 result.onSuccess {
-                    testResultDetailsDao.insert(it.toModelList(testUUID))
-                    emit(result.ok)
+                    try {
+                        testResultDetailsDao.insert(it.toModelList(testUUID))
+                        emit(result.ok)
+                    } catch (e: NullPointerException) {
+                        Timber.e(e, "TestUUID: $testUUID,\n response: $it")
+                        emit(false)
+                    }
                 }
 
                 result.onFailure {
