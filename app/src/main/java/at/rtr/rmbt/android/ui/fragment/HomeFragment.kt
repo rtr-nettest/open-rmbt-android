@@ -53,7 +53,8 @@ class HomeFragment : BaseFragment() {
 
     private val getSignalMeasurementResult =
         registerForActivityResult(
-            ActivityResultContracts.StartActivityForResult()) {
+            ActivityResultContracts.StartActivityForResult()
+        ) {
             if (it.resultCode == Activity.RESULT_OK) {
 //                homeViewModel.toggleSignalMeasurementService()
 //                requireContext().toast(R.string.toast_signal_measurement_enabled)
@@ -62,7 +63,8 @@ class HomeFragment : BaseFragment() {
 
     private val getLoopModeInstructionsResult =
         registerForActivityResult(
-            ActivityResultContracts.StartActivityForResult()) {
+            ActivityResultContracts.StartActivityForResult()
+        ) {
             if (it.resultCode == Activity.RESULT_OK) {
                 homeViewModel.state.isLoopModeActive.set(true)
                 binding.btnLoop.isChecked = true
@@ -77,7 +79,8 @@ class HomeFragment : BaseFragment() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
             ViewCompat.setOnApplyWindowInsetsListener(binding.root) { v, windowInsets ->
                 val insetsSystemBars = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
-                val insetsDisplayCutout = windowInsets.getInsets(WindowInsetsCompat.Type.displayCutout())
+                val insetsDisplayCutout =
+                    windowInsets.getInsets(WindowInsetsCompat.Type.displayCutout())
                 val topSafe = max(insetsSystemBars.top, insetsDisplayCutout.top)
                 val leftSafe = max(insetsSystemBars.left, insetsDisplayCutout.left)
                 val rightSafe = max(insetsSystemBars.right, insetsDisplayCutout.right)
@@ -152,7 +155,7 @@ class HomeFragment : BaseFragment() {
                 }
             )
             homeViewModel.state.secondary5GSignalStrength.set(
-                try{
+                try {
                     if (networkInfo?.secondary5GActiveSignalStrengthInfos?.isNotEmpty() == true) {
                         networkInfo.secondary5GActiveSignalStrengthInfos?.get(0)
                     } else {
@@ -164,7 +167,8 @@ class HomeFragment : BaseFragment() {
                 }
             )
             if (networkInfo?.networkInfo is WifiNetworkInfo) {
-                (networkInfo.networkInfo as WifiNetworkInfo).signal = networkInfo.signalStrengthInfo?.value
+                (networkInfo.networkInfo as WifiNetworkInfo).signal =
+                    networkInfo.signalStrengthInfo?.value
             }
             evaluateCoverageMeasurementStartingConditionsForButton()
         }
@@ -218,12 +222,20 @@ class HomeFragment : BaseFragment() {
                     }
                 } else {
                     activity?.supportFragmentManager?.let {
-                        MessageDialog.show(it, getString(R.string.client_not_registered), "NotRegistered")
+                        MessageDialog.show(
+                            it,
+                            getString(R.string.client_not_registered),
+                            "NotRegistered"
+                        )
                     }
                 }
             } else {
                 activity?.supportFragmentManager?.let {
-                    MessageDialog.show(it, getString(R.string.home_no_internet_connection), "NotRegistered")
+                    MessageDialog.show(
+                        it,
+                        getString(R.string.home_no_internet_connection),
+                        "NotRegistered"
+                    )
                 }
             }
         }
@@ -242,9 +254,9 @@ class HomeFragment : BaseFragment() {
         homeViewModel.activeSignalMeasurementLiveData.listen(this) {
             if (it != homeViewModel.state.isSignalMeasurementActive.get()) {
                 homeViewModel.state.isSignalMeasurementActive.set(it)
-                if (it) {
-                    openSignalMeasurementActivity()
-                }
+            }
+            if (it) {
+                openSignalMeasurementActivity()
             }
             checkInformationAvailability()
         }
@@ -309,7 +321,10 @@ class HomeFragment : BaseFragment() {
         SignalMeasurementActivity.start(requireContext())
     }
 
-    private fun checkGPSAndShouldMakeAction(shouldMakeAction: Boolean, action: () -> Unit): Boolean {
+    private fun checkGPSAndShouldMakeAction(
+        shouldMakeAction: Boolean,
+        action: () -> Unit
+    ): Boolean {
         context?.let {
             homeViewModel.state.isLocationEnabled.get()?.let {
                 when (it) {
@@ -317,6 +332,7 @@ class HomeFragment : BaseFragment() {
                         if (shouldMakeAction) action()
                         return true
                     }
+
                     LocationState.DISABLED_APP -> {
                         if (shouldMakeAction) OpenLocationPermissionDialog.instance()
                             .show(activity)
@@ -402,13 +418,18 @@ class HomeFragment : BaseFragment() {
                 .titleText(title)
                 .positiveText(R.string.confirm)
                 .cancelable(false)
-                .show(this.childFragmentManager, CODE_DIALOG_WRONG_NETWORK, TAG_CODE_DIALOG_WRONG_NETWORK)
+                .show(
+                    this.childFragmentManager,
+                    CODE_DIALOG_WRONG_NETWORK,
+                    TAG_CODE_DIALOG_WRONG_NETWORK
+                )
         }
 
     }
 
     private fun hideWrongNetworkTypeDialog() {
-        val dialog = this.childFragmentManager.findFragmentByTag(TAG_CODE_DIALOG_WRONG_NETWORK) as SimpleDialog?
+        val dialog =
+            this.childFragmentManager.findFragmentByTag(TAG_CODE_DIALOG_WRONG_NETWORK) as SimpleDialog?
         dialog?.dismissAllowingStateLoss()
     }
 
@@ -419,7 +440,8 @@ class HomeFragment : BaseFragment() {
             context?.hasPermission(Manifest.permission.ACCESS_FINE_LOCATION) == true || context?.hasPermission(
                 Manifest.permission.ACCESS_COARSE_LOCATION
             ) == true
-        val precisePermissionsGranted = context?.hasPermission(Manifest.permission.ACCESS_FINE_LOCATION) == true
+        val precisePermissionsGranted =
+            context?.hasPermission(Manifest.permission.ACCESS_FINE_LOCATION) == true
         val backgroundLocationPermissionsGranted =
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                 context?.hasPermission(Manifest.permission.ACCESS_BACKGROUND_LOCATION) == true
@@ -436,26 +458,32 @@ class HomeFragment : BaseFragment() {
             homeViewModel.state.isLocationEnabled.get() == LocationState.DISABLED_DEVICE -> {
                 homeViewModel.state.informationAccessProblem.set(InformationAccessProblem.MISSING_LOCATION_ENABLED)
             }
+
             !locationPermissionsGranted -> {
                 homeViewModel.state.informationAccessProblem.set(InformationAccessProblem.MISSING_LOCATION_PERMISSION)
             }
+
             !phonePermissionsGranted -> {
                 homeViewModel.state.informationAccessProblem.set(InformationAccessProblem.MISSING_READ_PHONE_STATE_PERMISSION)
             }
+
             !precisePermissionsGranted -> {
                 homeViewModel.state.informationAccessProblem.set(InformationAccessProblem.MISSING_PRECISE_LOCATION_PERMISSION)
                 Timber.e("MISSING_PRECISE_LOCATION_PERMISSION")
             }
+
             (!backgroundLocationPermissionsGranted) && (homeViewModel.state.isLoopModeActive.get() || homeViewModel.activeSignalMeasurementLiveData.value == true) -> {
                 homeViewModel.state.informationAccessProblem.set(
                     InformationAccessProblem.MISSING_BACKGROUND_LOCATION_PERMISSION
                 )
             }
+
             (!notificationPermissionsGranted) && (homeViewModel.state.isLoopModeActive.get() || homeViewModel.activeSignalMeasurementLiveData.value == true) -> {
                 homeViewModel.state.informationAccessProblem.set(
                     InformationAccessProblem.MISSING_NOTIFICATION_PERMISSION
                 )
             }
+
             else -> homeViewModel.state.informationAccessProblem.set(InformationAccessProblem.NO_PROBLEM)
         }
     }
@@ -480,6 +508,7 @@ class HomeFragment : BaseFragment() {
                     startActivity(Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS))
                 }
             }
+
             InformationAccessProblem.MISSING_LOCATION_PERMISSION,
             InformationAccessProblem.MISSING_READ_PHONE_STATE_PERMISSION,
             InformationAccessProblem.MISSING_PRECISE_LOCATION_PERMISSION,
@@ -489,6 +518,7 @@ class HomeFragment : BaseFragment() {
                     requireContext().openAppSettings()
                 }
             }
+
             InformationAccessProblem.NO_PROBLEM -> {
                 // do nothing
             }
@@ -510,7 +540,10 @@ class HomeFragment : BaseFragment() {
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             val hasForegroundLocationPermission =
-                checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
+                checkSelfPermission(
+                    requireContext(),
+                    Manifest.permission.ACCESS_FINE_LOCATION
+                ) == PackageManager.PERMISSION_GRANTED
             if (hasForegroundLocationPermission) {
                 val hasBackgroundLocationPermission = checkSelfPermission(
                     requireContext(),
@@ -524,7 +557,10 @@ class HomeFragment : BaseFragment() {
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             val hasPostNotificationPermission =
-                checkSelfPermission(requireContext(), Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED
+                checkSelfPermission(
+                    requireContext(),
+                    Manifest.permission.POST_NOTIFICATIONS
+                ) == PackageManager.PERMISSION_GRANTED
             if (!hasPostNotificationPermission) {
                 permissions.add(Manifest.permission.POST_NOTIFICATIONS)
             }
@@ -538,13 +574,14 @@ class HomeFragment : BaseFragment() {
         }
     }
 
-    private val resultRequestPermissions = registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) {
-        homeViewModel.permissionsWatcher.notifyPermissionsUpdated()
-        if (it.hasLocationPermissions()) {
-            locationViewModel.updateLocationPermissions()
+    private val resultRequestPermissions =
+        registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) {
+            homeViewModel.permissionsWatcher.notifyPermissionsUpdated()
+            if (it.hasLocationPermissions()) {
+                locationViewModel.updateLocationPermissions()
+            }
+            homeViewModel.getNews() // displaying news after permissions were/were not granted
         }
-        homeViewModel.getNews() // displaying news after permissions were/were not granted
-    }
 
     override fun onStop() {
         super.onStop()
