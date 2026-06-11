@@ -235,6 +235,12 @@ class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback, Coverage
     override fun onConfigurationChanged(newConfig: Configuration) {
         super.onConfigurationChanged(newConfig)
         coverageViewModel.onConfigurationChanged(map)
+        // onConfigurationChanged (e.g. entering/exiting PiP) clears the map.
+        // For a finished measurement no new data arrives to redraw the markers,
+        // so re-draw the stored results explicitly.
+        if (coverageViewModel.coverageMeasurementDataLiveData.value?.state == CoverageMeasurementState.FINISHED_LOOP_CORRECTLY) {
+            updateMapState(coverageViewModel.coverageMeasurementDataLiveData.value)
+        }
     }
 
     private fun showMeasurementResults(coverageMeasurementData: CoverageMeasurementData) {
@@ -674,9 +680,6 @@ class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback, Coverage
         } else {
             binding.fabClose.visibility = View.VISIBLE
             binding.fabLocation.visibility = View.VISIBLE
-            if (coverageViewModel.coverageMeasurementDataLiveData.value?.state == CoverageMeasurementState.FINISHED_LOOP_CORRECTLY) {
-                updateMapState(coverageViewModel.coverageMeasurementDataLiveData.value)
-            }
         }
     }
 
