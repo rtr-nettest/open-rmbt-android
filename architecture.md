@@ -267,7 +267,7 @@ There is no single source of truth and no reconciliation on startup; the async s
 - **Duplicate instance:** start coverage measurement → Home button (PiP appears) → launcher icon → app opens → HomeFragment auto-opens `SignalMeasurementActivity` → observe PiP window + fullscreen instance (device/version dependent).
 - **Unstoppable:** start measurement → press stop and within ~1 s leave/re-enter the activity (or have a second instance from above) → `onStart`'s delayed auto-start re-creates the session.
 - **Stale notification / start screen:** start measurement → kill process from "background process limit"/OOM (or adb `am kill` after backgrounding without removing the notification race) → reopen app: Home shows start screen, prefs still claim running; or press stop in the brief window before the binder connects.
-- **PiP not expanding (loop mode):** run loop mode → Home button (PiP appears) → launcher icon → before the fix the PiP content flickered (activity destroyed + recreated by `FLAG_ACTIVITY_CLEAR_TASK`) and stayed in PiP; expected: PiP expands to fullscreen.
+- **PiP not expanding (loop mode):** run loop mode → Home button (PiP appears) → launcher icon → before the fix the app never came to the foreground: the launcher intent for `HomeActivity` was routed *into* the pinned task (splash flashed inside the PiP window), then the auto-reopen relaunched `MeasurementActivity` there via `FLAG_ACTIVITY_CLEAR_TASK` — flicker, still pinned. Expected (after taskAffinity + `startOrBringToFront` fixes): home task opens, PiP expands to fullscreen.
 
 ## II.7 Applied fixes (2026-06-11, branch `feature/lifecycle`)
 
@@ -345,6 +345,23 @@ were made. Each addresses a root cause from the analysis above.
       paths. The explicit user-initiated start path (`HomeFragment` →
       `MeasurementService.startTests` + `MeasurementActivity.start`) intentionally keeps
       the fresh-start semantics.
+11. **Distinct `taskAffinity` for the PiP activities** — `AndroidManifest.xml`
+    - Screen-video analysis (issue2, 2026-06-11) showed that with loop mode pinned, a
+      launcher-icon tap launched **`HomeActivity` *inside* the pinned task** (the app
+      splash flashed within the PiP window and the app never came to the foreground).
+      Cause: the `CLEAR_TASK` start had removed `HomeActivity`, so no main task existed
+      and the launcher intent affinity-matched the pinned task — both shared the default
+      package affinity. `moveToFront` cannot help when the launch itself lands in the
+      wrong task.
+    - `MeasurementActivity` now has `android:taskAffinity="${applicationId}.measurement"`
+      and `SignalMeasurementActivity` has `"${applicationId}.coverage"`. A pinned
+      measurement task can no longer be a match for `HomeActivity` (or any other
+      default-affinity) launches: the icon tap always opens the home task, whose
+      listeners then expand the pinned task via `startOrBringToFront`.
+    - Side effects to be aware of: each measurement screen now lives in its own task
+      (separate card in Recents while running; closing it returns to the home task —
+      previously the loop flow returned to the launcher because the home task had been
+      cleared).
 
 ### Still open
 
