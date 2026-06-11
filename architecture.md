@@ -250,6 +250,30 @@ There is no single source of truth and no reconciliation on startup; the async s
 
 ## II.5 Recommended fixes (ordered by impact)
 
+> **Status update (2026-06-11, branch `feature/lifecycle`):** items 1–3, 6 and parts of
+> 4–5 below are implemented:
+> - `SignalMeasurementActivity.onStart` no longer uses the 1 s `delay` hack and requests
+>   the start only **once per activity instance**; the start request is queued in
+>   `HomeViewModel` (`pendingStartType`) and executed in `onServiceConnected`.
+> - `HomeViewModel.stopSignalMeasurement` falls back to
+>   `context.startService(stopIntent)` when the binder is not connected (stop can no
+>   longer get lost) and clears any pending start.
+> - `SignalMeasurementService.startMeasurement` is guarded by `processor.isActive`
+>   (re-entry only re-asserts the foreground state); `stopMeasurement` on an inactive
+>   processor only cleans up the notification/foreground state instead of touching the
+>   coverage session; `onStartCommand` returns `START_NOT_STICKY`.
+> - The notification now carries a **Stop action** (`stopIntent` is passed to
+>   `NotificationProvider.signalMeasurementService`).
+> - `SignalMeasurementProcessor.startMeasurement` registers the battery receiver and
+>   the location/signal listeners only when a session actually starts (no duplicate
+>   registrations).
+> - `SignalMeasurementActivity.onUserLeaveHint` enters PiP only while a measurement is
+>   active; the duplicated (recursive) back-press callback was removed.
+> - `HomeFragment` auto-opens the measurement screen only on the *transition* to
+>   active, not on every rebind.
+> Remaining open: the full PiP task-affinity fix (II.5 #4), startup state
+> reconciliation (II.5 #5), dead-code removal (II.5 #7).
+
 1. **Remove the unconditional auto-start in `SignalMeasurementActivity.onStart`** (the `delay(1000)` coroutine). Start the measurement exactly once from an explicit user action (terms accepted / start button), and on `onServiceConnected` only *re-attach* to an existing session. This kills the restart-after-stop race and the double-start from duplicate instances.
 2. **Make stop robust:** queue a pending stop in `HomeViewModel` when `producer == null` (mirror of `toggleService`), or better: always stop via `context.startService(SignalMeasurementService.stopIntent(ctx))`, which works without a binder.
 3. **Single source of truth in the service:** give `SignalMeasurementService.startMeasurement` an `isActive` guard, and have the *service* (not three clients) own the started/stopped decision.

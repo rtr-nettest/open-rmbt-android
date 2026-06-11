@@ -58,6 +58,7 @@ class HomeViewModel @Inject constructor(
     private val signalMeasurementRepository: SignalMeasurementRepository,
     private val coverageMeasurementSettings: CoverageMeasurementSettings,
     private val controlServerModule: ControlServerModule,
+    private val context: Context,
     measurementServers: MeasurementServers,
 ) : BaseViewModel() {
 
@@ -87,6 +88,7 @@ class HomeViewModel @Inject constructor(
     private var _pausedMeasurementSource: LiveData<Boolean>? = null
     private var _pausedMeasurementMediator = MediatorLiveData<Boolean>()
     private var toggleService: Boolean = false
+    private var pendingStartType: SignalMeasurementType? = null
 
     private var _getNewsLiveData = MutableLiveData<List<NewsItem>?>()
 
@@ -116,6 +118,11 @@ class HomeViewModel @Inject constructor(
                 toggleSignalMeasurementService()
             }
 
+            pendingStartType?.let { type ->
+                pendingStartType = null
+                Timber.d("Starting pending coverage session HVM3")
+                producer?.startMeasurement(false, type)
+            }
 
             _activeMeasurementSource = producer?.activeStateLiveData
             _activeMeasurementSource?.let { lv ->
@@ -192,14 +199,29 @@ class HomeViewModel @Inject constructor(
         if (shouldStartDedicatedMeasurementStateChecker()) {
             coverageMeasurementSettings.signalMeasurementIsRunning = true
             Timber.d("Starting coverage session HVM1")
-            producer?.startMeasurement(false, signalMeasurementType)
+            val currentProducer = producer
+            if (currentProducer == null) {
+                // Service binding is asynchronous - remember the request and execute it
+                // in onServiceConnected instead of losing it.
+                pendingStartType = signalMeasurementType
+            } else {
+                currentProducer.startMeasurement(false, signalMeasurementType)
+            }
         }
     }
 
     fun stopSignalMeasurement() {
+        pendingStartType = null
         coverageMeasurementSettings.signalMeasurementIsRunning = false
         Timber.d("Stopping coverage session HVM2")
-        producer?.stopMeasurement(false)
+        val currentProducer = producer
+        if (currentProducer == null) {
+            // No binder connection - stop through a service intent so the request
+            // cannot get lost while a measurement keeps running.
+            context.startService(SignalMeasurementService.stopIntent(context))
+        } else {
+            currentProducer.stopMeasurement(false)
+        }
     }
 
     fun attach(context: Context) {
@@ -207,6 +229,7 @@ class HomeViewModel @Inject constructor(
     }
 
     fun detach(context: Context) {
+        pendingStartType = null
         serviceConnection.onServiceDisconnected(null)
         context.unbindService(serviceConnection)
     }

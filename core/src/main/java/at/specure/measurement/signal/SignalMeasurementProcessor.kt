@@ -198,17 +198,20 @@ class SignalMeasurementProcessor @Inject constructor(
         unstoppable: Boolean,
         signalMeasurementType: SignalMeasurementType,
     ) {
-        registerBatteryInfoReceiver(batteryInfo)
         val shouldStartCoverage = !_isActive
         Timber.w("startMeasurement $shouldStartCoverage")
         _isActive = true
         isUnstoppable = unstoppable
         postStateData()
 
-        locationWatcher.addListener(locationListener)
-        signalStrengthWatcher.addListener(signalStrengthListener)
-
         if (shouldStartCoverage) {
+            // Register only when a new session really starts - a repeated start call for an
+            // already active measurement would register the battery receiver and the
+            // listeners a second time (the receiver is only unregistered once on stop).
+            registerBatteryInfoReceiver(batteryInfo)
+            locationWatcher.addListener(locationListener)
+            signalStrengthWatcher.addListener(signalStrengthListener)
+
             Timber.d("Starting coverage session")
             rtrCoverageMeasurementProcessor.startCoverageSession(
                 sessionCreated = measurementSessionInitializedCallback,

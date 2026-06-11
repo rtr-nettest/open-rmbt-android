@@ -252,10 +252,15 @@ class HomeFragment : BaseFragment() {
         }
 
         homeViewModel.activeSignalMeasurementLiveData.listen(this) {
-            if (it != homeViewModel.state.isSignalMeasurementActive.get()) {
+            val activeStateChanged = it != homeViewModel.state.isSignalMeasurementActive.get()
+            if (activeStateChanged) {
                 homeViewModel.state.isSignalMeasurementActive.set(it)
             }
-            if (it) {
+            // Open the measurement screen only on the transition to active. The mediator
+            // re-delivers the last value on every rebind (each onStart of this fragment),
+            // and launching the singleTask activity again while it sits in a pinned PiP
+            // task can create a second instance of it.
+            if (it && activeStateChanged) {
                 openSignalMeasurementActivity()
             }
             checkInformationAvailability()
