@@ -94,11 +94,11 @@ class HomeActivity : BaseActivity() {
                             ?: 0) <= viewModel.config.loopModeNumberOfTests && viewModel.config.loopModeNumberOfTests != 0) || viewModel.config.loopModeNumberOfTests == 0)
                     ) {
                         Timber.d("Starting measurement activity because loop measurement is running")
-                        MeasurementActivity.start(this)
+                        MeasurementActivity.startOrBringToFront(this)
                     }
                 } else {
                     Timber.d("Starting measurement activity because measurement is running")
-                    MeasurementActivity.start(this)
+                    MeasurementActivity.startOrBringToFront(this)
                 }
             }
         }

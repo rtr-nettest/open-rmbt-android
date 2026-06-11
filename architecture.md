@@ -250,29 +250,9 @@ There is no single source of truth and no reconciliation on startup; the async s
 
 ## II.5 Recommended fixes (ordered by impact)
 
-> **Status update (2026-06-11, branch `feature/lifecycle`):** items 1–3, 6 and parts of
-> 4–5 below are implemented:
-> - `SignalMeasurementActivity.onStart` no longer uses the 1 s `delay` hack and requests
->   the start only **once per activity instance**; the start request is queued in
->   `HomeViewModel` (`pendingStartType`) and executed in `onServiceConnected`.
-> - `HomeViewModel.stopSignalMeasurement` falls back to
->   `context.startService(stopIntent)` when the binder is not connected (stop can no
->   longer get lost) and clears any pending start.
-> - `SignalMeasurementService.startMeasurement` is guarded by `processor.isActive`
->   (re-entry only re-asserts the foreground state); `stopMeasurement` on an inactive
->   processor only cleans up the notification/foreground state instead of touching the
->   coverage session; `onStartCommand` returns `START_NOT_STICKY`.
-> - The notification now carries a **Stop action** (`stopIntent` is passed to
->   `NotificationProvider.signalMeasurementService`).
-> - `SignalMeasurementProcessor.startMeasurement` registers the battery receiver and
->   the location/signal listeners only when a session actually starts (no duplicate
->   registrations).
-> - `SignalMeasurementActivity.onUserLeaveHint` enters PiP only while a measurement is
->   active; the duplicated (recursive) back-press callback was removed.
-> - `HomeFragment` auto-opens the measurement screen only on the *transition* to
->   active, not on every rebind.
-> Remaining open: the full PiP task-affinity fix (II.5 #4), startup state
-> reconciliation (II.5 #5), dead-code removal (II.5 #7).
+> **Status:** most of these are implemented on branch `feature/lifecycle` — see
+> **II.7 Applied fixes** for the complete list. Remaining open: startup state
+> reconciliation (#5) and dead-code removal (#7).
 
 1. **Remove the unconditional auto-start in `SignalMeasurementActivity.onStart`** (the `delay(1000)` coroutine). Start the measurement exactly once from an explicit user action (terms accepted / start button), and on `onServiceConnected` only *re-attach* to an existing session. This kills the restart-after-stop race and the double-start from duplicate instances.
 2. **Make stop robust:** queue a pending stop in `HomeViewModel` when `producer == null` (mirror of `toggleService`), or better: always stop via `context.startService(SignalMeasurementService.stopIntent(ctx))`, which works without a binder.
@@ -287,3 +267,90 @@ There is no single source of truth and no reconciliation on startup; the async s
 - **Duplicate instance:** start coverage measurement → Home button (PiP appears) → launcher icon → app opens → HomeFragment auto-opens `SignalMeasurementActivity` → observe PiP window + fullscreen instance (device/version dependent).
 - **Unstoppable:** start measurement → press stop and within ~1 s leave/re-enter the activity (or have a second instance from above) → `onStart`'s delayed auto-start re-creates the session.
 - **Stale notification / start screen:** start measurement → kill process from "background process limit"/OOM (or adb `am kill` after backgrounding without removing the notification race) → reopen app: Home shows start screen, prefs still claim running; or press stop in the brief window before the binder connects.
+- **PiP not expanding (loop mode):** run loop mode → Home button (PiP appears) → launcher icon → before the fix the PiP content flickered (activity destroyed + recreated by `FLAG_ACTIVITY_CLEAR_TASK`) and stayed in PiP; expected: PiP expands to fullscreen.
+
+## II.7 Applied fixes (2026-06-11, branch `feature/lifecycle`)
+
+All lifecycle fixes applied in response to the three symptoms in II.3, in the order they
+were made. Each addresses a root cause from the analysis above.
+
+### Round 1 — service control correctness
+
+1. **Auto-start race removed** — `SignalMeasurementActivity.kt`
+   - The `delay(1000)` auto-start coroutine in `onStart` is gone. The activity requests
+     the measurement start **once per activity instance** (`measurementStartRequested`
+     flag); later `onStart`s (leaving PiP, returning from recents) can no longer restart
+     a measurement the user just stopped.
+   - The duplicated — and potentially recursive — second `OnBackPressedCallback` in
+     `onCreate` was removed.
+2. **Start request can no longer get lost** — `HomeViewModel.kt`
+   - New `pendingStartType`: when `startSignalMeasurement()` is called before the
+     service binder is connected, the request is queued and executed in
+     `onServiceConnected` (mirrors the pre-existing `toggleService` mechanism). This
+     replaces the 1 s-delay workaround.
+3. **Stop is binder-independent** — `HomeViewModel.kt`
+   - `stopSignalMeasurement()` clears any pending start and, when the binder is not
+     connected (`producer == null`), sends `context.startService(stopIntent)` instead of
+     silently doing nothing. `Context` is constructor-injected for this.
+   - `detach()` also clears the pending start.
+4. **Service owns its lifecycle decisions** — `SignalMeasurementService.kt`
+   - `startMeasurement()` is guarded by `processor.isActive`: a second start request
+     (second client, screen re-entry) only re-asserts the foreground notification via
+     the new `ensureForeground()` and does not reset the wake lock or stop flags.
+   - `stopMeasurement()` on an **inactive** processor only removes the notification and
+     stops itself (cleans up orphaned notifications without corrupting coverage session
+     state); on an active processor it stops normally.
+   - `onStartCommand` returns `START_NOT_STICKY` — the system no longer resurrects the
+     service with a null intent after process death (the restarted instance could never
+     call `startForeground` and lingered as a zombie contradicting the UI).
+   - The notification now carries a **Stop action**: `stopIntent(this)` is passed to
+     `NotificationProvider.signalMeasurementService` instead of `null`.
+5. **No duplicate listener/receiver registration** — `SignalMeasurementProcessor.kt`
+   - The battery info receiver and the location/signal listeners are registered only
+     when a session actually starts (`shouldStartCoverage`), fixing the receiver leak on
+     repeated start calls (it was registered per call but unregistered only once).
+6. **PiP only while measuring** — `SignalMeasurementActivity.kt`
+   - `onUserLeaveHint` enters picture-in-picture only when
+     `activeSignalMeasurementLiveData.value == true`, so a finished/stopped measurement
+     no longer leaves a stale PiP window behind.
+
+### Round 2 — task-aware navigation (PiP expand instead of duplicate/start screen)
+
+7. **`bringActivityTaskToFront` helper** — `util/ActivityTaskUtil.kt` (new)
+   - Looks up the app's own task that holds a given activity via
+     `ActivityManager.appTasks` (matching `topActivity` on API 29+, falling back to the
+     task's `baseIntent` component) and calls `AppTask.moveToFront()` on it. Bringing a
+     pinned task to front **expands the PiP window to fullscreen** — the same mechanism
+     as tapping the app's card in Recents. Returns false when no task exists.
+8. **Coverage screen navigation** — `SignalMeasurementActivity.kt`, `HomeFragment.kt`
+   - New `SignalMeasurementActivity.startOrBringToFront(context)`: reuses the existing
+     instance via the helper, starts a new one only when none exists.
+   - `HomeFragment` navigates on **every** delivery of `active=true` again (so opening
+     the app while a measurement runs never leaves the start screen in front — the
+     symptom in the issue screenshot), which is now duplicate-safe: PiP instance →
+     expanded; destroyed instance (PiP window dismissed) → recreated; none → started.
+9. **Notification tap routes through the home screen** — `NotificationProviderImpl.kt`
+   - The signal-measurement notification content intent opens `HomeActivity` instead of
+     `SignalMeasurementActivity` directly. A `PendingIntent` cannot run the task-aware
+     lookup, so the direct intent was still a duplicate-instance path; `HomeActivity` →
+     `HomeFragment` performs the safe navigation. Side benefit: tapping a *stale*
+     notification no longer auto-starts a new measurement — it just opens the app.
+10. **Same fix for loop mode / speed test** — `MeasurementActivity.kt`, `HomeActivity.kt`
+    - `MeasurementActivity.start()` uses `FLAG_ACTIVITY_NEW_TASK or FLAG_ACTIVITY_CLEAR_TASK`;
+      while the activity was pinned (loop-mode PiP), the auto-reopen in `HomeActivity`'s
+      `isTestsRunningLiveData` listener **destroyed and recreated the activity inside the
+      pinned task** (visible flicker, stayed in PiP) instead of expanding it.
+    - New `MeasurementActivity.startOrBringToFront(context)` using the shared helper;
+      `HomeActivity`'s listener uses it for both the loop-mode and single-test reopen
+      paths. The explicit user-initiated start path (`HomeFragment` →
+      `MeasurementService.startTests` + `MeasurementActivity.start`) intentionally keeps
+      the fresh-start semantics.
+
+### Still open
+
+- **Startup state reconciliation** (II.5 #5): on app start, compare the persisted
+  `signalMeasurementIsRunning` flag, the processor's `_isActive` and the actual
+  foreground-service/notification state; clean up or resume accordingly.
+- **Dead-code removal** (II.5 #7): `setEndAlarm`/`isUnstoppable`/`shouldEndAfterLoopMode`,
+  `continueInSignalMeasurementIfShould`, the commented-out persisted-flag check in
+  `shouldOpenSignalMeasurementScreen`.

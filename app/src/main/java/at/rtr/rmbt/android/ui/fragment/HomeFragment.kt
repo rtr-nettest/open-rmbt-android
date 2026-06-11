@@ -252,15 +252,14 @@ class HomeFragment : BaseFragment() {
         }
 
         homeViewModel.activeSignalMeasurementLiveData.listen(this) {
-            val activeStateChanged = it != homeViewModel.state.isSignalMeasurementActive.get()
-            if (activeStateChanged) {
+            if (it != homeViewModel.state.isSignalMeasurementActive.get()) {
                 homeViewModel.state.isSignalMeasurementActive.set(it)
             }
-            // Open the measurement screen only on the transition to active. The mediator
-            // re-delivers the last value on every rebind (each onStart of this fragment),
-            // and launching the singleTask activity again while it sits in a pinned PiP
-            // task can create a second instance of it.
-            if (it && activeStateChanged) {
+            // While a measurement is active the start screen must not stay in the
+            // foreground - bring the (possibly picture-in-picture) measurement screen
+            // back instead. startOrBringToFront reuses the existing instance, so the
+            // re-delivery of the value on every rebind cannot create duplicates.
+            if (it) {
                 openSignalMeasurementActivity()
             }
             checkInformationAvailability()
@@ -323,7 +322,7 @@ class HomeFragment : BaseFragment() {
     }
 
     private fun openSignalMeasurementActivity() {
-        SignalMeasurementActivity.start(requireContext())
+        SignalMeasurementActivity.startOrBringToFront(requireContext())
     }
 
     private fun checkGPSAndShouldMakeAction(

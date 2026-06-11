@@ -35,6 +35,7 @@ import at.rtr.rmbt.android.databinding.ItemCoverageMarkerDetailsBinding
 import at.rtr.rmbt.android.map.DefaultLocation
 import at.rtr.rmbt.android.ui.dialog.CoverageSettingsDialog
 import at.rtr.rmbt.android.ui.dialog.MessageDialog
+import at.rtr.rmbt.android.util.bringActivityTaskToFront
 import at.rtr.rmbt.android.util.formatAccuracy
 import at.specure.info.network.NetworkInfo
 import at.specure.measurement.coverage.domain.models.CoverageMeasurementData
@@ -805,6 +806,19 @@ class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback, Coverage
     companion object {
 
         fun start(context: Context) = context.startActivity(Intent(context, SignalMeasurementActivity::class.java))
+
+        /**
+         * Brings an already running instance back to the foreground - expanding it when it
+         * sits in a pinned picture-in-picture task - and only starts a new instance when
+         * none exists. Launching with a plain startActivity while the instance is pinned
+         * would create a second instance inside the caller's task (PiP window and
+         * fullscreen instance at the same time).
+         */
+        fun startOrBringToFront(context: Context) {
+            if (!context.bringActivityTaskToFront(SignalMeasurementActivity::class.java)) {
+                start(context)
+            }
+        }
     }
 }
 

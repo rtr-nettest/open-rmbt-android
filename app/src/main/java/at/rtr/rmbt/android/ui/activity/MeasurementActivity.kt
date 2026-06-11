@@ -34,6 +34,7 @@ import at.rtr.rmbt.android.R
 import at.rtr.rmbt.android.databinding.ActivityMeasurementBinding
 import at.rtr.rmbt.android.di.viewModelLazy
 import at.rtr.rmbt.android.ui.dialog.SimpleDialog
+import at.rtr.rmbt.android.util.bringActivityTaskToFront
 import at.rtr.rmbt.android.util.listen
 import at.rtr.rmbt.android.viewmodel.MeasurementViewModel
 import at.specure.data.entity.LoopModeRecord
@@ -307,6 +308,18 @@ class MeasurementActivity : BaseActivity(), SimpleDialog.Callback {
             val intent = Intent(context, MeasurementActivity::class.java)
             intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
             context.startActivity(intent)
+        }
+
+        /**
+         * Brings an already running instance back to the foreground - expanding it when it
+         * sits in a pinned picture-in-picture task (loop mode) - and only starts a new
+         * instance when none exists. start() uses FLAG_ACTIVITY_CLEAR_TASK, which would
+         * destroy and recreate the pinned activity without leaving picture-in-picture mode.
+         */
+        fun startOrBringToFront(context: Context) {
+            if (!context.bringActivityTaskToFront(MeasurementActivity::class.java)) {
+                start(context)
+            }
         }
     }
 }
