@@ -4,10 +4,8 @@ import android.content.Context
 import android.location.Location
 import android.os.Build
 import androidx.annotation.Keep
-import at.rmbt.client.control.PermissionStatusBody
 import at.specure.core.BuildConfig
 import at.specure.location.LocationInfo
-import at.specure.util.hasPermission
 import com.google.gson.annotations.Expose
 import com.google.gson.annotations.SerializedName
 import java.util.Locale
@@ -55,32 +53,6 @@ class DeviceInfo(context: Context, val location: Location? = null, val temperatu
     val clientVersionName = BuildConfig.VERSION_NAME
 
     val clientVersionCode = BuildConfig.VERSION_CODE
-
-    @SerializedName("android_permission_status")
-    val permissionsStatus: List<PermissionStatusBody> = mutableListOf<PermissionStatusBody>().apply {
-        add(
-            PermissionStatusBody(
-                android.Manifest.permission.ACCESS_FINE_LOCATION,
-                context.hasPermission(android.Manifest.permission.ACCESS_FINE_LOCATION)
-            )
-        )
-        add(
-            PermissionStatusBody(
-                android.Manifest.permission.ACCESS_COARSE_LOCATION,
-                context.hasPermission(android.Manifest.permission.ACCESS_COARSE_LOCATION)
-            )
-        )
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            add(
-                PermissionStatusBody(
-                    android.Manifest.permission.ACCESS_BACKGROUND_LOCATION,
-                    context.hasPermission(android.Manifest.permission.ACCESS_BACKGROUND_LOCATION)
-                )
-            )
-        } else {
-            add(PermissionStatusBody("android.permission.ACCESS_BACKGROUND_LOCATION", false))
-        }
-    }
 
     data class Location(
         val lat: Double,

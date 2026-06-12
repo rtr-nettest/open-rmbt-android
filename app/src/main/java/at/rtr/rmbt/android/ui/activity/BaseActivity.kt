@@ -1,6 +1,5 @@
 package at.rtr.rmbt.android.ui.activity
 
-import android.annotation.TargetApi
 import android.app.PictureInPictureParams
 import android.content.res.Configuration
 import android.graphics.Point
@@ -67,7 +66,6 @@ abstract class BaseActivity : AppCompatActivity() {
         viewModels.add(viewModel)
     }
 
-    @TargetApi(Build.VERSION_CODES.HONEYCOMB_MR2)
     protected fun checkIsTelevision(): Boolean {
         var isAndroidTV = false
         val uiMode = this.resources?.configuration?.uiMode

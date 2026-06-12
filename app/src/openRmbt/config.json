@@ -459,6 +459,11 @@
       "name": "MINIMAL_FENCE_DURATION_MILLIS_SIGNAL_MEASUREMENT",
       "value": "1000",
       "visible": false
+    },
+    {
+      "name": "SHOULD_REQUEST_BACKGROUND_LOCATION",
+      "value": true,
+      "visible": false
     }
   ]
 }

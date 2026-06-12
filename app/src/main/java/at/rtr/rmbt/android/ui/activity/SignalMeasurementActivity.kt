@@ -79,7 +79,6 @@ class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback, Coverage
     private var infoWindowMarker: Marker? = null
     private var warningSnackbar: Snackbar? = null
     private var sendingResultsErrorSnackbar: Snackbar? = null
-    private var noBackgroundLocationPermissionGrantedSnackbar: Snackbar? = null
     private var showMeasurementResultsJob: Job? = null
     private var updateUnfinishedMeasurementJob: Job? = null
     private val emptyBitmap by lazy { createBitmap(1, 1) }
@@ -202,22 +201,6 @@ class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback, Coverage
         sendingResultsErrorSnackbar?.show()
     }
 
-    private fun showNoBackgroundLocationAllowed() {
-        if (sendingResultsErrorSnackbar?.isShownOrQueued == true) return
-        if (warningSnackbar?.isShownOrQueued == true) return
-        if (noBackgroundLocationPermissionGrantedSnackbar?.isShownOrQueued == true) return
-
-        noBackgroundLocationPermissionGrantedSnackbar = createErrorSnackbar(
-            getString(R.string.location_usage_always_warning_message),
-            R.string.allow,
-            {
-                this@SignalMeasurementActivity.openAppSettings()
-                hideBackgroundLocationMissingSnackbar()
-            }
-        )
-        noBackgroundLocationPermissionGrantedSnackbar?.show()
-    }
-
     private fun createErrorSnackbar(
         message: String,
         actionResId: Int,
@@ -249,7 +232,6 @@ class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback, Coverage
         hideDialog()
         setMyPositionAndButtonVisible(false)
         hideNetworkWarningSnackbar()
-        hideBackgroundLocationMissingSnackbar()
         setInfoVisible(false)
         setResultTitleVisible(true)
         setSettingsButtonVisible(false)
@@ -266,10 +248,8 @@ class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback, Coverage
     }
 
     private fun updateUnfinishedMeasurement(coverageMeasurementData: CoverageMeasurementData?) {
-
         setSettingsButtonVisible(true)
         checkNetwork(coverageMeasurementData?.currentNetworkInfo)
-        checkLocationPermissions()
         setInfoVisible(true)
         setResultTitleVisible(false)
         updatePingValue(coverageMeasurementData)
@@ -293,20 +273,6 @@ class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback, Coverage
                 coverageMeasurementData?.fences.toCoverageResultItemRecords(),
                 coverageMeasurementData?.state
             )
-        }
-    }
-
-    private fun checkLocationPermissions() {
-        val backgroundLocationPermissionsGranted =
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                this.hasPermission(Manifest.permission.ACCESS_BACKGROUND_LOCATION)
-            } else {
-                true
-            }
-        if (!backgroundLocationPermissionsGranted) {
-            showNoBackgroundLocationAllowed()
-        } else {
-            hideBackgroundLocationMissingSnackbar()
         }
     }
 
@@ -514,10 +480,6 @@ class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback, Coverage
 
     fun hideNetworkWarningSnackbar() {
         warningSnackbar?.dismiss()
-    }
-
-    fun hideBackgroundLocationMissingSnackbar() {
-        noBackgroundLocationPermissionGrantedSnackbar?.dismiss()
     }
 
     private fun showWarningButton() {
