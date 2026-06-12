@@ -53,10 +53,11 @@ import kotlinx.coroutines.withContext
 import timber.log.Timber
 import javax.inject.Inject
 import kotlin.math.floor
+import kotlin.math.max
 import kotlin.math.pow
 import kotlin.math.round
 
-const val MAX_MARKER_COUNT_DISPLAYED_THRESHOLD = 500
+const val MAX_MARKER_COUNT_DISPLAYED_THRESHOLD = 300
 const val MIN_MAP_UPDATE_RATE =
     700 // do not set it bellow maybe 500ms as map is very sensitive to frequent updates
 
@@ -81,7 +82,6 @@ class CoverageResultViewModel @Inject constructor(
 
     private var _pointsLiveData = MutableLiveData<List<CoverageMeasurementFenceRecord>>()
 
-    //    private var _dedicatedSignalMeasurementSessionIdLiveData : LiveData<String?> = MutableLiveData<String>(null)
     private val _coverageMeasurementDataLiveData: LiveData<CoverageMeasurementData?> =
         rtrCoverageMeasurementProcessor.stateManager.state.asLiveData(viewModelScope.coroutineContext)
 
@@ -95,9 +95,6 @@ class CoverageResultViewModel @Inject constructor(
 
     val coverageMeasurementDataLiveData: LiveData<CoverageMeasurementData?>
         get() = _coverageMeasurementDataLiveData
-
-//    val dedicatedSignalMeasurementSessionIdLiveData : LiveData<String?>
-//        get() = _dedicatedSignalMeasurementSessionIdLiveData
 
     val fencesLiveData: LiveData<List<FencesResultItemRecord>>
         get() {
@@ -188,7 +185,7 @@ class CoverageResultViewModel @Inject constructor(
     }
 
     private fun calculateMarkerRadius(zoom: Float): Double {
-        return round(2.0.pow(20.0 - zoom.toDouble()) * 0.8)
+        return max(round(2.0.pow(20.0 - zoom.toDouble()) * 0.8), 2.0)
     }
 
     private var zoomUpdateJob: Job? = null

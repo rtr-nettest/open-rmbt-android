@@ -79,7 +79,7 @@ class LoopInstructionsActivity : BaseActivity(), Callback {
         if (isNeedToAskForNotificationPermission()) {
             checkNotificationPermission()
         } else {
-            checkBackgroundLocationPermission()
+            viewModel.checkBackgroundLocationPermission(this)
             finish()
         }
     }
@@ -91,7 +91,7 @@ class LoopInstructionsActivity : BaseActivity(), Callback {
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         if (requestCode == REQUEST_CODE_NOTIFICATION) {
-            checkBackgroundLocationPermission()
+            viewModel.checkBackgroundLocationPermission(this)
             finish()
         }
     }
@@ -120,43 +120,6 @@ class LoopInstructionsActivity : BaseActivity(), Callback {
                     REQUEST_CODE_NOTIFICATION
                 )
                 viewModel.notificationPermissionsWereAsked()
-            }
-        }
-    }
-
-    //@TODO: De-duplicate from LoopConfigurationActivity
-    private fun checkBackgroundLocationPermission() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            val hasForegroundLocationPermission =
-                ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
-            if (hasForegroundLocationPermission) {
-                val hasBackgroundLocationPermission = ActivityCompat.checkSelfPermission(
-                    this,
-                    Manifest.permission.ACCESS_BACKGROUND_LOCATION
-                ) == PackageManager.PERMISSION_GRANTED
-                if (hasBackgroundLocationPermission) {
-                    // handle location update
-                } else {
-                    if (viewModel.shouldAskForBackgroundPermission()) {
-                        ActivityCompat.requestPermissions(
-                            this,
-                            arrayOf(Manifest.permission.ACCESS_BACKGROUND_LOCATION),
-                            REQUEST_CODE_BACKGROUND
-                        )
-                        viewModel.backgroundPermissionsWereAsked()
-                    }
-                }
-            } else {
-                if (viewModel.shouldAskForPermission()) {
-                    ActivityCompat.requestPermissions(
-                        this,
-                        arrayOf(
-                            Manifest.permission.ACCESS_FINE_LOCATION,
-                            Manifest.permission.ACCESS_BACKGROUND_LOCATION
-                        ), REQUEST_CODE_BACKGROUND
-                    )
-                    viewModel.backgroundPermissionsWereAsked()
-                }
             }
         }
     }

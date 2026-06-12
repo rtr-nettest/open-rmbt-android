@@ -505,4 +505,8 @@ class AppConfig @Inject constructor(context: Context, private val serverSettings
     override var minimalFenceDurationMillisForSignalMeasurement: Long
         get() = getLong(BuildConfig.MINIMAL_FENCE_DURATION_MILLIS_SIGNAL_MEASUREMENT)
         set(value) = setLong(BuildConfig.MINIMAL_FENCE_DURATION_MILLIS_SIGNAL_MEASUREMENT, value)
+
+    override var shouldRequestBackgroundLocation: Boolean
+        get() = getBoolean(BuildConfig.SHOULD_REQUEST_BACKGROUND_LOCATION)
+        set(value) = setBoolean(BuildConfig.SHOULD_REQUEST_BACKGROUND_LOCATION, value)
 }

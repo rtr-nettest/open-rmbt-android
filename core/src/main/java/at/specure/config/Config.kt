@@ -482,4 +482,9 @@ interface Config {
      */
     var minimalFenceDurationMillisForSignalMeasurement: Long
 
+    /**
+     * If the app should request the background location permission
+     */
+    var shouldRequestBackgroundLocation: Boolean
+
 }

@@ -105,6 +105,9 @@ class HomeViewModel @Inject constructor(
     val isalwaysAllowCellInfosOn: Boolean
         get() = appConfig.alwaysAllowCellInfos
 
+    val shouldRequestBackgroundLocationPermission: Boolean
+        get() = appConfig.shouldRequestBackgroundLocation
+
     private val serviceConnection = object : ServiceConnection {
 
         override fun onServiceConnected(name: ComponentName?, service: IBinder?) {

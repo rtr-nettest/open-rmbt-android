@@ -31,19 +31,16 @@ class LocationAccessImpl(private val context: Context) : LocationAccess {
     override val requiredPermission = Manifest.permission.ACCESS_FINE_LOCATION
 
     override val monitoredPermission: Array<String>
-        get() =
+        get() {
+            var permissions = arrayOf(
+                Manifest.permission.ACCESS_FINE_LOCATION,
+                Manifest.permission.ACCESS_COARSE_LOCATION
+            )
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                arrayOf(
-                    Manifest.permission.ACCESS_FINE_LOCATION,
-                    Manifest.permission.ACCESS_COARSE_LOCATION,
-                    Manifest.permission.ACCESS_BACKGROUND_LOCATION
-                )
-            } else {
-                arrayOf(
-                    Manifest.permission.ACCESS_FINE_LOCATION,
-                    Manifest.permission.ACCESS_COARSE_LOCATION
-                )
+                permissions += Manifest.permission.ACCESS_BACKGROUND_LOCATION
             }
+            return permissions
+        }
 
     override val isAllowed: Boolean
         get() = context.isCoarseLocationPermitted()

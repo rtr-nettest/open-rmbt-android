@@ -38,7 +38,8 @@ class LoopConfigurationActivity : BaseActivity(), InputSettingDialog.Callback {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
             ViewCompat.setOnApplyWindowInsetsListener(binding.root) { v, windowInsets ->
                 val insetsSystemBars = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
-                val insetsDisplayCutout = windowInsets.getInsets(WindowInsetsCompat.Type.displayCutout())
+                val insetsDisplayCutout =
+                    windowInsets.getInsets(WindowInsetsCompat.Type.displayCutout())
                 val topSafe = max(insetsSystemBars.top, insetsDisplayCutout.top)
                 val leftSafe = max(insetsSystemBars.left, insetsDisplayCutout.left)
                 val rightSafe = max(insetsSystemBars.right, insetsDisplayCutout.right)
@@ -91,7 +92,11 @@ class LoopConfigurationActivity : BaseActivity(), InputSettingDialog.Callback {
                     MeasurementService.startTests(this)
                     MeasurementActivity.start(this)
                 } else {
-                    MessageDialog.show(this.supportFragmentManager, getString(R.string.home_no_internet_connection), "DialogNoInternet")
+                    MessageDialog.show(
+                        this.supportFragmentManager,
+                        getString(R.string.home_no_internet_connection),
+                        "DialogNoInternet"
+                    )
                 }
             }
         }
@@ -103,7 +108,7 @@ class LoopConfigurationActivity : BaseActivity(), InputSettingDialog.Callback {
         if (isNeedToAskForNotificationPermission()) {
             checkNotificationPermission()
         } else {
-            checkBackgroundLocationPermission()
+            viewModel.checkBackgroundLocationPermission(this)
         }
     }
 
@@ -114,7 +119,7 @@ class LoopConfigurationActivity : BaseActivity(), InputSettingDialog.Callback {
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         if (requestCode == REQUEST_CODE_NOTIFICATION) {
-            checkBackgroundLocationPermission()
+            viewModel.checkBackgroundLocationPermission(this)
         }
     }
 
@@ -133,6 +138,7 @@ class LoopConfigurationActivity : BaseActivity(), InputSettingDialog.Callback {
             false
         }
     }
+
     private fun checkNotificationPermission() {
         if (isNeedToAskForNotificationPermission() && Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             if (viewModel.shouldAskForNotificationPermission()) {
@@ -142,41 +148,6 @@ class LoopConfigurationActivity : BaseActivity(), InputSettingDialog.Callback {
                     REQUEST_CODE_NOTIFICATION
                 )
                 viewModel.notificationPermissionsWereAsked()
-            }
-        }
-    }
-
-    private fun checkBackgroundLocationPermission() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            val hasForegroundLocationPermission =
-                ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
-            if (hasForegroundLocationPermission) {
-                val hasBackgroundLocationPermission = ActivityCompat.checkSelfPermission(
-                    this,
-                    Manifest.permission.ACCESS_BACKGROUND_LOCATION
-                ) == PackageManager.PERMISSION_GRANTED
-                if (hasBackgroundLocationPermission) {
-                    // handle location update
-                } else {
-                    if (viewModel.shouldAskForBackgroundPermission()) {
-                        ActivityCompat.requestPermissions(
-                            this,
-                            arrayOf(Manifest.permission.ACCESS_BACKGROUND_LOCATION), REQUEST_CODE_BACKGROUND
-                        )
-                        viewModel.backgroundPermissionsWereAsked()
-                    }
-                }
-            } else {
-                if (viewModel.shouldAskForPermission()) {
-                    ActivityCompat.requestPermissions(
-                        this,
-                        arrayOf(
-                            Manifest.permission.ACCESS_FINE_LOCATION,
-                            Manifest.permission.ACCESS_BACKGROUND_LOCATION
-                        ), REQUEST_CODE_BACKGROUND
-                    )
-                    viewModel.backgroundPermissionsWereAsked()
-                }
             }
         }
     }
@@ -203,6 +174,7 @@ class LoopConfigurationActivity : BaseActivity(), InputSettingDialog.Callback {
                         .show(supportFragmentManager, CODE_DIALOG_INVALID)
                 }
             }
+
             CODE_DISTANCE -> {
                 if (!viewModel.isDistanceValid(
                         value.toInt(),
@@ -254,9 +226,9 @@ class LoopConfigurationActivity : BaseActivity(), InputSettingDialog.Callback {
         private const val CODE_WAITING_TIME: Int = 1
         private const val CODE_DISTANCE: Int = 2
         private const val CODE_DIALOG_INVALID = 3
-        private const val REQUEST_CODE_BACKGROUND = 1
         private const val REQUEST_CODE_NOTIFICATION = 2
 
-        fun start(context: Context) = context.startActivity(Intent(context, LoopConfigurationActivity::class.java))
+        fun start(context: Context) =
+            context.startActivity(Intent(context, LoopConfigurationActivity::class.java))
     }
 }
