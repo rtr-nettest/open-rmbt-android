@@ -34,6 +34,7 @@ import at.rtr.rmbt.android.R
 import at.rtr.rmbt.android.databinding.ActivityMeasurementBinding
 import at.rtr.rmbt.android.di.viewModelLazy
 import at.rtr.rmbt.android.ui.dialog.SimpleDialog
+import at.rtr.rmbt.android.util.PipRegistry
 import at.rtr.rmbt.android.util.bringActivityTaskToFront
 import at.rtr.rmbt.android.util.listen
 import at.rtr.rmbt.android.viewmodel.MeasurementViewModel
@@ -190,7 +191,13 @@ class MeasurementActivity : BaseActivity(), SimpleDialog.Callback {
         newConfig: Configuration
     ) {
         super.onPictureInPictureModeChanged(isInPictureInPictureMode, newConfig)
+        PipRegistry.onPictureInPictureModeChanged(this, isInPictureInPictureMode)
         // TODO: adjust variable for state and adjust UI to process that state
+    }
+
+    override fun onDestroy() {
+        PipRegistry.onDestroyed(this)
+        super.onDestroy()
     }
 
 
@@ -306,7 +313,11 @@ class MeasurementActivity : BaseActivity(), SimpleDialog.Callback {
 
         fun start(context: Context) {
             val intent = Intent(context, MeasurementActivity::class.java)
-            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+            // No NEW_TASK/CLEAR_TASK: the screen joins the caller's (home) task so the app
+            // has a single task in Recents, and HomeActivity below survives. CLEAR_TASK
+            // used to destroy the home task, which let launcher intents resolve into the
+            // pinned PiP task while in loop mode.
+            intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
             context.startActivity(intent)
         }
 

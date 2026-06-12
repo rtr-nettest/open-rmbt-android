@@ -154,13 +154,19 @@ All notification building is in `app/di/NotificationProviderImpl` behind the `No
 | `CoverageMeasurementSettings` | `core/.../data/CoverageMeasurementSettings.kt` | SharedPreferences: `signalMeasurementIsRunning`, `signalMeasurementShouldContinueInLastSession`, `signalMeasurementLastMeasurementId` — **persisted across process death**. |
 | `HomeViewModel` | `app/.../viewmodel/HomeViewModel.kt` | Service client: `attach()`/`detach()` = bind/unbind; `startSignalMeasurement` / `stopSignalMeasurement` via binder `producer`. **Not shared** — each Activity/Fragment gets its own instance. |
 | `HomeFragment` | `app/.../ui/fragment/HomeFragment.kt` | Start screen. Binds in `onStart`, unbinds in `onStop`. Auto-opens `SignalMeasurementActivity` when active-state LiveData turns true. |
-| `SignalMeasurementActivity` | `app/.../ui/activity/SignalMeasurementActivity.kt` | Measurement screen (map). Own `HomeViewModel` + `CoverageResultViewModel`. PiP-capable, `launchMode=singleTask`. Auto-starts measurement in `onStart` after 1 s delay. |
+| `SignalMeasurementActivity` | `app/.../ui/activity/SignalMeasurementActivity.kt` | Measurement screen (map). Own `HomeViewModel` + `CoverageResultViewModel`. PiP-capable. *(Originally `singleTask` with a 1 s delayed auto-start in `onStart`; now `singleTop` in the home task with a once-per-instance queued start — see II.7.)* |
 | `MeasurementService` | `core/.../measurement/MeasurementService.kt` | Speed-test service. Also binds `SignalMeasurementService` (`BIND_AUTO_CREATE`) in `onCreate` to pause signal measurement during tests. |
 | `NotificationProviderImpl` | `app/.../di/NotificationProviderImpl.kt` | Builds the signal-measurement notification. |
 
 Three independent clients bind the same service: HomeFragment's VM, SignalMeasurementActivity's VM, and MeasurementService.
 
 ## II.2 Control flow
+
+> **Note:** II.2 and II.3 document the state **as analyzed on 2026-06-11, before the
+> fixes** — they explain the root causes. The applied fixes are in **II.7**, and the
+> resulting navigation model is summarized in **II.8**. Statements below that no longer
+> hold are the ones addressed by II.7 (delayed auto-start, lost stop requests, missing
+> notification Stop action, `singleTask`/`CLEAR_TASK` task layout, …).
 
 ### II.2.1 Start
 1. Home screen coverage button → `SignalMeasurementTermsActivity` (its result is ignored; the start code in the activity-result callback is commented out).
@@ -271,10 +277,17 @@ There is no single source of truth and no reconciliation on startup; the async s
 
 ## II.7 Applied fixes (2026-06-11, branch `feature/lifecycle`)
 
-All lifecycle fixes applied in response to the three symptoms in II.3, in the order they
-were made. Each addresses a root cause from the analysis above.
+Chronological record of the changes made in response to the symptoms in II.3 — kept
+honest: this was an **iterative process and several attempts did not work** and were
+superseded. Each entry carries a status:
 
-### Round 1 — service control correctness
+- ✅ **works** — in effect and verified on device
+- ⚠️ **partially worked / reworked** — solved its target problem but caused or missed
+  another one; parts survive in later fixes
+- ❌ **did not work** — the approach failed on device and only remains as defense in
+  depth (or was removed)
+
+### Round 1 — service control correctness (✅ all six in effect)
 
 1. **Auto-start race removed** — `SignalMeasurementActivity.kt`
    - The `delay(1000)` auto-start coroutine in `onStart` is gone. The activity requests
@@ -316,36 +329,46 @@ were made. Each addresses a root cause from the analysis above.
 
 ### Round 2 — task-aware navigation (PiP expand instead of duplicate/start screen)
 
-7. **`bringActivityTaskToFront` helper** — `util/ActivityTaskUtil.kt` (new)
+7. ⚠️ **`bringActivityTaskToFront` helper** — `util/ActivityTaskUtil.kt` (new)
    - Looks up the app's own task that holds a given activity via
      `ActivityManager.appTasks` (matching `topActivity` on API 29+, falling back to the
-     task's `baseIntent` component) and calls `AppTask.moveToFront()` on it. Bringing a
-     pinned task to front **expands the PiP window to fullscreen** — the same mechanism
-     as tapping the app's card in Recents. Returns false when no task exists.
-8. **Coverage screen navigation** — `SignalMeasurementActivity.kt`, `HomeFragment.kt`
+     task's `baseIntent` component) and calls `AppTask.moveToFront()` on it. The
+     assumption was that bringing a pinned task to front expands the PiP window the way
+     tapping a Recents card does. Returns false when no task exists.
+   - **Honest assessment:** this worked only under the #11 task layout, where the
+     pinned task had been *launched* (and was therefore in the recents list). It later
+     turned out to miss reparent-created pinned tasks entirely (#15) and the expansion
+     assumption itself does not hold on MIUI (#15/#16). The helper survives as steps
+     2–4 of the lookup chain (see II.8); the PiP case is handled by #16.
+8. ⚠️ **Coverage screen navigation** — `SignalMeasurementActivity.kt`, `HomeFragment.kt`
    - New `SignalMeasurementActivity.startOrBringToFront(context)`: reuses the existing
      instance via the helper, starts a new one only when none exists.
    - `HomeFragment` navigates on **every** delivery of `active=true` again (so opening
      the app while a measurement runs never leaves the start screen in front — the
-     symptom in the issue screenshot), which is now duplicate-safe: PiP instance →
-     expanded; destroyed instance (PiP window dismissed) → recreated; none → started.
-9. **Notification tap routes through the home screen** — `NotificationProviderImpl.kt`
+     symptom in the issue screenshot).
+   - **Honest assessment:** the navigation *pattern* is still in effect, but the claim
+     that it was "duplicate-safe" relied on #7's flawed PiP assumption; the PiP case
+     only became safe with #16.
+9. ✅ **Notification tap routes through the home screen** — `NotificationProviderImpl.kt`
    - The signal-measurement notification content intent opens `HomeActivity` instead of
      `SignalMeasurementActivity` directly. A `PendingIntent` cannot run the task-aware
      lookup, so the direct intent was still a duplicate-instance path; `HomeActivity` →
      `HomeFragment` performs the safe navigation. Side benefit: tapping a *stale*
      notification no longer auto-starts a new measurement — it just opens the app.
-10. **Same fix for loop mode / speed test** — `MeasurementActivity.kt`, `HomeActivity.kt`
+10. ⚠️ **Same fix for loop mode / speed test** — `MeasurementActivity.kt`, `HomeActivity.kt`
     - `MeasurementActivity.start()` uses `FLAG_ACTIVITY_NEW_TASK or FLAG_ACTIVITY_CLEAR_TASK`;
       while the activity was pinned (loop-mode PiP), the auto-reopen in `HomeActivity`'s
       `isTestsRunningLiveData` listener **destroyed and recreated the activity inside the
       pinned task** (visible flicker, stayed in PiP) instead of expanding it.
     - New `MeasurementActivity.startOrBringToFront(context)` using the shared helper;
       `HomeActivity`'s listener uses it for both the loop-mode and single-test reopen
-      paths. The explicit user-initiated start path (`HomeFragment` →
-      `MeasurementService.startTests` + `MeasurementActivity.start`) intentionally keeps
-      the fresh-start semantics.
-11. **Distinct `taskAffinity` for the PiP activities** — `AndroidManifest.xml`
+      paths.
+    - **Honest assessment:** this round originally kept the `CLEAR_TASK` "fresh-start
+      semantics" of `MeasurementActivity.start()` — which #14 later identified as the
+      *root cause* of the loop-mode launcher bug and removed. The screen-video analysis
+      (#11) also showed this fix alone could not work, because the launcher intent never
+      reached the app's code in the first place.
+11. ⚠️ **Distinct `taskAffinity` for the PiP activities** — `AndroidManifest.xml`
     - Screen-video analysis (issue2, 2026-06-11) showed that with loop mode pinned, a
       launcher-icon tap launched **`HomeActivity` *inside* the pinned task** (the app
       splash flashed within the PiP window and the app never came to the foreground).
@@ -358,11 +381,12 @@ were made. Each addresses a root cause from the analysis above.
       measurement task can no longer be a match for `HomeActivity` (or any other
       default-affinity) launches: the icon tap always opens the home task, whose
       listeners then expand the pinned task via `startOrBringToFront`.
-    - Side effects to be aware of: each measurement screen now lives in its own task
-      (separate card in Recents while running; closing it returns to the home task —
-      previously the loop flow returned to the launcher because the home task had been
-      cleared).
-12. **`autoRemoveFromRecents` for the measurement tasks** — `AndroidManifest.xml`
+    - **Honest assessment:** it fixed the launcher-routing bug, but the side effect —
+      each measurement screen living in its own task — directly caused the next
+      user-visible problem (#12/#13: multiple app cards in Recents, perceived as
+      "multiple instances"). The affinity itself survived into #14, the separate-task
+      layout (`singleTask`) did not.
+12. ⚠️ **`autoRemoveFromRecents` for the measurement tasks** — `AndroidManifest.xml`
     - Follow-up to #11 (screenshot issue, 2026-06-12): after a finished speed test the
       results open in the *main* task (`ResultsActivity` has the default affinity) and
       `MeasurementActivity.finish()` empties the measurement task — but Android keeps a
@@ -370,9 +394,93 @@ were made. Each addresses a root cause from the analysis above.
       would relaunch `MeasurementActivity` via its base intent).
     - Both PiP activities now declare `android:autoRemoveFromRecents="true"`: the
       measurement task disappears from Recents the moment its last activity finishes.
-      While a measurement is *running* the second card is intentionally still visible
-      (the task is alive); selecting either card converges on the measurement screen via
-      the auto-navigation listeners.
+    - **Honest assessment:** it removed *dead* task cards, but the user-visible problem
+      was *alive* tasks showing as extra cards — which this cannot address. Kept only
+      as defense in depth for legacy/edge cases where a measurement activity still
+      roots its own task.
+13. ❌ **`excludeFromRecents` for the measurement tasks** — `AndroidManifest.xml`
+    - Follow-up (screenshot issue, second device, 2026-06-12): with a speed test and a
+      coverage measurement alive simultaneously, Recents showed **three** RTR cards
+      (home, speed test, coverage) — perceived as "three instances of the app".
+    - Both PiP activities now also declare `android:excludeFromRecents="true"`.
+    - **Did not work.** The overview always shows the current/most-recently-used task
+      regardless of the flag (AOSP behavior), and MIUI/HyperOS shows excluded tasks
+      even beyond that (verified via `dumpsys activity recents`: the coverage task
+      carried `FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS` in its intent and was still rendered
+      as a card). `ActivityManager.getAppTasks()` does keep returning excluded tasks,
+      so `bringActivityTaskToFront` kept working — but "one card" cannot be achieved
+      with separate tasks at all. The attribute remains in the manifest only as defense
+      in depth; the actual solution is #14.
+14. ⚠️ **Single-task navigation model** — `AndroidManifest.xml`, `MeasurementActivity.kt`,
+    `SignalMeasurementActivity.kt`, `NotificationProviderImpl.kt`
+    - The measurement screens now **join the home task** again, so the app has exactly
+      one task → one Recents card:
+      - `launchMode` changed `singleTask` → **`singleTop`** for both PiP activities
+        (`singleTask` + custom affinity is what forced the separate task);
+      - `MeasurementActivity.start()` no longer uses
+        `FLAG_ACTIVITY_NEW_TASK | FLAG_ACTIVITY_CLEAR_TASK` (which destroyed the home
+        task — the root cause of the loop-mode launcher bug); both `start()` helpers use
+        `FLAG_ACTIVITY_CLEAR_TOP | FLAG_ACTIVITY_SINGLE_TOP` to reuse an in-task
+        instance instead of stacking duplicates;
+      - the custom `taskAffinity` (#11) is **kept**: it now only takes effect for the
+        *pinned* PiP task and keeps preventing launcher/`HomeActivity` intents from
+        being routed into it when no home task exists;
+      - the speed-test/loop notification content intents open `HomeActivity` (like the
+        signal notification, #9) — a direct `PendingIntent` to a `singleTop` activity
+        with a custom affinity would create a second instance in a new task.
+    - PiP still splits the activity into a pinned task while pinned (inherent to PiP;
+      pinned tasks don't show in Recents). On Android 11+ the system reparents the
+      activity **back into the home task** when the PiP is expanded
+      (`mLastParentBeforePip`), so the single-card invariant is restored after PiP. On
+      Android 8–10 the expanded task stays separate — there `excludeFromRecents` (#13)
+      limits the damage.
+    - `startOrBringToFront` (#7/#8/#10) stays the navigation entry point: it finds the
+      task containing the activity (main task via `topActivity` on API 29+, pinned task
+      via `baseIntent`) and falls back to a CLEAR_TOP/SINGLE_TOP start.
+    - **Honest assessment:** the one-card goal was achieved, but the claimed PiP-expand
+      mechanism ("the system reparents the activity back on expand") was never reached
+      in practice: the refactor immediately *regressed* PiP navigation — a new
+      duplicate-instance clash (#15) — because the helper could not see
+      reparent-created pinned tasks. The task layout of #14 stands; its PiP story was
+      wrong and is replaced by #16.
+15. ❌ **Running-task fallback in `bringActivityTaskToFront`** — `ActivityTaskUtil.kt`,
+    `AndroidManifest.xml`
+    - On-device regression after #14: PiP window + fullscreen instance in parallel
+      again. Cause: when an activity enters PiP *from the home task* (the #14 layout),
+      the system creates the pinned task **by reparenting** — that transient task is not
+      part of the recents list, and `ActivityManager.getAppTasks()` is recents-based, so
+      the helper missed it and the fallback `start()` created a second instance in the
+      home task. (Under the old `singleTask` layout the pinned task had been *launched*,
+      hence present in recents — that's why the helper worked before #14.)
+    - The helper now falls back to `ActivityManager.getRunningTasks()` +
+      `moveTaskToFront(taskId, 0)`, which reports the app's own tasks including the
+      reparented pinned one. Requires the **normal-level `REORDER_TASKS` permission**
+      (added to the manifest; no user prompt).
+    - **Did not work for its purpose.** The lookup itself succeeds, but
+      `moveTaskToFront` on a *pinned* task is a **no-op on MIUI/HyperOS** (logcat
+      showed the `TO_FRONT` transition request for the pinned task, yet the PiP stayed
+      pinned and the start screen remained in front — the "even worse" clash report).
+      The fallback remains in the chain because it is correct for *non-pinned*
+      reparented tasks; for the pinned case it is replaced by #16.
+16. **Deterministic PiP handling: finish + relaunch via `PipRegistry`** *(current
+    approach — installed 2026-06-12, awaiting on-device confirmation)* —
+    `ActivityTaskUtil.kt`, `MeasurementActivity.kt`, `SignalMeasurementActivity.kt`
+    - There is no reliable cross-OEM API to expand the app's own pinned task from
+      outside it (`AppTask.moveToFront` can't reach a reparent-created pinned task,
+      `ActivityManager.moveTaskToFront` doesn't expand pinned tasks on MIUI).
+    - New in-process `PipRegistry` (same file as the helper): both PiP activities
+      register themselves in `onPictureInPictureModeChanged` and deregister on exit /
+      `onDestroy`. When navigation hits a registered pinned instance,
+      `bringActivityTaskToFront` calls **`finishAndRemoveTask()` on it** (the PiP window
+      disappears) and returns false, so the caller **relaunches the screen fullscreen
+      inside the home task**. Measurement state lives in the foreground services and
+      singletons, so the rebuilt screen continues seamlessly — equivalent to any other
+      activity recreation.
+    - Intended result: "expanding" a PiP via app navigation becomes OEM-independent
+      (at the cost of a visible rebuild instead of an expand animation), and the
+      single-task/single-Recents-card invariant of #14 holds afterwards. **Not yet
+      verified on device** — given the track record of #7/#13/#15, treat as unproven
+      until tested.
 
 ### Still open
 
@@ -382,3 +490,39 @@ were made. Each addresses a root cause from the analysis above.
 - **Dead-code removal** (II.5 #7): `setEndAlarm`/`isUnstoppable`/`shouldEndAfterLoopMode`,
   `continueInSignalMeasurementIfShould`, the commented-out persisted-flag check in
   `shouldOpenSignalMeasurementScreen`.
+
+## II.8 Resulting navigation model (current state)
+
+After fixes #1–#16, the intended behavior is:
+
+- **One task, one Recents card.** All screens — home, speed test, coverage — live in the
+  home task (`singleTop`, no `CLEAR_TASK`). The custom `taskAffinity` of the two
+  measurement activities only materializes while one of them is **pinned** (PiP), where
+  it prevents launcher/`HomeActivity` intents from being routed into the pinned task.
+- **All programmatic navigation to a measurement screen goes through
+  `startOrBringToFront`**, which resolves in this order:
+  1. pinned instance registered in `PipRegistry` → `finishAndRemoveTask()` + fresh
+     `start()` into the home task (deterministic PiP "expand");
+  2. own task found via `ActivityManager.appTasks` → `AppTask.moveToFront()`;
+  3. own task found via `getRunningTasks` (`REORDER_TASKS`) → `moveTaskToFront()`;
+  4. otherwise `start()` with `CLEAR_TOP | SINGLE_TOP` (reuses an in-task instance).
+- **Auto-navigation:** `HomeActivity.isTestsRunningLiveData` (speed/loop) and
+  `HomeFragment.activeSignalMeasurementLiveData` (coverage) call `startOrBringToFront`
+  whenever a measurement is active, so the start screen never stays in front of a
+  running measurement.
+- **Notifications** (speed, loop, coverage) open `HomeActivity`; the listeners above
+  take it from there. The coverage notification has a Stop action.
+- **Service control:** start/stop requests are queued/fallback-routed so they cannot be
+  lost on binder races (`pendingStartType`, `stopIntent` fallback); the service guards
+  re-entrant starts and cleans up orphaned notifications; `START_NOT_STICKY`.
+- Known platform caveats: on Android 8–10 a PiP expanded by the *user* (not by app
+  navigation) stays in its own task until finished (`autoRemoveFromRecents` +
+  `excludeFromRecents` limit the visible damage); MIUI shows alive excluded tasks in
+  Recents, which is why the single-task model — not manifest flags — is the mechanism
+  for the one-card behavior.
+
+**Verification status (2026-06-12):** Round 1 and the one-card-while-measuring behavior
+are confirmed on device. The PiP navigation path (`PipRegistry` finish + relaunch, #16)
+is installed but **not yet confirmed** — three earlier PiP approaches (#7, #13, #15)
+looked correct on paper and failed on device, so this one counts as unproven until the
+loop-mode and coverage PiP flows have been re-tested.

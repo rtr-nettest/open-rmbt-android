@@ -11,7 +11,6 @@ import androidx.core.app.NotificationCompat
 import at.rtr.rmbt.android.BuildConfig
 import at.rtr.rmbt.android.R
 import at.rtr.rmbt.android.ui.activity.LoopFinishedActivity
-import at.rtr.rmbt.android.ui.activity.MeasurementActivity
 import at.rtr.rmbt.android.ui.activity.HomeActivity
 import at.rtr.rmbt.android.util.timeString
 import at.specure.data.entity.LoopModeRecord
@@ -95,7 +94,9 @@ class NotificationProviderImpl(private val context: Context) : NotificationProvi
         val totalProgress = if (skipQoSTests) 400 else 500
         val progressIntermediate = ((stateProgress + progress) / totalProgress.toFloat()) * 100
 
-        val intent = PendingIntent.getActivity(context, 0, Intent(context, MeasurementActivity::class.java), PendingIntent.FLAG_IMMUTABLE)
+        // Open the app via the home screen; it navigates to the running measurement
+        // task-aware (a direct intent could create a second MeasurementActivity instance).
+        val intent = PendingIntent.getActivity(context, 0, Intent(context, HomeActivity::class.java), PendingIntent.FLAG_IMMUTABLE)
         val actionIntent = PendingIntent.getService(context, 0, cancellationIntent, PendingIntent.FLAG_IMMUTABLE)
         val action = NotificationCompat.Action.Builder(0, context.getString(R.string.text_cancel_measurement), actionIntent).build()
         loopCountdownNotification = null
@@ -147,7 +148,7 @@ class NotificationProviderImpl(private val context: Context) : NotificationProvi
             testsCount
         )
 
-        val intent = PendingIntent.getActivity(context, 0, Intent(context, MeasurementActivity::class.java), PendingIntent.FLAG_IMMUTABLE)
+        val intent = PendingIntent.getActivity(context, 0, Intent(context, HomeActivity::class.java), PendingIntent.FLAG_IMMUTABLE)
         val actionIntent = PendingIntent.getService(context, 0, cancellationIntent, PendingIntent.FLAG_IMMUTABLE)
         val action = NotificationCompat.Action.Builder(0, context.getString(R.string.text_cancel_measurement), actionIntent).build()
 

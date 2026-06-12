@@ -35,6 +35,7 @@ import at.rtr.rmbt.android.databinding.ItemCoverageMarkerDetailsBinding
 import at.rtr.rmbt.android.map.DefaultLocation
 import at.rtr.rmbt.android.ui.dialog.CoverageSettingsDialog
 import at.rtr.rmbt.android.ui.dialog.MessageDialog
+import at.rtr.rmbt.android.util.PipRegistry
 import at.rtr.rmbt.android.util.bringActivityTaskToFront
 import at.rtr.rmbt.android.util.formatAccuracy
 import at.specure.info.network.NetworkInfo
@@ -671,6 +672,7 @@ class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback, Coverage
     ) {
         super.onPictureInPictureModeChanged(isInPictureInPictureMode, newConfig)
 
+        PipRegistry.onPictureInPictureModeChanged(this, isInPictureInPictureMode)
         coverageViewModel.state.pipActive.set(isInPictureInPictureMode)
 
         if (isInPictureInPictureMode) {
@@ -689,6 +691,7 @@ class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback, Coverage
     }
 
     override fun onDestroy() {
+        PipRegistry.onDestroyed(this)
         coverageViewModel.clearPerformanceImprovementLists(map)
         infoWindowMarker?.remove()
         map?.setInfoWindowAdapter(null)
@@ -805,7 +808,11 @@ class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback, Coverage
 
     companion object {
 
-        fun start(context: Context) = context.startActivity(Intent(context, SignalMeasurementActivity::class.java))
+        fun start(context: Context) {
+            val intent = Intent(context, SignalMeasurementActivity::class.java)
+            intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
+            context.startActivity(intent)
+        }
 
         /**
          * Brings an already running instance back to the foreground - expanding it when it

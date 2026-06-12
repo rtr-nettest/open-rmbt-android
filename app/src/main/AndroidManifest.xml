@@ -7,6 +7,9 @@
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <!-- Normal-level permission: lets the app move its own (pinned PiP) task to the
+         front to expand it instead of launching a duplicate instance. -->
+    <uses-permission android:name="android.permission.REORDER_TASKS" />
     <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
@@ -70,19 +73,21 @@
             android:name="at.rtr.rmbt.android.ui.activity.PreferenceActivity"
             android:theme="@style/PreferenceTheme" />
 
-        <!-- Own taskAffinity: the activity is started with FLAG_ACTIVITY_CLEAR_TASK and can
-             end up pinned (picture-in-picture) as the only task of the app. With the default
-             affinity the launcher intent for HomeActivity then resolves into the pinned task
-             (HomeActivity flashes inside the PiP window and the app never comes to the
-             foreground). -->
+        <!-- singleTop (not singleTask): the screen must join the home task so the app shows
+             a single card in Recents. The custom taskAffinity only takes effect for the
+             pinned picture-in-picture task - it prevents launcher/HomeActivity intents from
+             being routed into the pinned task while the home task does not exist. The
+             recents attributes only matter when the activity roots its own task (PiP):
+             such a task must never linger as a second app card. -->
         <activity
             android:name=".ui.activity.MeasurementActivity"
             android:theme="@style/MeasurementTheme"
             android:supportsPictureInPicture="true"
             android:configChanges="screenSize|smallestScreenSize|screenLayout"
-            android:launchMode="singleTask"
+            android:launchMode="singleTop"
             android:taskAffinity="${applicationId}.measurement"
             android:autoRemoveFromRecents="true"
+            android:excludeFromRecents="true"
             android:windowSoftInputMode="stateAlwaysHidden" />
 
 
@@ -121,14 +126,14 @@
         <activity android:name=".ui.activity.SignalMeasurementTermsActivity"
             android:theme="@style/PreferenceTheme"/>
 
-        <!-- Own taskAffinity for the same reason as MeasurementActivity: a pinned task must
-             never be a match for launches of other activities with the default affinity. -->
+        <!-- Same task setup as MeasurementActivity, see the comment there. -->
         <activity android:name=".ui.activity.SignalMeasurementActivity"
             android:supportsPictureInPicture="true"
             android:configChanges="screenSize|smallestScreenSize|screenLayout|orientation"
-            android:launchMode="singleTask"
+            android:launchMode="singleTop"
             android:taskAffinity="${applicationId}.coverage"
             android:autoRemoveFromRecents="true"
+            android:excludeFromRecents="true"
             android:theme="@style/PreferenceTheme"/>
 
         <activity
