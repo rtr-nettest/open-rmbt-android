@@ -2,16 +2,13 @@ package at.rtr.rmbt.android.ui.activity
 
 import android.Manifest
 import android.annotation.SuppressLint
-import android.app.PictureInPictureParams
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.content.res.Configuration
 import android.graphics.Color
-import android.graphics.Point
 import android.os.Build
 import android.os.Bundle
-import android.util.Rational
 import android.view.LayoutInflater
 import android.view.View
 import android.view.WindowInsets
@@ -56,8 +53,6 @@ import at.rtr.rmbt.android.viewmodel.viewData.CoverageMarkerDetailsData
 import at.specure.measurement.coverage.data.getFrequencyBand
 import at.specure.measurement.coverage.data.getSignalStrengthValue
 import at.specure.test.toDeviceInfoLocation
-import at.specure.util.hasPermission
-import at.specure.util.openAppSettings
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
@@ -624,7 +619,9 @@ class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback, Coverage
 
     override fun onUserLeaveHint() {
         super.onUserLeaveHint()
-        enterInPictureMode()
+        if (viewModel.activeSignalMeasurementLiveData.value == true) {
+            enterInPictureMode()
+        }
     }
 
     override fun onPictureInPictureModeChanged(

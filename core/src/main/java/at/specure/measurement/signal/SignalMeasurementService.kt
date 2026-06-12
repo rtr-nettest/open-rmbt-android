@@ -16,9 +16,6 @@ import at.specure.di.NotificationProvider
 import at.rmbt.client.control.data.SignalMeasurementType
 import at.specure.util.CustomLifecycleService
 import timber.log.Timber
-import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
@@ -77,7 +74,8 @@ class SignalMeasurementService : CustomLifecycleService() {
             }
         }
 
-        return super.onStartCommand(intent, flags, startId)
+        super.onStartCommand(intent, flags, startId)
+        return START_NOT_STICKY
     }
 
     override fun onBind(intent: Intent?): IBinder? {
@@ -126,25 +124,6 @@ class SignalMeasurementService : CustomLifecycleService() {
         processor.stopMeasurement(false)
         stopForeground(STOP_FOREGROUND_REMOVE)
         stopSelf()
-    }
-
-    private fun setEndAlarm() {
-        val durationInMinutes = config.signalMeasurementDurationMin.toLong()
-        val currentTimeMillis = System.currentTimeMillis()
-        if ((durationInMinutes > 0) && (endTime?.compareTo(currentTimeMillis) != 1)) {
-            endTime = currentTimeMillis + TimeUnit.MINUTES.toMillis(durationInMinutes)
-            alarmManager = getSystemService(Context.ALARM_SERVICE) as? AlarmManager
-
-            cancelSignalMeasurementStopAlarm()
-
-            endTime?.let {
-                val formatter = SimpleDateFormat("dd/MM/yyyy hh:mm:ss.SSS", Locale.getDefault())
-                val dateString = formatter.format(Date(endTime!!))
-
-                Timber.i("Signal measurement will end by alarm at: $dateString")
-                alarmManager?.set(AlarmManager.RTC_WAKEUP, endTime!!, alarmStopPendingIntent)
-            }
-        }
     }
 
     private fun acquireWakeLock() {

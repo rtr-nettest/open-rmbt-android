@@ -198,17 +198,16 @@ class SignalMeasurementProcessor @Inject constructor(
         unstoppable: Boolean,
         signalMeasurementType: SignalMeasurementType,
     ) {
-        registerBatteryInfoReceiver(batteryInfo)
         val shouldStartCoverage = !_isActive
         Timber.w("startMeasurement $shouldStartCoverage")
         _isActive = true
         isUnstoppable = unstoppable
         postStateData()
 
-        locationWatcher.addListener(locationListener)
-        signalStrengthWatcher.addListener(signalStrengthListener)
-
         if (shouldStartCoverage) {
+            registerBatteryInfoReceiver(batteryInfo)
+            locationWatcher.addListener(locationListener)
+            signalStrengthWatcher.addListener(signalStrengthListener)
             Timber.d("Starting coverage session")
             rtrCoverageMeasurementProcessor.startCoverageSession(
                 sessionCreated = measurementSessionInitializedCallback,
