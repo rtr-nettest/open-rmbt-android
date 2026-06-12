@@ -97,6 +97,13 @@ class SignalMeasurementService : CustomLifecycleService() {
     }
 
     private fun startMeasurement(signalMeasurementType: SignalMeasurementType) {
+        if (processor.isActive) {
+            // A second start request (second client, screen re-entry) must not restart
+            // the wake lock or reset the stop flags of the running measurement.
+            Timber.d("Coverage session already running - ensuring foreground state only SMS1")
+            ensureForeground()
+            return
+        }
         acquireWakeLock()
         Timber.d("Starting coverage session SMS1")
         processor.startMeasurement(false, signalMeasurementType)
@@ -110,18 +117,29 @@ class SignalMeasurementService : CustomLifecycleService() {
         shouldEndAfterLoopMode = false
         isUnstoppable = false
 
+        ensureForeground()
+    }
+
+    private fun ensureForeground() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            startForeground(NOTIFICATION_ID, notificationProvider.signalMeasurementService(null), FOREGROUND_SERVICE_TYPE_SPECIAL_USE)
+            startForeground(NOTIFICATION_ID, notificationProvider.signalMeasurementService(stopIntent(this)), FOREGROUND_SERVICE_TYPE_SPECIAL_USE)
         } else {
-            startForeground(NOTIFICATION_ID, notificationProvider.signalMeasurementService(null))
+            startForeground(NOTIFICATION_ID, notificationProvider.signalMeasurementService(stopIntent(this)))
         }
     }
 
     private fun stopMeasurement() {
         releaseWakeLock()
         cancelSignalMeasurementStopAlarm()
-        Timber.d("Stoping coverage session SMS1")
-        processor.stopMeasurement(false)
+        if (processor.isActive) {
+            Timber.d("Stoping coverage session SMS1")
+            processor.stopMeasurement(false)
+        } else {
+            // Stop requested while no measurement runs (orphaned notification after
+            // process death or a stop that already went through the coverage layer) -
+            // only clean up the foreground state, do not touch the coverage session.
+            Timber.i("Stop requested while processor inactive - removing foreground state only SMS1")
+        }
         stopForeground(STOP_FOREGROUND_REMOVE)
         stopSelf()
     }
