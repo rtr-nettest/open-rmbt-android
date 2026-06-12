@@ -362,6 +362,17 @@ were made. Each addresses a root cause from the analysis above.
       (separate card in Recents while running; closing it returns to the home task —
       previously the loop flow returned to the launcher because the home task had been
       cleared).
+12. **`autoRemoveFromRecents` for the measurement tasks** — `AndroidManifest.xml`
+    - Follow-up to #11 (screenshot issue, 2026-06-12): after a finished speed test the
+      results open in the *main* task (`ResultsActivity` has the default affinity) and
+      `MeasurementActivity.finish()` empties the measurement task — but Android keeps a
+      dead task snapshot in Recents by default (two app cards; tapping the stale one
+      would relaunch `MeasurementActivity` via its base intent).
+    - Both PiP activities now declare `android:autoRemoveFromRecents="true"`: the
+      measurement task disappears from Recents the moment its last activity finishes.
+      While a measurement is *running* the second card is intentionally still visible
+      (the task is alive); selecting either card converges on the measurement screen via
+      the auto-navigation listeners.
 
 ### Still open
 

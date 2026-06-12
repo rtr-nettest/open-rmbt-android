@@ -82,6 +82,7 @@
             android:configChanges="screenSize|smallestScreenSize|screenLayout"
             android:launchMode="singleTask"
             android:taskAffinity="${applicationId}.measurement"
+            android:autoRemoveFromRecents="true"
             android:windowSoftInputMode="stateAlwaysHidden" />
 
 
@@ -127,6 +128,7 @@
             android:configChanges="screenSize|smallestScreenSize|screenLayout|orientation"
             android:launchMode="singleTask"
             android:taskAffinity="${applicationId}.coverage"
+            android:autoRemoveFromRecents="true"
             android:theme="@style/PreferenceTheme"/>
 
         <activity
