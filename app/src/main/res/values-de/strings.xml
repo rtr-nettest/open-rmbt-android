@@ -263,6 +263,8 @@
     <string name="loop_mode_no_gps">Kein GPS</string>
     <string name="or">oder</string>
     <string name="loop_mode_finished">Netztest abgeschlossen!</string>
+    <string name="loop_mode_completed_message">Der Wiederholungsmodus ist fertig.</string>
+    <string name="loop_mode_completed_ok">Ok</string>
     <string name="loop_continue_to_results">Weiter zum Ergebnis</string>
     <string name="loop_run_again">Nochmals ausführen</string>
     <string name="title_privacy_policy">Datenschutzerklärung</string>
