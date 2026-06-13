@@ -115,9 +115,14 @@ interface Config {
     var expertModeEnabled: Boolean
 
     /**
-     * Allows to use IPv4 protocol for requests
+     * Allows to use IPv4 protocol for requests.  Mutually exclusive with [expertModeUseIpV6Only].
      */
     var expertModeUseIpV4Only: Boolean
+
+    /**
+     * Allows to use IPv6 protocol for requests. Mutually exclusive with [expertModeUseIpV4Only].
+     */
+    var expertModeUseIpV6Only: Boolean
 
     /**
      * Allows to use "https://" when enabled otherwise "http://" should be used

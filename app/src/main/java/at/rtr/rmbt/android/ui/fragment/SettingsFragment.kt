@@ -13,6 +13,7 @@ import android.text.InputType
 import android.view.View
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult
+import at.rmbt.client.control.IpProtocol
 import at.rmbt.client.control.Server
 import at.rtr.rmbt.android.BuildConfig
 import at.rtr.rmbt.android.R
@@ -105,6 +106,20 @@ class SettingsFragment : BaseFragment(), InputSettingDialog.Callback,
             settingsViewModel.state.isLocationEnabled.set(it)
             settingsViewModel.state.canManageLocationSettings.set(it == LocationState.ENABLED)
             Timber.d("LocationStateLiveData Fragment  : $it")
+        }
+
+        // Observing keeps the IPv4/IPv6 status fresh (a re-check is triggered while this screen
+        // is shown), so the IPv4-only / IPv6-only connectivity check reflects current state.
+        settingsViewModel.ipV4ChangeLiveData.listen(this) {}
+        settingsViewModel.ipV6ChangeLiveData.listen(this) {}
+
+        settingsViewModel.connectivityErrorEvent.listen(this) { protocol ->
+            val message = if (protocol == IpProtocol.V4) {
+                R.string.expert_mode_no_ipv4_connectivity
+            } else {
+                R.string.expert_mode_no_ipv6_connectivity
+            }
+            Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
         }
 
         binding.switchLocations.switchButton.isClickable = false
