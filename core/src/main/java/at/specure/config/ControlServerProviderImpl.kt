@@ -33,8 +33,10 @@ class ControlServerProviderImpl(
     override val statisticsHost: String
         get() = controlServerSettings.statisticsMasterServerUrl!!
 
+    // The settings check must reach the base host (not the IPv4-only override that [host] can
+    // resolve to in expert mode), so it always uses controlServerHostForSettings.
     override val checkSettingsUrl: String
-        get() = "$host$routePath/${config.controlServerSettingsEndpoint}"
+        get() = "$protocol${config.controlServerHostForSettings}$routePath/${config.controlServerSettingsEndpoint}"
 
     override val testRequestUrl: String
         get() = "$host$routePath/${config.controlServerRequestTestEndpoint}"
