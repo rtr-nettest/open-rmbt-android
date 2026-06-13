@@ -27,8 +27,12 @@ class HistoryLoader @Inject constructor(
 
     private val historyDao = db.historyDao()
 
-    // Re-entrancy guard shared by refresh() and the boundary-callback paging.
+    // Re-entrancy guard shared by refresh() and on-demand paging.
     private var isLoading = false
+
+    // Set once the server reports no more pages, so we stop requesting past the end.
+    @Volatile
+    private var endReached = false
 
     // Drives the pull-to-refresh spinner. Only refresh() reports loading here so the
     // spinner clears once the first (visible) page is ready, instead of staying up while
@@ -75,42 +79,40 @@ class HistoryLoader @Inject constructor(
             return source
         }
 
+    // NOTE: BoundaryCallback hooks are intentionally inert. Inserting each fetched page
+    // invalidates the Room DataSource, which rebuilds the PagedList and would re-fire these
+    // callbacks, causing the whole history to be pulled at once. Pagination is instead
+    // driven on demand: refresh() loads the first page, and the UI requests further pages
+    // via loadNextPage() as the user scrolls (see HistoryFragment).
     override fun onZeroItemsLoaded() {
         super.onZeroItemsLoaded()
-        loadItems()
     }
 
     override fun onItemAtEndLoaded(itemAtEnd: HistoryContainer) {
         super.onItemAtEndLoaded(itemAtEnd)
-        loadItems()
     }
 
+    /**
+     * Loads the next page of history from the server on demand (e.g. when the user scrolls
+     * near the end of the list). No-op while a load is in progress or once the end is reached.
+     */
     @Synchronized
-    private fun loadItems() = io {
-        if (!isLoading) {
+    fun loadNextPage() = io {
+        if (!isLoading && !endReached) {
             isLoading = true
-            val networks = historyRepository.networksLiveData.value?.toList() ?: emptyList()
-            val devices = historyRepository.devicesLiveData.value?.toList() ?: emptyList()
             val offset = latestLoadedPage * LIMIT
-
-//            val count = historyDao.getItemsCount(
-//                networks,
-//                networks.isEmpty(),
-//                devices,
-//                devices.isEmpty()
-//            )
-//            Timber.d("HistoryItemsCount: $count")
-//            if ((count % LIMIT == 0) && (count / LIMIT != latestLoadedPage)) {
-                val result = historyRepository.loadHistoryItems(offset, LIMIT)
-                result.onFailure {
-                    errorChannel?.send(it)
+            val result = historyRepository.loadHistoryItems(offset, LIMIT)
+            result.onFailure {
+                errorChannel?.send(it)
+            }
+            result.onSuccess {
+                if (it.isNullOrEmpty()) {
+                    endReached = true
+                } else {
+                    latestLoadedPage++
+                    if (it.size < LIMIT) endReached = true
                 }
-                result.onSuccess {
-                    if (!it.isNullOrEmpty()) {
-                        latestLoadedPage++
-                    }
-                }
-//            }
+            }
             isLoading = false
         }
     }
@@ -122,14 +124,21 @@ class HistoryLoader @Inject constructor(
     fun refresh() = io {
         isLoading = true
         reportRefreshing(true)
+        endReached = false
         val result = historyRepository.loadHistoryItems(0, LIMIT, false)
         result.onFailure {
             errorChannel?.send(it)
         }
-        // Page 0 is now loaded, so advance the cursor. Otherwise the boundary callback's
-        // first loadItems() would re-fetch offset 0 (a duplicate) before continuing.
+        // Page 0 is now loaded, so advance the cursor. Otherwise the first on-demand
+        // loadNextPage() would re-fetch offset 0 (a duplicate) before continuing.
         result.onSuccess {
-            latestLoadedPage = if (it.isNullOrEmpty()) 0 else 1
+            if (it.isNullOrEmpty()) {
+                latestLoadedPage = 0
+                endReached = true
+            } else {
+                latestLoadedPage = 1
+                if (it.size < LIMIT) endReached = true
+            }
         }
         reportRefreshing(false)
         isLoading = false

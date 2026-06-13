@@ -71,6 +71,14 @@ class HistoryViewModel @Inject constructor(
 
     }
 
+    /**
+     * Loads the next page of history on demand, e.g. when the user scrolls near the end of
+     * the list (lazy loading).
+     */
+    fun loadNextPage() {
+        loader.loadNextPage()
+    }
+
     fun removeFromFilters(value: String) {
         repository.removeFromFilters(value)
         refreshHistory()
