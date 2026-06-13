@@ -280,6 +280,94 @@ override in expert mode), so only the settings-check routing changed.
 3. Network back on + relaunch → settings request to base host succeeds; stored URLs intact
    (no regression).
 
+## Reference: control-server host resolution (expert IPv4-only vs. custom control-server URL)
+
+Two independent developer/expert features influence which control-server host the app talks to.
+They are easy to confuse because both end up affecting `config.controlServerHost`.
+
+### A) Custom control-server URL (developer option)
+
+- Toggle: `controlServerOverrideEnabled` (pref key `IS_CONTROL_SERVER_OVERRIDE_ENABLED`),
+  shown in Settings only when developer mode is on (`fragment_settings.xml:225`).
+- User-entered values live in `server_settings.pref`:
+  `controlServerOverrideUrl`, `controlServerOverridePort` (`ControlServerSettings.kt`).
+- `SettingsViewState.setControlServerAddress()` (`SettingsViewState.kt:55`) applies them:
+  ```kotlin
+  if (controlServerOverrideEnabled && developerModeIsEnabled) {
+      appConfig.controlServerHost = controlServerOverrideUrl   // -> writes pref CONTROL_SERVER_HOST
+      appConfig.controlServerPort = controlServerOverridePort
+  } else {
+      appConfig.controlServerHost = BuildConfig.CONTROL_SERVER_HOST.value  // compiled default
+      appConfig.controlServerPort = BuildConfig.CONTROL_SERVER_PORT.value
+  }
+  refreshSettings()
+  ```
+- Net effect: the **base host** — i.e. `getString(BuildConfig.CONTROL_SERVER_HOST)` — becomes
+  the override host when the override is active, or the compiled default otherwise. Changing it
+  triggers a fresh settings request to the new host.
+
+### B) Expert mode "IPv4 only"
+
+- Toggles: `expertModeEnabled` (`EXPERT_MODE_ENABLED`) and `expertModeUseIpV4Only`
+  (`EXPERT_MODE_IPV4_ONLY`).
+- `controlServerV4Url` is **not** user-entered — it is returned by the backend in the settings
+  response (`processSettingsResponse`: `urls.ipv4OnlyControlServerUrl`, e.g. `c01v4.netztest.at`)
+  and stored in `server_settings.pref`.
+- When `expertModeEnabled && expertModeUseIpV4Only && controlServerV4Url != null`, the app routes
+  control traffic to that IPv4-only host, which resolves to an IPv4 address only — forcing the
+  whole measurement onto IPv4.
+
+### How they combine — `AppConfig.controlServerHost` (`AppConfig.kt:195`)
+
+```kotlin
+get() = if (expertModeEnabled && expertModeUseIpV4Only && serverSettings.controlServerV4Url != null) {
+    serverSettings.controlServerV4Url!!          // (B) IPv4-only host wins
+} else {
+    getString(BuildConfig.CONTROL_SERVER_HOST)   // (A) override host, or compiled default
+}
+```
+
+- **Precedence:** IPv4-only (B) wins over the base/override host (A) for the operational host.
+- The IPv4-only URL is itself derived from a settings response fetched from the base/override
+  host (A) — so (B) layers on top of (A): "use the IPv4-only endpoint *that this control server
+  advertised*".
+- This single getter feeds **test request, results, history, sync, news** — everything except
+  the settings check.
+
+### The settings check is the exception (and why Finding 1 existed)
+
+The settings/registration check must reach the **base** host (A), never the IPv4-only host (B):
+the base host is what advertises the IPv4/IPv6 URLs in the first place. The old code forced this
+by temporarily nulling `controlServerV4Url` so the getter above fell through to the base host —
+which destroyed the stored URL on failure (Finding 1). The fix routes the settings check to the
+base host directly via `config.controlServerHostForSettings`
+(= `getString(BuildConfig.CONTROL_SERVER_HOST)`), so it always honours the override (A) and never
+touches (B).
+
+### Subtle coupling: client UUID is keyed by host in expert+override mode  **[FIXED]**
+
+`ClientUUID` (`ClientUUID.kt`) stores the UUID under `KEY_CLIENT_UUID + <host>` **only** when
+`expertModeEnabled && controlServerOverrideEnabled`; otherwise under a plain `KEY_CLIENT_UUID`.
+
+**The bug:** the host used in the key was `config.controlServerHost`, which resolves to
+`controlServerV4Url` when IPv4-only is on. So toggling IPv4-only flipped the key between
+`KEY_CLIENT_UUID + c01.netztest.at` and `KEY_CLIENT_UUID + c01v4.netztest.at` — the client then
+looked unregistered, cascading into re-registration and a possible T&C re-prompt. IPv4-only is
+only a routing preference for the *same* logical server, so it must not change the UUID storage.
+
+**Fix:** key the UUID by `config.controlServerHostForSettings` (the base/override host, which is
+independent of the IPv4-only toggle) instead of `config.controlServerHost`. The UUID is now stable
+per logical control server while IPv4-only is toggled.
+
+```kotlin
+// ClientUUID.kt — all occurrences
+preferences.getString(KEY_CLIENT_UUID + config.controlServerHostForSettings, _value)
+```
+
+(This is a behaviour change only for expert + custom-control-server users who had IPv4-only on:
+their UUID is re-keyed once to the base host, so they may re-register a single time.) The earlier
+null-hack also flipped the host mid-request, which the Finding 1 refactor already removed.
+
 ## Remaining proposed fixes (priority order)
 
 1. **Atomic settings apply** — batch the parsed settings into one commit, only after a fully
