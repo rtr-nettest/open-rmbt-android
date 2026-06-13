@@ -106,14 +106,16 @@ class HistoryFragment : BaseFragment(), SyncDevicesDialog.Callback, HistoryFilte
 
         binding.buttonDownload.setOnClickListener {
             if (adapter.itemCount > 0) {
-                HistoryDownloadDialog.instance(this, CODE_DOWNLOAD).showOnce(parentFragmentManager)
+                // childFragmentManager (not parentFragmentManager): the latter is the
+                // NavController-managed FM and crashes on navigation 2.6+ (FragmentNavigator).
+                HistoryDownloadDialog.instance(this, CODE_DOWNLOAD).showOnce(childFragmentManager)
             }
         }
 
 
         binding.buttonMenu.setOnClickListener {
             if (adapter.itemCount > 0) {
-                HistoryFiltersDialog.instance(this, CODE_FILTERS).show(parentFragmentManager)
+                HistoryFiltersDialog.instance(this, CODE_FILTERS).show(childFragmentManager)
             }
         }
 

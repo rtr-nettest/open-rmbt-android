@@ -63,7 +63,9 @@ abstract class BaseFragment : Fragment() {
                 .messageText(message)
                 .positiveText(android.R.string.ok)
                 .cancelable(false)
-                .show(parentFragmentManager, DIALOG_DEFAULT_OK)
+                // childFragmentManager: parentFragmentManager is the NavController-managed FM for
+                // the main fragments and crashes on navigation 2.6+ (FragmentNavigator).
+                .show(childFragmentManager, DIALOG_DEFAULT_OK)
         }
     }
 

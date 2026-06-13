@@ -22,7 +22,7 @@ buildscript {
                 constraint_layout   : '2.1.4',
                 swiperefresh_layout : '1.1.0',
                 vectordrawable      : '1.2.0',
-                navigation_fragment : '2.5.3', // 2.7.7 any higher version breaks almost entire app navigation from main 4 fragments
+                navigation_fragment : '2.9.8',
                 lifecycle_service   : '2.7.0',
                 dagger              : '2.51.1',
                 timber              : '5.0.1',
