@@ -2,13 +2,18 @@ package at.rtr.rmbt.android.viewmodel
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import at.rmbt.client.control.IpProtocol
 import at.rtr.rmbt.android.R
 import at.rtr.rmbt.android.config.AppConfig
 import at.rtr.rmbt.android.ui.viewstate.SettingsViewState
+import at.rtr.rmbt.android.util.addOnPropertyChanged
 import at.specure.data.ClientUUID
 import at.specure.data.ControlServerSettings
 import at.specure.data.MeasurementServers
 import at.specure.data.repository.SettingsRepository
+import at.specure.info.ip.IpInfo
+import at.specure.info.ip.IpV4ChangeLiveData
+import at.specure.info.ip.IpV6ChangeLiveData
 import at.specure.location.LocationState
 import at.specure.location.LocationWatcher
 import javax.inject.Inject
@@ -19,7 +24,9 @@ class SettingsViewModel @Inject constructor(
     clientUUID: ClientUUID,
     val measurementServers: MeasurementServers,
     settingsRepository: SettingsRepository,
-    controlServerSettings: ControlServerSettings
+    controlServerSettings: ControlServerSettings,
+    val ipV4ChangeLiveData: IpV4ChangeLiveData,
+    val ipV6ChangeLiveData: IpV6ChangeLiveData
 ) :
     BaseViewModel() {
 
@@ -34,9 +41,47 @@ class SettingsViewModel @Inject constructor(
     val locationStateLiveData: LiveData<LocationState?>
         get() = locationWatcher.stateLiveData
 
+    // Emitted (with the offending protocol) when IPv4-only / IPv6-only was switched on but that
+    // protocol has no connectivity; the fragment shows a toast and the switch is reset.
+    private val _connectivityErrorEvent = MutableLiveData<IpProtocol>()
+    val connectivityErrorEvent: LiveData<IpProtocol>
+        get() = _connectivityErrorEvent
+
     init {
         addStateSaveHandler(state)
+
+        state.expertModeUseIpV4Only.addOnPropertyChanged { field ->
+            val enabled = field.get() ?: false
+            appConfig.expertModeUseIpV4Only = enabled
+            if (enabled) {
+                // IPv4-only and IPv6-only are mutually exclusive.
+                if (state.expertModeUseIpV6Only.get() == true) {
+                    state.expertModeUseIpV6Only.set(false)
+                }
+                if (!hasConnectivity(ipV4ChangeLiveData.value)) {
+                    state.expertModeUseIpV4Only.set(false)
+                    _connectivityErrorEvent.value = IpProtocol.V4
+                }
+            }
+        }
+
+        state.expertModeUseIpV6Only.addOnPropertyChanged { field ->
+            val enabled = field.get() ?: false
+            appConfig.expertModeUseIpV6Only = enabled
+            if (enabled) {
+                if (state.expertModeUseIpV4Only.get() == true) {
+                    state.expertModeUseIpV4Only.set(false)
+                }
+                if (!hasConnectivity(ipV6ChangeLiveData.value)) {
+                    state.expertModeUseIpV6Only.set(false)
+                    _connectivityErrorEvent.value = IpProtocol.V6
+                }
+            }
+        }
     }
+
+    /** Connectivity for the protocol is assumed when a public address was reachable over it. */
+    private fun hasConnectivity(ipInfo: IpInfo?): Boolean = ipInfo?.publicAddress != null
 
     fun isLoopModeWaitingTimeValid(value: Int, minValue: Int, maxValue: Int): Boolean {
 
