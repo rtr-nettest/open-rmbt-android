@@ -15,6 +15,9 @@ import javax.inject.Inject
 
 private const val LIMIT = 100
 
+/** Outcome of the initial history load, used to drive the empty / error placeholder text. */
+enum class HistoryLoadState { LOADING, SUCCESS, FAILED }
+
 class HistoryLoader @Inject constructor(
     db: CoreDatabase,
     private val historyRepository: HistoryRepository
@@ -24,6 +27,10 @@ class HistoryLoader @Inject constructor(
     var latestLoadedPage = 0
     var isLoadingChannel: Channel<Boolean>? = null
     var errorChannel: Channel<HandledException>? = null
+
+    // Immediate (non-debounced) state of the initial load, consumed to decide whether to show
+    // the spinner-only state, the "no data" text, or the "loading failed" text.
+    var loadStateChannel: Channel<HistoryLoadState>? = null
 
     private val historyDao = db.historyDao()
 
@@ -40,6 +47,12 @@ class HistoryLoader @Inject constructor(
     private fun reportRefreshing(loading: Boolean) {
         runBlocking {
             isLoadingChannel?.send(loading)
+        }
+    }
+
+    private fun reportLoadState(state: HistoryLoadState) {
+        runBlocking {
+            loadStateChannel?.send(state)
         }
     }
 
@@ -121,13 +134,44 @@ class HistoryLoader @Inject constructor(
         historyDao.clear()
     }
 
+    /**
+     * Called when the History screen is (re)opened. Avoids the reload-on-reopen: if data is
+     * already cached locally it is shown instantly and only the paging cursor is aligned with
+     * the cache (so scrolling keeps working) — no wipe, no network call. Only an empty cache
+     * (e.g. first launch) triggers an actual load. Explicit refreshes (pull-to-refresh,
+     * filter changes) still go through refresh().
+     */
+    @Synchronized
+    fun loadInitialIfNeeded() = io {
+        if (isLoading) return@io
+        // A sync (e.g. requesting a sync code) may have changed the history on the backend,
+        // so the cache is reloaded from scratch instead of being shown as-is.
+        if (historyRepository.historyCacheInvalidated) {
+            refresh()
+            return@io
+        }
+        val cachedRecords = historyDao.getHistoryRecordsCount()
+        if (cachedRecords == 0) {
+            refresh()
+        } else {
+            latestLoadedPage = cachedRecords / LIMIT
+            endReached = false
+            // Cached data is shown as-is: nothing is loading and it did not fail.
+            reportLoadState(HistoryLoadState.SUCCESS)
+        }
+    }
+
     fun refresh() = io {
         isLoading = true
         reportRefreshing(true)
+        reportLoadState(HistoryLoadState.LOADING)
         endReached = false
+        // A full refresh reloads page 0 from the backend, so the cache is no longer stale.
+        historyRepository.historyCacheInvalidated = false
         val result = historyRepository.loadHistoryItems(0, LIMIT, false)
         result.onFailure {
             errorChannel?.send(it)
+            reportLoadState(HistoryLoadState.FAILED)
         }
         // Page 0 is now loaded, so advance the cursor. Otherwise the first on-demand
         // loadNextPage() would re-fetch offset 0 (a duplicate) before continuing.
@@ -139,6 +183,7 @@ class HistoryLoader @Inject constructor(
                 latestLoadedPage = 1
                 if (it.size < LIMIT) endReached = true
             }
+            reportLoadState(HistoryLoadState.SUCCESS)
         }
         reportRefreshing(false)
         isLoading = false

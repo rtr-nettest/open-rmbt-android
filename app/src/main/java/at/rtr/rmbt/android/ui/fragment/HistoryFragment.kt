@@ -118,8 +118,14 @@ class HistoryFragment : BaseFragment(), SyncDevicesDialog.Callback, HistoryFilte
         }
 
 
-        historyViewModel.isLoadingLiveData.listen(this) {
+        // Placeholder text is driven by the immediate load state (not the debounced spinner
+        // signal) so "No data available" never flashes while a load is in progress.
+        historyViewModel.initialLoadingLiveData.listen(this) {
             historyViewModel.state.isLoadingLiveData.set(it)
+        }
+
+        historyViewModel.loadFailedLiveData.listen(this) {
+            historyViewModel.state.isLoadingFailed.set(it)
         }
 
         binding.swipeRefreshLayoutHistoryItems.setOnRefreshListener {
@@ -158,7 +164,9 @@ class HistoryFragment : BaseFragment(), SyncDevicesDialog.Callback, HistoryFilte
             binding.swipeRefreshLayoutHistoryItems.isRefreshing = it
         }
 
-        refreshHistory()
+        // Show cached history instantly on (re)open; only load from the network when the
+        // cache is empty. Avoids reloading the whole list every time History is reopened.
+        historyViewModel.loadHistoryIfNeeded()
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
@@ -178,5 +186,11 @@ class HistoryFragment : BaseFragment(), SyncDevicesDialog.Callback, HistoryFilte
 
     override fun onDevicesSynced() {
         refreshHistory()
+    }
+
+    override fun onSyncCodeRequested() {
+        // The sync can change the history on the backend later (when another device enters
+        // the code), so mark the cache stale; it is reloaded next time History is opened.
+        historyViewModel.invalidateHistoryCache()
     }
 }

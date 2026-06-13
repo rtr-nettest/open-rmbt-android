@@ -35,6 +35,7 @@ private const val KEY_LAST_NOTIFICATION_PERMISSIONS_ASKED_TIMESTAMP_MILLIS = "KE
 private const val KEY_LAST_BACKGROUND_PERMISSIONS_ASKED_TIMESTAMP_MILLIS = "LAST_BACKGROUND_PERMISSIONS_ASKED_TIMESTAMP_MILLIS"
 private const val KEY_PERSISTENT_CLIENT_UUID_ENABLED = "PERSISTENT_CLIENT_UUID_ENABLED"
 private const val KEY_ANALYTICS_ENABLED = "ANALYTICS_ENABLED"
+private const val KEY_HISTORY_CACHE_INVALIDATED = "HISTORY_CACHE_INVALIDATED"
 
 private const val KEY_COVERAGE_MIN_FENCES_DISTANCE_FACTOR = "KEY_COVERAGE_MIN_FENCES_DISTANCE_FACTOR"
 private const val COVERAGE_MIN_FENCES_DISTANCE_FACTOR_DEFAULT_VALUE = 1
@@ -116,6 +117,12 @@ class AppConfig @Inject constructor(context: Context, private val serverSettings
     override var canManageLocationSettings: Boolean
         get() = getBoolean(BuildConfig.CAN_MANAGE_LOCATION_SETTINGS)
         set(value) = setBoolean(BuildConfig.CAN_MANAGE_LOCATION_SETTINGS, value)
+
+    override var historyCacheInvalidated: Boolean
+        get() = preferences.getBoolean(KEY_HISTORY_CACHE_INVALIDATED, false)
+        set(value) = preferences.edit()
+            .putBoolean(KEY_HISTORY_CACHE_INVALIDATED, value)
+            .apply()
 
     override var loopModeEnabled: Boolean
         get() = getBoolean(BuildConfig.LOOP_MODE_ENABLED)

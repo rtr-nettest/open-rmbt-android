@@ -46,4 +46,10 @@ interface HistoryRepository {
     fun getLoopHistoryItems(loopUuid: String): LiveData<List<History>?>
 
     fun cleanHistory()
+
+    /**
+     * When true, the locally cached history is considered stale (e.g. a device sync was
+     * requested) and should be fully reloaded the next time History is opened.
+     */
+    var historyCacheInvalidated: Boolean
 }

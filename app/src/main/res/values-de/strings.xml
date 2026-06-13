@@ -170,6 +170,7 @@
     <string name="history_item_header_ping">Ping</string>
     <string name="history_item_header_ms">ms</string>
     <string name="history_no_data">Keine Daten verfügbar.</string>
+    <string name="history_loading_failed">Laden fehlgeschlagen</string>
     <string name="history_settings">Einstellungen</string>
     <string name="history_sync">Synchronisieren</string>
     <string name="history_items">Einträge des Verlaufs</string>

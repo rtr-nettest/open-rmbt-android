@@ -302,4 +302,10 @@ class HistoryRepositoryImpl(
     override fun cleanHistory() = io {
         historyDao.clearHistory()
     }
+
+    override var historyCacheInvalidated: Boolean
+        get() = config.historyCacheInvalidated
+        set(value) {
+            config.historyCacheInvalidated = value
+        }
 }
