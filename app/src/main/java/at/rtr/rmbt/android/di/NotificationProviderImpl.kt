@@ -10,7 +10,7 @@ import android.content.Intent
 import androidx.core.app.NotificationCompat
 import at.rtr.rmbt.android.BuildConfig
 import at.rtr.rmbt.android.R
-import at.rtr.rmbt.android.ui.activity.LoopFinishedActivity
+import at.rtr.rmbt.android.ui.activity.HomeActivity
 import at.rtr.rmbt.android.ui.activity.MeasurementActivity
 import at.rtr.rmbt.android.ui.activity.SignalMeasurementActivity
 import at.rtr.rmbt.android.util.timeString
@@ -190,7 +190,13 @@ class NotificationProviderImpl(private val context: Context) : NotificationProvi
     }
 
     override fun loopModeFinishedNotification(): Notification {
-        val intent = PendingIntent.getActivity(context, 0, Intent(context, LoopFinishedActivity::class.java), PendingIntent.FLAG_IMMUTABLE)
+        val homeIntent = Intent(context, HomeActivity::class.java).apply {
+            putExtra(
+                HomeActivity.FRAGMENT_TO_START_BUNDLE_KEY,
+                HomeActivity.Companion.HomeNavigationTarget.HISTORY_FRAGMENT_TO_SHOW
+            )
+        }
+        val intent = PendingIntent.getActivity(context, 0, homeIntent, PendingIntent.FLAG_IMMUTABLE)
 
         return NotificationCompat.Builder(context, measurementChannelId())
             .extend(clearActionsNotificationExtender)
