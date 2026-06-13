@@ -14,8 +14,6 @@
 
 package at.rmbt.util
 
-import android.os.Handler
-import android.os.Looper
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -34,9 +32,10 @@ fun io(block: suspend CoroutineScope.() -> (Unit)) {
         } catch (e: CancellationException) {
             throw e
         } catch (throwable: Throwable) {
+            // Log the failure instead of re-throwing it on the main thread, which used to
+            // crash the whole app for any background DB/network error and leave persisted
+            // state half-written.
             Timber.e(throwable)
-            Handler(Looper.getMainLooper())
-                .post { throw throwable }
         }
     }
 

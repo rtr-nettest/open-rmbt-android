@@ -77,12 +77,10 @@ class SettingsRepositoryImpl(
         }
 
         val body = deviceInfo.toSettingsRequest(clientUUID, clientUUIDLegacy, config, termsAndConditions)
-        // we must remove ipv4 url before we want to check settings, because settings request should go to the original URL
-        controlServerSettings.controlServerV4Url = null
-        controlServerSettings.controlServerV6Url = null
-//        Log.e("CLIENTUUID SR SETTINGS WHOLE REQUEST", "${body}}")
+        // The settings request is routed to the base host via ControlEndpointProvider
+        // .checkSettingsUrl (config.controlServerHostForSettings), so there is no longer a need
+        // to null the stored IPv4/IPv6 URLs here (which destroyed them on a failed request).
         val settings = controlServerClient.getSettings(body)
-//        Log.e("CLIENTUUID SR SETTINGS WHOLE RESPONSE", "${settings.success.settings}}")
         return settings
     }
 

@@ -141,6 +141,13 @@ interface Config {
     var controlServerHost: String
 
     /**
+     * Control server host used for the settings/registration check. Always the configured base
+     * host (never the IPv4-only override [controlServerHost] may resolve to in expert mode), so
+     * the settings request reaches the original server and can return the IPv4/IPv6 URLs.
+     */
+    val controlServerHostForSettings: String
+
+    /**
      * Url to the host for IPv4 test, example "v4.myhost.com"
      */
     var controlServerCheckPrivateIPv4Host: String

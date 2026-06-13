@@ -27,7 +27,7 @@ write through immediately and individually (one `.apply()` per field). There is 
 
 ---
 
-## Finding 0 — the amplifier: `io {}` rethrows on the main thread → crash
+## Finding 0 — the amplifier: `io {}` rethrows on the main thread → crash  **[FIXED]**
 
 `util/src/main/java/at/rmbt/util/CoroutineExtensions.kt:29`
 
@@ -58,7 +58,7 @@ thread and crashes the process**. That crash is what leaves the persisted state 
 
 ---
 
-## Finding 1 — control-server URL "stored and destroyed" → cannot start a test
+## Finding 1 — control-server URL "stored and destroyed" → cannot start a test  **[FIXED]**
 
 `core/src/main/java/at/specure/data/repository/SettingsRepositoryImpl.kt:63`
 
@@ -211,17 +211,84 @@ performs a non-atomic clear + insert.
 
 ---
 
-## Proposed fixes (priority order)
+## Fixes applied
 
-1. **Don't destroy URLs before the request** — override routing in memory for the call only,
-   restore on failure, or skip the nulling outside expert mode. (`SettingsRepositoryImpl.kt:81`)
-2. **Make `io {}` not crash** — log / route the throwable instead of `post { throw }`.
-   (`CoroutineExtensions.kt:29`)
-3. **Atomic settings apply** — batch the parsed settings into one commit, only after a fully
+### Finding 0 — `io {}` no longer crashes the app
+
+`util/src/main/java/at/rmbt/util/CoroutineExtensions.kt`
+
+Removed the `Handler(Looper.getMainLooper()).post { throw throwable }` (and the now-unused
+`Handler`/`Looper` imports). A failure inside an `io { }` block is now only logged instead of
+being re-thrown on the main thread.
+
+```kotlin
+} catch (e: CancellationException) {
+    throw e
+} catch (throwable: Throwable) {
+    // Log the failure instead of re-throwing it on the main thread, which used to
+    // crash the whole app for any background DB/network error and leave persisted
+    // state half-written (see storage-issues.md, Finding 0).
+    Timber.e(throwable)
+}
+```
+
+`CancellationException` is still rethrown, so coroutine cancellation is unaffected. Background
+DB/network errors are now non-fatal.
+
+### Finding 1 — the settings request no longer touches the stored URLs
+
+**Root of the original hack:** `getSettings` routes to `ControlEndpointProvider.checkSettingsUrl`
+→ `host = protocol + config.controlServerHost`. In **expert + IPv4-only** mode,
+`config.controlServerHost` (`AppConfig.kt:195`) resolves to `controlServerV4Url`. To make the
+settings check still reach the *base* host, the old code nulled the stored V4/V6 URLs for the
+duration of the call — which destroyed them whenever the request failed, and did nothing useful
+in normal mode.
+
+**Fix:** route the settings check to the base host explicitly, so the stored URLs are never
+mutated.
+
+- `core/.../config/Config.kt` — new `val controlServerHostForSettings: String`.
+- `app/.../config/AppConfig.kt` — implemented as the configured base host (never the IPv4
+  override):
+  ```kotlin
+  override val controlServerHostForSettings: String
+      get() = getString(BuildConfig.CONTROL_SERVER_HOST)
+  ```
+- `core/.../config/ControlServerProviderImpl.kt` — `checkSettingsUrl` now uses it:
+  ```kotlin
+  override val checkSettingsUrl: String
+      get() = "$protocol${config.controlServerHostForSettings}$routePath/${config.controlServerSettingsEndpoint}"
+  ```
+- `core/.../data/repository/SettingsRepositoryImpl.kt` (`emitSettingsRequest`) — the null-before
+  / restore-after block is removed entirely:
+  ```kotlin
+  val body = deviceInfo.toSettingsRequest(clientUUID, clientUUIDLegacy, config, termsAndConditions)
+  // The settings request is routed to the base host via ControlEndpointProvider.checkSettingsUrl,
+  // so there is no longer a need to null the stored IPv4/IPv6 URLs here.
+  val settings = controlServerClient.getSettings(body)
+  return settings
+  ```
+
+The test/history/result paths still use `config.controlServerHost` (which keeps the IPv4
+override in expert mode), so only the settings-check routing changed.
+
+**On-device verification** (Samsung SM-S928B, rmbt debug build):
+
+1. Stored URLs before: `CONTROL_V4_SERVER_URL=c01v4.netztest.at`, `CONTROL_V6_SERVER_URL=c01v6.netztest.at`.
+2. Airplane mode + relaunch → settings request still routed to the base host
+   (`Unable to resolve host "c01.netztest.at"`), no crash; stored URLs **unchanged**.
+3. Network back on + relaunch → settings request to base host succeeds; stored URLs intact
+   (no regression).
+
+## Remaining proposed fixes (priority order)
+
+1. **Atomic settings apply** — batch the parsed settings into one commit, only after a fully
    parsed successful response; guard `.first()` and `!!`. (`SettingsRepositoryImpl.kt:89`)
-4. **Use `clearInsert()`** for history page 0 and decouple `refreshSettings()` from history
+2. **Use `clearInsert()`** for history page 0 and decouple `refreshSettings()` from history
    load. (`HistoryRepositoryImpl.kt:87`)
-5. **Replace `runBlocking { channel.send() }`** with a buffered channel / `trySend`.
+3. **Replace `runBlocking { channel.send() }`** with a buffered channel / `trySend`.
    (`HistoryLoader.kt:48,54`)
+
+Done: Finding 0 (`io {}` crash) and Finding 1 (URL destruction) — see "Fixes applied" above.
 </content>
 </invoke>
