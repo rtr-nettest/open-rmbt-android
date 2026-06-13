@@ -122,8 +122,14 @@ class HistoryLoader @Inject constructor(
     fun refresh() = io {
         isLoading = true
         reportRefreshing(true)
-        historyRepository.loadHistoryItems(0, LIMIT, false).onFailure {
+        val result = historyRepository.loadHistoryItems(0, LIMIT, false)
+        result.onFailure {
             errorChannel?.send(it)
+        }
+        // Page 0 is now loaded, so advance the cursor. Otherwise the boundary callback's
+        // first loadItems() would re-fetch offset 0 (a duplicate) before continuing.
+        result.onSuccess {
+            latestLoadedPage = if (it.isNullOrEmpty()) 0 else 1
         }
         reportRefreshing(false)
         isLoading = false
