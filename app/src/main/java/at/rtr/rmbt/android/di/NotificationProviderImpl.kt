@@ -195,6 +195,7 @@ class NotificationProviderImpl(private val context: Context) : NotificationProvi
                 HomeActivity.FRAGMENT_TO_START_BUNDLE_KEY,
                 HomeActivity.Companion.HomeNavigationTarget.HISTORY_FRAGMENT_TO_SHOW
             )
+            putExtra(HomeActivity.SHOW_LOOP_FINISHED_DIALOG_BUNDLE_KEY, true)
         }
         val intent = PendingIntent.getActivity(context, 0, homeIntent, PendingIntent.FLAG_IMMUTABLE)
 

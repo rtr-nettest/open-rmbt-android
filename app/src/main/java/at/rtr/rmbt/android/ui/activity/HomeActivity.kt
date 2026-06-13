@@ -36,6 +36,7 @@ import at.rtr.rmbt.android.R
 import at.rtr.rmbt.android.databinding.ActivityHomeBinding
 import at.rtr.rmbt.android.di.viewModelLazy
 import at.rtr.rmbt.android.ui.dialog.ConfigCheckDialog
+import at.rtr.rmbt.android.ui.dialog.SimpleDialog
 import at.rtr.rmbt.android.util.listen
 import at.rtr.rmbt.android.viewmodel.ConfigCheckViewModel
 import at.rtr.rmbt.android.viewmodel.MeasurementViewModel
@@ -49,6 +50,7 @@ class HomeActivity : BaseActivity() {
     private val viewModel: MeasurementViewModel by viewModelLazy()
     private val configCheckViewModel: ConfigCheckViewModel by viewModelLazy()
     private var termsIsShown: Boolean = false
+    private var showLoopFinishedDialogPending: Boolean = false
 
     private fun startHomeRunnable() {
         val accepted = viewModel.isTacAccepted
@@ -65,6 +67,9 @@ class HomeActivity : BaseActivity() {
             HomeNavigationTarget.HOME_FRAGMENT_TO_SHOW -> binding.navView.selectedItemId = R.id.navigation_home
             HomeNavigationTarget.STATISTIC_FRAGMENT_TO_SHOW -> binding.navView.selectedItemId = R.id.navigation_statistics
             HomeNavigationTarget.MAP_FRAGMENT_TO_SHOW -> binding.navView.selectedItemId = R.id.navigation_map
+        }
+        if (intent?.getBooleanExtra(SHOW_LOOP_FINISHED_DIALOG_BUNDLE_KEY, false) == true) {
+            showLoopFinishedDialogPending = true
         }
     }
 
@@ -110,6 +115,9 @@ class HomeActivity : BaseActivity() {
                 HomeNavigationTarget.STATISTIC_FRAGMENT_TO_SHOW -> binding.navView.selectedItemId = R.id.navigation_statistics
                 HomeNavigationTarget.MAP_FRAGMENT_TO_SHOW -> binding.navView.selectedItemId = R.id.navigation_map
             }
+            if (intent.getBooleanExtra(SHOW_LOOP_FINISHED_DIALOG_BUNDLE_KEY, false)) {
+                showLoopFinishedDialogPending = true
+            }
         }
 
         binding.navView.menu.findItem(R.id.navigation_home).setContentDescription(getString(R.string.home_home))
@@ -146,6 +154,22 @@ class HomeActivity : BaseActivity() {
         configCheckViewModel.checkConfig()
     }
 
+    override fun onResume() {
+        super.onResume()
+        if (showLoopFinishedDialogPending) {
+            showLoopFinishedDialogPending = false
+            showLoopFinishedDialog()
+        }
+    }
+
+    private fun showLoopFinishedDialog() {
+        SimpleDialog.Builder()
+            .messageText(R.string.loop_mode_completed_message)
+            .positiveText(R.string.loop_mode_completed_ok)
+            .cancelable(true)
+            .show(supportFragmentManager, CODE_LOOP_FINISHED_DIALOG, TAG_LOOP_FINISHED_DIALOG)
+    }
+
     override fun onStop() {
         super.onStop()
         viewModel.detach(this)
@@ -170,14 +194,24 @@ class HomeActivity : BaseActivity() {
         }
 
         const val FRAGMENT_TO_START_BUNDLE_KEY = "FRAGMENT_TO_START_BUNDLE_KEY"
+        const val SHOW_LOOP_FINISHED_DIALOG_BUNDLE_KEY = "SHOW_LOOP_FINISHED_DIALOG_BUNDLE_KEY"
 
         private const val CODE_TERMS = 1
+        private const val CODE_LOOP_FINISHED_DIALOG = 2
+        private const val TAG_LOOP_FINISHED_DIALOG = "LOOP_FINISHED_DIALOG"
 
         fun start(context: Context) = context.startActivity(Intent(context, HomeActivity::class.java))
 
         fun startWithFragment(context: Context, fragmentToShow: HomeNavigationTarget) {
             val intent = Intent(context, HomeActivity::class.java)
             intent.putExtra(FRAGMENT_TO_START_BUNDLE_KEY, fragmentToShow)
+            context.startActivity(intent)
+        }
+
+        fun startLoopFinished(context: Context) {
+            val intent = Intent(context, HomeActivity::class.java)
+            intent.putExtra(FRAGMENT_TO_START_BUNDLE_KEY, HomeNavigationTarget.HISTORY_FRAGMENT_TO_SHOW)
+            intent.putExtra(SHOW_LOOP_FINISHED_DIALOG_BUNDLE_KEY, true)
             context.startActivity(intent)
         }
     }
