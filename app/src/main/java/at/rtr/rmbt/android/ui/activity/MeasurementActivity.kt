@@ -209,16 +209,19 @@ class MeasurementActivity : BaseActivity(), SimpleDialog.Callback {
                     showLoopFinishedDialog()
                 }
             } else {
-                viewModel.testUUID?.let {
-                    if (viewModel.state.measurementState.get() == MeasurementState.FINISH) {
-                        ResultsActivity.start(this, it, ResultsActivity.ReturnPoint.HOME)
-                        this.finish()
-                        return
-                    }
-                } ?: run {
-                    HomeActivity.start(this)
+                // When the measurement finishes while the app is in the background, the running
+                // testUUID held by the view model / service is already cleared, so we fall back to
+                // the persisted UUID of the finished test whose results still need to be shown.
+                val resultTestUUID = viewModel.config.pendingResultTestUUID
+                    ?: viewModel.testUUID?.takeIf { viewModel.state.measurementState.get() == MeasurementState.FINISH }
+                if (resultTestUUID != null) {
+                    viewModel.config.pendingResultTestUUID = null
+                    ResultsActivity.start(this, resultTestUUID, ResultsActivity.ReturnPoint.HOME)
                     this.finish()
+                    return
                 }
+                HomeActivity.start(this)
+                this.finish()
             }
         }
     }

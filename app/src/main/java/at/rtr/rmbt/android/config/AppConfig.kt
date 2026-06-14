@@ -28,6 +28,7 @@ private const val FILENAME = "config.pref"
 
 private const val KEY_TEST_COUNTER = "KEY_TEST_COUNTER"
 private const val KEY_PREVIOUS_TEST_STATUS = "PREVIOUS_TEST_STATUS"
+private const val KEY_PENDING_RESULT_TEST_UUID = "PENDING_RESULT_TEST_UUID"
 private const val KEY_MEASUREMENT_TAG = "MEASUREMENT_TAG"
 private const val KEY_LAST_QOS_TEST_PERFORMED_TIMESTAMP_MILLIS = "LAST_QOS_TEST_PERFORMED_TIMESTAMP_MILLIS"
 private const val KEY_LAST_PERMISSIONS_ASKED_TIMESTAMP_MILLIS = "LAST_PERMISSIONS_ASKED_TIMESTAMP_MILLIS"
@@ -291,6 +292,12 @@ class AppConfig @Inject constructor(context: Context, private val serverSettings
         get() = preferences.getString(KEY_PREVIOUS_TEST_STATUS, null)
         set(value) = preferences.edit()
             .putString(KEY_PREVIOUS_TEST_STATUS, value)
+            .apply()
+
+    override var pendingResultTestUUID: String? // null when there is no result waiting to be shown
+        get() = preferences.getString(KEY_PENDING_RESULT_TEST_UUID, null)
+        set(value) = preferences.edit()
+            .putString(KEY_PENDING_RESULT_TEST_UUID, value)
             .apply()
 
     override var capabilitiesRmbtHttp: Boolean

@@ -254,6 +254,14 @@ interface Config {
     var previousTestStatus: String?
 
     /**
+     * UUID of a finished regular (non-loop) measurement whose result screen has not been shown yet.
+     * Persisted so the results can still be opened when the measurement finishes while the UI is in
+     * the background (the activity that was showing the test may be stopped or destroyed by then).
+     * Set once the results are ready to be displayed and cleared as soon as they are shown.
+     */
+    var pendingResultTestUUID: String?
+
+    /**
      * Client uses RMBTHttp if true, default should be true
      */
     var capabilitiesRmbtHttp: Boolean

@@ -399,6 +399,12 @@ class MeasurementService : CustomLifecycleService(), CoroutineScope {
             clientAggregator.onClientReady(testUUID, loopLocalUUID)
             startNetwork = connectivityManager.activeNetwork
             stateRecorder.onReadyToSubmit = { shouldShowResults ->
+                // Remember a finished regular test whose results should be shown, so the UI can open
+                // them even if it was in the background (and thus missed the onSubmitted callback)
+                // when the test finished.
+                if (shouldShowResults && loopUUID == null) {
+                    config.pendingResultTestUUID = testUUID
+                }
                 runCatching {
                     resultRepository.sendTestResults(testUUID) {
                         it.onSuccess {
