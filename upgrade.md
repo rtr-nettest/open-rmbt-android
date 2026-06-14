@@ -92,9 +92,39 @@ junit-ktx 1.1.5→1.2.1, test_runner 1.5.2→1.6.2, espresso 3.5.1→3.6.1, rule
 **Verification:** `:app:assembleRmbtDebug` (rmbt flavor) succeeds; app installs, launches, and
 Home/History/Statistics/Map navigation works on device with no crashes.
 
-**Not done (Group 3 — deliberate/breaking):** AGP 9.2.1 + Gradle 9.5.1 (would unlock
-core-ktx 1.19.0 and other AGP-9-only AndroidX), Retrofit 3.0 + OkHttp alignment, Firebase
-BoM/Crashlytics 20.x, detekt 1.23.8 + dokka 2.0 config migrations, Kotlin 2.4 (blocked by
-Dagger/kapt). play-services-location 21.3.0, constraintlayout 2.2.x, gson/dnsjava/joda minor
-bumps were left for a follow-up.
+## Status — Group 3 (attempted)
+
+**Applied & verified (build + device):**
+
+- **Minor bumps:** constraintlayout 2.2.1, dnsjava 3.6.3, net.danlew:android.joda 2.13.1,
+  play-services-location 21.3.0.
+- **Retrofit 2.12.0 → 3.0.0** with **OkHttp alignment**: logging-interceptor
+  5.0.0-alpha.14 → **4.12.0** (Retrofit 3.0 uses OkHttp 4.12; the project had been pulling an
+  OkHttp 5 *alpha* via the logging interceptor — now consistent on stable 4.12.0).
+  Verified: settings request over the network succeeds on device, no crash.
+
+**Blocked — reverted to the Group-2 base (AGP 8.13.2 / Gradle 8.14.3 / core-ktx 1.16.0):**
+
+- **AGP 9.2.1 + Gradle 9.5.1 + core-ktx 1.19.0** is a project-wide migration, not a bump.
+  Surfaced blockers:
+  - **Gradle 9 removed `org.gradle.util.ConfigureUtil`** → the ancient detekt 1.0.1 and
+    dokka 0.10.0 plugins fail to evaluate. (Their Gradle-9-compatible replacements are
+    themselves uncertain — detekt 1.23.8 / dokka 2.0.0 predate Gradle 9.)
+  - **AGP 9 ships built-in Kotlin** → `Cannot add extension with name 'kotlin'` because every
+    module applies `kotlin-android` (KGP). Needs opting out of built-in Kotlin or migrating.
+  - **AGP 9 requires `compileSdk`** (project uses the removed `compileSdkVersion`) in every
+    module; plus `kotlinOptions` → `compilerOptions`, and kapt-integration questions.
+  - core-ktx 1.19.0 (and other AGP-9-only AndroidX) depend on this, so they stay capped.
+- **Kotlin 2.4:** still blocked by Dagger/kapt (max metadata 2.2.0).
+- **Firebase Crashlytics 20.x:** not attempted — the Firebase/Crashlytics plugins live in
+  `private/` and are commented out; a bump needs the Firebase BoM + crashlytics-gradle 3.x +
+  google-services plugin re-enabled. Left as a deliberate follow-up.
+- **detekt 1.23.8 / dokka 2.0:** not migrated — they still apply fine on Gradle 8.14.3, so
+  left as-is; they only *need* migration as part of the AGP-9/Gradle-9 move.
+
+### Net result after Groups 1–3
+Kotlin 2.2.0 (K2), AGP 8.13.2, Gradle 8.14.3, Dagger 2.56.2, Room 2.8.4, navigation 2.9.8,
+Retrofit 3.0.0 + OkHttp 4.12.0, and latest-compatible AndroidX/material/lifecycle/work/paging
+(+ minor bumps). The remaining frontier (AGP 9 / Gradle 9 / Kotlin 2.4 / core-ktx 1.19.0 /
+Firebase 20.x) is gated on a dedicated AGP-9 migration and on Dagger catching up to Kotlin 2.4.
 </content>
