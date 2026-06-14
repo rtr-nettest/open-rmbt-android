@@ -61,10 +61,8 @@ buildscript {
 
 Summery (as of 2026-06):
 
-
-STALE (old + dormant/abandoned):
-  - markwon 4.6.2 (2021-04, ~5y) — archived project
-  - timber 5.0.1 (2021-09, ~4.8y) — dormant (but still the last release)
+STALE (dormant):
+  - timber 5.0.1 (2021-09, ~4.8y) (but still the last release, de facto standard, not outdated)
 
 Old but "latest stable" (pinned by upstream alphas / legacy):
   - swiperefreshlayout 1.1.0 (2020, ~6y) — 1.2.0 stuck in alpha

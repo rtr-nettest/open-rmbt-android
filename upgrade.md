@@ -58,8 +58,8 @@ Versions verified against Maven Central / Google Maven in June 2026.
 junit-ktx 1.1.5→1.2.1, test_runner 1.5.2→1.6.2, espresso 3.5.1→3.6.1, rules 1.5.0→1.6.1, junit 4.13.2 (latest).
 
 ### Pinned / abandoned (no upgrade)
-`io.noties.markwon` 4.6.2 (archived), `com.github.zcweng:switch-button` 0.0.3 (dead),
-`net.sf.jopt-simple` 5.0.4 (last release).
+`com.github.zcweng:switch-button` 0.0.3 (dead), `net.sf.jopt-simple` 5.0.4 (last release).
+(`io.noties.markwon` 4.6.2 removed — it was dead code: `MarkwonBuilder`/`MarkwonThemePlugin` had no callers.)
 
 ## Execution plan
 
