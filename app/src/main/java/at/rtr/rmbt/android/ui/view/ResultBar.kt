@@ -60,6 +60,8 @@ class ResultBar @JvmOverloads constructor(
         isAntiAlias = true
     }
 
+    private var classColor = ContextCompat.getColor(context, R.color.classification_undefined)
+
     private var progressPaint = Paint().apply {
         color = classColor
         style = Paint.Style.FILL
@@ -71,7 +73,6 @@ class ResultBar @JvmOverloads constructor(
      */
     private var verticalCount = 2
     private var horizontalCount = 12
-    private var classColor = ContextCompat.getColor(context, R.color.classification_undefined)
 
     private var currentCanvas: Canvas? = null
     private var bitmap: Bitmap? = null
