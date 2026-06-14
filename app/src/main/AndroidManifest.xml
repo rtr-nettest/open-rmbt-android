@@ -121,11 +121,6 @@
             android:theme="@style/PreferenceTheme"/>
 
         <activity
-            android:name=".ui.activity.LoopFinishedActivity"
-            android:launchMode="singleTop"
-            android:theme="@style/MeasurementTheme" />
-
-        <activity
             android:name="at.rtr.rmbt.android.ui.activity.DataPrivacyAndTermsOfUseActivity"
             android:theme="@style/PreferenceTheme" />
 

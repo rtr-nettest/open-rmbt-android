@@ -69,6 +69,7 @@
             android:layout_height="wrap_content"
             android:layout_marginEnd="@dimen/margin_large"
             android:indeterminateTint="@android:color/white"
+            visibleOrGone="@{state.loopLocalUUID != null &amp;&amp; state.loopModeRecord.status != LoopModeState.FINISHED &amp;&amp; state.loopModeRecord.status != LoopModeState.CANCELLED}"
             app:layout_constraintBottom_toBottomOf="@+id/loop_measurement_title"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="@+id/loop_measurement_title" />
