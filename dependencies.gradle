@@ -61,8 +61,6 @@ buildscript {
 
 Summery (as of 2026-06):
 
-Removed (were abandoned ~2017): switch-button (zcweng) -> androidx SwitchCompat;
-  jopt-simple -> deleted with the unused RMBTClientRunner CLI entry point.
 
 STALE (old + dormant/abandoned):
   - markwon 4.6.2 (2021-04, ~5y) — archived project
@@ -84,7 +82,6 @@ Fresh (2025–2026):
   retrofit, work, room, gson, dnsjava, paging, guava, joda, and the test libs.
 
 */
-
 
     }
 }
