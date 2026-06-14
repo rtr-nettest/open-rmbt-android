@@ -591,6 +591,9 @@ fun List<CoverageMeasurementFenceRecord>.toRequest(measurementStartMillis: Long)
 fun CoverageMeasurementFenceRecord.toRequest(measurementStartMillis: Long): FenceBody = FenceBody(
     centerLocation = this.location?.toSimpleLocation(),
     accuracy = this.location?.accuracy,
+    heading = this.location?.bearing,
+    altitude = this.location?.altitude,
+    speed = this.location?.speed,
     networkTechnologyId = this.technologyId ?: MobileNetworkType.UNKNOWN.intValue,
     networkTechnologyName = MobileNetworkType.fromValue(this.technologyId ?: MobileNetworkType.UNKNOWN.intValue).displayName,
     offsetMillis = this.entryTimestampMillis - measurementStartMillis,
