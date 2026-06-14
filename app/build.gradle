@@ -107,7 +107,6 @@ dependencies {
     implementation "com.jakewharton.timber:timber:$versions.timber"
 
     implementation "androidx.preference:preference-ktx:$versions.androidx_preference"
-    implementation "com.github.zcweng:switch-button:$versions.switch_button"
 
     implementation "androidx.core:core-splashscreen:$versions.splash_screen"
 

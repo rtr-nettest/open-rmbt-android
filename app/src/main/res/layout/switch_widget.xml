@@ -13,10 +13,8 @@
   ~ limitations under the License.
   -->
 
-<com.suke.widget.SwitchButton xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:app="http://schemas.android.com/apk/res-auto"
+<androidx.appcompat.widget.SwitchCompat xmlns:android="http://schemas.android.com/apk/res/android"
         android:id="@+id/compound_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:focusable="false"
-        app:sb_show_indicator="false" />
+        android:focusable="false" />

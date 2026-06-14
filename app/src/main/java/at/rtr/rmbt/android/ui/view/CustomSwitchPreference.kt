@@ -16,10 +16,10 @@ package at.rtr.rmbt.android.ui.view
 
 import android.content.Context
 import android.util.AttributeSet
+import android.widget.CompoundButton
 import androidx.preference.PreferenceViewHolder
 import androidx.preference.SwitchPreference
 import at.rtr.rmbt.android.R
-import com.suke.widget.SwitchButton
 
 class CustomSwitchPreference @JvmOverloads constructor(
     context: Context,
@@ -38,7 +38,7 @@ class CustomSwitchPreference @JvmOverloads constructor(
     private fun bindSwitch(viewHolder: PreferenceViewHolder) {
         val view = viewHolder.findViewById(R.id.compound_button)
 
-        if (view is SwitchButton) {
+        if (view is CompoundButton) {
             view.isChecked = getPersistedBoolean(false)
             view.setOnCheckedChangeListener { _, isChecked ->
                 if (getPersistedBoolean(false) != isChecked) {

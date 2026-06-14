@@ -32,7 +32,6 @@ buildscript {
                 lifecycle_service   : '2.10.0',          // latest stable; rel. ~2026 (<0.5y); needs compileSdk >= 35
                 dagger              : '2.56.2',          // latest stable; rel. ~2025-04 (~1.2y); metadata reader caps Kotlin at 2.2
                 timber              : '5.0.1',           // latest = last release; rel. 2021-09 (~4.8y) — STALE, project dormant
-                switch_button       : '0.0.3@aar',       // last release; rel. ~2017 (~9y) — STALE, abandoned (com.github.zcweng)
                 google_services     : '20.0.0',          // play-services-maps; rel. ~2026 (verify exact)
                 location_services   : '21.3.0',          // latest stable; rel. ~2024-11 (~1.6y)
                 // Unchanged. 20.x (latest) needs the Firebase BoM + crashlytics-gradle 3.x +
@@ -44,7 +43,6 @@ buildscript {
                 room                : '2.8.4',           // latest stable; rel. 2025-11 (~0.6y); reads Kotlin <= 2.2 metadata (kapt)
                 gson                : '2.14.0',          // latest stable; rel. ~2026 (<0.5y) — fresh
                 dnsjava             : '3.6.3',           // latest stable; rel. ~2025 (~1y)
-                jopt_simple         : '5.0.4',           // last release; rel. 2017-02 (~9y) — STALE, abandoned
                 paging              : '3.5.0',           // latest stable; rel. 2026-05 (<0.2y) — fresh
                 guava               : '33.4.8-android',  // latest -android; rel. 2025-04 (~1.2y)
                 joda_time           : '2.13.1',          // latest net.danlew:android.joda; rel. ~2025 (~1y)
@@ -63,8 +61,10 @@ buildscript {
 
 Summery (as of 2026-06):
 
+Removed (were abandoned ~2017): switch-button (zcweng) -> androidx SwitchCompat;
+  jopt-simple -> deleted with the unused RMBTClientRunner CLI entry point.
+
 STALE (old + dormant/abandoned):
-  - switch-button 0.0.3 (~2017, ~9y) and jopt-simple 5.0.4 (2017, ~9y) — abandoned
   - markwon 4.6.2 (2021-04, ~5y) — archived project
   - timber 5.0.1 (2021-09, ~4.8y) — dormant (but still the last release)
 
