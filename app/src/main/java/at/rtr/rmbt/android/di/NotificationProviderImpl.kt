@@ -10,7 +10,7 @@ import android.content.Intent
 import androidx.core.app.NotificationCompat
 import at.rtr.rmbt.android.BuildConfig
 import at.rtr.rmbt.android.R
-import at.rtr.rmbt.android.ui.activity.LoopFinishedActivity
+import at.rtr.rmbt.android.ui.activity.HomeActivity
 import at.rtr.rmbt.android.ui.activity.MeasurementActivity
 import at.rtr.rmbt.android.ui.activity.SignalMeasurementActivity
 import at.rtr.rmbt.android.util.timeString
@@ -190,13 +190,25 @@ class NotificationProviderImpl(private val context: Context) : NotificationProvi
     }
 
     override fun loopModeFinishedNotification(): Notification {
-        val intent = PendingIntent.getActivity(context, 0, Intent(context, LoopFinishedActivity::class.java), PendingIntent.FLAG_IMMUTABLE)
+        // Switch to the history overview and clear the loop-finished screen (and its overlay
+        // alert) off the back stack so tapping the notification removes the alert as well.
+        val homeIntent = Intent(context, HomeActivity::class.java).apply {
+            putExtra(
+                HomeActivity.FRAGMENT_TO_START_BUNDLE_KEY,
+                HomeActivity.Companion.HomeNavigationTarget.HISTORY_FRAGMENT_TO_SHOW
+            )
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK or
+                Intent.FLAG_ACTIVITY_CLEAR_TOP or
+                Intent.FLAG_ACTIVITY_SINGLE_TOP
+        }
+        val intent = PendingIntent.getActivity(context, 0, homeIntent, PendingIntent.FLAG_IMMUTABLE)
 
         return NotificationCompat.Builder(context, measurementChannelId())
             .extend(clearActionsNotificationExtender)
             .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
             .setPriority(NotificationCompat.PRIORITY_LOW)
             .setSmallIcon(R.drawable.ic_notification)
+            .setAutoCancel(true)
             .setContentIntent(intent)
             .setContentTitle(context.getString(R.string.notification_loop_mode_finished_title))
             .build()

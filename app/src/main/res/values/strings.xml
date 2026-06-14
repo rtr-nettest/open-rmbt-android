@@ -345,6 +345,8 @@
     <string name="loop_mode_no_gps">No GPS</string>
     <string name="or">or</string>
     <string name="loop_mode_finished">RTR-NetTest loop mode finished!</string>
+    <string name="loop_mode_completed_message">Loop mode has completed</string>
+    <string name="loop_mode_completed_ok">Ok</string>
     <string name="loop_continue_to_results">Continue to the result</string>
     <string name="loop_run_again">Run again</string>
     <string name="title_privacy_policy">Privacy policy</string>

@@ -11,10 +11,11 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updatePadding
 import at.rtr.rmbt.android.R
 import at.rtr.rmbt.android.databinding.ActivityLoopFinishedBinding
+import at.rtr.rmbt.android.ui.dialog.SimpleDialog
 import at.specure.measurement.MeasurementService
 import kotlin.math.max
 
-class LoopFinishedActivity : BaseActivity() {
+class LoopFinishedActivity : BaseActivity(), SimpleDialog.Callback {
 
     private lateinit var binding: ActivityLoopFinishedBinding
 
@@ -57,6 +58,10 @@ class LoopFinishedActivity : BaseActivity() {
                 HomeActivity.startWithFragment(this@LoopFinishedActivity, HomeActivity.Companion.HomeNavigationTarget.HOME_FRAGMENT_TO_SHOW)
             }
         })
+
+        if (savedInstanceState == null) {
+            showLoopFinishedDialog()
+        }
     }
 
     override fun onResume() {
@@ -65,7 +70,31 @@ class LoopFinishedActivity : BaseActivity() {
         notificationManager.cancel(MeasurementService.NOTIFICATION_ID)
     }
 
+    private fun showLoopFinishedDialog() {
+        SimpleDialog.Builder()
+            .messageText(R.string.loop_mode_completed_message)
+            .positiveText(R.string.loop_mode_completed_ok)
+            .cancelable(true)
+            .show(supportFragmentManager, CODE_LOOP_FINISHED_DIALOG, TAG_LOOP_FINISHED_DIALOG)
+    }
+
+    override fun onDialogPositiveClicked(code: Int) {
+        if (code == CODE_LOOP_FINISHED_DIALOG) {
+            notificationManager.cancel(MeasurementService.NOTIFICATION_LOOP_FINISHED_ID)
+            notificationManager.cancel(MeasurementService.NOTIFICATION_ID)
+            this.finishAffinity()
+            HomeActivity.startWithFragment(this, HomeActivity.Companion.HomeNavigationTarget.HISTORY_FRAGMENT_TO_SHOW)
+        }
+    }
+
+    override fun onDialogNegativeClicked(code: Int) {
+        // no negative button on the loop finished dialog
+    }
+
     companion object {
+
+        private const val CODE_LOOP_FINISHED_DIALOG = 1
+        private const val TAG_LOOP_FINISHED_DIALOG = "LOOP_FINISHED_DIALOG"
 
         fun start(context: Context) = context.startActivity(Intent(context, LoopFinishedActivity::class.java))
     }
