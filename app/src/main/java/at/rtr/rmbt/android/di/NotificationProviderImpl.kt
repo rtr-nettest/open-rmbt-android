@@ -190,16 +190,14 @@ class NotificationProviderImpl(private val context: Context) : NotificationProvi
     }
 
     override fun loopModeFinishedNotification(): Notification {
-        // Switch to the history overview and clear the loop-finished screen (and its overlay
-        // alert) off the back stack so tapping the notification removes the alert as well.
+        // Switch to the history overview and clear the test screen (and its completion alert)
+        // off the task so tapping the notification removes the alert as well.
         val homeIntent = Intent(context, HomeActivity::class.java).apply {
             putExtra(
                 HomeActivity.FRAGMENT_TO_START_BUNDLE_KEY,
                 HomeActivity.Companion.HomeNavigationTarget.HISTORY_FRAGMENT_TO_SHOW
             )
-            flags = Intent.FLAG_ACTIVITY_NEW_TASK or
-                Intent.FLAG_ACTIVITY_CLEAR_TOP or
-                Intent.FLAG_ACTIVITY_SINGLE_TOP
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
         }
         val intent = PendingIntent.getActivity(context, 0, homeIntent, PendingIntent.FLAG_IMMUTABLE)
 
