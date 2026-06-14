@@ -98,6 +98,15 @@ class MeasurementCurveLayout @JvmOverloads constructor(context: Context, attrs: 
         put(MeasurementState.QOS, 76)
     }
 
+    init {
+        // The curve is drawn on the canvas in absolute (left-based) coordinates and the speed /
+        // percentage / dash overlays are positioned via leftMargin computed from those
+        // coordinates. In RTL a FrameLayout anchors children to the right edge and ignores
+        // leftMargin, which misplaces the values. Keep this gauge laid out left-to-right so the
+        // overlays line up with the curve regardless of the app's layout direction.
+        layoutDirection = LAYOUT_DIRECTION_LTR
+    }
+
     override fun onFinishInflate() {
         super.onFinishInflate()
         curveBinding = LayoutMeasurementCurveBinding.inflate(inflater)

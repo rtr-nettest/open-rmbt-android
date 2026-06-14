@@ -7,6 +7,7 @@ import android.util.Log
 import androidx.work.Configuration
 import at.rtr.rmbt.android.di.DaggerAppComponent
 import at.rtr.rmbt.android.di.Injector
+import at.rtr.rmbt.android.util.LocaleHelper
 import at.specure.config.Config
 import at.specure.di.CoreComponent
 import at.specure.di.CoreApp
@@ -33,6 +34,10 @@ class App : CoreApp(), Configuration.Provider {
         get() = Configuration.Builder()
             .setMinimumLoggingLevel(Log.INFO)
             .build()
+
+    override fun attachBaseContext(base: Context) {
+        super.attachBaseContext(LocaleHelper.wrap(base))
+    }
 
     override fun onCreate() {
         super.onCreate()
