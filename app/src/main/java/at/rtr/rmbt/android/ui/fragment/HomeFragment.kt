@@ -532,12 +532,7 @@ class HomeFragment : BaseFragment() {
                     requireContext(),
                     Manifest.permission.ACCESS_FINE_LOCATION
                 ) == PackageManager.PERMISSION_GRANTED
-            if (hasForegroundLocationPermission && homeViewModel.shouldRequestBackgroundLocationPermission) {
-                checkSelfPermission(
-                    requireContext(),
-                    Manifest.permission.ACCESS_BACKGROUND_LOCATION
-                )
-            } else {
+            if (!hasForegroundLocationPermission) {
                 permissions.add(Manifest.permission.ACCESS_COARSE_LOCATION)
                 permissions.add(Manifest.permission.ACCESS_FINE_LOCATION)
             }

@@ -64,6 +64,10 @@ abstract class HistoryDao {
         ignoreDevices: Boolean
     ): Int
 
+    /** Number of raw history records cached locally (used to align the paging cursor). */
+    @Query("SELECT COUNT(*) FROM ${Tables.HISTORY}")
+    abstract fun getHistoryRecordsCount(): Int
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     abstract fun saveHistory(history: List<History>)
 

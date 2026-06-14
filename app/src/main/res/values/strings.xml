@@ -224,6 +224,7 @@
     <string name="history_item_header_ping">Ping</string>
     <string name="history_item_header_ms">ms</string>
     <string name="history_no_data">No data available.</string>
+    <string name="history_loading_failed">Loading failed</string>
 
     <!-- History screen - content labeling -->
     <string name="history_settings">Settings</string>

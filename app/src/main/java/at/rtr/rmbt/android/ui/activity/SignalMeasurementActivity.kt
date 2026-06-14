@@ -76,6 +76,7 @@ class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback, Coverage
     private var sendingResultsErrorSnackbar: Snackbar? = null
     private var showMeasurementResultsJob: Job? = null
     private var updateUnfinishedMeasurementJob: Job? = null
+    private var measurementStartRequested = false
     private val emptyBitmap by lazy { createBitmap(1, 1) }
 
     override fun onFenceOrAccuracyUpdated() {
@@ -156,13 +157,6 @@ class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback, Coverage
             coverageViewModel.onCoverageSessionLoaded(sessionId)
 
         }
-        onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
-            override fun handleOnBackPressed() {
-                if (shouldAllowBackPress()) {
-                    onBackPressedDispatcher.onBackPressed()
-                }
-            }
-        })
     }
 
     private fun updateMapState(data: CoverageMeasurementData?) {
@@ -609,9 +603,12 @@ class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback, Coverage
     override fun onStart() {
         super.onStart()
         viewModel.attach(this)
-        lifecycleScope.launch(CoroutineName("Starting signal measurement")) {
-            // TODO: maybe a little improve and instead of delay add state variable which listens on onServiceConnected in homeViewModel and start it there, but drawback is that we need to know when we want to continue there
-            delay(1000)
+        // Request the start only once per activity instance - every later onStart
+        // (leaving PiP, returning from recents) would otherwise restart a measurement
+        // the user may just have stopped. The view model queues the request until the
+        // service connection is established.
+        if (!measurementStartRequested) {
+            measurementStartRequested = true
             Timber.d("Starting signal measurement")
             viewModel.startSignalMeasurement(SignalMeasurementType.DEDICATED)
         }
