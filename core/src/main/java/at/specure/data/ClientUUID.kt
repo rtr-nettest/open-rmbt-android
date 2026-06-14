@@ -31,9 +31,9 @@ class ClientUUID @Inject constructor(context: Context, val config: Config) {
     val liveData: LiveData<String?>
         get() {
             return if (config.expertModeEnabled && config.controlServerOverrideEnabled) {
-                StringPreferenceLiveData(preferences, KEY_CLIENT_UUID + config.controlServerHost, null)
+                StringPreferenceLiveData(preferences, KEY_CLIENT_UUID + config.controlServerHostForSettings, null)
                     .also {
-                        it.postValue(preferences.getString(KEY_CLIENT_UUID + config.controlServerHost, null))
+                        it.postValue(preferences.getString(KEY_CLIENT_UUID + config.controlServerHostForSettings, null))
                     }
             } else {
                 StringPreferenceLiveData(preferences, KEY_CLIENT_UUID, null)
@@ -46,7 +46,7 @@ class ClientUUID @Inject constructor(context: Context, val config: Config) {
     var value: String?
         get() {
             return if (config.expertModeEnabled && config.controlServerOverrideEnabled) {
-                preferences.getString(KEY_CLIENT_UUID + config.controlServerHost , _value)
+                preferences.getString(KEY_CLIENT_UUID + config.controlServerHostForSettings , _value)
             } else {
                 _value
             }
@@ -54,7 +54,7 @@ class ClientUUID @Inject constructor(context: Context, val config: Config) {
         set(a) {
             _value = a
             if (config.expertModeEnabled && config.controlServerOverrideEnabled) {
-                preferences.edit().putString(KEY_CLIENT_UUID + config.controlServerHost, _value).apply()
+                preferences.edit().putString(KEY_CLIENT_UUID + config.controlServerHostForSettings, _value).apply()
             } else {
                 preferences.edit().putString(KEY_CLIENT_UUID, _value).apply()
             }

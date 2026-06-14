@@ -74,6 +74,10 @@
     <string name="preferences_expert_mode_summary">Show advanced settings and information</string>
     <string name="preferences_ipv4_only">IPv4 only</string>
     <string name="preferences_ipv4_only_sum">Do not use IPv6</string>
+    <string name="preferences_ipv6_only">IPv6 only</string>
+    <string name="preferences_ipv6_only_sum">Do not use IPv4</string>
+    <string name="expert_mode_no_ipv4_connectivity">No IPv4 connectivity</string>
+    <string name="expert_mode_no_ipv6_connectivity">No IPv6 connectivity</string>
     <string name="preferences_radio_info">Radio info</string>
     <string name="preferences_radio_info_sum">Details on radio configuration</string>
     <string name="preferences_contact">Contact</string>

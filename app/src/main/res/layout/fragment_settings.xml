@@ -177,6 +177,19 @@
                 bind:value="@{state.expertModeUseIpV4Only}" />
 
             <include
+                android:id="@+id/switchExpertModeIPV6Only"
+                layout="@layout/item_setting_switch"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:visibility="@{state.expertModeEnabled ? View.VISIBLE : View.GONE}"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/switchExpertModeIPV4Only"
+                bind:summary="@{@string/preferences_ipv6_only_sum}"
+                bind:title="@{@string/preferences_ipv6_only}"
+                bind:value="@{state.expertModeUseIpV6Only}" />
+
+            <include
                 android:id="@+id/radioInfo"
                 layout="@layout/item_setting_info"
                 android:layout_width="0dp"
@@ -184,7 +197,7 @@
                 android:visibility="@{state.expertModeEnabled ? View.VISIBLE : View.GONE}"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/switchExpertModeIPV4Only"
+                app:layout_constraintTop_toBottomOf="@+id/switchExpertModeIPV6Only"
                 bind:summary="@{@string/preferences_radio_info_sum}"
                 bind:title="@{@string/preferences_radio_info}" />
 

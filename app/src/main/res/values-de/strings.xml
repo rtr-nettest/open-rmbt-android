@@ -57,6 +57,10 @@
     <string name="preferences_expert_mode_summary">Erweitere Einstellungen und Informationen</string>
     <string name="preferences_ipv4_only">Nur IPv4</string>
     <string name="preferences_ipv4_only_sum">Keine Verwendung von IPv6</string>
+    <string name="preferences_ipv6_only">Nur IPv6</string>
+    <string name="preferences_ipv6_only_sum">Keine Verwendung von IPv4</string>
+    <string name="expert_mode_no_ipv4_connectivity">Keine IPv4-Verbindung</string>
+    <string name="expert_mode_no_ipv6_connectivity">Keine IPv6-Verbindung</string>
     <string name="preferences_radio_info">Mobilfunkinformation</string>
     <string name="preferences_radio_info_sum">Details der Mobilfunkkonfiguration</string>
     <string name="preferences_contact">Kontakt</string>

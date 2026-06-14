@@ -121,9 +121,14 @@ interface Config {
     var expertModeEnabled: Boolean
 
     /**
-     * Allows to use IPv4 protocol for requests
+     * Allows to use IPv4 protocol for requests.  Mutually exclusive with [expertModeUseIpV6Only].
      */
     var expertModeUseIpV4Only: Boolean
+
+    /**
+     * Allows to use IPv6 protocol for requests. Mutually exclusive with [expertModeUseIpV4Only].
+     */
+    var expertModeUseIpV6Only: Boolean
 
     /**
      * Allows to use "https://" when enabled otherwise "http://" should be used
@@ -139,6 +144,13 @@ interface Config {
      * Control server host, example "myhost.com"
      */
     var controlServerHost: String
+
+    /**
+     * Control server host used for the settings/registration check. Always the configured base
+     * host (never the IPv4-only override [controlServerHost] may resolve to in expert mode), so
+     * the settings request reaches the original server and can return the IPv4/IPv6 URLs.
+     */
+    val controlServerHostForSettings: String
 
     /**
      * Url to the host for IPv4 test, example "v4.myhost.com"
