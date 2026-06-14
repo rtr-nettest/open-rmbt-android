@@ -198,7 +198,7 @@ class MeasurementActivity : BaseActivity(), SimpleDialog.Callback {
         if (measurementFinished) {
             if (viewModel.state.isLoopModeActive.get()) {
                 if (viewModel.state.loopModeRecord.get()?.status == LoopModeState.FINISHED) {
-                    HomeActivity.startLoopFinished(this)
+                    LoopFinishedActivity.start(this)
                     this.finish()
                 }
             } else {
