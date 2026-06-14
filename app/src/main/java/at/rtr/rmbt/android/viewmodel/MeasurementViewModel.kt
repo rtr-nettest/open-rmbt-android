@@ -102,7 +102,9 @@ class MeasurementViewModel @Inject constructor(
         override fun onServiceConnected(componentName: ComponentName?, binder: IBinder?) {
             producer = binder as MeasurementProducer?
             val loopLocalUuid = producer?.loopLocalUUID
-            testUUID = producer?.testUUID
+            // Keep a previously known testUUID if the (possibly recreated) service no longer has one:
+            // the test controller clears its testUUID once the test reaches its final state.
+            testUUID = producer?.testUUID ?: testUUID
 
             initializeLoopData(loopLocalUuid)
             Timber.d("Passed local loop UUID: $loopLocalUuid")

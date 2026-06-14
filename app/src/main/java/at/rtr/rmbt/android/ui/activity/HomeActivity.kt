@@ -146,6 +146,17 @@ class HomeActivity : BaseActivity() {
         configCheckViewModel.checkConfig()
     }
 
+    override fun onResume() {
+        super.onResume()
+        // If a regular measurement finished while the app was in the background, the measurement
+        // screen may have been stopped or cleared (HomeActivity is singleTask, so resuming via the
+        // launcher icon brings us here directly). Open the results that are still waiting to be shown.
+        viewModel.config.pendingResultTestUUID?.let { testUUID ->
+            viewModel.config.pendingResultTestUUID = null
+            ResultsActivity.start(this, testUUID, ResultsActivity.ReturnPoint.HOME)
+        }
+    }
+
     override fun onStop() {
         super.onStop()
         viewModel.detach(this)
