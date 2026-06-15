@@ -27,6 +27,7 @@ class SettingsViewState constructor(
     val loopModeEnabled = ObservableField(appConfig.loopModeEnabled)
     val expertModeEnabled = ObservableField(appConfig.expertModeEnabled)
     val expertModeUseIpV4Only = ObservableField(appConfig.expertModeUseIpV4Only)
+    val expertModeUseIpV6Only = ObservableField(appConfig.expertModeUseIpV6Only)
     val loopModeWaitingTimeMin = ObservableField(appConfig.loopModeWaitingTimeMin)
     val loopModeDistanceMeters = ObservableField(appConfig.loopModeDistanceMeters)
     val loopModeNumberOfTests = ObservableInt(appConfig.loopModeNumberOfTests)
@@ -111,6 +112,10 @@ class SettingsViewState constructor(
         expertModeEnabled.addOnPropertyChanged { value ->
             value.get()?.let {
                 appConfig.expertModeEnabled = it
+                // IPv4-only / IPv6-only must not persist across an expert-mode toggle: reset them
+                // whenever expert mode is switched on or off (their handlers persist the change).
+                expertModeUseIpV4Only.set(false)
+                expertModeUseIpV6Only.set(false)
                 if (it) {
                     refreshSettings()
                 }
@@ -124,11 +129,8 @@ class SettingsViewState constructor(
                 }
             }
         }
-        expertModeUseIpV4Only.addOnPropertyChanged { value ->
-            value.get()?.let {
-                appConfig.expertModeUseIpV4Only = it
-            }
-        }
+        // expertModeUseIpV4Only / expertModeUseIpV6Only are handled in SettingsViewModel, which
+        // enforces mutual exclusivity and verifies IPv4/IPv6 connectivity before applying.
         loopModeWaitingTimeMin.addOnPropertyChanged { value ->
             value.get()?.let {
                 appConfig.loopModeWaitingTimeMin = it

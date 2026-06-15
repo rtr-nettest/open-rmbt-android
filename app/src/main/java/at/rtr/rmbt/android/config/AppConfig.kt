@@ -35,6 +35,8 @@ private const val KEY_LAST_NOTIFICATION_PERMISSIONS_ASKED_TIMESTAMP_MILLIS = "KE
 private const val KEY_LAST_BACKGROUND_PERMISSIONS_ASKED_TIMESTAMP_MILLIS = "LAST_BACKGROUND_PERMISSIONS_ASKED_TIMESTAMP_MILLIS"
 private const val KEY_PERSISTENT_CLIENT_UUID_ENABLED = "PERSISTENT_CLIENT_UUID_ENABLED"
 private const val KEY_ANALYTICS_ENABLED = "ANALYTICS_ENABLED"
+private const val KEY_HISTORY_CACHE_INVALIDATED = "HISTORY_CACHE_INVALIDATED"
+private const val KEY_EXPERT_MODE_IPV6_ONLY = "EXPERT_MODE_IPV6_ONLY"
 
 private const val KEY_COVERAGE_MIN_FENCES_DISTANCE_FACTOR = "KEY_COVERAGE_MIN_FENCES_DISTANCE_FACTOR"
 private const val COVERAGE_MIN_FENCES_DISTANCE_FACTOR_DEFAULT_VALUE = 1
@@ -177,6 +179,12 @@ class AppConfig @Inject constructor(context: Context, private val serverSettings
         get() = getBoolean(BuildConfig.EXPERT_MODE_IPV4_ONLY)
         set(value) = setBoolean(BuildConfig.EXPERT_MODE_IPV4_ONLY, value)
 
+    override var expertModeUseIpV6Only: Boolean
+        get() = preferences.getBoolean(KEY_EXPERT_MODE_IPV6_ONLY, false)
+        set(value) = preferences.edit()
+            .putBoolean(KEY_EXPERT_MODE_IPV6_ONLY, value)
+            .apply()
+
     override var controlServerUseSSL: Boolean
         get() = getBoolean(BuildConfig.CONTROL_SERVER_USE_SSL)
         set(value) = setBoolean(BuildConfig.CONTROL_SERVER_USE_SSL, value)
@@ -187,13 +195,19 @@ class AppConfig @Inject constructor(context: Context, private val serverSettings
 
     override var controlServerHost: String
         get() {
-            return if (expertModeEnabled && expertModeUseIpV4Only && serverSettings.controlServerV4Url != null) {
-                serverSettings.controlServerV4Url!!
-            } else {
-                getString(BuildConfig.CONTROL_SERVER_HOST)
+            return when {
+                expertModeEnabled && expertModeUseIpV4Only && serverSettings.controlServerV4Url != null ->
+                    serverSettings.controlServerV4Url!!
+                expertModeEnabled && expertModeUseIpV6Only && serverSettings.controlServerV6Url != null ->
+                    serverSettings.controlServerV6Url!!
+                else ->
+                    getString(BuildConfig.CONTROL_SERVER_HOST)
             }
         }
         set(value) = setString(BuildConfig.CONTROL_SERVER_HOST, value)
+
+    override val controlServerHostForSettings: String
+        get() = getString(BuildConfig.CONTROL_SERVER_HOST)
 
     override var measurementTag: String?
         get() = preferences.getString(KEY_MEASUREMENT_TAG, null)

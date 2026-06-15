@@ -26,13 +26,18 @@ class HistoryLoader @Inject constructor(
     var errorChannel: Channel<HandledException>? = null
 
     private val historyDao = db.historyDao()
+
+    // Re-entrancy guard shared by refresh() and the boundary-callback paging.
     private var isLoading = false
-        set(value) {
-            field = value
-            runBlocking {
-                isLoadingChannel?.send(value)
-            }
+
+    // Drives the pull-to-refresh spinner. Only refresh() reports loading here so the
+    // spinner clears once the first (visible) page is ready, instead of staying up while
+    // the boundary callback silently pages the rest of the history in the background.
+    private fun reportRefreshing(loading: Boolean) {
+        runBlocking {
+            isLoadingChannel?.send(loading)
         }
+    }
 
     val historyLiveData: LiveData<PagedList<HistoryContainer>> by lazy {
 
@@ -116,9 +121,11 @@ class HistoryLoader @Inject constructor(
 
     fun refresh() = io {
         isLoading = true
+        reportRefreshing(true)
         historyRepository.loadHistoryItems(0, LIMIT, false).onFailure {
             errorChannel?.send(it)
         }
+        reportRefreshing(false)
         isLoading = false
     }
 }
