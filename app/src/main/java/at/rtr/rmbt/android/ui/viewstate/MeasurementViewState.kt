@@ -56,6 +56,7 @@ class MeasurementViewState(private val config: AppConfig) : ViewState {
     val loopNextTestPercent = ObservableInt()
     val gpsEnabled = ObservableBoolean()
     val isLoopModeActive = ObservableBoolean(config.loopModeEnabled)
+    val expertModeEnabled = ObservableBoolean(config.expertModeEnabled)
 
     val metersLeft = ObservableField<String>().apply { set(loopNextTestDistanceMeters.get()) }
     val locationAvailable = ObservableBoolean().apply { set(true) }
