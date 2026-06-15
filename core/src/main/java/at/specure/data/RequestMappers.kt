@@ -62,7 +62,7 @@ import at.specure.util.exception.DataMissingException
 import com.google.gson.JsonArray
 import com.google.gson.JsonParser
 import java.util.UUID
-import kotlin.time.Duration.Companion.milliseconds
+
 
 const val UNKNOWN = "UNKNOWN"
 
@@ -591,7 +591,7 @@ fun List<CoverageMeasurementFenceRecord>.toRequest(measurementStartMillis: Long)
 fun CoverageMeasurementFenceRecord.toRequest(measurementStartMillis: Long): FenceBody = FenceBody(
     centerLocation = this.location?.toSimpleLocation(),
     accuracy = this.location?.accuracy,
-    heading = this.location?.bearing,
+    bearing = this.location?.bearing,
     altitude = this.location?.altitude,
     speed = this.location?.speed,
     networkTechnologyId = this.technologyId ?: MobileNetworkType.UNKNOWN.intValue,
