@@ -4,7 +4,6 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.os.Binder
-import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import at.rmbt.client.control.data.SignalMeasurementType
@@ -200,11 +199,11 @@ class SignalMeasurementProcessor @Inject constructor(
     ) {
         val shouldStartCoverage = !_isActive
         Timber.w("startMeasurement $shouldStartCoverage")
-        _isActive = true
-        isUnstoppable = unstoppable
-        postStateData()
 
         if (shouldStartCoverage) {
+            _isActive = true
+            isUnstoppable = unstoppable
+            postStateData()
             registerBatteryInfoReceiver(batteryInfo)
             locationWatcher.addListener(locationListener)
             signalStrengthWatcher.addListener(signalStrengthListener)
@@ -242,12 +241,6 @@ class SignalMeasurementProcessor @Inject constructor(
         _activeStateLiveData.postValue(_isActive)
         _pausedStateLiveData.postValue(_isPaused)
     }
-
-    fun bind(owner: LifecycleOwner) {
-
-    }
-
-    private fun isSignalMeasurementRunning() = isActive
 
     private fun registerBatteryInfoReceiver(batteryInfoReceiver: BatteryInfoReceiver) {
         Timber.d("REGISTERING TEMPERATURE")
