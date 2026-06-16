@@ -829,10 +829,12 @@ fun AppCompatTextView.setFrequencyValue(detailedNetworkInfo: DetailedNetworkInfo
 /**
  * Signal strength value on the measurement screen, e.g. "-93 dBm".
  */
-@BindingAdapter("signalValue")
-fun AppCompatTextView.setSignalValue(signalStrengthInfo: SignalStrengthInfo?) {
-    val value = signalStrengthInfo?.value
-    text = if (value != null) context.getString(R.string.strength_signal_value, value) else ""
+@BindingAdapter("signalValue", "signalDetailed", requireAll = false)
+fun AppCompatTextView.setSignalValue(signalStrengthInfo: SignalStrengthInfo?, detailedNetworkInfo: DetailedNetworkInfo?) {
+    // Show the combined 4G/5G signal (e.g. "-103/-99 dBm") for NR NSA, like the start screen.
+    val signal = signalStrengthInfo?.value
+    val signalSecondary = detailedNetworkInfo?.secondary5GActiveSignalStrengthInfos?.firstOrNull()?.value
+    text = extractSignalValues(context, signal, signalSecondary, detailedNetworkInfo?.networkInfo)
 }
 
 /**

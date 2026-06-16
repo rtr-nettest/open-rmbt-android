@@ -152,7 +152,8 @@
                     android:layout_height="wrap_content"
                     android:textColor="@android:color/background_light"
                     android:textSize="@dimen/signal_bar_value"
-                    app:signalValue="@{state.signalStrengthInfo}" />
+                    app:signalValue="@{state.signalStrengthInfo}"
+                    app:signalDetailed="@{state.detailedNetworkInfo}" />
 
             </LinearLayout>
 
