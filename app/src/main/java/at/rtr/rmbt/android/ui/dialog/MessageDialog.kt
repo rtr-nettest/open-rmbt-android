@@ -30,6 +30,7 @@ class MessageDialog : FullscreenDialog() {
     override val dimBackground = false
 
     private lateinit var binding: DialogMessageBinding
+    private var _onDismissListener: (() -> Unit)? = null
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -47,7 +48,13 @@ class MessageDialog : FullscreenDialog() {
         binding.editTextValue.setText(message)
         binding.buttonCancel.setOnClickListener {
             dismiss()
+            _onDismissListener?.invoke()
         }
+    }
+
+    fun setOnDismissListener(onDismissListener: (() -> Unit)?): MessageDialog {
+        _onDismissListener = onDismissListener
+        return this
     }
 
     companion object {
@@ -63,11 +70,11 @@ class MessageDialog : FullscreenDialog() {
             }
         }
 
-        fun show(fragmentManager: FragmentManager, message: String, tag: String = "dialog") {
+        fun show(fragmentManager: FragmentManager, message: String, tag: String = "dialog", onDismiss: (() -> Unit)? = null) {
             if (fragmentManager.isStateSaved) return
             if (fragmentManager.findFragmentByTag(tag) != null) return
 
-            newInstance(message).show(fragmentManager, tag)
+            newInstance(message).setOnDismissListener(onDismiss).show(fragmentManager, tag)
         }
     }
 }

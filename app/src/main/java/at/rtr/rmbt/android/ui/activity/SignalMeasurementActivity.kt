@@ -59,6 +59,7 @@ import com.google.android.gms.maps.model.MarkerOptions
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlin.time.Duration.Companion.milliseconds
 
 const val DEFAULT_POSITION_TRACKING_ZOOM_LEVEL = 16.2f
 const val DEFAULT_TRACKING_ZOOM_LEVEL = 16f
@@ -346,7 +347,19 @@ class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback, Coverage
 
     private fun showMeasurementError(coverageMeasurementData: CoverageMeasurementData?) {
         coverageMeasurementData?.signalMeasurementException?.also {
-            MessageDialog.show(this.supportFragmentManager, getString(R.string.coverage_measurement_error_unknown), "CoverageMeasurementErrorDialog")
+            MessageDialog.show(
+                this.supportFragmentManager,
+                getString(R.string.coverage_measurement_error_unknown),
+                "CoverageMeasurementErrorDialog"
+            ) {
+                viewModel.stopSignalMeasurement()?.listen(this) {
+                    if (!it) {
+                        coverageViewModel.clearMeasurementData()
+                        coverageViewModel.clearPerformanceImprovementLists(map)
+                        finish()
+                    }
+                }
+            }
         }
     }
 
