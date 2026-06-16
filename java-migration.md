@@ -98,9 +98,31 @@ Converted `HttpProxyTask` (MD5-checksum HTTP download task). All its statics/fie
 
 Converted `UdpTask` (the largest task file, 522 lines): a self-referencing anonymous `ControlConnectionResponseCallback` (`sendCommand(..., this)`), two thread-pool `Callable`s, the nested `UdpPacketData`, and the UDP send/receive `UdpStreamCallback`s. Used `params.uuid!!.toByteArray()` for the UUID payload, smart-cast the `val`-property ports inside the `if (… != null)` guards, and `!!` inside the nested callbacks where smart-cast can't reach. `udpSettings.socket?.close()` on the error path (the settings socket starts null).
 
+## Bugfix — QoS test hung (nullable callback param)
+
+**Symptom:** a full measurement with QoS never terminated — stuck right after `---- Initializing QoS Tests ----`, no individual QoS task ever ran.
+
+**Root cause:** the still-Java orchestrator `QualityOfServiceTest` calls `qoSTestSettings.dispatchTestProgressEvent(ON_CREATED, null, this)` — passing `null` for the `test` argument. My converted `TestSettings.dispatchTestProgressEvent` (Checkpoint 7) declared `test: AbstractQoSTask` **non-null**, so Kotlin's inserted parameter null-check threw an NPE inside the `QualityOfServiceTest` constructor, aborting QoS startup. The overall test then waited forever for a QoS result that never came.
+
+**Fix:** `dispatchTestProgressEvent(event, test: AbstractQoSTask?, qosTest)` — made `test` nullable; the `ON_START`/`ON_END` branches use `test!!` (those events always carry a real task). Verified on device: full test incl. QoS now completes (64/64 → `QOS_END` → results screen).
+
+**Lesson:** any converted Kotlin method still called from Java must mark every parameter the Java side may pass `null` as nullable — the symptom can be a *hang* (not a visible crash) when the NPE happens on a background/worker thread whose failure isn't surfaced.
+
+## Checkpoint 14 — VoipTask
+
+Converted `VoipTask` (RTP/VoIP QoS task). Two anonymous callbacks (control-connection response + RTP receive). Needed to relax `RtpUtil.runVoipStream`'s `socket` param to `T?` (VoipTask passes `null`). Verified end-to-end on device (full QoS test completes — see Bugfix above).
+
+## Checkpoint 15 — VoIP result classes
+
+Converted `VoipTestResult` (689-line Gson data class) to `var` properties with `@SerializedName` (proven to work with Gson — the QoS-result JSON shows the `*Capability` classes serialized correctly the same way); `core` reads the props by Kotlin name via `VoipTestResult.toRecord()`. Dropped the unused builder-style setters/all-args ctor/`createVoipTestResult`; kept the computed `getMeanJitter`/`getMeanPacketLossInPercent`/`format` helpers + `JSON_OBJECT_IDENTIFIER`. Converted `VoipTestResultHandler` (SharedPreferences save/load; the still-Java `RMBTClient` uses `convertResultsToObject`); preserved the original's quirky mis-assignments (e.g. `voip_objective_sample_rate` → `objectiveBitsPerSample`) faithfully.
+
+## Checkpoint 16 — BandCalculationUtil
+
+Converted `BandCalculationUtil` (607-line band/frequency lookup tables) to an `object` with nested `Band`/`LTEBand`/`NRBand`/`UMTSBand`/`GSMBand`/`WifiBand`/`FrequencyInformation`. `core` accesses `getBandFromArfcn(...)?.frequencyDL` as a **property**, so `FrequencyInformation.frequencyDL` is a Kotlin `val` (→ `.frequencyDL` for Kotlin + `getFrequencyDL()` for Java). Used distinct private backing names (`bandNumber`, `bandValue`) to dodge Kotlin getter clashes with the public `getBand()`. Preserved exact map types (`LinkedHashMap` for nrBands, ordered `ArrayList` for gsmBands).
+
 ---
 
 ### Progress
-- 102 original Java files → 59 converted + 24 dead removed + 3 app/core handled.
-- Checkpoint numbering now matches commit phases (Checkpoint N == Phase N). Latest commit is Phase 12 (HttpProxyTask = Checkpoint 12); Checkpoint 13 (UdpTask) is converted but not yet committed → will be Phase 13.
-- **16 Java files remain** (all in `rmbt-client`): `VoipTask`, VoIP results (`VoipTest`, `VoipTestResult`, `VoipTestResultHandler`), `QualityOfServiceTest`, `BandCalculationUtil`, `JitterTest`, `WebsiteTestServiceImpl`, `TracerouteAndroidImpl`, `helper/{JSONParser, Dig, ControlServerConnection}`, and the `AbstractRMBTTest` → `RMBTTest`/`RMBTClient` finale (`RMBTClient` 1,163 + `RMBTTest` 957, last).
+- 102 original Java files → 62 converted + 24 dead removed + 3 app/core handled.
+- Checkpoint numbering matches commit phases (Checkpoint N == Phase N). HEAD = Phase 13 (UdpTask). Working tree (uncommitted): the QoS-hang bugfix + Checkpoints 14–16.
+- **12 Java files remain** (all in `rmbt-client`): the QoS-test hierarchy `QualityOfServiceTest`→`VoipTest`→`JitterTest` (convert as a cluster), `WebsiteTestServiceImpl`, `TracerouteAndroidImpl`, `helper/{JSONParser, Dig, ControlServerConnection}`, and the `AbstractRMBTTest` → `RMBTTest`/`RMBTClient` finale (`RMBTClient` 1,163 + `RMBTTest` 957, last).

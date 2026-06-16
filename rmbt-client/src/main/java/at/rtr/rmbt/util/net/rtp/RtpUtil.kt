@@ -42,7 +42,7 @@ object RtpUtil {
     @JvmStatic
     @Throws(InterruptedException::class, TimeoutException::class, IOException::class)
     fun <T : Closeable> runVoipStream(
-        socket: T,
+        socket: T?,
         closeOnFinish: Boolean,
         targetHost: InetAddress,
         targetPort: Int,
@@ -70,7 +70,7 @@ object RtpUtil {
     @Suppress("UNCHECKED_CAST")
     @Throws(InterruptedException::class, TimeoutException::class, IOException::class)
     fun <T : Closeable> runVoipStream(
-        socket: T,
+        socket: T?,
         closeOnFinish: Boolean,
         targetHost: InetAddress,
         targetPort: Int,

@@ -31,7 +31,7 @@ interface WebsiteTestService {
         fun onError(test: WebsiteTestService): Boolean
     }
 
-    fun getHash(): String
+    fun getHash(): String?
 
     fun getStatusCode(): Int
 

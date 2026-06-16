@@ -51,13 +51,13 @@ class TestSettings {
         dispatchTestProgressEvent(event, test, null)
     }
 
-    fun dispatchTestProgressEvent(event: TestProgressEvent, test: AbstractQoSTask, qosTest: QualityOfServiceTest?) {
+    fun dispatchTestProgressEvent(event: TestProgressEvent, test: AbstractQoSTask?, qosTest: QualityOfServiceTest?) {
         when (event) {
             TestProgressEvent.ON_START -> for (listener in testProgressListenerList) {
-                listener.onQoSTestStart(test)
+                listener.onQoSTestStart(test!!)
             }
             TestProgressEvent.ON_END -> for (listener in testProgressListenerList) {
-                listener.onQoSTestEnd(test)
+                listener.onQoSTestEnd(test!!)
             }
             TestProgressEvent.ON_CREATED -> if (qosTest != null) {
                 for (listener in testProgressListenerList) {

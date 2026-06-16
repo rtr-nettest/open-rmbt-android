@@ -30,7 +30,7 @@ interface TracerouteService : Callable<@JvmSuppressWildcards List<TracerouteServ
     }
 
     interface HopDetail {
-        fun toJson(masked: Boolean?): JSONObject
+        fun toJson(masked: Boolean?): JSONObject?
     }
 
     fun getHost(): String?
