@@ -1,6 +1,6 @@
 /*******************************************************************************
- * Copyright 2015 alladin-IT GmbH
- * Copyright 2015 Rundfunk und Telekom Regulierungs-GmbH (RTR-GmbH)
+ * Copyright 2013-2014 alladin-IT GmbH
+ * Copyright 2013-2014 Rundfunk und Telekom Regulierungs-GmbH (RTR-GmbH)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,21 +13,11 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *******************************************************************************/
-package at.rtr.rmbt.util.model.option;
+ */
+package at.rtr.rmbt.client.v2.task
 
-import java.util.Map;
-
-public class OptionFunctionUtil {
-
-	/**
-	 * function: "drop_param": removes a specific parameter
-	 * @param paramMap
-	 * @param function
-	 */
-	public static void funcDropParam(Map<String, Object> paramMap, OptionFunction function) {
-		if (paramMap != null) {
-			paramMap.remove(function.getParameterMap().get("key"));
-		}
-	}
+enum class QoSTestErrorEnum {
+    NONE,
+    UNKNOWN,
+    TEST_INIT_TIMEOUT
 }

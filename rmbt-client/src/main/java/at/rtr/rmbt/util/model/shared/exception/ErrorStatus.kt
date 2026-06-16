@@ -1,5 +1,6 @@
 /*******************************************************************************
- * Copyright 2014-2017 Specure GmbH
+ * Copyright 2016 Specure GmbH
+ * Copyright 2016 Rundfunk und Telekom Regulierungs-GmbH (RTR-GmbH)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,17 +13,10 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *******************************************************************************/
-
-package at.rtr.rmbt.client;
-
-/**
- * Created by michal.cadrik on 7/6/2017.
  */
+package at.rtr.rmbt.util.model.shared.exception
 
-public class TestResultConst {
-
-    public static final String TEST_RESULT_OK = "OK";
-    public static final String TEST_RESULT_ERROR = "ERROR";
-    public static final String TEST_RESULT_TIMEOUT = "TIMEOUT";
+enum class ErrorStatus {
+    TEST_REJECTED,
+    OTHER
 }

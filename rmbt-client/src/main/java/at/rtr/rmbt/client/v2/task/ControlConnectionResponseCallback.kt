@@ -13,11 +13,9 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *******************************************************************************/
-package at.rtr.rmbt.util.model.option;
+ */
+package at.rtr.rmbt.client.v2.task
 
-
-public interface OptionFunctionCallback {
-
-	boolean onCall(final ServerOption callingOption, final OptionFunction function);
+interface ControlConnectionResponseCallback {
+    fun onResponse(response: String, request: String)
 }

@@ -1,6 +1,6 @@
 /*******************************************************************************
- * Copyright 2016 Specure GmbH
- * Copyright 2016 Rundfunk und Telekom Regulierungs-GmbH (RTR-GmbH)
+ * Copyright 2013-2014 alladin-IT GmbH
+ * Copyright 2013-2014 Rundfunk und Telekom Regulierungs-GmbH (RTR-GmbH)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,13 +13,10 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *******************************************************************************/
-package at.rtr.rmbt.util.model.shared.exception;
+ */
+package at.rtr.rmbt.client.helper
 
-public class LoopModeRejectedException extends Exception{
-
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
+interface RMBTOutputCallback {
+    // has to be thread-safe!
+    fun log(text: CharSequence)
 }
