@@ -13,32 +13,23 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *******************************************************************************/
-package at.rtr.rmbt.util.capability;
+ */
+package at.rtr.rmbt.util.capability
 
-import com.google.gson.annotations.SerializedName;
+import com.google.gson.annotations.SerializedName
 
-public class ClassificationCapability {
+class QualityOfServiceCapability {
 
-	public final static int DEFAULT_CLASSIFICATON_COUNT = 3;
-	
-	@SerializedName("count")
-	protected int count = DEFAULT_CLASSIFICATON_COUNT;
+    /**
+     * if true the third state (=INFO) is supported
+     */
+    @SerializedName("supports_info")
+    var isSupportsInfo = DEFAULT_QOS_SUPPORTS_INFO
 
-	/**
-	 * amount of classification items supported by client
-	 * @return
-	 */
-	public int getCount() {
-		return count;
-	}
+    override fun toString(): String = "QualityOfServiceCapability [supportsInfo=$isSupportsInfo]"
 
-	public void setCount(int count) {
-		this.count = count;
-	}
-
-	@Override
-	public String toString() {
-		return "ClassificationCapability [count=" + count + "]";
-	}
+    companion object {
+        @JvmField
+        var DEFAULT_QOS_SUPPORTS_INFO = false
+    }
 }

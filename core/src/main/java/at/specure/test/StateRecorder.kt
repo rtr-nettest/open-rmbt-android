@@ -580,7 +580,7 @@ class StateRecorder @Inject constructor(
         testRecord?.apply {
             threadCount = result.num_threads
             portRemote = result.port_remote
-            clientVersion = result.client_version
+            clientVersion = result.client_version ?: ""
             bytesDownloaded = result.bytes_download
             bytesUploaded = result.bytes_upload
             totalBytesDownloaded = result.totalDownBytes
@@ -602,7 +602,7 @@ class StateRecorder @Inject constructor(
 
             this.uuid.let {
                 if (config.performJitterAndPacketLossTest) {
-                    val voipTestResultRecord = result.voipTestResult.toRecord(it)
+                    val voipTestResultRecord = result.voipTestResult!!.toRecord(it)
                     jitterNanos = (voipTestResultRecord.getJitter()?.times(1000000))?.toLong()
                     packetLossPercents = voipTestResultRecord.getPacketLoss()
                     repository.saveVoipResult(voipTestResultRecord)
