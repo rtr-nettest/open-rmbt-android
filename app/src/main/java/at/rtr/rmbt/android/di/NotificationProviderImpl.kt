@@ -10,9 +10,9 @@ import android.content.Intent
 import androidx.core.app.NotificationCompat
 import at.rtr.rmbt.android.BuildConfig
 import at.rtr.rmbt.android.R
+import at.rtr.rmbt.android.ui.activity.HomeActivity
 import at.rtr.rmbt.android.ui.activity.LoopFinishedActivity
 import at.rtr.rmbt.android.ui.activity.MeasurementActivity
-import at.rtr.rmbt.android.ui.activity.SignalMeasurementActivity
 import at.rtr.rmbt.android.util.timeString
 import at.specure.data.entity.LoopModeRecord
 import at.specure.data.entity.LoopModeState
@@ -171,7 +171,7 @@ class NotificationProviderImpl(private val context: Context) : NotificationProvi
     }
 
     override fun signalMeasurementService(stopMeasurementIntent: Intent?): Notification {
-        val intent = PendingIntent.getActivity(context, 0, Intent(context, SignalMeasurementActivity::class.java), PendingIntent.FLAG_IMMUTABLE)
+        val intent = PendingIntent.getActivity(context, 0, Intent(context, HomeActivity::class.java), PendingIntent.FLAG_IMMUTABLE)
         val action = stopMeasurementIntent?.let {
             val actionIntent = PendingIntent.getService(context, 0, stopMeasurementIntent, PendingIntent.FLAG_IMMUTABLE)
             NotificationCompat.Action.Builder(0, context.getString(R.string.text_stop_measurement), actionIntent).build()

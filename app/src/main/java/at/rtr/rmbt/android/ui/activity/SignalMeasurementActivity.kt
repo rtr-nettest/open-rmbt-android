@@ -156,13 +156,6 @@ class SignalMeasurementActivity() : BaseActivity(), OnMapReadyCallback, Coverage
             coverageViewModel.onCoverageSessionLoaded(sessionId)
 
         }
-        onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
-            override fun handleOnBackPressed() {
-                if (shouldAllowBackPress()) {
-                    onBackPressedDispatcher.onBackPressed()
-                }
-            }
-        })
     }
 
     private fun updateMapState(data: CoverageMeasurementData?) {
