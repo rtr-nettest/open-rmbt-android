@@ -86,8 +86,12 @@ Two cross-cutting fixes needed:
 
 Converted `DnsTask` (dnsjava lookups; `when (r) { is MXRecord -> … }` for the record-type dispatch; `lookupDns` kept as `@JvmStatic`), `TracerouteTask` (uses the converted `TracerouteService` + thread pool; the `@JvmSuppressWildcards` on `TracerouteService` makes `submit(pingTool)` return `Future<List<HopDetail>>` cleanly), and `NonTransparentProxyTask` (anonymous `ControlConnectionResponseCallback`). All follow the `TcpTask` pattern.
 
+## Checkpoint 12 — WebsiteTask + QoSControlConnection
+
+Converted `WebsiteTask` (anonymous `RenderingListener`; relaxed `WebsiteTestService.run` param to `String?` since the URL is nullable) and `QoSControlConnection` (Kotlin extends still-Java `AbstractRMBTTest`, implements `Runnable`; `@JvmField` on `isRunning`/`couldNotConnect` since `AbstractQoSTask` reads `couldNotConnect` as a field; accesses inherited protected `reader`/`connect(...)`/`sendMessage(...)`/`params`; nested `ControlConnectionResponseCallbackHolder`).
+
 ---
 
 ### Progress
-- 102 original Java files → 55 converted + 24 dead removed + 3 app/core handled.
-- **20 Java files remain** (all in `rmbt-client`): QoS task layer (`AbstractQoSTask`, `UdpTask`, `VoipTask`, `HttpProxyTask`, `DnsTask`, `TcpTask`, `TracerouteTask`, `NonTransparentProxyTask`, `WebsiteTask`, `QoSControlConnection`, `QoSTask`, `TaskDesc`), VoIP results (`VoipTest`, `VoipTestResult`, `VoipTestResultHandler`), `QualityOfServiceTest`, `BandCalculationUtil`, `helper/{JSONParser, Dig, ControlServerConnection}`, `ndt/UiServicesAdapter` + `net/measurementlab/ndt/UiServices`, `RMBTTestParameter`, `AbstractRMBTTest`, `TracerouteAndroidImpl`, `TestMeasurement`, `TestSettings`, `QoSResultCollector`, `QoSTestResult`, and the giants `RMBTClient` (1,163) + `RMBTTest` (957, convert last).
+- 102 original Java files → 57 converted + 24 dead removed + 3 app/core handled.
+- **18 Java files remain** (all in `rmbt-client`): QoS task layer (`AbstractQoSTask`, `UdpTask`, `VoipTask`, `HttpProxyTask`, `DnsTask`, `TcpTask`, `TracerouteTask`, `NonTransparentProxyTask`, `WebsiteTask`, `QoSControlConnection`, `QoSTask`, `TaskDesc`), VoIP results (`VoipTest`, `VoipTestResult`, `VoipTestResultHandler`), `QualityOfServiceTest`, `BandCalculationUtil`, `helper/{JSONParser, Dig, ControlServerConnection}`, `ndt/UiServicesAdapter` + `net/measurementlab/ndt/UiServices`, `RMBTTestParameter`, `AbstractRMBTTest`, `TracerouteAndroidImpl`, `TestMeasurement`, `TestSettings`, `QoSResultCollector`, `QoSTestResult`, and the giants `RMBTClient` (1,163) + `RMBTTest` (957, convert last).

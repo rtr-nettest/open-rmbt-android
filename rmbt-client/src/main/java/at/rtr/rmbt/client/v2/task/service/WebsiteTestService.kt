@@ -37,7 +37,7 @@ interface WebsiteTestService {
 
     fun getDownloadDuration(): Long
 
-    fun run(targetUrl: String, timeOut: Long)
+    fun run(targetUrl: String?, timeOut: Long)
 
     fun isRunning(): Boolean
 
