@@ -1169,6 +1169,12 @@ data class FenceBody(
     val centerLocation: SimpleLocationBody?,
     @SerializedName("accuracy")
     val accuracy: Float?, // location accuracy of the fence center in meters
+    @SerializedName("bearing")
+    val bearing: Float?, // direction of travel in degrees (location bearing)
+    @SerializedName("altitude")
+    val altitude: Double?, // altitude in meters
+    @SerializedName("speed")
+    val speed: Float?, // speed in meters per second
     @SerializedName("technology_id")
     val networkTechnologyId: Int, // 41
     @SerializedName("technology")

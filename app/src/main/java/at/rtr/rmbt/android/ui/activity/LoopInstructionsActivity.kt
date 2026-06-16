@@ -70,8 +70,12 @@ class LoopInstructionsActivity : BaseActivity(), Callback {
     }
 
     override fun onSecondPageAccepted() {
-        binding.title.text = getString(R.string.title_loop_instruction_3)
-        binding.pager.setCurrentItem(2, true)
+        if (viewModel.shouldAskForBackgroundPermission()) {
+            binding.title.text = getString(R.string.title_loop_instruction_3)
+            binding.pager.setCurrentItem(2, true)
+        } else {
+            onThirdPageAccepted()
+        }
     }
 
     override fun onThirdPageAccepted() {
@@ -126,11 +130,14 @@ class LoopInstructionsActivity : BaseActivity(), Callback {
 
     inner class InstructionsAdapter(context: Context, private val callback: Callback) : PagerAdapter() {
 
-        private var items = listOf(
+        private var items = mutableListOf(
             context.getString(R.string.text_loop_instruction_1),
-            context.getString(R.string.text_loop_instruction_2),
-            context.getString(R.string.text_loop_instruction_3),
-        )
+            context.getString(R.string.text_loop_instruction_2)
+        ).apply {
+            if (viewModel.shouldAskForBackgroundPermission()) {
+                add(context.getString(R.string.text_loop_instruction_3))
+            }
+        }
 
         override fun isViewFromObject(view: View, o: Any) = view == o
         override fun getCount() = items.size
@@ -159,7 +166,6 @@ class LoopInstructionsActivity : BaseActivity(), Callback {
 
     companion object {
         fun start(context: Context): Intent = Intent(context, LoopInstructionsActivity::class.java)
-        private const val REQUEST_CODE_BACKGROUND = 1
         private const val REQUEST_CODE_NOTIFICATION = 2
     }
 }

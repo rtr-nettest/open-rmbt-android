@@ -94,6 +94,38 @@
                 app:layout_constraintTop_toBottomOf="@id/network_tech_label"
                 app:networkTypeDetailed="@{state.detailedNetworkInfo}" />
 
+            <LinearLayout
+                android:id="@+id/frequency_block"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/padding_medium"
+                android:layout_marginEnd="@dimen/padding_large"
+                android:orientation="vertical"
+                app:layout_constraintStart_toStartOf="@+id/verticalHalf"
+                app:layout_constraintTop_toBottomOf="@id/technology_name"
+                app:frequencyBlockExpertEnabled="@{state.expertModeEnabled}"
+                app:frequencyBlockNetwork="@{state.detailedNetworkInfo}">
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:id="@+id/frequency_label"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/text_white_transparency_40"
+                    android:textSize="@dimen/signal_bar_label"
+                    android:textStyle="bold"
+                    app:frequencyLabelMainText="@{@string/home_frequency}"
+                    app:frequencyLabelNetwork="@{state.detailedNetworkInfo}" />
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:id="@+id/frequency_value"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="@android:color/background_light"
+                    android:textSize="@dimen/signal_bar_value"
+                    app:frequencyValueNetwork="@{state.detailedNetworkInfo}" />
+
+            </LinearLayout>
+
             <at.rtr.rmbt.android.ui.view.curve.MeasurementCurveLayout
                 android:id="@+id/curve_layout"
                 android:layout_width="wrap_content"

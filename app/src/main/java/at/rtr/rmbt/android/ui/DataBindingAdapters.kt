@@ -792,6 +792,54 @@ fun MeasurementCurveLayout.setSignal(signalLevel: SignalStrengthInfo?) {
     setSignalStrength(signalLevel)
 }
 
+/**
+ * Returns the secondary (5G NSA) network info carried by a [DetailedNetworkInfo], used to build the
+ * combined frequency/label values (e.g. "800/3600 MHz") just like the start screen.
+ */
+private fun DetailedNetworkInfo?.secondaryNetworkInfo(): NetworkInfo? =
+    this?.secondary5GActiveCellNetworks?.firstOrNull()
+
+/**
+ * Frequency band heading on the measurement screen, e.g. "Frequency" or "Frequency 4G/5G".
+ * Uses the same logic and strings as the start screen.
+ */
+@BindingAdapter("frequencyLabelMainText", "frequencyLabelNetwork")
+fun AppCompatTextView.setFrequencyLabel(mainText: String, detailedNetworkInfo: DetailedNetworkInfo?) {
+    text = prepareFrequencyLabel(
+        mainText,
+        detailedNetworkInfo?.networkInfo,
+        detailedNetworkInfo.secondaryNetworkInfo()
+    ).toString()
+}
+
+/**
+ * Frequency band value on the measurement screen, e.g. "800 MHz" or "800/3600 MHz".
+ * Uses the same logic and strings as the start screen.
+ */
+@BindingAdapter("frequencyValueNetwork")
+fun AppCompatTextView.setFrequencyValue(detailedNetworkInfo: DetailedNetworkInfo?) {
+    val networkInfo = detailedNetworkInfo?.networkInfo
+    text = when (networkInfo) {
+        is WifiNetworkInfo -> networkInfo.band.name
+        is CellNetworkInfo -> if (networkInfo.band == null) "" else extractFrequency(networkInfo, detailedNetworkInfo.secondaryNetworkInfo(), context).orEmpty()
+        else -> ""
+    }
+}
+
+/**
+ * Shows the frequency block only when expert mode is enabled and a band is actually available.
+ */
+@BindingAdapter("frequencyBlockExpertEnabled", "frequencyBlockNetwork")
+fun View.setFrequencyBlockVisibility(expertEnabled: Boolean, detailedNetworkInfo: DetailedNetworkInfo?) {
+    val networkInfo = detailedNetworkInfo?.networkInfo
+    val bandAvailable = when (networkInfo) {
+        is WifiNetworkInfo -> true
+        is CellNetworkInfo -> networkInfo.band != null
+        else -> false
+    }
+    visibility = if (expertEnabled && bandAvailable) View.VISIBLE else View.GONE
+}
+
 @BindingAdapter("measurementPhase")
 fun MeasurementCurveLayout.setMeasurementPhase(state: MeasurementState) {
     setMeasurementState(state)
