@@ -170,6 +170,13 @@ class MeasurementActivity : BaseActivity(), SimpleDialog.Callback {
             viewModel.state.gpsEnabled.set(it == LocationState.ENABLED)
         }
 
+        viewModel.locationLiveData.listen(this) { locationInfo ->
+            // Location speed is provided in m/s; convert to km/h. Null when no valid (GPS) speed.
+            viewModel.state.speedKmh.set(
+                if (locationInfo != null && locationInfo.hasSpeed) locationInfo.speed * 3.6f else null
+            )
+        }
+
         Timber.d("Measurement state loop create: ${viewModel.state.measurementState.get()?.name}")
 
         viewModel.state.loopModeRecord.get()?.testsPerformed?.let { viewModel.state.setLoopProgress(it, viewModel.config.loopModeNumberOfTests) }

@@ -5,6 +5,8 @@
 
     <data>
 
+        <import type="android.view.View" />
+
         <import type="at.specure.measurement.MeasurementState" />
 
         <import type="at.specure.info.strength.SignalStrengthInfo" />
@@ -108,6 +110,108 @@
             app:layout_constraintTop_toBottomOf="@id/network_tech_label"
             app:networkTypeDetailed="@{state.detailedNetworkInfo}" />
 
+        <androidx.constraintlayout.widget.Barrier
+            android:id="@+id/header_barrier"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:barrierDirection="bottom"
+            app:constraint_referenced_ids="network_name,technology_name" />
+
+        <LinearLayout
+            android:id="@+id/info_columns"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/padding_medium"
+            android:layout_marginEnd="@dimen/padding_large"
+            android:orientation="horizontal"
+            android:baselineAligned="false"
+            android:weightSum="3"
+            app:layout_constraintStart_toStartOf="@id/measurementBottomView"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/header_barrier"
+            app:visibleOrGone="@{state.expertModeEnabled}">
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:id="@+id/signal_label"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/home_signal"
+                    android:textColor="@color/text_white_transparency_40"
+                    android:textSize="@dimen/signal_bar_label"
+                    android:textStyle="bold" />
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:id="@+id/signal_value"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="@android:color/background_light"
+                    android:textSize="@dimen/signal_bar_value"
+                    app:signalValue="@{state.signalStrengthInfo}" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/frequency_block"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:id="@+id/frequency_label"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/text_white_transparency_40"
+                    android:textSize="@dimen/signal_bar_label"
+                    android:textStyle="bold"
+                    app:frequencyLabelMainText="@{@string/home_frequency}"
+                    app:frequencyLabelNetwork="@{state.detailedNetworkInfo}" />
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:id="@+id/frequency_value"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="@android:color/background_light"
+                    android:textSize="@dimen/signal_bar_value"
+                    app:frequencyValueNetwork="@{state.detailedNetworkInfo}" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/speed_block"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:visibility="@{state.speedKmh != null ? View.VISIBLE : View.INVISIBLE}">
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:id="@+id/speed_label"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/home_speed"
+                    android:textColor="@color/text_white_transparency_40"
+                    android:textSize="@dimen/signal_bar_label"
+                    android:textStyle="bold" />
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:id="@+id/speed_value"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="@android:color/background_light"
+                    android:textSize="@dimen/signal_bar_value"
+                    app:speedValueKmh="@{state.speedKmh}" />
+
+            </LinearLayout>
+
+        </LinearLayout>
+
         <include
             android:id="@+id/measurementBottomView"
             layout="@layout/measurement_bottom_view"
@@ -116,7 +220,7 @@
             android:layout_marginTop="@dimen/margin_small"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/network_name"
+            app:layout_constraintTop_toBottomOf="@id/info_columns"
             app:layout_constraintWidth_percent="0.45"
             bind:state="@{state}" />
 
