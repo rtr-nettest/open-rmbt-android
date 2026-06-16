@@ -64,17 +64,17 @@ Converted 5 files: `QoSTestResult` (extends the converted `TestResult`; `isFatal
 
 Ripple fixed: `TestSettings.defaultDnsResolvers` — first typed `MutableList`, but `core/TestControllerImpl.kt` assigns a nullable `List<InetAddress>?` from `getDnsServers()`. Matched the original Java `List` type with `List<InetAddress>?` to preserve behavior (Java callers tolerate null via platform types).
 
-## Checkpoint 8 — QoS task interfaces (TracerouteService, QoSTask)
+> Note: checkpoint numbers below are aligned to the **commit "Phase N"** numbers. Phase 8 bundled two of the original checkpoints (the QoS interfaces + `AbstractQoSTask`), so they are merged into Checkpoint 8 here. Checkpoint N == Phase N.
 
-Converted the two leaf interfaces that the task layer implements: `TracerouteService` (extends `Callable<List<HopDetail>>`; nested `PingException`/`HopDetail`) and `QoSTask` (extends `Callable<QoSTestResult>, Comparable<QoSTask>`).
+## Checkpoint 8 — QoS task interfaces + AbstractQoSTask
 
-Gotcha: Kotlin `List<T>` emits Java `List<? extends T>` (covariant wildcard), which broke the still-Java `TracerouteAndroidImpl.setResultListObject(List<HopDetail>)` override and the `submit(pingTool)` inference in `TracerouteTask`. Fixed with `@JvmSuppressWildcards` on the interface **and** on the `Callable<…>` supertype type argument to force invariant `List<HopDetail>` in the generated Java signatures.
+(Committed together as **Phase 8**.)
 
-## Checkpoint 9 — AbstractQoSTask (QoS task base)
+Converted the two leaf interfaces the task layer implements: `TracerouteService` (extends `Callable<List<HopDetail>>`; nested `PingException`/`HopDetail`) and `QoSTask` (extends `Callable<QoSTestResult>, Comparable<QoSTask>`). Gotcha: Kotlin `List<T>` emits Java `List<? extends T>` (covariant wildcard), which broke the still-Java `TracerouteAndroidImpl.setResultListObject(List<HopDetail>)` override and the `submit(pingTool)` inference in `TracerouteTask`. Fixed with `@JvmSuppressWildcards` on the interface **and** on the `Callable<…>` supertype type argument.
 
-Converted `AbstractQoSTask` (the abstract base for all concrete QoS tasks). It's Kotlin extending the still-Java `AbstractRMBTTest` and implementing the Kotlin `QoSTask` — works because it doesn't touch the parent's protected fields (uses `nnTest.getRMBTClient()`). Used `@JvmField` on its protected fields (`taskDesc`, `qoSTest`, `id`, `controlConnection`) so the still-Java concrete tasks keep field access; interface methods (`getPriority`, `getTaskDesc`, `compareTo`, …) as `override fun`; constants in companion `const val` (inherited as Java statics by subclasses). Preserved the original's NPE-on-missing-param behavior with `value!!.toLong()`. All concrete Java tasks compile against it.
+Also converted `AbstractQoSTask` (abstract base for all concrete QoS tasks): Kotlin extending the still-Java `AbstractRMBTTest` and implementing the Kotlin `QoSTask` (clean because it uses `nnTest.getRMBTClient()`, not the parent's protected fields). `@JvmField` on its protected fields (`taskDesc`, `qoSTest`, `id`, `controlConnection`) so the still-Java concrete tasks keep field access; interface methods (`getPriority`, `getTaskDesc`, `compareTo`, …) as `override fun`; constants in companion `const val`; preserved NPE-on-missing-param behavior with `value!!.toLong()`.
 
-## Checkpoint 10 — first concrete QoS task (TcpTask)
+## Checkpoint 9 — first concrete QoS task (TcpTask)
 
 Converted `TcpTask` (extends the Kotlin `AbstractQoSTask`; uses inherited protected members + an anonymous `ControlConnectionResponseCallback`).
 
@@ -82,20 +82,25 @@ Two cross-cutting fixes needed:
 - `ControlConnectionResponseCallback.onResponse` params made nullable (`String?`) — `QoSControlConnection` passes a `readLine()` result that can be null, and impls null-check it. With non-null Kotlin params, the compiler-inserted param null-check would have thrown at runtime.
 - `QoSTestResult.resultMap` changed to `HashMap<String, Any?>` — tasks store nullable values (e.g. `readLine` results), matching the original `HashMap<String,Object>`.
 
-## Checkpoint 11 — more concrete QoS tasks (Dns, Traceroute, NonTransparentProxy)
+## Checkpoint 10 — more concrete QoS tasks (Dns, Traceroute, NonTransparentProxy)
 
 Converted `DnsTask` (dnsjava lookups; `when (r) { is MXRecord -> … }` for the record-type dispatch; `lookupDns` kept as `@JvmStatic`), `TracerouteTask` (uses the converted `TracerouteService` + thread pool; the `@JvmSuppressWildcards` on `TracerouteService` makes `submit(pingTool)` return `Future<List<HopDetail>>` cleanly), and `NonTransparentProxyTask` (anonymous `ControlConnectionResponseCallback`). All follow the `TcpTask` pattern.
 
-## Checkpoint 12 — WebsiteTask + QoSControlConnection
+## Checkpoint 11 — WebsiteTask + QoSControlConnection
 
 Converted `WebsiteTask` (anonymous `RenderingListener`; relaxed `WebsiteTestService.run` param to `String?` since the URL is nullable) and `QoSControlConnection` (Kotlin extends still-Java `AbstractRMBTTest`, implements `Runnable`; `@JvmField` on `isRunning`/`couldNotConnect` since `AbstractQoSTask` reads `couldNotConnect` as a field; accesses inherited protected `reader`/`connect(...)`/`sendMessage(...)`/`params`; nested `ControlConnectionResponseCallbackHolder`).
 
-## Checkpoint 13 — HttpProxyTask
+## Checkpoint 12 — HttpProxyTask
 
 Converted `HttpProxyTask` (MD5-checksum HTTP download task). All its statics/fields/`Md5Result` are internal (no external refs), so they went into the companion / plain properties without `@JvmStatic`/`@JvmField`. Renamed the local `httpGet` connection var to `connection` to avoid clashing with the `httpGet()` method; `while ((n = in.read()) != -1)` → `.also { n = it }` idiom.
+
+## Checkpoint 13 — UdpTask
+
+Converted `UdpTask` (the largest task file, 522 lines): a self-referencing anonymous `ControlConnectionResponseCallback` (`sendCommand(..., this)`), two thread-pool `Callable`s, the nested `UdpPacketData`, and the UDP send/receive `UdpStreamCallback`s. Used `params.uuid!!.toByteArray()` for the UUID payload, smart-cast the `val`-property ports inside the `if (… != null)` guards, and `!!` inside the nested callbacks where smart-cast can't reach. `udpSettings.socket?.close()` on the error path (the settings socket starts null).
 
 ---
 
 ### Progress
-- 102 original Java files → 58 converted + 24 dead removed + 3 app/core handled.
-- **17 Java files remain** (all in `rmbt-client`): QoS task layer (`AbstractQoSTask`, `UdpTask`, `VoipTask`, `HttpProxyTask`, `DnsTask`, `TcpTask`, `TracerouteTask`, `NonTransparentProxyTask`, `WebsiteTask`, `QoSControlConnection`, `QoSTask`, `TaskDesc`), VoIP results (`VoipTest`, `VoipTestResult`, `VoipTestResultHandler`), `QualityOfServiceTest`, `BandCalculationUtil`, `helper/{JSONParser, Dig, ControlServerConnection}`, `ndt/UiServicesAdapter` + `net/measurementlab/ndt/UiServices`, `RMBTTestParameter`, `AbstractRMBTTest`, `TracerouteAndroidImpl`, `TestMeasurement`, `TestSettings`, `QoSResultCollector`, `QoSTestResult`, and the giants `RMBTClient` (1,163) + `RMBTTest` (957, convert last).
+- 102 original Java files → 59 converted + 24 dead removed + 3 app/core handled.
+- Checkpoint numbering now matches commit phases (Checkpoint N == Phase N). Latest commit is Phase 12 (HttpProxyTask = Checkpoint 12); Checkpoint 13 (UdpTask) is converted but not yet committed → will be Phase 13.
+- **16 Java files remain** (all in `rmbt-client`): `VoipTask`, VoIP results (`VoipTest`, `VoipTestResult`, `VoipTestResultHandler`), `QualityOfServiceTest`, `BandCalculationUtil`, `JitterTest`, `WebsiteTestServiceImpl`, `TracerouteAndroidImpl`, `helper/{JSONParser, Dig, ControlServerConnection}`, and the `AbstractRMBTTest` → `RMBTTest`/`RMBTClient` finale (`RMBTClient` 1,163 + `RMBTTest` 957, last).
