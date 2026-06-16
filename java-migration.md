@@ -58,8 +58,14 @@ Converted 3 interdependent files: `RMBTTestParameter` (immutable test config; `o
 
 Gotcha fixed: a Kotlin property `uuid` generates `getUuid()`, but Java callers (`RMBTClient`, `UdpTask`) call `getUUID()` (all-caps). Forced the JVM name with `@JvmName("getUUID")` on the getter — Java sees `getUUID()`, Kotlin still uses `.uuid`.
 
+## Checkpoint 7 — QoS results + NDT UI services + TestSettings
+
+Converted 5 files: `QoSTestResult` (extends the converted `TestResult`; `isFatalError` Boolean prop), `QoSResultCollector` (`toJson()` used by `core/StateRecorder.kt`), `net.measurementlab.ndt.UiServices` (interface + int consts in companion), `UiServicesAdapter` (`@JvmField` on the public `Double?`/`StringBuffer` fields read by Java `ControlServerConnection`; `startTimeNs`/`stopTimeNs` as `var … private set`), and `TestSettings`.
+
+Ripple fixed: `TestSettings.defaultDnsResolvers` — first typed `MutableList`, but `core/TestControllerImpl.kt` assigns a nullable `List<InetAddress>?` from `getDnsServers()`. Matched the original Java `List` type with `List<InetAddress>?` to preserve behavior (Java callers tolerate null via platform types).
+
 ---
 
 ### Progress
-- 102 original Java files → 43 converted + 24 dead removed + 3 app/core handled.
-- **32 Java files remain** (all in `rmbt-client`): QoS task layer (`AbstractQoSTask`, `UdpTask`, `VoipTask`, `HttpProxyTask`, `DnsTask`, `TcpTask`, `TracerouteTask`, `NonTransparentProxyTask`, `WebsiteTask`, `QoSControlConnection`, `QoSTask`, `TaskDesc`), VoIP results (`VoipTest`, `VoipTestResult`, `VoipTestResultHandler`), `QualityOfServiceTest`, `BandCalculationUtil`, `helper/{JSONParser, Dig, ControlServerConnection}`, `ndt/UiServicesAdapter` + `net/measurementlab/ndt/UiServices`, `RMBTTestParameter`, `AbstractRMBTTest`, `TracerouteAndroidImpl`, `TestMeasurement`, `TestSettings`, `QoSResultCollector`, `QoSTestResult`, and the giants `RMBTClient` (1,163) + `RMBTTest` (957, convert last).
+- 102 original Java files → 48 converted + 24 dead removed + 3 app/core handled.
+- **27 Java files remain** (all in `rmbt-client`): QoS task layer (`AbstractQoSTask`, `UdpTask`, `VoipTask`, `HttpProxyTask`, `DnsTask`, `TcpTask`, `TracerouteTask`, `NonTransparentProxyTask`, `WebsiteTask`, `QoSControlConnection`, `QoSTask`, `TaskDesc`), VoIP results (`VoipTest`, `VoipTestResult`, `VoipTestResultHandler`), `QualityOfServiceTest`, `BandCalculationUtil`, `helper/{JSONParser, Dig, ControlServerConnection}`, `ndt/UiServicesAdapter` + `net/measurementlab/ndt/UiServices`, `RMBTTestParameter`, `AbstractRMBTTest`, `TracerouteAndroidImpl`, `TestMeasurement`, `TestSettings`, `QoSResultCollector`, `QoSTestResult`, and the giants `RMBTClient` (1,163) + `RMBTTest` (957, convert last).
