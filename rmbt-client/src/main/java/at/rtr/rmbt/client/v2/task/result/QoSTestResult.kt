@@ -28,7 +28,7 @@ class QoSTestResult(
     val qosTask: AbstractQoSTask
 ) : TestResult() {
 
-    val resultMap: HashMap<String, Any> = HashMap()
+    val resultMap: HashMap<String, Any?> = HashMap()
 
     var isFatalError = false
 

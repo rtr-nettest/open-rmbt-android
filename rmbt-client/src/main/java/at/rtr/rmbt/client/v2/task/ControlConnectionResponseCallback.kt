@@ -17,5 +17,5 @@
 package at.rtr.rmbt.client.v2.task
 
 interface ControlConnectionResponseCallback {
-    fun onResponse(response: String, request: String)
+    fun onResponse(response: String?, request: String?)
 }
