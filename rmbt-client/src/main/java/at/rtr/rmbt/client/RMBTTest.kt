@@ -55,35 +55,23 @@ class RMBTTest(
     private val curTransfer = AtomicLong()
     private val curTime = AtomicLong()
 
-    // Adaptive socket I/O batch size (bytes). Sized from the pre-test throughput estimate so each
-    // read/write carries ~20 ms of data at any speed (see computeIoBufferSize): a multiple of
-    // chunksize clamped to [chunksize, MAX_IO_BUFFER_BYTES]. 0 = not yet estimated → use chunksize.
-    // This avoids both the per-chunk syscall storm at multi-Gbit/s and the multi-second blocking a
-    // fixed large buffer would cause at ~100 kbit/s.
-    private var ioBufferSize = 0
-
-    // Reusable receive buffer, lazily (re)allocated to ioBufferSize.
-    private var dlBuf: ByteArray? = null
-
-    private fun ioBatchSize(): Int = if (ioBufferSize > 0) ioBufferSize else chunksize
-
-    private fun downloadBuffer(): ByteArray {
-        val target = ioBatchSize()
-        var b = dlBuf
-        if (b == null || b.size != target) {
-            b = ByteArray(target)
-            dlBuf = b
-        }
-        return b
-    }
+    // Server-announced chunk-size bounds, parsed from the greeting line
+    // "CHUNKSIZE <default> <min> <max>". If the server sends only the default, min = max = default.
+    private var chunksizeMin = 0
+    private var chunksizeMax = 0
 
     /**
-     * Mirrors the Rust client's pre-test heuristic: target ~50 batches/sec (one per ~20 ms), i.e.
-     * batchBytes = bytesPerSecond / 50, rounded to a whole number of chunks and clamped to
-     * [chunksize, MAX_IO_BUFFER_BYTES]. `ns` is the server-reported TIME of the largest pre-test
-     * batch; `rttNs` (the first tiny batch's TIME) is subtracted as a round-trip estimate.
+     * Choose the protocol chunk size from the pre-test throughput estimate, mirroring the Rust
+     * reference client (clientRust/src/pretest.rs): target ~50 chunks/sec (one chunk per ~20 ms),
+     * i.e. chunkSize = bytesPerSecond / 50, rounded to the nearest KiB and clamped to the server's
+     * [min, max] (further capped at MAX_CHUNK_SIZE to bound per-thread memory on mobile). `ns` is the
+     * server-reported TIME of the largest pre-test batch; `rttNs` (first tiny batch's TIME) is
+     * subtracted as a round-trip estimate. The chosen size is stored in `chunksize` and sent to the
+     * server on GETTIME / PUTNORESULT / PUT; `buf` (the I/O buffer) is (re)allocated to match.
      */
-    private fun computeIoBufferSize(bytes: Long, ns: Long, rttNs: Long) {
+    private fun computeChunkSize(bytes: Long, ns: Long, rttNs: Long) {
+        val lo = (if (chunksizeMin > 0) chunksizeMin else chunksize).toLong()
+        val hi = Math.min(if (chunksizeMax > 0) chunksizeMax else MAX_CHUNK_SIZE, MAX_CHUNK_SIZE).toLong()
         val transferNs = ns - rttNs
         val bps = when {
             bytes <= 0L -> 0.0
@@ -91,14 +79,19 @@ class RMBTTest(
             ns > 0L -> bytes.toDouble() / (ns.toDouble() / 1e9)
             else -> 0.0
         }
-        if (bps <= 0.0) {
-            ioBufferSize = chunksize
-            return
+        val chosen = if (bps <= 0.0) {
+            lo
+        } else {
+            val ideal = (bps / 50.0).toLong()
+            val roundedKiB = (ideal + 512) / 1024 * 1024 // round to nearest KiB, like the Rust client
+            roundedKiB.coerceIn(lo, hi)
         }
-        val ideal = (bps / 50.0).toLong()
-        val rounded = (ideal + chunksize / 2) / chunksize * chunksize
-        ioBufferSize = rounded.coerceIn(chunksize.toLong(), MAX_IO_BUFFER_BYTES.toLong()).toInt()
-        log(String.format(Locale.US, "thread %d: io batch = %d KiB (%.1f Mbit/s)", threadId, ioBufferSize / 1024, bps * 8.0 / 1e6))
+        chunksize = chosen.toInt()
+        val currentBuf = buf
+        if (currentBuf == null || currentBuf.size != chunksize) {
+            buf = ByteArray(chunksize)
+        }
+        log(String.format(Locale.US, "thread %d: chunk size = %d KiB (%.1f Mbit/s)", threadId, chunksize / 1024, bps * 8.0 / 1e6))
     }
 
     private fun parseTimeNs(line: String?): Long {
@@ -335,7 +328,10 @@ class RMBTTest(
             }
             try {
                 chunksize = scanner.nextInt()
-                log(String.format(Locale.US, "thread %d: CHUNKSIZE is %d", threadId, chunksize))
+                // newer servers announce "CHUNKSIZE <default> <min> <max>"; fall back to default
+                chunksizeMin = if (scanner.hasNextInt()) scanner.nextInt() else chunksize
+                chunksizeMax = if (scanner.hasNextInt()) scanner.nextInt() else chunksize
+                log(String.format(Locale.US, "thread %d: CHUNKSIZE is %d (min %d, max %d)", threadId, chunksize, chunksizeMin, chunksizeMax))
             } catch (e: Exception) {
                 log(String.format(Locale.US, "thread %d: invalid CHUNKSIZE: '%s'", threadId, line))
                 return null
@@ -363,7 +359,7 @@ class RMBTTest(
             log(String.format(Locale.US, "thread %d: connected, waiting for rest...", threadId))
             barrier.await()
 
-            // ***** short download (pre-test): also estimate throughput to size the I/O batch *****
+            // ***** short download (pre-test): estimate throughput, then choose the chunk size *****
             run {
                 val targetTimeEnd = System.nanoTime() + params.pretestDuration * nsecsL
                 var chunks = 1
@@ -385,8 +381,8 @@ class RMBTTest(
                     fallbackToOneThread.set(true)
                 }
 
-                // size the adaptive read/write batch from the largest pre-test batch (bps / 50)
-                computeIoBufferSize(lastBytes, lastNs, rttNs)
+                // choose the protocol chunk size from the estimate (bps / 50, clamped to [min, max])
+                computeChunkSize(lastBytes, lastNs, rttNs)
             }
 
             val fallbackToOneThreadLocal: Boolean
@@ -576,7 +572,7 @@ class RMBTTest(
         val rdr = reader!!
         val outStream = out!!
         val inStream = `in`!!
-        val buffer = downloadBuffer()
+        val buffer = buf!!
 
         var line = rdr.readLine() ?: throw IllegalStateException("connection lost")
         if (!line.startsWith("ACCEPT ")) {
@@ -627,7 +623,7 @@ class RMBTTest(
         val rdr = reader!!
         val outStream = out!!
         val inStream = `in`!!
-        val buffer = downloadBuffer()
+        val buffer = buf!!
 
         var line = rdr.readLine() ?: throw IllegalStateException("connection lost")
         if (!line.startsWith("ACCEPT ")) {
@@ -638,7 +634,7 @@ class RMBTTest(
         val timeStart = System.nanoTime()
         val timeLatestEnd = timeStart + (seconds + additionalWait) * nsecsL
 
-        var send = String.format(Locale.US, "GETTIME %d\n", seconds)
+        var send = String.format(Locale.US, "GETTIME %d %d\n", seconds, chunksize)
         outStream.write(send.toByteArray(charset("US-ASCII")))
         outStream.flush()
 
@@ -715,7 +711,7 @@ class RMBTTest(
             throw IllegalStateException()
         }
 
-        outStream.write("PUTNORESULT\n".toByteArray(charset("US-ASCII")))
+        outStream.write(String.format(Locale.US, "PUTNORESULT %d\n", chunksize).toByteArray(charset("US-ASCII")))
         outStream.flush()
 
         line = rdr.readLine() ?: throw IllegalStateException("connection lost")
@@ -762,7 +758,7 @@ class RMBTTest(
             throw IllegalStateException()
         }
 
-        outStream.write("PUT\n".toByteArray(charset("US-ASCII")))
+        outStream.write(String.format(Locale.US, "PUT %d\n", chunksize).toByteArray(charset("US-ASCII")))
         outStream.flush()
 
         line = rdr.readLine() ?: throw IllegalStateException("connection lost")
@@ -824,15 +820,10 @@ class RMBTTest(
         val maxnsecs = seconds * 1000000000L
         buffer[chunksize - 1] = 0x00.toByte() // set last byte to continue value
 
+        // One protocol chunk per write(). The chunk size is the throughput-adapted value chosen by
+        // the pre-test (≈ 20 ms of data), so this stays responsive at low speed and efficient at
+        // high speed without any extra client-side batching.
         val bufTx = buffer.clone()
-        // Batch many continue-chunks per write() to cut the upload syscall rate at high speed.
-        // Every chunk in the batch keeps its last byte 0x00 (continue); the terminating 0xff
-        // chunk is still sent on its own so the chunk-boundary semantics are unchanged.
-        val batchChunks = maxOf(1, ioBatchSize() / chunksize)
-        val bufTxBatch = ByteArray(chunksize * batchChunks)
-        for (c in 0 until batchChunks) {
-            System.arraycopy(bufTx, 0, bufTxBatch, c * chunksize, chunksize)
-        }
         val terminateTx = AtomicBoolean(false)
         val futureTx = RMBTClient.getCommonThreadPool().submit(object : Callable<Void?> {
             override fun call(): Void? {
@@ -848,7 +839,7 @@ class RMBTTest(
                         outStream.flush()
                         return null
                     } else {
-                        outStream.write(bufTxBatch, 0, bufTxBatch.size)
+                        outStream.write(bufTx, 0, chunksize)
                     }
                 }
             }
@@ -957,12 +948,9 @@ class RMBTTest(
         private const val UPLOAD_MAX_DISCARD_TIME = 1 * nsecsL
         private const val UPLOAD_MAX_WAIT_SECS = 3L
 
-        // Upper bound for the adaptive I/O batch (see computeIoBufferSize). The wire protocol works
-        // in `chunksize` units, but reading/writing one chunk per syscall makes the syscall rate
-        // scale with throughput (≈ throughput / chunksize), which dominates CPU at multi-Gbit/s.
-        // The batch size is chosen from the pre-test (≈ 20 ms of data) and capped here so it never
-        // exceeds 256 KiB; the bytes on the wire and the chunk-boundary semantics are unchanged.
-        private const val MAX_IO_BUFFER_BYTES = 256 * 1024
+        // Upper bound for the dynamically chosen protocol chunk size (see computeChunkSize). The
+        // server's announced max can be several MB; cap it here to bound per-thread memory on mobile.
+        private const val MAX_CHUNK_SIZE = 256 * 1024
 
         private val TIME_PATTERN: Pattern = Pattern.compile("TIME (\\d+)")
     }
