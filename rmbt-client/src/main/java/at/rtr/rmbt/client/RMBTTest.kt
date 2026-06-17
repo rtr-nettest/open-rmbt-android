@@ -55,6 +55,20 @@ class RMBTTest(
     private val curTransfer = AtomicLong()
     private val curTime = AtomicLong()
 
+    // Large reusable receive buffer (multiple of chunksize) so each socket read pulls many chunks
+    // per syscall instead of one. Allocated lazily once chunksize is known; reused across phases.
+    private var dlBuf: ByteArray? = null
+
+    private fun downloadBuffer(): ByteArray {
+        val target = maxOf(chunksize, (BUFFER_TARGET_BYTES / chunksize) * chunksize)
+        var b = dlBuf
+        if (b == null || b.size != target) {
+            b = ByteArray(target)
+            dlBuf = b
+        }
+        return b
+    }
+
     private val maxCoarseResults: Int = storeResults
     private val maxFineResults: Int = storeResults
 
@@ -513,7 +527,7 @@ class RMBTTest(
         val rdr = reader!!
         val outStream = out!!
         val inStream = `in`!!
-        val buffer = buf!!
+        val buffer = downloadBuffer()
 
         var line = rdr.readLine() ?: throw IllegalStateException("connection lost")
         if (!line.startsWith("ACCEPT ")) {
@@ -534,11 +548,14 @@ class RMBTTest(
             }
             read = inStream.read(buffer)
             if (read > 0) {
-                val posLast = chunksize - 1 - (totalRead % chunksize).toInt()
-                if (read > posLast) {
-                    lastByte = buffer[posLast]
+                // A read can now span several chunks; inspect the last chunk boundary it completed
+                // (the per-chunk last byte signals continue=0x00 / terminate=0xff).
+                val newTotal = totalRead + read
+                if (newTotal / chunksize > totalRead / chunksize) {
+                    val lastBoundary = newTotal / chunksize * chunksize - 1
+                    lastByte = buffer[(lastBoundary - totalRead).toInt()]
                 }
-                totalRead += read.toLong()
+                totalRead = newTotal
             }
         } while (read > 0 && lastByte != 0xff.toByte())
 
@@ -561,7 +578,7 @@ class RMBTTest(
         val rdr = reader!!
         val outStream = out!!
         val inStream = `in`!!
-        val buffer = buf!!
+        val buffer = downloadBuffer()
 
         var line = rdr.readLine() ?: throw IllegalStateException("connection lost")
         if (!line.startsWith("ACCEPT ")) {
@@ -586,11 +603,14 @@ class RMBTTest(
             }
             read = inStream.read(buffer)
             if (read > 0) {
-                val posLast = chunksize - 1 - (totalRead % chunksize).toInt()
-                if (read > posLast) {
-                    lastByte = buffer[posLast]
+                // A read can now span several chunks; inspect the last chunk boundary it completed
+                // (the per-chunk last byte signals continue=0x00 / terminate=0xff).
+                val newTotal = totalRead + read
+                if (newTotal / chunksize > totalRead / chunksize) {
+                    val lastBoundary = newTotal / chunksize * chunksize - 1
+                    lastByte = buffer[(lastBoundary - totalRead).toInt()]
                 }
-                totalRead += read.toLong()
+                totalRead = newTotal
 
                 val nsec = System.nanoTime() - timeStart
 
@@ -756,6 +776,14 @@ class RMBTTest(
         buffer[chunksize - 1] = 0x00.toByte() // set last byte to continue value
 
         val bufTx = buffer.clone()
+        // Batch many continue-chunks per write() to cut the upload syscall rate at high speed.
+        // Every chunk in the batch keeps its last byte 0x00 (continue); the terminating 0xff
+        // chunk is still sent on its own so the chunk-boundary semantics are unchanged.
+        val batchChunks = maxOf(1, BUFFER_TARGET_BYTES / chunksize)
+        val bufTxBatch = ByteArray(chunksize * batchChunks)
+        for (c in 0 until batchChunks) {
+            System.arraycopy(bufTx, 0, bufTxBatch, c * chunksize, chunksize)
+        }
         val terminateTx = AtomicBoolean(false)
         val futureTx = RMBTClient.getCommonThreadPool().submit(object : Callable<Void?> {
             override fun call(): Void? {
@@ -771,7 +799,7 @@ class RMBTTest(
                         outStream.flush()
                         return null
                     } else {
-                        outStream.write(bufTx, 0, chunksize)
+                        outStream.write(bufTxBatch, 0, bufTxBatch.size)
                     }
                 }
             }
@@ -879,5 +907,12 @@ class RMBTTest(
 
         private const val UPLOAD_MAX_DISCARD_TIME = 1 * nsecsL
         private const val UPLOAD_MAX_WAIT_SECS = 3L
+
+        // I/O batch target. The wire protocol works in `chunksize` units, but reading/writing one
+        // chunk per syscall makes the syscall rate scale with throughput (≈ throughput / chunksize),
+        // which dominates CPU at multi-Gbit/s. We read into / write out of a buffer that holds many
+        // chunks instead, cutting syscalls by ~(BUFFER_TARGET_BYTES / chunksize) with identical bytes
+        // on the wire and identical chunk-boundary (continue/terminate) semantics.
+        private const val BUFFER_TARGET_BYTES = 256 * 1024
     }
 }

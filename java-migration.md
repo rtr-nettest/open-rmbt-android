@@ -216,3 +216,23 @@ Coordination is via `AtomicBoolean`s (`terminateRxIfEnough`, `terminateRxAtAllEv
 3. **Capture nullable streams once per phase.** The inherited stream fields (`in`/`reader`/`out`/`buf`) are nullable `var`; each loop captures them into non-null locals up front (`val outStream = out!!`, `val rdr = reader!!`, `val inStream = \`in\`!!`, `val buffer = buf!!`) so the hot read/write loops — and the two upload threads — don't re-null-check or fight Kotlin's cross-thread smart-cast limits.
 4. **Interrupt propagation preserved.** `futureTx` throws `InterruptedException` on `Thread.interrupted()`; `runTest()` catches `InterruptedException` (user pressed "Back") to `abortTest(false)` and rethrow. The old `@Throws(InterruptedException)` was dropped (Kotlin has no checked exceptions) but the propagation path is identical.
 5. **`commonCallback`** is now a plain Kotlin `var` property (the migration-phase `@JvmField` was removed in the cleanup); `core` still assigns `client.commonCallback = clientCallback` unchanged.
+
+---
+
+## Appendix — Speed-measurement performance (throughput / CPU)
+
+Goal: sustain up to ~2 Gbit/s without overloading the CPU, and let parallel connections spread across cores.
+
+**Audit result — the converted data path is efficient and has no migration regression:**
+- **Bulk I/O end-to-end.** `InputStreamCounter`/`OutputStreamCounter` override the *array* `read/write(buf,off,len)` and delegate straight to the socket stream (note: `FilterOutputStream`'s default array-write loops per byte — that trap was avoided). Download reads raw bytes via `inStream.read(buffer)`; the `BufferedReader`/`InputStreamReader` is used only for the short control-protocol lines, never the payload (no per-byte loop, no char decoding on the data path).
+- **No hot-loop allocation.** `SingleResult.addResult` writes into pre-allocated fixed-size ring buffers; `curTransfer`/`curTime` are lock-free `AtomicLong`s. `String.format`/logging happen only at phase boundaries.
+- **Callbacks aren't per-read.** `onSpeedDataChanged` (which re-arms the `@Synchronized` inactivity watchdog) is emitted once per phase from `addCoarseSpeedItems` over the coarse samples (~10/s), not inside the read loop — so there's no cross-thread serialization on the throughput path.
+- **Cores.** Each connection is its own platform thread from `testThreadPool = newFixedThreadPool(numThreads)`; the upload phase adds a reader+writer pair per connection from the cached `COMMON_THREAD_POOL`. Java/Android place no affinity on these, so the Linux scheduler spreads runnable threads across all available cores automatically. There is no shared lock on the hot path that would pin work to one core. (Parallelism is bounded by `numThreads`, which the control server sets.)
+
+**Optimization applied — cut the syscall rate (the one real CPU lever at multi-Gbit/s):**
+The wire protocol works in `chunksize` units, and the original code read/wrote exactly one chunk per syscall, so the syscall rate scaled with throughput (≈ throughput / chunksize — e.g. ~64k read + 64k write syscalls/s per connection at 2 Gbit/s with a 4 KB chunk). Now:
+- **Download** reads into a large reusable buffer (`downloadBuffer()`, a multiple of `chunksize` targeting 256 KB). Because a single read can now span several chunks, the continue/terminate detection was generalized to inspect the **last chunk boundary completed by each read** (`newTotal/chunksize > totalRead/chunksize` → check `buffer[lastBoundary - totalRead]`) instead of assuming ≤ one boundary per read. Bytes on the wire and termination semantics are identical.
+- **Upload** writes a batch of many continue-chunks per `write()` (`bufTxBatch`, same 256 KB target); the terminating `0xff` chunk is still sent on its own, so chunk-boundary semantics are unchanged.
+- Net effect: ~`256KB/chunksize`× fewer read and write syscalls (≈ 64× at a 4 KB chunk), removing the dominant per-byte CPU cost while leaving the measured bytes/timings unchanged.
+
+**Throughput-ceiling note (not changed):** reaching 2 Gbit/s over a higher-RTT path is also bounded by the TCP window (socket `SO_RCVBUF`/`SO_SNDBUF` × bandwidth-delay product). The code logs but does not set these; raising them would lift the ceiling on long-RTT links but is independent of the CPU concern above.
