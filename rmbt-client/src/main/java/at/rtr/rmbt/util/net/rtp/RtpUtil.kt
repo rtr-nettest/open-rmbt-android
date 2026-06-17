@@ -129,7 +129,10 @@ object RtpUtil {
 
             @Throws(IOException::class)
             override fun onBind(port: Int?) {
-                receiveCallback!!.onBind(incomingPort)
+                // report the actually bound local port (was: incomingPort, which is null when the
+                // server provides no in_port objective → voip_objective_in_port serialized as null
+                // and the server-side QoS evaluation fails all VoIP conditions)
+                receiveCallback!!.onBind(if (incomingPort != null) incomingPort else port)
             }
         }
 
