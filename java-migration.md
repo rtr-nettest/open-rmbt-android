@@ -126,9 +126,28 @@ Converted the independent helpers `Dig` (dnsjava; `DnsRequest` exposes `val resp
 
 Then the **QoS-test hierarchy** `QualityOfServiceTest → VoipTest → JitterTest`. The Java code *shadowed* fields in subclasses; in Kotlin I unified to one set of `protected` backing fields in the base that subclasses populate (no shadowing, no accessor overrides). Exposed `progress`/`testSize`/`status`/`testMap`/`testGroupCounterMap` as **Kotlin properties** (backed by renamed atomics like `progressCounter`/`statusRef`) so app/core's `.progress`/`.status` synthetic-property access keeps working *and* Java still gets `getProgress()`/`getStatus()`. `getRMBTClient`/`getTestSettings` stayed functions (only Java/Kotlin-via-function callers). `VoipTest` now only overrides `call()`+`getTestId()`; `JitterTest` collapses to a single `getTestId()` override (its `call()` was identical to VoipTest's). Verified full QoS test on device: 64/64 → `QOS_END` → results.
 
+## Checkpoint 18 — AbstractRMBTTest + ControlServerConnection
+
+Converted the speed-test base `AbstractRMBTTest` and the 702-line `ControlServerConnection`. `AbstractRMBTTest` exposes its shared connection state as `@JvmField protected var` (`in`/`reader`/`out`/`totalDown`/`totalUp`/`chunksize`/`buf`) so the `RMBTTest` subclass and the already-converted `QoSControlConnection`/`TcpTask` keep field access; `connect(testResult)` is `protected open` so `RMBTTest` overrides it; greeting constants live in the companion as `@JvmField protected`. `client.sslSocketFactory` is read into a local before the `isSecure` branch (a property from another class can't be smart-cast). `ControlServerConnection` kept its accessors as **functions** (`getTestUuid()`, `getStartTimeNs()`, …) because `RMBTClient` calls them that way; `core`'s synthetic-property reads (`connection.testUuid`/`loopUuid`/…) were switched to explicit `getX()` calls — exactly what the old Java synthetic-property access compiled to. Objective param maps became `HashMap<String, Any?>` for the JSON-parsed `TaskDesc` objectives.
+
+## Checkpoint 19 — RMBTTest
+
+Converted the 957-line speed-test worker `RMBTTest : AbstractRMBTTest(...), Callable<ThreadTestResult?>` (download/upload/ping, nested `CurrentSpeed` with `@JvmField trans/time`, inner `SingleResult`). Captured the nullable inherited streams into non-null locals (`val rdr = reader!!`, `val outStream = out!!`, `val inStream = \`in\`!!`, `val buffer = buf!!`) at the top of each loop. `call()` returns `ThreadTestResult?`. Reads `client.isEnabledJitterAndPacketLossTest` / `client.taskDescList` as **properties** and calls `RMBTClient.getCommonThreadPool()` statically.
+
+## Checkpoint 20 — RMBTClient (the last Java file)
+
+Converted the 1,163-line orchestrator `RMBTClient : RMBTClientCallback` — **the final Java file in the project**. Interop decisions driven by how `core`/`app` already call it:
+- Accessors read with synthetic-property syntax became Kotlin **properties**: `controlConnection`, `status` (a `var` — `core` *assigns* `client.status = QOS_TEST_RUNNING/QOS_END`, so the old `setStatus()` body moved into the property setter), `statusBeforeError`, `provider`, `serverName`, `testUuid`, `publicIP`, `startTimeMillis`, `taskDescList`, `trafficService`, `errorMsg`, `commonCallback` (`@JvmField`), `isEnabledJitterAndPacketLossTest`, `sslSocketFactory` (`private set`).
+- `totalTestResult` is exposed **non-null** (`get() = totalResult!!`) because every `core` use is a non-null deref — matching the old Java platform-type access.
+- `runTest()`/`shutdown()`/`getIntermediateResult()` stay **functions** (called that way).
+- `getCommonThreadPool()`, the `getInstance(...)` overloads, `getTrustingManager()`, `getSSLContext()` are `@JvmStatic` in the companion; the `TASK_*` ids are `const val` so `RMBTClient.TASK_JITTER` etc. resolve.
+- Internal `setStatus(x)` → `status = x`; `RMBTTest`'s `client.setStatus(x)` → `client.status = x`; the three QoS-test classes' `client.getTaskDescList()` → `client.taskDescList`.
+
+Deleted `RMBTClient.java`. **Verified end-to-end on device** (motorola edge 70): a full measurement incl. QoS ran through the now-100%-Kotlin stack and reached `ResultsActivity` with real data — QoS **60/64 (93%)** across all categories (DNS 34/34, TCP 16/18, Web/Traceroute 1/1, …), no crashes.
+
 ---
 
-### Progress
-- 102 original Java files → 69 converted + 25 dead removed + 3 app/core handled.
-- Working tree (uncommitted): QoS-hang bugfix + Checkpoints 14–17.
-- **4 Java files remain** (all in `rmbt-client`): the finale — `AbstractRMBTTest` (base of `RMBTTest` + the converted `AbstractQoSTask`/`QoSControlConnection`), `helper/ControlServerConnection` (702), `RMBTTest` (957), `RMBTClient` (1,163).
+### Progress — ✅ MIGRATION COMPLETE
+- **0 Java files remain** in `app`, `core`, and `rmbt-client` (`src/main`). The Android app is now 100% Kotlin.
+- 102 original Java files → converted to Kotlin or removed as dead code; final batch (Checkpoints 18–20) covered `AbstractRMBTTest`, `ControlServerConnection`, `RMBTTest`, `RMBTClient`.
+- Verified: `:rmbt-client:compileDebugSources` ✓, `:app:compileRmbtDebugSources` ✓, installed + full QoS test on device → results screen ✓.
