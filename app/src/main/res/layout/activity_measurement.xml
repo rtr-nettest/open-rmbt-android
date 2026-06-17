@@ -193,7 +193,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                app:layout_constraintGuide_percent="0.36" />
+                app:layout_constraintGuide_percent="0.18" />
 
             <!-- Signal heading and value, shown to the right of the signal gauge in both expert and
                  non-expert mode (the gauge and its signal info are identical in both). -->
