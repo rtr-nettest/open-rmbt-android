@@ -141,10 +141,12 @@
                     android:id="@+id/signal_label"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/home_signal"
                     android:textColor="@color/text_white_transparency_40"
                     android:textSize="@dimen/signal_bar_label"
-                    android:textStyle="bold" />
+                    android:textStyle="bold"
+                    app:signalLabelMainText="@{@string/home_signal}"
+                    app:signalLabelStrength="@{state.signalStrengthInfo}"
+                    app:signalLabelNetwork="@{state.detailedNetworkInfo}" />
 
                 <androidx.appcompat.widget.AppCompatTextView
                     android:id="@+id/signal_value"
