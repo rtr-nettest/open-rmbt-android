@@ -1,6 +1,7 @@
 package at.rtr.rmbt.android.ui.view.curve
 
 import android.content.Context
+import android.content.res.Configuration
 import android.util.AttributeSet
 import android.util.TypedValue
 import android.view.LayoutInflater
@@ -44,6 +45,9 @@ class MeasurementCurveLayout @JvmOverloads constructor(context: Context, attrs: 
     private var currentBottomProgress = 0L
 
     private var loopState: LoopModeState = LoopModeState.RUNNING
+
+    private val isLandscape: Boolean
+        get() = resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
 
     /**
      * Defines the current phase of measurement
@@ -118,8 +122,11 @@ class MeasurementCurveLayout @JvmOverloads constructor(context: Context, attrs: 
         dashUpperLayout = LayoutDashBinding.inflate(inflater)
         curveBinding.curveView.setSquareSizeCallback { squareSize, viewSize ->
             curveBinding.layoutStrength.strength.squareSize = squareSize
+            // In landscape the curve is height-constrained, so don't waste vertical space with a
+            // large top margin (it would shrink the whole curve). Portrait keeps the offset.
+            val isLandscape = resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
             (curveBinding.curveView.layoutParams as LayoutParams).apply {
-                topMargin = (squareSize * 10).toInt()
+                topMargin = if (isLandscape) 0 else (squareSize * 10).toInt()
                 requestLayout()
             }
 
@@ -131,8 +138,14 @@ class MeasurementCurveLayout @JvmOverloads constructor(context: Context, attrs: 
 
             with(speedLayout.root) {
                 (layoutParams as LayoutParams).apply {
-                    leftMargin = (bottomCenterX * 0.875f).toInt()
-                    topMargin = bottomCenterY + this@with.measuredHeight / TOP_MARGIN_DIVIDER
+                    if (isLandscape) {
+                        // Center the speed value on the bottom loop center.
+                        leftMargin = bottomCenterX - speedLayout.value.measuredWidth / 2
+                        topMargin = bottomCenterY - speedLayout.value.measuredHeight / 2
+                    } else {
+                        leftMargin = (bottomCenterX * 0.875f).toInt()
+                        topMargin = bottomCenterY + this@with.measuredHeight / TOP_MARGIN_DIVIDER
+                    }
                 }
                 requestLayout()
             }
@@ -150,8 +163,13 @@ class MeasurementCurveLayout @JvmOverloads constructor(context: Context, attrs: 
 
             with(dashBottomLayout.root) {
                 (layoutParams as LayoutParams).apply {
-                    leftMargin = bottomCenterX
-                    topMargin = bottomCenterY + this@with.measuredHeight / TOP_MARGIN_DIVIDER
+                    if (isLandscape) {
+                        leftMargin = bottomCenterX - this@with.measuredWidth / 2
+                        topMargin = bottomCenterY - this@with.measuredHeight / 2
+                    } else {
+                        leftMargin = bottomCenterX
+                        topMargin = bottomCenterY + this@with.measuredHeight / TOP_MARGIN_DIVIDER
+                    }
                 }
                 requestLayout()
             }
@@ -165,8 +183,13 @@ class MeasurementCurveLayout @JvmOverloads constructor(context: Context, attrs: 
             dashUpperLayout.root.post {
                 with(dashUpperLayout.root) {
                     (layoutParams as LayoutParams).apply {
-                        leftMargin = topCenterX - dashUpperLayout.root.measuredWidth / (2 * LEFT_MARGIN_DIVIDER)
-                        topMargin = topCenterY + this@with.measuredHeight / TOP_MARGIN_DIVIDER
+                        if (isLandscape) {
+                            leftMargin = topCenterX - dashUpperLayout.root.measuredWidth / 2
+                            topMargin = topCenterY - this@with.measuredHeight / 2
+                        } else {
+                            leftMargin = topCenterX - dashUpperLayout.root.measuredWidth / (2 * LEFT_MARGIN_DIVIDER)
+                            topMargin = topCenterY + this@with.measuredHeight / TOP_MARGIN_DIVIDER
+                        }
                     }
                 }
                 requestLayout()
@@ -200,8 +223,14 @@ class MeasurementCurveLayout @JvmOverloads constructor(context: Context, attrs: 
                 percentageLayout.root.post {
                     with(percentageLayout.root) {
                         (layoutParams as LayoutParams).apply {
-                            leftMargin = topCenterX - percentageLayout.percentage.measuredWidth / (2 * LEFT_MARGIN_DIVIDER)
-                            topMargin = topCenterY + this@with.measuredHeight / TOP_MARGIN_DIVIDER
+                            if (isLandscape) {
+                                // Center the percentage number on the top loop center.
+                                leftMargin = topCenterX - percentageLayout.percentage.measuredWidth / 2
+                                topMargin = topCenterY - this@with.measuredHeight / 2
+                            } else {
+                                leftMargin = topCenterX - percentageLayout.percentage.measuredWidth / (2 * LEFT_MARGIN_DIVIDER)
+                                topMargin = topCenterY + this@with.measuredHeight / TOP_MARGIN_DIVIDER
+                            }
                         }
                     }
                     requestLayout()
@@ -259,6 +288,17 @@ class MeasurementCurveLayout @JvmOverloads constructor(context: Context, attrs: 
             )
             speedLayout.value.text = progressInMbps.format()
             speedLayout.units.text = context.getString(R.string.speed_progress_units)
+            // In landscape, re-center the speed value on the bottom loop center as its width
+            // changes with the value (portrait keeps its fixed position from the size callback).
+            if (isLandscape) {
+                speedLayout.root.post {
+                    (speedLayout.root.layoutParams as LayoutParams).apply {
+                        leftMargin = bottomCenterX - speedLayout.value.measuredWidth / 2
+                        topMargin = bottomCenterY - speedLayout.value.measuredHeight / 2
+                    }
+                    speedLayout.root.requestLayout()
+                }
+            }
             if (progress != 0L) {
                 speedLayout.root.visibility = View.VISIBLE
                 updateLoopRelatedData()
@@ -285,16 +325,14 @@ class MeasurementCurveLayout @JvmOverloads constructor(context: Context, attrs: 
         lastSignalStrength = signalStrengthInfo
         if (signalStrengthInfo?.value != null && signalStrengthInfo.value != 0 && signalStrengthInfo.min != signalStrengthInfo.max) {
             with(curveBinding.layoutStrength) {
-                root.visibility = View.VISIBLE
+                strength.visibility = View.VISIBLE
                 strength.setSignalData(signalStrengthInfo.value ?: 0, signalStrengthInfo.min, signalStrengthInfo.max)
-                strengthValue.text = context.getString(R.string.strength_signal_value, signalStrengthInfo.value ?: 0)
             }
         } else {
             with(curveBinding.layoutStrength) {
-                root.visibility = View.INVISIBLE
+                strength.visibility = View.INVISIBLE
                 strength.setSignalData(-140, -140, -60)
-                strengthValue.text = context.getString(R.string.strength_signal_value, -60)
-                root.requestLayout()
+                strength.requestLayout()
             }
         }
     }

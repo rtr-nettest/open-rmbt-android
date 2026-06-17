@@ -58,6 +58,9 @@ class MeasurementViewState(private val config: AppConfig) : ViewState {
     val isLoopModeActive = ObservableBoolean(config.loopModeEnabled)
     val expertModeEnabled = ObservableBoolean(config.expertModeEnabled)
 
+    /** Current GPS speed in km/h, or null when no valid speed is available (GPS not used). */
+    val speedKmh = ObservableField<Float?>()
+
     val metersLeft = ObservableField<String>().apply { set(loopNextTestDistanceMeters.get()) }
     val locationAvailable = ObservableBoolean().apply { set(true) }
 

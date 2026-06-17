@@ -70,7 +70,9 @@ class BottomCurvePart(context: Context) : CurvePart() {
     override fun getCenterY() = viewSize.toFloat() / 3
 
     override fun getTopOffset() = (viewHeight - viewSize) + viewSize.toFloat() / 3
-    override fun getLeftOffset() = viewWidth.toFloat() - viewSize
+    // Center the curve horizontally (use half the excess width) instead of pushing it fully to the
+    // right. In portrait the excess is ~0, so this has no effect there.
+    override fun getLeftOffset() = (viewWidth - viewSize) / 2f
 
     override fun drawSections(canvas: Canvas) {
         var angle = sectionStartAngle - ANGLE_STEP_MULTIPLIER * angleStep

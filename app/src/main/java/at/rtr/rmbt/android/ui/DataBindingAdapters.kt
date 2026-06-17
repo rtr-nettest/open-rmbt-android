@@ -827,17 +827,22 @@ fun AppCompatTextView.setFrequencyValue(detailedNetworkInfo: DetailedNetworkInfo
 }
 
 /**
- * Shows the frequency block only when expert mode is enabled and a band is actually available.
+ * Signal strength value on the measurement screen, e.g. "-93 dBm".
  */
-@BindingAdapter("frequencyBlockExpertEnabled", "frequencyBlockNetwork")
-fun View.setFrequencyBlockVisibility(expertEnabled: Boolean, detailedNetworkInfo: DetailedNetworkInfo?) {
-    val networkInfo = detailedNetworkInfo?.networkInfo
-    val bandAvailable = when (networkInfo) {
-        is WifiNetworkInfo -> true
-        is CellNetworkInfo -> networkInfo.band != null
-        else -> false
-    }
-    visibility = if (expertEnabled && bandAvailable) View.VISIBLE else View.GONE
+@BindingAdapter("signalValue", "signalDetailed", requireAll = false)
+fun AppCompatTextView.setSignalValue(signalStrengthInfo: SignalStrengthInfo?, detailedNetworkInfo: DetailedNetworkInfo?) {
+    // Show the combined 4G/5G signal (e.g. "-103/-99 dBm") for NR NSA, like the start screen.
+    val signal = signalStrengthInfo?.value
+    val signalSecondary = detailedNetworkInfo?.secondary5GActiveSignalStrengthInfos?.firstOrNull()?.value
+    text = extractSignalValues(context, signal, signalSecondary, detailedNetworkInfo?.networkInfo)
+}
+
+/**
+ * GPS speed value on the measurement screen, e.g. "42 km/h".
+ */
+@BindingAdapter("speedValueKmh")
+fun AppCompatTextView.setSpeedValue(speedKmh: Float?) {
+    text = if (speedKmh != null) context.getString(R.string.home_speed_value, speedKmh) else ""
 }
 
 @BindingAdapter("measurementPhase")

@@ -79,35 +79,37 @@ class StrengthSignalBar @JvmOverloads constructor(context: Context, attrs: Attri
 
     var squareSize: Float = 0f
         set(value) {
+            if (field == value) return
             field = value
-            requestLayout()
+            // The square size is delivered from the curve during its layout pass, so a direct
+            // requestLayout() here would be dropped. Post it so the gauge is actually re-measured
+            // and re-laid-out at its new (final) size instead of staying collapsed.
+            post {
+                requestLayout()
+                invalidate()
+            }
         }
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
-        viewWidth = MeasureSpec.getSize(min(widthMeasureSpec, heightMeasureSpec))
         viewHeight = (SQUARE_MULTIPLIER * squareSize * (verticalCount + 1) + topMargin).toInt()
+        // Square aspect, sized from the square size. Must not depend on the parent's measure specs,
+        // otherwise the gauge collapses when laid out on its own (without sibling text views).
+        viewWidth = viewHeight
         textPaint.textSize = resources.getDimension(R.dimen.signal_bar_scale_value)
-        super.onMeasure(
-            MeasureSpec.makeMeasureSpec(viewWidth, MeasureSpec.AT_MOST),
-            MeasureSpec.makeMeasureSpec(viewHeight, MeasureSpec.AT_MOST)
-        )
+        setMeasuredDimension(viewWidth.coerceAtLeast(1), viewHeight.coerceAtLeast(1))
     }
 
     override fun onLayout(changed: Boolean, left: Int, top: Int, right: Int, bottom: Int) {
         super.onLayout(changed, left, top, right, bottom)
 
         if (changed) {
-            recalculateViewHeight()
             createBitmap()
         }
     }
 
-    private fun recalculateViewHeight() {
-        viewHeight = (SQUARE_MULTIPLIER * squareSize * (verticalCount + 1) + topMargin).toInt()
-        measure(
-            MeasureSpec.makeMeasureSpec(viewWidth, MeasureSpec.AT_MOST),
-            MeasureSpec.makeMeasureSpec(viewHeight, MeasureSpec.AT_MOST)
-        )
+    override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
+        super.onSizeChanged(w, h, oldw, oldh)
+        createBitmap()
     }
 
     override fun onDraw(canvas: Canvas) {
