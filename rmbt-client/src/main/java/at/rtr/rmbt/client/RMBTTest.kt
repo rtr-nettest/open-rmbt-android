@@ -55,18 +55,56 @@ class RMBTTest(
     private val curTransfer = AtomicLong()
     private val curTime = AtomicLong()
 
-    // Large reusable receive buffer (multiple of chunksize) so each socket read pulls many chunks
-    // per syscall instead of one. Allocated lazily once chunksize is known; reused across phases.
+    // Adaptive socket I/O batch size (bytes). Sized from the pre-test throughput estimate so each
+    // read/write carries ~20 ms of data at any speed (see computeIoBufferSize): a multiple of
+    // chunksize clamped to [chunksize, MAX_IO_BUFFER_BYTES]. 0 = not yet estimated → use chunksize.
+    // This avoids both the per-chunk syscall storm at multi-Gbit/s and the multi-second blocking a
+    // fixed large buffer would cause at ~100 kbit/s.
+    private var ioBufferSize = 0
+
+    // Reusable receive buffer, lazily (re)allocated to ioBufferSize.
     private var dlBuf: ByteArray? = null
 
+    private fun ioBatchSize(): Int = if (ioBufferSize > 0) ioBufferSize else chunksize
+
     private fun downloadBuffer(): ByteArray {
-        val target = maxOf(chunksize, (BUFFER_TARGET_BYTES / chunksize) * chunksize)
+        val target = ioBatchSize()
         var b = dlBuf
         if (b == null || b.size != target) {
             b = ByteArray(target)
             dlBuf = b
         }
         return b
+    }
+
+    /**
+     * Mirrors the Rust client's pre-test heuristic: target ~50 batches/sec (one per ~20 ms), i.e.
+     * batchBytes = bytesPerSecond / 50, rounded to a whole number of chunks and clamped to
+     * [chunksize, MAX_IO_BUFFER_BYTES]. `ns` is the server-reported TIME of the largest pre-test
+     * batch; `rttNs` (the first tiny batch's TIME) is subtracted as a round-trip estimate.
+     */
+    private fun computeIoBufferSize(bytes: Long, ns: Long, rttNs: Long) {
+        val transferNs = ns - rttNs
+        val bps = when {
+            bytes <= 0L -> 0.0
+            transferNs > 0L -> bytes.toDouble() / (transferNs.toDouble() / 1e9)
+            ns > 0L -> bytes.toDouble() / (ns.toDouble() / 1e9)
+            else -> 0.0
+        }
+        if (bps <= 0.0) {
+            ioBufferSize = chunksize
+            return
+        }
+        val ideal = (bps / 50.0).toLong()
+        val rounded = (ideal + chunksize / 2) / chunksize * chunksize
+        ioBufferSize = rounded.coerceIn(chunksize.toLong(), MAX_IO_BUFFER_BYTES.toLong()).toInt()
+        log(String.format(Locale.US, "thread %d: io batch = %d KiB (%.1f Mbit/s)", threadId, ioBufferSize / 1024, bps * 8.0 / 1e6))
+    }
+
+    private fun parseTimeNs(line: String?): Long {
+        if (line == null) return -1
+        val m = TIME_PATTERN.matcher(line)
+        return if (m.find()) m.group(1)!!.toLongOrNull() ?: -1 else -1
     }
 
     private val maxCoarseResults: Int = storeResults
@@ -325,12 +363,20 @@ class RMBTTest(
             log(String.format(Locale.US, "thread %d: connected, waiting for rest...", threadId))
             barrier.await()
 
-            // ***** short download *****
+            // ***** short download (pre-test): also estimate throughput to size the I/O batch *****
             run {
                 val targetTimeEnd = System.nanoTime() + params.pretestDuration * nsecsL
                 var chunks = 1
+                var rttNs = 0L
+                var lastBytes = 0L
+                var lastNs = 0L
                 do {
-                    downloadChunks(chunks)
+                    val timeNs = downloadChunks(chunks)
+                    if (timeNs > 0) {
+                        if (rttNs == 0L) rttNs = timeNs // first (tiny) batch ≈ round-trip time
+                        lastNs = timeNs
+                        lastBytes = chunks.toLong() * chunksize
+                    }
                     chunks *= 2
                 } while (System.nanoTime() < targetTimeEnd)
 
@@ -338,6 +384,9 @@ class RMBTTest(
                     // connection is quite slow, we'll only use 1 thread
                     fallbackToOneThread.set(true)
                 }
+
+                // size the adaptive read/write batch from the largest pre-test batch (bps / 50)
+                computeIoBufferSize(lastBytes, lastNs, rttNs)
             }
 
             val fallbackToOneThreadLocal: Boolean
@@ -515,7 +564,7 @@ class RMBTTest(
         return testResult
     }
 
-    private fun downloadChunks(chunks: Int) {
+    private fun downloadChunks(chunks: Int): Long {
         if (Thread.interrupted()) {
             throw InterruptedException()
         }
@@ -563,7 +612,7 @@ class RMBTTest(
         outStream.write(send.toByteArray(charset("US-ASCII")))
         outStream.flush()
 
-        rdr.readLine() // read TIME line
+        return parseTimeNs(rdr.readLine()) // read + parse server TIME line
     }
 
     private fun download(seconds: Int, additionalWait: Int, result: SingleResult): Boolean {
@@ -779,7 +828,7 @@ class RMBTTest(
         // Batch many continue-chunks per write() to cut the upload syscall rate at high speed.
         // Every chunk in the batch keeps its last byte 0x00 (continue); the terminating 0xff
         // chunk is still sent on its own so the chunk-boundary semantics are unchanged.
-        val batchChunks = maxOf(1, BUFFER_TARGET_BYTES / chunksize)
+        val batchChunks = maxOf(1, ioBatchSize() / chunksize)
         val bufTxBatch = ByteArray(chunksize * batchChunks)
         for (c in 0 until batchChunks) {
             System.arraycopy(bufTx, 0, bufTxBatch, c * chunksize, chunksize)
@@ -908,11 +957,13 @@ class RMBTTest(
         private const val UPLOAD_MAX_DISCARD_TIME = 1 * nsecsL
         private const val UPLOAD_MAX_WAIT_SECS = 3L
 
-        // I/O batch target. The wire protocol works in `chunksize` units, but reading/writing one
-        // chunk per syscall makes the syscall rate scale with throughput (≈ throughput / chunksize),
-        // which dominates CPU at multi-Gbit/s. We read into / write out of a buffer that holds many
-        // chunks instead, cutting syscalls by ~(BUFFER_TARGET_BYTES / chunksize) with identical bytes
-        // on the wire and identical chunk-boundary (continue/terminate) semantics.
-        private const val BUFFER_TARGET_BYTES = 256 * 1024
+        // Upper bound for the adaptive I/O batch (see computeIoBufferSize). The wire protocol works
+        // in `chunksize` units, but reading/writing one chunk per syscall makes the syscall rate
+        // scale with throughput (≈ throughput / chunksize), which dominates CPU at multi-Gbit/s.
+        // The batch size is chosen from the pre-test (≈ 20 ms of data) and capped here so it never
+        // exceeds 256 KiB; the bytes on the wire and the chunk-boundary semantics are unchanged.
+        private const val MAX_IO_BUFFER_BYTES = 256 * 1024
+
+        private val TIME_PATTERN: Pattern = Pattern.compile("TIME (\\d+)")
     }
 }
