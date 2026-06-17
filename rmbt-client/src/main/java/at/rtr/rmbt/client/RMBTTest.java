@@ -54,6 +54,13 @@ public class RMBTTest extends AbstractRMBTTest implements Callable<ThreadTestRes
     private static final long UPLOAD_MAX_DISCARD_TIME = 1 * nsecsL;
     private static final long UPLOAD_MAX_WAIT_SECS = 3;
 
+    // Upper bound for the adaptive I/O batch (see computeIoBufferSize). Reading/writing one chunk
+    // per syscall makes the syscall rate scale with throughput (≈ throughput / chunksize), which
+    // dominates CPU at multi-Gbit/s. The batch is sized from the pre-test (~20 ms of data) and
+    // capped here at 256 KiB; bytes on the wire and chunk-boundary semantics stay unchanged.
+    private static final int MAX_IO_BUFFER_BYTES = 256 * 1024;
+    private static final Pattern TIME_PATTERN = Pattern.compile("TIME (\\d+)");
+
     private final CyclicBarrier barrier;
     private final AtomicBoolean fallbackToOneThread;
 
@@ -62,6 +69,11 @@ public class RMBTTest extends AbstractRMBTTest implements Callable<ThreadTestRes
 
     private final AtomicLong curTransfer = new AtomicLong();
     private final AtomicLong curTime = new AtomicLong();
+
+    // Adaptive socket I/O batch size (bytes), sized from the pre-test throughput estimate so each
+    // read/write carries ~20 ms of data at any speed. 0 = not yet estimated → use chunksize.
+    private int ioBufferSize = 0;
+    private byte[] dlBuf = null;
 
     private final long minDiffTime;
     private final int maxCoarseResults;
@@ -362,12 +374,21 @@ public class RMBTTest extends AbstractRMBTTest implements Callable<ThreadTestRes
             log(String.format(Locale.US, "thread %d: connected, waiting for rest...", threadId));
             barrier.await();
 
-            /***** short download *****/
+            /***** short download (pre-test): also estimate throughput to size the I/O batch *****/
             {
                 final long targetTimeEnd = System.nanoTime() + params.getPretestDuration() * nsecsL;
                 int chunks = 1;
+                long rttNs = 0;
+                long lastBytes = 0;
+                long lastNs = 0;
                 do {
-                    downloadChunks(chunks);
+                    final long timeNs = downloadChunks(chunks);
+                    if (timeNs > 0) {
+                        if (rttNs == 0)
+                            rttNs = timeNs; // first (tiny) batch ≈ round-trip time
+                        lastNs = timeNs;
+                        lastBytes = (long) chunks * chunksize;
+                    }
                     chunks *= 2;
                 }
                 while (System.nanoTime() < targetTimeEnd);
@@ -375,6 +396,9 @@ public class RMBTTest extends AbstractRMBTTest implements Callable<ThreadTestRes
                 if (chunks <= 4)
                     // connection is quite slow, we'll only use 1 thread
                     fallbackToOneThread.set(true);
+
+                // size the adaptive read/write batch from the largest pre-test batch (bps / 50)
+                computeIoBufferSize(lastBytes, lastNs, rttNs);
             }
             /*********************/
 
@@ -568,7 +592,64 @@ public class RMBTTest extends AbstractRMBTTest implements Callable<ThreadTestRes
         return testResult;
     }
 
-    private void downloadChunks(final int chunks) throws InterruptedException, IOException {
+    private int ioBatchSize() {
+        return ioBufferSize > 0 ? ioBufferSize : chunksize;
+    }
+
+    private byte[] downloadBuffer() {
+        final int target = ioBatchSize();
+        if (dlBuf == null || dlBuf.length != target)
+            dlBuf = new byte[target];
+        return dlBuf;
+    }
+
+    /**
+     * Mirrors the Rust CLI client's pre-test heuristic (clientRust/src/pretest.rs): target ~50
+     * batches/sec (one per ~20 ms), i.e. batchBytes = bytesPerSecond / 50, rounded to a whole
+     * number of chunks and clamped to [chunksize, MAX_IO_BUFFER_BYTES]. {@code ns} is the
+     * server-reported TIME of the largest pre-test batch; {@code rttNs} (first tiny batch's TIME)
+     * is subtracted as a round-trip estimate.
+     */
+    private void computeIoBufferSize(final long bytes, final long ns, final long rttNs) {
+        final long transferNs = ns - rttNs;
+        final double bps;
+        if (bytes <= 0L)
+            bps = 0.0;
+        else if (transferNs > 0L)
+            bps = bytes / (transferNs / 1e9);
+        else if (ns > 0L)
+            bps = bytes / (ns / 1e9);
+        else
+            bps = 0.0;
+        if (bps <= 0.0) {
+            ioBufferSize = chunksize;
+            return;
+        }
+        final long ideal = (long) (bps / 50.0);
+        long clamped = (ideal + chunksize / 2) / chunksize * chunksize;
+        if (clamped < chunksize)
+            clamped = chunksize;
+        if (clamped > MAX_IO_BUFFER_BYTES)
+            clamped = MAX_IO_BUFFER_BYTES;
+        ioBufferSize = (int) clamped;
+        log(String.format(Locale.US, "thread %d: io batch = %d KiB (%.1f Mbit/s)", threadId, ioBufferSize / 1024, bps * 8.0 / 1e6));
+    }
+
+    private long parseTimeNs(final String line) {
+        if (line == null)
+            return -1;
+        final Matcher m = TIME_PATTERN.matcher(line);
+        if (m.find()) {
+            try {
+                return Long.parseLong(m.group(1));
+            } catch (final NumberFormatException e) {
+                return -1;
+            }
+        }
+        return -1;
+    }
+
+    private long downloadChunks(final int chunks) throws InterruptedException, IOException {
         if (Thread.interrupted())
             throw new InterruptedException();
 
@@ -591,18 +672,23 @@ public class RMBTTest extends AbstractRMBTTest implements Callable<ThreadTestRes
         out.flush();
 
         // long expectBytes = chunksize * chunks;
+        final byte[] buffer = downloadBuffer();
         long totalRead = 0;
         long read;
         byte lastByte = (byte) 0;
         do {
             if (Thread.interrupted())
                 throw new InterruptedException();
-            read = in.read(buf);
+            read = in.read(buffer);
             if (read > 0) {
-                final int posLast = chunksize - 1 - (int) (totalRead % chunksize);
-                if (read > posLast)
-                    lastByte = buf[posLast];
-                totalRead += read;
+                // a read can now span several chunks; inspect the last chunk boundary it completed
+                // (the per-chunk last byte signals continue=0x00 / terminate=0xff)
+                final long newTotal = totalRead + read;
+                if (newTotal / chunksize > totalRead / chunksize) {
+                    final long lastBoundary = newTotal / chunksize * chunksize - 1;
+                    lastByte = buffer[(int) (lastBoundary - totalRead)];
+                }
+                totalRead = newTotal;
             }
         }
         while (read > 0 && lastByte != (byte) 0xff);
@@ -611,7 +697,7 @@ public class RMBTTest extends AbstractRMBTTest implements Callable<ThreadTestRes
         out.write(send.getBytes("US-ASCII"));
         out.flush();
 
-        line = reader.readLine(); // read TIME line
+        return parseTimeNs(reader.readLine()); // read + parse server TIME line
     }
 
     /**
@@ -652,6 +738,7 @@ public class RMBTTest extends AbstractRMBTTest implements Callable<ThreadTestRes
         out.write(send.getBytes("US-ASCII"));
         out.flush();
 
+        final byte[] buffer = downloadBuffer();
         long totalRead = 0;
         long read;
         byte lastByte = (byte) 0;
@@ -659,12 +746,15 @@ public class RMBTTest extends AbstractRMBTTest implements Callable<ThreadTestRes
         do {
             if (Thread.interrupted())
                 throw new InterruptedException();
-            read = in.read(buf);
+            read = in.read(buffer);
             if (read > 0) {
-                final int posLast = chunksize - 1 - (int) (totalRead % chunksize);
-                if (read > posLast)
-                    lastByte = buf[posLast];
-                totalRead += read;
+                // a read can now span several chunks; inspect the last chunk boundary it completed
+                final long newTotal = totalRead + read;
+                if (newTotal / chunksize > totalRead / chunksize) {
+                    final long lastBoundary = newTotal / chunksize * chunksize - 1;
+                    lastByte = buffer[(int) (lastBoundary - totalRead)];
+                }
+                totalRead = newTotal;
 
                 final long nsec = System.nanoTime() - timeStart;
 
@@ -840,6 +930,12 @@ public class RMBTTest extends AbstractRMBTTest implements Callable<ThreadTestRes
         buf[chunksize - 1] = (byte) 0x00; // set last byte to continue value
 
         final byte[] bufTx = buf.clone();
+        // batch many continue-chunks per write() to cut the upload syscall rate at high speed;
+        // every chunk keeps its last byte 0x00 (continue), the terminating 0xff chunk is sent singly
+        final int batchChunks = Math.max(1, ioBatchSize() / chunksize);
+        final byte[] bufTxBatch = new byte[chunksize * batchChunks];
+        for (int c = 0; c < batchChunks; c++)
+            System.arraycopy(bufTx, 0, bufTxBatch, c * chunksize, chunksize);
         final AtomicBoolean terminateTx = new AtomicBoolean(false);
         final Future<Void> futureTx = RMBTClient.getCommonThreadPool().submit(new Callable<Void>() {
             public Void call() throws Exception {
@@ -854,7 +950,7 @@ public class RMBTTest extends AbstractRMBTTest implements Callable<ThreadTestRes
                         out.flush();
                         return null;
                     } else
-                        out.write(bufTx, 0, chunksize);
+                        out.write(bufTxBatch, 0, bufTxBatch.length);
                 }
             }
         });
