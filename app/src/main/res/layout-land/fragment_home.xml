@@ -470,7 +470,7 @@
                 android:gravity="center"
                 android:accessibilityTraversalAfter="@id/btnLocation"
                 android:contentDescription="@{state.isSignalMeasurementCriteriaMet ? @string/home_signal_measurement_toggle_on : @string/home_signal_measurement_toggle_off}"
-                android:src="@{state.isSignalMeasurementCriteriaMet ? @drawable/ic_upload_enabled : (state.isConnected ? @drawable/ic_upload_disabled : @drawable/ic_upload_not_available)}"
+                android:src="@{state.isSignalMeasurementCriteriaMet ? @drawable/ic_upload_enabled : @drawable/ic_upload_disabled}"
                 app:layout_constraintEnd_toStartOf="@+id/right_guideline"
                 app:layout_constraintStart_toEndOf="@+id/btnLocation"
                 app:layout_constraintTop_toBottomOf="@+id/vBottomDivider"
